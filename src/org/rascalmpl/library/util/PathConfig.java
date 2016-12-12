@@ -30,15 +30,18 @@ public class PathConfig {
 
 	private RascalSearchPath rascalSearchPath;
 	
-	private static ISourceLocation defaultStdLoc;
-	private static List<ISourceLocation> defaultcourses;
-	private static ISourceLocation defaultboot;
+	private static ISourceLocation defaultStd;
+	private static List<ISourceLocation> defaultCourses;
+	private static ISourceLocation defaultBin;
+	private static ISourceLocation defaultBoot;
 	
 	static {
 		try {
-			defaultStdLoc =  vf.sourceLocation("std", "", "");
-			defaultcourses = Arrays.asList(vf.sourceLocation("courses", "", ""));
-			defaultboot = vf.sourceLocation("boot", "", "");
+		    // Defaults should be in sync with util::Reflective
+			defaultStd =  vf.sourceLocation("std", "", "");
+			defaultBin = vf.sourceLocation("home", "", "bin");
+			defaultBoot = vf.sourceLocation("boot", "", "");
+			defaultCourses = Arrays.asList(vf.sourceLocation("courses", "", ""));
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -46,24 +49,24 @@ public class PathConfig {
 	}
 	
 	public PathConfig() throws URISyntaxException{
-		srcs = Arrays.asList(defaultStdLoc);
-		courses = defaultcourses;
-		bin = vf.sourceLocation("home", "", "bin");
-		libs = Arrays.asList(bin);
-		boot = defaultboot;
+		srcs = Arrays.asList(defaultStd);
+		courses = defaultCourses;
+		bin = defaultBin;
+		boot = defaultBoot;
+		libs = Arrays.asList(bin, boot);
 		makeRascalSearchPath();
 	}
 	
 	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin) {
-		this(srcs, libs, bin, defaultboot, defaultcourses);
+		this(srcs, libs, bin, defaultBoot, defaultCourses);
 	}
 	
 	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, List<ISourceLocation> courses) {
-		this(srcs, libs, bin, defaultboot, courses);
+		this(srcs, libs, bin, defaultBoot, courses);
 	}
 		
 	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, ISourceLocation boot) {
-		this(srcs, libs, bin, boot, defaultcourses);
+		this(srcs, libs, bin, boot, defaultCourses);
 	}
 	
 	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, ISourceLocation boot, List<ISourceLocation> courses){
@@ -80,7 +83,7 @@ public class PathConfig {
         this.libs = convertLocs(libs);
         this.bin = bin;
         this.boot = boot;
-        this.courses = defaultcourses;
+        this.courses = defaultCourses;
         makeRascalSearchPath();
     }
 	
@@ -88,7 +91,7 @@ public class PathConfig {
         this.srcs = convertLocs(srcs);
         this.libs = convertLocs(libs);
         this.bin = bin;
-        this.boot = defaultboot;
+        this.boot = defaultBoot;
         this.courses = convertLocs(courses);
         makeRascalSearchPath();
     }
@@ -219,6 +222,25 @@ public class PathConfig {
 		    }
 		}
 		throw new IOException("Module " + qualifiedModuleName + " not found");
+	}
+	
+	String getModuleName(ISourceLocation moduleLoc) throws IOException{
+	    String modulePath = moduleLoc.getPath();
+	    if(!modulePath.endsWith(".rsc")){
+	        throw new IOException("Not a Rascal source file: " + moduleLoc);
+	    }
+	    for(ISourceLocation dir : srcs){
+	        if(modulePath.startsWith(dir.getPath()) && moduleLoc.getScheme() == dir.getScheme()){
+	            String moduleName = modulePath.replaceFirst(dir.getPath(), "").replace(".rsc", "");
+	            if(moduleName.startsWith("/")){
+	                moduleName = moduleName.substring(1, moduleName.length());
+	            }
+	            return moduleName.replace("/", "::");
+	        }
+	    }
+	    
+	    throw new IOException("No module name found for " + moduleLoc);
+	        
 	}
 	
 	public List<String> listModuleEntries(String qualifier) {
