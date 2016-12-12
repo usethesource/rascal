@@ -22,6 +22,7 @@ import java.util.Map;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 import org.rascalmpl.value.IValue;
 
 /**
@@ -64,6 +65,10 @@ public class RascalFunctionInvocationHandler implements InvocationHandler {
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     if(method.getName().equals("shutdown")){
       core.shutdown();
+    }
+    if(method.getName().equals("setFrameObserver")){
+        core.setFrameObserver((IFrameObserver) args[0]); 
+        return null;
     }
     Class<?> returnType = method.getReturnType();
     if(returnType.isAnnotationPresent(RascalKeywordParameters.class)){
