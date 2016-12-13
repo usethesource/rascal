@@ -10,7 +10,9 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.ApiGen;
-import org.rascalmpl.library.lang.rascal.boot.Kernel;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
+import org.rascalmpl.library.lang.rascal.boot.IKernel;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IConstructor;
@@ -118,31 +120,24 @@ public class RascalC {
                     .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
                     .build();
 
-            Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
+            //Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
+            PathConfig pcfg = cmdOpts.getPathConfig();
+            IKernel kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class).build();
 
             boolean ok = true;
             
             if (cmdOpts.getCommandBoolOption("noLinking")) {
-                IList programs = kernel.compile(
-                        cmdOpts.getModules(),
-                        cmdOpts.getCommandLocsOption("src"),
-                        cmdOpts.getCommandLocsOption("lib"),
-                        cmdOpts.getCommandLocOption("boot"),
-                        cmdOpts.getCommandLocOption("bin"), 
-                        cmdOpts.getCommandLocOption("reloc"), 
-                        cmdOpts.getModuleOptionsAsMap()); 
+                IList programs = kernel.compile(cmdOpts.getModules(), pcfg.asConstructor(kernel),
+                                                kernel.kw_compile().reloc(cmdOpts.getCommandLocOption("reloc"))
+                                                );
                 ok = handleMessages(programs);
                 System.exit(ok ? 0 : 1);
             } 
             else {
-                IList programs = kernel.compileAndLink(
-                        cmdOpts.getModules(),
-                        cmdOpts.getCommandLocsOption("src"),
-                        cmdOpts.getCommandLocsOption("lib"),
-                        cmdOpts.getCommandLocOption("boot"),
-                        cmdOpts.getCommandLocOption("bin"), 
-                        cmdOpts.getCommandLocOption("reloc"),
-                        cmdOpts.getModuleOptionsAsMap());
+                IList programs = kernel.compileAndLink(cmdOpts.getModules(), pcfg.asConstructor(kernel),
+                                                       kernel.kw_compileAndLink()
+                                                       .reloc(cmdOpts.getCommandLocOption("reloc"))
+                                                       );
                 ok = handleMessages(programs);
                 if(!ok){
                   System.exit(1);

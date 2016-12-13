@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.load.RascalSearchPath;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISourceLocation;
@@ -17,6 +18,7 @@ public class RascalExecutionContextBuilder {
     private boolean build = false;
 
     private final IValueFactory vf;
+    private IDEServices ideServices;
 	private final PrintWriter stderr;
 	private final PrintWriter stdout;
 	private String moduleName;
@@ -72,7 +74,7 @@ public class RascalExecutionContextBuilder {
 	
 	public RascalExecutionContext build() {
 	    this.build = true;
-	    RascalExecutionContext result = new RascalExecutionContext(vf, bootDir, stdout, stderr, moduleTags, symbolDefinitions, typeStore, debug, debugRVM, testsuite, profile, trace, coverage, jvm, verbose, frameObserver, rascalSearchPath);
+	    RascalExecutionContext result = new RascalExecutionContext(vf, bootDir, stdout, stderr, moduleTags, symbolDefinitions, typeStore, debug, debugRVM, testsuite, profile, trace, coverage, jvm, verbose, frameObserver, rascalSearchPath, ideServices);
 	    if (this.moduleName != null) {
 	        result.setFullModuleName(moduleName);
 	    }
@@ -127,7 +129,12 @@ public class RascalExecutionContextBuilder {
         this.verbose = verbose;
         return this;
     }
-
+	
+	public RascalExecutionContextBuilder setIDEServices(IDEServices ideServices){
+	  assert !build;
+	  this.ideServices = ideServices;
+	  return this;
+	}
 	
 	/**
 	 * short hand for .setDebugging(true)
@@ -136,7 +143,6 @@ public class RascalExecutionContextBuilder {
 	    assert !build;
 	    return setDebug(true);
     }
-	
 	
 	/**
 	 *  short hand for .setProfile(true)

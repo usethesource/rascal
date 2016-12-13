@@ -170,6 +170,11 @@ public abstract class RVMCore {
 	  this.frameObserver = (observer == null) ? NullFrameObserver.getInstance() : observer;
 	}
 	
+	public void shutdown(){
+	  frameObserver.report();
+	  System.exit(1);
+	}
+	
 	public Map<IValue, IValue> getModuleVariables() { return moduleVariables; }
 	
 	public void updateModuleVariable(IValue name, IValue newVal){
@@ -218,15 +223,16 @@ public abstract class RVMCore {
 	public PrintWriter getStdErr() { return rex.getStdErr(); }
 	
 	public PrintWriter getStdOut() { return rex.getStdOut(); }
-	
-//	URIResolverRegistry getResolverRegistry() { return URIResolverRegistry.getInstance(); }
-	
+		
 	IRascalMonitor getMonitor() {return rex.getMonitor();}
 	
-//	List<ClassLoader> getClassLoaders() { return rex.getClassLoaders(); }
-
 	public IFrameObserver getFrameObserver() {
 		return frameObserver;
+	}
+	
+	public void setFrameObserver(IFrameObserver observer){
+	    frameObserver = observer;
+	    rex.setFrameObserver(observer);
 	}
 	
 	protected String getFunctionName(int n) {
@@ -329,12 +335,14 @@ public abstract class RVMCore {
 	  throw new NoSuchRascalFunction(name);
 	}
 	
+	// deprecated
 	public OverloadedFunction getOverloadedFunction(String signature) throws NoSuchRascalFunction{
 		OverloadedFunction result = null;
 		
 		String name = types.getFunctionName(signature);
 		Type funType = types.getFunctionType(signature);
 		FunctionType ft = (FunctionType) funType;
+		int arity = ft.getArity();
 		
 		for(OverloadedFunction of : overloadedStore){
 			if(of.matchesNameAndSignature(name, funType)){
@@ -353,6 +361,16 @@ public abstract class RVMCore {
 			return result;
 		}
 		
+		ArrayList<Integer> filteredAlts = getFunctionByNameAndArity(name, arity);
+		if(filteredAlts.size() > 0){
+		  Type tp = tf.tupleType(tf.valueType()); // arbitrary!
+		  int falts[] = new int[filteredAlts.size()];
+		  for(int i = 0; i < falts.length; i++){
+		    falts[i] = filteredAlts.get(i);
+		  }
+		  return new OverloadedFunction(name, tp,  falts, new int[] { }, "");
+		}
+
 		for(int i = 0; i < constructorStore.size(); i++){
 			Type tp = constructorStore.get(i);
 			if(name.equals(tp.getName()) && ft.getFieldTypes().comparable(funType.getFieldTypes()) 
@@ -614,7 +632,7 @@ public abstract class RVMCore {
 			return "Matcher[" + ((Matcher) o).pattern() + "]";
 		}
 		if(o instanceof Thrown) {
-			return "THROWN[ " + asString(((Thrown) o).value) + " ]";
+			return "THROWN[ " + asString(((Thrown) o).getValue()) + " ]";
 		}
 		
 		if(o instanceof StringBuilder){
@@ -795,7 +813,7 @@ public abstract class RVMCore {
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == varScope) {
 				// TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues
-				fr.stack[pos] = ((Thrown) stack[--sp]).value;
+				fr.stack[pos] = ((Thrown) stack[--sp]).getValue();
 				return sp;
 			}
 		}

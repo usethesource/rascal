@@ -1,8 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help;
 
-//import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
-
-import java.awt.Desktop;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -27,6 +24,7 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.experiments.tutor3.Concept;
 import org.rascalmpl.library.experiments.tutor3.Onthology;
 import org.rascalmpl.library.util.PathConfig;
@@ -44,11 +42,13 @@ public class HelpManager {
 	private IndexSearcher indexSearcher;
 	private final int port = 8000;
     private HelpServer helpServer;
+    private final IDEServices ideServices;
 
-    public HelpManager(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr){
+    public HelpManager(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices){
       this.pcfg = pcfg;
       this.stdout = stdout;
       this.stderr = stderr;
+      this.ideServices = ideServices;
      
       ISourceLocation binDir = pcfg.getBoot();
       coursesDir = URIUtil.correctLocation(binDir.getScheme(), binDir.getAuthority(), binDir.getPath() + "/courses");
@@ -123,20 +123,6 @@ public class HelpManager {
 		return false;
 	}
 	
-	public void openInBrowser(URI uri)
-	{
-		Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-		if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
-			try {
-				desktop.browse(uri);
-			} catch (IOException e) {
-				System.err.println(e.getMessage());
-			}
-		} else {
-			System.err.println("Desktop not supported, cannout open browser");
-		}
-	}
-	
 	void appendURL(StringWriter w, String conceptName){
 		String[] parts = conceptName.split("/");
 		int n = parts.length;
@@ -179,7 +165,7 @@ public class HelpManager {
 	public void handleHelp(String[] words){
 		if(words[0].equals("help") && words.length > 1){
 			try {
-				openInBrowser(makeSearchURI(words));
+				ideServices.browse(makeSearchURI(words));
 			} catch (URISyntaxException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

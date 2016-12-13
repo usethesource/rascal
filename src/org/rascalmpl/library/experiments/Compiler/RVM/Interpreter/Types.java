@@ -35,7 +35,7 @@ public class Types {
 	
 	public Type loadProduction(IConstructor prod) {
 	    return tr.productionToConstructorType(prod);
-    }
+        }
 
 	private static Pattern identifier = Pattern.compile("\\w+");
 	private static Pattern openBracket = Pattern.compile("\\[");
@@ -161,6 +161,12 @@ public class Types {
 	    }  while(s.hasNext(comma));
 	    return flds.toArray();
 	}
+<<<<<<< HEAD
 
     
+=======
+	
+	// End deprecated
+
+>>>>>>> master
 }

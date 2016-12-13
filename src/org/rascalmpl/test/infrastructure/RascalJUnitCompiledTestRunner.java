@@ -32,19 +32,18 @@ import org.rascalmpl.library.experiments.Compiler.Commands.Rascal;
 import org.rascalmpl.library.experiments.Compiler.Commands.RascalC;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.TestExecutor;
-import org.rascalmpl.library.lang.rascal.boot.Kernel;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
+import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -60,7 +59,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
  */
 public class RascalJUnitCompiledTestRunner extends Runner {
     private static final String IGNORED = "test/org/rascalmpl/test_compiled/TESTS.ignored";
-    private static Kernel kernel;
+    private static IKernel kernel;
     private static IValueFactory vf;
 
     private static PathConfig pcfg;
@@ -82,16 +81,16 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	    e1.printStackTrace();
 	    System.exit(-1);
 	  } 
-	  RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot())
-	      .setTrace(false)
-	      .setProfile(false)
-	      .setVerbose(true)
-	      .build();
 
+	  System.err.println(pcfg);
 	  try {
-	    kernel = new Kernel(vf, rex, pcfg.getBoot());
-	  } catch (IOException | NoSuchRascalFunction | URISyntaxException e) {
-	    System.err.println("Unable to load Rascal Kernel");;
+	    kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class)
+	              .trace(false)
+	              .profile(false)
+	              .verbose(false)
+	              .build();
+	  } catch (IOException e) {
+	    System.err.println("Unable to load Rascal Kernel");
 	    e.printStackTrace();
 	    System.exit(-1);
 	  }
@@ -106,6 +105,9 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	  try (InputStream ignoredStream = new FileInputStream(Paths.get(".").toAbsolutePath().normalize().resolve(IGNORED).toString());
 	      Scanner ignoredScanner = new Scanner(ignoredStream, "UTF-8")){
 
+	    // TODO: It is probably better to replace this by a call to a JSON reader
+	    // See org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.Settings
+	    
 	    String text = ignoredScanner.useDelimiter("\\A").next();
 	    
 	    IGNORED_DIRECTORIES = text.split("\\n");
@@ -212,16 +214,16 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	      //  Do a sufficient but not complete check on the binary; changes to imports will go unnoticed!
 	      if(!resolver.exists(binary) || resolver.lastModified(source) > resolver.lastModified(binary)){
 	        System.err.println("Compiling: " + qualifiedName);
-	        HashMap<String, IValue> kwparams = new HashMap<>();
-	        kwparams.put("enableAsserts", vf.bool(true));
+//	        HashMap<String, IValue> kwparams = new HashMap<>();
+//	        kwparams.put("enableAsserts", vf.bool(true));
 	        IList programs = kernel.compileAndLink(
 	            vf.list(vf.string(qualifiedName)),
-	            pcfg.getSrcs(),
-	            pcfg.getLibs(),
-	            pcfg.getBoot(),
-	            pcfg.getBin(),
-	            vf.sourceLocation("noreloc", "", ""),
-	            kwparams);
+//	            pcfg.getSrcs(),
+//	            pcfg.getLibs(),
+//	            pcfg.getBoot(),
+//	            pcfg.getBin(),
+	            pcfg.asConstructor(kernel),
+	            kernel.kw_compileAndLink().enableAsserts(true).reloc(vf.sourceLocation("noreloc", "", "")));
 	        boolean ok = RascalC.handleMessages(programs);
 	        if(!ok){
 	          System.exit(1);

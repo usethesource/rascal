@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,6 +16,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.library.util.PathConfig;
@@ -57,6 +59,7 @@ public class BreakPointManager {
 
 	private final PathConfig pcfg;
 	private PrintWriter stdout;
+	private IDEServices ideServices;
 
 	private final String listingIndent = "\t";
 	private boolean autoList = true;
@@ -67,9 +70,10 @@ public class BreakPointManager {
 	Cache<String, IValue> parsedModuleCache;
 	IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
-	BreakPointManager(PathConfig pcfg, PrintWriter stdout){
+	BreakPointManager(PathConfig pcfg, PrintWriter stdout, IDEServices ideServices){
 		this.stdout = stdout;
 		this.pcfg = pcfg;
+		this.ideServices = ideServices;
 		breakpoints = new ArrayList<>();
 		uid = 1;
 //		highlighter = new RascalHighlighter()
@@ -87,6 +91,10 @@ public class BreakPointManager {
 		mode =  DEBUG_MODE.BREAK;
 		currentFrame = null;
 		returnFrame = null;
+	}
+	
+	void edit(Path file){
+	  ideServices.edit(file);
 	}
 	
 	private boolean isBlackListed(Frame frame){
@@ -210,12 +218,13 @@ public class BreakPointManager {
 				return false;
 			}
 			//return doAutoList(frame);
-			return false;
+			return true;
 			
 		case SKIP:
 			if(!isBlackListed(frame)){
 				mode = DEBUG_MODE.STEP;
 				//return doAutoList(frame);
+				return true;
 			}
 			return false;
 	
@@ -230,6 +239,7 @@ public class BreakPointManager {
 				if(bp.matchOnEnter(frame)){
 					mode = DEBUG_MODE.STEP;
 					//return doAutoList(frame);
+					return true;
 				}	
 			}
 		}

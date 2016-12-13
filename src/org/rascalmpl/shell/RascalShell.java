@@ -20,6 +20,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.Properties;
 import java.util.jar.Manifest;
 
 import org.rascalmpl.interpreter.utils.RascalManifest;
@@ -29,8 +30,14 @@ import org.rascalmpl.library.experiments.Compiler.Commands.RascalTests;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.shell.compiled.CompiledRascalShell;
 
+import jline.Terminal;
+import jline.TerminalFactory;
+
 
 public class RascalShell  {
+
+    public static final String ECLIPSE_TERMINAL_CONNECTION_REPL_KEY = "__ECLIPSE_CONNECTION";
+
 
     private static void printVersionNumber(){
         try {
@@ -110,7 +117,12 @@ public class RascalShell  {
                 }
             } 
             else {
-                runner = new REPLRunner(System.in, System.out);
+                Terminal term = TerminalFactory.get();
+                String sneakyRepl = System.getProperty(ECLIPSE_TERMINAL_CONNECTION_REPL_KEY);
+                if (sneakyRepl != null) {
+                    term = new EclipseTerminalConnection(term, Integer.parseInt(sneakyRepl));
+                }
+                runner = new REPLRunner(System.in, System.out, term);
             }
             runner.run(args);
 
