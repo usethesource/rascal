@@ -20,12 +20,9 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.ast.LocationLiteral.Default;
 import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
@@ -35,7 +32,6 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * This class defines and implements all dynamic (run-time) exceptions that

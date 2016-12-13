@@ -2,7 +2,6 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
@@ -16,20 +15,20 @@ public class Thrown extends RuntimeException {
 	private static Thrown instance = new Thrown();
 	
 	public IValue value;
-	ISourceLocation loc;
-	Throwable cause;
+	private ISourceLocation loc;
+	private Throwable cause;
 	
 	Frame currentFrame;
 	
 	private Thrown() {
 		super();
-		this.value = null;
+		this.setValue(null);
 		this.currentFrame = null;
 		this.cause = null;
 	}
 	
 	public static Thrown getInstance(IValue value, ISourceLocation loc, Frame currentFrame) {
-		instance.value = value;
+		instance.setValue(value);
 		instance.loc = loc;
 		instance.currentFrame = currentFrame;
 		return instance;
@@ -44,15 +43,27 @@ public class Thrown extends RuntimeException {
 	public static Thrown getInstance(IValue value, Frame currentFrame) {
 		return getInstance(value,  currentFrame != null ? currentFrame.src : null, currentFrame);
 	}
+	
+	 public IValue getValue() {
+	    return value;
+	  }
+
+	  public void setValue(IValue value) {
+	    this.value = value;
+	  }
+	
+	public Frame getFrame(){
+	  return currentFrame;
+	}
 
 	public String toString() {
-		return value.toString();
+		return getValue().toString();
 	}
 	
 	public String getAdvice(){
-		if(value.getType().isConstructor()){
+		if(getValue().getType().isConstructor()){
 			String prefix = "http://tutor.rascal-mpl.org/Errors/Dynamic/";
-			String cn = ((IConstructor) value).getName();
+			String cn = ((IConstructor) getValue()).getName();
 			return "Advice: |" + prefix + cn + "/" + cn + ".html|";
 		}
 		return "";
@@ -95,6 +106,8 @@ public class Thrown extends RuntimeException {
 	    }
 	  }
 	}
+
+ 
 	
 	
 	
