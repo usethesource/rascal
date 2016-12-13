@@ -163,7 +163,7 @@ public class RascalRuntimeException {
 
 		if (cause != null && cause != targetException) {
 			Thrown throwCause = cause instanceof Thrown ? (Thrown) cause : javaException(cause, loc, currentFrame);
-			return javaException(clazz, msg != null ? msg : "", throwCause.value, loc, currentFrame);
+			return javaException(clazz, msg != null ? msg : "", throwCause.getValue(), loc, currentFrame);
 		}
 		else {
 			return javaException(clazz, msg != null ? msg : "", loc, currentFrame);

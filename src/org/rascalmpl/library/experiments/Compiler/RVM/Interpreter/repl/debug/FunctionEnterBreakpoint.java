@@ -22,4 +22,9 @@ public class FunctionEnterBreakpoint extends BreakPoint {
 	public boolean matchOnEnter(Frame frame) {
 		return enabled &&  ignoreOrBreak(frame.function.getPrintableName().equals(functionName));
 	}
+	
+	@Override
+	public String toString(){
+	    return "FunctionEnterBreakpoint " + functionName;
+	}
 }

@@ -16,7 +16,6 @@ import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
-import org.rascalmpl.test.infrastructure.RascalJUnitCompiledTestRunner;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
@@ -357,8 +356,8 @@ public class Function implements Serializable {
           }
         } catch (Thrown e){
           String ename;
-          if(e.value instanceof IConstructor){
-            ename = ((IConstructor) e.value).getName();
+          if(e.getValue() instanceof IConstructor){
+            ename = ((IConstructor) e.getValue()).getName();
           } else {
             ename = e.toString();
           }

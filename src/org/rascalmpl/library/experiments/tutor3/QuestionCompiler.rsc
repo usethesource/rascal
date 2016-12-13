@@ -221,11 +221,21 @@ str removeComments(Intro? intro){
    return res;
 }
 
+@deprecated
 public str compileQuestions(str qmodule, list[loc] srcs, list[loc] libs, list[loc] courses, loc bin, loc boot) {
     println("compileQuestions: <qmodule>, <srcs>, <libs>, <courses>, <bin>, <boot>");
     pcfg = pathConfig(srcs=[|test-modules:///|]+srcs,libs=libs,bin=bin, boot=boot);
     bn = split("/", qmodule)[-1];
     qloc = courses[0] + ("/" + qmodule + "/" + bn + ".questions");
+    println("compileQuestions: qloc=<qloc>");
+    return compileQuestions(qloc, pcfg);
+}
+
+public str compileQuestions(str qmodule, PathConfig pcfg) {
+    println("compileQuestions: <qmodule>, <pcfg>");
+    pcfg = pathConfig(srcs=[|test-modules:///|]+pcfg.srcs,libs=pcfg.libs,bin=pcfg.bin, boot=pcfg.boot,courses=pcfg.courses);
+    bn = split("/", qmodule)[-1];
+    qloc = pcfg.courses[0] + ("/" + qmodule + "/" + bn + ".questions");
     println("compileQuestions: qloc=<qloc>");
     return compileQuestions(qloc, pcfg);
 }

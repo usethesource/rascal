@@ -8,10 +8,11 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
 
-import jline.TerminalFactory;
-
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.repl.RascalInterpreterREPL;
+
+import jline.Terminal;
+import jline.TerminalFactory;
 
 public class REPLRunner extends RascalInterpreterREPL  implements ShellRunner {
 
@@ -28,9 +29,10 @@ public class REPLRunner extends RascalInterpreterREPL  implements ShellRunner {
     return historyFile;
   }
 
-  public REPLRunner(InputStream stdin, OutputStream stdout) throws IOException, URISyntaxException {
-    super(stdin, stdout, true, true, getHistoryFile(), TerminalFactory.get());
+  public REPLRunner(InputStream stdin, OutputStream stdout, Terminal term)  throws IOException, URISyntaxException{
+    super(stdin, stdout, true, true, getHistoryFile(), term);
     setMeasureCommandTime(false);
+    
   }
 
   @Override

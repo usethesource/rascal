@@ -1216,6 +1216,9 @@ MuExp mkVar(str name, loc l) {
     //}
     // Generate a unique name for an overloaded function resolved for this specific use
     //println("config.usedIn: <config.usedIn>");
+    
+    //maybe: str ofuid = (config.usedIn[l]? ? convert2fuid(config.usedIn[l]) : "") + "/use:<name>#<l.begin.line>-<l.offset>";
+ 
     str ofuid = convert2fuid(config.usedIn[l]) + "/use:<name>#<l.begin.line>-<l.offset>";
  
     addOverloadedFunctionAndResolver(ofuid, <name, config.store[uid].rtype, addr.fuid, ofuids>);
