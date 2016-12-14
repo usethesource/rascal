@@ -297,9 +297,10 @@ public class FunctionType extends RascalType {
 	  Type returnType = getReturnType().lub(f.getReturnType());
 	  Type argumentTypes = getArgumentTypes().glb(f.getArgumentTypes());
 	  
-	  if (argumentTypes.isTuple()) {
-	    // TODO: figure out what lub means for keyword parameters!
-	    return RTF.functionType(returnType, argumentTypes, TF.voidType());
+	  if (argumentTypes.isTuple() && argumentTypes.getArity() == getArity()) {
+	    return RTF.functionType(returnType, 
+	        argumentTypes, 
+	        getKeywordParameterTypes() == f.getKeywordParameterTypes() ? getKeywordParameterTypes() : TF.voidType());
 	  }
 	  
 	  return TF.valueType();
