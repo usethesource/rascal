@@ -12,7 +12,6 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
-import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class Types {
@@ -161,12 +160,8 @@ public class Types {
 	    }  while(s.hasNext(comma));
 	    return flds.toArray();
 	}
-<<<<<<< HEAD
 
-    
-=======
 	
 	// End deprecated
 
->>>>>>> master
 }
