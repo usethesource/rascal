@@ -499,7 +499,12 @@ void extractScopes(Configuration c){
  		
     	for(i <- index(topdecls)) {
     		// Assign a position to module variables
-            uid2addr[topdecls[i]] = <fuid_module_init, i + 1>;
+    		mvar_pos = <fuid_module_init, i + 1>;
+            uid2addr[topdecls[i]] = mvar_pos;
+            // Associate this module variable's address with all its uses
+            for(u <- config.uses[topdecls[i]] ? {}){
+                uid2addr[getLoc2uid(u)] = mvar_pos;
+            }
             // Assign local positions to variables occurring in module variable initializations
             for(os <- outerScopes){
                 //println("os = <os>, <config.store[os].at>, <config.store[topdecls[i]].at>, <config.store[os].at < config.store[topdecls[i]].at>");
@@ -570,14 +575,25 @@ void extractScopes(Configuration c){
         for(int i <- index(decls_non_kwp)) {
         	// Note: we need to reserve positions for variables that will replace formal parameter patterns
         	// '+ 1' is needed to allocate the first local variable to store default values of keyword parameters
-        	uid2addr[decls_non_kwp[i]] = <fuid_str, i + nformals + 1>;
+        	non_kwp_pos = <fuid_str, i + nformals + 1>;
+        	uid2addr[decls_non_kwp[i]] = non_kwp_pos;
+        	// Associate this non-keyword variable's address with all its uses
+        	for(u <- config.uses[decls_non_kwp[i]] ? {}){
+                uid2addr[getLoc2uid(u)] = non_kwp_pos;
+            }
         }
         // Filter all the keyword variables (parameters) within the function scope
         decls_kwp = sort([ uid | UID uid <- declaresInnerScopes, variable(RName name,_,_,_,_) := config.store[uid], name in keywordParams ]);
        
         for(int i <- index(decls_kwp)) {
             keywordParameters += decls_kwp[i];
-            uid2addr[decls_kwp[i]] = <fuid_str, -1>; // ***Note: keyword parameters do not have a position
+            kwp_pos = <fuid_str, -1>; // ***Note: keyword parameters do not have a position
+            uid2addr[decls_kwp[i]] = kwp_pos;
+            
+            // Associate this keyword variable's address with all its uses
+            for(u <- config.uses[decls_kwp[i]] ? {}){
+                uid2addr[getLoc2uid(u)] = kwp_pos;
+            }
         }
         // Then, functions
         decls = [ uid | uid <- declaresInnerScopes, 
@@ -1217,9 +1233,9 @@ MuExp mkVar(str name, loc l) {
     // Generate a unique name for an overloaded function resolved for this specific use
     //println("config.usedIn: <config.usedIn>");
     
-    //maybe: str ofuid = (config.usedIn[l]? ? convert2fuid(config.usedIn[l]) : "") + "/use:<name>#<l.begin.line>-<l.offset>";
+    str ofuid = (config.usedIn[l]? ? convert2fuid(config.usedIn[l]) : "") + "/use:<name>#<l.begin.line>-<l.offset>";
  
-    str ofuid = convert2fuid(config.usedIn[l]) + "/use:<name>#<l.begin.line>-<l.offset>";
+    //str ofuid = convert2fuid(config.usedIn[l]) + "/use:<name>#<l.begin.line>-<l.offset>";
  
     addOverloadedFunctionAndResolver(ofuid, <name, config.store[uid].rtype, addr.fuid, ofuids>);
     //println("return: <muOFun(ofuid)>");
