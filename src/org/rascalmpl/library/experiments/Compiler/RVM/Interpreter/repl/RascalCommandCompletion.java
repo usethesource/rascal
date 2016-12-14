@@ -67,16 +67,20 @@ public class RascalCommandCompletion {
                     return suggestions;
                 }
                 case "unimport": 
-                case "test": {
+               {
                 	OffsetLengthTerm identifier = StringUtils.findRascalIdentifierAtOffset(line, cursor);
                     if (identifier != null && identifier.offset > m.end("command")) {
-                    	Collection<String> suggestions = executor.completeImportedIdentifier(identifier.term);
+                    	//Collection<String> suggestions = executor.completeImportedIdentifier(identifier.term);
+                        Collection<String> suggestions = executor.completeImportedIdentifier(identifier.term);
                     	if (suggestions != null && ! suggestions.isEmpty()) {
                             return new CompletionResult(identifier.offset, suggestions);
                         }
                     }
                     return null;
                 }
+               
+                case "test": 
+                    return executor.completeModule(line, cursor); 
                 
                 case "break":	return completeIdentifier.complete(line, cursor);
                 
