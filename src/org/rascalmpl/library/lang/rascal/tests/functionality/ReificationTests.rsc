@@ -14,14 +14,10 @@ test bool l() = #list[int].symbol == \list(\int());
 test bool s() = #set[int].symbol == \set(\int());
 test bool m() = #map[int,str].symbol == \map(\int(),\str());
 test bool m() = #map[int k,str v].symbol == \map(label("k",\int()),label("v",\str()));
-test bool f() = #int (int).symbol == \func(\int(),[\int()]);
+test bool f() = #int (int).symbol == \func(\int(),[\int()],[]);
 test bool p() = #&T <: list[&U].symbol == \parameter("T", \list(\parameter("U",\value())));
 
-@ignoreInterpreter
-test bool s() = #rel[int a, int b].symbol == \set(\tuple([label("a", \int()),label("b", \int())]));
-
-@ignoreCompiler
-test bool s() = #rel[int a, int b].symbol == \rel([label("a", \int()),label("b", \int())]);
+test bool relLabels() = #rel[int a, int b].symbol == \set(\tuple([label("a", \int()),label("b", \int())]));
 
 test bool everyTypeCanBeReifiedWithoutExceptions(&T u) = _ := typeOf(u);
 
