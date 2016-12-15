@@ -414,8 +414,12 @@ public class CommandExecutor {
 		} catch (Thrown e){
 		    StringWriter sw = new StringWriter();
 		    e.printStackTrace(new PrintWriter(sw));
-		    System.err.println(e);
-		    debugObserver.exception(e.getFrame(), e);
+		    if(e.getFrame() != null){
+		        System.err.println(e);
+		        debugObserver.exception(e.getFrame(), e);
+		    } else {
+		        System.err.println("Exception [debugger cannot break at null frame]: " + e);
+		    }
 			return null; //throw new RascalShellExecutionException(sw.toString());
 		} catch (IOException e){
 		  throw new RascalShellExecutionException("Error: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
