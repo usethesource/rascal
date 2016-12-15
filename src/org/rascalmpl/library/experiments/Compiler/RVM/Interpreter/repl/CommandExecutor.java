@@ -154,7 +154,7 @@ public class CommandExecutor {
 		    ideServices.watch(Paths.get(((ISourceLocation) isrc).getPath()));
 		  } 
 		} catch (IOException e){
-		  System.err.println("Unable to watch file changes: " + e);
+		  System.err.println("Unable to watch file changes due to: " + e);
 		}
 		
 		// options for the kernel
