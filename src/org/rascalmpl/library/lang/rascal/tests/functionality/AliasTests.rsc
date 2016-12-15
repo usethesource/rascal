@@ -13,6 +13,7 @@ module lang::rascal::tests::functionality::AliasTests
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
 *******************************************************************************/
 import Type;
+import IO;
 
 alias INTEGER0 = int;
 		
@@ -83,34 +84,18 @@ test bool reifiedAlias1a() =
   ());
 
 @ignoreInterpreter
-test bool reifiedAlias1a() = 
+test bool reifiedAlias1b() = 
   #partition == 
    type(
      \alias(
     "partition",
     [],
-    \set(\rel([
+    \set(\set(\tuple([
           \str(),
           \str(),
           \str()
-        ]))),
-  ());
-
-//TODO: it could be that ignoreComopiler is broken after bootstrapping ...
-//@ignoreInterpreter{since aliases are preserved in interpreted code}
-//test bool reifiedAlias1b() = 
-//  #partition ==  
-//  type(
-//  \alias(
-//    "partition",
-//    [],
-//    \set(\rel([
-//          \str(),
-//          \str(),
-//          \str()
-//        ]))),
-//  ());
-	
+        ])))),
+  ()) ? true : bprintln(#partition.symbol) && false;
 
 alias STRING = str;
 
