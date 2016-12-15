@@ -27,7 +27,6 @@ import java.util.Set;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
@@ -39,12 +38,14 @@ import org.rascalmpl.value.IAnnotatable;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IExternalValue;
+import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IWithKeywordParameters;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.visitors.IValueVisitor;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class OverloadedFunction extends Result<IValue> implements IExternalValue, ICallableValue {
 	private final static TypeFactory TF = TypeFactory.getInstance();
@@ -53,6 +54,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	private final List<AbstractFunction> defaultCandidates; // it should be a list to allow proper shadowing
 	private final String name;
 	private final boolean isStatic;
+	        
 
 	public OverloadedFunction(String name, Type type, List<AbstractFunction> candidates, List<AbstractFunction> defaults, IEvaluatorContext ctx) {
 		super(type, null, ctx);
@@ -73,8 +75,18 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	
 	@Override
 	public IConstructor encodeAsConstructor() {
-		TypeReifier tr = new TypeReifier(getValueFactory());
-		return tr.overloadedToProduction(this, ctx);
+	    IListWriter alternatives = getValueFactory().listWriter();
+	    for (AbstractFunction f : primaryCandidates) {
+	        alternatives.append(f.encodeAsConstructor());
+	    }
+	    
+	    IListWriter otherwise = getValueFactory().listWriter();
+        for (AbstractFunction f : defaultCandidates) {
+            otherwise.append(f.encodeAsConstructor());
+        }
+	    
+		return getValueFactory().constructor(RascalValueFactory.Function_Choice,
+		        alternatives.done(), otherwise.done());
 	}
 
 	public List<AbstractFunction> getPrimaryCandidates() {

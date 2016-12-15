@@ -143,7 +143,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
         }
         Type type = result.getType();
 
-        if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree)) {
+        if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree) && !type.isBottom()) {
             out.print(type.toString());
             out.print(": ");
             // we unparse the tree
