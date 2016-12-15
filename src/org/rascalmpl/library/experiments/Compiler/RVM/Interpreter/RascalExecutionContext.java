@@ -353,10 +353,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 		return parsingTools;
 	}
 	
-//	public Cache<String,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> getParserCache(){
-//		return parserCache;
-//	}
-	
 	public Cache<String, IValue> getParsedModuleCache() {
 		return parsedModuleCache;
 	}
@@ -365,19 +361,9 @@ public class RascalExecutionContext implements IRascalMonitor {
 		return typeToSymbolCache.get(t, k -> RascalPrimitive.$type2symbol(t));
 	}
 	
-	public Type symbolToType(final IConstructor sym, IMap definitions){
-		IValue[] key = new IValue[] { sym, definitions};
-		return symbolToTypeCache.get(sym, k -> { return reifier.symbolToType(sym, definitions); });
-	}
-	
-	public Type valueToType(final IConstructor sym){
-		if (sym.getType() instanceof ReifiedType){
-			IMap definitions = (IMap) sym.get("definitions");
-			reifier.declareAbstractDataTypes(definitions, getTypeStore());
-			return symbolToType((IConstructor) sym.get("symbol"), definitions);
-		}
-		throw new IllegalArgumentException(sym + " is not a reified type");
-	}
+	 public Type symbolToType(IConstructor v, final IMap definitions) {
+	     return symbolToTypeCache.get(v, k -> reifier.symbolToType(v, definitions));
+	 }
 	
 	Cache<IString, DescendantDescriptor> getDescendantDescriptorCache() {
 		return descendantDescriptorCache;
@@ -593,6 +579,8 @@ public class RascalExecutionContext implements IRascalMonitor {
 		
 		return (ISourceLocation) resolver.call(argTypes, argValues, null).getValue();
 	}
+
+   
 	
 //	void registerCommonSchemes(){
 //		addRascalSearchPath(URIUtil.rootLocation("test-modules"));

@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
@@ -24,7 +25,6 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * The RVMLinker takes an RVMProgram (and its imports) and creates a single RVMExecutable for it, with
@@ -126,33 +126,21 @@ public class RVMLinker {
 		return index;
 	}
 	
+	public Type loadProduction(IConstructor symbol) {
+	    return types.loadProduction(symbol);
+	}
+	
 	private void declareConstructor(String cname, IConstructor symbol) {
-		
-		// TODO: Debatable. We convert the extended form of prod to the simpler one. This
-		// should be done earlier
-		if(symbol.getConstructorType() == RascalValueFactory.Symbol_Prod){
-			//System.out.println("declareConstructor: " + symbol);
-			IValue sort = symbol.get("sort");
-			IValue parameters = symbol.get("parameters");
-			IValue attributes = symbol.get("attributes");
-			//constr = tf.constructor(typeStore, Factory.Production_Default, "prod", symbol, "sort", parameters, "parameters",  attributes, "attributes");
-			symbol = vf.constructor(RascalValueFactory.Production_Default, sort, parameters, attributes);
-		}	
-		Type constr = symbolToType(symbol);
+		Type constr = loadProduction(symbol);
+
 		Integer index = constructorMap.get(cname);
 		if(index == null) {
 			index = constructorStore.size();
 			constructorMap.put(cname, index);
 			constructorStore.add(constr);
-			//typeStore.declareConstructor(constr);
 		} else {
 			constructorStore.set(index, constr);
 		}
-		//System.out.println("declareConstructor: " + index + "  => " + cname);
-	}
-	
-	Type symbolToType(IConstructor symbol) {
-		return types.symbolToType(symbol, typeStore);
 	}
 	
 	private void addResolver(IMap resolver) {
@@ -193,7 +181,8 @@ public class RVMLinker {
 				Integer index = useConstructorName(((IString) fuid).getValue());
 				constrs[alt++] = index;
 			}
-			OverloadedFunction res = new OverloadedFunction(funName, types.symbolToType(funType, new TypeStore()), funs, constrs, scopeIn);
+			
+			OverloadedFunction res = new OverloadedFunction(funName, new TypeReifier(vf).symbolToType(funType, vf.mapWriter().done()), funs, constrs, scopeIn);
 			this.overloadedStore.add(res);
 		}
 	}
@@ -619,11 +608,11 @@ public class RVMLinker {
 	private void loadInstructions(String name, IConstructor declaration, boolean isCoroutine){
 	
 		int continuationPoints = 0 ;
-		Type ftype = isCoroutine ? tf.voidType() : symbolToType((IConstructor) declaration.get("ftype"));
+		Type ftype = isCoroutine ? tf.voidType() : types.symbolToType((IConstructor) declaration.get("ftype"));
 		
 		Type kwType = null;   // transitional for boot
 		if(!isCoroutine && declaration.has("kwType")){
-		  kwType = symbolToType((IConstructor) declaration.get("kwType"));
+		  kwType = types.symbolToType((IConstructor) declaration.get("kwType"));
 		}
 		
 		String scopeIn = ((IString) declaration.get("scopeIn")).getValue();
@@ -663,6 +652,8 @@ public class RVMLinker {
 			IConstructor instruction = (IConstructor) code.get(i);
 			String opcode = instruction.getName();
 
+			// TODO: let's do this with Java reflection; the names all match up and this code
+			// is brittle to extension and renaming
 			switch (opcode) {
 			case "LOADCON":
 				codeblock.LOADCON(instruction.get("val"));
@@ -858,11 +849,11 @@ public class RVMLinker {
 				break;
 
 			case "LOADTYPE":
-				codeblock.LOADTYPE(symbolToType((IConstructor) instruction.get("type")));
+				codeblock.LOADTYPE(getTypeField(instruction, "type"));
 				break;
 				
 			case "PUSHTYPE":
-				codeblock.PUSHTYPE(symbolToType((IConstructor) instruction.get("type")));
+				codeblock.PUSHTYPE(getTypeField(instruction, "type"));
 				break;
 				
 			case "LOADBOOL":
@@ -888,7 +879,7 @@ public class RVMLinker {
 				break;
 
 			case "OCALLDYN" :
-				codeblock.OCALLDYN(symbolToType((IConstructor) instruction.get("types")), 
+				codeblock.OCALLDYN(getTypeField(instruction, "types"), 
 								   getIntField(instruction, "arity"), 
 								   getLocField(instruction, "src"));
 				break;
@@ -896,8 +887,8 @@ public class RVMLinker {
 			case "CALLJAVA":
 				codeblock.CALLJAVA(getStrField(instruction, "name"), 
 						           getStrField(instruction, "class"), 
-						 		   symbolToType((IConstructor) instruction.get("parameterTypes")), 
-						 		   symbolToType((IConstructor) instruction.get("keywordTypes")), 
+						 		   getTypeField(instruction, "parameterTypes"), 
+						 		   getTypeField(instruction, "keywordTypes"), 
 						 		   getIntField(instruction, "reflect"));
 				break;
 
@@ -963,8 +954,8 @@ public class RVMLinker {
 				
 			case "CHECKARGTYPEANDCOPY":
 				codeblock.CHECKARGTYPEANDCOPY(getIntField(instruction, "pos1"),
-									  symbolToType((IConstructor) instruction.get("type")),
-									  getIntField(instruction, "pos2"));
+				        getTypeField(instruction, "type"),
+				        getIntField(instruction, "pos2"));
 				break;
 				
 			case "LOADLOCKWP":
@@ -1025,7 +1016,7 @@ public class RVMLinker {
 				break;
 				
 			case "VALUESUBTYPE":
-				codeblock.VALUESUBTYPE(symbolToType((IConstructor) instruction.get("type")));
+				codeblock.VALUESUBTYPE(getTypeField(instruction, "type"));
 				break;
 				
 			case "CALLMUPRIM0":
@@ -1118,7 +1109,7 @@ public class RVMLinker {
 
 		}
 		} catch (Exception e){
-			throw new CompilerError("In function " + name + " : " + e.getMessage());
+			throw new CompilerError("In function " + name + " : " + e.getMessage(), e);
 		}
 		
 		
@@ -1136,8 +1127,7 @@ public class RVMLinker {
 										 isConcreteArg, 
 										 abstractFingerprint, concreteFingerprint, codeblock, src, continuationPoints);
 		
-		IList exceptions = (IList) declaration.get("exceptions");
-		function.attachExceptionTable(exceptions, this);
+		function.attachExceptionTable((IList) declaration.get("exceptions"));
 		
 		if(isCoroutine) {
 			function.isCoroutine = true;
@@ -1155,4 +1145,8 @@ public class RVMLinker {
 		}
 		declareFunction(function);
 	}
+
+    private Type getTypeField(IConstructor instruction, String field) {
+        return types.symbolToType((IConstructor) instruction.get(field));
+    }
 }

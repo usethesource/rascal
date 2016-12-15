@@ -19,7 +19,7 @@ import org.rascalmpl.value.type.TypeFactory;
 
 public class RascalTypeFactory {
 	private TypeFactory tf = TypeFactory.getInstance();
-
+	
 	private static class InstanceHolder {
 		public static final RascalTypeFactory sInstance = new RascalTypeFactory();
 	}
