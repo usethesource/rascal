@@ -172,7 +172,6 @@ public abstract class RVMCore {
 	
 	public void shutdown(){
 	  frameObserver.report();
-	  System.exit(1);
 	}
 	
 	public Map<IValue, IValue> getModuleVariables() { return moduleVariables; }
