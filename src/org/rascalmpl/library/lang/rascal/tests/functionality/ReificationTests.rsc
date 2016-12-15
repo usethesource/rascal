@@ -17,7 +17,12 @@ test bool m() = #map[int k,str v].symbol == \map(label("k",\int()),label("v",\st
 test bool f() = #int (int).symbol == \func(\int(),[\int()],[]);
 test bool p() = #&T <: list[&U].symbol == \parameter("T", \list(\parameter("U",\value())));
 
+@ignoreCompiler
 test bool relLabels() = #rel[int a, int b].symbol == \set(\tuple([label("a", \int()),label("b", \int())]));
+
+@ignoreInterpreter
+test bool relLabels() = #rel[int a, int b].symbol == \rel([label("a", \int()),label("b", \int())]);
+
 
 test bool everyTypeCanBeReifiedWithoutExceptions(&T u) = _ := typeOf(u);
 
