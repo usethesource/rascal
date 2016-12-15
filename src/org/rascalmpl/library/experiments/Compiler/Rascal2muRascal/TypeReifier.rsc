@@ -554,7 +554,7 @@ private map[Symbol,Production] reify1(Symbol::\func(Symbol ret, list[Symbol] par
 
 // function with varargs
 private map[Symbol,Production] reify1(Symbol::\var-func(Symbol ret, list[Symbol] parameters, Symbol varArg), map[Symbol,Production] definitions) {
-    
+    //println("reify1 function varargs: <ret>, <parameters>, <varArg>, <definitions>");
 	definitions = reify1(ret, definitions);
 	definitions = ( definitions | reify1(sym, it) | sym <- parameters );
 	definitions = reify1(varArg, definitions);
@@ -562,8 +562,10 @@ private map[Symbol,Production] reify1(Symbol::\var-func(Symbol ret, list[Symbol]
 }
 
 // reified
-private map[Symbol,Production] reify1(Symbol::\reified(Symbol ret), map[Symbol,Production] definitions) 
-	= reify1(ret, definitions);
+private map[Symbol,Production] reify1(Symbol::\reified(Symbol ret), map[Symbol,Production] definitions) {
+    //println("reify1 reified: <ret>, <definitions>");
+	return reify1(ret, definitions);
+}	
 	
 // parameter
 private map[Symbol,Production] reify1(Symbol::\parameter(str name, Symbol bound), map[Symbol,Production] definitions)
@@ -586,15 +588,18 @@ private map[Symbol,Production] reify1(Symbol symbol, map[Symbol,Production] defi
 		          //println("grammar:\n----------");
             //      for(s <- grammar) println("<s>: <grammar[s]>");
             //      println("----------");
-                  
-			      definitions[nonterminal] = \layouts(grammar[nonterminal], layoutDefs(grammar)); // inserts an active layout
-			      if(nonterminal in starts) {
-				     definitions[Symbol::\start(nonterminal)] = \layouts(Production::choice(Symbol::\start(nonterminal),
+                  if(grammar[nonterminal]?){
+			         definitions[nonterminal] = \layouts(grammar[nonterminal], layoutDefs(grammar)); // inserts an active layout
+			         if(nonterminal in starts) {
+				        definitions[Symbol::\start(nonterminal)] = \layouts(Production::choice(Symbol::\start(nonterminal),
 																					   { Production::prod(Symbol::\start(nonterminal), [ Symbol::\label("top", nonterminal) ],{}) }),{});
-			      }
+			         }
 			     //println("Productions[nonterminal]: <productions[nonterminal]>");
 			     //println("Domain(grammar): <domain(grammar)>");
 			    definitions = ( definitions | reify1(sym, it) | sym <- productions[nonterminal] );
+			    } else {
+			      println("reify1: <nonterminal> skipped");
+			    }
 		     }
 		     return definitions;
 		  }
