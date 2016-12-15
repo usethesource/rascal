@@ -8135,6 +8135,17 @@ public enum RascalPrimitive {
 			return sp - arity + 1;
 		}
 	},
+	/**
+     * Subscript of a lrel with single int index
+     * 
+     * [ ..., IListRelation r, IValue idx1] => r[idx1, idx2, ...] ]
+     */
+    lrel_subscript_int {
+        @Override
+        public Object execute2(final Object arg_2, final Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
+            return list_subscript_int.execute2(arg_2, arg_1, currentFrame, rex);
+        }
+	},
 
 	/**
 	 * Get argument with given index from nonterminal
@@ -8239,6 +8250,18 @@ public enum RascalPrimitive {
 			    return sp - 2;
 			}
 		}
+	},
+	
+	/**
+     * Update list element
+     * 
+     * [ ..., IList cons, IInteger idx, IValue repl ] => [ ..., new IList with lst[idx] == repl ]
+     */
+    lrel_update {
+        @Override
+        public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
+            return list_update.executeN(stack, sp, arity, currentFrame, rex);
+        }
 	},
 
 	/**

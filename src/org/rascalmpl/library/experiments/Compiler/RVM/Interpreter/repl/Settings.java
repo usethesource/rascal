@@ -29,7 +29,6 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
@@ -40,22 +39,19 @@ public class Settings {
   IValueFactory vf;
 
   Settings () {
-    vf = ValueFactoryFactory.getValueFactory();
-    Path cwd = Paths.get(System.getProperty("user.home"));
-    Path settings = cwd.resolve("settings.json");
-    JsonElement jsettings;
-    try {
-      jsettings = new JsonParser().parse(new InputStreamReader(Files.newInputStream(settings)));
-      jobject = jsettings.getAsJsonObject();
-      return;
-    } catch (JsonSyntaxException e) {
-      System.err.println("Reading settings: " + e.getCause().getMessage());
-    } catch (JsonIOException | IOException e) {
-      System.err.println("Reading settings: " + e);
-    }
-    System.err.println("Reading settings: using default settings");
-    jsettings = new JsonParser().parse("{}");
-    jobject = jsettings.getAsJsonObject();
+      vf = ValueFactoryFactory.getValueFactory();
+      Path cwd = Paths.get(System.getProperty("user.home"));
+      Path settings = cwd.resolve("settings.json");
+      JsonElement jsettings;
+      try {
+          jsettings = new JsonParser().parse(new InputStreamReader(Files.newInputStream(settings)));
+          jobject = jsettings.getAsJsonObject();
+          return;
+      } catch (JsonSyntaxException | IOException e) {
+          System.err.println("Using default settings");
+          jsettings = new JsonParser().parse("{}");
+          jobject = jsettings.getAsJsonObject();
+      }
   }
 
   boolean getBool(String accessor, boolean def){
