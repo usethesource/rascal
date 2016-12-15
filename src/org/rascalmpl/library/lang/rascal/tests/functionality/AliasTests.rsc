@@ -71,10 +71,25 @@ test bool  transitiveAliasAcrossTuples() {
     return aBlock == {<"a", "b", "c">};
 }	
 
+@ignoreCompiler
 test bool reifiedAlias1a() = 
   #partition == 
   type(
   \set(\set(\tuple([
+          \str(),
+          \str(),
+          \str()
+        ]))),
+  ());
+
+@ignoreInterpreter
+test bool reifiedAlias1a() = 
+  #partition == 
+   type(
+     \alias(
+    "partition",
+    [],
+    \set(\rel([
           \str(),
           \str(),
           \str()
