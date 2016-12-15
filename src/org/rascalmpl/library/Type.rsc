@@ -92,6 +92,7 @@ data Symbol      // <3>
      | \cons(Symbol \adt, str name, list[Symbol] parameters)
      | \alias(str name, list[Symbol] parameters, Symbol aliased)
      | \func(Symbol ret, list[Symbol] parameters, list[Symbol] kwTypes)
+     | \func(Symbol ret, list[Symbol] parameters) // deprecated
      | \overloaded(set[Symbol] alternatives)
      | \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg)
      | \reified(Symbol symbol)
@@ -232,7 +233,9 @@ public bool subtype(Symbol::\rel(list[Symbol] l), Symbol::\set(Symbol r)) = subt
 
 public bool subtype(Symbol::\bag(Symbol s), Symbol::\bag(Symbol t)) = subtype(s, t);  
 public bool subtype(Symbol::\map(Symbol from1, Symbol to1), Symbol::\map(Symbol from2, Symbol to2)) = subtype(from1, from2) && subtype(to1, to2);
-public bool subtype(Symbol::\func(Symbol r1, list[Symbol] p1, list[Symbol] _), Symbol::\func(Symbol r2, list[Symbol] p2, list[Symbol] _)) = subtype(r1, r2) && subtype(p2, p1); // note the contra-variance of the argument types
+public bool subtype(Symbol::\func(Symbol r1, list[Symbol] p1, list[Symbol] _), Symbol f2) = subtype(\func(r1, p1), f2);
+public bool subtype(Symbol f2, Symbol::\func(Symbol r1, list[Symbol] p1, list[Symbol] _)) = subtype(f2, \func(r1, p1));
+public bool subtype(Symbol::\func(Symbol r1, list[Symbol] p1), Symbol::\func(Symbol r2, list[Symbol] p2)) = subtype(r1, r2) && subtype(p2, p1); // note the contra-variance of the argument types
 public bool subtype(Symbol::\parameter(str _, Symbol bound), Symbol r) = subtype(bound, r);
 public bool subtype(Symbol l, Symbol::\parameter(str _, Symbol bound)) = subtype(l, bound);
 public bool subtype(Symbol::\label(str _, Symbol s), Symbol t) = subtype(s,t);
@@ -802,6 +805,7 @@ public bool isFunctionType(Symbol::\alias(_,_,Symbol at)) = isFunctionType(at);
 public bool isFunctionType(Symbol::\parameter(_,Symbol tvb)) = isFunctionType(tvb);
 public bool isFunctionType(Symbol::\label(_,Symbol lt)) = isFunctionType(lt);
 public bool isFunctionType(Symbol::\func(_,_,_)) = true;
+public bool isFunctionType(Symbol::\func(_,_)) = true;
 //public bool isFunctionType(\var-func(_,_,_)) = true;
 public default bool isFunctionType(Symbol _) = false;
 
