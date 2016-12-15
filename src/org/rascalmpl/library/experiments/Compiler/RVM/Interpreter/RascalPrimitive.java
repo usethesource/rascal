@@ -44,7 +44,9 @@ import org.rascalmpl.value.exceptions.InvalidDateTimeException;
 import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -461,16 +463,10 @@ public enum RascalPrimitive {
 	reifiedType_create {
 		@Override
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-
 			IConstructor type_cons = (IConstructor) arg_2;
 			IMap idefinitions = (IMap) arg_1;
 
-			Type type = rex.symbolToType(type_cons, idefinitions);
-
-			java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
-			bindings.put(RascalValueFactory.TypeParam, type);
-
-			return vf.constructor(RascalValueFactory.Type_Reified.instantiate(bindings), type_cons, idefinitions);
+			return IRascalValueFactory.getInstance().reifiedType(type_cons, idefinitions);
 		}
 	},
 
@@ -9459,150 +9455,7 @@ public enum RascalPrimitive {
 	 * @return t converted to a symbol
 	 */
 	static IConstructor $type2symbol(final Type t){
-		IConstructor result = t.accept(new ITypeVisitor<IConstructor,RuntimeException>() {
-
-			@Override
-			public IConstructor visitReal(final Type type) throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Real);
-			}
-
-			@Override
-			public IConstructor visitInteger(final Type type) throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Int);
-			}
-
-			@Override
-			public IConstructor visitRational(final Type type)
-					throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Rat);
-			}
-
-			@Override
-			public IConstructor visitList(final Type type) throws RuntimeException {
-				Type elementType = type.getElementType();
-				if(elementType.isTuple()){
-					IConstructor[] fields = new IConstructor[elementType.getArity()];
-					for(int i = 0; i < elementType.getArity(); i++){
-						fields[i] =elementType.getFieldType(i).accept(this);
-					}
-					return vf.constructor(RascalValueFactory.Symbol_ListRel, vf.list(fields));
-				}
-				return vf.constructor(RascalValueFactory.Symbol_List, type.getElementType().accept(this));
-			}
-
-			@Override
-			public IConstructor visitMap(final Type type) throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Map, type.getKeyType().accept(this), type.getValueType().accept(this));
-			}
-
-			@Override
-			public IConstructor visitNumber(final Type type) throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Num);
-			}
-
-			@Override
-			public IConstructor visitAlias(final Type type) throws RuntimeException {
-				throw new RuntimeException();
-			}
-
-			@Override
-			public IConstructor visitSet(final Type type) throws RuntimeException {
-				Type elementType = type.getElementType();
-				if(elementType.isTuple()){
-					IConstructor[] fields = new IConstructor[elementType.getArity()];
-					for(int i = 0; i < elementType.getArity(); i++){
-						fields[i] =elementType.getFieldType(i).accept(this);
-					}
-					return vf.constructor(RascalValueFactory.Symbol_Rel, vf.list(fields));
-				}
-				return vf.constructor(RascalValueFactory.Symbol_Set, type.getElementType().accept(this));
-			}
-
-			@Override
-			public IConstructor visitSourceLocation(final Type type)
-					throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Loc);
-			}
-
-			@Override
-			public IConstructor visitString(final Type type) throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Str);
-			}
-
-			@Override
-			public IConstructor visitNode(final Type type) throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Node);
-			}
-
-			@Override
-			public IConstructor visitConstructor(final Type type)
-					throws RuntimeException {
-				Type fieldTypes = type.getFieldTypes();
-				IValue args[] = new IValue[fieldTypes.getArity()];
-				for(int i = 0; i < fieldTypes.getArity(); i++){
-					args[i] = fieldTypes.getFieldType(i).accept(this);
-				}
-				return vf.constructor(RascalValueFactory.Symbol_Cons, type.getAbstractDataType().accept(this), vf.string(type.getName()), vf.list(args));
-			}
-
-			@Override
-			public IConstructor visitAbstractData(final Type type)
-					throws RuntimeException {
-				Type parameterType = type.getTypeParameters();
-				IValue args[] = new IValue[parameterType.getArity()];
-				for(int i = 0; i < parameterType.getArity(); i++){
-					args[i] = parameterType.getFieldType(i).accept(this);
-				}
-				return vf.constructor(RascalValueFactory.Symbol_Adt, vf.string(type.getName()), vf.list(args));
-			}
-
-			@Override
-			public IConstructor visitTuple(final Type type) throws RuntimeException {
-				IConstructor fields[] = new IConstructor[type.getArity()];
-				for(int i = 0; i < type.getArity(); i++){
-					fields[i] = type.getFieldType(i).accept(this);
-				}
-				return vf.constructor(RascalValueFactory.Symbol_Tuple, vf.list(fields));
-			}
-
-			@Override
-			public IConstructor visitValue(final Type type) throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Value);
-			}
-
-			@Override
-			public IConstructor visitVoid(Type type) throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Void);
-			}
-
-			@Override
-			public IConstructor visitBool(final Type type) throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Bool);
-			}
-
-			@Override
-			public IConstructor visitParameter(final Type type)
-					throws RuntimeException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public IConstructor visitExternal(final Type type)
-					throws RuntimeException {
-				return type.accept(this);
-			}
-
-			@Override
-			public IConstructor visitDateTime(final Type type)
-					throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Datetime);
-			}
-
-		});
-
-		//rex.getType2SymbolCache().put(t, result);
-		return result;
+	    return t.asSymbol(vf, new TypeStore(), vf.setWriter(), new HashSet<>());
 	}
 	
 	private static Map<String,IValue> $getAllKeywordParameters(IValue v, RascalExecutionContext rex){

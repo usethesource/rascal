@@ -12,13 +12,20 @@
 package org.rascalmpl.interpreter.types;
 
 import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.UndeclaredAnnotationException;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
 import org.rascalmpl.value.type.TypeStore;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * A reified type is the type of a value that represents a type. It is parametrized by the type
@@ -33,9 +40,49 @@ public class ReifiedType extends RascalType {
 		this.arg = arg;
 	}
 	
+	public static class Reifier implements TypeReifier {
+
+        @Override
+        public Type getSymbolConstructorType() {
+            return symbols().typeSymbolConstructor("reified", symbols().symbolADT(), "symbol");
+        }
+
+        @Override
+        public Type fromSymbol(IConstructor symbol, TypeStore store,
+                Function<IConstructor, Set<IConstructor>> grammar) {
+            return RTF.reifiedType(symbols().fromSymbol((IConstructor) symbol.get("symbol"), store, grammar));
+        }
+	    
+        @Override
+        public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+            return vf.constructor(getSymbolConstructorType(), type.getTypeParameters().getFieldType(0).asSymbol(vf, store, grammar, done));
+        }
+        
+        @Override
+        public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
+                Set<IConstructor> done) {
+            ((ReifiedType) type).arg.asProductions(vf, store, grammar, done);
+        }
+
+        @Override
+        public boolean isRecursive() {
+            return true;
+        }
+        
+        @Override
+        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+            return RascalTypeFactory.getInstance().reifiedType(next.get());
+        }
+	}
+	
+	@Override
+	public TypeReifier getTypeReifier() {
+	    return new Reifier();
+	}
+	
 	@Override
 	public Type asAbstractDataType() {
-		return RascalValueFactory.ADTforType;
+		return getTypeReifier().symbols().symbolADT();
 	}
 	
 	@Override
@@ -160,7 +207,7 @@ public class ReifiedType extends RascalType {
 	
 	@Override
 	public int hashCode() {
-		return arg.hashCode();
+		return 2331 + arg.hashCode();
 	}
 
 	@Override
@@ -172,4 +219,6 @@ public class ReifiedType extends RascalType {
 	public Type getAnnotationType(TypeStore store, String label) throws FactTypeUseException {
 		throw new UndeclaredAnnotationException(this, label);
 	}
+
+	
 }

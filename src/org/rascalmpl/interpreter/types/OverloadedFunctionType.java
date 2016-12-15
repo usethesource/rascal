@@ -13,27 +13,133 @@
 package org.rascalmpl.interpreter.types;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class OverloadedFunctionType extends RascalType {
 	private final Set<FunctionType> alternatives;
 	private final Type returnType;
-	
 	private static final TypeFactory TF = TypeFactory.getInstance();
-	private static final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
+    private static final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 
 	/*package*/ OverloadedFunctionType(Set<FunctionType> alternatives) {
 		this.alternatives = alternatives;
 		this.returnType = alternatives.iterator().next().getReturnType();
 	}
 	
+	public static class Reifier implements TypeReifier {
+
+	    @Override
+	    public Type getSymbolConstructorType() {
+	        throw new UnsupportedOperationException();
+	    }
+	    
+        @Override
+        public Set<Type> getSymbolConstructorTypes() {
+           return Arrays.stream(new Type[] { 
+                   normalSymbolType(),
+                   deprecatedSymbolType(), // TODO: can be removed after bootstrap
+           }).collect(Collectors.toSet()); 
+        }
+
+        private Type normalSymbolType() {
+            return symbols().typeSymbolConstructor("overloaded", TF.setType(symbols().symbolADT()), "alternatives");
+        }
+
+        private Type deprecatedSymbolType() {
+            return symbols().typeSymbolConstructor("overloaded", TF.setType(symbols().symbolADT()), "overloads", TF.setType(symbols().symbolADT()), "defaults");
+        }
+
+        @Override
+        public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
+            Set<FunctionType> newAlts = new HashSet<>();
+            
+            if (symbol.getConstructorType() == deprecatedSymbolType()) {
+                // TODO remove after bootstrap
+                for (IValue alt : ((ISet) symbol.get("overloads"))) {
+                    Type fromSymbol = symbols().fromSymbol((IConstructor) alt, store, grammar);
+                    newAlts.add((FunctionType) fromSymbol); 
+                }
+                
+                for (IValue alt : ((ISet) symbol.get("defaults"))) {
+                    Type fromSymbol = symbols().fromSymbol((IConstructor) alt, store, grammar);
+                    if (fromSymbol.isConstructor()) {
+                        newAlts.add((FunctionType) RTF.functionType(fromSymbol.getAbstractDataType(), fromSymbol.getFieldTypes(), TF.voidType()));
+                    } else {
+                        newAlts.add((FunctionType) fromSymbol);
+                    }
+                }
+            }
+            else {
+                for (IValue alt : ((ISet) symbol.get("alternatives"))) {
+                    newAlts.add((FunctionType) symbols().fromSymbol((IConstructor) alt, store, grammar)); 
+                }
+            }
+            
+            return RTF.overloadedFunctionType(newAlts);
+        }
+
+        @Override
+        public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
+                Set<IConstructor> done) {
+            for (Type alt : ((OverloadedFunctionType) type).getAlternatives()) {
+                alt.asProductions(vf, store, grammar, done);
+            } 
+        }
+        
+        @Override
+        public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store,  ISetWriter grammar, Set<IConstructor> done) {
+            ISetWriter w = vf.setWriter();
+            for (Type alt : ((OverloadedFunctionType) type).getAlternatives()) {
+              w.insert(alt.asSymbol(vf, store, grammar, done));
+            }
+            return vf.constructor(normalSymbolType(), w.done());
+        }
+
+        
+        @Override
+        public boolean isRecursive() {
+            return true;
+        }
+        
+        @Override
+        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+            int size = rnd.nextInt(5) + 2;
+            Set<FunctionType> alts = new HashSet<>(); 
+            Type returnType = next.get();
+            int arity = rnd.nextInt(4);
+                    
+            while (size-- > 0) {
+                alts.add((FunctionType) RascalTypeFactory.getInstance().functionType(returnType, randomTuple(next, store, rnd, arity), null));
+            }
+            
+            return RascalTypeFactory.getInstance().overloadedFunctionType(alts);
+        }
+    }
+    
+    @Override
+    public TypeReifier getTypeReifier() {
+        return new Reifier();
+    }
+    
 	@Override
 	public boolean isOverloadedFunction() {
 		return true;
@@ -92,6 +198,15 @@ public class OverloadedFunctionType extends RascalType {
 	
 	public Set<FunctionType> getAlternatives() {
 		return Collections.unmodifiableSet(alternatives);
+	}
+	
+	@Override
+	public int getArity() {
+	    int arity = alternatives.stream().findFirst().get().getArity();
+
+	    assert !alternatives.stream().filter(t -> t.getArity() != arity).findAny().isPresent();
+	    
+	    return arity;
 	}
 	
 	@Override
@@ -204,8 +319,10 @@ public class OverloadedFunctionType extends RascalType {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if(obj == null)
+		if(obj == null) {
 			return false;
+		}
+		
 		if (obj.getClass().equals(getClass())) {
 			OverloadedFunctionType f = (OverloadedFunctionType) obj;
 			return alternatives.equals(f.alternatives);
@@ -216,12 +333,28 @@ public class OverloadedFunctionType extends RascalType {
 	@Override
 	public int hashCode() {
 		// TODO: better hashCode?
-		return alternatives.hashCode();
+		return 31 + alternatives.hashCode();
 	}
 	
 	@Override
 	public String toString() {
-		return getReturnType() + " (...)";
+	    StringBuffer b = new StringBuffer();
+		b.append(getReturnType() + "(");
+		int i = 0;
+		for (FunctionType t : alternatives) {
+		    assert t.getReturnType() == getReturnType();
+		    if (i++ != 0) {
+		        b.append(" + ");
+		    }
+		    b.append(t.getArgumentTypes().toString() + " ");
+		    
+		    if (t.getKeywordParameterTypes() != null) {
+		        b.append(t.getKeywordParameterTypes().toString() + " ");
+		    }
+		}
+		b.append(")");
+		
+		return b.toString();
 	}
 	
 	@Override

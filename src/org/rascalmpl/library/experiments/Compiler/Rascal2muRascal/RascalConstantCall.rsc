@@ -16,7 +16,7 @@ private MuExp tcc("size", [muCon(str s)]) = muCon(size(s));
 // List
 private MuExp tcc("size", [muCon(list[value] lst)]) = muCon(size(lst));
 private MuExp tcc("isEmpty", [muCon(list[value] lst)]) = muCon(isEmpty(lst));
-
+ 
 // Set
 private MuExp tcc("size", [muCon(set[value] st)]) = muCon(size(st));
 private MuExp tcc("isEmpty", [muCon(set[value] st)]) = muCon(isEmpty(st));
@@ -46,7 +46,7 @@ private MuExp tcc("bag", [muCon(Symbol symbol)]) = muCon(\bag(symbol));
 private MuExp tcc("adt", [muCon(str name), muCon(list[Symbol] parameters)]) = muCon(\adt(name, parameters));
 private MuExp tcc("cons", [muCon(Symbol \adt), muCon(str name), muCon(list[Symbol] parameters)]) = muCon(\cons(\adt, name, parameters));
 private MuExp tcc("alias", [muCon(str name), muCon(list[Symbol] parameters), muCon(Symbol aliased)]) = muCon(\alias(name, parameters, aliased));
-private MuExp tcc("func", [muCon(Symbol ret), muCon(list[Symbol] parameters)]) = muCon(\func(ret, parameters));
+private MuExp tcc("func", [muCon(Symbol ret), muCon(list[Symbol] parameters)]) = muCon(\func(ret, parameters, []));
 //TODO: TC gives duplicate function error on next definition:
 //MuExp tcc("var-func", [muCon(Symbol ret), muCon(list[Symbol] parameters), Symbol varArg]) = muCon(\var-func(ret, parameters, varArg));
 private MuExp tcc("reified", [muCon(Symbol symbol)]) = muCon(\reified(symbol));
