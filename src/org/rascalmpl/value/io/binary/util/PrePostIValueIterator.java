@@ -123,13 +123,13 @@ public class PrePostIValueIterator  {
                         if(node.mayHaveKeywordParameters()){
                             if(node.asWithKeywordParameters().hasParameters()){
                                 assert node.asWithKeywordParameters() instanceof AbstractDefaultWithKeywordParameters;
-                                AbstractDefaultWithKeywordParameters<IValue> nodeKw = (AbstractDefaultWithKeywordParameters<IValue>)(node.asWithKeywordParameters());
+                                AbstractDefaultWithKeywordParameters<INode> nodeKw = (AbstractDefaultWithKeywordParameters<INode>)(node.asWithKeywordParameters());
                                 pushKWPairs(nodeKw.internalGetParameters().entryIterator());
                             }
                         } else {
                             if(node.asAnnotatable().hasAnnotations()){
                                 assert node.asAnnotatable() instanceof AbstractDefaultAnnotatable;
-                                AbstractDefaultAnnotatable<IValue> nodeAnno = (AbstractDefaultAnnotatable<IValue>)(node.asAnnotatable());
+                                AbstractDefaultAnnotatable<INode> nodeAnno = (AbstractDefaultAnnotatable<INode>)(node.asAnnotatable());
                                 pushKWPairs(nodeAnno.internalGetAnnotations().entryIterator());
                             }
                         }
