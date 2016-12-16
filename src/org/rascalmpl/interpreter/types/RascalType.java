@@ -34,6 +34,10 @@ public abstract class RascalType extends ExternalType {
     return false;
   }
   
+  public boolean isSubtypeOfFailure(RascalType type) {
+    return false;
+  }
+  
   protected boolean isSubtypeOfFunction(RascalType type) {
     return false;
   }
@@ -58,6 +62,10 @@ public abstract class RascalType extends ExternalType {
     return TF.valueType();
   }
   
+  protected Type lubWithFailure(RascalType type) {
+      return type;
+  }
+  
   protected Type lubWithReified(RascalType type) {
     return TF.valueType();
   }
@@ -78,6 +86,10 @@ public abstract class RascalType extends ExternalType {
 	return TF.voidType();
   }
   
+  protected Type glbWithFailure(RascalType type) {
+      return type;
+  }
+  
   public boolean isNonterminal() {
 	  return false;
   }
@@ -90,11 +102,11 @@ public abstract class RascalType extends ExternalType {
 	  return false;
   }
   
+  public boolean isFailure() {
+      return false;
+  }
+  
   public boolean isReified() {
 	  return false;
   }
-  
-  
-  
-  
 }
