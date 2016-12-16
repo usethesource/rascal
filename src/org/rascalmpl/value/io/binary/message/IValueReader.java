@@ -12,11 +12,7 @@
  */ 
 package org.rascalmpl.value.io.binary.message;
 
-import java.io.ByteArrayInputStream;
-import java.io.Closeable;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.SequenceInputStream;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -24,7 +20,6 @@ import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.zip.GZIPInputStream;
 
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
@@ -43,14 +38,9 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.io.binary.util.LinearCircularLookupWindow;
 import org.rascalmpl.value.io.binary.util.TrackLastRead;
 import org.rascalmpl.value.io.binary.wire.IWireInputStream;
-import org.rascalmpl.value.io.old.BinaryReader;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.tukaani.xz.XZInputStream;
-
-import com.github.luben.zstd.ZstdInputStream;
 
 import io.usethesource.capsule.TransientMap;
 import io.usethesource.capsule.TrieMap_5Bits;
