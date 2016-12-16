@@ -90,7 +90,6 @@ public class URIResolverRegistry {
 	      }
 
 	      if (instance instanceof ISourceLocationInput) {
-	        System.err.println("registered " + instance.getClass().getCanonicalName());
 	        registerInput((ISourceLocationInput) instance);
 	        ok = true;
 	      }

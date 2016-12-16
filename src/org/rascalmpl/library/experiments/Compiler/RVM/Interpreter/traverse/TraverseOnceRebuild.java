@@ -18,6 +18,7 @@ import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.IWithKeywordParameters;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -103,8 +104,24 @@ public class TraverseOnceRebuild extends TraverseOnce implements ITraverseSpecia
 	public
 	IValue traverseConcreteTreeOnce(IValue subject, final TraversalState tr) {
 		ITree tree = (ITree)subject;
+		
+		if (tree.isAppl()) {
+		    return traverseApplOnce(tr, tree);  
+		}
+		else if (tree.isAmb()) {
+		    return traverseAmbOnce(tr, tree);
+		}
+		else if (tree.isChar()) {
+		    return tree;
+		}
+		else {
+		    assert tree.isCycle();
+		    return tree;
+		}
+	}
 
-		// - Copy prod node verbatim to result
+    private IValue traverseApplOnce(final TraversalState tr, ITree tree) {
+        // - Copy prod node verbatim to result
 		// - Only visit non-layout nodes in argument list
 
 		IList list = TreeAdapter.getArgs(tree);
@@ -148,9 +165,32 @@ public class TraverseOnceRebuild extends TraverseOnce implements ITraverseSpecia
 		if(tr.hasChanged()){
 			return vf.constructor(RascalValueFactory.Tree_Appl, args);
 		} else {
-			return subject;
+			return tree;
 		}
-	} 
+    }
+
+    private IValue traverseAmbOnce(final TraversalState tr, ITree tree) {
+        tr.setMatchedAndChanged(false, false);
+        boolean hasChanged = false;
+        boolean hasMatched = false;
+        ISetWriter newAlts = vf.setWriter();
+        
+        for (IValue alt : tree.getAlternatives()) {
+            tr.setMatchedAndChanged(false, false);
+            newAlts.insert(tr.traverse.once(alt, tr));
+            hasChanged |= tr.hasChanged();
+            hasMatched |= tr.hasMatched();
+        }
+        
+        tr.setMatchedAndChanged(hasMatched, hasChanged);
+        
+        if (hasChanged) {
+            return IRascalValueFactory.getInstance().amb(newAlts.done());
+        }
+        else {
+            return tree;
+        }
+    } 
 	
 	@Override
 	public

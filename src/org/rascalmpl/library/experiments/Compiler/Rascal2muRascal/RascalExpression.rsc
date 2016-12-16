@@ -163,7 +163,7 @@ private MuExp translateComposeFunction(Expression e){
             throw "cannot handle composition/overloading for different arities";
          }
      }
-     comp_ftype = Symbol::func(Symbol::\value(), [Symbol::\value() | int j <- [0 .. nargs]]);
+     comp_ftype = Symbol::func(Symbol::\value(), [Symbol::\value() | int j <- [0 .. nargs]], []);
   }
     
   enterFunctionScope(comp_fuid);
@@ -735,7 +735,7 @@ private MuExp translateBoolClosure(Expression e){
 	
 	enterFunctionScope(fuid);
 	
-    ftype = Symbol::func(Symbol::\bool(),[]);
+    ftype = Symbol::func(Symbol::\bool(),[],[]);
 	nformals = 0;
 	nlocals = 0;
 	bool isVarArgs = false;
@@ -867,7 +867,7 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	           []);
 	
 	phi_argNames = ["iSubject", "matched", "hasInsert", "leaveVisit", "begin", "end"];
-	Symbol phi_ftype = Symbol::func(Symbol::\value(), phi_args);
+	Symbol phi_ftype = Symbol::func(Symbol::\value(), phi_args, []);
 	
 	enterVisit();
 	enterFunctionScope(phi_fuid);

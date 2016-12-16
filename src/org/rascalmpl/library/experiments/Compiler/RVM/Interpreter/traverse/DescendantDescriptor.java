@@ -31,19 +31,19 @@ public class DescendantDescriptor {
 	public DescendantDescriptor(IValueFactory vf, ISet symbolset, ISet prodset, IMap definitions, IBool concreteMatch, RascalExecutionContext rex){
 		mSymbolSet = new HashSet<Object>(symbolset.size() + prodset.size());
 		this.concreteMatch = concreteMatch.getValue();
-		boolean nodeOrValue = false;
-		for(IValue v : symbolset){
-			Type tp = rex.symbolToType((IConstructor) v, definitions);
-			mSymbolSet.add(tp);								// Add as TYPE to the set
-			if(tp == RascalPrimitive.nodeType || tp == RascalPrimitive.valueType){
-				nodeOrValue = true;
-			}
-		}
+		boolean nodeOrValue = true;
+//		for(IValue v : symbolset){
+//			Type tp = rex.symbolToType((IConstructor) v, definitions);
+//			mSymbolSet.add(tp);								// Add as TYPE to the set
+//			if(tp == RascalPrimitive.nodeType || tp == RascalPrimitive.valueType){
+//				nodeOrValue = true;
+//			}
+//		}
 		
-		for(IValue v : prodset){
-			IConstructor cons = (IConstructor) v;
-			mSymbolSet.add(cons);							// Add the production itself to the set
-		}
+//		for(IValue v : prodset){
+//			IConstructor cons = (IConstructor) v;
+//			mSymbolSet.add(cons);							// Add the production itself to the set
+//		}
 
 		containsNodeOrValueType = nodeOrValue;
 	}

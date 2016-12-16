@@ -5,11 +5,18 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
@@ -22,8 +29,10 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutio
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help.HelpManager;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug.DebugREPLFrameObserver;
-import org.rascalmpl.library.lang.rascal.boot.Kernel;
+import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.parser.Parser;
@@ -32,6 +41,7 @@ import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
+import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.repl.LimitedWriter;
 import org.rascalmpl.uri.URIUtil;
@@ -50,6 +60,7 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.io.StandardTextWriter;
 import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -68,7 +79,8 @@ public class CommandExecutor {
 	public static String consoleInputPath = "/ConsoleInput.rsc";
 	private ISourceLocation consoleInputLocation;
 	private RVMExecutable rvmConsoleExecutable;
-	private RVMExecutable lastRvmConsoleExecutable;
+	
+	private SortedSet<String> vocabulary;
 	
 	private final Prelude prelude;
 	
@@ -76,17 +88,9 @@ public class CommandExecutor {
 	
 	private DebugREPLFrameObserver debugObserver;
 	
+	private IDEServices ideServices;
+	protected final CompiledRascalREPL repl;
 	private HelpManager helpManager;
-	
-	boolean debug;
-	boolean debugRVM;
-	boolean testsuite;
-	boolean profile;
-	boolean trace;
-	boolean coverage;
-	boolean jvm;
-	boolean verbose;
-	boolean enableAsserts;
 	
 	private HashMap<String, Variable> variables ;
 	private ArrayList<String> imports;
@@ -99,51 +103,111 @@ public class CommandExecutor {
 	private final String shellModuleName = "CompiledRascalShell";
 	
 	private boolean forceRecompilation = true;
-	private IMap moduleTags;
-	private Kernel kernel;
+	private IKernel kernel;
 	private StandardTextWriter indentedPrettyPrinter;
-	private boolean optimize;
+
+	private Settings settings;
 	
-	public CommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr) throws IOException, NoSuchRascalFunction, URISyntaxException {
+	private boolean kernel_coverage;
+	private boolean kernel_debug;
+	private boolean kernel_profile;
+	private boolean kernel_trace;
+	private boolean kernel_verbose;
+
+	private boolean compile_coverage;
+	private boolean compile_debug;
+	private boolean compile_enableAsserts;
+	private boolean compile_optimize;
+	private boolean compile_profile;
+	private boolean compile_testsuite;
+	private boolean compile_trace;
+	private boolean compile_verbose;
+	
+	private boolean execute_coverage;
+	private boolean execute_debug;
+    private boolean execute_debugRVM;
+    private boolean execute_jvm;
+    private boolean execute_profile;
+    private boolean execute_testsuite;
+    private boolean execute_trace;
+    private boolean execute_verbose;
+    
+    private boolean repl_verbose;
+ 	
+	public CommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices, CompiledRascalREPL repl) throws IOException, NoSuchRascalFunction, URISyntaxException {
 		
 		vf = ValueFactoryFactory.getValueFactory();
 		prelude = new Prelude(vf);
 		
-		this.pcfg = pcfg.addSourceLoc(vf.sourceLocation("test-modules", "", ""));
+		settings = new Settings();
+	
+		this.pcfg = settings.getPathConfig(pcfg).addSourceLoc(vf.sourceLocation("test-modules", "", ""));
+		
 		this.stdout = stdout;
 		this.stderr = stderr; 
+		this.ideServices = ideServices;
+		this.repl = repl;
 		
 		consoleInputLocation = vf.sourceLocation("test-modules", "", consoleInputName + ".rsc");
+		try {
+		  for(IValue isrc : pcfg.getSrcs()){
+		    ideServices.watch(Paths.get(((ISourceLocation) isrc).getPath()));
+		  } 
+		} catch (IOException e){
+		  System.err.println("Unable to watch file changes due to: " + e);
+		}
 		
-		debug = false;							// options per executed command
-		debugRVM = false;
-		testsuite = false;
-		profile = false;
-		trace = false;
-		coverage = false;
-		jvm = true;
-		verbose = false;
-		optimize = false;
-		enableAsserts = true;
+		// options for the kernel
+		
+		kernel_coverage      = settings.getBool("kernel.coverage", false);
+		kernel_debug         = settings.getBool("kernel.debug", false);                            
+        kernel_profile       = settings.getBool("kernel.profile", false);
+        kernel_trace         = settings.getBool("kernel.trace", false);
+        kernel_verbose       = settings.getBool("kernel.verbose", false);
+        
+        // options for compiler
+        
+        compile_coverage      = settings.getBool("compile.coverage", false);
+        compile_debug         = settings.getBool("compile.debug", false);     
+        compile_enableAsserts = settings.getBool("compile.enableAsserts", true);
+        compile_optimize      = settings.getBool("compile.optimize", false);
+        compile_profile       = settings.getBool("compile.profile", false);
+        compile_testsuite     = settings.getBool("compile.testsuite", false);
+        compile_trace         = settings.getBool("compile.trace", false);
+        compile_verbose       = settings.getBool("compile.verbose", false);
+       
+        // options per executed command
+        
+        execute_coverage      = settings.getBool("execute.coverage", false);
+		execute_debug         = settings.getBool("execute.debug", false);							
+		execute_debugRVM      = settings.getBool("execute.debugRVM", false);
+		execute_jvm           = settings.getBool("execute.jvm", true);
+		execute_profile       = settings.getBool("execute.profile", false);
+		execute_testsuite     = settings.getBool("execute.testsuite", false);
+		execute_trace         = settings.getBool("execute.trace", false);
+		execute_verbose       = settings.getBool("execute.verbose", false);
+		
+		// options for the repl itself
+		
+		repl_verbose          = settings.getBool("repl.verbose", false);
 		
 		IMapWriter w = vf.mapWriter();
 		//w.put(vf.string("bootstrapParser"), vf.string(""));
 		IMap CompiledRascalShellModuleTags = w.done();
 		
-		w = vf.mapWriter();
-		w.put(vf.string(shellModuleName), CompiledRascalShellModuleTags);
-		w.put(vf.string(consoleInputName), CompiledRascalShellModuleTags);
-		moduleTags = w.done();
+//		w = vf.mapWriter();
+//		w.put(vf.string(shellModuleName), CompiledRascalShellModuleTags);
+//		w.put(vf.string(consoleInputName), CompiledRascalShellModuleTags);
 		
-		RascalExecutionContext rex = 
-				RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot(), this.stdout, this.stderr)
-					.withModuleTags(moduleTags)
-					.forModule(shellModuleName)
-					.setJVM(true)					// options for complete repl
-					//.setProfiling(true)
-					.build();
-
-		kernel = new Kernel(vf, rex);
+		kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class)
+		        .coverage(kernel_coverage)
+		        .debug(kernel_debug)
+		        .profile(kernel_profile)
+		        .trace(kernel_trace)
+		        .verbose(kernel_verbose)
+		        .build();
+		
+		startupMessage(pcfg);
 		
 		variables = new HashMap<>();
 		imports = new ArrayList<>();
@@ -160,6 +224,12 @@ public class CommandExecutor {
 		stderr.println("Type 'help' for information or 'quit' to leave");
 	}
 	
+	private void startupMessage(PathConfig pcfg){
+	  if(repl_verbose){
+	    System.err.println(pcfg);
+	  }
+	}
+	
 	public void reset(){
 		variables = new HashMap<>();
 		imports = new ArrayList<>();
@@ -168,26 +238,36 @@ public class CommandExecutor {
 		dataDeclarations = new HashMap<>();
 		moduleVariables = new HashMap<>();
 		forceRecompilation = true;
+		vocabulary = null;
+	}
+	
+	public void shutdown(){
+	  kernel.shutdown();
 	}
 	
 	public void setDebugObserver(DebugREPLFrameObserver observer){
 		this.debugObserver = observer;
+		if(kernel_debug){
+		    kernel.setFrameObserver(observer);
+		}
 	}
-	
-	private Map<String, IValue> makeCompileKwParamsAsMap(){
-		Map<String,IValue> result = new HashMap<>();
-		result.put("verbose", vf.bool(false));
-		result.put("optimize", vf.bool(optimize));
-		result.put("enableAsserts", vf.bool(enableAsserts));
-		return result;
-	}
-	
+  
 	private boolean noErrors(RVMExecutable exec){
 		return exec.getErrors().size() == 0;
 	}
 	
 	private String capitalize(String s){
 	  return s.substring(0,1).toUpperCase() + s.substring(1);
+	}
+	
+	private boolean anyFilesChanged(){
+	  for(Path p : ideServices.fileChanges()){
+	    if(p.getFileName().toString().endsWith(".rsc")){
+	      System.err.println("File changed: " + p);
+	      return true;
+	    }
+	  }
+	  return false;
 	}
 	
 	private String getErrors(String modString, RVMExecutable exec){
@@ -201,13 +281,15 @@ public class CommandExecutor {
           String msgKind = msg.getName();
           String txt = ((IString)msg.get("msg")).getValue();
           ISourceLocation src = (ISourceLocation)msg.get("at");
-          String hint = " AT " + src.toString();
+          String origin = " AT " + src.toString();
           if(src.getPath().equals(consoleInputPath)){
               int offset = src.getOffset();
               String subarea = modString.substring(offset, offset + src.getLength());
-              hint = subarea.matches("[a-zA-Z0-9]+") ? "" : " IN '" + subarea + "'";
+              origin = subarea.matches("[a-zA-Z0-9]+") ? "" : " IN '" + subarea + "'";
+          } else if(txt.contains("Cannot import")){
+              origin = "";
           }
-          sw.append(capitalize(msgKind)).append(": ").append(txt).append(hint).append("\n");
+          sw.append(capitalize(msgKind)).append(": ").append(txt).append(origin);
       }
       return sw.toString();
   }
@@ -235,103 +317,114 @@ public class CommandExecutor {
 	      return;
 	    }
 	  }
-	  IValue res = kernel.rascalTests(w.done(), 
-	      pcfg.getSrcs(), 
-	      pcfg.getLibs(), 
-	      pcfg.getBoot(), 
-	      pcfg.getBin(), 
-	      true,
-	      makeCompileKwParamsAsMap()
+	  IValue res = kernel.rascalTests(w.done(), pcfg.asConstructor(kernel),
+	                                  kernel.kw_rascalTests()
+	                                  .verbose(execute_verbose)
+	                                  .jvm(true)
+	                                  .recompile(true)
 	      );
 	  stderr.println("executeTests: " + res);
 	}
 	
 	public IConstructor executeTestsRaw(String mname){
-	  return kernel.rascalTestsRaw(vf.list(vf.string(mname)), 
-          pcfg.getSrcs(), 
-          pcfg.getLibs(), 
-          pcfg.getBoot(), 
-          pcfg.getBin(), 
-          true,
-          makeCompileKwParamsAsMap());
+	  return kernel.rascalTestsRaw(vf.list(vf.string(mname)), pcfg.asConstructor(kernel),
+	                               kernel.kw_rascalTests()
+	                               .verbose(execute_verbose)
+	                               .jvm(true)
+	                               .recompile(true)
+	      );
+	}
+	
+	private void moduleDeclarations(StringWriter w){
+	 
+      for(String imp : imports){
+          w.append("import ").append(imp).append(";\n");
+      }
+      for(String syn : syntaxDefinitions.keySet()){
+          for(String alt : syntaxDefinitions.get(syn)){
+            w.append(alt).append("\n");
+          }
+      }
+      for(String d : dataDeclarations.keySet()){
+        for(String alt : dataDeclarations.get(d)){
+          w.append(alt).append("\n");
+        }
+      }
+      
+      for(String f : functionDeclarations.keySet()){
+        for(String alt : functionDeclarations.get(f)){
+          w.append(alt).append("\n");
+        }
+      }
+      
+      for(String name : variables.keySet()){
+          Variable var = variables.get(name);
+          w.append(var.type).append(" ").append(name).append(";\n");
+      }
 	}
 	
 	private IValue executeModule(String main, boolean onlyMainChanged) throws RascalShellExecutionException {
 		StringWriter w = new StringWriter();
 		
 		w.append("module ConsoleInput\n");
-		for(String imp : imports){
-			w.append("import ").append(imp).append(";\n");
-		}
-		for(String syn : syntaxDefinitions.keySet()){
-		    for(String alt : syntaxDefinitions.get(syn)){
-		      w.append(alt).append("\n");
-		    }
-		}
-		for(String d : dataDeclarations.keySet()){
-		  for(String alt : dataDeclarations.get(d)){
-		    w.append(alt).append("\n");
-		  }
-		}
-		
-		for(String f : functionDeclarations.keySet()){
-          for(String alt : functionDeclarations.get(f)){
-            w.append(alt).append("\n");
-          }
-        }
-		
-		for(String name : variables.keySet()){
-			Variable var = variables.get(name);
-			w.append(var.type).append(" ").append(name).append(";\n");
-		}
+		moduleDeclarations(w);
 		w.append(main);
 		String modString = w.toString();
 		//System.err.println(modString);
 		try {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
-			IBool reuseConfig = vf.bool(onlyMainChanged && !forceRecompilation);
+			IBool reuseConfig = vf.bool(onlyMainChanged && !forceRecompilation && !anyFilesChanged());
 			forceRecompilation = true;
-			rvmConsoleExecutable = kernel.compileAndMergeIncremental(vf.string(consoleInputName), 
+			IConstructor rvmProgram = kernel.compileAndMergeProgramIncremental(vf.string(consoleInputName), 
 																	reuseConfig, 
-																	pcfg.getSrcs(), 
-																	pcfg.getLibs(), 
-																	pcfg.getBoot(), 
-																	pcfg.getBin(), 
-																	makeCompileKwParamsAsMap());
-			
+																	pcfg.asConstructor(kernel),
+																	kernel.kw_compileAndMergeProgramIncremental()
+																	  .optimize(compile_optimize)
+																	  .verbose(compile_verbose)
+																	  .jvm(true)
+																	);
+			rvmConsoleExecutable = ExecutionTools.link(rvmProgram, ValueFactoryFactory.getValueFactory().bool(true), new TypeStore());
+
 			if(noErrors(rvmConsoleExecutable)){
 				RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot(), stdout, stderr)
 						.forModule(shellModuleName)
 						.withModuleTags(rvmConsoleExecutable.getModuleTags())
 						.withModuleVariables(moduleVariables)
-						.setDebug(debug)
-						.setDebugRVM(debugRVM)
-						.setTestsuite(testsuite)
-						.setProfile(profile)
-						.setTrace(trace)
-						.setCoverage(coverage)
-						.setJVM(jvm)
-						.setVerbose(verbose)
-						.observedBy(debugObserver != null ? debugObserver.getObserverWhenActiveBreakpoints() : null)
+						.setDebug(execute_debug)
+						.setDebugRVM(execute_debugRVM)
+						.setTestsuite(execute_testsuite)
+						.setProfile(execute_profile)
+						.setTrace(execute_trace)
+						.setCoverage(execute_coverage)
+						.setJVM(true)
+						.setVerbose(execute_verbose)
+						.observedBy(debugObserver != null ? (kernel_debug ? debugObserver : debugObserver.getObserverWhenActiveBreakpoints()) : null)
 						.build();
 						
 				IValue val = ExecutionTools.executeProgram(rvmConsoleExecutable, new HashMap<String,IValue>(), rex);
-				lastRvmConsoleExecutable = rvmConsoleExecutable;
 				updateModuleVariables(rex.getModuleVariables());
 				forceRecompilation = false;
+				vocabulary = null;
 				return val;
 			} else {
-				throw new RascalShellExecutionException(getErrors(modString, rvmConsoleExecutable));
+				System.err.println(getErrors(modString, rvmConsoleExecutable));
+				return null;
+				
 			}
 		} catch (Thrown e){
-		    IConstructor cons = (IConstructor) e.value;
 		    StringWriter sw = new StringWriter();
-		    sw.append("Error: ").append(cons.toString());
 		    e.printStackTrace(new PrintWriter(sw));
-			throw new RascalShellExecutionException(sw.toString());
+		    if(e.getFrame() != null){
+		        System.err.println(e);
+		        debugObserver.exception(e.getFrame(), e);
+		    } else {
+		        System.err.println("Exception [debugger cannot break at null frame]: " + e);
+		    }
+			return null; //throw new RascalShellExecutionException(sw.toString());
 		} catch (IOException e){
 		  throw new RascalShellExecutionException("Error: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
 		} catch (Exception e){
+		  e.printStackTrace();
 		  throw new RascalShellExecutionException("Error: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
 		}
 	}
@@ -409,9 +502,8 @@ public class CommandExecutor {
 		}
 	}
 	
-	private void undeclareVar(String name){
-		variables.remove(name);
-		moduleVariables.remove("ConsoleInput:" + name);
+	private boolean undeclareVar(String name){
+		return !(variables.remove(name) == null && moduleVariables.remove("ConsoleInput:" + name) == null);
 	}
 	
 	private void updateModuleVariables(Map<IValue,IValue> newModuleVariables){
@@ -636,10 +728,9 @@ public class CommandExecutor {
 		IValue result;
 		if(is(imp, "default")){
 			String impName = unparse(get(get(imp, "module"), "name"));
-			if(imports.contains(impName)){
-				return null;
+			if(!imports.contains(impName)){
+			  imports.add(impName);
 			}
-			imports.add(impName);
 			try {
 				forceRecompilation = true;
 				result = executeModule(makeMainOk(), false);
@@ -723,9 +814,11 @@ public class CommandExecutor {
 	private IValue showOptions(){
 		StringBuilder sb = new StringBuilder();
 		return report(
-				sb.append("profile:  ").append(profile).append("\n")
-				  .append("trace:    ").append(trace).append("\n")
-				  .append("coverage: ").append(coverage).toString());
+				sb.append("profile:  ").append(execute_profile).append("\n")
+				  .append("trace:    ").append(execute_trace).append("\n")
+				  .append("coverage: ").append(execute_coverage).append("\n")
+				  .toString()
+				  );
 	}
 	
 	public IValue evalShellCommand(String[] words) throws RascalShellExecutionException {
@@ -743,31 +836,28 @@ public class CommandExecutor {
 			
 			switch(name){
 			case "profile":
-				profile =  getBooleanValue(val);
-				if(profile && (trace || coverage)){
-					trace = coverage = false;
+				execute_profile =  getBooleanValue(val);
+				if(execute_profile && (execute_trace || execute_coverage)){
+					execute_trace = execute_coverage = false;
 					return showOptions();
 				}
-				return report(name + " set to "  + profile);
+				return report(name + " set to "  + execute_profile);
 				
 			case "trace":
-				trace = getBooleanValue(val);
-				if(trace && (profile || coverage)){
-					profile = coverage = false;
+				execute_trace = getBooleanValue(val);
+				if(execute_trace && (execute_profile || execute_coverage)){
+					execute_profile = execute_coverage = false;
 					return showOptions();
 				}
-				return report(name + " set to "  + trace);
+				return report(name + " set to "  + execute_trace);
 				
 			case "coverage":
-				coverage = getBooleanValue(val);
-				if(coverage && (profile || trace)){
-					profile = trace = false;
+				execute_coverage = getBooleanValue(val);
+				if(execute_coverage && (execute_profile || execute_trace)){
+					execute_profile = execute_trace = false;
 					return showOptions();
 				}
-				return report(name + " set to "  + coverage);
-			case "optimize":
-				optimize = getBooleanValue(val);
-				return report(name + " set to "  + optimize);
+				return report(name + " set to "  + execute_coverage);
 								
 			default:
 				return reportError("Unrecognized option: " + name);
@@ -775,78 +865,74 @@ public class CommandExecutor {
 	
 		case "help": case "apropos":
 			if(helpManager == null){
-				helpManager = new HelpManager(pcfg, stdout, stderr);
+				helpManager = new HelpManager(pcfg, stdout, stderr, ideServices);
 			}
 			
 			helpManager.handleHelp(words);
 			break;
 			
+		case "edit":
+		  System.err.println("edit: " + words[1]);
+		  ISourceLocation loc = pcfg.getRascalSearchPath().resolveModule(words[1]);
+		  System.err.println("loc: " + loc);
+		  ideServices.edit( Paths.get(loc.getPath()));
+		  break;
+		  
 		case "declarations":
 		  if(syntaxDefinitions.isEmpty() 
 		      && dataDeclarations.isEmpty() 
-		      &&  functionDeclarations.isEmpty() 
-		      && variables.isEmpty()){
+		      && functionDeclarations.isEmpty() 
+		      && variables.isEmpty()
+		      && imports.isEmpty()){
 		    stderr.println("No declarations");
 		  } else {
-		    for(String synName : syntaxDefinitions.keySet()){
-		      for(String alt : syntaxDefinitions.get(synName)){
-		        stderr.println(alt);
-		      }
-		    }
-		    for(String dataName : dataDeclarations.keySet()){
-		      for(String alt : dataDeclarations.get(dataName)){
-		        stderr.println(alt);
-		      }
-		    }
-		    for(String funName : functionDeclarations.keySet()){
-		      for(String alt : functionDeclarations.get(funName)){
-		        stderr.println(alt);
-		      }
-		    }
-
-		    for(String varName : variables.keySet()){
-		      Variable var = variables.get(varName);
-		      stderr.println(var.type + " " + varName + ";");
-		    }
+		    
+		    StringWriter w = new StringWriter();
+		    moduleDeclarations(w);
+		    stderr.println(w.toString());
 		  }
-
 		  break;
-			
-		case "modules":
-			if(imports.isEmpty()){
-				stderr.println("No imported modules");
-			} else {
-				for(String imp : imports){
-					stderr.println(imp);
-				}
-			}
-			break;
 			
 		case "unimport":
 			if(words.length > 1){
 				for(int i = 1; i <words.length; i++){
-					imports.remove(words[i]);
+					if(imports.remove(words[i])){
+					    stderr.println("Import " + words[i] + "removed");
+					} else {
+					    stderr.println("No import " + words[i] + " found");
+					}
 				}
 			} else {
 				imports = new ArrayList<String>();
+				stderr.println("All imports removed");
 			}
+			executeModule(makeMain("true;"), false);
 			break;
 			
 		case "undeclare":
 			if(words.length > 1){
 				for(int i = 1; i <words.length; i++){
-					undeclareVar(words[i]);
-					syntaxDefinitions.remove(words[i]);
-					functionDeclarations.remove(words[i]);
-					dataDeclarations.remove(words[i]);
+					if(!undeclareVar(words[i]) ||
+					     syntaxDefinitions.remove(words[i]) == null ||
+					     functionDeclarations.remove(words[i]) == null ||
+					     dataDeclarations.remove(words[i]) == null){
+					  stderr.println("No declaration for  " + words[i] + " found");
+					} else {
+					  stderr.println("Declaration for  " + words[i] + " removed");
+					}
 				}
 			} else {
 				variables =  new HashMap<>();
 				syntaxDefinitions = new HashMap<>();
 				functionDeclarations = new HashMap<>();
 				dataDeclarations = new HashMap<>();
+				stderr.println("All declarations removed");
 				}
+			executeModule(makeMain("true;"), false);
 			break;
+			
+		case "clean":
+		    cleanProject(words);
 		
 		case "break":
 			debugObserver.getBreakPointManager().breakDirective(words);
@@ -947,24 +1033,64 @@ public class CommandExecutor {
 		return stdout;
 	}
 	
-	public Collection<String> completePartialIdentifier(String qualifier, String term) {
-		if(lastRvmConsoleExecutable != null){
-			return lastRvmConsoleExecutable.completePartialIdentifier(new NameCompleter(), term).getResult();
-		}
-		return null;
+	SortedSet<String> getVocabulary(){
+	  if(vocabulary != null){
+	    return vocabulary;
+	  }
+	  ISet names = kernel.getIncrementalVocabulary();
+	  vocabulary = new TreeSet<>();
+	  for(IValue iname : names){
+	    vocabulary.add(((IString) iname).getValue());
+	  }
+	  return vocabulary;
 	}
 	
+	public Collection<String> completePartialIdentifier(String qualifier, String term) {
+	  getVocabulary();
+      return completePartialIdentifier(new NameCompleter(), term).getResult();
+    }
+	
+	private NameCompleter completePartialIdentifier(NameCompleter completer, String partialIdentifier) {
+      if (partialIdentifier == null || partialIdentifier.isEmpty()) {
+          throw new IllegalArgumentException("The behavior with empty string is undefined.");
+      }
+      if (partialIdentifier.startsWith("\\")) {
+          partialIdentifier = partialIdentifier.substring(1);
+      }
+      
+      for(String completeName : vocabulary.tailSet(partialIdentifier)){
+        completer.add(completeName, partialIdentifier);
+      }
+
+      return completer;
+  }
+	
 	public Collection<String> completeDeclaredIdentifier(String term) {
-		TreeSet<String> result = null;
-		for(String var : variables.keySet()){
-			if(var.startsWith(term)){
-				if(result == null){
-			    	 result = new TreeSet<String>();
-			     }
-				result.add(var);
-			}
-		}
-		return result;
+	  TreeSet<String> result = new TreeSet<String>();
+	  
+	  for(String var : variables.keySet()){
+	    if(var.startsWith(term)){
+	      result.add(var);
+	    }
+	  }
+	  for(String var : syntaxDefinitions.keySet()){
+	    if(var.startsWith(term)){
+	      result.add(var);
+	    }
+	  }
+	  for(String var : functionDeclarations.keySet()){
+	    if(var.startsWith(term)){
+	      result.add(var);
+	    }  
+	  }
+
+	  for(String var : dataDeclarations.keySet()){
+	    if(var.startsWith(term)){
+	      result.add(var);
+	    }  
+	  }
+
+	  return result;
 	}
 	
 	public Collection<String> completeImportedIdentifier(String term) {
@@ -978,6 +1104,27 @@ public class CommandExecutor {
 			}
 		}
 		return result;
+	}
+	
+	public CompletionResult completeModule(String line, int cursor){
+	  return repl.completeModule(line, cursor);
+	}
+	
+	private void cleanProject(String[] words) {
+	  try {
+	    Path binRoot = Paths.get(pcfg.getBin().getPath());
+
+	    Files.walkFileTree(binRoot, new SimpleFileVisitor<Path>() {
+	      @Override
+	      public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
+	        System.err.println("delete: " + filePath);
+	        Files.delete(filePath);
+	        return FileVisitResult.CONTINUE;
+	      }
+	    });
+	  } catch (IOException e){
+	    System.err.println("Could not clean project: " + e);
+	  }
 	}
 }
 

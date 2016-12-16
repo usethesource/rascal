@@ -1,15 +1,9 @@
 module experiments::Compiler::Examples::Tst1
 
-data B = and(B lhs, B rhs) | t();
+int f(int n) = g(n);
 
-test bool visitTest() {
-  visit(and(t(),t())) { 
-    case t(): return true; 
-  };
-  
-  return false;
+int g(int n) = ()[1];
+
+value main(){
+    return f(10);
 }
-
-test bool matchTest() = /t() := and(t(),t());
-
-value main() { return matchTest(); }

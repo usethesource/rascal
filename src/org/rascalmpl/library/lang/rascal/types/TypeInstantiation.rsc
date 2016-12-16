@@ -155,7 +155,7 @@ public Symbol instantiate(Symbol pt:\parameter(str s, Symbol t), Bindings bindin
 public Symbol instantiate(Symbol::\adt(str s, list[Symbol] ps), Bindings bindings) = Symbol::\adt(s,[instantiate(p,bindings) | p <- ps]);
 public Symbol instantiate(Symbol::\cons(Symbol a, str name, list[Symbol] ps), Bindings bindings) = Symbol::\cons(instantiate(a,bindings), name, [instantiate(p,bindings) | p <- ps]);
 public Symbol instantiate(Symbol::\alias(str s, list[Symbol] ps, Symbol at), Bindings bindings) = Symbol::\alias(s, [instantiate(p,bindings) | p <- ps], instantiate(at,bindings));
-public Symbol instantiate(Symbol::\func(Symbol rt, list[Symbol] ps), Bindings bindings) = Symbol::\func(instantiate(rt,bindings),[instantiate(p,bindings) | p <- ps]);
+public Symbol instantiate(Symbol::\func(Symbol rt, list[Symbol] ps, list[Symbol] kws), Bindings bindings) = Symbol::\func(instantiate(rt,bindings),[instantiate(p,bindings) | p <- ps], [instantiate(p,bindings) | p <- kws]);
 //public Symbol instantiate(\var-func(Symbol rt, list[Symbol] ps, Symbol va), Bindings bindings) = \var-func(instantiate(rt,bindings),[instantiate(p,bindings) | p <- ps],instantiate(va,bindings));
 public Symbol instantiate(Symbol::\reified(Symbol t), Bindings bindings) = Symbol::\reified(instantiate(t,bindings));
 public Symbol instantiate(Symbol::\parameterized-sort(str n, list[Symbol] ts), Bindings bindings) = Symbol::\parameterized-sort(n, [instantiate(p,bindings) | p <- ts]);

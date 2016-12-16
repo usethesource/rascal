@@ -198,7 +198,6 @@ import com.github.benmanes.caffeine.cache.LoadingCache;
 			throw new UnsupportedOperationException();
 		}
 
-
 		@Override
 		public Type getType() {
 			return TypeFactory.getInstance().sourceLocationType();

@@ -6,6 +6,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.lang.reflect.Constructor;
 import java.util.Map;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 import org.rascalmpl.value.IValue;
 
 public class RVMJVM extends RVMCore {
@@ -53,10 +54,17 @@ public class RVMJVM extends RVMCore {
 			generatedClassInstance = (RVMonJVM) cons[0].newInstance(rvmExec, rex);
 			// make sure that the moduleVariables in this RVM and in the generated class are the same.
 			this.moduleVariables = generatedClassInstance.moduleVariables;
+			generatedClassInstance.frameObserver = this.frameObserver = rex.getFrameObserver();
 
 		} catch (Exception e) {
 		    throw new RuntimeException(e);
 		}
+	}
+	
+	@Override
+	public void setFrameObserver(IFrameObserver observer){
+	    generatedClassInstance.frameObserver = this.frameObserver = observer;
+	    this.rex.setFrameObserver(observer);
 	}
 	
 	/************************************************************************************/

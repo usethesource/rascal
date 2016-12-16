@@ -34,4 +34,9 @@ public abstract class DefaultRascalTypeVisitor<T, E extends Throwable> extends D
   public T visitNonTerminal(RascalType type) throws E {
     return def;
   }
+  
+  @Override
+  public T visitFailureType(RascalType type) throws E {
+    return def;
+  }
 }

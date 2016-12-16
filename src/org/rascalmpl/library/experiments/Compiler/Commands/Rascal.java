@@ -14,7 +14,7 @@ public class Rascal {
 
     static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
-    static ISourceLocation findBinary(ISourceLocation bin, String moduleName){
+    public static ISourceLocation findBinary(ISourceLocation bin, String moduleName){
         StringWriter sw = new StringWriter();
         sw.append(bin.getPath())
         .append("/")

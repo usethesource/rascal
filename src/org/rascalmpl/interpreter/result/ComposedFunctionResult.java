@@ -22,7 +22,6 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
@@ -33,10 +32,10 @@ import org.rascalmpl.value.IExternalValue;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IWithKeywordParameters;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
-import org.rascalmpl.value.impl.AbstractExternalValue;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.visitors.IValueVisitor;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class ComposedFunctionResult extends Result<IValue> implements IExternalValue, ICallableValue {
 	private final static TypeFactory TF = TypeFactory.getInstance();
@@ -276,7 +275,10 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	
 	@Override
 	public IConstructor encodeAsConstructor() {
-		return AbstractExternalValue.encodeAsConstructor(this);
+		return getValueFactory().constructor(RascalValueFactory.Function_Composition,
+		        left.encodeAsConstructor(),
+		        right.encodeAsConstructor()
+		        );
 	}	
 	
 }
