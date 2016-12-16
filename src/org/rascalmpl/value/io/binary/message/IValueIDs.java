@@ -175,16 +175,14 @@ public class IValueIDs {
     private static final int NODE_TYPE_ID = 112;
     private static final int ADT_TYPE_ID = 113;
     private static final int CONSTRUCTOR_TYPE_ID = 114;
-    private static final int NONTERMINAL_TYPE_ID = 115;
+    private static final int EXTERNAL_TYPE_ID = 115;
     private static final int TUPLE_TYPE_ID = 116;
     private static final int LIST_TYPE_ID = 117;
     private static final int MAP_TYPE_ID= 118;
     private static final int SET_TYPE_ID = 119;
-    private static final int REIFIED_TYPE_ID = 120;
-    private static final int PARAMETER_TYPE_ID = 121;
-    private static final int ALIAS_TYPE_ID = 122;
-    private static final int OVERLOADED_TYPE_ID = 123;
-    private static final int FUNCTION_TYPE_ID = 124;
+    private static final int PARAMETER_TYPE_ID = 120;
+    private static final int ALIAS_TYPE_ID = 121;
+    private static final int FUNCTION_TYPE_ID = 122;
     
     public static class PreviousType {
         public static final int ID = PREVIOUS_TYPE_ID_ID;
@@ -255,18 +253,9 @@ public class IValueIDs {
     public static class NodeType {
         public static final int ID = NODE_TYPE_ID;
     }
-    public static class NonTerminalType {
-        public static final int ID = NONTERMINAL_TYPE_ID;
-    }
-    public static class OverloadedType {
-        public static final int ID = OVERLOADED_TYPE_ID;
-        public static final int SIZE = 1;
-    }
-    public static class FunctionType {
-        public static final int ID = FUNCTION_TYPE_ID;
-    }
-    public static class ReifiedType {
-        public static final int ID = REIFIED_TYPE_ID;
+    
+    public static class ExternalType {
+        public static final int ID = EXTERNAL_TYPE_ID;
     }
     
     public static class TupleType {

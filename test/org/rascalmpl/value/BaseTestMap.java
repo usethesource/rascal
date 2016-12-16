@@ -319,7 +319,7 @@ public abstract class BaseTestMap extends TestCase {
 		switch(kind) {
 		case BINARY: {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			try (IValueOutputStream w = new IValueOutputStream(baos)) {
+			try (IValueOutputStream w = new IValueOutputStream(baos, ts)) {
 			    w.write(val);
 			}
 

@@ -40,6 +40,7 @@ import org.rascalmpl.value.io.binary.util.TrackLastWritten;
 import org.rascalmpl.value.io.binary.wire.binary.BinaryWireOutputStream;
 import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.value.visitors.IValueVisitor;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -102,17 +103,20 @@ public class IValueOutputStream implements Closeable {
     
     
     
-    public IValueOutputStream(OutputStream out) throws IOException {
-        this(out, CompressionRate.Normal);
+    public IValueOutputStream(OutputStream out, TypeStore store) throws IOException {
+        this(out, store, CompressionRate.Normal);
     }
     private CompressionRate compression;
     private OutputStream rawStream;
     private BinaryWireOutputStream writer;
-    public IValueOutputStream(OutputStream out, CompressionRate compression) throws IOException {
+    private TypeStore store;
+    public IValueOutputStream(OutputStream out, TypeStore store, CompressionRate compression) throws IOException {
         out.write(Header.MAIN);
         rawStream = out;
         this.compression = compression;
+        this.store = store;
         writer = null;
+
     }
     
     private static final int SMALL_SIZE = 512;
@@ -124,7 +128,7 @@ public class IValueOutputStream implements Closeable {
         if (writer == null) {
             initializeWriter(estimatedSize, sizes);
         }
-        IValueWriter.write(writer, sizes.typeWindow, sizes.valueWindow, sizes.uriWindow, value);
+        IValueWriter.write(writer, store, sizes.typeWindow, sizes.valueWindow, sizes.uriWindow, value);
     }
 
     private WindowSizes calculateWindowSize(int estimatedSize) {
