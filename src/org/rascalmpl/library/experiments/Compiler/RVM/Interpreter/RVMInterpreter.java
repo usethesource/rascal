@@ -84,7 +84,7 @@ public class RVMInterpreter extends RVMCore {
 	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs){
 		Function firstFunc = functionStore[func.getFunctions()[0]]; // TODO: null?
 		int arity = posArgs.length + 1;
-		int scopeId = func.env.scopeId;
+		int scopeId = func.env == null ? 0 : func.env.scopeId;
 		Frame root = new Frame(scopeId, null, func.env, arity+2, firstFunc);
 		root.sp = arity;
 		
@@ -1112,7 +1112,7 @@ public class RVMInterpreter extends RVMCore {
 				case Opcode.OP_UNWRAPTHROWNLOC: {
 					pos = CodeBlock.fetchArg1(instruction);
 					assert pos < cf.function.getNlocals() : "UNWRAPTHROWNLOC: pos larger that nlocals at " + cf.src;
-					stack[pos] = ((Thrown) stack[--sp]).value;
+					stack[pos] = ((Thrown) stack[--sp]).getValue();
 					continue NEXT_INSTRUCTION;
 				}
 				
@@ -1296,7 +1296,7 @@ public class RVMInterpreter extends RVMCore {
 					// then, if not found, look up the caller function(s)
 					
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
-						int handler = f.function.getHandler(f.pc - 1, thrown.value.getType());
+						int handler = f.function.getHandler(f.pc - 1, thrown.getValue().getType());
 						if(handler != -1) {
 							int fromSP = f.function.getFromSP();
 							if(f != cf) {

@@ -16,9 +16,12 @@ import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
 import org.nustaq.serialization.FSTConfiguration;
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
+import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.library.experiments.Compiler.VersionInfo;
 import org.rascalmpl.library.util.SemVer;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISourceLocation;
@@ -107,10 +110,8 @@ public class RVMExecutable implements Serializable{
 	private Map<String, Integer> resolver;
 	
 	private ArrayList<String> initializers;
-	private ArrayList<String> testsuites;
 	private String uid_module_init;
 	private String uid_module_main;
-	private String uid_module_main_testsuite;
 	
 	private byte[] jvmByteCode;
 	private String fullyQualifiedDottedName;
@@ -134,12 +135,10 @@ public class RVMExecutable implements Serializable{
 			final OverloadedFunction[] overloadedStore,
 			
 			ArrayList<String> initializers,
-			ArrayList<String> testsuites,
 			String uid_module_init,
 			String uid_module_main,
-			String uid_module_main_testsuite,
 			TypeStore ts,
-			IValueFactory vfactory, 
+			IValueFactory vfactory,
 			boolean jvm
 			) throws IOException{
 		
@@ -162,11 +161,9 @@ public class RVMExecutable implements Serializable{
 		this.overloadedStore = overloadedStore;
 		
 		this.initializers = initializers;
-		this.testsuites = testsuites;
 		
 		this.uid_module_init = uid_module_init;
 		this.uid_module_main = uid_module_main;
-		this.uid_module_main_testsuite = uid_module_main_testsuite;
 		
 		if(jvm){
 			generateClassFile(false);
@@ -227,9 +224,27 @@ public class RVMExecutable implements Serializable{
 	ArrayList<String> getInitializers() {
 		return initializers;
 	}
-
-	ArrayList<String> getTestSuites() {
-		return testsuites;
+	
+	public ArrayList<Function> getTests(){
+	  ArrayList<Function> tests = new ArrayList<>();
+	  if(functionStore != null){
+	    for(Function f : functionStore){
+	      if(f.isTest){
+	        tests.add(f);
+	      }
+	    }
+	  }
+	  return tests;
+	}
+	
+	public IList executeTests(ITestResultListener testResultListener, RascalExecutionContext rex){
+	  IListWriter w = vf.listWriter();
+	  for(Function f : functionStore){
+	    if(f.isTest){
+	      w.append(f.executeTest(testResultListener, rex));
+	    }
+	  }
+	  return w.done();
 	}
 
 	String getUidModuleInit() {
@@ -238,10 +253,6 @@ public class RVMExecutable implements Serializable{
 
 	String getUidModuleMain() {
 		return uid_module_main;
-	}
-
-	String getUidModuleMainTestsuite() {
-		return uid_module_main_testsuite;
 	}
 
 	byte[] getJvmByteCode() {
@@ -310,8 +321,8 @@ public class RVMExecutable implements Serializable{
 		} catch (Exception e) {
 		    if (e.getMessage() != null && e.getMessage().startsWith("Method code too large")) {
 		        // ASM does not provide an indication of _which_ method is too large, so let's find out:
-		        Comparator<Function> c = ((x, y) -> x.codeblock.finalCode.length - y.codeblock.finalCode.length); 
-		        throw new RuntimeException("Function too large: " + Arrays.stream(functionStore).max(c).get());
+		        Comparator<Function> c = ((x, y) -> x.codeblock.finalCode.length - y.codeblock.finalCode.length);
+		        throw new RuntimeException("Function too large: " + Arrays.stream(functionStore).max(c).get(), e);
 		    }
 		    else {
 		        throw e;
@@ -340,11 +351,9 @@ public class RVMExecutable implements Serializable{
 		//System.out.println("RVMExecutable.write: " + compOut.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
 	}
 	
-	public static RVMExecutable read(ISourceLocation rvmExecutable) throws IOException {
-		RVMExecutable executable = null;
-		
+	public static RVMExecutable read(ISourceLocation rvmExecutable, TypeStore typeStore) throws IOException {
 		vf = ValueFactoryFactory.getValueFactory();
-		TypeStore typeStore = RascalValueFactory.getStore(); //new TypeStore(RascalValueFactory.getStore());
+//		TypeStore typeStore = new TypeStore(RascalValueFactory.getStore());
 		
 		FSTSerializableType.initSerialization(vf, typeStore);
 		FSTSerializableIValue.initSerialization(vf, typeStore);
@@ -353,69 +362,16 @@ public class RVMExecutable implements Serializable{
 		FSTFunctionSerializer.initSerialization(vf, typeStore);
 		FSTCodeBlockSerializer.initSerialization(vf, typeStore);
 	
-		FSTObjectInput in = null;
-		try {
-			ISourceLocation compIn = rvmExecutable;
-			InputStream fileIn = URIResolverRegistry.getInstance().getInputStream(compIn);
-			in = new FSTObjectInput(fileIn, makeFSTConfig(rvmExecutable));
-//			long before = Timing.getCpuTime();
-			executable = (RVMExecutable) in.readObject(RVMExecutable.class);
-			in.close();
-			in = null;
-			//System.out.println("Reading: " + compIn.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
+		try (InputStream fileIn = URIResolverRegistry.getInstance().getInputStream(rvmExecutable);
+		        FSTObjectInput in = new FSTObjectInput(fileIn, makeFSTConfig(rvmExecutable))) {
+		    return (RVMExecutable) in.readObject(RVMExecutable.class);
 		} catch (ClassNotFoundException c) {
-			throw new IOException("Class not found: " + c.getMessage());
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new IOException(e.getMessage());
+		    throw new IOException("Class not found: " + c.getMessage(), c);
+		} catch (Throwable e) {
+		    throw new IOException(e.getMessage(), e);
 		} 
-		finally {
-			if(in != null){
-				try {
-					in.close();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
-		//executable.rvmProgramLoc = rvmExecutable;
-		return executable;
 	}
 	
-	public NameCompleter completePartialIdentifier(NameCompleter completer, String partialIdentifier) {
-		if (partialIdentifier == null || partialIdentifier.isEmpty()) {
-			throw new IllegalArgumentException("The behavior with empty string is undefined.");
-		}
-		if (partialIdentifier.startsWith("\\")) {
-			partialIdentifier = partialIdentifier.substring(1);
-		}
-
-		for(Function fun : functionStore){
-			completer.add(fun.name, partialIdentifier);
-		}
-		
-		for(Type type : constructorStore){
-			completer.add(type.getName(), partialIdentifier);
-		}
-		
-//		for(IValue modVar : moduleVariables.keySet()){
-//			completer.add(modVar.toString(), partialIdentifier);
-//		}
-
-		return completer;
-	}
-	
-	public NameCompleter completePartialModuleIdentifier(NameCompleter completer, String partialIdentifier) {
-		if (partialIdentifier == null || partialIdentifier.isEmpty()) {
-			throw new IllegalArgumentException("The behavior with empty string is undefined.");
-		}
-		if (partialIdentifier.startsWith("\\")) {
-			partialIdentifier = partialIdentifier.substring(1);
-		}
-
-		return completer;
-	}
 }
 	
 class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
@@ -494,10 +450,6 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 
 		out.writeObject(ex.getInitializers());
 
-		// ArrayList<String> testsuites;
-
-		out.writeObject(ex.getTestSuites());
-
 		// public String uid_module_init;
 
 		out.writeObject(ex.getUidModuleInit());
@@ -505,10 +457,6 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 		// public String uid_module_main;
 
 		out.writeObject(ex.getUidModuleMain());
-
-		// public String uid_module_main_testsuite;
-
-		out.writeObject(ex.getUidModuleMainTestsuite());
 		
 		// public byte[] jvmByteCode;
 		
@@ -636,33 +584,37 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 
 		ArrayList<String> initializers = (ArrayList<String>) in.readObject();
 
+		Object o = in.readObject();   //transient for boot
 		// ArrayList<String> testsuites;
 
-		ArrayList<String> testsuites = (ArrayList<String>) in.readObject();
+		if(o instanceof ArrayList<?>){
+		  o = in.readObject();    // skip: ArrayList<String> testsuites;
+		}
 
 		// public String uid_module_init;
 
-		String uid_module_init = (String) in.readObject();
+		String uid_module_init = (String) o;
 
 		// public String uid_module_main;
 
 		String uid_module_main = (String) in.readObject();
 
-		// public String uid_module_main_testsuite;
-
-		String uid_module_main_testsuite = (String) in.readObject();
+		o = in.readObject();   //transient for boot
+		if(o instanceof String){
+		  o = in.readObject(); // skip: public String uid_module_main_testsuite;
+		}
 		
 		// public byte[] jvmByteCode;
 		
-		byte[] jvmByteCode = (byte[]) in.readObject();
+		byte[] jvmByteCode = (byte[]) o;
 				
 		// public String fullyQualifiedDottedName;
 	
 		String fullyQualifiedDottedName = (String) in.readObject();
 
 		RVMExecutable ex = new RVMExecutable(module_name, moduleTags, symbol_definitions, functionMap, functionStore, 
-								constructorMap, constructorStore, resolver, overloadedStore, initializers, testsuites, 
-								uid_module_init, uid_module_main, uid_module_main_testsuite, store, vf, false);
+								constructorMap, constructorStore, resolver, overloadedStore, initializers, uid_module_init, 
+								uid_module_main, store, vf, false);
 		ex.setJvmByteCode(jvmByteCode);
 		ex.setFullyQualifiedDottedName(fullyQualifiedDottedName);
 		

@@ -60,5 +60,3 @@ see [uuid], this function does the same except return the UUID as an int.
 Rascal should not be done via a Java 32-bit integer.
 }
 java int uuidi();
-
-private test bool uniqueness() = uuid() != uuid();

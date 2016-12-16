@@ -12,9 +12,7 @@ import java.util.Stack;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.ConsoleRascalMonitor;
-import org.rascalmpl.interpreter.DefaultTestResultListener;
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
@@ -22,6 +20,8 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.load.URIContributor;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.types.ReifiedType;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.CallTraceObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.CoverageFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.DebugFrameObserver;
@@ -33,7 +33,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Desce
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
@@ -43,7 +42,6 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -62,6 +60,7 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats;
 public class RascalExecutionContext implements IRascalMonitor {
 
 	private IRascalMonitor monitor;
+	private IDEServices ideServices;
 	private final PrintWriter stderr;
 	private final Configuration config;
 	private final List<ClassLoader> classLoaders;
@@ -74,16 +73,17 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private final boolean testsuite;
 	private final boolean profile;
 	private final boolean trace;
-	private final ITestResultListener testResultListener;
+	private boolean coverage;
+    private boolean jvm;
+    private boolean verbose;
+    
 	private IFrameObserver frameObserver;
 	private final IMap symbol_definitions;
 	private RascalSearchPath rascalSearchPath;
 	
 	private String currentModuleName;
 	private RVMCore rvm;
-	private boolean coverage;
-	private boolean jvm;
-    private boolean verbose;
+	
 	private final IMap moduleTags;
 	private Map<IValue, IValue> moduleVariables;
 	
@@ -116,7 +116,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	StringBuilder templateBuilder = null;
 	private final Stack<StringBuilder> templateBuilderStack = new Stack<StringBuilder>();
-	private IListWriter test_results;
 	private final ISourceLocation bootDir;
 	
 	public RascalExecutionContext(
@@ -135,9 +134,9 @@ public class RascalExecutionContext implements IRascalMonitor {
 			boolean coverage, 
 			boolean jvm, 
 			boolean verbose,
-			ITestResultListener testResultListener, 
-			IFrameObserver frameObserver,
-			RascalSearchPath rascalSearchPath
+			IFrameObserver frameObserver, 
+			RascalSearchPath rascalSearchPath, 
+			IDEServices ideServices
 	){
 		
 	  this.vf = vf;
@@ -149,8 +148,8 @@ public class RascalExecutionContext implements IRascalMonitor {
 	  }
 	  
 	  this.moduleTags = moduleTags;
-	  this.symbol_definitions = symbol_definitions;
-	  this.typeStore = typeStore == null ? RascalValueFactory.getStore() /*new TypeStore()*/ : typeStore;
+	  this.symbol_definitions = symbol_definitions == null ? vf.mapWriter().done() : symbol_definitions;
+	  this.typeStore = typeStore == null ? /*RascalValueFactory.getStore()*/ new TypeStore() : typeStore;
 	  this.debug = debug;
 	  this.debugRVM = debugRVM;
 	  this.testsuite = testsuite;
@@ -174,12 +173,11 @@ public class RascalExecutionContext implements IRascalMonitor {
 	  }
 
 	  monitor = new ConsoleRascalMonitor(); //ctx.getEvaluator().getMonitor();
+	  this.ideServices = ideServices == null ? new BasicIDEServices() : ideServices;
 	  this.stdout = stdout;
 	  this.stderr = stderr;
 	  config = new Configuration();
 	  this.classLoaders = new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader()));
-	  this.testResultListener = (testResultListener == null) ? (ITestResultListener) new DefaultTestResultListener(stderr, verbose)
-	      : testResultListener;
 
 	  if(frameObserver == null){
 	    if(profile){
@@ -355,10 +353,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 		return parsingTools;
 	}
 	
-//	public Cache<String,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> getParserCache(){
-//		return parserCache;
-//	}
-	
 	public Cache<String, IValue> getParsedModuleCache() {
 		return parsedModuleCache;
 	}
@@ -367,19 +361,9 @@ public class RascalExecutionContext implements IRascalMonitor {
 		return typeToSymbolCache.get(t, k -> RascalPrimitive.$type2symbol(t));
 	}
 	
-	public Type symbolToType(final IConstructor sym, IMap definitions){
-		IValue[] key = new IValue[] { sym, definitions};
-		return symbolToTypeCache.get(sym, k -> { return reifier.symbolToType(sym, definitions); });
-	}
-	
-	public Type valueToType(final IConstructor sym){
-		if (sym.getType() instanceof ReifiedType){
-			IMap definitions = (IMap) sym.get("definitions");
-			reifier.declareAbstractDataTypes(definitions, getTypeStore());
-			return symbolToType((IConstructor) sym.get("symbol"), definitions);
-		}
-		throw new IllegalArgumentException(sym + " is not a reified type");
-	}
+	 public Type symbolToType(IConstructor v, final IMap definitions) {
+	     return symbolToTypeCache.get(v, k -> reifier.symbolToType(v, definitions));
+	 }
 	
 	Cache<IString, DescendantDescriptor> getDescendantDescriptorCache() {
 		return descendantDescriptorCache;
@@ -437,6 +421,8 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	boolean getTrace() { return trace; }
 	
+	boolean getVerbose() { return verbose; }
+	
 	public RVMCore getRVM(){ return rvm; }
 	
 	protected void setRVM(RVMCore rvmCore){ 
@@ -461,19 +447,21 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	List<ClassLoader> getClassLoaders() { return classLoaders; }
 	
-	IRascalMonitor getMonitor() {return monitor;}
+	IRascalMonitor getMonitor() {return ideServices;}
 	
-	void setMonitor(IRascalMonitor monitor) {
-		this.monitor = monitor;
+	IDEServices getIDEServices(){
+	  return ideServices;
 	}
+	
+//	void setMonitor(IRascalMonitor monitor) {
+//		this.monitor = monitor;
+//	}
 	
 	public PrintWriter getStdErr() { return stderr; }
 	
 	public PrintWriter getStdOut() { return stdout; }
 	
 	Configuration getConfiguration() { return config; }
-	
-	ITestResultListener getTestResultListener() { return testResultListener; }
 	
 	public String getFullModuleName(){ return currentModuleName; }
 	
@@ -489,10 +477,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	Stack<StringBuilder> getTemplateBuilderStack() { return  templateBuilderStack; }
 	
-	IListWriter getTestResults() { return test_results; }
-	
-	void setTestResults(IListWriter writer) { test_results = writer; }
-	
 	boolean bootstrapParser(String moduleName){
 		if(moduleTags != null){
 			IMap tags = (IMap) moduleTags.get(vf.string(moduleName));
@@ -503,64 +487,45 @@ public class RascalExecutionContext implements IRascalMonitor {
 	}
 	
 	public int endJob(boolean succeeded) {
-		if (monitor != null)
-			return monitor.endJob(succeeded);
-		return 0;
+		return ideServices.endJob(succeeded);
 	}
 	
 	public void event(int inc) {
-		if (monitor != null)
-			monitor.event(inc);
+		 ideServices.event(inc);
 	}
 	
 	public void event(String name, int inc) {
-		if (monitor != null)
-			monitor.event(name, inc);
+		 ideServices.event(name, inc);
 	}
 
 	public void event(String name) {
-		if (monitor != null)
-			monitor.event(name);
+	  ideServices.event(name);
 	}
 
 	public void startJob(String name, int workShare, int totalWork) {
-		if (monitor != null){
-			monitor.startJob(name, workShare, totalWork);
-		} else {
-			stdout.println(name);
-			stdout.flush();
-		}
+	  ideServices.startJob(name, workShare, totalWork);
 	}
 	
 	public void startJob(String name, int totalWork) {
-		if (monitor != null)
-			monitor.startJob(name, totalWork);
+	  ideServices.startJob(name, totalWork);
 	}
 	
 	public void startJob(String name) {
-		if (monitor != null){
-			monitor.startJob(name);
-		} else {
-			stdout.println(name);
-			stdout.flush();
-		}
+	  ideServices.startJob(name);
 	}
 		
 	public void todo(int work) {
-		if (monitor != null)
-			monitor.todo(work);
+	  ideServices.todo(work);
 	}
 	
 	@Override
 	public boolean isCanceled() {
-		// TODO Auto-generated method stub
-		return false;
+	  return ideServices.isCanceled();
 	}
 
 	@Override
 	public void warning(String message, ISourceLocation src) {
-		stdout.println("Warning: " + message);
-		stdout.flush();
+	  ideServices.warning(message,  src);;
 	}
 
 	public RascalSearchPath getRascalSearchPath() { 
@@ -614,6 +579,8 @@ public class RascalExecutionContext implements IRascalMonitor {
 		
 		return (ISourceLocation) resolver.call(argTypes, argValues, null).getValue();
 	}
+
+   
 	
 //	void registerCommonSchemes(){
 //		addRascalSearchPath(URIUtil.rootLocation("test-modules"));

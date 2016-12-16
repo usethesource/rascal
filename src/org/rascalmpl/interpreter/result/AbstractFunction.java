@@ -31,7 +31,6 @@ import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.KeywordFormals;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluator;
-import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
@@ -55,6 +54,7 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.value.visitors.IValueVisitor;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 abstract public class AbstractFunction extends Result<IValue> implements IExternalValue, ICallableValue {
 	protected static final TypeFactory TF = TypeFactory.getInstance();
@@ -91,13 +91,13 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 			keywordParameterDefaults.put(label, init.getExpression());
 		}
 	}
-
+	
 	@Override
 	public IConstructor encodeAsConstructor() {
-		TypeReifier tr = new TypeReifier(vf);
-		return tr.funcToProduction(this, eval, false);
+	    return getValueFactory().constructor(RascalValueFactory.Function_Function,
+	            getAst().getLocation());
 	}
-	
+
 	protected static List<KeywordFormal> getFormals(FunctionDeclaration func) {
 		KeywordFormals keywordFormals = func.getSignature().getParameters().getKeywordFormals();
 		return keywordFormals.hasKeywordFormalList() ? keywordFormals.getKeywordFormalList() : Collections.<KeywordFormal>emptyList();

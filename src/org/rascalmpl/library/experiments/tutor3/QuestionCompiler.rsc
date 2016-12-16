@@ -27,7 +27,7 @@ int countGenAndUse((Cmd) `<EvalCmd c>`){
     return n;
 }
 
-str holeMarkup(int n, int len) = "+++\<div class=\"hole\" id=\"hole<n>\" length=\"<len>\"/\>+++";
+str holeMarkup(int n) = "+++\<div class=\"hole\" id=\"hole<n>\"/\>+++";
 str clickMarkup(int n, str text) = "+++\<span class=\"clickable\" id=\"clickable<n>\" clicked=\"false\" onclick=\"handleClick(\'clickable<n>\')\"\><text>\</span\>+++";
 
 tuple[str quoted, str execute, bool hasHoles, map[str,str] bindings] preprocessCode(int questionId, 
@@ -82,7 +82,7 @@ tuple[str quoted, str execute, bool hasHoles, map[str,str] bindings] preprocessC
             println("visit AnswerCmd: <ans>");
             nholes += 1;
             txt = "<ans.elements>";
-            qt = holeMarkup(nholes, size(txt));
+            qt = holeMarkup(nholes);
             try {
                 gen = [Cmd] "$gen(<txt>)";
                 <qt1, ex> = handleCmd(gen);
@@ -221,11 +221,21 @@ str removeComments(Intro? intro){
    return res;
 }
 
+@deprecated
 public str compileQuestions(str qmodule, list[loc] srcs, list[loc] libs, list[loc] courses, loc bin, loc boot) {
     println("compileQuestions: <qmodule>, <srcs>, <libs>, <courses>, <bin>, <boot>");
     pcfg = pathConfig(srcs=[|test-modules:///|]+srcs,libs=libs,bin=bin, boot=boot);
     bn = split("/", qmodule)[-1];
     qloc = courses[0] + ("/" + qmodule + "/" + bn + ".questions");
+    println("compileQuestions: qloc=<qloc>");
+    return compileQuestions(qloc, pcfg);
+}
+
+public str compileQuestions(str qmodule, PathConfig pcfg) {
+    println("compileQuestions: <qmodule>, <pcfg>");
+    pcfg = pathConfig(srcs=[|test-modules:///|]+pcfg.srcs,libs=pcfg.libs,bin=pcfg.bin, boot=pcfg.boot,courses=pcfg.courses);
+    bn = split("/", qmodule)[-1];
+    qloc = pcfg.courses[0] + ("/" + qmodule + "/" + bn + ".questions");
     println("compileQuestions: qloc=<qloc>");
     return compileQuestions(qloc, pcfg);
 }
@@ -246,9 +256,11 @@ str process(loc qloc, PathConfig pcfg){
           '
           '++++
           '\<script src=\"http:///code.jquery.com/jquery-3.1.1.js\"\>\</script\>
+          '\<script type=\"text/javascript\" src=\"https://code.jquery.com/ui/1.11.4/jquery-ui.min.js\"\>\</script\>
           '++++
           '";
     for(iq <- iqs.introAndQuestions){
+        println("process: <iq>");
         intro = removeComments(iq.intro);
         res += (intro + "\n" + process("<iq.description>", iq.question, pcfg) +"\n");
     }
@@ -259,6 +271,8 @@ str process(loc qloc, PathConfig pcfg){
            '";
     return res;
 }
+
+// ---- CodeQuestion
 
 str process(str text, (Question) `<CodeQuestion q>`, PathConfig pcfg){
     prep_quoted = prep_executed = "";
@@ -281,7 +295,7 @@ str process(str text, (Question) `<CodeQuestion q>`, PathConfig pcfg){
                                     "module Question<questionId>
                                     '<prep_quoted><"<prep_quoted>" == "" ? "" : "\n">
                                     'test bool <e.name>() = 
-                                    '     <expr_quoted> == <expr_holes ? eval(questionId, expr_executed, prep_executed, pcfg) : holeMarkup(1, 10)>;
+                                    '     <expr_quoted> == <expr_holes ? eval(questionId, expr_executed, prep_executed, pcfg) : holeMarkup(1)>;
                                     '");
     }
     if(prep_holes){
@@ -305,8 +319,8 @@ str escape(str code){
 
 str removeSpacesAroundHoles(str code){
     return visit(code){
-        case /^[ ]+\+\+\+/ => "+++"
-        case /^\+\+\+[ ]+/ => "+++"
+        case /^[ ]+\+\+\+/ => " +++"
+        case /^\+\+\+[ ]+/ => "+++ "
     };
 }
 
@@ -324,9 +338,10 @@ str codeQuestionMarkup(int n, str text, str code){
            '----
            '++++
            '\</div\>
-           '\<br\>
            '++++";
 }
+
+// ---- ChoiceQuestion
 
 str process(str text, (Question) `<ChoiceQuestion q>`, PathConfig pcfg){
     questionId += 1;
@@ -344,10 +359,11 @@ str choiceQuestionMarkup(int n, str explanation, Choice* choices){
            '        \<div class=\"choice-description\"\> <ch.description>\</div\>
            '<}>
            '\</div\>
-           '\<br\>
             '++++
            '";
 }
+
+// ---- ClickQuestion
 
 str process(str explanation, (Question) `<ClickQuestion q>`, PathConfig pcfg){
     questionId += 1;
@@ -369,10 +385,144 @@ str clickQuestionMarkup(int n, str explanation, str code){
            '----
            '++++
            '\</div\>
-           '\<br\>
             '++++
            '";
 }
+
+// ---- MoveQuestion
+
+str process(str explanation, (Question) `<MoveQuestion q>`, PathConfig pcfg){
+    println("process: <q>");
+    questionId += 1;
+    if(Decoy d <- q.decoy){
+        return moveQuestionMarkup(questionId, explanation, "<q.text>", "<d.text>");
+    } else {
+        return moveQuestionMarkup(questionId, explanation, "<q.text>", "");
+    }
+}
+
+data Fragment = fragment(int index, list[str] lines, int pre, int post);
+
+int indent(str s) = /^<a:[ ]*>/ := s ? size(a) : 0;
+
+list[list[str]] makeSegments(list[str] lines){
+   list[list[str]] segments = [];
+   if(any(str line <- lines, startsWith(line, "---"))){
+        cur = [];
+        for(str line <- lines){
+            if(startsWith(line, "---")){
+                segments += [cur];
+                cur = [];
+            } else {
+                cur += [line];
+            }
+        }
+        if(size(cur) > 0){
+            segments += [cur];
+        }
+    } else {
+      for(int i <- index(lines)){
+          if(i + 2 < size(lines)){
+            segments += [lines[i .. i + 2]];
+          } else {
+            segments += [lines[i ..]];
+          }
+      }
+   }
+   return segments;
+}
+
+str moveQuestionMarkup(int n, str explanation, str code, str decoy){
+    println("code: <code>");
+    println("decoy: <decoy>");
+    code_lines = split("\n", code);
+    segments = makeSegments(code_lines);
+    fragments = [fragment(i, segments[i], indent(segments[i][0]), indent(segments[i][-1])) | i <- index(segments)];
+    
+    decoy_fragments = [];
+    decoy_lines = split("\n", decoy);
+    if(size(decoy) > 0){
+        decoy_segments = makeSegments(decoy_lines);
+        decoy_fragments = [fragment(-1, decoy_segments[i], 0, 0) | i <- index(decoy_segments)];
+    }
+
+    gcode = "";
+    ftop = -260;
+    initialIndent = fragments[0].pre;
+    
+    for(f <- shuffle(fragments + decoy_fragments)){
+        
+        minIndent = min(f.pre, f.post);
+        flines = "";
+        for(line <- f.lines){
+           flines += line[minIndent..] + "\n";
+        }
+        gcode += "\<div id=\"box-<f.index>\" class=\"movable-code\" index=\"<f.index>\" indent=\"<(f.pre - initialIndent)/2>\" style=\"position:relative;top:<ftop>px;\"\>
+                  '\<pre\>\<code\>"
+                  +
+                  "<flines>\</code\>\</pre\>\</div\>\n";
+        ftop += size(f.lines) * 9;
+    }
+    id = "Question<n>";
+    return 
+    ".Question <n>
+           '<explanation>
+           '++++
+           '\<div id=\"<id>\"
+           '      class=\"move-question\"\>
+           '\<div id=\"movable-code-src-<id>\" class=\"movable-code-src\" \"lines=\"<size(code_lines + decoy_lines)>\"\>
+           '\<div id=\"movable-code-target-<id>\" class=\"movable-code-target\"\>
+           '\</div\>
+            "
+            + gcode
+            +
+           "\</div\>
+           '\</div\>
+            '++++
+           '";
+           
+           // '\<form id=\"movable-code-form-<id>\" class=\"movable-code-form\"\>
+           //'\<input type=\"submit\" value=\"Submit Answer\"\>
+           // '\</form\>
+}
+
+// ---- FactQuestion
+str process(str explanation, (Question) `<FactQuestion q>`, PathConfig pcfg){
+    questionId += 1;
+    return factQuestionMarkup(questionId, explanation, q.facts);
+}
+
+str factQuestionMarkup(int n, str explanation, Fact+ facts){
+    s1 = [];
+    s2 = [];
+    
+    afacts = [f | f <- facts];
+    
+    for(int i <- index(afacts)){
+        fact = afacts[i];
+        s1 += ["\<li index=\"<i>\" class=\"fact-item\"\>\<tt\><trim("<fact.leftText>")>\</tt\>\</li\>\n"];
+        s2 += ["\<li index=\"<i>\" class=\"fact-item\"\>\<tt\><trim("<fact.rightText>")>\</tt\>\</li\>\n"];
+    }
+    
+    id = "Question<n>";
+    return 
+           ".Question <n>
+           '<explanation>
+           '++++
+           '\<div id=\"<id>\" class=\"fact-question\"\>
+           '\<ul id=\"sortable1-<id>\" class=\"sortableLeft\"\>
+           '<intercalate("\n", shuffle(s1))>
+           '\</ul\>
+           '\<ul id=\"sortable2-<id>\" class=\"sortableRight\"\>
+           '<intercalate("\n", shuffle(s2))>
+           '\</ul\>
+           '\</div\>
+           '++++
+           '";
+}
+
+// ----
+
 
 loc makeQuestion(int questionId, PathConfig pcfg){
     for(f <- pcfg.bin.ls){

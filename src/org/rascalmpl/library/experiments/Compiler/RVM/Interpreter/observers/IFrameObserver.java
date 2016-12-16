@@ -30,5 +30,5 @@ public interface IFrameObserver {
 	
 	default boolean leave(Frame frame, Object rval) { return true; }
 	
-	default boolean exception(Frame frame, Thrown thrown) { return false; }
+	default boolean exception(Frame frame, Thrown thrown) { throw thrown; }
 }
