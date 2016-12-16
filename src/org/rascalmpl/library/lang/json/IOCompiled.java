@@ -74,12 +74,10 @@ public class IOCompiled extends IO {
     }
 	
 	public IValue fromJSON(IValue type, IString src, RascalExecutionContext rex) {
-		TypeStore store = new TypeStore();
+		TypeStore store = rex.getTypeStore(); // new TypeStore();
 		
 		IConstructor type_cons = ((IConstructor) type);
-		IMap definitions = rex.getSymbolDefinitions();
 
-		tr.declareAbstractDataTypes(definitions, store);
 		Type start = tr.valueToType(type_cons, store);
 		
 		//TypeStore store = ctx.getCurrentEnvt().getStore();

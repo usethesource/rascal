@@ -162,7 +162,7 @@ public class Concept {
       return sw.toString();
     }
     
-	public void preprocess(Onthology onthology, RascalCommandExecutor executor) throws IOException{
+	public void preprocess(Onthology onthology, TutorCommandExecutor executor) throws IOException{
 		System.err.println("Preprocessing: " + name);
 		BufferedReader reader = new BufferedReader(new StringReader(text));
 

@@ -4,8 +4,8 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.Map;
 
-import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.load.RascalSearchPath;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISourceLocation;
@@ -18,12 +18,13 @@ public class RascalExecutionContextBuilder {
     private boolean build = false;
 
     private final IValueFactory vf;
+    private IDEServices ideServices;
 	private final PrintWriter stderr;
 	private final PrintWriter stdout;
 	private String moduleName;
 
 	private boolean testsuite = false;
-	private ITestResultListener testResultListener = null;
+
 	
 	private boolean debug = false;
 	private boolean debugRVM = false;
@@ -64,18 +65,16 @@ public class RascalExecutionContextBuilder {
 
 	/**
 	 * Setup the rascal execution context for test suites
-	 * @param resultListener a specific listener instance or null which will enable the DefaultTestResultListener
 	 */
-	public static RascalExecutionContextBuilder testSuiteContext(IValueFactory vf, ISourceLocation bootDir, ITestResultListener resultListener, PrintWriter stdout, PrintWriter stderr) {
+	public static RascalExecutionContextBuilder testSuiteContext(IValueFactory vf, ISourceLocation bootDir, PrintWriter stdout, PrintWriter stderr) {
 	    RascalExecutionContextBuilder result = normalContext(vf, bootDir, stdout, stderr);
 	    result.testsuite = true;
-	    result.testResultListener = resultListener;
 	    return result;
 	}
 	
 	public RascalExecutionContext build() {
 	    this.build = true;
-	    RascalExecutionContext result = new RascalExecutionContext(vf, bootDir, stdout, stderr, moduleTags, symbolDefinitions, typeStore, debug, debugRVM, testsuite, profile, trace, coverage, jvm, verbose, testResultListener, frameObserver, rascalSearchPath);
+	    RascalExecutionContext result = new RascalExecutionContext(vf, bootDir, stdout, stderr, moduleTags, symbolDefinitions, typeStore, debug, debugRVM, testsuite, profile, trace, coverage, jvm, verbose, frameObserver, rascalSearchPath, ideServices);
 	    if (this.moduleName != null) {
 	        result.setFullModuleName(moduleName);
 	    }
@@ -130,7 +129,12 @@ public class RascalExecutionContextBuilder {
         this.verbose = verbose;
         return this;
     }
-
+	
+	public RascalExecutionContextBuilder setIDEServices(IDEServices ideServices){
+	  assert !build;
+	  this.ideServices = ideServices;
+	  return this;
+	}
 	
 	/**
 	 * short hand for .setDebugging(true)
@@ -139,7 +143,6 @@ public class RascalExecutionContextBuilder {
 	    assert !build;
 	    return setDebug(true);
     }
-	
 	
 	/**
 	 *  short hand for .setProfile(true)
@@ -183,7 +186,7 @@ public class RascalExecutionContextBuilder {
 	    return this;
 	}
 	
-	public RascalExecutionContextBuilder withExisitingTypeStore(TypeStore typeStore) {
+	public RascalExecutionContextBuilder withTypeStore(TypeStore typeStore) {
 	    assert !build;
         this.typeStore = typeStore;
         return this;

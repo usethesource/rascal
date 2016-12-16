@@ -13,6 +13,7 @@ package org.rascalmpl.library.util.tasks;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -151,7 +152,7 @@ public class Manager {
 	}
 
 	protected IConstructor reify(IEvaluatorContext ctx, Type type) {
-		return (IConstructor) typeReifier.typeToValue(type, ctx).getValue();
+		return typeReifier.typeToValue(type, ctx.getCurrentEnvt().getStore(), vf.mapWriter().done());
 	}
 	/**
 	 *  Cast an IValue to ITransaction 

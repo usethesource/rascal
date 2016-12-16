@@ -39,7 +39,7 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<lucence-version>6.1.0</lucence-version>
-		<rascal.boot.version>0.8.2-bs</rascal.boot.version>
+		<rascal.boot.version>0.8.2-bs4</rascal.boot.version>
 		<rascal.boot>--download</rascal.boot>
 	</properties>
 
@@ -141,8 +141,44 @@
 					<includes>
 						<include>**/org/rascalmpl/test/AllSuiteParallel.java</include>
                         <include>**/org/rascalmpl/test/value/AllTests.java</include>
+						<include>**/org/rascalmpl/test_compiled/MediumSuite.java</include>
 					</includes>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>2.4.1</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+						<configuration>
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<manifestEntries>
+										<Main-Class>org.rascalmpl.shell.RascalShell</Main-Class>
+									</manifestEntries>
+								</transformer>
+							</transformers>
+							<!--
+								http://zhentao-li.blogspot.nl/2012/06/maven-shade-plugin-invalid-signature.html
+							-->
+							<filters>
+								<filter>
+									<artifact>*:*</artifact>
+									<excludes>
+										<exclude>META-INF/*.SF</exclude>
+										<exclude>META-INF/*.DSA</exclude>
+										<exclude>META-INF/*.RSA</exclude>
+									</excludes>
+								</filter>
+							</filters>							
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 		<pluginManagement>
@@ -192,7 +228,7 @@
 		<dependency>
 			<groupId>org.rascalmpl</groupId>
 			<artifactId>value</artifactId>
-			<version>0.5.3</version>
+			<version>0.6.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>io.usethesource</groupId>
@@ -309,5 +345,10 @@
 			<artifactId>rascal-p2-dependencies-repackaged</artifactId>
 			<version>0.1.0</version>
 		</dependency>
+		<!-- <dependency>
+			<groupId>com.typesafe</groupId>
+			<artifactId>config</artifactId>
+			<version>1.3.1</version>
+		</dependency> -->
 	</dependencies>
 </project>

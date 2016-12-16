@@ -1,6 +1,6 @@
 module lang::rascal::tests::functionality::AliasTests
 /*******************************************************************************
- * Copyright (c) 2009-2015 CWI
+ * Copyright (c) 2009-2016 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ module lang::rascal::tests::functionality::AliasTests
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
 *******************************************************************************/
 import Type;
+import IO;
 
 alias INTEGER0 = int;
 		
@@ -71,38 +72,30 @@ test bool  transitiveAliasAcrossTuples() {
     return aBlock == {<"a", "b", "c">};
 }	
 
-@ignoreCompiler{since aliases are fully expanded in compiled code}
+@ignoreCompiler
 test bool reifiedAlias1a() = 
   #partition == 
   type(
-  \alias(
-    "partition",
-    [],
-    \set(\alias(
-        "block",
-        [],
-        \rel([
-            \str(),
-            \str(),
-            \str()
-          ])))),
+  \set(\set(\tuple([
+          \str(),
+          \str(),
+          \str()
+        ]))),
   ());
 
-//TODO: it could be that ignoreComopiler is broken after bootstrapping ...
-//@ignoreInterpreter{since aliases are preserved in interpreted code}
-//test bool reifiedAlias1b() = 
-//  #partition ==  
-//  type(
-//  \alias(
-//    "partition",
-//    [],
-//    \set(\rel([
-//          \str(),
-//          \str(),
-//          \str()
-//        ]))),
-//  ());
-	
+@ignoreInterpreter
+test bool reifiedAlias1b() = 
+  #partition == 
+   type(
+     \alias(
+    "partition",
+    [],
+    \set(\set(\tuple([
+          \str(),
+          \str(),
+          \str()
+        ])))),
+  ()) ? true : bprintln(#partition.symbol) && false;
 
 alias STRING = str;
 
@@ -134,7 +127,6 @@ type(
 
 data DATA2 = d2(DATA1(STRING) fun);
 
-@ignoreCompiler{since aliases are fully expanded in compiled code}
 test bool reifiedAlias3a() = #DATA2 ==
 type(
   adt(
@@ -159,10 +151,7 @@ type(
                 adt(
                   "DATA1",
                   []),
-                [\alias(
-                    "STRING",
-                    [],
-                    \str())]))],
+                [\str()],[]))],
           [],
           {})}),
     adt(
@@ -184,7 +173,6 @@ type(
           {})})
   ));
 
-@ignoreInterpreter{since aliases are preserved in interpreted code}
 test bool reifiedAlias3b() = #DATA2 ==
 type(
   adt(
@@ -209,7 +197,7 @@ type(
                 adt(
                   "DATA1",
                   []),
-                [\str()]))],
+                [\str()],[]))],
           [],
           {})}),
     adt(

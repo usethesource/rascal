@@ -16,7 +16,7 @@ public class SampleFuns {
       IList lst1 = vf.list(vf.string("a"), vf.string("b"));
       IList lst2 = vf.list(vf.integer(1), vf.integer(2), vf.integer(3));
       
-      ISampleFuns sf = Java2Rascal.Builder.bridge(vf, new PathConfig(), ISampleFuns.class).setTrace().build();
+      ISampleFuns sf = Java2Rascal.Builder.bridge(vf, new PathConfig(), ISampleFuns.class).trace(false).build();
       
       System.out.println(sf.fun1(lst1));
       System.out.println(sf.fun1(lst2));

@@ -19,6 +19,7 @@ import java.util.regex.Matcher;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
@@ -78,7 +79,7 @@ public abstract class RVMCore {
 	
 	protected IFrameObserver frameObserver;
 
-	public final static Function noCompanionFunction = new Function("noCompanionFunction", null, null, null, 0, 0, false, null, 0, false, 0, 0, null, null, 0);
+	public final static Function noCompanionFunction = new Function("noCompanionFunction", null, null, null, 0, 0, false, false, null, null, 0, false, 0, 0, null, null, 0);
 	public static final HashMap<String, IValue> emptyKeywordMap = new HashMap<>(0);
 
 	protected PrintWriter stdout;
@@ -99,12 +100,12 @@ public abstract class RVMCore {
 	private final Types types;
 	
 	public static RVMCore readFromFileAndInitialize(ISourceLocation rvmBinaryLocation, RascalExecutionContext rex) throws IOException{
-		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);
+		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation, rex.getTypeStore());
 		return ExecutionTools.initializedRVM(rvmExecutable, rex);
 	}
 
 	public static IValue readFromFileAndExecuteProgram(ISourceLocation rvmBinaryLocation, Map<String, IValue> keywordArguments, RascalExecutionContext rex) throws Exception{
-		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);
+		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation, rex.getTypeStore());
 		return ExecutionTools.executeProgram(rvmExecutable, keywordArguments, rex);
 	}
 	
@@ -169,6 +170,10 @@ public abstract class RVMCore {
 	  this.frameObserver = (observer == null) ? NullFrameObserver.getInstance() : observer;
 	}
 	
+	public void shutdown(){
+	  frameObserver.report();
+	}
+	
 	public Map<IValue, IValue> getModuleVariables() { return moduleVariables; }
 	
 	public void updateModuleVariable(IValue name, IValue newVal){
@@ -217,15 +222,16 @@ public abstract class RVMCore {
 	public PrintWriter getStdErr() { return rex.getStdErr(); }
 	
 	public PrintWriter getStdOut() { return rex.getStdOut(); }
-	
-//	URIResolverRegistry getResolverRegistry() { return URIResolverRegistry.getInstance(); }
-	
+		
 	IRascalMonitor getMonitor() {return rex.getMonitor();}
 	
-//	List<ClassLoader> getClassLoaders() { return rex.getClassLoaders(); }
-
 	public IFrameObserver getFrameObserver() {
 		return frameObserver;
+	}
+	
+	public void setFrameObserver(IFrameObserver observer){
+	    frameObserver = observer;
+	    rex.setFrameObserver(observer);
 	}
 	
 	protected String getFunctionName(int n) {
@@ -328,12 +334,14 @@ public abstract class RVMCore {
 	  throw new NoSuchRascalFunction(name);
 	}
 	
+	// deprecated
 	public OverloadedFunction getOverloadedFunction(String signature) throws NoSuchRascalFunction{
 		OverloadedFunction result = null;
 		
 		String name = types.getFunctionName(signature);
 		Type funType = types.getFunctionType(signature);
 		FunctionType ft = (FunctionType) funType;
+		int arity = ft.getArity();
 		
 		for(OverloadedFunction of : overloadedStore){
 			if(of.matchesNameAndSignature(name, funType)){
@@ -352,6 +360,16 @@ public abstract class RVMCore {
 			return result;
 		}
 		
+		ArrayList<Integer> filteredAlts = getFunctionByNameAndArity(name, arity);
+		if(filteredAlts.size() > 0){
+		  Type tp = tf.tupleType(tf.valueType()); // arbitrary!
+		  int falts[] = new int[filteredAlts.size()];
+		  for(int i = 0; i < falts.length; i++){
+		    falts[i] = filteredAlts.get(i);
+		  }
+		  return new OverloadedFunction(name, tp,  falts, new int[] { }, "");
+		}
+
 		for(int i = 0; i < constructorStore.size(); i++){
 			Type tp = constructorStore.get(i);
 			if(name.equals(tp.getName()) && ft.getFieldTypes().comparable(funType.getFieldTypes()) 
@@ -450,6 +468,16 @@ public abstract class RVMCore {
 			Type cons = constructorStore.get(func.getConstructors()[0]);
 			return vf.constructor(cons, posArgs, kwArgs);
 		}
+	}
+	
+	public IList executeTests(ITestResultListener testResultListener, RascalExecutionContext rex){
+	  IListWriter w = vf.listWriter();
+	  for(Function f : functionStore){
+	    if(f.isTest){
+	      w.append(f.executeTest(testResultListener, rex));
+	    }
+	  }
+	  return w.done();
 	}
 	
 	/************************************************************************************/
@@ -603,7 +631,7 @@ public abstract class RVMCore {
 			return "Matcher[" + ((Matcher) o).pattern() + "]";
 		}
 		if(o instanceof Thrown) {
-			return "THROWN[ " + asString(((Thrown) o).value) + " ]";
+			return "THROWN[ " + asString(((Thrown) o).getValue()) + " ]";
 		}
 		
 		if(o instanceof StringBuilder){
@@ -631,61 +659,6 @@ public abstract class RVMCore {
 		String repr = asString(o);
 		return (repr.length() < w) ? repr : repr.substring(0, w) + "...";
 	}
-	
-//	private static class ProxyInvocationHandler implements InvocationHandler {
-//	  private final RVMCore core;
-//	  private Map<String,IValue> emptyKWParams;
-//	  private Map<Method,OverloadedFunction> overloadedFunctionsByMethod;
-//
-//	  public ProxyInvocationHandler(RVMCore core, Class<?> clazz) {
-//	    this.core = core;
-//	    emptyKWParams = new HashMap<>();
-//	    overloadedFunctionsByMethod = new HashMap<>();
-//	  }
-//	  
-//	  boolean hasKeywordParams(Object[] args){
-//	    // All normal arguments are IValues, a non-IValue must be a keyword proxy
-//	    return args != null && args.length > 0 && !(args[args.length - 1] instanceof IValue);
-//	  }
-//	  
-//	  OverloadedFunction getOverloadedFunction(Method method, Object[] args) throws NoSuchRascalFunction{
-//	    OverloadedFunction f = overloadedFunctionsByMethod.get(method);
-//	    if(f != null){
-//	      return f;
-//	    }
-//
-//	    f = core.getOverloadedFunctionByNameAndArity(method.getName(), method.getParameterCount() - (hasKeywordParams(args) ? 1 : 0));
-//	    overloadedFunctionsByMethod.put(method,  f);
-//	    return f;
-//	  }
-//	  
-//	  Map<String,IValue> getKWArgs(Object kwArgs) throws NoSuchMethodException, SecurityException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchFieldException {
-//	    return ((Java2RascalKWProxy.ProxyInvocationHandler) Proxy.getInvocationHandler(kwArgs)).asMap();
-//	  }
-//
-//	  @Override
-//	  public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-//	    Class<?> returnType = method.getReturnType();
-//	    if(returnType.isAnnotationPresent(RascalKeywordParameters.class)){
-//	      return returnType.cast(Proxy.newProxyInstance(RVMCore.class.getClassLoader(), new Class<?> [] { returnType }, new Java2RascalKWProxy.ProxyInvocationHandler(core.vf, returnType)));
-//	    }
-//	    OverloadedFunction f = getOverloadedFunction(method, args);
-//	    boolean hka = hasKeywordParams(args);
-//	    Map<String,IValue> kwArgs = hka ? getKWArgs(args[args.length - 1]) : emptyKWParams;
-//	    return Marshall.unmarshall(core.executeRVMFunction(f, marshallArgs(args, hka), kwArgs), method.getReturnType());
-//	  }
-//
-//	  private IValue[] marshallArgs(Object[] args, boolean skipKeywordArguments) {
-//	    int len = args.length - (skipKeywordArguments ? 1 : 0);
-//	    IValue[] result = new IValue[len];
-//
-//	    for (int i = 0; i < len; i++) {
-//	      result[i] = Marshall.marshall(core.vf, args[i]);
-//	    }
-//
-//	    return result;
-//	  }
-//	}
 	
 	/********************************************************************************/
 	/*			Auxiliary functions that implement specific instructions and are	*/
@@ -839,7 +812,7 @@ public abstract class RVMCore {
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == varScope) {
 				// TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues
-				fr.stack[pos] = ((Thrown) stack[--sp]).value;
+				fr.stack[pos] = ((Thrown) stack[--sp]).getValue();
 				return sp;
 			}
 		}
