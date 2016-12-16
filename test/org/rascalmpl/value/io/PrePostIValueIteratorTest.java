@@ -124,12 +124,12 @@ public class PrePostIValueIteratorTest {
             }
             if(o.mayHaveKeywordParameters()){
                 if(o.asWithKeywordParameters().hasParameters()){
-                    visitIterator(((AbstractDefaultWithKeywordParameters<IValue>) o.asWithKeywordParameters()).internalGetParameters().entryIterator());
+                    visitIterator(((AbstractDefaultWithKeywordParameters<INode>) o.asWithKeywordParameters()).internalGetParameters().entryIterator());
                     
                 }
             } else {
                 if(o.asAnnotatable().hasAnnotations()){
-                    visitIterator(((AbstractDefaultAnnotatable<IValue>)o.asAnnotatable()).internalGetAnnotations().entryIterator());
+                    visitIterator(((AbstractDefaultAnnotatable<INode>)o.asAnnotatable()).internalGetAnnotations().entryIterator());
                 }
             }
             result.add(new ValueTuple(o, false));
