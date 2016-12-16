@@ -13,12 +13,8 @@
 package org.rascalmpl.value.io.binary.message;
 
 import java.io.IOException;
-import java.util.Set;
+import java.util.HashSet;
 
-import org.rascalmpl.interpreter.types.FunctionType;
-import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.OverloadedFunctionType;
-import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IDateTime;
@@ -30,16 +26,19 @@ import org.rascalmpl.value.INode;
 import org.rascalmpl.value.IRational;
 import org.rascalmpl.value.IReal;
 import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.io.binary.util.OpenAddressingLastWritten;
 import org.rascalmpl.value.io.binary.util.PrePostIValueIterator;
 import org.rascalmpl.value.io.binary.util.TrackLastWritten;
 import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.value.visitors.IValueVisitor;
 import org.rascalmpl.values.ValueFactoryFactory;
             
@@ -68,18 +67,19 @@ public class IValueWriter {
     /**
      * In most cases you want to construct an instance of this class and call the normal write method, this method is only intended for embedded ValueWireOutputStreams
      * @param writer
+     * @param store the type store to use for looking up types to write
      * @param typeWindowSize the size of the window for type-reuse. normally 1024 should be enough, when storing parse trees, use a larger number (10_000 for example)
      * @param valueWindowSize the size of the window for value-reuse. normally 100_000 should be enough, when expecting large values, you can use a larger number
      * @param uriWindowSize the size of the window for source location reuse. normally 50_000 should be more than enough, when you expect a lot of source locations, increase this number
      * @param value the value to write
      * @throws IOException
      */
-    public static void write(IWireOutputStream writer, int typeWindowSize, int valueWindowSize, int uriWindowSize, IValue value ) throws IOException {
+    public static void write(IWireOutputStream writer, TypeStore store, int typeWindowSize, int valueWindowSize, int uriWindowSize, IValue value ) throws IOException {
         writeHeader(writer, valueWindowSize, typeWindowSize, uriWindowSize);
         TrackLastWritten<Type> typeCache = getWindow(typeWindowSize);
         TrackLastWritten<IValue> valueCache = getWindow(valueWindowSize);
         TrackLastWritten<ISourceLocation> uriCache = getWindow(uriWindowSize);
-        write(writer, value, typeCache, valueCache, uriCache);
+        write(writer, store, value, typeCache, valueCache, uriCache);
         writeEnd(writer);
     }
     
@@ -93,7 +93,7 @@ public class IValueWriter {
         writer.endMessage();
     }
 
-    private static void write(final IWireOutputStream writer, final Type type, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
+    private static void write(final IWireOutputStream writer, final TypeStore store, final Type type, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
         type.accept(new ITypeVisitor<Void, IOException>() {
 
             private boolean writeFromCache(Type type) throws IOException {
@@ -145,28 +145,11 @@ public class IValueWriter {
                 if (writeFromCache(type)) {
                     return null;
                 }
-                // TODO this should be here, but on the external type callback 
-                if(type instanceof FunctionType){
-                    FunctionType ft = (FunctionType) type;
-                    ft.getReturnType().accept(this);
-                    ft.getArgumentTypes().accept(this);
-                    ft.getKeywordParameterTypes().accept(this);
-                    writeEmptyMessageBackReferenced(writer, IValueIDs.FunctionType.ID);
-                } else if(type instanceof ReifiedType){
-                    type.getTypeParameters().accept(this);
-                    writeEmptyMessageBackReferenced(writer,IValueIDs.ReifiedType.ID);
-                } else if(type instanceof OverloadedFunctionType){
-                    Set<FunctionType> alternatives = ((OverloadedFunctionType) type).getAlternatives();
-                    for(FunctionType ft : alternatives){
-                        ft.accept(this);
-                    }
-                    writeSingleValueMessageBackReferenced(writer, IValueIDs.OverloadedType.ID, IValueIDs.OverloadedType.SIZE, ((OverloadedFunctionType) type).getAlternatives().size());
-                } else if(type instanceof NonTerminalType){
-                    write(writer, ((NonTerminalType)type).getSymbol(), typeCache, valueCache, uriCache);
-                    writeEmptyMessageBackReferenced(writer, IValueIDs.NonTerminalType.ID);
-                } else {
-                    throw new RuntimeException("External type not supported: " + type);
-                }
+                IValueFactory vf = ValueFactoryFactory.getValueFactory();
+                ISetWriter grammar = vf.setWriter();
+                IConstructor symbol = type.asSymbol(vf, store, grammar, new HashSet<>());
+                write(writer, store, symbol, typeCache, valueCache, uriCache);
+                writeEmptyMessageBackReferenced(writer, IValueIDs.ExternalType.ID);
                 typeCache.write(type);
                 return null;
             }
@@ -342,7 +325,7 @@ public class IValueWriter {
     private static final IInteger MININT =ValueFactoryFactory.getValueFactory().integer(Integer.MIN_VALUE);
     private static final IInteger MAXINT =ValueFactoryFactory.getValueFactory().integer(Integer.MAX_VALUE);
     
-    private static void write(final IWireOutputStream writer, final IValue value, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
+    private static void write(final IWireOutputStream writer, final TypeStore store, final IValue value, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
         PrePostIValueIterator iter = new PrePostIValueIterator(value);
         
         // returns if the value should be put into the cache or not
@@ -362,7 +345,7 @@ public class IValueWriter {
                 if (writeFromCache(cons) || iter.atBeginning()) {
                     return false;
                 }
-                write(writer, cons.getUninstantiatedConstructorType(), typeCache, valueCache, uriCache);
+                write(writer, store, cons.getUninstantiatedConstructorType(), typeCache, valueCache, uriCache);
 
                 writer.startMessage(IValueIDs.ConstructorValue.ID);
                 writeCanBeBackReferenced(writer);

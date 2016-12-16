@@ -51,7 +51,7 @@ public class TestBinaryIO extends TestCase {
     private void ioRoundTrip(TypeStore ts, IValue value) {
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            try (IValueOutputStream w = new IValueOutputStream(buffer,  CompressionRate.Normal)) {
+            try (IValueOutputStream w = new IValueOutputStream(buffer, ts, CompressionRate.Normal)) {
                 w.write(value);
             }
             try (IValueInputStream read = new IValueInputStream(new ByteArrayInputStream(buffer.toByteArray()), vf, ts)) {
