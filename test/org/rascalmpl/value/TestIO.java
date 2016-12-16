@@ -72,7 +72,7 @@ public class TestIO extends TestCase {
 
 	public void testSerializable() {
 		for (IValue t : testValues) {
-			SerializableValue<IValue> v = new SerializableValue<IValue>(vf, t);
+			SerializableValue<IValue> v = new SerializableValue<IValue>(vf, t, ts);
 			ByteArrayOutputStream buf = new ByteArrayOutputStream();
 			try {
 				v.write(buf);

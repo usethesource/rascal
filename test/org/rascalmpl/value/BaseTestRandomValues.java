@@ -233,11 +233,9 @@ abstract public class BaseTestRandomValues extends TestCase {
 
         @Override
         public void write(IValue value, OutputStream stream) throws IOException {
-            try(IValueOutputStream writer = new IValueOutputStream(stream, CompressionRate.Normal)) {
-                writer.write(value);
-            }
+            write(value, stream, new TypeStore());
+            
         }
-
         @Override
         public void write(IValue value, OutputStream stream, boolean compression)
                 throws IOException {
@@ -247,14 +245,17 @@ abstract public class BaseTestRandomValues extends TestCase {
         @Override
         public void write(IValue value, OutputStream stream, TypeStore typeStore)
                 throws IOException {
-            write(value, stream);
+            try(IValueOutputStream writer = new IValueOutputStream(stream, typeStore, CompressionRate.Normal)) {
+                writer.write(value);
+            }
         }
 
         @Override
         public void write(IValue value, OutputStream stream, boolean compression,
                 TypeStore typeStore) throws IOException {
-            write(value, stream);
+            write(value, stream, typeStore);
         }
+
 	    
 	}
 	

@@ -17,45 +17,18 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
-import java.lang.reflect.Array;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.net.URISyntaxException;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.zip.GZIPInputStream;
 
-import org.rascalmpl.interpreter.types.FunctionType;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.IMapWriter;
-import org.rascalmpl.value.INode;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISetWriter;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.io.binary.message.IValueReader;
-import org.rascalmpl.value.io.binary.message.IValueWriter;
-import org.rascalmpl.value.io.binary.util.LinearCircularLookupWindow;
-import org.rascalmpl.value.io.binary.util.TrackLastRead;
 import org.rascalmpl.value.io.binary.wire.binary.BinaryWireInputStream;
 import org.rascalmpl.value.io.old.BinaryReader;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.tukaani.xz.XZInputStream;
 
 import com.github.luben.zstd.ZstdInputStream;
-
-import io.usethesource.capsule.TransientMap;
-import io.usethesource.capsule.TrieMap_5Bits;
 
 /**
  * Reader for binary serialized IValues and Types.
@@ -74,7 +47,6 @@ public class IValueInputStream implements Closeable {
      */
     @SuppressWarnings("deprecation")
     public IValueInputStream(InputStream in, IValueFactory vf, TypeStore ts) throws IOException {
-        ts.extendStore(RascalValueFactory.getStore());
         this.ts = ts;
         this.vf = vf;
         byte[] currentHeader = new byte[Header.MAIN.length];

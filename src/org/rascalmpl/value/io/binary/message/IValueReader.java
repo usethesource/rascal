@@ -287,59 +287,11 @@ public class IValueReader {
             }
 
             // External
-
-            case IValueIDs.FunctionType.ID:    {
+            case IValueIDs.ExternalType.ID: {
                 boolean backReference = skipMessageCheckBackReference(reader);
 
-                Type keywordParameterTypes = tstack.pop();
-                Type argumentTypes =  tstack.pop();
-                Type returnType = tstack.pop();
-
-
-                tstack.push(rtf.functionType(returnType, argumentTypes, keywordParameterTypes));
-                return backReference;
-            }
-
-            case IValueIDs.ReifiedType.ID: {
-                boolean backReference = skipMessageCheckBackReference(reader);
-                Type elemType = tstack.pop();
-
-                elemType = elemType.getFieldType(0);
-
-                tstack.push(rtf.reifiedType(elemType));
-                return backReference;
-            }
-
-            case IValueIDs.OverloadedType.ID: {
-                Integer size = null;
-                boolean backReference = false;
-
-                while (reader.next() != IWireInputStream.MESSAGE_END) {
-                    switch (reader.field()){ 
-                        case IValueIDs.OverloadedType.SIZE:
-                            size =  reader.getInteger();
-                            break;
-                        case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
-                            backReference = true; 
-                            break;
-                    }
-                }
-
-                assert size != null;
-
-                Set<FunctionType> alternatives = new HashSet<FunctionType>(size);
-                for(int i = 0; i < size; i++){
-                    alternatives.add((FunctionType) tstack.pop());
-                }
-                tstack.push(rtf.overloadedFunctionType(alternatives));
-                return backReference;
-            }
-
-            case IValueIDs.NonTerminalType.ID: {
-                boolean backReference = skipMessageCheckBackReference(reader);
-
-                IConstructor nt = (IConstructor) vstack.pop();
-                tstack.push(rtf.nonTerminalType(nt));
+                IConstructor symbol = (IConstructor) vstack.pop();
+                tstack.push(tf.fromSymbol(symbol, store, i -> new HashSet<>()));
                 return backReference;
             }
 

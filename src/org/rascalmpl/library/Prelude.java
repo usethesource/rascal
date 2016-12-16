@@ -3462,7 +3462,10 @@ public class Prelude {
 	
     public void writeBinaryValueFile(ISourceLocation loc, IValue value, IConstructor compression){
     	if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
-		try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), translateCompression(compression))) {
+		TypeStore store = new TypeStore();
+		// TODO: need to fill the store correctly!
+		store.extendStore(RascalValueFactory.getStore());
+		try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), store, translateCompression(compression))) {
 		    writer.write(value);
 		}
 		catch (IOException ioex){
