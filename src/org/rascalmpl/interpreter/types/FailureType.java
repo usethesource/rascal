@@ -44,7 +44,7 @@ public class FailureType extends RascalType {
 
         @Override
         public Type getSymbolConstructorType() {
-            return symbols().typeSymbolConstructor("failure", tf().setType(tf().abstractDataType(new TypeStore(), "Message")), "symbol");
+            return symbols().typeSymbolConstructor("failure", tf().setType(tf().abstractDataType(new TypeStore(), "Message")), "messages");
         }
 
         @Override
