@@ -386,7 +386,7 @@ public class CommandExecutor {
 			rvmConsoleExecutable = ExecutionTools.link(rvmProgram, ValueFactoryFactory.getValueFactory().bool(true), new TypeStore());
 
 			if(noErrors(rvmConsoleExecutable)){
-				RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot(), stdout, stderr)
+				RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, pcfg, stdout, stderr)
 						.forModule(shellModuleName)
 						.withModuleTags(rvmConsoleExecutable.getModuleTags())
 						.withModuleVariables(moduleVariables)
@@ -873,7 +873,7 @@ public class CommandExecutor {
 			
 		case "edit":
 		  System.err.println("edit: " + words[1]);
-		  ISourceLocation loc = pcfg.getRascalSearchPath().resolveModule(words[1]);
+		  ISourceLocation loc = pcfg.resolveModule(words[1]);
 		  System.err.println("loc: " + loc);
 		  ideServices.edit( Paths.get(loc.getPath()));
 		  break;

@@ -34,6 +34,8 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ToplevelType;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.Parser;
@@ -298,7 +300,15 @@ public class Reflective {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 	}
-	
+
+	public IValue parseNamedModuleWithSpaces(IString modulePath,  IEvaluatorContext ctx){
+	    ISourceLocation moduleLoc = ctx.getEvaluator().getRascalResolver().resolveModule(modulePath.getValue());
+	    if(moduleLoc == null){
+	        throw RascalRuntimeException.io(values.string("Module " + modulePath.getValue() + " not found"), null);
+	    }
+	    return parseModuleWithSpaces(moduleLoc);
+	}
+
 	// REFLECT -- copy in ReflectiveCompiled
 	public IValue getModuleLocation(IString modulePath, IEvaluatorContext ctx) {
 		ISourceLocation uri = ctx.getEvaluator().getRascalResolver().resolveModule(modulePath.getValue());

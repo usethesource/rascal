@@ -6704,8 +6704,8 @@ public enum RascalPrimitive {
 
 			case "ls":
 				try {
-					ISourceLocation resolved = rex.resolveSourceLocation(sloc);
-					//ISourceLocation resolved = rvm.ctx.getHeap().resolveSourceLocation(sloc);
+					// Why is this needed: ISourceLocation resolved = rex.resolveSourceLocation(sloc);
+				    ISourceLocation resolved = sloc;
 					IListWriter w = vf.listWriter();
 
 					for (ISourceLocation elem : URIResolverRegistry.getInstance().list(resolved)) {

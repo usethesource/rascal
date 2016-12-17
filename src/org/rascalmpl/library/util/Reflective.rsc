@@ -51,9 +51,12 @@ public java Tree parseModuleAndFragments(loc location, list[loc] searchPath);
 @doc{Just parse a module at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading) }
 public java lang::rascal::\syntax::Rascal::Module parseModule(loc location);
 
-public start[Module] parseNamedModuleWithSpaces(str modulePath) {
-    return parseModuleWithSpaces(getModuleLocation(modulePath));
-}
+@javaClass{org.rascalmpl.library.util.Reflective}
+@reflect{Uses RascalExecutionContext to resolve modulePath}
+public java start[Module] parseNamedModuleWithSpaces(str modulePath) ;
+//{
+//    return parseModuleWithSpaces(getModuleLocation(modulePath));
+//}
 
 public start[Module] parseNamedModuleWithSpaces(str modulePath, PathConfig pcfg) {
     return parseModuleWithSpaces(getModuleLocation(modulePath, pcfg));

@@ -8,6 +8,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutio
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -47,12 +48,13 @@ public class BootstrapRascalParser {
 	        .noModuleArgument()
 	        .handleArgs(args);
 
-	        RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), cmdOpts.getCommandLocOption("boot"))
-	                .customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())
-	                .setTrace(cmdOpts.getCommandBoolOption("trace"))
-	                .setProfile(cmdOpts.getCommandBoolOption("profile"))
-	                .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
-	                .build();
+//	        PathConfig pcfg = cmdOpts.getPathConfig();
+//	        RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), pcfg, cmdOpts.getCommandLocOption("boot"))
+//	                .customSearchPath(pcfg.getRascalSearchPath())
+//	                .setTrace(cmdOpts.getCommandBoolOption("trace"))
+//	                .setProfile(cmdOpts.getCommandBoolOption("profile"))
+//	                .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
+//	                .build();
 
 	        //Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
 	        IKernel kernel = Java2Rascal.Builder.bridge(vf, cmdOpts.getPathConfig(), IKernel.class).build();

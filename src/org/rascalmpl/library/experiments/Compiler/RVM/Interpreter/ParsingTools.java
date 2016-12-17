@@ -2,6 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,6 +13,7 @@ import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.types.NonTerminalType;			// remove import: NO
 import org.rascalmpl.interpreter.types.ReifiedType;				// remove import: NO
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.parser.gtd.IGTD;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
@@ -317,17 +319,24 @@ public class ParsingTools {
 	 
 	  // Rascal library function (interpreter version)
 	  public ITree parseFragment(IString name, IMap moduleTags, IValue start, IConstructor tree, ISourceLocation loc, IMap grammar, IEvaluatorContext ctx) throws IOException{
-		  IMapWriter w = vf.mapWriter();
-		  w.insert(vf.tuple(name, moduleTags));
-		  
-		  RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, null /* use default bootDir */, ctx.getStdOut(), ctx.getStdErr())
-				  .withModuleTags(w.done())
-				  .customSearchPath(ctx.getEvaluator().getRascalResolver())
-				  .build();
-		  
-		  rex.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
-		  
-		  return parseFragment1(name, start, tree, loc, grammar, rex);
+	      IMapWriter w = vf.mapWriter();
+	      w.insert(vf.tuple(name, moduleTags));
+
+	      RascalExecutionContext rex = null;
+	      try {
+	          rex = RascalExecutionContextBuilder.normalContext(vf, new PathConfig(), ctx.getStdOut(), ctx.getStdErr())
+	              .withModuleTags(w.done())
+//	              .customSearchPath(ctx.getEvaluator().getRascalResolver())
+	              .build();
+	      }
+	      catch (URISyntaxException e) {
+	          // TODO Auto-generated catch block
+	          e.printStackTrace();
+	      }
+
+	      rex.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
+
+	      return parseFragment1(name, start, tree, loc, grammar, rex);
 	  }
 		
 	  // Rascal library function (compiler version)
@@ -336,9 +345,9 @@ public class ParsingTools {
 	      IMapWriter w = vf.mapWriter();
           w.insert(vf.tuple(name, moduleTags));
           
-	      RascalExecutionContext rex2 = RascalExecutionContextBuilder.normalContext(vf, rex.getBoot(), rex.getStdOut(), rex.getStdErr())
+	      RascalExecutionContext rex2 = RascalExecutionContextBuilder.normalContext(vf, rex.getPathConfig(), rex.getStdOut(), rex.getStdErr())
 	              .withModuleTags(w.done())
-	              .customSearchPath(rex.getRascalSearchPath())
+//	              .customSearchPath(rex.getRascalSearchPath())
 	              .build();
 	      
 		  return parseFragment1(name, start, tree, loc, grammar, rex2);
