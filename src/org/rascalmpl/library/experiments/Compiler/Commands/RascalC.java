@@ -111,13 +111,13 @@ public class RascalC {
               }
             }
             PathConfig pcfg = cmdOpts.getPathConfig();
-            RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), pcfg)
+            RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(pcfg)
 //                    .customSearchPath(pcfg.getRascalSearchPath())
-                    .setTrace(cmdOpts.getCommandBoolOption("trace"))
-                    .setProfile(cmdOpts.getCommandBoolOption("profile"))
+                    .trace(cmdOpts.getCommandBoolOption("trace"))
+                    .profile(cmdOpts.getCommandBoolOption("profile"))
                     //.setJVM(cmdOpts.getCommandBoolOption("jvm"))
                     .forModule(cmdOpts.getModule().getValue())
-                    .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
+                    .verbose(cmdOpts.getCommandBoolOption("verbose"))
                     .build();
 
             //Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));

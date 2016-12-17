@@ -207,7 +207,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 
 	    for (String module : modules) {
 	      String qualifiedName = (prefix.isEmpty() ? "" : prefix + "::") + module;
-	      RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, pcfg).build();
+	      RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(pcfg).build();
 	      ISourceLocation binary = Rascal.findBinary(pcfg.getBin(), qualifiedName);
 	      ISourceLocation source =  rex.getPathConfig().resolveModule(qualifiedName);
 
@@ -287,7 +287,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		notifier.fireTestRunStarted(desc);
 
 		for (Description mod : desc.getChildren()) {
-		  RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, pcfg).build();
+		  RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(pcfg).build();
 		  ISourceLocation binary = Rascal.findBinary(pcfg.getBin(), mod.getDisplayName());
           RVMCore rvmCore = null;
           try {

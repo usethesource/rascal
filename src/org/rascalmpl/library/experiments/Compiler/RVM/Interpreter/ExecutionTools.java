@@ -33,17 +33,17 @@ public class ExecutionTools {
 					IBool jvm, 
 					TypeStore typestore
 	) {
-		return RascalExecutionContextBuilder.normalContext(vf, pcfg, out != null ? out : new PrintWriter(System.out), err != null ? err : new PrintWriter(System.err))
+		return RascalExecutionContextBuilder.normalContext(pcfg, out != null ? out : new PrintWriter(System.out), err != null ? err : new PrintWriter(System.err))
 			.withModuleTags(rvmExecutable.getModuleTags())
 			.withSymbolDefinitions(rvmExecutable.getSymbolDefinitions())
 			.withTypeStore(typestore)
-			.setDebug(debug.getValue())
-			.setDebugRVM(debugRVM.getValue())
-			.setTestsuite(testsuite.getValue())
-			.setProfile(profile.getValue())
-			.setTrace(trace.getValue())
-			.setCoverage(coverage.getValue())
-			.setJVM(jvm.getValue())
+			.debug(debug.getValue())
+			.debugRVM(debugRVM.getValue())
+			.testsuite(testsuite.getValue())
+			.profile(profile.getValue())
+			.trace(trace.getValue())
+			.coverage(coverage.getValue())
+			.jvm(jvm.getValue())
 //			.customSearchPath(rascalSearchPath)
 			.build();
 	}
