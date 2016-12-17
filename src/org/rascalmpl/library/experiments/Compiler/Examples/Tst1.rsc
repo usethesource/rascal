@@ -1,9 +1,29 @@
 module experiments::Compiler::Examples::Tst1
 
-int f(int n) = g(n);
 
-int g(int n) = ()[1];
+import util::Webserver;
 
-value main(){
-    return f(10);
+loc base = |courses:///|;
+
+loc startTutor() {
+  loc site = |http://localhost:8081|;
+  
+  while (true) {
+    try {
+      serve(site, page);
+      return site;
+    }  
+    catch IO("Address already in use"): {
+      site.port += 1; 
+    }
+  }
 }
+
+void stopTutor(loc site) {
+  shutdown(site);
+}
+
+Response page(get(/.*/, Body _))   = response(base + "index.html");
+
+value main() { startTutor(); return true; }
+
