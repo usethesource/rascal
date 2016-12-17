@@ -15,37 +15,11 @@ package org.rascalmpl.value.io.binary.stream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Set;
-import java.util.zip.GZIPOutputStream;
 
-import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
-import org.apache.commons.compress.compressors.gzip.GzipParameters;
-import org.apache.commons.compress.compressors.xz.XZCompressorOutputStream;
-import org.rascalmpl.interpreter.types.FunctionType;
-import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.OverloadedFunctionType;
-import org.rascalmpl.interpreter.types.ReifiedType;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IDateTime;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IRational;
-import org.rascalmpl.value.IReal;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.io.binary.message.IValueWriter;
-import org.rascalmpl.value.io.binary.util.OpenAddressingLastWritten;
-import org.rascalmpl.value.io.binary.util.PrePostIValueIterator;
-import org.rascalmpl.value.io.binary.util.TrackLastWritten;
 import org.rascalmpl.value.io.binary.wire.binary.BinaryWireOutputStream;
-import org.rascalmpl.value.type.ITypeVisitor;
-import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
-import org.rascalmpl.value.visitors.IValueVisitor;
-import org.rascalmpl.values.ValueFactoryFactory;
-
-import com.github.luben.zstd.ZstdOutputStream;
-import com.github.luben.zstd.util.Native;
             
 /**
  * A binary serializer for IValues and Types.
