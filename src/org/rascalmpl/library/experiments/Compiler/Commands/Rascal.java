@@ -68,11 +68,11 @@ public class Rascal {
             .handleArgs(args);
 
             PathConfig pcfg = cmdOpts.getPathConfig();
-            RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), pcfg)
-                    .setTrace(cmdOpts.getCommandBoolOption("trace"))
-                    .setProfile(cmdOpts.getCommandBoolOption("profile"))
+            RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(pcfg)
+                    .trace(cmdOpts.getCommandBoolOption("trace"))
+                    .profile(cmdOpts.getCommandBoolOption("profile"))
                     .forModule(cmdOpts.getModule().getValue())
-                    .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
+                    .verbose(cmdOpts.getCommandBoolOption("verbose"))
                     .build();
 
             ISourceLocation binary = findBinary(cmdOpts.getCommandLocOption("bin"), cmdOpts.getModule().getValue());

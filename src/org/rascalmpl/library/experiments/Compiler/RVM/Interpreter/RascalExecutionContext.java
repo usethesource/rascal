@@ -110,26 +110,25 @@ public class RascalExecutionContext implements IRascalMonitor {
     private final PathConfig pcfg;
 	
 	public RascalExecutionContext(
-			IValueFactory vf, 
-			PathConfig pcfg,
-			PrintWriter stdout, 
+			PathConfig pcfg, 
+			PrintWriter stdout,
 			PrintWriter stderr, 
 			IMap moduleTags, 
 			IMap symbol_definitions, 
-			TypeStore typeStore,
+			TypeStore typeStore, 
+			IFrameObserver frameObserver,
+			IDEServices ideServices, 
+			boolean coverage, 
 			boolean debug, 
 			boolean debugRVM, 
-			boolean testsuite, 
-			boolean profile, 
-			boolean trace, 
-			boolean coverage, 
 			boolean jvm, 
-			boolean verbose,
-			IFrameObserver frameObserver, 
-			IDEServices ideServices
+			boolean profile, 
+			boolean testsuite, 
+			boolean trace,
+			boolean verbose
 	){
 		
-	  this.vf = vf;
+	  this.vf = pcfg.getValueFactory();
 	  this.pcfg = pcfg;
 	  this.bootDir = pcfg.getBoot();
 	  if(bootDir != null && !(bootDir.getScheme().equals("boot") ||  

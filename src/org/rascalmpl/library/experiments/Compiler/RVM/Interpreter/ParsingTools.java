@@ -324,7 +324,7 @@ public class ParsingTools {
 
 	      RascalExecutionContext rex = null;
 	      try {
-	          rex = RascalExecutionContextBuilder.normalContext(vf, new PathConfig(), ctx.getStdOut(), ctx.getStdErr())
+	          rex = RascalExecutionContextBuilder.normalContext(new PathConfig(), ctx.getStdOut(), ctx.getStdErr())
 	              .withModuleTags(w.done())
 //	              .customSearchPath(ctx.getEvaluator().getRascalResolver())
 	              .build();
@@ -345,7 +345,7 @@ public class ParsingTools {
 	      IMapWriter w = vf.mapWriter();
           w.insert(vf.tuple(name, moduleTags));
           
-	      RascalExecutionContext rex2 = RascalExecutionContextBuilder.normalContext(vf, rex.getPathConfig(), rex.getStdOut(), rex.getStdErr())
+	      RascalExecutionContext rex2 = RascalExecutionContextBuilder.normalContext(rex.getPathConfig(), rex.getStdOut(), rex.getStdErr())
 	              .withModuleTags(w.done())
 //	              .customSearchPath(rex.getRascalSearchPath())
 	              .build();
