@@ -49,7 +49,6 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats;
  */
 public class RascalExecutionContext implements IRascalMonitor {
 
-//	private IRascalMonitor monitor;
 	private IDEServices ideServices;
 	private final PrintWriter stderr;
 	private final Configuration config;
@@ -69,7 +68,6 @@ public class RascalExecutionContext implements IRascalMonitor {
     
 	private IFrameObserver frameObserver;
 	private final IMap symbol_definitions;
-//	private RascalSearchPath rascalSearchPath;
 	
 	private String currentModuleName;
 	private RVMCore rvm;
@@ -154,15 +152,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 
 	  reifier = new TypeReifier(vf);
 
-//	  if(rascalSearchPath == null){
-//	    this.rascalSearchPath = new RascalSearchPath();
-//	    addRascalSearchPath(URIUtil.rootLocation("test-modules"));
-//	    addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-//	  } else {
-//	    this.rascalSearchPath = rascalSearchPath;
-//	  }
-
-//	  monitor = new ConsoleRascalMonitor(); //ctx.getEvaluator().getMonitor();
 	  this.ideServices = ideServices == null ? new BasicIDEServices() : ideServices;
 	  this.stdout = stdout;
 	  this.stderr = stderr;
@@ -249,7 +238,6 @@ public class RascalExecutionContext implements IRascalMonitor {
     }
     
 	// Cache related methods
-	
 	
 	private static void createCaches(boolean enabled){
 		sharedTypeConstantCache = Caffeine.newBuilder()
@@ -447,10 +435,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	  return ideServices;
 	}
 	
-//	void setMonitor(IRascalMonitor monitor) {
-//		this.monitor = monitor;
-//	}
-	
 	public PrintWriter getStdErr() { return stderr; }
 	
 	public PrintWriter getStdOut() { return stdout; }
@@ -521,65 +505,4 @@ public class RascalExecutionContext implements IRascalMonitor {
 	public void warning(String message, ISourceLocation src) {
 	  ideServices.warning(message,  src);;
 	}
-
-//	public RascalSearchPath getRascalSearchPath() { 
-//		return rascalSearchPath; 
-//	}
-	
-//	private void addRascalSearchPathContributor(IRascalSearchPathContributor contrib) {
-//		rascalSearchPath.addPathContributor(contrib);
-//	}
-//	
-//	private void addRascalSearchPath(final ISourceLocation uri) {
-//		rascalSearchPath.addPathContributor(new URIContributor(uri));
-//	}
-	
-//	/**
-//	 * Source location resolvers map user defined schemes to primitive schemes
-//	 */
-//	private final HashMap<String, ICallableValue> sourceResolvers = new HashMap<String, ICallableValue>();
-//	
-//	/**
-//	 * Register a source resolver for a specific scheme. Will overwrite the previously
-//	 * registered source resolver for this scheme.
-//	 * 
-//	 * @param scheme   intended be a scheme name without + or :
-//	 * @param function a Rascal function of type `loc (loc)`
-//	 */
-//	public void registerSourceResolver(String scheme, ICallableValue function) {
-//		sourceResolvers.put(scheme, function);
-//	}
-//	
-//	public ISourceLocation resolveSourceLocation(ISourceLocation loc) {
-//		String scheme = loc.getScheme();
-//		int pos;
-//		
-//		ICallableValue resolver = sourceResolvers.get(scheme);
-//		if (resolver == null) {
-//			for (char sep : new char[] {'+',':'}) {
-//				pos = scheme.indexOf(sep);
-//				if (pos != -1) {
-//					scheme = scheme.substring(0, pos);
-//				}
-//			}
-//
-//			resolver = sourceResolvers.get(scheme);
-//			if (resolver == null) {
-//				return loc;
-//			}
-//		}
-//		
-//		Type[] argTypes = new Type[] { TypeFactory.getInstance().sourceLocationType() };
-//		IValue[] argValues = new IValue[] { loc };
-//		
-//		return (ISourceLocation) resolver.call(argTypes, argValues, null).getValue();
-//	}
-
-   
-	
-//	void registerCommonSchemes(){
-//		addRascalSearchPath(URIUtil.rootLocation("test-modules"));
-//		addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-//		addRascalSearchPath(URIUtil.rootLocation("courses"));
-//	}
 }
