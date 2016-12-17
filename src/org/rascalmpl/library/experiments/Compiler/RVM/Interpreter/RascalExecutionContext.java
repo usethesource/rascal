@@ -91,8 +91,8 @@ public class RascalExecutionContext implements IRascalMonitor {
     private static final String PATH_TO_LINKED_KERNEL = "lang/rascal/boot/Kernel.rvm.ser.gz";
     private static final String PATH_TO_LINKED_RASCALEXTRACTION = "experiments/Compiler/RascalExtraction/RascalExtraction.rvm.ser.gz";
     private static final String PATH_TO_LINKED_QUESTIONCOMPILER = "experiments/tutor3/QuestionCompiler.rvm.ser.gz";
-
-	
+    private static final String PATH_TO_LINKED_WEBSERVER = "util/Webserver.rvm.ser.gz";
+    
 	static {
 		createCaches(true);
 	}
@@ -212,6 +212,10 @@ public class RascalExecutionContext implements IRascalMonitor {
 	public static ISourceLocation getQuestionCompiler(ISourceLocation givenBootDir) {
       return getLocation(givenBootDir, PATH_TO_LINKED_QUESTIONCOMPILER);
     }
+	
+	public static ISourceLocation getWebserver(ISourceLocation givenBootDir) {
+	    return getLocation(givenBootDir, PATH_TO_LINKED_WEBSERVER);
+	}
 
 	public ISourceLocation getBoot() {
 	  return  getLocation(bootDir, "");

@@ -1162,8 +1162,9 @@ public abstract class RVMCore {
 			"org.rascalmpl.library.util.ReflectiveCompiled.inCompiledMode",
 			"org.rascalmpl.library.util.ReflectiveCompiled.parseNamedModuleWithSpaces",
 			"org.rascalmpl.library.util.ReflectiveCompiled.diff",
-			"org.rascalmpl.library.util.ReflectiveCompiled.watch"
-
+			"org.rascalmpl.library.util.ReflectiveCompiled.watch",
+			"org.rascalmpl.library.util.WebserverCompiled.serve"
+		
 			/*
 			 * 	TODO:
 			 * cobra::util::outputlogger::startLog
@@ -1203,15 +1204,9 @@ public abstract class RVMCore {
 			 *  util::tasks::Manager
 			 *  util::Eval
 			 *  util::Monitor
-			 *  util::Reflective
-			 *  
-			 *  util::Webserver
-			 *  
 			 *  vis::Figure::color
 			 *  
 			 *  Traversal::getTraversalContext
-			 *  
-			 *  tutor::HTMLGenerator
 			 *  
 			 *  **eclipse**
 			 *  util::Editors
