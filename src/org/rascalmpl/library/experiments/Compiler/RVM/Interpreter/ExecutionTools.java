@@ -5,8 +5,8 @@ import java.io.PrintWriter;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.DefaultTestResultListener;
-import org.rascalmpl.interpreter.load.RascalSearchPath;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.ISourceLocation;
@@ -20,7 +20,7 @@ public class ExecutionTools {
 	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
 	public static RascalExecutionContext makeRex(
-	                ISourceLocation kernel,
+	                PathConfig pcfg,
 					RVMExecutable rvmExecutable,
 					PrintWriter out,
 					PrintWriter err,
@@ -31,10 +31,9 @@ public class ExecutionTools {
 					IBool trace, 
 					IBool coverage, 
 					IBool jvm, 
-					RascalSearchPath rascalSearchPath,
 					TypeStore typestore
 	) {
-		return RascalExecutionContextBuilder.normalContext(vf, kernel, out != null ? out : new PrintWriter(System.out), err != null ? err : new PrintWriter(System.err))
+		return RascalExecutionContextBuilder.normalContext(vf, pcfg, out != null ? out : new PrintWriter(System.out), err != null ? err : new PrintWriter(System.err))
 			.withModuleTags(rvmExecutable.getModuleTags())
 			.withSymbolDefinitions(rvmExecutable.getSymbolDefinitions())
 			.withTypeStore(typestore)
@@ -45,7 +44,7 @@ public class ExecutionTools {
 			.setTrace(trace.getValue())
 			.setCoverage(coverage.getValue())
 			.setJVM(jvm.getValue())
-			.customSearchPath(rascalSearchPath)
+//			.customSearchPath(rascalSearchPath)
 			.build();
 	}
 	

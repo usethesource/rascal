@@ -65,8 +65,14 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   
   @Override
   protected boolean isREPLCommand(String line){
-	  String[] words = line.split(" ");
-	  return SHELL_VERBS.contains(words[0]);
+      if(line.length() > 0){
+          int idx = line.indexOf(" ");
+          if(idx > 0){
+              return SHELL_VERBS.contains(line.substring(0,  idx));
+          }
+          return SHELL_VERBS.contains(line);
+      }
+	 return false;
   }
   
   @Override
@@ -207,7 +213,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
       if (entries != null && entries.size() > 0) {
           if (entries.contains(partialModuleName)) {
               // we have a full directory name (at least the option)
-              List<String> subEntries = pcfg.getRascalSearchPath().listModuleEntries(qualifier + "::" + partialModuleName);
+              List<String> subEntries = pcfg.listModuleEntries(qualifier + "::" + partialModuleName);
               if (subEntries != null) {
                   entries.remove(partialModuleName);
                   subEntries.forEach(e -> entries.add(partialModuleName + "::" + e));

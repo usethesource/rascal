@@ -322,7 +322,7 @@ public class BreakPointManager {
 			add(new FunctionEnterBreakpoint(uid++, args[1]));
 		}
 		if(args.length == 3){								// break <moduleName> <lino>
-			ISourceLocation modSrc = pcfg.getRascalSearchPath().resolveModule(args[1]);
+			ISourceLocation modSrc = pcfg.resolveModule(args[1]);
 			if(modSrc != null){
 				add(new LineBreakpoint(uid++, modSrc.getPath(), Integer.parseInt(args[2])));
 			} else {
