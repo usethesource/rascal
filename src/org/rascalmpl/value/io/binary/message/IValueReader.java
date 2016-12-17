@@ -18,11 +18,11 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
-import org.rascalmpl.interpreter.types.FunctionType;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
@@ -33,6 +33,7 @@ import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
+import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.io.binary.util.LinearCircularLookupWindow;
@@ -51,7 +52,6 @@ import io.usethesource.capsule.TrieMap_5Bits;
  */
 public class IValueReader {
     private static final TypeFactory tf = TypeFactory.getInstance();
-    private static final RascalTypeFactory rtf = RascalTypeFactory.getInstance();
 
     /**
      * In most cases you want the other instance write method.
@@ -291,7 +291,9 @@ public class IValueReader {
                 boolean backReference = skipMessageCheckBackReference(reader);
 
                 IConstructor symbol = (IConstructor) vstack.pop();
-                tstack.push(tf.fromSymbol(symbol, store, i -> new HashSet<>()));
+                ISet grammar = (ISet) vstack.pop();
+                Map<IConstructor, Set<IConstructor>> translatedGrammar = translateRelation(grammar);
+                tstack.push(tf.fromSymbol(symbol, store, p -> translatedGrammar.get(p)));
                 return backReference;
             }
 
@@ -422,6 +424,21 @@ public class IValueReader {
                 throw new IOException("Unexpected new message: " + reader.message());
         }
     }
+
+    private static Map<IConstructor, Set<IConstructor>> translateRelation(ISet grammar) {
+        Map<IConstructor, Set<IConstructor>> result = new HashMap<>();
+        for (IValue p : grammar) {
+            ITuple tp = (ITuple)p;
+            Set<IConstructor> productions = result.get(tp.get(0));
+            if (productions == null) {
+                productions = new HashSet<IConstructor>();
+                result.put((IConstructor) tp.get(0), productions);
+            }
+            productions.add((IConstructor) tp.get(1));
+        }
+        return result;
+    }
+
 
     private static boolean readValue(final IWireInputStream reader, final IValueFactory vf, final TypeStore store, final TrackLastRead<Type> typeWindow, final TrackLastRead<IValue> valueWindow, final TrackLastRead<ISourceLocation> uriWindow, final ReaderStack<Type> tstack, final ValueReaderStack vstack) throws IOException{
         switch (reader.message()) {
