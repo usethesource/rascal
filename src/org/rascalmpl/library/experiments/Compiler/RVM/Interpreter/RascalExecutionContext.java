@@ -4,22 +4,14 @@ import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Configuration;
-import org.rascalmpl.interpreter.ConsoleRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
-import org.rascalmpl.interpreter.load.RascalSearchPath;
-import org.rascalmpl.interpreter.load.StandardLibraryContributor;
-import org.rascalmpl.interpreter.load.URIContributor;
-import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.CallTraceObserver;
@@ -30,8 +22,8 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.Null
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.ProfileFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.RVMTrackingObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISourceLocation;
@@ -39,7 +31,6 @@ import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -50,16 +41,15 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats;
 /**
  * Provides all context information that is needed during the execution of a compiled Rascal program
  * and contains:
- * - I/O streams
+ * - PathConfig
  * - class loaders
- * - RascalSearchPath
+ * - I/O streams
  * - execution flags
- * - state variables need by RascalPrimitives
- *
+ * - state variables and caches needed by RascalPrimitives
  */
 public class RascalExecutionContext implements IRascalMonitor {
 
-	private IRascalMonitor monitor;
+//	private IRascalMonitor monitor;
 	private IDEServices ideServices;
 	private final PrintWriter stderr;
 	private final Configuration config;
@@ -79,7 +69,7 @@ public class RascalExecutionContext implements IRascalMonitor {
     
 	private IFrameObserver frameObserver;
 	private final IMap symbol_definitions;
-	private RascalSearchPath rascalSearchPath;
+//	private RascalSearchPath rascalSearchPath;
 	
 	private String currentModuleName;
 	private RVMCore rvm;
@@ -117,10 +107,11 @@ public class RascalExecutionContext implements IRascalMonitor {
 	StringBuilder templateBuilder = null;
 	private final Stack<StringBuilder> templateBuilderStack = new Stack<StringBuilder>();
 	private final ISourceLocation bootDir;
+    private final PathConfig pcfg;
 	
 	public RascalExecutionContext(
 			IValueFactory vf, 
-			ISourceLocation bootDir,
+			PathConfig pcfg,
 			PrintWriter stdout, 
 			PrintWriter stderr, 
 			IMap moduleTags, 
@@ -135,12 +126,12 @@ public class RascalExecutionContext implements IRascalMonitor {
 			boolean jvm, 
 			boolean verbose,
 			IFrameObserver frameObserver, 
-			RascalSearchPath rascalSearchPath, 
 			IDEServices ideServices
 	){
 		
 	  this.vf = vf;
-	  this.bootDir = bootDir; 
+	  this.pcfg = pcfg;
+	  this.bootDir = pcfg.getBoot();
 	  if(bootDir != null && !(bootDir.getScheme().equals("boot") ||  
 	                          bootDir.getScheme().equals("compressed+boot") || 
 	                          URIResolverRegistry.getInstance().isDirectory(bootDir))){
@@ -164,15 +155,15 @@ public class RascalExecutionContext implements IRascalMonitor {
 
 	  reifier = new TypeReifier(vf);
 
-	  if(rascalSearchPath == null){
-	    this.rascalSearchPath = new RascalSearchPath();
-	    addRascalSearchPath(URIUtil.rootLocation("test-modules"));
-	    addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
-	  } else {
-	    this.rascalSearchPath = rascalSearchPath;
-	  }
+//	  if(rascalSearchPath == null){
+//	    this.rascalSearchPath = new RascalSearchPath();
+//	    addRascalSearchPath(URIUtil.rootLocation("test-modules"));
+//	    addRascalSearchPathContributor(StandardLibraryContributor.getInstance());
+//	  } else {
+//	    this.rascalSearchPath = rascalSearchPath;
+//	  }
 
-	  monitor = new ConsoleRascalMonitor(); //ctx.getEvaluator().getMonitor();
+//	  monitor = new ConsoleRascalMonitor(); //ctx.getEvaluator().getMonitor();
 	  this.ideServices = ideServices == null ? new BasicIDEServices() : ideServices;
 	  this.stdout = stdout;
 	  this.stderr = stderr;
@@ -236,6 +227,10 @@ public class RascalExecutionContext implements IRascalMonitor {
 
 	public ISourceLocation getBoot() {
 	  return  getLocation(bootDir, "");
+	}
+	
+	public PathConfig getPathConfig(){
+	    return pcfg;
 	}
 	
 	public ISourceLocation getKernel() {
@@ -528,57 +523,58 @@ public class RascalExecutionContext implements IRascalMonitor {
 	  ideServices.warning(message,  src);;
 	}
 
-	public RascalSearchPath getRascalSearchPath() { 
-		return rascalSearchPath; 
-	}
+//	public RascalSearchPath getRascalSearchPath() { 
+//		return rascalSearchPath; 
+//	}
 	
-	private void addRascalSearchPathContributor(IRascalSearchPathContributor contrib) {
-		rascalSearchPath.addPathContributor(contrib);
-	}
+//	private void addRascalSearchPathContributor(IRascalSearchPathContributor contrib) {
+//		rascalSearchPath.addPathContributor(contrib);
+//	}
+//	
+//	private void addRascalSearchPath(final ISourceLocation uri) {
+//		rascalSearchPath.addPathContributor(new URIContributor(uri));
+//	}
 	
-	private void addRascalSearchPath(final ISourceLocation uri) {
-		rascalSearchPath.addPathContributor(new URIContributor(uri));
-	}
-	/**
-	 * Source location resolvers map user defined schemes to primitive schemes
-	 */
-	private final HashMap<String, ICallableValue> sourceResolvers = new HashMap<String, ICallableValue>();
-	
-	/**
-	 * Register a source resolver for a specific scheme. Will overwrite the previously
-	 * registered source resolver for this scheme.
-	 * 
-	 * @param scheme   intended be a scheme name without + or :
-	 * @param function a Rascal function of type `loc (loc)`
-	 */
-	public void registerSourceResolver(String scheme, ICallableValue function) {
-		sourceResolvers.put(scheme, function);
-	}
-	
-	public ISourceLocation resolveSourceLocation(ISourceLocation loc) {
-		String scheme = loc.getScheme();
-		int pos;
-		
-		ICallableValue resolver = sourceResolvers.get(scheme);
-		if (resolver == null) {
-			for (char sep : new char[] {'+',':'}) {
-				pos = scheme.indexOf(sep);
-				if (pos != -1) {
-					scheme = scheme.substring(0, pos);
-				}
-			}
-
-			resolver = sourceResolvers.get(scheme);
-			if (resolver == null) {
-				return loc;
-			}
-		}
-		
-		Type[] argTypes = new Type[] { TypeFactory.getInstance().sourceLocationType() };
-		IValue[] argValues = new IValue[] { loc };
-		
-		return (ISourceLocation) resolver.call(argTypes, argValues, null).getValue();
-	}
+//	/**
+//	 * Source location resolvers map user defined schemes to primitive schemes
+//	 */
+//	private final HashMap<String, ICallableValue> sourceResolvers = new HashMap<String, ICallableValue>();
+//	
+//	/**
+//	 * Register a source resolver for a specific scheme. Will overwrite the previously
+//	 * registered source resolver for this scheme.
+//	 * 
+//	 * @param scheme   intended be a scheme name without + or :
+//	 * @param function a Rascal function of type `loc (loc)`
+//	 */
+//	public void registerSourceResolver(String scheme, ICallableValue function) {
+//		sourceResolvers.put(scheme, function);
+//	}
+//	
+//	public ISourceLocation resolveSourceLocation(ISourceLocation loc) {
+//		String scheme = loc.getScheme();
+//		int pos;
+//		
+//		ICallableValue resolver = sourceResolvers.get(scheme);
+//		if (resolver == null) {
+//			for (char sep : new char[] {'+',':'}) {
+//				pos = scheme.indexOf(sep);
+//				if (pos != -1) {
+//					scheme = scheme.substring(0, pos);
+//				}
+//			}
+//
+//			resolver = sourceResolvers.get(scheme);
+//			if (resolver == null) {
+//				return loc;
+//			}
+//		}
+//		
+//		Type[] argTypes = new Type[] { TypeFactory.getInstance().sourceLocationType() };
+//		IValue[] argValues = new IValue[] { loc };
+//		
+//		return (ISourceLocation) resolver.call(argTypes, argValues, null).getValue();
+//	}
 
    
 	
