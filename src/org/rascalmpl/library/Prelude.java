@@ -3372,7 +3372,7 @@ public class Prelude {
 	public IValue readBinaryValueFile(IValue type, ISourceLocation loc){
 		if(trackIO) System.err.println("readBinaryValueFile: " + loc);
 
-		TypeStore store = new TypeStore();
+		TypeStore store = new TypeStore(RascalValueFactory.getStore());
 		Type start = tr.valueToType((IConstructor) type, store);
 		
 		try (IValueInputStream in = new IValueInputStream(URIResolverRegistry.getInstance().getInputStream(loc), values, store)) {
@@ -3396,7 +3396,7 @@ public class Prelude {
 	public IValue readBinaryValueFileOld(IValue type, ISourceLocation loc){
 		if(trackIO) System.err.println("readBinaryValueFile: " + loc);
 
-		TypeStore store = new TypeStore();
+		TypeStore store = new TypeStore(RascalValueFactory.getStore());
 		Type start = tr.valueToType((IConstructor) type, store);
 		
 		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(loc)) {
