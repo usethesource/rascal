@@ -137,6 +137,10 @@ public class PathConfig {
 	    return defaultCourses;
 	}
 	
+	public IValueFactory getValueFactory() {
+	    return vf;
+	}
+	
 	public IList getSrcs() {
 	    return vf.list(srcs.toArray(new IValue[0]));
 	}
