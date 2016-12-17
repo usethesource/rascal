@@ -37,14 +37,13 @@ public class ExecutionTools {
 			.withModuleTags(rvmExecutable.getModuleTags())
 			.withSymbolDefinitions(rvmExecutable.getSymbolDefinitions())
 			.withTypeStore(typestore)
+			.coverage(coverage.getValue())
 			.debug(debug.getValue())
 			.debugRVM(debugRVM.getValue())
-			.testsuite(testsuite.getValue())
-			.profile(profile.getValue())
-			.trace(trace.getValue())
-			.coverage(coverage.getValue())
 			.jvm(jvm.getValue())
-//			.customSearchPath(rascalSearchPath)
+			.profile(profile.getValue())
+			.testsuite(testsuite.getValue())
+			.trace(trace.getValue())
 			.build();
 	}
 	
