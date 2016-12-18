@@ -161,6 +161,10 @@
 										<Main-Class>org.rascalmpl.shell.RascalShell</Main-Class>
 									</manifestEntries>
 								</transformer>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+                                                                   <resource>org/rascalmpl/uri/resolvers.config</resource>
+                                                                   <resource>org/rascalmpl/value/type/types.config </resource>
+                                                                </transformer>
 							</transformers>
 							<!--
 								http://zhentao-li.blogspot.nl/2012/06/maven-shade-plugin-invalid-signature.html
