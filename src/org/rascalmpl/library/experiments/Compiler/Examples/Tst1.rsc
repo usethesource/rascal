@@ -2,6 +2,7 @@ module experiments::Compiler::Examples::Tst1
 
 
 import util::Webserver;
+import IO;
 
 loc base = |courses:///|;
 
@@ -23,7 +24,8 @@ void stopTutor(loc site) {
   shutdown(site);
 }
 
-Response page(get(/.*/, Body _))   = response(base + "index.html");
+Response page(Request r: get([str] p, [Body] b))   { println(r); return  response(base + "favicon.ico"); }
+default Response page(value r)         { println(r); return  response(base + "favicon.ico"); }
 
-value main() { startTutor(); return true; }
+value domain() { site = startTutor(); println(site); return true; }
 
