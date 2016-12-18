@@ -39,7 +39,7 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<lucence-version>6.1.0</lucence-version>
-		<rascal.boot.version>0.8.2-bs4</rascal.boot.version>
+		<rascal.boot.version>0.8.3-bs</rascal.boot.version>
 		<rascal.boot>--download</rascal.boot>
 	</properties>
 
