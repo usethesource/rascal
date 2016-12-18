@@ -30,6 +30,7 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FSTFunctionSerializer;
 
 /**
  * RVMExecutable contains all data needed for executing an RVM program.
