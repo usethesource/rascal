@@ -24,7 +24,7 @@ void stopTutor(loc site) {
   shutdown(site);
 }
 
-Response page(Request r: get([str] p, [Body] b))   { println(r); return  response(base + "favicon.ico"); }
+Response page(Request r: get(/xxx/))   { println(r); return  response("xxx"); }
 default Response page(value r)         { println(r); return  response(base + "favicon.ico"); }
 
 value domain() { site = startTutor(); println(site); return true; }
