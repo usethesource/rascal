@@ -23,7 +23,6 @@ import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
-import org.rascalmpl.uri.StandardLibraryURIResolver;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;

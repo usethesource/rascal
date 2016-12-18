@@ -15,3 +15,4 @@ extend experiments::Compiler::Compile;
 extend experiments::Compiler::Execute;
 extend experiments::Compiler::CompileMuLibrary;
 extend lang::rascal::grammar::Bootstrap;
+extend experiments::Compiler::Summary;

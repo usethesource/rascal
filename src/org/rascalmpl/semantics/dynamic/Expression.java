@@ -99,6 +99,7 @@ import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 
@@ -2274,13 +2275,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				throw new UnexpectedType(defType, declarations.getType(), getSymbol());
 			}
 			
-			java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
-			bindings.put(RascalValueFactory.TypeParam, new TypeReifier(VF).symbolToType((IConstructor) symbol.getValue(), (IMap) declarations.getValue()));
 			
-			IValue val = VF.constructor(RascalValueFactory.Type_Reified.instantiate(bindings), symbol.getValue(), declarations.getValue());
-			
-			bindings.put(RascalValueFactory.TypeParam, TF.valueType());
-			Type typ = RascalValueFactory.Type.instantiate(bindings);
+			IValue val = IRascalValueFactory.getInstance().reifiedType(
+			        (IConstructor) symbol.getValue(), 
+			        (IMap) declarations.getValue()
+			        );
+
+			Type typ = RascalValueFactory.Type.instantiate(
+			        Collections.singletonMap(RascalValueFactory.TypeParam, TF.valueType()));
 			
 			return ResultFactory.makeResult(typ, val, __eval);
 		}
@@ -2305,8 +2307,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			eval.setCurrentAST(this);
 			eval.notifyAboutSuspension(this);			
 
+			final IMap gr = (IMap) eval.getEvaluator().getGrammar(eval.getCurrentEnvt()).get("rules");
 			Type t = getType().typeOf(eval.getCurrentEnvt(), false, eval);
-			return new TypeReifier(eval.__getVf()).typeToValue(t, eval);
+			IConstructor value = new TypeReifier(eval.__getVf()).typeToValue(t, eval.getCurrentEnvt().getStore(), gr);
+			
+			// the static type of a reified type is always equal to its dynamic type
+			return makeResult(value.getType(), value, eval);
 		}
 	}
 

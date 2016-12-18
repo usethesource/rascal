@@ -1,10 +1,29 @@
 module experiments::Compiler::Examples::Tst1
 
-lexical X = [xyzXYZ];
-lexical XPlus = X+ xs1;
 
-//@ignoreInterpreter{Incorrect/not implemented}
-//@expected{IllegalArgument}
-//test bool lexIllegalSlice() { ([XPlus] "xyz").xs1[0 .. 0]; return false; }
+import util::Webserver;
 
-value main() =  ([XPlus] "xyz").xs1[0 .. 0];
+loc base = |courses:///|;
+
+loc startTutor() {
+  loc site = |http://localhost:8081|;
+  
+  while (true) {
+    try {
+      serve(site, page);
+      return site;
+    }  
+    catch IO("Address already in use"): {
+      site.port += 1; 
+    }
+  }
+}
+
+void stopTutor(loc site) {
+  shutdown(site);
+}
+
+Response page(get(/.*/, Body _))   = response(base + "index.html");
+
+value main() { startTutor(); return true; }
+

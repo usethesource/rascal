@@ -33,4 +33,9 @@ public class ModuleLineBreakpoint extends BreakPoint {
 	public boolean matchOnLeave(Frame frame) {
 		return matchOnObserve(frame);
 	}
+	
+	@Override
+    public String toString(){
+        return "ModuleLineBreakpoint " + modulePath + ", line " + lino;
+    }
 }

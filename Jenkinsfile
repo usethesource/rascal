@@ -8,7 +8,7 @@ node {
     checkout scm
     
     stage 'Build'
-    sh "mvn -DskipTests -Drascal.boot=--withCourses -B clean compile"
+    sh "mvn -DskipTests -Drascal.boot=--validating -B clean compile"
     
     stage 'Test'
     sh "mvn -B test"
@@ -26,7 +26,7 @@ node {
 		slackSend (color: '#5cb85c', message: "BUILD BACK TO NORMAL: <${env.BUILD_URL}|${env.JOB_NAME} [${env.BUILD_NUMBER}]>")
     } 
     
-    build job: '../rascal-shell/master', wait: false
+    build job: '../rascal-eclipse/master', wait: false
   } catch (e) {
     slackSend (color: '#d9534f', message: "FAILED: <${env.BUILD_URL}|${env.JOB_NAME} [${env.BUILD_NUMBER}]>")
     throw e

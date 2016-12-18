@@ -8,7 +8,6 @@ import org.rascalmpl.interpreter.matching.TupleElementIterator;
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalType;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;

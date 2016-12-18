@@ -51,9 +51,12 @@ public java Tree parseModuleAndFragments(loc location, list[loc] searchPath);
 @doc{Just parse a module at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading) }
 public java lang::rascal::\syntax::Rascal::Module parseModule(loc location);
 
-public start[Module] parseNamedModuleWithSpaces(str modulePath) {
-    return parseModuleWithSpaces(getModuleLocation(modulePath));
-}
+@javaClass{org.rascalmpl.library.util.Reflective}
+@reflect{Uses RascalExecutionContext to resolve modulePath}
+public java start[Module] parseNamedModuleWithSpaces(str modulePath) ;
+//{
+//    return parseModuleWithSpaces(getModuleLocation(modulePath));
+//}
 
 public start[Module] parseNamedModuleWithSpaces(str modulePath, PathConfig pcfg) {
     return parseModuleWithSpaces(getModuleLocation(modulePath, pcfg));
@@ -72,13 +75,13 @@ public java loc getModuleLocation(str modulePath);
 public java loc getSearchPathLocation(str filePath);
 
 data PathConfig 
+    // Defaults should be in sync with org.rascalmpl.library.util.PathConfig
   = pathConfig(list[loc] srcs = [|std:///|],        // List of directories to search for source files
-               list[loc] libs = [|boot:///stdlib|, |std:///|],        
-                                                       // List of directories to search source for derived files
-               //list[loc] projectPath = [],           // List of directories to search for source or derived files in projects
-                                                       // Note: each directory should include the project name as last path element
+               list[loc] courses = [|courses:///|], // List of locations to search for course source files
                loc bin = |home:///bin/|,            // Global directory for derived files outside projects
-               loc boot = |boot+compressed:///|     // Directory with Rascal boot files
+               loc boot = |boot+compressed:///|,    // Directory with Rascal boot files
+                                                    // List of directories to search source for derived files
+               list[loc] libs = [|home:///bin/|, |boot+compressed:///|]         
               );
 
 data RascalManifest

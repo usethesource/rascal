@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
@@ -131,7 +132,7 @@ public class RVMonJVM extends RVMCore {
 	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs){		
 		Function firstFunc = functionStore[func.getFunctions()[0]]; // TODO: null?
 		int arity = posArgs.length + 1;
-		int scopeId = func.env.scopeId;
+		int scopeId = func.env == null ? 0 : func.env.scopeId;
 		Frame root = new Frame(scopeId, null, func.env, arity+2, firstFunc);
 
 		// Pass the program arguments to func
@@ -325,7 +326,7 @@ public class RVMonJVM extends RVMCore {
 	}
 
 	public int insnUNWRAPTHROWNLOC(Object[] stack, int sp, int target) {
-		stack[target] = ((Thrown) stack[--sp]).value;
+		stack[target] = ((Thrown) stack[--sp]).getValue();
 		return sp;
 	}
 
@@ -376,6 +377,8 @@ public class RVMonJVM extends RVMCore {
 			thrown = e;
 			throw thrown;	// <===
 			// postOp = Opcode.POSTOP_HANDLEEXCEPTION; break INSTRUCTION;
+		} catch (ParseError e){
+		    throw e;
 		} catch (Exception e) {
 			e.printStackTrace(stderr);
 			stderr.flush();
@@ -739,7 +742,7 @@ public class RVMonJVM extends RVMCore {
 		cf.sp = sp;
 	
 		returnValue = vf.constructor(constructor, ofun_call.getConstructorArguments(constructor.getArity()));
-		frameObserver.leave(frame, returnValue);
+		//frameObserver.leave(frame, returnValue);
 		return returnValue;
 	}
 	

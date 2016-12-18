@@ -2,7 +2,6 @@
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.BytecodeGenerator;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.value.IValue;
 
 public class PushCon extends Instruction {
 

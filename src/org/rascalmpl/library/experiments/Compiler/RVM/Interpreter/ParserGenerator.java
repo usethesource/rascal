@@ -15,7 +15,6 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 
 import org.rascalmpl.debug.IRascalMonitor;
@@ -27,7 +26,6 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;	// remove impo
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.JavaBridge;					// remove import: NO
 import org.rascalmpl.parser.gtd.IGTD;
-import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISourceLocation;
@@ -65,9 +63,9 @@ public class ParserGenerator {
 
       if(useCompiledParserGenerator && rvmParserGenerator == null) {
         RascalExecutionContext rex2 = 
-            RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), rex.getBoot(), System.out,System.err)
+            RascalExecutionContextBuilder.normalContext(rex.getPathConfig(), System.out, System.err)
             .forModule("$parsergenerator$")
-            .setJVM(true)                   // options for complete repl
+            .jvm(true)                   // options for complete repl
             .build();
         rvmParserGenerator = RVMCore.readFromFileAndInitialize(rex.getParserGenerator(), rex2);
       }

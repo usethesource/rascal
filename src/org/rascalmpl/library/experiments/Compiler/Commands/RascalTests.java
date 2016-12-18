@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
-import org.rascalmpl.library.lang.rascal.boot.Kernel;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
+import org.rascalmpl.library.lang.rascal.boot.IKernel;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -66,28 +66,22 @@ public class RascalTests {
 			.modules("Rascal modules with tests")
 			
 			.handleArgs(args);
-		
-		RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), cmdOpts.getCommandLocOption("boot"))
-				.customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())
-				.setTrace(cmdOpts.getCommandBoolOption("trace"))
-				.setProfile(cmdOpts.getCommandBoolOption("profile"))
-				.forModule(cmdOpts.getModule().getValue())
-                .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
-				.build();
 
-		Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
+		PathConfig pcfg = cmdOpts.getPathConfig();
+		IKernel kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class).build();
 		try {
-		    IBool success = (IBool) kernel.rascalTests(
-		            cmdOpts.getModules(),
-		            cmdOpts.getCommandlocsOption("src"),
-		            cmdOpts.getCommandlocsOption("lib"),
-		            cmdOpts.getCommandLocOption("boot"),
-		            cmdOpts.getCommandLocOption("bin"), 
-		            cmdOpts.getCommandBoolOption("recompile"), 
-		            cmdOpts.getModuleOptionsAsMap());
+		    IBool success =
+		        (IBool) kernel.rascalTests(cmdOpts.getModules(), pcfg.asConstructor(kernel),
+		                                   kernel.kw_rascalTests()
+		                                   .recompile(cmdOpts.getCommandBoolOption("recompile"))
+		                                   .trace(cmdOpts.getCommandBoolOption("trace"))
+		                                   .profile(cmdOpts.getCommandBoolOption("profile"))
+		                                   .verbose(cmdOpts.getCommandBoolOption("verbose"))
+		        );
+		    
 
 		    System.exit(success.getValue() ? 0 : 1);
-		}
+		  }
 		catch (Throwable e) {
 		    e.printStackTrace();
 		    System.exit(1);

@@ -11,6 +11,7 @@ import org.nustaq.serialization.FSTClazzInfo;
 import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
+import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
@@ -68,7 +69,21 @@ public class OverloadedFunction implements Serializable {
 	}
 
 	public boolean matchesNameAndSignature(String name, Type funType){
-		return this.name.equals(name) && this.funType.comparable(funType);
+	  if(!this.name.equals(name)){
+	    return false;
+	  }
+	  if(this.funType.comparable(funType)){
+	    return true;
+	  }
+	  if(this.funType instanceof OverloadedFunctionType){
+	    OverloadedFunctionType oft = (OverloadedFunctionType) this.funType;
+	    for(Type ft : oft.getAlternatives()){
+	      if(ft.comparable(funType)){
+	        return true;
+	      }
+	    }
+	  }
+	  return false;
 	}
 	
 	public String getName() {

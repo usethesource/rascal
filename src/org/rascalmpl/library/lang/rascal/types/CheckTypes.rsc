@@ -141,7 +141,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Type t> <Parameters ps>
     // when building the function type, are created in the closure environment
     // instead of in the surrounding environment.   
     < cFun, rt > = convertAndExpandType(t,c);
-    Symbol funType = Symbol::\func(rt,[]);
+    Symbol funType = Symbol::\func(rt,[],[]);
     cFun = addClosure(cFun, funType, ( ), exp@\loc);
     
     // Calculate the parameter types. This returns the parameters as a tuple. As
@@ -209,7 +209,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Parameters ps> { <State
     // when building the function type, are created in the closure environment
     // instead of in the surrounding environment.   
     rt = Symbol::\void();
-    Symbol funType = Symbol::\func(rt,[]);
+    Symbol funType = Symbol::\func(rt,[],[]);
     cFun = addClosure(c, funType, ( ), exp@\loc);
     
     // Calculate the parameter types. This returns the parameters as a tuple. As
@@ -1922,7 +1922,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> o <Expre
         }
         
         // If both of those pass, the result type is a function with the args of t2 and the return type of t1
-		rt = Symbol::\func(compositeRet, compositeArgs);
+		rt = Symbol::\func(compositeRet, compositeArgs,[]);
 		return markLocationType(c, exp@\loc, rt);         
     }
     
@@ -1937,7 +1937,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> o <Expre
     	
     	// Step 3: combine the ones we can -- the return of the rightmost type has to be allowed
     	// as the parameter for the leftmost type
-    	newFunTypes = { Symbol::\func(getFunctionReturnType(lf), getFunctionArgumentTypes(rf)) |
+    	newFunTypes = { Symbol::\func(getFunctionReturnType(lf), getFunctionArgumentTypes(rf), []) |
     		rf <- rightFuns, lf <- leftFuns, subtype(getFunctionReturnType(rf),getFunctionArgumentTypes(lf)[0]) };
     		
     	// Step 4: If we get an empty set, fail; if we get just 1, return that; if we get multiple possibilities,
@@ -6184,7 +6184,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         // Put the function in, so we can enter the correct scope. This also puts the function name into the
         // scope -- we don't want to inadvertently use the function name as the name of a pattern variable,
         // and this makes sure we find it when checking the patterns in the signature.
-        cFun = addFunction(cFun, rn, Symbol::\func(Symbol::\void(),[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+        cFun = addFunction(cFun, rn, Symbol::\func(Symbol::\void(),[],[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
 	    
 	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
 	    // scope of the function
@@ -6245,7 +6245,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     if (fd@\loc notin c.definitions<1>) { 
     	set[Modifier] modifiers = getModifiers(sig);
         cFun = enterSignature(c, fd@\loc); // prepareSignatureEnv(c);
-        cFun = addFunction(cFun, rn, Symbol::\func(Symbol::\void(),[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+        cFun = addFunction(cFun, rn, Symbol::\func(Symbol::\void(),[],[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
 
 	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
 	    // scope of the function
@@ -6316,7 +6316,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     if (fd@\loc notin c.definitions<1>) {
     	set[Modifier] modifiers = getModifiers(sig); 
         cFun = enterSignature(c, fd@\loc); // prepareSignatureEnv(c);
-        cFun = addFunction(cFun, rn, Symbol::\func(Symbol::\void(),[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+        cFun = addFunction(cFun, rn, Symbol::\func(Symbol::\void(),[],[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
 
 	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
 	    // scope of the function
@@ -6399,7 +6399,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     if (fd@\loc notin c.definitions<1>) { 
     	set[Modifier] modifiers = getModifiers(sig);
         cFun = enterSignature(c, fd@\loc); // prepareSignatureEnv(c);
-        cFun = addFunction(cFun, rn, Symbol::\func(Symbol::\void(),[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+        cFun = addFunction(cFun, rn, Symbol::\func(Symbol::\void(),[],[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
         
 	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
 	    // scope of the function
@@ -8224,7 +8224,7 @@ public CheckResult convertAndExpandThrowType(Type t, Configuration c) {
             c.usedIn[utc.at] = head(c.stack);
             return <c, rt>;   
         }
-    } else if (\func(utc:\user(rn,pl), ps) := rt && isEmpty(pl) && c.fcvEnv[rn]? && !(c.typeEnv[rn]?) ) {
+    } else if (\func(utc:\user(rn,pl), ps, kws) := rt && isEmpty(pl) && c.fcvEnv[rn]? && !(c.typeEnv[rn]?) ) {
         // Check if there is a value constructor with this name in the current environment
         if(constructor(_,_,_,_,_) := c.store[c.fcvEnv[rn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[rn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
             // TODO: More precise resolution requires a new overloaded function to be used, which contains only value contructors;

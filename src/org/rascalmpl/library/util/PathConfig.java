@@ -1,14 +1,17 @@
 package org.rascalmpl.library.util;
 
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.rascalmpl.interpreter.load.IRascalSearchPathContributor;
-import org.rascalmpl.interpreter.load.RascalSearchPath;
+import org.rascalmpl.interpreter.Configuration;
+import org.rascalmpl.library.lang.rascal.boot.IJava2Rascal;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
@@ -20,22 +23,25 @@ public class PathConfig {
 	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
 	List<ISourceLocation> srcs;		// List of locations to search for source files
-	List<ISourceLocation> libs; 		// List of locations to search for derived files
-	List<ISourceLocation> courses; 	// List of locations to search for course source files
-	ISourceLocation bin; 			// Global location for derived files outside projects
+	List<ISourceLocation> libs;     // List of (library) locations to search for derived files
+	List<ISourceLocation> courses; 	// List of (library) locations to search for course source files
+	ISourceLocation bin; 			// Global location for derived files outside projects or libraries
 	ISourceLocation boot;			// Location with Rascal boot files
 
-	private RascalSearchPath rascalSearchPath;
+//	private RascalSearchPath rascalSearchPath;
 	
-	private static ISourceLocation defaultStdLoc;
-	private static List<ISourceLocation> defaultcourses;
-	private static ISourceLocation defaultboot;
+	private static ISourceLocation defaultStd;
+	private static List<ISourceLocation> defaultCourses;
+	private static ISourceLocation defaultBin;
+	private static ISourceLocation defaultBoot;
 	
 	static {
 		try {
-			defaultStdLoc =  vf.sourceLocation("std", "", "");
-			defaultcourses = Arrays.asList(vf.sourceLocation("courses", "", ""));
-			defaultboot = vf.sourceLocation("boot", "", "");
+		    // Defaults should be in sync with util::Reflective
+			defaultStd =  vf.sourceLocation("std", "", "");
+			defaultBin = vf.sourceLocation("home", "", "bin");
+			defaultBoot = vf.sourceLocation("boot", "", "");
+			defaultCourses = Arrays.asList(vf.sourceLocation("courses", "", ""));
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -43,24 +49,24 @@ public class PathConfig {
 	}
 	
 	public PathConfig() throws URISyntaxException{
-		srcs = Arrays.asList(defaultStdLoc);
-		courses = defaultcourses;
-		bin = vf.sourceLocation("home", "", "bin");
-		libs = Arrays.asList(bin);
-		boot = defaultboot;
-		makeRascalSearchPath();
+		srcs = Arrays.asList(defaultStd);
+		courses = defaultCourses;
+		bin = defaultBin;
+		boot = defaultBoot;
+		libs = Arrays.asList(bin, boot);
+//		makeRascalSearchPath();
 	}
 	
 	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin) {
-		this(srcs, libs, bin, defaultboot, defaultcourses);
+		this(srcs, libs, bin, defaultBoot, defaultCourses);
 	}
 	
 	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, List<ISourceLocation> courses) {
-		this(srcs, libs, bin, defaultboot, courses);
+		this(srcs, libs, bin, defaultBoot, courses);
 	}
 		
 	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, ISourceLocation boot) {
-		this(srcs, libs, bin, boot, defaultcourses);
+		this(srcs, libs, bin, boot, defaultCourses);
 	}
 	
 	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, ISourceLocation boot, List<ISourceLocation> courses){
@@ -69,7 +75,7 @@ public class PathConfig {
 		this.libs = libs;
 		this.bin = bin;
 		this.boot = boot;
-		makeRascalSearchPath();
+//		makeRascalSearchPath();
 	}
 	
 	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot){
@@ -77,17 +83,17 @@ public class PathConfig {
         this.libs = convertLocs(libs);
         this.bin = bin;
         this.boot = boot;
-        this.courses = defaultcourses;
-        makeRascalSearchPath();
+        this.courses = defaultCourses;
+//        makeRascalSearchPath();
     }
 	
 	public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList courses){
         this.srcs = convertLocs(srcs);
         this.libs = convertLocs(libs);
         this.bin = bin;
-        this.boot = defaultboot;
+        this.boot = defaultBoot;
         this.courses = convertLocs(courses);
-        makeRascalSearchPath();
+//        makeRascalSearchPath();
     }
 	
 	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot, IList courses){
@@ -96,7 +102,7 @@ public class PathConfig {
         this.bin = bin;
         this.boot = boot;
         this.courses = convertLocs(courses);
-        makeRascalSearchPath();
+//        makeRascalSearchPath();
     }
 	
 	List<ISourceLocation> convertLocs(IList locs){
@@ -115,6 +121,26 @@ public class PathConfig {
 		return makeFileName(qualifiedModuleName, "rsc");
 	}
 	
+	public static ISourceLocation getDefaultStd(){
+	    return defaultStd;
+	}
+	
+	public static ISourceLocation getDefaultBin(){
+        return defaultBin;
+    }
+	
+	public static ISourceLocation getDefaultBoot(){
+        return defaultBoot;
+    }
+	
+	public static List<ISourceLocation> getDefaultCourses(){
+	    return defaultCourses;
+	}
+	
+	public IValueFactory getValueFactory() {
+	    return vf;
+	}
+	
 	public IList getSrcs() {
 	    return vf.list(srcs.toArray(new IValue[0]));
 	}
@@ -125,7 +151,7 @@ public class PathConfig {
 		return new PathConfig(extendedsrcs, libs, bin, boot);
 	}
 	
-	public IList getcourses() {
+	public IList getCourses() {
 	    return vf.list(courses.toArray(new IValue[0]));
 	}
 	
@@ -182,7 +208,7 @@ public class PathConfig {
 		return new PathConfig(srcs, extendedlibs, bin, boot);
 	}
 	
-	public ISourceLocation getboot() {
+	public ISourceLocation getBoot() {
         return boot;
     }
 	
@@ -190,59 +216,154 @@ public class PathConfig {
         return bin;
     }
 	
-	void makeRascalSearchPath(){
-		this.rascalSearchPath = new RascalSearchPath();
-		rascalSearchPath.addPathContributor(getSourcePathContributor());
-	}
+//	void makeRascalSearchPath(){
+//		this.rascalSearchPath = new RascalSearchPath();
+//		rascalSearchPath.addPathContributor(getSourcePathContributor());
+//	}
 
-    public IRascalSearchPathContributor getSourcePathContributor() {
-        return new PathContributor("srcs", srcs);
-    }
+//    public IRascalSearchPathContributor getSourcePathContributor() {
+//        return new PathContributor("srcs", srcs);
+//    }
 	
 	String makeFileName(String qualifiedModuleName, String extension) {
 		return qualifiedModuleName.replaceAll("::", "/") + "." + extension;
 	}
 	
-	public RascalSearchPath getRascalSearchPath(){
-		return rascalSearchPath;
-	}
+//	public RascalSearchPath getRascalSearchPath(){
+//		return rascalSearchPath;
+//	}
 
-	ISourceLocation getModuleLoc(String qualifiedModuleName) throws IOException, URISyntaxException{
-		String fileName = makeFileName(qualifiedModuleName);
-		for(ISourceLocation dir : srcs){
-			ISourceLocation fileLoc = vf.sourceLocation(dir.getScheme(), dir.getAuthority(), dir.getPath() + fileName);
-			if(URIResolverRegistry.getInstance().exists(fileLoc)){
-		    	return fileLoc;
-		    }
+	ISourceLocation getModuleLoc(String qualifiedModuleName) throws IOException {
+		ISourceLocation result = resolveModule(qualifiedModuleName);
+		if(result == null){
+		    throw new IOException("Module " + qualifiedModuleName + " not found");
 		}
-		throw new IOException("Module " + qualifiedModuleName + " not found");
+		return result;
 	}
 	
-	public List<String> listModuleEntries(String qualifier) {
-		return rascalSearchPath.listModuleEntries(qualifier);
+	public ISourceLocation resolveModule(String qualifiedModuleName) {
+        String fileName = makeFileName(qualifiedModuleName);
+        for(ISourceLocation dir : srcs){
+            ISourceLocation fileLoc;
+            try {
+                getFullURI(fileName, dir);
+                fileLoc = getFullURI(fileName, dir);
+                if(URIResolverRegistry.getInstance().exists(fileLoc)){
+                    return fileLoc;
+                }
+            }
+            catch (URISyntaxException e) {
+                return null;
+            }
+        }
+        return null;
+    }
+	
+	String getModuleName(ISourceLocation moduleLoc) throws IOException{
+	    String modulePath = moduleLoc.getPath();
+	    if(!modulePath.endsWith(".rsc")){
+	        throw new IOException("Not a Rascal source file: " + moduleLoc);
+	    }
+	    for(ISourceLocation dir : srcs){
+	        if(modulePath.startsWith(dir.getPath()) && moduleLoc.getScheme() == dir.getScheme()){
+	            String moduleName = modulePath.replaceFirst(dir.getPath(), "").replace(".rsc", "");
+	            if(moduleName.startsWith("/")){
+	                moduleName = moduleName.substring(1, moduleName.length());
+	            }
+	            return moduleName.replace("/", "::");
+	        }
+	    }
+	    
+	    throw new IOException("No module name found for " + moduleLoc);
+	        
 	}
 	
+	private String moduleToDir(String module) {
+        return module.replaceAll(Configuration.RASCAL_MODULE_SEP, Configuration.RASCAL_PATH_SEP);
+    }
+
+    private String moduleToFile(String module) {
+        if (!module.endsWith(Configuration.RASCAL_FILE_EXT)) {
+            module = module.concat(Configuration.RASCAL_FILE_EXT);
+        }
+        return module.replaceAll(Configuration.RASCAL_MODULE_SEP, Configuration.RASCAL_PATH_SEP);
+    }
+    
+    private ISourceLocation getFullURI(String path, ISourceLocation dir) throws URISyntaxException {
+        return URIUtil.getChildLocation(dir, path);
+    }
+    
+	public List<String> listModuleEntries(String moduleRoot) {
+        assert !moduleRoot.endsWith("::");
+        final URIResolverRegistry reg = URIResolverRegistry.getInstance();
+        try {
+            String modulePath = moduleToDir(moduleRoot);
+            List<String> result = new ArrayList<>();
+            for (ISourceLocation dir : srcs) {
+                ISourceLocation full = getFullURI(modulePath, dir);
+                if (reg.exists(full)) {
+                    try {
+                        String[] entries = reg.listEntries(full);
+                        if (entries == null) {
+                            continue;
+                        }
+                        for (String module: entries ) {
+                            if (module.endsWith(Configuration.RASCAL_FILE_EXT)) {
+                                result.add(module.substring(0, module.length() - Configuration.RASCAL_FILE_EXT.length()));
+                            }
+                            else if (module.indexOf('.') == -1 && reg.isDirectory(getFullURI(module, full))) {
+                                // a sub folder path
+                                result.add(module + "::");
+                            }
+                        }
+                    }
+                    catch (IOException e) {
+                    }
+                }
+            }
+            if (result.size() > 0) {
+                return result;
+            }
+            return null;
+        } catch (URISyntaxException e) {
+            return null;
+        }
+    }
+	
+	public IConstructor asConstructor(IJava2Rascal j2r){
+	    return j2r.pathConfig(j2r.kw_pathConfig().srcs(getSrcs()).libs(getLibs()).boot(getBoot()).bin(getBin()).courses(getCourses()));
+	  }
+	
+	public String toString(){
+	  StringWriter w = new StringWriter();
+      w.append("srcs:    ").append(getSrcs().toString()).append("\n")
+       .append("libs:    ").append(getLibs().toString()).append("\n")
+       .append("courses: ").append(getCourses().toString()).append("\n")
+       .append("boot:    ").append(getBoot().toString()).append("\n")
+       .append("bin:     ").append(getBin().toString()).append("\n");
+      return w.toString();
+    }
 }
 
-class PathContributor implements IRascalSearchPathContributor{
-	
-	private final String name;
-	private final List<ISourceLocation> stdPath;
-
-	PathContributor(String name, List<ISourceLocation> path){
-		this.name = name;
-		this.stdPath = path;
-	}
-	@Override
-	public void contributePaths(List<ISourceLocation> path) {
-		for(ISourceLocation p : stdPath){
-			path.add(p);
-		}
-	}
-
-	@Override
-	public String getName() {
-		return name;
-	}
-	
-}
+//class PathContributor implements IRascalSearchPathContributor{
+//	
+//	private final String name;
+//	private final List<ISourceLocation> stdPath;
+//
+//	PathContributor(String name, List<ISourceLocation> path){
+//		this.name = name;
+//		this.stdPath = path;
+//	}
+//	@Override
+//	public void contributePaths(List<ISourceLocation> path) {
+//		for(ISourceLocation p : stdPath){
+//			path.add(p);
+//		}
+//	}
+//
+//	@Override
+//	public String getName() {
+//		return name;
+//	}
+//	
+//}

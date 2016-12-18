@@ -71,7 +71,8 @@ public str prettyPrintType(Symbol::\adt(str s, list[Symbol] ps)) = "<s>[<interca
 public str prettyPrintType(Symbol::\cons(Symbol a, str name, list[Symbol] fs)) = "<prettyPrintType(a)> <name> : (<intercalate(", ", [ prettyPrintType(f) | f <- fs ])>)";
 public str prettyPrintType(Symbol::\alias(str s, list[Symbol] ps, Symbol t)) = "alias <s> = <prettyPrintType(t)>" when size(ps) == 0;
 public str prettyPrintType(Symbol::\alias(str s, list[Symbol] ps, Symbol t)) = "alias <s>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>] = <prettyPrintType(t)>" when size(ps) > 0;
-public str prettyPrintType(Symbol::\func(Symbol rt, list[Symbol] ps)) = "fun <prettyPrintType(rt)>(<intercalate(", ", [ prettyPrintType(p) | p <- ps])>)";
+public str prettyPrintType(Symbol s:Symbol::\func(Symbol rt, list[Symbol] ps)) = "fun <prettyPrintType(rt)>(<intercalate(", ", [ prettyPrintType(p) | p <- ps])>";
+public str prettyPrintType(Symbol::\func(Symbol rt, list[Symbol] ps, list[Symbol] kw)) = "fun <prettyPrintType(rt)>(<intercalate(", ", [ prettyPrintType(p) | p <- ps])>, <intercalate(", ", [ prettyPrintType(p) | p <- kw])>)";
 public str prettyPrintType(Symbol::\var-func(Symbol rt, list[Symbol] ps, Symbol va)) = "fun <prettyPrintType(rt)>(<intercalate(", ", [ prettyPrintType(p) | p <- ps+va])>...)";
 public str prettyPrintType(Symbol::\reified(Symbol t)) = "type[<prettyPrintType(t)>]";
 public str prettyPrintType(Symbol::\user(RName rn, list[Symbol] ps)) = "<prettyPrintName(rn)>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>]";
@@ -249,15 +250,10 @@ data Symbol(bool isVarArgs = false);
 @doc{Create a new function type with the given return and parameter types.}
 public Symbol makeFunctionType(Symbol retType, bool isVarArgs, Symbol paramTypes...) {
 	set[str] labels = { l | Symbol::\label(l,_) <- paramTypes };
-	if (size(labels) == 0 || size(labels) == size(paramTypes)) {
-		if (isVarArgs) { 
-			return Symbol::\func(retType, paramTypes, isVarArgs=true);
-		} else {
-			return Symbol::\func(retType, paramTypes);
-		}
-	}
+	if (size(labels) == 0 || size(labels) == size(paramTypes))
+        return Symbol::\func(retType, paramTypes, [], isVarArgs=isVarArgs);
 	else
-		throw "For function types, either all parameters much be given a distinct label or no parameters should be labeled."; 
+        throw "For function types, either all parameters much be given a distinct label or no parameters should be labeled."; 
 }
 
 @doc{Create a new function type with parameters based on the given tuple.}
@@ -394,18 +390,21 @@ public set[str] typeVarNames(Symbol t) {
 
 @doc{Get a list of arguments for the function.}
 public list[Symbol] getFunctionArgumentTypes(Symbol ft) {
+    if (Symbol::\func(_, ats, _) := unwrapType(ft)) return ats;
     if (Symbol::\func(_, ats) := unwrapType(ft)) return ats;
     throw "Cannot get function arguments from non-function type <prettyPrintType(ft)>";
 }
 
 @doc{Get the arguments for a function in the form of a tuple.}
 public Symbol getFunctionArgumentTypesAsTuple(Symbol ft) {
-    if (Symbol::\func(_, ats) := unwrapType(ft)) return \tuple(ats);
+    if (Symbol::\func(_, ats, _) := unwrapType(ft)) return \tuple(ats);
+     if (Symbol::\func(_, ats) := unwrapType(ft)) return \tuple(ats);
     throw "Cannot get function arguments from non-function type <prettyPrintType(ft)>";
 }
 
 @doc{Get the return type for a function.}
 public Symbol getFunctionReturnType(Symbol ft) {
+    if (Symbol::\func(rt, _, _) := unwrapType(ft)) return rt;
     if (Symbol::\func(rt, _) := unwrapType(ft)) return rt; 
     throw "Cannot get function return type from non-function type <prettyPrintType(ft)>";
 }
