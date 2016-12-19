@@ -226,7 +226,7 @@
 		<dependency>
 			<groupId>org.rascalmpl</groupId>
 			<artifactId>value</artifactId>
-			<version>0.5.3</version>
+			<version>0.5.5-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>io.usethesource</groupId>
