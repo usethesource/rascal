@@ -32,6 +32,7 @@ import org.rascalmpl.value.IString;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.binary.stream.IValueOutputStream;
 import org.rascalmpl.value.io.binary.util.OpenAddressingLastWritten;
 import org.rascalmpl.value.io.binary.util.PrePostIValueIterator;
 import org.rascalmpl.value.io.binary.util.TrackLastWritten;
@@ -43,12 +44,7 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 import org.rascalmpl.values.ValueFactoryFactory;
             
 /**
- * A binary serializer for IValues and Types.
- * 
- * For most use cases, construct an instance of IValueWriter and write one or more IValues to it.
- * If you are also using the {@link ValueWriteOutputStream}, there is a static method write method inteded for this use case.
- * 
- * Note that when writing multiple IValues, you have to store this arity yourself.
+ * An utility class for the {@link IValueOutputStream}. Only directly use methods in this class if you have nested IValues in an exisiting {@link IWireOutputStream}.
  *
  */
 public class IValueWriter {
@@ -65,8 +61,11 @@ public class IValueWriter {
     }
     
     /**
-     * In most cases you want to construct an instance of this class and call the normal write method, this method is only intended for embedded ValueWireOutputStreams
-     * @param writer
+     * Write an IValue to an exisiting wire stream. <br />
+     * <br />
+     * In most cases you want to use the {@linkplain IValueOutputStream}.
+     *  
+     * @param writer the wire writer to use
      * @param store the type store to use for looking up types to write
      * @param typeWindowSize the size of the window for type-reuse. normally 1024 should be enough, when storing parse trees, use a larger number (10_000 for example)
      * @param valueWindowSize the size of the window for value-reuse. normally 100_000 should be enough, when expecting large values, you can use a larger number
