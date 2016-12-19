@@ -18,7 +18,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.SequenceInputStream;
 import java.util.Arrays;
-import java.util.zip.GZIPInputStream;
 
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
@@ -26,26 +25,23 @@ import org.rascalmpl.value.io.binary.message.IValueReader;
 import org.rascalmpl.value.io.binary.wire.binary.BinaryWireInputStream;
 import org.rascalmpl.value.io.old.BinaryReader;
 import org.rascalmpl.value.type.TypeStore;
-import org.tukaani.xz.XZInputStream;
-
-import com.github.luben.zstd.ZstdInputStream;
 
 /**
- * Reader for binary serialized IValues and Types.
- *
+ * Reader for binary serialized IValues written using the {@linkplain IValueOutputStream}. <br />
+ * <br />
+ * At the moment, it automatically detects the old serializer format, and try to read using the old {@linkplain  org.rascalmpl.value.io.old.BinaryReader}.
  */
+@SuppressWarnings("deprecation")
 public class IValueInputStream implements Closeable {
     private final BinaryWireInputStream reader;
     private final TypeStore ts;
     private final IValueFactory vf;
     private final boolean legacy;
-    @SuppressWarnings("deprecation")
     private final BinaryReader legacyReader;
 
     /**
-     * this will consume the whole stream, or at least more than needed due to buffering, so don't use the InputStream afterwards
+     * This will <strong>consume</strong> the whole stream (or at least more than needed due to buffering), don't use the InputStream afterwards!
      */
-    @SuppressWarnings("deprecation")
     public IValueInputStream(InputStream in, IValueFactory vf, TypeStore ts) throws IOException {
         this.ts = ts;
         this.vf = vf;
@@ -68,32 +64,10 @@ public class IValueInputStream implements Closeable {
         legacyReader = null;
 
         int compression = in.read();
-        switch (compression) {
-            case Header.Compression.NONE:
-                break;
-            case Header.Compression.GZIP:
-                in = new GZIPInputStream(in);
-                break;
-            case Header.Compression.XZ:
-                in = new XZInputStream(in);
-                break;
-            case Header.Compression.ZSTD: {
-                if (Compressor.zstdAvailable()) {
-                    in = new ZstdInputStream(in);
-                }
-                else {
-                    throw new IOException("There is not native zstd library available for the current architecture.");
-                }
-                break;
-            }
-            default:
-                throw new IOException("Unsupported compression in file");
-        }
-
+        in = Compressor.wrapStream(in, compression);
         reader = new BinaryWireInputStream(in);
     }
     
-    @SuppressWarnings("deprecation")
     public IValue read() throws IOException {
         if (legacy) {
             return legacyReader.deserialize();
@@ -102,7 +76,6 @@ public class IValueInputStream implements Closeable {
     }
     
     @Override
-    @SuppressWarnings("deprecation")
     public void close() throws IOException {
         if (legacy) {
             legacyReader.close();
