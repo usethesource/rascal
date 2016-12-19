@@ -18,17 +18,17 @@ import java.io.OutputStream;
 
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.io.binary.message.IValueWriter;
+import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 import org.rascalmpl.value.io.binary.wire.binary.BinaryWireOutputStream;
 import org.rascalmpl.value.type.TypeStore;
             
 /**
- * A binary serializer for IValues and Types.
- * 
- * For most use cases, construct an instance of IValueWriter and write one or more IValues to it.
- * If you are also using the {@link ValueWriteOutputStream}, there is a static method write method inteded for this use case.
- * 
- * Note that when writing multiple IValues, you have to store this arity yourself.
- *
+ * A binary serializer for IValues. <br/>
+ * <br />
+ * Note that when writing multiple IValues, you have to take care of storing this arity yourself.  <br/>
+ * <br />
+ * When you want to nest the IValue's in another stream, you will have to use the {@link org.rascalmpl.value.io.binary.message.IValueWriter IValueWriter} static methods. 
+ * This does enforce you to adopt the same {@link org.rascalmpl.value.io.binary.wire.IWireOutputStream wire format} format.
  */
 public class IValueOutputStream implements Closeable {
     
@@ -77,13 +77,14 @@ public class IValueOutputStream implements Closeable {
     
     
     
+    private CompressionRate compression;
+    private OutputStream rawStream;
+    private IWireOutputStream writer;
+    private final TypeStore store;
+
     public IValueOutputStream(OutputStream out, TypeStore store) throws IOException {
         this(out, store, CompressionRate.Normal);
     }
-    private CompressionRate compression;
-    private OutputStream rawStream;
-    private BinaryWireOutputStream writer;
-    private TypeStore store;
     public IValueOutputStream(OutputStream out, TypeStore store, CompressionRate compression) throws IOException {
         out.write(Header.MAIN);
         rawStream = out;
@@ -93,19 +94,20 @@ public class IValueOutputStream implements Closeable {
 
     }
     
-    private static final int SMALL_SIZE = 512;
-    private static final int NORMAL_SIZE = 8*1024;
 
     public void write(IValue value) throws IOException {
-        int estimatedSize = IValueSizeEstimator.estimateIValueSize(value, NORMAL_SIZE);
-        WindowSizes sizes = calculateWindowSize(estimatedSize);
+        WindowSizes sizes = calculateWindowSize(value);
         if (writer == null) {
-            initializeWriter(estimatedSize, sizes);
+            writer = initializeWriter(sizes);
         }
         IValueWriter.write(writer, store, sizes.typeWindow, sizes.valueWindow, sizes.uriWindow, value);
     }
 
-    private WindowSizes calculateWindowSize(int estimatedSize) {
+
+    private static final int SMALL_SIZE = 512;
+    private static final int NORMAL_SIZE = 8*1024;
+    private WindowSizes calculateWindowSize(IValue value) {
+        int estimatedSize = IValueSizeEstimator.estimateIValueSize(value, NORMAL_SIZE);
         WindowSizes sizes = NO_WINDOW;
         if (compression != CompressionRate.NoSharing) {
             if (estimatedSize < SMALL_SIZE) {
@@ -128,15 +130,14 @@ public class IValueOutputStream implements Closeable {
         return compressionAlgorithm;
     }
 
-    private void initializeWriter(int estimatedSize, WindowSizes sizes) throws IOException {
-        if (estimatedSize < SMALL_SIZE) {
+    private IWireOutputStream initializeWriter(WindowSizes sizes) throws IOException {
+        if (sizes == NO_WINDOW || sizes == TINY_WINDOW) {
             compression = CompressionRate.None;
         }
         int algorithm = fallbackIfNeeded(compression.compressionAlgorithm);
         rawStream.write(algorithm);
         rawStream = Compressor.wrapStream(rawStream, algorithm, compression.compressionLevel);
-        // writer is only initilized for first value
-        writer = new BinaryWireOutputStream(rawStream, sizes.stringsWindow);
+        return new BinaryWireOutputStream(rawStream, sizes.stringsWindow);
     }
 
 

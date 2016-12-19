@@ -12,7 +12,7 @@
  */ 
 package org.rascalmpl.value.io.binary.stream;
 
-public final class Header {
+/*package*/ final class Header {
     public static final byte[] MAIN = { 'R', 'V', 1,0,0 };
     public static final class Compression {
         public static final byte NONE = 0;
