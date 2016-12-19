@@ -11,11 +11,8 @@
  *******************************************************************************/
 package org.rascalmpl.value.impl.persistent;
 
-import java.util.Comparator;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-import java.util.function.Predicate;
-
+import io.usethesource.capsule.api.deprecated.TransientSet;
+import io.usethesource.capsule.util.EqualityComparator;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.ITuple;
@@ -23,21 +20,25 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.UnexpectedElementTypeException;
 import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.util.AbstractTypeBag;
 import org.rascalmpl.value.util.EqualityUtils;
 
-import io.usethesource.capsule.DefaultTrieSet;
-import io.usethesource.capsule.DefaultTrieSetMultimap;
-import io.usethesource.capsule.api.deprecated.ImmutableSetMultimap;
-import io.usethesource.capsule.api.deprecated.ImmutableSetMultimapAsImmutableSetView;
-import io.usethesource.capsule.api.deprecated.TransientSet;
-import io.usethesource.capsule.util.EqualityComparator;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
-class SetWriter implements ISetWriter {
+/*
+ * TODO: visibility is currently public to allow set-multimap experiments. Must be set back to
+ * `protected` when experiments are finished.
+ */
+public class SetWriter implements ISetWriter {
 
   /****************************************/
 
-  static final boolean USE_MULTIMAP_BINARY_RELATIONS = true;
+  public static final boolean USE_MULTIMAP_BINARY_RELATIONS = true;
   // static final boolean USE_MULTIMAP_BINARY_RELATIONS = Boolean.getBoolean(String.format("%s.%s",
   // "org.rascalmpl.value", "useMultimapBinaryRelations"));
 
@@ -49,26 +50,9 @@ class SetWriter implements ISetWriter {
   static final EqualityComparator<Object> equivalenceEqualityComparator =
       (a, b) -> equivalenceComparator.compare(a, b) == 0;
 
-  static Predicate<Type> isTuple = (type) -> type.isTuple();
-  static Predicate<Type> arityEqualsTwo = (type) -> type.getArity() == 2;
-  static Predicate<Type> isTupleOfArityTwo = isTuple.and(arityEqualsTwo);
-
-  private static final BiFunction<ITuple, Integer, Object> BINREL_TUPLE_ELEMENT_AT =
-      (tuple, position) -> {
-        if (position < 0 || position > 1)
-          throw new IllegalStateException();
-
-        return tuple.get(position);
-      };
-
-  private static final Function<ITuple, Boolean> BINREL_TUPLE_CHECKER =
-      (tuple) -> tuple.arity() == 2;
-
-  /*
-   * Note, statically references persistent value factory.
-   */
-  private static final BiFunction<IValue, IValue, ITuple> TUPLE_OF =
-      (first, second) -> ValueFactory.getInstance().tuple(first, second);
+  public static Predicate<Type> isTuple = (type) -> type.isTuple();
+  public static Predicate<Type> arityEqualsTwo = (type) -> type.getArity() == 2;
+  public static Predicate<Type> isTupleOfArityTwo = isTuple.and(arityEqualsTwo);
 
   /****************************************/
 
@@ -78,6 +62,10 @@ class SetWriter implements ISetWriter {
   protected final boolean checkUpperBound;
   protected final Type upperBoundType;
   protected ISet constructedSet;
+
+  private Type leastUpperBound = TypeFactory.getInstance().voidType();
+  private Stream.Builder<Type> typeStreamBuilder = Stream.builder();
+  private Stream.Builder<IValue> dataStreamBuilder = Stream.builder();
 
   SetWriter(Type upperBoundType) {
     super();
@@ -109,73 +97,80 @@ class SetWriter implements ISetWriter {
       throw new UnexpectedElementTypeException(upperBoundType, elementType);
     }
 
-    if (setContent == null) {
-      if (USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(elementType)) {
-        /*
-         * EXPERIMENTAL: Enforce that binary relations always are backed by multi-maps (instead of
-         * being represented as a set of tuples).
-         */
-        final ImmutableSetMultimap<IValue, IValue> multimap =
-            DefaultTrieSetMultimap.of(equivalenceEqualityComparator);
-
-        setContent =
-            (TransientSet) new ImmutableSetMultimapAsImmutableSetView<IValue, IValue, ITuple>(
-                multimap, TUPLE_OF, BINREL_TUPLE_ELEMENT_AT, BINREL_TUPLE_CHECKER).asTransient();
-      } else {
-        setContent = DefaultTrieSet.transientOf();
-      }
-    }
-
-    try {
-      boolean result = setContent.__insertEquivalent(element, equivalenceComparator);
-      if (result) {
-        elementTypeBag = elementTypeBag.increase(elementType);
-      }
-    } catch (ClassCastException | ArrayIndexOutOfBoundsException e) {
-      /*
-       * Conversion from ImmutableSetMultimapAsImmutableSetView to DefaultTrieSet.
-       */
-      TransientSet<IValue> convertedSetContent = DefaultTrieSet.transientOf();
-      convertedSetContent.__insertAll(setContent);
-      setContent = convertedSetContent;
-
-      // repeat try-block
-      boolean result = setContent.__insertEquivalent(element, equivalenceComparator);
-      if (result) {
-        elementTypeBag = elementTypeBag.increase(elementType);
-      }
-    }
+    dataStreamBuilder.accept(element);
+    typeStreamBuilder.accept(elementType);
+    leastUpperBound = leastUpperBound.lub(elementType);
   }
 
   @Override
   public void insert(IValue... values) throws FactTypeUseException {
     checkMutation();
-
-    for (IValue item : values) {
-      put(item);
-    }
+    Arrays.stream(values).forEach(this::put);
   }
 
   @Override
   public void insertAll(Iterable<? extends IValue> collection) throws FactTypeUseException {
     checkMutation();
-
-    for (IValue item : collection) {
-      put(item);
-    }
+    collection.forEach(this::put);
   }
 
   @Override
   public ISet done() {
-    if (setContent == null) {
-      setContent = DefaultTrieSet.transientOf();
+    if (constructedSet != null)
+      return constructedSet;
+
+    final Stream<Type> typeStream = typeStreamBuilder.build();
+    final Stream<IValue> dataStream = dataStreamBuilder.build();
+
+    if (leastUpperBound == TypeFactory.getInstance().voidType()) {
+      constructedSet = PDBPersistentHashSet.EMPTY;
+      return constructedSet;
     }
 
-    if (constructedSet == null) {
-      constructedSet = new PDBPersistentHashSet(elementTypeBag, setContent.freeze());
-    }
+    if (USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(leastUpperBound)) {
+      // collect to multimap
 
-    return constructedSet;
+//      final java.util.List<Type> tupleTypes = typeStream.collect(Collectors.toList());
+//
+//      final AbstractTypeBag keyTypeBag =
+//          tupleTypes.stream().map(type -> type.getFieldType(0)).collect(toTypeBag());
+//
+//      final AbstractTypeBag valTypeBag =
+//          tupleTypes.stream().map(type -> type.getFieldType(1)).collect(toTypeBag());
+//
+//      final ImmutableSetMultimap<IValue, IValue> data = dataStream.map(asInstanceOf(ITuple.class))
+//          .collect(CapsuleCollectors.toSetMultimap(tuple -> tuple.get(0), tuple -> tuple.get(1)));
+//
+//      constructedSet = new PDBPersistentHashSetMultimap(keyTypeBag, valTypeBag, data);
+//      return constructedSet;
+
+      constructedSet = dataStream.map(asInstanceOf(ITuple.class))
+          .collect(ValueCollectors.toSetMultimap(tuple -> tuple.get(0), tuple -> tuple.get(1)));
+
+      return constructedSet;
+    } else {
+      // collect to set
+
+//      final AbstractTypeBag elementTypeBag = typeStream.collect(toTypeBag());
+//      final ImmutableSet<IValue> data = dataStream.collect(CapsuleCollectors.toSet());
+//
+//      constructedSet = new PDBPersistentHashSet(elementTypeBag, data);
+//      return constructedSet;
+
+      constructedSet = dataStream.collect(ValueCollectors.toSet());
+      return constructedSet;
+    }
+  }
+
+  // TODO: extract to a utilities class
+  @SuppressWarnings("unchecked")
+  private static <T, R> Function<T, R> asInstanceOf(Class<R> resultClass) {
+    return item -> (R) item;
+  }
+
+  // TODO: extract to a utilities class
+  private static <T> Predicate<T> isInstanceOf(Class<T> inputClass) {
+    return item -> inputClass.isInstance(item);
   }
 
   private void checkMutation() {
