@@ -18,6 +18,7 @@ import java.io.OutputStream;
 
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.io.binary.message.IValueWriter;
+import org.rascalmpl.value.io.binary.message.WindowSizes;
 import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 import org.rascalmpl.value.io.binary.wire.binary.BinaryWireOutputStream;
 import org.rascalmpl.value.type.TypeStore;
