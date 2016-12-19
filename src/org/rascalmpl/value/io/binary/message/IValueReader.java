@@ -36,6 +36,7 @@ import org.rascalmpl.value.IString;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.binary.stream.IValueInputStream;
 import org.rascalmpl.value.io.binary.util.LinearCircularLookupWindow;
 import org.rascalmpl.value.io.binary.util.TrackLastRead;
 import org.rascalmpl.value.io.binary.wire.IWireInputStream;
@@ -47,16 +48,17 @@ import io.usethesource.capsule.TransientMap;
 import io.usethesource.capsule.TrieMap_5Bits;
 
 /**
- * Reader for binary serialized IValues and Types.
+ * An utility class for the {@link IValueInputStream}. Only directly use methods in this class if you have nested IValues in an exisiting {@link IWireInputStream}.
  *
  */
 public class IValueReader {
     private static final TypeFactory tf = TypeFactory.getInstance();
 
     /**
-     * In most cases you want the other instance write method.
+     * Read an value from the wire reader. <br/>
+     * <br/>
+     * In most cases you want to use the {@linkplain IValueInputStream}!
      * 
-     * This static method is only for embedding in nested ValueWireInputStreams
      * @param typeWindowSize should be the same size as used for writing
      * @param valueWindowSize should be the same size as used for writing
      * @param uriWindowSize should be the same size as used for writing
@@ -122,6 +124,7 @@ public class IValueReader {
         }
         throw new AssertionError("We should be reading until an end message occurs that marks the end of the stream");
     }
+    @SuppressWarnings("deprecation")
     private static boolean readType(final IWireInputStream reader, int messageID, final IValueFactory vf, final TypeStore store, final TrackLastRead<Type> typeWindow, final TrackLastRead<IValue> valueWindow, final TrackLastRead<ISourceLocation> uriWindow, final ReaderStack<Type> tstack, final ValueReaderStack vstack) throws IOException{
         switch (messageID) {
             case IValueIDs.BoolType.ID:  
@@ -782,6 +785,7 @@ public class IValueReader {
     }
 
 
+    @SuppressWarnings("deprecation")
     private static boolean readConstructor(final IWireInputStream reader, final IValueFactory vf,
             final ReaderStack<Type> tstack, final ValueReaderStack vstack, int defaultArity)
             throws IOException {
