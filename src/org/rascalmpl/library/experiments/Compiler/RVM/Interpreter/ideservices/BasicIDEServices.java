@@ -20,6 +20,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
@@ -33,7 +34,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.ConsoleRascalMonitor;
+import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
 
 /**
  * IDEServices for a Desktop environment that rely on the
@@ -44,13 +50,23 @@ import org.rascalmpl.value.ISourceLocation;
 public class BasicIDEServices implements IDEServices {
   
   private WatchService watcher;
-  private ConsoleRascalMonitor monitor;
-  private HashSet<Path> roots;
+  private static ConsoleRascalMonitor monitor = new ConsoleRascalMonitor();
+  private HashSet<Path> roots = new HashSet<>();
   private Map<WatchKey,Path> keys;
+  private IValueFactory vf;
 
   public BasicIDEServices(){
     monitor = new ConsoleRascalMonitor();
     roots = new HashSet<>();
+    vf = IRascalValueFactory.getInstance();
+  }
+  
+  public BasicIDEServices(IValueFactory vf){
+      this.vf = vf;
+  }
+  
+  public void browse(ISourceLocation loc){
+      browse(loc.getURI());
   }
 
   /* (non-Javadoc)
@@ -67,6 +83,13 @@ public class BasicIDEServices implements IDEServices {
     } else {
       System.err.println("Desktop not supported, cannot open browser");
     }
+  }
+  
+  public void edit(ISourceLocation loc){
+      if(loc.getScheme() != "file"){
+         System.err.println("Can only edit files using the \"file\" scheme"); 
+      }
+      edit(Paths.get(loc.getURI()));
   }
 
   /* (non-Javadoc)
@@ -186,6 +209,10 @@ public class BasicIDEServices implements IDEServices {
   public void startJob(String name) {
     monitor.startJob(name);
   }
+  
+  public void startJob(IString name) {
+      startJob(name.getValue());
+  }
 
   /* (non-Javadoc)
    * @see org.rascalmpl.debug.IRascalMonitor#startJob(java.lang.String, int)
@@ -193,6 +220,10 @@ public class BasicIDEServices implements IDEServices {
   @Override
   public void startJob(String name, int totalWork) {
     monitor.startJob(name, totalWork);
+  }
+  
+  public void startJob(IString name, IInteger totalWork){
+      startJob(name.getValue(), totalWork.intValue());
   }
 
   /* (non-Javadoc)
@@ -202,6 +233,10 @@ public class BasicIDEServices implements IDEServices {
   public void startJob(String name, int workShare, int totalWork) {
     monitor.startJob(name, workShare, totalWork);
   }
+  
+  public void startJob(IString name, IInteger workShare, IInteger totalWork) {
+      startJob(name.getValue(), totalWork.intValue(), totalWork.intValue());
+  }
 
   /* (non-Javadoc)
    * @see org.rascalmpl.debug.IRascalMonitor#event(java.lang.String)
@@ -209,6 +244,10 @@ public class BasicIDEServices implements IDEServices {
   @Override
   public void event(String name) {
     monitor.event(name);
+  }
+  
+  public void event(IString name){
+      event(name.getValue());
   }
 
   /* (non-Javadoc)
@@ -218,6 +257,10 @@ public class BasicIDEServices implements IDEServices {
   public void event(String name, int inc) {
     monitor.event(name,inc);
   }
+  
+  public void event(IString name, IInteger inc){
+      event(name.getValue(), inc.intValue());
+  }
 
   /* (non-Javadoc)
    * @see org.rascalmpl.debug.IRascalMonitor#event(int)
@@ -225,6 +268,10 @@ public class BasicIDEServices implements IDEServices {
   @Override
   public void event(int inc) {
     monitor.event(inc);
+  }
+  
+  public void event(IInteger inc){
+      event(inc.intValue());
   }
 
   /* (non-Javadoc)
@@ -234,6 +281,10 @@ public class BasicIDEServices implements IDEServices {
   public int endJob(boolean succeeded) {
     return monitor.endJob(succeeded);
   }
+  
+  public IInteger endJob(IBool succeeded){
+      return vf.integer(endJob(succeeded.getValue()));
+  }
 
   /* (non-Javadoc)
    * @see org.rascalmpl.debug.IRascalMonitor#isCanceled()
@@ -242,13 +293,17 @@ public class BasicIDEServices implements IDEServices {
   public boolean isCanceled() {
       return monitor.isCanceled();
   }
-
+  
   /* (non-Javadoc)
    * @see org.rascalmpl.debug.IRascalMonitor#todo(int)
    */
   @Override
   public void todo(int work) {
     monitor.todo(work);
+  }
+  
+  public void todo(IInteger work){
+      todo(work.intValue());
   }
 
   /* (non-Javadoc)
@@ -257,5 +312,9 @@ public class BasicIDEServices implements IDEServices {
   @Override
   public void warning(String message, ISourceLocation src) {
     monitor.warning(message,  src);
+  }
+  
+  public void warning(IString message, ISourceLocation src){
+      warning(message.getValue(), src);
   }
 }

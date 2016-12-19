@@ -1124,6 +1124,7 @@ public abstract class RVMCore {
 		}
 	}
 	
+	// Reflective methods where the CTX arguments has already been replaced by a REX argument
 	private HashSet<String> converted = new HashSet<String>(Arrays.asList(
 			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ParsingTools.parseFragment",
 			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram.executeProgram",
@@ -1159,9 +1160,11 @@ public abstract class RVMCore {
 			"org.rascalmpl.library.util.ReflectiveCompiled.getModuleLocation",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getSearchPathLocation",
 			"org.rascalmpl.library.util.ReflectiveCompiled.inCompiledMode",
+			"org.rascalmpl.library.util.ReflectiveCompiled.parseNamedModuleWithSpaces",
 			"org.rascalmpl.library.util.ReflectiveCompiled.diff",
-			"org.rascalmpl.library.util.ReflectiveCompiled.watch"
-
+			"org.rascalmpl.library.util.ReflectiveCompiled.watch",
+			"org.rascalmpl.library.util.WebserverCompiled.serve"
+		
 			/*
 			 * 	TODO:
 			 * cobra::util::outputlogger::startLog
@@ -1201,15 +1204,9 @@ public abstract class RVMCore {
 			 *  util::tasks::Manager
 			 *  util::Eval
 			 *  util::Monitor
-			 *  util::Reflective
-			 *  
-			 *  util::Webserver
-			 *  
 			 *  vis::Figure::color
 			 *  
 			 *  Traversal::getTraversalContext
-			 *  
-			 *  tutor::HTMLGenerator
 			 *  
 			 *  **eclipse**
 			 *  util::Editors
