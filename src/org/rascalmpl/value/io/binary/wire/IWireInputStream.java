@@ -16,29 +16,91 @@ import java.io.Closeable;
 import java.io.IOException;
 
 
+/**
+ * StAX-style reader for the Wire format.
+ */
 public interface IWireInputStream extends Closeable {
 
     int MESSAGE_START = 0;
     int FIELD = 1;
     int MESSAGE_END = 2;
 
+    /**
+     * Advances to the next start of a message, field in a message, or end of a message.<br/>
+     * It will read both the identifier of the field/message, and in case of a field, also read the value.<br/>
+     * Except in case of an field with an nested message, this message is not read.
+     * @return The current position in the file (either {@linkplain IWireInputStream#MESSAGE_START}, {@linkplain IWireInputStream#FIELD}, or {@linkplain IWireInputStream#MESSAGE_END})
+     * @throws IOException
+     */
     int next() throws IOException;
 
+    /**
+     * @return The current position in the file (either {@linkplain IWireInputStream#MESSAGE_START}, {@linkplain IWireInputStream#FIELD}, or {@linkplain IWireInputStream#MESSAGE_END})
+     */
     int current();
 
+    /**
+     * The current read message id. <br/>
+     * Note: normally you can use this to keep track of which message you are in, however, if you are using nested messages (not adviced), this won't work.
+     * @return the message id
+     */
     int message();
+    /**
+     * The current read field id
+     * @return the field id
+     */
     int field();
+    /**
+     * The current field type, see {@link FieldKind} for the different kind of field types.<br/>
+     * Normally, the value of the field is also read, for type of {@linkplain FieldKind#NESTED} we do not read the nested message, and a call to {@linkplain next} is needed to move to 
+     * 
+     * @return
+     */
     int getFieldType();
 
+    /**
+     * get the integer value, only valid if {@linkplain #getFieldType()} is {@linkplain FieldKind#INT}
+     * @return
+     */
     int getInteger();
+    /**
+     * get the integer value, only valid if {@linkplain #getFieldType()} is {@linkplain FieldKind#STRING}
+     * @return
+     */
     String getString();
+    /**
+     * get the integer value, only valid if {@linkplain #getFieldType()} is {@linkplain FieldKind#BYTES}
+     * @return
+     */
     byte[] getBytes();
 
 
+    /**
+     * get the type of the repeated value, only valid if {@linkplain #getFieldType()} is {@linkplain FieldKind#REPEATED} <br />
+     * <br />
+     * Note that if the repeated type is {@linkplain FieldKind#NESTED}, the caller has to take care of reading {@linkplain #getRepeatedLength()} messages.
+     * @return
+     */
     int getRepeatedType();
+    /**
+     * get the arity of the repeated value, only valid if {@linkplain #getFieldType()} is {@linkplain FieldKind#REPEATED}
+     * @return
+     */
     int getRepeatedLength();
+    /**
+     * get string array, only valid if {@linkplain #getFieldType()} is {@linkplain FieldKind#REPEATED} and {@linkplain #getRepeatedType()} is {@link FieldKind#STRING}
+     * @return
+     */
     String[] getStrings();
+    /**
+     * get int array, only valid if {@linkplain #getFieldType()} is {@linkplain FieldKind#REPEATED} and {@linkplain #getRepeatedType()} is {@link FieldKind#STRING}
+     * @return
+     */
     int[] getIntegers();
 
+    /**
+     * skip the current message, also takes care to skip nested messages
+     * @throws IOException
+     */
     void skipMessage() throws IOException;
 }

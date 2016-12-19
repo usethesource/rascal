@@ -17,7 +17,13 @@ import java.io.Flushable;
 import java.io.IOException;
 
 
+/**
+ * a basic message writer for the IValue wire format
+ */
 public interface IWireOutputStream extends Closeable, Flushable  {
+    /**
+     * start a message, always end with a {@linkplain #endMessage()}.
+     */
     void startMessage(int messageId) throws IOException;
 
     void writeField(int fieldId, int value) throws IOException;
@@ -27,7 +33,13 @@ public interface IWireOutputStream extends Closeable, Flushable  {
     void writeField(int fieldId, int[] values) throws IOException;
     void writeField(int fieldId, String[] values) throws IOException;
 
+    /**
+     * A nested field signals that next up in the stream, we get a nested message. it has no value of itself.
+     */
     void writeNestedField(int fieldId) throws IOException;
+    /**
+     * Similar to {@linkplain #writeNestedField(int)} , we signal a nested field that repeats fieldId times. Again, the user has to take care of actually writing this many nested messages.
+     */
     void writeRepeatedNestedField(int fieldId, int numberOfNestedElements) throws IOException;
 
     void endMessage() throws IOException;
