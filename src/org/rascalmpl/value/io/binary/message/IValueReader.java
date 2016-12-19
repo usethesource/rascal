@@ -58,10 +58,6 @@ public class IValueReader {
      * Read an value from the wire reader. <br/>
      * <br/>
      * In most cases you want to use the {@linkplain IValueInputStream}!
-     * 
-     * @param typeWindowSize should be the same size as used for writing
-     * @param valueWindowSize should be the same size as used for writing
-     * @param uriWindowSize should be the same size as used for writing
      */
     public static IValue read(IWireInputStream reader, IValueFactory vf, TypeStore ts) throws IOException {
         int typeWindowSize = 0;
@@ -77,7 +73,27 @@ public class IValueReader {
                 case IValueIDs.Header.SOURCE_LOCATION_WINDOW: uriWindowSize = reader.getInteger();  break;
             }
         }
-        return read(reader, vf, ts, getWindow(typeWindowSize), getWindow(valueWindowSize), getWindow(uriWindowSize));
+        return readValue(reader, vf, ts, getWindow(typeWindowSize), getWindow(valueWindowSize), getWindow(uriWindowSize));
+    }
+
+    /**
+     * Read an type from the wire reader. 
+     */
+    public static Type readType(IWireInputStream reader, IValueFactory vf, TypeStore ts) throws IOException {
+        int typeWindowSize = 0;
+        int valueWindowSize = 0;
+        int uriWindowSize = 0;
+        if (reader.next() != IWireInputStream.MESSAGE_START || reader.message() != IValueIDs.Header.ID) {
+            throw new IOException("Missing header at start of stream");
+        }
+        while (reader.next() != IWireInputStream.MESSAGE_END) {
+            switch (reader.field()) {
+                case IValueIDs.Header.VALUE_WINDOW: valueWindowSize = reader.getInteger();  break;
+                case IValueIDs.Header.TYPE_WINDOW: typeWindowSize = reader.getInteger();  break;
+                case IValueIDs.Header.SOURCE_LOCATION_WINDOW: uriWindowSize = reader.getInteger();  break;
+            }
+        }
+        return readType(reader, vf, ts, getWindow(typeWindowSize), getWindow(valueWindowSize), getWindow(uriWindowSize));
     }
     
 
@@ -98,7 +114,7 @@ public class IValueReader {
         return new LinearCircularLookupWindow<>(size);
     }
     
-    private static IValue read(final IWireInputStream reader, final IValueFactory vf, final TypeStore store, TrackLastRead<Type> typeWindow, TrackLastRead<IValue> valueWindow, TrackLastRead<ISourceLocation> uriWindow) throws IOException{
+    private static IValue readValue(final IWireInputStream reader, final IValueFactory vf, final TypeStore store, TrackLastRead<Type> typeWindow, TrackLastRead<IValue> valueWindow, TrackLastRead<ISourceLocation> uriWindow) throws IOException{
 
         ReaderStack<Type> tstack = new ReaderStack<>(Type.class, 100);
         ValueReaderStack vstack = new ValueReaderStack(1024);
@@ -110,19 +126,42 @@ public class IValueReader {
                 }
                 throw new IOException("End message before stack was ready to be ended");
             }
-            if (IValueIDs.Ranges.TYPES_MIN <= messageID && messageID <= IValueIDs.Ranges.TYPES_MAX) {
-                // types
-                if (readType(reader, messageID, vf, store, typeWindow, valueWindow, uriWindow, tstack, vstack)) {
-                    typeWindow.read(tstack.peek());
-                }
-            }
-            else {
-                if (readValue(reader, vf, store, typeWindow, valueWindow, uriWindow, tstack, vstack)) {
-                    valueWindow.read(vstack.peek());
-                }
-            }
+            processMessages(reader, vf, store, typeWindow, valueWindow, uriWindow, tstack, vstack, messageID);
         }
         throw new AssertionError("We should be reading until an end message occurs that marks the end of the stream");
+    }
+    private static Type readType(final IWireInputStream reader, final IValueFactory vf, final TypeStore store, TrackLastRead<Type> typeWindow, TrackLastRead<IValue> valueWindow, TrackLastRead<ISourceLocation> uriWindow) throws IOException{
+
+        ReaderStack<Type> tstack = new ReaderStack<>(Type.class, 100);
+        ValueReaderStack vstack = new ValueReaderStack(1024);
+        while(reader.next() == IWireInputStream.MESSAGE_START){
+            int messageID = reader.message();
+            if (messageID == IValueIDs.LastType.ID) {
+                if(vstack.size() == 0 && tstack.size() == 1){
+                    return tstack.pop();
+                }
+                throw new IOException("End message before stack was ready to be ended");
+            }
+            processMessages(reader, vf, store, typeWindow, valueWindow, uriWindow, tstack, vstack, messageID);
+        }
+        throw new AssertionError("We should be reading until an end message occurs that marks the end of the stream");
+    }
+
+
+    private static void processMessages(final IWireInputStream reader, final IValueFactory vf, final TypeStore store,
+        TrackLastRead<Type> typeWindow, TrackLastRead<IValue> valueWindow, TrackLastRead<ISourceLocation> uriWindow,
+        ReaderStack<Type> tstack, ValueReaderStack vstack, int messageID) throws IOException {
+        if (IValueIDs.Ranges.TYPES_MIN <= messageID && messageID <= IValueIDs.Ranges.TYPES_MAX) {
+            // types
+            if (readType(reader, messageID, vf, store, typeWindow, valueWindow, uriWindow, tstack, vstack)) {
+                typeWindow.read(tstack.peek());
+            }
+        }
+        else {
+            if (readValue(reader, vf, store, typeWindow, valueWindow, uriWindow, tstack, vstack)) {
+                valueWindow.read(vstack.peek());
+            }
+        }
     }
     @SuppressWarnings("deprecation")
     private static boolean readType(final IWireInputStream reader, int messageID, final IValueFactory vf, final TypeStore store, final TrackLastRead<Type> typeWindow, final TrackLastRead<IValue> valueWindow, final TrackLastRead<ISourceLocation> uriWindow, final ReaderStack<Type> tstack, final ValueReaderStack vstack) throws IOException{

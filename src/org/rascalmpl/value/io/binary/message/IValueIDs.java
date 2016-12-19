@@ -22,6 +22,7 @@ public class IValueIDs {
     
     private static final int HEADER_ID = 4242;  
     private static final int LAST_VALUE_ID = 4243; // a special marker to signal the end of the stream of values
+    private static final int LAST_TYPE_ID = 4342; // a special marker to signal the end of the stream of types
     
     public static final class Header {
         public static final int ID = HEADER_ID;
@@ -31,6 +32,9 @@ public class IValueIDs {
     }
     public static final class LastValue {
         public static final int ID = LAST_VALUE_ID;
+    }
+    public static final class LastType {
+        public static final int ID = LAST_TYPE_ID;
     }
     
     // Atomic values
