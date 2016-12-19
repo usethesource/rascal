@@ -67,6 +67,7 @@ import org.rascalmpl.value.visitors.NullVisitor;
         return null;
     }
 
+    @SuppressWarnings("deprecation")
     private Void acceptKWAnno(IValue o) {
         if (o.mayHaveKeywordParameters()) {
             for (IValue v: o.asWithKeywordParameters().getParameters().values()) {
@@ -98,6 +99,9 @@ import org.rascalmpl.value.visitors.NullVisitor;
     public Void visitList(IList o) throws StopCountingException {
         checkEarlyExit();
         values += 1;
+        if (o.length() > 10) {
+            values += o.length();
+        }
         return accept(o);
     }
 
@@ -106,6 +110,9 @@ import org.rascalmpl.value.visitors.NullVisitor;
     public Void visitSet(ISet o) throws StopCountingException {
         checkEarlyExit();
         values += 1;
+        if (o.size() > 10) {
+            values += o.size();
+        }
         return accept(o);
     }
     
@@ -127,6 +134,9 @@ import org.rascalmpl.value.visitors.NullVisitor;
     public Void visitMap(IMap o) throws StopCountingException {
         checkEarlyExit();
         values += 1;
+        if (o.size() > 10) {
+            values += o.size();
+        }
         Iterator<Entry<IValue, IValue>> entries = o.entryIterator();
         while (entries.hasNext()) {
             Entry<IValue, IValue> e = entries.next();
