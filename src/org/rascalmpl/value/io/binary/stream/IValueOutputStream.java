@@ -84,7 +84,7 @@ public class IValueOutputStream implements Closeable {
         if (writer == null) {
             writer = initializeWriter(sizes);
         }
-        IValueWriter.write(writer, store, sizes.typeWindow, sizes.valueWindow, sizes.uriWindow, value);
+        IValueWriter.write(writer, store, sizes, value);
     }
 
 

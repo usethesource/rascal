@@ -19,6 +19,12 @@ public class WindowSizes {
     public final int typeWindow;
     public final int valueWindow;
     public final int stringsWindow;
+
+    /**
+     * @param typeWindowSize the size of the window for type-reuse. normally 1024 should be enough, when storing parse trees, use a larger number (10_000 for example)
+     * @param valueWindowSize the size of the window for value-reuse. normally 100_000 should be enough, when expecting large values, you can use a larger number
+     * @param uriWindowSize the size of the window for source location reuse. normally 50_000 should be more than enough, when you expect a lot of source locations, increase this number
+     */
     public WindowSizes(int valueWindow, int uriWindow, int typeWindow, int stringsWindow) {
         this.stringsWindow = stringsWindow;
         this.typeWindow = typeWindow;
