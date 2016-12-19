@@ -6,6 +6,7 @@ import java.net.URISyntaxException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -66,11 +67,12 @@ public class Rascal {
 
             .handleArgs(args);
 
-            RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), cmdOpts.getCommandLocOption("boot"))
-                    .setTrace(cmdOpts.getCommandBoolOption("trace"))
-                    .setProfile(cmdOpts.getCommandBoolOption("profile"))
+            PathConfig pcfg = cmdOpts.getPathConfig();
+            RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(pcfg)
+                    .trace(cmdOpts.getCommandBoolOption("trace"))
+                    .profile(cmdOpts.getCommandBoolOption("profile"))
                     .forModule(cmdOpts.getModule().getValue())
-                    .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
+                    .verbose(cmdOpts.getCommandBoolOption("verbose"))
                     .build();
 
             ISourceLocation binary = findBinary(cmdOpts.getCommandLocOption("bin"), cmdOpts.getModule().getValue());

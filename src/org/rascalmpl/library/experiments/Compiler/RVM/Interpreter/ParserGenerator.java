@@ -63,9 +63,9 @@ public class ParserGenerator {
 
       if(useCompiledParserGenerator && rvmParserGenerator == null) {
         RascalExecutionContext rex2 = 
-            RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), rex.getBoot(), System.out,System.err)
+            RascalExecutionContextBuilder.normalContext(rex.getPathConfig(), System.out, System.err)
             .forModule("$parsergenerator$")
-            .setJVM(true)                   // options for complete repl
+            .jvm(true)                   // options for complete repl
             .build();
         rvmParserGenerator = RVMCore.readFromFileAndInitialize(rex.getParserGenerator(), rex2);
       }

@@ -25,9 +25,9 @@ public class Fac {
 	public Fac (IValueFactory vf, PathConfig pcfg) throws IOException {
 	    this.vf = vf;
 	    RascalExecutionContext rex = 
-            RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot() /* TODO needs a kernel location */, System.out, System.err)
-                .setJVM(true)                   // options for complete repl
-                .setTrace(false)
+            RascalExecutionContextBuilder.normalContext(pcfg, System.out, System.err)
+                .jvm(true)                   // options for complete repl
+                .trace(false)
                 .build();
 	    ISourceLocation binDir = pcfg.getBin();
 	    RVMCore rvm = ExecutionTools.initializedRVM(URIUtil.correctLocation("compressed+" + binDir.getScheme(), "", binDir.getPath() + "/experiments/Compiler/Examples/Fac.rvm.ser.gz"), rex);

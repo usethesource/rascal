@@ -207,9 +207,9 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 
 	    for (String module : modules) {
 	      String qualifiedName = (prefix.isEmpty() ? "" : prefix + "::") + module;
-	      RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot()).build();
+	      RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(pcfg).build();
 	      ISourceLocation binary = Rascal.findBinary(pcfg.getBin(), qualifiedName);
-	      ISourceLocation source =  rex.getRascalSearchPath().resolveModule(qualifiedName);
+	      ISourceLocation source =  rex.getPathConfig().resolveModule(qualifiedName);
 
 	      //  Do a sufficient but not complete check on the binary; changes to imports will go unnoticed!
 	      if(!resolver.exists(binary) || resolver.lastModified(source) > resolver.lastModified(binary)){
@@ -268,8 +268,8 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	    }
 	    System.err.println(prefix + ":");
 	    System.err.println("\ttests: " + totalTests);
-	    System.err.println("\tignored : " + totalIgnored);
-	    System.err.println("\texecuted (using random arguments): " + (totalTestsWithRandom - totalIgnored));
+	    System.err.println("\tignored: " + totalIgnored);
+	    System.err.println("\tto be executed (including random arguments): " + (totalTestsWithRandom - totalIgnored));
 	    
 	    return desc;
 	  } catch (IOException e) {
@@ -287,7 +287,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 		notifier.fireTestRunStarted(desc);
 
 		for (Description mod : desc.getChildren()) {
-		  RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot()).build();
+		  RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(pcfg).build();
 		  ISourceLocation binary = Rascal.findBinary(pcfg.getBin(), mod.getDisplayName());
           RVMCore rvmCore = null;
           try {
