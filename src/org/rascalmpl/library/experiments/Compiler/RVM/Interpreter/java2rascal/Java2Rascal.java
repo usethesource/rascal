@@ -106,13 +106,13 @@ public class Java2Rascal<RascalInterfaceModule> {
       throw new RuntimeException("Either 'trace' or 'profile' can be set, not both");
     }
     RascalExecutionContext rex = 
-        RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot(), System.out, System.err)
-            .setCoverage(coverage)
-            .setTrace(trace)
-            .setProfile(profile)
-            .setVerbose(verbose)
-            .setJVM(jvm)
-            .setDebug(debug)
+        RascalExecutionContextBuilder.normalContext(pcfg, System.out, System.err)
+            .coverage(coverage)
+            .trace(trace)
+            .profile(profile)
+            .verbose(verbose)
+            .jvm(jvm)
+            .debug(debug)
             .build();
     ISourceLocation bootDir = pcfg.getBoot();
     String moduleName = null;

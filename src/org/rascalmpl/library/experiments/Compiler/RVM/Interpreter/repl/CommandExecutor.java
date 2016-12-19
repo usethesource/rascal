@@ -386,18 +386,18 @@ public class CommandExecutor {
 			rvmConsoleExecutable = ExecutionTools.link(rvmProgram, ValueFactoryFactory.getValueFactory().bool(true), new TypeStore());
 
 			if(noErrors(rvmConsoleExecutable)){
-				RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot(), stdout, stderr)
+				RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(pcfg, stdout, stderr)
 						.forModule(shellModuleName)
 						.withModuleTags(rvmConsoleExecutable.getModuleTags())
 						.withModuleVariables(moduleVariables)
-						.setDebug(execute_debug)
-						.setDebugRVM(execute_debugRVM)
-						.setTestsuite(execute_testsuite)
-						.setProfile(execute_profile)
-						.setTrace(execute_trace)
-						.setCoverage(execute_coverage)
-						.setJVM(true)
-						.setVerbose(execute_verbose)
+						.debug(execute_debug)
+						.debugRVM(execute_debugRVM)
+						.testsuite(execute_testsuite)
+						.profile(execute_profile)
+						.trace(execute_trace)
+						.coverage(execute_coverage)
+						.jvm(true)
+						.verbose(execute_verbose)
 						.observedBy(debugObserver != null ? (kernel_debug ? debugObserver : debugObserver.getObserverWhenActiveBreakpoints()) : null)
 						.build();
 						
@@ -873,7 +873,7 @@ public class CommandExecutor {
 			
 		case "edit":
 		  System.err.println("edit: " + words[1]);
-		  ISourceLocation loc = pcfg.getRascalSearchPath().resolveModule(words[1]);
+		  ISourceLocation loc = pcfg.resolveModule(words[1]);
 		  System.err.println("loc: " + loc);
 		  ideServices.edit( Paths.get(loc.getPath()));
 		  break;

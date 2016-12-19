@@ -110,18 +110,17 @@ public class RascalC {
                 System.exit(1);;
               }
             }
-            
-            RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), cmdOpts.getCommandLocOption("boot"))
-                    .customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())
-                    .setTrace(cmdOpts.getCommandBoolOption("trace"))
-                    .setProfile(cmdOpts.getCommandBoolOption("profile"))
+            PathConfig pcfg = cmdOpts.getPathConfig();
+            RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(pcfg)
+//                    .customSearchPath(pcfg.getRascalSearchPath())
+                    .trace(cmdOpts.getCommandBoolOption("trace"))
+                    .profile(cmdOpts.getCommandBoolOption("profile"))
                     //.setJVM(cmdOpts.getCommandBoolOption("jvm"))
                     .forModule(cmdOpts.getModule().getValue())
-                    .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
+                    .verbose(cmdOpts.getCommandBoolOption("verbose"))
                     .build();
 
             //Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
-            PathConfig pcfg = cmdOpts.getPathConfig();
             IKernel kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class).build();
 
             boolean ok = true;

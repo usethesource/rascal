@@ -73,6 +73,14 @@ public class ReflectiveCompiled extends Reflective {
 		throw RascalRuntimeException.notImplemented("parseCommands", null, null);
 	}
 	
+	public IValue parseNamedModuleWithSpaces(IString modulePath,  RascalExecutionContext rex){
+	    ISourceLocation moduleLoc = rex.getPathConfig().resolveModule(modulePath.getValue());
+	    if(moduleLoc == null){
+	        throw RascalRuntimeException.io(values.string("Module " + modulePath.getValue() + " not found"), null);
+	    }
+	    return parseModuleWithSpaces(moduleLoc);
+	}
+	
 	public IValue parseModuleWithSpaces(ISourceLocation loc) {
         IActionExecutor<ITree> actions = new NoActionExecutor();    
         try {
@@ -123,50 +131,57 @@ public class ReflectiveCompiled extends Reflective {
     }
 	
 	public IValue getModuleLocation(IString modulePath,  RascalExecutionContext rex) {
-		ISourceLocation uri = rex.getRascalSearchPath().resolveModule(modulePath.getValue());
-		if (uri == null) {
-		  throw RascalRuntimeException.io(modulePath, null);
-		}
-		return uri;
+	    ISourceLocation uri;
+	    try {
+            uri = rex.getPathConfig().getModuleLoc(modulePath.getValue());
+            if (uri == null) {
+                throw RascalRuntimeException.io(modulePath, null);
+              }
+            return uri;
+        }
+        catch (IOException e) {           
+            throw RascalRuntimeException.io(modulePath, null);
+        }
 	}
 	
-	public ISourceLocation getSearchPathLocation(IString path, RascalExecutionContext rex) {
-		String value = path.getValue();
-
-		if (path.length() == 0) {
-			throw RuntimeExceptionFactory.io(values.string("File not found in search path: [" + path + "]"), null, null);
-		}
-
-		if (!value.startsWith("/")) {
-			value = "/" + value;
-		}
-
-		try {
-			ISourceLocation uri = rex.getRascalSearchPath().resolvePath(value);
-			if (uri == null) {
-				URI parent = URIUtil.getParentURI(URIUtil.createFile(value));
-
-				if (parent == null) {
-					// if the parent does not exist we are at the root and we look up the first path contributor:
-					parent = URIUtil.createFile("/"); 
-				}
-
-				// here we recurse on the parent to see if it might exist
-				ISourceLocation result = getSearchPathLocation(values.string(parent.getPath()), rex);
-
-				if (result != null) {
-					String child = URIUtil.getURIName(URIUtil.createFile(value));
-					return URIUtil.getChildLocation(result, child);
-				}
-
-				throw RuntimeExceptionFactory.io(values.string("File not found in search path: " + path), null, null);
-			}
-
-			return uri;
-		} catch (URISyntaxException e) {
-			throw  RuntimeExceptionFactory.malformedURI(value, null, null);
-		}
-	}
+//	public ISourceLocation getSearchPathLocation(IString path, RascalExecutionContext rex) {
+//		String value = path.getValue();
+//
+//		if (path.length() == 0) {
+//			throw RuntimeExceptionFactory.io(values.string("File not found in search path: [" + path + "]"), null, null);
+//		}
+//
+//		if (!value.startsWith("/")) {
+//			value = "/" + value;
+//		}
+//
+//		try {
+//		    //ISourceLocation uri = rex.getPathConfig().getModuleLoc(value);
+//			ISourceLocation uri = rex.getRascalSearchPath().resolvePath(value);
+//			if (uri == null) {
+//				URI parent = URIUtil.getParentURI(URIUtil.createFile(value));
+//
+//				if (parent == null) {
+//					// if the parent does not exist we are at the root and we look up the first path contributor:
+//					parent = URIUtil.createFile("/"); 
+//				}
+//
+//				// here we recurse on the parent to see if it might exist
+//				ISourceLocation result = getSearchPathLocation(values.string(parent.getPath()), rex);
+//
+//				if (result != null) {
+//					String child = URIUtil.getURIName(URIUtil.createFile(value));
+//					return URIUtil.getChildLocation(result, child);
+//				}
+//
+//				throw RuntimeExceptionFactory.io(values.string("File not found in search path: " + path), null, null);
+//			}
+//
+//			return uri;
+//		} catch (URISyntaxException e) {
+//			throw  RuntimeExceptionFactory.malformedURI(value, null, null);
+//		}
+//	}
 	
 	public IBool inCompiledMode() { return values.bool(true); }
 
