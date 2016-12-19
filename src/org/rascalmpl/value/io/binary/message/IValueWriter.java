@@ -81,9 +81,30 @@ public class IValueWriter {
         write(writer, store, value, typeCache, valueCache, uriCache);
         writeEnd(writer);
     }
+
+    /**
+     * Write an Type to an exisiting wire stream. <br />
+     *  
+     * @param writer the wire writer to use
+     * @param store the type store to use for looking up types to write
+     * @param typeWindowSize the size of the window for type-reuse. normally 1024 should be enough, when storing parse trees, use a larger number (10_000 for example)
+     * @param valueWindowSize the size of the window for value-reuse. normally 100_000 should be enough, when expecting large values, you can use a larger number
+     * @param uriWindowSize the size of the window for source location reuse. normally 50_000 should be more than enough, when you expect a lot of source locations, increase this number
+     * @param type the type to write
+     * @throws IOException
+     */
+    public static void write(IWireOutputStream writer, TypeStore store, int typeWindowSize, int valueWindowSize, int uriWindowSize, Type type) throws IOException {
+        writeHeader(writer, valueWindowSize, typeWindowSize, uriWindowSize);
+        TrackLastWritten<Type> typeCache = getWindow(typeWindowSize);
+        TrackLastWritten<IValue> valueCache = getWindow(valueWindowSize);
+        TrackLastWritten<ISourceLocation> uriCache = getWindow(uriWindowSize);
+        write(writer, store, type, typeCache, valueCache, uriCache);
+        writeEndType(writer);
+    }
     
     
     
+
     private static void writeHeader(IWireOutputStream writer, int valueWindowSize, int typeWindowSize, int uriWindowSize) throws IOException {
         writer.startMessage(IValueIDs.Header.ID);
         writer.writeField(IValueIDs.Header.VALUE_WINDOW, valueWindowSize);
@@ -322,8 +343,12 @@ public class IValueWriter {
         writer.writeEmptyMessage(IValueIDs.LastValue.ID);
     }
 
-    private static final IInteger MININT =ValueFactoryFactory.getValueFactory().integer(Integer.MIN_VALUE);
-    private static final IInteger MAXINT =ValueFactoryFactory.getValueFactory().integer(Integer.MAX_VALUE);
+    private static void writeEndType(IWireOutputStream writer) throws IOException {
+        writer.writeEmptyMessage(IValueIDs.LastType.ID);
+    }
+
+    private static final IInteger MININT = ValueFactoryFactory.getValueFactory().integer(Integer.MIN_VALUE);
+    private static final IInteger MAXINT = ValueFactoryFactory.getValueFactory().integer(Integer.MAX_VALUE);
     
     private static void write(final IWireOutputStream writer, final TypeStore store, final IValue value, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
         PrePostIValueIterator iter = new PrePostIValueIterator(value);
