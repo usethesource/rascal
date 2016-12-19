@@ -57,23 +57,6 @@ public class IValueOutputStream implements Closeable {
         } 
     }
     
-    private static class WindowSizes {
-        private final int uriWindow;
-        private final int typeWindow;
-        private final int valueWindow;
-        private final int stringsWindow;
-        public WindowSizes(int valueWindow, int uriWindow, int typeWindow, int stringsWindow) {
-            this.stringsWindow = stringsWindow;
-            this.typeWindow = typeWindow;
-            this.uriWindow = uriWindow;
-            this.valueWindow = valueWindow;
-        }
-    }
-    
-    private static final WindowSizes NO_WINDOW = new WindowSizes(0, 0, 0, 0);
-    private static final WindowSizes TINY_WINDOW = new WindowSizes(500, 200, 100, 500);
-    private static final WindowSizes SMALL_WINDOW = new WindowSizes(5_000, 1_000, 800, 1_000);
-    private static final WindowSizes NORMAL_WINDOW = new WindowSizes(100_000, 40_000, 5_000, 10_000);
     
     
     
@@ -96,7 +79,7 @@ public class IValueOutputStream implements Closeable {
     
 
     public void write(IValue value) throws IOException {
-        WindowSizes sizes = calculateWindowSize(value);
+        WindowSizes sizes = compression.compressionLevel == 0 ? WindowSizes.NO_WINDOW : WindowSizes.estimateWindowSize(value);
         if (writer == null) {
             writer = initializeWriter(sizes);
         }
@@ -104,24 +87,6 @@ public class IValueOutputStream implements Closeable {
     }
 
 
-    private static final int SMALL_SIZE = 512;
-    private static final int NORMAL_SIZE = 8*1024;
-    private WindowSizes calculateWindowSize(IValue value) {
-        int estimatedSize = IValueSizeEstimator.estimateIValueSize(value, NORMAL_SIZE);
-        WindowSizes sizes = NO_WINDOW;
-        if (compression != CompressionRate.NoSharing) {
-            if (estimatedSize < SMALL_SIZE) {
-                sizes = TINY_WINDOW;
-            }
-            else if (estimatedSize < NORMAL_SIZE) {
-                sizes = SMALL_WINDOW;
-            }
-            else {
-                sizes = NORMAL_WINDOW;
-            }
-        }
-        return sizes;
-    }
 
     private static int fallbackIfNeeded(int compressionAlgorithm) {
         if (compressionAlgorithm == Header.Compression.ZSTD && ! Compressor.zstdAvailable()) {
@@ -131,7 +96,7 @@ public class IValueOutputStream implements Closeable {
     }
 
     private IWireOutputStream initializeWriter(WindowSizes sizes) throws IOException {
-        if (sizes == NO_WINDOW || sizes == TINY_WINDOW) {
+        if (sizes == WindowSizes.NO_WINDOW || sizes == WindowSizes.TINY_WINDOW) {
             compression = CompressionRate.None;
         }
         int algorithm = fallbackIfNeeded(compression.compressionAlgorithm);
