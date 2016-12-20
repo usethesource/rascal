@@ -7,12 +7,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.*;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMWireExtensions;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.binary.message.IValueReader;
+import org.rascalmpl.value.io.binary.message.IValueWriter;
+import org.rascalmpl.value.io.binary.message.WindowSizes;
+import org.rascalmpl.value.io.binary.wire.IWireInputStream;
+import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -868,6 +875,104 @@ public class CodeBlock implements Serializable {
 			gen.emitPanicReturn();
 		}
 	}
+	
+	public void write(IWireOutputStream out) throws IOException{ 
+	    out.startMessage(CompilerIDs.CodeBlock.ID);
+
+        out.writeField(CompilerIDs.CodeBlock.NAME, name);
+
+        out.writeRepeatedNestedField(CompilerIDs.CodeBlock.FINAL_CONSTANT_STORE, finalConstantStore.length);
+        for(IValue constant : finalConstantStore){
+            IValueWriter.write(out, new TypeStore(), WindowSizes.TINY_WINDOW, constant); 
+        }
+        
+        out.writeRepeatedNestedField(CompilerIDs.CodeBlock.FINAL_TYPECONSTANT_STORE, finalTypeConstantStore.length);
+        for(Type type : finalTypeConstantStore){
+            IValueWriter.write(out, new TypeStore(), WindowSizes.TINY_WINDOW, type); 
+        }
+        
+        RVMWireExtensions.writeMap(out, CompilerIDs.CodeBlock.FUNCTION_MAP, functionMap);
+        
+        RVMWireExtensions.writeMap(out, CompilerIDs.CodeBlock.RESOLVER, resolver);
+        
+        RVMWireExtensions.writeMap(out, CompilerIDs.CodeBlock.CONSTRUCTOR_MAP, constructorMap);
+
+        // TODO: out.writeField(CompilerIDs.CodeBlock.FINAL_CODE, finalCode);
+       
+	    out.endMessage();
+	}
+
+    public static CodeBlock read(IWireInputStream in, IValueFactory vf, TypeStore ts) throws IOException {
+        String name = null;
+        
+        Map<IValue, Integer> constantMap = new HashMap<>();
+        ArrayList<IValue> constantStore = new ArrayList<>();
+        IValue[] finalConstantStore = new IValue[0];
+        
+        Map<Type, Integer> typeConstantMap = new HashMap<>();
+        ArrayList<Type> typeConstantStore = new ArrayList<>();
+        Type[] finalTypeConstantStore = new Type[0];
+        
+        Map<String, Integer> empty = new HashMap<>();
+        
+        Map<String, Integer> functionMap = empty;
+        Map<String, Integer> resolver = empty;
+        Map<String, Integer> constructorMap = empty;
+        
+        long[] finalCode = new long[0];
+        
+        in.next();
+        assert in.current() == IWireInputStream.MESSAGE_START;
+        if(in.message() != CompilerIDs.Function.ID){
+            throw new IOException("Unexpected message: " + in.message());
+        }
+        while(in.next() != IWireInputStream.MESSAGE_END){
+            switch(in.field()){
+                case  CompilerIDs.CodeBlock.NAME:
+                    name = in.getString(); break;
+                case CompilerIDs.CodeBlock.FINAL_CONSTANT_STORE:{
+                    int n = in.getRepeatedLength();
+                    finalConstantStore = new IValue[n];
+                    for(int i = 0; i < n; i++){
+                        IValue value = IValueReader.read(in, vf, ts);;
+                        finalConstantStore[i] = value;
+                        constantMap.put(value, i);
+                        constantStore.add(i, value);
+                    }
+                    break;
+                }
+                case CompilerIDs.CodeBlock.FINAL_TYPECONSTANT_STORE: {
+                    int n = in.getRepeatedLength();
+                    finalTypeConstantStore = new Type[n];
+                    for(int i = 0; i < n; i++){
+                        Type type = IValueReader.readType(in, vf, ts);
+                        finalTypeConstantStore[i] = type;
+                        typeConstantMap.put(type, i);
+                        typeConstantStore.add(i, type);
+                    }
+                    break;
+                }
+                case CompilerIDs.CodeBlock.FUNCTION_MAP: {
+                    functionMap = RVMWireExtensions.readMap(in);
+                    break;
+                }
+                case CompilerIDs.CodeBlock.RESOLVER: {
+                    resolver = RVMWireExtensions.readMap(in);
+                    break;
+                }
+                case CompilerIDs.CodeBlock.CONSTRUCTOR_MAP: {
+                    constructorMap = RVMWireExtensions.readMap(in);
+                    break;
+                }
+                case CompilerIDs.CodeBlock.FINAL_CODE: {
+                    // TODO
+                }
+            }
+        }
+        
+        return new CodeBlock(name, constantMap, constantStore, finalConstantStore, typeConstantMap, typeConstantStore, finalTypeConstantStore, 
+            functionMap, resolver, constructorMap, finalCode);
+    }
 }
 
 class LabelInfo {
