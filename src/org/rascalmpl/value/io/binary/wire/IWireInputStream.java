@@ -103,4 +103,18 @@ public interface IWireInputStream extends Closeable {
      * @throws IOException
      */
     void skipMessage() throws IOException;
+
+    default void skipNestedField() throws IOException {
+        if (getFieldType() == FieldKind.NESTED) {
+            next(); // go into the message
+            skipMessage();
+        }
+        else if (getFieldType() == FieldKind.REPEATED && getRepeatedType() == FieldKind.NESTED) {
+            int repeated = getRepeatedLength();
+            for (int i = 0; i < repeated; i++ ){
+                next(); // go into the message
+                skipMessage();                            
+            }
+        }
+    }
 }
