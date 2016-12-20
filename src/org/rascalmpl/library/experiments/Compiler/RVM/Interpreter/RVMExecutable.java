@@ -1,8 +1,10 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.SequenceInputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,10 +28,18 @@ import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.binary.wire.IWireInputStream;
+import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
+import org.rascalmpl.value.io.binary.wire.binary.BinaryWireInputStream;
+import org.rascalmpl.value.io.binary.wire.binary.BinaryWireOutputStream;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
+
+import com.github.luben.zstd.ZstdInputStream;
+import com.github.luben.zstd.ZstdOutputStream;
+
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FSTFunctionSerializer;
 
 /**
@@ -352,7 +362,79 @@ public class RVMExecutable implements Serializable{
 		//System.out.println("RVMExecutable.write: " + compOut.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
 	}
 	
-	public static RVMExecutable read(ISourceLocation rvmExecutable, TypeStore typeStore) throws IOException {
+	static byte EXEC_HEADER[] = new byte[] { 'R', 'V','M' };
+	static byte EXEC_COMPRESSION_NONE = 0;
+	static byte EXEC_COMPRESSION_GZIP = 1;
+	static byte EXEC_COMPRESSION_ZSTD = 2;
+	static byte[] EXEC_VERSION = new byte[] {1, 0, 0};
+	
+	public void newWrite(ISourceLocation rvmExecutable, int compressionLevel) throws IOException {
+	    TypeStore typeStore = RascalValueFactory.getStore();
+	    try(OutputStream out = URIResolverRegistry.getInstance().getOutputStream(rvmExecutable, false)){
+	        out.write(EXEC_HEADER);
+	        out.write(EXEC_VERSION);
+	        out.write(compressionLevel > 0 ? EXEC_COMPRESSION_ZSTD : EXEC_COMPRESSION_NONE);
+	        OutputStream cout = out;
+	        if(compressionLevel > 0){
+	            cout = new ZstdOutputStream(out, compressionLevel);
+	        }
+	        try(IWireOutputStream iout = new BinaryWireOutputStream(cout, 5000)){
+	            write(iout, typeStore);
+	        }
+	    }
+	}
+	
+	private void write(IWireOutputStream iout, TypeStore typeStore) {
+        // TODO Auto-generated method stub
+        
+    }
+	
+	public static RVMExecutable newRead(ISourceLocation rvmExecutable, TypeStore typeStore) throws IOException{
+	    try(InputStream in = URIResolverRegistry.getInstance().getInputStream(rvmExecutable)){
+	        byte[] header = new byte[EXEC_HEADER.length];
+	        in.read(header);
+	        if(Arrays.equals(header, EXEC_HEADER)){
+	            
+	            byte[] version = new byte[EXEC_VERSION.length];
+	            in.read(version);
+	            if(!Arrays.equals(version, EXEC_VERSION)){
+	                throw new IOException("Incorrect version");
+	            }
+	            int compression = in.read();
+	            InputStream cin = in;
+	            if(compression != EXEC_COMPRESSION_NONE){
+	                cin = new ZstdInputStream(in);
+	            }
+	            try(IWireInputStream win = new BinaryWireInputStream(cin)){
+	                return read(win, typeStore,ValueFactoryFactory.getValueFactory());
+	            }                      
+	        } else {
+	            vf = ValueFactoryFactory.getValueFactory();
+	            FSTSerializableType.initSerialization(vf, typeStore);
+	            FSTSerializableIValue.initSerialization(vf, typeStore);
+	        
+	            FSTRVMExecutableSerializer.initSerialization(vf, typeStore);
+	            FSTFunctionSerializer.initSerialization(vf, typeStore);
+	            FSTCodeBlockSerializer.initSerialization(vf, typeStore);
+	        
+	            try (InputStream fileIn = new SequenceInputStream(new ByteArrayInputStream(header), in);
+	                    FSTObjectInput fstIn = new FSTObjectInput(fileIn, makeFSTConfig(rvmExecutable))) {
+	                return (RVMExecutable) fstIn.readObject(RVMExecutable.class);
+	            } catch (ClassNotFoundException c) {
+	                throw new IOException("Class not found: " + c.getMessage(), c);
+	            } catch (Throwable e) {
+	                throw new IOException(e.getMessage(), e);
+	            } 
+	        }
+	    }
+	}
+
+    private static RVMExecutable read(IWireInputStream win, TypeStore typeStore, IValueFactory valueFactory) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public static RVMExecutable read(ISourceLocation rvmExecutable, TypeStore typeStore) throws IOException {
 		vf = ValueFactoryFactory.getValueFactory();
 //		TypeStore typeStore = new TypeStore(RascalValueFactory.getStore());
 		
