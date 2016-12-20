@@ -111,13 +111,13 @@ RVMModule compile(loc moduleLoc, PathConfig pcfg, loc reloc = |noreloc:///|, boo
 RVMModule compile(str qualifiedModuleName, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = false, bool optimize=true, bool enableAsserts=false){
 	<cfg, rvmMod> = compile1(qualifiedModuleName, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
 	rvmMod1 = recompileDependencies(qualifiedModuleName, rvmMod, cfg, pcfg, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
-	errors = [ e | e:error(_,_) <- rvmMod1.messages];
-    warnings = [ w | w:warning(_,_) <- rvmMod1.messages ];
-    for(msg <- rvmMod1.messages){
-        if(error(txt, src) := msg) println("Error: <txt> at <src>");
-        if(warning(txt, src) := msg) println("Warning: <txt> at <src>");
-        if(info(txt, src) := msg) println("Info: <txt> at <src>");
-    }
+	//errors = [ e | e:error(_,_) <- rvmMod1.messages];
+ //   warnings = [ w | w:warning(_,_) <- rvmMod1.messages ];
+ //   for(msg <- rvmMod1.messages){
+ //       if(error(txt, src) := msg) println("Error: <txt> at <src>");
+ //       if(warning(txt, src) := msg) println("Warning: <txt> at <src>");
+ //       if(info(txt, src) := msg) println("Info: <txt> at <src>");
+ //   }
     return rvmMod;
 }
 
