@@ -22,10 +22,11 @@ public class FieldKind {
     public static final int NESTED = 6;
    
     public static class Repeated {
-        public static final int PREVIOUS_STR = 1;
-        public static final int INT = 2;
-        public static final int STRING = 3;
-        public static final int NESTED = 6;
+        /* values from 0-7 are valid */
+        public static final int PREVIOUS_STR = FieldKind.PREVIOUS_STR;
+        public static final int INT = FieldKind.INT;
+        public static final int STRING = FieldKind.STRING;
+        public static final int NESTED = FieldKind.NESTED;
     }
     private FieldKind() {}
 }
