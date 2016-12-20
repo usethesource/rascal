@@ -425,14 +425,14 @@ public class RVMExecutable implements Serializable{
            IValueWriter.write(out, typeStore, WindowSizes.TINY_WINDOW, type);
         }
 
-        RVMWireExtensions.writeMap(out, CompilerIDs.Executable.CONSTRUCTOR_MAP, getConstructorMap());
+        out.writeField(CompilerIDs.Executable.CONSTRUCTOR_MAP, getConstructorMap());
 
         out.writeRepeatedNestedField(CompilerIDs.Executable.OVERLOADED_STORE, getOverloadedStore().length);
         for(OverloadedFunction ovl : getOverloadedStore()){
             ovl.write(out);
         }
 
-        RVMWireExtensions.writeMap(out, CompilerIDs.Executable.RESOLVER, getResolver());
+        out.writeField(CompilerIDs.Executable.RESOLVER, getResolver());
 
         out.writeField(CompilerIDs.Executable.INITIALIZERS, (String[])getInitializers().toArray());
 
@@ -616,7 +616,7 @@ public class RVMExecutable implements Serializable{
                 }
                 
                 case CompilerIDs.Executable.CONSTRUCTOR_MAP: {
-                    constructorMap = RVMWireExtensions.readMap(in);
+                    constructorMap = in.getStringIntegerMap();
                     break;
                 }
                 
@@ -629,7 +629,7 @@ public class RVMExecutable implements Serializable{
                     break;
                 }
                 case CompilerIDs.Executable.RESOLVER: {
-                    resolver = RVMWireExtensions.readMap(in);
+                    resolver = in.getStringIntegerMap();
                     break;
                 }
                 
