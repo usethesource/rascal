@@ -20,13 +20,18 @@ public class FieldKind {
     public static final int BYTES = 4;
     public static final int REPEATED = 5;
     public static final int NESTED = 6;
+    private static final int UNUSED1 = 7;
    
     public static class Repeated {
         /* values from 0-7 are valid */
+        private static final int UNUSED1 = 0; // use this at last resort
         public static final int PREVIOUS_STR = FieldKind.PREVIOUS_STR;
         public static final int INT = FieldKind.INT;
         public static final int STRING = FieldKind.STRING;
+        public static final int TUPLE = 4;
+        private static final int UNUSED2 = 5;
         public static final int NESTED = FieldKind.NESTED;
+        private static final int UNUSED3 = 7;
     }
     private FieldKind() {}
 }
