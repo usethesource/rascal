@@ -22,6 +22,7 @@ import org.rascalmpl.value.io.binary.util.WindowSizes;
 import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
@@ -386,17 +387,20 @@ public class OverloadedFunction implements Serializable {
     }
     
     static OverloadedFunction read(IWireInputStream in, IValueFactory vf, TypeStore ts) throws IOException {
-        String name = null;
-        Type funType = null;
-        int[] functions= null;
-        int[] constructors = null;
-        String funIn = null;
+        
+        TypeFactory tf = TypeFactory.getInstance();
+        
+        String name = "unitialized name";
+        Type funType = tf.valueType();
+        int[] functions = new int[0];
+        int[] constructors = new int[0];
+        String funIn = "unitialized funIn";
         int scopeIn = -1;
         boolean allConcreteFunctionArgs = false;
         boolean allConcreteConstructorArgs = false;
-        HashMap<Integer, int[]> empty = new HashMap<>();
-        HashMap<Integer, int[]> filteredFunctions = empty;
-        HashMap<Integer, int[]> filteredConstructors = empty;
+        HashMap<Integer, int[]> emptyMap = new HashMap<>();
+        HashMap<Integer, int[]> filteredFunctions = emptyMap;
+        HashMap<Integer, int[]> filteredConstructors = emptyMap;
         
         in.next();
         assert in.current() == IWireInputStream.MESSAGE_START;

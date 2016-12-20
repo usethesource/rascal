@@ -600,8 +600,11 @@ public class RVMExecutable implements Serializable{
                 case CompilerIDs.Executable.FUNCTION_STORE: {
                     int n = in.getRepeatedLength();
                     functionStore = new Function[n];
+                    functionMap = new HashMap<String, Integer>(n);
                     for(int i = 0; i < n; i++){
-                        functionStore[i] = Function.read(in, vf, ts);
+                        Function function = Function.read(in, vf, ts);
+                        functionStore[i] = function;
+                        functionMap.put(function.getName(), i);
                     }
                     break;
                 }
@@ -628,6 +631,7 @@ public class RVMExecutable implements Serializable{
                     }
                     break;
                 }
+                
                 case CompilerIDs.Executable.RESOLVER: {
                     resolver = in.getStringIntegerMap();
                     break;
@@ -850,7 +854,7 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 //		System.err.println("RascalShell: Rascal: " + VersionInfo.RASCAL_VERSION + "; Runtime: " + VersionInfo.RASCAL_RUNTIME_VERSION + "; Compiler: " + VersionInfo.RASCAL_COMPILER_VERSION);
 //		System.err.println("Executable : Rascal: " + rascal_version + "; Runtime: " + rascal_runtime_version + "; Compiler: " + rascal_compiler_version);
 				
-		// String[] errors
+		// ISet errors
 				
 		ISet errors = (ISet) in.readObject();
 				

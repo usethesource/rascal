@@ -904,7 +904,7 @@ public class CodeBlock implements Serializable {
 	}
 
     public static CodeBlock read(IWireInputStream in, IValueFactory vf, TypeStore ts) throws IOException {
-        String name = null;
+        String name = "unitialized name";
         
         Map<IValue, Integer> constantMap = new HashMap<>();
         ArrayList<IValue> constantStore = new ArrayList<>();
@@ -924,7 +924,7 @@ public class CodeBlock implements Serializable {
         
         in.next();
         assert in.current() == IWireInputStream.MESSAGE_START;
-        if(in.message() != CompilerIDs.Function.ID){
+        if(in.message() != CompilerIDs.CodeBlock.ID){
             throw new IOException("Unexpected message: " + in.message());
         }
         while(in.next() != IWireInputStream.MESSAGE_END){
@@ -935,26 +935,30 @@ public class CodeBlock implements Serializable {
                     break;
                 }
                 
-                case CompilerIDs.CodeBlock.FINAL_CONSTANT_STORE:{
+                case CompilerIDs.CodeBlock.FINAL_CONSTANT_STORE: {
                     int n = in.getRepeatedLength();
+                    constantMap = new HashMap<IValue, Integer> ();
+                    constantStore = new ArrayList<IValue>();
                     finalConstantStore = new IValue[n];
                     for(int i = 0; i < n; i++){
-                        IValue value = IValueReader.read(in, vf, ts);;
-                        finalConstantStore[i] = value;
+                        IValue value = IValueReader.read(in, vf, ts);
                         constantMap.put(value, i);
                         constantStore.add(i, value);
+                        finalConstantStore[i] = value;
                     }
                     break;
                 }
                 
                 case CompilerIDs.CodeBlock.FINAL_TYPECONSTANT_STORE: {
                     int n = in.getRepeatedLength();
+                    typeConstantMap = new HashMap<Type, Integer>();
+                    typeConstantStore = new ArrayList<Type>();
                     finalTypeConstantStore = new Type[n];
                     for(int i = 0; i < n; i++){
                         Type type = IValueReader.readType(in, vf, ts);
-                        finalTypeConstantStore[i] = type;
                         typeConstantMap.put(type, i);
                         typeConstantStore.add(i, type);
+                        finalTypeConstantStore[i] = type;
                     }
                     break;
                 }
