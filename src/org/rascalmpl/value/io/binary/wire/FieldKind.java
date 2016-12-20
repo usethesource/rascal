@@ -13,24 +13,31 @@
 package org.rascalmpl.value.io.binary.wire;
 
 public class FieldKind {
-    /* only values from 1-7 are valid (3 bits, 0 is preassigned) */
+    /* only values from 1-7 are valid (3 bits, 0 is taken by message flag) */
     public static final int PREVIOUS_STR = 1;
     public static final int INT = 2;
     public static final int STRING = 3;
-    public static final int BYTES = 4;
+    public static final int NESTED = 4;
     public static final int REPEATED = 5;
-    public static final int NESTED = 6;
-    private static final int UNUSED1 = 7;
+
+    @SuppressWarnings("unused")
+    private static final int UNUSED1 = 6;
+    @SuppressWarnings("unused")
+    private static final int UNUSED2 = 7;
    
     public static class Repeated {
         /* values from 0-7 are valid */
-        private static final int UNUSED1 = 0; // use this at last resort
-        public static final int PREVIOUS_STR = FieldKind.PREVIOUS_STR;
-        public static final int INT = FieldKind.INT;
-        public static final int STRING = FieldKind.STRING;
-        public static final int TUPLE = 4;
-        private static final int UNUSED2 = 5;
-        public static final int NESTED = FieldKind.NESTED;
+        public static final int BYTES = 0; 
+        public static final int TUPLES = 1;
+        public static final int INTS = FieldKind.INT; // 2
+        public static final int STRINGS = FieldKind.STRING; // 3
+        public static final int NESTEDS = FieldKind.NESTED; // 4
+
+        @SuppressWarnings("unused")
+        private static final int UNUSED1 = 5;
+        @SuppressWarnings("unused")
+        private static final int UNUSED2 = 6;
+        @SuppressWarnings("unused")
         private static final int UNUSED3 = 7;
     }
     private FieldKind() {}

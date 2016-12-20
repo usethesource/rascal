@@ -111,10 +111,6 @@ public class BinaryWireInputStream implements IWireInputStream {
             case FieldKind.INT:
                 intValue = stream.readRawVarint32();
                 break;
-            case FieldKind.BYTES:
-                stream.resetSizeCounter();
-                bytesValue = stream.readByteArray();
-                break;
             case FieldKind.PREVIOUS_STR:
                 int reference = stream.readRawVarint32();
                 fieldType = TaggedInt.getTag(reference);
@@ -127,24 +123,27 @@ public class BinaryWireInputStream implements IWireInputStream {
                 nestedType = TaggedInt.getTag(flaggedAmount);
                 nestedLength = TaggedInt.getOriginal(flaggedAmount);
                 switch (nestedType) {
-                    case FieldKind.Repeated.INT:
+                    case FieldKind.Repeated.BYTES:
+                        bytesValue = stream.readRawBytes(nestedLength);
+                        break;
+                    case FieldKind.Repeated.INTS:
                         int[] intValues = new int[nestedLength];
                         for (int i = 0; i < nestedLength; i++) {
                             intValues[i] = stream.readRawVarint32();
                         }
                         this.intValues = intValues;
                         break;
-                    case FieldKind.Repeated.STRING: 
+                    case FieldKind.Repeated.STRINGS: 
                         String[] stringValues = new String[nestedLength];
                         for (int i = 0; i < nestedLength; i++) {
                             reference = stream.readRawVarint32();
-                            if (TaggedInt.getTag(reference) == FieldKind.Repeated.STRING) {
+                            if (TaggedInt.getTag(reference) == FieldKind.STRING) {
                                 // normal string
                                 stringValues[i] = stream.readString();
                                 stringsRead.read(stringValues[i]);
                             }
                             else {
-                                assert TaggedInt.getTag(reference) == FieldKind.Repeated.PREVIOUS_STR;
+                                assert TaggedInt.getTag(reference) == FieldKind.PREVIOUS_STR;
                                 stringValues[i] = stringsRead.lookBack(TaggedInt.getOriginal(reference));
                             }
                         }
@@ -195,7 +194,7 @@ public class BinaryWireInputStream implements IWireInputStream {
     
     @Override
     public byte[] getBytes() {
-        assert fieldType == FieldKind.BYTES;
+        assert fieldType == FieldKind.REPEATED && nestedType == FieldKind.Repeated.BYTES;
         return bytesValue;
     }
     
@@ -219,13 +218,13 @@ public class BinaryWireInputStream implements IWireInputStream {
 
     @Override
     public String[] getStrings() {
-        assert fieldType == FieldKind.REPEATED && nestedType == FieldKind.STRING;
+        assert getRepeatedType() == FieldKind.Repeated.STRINGS;
         return stringValues;
     }
     
     @Override
     public int[] getIntegers() {
-        assert fieldType == FieldKind.REPEATED && nestedType == FieldKind.INT;
+        assert getRepeatedType() == FieldKind.Repeated.INTS;
         return intValues;
     }
 
