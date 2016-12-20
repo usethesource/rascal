@@ -897,7 +897,7 @@ public class CodeBlock implements Serializable {
         
         RVMWireExtensions.writeMap(out, CompilerIDs.CodeBlock.CONSTRUCTOR_MAP, constructorMap);
 
-        // TODO: out.writeField(CompilerIDs.CodeBlock.FINAL_CODE, finalCode);
+        RVMWireExtensions.writeLongs(out, CompilerIDs.CodeBlock.FINAL_CODE, finalCode);
        
 	    out.endMessage();
 	}
@@ -965,7 +965,8 @@ public class CodeBlock implements Serializable {
                     break;
                 }
                 case CompilerIDs.CodeBlock.FINAL_CODE: {
-                    // TODO
+                    finalCode = RVMWireExtensions.readLongs(in);
+                    break;
                 }
             }
         }
