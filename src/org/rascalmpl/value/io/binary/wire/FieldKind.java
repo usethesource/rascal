@@ -13,6 +13,7 @@
 package org.rascalmpl.value.io.binary.wire;
 
 public class FieldKind {
+    /* only values from 1-7 are valid (3 bits, 0 is preassigned) */
     public static final int PREVIOUS_STR = 1;
     public static final int INT = 2;
     public static final int STRING = 3;
@@ -20,5 +21,11 @@ public class FieldKind {
     public static final int REPEATED = 5;
     public static final int NESTED = 6;
    
+    public static class Repeated {
+        public static final int PREVIOUS_STR = 1;
+        public static final int INT = 2;
+        public static final int STRING = 3;
+        public static final int NESTED = 6;
+    }
     private FieldKind() {}
 }
