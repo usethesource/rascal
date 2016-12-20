@@ -3,6 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.Commands;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.util.Set;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CompilerError;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
@@ -105,17 +106,17 @@ public class RascalC {
                 System.err.println("Option --apigen cannot be combined with --noLinking");
                 System.exit(1);
               }
-              if(!srcGen.getScheme().equals("file")){
-                System.err.println("Can only write generated APIs to a --src-gen with a file schema");
-                System.exit(1);;
+              Set<String> outputs = URIResolverRegistry.getInstance().getRegisteredOutputSchemes();
+              if(!outputs.contains(srcGen.getScheme())){
+                  System.err.println("Can only write generated APIs to a --src-gen with theses schemes: ");
+                  outputs.stream().forEach(t -> System.err.println("\t " + t));
+                  System.exit(1);
               }
             }
             PathConfig pcfg = cmdOpts.getPathConfig();
             RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(pcfg)
-//                    .customSearchPath(pcfg.getRascalSearchPath())
                     .trace(cmdOpts.getCommandBoolOption("trace"))
                     .profile(cmdOpts.getCommandBoolOption("profile"))
-                    //.setJVM(cmdOpts.getCommandBoolOption("jvm"))
                     .forModule(cmdOpts.getModule().getValue())
                     .verbose(cmdOpts.getCommandBoolOption("verbose"))
                     .build();
@@ -170,8 +171,8 @@ public class RascalC {
                       apiOut.write(api.getBytes());
                       apiOut.close();
                     } catch (Exception e) {
-                      // TODO Auto-generated catch block
                       e.printStackTrace();
+                      System.exit(1);
                     }
                   }
                 }
@@ -179,7 +180,7 @@ public class RascalC {
             }
         } catch (Throwable e) {
             e.printStackTrace();
-            System.exit(1);;
+            System.exit(1);
         }
     }
 
@@ -198,14 +199,37 @@ public class RascalC {
 
     		ISet messages = (ISet) program.get("messages");
 
+    		int maxLine = 0;
+    		int maxColumn = 0;
+    		
+    		for (IValue val : messages) {
+                ISourceLocation loc = (ISourceLocation) ((IConstructor) val).get("at");
+                maxLine = Math.max(loc.getBeginLine(), maxLine);
+                maxColumn = Math.max(loc.getBeginColumn(), maxColumn);
+            }
+    		
+    		
+    		int lineWidth = (int) Math.log10(maxLine) + 1;
+    		int colWidth = (int) Math.log10(maxColumn) + 1;
+    		
     		for (IValue val : messages) {
     			IConstructor msg = (IConstructor) val;
     			if (msg.getName().equals("error")) {
     				failed = true;
     			}
 
-    			// TODO: improve error reporting notation
-    			System.err.println(msg);
+    			ISourceLocation loc = (ISourceLocation) msg.get("at");
+    			int col = loc.getBeginColumn();
+    			int line = loc.getBeginLine();
+    			
+                System.err.println(msg.getName() + "@" + loc.getURI() 
+                    + ":" 
+                    + String.format("%0" + lineWidth + "d", line)
+                    + ":"
+                    + String.format("%0" + colWidth + "d", col)
+                    + ": "
+                    + ((IString) msg.get("msg")).getValue()
+                    );
     		}
     	}
 
