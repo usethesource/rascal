@@ -891,11 +891,11 @@ public class CodeBlock implements Serializable {
             IValueWriter.write(out, new TypeStore(), WindowSizes.TINY_WINDOW, type); 
         }
         
-        RVMWireExtensions.writeMap(out, CompilerIDs.CodeBlock.FUNCTION_MAP, functionMap);
+        out.writeField(CompilerIDs.CodeBlock.FUNCTION_MAP, functionMap);
         
-        RVMWireExtensions.writeMap(out, CompilerIDs.CodeBlock.RESOLVER, resolver);
+        out.writeField(CompilerIDs.CodeBlock.RESOLVER, resolver);
         
-        RVMWireExtensions.writeMap(out, CompilerIDs.CodeBlock.CONSTRUCTOR_MAP, constructorMap);
+        out.writeField(CompilerIDs.CodeBlock.CONSTRUCTOR_MAP, constructorMap);
 
         RVMWireExtensions.writeLongs(out, CompilerIDs.CodeBlock.FINAL_CODE, finalCode);
        
@@ -953,15 +953,15 @@ public class CodeBlock implements Serializable {
                     break;
                 }
                 case CompilerIDs.CodeBlock.FUNCTION_MAP: {
-                    functionMap = RVMWireExtensions.readMap(in);
+                    functionMap = in.getStringIntegerMap();
                     break;
                 }
                 case CompilerIDs.CodeBlock.RESOLVER: {
-                    resolver = RVMWireExtensions.readMap(in);
+                    resolver = in.getStringIntegerMap();
                     break;
                 }
                 case CompilerIDs.CodeBlock.CONSTRUCTOR_MAP: {
-                    constructorMap = RVMWireExtensions.readMap(in);
+                    constructorMap = in.getStringIntegerMap();
                     break;
                 }
                 case CompilerIDs.CodeBlock.FINAL_CODE: {

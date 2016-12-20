@@ -14,46 +14,12 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.LongBuffer;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import org.rascalmpl.value.io.binary.wire.FieldKind;
 import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 
 public class RVMWireExtensions {
-
-    public static void writeMap(IWireOutputStream out, int fieldId, Map<String, Integer> map) throws IOException{
-        int n = map.size();
-        String[] keys = new String[n];
-        int[] values = new int[n];
-        
-        int i = 0;
-        for(Entry<String, Integer> entry : map.entrySet()){
-            keys[i] = entry.getKey();
-            values[i] = entry.getValue();
-            i++;
-        }
-        out.writeField(fieldId, keys);
-        out.writeField(fieldId, values);
-    }
-    
-    public static Map<String, Integer> readMap(IWireInputStream in) throws IOException{
-        assert in.getFieldType() == FieldKind.REPEATED && in.getRepeatedType() == FieldKind.STRING;
-        String[] keys = in.getStrings();
-        int fieldId = in.field();
-        in.next();
-        assert in.field() == fieldId;
-        int[] values = in.getIntegers();
-        assert keys.length == values.length;
-        Map<String, Integer> map = new HashMap<>();
-        for(int i = 0; i < keys.length; i++){
-            map.put(keys[i], values[i]);
-        }
-        return map;     
-    }
 
     public static void writeLongs(IWireOutputStream out, int fieldId, long[] longs) throws IOException {
         ByteBuffer buf = ByteBuffer.allocate(longs.length * Long.BYTES);

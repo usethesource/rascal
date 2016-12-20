@@ -12,11 +12,12 @@
  */ 
 package org.rascalmpl.value.io.binary.wire.binary;
 
-import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.rascalmpl.value.io.binary.util.LinearCircularLookupWindow;
 import org.rascalmpl.value.io.binary.util.TaggedInt;
@@ -45,6 +46,9 @@ public class BinaryWireInputStream implements IWireInputStream {
     private String[] stringValues;
     private int[] intValues;
     private int nestedLength;
+    private int keyType;
+    private int valueType;
+    private Map<String, Integer> stringIntegerMap;
 
     public BinaryWireInputStream(InputStream stream) throws IOException {
         this.__stream = stream;
@@ -80,8 +84,10 @@ public class BinaryWireInputStream implements IWireInputStream {
 
     @Override
     public int next() throws IOException {
+        // clear memory
         intValues = null;
         stringValues = null;
+        stringIntegerMap = null;
         int next;
         try {
             next = stream.readRawVarint32();
@@ -136,19 +142,23 @@ public class BinaryWireInputStream implements IWireInputStream {
                     case FieldKind.Repeated.STRINGS: 
                         String[] stringValues = new String[nestedLength];
                         for (int i = 0; i < nestedLength; i++) {
-                            reference = stream.readRawVarint32();
-                            if (TaggedInt.getTag(reference) == FieldKind.STRING) {
-                                // normal string
-                                stringValues[i] = stream.readString();
-                                stringsRead.read(stringValues[i]);
-                            }
-                            else {
-                                assert TaggedInt.getTag(reference) == FieldKind.PREVIOUS_STR;
-                                stringValues[i] = stringsRead.lookBack(TaggedInt.getOriginal(reference));
-                            }
+                            stringValues[i]= readString();
                         }
                         break;
-                    case FieldKind.NESTED:
+                    case FieldKind.Repeated.KEYVALUES:
+                        int types = stream.readRawVarint32();
+                        keyType = TaggedInt.getOriginal(types);
+                        valueType = TaggedInt.getTag(types);
+                        // at the moment only Map<String,Integer> is implemented, but there is no reason the other variants can't be added when needed
+                        assert keyType == FieldKind.STRING && valueType == FieldKind.INT;
+                        stringIntegerMap = new HashMap<>(nestedLength);
+                        for (int i = 0; i < nestedLength; i++) {
+                            String key = readString();
+                            Integer value = stream.readRawVarint32();
+                            stringIntegerMap.put(key, value);
+                        }
+                        break;
+                    case FieldKind.Repeated.NESTEDS:
                         break;
                     default:
                         throw new IOException("Unsupported nested type:" + nestedType);
@@ -159,6 +169,21 @@ public class BinaryWireInputStream implements IWireInputStream {
                 throw new IOException("Unexpected wire type: " + fieldType);
         }
         return current = FIELD;
+    }
+
+    private String readString() throws IOException {
+        int reference = stream.readRawVarint32();
+        String result;
+        if (TaggedInt.getTag(reference) == FieldKind.STRING) {
+            // normal string
+            result = stream.readString();
+            stringsRead.read(result);
+        }
+        else {
+            assert TaggedInt.getTag(reference) == FieldKind.PREVIOUS_STR;
+            result = stringsRead.lookBack(TaggedInt.getOriginal(reference));
+        }
+        return result;
     }
 
 
@@ -226,6 +251,24 @@ public class BinaryWireInputStream implements IWireInputStream {
     public int[] getIntegers() {
         assert getRepeatedType() == FieldKind.Repeated.INTS;
         return intValues;
+    }
+    
+    @Override
+    public int getKeyType() {
+        assert getRepeatedType() == FieldKind.Repeated.KEYVALUES;
+        return keyType;
+    }
+    
+    @Override
+    public int getValueType() {
+        assert getRepeatedType() == FieldKind.Repeated.KEYVALUES;
+        return valueType;
+    }
+
+    @Override
+    public Map<String, Integer> getStringIntegerMap() {
+        assert getKeyType() == FieldKind.STRING && getValueType() == FieldKind.INT;
+        return stringIntegerMap;
     }
 
     @Override

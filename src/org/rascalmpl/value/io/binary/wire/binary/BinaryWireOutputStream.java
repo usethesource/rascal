@@ -16,6 +16,8 @@ import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.rascalmpl.value.io.binary.util.OpenAddressingLastWritten;
 import org.rascalmpl.value.io.binary.util.TaggedInt;
@@ -131,15 +133,31 @@ public class BinaryWireOutputStream implements IWireOutputStream {
         writeFieldTag(fieldId, FieldKind.REPEATED);
         stream.writeUInt32NoTag(TaggedInt.make(values.length, FieldKind.Repeated.STRINGS));
         for (String s : values) {
-            int alreadyWritten = stringsWritten.howLongAgo(s);
-            if (alreadyWritten != -1) {
-                stream.writeUInt32NoTag(TaggedInt.make(alreadyWritten, FieldKind.PREVIOUS_STR));
-            }
-            else {
-                stream.writeUInt32NoTag(TaggedInt.make(0, FieldKind.STRING));
-                stream.writeStringNoTag(s);
-                stringsWritten.write(s);
-            }
+            writeString(s);
+        }
+    }
+
+    private void writeString(String s) throws IOException {
+        int alreadyWritten = stringsWritten.howLongAgo(s);
+        if (alreadyWritten != -1) {
+            stream.writeUInt32NoTag(TaggedInt.make(alreadyWritten, FieldKind.PREVIOUS_STR));
+        }
+        else {
+            stream.writeUInt32NoTag(TaggedInt.make(0, FieldKind.STRING));
+            stream.writeStringNoTag(s);
+            stringsWritten.write(s);
+        }
+    }
+    
+    @Override
+    public void writeField(int fieldId, Map<String, Integer> values) throws IOException {
+        assertNotClosed();
+        writeFieldTag(fieldId, FieldKind.REPEATED);
+        stream.writeUInt32NoTag(TaggedInt.make(values.size(), FieldKind.Repeated.KEYVALUES));
+        stream.writeUInt32NoTag(TaggedInt.make(FieldKind.STRING, FieldKind.INT));
+        for (Entry<String, Integer> e : values.entrySet()) {
+            writeString(e.getKey());
+            stream.writeUInt32NoTag(e.getValue());
         }
     }
     

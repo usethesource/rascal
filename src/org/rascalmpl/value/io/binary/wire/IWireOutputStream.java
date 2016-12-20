@@ -15,6 +15,7 @@ package org.rascalmpl.value.io.binary.wire;
 import java.io.Closeable;
 import java.io.Flushable;
 import java.io.IOException;
+import java.util.Map;
 
 
 /**
@@ -32,6 +33,7 @@ public interface IWireOutputStream extends Closeable, Flushable  {
 
     void writeField(int fieldId, int[] values) throws IOException;
     void writeField(int fieldId, String[] values) throws IOException;
+    void writeField(int fieldId, Map<String, Integer> values) throws IOException;
 
     /**
      * A nested field signals that next up in the stream, we get a nested message. it has no value of itself.
