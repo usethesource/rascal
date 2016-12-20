@@ -118,7 +118,7 @@ public class BinaryWireOutputStream implements IWireOutputStream {
     public void writeField(int fieldId, int[] values) throws IOException {
         assertNotClosed();
         writeFieldTag(fieldId, FieldKind.REPEATED);
-        stream.writeUInt32NoTag(TaggedInt.make(values.length, FieldKind.INT));
+        stream.writeUInt32NoTag(TaggedInt.make(values.length, FieldKind.Repeated.INT));
         for (int v : values) {
             stream.writeUInt32NoTag(v);
         }
@@ -128,14 +128,14 @@ public class BinaryWireOutputStream implements IWireOutputStream {
     public void writeField(int fieldId, String[] values) throws IOException {
         assertNotClosed();
         writeFieldTag(fieldId, FieldKind.REPEATED);
-        stream.writeUInt32NoTag(TaggedInt.make(values.length, FieldKind.STRING));
+        stream.writeUInt32NoTag(TaggedInt.make(values.length, FieldKind.Repeated.STRING));
         for (String s : values) {
             int alreadyWritten = stringsWritten.howLongAgo(s);
             if (alreadyWritten != -1) {
-                stream.writeUInt32NoTag(TaggedInt.make(alreadyWritten, FieldKind.STRING));
+                stream.writeUInt32NoTag(TaggedInt.make(alreadyWritten, FieldKind.Repeated.PREVIOUS_STR));
             }
             else {
-                stream.writeUInt32NoTag(0);
+                stream.writeUInt32NoTag(TaggedInt.make(0, FieldKind.Repeated.STRING));
                 stream.writeStringNoTag(s);
                 stringsWritten.write(s);
             }
@@ -152,7 +152,7 @@ public class BinaryWireOutputStream implements IWireOutputStream {
     public void writeRepeatedNestedField(int fieldId, int numberOfNestedElements) throws IOException {
         assertNotClosed();
         writeFieldTag(fieldId, FieldKind.REPEATED);
-        stream.writeUInt32NoTag(TaggedInt.make(numberOfNestedElements, FieldKind.NESTED));
+        stream.writeUInt32NoTag(TaggedInt.make(numberOfNestedElements, FieldKind.Repeated.NESTED));
     }
     @Override
     public void endMessage() throws IOException {

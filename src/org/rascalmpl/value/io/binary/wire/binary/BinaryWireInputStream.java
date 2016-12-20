@@ -127,24 +127,24 @@ public class BinaryWireInputStream implements IWireInputStream {
                 nestedType = TaggedInt.getTag(flaggedAmount);
                 nestedLength = TaggedInt.getOriginal(flaggedAmount);
                 switch (nestedType) {
-                    case FieldKind.INT:
+                    case FieldKind.Repeated.INT:
                         int[] intValues = new int[nestedLength];
                         for (int i = 0; i < nestedLength; i++) {
                             intValues[i] = stream.readRawVarint32();
                         }
                         this.intValues = intValues;
                         break;
-                    case FieldKind.STRING: 
+                    case FieldKind.Repeated.STRING: 
                         String[] stringValues = new String[nestedLength];
                         for (int i = 0; i < nestedLength; i++) {
                             reference = stream.readRawVarint32();
-                            if (TaggedInt.getTag(reference) == 0) {
+                            if (TaggedInt.getTag(reference) == FieldKind.Repeated.STRING) {
                                 // normal string
                                 stringValues[i] = stream.readString();
                                 stringsRead.read(stringValues[i]);
                             }
                             else {
-                                assert TaggedInt.getTag(reference) == FieldKind.STRING;
+                                assert TaggedInt.getTag(reference) == FieldKind.Repeated.PREVIOUS_STR;
                                 stringValues[i] = stringsRead.lookBack(TaggedInt.getOriginal(reference));
                             }
                         }
