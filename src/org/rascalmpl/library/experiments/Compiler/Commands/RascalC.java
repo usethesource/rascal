@@ -149,7 +149,7 @@ public class RascalC {
                   for(IValue mod : cmdOpts.getModules()){
                     String moduleName = ((IString) mod).getValue();
                     ISourceLocation binary = Rascal.findBinary(cmdOpts.getCommandLocOption("bin"), moduleName);
-                    RVMExecutable exec = RVMExecutable.read(binary, rex.getTypeStore());
+                    RVMExecutable exec = RVMExecutable.newRead(binary, rex.getTypeStore());
                       
                     try {
                       String api = ApiGen.generate(exec, moduleName, pckg);

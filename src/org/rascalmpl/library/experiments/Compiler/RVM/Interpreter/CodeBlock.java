@@ -877,6 +877,7 @@ public class CodeBlock implements Serializable {
 	}
 	
 	public void write(IWireOutputStream out) throws IOException{ 
+	    
 	    out.startMessage(CompilerIDs.CodeBlock.ID);
 
         out.writeField(CompilerIDs.CodeBlock.NAME, name);
