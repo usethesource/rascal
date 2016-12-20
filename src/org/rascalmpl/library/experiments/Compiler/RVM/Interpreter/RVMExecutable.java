@@ -346,32 +346,33 @@ public class RVMExecutable implements Serializable{
 		}
 	}
 	
-	public void write(ISourceLocation rvmExecutable) throws IOException{		
-		OutputStream fileOut;
-		
-		TypeStore typeStore = RascalValueFactory.getStore(); //new TypeStore(RascalValueFactory.getStore());
-		
-		FSTSerializableType.initSerialization(vf, typeStore);
-		FSTSerializableIValue.initSerialization(vf, typeStore);
-		
-		FSTRVMExecutableSerializer.initSerialization(vf, typeStore);
-		FSTFunctionSerializer.initSerialization(vf, typeStore);
-		FSTCodeBlockSerializer.initSerialization(vf, typeStore);
-
-		ISourceLocation compOut = rvmExecutable;
-		fileOut = URIResolverRegistry.getInstance().getOutputStream(compOut, false);
-		FSTObjectOutput out = new FSTObjectOutput(fileOut, makeFSTConfig(rvmExecutable));
-		//long before = Timing.getCpuTime();
-		out.writeObject(this);
-		out.close();
-		//System.out.println("RVMExecutable.write: " + compOut.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
-	}
+//	public void write(ISourceLocation rvmExecutable) throws IOException{		
+//		OutputStream fileOut;
+//		
+//		TypeStore typeStore = RascalValueFactory.getStore(); //new TypeStore(RascalValueFactory.getStore());
+//		
+//		FSTSerializableType.initSerialization(vf, typeStore);
+//		FSTSerializableIValue.initSerialization(vf, typeStore);
+//		
+//		FSTRVMExecutableSerializer.initSerialization(vf, typeStore);
+//		FSTFunctionSerializer.initSerialization(vf, typeStore);
+//		FSTCodeBlockSerializer.initSerialization(vf, typeStore);
+//
+//		ISourceLocation compOut = rvmExecutable;
+//		fileOut = URIResolverRegistry.getInstance().getOutputStream(compOut, false);
+//		FSTObjectOutput out = new FSTObjectOutput(fileOut, makeFSTConfig(rvmExecutable));
+//		//long before = Timing.getCpuTime();
+//		out.writeObject(this);
+//		out.close();
+//		//System.out.println("RVMExecutable.write: " + compOut.getPath() + " [" +  (Timing.getCpuTime() - before)/1000000 + " msec]");
+//	}
 	
 	static byte EXEC_HEADER[] = new byte[] { 'R', 'V','M' };
+	static byte[] EXEC_VERSION = new byte[] {1, 0, 0};
 	static byte EXEC_COMPRESSION_NONE = 0;
 	static byte EXEC_COMPRESSION_GZIP = 1;
 	static byte EXEC_COMPRESSION_ZSTD = 2;
-	static byte[] EXEC_VERSION = new byte[] {1, 0, 0};
+	
 	
 	public void newWrite(ISourceLocation rvmExecutable, int compressionLevel) throws IOException {
 	    TypeStore typeStore = RascalValueFactory.getStore();
@@ -390,13 +391,15 @@ public class RVMExecutable implements Serializable{
 	}
 	
 	private void write(IWireOutputStream out, TypeStore typeStore) throws IOException {
+	    
+	    out.startMessage(CompilerIDs.Executable.ID);
+	    
 	    // Write standard header
         out.writeField(CompilerIDs.Executable.RASCAL_MAGIC, RVMExecutable.RASCAL_MAGIC);
         out.writeField(CompilerIDs.Executable.RASCAL_VERSION, VersionInfo.RASCAL_VERSION);
         out.writeField(CompilerIDs.Executable.RASCAL_RUNTIME_VERSION, VersionInfo.RASCAL_RUNTIME_VERSION);
         out.writeField(CompilerIDs.Executable.RASCAL_COMPILER_VERSION, VersionInfo.RASCAL_COMPILER_VERSION);
         
-        // String[] errors
         out.writeNestedField(CompilerIDs.Executable.ERRORS);
         IValueWriter.write(out, typeStore, WindowSizes.TINY_WINDOW, getErrors());
                   
@@ -483,32 +486,36 @@ public class RVMExecutable implements Serializable{
 	        }
 	    }
 	}
-
+	
 	private static RVMExecutable read(IWireInputStream in, TypeStore ts, IValueFactory vf) throws IOException {
 	    // Serializable fields
 
-	    ISet errors = null;
-	    String module_name = null;
-	    IMap moduleTags = null;
-	    IMap symbol_definitions = null;
+	    ISet errors = vf.set();
+	    String module_name = "unitialized module_name";
+	    
+	    IMap emptyIMap = vf.mapWriter().done();
+	    IMap moduleTags = emptyIMap;
+	    IMap symbol_definitions = emptyIMap;
 
-	    Function[] functionStore = null;
-	    Map<String, Integer> functionMap = null;
+	    Function[] functionStore = new Function[0];
+	    
+	    Map<String, Integer> emptyMap = new HashMap<>();
+	    Map<String, Integer> functionMap = emptyMap;
 
 	    // Constructors
-	    ArrayList<Type> constructorStore = null;
-	    Map<String, Integer> constructorMap = null;
+	    ArrayList<Type> constructorStore = new ArrayList<>();
+	    Map<String, Integer> constructorMap = emptyMap;
 
 	    // Function overloading
-	    OverloadedFunction[] overloadedStore = null;
-	    Map<String, Integer> resolver = null;
+	    OverloadedFunction[] overloadedStore = new OverloadedFunction[0];
+	    Map<String, Integer> resolver = emptyMap;
 
-	    ArrayList<String> initializers = null;
-	    String uid_module_init = null;
-	    String uid_module_main = null;
+	    ArrayList<String> initializers = new ArrayList<>();
+	    String uid_module_init = "unitialized uid_module_init";
+	    String uid_module_main = "unitialized uid_module_main";
 
-	    byte[] jvmByteCode =null;
-	    String fullyQualifiedDottedName = null;
+	    byte[] jvmByteCode = new byte[0];
+	    String fullyQualifiedDottedName = "unitialized fullyQualifiedDottedName";
 	    
 	    in.next();
         assert in.current() == IWireInputStream.MESSAGE_START;
