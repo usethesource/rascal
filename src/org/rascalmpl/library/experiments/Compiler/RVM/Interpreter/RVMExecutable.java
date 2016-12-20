@@ -28,6 +28,9 @@ import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.binary.message.IValueReader;
+import org.rascalmpl.value.io.binary.message.IValueWriter;
+import org.rascalmpl.value.io.binary.message.WindowSizes;
 import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 import org.rascalmpl.value.io.binary.wire.binary.BinaryWireInputStream;
@@ -41,6 +44,8 @@ import com.github.luben.zstd.ZstdInputStream;
 import com.github.luben.zstd.ZstdOutputStream;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FSTFunctionSerializer;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMWireExtensions;
 
 /**
  * RVMExecutable contains all data needed for executing an RVM program.
@@ -384,9 +389,59 @@ public class RVMExecutable implements Serializable{
 	    }
 	}
 	
-	private void write(IWireOutputStream iout, TypeStore typeStore) {
-        // TODO Auto-generated method stub
+	private void write(IWireOutputStream out, TypeStore typeStore) throws IOException {
+	    // Write standard header
+        out.writeField(CompilerIDs.Executable.RASCAL_MAGIC, RVMExecutable.RASCAL_MAGIC);
+        out.writeField(CompilerIDs.Executable.RASCAL_VERSION, VersionInfo.RASCAL_VERSION);
+        out.writeField(CompilerIDs.Executable.RASCAL_RUNTIME_VERSION, VersionInfo.RASCAL_RUNTIME_VERSION);
+        out.writeField(CompilerIDs.Executable.RASCAL_COMPILER_VERSION, VersionInfo.RASCAL_COMPILER_VERSION);
         
+        // String[] errors
+        out.writeNestedField(CompilerIDs.Executable.ERRORS);
+        IValueWriter.write(out, typeStore, WindowSizes.TINY_WINDOW, getErrors());
+                  
+        if(!isValid()){
+            return;
+        }
+
+        out.writeField(CompilerIDs.Executable.MODULE_NAME, getModuleName());
+
+        out.writeNestedField(CompilerIDs.Executable.MODULE_TAGS);
+        IValueWriter.write(out, typeStore, WindowSizes.TINY_WINDOW, getModuleTags());
+
+        out.writeNestedField(CompilerIDs.Executable.SYMBOL_DEFINITIONS);
+        IValueWriter.write(out, typeStore, WindowSizes.NORMAL_WINDOW, getSymbolDefinitions());
+
+        out.writeRepeatedNestedField(CompilerIDs.Executable.FUNCTION_STORE, functionStore.length);
+        for(Function function : functionStore){
+            function.write(out);
+        }
+
+        out.writeRepeatedNestedField(CompilerIDs.Executable.CONSTRUCTOR_STORE, constructorStore.size());
+        for(Type type : constructorStore){
+           IValueWriter.write(out, typeStore, WindowSizes.TINY_WINDOW, type);
+        }
+
+        RVMWireExtensions.writeMap(out, CompilerIDs.Executable.CONSTRUCTOR_MAP, getConstructorMap());
+
+        out.writeRepeatedNestedField(CompilerIDs.Executable.OVERLOADED_STORE, getOverloadedStore().length);
+        for(OverloadedFunction ovl : getOverloadedStore()){
+            ovl.write(out);
+        }
+
+        RVMWireExtensions.writeMap(out, CompilerIDs.Executable.RESOLVER, getResolver());
+
+        out.writeField(CompilerIDs.Executable.INITIALIZERS, (String[])getInitializers().toArray());
+
+        out.writeField(CompilerIDs.Executable.UID_MODULE_INIT, getUidModuleInit());
+
+        out.writeField(CompilerIDs.Executable.UID_MODULE_MAIN, getUidModuleMain());
+        
+        out.writeField(CompilerIDs.Executable.JVM_BYTE_CODE, getJvmByteCode());
+        
+        out.writeField(CompilerIDs.Executable.FULLY_QUALIFIED_DOTTED_NAME, getFullyQualifiedDottedName());
+        
+        out.endMessage();
     }
 	
 	public static RVMExecutable newRead(ISourceLocation rvmExecutable, TypeStore typeStore) throws IOException{
@@ -429,10 +484,187 @@ public class RVMExecutable implements Serializable{
 	    }
 	}
 
-    private static RVMExecutable read(IWireInputStream win, TypeStore typeStore, IValueFactory valueFactory) {
-        // TODO Auto-generated method stub
-        return null;
-    }
+	private static RVMExecutable read(IWireInputStream in, TypeStore ts, IValueFactory vf) throws IOException {
+	    // Serializable fields
+
+	    ISet errors = null;
+	    String module_name = null;
+	    IMap moduleTags = null;
+	    IMap symbol_definitions = null;
+
+	    Function[] functionStore = null;
+	    Map<String, Integer> functionMap = null;
+
+	    // Constructors
+	    ArrayList<Type> constructorStore = null;
+	    Map<String, Integer> constructorMap = null;
+
+	    // Function overloading
+	    OverloadedFunction[] overloadedStore = null;
+	    Map<String, Integer> resolver = null;
+
+	    ArrayList<String> initializers = null;
+	    String uid_module_init = null;
+	    String uid_module_main = null;
+
+	    byte[] jvmByteCode =null;
+	    String fullyQualifiedDottedName = null;
+	    
+	    in.next();
+        assert in.current() == IWireInputStream.MESSAGE_START;
+        if(in.message() != CompilerIDs.Executable.ID){
+            throw new IOException("Unexpected message: " + in.message());
+        }
+        while(in.next() != IWireInputStream.MESSAGE_END){
+            switch(in.field()){
+                
+                case CompilerIDs.Executable.RASCAL_MAGIC: {
+                    String rascal_magic = in.getString();
+                    if(!rascal_magic.equals(RVMExecutable.RASCAL_MAGIC)){
+                        throw new RuntimeException("Cannot read incompatible Rascal executable");
+                    }
+                    break;
+                }
+                
+                case CompilerIDs.Executable.RASCAL_VERSION: {
+                    String rascal_version = in.getString();
+                    SemVer sv;
+                    try {
+                        sv = new SemVer(rascal_version);
+                    } catch(Exception e){
+                        throw new RuntimeException("Invalid value for RASCAL_VERSION in Rascal executable");
+                    }
+                    
+                    if(!sv.satisfiesVersion("~" + VersionInfo.RASCAL_VERSION)){
+                        throw new RuntimeException("RASCAL_VERSION " + rascal_version + " in Rascal executable incompatible with current version " + VersionInfo.RASCAL_VERSION);
+                    }
+                    break;
+                }
+                
+                case CompilerIDs.Executable.RASCAL_RUNTIME_VERSION: {
+                    String rascal_runtime_version = in.getString();
+                    SemVer sv;
+                    try {
+                        sv = new SemVer(rascal_runtime_version);
+                    } catch(Exception e){
+                        throw new RuntimeException("Invalid value for RASCAL_RUNTIME_VERSION in Rascal executable");
+                    }
+                    if(!sv.satisfiesVersion("~" + VersionInfo.RASCAL_RUNTIME_VERSION)){
+                        throw new RuntimeException("RASCAL_RUNTIME_VERSION " + rascal_runtime_version + " in Rascal executable incompatible with current version " + VersionInfo.RASCAL_RUNTIME_VERSION);
+                    }
+                }
+                
+                case CompilerIDs.Executable.RASCAL_COMPILER_VERSION: {
+                    String rascal_compiler_version = in.getString();
+                    SemVer sv;
+                    try {
+                        sv = new SemVer(rascal_compiler_version);
+                    } catch(Exception e){
+                        throw new RuntimeException("Invalid value for RASCAL_COMPILER_VERSION in Rascal executable");
+                    }
+                    if(!sv.satisfiesVersion("~" + VersionInfo.RASCAL_COMPILER_VERSION)){
+                        throw new RuntimeException("RASCAL_COMPILER_VERSION " + rascal_compiler_version + " in Rascal executable incompatible with current version " + VersionInfo.RASCAL_COMPILER_VERSION);
+                    }
+                }
+                
+                case CompilerIDs.Executable.ERRORS: {
+                    errors = (ISet) IValueReader.read(in, vf, ts);
+                    if(errors.size() > 0){
+                        return new RVMExecutable(errors);
+                    }
+                    break;
+                }
+                
+                case CompilerIDs.Executable.MODULE_NAME: {
+                    module_name = in.getString();
+                    break;
+                }
+                
+                case CompilerIDs.Executable.MODULE_TAGS: {
+                    moduleTags = (IMap) IValueReader.read(in, vf, ts);
+                    break;
+                }
+                
+                case CompilerIDs.Executable.SYMBOL_DEFINITIONS: {
+                    symbol_definitions = (IMap) IValueReader.read(in, vf, ts);
+                    break;
+                }
+                
+                case CompilerIDs.Executable.FUNCTION_STORE: {
+                    int n = in.getRepeatedLength();
+                    functionStore = new Function[n];
+                    for(int i = 0; i < n; i++){
+                        functionStore[i] = Function.read(in, vf, ts);
+                    }
+                    break;
+                }
+                
+                case CompilerIDs.Executable.CONSTRUCTOR_STORE: {
+                    int n = in.getRepeatedLength();
+                    constructorStore = new ArrayList<>();
+                    for(int i = 0; i < n; i++){
+                        constructorStore.add(IValueReader.readType(in, vf, ts));
+                    }
+                    break;
+                }
+                
+                case CompilerIDs.Executable.CONSTRUCTOR_MAP: {
+                    constructorMap = RVMWireExtensions.readMap(in);
+                    break;
+                }
+                
+                case CompilerIDs.Executable.OVERLOADED_STORE: {
+                    int n = in.getRepeatedLength();
+                    overloadedStore = new OverloadedFunction[n];
+                    for(int i = 0; i < n; i++){
+                        overloadedStore[i] = OverloadedFunction.read(in, vf, ts);
+                    }
+                    break;
+                }
+                case CompilerIDs.Executable.RESOLVER: {
+                    resolver = RVMWireExtensions.readMap(in);
+                    break;
+                }
+                
+                case CompilerIDs.Executable.INITIALIZERS: {
+                    String[] strings = in.getStrings();
+                    initializers = new ArrayList<>();
+                    for(String s : strings){
+                        initializers.add(s);
+                    }
+                    break;
+                }
+                
+                case CompilerIDs.Executable.UID_MODULE_INIT: {
+                    uid_module_init = in.getString();
+                    break;
+                }
+                
+                case CompilerIDs.Executable.UID_MODULE_MAIN: {
+                    uid_module_main = in.getString();
+                    break;
+                }
+                
+                case CompilerIDs.Executable.JVM_BYTE_CODE: {
+                    jvmByteCode = in.getBytes();
+                    break;
+                }
+                
+                case CompilerIDs.Executable.FULLY_QUALIFIED_DOTTED_NAME: {
+                    fullyQualifiedDottedName = in.getString();
+                    break;
+                }
+            }
+        }
+
+	    RVMExecutable ex = new RVMExecutable(module_name, moduleTags, symbol_definitions, functionMap, functionStore, 
+	        constructorMap, constructorStore, resolver, overloadedStore, initializers, uid_module_init, 
+	        uid_module_main, store, vf, false);
+	    ex.setJvmByteCode(jvmByteCode);
+	    ex.setFullyQualifiedDottedName(fullyQualifiedDottedName);
+
+	    return ex;
+	}
 
     public static RVMExecutable read(ISourceLocation rvmExecutable, TypeStore typeStore) throws IOException {
 		vf = ValueFactoryFactory.getValueFactory();

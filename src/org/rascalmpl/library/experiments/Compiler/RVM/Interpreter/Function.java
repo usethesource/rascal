@@ -546,10 +546,12 @@ public class Function implements Serializable {
         }
         while(in.next() != IWireInputStream.MESSAGE_END){
             switch(in.field()){
+                
                 case CompilerIDs.Function.NAME: {
                     name = in.getString(); 
                     break;
                 }
+                
                 case CompilerIDs.Function.FTYPE: {
                     ftype = IValueReader.readType(in, vf, ts); 
                     break;
@@ -564,32 +566,39 @@ public class Function implements Serializable {
                     scopeId = in.getInteger();
                     break;
                 }
+                
                 case CompilerIDs.Function.FUN_IN : {
                     funIn = in.getString();
                     break;
                 }
+                
                 case CompilerIDs.Function.SCOPE_IN: {
                     scopeIn = in.getInteger();
                     break;
                 }
+                
                 case CompilerIDs.Function.NFORMALS: {
                     nformals = in.getInteger();
                     break;
                 }
+                
                 case CompilerIDs.Function.NLOCALS: {
                     nlocals = in.getInteger();
                     break;
                 }
+                
                 case CompilerIDs.Function.IS_DEFAULT: {
                     int n = in.getInteger();
                     isDefault = n == 1 ? true : false;
                     break;
                 }
+                
                 case CompilerIDs.Function.IS_TEST: {
                     int n = in.getInteger();
                     isTest = n == 1 ? true : false;
                     break;
                 }
+                
                 case CompilerIDs.Function.TAGS: {
                     tags = (IMap) IValueReader.read(in, vf, ts);
                     break;
@@ -604,6 +613,7 @@ public class Function implements Serializable {
                     codeblock = CodeBlock.read(in, vf, ts);
                     break;
                 }
+                
                 case CompilerIDs.Function.CONSTANT_STORE: {
                     int n = in.getRepeatedLength();
                     constantStore = new IValue[n];
@@ -612,6 +622,7 @@ public class Function implements Serializable {
                     }
                     break;
                 }
+                
                 case CompilerIDs.Function.TYPE_CONSTANT_STORE: {
                     int n = in.getRepeatedLength();
                     typeConstantStore = new Type[n];
@@ -620,64 +631,79 @@ public class Function implements Serializable {
                     }
                     break;
                 }
+                
                 case CompilerIDs.Function.CONCRETE_ARG: {
                     int n = in.getInteger();
                     concreteArg = n == 1 ? true : false;
                     break;
                 }
+                
                 case CompilerIDs.Function.ABSTRACT_FINGERPRINT:{
                     abstractFingerprint = in.getInteger();
                     break;
                 }
+                
                 case CompilerIDs.Function.CONCRETE_FINGERPRINT:{
                     concreteFingerprint = in.getInteger();
                     break;
                 }
+                
                 case CompilerIDs.Function.FROMS:{
                     froms = in.getIntegers();
                     break;
                 }
+                
                 case CompilerIDs.Function.TOS: {
                     tos = in.getIntegers();
                     break;
                 }
+                
                 case CompilerIDs.Function.TYPES: {
                     types = in.getIntegers();
                     break;
                 }
+                
                 case CompilerIDs.Function.HANDLERS: {
                     handlers = in.getIntegers();
                     break;
                 }
+                
                 case CompilerIDs.Function.FROM_SPS:{
                     fromSPs = in.getIntegers();
                     break;
                 }
+                
                 case CompilerIDs.Function.LAST_HANDLER: {
                     lastHandler = in.getInteger();
                     break;
                 }
+                
                 case CompilerIDs.Function.FUN_ID: {
                     funId = in.getInteger();
                     break;
                 }
+                
                 case CompilerIDs.Function.IS_COROUTINE: {
                     int n = in.getInteger();
                     isCoroutine = n == 1 ? true : false;
                     break;
                 }
+                
                 case CompilerIDs.Function.REFS: {
                     refs = in.getIntegers();
                     break;
                 }
+                
                 case CompilerIDs.Function.SRC: {
                     src = (ISourceLocation) IValueReader.read(in, vf, ts);
                     break;
                 }
+                
                 case CompilerIDs.Function.LOCAL_NAMES:{
                     localNames = (IMap) IValueReader.read(in, vf, ts);
                     break;
                 }
+                
                 case CompilerIDs.Function.CONTINUATION_POINTS: {
                     continuationPoints = in.getInteger();
                     break;

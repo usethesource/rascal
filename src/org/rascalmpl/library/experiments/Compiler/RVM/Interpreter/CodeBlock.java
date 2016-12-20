@@ -928,8 +928,12 @@ public class CodeBlock implements Serializable {
         }
         while(in.next() != IWireInputStream.MESSAGE_END){
             switch(in.field()){
-                case  CompilerIDs.CodeBlock.NAME:
-                    name = in.getString(); break;
+                
+                case  CompilerIDs.CodeBlock.NAME: {
+                    name = in.getString(); 
+                    break;
+                }
+                
                 case CompilerIDs.CodeBlock.FINAL_CONSTANT_STORE:{
                     int n = in.getRepeatedLength();
                     finalConstantStore = new IValue[n];
@@ -941,6 +945,7 @@ public class CodeBlock implements Serializable {
                     }
                     break;
                 }
+                
                 case CompilerIDs.CodeBlock.FINAL_TYPECONSTANT_STORE: {
                     int n = in.getRepeatedLength();
                     finalTypeConstantStore = new Type[n];
@@ -952,18 +957,22 @@ public class CodeBlock implements Serializable {
                     }
                     break;
                 }
+                
                 case CompilerIDs.CodeBlock.FUNCTION_MAP: {
                     functionMap = in.getStringIntegerMap();
                     break;
                 }
+                
                 case CompilerIDs.CodeBlock.RESOLVER: {
                     resolver = in.getStringIntegerMap();
                     break;
                 }
+                
                 case CompilerIDs.CodeBlock.CONSTRUCTOR_MAP: {
                     constructorMap = in.getStringIntegerMap();
                     break;
                 }
+                
                 case CompilerIDs.CodeBlock.FINAL_CODE: {
                     finalCode = RVMWireExtensions.readLongs(in);
                     break;
