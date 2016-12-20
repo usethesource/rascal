@@ -64,6 +64,8 @@ public class RVMWireExtensions {
     public static long[] readLongs(IWireInputStream in) throws IOException{
         assert in.getFieldType() == FieldKind.BYTES;
         ByteBuffer buf = ByteBuffer.wrap(in.getBytes());
-        return buf.asLongBuffer().array();
+        long[] result = new long[buf.capacity() / Long.BYTES];
+        buf.asLongBuffer().get(result);
+        return result;
     }
 }
