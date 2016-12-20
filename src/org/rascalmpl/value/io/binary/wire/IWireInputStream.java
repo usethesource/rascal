@@ -88,12 +88,12 @@ public interface IWireInputStream extends Closeable {
      */
     int getRepeatedLength();
     /**
-     * get string array, only valid if {@linkplain #getFieldType()} is {@linkplain FieldKind#REPEATED} and {@linkplain #getRepeatedType()} is {@link FieldKind#STRING}
+     * get string array, only valid if {@linkplain #getFieldType()} is {@linkplain FieldKind#REPEATED} and {@linkplain #getRepeatedType()} is {@link FieldKind.Repeated#STRING}
      * @return
      */
     String[] getStrings();
     /**
-     * get int array, only valid if {@linkplain #getFieldType()} is {@linkplain FieldKind#REPEATED} and {@linkplain #getRepeatedType()} is {@link FieldKind#STRING}
+     * get int array, only valid if {@linkplain #getFieldType()} is {@linkplain FieldKind#REPEATED} and {@linkplain #getRepeatedType()} is {@link FieldKind.Repeated#STRING}
      * @return
      */
     int[] getIntegers();
