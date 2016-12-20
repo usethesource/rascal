@@ -354,6 +354,9 @@ public class OverloadedFunction implements Serializable {
 	}
 
     public void write(IWireOutputStream out) throws IOException {
+        
+        out.startMessage(CompilerIDs.OverloadedFunction.ID);
+        
         out.writeField(CompilerIDs.OverloadedFunction.NAME, name);
 
         out.writeNestedField(CompilerIDs.OverloadedFunction.FUN_TYPE);

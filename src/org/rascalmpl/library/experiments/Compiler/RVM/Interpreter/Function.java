@@ -409,6 +409,7 @@ public class Function implements Serializable {
     }
     
     public void write(IWireOutputStream out) throws IOException{
+        
         out.startMessage(CompilerIDs.Function.ID);
        
         out.writeField(CompilerIDs.Function.NAME, name);
