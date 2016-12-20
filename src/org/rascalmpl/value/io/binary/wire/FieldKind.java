@@ -28,7 +28,7 @@ public class FieldKind {
     public static class Repeated {
         /* values from 0-7 are valid */
         public static final int BYTES = 0; 
-        public static final int TUPLES = 1;
+        public static final int KEYVALUES = 1;
         public static final int INTS = FieldKind.INT; // 2
         public static final int STRINGS = FieldKind.STRING; // 3
         public static final int NESTEDS = FieldKind.NESTED; // 4

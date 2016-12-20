@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Map;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -147,6 +148,11 @@ public class XMLWireOutputStream implements IWireOutputStream {
         } catch (XMLStreamException e) {
             throw new IOException(e);
         }
+    }
+    
+    @Override
+    public void writeField(int fieldId, Map<String, Integer> values) throws Exception {
+        throw new IOException("Not implemented yet");
     }
 
 
