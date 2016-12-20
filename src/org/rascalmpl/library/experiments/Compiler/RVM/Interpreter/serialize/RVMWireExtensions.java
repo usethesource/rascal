@@ -14,12 +14,79 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.rascalmpl.value.io.binary.wire.FieldKind;
 import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 
 public class RVMWireExtensions {
+
+    public static void writeMap(IWireOutputStream out, int fieldId, Map<String, Integer> map) throws IOException{
+        int n = map.size();
+        String[] keys = new String[n];
+        int[] values = new int[n];
+        
+        int i = 0;
+        for(Entry<String, Integer> entry : map.entrySet()){
+            keys[i] = entry.getKey();
+            values[i] = entry.getValue();
+            i++;
+        }
+        out.writeField(fieldId, keys);
+        out.writeField(fieldId, values);
+    }
+    
+    public static Map<String, Integer> readMap(IWireInputStream in) throws IOException{
+        assert in.getFieldType() == FieldKind.REPEATED && in.getRepeatedType() == FieldKind.STRING;
+        String[] keys = in.getStrings();
+        int fieldId = in.field();
+        in.next();
+        assert in.field() == fieldId;
+        int[] values = in.getIntegers();
+        assert keys.length == values.length;
+        Map<String, Integer> map = new HashMap<>();
+        for(int i = 0; i < keys.length; i++){
+            map.put(keys[i], values[i]);
+        }
+        return map;     
+    }
+    
+    public static void writeMapIntToInts(IWireOutputStream out, int fieldId, Map<Integer, int[]> map) throws IOException{
+        int n = map.size();
+        int[] keys = new int[n];
+        int[][] values = new int[n][0];
+        
+        int i = 0;
+       
+        for(Entry<Integer, int[]> entry : map.entrySet()){
+            keys[i] = entry.getKey();
+            values[i] = entry.getValue();
+            i++;
+        }
+        out.writeField(fieldId, keys);
+        for(int j = 0; j < n; j++){
+            out.writeField(fieldId, values[j]);
+        }
+    }
+    
+    public static Map<Integer, int[]> readMapIntToInts(IWireInputStream in) throws IOException{
+        assert in.getFieldType() == FieldKind.REPEATED && in.getRepeatedType() == FieldKind.STRING;
+        int[] keys = in.getIntegers();
+        int fieldId = in.field();
+        in.next();
+        assert in.field() == fieldId;
+        Map<Integer, int[]> map = new HashMap<>();
+        for(int i = 0; i < keys.length; i++){
+            in.next();
+            assert in.field() == fieldId;
+            int[] values = in.getIntegers();
+            map.put(keys[i], values);
+        }
+        return map;    
+    }
 
     public static void writeLongs(IWireOutputStream out, int fieldId, long[] longs) throws IOException {
         ByteBuffer buf = ByteBuffer.allocate(longs.length * Long.BYTES);
