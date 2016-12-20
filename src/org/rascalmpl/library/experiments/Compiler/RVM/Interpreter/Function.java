@@ -15,6 +15,7 @@ import org.nustaq.serialization.FSTObjectOutput;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
@@ -26,6 +27,12 @@ import org.rascalmpl.value.IString;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.binary.message.IValueReader;
+import org.rascalmpl.value.io.binary.message.IValueWriter;
+import org.rascalmpl.value.io.binary.message.WindowSizes;
+import org.rascalmpl.value.io.binary.wire.FieldKind;
+import org.rascalmpl.value.io.binary.wire.IWireInputStream;
+import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
@@ -399,6 +406,298 @@ public class Function implements Serializable {
       for(Type cons : ts.getConstructors()){
         System.err.println("cons: " + cons);
       }
+    }
+    
+    public void write(IWireOutputStream out) throws IOException{
+        out.startMessage(CompilerIDs.Function.ID);
+       
+        out.writeField(CompilerIDs.Function.NAME, name);
+
+        out.writeNestedField(CompilerIDs.Function.FTYPE);
+        IValueWriter.write(out, new TypeStore(), WindowSizes.TINY_WINDOW, ftype);
+        
+        out.writeNestedField(CompilerIDs.Function.KWTYPE);
+        IValueWriter.write(out, new TypeStore(), WindowSizes.TINY_WINDOW, kwType);
+
+        out.writeField(CompilerIDs.Function.SCOPE_ID, scopeId);
+
+        out.writeField(CompilerIDs.Function.FUN_IN, funIn);
+
+        out.writeField(CompilerIDs.Function.SCOPE_IN, scopeIn);
+
+        out.writeField(CompilerIDs.Function.NFORMALS, nformals);
+
+        out.writeField(CompilerIDs.Function.NLOCALS, getNlocals());
+
+        if(isDefault){ 
+            out.writeField(CompilerIDs.Function.IS_DEFAULT, 1); 
+        }
+        
+        if(isTest){
+            out.writeField(CompilerIDs.Function.IS_TEST, 1);
+        }
+        
+        if(tags != null){
+            out.writeNestedField(CompilerIDs.Function.TAGS);
+            IValueWriter.write(out, new TypeStore(), WindowSizes.SMALL_WINDOW, tags);
+        }
+
+        out.writeField(CompilerIDs.Function.MAX_STACK, maxstack);
+
+        out.writeNestedField(CompilerIDs.Function.CODEBLOCK);
+        codeblock.write(out);
+
+        out.writeRepeatedNestedField(CompilerIDs.Function.CONSTANT_STORE, constantStore.length);
+        for(IValue constant : constantStore){
+            IValueWriter.write(out, new TypeStore(), WindowSizes.estimateWindowSize(constant), constant);
+        }
+
+        out.writeRepeatedNestedField(CompilerIDs.Function.TYPE_CONSTANT_STORE, typeConstantStore.length);
+        for(Type type : typeConstantStore){
+            IValueWriter.write(out, new TypeStore(), WindowSizes.TINY_WINDOW, type); 
+        }
+
+        if(concreteArg){
+            out.writeField(CompilerIDs.Function.CONCRETE_ARG, 1);
+        }
+
+        out.writeField(CompilerIDs.Function.ABSTRACT_FINGERPRINT, abstractFingerprint);
+
+        out.writeField(CompilerIDs.Function.CONCRETE_FINGERPRINT, concreteFingerprint);
+
+        out.writeField(CompilerIDs.Function.FROMS, froms);
+
+        out.writeField(CompilerIDs.Function.TOS, tos);
+
+        out.writeField(CompilerIDs.Function.TYPES, types);
+
+        out.writeField(CompilerIDs.Function.HANDLERS, handlers);
+
+        out.writeField(CompilerIDs.Function.FROM_SPS, fromSPs);
+
+        out.writeField(CompilerIDs.Function.LAST_HANDLER, lastHandler);
+        
+        out.writeField(CompilerIDs.Function.FUN_ID, funId.intValue()); // Why Integer and not int?
+
+        if(isCoroutine){
+            out.writeField(CompilerIDs.Function.IS_COROUTINE, 1);
+        }
+
+        out.writeField(CompilerIDs.Function.REFS, refs);
+
+        if(isVarArgs){
+            out.writeField(CompilerIDs.Function.IS_VARARGS, 1);
+        }
+
+        out.writeNestedField(CompilerIDs.Function.SRC);
+        IValueWriter.write(out, new TypeStore(), WindowSizes.NO_WINDOW, src);
+        
+        out.writeNestedField(CompilerIDs.Function.LOCAL_NAMES);
+        IValueWriter.write(out, new TypeStore(), WindowSizes.SMALL_WINDOW, localNames);
+
+        out.writeField(CompilerIDs.Function.CONTINUATION_POINTS, continuationPoints);
+        
+        out.endMessage();
+    }
+    
+    static Function read(IWireInputStream in, IValueFactory vfactory, TypeStore ts) throws IOException{
+        String name = null;
+        Type ftype = null;
+        Type kwType = null;
+        int scopeId = 0;
+        String funIn = null;
+        int scopeIn = -1;
+        int nformals = 0;
+        int nlocals = 0;
+        boolean isDefault = false;
+        boolean isTest = false;
+        IMap tags = null;
+        int maxstack = 0;
+        CodeBlock codeblock = null;
+        IValue[] constantStore = new IValue[0];          
+        Type[] typeConstantStore = new Type[0];
+        boolean concreteArg = false;
+        int abstractFingerprint = 0;
+        int concreteFingerprint = 0;
+
+        int[] froms = new int[0];
+        int[] tos = new int[0];
+        int[] types = new int[0];
+        int[] handlers = new int[0];
+        int[] fromSPs = new int[0];
+        int lastHandler = -1;
+
+        Integer funId = -1; // USED in dynRun to find the function, in the JVM version only.
+        
+        int continuationPoints = 0;
+        
+        boolean isCoroutine = false;
+        int[] refs = new int[0];
+
+        boolean isVarArgs = false;
+
+        ISourceLocation src = null;         
+        IMap localNames = null;
+        
+        in.next();
+        assert in.current() == IWireInputStream.MESSAGE_START;
+        if(in.message() != CompilerIDs.Function.ID){
+            throw new IOException("Unexpected message: " + in.message());
+        }
+        while(in.next() != IWireInputStream.MESSAGE_END){
+            switch(in.field()){
+                case CompilerIDs.Function.NAME: {
+                    name = in.getString(); 
+                    break;
+                }
+                case CompilerIDs.Function.FTYPE: {
+                    ftype = IValueReader.readType(in, vf, ts); 
+                    break;
+                }
+                
+                case CompilerIDs.Function.KWTYPE: {
+                    kwType = IValueReader.readType(in, vf, ts);
+                    break;
+                }
+                
+                case CompilerIDs.Function.SCOPE_ID: {
+                    scopeId = in.getInteger();
+                    break;
+                }
+                case CompilerIDs.Function.FUN_IN : {
+                    funIn = in.getString();
+                    break;
+                }
+                case CompilerIDs.Function.SCOPE_IN: {
+                    scopeIn = in.getInteger();
+                    break;
+                }
+                case CompilerIDs.Function.NFORMALS: {
+                    nformals = in.getInteger();
+                    break;
+                }
+                case CompilerIDs.Function.NLOCALS: {
+                    nlocals = in.getInteger();
+                    break;
+                }
+                case CompilerIDs.Function.IS_DEFAULT: {
+                    int n = in.getInteger();
+                    isDefault = n == 1 ? true : false;
+                    break;
+                }
+                case CompilerIDs.Function.IS_TEST: {
+                    int n = in.getInteger();
+                    isTest = n == 1 ? true : false;
+                    break;
+                }
+                case CompilerIDs.Function.TAGS: {
+                    tags = (IMap) IValueReader.read(in, vf, ts);
+                    break;
+                }
+                
+                case CompilerIDs.Function.MAX_STACK: {
+                    maxstack = in.getInteger();
+                    break;
+                }
+                    
+                case CompilerIDs.Function.CODEBLOCK: {
+                    codeblock = CodeBlock.read(in, vf, ts);
+                    break;
+                }
+                case CompilerIDs.Function.CONSTANT_STORE: {
+                    int n = in.getRepeatedLength();
+                    constantStore = new IValue[n];
+                    for(int i = 0; i < n; i++){
+                        constantStore[i] = IValueReader.read(in, vf, ts);
+                    }
+                    break;
+                }
+                case CompilerIDs.Function.TYPE_CONSTANT_STORE: {
+                    int n = in.getRepeatedLength();
+                    typeConstantStore = new Type[n];
+                    for(int i = 0; i < n; i++){
+                        typeConstantStore[i] = IValueReader.readType(in, vf, ts);
+                    }
+                    break;
+                }
+                case CompilerIDs.Function.CONCRETE_ARG: {
+                    int n = in.getInteger();
+                    concreteArg = n == 1 ? true : false;
+                    break;
+                }
+                case CompilerIDs.Function.ABSTRACT_FINGERPRINT:{
+                    abstractFingerprint = in.getInteger();
+                    break;
+                }
+                case CompilerIDs.Function.CONCRETE_FINGERPRINT:{
+                    concreteFingerprint = in.getInteger();
+                    break;
+                }
+                case CompilerIDs.Function.FROMS:{
+                    froms = in.getIntegers();
+                    break;
+                }
+                case CompilerIDs.Function.TOS: {
+                    tos = in.getIntegers();
+                    break;
+                }
+                case CompilerIDs.Function.TYPES: {
+                    types = in.getIntegers();
+                    break;
+                }
+                case CompilerIDs.Function.HANDLERS: {
+                    handlers = in.getIntegers();
+                    break;
+                }
+                case CompilerIDs.Function.FROM_SPS:{
+                    fromSPs = in.getIntegers();
+                    break;
+                }
+                case CompilerIDs.Function.LAST_HANDLER: {
+                    lastHandler = in.getInteger();
+                    break;
+                }
+                case CompilerIDs.Function.FUN_ID: {
+                    funId = in.getInteger();
+                    break;
+                }
+                case CompilerIDs.Function.IS_COROUTINE: {
+                    int n = in.getInteger();
+                    isCoroutine = n == 1 ? true : false;
+                    break;
+                }
+                case CompilerIDs.Function.REFS: {
+                    refs = in.getIntegers();
+                    break;
+                }
+                case CompilerIDs.Function.SRC: {
+                    src = (ISourceLocation) IValueReader.read(in, vf, ts);
+                    break;
+                }
+                case CompilerIDs.Function.LOCAL_NAMES:{
+                    localNames = (IMap) IValueReader.read(in, vf, ts);
+                    break;
+                }
+                case CompilerIDs.Function.CONTINUATION_POINTS: {
+                    continuationPoints = in.getInteger();
+                    break;
+                }
+                
+                default: {
+                    // skip field, normally next takes care of it
+                    in.skipNestedField();
+                }
+            }
+        }
+     
+        // TODO: check fields are valid
+        
+        Function func = new Function(name, ftype, kwType, funIn, nformals, nlocals, isDefault, isTest, tags, localNames, maxstack, concreteArg, 
+            abstractFingerprint, concreteFingerprint, codeblock, src, scopeIn,
+            constantStore, typeConstantStore, froms, tos, types, handlers, fromSPs,
+            lastHandler, scopeId, isCoroutine, refs, isVarArgs, continuationPoints);
+        func.funId = funId;
+        return func;
     }
 }
 
