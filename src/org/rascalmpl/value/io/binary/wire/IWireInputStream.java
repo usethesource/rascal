@@ -111,7 +111,7 @@ public interface IWireInputStream extends Closeable {
     int getValueType();
     
     /**
-     * get map of string integer tuples, only valid if {@linkplain #getFieldType()} is {@linkplain FieldKind#REPEATED} and {@linkplain #getRepeatedType()} is {@link FieldKind.Repeated#KEYVALUES}
+     * get map of string integer tuples, only valid if {@linkplain #getRepeatedType()} is {@link FieldKind.Repeated#KEYVALUES}
      * @return
      */
     Map<String, Integer> getStringIntegerMap();
