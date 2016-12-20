@@ -13,6 +13,8 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.LongBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -51,5 +53,17 @@ public class RVMWireExtensions {
             map.put(keys[i], values[i]);
         }
         return map;     
+    }
+
+    public static void writeLongs(IWireOutputStream out, int fieldId, long[] longs) throws IOException {
+        ByteBuffer buf = ByteBuffer.allocate(longs.length & Long.BYTES);
+        buf.asLongBuffer().put(longs);
+        out.writeField(fieldId, buf.array());
+    }
+
+    public static long[] readLongs(IWireInputStream in) throws IOException{
+        assert in.getFieldType() == FieldKind.BYTES;
+        ByteBuffer buf = ByteBuffer.wrap(in.getBytes());
+        return buf.asLongBuffer().array();
     }
 }
