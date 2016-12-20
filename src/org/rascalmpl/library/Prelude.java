@@ -3473,6 +3473,19 @@ public class Prelude {
 		}
     }
 	
+    public void writeBinaryValueFile(ISourceLocation loc, IValue value){
+        if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
+        TypeStore store = new TypeStore();
+        // TODO: need to fill the store correctly!
+        store.extendStore(RascalValueFactory.getStore());
+        try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), store, CompressionRate.Normal)) {
+            writer.write(value);
+        }
+        catch (IOException ioex){
+            throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+        }
+    }
+    
     public void writeBinaryValueFile(ISourceLocation loc, IValue value, IConstructor compression){
     	if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
 		TypeStore store = new TypeStore();

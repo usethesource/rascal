@@ -91,7 +91,10 @@ data ValueIOCompression
 Write a value to a file using an efficient binary file format.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java void writeBinaryValueFile(loc file, value val, ValueIOCompression compression = normal());
+public java void writeBinaryValueFile(loc file, value val, ValueIOCompression compression);
+
+@javaClass{org.rascalmpl.library.Prelude}
+public java void writeBinaryValueFile(loc file, value val);
 	
 @doc{
 .Synopsis
