@@ -14,8 +14,43 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
 
 public class CompilerIDs {
     
-    private static final int FUNCTION_ID = 1;
+    private static final int EXECUTABLE_ID = 1;
     private static final int CODEBLOCK_ID = 2;
+    private static final int FUNCTION_ID = 3;
+    private static final int OVERLOADED_FUNCTION_ID = 4;
+    
+    public static class Executable {
+        public static final int ID = EXECUTABLE_ID;
+        public static final int RASCAL_MAGIC = 1;
+        public static final int RASCAL_VERSION = 2;
+        public static final int RASCAL_RUNTIME_VERSION = 3;
+        public static final int RASCAL_COMPILER_VERSION = 4;
+        public static final int ERRORS = 5;
+        public static final int MODULE_NAME = 6;
+        public static final int MODULE_TAGS = 7;
+        public static final int SYMBOL_DEFINITIONS = 8;
+        public static final int FUNCTION_STORE = 9;
+        public static final int CONSTRUCTOR_STORE = 10;
+        public static final int CONSTRUCTOR_MAP = 11;
+        public static final int OVERLOADED_STORE = 12;
+        public static final int RESOLVER = 13;
+        public static final int INITIALIZERS = 14;
+        public static final int UID_MODULE_INIT = 15;
+        public static final int UID_MODULE_MAIN = 16;
+        public static final int JVM_BYTE_CODE = 17;
+        public static final int FULLY_QUALIFIED_DOTTED_NAME = 18;
+    }
+    
+    public static class CodeBlock {
+        public static final int ID = CODEBLOCK_ID;
+        public static final int NAME = 1;
+        public static final int FINAL_CONSTANT_STORE = 2;
+        public static final int FINAL_TYPECONSTANT_STORE = 3;
+        public static final int FUNCTION_MAP = 4;
+        public static final int RESOLVER = 5;
+        public static final int CONSTRUCTOR_MAP = 6;
+        public static final int FINAL_CODE = 7;
+    }
     
     public static class Function {
         public static final int ID = FUNCTION_ID;
@@ -53,16 +88,18 @@ public class CompilerIDs {
         public static final int LOCAL_NAMES = 30;
         public static final int CONTINUATION_POINTS = 31;    
     }
-    
-    public static class CodeBlock {
-        public static final int ID = CODEBLOCK_ID;
+ 
+    public static class OverloadedFunction {
+        public static final int ID = OVERLOADED_FUNCTION_ID;
         public static final int NAME = 1;
-        public static final int FINAL_CONSTANT_STORE = 2;
-        public static final int FINAL_TYPECONSTANT_STORE = 3;
-        public static final int FUNCTION_MAP = 4;
-        public static final int RESOLVER = 5;
-        public static final int CONSTRUCTOR_MAP = 6;
-        public static final int FINAL_CODE = 7;
+        public static final int FUN_TYPE = 2;
+        public static final int FUNCTIONS = 3;
+        public static final int CONSTRUCTORS = 4;
+        public static final int FUN_IN = 5;
+        public static final int SCOPE_IN = 6;
+        public static final int ALL_CONCRETE_FUNCTION_ARGS = 7;
+        public static final int ALL_CONCRETE_CONSTRUCTOR_ARGS = 8;
+        public static final int FILTERED_FUNCTIONS = 9;
+        public static final int FILTERED_CONSTRUCTORS = 10;
     }
-
 }

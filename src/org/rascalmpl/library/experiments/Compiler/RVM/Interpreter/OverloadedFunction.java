@@ -12,8 +12,15 @@ import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMWireExtensions;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.binary.message.IValueReader;
+import org.rascalmpl.value.io.binary.message.IValueWriter;
+import org.rascalmpl.value.io.binary.message.WindowSizes;
+import org.rascalmpl.value.io.binary.wire.IWireInputStream;
+import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -345,6 +352,110 @@ public class OverloadedFunction implements Serializable {
 	public void setScopeIn(int scopeIn) {
 		this.scopeIn = scopeIn;
 	}
+
+    public void write(IWireOutputStream out) throws IOException {
+        out.writeField(CompilerIDs.OverloadedFunction.NAME, name);
+
+        out.writeNestedField(CompilerIDs.OverloadedFunction.FUN_TYPE);
+        IValueWriter.write(out, new TypeStore(), WindowSizes.TINY_WINDOW, funType);
+        
+        out.writeField(CompilerIDs.OverloadedFunction.FUNCTIONS, functions);
+        
+        out.writeField(CompilerIDs.OverloadedFunction.CONSTRUCTORS, constructors);
+        
+        out.writeField(CompilerIDs.OverloadedFunction.FUN_IN, funIn);
+        
+        out.writeField(CompilerIDs.OverloadedFunction.SCOPE_IN, scopeIn);
+        
+        if(allConcreteFunctionArgs){
+            out.writeField(CompilerIDs.OverloadedFunction.ALL_CONCRETE_FUNCTION_ARGS, 1);
+        }
+        
+        if(allConcreteConstructorArgs){
+            out.writeField(CompilerIDs.OverloadedFunction.ALL_CONCRETE_CONSTRUCTOR_ARGS, 1);
+        }
+        
+        RVMWireExtensions.writeMapIntToInts(out, CompilerIDs.OverloadedFunction.FILTERED_FUNCTIONS, filteredFunctions);
+        
+        RVMWireExtensions.writeMapIntToInts(out, CompilerIDs.OverloadedFunction.FILTERED_CONSTRUCTORS, filteredConstructors);
+        
+        out.endMessage();
+    }
+    
+    static OverloadedFunction read(IWireInputStream in, IValueFactory vf, TypeStore ts) throws IOException {
+        String name = null;
+        Type funType = null;
+        int[] functions= null;
+        int[] constructors = null;
+        String funIn = null;
+        int scopeIn = -1;
+        boolean allConcreteFunctionArgs = false;
+        boolean allConcreteConstructorArgs = false;
+        HashMap<Integer, int[]> empty = new HashMap<>();
+        HashMap<Integer, int[]> filteredFunctions = empty;
+        HashMap<Integer, int[]> filteredConstructors = empty;
+        
+        in.next();
+        assert in.current() == IWireInputStream.MESSAGE_START;
+        if(in.message() != CompilerIDs.OverloadedFunction.ID){
+            throw new IOException("Unexpected message: " + in.message());
+        }
+        while(in.next() != IWireInputStream.MESSAGE_END){
+            switch(in.field()){
+                
+                case CompilerIDs.OverloadedFunction.FUN_TYPE: {
+                    funType = IValueReader.readType(in, vf, ts);
+                    break;
+                }
+                
+                case CompilerIDs.OverloadedFunction.FUNCTIONS: {
+                    functions = in.getIntegers();
+                    break;
+                }
+                
+                case CompilerIDs.OverloadedFunction.CONSTRUCTORS: {
+                    constructors = in.getIntegers();
+                    break;
+                }
+                
+                case CompilerIDs.OverloadedFunction.FUN_IN: {
+                    funIn = in.getString();
+                    break;
+                }
+                
+                case CompilerIDs.OverloadedFunction.SCOPE_IN: {
+                    scopeIn = in.getInteger();
+                    break;
+                }
+                
+                case CompilerIDs.OverloadedFunction.ALL_CONCRETE_FUNCTION_ARGS: {
+                    int n = in.getInteger();
+                    allConcreteFunctionArgs = n == 1 ? true : false;
+                    break;
+                }
+                
+                case CompilerIDs.OverloadedFunction.ALL_CONCRETE_CONSTRUCTOR_ARGS: {
+                    int n = in.getInteger();
+                    allConcreteConstructorArgs = n == 1 ? true : false;
+                    break;
+                }
+                
+                case CompilerIDs.OverloadedFunction.FILTERED_FUNCTIONS: {
+                    filteredFunctions = (HashMap<Integer, int[]>) RVMWireExtensions.readMapIntToInts(in);
+                    break;
+                }
+                
+                case CompilerIDs.OverloadedFunction.FILTERED_CONSTRUCTORS: {
+                    filteredConstructors = (HashMap<Integer, int[]>) RVMWireExtensions.readMapIntToInts(in);
+                    break;
+                }
+            }
+        }
+        
+        return new OverloadedFunction(name, funType, functions, constructors, funIn, scopeIn, allConcreteFunctionArgs, allConcreteConstructorArgs,
+            filteredFunctions,filteredConstructors);
+        
+    }
 
 }
 
