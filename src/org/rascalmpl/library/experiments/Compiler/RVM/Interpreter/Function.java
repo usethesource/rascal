@@ -14,6 +14,7 @@ import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
@@ -502,17 +503,22 @@ public class Function implements Serializable {
     }
     
     static Function read(IWireInputStream in, IValueFactory vfactory, TypeStore ts) throws IOException{
-        String name = null;
-        Type ftype = null;
-        Type kwType = null;
+        
+        TypeFactory tf = TypeFactory.getInstance();
+        
+        String name = "unitialized name";
+        Type ftype = tf.valueType();
+        Type kwType = tf.valueType();
         int scopeId = 0;
-        String funIn = null;
+        String funIn = "unitialized funIn";
         int scopeIn = -1;
         int nformals = 0;
         int nlocals = 0;
         boolean isDefault = false;
         boolean isTest = false;
-        IMap tags = null;
+        
+        IMap emptyIMap = vf.mapWriter().done();
+        IMap tags = emptyIMap;
         int maxstack = 0;
         CodeBlock codeblock = null;
         IValue[] constantStore = new IValue[0];          
@@ -537,8 +543,8 @@ public class Function implements Serializable {
 
         boolean isVarArgs = false;
 
-        ISourceLocation src = null;         
-        IMap localNames = null;
+        ISourceLocation src = vf.sourceLocation("uninitialized/src");         
+        IMap localNames = emptyIMap;
         
         in.next();
         assert in.current() == IWireInputStream.MESSAGE_START;
