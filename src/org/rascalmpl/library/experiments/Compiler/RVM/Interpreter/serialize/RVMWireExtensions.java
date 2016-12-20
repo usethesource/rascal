@@ -56,7 +56,7 @@ public class RVMWireExtensions {
     }
 
     public static void writeLongs(IWireOutputStream out, int fieldId, long[] longs) throws IOException {
-        ByteBuffer buf = ByteBuffer.allocate(longs.length & Long.BYTES);
+        ByteBuffer buf = ByteBuffer.allocate(longs.length * Long.BYTES);
         buf.asLongBuffer().put(longs);
         out.writeField(fieldId, buf.array());
     }
