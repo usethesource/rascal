@@ -95,7 +95,7 @@ public class RascalC {
             .boolOption("verbose")
             .help("Make the compiler verbose")
 
-            .modules("Modules to be compiled")
+            .modules("List of module names to be compiled or a single location for a directory to compile all modules from")
 
             .handleArgs(args);
             
@@ -126,15 +126,23 @@ public class RascalC {
 
             boolean ok = true;
             
+            IList modules = cmdOpts.getModules();
+            
+            if (modules.length() == 1 && ((IString) modules.get(0)).getValue().startsWith("|")) {
+                // compiling a whole directory assumes no linking
+                String loc = ((IString) modules.get(0)).getValue();
+                IList programs = kernel.compileAll(vf.sourceLocation(URIUtil.createFromEncoded(loc.substring(1, loc.length() - 1))), pcfg.asConstructor(kernel),
+                    kernel.kw_compile().reloc(cmdOpts.getCommandLocOption("reloc")));
+                System.exit(handleMessages(programs) ? 0 : 1);
+            }
+            
             if (cmdOpts.getCommandBoolOption("noLinking")) {
-                IList programs = kernel.compile(cmdOpts.getModules(), pcfg.asConstructor(kernel),
-                                                kernel.kw_compile().reloc(cmdOpts.getCommandLocOption("reloc"))
-                                                );
-                ok = handleMessages(programs);
-                System.exit(ok ? 0 : 1);
+                IList programs = kernel.compile(modules, pcfg.asConstructor(kernel),
+                    kernel.kw_compile().reloc(cmdOpts.getCommandLocOption("reloc")));
+                System.exit(handleMessages(programs) ? 0 : 1);
             } 
             else {
-                IList programs = kernel.compileAndLink(cmdOpts.getModules(), pcfg.asConstructor(kernel),
+                IList programs = kernel.compileAndLink(modules, pcfg.asConstructor(kernel),
                                                        kernel.kw_compileAndLink()
                                                        .reloc(cmdOpts.getCommandLocOption("reloc"))
                                                        );
@@ -146,7 +154,7 @@ public class RascalC {
                 if(!pckg.isEmpty()){
                  
                   
-                  for(IValue mod : cmdOpts.getModules()){
+                  for(IValue mod : modules){
                     String moduleName = ((IString) mod).getValue();
                     ISourceLocation binary = Rascal.findBinary(cmdOpts.getCommandLocOption("bin"), moduleName);
                     RVMExecutable exec = RVMExecutable.read(binary, rex.getTypeStore());
