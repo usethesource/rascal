@@ -12,6 +12,7 @@ import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.TypeStore;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 
 public class ExecuteProgram {
@@ -30,7 +31,7 @@ public class ExecuteProgram {
 			IBool jvm
 			) throws IOException {
 
-	    TypeStore typeStore = new TypeStore();
+	    TypeStore typeStore = /*new TypeStore();*/ new TypeStore(RascalValueFactory.getStore());
 		RVMExecutable exec = ExecutionTools.link(rvmProgram, jvm, typeStore);
 		exec.newWrite(rvmProgramLoc, 6);
 	}
@@ -51,7 +52,7 @@ public class ExecuteProgram {
 			IEvaluatorContext ctx
 			) throws IOException {
 		
-	    TypeStore typeStore = new TypeStore();
+	    TypeStore typeStore = /*new TypeStore()*/ new TypeStore(RascalValueFactory.getStore());
 		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm, typeStore);
 		if(executable.isValid()){
 			RascalExecutionContext rex = null;
@@ -92,7 +93,7 @@ public class ExecuteProgram {
 			RascalExecutionContext rex
 			) throws IOException {
 
-	    TypeStore typeStore = new TypeStore();
+	    TypeStore typeStore = rex.getTypeStore(); // /*new TypeStore();*/ new TypeStore(RascalValueFactory.getStore());
 		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm, typeStore);
 
 		if(executable.isValid()){
@@ -120,7 +121,7 @@ public class ExecuteProgram {
 			IEvaluatorContext ctx
 			) throws IOException {
        
-	    TypeStore typeStore = new TypeStore();
+	    TypeStore typeStore = /*new TypeStore();*/ new TypeStore(RascalValueFactory.getStore());
         
 	    RVMExecutable executable = ExecutionTools.load(rvmExecutableLoc, typeStore);
 	    if(executable.isValid()){
@@ -160,7 +161,7 @@ public class ExecuteProgram {
 			IBool jvm,
 			RascalExecutionContext rex
 			) throws IOException {
-	    TypeStore typeStore = new TypeStore();
+	    TypeStore typeStore = rex.getTypeStore(); // /*new TypeStore();*/ new TypeStore(RascalValueFactory.getStore());
 		RVMExecutable executable = ExecutionTools.load(rvmExecutableLoc, typeStore);
 		if(executable.isValid()){
 			RascalExecutionContext rex2 = ExecutionTools.makeRex(rex.getPathConfig(), executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, typeStore);

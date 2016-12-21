@@ -410,16 +410,16 @@ public class Function implements Serializable {
     }
     
     public void write(IWireOutputStream out) throws IOException{
-        
+        TypeStore ts = new TypeStore(RascalValueFactory.getStore());
         out.startMessage(CompilerIDs.Function.ID);
        
         out.writeField(CompilerIDs.Function.NAME, name);
 
         out.writeNestedField(CompilerIDs.Function.FTYPE);
-        IValueWriter.write(out, new TypeStore(), WindowSizes.TINY_WINDOW, ftype);
+        IValueWriter.write(out, ts, WindowSizes.TINY_WINDOW, ftype);
         
         out.writeNestedField(CompilerIDs.Function.KWTYPE);
-        IValueWriter.write(out, new TypeStore(), WindowSizes.TINY_WINDOW, kwType);
+        IValueWriter.write(out, ts, WindowSizes.TINY_WINDOW, kwType);
 
         out.writeField(CompilerIDs.Function.SCOPE_ID, scopeId);
 
@@ -441,7 +441,7 @@ public class Function implements Serializable {
         
         if(tags != null){
             out.writeNestedField(CompilerIDs.Function.TAGS);
-            IValueWriter.write(out, new TypeStore(), WindowSizes.SMALL_WINDOW, tags);
+            IValueWriter.write(out, ts, WindowSizes.SMALL_WINDOW, tags);
         }
 
         out.writeField(CompilerIDs.Function.MAX_STACK, maxstack);
@@ -451,12 +451,12 @@ public class Function implements Serializable {
 
         out.writeRepeatedNestedField(CompilerIDs.Function.CONSTANT_STORE, constantStore.length);
         for(IValue constant : constantStore){
-            IValueWriter.write(out, new TypeStore(), WindowSizes.estimateWindowSize(constant), constant);
+            IValueWriter.write(out, ts, WindowSizes.estimateWindowSize(constant), constant);
         }
 
         out.writeRepeatedNestedField(CompilerIDs.Function.TYPE_CONSTANT_STORE, typeConstantStore.length);
         for(Type type : typeConstantStore){
-            IValueWriter.write(out, new TypeStore(), WindowSizes.TINY_WINDOW, type); 
+            IValueWriter.write(out, ts, WindowSizes.TINY_WINDOW, type); 
         }
 
         if(concreteArg){
@@ -492,10 +492,10 @@ public class Function implements Serializable {
         }
 
         out.writeNestedField(CompilerIDs.Function.SRC);
-        IValueWriter.write(out, new TypeStore(), WindowSizes.NO_WINDOW, src);
+        IValueWriter.write(out, ts, WindowSizes.NO_WINDOW, src);
         
         out.writeNestedField(CompilerIDs.Function.LOCAL_NAMES);
-        IValueWriter.write(out, new TypeStore(), WindowSizes.SMALL_WINDOW, localNames);
+        IValueWriter.write(out,ts, WindowSizes.SMALL_WINDOW, localNames);
 
         out.writeField(CompilerIDs.Function.CONTINUATION_POINTS, continuationPoints);
         
@@ -503,12 +503,11 @@ public class Function implements Serializable {
     }
     
     static Function read(IWireInputStream in, IValueFactory vfactory, TypeStore ts) throws IOException{
-        
-        TypeFactory tf = TypeFactory.getInstance();
+        System.err.println("Reading Function");
         
         String name = "unitialized name";
-        Type ftype = tf.valueType();
-        Type kwType = tf.valueType();
+        Type ftype = null;
+        Type kwType = null;
         int scopeId = 0;
         String funIn = "unitialized funIn";
         int scopeIn = -1;
