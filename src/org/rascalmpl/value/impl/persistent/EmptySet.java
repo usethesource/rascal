@@ -18,8 +18,12 @@ import org.rascalmpl.value.type.Type;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.stream.Stream;
 
+import static org.rascalmpl.value.impl.persistent.SetWriter.asInstanceOf;
 import static org.rascalmpl.value.impl.persistent.SetWriter.isTupleOfArityTwo;
+import static org.rascalmpl.value.impl.persistent.ValueCollectors.toSet;
+import static org.rascalmpl.value.impl.persistent.ValueCollectors.toSetMultimap;
 
 public final class EmptySet extends AbstractSet {
 
@@ -33,9 +37,10 @@ public final class EmptySet extends AbstractSet {
 
   public static final ISet of(final IValue firstElement) {
     if (isTupleOfArityTwo.test(firstElement.getType())) {
-      return new PersistentHashIndexedBinaryRelation((ITuple) firstElement);
+      return Stream.of(firstElement).map(asInstanceOf(ITuple.class))
+          .collect(toSetMultimap(tuple -> tuple.get(0), tuple -> tuple.get(1)));
     } else {
-      return new PersistentHashSet(firstElement);
+      return Stream.of(firstElement).collect(toSet());
     }
   }
 
