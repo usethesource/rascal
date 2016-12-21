@@ -19,9 +19,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.rascalmpl.value.io.binary.util.LinearCircularLookupWindow;
 import org.rascalmpl.value.io.binary.util.TaggedInt;
 import org.rascalmpl.value.io.binary.util.TrackLastRead;
+import org.rascalmpl.value.io.binary.util.WindowCacheFactory;
 import org.rascalmpl.value.io.binary.wire.FieldKind;
 import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 
@@ -59,31 +59,34 @@ public class BinaryWireInputStream implements IWireInputStream {
         }
         this.stream = CodedInputStream.newInstance(stream);
         int stringReadSize = this.stream.readRawVarint32();
-        if (stringReadSize > 0) {
-            this.stringsRead = new LinearCircularLookupWindow<>(stringReadSize);
-        }
-        else {
-            this.stringsRead = new TrackLastRead<String>() {
-                @Override public void read(String obj) { }
-                
-                @Override public String lookBack(int howLongBack) { throw new IllegalArgumentException(); }
-            };
-        }
+        this.stringsRead = WindowCacheFactory.getInstance().getTrackLastRead(stringReadSize);
         this.stream.setSizeLimit(Integer.MAX_VALUE); 
     }
 
     @Override
     public void close() throws IOException {
         if (!closed) {
-            __stream.close();
+            try {
+                __stream.close();
+            } finally {
+                closed = true;
+                WindowCacheFactory.getInstance().returnTrackLastRead(stringsRead);
+            }
         }
         else {
             throw new IOException("Already closed");
         }
     }
 
+    private void assertNotClosed() throws IOException {
+        if (closed) {
+            throw new IOException("Stream already closed"); 
+        }
+    }
+
     @Override
     public int next() throws IOException {
+        assertNotClosed();
         // clear memory
         intValues = null;
         stringValues = null;

@@ -33,9 +33,9 @@ import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.io.binary.stream.IValueOutputStream;
-import org.rascalmpl.value.io.binary.util.OpenAddressingLastWritten;
 import org.rascalmpl.value.io.binary.util.PrePostIValueIterator;
 import org.rascalmpl.value.io.binary.util.TrackLastWritten;
+import org.rascalmpl.value.io.binary.util.WindowCacheFactory;
 import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
@@ -48,18 +48,6 @@ import org.rascalmpl.values.ValueFactoryFactory;
  *
  */
 public class IValueWriter {
-    private static <T> TrackLastWritten<T> getWindow(int size) {
-        if (size == 0) {
-            return new TrackLastWritten<T>() {
-                public int howLongAgo(T obj) {
-                    return -1;
-                }
-                public void write(T obj) {};
-            };
-        }
-        return OpenAddressingLastWritten.referenceEquality(size); 
-    }
-    
     /**
      * Write an IValue to an exisiting wire stream. <br />
      * <br />
@@ -72,12 +60,19 @@ public class IValueWriter {
      * @throws IOException
      */
     public static void write(IWireOutputStream writer, TypeStore store, WindowSizes size, IValue value ) throws IOException {
-        writeHeader(writer, size.valueWindow, size.typeWindow, size.uriWindow);
-        TrackLastWritten<Type> typeCache = getWindow(size.typeWindow);
-        TrackLastWritten<IValue> valueCache = getWindow(size.valueWindow);
-        TrackLastWritten<ISourceLocation> uriCache = getWindow(size.uriWindow);
-        write(writer, store, value, typeCache, valueCache, uriCache);
-        writeEnd(writer);
+        final WindowCacheFactory windowFactory = WindowCacheFactory.getInstance();
+        TrackLastWritten<Type> typeCache = windowFactory.getTrackLastWrittenReferenceEquality(size.typeWindow);
+        TrackLastWritten<IValue> valueCache = windowFactory.getTrackLastWrittenReferenceEquality(size.valueWindow);
+        TrackLastWritten<ISourceLocation> uriCache = windowFactory.getTrackLastWrittenReferenceEquality(size.uriWindow);
+        try {
+            writeHeader(writer, size.valueWindow, size.typeWindow, size.uriWindow);
+            write(writer, store, value, typeCache, valueCache, uriCache);
+            writeEnd(writer);
+        } finally {
+            windowFactory.returnTrackLastWrittenReferenceEquality(typeCache);
+            windowFactory.returnTrackLastWrittenReferenceEquality(valueCache);
+            windowFactory.returnTrackLastWrittenReferenceEquality(uriCache);
+        }
     }
 
     /**
@@ -90,15 +85,20 @@ public class IValueWriter {
      * @throws IOException
      */
     public static void write(IWireOutputStream writer, TypeStore store, WindowSizes size, Type type) throws IOException {
-        writeHeader(writer, size.valueWindow, size.typeWindow, size.uriWindow);
-        TrackLastWritten<Type> typeCache = getWindow(size.typeWindow);
-        TrackLastWritten<IValue> valueCache = getWindow(size.valueWindow);
-        TrackLastWritten<ISourceLocation> uriCache = getWindow(size.uriWindow);
-        write(writer, store, type, typeCache, valueCache, uriCache);
-        writeEndType(writer);
+        final WindowCacheFactory windowFactory = WindowCacheFactory.getInstance();
+        TrackLastWritten<Type> typeCache = windowFactory.getTrackLastWrittenReferenceEquality(size.typeWindow);
+        TrackLastWritten<IValue> valueCache = windowFactory.getTrackLastWrittenReferenceEquality(size.valueWindow);
+        TrackLastWritten<ISourceLocation> uriCache = windowFactory.getTrackLastWrittenReferenceEquality(size.uriWindow);
+        try {
+            writeHeader(writer, size.valueWindow, size.typeWindow, size.uriWindow);
+            write(writer, store, type, typeCache, valueCache, uriCache);
+            writeEndType(writer);
+        } finally {
+            windowFactory.returnTrackLastWrittenReferenceEquality(typeCache);
+            windowFactory.returnTrackLastWrittenReferenceEquality(valueCache);
+            windowFactory.returnTrackLastWrittenReferenceEquality(uriCache);
+        }
     }
-    
-    
     
 
     private static void writeHeader(IWireOutputStream writer, int valueWindowSize, int typeWindowSize, int uriWindowSize) throws IOException {

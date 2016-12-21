@@ -14,13 +14,15 @@ package org.rascalmpl.value.io.binary.util;
 
 import java.util.Arrays;
 
+import org.apache.commons.math.MaxEvaluationsExceededException;
+
 /**
  * A track last written implementation that uses linear open addressing to implement the very specific hashmap
  * 
  * This implementation is just as fast as using the IdentityHashMap, however it uses less memory on average and we can also use value equality.
  * @author Davy Landman
  */
-public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T> {
+public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T>, ClearableWindow {
     private final int maximumEntries;
     private final int tableSize;
     private final Object[] keys;
@@ -86,7 +88,7 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
         writtenAt = new long[this.tableSize];
         hashes = new int[this.tableSize];
         oldest = new int[maximumEntries];
-        Arrays.setAll(oldest, (i) -> -1);
+        ArrayUtil.fill(oldest, -1);
         written = 0;
     }
     
@@ -208,6 +210,19 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
            oldest[translateOldest(writtenAt[space])] = space;
            space = candidate;
         }
+    }
+    
+    @Override
+    public int size() {
+        return maximumEntries;
+    }
+    
+    @Override
+    public void clear() {
+        ArrayUtil.fill(keys, null);
+        ArrayUtil.fill(oldest, -1);
+        written = 0;
+        
     }
 
 }

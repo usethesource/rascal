@@ -12,43 +12,7 @@
  */ 
 package org.rascalmpl.value.io.binary.util;
 
-import java.util.Arrays;
-
-public class LinearCircularLookupWindow<T> implements TrackLastRead<T>, ClearableWindow {
-    private final T[] data;
-    private long written;
-
-    @SuppressWarnings("unchecked")
-    public LinearCircularLookupWindow(int size) {
-        data = (T[]) new Object[size];
-        written = 0;
-    }
-    
-    private int translate(long index) {
-        return (int) (index % data.length);
-    }
-    
-    
-    @Override
-    public T lookBack(int offset) {
-        assert offset + 1 <= written;
-        return data[translate(written - (offset + 1))];
-        
-    }
-    
-    @Override
-    public void read(T obj) {
-        data[translate(written++)] = obj;
-    }
-
-    @Override
-    public int size() {
-        return data.length;
-    }
-
-    @Override
-    public void clear() {
-        ArrayUtil.fill(data, null);
-    }
-
+public interface ClearableWindow {
+    int size();
+    void clear();
 }
