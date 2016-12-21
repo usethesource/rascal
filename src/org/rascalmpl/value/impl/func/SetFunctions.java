@@ -17,13 +17,7 @@
  *******************************************************************************/
 package org.rascalmpl.value.impl.func;
 
-import java.util.Iterator;
-
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISetWriter;
-import org.rascalmpl.value.ITuple;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.*;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.impl.util.collections.ShareableValuesHashSet;
@@ -33,6 +27,8 @@ import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.util.RotatingQueue;
 import org.rascalmpl.value.util.ShareableHashMap;
 import org.rascalmpl.value.util.ValueIndexedHashMap;
+
+import java.util.Iterator;
 
 public final class SetFunctions {
 
@@ -57,7 +53,13 @@ public final class SetFunctions {
 	public static ISet intersect(IValueFactory vf, ISet set1, ISet set2) {
 		if (set1 == set2)
 			return set1;
-		
+
+		if (set1.isEmpty())
+			return set1;
+
+		if (set2.isEmpty())
+			return set2;
+
 		ISetWriter w = vf.setWriter();
 		
 		for (IValue v : set1) {
@@ -70,8 +72,14 @@ public final class SetFunctions {
 	}
 	
 	public static ISet union(IValueFactory vf, ISet set1, ISet set2) {
-		if (set1 == set2)
-			return set1;
+    if (set1 == set2)
+      return set1;
+
+    if (set1.isEmpty())
+      return set2;
+
+    if (set2.isEmpty())
+      return set1;
 		
 		ISetWriter w = vf.setWriter();
 		w.insertAll(set1);
@@ -82,7 +90,14 @@ public final class SetFunctions {
 	public static ISet subtract(IValueFactory vf, ISet set1, ISet set2) {
 		if (set1 == set2)
 			return vf.set();
-		
+
+    if (set1.isEmpty())
+      return set1;
+
+    if (set2.isEmpty())
+      return set1;
+
+
 		ISetWriter sw = vf.setWriter();
 		for (IValue a : set1) {
 			if (!set2.contains(a)) {
