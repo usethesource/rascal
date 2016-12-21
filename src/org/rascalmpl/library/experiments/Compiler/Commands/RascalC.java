@@ -232,9 +232,9 @@ public class RascalC {
     			
                 System.err.println(msg.getName() + "@" + loc.getURI() 
                     + ":" 
-                    + String.format("%0" + lineWidth + "d", line)
+                    + String.format("%0" + Math.max(1, lineWidth) + "d", line)
                     + ":"
-                    + String.format("%0" + colWidth + "d", col)
+                    + String.format("%0" + Math.max(1, colWidth) + "d", col)
                     + ": "
                     + ((IString) msg.get("msg")).getValue()
                     );
