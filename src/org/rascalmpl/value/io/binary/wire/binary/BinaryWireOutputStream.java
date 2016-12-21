@@ -12,16 +12,14 @@
  */ 
 package org.rascalmpl.value.io.binary.wire.binary;
 
-import java.io.Closeable;
-import java.io.Flushable;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.rascalmpl.value.io.binary.util.OpenAddressingLastWritten;
 import org.rascalmpl.value.io.binary.util.TaggedInt;
 import org.rascalmpl.value.io.binary.util.TrackLastWritten;
+import org.rascalmpl.value.io.binary.util.WindowCacheFactory;
 import org.rascalmpl.value.io.binary.wire.FieldKind;
 import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 
@@ -41,15 +39,7 @@ public class BinaryWireOutputStream implements IWireOutputStream {
         this.__stream.write(WIRE_VERSION);
         this.stream = CodedOutputStream.newInstance(stream);
         this.stream.writeUInt32NoTag(stringSharingWindowSize);
-        if (stringSharingWindowSize > 0) {
-            this.stringsWritten = OpenAddressingLastWritten.objectEquality(stringSharingWindowSize);
-        }
-        else {
-            this.stringsWritten = new TrackLastWritten<String>() {
-                @Override public void write(String obj) { }
-                @Override public int howLongAgo(String obj) { return -1; }
-            };
-        }
+        this.stringsWritten = WindowCacheFactory.getInstance().getTrackLastWrittenObjectEquality(stringSharingWindowSize);
     }
 
     @Override
@@ -60,6 +50,7 @@ public class BinaryWireOutputStream implements IWireOutputStream {
             }
             finally {
                 closed = true;
+                WindowCacheFactory.getInstance().returnTrackLastWrittenObjectEquality(stringsWritten);
             }
         }
     }
