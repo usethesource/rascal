@@ -355,13 +355,14 @@ public class OverloadedFunction implements Serializable {
 	}
 
     public void write(IWireOutputStream out) throws IOException {
+        TypeStore ts = new TypeStore(RascalValueFactory.getStore());
         
         out.startMessage(CompilerIDs.OverloadedFunction.ID);
         
         out.writeField(CompilerIDs.OverloadedFunction.NAME, name);
 
         out.writeNestedField(CompilerIDs.OverloadedFunction.FUN_TYPE);
-        IValueWriter.write(out, new TypeStore(), WindowSizes.TINY_WINDOW, funType);
+        IValueWriter.write(out, ts, WindowSizes.TINY_WINDOW, funType);
         
         out.writeField(CompilerIDs.OverloadedFunction.FUNCTIONS, functions);
         
@@ -387,11 +388,11 @@ public class OverloadedFunction implements Serializable {
     }
     
     static OverloadedFunction read(IWireInputStream in, IValueFactory vf, TypeStore ts) throws IOException {
-        
-        TypeFactory tf = TypeFactory.getInstance();
+        System.err.println("Reading OverloadedFunction");
+       
         
         String name = "unitialized name";
-        Type funType = tf.valueType();
+        Type funType = null;
         int[] functions = new int[0];
         int[] constructors = new int[0];
         String funIn = "unitialized funIn";

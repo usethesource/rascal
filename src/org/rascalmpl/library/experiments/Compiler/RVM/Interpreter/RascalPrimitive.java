@@ -9455,7 +9455,7 @@ public enum RascalPrimitive {
 	 * @return t converted to a symbol
 	 */
 	static IConstructor $type2symbol(final Type t){
-	    return t.asSymbol(vf, new TypeStore(), vf.setWriter(), new HashSet<>());
+	    return t.asSymbol(vf, /*new TypeStore()*/ new TypeStore(RascalValueFactory.getStore()), vf.setWriter(), new HashSet<>());
 	}
 	
 	private static Map<String,IValue> $getAllKeywordParameters(IValue v, RascalExecutionContext rex){
