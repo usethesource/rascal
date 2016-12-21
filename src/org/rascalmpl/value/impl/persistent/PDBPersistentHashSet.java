@@ -26,24 +26,38 @@ import org.rascalmpl.value.util.AbstractTypeBag;
 import java.util.Iterator;
 import java.util.Objects;
 
+import static org.rascalmpl.value.impl.persistent.PDBEmptySetSingleton.EMPTY_ISET_SINGLETON;
 import static org.rascalmpl.value.impl.persistent.SetWriter.*;
+import static org.rascalmpl.value.util.AbstractTypeBag.toTypeBag;
 
 public final class PDBPersistentHashSet extends AbstractSet {
 
-  public static final PDBPersistentHashSet EMPTY = new PDBPersistentHashSet();
+  // public static final PDBPersistentHashSet EMPTY = new PDBPersistentHashSet();
 
   private Type cachedSetType;
   private final AbstractTypeBag elementTypeBag;
   private final ImmutableSet<IValue> content;
 
-  public PDBPersistentHashSet() {
-    this.elementTypeBag = AbstractTypeBag.of();
-    this.content = DefaultTrieSet.of();
+  // TODO: make private
+  public static final ISet from(final AbstractTypeBag elementTypeBag,
+      final ImmutableSet<IValue> content) {
+    if (content.isEmpty()) {
+      return EMPTY_ISET_SINGLETON;
+    } else {
+      return new PDBPersistentHashSet(elementTypeBag, content);
+    }
   }
 
-  public PDBPersistentHashSet(AbstractTypeBag elementTypeBag, ImmutableSet<IValue> content) {
+  PDBPersistentHashSet(final IValue firstElement) {
+    this(AbstractTypeBag.of(firstElement.getType()), DefaultTrieSet.of(firstElement));
+  }
+
+  private PDBPersistentHashSet(AbstractTypeBag elementTypeBag, ImmutableSet<IValue> content) {
     Objects.requireNonNull(elementTypeBag);
     Objects.requireNonNull(content);
+
+    assert checkDynamicType(elementTypeBag, content);
+    assert !(elementTypeBag.lub() == getTypeFactory().voidType() || content.isEmpty());
 
     // final AbstractTypeBag expectedElementTypeBag =
     // content.stream().map(IValue::getType).collect(toTypeBag());
@@ -71,6 +85,17 @@ public final class PDBPersistentHashSet extends AbstractSet {
     // } else {
     assert this.content.getClass() == DefaultTrieSet.getTargetClass();
     // }
+  }
+
+  private static final boolean checkDynamicType(final AbstractTypeBag elementTypeBag,
+      final ImmutableSet<IValue> content) {
+
+    final AbstractTypeBag expectedElementTypeBag =
+        content.stream().map(IValue::getType).collect(toTypeBag());
+
+    boolean expectedTypesEqual = expectedElementTypeBag.equals(elementTypeBag);
+
+    return expectedTypesEqual;
   }
 
   // internal use: introspecting backing implementation; TODO: reconsider visibility
@@ -125,7 +150,8 @@ public final class PDBPersistentHashSet extends AbstractSet {
       final ImmutableSet<IValue> contentNew;
 
       if (USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(value.getType())) {
-        return PDBPersistentHashSetMultimap.EMPTY.insert(value);
+        // TODO: directly construct set-multimap
+        return EMPTY_ISET_SINGLETON.insert(value);
       } else {
         contentNew = DefaultTrieSet.<IValue>of().__insertEquivalent(value, equivalenceComparator);
       }
@@ -170,7 +196,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 
       final AbstractTypeBag bagNew = elementTypeBag.increase(value.getType());
 
-      return new PDBPersistentHashSet(bagNew, contentNew);
+      return PDBPersistentHashSet.from(bagNew, contentNew);
     } else {
       final ImmutableSet<IValue> contentNew =
           content.__insertEquivalent(value, equivalenceComparator);
@@ -180,7 +206,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 
       final AbstractTypeBag bagNew = elementTypeBag.increase(value.getType());
 
-      return new PDBPersistentHashSet(bagNew, contentNew);
+      return PDBPersistentHashSet.from(bagNew, contentNew);
     }
   }
 
@@ -194,7 +220,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
 
     final AbstractTypeBag bagNew = elementTypeBag.decrease(value.getType());
 
-    return new PDBPersistentHashSet(bagNew, contentNew);
+    return PDBPersistentHashSet.from(bagNew, contentNew);
   }
 
   @Override
@@ -334,7 +360,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
       }
 
       if (modified) {
-        return new PDBPersistentHashSet(bag, tmp.freeze());
+        return PDBPersistentHashSet.from(bag, tmp.freeze());
       }
       return def;
     } else {
@@ -347,7 +373,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
     if (other == this)
       return this;
     if (other == null)
-      return EMPTY;
+      return EMPTY_ISET_SINGLETON;
 
     if (other instanceof PDBPersistentHashSet) {
       PDBPersistentHashSet that = (PDBPersistentHashSet) other;
@@ -382,7 +408,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
       }
 
       if (modified) {
-        return new PDBPersistentHashSet(bag, tmp.freeze());
+        return PDBPersistentHashSet.from(bag, tmp.freeze());
       }
       return def;
     } else {
@@ -393,7 +419,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
   @Override
   public ISet subtract(ISet other) {
     if (other == this)
-      return EMPTY;
+      return EMPTY_ISET_SINGLETON;
     if (other == null)
       return this;
 
@@ -421,7 +447,7 @@ public final class PDBPersistentHashSet extends AbstractSet {
       }
 
       if (modified) {
-        return new PDBPersistentHashSet(bag, tmp.freeze());
+        return PDBPersistentHashSet.from(bag, tmp.freeze());
       }
       return def;
     } else {

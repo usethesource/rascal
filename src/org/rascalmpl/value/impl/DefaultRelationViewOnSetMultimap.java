@@ -1,7 +1,10 @@
 package org.rascalmpl.value.impl;
 
+import io.usethesource.capsule.DefaultTrieSet;
 import io.usethesource.capsule.api.deprecated.ImmutableSet;
 import io.usethesource.capsule.api.deprecated.ImmutableSetMultimap;
+import io.usethesource.capsule.api.deprecated.TransientSetMultimap;
+import io.usethesource.capsule.util.stream.CapsuleCollectors;
 import org.rascalmpl.value.*;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.impl.func.SetFunctions;
@@ -13,9 +16,12 @@ import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.util.AbstractTypeBag;
 
 import java.util.Arrays;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static io.usethesource.capsule.util.ArrayUtilsInt.arrayOfInt;
+import static org.rascalmpl.value.impl.persistent.PDBEmptySetSingleton.EMPTY_ISET_SINGLETON;
 import static org.rascalmpl.value.impl.persistent.SetWriter.USE_MULTIMAP_BINARY_RELATIONS;
 import static org.rascalmpl.value.impl.persistent.SetWriter.isTupleOfArityTwo;
 import static org.rascalmpl.value.util.AbstractTypeBag.toTypeBag;
@@ -58,62 +64,73 @@ public class DefaultRelationViewOnSetMultimap implements ISetRelation<ISet> {
 
   @Override
   public ISet compose(ISetRelation<ISet> rel2) {
-     return SetFunctions.compose(vf, rel1, rel2.asSet());
+    // return SetFunctions.compose(vf, rel1, rel2.asSet());
 
-//    if (!isSetMultimap(rel2.asSet()))
-//      return SetFunctions.compose(vf, rel1, rel2.asSet());
-//
-//    final ImmutableSetMultimap<IValue, IValue> xy = rel1.getContent();
-//    final ImmutableSetMultimap<IValue, IValue> yz = extractSetMultimap(rel2.asSet());
-//
-//    final TransientSetMultimap<IValue, IValue> xz = xy.asTransient();
-//
-//    for (IValue x : xy.keySet()) {
-//      final ImmutableSet<IValue> ys = xy.get(x);
-//      // TODO: simplify expression with nullable data
-//      final ImmutableSet<IValue> zs = ys.stream()
-//          .flatMap(y -> Optional.ofNullable(yz.get(y)).orElseGet(DefaultTrieSet::of).stream())
-//          .collect(CapsuleCollectors.toSet());
-//
-//      if (zs == null) {
-//        xz.__remove(x);
+    if (!isSetMultimap(rel2.asSet()))
+      return SetFunctions.compose(vf, rel1, rel2.asSet());
+
+    final ImmutableSetMultimap<IValue, IValue> xy = rel1.getContent();
+    final ImmutableSetMultimap<IValue, IValue> yz = extractSetMultimap(rel2.asSet());
+
+    final TransientSetMultimap<IValue, IValue> xz = xy.asTransient();
+
+    for (IValue x : xy.keySet()) {
+      final ImmutableSet<IValue> ys = xy.get(x);
+      // TODO: simplify expression with nullable data
+      final ImmutableSet<IValue> zs = ys.stream()
+          .flatMap(y -> Optional.ofNullable(yz.get(y)).orElseGet(DefaultTrieSet::of).stream())
+          .collect(CapsuleCollectors.toSet());
+
+      if (zs == null) {
+        xz.__remove(x);
+      } else {
+        // xz.__put(x, zs); // TODO: requires node batch update support
+
+        xz.__remove(x);
+        zs.forEach(z -> xz.__insert(x, z));
+      }
+    }
+
+//    // @formatter:off
+//    final Stream<BiConsumer<IValue, IValue>> localStream = null;
+//    final Node updatedNode = localStream
+//        .filter((x, y) -> yz.containsKey(y))
+//        .mapValues(y -> yz.get(y))
+//        .collect(toNode());
+//    // @formatter:on
+
+    final ImmutableSetMultimap<IValue, IValue> data = xz.freeze();
+
+//    Iterator<Map.Entry<IValue, IValue>> entryIterator = data.entryIterator();
+//    entryIterator.forEachRemaining(tuple -> {
+//      if (isInstanceOf(IValue.class).test(tuple.getValue())) {
+//        return;
 //      } else {
-//        // xz.__put(x, zs); // TODO: requires node batch update support
-//
-//        xz.__remove(x);
-//        zs.forEach(z -> xz.__insert(x, z));
+//        return;
 //      }
-//    }
-//
-////    // @formatter:off
-////    final Stream<BiConsumer<IValue, IValue>> localStream = null;
-////    final Node updatedNode = localStream
-////        .filter((x, y) -> yz.containsKey(y))
-////        .mapValues(y -> yz.get(y))
-////        .collect(toNode());
-////    // @formatter:on
-//
-//    final ImmutableSetMultimap<IValue, IValue> data = xz.freeze();
-//
-//    // final Function<Map.Entry<IValue, IValue>, Type> tupleToTypeMapper =
-//    // (tuple) -> TF.tupleType(tuple.getKey().getType(), tuple.getValue().getType());
-//    //
-//    // final AbstractTypeBag elementTypeBag =
-//    // data.entrySet().stream().map(tupleToTypeMapper).collect(toTypeBag());
-//
-//    final AbstractTypeBag keyTypeBag =
-//        data.entrySet().stream().map(Map.Entry::getKey).map(IValue::getType).collect(toTypeBag());
-//
-//    final AbstractTypeBag valTypeBag =
-//        data.entrySet().stream().map(Map.Entry::getValue).map(IValue::getType).collect(toTypeBag());
-//
-//    // canonicalize
-//    if (data.size() == 0) {
-//      return PDBPersistentHashSet.EMPTY;
-//    } else {
-//      /** TODO does not take into account {@link IValueFactory} */
-//      return new PDBPersistentHashSetMultimap(keyTypeBag, valTypeBag, data);
-//    }
+//    });
+
+    data.entrySet().stream().map(Map.Entry::getValue).map(IValue::getType).collect(toTypeBag());
+
+    // final Function<Map.Entry<IValue, IValue>, Type> tupleToTypeMapper =
+    // (tuple) -> TF.tupleType(tuple.getKey().getType(), tuple.getValue().getType());
+    //
+    // final AbstractTypeBag elementTypeBag =
+    // data.entrySet().stream().map(tupleToTypeMapper).collect(toTypeBag());
+
+    final AbstractTypeBag keyTypeBag =
+        data.entrySet().stream().map(Map.Entry::getKey).map(IValue::getType).collect(toTypeBag());
+
+    final AbstractTypeBag valTypeBag =
+        data.entrySet().stream().map(Map.Entry::getValue).map(IValue::getType).collect(toTypeBag());
+
+    // canonicalize
+    if (data.size() == 0) {
+      return EMPTY_ISET_SINGLETON;
+    } else {
+      /** TODO does not take into account {@link IValueFactory} */
+      return PDBPersistentHashSetMultimap.from(keyTypeBag, valTypeBag, data);
+    }
   }
 
   @Override
@@ -192,7 +209,7 @@ public class DefaultRelationViewOnSetMultimap implements ISetRelation<ISet> {
       return w.done();
     } else {
       /** TODO does not take into account {@link IValueFactory} */
-      return new PDBPersistentHashSet(columnElementTypeBag, columnData);
+      return PDBPersistentHashSet.from(columnElementTypeBag, columnData);
     }
 
     // return SetFunctions.domain(vf, rel1);
@@ -204,28 +221,28 @@ public class DefaultRelationViewOnSetMultimap implements ISetRelation<ISet> {
 
     return multimap.values().stream().collect(ValueCollectors.toSet());
 
-//    /** TODO change {@link ImmutableSetMultimap#keySet()} to return {@link ImmutableSet} */
-//
-//    final TransientSet<IValue> tmp = DefaultTrieSet.transientOf();
-//    multimap.values().forEach(tmp::__insert);
-//    final ImmutableSet<IValue> columnData = tmp.freeze();
-//
-//    // final AbstractTypeBag columnElementTypeBag = extractTypeBag(rel1).select(1);
-//    final AbstractTypeBag columnElementTypeBag = rel1.getValTypeBag();
-//
-//    // flattening Set[_, Tuple[K, V]] to Multimap[K, V]
-//    if (USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(columnElementTypeBag.lub())) {
-//      /*
-//       * EXPERIMENTAL: Enforce that binary relations always are backed by multi-maps (instead of
-//       * being represented as a set of tuples).
-//       */
-//      final ISetWriter w = vf.setWriter();
-//      columnData.forEach(w::insert);
-//      return w.done();
-//    } else {
-//      /** TODO does not take into account {@link IValueFactory} */
-//      return new PDBPersistentHashSet(columnElementTypeBag, columnData);
-//    }
+    // /** TODO change {@link ImmutableSetMultimap#keySet()} to return {@link ImmutableSet} */
+    //
+    // final TransientSet<IValue> tmp = DefaultTrieSet.transientOf();
+    // multimap.values().forEach(tmp::__insert);
+    // final ImmutableSet<IValue> columnData = tmp.freeze();
+    //
+    // // final AbstractTypeBag columnElementTypeBag = extractTypeBag(rel1).select(1);
+    // final AbstractTypeBag columnElementTypeBag = rel1.getValTypeBag();
+    //
+    // // flattening Set[_, Tuple[K, V]] to Multimap[K, V]
+    // if (USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(columnElementTypeBag.lub())) {
+    // /*
+    // * EXPERIMENTAL: Enforce that binary relations always are backed by multi-maps (instead of
+    // * being represented as a set of tuples).
+    // */
+    // final ISetWriter w = vf.setWriter();
+    // columnData.forEach(w::insert);
+    // return w.done();
+    // } else {
+    // /** TODO does not take into account {@link IValueFactory} */
+    // return new PDBPersistentHashSet(columnElementTypeBag, columnData);
+    // }
 
     // return SetFunctions.range(vf, rel1);
   }

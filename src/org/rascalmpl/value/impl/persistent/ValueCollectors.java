@@ -35,8 +35,8 @@ public class ValueCollectors {
       }
     };
 
-    return new DefaultCollector<>(SetStruct::new, accumulator,
-        unsupportedCombiner(), struct -> new PDBPersistentHashSet(struct.elementTypeBag,
+    return new DefaultCollector<>(SetStruct::new, accumulator, unsupportedCombiner(),
+        struct -> PDBPersistentHashSet.from(struct.elementTypeBag,
             (ImmutableSet<IValue>) struct.set.freeze()),
         UNORDERED);
   }
@@ -63,7 +63,7 @@ public class ValueCollectors {
     };
 
     return new DefaultCollector<>(SetMultimapStruct::new, accumulator,
-        unsupportedCombiner(), struct -> new PDBPersistentHashSetMultimap(struct.keyTypeBag,
+        unsupportedCombiner(), struct -> PDBPersistentHashSetMultimap.from(struct.keyTypeBag,
             struct.valTypeBag, (ImmutableSetMultimap<IValue, IValue>) struct.map.freeze()),
         UNORDERED);
   }

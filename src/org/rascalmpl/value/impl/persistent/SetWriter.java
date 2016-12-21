@@ -30,6 +30,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import static org.rascalmpl.value.impl.persistent.PDBEmptySetSingleton.EMPTY_ISET_SINGLETON;
+
 /*
  * TODO: visibility is currently public to allow set-multimap experiments. Must be set back to
  * `protected` when experiments are finished.
@@ -123,7 +125,7 @@ public class SetWriter implements ISetWriter {
     final Stream<IValue> dataStream = dataStreamBuilder.build();
 
     if (leastUpperBound == TypeFactory.getInstance().voidType()) {
-      constructedSet = PDBPersistentHashSet.EMPTY;
+      constructedSet = EMPTY_ISET_SINGLETON;
       return constructedSet;
     }
 
@@ -164,12 +166,12 @@ public class SetWriter implements ISetWriter {
 
   // TODO: extract to a utilities class
   @SuppressWarnings("unchecked")
-  private static <T, R> Function<T, R> asInstanceOf(Class<R> resultClass) {
+  public static <T, R> Function<T, R> asInstanceOf(Class<R> resultClass) {
     return item -> (R) item;
   }
 
   // TODO: extract to a utilities class
-  private static <T> Predicate<T> isInstanceOf(Class<T> inputClass) {
+  public static <T> Predicate<T> isInstanceOf(Class<T> inputClass) {
     return item -> inputClass.isInstance(item);
   }
 
