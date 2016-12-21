@@ -32,7 +32,7 @@ public class ExecuteProgram {
 
 	    TypeStore typeStore = new TypeStore();
 		RVMExecutable exec = ExecutionTools.link(rvmProgram, jvm, typeStore);
-		exec.newWrite(rvmProgramLoc, RVMExecutable.EXEC_COMPRESSION_ZSTD);
+		exec.newWrite(rvmProgramLoc, 6);
 	}
 	
 	// Library function to execute a RVMProgram
