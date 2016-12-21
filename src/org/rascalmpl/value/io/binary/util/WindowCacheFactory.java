@@ -120,14 +120,14 @@ public class WindowCacheFactory {
         if (size == 0) {
             return (TrackLastWritten<T>) disabledWriteWindow;
         }
-        return (TrackLastWritten<T>) computeIfAbsent(lastWrittenReference, size, (s) -> OpenAddressingLastWritten.referenceEquality(s));
+        return (TrackLastWritten<T>) computeIfAbsent(lastWrittenReference, size, OpenAddressingLastWritten::referenceEquality);
     }
     @SuppressWarnings("unchecked")
     public <T> TrackLastWritten<T> getTrackLastWrittenObjectEquality(int size) {
         if (size == 0) {
             return (TrackLastWritten<T>) disabledWriteWindow;
         }
-        return (TrackLastWritten<T>) computeIfAbsent(lastWrittenObject, size, (s) -> OpenAddressingLastWritten.objectEquality(s));
+        return (TrackLastWritten<T>) computeIfAbsent(lastWrittenObject, size, OpenAddressingLastWritten::objectEquality);
     }
     
     @SuppressWarnings("unchecked")
@@ -202,7 +202,7 @@ public class WindowCacheFactory {
                             it.remove();
                         }
                         else {
-                            break; // end of the chain of oudated stuff reached
+                            break; // end of the chain of outdated stuff reached
                         }
                     }
                     v.performHouseKeeping();
