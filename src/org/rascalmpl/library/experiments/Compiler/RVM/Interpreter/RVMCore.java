@@ -1072,13 +1072,25 @@ public abstract class RVMCore {
 		} 
 	}
 	
+	Method getJavaMethod(Class<?> clazz, String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect) {
+	    try {
+	        return clazz.getMethod(methodName, makeJavaTypes(methodName, className, parameterTypes, keywordTypes, reflect));
+	    }
+	    catch (NoSuchMethodException | SecurityException e) {
+	        throw new CompilerError("could not find Java method", e);
+	    }
+    }
+	
 	int callJavaMethod(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect, Object[] stack, int sp) throws Throw, Throwable {
-		Class<?> clazz = null;
-		try {
-			clazz = getJavaClass(className);
+	    Class<?> clazz = getJavaClass(className);
+	    Method m = getJavaMethod(clazz, methodName, className, parameterTypes, keywordTypes, reflect);
+	    return callJavaMethod(clazz, m, parameterTypes, keywordTypes, reflect, stack, sp);
+	}
+
+
+    int callJavaMethod(Class<?> clazz, Method m, Type parameterTypes, Type keywordTypes, int reflect, Object[] stack, int sp) throws Throw, Throwable {
+	    try {
 			Object instance = getJavaClassInstance(clazz);
-			
-			Method m = clazz.getMethod(methodName, makeJavaTypes(methodName, className, parameterTypes, keywordTypes, reflect));
 			int arity = parameterTypes.getArity();
 			int kwArity = keywordTypes.getArity();
 			int kwMaps = kwArity > 0 ? 2 : 0;
@@ -1104,12 +1116,12 @@ public abstract class RVMCore {
 			}
 			
 			if(reflect == 1) {
-				parameters[arity + kwArity] = converted.contains(className + "." + methodName) ? this.rex : null /*this.getEvaluatorContext()*/; // TODO: remove CTX
+				parameters[arity + kwArity] = converted.contains(clazz.getName() + "." + m.getName()) ? this.rex : null /*this.getEvaluatorContext()*/; // TODO: remove CTX
 			}
 			stack[sp - arity - kwMaps] =  m.invoke(instance, parameters);
 			return sp - arity - kwMaps + 1;
 		} 
-		catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException e) {
+		catch (SecurityException | IllegalAccessException | IllegalArgumentException e) {
 			throw new CompilerError("could not call Java method", e);
 		} 
 		catch (InvocationTargetException e) {
@@ -1125,7 +1137,7 @@ public abstract class RVMCore {
 	}
 	
 	// Reflective methods where the CTX arguments has already been replaced by a REX argument
-	private HashSet<String> converted = new HashSet<String>(Arrays.asList(
+	private static HashSet<String> converted = new HashSet<String>(Arrays.asList(
 			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ParsingTools.parseFragment",
 			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram.executeProgram",
 			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.startCoverage",
@@ -1220,7 +1232,7 @@ public abstract class RVMCore {
 			 */
 	));
 			
-	Class<?>[] makeJavaTypes(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect){
+	private static Class<?>[] makeJavaTypes(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect){
 		JavaClasses javaClasses = new JavaClasses();
 		int arity = parameterTypes.getArity();
 		int kwArity = keywordTypes.getArity();
