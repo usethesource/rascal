@@ -25,13 +25,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.StreamSupport;
 
-import static org.rascalmpl.value.impl.persistent.PDBEmptySetSingleton.EMPTY_ISET_SINGLETON;
+import static org.rascalmpl.value.impl.persistent.EmptySet.EMPTY_SET;
 import static org.rascalmpl.value.impl.persistent.SetWriter.*;
 import static org.rascalmpl.value.util.AbstractTypeBag.toTypeBag;
 
-public final class PDBPersistentHashSetMultimap extends AbstractSet {
+public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
-  // public static final PDBPersistentHashSetMultimap EMPTY = PDBPersistentHashSetMultimap.from();
+  // public static final PersistentHashIndexedBinaryRelation EMPTY = PersistentHashIndexedBinaryRelation.from();
 
   private Type cachedRelationType;
   private final AbstractTypeBag keyTypeBag;
@@ -42,22 +42,22 @@ public final class PDBPersistentHashSetMultimap extends AbstractSet {
   public static final ISet from(final AbstractTypeBag keyTypeBag, final AbstractTypeBag valTypeBag,
       final ImmutableSetMultimap<IValue, IValue> content) {
     if (content.isEmpty()) {
-      return EMPTY_ISET_SINGLETON;
+      return EMPTY_SET;
     } else {
-      return new PDBPersistentHashSetMultimap(keyTypeBag, valTypeBag, content);
+      return new PersistentHashIndexedBinaryRelation(keyTypeBag, valTypeBag, content);
     }
   }
 
   // TODO: enforce that TUPLE is of arity 2
-  PDBPersistentHashSetMultimap(final ITuple firstElement) {
+  PersistentHashIndexedBinaryRelation(final ITuple firstElement) {
     this(AbstractTypeBag.of(firstElement.getType().getFieldType(0)),
         AbstractTypeBag.of(firstElement.getType().getFieldType(1)),
         DefaultTrieSetMultimap.<IValue, IValue>of(equivalenceEqualityComparator)
             .__insert(firstElement.get(0), firstElement.get(1)));
   }
 
-  private PDBPersistentHashSetMultimap(AbstractTypeBag keyTypeBag, AbstractTypeBag valTypeBag,
-      ImmutableSetMultimap<IValue, IValue> content) {
+  private PersistentHashIndexedBinaryRelation(AbstractTypeBag keyTypeBag, AbstractTypeBag valTypeBag,
+                                              ImmutableSetMultimap<IValue, IValue> content) {
     Objects.requireNonNull(keyTypeBag);
     Objects.requireNonNull(content);
 
@@ -150,7 +150,7 @@ public final class PDBPersistentHashSetMultimap extends AbstractSet {
     final AbstractTypeBag keyTypeBagNew = keyTypeBag.increase(key.getType());
     final AbstractTypeBag valTypeBagNew = valTypeBag.increase(val.getType());
 
-    return PDBPersistentHashSetMultimap.from(keyTypeBagNew, valTypeBagNew, contentNew);
+    return PersistentHashIndexedBinaryRelation.from(keyTypeBagNew, valTypeBagNew, contentNew);
   }
 
   @Override
@@ -172,7 +172,7 @@ public final class PDBPersistentHashSetMultimap extends AbstractSet {
     final AbstractTypeBag keyTypeBagNew = keyTypeBag.decrease(key.getType());
     final AbstractTypeBag valTypeBagNew = valTypeBag.decrease(val.getType());
 
-    return PDBPersistentHashSetMultimap.from(keyTypeBagNew, valTypeBagNew, contentNew);
+    return PersistentHashIndexedBinaryRelation.from(keyTypeBagNew, valTypeBagNew, contentNew);
   }
 
   @Override
@@ -216,8 +216,8 @@ public final class PDBPersistentHashSetMultimap extends AbstractSet {
     if (other == null)
       return false;
 
-    if (other instanceof PDBPersistentHashSetMultimap) {
-      PDBPersistentHashSetMultimap that = (PDBPersistentHashSetMultimap) other;
+    if (other instanceof PersistentHashIndexedBinaryRelation) {
+      PersistentHashIndexedBinaryRelation that = (PersistentHashIndexedBinaryRelation) other;
 
       if (this.getType() != that.getType())
         return false;
@@ -301,8 +301,8 @@ public final class PDBPersistentHashSetMultimap extends AbstractSet {
     if (other == null)
       return this;
 
-    if (other instanceof PDBPersistentHashSetMultimap) {
-      PDBPersistentHashSetMultimap that = (PDBPersistentHashSetMultimap) other;
+    if (other instanceof PersistentHashIndexedBinaryRelation) {
+      PersistentHashIndexedBinaryRelation that = (PersistentHashIndexedBinaryRelation) other;
 
       final ImmutableSetMultimap<IValue, IValue> one;
       final ImmutableSetMultimap<IValue, IValue> two;
@@ -357,7 +357,7 @@ public final class PDBPersistentHashSetMultimap extends AbstractSet {
       }
 
       if (modified) {
-        return PDBPersistentHashSetMultimap.from(keyTypeBagNew, valTypeBagNew, tmp.freeze());
+        return PersistentHashIndexedBinaryRelation.from(keyTypeBagNew, valTypeBagNew, tmp.freeze());
       }
       return def;
     } else {
@@ -370,10 +370,10 @@ public final class PDBPersistentHashSetMultimap extends AbstractSet {
     if (other == this)
       return this;
     if (other == null)
-      return EMPTY_ISET_SINGLETON;
+      return EMPTY_SET;
 
-    if (other instanceof PDBPersistentHashSetMultimap) {
-      PDBPersistentHashSetMultimap that = (PDBPersistentHashSetMultimap) other;
+    if (other instanceof PersistentHashIndexedBinaryRelation) {
+      PersistentHashIndexedBinaryRelation that = (PersistentHashIndexedBinaryRelation) other;
 
       final ImmutableSetMultimap<IValue, IValue> one;
       final ImmutableSetMultimap<IValue, IValue> two;
@@ -416,9 +416,9 @@ public final class PDBPersistentHashSetMultimap extends AbstractSet {
 
         // canonicalize
         if (contentNew.size() == 0) {
-          return EMPTY_ISET_SINGLETON;
+          return EMPTY_SET;
         } else {
-          return PDBPersistentHashSetMultimap.from(keyTypeBagNew, valTypeBagNew, contentNew);
+          return PersistentHashIndexedBinaryRelation.from(keyTypeBagNew, valTypeBagNew, contentNew);
         }
       }
       return def;
@@ -430,12 +430,12 @@ public final class PDBPersistentHashSetMultimap extends AbstractSet {
   @Override
   public ISet subtract(ISet other) {
     if (other == this)
-      return EMPTY_ISET_SINGLETON;
+      return EMPTY_SET;
     if (other == null)
       return this;
 
-    if (other instanceof PDBPersistentHashSetMultimap) {
-      PDBPersistentHashSetMultimap that = (PDBPersistentHashSetMultimap) other;
+    if (other instanceof PersistentHashIndexedBinaryRelation) {
+      PersistentHashIndexedBinaryRelation that = (PersistentHashIndexedBinaryRelation) other;
 
       final ImmutableSetMultimap<IValue, IValue> one;
       final ImmutableSetMultimap<IValue, IValue> two;
@@ -468,9 +468,9 @@ public final class PDBPersistentHashSetMultimap extends AbstractSet {
 
         // canonicalize
         if (contentNew.size() == 0) {
-          return EMPTY_ISET_SINGLETON;
+          return EMPTY_SET;
         } else {
-          return PDBPersistentHashSetMultimap.from(keyTypeBagNew, valTypeBagNew, contentNew);
+          return PersistentHashIndexedBinaryRelation.from(keyTypeBagNew, valTypeBagNew, contentNew);
         }
       }
       return def;
