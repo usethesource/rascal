@@ -12,6 +12,7 @@
 
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -360,13 +361,21 @@ public class RVMonJVM extends RVMCore {
 
 	public int insnCALLJAVA(Object[] stack, int sp, Frame cf, int m, int c, int p, int k, int reflect) {
 		int newsp = sp;
-		String methodName = ((IString) cf.function.constantStore[m]).getValue();
-		String className = ((IString) cf.function.constantStore[c]).getValue();
 		Type parameterTypes = cf.function.typeConstantStore[p];
 		Type keywordTypes = cf.function.typeConstantStore[k];
 
+		Class<?> clazz = cf.function.getJavaClass();
+		Method method = cf.function.getJavaMethod();
+		if (method == null || clazz == null) {
+		    String methodName = ((IString) cf.function.constantStore[m]).getValue();
+		    String className = ((IString) cf.function.constantStore[c]).getValue();
+		    clazz = getJavaClass(className);
+		    method = getJavaMethod(clazz, methodName, className, parameterTypes, keywordTypes, reflect);
+		    cf.function.setJavaMetaObjects(clazz, method);
+		}
+
 		try {
-			newsp = callJavaMethod(methodName, className, parameterTypes, keywordTypes, reflect, stack, sp);
+			newsp = callJavaMethod(clazz, method, parameterTypes, keywordTypes, reflect, stack, sp);
 		} catch (Throw e) {
 			//stacktrace.add(cf);
 			thrown = Thrown.getInstance(e.getException(), e.getLocation(), cf);
@@ -382,10 +391,10 @@ public class RVMonJVM extends RVMCore {
 		} catch (Exception e) {
 			e.printStackTrace(stderr);
 			stderr.flush();
-			throw new CompilerError("Exception in CALLJAVA: " + className + "." + methodName + "; message: " + e.getMessage() + e.getCause(), cf, e);
+			throw new CompilerError("Exception in CALLJAVA: " + clazz.getName() + "." + method.getName() + "; message: " + e.getMessage() + e.getCause(), cf, e);
 		} catch (Throwable e) {
 			e.printStackTrace();
-			throw new CompilerError("Throwable in CALLJAVA: " + className + "." + methodName + "; message: " + e.getMessage() + e.getCause(), cf, e);
+			throw new CompilerError("Throwable in CALLJAVA: " + clazz.getName() + "." + method.getName() + "; message: " + e.getMessage() + e.getCause(), cf, e);
 		}
 		return newsp;
 	}
