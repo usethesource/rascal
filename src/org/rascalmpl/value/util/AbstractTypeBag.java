@@ -28,7 +28,6 @@ import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap.entryOf;
-import static io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap.mapOf;
 import static io.usethesource.capsule.util.stream.CapsuleCollectors.UNORDERED;
 
 /**
@@ -56,7 +55,7 @@ public abstract class AbstractTypeBag implements Cloneable {
   }
 
   public static AbstractTypeBag of(String label, Type... ts) {
-    return new TypeBag(label, ts);
+    return TypeBag.of(label, ts);
   }
 
   public abstract int size();
@@ -86,17 +85,18 @@ public abstract class AbstractTypeBag implements Cloneable {
       this.cachedLub = cachedLub;
     }
 
-    private TypeBag(Type... ts) {
-      this(null, ts);
+    public static final AbstractTypeBag of(final Type... ts) {
+      return of(null, ts);
     }
 
-    private TypeBag(String label, Type... ts) {
-      this.label = label;
-      this.countMap = mapOf();
+    public static final AbstractTypeBag of(final String label, final Type... ts) {
+      AbstractTypeBag result = new TypeBag(label, DefaultTrieMap.of());
 
       for (Type t : ts) {
-        this.increase(t);
+        result = result.increase(t);
       }
+
+      return result;
     }
 
     @Override

@@ -25,45 +25,65 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.StreamSupport;
 
-import static org.rascalmpl.value.impl.persistent.SetWriter.equivalenceEqualityComparator;
-import static org.rascalmpl.value.impl.persistent.SetWriter.isTupleOfArityTwo;
+import static org.rascalmpl.value.impl.persistent.PDBEmptySetSingleton.EMPTY_ISET_SINGLETON;
+import static org.rascalmpl.value.impl.persistent.SetWriter.*;
+import static org.rascalmpl.value.util.AbstractTypeBag.toTypeBag;
 
 public final class PDBPersistentHashSetMultimap extends AbstractSet {
 
-  public static final PDBPersistentHashSetMultimap EMPTY = new PDBPersistentHashSetMultimap();
+  // public static final PDBPersistentHashSetMultimap EMPTY = PDBPersistentHashSetMultimap.from();
 
   private Type cachedRelationType;
   private final AbstractTypeBag keyTypeBag;
   private final AbstractTypeBag valTypeBag;
   private final ImmutableSetMultimap<IValue, IValue> content;
 
-  public PDBPersistentHashSetMultimap() {
-    this.keyTypeBag = AbstractTypeBag.of();
-    this.valTypeBag = AbstractTypeBag.of();
-    this.content = DefaultTrieSetMultimap.of(equivalenceEqualityComparator);
+  // TODO: make private
+  public static final ISet from(final AbstractTypeBag keyTypeBag, final AbstractTypeBag valTypeBag,
+      final ImmutableSetMultimap<IValue, IValue> content) {
+    if (content.isEmpty()) {
+      return EMPTY_ISET_SINGLETON;
+    } else {
+      return new PDBPersistentHashSetMultimap(keyTypeBag, valTypeBag, content);
+    }
   }
 
-  public PDBPersistentHashSetMultimap(AbstractTypeBag keyTypeBag, AbstractTypeBag valTypeBag,
+  // TODO: enforce that TUPLE is of arity 2
+  PDBPersistentHashSetMultimap(final ITuple firstElement) {
+    this(AbstractTypeBag.of(firstElement.getType().getFieldType(0)),
+        AbstractTypeBag.of(firstElement.getType().getFieldType(1)),
+        DefaultTrieSetMultimap.<IValue, IValue>of(equivalenceEqualityComparator)
+            .__insert(firstElement.get(0), firstElement.get(1)));
+  }
+
+  private PDBPersistentHashSetMultimap(AbstractTypeBag keyTypeBag, AbstractTypeBag valTypeBag,
       ImmutableSetMultimap<IValue, IValue> content) {
     Objects.requireNonNull(keyTypeBag);
     Objects.requireNonNull(content);
 
-    // assert USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(keyTypeBag.lub());
-
-    // final AbstractTypeBag expectedKeyTypeBag =
-    // content.entrySet().stream().map(Map.Entry::getKey).map(IValue::getType).collect(toTypeBag());
-    //
-    // final AbstractTypeBag expectedValTypeBag =
-    // content.entrySet().stream().map(Map.Entry::getValue).map(IValue::getType).collect(toTypeBag());
-    //
-    // boolean keyTypesEqual = expectedKeyTypeBag.equals(keyTypeBag);
-    // boolean valTypesEqual = expectedValTypeBag.equals(valTypeBag);
-    // assert keyTypesEqual;
-    // assert valTypesEqual;
+    assert USE_MULTIMAP_BINARY_RELATIONS
+        && isTupleOfArityTwo.test(getTypeFactory().tupleType(keyTypeBag.lub(), valTypeBag.lub()));
+    assert USE_MULTIMAP_BINARY_RELATIONS && !content.isEmpty();
+    assert USE_MULTIMAP_BINARY_RELATIONS && checkDynamicType(keyTypeBag, valTypeBag, content);
 
     this.keyTypeBag = keyTypeBag;
     this.valTypeBag = valTypeBag;
     this.content = content;
+  }
+
+  private static final boolean checkDynamicType(final AbstractTypeBag keyTypeBag,
+      final AbstractTypeBag valTypeBag, final ImmutableSetMultimap<IValue, IValue> content) {
+
+    final AbstractTypeBag expectedKeyTypeBag = content.entrySet().stream().map(Map.Entry::getKey)
+        .map(IValue::getType).collect(toTypeBag());
+
+    final AbstractTypeBag expectedValTypeBag = content.entrySet().stream().map(Map.Entry::getValue)
+        .map(IValue::getType).collect(toTypeBag());
+
+    boolean keyTypesEqual = expectedKeyTypeBag.equals(keyTypeBag);
+    boolean valTypesEqual = expectedValTypeBag.equals(valTypeBag);
+
+    return keyTypesEqual && valTypesEqual;
   }
 
   // internal use: introspecting backing implementation; TODO: reconsider visibility
@@ -94,8 +114,6 @@ public final class PDBPersistentHashSetMultimap extends AbstractSet {
   @Override
   public Type getType() {
     if (cachedRelationType == null) {
-      // final Type elementType = getTypeFactory().tupleType(keyTypeBag.lub(), valTypeBag.lub());
-      // cachedRelationType = getTypeFactory().relTypeFromTuple(elementType);
       cachedRelationType = getTypeFactory().relType(keyTypeBag.lub(), valTypeBag.lub());
     }
     return cachedRelationType;
@@ -132,7 +150,7 @@ public final class PDBPersistentHashSetMultimap extends AbstractSet {
     final AbstractTypeBag keyTypeBagNew = keyTypeBag.increase(key.getType());
     final AbstractTypeBag valTypeBagNew = valTypeBag.increase(val.getType());
 
-    return new PDBPersistentHashSetMultimap(keyTypeBagNew, valTypeBagNew, contentNew);
+    return PDBPersistentHashSetMultimap.from(keyTypeBagNew, valTypeBagNew, contentNew);
   }
 
   @Override
@@ -154,7 +172,7 @@ public final class PDBPersistentHashSetMultimap extends AbstractSet {
     final AbstractTypeBag keyTypeBagNew = keyTypeBag.decrease(key.getType());
     final AbstractTypeBag valTypeBagNew = valTypeBag.decrease(val.getType());
 
-    return new PDBPersistentHashSetMultimap(keyTypeBagNew, valTypeBagNew, contentNew);
+    return PDBPersistentHashSetMultimap.from(keyTypeBagNew, valTypeBagNew, contentNew);
   }
 
   @Override
@@ -339,7 +357,7 @@ public final class PDBPersistentHashSetMultimap extends AbstractSet {
       }
 
       if (modified) {
-        return new PDBPersistentHashSetMultimap(keyTypeBagNew, valTypeBagNew, tmp.freeze());
+        return PDBPersistentHashSetMultimap.from(keyTypeBagNew, valTypeBagNew, tmp.freeze());
       }
       return def;
     } else {
@@ -352,7 +370,7 @@ public final class PDBPersistentHashSetMultimap extends AbstractSet {
     if (other == this)
       return this;
     if (other == null)
-      return EMPTY;
+      return EMPTY_ISET_SINGLETON;
 
     if (other instanceof PDBPersistentHashSetMultimap) {
       PDBPersistentHashSetMultimap that = (PDBPersistentHashSetMultimap) other;
@@ -394,7 +412,14 @@ public final class PDBPersistentHashSetMultimap extends AbstractSet {
       }
 
       if (modified) {
-        return new PDBPersistentHashSetMultimap(keyTypeBagNew, valTypeBagNew, tmp.freeze());
+        final ImmutableSetMultimap<IValue, IValue> contentNew = tmp.freeze();
+
+        // canonicalize
+        if (contentNew.size() == 0) {
+          return EMPTY_ISET_SINGLETON;
+        } else {
+          return PDBPersistentHashSetMultimap.from(keyTypeBagNew, valTypeBagNew, contentNew);
+        }
       }
       return def;
     } else {
@@ -405,7 +430,7 @@ public final class PDBPersistentHashSetMultimap extends AbstractSet {
   @Override
   public ISet subtract(ISet other) {
     if (other == this)
-      return EMPTY;
+      return EMPTY_ISET_SINGLETON;
     if (other == null)
       return this;
 
@@ -443,9 +468,9 @@ public final class PDBPersistentHashSetMultimap extends AbstractSet {
 
         // canonicalize
         if (contentNew.size() == 0) {
-          return PDBPersistentHashSet.EMPTY;
+          return EMPTY_ISET_SINGLETON;
         } else {
-          return new PDBPersistentHashSetMultimap(keyTypeBagNew, valTypeBagNew, contentNew);
+          return PDBPersistentHashSetMultimap.from(keyTypeBagNew, valTypeBagNew, contentNew);
         }
       }
       return def;
