@@ -40,6 +40,16 @@ public interface IKernel extends IJava2Rascal {
    * @return        The result (RVMProgram) of compiling the given module
    */
   public IConstructor compile(IString qname, IConstructor pcfg, KWcompile kwArgs);
+  
+  /**
+   * Compile a group of Rascal modules
+   * @param moduleRoot   folder to compile all modules from, has to be one of the source roots 
+   *                     in pcfg or a sub-path of one of these
+   * @param pcfg         PathConfig
+   * @param kwArgs       Keyword arguments
+   * @return             A list of RVMPrograms
+   */
+  public IList compileAll(ISourceLocation moduleRoot, IConstructor pcfg, KWcompile kwArgs);
 
   /**
    * Compile a list of Rascal modules
