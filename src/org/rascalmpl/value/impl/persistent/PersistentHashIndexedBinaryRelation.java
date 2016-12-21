@@ -31,8 +31,6 @@ import static org.rascalmpl.value.util.AbstractTypeBag.toTypeBag;
 
 public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
-  // public static final PersistentHashIndexedBinaryRelation EMPTY = PersistentHashIndexedBinaryRelation.from();
-
   private Type cachedRelationType;
   private final AbstractTypeBag keyTypeBag;
   private final AbstractTypeBag valTypeBag;
@@ -48,27 +46,16 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
     }
   }
 
-  // TODO: enforce that TUPLE is of arity 2
-  PersistentHashIndexedBinaryRelation(final ITuple firstElement) {
-    this(AbstractTypeBag.of(firstElement.getType().getFieldType(0)),
-        AbstractTypeBag.of(firstElement.getType().getFieldType(1)),
-        DefaultTrieSetMultimap.<IValue, IValue>of(equivalenceEqualityComparator)
-            .__insert(firstElement.get(0), firstElement.get(1)));
-  }
-
-  private PersistentHashIndexedBinaryRelation(AbstractTypeBag keyTypeBag, AbstractTypeBag valTypeBag,
-                                              ImmutableSetMultimap<IValue, IValue> content) {
-    Objects.requireNonNull(keyTypeBag);
-    Objects.requireNonNull(content);
+  private PersistentHashIndexedBinaryRelation(AbstractTypeBag keyTypeBag,
+      AbstractTypeBag valTypeBag, ImmutableSetMultimap<IValue, IValue> content) {
+    this.keyTypeBag = Objects.requireNonNull(keyTypeBag);
+    this.valTypeBag = Objects.requireNonNull(valTypeBag);
+    this.content = Objects.requireNonNull(content);
 
     assert USE_MULTIMAP_BINARY_RELATIONS
         && isTupleOfArityTwo.test(getTypeFactory().tupleType(keyTypeBag.lub(), valTypeBag.lub()));
     assert USE_MULTIMAP_BINARY_RELATIONS && !content.isEmpty();
     assert USE_MULTIMAP_BINARY_RELATIONS && checkDynamicType(keyTypeBag, valTypeBag, content);
-
-    this.keyTypeBag = keyTypeBag;
-    this.valTypeBag = valTypeBag;
-    this.content = content;
   }
 
   private static final boolean checkDynamicType(final AbstractTypeBag keyTypeBag,
