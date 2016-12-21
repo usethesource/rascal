@@ -161,7 +161,7 @@ final class MapWriter implements IMapWriter {
 	@Override
 	public IMap done() {
 		if (constructedMap == null) {
-			constructedMap = new PDBPersistentHashMap(keyTypeBag, valTypeBag, mapContent.freeze());
+			constructedMap = new PersistentHashMap(keyTypeBag, valTypeBag, mapContent.freeze());
 		}
 
 		return constructedMap;

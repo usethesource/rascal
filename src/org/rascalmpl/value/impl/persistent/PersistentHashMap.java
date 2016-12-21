@@ -27,7 +27,7 @@ import org.rascalmpl.value.util.EqualityUtils;
 import io.usethesource.capsule.api.deprecated.ImmutableMap;
 import io.usethesource.capsule.api.deprecated.TransientMap;
 
-public final class PDBPersistentHashMap extends AbstractMap {
+public final class PersistentHashMap extends AbstractMap {
 		
 	@SuppressWarnings("unchecked")
 	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
@@ -40,8 +40,8 @@ public final class PDBPersistentHashMap extends AbstractMap {
 	/* 
 	 * Passing an pre-calulated map type is only allowed from inside this class.
 	 */
-	protected PDBPersistentHashMap(AbstractTypeBag keyTypeBag,
-			AbstractTypeBag valTypeBag, ImmutableMap<IValue, IValue> content) {
+	protected PersistentHashMap(AbstractTypeBag keyTypeBag,
+                              AbstractTypeBag valTypeBag, ImmutableMap<IValue, IValue> content) {
 		Objects.requireNonNull(content);
 		this.cachedMapType = null;
 		this.keyTypeBag = keyTypeBag;
@@ -99,7 +99,7 @@ public final class PDBPersistentHashMap extends AbstractMap {
 			valBagNew = valTypeBag.increase(value.getType());
 		}
 		
-		return new PDBPersistentHashMap(keyBagNew, valBagNew, contentNew);
+		return new PersistentHashMap(keyBagNew, valBagNew, contentNew);
 	}
 	
 	@Override
@@ -134,8 +134,8 @@ public final class PDBPersistentHashMap extends AbstractMap {
 		if (other == null)
 			return false;
 		
-		if (other instanceof PDBPersistentHashMap) {
-			PDBPersistentHashMap that = (PDBPersistentHashMap) other;
+		if (other instanceof PersistentHashMap) {
+			PersistentHashMap that = (PersistentHashMap) other;
 
 			if (this.size() != that.size())
 				return false;
@@ -221,8 +221,8 @@ public final class PDBPersistentHashMap extends AbstractMap {
 	
 	@Override
 	public IMap join(IMap other) {
-		if (other instanceof PDBPersistentHashMap) {
-			PDBPersistentHashMap that = (PDBPersistentHashMap) other;
+		if (other instanceof PersistentHashMap) {
+			PersistentHashMap that = (PersistentHashMap) other;
 
 			final TransientMap<IValue, IValue> transientContent = content.asTransient();
 
@@ -273,7 +273,7 @@ public final class PDBPersistentHashMap extends AbstractMap {
 			}
 
 			if (isModified) {
-				return new PDBPersistentHashMap(keyBagNew, valBagNew, transientContent.freeze());
+				return new PersistentHashMap(keyBagNew, valBagNew, transientContent.freeze());
 			} else {
 				return this;
 			}

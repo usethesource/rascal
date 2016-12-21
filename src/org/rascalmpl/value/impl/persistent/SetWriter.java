@@ -30,7 +30,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-import static org.rascalmpl.value.impl.persistent.PDBEmptySetSingleton.EMPTY_ISET_SINGLETON;
+import static org.rascalmpl.value.impl.persistent.EmptySet.EMPTY_SET;
 
 /*
  * TODO: visibility is currently public to allow set-multimap experiments. Must be set back to
@@ -125,7 +125,7 @@ public class SetWriter implements ISetWriter {
     final Stream<IValue> dataStream = dataStreamBuilder.build();
 
     if (leastUpperBound == TypeFactory.getInstance().voidType()) {
-      constructedSet = EMPTY_ISET_SINGLETON;
+      constructedSet = EMPTY_SET;
       return constructedSet;
     }
 
@@ -143,7 +143,7 @@ public class SetWriter implements ISetWriter {
 //      final ImmutableSetMultimap<IValue, IValue> data = dataStream.map(asInstanceOf(ITuple.class))
 //          .collect(CapsuleCollectors.toSetMultimap(tuple -> tuple.get(0), tuple -> tuple.get(1)));
 //
-//      constructedSet = new PDBPersistentHashSetMultimap(keyTypeBag, valTypeBag, data);
+//      constructedSet = new PersistentHashIndexedBinaryRelation(keyTypeBag, valTypeBag, data);
 //      return constructedSet;
 
       constructedSet = dataStream.map(asInstanceOf(ITuple.class))
@@ -156,7 +156,7 @@ public class SetWriter implements ISetWriter {
 //      final AbstractTypeBag elementTypeBag = typeStream.collect(toTypeBag());
 //      final ImmutableSet<IValue> data = dataStream.collect(CapsuleCollectors.toSet());
 //
-//      constructedSet = new PDBPersistentHashSet(elementTypeBag, data);
+//      constructedSet = new PersistentHashSet(elementTypeBag, data);
 //      return constructedSet;
 
       constructedSet = dataStream.collect(ValueCollectors.toSet());

@@ -21,21 +21,21 @@ import java.util.Iterator;
 
 import static org.rascalmpl.value.impl.persistent.SetWriter.isTupleOfArityTwo;
 
-public final class PDBEmptySetSingleton extends AbstractSet {
+public final class EmptySet extends AbstractSet {
 
-  public static final PDBEmptySetSingleton EMPTY_ISET_SINGLETON = new PDBEmptySetSingleton();
+  public static final EmptySet EMPTY_SET = new EmptySet();
 
-  private PDBEmptySetSingleton() {}
+  private EmptySet() {}
 
   public static final ISet of() {
-    return EMPTY_ISET_SINGLETON;
+    return EMPTY_SET;
   }
 
   public static final ISet of(final IValue firstElement) {
     if (isTupleOfArityTwo.test(firstElement.getType())) {
-      return new PDBPersistentHashSetMultimap((ITuple) firstElement);
+      return new PersistentHashIndexedBinaryRelation((ITuple) firstElement);
     } else {
-      return new PDBPersistentHashSet(firstElement);
+      return new PersistentHashSet(firstElement);
     }
   }
 
