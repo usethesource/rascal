@@ -46,7 +46,7 @@ default tuple[MuExp,list[MuFunction]] makeBoolExp(str operator, str fuid, list[M
             	                    [ muCallMuPrim("make_array",[ { str gen_uid = "<fuid>/LAZY_EVAL_GEN_<nextLabel()>(0)";
                 	                                                tuple[MuExp e,list[MuFunction] functions] res = makeMultiValuedBoolExp(exp,fuid, loc src);
                     	                                            functions = functions + res.functions;
-                        	                                        functions += muFunction(gen_uid, Symbol::\func(Symbol::\value(),[]), fuid, 0, 0, false, false, false, src, [], (), false, 0, 0, muReturn(res.e.exp));
+                        	                                        functions += muFunction(gen_uid, Symbol::\func(Symbol::\value(), [], []), fuid, 0, 0, false, false, false, src, [], (), false, 0, 0, muReturn(res.e.exp));
                             	                                    muFun2(gen_uid,fuid);
                                 	                              } | MuExp exp <- exps ]) ])),
                 	functions>;
