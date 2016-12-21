@@ -32,8 +32,6 @@ import static org.rascalmpl.value.util.AbstractTypeBag.toTypeBag;
 
 public final class PersistentHashSet extends AbstractSet {
 
-  // public static final PersistentHashSet EMPTY = new PersistentHashSet();
-
   private Type cachedSetType;
   private final AbstractTypeBag elementTypeBag;
   private final ImmutableSet<IValue> content;
@@ -48,13 +46,9 @@ public final class PersistentHashSet extends AbstractSet {
     }
   }
 
-  PersistentHashSet(final IValue firstElement) {
-    this(AbstractTypeBag.of(firstElement.getType()), DefaultTrieSet.of(firstElement));
-  }
-
   private PersistentHashSet(AbstractTypeBag elementTypeBag, ImmutableSet<IValue> content) {
-    Objects.requireNonNull(elementTypeBag);
-    Objects.requireNonNull(content);
+    this.elementTypeBag = Objects.requireNonNull(elementTypeBag);
+    this.content = Objects.requireNonNull(content);
 
     assert checkDynamicType(elementTypeBag, content);
     assert !(elementTypeBag.lub() == getTypeFactory().voidType() || content.isEmpty());
@@ -72,8 +66,8 @@ public final class PersistentHashSet extends AbstractSet {
     // this.elementTypeBag = elementTypeBag;
     // this.content = DefaultTrieSet.of();
     // } else {
-    this.elementTypeBag = elementTypeBag;
-    this.content = content;
+//    this.elementTypeBag = Objects.requireNonNull(elementTypeBag);
+//    this.content = Objects.requireNonNull(content);
     // }
 
     /*
