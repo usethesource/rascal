@@ -21,9 +21,9 @@ map[int,Color] statusColor = (
 	2 : rgb(255,192,96),
 	3 : rgb(255,96,96)
 	);
-	
+	 
 public void visDepsFromTr(Transaction tr) {
-	visDependencies(getDependencyGraph(tr));
+	visDepsFromGraph(getDependencyGraph(tr));
 }
 
 public void visDepsFromGraph(tuple[rel[str,str,str,int],rel[str,str,str]] g) {
