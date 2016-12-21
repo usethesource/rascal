@@ -71,7 +71,6 @@ public class WindowCacheFactory {
 	        synchronized (references) {
 	            Object cleared;
 	            while ((cleared = references.poll()) != null) {
-	                System.err.println("Clearing: " + cleared);
 	                dequeue.removeLastOccurrence(cleared);
 	            }
             }
@@ -172,7 +171,6 @@ public class WindowCacheFactory {
             if (result != null) {
                 return result;
             }
-            System.err.println("A reference was cleared!");
         }
         return constructNew.apply(size);
     }
@@ -201,7 +199,6 @@ public class WindowCacheFactory {
                     while (it.hasNext()) {
                         LastUsedTracker<T> current = it.next();
                         if (current.clearIfOlderThan(cleanBefore)) {
-                            System.err.println("Removing old one");
                             it.remove();
                         }
                         else {
