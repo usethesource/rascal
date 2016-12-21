@@ -25,6 +25,7 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * Option values can have the foloowing types;
@@ -496,7 +497,7 @@ public class CommandOptions {
 	 */
 	ISourceLocation convertLoc(String loc){
 		if(loc.startsWith("|") && loc.endsWith("|")){
-			TypeStore store = new TypeStore();
+			TypeStore store = new TypeStore(RascalValueFactory.getStore());
 			Type start = TypeFactory.getInstance().sourceLocationType();
 
 			try (StringReader in = new StringReader(loc)) {
