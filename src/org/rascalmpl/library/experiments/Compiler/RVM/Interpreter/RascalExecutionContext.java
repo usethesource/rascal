@@ -33,6 +33,7 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -137,7 +138,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	  
 	  this.moduleTags = moduleTags;
 	  this.symbol_definitions = symbol_definitions == null ? vf.mapWriter().done() : symbol_definitions;
-	  this.typeStore = typeStore == null ? /*RascalValueFactory.getStore()*/ new TypeStore() : typeStore;
+	  this.typeStore = typeStore == null ? new TypeStore(RascalValueFactory.getStore()) /*new TypeStore()*/ : typeStore;
 	  this.debug = debug;
 	  this.debugRVM = debugRVM;
 	  this.testsuite = testsuite;

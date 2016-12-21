@@ -878,18 +878,19 @@ public class CodeBlock implements Serializable {
 	
 	public void write(IWireOutputStream out) throws IOException{ 
 	    
+	    TypeStore ts = new TypeStore(RascalValueFactory.getStore());
 	    out.startMessage(CompilerIDs.CodeBlock.ID);
 
         out.writeField(CompilerIDs.CodeBlock.NAME, name);
 
         out.writeRepeatedNestedField(CompilerIDs.CodeBlock.FINAL_CONSTANT_STORE, finalConstantStore.length);
         for(IValue constant : finalConstantStore){
-            IValueWriter.write(out, new TypeStore(), WindowSizes.TINY_WINDOW, constant); 
+            IValueWriter.write(out, ts, WindowSizes.TINY_WINDOW, constant); 
         }
         
         out.writeRepeatedNestedField(CompilerIDs.CodeBlock.FINAL_TYPECONSTANT_STORE, finalTypeConstantStore.length);
         for(Type type : finalTypeConstantStore){
-            IValueWriter.write(out, new TypeStore(), WindowSizes.TINY_WINDOW, type); 
+            IValueWriter.write(out, ts, WindowSizes.TINY_WINDOW, type); 
         }
         
         out.writeField(CompilerIDs.CodeBlock.FUNCTION_MAP, functionMap);
@@ -904,6 +905,7 @@ public class CodeBlock implements Serializable {
 	}
 
     public static CodeBlock read(IWireInputStream in, IValueFactory vf, TypeStore ts) throws IOException {
+        System.err.println("Reading CodeBlock");
         String name = "unitialized name";
         
         Map<IValue, Integer> constantMap = new HashMap<>();

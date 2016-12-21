@@ -375,7 +375,7 @@ public class RVMExecutable implements Serializable{
 	
 	
 	public void newWrite(ISourceLocation rvmExecutable, int compressionLevel) throws IOException {
-	    TypeStore typeStore = RascalValueFactory.getStore();
+	    TypeStore typeStore = new TypeStore(RascalValueFactory.getStore());
 	    try(OutputStream out = URIResolverRegistry.getInstance().getOutputStream(rvmExecutable, false)){
 	        out.write(EXEC_HEADER);
 	        out.write(EXEC_VERSION);
@@ -488,6 +488,9 @@ public class RVMExecutable implements Serializable{
 	}
 	
 	private static RVMExecutable read(IWireInputStream in, TypeStore ts, IValueFactory vf) throws IOException {
+	    
+	    System.err.println("Reading Executable");
+	    
 	    // Serializable fields
 
 	    ISet errors = vf.set();
