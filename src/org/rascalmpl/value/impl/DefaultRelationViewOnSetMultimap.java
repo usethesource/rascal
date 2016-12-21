@@ -8,8 +8,8 @@ import io.usethesource.capsule.util.stream.CapsuleCollectors;
 import org.rascalmpl.value.*;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.impl.func.SetFunctions;
-import org.rascalmpl.value.impl.persistent.PDBPersistentHashSet;
-import org.rascalmpl.value.impl.persistent.PDBPersistentHashSetMultimap;
+import org.rascalmpl.value.impl.persistent.PersistentHashIndexedBinaryRelation;
+import org.rascalmpl.value.impl.persistent.PersistentHashSet;
 import org.rascalmpl.value.impl.persistent.ValueCollectors;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
@@ -21,7 +21,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static io.usethesource.capsule.util.ArrayUtilsInt.arrayOfInt;
-import static org.rascalmpl.value.impl.persistent.PDBEmptySetSingleton.EMPTY_ISET_SINGLETON;
+import static org.rascalmpl.value.impl.persistent.EmptySet.EMPTY_SET;
 import static org.rascalmpl.value.impl.persistent.SetWriter.USE_MULTIMAP_BINARY_RELATIONS;
 import static org.rascalmpl.value.impl.persistent.SetWriter.isTupleOfArityTwo;
 import static org.rascalmpl.value.util.AbstractTypeBag.toTypeBag;
@@ -31,7 +31,7 @@ public class DefaultRelationViewOnSetMultimap implements ISetRelation<ISet> {
   private final static TypeFactory TF = TypeFactory.getInstance();
 
   protected final IValueFactory vf;
-  protected final PDBPersistentHashSetMultimap rel1;
+  protected final PersistentHashIndexedBinaryRelation rel1;
 
   private void validateSetMultimap(ISet... sets) {
     if (!isSetMultimap(sets)) {
@@ -41,23 +41,23 @@ public class DefaultRelationViewOnSetMultimap implements ISetRelation<ISet> {
 
   private boolean isSetMultimap(ISet... sets) {
     boolean conditionHolds =
-        Arrays.stream(sets).allMatch(set -> set instanceof PDBPersistentHashSetMultimap);
+        Arrays.stream(sets).allMatch(set -> set instanceof PersistentHashIndexedBinaryRelation);
 
     return conditionHolds;
   }
 
   private ImmutableSetMultimap<IValue, IValue> extractSetMultimap(ISet set) {
     validateSetMultimap(set);
-    return ((PDBPersistentHashSetMultimap) set).getContent();
+    return ((PersistentHashIndexedBinaryRelation) set).getContent();
   }
 
   // private AbstractTypeBag extractTypeBag(ISet set) {
   // validateSetMultimap(set);
-  // return ((PDBPersistentHashSetMultimap) set).getElementTypeBag();
+  // return ((PersistentHashIndexedBinaryRelation) set).getElementTypeBag();
   // }
 
   public DefaultRelationViewOnSetMultimap(final IValueFactory vf,
-      final PDBPersistentHashSetMultimap rel1) {
+      final PersistentHashIndexedBinaryRelation rel1) {
     this.vf = vf;
     this.rel1 = rel1;
   }
@@ -126,10 +126,10 @@ public class DefaultRelationViewOnSetMultimap implements ISetRelation<ISet> {
 
     // canonicalize
     if (data.size() == 0) {
-      return EMPTY_ISET_SINGLETON;
+      return EMPTY_SET;
     } else {
       /** TODO does not take into account {@link IValueFactory} */
-      return PDBPersistentHashSetMultimap.from(keyTypeBag, valTypeBag, data);
+      return PersistentHashIndexedBinaryRelation.from(keyTypeBag, valTypeBag, data);
     }
   }
 
@@ -209,7 +209,7 @@ public class DefaultRelationViewOnSetMultimap implements ISetRelation<ISet> {
       return w.done();
     } else {
       /** TODO does not take into account {@link IValueFactory} */
-      return PDBPersistentHashSet.from(columnElementTypeBag, columnData);
+      return PersistentHashSet.from(columnElementTypeBag, columnData);
     }
 
     // return SetFunctions.domain(vf, rel1);
@@ -241,7 +241,7 @@ public class DefaultRelationViewOnSetMultimap implements ISetRelation<ISet> {
     // return w.done();
     // } else {
     // /** TODO does not take into account {@link IValueFactory} */
-    // return new PDBPersistentHashSet(columnElementTypeBag, columnData);
+    // return new PersistentHashSet(columnElementTypeBag, columnData);
     // }
 
     // return SetFunctions.range(vf, rel1);
