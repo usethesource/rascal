@@ -37,8 +37,8 @@ import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.io.binary.stream.IValueInputStream;
-import org.rascalmpl.value.io.binary.util.LinearCircularLookupWindow;
 import org.rascalmpl.value.io.binary.util.TrackLastRead;
+import org.rascalmpl.value.io.binary.util.WindowCacheFactory;
 import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
@@ -73,7 +73,18 @@ public class IValueReader {
                 case IValueIDs.Header.SOURCE_LOCATION_WINDOW: uriWindowSize = reader.getInteger();  break;
             }
         }
-        return readValue(reader, vf, ts, getWindow(typeWindowSize), getWindow(valueWindowSize), getWindow(uriWindowSize));
+
+        final WindowCacheFactory windowFactory = WindowCacheFactory.getInstance();
+        TrackLastRead<Type> typeCache = windowFactory.getTrackLastRead(typeWindowSize);
+        TrackLastRead<IValue> valueCache = windowFactory.getTrackLastRead(valueWindowSize);
+        TrackLastRead<ISourceLocation> uriCache = windowFactory.getTrackLastRead(uriWindowSize);
+        try {
+            return readValue(reader, vf, ts, typeCache, valueCache, uriCache);
+        } finally {
+            windowFactory.returnTrackLastRead(typeCache);
+            windowFactory.returnTrackLastRead(valueCache);
+            windowFactory.returnTrackLastRead(uriCache);
+        }
     }
 
     /**
@@ -93,26 +104,19 @@ public class IValueReader {
                 case IValueIDs.Header.SOURCE_LOCATION_WINDOW: uriWindowSize = reader.getInteger();  break;
             }
         }
-        return readType(reader, vf, ts, getWindow(typeWindowSize), getWindow(valueWindowSize), getWindow(uriWindowSize));
+        final WindowCacheFactory windowFactory = WindowCacheFactory.getInstance();
+        TrackLastRead<Type> typeCache = windowFactory.getTrackLastRead(typeWindowSize);
+        TrackLastRead<IValue> valueCache = windowFactory.getTrackLastRead(valueWindowSize);
+        TrackLastRead<ISourceLocation> uriCache = windowFactory.getTrackLastRead(uriWindowSize);
+        try {
+            return readType(reader, vf, ts, typeCache, valueCache, uriCache);
+        } finally {
+            windowFactory.returnTrackLastRead(typeCache);
+            windowFactory.returnTrackLastRead(valueCache);
+            windowFactory.returnTrackLastRead(uriCache);
+        }
     }
     
-
-    private static <T> TrackLastRead<T> getWindow(int size) {
-        if (size == 0) {
-            return new TrackLastRead<T>() {
-                @Override
-                public void read(T obj) {
-                }
-
-                @Override
-                public T lookBack(int elements) {
-                    throw new IllegalArgumentException();
-                }
-                
-            };
-        }
-        return new LinearCircularLookupWindow<>(size);
-    }
     
     private static IValue readValue(final IWireInputStream reader, final IValueFactory vf, final TypeStore store, TrackLastRead<Type> typeWindow, TrackLastRead<IValue> valueWindow, TrackLastRead<ISourceLocation> uriWindow) throws IOException{
 

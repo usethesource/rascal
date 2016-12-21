@@ -12,43 +12,35 @@
  */ 
 package org.rascalmpl.value.io.binary.util;
 
-import java.util.Arrays;
+public class ArrayUtil {
 
-public class LinearCircularLookupWindow<T> implements TrackLastRead<T>, ClearableWindow {
-    private final T[] data;
-    private long written;
+    // source: http://stackoverflow.com/a/25508988/11098
+    // based on: "Java server performance: A case study of building efficient, scalable Jvms" by R. Dimpsey, R. Arora, K. Kuiper.
+    // in general, starts at the beginnning and then grows exponentially in the System.arrayCopy size chunks.
+    // it is faster due to the memcopy that will be used underneath.
+    // it taks log2(data.length) calls to arrayCopy instead of a data.length loop in java
+    public static <T> void fill(T[] array, T value) {
+        int len = array.length;
 
-    @SuppressWarnings("unchecked")
-    public LinearCircularLookupWindow(int size) {
-        data = (T[]) new Object[size];
-        written = 0;
-    }
-    
-    private int translate(long index) {
-        return (int) (index % data.length);
-    }
-    
-    
-    @Override
-    public T lookBack(int offset) {
-        assert offset + 1 <= written;
-        return data[translate(written - (offset + 1))];
-        
-    }
-    
-    @Override
-    public void read(T obj) {
-        data[translate(written++)] = obj;
+        if (len > 0){
+          array[0] = value;
+        }
+
+        for (int i = 1; i < len; i += i) {
+          System.arraycopy(array, 0, array, i, ((len - i) < i) ? (len - i) : i);
+        }
     }
 
-    @Override
-    public int size() {
-        return data.length;
-    }
+    public static <T> void fill(int[] array, int value) {
+        int len = array.length;
 
-    @Override
-    public void clear() {
-        ArrayUtil.fill(data, null);
+        if (len > 0){
+          array[0] = value;
+        }
+
+        for (int i = 1; i < len; i += i) {
+          System.arraycopy(array, 0, array, i, ((len - i) < i) ? (len - i) : i);
+        }
     }
 
 }
