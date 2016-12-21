@@ -16,16 +16,11 @@ private set[Declaration] getData() {
     return allData;
 }       
 
-value main(list[value] args){
-    model = createM3EclipseProject(project);
-    return classes(model);
-}
-
 void methodsPerClass(M3 model){
     for(c <- classes(model)){
         println("<c>: <size(methods(model, c))>");
     }
-}
+} 
 
 int numberOfClasses(M3 model) = size(classes(model));
 
@@ -67,7 +62,7 @@ set[loc] ifNesting(set[Declaration] decls, int limit){
                     results += m@src;
         case c: \constructor(_, _,_, Statement impl):
                 if(countIfNesting(impl) > limit)
-                    results += m@src;
+                    results += c@src;
     }
     return results;
 }
