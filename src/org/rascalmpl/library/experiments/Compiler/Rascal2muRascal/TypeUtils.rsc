@@ -1002,17 +1002,17 @@ str getField(Symbol::label(l, t)) = "<t> <l>";
 default str getField(Symbol t) = "<t>";
 
 str getFUID(str fname, Symbol \type, int case_num) =
-  "<fname>(<for(p<-\type.parameters){><p>;<}>)#<case_num>";
+  "<fname>(<for(p<-\type.parameters?[]){><p>;<}>)#<case_num>";
   	
 str getFUID(str modName, str fname, Symbol \type, int case_num) = 
-	"<modName>/<fname>(<for(p<-\type.parameters){><p>;<}>)#<case_num>";
+	"<modName>/<fname>(<for(p<-\type.parameters?[]){><p>;<}>)#<case_num>";
 
 // NOTE: was "<\type.\adt>::<cname>(<for(label(l,t)<-tparams){><t> <l>;<}>)"; but that did not cater for unlabeled fields
-str getCUID(str cname, Symbol \type) = "<\type.\adt>::<cname>(<for(p<-\type.parameters){><getField(p)>;<}>)";
-str getCUID(str modName, str cname, Symbol \type) = "<modName>/<\type.\adt>::<cname>(<for(p <-\type.parameters){><getField(p)>;<}>)";
+str getCUID(str cname, Symbol \type) = "<\type.\adt>::<cname>(<for(p<-\type.parameters?[]){><getField(p)>;<}>)";
+str getCUID(str modName, str cname, Symbol \type) = "<modName>/<\type.\adt>::<cname>(<for(p <-\type.parameters?[]){><getField(p)>;<}>)";
 
-str getPUID(str pname, Symbol \type) = "<\type.\sort>::<pname>(<for(p <-\type.parameters){><getField(p)>;<}>)";
-str getPUID(str modName, str pname, Symbol \type) = "<modName>/<\type.\sort>::<pname>(<for(p <-\type.parameters){><getField(p)>;<}>)";
+str getPUID(str pname, Symbol \type) = "<\type.\sort>::<pname>(<for(p <-\type.parameters?[]){><getField(p)>;<}>)";
+str getPUID(str modName, str pname, Symbol \type) = "<modName>/<\type.\sort>::<pname>(<for(p <-\type.parameters?[]){><getField(p)>;<}>)";
 
 
 @doc{Generates a unique scope id: non-empty 'funNames' list implies a nested function}
@@ -1382,7 +1382,7 @@ Symbol translateType(t : (TypeArg) `<Type tp> <Name name>`)
 												= \label(getSimpleName(convertName(name)), translateType(tp));
 
 Symbol translateType(t: (FunctionType) `<Type tp> (<{TypeArg ","}* args>)`) 
-												= \func(translateType(tp), [ translateType(arg) | arg <- args], []);
+												= Symbol::\func(translateType(tp), [ translateType(arg) | arg <- args], []);
 									
 Symbol translateType(t: (UserType) `<QualifiedName name>`) {
 	// look up the name in the type environment
