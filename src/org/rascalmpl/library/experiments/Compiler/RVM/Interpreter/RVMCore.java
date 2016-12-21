@@ -58,6 +58,9 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+
 public abstract class RVMCore {
 	public final IValueFactory vf;
 
@@ -1072,13 +1075,71 @@ public abstract class RVMCore {
 		} 
 	}
 	
+	private final static class MethodSignature {
+
+        private final Class<?> clazz;
+        private final String methodName;
+        private final String className;
+        private final Type parameterTypes;
+        private final Type keywordTypes;
+        private final int reflect;
+        private final int hash;
+
+        public MethodSignature(Class<?> clazz, String methodName, String className, Type parameterTypes,
+            Type keywordTypes, int reflect) {
+            this.clazz = clazz;
+            this.methodName = methodName;
+            this.className = className;
+            this.parameterTypes = parameterTypes;
+            this.keywordTypes = keywordTypes;
+            this.reflect = reflect;
+            this.hash = clazz.hashCode() * 7
+                + methodName.hashCode() * 13
+                + (parameterTypes == null ? 43 : parameterTypes.hashCode() * 17)
+                + (keywordTypes == null ? 42 : keywordTypes.hashCode() * 23)
+                + reflect;
+        }
+
+        public Method getMethod() {
+            try {
+                return clazz.getMethod(methodName, makeJavaTypes(methodName, className, parameterTypes, keywordTypes, reflect));
+            }
+            catch (NoSuchMethodException | SecurityException e) {
+                throw new CompilerError("could not find Java method", e);
+            }
+        }
+        
+        @Override
+        public boolean equals(Object obj) {
+            if (obj instanceof MethodSignature) {
+                MethodSignature other = (MethodSignature)obj; 
+                return other.clazz == clazz
+                    && other.parameterTypes == parameterTypes
+                    && other.keywordTypes == keywordTypes
+                    && other.reflect == reflect
+                    && other.methodName.equals(methodName)
+                    ;
+            }
+            return false;
+        }
+        
+        @Override
+        public int hashCode() {
+            return hash;
+        }
+	}
+	private static final  Cache<MethodSignature, Method> methodCache = Caffeine.newBuilder()
+	    .maximumSize(2000)
+	    .build();
+	
 	int callJavaMethod(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect, Object[] stack, int sp) throws Throw, Throwable {
 		Class<?> clazz = null;
 		try {
 			clazz = getJavaClass(className);
 			Object instance = getJavaClassInstance(clazz);
 			
-			Method m = clazz.getMethod(methodName, makeJavaTypes(methodName, className, parameterTypes, keywordTypes, reflect));
+			MethodSignature sig = new MethodSignature(clazz, methodName, className, parameterTypes, keywordTypes, reflect);
+			Method m = methodCache.get(sig, s -> s.getMethod());
 			int arity = parameterTypes.getArity();
 			int kwArity = keywordTypes.getArity();
 			int kwMaps = kwArity > 0 ? 2 : 0;
@@ -1109,7 +1170,7 @@ public abstract class RVMCore {
 			stack[sp - arity - kwMaps] =  m.invoke(instance, parameters);
 			return sp - arity - kwMaps + 1;
 		} 
-		catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException e) {
+		catch (SecurityException | IllegalAccessException | IllegalArgumentException e) {
 			throw new CompilerError("could not call Java method", e);
 		} 
 		catch (InvocationTargetException e) {
@@ -1125,7 +1186,7 @@ public abstract class RVMCore {
 	}
 	
 	// Reflective methods where the CTX arguments has already been replaced by a REX argument
-	private HashSet<String> converted = new HashSet<String>(Arrays.asList(
+	private static HashSet<String> converted = new HashSet<String>(Arrays.asList(
 			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ParsingTools.parseFragment",
 			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram.executeProgram",
 			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.startCoverage",
@@ -1220,7 +1281,7 @@ public abstract class RVMCore {
 			 */
 	));
 			
-	Class<?>[] makeJavaTypes(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect){
+	private static Class<?>[] makeJavaTypes(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect){
 		JavaClasses javaClasses = new JavaClasses();
 		int arity = parameterTypes.getArity();
 		int kwArity = keywordTypes.getArity();
