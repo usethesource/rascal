@@ -416,10 +416,10 @@ public class Function implements Serializable {
         out.writeField(CompilerIDs.Function.NAME, name);
 
         out.writeNestedField(CompilerIDs.Function.FTYPE);
-        IValueWriter.write(out, ts, WindowSizes.TINY_WINDOW, ftype);
+        IValueWriter.write(out, WindowSizes.TINY_WINDOW, ftype);
         
         out.writeNestedField(CompilerIDs.Function.KWTYPE);
-        IValueWriter.write(out, ts, WindowSizes.TINY_WINDOW, kwType);
+        IValueWriter.write(out, WindowSizes.TINY_WINDOW, kwType);
 
         out.writeField(CompilerIDs.Function.SCOPE_ID, scopeId);
 
@@ -441,7 +441,7 @@ public class Function implements Serializable {
         
         if(tags != null){
             out.writeNestedField(CompilerIDs.Function.TAGS);
-            IValueWriter.write(out, ts, WindowSizes.SMALL_WINDOW, tags);
+            IValueWriter.write(out, WindowSizes.SMALL_WINDOW, tags);
         }
 
         out.writeField(CompilerIDs.Function.MAX_STACK, maxstack);
@@ -451,12 +451,12 @@ public class Function implements Serializable {
 
         out.writeRepeatedNestedField(CompilerIDs.Function.CONSTANT_STORE, constantStore.length);
         for(IValue constant : constantStore){
-            IValueWriter.write(out, ts, WindowSizes.estimateWindowSize(constant), constant);
+            IValueWriter.write(out, WindowSizes.estimateWindowSize(constant), constant);
         }
 
         out.writeRepeatedNestedField(CompilerIDs.Function.TYPE_CONSTANT_STORE, typeConstantStore.length);
         for(Type type : typeConstantStore){
-            IValueWriter.write(out, ts, WindowSizes.TINY_WINDOW, type); 
+            IValueWriter.write(out, WindowSizes.TINY_WINDOW, type); 
         }
 
         if(concreteArg){
@@ -492,10 +492,10 @@ public class Function implements Serializable {
         }
 
         out.writeNestedField(CompilerIDs.Function.SRC);
-        IValueWriter.write(out, ts, WindowSizes.NO_WINDOW, src);
+        IValueWriter.write(out, WindowSizes.NO_WINDOW, src);
         
         out.writeNestedField(CompilerIDs.Function.LOCAL_NAMES);
-        IValueWriter.write(out,ts, WindowSizes.SMALL_WINDOW, localNames);
+        IValueWriter.write(out,WindowSizes.SMALL_WINDOW, localNames);
 
         out.writeField(CompilerIDs.Function.CONTINUATION_POINTS, continuationPoints);
         

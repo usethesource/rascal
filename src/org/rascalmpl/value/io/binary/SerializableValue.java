@@ -60,7 +60,7 @@ public class SerializableValue<T extends IValue> implements Serializable {
 		out.write(factoryName.getBytes("UTF8"));
 		out.write(':');
 		ByteArrayOutputStream bytesStream = new ByteArrayOutputStream();
-		try (IValueOutputStream writer = new IValueOutputStream(bytesStream, store, CompressionRate.Normal)) {
+		try (IValueOutputStream writer = new IValueOutputStream(bytesStream, CompressionRate.Normal)) {
 		    writer.write(value);
 		}
 		byte[] bytes = bytesStream.toByteArray();

@@ -362,7 +362,7 @@ public class OverloadedFunction implements Serializable {
         out.writeField(CompilerIDs.OverloadedFunction.NAME, name);
 
         out.writeNestedField(CompilerIDs.OverloadedFunction.FUN_TYPE);
-        IValueWriter.write(out, ts, WindowSizes.TINY_WINDOW, funType);
+        IValueWriter.write(out, WindowSizes.TINY_WINDOW, funType);
         
         out.writeField(CompilerIDs.OverloadedFunction.FUNCTIONS, functions);
         

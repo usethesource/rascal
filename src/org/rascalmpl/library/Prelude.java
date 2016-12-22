@@ -39,7 +39,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -3463,9 +3462,7 @@ public class Prelude {
 
     public void writeBinaryValueFile(ISourceLocation loc, IValue value, IBool compression){
         // TODO: transient for boot
-		TypeStore store = new TypeStore();
-		store.extendStore(RascalValueFactory.getStore());
-		try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), store, CompressionRate.Light)) {
+		try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), CompressionRate.Light)) {
 		    writer.write(value);
 		}
 		catch (IOException ioex){
@@ -3475,10 +3472,7 @@ public class Prelude {
 	
     public void writeBinaryValueFile(ISourceLocation loc, IValue value){
         if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
-        TypeStore store = new TypeStore();
-        // TODO: need to fill the store correctly!
-        store.extendStore(RascalValueFactory.getStore());
-        try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), store, CompressionRate.Normal)) {
+        try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), CompressionRate.Normal)) {
             writer.write(value);
         }
         catch (IOException ioex){
@@ -3488,10 +3482,7 @@ public class Prelude {
     
     public void writeBinaryValueFile(ISourceLocation loc, IValue value, IConstructor compression){
     	if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
-		TypeStore store = new TypeStore();
-		// TODO: need to fill the store correctly!
-		store.extendStore(RascalValueFactory.getStore());
-		try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), store, translateCompression(compression))) {
+		try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), translateCompression(compression))) {
 		    writer.write(value);
 		}
 		catch (IOException ioex){
