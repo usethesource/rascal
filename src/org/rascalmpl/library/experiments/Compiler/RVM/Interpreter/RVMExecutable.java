@@ -401,7 +401,7 @@ public class RVMExecutable implements Serializable{
         out.writeField(CompilerIDs.Executable.RASCAL_COMPILER_VERSION, VersionInfo.RASCAL_COMPILER_VERSION);
         
         out.writeNestedField(CompilerIDs.Executable.ERRORS);
-        IValueWriter.write(out, WindowSizes.TINY_WINDOW, getErrors());
+        IValueWriter.write(out, WindowSizes.SMALL_WINDOW, getErrors());
                   
         if(!isValid()){
             return;
@@ -410,7 +410,7 @@ public class RVMExecutable implements Serializable{
         out.writeField(CompilerIDs.Executable.MODULE_NAME, getModuleName());
 
         out.writeNestedField(CompilerIDs.Executable.MODULE_TAGS);
-        IValueWriter.write(out, WindowSizes.TINY_WINDOW, getModuleTags());
+        IValueWriter.write(out, WindowSizes.SMALL_WINDOW, getModuleTags());
 
         out.writeNestedField(CompilerIDs.Executable.SYMBOL_DEFINITIONS);
         IValueWriter.write(out, WindowSizes.NORMAL_WINDOW, getSymbolDefinitions());
@@ -433,16 +433,18 @@ public class RVMExecutable implements Serializable{
         }
 
         out.writeField(CompilerIDs.Executable.RESOLVER, getResolver());
-
-        String[] initializers = new String[getInitializers().size()];
         
-        out.writeField(CompilerIDs.Executable.INITIALIZERS, getInitializers().toArray(initializers));
+        out.writeField(CompilerIDs.Executable.INITIALIZERS, 
+            getInitializers().toArray(new String[getInitializers().size()]));
 
         out.writeField(CompilerIDs.Executable.UID_MODULE_INIT, getUidModuleInit());
 
         out.writeField(CompilerIDs.Executable.UID_MODULE_MAIN, getUidModuleMain());
         
+        System.err.println("JVM_BYTE_CODE: " + getJvmByteCode().length + "bytes written");
         out.writeField(CompilerIDs.Executable.JVM_BYTE_CODE, getJvmByteCode());
+        
+        out.writeField(CompilerIDs.Executable.JVM_BYTE_CODE_SIZE, getJvmByteCode().length);
         
         out.writeField(CompilerIDs.Executable.FULLY_QUALIFIED_DOTTED_NAME, getFullyQualifiedDottedName());
         
@@ -528,6 +530,7 @@ public class RVMExecutable implements Serializable{
             throw new IOException("Unexpected message: " + in.message());
         }
         while(in.next() != IWireInputStream.MESSAGE_END){
+            System.err.println("Executable.read: field " + in.field());
             switch(in.field()){
                 
                 case CompilerIDs.Executable.RASCAL_MAGIC: {
@@ -564,6 +567,7 @@ public class RVMExecutable implements Serializable{
                     if(!sv.satisfiesVersion("~" + VersionInfo.RASCAL_RUNTIME_VERSION)){
                         throw new RuntimeException("RASCAL_RUNTIME_VERSION " + rascal_runtime_version + " in Rascal executable incompatible with current version " + VersionInfo.RASCAL_RUNTIME_VERSION);
                     }
+                    break;
                 }
                 
                 case CompilerIDs.Executable.RASCAL_COMPILER_VERSION: {
@@ -577,11 +581,14 @@ public class RVMExecutable implements Serializable{
                     if(!sv.satisfiesVersion("~" + VersionInfo.RASCAL_COMPILER_VERSION)){
                         throw new RuntimeException("RASCAL_COMPILER_VERSION " + rascal_compiler_version + " in Rascal executable incompatible with current version " + VersionInfo.RASCAL_COMPILER_VERSION);
                     }
+                    break;
                 }
                 
                 case CompilerIDs.Executable.ERRORS: {
                     errors = (ISet) IValueReader.read(in, vf);
+                    in.next();
                     if(errors.size() > 0){
+                        System.err.println("Executable.ERRORS: " + errors);
                         return new RVMExecutable(errors);
                     }
                     break;
@@ -594,11 +601,13 @@ public class RVMExecutable implements Serializable{
                 
                 case CompilerIDs.Executable.MODULE_TAGS: {
                     moduleTags = (IMap) IValueReader.read(in, vf);
+                    in.next();
                     break;
                 }
                 
                 case CompilerIDs.Executable.SYMBOL_DEFINITIONS: {
                     symbol_definitions = (IMap) IValueReader.read(in, vf);
+                    in.next();
                     break;
                 }
                 
@@ -619,6 +628,7 @@ public class RVMExecutable implements Serializable{
                     constructorStore = new ArrayList<>();
                     for(int i = 0; i < n; i++){
                         constructorStore.add(IValueReader.readType(in, vf));
+                        in.next();
                     }
                     break;
                 }
@@ -662,13 +672,27 @@ public class RVMExecutable implements Serializable{
                 }
                 
                 case CompilerIDs.Executable.JVM_BYTE_CODE: {
+                    System.err.println("JVM_BYTE_CODE: " + in.getRepeatedLength() + " repeatedLength");
                     jvmByteCode = in.getBytes();
+                    System.err.println("JVM_BYTE_CODE: " + jvmByteCode.length + " bytes read");
+                    break;
+                }
+                
+                case CompilerIDs.Executable.JVM_BYTE_CODE_SIZE: {
+                    System.err.println("JVM_BYTE_CODE_SIZE: " + in.getInteger() + " bytes");
+                    System.err.println("JVM_BYTE_CODE_SIZE: " + in.getRepeatedLength() + " repeatedLength");
                     break;
                 }
                 
                 case CompilerIDs.Executable.FULLY_QUALIFIED_DOTTED_NAME: {
                     fullyQualifiedDottedName = in.getString();
                     break;
+                }
+                
+                default: {
+                    System.err.println("Executable.read, skips " + in.field());
+                    // skip field, normally next takes care of it
+                    in.skipNestedField();
                 }
             }
         }
