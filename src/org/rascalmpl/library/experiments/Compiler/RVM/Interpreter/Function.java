@@ -414,7 +414,6 @@ public class Function implements Serializable {
     }
     
     public void write(IWireOutputStream out) throws IOException{
-        TypeStore ts = new TypeStore(RascalValueFactory.getStore());
         out.startMessage(CompilerIDs.Function.ID);
        
         out.writeField(CompilerIDs.Function.NAME, name);
@@ -506,7 +505,7 @@ public class Function implements Serializable {
         out.endMessage();
     }
     
-    static Function read(IWireInputStream in, IValueFactory vfactory, TypeStore ts) throws IOException{
+    static Function read(IWireInputStream in, IValueFactory vfactory) throws IOException{
         System.err.println("Reading Function");
         
         String name = "unitialized name";
@@ -620,7 +619,7 @@ public class Function implements Serializable {
                 }
                     
                 case CompilerIDs.Function.CODEBLOCK: {
-                    codeblock = CodeBlock.read(in, vf, ts);
+                    codeblock = CodeBlock.read(in, vf);
                     break;
                 }
                 
