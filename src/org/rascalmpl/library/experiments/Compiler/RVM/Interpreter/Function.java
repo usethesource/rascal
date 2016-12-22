@@ -565,11 +565,13 @@ public class Function implements Serializable {
                 
                 case CompilerIDs.Function.FTYPE: {
                     ftype = IValueReader.readType(in, vf); 
+                    in.next();
                     break;
                 }
                 
                 case CompilerIDs.Function.KWTYPE: {
                     kwType = IValueReader.readType(in, vf);
+                    in.next();
                     break;
                 }
                 
@@ -612,6 +614,7 @@ public class Function implements Serializable {
                 
                 case CompilerIDs.Function.TAGS: {
                     tags = (IMap) IValueReader.read(in, vf);
+                    in.next();
                     break;
                 }
                 
@@ -630,6 +633,7 @@ public class Function implements Serializable {
                     constantStore = new IValue[n];
                     for(int i = 0; i < n; i++){
                         constantStore[i] = IValueReader.read(in, vf);
+                        in.next();
                     }
                     break;
                 }
@@ -639,6 +643,7 @@ public class Function implements Serializable {
                     typeConstantStore = new Type[n];
                     for(int i = 0; i < n; i++){
                         typeConstantStore[i] = IValueReader.readType(in, vf);
+                        in.next();
                     }
                     break;
                 }
@@ -707,11 +712,13 @@ public class Function implements Serializable {
                 
                 case CompilerIDs.Function.SRC: {
                     src = (ISourceLocation) IValueReader.read(in, vf);
+                    in.next();
                     break;
                 }
                 
                 case CompilerIDs.Function.LOCAL_NAMES:{
                     localNames = (IMap) IValueReader.read(in, vf);
+                    in.next();
                     break;
                 }
                 
@@ -721,6 +728,7 @@ public class Function implements Serializable {
                 }
                 
                 default: {
+                    System.err.println("Function.read, skips " + in.field());
                     // skip field, normally next takes care of it
                     in.skipNestedField();
                 }
