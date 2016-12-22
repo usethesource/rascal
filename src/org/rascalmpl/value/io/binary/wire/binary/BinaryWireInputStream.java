@@ -143,10 +143,11 @@ public class BinaryWireInputStream implements IWireInputStream {
                         this.intValues = intValues;
                         break;
                     case FieldKind.Repeated.STRINGS: 
-                        stringValues = new String[nestedLength];
+                        String[] stringValues = new String[nestedLength];
                         for (int i = 0; i < nestedLength; i++) {
                             stringValues[i]= readString();
                         }
+                        this.stringValues = stringValues;
                         break;
                     case FieldKind.Repeated.KEYVALUES:
                         int types = stream.readRawVarint32();
@@ -154,12 +155,13 @@ public class BinaryWireInputStream implements IWireInputStream {
                         valueType = TaggedInt.getTag(types);
                         // at the moment only Map<String,Integer> is implemented, but there is no reason the other variants can't be added when needed
                         assert keyType == FieldKind.STRING && valueType == FieldKind.INT;
-                        stringIntegerMap = new HashMap<>(nestedLength);
+                        HashMap<String, Integer> stringIntegerMap = new HashMap<>(nestedLength);
                         for (int i = 0; i < nestedLength; i++) {
                             String key = readString();
                             Integer value = stream.readRawVarint32();
                             stringIntegerMap.put(key, value);
                         }
+                        this.stringIntegerMap = stringIntegerMap;
                         break;
                     case FieldKind.Repeated.NESTEDS:
                         break;
