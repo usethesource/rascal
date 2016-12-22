@@ -78,7 +78,7 @@ public class TestBinaryIO extends TestCase {
 	    TypeStore ts = new TypeStore();
 	    Type adt = tf.abstractDataType(ts, "A", tf.parameterType("T"));
 	    Type cons = tf.constructor(ts, adt, "b", tf.parameterType("T"), "tje");
-	    
+
 	    HashMap<Type, Type> binding = new HashMap<>();
 	    binding.put(tf.parameterType("T"), tf.integerType());
 	    iopRoundTrip(cons.instantiate(binding), 0);
@@ -115,6 +115,26 @@ public class TestBinaryIO extends TestCase {
 	        IValue value = RandomValues.generate(name, ts, vf, r, 10);
 	        ioRoundTripOld(value, 42);
 	    }
+	}
+	
+	public void testConstructorWithParameterized1() {
+	    TypeStore ts = new TypeStore();
+        TypeFactory tf = TypeFactory.getInstance();
+	    Type adt = tf.abstractDataType(ts, "A", tf.parameterType("T"));
+	    Type cons = tf.constructor(ts, adt, "b", tf.parameterType("T"), "tje");
+
+	    HashMap<Type, Type> binding = new HashMap<>();
+	    binding.put(tf.parameterType("T"), tf.integerType());
+	    ioRoundTrip(vf.constructor(cons.instantiate(binding), vf.integer(42)), 0);
+	}
+
+	public void testConstructorWithParameterized2() {
+	    TypeStore ts = new TypeStore();
+        TypeFactory tf = TypeFactory.getInstance();
+	    Type adt = tf.abstractDataType(ts, "A", tf.parameterType("T"));
+	    Type cons = tf.constructor(ts, adt, "b", tf.parameterType("T"), "tje");
+
+	    ioRoundTrip(vf.constructor(cons, vf.integer(42)), 0);
 	}
 	
 
