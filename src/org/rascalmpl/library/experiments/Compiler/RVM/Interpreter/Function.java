@@ -488,7 +488,9 @@ public class Function implements Serializable {
             out.writeField(CompilerIDs.Function.IS_COROUTINE, 1);
         }
 
-        out.writeField(CompilerIDs.Function.REFS, refs);
+        if (refs != null) {
+            out.writeField(CompilerIDs.Function.REFS, refs);
+        }
 
         if(isVarArgs){
             out.writeField(CompilerIDs.Function.IS_VARARGS, 1);
@@ -541,7 +543,7 @@ public class Function implements Serializable {
         int continuationPoints = 0;
         
         boolean isCoroutine = false;
-        int[] refs = new int[0];
+        int[] refs = null;
 
         boolean isVarArgs = false;
 
