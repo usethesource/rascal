@@ -12,7 +12,6 @@
 package org.rascalmpl.value.impl.persistent;
 
 import io.usethesource.capsule.DefaultTrieSet;
-import io.usethesource.capsule.DefaultTrieSetMultimap;
 import io.usethesource.capsule.api.deprecated.ImmutableSet;
 import io.usethesource.capsule.api.deprecated.ImmutableSetMultimap;
 import io.usethesource.capsule.api.deprecated.TransientSetMultimap;
@@ -30,7 +29,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static org.rascalmpl.value.impl.persistent.EmptySet.EMPTY_SET;
-import static org.rascalmpl.value.impl.persistent.SetWriter.*;
+import static org.rascalmpl.value.impl.persistent.SetWriter.USE_MULTIMAP_BINARY_RELATIONS;
+import static org.rascalmpl.value.impl.persistent.SetWriter.isTupleOfArityTwo;
 import static org.rascalmpl.value.util.AbstractTypeBag.toTypeBag;
 
 public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
@@ -41,6 +41,8 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
   private final ImmutableSetMultimap<IValue, IValue> content;
 
   // TODO: make private
+  // DOES: canonicalize
+  // TODO: does not take into account {@link IValueFactory}
   public static final ISet from(final AbstractTypeBag keyTypeBag, final AbstractTypeBag valTypeBag,
       final ImmutableSetMultimap<IValue, IValue> content) {
     if (content.isEmpty()) {
@@ -77,21 +79,6 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
     return keyTypesEqual && valTypesEqual;
   }
 
-  // internal use: introspecting backing implementation; TODO: reconsider visibility
-  public AbstractTypeBag getKeyTypeBag() {
-    return keyTypeBag;
-  }
-
-  // internal use: introspecting backing implementation; TODO: reconsider visibility
-  public AbstractTypeBag getValTypeBag() {
-    return valTypeBag;
-  }
-
-  // internal use: introspecting backing implementation; TODO: reconsider visibility
-  public ImmutableSetMultimap<IValue, IValue> getContent() {
-    return content;
-  }
-
   @Override
   protected IValueFactory getValueFactory() {
     return ValueFactory.getInstance();
@@ -112,8 +99,6 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
   @Override
   public ISet insert(IValue value) {
-    // TODO: check if binary tuple
-    // assert USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(value.getType());
     if (!isTupleOfArityTwo.test(value.getType()))
       throw new UnsupportedOperationException("Conversion not supported yet.");
 
@@ -121,14 +106,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
     final IValue key = tuple.get(0);
     final IValue val = tuple.get(1);
 
-    final ImmutableSetMultimap<IValue, IValue> contentNew;
-
-    if (content.isEmpty()) {
-      contentNew = DefaultTrieSetMultimap.<IValue, IValue>of(equivalenceEqualityComparator)
-          .__insert(key, val);
-    } else {
-      contentNew = content.__insert(key, val);
-    }
+    final ImmutableSetMultimap<IValue, IValue> contentNew = content.__insert(key, val);
 
     if (content == contentNew)
       return this;
@@ -141,8 +119,6 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
   @Override
   public ISet delete(IValue value) {
-    // TODO: check if binary tuple
-    // assert USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(value.getType());
     if (!isTupleOfArityTwo.test(value.getType()))
       return this;
 
@@ -168,8 +144,6 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
   @Override
   public boolean contains(IValue value) {
-    // TODO: check if binary tuple
-    // assert USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(value.getType());
     if (!isTupleOfArityTwo.test(value.getType()))
       return false;
 
@@ -182,6 +156,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
   @Override
   public Iterator<IValue> iterator() {
+    // TODO: make method co-variant
     return content.tupleIterator(getValueFactory()::tuple);
   }
 
@@ -191,8 +166,6 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
         StreamSupport.stream(spliterator(), false).mapToInt(tuple -> tuple.hashCode()).sum();
 
     return hashCode;
-
-    // return content.hashCode();
   }
 
   @Override
@@ -214,29 +187,29 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
       return content.equals(that.content);
     }
 
-    if (other instanceof ISet) {
-      ISet that = (ISet) other;
-
-      if (this.getType() != that.getType())
-        return false;
-
-      if (this.size() != that.size())
-        return false;
-
-      for (IValue value : that) {
-        // TODO: check if binary tuple
-        // assert USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(value.getType());
-
-        final ITuple tuple = (ITuple) value;
-        final IValue key = tuple.get(0);
-        final IValue val = tuple.get(1);
-
-        if (!content.containsEntry(key, val))
-          return false;
-      }
-
-      return true;
-    }
+    // if (other instanceof ISet) {
+    // ISet that = (ISet) other;
+    //
+    // if (this.getType() != that.getType())
+    // return false;
+    //
+    // if (this.size() != that.size())
+    // return false;
+    //
+    // for (IValue value : that) {
+    // // TODO: check if binary tuple
+    // // assert USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(value.getType());
+    //
+    // final ITuple tuple = (ITuple) value;
+    // final IValue key = tuple.get(0);
+    // final IValue val = tuple.get(1);
+    //
+    // if (!content.containsEntry(key, val))
+    // return false;
+    // }
+    //
+    // return true;
+    // }
 
     return false;
   }
@@ -255,9 +228,6 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
         return false;
 
       for (IValue value : that) {
-        // TODO: check if binary tuple
-        // assert USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(value.getType());
-
         if (!isTupleOfArityTwo.test(value.getType())) {
           return false;
         }
@@ -266,10 +236,12 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
         final IValue key = tuple.get(0);
         final IValue val = tuple.get(1);
 
-        // TODO: reconsider hiding of comparator vs exposition via argument
-        // TODO: containsEntry in isEquals does not use equivalence explicitly here
-        // content.containsEntryEquivalent(key, val, equivalenceComparator);
-
+        /*
+         * TODO: reconsider hiding of comparator vs exposition via argument
+         *
+         * TODO: containsEntry in isEquals does not use equivalence explicitly here
+         * content.containsEntryEquivalent(key, val, equivalenceComparator);
+         */
         if (!content.containsEntry(key, val))
           return false;
       }
@@ -310,12 +282,10 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
         two = that.content;
       }
 
-      TransientSetMultimap<IValue, IValue> tmp = one.asTransient(); // non-final due to
-      // conversion
+      final TransientSetMultimap<IValue, IValue> tmp = one.asTransient();
       boolean modified = false;
 
       for (Map.Entry<IValue, IValue> entry : two.entrySet()) {
-        // try {
         final IValue key = entry.getKey();
         final IValue val = entry.getValue();
 
@@ -324,22 +294,6 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
           keyTypeBagNew = keyTypeBagNew.increase(key.getType());
           valTypeBagNew = valTypeBagNew.increase(val.getType());
         }
-        // } catch (ClassCastException | ArrayIndexOutOfBoundsException e) {
-        // // Conversion from ImmutableSetMultimapAsImmutableSetView to
-        // // DefaultTrieSet
-        // // TODO: use keyTypeBag for deciding upon conversion and
-        // // not exception
-        //
-        // TransientSetMultimap<IValue, IValue> convertedSetContent = DefaultTrieSet.transientOf();
-        // convertedSetContent.__insertAll(tmp);
-        // tmp = convertedSetContent;
-        //
-        // // retry
-        // if (tmp.__insertEquivalent(key, equivalenceComparator)) {
-        // modified = true;
-        // keyTypeBagNew = keyTypeBagNew.increase(key.getType());
-        // }
-        // }
       }
 
       if (modified) {
@@ -398,14 +352,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
       }
 
       if (modified) {
-        final ImmutableSetMultimap<IValue, IValue> contentNew = tmp.freeze();
-
-        // canonicalize
-        if (contentNew.size() == 0) {
-          return EMPTY_SET;
-        } else {
-          return PersistentHashIndexedBinaryRelation.from(keyTypeBagNew, valTypeBagNew, contentNew);
-        }
+        return PersistentHashIndexedBinaryRelation.from(keyTypeBagNew, valTypeBagNew, tmp.freeze());
       }
       return def;
     } else {
@@ -450,14 +397,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
       }
 
       if (modified) {
-        final ImmutableSetMultimap<IValue, IValue> contentNew = tmp.freeze();
-
-        // canonicalize
-        if (contentNew.size() == 0) {
-          return EMPTY_SET;
-        } else {
-          return PersistentHashIndexedBinaryRelation.from(keyTypeBagNew, valTypeBagNew, contentNew);
-        }
+        return PersistentHashIndexedBinaryRelation.from(keyTypeBagNew, valTypeBagNew, tmp.freeze());
       }
       return def;
     } else {
@@ -479,40 +419,35 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
   @Override
   public ISetRelation<ISet> asRelation() {
-    IValueFactory vf1 = getValueFactory();
-    PersistentHashIndexedBinaryRelation rel11 = this;
+    final PersistentHashIndexedBinaryRelation thisSet = this;
+
     return new ISetRelation<ISet>() {
-      protected final IValueFactory vf = vf1;
-      protected final PersistentHashIndexedBinaryRelation rel1 = rel11;
-
-      private void validateSetMultimap(ISet... sets) {
-        if (!isSetMultimap(sets)) {
-          throw new IllegalArgumentException("Arguments are not multimap-backed binary relations.");
-        }
-      }
-
-      private boolean isSetMultimap(ISet... sets) {
-        boolean conditionHolds =
-            Arrays.stream(sets).allMatch(set -> set instanceof PersistentHashIndexedBinaryRelation);
-
-        return conditionHolds;
-      }
-
-      private ImmutableSetMultimap<IValue, IValue> extractSetMultimap(ISet set) {
-        validateSetMultimap(set);
-        return ((PersistentHashIndexedBinaryRelation) set).getContent();
-      }
 
       @Override
-      public ISet compose(ISetRelation<ISet> rel2) {
-        // return SetFunctions.compose(vf, rel1, rel2.asSet());
+      public ISet compose(ISetRelation<ISet> otherSetRelation) {
+        if (otherSetRelation.getClass() != this.getClass()) {
+          return SetFunctions.compose(getValueFactory(), this.asSet(), otherSetRelation.asSet());
+        }
 
-        if (!isSetMultimap(rel2.asSet()))
-          return SetFunctions.compose(vf, rel1, rel2.asSet());
+        final PersistentHashIndexedBinaryRelation thatSet =
+            (PersistentHashIndexedBinaryRelation) otherSetRelation.asSet();
 
-        final ImmutableSetMultimap<IValue, IValue> xy = rel1.getContent();
-        final ImmutableSetMultimap<IValue, IValue> yz = extractSetMultimap(rel2.asSet());
+        final ImmutableSetMultimap<IValue, IValue> xy = thisSet.content;
+        final ImmutableSetMultimap<IValue, IValue> yz = thatSet.content;
 
+        /**
+         * The code below is still sub-optimal because it operates on the logical (rather than the structural) level.
+         *
+         * TODO: nodes should get proper support for stream processing such that the following template can be used:
+         *
+         *    // @formatter:off
+         *    final Stream<BiConsumer<IValue, IValue>> localStream = null;
+         *    final Node updatedNode = localStream
+         *    .filter((x, y) -> yz.containsKey(y))
+         *    .mapValues(y -> yz.get(y))
+         *    .collect(toNode());
+         *    // @formatter:on
+         */
         final TransientSetMultimap<IValue, IValue> xz = xy.asTransient();
 
         for (IValue x : xy.keySet()) {
@@ -532,32 +467,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
           }
         }
 
-        //    // @formatter:off
-        //    final Stream<BiConsumer<IValue, IValue>> localStream = null;
-        //    final Node updatedNode = localStream
-        //        .filter((x, y) -> yz.containsKey(y))
-        //        .mapValues(y -> yz.get(y))
-        //        .collect(toNode());
-        //    // @formatter:on
-
         final ImmutableSetMultimap<IValue, IValue> data = xz.freeze();
-
-        // Iterator<Map.Entry<IValue, IValue>> entryIterator = data.entryIterator();
-        // entryIterator.forEachRemaining(tuple -> {
-        // if (isInstanceOf(IValue.class).test(tuple.getValue())) {
-        // return;
-        // } else {
-        // return;
-        // }
-        // });
-
-        data.entrySet().stream().map(Map.Entry::getValue).map(IValue::getType).collect(toTypeBag());
-
-        // final Function<Map.Entry<IValue, IValue>, Type> tupleToTypeMapper =
-        // (tuple) -> TF.tupleType(tuple.getKey().getType(), tuple.getValue().getType());
-        //
-        // final AbstractTypeBag elementTypeBag =
-        // data.entrySet().stream().map(tupleToTypeMapper).collect(toTypeBag());
 
         final AbstractTypeBag keyTypeBag = data.entrySet().stream().map(Map.Entry::getKey)
             .map(IValue::getType).collect(toTypeBag());
@@ -565,28 +475,22 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
         final AbstractTypeBag valTypeBag = data.entrySet().stream().map(Map.Entry::getValue)
             .map(IValue::getType).collect(toTypeBag());
 
-        // canonicalize
-        if (data.size() == 0) {
-          return EMPTY_SET;
-        } else {
-          /** TODO does not take into account {@link IValueFactory} */
-          return from(keyTypeBag, valTypeBag, data);
-        }
+        return PersistentHashIndexedBinaryRelation.from(keyTypeBag, valTypeBag, data);
       }
 
       @Override
       public ISet closure() {
-        return SetFunctions.closure(vf, rel1);
+        return SetFunctions.closure(getValueFactory(), thisSet);
       }
 
       @Override
       public ISet closureStar() {
-        return SetFunctions.closureStar(vf, rel1);
+        return SetFunctions.closureStar(getValueFactory(), thisSet);
       }
 
       @Override
       public int arity() {
-        return rel1.getElementType().getArity();
+        return 2;
       }
 
       @Override
@@ -598,21 +502,21 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
           return range();
 
         if (Arrays.equals(fieldIndexes, ArrayUtilsInt.arrayOfInt(0, 1)))
-          return rel1;
+          return thisSet;
 
         // TODO: support fast inverse operator
         if (Arrays.equals(fieldIndexes, ArrayUtilsInt.arrayOfInt(1, 0)))
-          return SetFunctions.project(vf, rel1, fieldIndexes);
+          return SetFunctions.project(getValueFactory(), thisSet, fieldIndexes);
 
         throw new IllegalStateException("Binary relation patterns exhausted.");
       }
 
       @Override
       public ISet projectByFieldNames(String... fieldNames) {
-        final Type fieldTypeType = rel1.getType().getFieldTypes();
+        final Type fieldTypeType = thisSet.getType().getFieldTypes();
 
         if (!fieldTypeType.hasFieldNames())
-          throw new IllegalOperationException("select with field names", rel1.getType());
+          throw new IllegalOperationException("select with field names", thisSet.getType());
 
         final int[] fieldIndices =
             Stream.of(fieldNames).mapToInt(fieldTypeType::getFieldIndex).toArray();
@@ -622,22 +526,25 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
       @Override
       public ISet carrier() {
-        return rel1.asRelation().domain().union(rel1.asRelation().range());
-
-        // return SetFunctions.carrier(vf, rel1);
+        return thisSet.asRelation().domain().union(thisSet.asRelation().range());
       }
 
+      /**
+       * Flattening Set[Tuple[Tuple[K, V]], _] to Multimap[K, V].
+       *
+       * @return canonical set of keys
+       */
       @Override
       public ISet domain() {
-        final ImmutableSetMultimap<IValue, IValue> multimap = rel1.getContent();
+        final ImmutableSetMultimap<IValue, IValue> multimap = thisSet.content;
 
         /** TODO change {@link ImmutableSetMultimap#keySet()} to return {@link ImmutableSet} */
         final ImmutableSet<IValue> columnData = (ImmutableSet<IValue>) multimap.keySet();
         final AbstractTypeBag columnElementTypeBag =
             columnData.stream().map(IValue::getType).collect(toTypeBag());
 
-        // // final AbstractTypeBag columnElementTypeBag = extractTypeBag(rel1).select(0);
-        // final AbstractTypeBag columnElementTypeBag = rel1.getKeyTypeBag();
+        // // final AbstractTypeBag columnElementTypeBag = extractTypeBag(thisRelation).select(0);
+        // final AbstractTypeBag columnElementTypeBag = thisRelation.getKeyTypeBag();
 
         // flattening Set[Tuple[K, V], _] to Multimap[K, V]
         if (USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(columnElementTypeBag.lub())) {
@@ -645,58 +552,33 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
            * EXPERIMENTAL: Enforce that binary relations always are backed by multi-maps (instead of
            * being represented as a set of tuples).
            */
-          final ISetWriter w = vf.setWriter();
+          final ISetWriter w = getValueFactory().setWriter();
           columnData.forEach(w::insert);
           return w.done();
         } else {
           /** TODO does not take into account {@link IValueFactory} */
           return PersistentHashSet.from(columnElementTypeBag, columnData);
         }
-
-        // return SetFunctions.domain(vf, rel1);
       }
 
+      /**
+       * Flattening Set[Tuple[_, Tuple[K, V]]] to Multimap[K, V].
+       *
+       * @return canonical set of values
+       */
       @Override
       public ISet range() {
-        final ImmutableSetMultimap<IValue, IValue> multimap = rel1.getContent();
-
-        return multimap.values().stream().collect(ValueCollectors.toSet());
-
-        // /** TODO change {@link ImmutableSetMultimap#keySet()} to return {@link ImmutableSet} */
-        //
-        // final TransientSet<IValue> tmp = DefaultTrieSet.transientOf();
-        // multimap.values().forEach(tmp::__insert);
-        // final ImmutableSet<IValue> columnData = tmp.freeze();
-        //
-        // // final AbstractTypeBag columnElementTypeBag = extractTypeBag(rel1).select(1);
-        // final AbstractTypeBag columnElementTypeBag = rel1.getValTypeBag();
-        //
-        // // flattening Set[_, Tuple[K, V]] to Multimap[K, V]
-        // if (USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(columnElementTypeBag.lub()))
-        // {
-        // /*
-        // * EXPERIMENTAL: Enforce that binary relations always are backed by multi-maps (instead of
-        // * being represented as a set of tuples).
-        // */
-        // final ISetWriter w = vf.setWriter();
-        // columnData.forEach(w::insert);
-        // return w.done();
-        // } else {
-        // /** TODO does not take into account {@link IValueFactory} */
-        // return new PersistentHashSet(columnElementTypeBag, columnData);
-        // }
-
-        // return SetFunctions.range(vf, rel1);
+        return thisSet.content.values().stream().collect(ValueCollectors.toSet());
       }
 
       @Override
       public ISet asSet() {
-        return rel1;
+        return thisSet;
       }
 
       @Override
       public String toString() {
-        return rel1.toString();
+        return thisSet.toString();
       }
     };
   }
