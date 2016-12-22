@@ -434,7 +434,9 @@ public class RVMExecutable implements Serializable{
 
         out.writeField(CompilerIDs.Executable.RESOLVER, getResolver());
 
-        out.writeField(CompilerIDs.Executable.INITIALIZERS, (String[])getInitializers().toArray());
+        String[] initializers = new String[getInitializers().size()];
+        
+        out.writeField(CompilerIDs.Executable.INITIALIZERS, getInitializers().toArray(initializers));
 
         out.writeField(CompilerIDs.Executable.UID_MODULE_INIT, getUidModuleInit());
 
