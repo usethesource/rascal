@@ -943,7 +943,7 @@ public class CodeBlock implements Serializable {
                     constantStore = new ArrayList<IValue>();
                     finalConstantStore = new IValue[n];
                     for(int i = 0; i < n; i++){
-                        IValue value = IValueReader.read(in, vf, ts);
+                        IValue value = IValueReader.read(in, vf);
                         constantMap.put(value, i);
                         constantStore.add(i, value);
                         finalConstantStore[i] = value;
@@ -957,7 +957,7 @@ public class CodeBlock implements Serializable {
                     typeConstantStore = new ArrayList<Type>();
                     finalTypeConstantStore = new Type[n];
                     for(int i = 0; i < n; i++){
-                        Type type = IValueReader.readType(in, vf, ts);
+                        Type type = IValueReader.readType(in, vf);
                         typeConstantMap.put(type, i);
                         typeConstantStore.add(i, type);
                         finalTypeConstantStore[i] = type;

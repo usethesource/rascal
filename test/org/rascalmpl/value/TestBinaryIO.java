@@ -27,6 +27,7 @@ import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 import org.rascalmpl.value.io.binary.wire.binary.BinaryWireInputStream;
 import org.rascalmpl.value.io.binary.wire.binary.BinaryWireOutputStream;
+import org.rascalmpl.value.io.old.BinaryWriter;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
@@ -90,6 +91,17 @@ public class TestBinaryIO extends TestCase {
             iopRoundTrip(ts, tp);
         }
 	}
+	
+	public void testOldFilesStillSupported() {
+	    TypeStore ts = new TypeStore();
+	    Type name = RandomValues.addNameType(ts);
+	    Random r = new Random(42);
+	    for (int i = 0; i < 20; i++) {
+	        IValue value = RandomValues.generate(name, ts, vf, r, 10);
+	        ioRoundTripOld(ts, value);
+	    }
+	}
+
 
     private void iopRoundTrip(TypeStore ts, Type tp) {
         try {
@@ -98,7 +110,7 @@ public class TestBinaryIO extends TestCase {
                 IValueWriter.write(w, ts, WindowSizes.SMALL_WINDOW, tp);
             }
             try (IWireInputStream read = new BinaryWireInputStream(new ByteArrayInputStream(buffer.toByteArray()))) {
-                Type result = IValueReader.readType(read, vf, new TypeStore());
+                Type result = IValueReader.readType(read, vf);
                 if(!tp.equals(result)){
                     String message = "Not equal: \n\t"+result+" expected: "+tp;
                     System.err.println(message);
@@ -118,7 +130,28 @@ public class TestBinaryIO extends TestCase {
             try (IValueOutputStream w = new IValueOutputStream(buffer, ts, CompressionRate.Normal)) {
                 w.write(value);
             }
-            try (IValueInputStream read = new IValueInputStream(new ByteArrayInputStream(buffer.toByteArray()), vf, ts)) {
+            try (IValueInputStream read = new IValueInputStream(new ByteArrayInputStream(buffer.toByteArray()), vf)) {
+                IValue result = read.read();
+                if(!value.isEqual(result)){
+                    String message = "Not equal: \n\t"+value+" : "+value.getType()+"\n\t"+result+" : "+result.getType();
+                    System.err.println(message);
+                    fail(message);
+                }
+            }
+		}
+	    catch(IOException ioex){
+			ioex.printStackTrace();
+			fail(ioex.getMessage());
+		}
+    }
+
+    private void ioRoundTripOld(TypeStore ts, IValue value) {
+        try {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            BinaryWriter w = new BinaryWriter(value, buffer, ts);
+            w.serialize();
+            buffer.flush();
+            try (IValueInputStream read = new IValueInputStream(new ByteArrayInputStream(buffer.toByteArray()), vf)) {
                 IValue result = read.read();
                 if(!value.isEqual(result)){
                     String message = "Not equal: \n\t"+value+" : "+value.getType()+"\n\t"+result+" : "+result.getType();

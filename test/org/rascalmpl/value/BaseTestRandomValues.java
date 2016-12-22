@@ -210,7 +210,7 @@ abstract public class BaseTestRandomValues extends TestCase {
         public IValue read(IValueFactory factory, TypeStore store, Type type, InputStream stream)
                 throws FactTypeUseException, IOException {
             assert stream instanceof ByteArrayInputStream; // else the closing contract is broken!
-            try (IValueInputStream reader = new IValueInputStream(stream, factory, store)) {
+            try (IValueInputStream reader = new IValueInputStream(stream, factory)) {
                 return reader.read();
             }
         }

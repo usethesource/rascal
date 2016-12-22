@@ -3376,7 +3376,7 @@ public class Prelude {
 		TypeStore store = new TypeStore(RascalValueFactory.getStore());
 		Type start = tr.valueToType((IConstructor) type, store);
 		
-		try (IValueInputStream in = new IValueInputStream(URIResolverRegistry.getInstance().getInputStream(loc), values, store)) {
+		try (IValueInputStream in = new IValueInputStream(URIResolverRegistry.getInstance().getInputStream(loc), values)) {
 			IValue val = in.read();;
 			if(val.getType().isSubtypeOf(start)){
 				return val;

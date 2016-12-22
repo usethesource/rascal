@@ -60,7 +60,7 @@ public class IValueReader {
      * <br/>
      * In most cases you want to use the {@linkplain IValueInputStream}!
      */
-    public static IValue read(IWireInputStream reader, IValueFactory vf, TypeStore ts) throws IOException {
+    public static IValue read(IWireInputStream reader, IValueFactory vf) throws IOException {
         int typeWindowSize = 0;
         int valueWindowSize = 0;
         int uriWindowSize = 0;
@@ -80,7 +80,7 @@ public class IValueReader {
         TrackLastRead<IValue> valueCache = windowFactory.getTrackLastRead(valueWindowSize);
         TrackLastRead<ISourceLocation> uriCache = windowFactory.getTrackLastRead(uriWindowSize);
         try {
-            return readValue(reader, vf, ts, typeCache, valueCache, uriCache);
+            return readValue(reader, vf, new TypeStore(), typeCache, valueCache, uriCache);
         } finally {
             windowFactory.returnTrackLastRead(typeCache);
             windowFactory.returnTrackLastRead(valueCache);
@@ -91,7 +91,7 @@ public class IValueReader {
     /**
      * Read an type from the wire reader. 
      */
-    public static Type readType(IWireInputStream reader, IValueFactory vf, TypeStore ts) throws IOException {
+    public static Type readType(IWireInputStream reader, IValueFactory vf) throws IOException {
         int typeWindowSize = 0;
         int valueWindowSize = 0;
         int uriWindowSize = 0;
@@ -110,7 +110,7 @@ public class IValueReader {
         TrackLastRead<IValue> valueCache = windowFactory.getTrackLastRead(valueWindowSize);
         TrackLastRead<ISourceLocation> uriCache = windowFactory.getTrackLastRead(uriWindowSize);
         try {
-            return readType(reader, vf, ts, typeCache, valueCache, uriCache);
+            return readType(reader, vf, new TypeStore(), typeCache, valueCache, uriCache);
         } finally {
             windowFactory.returnTrackLastRead(typeCache);
             windowFactory.returnTrackLastRead(valueCache);

@@ -559,12 +559,12 @@ public class Function implements Serializable {
                 }
                 
                 case CompilerIDs.Function.FTYPE: {
-                    ftype = IValueReader.readType(in, vf, ts); 
+                    ftype = IValueReader.readType(in, vf); 
                     break;
                 }
                 
                 case CompilerIDs.Function.KWTYPE: {
-                    kwType = IValueReader.readType(in, vf, ts);
+                    kwType = IValueReader.readType(in, vf);
                     break;
                 }
                 
@@ -606,7 +606,7 @@ public class Function implements Serializable {
                 }
                 
                 case CompilerIDs.Function.TAGS: {
-                    tags = (IMap) IValueReader.read(in, vf, ts);
+                    tags = (IMap) IValueReader.read(in, vf);
                     break;
                 }
                 
@@ -624,7 +624,7 @@ public class Function implements Serializable {
                     int n = in.getRepeatedLength();
                     constantStore = new IValue[n];
                     for(int i = 0; i < n; i++){
-                        constantStore[i] = IValueReader.read(in, vf, ts);
+                        constantStore[i] = IValueReader.read(in, vf);
                     }
                     break;
                 }
@@ -633,7 +633,7 @@ public class Function implements Serializable {
                     int n = in.getRepeatedLength();
                     typeConstantStore = new Type[n];
                     for(int i = 0; i < n; i++){
-                        typeConstantStore[i] = IValueReader.readType(in, vf, ts);
+                        typeConstantStore[i] = IValueReader.readType(in, vf);
                     }
                     break;
                 }
@@ -701,12 +701,12 @@ public class Function implements Serializable {
                 }
                 
                 case CompilerIDs.Function.SRC: {
-                    src = (ISourceLocation) IValueReader.read(in, vf, ts);
+                    src = (ISourceLocation) IValueReader.read(in, vf);
                     break;
                 }
                 
                 case CompilerIDs.Function.LOCAL_NAMES:{
-                    localNames = (IMap) IValueReader.read(in, vf, ts);
+                    localNames = (IMap) IValueReader.read(in, vf);
                     break;
                 }
                 
