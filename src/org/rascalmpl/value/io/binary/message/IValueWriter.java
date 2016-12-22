@@ -163,9 +163,7 @@ public class IValueWriter {
                     return null;
                 }
                 IValueFactory vf = ValueFactoryFactory.getValueFactory();
-                ISetWriter grammar = vf.setWriter();
-                IConstructor symbol = type.asSymbol(vf, store, grammar, new HashSet<>());
-                write(writer, store, grammar.done(), typeCache, valueCache, uriCache);
+                IConstructor symbol = type.asSymbol(vf, store, vf.setWriter(), new HashSet<>());
                 write(writer, store, symbol, typeCache, valueCache, uriCache);
                 writeEmptyMessageBackReferenced(writer, IValueIDs.ExternalType.ID);
                 typeCache.write(type);

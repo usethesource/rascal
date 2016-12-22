@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -337,9 +338,7 @@ public class IValueReader {
                 boolean backReference = skipMessageCheckBackReference(reader);
 
                 IConstructor symbol = (IConstructor) vstack.pop();
-                ISet grammar = (ISet) vstack.pop();
-                Map<IConstructor, Set<IConstructor>> translatedGrammar = translateRelation(grammar);
-                tstack.push(tf.fromSymbol(symbol, store, p -> translatedGrammar.get(p)));
+                tstack.push(tf.fromSymbol(symbol, new TypeStore(), p -> Collections.emptySet()));
                 return backReference;
             }
 
