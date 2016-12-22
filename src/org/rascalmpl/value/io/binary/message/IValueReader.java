@@ -246,11 +246,7 @@ public class IValueReader {
                 Type typeParameters = tstack.pop();
                 int arity = typeParameters.getArity();
                 if(arity > 0){
-                    Type targs[] = new Type[arity];
-                    for(int i = 0; i < arity; i++){
-                        targs[i] = typeParameters.getFieldType(i);
-                    }
-                    tstack.push(tf.abstractDataType(store, name, targs));
+                    tstack.push(tf.abstractDataTypeFromTuple(store, name, typeParameters));
                 } else {
                     tstack.push(tf.abstractDataType(store, name));
                 }
@@ -295,41 +291,7 @@ public class IValueReader {
 
                 Type fieldTypes = tstack.pop();
                 Type adtType = tstack.pop();
-
-                Type declaredAdt = store.lookupAbstractDataType(name);
-
-                if(declaredAdt != null){
-                    adtType = declaredAdt;
-                }
-
-                int arity = fieldTypes.getArity();
-                String[] fieldNames = fieldTypes.getFieldNames();
-
-                Type fieldTypesAr[] = new Type[arity];
-
-                for(int i = 0; i < arity; i++){
-                    fieldTypesAr[i] = fieldTypes.getFieldType(i);
-                }
-
-                Type result;
-                if(fieldNames == null){
-                    result = store.lookupConstructor(adtType, name, tf.tupleType(fieldTypesAr));
-                    if(result == null) {
-                        result = tf.constructor(store, adtType, name, fieldTypesAr);
-                    }
-                } else {
-                    Object[] typeAndNames = new Object[2*arity];
-                    for(int i = 0; i < arity; i++){
-                        typeAndNames[2 * i] =  fieldTypesAr[i];
-                        typeAndNames[2 * i + 1] = fieldNames[i];
-                    }
-
-                    result = store.lookupConstructor(adtType, name, tf.tupleType(typeAndNames));
-                    if(result == null){
-                        result = tf.constructor(store, adtType, name, typeAndNames);
-                    }
-                }
-                tstack.push(result);
+                tstack.push(tf.constructorFromTuple(store, adtType, name, fieldTypes));
                 return backReference;
             }
 
