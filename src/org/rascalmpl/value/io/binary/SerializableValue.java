@@ -85,7 +85,7 @@ public class SerializableValue<T extends IValue> implements Serializable {
 			in.read(bytes);
 			Class<?> clazz = getClass().getClassLoader().loadClass(new String(factoryName, "UTF8"));
 			this.vf = (IValueFactory) clazz.getMethod("getInstance").invoke(null, new Object[0]);
-			try (IValueInputStream reader = new IValueInputStream(new ByteArrayInputStream(bytes), vf, new TypeStore())) {
+			try (IValueInputStream reader = new IValueInputStream(new ByteArrayInputStream(bytes), vf)) {
 			    this.value = (T) reader.read();
 			}
 		}

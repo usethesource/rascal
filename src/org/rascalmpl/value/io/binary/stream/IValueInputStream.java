@@ -34,7 +34,6 @@ import org.rascalmpl.value.type.TypeStore;
 @SuppressWarnings("deprecation")
 public class IValueInputStream implements Closeable {
     private final BinaryWireInputStream reader;
-    private final TypeStore ts;
     private final IValueFactory vf;
     private final boolean legacy;
     private final BinaryReader legacyReader;
@@ -42,8 +41,7 @@ public class IValueInputStream implements Closeable {
     /**
      * This will <strong>consume</strong> the whole stream (or at least more than needed due to buffering), don't use the InputStream afterwards!
      */
-    public IValueInputStream(InputStream in, IValueFactory vf, TypeStore ts) throws IOException {
-        this.ts = ts;
+    public IValueInputStream(InputStream in, IValueFactory vf) throws IOException {
         this.vf = vf;
         byte[] currentHeader = new byte[Header.MAIN.length];
         in.read(currentHeader);
@@ -54,7 +52,7 @@ public class IValueInputStream implements Closeable {
             if (BinaryReader.BOOL_HEADER <= firstByte && firstByte <= BinaryReader.IEEE754_ENCODED_DOUBLE_HEADER) {
                 System.err.println("Old value format used, switching to legacy mode!");
                 legacy = true;
-                legacyReader = new BinaryReader(vf, ts, new SequenceInputStream(new ByteArrayInputStream(currentHeader), in));
+                legacyReader = new BinaryReader(vf, new TypeStore(), new SequenceInputStream(new ByteArrayInputStream(currentHeader), in));
                 reader = null;
                 return;
             }
@@ -72,7 +70,7 @@ public class IValueInputStream implements Closeable {
         if (legacy) {
             return legacyReader.deserialize();
         }
-        return IValueReader.read(reader, vf, ts);
+        return IValueReader.read(reader, vf);
     }
     
     @Override
