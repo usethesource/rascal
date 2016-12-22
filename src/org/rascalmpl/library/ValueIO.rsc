@@ -78,23 +78,12 @@ Parse a textual string representation of a value and validate it against the giv
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T readTextValueString(type[&T] result, str input);
 	
-data ValueIOCompression
-    = disabled() // you do not care about size, only speed
-    | light() // still reasonable compression but faster than normal
-    | normal() // a good balance between compression and speed
-    | strong() // good compression slower writing, but the reading will remain fast
-    | extreme() // excelent compression, slow in writing and reading 
-    ;
-
 @doc{
 .Synopsis
 Write a value to a file using an efficient binary file format.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java void writeBinaryValueFile(loc file, value val, ValueIOCompression compression);
-
-@javaClass{org.rascalmpl.library.Prelude}
-public java void writeBinaryValueFile(loc file, value val);
+public java void writeBinaryValueFile(loc file, value val, bool compression = true);
 	
 @doc{
 .Synopsis
