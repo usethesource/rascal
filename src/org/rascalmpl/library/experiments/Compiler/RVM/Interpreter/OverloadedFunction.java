@@ -380,9 +380,13 @@ public class OverloadedFunction implements Serializable {
             out.writeField(CompilerIDs.OverloadedFunction.ALL_CONCRETE_CONSTRUCTOR_ARGS, 1);
         }
         
-        RVMWireExtensions.writeMapIntToInts(out, CompilerIDs.OverloadedFunction.FILTERED_FUNCTIONS, filteredFunctions);
+        if(filteredFunctions != null){
+            RVMWireExtensions.writeMapIntToInts(out, CompilerIDs.OverloadedFunction.FILTERED_FUNCTIONS, filteredFunctions);
+        }
         
-        RVMWireExtensions.writeMapIntToInts(out, CompilerIDs.OverloadedFunction.FILTERED_CONSTRUCTORS, filteredConstructors);
+        if(filteredConstructors != null){
+            RVMWireExtensions.writeMapIntToInts(out, CompilerIDs.OverloadedFunction.FILTERED_CONSTRUCTORS, filteredConstructors);
+        }
         
         out.endMessage();
     }
