@@ -606,7 +606,6 @@ public class RVMLinker {
 	 * @param rvm in which function will be loaded
 	 */
 	private void loadInstructions(String name, IConstructor declaration, boolean isCoroutine){
-	    System.err.println("loadInstructions: " + name);
 		int continuationPoints = 0 ;
 		Type ftype = isCoroutine ? tf.voidType() : types.symbolToType((IConstructor) declaration.get("ftype"));
 		
