@@ -412,7 +412,7 @@ public class OverloadedFunction implements Serializable {
             switch(in.field()){
                 
                 case CompilerIDs.OverloadedFunction.FUN_TYPE: {
-                    funType = IValueReader.readType(in, vf, ts);
+                    funType = IValueReader.readType(in, vf);
                     break;
                 }
                 

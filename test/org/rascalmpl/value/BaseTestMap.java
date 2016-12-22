@@ -323,7 +323,7 @@ public abstract class BaseTestMap extends TestCase {
 			    w.write(val);
 			}
 
-			try (IValueInputStream r = new IValueInputStream(new ByteArrayInputStream(baos.toByteArray()), vf, ts)) {
+			try (IValueInputStream r = new IValueInputStream(new ByteArrayInputStream(baos.toByteArray()), vf)) {
 			    return r.read();
 			}
 		}
