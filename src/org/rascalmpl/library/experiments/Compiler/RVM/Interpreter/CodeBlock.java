@@ -904,7 +904,7 @@ public class CodeBlock implements Serializable {
 	    out.endMessage();
 	}
 
-    public static CodeBlock read(IWireInputStream in, IValueFactory vf, TypeStore ts) throws IOException {
+    public static CodeBlock read(IWireInputStream in, IValueFactory vf) throws IOException {
         System.err.println("Reading CodeBlock");
         String name = "unitialized name";
         

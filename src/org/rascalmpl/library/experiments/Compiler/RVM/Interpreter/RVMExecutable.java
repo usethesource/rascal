@@ -464,7 +464,7 @@ public class RVMExecutable implements Serializable{
 	                cin = new ZstdInputStream(in);
 	            }
 	            try(IWireInputStream win = new BinaryWireInputStream(cin)){
-	                return read(win, typeStore,ValueFactoryFactory.getValueFactory());
+	                return read(win, ValueFactoryFactory.getValueFactory());
 	            }                      
 	        } else {
 	            vf = ValueFactoryFactory.getValueFactory();
@@ -487,7 +487,7 @@ public class RVMExecutable implements Serializable{
 	    }
 	}
 	
-	private static RVMExecutable read(IWireInputStream in, TypeStore ts, IValueFactory vf) throws IOException {
+	private static RVMExecutable read(IWireInputStream in, IValueFactory vf) throws IOException {
 	    
 	    System.err.println("Reading Executable");
 	    
@@ -605,7 +605,7 @@ public class RVMExecutable implements Serializable{
                     functionStore = new Function[n];
                     functionMap = new HashMap<String, Integer>(n);
                     for(int i = 0; i < n; i++){
-                        Function function = Function.read(in, vf, ts);
+                        Function function = Function.read(in, vf);
                         functionStore[i] = function;
                         functionMap.put(function.getName(), i);
                     }
@@ -630,7 +630,7 @@ public class RVMExecutable implements Serializable{
                     int n = in.getRepeatedLength();
                     overloadedStore = new OverloadedFunction[n];
                     for(int i = 0; i < n; i++){
-                        overloadedStore[i] = OverloadedFunction.read(in, vf, ts);
+                        overloadedStore[i] = OverloadedFunction.read(in, vf);
                     }
                     break;
                 }
