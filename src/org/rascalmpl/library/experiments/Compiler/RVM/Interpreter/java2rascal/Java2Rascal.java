@@ -13,6 +13,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal;
 
 import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.annotation.Annotation;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
@@ -35,12 +36,10 @@ import org.rascalmpl.value.IValueFactory;
  * ISampleFuns sf = Java2Rascal.Builder.bridge(vf, new PathConfig(), ISampleFuns.class).setTrace().build();
  */
 public class Java2Rascal<RascalInterfaceModule> {
-  private final IValueFactory vf;
   private final PathConfig pcfg;
   private final Class<RascalInterfaceModule> interface2Rascal;
   
   private Java2Rascal(Builder<RascalInterfaceModule> b) {
-    this.vf = b.vf;
     this.pcfg = b.pcfg;
     this.interface2Rascal = b.interface2Rascal;
    }
@@ -49,6 +48,8 @@ public class Java2Rascal<RascalInterfaceModule> {
     IValueFactory vf;
     PathConfig pcfg;
     Class<IM2> interface2Rascal;
+    PrintStream err = null;
+    PrintStream out = null;
     boolean coverage = false;
     boolean debug = false;
     boolean jvm = true;
@@ -75,6 +76,16 @@ public class Java2Rascal<RascalInterfaceModule> {
         this.debug = debug;
         return this;
     }
+    
+    public Builder<IM2> stderr(PrintStream w){
+        this.err = w;
+        return this;
+    }
+    
+    public Builder<IM2> stdout(PrintStream w){
+        this.out = w;
+        return this;
+    }
 
     public Builder<IM2> jvm(boolean jvm){
         this.jvm = jvm;
@@ -97,16 +108,16 @@ public class Java2Rascal<RascalInterfaceModule> {
     }
     
     public IM2 build() throws IOException{
-      return new Java2Rascal<IM2>(this).makeBridge(coverage, debug, jvm, profile, trace, verbose);
+      return new Java2Rascal<IM2>(this).makeBridge(coverage, debug, jvm, profile, trace, verbose, err, out);
     }
   }
 
-  private RascalInterfaceModule makeBridge(boolean coverage, boolean debug, boolean jvm, boolean profile, boolean trace, boolean verbose) throws IOException{
+  private RascalInterfaceModule makeBridge(boolean coverage, boolean debug, boolean jvm, boolean profile, boolean trace, boolean verbose, PrintStream err, PrintStream out) throws IOException{
     if(trace && profile){
       throw new RuntimeException("Either 'trace' or 'profile' can be set, not both");
     }
     RascalExecutionContext rex = 
-        RascalExecutionContextBuilder.normalContext(pcfg, System.out, System.err)
+        RascalExecutionContextBuilder.normalContext(pcfg, out == null ? System.out : out, err == null ? System.err : err)
             .coverage(coverage)
             .trace(trace)
             .profile(profile)
@@ -129,7 +140,6 @@ public class Java2Rascal<RascalInterfaceModule> {
     String modulePath = "/" + moduleName.replaceAll("::", "/") + ".rvm.ser.gz";
     
     RVMCore rvm = ExecutionTools.initializedRVM(URIUtil.correctLocation("compressed+" + bootDir.getScheme(), "", bootDir.getPath() + modulePath), rex);
-
     return (RascalInterfaceModule) rvm.asInterface(interface2Rascal);
   }
   
