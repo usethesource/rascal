@@ -625,6 +625,7 @@ public class Function implements Serializable {
                     
                 case CompilerIDs.Function.CODEBLOCK: {
                     codeblock = CodeBlock.read(in, vf);
+                    in.next();
                     break;
                 }
                 
