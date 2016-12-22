@@ -143,7 +143,7 @@ public class BinaryWireInputStream implements IWireInputStream {
                         this.intValues = intValues;
                         break;
                     case FieldKind.Repeated.STRINGS: 
-                        String[] stringValues = new String[nestedLength];
+                        stringValues = new String[nestedLength];
                         for (int i = 0; i < nestedLength; i++) {
                             stringValues[i]= readString();
                         }
