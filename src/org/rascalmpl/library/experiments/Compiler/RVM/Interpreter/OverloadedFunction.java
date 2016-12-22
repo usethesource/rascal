@@ -387,7 +387,7 @@ public class OverloadedFunction implements Serializable {
         out.endMessage();
     }
     
-    static OverloadedFunction read(IWireInputStream in, IValueFactory vf, TypeStore ts) throws IOException {
+    static OverloadedFunction read(IWireInputStream in, IValueFactory vf) throws IOException {
         System.err.println("Reading OverloadedFunction");
        
         
