@@ -401,7 +401,7 @@ public class RVMExecutable implements Serializable{
         out.writeField(CompilerIDs.Executable.RASCAL_COMPILER_VERSION, VersionInfo.RASCAL_COMPILER_VERSION);
         
         out.writeNestedField(CompilerIDs.Executable.ERRORS);
-        IValueWriter.write(out, typeStore, WindowSizes.TINY_WINDOW, getErrors());
+        IValueWriter.write(out, WindowSizes.TINY_WINDOW, getErrors());
                   
         if(!isValid()){
             return;
@@ -410,10 +410,10 @@ public class RVMExecutable implements Serializable{
         out.writeField(CompilerIDs.Executable.MODULE_NAME, getModuleName());
 
         out.writeNestedField(CompilerIDs.Executable.MODULE_TAGS);
-        IValueWriter.write(out, typeStore, WindowSizes.TINY_WINDOW, getModuleTags());
+        IValueWriter.write(out, WindowSizes.TINY_WINDOW, getModuleTags());
 
         out.writeNestedField(CompilerIDs.Executable.SYMBOL_DEFINITIONS);
-        IValueWriter.write(out, typeStore, WindowSizes.NORMAL_WINDOW, getSymbolDefinitions());
+        IValueWriter.write(out, WindowSizes.NORMAL_WINDOW, getSymbolDefinitions());
 
         out.writeRepeatedNestedField(CompilerIDs.Executable.FUNCTION_STORE, functionStore.length);
         for(Function function : functionStore){
@@ -422,7 +422,7 @@ public class RVMExecutable implements Serializable{
 
         out.writeRepeatedNestedField(CompilerIDs.Executable.CONSTRUCTOR_STORE, constructorStore.size());
         for(Type type : constructorStore){
-           IValueWriter.write(out, typeStore, WindowSizes.TINY_WINDOW, type);
+           IValueWriter.write(out, WindowSizes.TINY_WINDOW, type);
         }
 
         out.writeField(CompilerIDs.Executable.CONSTRUCTOR_MAP, getConstructorMap());

@@ -64,18 +64,15 @@ public class IValueOutputStream implements Closeable {
     private CompressionRate compression;
     private OutputStream rawStream;
     private IWireOutputStream writer;
-    private final TypeStore store;
 
-    public IValueOutputStream(OutputStream out, TypeStore store) throws IOException {
-        this(out, store, CompressionRate.Normal);
+    public IValueOutputStream(OutputStream out) throws IOException {
+        this(out, CompressionRate.Normal);
     }
-    public IValueOutputStream(OutputStream out, TypeStore store, CompressionRate compression) throws IOException {
+    public IValueOutputStream(OutputStream out, CompressionRate compression) throws IOException {
         out.write(Header.MAIN);
         rawStream = out;
         this.compression = compression;
-        this.store = store;
         writer = null;
-
     }
     
 
@@ -84,7 +81,7 @@ public class IValueOutputStream implements Closeable {
         if (writer == null) {
             writer = initializeWriter(sizes);
         }
-        IValueWriter.write(writer, store, sizes, value);
+        IValueWriter.write(writer, sizes, value);
     }
 
 

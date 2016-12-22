@@ -55,19 +55,18 @@ public class IValueWriter {
      * In most cases you want to use the {@linkplain IValueOutputStream}.
      *  
      * @param writer the wire writer to use
-     * @param store the type store to use for looking up types to write
      * @param size the windo sizes to use
      * @param value the value to write
      * @throws IOException
      */
-    public static void write(IWireOutputStream writer, TypeStore store, WindowSizes size, IValue value ) throws IOException {
+    public static void write(IWireOutputStream writer, WindowSizes size, IValue value ) throws IOException {
         final WindowCacheFactory windowFactory = WindowCacheFactory.getInstance();
         TrackLastWritten<Type> typeCache = windowFactory.getTrackLastWrittenReferenceEquality(size.typeWindow);
         TrackLastWritten<IValue> valueCache = windowFactory.getTrackLastWrittenReferenceEquality(size.valueWindow);
         TrackLastWritten<ISourceLocation> uriCache = windowFactory.getTrackLastWrittenReferenceEquality(size.uriWindow);
         try {
             writeHeader(writer, size.valueWindow, size.typeWindow, size.uriWindow);
-            write(writer, store, value, typeCache, valueCache, uriCache);
+            write(writer, value, typeCache, valueCache, uriCache);
             writeEnd(writer);
         } finally {
             windowFactory.returnTrackLastWrittenReferenceEquality(typeCache);
@@ -81,18 +80,17 @@ public class IValueWriter {
      *  
      * @param writer the wire writer to use
      * @param size the windo sizes to use
-     * @param store the type store to use for looking up types to write
      * @param type the type to write
      * @throws IOException
      */
-    public static void write(IWireOutputStream writer, TypeStore store, WindowSizes size, Type type) throws IOException {
+    public static void write(IWireOutputStream writer, WindowSizes size, Type type) throws IOException {
         final WindowCacheFactory windowFactory = WindowCacheFactory.getInstance();
         TrackLastWritten<Type> typeCache = windowFactory.getTrackLastWrittenReferenceEquality(size.typeWindow);
         TrackLastWritten<IValue> valueCache = windowFactory.getTrackLastWrittenReferenceEquality(size.valueWindow);
         TrackLastWritten<ISourceLocation> uriCache = windowFactory.getTrackLastWrittenReferenceEquality(size.uriWindow);
         try {
             writeHeader(writer, size.valueWindow, size.typeWindow, size.uriWindow);
-            write(writer, store, type, typeCache, valueCache, uriCache);
+            write(writer, type, typeCache, valueCache, uriCache);
             writeEndType(writer);
         } finally {
             windowFactory.returnTrackLastWrittenReferenceEquality(typeCache);
@@ -110,7 +108,7 @@ public class IValueWriter {
         writer.endMessage();
     }
 
-    private static void write(final IWireOutputStream writer, final TypeStore store, final Type type, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
+    private static void write(final IWireOutputStream writer, final Type type, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
         type.accept(new ITypeVisitor<Void, IOException>() {
 
             private boolean writeFromCache(Type type) throws IOException {
@@ -163,8 +161,8 @@ public class IValueWriter {
                     return null;
                 }
                 IValueFactory vf = ValueFactoryFactory.getValueFactory();
-                IConstructor symbol = type.asSymbol(vf, store, vf.setWriter(), new HashSet<>());
-                write(writer, store, symbol, typeCache, valueCache, uriCache);
+                IConstructor symbol = type.asSymbol(vf, new TypeStore(), vf.setWriter(), new HashSet<>());
+                write(writer, symbol, typeCache, valueCache, uriCache);
                 writeEmptyMessageBackReferenced(writer, IValueIDs.ExternalType.ID);
                 typeCache.write(type);
                 return null;
@@ -345,7 +343,7 @@ public class IValueWriter {
     private static final IInteger MININT = ValueFactoryFactory.getValueFactory().integer(Integer.MIN_VALUE);
     private static final IInteger MAXINT = ValueFactoryFactory.getValueFactory().integer(Integer.MAX_VALUE);
     
-    private static void write(final IWireOutputStream writer, final TypeStore store, final IValue value, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
+    private static void write(final IWireOutputStream writer, final IValue value, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
         PrePostIValueIterator iter = new PrePostIValueIterator(value);
         
         // returns if the value should be put into the cache or not
@@ -365,7 +363,7 @@ public class IValueWriter {
                 if (writeFromCache(cons) || iter.atBeginning()) {
                     return false;
                 }
-                write(writer, store, cons.getUninstantiatedConstructorType(), typeCache, valueCache, uriCache);
+                write(writer, cons.getUninstantiatedConstructorType(), typeCache, valueCache, uriCache);
 
                 writer.startMessage(IValueIDs.ConstructorValue.ID);
                 writeCanBeBackReferenced(writer);

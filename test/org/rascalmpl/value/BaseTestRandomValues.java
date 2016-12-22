@@ -245,7 +245,7 @@ abstract public class BaseTestRandomValues extends TestCase {
         @Override
         public void write(IValue value, OutputStream stream, TypeStore typeStore)
                 throws IOException {
-            try(IValueOutputStream writer = new IValueOutputStream(stream, typeStore, CompressionRate.Normal)) {
+            try(IValueOutputStream writer = new IValueOutputStream(stream, CompressionRate.Normal)) {
                 writer.write(value);
             }
         }
