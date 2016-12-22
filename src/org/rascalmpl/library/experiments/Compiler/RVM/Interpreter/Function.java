@@ -3,16 +3,17 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.rascalmpl.interpreter.TypeReifier;
 import org.nustaq.serialization.FSTBasicObjectSerializer;
 import org.nustaq.serialization.FSTClazzInfo;
 import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
 import org.rascalmpl.interpreter.ITestResultListener;
+import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
@@ -102,6 +103,9 @@ public class Function implements Serializable {
 	
 	// transient fields 
 	transient SoftReference<MemoizationCache<IValue>> memoization;
+
+    private transient Class<?> javaClazz;
+    private transient Method javaMethod;
 	
 	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
 		vf = vfactory;
@@ -730,6 +734,20 @@ public class Function implements Serializable {
             lastHandler, scopeId, isCoroutine, refs, isVarArgs, continuationPoints);
         func.funId = funId;
         return func;
+    }
+
+    public Class<?> getJavaClass() {
+        return javaClazz;
+    }
+
+    public Method getJavaMethod() {
+        return javaMethod;
+    }
+
+    public void setJavaMetaObjects(Class<?> clazz, Method method) {
+        assert javaClazz == null && javaMethod == null;
+        this.javaClazz = clazz;
+        this.javaMethod = method;
     }
 }
 
