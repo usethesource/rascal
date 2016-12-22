@@ -142,7 +142,7 @@ public class TestBinaryIO extends TestCase {
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
             try (IWireOutputStream w = new BinaryWireOutputStream(buffer, 1000)) {
-                IValueWriter.write(w, new TypeStore(), WindowSizes.SMALL_WINDOW, tp);
+                IValueWriter.write(w, WindowSizes.SMALL_WINDOW, tp);
             }
             try (IWireInputStream read = new BinaryWireInputStream(new ByteArrayInputStream(buffer.toByteArray()))) {
                 Type result = IValueReader.readType(read, vf);
@@ -162,7 +162,7 @@ public class TestBinaryIO extends TestCase {
     private void ioRoundTrip(IValue value, int seed) {
         try {
             ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-            try (IValueOutputStream w = new IValueOutputStream(buffer, new TypeStore(), CompressionRate.Normal)) {
+            try (IValueOutputStream w = new IValueOutputStream(buffer, CompressionRate.Normal)) {
                 w.write(value);
             }
             try (IValueInputStream read = new IValueInputStream(new ByteArrayInputStream(buffer.toByteArray()), vf)) {

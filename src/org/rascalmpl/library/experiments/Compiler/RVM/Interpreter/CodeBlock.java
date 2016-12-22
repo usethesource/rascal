@@ -885,12 +885,12 @@ public class CodeBlock implements Serializable {
 
         out.writeRepeatedNestedField(CompilerIDs.CodeBlock.FINAL_CONSTANT_STORE, finalConstantStore.length);
         for(IValue constant : finalConstantStore){
-            IValueWriter.write(out, ts, WindowSizes.TINY_WINDOW, constant); 
+            IValueWriter.write(out, WindowSizes.TINY_WINDOW, constant); 
         }
         
         out.writeRepeatedNestedField(CompilerIDs.CodeBlock.FINAL_TYPECONSTANT_STORE, finalTypeConstantStore.length);
         for(Type type : finalTypeConstantStore){
-            IValueWriter.write(out, ts, WindowSizes.TINY_WINDOW, type); 
+            IValueWriter.write(out, WindowSizes.TINY_WINDOW, type); 
         }
         
         out.writeField(CompilerIDs.CodeBlock.FUNCTION_MAP, functionMap);
