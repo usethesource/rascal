@@ -617,6 +617,7 @@ public class RVMExecutable implements Serializable{
                     functionMap = new HashMap<String, Integer>(n);
                     for(int i = 0; i < n; i++){
                         Function function = Function.read(in, vf);
+                        in.next();
                         functionStore[i] = function;
                         functionMap.put(function.getName(), i);
                     }
@@ -643,6 +644,7 @@ public class RVMExecutable implements Serializable{
                     overloadedStore = new OverloadedFunction[n];
                     for(int i = 0; i < n; i++){
                         overloadedStore[i] = OverloadedFunction.read(in, vf);
+                        in.next();
                     }
                     break;
                 }
