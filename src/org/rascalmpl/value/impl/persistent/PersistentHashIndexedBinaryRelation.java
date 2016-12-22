@@ -29,8 +29,9 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import static org.rascalmpl.value.impl.persistent.EmptySet.EMPTY_SET;
-import static org.rascalmpl.value.impl.persistent.SetWriter.USE_MULTIMAP_BINARY_RELATIONS;
-import static org.rascalmpl.value.impl.persistent.SetWriter.isTupleOfArityTwo;
+import static org.rascalmpl.value.impl.persistent.SetWriter.*;
+import static org.rascalmpl.value.impl.persistent.ValueCollectors.toSet;
+import static org.rascalmpl.value.impl.persistent.ValueCollectors.toSetMultimap;
 import static org.rascalmpl.value.util.AbstractTypeBag.toTypeBag;
 
 public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
@@ -536,29 +537,25 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
        */
       @Override
       public ISet domain() {
-        final ImmutableSetMultimap<IValue, IValue> multimap = thisSet.content;
-
-        /** TODO change {@link ImmutableSetMultimap#keySet()} to return {@link ImmutableSet} */
-        final ImmutableSet<IValue> columnData = (ImmutableSet<IValue>) multimap.keySet();
-        final AbstractTypeBag columnElementTypeBag =
-            columnData.stream().map(IValue::getType).collect(toTypeBag());
-
-        // // final AbstractTypeBag columnElementTypeBag = extractTypeBag(thisRelation).select(0);
-        // final AbstractTypeBag columnElementTypeBag = thisRelation.getKeyTypeBag();
-
-        // flattening Set[Tuple[K, V], _] to Multimap[K, V]
-        if (USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(columnElementTypeBag.lub())) {
-          /*
-           * EXPERIMENTAL: Enforce that binary relations always are backed by multi-maps (instead of
-           * being represented as a set of tuples).
-           */
-          final ISetWriter w = getValueFactory().setWriter();
-          columnData.forEach(w::insert);
-          return w.done();
-        } else {
-          /** TODO does not take into account {@link IValueFactory} */
-          return PersistentHashSet.from(columnElementTypeBag, columnData);
+        if (isTupleOfArityTwo.test(thisSet.getType().getFieldType(0))) {
+          // TODO: use lazy keySet view instead of materialized data structure
+          return thisSet.content.keySet().stream().map(asInstanceOf(ITuple.class))
+              .collect(toSetMultimap(tuple -> tuple.get(0), tuple -> tuple.get(1)));
         }
+
+        /**
+         * NOTE: the following call to {@code stream().collect(toSet())} is suboptimal because
+         * {@code thisSet.content.keySet()} already produces the result (modulo dynamic types). The
+         * usage of streams solely hides the calculation of precise dynamic type of the set.
+         */
+        return thisSet.content.keySet().stream().collect(toSet());
+
+        // final ImmutableSet<IValue> columnData = (ImmutableSet<IValue>)
+        // thisSet.content.keySet();
+        // final AbstractTypeBag columnElementTypeBag =
+        // columnData.stream().map(IValue::getType).collect(toTypeBag());
+        //
+        // return PersistentHashSet.from(columnElementTypeBag, columnData);
       }
 
       /**
@@ -568,7 +565,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
        */
       @Override
       public ISet range() {
-        return thisSet.content.values().stream().collect(ValueCollectors.toSet());
+        return thisSet.content.values().stream().collect(toSet());
       }
 
       @Override
