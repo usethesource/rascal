@@ -877,8 +877,6 @@ public class CodeBlock implements Serializable {
 	}
 	
 	public void write(IWireOutputStream out) throws IOException{ 
-	    
-	    TypeStore ts = new TypeStore(RascalValueFactory.getStore());
 	    out.startMessage(CompilerIDs.CodeBlock.ID);
 
         out.writeField(CompilerIDs.CodeBlock.NAME, name);
