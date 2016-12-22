@@ -316,11 +316,11 @@ void translateModule((Module) `<Header header> <Body body>`) {
 /********************************************************************/
 
 private void importModule((Import) `import <QualifiedName qname> ;`){
-    addImportToModule("<qname>");
+    addImportToModule(prettyPrintName(convertName(qname)));
 }
 
 private void importModule((Import) `extend <QualifiedName qname> ;`){
-	moduleName = "<qname>";
+	moduleName = prettyPrintName(convertName(qname));
 	addImportToModule(moduleName);
 	addExtendToModule(moduleName);
 }
