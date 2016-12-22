@@ -3462,7 +3462,7 @@ public class Prelude {
 
     public void writeBinaryValueFile(ISourceLocation loc, IValue value, IBool compression){
         // TODO: transient for boot
-		try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), CompressionRate.Light)) {
+		try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), CompressionRate.Normal)) {
 		    writer.write(value);
 		}
 		catch (IOException ioex){
@@ -3470,18 +3470,10 @@ public class Prelude {
 		}
     }
 	
-    public void writeBinaryValueFile(ISourceLocation loc, IValue value){
-        if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
-        try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), CompressionRate.Normal)) {
-            writer.write(value);
-        }
-        catch (IOException ioex){
-            throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
-        }
-    }
     
     public void writeBinaryValueFile(ISourceLocation loc, IValue value, IConstructor compression){
     	if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
+        // ready for after new boot
 		try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), translateCompression(compression))) {
 		    writer.write(value);
 		}
