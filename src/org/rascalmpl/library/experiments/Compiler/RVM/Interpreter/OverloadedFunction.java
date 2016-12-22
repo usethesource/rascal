@@ -461,6 +461,11 @@ public class OverloadedFunction implements Serializable {
                     filteredConstructors = (HashMap<Integer, int[]>) RVMWireExtensions.readMapIntToInts(in);
                     break;
                 }
+                
+                default: {
+                    // skip field, normally next takes care of it
+                    in.skipNestedField();
+                }
             }
         }
         

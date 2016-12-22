@@ -982,6 +982,11 @@ public class CodeBlock implements Serializable {
                     finalCode = RVMWireExtensions.readLongs(in);
                     break;
                 }
+                
+                default: {
+                    // skip field, normally next takes care of it
+                    in.skipNestedField();
+                }
             }
         }
         
