@@ -355,7 +355,6 @@ public class OverloadedFunction implements Serializable {
 	}
 
     public void write(IWireOutputStream out) throws IOException {
-        TypeStore ts = new TypeStore(RascalValueFactory.getStore());
         
         out.startMessage(CompilerIDs.OverloadedFunction.ID);
         
@@ -394,7 +393,6 @@ public class OverloadedFunction implements Serializable {
     static OverloadedFunction read(IWireInputStream in, IValueFactory vf) throws IOException {
         System.err.println("Reading OverloadedFunction");
        
-        
         String name = "unitialized name";
         Type funType = null;
         int[] functions = new int[0];
@@ -415,8 +413,14 @@ public class OverloadedFunction implements Serializable {
         while(in.next() != IWireInputStream.MESSAGE_END){
             switch(in.field()){
                 
+                case CompilerIDs.OverloadedFunction.NAME: {
+                    name = in.getString();
+                    break;
+                }
+                
                 case CompilerIDs.OverloadedFunction.FUN_TYPE: {
                     funType = IValueReader.readType(in, vf);
+                    in.next();
                     break;
                 }
                 
@@ -463,6 +467,7 @@ public class OverloadedFunction implements Serializable {
                 }
                 
                 default: {
+                    System.err.println("OverloadedFunction.read, skips " + in.field());
                     // skip field, normally next takes care of it
                     in.skipNestedField();
                 }
