@@ -161,7 +161,7 @@ private map[UID inner_scope,UID outer_scope] containedIn = ();				// inverse of 
 
 private map[UID outer_scope, set[UID] inner_scopes_or_entities] containedOrDeclaredInPlus = ();
 
-private set[UID scope] importedModuleScopes = {};
+private set[UID] importedModuleScopes = {};
 private map[tuple[list[UID], UID], list[UID]] accessibleFunctions = ();
 private map[UID, set[UID]] accessibleScopes = ();
 
