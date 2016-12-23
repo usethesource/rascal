@@ -39,7 +39,7 @@ void makeSummary(
       definitions = c.definitions;
       uses = c.uses + c.narrowedUses;
       use_def = {<use, def> | <int uid, loc def> <- definitions, loc use <- (uses[uid] ? {})};
-      for(<use, def> <- use_def){
+      for(<loc use, loc def> <- use_def){
         println("<use>\n-\> <def>");
       }
       modules[moduleLoc.path] = summary(locationTypes, use_def);
