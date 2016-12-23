@@ -20,6 +20,7 @@ import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.library.experiments.Compiler.VersionInfo;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
 import org.rascalmpl.library.util.SemVer;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IList;
@@ -42,10 +43,6 @@ import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import com.github.luben.zstd.ZstdInputStream;
 import com.github.luben.zstd.ZstdOutputStream;
-
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FSTFunctionSerializer;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMWireExtensions;
 
 /**
  * RVMExecutable contains all data needed for executing an RVM program.
@@ -401,7 +398,7 @@ public class RVMExecutable implements Serializable{
         out.writeField(CompilerIDs.Executable.RASCAL_COMPILER_VERSION, VersionInfo.RASCAL_COMPILER_VERSION);
         
         out.writeNestedField(CompilerIDs.Executable.ERRORS);
-        IValueWriter.write(out, WindowSizes.SMALL_WINDOW, getErrors());
+        IValueWriter.write(out, WindowSizes.TINY_WINDOW, getErrors());
                   
         if(!isValid()){
             return;
@@ -410,7 +407,7 @@ public class RVMExecutable implements Serializable{
         out.writeField(CompilerIDs.Executable.MODULE_NAME, getModuleName());
 
         out.writeNestedField(CompilerIDs.Executable.MODULE_TAGS);
-        IValueWriter.write(out, WindowSizes.SMALL_WINDOW, getModuleTags());
+        IValueWriter.write(out, WindowSizes.TINY_WINDOW, getModuleTags());
 
         out.writeNestedField(CompilerIDs.Executable.SYMBOL_DEFINITIONS);
         IValueWriter.write(out, WindowSizes.NORMAL_WINDOW, getSymbolDefinitions());
@@ -422,7 +419,7 @@ public class RVMExecutable implements Serializable{
 
         out.writeRepeatedNestedField(CompilerIDs.Executable.CONSTRUCTOR_STORE, constructorStore.size());
         for(Type type : constructorStore){
-           IValueWriter.write(out, WindowSizes.TINY_WINDOW, type);
+           IValueWriter.write(out, WindowSizes.SMALL_WINDOW, type);
         }
 
         out.writeField(CompilerIDs.Executable.CONSTRUCTOR_MAP, getConstructorMap());
@@ -614,7 +611,6 @@ public class RVMExecutable implements Serializable{
                     functionMap = new HashMap<String, Integer>(n);
                     for(int i = 0; i < n; i++){
                         Function function = Function.read(in, vf);
-                        in.next();
                         functionStore[i] = function;
                         functionMap.put(function.getName(), i);
                     }
@@ -640,7 +636,6 @@ public class RVMExecutable implements Serializable{
                     overloadedStore = new OverloadedFunction[n];
                     for(int i = 0; i < n; i++){
                         overloadedStore[i] = OverloadedFunction.read(in, vf);
-                        in.next();
                     }
                     break;
                 }
