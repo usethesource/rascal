@@ -1,13 +1,12 @@
-module experiments::Compiler::Rascal2Info::Query
+module experiments::Compiler::RascalExtraction::Query
 
-import experiments::Compiler::Rascal2Info::DeclarationInfo;
-import experiments::Compiler::Rascal2Info::Generate;
+import experiments::Compiler::RascalExtraction::DeclarationInfo;
 
 import util::Reflective;
 import IO;
 import Type;
 import String;
-import Node;
+import Node; 
 
 str report(DeclarationInfo di, bool showDoc = false, bool showSource = false){
 
@@ -24,25 +23,26 @@ str report(DeclarationInfo di, bool showDoc = false, bool showSource = false){
            '<showSource ? "Source:\n<readFile(di.src)>" : "">
            '";
 }
-str infoFunction(str name, set[DeclarationInfo] info, bool showDoc = false, bool showSource = false, bool fuzzy = false){
-   result = "";
-   name1 = toLowerCase(name);
-   for(/fi: functionInfo(str moduleName, name2, Symbol declType, str signature, loc src) := info, (fuzzy ? contains(toLowerCase(name2), name1) : toLowerCase(name2) == name1)){
-      result += report(fi, showDoc=showDoc, showSource=showSource);
-   }
-   for(/ci: constructorInfo(str moduleName, name2, Symbol declType, str signature, loc src) := info, (fuzzy ? contains(toLowerCase(name2), name1) : toLowerCase(name2) == name1)){
-      result += report(ci, showDoc=showDoc, showSource=showSource);
-   }
-   return result;
-}
-
-str infoModule(str moduleName, set[DeclarationInfo] info){
-    result = "";
-    for(/fi: functionInfo(moduleName, name2, Symbol declType, str signature, loc src) := info){
-       result += "<signature>\n";
-    }
-    return result;
-}
+//str infoFunction(str name, set[DeclarationInfo] info, bool showDoc = false, bool showSource = false, bool fuzzy = false){
+//   result = "";
+//   name1 = toLowerCase(name);
+//            functionInfo(str moduleName, str name, str signature, loc src, str synopsis, str doc)
+//   for(/fi: functionInfo(str moduleName, name2, Symbol declType, str signature, loc src) := info, (fuzzy ? contains(toLowerCase(name2), name1) : toLowerCase(name2) == name1)){
+//      result += report(fi, showDoc=showDoc, showSource=showSource);
+//   }
+//   for(/ci: constructorInfo(str moduleName, name2, Symbol declType, str signature, loc src) := info, (fuzzy ? contains(toLowerCase(name2), name1) : toLowerCase(name2) == name1)){
+//      result += report(ci, showDoc=showDoc, showSource=showSource);
+//   }
+//   return result;
+//}
+//
+//str infoModule(str moduleName, set[DeclarationInfo] info){
+//    result = "";
+//    for(/fi: functionInfo(moduleName, name2, Symbol declType, str signature, loc src) := info){
+//       result += "<signature>\n";
+//    }
+//    return result;
+//}
 
 str infoReturns(str returnType, set[DeclarationInfo] info,  bool showDoc = false, bool showSource = false){
     result = "";
@@ -68,20 +68,20 @@ str infoReturns(str returnType, set[DeclarationInfo] info,  bool showDoc = false
    return result;
 }
 
-set[DeclarationInfo] getStdLibInfo(){
-
-    info1 = generate(["Boolean", "DateTime", "Exception", "Grammar", "IO", "List", "ListRelation", "Map", "Message", 
-                     "Node", "ParseTree", "Relation", "Set", "String", "ToString", "Tuple", "Type", "ValueIO"], pathConfig());
-    info2 = generate(["util::Benchmark", "util::Brackets", "util::FileSystem", "util::Highlight", "util::Loc", 
-                      "util::Math", "util::Maybe", "util::Monitor", "util::PriorityQueue", "util::REPL", 
-                      "util::Reflective", "util::ShellExec", "util::SystemAPI",
-                     "util::UUID", "util::Webserver"], pathConfig());
-    return info1 + info2;
-}
+//set[DeclarationInfo] getStdLibInfo(){
+//
+//    info1 = generate(["Boolean", "DateTime", "Exception", "Grammar", "IO", "List", "ListRelation", "Map", "Message", 
+//                     "Node", "ParseTree", "Relation", "Set", "String", "ToString", "Tuple", "Type", "ValueIO"], pathConfig());
+//    info2 = generate(["util::Benchmark", "util::Brackets", "util::FileSystem", "util::Highlight", "util::Loc", 
+//                      "util::Math", "util::Maybe", "util::Monitor", "util::PriorityQueue", "util::REPL", 
+//                      "util::Reflective", "util::ShellExec", "util::SystemAPI",
+//                     "util::UUID", "util::Webserver"], pathConfig());
+//    return info1 + info2;
+//}
     
 
-value main(){
-   info = generate("experiments::Compiler::Examples::Tst2", pathConfig());
-   println(getFunctions("f", info, showSource=true));
-   return true;
-}
+//value main(){
+//   info = generate("experiments::Compiler::Examples::Tst2", pathConfig());
+//   println(getFunctions("f", info, showSource=true));
+//   return true;
+//}
