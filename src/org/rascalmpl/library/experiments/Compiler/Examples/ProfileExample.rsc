@@ -3,12 +3,6 @@ module experiments::Compiler::Examples::ProfileExample
 import experiments::Compiler::Profile;   
 import IO; 
 import Message;
-import util::ResourceMarkers; 
-
-void addMarkers(lrel[loc src, int ticks] profData){
-	// TODO: add multiple ticks per line
-	addMessageMarkers({ info("<tup.ticks> ticks", tup.src) | tup <- profData });
-}
 
 int fac(int n) = (n <= 1) ? 1 : n * fac(n-1);
  
@@ -44,6 +38,5 @@ println("Start of program");
   reportProfile();
   reportProfile(prof);
   fac(24);
-  addMarkers(prof);
   return true;
 }
