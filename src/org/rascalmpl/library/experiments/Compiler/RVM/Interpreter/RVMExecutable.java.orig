@@ -433,11 +433,21 @@ public class RVMExecutable implements Serializable{
         RVMWireExtensions.nestedOrReferenceRepeated(out, CompilerIDs.Executable.CONSTRUCTOR_STORE, constructorStore, lastWritten,
             (o, t) -> IValueWriter.write(o, WindowSizes.SMALL_WINDOW, t));
 
+<<<<<<< HEAD
+=======
+        RVMWireExtensions.writeMapOrReference(out, CompilerIDs.Executable.CONSTRUCTOR_MAP, getConstructorMap(), lastWritten);
+
+>>>>>>> 7d2536b... Introduce sharing for all nested types, values and string,int maps
         out.writeRepeatedNestedField(CompilerIDs.Executable.OVERLOADED_STORE, getOverloadedStore().length);
         for(OverloadedFunction ovl : getOverloadedStore()){
             ovl.write(out, lastWritten);
         }
 
+<<<<<<< HEAD
+=======
+        RVMWireExtensions.writeMapOrReference(out, CompilerIDs.Executable.RESOLVER, getResolver(), lastWritten);
+        
+>>>>>>> 7d2536b... Introduce sharing for all nested types, values and string,int maps
         out.writeField(CompilerIDs.Executable.INITIALIZERS, 
             getInitializers().toArray(new String[getInitializers().size()]));
 
@@ -637,7 +647,11 @@ public class RVMExecutable implements Serializable{
                         throw new IOException("RESOLVER should be defined before FUNCTION_STORE");
                     }
                     for(int i = 0; i < n; i++){
-                        Function function = Function.read(in, vf, functionMap, constructorMap, resolver, lastRead);
+<<<<<<< HEAD
+                        Function function = Function.read(in, vf, functionMap, constructorMap, resolver);
+=======
+                        Function function = Function.read(in, vf, lastRead);
+>>>>>>> 7d2536b... Introduce sharing for all nested types, values and string,int maps
                         functionStore[i] = function;
                     }
                     break;
@@ -648,6 +662,15 @@ public class RVMExecutable implements Serializable{
                         IValueReader::readType);
                     break;
                 }
+                
+<<<<<<< HEAD
+               
+=======
+                case CompilerIDs.Executable.CONSTRUCTOR_MAP: {
+                    constructorMap = RVMWireExtensions.readMapOrReference(in, lastRead);
+                    break;
+                }
+>>>>>>> 7d2536b... Introduce sharing for all nested types, values and string,int maps
                 
                 case CompilerIDs.Executable.OVERLOADED_STORE: {
                     int n = in.getRepeatedLength();

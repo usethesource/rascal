@@ -893,14 +893,33 @@ public class CodeBlock implements Serializable {
         RVMWireExtensions.nestedOrReferenceRepeated(out, CompilerIDs.CodeBlock.FINAL_CONSTANT_STORE, finalConstantStore, lastWritten,
             (o, c) -> IValueWriter.write(out, WindowSizes.TINY_WINDOW, c));
         
+<<<<<<< HEAD
+//        out.writeField(CompilerIDs.CodeBlock.FUNCTION_MAP, functionMap);
+//        
+//        out.writeField(CompilerIDs.CodeBlock.RESOLVER, resolver);
+//        
+//        out.writeField(CompilerIDs.CodeBlock.CONSTRUCTOR_MAP, constructorMap);
+=======
         RVMWireExtensions.nestedOrReferenceRepeated(out, CompilerIDs.CodeBlock.FINAL_TYPECONSTANT_STORE, finalTypeConstantStore, lastWritten,
             (o, tc) -> IValueWriter.write(out, WindowSizes.TINY_WINDOW, tc));
+        
+        RVMWireExtensions.writeMapOrReference(out, CompilerIDs.CodeBlock.FUNCTION_MAP, functionMap, lastWritten);
+
+        RVMWireExtensions.writeMapOrReference(out, CompilerIDs.CodeBlock.RESOLVER, resolver, lastWritten);
+>>>>>>> 7d2536b... Introduce sharing for all nested types, values and string,int maps
+
+        RVMWireExtensions.writeMapOrReference(out, CompilerIDs.CodeBlock.CONSTRUCTOR_MAP, constructorMap, lastWritten);
+        
         RVMWireExtensions.writeLongs(out, CompilerIDs.CodeBlock.FINAL_CODE, finalCode);
        
 	    out.endMessage();
 	}
 
-    public static CodeBlock read(IWireInputStream in, IValueFactory vf, Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, TrackLastRead<Object> lastRead) throws IOException {
+<<<<<<< HEAD
+    public static CodeBlock read(IWireInputStream in, IValueFactory vf, Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) throws IOException {
+=======
+    public static CodeBlock read(IWireInputStream in, IValueFactory vf, TrackLastRead<Object> lastRead) throws IOException {
+>>>>>>> 7d2536b... Introduce sharing for all nested types, values and string,int maps
         System.err.println("Reading CodeBlock");
         String name = "unitialized name";
         

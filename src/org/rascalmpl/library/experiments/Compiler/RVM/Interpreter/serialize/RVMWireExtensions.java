@@ -14,13 +14,25 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMWireExtensions.ThrowingBiConsumer;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.binary.util.TrackLastRead;
+import org.rascalmpl.value.io.binary.util.TrackLastWritten;
 import org.rascalmpl.value.io.binary.wire.FieldKind;
 import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
+import org.rascalmpl.value.type.Type;
 
 public class RVMWireExtensions {
     
@@ -70,4 +82,114 @@ public class RVMWireExtensions {
         buf.asLongBuffer().get(result);
         return result;
     }
+    
+    @FunctionalInterface
+    public static interface ThrowingBiConsumer<T, U, E extends Exception> extends BiConsumer<T,U> {
+        void throwingAccept(T t, U u) throws E;
+        @Override
+        default void accept(T t, U u) {
+            try {
+                throwingAccept(t, u);
+            }
+            catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    @FunctionalInterface
+    public static interface ThrowingBiFunction<T, U, R, E extends Exception> extends BiFunction<T,U, R> {
+        R throwingApply(T t, U u) throws E;
+        @Override
+        default R apply(T t, U u) {
+            try {
+                return throwingApply(t, u);
+            }
+            catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    public static <T> void nestedOrReference(IWireOutputStream out, int fieldId, T obj, TrackLastWritten<Object> lastWritten,
+        ThrowingBiConsumer<IWireOutputStream, T, IOException> writeNested) throws IOException {
+        int written = lastWritten.howLongAgo(obj);
+        if (written != -1) {
+            out.writeField(fieldId, written);
+        }
+        else {
+            out.writeNestedField(fieldId);
+            writeNested.throwingAccept(out, obj);
+            lastWritten.write(obj);
+        }
+    }
+
+    public static <T> void nestedOrReferenceRepeated(IWireOutputStream out, int fieldId, Collection<T> objs, TrackLastWritten<Object> lastWritten,
+        ThrowingBiConsumer<IWireOutputStream, T, IOException> writeNested) throws IOException {
+        out.writeField(fieldId, objs.size());
+        for (T o : objs) {
+            nestedOrReference(out, fieldId, o, lastWritten, writeNested);
+        }
+    }
+    public static <T> void nestedOrReferenceRepeated(IWireOutputStream out, int fieldId, T[] objs, TrackLastWritten<Object> lastWritten,
+        ThrowingBiConsumer<IWireOutputStream, T, IOException> writeNested) throws IOException {
+        out.writeField(fieldId, objs.length);
+        for (T o : objs) {
+            nestedOrReference(out, fieldId, o, lastWritten, writeNested);
+        }
+    }
+
+    public static void writeMapOrReference(IWireOutputStream out, int fieldId,
+        Map<String, Integer> map, TrackLastWritten<Object> lastWritten) throws IOException {
+        int written = lastWritten.howLongAgo(map);
+        if (written != -1) {
+            out.writeField(fieldId, written);
+        }
+        else {
+            out.writeField(fieldId, map);
+            lastWritten.write(map);
+        }
+    }
+
+    public static <T> T readNestedOrReference(IWireInputStream in, IValueFactory vf, TrackLastRead<Object> lastRead,
+        ThrowingBiFunction<IWireInputStream, IValueFactory, T, IOException> reader) throws IOException {
+        if (in.getFieldType() == FieldKind.INT) {
+            return (T) lastRead.lookBack(in.getInteger());
+        }
+        else {
+           T result = reader.throwingApply(in, vf); 
+           lastRead.read(result);
+           return result;
+        }
+    }
+
+    public static <T> ArrayList<T> readNestedOrReferenceRepeatedList(IWireInputStream in, IValueFactory vf, TrackLastRead<Object> lastRead,
+        ThrowingBiFunction<IWireInputStream, IValueFactory, T, IOException> reader) throws IOException {
+        int arity = in.getInteger();
+        ArrayList<T> result = new ArrayList<T>(arity);
+        for (int i = 0; i < arity; i++) {
+            result.add(readNestedOrReference(in, vf, lastRead, reader));
+        }
+        return result;
+    }
+    public static <T> T[] readNestedOrReferenceRepeatedArray(IWireInputStream in, IValueFactory vf, TrackLastRead<Object> lastRead,
+        ThrowingBiFunction<IWireInputStream, IValueFactory, T, IOException> reader,
+        Function<Integer, T[]> constructArray) throws IOException {
+        int arity = in.getInteger();
+        T[] result = constructArray.apply(arity);
+        for (int i = 0; i < arity; i++) {
+            result[i]= readNestedOrReference(in, vf, lastRead, reader);
+        }
+        return result;
+    }
+
+    public static Map<String, Integer> readMapOrReference(IWireInputStream in, TrackLastRead<Object> lastRead) {
+        if (in.getFieldType() == FieldKind.INT) {
+            return (Map<String, Integer>) lastRead.lookBack(in.getInteger());
+        }
+        lastRead.read(in.getStringIntegerMap());
+        return in.getStringIntegerMap();
+    }
+
+
 }

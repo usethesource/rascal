@@ -506,7 +506,11 @@ public class Function implements Serializable {
         out.endMessage();
     }
     
-    static Function read(IWireInputStream in, IValueFactory vfactory, Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, TrackLastRead<Object> lastRead) throws IOException{
+<<<<<<< HEAD
+    static Function read(IWireInputStream in, IValueFactory vfactory, Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) throws IOException{
+=======
+    static Function read(IWireInputStream in, IValueFactory vfactory, TrackLastRead<Object> lastRead) throws IOException{
+>>>>>>> 7d2536b... Introduce sharing for all nested types, values and string,int maps
         System.err.println("Reading Function");
         
         String name = "unitialized name";
@@ -623,7 +627,11 @@ public class Function implements Serializable {
                 }
                     
                 case CompilerIDs.Function.CODEBLOCK: {
-                    codeblock = CodeBlock.read(in, vf, functionMap, constructorMap, resolver, lastRead);
+<<<<<<< HEAD
+                    codeblock = CodeBlock.read(in, vf, functionMap, constructorMap, resolver);
+=======
+                    codeblock = CodeBlock.read(in, vf, lastRead);
+>>>>>>> 7d2536b... Introduce sharing for all nested types, values and string,int maps
                     break;
                 }
                 
