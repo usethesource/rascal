@@ -895,6 +895,7 @@ public class CodeBlock implements Serializable {
         
         RVMWireExtensions.nestedOrReferenceRepeated(out, CompilerIDs.CodeBlock.FINAL_TYPECONSTANT_STORE, finalTypeConstantStore, lastWritten,
             (o, tc) -> IValueWriter.write(out, WindowSizes.TINY_WINDOW, tc));
+
         RVMWireExtensions.writeLongs(out, CompilerIDs.CodeBlock.FINAL_CODE, finalCode);
        
 	    out.endMessage();
@@ -948,21 +949,6 @@ public class CodeBlock implements Serializable {
                         typeConstantMap.put(finalTypeConstantStore[i], i);
                         typeConstantStore.add(finalTypeConstantStore[i]);
                     }
-                    break;
-                }
-                
-                case CompilerIDs.CodeBlock.FUNCTION_MAP: {
-                    functionMap = RVMWireExtensions.readMapOrReference(in, lastRead);
-                    break;
-                }
-                
-                case CompilerIDs.CodeBlock.RESOLVER: {
-                    resolver = RVMWireExtensions.readMapOrReference(in, lastRead);
-                    break;
-                }
-                
-                case CompilerIDs.CodeBlock.CONSTRUCTOR_MAP: {
-                    constructorMap = RVMWireExtensions.readMapOrReference(in, lastRead);
                     break;
                 }
                 
