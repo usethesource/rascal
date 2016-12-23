@@ -30,16 +30,17 @@ public class CompilerIDs {
         public static final int MODULE_TAGS = 7;
         public static final int SYMBOL_DEFINITIONS = 8;
         public static final int FUNCTION_STORE = 9;
-        public static final int CONSTRUCTOR_STORE = 10;
-        public static final int CONSTRUCTOR_MAP = 11;
-        public static final int OVERLOADED_STORE = 12;
-        public static final int RESOLVER = 13;
-        public static final int INITIALIZERS = 14;
-        public static final int UID_MODULE_INIT = 15;
-        public static final int UID_MODULE_MAIN = 16;
-        public static final int JVM_BYTE_CODE = 17;
-        public static final int FULLY_QUALIFIED_DOTTED_NAME = 18;
-        public static final int JVM_BYTE_CODE_SIZE = 19;
+        public static final int FUNCTION_MAP = 10;
+        public static final int CONSTRUCTOR_STORE = 11;
+        public static final int CONSTRUCTOR_MAP = 12;
+        public static final int OVERLOADED_STORE = 13;
+        public static final int RESOLVER = 14;
+        public static final int INITIALIZERS = 15;
+        public static final int UID_MODULE_INIT = 16;
+        public static final int UID_MODULE_MAIN = 17;
+        public static final int JVM_BYTE_CODE = 18;
+        public static final int FULLY_QUALIFIED_DOTTED_NAME = 19;
+        public static final int JVM_BYTE_CODE_SIZE = 20;
     }
     
     public static class CodeBlock {

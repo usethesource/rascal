@@ -412,6 +412,14 @@ public class RVMExecutable implements Serializable{
         out.writeNestedField(CompilerIDs.Executable.SYMBOL_DEFINITIONS);
         IValueWriter.write(out, WindowSizes.NORMAL_WINDOW, getSymbolDefinitions());
 
+        out.writeField(CompilerIDs.Executable.FUNCTION_MAP, getFunctionMap());
+        
+        out.writeField(CompilerIDs.Executable.CONSTRUCTOR_MAP, getConstructorMap());
+        
+        out.writeField(CompilerIDs.Executable.RESOLVER, getResolver());
+        
+        // FUNCTION_MAP, CONSTRUCTOR_MAP and RESOLVER should come before FUNCTION_STORE
+        
         out.writeRepeatedNestedField(CompilerIDs.Executable.FUNCTION_STORE, functionStore.length);
         for(Function function : functionStore){
             function.write(out);
@@ -422,15 +430,11 @@ public class RVMExecutable implements Serializable{
            IValueWriter.write(out, WindowSizes.SMALL_WINDOW, type);
         }
 
-        out.writeField(CompilerIDs.Executable.CONSTRUCTOR_MAP, getConstructorMap());
-
         out.writeRepeatedNestedField(CompilerIDs.Executable.OVERLOADED_STORE, getOverloadedStore().length);
         for(OverloadedFunction ovl : getOverloadedStore()){
             ovl.write(out);
         }
 
-        out.writeField(CompilerIDs.Executable.RESOLVER, getResolver());
-        
         out.writeField(CompilerIDs.Executable.INITIALIZERS, 
             getInitializers().toArray(new String[getInitializers().size()]));
 
@@ -503,16 +507,15 @@ public class RVMExecutable implements Serializable{
 
 	    Function[] functionStore = new Function[0];
 	    
-	    Map<String, Integer> emptyMap = new HashMap<>();
-	    Map<String, Integer> functionMap = emptyMap;
+	    Map<String, Integer> functionMap = null;
 
 	    // Constructors
 	    ArrayList<Type> constructorStore = new ArrayList<>();
-	    Map<String, Integer> constructorMap = emptyMap;
+	    Map<String, Integer> constructorMap = null;
 
 	    // Function overloading
 	    OverloadedFunction[] overloadedStore = new OverloadedFunction[0];
-	    Map<String, Integer> resolver = emptyMap;
+	    Map<String, Integer> resolver = null;
 
 	    ArrayList<String> initializers = new ArrayList<>();
 	    String uid_module_init = "unitialized uid_module_init";
@@ -605,14 +608,31 @@ public class RVMExecutable implements Serializable{
                     break;
                 }
                 
+                case CompilerIDs.Executable.FUNCTION_MAP: {
+                    functionMap  = in.getStringIntegerMap();
+                    break;
+                }
+                
+                case CompilerIDs.Executable.CONSTRUCTOR_MAP: {
+                    constructorMap = in.getStringIntegerMap();
+                    break;
+                }
+                
                 case CompilerIDs.Executable.FUNCTION_STORE: {
                     int n = in.getRepeatedLength();
                     functionStore = new Function[n];
-                    functionMap = new HashMap<String, Integer>(n);
+                    if(functionMap == null){
+                        throw new IOException("FUNCTION_MAP should be defined before FUNCTION_STORE");
+                    }
+                    if(constructorMap == null){
+                        throw new IOException("CONSTRUCTOR_MAP should be defined before FUNCTION_STORE");
+                    }
+                    if(resolver == null){
+                        throw new IOException("RESOLVER should be defined before FUNCTION_STORE");
+                    }
                     for(int i = 0; i < n; i++){
-                        Function function = Function.read(in, vf);
+                        Function function = Function.read(in, vf, functionMap, constructorMap, resolver);
                         functionStore[i] = function;
-                        functionMap.put(function.getName(), i);
                     }
                     break;
                 }
@@ -626,10 +646,7 @@ public class RVMExecutable implements Serializable{
                     break;
                 }
                 
-                case CompilerIDs.Executable.CONSTRUCTOR_MAP: {
-                    constructorMap = in.getStringIntegerMap();
-                    break;
-                }
+               
                 
                 case CompilerIDs.Executable.OVERLOADED_STORE: {
                     int n = in.getRepeatedLength();

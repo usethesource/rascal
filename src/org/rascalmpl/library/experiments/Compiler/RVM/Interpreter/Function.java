@@ -168,11 +168,11 @@ public class Function implements Serializable {
 		this.continuationPoints = ctpt ;
 	}
 	
-	public void  finalize(final Map<String, Integer> codeMap, final Map<String, Integer> constructorMap, final Map<String, Integer> resolver){
+	public void  finalize(final Map<String, Integer> functionMap, final Map<String, Integer> constructorMap, final Map<String, Integer> resolver){
 		if(constructorMap == null){
 			System.out.println("finalize: null");
 		}
-		codeblock.done(name, codeMap, constructorMap, resolver);
+		codeblock.done(name, functionMap, constructorMap, resolver);
 		this.scopeId = codeblock.getFunctionIndex(name);
 		if(funIn.length() != 0) {
 			this.scopeIn = codeblock.getFunctionIndex(funIn);
@@ -505,7 +505,7 @@ public class Function implements Serializable {
         out.endMessage();
     }
     
-    static Function read(IWireInputStream in, IValueFactory vfactory) throws IOException{
+    static Function read(IWireInputStream in, IValueFactory vfactory, Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) throws IOException{
         System.err.println("Reading Function");
         
         String name = "unitialized name";
@@ -619,7 +619,7 @@ public class Function implements Serializable {
                 }
                     
                 case CompilerIDs.Function.CODEBLOCK: {
-                    codeblock = CodeBlock.read(in, vf);
+                    codeblock = CodeBlock.read(in, vf, functionMap, constructorMap, resolver);
                     break;
                 }
                 

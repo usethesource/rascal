@@ -784,8 +784,8 @@ public class CodeBlock implements Serializable {
 	}
 	
 			
-	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) {
-		this.functionMap = codeMap;
+	public CodeBlock done(String fname, Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) {
+		this.functionMap = functionMap;
 		this.constructorMap = constructorMap;
 		this.resolver = resolver;
 		int codeSize = pc;
@@ -812,6 +812,12 @@ public class CodeBlock implements Serializable {
 	
     	return this;
     }
+	
+	public void setMaps(Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver){
+	    this.functionMap = functionMap;
+        this.constructorMap = constructorMap;
+        this.resolver = resolver;
+	}
     
     public long[] getInstructions(){
     	return finalCode;
@@ -891,18 +897,18 @@ public class CodeBlock implements Serializable {
             IValueWriter.write(out, WindowSizes.TINY_WINDOW, type); 
         }
         
-        out.writeField(CompilerIDs.CodeBlock.FUNCTION_MAP, functionMap);
-        
-        out.writeField(CompilerIDs.CodeBlock.RESOLVER, resolver);
-        
-        out.writeField(CompilerIDs.CodeBlock.CONSTRUCTOR_MAP, constructorMap);
+//        out.writeField(CompilerIDs.CodeBlock.FUNCTION_MAP, functionMap);
+//        
+//        out.writeField(CompilerIDs.CodeBlock.RESOLVER, resolver);
+//        
+//        out.writeField(CompilerIDs.CodeBlock.CONSTRUCTOR_MAP, constructorMap);
 
         RVMWireExtensions.writeLongs(out, CompilerIDs.CodeBlock.FINAL_CODE, finalCode);
        
 	    out.endMessage();
 	}
 
-    public static CodeBlock read(IWireInputStream in, IValueFactory vf) throws IOException {
+    public static CodeBlock read(IWireInputStream in, IValueFactory vf, Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) throws IOException {
         System.err.println("Reading CodeBlock");
         String name = "unitialized name";
         
@@ -913,12 +919,6 @@ public class CodeBlock implements Serializable {
         Map<Type, Integer> typeConstantMap = new HashMap<>();
         ArrayList<Type> typeConstantStore = new ArrayList<>();
         Type[] finalTypeConstantStore = new Type[0];
-        
-        Map<String, Integer> empty = new HashMap<>();
-        
-        Map<String, Integer> functionMap = empty;
-        Map<String, Integer> resolver = empty;
-        Map<String, Integer> constructorMap = empty;
         
         long[] finalCode = new long[0];
         
