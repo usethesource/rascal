@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.nustaq.serialization.FSTBasicObjectSerializer;
@@ -126,7 +127,7 @@ public class RVMExecutable implements Serializable{
 	private OverloadedFunction[] overloadedStore;
 	private Map<String, Integer> resolver;
 	
-	private ArrayList<String> initializers;
+	private List<String> initializers;
 	private String uid_module_init;
 	private String uid_module_main;
 	
@@ -151,7 +152,7 @@ public class RVMExecutable implements Serializable{
 			final Map<String, Integer> resolver,
 			final OverloadedFunction[] overloadedStore,
 			
-			ArrayList<String> initializers,
+			List<String> initializers2,
 			String uid_module_init,
 			String uid_module_main,
 			TypeStore ts,
@@ -177,7 +178,7 @@ public class RVMExecutable implements Serializable{
 		this.resolver = resolver;
 		this.overloadedStore = overloadedStore;
 		
-		this.initializers = initializers;
+		this.initializers = initializers2;
 		
 		this.uid_module_init = uid_module_init;
 		this.uid_module_main = uid_module_main;
@@ -238,7 +239,7 @@ public class RVMExecutable implements Serializable{
 		return resolver;
 	}
 	
-	ArrayList<String> getInitializers() {
+	List<String> getInitializers() {
 		return initializers;
 	}
 	
@@ -520,7 +521,7 @@ public class RVMExecutable implements Serializable{
 	    OverloadedFunction[] overloadedStore = new OverloadedFunction[0];
 	    Map<String, Integer> resolver = null;
 
-	    ArrayList<String> initializers = new ArrayList<>();
+	    List<String> initializers = new ArrayList<>();
 	    String uid_module_init = "unitialized uid_module_init";
 	    String uid_module_main = "unitialized uid_module_main";
 
@@ -664,7 +665,7 @@ public class RVMExecutable implements Serializable{
                 }
                 
                 case CompilerIDs.Executable.INITIALIZERS: {
-                    initializers = (ArrayList<String>) Arrays.asList(in.getStrings());
+                    initializers = Arrays.asList(in.getStrings());
                     break;
                 }
                 
