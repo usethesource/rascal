@@ -126,6 +126,7 @@ public class IValueReader {
         while(reader.next() == IWireInputStream.MESSAGE_START){
             int messageID = reader.message();
             if (messageID == IValueIDs.LastValue.ID) {
+                reader.skipMessage();
                 if(vstack.size() == 1 && tstack.size() == 0){
                     return vstack.pop();
                 }
@@ -142,6 +143,7 @@ public class IValueReader {
         while(reader.next() == IWireInputStream.MESSAGE_START){
             int messageID = reader.message();
             if (messageID == IValueIDs.LastType.ID) {
+                reader.skipMessage();
                 if(vstack.size() == 0 && tstack.size() == 1){
                     return tstack.pop();
                 }
