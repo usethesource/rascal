@@ -457,7 +457,7 @@ public class Function implements Serializable {
 
         out.writeRepeatedNestedField(CompilerIDs.Function.TYPE_CONSTANT_STORE, typeConstantStore.length);
         for(Type type : typeConstantStore){
-            IValueWriter.write(out, WindowSizes.TINY_WINDOW, type); 
+            IValueWriter.write(out, WindowSizes.TINY_WINDOW, RascalExecutionContext.shareTypeConstant(type)); 
         }
 
         if(concreteArg){
@@ -498,7 +498,7 @@ public class Function implements Serializable {
         IValueWriter.write(out, WindowSizes.NO_WINDOW, src);
         
         out.writeNestedField(CompilerIDs.Function.LOCAL_NAMES);
-        IValueWriter.write(out,WindowSizes.SMALL_WINDOW, localNames);
+        IValueWriter.write(out,WindowSizes.TINY_WINDOW, localNames);
 
         out.writeField(CompilerIDs.Function.CONTINUATION_POINTS, continuationPoints);
         
@@ -700,6 +700,12 @@ public class Function implements Serializable {
                 
                 case CompilerIDs.Function.REFS: {
                     refs = in.getIntegers();
+                    break;
+                }
+                
+                case CompilerIDs.Function.IS_VARARGS: {
+                    int n = in.getInteger();
+                    isVarArgs = n == 1 ? true : false;
                     break;
                 }
                 
