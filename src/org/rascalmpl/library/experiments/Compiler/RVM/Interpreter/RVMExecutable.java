@@ -386,7 +386,7 @@ public class RVMExecutable implements Serializable{
 	            cout = new ZstdOutputStream(out, compressionLevel);
 	        }
 	        try(IWireOutputStream iout = new BinaryWireOutputStream(cout, 50_000)){
-	            write(iout, typeStore, WindowCacheFactory.getInstance().getTrackLastWrittenObjectEquality(50_000));
+	            write(iout, typeStore, WindowCacheFactory.getInstance().getTrackLastWrittenReferenceEquality(50_000));
 	        }
 	    }
 	}
