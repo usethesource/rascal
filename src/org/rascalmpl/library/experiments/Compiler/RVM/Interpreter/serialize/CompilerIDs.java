@@ -42,7 +42,6 @@ public class CompilerIDs {
         public static final int UID_MODULE_MAIN = 17;
         public static final int JVM_BYTE_CODE = 18;
         public static final int FULLY_QUALIFIED_DOTTED_NAME = 19;
-        public static final int JVM_BYTE_CODE_SIZE = 20;
     }
     
     public static class CodeBlock {

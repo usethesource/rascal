@@ -442,8 +442,6 @@ public class RVMExecutable implements Serializable{
         System.err.println("JVM_BYTE_CODE: " + getJvmByteCode().length + "bytes written");
         out.writeField(CompilerIDs.Executable.JVM_BYTE_CODE, getJvmByteCode());
         
-        out.writeField(CompilerIDs.Executable.JVM_BYTE_CODE_SIZE, getJvmByteCode().length);
-        
         out.writeField(CompilerIDs.Executable.FULLY_QUALIFIED_DOTTED_NAME, getFullyQualifiedDottedName());
         
         out.endMessage();
@@ -669,15 +667,8 @@ public class RVMExecutable implements Serializable{
                 }
                 
                 case CompilerIDs.Executable.JVM_BYTE_CODE: {
-                    System.err.println("JVM_BYTE_CODE: " + in.getRepeatedLength() + " repeatedLength");
                     jvmByteCode = in.getBytes();
                     System.err.println("JVM_BYTE_CODE: " + jvmByteCode.length + " bytes read");
-                    break;
-                }
-                
-                case CompilerIDs.Executable.JVM_BYTE_CODE_SIZE: {
-                    System.err.println("JVM_BYTE_CODE_SIZE: " + in.getInteger() + " bytes");
-                    System.err.println("JVM_BYTE_CODE_SIZE: " + in.getRepeatedLength() + " repeatedLength");
                     break;
                 }
                 
