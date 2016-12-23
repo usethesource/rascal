@@ -139,18 +139,6 @@ public class RVMWireExtensions {
         }
     }
 
-    public static void writeMapOrReference(IWireOutputStream out, int fieldId,
-        Map<String, Integer> map, TrackLastWritten<Object> lastWritten) throws IOException {
-        int written = lastWritten.howLongAgo(map);
-        if (written != -1) {
-            out.writeField(fieldId, written);
-        }
-        else {
-            out.writeField(fieldId, map);
-            lastWritten.write(map);
-        }
-    }
-
     public static <T> T readNestedOrReference(IWireInputStream in, IValueFactory vf, TrackLastRead<Object> lastRead,
         ThrowingBiFunction<IWireInputStream, IValueFactory, T, IOException> reader) throws IOException {
         if (in.getFieldType() == FieldKind.INT) {
@@ -168,6 +156,7 @@ public class RVMWireExtensions {
         int arity = in.getInteger();
         ArrayList<T> result = new ArrayList<T>(arity);
         for (int i = 0; i < arity; i++) {
+            in.next();
             result.add(readNestedOrReference(in, vf, lastRead, reader));
         }
         return result;
@@ -178,18 +167,10 @@ public class RVMWireExtensions {
         int arity = in.getInteger();
         T[] result = constructArray.apply(arity);
         for (int i = 0; i < arity; i++) {
+            in.next();
             result[i]= readNestedOrReference(in, vf, lastRead, reader);
         }
         return result;
     }
-
-    public static Map<String, Integer> readMapOrReference(IWireInputStream in, TrackLastRead<Object> lastRead) {
-        if (in.getFieldType() == FieldKind.INT) {
-            return (Map<String, Integer>) lastRead.lookBack(in.getInteger());
-        }
-        lastRead.read(in.getStringIntegerMap());
-        return in.getStringIntegerMap();
-    }
-
 
 }
