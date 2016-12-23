@@ -23,36 +23,6 @@ import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 
 public class RVMWireExtensions {
-
-//    public static void writeMap(IWireOutputStream out, int fieldId, Map<String, Integer> map) throws IOException{
-//        int n = map.size();
-//        String[] keys = new String[n];
-//        int[] values = new int[n];
-//        
-//        int i = 0;
-//        for(Entry<String, Integer> entry : map.entrySet()){
-//            keys[i] = entry.getKey();
-//            values[i] = entry.getValue();
-//            i++;
-//        }
-//        out.writeField(fieldId, keys);
-//        out.writeField(fieldId, values);
-//    }
-    
-//    public static Map<String, Integer> readMap(IWireInputStream in) throws IOException{
-//        assert in.getFieldType() == FieldKind.REPEATED && in.getRepeatedType() == FieldKind.STRING;
-//        String[] keys = in.getStrings();
-//        int fieldId = in.field();
-//        in.next();
-//        assert in.field() == fieldId;
-//        int[] values = in.getIntegers();
-//        assert keys.length == values.length;
-//        Map<String, Integer> map = new HashMap<>();
-//        for(int i = 0; i < keys.length; i++){
-//            map.put(keys[i], values[i]);
-//        }
-//        return map;     
-//    }
     
     public static void writeMapIntToInts(IWireOutputStream out, int fieldId, Map<Integer, int[]> map) throws IOException{
         int n = map.size();
@@ -73,10 +43,9 @@ public class RVMWireExtensions {
     }
     
     public static Map<Integer, int[]> readMapIntToInts(IWireInputStream in) throws IOException{
-        assert in.getFieldType() == FieldKind.REPEATED && in.getRepeatedType() == FieldKind.STRING;
-        int[] keys = in.getIntegers();
+        assert in.getFieldType() == FieldKind.REPEATED && in.getRepeatedType() == FieldKind.INT;
         int fieldId = in.field();
-        in.next();
+        int[] keys = in.getIntegers();
         assert in.field() == fieldId;
         Map<Integer, int[]> map = new HashMap<>();
         for(int i = 0; i < keys.length; i++){
