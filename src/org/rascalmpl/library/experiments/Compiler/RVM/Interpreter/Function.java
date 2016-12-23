@@ -15,7 +15,6 @@ import org.nustaq.serialization.FSTObjectOutput;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
@@ -32,7 +31,6 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.io.binary.message.IValueReader;
 import org.rascalmpl.value.io.binary.message.IValueWriter;
 import org.rascalmpl.value.io.binary.util.WindowSizes;
-import org.rascalmpl.value.io.binary.wire.FieldKind;
 import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 import org.rascalmpl.value.type.Type;
@@ -444,7 +442,7 @@ public class Function implements Serializable {
         
         if(tags != null){
             out.writeNestedField(CompilerIDs.Function.TAGS);
-            IValueWriter.write(out, WindowSizes.SMALL_WINDOW, tags);
+            IValueWriter.write(out, WindowSizes.TINY_WINDOW, tags);
         }
 
         out.writeField(CompilerIDs.Function.MAX_STACK, maxstack);
@@ -622,7 +620,6 @@ public class Function implements Serializable {
                     
                 case CompilerIDs.Function.CODEBLOCK: {
                     codeblock = CodeBlock.read(in, vf);
-                    in.next();
                     break;
                 }
                 
