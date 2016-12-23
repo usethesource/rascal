@@ -18,6 +18,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.rascalmpl.value.io.binary.util.TaggedInt;
 import org.rascalmpl.value.io.binary.util.TrackLastRead;
@@ -25,6 +26,8 @@ import org.rascalmpl.value.io.binary.util.WindowCacheFactory;
 import org.rascalmpl.value.io.binary.wire.FieldKind;
 import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
 
@@ -49,6 +52,7 @@ public class BinaryWireInputStream implements IWireInputStream {
     private int keyType;
     private int valueType;
     private Map<String, Integer> stringIntegerMap;
+    private Cache<Integer, Integer> intCache;
 
     public BinaryWireInputStream(InputStream stream) throws IOException {
         this.__stream = stream;
@@ -61,6 +65,9 @@ public class BinaryWireInputStream implements IWireInputStream {
         int stringReadSize = this.stream.readRawVarint32();
         this.stringsRead = WindowCacheFactory.getInstance().getTrackLastRead(stringReadSize);
         this.stream.setSizeLimit(Integer.MAX_VALUE); 
+        this.intCache = Caffeine.newBuilder()
+            .maximumSize(stringReadSize * 2)
+            .build();
     }
 
     @Override
@@ -71,6 +78,7 @@ public class BinaryWireInputStream implements IWireInputStream {
             } finally {
                 closed = true;
                 WindowCacheFactory.getInstance().returnTrackLastRead(stringsRead);
+                intCache.invalidateAll();
             }
         }
         else {
@@ -158,7 +166,8 @@ public class BinaryWireInputStream implements IWireInputStream {
                         HashMap<String, Integer> stringIntegerMap = new HashMap<>(nestedLength);
                         for (int i = 0; i < nestedLength; i++) {
                             String key = readString();
-                            Integer value = stream.readRawVarint32();
+                            // we cached boxed integers
+                            Integer value = intCache.get(stream.readRawVarint32(), iv -> iv);
                             stringIntegerMap.put(key, value);
                         }
                         this.stringIntegerMap = stringIntegerMap;
