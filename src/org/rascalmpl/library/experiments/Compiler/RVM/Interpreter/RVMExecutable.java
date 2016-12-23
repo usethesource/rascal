@@ -659,7 +659,7 @@ public class RVMExecutable implements Serializable{
                 }
                 
                 case CompilerIDs.Executable.RESOLVER: {
-                    resolver = RVMWireExtensions.readMapOrReference(in, lastRead);
+                    resolver = in.getStringIntegerMap();
                     break;
                 }
                 
