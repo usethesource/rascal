@@ -23,35 +23,35 @@ private str substituteHoles(str smod, map[str,str] holes){
             } else {
               fail;
             }
-        }
+        } 
     };
     return substituted;
 } 
 
-private map[str,str] validate1(str qid, str listing, map[str,str] holes){
-    listing1 = substituteHoles(listing, holes);
-    for(f <- pcfg.bin.ls){
-        if(/Question/ := "<f>"){
-           remove(f);
-        }
-    }
-    mloc = |test-modules:///| + "Question.rsc";
-    writeFile(mloc, listing1);
-    try {
-       compileAndLink("Question", pcfg); 
-       res = execute(mloc, pcfg, testsuite=true);
-       if(!printTestReport(res, [])){
-          return ("exercise" : qid, "validation" : "true", "feedback" : "");
-       } else {
-        return ("exercise" : qid, "validation" : "true", "feedback" : "");
-       }
-    } catch e: {
-       return ("exercise" : qid, "validation" : "false", "feedback" : "<e>");
-    }
-}
-
-str validate(str qid, str listing, map[str,str] holes) =
-    XMLResponses(validate1(qid, listing, holes));
+//private map[str,str] validate1(str qid, str listing, map[str,str] holes){
+//    listing1 = substituteHoles(listing, holes);
+//    for(f <- pcfg.bin.ls){
+//        if(/Question/ := "<f>"){
+//           remove(f);
+//        }
+//    }
+//    mloc = |test-modules:///| + "Question.rsc";
+//    writeFile(mloc, listing1);
+//    try {
+//       compileAndLink("Question", pcfg); 
+//       res = execute(mloc, pcfg, testsuite=true);
+//       if(!printTestReport(res, [])){
+//          return ("exercise" : qid, "validation" : "true", "feedback" : "");
+//       } else {
+//        return ("exercise" : qid, "validation" : "true", "feedback" : "");
+//       }
+//    } catch e: {
+//       return ("exercise" : qid, "validation" : "false", "feedback" : "<e>");
+//    }
+//}
+//
+//str validate(str qid, str listing, map[str,str] holes) =
+//    XMLResponses(validate1(qid, listing, holes));
 
 private str escapeForHtml(str txt){
   return
