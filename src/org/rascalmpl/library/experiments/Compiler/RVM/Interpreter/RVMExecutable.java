@@ -21,6 +21,7 @@ import org.nustaq.serialization.FSTObjectOutput;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.library.experiments.Compiler.VersionInfo;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMWireExtensions;
 import org.rascalmpl.library.util.SemVer;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IList;
@@ -31,6 +32,9 @@ import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.io.binary.message.IValueReader;
 import org.rascalmpl.value.io.binary.message.IValueWriter;
+import org.rascalmpl.value.io.binary.util.TrackLastRead;
+import org.rascalmpl.value.io.binary.util.TrackLastWritten;
+import org.rascalmpl.value.io.binary.util.WindowCacheFactory;
 import org.rascalmpl.value.io.binary.util.WindowSizes;
 import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
@@ -382,12 +386,13 @@ public class RVMExecutable implements Serializable{
 	            cout = new ZstdOutputStream(out, compressionLevel);
 	        }
 	        try(IWireOutputStream iout = new BinaryWireOutputStream(cout, 50_000)){
-	            write(iout, typeStore);
+	            write(iout, typeStore, WindowCacheFactory.getInstance().getTrackLastWrittenObjectEquality(50_000));
 	        }
 	    }
 	}
 	
-	private void write(IWireOutputStream out, TypeStore typeStore) throws IOException {
+
+    private void write(IWireOutputStream out, TypeStore typeStore, TrackLastWritten<Object> lastWritten) throws IOException {
 	    
 	    out.startMessage(CompilerIDs.Executable.ID);
 	    
@@ -397,8 +402,8 @@ public class RVMExecutable implements Serializable{
         out.writeField(CompilerIDs.Executable.RASCAL_RUNTIME_VERSION, VersionInfo.RASCAL_RUNTIME_VERSION);
         out.writeField(CompilerIDs.Executable.RASCAL_COMPILER_VERSION, VersionInfo.RASCAL_COMPILER_VERSION);
         
-        out.writeNestedField(CompilerIDs.Executable.ERRORS);
-        IValueWriter.write(out, WindowSizes.TINY_WINDOW, getErrors());
+        RVMWireExtensions.nestedOrReference(out, CompilerIDs.Executable.ERRORS, getErrors(), lastWritten,  
+            (o, e) -> IValueWriter.write(o, WindowSizes.TINY_WINDOW, e));
                   
         if(!isValid()){
             return;
@@ -406,11 +411,11 @@ public class RVMExecutable implements Serializable{
 
         out.writeField(CompilerIDs.Executable.MODULE_NAME, getModuleName());
 
-        out.writeNestedField(CompilerIDs.Executable.MODULE_TAGS);
-        IValueWriter.write(out, WindowSizes.TINY_WINDOW, getModuleTags());
+        RVMWireExtensions.nestedOrReference(out, CompilerIDs.Executable.MODULE_TAGS, getModuleTags(), lastWritten,
+            (o, v) -> IValueWriter.write(o, WindowSizes.TINY_WINDOW, v));
 
-        out.writeNestedField(CompilerIDs.Executable.SYMBOL_DEFINITIONS);
-        IValueWriter.write(out, WindowSizes.NORMAL_WINDOW, getSymbolDefinitions());
+        RVMWireExtensions.nestedOrReference(out, CompilerIDs.Executable.SYMBOL_DEFINITIONS, getSymbolDefinitions(), lastWritten,
+            (o, v) -> IValueWriter.write(o, WindowSizes.NORMAL_WINDOW, v));
 
         out.writeField(CompilerIDs.Executable.FUNCTION_MAP, getFunctionMap());
         
@@ -422,17 +427,15 @@ public class RVMExecutable implements Serializable{
         
         out.writeRepeatedNestedField(CompilerIDs.Executable.FUNCTION_STORE, functionStore.length);
         for(Function function : functionStore){
-            function.write(out);
+            function.write(out, lastWritten);
         }
 
-        out.writeRepeatedNestedField(CompilerIDs.Executable.CONSTRUCTOR_STORE, constructorStore.size());
-        for(Type type : constructorStore){
-           IValueWriter.write(out, WindowSizes.SMALL_WINDOW, type);
-        }
+        RVMWireExtensions.nestedOrReferenceRepeated(out, CompilerIDs.Executable.CONSTRUCTOR_STORE, constructorStore, lastWritten,
+            (o, t) -> IValueWriter.write(o, WindowSizes.SMALL_WINDOW, t));
 
         out.writeRepeatedNestedField(CompilerIDs.Executable.OVERLOADED_STORE, getOverloadedStore().length);
         for(OverloadedFunction ovl : getOverloadedStore()){
-            ovl.write(out);
+            ovl.write(out, lastWritten);
         }
 
         out.writeField(CompilerIDs.Executable.INITIALIZERS, 
@@ -469,7 +472,7 @@ public class RVMExecutable implements Serializable{
 	                cin = new ZstdInputStream(in);
 	            }
 	            try(IWireInputStream win = new BinaryWireInputStream(cin)){
-	                return read(win, ValueFactoryFactory.getValueFactory());
+	                return read(win, ValueFactoryFactory.getValueFactory(), WindowCacheFactory.getInstance().getTrackLastRead(50_000));
 	            }                      
 	        } else {
 	            vf = ValueFactoryFactory.getValueFactory();
@@ -492,7 +495,7 @@ public class RVMExecutable implements Serializable{
 	    }
 	}
 	
-	private static RVMExecutable read(IWireInputStream in, IValueFactory vf) throws IOException {
+	private static RVMExecutable read(IWireInputStream in, IValueFactory vf, TrackLastRead<Object> lastRead) throws IOException {
 	    
 	    System.err.println("Reading Executable");
 	    
@@ -585,7 +588,8 @@ public class RVMExecutable implements Serializable{
                 }
                 
                 case CompilerIDs.Executable.ERRORS: {
-                    errors = (ISet) IValueReader.read(in, vf);
+                    errors = RVMWireExtensions.readNestedOrReference(in, vf, lastRead,
+                        (i, v) -> (ISet)IValueReader.read(in, v));
                     if(errors.size() > 0){
                         System.err.println("Executable.ERRORS: " + errors);
                         return new RVMExecutable(errors);
@@ -599,12 +603,14 @@ public class RVMExecutable implements Serializable{
                 }
                 
                 case CompilerIDs.Executable.MODULE_TAGS: {
-                    moduleTags = (IMap) IValueReader.read(in, vf);
+                    moduleTags = RVMWireExtensions.readNestedOrReference(in, vf, lastRead,
+                        (i, v) -> (IMap)IValueReader.read(in, v));
                     break;
                 }
                 
                 case CompilerIDs.Executable.SYMBOL_DEFINITIONS: {
-                    symbol_definitions = (IMap) IValueReader.read(in, vf);
+                    symbol_definitions = RVMWireExtensions.readNestedOrReference(in, vf, lastRead,
+                        (i, v) -> (IMap)IValueReader.read(in, v));
                     break;
                 }
                 
@@ -631,43 +637,34 @@ public class RVMExecutable implements Serializable{
                         throw new IOException("RESOLVER should be defined before FUNCTION_STORE");
                     }
                     for(int i = 0; i < n; i++){
-                        Function function = Function.read(in, vf, functionMap, constructorMap, resolver);
+                        Function function = Function.read(in, vf, functionMap, constructorMap, resolver, lastRead);
                         functionStore[i] = function;
                     }
                     break;
                 }
                 
                 case CompilerIDs.Executable.CONSTRUCTOR_STORE: {
-                    int n = in.getRepeatedLength();
-                    constructorStore = new ArrayList<>();
-                    for(int i = 0; i < n; i++){
-                        constructorStore.add(IValueReader.readType(in, vf));
-                    }
+                    constructorStore = RVMWireExtensions.readNestedOrReferenceRepeatedList(in, vf, lastRead,
+                        IValueReader::readType);
                     break;
                 }
-                
-               
                 
                 case CompilerIDs.Executable.OVERLOADED_STORE: {
                     int n = in.getRepeatedLength();
                     overloadedStore = new OverloadedFunction[n];
                     for(int i = 0; i < n; i++){
-                        overloadedStore[i] = OverloadedFunction.read(in, vf);
+                        overloadedStore[i] = OverloadedFunction.read(in, vf, lastRead);
                     }
                     break;
                 }
                 
                 case CompilerIDs.Executable.RESOLVER: {
-                    resolver = in.getStringIntegerMap();
+                    resolver = RVMWireExtensions.readMapOrReference(in, lastRead);
                     break;
                 }
                 
                 case CompilerIDs.Executable.INITIALIZERS: {
-                    String[] strings = in.getStrings();
-                    initializers = new ArrayList<>();
-                    for(String s : strings){
-                        initializers.add(s);
-                    }
+                    initializers = (ArrayList<String>) Arrays.asList(in.getStrings());
                     break;
                 }
                 

@@ -17,6 +17,7 @@ import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMWireExtensions;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
@@ -30,6 +31,8 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.io.binary.message.IValueReader;
 import org.rascalmpl.value.io.binary.message.IValueWriter;
+import org.rascalmpl.value.io.binary.util.TrackLastRead;
+import org.rascalmpl.value.io.binary.util.TrackLastWritten;
 import org.rascalmpl.value.io.binary.util.WindowSizes;
 import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
@@ -411,16 +414,16 @@ public class Function implements Serializable {
       }
     }
     
-    public void write(IWireOutputStream out) throws IOException{
+    public void write(IWireOutputStream out, TrackLastWritten<Object> lastWritten) throws IOException{
         out.startMessage(CompilerIDs.Function.ID);
        
         out.writeField(CompilerIDs.Function.NAME, name);
 
-        out.writeNestedField(CompilerIDs.Function.FTYPE);
-        IValueWriter.write(out, WindowSizes.TINY_WINDOW, ftype);
+        RVMWireExtensions.nestedOrReference(out, CompilerIDs.Function.FTYPE, ftype, lastWritten,
+            (o, t) -> IValueWriter.write(o, WindowSizes.TINY_WINDOW, t));
         
-        out.writeNestedField(CompilerIDs.Function.KWTYPE);
-        IValueWriter.write(out, WindowSizes.TINY_WINDOW, kwType);
+        RVMWireExtensions.nestedOrReference(out, CompilerIDs.Function.KWTYPE, kwType, lastWritten,
+            (o, t) -> IValueWriter.write(o, WindowSizes.TINY_WINDOW, t));
 
         out.writeField(CompilerIDs.Function.SCOPE_ID, scopeId);
 
@@ -441,24 +444,21 @@ public class Function implements Serializable {
         }
         
         if(tags != null){
-            out.writeNestedField(CompilerIDs.Function.TAGS);
-            IValueWriter.write(out, WindowSizes.TINY_WINDOW, tags);
+            RVMWireExtensions.nestedOrReference(out, CompilerIDs.Function.TAGS, tags, lastWritten,
+                (o, v) -> IValueWriter.write(o, WindowSizes.TINY_WINDOW, v));
         }
 
         out.writeField(CompilerIDs.Function.MAX_STACK, maxstack);
 
         out.writeNestedField(CompilerIDs.Function.CODEBLOCK);
-        codeblock.write(out);
+        codeblock.write(out, lastWritten);
 
-        out.writeRepeatedNestedField(CompilerIDs.Function.CONSTANT_STORE, constantStore.length);
-        for(IValue constant : constantStore){
-            IValueWriter.write(out, WindowSizes.estimateWindowSize(constant), constant);
-        }
+        
+        RVMWireExtensions.nestedOrReferenceRepeated(out, CompilerIDs.Function.CONSTANT_STORE, constantStore, lastWritten,
+            (o, c) -> IValueWriter.write(out, WindowSizes.estimateWindowSize(c), c));
 
-        out.writeRepeatedNestedField(CompilerIDs.Function.TYPE_CONSTANT_STORE, typeConstantStore.length);
-        for(Type type : typeConstantStore){
-            IValueWriter.write(out, WindowSizes.TINY_WINDOW, RascalExecutionContext.shareTypeConstant(type)); 
-        }
+        RVMWireExtensions.nestedOrReferenceRepeated(out, CompilerIDs.Function.TYPE_CONSTANT_STORE, typeConstantStore, lastWritten,
+            (o, tc) -> IValueWriter.write(out, WindowSizes.TINY_WINDOW, tc));
 
         if(concreteArg){
             out.writeField(CompilerIDs.Function.CONCRETE_ARG, 1);
@@ -497,15 +497,16 @@ public class Function implements Serializable {
         out.writeNestedField(CompilerIDs.Function.SRC);
         IValueWriter.write(out, WindowSizes.NO_WINDOW, src);
         
-        out.writeNestedField(CompilerIDs.Function.LOCAL_NAMES);
-        IValueWriter.write(out,WindowSizes.TINY_WINDOW, localNames);
+
+        RVMWireExtensions.nestedOrReference(out, CompilerIDs.Function.LOCAL_NAMES, localNames, lastWritten,
+            (o, v) -> IValueWriter.write(o, WindowSizes.TINY_WINDOW, v));
 
         out.writeField(CompilerIDs.Function.CONTINUATION_POINTS, continuationPoints);
         
         out.endMessage();
     }
     
-    static Function read(IWireInputStream in, IValueFactory vfactory, Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) throws IOException{
+    static Function read(IWireInputStream in, IValueFactory vfactory, Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, TrackLastRead<Object> lastRead) throws IOException{
         System.err.println("Reading Function");
         
         String name = "unitialized name";
@@ -562,12 +563,14 @@ public class Function implements Serializable {
                 }
                 
                 case CompilerIDs.Function.FTYPE: {
-                    ftype = IValueReader.readType(in, vf); 
+                    ftype = RVMWireExtensions.readNestedOrReference(in, vfactory, lastRead, 
+                        IValueReader::readType);
                     break;
                 }
                 
                 case CompilerIDs.Function.KWTYPE: {
-                    kwType = IValueReader.readType(in, vf);
+                    kwType = RVMWireExtensions.readNestedOrReference(in, vfactory, lastRead, 
+                        IValueReader::readType);
                     break;
                 }
                 
@@ -609,7 +612,8 @@ public class Function implements Serializable {
                 }
                 
                 case CompilerIDs.Function.TAGS: {
-                    tags = (IMap) IValueReader.read(in, vf);
+                    tags = (IMap)RVMWireExtensions.readNestedOrReference(in, vfactory, lastRead, 
+                        IValueReader::read);
                     break;
                 }
                 
@@ -619,25 +623,19 @@ public class Function implements Serializable {
                 }
                     
                 case CompilerIDs.Function.CODEBLOCK: {
-                    codeblock = CodeBlock.read(in, vf, functionMap, constructorMap, resolver);
+                    codeblock = CodeBlock.read(in, vf, functionMap, constructorMap, resolver, lastRead);
                     break;
                 }
                 
                 case CompilerIDs.Function.CONSTANT_STORE: {
-                    int n = in.getRepeatedLength();
-                    constantStore = new IValue[n];
-                    for(int i = 0; i < n; i++){
-                        constantStore[i] = IValueReader.read(in, vf);
-                    }
+                    constantStore = RVMWireExtensions.readNestedOrReferenceRepeatedArray(in, vfactory, lastRead, 
+                        IValueReader::read, sz -> new IValue[sz]);
                     break;
                 }
                 
                 case CompilerIDs.Function.TYPE_CONSTANT_STORE: {
-                    int n = in.getRepeatedLength();
-                    typeConstantStore = new Type[n];
-                    for(int i = 0; i < n; i++){
-                        typeConstantStore[i] = IValueReader.readType(in, vf);
-                    }
+                    typeConstantStore = RVMWireExtensions.readNestedOrReferenceRepeatedArray(in, vfactory, lastRead, 
+                        IValueReader::readType, sz -> new Type[sz]);
                     break;
                 }
                 
@@ -715,7 +713,8 @@ public class Function implements Serializable {
                 }
                 
                 case CompilerIDs.Function.LOCAL_NAMES:{
-                    localNames = (IMap) IValueReader.read(in, vf);
+                    localNames = (IMap)RVMWireExtensions.readNestedOrReference(in, vfactory, lastRead, 
+                        IValueReader::read);
                     break;
                 }
                 

@@ -18,6 +18,8 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.io.binary.message.IValueReader;
 import org.rascalmpl.value.io.binary.message.IValueWriter;
+import org.rascalmpl.value.io.binary.util.TrackLastRead;
+import org.rascalmpl.value.io.binary.util.TrackLastWritten;
 import org.rascalmpl.value.io.binary.util.WindowSizes;
 import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
@@ -353,14 +355,15 @@ public class OverloadedFunction implements Serializable {
 		this.scopeIn = scopeIn;
 	}
 
-    public void write(IWireOutputStream out) throws IOException {
+    public void write(IWireOutputStream out, TrackLastWritten<Object> lastWritten) throws IOException {
         
         out.startMessage(CompilerIDs.OverloadedFunction.ID);
         
         out.writeField(CompilerIDs.OverloadedFunction.NAME, name);
 
-        out.writeNestedField(CompilerIDs.OverloadedFunction.FUN_TYPE);
-        IValueWriter.write(out, WindowSizes.TINY_WINDOW, funType);
+
+        RVMWireExtensions.nestedOrReference(out, CompilerIDs.OverloadedFunction.FUN_TYPE, funType, lastWritten,
+            (o, t) -> IValueWriter.write(o, WindowSizes.TINY_WINDOW, t));
         
         out.writeField(CompilerIDs.OverloadedFunction.FUNCTIONS, functions);
         
@@ -389,7 +392,7 @@ public class OverloadedFunction implements Serializable {
         out.endMessage();
     }
     
-    static OverloadedFunction read(IWireInputStream in, IValueFactory vf) throws IOException {
+    static OverloadedFunction read(IWireInputStream in, IValueFactory vf, TrackLastRead<Object> lastRead) throws IOException {
         System.err.println("Reading OverloadedFunction");
        
         String name = "unitialized name";
@@ -418,7 +421,8 @@ public class OverloadedFunction implements Serializable {
                 }
                 
                 case CompilerIDs.OverloadedFunction.FUN_TYPE: {
-                    funType = IValueReader.readType(in, vf);
+                    funType = RVMWireExtensions.readNestedOrReference(in, vf, lastRead, 
+                        IValueReader::readType);
                     break;
                 }
                 
@@ -444,13 +448,13 @@ public class OverloadedFunction implements Serializable {
                 
                 case CompilerIDs.OverloadedFunction.ALL_CONCRETE_FUNCTION_ARGS: {
                     int n = in.getInteger();
-                    allConcreteFunctionArgs = n == 1 ? true : false;
+                    allConcreteFunctionArgs = n == 1;
                     break;
                 }
                 
                 case CompilerIDs.OverloadedFunction.ALL_CONCRETE_CONSTRUCTOR_ARGS: {
                     int n = in.getInteger();
-                    allConcreteConstructorArgs = n == 1 ? true : false;
+                    allConcreteConstructorArgs = n == 1;
                     break;
                 }
                 
