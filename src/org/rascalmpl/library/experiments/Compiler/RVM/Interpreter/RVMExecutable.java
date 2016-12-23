@@ -381,7 +381,7 @@ public class RVMExecutable implements Serializable{
 	        if(compressionLevel > 0){
 	            cout = new ZstdOutputStream(out, compressionLevel);
 	        }
-	        try(IWireOutputStream iout = new BinaryWireOutputStream(cout, 5000)){
+	        try(IWireOutputStream iout = new BinaryWireOutputStream(cout, 50_000)){
 	            write(iout, typeStore);
 	        }
 	    }
