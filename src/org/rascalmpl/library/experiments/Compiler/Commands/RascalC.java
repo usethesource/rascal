@@ -8,7 +8,6 @@ import java.util.Set;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CompilerError;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.ApiGen;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
@@ -23,6 +22,7 @@ import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RascalC {
@@ -114,15 +114,13 @@ public class RascalC {
               }
             }
             PathConfig pcfg = cmdOpts.getPathConfig();
-            RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(pcfg)
-                    .trace(cmdOpts.getCommandBoolOption("trace"))
-                    .profile(cmdOpts.getCommandBoolOption("profile"))
-                    .forModule(cmdOpts.getModule().getValue())
-                    .verbose(cmdOpts.getCommandBoolOption("verbose"))
-                    .build();
 
             //Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
-            IKernel kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class).build();
+            IKernel kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class)
+                .trace(cmdOpts.getCommandBoolOption("trace"))
+                .profile(cmdOpts.getCommandBoolOption("profile"))
+                .verbose(cmdOpts.getCommandBoolOption("verbose"))
+                .build();
 
             boolean ok = true;
             
@@ -133,20 +131,23 @@ public class RascalC {
                 String loc = ((IString) modules.get(0)).getValue();
                 IList programs = kernel.compileAll(vf.sourceLocation(URIUtil.createFromEncoded(loc.substring(1, loc.length() - 1))), pcfg.asConstructor(kernel),
                     kernel.kw_compile().reloc(cmdOpts.getCommandLocOption("reloc")));
-                System.exit(handleMessages(programs) ? 0 : 1);
+                System.exit(handleMessages(programs, pcfg) ? 0 : 1);
             }
             
             if (cmdOpts.getCommandBoolOption("noLinking")) {
                 IList programs = kernel.compile(modules, pcfg.asConstructor(kernel),
                     kernel.kw_compile().reloc(cmdOpts.getCommandLocOption("reloc")));
-                System.exit(handleMessages(programs) ? 0 : 1);
+                System.exit(handleMessages(programs, pcfg) ? 0 : 1);
             } 
             else {
                 IList programs = kernel.compileAndLink(modules, pcfg.asConstructor(kernel),
                                                        kernel.kw_compileAndLink()
                                                        .reloc(cmdOpts.getCommandLocOption("reloc"))
                                                        );
-                ok = handleMessages(programs);
+                
+                // TODO: remove asap
+                TypeStore ts = RascalExecutionContextBuilder.normalContext(pcfg).build().getTypeStore();
+                ok = handleMessages(programs, pcfg);
                 if(!ok){
                   System.exit(1);
                 }
@@ -157,7 +158,7 @@ public class RascalC {
                   for(IValue mod : modules){
                     String moduleName = ((IString) mod).getValue();
                     ISourceLocation binary = Rascal.findBinary(cmdOpts.getCommandLocOption("bin"), moduleName);
-                    RVMExecutable exec = RVMExecutable.read(binary, rex.getTypeStore());
+                    RVMExecutable exec = RVMExecutable.read(binary, ts);
                       
                     try {
                       String api = ApiGen.generate(exec, moduleName, pckg);
@@ -192,7 +193,7 @@ public class RascalC {
         }
     }
 
-    public static boolean handleMessages(IList programs) {
+    public static boolean handleMessages(IList programs, PathConfig pcfg) {
     	boolean failed = false;
 
     	for(IValue iprogram : programs){
@@ -230,7 +231,7 @@ public class RascalC {
     			int col = loc.getBeginColumn();
     			int line = loc.getBeginLine();
     			
-                System.err.println(msg.getName() + "@" + loc.getURI() 
+                System.err.println(msg.getName() + "@" + abbreviate(loc, pcfg) 
                     + ":" 
                     + String.format("%0" + Math.max(1, lineWidth) + "d", line)
                     + ":"
@@ -242,5 +243,17 @@ public class RascalC {
     	}
 
     	return !failed;
+    }
+
+    private static String abbreviate(ISourceLocation loc, PathConfig pcfg) {
+        for (IValue src : pcfg.getSrcs()) {
+            String path = ((ISourceLocation) src).getURI().getPath();
+            
+            if (loc.getURI().getPath().startsWith(path)) {
+                return loc.getURI().getPath().substring(path.length()); 
+            }
+        }
+        
+        return loc.getURI().getPath();
     }
 }
