@@ -224,7 +224,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 //	            pcfg.getBin(),
 	            pcfg.asConstructor(kernel),
 	            kernel.kw_compileAndLink().enableAsserts(true).reloc(vf.sourceLocation("noreloc", "", "")));
-	        boolean ok = RascalC.handleMessages(programs);
+	        boolean ok = RascalC.handleMessages(programs, pcfg);
 	        if(!ok){
 	          System.exit(1);
 	        }
