@@ -420,7 +420,6 @@ public class OverloadedFunction implements Serializable {
                 
                 case CompilerIDs.OverloadedFunction.FUN_TYPE: {
                     funType = IValueReader.readType(in, vf);
-                    in.next();
                     break;
                 }
                 

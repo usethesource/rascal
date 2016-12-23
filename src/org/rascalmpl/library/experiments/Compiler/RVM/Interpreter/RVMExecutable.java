@@ -586,7 +586,6 @@ public class RVMExecutable implements Serializable{
                 
                 case CompilerIDs.Executable.ERRORS: {
                     errors = (ISet) IValueReader.read(in, vf);
-                    in.next();
                     if(errors.size() > 0){
                         System.err.println("Executable.ERRORS: " + errors);
                         return new RVMExecutable(errors);
@@ -601,13 +600,11 @@ public class RVMExecutable implements Serializable{
                 
                 case CompilerIDs.Executable.MODULE_TAGS: {
                     moduleTags = (IMap) IValueReader.read(in, vf);
-                    in.next();
                     break;
                 }
                 
                 case CompilerIDs.Executable.SYMBOL_DEFINITIONS: {
                     symbol_definitions = (IMap) IValueReader.read(in, vf);
-                    in.next();
                     break;
                 }
                 
@@ -629,7 +626,6 @@ public class RVMExecutable implements Serializable{
                     constructorStore = new ArrayList<>();
                     for(int i = 0; i < n; i++){
                         constructorStore.add(IValueReader.readType(in, vf));
-                        in.next();
                     }
                     break;
                 }
