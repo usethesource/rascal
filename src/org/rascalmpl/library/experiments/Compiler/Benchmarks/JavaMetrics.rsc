@@ -19,7 +19,7 @@ private set[Declaration] getData() {
 void methodsPerClass(M3 model){
     for(c <- classes(model)){
         println("<c>: <size(methods(model, c))>");
-    }
+    }  
 } 
 
 int numberOfClasses(M3 model) = size(classes(model));
