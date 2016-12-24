@@ -69,7 +69,7 @@ public abstract class RVMCore {
 	protected Function[] functionStore;
 	protected Map<String, Integer> functionMap;
 
-	protected ArrayList<Type> constructorStore;
+	protected List<Type> constructorStore;
 	protected final Map<String, Integer> constructorMap;
 	
 	// Function overloading

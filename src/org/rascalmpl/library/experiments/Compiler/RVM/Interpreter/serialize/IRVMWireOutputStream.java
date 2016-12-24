@@ -15,10 +15,22 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
 import java.io.IOException;
 import java.util.Map;
 
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.io.binary.util.WindowSizes;
 import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
+import org.rascalmpl.value.type.Type;
 
 public interface IRVMWireOutputStream extends IWireOutputStream {
     
     void writeFieldStringInt(int fieldId, Map<String, Integer> values) throws IOException;
     void writeFieldIntIntArray(int fieldId, Map<Integer, int[]> values) throws IOException;
+
+    void writeField(int fieldId, long[] longs) throws IOException;
+
+    void writeField(int fieldId, IValue value, WindowSizes window) throws IOException;
+    void writeField(int fieldId, Type value, WindowSizes window) throws IOException;
+    void writeField(int fieldId, Type[] values, WindowSizes window) throws IOException;
+    void writeField(int fieldId, IValue[] values, WindowSizes window) throws IOException;
+    void writeField(int fieldId, IValue[] values) throws IOException;
+
 }

@@ -3,35 +3,29 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.*;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMWireExtensions;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.io.binary.message.IValueReader;
-import org.rascalmpl.value.io.binary.message.IValueWriter;
-import org.rascalmpl.value.io.binary.util.TrackLastRead;
-import org.rascalmpl.value.io.binary.util.TrackLastWritten;
-import org.rascalmpl.value.io.binary.util.WindowSizes;
-import org.rascalmpl.value.io.binary.wire.IWireInputStream;
-import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeStore;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import org.nustaq.serialization.FSTBasicObjectSerializer;
 import org.nustaq.serialization.FSTClazzInfo;
 import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.*;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireInputStream;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireOutputStream;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.binary.util.WindowSizes;
+import org.rascalmpl.value.io.binary.wire.IWireInputStream;
+import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeStore;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * CodeBlock contains all instructions needed for a single RVM function
@@ -885,23 +879,21 @@ public class CodeBlock implements Serializable {
 		}
 	}
 	
-	public void write(IWireOutputStream out, TrackLastWritten<Object> lastWritten) throws IOException{ 
+	public void write(IRVMWireOutputStream out) throws IOException{ 
 	    out.startMessage(CompilerIDs.CodeBlock.ID);
 
         out.writeField(CompilerIDs.CodeBlock.NAME, name);
 
-        RVMWireExtensions.nestedOrReferenceRepeated(out, CompilerIDs.CodeBlock.FINAL_CONSTANT_STORE, finalConstantStore, lastWritten,
-            (o, c) -> IValueWriter.write(out, WindowSizes.TINY_WINDOW, c));
-        
-        RVMWireExtensions.nestedOrReferenceRepeated(out, CompilerIDs.CodeBlock.FINAL_TYPECONSTANT_STORE, finalTypeConstantStore, lastWritten,
-            (o, tc) -> IValueWriter.write(out, WindowSizes.TINY_WINDOW, tc));
+        out.writeField(CompilerIDs.CodeBlock.FINAL_CONSTANT_STORE, finalConstantStore, WindowSizes.SMALL_WINDOW);
 
-        RVMWireExtensions.writeLongs(out, CompilerIDs.CodeBlock.FINAL_CODE, finalCode);
+        out.writeField(CompilerIDs.CodeBlock.FINAL_TYPECONSTANT_STORE, finalTypeConstantStore, WindowSizes.TINY_WINDOW);
+
+        out.writeField(CompilerIDs.CodeBlock.FINAL_CODE, finalCode);
        
 	    out.endMessage();
 	}
 
-    public static CodeBlock read(IWireInputStream in, IValueFactory vf, Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, TrackLastRead<Object> lastRead) throws IOException {
+    public static CodeBlock read(IRVMWireInputStream in, IValueFactory vf, Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) throws IOException {
         System.err.println("Reading CodeBlock");
         String name = "unitialized name";
         
@@ -929,8 +921,7 @@ public class CodeBlock implements Serializable {
                 }
                 
                 case CompilerIDs.CodeBlock.FINAL_CONSTANT_STORE: {
-                    finalConstantStore = RVMWireExtensions.readNestedOrReferenceRepeatedArray(in, vf, lastRead, 
-                        IValueReader::read, sz -> new IValue[sz]);
+                    finalConstantStore = in.readIValues();
                     constantMap = new HashMap<IValue, Integer> (finalConstantStore.length);
                     constantStore = new ArrayList<IValue>(finalConstantStore.length);
                     for (int i = 0; i < finalConstantStore.length; i++) {
@@ -941,8 +932,7 @@ public class CodeBlock implements Serializable {
                 }
                 
                 case CompilerIDs.CodeBlock.FINAL_TYPECONSTANT_STORE: {
-                    finalTypeConstantStore = RVMWireExtensions.readNestedOrReferenceRepeatedArray(in, vf, lastRead, 
-                        IValueReader::readType, sz -> new Type[sz]);
+                    finalTypeConstantStore = in.readTypes();
                     typeConstantMap = new HashMap<Type, Integer>(finalTypeConstantStore.length);
                     typeConstantStore = new ArrayList<Type>(finalTypeConstantStore.length);
                     for(int i = 0; i < finalTypeConstantStore.length; i++){
@@ -953,7 +943,7 @@ public class CodeBlock implements Serializable {
                 }
                 
                 case CompilerIDs.CodeBlock.FINAL_CODE: {
-                    finalCode = RVMWireExtensions.readLongs(in);
+                    finalCode = in.readLongs();
                     break;
                 }
                 

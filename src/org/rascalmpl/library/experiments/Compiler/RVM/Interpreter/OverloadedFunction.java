@@ -15,16 +15,10 @@ import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireInputStream;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireOutputStream;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMWireExtensions;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.io.binary.message.IValueReader;
-import org.rascalmpl.value.io.binary.message.IValueWriter;
-import org.rascalmpl.value.io.binary.util.TrackLastRead;
-import org.rascalmpl.value.io.binary.util.TrackLastWritten;
 import org.rascalmpl.value.io.binary.util.WindowSizes;
 import org.rascalmpl.value.io.binary.wire.IWireInputStream;
-import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -357,15 +351,13 @@ public class OverloadedFunction implements Serializable {
 		this.scopeIn = scopeIn;
 	}
 
-    public void write(IRVMWireOutputStream out, TrackLastWritten<Object> lastWritten) throws IOException {
+    public void write(IRVMWireOutputStream out) throws IOException {
         
         out.startMessage(CompilerIDs.OverloadedFunction.ID);
         
         out.writeField(CompilerIDs.OverloadedFunction.NAME, name);
 
-
-        RVMWireExtensions.nestedOrReference(out, CompilerIDs.OverloadedFunction.FUN_TYPE, funType, lastWritten,
-            (o, t) -> IValueWriter.write(o, WindowSizes.TINY_WINDOW, t));
+        out.writeField(CompilerIDs.OverloadedFunction.FUN_TYPE, funType, WindowSizes.TINY_WINDOW);
         
         out.writeField(CompilerIDs.OverloadedFunction.FUNCTIONS, functions);
         
@@ -394,7 +386,7 @@ public class OverloadedFunction implements Serializable {
         out.endMessage();
     }
     
-    static OverloadedFunction read(IRVMWireInputStream in, IValueFactory vf, TrackLastRead<Object> lastRead) throws IOException {
+    static OverloadedFunction read(IRVMWireInputStream in, IValueFactory vf) throws IOException {
         System.err.println("Reading OverloadedFunction");
        
         String name = "unitialized name";
@@ -423,8 +415,7 @@ public class OverloadedFunction implements Serializable {
                 }
                 
                 case CompilerIDs.OverloadedFunction.FUN_TYPE: {
-                    funType = RVMWireExtensions.readNestedOrReference(in, vf, lastRead, 
-                        IValueReader::readType);
+                    funType = in.readType();
                     break;
                 }
                 
