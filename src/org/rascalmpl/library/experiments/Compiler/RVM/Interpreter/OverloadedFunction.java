@@ -385,10 +385,10 @@ public class OverloadedFunction implements Serializable {
         
         out.endMessage();
     }
-    
+   
     static OverloadedFunction read(IRVMWireInputStream in, IValueFactory vf) throws IOException {
         System.err.println("Reading OverloadedFunction");
-       
+
         String name = "unitialized name";
         Type funType = null;
         int[] functions = new int[0];
