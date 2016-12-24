@@ -624,7 +624,17 @@ class RVMFileCompareAndCount implements FileVisitor<Path> {
         return FileVisitResult.CONTINUE;
       }
       if(!Arrays.equals(Files.readAllBytes(expectedFile), Files.readAllBytes(actualFile))){
-        throw new RuntimeException(String.format("File content differs: \'%s\' and \'%s\'.", expectedFile, actualFile));
+          byte[] expected = Files.readAllBytes(expectedFile);
+          byte[] actual = Files.readAllBytes(actualFile);
+          int minSize = Math.min(expected.length, actual.length);
+          int i = 0;
+          for(; i < minSize ; i++){
+              if(expected[i] != actual[i]){
+                  break;
+              }
+          }
+          String message = (i < minSize) ? ("at index " + i) : ("length differ (" + expected.length + " vs " + actual.length + ")");
+          throw new RuntimeException(String.format("File content differs: \'%s\' and \'%s\': %s", expectedFile, actualFile, message));
       }
     }
 
