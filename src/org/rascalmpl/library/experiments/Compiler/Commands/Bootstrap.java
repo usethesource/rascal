@@ -3,7 +3,9 @@ package org.rascalmpl.library.experiments.Compiler.Commands;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.FileSystem;
@@ -27,7 +29,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.rascalmpl.library.util.Reflective;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.binary.stream.IValueInputStream;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * This program is intended to be executed directly from maven; it downloads a previous version of Rascal from a hard-wired location and uses 
@@ -387,7 +398,6 @@ public class Bootstrap {
     private static Path getDeployedVersion(Path tmp, String version) throws IOException {
 		Path cached = cachedDeployedVersion(tmp, version);
 		
-		
 		if (!cached.toFile().exists() || "unstable".equals(version)) {
 		    if (cached.toFile().exists()) {
 		        cached.toFile().delete();
@@ -396,6 +406,8 @@ public class Bootstrap {
     		info("downloading " + deployedVersion);
 			Files.copy(deployedVersion.toURL().openStream(), cached);
     	}
+		
+		preprocessDeployed(cached);   // transitional for boot
 		
 		info("deployed version ready: " + cached);
 		return cached;
@@ -574,6 +586,16 @@ public class Bootstrap {
           throw new RuntimeException(e.getMessage());
         }
     }
+    
+    // Transitional for boot: decompress and rename deployed files
+    
+    public static void preprocessDeployed(final Path deployed) {
+        try {
+            Files.walkFileTree(deployed, new RVMFilePreprocessor());
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
 }
 
 /**
@@ -585,13 +607,28 @@ class RVMFileCompareAndCount implements FileVisitor<Path> {
   final Path absoluteExpected;
   final Path absoluteActual;
   int nfiles = 0;
+  IValueFactory vf;
 
   RVMFileCompareAndCount(final Path expected, final Path actual){
     absoluteExpected = expected.toAbsolutePath();
     absoluteActual = actual.toAbsolutePath();
+    vf = ValueFactoryFactory.getValueFactory();
   }
 
   int getCount() { return nfiles; }
+  
+  private IValue read(Path path) throws IOException {
+      ISourceLocation loc = null;
+      try {
+          loc = vf.sourceLocation("compressed+file", "", path.toString());
+      }
+      catch (URISyntaxException e1) {
+          throw new IOException("Cannot create location |compressed+file://" + path.toString() + "|");
+      }
+      try (IValueInputStream in = new IValueInputStream(URIResolverRegistry.getInstance().getInputStream(loc), vf)) {
+          return in.read();
+      }
+  }
 
   @Override
   public FileVisitResult preVisitDirectory(Path expectedDir, BasicFileAttributes attrs)
@@ -612,33 +649,27 @@ class RVMFileCompareAndCount implements FileVisitor<Path> {
 
   @Override
   public FileVisitResult visitFile(Path expectedFile, BasicFileAttributes attrs) throws IOException {
-    Path relativeExpectedFile = absoluteExpected.relativize(expectedFile.toAbsolutePath());
-    Path actualFile = absoluteActual.resolve(relativeExpectedFile);
+      Path relativeExpectedFile = absoluteExpected.relativize(expectedFile.toAbsolutePath());
+      Path actualFile = absoluteActual.resolve(relativeExpectedFile);
 
-    if (!Files.exists(actualFile)) {
-      throw new RuntimeException(String.format("File \'%s\' missing in actual.", expectedFile.getFileName()));
-    }
-    if(actualFile.toString().endsWith(".rvm.gz")){
-      nfiles += 1;
-      if(actualFile.toString().endsWith("_imports.rvm.gz")){  // Skip since base directories will always differ
-        return FileVisitResult.CONTINUE;
+      if (!Files.exists(actualFile)) {
+          throw new RuntimeException(String.format("File \'%s\' missing in actual.", expectedFile.getFileName()));
       }
-      if(!Arrays.equals(Files.readAllBytes(expectedFile), Files.readAllBytes(actualFile))){
-          byte[] expected = Files.readAllBytes(expectedFile);
-          byte[] actual = Files.readAllBytes(actualFile);
-          int minSize = Math.min(expected.length, actual.length);
-          int i = 0;
-          for(; i < minSize ; i++){
-              if(expected[i] != actual[i]){
-                  break;
-              }
+      if(actualFile.toString().endsWith(".rvm.gz")){
+          nfiles += 1;
+          if(actualFile.toString().endsWith("_imports.rvm.gz")){  // Skip since base directories will always differ
+              return FileVisitResult.CONTINUE;
           }
-          String message = (i < minSize) ? ("at index " + i) : ("length differ (" + expected.length + " vs " + actual.length + ")");
-          throw new RuntimeException(String.format("File content differs: \'%s\' and \'%s\': %s", expectedFile, actualFile, message));
-      }
-    }
 
-    return FileVisitResult.CONTINUE;
+          IValue expectedValue = read(expectedFile);
+          IValue actualValue = read(actualFile);
+          if(!expectedValue.isEqual(actualValue)){
+              Reflective refl = new Reflective(vf);
+              throw new RuntimeException(String.format("File content differs: \'%s\' and \'%s\':\n%s", expectedFile, actualFile, refl.diff(expectedValue, actualValue).getValue()));
+          }
+      }
+
+      return FileVisitResult.CONTINUE;
   }
 
   @Override
@@ -650,6 +681,66 @@ class RVMFileCompareAndCount implements FileVisitor<Path> {
   public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
     return FileVisitResult.CONTINUE;
   }
-
   
+}
+
+class RVMFilePreprocessor implements FileVisitor<Path> {
+    private final URIResolverRegistry registry;
+    private final IValueFactory vf;
+    private final int BUFLEN = 100000;
+    
+    RVMFilePreprocessor(){
+       registry = URIResolverRegistry.getInstance();
+       vf = ValueFactoryFactory.getValueFactory();
+    }
+    
+    @Override
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+        return FileVisitResult.CONTINUE;
+    }
+    
+    private void copy(String oldFile, String newFile) throws IOException{
+        ISourceLocation iloc;
+        ISourceLocation oloc;
+        System.err.println("copy " + oldFile + " to " + newFile);
+        try {
+            iloc = vf.sourceLocation("compressed+file", "", oldFile);
+            oloc = vf.sourceLocation("file", "", newFile);
+        }
+        catch (URISyntaxException e) {
+            throw new IOException("Cannot create locations: " + e.getMessage());
+        }
+        
+        try(InputStream in = registry.getInputStream(iloc);
+            OutputStream out = registry.getOutputStream(oloc, false)){
+            
+            byte[] buffer = new byte[BUFLEN];
+            int n;
+            while((n = in.read(buffer)) > 0){
+                out.write(buffer, 0, n);
+            }
+        }
+    }
+
+    @Override
+    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+        if(file.toString().endsWith(".rvm.gz")){
+            copy(file.toString(), file.toString().replaceAll("\\.gz", ""));
+        }
+        if(file.toString().endsWith(".rvm.ser.gz")){
+            copy(file.toString(), file.toString().replaceAll("\\.rvm\\.ser\\.gz", ".rvmx"));
+        }
+        return FileVisitResult.CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+        throw new RuntimeException(exc.getMessage());
+    }
+
+    @Override
+    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+        return FileVisitResult.CONTINUE;
+    }
+    
 }
