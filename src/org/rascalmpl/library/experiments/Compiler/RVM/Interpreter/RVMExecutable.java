@@ -22,7 +22,11 @@ import org.nustaq.serialization.FSTObjectOutput;
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.library.experiments.Compiler.VersionInfo;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireInputStream;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireOutputStream;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMWireExtensions;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMWireInputStream;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMWireOutputStream;
 import org.rascalmpl.library.util.SemVer;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IList;
@@ -386,14 +390,14 @@ public class RVMExecutable implements Serializable{
 	        if(compressionLevel > 0){
 	            cout = new ZstdOutputStream(out, compressionLevel);
 	        }
-	        try(IWireOutputStream iout = new BinaryWireOutputStream(cout, 50_000)){
+	        try(IRVMWireOutputStream iout = new RVMWireOutputStream(new BinaryWireOutputStream(cout, 50_000))){
 	            write(iout, typeStore, WindowCacheFactory.getInstance().getTrackLastWrittenReferenceEquality(50_000));
 	        }
 	    }
 	}
 	
 
-    private void write(IWireOutputStream out, TypeStore typeStore, TrackLastWritten<Object> lastWritten) throws IOException {
+    private void write(IRVMWireOutputStream out, TypeStore typeStore, TrackLastWritten<Object> lastWritten) throws IOException {
 	    
 	    out.startMessage(CompilerIDs.Executable.ID);
 	    
@@ -418,11 +422,11 @@ public class RVMExecutable implements Serializable{
         RVMWireExtensions.nestedOrReference(out, CompilerIDs.Executable.SYMBOL_DEFINITIONS, getSymbolDefinitions(), lastWritten,
             (o, v) -> IValueWriter.write(o, WindowSizes.NORMAL_WINDOW, v));
 
-        out.writeField(CompilerIDs.Executable.FUNCTION_MAP, getFunctionMap());
+        out.writeFieldStringInt(CompilerIDs.Executable.FUNCTION_MAP, getFunctionMap());
         
-        out.writeField(CompilerIDs.Executable.CONSTRUCTOR_MAP, getConstructorMap());
+        out.writeFieldStringInt(CompilerIDs.Executable.CONSTRUCTOR_MAP, getConstructorMap());
         
-        out.writeField(CompilerIDs.Executable.RESOLVER, getResolver());
+        out.writeFieldStringInt(CompilerIDs.Executable.RESOLVER, getResolver());
         
         // FUNCTION_MAP, CONSTRUCTOR_MAP and RESOLVER should come before FUNCTION_STORE
         
@@ -472,7 +476,7 @@ public class RVMExecutable implements Serializable{
 	            if(compression != EXEC_COMPRESSION_NONE){
 	                cin = new ZstdInputStream(in);
 	            }
-	            try(IWireInputStream win = new BinaryWireInputStream(cin)){
+	            try(IRVMWireInputStream win = new RVMWireInputStream(new BinaryWireInputStream(cin))){
 	                return read(win, ValueFactoryFactory.getValueFactory(), WindowCacheFactory.getInstance().getTrackLastRead(50_000));
 	            }                      
 	        } else {
@@ -496,7 +500,7 @@ public class RVMExecutable implements Serializable{
 	    }
 	}
 	
-	private static RVMExecutable read(IWireInputStream in, IValueFactory vf, TrackLastRead<Object> lastRead) throws IOException {
+	private static RVMExecutable read(IRVMWireInputStream in, IValueFactory vf, TrackLastRead<Object> lastRead) throws IOException {
 	    
 	    System.err.println("Reading Executable");
 	    
@@ -616,12 +620,12 @@ public class RVMExecutable implements Serializable{
                 }
                 
                 case CompilerIDs.Executable.FUNCTION_MAP: {
-                    functionMap  = in.getStringIntegerMap();
+                    functionMap  = in.readStringIntegerMap();
                     break;
                 }
                 
                 case CompilerIDs.Executable.CONSTRUCTOR_MAP: {
-                    constructorMap = in.getStringIntegerMap();
+                    constructorMap = in.readStringIntegerMap();
                     break;
                 }
                 
@@ -660,7 +664,7 @@ public class RVMExecutable implements Serializable{
                 }
                 
                 case CompilerIDs.Executable.RESOLVER: {
-                    resolver = in.getStringIntegerMap();
+                    resolver = in.readStringIntegerMap();
                     break;
                 }
                 

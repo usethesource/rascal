@@ -33,7 +33,6 @@ public interface IWireOutputStream extends Closeable, Flushable  {
 
     void writeField(int fieldId, int[] values) throws IOException;
     void writeField(int fieldId, String[] values) throws IOException;
-    void writeField(int fieldId, Map<String, Integer> values) throws IOException;
 
     /**
      * A nested field signals that next up in the stream, we get a nested message. it has no value of itself.

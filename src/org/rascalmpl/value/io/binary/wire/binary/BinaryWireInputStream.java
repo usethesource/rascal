@@ -16,9 +16,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 
 import org.rascalmpl.value.io.binary.util.TaggedInt;
 import org.rascalmpl.value.io.binary.util.TrackLastRead;
@@ -26,8 +23,6 @@ import org.rascalmpl.value.io.binary.util.WindowCacheFactory;
 import org.rascalmpl.value.io.binary.wire.FieldKind;
 import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
 
@@ -49,10 +44,6 @@ public class BinaryWireInputStream implements IWireInputStream {
     private String[] stringValues;
     private int[] intValues;
     private int nestedLength;
-    private int keyType;
-    private int valueType;
-    private Map<String, Integer> stringIntegerMap;
-    private Cache<Integer, Integer> intCache;
 
     public BinaryWireInputStream(InputStream stream) throws IOException {
         this.__stream = stream;
@@ -65,9 +56,6 @@ public class BinaryWireInputStream implements IWireInputStream {
         int stringReadSize = this.stream.readRawVarint32();
         this.stringsRead = WindowCacheFactory.getInstance().getTrackLastRead(stringReadSize);
         this.stream.setSizeLimit(Integer.MAX_VALUE); 
-        this.intCache = Caffeine.newBuilder()
-            .maximumSize(stringReadSize * 2)
-            .build();
     }
 
     @Override
@@ -78,7 +66,6 @@ public class BinaryWireInputStream implements IWireInputStream {
             } finally {
                 closed = true;
                 WindowCacheFactory.getInstance().returnTrackLastRead(stringsRead);
-                intCache.invalidateAll();
             }
         }
         else {
@@ -98,7 +85,6 @@ public class BinaryWireInputStream implements IWireInputStream {
         // clear memory
         intValues = null;
         stringValues = null;
-        stringIntegerMap = null;
         int next;
         try {
             next = stream.readRawVarint32();
@@ -156,21 +142,6 @@ public class BinaryWireInputStream implements IWireInputStream {
                             stringValues[i]= readString();
                         }
                         this.stringValues = stringValues;
-                        break;
-                    case FieldKind.Repeated.KEYVALUES:
-                        int types = stream.readRawVarint32();
-                        keyType = TaggedInt.getOriginal(types);
-                        valueType = TaggedInt.getTag(types);
-                        // at the moment only Map<String,Integer> is implemented, but there is no reason the other variants can't be added when needed
-                        assert keyType == FieldKind.STRING && valueType == FieldKind.INT;
-                        HashMap<String, Integer> stringIntegerMap = new HashMap<>(nestedLength);
-                        for (int i = 0; i < nestedLength; i++) {
-                            String key = readString();
-                            // we cached boxed integers
-                            Integer value = intCache.get(stream.readRawVarint32(), iv -> iv);
-                            stringIntegerMap.put(key, value);
-                        }
-                        this.stringIntegerMap = stringIntegerMap;
                         break;
                     case FieldKind.Repeated.NESTEDS:
                         break;
@@ -267,24 +238,6 @@ public class BinaryWireInputStream implements IWireInputStream {
         return intValues;
     }
     
-    @Override
-    public int getKeyType() {
-        assert getRepeatedType() == FieldKind.Repeated.KEYVALUES;
-        return keyType;
-    }
-    
-    @Override
-    public int getValueType() {
-        assert getRepeatedType() == FieldKind.Repeated.KEYVALUES;
-        return valueType;
-    }
-
-    @Override
-    public Map<String, Integer> getStringIntegerMap() {
-        assert getKeyType() == FieldKind.STRING && getValueType() == FieldKind.INT;
-        return stringIntegerMap;
-    }
-
     @Override
     public void skipMessage() throws IOException {
         int toSkip = 1;
