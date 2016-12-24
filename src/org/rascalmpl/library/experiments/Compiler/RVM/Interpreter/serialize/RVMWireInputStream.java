@@ -13,11 +13,18 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.binary.message.IValueReader;
+import org.rascalmpl.value.io.binary.util.TrackLastRead;
+import org.rascalmpl.value.io.binary.util.WindowCacheFactory;
 import org.rascalmpl.value.io.binary.wire.FieldKind;
 import org.rascalmpl.value.io.binary.wire.IWireInputStream;
+import org.rascalmpl.value.type.Type;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -25,14 +32,87 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 public class RVMWireInputStream implements IRVMWireInputStream {
     
     private final IWireInputStream stream;
+    private final IValueFactory vf;
     private final Cache<Integer, Integer> intCache;
+    private TrackLastRead<Object> window;
 
-    public RVMWireInputStream(IWireInputStream stream) {
+    public RVMWireInputStream(IWireInputStream stream, IValueFactory vf) throws IOException {
         this.stream = stream;
+        this.vf = vf;
         intCache = Caffeine.newBuilder()
             .maximumSize(50_000)
             .build();
+        stream.next();
+        int lookbackSize = 0;
+        assert stream.current() == MESSAGE_START && stream.message() == RVMWireOutputStream.HEADER_ID;
+        while (stream.next() != MESSAGE_END) {
+            if (stream.field() == RVMWireOutputStream.WINDOW_SIZE) {
+                lookbackSize = stream.getInteger();
+            }
+        }
+        window = WindowCacheFactory.getInstance().getTrackLastRead(lookbackSize);
     }
+    
+    @Override
+    public <T extends IValue> T readIValue() throws IOException {
+        if (next() != MESSAGE_START || message() != CompilerIDs.NestedValue.ID) {
+            throw new IOException("Invalid nested value");
+        }
+        T result = null;
+        while (next() != MESSAGE_END) {
+            switch (field()) {
+                case CompilerIDs.NestedValue.BACK_REFERENCE:
+                    result = (T) window.lookBack(getInteger());
+                    break;
+                case CompilerIDs.NestedType.VALUE:
+                    result = (T) IValueReader.read(stream, vf);
+                    break;
+            }
+        }
+        assert result != null;
+        return result;
+    }
+
+    @Override
+    public Type readType() throws IOException {
+        if (next() != MESSAGE_START || message() != CompilerIDs.NestedType.ID) {
+            throw new IOException("Invalid nested value");
+        }
+        Type result = null;
+        while (next() != MESSAGE_END) {
+            switch (field()) {
+                case CompilerIDs.NestedType.BACK_REFERENCE:
+                    result = (Type) window.lookBack(getInteger());
+                    break;
+                case CompilerIDs.NestedType.VALUE:
+                    result = IValueReader.readType(stream, vf);
+                    break;
+            }
+        }
+        assert result != null;
+        return result;
+    }
+    
+    @Override
+    public IValue[] readIValues() throws IOException {
+        int arity = getInteger();
+        IValue[] result = new IValue[arity];
+        for (int i = 0; i < arity; i++) {
+            result[i] = readIValue();
+        }
+        return result;
+    }
+    
+    @Override
+    public Type[] readTypes() throws IOException {
+        int arity = getInteger();
+        Type[] result = new Type[arity];
+        for (int i = 0; i < arity; i++) {
+            result[i] = readType();
+        }
+        return result;
+    }
+    
 
     @Override
     public Map<String, Integer> readStringIntegerMap() throws IOException {
@@ -58,6 +138,15 @@ public class RVMWireInputStream implements IRVMWireInputStream {
             next();
             result.put(ints[i], stream.getIntegers());
         }
+        return result;
+    }
+    
+    @Override
+    public long[] readLongs() throws IOException {
+        assert getFieldType() == FieldKind.REPEATED && getRepeatedType() == FieldKind.Repeated.BYTES;
+        ByteBuffer buf = ByteBuffer.wrap(getBytes());
+        long[] result = new long[buf.capacity() / Long.BYTES];
+        buf.asLongBuffer().get(result);
         return result;
     }
 
