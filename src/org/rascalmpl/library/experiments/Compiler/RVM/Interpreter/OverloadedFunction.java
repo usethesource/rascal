@@ -13,6 +13,8 @@ import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireInputStream;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireOutputStream;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMWireExtensions;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
@@ -48,8 +50,8 @@ public class OverloadedFunction implements Serializable {
 	int scopeIn = -1;
 	boolean allConcreteFunctionArgs = false;
 	boolean allConcreteConstructorArgs = false;
-	HashMap<Integer, int[]> filteredFunctions;		// Functions and constructors filtered on fingerprint of first argument
-	HashMap<Integer, int[]> filteredConstructors;
+	Map<Integer, int[]> filteredFunctions;		// Functions and constructors filtered on fingerprint of first argument
+	Map<Integer, int[]> filteredConstructors;
 	
 	public OverloadedFunction(String name, Type funType, final int[] functions, final int[] constructors, final String funIn) {
 		if(funIn == null){
@@ -64,7 +66,7 @@ public class OverloadedFunction implements Serializable {
 	
 	public OverloadedFunction(String name, Type funType, int[] functions, int[] constructors, String funIn,
 			int scopeIn, boolean allConcreteFunctionArgs, boolean allConcreteConstructorArgs,
-			HashMap<Integer, int[]> filteredFunctions, HashMap<Integer, int[]> filteredConstructors) {
+			Map<Integer, int[]> filteredFunctions, Map<Integer, int[]> filteredConstructors) {
 		this.name = name;
 		this.funType = funType;
 		this.functions = functions;
@@ -169,7 +171,7 @@ public class OverloadedFunction implements Serializable {
 		}
 		return true;
 	}
-	boolean compareIntMaps(HashMap<Integer, int[]> a, HashMap<Integer, int[]> b){
+	boolean compareIntMaps(Map<Integer, int[]> a, Map<Integer, int[]> b){
 		if(a.size() != b.size()){
 			System.out.println("Different length: " + a.size() + " vs " + b.size());
 		}
@@ -355,7 +357,7 @@ public class OverloadedFunction implements Serializable {
 		this.scopeIn = scopeIn;
 	}
 
-    public void write(IWireOutputStream out, TrackLastWritten<Object> lastWritten) throws IOException {
+    public void write(IRVMWireOutputStream out, TrackLastWritten<Object> lastWritten) throws IOException {
         
         out.startMessage(CompilerIDs.OverloadedFunction.ID);
         
@@ -382,17 +384,17 @@ public class OverloadedFunction implements Serializable {
         }
         
         if(filteredFunctions != null){
-            RVMWireExtensions.writeMapIntToInts(out, CompilerIDs.OverloadedFunction.FILTERED_FUNCTIONS, filteredFunctions);
+            out.writeFieldIntIntArray(CompilerIDs.OverloadedFunction.FILTERED_FUNCTIONS, filteredFunctions);
         }
         
         if(filteredConstructors != null){
-            RVMWireExtensions.writeMapIntToInts(out, CompilerIDs.OverloadedFunction.FILTERED_CONSTRUCTORS, filteredConstructors);
+            out.writeFieldIntIntArray(CompilerIDs.OverloadedFunction.FILTERED_CONSTRUCTORS, filteredConstructors);
         }
         
         out.endMessage();
     }
     
-    static OverloadedFunction read(IWireInputStream in, IValueFactory vf, TrackLastRead<Object> lastRead) throws IOException {
+    static OverloadedFunction read(IRVMWireInputStream in, IValueFactory vf, TrackLastRead<Object> lastRead) throws IOException {
         System.err.println("Reading OverloadedFunction");
        
         String name = "unitialized name";
@@ -403,9 +405,9 @@ public class OverloadedFunction implements Serializable {
         int scopeIn = -1;
         boolean allConcreteFunctionArgs = false;
         boolean allConcreteConstructorArgs = false;
-        HashMap<Integer, int[]> emptyMap = new HashMap<>();
-        HashMap<Integer, int[]> filteredFunctions = emptyMap;
-        HashMap<Integer, int[]> filteredConstructors = emptyMap;
+        Map<Integer, int[]> emptyMap = new HashMap<>();
+        Map<Integer, int[]> filteredFunctions = emptyMap;
+        Map<Integer, int[]> filteredConstructors = emptyMap;
         
         in.next();
         assert in.current() == IWireInputStream.MESSAGE_START;
@@ -459,12 +461,12 @@ public class OverloadedFunction implements Serializable {
                 }
                 
                 case CompilerIDs.OverloadedFunction.FILTERED_FUNCTIONS: {
-                    filteredFunctions = (HashMap<Integer, int[]>) RVMWireExtensions.readMapIntToInts(in);
+                    filteredFunctions = in.readIntIntArrayMap();
                     break;
                 }
                 
                 case CompilerIDs.OverloadedFunction.FILTERED_CONSTRUCTORS: {
-                    filteredConstructors = (HashMap<Integer, int[]>) RVMWireExtensions.readMapIntToInts(in);
+                    filteredConstructors = in.readIntIntArrayMap();
                     break;
                 }
                 

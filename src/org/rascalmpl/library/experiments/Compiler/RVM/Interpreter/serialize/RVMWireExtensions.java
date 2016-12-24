@@ -35,40 +35,6 @@ import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 import org.rascalmpl.value.type.Type;
 
 public class RVMWireExtensions {
-    
-    public static void writeMapIntToInts(IWireOutputStream out, int fieldId, Map<Integer, int[]> map) throws IOException{
-        int n = map.size();
-        int[] keys = new int[n];
-        int[][] values = new int[n][0];
-        
-        int i = 0;
-       
-        for(Entry<Integer, int[]> entry : map.entrySet()){
-            keys[i] = entry.getKey();
-            values[i] = entry.getValue();
-            i++;
-        }
-        out.writeField(fieldId, keys);
-        for(int j = 0; j < n; j++){
-            out.writeField(fieldId, values[j]);
-        }
-    }
-    
-    public static Map<Integer, int[]> readMapIntToInts(IWireInputStream in) throws IOException{
-        assert in.getFieldType() == FieldKind.REPEATED && in.getRepeatedType() == FieldKind.INT;
-        int fieldId = in.field();
-        int[] keys = in.getIntegers();
-        assert in.field() == fieldId;
-        Map<Integer, int[]> map = new HashMap<>();
-        for(int i = 0; i < keys.length; i++){
-            in.next();
-            assert in.field() == fieldId;
-            int[] values = in.getIntegers();
-            map.put(keys[i], values);
-        }
-        return map;    
-    }
-
     public static void writeLongs(IWireOutputStream out, int fieldId, long[] longs) throws IOException {
         ByteBuffer buf = ByteBuffer.allocate(longs.length * Long.BYTES);
         buf.asLongBuffer().put(longs);

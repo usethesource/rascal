@@ -99,22 +99,6 @@ public interface IWireInputStream extends Closeable {
      */
     int[] getIntegers();
     
-    /**
-     * get the type of the key in case of {@linkplain #getRepeatedType()} is {@linkplain FieldKind.Repeated#KEYVALUES}
-     * @return {@linkplain FieldKind}
-     */
-    int getKeyType();
-    /**
-     * get the type of the value in case of {@linkplain #getRepeatedType()} is {@linkplain FieldKind.Repeated#KEYVALUES}
-     * @return {@linkplain FieldKind}
-     */
-    int getValueType();
-    
-    /**
-     * get map of string integer tuples, only valid if {@linkplain #getRepeatedType()} is {@link FieldKind.Repeated#KEYVALUES}
-     * @return
-     */
-    Map<String, Integer> getStringIntegerMap();
 
     /**
      * skip the current message, also takes care to skip nested messages

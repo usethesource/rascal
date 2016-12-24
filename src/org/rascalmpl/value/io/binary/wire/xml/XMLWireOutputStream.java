@@ -149,11 +149,4 @@ public class XMLWireOutputStream implements IWireOutputStream {
             throw new IOException(e);
         }
     }
-    
-    @Override
-    public void writeField(int fieldId, Map<String, Integer> values) throws IOException {
-        throw new IOException("Not implemented yet");
-    }
-
-
 }
