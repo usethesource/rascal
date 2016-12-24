@@ -66,6 +66,7 @@ public class RVMWireInputStream implements IRVMWireInputStream {
                     break;
                 case CompilerIDs.NestedType.VALUE:
                     result = (T) IValueReader.read(stream, vf);
+                    window.read(result);
                     break;
             }
         }
@@ -86,6 +87,7 @@ public class RVMWireInputStream implements IRVMWireInputStream {
                     break;
                 case CompilerIDs.NestedType.VALUE:
                     result = IValueReader.readType(stream, vf);
+                    window.read(result);
                     break;
             }
         }
