@@ -95,7 +95,7 @@ public class RVMWireInputStream implements IRVMWireInputStream {
     
     @Override
     public IValue[] readIValues() throws IOException {
-        int arity = getInteger();
+        int arity = getRepeatedLength();
         IValue[] result = new IValue[arity];
         for (int i = 0; i < arity; i++) {
             result[i] = readIValue();
@@ -105,7 +105,7 @@ public class RVMWireInputStream implements IRVMWireInputStream {
     
     @Override
     public Type[] readTypes() throws IOException {
-        int arity = getInteger();
+        int arity = getRepeatedLength();
         Type[] result = new Type[arity];
         for (int i = 0; i < arity; i++) {
             result[i] = readType();
