@@ -342,7 +342,7 @@ value execute(str qualifiedModuleName, PathConfig pcfg,
               bool jvm=true, 
               bool verbose=false){
    if(!recompile){
-      if(<true, compressed> := RVMExecutableCompressedReadLoc(qualifiedModuleName, pcfg)){
+      if(<true, compressed> := RVMExecutableReadLoc(qualifiedModuleName, pcfg)){
          if(verbose) println("Using <compressed>");
          startTime = cpuTime();
          v = executeProgram(compressed, keywordArguments, debug, debugRVM, testsuite, profile, trace, coverage, jvm);
@@ -419,7 +419,7 @@ TestResults rascalTestsRaw(list[str] qualifiedModuleNames, PathConfig pcfg,
    
    for(qualifiedModuleName <- qualifiedModuleNames){
        try {
-       if(!recompile && <true, compressed> := RVMExecutableCompressedReadLoc(qualifiedModuleName, pcfg)){
+       if(!recompile && <true, compressed> := RVMExecutableReadLoc(qualifiedModuleName, pcfg)){
            if(verbose) println("Using <compressed>");
            v = executeProgram(compressed, keywordArguments, debug, debugRVM, true, profile, trace, coverage, jvm);
        } else {
@@ -522,7 +522,8 @@ RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg,
    merged = mergeImports(mainModule, pcfg, verbose=verbose, jvm=jvm);
    link_time = cpuTime() - start_linking;
    if(verbose) println("linking: <link_time/1000000> msec");
-   mergedLoc = getDerivedWriteLoc(mainModule.name, "rvm.ser.gz", pcfg);       
+   //mergedLoc = getDerivedWriteLoc(mainModule.name, "rvm.ser.gz", pcfg);  
+   mergedLoc =  RVMExecutableWriteLoc(mainModule.name, pcfg);   
    linkAndSerializeProgram(mergedLoc, merged, jvm);
    return merged;
 }

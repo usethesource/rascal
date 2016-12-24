@@ -107,7 +107,7 @@ void inspect(str qualifiedModuleName,   // nameof Rascal source module
           bool listing = false,         // show instruction listing
           bool linked = false           // inspect the fully linked version of the program
           ){
-           <e, rvmLoc> = linked ? RVMExecutableCompressedReadLoc(qualifiedModuleName, pcfg) : RVMModuleReadLoc(qualifiedModuleName, pcfg);
+           <e, rvmLoc> = linked ? RVMExecutableReadLoc(qualifiedModuleName, pcfg) : RVMModuleReadLoc(qualifiedModuleName, pcfg);
     inspect(rvmLoc, select=select, line=line, listing=listing);
 }
            
