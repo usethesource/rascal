@@ -19,6 +19,7 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileAttribute;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,6 +34,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.util.Reflective;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.jar.JarInputStreamFileTree;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
@@ -589,12 +591,25 @@ public class Bootstrap {
     
     // Transitional for boot: decompress and rename deployed files
     
-    public static void preprocessDeployed(final Path deployed) {
-        try {
-            Files.walkFileTree(deployed, new RVMFilePreprocessor());
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
+    public static void preprocessDeployed(final Path deployed) throws IOException {
+        System.err.println("PreprocessDeployed: " + deployed);
+        
+        URIResolverRegistry registry = URIResolverRegistry.getInstance();
+        IValueFactory vf = ValueFactoryFactory.getValueFactory();
+        
+        Path preprocessed = deployed.getParent().resolve("deployed-preprocessed");
+        Files.createDirectory(preprocessed);
+        
+        JarInputStreamFileTree in = new JarInputStreamFileTree(registry.getInputStream(vf.sourceLocation(deployed.toString())));
+        for(String entry : in.directChildren("/")){
+            System.err.println(entry);;
         }
+        
+//        try {
+//            Files.walkFileTree(deployed, new RVMFilePreprocessor());
+//        } catch (IOException e) {
+//            throw new RuntimeException(e.getMessage());
+//        }
     }
 }
 
@@ -724,6 +739,7 @@ class RVMFilePreprocessor implements FileVisitor<Path> {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+        System.err.println("visitFile: " + file);
         if(file.toString().endsWith(".rvm.gz")){
             copy(file.toString(), file.toString().replaceAll("\\.gz", ""));
         }
