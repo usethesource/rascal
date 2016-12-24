@@ -18,6 +18,8 @@ public class CompilerIDs {
     private static final int CODEBLOCK_ID = 2;
     private static final int FUNCTION_ID = 3;
     private static final int OVERLOADED_FUNCTION_ID = 4;
+    private static final int NESTED_VALUE_ID = 5;
+    private static final int NESTED_TYPE_ID = 5;
     
     public static class Executable {
         public static final int ID = EXECUTABLE_ID;
@@ -101,5 +103,17 @@ public class CompilerIDs {
         public static final int ALL_CONCRETE_CONSTRUCTOR_ARGS = 8;
         public static final int FILTERED_FUNCTIONS = 9;
         public static final int FILTERED_CONSTRUCTORS = 10;
+    }
+    
+    public static class NestedValue {
+        public static final int ID = NESTED_VALUE_ID;
+        public static final int BACK_REFERENCE = 1;
+        public static final int VALUE = 2;
+    }
+
+    public static class NestedType {
+        public static final int ID = NESTED_TYPE_ID;
+        public static final int BACK_REFERENCE = 1;
+        public static final int VALUE = 2;
     }
 }

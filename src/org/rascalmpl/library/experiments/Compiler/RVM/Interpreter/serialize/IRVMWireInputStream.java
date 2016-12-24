@@ -15,11 +15,21 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
 import java.io.IOException;
 import java.util.Map;
 
+import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.io.binary.wire.IWireInputStream;
+import org.rascalmpl.value.type.Type;
 
 public interface IRVMWireInputStream extends IWireInputStream {
     /** can only be called once! */
     Map<String, Integer> readStringIntegerMap()  throws IOException;
     /** can only be called once! */
     Map<Integer, int[]> readIntIntArrayMap()  throws IOException;
+    
+    
+    long[] readLongs() throws IOException;
+    
+    <T extends IValue> T readIValue() throws IOException;
+    IValue[] readIValues() throws IOException;
+    Type readType() throws IOException;
+    Type[] readTypes() throws IOException;
 }
