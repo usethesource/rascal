@@ -463,7 +463,7 @@ public class RVMExecutable implements Serializable{
 	            if(compression != EXEC_COMPRESSION_NONE){
 	                cin = new ZstdInputStream(in);
 	            }
-	            try(IRVMWireInputStream win = new RVMWireInputStream(new BinaryWireInputStream(cin), vf)){
+	            try(IRVMWireInputStream win = new RVMWireInputStream(new BinaryWireInputStream(cin), ValueFactoryFactory.getValueFactory())){
 	                return read(win, ValueFactoryFactory.getValueFactory());
 	            }                      
 	        } else {
