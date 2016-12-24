@@ -439,7 +439,6 @@ public class RVMExecutable implements Serializable{
 
         out.writeField(CompilerIDs.Executable.UID_MODULE_MAIN, getUidModuleMain());
         
-        System.err.println("JVM_BYTE_CODE: " + getJvmByteCode().length + "bytes written");
         out.writeField(CompilerIDs.Executable.JVM_BYTE_CODE, getJvmByteCode());
         
         out.writeField(CompilerIDs.Executable.FULLY_QUALIFIED_DOTTED_NAME, getFullyQualifiedDottedName());
@@ -488,11 +487,6 @@ public class RVMExecutable implements Serializable{
 	}
 	
 	private static RVMExecutable read(IRVMWireInputStream in, IValueFactory vf) throws IOException {
-	    
-	    System.err.println("Reading Executable");
-	    
-	    // Serializable fields
-
 	    ISet errors = vf.set();
 	    String module_name = "unitialized module_name";
 	    
@@ -525,7 +519,6 @@ public class RVMExecutable implements Serializable{
             throw new IOException("Unexpected message: " + in.message());
         }
         while(in.next() != IWireInputStream.MESSAGE_END){
-            System.err.println("Executable.read: field " + in.field());
             switch(in.field()){
                 
                 case CompilerIDs.Executable.RASCAL_MAGIC: {
@@ -668,7 +661,6 @@ public class RVMExecutable implements Serializable{
                 
                 case CompilerIDs.Executable.JVM_BYTE_CODE: {
                     jvmByteCode = in.getBytes();
-                    System.err.println("JVM_BYTE_CODE: " + jvmByteCode.length + " bytes read");
                     break;
                 }
                 

@@ -387,8 +387,6 @@ public class OverloadedFunction implements Serializable {
     }
    
     static OverloadedFunction read(IRVMWireInputStream in, IValueFactory vf) throws IOException {
-        System.err.println("Reading OverloadedFunction");
-
         String name = "unitialized name";
         Type funType = null;
         int[] functions = new int[0];

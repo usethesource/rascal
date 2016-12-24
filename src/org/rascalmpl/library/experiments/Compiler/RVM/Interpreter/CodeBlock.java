@@ -894,7 +894,6 @@ public class CodeBlock implements Serializable {
 	}
 
     public static CodeBlock read(IRVMWireInputStream in, IValueFactory vf, Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) throws IOException {
-        System.err.println("Reading CodeBlock");
         String name = "unitialized name";
         
         Map<IValue, Integer> constantMap = new HashMap<>();
