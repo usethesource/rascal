@@ -75,8 +75,8 @@ public class TypeReifier {
     public TypeStore buildTypeStore(IMap symbol_definitions) {
         TypeStore ts = new TypeStore();
         
-        // TODO this is not fast because the same types will be converted
-        // again and again (recursively)
+        // TODO this looks slow, but fromSymbol will actually not recursive
+        // through sorts which have already been stored in the TypeStore before!
         for (IValue sort : symbol_definitions) {
             TypeFactory.getInstance().fromSymbol((IConstructor) sort, new TypeStore(), x -> getAlternatives(symbol_definitions, x));
         }
