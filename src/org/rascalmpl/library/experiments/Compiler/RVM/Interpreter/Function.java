@@ -346,20 +346,17 @@ public class Function implements Serializable {
       Throwable exception = null;
       for(int i = 0; i < tries; i++){
         if(nargs > 0){
-            testResultListener.report(passed, computeTestName(), src, message, exception);
-            return vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message));
-            // Skip randowm tests for now
-//          message = "test fails for arguments: ";
-//          ITuple tup = (ITuple) randomValue.generate(requestedType);
-//          if(tup == null){
-//            System.err.println(name + "(" + nargs + "): " + requestedType + ", " + tup );
-//            printTypeStore(rex.getTypeStore());
-//        
-//          } 
-//          for(int j = 0; j < nargs; j++){
-//            args[j] = tup.get(j);
-//            message = message + args[j].toString() + " ";
-//          }
+          message = "test fails for arguments: ";
+          ITuple tup = (ITuple) randomValue.generate(requestedType);
+          if(tup == null){
+            System.err.println(name + "(" + nargs + "): " + requestedType + ", " + tup );
+            printTypeStore(rex.getTypeStore());
+        
+          } 
+          for(int j = 0; j < nargs; j++){
+            args[j] = tup.get(j);
+            message = message + args[j].toString() + " ";
+          }
         }
         try {
    
