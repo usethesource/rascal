@@ -383,7 +383,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	public IMap getSymbolDefinitions() { return symbol_definitions; }
 	
 	public TypeStore getTypeStore() { 
-		return typeStore; 
+	    return new TypeReifier(vf).buildTypeStore(symbol_definitions);
 	}
 	
 	boolean getDebug() { return debug; }
