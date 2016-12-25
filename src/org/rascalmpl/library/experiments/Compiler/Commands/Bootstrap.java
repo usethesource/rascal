@@ -409,10 +409,10 @@ public class Bootstrap {
 			Files.copy(deployedVersion.toURL().openStream(), cached);
     	}
 		
-		preprocessDeployed(cached);   // transitional for boot
+		Path preprocessed = preprocessDeployed(cached);   // transitional for boot
 		
-		info("deployed version ready: " + cached);
-		return cached;
+		info("deployed version ready: " + preprocessed);
+		return preprocessed;
     }
 
     private static Path cachedDeployedVersion(Path tmpFolder, String version) {
@@ -589,27 +589,104 @@ public class Bootstrap {
         }
     }
     
-    // Transitional for boot: decompress and rename deployed files
+    /* Transitional for boot: decompress and rename deployed files
+     *  - file.rvm.gz => also create file file.rvm
+     *  - file.rvm.ser.gz => also create file.rvmx (file.rvm.ser but renamed to file.rvmx)
+     * Use directory with preprocessed files on class path instead of original jar
+     */
     
-    public static void preprocessDeployed(final Path deployed) throws IOException {
+    private final static int BUFLEN = 100000;
+    private final static URIResolverRegistry registry = URIResolverRegistry.getInstance();
+    private final static  IValueFactory vf = ValueFactoryFactory.getValueFactory();
+    
+    private static void copyCompressed(String oldFile, String newFile) throws IOException{
+        ISourceLocation iloc;
+        ISourceLocation oloc;
+        //System.err.println("copyCompressed " + oldFile + " to " + newFile);
+        try {
+            iloc = vf.sourceLocation("compressed+file", "", oldFile);
+            oloc = vf.sourceLocation("file", "", newFile);
+        }
+        catch (URISyntaxException e) {
+            throw new IOException("Cannot create locations: " + e.getMessage());
+        }
+        
+        try(InputStream in = registry.getInputStream(iloc);
+            OutputStream out = registry.getOutputStream(oloc, false)){
+            
+            byte[] buffer = new byte[BUFLEN];
+            int n;
+            while((n = in.read(buffer)) > 0){
+                out.write(buffer, 0, n);
+            }
+        }
+    }
+    
+    private static void copy(ISourceLocation iloc, ISourceLocation oloc) throws IOException{
+        //System.err.println("copy " + iloc + " to " + oloc);
+        try(InputStream in = registry.getInputStream(iloc)){
+            if(in != null){
+                try(OutputStream out = registry.getOutputStream(oloc, false)){
+                    if(out != null){
+                        byte[] buffer = new byte[BUFLEN];
+                        int n;
+                        while((n = in.read(buffer)) > 0){
+                            out.write(buffer, 0, n);
+                        }
+                    }
+                }
+            } else {
+                System.err.println("Skipping " + iloc);
+            }
+        }
+    }
+    
+    private static void crawlJar(final Path jarPath, JarInputStreamFileTree tree, Path dir, Path target) throws IOException{
+        for(String entry : tree.directChildren(dir.toString())){
+            if(entry != null){
+                if(tree.isDirectory(dir.resolve(entry).toString())){
+                    if(!Files.exists(target.resolve(entry))){
+                        Files.createDirectory(target.resolve(entry));
+                    }
+                    crawlJar(jarPath, tree, dir.resolve(entry), target.resolve(entry));
+                } else {
+                    try {
+                        ISourceLocation fromLoc = vf.sourceLocation("jar", "", (jarPath.toString() + "!" + dir.resolve(entry)));
+                        ISourceLocation toLoc = vf.sourceLocation("file", "", target.resolve(entry).toString());
+                        copy(fromLoc, toLoc);
+                        
+                        String toPath = toLoc.getPath();
+                        
+                        if(toPath.endsWith(".rvm.gz")){
+                            copyCompressed(toPath, toPath.replaceAll("\\.gz", ""));
+                        }
+                        if(toPath.endsWith(".rvm.ser.gz")){
+                            copyCompressed(toPath, toPath.replaceAll("\\.rvm\\.ser\\.gz", ".rvmx"));
+                        }
+                    }
+                    catch (URISyntaxException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
+    
+    public static Path preprocessDeployed(final Path deployed) throws IOException {
         System.err.println("PreprocessDeployed: " + deployed);
         
         URIResolverRegistry registry = URIResolverRegistry.getInstance();
         IValueFactory vf = ValueFactoryFactory.getValueFactory();
         
         Path preprocessed = deployed.getParent().resolve("deployed-preprocessed");
-        Files.createDirectory(preprocessed);
-        
-        JarInputStreamFileTree in = new JarInputStreamFileTree(registry.getInputStream(vf.sourceLocation(deployed.toString())));
-        for(String entry : in.directChildren("/")){
-            System.err.println(entry);;
+        Files.deleteIfExists(preprocessed);
+        if(!Files.exists(preprocessed)){
+            Files.createDirectory(preprocessed);
         }
-        
-//        try {
-//            Files.walkFileTree(deployed, new RVMFilePreprocessor());
-//        } catch (IOException e) {
-//            throw new RuntimeException(e.getMessage());
-//        }
+        JarInputStreamFileTree in = new JarInputStreamFileTree(registry.getInputStream(vf.sourceLocation(deployed.toString())));
+        crawlJar(deployed, in, Paths.get(""), preprocessed);
+        return preprocessed;
     }
 }
 
@@ -697,66 +774,4 @@ class RVMFileCompareAndCount implements FileVisitor<Path> {
     return FileVisitResult.CONTINUE;
   }
   
-}
-
-class RVMFilePreprocessor implements FileVisitor<Path> {
-    private final URIResolverRegistry registry;
-    private final IValueFactory vf;
-    private final int BUFLEN = 100000;
-    
-    RVMFilePreprocessor(){
-       registry = URIResolverRegistry.getInstance();
-       vf = ValueFactoryFactory.getValueFactory();
-    }
-    
-    @Override
-    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-        return FileVisitResult.CONTINUE;
-    }
-    
-    private void copy(String oldFile, String newFile) throws IOException{
-        ISourceLocation iloc;
-        ISourceLocation oloc;
-        System.err.println("copy " + oldFile + " to " + newFile);
-        try {
-            iloc = vf.sourceLocation("compressed+file", "", oldFile);
-            oloc = vf.sourceLocation("file", "", newFile);
-        }
-        catch (URISyntaxException e) {
-            throw new IOException("Cannot create locations: " + e.getMessage());
-        }
-        
-        try(InputStream in = registry.getInputStream(iloc);
-            OutputStream out = registry.getOutputStream(oloc, false)){
-            
-            byte[] buffer = new byte[BUFLEN];
-            int n;
-            while((n = in.read(buffer)) > 0){
-                out.write(buffer, 0, n);
-            }
-        }
-    }
-
-    @Override
-    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        System.err.println("visitFile: " + file);
-        if(file.toString().endsWith(".rvm.gz")){
-            copy(file.toString(), file.toString().replaceAll("\\.gz", ""));
-        }
-        if(file.toString().endsWith(".rvm.ser.gz")){
-            copy(file.toString(), file.toString().replaceAll("\\.rvm\\.ser\\.gz", ".rvmx"));
-        }
-        return FileVisitResult.CONTINUE;
-    }
-
-    @Override
-    public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-        throw new RuntimeException(exc.getMessage());
-    }
-
-    @Override
-    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-        return FileVisitResult.CONTINUE;
-    }
-    
 }
