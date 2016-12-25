@@ -78,7 +78,7 @@ public class TypeReifier {
         // TODO this looks slow, but fromSymbol will actually not recursive
         // through sorts which have already been stored in the TypeStore before!
         for (IValue sort : symbol_definitions) {
-            TypeFactory.getInstance().fromSymbol((IConstructor) sort, new TypeStore(), x -> getAlternatives(symbol_definitions, x));
+            TypeFactory.getInstance().fromSymbol((IConstructor) sort, ts, x -> getAlternatives(symbol_definitions, x));
         }
         
         return ts;
