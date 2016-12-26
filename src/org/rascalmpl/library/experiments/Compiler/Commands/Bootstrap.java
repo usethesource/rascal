@@ -590,8 +590,8 @@ public class Bootstrap {
     }
     
     /* Transitional for boot: decompress and rename deployed files
-     *  - file.rvm.gz => also create file file.rvm
-     *  - file.rvm.ser.gz => also create file.rvmx (file.rvm.ser but renamed to file.rvmx)
+     *  - file.rvm.gz => also create decompressed file file.rvm
+     *  - file.rvm.ser.gz => also create file.rvmx (decompressed file.rvm.ser but renamed to file.rvmx)
      * Use directory with preprocessed files on class path instead of original jar
      */
     
@@ -674,7 +674,7 @@ public class Bootstrap {
     }
     
     public static Path preprocessDeployed(final Path deployed) throws IOException {
-        System.err.println("PreprocessDeployed: " + deployed);
+        System.err.println("BOOTSTRAP:Preprocessing deployed jar: " + deployed);
         
         URIResolverRegistry registry = URIResolverRegistry.getInstance();
         IValueFactory vf = ValueFactoryFactory.getValueFactory();
