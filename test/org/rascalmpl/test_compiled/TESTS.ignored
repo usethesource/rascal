@@ -10,3 +10,7 @@ AllRascalTests                      // Is being removed
 StringTemplates                     // Unknown
 CSVIOTests                          // Randomly fails due to "inferred types"
 Tests::Examples                     // In progress
+ValueIOTests
+//basic::Functions
+//basic::IO
+//JSONIOTests
