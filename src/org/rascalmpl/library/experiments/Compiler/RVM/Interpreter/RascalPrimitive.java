@@ -41,7 +41,6 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.InvalidDateTimeException;
-import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
@@ -8674,7 +8673,6 @@ public enum RascalPrimitive {
 	public static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private static final TypeFactory tf = TypeFactory.getInstance();
 
-	@SuppressWarnings("deprecation")
 	private static final Type lineColumnType = TypeFactory.getInstance().tupleType(new Type[] {TypeFactory.getInstance().integerType(), TypeFactory.getInstance().integerType()},
 			new String[] {"line", "column"});
 	
