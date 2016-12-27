@@ -70,7 +70,7 @@ public class StacklessStructuredVisitor {
             public Void visitList(IList lst) throws E {
                 if (visit.enterList(lst)) {
                     workList.push(new NextStep<>(lst, (l, w, v) -> {
-                        v.leaveList();
+                        v.leaveList((IList)l);
                     }));
                     for (int i = lst.length() - 1; i >= 0; i--) {
                         workList.push(new NextStep<>(lst.get(i), StacklessStructuredVisitor::visitValue));
@@ -87,7 +87,7 @@ public class StacklessStructuredVisitor {
             public Void visitSet(ISet set) throws E {
                 if (visit.enterSet(set)) {
                     workList.push(new NextStep<>(set, (l, w, v) -> {
-                        v.leaveSet();
+                        v.leaveSet((ISet)l);
                     }));
                     for (IValue v: set) {
                         workList.push(new NextStep<>(v, StacklessStructuredVisitor::visitValue));
@@ -103,7 +103,7 @@ public class StacklessStructuredVisitor {
             public Void visitMap(IMap map) throws E {
                 if (visit.enterMap(map)) {
                     workList.push(new NextStep<>(map, (l, w, v) -> {
-                        v.leaveMap();
+                        v.leaveMap((IMap)l);
                     }));
                     for (IValue k: map) {
                         workList.push(new NextStep<>(map.get(k), StacklessStructuredVisitor::visitValue));
@@ -120,7 +120,7 @@ public class StacklessStructuredVisitor {
             public Void visitTuple(ITuple tuple) throws E {
                 if (visit.enterTuple(tuple)) {
                     workList.push(new NextStep<>(tuple, (l, w, v) -> {
-                        v.leaveTuple();
+                        v.leaveTuple((ITuple) l);
                     }));
                     for (int i = tuple.arity() - 1; i >= 0; i--) {
                         workList.push(new NextStep<>(tuple.get(i), StacklessStructuredVisitor::visitValue));
@@ -137,12 +137,13 @@ public class StacklessStructuredVisitor {
                 // WARNING, cloned to visitConstructor, fix bugs there as well!
                 if (visit.enterNode(node)) {
                     workList.push(new NextStep<>(node, (l, w, v) -> {
-                        v.leaveNode();
+                        v.leaveNode((INode) l);
                     }));
                     if(node.mayHaveKeywordParameters()){
                         IWithKeywordParameters<? extends INode> withKW = node.asWithKeywordParameters();
                         if(withKW.hasParameters()){
                             assert withKW instanceof AbstractDefaultWithKeywordParameters;
+                            @SuppressWarnings("unchecked")
                             AbstractDefaultWithKeywordParameters<INode> nodeKw = (AbstractDefaultWithKeywordParameters<INode>)(withKW);
                             pushKWPairs(nodeKw.internalGetParameters().entryIterator());
                             workList.push(new NextStep<>(node, (l, w, v) -> {
@@ -154,6 +155,7 @@ public class StacklessStructuredVisitor {
                         IAnnotatable<? extends INode> withAnno = node.asAnnotatable();
                         if(withAnno.hasAnnotations()){
                             assert withAnno instanceof AbstractDefaultAnnotatable;
+                            @SuppressWarnings("unchecked")
                             AbstractDefaultAnnotatable<INode> nodeAnno = (AbstractDefaultAnnotatable<INode>)withAnno;
                             pushKWPairs(nodeAnno.internalGetAnnotations().entryIterator());
                             workList.push(new NextStep<>(node, (l, w, v) -> {
@@ -193,12 +195,13 @@ public class StacklessStructuredVisitor {
                 // WARNING, cloned from visitNode, fix bugs there as well!
                 if (visit.enterConstructor(constr)) {
                     workList.push(new NextStep<>(constr, (l, w, v) -> {
-                        v.leaveConstructor();
+                        v.leaveConstructor((IConstructor)l);
                     }));
                     if(constr.mayHaveKeywordParameters()){
                         IWithKeywordParameters<? extends IConstructor> withKW = constr.asWithKeywordParameters();
                         if(withKW.hasParameters()){
                             assert withKW instanceof AbstractDefaultWithKeywordParameters;
+                            @SuppressWarnings("unchecked")
                             AbstractDefaultWithKeywordParameters<IConstructor> constrKw = (AbstractDefaultWithKeywordParameters<IConstructor>)(withKW);
                             pushKWPairs(constrKw.internalGetParameters().entryIterator());
                             workList.push(new NextStep<>(constr, (l, w, v) -> {
@@ -210,6 +213,7 @@ public class StacklessStructuredVisitor {
                         IAnnotatable<? extends IConstructor> withAnno = constr.asAnnotatable();
                         if(withAnno.hasAnnotations()){
                             assert withAnno instanceof AbstractDefaultAnnotatable;
+                            @SuppressWarnings("unchecked")
                             AbstractDefaultAnnotatable<IConstructor> constrAnno = (AbstractDefaultAnnotatable<IConstructor>)withAnno;
                             pushKWPairs(constrAnno.internalGetAnnotations().entryIterator());
                             workList.push(new NextStep<>(constr, (l, w, v) -> {
@@ -233,7 +237,7 @@ public class StacklessStructuredVisitor {
             public Void visitExternal(IExternalValue externalValue) throws E {
                 if (visit.enterExternalValue(externalValue)) {
                     workList.push(new NextStep<>(externalValue, (l, w, v) -> {
-                        v.leaveExternalValue();
+                        v.leaveExternalValue((IExternalValue)l);
                     }));
                     workList.push(new NextStep<>(externalValue.encodeAsConstructor(), StacklessStructuredVisitor::visitValue));
                     workList.push(new NextStep<>(externalValue, (l, w, v) -> {
