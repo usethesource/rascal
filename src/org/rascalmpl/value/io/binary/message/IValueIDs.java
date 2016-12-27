@@ -150,7 +150,7 @@ public class IValueIDs {
     public static class TupleValue {
         public static final int ID = TUPLE_VALUE_ID;
         public static final int SIZE = 1;
-        public static final int ELEMENTS = 2;
+        public static final int CHILDREN = 2;
     }
     
     public static class ListValue {
@@ -281,7 +281,7 @@ public class IValueIDs {
     public static class MapType {
         public static final int ID = MAP_TYPE_ID;
         public static final int KEY_TYPE = 1;
-        public static final int VALUE_TYPE = 1;
+        public static final int VALUE_TYPE = 2;
     }
     
     public static class NodeType {
