@@ -548,7 +548,7 @@ public class IValueWriter2 {
 
             @Override
             public void enterTupleElements(int arity) throws IOException {
-                writer.writeRepeatedNestedField(IValueIDs.TupleValue.ELEMENTS, arity);
+                writer.writeRepeatedNestedField(IValueIDs.TupleValue.CHILDREN, arity);
                 
             }
 
