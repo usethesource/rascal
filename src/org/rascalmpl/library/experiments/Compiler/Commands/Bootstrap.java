@@ -19,7 +19,6 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.nio.file.attribute.FileAttribute;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,7 +29,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.util.Reflective;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -40,7 +38,6 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.io.binary.stream.IValueInputStream;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * This program is intended to be executed directly from maven; it downloads a previous version of Rascal from a hard-wired location and uses 
@@ -282,6 +279,8 @@ public class Bootstrap {
                 if(withCourses){
                    time("Compiling courses", () -> compileCourses(rvm[1], kernel[2], librarySource, courseSource, phase2Folder));
                 }
+                
+                time("Postprocessing bootstrapped files", () -> postProcessBuild(Paths.get(kernel[2])));
                 
                 // The result of the final compilation phase is copied to the bin folder such that it can be deployed with the other compiled (class) files
                 time("Copying bootstrapped files", () -> copyResult(new File(kernel[2]).toPath(), targetFolder.resolve("boot")));
@@ -599,7 +598,7 @@ public class Bootstrap {
     private final static URIResolverRegistry registry = URIResolverRegistry.getInstance();
     private final static  IValueFactory vf = ValueFactoryFactory.getValueFactory();
     
-    private static void copyCompressed(String oldFile, String newFile) throws IOException{
+    private static void uncompressAndCopy(String oldFile, String newFile) throws IOException{
         ISourceLocation iloc;
         ISourceLocation oloc;
         //System.err.println("copyCompressed " + oldFile + " to " + newFile);
@@ -658,10 +657,10 @@ public class Bootstrap {
                         String toPath = toLoc.getPath();
                         
                         if(toPath.endsWith(".rvm.gz")){
-                            copyCompressed(toPath, toPath.replaceAll("\\.gz", ""));
+                            uncompressAndCopy(toPath, toPath.replaceAll("\\.gz", ""));
                         }
                         if(toPath.endsWith(".rvm.ser.gz")){
-                            copyCompressed(toPath, toPath.replaceAll("\\.rvm\\.ser\\.gz", ".rvmx"));
+                            uncompressAndCopy(toPath, toPath.replaceAll("\\.rvm\\.ser\\.gz", ".rvmx"));
                         }
                     }
                     catch (URISyntaxException e) {
@@ -687,6 +686,14 @@ public class Bootstrap {
         JarInputStreamFileTree in = new JarInputStreamFileTree(registry.getInputStream(vf.sourceLocation(deployed.toString())));
         crawlJar(deployed, in, Paths.get(""), preprocessed);
         return preprocessed;
+    }
+    
+    public static void postProcessBuild(final Path build){
+        try {
+            Files.walkFileTree(build, new Postprocessor());
+          } catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
+          }
     }
 }
 
@@ -775,3 +782,60 @@ class RVMFileCompareAndCount implements FileVisitor<Path> {
   }
   
 }
+
+class Postprocessor implements FileVisitor<Path> {
+    
+    private final static int BUFLEN = 100000;
+    private final static URIResolverRegistry registry = URIResolverRegistry.getInstance();
+    private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+    
+    private static void compressAndCopy(String oldFile, String newFile) throws IOException{
+        ISourceLocation iloc;
+        ISourceLocation oloc;
+        try {
+            iloc = vf.sourceLocation("file", "", oldFile);
+            oloc = vf.sourceLocation("compressed+file", "", newFile);
+        }
+        catch (URISyntaxException e) {
+            throw new IOException("Cannot create locations: " + e.getMessage());
+        }
+        
+        try(InputStream in = registry.getInputStream(iloc);
+            OutputStream out = registry.getOutputStream(oloc, false)){
+            
+            byte[] buffer = new byte[BUFLEN];
+            int n;
+            while((n = in.read(buffer)) > 0){
+                out.write(buffer, 0, n);
+            }
+        }
+    }
+
+    @Override
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+      return FileVisitResult.CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+        String path = file.toString();
+        if(path.endsWith(".rvm")){
+            compressAndCopy(path, path + ".gz");
+        }
+        if(path.endsWith(".rvmx")){
+            compressAndCopy(path, path.replaceAll("\\.rvmx", "") +" .rvm.ser.gz");
+        }
+        return FileVisitResult.CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+      throw new RuntimeException(exc.getMessage());
+    }
+
+    @Override
+    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+      return FileVisitResult.CONTINUE;
+    }
+    
+  }
