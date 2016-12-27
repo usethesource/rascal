@@ -150,7 +150,7 @@ public class ReferenceStructuredIValueVisitor {
                             assert oan instanceof AbstractDefaultAnnotatable;
                             AbstractDefaultAnnotatable<INode> nodeAnno = (AbstractDefaultAnnotatable<INode>)(oan);
                             ImmutableMap<String, IValue> annos = nodeAnno.internalGetAnnotations();
-                            visit.enterNodeKeywordParameters(annos.size());
+                            visit.enterNodeAnnotations(annos.size());
                             visitNamedValues(annos.entryIterator());
                         }
                     }
@@ -199,7 +199,7 @@ public class ReferenceStructuredIValueVisitor {
                             assert oan instanceof AbstractDefaultAnnotatable;
                             AbstractDefaultAnnotatable<IConstructor> nodeAnno = (AbstractDefaultAnnotatable<IConstructor>)(oan);
                             ImmutableMap<String, IValue> annos = nodeAnno.internalGetAnnotations();
-                            visit.enterConstructorKeywordParameters(annos.size());
+                            visit.enterConstructorAnnotations(annos.size());
                             visitNamedValues(annos.entryIterator());
                         }
                     }
