@@ -24,7 +24,6 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
-import org.rascalmpl.value.type.TypeStore;
 
 /**
  * The RVMLinker takes an RVMProgram (and its imports) and creates a single RVMExecutable for it, with
@@ -48,14 +47,12 @@ public class RVMLinker {
 	private Map<String, Integer> resolver;
 	private ArrayList<OverloadedFunction> overloadedStore;
 	
-	private TypeStore typeStore;
 	private final Types types;
 
-	public RVMLinker(IValueFactory vf, TypeStore typeStore) {
+	public RVMLinker(IValueFactory vf) {
 		this.vf = vf;
 		this.types = new Types(this.vf);
 		this.tf = TypeFactory.getInstance();
-		this.typeStore = typeStore;
 	}
 	
 	String moduleInit(String moduleName){
@@ -562,8 +559,7 @@ public class RVMLinker {
 								 initializers,
 								 uid_module_init, 
 								 uid_module_main, 
-								 typeStore, 
-								 vf,
+								 vf, 
 								 jvm);
 	}
 	

@@ -235,7 +235,7 @@ public class BasicIDEServices implements IDEServices {
   }
   
   public void startJob(IString name, IInteger workShare, IInteger totalWork) {
-      startJob(name.getValue(), totalWork.intValue(), totalWork.intValue());
+      startJob(name.getValue(), workShare.intValue(), totalWork.intValue());
   }
 
   /* (non-Javadoc)

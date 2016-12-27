@@ -212,7 +212,7 @@ public class HelpManager {
 			if(words[0].equals("help")){
 				return reportHelp(words, indexSearcher.search(query, maxSearch).scoreDocs);
 			} else {
-				return reportApropos(words, indexSearcher.search(query, maxSearch).scoreDocs);
+				return reportApropos(indexSearcher.search(query, maxSearch).scoreDocs);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -291,7 +291,7 @@ public class HelpManager {
 		}
 	}
 	
-	String reportApropos(String[] words, ScoreDoc[] hits) throws IOException{
+	String reportApropos(ScoreDoc[] hits) throws IOException{
 		StringWriter w = new StringWriter();
 		for (int i = 0; i < Math.min(hits.length, maxSearch); i++) {
 			Document hitDoc = indexSearcher.doc(hits[i].doc);

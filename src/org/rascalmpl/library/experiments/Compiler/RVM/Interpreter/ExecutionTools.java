@@ -48,13 +48,11 @@ public class ExecutionTools {
 	}
 	
 	public static RVMExecutable linkProgram(
-					 ISourceLocation rvmProgramLoc,
 					 IConstructor rvmProgram,
-					 IBool jvm, 
-					 TypeStore typeStore	
+					 IBool jvm	
     ) throws IOException {
 		
-		return link(rvmProgram, jvm, typeStore);
+		return link(rvmProgram, jvm);
 	}
 	
 	// Read a RVMExecutable from file
@@ -67,11 +65,10 @@ public class ExecutionTools {
 	
 	public static RVMExecutable link(
 			 	IConstructor rvmProgram,
-			 	IBool jvm, 
-			 	TypeStore typeStore
+			 	IBool jvm
 	) throws IOException {
 
-		RVMLinker linker = new RVMLinker(vf, typeStore);
+		RVMLinker linker = new RVMLinker(vf);
 		return linker.link(rvmProgram,	jvm.getValue());
 	}
 		

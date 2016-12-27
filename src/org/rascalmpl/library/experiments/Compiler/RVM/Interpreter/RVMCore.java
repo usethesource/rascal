@@ -20,6 +20,7 @@ import java.util.regex.Matcher;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.ITestResultListener;
+import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
@@ -56,6 +57,7 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public abstract class RVMCore {
@@ -66,6 +68,10 @@ public abstract class RVMCore {
 	protected final static IBool Rascal_TRUE = ValueFactoryFactory.getValueFactory().bool(true);
 	protected final static IBool Rascal_FALSE = ValueFactoryFactory.getValueFactory().bool(false);
 	protected final IString NOVALUE; 
+	
+	protected TypeStore typeStore;
+	private IMap symbol_definitions;
+	
 	protected Function[] functionStore;
 	protected Map<String, Integer> functionMap;
 
@@ -154,6 +160,7 @@ public abstract class RVMCore {
 	  NOVALUE = vf.string("$no-value$");
 	  moduleVariables = new HashMap<IValue,IValue>();
 
+	  this.symbol_definitions = rvmExec.getSymbolDefinitions();
 	  this.functionStore = rvmExec.getFunctionStore();
 	  this.functionMap = rvmExec.getFunctionMap();
 
@@ -183,6 +190,10 @@ public abstract class RVMCore {
 		}
 		moduleVariables.put(name, newVal);
 	}
+	
+	public TypeStore getTypeStore() { 
+        return typeStore == null ? new TypeReifier(vf).buildTypeStore(symbol_definitions) : typeStore;
+    }
 	
 	void mappifyOverloadedStore(){
 	  overloadedStoreMap = new HashMap<>();
@@ -474,7 +485,7 @@ public abstract class RVMCore {
 	  IListWriter w = vf.listWriter();
 	  for(Function f : functionStore){
 	    if(f.isTest){
-	      w.append(f.executeTest(testResultListener, rex));
+	      w.append(f.executeTest(testResultListener, getTypeStore(), rex));
 	    }
 	  }
 	  return w.done();
