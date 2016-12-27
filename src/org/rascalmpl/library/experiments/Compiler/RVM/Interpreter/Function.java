@@ -318,9 +318,11 @@ public class Function implements Serializable {
     /**
      * Execute current function as test
      * @param testResultListener TODO
+     * @param typeStore TODO
+     * @param rex TODO
      **/
 
-    public ITuple executeTest(ITestResultListener testResultListener, RascalExecutionContext rex) {
+    public ITuple executeTest(ITestResultListener testResultListener, TypeStore typeStore, RascalExecutionContext rex) {
       String fun = name;
       if(isIgnored()){
         testResultListener.ignored(computeTestName(), src);
@@ -339,7 +341,7 @@ public class Function implements Serializable {
 
       TypeParameterVisitor tpvisit = new TypeParameterVisitor();
       HashMap<Type, Type> tpbindings = tpvisit.bindTypeParameters(requestedType);
-      RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, maxDepth, tpbindings, rex.getTypeStore());
+      RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, maxDepth, tpbindings, typeStore);
 
       boolean passed = true;
       String message = "";
@@ -350,7 +352,7 @@ public class Function implements Serializable {
           ITuple tup = (ITuple) randomValue.generate(requestedType);
           if(tup == null){
             System.err.println(name + "(" + nargs + "): " + requestedType + ", " + tup );
-            printTypeStore(rex.getTypeStore());
+            printTypeStore(typeStore);
         
           } 
           for(int j = 0; j < nargs; j++){
@@ -495,7 +497,7 @@ public class Function implements Serializable {
         out.endMessage();
     }
     
-    static Function read(IRVMWireInputStream in, IValueFactory vfactory, Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) throws IOException {    
+    static Function read(IRVMWireInputStream in, Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) throws IOException {    
         String name = "unitialized name";
         Type ftype = null;
         Type kwType = null;
@@ -607,7 +609,7 @@ public class Function implements Serializable {
                 }
                     
                 case CompilerIDs.Function.CODEBLOCK: {
-                    codeblock = CodeBlock.read(in, vf, functionMap, constructorMap, resolver);
+                    codeblock = CodeBlock.read(in, functionMap, constructorMap, resolver);
                     break;
                 }
                 
@@ -743,11 +745,9 @@ public class Function implements Serializable {
  */
 class FSTFunctionSerializer extends FSTBasicObjectSerializer {
 	
-	//private static IValueFactory vf;
 	private static TypeStore store;
 
-	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
-		//vf = vfactory;
+	public static void initSerialization(TypeStore ts){
 		store = ts;
 		store.extendStore(RascalValueFactory.getStore());
 	}

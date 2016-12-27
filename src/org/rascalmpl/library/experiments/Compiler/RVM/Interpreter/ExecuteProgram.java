@@ -32,7 +32,7 @@ public class ExecuteProgram {
 			) throws IOException {
 
 	    TypeStore typeStore = /*new TypeStore();*/ new TypeStore(RascalValueFactory.getStore());
-		RVMExecutable exec = ExecutionTools.link(rvmProgram, jvm, typeStore);
+		RVMExecutable exec = ExecutionTools.link(rvmProgram, jvm);
 		exec.newWrite(rvmProgramLoc, 6);
 	}
 	
@@ -53,7 +53,7 @@ public class ExecuteProgram {
 			) throws IOException {
 		
 	    TypeStore typeStore = /*new TypeStore()*/ new TypeStore(RascalValueFactory.getStore());
-		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm, typeStore);
+		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm);
 		if(executable.isValid()){
 			RascalExecutionContext rex = null;
             try {
@@ -94,7 +94,7 @@ public class ExecuteProgram {
 			) throws IOException {
 
 	    TypeStore typeStore = rex.getTypeStore(); // /*new TypeStore();*/ new TypeStore(RascalValueFactory.getStore());
-		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm, typeStore);
+		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm);
 
 		if(executable.isValid()){
 			RascalExecutionContext rex2 = ExecutionTools.makeRex(rex.getPathConfig(), executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, typeStore);

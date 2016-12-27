@@ -84,7 +84,6 @@ public class CodeBlock implements Serializable {
 	public CodeBlock(String name, IValueFactory factory){
 		labelInfo = new HashMap<String, LabelInfo>();
 		insList = new ArrayList<Instruction>();
-		new ArrayList<Integer>();
 		pc = 0;
 		this.name = name;
 		this.vf = factory;
@@ -893,7 +892,7 @@ public class CodeBlock implements Serializable {
 	    out.endMessage();
 	}
 
-    public static CodeBlock read(IRVMWireInputStream in, IValueFactory vf, Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) throws IOException {
+    public static CodeBlock read(IRVMWireInputStream in, Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) throws IOException {
         String name = "unitialized name";
         
         Map<IValue, Integer> constantMap = new HashMap<>();
@@ -988,7 +987,7 @@ class FSTCodeBlockSerializer extends FSTBasicObjectSerializer {
 
 	private static TypeStore store;
 
-	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
+	public static void initSerialization(TypeStore ts){
 		store = ts;
 		store.extendStore(RascalValueFactory.getStore());
 	}

@@ -24,7 +24,6 @@ import org.rascalmpl.library.lang.json.io.JsonValueReader;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;

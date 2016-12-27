@@ -20,6 +20,7 @@ import org.nustaq.serialization.FSTConfiguration;
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
 import org.rascalmpl.interpreter.ITestResultListener;
+import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.library.experiments.Compiler.VersionInfo;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireInputStream;
@@ -104,13 +105,14 @@ public class RVMExecutable implements Serializable{
 	
 	// transient fields
 	static IValueFactory vf;
-	static TypeStore store;
+	static TypeStore typeStore;
 	
 	// Serializable fields
 	
 	private ISet errors;
 	private String module_name;
 	private IMap moduleTags;
+	
 	private IMap symbol_definitions;
 	
 	private Function[] functionStore;
@@ -152,19 +154,17 @@ public class RVMExecutable implements Serializable{
 			List<String> initializers2,
 			String uid_module_init,
 			String uid_module_main,
-			TypeStore ts,
 			IValueFactory vfactory,
 			boolean jvm
 			) throws IOException{
 		
 		vf = vfactory;
-		store = ts;
-		
 		this.errors = vf.set();
 		
 		this.module_name = module_name;
 		this.moduleTags = moduleTags;
 		this.symbol_definitions = symbol_definitions;
+		this.typeStore = null;
 		
 		this.functionMap = functionMap;
 		this.functionStore = functionStore;
@@ -211,6 +211,10 @@ public class RVMExecutable implements Serializable{
 	IMap getSymbolDefinitions() {
 		return symbol_definitions;
 	}
+	
+	public TypeStore getTypeStore() { 
+        return typeStore == null ? new TypeReifier(vf).buildTypeStore(symbol_definitions) : typeStore;
+    }
 
 	public Function[] getFunctionStore() {
 		return functionStore;
@@ -256,7 +260,7 @@ public class RVMExecutable implements Serializable{
 	  IListWriter w = vf.listWriter();
 	  for(Function f : functionStore){
 	    if(f.isTest){
-	      w.append(f.executeTest(testResultListener, rex));
+	      w.append(f.executeTest(testResultListener, getTypeStore(), rex));
 	    }
 	  }
 	  return w.done();
@@ -384,13 +388,13 @@ public class RVMExecutable implements Serializable{
 	            cout = new ZstdOutputStream(out, compressionLevel);
 	        }
 	        try(IRVMWireOutputStream iout = new RVMWireOutputStream(new BinaryWireOutputStream(cout, 50_000), 50_000)){
-	            write(iout, typeStore);
+	            write(iout);
 	        }
 	    }
 	}
 	
 
-    private void write(IRVMWireOutputStream out, TypeStore typeStore) throws IOException {
+    private void write(IRVMWireOutputStream out) throws IOException {
 	    out.startMessage(CompilerIDs.Executable.ID);
 	    
 	    // Write standard header
@@ -471,8 +475,8 @@ public class RVMExecutable implements Serializable{
 	            FSTSerializableIValue.initSerialization(vf, typeStore);
 	        
 	            FSTRVMExecutableSerializer.initSerialization(vf, typeStore);
-	            FSTFunctionSerializer.initSerialization(vf, typeStore);
-	            FSTCodeBlockSerializer.initSerialization(vf, typeStore);
+	            FSTFunctionSerializer.initSerialization(typeStore);
+	            FSTCodeBlockSerializer.initSerialization(typeStore);
 	        
 	            try (InputStream fileIn = new SequenceInputStream(new ByteArrayInputStream(header), in);
 	                    FSTObjectInput fstIn = new FSTObjectInput(fileIn, makeFSTConfig(rvmExecutable))) {
@@ -619,7 +623,7 @@ public class RVMExecutable implements Serializable{
                         throw new IOException("RESOLVER should be defined before FUNCTION_STORE");
                     }
                     for(int i = 0; i < n; i++){
-                        Function function = Function.read(in, vf, functionMap, constructorMap, resolver);
+                        Function function = Function.read(in, functionMap, constructorMap, resolver);
                         functionStore[i] = function;
                     }
                     break;
@@ -679,7 +683,7 @@ public class RVMExecutable implements Serializable{
 
 	    RVMExecutable ex = new RVMExecutable(module_name, moduleTags, symbol_definitions, functionMap, functionStore, 
 	        constructorMap, constructorStore, resolver, overloadedStore, initializers, uid_module_init, 
-	        uid_module_main, store, vf, false);
+	        uid_module_main, vf, false);
 	    ex.setJvmByteCode(jvmByteCode);
 	    ex.setFullyQualifiedDottedName(fullyQualifiedDottedName);
 
@@ -694,8 +698,8 @@ public class RVMExecutable implements Serializable{
 		FSTSerializableIValue.initSerialization(vf, typeStore);
 	
 		FSTRVMExecutableSerializer.initSerialization(vf, typeStore);
-		FSTFunctionSerializer.initSerialization(vf, typeStore);
-		FSTCodeBlockSerializer.initSerialization(vf, typeStore);
+		FSTFunctionSerializer.initSerialization(typeStore);
+		FSTCodeBlockSerializer.initSerialization(typeStore);
 	
 		try (InputStream fileIn = URIResolverRegistry.getInstance().getInputStream(rvmExecutable);
 		        FSTObjectInput in = new FSTObjectInput(fileIn, makeFSTConfig(rvmExecutable))) {
@@ -949,7 +953,7 @@ class FSTRVMExecutableSerializer extends FSTBasicObjectSerializer {
 
 		RVMExecutable ex = new RVMExecutable(module_name, moduleTags, symbol_definitions, functionMap, functionStore, 
 								constructorMap, constructorStore, resolver, overloadedStore, initializers, uid_module_init, 
-								uid_module_main, store, vf, false);
+								uid_module_main, vf, false);
 		ex.setJvmByteCode(jvmByteCode);
 		ex.setFullyQualifiedDottedName(fullyQualifiedDottedName);
 		
