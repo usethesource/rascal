@@ -79,7 +79,7 @@ public class StacklessStructuredVisitorTest {
         TypeStore ts = new TypeStore();
         Type tp = RandomValues.addNameType(ts);
         Random r = new Random(42);
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1000; i++) {
             testVisitStructure(RandomValues.generate(tp, ts, vf, r, 10));
         }
     }
@@ -88,7 +88,7 @@ public class StacklessStructuredVisitorTest {
         TypeStore ts = new TypeStore();
         Type tp = RandomValues.addNameType(ts);
         Random r = new Random(42);
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1000; i++) {
             testVisitStructureSkipped(RandomValues.generate(tp, ts, vf, r, 10));
         }
     }
