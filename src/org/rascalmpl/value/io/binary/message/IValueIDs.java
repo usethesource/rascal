@@ -29,6 +29,8 @@ public class IValueIDs {
         public static final int VALUE_WINDOW = 1;
         public static final int TYPE_WINDOW = 2;
         public static final int SOURCE_LOCATION_WINDOW = 3;
+        public static final int VALUE = 4;
+        public static final int TYPE = 5;
     }
     public static final class LastValue {
         public static final int ID = LAST_VALUE_ID;
@@ -48,6 +50,7 @@ public class IValueIDs {
     // above 32 for less often occuring messages (they take a byte extra to encode and decode)
     private static final int DATETIME_VALUE_ID = 32; 
     private static final int RAT_VALUE_ID = 33;
+    private static final int EXTERNAL_VALUE_ID = 34;
     
     // Compound values
 
@@ -57,6 +60,7 @@ public class IValueIDs {
     private static final int LIST_VALUE_ID = 10;
     private static final int MAP_VALUE_ID = 11;
     private static final int SET_VALUE_ID = 12;
+    private static final int NAMED_VALUE_ID = 13;
     // WARNING: when adding here, don't forget to update the ranges at the end of this class
     
     public static class Common {
@@ -110,6 +114,8 @@ public class IValueIDs {
 
     public static class RationalValue {
         public static final int ID = RAT_VALUE_ID;
+        public static final int NUMERATOR = 1;
+        public static final int DENOMINATOR = 2;
     }
     
     public static class RealValue {
@@ -128,6 +134,8 @@ public class IValueIDs {
         public static final int ARITY = 1;
         public static final int KWPARAMS = 2;
         public static final int ANNOS = 3;
+        public static final int TYPE = 4;
+        public static final int PARAMS = 5;
     }
 
     public static class NodeValue {
@@ -136,26 +144,40 @@ public class IValueIDs {
         public static final int ARITY = 2;
         public static final int KWPARAMS = 3;
         public static final int ANNOS = 4;
+        public static final int PARAMS = 5;
     }
 
     public static class TupleValue {
         public static final int ID = TUPLE_VALUE_ID;
         public static final int SIZE = 1;
+        public static final int ELEMENTS = 2;
     }
     
     public static class ListValue {
         public static final int ID = LIST_VALUE_ID;
         public static final int SIZE = 1;
+        public static final int ELEMENTS = 2;
     }
     
     public static class MapValue {
         public static final int ID = MAP_VALUE_ID;
         public static final int SIZE = 1;
+        public static final int KV_PAIRS = 2;
     }
 
     public static class SetValue {
         public static final int ID = SET_VALUE_ID;
         public static final int SIZE = 1;
+        public static final int ELEMENTS = 2;
+    }
+    public static class NamedValue {
+        public static final int ID = NAMED_VALUE_ID;
+        public static final int NAME = 1;
+        public static final int VALUE = 2;
+    }
+    public static class ExternalValue {
+        public static final int ID = EXTERNAL_VALUE_ID;
+        public static final int VALUE = 1;
     }
 
     // Type message ID's start at 100 to leave room for new values
@@ -227,31 +249,39 @@ public class IValueIDs {
     public static class ParameterType {
         public static final int ID = PARAMETER_TYPE_ID;
         public static final int NAME = 1;
+        public static final int BOUND = 2;
     }
     
     public static class ADTType {
         public static final int ID = ADT_TYPE_ID;
         public static final int NAME = 1;
+        public static final int TYPE_PARAMS = 2;
     }
     public static class ConstructorType {
         public static final int ID = CONSTRUCTOR_TYPE_ID;
         public static final int NAME = 1;
+        public static final int ADT = 2;
+        public static final int FIELD_TYPES = 3;
     }
     
     public static class AliasType {
         public static final int ID = ALIAS_TYPE_ID;
         public static final int NAME = 1;
+        public static final int ALIASED = 2;
+        public static final int TYPE_PARAMS = 3;
     }
     public static class ListType {
         public static final int ID = LIST_TYPE_ID;
+        public static final int ELEMENT_TYPE = 1;
     }
     public static class SetType {
         public static final int ID = SET_TYPE_ID;
+        public static final int ELEMENT_TYPE = 1;
     }
     public static class MapType {
         public static final int ID = MAP_TYPE_ID;
-        public static final int KEY_LABEL = 1;
-        public static final int VAL_LABEL = 2;
+        public static final int KEY_TYPE = 1;
+        public static final int VALUE_TYPE = 1;
     }
     
     public static class NodeType {
@@ -260,12 +290,14 @@ public class IValueIDs {
     
     public static class ExternalType {
         public static final int ID = EXTERNAL_TYPE_ID;
+        public static final int SYMBOL = 1;
     }
     
     public static class TupleType {
         public static final int ID = TUPLE_TYPE_ID;
         public static final int ARITY = 1;
         public static final int NAMES = 2;
+        public static final int TYPES = 3;
     }
     
     public static final class Ranges {
