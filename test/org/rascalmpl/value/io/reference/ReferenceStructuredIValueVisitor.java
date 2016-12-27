@@ -12,7 +12,10 @@
  */ 
 package org.rascalmpl.value.io.reference;
 
-import java.util.Map;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
 
 import org.rascalmpl.value.IAnnotatable;
@@ -32,8 +35,12 @@ import org.rascalmpl.value.IString;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IWithKeywordParameters;
+import org.rascalmpl.value.impl.AbstractDefaultAnnotatable;
+import org.rascalmpl.value.impl.AbstractDefaultWithKeywordParameters;
 import org.rascalmpl.value.io.binary.util.StructuredIValueVisitor;
 import org.rascalmpl.value.visitors.IValueVisitor;
+
+import io.usethesource.capsule.ImmutableMap;
 
 public class ReferenceStructuredIValueVisitor {
     public static <E extends Throwable> void accept(IValue root, StructuredIValueVisitor<E> visit) throws E {
@@ -96,6 +103,7 @@ public class ReferenceStructuredIValueVisitor {
                     visit.enterMapElements(o.size());
                     for (IValue v: o) {
                         v.accept(this);
+                        o.get(v).accept(this);
                     }
                     visit.leaveMap();
                 }
@@ -130,17 +138,20 @@ public class ReferenceStructuredIValueVisitor {
                     if(o.mayHaveKeywordParameters()){
                         IWithKeywordParameters<? extends INode> okw = o.asWithKeywordParameters();
                         if(okw.hasParameters()){
-                            Map<String, IValue> params = okw.getParameters();
+                            assert okw instanceof AbstractDefaultWithKeywordParameters;
+                            AbstractDefaultWithKeywordParameters<INode> nodeKw = (AbstractDefaultWithKeywordParameters<INode>)(okw);
+                            ImmutableMap<String, IValue> params = nodeKw.internalGetParameters();
                             visit.enterNodeKeywordParameters(params.size());
-                            visitNamedValues(params);
+                            visitNamedValues(params.entryIterator());
                         }
                     } else {
                         IAnnotatable<? extends INode> oan = o.asAnnotatable();
                         if(oan.hasAnnotations()){
-
-                            Map<String, IValue> annos = oan.getAnnotations();
+                            assert oan instanceof AbstractDefaultAnnotatable;
+                            AbstractDefaultAnnotatable<INode> nodeAnno = (AbstractDefaultAnnotatable<INode>)(oan);
+                            ImmutableMap<String, IValue> annos = nodeAnno.internalGetAnnotations();
                             visit.enterNodeKeywordParameters(annos.size());
-                            visitNamedValues(annos);
+                            visitNamedValues(annos.entryIterator());
                         }
                     }
                     visit.leaveNode();
@@ -148,11 +159,19 @@ public class ReferenceStructuredIValueVisitor {
                 return null;
             }
 
-            private void visitNamedValues(Map<String, IValue> map) throws E {
-                for (Entry<String, IValue> p: map.entrySet()) {
-                    visit.enterNamedValue(p.getKey());
-                    visit.enterNamedValueValue(p.getValue());
-                    p.getValue().accept(this);
+            private void visitNamedValues(Iterator<Entry<String, IValue>> iterator) throws E {
+
+                // since the PrePostValueIterator uses a stack, we see the annotations an keyword params in reverse (but in pairs)
+                List<Entry<String, IValue>> reverseEntries = new ArrayList<>();
+                while (iterator.hasNext()) {
+                    Entry<String, IValue> param = iterator.next();
+                    reverseEntries.add(0, new AbstractMap.SimpleImmutableEntry<String, IValue>(param.getKey(), param.getValue()));
+                }
+
+                for (Entry<String, IValue> ent: reverseEntries) {
+                    visit.enterNamedValue(ent.getKey());
+                    visit.enterNamedValueValue(ent.getValue());
+                    ent.getValue().accept(this);
                     visit.leaveNamedValue();
                 }
             }
@@ -168,17 +187,20 @@ public class ReferenceStructuredIValueVisitor {
                     if(o.mayHaveKeywordParameters()){
                         IWithKeywordParameters<? extends IConstructor> okw = o.asWithKeywordParameters();
                         if(okw.hasParameters()){
-                            Map<String, IValue> params = okw.getParameters();
+                            assert okw instanceof AbstractDefaultWithKeywordParameters;
+                            AbstractDefaultWithKeywordParameters<IConstructor> nodeKw = (AbstractDefaultWithKeywordParameters<IConstructor>)(okw);
+                            ImmutableMap<String, IValue> params = nodeKw.internalGetParameters();
                             visit.enterConstructorKeywordParameters(params.size());
-                            visitNamedValues(params);
+                            visitNamedValues(params.entryIterator());
                         }
                     } else {
                         IAnnotatable<? extends IConstructor> oan = o.asAnnotatable();
                         if(oan.hasAnnotations()){
-
-                            Map<String, IValue> annos = oan.getAnnotations();
+                            assert oan instanceof AbstractDefaultAnnotatable;
+                            AbstractDefaultAnnotatable<IConstructor> nodeAnno = (AbstractDefaultAnnotatable<IConstructor>)(oan);
+                            ImmutableMap<String, IValue> annos = nodeAnno.internalGetAnnotations();
                             visit.enterConstructorKeywordParameters(annos.size());
-                            visitNamedValues(annos);
+                            visitNamedValues(annos.entryIterator());
                         }
                     }
                     visit.leaveConstructor();
