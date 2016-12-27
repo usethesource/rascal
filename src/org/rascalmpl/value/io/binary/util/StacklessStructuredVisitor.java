@@ -159,7 +159,7 @@ public class StacklessStructuredVisitor {
                             AbstractDefaultAnnotatable<INode> nodeAnno = (AbstractDefaultAnnotatable<INode>)withAnno;
                             pushKWPairs(nodeAnno.internalGetAnnotations().entryIterator());
                             workList.push(new NextStep<>(node, (l, w, v) -> {
-                                v.enterNodeKeywordParameters(nodeAnno.internalGetAnnotations().size());
+                                v.enterNodeAnnotations(nodeAnno.internalGetAnnotations().size());
                             }));
                         }
                     }
@@ -217,7 +217,7 @@ public class StacklessStructuredVisitor {
                             AbstractDefaultAnnotatable<IConstructor> constrAnno = (AbstractDefaultAnnotatable<IConstructor>)withAnno;
                             pushKWPairs(constrAnno.internalGetAnnotations().entryIterator());
                             workList.push(new NextStep<>(constr, (l, w, v) -> {
-                                v.enterConstructorKeywordParameters(constrAnno.internalGetAnnotations().size());
+                                v.enterConstructorAnnotations(constrAnno.internalGetAnnotations().size());
                             }));
                         }
                     }
