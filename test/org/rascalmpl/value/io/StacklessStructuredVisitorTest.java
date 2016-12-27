@@ -135,7 +135,7 @@ public class StacklessStructuredVisitorTest {
         }
 
         @Override
-        public void leaveConstructor() throws RuntimeException {
+        public void leaveConstructor(IConstructor cons) throws RuntimeException {
             result.add("leave");
         }
 
@@ -161,7 +161,7 @@ public class StacklessStructuredVisitorTest {
         }
 
         @Override
-        public void leaveNode() throws RuntimeException {
+        public void leaveNode(INode node) throws RuntimeException {
             result.add("leave");
         }
 
@@ -177,7 +177,7 @@ public class StacklessStructuredVisitorTest {
         }
 
         @Override
-        public void leaveList() throws RuntimeException {
+        public void leaveList(IList list) throws RuntimeException {
             result.add("leave");
         }
 
@@ -193,7 +193,7 @@ public class StacklessStructuredVisitorTest {
         }
 
         @Override
-        public void leaveSet() throws RuntimeException {
+        public void leaveSet(ISet set) throws RuntimeException {
             result.add("leave");
         }
 
@@ -209,7 +209,7 @@ public class StacklessStructuredVisitorTest {
         }
 
         @Override
-        public void leaveMap() throws RuntimeException {
+        public void leaveMap(IMap map) throws RuntimeException {
             result.add("leave");
         }
 
@@ -225,7 +225,7 @@ public class StacklessStructuredVisitorTest {
         }
 
         @Override
-        public void leaveTuple() throws RuntimeException {
+        public void leaveTuple(ITuple tuple) throws RuntimeException {
             result.add("leave");
         }
 
@@ -241,7 +241,7 @@ public class StacklessStructuredVisitorTest {
         }
 
         @Override
-        public void leaveExternalValue() throws RuntimeException {
+        public void leaveExternalValue(IExternalValue ext) throws RuntimeException {
             result.add("leave");
         }
 
