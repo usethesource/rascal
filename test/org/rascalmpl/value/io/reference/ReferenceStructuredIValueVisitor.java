@@ -70,7 +70,7 @@ public class ReferenceStructuredIValueVisitor {
                     for (IValue v: o) {
                         v.accept(this);
                     }
-                    visit.leaveList();
+                    visit.leaveList(o);
                 }
                 return null;
             }
@@ -92,7 +92,7 @@ public class ReferenceStructuredIValueVisitor {
                     for (IValue v: o) {
                         v.accept(this);
                     }
-                    visit.leaveSet();
+                    visit.leaveSet(o);
                 }
                 return null;
             }
@@ -105,7 +105,7 @@ public class ReferenceStructuredIValueVisitor {
                         v.accept(this);
                         o.get(v).accept(this);
                     }
-                    visit.leaveMap();
+                    visit.leaveMap(o);
                 }
                 return null;
             }
@@ -123,7 +123,7 @@ public class ReferenceStructuredIValueVisitor {
                     for (IValue v: o) {
                         v.accept(this);
                     }
-                    visit.leaveTuple();
+                    visit.leaveTuple(o);
                 }
                 return null;
             }
@@ -154,7 +154,7 @@ public class ReferenceStructuredIValueVisitor {
                             visitNamedValues(annos.entryIterator());
                         }
                     }
-                    visit.leaveNode();
+                    visit.leaveNode(o);
                 }
                 return null;
             }
@@ -203,7 +203,7 @@ public class ReferenceStructuredIValueVisitor {
                             visitNamedValues(annos.entryIterator());
                         }
                     }
-                    visit.leaveConstructor();
+                    visit.leaveConstructor(o);
                 }
                 return null;
             }
@@ -225,7 +225,7 @@ public class ReferenceStructuredIValueVisitor {
                 if (visit.enterExternalValue(externalValue)) {
                     visit.enterExternalValueConstructor();
                     externalValue.encodeAsConstructor().accept(this);
-                    visit.leaveExternalValue();
+                    visit.leaveExternalValue(externalValue);
                 }
                 return null;
             }
