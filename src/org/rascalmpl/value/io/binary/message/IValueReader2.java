@@ -541,7 +541,7 @@ public class IValueReader2 {
                     break;
                 case IValueIDs.MapValue.KV_PAIRS:
                     int size = reader.getRepeatedLength();
-                    for (int i = 0; i < size; i++) {
+                    for (int i = 0; i < size; i += 2) {
                         IValue key = readValue(reader);
                         IValue value = readValue(reader);
                         result.put(key, value);;
