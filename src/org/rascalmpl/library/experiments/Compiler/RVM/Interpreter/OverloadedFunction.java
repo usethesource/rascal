@@ -16,7 +16,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.Comp
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireInputStream;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireOutputStream;
 import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.io.binary.util.WindowSizes;
 import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 import org.rascalmpl.value.type.Type;
@@ -137,7 +136,7 @@ public class OverloadedFunction implements Serializable {
 		filter(functionStore);
 	}
 	
-	void printArray(int[] a){
+	void printArray(){
 		System.out.print("[ ");for(int i : functions) System.out.print(i + " "); System.out.println("]");
 	}
 	
@@ -181,12 +180,12 @@ public class OverloadedFunction implements Serializable {
 	public boolean comparable(OverloadedFunction other){
 		if(!compareIntArrays(functions, other.functions)){
 			System.out.println("functions differ: " + functions + " vs " + other.functions);
-			printArray(functions);	System.out.print(" vs "); printArray(other.functions);
+			printArray();	System.out.print(" vs "); printArray();
 			return false;
 		}
 		if(!compareIntArrays(constructors, other.constructors)){
 			System.out.println("constructors differ: " + constructors + " vs " + other.constructors);
-			printArray(constructors);	System.out.print(" vs "); printArray(other.constructors);
+			printArray();	System.out.print(" vs "); printArray();
 			return false;
 		}
 		if(!funIn.equals(other.funIn)){
@@ -386,7 +385,7 @@ public class OverloadedFunction implements Serializable {
         out.endMessage();
     }
    
-    static OverloadedFunction read(IRVMWireInputStream in, IValueFactory vf) throws IOException {
+    static OverloadedFunction read(IRVMWireInputStream in) throws IOException {
         String name = "unitialized name";
         Type funType = null;
         int[] functions = new int[0];
@@ -480,12 +479,10 @@ public class OverloadedFunction implements Serializable {
  *
  */
 class FSTOverloadedFunctionSerializer extends FSTBasicObjectSerializer {
-	
-	//private static IValueFactory vf;
+
 	private static TypeStore store;
 
-	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
-		//vf = vfactory;
+	public static void initSerialization(TypeStore ts){
 		store = ts;
 		store.extendStore(RascalValueFactory.getStore());
 	}

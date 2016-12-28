@@ -262,7 +262,7 @@ public class Bootstrap {
                   try {
                     time("Validation", () -> {
                       long nfiles = compareGeneratedRVMCode(Paths.get(kernel[2]), Paths.get(kernel[3]));
-                      System.out.println("VALIDATION: All " + nfiles + " *.rvm.gz files in Phase 2 and Phase 3 are identical");
+                      System.out.println("VALIDATION: All " + nfiles + " *.rvm files in Phase 2 and Phase 3 are identical");
                     });
                   }
                   catch (Exception e) {
@@ -570,7 +570,7 @@ public class Bootstrap {
     /**
      * Assert that two directories are recursively "equal" by checking that
      * - corresponding (sub)directories and files exist in expected and actual directory
-     * - of rvm.gz files actual content is compared.
+     * - of .rvm files actual content is compared.
      * 
      * If they are not, an {@link RuntimeException} is thrown with the given message.<br/>
      * Missing or additional files are considered an error.<br/>
@@ -635,9 +635,9 @@ public class Bootstrap {
               if (!Files.exists(actualFile)) {
                   throw new RuntimeException(String.format("File \'%s\' missing in actual.", expectedFile.getFileName()));
               }
-              if(actualFile.toString().endsWith(".rvm"/*".rvm.gz"*/)){
+              if(actualFile.toString().endsWith(".rvm")){
                   nfiles += 1;
-                  if(actualFile.toString().endsWith("_imports.rvm"/*"_imports.rvm.gz"*/)){  // Skip since base directories will always differ
+                  if(actualFile.toString().endsWith("_imports.rvm")){  // Skip since base directories will always differ
                       return FileVisitResult.CONTINUE;
                   }
 

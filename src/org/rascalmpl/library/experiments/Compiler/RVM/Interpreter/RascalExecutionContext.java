@@ -88,11 +88,11 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private static Cache<IString, DescendantDescriptor> descendantDescriptorCache;
 	private static Cache<Type, Type> sharedTypeConstantCache;
 	
-	private static final String PATH_TO_LINKED_PARSERGENERATOR = "lang/rascal/grammar/ParserGenerator.rvm.ser.gz";
-    private static final String PATH_TO_LINKED_KERNEL = "lang/rascal/boot/Kernel.rvm.ser.gz";
-    private static final String PATH_TO_LINKED_RASCALEXTRACTION = "experiments/Compiler/RascalExtraction/RascalExtraction.rvm.ser.gz";
-    private static final String PATH_TO_LINKED_QUESTIONCOMPILER = "experiments/tutor3/QuestionCompiler.rvm.ser.gz";
-    private static final String PATH_TO_LINKED_WEBSERVER = "util/Webserver.rvm.ser.gz";
+	private static final String PATH_TO_LINKED_PARSERGENERATOR = "lang/rascal/grammar/ParserGenerator.rvmx";
+    private static final String PATH_TO_LINKED_KERNEL = "lang/rascal/boot/Kernel.rvmx";
+    private static final String PATH_TO_LINKED_RASCALEXTRACTION = "experiments/Compiler/RascalExtraction/RascalExtraction.rvmx";
+    private static final String PATH_TO_LINKED_QUESTIONCOMPILER = "experiments/tutor3/QuestionCompiler.rvmx";
+    private static final String PATH_TO_LINKED_WEBSERVER = "util/Webserver.rvmx";
     
 	static {
 		createCaches(true);
@@ -131,7 +131,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	  this.pcfg = pcfg;
 	  this.bootDir = pcfg.getBoot();
 	  if(bootDir != null && !(bootDir.getScheme().equals("boot") ||  
-	                          bootDir.getScheme().equals("compressed+boot") || 
+	                          //bootDir.getScheme().equals("compressed+boot") || 
 	                          URIResolverRegistry.getInstance().isDirectory(bootDir))){
 	    throw new RuntimeException("bootDir should be a directory, given " + bootDir);
 	  }
@@ -184,13 +184,13 @@ public class RascalExecutionContext implements IRascalMonitor {
 	  IValueFactory vfac = ValueFactoryFactory.getValueFactory();
 	  try {
 	    if(givenBootDir == null){
-	      return vfac.sourceLocation("compressed+boot", "", desiredPath);
+	      return vfac.sourceLocation("boot"/*"compressed+boot"*/, "", desiredPath);
 	    }
 
 	    String scheme = givenBootDir.getScheme();
-	    if(!scheme.startsWith("compressed+")){
-	      scheme = "compressed+" + scheme;
-	    }
+//	    if(!scheme.startsWith("compressed+")){
+//	      scheme = "compressed+" + scheme;
+//	    }
 	   
 	    String basePath = givenBootDir.getPath();
 	    if(!basePath.endsWith("/")){
