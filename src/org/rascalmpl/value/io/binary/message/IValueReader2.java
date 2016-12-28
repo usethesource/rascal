@@ -20,9 +20,11 @@ import java.util.Collections;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.IMapWriter;
 import org.rascalmpl.value.INode;
+import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
@@ -494,7 +496,7 @@ public class IValueReader2 {
     }
 
     private IValue readSet(final IWireInputStream reader) throws IOException {
-        ISetWriter result = vf.setWriter();
+        ISet result = null;
         boolean backReference = false;
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()) {
@@ -503,17 +505,32 @@ public class IValueReader2 {
                     break;
                 case IValueIDs.SetValue.ELEMENTS:
                     int size = reader.getRepeatedLength();
-                    for (int i = 0; i < size; i++) {
-                        result.insert(readValue(reader));
+                    switch (size) {
+                        case 0:
+                            result = vf.set();
+                            break;
+                        case 1:
+                            result = vf.set(readValue(reader));
+                            break;
+                        case 2:
+                            result = vf.set(readValue(reader), readValue(reader));
+                            break;
+                        default:
+                            ISetWriter writer = vf.setWriter();
+                            for (int i = 0; i < size; i++) {
+                                writer.insert(readValue(reader));
+                            }
+                            result = writer.done();
+                            break;
                     }
                     break;
             }
         }
-        return returnAndStore(backReference, valueWindow, result.done());
+        return returnAndStore(backReference, valueWindow, result);
     }
 
     private IValue readList(final IWireInputStream reader) throws IOException {
-        IListWriter result = vf.listWriter();
+        IList result = null;
         boolean backReference = false;
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()) {
@@ -522,13 +539,30 @@ public class IValueReader2 {
                     break;
                 case IValueIDs.ListValue.ELEMENTS:
                     int size = reader.getRepeatedLength();
-                    for (int i = 0; i < size; i++) {
-                        result.append(readValue(reader));
+                    switch (size) {
+                        case 0:
+                            result = vf.list();
+                            break;
+                        case 1:
+                            result = vf.list(readValue(reader));
+                            break;
+                        case 2:
+                            IValue first = readValue(reader);
+                            IValue second = readValue(reader);
+                            result = vf.list(first, second);
+                            break;
+                        default:
+                            IListWriter writer = vf.listWriter();
+                            for (int i = 0; i < size; i++) {
+                                writer.append(readValue(reader));
+                            }
+                            result = writer.done();
+                            break;
                     }
                     break;
             }
         }
-        return returnAndStore(backReference, valueWindow, result.done());
+        return returnAndStore(backReference, valueWindow, result);
     }
 
     private IValue readMap(final IWireInputStream reader) throws IOException {
