@@ -13,16 +13,10 @@
 package org.rascalmpl.value.io.binary.message;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URISyntaxException;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
@@ -33,11 +27,8 @@ import org.rascalmpl.value.INode;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.io.binary.stream.IValueInputStream;
 import org.rascalmpl.value.io.binary.util.TrackLastRead;
 import org.rascalmpl.value.io.binary.util.WindowCacheFactory;
 import org.rascalmpl.value.io.binary.wire.IWireInputStream;
@@ -45,6 +36,7 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 
+import io.usethesource.capsule.ImmutableMap;
 import io.usethesource.capsule.TransientMap;
 import io.usethesource.capsule.TrieMap_5Bits;
 
@@ -60,7 +52,7 @@ public class IValueReader {
      * <br/>
      * In most cases you want to use the {@linkplain IValueInputStream}!
      */
-    public static IValue read(IWireInputStream reader, IValueFactory vf) throws IOException {
+    public static IValue readValue(IWireInputStream reader, IValueFactory vf) throws IOException {
         int typeWindowSize = 0;
         int valueWindowSize = 0;
         int uriWindowSize = 0;
@@ -72,20 +64,22 @@ public class IValueReader {
                 case IValueIDs.Header.VALUE_WINDOW: valueWindowSize = reader.getInteger();  break;
                 case IValueIDs.Header.TYPE_WINDOW: typeWindowSize = reader.getInteger();  break;
                 case IValueIDs.Header.SOURCE_LOCATION_WINDOW: uriWindowSize = reader.getInteger();  break;
+                case IValueIDs.Header.VALUE: {
+                    IValueReader valueReader = new IValueReader(vf, new TypeStore(), typeWindowSize, valueWindowSize, uriWindowSize);
+                    try {
+                        IValue result = valueReader.readValue(reader);
+                        reader.skipMessage();
+                        return result;
+                    } finally {
+                        valueReader.done();
+                    }
+                }
+                default:
+                    reader.skipNestedField();
+                    break;
             }
         }
-
-        final WindowCacheFactory windowFactory = WindowCacheFactory.getInstance();
-        TrackLastRead<Type> typeCache = windowFactory.getTrackLastRead(typeWindowSize);
-        TrackLastRead<IValue> valueCache = windowFactory.getTrackLastRead(valueWindowSize);
-        TrackLastRead<ISourceLocation> uriCache = windowFactory.getTrackLastRead(uriWindowSize);
-        try {
-            return readValue(reader, vf, new TypeStore(), typeCache, valueCache, uriCache);
-        } finally {
-            windowFactory.returnTrackLastRead(typeCache);
-            windowFactory.returnTrackLastRead(valueCache);
-            windowFactory.returnTrackLastRead(uriCache);
-        }
+        throw new IOException("Missing Value in the stream");
     }
 
     /**
@@ -103,239 +97,238 @@ public class IValueReader {
                 case IValueIDs.Header.VALUE_WINDOW: valueWindowSize = reader.getInteger();  break;
                 case IValueIDs.Header.TYPE_WINDOW: typeWindowSize = reader.getInteger();  break;
                 case IValueIDs.Header.SOURCE_LOCATION_WINDOW: uriWindowSize = reader.getInteger();  break;
-            }
-        }
-        final WindowCacheFactory windowFactory = WindowCacheFactory.getInstance();
-        TrackLastRead<Type> typeCache = windowFactory.getTrackLastRead(typeWindowSize);
-        TrackLastRead<IValue> valueCache = windowFactory.getTrackLastRead(valueWindowSize);
-        TrackLastRead<ISourceLocation> uriCache = windowFactory.getTrackLastRead(uriWindowSize);
-        try {
-            return readType(reader, vf, new TypeStore(), typeCache, valueCache, uriCache);
-        } finally {
-            windowFactory.returnTrackLastRead(typeCache);
-            windowFactory.returnTrackLastRead(valueCache);
-            windowFactory.returnTrackLastRead(uriCache);
-        }
-    }
-    
-    
-    private static IValue readValue(final IWireInputStream reader, final IValueFactory vf, final TypeStore store, TrackLastRead<Type> typeWindow, TrackLastRead<IValue> valueWindow, TrackLastRead<ISourceLocation> uriWindow) throws IOException{
-
-        ReaderStack<Type> tstack = new ReaderStack<>(Type.class, 100);
-        ValueReaderStack vstack = new ValueReaderStack(1024);
-        while(reader.next() == IWireInputStream.MESSAGE_START){
-            int messageID = reader.message();
-            if (messageID == IValueIDs.LastValue.ID) {
-                reader.skipMessage();
-                if(vstack.size() == 1 && tstack.size() == 0){
-                    return vstack.pop();
+                case IValueIDs.Header.TYPE: {
+                    IValueReader valueReader = new IValueReader(vf, new TypeStore(), typeWindowSize, valueWindowSize, uriWindowSize);
+                    try {
+                        Type result = valueReader.readType(reader);
+                        reader.skipMessage();
+                        return result;
+                    } finally {
+                        valueReader.done();
+                    }
                 }
-                throw new IOException("End message before stack was ready to be ended");
+                default:
+                    reader.skipNestedField();
+                    break;
             }
-            processMessages(reader, vf, store, typeWindow, valueWindow, uriWindow, tstack, vstack, messageID);
         }
-        throw new AssertionError("We should be reading until an end message occurs that marks the end of the stream");
-    }
-    private static Type readType(final IWireInputStream reader, final IValueFactory vf, final TypeStore store, TrackLastRead<Type> typeWindow, TrackLastRead<IValue> valueWindow, TrackLastRead<ISourceLocation> uriWindow) throws IOException{
-
-        ReaderStack<Type> tstack = new ReaderStack<>(Type.class, 100);
-        ValueReaderStack vstack = new ValueReaderStack(1024);
-        while(reader.next() == IWireInputStream.MESSAGE_START){
-            int messageID = reader.message();
-            if (messageID == IValueIDs.LastType.ID) {
-                reader.skipMessage();
-                if(vstack.size() == 0 && tstack.size() == 1){
-                    return tstack.pop();
-                }
-                throw new IOException("End message before stack was ready to be ended");
-            }
-            processMessages(reader, vf, store, typeWindow, valueWindow, uriWindow, tstack, vstack, messageID);
-        }
-        throw new AssertionError("We should be reading until an end message occurs that marks the end of the stream");
+        throw new IOException("Missing Type in the stream");
     }
 
-
-    private static void processMessages(final IWireInputStream reader, final IValueFactory vf, final TypeStore store,
-        TrackLastRead<Type> typeWindow, TrackLastRead<IValue> valueWindow, TrackLastRead<ISourceLocation> uriWindow,
-        ReaderStack<Type> tstack, ValueReaderStack vstack, int messageID) throws IOException {
-        if (IValueIDs.Ranges.TYPES_MIN <= messageID && messageID <= IValueIDs.Ranges.TYPES_MAX) {
-            // types
-            if (readType(reader, messageID, vf, store, typeWindow, valueWindow, uriWindow, tstack, vstack)) {
-                typeWindow.read(tstack.peek());
-            }
-        }
-        else {
-            if (readValue(reader, vf, store, typeWindow, valueWindow, uriWindow, tstack, vstack)) {
-                valueWindow.read(vstack.peek());
-            }
-        }
+    private IValueReader(IValueFactory vf, TypeStore store, int typeWindowSize, int valueWindowSize, int uriWindowSize) {
+        WindowCacheFactory windowFactory = WindowCacheFactory.getInstance();
+        typeWindow = windowFactory.getTrackLastRead(typeWindowSize);
+        valueWindow = windowFactory.getTrackLastRead(valueWindowSize);
+        uriWindow = windowFactory.getTrackLastRead(uriWindowSize);
+        this.vf = vf;
+        this.store = store;
     }
-    @SuppressWarnings("deprecation")
-    private static boolean readType(final IWireInputStream reader, int messageID, final IValueFactory vf, final TypeStore store, final TrackLastRead<Type> typeWindow, final TrackLastRead<IValue> valueWindow, final TrackLastRead<ISourceLocation> uriWindow, final ReaderStack<Type> tstack, final ValueReaderStack vstack) throws IOException{
-        switch (messageID) {
+
+    private void done() {
+        WindowCacheFactory windowFactory = WindowCacheFactory.getInstance();
+        windowFactory.returnTrackLastRead(typeWindow);
+        windowFactory.returnTrackLastRead(valueWindow);
+        windowFactory.returnTrackLastRead(uriWindow);
+    }
+    private final IValueFactory vf;
+    private final TypeStore store;
+    private final TrackLastRead<Type> typeWindow;
+    private final TrackLastRead<IValue> valueWindow;
+    private final TrackLastRead<ISourceLocation> uriWindow;
+    
+    private Type readType(final IWireInputStream reader) throws IOException{
+        reader.next();
+        switch (reader.message()) {
             case IValueIDs.BoolType.ID:  
                 reader.skipMessage(); // forward to the end
-                tstack.push(tf.boolType());
-                return false;
+                return tf.boolType();
 
             case IValueIDs.DateTimeType.ID:    
                 reader.skipMessage();
-                tstack.push(tf.dateTimeType());
-                return false;
+                return tf.dateTimeType();
 
             case IValueIDs.IntegerType.ID:     
                 reader.skipMessage(); 
-                tstack.push(tf.integerType());
-                return false;
+                return tf.integerType();
 
             case IValueIDs.NodeType.ID:        
                 reader.skipMessage();
-                tstack.push(tf.nodeType());
-                return false;
+                return tf.nodeType();
 
             case IValueIDs.NumberType.ID:  
                 reader.skipMessage();
-                tstack.push(tf.numberType());
-                return false;
+                return tf.numberType();
 
             case IValueIDs.RationalType.ID:     
                 reader.skipMessage();
-                tstack.push(tf.rationalType());
-                return false;
+                return tf.rationalType();
 
             case IValueIDs.RealType.ID:        
                 reader.skipMessage();
-                tstack.push(tf.realType());
-                return false;
+                return tf.realType();
 
             case IValueIDs.SourceLocationType.ID:     
                 reader.skipMessage();
-                tstack.push(tf.sourceLocationType());
-                return false;
+                return tf.sourceLocationType();
 
             case IValueIDs.StringType.ID:     
                 reader.skipMessage();
-                tstack.push(tf.stringType());
-                return false;
+                return tf.stringType();
 
             case IValueIDs.ValueType.ID:       
                 reader.skipMessage();
-                tstack.push(tf.valueType());
-                return false;
+                return tf.valueType();
 
             case IValueIDs.VoidType.ID:        
                 reader.skipMessage();
-                tstack.push(tf.voidType());
-                return false;
+                return tf.voidType();
 
                 // Composite types
 
             case IValueIDs.ADTType.ID: {   
                 String name = null;
                 boolean backReference = false;
-
-                while (reader.next() != IWireInputStream.MESSAGE_END) {
-                    switch(reader.field()){
-                        case IValueIDs.ADTType.NAME:
-                            name = reader.getString(); break;
-                        case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
-                            backReference = true; break;
-                    }
-                }
-
-                assert name != null;
-
-                Type typeParameters = tstack.pop();
-                int arity = typeParameters.getArity();
-                if(arity > 0){
-                    tstack.push(tf.abstractDataTypeFromTuple(store, name, typeParameters));
-                } else {
-                    tstack.push(tf.abstractDataType(store, name));
-                }
-                return backReference;
-            }
-
-            case IValueIDs.AliasType.ID:   {   
-                String name = null;
-                boolean backReference = false;
-
-                while (reader.next() != IWireInputStream.MESSAGE_END) {
-                    switch(reader.field()){
-                        case IValueIDs.AliasType.NAME:
-                            name = reader.getString(); break;
-                        case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
-                            backReference = true; break;
-                    }
-                }
-
-                assert name != null;
-
-                Type typeParameters = tstack.pop();
-                Type aliasedType = tstack.pop();
-
-                tstack.push(tf.aliasType(store, name, aliasedType, typeParameters));
-                return backReference;
-            }
-
-            case IValueIDs.ConstructorType.ID:     {
-                String name = null;
-                boolean backReference = false;
-                while (reader.next() != IWireInputStream.MESSAGE_END) {
-                    switch(reader.field()){
-                        case IValueIDs.ConstructorType.NAME:
-                            name = reader.getString(); break;
-                        case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
-                            backReference = true; break;
-                    }
-                }
-
-                assert name != null;
-
-                Type fieldTypes = tstack.pop();
-                Type adtType = tstack.pop();
-                tstack.push(tf.constructorFromTuple(store, adtType, name, fieldTypes));
-                return backReference;
-            }
-
-            // External
-            case IValueIDs.ExternalType.ID: {
-                boolean backReference = skipMessageCheckBackReference(reader);
-
-                IConstructor symbol = (IConstructor) vstack.pop();
-                tstack.push(tf.fromSymbol(symbol, new TypeStore(), p -> Collections.emptySet()));
-                return backReference;
-            }
-
-            case IValueIDs.ListType.ID:    {
-                boolean backReference = skipMessageCheckBackReference(reader);
-
-                Type elemType = tstack.pop();
-
-                tstack.push(tf.listType(elemType));
-                return backReference;
-            }
-
-            case IValueIDs.MapType.ID: {   
-                boolean backReference = false;
+                Type typeParam = null;
 
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
                     switch(reader.field()){
                         case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
                             backReference = true; 
                             break;
+                        case IValueIDs.ADTType.NAME:
+                            name = reader.getString(); 
+                            break;
+                        case IValueIDs.ADTType.TYPE_PARAMS:
+                            typeParam = readType(reader);
+                            break;
+                        default:
+                            reader.skipNestedField();
+                            break;
                     }
                 }
 
-                Type valType = tstack.pop();
-                Type keyType = tstack.pop();
+                assert name != null && typeParam != null;
 
-                tstack.push(tf.mapType(keyType, valType));
-                return backReference;
+                return returnAndStore(backReference, typeWindow, tf.abstractDataTypeFromTuple(store, name, typeParam));
+            }
+
+            case IValueIDs.AliasType.ID:   {   
+                String name = null;
+                boolean backReference = false;
+                Type typeParameters = null;
+                Type aliasedType = null;
+
+                while (reader.next() != IWireInputStream.MESSAGE_END) {
+                    switch(reader.field()){
+                        case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
+                            backReference = true; 
+                            break;
+                        case IValueIDs.AliasType.NAME:
+                            name = reader.getString(); 
+                            break;
+                        case IValueIDs.AliasType.ALIASED:
+                            aliasedType = readType(reader);
+                            break;
+                        case IValueIDs.AliasType.TYPE_PARAMS:
+                            typeParameters = readType(reader);
+                            break;
+                        default:
+                            reader.skipNestedField();
+                            break;
+                    }
+                }
+
+                assert name != null;
+
+                return returnAndStore(backReference, typeWindow, tf.aliasType(store, name, aliasedType, typeParameters));
+            }
+
+            case IValueIDs.ConstructorType.ID:     {
+                String name = null;
+                boolean backReference = false;
+                Type fieldTypes = null;
+                Type adtType = null;
+                while (reader.next() != IWireInputStream.MESSAGE_END) {
+                    switch(reader.field()){
+                        case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
+                            backReference = true; 
+                            break;
+                        case IValueIDs.ConstructorType.NAME:
+                            name = reader.getString(); 
+                            break;
+                        case IValueIDs.ConstructorType.ADT:
+                            adtType = readType(reader);
+                            break;
+                        case IValueIDs.ConstructorType.FIELD_TYPES:
+                            fieldTypes = readType(reader);
+                            break;
+                    }
+                }
+
+                assert name != null;
+
+                return returnAndStore(backReference, typeWindow, tf.constructorFromTuple(store, adtType, name, fieldTypes));
+            }
+
+            // External
+            case IValueIDs.ExternalType.ID: {
+
+                boolean backReference = false; 
+                IConstructor symbol = null;
+                while (reader.next() != IWireInputStream.MESSAGE_END) {
+                    switch(reader.field()){
+                        case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
+                            backReference = true; 
+                            break;
+                        case IValueIDs.ExternalType.SYMBOL:
+                            symbol = (IConstructor) readValue(reader);
+                            break;
+                    }
+                }
+
+                return returnAndStore(backReference, typeWindow, tf.fromSymbol(symbol, new TypeStore(), p -> Collections.emptySet()));
+            }
+
+            case IValueIDs.ListType.ID:    {
+                boolean backReference = false;
+                Type elemType = null;
+                while (reader.next() != IWireInputStream.MESSAGE_END) {
+                    switch(reader.field()){
+                        case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
+                            backReference = true; 
+                            break;
+                        case IValueIDs.ListType.ELEMENT_TYPE:
+                            elemType = readType(reader);
+                            break;
+                    }
+                }
+                return returnAndStore(backReference, typeWindow, tf.listType(elemType));
+            }
+
+            case IValueIDs.MapType.ID: {   
+                boolean backReference = false;
+                Type valType = null;
+                Type keyType = null;
+                while (reader.next() != IWireInputStream.MESSAGE_END) {
+                    switch(reader.field()){
+                        case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
+                            backReference = true; 
+                            break;
+                        case IValueIDs.MapType.KEY_TYPE:
+                            keyType = readType(reader);
+                            break;
+                        case IValueIDs.MapType.VALUE_TYPE:
+                            valType = readType(reader);
+                            break;
+                    }
+                }
+                return returnAndStore(backReference, typeWindow, tf.mapType(keyType, valType));
             }
 
             case IValueIDs.ParameterType.ID:   {
                 String name = null;
                 boolean backReference = false;
+                Type bound = null;
 
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
                     switch (reader.field()){ 
@@ -345,36 +338,48 @@ public class IValueReader {
                         case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
                             backReference = true; 
                             break;
+                        case IValueIDs.ParameterType.BOUND:
+                            bound = readType(reader);
+                            break;
+                            
                     }
                 }
                 assert name != null;
 
-                Type bound = tstack.pop();
-                tstack.push(tf.parameterType(name, bound));
-                return backReference;
+                return returnAndStore(backReference, typeWindow, tf.parameterType(name, bound));
             }
 
             case IValueIDs.SetType.ID: {
-                boolean backReference = skipMessageCheckBackReference(reader);
-                Type elemType = tstack.pop();
-
-                tstack.push(tf.setType(elemType));
-                return backReference;
+                boolean backReference = false;
+                Type elemType = null;
+                while (reader.next() != IWireInputStream.MESSAGE_END) {
+                    switch(reader.field()){
+                        case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
+                            backReference = true; 
+                            break;
+                        case IValueIDs.SetType.ELEMENT_TYPE:
+                            elemType = readType(reader);
+                            break;
+                    }
+                }
+                return returnAndStore(backReference, typeWindow, tf.setType(elemType));
             }
 
             case IValueIDs.TupleType.ID: {
-                String [] fieldNames = null;
-
                 boolean backReference = false;
-                Integer arity = null;
+                String [] fieldNames = null;
+                Type[] elemTypes = null;
 
                 while (reader.next() != IWireInputStream.MESSAGE_END) {
                     switch (reader.field()){ 
-                        case IValueIDs.TupleType.ARITY:
-                            arity =  reader.getInteger(); break;
-
                         case IValueIDs.TupleType.NAMES:
                             fieldNames = reader.getStrings();
+                            break;
+                        case IValueIDs.TupleType.TYPES:
+                            elemTypes = new Type[reader.getRepeatedLength()];
+                            for (int i = 0; i < elemTypes.length; i++) {
+                                elemTypes[i] = readType(reader);
+                            }
                             break;
                         case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
                             backReference = true; 
@@ -382,20 +387,12 @@ public class IValueReader {
                     }
                 }
 
-                assert arity != null;
-
-                Type[] elemTypes = new Type[arity];
-                for(int i = arity - 1; i >= 0; i--){
-                    elemTypes[i] = tstack.pop();
-                }
-
                 if(fieldNames != null){
-                    assert fieldNames.length == arity;
-                    tstack.push(tf.tupleType(elemTypes, fieldNames));
+                    assert fieldNames.length == elemTypes.length;
+                    return returnAndStore(backReference, typeWindow, tf.tupleType(elemTypes, fieldNames));
                 } else {
-                    tstack.push(tf.tupleType(elemTypes));
+                    return returnAndStore(backReference, typeWindow, tf.tupleType(elemTypes));
                 }
-                return backReference;
             }
 
             case IValueIDs.PreviousType.ID: {
@@ -404,6 +401,9 @@ public class IValueReader {
                     switch (reader.field()){ 
                         case IValueIDs.PreviousType.HOW_LONG_AGO:
                             n = reader.getInteger();
+                            break;
+                        default:
+                            reader.skipNestedField();
                             break;
                     }
                 }
@@ -414,59 +414,51 @@ public class IValueReader {
                 if(type == null){
                     throw new RuntimeException("Unexpected type cache miss");
                 }
-                //System.out.println("Previous type: " + type + ", " + n);
-                tstack.push(type);  // do not cache type twice
-                return false;
+                return type;
             }
             default:
                 throw new IOException("Unexpected new message: " + reader.message());
         }
     }
 
-    private static Map<IConstructor, Set<IConstructor>> translateRelation(ISet grammar) {
-        Map<IConstructor, Set<IConstructor>> result = new HashMap<>();
-        for (IValue p : grammar) {
-            ITuple tp = (ITuple)p;
-            Set<IConstructor> productions = result.get(tp.get(0));
-            if (productions == null) {
-                productions = new HashSet<IConstructor>();
-                result.put((IConstructor) tp.get(0), productions);
-            }
-            productions.add((IConstructor) tp.get(1));
+    private static <T> T returnAndStore(boolean backReferenced, TrackLastRead<T> window, T value) {
+        if (backReferenced) {
+            window.read(value);
         }
-        return result;
+        return value;
     }
 
 
-    private static boolean readValue(final IWireInputStream reader, final IValueFactory vf, final TypeStore store, final TrackLastRead<Type> typeWindow, final TrackLastRead<IValue> valueWindow, final TrackLastRead<ISourceLocation> uriWindow, final ReaderStack<Type> tstack, final ValueReaderStack vstack) throws IOException{
+    private IValue readValue(final IWireInputStream reader) throws IOException{
+        reader.next();
+        assert reader.current() == IWireInputStream.MESSAGE_START;
         switch (reader.message()) {
-            case IValueIDs.BoolValue.ID: return readBoolean(reader, vf, tstack, vstack);
-            case IValueIDs.ConstructorValue.ID:    return readConstructor(reader, vf, tstack, vstack, 0);
-            case IValueIDs.DateTimeValue.ID: return readDateTime(reader, vf, tstack, vstack);
-            case IValueIDs.IntegerValue.ID: return readInteger(reader, vf, tstack, vstack);
-            case IValueIDs.ListValue.ID: return readList(reader, vf, tstack, vstack, 0);
-            case IValueIDs.SourceLocationValue.ID: return readSourceLocation(reader, vf, uriWindow, vstack);
-            case IValueIDs.MapValue.ID: return readMap(reader, vf, vstack, 0);
-            case IValueIDs.NodeValue.ID: return readNode(reader, vf, vstack);
-            case IValueIDs.RationalValue.ID: return readRational(reader, vf, vstack);
-            case IValueIDs.RealValue.ID: return readReal(reader, vf, vstack);
-            case IValueIDs.SetValue.ID: return readSet(reader, vf, vstack, 0);
-            case IValueIDs.StringValue.ID: return readString(reader, vf, vstack);
-            case IValueIDs.TupleValue.ID: return readTuple(reader, vf, vstack, 0);
-            case IValueIDs.PreviousValue.ID: return readPreviousValue(reader, valueWindow, vstack);
+            case IValueIDs.BoolValue.ID: return readBoolean(reader);
+            case IValueIDs.ConstructorValue.ID:    return readConstructor(reader);
+            case IValueIDs.DateTimeValue.ID: return readDateTime(reader);
+            case IValueIDs.IntegerValue.ID: return readInteger(reader);
+            case IValueIDs.ListValue.ID: return readList(reader);
+            case IValueIDs.SourceLocationValue.ID: return readSourceLocation(reader);
+            case IValueIDs.MapValue.ID: return readMap(reader);
+            case IValueIDs.NodeValue.ID: return readNode(reader);
+            case IValueIDs.RationalValue.ID: return readRational(reader);
+            case IValueIDs.RealValue.ID: return readReal(reader);
+            case IValueIDs.SetValue.ID: return readSet(reader);
+            case IValueIDs.StringValue.ID: return readString(reader);
+            case IValueIDs.TupleValue.ID: return readTuple(reader);
+            case IValueIDs.PreviousValue.ID: return readPreviousValue(reader);
             default:
                 throw new IllegalArgumentException("readValue: " + reader.message());
         }
     }
 
-
-    private static boolean readPreviousValue(final IWireInputStream reader,
-            final TrackLastRead<IValue> valueWindow, final ValueReaderStack vstack)
-            throws IOException {
+    private IValue readPreviousValue(final IWireInputStream reader) throws IOException {
         int n = -1;
         while(reader.next() != IWireInputStream.MESSAGE_END){
             if(reader.field() == IValueIDs.PreviousValue.HOW_FAR_BACK){
                 n = reader.getInteger();
+                reader.skipMessage();
+                break;
             }
         }
 
@@ -476,173 +468,327 @@ public class IValueReader {
         if (result == null) {
             throw new IOException("Unexpected value cache miss");
         }
-        vstack.push(result);   
-        return false; // Dont cache value twice
+        return result;   
     }
 
 
-    private static boolean readTuple(final IWireInputStream reader, final IValueFactory vf,
-            final ValueReaderStack vstack, int defaultSize) throws IOException {
-        int size = defaultSize;
+    private IValue readTuple(final IWireInputStream reader) throws IOException {
+        boolean backReference = false;
+        IValue[] children = new IValue[0];
+        while (reader.next() != IWireInputStream.MESSAGE_END) {
+            switch(reader.field()) {
+                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: 
+                    backReference = true; 
+                    break;
+                case IValueIDs.TupleValue.CHILDREN:
+                    int size = reader.getRepeatedLength();
+                    children = new IValue[size];
+                    switch (size) {
+                        case 1: 
+                            children[0] = readValue(reader);
+                            break;
+                        case 2:
+                            children[0] = readValue(reader);
+                            children[1] = readValue(reader);
+                            break;
+                        default:
+                            for (int i = 0; i < children.length; i++) {
+                                children[i] = readValue(reader);
+                            }
+                            break;
+                    }
+                    break;
+                default:
+                    reader.skipNestedField();
+                    break;
+            }
+        }
+        return returnAndStore(backReference, valueWindow, vf.tuple(children));
+    }
+
+    private IValue readSet(final IWireInputStream reader) throws IOException {
+        ISet result = null;
         boolean backReference = false;
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()) {
-                case IValueIDs.TupleValue.SIZE: size = reader.getInteger(); break;
-                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: backReference = true; break;
+                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: 
+                    backReference = true; 
+                    break;
+                case IValueIDs.SetValue.ELEMENTS:
+                    int size = reader.getRepeatedLength();
+                    switch (size) {
+                        case 0:
+                            result = vf.set();
+                            break;
+                        case 1:
+                            result = vf.set(readValue(reader));
+                            break;
+                        case 2:
+                            result = vf.set(readValue(reader), readValue(reader));
+                            break;
+                        default:
+                            ISetWriter writer = vf.setWriter();
+                            for (int i = 0; i < size; i++) {
+                                writer.insert(readValue(reader));
+                            }
+                            result = writer.done();
+                            break;
+                    }
+                    break;
             }
         }
+        return returnAndStore(backReference, valueWindow, result);
+    }
 
-        vstack.push(vf.tuple(vstack.getChildren(new IValue[size])));
-        return backReference;
+    private IValue readList(final IWireInputStream reader) throws IOException {
+        IList result = null;
+        boolean backReference = false;
+        while (reader.next() != IWireInputStream.MESSAGE_END) {
+            switch(reader.field()) {
+                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: 
+                    backReference = true; 
+                    break;
+                case IValueIDs.ListValue.ELEMENTS:
+                    int size = reader.getRepeatedLength();
+                    switch (size) {
+                        case 0:
+                            result = vf.list();
+                            break;
+                        case 1:
+                            result = vf.list(readValue(reader));
+                            break;
+                        case 2:
+                            IValue first = readValue(reader);
+                            IValue second = readValue(reader);
+                            result = vf.list(first, second);
+                            break;
+                        default:
+                            IListWriter writer = vf.listWriter();
+                            for (int i = 0; i < size; i++) {
+                                writer.append(readValue(reader));
+                            }
+                            result = writer.done();
+                            break;
+                    }
+                    break;
+            }
+        }
+        return returnAndStore(backReference, valueWindow, result);
+    }
+
+    private IValue readMap(final IWireInputStream reader) throws IOException {
+        IMapWriter result = vf.mapWriter();
+        boolean backReference = false;
+        while (reader.next() != IWireInputStream.MESSAGE_END) {
+            switch(reader.field()) {
+                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: 
+                    backReference = true; 
+                    break;
+                case IValueIDs.MapValue.KV_PAIRS:
+                    int size = reader.getRepeatedLength();
+                    for (int i = 0; i < size; i += 2) {
+                        IValue key = readValue(reader);
+                        IValue value = readValue(reader);
+                        result.put(key, value);;
+                    }
+                    break;
+            }
+        }
+        return returnAndStore(backReference, valueWindow, result.done());
+    }
+
+    private IValue readNode(final IWireInputStream reader) throws IOException {
+        String name = null;
+        IValue[] children = new IValue[0];
+        ImmutableMap<String, IValue> annos = null;
+        ImmutableMap<String, IValue> kwParams = null;
+
+
+        boolean backReference = false;
+        while (reader.next() != IWireInputStream.MESSAGE_END) {
+            switch(reader.field()){
+                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: 
+                    backReference = true; 
+                    break;
+                case IValueIDs.NodeValue.NAME: 
+                    name = reader.getString(); 
+                    break;
+                case IValueIDs.NodeValue.PARAMS: 
+                    children = new IValue[reader.getRepeatedLength()];
+                    for (int i = 0; i < children.length; i++) {
+                        children[i] = readValue(reader);
+                    }
+                    break;
+                case IValueIDs.NodeValue.KWPARAMS: 
+                    kwParams = readNamedValues(reader);
+                    break;
+                case IValueIDs.NodeValue.ANNOS: 
+                    annos = readNamedValues(reader);
+                    break;
+            }
+        }
+        assert name != null;
+        
+        INode node;
+        if (annos != null) {
+            node =  vf.node(name, children).asAnnotatable().setAnnotations(annos);
+        }
+        else if (kwParams != null) {
+            node = vf.node(name, children, kwParams);
+        }
+        else {
+            node = vf.node(name, children);
+        }
+        return returnAndStore(backReference, valueWindow, node);
+    }
+
+    @SuppressWarnings("deprecation")
+    private IValue readConstructor(final IWireInputStream reader) throws IOException {
+        Type type = null;
+        IValue[] children = new IValue[0];
+        ImmutableMap<String, IValue> annos = null;
+        ImmutableMap<String, IValue> kwParams = null;
+
+
+        boolean backReference = false;
+        while (reader.next() != IWireInputStream.MESSAGE_END) {
+            switch(reader.field()){
+                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: 
+                    backReference = true; 
+                    break;
+                case IValueIDs.ConstructorValue.TYPE: 
+                    type = readType(reader);
+                    break;
+                case IValueIDs.ConstructorValue.PARAMS: 
+                    children = new IValue[reader.getRepeatedLength()];
+                    for (int i = 0; i < children.length; i++) {
+                        children[i] = readValue(reader);
+                    }
+                    break;
+                case IValueIDs.ConstructorValue.KWPARAMS: 
+                    kwParams = readNamedValues(reader);
+                    break;
+                case IValueIDs.ConstructorValue.ANNOS: 
+                    annos = readNamedValues(reader);
+                    break;
+            }
+        }
+        
+        IConstructor constr;
+        if (annos != null) {
+            constr =  vf.constructor(type, annos, children);
+        }
+        else if (kwParams != null) {
+            constr = vf.constructor(type, children, kwParams);
+        }
+        else {
+            constr = vf.constructor(type, children);
+        }
+        return returnAndStore(backReference, valueWindow, constr);
     }
 
 
-    private static boolean readString(final IWireInputStream reader, final IValueFactory vf,
-            final ValueReaderStack vstack) throws IOException {
+
+
+    private ImmutableMap<String, IValue> readNamedValues(IWireInputStream reader) throws IOException {
+        TransientMap<String, IValue> result = TrieMap_5Bits.transientOf();
+        String[] names = null;
+        reader.next();
+        while (reader.next() != IWireInputStream.MESSAGE_END) {
+            switch(reader.field()){
+                case IValueIDs.NamedValues.NAMES:
+                    names = reader.getStrings();
+                    break;
+                case IValueIDs.NamedValues.VALUES:
+                    assert names != null && names.length == reader.getRepeatedLength();
+                    for (String name: names) {
+                        result.__put(name, readValue(reader));
+                    }
+                    break;
+            }
+        }
+        return result.freeze();
+    }
+
+    private IValue readString(final IWireInputStream reader) throws IOException {
         String str = null;
         boolean backReference = false;
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()) {
-                case IValueIDs.StringValue.CONTENT: str = reader.getString(); break;
-                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: backReference = true; break;
+                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: 
+                    backReference = true; 
+                    break;
+                case IValueIDs.StringValue.CONTENT: 
+                    str = reader.getString(); 
+                    break;
+                default:
+                    reader.skipNestedField();
+                    break;
             }
         }
 
         assert str != null;
 
-        vstack.push(vf.string(str));
-        return backReference;
+        return returnAndStore(backReference, valueWindow, vf.string(str));
     }
 
 
-    private static boolean readSet(final IWireInputStream reader, final IValueFactory vf,
-            final ValueReaderStack vstack, int defaultSize) throws IOException {
-        int size = defaultSize;
-        boolean backReference = false;
-        while (reader.next() != IWireInputStream.MESSAGE_END) {
-            switch(reader.field()) {
-                case IValueIDs.SetValue.SIZE: size = reader.getInteger(); break;
-                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: backReference = true; break;
-            }
-        }
-
-        vstack.push(vstack.popSet(vf, size));
-        return backReference;
-    }
-
-
-    private static boolean readReal(final IWireInputStream reader, final IValueFactory vf,
-            final ValueReaderStack vstack) throws IOException {
+    private IValue readReal(final IWireInputStream reader) throws IOException {
         byte[] bytes = null;
         Integer scale = null;
 
         boolean backReference = false;
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()){
-                case IValueIDs.RealValue.SCALE:
-                    scale = reader.getInteger(); break;
-                case IValueIDs.RealValue.CONTENT:
-                    bytes = reader.getBytes(); break;
                 case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
                     backReference = true;
+                    break;
+                case IValueIDs.RealValue.SCALE:
+                    scale = reader.getInteger(); 
+                    break;
+                case IValueIDs.RealValue.CONTENT:
+                    bytes = reader.getBytes(); 
+                    break;
+                default:
+                    reader.skipNestedField();
                     break;
             }
         }
 
         assert bytes != null && scale != null;
 
-        vstack.push(vf.real(new BigDecimal(new BigInteger(bytes), scale).toString())); // TODO: Improve this?
-        return backReference;
+        return returnAndStore(backReference, valueWindow, vf.real(new BigDecimal(new BigInteger(bytes), scale).toString())); // TODO: Improve this?
     }
 
 
-    private static boolean readRational(final IWireInputStream reader, final IValueFactory vf,
-            final ValueReaderStack vstack) throws IOException {
-        boolean backReference;
-        backReference = skipMessageCheckBackReference(reader);
-
-        IInteger denominator = (IInteger) vstack.pop();
-        IInteger numerator = (IInteger) vstack.pop();
-
-        vstack.push(vf.rational(numerator, denominator));
-        return backReference;
-    }
-
-
-    private static boolean readNode(final IWireInputStream reader, final IValueFactory vf,
-            final ValueReaderStack vstack) throws IOException {
-        String name = null;
-        Integer arity = null;
-        int annos = 0;
-        int kwparams = 0;
-
+    private IValue readRational(final IWireInputStream reader) throws IOException {
         boolean backReference = false;
+        IInteger denominator = null;
+        IInteger numerator = null;
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             switch(reader.field()){
-                case IValueIDs.NodeValue.NAME: name = reader.getString(); break;
-                case IValueIDs.NodeValue.ARITY: arity = reader.getInteger(); break;
-                case IValueIDs.NodeValue.KWPARAMS: kwparams = reader.getInteger(); break;
-                case IValueIDs.NodeValue.ANNOS: annos = reader.getInteger(); break;
-                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: backReference = true; break;
+                case IValueIDs.Common.CAN_BE_BACK_REFERENCED:
+                    backReference = true;
+                    break;
+                case IValueIDs.RationalValue.DENOMINATOR:
+                    denominator = (IInteger) readValue(reader);
+                    break;
+                case IValueIDs.RationalValue.NUMERATOR:
+                    numerator = (IInteger) readValue(reader);
+                    break;
+                default:
+                    reader.skipNestedField();
+                    break;
             }
         }
 
-        assert name != null && arity != null;
-
-        INode node;
-        if(annos > 0){
-            TransientMap<String, IValue> annoResult = TrieMap_5Bits.transientOf();
-            for(int i = 0; i < annos; i++){
-                IValue val = vstack.pop();
-                IString ikey = (IString) vstack.pop();
-                annoResult.__put(ikey.getValue(),  val);
-            }
-            node =  vf.node(name, vstack.getChildren(new IValue[arity])).asAnnotatable().setAnnotations(annoResult.freeze());
-        } else if(kwparams > 0){
-            TransientMap<String, IValue> kwResult = TrieMap_5Bits.transientOf();
-            for(int i = 0; i < kwparams; i++){
-                IValue val = vstack.pop();
-                IString ikey = (IString) vstack.pop();
-                kwResult.__put(ikey.getValue(),  val);
-            }
-            node = vf.node(name, vstack.getChildren(new IValue[arity]), kwResult);
-        } else {
-            node = vf.node(name, vstack.getChildren(new IValue[arity]));
-        }
-
-        vstack.push(node);
-        return backReference;
+        return returnAndStore(backReference, valueWindow, vf.rational(numerator, denominator));
     }
 
 
-    private static boolean readMap(final IWireInputStream reader, final IValueFactory vf,
-            final ValueReaderStack vstack, int defaultSize) throws IOException {
-        int size = defaultSize;
-        boolean backReference = false;
-        while (reader.next() != IWireInputStream.MESSAGE_END) {
-            switch(reader.field()) {
-                case IValueIDs.MapValue.SIZE: size = reader.getInteger(); break;
-                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: backReference = true; break;
-            }
-        }
-
-        assert size >= 0;
-
-        IMapWriter mw = vf.mapWriter();
-        for(int i = 0; i < size; i++){
-            IValue val = vstack.pop();
-            IValue key = vstack.pop();
-            mw.put(key, val);
-        }
-
-        vstack.push(mw.done());
-        return backReference;
-    }
 
 
-    private static boolean readSourceLocation(final IWireInputStream reader, final IValueFactory vf,
-            final TrackLastRead<ISourceLocation> uriWindow, final ValueReaderStack vstack)
-            throws IOException {
+    private IValue readSourceLocation(final IWireInputStream reader) throws IOException {
         String scheme = null;
         String authority = "";
         String path = "";
@@ -691,30 +837,12 @@ public class IValueReader {
             assert length >= 0;
             loc = vf.sourceLocation(loc, offset, length);
         }
-
-        vstack.push(loc);
-        return false;
+        return loc;
     }
 
 
-    private static boolean readList(final IWireInputStream reader, final IValueFactory vf,
-            final ReaderStack<Type> tstack, ValueReaderStack vstack, int defaultSize) throws IOException {
-        int size = defaultSize;
-        boolean backReference = false;
-        while (reader.next() != IWireInputStream.MESSAGE_END) {
-            switch(reader.field()) {
-                case IValueIDs.ListValue.SIZE: size = reader.getInteger(); break;
-                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: backReference = true; break;
-            }
-        }
 
-        vstack.push(vstack.popList(vf, size));
-        return backReference;
-    }
-
-
-    private static boolean readInteger(final IWireInputStream reader, final IValueFactory vf,
-            ReaderStack<Type> tstack, final ValueReaderStack vstack) throws IOException {
+    private IValue readInteger(final IWireInputStream reader) throws IOException {
         Integer small = null;
         byte[] big = null;
         while (reader.next() != IWireInputStream.MESSAGE_END) {
@@ -725,18 +853,16 @@ public class IValueReader {
         }
 
         if(small != null){
-            vstack.push(vf.integer(small));
+            return vf.integer(small);
         } else if(big != null){
-            vstack.push(vf.integer(big));
+            return vf.integer(big);
         } else {
             throw new RuntimeException("Missing field in INT_VALUE");
         }
-        return false;
     }
 
 
-    private static boolean readDateTime(final IWireInputStream reader, final IValueFactory vf,
-            ReaderStack<Type> tstack, final ValueReaderStack vstack) throws IOException {
+    private IValue readDateTime(final IWireInputStream reader) throws IOException {
         Integer year = null;;
         Integer month = null;
         Integer day = null;
@@ -764,208 +890,33 @@ public class IValueReader {
         }
 
 
-        IValue result;
         if (hour != null && year != null) {
-            result = vf.datetime(year, month, day, hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset);
+            return vf.datetime(year, month, day, hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset);
         }
         else if (hour != null) {
-            result = vf.time(hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset);
+            return vf.time(hour, minute, second, millisecond, timeZoneHourOffset, timeZoneMinuteOffset);
         }
         else {
             assert year != null;
-            result = vf.datetime(year, month, day);
+            return vf.datetime(year, month, day);
         }
-        vstack.push(result);
-        return false;
     }
 
 
-    @SuppressWarnings("deprecation")
-    private static boolean readConstructor(final IWireInputStream reader, final IValueFactory vf,
-            final ReaderStack<Type> tstack, final ValueReaderStack vstack, int defaultArity)
-            throws IOException {
-        int arity = defaultArity;
-        int annos = 0;
-        int kwparams = 0;
-
-        boolean backReference = false;
-        while (reader.next() != IWireInputStream.MESSAGE_END) {
-            switch(reader.field()){
-                case IValueIDs.ConstructorValue.ARITY: arity =  reader.getInteger(); break;
-                case IValueIDs.ConstructorValue.KWPARAMS: kwparams = reader.getInteger(); break;
-                case IValueIDs.ConstructorValue.ANNOS: annos = reader.getInteger(); break;
-                case IValueIDs.Common.CAN_BE_BACK_REFERENCED: backReference = true; break;
-            }
-        }
-
-        Type consType = tstack.pop();
-
-        IConstructor cons;
-        if(annos > 0){
-            TransientMap<String, IValue> annosResult = TrieMap_5Bits.transientOf();
-            for(int i = 0; i < annos; i++){
-                IValue val = vstack.pop();
-                IString ikey = (IString) vstack.pop();
-                annosResult.__put(ikey.getValue(),  val);
-            }
-            cons =  vf.constructor(consType, annosResult.freeze(), vstack.getChildren(new IValue[arity]));
-        } else if(kwparams > 0){
-            TransientMap<String, IValue> kwResult = TrieMap_5Bits.transientOf();
-            for(int i = 0; i < kwparams; i++){
-                IValue val = vstack.pop();
-                IString ikey = (IString) vstack.pop();
-                kwResult.__put(ikey.getValue(),  val);
-            }
-            cons = vf.constructor(consType, vstack.getChildren(new IValue[arity]), kwResult.freeze());
-        } else if (arity > 0) {
-            cons = vf.constructor(consType, vstack.getChildren(new IValue[arity]));
-        }
-        else {
-            cons = vf.constructor(consType);
-        }
-        vstack.push(cons);
-        return backReference;
-    }
 
 
-    private static boolean readBoolean(final IWireInputStream reader, final IValueFactory vf,
-            ReaderStack<Type> tstack, final ValueReaderStack vstack) throws IOException {
+    private IValue readBoolean(final IWireInputStream reader) throws IOException {
         boolean value = false;
         while (reader.next() != IWireInputStream.MESSAGE_END) {
             if(reader.field() == IValueIDs.BoolValue.VALUE){
-                value =  true;
+                value = true;
+            }
+            else {
+                reader.skipNestedField();
             }
         }
 
-        vstack.push(vf.bool(value));
-        return false;
-    }
-
-
-    
-
-
-    private static boolean skipMessageCheckBackReference(final IWireInputStream reader) throws IOException {
-        boolean backReference = false;
-        while (reader.next() != IWireInputStream.MESSAGE_END) {
-            backReference |= reader.field() == IValueIDs.Common.CAN_BE_BACK_REFERENCED;
-        }
-        return backReference;
-    }
-
-    private static class ReaderStack<Elem> {
-        protected Elem[] elements;
-        protected int sp = 0;
-
-        @SuppressWarnings("unchecked")
-        ReaderStack(Class<Elem> c, int capacity){
-            elements = (Elem[]) Array.newInstance(c, Math.max(capacity, 16));
-        }
-
-        public Elem peek() {
-            return elements[sp - 1];
-        }
-
-        public void push(Elem elem){
-            if(sp == elements.length - 1){
-                grow();
-            }
-            elements[sp] = elem;
-            sp++;
-        }
-
-        public Elem pop(){
-            if(sp > 0){
-                sp--;
-                return elements[sp];
-            }
-            throw new RuntimeException("Empty Stack");
-        }
-
-        public int size(){
-            return sp;
-        }
-
-        public Elem[] getChildren(Elem[] target){
-            if (target.length == 0) {
-                return target;
-            }
-            int from = sp - target.length;
-            if(from >= 0){
-                final Elem[] elements = this.elements;
-                switch(target.length) {
-                    // unrolled arrayCopy for the small arities
-                    case 1:
-                        target[0] = elements[from + 0];
-                        break;
-                    case 2:
-                        target[0] = elements[from + 0];
-                        target[1] = elements[from + 1];
-                        break;
-                    case 3:
-                        target[0] = elements[from + 0];
-                        target[1] = elements[from + 1];
-                        target[2] = elements[from + 2];
-                        break;
-                    case 4:
-                        target[0] = elements[from + 0];
-                        target[1] = elements[from + 1];
-                        target[2] = elements[from + 2];
-                        target[3] = elements[from + 3];
-                        break;
-
-                    default:
-                        System.arraycopy(elements, from, target, 0, target.length);
-                        break;
-                }
-                sp = from;
-                return target;
-            }
-            throw new RuntimeException("Empty Stack");
-        }
-
-        private void grow() {
-            int newSize = (int) Math.min(elements.length * 2L, 0x7FFFFFF7); // max array size used by array list
-            assert elements.length <= newSize;
-            elements = Arrays.copyOf(elements, newSize);
-        }
-    }
-
-    private static class ValueReaderStack extends ReaderStack<IValue> {
-
-        public ValueReaderStack(int capacity) {
-            super(IValue.class, capacity);
-        }
-
-        public IList popList(IValueFactory vf, int size) {
-            if (size == 0) {
-                return vf.list();
-            }
-
-            if(sp < size){
-                throw new RuntimeException("Empty Stack");
-            }
-            sp -= size;
-            IListWriter result = vf.listWriter(); 
-            result.insert(elements, sp, size);
-            return result.done();
-        }
-
-        public ISet popSet(IValueFactory vf, int size) {
-            if (size == 0) {
-                return vf.set();
-            }
-            if (sp < size) {
-                throw new RuntimeException("Empty Stack");
-            }
-            ISetWriter result = vf.setWriter();
-            int oldSp = sp;
-            sp -= size;
-            for (int i = sp; i < oldSp; i++) {
-                result.insert(elements[i]);
-            }
-            return result.done();
-        }
+        return vf.bool(value);
     }
 }
 

@@ -18,7 +18,6 @@ import java.util.HashSet;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IDateTime;
-import org.rascalmpl.value.IExternalValue;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;
@@ -26,14 +25,13 @@ import org.rascalmpl.value.INode;
 import org.rascalmpl.value.IRational;
 import org.rascalmpl.value.IReal;
 import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.io.binary.stream.IValueOutputStream;
-import org.rascalmpl.value.io.binary.util.PrePostIValueIterator;
+import org.rascalmpl.value.io.binary.util.StacklessStructuredVisitor;
+import org.rascalmpl.value.io.binary.util.StructuredIValueVisitor;
 import org.rascalmpl.value.io.binary.util.TrackLastWritten;
 import org.rascalmpl.value.io.binary.util.WindowCacheFactory;
 import org.rascalmpl.value.io.binary.util.WindowSizes;
@@ -41,7 +39,6 @@ import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
-import org.rascalmpl.value.visitors.IValueVisitor;
 import org.rascalmpl.values.ValueFactoryFactory;
             
 /**
@@ -66,8 +63,9 @@ public class IValueWriter {
         TrackLastWritten<ISourceLocation> uriCache = windowFactory.getTrackLastWrittenReferenceEquality(size.uriWindow);
         try {
             writeHeader(writer, size.valueWindow, size.typeWindow, size.uriWindow);
+            writer.writeNestedField(IValueIDs.Header.VALUE);
             write(writer, value, typeCache, valueCache, uriCache);
-            writeEnd(writer);
+            writer.endMessage();
         } finally {
             windowFactory.returnTrackLastWrittenReferenceEquality(typeCache);
             windowFactory.returnTrackLastWrittenReferenceEquality(valueCache);
@@ -90,8 +88,9 @@ public class IValueWriter {
         TrackLastWritten<ISourceLocation> uriCache = windowFactory.getTrackLastWrittenReferenceEquality(size.uriWindow);
         try {
             writeHeader(writer, size.valueWindow, size.typeWindow, size.uriWindow);
+            writer.writeNestedField(IValueIDs.Header.TYPE);
             write(writer, type, typeCache, valueCache, uriCache);
-            writeEndType(writer);
+            writer.endMessage();
         } finally {
             windowFactory.returnTrackLastWrittenReferenceEquality(typeCache);
             windowFactory.returnTrackLastWrittenReferenceEquality(valueCache);
@@ -105,7 +104,6 @@ public class IValueWriter {
         writer.writeField(IValueIDs.Header.VALUE_WINDOW, valueWindowSize);
         writer.writeField(IValueIDs.Header.TYPE_WINDOW, typeWindowSize);
         writer.writeField(IValueIDs.Header.SOURCE_LOCATION_WINDOW, uriWindowSize);
-        writer.endMessage();
     }
 
     private static void write(final IWireOutputStream writer, final Type type, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
@@ -125,8 +123,14 @@ public class IValueWriter {
                 if (writeFromCache(type)) {
                     return null;
                 }
+                writer.startMessage(IValueIDs.ADTType.ID);
+                writeCanBeBackReferenced(writer);
+                writer.writeField(IValueIDs.ADTType.NAME, type.getName());
+
+                writer.writeNestedField(IValueIDs.ADTType.TYPE_PARAMS);
                 type.getTypeParameters().accept(this);
-                writeSingleValueMessageBackReferenced(writer, IValueIDs.ADTType.ID, IValueIDs.ADTType.NAME, type.getName());
+
+                writer.endMessage();
                 typeCache.write(type);
                 return null;
             }
@@ -136,9 +140,17 @@ public class IValueWriter {
                 if (writeFromCache(type)) {
                     return null;
                 }
+                writer.startMessage(IValueIDs.AliasType.ID);
+                writeCanBeBackReferenced(writer);
+                writer.writeField(IValueIDs.AliasType.NAME, type.getName());
+
+                writer.writeNestedField(IValueIDs.AliasType.ALIASED);
                 type.getAliased().accept(this);
+
+                writer.writeNestedField(IValueIDs.AliasType.TYPE_PARAMS);
                 type.getTypeParameters().accept(this);
-                writeSingleValueMessageBackReferenced(writer, IValueIDs.AliasType.ID, IValueIDs.AliasType.NAME, type.getName());
+
+                writer.endMessage();
                 typeCache.write(type);
                 return null;
             }
@@ -148,9 +160,17 @@ public class IValueWriter {
                 if (writeFromCache(type)) {
                     return null;
                 }
+                writer.startMessage(IValueIDs.ConstructorType.ID);
+                writeCanBeBackReferenced(writer);
+                writer.writeField(IValueIDs.ConstructorType.NAME, type.getName());
+
+                writer.writeNestedField(IValueIDs.ConstructorType.ADT);
                 type.getAbstractDataType().accept(this);
+
+                writer.writeNestedField(IValueIDs.ConstructorType.FIELD_TYPES);
                 type.getFieldTypes().accept(this);
-                writeSingleValueMessageBackReferenced(writer, IValueIDs.ConstructorType.ID, IValueIDs.ConstructorType.NAME, type.getName());
+
+                writer.endMessage();
                 typeCache.write(type);
                 return null;
             }
@@ -160,10 +180,15 @@ public class IValueWriter {
                 if (writeFromCache(type)) {
                     return null;
                 }
+                writer.startMessage(IValueIDs.ExternalType.ID);
+                writeCanBeBackReferenced(writer);
+
+                writer.writeNestedField(IValueIDs.ExternalType.SYMBOL);
                 IValueFactory vf = ValueFactoryFactory.getValueFactory();
                 IConstructor symbol = type.asSymbol(vf, new TypeStore(), vf.setWriter(), new HashSet<>());
                 write(writer, symbol, typeCache, valueCache, uriCache);
-                writeEmptyMessageBackReferenced(writer, IValueIDs.ExternalType.ID);
+
+                writer.endMessage();
                 typeCache.write(type);
                 return null;
             }
@@ -173,8 +198,13 @@ public class IValueWriter {
                 if (writeFromCache(type)) {
                     return null;
                 }
+                writer.startMessage(IValueIDs.ListType.ID);
+                writeCanBeBackReferenced(writer);
+
+                writer.writeNestedField(IValueIDs.ListType.ELEMENT_TYPE);
                 type.getElementType().accept(this);
-                writeEmptyMessageBackReferenced(writer, IValueIDs.ListType.ID);
+
+                writer.endMessage();
                 typeCache.write(type);
                 return null;
             }
@@ -184,9 +214,16 @@ public class IValueWriter {
                 if (writeFromCache(type)) {
                     return null;
                 }
+
+                writer.startMessage(IValueIDs.MapType.ID);
+                writeCanBeBackReferenced(writer);
+
+                writer.writeNestedField(IValueIDs.MapType.KEY_TYPE);
                 type.getKeyType().accept(this);
+                writer.writeNestedField(IValueIDs.MapType.VALUE_TYPE);
                 type.getValueType().accept(this);
-                writeEmptyMessageBackReferenced(writer, IValueIDs.MapType.ID);
+
+                writer.endMessage();
                 typeCache.write(type);
                 return null;
             }
@@ -196,8 +233,14 @@ public class IValueWriter {
                 if (writeFromCache(type)) {
                     return null;
                 }
+                writer.startMessage(IValueIDs.ParameterType.ID);
+                writeCanBeBackReferenced(writer);
+                writer.writeField(IValueIDs.ParameterType.NAME, type.getName());
+
+                writer.writeNestedField(IValueIDs.ParameterType.BOUND);
                 type.getBound().accept(this);
-                writeSingleValueMessageBackReferenced(writer, IValueIDs.ParameterType.ID, IValueIDs.ParameterType.NAME,type.getName());
+
+                writer.endMessage();
                 typeCache.write(type);
                 return null;
             }
@@ -207,8 +250,13 @@ public class IValueWriter {
                 if (writeFromCache(type)) {
                     return null;
                 }
+                writer.startMessage(IValueIDs.SetType.ID);
+                writeCanBeBackReferenced(writer);
+
+                writer.writeNestedField(IValueIDs.SetType.ELEMENT_TYPE);
                 type.getElementType().accept(this);
-                writeEmptyMessageBackReferenced(writer, IValueIDs.SetType.ID);
+
+                writer.endMessage();
                 typeCache.write(type);
                 return null;
             }
@@ -218,16 +266,20 @@ public class IValueWriter {
                 if (writeFromCache(type)) {
                     return null;
                 }
+                writer.startMessage(IValueIDs.TupleType.ID);
+                writeCanBeBackReferenced(writer);
+
+
+                writer.writeRepeatedNestedField(IValueIDs.TupleType.TYPES, type.getArity());
                 for(int i = 0; i < type.getArity(); i++){
                     type.getFieldType(i).accept(this);
                 }
-                writer.startMessage(IValueIDs.TupleType.ID);
-                writeCanBeBackReferenced(writer);
-                writer.writeField(IValueIDs.TupleType.ARITY, type.getArity());
+
                 String[] fieldNames = type.getFieldNames();
                 if(fieldNames != null){
                     writer.writeField(IValueIDs.TupleType.NAMES, fieldNames);
                 }
+
                 writer.endMessage();
                 typeCache.write(type);
                 return null;
@@ -306,173 +358,188 @@ public class IValueWriter {
         writer.writeField(fieldId, fieldValue);
         writer.endMessage();
     }
-    private static void writeSingleValueMessageBackReferenced(final IWireOutputStream writer, int messageID, int fieldId, int fieldValue) throws IOException {
-        writer.startMessage(messageID);
-        writeCanBeBackReferenced(writer);
-        writer.writeField(fieldId, fieldValue);
-        writer.endMessage();
-    }
     
     private static void writeSingleValueMessage(final IWireOutputStream writer, int messageID, int fieldId, String fieldValue) throws IOException {
         writer.startMessage(messageID);
         writer.writeField(fieldId, fieldValue);
         writer.endMessage();
     }
-    private static void writeSingleValueMessageBackReferenced(final IWireOutputStream writer, int messageID, int fieldId, String fieldValue) throws IOException {
-        writer.startMessage(messageID);
-        writeCanBeBackReferenced(writer);
-        writer.writeField(fieldId, fieldValue);
-        writer.endMessage();
-    }
-    private static void writeEmptyMessageBackReferenced(final IWireOutputStream writer, int messageID) throws IOException {
-        writer.startMessage(messageID);
-        writeCanBeBackReferenced(writer);
-        writer.endMessage();
-    }
     private static void writeCanBeBackReferenced(final IWireOutputStream writer) throws IOException {
         writer.writeField(IValueIDs.Common.CAN_BE_BACK_REFERENCED, 1);
-    }
-    private static void writeEnd(IWireOutputStream writer) throws IOException {
-        writer.writeEmptyMessage(IValueIDs.LastValue.ID);
-    }
-
-    private static void writeEndType(IWireOutputStream writer) throws IOException {
-        writer.writeEmptyMessage(IValueIDs.LastType.ID);
     }
 
     private static final IInteger MININT = ValueFactoryFactory.getValueFactory().integer(Integer.MIN_VALUE);
     private static final IInteger MAXINT = ValueFactoryFactory.getValueFactory().integer(Integer.MAX_VALUE);
     
     private static void write(final IWireOutputStream writer, final IValue value, final TrackLastWritten<Type> typeCache, final TrackLastWritten<IValue> valueCache, final TrackLastWritten<ISourceLocation> uriCache) throws IOException {
-        PrePostIValueIterator iter = new PrePostIValueIterator(value);
-        
-        // returns if the value should be put into the cache or not
-        IValueVisitor<Boolean, IOException> visitWriter = new IValueVisitor<Boolean, IOException>() {
+        StacklessStructuredVisitor.accept(value, new StructuredIValueVisitor<IOException>() {
 
             private boolean writeFromCache(IValue val) throws IOException {
                 int lastSeen = valueCache.howLongAgo(val);
                 if (lastSeen != -1) {
                     writeSingleValueMessage(writer, IValueIDs.PreviousValue.ID, IValueIDs.PreviousValue.HOW_FAR_BACK, lastSeen);
-                    iter.skipValue();
                     return true;
                 }
                 return false;
             }
+
             @Override
-            public Boolean visitConstructor(IConstructor cons) throws IOException {
-                if (writeFromCache(cons) || iter.atBeginning()) {
+            public boolean enterConstructor(IConstructor cons, int children) throws IOException {
+                if (writeFromCache(cons)) {
                     return false;
                 }
-                write(writer, cons.getUninstantiatedConstructorType(), typeCache, valueCache, uriCache);
-
                 writer.startMessage(IValueIDs.ConstructorValue.ID);
                 writeCanBeBackReferenced(writer);
-                int arity = cons.arity();
-                if (arity > 0) {
-                    writer.writeField(IValueIDs.ConstructorValue.ARITY, arity);
+
+                writer.writeNestedField(IValueIDs.ConstructorValue.TYPE);
+                write(writer, cons.getUninstantiatedConstructorType(), typeCache, valueCache, uriCache);
+
+                if (children > 0) {
+                    writer.writeRepeatedNestedField(IValueIDs.ConstructorValue.PARAMS, children);
                 }
-                if(cons.mayHaveKeywordParameters()){
-                    if(cons.asWithKeywordParameters().hasParameters()){
-                        writer.writeField(IValueIDs.ConstructorValue.KWPARAMS, cons.asWithKeywordParameters().getParameters().size());
-                    }
-                } else {
-                    if(cons.asAnnotatable().hasAnnotations()){
-                        writer.writeField(IValueIDs.ConstructorValue.ANNOS, cons.asAnnotatable().getAnnotations().size());
-                    }
-                }
-                writer.endMessage();
+
                 return true;
             }
+
             @Override
-            public Boolean visitNode(INode node) throws IOException {
-                if (writeFromCache(node) || iter.atBeginning()) {
+            public void enterConstructorKeywordParameters() throws IOException {
+                writer.writeNestedField(IValueIDs.ConstructorValue.KWPARAMS);
+            }
+
+            @Override
+            public void enterConstructorAnnotations() throws IOException {
+                writer.writeNestedField(IValueIDs.ConstructorValue.ANNOS);
+            }
+
+            @Override
+            public void leaveConstructor(IValue cons) throws IOException {
+                writer.endMessage();
+                valueCache.write(cons);
+            }
+
+            @Override
+            public boolean enterNode(INode node, int children) throws IOException {
+                if (writeFromCache(node)) {
                     return false;
                 }
                 writer.startMessage(IValueIDs.NodeValue.ID);
                 writeCanBeBackReferenced(writer);
-                writer.writeField(IValueIDs.NodeValue.NAME,  node.getName());
-                writer.writeField(IValueIDs.NodeValue.ARITY, node.arity());
-                if(node.mayHaveKeywordParameters()){
-                    if(node.asWithKeywordParameters().hasParameters()){
-                        writer.writeField(IValueIDs.NodeValue.KWPARAMS, node.asWithKeywordParameters().getParameters().size());
-                    }
-                } else {
-                    if(node.asAnnotatable().hasAnnotations()){
-                        writer.writeField(IValueIDs.NodeValue.ANNOS, node.asAnnotatable().getAnnotations().size());
-                    }
-                }
-                writer.endMessage();
-                return true;
-            }
-            @Override
-            public Boolean visitList(IList o) throws IOException {
-                if (writeFromCache(o) || iter.atBeginning()) {
-                    return false;
-                }
-                if (o.length() > 0) {
-                    writeSingleValueMessageBackReferenced(writer, IValueIDs.ListValue.ID, IValueIDs.ListValue.SIZE, o.length());
-                }
-                else {
-                    writeEmptyMessageBackReferenced(writer, IValueIDs.ListValue.ID);
+                writer.writeField(IValueIDs.NodeValue.NAME, node.getName());
+                if (children > 0) {
+                    writer.writeRepeatedNestedField(IValueIDs.NodeValue.PARAMS, children);
                 }
                 return true;
-            }
-            @Override
-            public Boolean visitMap(IMap o) throws IOException {
-                if (writeFromCache(o) || iter.atBeginning()) {
-                    return false;
-                }
-                if (o.size() > 0) {
-                    writeSingleValueMessageBackReferenced(writer, IValueIDs.MapValue.ID, IValueIDs.MapValue.SIZE, o.size());
-                }
-                else {
-                    writeEmptyMessageBackReferenced(writer, IValueIDs.MapValue.ID);
-                }
-                return true;
-            }
-            @Override
-            public Boolean visitSet(ISet o) throws IOException {
-                if (writeFromCache(o) || iter.atBeginning()) {
-                    return false;
-                }
-                if (o.size() > 0) {
-                    writeSingleValueMessageBackReferenced(writer, IValueIDs.SetValue.ID, IValueIDs.SetValue.SIZE, o.size());
-                }
-                else {
-                    writeEmptyMessageBackReferenced(writer, IValueIDs.SetValue.ID);
-                }
-                return true;
-            }
-            @Override
-            public Boolean visitRational(IRational o) throws IOException {
-                if (writeFromCache(o) || iter.atBeginning()) {
-                    return false;
-                }
-                writeEmptyMessageBackReferenced(writer, IValueIDs.RationalValue.ID);
-                return true;
-            }
-            @Override
-            public Boolean visitTuple(ITuple o) throws IOException {
-                if (writeFromCache(o) || iter.atBeginning()) {
-                    return false;
-                }
-                 writeSingleValueMessageBackReferenced(writer, IValueIDs.TupleValue.ID, IValueIDs.TupleValue.SIZE, o.arity());
-                 return true;
             }
 
             @Override
-            public Boolean visitBoolean(IBool boolValue) throws IOException {
+            public void enterNodeKeywordParameters() throws IOException {
+                writer.writeNestedField(IValueIDs.NodeValue.KWPARAMS);
+            }
+
+            @Override
+            public void enterNodeAnnotations() throws IOException {
+                writer.writeNestedField(IValueIDs.NodeValue.ANNOS);
+            }
+
+            @Override
+            public void leaveNode(IValue cons) throws IOException {
+                writer.endMessage();
+                valueCache.write(cons);
+            }
+
+            @Override
+            public void enterNamedValues(String[] names, int numberOfNestedValues) throws IOException {
+                writer.startMessage(IValueIDs.NamedValues.ID);
+                writer.writeField(IValueIDs.NamedValues.NAMES, names);
+                writer.writeRepeatedNestedField(IValueIDs.NamedValues.VALUES, numberOfNestedValues);
+            }
+
+            @Override
+            public void leaveNamedValue() throws IOException {
+                writer.endMessage();
+            }
+
+
+            @Override
+            public boolean enterList(IList lst, int children) throws IOException {
+                if (writeFromCache(lst)) {
+                    return false;
+                }
+                writer.startMessage(IValueIDs.ListValue.ID);
+                writeCanBeBackReferenced(writer);
+                writer.writeRepeatedNestedField(IValueIDs.ListValue.ELEMENTS, children);
+                return true;
+            }
+
+            @Override
+            public void leaveList(IValue lst) throws IOException {
+                writer.endMessage();
+                valueCache.write(lst);
+            }
+
+            @Override
+            public boolean enterSet(ISet lst, int elements) throws IOException {
+                if (writeFromCache(lst)) {
+                    return false;
+                }
+                writer.startMessage(IValueIDs.SetValue.ID);
+                writeCanBeBackReferenced(writer);
+                writer.writeRepeatedNestedField(IValueIDs.SetValue.ELEMENTS, elements);
+                return true;
+            }
+
+            @Override
+            public void leaveSet(IValue lst) throws IOException {
+                writer.endMessage();
+                valueCache.write(lst);
+            }
+
+            @Override
+            public boolean enterMap(IMap map, int elements) throws IOException {
+                if (writeFromCache(map)) {
+                    return false;
+                }
+                writer.startMessage(IValueIDs.MapValue.ID);
+                writeCanBeBackReferenced(writer);
+                writer.writeRepeatedNestedField(IValueIDs.MapValue.KV_PAIRS, elements * 2);
+                return true;
+            }
+
+            @Override
+            public void leaveMap(IValue map) throws IOException {
+                writer.endMessage();
+                valueCache.write(map);
+            }
+
+            @Override
+            public boolean enterTuple(ITuple tuple, int arity) throws IOException {
+                if (writeFromCache(tuple)) {
+                    return false;
+                }
+                writer.startMessage(IValueIDs.TupleValue.ID);
+                writeCanBeBackReferenced(writer);
+                writer.writeRepeatedNestedField(IValueIDs.TupleValue.CHILDREN, arity);
+                return true;
+            }
+
+            @Override
+            public void leaveTuple(IValue tuple) throws IOException {
+                writer.endMessage();
+                valueCache.write(tuple);
+            }
+
+            @Override
+            public void visitBoolean(IBool boolValue) throws IOException {
                 if (boolValue.getValue()) {
                     writeSingleValueMessage(writer, IValueIDs.BoolValue.ID, IValueIDs.BoolValue.VALUE, 1);
                 }
                 else {
                     writer.writeEmptyMessage(IValueIDs.BoolValue.ID);
                 }
-                return false;
             }
 
             @Override
-            public Boolean visitDateTime(IDateTime dateTime) throws IOException {
+            public void visitDateTime(IDateTime dateTime) throws IOException {
                 writer.startMessage(IValueIDs.DateTimeValue.ID);
 
                 if (!dateTime.isTime()) {
@@ -491,10 +558,9 @@ public class IValueWriter {
                     writer.writeField(IValueIDs.DateTimeValue.TZ_MINUTE, dateTime.getTimezoneOffsetMinutes());
                 }
                 writer.endMessage();
-                return false;
             }
             @Override
-            public Boolean visitInteger(IInteger ii) throws IOException {
+            public void visitInteger(IInteger ii) throws IOException {
                 writer.startMessage(IValueIDs.IntegerValue.ID);
                 if(ii. greaterEqual(MININT).getValue() && ii.lessEqual(MAXINT).getValue()){
                     writer.writeField(IValueIDs.IntegerValue.INTVALUE, ii.intValue());
@@ -503,21 +569,19 @@ public class IValueWriter {
                     writer.writeField(IValueIDs.IntegerValue.BIGVALUE, ii.getTwosComplementRepresentation());
                 }
                 writer.endMessage();
-                return false;
             }
 
 
             @Override
-            public Boolean visitReal(IReal o) throws IOException {
+            public void visitReal(IReal o) throws IOException {
                 writer.startMessage(IValueIDs.RealValue.ID);
                 writer.writeField(IValueIDs.RealValue.CONTENT, o.unscaled().getTwosComplementRepresentation());
                 writer.writeField(IValueIDs.RealValue.SCALE, o.scale());
                 writer.endMessage();
-                return false;
             }
 
             @Override
-            public Boolean visitSourceLocation(ISourceLocation loc) throws IOException {
+            public void visitSourceLocation(ISourceLocation loc) throws IOException {
                 writer.startMessage(IValueIDs.SourceLocationValue.ID);
                 ISourceLocation uriPart = loc.top();
                 int alreadyWritten = uriCache.howLongAgo(uriPart);
@@ -552,35 +616,23 @@ public class IValueWriter {
                     writer.writeField(IValueIDs.SourceLocationValue.ENDCOLUMN, loc.getEndColumn());
                 }
                 writer.endMessage();
-                return false;
             }
 
             @Override
-            public Boolean visitString(IString o) throws IOException {
+            public void visitString(IString o) throws IOException {
                 writeSingleValueMessage(writer, IValueIDs.StringValue.ID, IValueIDs.StringValue.CONTENT, o.getValue());
-                return false;
             }
+            
             @Override
-            public Boolean visitExternal(IExternalValue externalValue) throws IOException {
-                throw new RuntimeException("Not supported yet");
+            public void visitRational(IRational val) throws IOException {
+                writer.startMessage(IValueIDs.RationalValue.ID); 
+                writer.writeNestedField(IValueIDs.RationalValue.NUMERATOR);
+                visitInteger(val.numerator());
+                writer.writeNestedField(IValueIDs.RationalValue.DENOMINATOR);
+                visitInteger(val.denominator());
+                writer.endMessage();
             }
-            @Override
-            public Boolean visitListRelation(IList o) throws IOException {
-                return visitList(o);
-            }
-            @Override
-            public Boolean visitRelation(ISet o) throws IOException {
-                return visitSet(o);
-            }
-        };
-
-        while(iter.hasNext()){
-            final IValue currentValue = iter.next();
-            if (currentValue.accept(visitWriter)) {
-                valueCache.write(currentValue);
-            }
-        }
+        });
     }
-
 
 }
