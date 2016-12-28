@@ -70,7 +70,7 @@ public class IValueInputStream implements Closeable {
         if (legacy) {
             return legacyReader.deserialize();
         }
-        return IValueReader.read(reader, vf);
+        return IValueReader.readValue(reader, vf);
     }
     
     @Override

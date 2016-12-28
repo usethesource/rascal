@@ -486,9 +486,7 @@ public class Function implements Serializable {
             out.writeField(CompilerIDs.Function.IS_VARARGS, 1);
         }
 
-        out.writeNestedField(CompilerIDs.Function.SRC);
-        IValueWriter.write(out, WindowSizes.NO_WINDOW, src);
-        
+        out.writeField(CompilerIDs.Function.SRC, src, WindowSizes.NO_WINDOW);
 
         out.writeField(CompilerIDs.Function.LOCAL_NAMES, localNames, WindowSizes.TINY_WINDOW);
 
@@ -692,7 +690,7 @@ public class Function implements Serializable {
                 }
                 
                 case CompilerIDs.Function.SRC: {
-                    src = (ISourceLocation) IValueReader.read(in, vf);
+                    src = in.readIValue();
                     break;
                 }
                 

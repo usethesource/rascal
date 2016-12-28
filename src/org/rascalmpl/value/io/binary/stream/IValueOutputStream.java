@@ -21,7 +21,6 @@ import org.rascalmpl.value.io.binary.message.IValueWriter;
 import org.rascalmpl.value.io.binary.util.WindowSizes;
 import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 import org.rascalmpl.value.io.binary.wire.binary.BinaryWireOutputStream;
-import org.rascalmpl.value.type.TypeStore;
             
 /**
  * A binary serializer for IValues. <br/>
