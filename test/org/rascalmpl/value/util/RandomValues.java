@@ -52,6 +52,7 @@ public class RandomValues {
 	static {
 	    ts.declareKeywordParameter(Name, "moreName", Name);
 	    ts.declareKeywordParameter(Name, "listName", tf.listType(Name));
+	    ts.declareKeywordParameter(Name, "anyValue", tf.valueType());
 	    ts.declareAnnotation(Boolean, "boolAnno", tf.boolType());
 	}
 
@@ -109,6 +110,9 @@ public class RandomValues {
                 if (currentDepth < maxDepth && rand.nextDouble() > 0.8 && !ts.getAbstractDataTypes().isEmpty()) {
                     return pickRandom(ts.getAbstractDataTypes());
                 }
+                if (currentDepth < maxDepth && rand.nextDouble() > 0.8) {
+                    return tf.nodeType();
+                }
                 return randomTypes[rand.nextInt(randomTypes.length)];
             }
             @Override
@@ -148,13 +152,13 @@ public class RandomValues {
                 if (currentDepth < maxDepth && rand.nextDouble() > 0.6) {
                     int kwArgs = 1 + rand.nextInt(8);
                     for (int i = 0; i < kwArgs; i++) {
-                        result = result.asWithKeywordParameters().setParameter("kwArg" + rand.nextInt(20) , randomType().accept(this));
+                        result = result.asWithKeywordParameters().setParameter("kwArg" + i, randomType().accept(this));
                     }
                 }
                 else if (currentDepth < maxDepth && rand.nextDouble() > 0.9) {
                     int annos = 1 + rand.nextInt(6);
                     for (int i = 0; i < annos; i++) {
-                        result = result.asAnnotatable().setAnnotation("anno" + rand.nextInt(20) , randomType().accept(this));
+                        result = result.asAnnotatable().setAnnotation("anno" + i, randomType().accept(this));
                     }
                 }
                 currentDepth--;
