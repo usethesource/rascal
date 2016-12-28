@@ -130,44 +130,38 @@ public class IValueIDs {
     
     public static class ConstructorValue {
         public static final int ID = CONSTRUCTOR_VALUE_ID;
-        public static final int ARITY = 1;
+        public static final int PARAMS = 1;
         public static final int KWPARAMS = 2;
         public static final int ANNOS = 3;
         public static final int TYPE = 4;
-        public static final int PARAMS = 5;
     }
 
     public static class NodeValue {
         public static final int ID = NODE_VALUE_ID;
         public static final int NAME = 1;
-        public static final int ARITY = 2;
+        public static final int PARAMS = 2;
         public static final int KWPARAMS = 3;
         public static final int ANNOS = 4;
-        public static final int PARAMS = 5;
     }
 
     public static class TupleValue {
         public static final int ID = TUPLE_VALUE_ID;
-        public static final int SIZE = 1;
-        public static final int CHILDREN = 2;
+        public static final int CHILDREN = 1;
     }
     
     public static class ListValue {
         public static final int ID = LIST_VALUE_ID;
-        public static final int SIZE = 1;
-        public static final int ELEMENTS = 2;
+        public static final int ELEMENTS = 1;
     }
     
     public static class MapValue {
         public static final int ID = MAP_VALUE_ID;
-        public static final int SIZE = 1;
-        public static final int KV_PAIRS = 2;
+        public static final int KV_PAIRS = 1;
     }
 
     public static class SetValue {
         public static final int ID = SET_VALUE_ID;
-        public static final int SIZE = 1;
-        public static final int ELEMENTS = 2;
+        public static final int ELEMENTS = 1;
     }
     public static class NamedValues {
         public static final int ID = NAMED_VALUES_ID;
@@ -290,9 +284,8 @@ public class IValueIDs {
     
     public static class TupleType {
         public static final int ID = TUPLE_TYPE_ID;
-        public static final int ARITY = 1;
-        public static final int NAMES = 2;
-        public static final int TYPES = 3;
+        public static final int NAMES = 1;
+        public static final int TYPES = 2;
     }
     
     public static final class Ranges {
