@@ -50,7 +50,6 @@ public class IValueIDs {
     // above 32 for less often occuring messages (they take a byte extra to encode and decode)
     private static final int DATETIME_VALUE_ID = 32; 
     private static final int RAT_VALUE_ID = 33;
-    private static final int EXTERNAL_VALUE_ID = 34;
     
     // Compound values
 
@@ -60,7 +59,7 @@ public class IValueIDs {
     private static final int LIST_VALUE_ID = 10;
     private static final int MAP_VALUE_ID = 11;
     private static final int SET_VALUE_ID = 12;
-    private static final int NAMED_VALUE_ID = 13;
+    private static final int NAMED_VALUES_ID = 13;
     // WARNING: when adding here, don't forget to update the ranges at the end of this class
     
     public static class Common {
@@ -170,14 +169,10 @@ public class IValueIDs {
         public static final int SIZE = 1;
         public static final int ELEMENTS = 2;
     }
-    public static class NamedValue {
-        public static final int ID = NAMED_VALUE_ID;
-        public static final int NAME = 1;
-        public static final int VALUE = 2;
-    }
-    public static class ExternalValue {
-        public static final int ID = EXTERNAL_VALUE_ID;
-        public static final int VALUE = 1;
+    public static class NamedValues {
+        public static final int ID = NAMED_VALUES_ID;
+        public static final int NAMES = 1;
+        public static final int VALUES = 2;
     }
 
     // Type message ID's start at 100 to leave room for new values
