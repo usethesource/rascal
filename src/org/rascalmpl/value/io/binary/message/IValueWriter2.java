@@ -528,7 +528,7 @@ public class IValueWriter2 {
 
             @Override
             public void enterMapElements(int arity) throws IOException {
-                writer.writeField(IValueIDs.MapValue.KV_PAIRS, arity * 2);
+                writer.writeRepeatedNestedField(IValueIDs.MapValue.KV_PAIRS, arity * 2);
             }
 
             @Override
