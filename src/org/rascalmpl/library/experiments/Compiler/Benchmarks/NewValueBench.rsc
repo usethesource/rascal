@@ -37,6 +37,10 @@ void printTime(str name, int time) {
 }
 
 @javaClass{org.rascalmpl.library.Prelude}
+public java void writeBinaryValueFilePrefix(loc file, value val);
+@javaClass{org.rascalmpl.library.Prelude}
+public java &T readBinaryValueFilePrefix(type[&T] result, loc file);
+@javaClass{org.rascalmpl.library.Prelude}
 public java void writeBinaryValueFileOld(loc file, value val, bool compression = true);
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T readBinaryValueFileOld(type[&T] result, loc file);
@@ -49,15 +53,22 @@ loc targetLoc = |test-temp:///value-io.bench|;
 loc targetLocOld = |compressed+test-temp:///value-io.bench.gz|;
 void bench(str name, type[&T] result, value v, int warmup, int measure) {
     for (i <- [0..warmup]) {
-        writeBinaryValueFile(targetLoc, v, compression=normal());
+        writeBinaryValueFile(targetLoc, v);
+        writeBinaryValueFilePrefix(targetLoc, v);
         writeBinaryValueFileOld(targetLoc, v, compression = false);
     }
     printTime("<name>-new-write", cpuTime(() { 
         for (i <- [0..measure]) {
-            writeBinaryValueFile(targetLoc, v, compression=normal());
+            writeBinaryValueFile(targetLoc, v);
         }
     }) / measure);
     println("<name>-new-size: <__getFileSize(targetLoc)>");
+    printTime("<name>-pre-write", cpuTime(() { 
+        for (i <- [0..measure]) {
+            writeBinaryValueFilePrefix(targetLoc, v);
+        }
+    }) / measure);
+    println("<name>-pre-size: <__getFileSize(targetLoc)>");
     printTime("<name>-old-write", cpuTime(() { 
         for (i <- [0..measure]) {
             writeBinaryValueFileOld(targetLocOld, v, compression=false);
@@ -68,11 +79,17 @@ void bench(str name, type[&T] result, value v, int warmup, int measure) {
     v = "";
     for (i <- [0..warmup]) {
         readBinaryValueFile(result, targetLoc);
+        readBinaryValueFilePrefix(result, targetLoc);
         readBinaryValueFileOld(result, targetLocOld);
     }
     printTime("<name>-new-read ", cpuTime(() { 
         for (i <- [0..measure]) {
             readBinaryValueFile(result, targetLoc);
+        }
+    })/ measure);
+    printTime("<name>-pre-read ", cpuTime(() { 
+        for (i <- [0..measure]) {
+            readBinaryValueFilePrefix(result, targetLoc);
         }
     })/ measure);
     printTime("<name>-old-read ", cpuTime(() { 
