@@ -30,41 +30,30 @@ import org.rascalmpl.value.IValue;
 
 public interface StructuredIValueVisitor<E extends Throwable> {
     
-    void enterNamedValue(String name) throws E;
-    void enterNamedValueValue(IValue val) throws E;
+    void enterNamedValues(String[] names, int numberOfNestedValues) throws E;
     void leaveNamedValue() throws E;
     
-    boolean enterConstructor(IConstructor cons) throws E;
-    void enterConstructorArguments(int arity) throws E;
-    void enterConstructorKeywordParameters(int arity) throws E;
-    void enterConstructorAnnotations(int arity) throws E;
-    void leaveConstructor(IConstructor cons) throws E;
+    boolean enterConstructor(IConstructor cons, int children) throws E;
+    void enterConstructorKeywordParameters() throws E;
+    void enterConstructorAnnotations() throws E;
+    void leaveConstructor(IValue cons) throws E;
 
-    boolean enterNode(INode node) throws E;
-    void enterNodeArguments(int arity) throws E;
-    void enterNodeKeywordParameters(int arity) throws E;
-    void enterNodeAnnotations(int arity) throws E;
-    void leaveNode(INode node) throws E;
+    boolean enterNode(INode node, int children) throws E;
+    void enterNodeKeywordParameters() throws E;
+    void enterNodeAnnotations() throws E;
+    void leaveNode(IValue node) throws E;
 
-    boolean enterList(IList lst) throws E;
-    void enterListElements(int arity) throws E;
-    void leaveList(IList lst) throws E;
+    boolean enterList(IList lst, int children) throws E;
+    void leaveList(IValue lst) throws E;
 
-    boolean enterSet(ISet set) throws E;
-    void enterSetElements(int arity) throws E;
-    void leaveSet(ISet set) throws E;
+    boolean enterSet(ISet set, int elements) throws E;
+    void leaveSet(IValue set) throws E;
     
-    boolean enterMap(IMap map) throws E;
-    void enterMapElements(int arity) throws E;
-    void leaveMap(IMap map) throws E;
+    boolean enterMap(IMap map, int elements) throws E;
+    void leaveMap(IValue map) throws E;
     
-    boolean enterTuple(ITuple tuple) throws E;
-    void enterTupleElements(int arity) throws E;
-    void leaveTuple(ITuple tuple) throws E;
-
-    boolean enterExternalValue(IExternalValue externalValue) throws E;
-    void enterExternalValueConstructor() throws E;
-    void leaveExternalValue(IExternalValue externalValue) throws E;
+    boolean enterTuple(ITuple tuple, int arity) throws E;
+    void leaveTuple(IValue tuple) throws E;
 
     void visitString(IString val) throws E;
     void visitInteger(IInteger val) throws E;

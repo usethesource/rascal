@@ -386,7 +386,7 @@ public class IValueWriter2 {
             }
 
             @Override
-            public boolean enterConstructor(IConstructor cons) throws IOException {
+            public boolean enterConstructor(IConstructor cons, int children) throws IOException {
                 if (writeFromCache(cons)) {
                     return false;
                 }
@@ -396,76 +396,64 @@ public class IValueWriter2 {
                 writer.writeNestedField(IValueIDs.ConstructorValue.TYPE);
                 write(writer, cons.getUninstantiatedConstructorType(), typeCache, valueCache, uriCache);
 
+                if (children > 0) {
+                    writer.writeRepeatedNestedField(IValueIDs.ConstructorValue.PARAMS, children);
+                }
+
                 return true;
             }
 
             @Override
-            public void enterConstructorArguments(int arity) throws IOException {
-                if (arity > 0) {
-                    writer.writeRepeatedNestedField(IValueIDs.ConstructorValue.PARAMS, arity);
-                }
+            public void enterConstructorKeywordParameters() throws IOException {
+                writer.writeNestedField(IValueIDs.ConstructorValue.KWPARAMS);
             }
 
             @Override
-            public void enterConstructorKeywordParameters(int arity) throws IOException {
-                writer.writeRepeatedNestedField(IValueIDs.ConstructorValue.KWPARAMS, arity);
+            public void enterConstructorAnnotations() throws IOException {
+                writer.writeNestedField(IValueIDs.ConstructorValue.ANNOS);
             }
 
             @Override
-            public void enterConstructorAnnotations(int arity) throws IOException {
-                writer.writeRepeatedNestedField(IValueIDs.ConstructorValue.ANNOS, arity);
-            }
-
-            @Override
-            public void leaveConstructor(IConstructor cons) throws IOException {
+            public void leaveConstructor(IValue cons) throws IOException {
                 writer.endMessage();
                 valueCache.write(cons);
             }
 
             @Override
-            public boolean enterNode(INode node) throws IOException {
+            public boolean enterNode(INode node, int children) throws IOException {
                 if (writeFromCache(node)) {
                     return false;
                 }
                 writer.startMessage(IValueIDs.NodeValue.ID);
                 writeCanBeBackReferenced(writer);
                 writer.writeField(IValueIDs.NodeValue.NAME, node.getName());
+                if (children > 0) {
+                    writer.writeRepeatedNestedField(IValueIDs.NodeValue.PARAMS, children);
+                }
                 return true;
             }
 
             @Override
-            public void enterNodeArguments(int arity) throws IOException {
-                if (arity > 0) {
-                    writer.writeRepeatedNestedField(IValueIDs.NodeValue.PARAMS, arity);
-                }
+            public void enterNodeKeywordParameters() throws IOException {
+                writer.writeNestedField(IValueIDs.NodeValue.KWPARAMS);
             }
 
             @Override
-            public void enterNodeKeywordParameters(int arity) throws IOException {
-                writer.writeRepeatedNestedField(IValueIDs.NodeValue.KWPARAMS, arity);
+            public void enterNodeAnnotations() throws IOException {
+                writer.writeNestedField(IValueIDs.NodeValue.ANNOS);
             }
 
             @Override
-            public void enterNodeAnnotations(int arity) throws IOException {
-                writer.writeRepeatedNestedField(IValueIDs.NodeValue.ANNOS, arity);
-            }
-
-            @Override
-            public void leaveNode(INode cons) throws IOException {
+            public void leaveNode(IValue cons) throws IOException {
                 writer.endMessage();
                 valueCache.write(cons);
             }
 
             @Override
-            public void enterNamedValue(String name) throws IOException {
-                writer.startMessage(IValueIDs.NamedValue.ID);
-                writer.writeField(IValueIDs.NamedValue.NAME, name);
-            }
-
-            @Override
-            public void enterNamedValueValue(IValue val) throws IOException {
-                writer.writeNestedField(IValueIDs.NamedValue.VALUE);
-                
+            public void enterNamedValues(String[] names, int numberOfNestedValues) throws IOException {
+                writer.startMessage(IValueIDs.NamedValues.ID);
+                writer.writeField(IValueIDs.NamedValues.NAMES, names);
+                writer.writeRepeatedNestedField(IValueIDs.NamedValues.VALUES, numberOfNestedValues);
             }
 
             @Override
@@ -475,109 +463,71 @@ public class IValueWriter2 {
 
 
             @Override
-            public boolean enterList(IList lst) throws IOException {
+            public boolean enterList(IList lst, int children) throws IOException {
                 if (writeFromCache(lst)) {
                     return false;
                 }
                 writer.startMessage(IValueIDs.ListValue.ID);
                 writeCanBeBackReferenced(writer);
+                writer.writeRepeatedNestedField(IValueIDs.ListValue.ELEMENTS, children);
                 return true;
             }
 
             @Override
-            public void enterListElements(int arity) throws IOException {
-                writer.writeRepeatedNestedField(IValueIDs.ListValue.ELEMENTS, arity);
-            }
-
-            @Override
-            public void leaveList(IList lst) throws IOException {
+            public void leaveList(IValue lst) throws IOException {
                 writer.endMessage();
                 valueCache.write(lst);
             }
 
             @Override
-            public boolean enterSet(ISet lst) throws IOException {
+            public boolean enterSet(ISet lst, int elements) throws IOException {
                 if (writeFromCache(lst)) {
                     return false;
                 }
                 writer.startMessage(IValueIDs.SetValue.ID);
                 writeCanBeBackReferenced(writer);
+                writer.writeRepeatedNestedField(IValueIDs.SetValue.ELEMENTS, elements);
                 return true;
             }
 
             @Override
-            public void enterSetElements(int arity) throws IOException {
-                writer.writeRepeatedNestedField(IValueIDs.SetValue.ELEMENTS, arity);
-            }
-
-            @Override
-            public void leaveSet(ISet lst) throws IOException {
+            public void leaveSet(IValue lst) throws IOException {
                 writer.endMessage();
                 valueCache.write(lst);
             }
 
             @Override
-            public boolean enterMap(IMap map) throws IOException {
+            public boolean enterMap(IMap map, int elements) throws IOException {
                 if (writeFromCache(map)) {
                     return false;
                 }
                 writer.startMessage(IValueIDs.MapValue.ID);
                 writeCanBeBackReferenced(writer);
+                writer.writeRepeatedNestedField(IValueIDs.MapValue.KV_PAIRS, elements * 2);
                 return true;
             }
 
             @Override
-            public void enterMapElements(int arity) throws IOException {
-                writer.writeRepeatedNestedField(IValueIDs.MapValue.KV_PAIRS, arity * 2);
-            }
-
-            @Override
-            public void leaveMap(IMap map) throws IOException {
+            public void leaveMap(IValue map) throws IOException {
                 writer.endMessage();
                 valueCache.write(map);
             }
 
             @Override
-            public boolean enterTuple(ITuple tuple) throws IOException {
+            public boolean enterTuple(ITuple tuple, int arity) throws IOException {
                 if (writeFromCache(tuple)) {
                     return false;
                 }
                 writer.startMessage(IValueIDs.TupleValue.ID);
                 writeCanBeBackReferenced(writer);
+                writer.writeRepeatedNestedField(IValueIDs.TupleValue.CHILDREN, arity);
                 return true;
             }
 
             @Override
-            public void enterTupleElements(int arity) throws IOException {
-                writer.writeRepeatedNestedField(IValueIDs.TupleValue.CHILDREN, arity);
-                
-            }
-
-            @Override
-            public void leaveTuple(ITuple tuple) throws IOException {
+            public void leaveTuple(IValue tuple) throws IOException {
                 writer.endMessage();
                 valueCache.write(tuple);
-            }
-
-            @Override
-            public boolean enterExternalValue(IExternalValue externalValue) throws IOException {
-                if (writeFromCache(externalValue)) {
-                    return false;
-                }
-                writer.startMessage(IValueIDs.ExternalValue.ID);
-                writeCanBeBackReferenced(writer);
-                return true;
-            }
-
-            @Override
-            public void enterExternalValueConstructor() throws IOException {
-                writer.writeNestedField(IValueIDs.ExternalValue.VALUE);
-            }
-
-            @Override
-            public void leaveExternalValue(IExternalValue externalValue) throws IOException {
-                writer.endMessage();
-                valueCache.write(externalValue);
             }
 
             @Override

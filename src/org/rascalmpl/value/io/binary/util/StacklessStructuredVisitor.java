@@ -38,6 +38,8 @@ import org.rascalmpl.value.impl.AbstractDefaultAnnotatable;
 import org.rascalmpl.value.impl.AbstractDefaultWithKeywordParameters;
 import org.rascalmpl.value.visitors.IValueVisitor;
 
+import io.usethesource.capsule.ImmutableMap;
+
 public class StacklessStructuredVisitor {
 
     public static <E extends Throwable> void accept(IValue root, StructuredIValueVisitor<E> visit) throws E {
@@ -68,16 +70,13 @@ public class StacklessStructuredVisitor {
 
             @Override
             public Void visitList(IList lst) throws E {
-                if (visit.enterList(lst)) {
+                if (visit.enterList(lst, lst.length())) {
                     workList.push(new NextStep<>(lst, (l, w, v) -> {
-                        v.leaveList((IList)l);
+                        v.leaveList(l);
                     }));
                     for (int i = lst.length() - 1; i >= 0; i--) {
                         workList.push(new NextStep<>(lst.get(i), StacklessStructuredVisitor::visitValue));
                     }
-                    workList.push(new NextStep<>(lst, (l, w, v) -> {
-                        v.enterListElements(((IList)l).length());
-                    }));
                 }
                 return null;
             }
@@ -85,49 +84,40 @@ public class StacklessStructuredVisitor {
 
             @Override
             public Void visitSet(ISet set) throws E {
-                if (visit.enterSet(set)) {
+                if (visit.enterSet(set, set.size())) {
                     workList.push(new NextStep<>(set, (l, w, v) -> {
-                        v.leaveSet((ISet)l);
+                        v.leaveSet(l);
                     }));
                     for (IValue v: set) {
                         workList.push(new NextStep<>(v, StacklessStructuredVisitor::visitValue));
                     }
-                    workList.push(new NextStep<>(set, (l, w, v) -> {
-                        v.enterSetElements(((ISet)l).size());
-                    }));
                 }
                 return null;
             }
 
             @Override
             public Void visitMap(IMap map) throws E {
-                if (visit.enterMap(map)) {
+                if (visit.enterMap(map, map.size())) {
                     workList.push(new NextStep<>(map, (l, w, v) -> {
-                        v.leaveMap((IMap)l);
+                        v.leaveMap(l);
                     }));
                     for (IValue k: map) {
                         workList.push(new NextStep<>(map.get(k), StacklessStructuredVisitor::visitValue));
                         workList.push(new NextStep<>(k, StacklessStructuredVisitor::visitValue));
                     }
-                    workList.push(new NextStep<>(map, (l, w, v) -> {
-                        v.enterMapElements(((IMap)l).size());
-                    }));
                 }
                 return null;
             }
 
             @Override
             public Void visitTuple(ITuple tuple) throws E {
-                if (visit.enterTuple(tuple)) {
+                if (visit.enterTuple(tuple, tuple.arity())) {
                     workList.push(new NextStep<>(tuple, (l, w, v) -> {
-                        v.leaveTuple((ITuple) l);
+                        v.leaveTuple(l);
                     }));
                     for (int i = tuple.arity() - 1; i >= 0; i--) {
                         workList.push(new NextStep<>(tuple.get(i), StacklessStructuredVisitor::visitValue));
                     }
-                    workList.push(new NextStep<>(tuple, (l, w, v) -> {
-                        v.enterTupleElements(((ITuple)l).arity());
-                    }));
                 }
                 return null;
             }
@@ -135,9 +125,9 @@ public class StacklessStructuredVisitor {
             @Override
             public Void visitNode(INode node) throws E {
                 // WARNING, cloned to visitConstructor, fix bugs there as well!
-                if (visit.enterNode(node)) {
+                if (visit.enterNode(node, node.arity())) {
                     workList.push(new NextStep<>(node, (l, w, v) -> {
-                        v.leaveNode((INode) l);
+                        v.leaveNode(l);
                     }));
                     if(node.mayHaveKeywordParameters()){
                         IWithKeywordParameters<? extends INode> withKW = node.asWithKeywordParameters();
@@ -145,9 +135,9 @@ public class StacklessStructuredVisitor {
                             assert withKW instanceof AbstractDefaultWithKeywordParameters;
                             @SuppressWarnings("unchecked")
                             AbstractDefaultWithKeywordParameters<INode> nodeKw = (AbstractDefaultWithKeywordParameters<INode>)(withKW);
-                            pushKWPairs(nodeKw.internalGetParameters().entryIterator());
+                            pushKWPairs(nodeKw.internalGetParameters());
                             workList.push(new NextStep<>(node, (l, w, v) -> {
-                                v.enterNodeKeywordParameters(nodeKw.internalGetParameters().size());
+                                v.enterNodeKeywordParameters();
                             }));
                         }
 
@@ -157,45 +147,46 @@ public class StacklessStructuredVisitor {
                             assert withAnno instanceof AbstractDefaultAnnotatable;
                             @SuppressWarnings("unchecked")
                             AbstractDefaultAnnotatable<INode> nodeAnno = (AbstractDefaultAnnotatable<INode>)withAnno;
-                            pushKWPairs(nodeAnno.internalGetAnnotations().entryIterator());
+                            pushKWPairs(nodeAnno.internalGetAnnotations());
                             workList.push(new NextStep<>(node, (l, w, v) -> {
-                                v.enterNodeAnnotations(nodeAnno.internalGetAnnotations().size());
+                                v.enterNodeAnnotations();
                             }));
                         }
                     }
                     for(int i = node.arity() - 1; i >= 0; i--){
                         workList.push(new NextStep<>(node.get(i), StacklessStructuredVisitor::visitValue));
                     }
-                    workList.push(new NextStep<>(node, (l, w, v) -> {
-                        v.enterNodeArguments(((INode)l).arity());
-                    }));
                 }
                 return null;
             }
 
 
-            private void pushKWPairs(Iterator<Entry<String, IValue>> entryIterator) {
+            private void pushKWPairs(ImmutableMap<String, IValue> namedValues) {
+                workList.push(new NextStep<>(null, (l,w,v) -> {
+                    v.leaveNamedValue();
+                }));
+
+                String[] names = new String[namedValues.size()];
+                int i = names.length;
+                Iterator<Entry<String, IValue>> entryIterator = namedValues.entryIterator();
                 while (entryIterator.hasNext()) {
                     Entry<String, IValue> param = entryIterator.next();
-                    workList.push(new NextStep<>(param.getValue(), (l,w,v) -> {
-                        v.leaveNamedValue();
-                    }));
                     workList.push(new NextStep<>(param.getValue(), StacklessStructuredVisitor::visitValue));
-                    workList.push(new NextStep<>(param.getValue(), (l,w,v) -> {
-                        v.enterNamedValueValue(l);
-                    }));
-                    workList.push(new NextStep<>(param.getValue(), (l,w,v) -> {
-                        v.enterNamedValue(param.getKey());
-                    }));
+                    i--;
+                    names[i] = param.getKey();
                 }
+                assert i == 0;
+                workList.push(new NextStep<>(null, (l,w,v) -> {
+                    v.enterNamedValues(names, names.length);
+                }));
             }
 
             @Override
             public Void visitConstructor(IConstructor constr) throws E {
                 // WARNING, cloned from visitNode, fix bugs there as well!
-                if (visit.enterConstructor(constr)) {
+                if (visit.enterConstructor(constr, constr.arity())) {
                     workList.push(new NextStep<>(constr, (l, w, v) -> {
-                        v.leaveConstructor((IConstructor)l);
+                        v.leaveConstructor(l);
                     }));
                     if(constr.mayHaveKeywordParameters()){
                         IWithKeywordParameters<? extends IConstructor> withKW = constr.asWithKeywordParameters();
@@ -203,9 +194,9 @@ public class StacklessStructuredVisitor {
                             assert withKW instanceof AbstractDefaultWithKeywordParameters;
                             @SuppressWarnings("unchecked")
                             AbstractDefaultWithKeywordParameters<IConstructor> constrKw = (AbstractDefaultWithKeywordParameters<IConstructor>)(withKW);
-                            pushKWPairs(constrKw.internalGetParameters().entryIterator());
+                            pushKWPairs(constrKw.internalGetParameters());
                             workList.push(new NextStep<>(constr, (l, w, v) -> {
-                                v.enterConstructorKeywordParameters(constrKw.internalGetParameters().size());
+                                v.enterConstructorKeywordParameters();
                             }));
                         }
 
@@ -215,18 +206,15 @@ public class StacklessStructuredVisitor {
                             assert withAnno instanceof AbstractDefaultAnnotatable;
                             @SuppressWarnings("unchecked")
                             AbstractDefaultAnnotatable<IConstructor> constrAnno = (AbstractDefaultAnnotatable<IConstructor>)withAnno;
-                            pushKWPairs(constrAnno.internalGetAnnotations().entryIterator());
+                            pushKWPairs(constrAnno.internalGetAnnotations());
                             workList.push(new NextStep<>(constr, (l, w, v) -> {
-                                v.enterConstructorAnnotations(constrAnno.internalGetAnnotations().size());
+                                v.enterConstructorAnnotations();
                             }));
                         }
                     }
                     for(int i = constr.arity() - 1; i >= 0; i--){
                         workList.push(new NextStep<>(constr.get(i), StacklessStructuredVisitor::visitValue));
                     }
-                    workList.push(new NextStep<>(constr, (l, w, v) -> {
-                        v.enterConstructorArguments(((IConstructor)l).arity());
-                    }));
                 }
                 return null;
             }
@@ -235,16 +223,7 @@ public class StacklessStructuredVisitor {
 
             @Override
             public Void visitExternal(IExternalValue externalValue) throws E {
-                if (visit.enterExternalValue(externalValue)) {
-                    workList.push(new NextStep<>(externalValue, (l, w, v) -> {
-                        v.leaveExternalValue((IExternalValue)l);
-                    }));
-                    workList.push(new NextStep<>(externalValue.encodeAsConstructor(), StacklessStructuredVisitor::visitValue));
-                    workList.push(new NextStep<>(externalValue, (l, w, v) -> {
-                        v.enterExternalValueConstructor();
-                    }));
-                }
-                return null;
+                throw new RuntimeException("External values not supported yet");
             }
 
             @Override

@@ -16,6 +16,7 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map.Entry;
 
 import org.rascalmpl.value.IAnnotatable;
@@ -65,8 +66,7 @@ public class ReferenceStructuredIValueVisitor {
 
             @Override
             public Void visitList(IList o) throws E {
-                if (visit.enterList(o)) {
-                    visit.enterListElements(o.length());
+                if (visit.enterList(o, o.length())) {
                     for (IValue v: o) {
                         v.accept(this);
                     }
@@ -87,10 +87,14 @@ public class ReferenceStructuredIValueVisitor {
 
             @Override
             public Void visitSet(ISet o) throws E {
-                if (visit.enterSet(o)) {
-                    visit.enterSetElements(o.size());
-                    for (IValue v: o) {
-                        v.accept(this);
+                if (visit.enterSet(o, o.size())) {
+                    List<IValue> reversedSet = new ArrayList<>();
+                    for (IValue v:  o) {
+                        reversedSet.add(v);
+                    }
+                    ListIterator<IValue> li = reversedSet.listIterator(reversedSet.size());
+                    while (li.hasPrevious()) {
+                        li.previous().accept(this);
                     }
                     visit.leaveSet(o);
                 }
@@ -99,11 +103,16 @@ public class ReferenceStructuredIValueVisitor {
 
             @Override
             public Void visitMap(IMap o) throws E {
-                if (visit.enterMap(o)) {
-                    visit.enterMapElements(o.size());
-                    for (IValue v: o) {
-                        v.accept(this);
-                        o.get(v).accept(this);
+                if (visit.enterMap(o, o.size())) {
+                    List<IValue> reversedMap = new ArrayList<>();
+                    for (IValue v:  o) {
+                        reversedMap.add(v);
+                    }
+                    ListIterator<IValue> li = reversedMap.listIterator(reversedMap.size());
+                    while (li.hasPrevious()) {
+                        IValue k = li.previous();
+                        k.accept(this);
+                        o.get(k).accept(this);
                     }
                     visit.leaveMap(o);
                 }
@@ -118,8 +127,7 @@ public class ReferenceStructuredIValueVisitor {
 
             @Override
             public Void visitTuple(ITuple o) throws E {
-                if (visit.enterTuple(o)) {
-                    visit.enterTupleElements(o.arity());
+                if (visit.enterTuple(o, o.arity())) {
                     for (IValue v: o) {
                         v.accept(this);
                     }
@@ -130,8 +138,7 @@ public class ReferenceStructuredIValueVisitor {
 
             @Override
             public Void visitNode(INode o) throws E {
-                if (visit.enterNode(o)) {
-                    visit.enterNodeArguments(o.arity());
+                if (visit.enterNode(o, o.arity())) {
                     for (IValue v: o) {
                         v.accept(this);
                     }
@@ -141,8 +148,8 @@ public class ReferenceStructuredIValueVisitor {
                             assert okw instanceof AbstractDefaultWithKeywordParameters;
                             AbstractDefaultWithKeywordParameters<INode> nodeKw = (AbstractDefaultWithKeywordParameters<INode>)(okw);
                             ImmutableMap<String, IValue> params = nodeKw.internalGetParameters();
-                            visit.enterNodeKeywordParameters(params.size());
-                            visitNamedValues(params.entryIterator());
+                            visit.enterNodeKeywordParameters();
+                            visitNamedValues(params);
                         }
                     } else {
                         IAnnotatable<? extends INode> oan = o.asAnnotatable();
@@ -150,8 +157,8 @@ public class ReferenceStructuredIValueVisitor {
                             assert oan instanceof AbstractDefaultAnnotatable;
                             AbstractDefaultAnnotatable<INode> nodeAnno = (AbstractDefaultAnnotatable<INode>)(oan);
                             ImmutableMap<String, IValue> annos = nodeAnno.internalGetAnnotations();
-                            visit.enterNodeAnnotations(annos.size());
-                            visitNamedValues(annos.entryIterator());
+                            visit.enterNodeAnnotations();
+                            visitNamedValues(annos);
                         }
                     }
                     visit.leaveNode(o);
@@ -159,28 +166,26 @@ public class ReferenceStructuredIValueVisitor {
                 return null;
             }
 
-            private void visitNamedValues(Iterator<Entry<String, IValue>> iterator) throws E {
-
+            private void visitNamedValues(ImmutableMap<String, IValue> namedValues) throws E {
                 // since the PrePostValueIterator uses a stack, we see the annotations an keyword params in reverse (but in pairs)
                 List<Entry<String, IValue>> reverseEntries = new ArrayList<>();
+                Iterator<Entry<String, IValue>> iterator = namedValues.entryIterator();
                 while (iterator.hasNext()) {
                     Entry<String, IValue> param = iterator.next();
                     reverseEntries.add(0, new AbstractMap.SimpleImmutableEntry<String, IValue>(param.getKey(), param.getValue()));
                 }
-
+                
+                visit.enterNamedValues(reverseEntries.stream().map(e -> e.getKey()).toArray(i -> new String[i]), namedValues.size());
                 for (Entry<String, IValue> ent: reverseEntries) {
-                    visit.enterNamedValue(ent.getKey());
-                    visit.enterNamedValueValue(ent.getValue());
                     ent.getValue().accept(this);
-                    visit.leaveNamedValue();
                 }
+                visit.leaveNamedValue();
             }
 
             @Override
             public Void visitConstructor(IConstructor o) throws E {
                 // clone of visitNode! only different method calls
-                if (visit.enterConstructor(o)) {
-                    visit.enterConstructorArguments(o.arity());
+                if (visit.enterConstructor(o, o.arity())) {
                     for (IValue v: o) {
                         v.accept(this);
                     }
@@ -190,8 +195,8 @@ public class ReferenceStructuredIValueVisitor {
                             assert okw instanceof AbstractDefaultWithKeywordParameters;
                             AbstractDefaultWithKeywordParameters<IConstructor> nodeKw = (AbstractDefaultWithKeywordParameters<IConstructor>)(okw);
                             ImmutableMap<String, IValue> params = nodeKw.internalGetParameters();
-                            visit.enterConstructorKeywordParameters(params.size());
-                            visitNamedValues(params.entryIterator());
+                            visit.enterConstructorKeywordParameters();
+                            visitNamedValues(params);
                         }
                     } else {
                         IAnnotatable<? extends IConstructor> oan = o.asAnnotatable();
@@ -199,8 +204,8 @@ public class ReferenceStructuredIValueVisitor {
                             assert oan instanceof AbstractDefaultAnnotatable;
                             AbstractDefaultAnnotatable<IConstructor> nodeAnno = (AbstractDefaultAnnotatable<IConstructor>)(oan);
                             ImmutableMap<String, IValue> annos = nodeAnno.internalGetAnnotations();
-                            visit.enterConstructorAnnotations(annos.size());
-                            visitNamedValues(annos.entryIterator());
+                            visit.enterConstructorAnnotations();
+                            visitNamedValues(annos);
                         }
                     }
                     visit.leaveConstructor(o);
@@ -222,11 +227,6 @@ public class ReferenceStructuredIValueVisitor {
 
             @Override
             public Void visitExternal(IExternalValue externalValue) throws E {
-                if (visit.enterExternalValue(externalValue)) {
-                    visit.enterExternalValueConstructor();
-                    externalValue.encodeAsConstructor().accept(this);
-                    visit.leaveExternalValue(externalValue);
-                }
                 return null;
             }
 
