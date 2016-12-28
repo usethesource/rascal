@@ -89,7 +89,7 @@ public class RandomValues {
     public static IValue generate(Type tp, TypeStore ts, IValueFactory vf, Random rand, int maxDepth) {
         Type[] randomTypes = new Type[] { 
                 tf.boolType(), tf.stringType(), tf.listType(tf.valueType()), tf.listType(tf.numberType()),
-                tf.sourceLocationType(), tf.integerType(), tf.realType()
+                tf.sourceLocationType(), tf.integerType(), tf.realType(), tf.mapType(tf.valueType(), tf.valueType())
         };
         return tp.accept(new ITypeVisitor<IValue, RuntimeException>() {
             private int currentDepth = 0;
