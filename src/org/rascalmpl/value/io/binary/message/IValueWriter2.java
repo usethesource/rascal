@@ -423,12 +423,13 @@ public class IValueWriter2 {
             }
 
             @Override
-            public boolean enterNode(INode cons) throws IOException {
-                if (writeFromCache(cons)) {
+            public boolean enterNode(INode node) throws IOException {
+                if (writeFromCache(node)) {
                     return false;
                 }
                 writer.startMessage(IValueIDs.NodeValue.ID);
                 writeCanBeBackReferenced(writer);
+                writer.writeField(IValueIDs.NodeValue.NAME, node.getName());
                 return true;
             }
 
