@@ -482,9 +482,21 @@ public class IValueReader2 {
                     backReference = true; 
                     break;
                 case IValueIDs.TupleValue.CHILDREN:
-                    children = new IValue[reader.getRepeatedLength()];
-                    for (int i = 0; i < children.length; i++) {
-                        children[i] = readValue(reader);
+                    int size = reader.getRepeatedLength();
+                    children = new IValue[size];
+                    switch (size) {
+                        case 1: 
+                            children[0] = readValue(reader);
+                            break;
+                        case 2:
+                            children[0] = readValue(reader);
+                            children[1] = readValue(reader);
+                            break;
+                        default:
+                            for (int i = 0; i < children.length; i++) {
+                                children[i] = readValue(reader);
+                            }
+                            break;
                     }
                     break;
                 default:
