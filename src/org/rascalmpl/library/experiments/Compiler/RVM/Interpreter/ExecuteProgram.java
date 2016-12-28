@@ -20,7 +20,7 @@ public class ExecuteProgram {
 	
 
 	public ExecuteProgram(IValueFactory vf) {
-		this.vf =vf;
+		this.vf = vf;
 	}
 	
 	// Library function to serialize a RVMProgram
@@ -31,7 +31,6 @@ public class ExecuteProgram {
 			IBool jvm
 			) throws IOException {
 
-	    TypeStore typeStore = /*new TypeStore();*/ new TypeStore(RascalValueFactory.getStore());
 		RVMExecutable exec = ExecutionTools.link(rvmProgram, jvm);
 		exec.newWrite(rvmProgramLoc, 6);
 	}

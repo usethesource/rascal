@@ -28,11 +28,11 @@ private loc MuLibraryLoc(PathConfig pcfg) = getSearchPathLoc("experiments/Compil
 private str MuLibrary() = "experiments::Compiler::muRascal2RVM::MuLibrary";
 
 tuple[bool, loc] getMuLibraryCompiledReadLoc(PathConfig pcfg) {
-    muLib = pcfg.boot[scheme="compressed+" + pcfg.boot.scheme]  + "experiments/Compiler/muRascal2RVM/MuLibrary.rvm.gz";
+    muLib = pcfg.boot + "experiments/Compiler/muRascal2RVM/MuLibrary.rvm";
     return <exists(muLib), muLib>;
 }
 
-loc getMuLibraryCompiledWriteLoc(PathConfig pcfg) = getDerivedWriteLoc(MuLibrary(), "rvm.gz", pcfg);
+loc getMuLibraryCompiledWriteLoc(PathConfig pcfg) = getDerivedWriteLoc(MuLibrary(), "rvm", pcfg);
 
 alias Resolved = tuple[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors];
 
@@ -521,8 +521,7 @@ RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg,
    start_linking = cpuTime();   
    merged = mergeImports(mainModule, pcfg, verbose=verbose, jvm=jvm);
    link_time = cpuTime() - start_linking;
-   if(verbose) println("linking: <link_time/1000000> msec");
-   //mergedLoc = getDerivedWriteLoc(mainModule.name, "rvm.ser.gz", pcfg);  
+   if(verbose) println("linking: <link_time/1000000> msec");  
    mergedLoc =  RVMExecutableWriteLoc(mainModule.name, pcfg);   
    linkAndSerializeProgram(mergedLoc, merged, jvm);
    return merged;
