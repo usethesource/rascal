@@ -425,7 +425,7 @@ RVMModule mu2rvm(muModule(str module_name,
     usedFunctions = {};
    
     //println("*** " + functionScope);
-    //iprintln(fun.body);
+    iprintln(fun.body);
     
     failInfo = findFail(fun.body);
     
@@ -438,7 +438,7 @@ RVMModule mu2rvm(muModule(str module_name,
     
     //code = peephole(code);
     
-    //iprintln(code);
+    iprintln(code);
     //
     //println("Used overloaded Functions:");
     //for(uf <- usedOverloadedFunctions){
