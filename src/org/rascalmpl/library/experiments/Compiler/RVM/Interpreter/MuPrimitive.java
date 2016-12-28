@@ -1986,15 +1986,18 @@ public enum MuPrimitive {
 		throw RascalRuntimeException.notImplemented("MuPrimitive.execute0 " + name(), null, null);
 	}
 	
-	public Object execute1(final Object arg_1) {
+	@SuppressWarnings("unused")
+    public Object execute1(final Object arg_1) {
 	  throw RascalRuntimeException.notImplemented("MuPrimitive.execute1 " + name(), null, null);
 	}
 	
-	public Object execute2(final Object arg_2, final Object arg_1) {
+	@SuppressWarnings("unused")
+    public Object execute2(final Object arg_2, final Object arg_1) {
 	  throw RascalRuntimeException.notImplemented("MuPrimitive.execute2 " + name(), null, null);
 	}
 	
-	public int executeN(final Object[] stack, final int sp, final int arity) {
+	@SuppressWarnings("unused")
+    public int executeN(final Object[] stack, final int sp, final int arity) {
 	  throw RascalRuntimeException.notImplemented("MuPrimitive.executeN " + name(), null, null);
 	}
 	

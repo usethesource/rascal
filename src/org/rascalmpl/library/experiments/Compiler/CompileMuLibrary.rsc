@@ -14,7 +14,7 @@ private loc MuLibraryLoc(PathConfig pcfg) = getSearchPathLoc("experiments/Compil
 
 private str MuLibrary() = "experiments::Compiler::muRascal2RVM::MuLibrary";
 
-loc getMuLibraryCompiledWriteLoc(PathConfig pcfg) = getDerivedWriteLoc(MuLibrary(), "rvm.gz", pcfg);
+loc getMuLibraryCompiledWriteLoc(PathConfig pcfg) = getDerivedWriteLoc(MuLibrary(), "rvm", pcfg);
 
 list[RVMDeclaration] compileMuLibrary(PathConfig pcfg, bool verbose = false, bool jvm=true){
     str basename(loc l) = l.file[ .. findFirst(l.file, ".")];  // TODO: for library

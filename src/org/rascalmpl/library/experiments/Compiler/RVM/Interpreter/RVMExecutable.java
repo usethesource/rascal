@@ -451,11 +451,12 @@ public class RVMExecutable implements Serializable{
     }
 	
 	public static RVMExecutable newRead(ISourceLocation rvmExecutable, TypeStore typeStore) throws IOException{
+	    System.err.println("newRead: " + rvmExecutable);
 	    try(InputStream in = URIResolverRegistry.getInstance().getInputStream(rvmExecutable)){
 	        byte[] header = new byte[EXEC_HEADER.length];
 	        in.read(header);
 	        if(Arrays.equals(header, EXEC_HEADER)){
-	            
+	            System.err.println("newRead: use new serialization");
 	            byte[] version = new byte[EXEC_VERSION.length];
 	            in.read(version);
 	            if(!Arrays.equals(version, EXEC_VERSION)){
@@ -470,8 +471,9 @@ public class RVMExecutable implements Serializable{
 	                return read(win, ValueFactoryFactory.getValueFactory());
 	            }                      
 	        } else {
+	            System.err.println("newRead: fall back to FST");
 	            vf = ValueFactoryFactory.getValueFactory();
-	            FSTSerializableType.initSerialization(vf, typeStore);
+	            FSTSerializableType.initSerialization(typeStore);
 	            FSTSerializableIValue.initSerialization(vf, typeStore);
 	        
 	            FSTRVMExecutableSerializer.initSerialization(vf, typeStore);
@@ -479,7 +481,7 @@ public class RVMExecutable implements Serializable{
 	            FSTCodeBlockSerializer.initSerialization(typeStore);
 	        
 	            try (InputStream fileIn = new SequenceInputStream(new ByteArrayInputStream(header), in);
-	                    FSTObjectInput fstIn = new FSTObjectInput(fileIn, makeFSTConfig(rvmExecutable))) {
+	                 FSTObjectInput fstIn = new FSTObjectInput(fileIn, makeFSTConfig(rvmExecutable))) {
 	                return (RVMExecutable) fstIn.readObject(RVMExecutable.class);
 	            } catch (ClassNotFoundException c) {
 	                throw new IOException("Class not found: " + c.getMessage(), c);
@@ -638,7 +640,7 @@ public class RVMExecutable implements Serializable{
                     int n = in.getRepeatedLength();
                     overloadedStore = new OverloadedFunction[n];
                     for(int i = 0; i < n; i++){
-                        overloadedStore[i] = OverloadedFunction.read(in, vf);
+                        overloadedStore[i] = OverloadedFunction.read(in);
                     }
                     break;
                 }
@@ -694,7 +696,7 @@ public class RVMExecutable implements Serializable{
 		vf = ValueFactoryFactory.getValueFactory();
 //		TypeStore typeStore = new TypeStore(RascalValueFactory.getStore());
 		
-		FSTSerializableType.initSerialization(vf, typeStore);
+		FSTSerializableType.initSerialization(typeStore);
 		FSTSerializableIValue.initSerialization(vf, typeStore);
 	
 		FSTRVMExecutableSerializer.initSerialization(vf, typeStore);

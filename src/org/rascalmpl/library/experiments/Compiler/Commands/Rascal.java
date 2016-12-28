@@ -20,9 +20,9 @@ public class Rascal {
         sw.append(bin.getPath())
         .append("/")
         .append(moduleName.replaceAll("::", "/"))
-        .append(".rvm.ser.gz");
+        .append(".rvmx");
         try {
-            return vf.sourceLocation("compressed+" + bin.getScheme(), bin.getAuthority(), sw.toString());
+            return vf.sourceLocation(bin.getScheme(), bin.getAuthority(), sw.toString());
         } catch (URISyntaxException e) {
             System.err.println(e.getMessage());
             System.exit(-1);
