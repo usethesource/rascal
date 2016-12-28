@@ -70,13 +70,13 @@ import org.rascalmpl.value.visitors.NullVisitor;
     @SuppressWarnings("deprecation")
     private Void acceptKWAnno(IValue o) {
         if (o.mayHaveKeywordParameters()) {
-            for (IValue v: o.asWithKeywordParameters().getParameters().values()) {
-                v.accept(this);
+            for (Entry<String, IValue> v: o.asWithKeywordParameters().getParameters().entrySet()) {
+                v.getValue().accept(this);
             }
         }
         else if (o.isAnnotatable()) {
-            for (IValue v: o.asAnnotatable().getAnnotations().values()) {
-                v.accept(this);
+            for (Entry<String, IValue> v: o.asAnnotatable().getAnnotations().entrySet()) {
+                v.getValue().accept(this);
             }
         }
         return null;
