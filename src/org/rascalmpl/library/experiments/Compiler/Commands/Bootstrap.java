@@ -253,6 +253,9 @@ public class Bootstrap {
                 
                 /*------------------------------------------,-CODE---------,-RVM---,-KERNEL---,-TESTS--*/
                 time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[1], "|noreloc:///|"));
+                
+                time("Postprocessing phase1 files", () -> postProcessBuild(phaseFolder(1, tmpDir)));
+                
                 time("Phase 2", () -> compilePhase(tmpDir, 2, librarySource, rvm[1], kernel[1], rvm[1], "|std:///|"));
                 
                 if(validatingBootstrap){
@@ -279,8 +282,6 @@ public class Bootstrap {
                 if(withCourses){
                    time("Compiling courses", () -> compileCourses(rvm[1], kernel[2], librarySource, courseSource, phase2Folder));
                 }
-                
-                time("Postprocessing bootstrapped files", () -> postProcessBuild(Paths.get(kernel[2])));
                 
                 // The result of the final compilation phase is copied to the bin folder such that it can be deployed with the other compiled (class) files
                 time("Copying bootstrapped files", () -> copyResult(new File(kernel[2]).toPath(), targetFolder.resolve("boot")));
@@ -456,8 +457,13 @@ public class Bootstrap {
       time("- compile MuLibrary",       () -> compileMuLibrary(phase, classPath, bootPath, sourcePath, result));
       time("- compile Kernel",          () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel", reloc));
       time("- compile ParserGenerator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator", reloc));
-      time("- compile tests",           () -> compileTests    (phase, classPath, result.toAbsolutePath().toString(), sourcePath, testResults));
-      time("- run tests",               () -> runTests        (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, testResults));
+      if(phase == 1){
+          time("Postprocessing phase1 result", () -> postProcessBuild(result));
+      }
+      if(phase >= 2){
+          time("- compile tests",           () -> compileTests    (phase, classPath, result.toAbsolutePath().toString(), sourcePath, testResults));
+          time("- run tests",               () -> runTests        (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, testResults));
+      }
       return result;
     }
 
@@ -673,19 +679,21 @@ public class Bootstrap {
     }
     
     public static Path preprocessDeployed(final Path deployed) throws IOException {
-        System.err.println("BOOTSTRAP:Preprocessing deployed jar: " + deployed);
         
-        URIResolverRegistry registry = URIResolverRegistry.getInstance();
-        IValueFactory vf = ValueFactoryFactory.getValueFactory();
-        
-        Path preprocessed = deployed.getParent().resolve("deployed-preprocessed");
-        Files.deleteIfExists(preprocessed);
-        if(!Files.exists(preprocessed)){
-            Files.createDirectory(preprocessed);
-        }
-        JarInputStreamFileTree in = new JarInputStreamFileTree(registry.getInputStream(vf.sourceLocation(deployed.toString())));
-        crawlJar(deployed, in, Paths.get(""), preprocessed);
-        return preprocessed;
+        return deployed;
+//        System.err.println("BOOTSTRAP:Preprocessing deployed jar: " + deployed);
+//        
+//        URIResolverRegistry registry = URIResolverRegistry.getInstance();
+//        IValueFactory vf = ValueFactoryFactory.getValueFactory();
+//        
+//        Path preprocessed = deployed.getParent().resolve("deployed-preprocessed");
+//        Files.deleteIfExists(preprocessed);
+//        if(!Files.exists(preprocessed)){
+//            Files.createDirectory(preprocessed);
+//        }
+//        JarInputStreamFileTree in = new JarInputStreamFileTree(registry.getInputStream(vf.sourceLocation(deployed.toString())));
+//        crawlJar(deployed, in, Paths.get(""), preprocessed);
+//        return preprocessed;
     }
     
     public static void postProcessBuild(final Path build){
@@ -785,16 +793,22 @@ class RVMFileCompareAndCount implements FileVisitor<Path> {
 
 class Postprocessor implements FileVisitor<Path> {
     
+//    private static void uncompressAndCopy(String oldFile, String newFile) throws IOException{
+//        System.err.println("Postprocessor copy: " + oldFile + " to " + newFile);
+//        Files.copy(Paths.get(oldFile), Paths.get(newFile), StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.COPY_ATTRIBUTES);
+//    }
+    
     private final static int BUFLEN = 100000;
     private final static URIResolverRegistry registry = URIResolverRegistry.getInstance();
-    private final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+    private final static  IValueFactory vf = ValueFactoryFactory.getValueFactory();
     
-    private static void compressAndCopy(String oldFile, String newFile) throws IOException{
+    private static void uncompressAndCopy(String oldFile, String newFile) throws IOException{
         ISourceLocation iloc;
         ISourceLocation oloc;
+        System.err.println("uncompressAndCopy " + oldFile + " to " + newFile);
         try {
-            iloc = vf.sourceLocation("file", "", oldFile);
-            oloc = vf.sourceLocation("compressed+file", "", newFile);
+            iloc = vf.sourceLocation("compressed+file", "", oldFile);
+            oloc = vf.sourceLocation("file", "", newFile);
         }
         catch (URISyntaxException e) {
             throw new IOException("Cannot create locations: " + e.getMessage());
@@ -819,18 +833,18 @@ class Postprocessor implements FileVisitor<Path> {
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
         String path = file.toString();
-        if(path.endsWith(".rvm")){
-            compressAndCopy(path, path + ".gz");
+        if(path.endsWith(".rvm.gz")){
+            uncompressAndCopy(path, path.replaceAll("\\.gz", ""));
         }
-        if(path.endsWith(".rvmx")){
-            compressAndCopy(path, path.replaceAll("\\.rvmx", "") +" .rvm.ser.gz");
+        if(path.endsWith(".rvm.ser.gz")){
+            uncompressAndCopy(path, path.replaceAll("\\.rvm\\.ser\\.gz", "") + ".rvmx");
         }
         return FileVisitResult.CONTINUE;
     }
 
     @Override
     public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-      throw new RuntimeException(exc.getMessage());
+      throw new RuntimeException("Cannot visit file " + exc.getMessage());
     }
 
     @Override
