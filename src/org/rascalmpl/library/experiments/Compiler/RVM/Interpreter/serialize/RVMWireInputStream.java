@@ -65,7 +65,7 @@ public class RVMWireInputStream implements IRVMWireInputStream {
                     result = (T) window.lookBack(getInteger());
                     break;
                 case CompilerIDs.NestedType.VALUE:
-                    result = (T) IValueReader.read(stream, vf);
+                    result = (T) IValueReader.readValue(stream, vf);
                     window.read(result);
                     break;
             }
