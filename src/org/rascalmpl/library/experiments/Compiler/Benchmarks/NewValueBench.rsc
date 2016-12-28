@@ -49,12 +49,13 @@ public java &T readBinaryValueFileOld(type[&T] result, loc file);
 public java int __getFileSize(loc file);
 
 loc targetLoc = |test-temp:///value-io.bench|;
+loc targetLocPre = |test-temp:///value-io2.bench|;
 //loc targetLocOld = |test-temp:///value-io2.bench|;
 loc targetLocOld = |compressed+test-temp:///value-io.bench.gz|;
 void bench(str name, type[&T] result, value v, int warmup, int measure) {
     for (i <- [0..warmup]) {
         writeBinaryValueFile(targetLoc, v);
-        writeBinaryValueFilePrefix(targetLoc, v);
+        writeBinaryValueFilePrefix(targetLocPre, v);
         writeBinaryValueFileOld(targetLoc, v, compression = false);
     }
     printTime("<name>-new-write", cpuTime(() { 
@@ -65,10 +66,10 @@ void bench(str name, type[&T] result, value v, int warmup, int measure) {
     println("<name>-new-size: <__getFileSize(targetLoc)>");
     printTime("<name>-pre-write", cpuTime(() { 
         for (i <- [0..measure]) {
-            writeBinaryValueFilePrefix(targetLoc, v);
+            writeBinaryValueFilePrefix(targetLocPre, v);
         }
     }) / measure);
-    println("<name>-pre-size: <__getFileSize(targetLoc)>");
+    println("<name>-pre-size: <__getFileSize(targetLocPre)>");
     printTime("<name>-old-write", cpuTime(() { 
         for (i <- [0..measure]) {
             writeBinaryValueFileOld(targetLocOld, v, compression=false);
@@ -79,7 +80,7 @@ void bench(str name, type[&T] result, value v, int warmup, int measure) {
     v = "";
     for (i <- [0..warmup]) {
         readBinaryValueFile(result, targetLoc);
-        readBinaryValueFilePrefix(result, targetLoc);
+        readBinaryValueFilePrefix(result, targetLocPre);
         readBinaryValueFileOld(result, targetLocOld);
     }
     printTime("<name>-new-read ", cpuTime(() { 
@@ -89,7 +90,7 @@ void bench(str name, type[&T] result, value v, int warmup, int measure) {
     })/ measure);
     printTime("<name>-pre-read ", cpuTime(() { 
         for (i <- [0..measure]) {
-            readBinaryValueFilePrefix(result, targetLoc);
+            readBinaryValueFilePrefix(result, targetLocPre);
         }
     })/ measure);
     printTime("<name>-old-read ", cpuTime(() { 
@@ -100,6 +101,7 @@ void bench(str name, type[&T] result, value v, int warmup, int measure) {
 }
 
 
+/*
 void benchNew(str name, type[&T] result, value v, int warmup, int measure, list[ValueIOCompression] compressions) {
     <report, done> = progressReporter("<name>-");
     for (i <- [0..warmup], c <- compressions) {
@@ -129,6 +131,7 @@ void benchNew(str name, type[&T] result, value v, int warmup, int measure, list[
     }
     println();
 }
+*/
 
 
 @memo
@@ -158,12 +161,14 @@ void benchValueIOSmall(loc rascalRoot = |home:///PhD/workspace-rascal-source/ras
 }
 
 
+/*
 void benchValueIO2(loc rascalRoot = |home:///PhD/workspace-rascal-source/rascal/|, int warmup = 10, int measure = 10, list[ValueIOCompression] compr = [fast(), normal(), strong()]) {
     benchNew("parse trees", #list[Tree], getTrees(), warmup, measure, compr);
     benchNew("int list", #list[int], [i, i*2,i*3 | i <- [1..1000000]], warmup, measure, compr);
     benchNew("str list", #list[str], ["aaa<i>asf<i *3>" | i <- [1..100000]], warmup, measure, compr);
     benchNew("m3 asts", #set[Declaration], getRascalASTs(rascalRoot), warmup, measure,compr);
 }
+*/
 
 void writeInterestingFile(loc target, loc rascalRoot = |home:///PhD/workspace-rascal-source/rascal/|) {
     println("Reading trees");
