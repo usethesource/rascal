@@ -575,10 +575,10 @@ public class IValueReader2 {
                     }
                     break;
                 case IValueIDs.NodeValue.KWPARAMS: 
-                    kwParams = readNamedValues(reader, reader.getRepeatedLength());
+                    kwParams = readNamedValues(reader);
                     break;
                 case IValueIDs.NodeValue.ANNOS: 
-                    annos = readNamedValues(reader, reader.getRepeatedLength());
+                    annos = readNamedValues(reader);
                     break;
             }
         }
@@ -621,10 +621,10 @@ public class IValueReader2 {
                     }
                     break;
                 case IValueIDs.ConstructorValue.KWPARAMS: 
-                    kwParams = readNamedValues(reader, reader.getRepeatedLength());
+                    kwParams = readNamedValues(reader);
                     break;
                 case IValueIDs.ConstructorValue.ANNOS: 
-                    annos = readNamedValues(reader, reader.getRepeatedLength());
+                    annos = readNamedValues(reader);
                     break;
             }
         }
@@ -645,26 +645,22 @@ public class IValueReader2 {
 
 
 
-    private ImmutableMap<String, IValue> readNamedValues(IWireInputStream reader, int amount) throws IOException {
+    private ImmutableMap<String, IValue> readNamedValues(IWireInputStream reader) throws IOException {
         TransientMap<String, IValue> result = TrieMap_5Bits.transientOf();
-        for (int i = 0; i < amount; i++) {
-            String key = null;
-            IValue value = null;
-            reader.next();
-            while (reader.next() != IWireInputStream.MESSAGE_END) {
-                switch(reader.field()){
-                    case IValueIDs.NamedValue.NAME:
-                        key = reader.getString();
-                        break;
-                    case IValueIDs.NamedValue.VALUE:
-                        value = readValue(reader);
-                        break;
-                    default:
-                        reader.skipNestedField();
-                        break;
-                }
+        String[] names = null;
+        reader.next();
+        while (reader.next() != IWireInputStream.MESSAGE_END) {
+            switch(reader.field()){
+                case IValueIDs.NamedValues.NAMES:
+                    names = reader.getStrings();
+                    break;
+                case IValueIDs.NamedValues.VALUES:
+                    assert names != null && names.length == reader.getRepeatedLength();
+                    for (String name: names) {
+                        result.__put(name, readValue(reader));
+                    }
+                    break;
             }
-            result.__put(key, value);
         }
         return result.freeze();
     }

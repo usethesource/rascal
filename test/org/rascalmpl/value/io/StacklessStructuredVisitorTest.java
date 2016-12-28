@@ -15,14 +15,16 @@ package org.rascalmpl.value.io;
 import static org.junit.Assert.assertEquals;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import org.junit.Test;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IDateTime;
-import org.rascalmpl.value.IExternalValue;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;
@@ -46,12 +48,17 @@ import org.rascalmpl.values.ValueFactoryFactory;
 public class StacklessStructuredVisitorTest {
 	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
-	
-	
-
     @Test
     public void singleString() {
         testVisitStructure(vf.string("a"));
+    }
+
+    @Test
+    public void nodeWithAnnotations() {
+        Map<String, IValue> kws = new HashMap<>();
+        kws.put("arg1", vf.integer(2));
+        kws.put("arg2", vf.integer(3));
+        testVisitStructure(vf.node("basicNode", new IValue[] {vf.integer(1), vf.string("a") }, kws));
     }
 
 
@@ -79,7 +86,7 @@ public class StacklessStructuredVisitorTest {
         TypeStore ts = new TypeStore();
         Type tp = RandomValues.addNameType(ts);
         Random r = new Random(42);
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 100; i++) {
             testVisitStructure(RandomValues.generate(tp, ts, vf, r, 10));
         }
     }
@@ -88,7 +95,7 @@ public class StacklessStructuredVisitorTest {
         TypeStore ts = new TypeStore();
         Type tp = RandomValues.addNameType(ts);
         Random r = new Random(42);
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 100; i++) {
             testVisitStructureSkipped(RandomValues.generate(tp, ts, vf, r, 10));
         }
     }
@@ -98,150 +105,106 @@ public class StacklessStructuredVisitorTest {
 	    public List<Object> result = new ArrayList<>();
 
 	    @Override
-	    public void enterNamedValue(String name) {
-	        result.add(name);
+	    public void enterNamedValues(String[] names, int numberOfNestedValues) {
+	        result.add(Arrays.toString(names));
+	        result.add(numberOfNestedValues);
 	    }
 	    
-	    @Override
-	    public void enterNamedValueValue(IValue val) {
-	        result.add(val);
-	        
-	    }
 	    @Override
 	    public void leaveNamedValue() {
             result.add("leave");
 	    }
-
 	    
         @Override
-        public boolean enterConstructor(IConstructor cons) throws RuntimeException {
+        public boolean enterConstructor(IConstructor cons, int children) throws RuntimeException {
             result.add(cons);
+            result.add(children);
             return true;
         }
 
         @Override
-        public void enterConstructorArguments(int arity) throws RuntimeException {
-            result.add("pa:" + arity);
+        public void enterConstructorKeywordParameters() throws RuntimeException {
+            result.add("kw");
         }
 
         @Override
-        public void enterConstructorKeywordParameters(int arity) throws RuntimeException {
-            result.add("kw:" + arity);
+        public void enterConstructorAnnotations() throws RuntimeException {
+            result.add("an");
         }
 
         @Override
-        public void enterConstructorAnnotations(int arity) throws RuntimeException {
-            result.add("an:" + arity);
-        }
-
-        @Override
-        public void leaveConstructor(IConstructor cons) throws RuntimeException {
+        public void leaveConstructor(IValue cons) throws RuntimeException {
             result.add("leave");
         }
 
         @Override
-        public boolean enterNode(INode cons) throws RuntimeException {
+        public boolean enterNode(INode cons, int children) throws RuntimeException {
             result.add(cons);
+            result.add(children);
             return true;
         }
 
         @Override
-        public void enterNodeArguments(int arity) throws RuntimeException {
-            result.add("pa:" + arity);
+        public void enterNodeKeywordParameters() throws RuntimeException {
+            result.add("kw");
         }
 
         @Override
-        public void enterNodeKeywordParameters(int arity) throws RuntimeException {
-            result.add("kw:" + arity);
+        public void enterNodeAnnotations() throws RuntimeException {
+            result.add("an");
         }
 
         @Override
-        public void enterNodeAnnotations(int arity) throws RuntimeException {
-            result.add("an:" + arity);
-        }
-
-        @Override
-        public void leaveNode(INode node) throws RuntimeException {
+        public void leaveNode(IValue node) throws RuntimeException {
             result.add("leave");
         }
 
         @Override
-        public boolean enterList(IList lst) throws RuntimeException {
+        public boolean enterList(IList lst, int children) throws RuntimeException {
             result.add(lst);
+            result.add(children);
             return true;
         }
 
         @Override
-        public void enterListElements(int arity) throws RuntimeException {
-            result.add(arity);
-        }
-
-        @Override
-        public void leaveList(IList list) throws RuntimeException {
+        public void leaveList(IValue list) throws RuntimeException {
             result.add("leave");
         }
 
         @Override
-        public boolean enterSet(ISet set) throws RuntimeException {
+        public boolean enterSet(ISet set, int elements) throws RuntimeException {
             result.add(set);
+            result.add(elements);
             return true;
         }
 
         @Override
-        public void enterSetElements(int arity) throws RuntimeException {
-            result.add(arity);
-        }
-
-        @Override
-        public void leaveSet(ISet set) throws RuntimeException {
+        public void leaveSet(IValue set) throws RuntimeException {
             result.add("leave");
         }
 
         @Override
-        public boolean enterMap(IMap map) throws RuntimeException {
+        public boolean enterMap(IMap map, int elements) throws RuntimeException {
             result.add(map);
+            result.add(elements);
             return true;
         }
 
-        @Override
-        public void enterMapElements(int arity) throws RuntimeException {
-            result.add(arity);
-        }
 
         @Override
-        public void leaveMap(IMap map) throws RuntimeException {
+        public void leaveMap(IValue map) throws RuntimeException {
             result.add("leave");
         }
 
         @Override
-        public boolean enterTuple(ITuple tuple) throws RuntimeException {
+        public boolean enterTuple(ITuple tuple, int arity) throws RuntimeException {
             result.add(tuple);
-            return true;
-        }
-
-        @Override
-        public void enterTupleElements(int arity) throws RuntimeException {
             result.add(arity);
-        }
-
-        @Override
-        public void leaveTuple(ITuple tuple) throws RuntimeException {
-            result.add("leave");
-        }
-
-        @Override
-        public boolean enterExternalValue(IExternalValue externalValue) throws RuntimeException {
-            result.add(externalValue);
             return true;
         }
 
         @Override
-        public void enterExternalValueConstructor() throws RuntimeException {
-            result.add("cons");
-        }
-
-        @Override
-        public void leaveExternalValue(IExternalValue ext) throws RuntimeException {
+        public void leaveTuple(IValue tuple) throws RuntimeException {
             result.add("leave");
         }
 
@@ -283,8 +246,8 @@ public class StacklessStructuredVisitorTest {
 	
 	private static class CollectAllSkipping extends CollectAll {
 	    @Override
-	    public boolean enterList(IList lst) throws RuntimeException {
-	        super.enterList(lst);
+	    public boolean enterList(IList lst, int children) throws RuntimeException {
+	        super.enterList(lst, children);
 	        return false;
 	    }
 	}
@@ -308,7 +271,7 @@ public class StacklessStructuredVisitorTest {
     private void compareLists(List<Object> expected, List<Object> actual) {
         assertEquals("We should visit the same amount of elements", expected.size(), actual.size());
         for (int i=0; i < expected.size(); i++) {
-            assertEquals("The " + i + "th element in the stream differs", expected.get(i), actual.get(i));
+            assertEquals(expected.get(i), actual.get(i));
         }
     }
 
