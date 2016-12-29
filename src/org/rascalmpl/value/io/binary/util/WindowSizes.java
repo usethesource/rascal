@@ -12,8 +12,6 @@
  */ 
 package org.rascalmpl.value.io.binary.util;
 
-import org.rascalmpl.value.IValue;
-
 public class WindowSizes {
     public final int uriWindow;
     public final int typeWindow;
@@ -43,21 +41,6 @@ public class WindowSizes {
     }
     public static final WindowSizes NO_WINDOW = new WindowSizes(0, 0, 0, 0);
     public static final WindowSizes TINY_WINDOW = new WindowSizes(500, 200, 100, 500);
-    public static final WindowSizes SMALL_WINDOW = new WindowSizes(5_000, 1_000, 800, 1_000);
-    public static final WindowSizes NORMAL_WINDOW = new WindowSizes(100_000, 40_000, 5_000, 10_000);
-
-    private static final int SMALL_SIZE = 512;
-    private static final int NORMAL_SIZE = 8*1024;
-    public static WindowSizes estimateWindowSize(IValue value) {
-        int estimatedSize = IValueSizeEstimator.estimateIValueSize(value, NORMAL_SIZE);
-        if (estimatedSize < SMALL_SIZE) {
-            return TINY_WINDOW;
-        }
-        else if (estimatedSize < NORMAL_SIZE) {
-            return SMALL_WINDOW;
-        }
-        else {
-            return NORMAL_WINDOW;
-        }
-    }
+    public static final WindowSizes SMALL_WINDOW = new WindowSizes(10_000, 1_000, 800, 5_000);
+    public static final WindowSizes NORMAL_WINDOW = new WindowSizes(200_000, 40_000, 5_000, 40_000);
 }
