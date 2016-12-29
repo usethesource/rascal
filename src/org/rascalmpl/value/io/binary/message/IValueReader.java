@@ -29,12 +29,14 @@ import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.binary.stream.IValueInputStream;
 import org.rascalmpl.value.io.binary.util.TrackLastRead;
 import org.rascalmpl.value.io.binary.util.WindowCacheFactory;
 import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import io.usethesource.capsule.ImmutableMap;
 import io.usethesource.capsule.TransientMap;
@@ -48,7 +50,7 @@ public class IValueReader {
     private static final TypeFactory tf = TypeFactory.getInstance();
 
     /**
-     * Read an value from the wire reader. <br/>
+     * Read a value from the wire reader. <br/>
      * <br/>
      * In most cases you want to use the {@linkplain IValueInputStream}!
      */
@@ -65,7 +67,7 @@ public class IValueReader {
                 case IValueIDs.Header.TYPE_WINDOW: typeWindowSize = reader.getInteger();  break;
                 case IValueIDs.Header.SOURCE_LOCATION_WINDOW: uriWindowSize = reader.getInteger();  break;
                 case IValueIDs.Header.VALUE: {
-                    IValueReader valueReader = new IValueReader(vf, new TypeStore(), typeWindowSize, valueWindowSize, uriWindowSize);
+                    IValueReader valueReader = new IValueReader(vf, makeTypeStore(), typeWindowSize, valueWindowSize, uriWindowSize);
                     try {
                         IValue result = valueReader.readValue(reader);
                         reader.skipMessage();
@@ -83,7 +85,7 @@ public class IValueReader {
     }
 
     /**
-     * Read an type from the wire reader. 
+     * Read a type from the wire reader. 
      */
     public static Type readType(IWireInputStream reader, IValueFactory vf) throws IOException {
         int typeWindowSize = 0;
@@ -98,7 +100,7 @@ public class IValueReader {
                 case IValueIDs.Header.TYPE_WINDOW: typeWindowSize = reader.getInteger();  break;
                 case IValueIDs.Header.SOURCE_LOCATION_WINDOW: uriWindowSize = reader.getInteger();  break;
                 case IValueIDs.Header.TYPE: {
-                    IValueReader valueReader = new IValueReader(vf, new TypeStore(), typeWindowSize, valueWindowSize, uriWindowSize);
+                    IValueReader valueReader = new IValueReader(vf, makeTypeStore(), typeWindowSize, valueWindowSize, uriWindowSize);
                     try {
                         Type result = valueReader.readType(reader);
                         reader.skipMessage();
@@ -130,6 +132,15 @@ public class IValueReader {
         windowFactory.returnTrackLastRead(valueWindow);
         windowFactory.returnTrackLastRead(uriWindow);
     }
+    
+    private static TypeStore makeTypeStore(){
+        TypeStore typeStore = new TypeStore();
+        typeStore.declareAbstractDataType(RascalValueFactory.Type);
+        typeStore.declareConstructor(RascalValueFactory.Type_Reified);
+        typeStore.declareAbstractDataType(RascalValueFactory.ADTforType);
+        return typeStore;
+    }
+    
     private final IValueFactory vf;
     private final TypeStore store;
     private final TrackLastRead<Type> typeWindow;
@@ -286,7 +297,7 @@ public class IValueReader {
                     }
                 }
 
-                return returnAndStore(backReference, typeWindow, tf.fromSymbol(symbol, new TypeStore(), p -> Collections.emptySet()));
+                return returnAndStore(backReference, typeWindow, tf.fromSymbol(symbol, makeTypeStore(), p -> Collections.emptySet()));
             }
 
             case IValueIDs.ListType.ID:    {
@@ -918,5 +929,5 @@ public class IValueReader {
 
         return vf.bool(value);
     }
+  
 }
-
