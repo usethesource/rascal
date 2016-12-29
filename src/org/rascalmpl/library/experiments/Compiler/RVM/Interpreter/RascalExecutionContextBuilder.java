@@ -35,8 +35,6 @@ public class RascalExecutionContextBuilder {
 	private boolean trace = false;
 	private boolean verbose = false;
 	
-	private TypeStore typeStore = null;
-	
 	private IMap symbolDefinitions = null ;
 	private IMap moduleTags = null;
 	private Map<IValue,IValue> moduleVariables;
@@ -77,7 +75,6 @@ public class RascalExecutionContextBuilder {
 	                                                               stderr, 
 	                                                               moduleTags, 
 	                                                               symbolDefinitions, 
-	                                                               typeStore, 
 	                                                               frameObserver, 
 	                                                               ideServices, 
 	                                                               coverage, 
@@ -169,12 +166,6 @@ public class RascalExecutionContextBuilder {
 	    this.moduleVariables = moduleVariables;
 	    return this;
 	}
-	
-	public RascalExecutionContextBuilder withTypeStore(TypeStore typeStore) {
-	    assert !build;
-        this.typeStore = typeStore;
-        return this;
-    }
 	
 	public RascalExecutionContextBuilder observedBy(IFrameObserver obs) {
 	    assert !build;

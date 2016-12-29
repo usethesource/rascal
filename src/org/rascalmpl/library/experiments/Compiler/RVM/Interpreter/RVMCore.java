@@ -192,7 +192,10 @@ public abstract class RVMCore {
 	}
 	
 	public TypeStore getTypeStore() { 
-        return typeStore == null ? new TypeReifier(vf).buildTypeStore(symbol_definitions) : typeStore;
+       if(typeStore == null){
+           typeStore = new TypeReifier(vf).buildTypeStore(symbol_definitions);
+       }
+       return typeStore;
     }
 	
 	void mappifyOverloadedStore(){
