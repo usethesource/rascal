@@ -102,7 +102,14 @@ public class BinaryWireOutputStream implements IWireOutputStream {
     public void writeField(int fieldId, byte[] value) throws IOException {
         assertNotClosed();
         writeFieldTag(fieldId, FieldKind.REPEATED);
-        stream.writeUInt32NoTag(TaggedInt.make(value.length, FieldKind.Repeated.BYTES));
+        int size = value.length;
+        if (size <= TaggedInt.MAX_ORIGINAL_VALUE) {
+            stream.writeUInt32NoTag(TaggedInt.make(size, FieldKind.Repeated.BYTES));
+        }
+        else {
+            stream.writeUInt32NoTag(TaggedInt.make(TaggedInt.MAX_ORIGINAL_VALUE, FieldKind.Repeated.BYTES));
+            stream.writeUInt32NoTag(size);
+        }
         stream.writeRawBytes(value, 0, value.length);
     }
     
@@ -110,7 +117,14 @@ public class BinaryWireOutputStream implements IWireOutputStream {
     public void writeField(int fieldId, int[] values) throws IOException {
         assertNotClosed();
         writeFieldTag(fieldId, FieldKind.REPEATED);
-        stream.writeUInt32NoTag(TaggedInt.make(values.length, FieldKind.Repeated.INTS));
+        int size = values.length;
+        if (size <= TaggedInt.MAX_ORIGINAL_VALUE) {
+            stream.writeUInt32NoTag(TaggedInt.make(size, FieldKind.Repeated.INTS));
+        }
+        else {
+            stream.writeUInt32NoTag(TaggedInt.make(TaggedInt.MAX_ORIGINAL_VALUE, FieldKind.Repeated.INTS));
+            stream.writeUInt32NoTag(size);
+        }
         for (int v : values) {
             stream.writeUInt32NoTag(v);
         }
@@ -120,7 +134,14 @@ public class BinaryWireOutputStream implements IWireOutputStream {
     public void writeField(int fieldId, String[] values) throws IOException {
         assertNotClosed();
         writeFieldTag(fieldId, FieldKind.REPEATED);
-        stream.writeUInt32NoTag(TaggedInt.make(values.length, FieldKind.Repeated.STRINGS));
+        int size = values.length;
+        if (size <= TaggedInt.MAX_ORIGINAL_VALUE) {
+            stream.writeUInt32NoTag(TaggedInt.make(size, FieldKind.Repeated.STRINGS));
+        }
+        else {
+            stream.writeUInt32NoTag(TaggedInt.make(TaggedInt.MAX_ORIGINAL_VALUE, FieldKind.Repeated.STRINGS));
+            stream.writeUInt32NoTag(size);
+        }
         for (String s : values) {
             writeString(s);
         }
@@ -148,7 +169,13 @@ public class BinaryWireOutputStream implements IWireOutputStream {
     public void writeRepeatedNestedField(int fieldId, int numberOfNestedElements) throws IOException {
         assertNotClosed();
         writeFieldTag(fieldId, FieldKind.REPEATED);
-        stream.writeUInt32NoTag(TaggedInt.make(numberOfNestedElements, FieldKind.Repeated.NESTEDS));
+        if (numberOfNestedElements <= TaggedInt.MAX_ORIGINAL_VALUE) {
+            stream.writeUInt32NoTag(TaggedInt.make(numberOfNestedElements, FieldKind.Repeated.NESTEDS));
+        }
+        else {
+            stream.writeUInt32NoTag(TaggedInt.make(TaggedInt.MAX_ORIGINAL_VALUE, FieldKind.Repeated.NESTEDS));
+            stream.writeUInt32NoTag(numberOfNestedElements);
+        }
     }
     @Override
     public void endMessage() throws IOException {
