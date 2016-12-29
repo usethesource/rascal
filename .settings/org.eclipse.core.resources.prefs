@@ -1,10 +1,8 @@
 eclipse.preferences.version=1
 encoding//src/org/rascalmpl/library/cobra/RandomValueTypeVisitor.java=UTF-8
-encoding//src/org/rascalmpl/library/experiments/Compiler/Examples/CoverageExample.rsc=UTF-8
 encoding//src/org/rascalmpl/library/experiments/Compiler/Examples/ProfileExample.rsc=UTF-8
 encoding//src/org/rascalmpl/library/experiments/Compiler/Rascal2muRascal/RandomValueTypeVisitor.java=UTF-8
 encoding//src/org/rascalmpl/library/experiments/Compiler/Tests/AllRascalTests.rsc=UTF-8
-encoding//src/org/rascalmpl/library/lang/rascal/checker/TTL/generated/failureLog=UTF-8
 encoding//src/org/rascalmpl/library/lang/rascal/tests/functionality/DataTypeTests.rsc=UTF-8
 encoding//test/org/rascalmpl/test/data=UTF-8
 encoding/<project>=UTF-8
