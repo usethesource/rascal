@@ -59,8 +59,7 @@ test bool binParametrizedAdt1() = binaryWriteRead(#Maybe[value], none());
  
 test bool binParametrizedAdt2() = binaryWriteRead(#Maybe[int], some(1));
  
- //@ignoreCompiler{Undetermined, related to serialization}
-//test bool binParamAliasListInt() = binaryWriteRead(#X[int], [1]);
+test bool binParamAliasListInt() = binaryWriteRead(#X[int], [1]);
  
 test bool binParamAliasInt() = binaryWriteRead(#Y, 1);
  
