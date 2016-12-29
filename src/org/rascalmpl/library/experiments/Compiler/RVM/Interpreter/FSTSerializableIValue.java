@@ -189,30 +189,5 @@ public class FSTSerializableIValue extends FSTBasicObjectSerializer implements S
 			 IConstructor res = specializeType(constructor.getName(), children);
 			 return res != null ? res: super.constructor(constructor, children, annotations);
 		  }
-//	
-//
-//		@Override
-//		public INode node(String name, IValue[] children,
-//				Map<String, IValue> keyArgValues) throws FactTypeUseException {
-//			System.out.println("node: " + name);
-//			IConstructor res = specializeType(name, children, keyArgValues);
-//			return res != null ? res: vf.node(name, children, keyArgValues);
-//		}
-//
-//		public IConstructor specializeType(String name, IValue[] children,
-//				Map<String, IValue> keyArgValues) {
-//			System.out.println("specializeType: " + name);
-//			if(name.equals("type") 
-//					&& children.length == 2
-//					&& children[0].getType().isSubtypeOf(Factory.Type_Reified.getFieldType(0))
-//					&& children[1].getType().isSubtypeOf(Factory.Type_Reified.getFieldType(1))) {
-//
-//				java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
-//				bindings.put(Factory.TypeParam, tr.symbolToType((IConstructor) children[0], (IMap) children[1]));
-//
-//				return vf.constructor(Factory.Type_Reified.instantiate(bindings), children[0], children[1]);
-//			}
-//			return null;
-//		}
 	}
 }
