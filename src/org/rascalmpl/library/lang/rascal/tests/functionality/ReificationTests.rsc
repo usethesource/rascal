@@ -15,8 +15,7 @@ test bool s() = #set[int].symbol == \set(\int());
 test bool m() = #map[int,str].symbol == \map(\int(),\str());
 test bool m() = #map[int k,str v].symbol == \map(label("k",\int()),label("v",\str()));
 test bool f() = #int (int).symbol == \func(\int(),[\int()],[]);
-//@ignoreCompiler{Undetermined, related to serialization}
-//test bool p() = #&T <: list[&U].symbol == \parameter("T", \list(\parameter("U",\value())));
+test bool p() = #&T <: list[&U].symbol == \parameter("T", \list(\parameter("U",\value())));
 
 @ignoreCompiler
 test bool relLabels() = #rel[int a, int b].symbol == \set(\tuple([label("a", \int()),label("b", \int())]));
@@ -34,12 +33,10 @@ test bool allConstructorsAreDefined()
 test bool allConstructorsForAnAlternativeDefineTheSameSort() 
   = !(/choice(def, /cons(label(_,def),_,_,_)) !:= #P.definitions);
   
-//@ignoreCompiler{Undetermined, related to serialization}
-//test bool typeParameterReificationIsStatic1(&F f) = #&F.symbol == \parameter("F",\value());
-//test bool typeParameterReificationIsStatic2(list[&F] f) = #list[&F].symbol == \list(\parameter("F",\value()));
+test bool typeParameterReificationIsStatic1(&F f) = #&F.symbol == \parameter("F",\value());
+test bool typeParameterReificationIsStatic2(list[&F] f) = #list[&F].symbol == \list(\parameter("F",\value()));
 
-//@ignoreCompiler{Undetermined, related to serialization}
-//@ignore{issue #1007}
-//test bool typeParameterReificationIsStatic3(&T <: list[&F] f) = #&T.symbol == \parameter("T", \list(\parameter("F",\value())));
+@ignore{issue #1007}
+test bool typeParameterReificationIsStatic3(&T <: list[&F] f) = #&T.symbol == \parameter("T", \list(\parameter("F",\value())));
 
 test bool dynamicTypesAreAlwaysGeneric(value v) = !(type[value] _ !:= type(typeOf(v),()));
