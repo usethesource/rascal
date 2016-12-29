@@ -29,7 +29,7 @@ public class Rascal {
             return null;
         }
     }
-
+ 
     /**
      * Main function for execute command: rascal
      * 
