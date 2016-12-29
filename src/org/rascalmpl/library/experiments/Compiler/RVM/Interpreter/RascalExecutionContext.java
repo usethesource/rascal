@@ -57,7 +57,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private final PrintWriter stdout;
 	
 	private final IValueFactory vf;
-	private final TypeStore typeStore;
+	
 	private final boolean debug;
 	private final boolean debugRVM;
 	private final boolean testsuite;
@@ -114,16 +114,15 @@ public class RascalExecutionContext implements IRascalMonitor {
 			PrintWriter stderr, 
 			IMap moduleTags, 
 			IMap symbol_definitions, 
-			TypeStore typeStore, 
-			IFrameObserver frameObserver,
-			IDEServices ideServices, 
+			IFrameObserver frameObserver, 
+			IDEServices ideServices,
 			boolean coverage, 
 			boolean debug, 
 			boolean debugRVM, 
 			boolean jvm, 
 			boolean profile, 
 			boolean testsuite, 
-			boolean trace,
+			boolean trace, 
 			boolean verbose
 	){
 		
@@ -138,7 +137,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	  
 	  this.moduleTags = moduleTags;
 	  this.symbol_definitions = symbol_definitions == null ? vf.mapWriter().done() : symbol_definitions;
-	  this.typeStore = typeStore == null ? new TypeStore(RascalValueFactory.getStore()) /*new TypeStore()*/ : typeStore;
+	  //this.typeStore = typeStore == null ? new TypeStore(RascalValueFactory.getStore()) /*new TypeStore()*/ : typeStore;
 	  this.debug = debug;
 	  this.debugRVM = debugRVM;
 	  this.testsuite = testsuite;
@@ -383,6 +382,9 @@ public class RascalExecutionContext implements IRascalMonitor {
 	public IMap getSymbolDefinitions() { return symbol_definitions; }
 	
 	public TypeStore getTypeStore() { 
+	    if(rvm != null){
+	        return rvm.getTypeStore();
+	    }
 	    return new TypeReifier(vf).buildTypeStore(symbol_definitions);
 	}
 	

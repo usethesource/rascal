@@ -30,13 +30,11 @@ public class ExecutionTools {
 					IBool profile, 
 					IBool trace, 
 					IBool coverage, 
-					IBool jvm, 
-					TypeStore typestore
+					IBool jvm
 	) {
 		return RascalExecutionContextBuilder.normalContext(pcfg, out != null ? out : new PrintWriter(System.out), err != null ? err : new PrintWriter(System.err))
 			.withModuleTags(rvmExecutable.getModuleTags())
 			.withSymbolDefinitions(rvmExecutable.getSymbolDefinitions())
-			.withTypeStore(typestore)
 			.coverage(coverage.getValue())
 			.debug(debug.getValue())
 			.debugRVM(debugRVM.getValue())

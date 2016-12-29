@@ -51,12 +51,11 @@ public class ExecuteProgram {
 			IEvaluatorContext ctx
 			) throws IOException {
 		
-	    TypeStore typeStore = /*new TypeStore()*/ new TypeStore(RascalValueFactory.getStore());
 		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm);
 		if(executable.isValid()){
 			RascalExecutionContext rex = null;
             try {
-                rex = ExecutionTools.makeRex(new PathConfig(), executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, typeStore);
+                rex = ExecutionTools.makeRex(new PathConfig(), executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm);
             }
             catch (URISyntaxException e) {
                 // TODO Auto-generated catch block
@@ -92,11 +91,10 @@ public class ExecuteProgram {
 			RascalExecutionContext rex
 			) throws IOException {
 
-	    TypeStore typeStore = rex.getTypeStore(); // /*new TypeStore();*/ new TypeStore(RascalValueFactory.getStore());
 		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm);
 
 		if(executable.isValid()){
-			RascalExecutionContext rex2 = ExecutionTools.makeRex(rex.getPathConfig(), executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, typeStore);
+			RascalExecutionContext rex2 = ExecutionTools.makeRex(rex.getPathConfig(), executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm);
 			
 			return ExecutionTools.executeProgram(executable, new KWArgs(vf).add(keywordArguments).build(), rex2);
 		} else {
@@ -126,7 +124,7 @@ public class ExecuteProgram {
 	    if(executable.isValid()){
 	        RascalExecutionContext rex = null;
 	        try {
-	            rex = ExecutionTools.makeRex(new PathConfig(), executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, typeStore);
+	            rex = ExecutionTools.makeRex(new PathConfig(), executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm);
 	        }
 	        catch (URISyntaxException e) {
 	            // TODO Auto-generated catch block
@@ -163,7 +161,7 @@ public class ExecuteProgram {
 	    TypeStore typeStore = rex.getTypeStore(); // /*new TypeStore();*/ new TypeStore(RascalValueFactory.getStore());
 		RVMExecutable executable = ExecutionTools.load(rvmExecutableLoc, typeStore);
 		if(executable.isValid()){
-			RascalExecutionContext rex2 = ExecutionTools.makeRex(rex.getPathConfig(), executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, typeStore);
+			RascalExecutionContext rex2 = ExecutionTools.makeRex(rex.getPathConfig(), executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm);
 			
 			return ExecutionTools.executeProgram(executable, new KWArgs(vf).add(keywordArguments).build(), rex2);
 		} else {
