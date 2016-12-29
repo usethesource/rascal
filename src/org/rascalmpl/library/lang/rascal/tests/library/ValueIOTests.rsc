@@ -147,3 +147,41 @@ test bool writingParseTreeWorksWithoutCompression() {
 	writeBinaryValueFile(|test-temp:///parsetree1|, t, compression=false);
 	return readBinaryValueFile(|test-temp:///parsetree1|) == t;
 }
+
+// Reified types
+ 
+private bool  binaryWriteRead(type[&T] typ) {
+   writeBinaryValueFile(|test-temp:///value-io.test|,typ);
+   rtyp = readBinaryValueFile(|test-temp:///value-io.test|);
+   iprintln(typ);
+   iprintln(rtyp);
+   println("typ = <typ>, rtyp = <rtyp>, <type[&T] N := rtyp>");
+   if (type[&T] N := rtyp && N == typ) return true;
+   return false;
+}
+
+test bool reifyBool()   = binaryWriteRead(#bool);
+test bool reifyStr()    = binaryWriteRead(#str);
+test bool reifyInt()    = binaryWriteRead(#int);
+test bool reifyReal()   = binaryWriteRead(#real);
+test bool reifyRat()    = binaryWriteRead(#rat);
+test bool reifyNum()    = binaryWriteRead(#num);
+test bool reifyNode()   = binaryWriteRead(#node);
+test bool reifyVoid()   = binaryWriteRead(#void);
+test bool reifyValue()  = binaryWriteRead(#value);
+test bool reifyList()   = binaryWriteRead(#list[int]);
+test bool reifySet()    = binaryWriteRead(#set[int]);
+test bool reifyLrel1()  = binaryWriteRead(#lrel[int,str]);
+test bool reifyLrel2()  = binaryWriteRead(#lrel[int i, str s]);
+test bool reifyRel1()   = binaryWriteRead(#rel[int,str]);
+test bool reifyRel2()   = binaryWriteRead(#rel[int i, str s]);
+test bool reifyMap1()   = binaryWriteRead(#map[int,str]);
+test bool reifyMap2()   = binaryWriteRead(#map[int k,str v]);
+test bool reifyFun()    = binaryWriteRead(#int (int));
+test bool reifyPar()    = binaryWriteRead(#&T);
+
+alias A[&T] = list[&T];
+alias B[&T] = list[A[&T]];
+
+test bool reifyAlias1() = binaryWriteRead(#A[int]);
+test bool reifyAlias2() = binaryWriteRead(#B[int]);
