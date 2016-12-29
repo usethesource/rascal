@@ -122,9 +122,12 @@ public class BinaryWireInputStream implements IWireInputStream {
                 break;
             case FieldKind.REPEATED:
                 stream.resetSizeCounter();
-                int flaggedAmount = (int) stream.readRawVarint32();
+                int flaggedAmount = stream.readRawVarint32();
                 nestedType = TaggedInt.getTag(flaggedAmount);
                 nestedLength = TaggedInt.getOriginal(flaggedAmount);
+                if (nestedLength == TaggedInt.MAX_ORIGINAL_VALUE) {
+                    nestedLength = stream.readRawVarint32();
+                }
                 switch (nestedType) {
                     case FieldKind.Repeated.BYTES:
                         bytesValue = stream.readRawBytes(nestedLength);

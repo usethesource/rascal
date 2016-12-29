@@ -21,12 +21,14 @@ public class TaggedInt {
 
     private static final int TAG_BITS = 3;
     private static final int TAG_MASK = 0b111;
+    public static final int MAX_ORIGINAL_VALUE = 0xFFFFFFFF >>> TAG_BITS;
     static {
         assert (1 << (TAG_BITS - 1)) == Integer.highestOneBit(TAG_MASK);
+        assert getOriginal(make(MAX_ORIGINAL_VALUE, 3)) == MAX_ORIGINAL_VALUE;
     }
     
     public static int make(final int original, final int tag) {
-        assert (tag & TAG_MASK) == tag;
+        assert (tag & TAG_MASK) == tag && original <= MAX_ORIGINAL_VALUE;
         return (original << TAG_BITS) | tag;
     }
     
