@@ -30,9 +30,8 @@ test bool jsonWithSet1(set[int] dt) = writeRead(dt);
 test bool jsonWithMap1(map[int, int]  dt) = writeRead(dt);
 test bool jsonWithNode1(node  dt) = writeRead(dt);
 
-//@ignoreCompiler{Undetermined, related to serialization}
-//test bool jsonWithDATA11(DATA1 dt) = writeRead(dt);
-//test bool jsonWithDATA21(DATA2 dt) = writeRead(dt);
+test bool jsonWithDATA11(DATA1 dt) = writeRead(dt);
+test bool jsonWithDATA21(DATA2 dt) = writeRead(dt);
 
 test bool jsonRandom1(&T dt) = writeRead(dt);
 
@@ -50,6 +49,5 @@ test bool jsonWithSet2(set[int] dt) = writeRead(dt);
 test bool jsonWithMap2(map[int, int]  dt) = writeRead(dt);
 test bool jsonWithNode2(node  dt) = writeRead(dt);
 
-//@ignoreCompiler{Undetermined, related to serialization}
-//test bool jsonRandom2(&T dt) = writeRead(dt);
+test bool jsonRandom2(&T dt) = writeRead(dt);
 
