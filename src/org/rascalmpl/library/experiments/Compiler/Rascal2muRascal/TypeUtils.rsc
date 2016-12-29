@@ -1400,7 +1400,6 @@ Symbol translateType(t: (UserType) `<QualifiedName name>[<{Type ","}+ parameters
 	if(isDataType(val) || isNonTerminalType(val) || isAlias(val)) {
 		// instantiate type parameters
 		val.rtype.parameters = [ translateType(param) | param <- parameters];
-		println("translateType: <t> =\> <val.rtype>");
 		return val.rtype;
 	}
 	throw "The name <name> is not resolved to a type: <val>.";
