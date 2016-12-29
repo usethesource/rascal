@@ -82,11 +82,12 @@ public abstract class TrackWritesTestBase {
         for (int i = 0; i < elements.length; i++) {
             elements[i] = new Object();
         }
-        TrackLastWritten<Object> w = getWritesWindow(20);
+        final int windowSize = elements.length / 2;
+        TrackLastWritten<Object> w = getWritesWindow(windowSize);
         for (int i = 0; i < elements.length; i++) {
             w.write(elements[i]);
-            for (int j = Math.max(0, i - 19); j <=i; j++) {
-                assertEquals(i - j, w.howLongAgo(elements[j]));
+            for (int j = 0; j < Math.min(windowSize, i); j++) {
+                assertEquals("Looking back: "+ j + " after " + i + "written", j, w.howLongAgo(elements[i - j]));
             }
         }
     }

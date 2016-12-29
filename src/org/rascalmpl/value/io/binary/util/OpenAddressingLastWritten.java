@@ -24,17 +24,19 @@ import org.apache.commons.math.MaxEvaluationsExceededException;
  */
 public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T>, ClearableWindow {
     private final int maximumEntries;
-    private final int tableSize;
-    private final Object[] keys;
-    private final long[] writtenAt;
+    private final int maximumSize;
+    private int tableSize;
+    private int resizeAfter;
+    private Object[] keys;
+    private long[] writtenAt;
     /**
      * We store the hashes at the cost of extra memory, however, this improves the speed of the remove method when the hash is not a simple System.identityHashCode
      */
-    private final int[] hashes;
+    private int[] hashes;
     /**
      * A circular buffer with index to the table (keys/writtenAt/hashes) in the order that the entry was written.
      */
-    private final int[] oldest;
+    private int[] oldest;
     /**
      * how many entries are already written
      */
@@ -79,15 +81,19 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
         if (maximumEntries <= 0) {
             throw new IllegalArgumentException("Maximum entries should be a positive number");
         }
-        if (maximumEntries > Integer.MAX_VALUE / 2) {
-            throw new IllegalArgumentException("Maximum entries should be smaller than " + Integer.MAX_VALUE / 2);
+        if (maximumEntries > Integer.MAX_VALUE / 3) {
+            throw new IllegalArgumentException("Maximum entries should be smaller than " + Integer.MAX_VALUE / 3);
         }
         this.maximumEntries = maximumEntries;
-        this.tableSize = closestPrime(maximumEntries * 3);  // load factor of at least 33%
+        maximumSize = closestPrime(maximumEntries * 3); // load factor of max 33%
+        tableSize = Math.min(571, maximumSize); 
+        resizeAfter = Math.min(tableSize / 3, maximumEntries);
+
         keys = new Object[this.tableSize];
         writtenAt = new long[this.tableSize];
         hashes = new int[this.tableSize];
-        oldest = new int[maximumEntries];
+        oldest = new int[resizeAfter];
+
         ArrayUtil.fill(oldest, -1);
         written = 0;
     }
@@ -129,7 +135,7 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
     }
     
     private int translateOldest(long index) {
-        return (int) (index % maximumEntries);
+        return (int) (index % resizeAfter);
     }
     
     @SuppressWarnings("unchecked")
@@ -163,6 +169,7 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
 
     @Override
     public void write(T obj) {
+        growIfNeeded();
         int historyPos = translateOldest(written);
         int oldestEntry = oldest[historyPos];
         if (oldestEntry != -1) {
@@ -175,6 +182,7 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
         hashes[pos] = hash;
         oldest[historyPos] = pos;
     }
+
 
     /**
      * Implements the remove entry algorithm from wikipedia, which is based on Knuth's remark.
@@ -209,6 +217,35 @@ public abstract class OpenAddressingLastWritten<T> implements TrackLastWritten<T
            //assert oldest[translateOldest(writtenAt[space])] == candidate;
            oldest[translateOldest(writtenAt[space])] = space;
            space = candidate;
+        }
+    }
+
+    private void growIfNeeded() {
+        if (written == resizeAfter && tableSize != maximumSize) {
+            tableSize = Math.min(closestPrime(tableSize * 2), maximumSize);
+            resizeAfter = Math.min(tableSize / 3, maximumEntries);
+            Object[] oldKeys = keys;
+            long[] oldWrittenAt = writtenAt;
+            int[] oldHashes = hashes;
+
+            keys = new Object[this.tableSize];
+            writtenAt = new long[this.tableSize];
+            hashes = new int[this.tableSize];
+            oldest = new int[resizeAfter];
+            ArrayUtil.fill(oldest, -1);
+            
+            for (int i = 0; i < oldKeys.length; i++) {
+                Object key = oldKeys[i];
+                if (key != null) {
+                    int hash = oldHashes[i];
+                    int newIndex = findSpace(hash);
+                    long at = oldWrittenAt[i];
+                    keys[newIndex] = key;
+                    hashes[newIndex] = hash;
+                    writtenAt[newIndex] = at;
+                    oldest[translateOldest(at)] = newIndex;
+                }
+            }
         }
     }
     
