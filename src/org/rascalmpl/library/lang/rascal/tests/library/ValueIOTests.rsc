@@ -153,9 +153,6 @@ test bool writingParseTreeWorksWithoutCompression() {
 private bool  binaryWriteRead(type[&T] typ) {
    writeBinaryValueFile(|test-temp:///value-io.test|,typ);
    rtyp = readBinaryValueFile(|test-temp:///value-io.test|);
-   iprintln(typ);
-   iprintln(rtyp);
-   println("typ = <typ>, rtyp = <rtyp>, <type[&T] N := rtyp>");
    if (type[&T] N := rtyp && N == typ) return true;
    return false;
 }
