@@ -15,13 +15,15 @@ package org.rascalmpl.value.io.binary.util;
 import java.util.Arrays;
 
 public class LinearCircularLookupWindow<T> implements TrackLastRead<T>, ClearableWindow {
-    private final T[] data;
+    private T[] data;
     private long written;
+    private final int maxSize;
 
     @SuppressWarnings("unchecked")
     public LinearCircularLookupWindow(int size) {
-        data = (T[]) new Object[size];
+        data = (T[]) new Object[Math.min(512, size)];
         written = 0;
+        maxSize = size + 1; 
     }
     
     private int translate(long index) {
@@ -31,19 +33,26 @@ public class LinearCircularLookupWindow<T> implements TrackLastRead<T>, Clearabl
     
     @Override
     public T lookBack(int offset) {
-        assert offset + 1 <= written;
+        assert offset + 1 <= written && offset < maxSize;
         return data[translate(written - (offset + 1))];
         
     }
     
     @Override
     public void read(T obj) {
+        growIfNeeded();
         data[translate(written++)] = obj;
+    }
+
+    private void growIfNeeded() {
+        if (written <= maxSize && written == data.length && data.length != maxSize) {
+            data = Arrays.copyOf(data, Math.min(data.length * 2, maxSize));
+        }
     }
 
     @Override
     public int size() {
-        return data.length;
+        return maxSize;
     }
 
     @Override
