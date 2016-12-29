@@ -18,6 +18,7 @@ import java.io.OutputStream;
 
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.io.binary.message.IValueWriter;
+import org.rascalmpl.value.io.binary.util.DelayedCompressionOutputStream;
 import org.rascalmpl.value.io.binary.util.WindowSizes;
 import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 import org.rascalmpl.value.io.binary.wire.binary.BinaryWireOutputStream;
@@ -76,7 +77,7 @@ public class IValueOutputStream implements Closeable {
     
 
     public void write(IValue value) throws IOException {
-        WindowSizes sizes = compression.compressionLevel == 0 ? WindowSizes.NO_WINDOW : WindowSizes.estimateWindowSize(value);
+        WindowSizes sizes = compression.compressionLevel == 0 ? WindowSizes.NO_WINDOW : WindowSizes.NORMAL_WINDOW;
         if (writer == null) {
             writer = initializeWriter(sizes);
         }
@@ -97,8 +98,9 @@ public class IValueOutputStream implements Closeable {
             compression = CompressionRate.None;
         }
         int algorithm = fallbackIfNeeded(compression.compressionAlgorithm);
-        rawStream.write(algorithm);
-        rawStream = Compressor.wrapStream(rawStream, algorithm, compression.compressionLevel);
+        rawStream = new DelayedCompressionOutputStream(rawStream, algorithm, o ->
+            Compressor.wrapStream(o, algorithm, compression.compressionLevel)
+        );
         return new BinaryWireOutputStream(rawStream, sizes.stringsWindow);
     }
 

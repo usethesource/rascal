@@ -35,7 +35,7 @@ public class BinaryWireOutputStream implements IWireOutputStream {
         assert stringSharingWindowSize > 0;
         this.__stream = stream;
         this.__stream.write(WIRE_VERSION);
-        this.stream = CodedOutputStream.newInstance(stream);
+        this.stream = CodedOutputStream.newInstance(stream, 8 * 1024);
         this.stream.writeUInt32NoTag(stringSharingWindowSize);
         this.stringsWritten = WindowCacheFactory.getInstance().getTrackLastWrittenObjectEquality(stringSharingWindowSize);
     }

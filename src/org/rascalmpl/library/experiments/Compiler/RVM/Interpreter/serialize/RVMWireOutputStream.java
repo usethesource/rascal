@@ -85,7 +85,7 @@ public class RVMWireOutputStream implements IRVMWireOutputStream {
     public void writeField(int fieldId, IValue[] values) throws IOException {
         writeRepeatedNestedField(fieldId, values.length);
         for (IValue v : values) {
-            write(v, WindowSizes.estimateWindowSize(v));
+            write(v, WindowSizes.NORMAL_WINDOW);
         }
     }
     
