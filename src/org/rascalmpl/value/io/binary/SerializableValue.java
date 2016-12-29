@@ -26,12 +26,10 @@ public class SerializableValue<T extends IValue> implements Serializable {
 	private static final long serialVersionUID = -5507315290306212326L;
 	private IValueFactory vf;
 	private T value;
-    private TypeStore store;
 	
 	public SerializableValue(IValueFactory vf, T value, TypeStore store) {
 		this.vf = vf;
 		this.value = value;
-		this.store = store;
 	}
 	
 	public T getValue() {
