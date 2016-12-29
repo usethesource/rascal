@@ -3,8 +3,8 @@ module experiments::Compiler::Benchmarks::JavaMetrics
 import Prelude;
 import util::Math;
 
-import lang::java::jdt::m3::Core;
-import lang::java::jdt::m3::AST;
+import lang::java::m3::Core;
+import lang::java::m3::AST;
 
 bool initialized = false;
 set[Declaration] allData = {};
@@ -19,7 +19,7 @@ private set[Declaration] getData() {
 void methodsPerClass(M3 model){
     for(c <- classes(model)){
         println("<c>: <size(methods(model, c))>");
-    }
+    }  
 } 
 
 int numberOfClasses(M3 model) = size(classes(model));
