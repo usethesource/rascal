@@ -26,6 +26,6 @@ public class PushCon extends Instruction {
 			codeEmittor.emitDebugCall2(opcode.name(), val, constant);
 		}
 
-		codeEmittor.emitInlinePushConOrType(constant,true,debug);
+		codeEmittor.emitInlinePushConOrType(constant,true);
 	}
 }

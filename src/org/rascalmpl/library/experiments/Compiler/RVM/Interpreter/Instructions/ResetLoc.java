@@ -21,6 +21,6 @@ public class ResetLoc extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall1(opcode.name(), pos);
 		
-		codeEmittor.emitInlineResetLoc(pos,debug);
+		codeEmittor.emitInlineResetLoc(pos);
 	}
 }

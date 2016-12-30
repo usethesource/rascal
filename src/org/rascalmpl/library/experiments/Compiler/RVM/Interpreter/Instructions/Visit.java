@@ -39,6 +39,6 @@ public class Visit extends Instruction {
 		codeEmittor.emitInlineVisit(((IBool) codeblock.getConstantValue(direction)).getValue(),
 				((IBool) codeblock.getConstantValue(progress)).getValue(),
 				((IBool) codeblock.getConstantValue(fixedpoint)).getValue(),
-				((IBool) codeblock.getConstantValue(rebuild)).getValue(), debug);
+				((IBool) codeblock.getConstantValue(rebuild)).getValue());
 	}
 }
