@@ -8,6 +8,7 @@ import String;
 import ParseTree;
 import util::Reflective;
 import util::Benchmark;
+import util::FileSystem;
 import Map;
 import Relation;
 
@@ -107,18 +108,22 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
 RVMModule compile(loc moduleLoc, PathConfig pcfg, loc reloc = |noreloc:///|, bool verbose=false, bool optimize=true, bool enableAsserts=false) =
     compile(getModuleName(moduleLoc, pcfg), pcfg, reloc=reloc, verbose = verbose, optimize=optimize, enableAsserts=enableAsserts);
 
+
 @doc{Compile a Rascal source module (given at a location) to RVM}
 RVMModule compile(str qualifiedModuleName, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = false, bool optimize=true, bool enableAsserts=false){
 	<cfg, rvmMod> = compile1(qualifiedModuleName, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
+	// TODO: JV worrying side-effect noticed here:
 	rvmMod1 = recompileDependencies(qualifiedModuleName, rvmMod, cfg, pcfg, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
-	errors = [ e | e:error(_,_) <- rvmMod1.messages];
-    warnings = [ w | w:warning(_,_) <- rvmMod1.messages ];
-    for(msg <- rvmMod1.messages){
-        if(error(txt, src) := msg) println("Error: <txt> at <src>");
-        if(warning(txt, src) := msg) println("Warning: <txt> at <src>");
-        if(info(txt, src) := msg) println("Info: <txt> at <src>");
-    }
     return rvmMod;
+}
+
+list[RVMModule] compileAll(loc moduleRoot, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = false, bool optimize=true, bool enableAsserts=false){
+    return [ compile(getModuleName(moduleLoc, pcfg), pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts) | moduleLoc <- find(moduleRoot, "rsc")];
+}
+
+
+list[RVMModule] compile(list[loc] moduleLocs, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = false, bool optimize=true, bool enableAsserts=false){
+    return [ compile(getModuleName(moduleLoc, pcfg), pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts) | moduleLoc <- moduleLocs ];
 }
 
 list[RVMModule] compile(list[str] qualifiedModuleNames, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = false, bool optimize=true, bool enableAsserts=false){

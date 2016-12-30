@@ -5,12 +5,12 @@
   which accompanies this distribution, and is available at
   http://www.eclipse.org/legal/epl-v10.html
 }
-module lang::rascal::semantics::GenOperators
+module lang::rascal::scaffold::GenOperators
 
 import Relation;
 import Set;
 import String;
-import List;
+import List; 
 
 public int numOfCases() = 
   ( 0 | it + size(unOps[op]) | op <- unOps )

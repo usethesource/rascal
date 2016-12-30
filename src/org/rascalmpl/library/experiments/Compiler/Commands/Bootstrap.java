@@ -272,8 +272,6 @@ public class Bootstrap {
                 
                 // The result of the final compilation phase is copied to the bin folder such that it can be deployed with the other compiled (class) files
                 time("Copying bootstrapped files", () -> copyResult(new File(kernel[2]).toPath(), targetFolder.resolve("boot")));
-                time("Compiling final tests",      () -> compileTests (5, rvm[1], "|boot:///|", "|std:///|", tmpDir.resolve("test-bins")));
-                time("Running final tests",        () -> runTests(5, rvm[1], "|boot:///|", "|std:///|", tmpDir.resolve("test-bins")));
 
                 Files.write(bootstrapMarker, versionToUse.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE_NEW);
             } 
@@ -492,7 +490,7 @@ public class Bootstrap {
     private static void runTests(int phase, String classPath, String boot, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage {
         progress("Running tests with the results of " + phase);
         if (phase == 1) return;
-        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests" };
+        String[] javaCmd = new String[] {"java", "-ea", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests" };
         String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
         String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[0];
 

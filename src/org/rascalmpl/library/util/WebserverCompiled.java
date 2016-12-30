@@ -43,15 +43,14 @@ import fi.iki.elonen.NanoHTTPD.Response.Status;
 
 public class WebserverCompiled {
     private final IValueFactory vf;
-    private final Map<ISourceLocation, NanoHTTPD> servers;
-    private final Map<IConstructor,Status> statusValues = new HashMap<>();
+    private final static Map<ISourceLocation, NanoHTTPD> servers = new HashMap<>();
+    private final static Map<IConstructor,Status> statusValues = new HashMap<>();
     private Type requestType;
 
     private IWebserver webserver;
 
     public WebserverCompiled(IValueFactory vf) {
         this.vf = vf;
-        this.servers = new HashMap<>();
     }
 
     public void serve(ISourceLocation url, final IValue callback, final RascalExecutionContext rex) throws IOException {

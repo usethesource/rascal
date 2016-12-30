@@ -48,15 +48,6 @@ public class BootstrapRascalParser {
 	        .noModuleArgument()
 	        .handleArgs(args);
 
-//	        PathConfig pcfg = cmdOpts.getPathConfig();
-//	        RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), pcfg, cmdOpts.getCommandLocOption("boot"))
-//	                .customSearchPath(pcfg.getRascalSearchPath())
-//	                .setTrace(cmdOpts.getCommandBoolOption("trace"))
-//	                .setProfile(cmdOpts.getCommandBoolOption("profile"))
-//	                .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
-//	                .build();
-
-	        //Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
 	        IKernel kernel = Java2Rascal.Builder.bridge(vf, cmdOpts.getPathConfig(), IKernel.class).build();
 
 	        kernel.bootstrapRascalParser(cmdOpts.getCommandLocsOption("src"));

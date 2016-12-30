@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,6 +62,18 @@ public class URIResolverRegistry {
             throw new Error("WARNING: Could not load URIResolverRegistry extensions from " + RESOLVERS_CONFIG, e);
         }
     }
+	
+	public Set<String> getRegisteredInputSchemes() {
+	    return Collections.unmodifiableSet(inputResolvers.keySet());
+	}
+	
+	public Set<String> getRegisteredOutputSchemes() {
+	    return Collections.unmodifiableSet(outputResolvers.keySet());
+	}
+	
+	public Set<String> getRegisteredLogicalSchemes() {
+	    return Collections.unmodifiableSet(logicalResolvers.keySet());
+	}
 	
 	private void loadServices(URL nextElement) {
 	  try {

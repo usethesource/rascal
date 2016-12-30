@@ -79,22 +79,6 @@ public class HelpServer extends NanoHTTPD {
 	        listing = listing.replaceFirst("_", holes.get(k++));
 	      }
 	      if(executor == null){
-	       
-	       
-//	        PathConfig pcfg = null;
-//	        try {
-//	            ISourceLocation src = vf.sourceLocation("file", "", "/Users/paulklint/git/rascal/src/org/rascalmpl/library");
-//	            List<ISourceLocation> srcs = Arrays.asList(src);
-//	            
-//	            ISourceLocation bin = vf.sourceLocation("file", "", "/Users/paulklint/git/rascal/src/org/rascalmpl/library");
-//	            List<ISourceLocation> libs = Arrays.asList(bin);
-//	            List<ISourceLocation> courses = Arrays.asList(vf.sourceLocation("file", "", "/Users/paulklint/git/rascal/src/org/rascalmpl/library/courses"));
-//                ISourceLocation boot = vf.sourceLocation("file", "", "/Users/paulklint/git/rascal/bootstrap/phase2");
-//	            pcfg = new PathConfig(srcs, libs, bin, boot, courses);
-//	        } catch (URISyntaxException e) {
-//	            // TODO Auto-generated catch block
-//	            e.printStackTrace();
-//	        }
 	        PathConfig pcfg = helpManager.getPathConfig();
 	        outWriter = new StringWriter();
 	        outPrintWriter = new PrintWriter(outWriter);
