@@ -5992,7 +5992,7 @@ public enum RascalPrimitive {
 		@Override
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			Type type = (Type) arg_2;
-			return rex.typeToSymbol(type);
+			return RascalExecutionContext.typeToSymbol(type);
 			//return $type2symbol(type);
 		}
 	},
