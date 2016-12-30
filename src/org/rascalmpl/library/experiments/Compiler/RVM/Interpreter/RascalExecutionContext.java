@@ -25,6 +25,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Desce
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
@@ -155,6 +156,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	  this.stdout = stdout;
 	  this.stderr = stderr;
 	  config = new Configuration();
+	  config.setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
 	  this.classLoaders = new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader()));
 
 	  if(frameObserver == null){
@@ -178,7 +180,24 @@ public class RascalExecutionContext implements IRascalMonitor {
 	  parsingTools = new ParsingTools(vf);
 	}
 	
-	public static ISourceLocation getLocation(ISourceLocation givenBootDir, String desiredPath) {
+	private String javaCompilerPathAsString(IList javaCompilerPath) {
+        StringBuilder b = new StringBuilder();
+        
+        for (IValue elem : javaCompilerPath) {
+            ISourceLocation loc = (ISourceLocation) elem;
+            
+            if (b.length() != 0) {
+                b.append(":");
+            }
+           
+            assert loc.getScheme().equals("file");
+            b.append(loc.getPath());
+        }
+        
+        return b.toString();
+    }
+
+    public static ISourceLocation getLocation(ISourceLocation givenBootDir, String desiredPath) {
 	  IValueFactory vfac = ValueFactoryFactory.getValueFactory();
 	  try {
 	    if(givenBootDir == null){

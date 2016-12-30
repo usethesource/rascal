@@ -84,6 +84,8 @@ public class RascalExecutionContextBuilder {
 	                                                               testsuite, 
 	                                                               trace, 
 	                                                               verbose);
+	    
+	    
 	    if (this.moduleName != null) {
 	        result.setFullModuleName(moduleName);
 	    }
