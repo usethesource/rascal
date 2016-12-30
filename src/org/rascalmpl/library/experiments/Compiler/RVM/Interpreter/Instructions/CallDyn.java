@@ -24,6 +24,6 @@ public class CallDyn extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall1(opcode.name(), arity);
 		
-		codeEmittor.emitInlineCalldyn(arity, continuationPoint,debug) ;
+		codeEmittor.emitInlineCalldyn(arity, continuationPoint) ;
 	}
 }

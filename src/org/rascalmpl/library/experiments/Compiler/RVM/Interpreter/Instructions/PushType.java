@@ -22,6 +22,6 @@ public class PushType extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall1(opcode.name(), type);
 		
-		codeEmittor.emitInlinePushConOrType(type, false,  debug); 
+		codeEmittor.emitInlinePushConOrType(type, false); 
 	}
 }

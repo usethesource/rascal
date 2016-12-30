@@ -22,6 +22,6 @@ public class JmpTrue extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall1(opcode.name(), codeblock.getLabelPC(label));
 		
-		codeEmittor.emitJMPTRUEorFALSE(true, label, debug);
+		codeEmittor.emitJMPTRUEorFALSE(true, label);
 	}
 }

@@ -15,6 +15,6 @@ public class Guard extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitInlineGuard(continuationPoint,debug) ;
+		codeEmittor.emitInlineGuard(continuationPoint) ;
 	}
 }

@@ -12,6 +12,6 @@ public class LoadLoc2 extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitInlineLoadLocN(2,debug);
+		codeEmittor.emitInlineLoadLocN(2);
 	}
 }

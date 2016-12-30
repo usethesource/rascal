@@ -22,6 +22,6 @@ public class CoReturn1 extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall1(opcode.name(), arity);
 		
-		codeEmittor.emitInlineCoReturn(arity,debug);
+		codeEmittor.emitInlineCoReturn(arity);
 	}
 }
