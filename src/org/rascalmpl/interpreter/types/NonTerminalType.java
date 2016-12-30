@@ -32,6 +32,9 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory.TypeReifier;
+import org.rascalmpl.value.visitors.BottomUpVisitor;
+import org.rascalmpl.value.visitors.IValueVisitor;
+import org.rascalmpl.value.visitors.IdentityVisitor;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
@@ -145,6 +148,23 @@ public class NonTerminalType extends RascalType {
             return ((NonTerminalType) type).symbol;
         }
         
+        private void addRulesForSymbol(IValueFactory vf, IConstructor sort, TypeStoreWithSyntax syntax, ISetWriter grammar, Set<IConstructor> done) {
+            if (SymbolAdapter.isLex(sort) || SymbolAdapter.isSort(sort) || SymbolAdapter.isKeyword(sort)) {
+                addRulesForSort(vf, sort, syntax, grammar, done); 
+            }
+            else { // composite symbol needs to be traversed
+                sort.accept(new BottomUpVisitor<>(new IdentityVisitor<RuntimeException>() {
+                    @Override
+                    public IValue visitConstructor(IConstructor o) throws RuntimeException {
+                        if (o.getType() == RascalValueFactory.Symbol) {
+                            addRulesForSort(vf, o, syntax, grammar, done);
+                        }
+                        return o;
+                    }
+                }, vf));
+            }
+        }
+        
         private void addRulesForSort(IValueFactory vf, IConstructor sort, TypeStoreWithSyntax syntax, ISetWriter grammar, Set<IConstructor> done) {
             if (done.contains(sort)) {
                 return;
@@ -152,11 +172,11 @@ public class NonTerminalType extends RascalType {
             
             for (IValue rule : syntax.getRules(sort)) {
                 grammar.insert(vf.tuple(sort, rule));
-                
                 done.add(sort);
+                
                 if (ProductionAdapter.isDefault((IConstructor) rule)) {
                     for (IValue arg : ProductionAdapter.getSymbols((IConstructor) rule)) {
-                        addRulesForSort(vf, (IConstructor) arg, syntax, grammar, done);
+                        addRulesForSymbol(vf, (IConstructor) arg, syntax, grammar, done);
                     }
                 }
             }
