@@ -12,7 +12,6 @@ import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ExecutionTools {
@@ -55,8 +54,8 @@ public class ExecutionTools {
 	
 	// Read a RVMExecutable from file
 	
-	public static RVMExecutable load(ISourceLocation rvmExecutableLoc, TypeStore typeStore) throws IOException {
-		return RVMExecutable.newRead(rvmExecutableLoc, typeStore);
+	public static RVMExecutable load(ISourceLocation rvmExecutableLoc) throws IOException {
+		return RVMExecutable.newRead(rvmExecutableLoc);
 	}
 	
 	// Create an RVMExecutable given an RVMProgram
@@ -168,7 +167,7 @@ public class ExecutionTools {
 	 * @throws IOException 
 	 */
 	public static RVMCore initializedRVM(ISourceLocation bin,  RascalExecutionContext rex) throws IOException {
-	  RVMExecutable rvmExecutable  = RVMExecutable.newRead(bin, rex.getTypeStore());
+	  RVMExecutable rvmExecutable  = RVMExecutable.newRead(bin);
 
 	  RVMCore rvm = rex.getJVM() ? new RVMJVM(rvmExecutable, rex) : new RVMInterpreter(rvmExecutable, rex);
 
