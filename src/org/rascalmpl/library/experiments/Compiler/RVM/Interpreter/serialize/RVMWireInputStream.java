@@ -17,11 +17,9 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.io.binary.message.IValueReader;
-import org.rascalmpl.value.io.binary.message.IValueIDs.TupleType;
 import org.rascalmpl.value.io.binary.util.TrackLastRead;
 import org.rascalmpl.value.io.binary.util.WindowCacheFactory;
 import org.rascalmpl.value.io.binary.wire.FieldKind;
@@ -99,24 +97,20 @@ public class RVMWireInputStream implements IRVMWireInputStream {
     
     @Override
     public IValue[] readIValues() throws IOException {
-        IList all = (IList)readIValue();
-        int size = all.length();
-        IValue[] result = new IValue[size];
-        for (int i = 0; i < size; i++) {
-            result[i] = all.get(i);
+        int arity = getRepeatedLength();
+        IValue[] result = new IValue[arity];
+        for (int i = 0; i < arity; i++) {
+            result[i] = readIValue();
         }
         return result;
     }
     
     @Override
     public Type[] readTypes() throws IOException {
-        Type all = readType();
-        assert all.isTuple();
-
-        int arity = all.getArity();
+        int arity = getRepeatedLength();
         Type[] result = new Type[arity];
         for (int i = 0; i < arity; i++) {
-            result[i] = all.getFieldType(i);
+            result[i] = readType();
         }
         return result;
     }
