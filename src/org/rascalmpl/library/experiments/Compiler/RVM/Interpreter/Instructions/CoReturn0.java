@@ -12,6 +12,6 @@ public class CoReturn0 extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitInlineCoReturn(0,debug);
+		codeEmittor.emitInlineCoReturn(0);
 	}
 }

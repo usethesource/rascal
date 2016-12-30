@@ -26,7 +26,7 @@ public class CallConstr extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall2(opcode.name(), fuid, arity);
 		
-		codeEmittor.emitCallWithArgsSSII_A("CALLCONSTR", codeblock.getConstructorIndex(fuid), arity,debug);
+		codeEmittor.emitCallWithArgsSSII_A("CALLCONSTR", codeblock.getConstructorIndex(fuid), arity);
 	}
 
 }

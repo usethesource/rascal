@@ -31,6 +31,6 @@ public class OCall extends Instruction {
 			codeEmittor.emitDebugCall2(opcode.name(), fuid, arity);
 		
 		// TODO add source line.
-		codeEmittor.emitOptimizedOcall(fuid,codeblock.getOverloadedFunctionIndex(fuid), arity, codeblock.getConstantIndex(src), debug) ;
+		codeEmittor.emitOptimizedOcall(fuid,codeblock.getOverloadedFunctionIndex(fuid), arity, codeblock.getConstantIndex(src)) ;
 	}
 }

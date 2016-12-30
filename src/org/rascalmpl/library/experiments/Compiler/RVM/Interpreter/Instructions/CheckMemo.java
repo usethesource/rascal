@@ -19,6 +19,6 @@ public class CheckMemo extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitInlineCheckMemo(debug);
+		codeEmittor.emitInlineCheckMemo();
 	}
 }

@@ -25,6 +25,6 @@ public class CallMuPrim0 extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall2(opcode.name(), muprim.name(), 0);
 		
-		codeEmittor.emitInlineCallMuPrim0(muprim, debug);
+		codeEmittor.emitInlineCallMuPrim0(muprim);
 	}
 }

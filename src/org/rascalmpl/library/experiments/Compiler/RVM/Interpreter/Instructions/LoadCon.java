@@ -27,6 +27,6 @@ public class LoadCon extends Instruction {
 		}
 
 		IValue val = codeblock.getConstantValue(constant);
-		codeEmittor.emitInlineLoadConOrType(constant,true,debug);
+		codeEmittor.emitInlineLoadConOrType(constant,true);
 	}
 }

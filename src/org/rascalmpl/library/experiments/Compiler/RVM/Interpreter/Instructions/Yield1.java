@@ -24,6 +24,6 @@ public class Yield1 extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall1(opcode.name(), arity);
 		
-		codeEmittor.emitInlineYield(arity, hotEntryPoint, debug) ;
+		codeEmittor.emitInlineYield(arity, hotEntryPoint) ;
 	}
 }
