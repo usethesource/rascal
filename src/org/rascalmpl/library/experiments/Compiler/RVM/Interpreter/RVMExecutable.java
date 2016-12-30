@@ -373,13 +373,12 @@ public class RVMExecutable {
         out.endMessage();
     }
 	
-	public static RVMExecutable newRead(ISourceLocation rvmExecutable) throws IOException{
-	    System.err.println("newRead: " + rvmExecutable);
+	@SuppressWarnings("resource")
+    public static RVMExecutable read(ISourceLocation rvmExecutable) throws IOException {
 	    try(InputStream in = URIResolverRegistry.getInstance().getInputStream(rvmExecutable)){
 	        byte[] header = new byte[EXEC_HEADER.length];
 	        in.read(header);
 	        if(Arrays.equals(header, EXEC_HEADER)){
-	            System.err.println("newRead: use new serialization");
 	            byte[] version = new byte[EXEC_VERSION.length];
 	            in.read(version);
 	            if(!Arrays.equals(version, EXEC_VERSION)){
@@ -394,7 +393,7 @@ public class RVMExecutable {
 	                return read(win, ValueFactoryFactory.getValueFactory());
 	            }                      
 	        } else {
-	            throw new IOException("RVMExcutable cannot read unknown data format");
+	            throw new IOException("RVMExcutable cannot read legacy data format, please recompile");
 	        }
 	    }
 	}

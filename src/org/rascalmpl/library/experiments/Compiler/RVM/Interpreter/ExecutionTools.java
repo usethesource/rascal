@@ -55,7 +55,7 @@ public class ExecutionTools {
 	// Read a RVMExecutable from file
 	
 	public static RVMExecutable load(ISourceLocation rvmExecutableLoc) throws IOException {
-		return RVMExecutable.newRead(rvmExecutableLoc);
+		return RVMExecutable.read(rvmExecutableLoc);
 	}
 	
 	// Create an RVMExecutable given an RVMProgram
@@ -167,7 +167,7 @@ public class ExecutionTools {
 	 * @throws IOException 
 	 */
 	public static RVMCore initializedRVM(ISourceLocation bin,  RascalExecutionContext rex) throws IOException {
-	  RVMExecutable rvmExecutable  = RVMExecutable.newRead(bin);
+	  RVMExecutable rvmExecutable  = RVMExecutable.read(bin);
 
 	  RVMCore rvm = rex.getJVM() ? new RVMJVM(rvmExecutable, rex) : new RVMInterpreter(rvmExecutable, rex);
 
