@@ -30,7 +30,7 @@ public class Fac {
                 .trace(false)
                 .build();
 	    ISourceLocation binDir = pcfg.getBin();
-	    RVMCore rvm = ExecutionTools.initializedRVM(URIUtil.correctLocation("compressed+" + binDir.getScheme(), "", binDir.getPath() + "/experiments/Compiler/Examples/Fac.rvm.ser.gz"), rex);
+	    RVMCore rvm = ExecutionTools.initializedRVM(URIUtil.correctLocation(binDir.getScheme(), "", binDir.getPath() + "/experiments/Compiler/Examples/Fac.rvmx"), rex);
         this.facProgram = rvm.asInterface(IFac.class);
 	}
 

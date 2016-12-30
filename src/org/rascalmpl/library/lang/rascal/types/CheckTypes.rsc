@@ -7412,17 +7412,17 @@ map[RName,datetime] getCachedDateMap(str qualifiedModuleName, PathConfig pcfg){
 void writeCachedDate(str qualifiedModuleName, PathConfig pcfg, datetime dateval) {
 	l = cachedDateWriteLoc(qualifiedModuleName,pcfg);
 	if (!exists(l.parent)) mkDirectory(l.parent);
-	writeBinaryValueFile(l, dateval, compression=false); 
+	writeBinaryValueFile(l, dateval); 
 }
 void writeCachedConfig(str qualifiedModuleName, PathConfig pcfg, Configuration c) {
 	l = cachedConfigWriteLoc(qualifiedModuleName, pcfg); 
 	if (!exists(l.parent)) mkDirectory(l.parent);
-	writeBinaryValueFile(l, c, compression=false); 
+	writeBinaryValueFile(l, c); 
 }
 void writeCachedDateMap(str qualifiedModuleName, PathConfig pcfg, map[RName,datetime] m) {
 	l = cachedDateMapWriteLoc(qualifiedModuleName, pcfg); 
 	if (!exists(l.parent)) mkDirectory(l.parent);
-	writeBinaryValueFile(l, m, compression=false); 
+	writeBinaryValueFile(l, m); 
 }
 
 void clearDirtyModules(str qualifiedModuleName, PathConfig pcfg, bool transitive=true) {

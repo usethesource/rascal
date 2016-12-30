@@ -6,22 +6,26 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.nustaq.serialization.FSTBasicObjectSerializer;
+import org.nustaq.serialization.FSTClazzInfo;
+import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
+import org.nustaq.serialization.FSTObjectInput;
+import org.nustaq.serialization.FSTObjectOutput;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.*;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireInputStream;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireOutputStream;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.binary.util.WindowSizes;
+import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
-
-import org.nustaq.serialization.FSTBasicObjectSerializer;
-import org.nustaq.serialization.FSTClazzInfo;
-import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
-import org.nustaq.serialization.FSTObjectInput;
-import org.nustaq.serialization.FSTObjectOutput;
 
 /**
  * CodeBlock contains all instructions needed for a single RVM function
@@ -80,7 +84,6 @@ public class CodeBlock implements Serializable {
 	public CodeBlock(String name, IValueFactory factory){
 		labelInfo = new HashMap<String, LabelInfo>();
 		insList = new ArrayList<Instruction>();
-		new ArrayList<Integer>();
 		pc = 0;
 		this.name = name;
 		this.vf = factory;
@@ -777,8 +780,8 @@ public class CodeBlock implements Serializable {
 	}
 	
 			
-	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) {
-		this.functionMap = codeMap;
+	public CodeBlock done(String fname, Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) {
+		this.functionMap = functionMap;
 		this.constructorMap = constructorMap;
 		this.resolver = resolver;
 		int codeSize = pc;
@@ -805,6 +808,12 @@ public class CodeBlock implements Serializable {
 	
     	return this;
     }
+	
+	public void setMaps(Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver){
+	    this.functionMap = functionMap;
+        this.constructorMap = constructorMap;
+        this.resolver = resolver;
+	}
     
     public long[] getInstructions(){
     	return finalCode;
@@ -868,6 +877,85 @@ public class CodeBlock implements Serializable {
 			gen.emitPanicReturn();
 		}
 	}
+	
+	public void write(IRVMWireOutputStream out) throws IOException{ 
+	    out.startMessage(CompilerIDs.CodeBlock.ID);
+
+        out.writeField(CompilerIDs.CodeBlock.NAME, name);
+
+        out.writeField(CompilerIDs.CodeBlock.FINAL_CONSTANT_STORE, finalConstantStore, WindowSizes.SMALL_WINDOW);
+
+        out.writeField(CompilerIDs.CodeBlock.FINAL_TYPECONSTANT_STORE, finalTypeConstantStore, WindowSizes.TINY_WINDOW);
+
+        out.writeField(CompilerIDs.CodeBlock.FINAL_CODE, finalCode);
+       
+	    out.endMessage();
+	}
+
+    public static CodeBlock read(IRVMWireInputStream in, Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) throws IOException {
+        String name = "unitialized name";
+        
+        Map<IValue, Integer> constantMap = new HashMap<>();
+        ArrayList<IValue> constantStore = new ArrayList<>();
+        IValue[] finalConstantStore = new IValue[0];
+        
+        Map<Type, Integer> typeConstantMap = new HashMap<>();
+        ArrayList<Type> typeConstantStore = new ArrayList<>();
+        Type[] finalTypeConstantStore = new Type[0];
+        
+        long[] finalCode = new long[0];
+        
+        in.next();
+        assert in.current() == IWireInputStream.MESSAGE_START;
+        if(in.message() != CompilerIDs.CodeBlock.ID){
+            throw new IOException("Unexpected message: " + in.message());
+        }
+        while(in.next() != IWireInputStream.MESSAGE_END){
+            switch(in.field()){
+                
+                case  CompilerIDs.CodeBlock.NAME: {
+                    name = in.getString(); 
+                    break;
+                }
+                
+                case CompilerIDs.CodeBlock.FINAL_CONSTANT_STORE: {
+                    finalConstantStore = in.readIValues();
+                    constantMap = new HashMap<IValue, Integer> (finalConstantStore.length);
+                    constantStore = new ArrayList<IValue>(finalConstantStore.length);
+                    for (int i = 0; i < finalConstantStore.length; i++) {
+                        constantMap.put(finalConstantStore[i], i);
+                        constantStore.add(finalConstantStore[i]);
+                    }
+                    break;
+                }
+                
+                case CompilerIDs.CodeBlock.FINAL_TYPECONSTANT_STORE: {
+                    finalTypeConstantStore = in.readTypes();
+                    typeConstantMap = new HashMap<Type, Integer>(finalTypeConstantStore.length);
+                    typeConstantStore = new ArrayList<Type>(finalTypeConstantStore.length);
+                    for(int i = 0; i < finalTypeConstantStore.length; i++){
+                        typeConstantMap.put(finalTypeConstantStore[i], i);
+                        typeConstantStore.add(finalTypeConstantStore[i]);
+                    }
+                    break;
+                }
+                
+                case CompilerIDs.CodeBlock.FINAL_CODE: {
+                    finalCode = in.readLongs();
+                    break;
+                }
+                
+                default: {
+                    System.err.println("CodeBlock.read, skips " + in.field());
+                    // skip field, normally next takes care of it
+                    in.skipNestedField();
+                }
+            }
+        }
+        
+        return new CodeBlock(name, constantMap, constantStore, finalConstantStore, typeConstantMap, typeConstantStore, finalTypeConstantStore, 
+            functionMap, resolver, constructorMap, finalCode);
+    }
 }
 
 class LabelInfo {
@@ -899,7 +987,7 @@ class FSTCodeBlockSerializer extends FSTBasicObjectSerializer {
 
 	private static TypeStore store;
 
-	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
+	public static void initSerialization(TypeStore ts){
 		store = ts;
 		store.extendStore(RascalValueFactory.getStore());
 	}

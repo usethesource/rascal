@@ -33,6 +33,7 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -56,7 +57,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private final PrintWriter stdout;
 	
 	private final IValueFactory vf;
-	private final TypeStore typeStore;
+	
 	private final boolean debug;
 	private final boolean debugRVM;
 	private final boolean testsuite;
@@ -87,11 +88,11 @@ public class RascalExecutionContext implements IRascalMonitor {
 	private static Cache<IString, DescendantDescriptor> descendantDescriptorCache;
 	private static Cache<Type, Type> sharedTypeConstantCache;
 	
-	private static final String PATH_TO_LINKED_PARSERGENERATOR = "lang/rascal/grammar/ParserGenerator.rvm.ser.gz";
-    private static final String PATH_TO_LINKED_KERNEL = "lang/rascal/boot/Kernel.rvm.ser.gz";
-    private static final String PATH_TO_LINKED_RASCALEXTRACTION = "experiments/Compiler/RascalExtraction/RascalExtraction.rvm.ser.gz";
-    private static final String PATH_TO_LINKED_QUESTIONCOMPILER = "experiments/tutor3/QuestionCompiler.rvm.ser.gz";
-    private static final String PATH_TO_LINKED_WEBSERVER = "util/Webserver.rvm.ser.gz";
+	private static final String PATH_TO_LINKED_PARSERGENERATOR = "lang/rascal/grammar/ParserGenerator.rvmx";
+    private static final String PATH_TO_LINKED_KERNEL = "lang/rascal/boot/Kernel.rvmx";
+    private static final String PATH_TO_LINKED_RASCALEXTRACTION = "experiments/Compiler/RascalExtraction/RascalExtraction.rvmx";
+    private static final String PATH_TO_LINKED_QUESTIONCOMPILER = "experiments/tutor3/QuestionCompiler.rvmx";
+    private static final String PATH_TO_LINKED_WEBSERVER = "util/Webserver.rvmx";
     
 	static {
 		createCaches(true);
@@ -113,16 +114,15 @@ public class RascalExecutionContext implements IRascalMonitor {
 			PrintWriter stderr, 
 			IMap moduleTags, 
 			IMap symbol_definitions, 
-			TypeStore typeStore, 
-			IFrameObserver frameObserver,
-			IDEServices ideServices, 
+			IFrameObserver frameObserver, 
+			IDEServices ideServices,
 			boolean coverage, 
 			boolean debug, 
 			boolean debugRVM, 
 			boolean jvm, 
 			boolean profile, 
 			boolean testsuite, 
-			boolean trace,
+			boolean trace, 
 			boolean verbose
 	){
 		
@@ -130,14 +130,14 @@ public class RascalExecutionContext implements IRascalMonitor {
 	  this.pcfg = pcfg;
 	  this.bootDir = pcfg.getBoot();
 	  if(bootDir != null && !(bootDir.getScheme().equals("boot") ||  
-	                          bootDir.getScheme().equals("compressed+boot") || 
+	                          //bootDir.getScheme().equals("compressed+boot") || 
 	                          URIResolverRegistry.getInstance().isDirectory(bootDir))){
 	    throw new RuntimeException("bootDir should be a directory, given " + bootDir);
 	  }
 	  
 	  this.moduleTags = moduleTags;
 	  this.symbol_definitions = symbol_definitions == null ? vf.mapWriter().done() : symbol_definitions;
-	  this.typeStore = typeStore == null ? /*RascalValueFactory.getStore()*/ new TypeStore() : typeStore;
+	  //this.typeStore = typeStore == null ? new TypeStore(RascalValueFactory.getStore()) /*new TypeStore()*/ : typeStore;
 	  this.debug = debug;
 	  this.debugRVM = debugRVM;
 	  this.testsuite = testsuite;
@@ -183,13 +183,13 @@ public class RascalExecutionContext implements IRascalMonitor {
 	  IValueFactory vfac = ValueFactoryFactory.getValueFactory();
 	  try {
 	    if(givenBootDir == null){
-	      return vfac.sourceLocation("compressed+boot", "", desiredPath);
+	      return vfac.sourceLocation("boot"/*"compressed+boot"*/, "", desiredPath);
 	    }
 
 	    String scheme = givenBootDir.getScheme();
-	    if(!scheme.startsWith("compressed+")){
-	      scheme = "compressed+" + scheme;
-	    }
+//	    if(!scheme.startsWith("compressed+")){
+//	      scheme = "compressed+" + scheme;
+//	    }
 	   
 	    String basePath = givenBootDir.getPath();
 	    if(!basePath.endsWith("/")){
@@ -382,7 +382,10 @@ public class RascalExecutionContext implements IRascalMonitor {
 	public IMap getSymbolDefinitions() { return symbol_definitions; }
 	
 	public TypeStore getTypeStore() { 
-		return typeStore; 
+	    if(rvm != null){
+	        return rvm.getTypeStore();
+	    }
+	    return new TypeReifier(vf).buildTypeStore(symbol_definitions);
 	}
 	
 	boolean getDebug() { return debug; }

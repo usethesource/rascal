@@ -12,6 +12,7 @@ import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.TypeStore;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 
 public class ExecuteProgram {
@@ -19,7 +20,7 @@ public class ExecuteProgram {
 	
 
 	public ExecuteProgram(IValueFactory vf) {
-		this.vf =vf;
+		this.vf = vf;
 	}
 	
 	// Library function to serialize a RVMProgram
@@ -30,9 +31,8 @@ public class ExecuteProgram {
 			IBool jvm
 			) throws IOException {
 
-	    TypeStore typeStore = new TypeStore();
-		RVMExecutable exec = ExecutionTools.link(rvmProgram, jvm, typeStore);
-		exec.write(rvmProgramLoc);
+		RVMExecutable exec = ExecutionTools.link(rvmProgram, jvm);
+		exec.newWrite(rvmProgramLoc, 6);
 	}
 	
 	// Library function to execute a RVMProgram
@@ -51,12 +51,11 @@ public class ExecuteProgram {
 			IEvaluatorContext ctx
 			) throws IOException {
 		
-	    TypeStore typeStore = new TypeStore();
-		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm, typeStore);
+		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm);
 		if(executable.isValid()){
 			RascalExecutionContext rex = null;
             try {
-                rex = ExecutionTools.makeRex(new PathConfig(), executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, typeStore);
+                rex = ExecutionTools.makeRex(new PathConfig(), executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm);
             }
             catch (URISyntaxException e) {
                 // TODO Auto-generated catch block
@@ -92,11 +91,10 @@ public class ExecuteProgram {
 			RascalExecutionContext rex
 			) throws IOException {
 
-	    TypeStore typeStore = new TypeStore();
-		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm, typeStore);
+		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm);
 
 		if(executable.isValid()){
-			RascalExecutionContext rex2 = ExecutionTools.makeRex(rex.getPathConfig(), executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, typeStore);
+			RascalExecutionContext rex2 = ExecutionTools.makeRex(rex.getPathConfig(), executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm);
 			
 			return ExecutionTools.executeProgram(executable, new KWArgs(vf).add(keywordArguments).build(), rex2);
 		} else {
@@ -120,13 +118,13 @@ public class ExecuteProgram {
 			IEvaluatorContext ctx
 			) throws IOException {
        
-	    TypeStore typeStore = new TypeStore();
+	    TypeStore typeStore = /*new TypeStore();*/ new TypeStore(RascalValueFactory.getStore());
         
 	    RVMExecutable executable = ExecutionTools.load(rvmExecutableLoc, typeStore);
 	    if(executable.isValid()){
 	        RascalExecutionContext rex = null;
 	        try {
-	            rex = ExecutionTools.makeRex(new PathConfig(), executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, typeStore);
+	            rex = ExecutionTools.makeRex(new PathConfig(), executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm);
 	        }
 	        catch (URISyntaxException e) {
 	            // TODO Auto-generated catch block
@@ -160,10 +158,10 @@ public class ExecuteProgram {
 			IBool jvm,
 			RascalExecutionContext rex
 			) throws IOException {
-	    TypeStore typeStore = new TypeStore();
+	    TypeStore typeStore = rex.getTypeStore(); // /*new TypeStore();*/ new TypeStore(RascalValueFactory.getStore());
 		RVMExecutable executable = ExecutionTools.load(rvmExecutableLoc, typeStore);
 		if(executable.isValid()){
-			RascalExecutionContext rex2 = ExecutionTools.makeRex(rex.getPathConfig(), executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, typeStore);
+			RascalExecutionContext rex2 = ExecutionTools.makeRex(rex.getPathConfig(), executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm);
 			
 			return ExecutionTools.executeProgram(executable, new KWArgs(vf).add(keywordArguments).build(), rex2);
 		} else {

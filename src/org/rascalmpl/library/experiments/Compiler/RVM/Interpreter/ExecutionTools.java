@@ -30,13 +30,11 @@ public class ExecutionTools {
 					IBool profile, 
 					IBool trace, 
 					IBool coverage, 
-					IBool jvm, 
-					TypeStore typestore
+					IBool jvm
 	) {
 		return RascalExecutionContextBuilder.normalContext(pcfg, out != null ? out : new PrintWriter(System.out), err != null ? err : new PrintWriter(System.err))
 			.withModuleTags(rvmExecutable.getModuleTags())
 			.withSymbolDefinitions(rvmExecutable.getSymbolDefinitions())
-			.withTypeStore(typestore)
 			.coverage(coverage.getValue())
 			.debug(debug.getValue())
 			.debugRVM(debugRVM.getValue())
@@ -48,30 +46,27 @@ public class ExecutionTools {
 	}
 	
 	public static RVMExecutable linkProgram(
-					 ISourceLocation rvmProgramLoc,
 					 IConstructor rvmProgram,
-					 IBool jvm, 
-					 TypeStore typeStore	
+					 IBool jvm	
     ) throws IOException {
 		
-		return link(rvmProgram, jvm, typeStore);
+		return link(rvmProgram, jvm);
 	}
 	
 	// Read a RVMExecutable from file
 	
 	public static RVMExecutable load(ISourceLocation rvmExecutableLoc, TypeStore typeStore) throws IOException {
-		return RVMExecutable.read(rvmExecutableLoc, typeStore);
+		return RVMExecutable.newRead(rvmExecutableLoc, typeStore);
 	}
 	
 	// Create an RVMExecutable given an RVMProgram
 	
 	public static RVMExecutable link(
 			 	IConstructor rvmProgram,
-			 	IBool jvm, 
-			 	TypeStore typeStore
+			 	IBool jvm
 	) throws IOException {
 
-		RVMLinker linker = new RVMLinker(vf, typeStore);
+		RVMLinker linker = new RVMLinker(vf);
 		return linker.link(rvmProgram,	jvm.getValue());
 	}
 		
@@ -173,7 +168,7 @@ public class ExecutionTools {
 	 * @throws IOException 
 	 */
 	public static RVMCore initializedRVM(ISourceLocation bin,  RascalExecutionContext rex) throws IOException {
-	  RVMExecutable rvmExecutable  = RVMExecutable.read(bin, rex.getTypeStore());
+	  RVMExecutable rvmExecutable  = RVMExecutable.newRead(bin, rex.getTypeStore());
 
 	  RVMCore rvm = rex.getJVM() ? new RVMJVM(rvmExecutable, rex) : new RVMInterpreter(rvmExecutable, rex);
 

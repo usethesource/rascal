@@ -79,7 +79,7 @@ void compareAll(str other, str base = "Users/paulklint/git/rascal/src/boot/stdli
 void allMessages(str other){
     str base = "Users/paulklint/git/rascal/src/boot/stdlib";
    
-    loc otherDir =  |compressed+home:///| + other;
+    loc otherDir =  /*compressed+*/ |home:///| + other;
     str otherDirPath = otherDir.path;
     
     for(loc cloc <- files(otherDir), cloc.extension == "gz"){

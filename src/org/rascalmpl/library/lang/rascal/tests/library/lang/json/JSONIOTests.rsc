@@ -49,8 +49,5 @@ test bool jsonWithSet2(set[int] dt) = writeRead(dt);
 test bool jsonWithMap2(map[int, int]  dt) = writeRead(dt);
 test bool jsonWithNode2(node  dt) = writeRead(dt);
 
-test bool jsonWithDATA12(DATA1 dt) = writeRead(dt);
-test bool jsonWithDATA22(DATA2 dt) = writeRead(dt);
-
 test bool jsonRandom2(&T dt) = writeRead(dt);
 
