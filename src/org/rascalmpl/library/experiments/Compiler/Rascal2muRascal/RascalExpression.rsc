@@ -1582,7 +1582,7 @@ private MuExp translateSetOrList(Expression e, {Expression ","}* es, str kind){
 // -- reified type expression ---------------------------------------
 
 MuExp translate (e:(Expression) `# <Type tp>`) {
-	//println("#<tp>, translateType:");
+	//println("#<tp>, translateType: <e>");
 	//iprintln("<translateType(tp)>");
 	//iprintln("symbolToValue(translateType(tp)) = <symbolToValue(translateType(tp)).definitions>");
 	return muCon(symbolToValue(translateType(tp)));

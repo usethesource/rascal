@@ -7,6 +7,11 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.nustaq.serialization.FSTBasicObjectSerializer;
+import org.nustaq.serialization.FSTClazzInfo;
+import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
+import org.nustaq.serialization.FSTObjectInput;
+import org.nustaq.serialization.FSTObjectOutput;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IMap;
@@ -15,18 +20,10 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.impl.AbstractValueFactoryAdapter;
-import org.rascalmpl.value.io.BinaryValueReader;
-import org.rascalmpl.value.io.BinaryValueWriter;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
-
-import org.nustaq.serialization.FSTBasicObjectSerializer;
-import org.nustaq.serialization.FSTClazzInfo;
-import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
-import org.nustaq.serialization.FSTObjectInput;
-import org.nustaq.serialization.FSTObjectOutput;
 
 /**
  * FSTSerializableIValue acts as a serializer and wrapper for IValues
@@ -44,9 +41,9 @@ public class FSTSerializableIValue extends FSTBasicObjectSerializer implements S
 	private transient static TypeReifier tr;
 	private transient static ByteArrayOutputStream byteStream;
 
-	private transient static BinaryValueWriter binaryWriter;
+	private transient static org.rascalmpl.value.io.old.BinaryValueWriter binaryWriter;
 
-	private transient static BinaryValueReader binaryReader;
+	private transient static org.rascalmpl.value.io.old.BinaryValueReader binaryReader;
 
 	private transient static Type valueType;
 
@@ -56,8 +53,8 @@ public class FSTSerializableIValue extends FSTBasicObjectSerializer implements S
 		store.extendStore(RascalValueFactory.getStore());
 		tr = new TypeReifier(vf);
 		byteStream = new ByteArrayOutputStream();	// TODO should we remove it as well?
-		binaryWriter = new BinaryValueWriter();
-		binaryReader = new BinaryValueReader();
+		binaryWriter = new org.rascalmpl.value.io.old.BinaryValueWriter();
+		binaryReader = new org.rascalmpl.value.io.old.BinaryValueReader();
 		valueType = TypeFactory.getInstance().valueType();
 	}
 	
@@ -192,30 +189,5 @@ public class FSTSerializableIValue extends FSTBasicObjectSerializer implements S
 			 IConstructor res = specializeType(constructor.getName(), children);
 			 return res != null ? res: super.constructor(constructor, children, annotations);
 		  }
-//	
-//
-//		@Override
-//		public INode node(String name, IValue[] children,
-//				Map<String, IValue> keyArgValues) throws FactTypeUseException {
-//			System.out.println("node: " + name);
-//			IConstructor res = specializeType(name, children, keyArgValues);
-//			return res != null ? res: vf.node(name, children, keyArgValues);
-//		}
-//
-//		public IConstructor specializeType(String name, IValue[] children,
-//				Map<String, IValue> keyArgValues) {
-//			System.out.println("specializeType: " + name);
-//			if(name.equals("type") 
-//					&& children.length == 2
-//					&& children[0].getType().isSubtypeOf(Factory.Type_Reified.getFieldType(0))
-//					&& children[1].getType().isSubtypeOf(Factory.Type_Reified.getFieldType(1))) {
-//
-//				java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
-//				bindings.put(Factory.TypeParam, tr.symbolToType((IConstructor) children[0], (IMap) children[1]));
-//
-//				return vf.constructor(Factory.Type_Reified.instantiate(bindings), children[0], children[1]);
-//			}
-//			return null;
-//		}
 	}
 }

@@ -402,7 +402,37 @@ private  tuple[set[Symbol], set[Production]] getReachableConcreteTypes(Symbol su
 	return <{}, descent_into + descent_into1>;
 }
 
-private bool isAltOrSeq(Symbol s) = alt(_) := s || seq(_) := s;	                                         
+private bool isAltOrSeq(Symbol s) = alt(_) := s || seq(_) := s;	  
+
+// ---------------- instantiate --------------------
+
+//Symbol instantiate(Symbol s, map[str, Symbol] bindings){
+//
+//    top-down-break visit(s){
+//        case \alias(str name, list[Symbol] parameters, Symbol aliased): {
+//              bound = getBoundParaneters(parameters);
+//              if(isEmpty(bound)){
+//                    fail;
+//              } else {
+//                insert instantiate(aliased, bound + bindings);
+//              }
+//          }
+//          
+//        case \parameter(name, bnd): {
+//              if(bindings[name]?){
+//                 insert bindings[name];
+//              } else {
+//                fail;
+//              }
+//        }
+//    }
+//}      
+//
+//map[str, Symbol] getBoundParameters(list[Symbol] parameters){
+//
+//    (p.name, pp <- parameters, p !:= \parameter(_, _)
+//
+//}                                
 
 // ---------------- symbolToValue ------------------
 // TODO: rewrite the following code using

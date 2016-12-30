@@ -62,6 +62,27 @@ public class TypeReifier {
         
         return IRascalValueFactory.getInstance().reifiedType(symbol, grammar.done());
     }
+    
+    // TODO experimental; if you know the symbol you need to 
+    // generate a TypeStore for:
+    public TypeStore buildTypeStore(IConstructor root, IMap symbol_definitions) {
+        TypeStore ts = new TypeStore();
+        TypeFactory.getInstance().fromSymbol(root, new TypeStore(), x -> getAlternatives(symbol_definitions, x));
+        return ts;
+    }
+    
+    // TODO experimental; if need to convert an entire grammar to a TypeStore:
+    public TypeStore buildTypeStore(IMap symbol_definitions) {
+        TypeStore ts = new TypeStore();
+        
+        // TODO this looks slow, but fromSymbol will actually not recursive
+        // through sorts which have already been stored in the TypeStore before!
+        for (IValue sort : symbol_definitions) {
+            TypeFactory.getInstance().fromSymbol((IConstructor) sort, ts, x -> getAlternatives(symbol_definitions, x));
+        }
+        
+        return ts;
+    }
 
     public Type valueToType(IConstructor typeValue) {
         return valueToType(typeValue, new TypeStore());
@@ -117,8 +138,14 @@ public class TypeReifier {
         return vf.constructor(RascalValueFactory.Production_Default, sort, parameters, attributes);
     }
 
-    private Set<IConstructor> getAlternatives(IMap definitions, IConstructor x) {
-        IConstructor choice = (IConstructor) definitions.get(x);
+    /**
+     * Get the alternatives of a definitions from a grammar map.
+     * @param definitions rel[Symbol, Production.choice]
+     * @param sort        a Symbol
+     * @return
+     */
+    private Set<IConstructor> getAlternatives(IMap definitions, IConstructor sort) {
+        IConstructor choice = (IConstructor) definitions.get(sort);
 
         if (choice == null || choice.getConstructorType() != RascalValueFactory.Production_Choice) {
             return Collections.emptySet();

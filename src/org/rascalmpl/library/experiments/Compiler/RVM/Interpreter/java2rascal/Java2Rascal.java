@@ -137,9 +137,9 @@ public class Java2Rascal<RascalInterfaceModule> {
       throw new RuntimeException("RascalModule annotation required for interface2Rascal class");
     }
     
-    String modulePath = "/" + moduleName.replaceAll("::", "/") + ".rvm.ser.gz";
-    
-    RVMCore rvm = ExecutionTools.initializedRVM(URIUtil.correctLocation("compressed+" + bootDir.getScheme(), "", bootDir.getPath() + modulePath), rex);
+    String modulePath = "/" + moduleName.replaceAll("::", "/") + ".rvmx";
+
+    RVMCore rvm = ExecutionTools.initializedRVM(URIUtil.correctLocation(bootDir.getScheme(), "", bootDir.getPath() + modulePath), rex);
     return (RascalInterfaceModule) rvm.asInterface(interface2Rascal);
   }
   

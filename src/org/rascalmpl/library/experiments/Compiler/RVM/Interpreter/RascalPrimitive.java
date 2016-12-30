@@ -41,7 +41,6 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.InvalidDateTimeException;
-import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
@@ -8674,7 +8673,6 @@ public enum RascalPrimitive {
 	public static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private static final TypeFactory tf = TypeFactory.getInstance();
 
-	@SuppressWarnings("deprecation")
 	private static final Type lineColumnType = TypeFactory.getInstance().tupleType(new Type[] {TypeFactory.getInstance().integerType(), TypeFactory.getInstance().integerType()},
 			new String[] {"line", "column"});
 	
@@ -9455,7 +9453,7 @@ public enum RascalPrimitive {
 	 * @return t converted to a symbol
 	 */
 	static IConstructor $type2symbol(final Type t){
-	    return t.asSymbol(vf, new TypeStore(), vf.setWriter(), new HashSet<>());
+	    return t.asSymbol(vf, /*new TypeStore()*/ new TypeStore(RascalValueFactory.getStore()), vf.setWriter(), new HashSet<>());
 	}
 	
 	private static Map<String,IValue> $getAllKeywordParameters(IValue v, RascalExecutionContext rex){

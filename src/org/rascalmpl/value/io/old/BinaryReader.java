@@ -9,8 +9,9 @@
 *    Arnold Lankamp - interfaces and implementation
 *    Anya Helene Bagge - labeled map types; safer reading
 *******************************************************************************/
-package org.rascalmpl.value.io.binary;
+package org.rascalmpl.value.io.old;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -51,18 +52,20 @@ import io.usethesource.capsule.TrieMap_5Bits;
 // TODO Change this thing so it doesn't use recursion.
 /**
  * @author Arnold Lankamp
+ * @deprecated this reader is only for the old IValue format. The new {@link org.rascalmpl.value.io.binary.stream.IValueInputStream} should be used, it even switches back to this class in case an old file is encountered. 
  */
-public class BinaryReader{
+@Deprecated
+public class BinaryReader implements Closeable {
 	private final static int DEFAULT_SHARED_VALUES_STORE_SIZE = 1024;
 	private final static int DEFAULT_SHARED_TYPES_STORE_SIZE = 128;
 	private final static int DEFAULT_SHARED_PATHS_STORE_SIZE = 128;
 	private final static int DEFAULT_SHARED_NAMES_STORE_SIZE = 128;
 
-	private final static int BOOL_HEADER = 0x01;
+	public final static int BOOL_HEADER = 0x01;
 	private final static int INTEGER_HEADER = 0x02;
 	private final static int BIG_INTEGER_HEADER = 0x03; // Special case of INTEGER_HEADER (flags for alternate encoding).
 	private final static int DOUBLE_HEADER = 0x04;
-	private final static int IEEE754_ENCODED_DOUBLE_HEADER = 0x14;
+	public final static int IEEE754_ENCODED_DOUBLE_HEADER = 0x14;
 	private final static int STRING_HEADER = 0x05;
 	private final static int SOURCE_LOCATION_HEADER = 0x06;
 	private final static int DATE_TIME_HEADER = 0x10;
@@ -106,7 +109,7 @@ public class BinaryReader{
 	
 	private final static int TYPE_MASK = 0x1f;
 	
-	private final static int SHARED_FLAG = 0x80;
+	public final static int SHARED_FLAG = 0x80;
 	private final static int TYPE_SHARED_FLAG = 0x40;
 	private final static int URL_SHARED_FLAG = 0x20;
 	private final static int NAME_SHARED_FLAG = 0x20;
@@ -1031,4 +1034,9 @@ public class BinaryReader{
 			super("unexpected end of file");
 		}
 	}
+
+    @Override
+    public void close() throws IOException {
+        in.close();
+    }
 }

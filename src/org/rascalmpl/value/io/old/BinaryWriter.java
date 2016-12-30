@@ -10,7 +10,7 @@
 *    Anya Helene Bagge - labeled map types
 *    Jurgen Vinju - externa; types
 *******************************************************************************/
-package org.rascalmpl.value.io.binary;
+package org.rascalmpl.value.io.old;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -45,7 +45,9 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 // TODO Change this thing so it doesn't use recursion.
 /**
  * @author Arnold Lankamp
+ * @deprecated binary writer is replaced by the new {@link org.rascalmpl.value.io.binary.message.IValueWriter}}
  */
+@Deprecated
 public class BinaryWriter{
 	public static final class IdentityValue implements IValue {
 	  private final IValue wrapped;

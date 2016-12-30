@@ -16,7 +16,6 @@ package org.rascalmpl.semantics.dynamic;
 import java.io.IOException;
 import java.io.StringReader;
 
-import org.rascalmpl.ast.DateAndTime.Lexical;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;

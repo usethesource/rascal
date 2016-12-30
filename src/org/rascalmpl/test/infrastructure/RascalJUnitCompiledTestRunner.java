@@ -214,14 +214,9 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	      //  Do a sufficient but not complete check on the binary; changes to imports will go unnoticed!
 	      if(!resolver.exists(binary) || resolver.lastModified(source) > resolver.lastModified(binary)){
 	        System.err.println("Compiling: " + qualifiedName);
-//	        HashMap<String, IValue> kwparams = new HashMap<>();
-//	        kwparams.put("enableAsserts", vf.bool(true));
+
 	        IList programs = kernel.compileAndLink(
 	            vf.list(vf.string(qualifiedName)),
-//	            pcfg.getSrcs(),
-//	            pcfg.getLibs(),
-//	            pcfg.getBoot(),
-//	            pcfg.getBin(),
 	            pcfg.asConstructor(kernel),
 	            kernel.kw_compileAndLink().enableAsserts(true).reloc(vf.sourceLocation("noreloc", "", "")));
 	        boolean ok = RascalC.handleMessages(programs, pcfg);
@@ -230,7 +225,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	        }
 	      }
 
-	      RVMExecutable executable = RVMExecutable.read(binary, rex.getTypeStore());
+	      RVMExecutable executable = RVMExecutable.newRead(binary, rex.getTypeStore());
 
 	      if(executable.getTests().size() > 0){
 	        Description modDesc = Description.createSuiteDescription(qualifiedName);

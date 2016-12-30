@@ -28,15 +28,13 @@ import lang::rascal::types::AbstractName;
 
 str basename(loc l) = l.file[ .. findFirst(l.file, ".")];  // TODO: for library
 
-tuple[bool,loc] RVMModuleReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "rvm.gz", pcfg);
+tuple[bool,loc] RVMModuleReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "rvm", pcfg);
 
-loc RVMModuleWriteLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedWriteLoc(qualifiedModuleName, "rvm.gz", pcfg);
+loc RVMModuleWriteLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedWriteLoc(qualifiedModuleName, "rvm", pcfg);
 
-tuple[bool,loc] RVMExecutableReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "rvm.ser.gz", pcfg); 
+tuple[bool,loc] RVMExecutableReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "rvmx", pcfg); 
 
-tuple[bool,loc] RVMExecutableCompressedReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "rvm.ser.gz", pcfg); 
-
-loc RVMExecutableCompressedWriteLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedWriteLoc(qualifiedModuleName, "rvm.ser.gz", pcfg);
+loc RVMExecutableWriteLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedWriteLoc(qualifiedModuleName, "rvmx", pcfg);
 
 tuple[bool,loc] MuModuleReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "mu", pcfg); 
 loc MuModuleWriteLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedWriteLoc(qualifiedModuleName, "mu", pcfg);
@@ -45,12 +43,12 @@ tuple[bool,loc] ConfigReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDer
 
 tuple[bool,loc] getMergedImportsReadLoc(str mainQualifiedName, PathConfig pcfg){
     merged_imports_qname = mainQualifiedName + "_imports";
-    return getDerivedReadLoc(merged_imports_qname, "rvm.gz", pcfg);
+    return getDerivedReadLoc(merged_imports_qname, "rvm", pcfg);
 }
 
 loc getMergedImportsWriteLoc(str mainQualifiedName, PathConfig pcfg){
     merged_imports_qname = mainQualifiedName + "_imports";
-    return getDerivedWriteLoc(merged_imports_qname, "rvm.gz", pcfg);
+    return getDerivedWriteLoc(merged_imports_qname, "rvm", pcfg);
 }
 
 
