@@ -83,7 +83,7 @@ data PathConfig
                loc boot = |boot:///|/*|boot+compressed:///|*/,    // Directory with Rascal boot files
                                                     // List of directories to search source for derived files
                list[loc] libs = [|home:///bin/|, |boot:///|],
-               list[loc] javaCompilerPath = [|file:///| + e | e <- split(":", getSystemProperty("java.class.path"))]        
+               list[loc] javaCompilerPath = []        
               );
 
 data RascalManifest
