@@ -41,7 +41,6 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.InvalidDateTimeException;
-import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
@@ -6115,7 +6114,8 @@ public enum RascalPrimitive {
 	 * [ ..., IConstructor cons, IString fieldName, IMap fieldMap ] => [ ..., IBool true if cons does have fieldName ]
 	 */
 	adt_has_field {
-		@Override
+		@SuppressWarnings("deprecation")
+        @Override
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 3;
 			IConstructor cons = (IConstructor) stack[sp - 3];
@@ -6154,7 +6154,8 @@ public enum RascalPrimitive {
 	 * [ ..., INode nd, IString fieldName ] => [ ..., IBool true if cons does have fieldName ]
 	 */
 	node_has_field {
-		@Override
+		@SuppressWarnings("deprecation")
+        @Override
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			INode nd = (INode) arg_2;
 			IString field = ((IString) arg_1);
@@ -8674,7 +8675,6 @@ public enum RascalPrimitive {
 	public static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private static final TypeFactory tf = TypeFactory.getInstance();
 
-	@SuppressWarnings("deprecation")
 	private static final Type lineColumnType = TypeFactory.getInstance().tupleType(new Type[] {TypeFactory.getInstance().integerType(), TypeFactory.getInstance().integerType()},
 			new String[] {"line", "column"});
 	
@@ -8686,11 +8686,6 @@ public enum RascalPrimitive {
 
 	public static final IBool Rascal_TRUE =  ValueFactoryFactory.getValueFactory().bool(true);
 	public static final IBool Rascal_FALSE =  ValueFactoryFactory.getValueFactory().bool(false);
-	
-	// Constants for test generation
-	
-	private static final int MAXDEPTH = 5;
-	private static final int TRIES = 500;
 	
 	// For profiling of RascalPrimitives
 	
