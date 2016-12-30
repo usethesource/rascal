@@ -225,7 +225,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 	        }
 	      }
 
-	      RVMExecutable executable = RVMExecutable.newRead(binary, rex.getTypeStore());
+	      RVMExecutable executable = RVMExecutable.newRead(binary);
 
 	      if(executable.getTests().size() > 0){
 	        Description modDesc = Description.createSuiteDescription(qualifiedName);
