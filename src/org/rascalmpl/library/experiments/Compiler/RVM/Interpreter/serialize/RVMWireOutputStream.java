@@ -18,12 +18,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.io.binary.message.IValueWriter;
 import org.rascalmpl.value.io.binary.util.TrackLastWritten;
 import org.rascalmpl.value.io.binary.util.WindowCacheFactory;
 import org.rascalmpl.value.io.binary.util.WindowSizes;
 import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
 import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RVMWireOutputStream implements IRVMWireOutputStream {
     
@@ -31,6 +34,8 @@ public class RVMWireOutputStream implements IRVMWireOutputStream {
     static final int MAP_STRING_INT = 0x42AA;
     static final int HEADER_ID = 0x4242;
     static final int WINDOW_SIZE = 1;
+    private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
+    private static final TypeFactory tf = TypeFactory.getInstance();
     private final IWireOutputStream stream;
     private TrackLastWritten<Object> cache;
 
@@ -91,10 +96,7 @@ public class RVMWireOutputStream implements IRVMWireOutputStream {
     
     @Override
     public void writeField(int fieldId, IValue[] values, WindowSizes window) throws IOException {
-        writeRepeatedNestedField(fieldId, values.length);
-        for (IValue v : values) {
-            write(v, window);
-        }
+        writeField(fieldId, vf.list(values), window);
     }
     
     @Override
@@ -105,10 +107,7 @@ public class RVMWireOutputStream implements IRVMWireOutputStream {
     
     @Override
     public void writeField(int fieldId, Type[] values, WindowSizes window) throws IOException {
-        writeRepeatedNestedField(fieldId, values.length);
-        for (Type v : values) {
-            write(v, window);
-        }
+        writeField(fieldId, tf.tupleType(values.clone()), window);
     }
 
     private void write(IValue v, WindowSizes window) throws IOException {
