@@ -101,6 +101,7 @@ public class Bootstrap {
     private static void time(String message, ThrowingSideEffectOnly target) throws Exception {
         time(message, () -> target.call());
     }
+    
     @FunctionalInterface
     public interface ThrowingSideEffectOnly {
         default Void call() throws Exception {
