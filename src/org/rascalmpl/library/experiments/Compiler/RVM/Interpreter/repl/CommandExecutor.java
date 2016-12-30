@@ -60,7 +60,6 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.io.StandardTextWriter;
 import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -383,7 +382,7 @@ public class CommandExecutor {
 																	  .verbose(compile_verbose)
 																	  .jvm(true)
 																	);
-			rvmConsoleExecutable = ExecutionTools.link(rvmProgram, ValueFactoryFactory.getValueFactory().bool(true), new TypeStore());
+			rvmConsoleExecutable = ExecutionTools.link(rvmProgram, ValueFactoryFactory.getValueFactory().bool(true));
 
 			if(noErrors(rvmConsoleExecutable)){
 				RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(pcfg, stdout, stderr)
@@ -932,7 +931,7 @@ public class CommandExecutor {
 			break;
 			
 		case "clean":
-		    cleanProject(words);
+		    cleanProject();
 		
 		case "break":
 			debugObserver.getBreakPointManager().breakDirective(words);
@@ -1110,7 +1109,7 @@ public class CommandExecutor {
 	  return repl.completeModule(line, cursor);
 	}
 	
-	private void cleanProject(String[] words) {
+	private void cleanProject() {
 	  try {
 	    Path binRoot = Paths.get(pcfg.getBin().getPath());
 

@@ -11,7 +11,6 @@ import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
@@ -41,7 +40,7 @@ public class FSTSerializableType extends FSTBasicObjectSerializer implements Ser
 	private static transient TypeFactory tf;
 	private static transient RascalTypeFactory rtf;
 
-	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
+	public static void initSerialization(TypeStore ts){
 		store = ts;
 		store.extendStore(RascalValueFactory.getStore());
 		tf = TypeFactory.getInstance();
