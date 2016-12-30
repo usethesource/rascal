@@ -23,7 +23,6 @@ test bool relLabels() = #rel[int a, int b].symbol == \set(\tuple([label("a", \in
 @ignoreInterpreter
 test bool relLabels() = #rel[int a, int b].symbol == \rel([label("a", \int()),label("b", \int())]);
 
-
 test bool everyTypeCanBeReifiedWithoutExceptions(&T u) = _ := typeOf(u);
 
 data P = prop(str name) | and(P l, P r) | or(P l, P r) | not(P a) | t() | f();

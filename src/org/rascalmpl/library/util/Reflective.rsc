@@ -79,9 +79,9 @@ data PathConfig
   = pathConfig(list[loc] srcs = [|std:///|],        // List of directories to search for source files
                list[loc] courses = [|courses:///|], // List of locations to search for course source files
                loc bin = |home:///bin/|,            // Global directory for derived files outside projects
-               loc boot = |boot+compressed:///|,    // Directory with Rascal boot files
+               loc boot = |boot:///|/*|boot+compressed:///|*/,    // Directory with Rascal boot files
                                                     // List of directories to search source for derived files
-               list[loc] libs = [|home:///bin/|, |boot+compressed:///|]         
+               list[loc] libs = [|home:///bin/|, |boot:///|/*|boot+compressed:///|*/]         
               );
 
 data RascalManifest
@@ -227,16 +227,10 @@ tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathC
            }
        }
     } else {
-      // A binary (possibly library) module
-      compressed = endsWith(extension, "gz");
-
       for(loc dir <- pcfg.bin + pcfg.libs){   // In a bin or lib directory?
        
         fileLoc = dir + fileName;
         if(exists(fileLoc)){
-           if(compressed){
-              fileLoc.scheme = "compressed+" + fileLoc.scheme;
-           }
            //println("getDerivedReadLoc: <qualifiedModuleName>, <extension> =\> <fileLoc>");
            return <true, fileLoc>;
         }
@@ -276,12 +270,8 @@ loc getDerivedWriteLoc(str qualifiedModuleName, str extension, PathConfig pcfg, 
     }
     fileNameSrc = makeFileName(qualifiedModuleName);
     fileNameBin = makeFileName(qualifiedModuleName, extension=extension);
-    compressed = endsWith(extension, "gz");
     
     bin = pcfg.bin;
-    if(compressed){
-       bin.scheme = "compressed+" + bin.scheme;
-    }
     fileLocBin = bin + fileNameBin;
     //println("getDerivedWriteLoc: <qualifiedModuleName>, <extension> =\> <fileLocBin>");
     return fileLocBin;

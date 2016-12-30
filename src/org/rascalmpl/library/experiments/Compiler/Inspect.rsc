@@ -107,7 +107,7 @@ void inspect(str qualifiedModuleName,   // nameof Rascal source module
           bool listing = false,         // show instruction listing
           bool linked = false           // inspect the fully linked version of the program
           ){
-           <e, rvmLoc> = linked ? RVMExecutableCompressedReadLoc(qualifiedModuleName, pcfg) : RVMModuleReadLoc(qualifiedModuleName, pcfg);
+           <e, rvmLoc> = linked ? RVMExecutableReadLoc(qualifiedModuleName, pcfg) : RVMModuleReadLoc(qualifiedModuleName, pcfg);
     inspect(rvmLoc, select=select, line=line, listing=listing);
 }
            
@@ -315,7 +315,7 @@ void statistics(loc root = |std:///|,
                 PathConfig pcfg = pathConfig(),
                 bool printMessages = false
                 ){
-    allFiles = find(root, "gz");
+    allFiles = find(root, "rvm");
     println(allFiles);
     
     nfunctions = 0;
@@ -484,7 +484,7 @@ set[loc] getFunctionLocations(
                             str qualifiedModuleName,                  // location of Rascal source file
                             PathConfig pcfg                  // location where binaries are stored
                             ){
-   if(<true, rvmLoc> := getDerivedReadLoc(qualifiedModuleName, "rvm.gz", pcfg)){
+   if(<true, rvmLoc> := getDerivedReadLoc(qualifiedModuleName, "rvm", pcfg)){
        try {
             p = readBinaryValueFile(#RVMModule, rvmLoc);
             

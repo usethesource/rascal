@@ -103,7 +103,7 @@ public class ValueFactory extends AbstractPrimitiveValueFactory {
 	}
 	
 	public IList list(IValue... elements){
-		IListWriter listWriter = listWriter(lub(elements));
+		IListWriter listWriter = listWriter();
 		listWriter.append(elements);
 		
 		return listWriter.done();

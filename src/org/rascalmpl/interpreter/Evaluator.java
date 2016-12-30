@@ -111,7 +111,6 @@ import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.io.StandardTextReader;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
-import org.rascalmpl.value.type.TypeFactory.TypeValues;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 

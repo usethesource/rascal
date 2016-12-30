@@ -8,7 +8,7 @@
 * Contributors:
 *    Arnold Lankamp - interfaces and implementation
 *******************************************************************************/
-package org.rascalmpl.value.io;
+package org.rascalmpl.value.io.old;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -17,14 +17,15 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.io.binary.BinaryWriter;
+import org.rascalmpl.value.io.IValueBinaryWriter;
+import org.rascalmpl.value.io.IValueTextWriter;
 import org.rascalmpl.value.type.TypeStore;
 
 /**
  * Writer for PDB Binary Files (PBF).
  * 
  * @author Arnold Lankamp
- * @deprecated binary writer currently does not support keyword parameters.
+ * @deprecated binary writer is replaced by the new {@link org.rascalmpl.value.io.binary.message.IValueWriter}}
  */
 public class BinaryValueWriter implements IValueBinaryWriter{
 	

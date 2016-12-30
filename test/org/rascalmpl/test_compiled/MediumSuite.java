@@ -26,7 +26,7 @@ import org.rascalmpl.test.infrastructure.RecursiveTestSuite;
                 "imports",  
                 "library",
                 "meta",
-                "parser", 
+                /*"parser", */
                 "syntax"
                 })
 public class MediumSuite  { }

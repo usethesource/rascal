@@ -12,8 +12,12 @@ import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
 import org.nustaq.serialization.FSTObjectInput;
 import org.nustaq.serialization.FSTObjectOutput;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireInputStream;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireOutputStream;
 import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.binary.util.WindowSizes;
+import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -39,8 +43,8 @@ public class OverloadedFunction implements Serializable {
 	int scopeIn = -1;
 	boolean allConcreteFunctionArgs = false;
 	boolean allConcreteConstructorArgs = false;
-	HashMap<Integer, int[]> filteredFunctions;		// Functions and constructors filtered on fingerprint of first argument
-	HashMap<Integer, int[]> filteredConstructors;
+	Map<Integer, int[]> filteredFunctions;		// Functions and constructors filtered on fingerprint of first argument
+	Map<Integer, int[]> filteredConstructors;
 	
 	public OverloadedFunction(String name, Type funType, final int[] functions, final int[] constructors, final String funIn) {
 		if(funIn == null){
@@ -55,7 +59,7 @@ public class OverloadedFunction implements Serializable {
 	
 	public OverloadedFunction(String name, Type funType, int[] functions, int[] constructors, String funIn,
 			int scopeIn, boolean allConcreteFunctionArgs, boolean allConcreteConstructorArgs,
-			HashMap<Integer, int[]> filteredFunctions, HashMap<Integer, int[]> filteredConstructors) {
+			Map<Integer, int[]> filteredFunctions, Map<Integer, int[]> filteredConstructors) {
 		this.name = name;
 		this.funType = funType;
 		this.functions = functions;
@@ -132,7 +136,7 @@ public class OverloadedFunction implements Serializable {
 		filter(functionStore);
 	}
 	
-	void printArray(int[] a){
+	void printArray(){
 		System.out.print("[ ");for(int i : functions) System.out.print(i + " "); System.out.println("]");
 	}
 	
@@ -160,7 +164,7 @@ public class OverloadedFunction implements Serializable {
 		}
 		return true;
 	}
-	boolean compareIntMaps(HashMap<Integer, int[]> a, HashMap<Integer, int[]> b){
+	boolean compareIntMaps(Map<Integer, int[]> a, Map<Integer, int[]> b){
 		if(a.size() != b.size()){
 			System.out.println("Different length: " + a.size() + " vs " + b.size());
 		}
@@ -176,12 +180,12 @@ public class OverloadedFunction implements Serializable {
 	public boolean comparable(OverloadedFunction other){
 		if(!compareIntArrays(functions, other.functions)){
 			System.out.println("functions differ: " + functions + " vs " + other.functions);
-			printArray(functions);	System.out.print(" vs "); printArray(other.functions);
+			printArray();	System.out.print(" vs "); printArray();
 			return false;
 		}
 		if(!compareIntArrays(constructors, other.constructors)){
 			System.out.println("constructors differ: " + constructors + " vs " + other.constructors);
-			printArray(constructors);	System.out.print(" vs "); printArray(other.constructors);
+			printArray();	System.out.print(" vs "); printArray();
 			return false;
 		}
 		if(!funIn.equals(other.funIn)){
@@ -346,6 +350,127 @@ public class OverloadedFunction implements Serializable {
 		this.scopeIn = scopeIn;
 	}
 
+    public void write(IRVMWireOutputStream out) throws IOException {
+        
+        out.startMessage(CompilerIDs.OverloadedFunction.ID);
+        
+        out.writeField(CompilerIDs.OverloadedFunction.NAME, name);
+
+        out.writeField(CompilerIDs.OverloadedFunction.FUN_TYPE, funType, WindowSizes.TINY_WINDOW);
+        
+        out.writeField(CompilerIDs.OverloadedFunction.FUNCTIONS, functions);
+        
+        out.writeField(CompilerIDs.OverloadedFunction.CONSTRUCTORS, constructors);
+        
+        out.writeField(CompilerIDs.OverloadedFunction.FUN_IN, funIn);
+        
+        out.writeField(CompilerIDs.OverloadedFunction.SCOPE_IN, scopeIn);
+        
+        if(allConcreteFunctionArgs){
+            out.writeField(CompilerIDs.OverloadedFunction.ALL_CONCRETE_FUNCTION_ARGS, 1);
+        }
+        
+        if(allConcreteConstructorArgs){
+            out.writeField(CompilerIDs.OverloadedFunction.ALL_CONCRETE_CONSTRUCTOR_ARGS, 1);
+        }
+        
+        if(filteredFunctions != null){
+            out.writeFieldIntIntArray(CompilerIDs.OverloadedFunction.FILTERED_FUNCTIONS, filteredFunctions);
+        }
+        
+        if(filteredConstructors != null){
+            out.writeFieldIntIntArray(CompilerIDs.OverloadedFunction.FILTERED_CONSTRUCTORS, filteredConstructors);
+        }
+        
+        out.endMessage();
+    }
+   
+    static OverloadedFunction read(IRVMWireInputStream in) throws IOException {
+        String name = "unitialized name";
+        Type funType = null;
+        int[] functions = new int[0];
+        int[] constructors = new int[0];
+        String funIn = "unitialized funIn";
+        int scopeIn = -1;
+        boolean allConcreteFunctionArgs = false;
+        boolean allConcreteConstructorArgs = false;
+        Map<Integer, int[]> emptyMap = new HashMap<>();
+        Map<Integer, int[]> filteredFunctions = emptyMap;
+        Map<Integer, int[]> filteredConstructors = emptyMap;
+        
+        in.next();
+        assert in.current() == IWireInputStream.MESSAGE_START;
+        if(in.message() != CompilerIDs.OverloadedFunction.ID){
+            throw new IOException("Unexpected message: " + in.message());
+        }
+        while(in.next() != IWireInputStream.MESSAGE_END){
+            switch(in.field()){
+                
+                case CompilerIDs.OverloadedFunction.NAME: {
+                    name = in.getString();
+                    break;
+                }
+                
+                case CompilerIDs.OverloadedFunction.FUN_TYPE: {
+                    funType = in.readType();
+                    break;
+                }
+                
+                case CompilerIDs.OverloadedFunction.FUNCTIONS: {
+                    functions = in.getIntegers();
+                    break;
+                }
+                
+                case CompilerIDs.OverloadedFunction.CONSTRUCTORS: {
+                    constructors = in.getIntegers();
+                    break;
+                }
+                
+                case CompilerIDs.OverloadedFunction.FUN_IN: {
+                    funIn = in.getString();
+                    break;
+                }
+                
+                case CompilerIDs.OverloadedFunction.SCOPE_IN: {
+                    scopeIn = in.getInteger();
+                    break;
+                }
+                
+                case CompilerIDs.OverloadedFunction.ALL_CONCRETE_FUNCTION_ARGS: {
+                    int n = in.getInteger();
+                    allConcreteFunctionArgs = n == 1;
+                    break;
+                }
+                
+                case CompilerIDs.OverloadedFunction.ALL_CONCRETE_CONSTRUCTOR_ARGS: {
+                    int n = in.getInteger();
+                    allConcreteConstructorArgs = n == 1;
+                    break;
+                }
+                
+                case CompilerIDs.OverloadedFunction.FILTERED_FUNCTIONS: {
+                    filteredFunctions = in.readIntIntArrayMap();
+                    break;
+                }
+                
+                case CompilerIDs.OverloadedFunction.FILTERED_CONSTRUCTORS: {
+                    filteredConstructors = in.readIntIntArrayMap();
+                    break;
+                }
+                
+                default: {
+                    System.err.println("OverloadedFunction.read, skips " + in.field());
+                    // skip field, normally next takes care of it
+                    in.skipNestedField();
+                }
+            }
+        }
+        
+        return new OverloadedFunction(name, funType, functions, constructors, funIn, scopeIn, allConcreteFunctionArgs, allConcreteConstructorArgs,
+            filteredFunctions,filteredConstructors);
+        
+    }
+
 }
 
 
@@ -354,12 +479,10 @@ public class OverloadedFunction implements Serializable {
  *
  */
 class FSTOverloadedFunctionSerializer extends FSTBasicObjectSerializer {
-	
-	//private static IValueFactory vf;
+
 	private static TypeStore store;
 
-	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
-		//vf = vfactory;
+	public static void initSerialization(TypeStore ts){
 		store = ts;
 		store.extendStore(RascalValueFactory.getStore());
 	}
