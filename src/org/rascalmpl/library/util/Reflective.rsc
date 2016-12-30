@@ -81,7 +81,8 @@ data PathConfig
                loc bin = |home:///bin/|,            // Global directory for derived files outside projects
                loc boot = |boot:///|/*|boot+compressed:///|*/,    // Directory with Rascal boot files
                                                     // List of directories to search source for derived files
-               list[loc] libs = [|home:///bin/|, |boot:///|/*|boot+compressed:///|*/]         
+               list[loc] libs = [|home:///bin/|, |boot:///|],
+               list[loc] javaCompilerPath = [|file:///| + e | e <- split(":", getSystemProperty("java.class.path"))]        
               );
 
 data RascalManifest
