@@ -66,14 +66,15 @@ test bool aliasAndADT2() {
 alias trans = tuple[str, str, str]; 
 alias block = set[trans];
 alias partition = set[block];
+
+data P[&T] = p(&T a);
                  
 test bool  transitiveAliasAcrossTuples() {
     block aBlock = {<"a", "b", "c">};
     return aBlock == {<"a", "b", "c">};
 }	
 
-@ignoreCompiler
-test bool reifiedAlias1a() = 
+test bool reifiedAlias1() = 
   #partition == 
   type(
   \set(\set(\tuple([
@@ -83,25 +84,60 @@ test bool reifiedAlias1a() =
         ]))),
   ());
 
-@ignoreInterpreter
-test bool reifiedAlias1b() = 
-  #partition == 
+test bool reifiedAlias2() =
+  #P[partition] ==
    type(
-     \alias(
-    "partition",
-    [],
-    \set(\set(\tuple([
-          \str(),
-          \str(),
-          \str()
-        ])))),
-  ()) ? true : bprintln(#partition.symbol) && false;
+  adt(
+    "P",
+    [\set(\set(\tuple([
+              \str(),
+              \str(),
+              \str()
+            ])))]),
+  (adt(
+      "P",
+      [parameter(
+          "T",
+          \value())]):choice(
+      adt(
+        "P",
+        [parameter(
+            "T",
+            \value())]),
+      {cons(
+          label(
+            "p",
+            adt(
+              "P",
+              [parameter(
+                  "T",
+                  \value())])),
+          [label(
+              "a",
+              parameter(
+                "T",
+                \value()))],
+          [],
+          {})})));
+          
+alias LIST[&T] = list[&T];
+
+test bool reifiedAlias3() =
+   #LIST[LIST[int]].symbol == \list(\list(\int()));
+   
+test bool reifiedAlias4() =
+   #LIST[LIST[LIST[int]]].symbol == \list(\list(\list(\int())));
+
+alias TUPLELIST[&T] = tuple[LIST[&T], LIST[&T]];
+
+test bool reifiedAlias5() =
+    #TUPLELIST[int].symbol == \tuple([\list(\int()), \list(\int())]);
 
 alias STRING = str;
 
 data DATA1 = d1(STRING s);
 
-test bool reifiedAlias2() = #DATA1 ==
+test bool reifiedAlias6() = #DATA1 ==
 type(
   adt(
     "DATA1",
@@ -127,7 +163,7 @@ type(
 
 data DATA2 = d2(DATA1(STRING) fun);
 
-test bool reifiedAlias3a() = #DATA2 ==
+test bool reifiedAlias7() = #DATA2 ==
 type(
   adt(
     "DATA2",
@@ -173,7 +209,7 @@ type(
           {})})
   ));
 
-test bool reifiedAlias3b() = #DATA2 ==
+test bool reifiedAlias8() = #DATA2 ==
 type(
   adt(
     "DATA2",
