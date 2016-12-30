@@ -5,6 +5,7 @@ import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.rascalmpl.interpreter.Configuration;
@@ -13,6 +14,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
@@ -25,6 +27,7 @@ public class PathConfig {
 	List<ISourceLocation> srcs;		// List of locations to search for source files
 	List<ISourceLocation> libs;     // List of (library) locations to search for derived files
 	List<ISourceLocation> courses; 	// List of (library) locations to search for course source files
+	List<ISourceLocation> javaCompilerPath; // List of jar files on the JDK compiler classpath
 	ISourceLocation bin; 			// Global location for derived files outside projects or libraries
 	ISourceLocation boot;			// Location with Rascal boot files
 
@@ -34,6 +37,7 @@ public class PathConfig {
 	private static List<ISourceLocation> defaultCourses;
 	private static ISourceLocation defaultBin;
 	private static ISourceLocation defaultBoot;
+	private static List<ISourceLocation> defaultJavaCompilerPath;
 	
 	static {
 		try {
@@ -42,6 +46,8 @@ public class PathConfig {
 			defaultBin = vf.sourceLocation("home", "", "bin");
 			defaultBoot = vf.sourceLocation("boot", "", "");
 			defaultCourses = Arrays.asList(vf.sourceLocation("courses", "", ""));
+			// [|file:///| + e | e <- split(":", getSystemProperty("java.class.path"))]
+			defaultJavaCompilerPath = defaultJavaCompilerPath();
 		} catch (URISyntaxException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -57,7 +63,15 @@ public class PathConfig {
 //		makeRascalSearchPath();
 	}
 	
-	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin) {
+	private static List<ISourceLocation> defaultJavaCompilerPath() {
+	    List<ISourceLocation> result = new LinkedList<>();
+	    for (String e : System.getProperty("java.class.path").split(":")) {
+	        result.add(vf.sourceLocation(e));
+	    }
+	    return result;
+    }
+
+    public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin) {
 		this(srcs, libs, bin, defaultBoot, defaultCourses);
 	}
 	
@@ -93,7 +107,7 @@ public class PathConfig {
         this.bin = bin;
         this.boot = defaultBoot;
         this.courses = convertLocs(courses);
-//        makeRascalSearchPath();
+        this.javaCompilerPath = defaultJavaCompilerPath;
     }
 	
 	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot, IList courses){
@@ -102,7 +116,16 @@ public class PathConfig {
         this.bin = bin;
         this.boot = boot;
         this.courses = convertLocs(courses);
-//        makeRascalSearchPath();
+        this.javaCompilerPath = defaultJavaCompilerPath;
+    }
+	
+	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot, IList courses, IList javaCompilerPath){
+        this.srcs = convertLocs(srcs);
+        this.libs = convertLocs(libs);
+        this.bin = bin;
+        this.boot = boot;
+        this.courses = convertLocs(courses);
+        this.javaCompilerPath = convertLocs(javaCompilerPath);
     }
 	
 	List<ISourceLocation> convertLocs(IList locs){
@@ -133,6 +156,10 @@ public class PathConfig {
         return defaultBoot;
     }
 	
+	public static List<ISourceLocation> getDefaultJavaCompilerPath() {
+	    return defaultJavaCompilerPath;
+	}
+	
 	public static List<ISourceLocation> getDefaultCourses(){
 	    return defaultCourses;
 	}
@@ -153,6 +180,16 @@ public class PathConfig {
 	
 	public IList getCourses() {
 	    return vf.list(courses.toArray(new IValue[0]));
+	}
+	
+	public IList getJavaCompilerPath() {
+	    return vf.list(javaCompilerPath.toArray(new IValue[0]));
+	}
+	
+	public PathConfig addCompilerPath(ISourceLocation dir) {
+	    List<ISourceLocation> extendedPath = new ArrayList<ISourceLocation>(javaCompilerPath);
+	    extendedPath.add(dir);
+        return new PathConfig(srcs, libs, bin, boot, courses, extendedPath);
 	}
 	
 	public PathConfig addCourseLoc(ISourceLocation dir) {
@@ -340,7 +377,10 @@ public class PathConfig {
        .append("libs:    ").append(getLibs().toString()).append("\n")
        .append("courses: ").append(getCourses().toString()).append("\n")
        .append("boot:    ").append(getBoot().toString()).append("\n")
-       .append("bin:     ").append(getBin().toString()).append("\n");
+       .append("bin:     ").append(getBin().toString()).append("\n")
+       .append("classpath").append(getClasspath().toString()).append("\n")
+       ;
+       
       return w.toString();
     }
 }
