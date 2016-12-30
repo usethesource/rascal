@@ -2056,8 +2056,8 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(AASTORE);
 	}
 
-	public void emitInlineResetLocs(int positions, IValue constantValues) {
-		IList il = (IList) constantValues;
+	public void emitInlineResetLocs(IValue positions) {
+		IList il = (IList) positions;
 		for (IValue v : il) {
 			int stackPos = ((IInteger) v).intValue();
 			mv.visitVarInsn(ALOAD, STACK);
@@ -2170,7 +2170,7 @@ public class BytecodeGenerator implements Opcodes {
 	 * Map RVM function names to valid JVM method names. 
 	 * The characeters not allowed in JVM method names are (according to 4.2.2. Unqualified Names): . ; [ / < >
 	 */
-	 private String rvm2jvmName(String s) {
+	 protected static String rvm2jvmName(String s) {
 		char[] b = s.toCharArray();
 		boolean modified = false;
 		for (int i = 0; i < b.length; i++) {
