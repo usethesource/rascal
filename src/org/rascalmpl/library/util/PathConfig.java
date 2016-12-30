@@ -25,6 +25,8 @@ public class PathConfig {
 	List<ISourceLocation> srcs;		// List of locations to search for source files
 	List<ISourceLocation> libs;     // List of (library) locations to search for derived files
 	List<ISourceLocation> courses; 	// List of (library) locations to search for course source files
+	List<ISourceLocation> javaCompilerPath;     // List of (library) locations to search for course source files
+    
 	ISourceLocation bin; 			// Global location for derived files outside projects or libraries
 	ISourceLocation boot;			// Location with Rascal boot files
 
@@ -32,6 +34,7 @@ public class PathConfig {
 	
 	private static ISourceLocation defaultStd;
 	private static List<ISourceLocation> defaultCourses;
+	private static List<ISourceLocation> defaultJavaCompilerPath;
 	private static ISourceLocation defaultBin;
 	private static ISourceLocation defaultBoot;
 	
@@ -42,8 +45,8 @@ public class PathConfig {
 			defaultBin = vf.sourceLocation("home", "", "bin");
 			defaultBoot = vf.sourceLocation("boot", "", "");
 			defaultCourses = Arrays.asList(vf.sourceLocation("courses", "", ""));
+			defaultJavaCompilerPath = computeDefaultJavaCompilerPath();
 		} catch (URISyntaxException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -54,10 +57,17 @@ public class PathConfig {
 		bin = defaultBin;
 		boot = defaultBoot;
 		libs = Arrays.asList(bin, boot);
-//		makeRascalSearchPath();
 	}
 	
-	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin) {
+	private static List<ISourceLocation> computeDefaultJavaCompilerPath() {
+        List<ISourceLocation> result = new ArrayList<>();
+        for (String path : System.getProperty("java.class.path").split(":")) {
+            result.add(vf.sourceLocation(path));
+        }
+        return result;
+    }
+
+    public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin) {
 		this(srcs, libs, bin, defaultBoot, defaultCourses);
 	}
 	
@@ -69,13 +79,17 @@ public class PathConfig {
 		this(srcs, libs, bin, boot, defaultCourses);
 	}
 	
-	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, ISourceLocation boot, List<ISourceLocation> courses){
+	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, ISourceLocation boot, List<ISourceLocation> courses) {
+	    this(srcs, libs, bin, boot, courses, defaultJavaCompilerPath);
+	}
+	
+	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, ISourceLocation boot, List<ISourceLocation> courses, List<ISourceLocation> javaCompilerPath){
 		this.srcs = srcs;
 		this.courses = courses;
 		this.libs = libs;
 		this.bin = bin;
 		this.boot = boot;
-//		makeRascalSearchPath();
+		this.javaCompilerPath = javaCompilerPath;
 	}
 	
 	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot){
@@ -84,7 +98,6 @@ public class PathConfig {
         this.bin = bin;
         this.boot = boot;
         this.courses = defaultCourses;
-//        makeRascalSearchPath();
     }
 	
 	public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList courses){
@@ -93,7 +106,6 @@ public class PathConfig {
         this.bin = bin;
         this.boot = defaultBoot;
         this.courses = convertLocs(courses);
-//        makeRascalSearchPath();
     }
 	
 	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot, IList courses){
@@ -102,7 +114,15 @@ public class PathConfig {
         this.bin = bin;
         this.boot = boot;
         this.courses = convertLocs(courses);
-//        makeRascalSearchPath();
+    }
+	
+	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot, IList courses, IList javaCompilerPath){
+        this.srcs = convertLocs(srcs);
+        this.libs = convertLocs(libs);
+        this.bin = bin;
+        this.boot = boot;
+        this.courses = convertLocs(courses);
+        this.javaCompilerPath = convertLocs(javaCompilerPath);
     }
 	
 	List<ISourceLocation> convertLocs(IList locs){
@@ -133,6 +153,10 @@ public class PathConfig {
         return defaultBoot;
     }
 	
+	public static List<ISourceLocation> getDefaultJavaCompilerPath() {
+	    return defaultJavaCompilerPath;
+	}
+	
 	public static List<ISourceLocation> getDefaultCourses(){
 	    return defaultCourses;
 	}
@@ -145,10 +169,20 @@ public class PathConfig {
 	    return vf.list(srcs.toArray(new IValue[0]));
 	}
 	
+	public IList getJavaCompilerPath() {
+	    return vf.list(javaCompilerPath.toArray(new IValue[0]));
+	}
+	
 	public PathConfig addSourceLoc(ISourceLocation dir) {
 		List<ISourceLocation> extendedsrcs = new ArrayList<ISourceLocation>(srcs);
 		extendedsrcs.add(dir);
 		return new PathConfig(extendedsrcs, libs, bin, boot);
+	}
+	
+	public PathConfig addJavaCompilerPath(ISourceLocation dir) {
+	    List<ISourceLocation> extended = new ArrayList<ISourceLocation>(javaCompilerPath);
+        extended.add(dir);
+        return new PathConfig(srcs, libs, bin, boot, courses, extended);
 	}
 	
 	public IList getCourses() {
@@ -216,23 +250,10 @@ public class PathConfig {
         return bin;
     }
 	
-//	void makeRascalSearchPath(){
-//		this.rascalSearchPath = new RascalSearchPath();
-//		rascalSearchPath.addPathContributor(getSourcePathContributor());
-//	}
-
-//    public IRascalSearchPathContributor getSourcePathContributor() {
-//        return new PathContributor("srcs", srcs);
-//    }
-	
 	String makeFileName(String qualifiedModuleName, String extension) {
 		return qualifiedModuleName.replaceAll("::", "/") + "." + extension;
 	}
 	
-//	public RascalSearchPath getRascalSearchPath(){
-//		return rascalSearchPath;
-//	}
-
 	ISourceLocation getModuleLoc(String qualifiedModuleName) throws IOException {
 		ISourceLocation result = resolveModule(qualifiedModuleName);
 		if(result == null){
@@ -281,14 +302,6 @@ public class PathConfig {
 	private String moduleToDir(String module) {
         return module.replaceAll(Configuration.RASCAL_MODULE_SEP, Configuration.RASCAL_PATH_SEP);
     }
-	
-	//TODO: replac ad hoc code by this method
-    private String moduleToFile(String module) {
-        if (!module.endsWith(Configuration.RASCAL_FILE_EXT)) {
-            module = module.concat(Configuration.RASCAL_FILE_EXT);
-        }
-        return module.replaceAll(Configuration.RASCAL_MODULE_SEP, Configuration.RASCAL_PATH_SEP);
-    }
     
     private ISourceLocation getFullURI(String path, ISourceLocation dir) throws URISyntaxException {
         return URIUtil.getChildLocation(dir, path);
@@ -332,7 +345,15 @@ public class PathConfig {
     }
 	
 	public IConstructor asConstructor(IJava2Rascal j2r){
-	    return j2r.pathConfig(j2r.kw_pathConfig().srcs(getSrcs()).libs(getLibs()).boot(getBoot()).bin(getBin()).courses(getCourses()));
+	    return j2r.pathConfig(
+	        j2r.kw_pathConfig()
+	        .srcs(getSrcs())
+	        .libs(getLibs())
+	        .boot(getBoot())
+	        .bin(getBin())
+	        .courses(getCourses())
+	        .javaCompilerPath(getJavaCompilerPath())
+	        );
 	  }
 	
 	public String toString(){
@@ -341,30 +362,8 @@ public class PathConfig {
        .append("libs:    ").append(getLibs().toString()).append("\n")
        .append("courses: ").append(getCourses().toString()).append("\n")
        .append("boot:    ").append(getBoot().toString()).append("\n")
-       .append("bin:     ").append(getBin().toString()).append("\n");
+       .append("bin:     ").append(getBin().toString()).append("\n")
+       .append("clsspath:").append(getJavaCompilerPath().toString()).append("\n");
       return w.toString();
     }
 }
-
-//class PathContributor implements IRascalSearchPathContributor{
-//	
-//	private final String name;
-//	private final List<ISourceLocation> stdPath;
-//
-//	PathContributor(String name, List<ISourceLocation> path){
-//		this.name = name;
-//		this.stdPath = path;
-//	}
-//	@Override
-//	public void contributePaths(List<ISourceLocation> path) {
-//		for(ISourceLocation p : stdPath){
-//			path.add(p);
-//		}
-//	}
-//
-//	@Override
-//	public String getName() {
-//		return name;
-//	}
-//	
-//}
