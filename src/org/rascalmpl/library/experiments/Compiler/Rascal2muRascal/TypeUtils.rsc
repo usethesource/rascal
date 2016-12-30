@@ -1329,88 +1329,114 @@ Symbol getElementType(Symbol t) = Symbol::\value();
 /*
  * translateType: translate a concrete (textual) type description to a Symbol
  */
+ 
+Symbol translateType(Type t) = simplifyAliases(translateType1(t));
 
-Symbol translateType((BasicType) `value`) 		= Symbol::\value();
-Symbol translateType(t: (BasicType) `loc`) 		= Symbol::\loc();
-Symbol translateType(t: (BasicType) `node`) 	= Symbol::\node();
-Symbol translateType(t: (BasicType) `num`) 		= Symbol::\num();
-Symbol translateType(t: (BasicType) `int`) 		= Symbol::\int();
-Symbol translateType(t: (BasicType) `real`) 	= Symbol::\real();
-Symbol translateType(t: (BasicType) `rat`)      = Symbol::\rat();
-Symbol translateType(t: (BasicType) `str`) 		= Symbol::\str();
-Symbol translateType(t: (BasicType) `bool`) 	= Symbol::\bool();
-Symbol translateType(t: (BasicType) `void`) 	= Symbol::\void();
-Symbol translateType(t: (BasicType) `datetime`)	= Symbol::\datetime();
+Symbol simplifyAliases(Symbol s){
+    return visit(s) { case \alias(str aname, [], Symbol aliased) => aliased };
+}
 
-Symbol translateType(t: (StructuredType) `bag [ <TypeArg arg> ]`) 
-												= \bag(translateType(arg)); 
-Symbol translateType(t: (StructuredType) `list [ <TypeArg arg> ]`) 
-												= \list(translateType(arg)); 
-Symbol translateType(t: (StructuredType) `map[ <TypeArg arg1> , <TypeArg arg2> ]`) 
-												= \map(translateType(arg1), translateType(arg2)); 
-Symbol translateType(t: (StructuredType) `set [ <TypeArg arg> ]`)
-												= \set(translateType(arg)); 
-Symbol translateType(t: (StructuredType) `rel [ <{TypeArg ","}+ args> ]`) 
-												= \rel([ translateType(arg) | arg <- args]);
-Symbol translateType(t: (StructuredType) `lrel [ <{TypeArg ","}+ args> ]`) 
-												= \lrel([ translateType(arg) | arg <- args]);
-Symbol translateType(t: (StructuredType) `tuple [ <{TypeArg ","}+ args> ]`)
-												= \tuple([ translateType(arg) | arg <- args]);
-Symbol translateType(t: (StructuredType) `type [ < TypeArg arg> ]`)
-												= \reified(translateType(arg));      
+private Symbol translateType1((BasicType) `value`) 		= Symbol::\value();
+private Symbol translateType1(t: (BasicType) `loc`) 	= Symbol::\loc();
+private Symbol translateType1(t: (BasicType) `node`) 	= Symbol::\node();
+private Symbol translateType1(t: (BasicType) `num`) 	= Symbol::\num();
+private Symbol translateType1(t: (BasicType) `int`) 	= Symbol::\int();
+private Symbol translateType1(t: (BasicType) `real`) 	= Symbol::\real();
+private Symbol translateType1(t: (BasicType) `rat`)     = Symbol::\rat();
+private Symbol translateType1(t: (BasicType) `str`) 	= Symbol::\str();
+private Symbol translateType1(t: (BasicType) `bool`) 	= Symbol::\bool();
+private Symbol translateType1(t: (BasicType) `void`) 	= Symbol::\void();
+private Symbol translateType1(t: (BasicType) `datetime`)= Symbol::\datetime();
 
-Symbol translateType(t : (Type) `(<Type tp>)`) 
-												= translateType(tp);
-Symbol translateType(t : (Type) `<UserType user>`) 
-												= translateType(user);
-Symbol translateType(t : (Type) `<FunctionType function>`) 
-												= translateType(function);
-Symbol translateType(t : (Type) `<StructuredType structured>`)  
-												= translateType(structured);
-Symbol translateType(t : (Type) `<BasicType basic>`)  
-												= translateType(basic);
-Symbol translateType(t : (Type) `<DataTypeSelector selector>`)  
+private Symbol translateType1(t: (StructuredType) `bag [ <TypeArg arg> ]`) 
+												= \bag(translateType1(arg)); 
+private Symbol translateType1(t: (StructuredType) `list [ <TypeArg arg> ]`) 
+												= \list(translateType1(arg)); 
+private Symbol translateType1(t: (StructuredType) `map[ <TypeArg arg1> , <TypeArg arg2> ]`) 
+												= \map(translateType1(arg1), translateType1(arg2)); 
+private Symbol translateType1(t: (StructuredType) `set [ <TypeArg arg> ]`)
+												= \set(translateType1(arg)); 
+private Symbol translateType1(t: (StructuredType) `rel [ <{TypeArg ","}+ args> ]`) 
+												= \rel([ translateType1(arg) | arg <- args]);
+private Symbol translateType1(t: (StructuredType) `lrel [ <{TypeArg ","}+ args> ]`) 
+												= \lrel([ translateType1(arg) | arg <- args]);
+private Symbol translateType1(t: (StructuredType) `tuple [ <{TypeArg ","}+ args> ]`)
+												= \tuple([ translateType1(arg) | arg <- args]);
+private Symbol translateType1(t: (StructuredType) `type [ < TypeArg arg> ]`)
+												= \reified(translateType1(arg));      
+
+private Symbol translateType1(t : (Type) `(<Type tp>)`) 
+												= translateType1(tp);
+private Symbol translateType1(t : (Type) `<UserType user>`) 
+												= translateType1(user);
+private Symbol translateType1(t : (Type) `<FunctionType function>`) 
+												= translateType1(function);
+private Symbol translateType1(t : (Type) `<StructuredType structured>`)  
+												= translateType1(structured);
+private Symbol translateType1(t : (Type) `<BasicType basic>`)  
+												= translateType1(basic);
+private Symbol translateType1(t : (Type) `<DataTypeSelector selector>`)  
 												{ throw "DataTypeSelector"; }
-Symbol translateType(t : (Type) `<TypeVar typeVar>`) 
-												= translateType(typeVar);
-Symbol translateType(t : (Type) `<Sym symbol>`)  
+private Symbol translateType1(t : (Type) `<TypeVar typeVar>`) 
+												= translateType1(typeVar);
+private Symbol translateType1(t : (Type) `<Sym symbol>`)  
 												= insertLayout(sym2symbol(symbol));		// make sure concrete lists have layout defined
 								 							   
-Symbol translateType(t : (TypeArg) `<Type tp>`) 
-												= translateType(tp);
-Symbol translateType(t : (TypeArg) `<Type tp> <Name name>`) 
-												= \label(getSimpleName(convertName(name)), translateType(tp));
+private Symbol translateType1(t : (TypeArg) `<Type tp>`) 
+												= translateType1(tp);
+private Symbol translateType1(t : (TypeArg) `<Type tp> <Name name>`) 
+												= \label(getSimpleName(convertName(name)), translateType1(tp));
 
-Symbol translateType(t: (FunctionType) `<Type tp> (<{TypeArg ","}* args>)`) 
-												= Symbol::\func(translateType(tp), [ translateType(arg) | arg <- args], []);
+private Symbol translateType1(t: (FunctionType) `<Type tp> (<{TypeArg ","}* args>)`) 
+												= Symbol::\func(translateType1(tp), [ translateType1(arg) | arg <- args], []);
 									
-Symbol translateType(t: (UserType) `<QualifiedName name>`) {
+private Symbol translateType1(t: (UserType) `<QualifiedName name>`) {
 	// look up the name in the type environment
 	val = getAbstractValueForQualifiedName(name);
-	
+
 	if(isDataType(val) || isNonTerminalType(val) || isAlias(val)) {
 		return val.rtype;
 	}
 	throw "The name <name> is not resolved to a type: <val>.";
 }
-Symbol translateType(t: (UserType) `<QualifiedName name>[<{Type ","}+ parameters>]`) {
+private Symbol translateType1(t: (UserType) `<QualifiedName name>[<{Type ","}+ parameters>]`) {
 	// look up the name in the type environment
 	val = getAbstractValueForQualifiedName(name);
 	
-	if(isDataType(val) || isNonTerminalType(val) || isAlias(val)) {
+	if(isAlias(val)) {
 		// instantiate type parameters
-		val.rtype.parameters = [ translateType(param) | param <- parameters];
-		return val.rtype;
+		aparameters = [p | p <- parameters]; // should be unnecessary
+		boundParams = [ translateType1(p) | p <- aparameters];
+		
+		assert size(aparameters) == size(val.rtype.parameters);
+		
+		bindings = (val.rtype.parameters[i].name : translateType1(aparameters[i]) | int i <- index(aparameters));
+		return visit(val.rtype.aliased){
+		          case param: \parameter(pname, bound): {
+    		          if(bindings[pname]?){
+    		            insert bindings[pname];
+    		          } else {
+    		            fail;
+    		          }
+		          }
+		       //case \alias(str aname, [], Symbol aliased) => aliased
+		       };
+	}
+	if(isDataType(val) || isNonTerminalType(val)){
+	    val.rtype.parameters = [ translateType1(param) | param <- parameters];
+        return val.rtype;
 	}
 	throw "The name <name> is not resolved to a type: <val>.";
 }  
 									
-Symbol translateType(t: (TypeVar) `& <Name name>`) 
+private Symbol translateType1(t: (TypeVar) `& <Name name>`) 
 												= \parameter(getSimpleName(convertName(name)), Symbol::\value());  
-Symbol translateType(t: (TypeVar) `& <Name name> \<: <Type bound>`) 
-												= \parameter(getSimpleName(convertName(name)), translateType(bound));  
+private Symbol translateType1(t: (TypeVar) `& <Name name> \<: <Type bound>`) 
+												= \parameter(getSimpleName(convertName(name)), translateType1(bound));  
 
-default Symbol translateType(Type t) {
+private default Symbol translateType1(Type t) {
 	throw "Cannot translate type <t>";
 }
+
+
 
