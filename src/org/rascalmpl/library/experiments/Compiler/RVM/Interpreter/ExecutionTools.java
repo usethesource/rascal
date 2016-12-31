@@ -5,7 +5,6 @@ import java.io.PrintWriter;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.DefaultTestResultListener;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
@@ -129,7 +128,6 @@ public class ExecutionTools {
 			//long now = Timing.getCpuTime();
 			MuPrimitive.exit(rvm.getStdOut());
 			RascalPrimitive.exit(rex);
-			Opcode.exit();
 			rvm.getFrameObserver().report();
 
 			//rex.printCacheStats();

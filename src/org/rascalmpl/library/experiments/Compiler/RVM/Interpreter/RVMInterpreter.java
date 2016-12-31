@@ -23,9 +23,7 @@ import org.rascalmpl.value.type.Type;
 public class RVMInterpreter extends RVMCore {
 	
 	public RVMInterpreter(RVMExecutable rvmExec, RascalExecutionContext rex) {
-		super(rvmExec, rex);			
-
-		Opcode.init(stdout, rex.getProfile());
+		super(rvmExec, rex);
 	}
 	
 	Configuration getConfiguration() { return rex.getConfiguration(); }

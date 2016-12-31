@@ -70,13 +70,17 @@ public abstract class BreakPoint {
 	
     void println(PrintWriter stdout) { stdout.println("println should be redefined"); }
     
-	boolean matchOnObserve(Frame frame) { return false; }
+	@SuppressWarnings("unused")
+    boolean matchOnObserve(Frame frame) { return false; }
 	
-	boolean matchOnEnter(Frame frame) { return false; }
+	@SuppressWarnings("unused")
+    boolean matchOnEnter(Frame frame) { return false; }
 	
-	boolean matchOnLeave(Frame frame) { return false; }
+	@SuppressWarnings("unused")
+    boolean matchOnLeave(Frame frame) { return false; }
 	
-	boolean matchOnException(Frame frame, Thrown thrown) { return true; }
+	@SuppressWarnings("unused")
+    boolean matchOnException(Frame frame, Thrown thrown) { return true; }
 	
 	abstract public String toString();
 }

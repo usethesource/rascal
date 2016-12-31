@@ -124,7 +124,8 @@ public class CourseCompiler {
 //		}
 //	}
 	
-	public static void compileCourse(Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
+	@SuppressWarnings("unused")
+    public static void compileCourse(Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
 		
 		copyStandardFilesPerCourse(srcPath, courseName, destPath);
 		new Onthology(srcPath, courseName, destPath, libSrcPath, pcfg, executor);

@@ -405,7 +405,8 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(RVMonJVM.class), "frameEnter", Type.getMethodDescriptor(VOID_TYPE, FRAME_TYPE, INT_TYPE), false);
 	}
 	
-	public void emitInlineFrameLeave(int srcIndex){
+	@SuppressWarnings("unused")
+    public void emitInlineFrameLeave(int srcIndex){
 		mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, CF);
 		mv.visitVarInsn(ALOAD, THIS);
@@ -1848,7 +1849,8 @@ public class BytecodeGenerator implements Opcodes {
 	 * 1: There is only one function => emit direct call  (DONE) 
 	 * 2: There is only a constructor => call constructor (DONE)
 	 */
-	public void emitOptimizedOcall(String fuid, int overloadedFunctionIndex, int arity, int srcIndex) {
+	@SuppressWarnings("unused")
+    public void emitOptimizedOcall(String fuid, int overloadedFunctionIndex, int arity, int srcIndex) {
 		OverloadedFunction of = overloadedStore[overloadedFunctionIndex];
 		int[] functions = of.getFunctions();
 		if (functions.length == 1) {

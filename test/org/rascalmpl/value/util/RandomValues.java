@@ -38,9 +38,7 @@ public class RandomValues {
 	private static Type Boolean = tf.abstractDataType(ts,"Boolean");
 
 	private static Type Name = tf.abstractDataType(ts,"Name");
-	@SuppressWarnings("deprecation")
     private static Type True = tf.constructor(ts,Boolean, "true");
-	@SuppressWarnings("deprecation")
     private static Type False= tf.constructor(ts,Boolean, "false");
 	private static Type And= tf.constructor(ts,Boolean, "and", Boolean, Boolean);
 	private static Type Or= tf.constructor(ts,Boolean, "or", tf.listType(Boolean));

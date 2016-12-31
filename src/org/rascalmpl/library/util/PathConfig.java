@@ -281,7 +281,8 @@ public class PathConfig {
 	private String moduleToDir(String module) {
         return module.replaceAll(Configuration.RASCAL_MODULE_SEP, Configuration.RASCAL_PATH_SEP);
     }
-
+	
+	//TODO: replac ad hoc code by this method
     private String moduleToFile(String module) {
         if (!module.endsWith(Configuration.RASCAL_FILE_EXT)) {
             module = module.concat(Configuration.RASCAL_FILE_EXT);
