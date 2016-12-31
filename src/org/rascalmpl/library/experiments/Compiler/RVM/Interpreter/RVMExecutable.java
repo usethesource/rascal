@@ -46,8 +46,8 @@ public class RVMExecutable {
 	static final String RASCAL_MAGIC = "Rascal Vincit Omnia";
 	
 	// transient fields
-	static IValueFactory vf;
-	TypeStore typeStore;
+	private static IValueFactory vf;
+	private TypeStore typeStore;
 	
 	// Serializable fields
 	
@@ -301,7 +301,8 @@ public class RVMExecutable {
 	static byte EXEC_COMPRESSION_ZSTD = 2;
 	
 	
-	public void newWrite(ISourceLocation rvmExecutable, int compressionLevel) throws IOException {
+	@SuppressWarnings("resource")
+    public void write(ISourceLocation rvmExecutable, int compressionLevel) throws IOException {
 	    try(OutputStream out = URIResolverRegistry.getInstance().getOutputStream(rvmExecutable, false)){
 	        out.write(EXEC_HEADER);
 	        out.write(EXEC_VERSION);
@@ -316,7 +317,6 @@ public class RVMExecutable {
 	    }
 	}
 	
-
     private void write(IRVMWireOutputStream out) throws IOException {
 	    out.startMessage(CompilerIDs.Executable.ID);
 	    

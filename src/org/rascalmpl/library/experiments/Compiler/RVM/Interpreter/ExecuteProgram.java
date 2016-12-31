@@ -11,14 +11,11 @@ import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.type.TypeStore;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 
 public class ExecuteProgram {
 	IValueFactory vf;
 	
-
 	public ExecuteProgram(IValueFactory vf) {
 		this.vf = vf;
 	}
@@ -32,7 +29,7 @@ public class ExecuteProgram {
 			) throws IOException {
 
 		RVMExecutable exec = ExecutionTools.link(rvmProgram, jvm);
-		exec.newWrite(rvmProgramLoc, 6);
+		exec.write(rvmProgramLoc, 6);
 	}
 	
 	// Library function to execute a RVMProgram
@@ -117,9 +114,7 @@ public class ExecuteProgram {
 			IBool jvm,
 			IEvaluatorContext ctx
 			) throws IOException {
-       
-	    TypeStore typeStore = /*new TypeStore();*/ new TypeStore(RascalValueFactory.getStore());
-        
+               
 	    RVMExecutable executable = ExecutionTools.load(rvmExecutableLoc);
 	    if(executable.isValid()){
 	        RascalExecutionContext rex = null;
@@ -158,8 +153,8 @@ public class ExecuteProgram {
 			IBool jvm,
 			RascalExecutionContext rex
 			) throws IOException {
-	    TypeStore typeStore = rex.getTypeStore(); // /*new TypeStore();*/ new TypeStore(RascalValueFactory.getStore());
-		RVMExecutable executable = ExecutionTools.load(rvmExecutableLoc);
+
+	    RVMExecutable executable = ExecutionTools.load(rvmExecutableLoc);
 		if(executable.isValid()){
 			RascalExecutionContext rex2 = ExecutionTools.makeRex(rex.getPathConfig(), executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm);
 			
