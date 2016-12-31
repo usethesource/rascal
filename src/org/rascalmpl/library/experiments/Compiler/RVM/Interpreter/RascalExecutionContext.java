@@ -342,7 +342,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 		return parsedModuleCache;
 	}
 	
-	public static IConstructor typeToSymbol(final Type t){
+	public IConstructor typeToSymbol(final Type t){
 		return typeToSymbolCache.get(t, k -> RascalPrimitive.$type2symbol(t));
 	}
 	

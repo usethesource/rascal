@@ -973,14 +973,14 @@ public abstract class RVMCore {
 	
 	// CALLCONSTR
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "unused"})
 	protected int CALLCONSTR(final Object[] stack, int sp, final int iconstructor, final int arity){
 		
 		Type constructor = constructorStore.get(iconstructor);
 		IValue[] args = new IValue[constructor.getArity()];
 
 		java.util.Map<String,IValue> kwargs;
-		@SuppressWarnings("unused")
+		
 		Type type = (Type) stack[--sp];		// TODO: emove from instruction
 		
 		kwargs = (java.util.Map<String,IValue>) stack[--sp];

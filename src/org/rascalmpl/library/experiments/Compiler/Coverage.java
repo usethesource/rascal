@@ -13,15 +13,18 @@ public class Coverage {
 		this.values = values;
 	}
 	
-	public void startCoverage(IEvaluatorContext ctx){
+	@SuppressWarnings("unused")
+    public void startCoverage(IEvaluatorContext ctx){
 		throw new CompilerError("startCoverage only implemented for compiled code");
 	}
 	
-	public ISet stopCoverage(IEvaluatorContext ctx){
+	@SuppressWarnings("unused")
+    public ISet stopCoverage(IEvaluatorContext ctx){
 		throw new CompilerError("stopCoverage only implemented for compiled code");
 	}
 	
-	public ISet getCoverage(IEvaluatorContext ctx){
+	@SuppressWarnings("unused")
+    public ISet getCoverage(IEvaluatorContext ctx){
 		throw new CompilerError("getCoverage only implemented for compiled code");
 	}
 	
