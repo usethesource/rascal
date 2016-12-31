@@ -513,21 +513,9 @@ public class RVMonJVM extends RVMCore {
 
 		return dynRun(n, root);
 	}
-	
-//	public Object executeFunction(final String fname, final IValue[] args){
-//		int n = functionMap.get(fname);
-//		Function func = functionStore[n];
-//		root = new Frame(func.scopeId, null, func.maxstack, func);
-//		for(int i = 0; i < args.length; i++){
-//			root.stack[i] = args[i];	
-//		}
-//		root.stack[args.length] = vf.mapWriter().done();
-//		root.sp = func.getNlocals();
-//		
-//		return dynRun(n, root);
-//	}
 
-	public Object dynRun(final int n, final Frame cf) {
+	@SuppressWarnings("unused")
+    public Object dynRun(final int n, final Frame cf) {
 		System.out.println("Unimplemented Base called !");
 		return PANIC;
 	}

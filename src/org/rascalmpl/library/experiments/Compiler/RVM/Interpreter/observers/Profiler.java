@@ -12,8 +12,6 @@ import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 class Count {
@@ -124,10 +122,8 @@ public class Profiler extends Thread {
 	}
 	
 	public IList getProfile(){
-		TypeFactory TF = TypeFactory.getInstance();
-		Type elemType = TF.tupleType(TF.sourceLocationType(), TF.integerType());
 		IValueFactory VF = ValueFactoryFactory.getValueFactory();
-		IListWriter w = VF.listWriter(elemType);
+		IListWriter w = VF.listWriter();
 		for(Map.Entry<ISourceLocation, Count> e : sortData()){
 			w.insert(VF.tuple(e.getKey(), VF.integer(e.getValue().getTicks())));
 		}

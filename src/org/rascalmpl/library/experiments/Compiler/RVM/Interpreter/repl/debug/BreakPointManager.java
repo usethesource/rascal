@@ -350,7 +350,7 @@ public class BreakPointManager {
 		stdout.println("ignore requires 1 or 2 arguments");
 	}
 	
-	void returnDirective(Frame frame, String[] args){
+	void returnDirective(Frame frame){
 		setReturnMode(frame);
 	}
 	

@@ -30,6 +30,7 @@ public class Java2RascalKWProxy {
     public Map<String,IValue> kwParams;
     private IValueFactory vf;
 
+    @SuppressWarnings("unused")
     public ProxyInvocationHandler(IValueFactory vf, Class<?> clazz) {
       this.vf = vf;
       kwParams = new HashMap<>();
