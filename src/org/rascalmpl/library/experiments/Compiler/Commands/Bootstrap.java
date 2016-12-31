@@ -251,10 +251,7 @@ public class Bootstrap {
                 }
                 
                 /*------------------------------------------,-CODE---------,-RVM---,-KERNEL---,-TESTS--*/
-                time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[1], "|noreloc:///|"));
-                
-                time("Postprocessing phase1 files", () -> postProcessPhase1(phaseFolder(1, tmpDir)));
-                
+                time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[1], "|noreloc:///|"));               
                 time("Phase 2", () -> compilePhase(tmpDir, 2, librarySource, rvm[1], kernel[1], rvm[1], "|std:///|"));
                 
                 if(validatingBootstrap){
@@ -454,10 +451,7 @@ public class Bootstrap {
       time("- compile MuLibrary",       () -> compileMuLibrary(phase, classPath, bootPath, sourcePath, result));
       time("- compile Kernel",          () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel", reloc));
       time("- compile ParserGenerator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator", reloc));
-      if(phase == 1){
-          // transitional, remove after next release
-          time("Postprocessing phase1 result", () -> postProcessPhase1(result));
-      }
+     
       if(phase >= 2){
           time("- compile tests",           () -> compileTests    (phase, classPath, result.toAbsolutePath().toString(), sourcePath, testResults));
           time("- run tests",               () -> runTests        (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, testResults));
@@ -671,78 +665,6 @@ public class Bootstrap {
 
         } catch (IOException e) {
           throw new RuntimeException(e.getMessage());
-        }
-    }
-    
-    /* Transitional for boot; remove after next release
-     * Decompress and rename files after phase1
-     *  - file.rvm.gz => also create decompressed file file.rvm
-     *  - file.rvm.ser.gz => also create file.rvmx (decompressed file.rvm.ser but renamed to file.rvmx)
-     * Use postprocessed phase1 directory in subsequent bootstrap phases
-     */
-    public static void postProcessPhase1(final Path phase1){
-
-        class Postprocessor implements FileVisitor<Path> {
-
-            private final int BUFLEN = 100000;
-            private final URIResolverRegistry registry = URIResolverRegistry.getInstance();
-            private final IValueFactory vf = ValueFactoryFactory.getValueFactory();
-
-            private void uncompressAndCopy(String oldFile, String newFile) throws IOException{
-                ISourceLocation iloc;
-                ISourceLocation oloc;
-                System.err.println("uncompressAndCopy " + oldFile + " to " + newFile);
-                try {
-                    iloc = vf.sourceLocation("compressed+file", "", oldFile);
-                    oloc = vf.sourceLocation("file", "", newFile);
-                }
-                catch (URISyntaxException e) {
-                    throw new IOException("Cannot create locations: " + e.getMessage());
-                }
-
-                try(InputStream in = registry.getInputStream(iloc);
-                    OutputStream out = registry.getOutputStream(oloc, false)){
-
-                    byte[] buffer = new byte[BUFLEN];
-                    int n;
-                    while((n = in.read(buffer)) > 0){
-                        out.write(buffer, 0, n);
-                    }
-                }
-            }
-
-            @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                String path = file.toString();
-                if(path.endsWith(".rvm.gz")){
-                    uncompressAndCopy(path, path.replaceAll("\\.gz", ""));
-                }
-                if(path.endsWith(".rvm.ser.gz")){
-                    uncompressAndCopy(path, path.replaceAll("\\.rvm\\.ser\\.gz", "") + ".rvmx");
-                }
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-                throw new RuntimeException("Cannot visit file " + exc.getMessage());
-            }
-
-            @Override
-            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                return FileVisitResult.CONTINUE;
-            }
-        }
-
-        try {
-            Files.walkFileTree(phase1, new Postprocessor());
-        } catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
         }
     }
 }
