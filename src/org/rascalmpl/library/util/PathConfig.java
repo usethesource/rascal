@@ -22,16 +22,14 @@ public class PathConfig {
 	
 	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
-	List<ISourceLocation> srcs;		// List of locations to search for source files
-	List<ISourceLocation> libs;     // List of (library) locations to search for derived files
-	List<ISourceLocation> courses; 	// List of (library) locations to search for course source files
-	List<ISourceLocation> javaCompilerPath;     // List of (library) locations to search for course source files
+	final List<ISourceLocation> srcs;		// List of locations to search for source files
+	final List<ISourceLocation> libs;     // List of (library) locations to search for derived files
+	final List<ISourceLocation> courses; 	// List of (library) locations to search for course source files
+	final List<ISourceLocation> javaCompilerPath;     // List of (library) locations to search for course source files
     
 	ISourceLocation bin; 			// Global location for derived files outside projects or libraries
 	ISourceLocation boot;			// Location with Rascal boot files
 
-//	private RascalSearchPath rascalSearchPath;
-	
 	private static ISourceLocation defaultStd;
 	private static List<ISourceLocation> defaultCourses;
 	private static List<ISourceLocation> defaultJavaCompilerPath;
@@ -104,6 +102,7 @@ public class PathConfig {
         this.bin = bin;
         this.boot = defaultBoot;
         this.courses = convertLocs(courses);
+        this.javaCompilerPath = defaultJavaCompilerPath;
     }
 	
 	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot, IList courses){
@@ -112,6 +111,7 @@ public class PathConfig {
         this.bin = bin;
         this.boot = boot;
         this.courses = convertLocs(courses);
+        this.javaCompilerPath = defaultJavaCompilerPath;
     }
 	
 	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot, IList courses, IList javaCompilerPath){
