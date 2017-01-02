@@ -15,7 +15,6 @@ package org.rascalmpl.value.io.binary.util;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IDateTime;
-import org.rascalmpl.value.IExternalValue;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;
