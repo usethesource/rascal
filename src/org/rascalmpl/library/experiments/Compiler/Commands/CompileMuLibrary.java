@@ -43,6 +43,9 @@ public class CompileMuLibrary {
             .respectNoDefaults()
             .help("Directory for Rascal binaries")
             
+            .locsOption("javaCompilerPath")
+            .help("Add new java classpath location, use multiple --javaCompilerPath options for multiple locations")
+        
             .boolOption("help") 		
             .help("Print help message for this command")
             
@@ -57,14 +60,6 @@ public class CompileMuLibrary {
             
             .noModuleArgument()
             .handleArgs(args);
-
-//            RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), cmdOpts.getCommandLocOption("boot"))
-//                    .customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())
-//                    .setTrace(cmdOpts.getCommandBoolOption("trace"))
-//                    .setProfile(cmdOpts.getCommandBoolOption("profile"))
-//                    //.setJVM(cmdOpts.getCommandBoolOption("jvm"))
-//                    .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
-//                    .build();
 
             PathConfig pcfg = cmdOpts.getPathConfig();
             IKernel kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class)

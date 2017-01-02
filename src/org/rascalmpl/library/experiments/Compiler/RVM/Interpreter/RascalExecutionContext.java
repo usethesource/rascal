@@ -1,16 +1,15 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Configuration;
-import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
@@ -128,6 +127,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 		
 	  this.vf = pcfg.getValueFactory();
 	  this.pcfg = pcfg;
+	  System.err.println(pcfg);
 	  this.bootDir = pcfg.getBoot();
 	  if(bootDir != null && !(bootDir.getScheme().equals("boot") ||  
 	                          //bootDir.getScheme().equals("compressed+boot") || 
@@ -157,7 +157,19 @@ public class RascalExecutionContext implements IRascalMonitor {
 	  this.stderr = stderr;
 	  config = new Configuration();
 	  config.setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
-	  this.classLoaders = new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader()));
+	  
+	  this.classLoaders = new ArrayList<ClassLoader>();
+	  URIResolverRegistry instance = URIResolverRegistry.getInstance();
+	  
+	  for (IValue resolver : pcfg.getClassloaders()) {
+	      try {
+	          System.err.println("Resolved classloader: " + resolver);
+	          classLoaders.add(instance.getClassLoader((ISourceLocation) resolver));
+	      }
+	      catch (IOException e) {
+	          warning("Ignoring loading of resolver " + resolver + ", due to: " + e.getMessage(), (ISourceLocation) resolver);
+	      }
+	  }
 
 	  if(frameObserver == null){
 	    if(profile){

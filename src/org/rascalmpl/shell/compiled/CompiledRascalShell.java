@@ -20,26 +20,6 @@ import jline.TerminalFactory;
 
 public class CompiledRascalShell  {
 
-//  private static void printVersionNumber(){
-//    try {
-//      Enumeration<URL> resources = CompiledRascalShell.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
-//      while (resources.hasMoreElements()) {
-//        Manifest manifest = new Manifest(resources.nextElement().openStream());
-//        String bundleName = manifest.getMainAttributes().getValue("Bundle-Name");
-//        if (bundleName != null && bundleName.equals("rascal-shell")) {
-//          String result = manifest.getMainAttributes().getValue("Bundle-Version");
-//          if (result != null) {
-//            System.out.println("Version: " + result);
-//            return;
-//          }
-//        }
-//      }
-//    } catch (IOException E) {
-//    }
-//    System.out.println("Version: unknown");
-//  }
-
-
   public static void main(String[] args) throws IOException {
 
 	IValueFactory vf = ValueFactoryFactory.getValueFactory();
@@ -55,6 +35,12 @@ public class CompiledRascalShell  {
 		.locsOption("lib").locsDefault((co) -> vf.list(co.getCommandLocOption("bin")))
 		.help("Add new lib location, use multiple --lib arguments for multiple locations")
 
+		.locsOption("courses")
+		.help("Add new courses location, use multipl --courses arguments for multiple locations")
+		
+		.locsOption("javaCompilerPath")
+		.help("Add new java classpath location, use multiple --javaCompilerPath options for multiple locations")
+		
 		.locOption("boot").locDefault(cmdOpts.getDefaultBootLocation())
 		.help("Rascal boot directory")
 
@@ -75,9 +61,6 @@ public class CompiledRascalShell  {
       if (mf.hasManifest(CompiledRascalShell.class) && mf.hasMainModule(CompiledRascalShell.class)) {
         runner = new ManifestRunner(mf, new PrintWriter(System.out), new PrintWriter(System.err));
       } 
-//      else if (args.length > 0) {
-//        runner = new ModuleRunner(new PrintWriter(System.out), new PrintWriter(System.err));
-//      } 
       else {
           Terminal term = TerminalFactory.get();
           String sneakyRepl = System.getProperty(RascalShell.ECLIPSE_TERMINAL_CONNECTION_REPL_KEY);
