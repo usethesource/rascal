@@ -44,6 +44,12 @@ public class RascalTests {
 			.locOption("bin") 		
 			.help("Directory for Rascal binaries")
 			
+			.locsOption("courses")
+			.help("Add new courses location, use multipl --courses arguments for multiple locations")
+
+			.locsOption("javaCompilerPath")
+			.help("Add new java classpath location, use multiple --javaCompilerPath options for multiple locations")
+
 			.boolOption("recompile")
 			.help("Recompile before running tests, when false existing binary is used")
 			

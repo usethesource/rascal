@@ -33,6 +33,12 @@ public class BootstrapRascalParser {
 	        .locDefault(cmdOpts.getDefaultBootLocation())
 	        .help("Rascal boot directory")
 	        
+	        .locsOption("courses")
+            .help("Add new courses location, use multipl --courses arguments for multiple locations")
+     
+	        .locsOption("javaCompilerPath")
+            .help("Add new java classpath location, use multiple --javaCompilerPath options for multiple locations")
+        
             .boolOption("trace") 		
             .help("Print Rascal functions during execution of compiler")
             
