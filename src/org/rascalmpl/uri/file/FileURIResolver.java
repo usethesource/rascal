@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2017 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -22,14 +22,17 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 
 import org.rascalmpl.uri.BadURIException;
+import org.rascalmpl.uri.IClassloaderLocationResolver;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.ISourceLocation;
 
-public class FileURIResolver implements ISourceLocationInputOutput {
+public class FileURIResolver implements ISourceLocationInputOutput, IClassloaderLocationResolver {
 	public FileURIResolver(){
 		super();
 	}
@@ -42,6 +45,24 @@ public class FileURIResolver implements ISourceLocationInputOutput {
 		throw new IOException("uri has no path: " + uri);
 	}
 	
+	@Override
+	/**
+	 * Returns a URL classloader for the jar file or directory pointed to by the loc parameter.
+	 */
+	public ClassLoader getClassLoader(ISourceLocation loc) throws IOException {
+	    assert loc.getScheme().equals(scheme());
+	    String path = loc.getPath();
+	    
+	    if (isDirectory(loc) && !path.endsWith("/")) {
+	        path += "/"; // the URL class loader assumes directories end with a /
+	    }
+	    
+	    assert isDirectory(loc) || path.endsWith(".jar"); // dictated by URLClassLoader semantics
+	    
+	    return new URLClassLoader(new URL[] {loc.getURI().toURL() });
+	}
+
+	 
 	public OutputStream getOutputStream(ISourceLocation uri, boolean append) throws IOException {
 		String path = getPath(uri);
 		if (path != null) {
