@@ -14,7 +14,6 @@ package org.rascalmpl.value.io.binary.wire;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Map;
 
 
 /**
