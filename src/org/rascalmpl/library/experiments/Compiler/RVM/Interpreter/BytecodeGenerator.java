@@ -142,6 +142,7 @@ public class BytecodeGenerator implements Opcodes {
 
 		//OverloadedFunction[] overloadedStoreV2 = new OverloadedFunction[overloadedStore.length];
 		emitConstructor();
+	    dumpClass();
 	}
 
 	public String finalName() {
@@ -221,7 +222,7 @@ public class BytecodeGenerator implements Opcodes {
 		}
 		
 		try {
-			FileOutputStream fos = new FileOutputStream("/tmp/Class.jvm");
+			FileOutputStream fos = new FileOutputStream("/tmp/Class.class");
 			fos.write(endCode);
 			fos.close();
 		} catch (Exception e) {
