@@ -568,7 +568,9 @@ public class CommandOptions {
 		return new PathConfig(getCommandLocsOption("src"),
 							  getCommandLocsOption("lib"),
 							  getCommandLocOption("bin"),
-							  getCommandLocOption("boot"));
+							  getCommandLocOption("boot"),
+							  getCommandLocsOption("courses"),
+							  getCommandLocsOption("javaCompilerPath"));
 	}
 
     public CommandOptions noModuleArgument() {
