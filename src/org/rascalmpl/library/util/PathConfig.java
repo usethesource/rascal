@@ -57,6 +57,7 @@ public class PathConfig {
 		bin = defaultBin;
 		boot = defaultBoot;
 		libs = Arrays.asList(bin, boot);
+		javaCompilerPath = defaultJavaCompilerPath;
 	}
 	
 	private static List<ISourceLocation> computeDefaultJavaCompilerPath() {
@@ -68,13 +69,9 @@ public class PathConfig {
     }
 
     public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin) {
-		this(srcs, libs, bin, defaultBoot, defaultCourses);
+		this(srcs, libs, bin, defaultBoot);
 	}
 	
-	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, List<ISourceLocation> courses) {
-		this(srcs, libs, bin, defaultBoot, courses);
-	}
-		
 	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, ISourceLocation boot) {
 		this(srcs, libs, bin, boot, defaultCourses);
 	}
@@ -98,6 +95,7 @@ public class PathConfig {
         this.bin = bin;
         this.boot = boot;
         this.courses = defaultCourses;
+        this.javaCompilerPath = defaultJavaCompilerPath;
     }
 	
 	public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList courses){
