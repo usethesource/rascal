@@ -87,6 +87,14 @@ public class PathConfig {
             }
         }
         
+        classPath = System.getProperty("rascal.class.path");
+        
+        if (classPath != null) {
+            for (String path : classPath.split(":")) {
+                result.add(vf.sourceLocation(new File(path).getAbsolutePath()));
+            }
+        }
+        
         return result;
     }
 
@@ -221,13 +229,13 @@ public class PathConfig {
 	public PathConfig addSourceLoc(ISourceLocation dir) {
 		List<ISourceLocation> extendedsrcs = new ArrayList<ISourceLocation>(srcs);
 		extendedsrcs.add(dir);
-		return new PathConfig(extendedsrcs, libs, bin, boot);
+		return new PathConfig(extendedsrcs, libs, bin, boot, courses, javaCompilerPath, classloaders);
 	}
 	
 	public PathConfig addJavaCompilerPath(ISourceLocation dir) {
 	    List<ISourceLocation> extended = new ArrayList<ISourceLocation>(javaCompilerPath);
         extended.add(dir);
-        return new PathConfig(srcs, libs, bin, boot, courses, extended);
+        return new PathConfig(srcs, libs, bin, boot, courses, extended, classloaders);
 	}
 	
 	public PathConfig addClassloader(ISourceLocation dir) {
@@ -243,7 +251,7 @@ public class PathConfig {
 	public PathConfig addCourseLoc(ISourceLocation dir) {
 		List<ISourceLocation> extendedcourses = new ArrayList<ISourceLocation>(courses);
 		extendedcourses.add(dir);
-		return new PathConfig(srcs, libs, bin, boot, extendedcourses);
+		return new PathConfig(srcs, libs, bin, boot, extendedcourses, javaCompilerPath, classloaders);
 	}
 	
 	public ISourceLocation getCourseLoc(String courseName) throws URISyntaxException, IOException{
@@ -290,7 +298,7 @@ public class PathConfig {
 	public PathConfig addLibLoc(ISourceLocation dir){
 		List<ISourceLocation> extendedlibs = new ArrayList<ISourceLocation>(libs);
 		extendedlibs.add(dir);
-		return new PathConfig(srcs, extendedlibs, bin, boot);
+		return new PathConfig(srcs, extendedlibs, bin, boot, courses, javaCompilerPath, classloaders);
 	}
 	
 	public ISourceLocation getBoot() {
@@ -404,6 +412,7 @@ public class PathConfig {
 	        .bin(getBin())
 	        .courses(getCourses())
 	        .javaCompilerPath(getJavaCompilerPath())
+	        .classloaders(getClassloaders())
 	        );
 	  }
 	
@@ -414,7 +423,10 @@ public class PathConfig {
        .append("courses: ").append(getCourses().toString()).append("\n")
        .append("boot:    ").append(getBoot().toString()).append("\n")
        .append("bin:     ").append(getBin().toString()).append("\n")
-       .append("clsspath:").append(getJavaCompilerPath().toString()).append("\n");
+       .append("clsspath:").append(getJavaCompilerPath().toString()).append("\n")
+       .append("loaders: ").append(getClassloaders().toString()).append("\n")
+       ;
+       
       return w.toString();
     }
 }

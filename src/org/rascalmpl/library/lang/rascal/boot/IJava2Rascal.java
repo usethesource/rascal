@@ -29,6 +29,7 @@ public interface IJava2Rascal {
     KWpathConfig boot(ISourceLocation val);
     KWpathConfig courses(IList val);
     KWpathConfig javaCompilerPath(IList val);
+    KWpathConfig classloaders(IList val);
   }
 
   KWpathConfig kw_pathConfig();
