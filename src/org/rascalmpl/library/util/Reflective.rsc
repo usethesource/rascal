@@ -83,7 +83,8 @@ data PathConfig
                loc boot = |boot:///|/*|boot+compressed:///|*/,    // Directory with Rascal boot files
                                                     // List of directories to search source for derived files
                list[loc] libs = [|home:///bin/|, |boot:///|],
-               list[loc] javaCompilerPath = []        
+               list[loc] javaCompilerPath = [], // TODO: must generate the same defaults as in PathConfig 
+               list[loc] classloaders = []  // TODO: must generate the same defaults as in PathConfig      
               );
 
 data RascalManifest
