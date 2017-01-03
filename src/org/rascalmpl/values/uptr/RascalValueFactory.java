@@ -325,7 +325,9 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
             throw new NullPointerException();
         }
         Arrays.stream(children).forEach(t -> { if (t == null) throw new NullPointerException(); });
-        kwParams.values().stream().forEach(t -> { if (t == null) throw new NullPointerException(); });
+        if (kwParams != null) { 
+            kwParams.values().stream().forEach(t -> { if (t == null) throw new NullPointerException(); }); 
+        }
         
 		IConstructor result = specializeConstructor(constructor, children);
 		return result != null 
