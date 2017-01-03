@@ -43,6 +43,9 @@ public class CompileMuLibrary {
             .respectNoDefaults()
             .help("Directory for Rascal binaries")
             
+            .locsOption("courses")
+            .help("Add new courses location, use multipl --courses arguments for multiple locations")
+            
             .locsOption("javaCompilerPath")
             .help("Add new java classpath location, use multiple --javaCompilerPath options for multiple locations")
         
