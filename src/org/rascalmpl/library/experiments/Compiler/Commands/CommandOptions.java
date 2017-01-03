@@ -570,7 +570,8 @@ public class CommandOptions {
 							  getCommandLocOption("bin"),
 							  getCommandLocOption("boot"),
 							  getCommandLocsOption("courses"),
-							  getCommandLocsOption("javaCompilerPath"));
+							  getCommandLocsOption("javaCompilerPath"),
+							  getCommandLocsOption("classloaders"));
 	}
 
     public CommandOptions noModuleArgument() {

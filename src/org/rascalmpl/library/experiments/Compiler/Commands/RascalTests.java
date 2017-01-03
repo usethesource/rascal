@@ -45,10 +45,16 @@ public class RascalTests {
 			.help("Directory for Rascal binaries")
 			
 			.locsOption("courses")
+			.locsDefault(PathConfig.getDefaultCoursesList())
 			.help("Add new courses location, use multipl --courses arguments for multiple locations")
 
 			.locsOption("javaCompilerPath")
+			.locsDefault(PathConfig.getDefaultJavaCompilerPathList())
 			.help("Add new java classpath location, use multiple --javaCompilerPath options for multiple locations")
+
+			.locsOption("classloaders")
+			.locsDefault(PathConfig.getDefaultClassloadersList())
+			.help("Add new java classloader location, use multiple --classloader options for multiple locations")
 
 			.boolOption("recompile")
 			.help("Recompile before running tests, when false existing binary is used")

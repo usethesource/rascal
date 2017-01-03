@@ -6,6 +6,7 @@ import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.rascalmpl.interpreter.Configuration;
@@ -14,6 +15,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
@@ -23,14 +25,14 @@ public class PathConfig {
 	
 	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
-	final List<ISourceLocation> srcs;		// List of locations to search for source files
-	final List<ISourceLocation> libs;     // List of (library) locations to search for derived files
-	final List<ISourceLocation> courses; 	// List of (library) locations to search for course source files
-	final List<ISourceLocation> javaCompilerPath;     // List of (library) locations to search for course source files
-	final List<ISourceLocation> classloaders;     // List of (library) locations to search for course source files
+	private final List<ISourceLocation> srcs;		// List of locations to search for source files
+	private final List<ISourceLocation> libs;     // List of (library) locations to search for derived files
+	private final List<ISourceLocation> courses; 	// List of (library) locations to search for course source files
+	private final List<ISourceLocation> javaCompilerPath;     // List of (library) locations to search for course source files
+	private final List<ISourceLocation> classloaders;     // List of (library) locations to search for course source files
     
-	ISourceLocation bin; 			// Global location for derived files outside projects or libraries
-	ISourceLocation boot;			// Location with Rascal boot files
+	private ISourceLocation bin; 			// Global location for derived files outside projects or libraries
+	private ISourceLocation boot;			// Location with Rascal boot files
 
 	private static ISourceLocation defaultStd;
 	private static List<ISourceLocation> defaultCourses;
@@ -80,14 +82,6 @@ public class PathConfig {
     private static List<ISourceLocation> computeDefaultJavaCompilerPath() {
         List<ISourceLocation> result = new ArrayList<>();
         String classPath = System.getProperty("java.class.path");
-        
-        if (classPath != null) {
-            for (String path : classPath.split(":")) {
-                result.add(vf.sourceLocation(new File(path).getAbsolutePath()));
-            }
-        }
-        
-        classPath = System.getProperty("rascal.class.path");
         
         if (classPath != null) {
             for (String path : classPath.split(":")) {
@@ -203,12 +197,34 @@ public class PathConfig {
     }
 	
 	public static List<ISourceLocation> getDefaultJavaCompilerPath() {
-	    return defaultJavaCompilerPath;
+	    return  Collections.unmodifiableList(defaultJavaCompilerPath);
 	}
 	
-	public static List<ISourceLocation> getDefaultCourses(){
-	    return defaultCourses;
+	public static IList getDefaultJavaCompilerPathList() {
+        return  convertLocs(defaultJavaCompilerPath);
+    }
+	
+	public static IList getDefaultCoursesList() {
+	    return convertLocs(defaultCourses);
 	}
+	
+	public static IList getDefaultClassloadersList() {
+	    return convertLocs(defaultClassloaders);
+	}
+	
+	private static IList convertLocs(List<ISourceLocation> locs) {
+	    IListWriter w = vf.listWriter();
+	    w.appendAll(locs);
+	    return w.done();
+    }
+
+    public static List<ISourceLocation> getDefaultCourses(){
+	    return  Collections.unmodifiableList(defaultCourses);
+	}
+	
+	public static List<ISourceLocation> getDefaultClassloaders() {
+        return Collections.unmodifiableList(defaultClassloaders);
+    }
 	
 	public IValueFactory getValueFactory() {
 	    return vf;
