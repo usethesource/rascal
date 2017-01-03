@@ -153,13 +153,16 @@ public class Settings {
   }
 
   PathConfig getPathConfig(PathConfig given){
+      // TODO: this clone should be in PathConfig itself, because it co-evolves
     IList srcs = getLocs("srcs", given.getSrcs());
     IList libs = getLocs("libs", given.getLibs());
     ISourceLocation bin = getLoc("bin", given.getBin());
     ISourceLocation boot = getLoc("boot", given.getBoot());
     IList courses = getLocs("courses", given.getCourses());
+    IList javaCompilerPath = getLocs("javaCompilerPath", given.getJavaCompilerPath());
+    IList classloaders = getLocs("classloaders", given.getClassloaders());
 
-    return new PathConfig(srcs, libs, bin, boot, courses);
+    return new PathConfig(srcs, libs, bin, boot, courses, javaCompilerPath, classloaders);
   }
 
 }
