@@ -24,37 +24,13 @@ public class CompiledRascalShell  {
 
 	IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	CommandOptions cmdOpts = new CommandOptions("CompiledRascalShell");
-	try {
-		cmdOpts
-		.locsOption("src").locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
-		.help("Add (absolute!) source location, use multiple --src arguments for multiple locations")
-
-		.locOption("bin").locDefault(vf.sourceLocation("home", "", "bin"))
-		.help("Directory for Rascal binaries")
+	cmdOpts
+	.pathConfigOptions()
+	.boolOption("help")
+	.help("Print help message for this command")
+	.noModuleArgument()
+	.handleArgs(args);
 		
-		.locsOption("lib").locsDefault((co) -> vf.list(co.getCommandLocOption("bin")))
-		.help("Add new lib location, use multiple --lib arguments for multiple locations")
-
-		.locsOption("courses")
-		.help("Add new courses location, use multipl --courses arguments for multiple locations")
-		
-		.locsOption("javaCompilerPath")
-		.help("Add new java classpath location, use multiple --javaCompilerPath options for multiple locations")
-		
-		.locOption("boot").locDefault(cmdOpts.getDefaultBootLocation())
-		.help("Rascal boot directory")
-
-		.boolOption("help")
-		.help("Print help message for this command")
-		.noModuleArgument()
-		.handleArgs(args);
-		
-	} catch (URISyntaxException e1) {
-		e1.printStackTrace();
-		System.exit(1);
-	}  
-
-//	printVersionNumber();
     RascalManifest mf = new RascalManifest();
     try {
       ShellRunner runner; 

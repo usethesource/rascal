@@ -163,7 +163,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	  
 	  for (IValue resolver : pcfg.getClassloaders()) {
 	      try {
-	          System.err.println("Resolved classloader: " + resolver);
 	          classLoaders.add(instance.getClassLoader((ISourceLocation) resolver));
 	      }
 	      catch (IOException e) {
