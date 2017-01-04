@@ -12,6 +12,7 @@
 
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Map;
@@ -51,6 +52,7 @@ public class RVMonJVM extends RVMCore {
 	static protected final IString PANIC 		= ValueFactoryFactory.getValueFactory().string("$panic$");
 	
 	protected Object returnValue = null;		// Actual return value of functions
+    protected MethodHandle[] handles;
 
 	public RVMonJVM(RVMExecutable rvmExec, RascalExecutionContext rex) {
 		super(rvmExec, rex);
@@ -81,7 +83,7 @@ public class RVMonJVM extends RVMCore {
 		
 		dynRun(func.funId, cf);
 		if(returnValue instanceof Thrown){
-			frameObserver.exception(cf, (Thrown) thrown);
+			frameObserver.exception(cf, (Thrown) returnValue);
 			throw (Thrown) returnValue;
 		}
 		return returnValue;
@@ -110,7 +112,7 @@ public class RVMonJVM extends RVMCore {
 		thrown = oldthrown;
 
 		if (returnValue instanceof Thrown) {
-			frameObserver.exception(root, (Thrown) thrown);
+			frameObserver.exception(root, (Thrown) returnValue);
 			throw (Thrown) returnValue;
 		}
 		if(returnValue instanceof IValue){
@@ -169,7 +171,7 @@ public class RVMonJVM extends RVMCore {
 		dynRun(root.function.funId, root);
 
 		if(returnValue instanceof Thrown){
-			frameObserver.exception(root, (Thrown) thrown);
+			frameObserver.exception(root, (Thrown) returnValue);
 			throw (Thrown) returnValue;
 		}
 		return (IValue) returnValue;
@@ -272,7 +274,7 @@ public class RVMonJVM extends RVMCore {
 	/*	Utitities for FrameObservers															*/
 	/********************************************************************************************/
 	
-	public void frameUpdateSrc(Frame cf, int srcIndex){
+	public static void frameUpdateSrc(Frame cf, int srcIndex){
 		cf.src = (ISourceLocation) cf.function.constantStore[srcIndex];
 	}
 	
@@ -301,40 +303,40 @@ public class RVMonJVM extends RVMCore {
 	/************************************************************************************************/
 	
 
-	public Object insnLOADLOCREF(Object[] stack, int pos) {
-		return new Reference(stack, pos);
-	}
+//	public Object insnLOADLOCREF(Object[] stack, int pos) {
+//		return new Reference(stack, pos);
+//	}
 	
-	public int insnPUSHLOCREF(Object[] stack, int sp, int pos) {
-		stack[sp++] = new Reference(stack, pos);
-		return sp;
-	}
+//	public int insnPUSHLOCREF(Object[] stack, int sp, int pos) {
+//		stack[sp++] = new Reference(stack, pos);
+//		return sp;
+//	}
 
-	public int insnLOADTYPE(Object[] stack, int sp, Frame cf, int arg1) {
-		stack[sp++] = cf.function.typeConstantStore[arg1];
-		return sp;
-	}
+//	public int insnLOADTYPE(Object[] stack, int sp, Frame cf, int arg1) {
+//		stack[sp++] = cf.function.typeConstantStore[arg1];
+//		return sp;
+//	}
 
-	public Object insnLOADLOCDEREF(Object[] stack, int pos) {
-		Reference ref = (Reference) stack[pos];
-		return ref.stack[ref.pos];
-	}
+//	public Object insnLOADLOCDEREF(Object[] stack, int pos) {
+//		Reference ref = (Reference) stack[pos];
+//		return ref.stack[ref.pos];
+//	}
 	
-	public int insnPUSHLOCDEREF(Object[] stack, int sp, int pos) {
-		Reference ref = (Reference) stack[pos];
-		stack[sp++] = ref.stack[ref.pos];
-		return sp;
-	}
+//	public int insnPUSHLOCDEREF(Object[] stack, int sp, int pos) {
+//		Reference ref = (Reference) stack[pos];
+//		stack[sp++] = ref.stack[ref.pos];
+//		return sp;
+//	}
 
 	public int insnUNWRAPTHROWNLOC(Object[] stack, int sp, int target) {
 		stack[target] = ((Thrown) stack[--sp]).getValue();
 		return sp;
 	}
 
-	public void insnSTORELOCDEREF(Object[] stack, int sp, int pos) {
-		Reference ref = (Reference) stack[pos];
-		ref.stack[ref.pos] = stack[sp - 1];
-	}
+//	public void insnSTORELOCDEREF(Object[] stack, int sp, int pos) {
+//		Reference ref = (Reference) stack[pos];
+//		ref.stack[ref.pos] = stack[sp - 1];
+//	}
 
 	public int insnPUSH_ROOT_FUN(Object[] stack, int sp, int fun) {
 		stack[sp++] = new FunctionInstance(functionStore[fun], root, this);
@@ -514,11 +516,26 @@ public class RVMonJVM extends RVMCore {
 		return dynRun(n, root);
 	}
 
-	@SuppressWarnings("unused")
-    public Object dynRun(final int n, final Frame cf) {
-		System.out.println("Unimplemented Base called !");
-		return PANIC;
+	public Object dynRun(final int n, final Frame cf) {
+	    try {
+	        return handles[n].invoke(this,cf);
+	    }
+	    catch (Throwable e) {
+	        if(e instanceof Thrown){
+	            throw (Thrown) e;
+	        } 
+	        else {
+	            System.out.println("dynRun: " + e);
+	            returnValue = Rascal_FALSE;
+	            return NONE;
+	        }
+	    }
 	}
+	
+//	public Object dynRun(final int n, final Frame cf) {
+//	    System.out.println("Unimplemented Base called !");
+//	    return PANIC;
+//	}
 	
 	public void coreturn0Helper(final Frame cof) {
 		if (cof == ccf) {
