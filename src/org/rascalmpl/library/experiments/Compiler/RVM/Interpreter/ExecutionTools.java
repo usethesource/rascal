@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.DefaultTestResultListener;
+import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
@@ -98,7 +99,7 @@ public class ExecutionTools {
 		IValue[] arguments = new IValue[0];
 
 		//try {
-			//long start = Timing.getCpuTime();
+			long start = Timing.getCpuTime();
 			IValue result = null;
 			String uid_module_init = executable.getUidModuleInit();
 			if(!uid_module_init.isEmpty()){
@@ -125,13 +126,13 @@ public class ExecutionTools {
 				//System.out.println("Initializing: " + (Timing.getCpuTime() - start)/1000000 + "ms");
 				result = rvm.executeRVMProgram(moduleName, executable.getUidModuleMain(), arguments, keywordArguments);
 			}
-			//long now = Timing.getCpuTime();
+			long now = Timing.getCpuTime();
 			MuPrimitive.exit(rvm.getStdOut());
 			RascalPrimitive.exit(rex);
 			rvm.getFrameObserver().report();
 
 			//rex.printCacheStats();
-			//System.out.println("Executing: " + (now - start)/1000000 + "ms");
+			System.out.println("Executing: " + (now - start)/1000000 + "ms");
 			return (IValue) result;
 			
 //		} catch(Thrown e) {

@@ -294,13 +294,12 @@ lrel[loc,int,str] runTests(list[str] names, str base, PathConfig pcfg, bool jvm=
 value main(bool jvm=true) = allRascalTests(bin=|home:///bin-tests-comp|, jvm=jvm);
   
 value allRascalTests(PathConfig pcfg){ //loc bin=|home:///bin-tests-intp|, loc boot=|boot:///|, bool jvm=true){
-  
-  println("Using <bpcfgin>");
-  jvm = true;
+ 
   timestamp = now();
   crashes = [];
   partial_results = [];
   lrel[loc,int,str] all_results = [];
+  jvm = true;
   
   //pcfg = pathConfig(srcs=[|std:///|], bin=bin, boot=boot, libs=[bin]);
   

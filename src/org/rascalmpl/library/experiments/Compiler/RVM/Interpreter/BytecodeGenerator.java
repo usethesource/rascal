@@ -130,19 +130,19 @@ public class BytecodeGenerator implements Opcodes {
 		    emitMethod(f, debug);
 		}
 		
-		// All functions are created create int based dispatcher
-		if(functionMap.size() > 0){
-			emitDynDispatch(functionMap.size());
-			for (Map.Entry<String, Integer> e : functionMap.entrySet()) {
-				String fname = e.getKey();
-				emitDynCaLL(fname, e.getValue());
-			}
-			emitDynFinalize();
-		}
+//		// All functions are created create int based dispatcher
+//		if(functionMap.size() > 0){
+//			emitDynDispatch(functionMap.size());
+//			for (Map.Entry<String, Integer> e : functionMap.entrySet()) {
+//				String fname = e.getKey();
+//				emitDynCaLL(fname, e.getValue());
+//			}
+//			emitDynFinalize();
+//		}
 
 		//OverloadedFunction[] overloadedStoreV2 = new OverloadedFunction[overloadedStore.length];
 		emitConstructor();
-	    dumpClass();
+	    //dumpClass();
 	}
 
 	public String finalName() {
@@ -385,11 +385,11 @@ public class BytecodeGenerator implements Opcodes {
 	/********************************************************************************************/
 
 	public void emitInlineFrameUpdateSrc(int srcIndex){
-		mv.visitVarInsn(ALOAD, THIS);
+		//mv.visitVarInsn(ALOAD, THIS);
 		mv.visitVarInsn(ALOAD, CF);
 		emitIntValue(srcIndex);
 		
-		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(RVMonJVM.class), "frameUpdateSrc", Type.getMethodDescriptor(VOID_TYPE, FRAME_TYPE, INT_TYPE), false);
+		mv.visitMethodInsn(INVOKESTATIC, Type.getInternalName(RVMonJVM.class), "frameUpdateSrc", Type.getMethodDescriptor(VOID_TYPE, FRAME_TYPE, INT_TYPE), false);
 	}
 	
 	public void emitInlineFrameObserve(int srcIndex){
