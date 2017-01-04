@@ -27,9 +27,9 @@ import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 
 import org.rascalmpl.uri.BadURIException;
-import org.rascalmpl.uri.IClassloaderLocationResolver;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
 import org.rascalmpl.value.ISourceLocation;
 
 public class FileURIResolver implements ISourceLocationInputOutput, IClassloaderLocationResolver {
@@ -49,7 +49,7 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	/**
 	 * Returns a URL classloader for the jar file or directory pointed to by the loc parameter.
 	 */
-	public ClassLoader getClassLoader(ISourceLocation loc) throws IOException {
+	public ClassLoader getClassLoader(ISourceLocation loc, ClassLoader parent) throws IOException {
 	    assert loc.getScheme().equals(scheme());
 	    String path = loc.getPath();
 	    
@@ -59,7 +59,7 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	    
 	    assert isDirectory(loc) || path.endsWith(".jar"); // dictated by URLClassLoader semantics
 	    
-	    return new URLClassLoader(new URL[] {loc.getURI().toURL() }, getClass().getClassLoader());
+	    return new URLClassLoader(new URL[] {loc.getURI().toURL() }, parent);
 	}
 
 	 
