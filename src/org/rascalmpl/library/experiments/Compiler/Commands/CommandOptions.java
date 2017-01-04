@@ -10,10 +10,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-
+ 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.URIUtil; 
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISourceLocation;
@@ -28,7 +28,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
- * Option values can have the foloowing types;
+ * Option values can have the following types;
  *
  */
 enum OptionType {INT, STR, BOOL, LOCS, LOC};
@@ -71,8 +71,15 @@ enum OptionType {INT, STR, BOOL, LOCS, LOC};
  * </code>
  */
 public class CommandOptions {
-
-	protected TypeFactory tf;
+    private static final String CLASSLOADERS_PATH_CONFIG_OPTION = "classloaders";
+    private static final String JAVA_COMPILER_PATH_PATH_CONFIG_OPTION = "javaCompilerPath";
+    private static final String COURSES_PATH_CONFIG_OPTION = "courses";
+    private static final String BOOT_PATH_CONFIG_OPTION = "boot";
+    private static final String BIN_PATH_CONFIG_OPTION = "bin";
+    private static final String LIB_PATH_CONFIG_OPTION = "lib";
+    private static final String SRC_PATH_CONFIG_OPTION = "src";
+    
+    protected TypeFactory tf;
 	protected org.rascalmpl.value.IValueFactory vf;
 	private boolean inCommandOptions = true;
 	private boolean singleModule = true;
@@ -524,37 +531,19 @@ public class CommandOptions {
 		}
 	}
 	
-	public ISourceLocation getDefaultCourseLocation(){
-		try {
-			return vf.sourceLocation("courses", "", "");
-		} catch (URISyntaxException e) {
-			printUsageAndExit("Cannot create default course location: " + e.getMessage());
-			return null;
-		}
-	}
-
 	public IList getDefaultStdlocs(){
 		return vf.list(getDefaultStdLocation());
 	}
 	
 	public IList getDefaultCourses(){
-		return vf.list(getDefaultCourseLocation());
+		return PathConfig.getDefaultCoursesList();
 	}
 
 	public ISourceLocation getKernelLocation(){
-	  ISourceLocation boot = getCommandLocOption("boot");
+	  ISourceLocation boot = getCommandLocOption(BOOT_PATH_CONFIG_OPTION);
 	  return RascalExecutionContext.getKernel(boot);
 	}
 
-	public ISourceLocation getDefaultBootLocation(){
-		try {
-			return vf.sourceLocation("boot", "", "");
-		} catch (URISyntaxException e) {
-			printUsageAndExit("Cannot create default location: " + e.getMessage());
-			return null;
-		}
-	}
-	
 	public ISourceLocation getDefaultRelocLocation(){
       try {
           return vf.sourceLocation("noreloc", "", "");
@@ -565,16 +554,49 @@ public class CommandOptions {
   }
 	
 	public PathConfig getPathConfig(){
-		return new PathConfig(getCommandLocsOption("src"),
-							  getCommandLocsOption("lib"),
-							  getCommandLocOption("bin"),
-							  getCommandLocOption("boot"),
-							  getCommandLocsOption("courses"),
-							  getCommandLocsOption("javaCompilerPath"),
-							  getCommandLocsOption("classloaders"));
+		return new PathConfig(getCommandLocsOption(SRC_PATH_CONFIG_OPTION),
+							  getCommandLocsOption(LIB_PATH_CONFIG_OPTION),
+							  getCommandLocOption(BIN_PATH_CONFIG_OPTION),
+							  getCommandLocOption(BOOT_PATH_CONFIG_OPTION),
+							  getCommandLocsOption(COURSES_PATH_CONFIG_OPTION),
+							  getCommandLocsOption(JAVA_COMPILER_PATH_PATH_CONFIG_OPTION),
+							  getCommandLocsOption(CLASSLOADERS_PATH_CONFIG_OPTION));
 	}
 
     public CommandOptions noModuleArgument() {
+        return this;
+    }
+
+    public CommandOptions pathConfigOptions() {
+        this.locsOption(LIB_PATH_CONFIG_OPTION)      
+        .locsDefault((co) -> vf.list(co.getCommandLocOption(BIN_PATH_CONFIG_OPTION)))
+        .help("Add new lib location, use multiple --lib arguments for multiple locations")
+
+        .locsOption(SRC_PATH_CONFIG_OPTION)      
+        .locsDefault(getDefaultStdlocs().isEmpty() ? vf.list(getDefaultStdlocs()) : getDefaultStdlocs())
+        .respectNoDefaults()
+        .help("Add (absolute!) source location, use multiple --src arguments for multiple locations")
+
+        .locOption(BOOT_PATH_CONFIG_OPTION)      
+        .locDefault(PathConfig.getDefaultBoot())
+        .help("Rascal boot directory")
+
+        .locOption(BIN_PATH_CONFIG_OPTION)       
+        .help("Directory for Rascal binaries")
+
+        .locsOption(COURSES_PATH_CONFIG_OPTION)
+        .locsDefault(PathConfig.getDefaultCoursesList())
+        .help("Add new courses location, use multiple --courses arguments for multiple locations")
+        
+        .locsOption(JAVA_COMPILER_PATH_PATH_CONFIG_OPTION)
+        .locsDefault(PathConfig.getDefaultJavaCompilerPathList())
+        .help("Add new java classpath location, use multiple --javaCompilerPath options for multiple locations")
+    
+        .locsOption(CLASSLOADERS_PATH_CONFIG_OPTION)
+        .locsDefault(PathConfig.getDefaultClassloadersList())
+        .help("Add new java classloader location, use multiple --classloader options for multiple locations")
+        ;
+    
         return this;
     }
 
