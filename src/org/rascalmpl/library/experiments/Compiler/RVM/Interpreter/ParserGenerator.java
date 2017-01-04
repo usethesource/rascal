@@ -15,6 +15,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 
 import org.rascalmpl.debug.IRascalMonitor;
@@ -59,7 +60,7 @@ public class ParserGenerator {
   public ParserGenerator(RascalExecutionContext rex) throws IOException {
     this.vf = rex.getValueFactory();
     this.tf = TypeFactory.getInstance();
-    this.bridge = new JavaBridge(rex.getClassLoaders(), rex.getValueFactory(), rex.getConfiguration());
+    this.bridge = new JavaBridge(Collections.emptyList(), rex.getValueFactory(), rex.getConfiguration());
 
       if(useCompiledParserGenerator && rvmParserGenerator == null) {
         RascalExecutionContext rex2 = 
