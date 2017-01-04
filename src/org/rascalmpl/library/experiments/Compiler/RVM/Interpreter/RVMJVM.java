@@ -39,13 +39,27 @@ public class RVMJVM extends RVMCore {
 					return super.defineClass(name, bytes, 0, bytes.length);
 				}
 
-				public Class<?> loadClass(String name) {
-					try {
-						return super.loadClass(name);
-					} catch (ClassNotFoundException e) {
-						e.printStackTrace();
-					}
-					return null;
+				public Class<?> loadClass(String name) throws ClassNotFoundException {
+				    try { 
+				        return super.loadClass(name); 
+				    } catch (ClassNotFoundException e) {
+				        // then its a library class we need
+				    }
+
+				    // let's try the classloaders as configured in pathConfig:
+				    for (ClassLoader l : classLoaders) {
+				        try {
+				            // TODO: group URLClassLoaders into a single instance 
+				            // to enhance class loading performance
+				            return l.loadClass(name);
+				        }
+				        catch (ClassNotFoundException e) {
+				            // this is normal, try next loader
+				            continue;
+				        }
+				    }
+				    
+				    throw new ClassNotFoundException(name);
 				}
 			}.defineClass(generatedClassName, generatedByteCode);
 

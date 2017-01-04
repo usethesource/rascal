@@ -59,7 +59,7 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	    
 	    assert isDirectory(loc) || path.endsWith(".jar"); // dictated by URLClassLoader semantics
 	    
-	    return new URLClassLoader(new URL[] {loc.getURI().toURL() });
+	    return new URLClassLoader(new URL[] {loc.getURI().toURL() }, getClass().getClassLoader());
 	}
 
 	 
