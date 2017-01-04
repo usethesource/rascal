@@ -1,10 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
@@ -48,11 +45,9 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats;
  * - state variables and caches needed by RascalPrimitives
  */
 public class RascalExecutionContext implements IRascalMonitor {
-
 	private IDEServices ideServices;
 	private final PrintWriter stderr;
 	private final Configuration config;
-	private final List<ClassLoader> classLoaders;
 	private final PrintWriter stdout;
 	
 	private final IValueFactory vf;
@@ -127,7 +122,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 		
 	  this.vf = pcfg.getValueFactory();
 	  this.pcfg = pcfg;
-	  System.err.println(pcfg);
 	  this.bootDir = pcfg.getBoot();
 	  if(bootDir != null && !(bootDir.getScheme().equals("boot") ||  
 	                          //bootDir.getScheme().equals("compressed+boot") || 
@@ -137,7 +131,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	  
 	  this.moduleTags = moduleTags;
 	  this.symbol_definitions = symbol_definitions == null ? vf.mapWriter().done() : symbol_definitions;
-	  //this.typeStore = typeStore == null ? new TypeStore(RascalValueFactory.getStore()) /*new TypeStore()*/ : typeStore;
 	  this.debug = debug;
 	  this.debugRVM = debugRVM;
 	  this.testsuite = testsuite;
@@ -158,18 +151,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	  config = new Configuration();
 	  config.setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
 	  
-	  this.classLoaders = new ArrayList<ClassLoader>();
-	  URIResolverRegistry instance = URIResolverRegistry.getInstance();
-	  
-	  for (IValue resolver : pcfg.getClassloaders()) {
-	      try {
-	          classLoaders.add(instance.getClassLoader((ISourceLocation) resolver));
-	      }
-	      catch (IOException e) {
-	          warning("Ignoring loading of resolver " + resolver + ", due to: " + e.getMessage(), (ISourceLocation) resolver);
-	      }
-	  }
-
 	  if(frameObserver == null){
 	    if(profile){
 	      setFrameObserver(new ProfileFrameObserver(this));
@@ -188,7 +169,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 	    setFrameObserver(frameObserver);
 	  }
 
-	  parsingTools = new ParsingTools(vf);
+	  parsingTools = new ParsingTools(vf, pcfg);
 	}
 	
 	private String javaCompilerPathAsString(IList javaCompilerPath) {
@@ -458,14 +439,9 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.moduleVariables = moduleVariables;
 	}
 	
-	public void addClassLoader(ClassLoader loader) {
-		// later loaders have precedence
-		classLoaders.add(0, loader);
+	IRascalMonitor getMonitor() {
+	    return ideServices;
 	}
-	
-	List<ClassLoader> getClassLoaders() { return classLoaders; }
-	
-	IRascalMonitor getMonitor() {return ideServices;}
 	
 	IDEServices getIDEServices(){
 	  return ideServices;
