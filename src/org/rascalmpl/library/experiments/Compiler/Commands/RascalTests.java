@@ -26,35 +26,7 @@ public class RascalTests {
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		
 		CommandOptions cmdOpts = new CommandOptions("rascalTests");
-		cmdOpts
-			.locsOption("src")		
-			.locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
-			.respectNoDefaults()
-			.help("Add (absolute!) source location, use multiple --src arguments for multiple locations")
-		
-			.locsOption("lib")		
-			.locsDefault((co) -> vf.list(co.getCommandLocOption("bin")))
-			.respectNoDefaults()
-			.help("Add new lib location, use multiple --lib arguments for multiple locations")
-		
-			.locOption("boot")		
-			.locDefault(cmdOpts.getDefaultBootLocation())
-			.help("Rascal boot directory")
-		
-			.locOption("bin") 		
-			.help("Directory for Rascal binaries")
-			
-			.locsOption("courses")
-			.locsDefault(PathConfig.getDefaultCoursesList())
-			.help("Add new courses location, use multipl --courses arguments for multiple locations")
-
-			.locsOption("javaCompilerPath")
-			.locsDefault(PathConfig.getDefaultJavaCompilerPathList())
-			.help("Add new java classpath location, use multiple --javaCompilerPath options for multiple locations")
-
-			.locsOption("classloaders")
-			.locsDefault(PathConfig.getDefaultClassloadersList())
-			.help("Add new java classloader location, use multiple --classloader options for multiple locations")
+		cmdOpts.pathConfigOptions()
 
 			.boolOption("recompile")
 			.help("Recompile before running tests, when false existing binary is used")

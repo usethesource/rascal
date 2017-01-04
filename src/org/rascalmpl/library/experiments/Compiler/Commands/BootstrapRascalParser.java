@@ -6,7 +6,6 @@ import java.net.URISyntaxException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
-import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -24,27 +23,7 @@ public class BootstrapRascalParser {
 	    try {
 	        IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	        CommandOptions cmdOpts = new CommandOptions("generateParser");
-	        cmdOpts
-	        .locsOption("src")		
-	        .locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
-	        .respectNoDefaults()
-	        .help("Add (absolute!) source location, use multiple --src arguments for multiple locations")
-	        
-	        .locOption("boot")		
-	        .locDefault(cmdOpts.getDefaultBootLocation())
-	        .help("Rascal boot directory")
-	        
-	        .locsOption("courses")
-	        .locsDefault(PathConfig.getDefaultCoursesList())
-            .help("Add new courses location, use multipl --courses arguments for multiple locations")
-     
-	        .locsOption("javaCompilerPath")
-	        .locsDefault(PathConfig.getDefaultJavaCompilerPathList())
-            .help("Add new java classpath location, use multiple --javaCompilerPath options for multiple locations")
-        
-            .locsOption("classloaders")
-            .locsDefault(PathConfig.getDefaultClassloadersList())
-            .help("Add new classloader location, use multiple --classloaders options for multiple locations")
+	        cmdOpts.pathConfigOptions()
         
             .boolOption("trace") 		
             .help("Print Rascal functions during execution of compiler")
