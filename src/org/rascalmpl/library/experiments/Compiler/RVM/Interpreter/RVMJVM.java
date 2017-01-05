@@ -27,7 +27,6 @@ public class RVMJVM extends RVMCore {
 		generatedClassName = rvmExec.getFullyQualifiedDottedName();
 
 		this.rvmExec = rvmExec;
-		System.err.println("RVMJVM (" + rvmExec.getModuleName() + "): " + generatedByteCode.length + " bytes generatedByteCode");
 		createGeneratedClassInstance();
 	}
 
