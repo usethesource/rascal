@@ -280,6 +280,10 @@ loc getDerivedWriteLoc(str qualifiedModuleName, str extension, PathConfig pcfg, 
     return fileLocBin;
 }
 
+@javaClass{org.rascalmpl.library.util.Reflective}
+@reflect{looks in execution context}
+public java PathConfig getCurrentPathConfig();
+
 @doc{Is the current Rascal code executed by the compiler or the interpreter?}
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java bool inCompiledMode();

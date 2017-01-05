@@ -34,8 +34,10 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ToplevelType;
+import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.gtd.io.InputConverter;
@@ -84,6 +86,11 @@ public class Reflective {
 	public IValue getRascalClasspath(IEvaluatorContext ctx) {
 	    return values.string(ctx.getConfiguration().getRascalJavaClassPathProperty());
 	}
+	
+	
+	public IConstructor getCurrentPathConfig(IEvaluatorContext ctx) {
+        throw new UnsupportedOperationException("pathConfig not available in interpreter context");
+    }
 	
 	IEvaluator<?> getDefaultEvaluator(PrintWriter stdout, PrintWriter stderr) {
 		GlobalEnvironment heap = new GlobalEnvironment();
