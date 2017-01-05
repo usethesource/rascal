@@ -72,7 +72,8 @@ public class PathConfigClassLoader extends ClassLoader {
             }
         }
         
-        return super.loadClass(name);
+        // is caught by the parent.loadClass(name, resolve) method
+        throw new ClassNotFoundException(name);
     }
     
     @Override

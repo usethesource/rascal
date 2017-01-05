@@ -40,6 +40,17 @@ public class RVMJVM extends RVMCore {
                 public Class<?> defineClass(String name, byte[] bytes) {
 					return super.defineClass(name, bytes, 0, bytes.length);
 				}
+                
+                public java.lang.Class<?> loadClass(String name) throws ClassNotFoundException {
+                    if (name.equals(generatedClassName)) {
+                        return super.loadClass(name);
+                    }
+                    
+                    // essential to directly call getParent().loadClass and not
+                    // super.loadClass() because this will call parent.loadClass(String,bool)
+                    // which is not overridable and this will break the semantics of PathConfigClassLoader.
+                    return getParent().loadClass(name);
+                };
 			}.defineClass(generatedClassName, generatedByteCode);
 
 			Constructor<?>[] cons = generatedClass.getConstructors();
