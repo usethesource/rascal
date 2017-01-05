@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandle;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -93,6 +94,8 @@ public class Function {
 
     private transient Class<?> javaClazz;
     private transient Method javaMethod;
+    
+    public MethodHandle handle;
 	
 	public Function(final String name, final Type ftype, final Type kwType, final String funIn, final int nformals, final int nlocals, boolean isDefault, boolean isTest, 
 			 final IMap tags, final IMap localNames, final int maxstack,
