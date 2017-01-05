@@ -73,25 +73,24 @@ public class RVMJVM extends RVMCore {
 			// make sure that the moduleVariables in this RVM and in the generated class are the same.
 			this.moduleVariables = generatedClassInstance.moduleVariables;
 			generatedClassInstance.frameObserver = this.frameObserver = rex.getFrameObserver();
-			generatedClassInstance.handles = setupInvokeDynamic(generatedClass);
+			setupInvokeDynamic(generatedClass);
 		} catch (Exception e) {
 		    throw new RuntimeException(e);
 		}
 	}
 	
-	private MethodHandle[] setupInvokeDynamic(Class<?> generatedClass) throws NoSuchMethodException, IllegalAccessException{
+	private void setupInvokeDynamic(Class<?> generatedClass) throws NoSuchMethodException, IllegalAccessException{
         MethodHandles.Lookup lookup = MethodHandles.lookup(); 
         
         MethodType methodType = MethodType.methodType(Object.class, Frame.class);
-        MethodHandle[] handles = new MethodHandle[functionMap.size()];
+
         for (Map.Entry<String, Integer> e : functionMap.entrySet()) {
             String fname = e.getKey();
             Integer findex = e.getValue();
             String methodName = BytecodeGenerator.rvm2jvmName(fname);
             MethodHandle mh = lookup.findVirtual(generatedClass, methodName, methodType);
-            handles[findex] = new ConstantCallSite(mh).dynamicInvoker();
+            functionStore[findex].handle = new ConstantCallSite(mh).dynamicInvoker();
         }
-        return handles;
     }
 	
 	@Override
