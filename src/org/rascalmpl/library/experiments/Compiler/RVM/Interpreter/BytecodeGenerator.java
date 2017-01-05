@@ -239,7 +239,7 @@ public class BytecodeGenerator implements Opcodes {
 		catchTargets.clear();
 
 		// Create method	 TODO: make it private
-		mv = cw.visitMethod(ACC_PUBLIC, rvm2jvmName(f.getName()), Type.getMethodDescriptor(OBJECT_TYPE, FRAME_TYPE), null, null);
+		mv = cw.visitMethod(ACC_PUBLIC|ACC_FINAL, rvm2jvmName(f.getName()), Type.getMethodDescriptor(OBJECT_TYPE, FRAME_TYPE), null, null);
 		mv.visitCode();
 
 		emitExceptionTable(f.fromLabels, f.toLabels, f.fromSPsCorrected, f.types, f.handlerLabels);
@@ -324,8 +324,8 @@ public class BytecodeGenerator implements Opcodes {
 	/************************************************************************************************/
 
 	private void emitValueFactory(){
-		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitFieldInsn(GETFIELD, fullClassName, "vf", Type.getType(IValueFactory.class).getDescriptor());
+		//mv.visitVarInsn(ALOAD, THIS);
+		mv.visitFieldInsn(GETSTATIC, fullClassName, "vf", Type.getType(IValueFactory.class).getDescriptor());
 	}
 	
 	private void emitRex(){
@@ -491,12 +491,12 @@ public class BytecodeGenerator implements Opcodes {
 		
 		Label l1 = new Label();
 		mv.visitJumpInsn(IF_ICMPGE, l1);
-		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RVMonJVM.class), "Rascal_TRUE", Type.getDescriptor(IBool.class));
+		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), "Rascal_TRUE", Type.getDescriptor(IBool.class));
 		Label l2 = new Label();
 		mv.visitJumpInsn(GOTO, l2);
 		mv.visitLabel(l1);
 
-		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RVMonJVM.class), "Rascal_FALSE", Type.getDescriptor(IBool.class));
+		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), "Rascal_FALSE", Type.getDescriptor(IBool.class));
 		mv.visitLabel(l2);
 		mv.visitVarInsn(ASTORE, ACCU);
 	}
@@ -509,12 +509,12 @@ public class BytecodeGenerator implements Opcodes {
 		
 		Label l1 = new Label();
 		mv.visitJumpInsn(IF_ICMPLT, l1);
-		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RVMonJVM.class), "Rascal_TRUE", Type.getDescriptor(IBool.class));
+		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), "Rascal_TRUE", Type.getDescriptor(IBool.class));
 		Label l2 = new Label();
 		mv.visitJumpInsn(GOTO, l2);
 		mv.visitLabel(l1);
 
-		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RVMonJVM.class), "Rascal_FALSE", Type.getDescriptor(IBool.class));
+		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), "Rascal_FALSE", Type.getDescriptor(IBool.class));
 		mv.visitLabel(l2);
 		mv.visitVarInsn(ASTORE, ACCU);
 	}
@@ -867,7 +867,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitJumpInsn(IFNE, l4);				// if(precondition) goto l4;
 		
 		mv.visitVarInsn(ALOAD, THIS);
-		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_FALSE", Type.getDescriptor(IBool.class));
+		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), "Rascal_FALSE", Type.getDescriptor(IBool.class));
 		mv.visitFieldInsn(PUTFIELD, fullClassName, "returnValue", OBJECT_TYPE.getDescriptor());
 				
 		mv.visitVarInsn(ALOAD, CF);				
@@ -1838,9 +1838,9 @@ public class BytecodeGenerator implements Opcodes {
 	
 	public void emitInlineLoadBool(boolean b) {
 		if (b) {
-			mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_TRUE", Type.getDescriptor(IBool.class));
+			mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), "Rascal_TRUE", Type.getDescriptor(IBool.class));
 		} else {
-			mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_FALSE", Type.getDescriptor(IBool.class));
+			mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), "Rascal_FALSE", Type.getDescriptor(IBool.class));
 		}
 		mv.visitVarInsn(ASTORE, ACCU);		// accu = bool;
 	}
@@ -2118,12 +2118,12 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitInsn(AALOAD);
 		mv.visitInsn(AASTORE);
 		
-		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_TRUE", Type.getDescriptor(IBool.class));
+		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), "Rascal_TRUE", Type.getDescriptor(IBool.class));
 		mv.visitVarInsn(ASTORE, ACCU);
 		mv.visitJumpInsn(GOTO, l5);
 		
 		mv.visitLabel(l1);
-		mv.visitFieldInsn(GETSTATIC, fullClassName, "Rascal_FALSE", Type.getDescriptor(IBool.class));
+		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), "Rascal_FALSE", Type.getDescriptor(IBool.class));
 		mv.visitVarInsn(ASTORE, ACCU);
 		mv.visitLabel(l5);
 	}
