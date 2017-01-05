@@ -72,7 +72,7 @@ public class RascalFunctionInvocationHandler implements InvocationHandler {
     }
     Class<?> returnType = method.getReturnType();
     if(returnType.isAnnotationPresent(RascalKeywordParameters.class)){
-      return returnType.cast(Proxy.newProxyInstance(RVMCore.class.getClassLoader(), new Class<?> [] { returnType }, new Java2RascalKWProxy.ProxyInvocationHandler(core.vf, returnType)));
+      return returnType.cast(Proxy.newProxyInstance(RVMCore.class.getClassLoader(), new Class<?> [] { returnType }, new Java2RascalKWProxy.ProxyInvocationHandler(RVMCore.vf, returnType)));
     }
     OverloadedFunction f = getOverloadedFunction(method, args);
     boolean hka = hasKeywordParams(args);
@@ -88,7 +88,7 @@ public class RascalFunctionInvocationHandler implements InvocationHandler {
     IValue[] result = new IValue[len];
 
     for (int i = 0; i < len; i++) {
-      result[i] = Marshall.marshall(core.vf, args[i]);
+      result[i] = Marshall.marshall(RVMCore.vf, args[i]);
     }
 
     return result;
