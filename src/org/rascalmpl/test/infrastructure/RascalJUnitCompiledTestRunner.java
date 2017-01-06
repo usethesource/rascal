@@ -158,8 +158,6 @@ public class RascalJUnitCompiledTestRunner extends Runner {
         return new PathConfig(srcs, libs, binFolder);
     }
 
-   
-
     @Override
     public int testCount(){
         getDescription();
@@ -295,7 +293,8 @@ public class RascalJUnitCompiledTestRunner extends Runner {
             try {
                 runner.test(mod.getDisplayName(), testsPerModule.get(mod.getClassName())); 
                 listener.done();
-            } catch (Exception e) {
+            } 
+            catch (Throwable e) {
                 // Something went totally wrong while running the compiled tests, force all tests in this suite to fail.
                 System.err.println("RascalJunitCompiledTestrunner.run: " + mod.getMethodName() + " unexpected exception: " + e.getMessage());
                 e.printStackTrace(System.err);
@@ -306,7 +305,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
         notifier.fireTestRunFinished(new Result());
     }
 
-    private static class Listener implements ITestResultListener {
+    private final class Listener implements ITestResultListener {
         private final RunNotifier notifier;
         private final Description module;
 
