@@ -55,7 +55,7 @@ public class PathConfig {
 		}
 	}
 	
-	public PathConfig() throws URISyntaxException{
+	public PathConfig() {
 		srcs = Arrays.asList(defaultStd);
 		courses = defaultCourses;
 		bin = defaultBin;

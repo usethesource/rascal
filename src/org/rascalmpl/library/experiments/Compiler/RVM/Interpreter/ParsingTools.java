@@ -262,15 +262,9 @@ public class ParsingTools {
 	      IMapWriter w = vf.mapWriter();
 	      w.insert(vf.tuple(name, moduleTags));
 
-	      RascalExecutionContext rex = null;
-	      try {
-	          rex = RascalExecutionContextBuilder.normalContext(new PathConfig(), ctx.getStdOut(), ctx.getStdErr())
+	      RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(new PathConfig(), ctx.getStdOut(), ctx.getStdErr())
 	              .withModuleTags(w.done())
 	              .build();
-	      }
-	      catch (URISyntaxException e) {
-	         throw new IOException(e);
-	      }
 
 	      rex.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
 
