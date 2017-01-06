@@ -3,6 +3,12 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.invoke.CallSite;
+import java.lang.invoke.ConstantCallSite;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Method;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -2026,6 +2032,19 @@ public enum MuPrimitive {
 			out.printf("%30s: %3d%% (%d ms)\n", data.get(t), t * 100 / total, t);
 		}
 	}
+	
+	@SuppressWarnings("unused")
+    public static CallSite bootstrapMuPrimitive(MethodHandles.Lookup caller, String name, MethodType type) throws NoSuchMethodException, IllegalAccessException {
+        MethodHandles.Lookup lookup = MethodHandles.lookup();
+        MuPrimitive enumElement = MuPrimitive.valueOf(name);
+        Class<?>[] parameters = type.parameterArray();
+        int arity = parameters.length;
+        String suffix = arity <= 2 ? String.valueOf(arity): "N";
+        Method execute = enumElement.getClass().getMethod("execute" + suffix, parameters);
+
+        MethodHandle foundMethod = lookup.unreflect(execute).bindTo(enumElement);
+        return new ConstantCallSite(foundMethod.asType(type));
+    }
 
 	/*******************************************************************
 	 *                 AUXILIARY FUNCTIONS                             *

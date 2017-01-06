@@ -1,9 +1,15 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
+import java.lang.invoke.ConstantCallSite;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.invoke.CallSite;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.ref.SoftReference;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -8725,6 +8731,19 @@ public enum RascalPrimitive {
 		for(long t : data.descendingKeySet()){
 			stdout.printf("%30s: %3d%% (%d ms)\n", data.get(t), t * 100 / total, t);
 		}
+	}
+	
+	@SuppressWarnings("unused")
+    public static CallSite bootstrapRascalPrimitive(MethodHandles.Lookup caller, String name, MethodType type) throws NoSuchMethodException, IllegalAccessException {
+	    MethodHandles.Lookup lookup = MethodHandles.lookup();
+	    RascalPrimitive enumElement = RascalPrimitive.valueOf(name);
+        Class<?>[] parameters = type.parameterArray();
+        int arity = parameters.length - 2;  // do not count common arguments cf and rex
+        String suffix = arity <= 2 ? String.valueOf(arity): "N";
+	    Method execute = enumElement.getClass().getMethod("execute" + suffix, parameters);
+
+	    MethodHandle foundMethod = lookup.unreflect(execute).bindTo(enumElement);
+	    return new ConstantCallSite(foundMethod.asType(type));
 	}
 
 	/************************************************************************************
