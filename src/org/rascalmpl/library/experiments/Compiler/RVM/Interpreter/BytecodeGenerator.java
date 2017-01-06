@@ -14,6 +14,11 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.FileOutputStream;
+import java.lang.invoke.CallSite;
+import java.lang.invoke.ConstantCallSite;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -23,6 +28,7 @@ import java.util.TreeMap;
 
 import org.objectweb.asm.Type;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -324,8 +330,8 @@ public class BytecodeGenerator implements Opcodes {
 	/************************************************************************************************/
 
 	private void emitValueFactory(){
-		//mv.visitVarInsn(ALOAD, THIS);
-		mv.visitFieldInsn(GETSTATIC, fullClassName, "vf", Type.getType(IValueFactory.class).getDescriptor());
+		mv.visitVarInsn(ALOAD, THIS);
+		mv.visitFieldInsn(GETFIELD, fullClassName, "vf", Type.getType(IValueFactory.class).getDescriptor());
 	}
 	
 	private void emitRex(){
@@ -1128,9 +1134,19 @@ public class BytecodeGenerator implements Opcodes {
 	/********************************************************************************************************************/
 	/*		CallMuPrim	/ PushCallMuPrim																				*/	
 	/*																													*/
-	/*		Emits an inline version of CallMuPrim[012N] or PushCallMuPrim[012N] instruction and uses a direct call to 	*/
-	/*		the static enum execute method. In some cases, the muprim is special cased									*/
+	/*		Emits an inline version of CallMuPrim[012N] or PushCallMuPrim[012N] instruction and uses invokeDynamic      */
+	/*      to call the static enum execute method. In some cases, the muprim is special cased.                         */
+	/*                                                                                                                  */
+	/* 		bootstrapMuPrimitive is used on the first call to a MuPrimitive to locate its execute method,             	*/
+	/*      also see MuPrimitive.bootstrapMuPrimitive                                                                   */
 	/********************************************************************************************************************/
+	
+	Handle bootstrapMuPrimitive(){
+        MethodType bmt = MethodType.methodType(CallSite.class, MethodHandles.Lookup.class, String.class, MethodType.class);
+        Handle bootstrap = new Handle(Opcodes.H_INVOKESTATIC, (MuPrimitive.class.getName()).replace('.', '/'), "bootstrapMuPrimitive",
+            bmt.toMethodDescriptorString());
+        return bootstrap;
+    }
 	
 	// CallMuPrim0
 	
@@ -1139,11 +1155,14 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	private void emitInlineCallMuPrim0General(MuPrimitive muprim) {
-		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(MuPrimitive.class), muprim.name(),
-				Type.getDescriptor(MuPrimitive.class));
+	    //		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(MuPrimitive.class), muprim.name(),
+	    //				Type.getDescriptor(MuPrimitive.class));
 
-		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(MuPrimitive.class), "execute0", Type.getMethodDescriptor(OBJECT_TYPE),false);
-		mv.visitVarInsn(ASTORE, ACCU);		// accu = callMuPrim0()
+	    mv.visitInvokeDynamicInsn(muprim.name(), 
+	        Type.getMethodDescriptor(OBJECT_TYPE), bootstrapMuPrimitive());
+
+	    //		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(MuPrimitive.class), "execute0", Type.getMethodDescriptor(OBJECT_TYPE),false);
+	    mv.visitVarInsn(ASTORE, ACCU);		// accu = callMuPrim0()
 	}
 		
 	// PushCallMuPrim0
@@ -1153,16 +1172,21 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	private void emitInlinePushCallMuPrim0General(MuPrimitive muprim) {
-		mv.visitVarInsn(ALOAD, STACK);		// stack
-		mv.visitVarInsn(ILOAD, SP);			// sp
-		
-		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(MuPrimitive.class), muprim.name(),
-				Type.getDescriptor(MuPrimitive.class));
-	
-		
-		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(MuPrimitive.class), "execute0", Type.getMethodDescriptor(OBJECT_TYPE),false);
-		mv.visitInsn(AASTORE);				// stack[sp] = callMuPrim0()
-		mv.visitIincInsn(SP, 1);			// sp += 1
+	    mv.visitVarInsn(ALOAD, STACK);		// stack
+	    mv.visitVarInsn(ILOAD, SP);			// sp
+
+	    //		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(MuPrimitive.class), muprim.name(),
+	    //				Type.getDescriptor(MuPrimitive.class));
+	    //	
+	    //		
+	    //		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(MuPrimitive.class), "execute0", Type.getMethodDescriptor(OBJECT_TYPE),false);
+
+	    mv.visitInvokeDynamicInsn(muprim.name(), 
+	        Type.getMethodDescriptor(OBJECT_TYPE), bootstrapMuPrimitive());
+
+
+	    mv.visitInsn(AASTORE);				// stack[sp] = callMuPrim0()
+	    mv.visitIincInsn(SP, 1);			// sp += 1
 	}
 	
 	// CallMuPrim1
@@ -1216,14 +1240,18 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	private void emitInlineCallMuPrim1General(MuPrimitive muprim) {
-		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(MuPrimitive.class), muprim.name(),
-				Type.getDescriptor(MuPrimitive.class));
-		
-		mv.visitVarInsn(ALOAD, ACCU);		// arg_1 from accu
-		
-		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(MuPrimitive.class), "execute1", Type.getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE),false);
-		
-		mv.visitVarInsn(ASTORE, ACCU);		// accu = callMuPrim1(arg_1)
+	    //		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(MuPrimitive.class), muprim.name(),
+	    //				Type.getDescriptor(MuPrimitive.class));
+
+	    mv.visitVarInsn(ALOAD, ACCU);		// arg_1 from accu
+
+	    mv.visitInvokeDynamicInsn(muprim.name(), 
+	        Type.getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE), bootstrapMuPrimitive());
+
+
+	    //		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(MuPrimitive.class), "execute1", Type.getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE),false);
+
+	    mv.visitVarInsn(ASTORE, ACCU);		// accu = callMuPrim1(arg_1)
 	}
 	
 	private void emit_is_predicate(String predicate){
@@ -1286,18 +1314,22 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	private void emitInlinePushCallMuPrim1General(MuPrimitive muprim) {
-		mv.visitVarInsn(ALOAD, STACK);		// stack
-		mv.visitVarInsn(ILOAD, SP);			// sp
-		
-		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(MuPrimitive.class), muprim.name(),
-				Type.getDescriptor(MuPrimitive.class));
-		
-		mv.visitVarInsn(ALOAD, ACCU);		// arg_1 from accu
-		
-		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(MuPrimitive.class), "execute1", Type.getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE),false);
-		
-		mv.visitInsn(AASTORE);				// stack[sp] = callMuPrim1(arg_1)
-		mv.visitIincInsn(SP, 1);			// sp += 1
+	    mv.visitVarInsn(ALOAD, STACK);		// stack
+	    mv.visitVarInsn(ILOAD, SP);			// sp
+
+	    //		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(MuPrimitive.class), muprim.name(),
+	    //				Type.getDescriptor(MuPrimitive.class));
+
+	    mv.visitVarInsn(ALOAD, ACCU);		// arg_1 from accu
+
+	    mv.visitInvokeDynamicInsn(muprim.name(), 
+	        Type.getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE), bootstrapMuPrimitive());
+
+
+	    //		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(MuPrimitive.class), "execute1", Type.getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE),false);
+
+	    mv.visitInsn(AASTORE);				// stack[sp] = callMuPrim1(arg_1)
+	    mv.visitIincInsn(SP, 1);			// sp += 1
 	}
 	
 	// CallMuPrim2
@@ -1345,8 +1377,8 @@ public class BytecodeGenerator implements Opcodes {
 	private void emitInlineCallMuPrim2General(MuPrimitive muprim) {
 		mv.visitIincInsn(SP, -1);			// sp -= 1
 		
-		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(MuPrimitive.class), muprim.name(),
-				Type.getDescriptor(MuPrimitive.class));
+//		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(MuPrimitive.class), muprim.name(),
+//				Type.getDescriptor(MuPrimitive.class));
 		
 		mv.visitVarInsn(ALOAD, STACK);		// arg_2
 		mv.visitVarInsn(ILOAD, SP);
@@ -1354,7 +1386,11 @@ public class BytecodeGenerator implements Opcodes {
 		
 		mv.visitVarInsn(ALOAD, ACCU);		// arg_1 from accu
 		
-		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(MuPrimitive.class), "execute2", Type.getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE, OBJECT_TYPE),false);
+	    mv.visitInvokeDynamicInsn(muprim.name(), 
+            Type.getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE, OBJECT_TYPE), bootstrapMuPrimitive());
+
+		
+//		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(MuPrimitive.class), "execute2", Type.getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE, OBJECT_TYPE),false);
 		
 		mv.visitVarInsn(ASTORE, ACCU);		// accu = callMuPrim2(arg_2, arg_1)
 	}
@@ -1433,8 +1469,8 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, STACK);		// stack
 		mv.visitVarInsn(ILOAD, SP);			// sp
 		
-		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(MuPrimitive.class), muprim.name(),
-				Type.getDescriptor(MuPrimitive.class));
+//		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(MuPrimitive.class), muprim.name(),
+//				Type.getDescriptor(MuPrimitive.class));
 		
 		mv.visitVarInsn(ALOAD, STACK);		// arg_2
 		mv.visitVarInsn(ILOAD, SP);
@@ -1442,7 +1478,11 @@ public class BytecodeGenerator implements Opcodes {
 		
 		mv.visitVarInsn(ALOAD, ACCU);		// arg_1 from accu
 		
-		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(MuPrimitive.class), "execute2", Type.getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE, OBJECT_TYPE),false);
+	    mv.visitInvokeDynamicInsn(muprim.name(), 
+            Type.getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE, OBJECT_TYPE), bootstrapMuPrimitive());
+
+	    
+//		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(MuPrimitive.class), "execute2", Type.getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE, OBJECT_TYPE),false);
 		
 		mv.visitInsn(AASTORE);				// stack[sp] = callMuPrim2(arg_2, arg_1)
 		mv.visitIincInsn(SP, 1);			// sp++
@@ -1477,15 +1517,18 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	private void emitInlineCallMuPrimNGeneral(MuPrimitive muprim, int arity) {
-		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(MuPrimitive.class), muprim.name(),
-				Type.getDescriptor(MuPrimitive.class));
+//		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(MuPrimitive.class), muprim.name(),
+//				Type.getDescriptor(MuPrimitive.class));
 
 		mv.visitVarInsn(ALOAD, STACK);		// stack
 		mv.visitVarInsn(ILOAD, SP);			// sp
 
 		emitIntValue(arity);				// arity
 
-		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(MuPrimitive.class), "executeN", Type.getMethodDescriptor(INT_TYPE, OBJECT_A_TYPE, INT_TYPE, INT_TYPE),false);
+	    mv.visitInvokeDynamicInsn(muprim.name(), 
+            Type.getMethodDescriptor(INT_TYPE, OBJECT_A_TYPE, INT_TYPE, INT_TYPE), bootstrapMuPrimitive());
+
+//		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(MuPrimitive.class), "executeN", Type.getMethodDescriptor(INT_TYPE, OBJECT_A_TYPE, INT_TYPE, INT_TYPE),false);
 											// sp = callMuPrimN(stack, sp, arity)
 		mv.visitInsn(ICONST_M1);
 		mv.visitInsn(IADD);					// sp--
@@ -1504,25 +1547,38 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	private void emitInlinePushCallMuPrimNGeneral(MuPrimitive muprim, int arity) {
-		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(MuPrimitive.class), muprim.name(),
-				Type.getDescriptor(MuPrimitive.class));
+	    //		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(MuPrimitive.class), muprim.name(),
+	    //				Type.getDescriptor(MuPrimitive.class));
 
-		mv.visitVarInsn(ALOAD, STACK);		// stack
-		mv.visitVarInsn(ILOAD, SP);			// sp
+	    mv.visitVarInsn(ALOAD, STACK);		// stack
+	    mv.visitVarInsn(ILOAD, SP);			// sp
 
-		emitIntValue(arity);				// arity
+	    emitIntValue(arity);				// arity
 
-		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(MuPrimitive.class), "executeN", Type.getMethodDescriptor(INT_TYPE, OBJECT_A_TYPE, INT_TYPE, INT_TYPE),false);
-		mv.visitVarInsn(ISTORE, SP);		// sp = callMuPrimN(stach, sp, arity)
+	    mv.visitInvokeDynamicInsn(muprim.name(), 
+	        Type.getMethodDescriptor(INT_TYPE, OBJECT_A_TYPE, INT_TYPE, INT_TYPE), bootstrapMuPrimitive());
+
+	    //		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(MuPrimitive.class), "executeN", Type.getMethodDescriptor(INT_TYPE, OBJECT_A_TYPE, INT_TYPE, INT_TYPE),false);
+	    mv.visitVarInsn(ISTORE, SP);		// sp = callMuPrimN(stach, sp, arity)
 	}
 	
 	/********************************************************************************************************************/
-	/*		CallPrim	/ PushCallPrim																					*/	
-	/*																													*/
-	/*		Emits an inline version of CallPrim[012N] or PushCallPrim[012N] instruction and uses a direct call to 		*/
-	/*		the static enum execute method. In some cases, the muprim is special cased									*/
-	/********************************************************************************************************************/
-	
+    /*      CallPrim  / PushCallPrim                                                                                    */  
+    /*                                                                                                                  */
+    /*      Emits an inline version of CallPrim[012N] or PushCallPrim[012N] instruction and uses invokeDynamic          */
+    /*      to call the static enum execute method. In some cases, the prim is special cased.                           */
+    /*                                                                                                                  */
+    /*      bootstrapRascalPrimitive is used on the first call to a RascalPrimitive to locate its execute method,       */
+    /*      also see RascalPrimitive.bootstrapRascalPrimitive                                                           */
+    /********************************************************************************************************************/
+
+	Handle bootstrapRascalPrimitive(){
+	    MethodType bmt = MethodType.methodType(CallSite.class, MethodHandles.Lookup.class, String.class, MethodType.class);
+	    Handle bootstrap = new Handle(Opcodes.H_INVOKESTATIC, (RascalPrimitive.class.getName()).replace('.', '/'), "bootstrapRascalPrimitive",
+	        bmt.toMethodDescriptorString());
+	    return bootstrap;
+	}
+    
 	// CallPrim0
 	
 	public void emitInlineCallPrim0(RascalPrimitive prim, int srcIndex) {
@@ -1530,18 +1586,21 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	private void emitInlineCallPrim0General(RascalPrimitive prim, int srcIndex) {
-		emitInlineFrameObserve(srcIndex);
-		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), prim.name(),
-				Type.getDescriptor(RascalPrimitive.class));
-		
-		mv.visitVarInsn(ALOAD, CF);			// currentFrame
-		
-		emitRex();
-		
-		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(RascalPrimitive.class), "execute0",
-				Type.getMethodDescriptor(OBJECT_TYPE, FRAME_TYPE, Type.getType(RascalExecutionContext.class)),false);
-		
-		mv.visitVarInsn(ASTORE, ACCU);		// accu = callPrim0()
+	    emitInlineFrameObserve(srcIndex);
+	    //		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), prim.name(),
+	    //				Type.getDescriptor(RascalPrimitive.class));
+
+	    mv.visitVarInsn(ALOAD, CF);			// currentFrame
+
+	    emitRex();
+
+	    mv.visitInvokeDynamicInsn(prim.name(), 
+	        Type.getMethodDescriptor(OBJECT_TYPE, FRAME_TYPE, Type.getType(RascalExecutionContext.class)), bootstrapRascalPrimitive());
+
+	    //		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(RascalPrimitive.class), "execute0",
+	    //				Type.getMethodDescriptor(OBJECT_TYPE, FRAME_TYPE, Type.getType(RascalExecutionContext.class)),false);
+
+	    mv.visitVarInsn(ASTORE, ACCU);		// accu = callPrim0()
 	}
 	
 	// PushCallPrim0
@@ -1555,15 +1614,18 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, STACK);		// stack
 		mv.visitVarInsn(ILOAD, SP);			// sp
 		
-		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), prim.name(),
-				Type.getDescriptor(RascalPrimitive.class));
+//		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), prim.name(),
+//				Type.getDescriptor(RascalPrimitive.class));
 		
 		mv.visitVarInsn(ALOAD, CF);			// currentFrame
 		
 		emitRex();
 
-		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(RascalPrimitive.class), "execute0",
-				Type.getMethodDescriptor(OBJECT_TYPE, FRAME_TYPE, Type.getType(RascalExecutionContext.class)),false);
+        mv.visitInvokeDynamicInsn(prim.name(), 
+            Type.getMethodDescriptor(OBJECT_TYPE, FRAME_TYPE, Type.getType(RascalExecutionContext.class)), bootstrapRascalPrimitive());
+        
+//		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(RascalPrimitive.class), "execute0",
+//				Type.getMethodDescriptor(OBJECT_TYPE, FRAME_TYPE, Type.getType(RascalExecutionContext.class)),false);
 		
 		mv.visitInsn(AASTORE);				// stack[sp] callPrim0()
 		mv.visitIincInsn(SP, 1);			// sp += 1
@@ -1576,20 +1638,24 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	private void emitInlineCallPrim1General(RascalPrimitive prim, int srcIndex) {
-		emitInlineFrameObserve(srcIndex);
-		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), prim.name(),
-				Type.getDescriptor(RascalPrimitive.class));
-		
-		mv.visitVarInsn(ALOAD, ACCU);	// arg_1 from accu
-		
-		mv.visitVarInsn(ALOAD, CF);		// currentFrame
+	    emitInlineFrameObserve(srcIndex);
+	    //		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), prim.name(),
+	    //				Type.getDescriptor(RascalPrimitive.class));
 
-		emitRex();
+	    mv.visitVarInsn(ALOAD, ACCU);	// arg_1 from accu
 
-		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(RascalPrimitive.class), "execute1",
-		    Type.getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE, FRAME_TYPE, Type.getType(RascalExecutionContext.class)),false);
-		
-		mv.visitVarInsn(ASTORE, ACCU);		// accu = callPrim1(arg_1)
+	    mv.visitVarInsn(ALOAD, CF);		// currentFrame
+
+	    emitRex();
+
+	    mv.visitInvokeDynamicInsn(prim.name(), 
+	        Type.getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE, FRAME_TYPE, Type.getType(RascalExecutionContext.class)), bootstrapRascalPrimitive());
+
+
+	    //		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(RascalPrimitive.class), "execute1",
+	    //		    Type.getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE, FRAME_TYPE, Type.getType(RascalExecutionContext.class)),false);
+
+	    mv.visitVarInsn(ASTORE, ACCU);		// accu = callPrim1(arg_1)
 	}
 	
 	// PushCallPrim1
@@ -1599,24 +1665,27 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	private void emitInlinePushCallPrim1General(RascalPrimitive prim, int srcIndex) {
-		emitInlineFrameObserve(srcIndex);
-		mv.visitVarInsn(ALOAD, STACK);
-		mv.visitVarInsn(ILOAD, SP);
-		
-		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), prim.name(),
-				Type.getDescriptor(RascalPrimitive.class));
-		
-		mv.visitVarInsn(ALOAD, ACCU);	// arg_1 from accu
-		
-		mv.visitVarInsn(ALOAD, CF);		// currentFrame
+	    emitInlineFrameObserve(srcIndex);
+	    mv.visitVarInsn(ALOAD, STACK);
+	    mv.visitVarInsn(ILOAD, SP);
 
-		emitRex();
+	    //		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), prim.name(),
+	    //				Type.getDescriptor(RascalPrimitive.class));
 
-		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(RascalPrimitive.class), "execute1",
-		    Type.getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE, FRAME_TYPE, Type.getType(RascalExecutionContext.class)),false);
-		
-		mv.visitInsn(AASTORE);			// stack[sp++] = callPrim1(arg_1)
-		mv.visitIincInsn(SP, 1);
+	    mv.visitVarInsn(ALOAD, ACCU);	// arg_1 from accu
+
+	    mv.visitVarInsn(ALOAD, CF);		// currentFrame
+
+	    emitRex();
+	    
+	    mv.visitInvokeDynamicInsn(prim.name(), 
+	        Type.getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE, FRAME_TYPE, Type.getType(RascalExecutionContext.class)), bootstrapRascalPrimitive());
+
+	    //		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(RascalPrimitive.class), "execute1",
+	    //		    Type.getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE, FRAME_TYPE, Type.getType(RascalExecutionContext.class)),false);
+
+	    mv.visitInsn(AASTORE);			// stack[sp++] = callPrim1(arg_1)
+	    mv.visitIincInsn(SP, 1);
 	}
 	
 	// CallPrim2
@@ -1635,26 +1704,23 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	private void emitInlineCallPrim2General(RascalPrimitive prim, int srcIndex) {
-		emitInlineFrameObserve(srcIndex);
-		mv.visitIincInsn(SP, -1);
-		
-		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), prim.name(),
-				Type.getDescriptor(RascalPrimitive.class));
-		
-		mv.visitVarInsn(ALOAD, STACK);	// arg_2
-		mv.visitVarInsn(ILOAD, SP);
-		mv.visitInsn(AALOAD);
-		
-		mv.visitVarInsn(ALOAD, ACCU);	// arg_1 from accu
-		
-		mv.visitVarInsn(ALOAD, CF);		// currentFrame
+	    emitInlineFrameObserve(srcIndex);
+	    mv.visitIincInsn(SP, -1);
 
-		emitRex();
-		
-		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(RascalPrimitive.class), "execute2",
-		    Type.getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE, OBJECT_TYPE, FRAME_TYPE, Type.getType(RascalExecutionContext.class)),false);
-		
-		mv.visitVarInsn(ASTORE, ACCU);	// accu = CallPrim2(arg_2, arg_1)
+	    mv.visitVarInsn(ALOAD, STACK);	// arg_2
+	    mv.visitVarInsn(ILOAD, SP);
+	    mv.visitInsn(AALOAD);
+
+	    mv.visitVarInsn(ALOAD, ACCU);	// arg_1 from accu
+
+	    mv.visitVarInsn(ALOAD, CF);		// currentFrame
+
+	    emitRex();
+
+	    mv.visitInvokeDynamicInsn(prim.name(), 
+	        Type.getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE, OBJECT_TYPE, FRAME_TYPE, Type.getType(RascalExecutionContext.class)), bootstrapRascalPrimitive());
+
+	    mv.visitVarInsn(ASTORE, ACCU);	// accu = CallPrim2(arg_2, arg_1)
 	}
 	
 	private void emitInlineCallPrim2_subtype_value_type(int srcIndex){
@@ -1704,29 +1770,33 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	private void emitInlinePushCallPrim2General(RascalPrimitive prim, int srcIndex) {
-		emitInlineFrameObserve(srcIndex);
-		mv.visitIincInsn(SP, -1);
-		mv.visitVarInsn(ALOAD, STACK);
-		mv.visitVarInsn(ILOAD, SP);
-		
-		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), prim.name(),
-				Type.getDescriptor(RascalPrimitive.class));
-		
-		mv.visitVarInsn(ALOAD, STACK);	// arg_2
-		mv.visitVarInsn(ILOAD, SP);
-		mv.visitInsn(AALOAD);
-		
-		mv.visitVarInsn(ALOAD, ACCU);	// arg_1 from accu
-		
-		mv.visitVarInsn(ALOAD, CF);		// currentFrame
+	    emitInlineFrameObserve(srcIndex);
+	    mv.visitIincInsn(SP, -1);
+	    mv.visitVarInsn(ALOAD, STACK);
+	    mv.visitVarInsn(ILOAD, SP);
 
-		emitRex();
-		
-		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(RascalPrimitive.class), "execute2",
-		    Type.getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE, OBJECT_TYPE, FRAME_TYPE, Type.getType(RascalExecutionContext.class)), false);
-		
-		mv.visitInsn(AASTORE);
-		mv.visitIincInsn(SP, 1);
+	    //		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), prim.name(),
+	    //				Type.getDescriptor(RascalPrimitive.class));
+
+	    mv.visitVarInsn(ALOAD, STACK);	// arg_2
+	    mv.visitVarInsn(ILOAD, SP);
+	    mv.visitInsn(AALOAD);
+
+	    mv.visitVarInsn(ALOAD, ACCU);	// arg_1 from accu
+
+	    mv.visitVarInsn(ALOAD, CF);		// currentFrame
+
+	    emitRex();
+
+	    mv.visitInvokeDynamicInsn(prim.name(), 
+	        Type.getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE, OBJECT_TYPE, FRAME_TYPE, Type.getType(RascalExecutionContext.class)), bootstrapRascalPrimitive());
+
+
+	    //		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(RascalPrimitive.class), "execute2",
+	    //		    Type.getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE, OBJECT_TYPE, FRAME_TYPE, Type.getType(RascalExecutionContext.class)), false);
+
+	    mv.visitInsn(AASTORE);
+	    mv.visitIincInsn(SP, 1);
 	}
 	
 	private void emitInlinePushCallPrim2_subtype_value_type(int srcIndex){
@@ -1783,8 +1853,8 @@ public class BytecodeGenerator implements Opcodes {
 	
 	private void emitInlineCallPrimNGeneral(RascalPrimitive prim, int arity, int srcIndex) {
 		emitInlineFrameObserve(srcIndex);
-		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), prim.name(),
-				Type.getDescriptor(RascalPrimitive.class));
+//		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), prim.name(),
+//				Type.getDescriptor(RascalPrimitive.class));
 
 		mv.visitVarInsn(ALOAD, STACK);
 		mv.visitVarInsn(ILOAD, SP);
@@ -1795,8 +1865,11 @@ public class BytecodeGenerator implements Opcodes {
 		
 		emitRex();
 		
-		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(RascalPrimitive.class), "executeN",
-				Type.getMethodDescriptor(INT_TYPE, OBJECT_A_TYPE, INT_TYPE, INT_TYPE, FRAME_TYPE, Type.getType(RascalExecutionContext.class)),false);
+        mv.visitInvokeDynamicInsn(prim.name(), 
+            Type.getMethodDescriptor(INT_TYPE, OBJECT_A_TYPE, INT_TYPE, INT_TYPE, FRAME_TYPE, Type.getType(RascalExecutionContext.class)), bootstrapRascalPrimitive());
+
+//		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(RascalPrimitive.class), "executeN",
+//				Type.getMethodDescriptor(INT_TYPE, OBJECT_A_TYPE, INT_TYPE, INT_TYPE, FRAME_TYPE, Type.getType(RascalExecutionContext.class)),false);
 		
 		mv.visitInsn(ICONST_M1);
 		mv.visitInsn(IADD);					// sp--
@@ -1815,23 +1888,26 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	private void emitInlinePushCallPrimNGeneral(RascalPrimitive prim, int arity, int srcIndex) {
-		emitInlineFrameObserve(srcIndex);
-		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), prim.name(),
-				Type.getDescriptor(RascalPrimitive.class));
+	    emitInlineFrameObserve(srcIndex);
+	    //		mv.visitFieldInsn(GETSTATIC, Type.getInternalName(RascalPrimitive.class), prim.name(),
+	    //				Type.getDescriptor(RascalPrimitive.class));
 
-		mv.visitVarInsn(ALOAD, STACK);
-		mv.visitVarInsn(ILOAD, SP);
+	    mv.visitVarInsn(ALOAD, STACK);
+	    mv.visitVarInsn(ILOAD, SP);
 
-		emitIntValue(arity);
+	    emitIntValue(arity);
 
-		mv.visitVarInsn(ALOAD, CF);
-		
-		emitRex();
-		
-		mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(RascalPrimitive.class), "executeN",
-				Type.getMethodDescriptor(INT_TYPE, OBJECT_A_TYPE, INT_TYPE, INT_TYPE, FRAME_TYPE, Type.getType(RascalExecutionContext.class)),false);
-		
-		mv.visitVarInsn(ISTORE, SP);
+	    mv.visitVarInsn(ALOAD, CF);
+
+	    emitRex();
+
+	    mv.visitInvokeDynamicInsn(prim.name(), 
+	        Type.getMethodDescriptor(INT_TYPE, OBJECT_A_TYPE, INT_TYPE, INT_TYPE, FRAME_TYPE, Type.getType(RascalExecutionContext.class)), bootstrapRascalPrimitive());
+
+//	    mv.visitMethodInsn(INVOKEVIRTUAL, Type.getInternalName(RascalPrimitive.class), "executeN",
+//	        Type.getMethodDescriptor(INT_TYPE, OBJECT_A_TYPE, INT_TYPE, INT_TYPE, FRAME_TYPE, Type.getType(RascalExecutionContext.class)),false);
+
+	    mv.visitVarInsn(ISTORE, SP);
 	}
 	
 	// End of CallMuPrim[012N] / PushCallMuPrim[012N]
