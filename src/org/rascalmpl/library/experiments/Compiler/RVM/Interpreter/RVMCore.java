@@ -61,8 +61,8 @@ import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public abstract class RVMCore {
-	public final static IValueFactory vf = ValueFactoryFactory.getValueFactory();
-
+	public final IValueFactory vf;
+	
 	protected final TypeFactory tf; 
 	
 	// Only for RVM interpreter
@@ -154,7 +154,7 @@ public abstract class RVMCore {
 	  this.classCache = new HashMap<String, Class<?>>();
 	  this.classLoaders = rex.getClassLoaders();
 
-//	  this.vf = rex.getValueFactory();
+	  this.vf = rex.getValueFactory();
 	  tf = TypeFactory.getInstance();
 	  this.stdout = rex.getStdOut();
 	  this.stderr = rex.getStdErr();
