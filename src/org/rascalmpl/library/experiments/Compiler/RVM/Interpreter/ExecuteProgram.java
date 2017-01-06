@@ -51,14 +51,8 @@ public class ExecuteProgram {
 		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm);
 		if(executable.isValid()){
 			RascalExecutionContext rex = null;
-            try {
-                // TODO: the new PathConfig() with only defaults here is syspe
-                rex = ExecutionTools.makeRex(new PathConfig(), executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm);
-            }
-            catch (URISyntaxException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+			// TODO: the new PathConfig() with only defaults here is syspe
+			rex = ExecutionTools.makeRex(new PathConfig(), executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm);
 			
 			rex.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
 			
@@ -113,14 +107,7 @@ public class ExecuteProgram {
                
 	    RVMExecutable executable = ExecutionTools.load(rvmExecutableLoc);
 	    if(executable.isValid()){
-	        RascalExecutionContext rex = null;
-	        try {
-	            rex = ExecutionTools.makeRex(new PathConfig(), executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm);
-	        }
-	        catch (URISyntaxException e) {
-	            // TODO Auto-generated catch block
-	            e.printStackTrace();
-	        }
+	        RascalExecutionContext rex = ExecutionTools.makeRex(new PathConfig(), executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm);
 	        rex.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
 
 	        return ExecutionTools.executeProgram(executable, new KWArgs(vf).add(keywordArguments).build(), rex);
