@@ -82,14 +82,16 @@ public class RVMJVM extends RVMCore {
 	private void setupInvokeDynamic(Class<?> generatedClass) throws NoSuchMethodException, IllegalAccessException{
         MethodHandles.Lookup lookup = MethodHandles.lookup(); 
         
-        MethodType methodType = MethodType.methodType(Object.class, Frame.class);
+        MethodType funType = MethodType.methodType(Object.class, Frame.class);
+        MethodType rtType = MethodType.methodType(Object.class, RVMonJVM.class, Frame.class);
 
         for (Map.Entry<String, Integer> e : functionMap.entrySet()) {
             String fname = e.getKey();
             Integer findex = e.getValue();
+            Function func = functionStore[findex];
             String methodName = BytecodeGenerator.rvm2jvmName(fname);
-            MethodHandle mh = lookup.findVirtual(generatedClass, methodName, methodType);
-            functionStore[findex].handle = new ConstantCallSite(mh).dynamicInvoker();
+            MethodHandle mh = lookup.findVirtual(generatedClass, methodName, funType);
+            func.handle = new ConstantCallSite(mh.asType(rtType)).dynamicInvoker();
         }
     }
 	
