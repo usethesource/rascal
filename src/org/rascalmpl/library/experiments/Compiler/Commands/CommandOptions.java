@@ -574,14 +574,23 @@ public class CommandOptions {
 
         .locsOption(SRC_PATH_CONFIG_OPTION)      
         .locsDefault(getDefaultStdlocs().isEmpty() ? vf.list(getDefaultStdlocs()) : getDefaultStdlocs())
-        .respectNoDefaults()
         .help("Add (absolute!) source location, use multiple --src arguments for multiple locations")
 
         .locOption(BOOT_PATH_CONFIG_OPTION)      
         .locDefault(PathConfig.getDefaultBoot())
         .help("Rascal boot directory")
 
-        .locOption(BIN_PATH_CONFIG_OPTION)       
+        .locOption(BIN_PATH_CONFIG_OPTION)
+        .locDefault(v -> {
+            IList srcs = v.getCommandLocsOption(SRC_PATH_CONFIG_OPTION);
+            if (srcs.length() > 0) {
+                return URIUtil.getChildLocation((ISourceLocation) srcs.get(0), "../bin");
+            }
+            else {
+                System.err.println("WARNING: using cwd:///rascal-bin as default bin target folder for Rascal compiler.");
+                return URIUtil.correctLocation("cwd", "", "rascal-bin");
+            }
+        })
         .help("Directory for Rascal binaries")
 
         .locsOption(COURSES_PATH_CONFIG_OPTION)
