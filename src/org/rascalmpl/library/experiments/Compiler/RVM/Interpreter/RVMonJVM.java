@@ -12,11 +12,6 @@
 
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import java.lang.invoke.CallSite;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.lang.invoke.ConstantCallSite;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Map;
@@ -45,6 +40,8 @@ public class RVMonJVM extends RVMCore {
 	 */
 	public Frame root; // Root frame of a program
 	Thrown thrown;
+	
+//	public static Function[] staticFunctionStore;
 
 	// TODO : ccf, cccf and activeCoroutines needed to allow exception handling in coroutines. :(
 	
@@ -59,6 +56,7 @@ public class RVMonJVM extends RVMCore {
 
 	public RVMonJVM(RVMExecutable rvmExec, RascalExecutionContext rex) {
 		super(rvmExec, rex);
+//		staticFunctionStore = functionStore;
 	}
 	
 	/************************************************************************************/
@@ -339,42 +337,25 @@ public class RVMonJVM extends RVMCore {
 	/*  - insn* methods completely implement one RVM instruction									*/
 	/*  - *helper methods are called as part of the inline implementation of one RVM instruction	*/
 	/************************************************************************************************/
-	
-
-//	public Object insnLOADLOCREF(Object[] stack, int pos) {
-//		return new Reference(stack, pos);
-//	}
-	
-//	public int insnPUSHLOCREF(Object[] stack, int sp, int pos) {
-//		stack[sp++] = new Reference(stack, pos);
-//		return sp;
-//	}
-
-//	public int insnLOADTYPE(Object[] stack, int sp, Frame cf, int arg1) {
-//		stack[sp++] = cf.function.typeConstantStore[arg1];
-//		return sp;
-//	}
-
-//	public Object insnLOADLOCDEREF(Object[] stack, int pos) {
-//		Reference ref = (Reference) stack[pos];
-//		return ref.stack[ref.pos];
-//	}
-	
-//	public int insnPUSHLOCDEREF(Object[] stack, int sp, int pos) {
-//		Reference ref = (Reference) stack[pos];
-//		stack[sp++] = ref.stack[ref.pos];
-//		return sp;
+//EXPERIMENTAL	
+//	public static CallSite bootstrapGetFrame(MethodHandles.Lookup caller, String name, MethodType type, Object arg) throws NoSuchMethodException, IllegalAccessException {
+//	    System.err.println("bootstrapGetFrame");
+//	    MethodHandles.Lookup lookup = MethodHandles.lookup();
+//	    Function func = staticFunctionStore[(Integer)arg];
+//	    MethodType getFrameType = MethodType.methodType(Frame.class, Function.class, Frame.class, int.class, int.class);
+//
+//	    MethodHandle getFrame = lookup.findVirtual(Frame.class, "getFrame", getFrameType);
+//	    MethodHandle getFrame1 = MethodHandles.filterArguments(getFrame, 1, null, MethodHandles.constant(Function.class, func));
+//	    
+//	    MethodHandle getFrame2 = MethodHandles.filterArguments(getFrame1, 1, MethodHandles.constant(int.class, func.nformals));
+//	    System.err.println(getFrame2);
+//	    return new ConstantCallSite(getFrame2.asType(type));
 //	}
 
 	public int insnUNWRAPTHROWNLOC(Object[] stack, int sp, int target) {
 		stack[target] = ((Thrown) stack[--sp]).getValue();
 		return sp;
 	}
-
-//	public void insnSTORELOCDEREF(Object[] stack, int sp, int pos) {
-//		Reference ref = (Reference) stack[pos];
-//		ref.stack[ref.pos] = stack[sp - 1];
-//	}
 
 	public int insnPUSH_ROOT_FUN(Object[] stack, int sp, int fun) {
 		stack[sp++] = new FunctionInstance(functionStore[fun], root, this);
@@ -542,7 +523,7 @@ public class RVMonJVM extends RVMCore {
 	/************************************************************************************************/
 
 	public Object dynRun(final String fname, final IValue[] args, Map<String, IValue> kwArgs) {
-		
+		 
 		int n = functionMap.get(fname);
 		Function func = functionStore[n];
 		root = new Frame(func.scopeId, null, func.maxstack, func);
@@ -561,39 +542,6 @@ public class RVMonJVM extends RVMCore {
             }
         }
 	}
-	
-//	public Object dynRun(final MethodHandle handle, final Frame cf) {
-//        try {
-//            return handle.invoke(this,cf);
-//        }
-//        catch (Throwable e) {
-//            if(e instanceof Thrown){
-//                throw (Thrown) e;
-//            } 
-//            else {
-//                throw new RuntimeException(e);
-//            }
-//        }
-//    }
-
-//	public Object dynRun(final int n, final Frame cf) {
-//	    try {
-//	        return handles[n].invoke(this,cf);
-//	    }
-//	    catch (Throwable e) {
-//	        if(e instanceof Thrown){
-//	            throw (Thrown) e;
-//	        } 
-//	        else {
-//	            throw new RuntimeException(e);
-//	        }
-//	    }
-//	}
-	
-//	public Object dynRun(final int n, final Frame cf) {
-//	    System.out.println("Unimplemented Base called !");
-//	    return PANIC;
-//	}
 	
 	public void coreturn0Helper(final Frame cof) {
 		if (cof == ccf) {
@@ -821,31 +769,29 @@ public class RVMonJVM extends RVMCore {
 	public Object jvmOCALL(final Object[] stack, int sp, final Frame cf, final int ofun, final int arity) {
 		cf.sp = sp;
 
-		OverloadedFunctionInstanceCall ofun_call = null;
 		OverloadedFunction of = overloadedStore[ofun];
 	    
 		Object arg0 = stack[sp - arity];
-		ofun_call = of.getScopeIn() == -1 ? new OverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), cf, null, arity) 
-				                          : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), of.getScopeIn(), null, arity);
+		OverloadedFunctionInstanceCall ofun_call = 
+		    of.getScopeIn() == -1 ? new OverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), cf, null, arity) 
+				                  : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), of.getScopeIn(), null, arity);
 		
 		Frame frame = ofun_call.nextFrame(functionStore);
 		
 		frameObserver.enter(root);
 		
 		while (frame != null) {	
-		    Object result;
 		    try {
-		        result = frame.function.handle.invoke(this, frame);
+		        if(frame.function.handle.invoke(this, frame) == NONE){
+		            frameObserver.leave(root, returnValue);
+	                return returnValue; // Alternative matched.
+		        }
 		    } catch (Throwable e) {
 		        if(e instanceof Thrown){
 		            throw (Thrown) e;
 		        } else {
 		            throw new RuntimeException(e);
 		        }
-		    }
-		    if (result == NONE) {
-		        frameObserver.leave(root, returnValue);
-		        return returnValue; // Alternative matched.
 		    }
 		    frame = ofun_call.nextFrame(functionStore);
 		}
