@@ -100,9 +100,8 @@ public abstract class RVMCore {
 
 	public Map<IValue, IValue> moduleVariables;
 	
-	List<ClassLoader> classLoaders;
-	private final Map<Class<?>, Object> instanceCache;
-	private final Map<String, Class<?>> classCache;
+	protected final Map<Class<?>, Object> instanceCache;
+	protected final Map<String, Class<?>> classCache;
 
 	private final Types types;
 	
@@ -152,7 +151,6 @@ public abstract class RVMCore {
 
 	  this.instanceCache = new HashMap<Class<?>, Object>();
 	  this.classCache = new HashMap<String, Class<?>>();
-	  this.classLoaders = rex.getClassLoaders();
 
 	  this.vf = rex.getValueFactory();
 	  tf = TypeFactory.getInstance();
@@ -1052,24 +1050,16 @@ public abstract class RVMCore {
 		if(clazz != null){
 			return clazz;
 		}
+		
 		try {
 			clazz = this.getClass().getClassLoader().loadClass(className);
-		} catch(ClassNotFoundException e1) {
-			// If the class is not found, try other class loaders
-			for(ClassLoader loader : this.classLoaders) {
-				try {
-					clazz = loader.loadClass(className);
-					break;
-				} catch(ClassNotFoundException e2) {
-					;
-				}
-			}
+			classCache.put(className, clazz);
+	        return clazz;
+		} 
+		catch(ClassNotFoundException | NoClassDefFoundError e1) {
+			throw new CompilerError("Class " + className + " not found", e1);
 		}
-		if(clazz == null) {
-			throw new CompilerError("Class " + className + " not found");
-		}
-		classCache.put(className, clazz);
-		return clazz;
+		
 	}
 	
 	public Object getJavaClassInstance(Class<?> clazz){
@@ -1183,6 +1173,7 @@ public abstract class RVMCore {
 			"org.rascalmpl.library.util.MonitorCompiled.event",
 			"org.rascalmpl.library.util.MonitorCompiled.endJob",
 			"org.rascalmpl.library.util.MonitorCompiled.todo",
+			"org.rascalmpl.library.util.ReflectiveCompiled.getCurrentPathConfig",
 			"org.rascalmpl.library.util.ReflectiveCompiled.parseModule",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getModuleLocation",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getSearchPathLocation",

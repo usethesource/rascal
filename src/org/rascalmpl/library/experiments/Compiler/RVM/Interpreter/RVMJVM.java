@@ -11,10 +11,10 @@ import java.lang.reflect.Constructor;
 import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
+import org.rascalmpl.uri.classloaders.PathConfigClassLoader;
 import org.rascalmpl.value.IValue;
 
 public class RVMJVM extends RVMCore {
-
 	final RVMExecutable rvmExec;
 	final byte[] generatedByteCode;
 	final String generatedClassName;
@@ -31,40 +31,29 @@ public class RVMJVM extends RVMCore {
 		generatedClassName = rvmExec.getFullyQualifiedDottedName();
 
 		this.rvmExec = rvmExec;
-		System.err.println("RVMJVM (" + rvmExec.getModuleName() + "): " + generatedByteCode.length + " bytes generatedByteCode");
 		createGeneratedClassInstance();
 	}
 
 	private void createGeneratedClassInstance() {
-		// Oneshot classloader
 		try {
-			Class<?> generatedClass = new ClassLoader(RVMJVM.class.getClassLoader()) {
-				public Class<?> defineClass(String name, byte[] bytes) {
+			Class<?> generatedClass = new ClassLoader(new PathConfigClassLoader(rex.getPathConfig(), getClass().getClassLoader())) {
+			    // This is a oneshot classloader to facilitate garbage collection of older versions and re-initialisation of
+		        // dependending classloaders. We pass a PathConfigClassLoader as parent such that the generated code and the
+			    // builtins it depends on can find Java classes used by builtin functions.
+                public Class<?> defineClass(String name, byte[] bytes) {
 					return super.defineClass(name, bytes, 0, bytes.length);
 				}
-
-				public Class<?> loadClass(String name) throws ClassNotFoundException {
-				    try { 
-				        return super.loadClass(name); 
-				    } catch (ClassNotFoundException e) {
-				        // then its a library class we need
-				    }
-
-				    // let's try the classloaders as configured in pathConfig:
-				    for (ClassLoader l : classLoaders) {
-				        try {
-				            // TODO: group URLClassLoaders into a single instance 
-				            // to enhance class loading performance
-				            return l.loadClass(name);
-				        }
-				        catch (ClassNotFoundException e) {
-				            // this is normal, try next loader
-				            continue;
-				        }
-				    }
-				    
-				    throw new ClassNotFoundException(name);
-				}
+                
+                public java.lang.Class<?> loadClass(String name) throws ClassNotFoundException {
+                    if (name.equals(generatedClassName)) {
+                        return super.loadClass(name);
+                    }
+                    
+                    // essential to directly call getParent().loadClass and not
+                    // super.loadClass() because this will call parent.loadClass(String,bool)
+                    // which is not overridable and this will break the semantics of PathConfigClassLoader.
+                    return getParent().loadClass(name);
+                };
 			}.defineClass(generatedClassName, generatedByteCode);
 
 			Constructor<?>[] cons = generatedClass.getConstructors();
@@ -94,6 +83,23 @@ public class RVMJVM extends RVMCore {
             func.handle = new ConstantCallSite(mh.asType(rtType)).dynamicInvoker();
         }
     }
+	
+	@Override
+	public Class<?> getJavaClass(String className) {
+	    Class<?> clazz = classCache.get(className);
+	    if(clazz != null){
+	        return clazz;
+	    }
+
+	    try {
+	        clazz = generatedClassInstance.getClass().getClassLoader().loadClass(className);
+	        classCache.put(className, clazz);
+	        return clazz;
+	    } 
+	    catch(ClassNotFoundException | NoClassDefFoundError e1) {
+	        throw new CompilerError("Class " + className + " not found", e1);
+	    }
+	}
 	
 	@Override
 	public void setFrameObserver(IFrameObserver observer){

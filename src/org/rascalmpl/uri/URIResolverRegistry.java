@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2017 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
 
 import org.rascalmpl.unicode.UnicodeInputStreamReader;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
+import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -481,14 +482,14 @@ public class URIResolverRegistry {
 		}
 	}
 	
-	public ClassLoader getClassLoader(ISourceLocation uri) throws IOException {
+	public ClassLoader getClassLoader(ISourceLocation uri, ClassLoader parent) throws IOException {
 	    IClassloaderLocationResolver resolver = classloaderResolvers.get(uri.getScheme());
 	    
 	    if (resolver == null) {
 	        throw new IOException("No classloader resolver registered for this URI scheme: " + uri);
 	    }
 	    
-	    return resolver.getClassLoader(uri);
+	    return resolver.getClassLoader(uri, parent);
 	}
 	
 	public InputStream getInputStream(ISourceLocation uri) throws IOException {

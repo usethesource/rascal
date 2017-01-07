@@ -10,26 +10,27 @@
  *  
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */ 
-package org.rascalmpl.uri;
+package org.rascalmpl.uri.classloaders;
 
 import java.io.IOException;
 
 import org.rascalmpl.value.ISourceLocation;
 
-/**
- * A default classloader resolver for testing purposes. It always returns the system's default classloader.
- */
-public class SystemClassloaderResolver implements IClassloaderLocationResolver {
-
-    @Override
-    public String scheme() {
-        return "system";
-    }
-
-    @Override
-    public ClassLoader getClassLoader(ISourceLocation loc) throws IOException {
-        assert loc.getScheme().equals(scheme());
-        return ClassLoader.getSystemClassLoader();
-    }
-
+public interface IClassloaderLocationResolver {
+    /**
+     * @return the scheme this resolved supports
+     */
+    String scheme();
+    
+    /**
+     * Produce a classloader for the given location.
+     * 
+     * @param  loc a location with loc.getScheme().equals(this.getScheme())
+     * @param  parent Classloader to defer to when a needed class is not provided directly by the returned classloader
+     * 
+     * @return a classloader corresponding to the given loc, with parent classloader `parent` and never null.
+     * @throws IOException when the location can not be resolved even though the scheme matches, 
+     *         or something else goes wrong while loading the classloader itself.
+     */
+    ClassLoader getClassLoader(ISourceLocation loc, ClassLoader  parent) throws IOException;
 }
