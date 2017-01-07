@@ -8733,6 +8733,8 @@ public enum RascalPrimitive {
 		}
 	}
 	
+	// Bootstrap method used for invokeDynamic on RascalPrimitives, see BytecoeGenerator
+	
 	@SuppressWarnings("unused")
     public static CallSite bootstrapRascalPrimitive(MethodHandles.Lookup caller, String name, MethodType type) throws NoSuchMethodException, IllegalAccessException {
 	    MethodHandles.Lookup lookup = MethodHandles.lookup();
