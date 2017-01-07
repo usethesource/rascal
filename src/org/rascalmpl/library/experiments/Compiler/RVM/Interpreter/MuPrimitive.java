@@ -2033,6 +2033,8 @@ public enum MuPrimitive {
 		}
 	}
 	
+	// Bootstrap method used for invokeDynamic on MuPrimitives, see BytecoeGenerator
+	
 	@SuppressWarnings("unused")
     public static CallSite bootstrapMuPrimitive(MethodHandles.Lookup caller, String name, MethodType type) throws NoSuchMethodException, IllegalAccessException {
         MethodHandles.Lookup lookup = MethodHandles.lookup();
