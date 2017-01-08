@@ -65,6 +65,7 @@ public class RascalFunctionInvocationHandler implements InvocationHandler {
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     if(method.getName().equals("shutdown")){
       core.shutdown();
+      return null;
     }
     if(method.getName().equals("setFrameObserver")){
         core.setFrameObserver((IFrameObserver) args[0]); 
