@@ -41,6 +41,7 @@ tuple[bool,loc] MuModuleReadLoc(str qualifiedModuleName, PathConfig pcfg) = getD
 loc MuModuleWriteLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedWriteLoc(qualifiedModuleName, "mu", pcfg);
 
 tuple[bool,loc] ConfigReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "tc", pcfg);
+loc ConfigWriteLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedWriteLoc(qualifiedModuleName, "tc", pcfg);
 
 tuple[bool,loc] getMergedImportsReadLoc(str mainQualifiedName, PathConfig pcfg){
     merged_imports_qname = mainQualifiedName + "_imports";
@@ -83,6 +84,10 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
    		//M = parse(#start[Module], moduleLoc).top;
    		M = parseModule(moduleLoc);
    	    config  = checkModule(M, newConfiguration(pcfg));
+   	    if(reloc != |noreloc:///|){
+   	        configWriteLoc = ConfigWriteLoc(qualifiedModuleName, pcfg);
+   	        writeBinaryValueFile(configWriteLoc, relocConfig(config, reloc, pcfg.srcs));
+   	    }
    	    check_time = (cpuTime() - start_checking)/1000000;
    	} catch e: {
    	    throw e;
