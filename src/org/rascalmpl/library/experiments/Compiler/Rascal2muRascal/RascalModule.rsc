@@ -168,6 +168,10 @@ MuExp relocBody(MuExp body, loc reloc, list[loc] srcs){
         };    
 }
 
+Configuration relocConfig(Configuration config, loc reloc, list[loc] srcs){
+        return visit(config) { case loc l => relocLoc(l, reloc, srcs) };
+}
+
 void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration config, bool verbose = true){
 
    set[str] seenCommonDataFields = {};  // remember for which common data fields we have already generated a companion
