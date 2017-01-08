@@ -11,6 +11,7 @@ import util::Benchmark;
 import util::FileSystem;
 import Map;
 import Relation;
+import Exception;
 
 import lang::rascal::\syntax::Rascal;
 //import experiments::Compiler::Rascal2muRascal::ParseModule;
@@ -67,7 +68,15 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
     lang::rascal::\syntax::Rascal::Module M;
     int check_time;
     int comp_time;
-    loc moduleLoc = getModuleLocation(qualifiedModuleName, pcfg);
+    loc moduleLoc;
+    rvmModuleLoc = RVMModuleWriteLoc(qualifiedModuleName, pcfg);
+    try {
+        moduleLoc = getModuleLocation(qualifiedModuleName, pcfg);
+    } catch ModuleNotFound(_): {
+        rvmMod = errorRVMModule(qualifiedModuleName, {error("Module not found: <qualifiedModuleName>", |unknown:///|)}, |unknown:///|);
+        writeBinaryValueFile(rvmModuleLoc, rvmMod);
+        return <config, rvmMod>;
+    }
    	try {
    	    if(verbose) println("rascal2rvm: <moduleLoc>");
    	    start_checking = cpuTime();
@@ -81,7 +90,7 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
    	errors = [ e | e:error(_,_) <- config.messages];
    	warnings = [ w | w:warning(_,_) <- config.messages ];
    
-    rvmModuleLoc = RVMModuleWriteLoc(qualifiedModuleName, pcfg);
+   
     
    	if(size(errors) > 0) {
    		rvmMod = errorRVMModule("<M.header.name>", config.messages, moduleLoc);
