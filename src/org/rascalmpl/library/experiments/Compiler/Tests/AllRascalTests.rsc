@@ -291,7 +291,7 @@ lrel[loc,int,str] runTests(list[str] names, str base, PathConfig pcfg, bool jvm=
   return all_test_results;
 }
   
-value main(bool jvm=true) = allRascalTests(bin=|home:///bin-tests-comp|, jvm=jvm);
+value main(bool jvm=true) = allRascalTests(pathConfig());
   
 value allRascalTests(PathConfig pcfg){ //loc bin=|home:///bin-tests-intp|, loc boot=|boot:///|, bool jvm=true){
 
