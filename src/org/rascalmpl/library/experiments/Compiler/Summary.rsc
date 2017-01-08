@@ -46,7 +46,7 @@ ModuleSummary makeSummary(str qualifiedModuleName, PathConfig pcfg){
       Configuration c = readBinaryValueFile(#Configuration, cloc);
       return moduleSummary(getLocationTypes(c), getUseDef(c), getVocabulary(c));
    } else {
-      return moduleSummmary((), {}, {});
+      return moduleSummary((), {}, {});
    }    
    return;            
 }
