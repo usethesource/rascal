@@ -15,7 +15,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -1975,11 +1974,7 @@ public enum MuPrimitive {
 	public static final MuPrimitive[] values = MuPrimitive.values();
 	
 	private static final HashSet<IValue> emptyMset = new HashSet<IValue>(0);
-	
-	private static final boolean profileMuPrimitives = false;
-
-	private static final long timeSpent[] = new long[values.length];
-	
+		
 	public static MuPrimitive fromInteger(int muprim) {
 		return values[muprim];
 	}
@@ -2006,31 +2001,8 @@ public enum MuPrimitive {
     public int executeN(final Object[] stack, final int sp, final int arity) {
 	  throw RascalRuntimeException.notImplemented("MuPrimitive.executeN " + name(), null, null);
 	}
-	
-	public static void recordTime(int n, long duration){
-		timeSpent[n] += duration;
-	}
 
 	public static void exit(PrintWriter out) {
-		if(profileMuPrimitives){
-			printProfile(out);
-		}
-	}
-	
-	static void printProfile(PrintWriter out){
-		out.println("\nMuPrimitive execution times (ms)");
-		long total = 0;
-		TreeMap<Long,String> data = new TreeMap<Long,String>();
-		for(int i = 0; i < values.length; i++){
-			if(timeSpent[i] > 0 ){
-				data.put(timeSpent[i], values[i].name());
-				total += timeSpent[i];
-			}
-		}
-	
-		for(long t : data.descendingKeySet()){
-			out.printf("%30s: %3d%% (%d ms)\n", data.get(t), t * 100 / total, t);
-		}
 	}
 	
 	// Bootstrap method used for invokeDynamic on MuPrimitives, see BytecoeGenerator
