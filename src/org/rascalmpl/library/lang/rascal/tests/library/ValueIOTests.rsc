@@ -16,6 +16,7 @@ module lang::rascal::tests::library::ValueIOTests
 import ValueIO;
 import IO;
 import util::Reflective;
+import util::UUID;
 
 data Bool(str def = "2") = btrue() | bfalse(bool falsity = true) | band(Bool left, Bool right) | bor(Bool left, Bool right);
 
