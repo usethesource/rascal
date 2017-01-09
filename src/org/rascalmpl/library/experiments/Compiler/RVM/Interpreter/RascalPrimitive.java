@@ -6302,16 +6302,12 @@ public enum RascalPrimitive {
 			IString field = ((IString) arg_1);
 			String fieldName = field.getValue();
 			Type tp = cons.getConstructorType();
-			
 			try {
 				
 				// A positional field?
 				
 				if(tp.hasField(fieldName)){	
-					temp_array_of_2[0] = Rascal_TRUE;
-					int fld_index = tp.getFieldIndex(fieldName);
-					temp_array_of_2[1] = cons.get(fld_index);
-					return temp_array_of_2;
+					return new Object[] { Rascal_TRUE, cons.get(tp.getFieldIndex(fieldName)) };
 				} 
 				
 				// A default field that was set?
@@ -6321,9 +6317,7 @@ public enum RascalPrimitive {
 					v = cons.asWithKeywordParameters().getParameter(fieldName);
 				}
 				if(v != null){
-					temp_array_of_2[0] = Rascal_TRUE;
-					temp_array_of_2[1] = v;
-					return temp_array_of_2;
+					return new Object[] { Rascal_TRUE, v };
 				}
 				
 				// TODO jurgen rewrite to ITree API
@@ -6338,9 +6332,7 @@ public enum RascalPrimitive {
 							IConstructor arg = (IConstructor) prod_symbols.get(i);
 							if(arg.getConstructorType() == RascalValueFactory.Symbol_Label){
 								if(((IString) arg.get(0)).equals(field)){
-									temp_array_of_2[0] = Rascal_TRUE;
-									temp_array_of_2[1] = appl_args.get(i);
-									return  temp_array_of_2;
+									return new Object[] {  Rascal_TRUE, appl_args.get(i) };
 								}
 							}
 						}
@@ -6352,8 +6344,7 @@ public enum RascalPrimitive {
 			} catch(FactTypeUseException e) {
 				
 			}
-			temp_array_of_2[0] = Rascal_FALSE;
-			return temp_array_of_2;
+			return new Object[] { Rascal_FALSE, null };
 		}
 	},
 	
@@ -6379,9 +6370,7 @@ public enum RascalPrimitive {
 					v = nd.asWithKeywordParameters().getParameter(fieldName);
 				}
 				if(v != null){
-					temp_array_of_2[0] = Rascal_TRUE;
-					temp_array_of_2[1] = v;
-					return temp_array_of_2;
+					return new Object[] { Rascal_TRUE, v };
 				}
 				
 			// Final resort: an unset default field: fall through and return false
@@ -6389,8 +6378,7 @@ public enum RascalPrimitive {
 			} catch(FactTypeUseException e) {
 				
 			}
-			temp_array_of_2[0] = Rascal_FALSE;
-			return temp_array_of_2;
+			return new Object[] { Rascal_FALSE, null };
 		}
 	},
 	
@@ -6829,12 +6817,10 @@ public enum RascalPrimitive {
 		@Override
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			try {
-				temp_array_of_2[1] = loc_field_access.execute2(arg_2, arg_1, currentFrame, rex);
-				temp_array_of_2[0] = Rascal_TRUE;
+				return new Object[] { Rascal_TRUE, loc_field_access.execute2(arg_2, arg_1, currentFrame, rex) };
 			} catch (Exception e) { // TODO: this hides implementation bugs and its not the semantics of isDefined. 
-				temp_array_of_2[0] = Rascal_FALSE;
+				return new Object[] { Rascal_FALSE, null };
 			}
-			return temp_array_of_2;
 		}
 	},
 
@@ -7649,12 +7635,10 @@ public enum RascalPrimitive {
 			IConstructor cons =  (IConstructor) arg_2;
 			int idx = ((IInteger) arg_1).intValue();
 			try {
-				temp_array_of_2[1] = cons.get((idx >= 0) ? idx : (cons.arity() + idx));
-				temp_array_of_2[0] = Rascal_TRUE;
+				return new Object[] { Rascal_TRUE, cons.get((idx >= 0) ? idx : (cons.arity() + idx)) };
 			} catch(IndexOutOfBoundsException e) {
-				temp_array_of_2[0] = Rascal_FALSE;
+				return new Object[] { Rascal_FALSE, null };
 			}
-			return temp_array_of_2;
 		}
 	},
 
@@ -7693,12 +7677,10 @@ public enum RascalPrimitive {
 				if(idx < 0){
 					idx =  node.arity() + idx;
 				}
-				temp_array_of_2[0] = Rascal_TRUE;
-				temp_array_of_2[1] = node.get(idx);  
+				return new Object[] { Rascal_TRUE, node.get(idx) };
 			} catch(IndexOutOfBoundsException e) {
-				temp_array_of_2[0] = Rascal_FALSE;
+				return new Object[] { Rascal_FALSE, null };
 			}
-			return temp_array_of_2;
 		}
 	},
 
@@ -7731,12 +7713,10 @@ public enum RascalPrimitive {
 			IList lst = ((IList) arg_2);
 			int idx = ((IInteger) arg_1).intValue();
 			try {
-				temp_array_of_2[0] = Rascal_TRUE;
-				temp_array_of_2[1] = lst.get((idx >= 0) ? idx : (lst.length() + idx));
+				return new Object[] { Rascal_TRUE, lst.get((idx >= 0) ? idx : (lst.length() + idx)) };
 			} catch(IndexOutOfBoundsException e) {
-				temp_array_of_2[0] = Rascal_FALSE;
+				return new Object[] { Rascal_FALSE, null };
 			}
-			return temp_array_of_2;
 		}
 	},
 
@@ -7765,9 +7745,7 @@ public enum RascalPrimitive {
 		@Override
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			Object v = ((IMap) arg_2).get((IValue) arg_1);
-			temp_array_of_2[0] = (v == null) ? Rascal_FALSE : Rascal_TRUE;
-			temp_array_of_2[1] = v;
-			return temp_array_of_2;
+			return new Object[] { (v == null) ? Rascal_FALSE : Rascal_TRUE, v };
 		}
 	},
 
@@ -7801,13 +7779,11 @@ public enum RascalPrimitive {
 			IString str = ((IString) arg_2);
 			int idx = ((IInteger) arg_1).intValue();
 			try {
-				temp_array_of_2[0] = Rascal_TRUE;
-				temp_array_of_2[1] = (idx >= 0) ? str.substring(idx, idx+1)
-						: str.substring(str.length() + idx, str.length() + idx + 1);
+				return new Object[] { Rascal_TRUE,  (idx >= 0) ? str.substring(idx, idx+1)
+                                                               : str.substring(str.length() + idx, str.length() + idx + 1) };
 			} catch(IndexOutOfBoundsException e) {
-				temp_array_of_2[0] = Rascal_FALSE;
+				return new Object[] { Rascal_FALSE, null };
 			}
-			return temp_array_of_2;
 		}
 	},
 
@@ -7840,12 +7816,10 @@ public enum RascalPrimitive {
 			ITuple tup = (ITuple) arg_2;
 			int idx = ((IInteger) arg_1).intValue();
 			try {
-				temp_array_of_2[0] = Rascal_TRUE;
-				temp_array_of_2[1] = tup.get((idx >= 0) ? idx : tup.arity() + idx);
+				return new Object[] { Rascal_TRUE, tup.get((idx >= 0) ? idx : tup.arity() + idx) };
 			} catch(IndexOutOfBoundsException e) {
-				temp_array_of_2[0] = Rascal_FALSE;
+				return new Object[] { Rascal_FALSE, null };
 			}
-			return temp_array_of_2;
 		}
 	},
 	
@@ -8044,16 +8018,15 @@ public enum RascalPrimitive {
 					}
 				}
 				try {
-					temp_array_of_2[0] = Rascal_TRUE;
-					temp_array_of_2[1] = idx.getType().isSet() ? 
-							(arity == 2 ? RascalPrimitive.rel2_subscript1_set.execute2(arg_2, arg_1, currentFrame, rex)
-									    : RascalPrimitive.rel_subscript1_set.execute2(arg_2, arg_1, currentFrame, rex))
-							: (arity == 2 ? RascalPrimitive.rel2_subscript1_noset.execute2(arg_2, arg_1, currentFrame, rex)
-										  : RascalPrimitive.rel_subscript1_noset.execute2(arg_2, arg_1, currentFrame, rex));
+					return new Object[] { Rascal_TRUE,
+		                                  idx.getType().isSet() ? (arity == 2 ? RascalPrimitive.rel2_subscript1_set.execute2(arg_2, arg_1, currentFrame, rex)
+		                                                                      : RascalPrimitive.rel_subscript1_set.execute2(arg_2, arg_1, currentFrame, rex))
+		                                                        : (arity == 2 ? RascalPrimitive.rel2_subscript1_noset.execute2(arg_2, arg_1, currentFrame, rex)
+		                                                                      : RascalPrimitive.rel_subscript1_noset.execute2(arg_2, arg_1, currentFrame, rex)) };
 				} catch(Exception e) {
-					temp_array_of_2[0] = Rascal_FALSE;
+				    return new Object[] { Rascal_FALSE, null };
+					
 				}
-				return temp_array_of_2;
 			}
 	},
 
@@ -8347,12 +8320,10 @@ public enum RascalPrimitive {
 			String label = ((IString) arg_1).getValue();
 			try {
 				IValue v = val.asAnnotatable().getAnnotation(label);
-				temp_array_of_2[0] = (v == null) ? Rascal_FALSE : Rascal_TRUE;
-				temp_array_of_2[1] = v;
+				return new Object[] { (v == null) ? Rascal_FALSE : Rascal_TRUE, v };
 			} catch (FactTypeUseException e) {
-				temp_array_of_2[0] = Rascal_FALSE;
+				return new Object[] { Rascal_FALSE, null };
 			}
-			return temp_array_of_2;
 		}
 	},
 
@@ -8694,44 +8665,13 @@ public enum RascalPrimitive {
 	public static final IBool Rascal_TRUE =  ValueFactoryFactory.getValueFactory().bool(true);
 	public static final IBool Rascal_FALSE =  ValueFactoryFactory.getValueFactory().bool(false);
 	
-	// For profiling of RascalPrimitives
-	
-	private static final Object[] temp_array_of_2 = new Object[2];
-	private static final long timeSpent[] = new long[values.length];
-	private static final boolean profileRascalPrimitives = false;
-
-	/**
-	 * Record spent in a RascalPrimitive
-	 * @param index of RascalPrimitive
-	 * @param duration spents in its execution
-	 */
-	public void recordTime(final int n, final long duration){
-		timeSpent[n] += duration;
-	}
-
 	/**
 	 * Generic exit function that allows some post execution actions (like printing a profile)
 	 * @param rex
 	 */
 	public static void exit(RascalExecutionContext rex){
-		if(profileRascalPrimitives)
-			printProfile(rex.getStdOut());
 	}
 
-	private static void printProfile(PrintWriter stdout){
-		stdout.println("\nRascalPrimitive execution times (ms)");
-		long total = 0;
-		TreeMap<Long,String> data = new TreeMap<Long,String>();
-		for(int i = 0; i < values.length; i++){
-			if(timeSpent[i] > 0 ){
-				data.put(timeSpent[i], values[i].name());
-				total += timeSpent[i];
-			}
-		}
-		for(long t : data.descendingKeySet()){
-			stdout.printf("%30s: %3d%% (%d ms)\n", data.get(t), t * 100 / total, t);
-		}
-	}
 	
 	// Bootstrap method used for invokeDynamic on RascalPrimitives, see BytecoeGenerator
 	
