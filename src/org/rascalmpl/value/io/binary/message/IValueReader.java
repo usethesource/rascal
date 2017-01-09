@@ -674,6 +674,7 @@ public class IValueReader {
                     children = new IValue[reader.getRepeatedLength()];
                     for (int i = 0; i < children.length; i++) {
                         children[i] = readValue(reader);
+                        assert children[i].getType().isSubtypeOf(type.getFieldType(i));
                     }
                     break;
                 case IValueIDs.ConstructorValue.KWPARAMS: 
