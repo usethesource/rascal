@@ -23,16 +23,8 @@ public class BootstrapRascalParser {
 	    try {
 	        IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	        CommandOptions cmdOpts = new CommandOptions("generateParser");
-	        cmdOpts
-	        .locsOption("src")		
-	        .locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
-	        .respectNoDefaults()
-	        .help("Add (absolute!) source location, use multiple --src arguments for multiple locations")
-	        
-	        .locOption("boot")		
-	        .locDefault(cmdOpts.getDefaultBootLocation())
-	        .help("Rascal boot directory")
-	        
+	        cmdOpts.pathConfigOptions()
+        
             .boolOption("trace") 		
             .help("Print Rascal functions during execution of compiler")
             

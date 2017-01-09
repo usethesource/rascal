@@ -62,9 +62,10 @@ import org.rascalmpl.values.ValueFactoryFactory;
 
 public abstract class RVMCore {
 	public final IValueFactory vf;
-
+	
 	protected final TypeFactory tf; 
 	
+	// Only for RVM interpreter
 	protected final static IBool Rascal_TRUE = ValueFactoryFactory.getValueFactory().bool(true);
 	protected final static IBool Rascal_FALSE = ValueFactoryFactory.getValueFactory().bool(false);
 	protected final IString NOVALUE; 
@@ -99,19 +100,18 @@ public abstract class RVMCore {
 
 	public Map<IValue, IValue> moduleVariables;
 	
-	List<ClassLoader> classLoaders;
-	private final Map<Class<?>, Object> instanceCache;
-	private final Map<String, Class<?>> classCache;
+	protected final Map<Class<?>, Object> instanceCache;
+	protected final Map<String, Class<?>> classCache;
 
 	private final Types types;
 	
 	public static RVMCore readFromFileAndInitialize(ISourceLocation rvmBinaryLocation, RascalExecutionContext rex) throws IOException{
-		RVMExecutable rvmExecutable = RVMExecutable.newRead(rvmBinaryLocation, rex.getTypeStore());
+		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);
 		return ExecutionTools.initializedRVM(rvmExecutable, rex);
 	}
 
 	public static IValue readFromFileAndExecuteProgram(ISourceLocation rvmBinaryLocation, Map<String, IValue> keywordArguments, RascalExecutionContext rex) throws Exception{
-		RVMExecutable rvmExecutable = RVMExecutable.newRead(rvmBinaryLocation, rex.getTypeStore());
+		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);
 		return ExecutionTools.executeProgram(rvmExecutable, keywordArguments, rex);
 	}
 	
@@ -151,7 +151,6 @@ public abstract class RVMCore {
 
 	  this.instanceCache = new HashMap<Class<?>, Object>();
 	  this.classCache = new HashMap<String, Class<?>>();
-	  this.classLoaders = rex.getClassLoaders();
 
 	  this.vf = rex.getValueFactory();
 	  tf = TypeFactory.getInstance();
@@ -973,14 +972,14 @@ public abstract class RVMCore {
 	
 	// CALLCONSTR
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "unused"})
 	protected int CALLCONSTR(final Object[] stack, int sp, final int iconstructor, final int arity){
 		
 		Type constructor = constructorStore.get(iconstructor);
 		IValue[] args = new IValue[constructor.getArity()];
 
 		java.util.Map<String,IValue> kwargs;
-		@SuppressWarnings("unused")
+		
 		Type type = (Type) stack[--sp];		// TODO: emove from instruction
 		
 		kwargs = (java.util.Map<String,IValue>) stack[--sp];
@@ -1051,24 +1050,16 @@ public abstract class RVMCore {
 		if(clazz != null){
 			return clazz;
 		}
+		
 		try {
 			clazz = this.getClass().getClassLoader().loadClass(className);
-		} catch(ClassNotFoundException e1) {
-			// If the class is not found, try other class loaders
-			for(ClassLoader loader : this.classLoaders) {
-				try {
-					clazz = loader.loadClass(className);
-					break;
-				} catch(ClassNotFoundException e2) {
-					;
-				}
-			}
+			classCache.put(className, clazz);
+	        return clazz;
+		} 
+		catch(ClassNotFoundException | NoClassDefFoundError e1) {
+			throw new CompilerError("Class " + className + " not found", e1);
 		}
-		if(clazz == null) {
-			throw new CompilerError("Class " + className + " not found");
-		}
-		classCache.put(className, clazz);
-		return clazz;
+		
 	}
 	
 	public Object getJavaClassInstance(Class<?> clazz){
@@ -1182,6 +1173,7 @@ public abstract class RVMCore {
 			"org.rascalmpl.library.util.MonitorCompiled.event",
 			"org.rascalmpl.library.util.MonitorCompiled.endJob",
 			"org.rascalmpl.library.util.MonitorCompiled.todo",
+			"org.rascalmpl.library.util.ReflectiveCompiled.getCurrentPathConfig",
 			"org.rascalmpl.library.util.ReflectiveCompiled.parseModule",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getModuleLocation",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getSearchPathLocation",

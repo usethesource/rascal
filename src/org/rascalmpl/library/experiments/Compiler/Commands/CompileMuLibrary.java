@@ -24,25 +24,8 @@ public class CompileMuLibrary {
         try {
             IValueFactory vf = ValueFactoryFactory.getValueFactory();
             CommandOptions cmdOpts = new CommandOptions("compileMuLibrary");
-            cmdOpts
-            .locsOption("src")		
-            .locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
-            .respectNoDefaults()
-            .help("Add (absolute!) source location, use multiple --src arguments for multiple locations")
-            
-            .locsOption("lib")		
-            .locsDefault((co) -> vf.list(co.getCommandLocOption("bin")))
-            .respectNoDefaults()
-            .help("Add new lib location, use multiple --lib arguments for multiple locations")
-            
-            .locOption("boot")		
-            .locDefault(cmdOpts.getDefaultBootLocation())
-            .help("Rascal boot directory")
-            
-            .locOption("bin") 		
-            .respectNoDefaults()
-            .help("Directory for Rascal binaries")
-            
+            cmdOpts.pathConfigOptions()
+        
             .boolOption("help") 		
             .help("Print help message for this command")
             
@@ -57,14 +40,6 @@ public class CompileMuLibrary {
             
             .noModuleArgument()
             .handleArgs(args);
-
-//            RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), cmdOpts.getCommandLocOption("boot"))
-//                    .customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())
-//                    .setTrace(cmdOpts.getCommandBoolOption("trace"))
-//                    .setProfile(cmdOpts.getCommandBoolOption("profile"))
-//                    //.setJVM(cmdOpts.getCommandBoolOption("jvm"))
-//                    .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
-//                    .build();
 
             PathConfig pcfg = cmdOpts.getPathConfig();
             IKernel kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class)

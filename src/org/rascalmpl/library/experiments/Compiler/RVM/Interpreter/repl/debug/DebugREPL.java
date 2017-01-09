@@ -157,7 +157,7 @@ public class DebugREPL extends BaseREPL{
 			break;
 			
 		case "r": case "return":
-			breakPointManager.returnDirective(currentFrame, words);
+			breakPointManager.returnDirective(currentFrame);
 			stop();
 			throw new InterruptedException();
 			

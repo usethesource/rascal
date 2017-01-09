@@ -116,7 +116,7 @@ public class RascalRuntimeException {
 	}
 	
 	public static Thrown invalidArgument(IValue v, Frame currentFrame) {
-		return Thrown.getInstance(VF.constructor(InvalidArgument), currentFrame);	
+		return Thrown.getInstance(VF.constructor(InvalidArgument, v), currentFrame);	
 	}
 	
 	public static Thrown invalidArgument(IValue v, Frame currentFrame, String message) {

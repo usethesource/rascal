@@ -9,7 +9,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFra
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.TypeStore;
 
 /**
  * Builder for constructing RascalExecutionContexts.
@@ -85,6 +84,8 @@ public class RascalExecutionContextBuilder {
 	                                                               testsuite, 
 	                                                               trace, 
 	                                                               verbose);
+	    
+	    
 	    if (this.moduleName != null) {
 	        result.setFullModuleName(moduleName);
 	    }

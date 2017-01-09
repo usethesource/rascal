@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.Commands;
 
+import java.io.IOException;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 
@@ -15,18 +16,18 @@ public class Rascal {
 
     static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
-    public static ISourceLocation findBinary(ISourceLocation bin, String moduleName){
+    public static ISourceLocation findBinary(ISourceLocation bin, String moduleName) throws IOException {
         StringWriter sw = new StringWriter();
         sw.append(bin.getPath())
         .append("/")
         .append(moduleName.replaceAll("::", "/"))
         .append(".rvmx");
+        
         try {
             return vf.sourceLocation(bin.getScheme(), bin.getAuthority(), sw.toString());
-        } catch (URISyntaxException e) {
-            System.err.println(e.getMessage());
-            System.exit(-1);
-            return null;
+        }
+        catch (URISyntaxException e) {
+            throw new IOException(e);
         }
     }
  
@@ -39,18 +40,8 @@ public class Rascal {
         try {
 
             CommandOptions cmdOpts = new CommandOptions("rascal");
-            cmdOpts
-            .locsOption("lib")		
-            .locsDefault((co) -> vf.list(co.getCommandLocOption("bin")))
-            .help("Add new lib location, use multiple --lib arguments for multiple locations")
-
-            .locOption("boot") 		
-            .locDefault(cmdOpts.getDefaultBootLocation())
-            .help("Rascal boot directory")
-
-            .locOption("bin") 		
-            .help("Directory for Rascal binaries")
-
+            cmdOpts.pathConfigOptions()
+            
             .boolOption("verbose")		
             .help("Print compilation steps")
 

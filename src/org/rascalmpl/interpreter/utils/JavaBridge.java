@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2017 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -94,7 +94,7 @@ public class JavaBridge {
 	
 	private final Map<Class<?>, JavaFileManager> fileManagerCache;
 
-  private final Configuration config;
+	private final Configuration config;
 
 	public JavaBridge(List<ClassLoader> classLoaders, IValueFactory valueFactory, Configuration config) {
 		this.loaders = classLoaders;
@@ -116,14 +116,15 @@ public class JavaBridge {
 		try {
 			// watch out, if you start sharing this compiler, classes will not be able to reload
 			List<String> commandline = Arrays.asList(new String[] {"-cp", config.getRascalJavaClassPathProperty()});
-			
 			JavaCompiler<T> javaCompiler = new JavaCompiler<T>(parent.getClassLoader(), fileManagerCache.get(parent), commandline);
 			Class<T> result = javaCompiler.compile(className, source, null, Object.class);
 			fileManagerCache.put(result, javaCompiler.getFileManager());
 			return result;
-		} catch (ClassCastException e) {
+		} 
+		catch (ClassCastException e) {
 			throw new JavaCompilation(e.getMessage(), loc);
-		} catch (JavaCompilerException e) {
+		} 
+		catch (JavaCompilerException e) {
 			Diagnostic<? extends JavaFileObject> msg = e.getDiagnostics().getDiagnostics().iterator().next();
             throw new JavaCompilation(msg.getMessage(null) + " at " + msg.getLineNumber() + ", " + msg.getColumnNumber() + " with classpath [" + config.getRascalJavaClassPathProperty() + "]", loc);
 		}

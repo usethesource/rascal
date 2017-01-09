@@ -2,15 +2,11 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Configuration;
-import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
@@ -25,6 +21,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Desce
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
@@ -33,7 +30,6 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -49,11 +45,9 @@ import com.github.benmanes.caffeine.cache.stats.CacheStats;
  * - state variables and caches needed by RascalPrimitives
  */
 public class RascalExecutionContext implements IRascalMonitor {
-
 	private IDEServices ideServices;
 	private final PrintWriter stderr;
 	private final Configuration config;
-	private final List<ClassLoader> classLoaders;
 	private final PrintWriter stdout;
 	
 	private final IValueFactory vf;
@@ -137,7 +131,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 	  
 	  this.moduleTags = moduleTags;
 	  this.symbol_definitions = symbol_definitions == null ? vf.mapWriter().done() : symbol_definitions;
-	  //this.typeStore = typeStore == null ? new TypeStore(RascalValueFactory.getStore()) /*new TypeStore()*/ : typeStore;
 	  this.debug = debug;
 	  this.debugRVM = debugRVM;
 	  this.testsuite = testsuite;
@@ -156,8 +149,8 @@ public class RascalExecutionContext implements IRascalMonitor {
 	  this.stdout = stdout;
 	  this.stderr = stderr;
 	  config = new Configuration();
-	  this.classLoaders = new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader()));
-
+	  config.setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
+	  
 	  if(frameObserver == null){
 	    if(profile){
 	      setFrameObserver(new ProfileFrameObserver(this));
@@ -179,7 +172,24 @@ public class RascalExecutionContext implements IRascalMonitor {
 	  parsingTools = new ParsingTools(vf);
 	}
 	
-	public static ISourceLocation getLocation(ISourceLocation givenBootDir, String desiredPath) {
+	private String javaCompilerPathAsString(IList javaCompilerPath) {
+        StringBuilder b = new StringBuilder();
+        
+        for (IValue elem : javaCompilerPath) {
+            ISourceLocation loc = (ISourceLocation) elem;
+            
+            if (b.length() != 0) {
+                b.append(":");
+            }
+           
+            assert loc.getScheme().equals("file");
+            b.append(loc.getPath());
+        }
+        
+        return b.toString();
+    }
+
+    public static ISourceLocation getLocation(ISourceLocation givenBootDir, String desiredPath) {
 	  IValueFactory vfac = ValueFactoryFactory.getValueFactory();
 	  try {
 	    if(givenBootDir == null){
@@ -343,7 +353,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 		return parsedModuleCache;
 	}
 	
-	public static IConstructor typeToSymbol(final Type t){
+	public IConstructor typeToSymbol(final Type t){
 		return typeToSymbolCache.get(t, k -> RascalPrimitive.$type2symbol(t));
 	}
 	
@@ -429,14 +439,9 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.moduleVariables = moduleVariables;
 	}
 	
-	public void addClassLoader(ClassLoader loader) {
-		// later loaders have precedence
-		classLoaders.add(0, loader);
+	IRascalMonitor getMonitor() {
+	    return ideServices;
 	}
-	
-	List<ClassLoader> getClassLoaders() { return classLoaders; }
-	
-	IRascalMonitor getMonitor() {return ideServices;}
 	
 	IDEServices getIDEServices(){
 	  return ideServices;

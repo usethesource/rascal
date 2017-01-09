@@ -30,9 +30,9 @@ public class StoreVar extends Instruction {
 			codeEmittor.emitDebugCall2(opcode.name(),  (pos == -1) ? fuid : codeblock.getFunctionName(fuid), pos);
 
 		if (pos == -1) {
-			codeEmittor.emitVoidCallWithArgsFIA("STOREVARMODULE", what, debug);
+			codeEmittor.emitVoidCallWithArgsFIA("STOREVARMODULE", what);
 		} else {
-			codeEmittor.emitVoidCallWithArgsFIIA("STOREVARSCOPED", what, pos, debug);
+			codeEmittor.emitVoidCallWithArgsFIIA("STOREVARSCOPED", what, pos);
 		}
 	}
 }

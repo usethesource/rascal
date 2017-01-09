@@ -1,9 +1,15 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
+import java.lang.invoke.ConstantCallSite;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.invoke.CallSite;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.ref.SoftReference;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -7398,7 +7404,7 @@ public enum RascalPrimitive {
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 5;
 			IString str = (IString) stack[sp - 5];
-			SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), str.length(), currentFrame);
+			SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), str.length());
 			IString repl = (IString) stack[sp - 1];
 			stack[sp - 5] = str.replace(sd.first, sd.second, sd.end, repl);
 			return sp - 4;
@@ -7415,7 +7421,7 @@ public enum RascalPrimitive {
 			assert arity == 5;
 			INode node = (INode) stack[sp - 5];
 			int nd_arity = node.arity();
-			SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), nd_arity, currentFrame);
+			SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), nd_arity);
 			IList repl = (IList) stack[sp - 1];
 			stack[sp - 5] = node.replace(sd.first, sd.second, sd.end, repl);
 			return sp - 4;
@@ -7432,7 +7438,7 @@ public enum RascalPrimitive {
 			assert arity == 4;
 
 			IList lst = (IList) stack[sp - 4];
-			stack[sp - 4] = $makeSlice(lst, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), lst.length(), currentFrame));
+			stack[sp - 4] = $makeSlice(lst, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), lst.length()));
 			return sp - 3;
 		}
 	},
@@ -7447,7 +7453,7 @@ public enum RascalPrimitive {
 			assert arity == 4;
 
 			IString str = (IString) stack[sp - 4];
-			stack[sp - 4] = $makeSlice(str, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), str.length(), currentFrame));
+			stack[sp - 4] = $makeSlice(str, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), str.length()));
 			return sp - 3;
 		}
 	},
@@ -7463,7 +7469,7 @@ public enum RascalPrimitive {
 
 			INode node = (INode) stack[sp - 4];
 			int nd_arity = node.arity();
-			stack[sp - 4] = $makeSlice(node, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), nd_arity, currentFrame));
+			stack[sp - 4] = $makeSlice(node, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), nd_arity));
 			return sp - 3;
 		}
 	},
@@ -7483,7 +7489,7 @@ public enum RascalPrimitive {
 			int sep_count = TreeAdapter.getSeparatorCount(tree);
 			int list_length = (len == 0) ? 0 : ((sep_count == 0 ? len : 1 + len/(1 + sep_count)));
 			int min_length =  $getInt((IValue) stack[sp - 1]);
-			stack[sp - 5] = $makeSlice(tree, sep_count, min_length, $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), list_length, currentFrame));
+			stack[sp - 5] = $makeSlice(tree, sep_count, min_length, $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), list_length));
 			if(stack[sp - 5] == null){
 			    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(tree, currentFrame, "sliced value should have length of at least " + min_length));
 			}
@@ -7502,7 +7508,7 @@ public enum RascalPrimitive {
 
 			ITree tree = (ITree) stack[sp - 4];
 			int tree_arity = TreeAdapter.getArgs(tree).length();
-			stack[sp - 4] = $makeSlice(tree, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), tree_arity, currentFrame));
+			stack[sp - 4] = $makeSlice(tree, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), tree_arity));
 			return sp - 3;
 		}
 	},
@@ -7518,7 +7524,7 @@ public enum RascalPrimitive {
 
 			ITree tree = (ITree) stack[sp - 4];
 			int tree_arity = TreeAdapter.getArgs(tree).length();
-			stack[sp - 4] = $makeSlice(tree, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), tree_arity, currentFrame));
+			stack[sp - 4] = $makeSlice(tree, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), tree_arity));
 			return sp - 3;
 		}
 	},
@@ -8424,7 +8430,7 @@ public enum RascalPrimitive {
 						ISet prodset = (ISet) stack[sp - 3];
 						IBool concreteMatch = (IBool) stack[sp - 2];
 						IMap definitions = (IMap) stack[sp - 1];
-						return new DescendantDescriptor(vf, symbolset, prodset, definitions, concreteMatch, rex);
+						return new DescendantDescriptor(symbolset, prodset, definitions, concreteMatch, rex);
 					});
 			return sp - 4;
 		};
@@ -8646,15 +8652,18 @@ public enum RascalPrimitive {
 	public Object execute0(Frame currentFrame, RascalExecutionContext rex) {
 	  throw RascalRuntimeException.notImplemented("RascalPrimitive.execute0 " + name(), currentFrame.src, currentFrame);
 	}
-	public Object execute1(Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
+	@SuppressWarnings("unused")
+    public Object execute1(Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
 	  throw RascalRuntimeException.notImplemented("RascalPrimitive.execute1 " + name(), currentFrame.src, currentFrame);
 	}
 
-	public Object execute2(Object arg_2, Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
+	@SuppressWarnings("unused")
+    public Object execute2(Object arg_2, Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
 	  throw RascalRuntimeException.notImplemented("RascalPrimitive.execute2 " + name(), currentFrame.src, currentFrame);
 	}
 
-	public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
+	@SuppressWarnings("unused")
+    public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 	  throw RascalRuntimeException.notImplemented("RascalPrimitive.executeN " + name(), currentFrame.src, currentFrame);
 	}
 
@@ -8724,6 +8733,21 @@ public enum RascalPrimitive {
 		for(long t : data.descendingKeySet()){
 			stdout.printf("%30s: %3d%% (%d ms)\n", data.get(t), t * 100 / total, t);
 		}
+	}
+	
+	// Bootstrap method used for invokeDynamic on RascalPrimitives, see BytecoeGenerator
+	
+	@SuppressWarnings("unused")
+    public static CallSite bootstrapRascalPrimitive(MethodHandles.Lookup caller, String name, MethodType type) throws NoSuchMethodException, IllegalAccessException {
+	    MethodHandles.Lookup lookup = MethodHandles.lookup();
+	    RascalPrimitive enumElement = RascalPrimitive.valueOf(name);
+        Class<?>[] parameters = type.parameterArray();
+        int arity = parameters.length - 2;  // do not count common arguments cf and rex
+        String suffix = arity <= 2 ? String.valueOf(arity): "N";
+	    Method execute = enumElement.getClass().getMethod("execute" + suffix, parameters);
+
+	    MethodHandle foundMethod = lookup.unreflect(execute).bindTo(enumElement);
+	    return new ConstantCallSite(foundMethod.asType(type));
 	}
 
 	/************************************************************************************
@@ -9144,8 +9168,7 @@ public enum RascalPrimitive {
 		return v instanceof IInteger ? ((IInteger) v).intValue() : null;
 	}
 
-	public SliceDescriptor $makeSliceDescriptor(Integer first, Integer second, Integer end, int len, Frame currentFrame) {
-
+	public SliceDescriptor $makeSliceDescriptor(Integer first, Integer second, Integer end, int len) {
 
 		int firstIndex = 0;
 		int secondIndex = 1;
@@ -9212,7 +9235,7 @@ public enum RascalPrimitive {
 	public int $list_slice_operator(final Object[] stack, final int sp, final int arity, final SliceOperator op, final Frame currentFrame, final RascalExecutionContext rex) {
 		assert arity == 5;
 		IList lst = (IList) stack[sp - 5];
-		SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), lst.length(), currentFrame);
+		SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), lst.length());
 		IList repl = (IList) stack[sp - 1];
 		stack[sp - 5] = $updateListSlice(lst, sd, op, repl, currentFrame, rex);
 		return sp - 4;

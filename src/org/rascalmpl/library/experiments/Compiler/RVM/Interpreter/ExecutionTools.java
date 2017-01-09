@@ -5,14 +5,13 @@ import java.io.PrintWriter;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.DefaultTestResultListener;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
+import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ExecutionTools {
@@ -55,8 +54,8 @@ public class ExecutionTools {
 	
 	// Read a RVMExecutable from file
 	
-	public static RVMExecutable load(ISourceLocation rvmExecutableLoc, TypeStore typeStore) throws IOException {
-		return RVMExecutable.newRead(rvmExecutableLoc, typeStore);
+	public static RVMExecutable load(ISourceLocation rvmExecutableLoc) throws IOException {
+		return RVMExecutable.read(rvmExecutableLoc);
 	}
 	
 	// Create an RVMExecutable given an RVMProgram
@@ -100,7 +99,7 @@ public class ExecutionTools {
 		IValue[] arguments = new IValue[0];
 
 		//try {
-			//long start = Timing.getCpuTime();
+			long start = Timing.getCpuTime();
 			IValue result = null;
 			String uid_module_init = executable.getUidModuleInit();
 			if(!uid_module_init.isEmpty()){
@@ -127,14 +126,13 @@ public class ExecutionTools {
 				//System.out.println("Initializing: " + (Timing.getCpuTime() - start)/1000000 + "ms");
 				result = rvm.executeRVMProgram(moduleName, executable.getUidModuleMain(), arguments, keywordArguments);
 			}
-			//long now = Timing.getCpuTime();
+			long now = Timing.getCpuTime();
 			MuPrimitive.exit(rvm.getStdOut());
 			RascalPrimitive.exit(rex);
-			Opcode.exit();
 			rvm.getFrameObserver().report();
 
 			//rex.printCacheStats();
-			//System.out.println("Executing: " + (now - start)/1000000 + "ms");
+			System.out.println("Executing: " + (now - start)/1000000 + "ms");
 			return (IValue) result;
 			
 //		} catch(Thrown e) {
@@ -168,7 +166,7 @@ public class ExecutionTools {
 	 * @throws IOException 
 	 */
 	public static RVMCore initializedRVM(ISourceLocation bin,  RascalExecutionContext rex) throws IOException {
-	  RVMExecutable rvmExecutable  = RVMExecutable.newRead(bin, rex.getTypeStore());
+	  RVMExecutable rvmExecutable  = RVMExecutable.read(bin);
 
 	  RVMCore rvm = rex.getJVM() ? new RVMJVM(rvmExecutable, rex) : new RVMInterpreter(rvmExecutable, rex);
 

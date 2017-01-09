@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2017 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
 
 import org.rascalmpl.unicode.UnicodeInputStreamReader;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
+import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -45,6 +46,7 @@ public class URIResolverRegistry {
 	private final Map<String,ISourceLocationInput> inputResolvers = new HashMap<>();
 	private final Map<String,ISourceLocationOutput> outputResolvers = new HashMap<>();
 	private final Map<String, Map<String,ILogicalSourceLocationResolver>> logicalResolvers = new HashMap<>();
+    private final Map<String, IClassloaderLocationResolver> classloaderResolvers = new HashMap<>();
 	
 	private static class InstanceHolder {
 		static URIResolverRegistry sInstance = new URIResolverRegistry();
@@ -73,6 +75,10 @@ public class URIResolverRegistry {
 	
 	public Set<String> getRegisteredLogicalSchemes() {
 	    return Collections.unmodifiableSet(logicalResolvers.keySet());
+	}
+	
+	public Set<String> getRegisteredClassloaderSchemes() {
+	    return Collections.unmodifiableSet(classloaderResolvers.keySet());
 	}
 	
 	private void loadServices(URL nextElement) {
@@ -111,6 +117,11 @@ public class URIResolverRegistry {
 	        registerOutput((ISourceLocationOutput) instance);
 	        ok = true;
 	      }
+	      
+	      if (instance instanceof IClassloaderLocationResolver) {
+	          registerClassloader((IClassloaderLocationResolver) instance);
+	          ok = true;
+	      }
 
 	      if (!ok) {
 	        System.err.println("WARNING: could not load resolver " + name + " because it does not implement ISourceLocationInput or ISourceLocationOutput or ILogicalSourceLocationResolver");
@@ -122,6 +133,8 @@ public class URIResolverRegistry {
 	    e.printStackTrace();
 	  }
 	}
+
+  
 
     private String[] readConfigFile(URL nextElement) throws IOException {
         try (Reader in = new InputStreamReader(nextElement.openStream())) {
@@ -276,6 +289,12 @@ public class URIResolverRegistry {
 			}
 			map.put(resolver.authority(), resolver);
 		}
+	}
+	
+	private void registerClassloader(IClassloaderLocationResolver resolver) {
+	    synchronized (classloaderResolvers) {
+	        classloaderResolvers.put(resolver.scheme(), resolver);
+        }
 	}
 
 	public void unregisterLogical(String scheme, String auth) {
@@ -461,6 +480,16 @@ public class URIResolverRegistry {
 		else {
 			return res;
 		}
+	}
+	
+	public ClassLoader getClassLoader(ISourceLocation uri, ClassLoader parent) throws IOException {
+	    IClassloaderLocationResolver resolver = classloaderResolvers.get(uri.getScheme());
+	    
+	    if (resolver == null) {
+	        throw new IOException("No classloader resolver registered for this URI scheme: " + uri);
+	    }
+	    
+	    return resolver.getClassLoader(uri, parent);
 	}
 	
 	public InputStream getInputStream(ISourceLocation uri) throws IOException {

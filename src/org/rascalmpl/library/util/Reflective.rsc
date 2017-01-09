@@ -17,6 +17,7 @@ import Message;
 import ParseTree;
 import IO;
 import String;
+import util::SystemAPI;
 import lang::rascal::\syntax::Rascal;
 import lang::manifest::IO;
 
@@ -81,7 +82,9 @@ data PathConfig
                loc bin = |home:///bin/|,            // Global directory for derived files outside projects
                loc boot = |boot:///|/*|boot+compressed:///|*/,    // Directory with Rascal boot files
                                                     // List of directories to search source for derived files
-               list[loc] libs = [|home:///bin/|, |boot:///|/*|boot+compressed:///|*/]         
+               list[loc] libs = [|home:///bin/|, |boot:///|],
+               list[loc] javaCompilerPath = [], // TODO: must generate the same defaults as in PathConfig 
+               list[loc] classloaders = []  // TODO: must generate the same defaults as in PathConfig      
               );
 
 data RascalManifest
@@ -276,6 +279,10 @@ loc getDerivedWriteLoc(str qualifiedModuleName, str extension, PathConfig pcfg, 
     //println("getDerivedWriteLoc: <qualifiedModuleName>, <extension> =\> <fileLocBin>");
     return fileLocBin;
 }
+
+@javaClass{org.rascalmpl.library.util.Reflective}
+@reflect{looks in execution context}
+public java PathConfig getCurrentPathConfig();
 
 @doc{Is the current Rascal code executed by the compiler or the interpreter?}
 @javaClass{org.rascalmpl.library.util.Reflective}

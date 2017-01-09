@@ -41,6 +41,7 @@ public class HelpManager {
 	private final PrintWriter stderr;
 	private IndexSearcher indexSearcher;
 	private final int port = 8000;
+    @SuppressWarnings("unused")
     private HelpServer helpServer;
     private final IDEServices ideServices;
 

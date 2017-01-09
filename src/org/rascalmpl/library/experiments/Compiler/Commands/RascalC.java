@@ -8,7 +8,6 @@ import java.util.Set;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CompilerError;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.ApiGen;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
@@ -22,7 +21,6 @@ import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RascalC {
@@ -40,25 +38,8 @@ public class RascalC {
             IValueFactory vf = ValueFactoryFactory.getValueFactory();
             CommandOptions cmdOpts = new CommandOptions("rascalc");
             
-            cmdOpts
-            .locsOption("src")		
-            .locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
-            .respectNoDefaults()
-            .help("Add (absolute!) source location, use multiple --src arguments for multiple locations")
-
-            .locsOption("lib")		
-            .locsDefault((co) -> vf.list(co.getCommandLocOption("bin")))
-            .respectNoDefaults()
-            .help("Add new lib location, use multiple --lib arguments for multiple locations")
-
-            .locOption("boot")		
-            .locDefault(cmdOpts.getDefaultBootLocation())
-            .help("Rascal boot directory")
-
-            .locOption("bin") 		
-            .respectNoDefaults()
-            .help("Directory for Rascal binaries")
-            
+            cmdOpts.pathConfigOptions()
+        
             .locOption("reloc")       
             .locDefault(cmdOpts.getDefaultRelocLocation())
             .help("Relocate source locations")
@@ -145,8 +126,6 @@ public class RascalC {
                                                        .reloc(cmdOpts.getCommandLocOption("reloc"))
                                                        );
                 
-                // TODO: remove asap
-                TypeStore ts = RascalExecutionContextBuilder.normalContext(pcfg).build().getTypeStore();
                 ok = handleMessages(programs, pcfg);
                 if(!ok){
                   System.exit(1);
@@ -159,7 +138,7 @@ public class RascalC {
                     String moduleName = ((IString) mod).getValue();
                     ISourceLocation binary = Rascal.findBinary(cmdOpts.getCommandLocOption("bin"), moduleName);
 
-                    RVMExecutable exec = RVMExecutable.newRead(binary, ts);
+                    RVMExecutable exec = RVMExecutable.read(binary);
   
                     try {
                       String api = ApiGen.generate(exec, moduleName, pckg);

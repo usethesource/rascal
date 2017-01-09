@@ -291,17 +291,19 @@ lrel[loc,int,str] runTests(list[str] names, str base, PathConfig pcfg, bool jvm=
   return all_test_results;
 }
   
-value main(bool jvm=true) = allRascalTests(bin=|home:///bin-tests-comp|, jvm=jvm);
+value main(bool jvm=true) = allRascalTests(pathConfig());
   
-value allRascalTests(loc bin=|home:///bin-tests-intp|, loc boot=|boot:///|, bool jvm=true){
-  
-  println("Using bin = <bin>");
+value allRascalTests(PathConfig pcfg){ //loc bin=|home:///bin-tests-intp|, loc boot=|boot:///|, bool jvm=true){
+
+  println("Using <pcfg>");
+  jvm = true;
   timestamp = now();
   crashes = [];
   partial_results = [];
   lrel[loc,int,str] all_results = [];
+  jvm = true;
   
-  pcfg = pathConfig(srcs=[|std:///|], bin=bin, boot=boot, libs=[bin]);
+  //pcfg = pathConfig(srcs=[|std:///|], bin=bin, boot=boot, libs=[bin]);
   
   all_results += runTests(basicTests, "lang::rascal::tests::basic", pcfg, jvm=jvm);
   all_results += runTests(functionalityTests, "lang::rascal::tests::functionality", pcfg, jvm=jvm);

@@ -30,12 +30,12 @@ public class LoadVarRef extends Instruction {
 			if ( debug ) 
 				codeEmittor.emitDebugCall2(opcode.name(), fuid, pos);
 			
-			codeEmittor.emitCallWithArgsFI_A("LOADVARREFMODULE", what, debug);
+			codeEmittor.emitCallWithArgsFI_A("LOADVARREFMODULE", what);
 		} else {
 			if ( debug ) 
 				codeEmittor.emitDebugCall2(opcode.name(), codeblock.getFunctionName(fuid), pos);
 			
-			codeEmittor.emitCallWithArgsFII_A("LOADVARREFSCOPED", what, pos, debug);
+			codeEmittor.emitCallWithArgsFII_A("LOADVARREFSCOPED", what, pos);
 		}
 	}
 }
