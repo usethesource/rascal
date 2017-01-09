@@ -1,11 +1,12 @@
 module lang::rascal::tests::basic::IO
-
+ 
 import String;
 
 import IO;
 import ValueIO;
+import util::UUID;
 
-private loc aFile = |test-temp:///basic-io.txt|;
+private loc aFile = |test-temp:///basic-io-<"<uuidi()>">.txt|;
 
 test bool writeReadFile(str content) {
   if (size(content) == 0 || any(c <- [0..size(content)], content[c] == "\a00")) return true;

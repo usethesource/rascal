@@ -4,8 +4,9 @@ import IO;
 import Type;
 import util::Math;
 import lang::json::IO;
+import util::UUID;
 
-loc targetFile = |test-temp:///test.json|;
+loc targetFile = |test-temp:///test-<"<uuidi()>">.json|;
 
 bool writeRead(&T dt) = writeRead(type(typeOf(dt), ()), dt);
 
