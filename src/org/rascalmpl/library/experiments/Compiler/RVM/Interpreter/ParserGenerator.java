@@ -41,7 +41,7 @@ import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class ParserGenerator {
-   private Evaluator evaluator;
+  private Evaluator evaluator;
   private final JavaBridge bridge;
   private final IValueFactory vf;
   private final TypeFactory tf;
@@ -52,10 +52,6 @@ public class ParserGenerator {
   private static final String packageName = "org.rascalmpl.java.parser.object";
   private static final boolean debug = false;
   private static final boolean useCompiledParserGenerator = true;
-
-  static {
-
-  }
 
   public ParserGenerator(RascalExecutionContext rex) throws IOException {
     this.vf = rex.getValueFactory();
