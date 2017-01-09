@@ -79,8 +79,14 @@ public class RascalJUnitCompiledTestRunnerPar extends Runner {
     
     public RascalJUnitCompiledTestRunnerPar(Class<?> clazz) {
 
+       
+
+        this.prefix = clazz.getAnnotation(RascalJUnitTestPrefix.class).value().replaceAll("\\\\", "");
+        this.pcfg = initializePathConfig();
+        this.IGNORED_DIRECTORIES = initializeIgnoredDirectories();
+
         try {
-            kernel = Java2Rascal.Builder.bridge(vf, new PathConfig(), IKernel.class)
+            kernel = Java2Rascal.Builder.bridge(vf, this.pcfg, IKernel.class)
                 .trace(false)
                 .profile(false)
                 .verbose(false)
@@ -88,11 +94,6 @@ public class RascalJUnitCompiledTestRunnerPar extends Runner {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        this.prefix = clazz.getAnnotation(RascalJUnitTestPrefix.class).value().replaceAll("\\\\", "");
-        this.pcfg = initializePathConfig();
-        this.IGNORED_DIRECTORIES = initializeIgnoredDirectories();
-
         System.err.println(pcfg);
     }
     
