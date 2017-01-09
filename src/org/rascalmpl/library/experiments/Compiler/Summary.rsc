@@ -22,20 +22,21 @@ A `ModuleSummary` summarizes a Rascal module for the benefit of IDE support like
 * Name completion.
 }
 data ModuleSummary =
-     moduleSummary(map[loc from, Symbol tp] locationTypes,
-                   rel[loc from, loc to] useDef,
-                   set[str] vocabulary);
+     moduleSummary(rel[loc from, Symbol tp] types = {},
+                   rel[loc from, loc to] uses = {},
+                   rel[str category, str word] vocabulary = {});
 
-private map[loc from, Symbol tp] getLocationTypes(Configuration c) =
-    c.locationTypes;
-    
-private rel[loc from, loc to] getUseDef(Configuration c){
+private rel[loc from, Symbol tp] getLocationTypes(Configuration c) =
+    {<k,c.locationTypes[k]> | k <- c.locationTypes};
+     
+rel[loc from, loc to] getUseDef(Configuration c){
     definitions = c.definitions;
     uses = c.uses + c.narrowedUses;
     return {<use, def> | <int uid, loc def> <- definitions, loc use <- (uses[uid] ? {})};
 }
 
-private set[str] getVocabulary(Configuration c) = {name | /RSimpleName(str name) := c};
+private rel[str,str] getVocabulary(Configuration c) 
+  = {<"any",name> | /RSimpleName(str name) := c};
 
 @doc{
 .Synopsis
@@ -44,9 +45,12 @@ Make a ModuleSummary.
 ModuleSummary makeSummary(str qualifiedModuleName, PathConfig pcfg){
    if(<true, cloc> := cachedConfigReadLoc(qualifiedModuleName,pcfg)){
       Configuration c = readBinaryValueFile(#Configuration, cloc);
-      return moduleSummary(getLocationTypes(c), getUseDef(c), getVocabulary(c));
+      return moduleSummary()
+        [types=getLocationTypes(c)]
+        [uses=getUseDef(c)]
+        [vocabulary=getVocabulary(c)];
    } else {
-      return moduleSummary((), {}, {});
+      return moduleSummary();
    }    
    return;            
 }
@@ -56,7 +60,7 @@ ModuleSummary makeSummary(str qualifiedModuleName, PathConfig pcfg){
 Get all definitions for a given use.
 }
 set[loc] getDefinitions(ModuleSummary summary, loc use){
-    return summary.useDef[use] ? {};
+    return summary.uses[use] ? {};
 }
 
 @doc{
@@ -64,7 +68,7 @@ set[loc] getDefinitions(ModuleSummary summary, loc use){
 Get the type for a given use.
 }
 Symbol getType(ModuleSummary summary, loc use){
-    return summary.locationTypes[use] ? Symbol::\value();
+    return Symbol s <- summary.types[use] ? s : Symbol::\value();
 }
 
 @doc{
@@ -72,7 +76,7 @@ Symbol getType(ModuleSummary summary, loc use){
 Get all definitions for a given definition.
 }
 set[loc] getUses(ModuleSummary s, loc def){
-    return invert(s.useDef)[def];
+    return invert(s.uses)[def];
 }
 
 @doc{
@@ -87,16 +91,4 @@ str getDocForDefinition(loc def){
     } catch e: {
         return "";
     }
-}
-
-ModuleSummary example1() {
-    p1 = pathConfig(srcs=[|file:///Users/paulklint/git/rascal/src/org/rascalmpl/library/|]);
-    return makeSummary("experiments::Compiler::Examples::Fac", p1);
-}
-
-value main(){
-    p1 = pathConfig(srcs=[|file:///Users/paulklint/git/rascal/src/org/rascalmpl/library/|]);
-    summary = makeSummary("experiments::Compiler::Examples::Fac", p1);
-    println(summary);
-    return true;
 }
