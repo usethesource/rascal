@@ -31,8 +31,8 @@ private map[loc from, Symbol tp] getLocationTypes(Configuration c) =
     
 private rel[loc from, loc to] getUseDef(Configuration c){
     definitions = c.definitions;
-    uses = c.uses + c.narrowedUses;
-    return {<use, def> | <int uid, loc def> <- definitions, loc use <- (uses[uid] ? {})};
+    uses = invert(c.uses + c.narrowedUses);
+    return uses o definitions;
 }
 
 private set[str] getVocabulary(Configuration c) = {name | /RSimpleName(str name) := c};

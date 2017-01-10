@@ -14,7 +14,6 @@ package org.rascalmpl.value.io.binary.util;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.function.Function;
 
 public class DelayedCompressionOutputStream extends OutputStream {
 
