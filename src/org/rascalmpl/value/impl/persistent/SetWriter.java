@@ -59,7 +59,7 @@ public class SetWriter implements ISetWriter {
   /****************************************/
 
   protected AbstractTypeBag elementTypeBag;
-  protected Set.TransientSet<IValue> setContent;
+  protected Set.Transient<IValue> setContent;
 
   protected final boolean checkUpperBound;
   protected final Type upperBoundType;
@@ -154,7 +154,7 @@ public class SetWriter implements ISetWriter {
       // collect to set
 
 //      final AbstractTypeBag elementTypeBag = typeStream.collect(toTypeBag());
-//      final ImmutableSet<IValue> data = dataStream.collect(CapsuleCollectors.toSet());
+//      final Immutable<IValue> data = dataStream.collect(CapsuleCollectors.toSet());
 //
 //      constructedSet = new PersistentHashSet(elementTypeBag, data);
 //      return constructedSet;

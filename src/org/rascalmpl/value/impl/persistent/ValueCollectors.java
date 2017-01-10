@@ -22,7 +22,7 @@ public class ValueCollectors {
 
     class SetStruct {
       AbstractTypeBag elementTypeBag = AbstractTypeBag.of();
-      Set.TransientSet<T> set = DefaultTrieSet.transientOf();
+      Set.Transient<T> set = DefaultTrieSet.transientOf();
     }
 
     /** extract key/value from type {@code T} and insert into multimap */
@@ -34,7 +34,7 @@ public class ValueCollectors {
 
     return new DefaultCollector<>(SetStruct::new, accumulator, unsupportedCombiner(),
         struct -> PersistentHashSet.from(struct.elementTypeBag,
-            (Set.ImmutableSet<IValue>) struct.set.freeze()),
+            (Set.Immutable<IValue>) struct.set.freeze()),
         UNORDERED);
   }
 

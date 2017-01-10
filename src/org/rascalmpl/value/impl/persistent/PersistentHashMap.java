@@ -33,13 +33,13 @@ public final class PersistentHashMap extends AbstractMap {
 	private Type cachedMapType;
 	private final AbstractTypeBag keyTypeBag; 
 	private final AbstractTypeBag valTypeBag;
-	private final Map.ImmutableMap<IValue,IValue> content;
+	private final Map.Immutable<IValue,IValue> content;
 	
 	/* 
 	 * Passing an pre-calulated map type is only allowed from inside this class.
 	 */
 	protected PersistentHashMap(AbstractTypeBag keyTypeBag,
-                              AbstractTypeBag valTypeBag, Map.ImmutableMap<IValue, IValue> content) {
+                              AbstractTypeBag valTypeBag, Map.Immutable<IValue, IValue> content) {
 		Objects.requireNonNull(content);
 		this.cachedMapType = null;
 		this.keyTypeBag = keyTypeBag;
@@ -77,7 +77,7 @@ public final class PersistentHashMap extends AbstractMap {
 
 	@Override
 	public IMap put(IValue key, IValue value) {
-		final Map.ImmutableMap<IValue,IValue> contentNew =
+		final Map.Immutable<IValue,IValue> contentNew =
 				content.__putEquivalent(key, value, equivalenceComparator);
 		
 		if (content == contentNew)
@@ -222,7 +222,7 @@ public final class PersistentHashMap extends AbstractMap {
 		if (other instanceof PersistentHashMap) {
 			PersistentHashMap that = (PersistentHashMap) other;
 
-			final Map.TransientMap<IValue, IValue> transientContent = content.asTransient();
+			final Map.Transient<IValue, IValue> transientContent = content.asTransient();
 
 			boolean isModified = false;
 			int previousSize = size();

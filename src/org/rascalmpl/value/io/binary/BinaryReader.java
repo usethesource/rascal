@@ -541,7 +541,7 @@ public class BinaryReader{
 		
 		int numberOfKeywordParameters = parseInteger();
 		
-		io.usethesource.capsule.api.deprecated.Map.TransientMap<String, IValue> kwParams = TrieMap_5Bits.transientOf();
+		io.usethesource.capsule.api.deprecated.Map.Transient<String, IValue> kwParams = TrieMap_5Bits.transientOf();
 		for(int i = numberOfKeywordParameters - 1; i >= 0; i--){
 			int nameLength = parseInteger();
 			byte[] nameData = new byte[nameLength];
@@ -581,7 +581,7 @@ public class BinaryReader{
 		
 		int numberOfAnnotations = parseInteger();
 		
-		io.usethesource.capsule.api.deprecated.Map.TransientMap<String, IValue> annotations = TrieMap_5Bits.transientOf();
+		io.usethesource.capsule.api.deprecated.Map.Transient<String, IValue> annotations = TrieMap_5Bits.transientOf();
 		for(int i = numberOfAnnotations - 1; i >= 0; i--){
 			int labelLength = parseInteger();
 			byte[] labelData = new byte[labelLength];
@@ -622,7 +622,7 @@ public class BinaryReader{
 		
 		int numberOfKeywordParams = parseInteger();
 		
-		io.usethesource.capsule.api.deprecated.Map.TransientMap<String, IValue> kwParams = TrieMap_5Bits.transientOf();
+		io.usethesource.capsule.api.deprecated.Map.Transient<String, IValue> kwParams = TrieMap_5Bits.transientOf();
 		for(int i = numberOfKeywordParams - 1; i >= 0; i--){
 			int nameLength = parseInteger();
 			byte[] nameData = new byte[nameLength];
@@ -649,7 +649,7 @@ public class BinaryReader{
 		
 		int numberOfAnnotations = parseInteger();
 		
-		io.usethesource.capsule.api.deprecated.Map.TransientMap<String, IValue> annotations = TrieMap_5Bits.transientOf();
+		io.usethesource.capsule.api.deprecated.Map.Transient<String, IValue> annotations = TrieMap_5Bits.transientOf();
 		for(int i = numberOfAnnotations - 1; i >= 0; i--){
 			int labelLength = parseInteger();
 			byte[] labelData = new byte[labelLength];
