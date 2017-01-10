@@ -29,9 +29,9 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 public class AnnotatedConstructorFacade implements IConstructor {
 
 	protected final IConstructor content;
-	protected final Map.ImmutableMap<String, IValue> annotations;
+	protected final Map.Immutable<String, IValue> annotations;
 	
-	public AnnotatedConstructorFacade(final IConstructor content, final Map.ImmutableMap<String, IValue> annotations) {
+	public AnnotatedConstructorFacade(final IConstructor content, final Map.Immutable<String, IValue> annotations) {
 		this.content = content;
 		this.annotations = annotations;
 	}
@@ -143,7 +143,7 @@ public class AnnotatedConstructorFacade implements IConstructor {
 
 			@Override
 			protected IConstructor wrap(IConstructor content,
-					Map.ImmutableMap<String, IValue> annotations) {
+					Map.Immutable<String, IValue> annotations) {
 				return annotations.isEmpty() ? content : new AnnotatedConstructorFacade(content, annotations);
 			}
 		};

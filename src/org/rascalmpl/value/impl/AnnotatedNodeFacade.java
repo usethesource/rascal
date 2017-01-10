@@ -27,9 +27,9 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 public class AnnotatedNodeFacade implements INode {
 
 	protected final INode content;
-	protected final Map.ImmutableMap<String, IValue> annotations;
+	protected final Map.Immutable<String, IValue> annotations;
 	
-	public AnnotatedNodeFacade(final INode content, final Map.ImmutableMap<String, IValue> annotations) {
+	public AnnotatedNodeFacade(final INode content, final Map.Immutable<String, IValue> annotations) {
 		this.content = content;
 		this.annotations = annotations;
 	}
@@ -111,7 +111,7 @@ public class AnnotatedNodeFacade implements INode {
 
 			@Override
 			protected INode wrap(INode content,
-					Map.ImmutableMap<String, IValue> annotations) {
+					Map.Immutable<String, IValue> annotations) {
 				return new AnnotatedNodeFacade(content, annotations);
 			}
 		};

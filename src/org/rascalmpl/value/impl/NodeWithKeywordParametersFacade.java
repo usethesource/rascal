@@ -26,9 +26,9 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 
 public class NodeWithKeywordParametersFacade implements INode {
 	protected final INode content;
-	protected final Map.ImmutableMap<String, IValue> parameters;
+	protected final Map.Immutable<String, IValue> parameters;
 	
-	public NodeWithKeywordParametersFacade(final INode content, final Map.ImmutableMap<String, IValue> parameters) {
+	public NodeWithKeywordParametersFacade(final INode content, final Map.Immutable<String, IValue> parameters) {
 		this.content = content;
 		this.parameters = parameters;
 	}
@@ -130,7 +130,7 @@ public class NodeWithKeywordParametersFacade implements INode {
 	public IWithKeywordParameters<? extends INode> asWithKeywordParameters() {
 		return new AbstractDefaultWithKeywordParameters<INode>(content, parameters) {
 			@Override
-			protected INode wrap(INode content, Map.ImmutableMap<String, IValue> parameters) {
+			protected INode wrap(INode content, Map.Immutable<String, IValue> parameters) {
 				return new NodeWithKeywordParametersFacade(content, parameters);
 			}
 		};
