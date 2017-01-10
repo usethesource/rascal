@@ -12,6 +12,11 @@
 
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.lang.invoke.CallSite;
+import java.lang.invoke.ConstantCallSite;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Map;
@@ -41,7 +46,8 @@ public class RVMonJVM extends RVMCore {
 	public Frame root; // Root frame of a program
 	Thrown thrown;
 	
-//	public static Function[] staticFunctionStore;
+	//EXPERIMENTAL
+	public static Function[] staticFunctionStore;
 
 	// TODO : ccf, cccf and activeCoroutines needed to allow exception handling in coroutines. :(
 	
@@ -56,7 +62,7 @@ public class RVMonJVM extends RVMCore {
 
 	public RVMonJVM(RVMExecutable rvmExec, RascalExecutionContext rex) {
 		super(rvmExec, rex);
-//		staticFunctionStore = functionStore;
+		staticFunctionStore = functionStore;
 	}
 	
 	/************************************************************************************/
@@ -339,16 +345,14 @@ public class RVMonJVM extends RVMCore {
 	/************************************************************************************************/
 //EXPERIMENTAL	
 //	public static CallSite bootstrapGetFrame(MethodHandles.Lookup caller, String name, MethodType type, Object arg) throws NoSuchMethodException, IllegalAccessException {
-//	    System.err.println("bootstrapGetFrame");
 //	    MethodHandles.Lookup lookup = MethodHandles.lookup();
 //	    Function func = staticFunctionStore[(Integer)arg];
 //	    MethodType getFrameType = MethodType.methodType(Frame.class, Function.class, Frame.class, int.class, int.class);
 //
 //	    MethodHandle getFrame = lookup.findVirtual(Frame.class, "getFrame", getFrameType);
-//	    MethodHandle getFrame1 = MethodHandles.filterArguments(getFrame, 1, null, MethodHandles.constant(Function.class, func));
+//	    MethodHandle getFrame1 = MethodHandles.insertArguments(getFrame, 1, func);
+//	    MethodHandle getFrame2 = MethodHandles.insertArguments(getFrame1, 2, func.nformals);
 //	    
-//	    MethodHandle getFrame2 = MethodHandles.filterArguments(getFrame1, 1, MethodHandles.constant(int.class, func.nformals));
-//	    System.err.println(getFrame2);
 //	    return new ConstantCallSite(getFrame2.asType(type));
 //	}
 
