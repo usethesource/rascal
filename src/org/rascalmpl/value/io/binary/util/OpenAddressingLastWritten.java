@@ -12,10 +12,6 @@
  */ 
 package org.rascalmpl.value.io.binary.util;
 
-import java.util.Arrays;
-
-import org.apache.commons.math.MaxEvaluationsExceededException;
-
 /**
  * A track last written implementation that uses linear open addressing to implement the very specific hashmap
  * 
