@@ -1990,7 +1990,7 @@ MuExp translate(e:(Expression) `*<Expression argument>`) {
    
 // -- asType expression ---------------------------------------------
 
-MuMuExp translate(e:(Expression) `[ <Type typ> ] <Expression argument>`)  =
+MuExp translate(e:(Expression) `[ <Type typ> ] <Expression argument>`)  =
  muCallPrim3("parse", [muCon(getModuleName()), 
    					    muCon(type(symbolToValue(translateType(typ)).symbol,getGrammar())), 
    					    translate(argument)], 
