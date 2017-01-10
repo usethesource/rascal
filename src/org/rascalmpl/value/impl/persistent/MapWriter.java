@@ -36,7 +36,7 @@ final class MapWriter implements IMapWriter {
 
 	protected AbstractTypeBag keyTypeBag;
 	protected AbstractTypeBag valTypeBag;
-	protected final Map.TransientMap<IValue, IValue> mapContent;
+	protected final Map.Transient<IValue, IValue> mapContent;
 
 	protected final boolean checkUpperBound;
 	protected final Type upperBoundKeyType;

@@ -452,9 +452,9 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
         final SetMultimap.Transient<IValue, IValue> xz = xy.asTransient();
 
         for (IValue x : xy.keySet()) {
-          final Set.ImmutableSet<IValue> ys = xy.get(x);
+          final Set.Immutable<IValue> ys = xy.get(x);
           // TODO: simplify expression with nullable data
-          final Set.ImmutableSet<IValue> zs = ys.stream()
+          final Set.Immutable<IValue> zs = ys.stream()
               .flatMap(y -> Optional.ofNullable(yz.get(y)).orElseGet(DefaultTrieSet::of).stream())
               .collect(CapsuleCollectors.toSet());
 
@@ -550,7 +550,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
          */
         return thisSet.content.keySet().stream().collect(toSet());
 
-        // final ImmutableSet<IValue> columnData = (ImmutableSet<IValue>)
+        // final Immutable<IValue> columnData = (Immutable<IValue>)
         // thisSet.content.keySet();
         // final AbstractTypeBag columnElementTypeBag =
         // columnData.stream().map(IValue::getType).collect(toTypeBag());

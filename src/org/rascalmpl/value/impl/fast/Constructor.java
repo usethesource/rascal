@@ -83,7 +83,7 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 	        return new AbstractDefaultAnnotatable<IConstructor>(this) {
 	            @Override
 	            protected IConstructor wrap(IConstructor content,
-	                    io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> annotations) {
+	                    io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> annotations) {
 	                return new AnnotatedConstructorFacade(content, annotations);
 	            }
 	        };
@@ -175,7 +175,7 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 	    public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
 	      return new AbstractDefaultWithKeywordParameters<IConstructor>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
 	        @Override
-	        protected IConstructor wrap(IConstructor content, io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> parameters) {
+	        protected IConstructor wrap(IConstructor content, io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> parameters) {
 	          return new ConstructorWithKeywordParametersFacade(content, parameters);
 	        }
 	        
