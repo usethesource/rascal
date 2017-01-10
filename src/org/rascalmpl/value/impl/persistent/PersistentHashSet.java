@@ -12,8 +12,7 @@
 package org.rascalmpl.value.impl.persistent;
 
 import io.usethesource.capsule.DefaultTrieSet;
-import io.usethesource.capsule.api.deprecated.ImmutableSet;
-import io.usethesource.capsule.api.deprecated.TransientSet;
+import io.usethesource.capsule.api.deprecated.Set;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISetRelation;
 import org.rascalmpl.value.IValue;
@@ -34,11 +33,11 @@ public final class PersistentHashSet extends AbstractSet {
 
   private Type cachedSetType;
   private final AbstractTypeBag elementTypeBag;
-  private final ImmutableSet<IValue> content;
+  private final Set.ImmutableSet<IValue> content;
 
   // TODO: make private
   public static final ISet from(final AbstractTypeBag elementTypeBag,
-      final ImmutableSet<IValue> content) {
+      final Set.ImmutableSet<IValue> content) {
     if (content.isEmpty()) {
       return EMPTY_SET;
     } else {
@@ -46,7 +45,7 @@ public final class PersistentHashSet extends AbstractSet {
     }
   }
 
-  private PersistentHashSet(AbstractTypeBag elementTypeBag, ImmutableSet<IValue> content) {
+  private PersistentHashSet(AbstractTypeBag elementTypeBag, Set.ImmutableSet<IValue> content) {
     this.elementTypeBag = Objects.requireNonNull(elementTypeBag);
     this.content = Objects.requireNonNull(content);
 
@@ -82,7 +81,7 @@ public final class PersistentHashSet extends AbstractSet {
   }
 
   private static final boolean checkDynamicType(final AbstractTypeBag elementTypeBag,
-      final ImmutableSet<IValue> content) {
+      final Set.ImmutableSet<IValue> content) {
 
     final AbstractTypeBag expectedElementTypeBag =
         content.stream().map(IValue::getType).collect(toTypeBag());
@@ -98,7 +97,7 @@ public final class PersistentHashSet extends AbstractSet {
   }
 
   // internal use: introspecting backing implementation; TODO: reconsider visibility
-  public ImmutableSet<IValue> getContent() {
+  public Set.ImmutableSet<IValue> getContent() {
     return content;
   }
 
@@ -141,7 +140,7 @@ public final class PersistentHashSet extends AbstractSet {
   @Override
   public ISet insert(IValue value) {
     if (content.isEmpty()) {
-      final ImmutableSet<IValue> contentNew;
+      final Set.ImmutableSet<IValue> contentNew;
 
       if (USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(value.getType())) {
         // TODO: directly construct set-multimap
@@ -156,7 +155,7 @@ public final class PersistentHashSet extends AbstractSet {
       // * being represented as a set of tuples).
       // */
       //
-      // final ImmutableSetMultimap<IValue, IValue> multimap =
+      // final Immutable<IValue, IValue> multimap =
       // DefaultTrieSetMultimap.of(equivalenceEqualityComparator);
       //
       // // NOTE: tuple untyped
@@ -192,7 +191,7 @@ public final class PersistentHashSet extends AbstractSet {
 
       return PersistentHashSet.from(bagNew, contentNew);
     } else {
-      final ImmutableSet<IValue> contentNew =
+      final Set.ImmutableSet<IValue> contentNew =
           content.__insertEquivalent(value, equivalenceComparator);
 
       if (content == contentNew)
@@ -206,7 +205,7 @@ public final class PersistentHashSet extends AbstractSet {
 
   @Override
   public ISet delete(IValue value) {
-    final ImmutableSet<IValue> contentNew =
+    final Set.ImmutableSet<IValue> contentNew =
         content.__removeEquivalent(value, equivalenceComparator);
 
     if (content == contentNew)
@@ -308,8 +307,8 @@ public final class PersistentHashSet extends AbstractSet {
     if (other instanceof PersistentHashSet) {
       PersistentHashSet that = (PersistentHashSet) other;
 
-      final ImmutableSet<IValue> one;
-      final ImmutableSet<IValue> two;
+      final Set.ImmutableSet<IValue> one;
+      final Set.ImmutableSet<IValue> two;
       AbstractTypeBag bag;
       final ISet def;
 
@@ -325,7 +324,7 @@ public final class PersistentHashSet extends AbstractSet {
         two = that.content;
       }
 
-      TransientSet<IValue> tmp = one.asTransient(); // non-final due to
+      Set.TransientSet<IValue> tmp = one.asTransient(); // non-final due to
                                                     // conversion
       boolean modified = false;
 
@@ -372,8 +371,8 @@ public final class PersistentHashSet extends AbstractSet {
     if (other instanceof PersistentHashSet) {
       PersistentHashSet that = (PersistentHashSet) other;
 
-      final ImmutableSet<IValue> one;
-      final ImmutableSet<IValue> two;
+      final Set.ImmutableSet<IValue> one;
+      final Set.ImmutableSet<IValue> two;
       AbstractTypeBag bag;
       final ISet def;
 
@@ -389,7 +388,7 @@ public final class PersistentHashSet extends AbstractSet {
         two = this.content;
       }
 
-      final TransientSet<IValue> tmp = one.asTransient();
+      final Set.TransientSet<IValue> tmp = one.asTransient();
       boolean modified = false;
 
       for (Iterator<IValue> it = tmp.iterator(); it.hasNext();) {
@@ -420,8 +419,8 @@ public final class PersistentHashSet extends AbstractSet {
     if (other instanceof PersistentHashSet) {
       PersistentHashSet that = (PersistentHashSet) other;
 
-      final ImmutableSet<IValue> one;
-      final ImmutableSet<IValue> two;
+      final Set.ImmutableSet<IValue> one;
+      final Set.ImmutableSet<IValue> two;
       AbstractTypeBag bag;
       final ISet def;
 
@@ -430,7 +429,7 @@ public final class PersistentHashSet extends AbstractSet {
       bag = this.elementTypeBag;
       two = that.content;
 
-      final TransientSet<IValue> tmp = one.asTransient();
+      final Set.TransientSet<IValue> tmp = one.asTransient();
       boolean modified = false;
 
       for (IValue key : two) {

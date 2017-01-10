@@ -12,9 +12,8 @@
 package org.rascalmpl.value.impl.persistent;
 
 import io.usethesource.capsule.DefaultTrieSet;
-import io.usethesource.capsule.api.deprecated.ImmutableSet;
-import io.usethesource.capsule.api.deprecated.ImmutableSetMultimap;
-import io.usethesource.capsule.api.deprecated.TransientSetMultimap;
+import io.usethesource.capsule.api.deprecated.*;
+import io.usethesource.capsule.api.deprecated.Set;
 import io.usethesource.capsule.util.ArrayUtilsInt;
 import io.usethesource.capsule.util.stream.CapsuleCollectors;
 import org.rascalmpl.value.*;
@@ -25,6 +24,7 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.util.AbstractTypeBag;
 
 import java.util.*;
+import java.util.Map;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -39,13 +39,13 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
   private Type cachedRelationType;
   private final AbstractTypeBag keyTypeBag;
   private final AbstractTypeBag valTypeBag;
-  private final ImmutableSetMultimap<IValue, IValue> content;
+  private final SetMultimap.Immutable<IValue, IValue> content;
 
   // TODO: make private
   // DOES: canonicalize
   // TODO: does not take into account {@link IValueFactory}
   public static final ISet from(final AbstractTypeBag keyTypeBag, final AbstractTypeBag valTypeBag,
-      final ImmutableSetMultimap<IValue, IValue> content) {
+      final SetMultimap.Immutable<IValue, IValue> content) {
     if (content.isEmpty()) {
       return EMPTY_SET;
     } else {
@@ -54,7 +54,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
   }
 
   private PersistentHashIndexedBinaryRelation(AbstractTypeBag keyTypeBag,
-      AbstractTypeBag valTypeBag, ImmutableSetMultimap<IValue, IValue> content) {
+      AbstractTypeBag valTypeBag, SetMultimap.Immutable<IValue, IValue> content) {
     this.keyTypeBag = Objects.requireNonNull(keyTypeBag);
     this.valTypeBag = Objects.requireNonNull(valTypeBag);
     this.content = Objects.requireNonNull(content);
@@ -66,7 +66,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
   }
 
   private static final boolean checkDynamicType(final AbstractTypeBag keyTypeBag,
-      final AbstractTypeBag valTypeBag, final ImmutableSetMultimap<IValue, IValue> content) {
+      final AbstractTypeBag valTypeBag, final SetMultimap.Immutable<IValue, IValue> content) {
 
     final AbstractTypeBag expectedKeyTypeBag = content.entrySet().stream().map(Map.Entry::getKey)
         .map(IValue::getType).collect(toTypeBag());
@@ -107,7 +107,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
     final IValue key = tuple.get(0);
     final IValue val = tuple.get(1);
 
-    final ImmutableSetMultimap<IValue, IValue> contentNew = content.__insert(key, val);
+    final SetMultimap.Immutable<IValue, IValue> contentNew = content.__insert(key, val);
 
     if (content == contentNew)
       return this;
@@ -127,7 +127,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
     final IValue key = tuple.get(0);
     final IValue val = tuple.get(1);
 
-    final ImmutableSetMultimap<IValue, IValue> contentNew = content.__removeEntry(key, val);
+    final SetMultimap.Immutable<IValue, IValue> contentNew = content.__removeEntry(key, val);
 
     if (content == contentNew)
       return this;
@@ -263,8 +263,8 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
     if (other instanceof PersistentHashIndexedBinaryRelation) {
       PersistentHashIndexedBinaryRelation that = (PersistentHashIndexedBinaryRelation) other;
 
-      final ImmutableSetMultimap<IValue, IValue> one;
-      final ImmutableSetMultimap<IValue, IValue> two;
+      final SetMultimap.Immutable<IValue, IValue> one;
+      final SetMultimap.Immutable<IValue, IValue> two;
       AbstractTypeBag keyTypeBagNew;
       AbstractTypeBag valTypeBagNew;
       final ISet def;
@@ -283,7 +283,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
         two = that.content;
       }
 
-      final TransientSetMultimap<IValue, IValue> tmp = one.asTransient();
+      final SetMultimap.Transient<IValue, IValue> tmp = one.asTransient();
       boolean modified = false;
 
       for (Map.Entry<IValue, IValue> entry : two.entrySet()) {
@@ -316,8 +316,8 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
     if (other instanceof PersistentHashIndexedBinaryRelation) {
       PersistentHashIndexedBinaryRelation that = (PersistentHashIndexedBinaryRelation) other;
 
-      final ImmutableSetMultimap<IValue, IValue> one;
-      final ImmutableSetMultimap<IValue, IValue> two;
+      final SetMultimap.Immutable<IValue, IValue> one;
+      final SetMultimap.Immutable<IValue, IValue> two;
       AbstractTypeBag keyTypeBagNew;
       AbstractTypeBag valTypeBagNew;
       final ISet def;
@@ -336,7 +336,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
         two = this.content;
       }
 
-      final TransientSetMultimap<IValue, IValue> tmp = one.asTransient();
+      final SetMultimap.Transient<IValue, IValue> tmp = one.asTransient();
       boolean modified = false;
 
       for (Iterator<Map.Entry<IValue, IValue>> it = tmp.entryIterator(); it.hasNext();) {
@@ -371,8 +371,8 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
     if (other instanceof PersistentHashIndexedBinaryRelation) {
       PersistentHashIndexedBinaryRelation that = (PersistentHashIndexedBinaryRelation) other;
 
-      final ImmutableSetMultimap<IValue, IValue> one;
-      final ImmutableSetMultimap<IValue, IValue> two;
+      final SetMultimap.Immutable<IValue, IValue> one;
+      final SetMultimap.Immutable<IValue, IValue> two;
       AbstractTypeBag keyTypeBagNew;
       AbstractTypeBag valTypeBagNew;
       final ISet def;
@@ -383,7 +383,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
       valTypeBagNew = this.valTypeBag;
       two = that.content;
 
-      final TransientSetMultimap<IValue, IValue> tmp = one.asTransient();
+      final SetMultimap.Transient<IValue, IValue> tmp = one.asTransient();
       boolean modified = false;
 
       for (Map.Entry<IValue, IValue> tuple : two.entrySet()) {
@@ -433,8 +433,8 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
         final PersistentHashIndexedBinaryRelation thatSet =
             (PersistentHashIndexedBinaryRelation) otherSetRelation.asSet();
 
-        final ImmutableSetMultimap<IValue, IValue> xy = thisSet.content;
-        final ImmutableSetMultimap<IValue, IValue> yz = thatSet.content;
+        final SetMultimap.Immutable<IValue, IValue> xy = thisSet.content;
+        final SetMultimap.Immutable<IValue, IValue> yz = thatSet.content;
 
         /**
          * The code below is still sub-optimal because it operates on the logical (rather than the structural) level.
@@ -449,12 +449,12 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
          *    .collect(toNode());
          *    // @formatter:on
          */
-        final TransientSetMultimap<IValue, IValue> xz = xy.asTransient();
+        final SetMultimap.Transient<IValue, IValue> xz = xy.asTransient();
 
         for (IValue x : xy.keySet()) {
-          final ImmutableSet<IValue> ys = xy.get(x);
+          final Set.ImmutableSet<IValue> ys = xy.get(x);
           // TODO: simplify expression with nullable data
-          final ImmutableSet<IValue> zs = ys.stream()
+          final Set.ImmutableSet<IValue> zs = ys.stream()
               .flatMap(y -> Optional.ofNullable(yz.get(y)).orElseGet(DefaultTrieSet::of).stream())
               .collect(CapsuleCollectors.toSet());
 
@@ -468,7 +468,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
           }
         }
 
-        final ImmutableSetMultimap<IValue, IValue> data = xz.freeze();
+        final SetMultimap.Immutable<IValue, IValue> data = xz.freeze();
 
         final AbstractTypeBag keyTypeBag = data.entrySet().stream().map(Map.Entry::getKey)
             .map(IValue::getType).collect(toTypeBag());

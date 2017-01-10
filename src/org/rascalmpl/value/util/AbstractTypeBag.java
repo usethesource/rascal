@@ -12,8 +12,6 @@
 package org.rascalmpl.value.util;
 
 import io.usethesource.capsule.DefaultTrieMap;
-import io.usethesource.capsule.api.deprecated.ImmutableMap;
-import io.usethesource.capsule.api.deprecated.TransientMap;
 import io.usethesource.capsule.util.stream.DefaultCollector;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
@@ -71,15 +69,15 @@ public abstract class AbstractTypeBag implements Cloneable {
    */
   private static class TypeBag extends AbstractTypeBag {
     private final String label;
-    private final ImmutableMap<Type, Integer> countMap;
+    private final io.usethesource.capsule.api.deprecated.Map.ImmutableMap<Type, Integer> countMap;
 
     private Type cachedLub;
 
-    private TypeBag(String label, ImmutableMap<Type, Integer> countMap) {
+    private TypeBag(String label, io.usethesource.capsule.api.deprecated.Map.ImmutableMap<Type, Integer> countMap) {
       this(label, countMap, null);
     }
 
-    private TypeBag(String label, ImmutableMap<Type, Integer> countMap, Type cachedLub) {
+    private TypeBag(String label, io.usethesource.capsule.api.deprecated.Map.ImmutableMap<Type, Integer> countMap, Type cachedLub) {
       this.label = label;
       this.countMap = countMap;
       this.cachedLub = cachedLub;
@@ -113,7 +111,7 @@ public abstract class AbstractTypeBag implements Cloneable {
               typeListEntry.getValue().stream().mapToInt(Map.Entry::getValue).sum()))
           .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-      final ImmutableMap<Type, Integer> countMap =
+      final io.usethesource.capsule.api.deprecated.Map.ImmutableMap<Type, Integer> countMap =
           DefaultTrieMap.<Type, Integer>of().__putAll(mutableCountMap);
 
       return new TypeBag(label, countMap, cachedLub.select(fields));
@@ -127,7 +125,7 @@ public abstract class AbstractTypeBag implements Cloneable {
     @Override
     public AbstractTypeBag increase(Type t) {
       final Integer oldCount = countMap.get(t);
-      final ImmutableMap<Type, Integer> newCountMap;
+      final io.usethesource.capsule.api.deprecated.Map.ImmutableMap<Type, Integer> newCountMap;
 
       if (oldCount == null) {
         newCountMap = countMap.__put(t, 1);
@@ -153,11 +151,11 @@ public abstract class AbstractTypeBag implements Cloneable {
         throw new IllegalStateException(String.format("Type '%s' was not present.", t));
       } else if (oldCount > 1) {
         // update and decrease count; lub stays the same
-        final ImmutableMap<Type, Integer> newCountMap = countMap.__put(t, oldCount - 1);
+        final io.usethesource.capsule.api.deprecated.Map.ImmutableMap<Type, Integer> newCountMap = countMap.__put(t, oldCount - 1);
         return new TypeBag(label, newCountMap, cachedLub);
       } else {
         // count was zero, thus remove entry and invalidate cached type
-        final ImmutableMap<Type, Integer> newCountMap = countMap.__remove(t);
+        final io.usethesource.capsule.api.deprecated.Map.ImmutableMap<Type, Integer> newCountMap = countMap.__remove(t);
         return new TypeBag(label, newCountMap);
       }
     }
@@ -216,7 +214,7 @@ public abstract class AbstractTypeBag implements Cloneable {
     }
   }
 
-  public static <M extends TransientMap<Type, Integer>> Collector<Type, ?, ? extends AbstractTypeBag> toTypeBag() {
+  public static <M extends io.usethesource.capsule.api.deprecated.Map.TransientMap<Type, Integer>> Collector<Type, ?, ? extends AbstractTypeBag> toTypeBag() {
     final BiConsumer<M, Type> accumulator = (countMap, type0) -> countMap.compute(type0,
         (type1, count) -> count == null ? 1 : count + 1);
 
@@ -237,15 +235,15 @@ public abstract class AbstractTypeBag implements Cloneable {
 //      Function<? super T, ? extends K> keyMapper, Function<? super T, ? extends V> valueMapper) {
 //
 //    /** extract key/value from type {@code T} and insert into multimap */
-//    final BiConsumer<TransientSetMultimap<K, V>, T> accumulator =
+//    final BiConsumer<Transient<K, V>, T> accumulator =
 //        (map, element) -> map.__insert(keyMapper.apply(element), valueMapper.apply(element));
 //
 //    return new CapsuleCollectors.DefaultCollector<>(
-//        (Supplier<TransientSetMultimap<K, V>>) DefaultTrieSetMultimap::transientOf, accumulator,
+//        (Supplier<Transient<K, V>>) DefaultTrieSetMultimap::transientOf, accumulator,
 //        (left, right) -> {
 //          left.__insertAll(right);
 //          return left;
-//        }, TransientSetMultimap::freeze, UNORDERED);
+//        }, Transient::freeze, UNORDERED);
 //  }
 
 //  public static final Collector<? super Type, TransientMap<Type, Integer>, AbstractTypeBag> toTypeBag2() {
