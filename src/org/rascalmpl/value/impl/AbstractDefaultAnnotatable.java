@@ -17,7 +17,6 @@ import org.rascalmpl.value.IAnnotatable;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 
-import io.usethesource.capsule.api.deprecated.ImmutableMap;
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 
 /**
@@ -28,7 +27,7 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IAnnotatable<T> {
 
 	protected final T content;
-	protected final ImmutableMap<String, IValue> annotations;
+	protected final io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> annotations;
 		
 	/**
 	 * Creates an {@link IAnnotatable} view on {@literal content} with empty
@@ -51,7 +50,7 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 	 * @param annotations
 	 *            is the map of annotations associated to {@link #content}
 	 */
-	public AbstractDefaultAnnotatable(T content, ImmutableMap<String, IValue> annotations) {
+	public AbstractDefaultAnnotatable(T content, io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> annotations) {
 		this.content = content;
 		this.annotations = annotations;
 	}
@@ -68,7 +67,7 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 	 * @return a new representations of {@link #content} with associated
 	 *         {@link #annotations}
 	 */
-	protected abstract T wrap(final T content, final ImmutableMap<String, IValue> annotations);
+	protected abstract T wrap(final T content, final io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> annotations);
 	
 	@Override
 	public boolean hasAnnotations() {

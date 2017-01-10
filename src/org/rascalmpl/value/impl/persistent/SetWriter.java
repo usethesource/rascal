@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.rascalmpl.value.impl.persistent;
 
-import io.usethesource.capsule.api.deprecated.TransientSet;
+import io.usethesource.capsule.api.deprecated.Set;
 import io.usethesource.capsule.util.EqualityComparator;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISetWriter;
@@ -59,7 +59,7 @@ public class SetWriter implements ISetWriter {
   /****************************************/
 
   protected AbstractTypeBag elementTypeBag;
-  protected TransientSet<IValue> setContent;
+  protected Set.TransientSet<IValue> setContent;
 
   protected final boolean checkUpperBound;
   protected final Type upperBoundType;
@@ -140,7 +140,7 @@ public class SetWriter implements ISetWriter {
 //      final AbstractTypeBag valTypeBag =
 //          tupleTypes.stream().map(type -> type.getFieldType(1)).collect(toTypeBag());
 //
-//      final ImmutableSetMultimap<IValue, IValue> data = dataStream.map(asInstanceOf(ITuple.class))
+//      final Immutable<IValue, IValue> data = dataStream.map(asInstanceOf(ITuple.class))
 //          .collect(CapsuleCollectors.toSetMultimap(tuple -> tuple.get(0), tuple -> tuple.get(1)));
 //
 //      constructedSet = new PersistentHashIndexedBinaryRelation(keyTypeBag, valTypeBag, data);
