@@ -115,6 +115,7 @@ public void extractDeclarationInfo(Configuration config){
    	    }
    	}
     cachedGrammar = getGrammar1();
+    //iprintln(cachedGrammar);
    	//computeReachableTypesAndConstructors();
 }
 
@@ -142,6 +143,7 @@ private map[Symbol,Production] getGrammar1() {
  	definitions = definitions + (Symbol::\layouts("$default$"):Production::choice(Symbol::\layouts("$default$"),{Production::prod(Symbol::\layouts("$default$"),[],{})}));
  	definitions = definitions + (Symbol::\empty():Production::choice(Symbol::\empty(),{Production::prod(Symbol::\empty(),[],{})}));
  	
+ 	//iprintln(definitions);
  	return definitions;
 }
 
@@ -180,7 +182,7 @@ private rel[Symbol,Symbol] getDependencies(s1: Symbol::\list(Symbol s2)) = <s1, 
 private rel[Symbol,Symbol] getDependencies(s1: Symbol::\map(Symbol key, Symbol val)) = {<s1, key>, <s1, val>} + getDependencies(key) + getDependencies(val);
 private rel[Symbol,Symbol] getDependencies(s1: Symbol::\bag(Symbol s2)) = <s1, s2> + getDependencies(s2);
 private rel[Symbol,Symbol] getDependencies(c:  Symbol::\cons(Symbol \adtsym, str name, list[Symbol] parameters)) {
-	res = {<c, striprec(sym)> | Symbol sym <- parameters} + { *getDependencies(sym) | Symbol sym <- parameters };
+	res = {<c, sym> | Symbol sym <- parameters} + { *getDependencies(sym) | Symbol sym <- parameters };
 	return res;
 }
 
@@ -193,9 +195,8 @@ private default rel[Symbol,Symbol] getDependencies(Symbol s) = {};
 // - visit
 
 private void computeReachableTypesAndConstructors(){
-	stripped_constructors = {<striprec(s1),striprec(s2)> | <s1, s2> <- constructors};
-	rel[value,value] containment = stripped_constructors
-								   + {*getDependencies(c)|  <s, c> <- stripped_constructors};
+	rel[value,value] containment = constructors
+								   + {*getDependencies(c)|  <s, c> <- constructors};
 	                              ;
 	reachableTypes = containment+;
 	
