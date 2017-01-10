@@ -13,6 +13,7 @@ package org.rascalmpl.value.impl;
 
 import java.util.Iterator;
 
+import io.usethesource.capsule.api.deprecated.Map;
 import org.rascalmpl.value.IAnnotatable;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
@@ -25,14 +26,12 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.value.visitors.IValueVisitor;
 
-import io.usethesource.capsule.api.deprecated.ImmutableMap;
-
 public class AnnotatedConstructorFacade implements IConstructor {
 
 	protected final IConstructor content;
-	protected final ImmutableMap<String, IValue> annotations;
+	protected final Map.ImmutableMap<String, IValue> annotations;
 	
-	public AnnotatedConstructorFacade(final IConstructor content, final ImmutableMap<String, IValue> annotations) {
+	public AnnotatedConstructorFacade(final IConstructor content, final Map.ImmutableMap<String, IValue> annotations) {
 		this.content = content;
 		this.annotations = annotations;
 	}
@@ -144,7 +143,7 @@ public class AnnotatedConstructorFacade implements IConstructor {
 
 			@Override
 			protected IConstructor wrap(IConstructor content,
-					ImmutableMap<String, IValue> annotations) {
+					Map.ImmutableMap<String, IValue> annotations) {
 				return annotations.isEmpty() ? content : new AnnotatedConstructorFacade(content, annotations);
 			}
 		};

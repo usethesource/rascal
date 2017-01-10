@@ -2,10 +2,7 @@ package org.rascalmpl.value.impl.persistent;
 
 import io.usethesource.capsule.DefaultTrieSet;
 import io.usethesource.capsule.DefaultTrieSetMultimap;
-import io.usethesource.capsule.api.deprecated.ImmutableSet;
-import io.usethesource.capsule.api.deprecated.ImmutableSetMultimap;
-import io.usethesource.capsule.api.deprecated.TransientSet;
-import io.usethesource.capsule.api.deprecated.TransientSetMultimap;
+import io.usethesource.capsule.api.deprecated.*;
 import io.usethesource.capsule.util.stream.DefaultCollector;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.IValue;
@@ -25,7 +22,7 @@ public class ValueCollectors {
 
     class SetStruct {
       AbstractTypeBag elementTypeBag = AbstractTypeBag.of();
-      TransientSet<T> set = DefaultTrieSet.transientOf();
+      Set.TransientSet<T> set = DefaultTrieSet.transientOf();
     }
 
     /** extract key/value from type {@code T} and insert into multimap */
@@ -37,7 +34,7 @@ public class ValueCollectors {
 
     return new DefaultCollector<>(SetStruct::new, accumulator, unsupportedCombiner(),
         struct -> PersistentHashSet.from(struct.elementTypeBag,
-            (ImmutableSet<IValue>) struct.set.freeze()),
+            (Set.ImmutableSet<IValue>) struct.set.freeze()),
         UNORDERED);
   }
 
@@ -47,7 +44,7 @@ public class ValueCollectors {
     class SetMultimapStruct {
       AbstractTypeBag keyTypeBag = AbstractTypeBag.of();
       AbstractTypeBag valTypeBag = AbstractTypeBag.of();
-      TransientSetMultimap<K, V> map =
+      SetMultimap.Transient<K, V> map =
           DefaultTrieSetMultimap.transientOf(equivalenceEqualityComparator);
     }
 
@@ -64,7 +61,7 @@ public class ValueCollectors {
 
     return new DefaultCollector<>(SetMultimapStruct::new, accumulator,
         unsupportedCombiner(), struct -> PersistentHashIndexedBinaryRelation.from(struct.keyTypeBag,
-            struct.valTypeBag, (ImmutableSetMultimap<IValue, IValue>) struct.map.freeze()),
+            struct.valTypeBag, (SetMultimap.Immutable<IValue, IValue>) struct.map.freeze()),
         UNORDERED);
   }
 

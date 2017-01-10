@@ -49,7 +49,6 @@ import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.value.visitors.IValueVisitor;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
-import io.usethesource.capsule.api.deprecated.ImmutableMap;
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 
 /**
@@ -492,7 +491,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 			return new AbstractDefaultAnnotatable<ITree>(this) {
 				@Override
 				protected ITree wrap(ITree content,
-						ImmutableMap<String, IValue> annotations) {
+						io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> annotations) {
 					return new AnnotatedCharFacade(content, annotations);
 				}
 			};
@@ -652,7 +651,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
         public IWithKeywordParameters<ITree> asWithKeywordParameters() {
              return new AbstractDefaultWithKeywordParameters<ITree>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
                     @Override
-                    protected ITree wrap(ITree content, ImmutableMap<String, IValue> parameters) {
+                    protected ITree wrap(ITree content, io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> parameters) {
                       return new CharWithKeywordParametersFacade(content, parameters);
                     }
              }; 
@@ -676,7 +675,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 			return new AbstractDefaultAnnotatable<ITree>(this) {
 				@Override
 				protected ITree wrap(ITree content,
-						ImmutableMap<String, IValue> annotations) {
+						io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> annotations) {
 					return new AnnotatedCharFacade(content, annotations);
 				}
 			};
@@ -837,7 +836,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
         public IWithKeywordParameters<ITree> asWithKeywordParameters() {
              return new AbstractDefaultWithKeywordParameters<ITree>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
                     @Override
-                    protected ITree wrap(ITree content, ImmutableMap<String, IValue> parameters) {
+                    protected ITree wrap(ITree content, io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> parameters) {
                       return new CharWithKeywordParametersFacade(content, parameters);
                     }
              }; 
@@ -858,7 +857,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 			return new AbstractDefaultAnnotatable<ITree>(this) {
 				@Override
 				protected ITree wrap(ITree content,
-						ImmutableMap<String, IValue> annotations) {
+						io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> annotations) {
 					return new AnnotatedCycleFacade(content, annotations);
 				}
 			};
@@ -1032,7 +1031,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
 			 return new AbstractDefaultWithKeywordParameters<IConstructor>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
 				    @Override
-				    protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
+				    protected IConstructor wrap(IConstructor content, io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> parameters) {
 				      return new ConstructorWithKeywordParametersFacade(content, parameters);
 				    }
 			 }; 
@@ -1060,7 +1059,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 			return new AbstractDefaultAnnotatable<ITree>(this) {
 				@Override
 				protected ITree wrap(ITree content,
-						ImmutableMap<String, IValue> annotations) {
+						io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> annotations) {
 					return new AnnotatedAmbFacade(content, annotations);
 				}
 			};
@@ -1240,7 +1239,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		public IWithKeywordParameters<ITree> asWithKeywordParameters() {
 			 return new AbstractDefaultWithKeywordParameters<ITree>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
 				    @Override
-				    protected ITree wrap(ITree content, ImmutableMap<String, IValue> parameters) {
+				    protected ITree wrap(ITree content, io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> parameters) {
 				      return new AmbWithKeywordParametersFacade(content, parameters);
 				    }
 			 }; 
@@ -1256,7 +1255,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	}
 	
 	static public class ApplWithKeywordParametersFacade extends ConstructorWithKeywordParametersFacade implements ITree {
-        public ApplWithKeywordParametersFacade(IConstructor content, ImmutableMap<String, IValue> parameters) {
+        public ApplWithKeywordParametersFacade(IConstructor content, io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> parameters) {
             super(content, parameters);
         }
 
@@ -1284,7 +1283,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
             return new AbstractDefaultWithKeywordParameters<IConstructor>(content, parameters) {
 
                 @Override
-                protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
+                protected IConstructor wrap(IConstructor content, io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> parameters) {
                     return parameters.isEmpty() ? content : new ApplWithKeywordParametersFacade(content, parameters);
                 }
             };
@@ -1307,7 +1306,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
     }
 	
 	static class AnnotatedApplFacade extends AnnotatedConstructorFacade implements ITree {
-		public AnnotatedApplFacade(IConstructor content, ImmutableMap<String, IValue> annotations) {
+		public AnnotatedApplFacade(IConstructor content, io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> annotations) {
 			super(content, annotations);
 		}
 
@@ -1335,7 +1334,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 			return new AbstractDefaultAnnotatable<IConstructor>(content, annotations) {
 				@Override
 				protected IConstructor wrap(IConstructor content,
-						ImmutableMap<String, IValue> annotations) {
+						io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> annotations) {
 					return annotations.isEmpty() ? content : new AnnotatedApplFacade(content, annotations);
 				}
 			};
@@ -1363,7 +1362,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	}
 	
 	static public class AmbWithKeywordParametersFacade extends ConstructorWithKeywordParametersFacade implements ITree {
-        public AmbWithKeywordParametersFacade(IConstructor content, ImmutableMap<String, IValue> parameters) {
+        public AmbWithKeywordParametersFacade(IConstructor content, io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> parameters) {
             super(content, parameters);
         }
 
@@ -1391,7 +1390,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
             return new AbstractDefaultWithKeywordParameters<IConstructor>(content, parameters) {
 
                 @Override
-                protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
+                protected IConstructor wrap(IConstructor content, io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> parameters) {
                     return parameters.isEmpty() ? content : new AmbWithKeywordParametersFacade(content, parameters);
                 }
             };
@@ -1414,7 +1413,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
     }
 	
 	static public class AnnotatedAmbFacade extends AnnotatedConstructorFacade implements ITree {
-		public AnnotatedAmbFacade(IConstructor content, ImmutableMap<String, IValue> annotations) {
+		public AnnotatedAmbFacade(IConstructor content, io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> annotations) {
 			super(content, annotations);
 		}
 
@@ -1442,7 +1441,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 			return new AbstractDefaultAnnotatable<IConstructor>(content, annotations) {
 				@Override
 				protected IConstructor wrap(IConstructor content,
-						ImmutableMap<String, IValue> annotations) {
+						io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> annotations) {
 					return annotations.isEmpty() ? content : new AnnotatedAmbFacade(content, annotations);
 				}
 			};
@@ -1460,7 +1459,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	}
 	
 	static public class CycleWithKeywordParametersFacade extends ConstructorWithKeywordParametersFacade implements ITree {
-        public CycleWithKeywordParametersFacade(IConstructor content, ImmutableMap<String, IValue> parameters) {
+        public CycleWithKeywordParametersFacade(IConstructor content, io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> parameters) {
             super(content, parameters);
         }
 
@@ -1488,7 +1487,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
             return new AbstractDefaultWithKeywordParameters<IConstructor>(content, parameters) {
 
                 @Override
-                protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
+                protected IConstructor wrap(IConstructor content, io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> parameters) {
                     return parameters.isEmpty() ? content : new CycleWithKeywordParametersFacade(content, parameters);
                 }
             };
@@ -1506,7 +1505,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
     }
 	
 	static class AnnotatedCycleFacade extends AnnotatedConstructorFacade implements ITree {
-		public AnnotatedCycleFacade(IConstructor content, ImmutableMap<String, IValue> annotations) {
+		public AnnotatedCycleFacade(IConstructor content, io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> annotations) {
 			super(content, annotations);
 		}
 
@@ -1534,7 +1533,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 			return new AbstractDefaultAnnotatable<IConstructor>(content, annotations) {
 				@Override
 				protected IConstructor wrap(IConstructor content,
-						ImmutableMap<String, IValue> annotations) {
+						io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> annotations) {
 					return annotations.isEmpty() ? content : new AnnotatedCycleFacade(content, annotations);
 				}
 			};
@@ -1547,7 +1546,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	}
 	
 	static public class CharWithKeywordParametersFacade extends ConstructorWithKeywordParametersFacade implements ITree {
-        public CharWithKeywordParametersFacade(IConstructor content, ImmutableMap<String, IValue> parameters) {
+        public CharWithKeywordParametersFacade(IConstructor content, io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> parameters) {
             super(content, parameters);
         }
 
@@ -1575,7 +1574,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
             return new AbstractDefaultWithKeywordParameters<IConstructor>(content, parameters) {
 
                 @Override
-                protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
+                protected IConstructor wrap(IConstructor content, io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> parameters) {
                     return parameters.isEmpty() ? content : new CharWithKeywordParametersFacade(content, parameters);
                 }
             };
@@ -1598,7 +1597,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
     }
 	
 	static class AnnotatedCharFacade extends AnnotatedConstructorFacade implements ITree {
-		public AnnotatedCharFacade(IConstructor content, ImmutableMap<String, IValue> annotations) {
+		public AnnotatedCharFacade(IConstructor content, io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> annotations) {
 			super(content, annotations);
 		}
 
@@ -1626,7 +1625,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 			return new AbstractDefaultAnnotatable<IConstructor>(content, annotations) {
 				@Override
 				protected IConstructor wrap(IConstructor content,
-						ImmutableMap<String, IValue> annotations) {
+						io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> annotations) {
 					return annotations.isEmpty() ? content : new AnnotatedCharFacade(content, annotations);
 				}
 			};
@@ -1650,7 +1649,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		public IAnnotatable<? extends ITree> asAnnotatable() {
 			return new AbstractDefaultAnnotatable<ITree>(this) {
 				@Override
-				protected ITree wrap(ITree content, ImmutableMap<String, IValue> annotations) {
+				protected ITree wrap(ITree content, io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> annotations) {
 					return new AnnotatedApplFacade(content, annotations);
 				}
 			};
@@ -1839,7 +1838,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		public IWithKeywordParameters<ITree> asWithKeywordParameters() {
 			 return new AbstractDefaultWithKeywordParameters<ITree>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
 				    @Override
-				    protected ITree wrap(ITree content, ImmutableMap<String, IValue> parameters) {
+				    protected ITree wrap(ITree content, io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> parameters) {
 				      return new ApplWithKeywordParametersFacade(content, parameters);
 				    }
 			 }; 

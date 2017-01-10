@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Objects;
 
+import io.usethesource.capsule.api.deprecated.Map;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
@@ -23,9 +24,6 @@ import org.rascalmpl.value.impl.AbstractMap;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.util.AbstractTypeBag;
 import org.rascalmpl.value.util.EqualityUtils;
-
-import io.usethesource.capsule.api.deprecated.ImmutableMap;
-import io.usethesource.capsule.api.deprecated.TransientMap;
 
 public final class PersistentHashMap extends AbstractMap {
 		
@@ -35,13 +33,13 @@ public final class PersistentHashMap extends AbstractMap {
 	private Type cachedMapType;
 	private final AbstractTypeBag keyTypeBag; 
 	private final AbstractTypeBag valTypeBag;
-	private final ImmutableMap<IValue,IValue> content; 
+	private final Map.ImmutableMap<IValue,IValue> content;
 	
 	/* 
 	 * Passing an pre-calulated map type is only allowed from inside this class.
 	 */
 	protected PersistentHashMap(AbstractTypeBag keyTypeBag,
-                              AbstractTypeBag valTypeBag, ImmutableMap<IValue, IValue> content) {
+                              AbstractTypeBag valTypeBag, Map.ImmutableMap<IValue, IValue> content) {
 		Objects.requireNonNull(content);
 		this.cachedMapType = null;
 		this.keyTypeBag = keyTypeBag;
@@ -79,7 +77,7 @@ public final class PersistentHashMap extends AbstractMap {
 
 	@Override
 	public IMap put(IValue key, IValue value) {
-		final ImmutableMap<IValue,IValue> contentNew = 
+		final Map.ImmutableMap<IValue,IValue> contentNew =
 				content.__putEquivalent(key, value, equivalenceComparator);
 		
 		if (content == contentNew)
@@ -224,7 +222,7 @@ public final class PersistentHashMap extends AbstractMap {
 		if (other instanceof PersistentHashMap) {
 			PersistentHashMap that = (PersistentHashMap) other;
 
-			final TransientMap<IValue, IValue> transientContent = content.asTransient();
+			final Map.TransientMap<IValue, IValue> transientContent = content.asTransient();
 
 			boolean isModified = false;
 			int previousSize = size();

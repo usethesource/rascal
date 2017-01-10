@@ -28,7 +28,6 @@ import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.value.visitors.IValueVisitor;
 
-import io.usethesource.capsule.api.deprecated.ImmutableMap;
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 
 /**
@@ -156,7 +155,7 @@ public abstract class AbstractExternalValue implements IExternalValue {
 				return new AbstractDefaultAnnotatable<IConstructor>(this) {
 					@Override
 					protected IConstructor wrap(IConstructor content,
-							ImmutableMap<String, IValue> annotations) {
+							io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> annotations) {
 						return new AnnotatedConstructorFacade(content, annotations);
 					}
 				};
@@ -166,7 +165,7 @@ public abstract class AbstractExternalValue implements IExternalValue {
 			public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
 				 return new AbstractDefaultWithKeywordParameters<IConstructor>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
 					    @Override
-					    protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
+					    protected IConstructor wrap(IConstructor content, io.usethesource.capsule.api.deprecated.Map.ImmutableMap<String, IValue> parameters) {
 					      return new ConstructorWithKeywordParametersFacade(content, parameters);
 					    }
 					    
