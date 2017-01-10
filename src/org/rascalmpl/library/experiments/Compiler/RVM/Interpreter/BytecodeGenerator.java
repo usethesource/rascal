@@ -1827,11 +1827,12 @@ public class BytecodeGenerator implements Opcodes {
 //		mv.visitVarInsn(ALOAD, THIS);
 //		mv.visitVarInsn(ALOAD, CF);
 //		
+//		mv.visitVarInsn(ALOAD, CF);
 //		mv.visitVarInsn(ILOAD, SP);
 //		emitInlineFrameEnter(srcIndex);
 //		
 //	    mv.visitInvokeDynamicInsn("getFrame", 
-//	            Type.getMethodDescriptor(FRAME_TYPE, /*FUNCTION_TYPE,*/ FRAME_TYPE, /*INT_TYPE,*/ INT_TYPE), bootstrapGetFrame(), fun);
+//	            Type.getMethodDescriptor(FRAME_TYPE, FRAME_TYPE, FRAME_TYPE, INT_TYPE), bootstrapGetFrame(), fun);
 //
 //		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, funName, Type.getMethodDescriptor(OBJECT_TYPE, FRAME_TYPE),false);
 //		mv.visitInsn(POP);
