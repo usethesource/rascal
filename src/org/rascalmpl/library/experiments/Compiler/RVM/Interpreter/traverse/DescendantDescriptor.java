@@ -31,6 +31,7 @@ public class DescendantDescriptor {
 		mSymbolSet = new HashSet<Object>(symbolset.size() + prodset.size());
 		this.concreteMatch = concreteMatch.getValue();
 		boolean nodeOrValue = true;
+		
 		for(IValue v : symbolset){
 			Type tp = rex.symbolToType((IConstructor) v, definitions);
 			mSymbolSet.add(tp);								// Add as TYPE to the set
