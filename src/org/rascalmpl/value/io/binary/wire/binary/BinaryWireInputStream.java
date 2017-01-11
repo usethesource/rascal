@@ -24,7 +24,6 @@ import org.rascalmpl.value.io.binary.util.WindowCacheFactory;
 import org.rascalmpl.value.io.binary.wire.FieldKind;
 import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 
 public class BinaryWireInputStream implements IWireInputStream {
 
@@ -108,7 +107,10 @@ public class BinaryWireInputStream implements IWireInputStream {
             return result;
         }
 
-        throw new IOException("Wrong integer");
+        if (b == -1) {
+            throw new EOFException();
+        }
+        throw new IOException("Incorrect integer");
     }
 
     private String readString() throws IOException {
@@ -136,13 +138,7 @@ public class BinaryWireInputStream implements IWireInputStream {
         // clear memory
         intValues = null;
         stringValues = null;
-        int next;
-        try {
-            next = readInteger();
-        } 
-        catch (InvalidProtocolBufferException e) {
-            throw new EOFException();
-        }
+        int next = readInteger();
         if (next == 0) {
             return current = MESSAGE_END;
         }
