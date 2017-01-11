@@ -50,7 +50,7 @@ public class BinaryWireInputStream implements IWireInputStream {
         if (!Arrays.equals(WIRE_VERSION, header)) {
             throw new IOException("Unsupported wire format");
         }
-        int stringReadSize = readInteger();
+        int stringReadSize = decodeInteger();
         this.stringsRead = WindowCacheFactory.getInstance().getTrackLastRead(stringReadSize);
     }
 
@@ -75,7 +75,11 @@ public class BinaryWireInputStream implements IWireInputStream {
         }
     }
 
-    private int readInteger() throws IOException {
+    /*
+     * LEB128 decoding (or actually LEB32) of positive and negative integers, negative integers always use 5 bytes, positive integers are compact.
+     */
+    private int decodeInteger() throws IOException {
+        // manually unrolling the loop was the fastest for reading, yet not for writing
         int b = __stream.read();
         if ((b & 0x80) == 0) {
             return b;
@@ -113,9 +117,13 @@ public class BinaryWireInputStream implements IWireInputStream {
         throw new IOException("Incorrect integer");
     }
 
-    private String readString() throws IOException {
-        int len = readInteger();
+    /*
+     * A string is encoded to UTF8 and stored with a prefix of the amount of bytes needed
+     */
+    private String decodeString() throws IOException {
+        int len = decodeInteger();
         byte[] bytes = readBytes(len);
+        // this is the fastest way, other paths to a string lead to an extra allocated char array
         return new String(bytes, StandardCharsets.UTF_8);
     }
 
@@ -138,7 +146,7 @@ public class BinaryWireInputStream implements IWireInputStream {
         // clear memory
         intValues = null;
         stringValues = null;
-        int next = readInteger();
+        int next = decodeInteger();
         if (next == 0) {
             return current = MESSAGE_END;
         }
@@ -153,24 +161,24 @@ public class BinaryWireInputStream implements IWireInputStream {
                 // only case where we don't read the value
                 break;
             case FieldKind.STRING:
-                stringValue = readString();
+                stringValue = decodeString();
                 stringsRead.read(stringValue);
                 break;
             case FieldKind.INT:
-                intValue = readInteger();
+                intValue = decodeInteger();
                 break;
             case FieldKind.PREVIOUS_STR:
-                int reference = readInteger();
+                int reference = decodeInteger();
                 fieldType = TaggedInt.getTag(reference);
                 assert fieldType == FieldKind.STRING;
                 stringValue = stringsRead.lookBack(TaggedInt.getOriginal(reference));
                 break;
             case FieldKind.REPEATED:
-                int flaggedAmount = readInteger();
+                int flaggedAmount = decodeInteger();
                 nestedType = TaggedInt.getTag(flaggedAmount);
                 nestedLength = TaggedInt.getOriginal(flaggedAmount);
                 if (nestedLength == TaggedInt.MAX_ORIGINAL_VALUE) {
-                    nestedLength = readInteger();
+                    nestedLength = decodeInteger();
                 }
                 switch (nestedType) {
                     case FieldKind.Repeated.BYTES:
@@ -179,7 +187,7 @@ public class BinaryWireInputStream implements IWireInputStream {
                     case FieldKind.Repeated.INTS:
                         int[] intValues = new int[nestedLength];
                         for (int i = 0; i < nestedLength; i++) {
-                            intValues[i] = readInteger();
+                            intValues[i] = decodeInteger();
                         }
                         this.intValues = intValues;
                         break;
@@ -203,11 +211,11 @@ public class BinaryWireInputStream implements IWireInputStream {
     }
 
     private String readNestedString() throws IOException {
-        int reference = readInteger();
+        int reference = decodeInteger();
         String result;
         if (TaggedInt.getTag(reference) == FieldKind.STRING) {
             // normal string
-            result = readString();
+            result = decodeString();
             stringsRead.read(result);
         }
         else {

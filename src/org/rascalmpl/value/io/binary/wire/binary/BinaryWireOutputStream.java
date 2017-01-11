@@ -34,11 +34,15 @@ public class BinaryWireOutputStream implements IWireOutputStream {
         assert stringSharingWindowSize > 0;
         this.__stream = stream;
         this.__stream.write(WIRE_VERSION);
-        writeInteger(stringSharingWindowSize);
+        encodeInteger(stringSharingWindowSize);
         this.stringsWritten = WindowCacheFactory.getInstance().getTrackLastWrittenObjectEquality(stringSharingWindowSize);
     }
 
-    private void writeInteger(int value) throws IOException {
+    /*
+     * LEB128 encoding (or actually LEB32) of positive and negative integers, negative integers always take 5 bytes, positive integers are compact.
+     */
+    private void encodeInteger(int value) throws IOException {
+        // unrolling this loop made it slower
         while((value & ~0x7F) != 0) {
             __stream.write((value & 0x7F) | 0x80);
             value >>>= 7;
@@ -46,13 +50,12 @@ public class BinaryWireOutputStream implements IWireOutputStream {
         __stream.write(value);
     }
 
-    private void writeString(String str) throws IOException {
+    /*
+     * Strings are UTF8 encoded byte arrays prefixed with their length
+     */
+    private void encodeString(String str) throws IOException {
         byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
-        writeInteger(bytes.length);
-        writeBytes(bytes);
-    }
-
-    private void writeBytes(byte[] bytes) throws IOException {
+        encodeInteger(bytes.length);
         __stream.write(bytes);
     }
 
@@ -82,7 +85,7 @@ public class BinaryWireOutputStream implements IWireOutputStream {
     }
 
     private void writeFieldTag(final int fieldId, final int type) throws IOException {
-        writeInteger(TaggedInt.make(fieldId, type));
+        encodeInteger(TaggedInt.make(fieldId, type));
     }
 
     @Override
@@ -97,11 +100,11 @@ public class BinaryWireOutputStream implements IWireOutputStream {
         int alreadyWritten = stringsWritten.howLongAgo(value);
         if (alreadyWritten != -1) {
             writeFieldTag(fieldId, FieldKind.PREVIOUS_STR);
-            writeInteger(TaggedInt.make(alreadyWritten, FieldKind.STRING));
+            encodeInteger(TaggedInt.make(alreadyWritten, FieldKind.STRING));
         }
         else {
             writeFieldTag(fieldId, FieldKind.STRING);
-            writeString(value);
+            encodeString(value);
             stringsWritten.write(value);
         }
     }
@@ -110,7 +113,7 @@ public class BinaryWireOutputStream implements IWireOutputStream {
     public void writeField(int fieldId, int value) throws IOException {
         assertNotClosed();
         writeFieldTag(fieldId, FieldKind.INT);
-        writeInteger(value);
+        encodeInteger(value);
     }
     
     @Override
@@ -119,13 +122,13 @@ public class BinaryWireOutputStream implements IWireOutputStream {
         writeFieldTag(fieldId, FieldKind.REPEATED);
         int size = value.length;
         if (size < TaggedInt.MAX_ORIGINAL_VALUE) {
-            writeInteger(TaggedInt.make(size, FieldKind.Repeated.BYTES));
+            encodeInteger(TaggedInt.make(size, FieldKind.Repeated.BYTES));
         }
         else {
-            writeInteger(TaggedInt.make(TaggedInt.MAX_ORIGINAL_VALUE, FieldKind.Repeated.BYTES));
-            writeInteger(size);
+            encodeInteger(TaggedInt.make(TaggedInt.MAX_ORIGINAL_VALUE, FieldKind.Repeated.BYTES));
+            encodeInteger(size);
         }
-        writeBytes(value);
+        __stream.write(value, 0, size);
     }
     
     @Override
@@ -134,14 +137,14 @@ public class BinaryWireOutputStream implements IWireOutputStream {
         writeFieldTag(fieldId, FieldKind.REPEATED);
         int size = values.length;
         if (size < TaggedInt.MAX_ORIGINAL_VALUE) {
-            writeInteger(TaggedInt.make(size, FieldKind.Repeated.INTS));
+            encodeInteger(TaggedInt.make(size, FieldKind.Repeated.INTS));
         }
         else {
-            writeInteger(TaggedInt.make(TaggedInt.MAX_ORIGINAL_VALUE, FieldKind.Repeated.INTS));
-            writeInteger(size);
+            encodeInteger(TaggedInt.make(TaggedInt.MAX_ORIGINAL_VALUE, FieldKind.Repeated.INTS));
+            encodeInteger(size);
         }
         for (int v : values) {
-            writeInteger(v);
+            encodeInteger(v);
         }
     }
     
@@ -151,11 +154,11 @@ public class BinaryWireOutputStream implements IWireOutputStream {
         writeFieldTag(fieldId, FieldKind.REPEATED);
         int size = values.length;
         if (size < TaggedInt.MAX_ORIGINAL_VALUE) {
-            writeInteger(TaggedInt.make(size, FieldKind.Repeated.STRINGS));
+            encodeInteger(TaggedInt.make(size, FieldKind.Repeated.STRINGS));
         }
         else {
-            writeInteger(TaggedInt.make(TaggedInt.MAX_ORIGINAL_VALUE, FieldKind.Repeated.STRINGS));
-            writeInteger(size);
+            encodeInteger(TaggedInt.make(TaggedInt.MAX_ORIGINAL_VALUE, FieldKind.Repeated.STRINGS));
+            encodeInteger(size);
         }
         for (String s : values) {
             writeNestedString(s);
@@ -165,11 +168,11 @@ public class BinaryWireOutputStream implements IWireOutputStream {
     private void writeNestedString(String s) throws IOException {
         int alreadyWritten = stringsWritten.howLongAgo(s);
         if (alreadyWritten != -1) {
-            writeInteger(TaggedInt.make(alreadyWritten, FieldKind.PREVIOUS_STR));
+            encodeInteger(TaggedInt.make(alreadyWritten, FieldKind.PREVIOUS_STR));
         }
         else {
-            writeInteger(TaggedInt.make(0, FieldKind.STRING));
-            writeString(s);
+            encodeInteger(TaggedInt.make(0, FieldKind.STRING));
+            encodeString(s);
             stringsWritten.write(s);
         }
     }
@@ -185,11 +188,11 @@ public class BinaryWireOutputStream implements IWireOutputStream {
         assertNotClosed();
         writeFieldTag(fieldId, FieldKind.REPEATED);
         if (numberOfNestedElements <= TaggedInt.MAX_ORIGINAL_VALUE) {
-            writeInteger(TaggedInt.make(numberOfNestedElements, FieldKind.Repeated.NESTEDS));
+            encodeInteger(TaggedInt.make(numberOfNestedElements, FieldKind.Repeated.NESTEDS));
         }
         else {
-            writeInteger(TaggedInt.make(TaggedInt.MAX_ORIGINAL_VALUE, FieldKind.Repeated.NESTEDS));
-            writeInteger(numberOfNestedElements);
+            encodeInteger(TaggedInt.make(TaggedInt.MAX_ORIGINAL_VALUE, FieldKind.Repeated.NESTEDS));
+            encodeInteger(numberOfNestedElements);
         }
     }
     @Override
