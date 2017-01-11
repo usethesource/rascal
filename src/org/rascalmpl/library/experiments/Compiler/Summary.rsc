@@ -22,9 +22,9 @@ A `ModuleSummary` summarizes a Rascal module for the benefit of IDE support like
 * Name completion.
 }
 data ModuleSummary =
-     moduleSummary(map[loc from, Symbol tp] locationTypes,
-                   rel[loc from, loc to] useDef,
-                   set[str] vocabulary);
+     moduleSummary(map[loc from, Symbol tp] locationTypes = (),
+                   rel[loc from, loc to] useDef = {},
+                   set[str] vocabulary = {});
 
 private map[loc from, Symbol tp] getLocationTypes(Configuration c) =
     c.locationTypes;
@@ -44,9 +44,12 @@ Make a ModuleSummary.
 ModuleSummary makeSummary(str qualifiedModuleName, PathConfig pcfg){
    if(<true, cloc> := cachedConfigReadLoc(qualifiedModuleName,pcfg)){
       Configuration c = readBinaryValueFile(#Configuration, cloc);
-      return moduleSummary(getLocationTypes(c), getUseDef(c), getVocabulary(c));
+      return moduleSummary()
+        [locationTypes=getLocationTypes(c)]
+        [useDef=getUseDef(c)]
+        [vocabulary=getVocabulary(c)];
    } else {
-      return moduleSummary((), {}, {});
+      return moduleSummary();
    }    
    return;            
 }
