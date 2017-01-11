@@ -71,13 +71,6 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
     int comp_time;
     loc moduleLoc;
     rvmModuleLoc = RVMModuleWriteLoc(qualifiedModuleName, pcfg);
-    configWriteLoc = ConfigWriteLoc(qualifiedModuleName, pcfg);
-    
-    // cleaning the current file, so no junk is left behind in case of a
-    // failed compile
-    remove(configWriteLoc);
-    remove(rvmModuleLoc);
-    
     try {
         moduleLoc = getModuleLocation(qualifiedModuleName, pcfg);
     } catch ModuleNotFound(_): {
@@ -92,7 +85,7 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
    		M = parseModule(moduleLoc);
    	    config  = checkModule(M, newConfiguration(pcfg));
    	    if(reloc != |noreloc:///|){
-   	        
+   	        configWriteLoc = ConfigWriteLoc(qualifiedModuleName, pcfg);
    	        writeBinaryValueFile(configWriteLoc, relocConfig(config, reloc, pcfg.srcs));
    	    }
    	    check_time = (cpuTime() - start_checking)/1000000;
