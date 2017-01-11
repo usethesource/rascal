@@ -12,6 +12,7 @@
  */ 
 package org.rascalmpl.value.io.binary.stream;
 
+import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.Closeable;
 import java.io.IOException;
@@ -63,6 +64,9 @@ public class IValueInputStream implements Closeable {
 
         int compression = in.read();
         in = Compressor.wrapStream(in, compression);
+        if (!(in instanceof BufferedInputStream)) {
+            in = new BufferedInputStream(in);
+        }
         reader = new BinaryWireInputStream(in);
     }
     
