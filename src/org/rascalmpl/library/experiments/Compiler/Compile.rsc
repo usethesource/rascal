@@ -73,7 +73,14 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
     rvmModuleLoc = RVMModuleWriteLoc(qualifiedModuleName, pcfg);
     try {
         moduleLoc = getModuleLocation(qualifiedModuleName, pcfg);
-    } catch ModuleNotFound(_): {
+    } catch e: {
+        <existsConfig, configLoc> = ConfigReadLoc(qualifiedModuleName, pcfg);
+        if(exists(rvmModuleLoc) && existsConfig){
+            config = readBinaryValueFile(#Configuration, configLoc);
+            rvmMod = readBinaryValueFile(#RVMModule, rvmModuleLoc);
+            if(verbose) println("No source found for <qualifiedModuleName>, reusing existing binary");
+            return <config, rvmMod>;
+        }
         rvmMod = errorRVMModule(qualifiedModuleName, {error("Module not found: <qualifiedModuleName>", |unknown:///|)}, |unknown:///|);
         writeBinaryValueFile(rvmModuleLoc, rvmMod);
         return <config, rvmMod>;
