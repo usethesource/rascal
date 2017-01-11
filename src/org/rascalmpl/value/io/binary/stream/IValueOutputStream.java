@@ -12,6 +12,7 @@
  */ 
 package org.rascalmpl.value.io.binary.stream;
 
+import java.io.BufferedOutputStream;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -98,9 +99,9 @@ public class IValueOutputStream implements Closeable {
             compression = CompressionRate.None;
         }
         int algorithm = fallbackIfNeeded(compression.compressionAlgorithm);
-        rawStream = new DelayedCompressionOutputStream(rawStream, algorithm, o ->
+        rawStream = new BufferedOutputStream(new DelayedCompressionOutputStream(rawStream, algorithm, o ->
             Compressor.wrapStream(o, algorithm, compression.compressionLevel)
-        );
+        ));
         return new BinaryWireOutputStream(rawStream, sizes.stringsWindow);
     }
 
