@@ -434,13 +434,13 @@ public class PathConfig {
 	
 	public String toString(){
 	  StringWriter w = new StringWriter();
-      w.append("srcs:    ").append(getSrcs().toString()).append("\n")
-       .append("libs:    ").append(getLibs().toString()).append("\n")
-       .append("courses: ").append(getCourses().toString()).append("\n")
-       .append("boot:    ").append(getBoot().toString()).append("\n")
-       .append("bin:     ").append(getBin().toString()).append("\n")
-       .append("clsspath:").append(getJavaCompilerPath().toString()).append("\n")
-       .append("loaders: ").append(getClassloaders().toString()).append("\n")
+      w.append("srcs:      ").append(getSrcs().toString()).append("\n")
+       .append("libs:      ").append(getLibs().toString()).append("\n")
+       .append("courses:   ").append(getCourses().toString()).append("\n")
+       .append("boot:      ").append(getBoot().toString()).append("\n")
+       .append("bin:       ").append(getBin().toString()).append("\n")
+       .append("classpath: ").append(getJavaCompilerPath().toString()).append("\n")
+       .append("loaders:   ").append(getClassloaders().toString()).append("\n")
        ;
        
       return w.toString();
