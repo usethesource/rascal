@@ -132,7 +132,7 @@ public class ExecutionTools {
 			rvm.getFrameObserver().report();
 
 			//rex.printCacheStats();
-			System.out.println("Executing: " + (now - start)/1000000 + "ms");
+			//System.out.println("Executing: " + (now - start)/1000000 + "ms");
 			return (IValue) result;
 			
 //		} catch(Thrown e) {
