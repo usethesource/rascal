@@ -15,6 +15,7 @@ package org.rascalmpl.value.io.binary.wire.binary;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import org.rascalmpl.value.io.binary.util.TaggedInt;
@@ -23,7 +24,6 @@ import org.rascalmpl.value.io.binary.util.WindowCacheFactory;
 import org.rascalmpl.value.io.binary.wire.FieldKind;
 import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 
-import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 public class BinaryWireInputStream implements IWireInputStream {
@@ -31,7 +31,6 @@ public class BinaryWireInputStream implements IWireInputStream {
     private static final byte[] WIRE_VERSION = new byte[] { 1, 0, 0 };
     private final InputStream __stream;
     private final TrackLastRead<String> stringsRead;
-    private CodedInputStream stream;
     private boolean closed = false;
     private int current;
     private int messageID;
@@ -52,10 +51,8 @@ public class BinaryWireInputStream implements IWireInputStream {
         if (!Arrays.equals(WIRE_VERSION, header)) {
             throw new IOException("Unsupported wire format");
         }
-        this.stream = CodedInputStream.newInstance(stream);
-        int stringReadSize = this.stream.readRawVarint32();
+        int stringReadSize = readInteger();
         this.stringsRead = WindowCacheFactory.getInstance().getTrackLastRead(stringReadSize);
-        this.stream.setSizeLimit(Integer.MAX_VALUE); 
     }
 
     @Override
@@ -79,6 +76,60 @@ public class BinaryWireInputStream implements IWireInputStream {
         }
     }
 
+    private int readInteger() throws IOException {
+        int b = __stream.read();
+        if ((b & 0x80) == 0) {
+            return b;
+        }
+
+        int result = b & 0x7F;
+
+        b = __stream.read();
+        result ^= ((b & 0x7F) << 7);
+        if ((b & 0x80) == 0) {
+            return result;
+        }
+
+        b = __stream.read();
+        result ^= ((b & 0x7F) << 14);
+        if ((b & 0x80) == 0) {
+            return result;
+        }
+
+        b = __stream.read();
+        result ^= ((b & 0x7F) << 21);
+        if ((b & 0x80) == 0) {
+            return result;
+        }
+
+        b = __stream.read();
+        result ^= ((b & 0x7F) << 28);
+        if ((b & 0x80) == 0) {
+            return result;
+        }
+
+        throw new IOException("Wrong integer");
+    }
+
+    private String readString() throws IOException {
+        int len = readInteger();
+        byte[] bytes = readBytes(len);
+        return new String(bytes, StandardCharsets.UTF_8);
+    }
+
+    private byte[] readBytes(int len) throws IOException {
+        byte[] result = new byte[len];
+        int pos = 0;
+        while (pos < len) {
+            int read = __stream.read(result, pos, len - pos);
+            if (read == -1) {
+                throw new EOFException();
+            }
+            pos += read;
+        }
+        return result;
+    }
+
     @Override
     public int next() throws IOException {
         assertNotClosed();
@@ -87,7 +138,7 @@ public class BinaryWireInputStream implements IWireInputStream {
         stringValues = null;
         int next;
         try {
-            next = stream.readRawVarint32();
+            next = readInteger();
         } 
         catch (InvalidProtocolBufferException e) {
             throw new EOFException();
@@ -106,43 +157,40 @@ public class BinaryWireInputStream implements IWireInputStream {
                 // only case where we don't read the value
                 break;
             case FieldKind.STRING:
-                stream.resetSizeCounter();
-                stringValue = stream.readString();
+                stringValue = readString();
                 stringsRead.read(stringValue);
-                stream.resetSizeCounter();
                 break;
             case FieldKind.INT:
-                intValue = stream.readRawVarint32();
+                intValue = readInteger();
                 break;
             case FieldKind.PREVIOUS_STR:
-                int reference = stream.readRawVarint32();
+                int reference = readInteger();
                 fieldType = TaggedInt.getTag(reference);
                 assert fieldType == FieldKind.STRING;
                 stringValue = stringsRead.lookBack(TaggedInt.getOriginal(reference));
                 break;
             case FieldKind.REPEATED:
-                stream.resetSizeCounter();
-                int flaggedAmount = stream.readRawVarint32();
+                int flaggedAmount = readInteger();
                 nestedType = TaggedInt.getTag(flaggedAmount);
                 nestedLength = TaggedInt.getOriginal(flaggedAmount);
                 if (nestedLength == TaggedInt.MAX_ORIGINAL_VALUE) {
-                    nestedLength = stream.readRawVarint32();
+                    nestedLength = readInteger();
                 }
                 switch (nestedType) {
                     case FieldKind.Repeated.BYTES:
-                        bytesValue = stream.readRawBytes(nestedLength);
+                        bytesValue = readBytes(nestedLength);
                         break;
                     case FieldKind.Repeated.INTS:
                         int[] intValues = new int[nestedLength];
                         for (int i = 0; i < nestedLength; i++) {
-                            intValues[i] = stream.readRawVarint32();
+                            intValues[i] = readInteger();
                         }
                         this.intValues = intValues;
                         break;
                     case FieldKind.Repeated.STRINGS: 
                         String[] stringValues = new String[nestedLength];
                         for (int i = 0; i < nestedLength; i++) {
-                            stringValues[i]= readString();
+                            stringValues[i]= readNestedString();
                         }
                         this.stringValues = stringValues;
                         break;
@@ -151,7 +199,6 @@ public class BinaryWireInputStream implements IWireInputStream {
                     default:
                         throw new IOException("Unsupported nested type:" + nestedType);
                 }
-                stream.resetSizeCounter();
                 break;
             default:
                 throw new IOException("Unexpected wire type: " + fieldType);
@@ -159,12 +206,12 @@ public class BinaryWireInputStream implements IWireInputStream {
         return current = FIELD;
     }
 
-    private String readString() throws IOException {
-        int reference = stream.readRawVarint32();
+    private String readNestedString() throws IOException {
+        int reference = readInteger();
         String result;
         if (TaggedInt.getTag(reference) == FieldKind.STRING) {
             // normal string
-            result = stream.readString();
+            result = readString();
             stringsRead.read(result);
         }
         else {
