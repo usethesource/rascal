@@ -311,7 +311,7 @@ public class RVMExecutable {
 	        out.write(compressionLevel > 0 ? EXEC_COMPRESSION_ZSTD : EXEC_COMPRESSION_NONE);
 	        OutputStream cout = out;
 	        if(compressionLevel > 0){
-	            cout = new BufferedOutputStream(new ZstdOutputStream(out, compressionLevel));
+	            cout = new ZstdOutputStream(out, compressionLevel);
 	        }
 	        try(IRVMWireOutputStream iout = new RVMWireOutputStream(new BinaryWireOutputStream(cout, 50_000), 50_000)){
 	            write(iout);
