@@ -389,7 +389,7 @@ public class RVMExecutable {
 	            int compression = in.read();
 	            InputStream cin = in;
 	            if(compression != EXEC_COMPRESSION_NONE){
-	                cin = new BufferedInputStream(new ZstdInputStream(in));
+	                cin = new ZstdInputStream(in);
 	            }
 	            try(IRVMWireInputStream win = new RVMWireInputStream(new BinaryWireInputStream(cin), ValueFactoryFactory.getValueFactory())){
 	                return read(win, ValueFactoryFactory.getValueFactory());
