@@ -672,10 +672,26 @@ public class IValueReader {
                     break;
                 case IValueIDs.ConstructorValue.PARAMS: 
                     children = new IValue[reader.getRepeatedLength()];
-                    for (int i = 0; i < children.length; i++) {
-                        children[i] = readValue(reader);
-                        assert children[i].getType().isSubtypeOf(type.getFieldType(i));
+                    switch (children.length) {
+                        case 1 :
+                            children[0] = readValue(reader);
+                            break;
+                        case 2 :
+                            children[0] = readValue(reader);
+                            children[1] = readValue(reader);
+                            break;
+                        case 3 :
+                            children[0] = readValue(reader);
+                            children[1] = readValue(reader);
+                            children[2] = readValue(reader);
+                            break;
+                        default:
+                            for (int i = 0; i < children.length; i++) {
+                                children[i] = readValue(reader);
+                            }
+                            break;
                     }
+                    assert paramsAreCorrectType(children, type);
                     break;
                 case IValueIDs.ConstructorValue.KWPARAMS: 
                     kwParams = readNamedValues(reader);
@@ -701,6 +717,16 @@ public class IValueReader {
 
 
 
+
+    private boolean paramsAreCorrectType(IValue[] children, Type type) {
+        assert children.length == type.getArity();
+        for (int i = 0; i < children.length; i++) {
+            if (!children[i].getType().isSubtypeOf(type.getFieldType(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     private ImmutableMap<String, IValue> readNamedValues(IWireInputStream reader) throws IOException {
         TransientMap<String, IValue> result = TrieMap_5Bits.transientOf();
