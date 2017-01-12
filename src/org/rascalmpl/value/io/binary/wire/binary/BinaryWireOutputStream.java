@@ -14,6 +14,7 @@ package org.rascalmpl.value.io.binary.wire.binary;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 import org.rascalmpl.value.io.binary.util.TaggedInt;
@@ -29,25 +30,68 @@ public class BinaryWireOutputStream implements IWireOutputStream {
     private boolean closed = false;
     private final OutputStream __stream;
     private final TrackLastWritten<String> stringsWritten;
+    private final ByteBuffer buffer;
 
     public BinaryWireOutputStream(OutputStream stream, int stringSharingWindowSize) throws IOException {
+        this(stream, stringSharingWindowSize, 8*1024);
+    }
+    public BinaryWireOutputStream(OutputStream stream, int stringSharingWindowSize, int bufferSize) throws IOException {
         assert stringSharingWindowSize > 0;
         this.__stream = stream;
-        this.__stream.write(WIRE_VERSION);
+        buffer = ByteBuffer.allocate(bufferSize);
+        writeBytes(WIRE_VERSION);
         encodeInteger(stringSharingWindowSize);
         this.stringsWritten = WindowCacheFactory.getInstance().getTrackLastWrittenObjectEquality(stringSharingWindowSize);
     }
+    
+    
 
+    private void writeBytes(byte[] bytes) throws IOException {
+        ByteBuffer buffer = this.buffer;
+        int room = buffer.remaining();
+        int length = bytes.length;
+        if (room >= length) {
+            buffer.put(bytes, 0, length);
+            return;
+        }
+        int written = 0;
+        if (room > 0) {
+            buffer.put(bytes, written, room);
+            written += room;
+        }
+        flushBuffer();
+        int remaining = length - written;
+        if (remaining >= buffer.capacity()) {
+            assert buffer.position() == 0;
+            // write directly to stream bypassing buffer
+            __stream.write(bytes, written, remaining);
+        }
+        else {
+            buffer.put(bytes, written, remaining);
+        }
+        
+    }
+    private void flushBuffer() throws IOException {
+        buffer.flip();
+        __stream.write(buffer.array(), buffer.arrayOffset() + buffer.position(), buffer.remaining());
+        buffer.clear();
+    }
+    private void makeRoom(int room) throws IOException {
+        if (buffer.remaining() < room) {
+            flushBuffer();
+        }
+    }
     /*
      * LEB128 encoding (or actually LEB32) of positive and negative integers, negative integers always take 5 bytes, positive integers are compact.
      */
     private void encodeInteger(int value) throws IOException {
+        makeRoom(5);
         // unrolling this loop made it slower
         while((value & ~0x7F) != 0) {
-            __stream.write((value & 0x7F) | 0x80);
+            buffer.put((byte)((value & 0x7F) | 0x80));
             value >>>= 7;
         }
-        __stream.write(value);
+        buffer.put((byte)value);
     }
 
     /*
@@ -56,7 +100,7 @@ public class BinaryWireOutputStream implements IWireOutputStream {
     private void encodeString(String str) throws IOException {
         byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
         encodeInteger(bytes.length);
-        __stream.write(bytes);
+        writeBytes(bytes);
     }
 
     @Override
@@ -81,6 +125,9 @@ public class BinaryWireOutputStream implements IWireOutputStream {
     @Override
     public void flush() throws IOException {
         assertNotClosed();
+        if (buffer.position() > 0) {
+            flushBuffer();
+        }
         __stream.flush();
     }
 
@@ -128,7 +175,7 @@ public class BinaryWireOutputStream implements IWireOutputStream {
             encodeInteger(TaggedInt.make(TaggedInt.MAX_ORIGINAL_VALUE, FieldKind.Repeated.BYTES));
             encodeInteger(size);
         }
-        __stream.write(value, 0, size);
+        writeBytes(value);
     }
     
     @Override
