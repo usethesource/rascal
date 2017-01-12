@@ -32,18 +32,18 @@ public class DescendantDescriptor {
 		this.concreteMatch = concreteMatch.getValue();
 		boolean nodeOrValue = true;
 		
-//		for(IValue v : symbolset){
-//			Type tp = rex.symbolToType((IConstructor) v, definitions);
-//			mSymbolSet.add(tp);								// Add as TYPE to the set
-//			if(tp == RascalPrimitive.nodeType || tp == RascalPrimitive.valueType){
-//				nodeOrValue = true;
-//			}
-//		}
-//		
-//		for(IValue v : prodset){
-//			IConstructor cons = (IConstructor) v;
-//			mSymbolSet.add(cons);							// Add the production itself to the set
-//		}
+		for(IValue v : symbolset){
+			Type tp = rex.symbolToType((IConstructor) v, definitions);
+			mSymbolSet.add(tp);								// Add as TYPE to the set
+			if(tp == RascalPrimitive.nodeType || tp == RascalPrimitive.valueType){
+				nodeOrValue = true;
+			}
+		}
+		
+		for(IValue v : prodset){
+			IConstructor cons = (IConstructor) v;
+			mSymbolSet.add(cons);							// Add the production itself to the set
+		}
 
 		containsNodeOrValueType = nodeOrValue;
 	}
