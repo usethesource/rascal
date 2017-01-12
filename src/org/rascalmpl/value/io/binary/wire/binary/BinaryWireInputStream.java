@@ -15,6 +15,8 @@ package org.rascalmpl.value.io.binary.wire.binary;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.BufferUnderflowException;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -28,6 +30,7 @@ import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 public class BinaryWireInputStream implements IWireInputStream {
 
     private static final byte[] WIRE_VERSION = new byte[] { 1, 0, 0 };
+    private final ByteBuffer buffer;
     private final InputStream __stream;
     private final TrackLastRead<String> stringsRead;
     private boolean closed = false;
@@ -44,9 +47,13 @@ public class BinaryWireInputStream implements IWireInputStream {
     private int nestedLength;
 
     public BinaryWireInputStream(InputStream stream) throws IOException {
+        this(stream, 8*1024);
+    }
+    public BinaryWireInputStream(InputStream stream, int bufferSize) throws IOException {
         this.__stream = stream;
-        byte[] header = new byte[WIRE_VERSION.length];
-        this.__stream.read(header);
+        buffer = ByteBuffer.allocate(bufferSize);
+        buffer.flip();
+        byte[] header = readBytes(WIRE_VERSION.length);
         if (!Arrays.equals(WIRE_VERSION, header)) {
             throw new IOException("Unsupported wire format");
         }
@@ -75,46 +82,111 @@ public class BinaryWireInputStream implements IWireInputStream {
         }
     }
 
+    private void assureAvailable(int required) throws IOException {
+        ByteBuffer buffer = this.buffer;
+        if (buffer.remaining() < required) {
+            if (buffer.hasRemaining()) {
+                buffer.compact();
+            }
+            else {
+                buffer.clear();
+            }
+            byte[] backingArray = buffer.array();
+            int arrayPos = buffer.arrayOffset() + buffer.position();
+            int left = required - arrayPos;
+            while (left > 0) {
+                int read = __stream.read(backingArray, arrayPos, backingArray.length - arrayPos);
+                if (read == -1) {
+                    if (arrayPos == 0) {
+                        throw new EOFException();
+                    }
+                    break;
+                }
+                arrayPos += read;
+                left -= read;
+            }
+            buffer.position(arrayPos - buffer.arrayOffset());
+            buffer.flip();
+        }
+    }
+
+    private byte[] readBytes(int len) throws IOException {
+        ByteBuffer buffer = this.buffer;
+        byte[] result = new byte[len];
+        if (len <= buffer.remaining()) {
+            buffer.get(result, 0, len);
+            return result;
+        }
+        // first drain the buffer
+        int pos = 0;
+        int toDrain = buffer.remaining();
+        if (toDrain > 0) {
+            buffer.get(result, pos, toDrain);
+            pos += toDrain;
+        }
+        // then read the rest
+        while (pos < len) {
+            int remaining = len - pos;
+            if (remaining > buffer.capacity()) {
+                assert !buffer.hasRemaining();
+                // skip the buffer, large read directly into array
+                int read = __stream.read(result, pos, remaining);
+                if (read == -1) {
+                    throw new EOFException();
+                }
+                pos += read;
+            }
+            else {
+                assureAvailable(remaining);
+                buffer.get(result, pos, remaining);
+                pos += remaining;
+            }
+        }
+        return result;
+    }
     /*
      * LEB128 decoding (or actually LEB32) of positive and negative integers, negative integers always use 5 bytes, positive integers are compact.
      */
     private int decodeInteger() throws IOException {
-        // manually unrolling the loop was the fastest for reading, yet not for writing
-        int b = __stream.read();
-        if ((b & 0x80) == 0) {
-            return b;
+        assureAvailable(5);
+        try {
+            ByteBuffer buffer = this.buffer;
+            // manually unrolling the loop was the fastest for reading, yet not for writing
+            byte b = buffer.get();
+            if ((b & 0x80) == 0) {
+                return b;
+            }
+
+            int result = b & 0x7F;
+
+            b = buffer.get();
+            result ^= ((b & 0x7F) << 7);
+            if ((b & 0x80) == 0) {
+                return result;
+            }
+
+            b = buffer.get();
+            result ^= ((b & 0x7F) << 14);
+            if ((b & 0x80) == 0) {
+                return result;
+            }
+
+            b = buffer.get();
+            result ^= ((b & 0x7F) << 21);
+            if ((b & 0x80) == 0) {
+                return result;
+            }
+
+            b = buffer.get();
+            result ^= ((b & 0x7F) << 28);
+            if ((b & 0x80) == 0) {
+                return result;
+            }
+            throw new IOException("Incorrect integer");
         }
-
-        int result = b & 0x7F;
-
-        b = __stream.read();
-        result ^= ((b & 0x7F) << 7);
-        if ((b & 0x80) == 0) {
-            return result;
-        }
-
-        b = __stream.read();
-        result ^= ((b & 0x7F) << 14);
-        if ((b & 0x80) == 0) {
-            return result;
-        }
-
-        b = __stream.read();
-        result ^= ((b & 0x7F) << 21);
-        if ((b & 0x80) == 0) {
-            return result;
-        }
-
-        b = __stream.read();
-        result ^= ((b & 0x7F) << 28);
-        if ((b & 0x80) == 0) {
-            return result;
-        }
-
-        if (b == -1) {
+        catch (BufferUnderflowException e) {
             throw new EOFException();
         }
-        throw new IOException("Incorrect integer");
     }
 
     /*
@@ -127,18 +199,6 @@ public class BinaryWireInputStream implements IWireInputStream {
         return new String(bytes, StandardCharsets.UTF_8);
     }
 
-    private byte[] readBytes(int len) throws IOException {
-        byte[] result = new byte[len];
-        int pos = 0;
-        while (pos < len) {
-            int read = __stream.read(result, pos, len - pos);
-            if (read == -1) {
-                throw new EOFException();
-            }
-            pos += read;
-        }
-        return result;
-    }
 
     @Override
     public int next() throws IOException {

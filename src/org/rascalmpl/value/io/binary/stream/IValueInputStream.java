@@ -64,9 +64,6 @@ public class IValueInputStream implements Closeable {
 
         int compression = in.read();
         in = Compressor.wrapStream(in, compression);
-        if (!(in instanceof BufferedInputStream)) {
-            in = new BufferedInputStream(in);
-        }
         reader = new BinaryWireInputStream(in);
     }
     
