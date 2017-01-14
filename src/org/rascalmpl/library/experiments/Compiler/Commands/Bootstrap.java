@@ -244,7 +244,7 @@ public class Bootstrap {
                 };
                    
                 if (!realBootstrap) {
-                  FileSystem jar = FileSystems.newFileSystem(new URI("jar:file", rvm[0], null), Collections.singletonMap("create", true));
+                  FileSystem jar = FileSystems.newFileSystem(new URI("jar", new File(rvm[0]).toURI().toString(), null), Collections.singletonMap("create", true));
                   time("Copying downloaded files", () -> copyJar(jar.getPath("boot"), targetFolder));
                   System.exit(0);
                 }
