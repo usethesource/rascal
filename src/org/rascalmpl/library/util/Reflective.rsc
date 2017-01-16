@@ -82,7 +82,7 @@ data PathConfig
                loc bin = |home:///bin/|,            // Global directory for derived files outside projects
                loc boot = |boot:///| ,          // Directory with Rascal boot files
                loc repo = |home:///.r2d2|,      // Directory for installed Rascal jar packages                                                 
-               list[loc] libs = [bin],          // List of directories to search source for derived files
+               list[loc] libs = [|home:///bin/|],          // List of directories to search source for derived files
                list[loc] javaCompilerPath = [], // TODO: must generate the same defaults as in PathConfig 
                list[loc] classloaders = []      // TODO: must generate the same defaults as in PathConfig
               );
