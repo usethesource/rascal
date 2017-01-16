@@ -5,8 +5,8 @@ question Which means of transportation is faster:
     choice n ||| Hovercraft         ||| The speed of a Hovercraft is 137 km/hour
 end
 
-question Replace the text box by the result of the addition and make the test true:
-    expr addition $gen(int[5,10],A) + $gen(int[10,15],B) == $answer($use(A)+$use(B))
+question Replace the text box by the result of the multiplication and make the test true:
+    expr multiplication $gen(int[2,7],A) * $gen(int[2,7],B)
 end
 
 question Replace the text box by the result of the intersection and make the test true:
@@ -18,43 +18,6 @@ question Replace the text box by a function name and make the test true:
     expr listFunction $answer(size)($gen(list[int][1,10]))
 end
 
-question Fill in the missing parts in the factorial function and make the test true
-    prep int fac(int n) = $hole(n <= 0) ? 1 : n * fac($hole(n - 1));
-    expr fac(0) == 1 && fac(3) == 6 && fac(10) ==  3628800
-end
-
-question Place all code fragments in the grey box in the right order with the right indentation and get a function to print squares:
-movable
-void squares(int N){
----------
-  println("Table of squares from 1 to <N>");
----------
-  for(int I <- [1 .. N + 1])
----------
-    println("<I> squared = <I * I>"); 
----------
-}
-end
-
-question Place all code fragments in the grey box in the right order with the right indentation and get a function to print squares: (and avoid decoys!):
-movable
-void squares(int n){
----------
-  println("Table of squares from 1 to <n>");
----------
-  for(int i <- [1 .. n + 1])
----------
-    println("<i> squared = <i * i>"); 
----------
-}
-decoy
-i = 0;
----------
-i += 1;
----------
-    println("<i> squared = <i + i>"); 
-end
-
 question Click on all identifiers in this code fragment:
 clickable
 $click(x) = 1;
@@ -62,6 +25,40 @@ if($click(x)){
    $click(y) = $click(x) + 2;
 }
 end
+
+question Create a function to print squares by placing all code fragments in the grey box in the right order with the right indentation:
+movable
+void squares(int n){
+---------
+  println("Squares from 1 to " + n);
+---------
+  for(int i <- [1 .. n + 1])
+---------
+    println(i + " squared = " + (i * i)); 
+---------
+}
+end
+
+question Create a function to print squares by placing all code fragments in the grey box in the right order with the right indentation (and avoid decoys!):
+movable
+void squares(int n){
+---------
+  println("Squares from 1 to " + n);
+---------
+  for(int i <- [1 .. n + 1])
+---------
+    println(i + " squared = " + (i * i)); 
+---------
+}
+decoy
+i = 0;
+---------
+i += 1;
+---------
+println(i + " squared = " + (i + i)); 
+end
+
+
 
 question Reorder the following items and make all statements true:
     fact [1,2,3] ||| is a list[int]
