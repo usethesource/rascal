@@ -142,20 +142,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 
     private PathConfig initializePathConfig() {
         ISourceLocation rootProject = vf.sourceLocation(Paths.get(".").toAbsolutePath().toString().replaceFirst("\\.", ""));
-        assert "file".equals(rootProject.getScheme());
-
-        List<ISourceLocation> libs = new ArrayList<>();
-        List<ISourceLocation> srcs = new ArrayList<>();
-
-        ISourceLocation binFolder = URIUtil.getChildLocation(rootProject, "bin");
-        libs.add(binFolder);
-
-        RascalManifest mf = new RascalManifest();
-        for (String src : mf.getManifestSourceRoots(mf.manifest(rootProject))) {
-            srcs.add(URIUtil.getChildLocation(rootProject, src));
-        }
-
-        return new PathConfig(srcs, libs, binFolder);
+        return new RascalManifest().makePathConfig(rootProject);
     }
 
     @Override
