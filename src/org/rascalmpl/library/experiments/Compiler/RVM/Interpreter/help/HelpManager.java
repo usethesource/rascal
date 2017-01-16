@@ -51,7 +51,7 @@ public class HelpManager {
       this.stderr = stderr;
       this.ideServices = ideServices;
      
-      ISourceLocation binDir = pcfg.getBoot();
+      ISourceLocation binDir = pcfg.getBin();
       coursesDir = URIUtil.correctLocation(binDir.getScheme(), binDir.getAuthority(), binDir.getPath() + "/courses");
 
       try {
