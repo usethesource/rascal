@@ -138,7 +138,7 @@ public class CommandExecutor {
 		vf = ValueFactoryFactory.getValueFactory();
 		prelude = new Prelude(vf);
 		
-		settings = new Settings();
+		settings = new Settings(false);   // TODO: definition solution when we introduce generic Config files
 	
 		this.pcfg = settings.getPathConfig(pcfg).addSourceLoc(vf.sourceLocation("test-modules", "", ""));
 		
