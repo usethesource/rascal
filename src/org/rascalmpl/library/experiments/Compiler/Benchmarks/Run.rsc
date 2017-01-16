@@ -117,7 +117,7 @@ map[str name,  value() job] jobs = (
 
 str base = "experiments::Compiler::Benchmarks";
 
-loc mfile = |tmp:///experiments/Compiler/Benchmarks/MeasurementsInterpreted13.value|;
+loc mfile = |tmp:///experiments/Compiler/Benchmarks/MeasurementsInterpreted14.value|;
 
 
 map[str, list[num]] measurementsCompiled = ();      // list of timings of repeated runs per job, compiled
@@ -318,14 +318,14 @@ void main_paper(bool jvm=true){
 }
 
 void main_paper1(bool jvm=true){
-   run_benchmarks(5, ["BCompareFor","BCompareIf","BCompareComprehension","BExceptions","BEmpty",/*"BExceptionsFinally",*/"BFor","BForCond","BListMatch1","BListMatch2","BListMatch3",
+   run_benchmarks(10, ["BCompareFor","BCompareIf","BCompareComprehension","BExceptions","BEmpty",/*"BExceptionsFinally",*/"BFor","BForCond","BListMatch1","BListMatch2","BListMatch3",
                       "BOr","BReverse1","BSet1","BSetMatch1","BSetMatch2","BSetMatch3","BWhile","BVisit1","BVisit2","BVisit3"
                      ,"BVisit4","BVisit6a","BVisit6b","BVisit6c","BVisit6d","BVisit6e","BVisit6f","BVisit6g"
                 ], jvm=jvm);
 }
 
 void main_paper2(bool jvm=true){
-   run_benchmarks(5, ["BBottles","BFac","BFib","BMarriage",
+   run_benchmarks(10, ["BBottles","BFac","BFib","BMarriage",
                         //"BRSFCalls",
                         "BSendMoreMoney",
                         "BSendMoreMoneyNotTyped",
