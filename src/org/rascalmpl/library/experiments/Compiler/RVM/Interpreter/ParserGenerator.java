@@ -201,7 +201,7 @@ public class ParserGenerator {
       } catch (Throw e) {
         throw new CompilerError("parser generator: " + e.getMessage(), e);
       } catch (Thrown e) {
-        throw new CompilerError("parser generator: " + e.getMessage(), e);
+        throw new CompilerError("parser generator: " + e.value, e);
       } catch (Throwable e) {
         throw new CompilerError("parser generator: " + e.getMessage(), e);  
       } finally {
