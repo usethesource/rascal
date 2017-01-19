@@ -52,7 +52,7 @@ public class HelpServer extends NanoHTTPD {
 	@Override
 	public Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> parms, Map<String, String> files) {
 	  Response response;
-	   System.err.println("serve: " + uri);
+	   //System.err.println("serve: " + uri);
 	
 	  if(uri.startsWith("/Search")){
 	    try {
