@@ -2,7 +2,6 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,10 +47,10 @@ public class ParsingTools {
 	private final IValueFactory vf;
 	
 	//TODO this cache can move to RascalexecutionContext once we are fully boostrapped and independent of the Interpreter:
-	// reason: parseFragment called from the interpreter creates a new REX and destrouys caching.
+	// reason: parseFragment called from the interpreter creates a new REX and destroys caching.
 	private Cache<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> parserCache;
 	private final int parserCacheSize = 30;
-	private final boolean paserCacheEnabled = true;
+	private final boolean parserCacheEnabled = true;
 
     /**
      * @param vf    required to build parse trees
@@ -62,7 +61,7 @@ public class ParsingTools {
 		this.vf = vf;
 		parserCache = Caffeine.newBuilder()
 			    .weakValues()
-				.maximumSize(paserCacheEnabled ? parserCacheSize : 0)
+				.maximumSize(parserCacheEnabled ? parserCacheSize : 0)
 				.build();
 	}
 	
@@ -151,6 +150,7 @@ public class ParsingTools {
 			throw new CompilerError("Undeclared non-terminal: " + e.getName() + ", " + e.getClassName(), currentFrame);
 		}
 		catch (Exception e) {
+		    e.printStackTrace();
 			throw new CompilerError("Unexpected exception:" + e, currentFrame);
 		}
 	}
