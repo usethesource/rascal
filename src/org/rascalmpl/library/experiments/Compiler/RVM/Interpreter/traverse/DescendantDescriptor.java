@@ -25,7 +25,6 @@ public class DescendantDescriptor {
 	private final HashSet<Object> mSymbolSet;
 	private final boolean concreteMatch;
 	private final boolean containsNodeOrValueType;
-	//private int counter = 0;
 	
 	public DescendantDescriptor(ISet symbolset, ISet prodset, IMap definitions, IBool concreteMatch, RascalExecutionContext rex){
 		mSymbolSet = new HashSet<Object>(symbolset.size() + prodset.size());
