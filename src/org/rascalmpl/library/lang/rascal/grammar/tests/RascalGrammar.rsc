@@ -167,3 +167,66 @@ int generateAndTimeRascalParser() {
 value main() = generateAndTimeRascalParser();
 
 test bool tstgenerateRascalParser() = sameLines(generateRascalParser(), readFile(RascalParserLoc));
+
+test bool cntChoice1()      {cnt = 0; visit(Rascal){ case choice(_,_): cnt += 1; }; return cnt == 144; }
+test bool cntChoice2()      = size([x | /x:choice(_,_) := Rascal]) == 144;
+
+test bool cntLex1()         {cnt = 0; visit(Rascal){ case lex(_): cnt += 1; }; return cnt == 287; }
+test bool cntLex2()         = size([x | /x:lex(_) := Rascal]) == 287;
+
+test bool cntEmpty1()       {cnt = 0; visit(Rascal){ case empty(): cnt += 1; }; return cnt == 5; }
+test bool cntEmpty2()       = size([x | /x:empty() := Rascal]) == 5;
+
+test bool cntSort1()        {cnt = 0; visit(Rascal){ case sort(_): cnt += 1; }; return cnt == 1051; }
+test bool cntSort2()        = size([x | /x:sort(_) := Rascal]) == 1051;
+
+test bool cntLit1()         {cnt = 0; visit(Rascal){ case lit(_): cnt += 1; }; return cnt == 667; }
+test bool cntLit2()         = size([x | /x:lit(_) := Rascal]) == 667;
+
+test bool cntLabel1()       {cnt = 0; visit(Rascal){ case label(_,_): cnt += 1; }; return cnt == 961; }
+test bool cntLabel2()       = size([x | /x:label(_,_) := Rascal]) == 961;
+
+test bool cntCharClass1()   {cnt = 0; visit(Rascal){ case \char-class(_): cnt += 1; }; return cnt == 169; }
+test bool cntCharClass2()   = size([x | /x:\char-class(_) := Rascal]) == 169;
+                        
+test bool cntProd1()        {cnt = 0; visit(Rascal){ case \prod(_,_,_): cnt += 1; }; return cnt == 540; }
+test bool cntProd2()        = size([x | /x:\prod(_,_,_) := Rascal]) == 540;
+
+test bool cntEmptyList1()   {cnt = 0; visit(Rascal){ case []: cnt += 1; }; return cnt == 26; }
+test bool cntEmptyList2()   = size([x | /x:[] := Rascal]) == 26;
+                         
+test bool cntList1()        {cnt = 0; visit(Rascal){ case [*value s]: cnt += 1; }; return cnt == 837; }
+test bool cntList2()        = size([x | /x:[*value s] := Rascal]) == 837;
+
+test bool cntEmptySet1()    {cnt = 0; visit(Rascal){ case {}: cnt += 1; }; return cnt == 439; }
+test bool cntEmptySet2()    = size([x | /x:{} := Rascal]) == 439;
+
+test bool cntSet1()         {cnt = 0; visit(Rascal){ case {*value s}: cnt += 1; }; return cnt == 766; }
+test bool cntSet2()         = size([x | /x:{*value s} := Rascal]) == 766;
+@ignoreInterpreter{gives wrong answer 1186}
+test bool cntStr1()         {cnt = 0; visit(Rascal){ case str s: cnt += 1; }; return cnt == 3967; }
+test bool cntStr2()         = size([x | /x:str s := Rascal]) == 3967;
+
+test bool cntInt1()         {cnt = 0; visit(Rascal){ case int n: cnt += 1; }; return cnt == 808; }
+test bool cntInt2()         = size([x | /x:int n := Rascal]) == 808;
+
+test bool cntIter1()        {cnt = 0; visit(Rascal){ case \iter(_): cnt += 1; }; return cnt == 12; }
+test bool cntIter2()        = size([x | /x:\iter(_) := Rascal]) == 12;
+
+test bool cntIterStar1()    {cnt = 0; visit(Rascal){ case \iter-star(_): cnt += 1; }; return cnt == 26; }
+test bool cntIterStar2()    = size([x | /x:\iter-star(_) := Rascal]) == 26;
+
+test bool cntIterSeps1()    {cnt = 0; visit(Rascal){ case \iter-seps(_,_): cnt += 1; }; return cnt == 51; }
+test bool cntIterSeps2()    = size([x | /x:\iter-seps(_,_) := Rascal]) == 51;
+
+test bool cntIterStarSeps1(){cnt = 0; visit(Rascal){ case \iter-star-seps(_,_): cnt += 1; }; return cnt == 35; }
+test bool cntIterStarSeps2()= size([x | /x: \iter-star-seps(_,_) := Rascal]) == 35;
+
+test bool cntConditional1() {cnt = 0; visit(Rascal){ case \conditional(_,_): cnt += 1; }; return cnt == 69; }
+test bool cntConditional2() = size([x | /x:\conditional(_,_) := Rascal]) == 69;
+
+test bool cntRange1()       {cnt = 0; visit(Rascal){ case \range(_,_): cnt += 1; }; return cnt == 404; }
+test bool cntRange2()       = size([x | /x:\range(_,_) := Rascal]) == 404;
+
+test bool cntPriority1()    {cnt = 0; visit(Rascal){ case \priority(_,_): cnt += 1; }; return cnt == 5; }
+test bool cntPriority1()    = size([x | /x: \priority(_,_) := Rascal]) == 5;
