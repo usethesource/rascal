@@ -40,7 +40,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<lucence-version>6.1.0</lucence-version>
 		<exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
-		<rascal.boot.version>0.8.3-bs6</rascal.boot.version>
+		<rascal.boot.version>0.8.3-bs7</rascal.boot.version>
 		<rascal.boot>--download</rascal.boot>
 	</properties>
 
