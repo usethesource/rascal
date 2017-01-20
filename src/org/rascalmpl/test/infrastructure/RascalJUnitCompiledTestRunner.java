@@ -41,6 +41,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.TestExecutor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.uri.ILogicalSourceLocationResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IList;
@@ -80,6 +81,30 @@ public class RascalJUnitCompiledTestRunner extends Runner {
         this.prefix = clazz.getAnnotation(RascalJUnitTestPrefix.class).value().replaceAll("\\\\", "");
         this.pcfg = initializePathConfig();
         this.IGNORED_DIRECTORIES = initializeIgnoredDirectories();
+        
+        URIResolverRegistry reg = URIResolverRegistry.getInstance();
+        if (!reg.getRegisteredInputSchemes().contains("project")) {
+            reg.registerLogical(new ILogicalSourceLocationResolver() {
+                ISourceLocation root = vf.sourceLocation(Paths.get(".").toAbsolutePath().toString().replaceFirst("\\.", ""));
+                
+                @Override
+                public String scheme() {
+                    return "project";
+                }
+                
+                @Override
+                public ISourceLocation resolve(ISourceLocation input) {
+                    return URIUtil.getChildLocation(root, input.getPath());
+                }
+                
+                @Override
+                public String authority() {
+                    return "rascal";
+                }
+            });
+            
+            pcfg.addLibLoc(URIUtil.correctLocation("project", "rascal", "bin"));
+        }
         
         System.err.println(pcfg);
     }
