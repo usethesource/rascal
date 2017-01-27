@@ -30,7 +30,8 @@ public class BinaryWireOutputStream implements IWireOutputStream {
     private boolean closed = false;
     private final OutputStream __stream;
     private final TrackLastWritten<String> stringsWritten;
-    private final ByteBuffer buffer;
+    private int flushes = 0;
+    private ByteBuffer buffer;
 
     public BinaryWireOutputStream(OutputStream stream, int stringSharingWindowSize) throws IOException {
         this(stream, stringSharingWindowSize, 8*1024);
@@ -74,6 +75,11 @@ public class BinaryWireOutputStream implements IWireOutputStream {
     private void flushBuffer() throws IOException {
         buffer.flip();
         __stream.write(buffer.array(), buffer.arrayOffset() + buffer.position(), buffer.remaining());
+        flushes++;
+        if (flushes == 10 && buffer.capacity() < 8*1024*1024) {
+            buffer = ByteBuffer.allocate(buffer.capacity() * 2);
+            flushes = 0;
+        }
         buffer.clear();
     }
     private void makeRoom(int room) throws IOException {
