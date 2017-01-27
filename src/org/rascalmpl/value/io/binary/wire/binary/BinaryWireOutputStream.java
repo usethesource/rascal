@@ -60,7 +60,7 @@ public class BinaryWireOutputStream implements IWireOutputStream {
             buffer.put(bytes, written, room);
             written += room;
         }
-        flushBuffer();
+        buffer = flushBuffer(buffer);
         int remaining = length - written;
         if (remaining >= buffer.capacity()) {
             assert buffer.position() == 0;
@@ -72,26 +72,30 @@ public class BinaryWireOutputStream implements IWireOutputStream {
         }
         
     }
-    private void flushBuffer() throws IOException {
+    private ByteBuffer flushBuffer(ByteBuffer buffer) throws IOException {
         buffer.flip();
         __stream.write(buffer.array(), buffer.arrayOffset() + buffer.position(), buffer.remaining());
         flushes++;
         if (flushes == 10 && buffer.capacity() < 8*1024*1024) {
-            buffer = ByteBuffer.allocate(buffer.capacity() * 2);
+            this.buffer = ByteBuffer.allocate(buffer.capacity() * 2);
             flushes = 0;
+            return this.buffer;
         }
         buffer.clear();
+        return buffer;
     }
-    private void makeRoom(int room) throws IOException {
+    private ByteBuffer makeRoom(int room) throws IOException {
+        ByteBuffer buffer = this.buffer;
         if (buffer.remaining() < room) {
-            flushBuffer();
+            return flushBuffer(buffer);
         }
+        return buffer;
     }
     /*
      * LEB128 encoding (or actually LEB32) of positive and negative integers, negative integers always take 5 bytes, positive integers are compact.
      */
     private void encodeInteger(int value) throws IOException {
-        makeRoom(5);
+        ByteBuffer buffer = makeRoom(5);
         // unrolling this loop made it slower
         while((value & ~0x7F) != 0) {
             buffer.put((byte)((value & 0x7F) | 0x80));
