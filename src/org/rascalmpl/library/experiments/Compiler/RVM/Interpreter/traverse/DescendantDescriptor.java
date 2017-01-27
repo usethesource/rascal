@@ -9,7 +9,6 @@ import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.values.uptr.ITree;
 
@@ -26,12 +25,12 @@ public class DescendantDescriptor {
 	private final HashSet<Object> mSymbolSet;
 	private final boolean concreteMatch;
 	private final boolean containsNodeOrValueType;
-	//private int counter = 0;
 	
-	public DescendantDescriptor(IValueFactory vf, ISet symbolset, ISet prodset, IMap definitions, IBool concreteMatch, RascalExecutionContext rex){
+	public DescendantDescriptor(ISet symbolset, ISet prodset, IMap definitions, IBool concreteMatch, RascalExecutionContext rex){
 		mSymbolSet = new HashSet<Object>(symbolset.size() + prodset.size());
 		this.concreteMatch = concreteMatch.getValue();
-		boolean nodeOrValue = false;
+		boolean nodeOrValue = true;
+		
 		for(IValue v : symbolset){
 			Type tp = rex.symbolToType((IConstructor) v, definitions);
 			mSymbolSet.add(tp);								// Add as TYPE to the set

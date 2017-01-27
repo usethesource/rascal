@@ -600,7 +600,7 @@ public class BindingsResolver {
 	        locationCache.put(binding.getKey(), result);
 	        return result;
 		}
-        catch (@SuppressWarnings("restriction") org.eclipse.jdt.internal.compiler.problem.AbortCompilation e) {
+        catch (org.eclipse.jdt.internal.compiler.problem.AbortCompilation e) {
             // work around internal error of JDT compiler which can throw this exception 
             // after calling getKey()
             

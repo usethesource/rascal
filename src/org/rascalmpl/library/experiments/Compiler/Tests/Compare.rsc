@@ -9,6 +9,9 @@ import util::FileSystem;
 import experiments::Compiler::RVM::AST;
 import lang::rascal::types::CheckerConfig;
 
+
+set[loc] serialized = {};
+
 tuple[set[loc] differ, set[loc] missing] compare(loc iloc, loc cloc){
 
     if(!exists(iloc)){
@@ -76,7 +79,7 @@ void compareAll(str other, str base = "Users/paulklint/git/rascal/src/boot/stdli
 void allMessages(str other){
     str base = "Users/paulklint/git/rascal/src/boot/stdlib";
    
-    loc otherDir =  |compressed+home:///| + other;
+    loc otherDir =  /*compressed+*/ |home:///| + other;
     str otherDirPath = otherDir.path;
     
     for(loc cloc <- files(otherDir), cloc.extension == "gz"){

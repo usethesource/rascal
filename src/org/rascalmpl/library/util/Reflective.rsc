@@ -17,6 +17,7 @@ import Message;
 import ParseTree;
 import IO;
 import String;
+import util::SystemAPI;
 import lang::rascal::\syntax::Rascal;
 import lang::manifest::IO;
 
@@ -51,9 +52,12 @@ public java Tree parseModuleAndFragments(loc location, list[loc] searchPath);
 @doc{Just parse a module at a given location without any furter processing (i.e., fragment parsing) or side-effects (e.g. module loading) }
 public java lang::rascal::\syntax::Rascal::Module parseModule(loc location);
 
-public start[Module] parseNamedModuleWithSpaces(str modulePath) {
-    return parseModuleWithSpaces(getModuleLocation(modulePath));
-}
+@javaClass{org.rascalmpl.library.util.Reflective}
+@reflect{Uses RascalExecutionContext to resolve modulePath}
+public java start[Module] parseNamedModuleWithSpaces(str modulePath) ;
+//{
+//    return parseModuleWithSpaces(getModuleLocation(modulePath));
+//}
 
 public start[Module] parseNamedModuleWithSpaces(str modulePath, PathConfig pcfg) {
     return parseModuleWithSpaces(getModuleLocation(modulePath, pcfg));
@@ -72,13 +76,15 @@ public java loc getModuleLocation(str modulePath);
 public java loc getSearchPathLocation(str filePath);
 
 data PathConfig 
+    // Defaults should be in sync with org.rascalmpl.library.util.PathConfig
   = pathConfig(list[loc] srcs = [|std:///|],        // List of directories to search for source files
-               list[loc] libs = [|boot:///stdlib|, |std:///|],        
-                                                       // List of directories to search source for derived files
-               //list[loc] projectPath = [],           // List of directories to search for source or derived files in projects
-                                                       // Note: each directory should include the project name as last path element
+               list[loc] courses = [|courses:///|], // List of locations to search for course source files
                loc bin = |home:///bin/|,            // Global directory for derived files outside projects
-               loc boot = |boot+compressed:///|     // Directory with Rascal boot files
+               loc boot = |boot:///| ,          // Directory with Rascal boot files
+               loc repo = |home:///.r2d2|,      // Directory for installed Rascal jar packages                                                 
+               list[loc] libs = [|home:///bin/|],          // List of directories to search source for derived files
+               list[loc] javaCompilerPath = [], // TODO: must generate the same defaults as in PathConfig 
+               list[loc] classloaders = []      // TODO: must generate the same defaults as in PathConfig
               );
 
 data RascalManifest
@@ -224,16 +230,10 @@ tuple[bool, loc] getDerivedReadLoc(str qualifiedModuleName, str extension, PathC
            }
        }
     } else {
-      // A binary (possibly library) module
-      compressed = endsWith(extension, "gz");
-
       for(loc dir <- pcfg.bin + pcfg.libs){   // In a bin or lib directory?
        
         fileLoc = dir + fileName;
         if(exists(fileLoc)){
-           if(compressed){
-              fileLoc.scheme = "compressed+" + fileLoc.scheme;
-           }
            //println("getDerivedReadLoc: <qualifiedModuleName>, <extension> =\> <fileLoc>");
            return <true, fileLoc>;
         }
@@ -273,16 +273,16 @@ loc getDerivedWriteLoc(str qualifiedModuleName, str extension, PathConfig pcfg, 
     }
     fileNameSrc = makeFileName(qualifiedModuleName);
     fileNameBin = makeFileName(qualifiedModuleName, extension=extension);
-    compressed = endsWith(extension, "gz");
     
     bin = pcfg.bin;
-    if(compressed){
-       bin.scheme = "compressed+" + bin.scheme;
-    }
     fileLocBin = bin + fileNameBin;
     //println("getDerivedWriteLoc: <qualifiedModuleName>, <extension> =\> <fileLocBin>");
     return fileLocBin;
 }
+
+@javaClass{org.rascalmpl.library.util.Reflective}
+@reflect{looks in execution context}
+public java PathConfig getCurrentPathConfig();
 
 @doc{Is the current Rascal code executed by the compiler or the interpreter?}
 @javaClass{org.rascalmpl.library.util.Reflective}

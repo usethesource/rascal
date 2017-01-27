@@ -147,14 +147,29 @@ MuModule relocMuModule(MuModule m, loc reloc, list[loc] srcs){
     if(reloc.scheme == "noreloc"){
         return m;
     }
-    return
-        visit(m){ 
+    m.src = relocLoc(m.src, reloc, srcs);
+    m.functions = for(f <- m.functions){
+                      f.src = relocLoc(f.src, reloc, srcs);
+                      f.body = relocBody(f.body, reloc, srcs);
+                      append f;
+                  }
+   return m;                                 
+}
+
+MuExp relocBody(MuExp body, loc reloc, list[loc] srcs){
+ return
+        visit(body){ 
         case muOCall3(MuExp fun, list[MuExp] largs, loc src)    => muOCall3(fun, largs, relocLoc(src, reloc, srcs))
         case muOCall4(MuExp fun, Symbol types, list[MuExp] largs, loc src)
                                                                 => muOCall4(fun, types, largs, relocLoc(src, reloc, srcs))
         case muCallPrim2(str name, loc src)                     => muCallPrim2(name, relocLoc(src, reloc, srcs))                
         case muCallPrim3(str name, list[MuExp] exps, loc src)   => muCallPrim3(name, exps, relocLoc(src, reloc, srcs))
-        };                                   
+        case muThrow(MuExp exp, loc src)                        => muThrow(exp, relocLoc(src, reloc, srcs))
+        };    
+}
+
+Configuration relocConfig(Configuration config, loc reloc, list[loc] srcs){
+        return visit(config) { case loc l => relocLoc(l, reloc, srcs) };
 }
 
 void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration config, bool verbose = true){
@@ -180,7 +195,7 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
         */
          
        str fuid = getCompanionForUID(uid);
-       Symbol ftype = Symbol::func(getConstructorResultType(\type), [ t | Symbol::label(l,t) <- getConstructorArgumentTypes(\type) ]);
+       Symbol ftype = Symbol::func(getConstructorResultType(\type), [ t | Symbol::label(l,t) <- getConstructorArgumentTypes(\type) ], []);
        list[str] argNames = [ l | Symbol::label(l,t) <- getConstructorArgumentTypes(\type) ];
        tuple[str fuid,int pos] addr = uid2addr[uid];
        int nformals = size(\type.parameters) + 1;
@@ -264,7 +279,7 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
                //println("**** enter scope <fuidDefault>");
                enterFunctionScope(fuidDefault);
                
-               ftype = Symbol::func(allKWFieldsAndTypes[mainKwf], [ Symbol::\void() ]);
+               ftype = Symbol::func(allKWFieldsAndTypes[mainKwf], [ Symbol::\void() ], []);
                
                kwps = [ muAssign("map_of_default_values", fuidDefault, defaults_pos, muCallMuPrim("make_mmap_str_entry",[])) ];
                  
@@ -305,11 +320,11 @@ void translateModule((Module) `<Header header> <Body body>`) {
 /********************************************************************/
 
 private void importModule((Import) `import <QualifiedName qname> ;`){
-    addImportToModule("<qname>");
+    addImportToModule(prettyPrintName(convertName(qname)));
 }
 
 private void importModule((Import) `extend <QualifiedName qname> ;`){
-	moduleName = "<qname>";
+	moduleName = prettyPrintName(convertName(qname));
 	addImportToModule(moduleName);
 	addExtendToModule(moduleName);
 }

@@ -3,13 +3,18 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.invoke.CallSite;
+import java.lang.invoke.ConstantCallSite;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Method;
 import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -1969,11 +1974,7 @@ public enum MuPrimitive {
 	public static final MuPrimitive[] values = MuPrimitive.values();
 	
 	private static final HashSet<IValue> emptyMset = new HashSet<IValue>(0);
-	
-	private static final boolean profileMuPrimitives = false;
-
-	private static final long timeSpent[] = new long[values.length];
-	
+		
 	public static MuPrimitive fromInteger(int muprim) {
 		return values[muprim];
 	}
@@ -1986,43 +1987,38 @@ public enum MuPrimitive {
 		throw RascalRuntimeException.notImplemented("MuPrimitive.execute0 " + name(), null, null);
 	}
 	
-	public Object execute1(final Object arg_1) {
+	@SuppressWarnings("unused")
+    public Object execute1(final Object arg_1) {
 	  throw RascalRuntimeException.notImplemented("MuPrimitive.execute1 " + name(), null, null);
 	}
 	
-	public Object execute2(final Object arg_2, final Object arg_1) {
+	@SuppressWarnings("unused")
+    public Object execute2(final Object arg_2, final Object arg_1) {
 	  throw RascalRuntimeException.notImplemented("MuPrimitive.execute2 " + name(), null, null);
 	}
 	
-	public int executeN(final Object[] stack, final int sp, final int arity) {
+	@SuppressWarnings("unused")
+    public int executeN(final Object[] stack, final int sp, final int arity) {
 	  throw RascalRuntimeException.notImplemented("MuPrimitive.executeN " + name(), null, null);
-	}
-	
-	public static void recordTime(int n, long duration){
-		timeSpent[n] += duration;
 	}
 
 	public static void exit(PrintWriter out) {
-		if(profileMuPrimitives){
-			printProfile(out);
-		}
 	}
 	
-	static void printProfile(PrintWriter out){
-		out.println("\nMuPrimitive execution times (ms)");
-		long total = 0;
-		TreeMap<Long,String> data = new TreeMap<Long,String>();
-		for(int i = 0; i < values.length; i++){
-			if(timeSpent[i] > 0 ){
-				data.put(timeSpent[i], values[i].name());
-				total += timeSpent[i];
-			}
-		}
+	// Bootstrap method used for invokeDynamic on MuPrimitives, see BytecoeGenerator
 	
-		for(long t : data.descendingKeySet()){
-			out.printf("%30s: %3d%% (%d ms)\n", data.get(t), t * 100 / total, t);
-		}
-	}
+	@SuppressWarnings("unused")
+    public static CallSite bootstrapMuPrimitive(MethodHandles.Lookup caller, String name, MethodType type) throws NoSuchMethodException, IllegalAccessException {
+        MethodHandles.Lookup lookup = MethodHandles.lookup();
+        MuPrimitive enumElement = MuPrimitive.valueOf(name);
+        Class<?>[] parameters = type.parameterArray();
+        int arity = parameters.length;
+        String suffix = arity <= 2 ? String.valueOf(arity): "N";
+        Method execute = enumElement.getClass().getMethod("execute" + suffix, parameters);
+
+        MethodHandle foundMethod = lookup.unreflect(execute).bindTo(enumElement);
+        return new ConstantCallSite(foundMethod.asType(type));
+    }
 
 	/*******************************************************************
 	 *                 AUXILIARY FUNCTIONS                             *

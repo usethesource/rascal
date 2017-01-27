@@ -24,6 +24,6 @@ public class Apply extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall2(opcode.name(), codeblock.getFunctionName(fuid), arity);
 		
-		codeEmittor.emitCallWithArgsSSII_S("insnAPPLY", codeblock.getFunctionIndex(fuid), arity,debug);
+		codeEmittor.emitCallWithArgsSSII_S("insnAPPLY", codeblock.getFunctionIndex(fuid), arity);
 	}
 }

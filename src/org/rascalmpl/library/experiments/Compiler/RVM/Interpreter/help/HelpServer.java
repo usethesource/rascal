@@ -5,17 +5,14 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.RascalShellExecutionException;
 import org.rascalmpl.library.experiments.tutor3.Feedback;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.parser.gtd.exception.ParseError;
@@ -55,7 +52,7 @@ public class HelpServer extends NanoHTTPD {
 	@Override
 	public Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> parms, Map<String, String> files) {
 	  Response response;
-	   System.err.println("serve: " + uri);
+	   //System.err.println("serve: " + uri);
 	
 	  if(uri.startsWith("/Search")){
 	    try {
@@ -82,29 +79,13 @@ public class HelpServer extends NanoHTTPD {
 	        listing = listing.replaceFirst("_", holes.get(k++));
 	      }
 	      if(executor == null){
-	       
-	       
-//	        PathConfig pcfg = null;
-//	        try {
-//	            ISourceLocation src = vf.sourceLocation("file", "", "/Users/paulklint/git/rascal/src/org/rascalmpl/library");
-//	            List<ISourceLocation> srcs = Arrays.asList(src);
-//	            
-//	            ISourceLocation bin = vf.sourceLocation("file", "", "/Users/paulklint/git/rascal/src/org/rascalmpl/library");
-//	            List<ISourceLocation> libs = Arrays.asList(bin);
-//	            List<ISourceLocation> courses = Arrays.asList(vf.sourceLocation("file", "", "/Users/paulklint/git/rascal/src/org/rascalmpl/library/courses"));
-//                ISourceLocation boot = vf.sourceLocation("file", "", "/Users/paulklint/git/rascal/bootstrap/phase2");
-//	            pcfg = new PathConfig(srcs, libs, bin, boot, courses);
-//	        } catch (URISyntaxException e) {
-//	            // TODO Auto-generated catch block
-//	            e.printStackTrace();
-//	        }
 	        PathConfig pcfg = helpManager.getPathConfig();
 	        outWriter = new StringWriter();
 	        outPrintWriter = new PrintWriter(outWriter);
 	        errWriter = new StringWriter();
             errPrintWriter = new PrintWriter(errWriter);
 	        pcfg = pcfg.addSourceLoc(vf.sourceLocation("test-modules", "", ""));
-	        executor = new CommandExecutor(pcfg, outPrintWriter, errPrintWriter);
+	        executor = new CommandExecutor(pcfg, outPrintWriter, errPrintWriter, new BasicIDEServices(), null);
 	      } else {
 	        outWriter.getBuffer().setLength(0);
 	        errWriter.getBuffer().setLength(0);

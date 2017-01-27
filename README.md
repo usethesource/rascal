@@ -16,4 +16,4 @@ Please visit http://www.rascal-mpl.org
 For questions use the [rascal tag on StackOverflow](http://stackoverflow.com/questions/tagged/rascal).
 
 - Eclipse update site: <http://update.rascal-mpl.org/unstable> [![Build Status](http://ci.usethesource.io/job/usethesource/job/rascal-eclipse/job/master/badge/icon)](http://ci.usethesource.io/job/usethesource/job/rascal-eclipse/job/master/)
-- Commandline REPL: <http://update.rascal-mpl.org/console/rascal-shell-unstable.jar> [![Build Status](http://ci.usethesource.io/job/usethesource/job/rascal-shell/job/master/badge/icon)](http://ci.usethesource.io/job/usethesource/job/rascal-shell/job/master/)
+- Commandline REPL: <http://update.rascal-mpl.org/console/rascal-shell-unstable.jar> [![Build Status](http://ci.usethesource.io/job/usethesource/job/rascal/job/master/badge/icon)](http://ci.usethesource.io/job/usethesource/job/rascal/job/master/)

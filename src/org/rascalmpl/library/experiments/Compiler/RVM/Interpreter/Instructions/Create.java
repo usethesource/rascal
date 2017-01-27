@@ -25,7 +25,7 @@ public class Create extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall2(opcode.name(),codeblock.getFunctionName(fuid), arity);
 		
-		codeEmittor.emitCallWithArgsSSFII_A("jvmCREATE", codeblock.getFunctionIndex(fuid), arity,debug);
+		codeEmittor.emitCallWithArgsSSFII_A("jvmCREATE", codeblock.getFunctionIndex(fuid), arity);
 		codeEmittor.emitIncSP(-arity);			// TODO move to code generator
 		codeEmittor.emitReturnValue2ACCU();
 	}

@@ -9,14 +9,11 @@ import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.RascalShellExecutionException;
-
 public class Concept {
 	private final Path name;
 	private String text = null;
 	private final Path destPath;
 	private boolean remote;
-	private boolean questions;
 	private String title;
 	private String synopsis;
 	private String index;
@@ -37,7 +34,6 @@ public class Concept {
 	}
 	
 	public void setQuestions(){
-	  questions = true;
 	}
 	
 	public Path getName(){
@@ -162,7 +158,7 @@ public class Concept {
       return sw.toString();
     }
     
-	public void preprocess(Onthology onthology, RascalCommandExecutor executor) throws IOException{
+	public void preprocess(Onthology onthology, TutorCommandExecutor executor) throws IOException{
 		System.err.println("Preprocessing: " + name);
 		BufferedReader reader = new BufferedReader(new StringReader(text));
 

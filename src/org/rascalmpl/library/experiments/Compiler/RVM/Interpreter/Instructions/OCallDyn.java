@@ -29,7 +29,7 @@ public class OCallDyn extends Instruction {
 			codeEmittor.emitDebugCall2(opcode.name(), Integer.toString(types), arity);
 		
 		// TODO add source line.
-		codeEmittor.emitCallWithArgsSSFII_S("jvmOCALLDYN", types, arity, debug);
+		codeEmittor.emitCallWithArgsSSFII_S("jvmOCALLDYN", types, arity);
 		//codeEmittor.emitIncSP(-arity-1); ??
 		codeEmittor.emitReturnValue2ACCU();
 	}

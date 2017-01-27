@@ -22,6 +22,6 @@ public class PushRootFun extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall2(opcode.name(), fuid, codeblock.getFunctionIndex(fuid));
 	
-		codeEmittor.emitCallWithArgsSSI_S("insnPUSH_ROOT_FUN", codeblock.getFunctionIndex(fuid),debug);
+		codeEmittor.emitCallWithArgsSSI_S("insnPUSH_ROOT_FUN", codeblock.getFunctionIndex(fuid));
 	}
 }

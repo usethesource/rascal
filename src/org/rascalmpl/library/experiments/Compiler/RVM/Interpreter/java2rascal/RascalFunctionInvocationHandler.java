@@ -22,6 +22,7 @@ import java.util.Map;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 import org.rascalmpl.value.IValue;
 
 /**
@@ -62,6 +63,14 @@ public class RascalFunctionInvocationHandler implements InvocationHandler {
 
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+    if(method.getName().equals("shutdown")){
+      core.shutdown();
+      return null;
+    }
+    if(method.getName().equals("setFrameObserver")){
+        core.setFrameObserver((IFrameObserver) args[0]); 
+        return null;
+    }
     Class<?> returnType = method.getReturnType();
     if(returnType.isAnnotationPresent(RascalKeywordParameters.class)){
       return returnType.cast(Proxy.newProxyInstance(RVMCore.class.getClassLoader(), new Class<?> [] { returnType }, new Java2RascalKWProxy.ProxyInvocationHandler(core.vf, returnType)));
@@ -73,6 +82,9 @@ public class RascalFunctionInvocationHandler implements InvocationHandler {
   }
 
   private IValue[] marshallArgs(Object[] args, boolean skipKeywordArguments) {
+    if(args == null || args.length == 0){
+      return new IValue[0];
+    }
     int len = args.length - (skipKeywordArguments ? 1 : 0);
     IValue[] result = new IValue[len];
 

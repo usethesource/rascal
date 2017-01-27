@@ -40,6 +40,6 @@ public class TypeSwitch extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitInlineTypeSwitch(labels,debug) ;
+		codeEmittor.emitInlineTypeSwitch(labels) ;
 	}
 }

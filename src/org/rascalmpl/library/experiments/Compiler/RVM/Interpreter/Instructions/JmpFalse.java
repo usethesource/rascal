@@ -24,6 +24,6 @@ public class JmpFalse extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall1(opcode.name(), codeblock.getLabelPC(label));
 		
-		codeEmittor.emitJMPTRUEorFALSE(false, label, debug);
+		codeEmittor.emitJMPTRUEorFALSE(false, label);
 	}
 }

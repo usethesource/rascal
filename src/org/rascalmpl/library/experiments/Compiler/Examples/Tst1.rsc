@@ -1,15 +1,31 @@
 module experiments::Compiler::Examples::Tst1
 
-data B = and(B lhs, B rhs) | t();
 
-test bool visitTest() {
-  visit(and(t(),t())) { 
-    case t(): return true; 
-  };
+import util::Webserver;
+import IO;
+
+loc base = |courses:///|;
+
+loc startTutor() {
+  loc site = |http://localhost:8081|;
   
-  return false;
+  while (true) {
+    try {
+      serve(site, page);
+      return site;
+    }  
+    catch IO("Address already in use"): {
+      site.port += 1; 
+    }
+  }
 }
 
-test bool matchTest() = /t() := and(t(),t());
+void stopTutor(loc site) {
+  shutdown(site);
+}
 
-value main() { return matchTest(); }
+Response page(Request r: get(/xxx/))   { println(r); return  response("xxx"); }
+default Response page(value r)         { println(r); return  response(base + "favicon.ico"); }
+
+value domain() { site = startTutor(); println(site); return true; }
+

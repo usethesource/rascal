@@ -11,7 +11,7 @@ int nviolations = 0;
 void main() {
    nviolations = 0;
    for(mfile <- find(|file:///Users/paulklint/git/rascal/src|, "rsc")){
-       if(Module m := parseModule(mfile).top){
+       if(Module m := parseModule(mfile)){
           reportNonInit(m);
        } else {
           println("<mfile>: NO MATCH");
