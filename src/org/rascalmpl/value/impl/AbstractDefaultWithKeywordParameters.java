@@ -169,7 +169,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	/**
 	 * This method is only to be used by internal methods, such as testing and fast iterators
 	 */
-	public ImmutableMap<String, IValue> internalGetParameters() {
+	public io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> internalGetParameters() {
 	    return parameters;
 	}
 }
