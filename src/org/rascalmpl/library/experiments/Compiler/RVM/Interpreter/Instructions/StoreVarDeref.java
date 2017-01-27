@@ -24,6 +24,6 @@ public class StoreVarDeref extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall2(opcode.name(), codeblock.getFunctionName(fuid), pos);
 
-		codeEmittor.emitVoidCallWithArgsFIIA("STOREVARDEREF", codeblock.getFunctionIndex(fuid), pos,debug);
+		codeEmittor.emitVoidCallWithArgsFIIA("STOREVARDEREF", codeblock.getFunctionIndex(fuid), pos);
 	}
 }

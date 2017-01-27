@@ -1,7 +1,6 @@
 @bootstrapParser
 module experiments::Compiler::Tests::TestUtils
 
-//import experiments::Compiler::RVM::AST;   // TODO: necessary to keep the typechecker happy (can't find RVMProgram in one of the overlaoded defs of "execute")
 import  experiments::Compiler::Compile;
 import  experiments::Compiler::Execute;
 import util::SystemAPI;

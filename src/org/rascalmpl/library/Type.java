@@ -39,9 +39,13 @@ public class Type {
 		this.vf = vf;
 		emptyMap = vf.mapWriter().done();
 	}
-	
+	  
 	public IValue typeOf(IValue v, IEvaluatorContext ctx) {
-		return ((IConstructor) new TypeReifier(vf).typeToValue(v.getType(), ctx).getValue()).get("symbol");
+		return new TypeReifier(vf).typeToValue(
+		        v.getType(), 
+		        ctx.getCurrentEnvt().getStore(),
+		        (IMap) ctx.getEvaluator().getGrammar(ctx.getCurrentEnvt()).get("rules")
+		        ).get("symbol");
 	}
 	
 	public IBool eq(IValue x, IValue y) {

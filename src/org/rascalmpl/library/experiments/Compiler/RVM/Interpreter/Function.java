@@ -1,18 +1,19 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
-import java.io.Serializable;
+import java.lang.invoke.MethodHandle;
 import java.lang.ref.SoftReference;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.nustaq.serialization.FSTBasicObjectSerializer;
-import org.nustaq.serialization.FSTClazzInfo;
-import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
-import org.nustaq.serialization.FSTObjectInput;
-import org.nustaq.serialization.FSTObjectOutput;
+import org.rascalmpl.interpreter.ITestResultListener;
+import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.library.cobra.TypeParameterVisitor;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireInputStream;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireOutputStream;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
@@ -24,26 +25,26 @@ import org.rascalmpl.value.IString;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.binary.util.WindowSizes;
+import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * Function contains all data needed for a single RVM function
  *
- * Function is serialized by FSTFunctionSerializer, make sure that
- * all fields declared here are synced with the serializer.
+ * Function is serialized by write and read defined here
  */
 
-public class Function implements Serializable {
-	private static final long serialVersionUID = -1741144671553091111L;
-	
-	private static final IString ignoreTag = ValueFactoryFactory.getValueFactory().string("ignore");
-	private static final IString IgnoreTag = ValueFactoryFactory.getValueFactory().string("Ignore");
-	private static final IString ignoreCompilerTag = ValueFactoryFactory.getValueFactory().string("ignoreCompiler");
-	private static final IString IgnoreCompilerTag = ValueFactoryFactory.getValueFactory().string("IgnoreCompiler");
+public class Function {
+    
+	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	private static final IString ignoreTag = vf.string("ignore");
+	private static final IString IgnoreTag = vf.string("Ignore");
+	private static final IString ignoreCompilerTag = vf.string("ignoreCompiler");
+	private static final IString IgnoreCompilerTag = vf.string("IgnoreCompiler");
 	
 	String name;
 	public Type ftype;
@@ -89,12 +90,12 @@ public class Function implements Serializable {
 	public IMap localNames;
 	
 	// transient fields 
-	transient static IValueFactory vf;
 	transient SoftReference<MemoizationCache<IValue>> memoization;
-	
-	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
-		vf = vfactory;
-	}
+
+    private transient Class<?> javaClazz;
+    private transient Method javaMethod;
+    
+    public MethodHandle handle;
 	
 	public Function(final String name, final Type ftype, final Type kwType, final String funIn, final int nformals, final int nlocals, boolean isDefault, boolean isTest, 
 			 final IMap tags, final IMap localNames, final int maxstack,
@@ -155,11 +156,11 @@ public class Function implements Serializable {
 		this.continuationPoints = ctpt ;
 	}
 	
-	public void  finalize(final Map<String, Integer> codeMap, final Map<String, Integer> constructorMap, final Map<String, Integer> resolver){
+	public void  finalize(final Map<String, Integer> functionMap, final Map<String, Integer> constructorMap, final Map<String, Integer> resolver){
 		if(constructorMap == null){
 			System.out.println("finalize: null");
 		}
-		codeblock.done(name, codeMap, constructorMap, resolver);
+		codeblock.done(name, functionMap, constructorMap, resolver);
 		this.scopeId = codeblock.getFunctionIndex(name);
 		if(funIn.length() != 0) {
 			this.scopeIn = codeblock.getFunctionIndex(funIn);
@@ -172,7 +173,7 @@ public class Function implements Serializable {
 		codeblock.clearForJVM();
 	}
 	
-	public void attachExceptionTable(final IList exceptions, final RVMLinker rascalLinker) {
+	public void attachExceptionTable(final IList exceptions) {
 			froms = new int[exceptions.length()];
 			tos = new int[exceptions.length()];
 			types = new int[exceptions.length()];
@@ -189,7 +190,7 @@ public class Function implements Serializable {
 				ITuple tuple = (ITuple) entry;
 				String from = ((IString) tuple.get(0)).getValue();
 				String to = ((IString) tuple.get(1)).getValue();
-				Type type = rascalLinker.symbolToType((IConstructor) tuple.get(2));
+				Type type = new TypeReifier(vf).symbolToType((IConstructor) tuple.get(2));
 				String handler = ((IString) tuple.get(3)).getValue();
 				int fromSP =  ((IInteger) tuple.get(4)).intValue();
 				
@@ -273,7 +274,6 @@ public class Function implements Serializable {
 		for(int i = 0; i < typeConstantStore.length; i++){
 			sb.append("\t type constant "). append(i).append(": "). append(typeConstantStore[i]).append("\n");
 		}
-//		codeblock.toString() ;
 		sb.append(codeblock.toString());
 		return sb.toString();
 	}
@@ -288,33 +288,48 @@ public class Function implements Serializable {
 	
 	private static final int MAXDEPTH = 5;
     private static final int TRIES = 500;
+    
+    public int getTries(){
+      if(ftype.getFieldTypes().getArity() == 0){
+        return 1;
+      }
+      IValue itries = tags.get(vf.string("tries"));
+      return itries == null ? TRIES : Integer.parseInt(((IString) itries).getValue());
+    }
+    
+    public int getDepth(){
+      IValue imaxDepth = tags.get(vf.string("maxDepth"));
+      return imaxDepth == null ? MAXDEPTH : Integer.parseInt(((IString) imaxDepth).getValue());
+    }
 	
     /**
      * Execute current function as test
+     * @param testResultListener TODO
+     * @param typeStore TODO
+     * @param rex TODO
      **/
 
-    public ITuple executeTest(RascalExecutionContext rex) {
-      if(vf == null){
-        vf = ValueFactoryFactory.getValueFactory();
-      }
+    public ITuple executeTest(ITestResultListener testResultListener, TypeStore typeStore, RascalExecutionContext rex) {
       String fun = name;
       if(isIgnored()){
-        rex.getTestResultListener().ignored($computeTestName(fun, src), src);
-        return vf.tuple(src,  vf.integer(-1), vf.string(""));
+        testResultListener.ignored(computeTestName(), src);
+        return vf.tuple(src,  vf.integer(2), vf.string(""));
       }
       
       IValue iexpected =  tags.get(vf.string("expected"));
       String expected = iexpected == null ? "" : ((IString) iexpected).getValue();
       
+      int maxDepth = getDepth();
+      int tries = getTries();
+
       Type requestedType = ftype.getFieldTypes();
       int nargs = requestedType.getArity();
       IValue[] args = new IValue[nargs];
 
       TypeParameterVisitor tpvisit = new TypeParameterVisitor();
       HashMap<Type, Type> tpbindings = tpvisit.bindTypeParameters(requestedType);
-      RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, MAXDEPTH, tpbindings, rex.getTypeStore());
+      RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, maxDepth, tpbindings, typeStore);
 
-      int tries = nargs == 0 ? 1 : TRIES;
       boolean passed = true;
       String message = "";
       Throwable exception = null;
@@ -322,6 +337,11 @@ public class Function implements Serializable {
         if(nargs > 0){
           message = "test fails for arguments: ";
           ITuple tup = (ITuple) randomValue.generate(requestedType);
+          if(tup == null){
+            System.err.println(name + "(" + nargs + "): " + requestedType + ", " + tup );
+            printTypeStore(typeStore);
+        
+          } 
           for(int j = 0; j < nargs; j++){
             args[j] = tup.get(j);
             message = message + args[j].toString() + " ";
@@ -336,8 +356,8 @@ public class Function implements Serializable {
           }
         } catch (Thrown e){
           String ename;
-          if(e.value instanceof IConstructor){
-            ename = ((IConstructor) e.value).getName();
+          if(e.getValue() instanceof IConstructor){
+            ename = ((IConstructor) e.getValue()).getName();
           } else {
             ename = e.toString();
           }
@@ -357,288 +377,351 @@ public class Function implements Serializable {
       if(passed)
         message = "";
 
-      rex.getTestResultListener().report(passed, $computeTestName(fun, src), src, message, exception);
+      testResultListener.report(passed, computeTestName(), src, message, exception);
       return vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message));
     }
     
-    private static String $computeTestName(final String name, final ISourceLocation loc){
-      return name.substring(name.indexOf("/")+1, name.indexOf("(")); // Resembles Function.getPrintableName
-  }
-}
+    public String computeTestName(){    // Resembles Function.getPrintableName
+      String base = name;
+      int colons = name.lastIndexOf("::");
+      if(colons > 0){
+        base = name.substring(colons+2, name.indexOf("(")).replaceAll("/",  "::"); 
+      } else {
+        base = name.substring(name.indexOf("/")+1, name.indexOf("(")); 
+      }
+      return base + ": <" + src.getOffset() +"," + src.getLength() +">";
+    }
+    
+    public static void printTypeStore(TypeStore ts){
+      for(Type adt : ts.getAbstractDataTypes()){
+        System.err.println("adt: " + adt);
+      }
+      for(Type cons : ts.getConstructors()){
+        System.err.println("cons: " + cons);
+      }
+    }
+    
+    public void write(IRVMWireOutputStream out) throws IOException{
+        out.startMessage(CompilerIDs.Function.ID);
+       
+        out.writeField(CompilerIDs.Function.NAME, name);
 
-/**
- * FSTFunctionSerializer: serializer for Function objects
- *
- */
-class FSTFunctionSerializer extends FSTBasicObjectSerializer {
-	
-	//private static IValueFactory vf;
-	private static TypeStore store;
+        out.writeField(CompilerIDs.Function.FTYPE, ftype, WindowSizes.TINY_WINDOW);
 
-	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
-		//vf = vfactory;
-		store = ts;
-		store.extendStore(RascalValueFactory.getStore());
-	}
+        out.writeField(CompilerIDs.Function.KWTYPE, kwType, WindowSizes.TINY_WINDOW);
 
-	@Override
-	public void writeObject(FSTObjectOutput out, Object toWrite,
-			FSTClazzInfo clzInfo, FSTFieldInfo arg3, int arg4)
-					throws IOException {
-		
-		Function fun = (Function) toWrite;
+        out.writeField(CompilerIDs.Function.SCOPE_ID, scopeId);
 
-		// String name;
-		out.writeObject(fun.name);
+        out.writeField(CompilerIDs.Function.FUN_IN, funIn);
 
-		// Type ftype;
-		out.writeObject(new FSTSerializableType(fun.ftype));
-		
-		// Type kwType;
-        out.writeObject(new FSTSerializableType(fun.kwType));
+        out.writeField(CompilerIDs.Function.SCOPE_IN, scopeIn);
 
-		// int scopeId;
-		out.writeObject(fun.scopeId);
+        out.writeField(CompilerIDs.Function.NFORMALS, nformals);
 
-		// private String funIn;
-		out.writeObject(fun.funIn);
+        out.writeField(CompilerIDs.Function.NLOCALS, getNlocals());
 
-		// int scopeIn = -1;
-		out.writeObject(fun.scopeIn);
+        if(isDefault){ 
+            out.writeField(CompilerIDs.Function.IS_DEFAULT, 1); 
+        }
+        
+        if(isTest){
+            out.writeField(CompilerIDs.Function.IS_TEST, 1);
+        }
+        
+        if(tags != null){
+            out.writeField(CompilerIDs.Function.TAGS, tags, WindowSizes.TINY_WINDOW);
+        }
 
-		// int nformals;
-		out.writeObject(fun.nformals);
+        out.writeField(CompilerIDs.Function.MAX_STACK, maxstack);
 
-		// int nlocals;
-		out.writeObject(fun.getNlocals());
+        out.writeNestedField(CompilerIDs.Function.CODEBLOCK);
+        codeblock.write(out);
+        
+        out.writeField(CompilerIDs.Function.CONSTANT_STORE, constantStore);
 
-		// boolean isDefault;
-		out.writeObject(fun.isDefault);
-		
-		// boolean isTest;
-		out.writeObject(fun.isTest);
-		
-		// IMap tags;
-		if(fun.tags == null){
-		  fun.tags = ValueFactoryFactory.getValueFactory().mapWriter().done();
-		}
-		out.writeObject(new FSTSerializableIValue(fun.tags));
+        out.writeField(CompilerIDs.Function.TYPE_CONSTANT_STORE, typeConstantStore, WindowSizes.TINY_WINDOW);
 
-		// int maxstack;
-		out.writeObject(fun.maxstack);
+        if(concreteArg){
+            out.writeField(CompilerIDs.Function.CONCRETE_ARG, 1);
+        }
 
-		// CodeBlock codeblock;
-		out.writeObject(fun.codeblock);
+        out.writeField(CompilerIDs.Function.ABSTRACT_FINGERPRINT, abstractFingerprint);
 
-		// IValue[] constantStore;
-		int n = fun.constantStore.length;
-		out.writeObject(n);
+        out.writeField(CompilerIDs.Function.CONCRETE_FINGERPRINT, concreteFingerprint);
 
-		for(int i = 0; i < n; i++){
-			out.writeObject(new FSTSerializableIValue(fun.constantStore[i]));
-		}
+        out.writeField(CompilerIDs.Function.FROMS, froms);
 
-		// Type[] typeConstantStore;
-		n = fun.typeConstantStore.length;
-		out.writeObject(n);
+        out.writeField(CompilerIDs.Function.TOS, tos);
 
-		for(int i = 0; i < n; i++){
-			out.writeObject(new FSTSerializableType(RascalExecutionContext.shareTypeConstant(fun.typeConstantStore[i])));
-		}
+        out.writeField(CompilerIDs.Function.TYPES, types);
 
-		// boolean concreteArg = false;
-		out.writeObject(fun.concreteArg);
+        out.writeField(CompilerIDs.Function.HANDLERS, handlers);
 
-		// int abstractFingerprint = 0;
-		out.writeObject(fun.abstractFingerprint);
+        out.writeField(CompilerIDs.Function.FROM_SPS, fromSPs);
 
-		// int concreteFingerprint = 0;
-		out.writeObject(fun.concreteFingerprint);
+        out.writeField(CompilerIDs.Function.LAST_HANDLER, lastHandler);
+        
+        out.writeField(CompilerIDs.Function.FUN_ID, funId.intValue()); // Why Integer and not int?
 
-		// int[] froms;
-		out.writeObject(fun.froms);
+        if(isCoroutine){
+            out.writeField(CompilerIDs.Function.IS_COROUTINE, 1);
+        }
 
-		// int[] tos;
-		out.writeObject(fun.tos);
+        if (refs != null) {
+            out.writeField(CompilerIDs.Function.REFS, refs);
+        }
 
-		// int[] types;
-		out.writeObject(fun.types);
+        if(isVarArgs){
+            out.writeField(CompilerIDs.Function.IS_VARARGS, 1);
+        }
 
-		// int[] handlers;
-		out.writeObject(fun.handlers);
+        out.writeField(CompilerIDs.Function.SRC, src, WindowSizes.NO_WINDOW);
 
-		// int[] fromSPs;
-		out.writeObject(fun.fromSPs);
+        out.writeField(CompilerIDs.Function.LOCAL_NAMES, localNames, WindowSizes.TINY_WINDOW);
 
-		// int lastHandler = -1;
-		out.writeObject(fun.lastHandler);
-		
-		//public Integer funId; 
-		out.writeObject(fun.funId);
+        out.writeField(CompilerIDs.Function.CONTINUATION_POINTS, continuationPoints);
+        
+        out.endMessage();
+    }
+    
+    static Function read(IRVMWireInputStream in, Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) throws IOException {    
+        String name = "unitialized name";
+        Type ftype = null;
+        Type kwType = null;
+        int scopeId = 0;
+        String funIn = "unitialized funIn";
+        int scopeIn = -1;
+        int nformals = 0;
+        int nlocals = 0;
+        boolean isDefault = false;
+        boolean isTest = false;
+        
+        IMap emptyIMap = vf.mapWriter().done();
+        IMap tags = emptyIMap;
+        int maxstack = 0;
+        CodeBlock codeblock = null;
+        IValue[] constantStore = new IValue[0];          
+        Type[] typeConstantStore = new Type[0];
+        boolean concreteArg = false;
+        int abstractFingerprint = 0;
+        int concreteFingerprint = 0;
 
-		// boolean isCoroutine = false;
-		out.writeObject(fun.isCoroutine);
+        int[] froms = new int[0];
+        int[] tos = new int[0];
+        int[] types = new int[0];
+        int[] handlers = new int[0];
+        int[] fromSPs = new int[0];
+        int lastHandler = -1;
 
-		// int[] refs;
-		out.writeObject(fun.refs);
+        Integer funId = -1; // USED in dynRun to find the function, in the JVM version only.
+        
+        int continuationPoints = 0;
+        
+        boolean isCoroutine = false;
+        int[] refs = null;
 
-		// boolean isVarArgs = false;
-		out.writeObject(fun.isVarArgs);
+        boolean isVarArgs = false;
 
-		// ISourceLocation src;
-		out.writeObject(new FSTSerializableIValue(fun.src));
+        ISourceLocation src = vf.sourceLocation("uninitialized/src");         
+        IMap localNames = emptyIMap;
+        
+        in.next();
+        assert in.current() == IWireInputStream.MESSAGE_START;
+        if(in.message() != CompilerIDs.Function.ID){
+            throw new IOException("Unexpected message: " + in.message());
+        }
+        while(in.next() != IWireInputStream.MESSAGE_END){
+            switch(in.field()){
+                
+                case CompilerIDs.Function.NAME: {
+                    name = in.getString(); 
+                    break;
+                }
+                
+                case CompilerIDs.Function.FTYPE: {
+                    ftype = in.readType();
+                    break;
+                }
+                
+                case CompilerIDs.Function.KWTYPE: {
+                    kwType = in.readType();
+                    break;
+                }
+                
+                case CompilerIDs.Function.SCOPE_ID: {
+                    scopeId = in.getInteger();
+                    break;
+                }
+                
+                case CompilerIDs.Function.FUN_IN : {
+                    funIn = in.getString();
+                    break;
+                }
+                
+                case CompilerIDs.Function.SCOPE_IN: {
+                    scopeIn = in.getInteger();
+                    break;
+                }
+                
+                case CompilerIDs.Function.NFORMALS: {
+                    nformals = in.getInteger();
+                    break;
+                }
+                
+                case CompilerIDs.Function.NLOCALS: {
+                    nlocals = in.getInteger();
+                    break;
+                }
+                
+                case CompilerIDs.Function.IS_DEFAULT: {
+                    int n = in.getInteger();
+                    isDefault = n == 1 ? true : false;
+                    break;
+                }
+                
+                case CompilerIDs.Function.IS_TEST: {
+                    int n = in.getInteger();
+                    isTest = n == 1 ? true : false;
+                    break;
+                }
+                
+                case CompilerIDs.Function.TAGS: {
+                    tags = in.readIValue();
+                    break;
+                }
+                
+                case CompilerIDs.Function.MAX_STACK: {
+                    maxstack = in.getInteger();
+                    break;
+                }
+                    
+                case CompilerIDs.Function.CODEBLOCK: {
+                    codeblock = CodeBlock.read(in, functionMap, constructorMap, resolver);
+                    break;
+                }
+                
+                case CompilerIDs.Function.CONSTANT_STORE: {
+                    constantStore = in.readIValues();
+                    break;
+                }
+                
+                case CompilerIDs.Function.TYPE_CONSTANT_STORE: {
+                    typeConstantStore = in.readTypes();
+                    break;
+                }
+                
+                case CompilerIDs.Function.CONCRETE_ARG: {
+                    int n = in.getInteger();
+                    concreteArg = n == 1 ? true : false;
+                    break;
+                }
+                
+                case CompilerIDs.Function.ABSTRACT_FINGERPRINT:{
+                    abstractFingerprint = in.getInteger();
+                    break;
+                }
+                
+                case CompilerIDs.Function.CONCRETE_FINGERPRINT:{
+                    concreteFingerprint = in.getInteger();
+                    break;
+                }
+                
+                case CompilerIDs.Function.FROMS:{
+                    froms = in.getIntegers();
+                    break;
+                }
+                
+                case CompilerIDs.Function.TOS: {
+                    tos = in.getIntegers();
+                    break;
+                }
+                
+                case CompilerIDs.Function.TYPES: {
+                    types = in.getIntegers();
+                    break;
+                }
+                
+                case CompilerIDs.Function.HANDLERS: {
+                    handlers = in.getIntegers();
+                    break;
+                }
+                
+                case CompilerIDs.Function.FROM_SPS:{
+                    fromSPs = in.getIntegers();
+                    break;
+                }
+                
+                case CompilerIDs.Function.LAST_HANDLER: {
+                    lastHandler = in.getInteger();
+                    break;
+                }
+                
+                case CompilerIDs.Function.FUN_ID: {
+                    funId = in.getInteger();
+                    break;
+                }
+                
+                case CompilerIDs.Function.IS_COROUTINE: {
+                    int n = in.getInteger();
+                    isCoroutine = n == 1 ? true : false;
+                    break;
+                }
+                
+                case CompilerIDs.Function.REFS: {
+                    refs = in.getIntegers();
+                    break;
+                }
+                
+                case CompilerIDs.Function.IS_VARARGS: {
+                    int n = in.getInteger();
+                    isVarArgs = n == 1 ? true : false;
+                    break;
+                }
+                
+                case CompilerIDs.Function.SRC: {
+                    src = in.readIValue();
+                    break;
+                }
+                
+                case CompilerIDs.Function.LOCAL_NAMES:{
+                    localNames = in.readIValue();
+                    break;
+                }
+                
+                case CompilerIDs.Function.CONTINUATION_POINTS: {
+                    continuationPoints = in.getInteger();
+                    break;
+                }
+                
+                default: {
+                    System.err.println("Function.read, skips " + in.field());
+                    // skip field, normally next takes care of it
+                    in.skipNestedField();
+                }
+            }
+        }
+     
+        // TODO: check fields are valid
+        
+        Function func = new Function(name, ftype, kwType, funIn, nformals, nlocals, isDefault, isTest, tags, localNames, maxstack, concreteArg, 
+            abstractFingerprint, concreteFingerprint, codeblock, src, scopeIn,
+            constantStore, typeConstantStore, froms, tos, types, handlers, fromSPs,
+            lastHandler, scopeId, isCoroutine, refs, isVarArgs, continuationPoints);
+        func.funId = funId;
+        return func;
+    }
 
-		// IMap localNames;
-		out.writeObject(new FSTSerializableIValue(fun.localNames));
+    public Class<?> getJavaClass() {
+        return javaClazz;
+    }
 
-		// int continuationPoints
-		out.writeObject(fun.continuationPoints);
-	}
-	
+    public Method getJavaMethod() {
+        return javaMethod;
+    }
 
-	@Override
-	public void readObject(FSTObjectInput in, Object toRead, FSTClazzInfo clzInfo, FSTClazzInfo.FSTFieldInfo referencedBy)
-	{
-	}
-	
-	public Object instantiate(@SuppressWarnings("rawtypes") Class objectClass, FSTObjectInput in, FSTClazzInfo serializationInfo, FSTClazzInfo.FSTFieldInfo referencee, int streamPosition) throws ClassNotFoundException, IOException 
-	{
-
-		// String name;
-		String name = (String) in.readObject();
-
-		// Type ftype;
-		Type ftype = (Type) in.readObject();
-		
-		Object o = in.readObject();
-		
-		Type kwType;          // Transitional for boot
-		Integer scopeId;
-		if(o instanceof Type){
-		  kwType = (Type) o;
-		  // int scopeId;
-		  scopeId = (Integer) in.readObject();
-		} else {
-		  kwType = null;
-		  // int scopeId;
-		  scopeId = (Integer) o;
-		}
-		
-//		// Type kwType;
-//        Type kwType = (Type) in.readObject();
-//
-//		// int scopeId;
-//		Integer scopeId = (Integer) in.readObject();
-
-		// private String funIn;
-		String funIn = (String) in.readObject();
-
-		// int scopeIn = -1;
-		Integer scopeIn = (Integer) in.readObject();
-
-		// int nformals;
-		Integer nformals = (Integer) in.readObject();
-
-		// int nlocals;
-		Integer nlocals = (Integer) in.readObject();
-
-		// boolean isDefault;
-		Boolean isDefault = (Boolean) in.readObject();
-		
-		Boolean isTest = false;
-		IMap tags = null;
-		o = in.readObject();// transitional for boot
-		
-		Integer maxstack;
-		if(o instanceof Boolean){
-		  isTest = (Boolean) o;
-		  tags = (IMap) in.readObject();
-		  maxstack = (Integer) in.readObject();
-		} else {
-		  maxstack = (Integer) o;
-		}
-//      // Boolean isTest;
-//	     Boolean isTest = (Boolean) in.readObject();
-		
-//      // IMap tags;
-//      IMap tags = (IMap) in.readObject();
-		
-//		
-//		// int maxstack;
-//		Integer maxstack = (Integer) in.readObject();
-
-		// CodeBlock codeblock;
-		CodeBlock codeblock = (CodeBlock) in.readObject();
-
-		// IValue[] constantStore;
-		int n = (Integer) in.readObject();
-		IValue[] constantStore = new IValue[n];
-
-		for(int i = 0; i < n; i++){
-			constantStore[i] = (IValue) in.readObject();
-		}
-
-		// Type[] typeConstantStore;
-		n = (Integer) in.readObject();
-		Type[] typeConstantStore = new Type[n];
-
-		for(int i = 0; i < n; i++){
-			typeConstantStore[i] = RascalExecutionContext.shareTypeConstant((Type) in.readObject());
-		}
-
-		// boolean concreteArg = false;
-		Boolean concreteArg = (Boolean) in.readObject();
-
-		// int abstractFingerprint = 0;
-		Integer abstractFingerprint = (Integer) in.readObject();
-
-		// int concreteFingerprint = 0;
-		Integer concreteFingerprint = (Integer) in.readObject();
-
-		// int[] froms;
-		int[] froms = (int[]) in.readObject();
-
-		// int[] tos;
-		int[] tos = (int[]) in.readObject();
-
-		// int[] types;
-		int[] types = (int[]) in.readObject();
-
-		// int[] handlers;
-		int[] handlers = (int[]) in.readObject();
-
-		// int[] fromSPs;
-		int[] fromSPs = (int[]) in.readObject();
-
-		// int lastHandler = -1;
-		Integer lastHandler = (Integer) in.readObject();
-		
-		//public Integer funId; 
-		Integer funId = (Integer) in.readObject();
-
-		// boolean isCoroutine = false;
-		Boolean isCoroutine = (Boolean) in.readObject();
-
-		// int[] refs;
-		int[] refs = (int[]) in.readObject();
-
-		// boolean isVarArgs = false;
-		Boolean isVarArgs = (Boolean)in.readObject();
-
-		// ISourceLocation src;
-		ISourceLocation src = (ISourceLocation) in.readObject();
-
-		// IMap localNames;
-		IMap localNames = (IMap) in.readObject();
-		
-		// int continuationPoints
-		Integer continuationPoints = (Integer) in.readObject();
-		
-		Function func = new Function(name, ftype, kwType, funIn, nformals, nlocals, isDefault, isTest, tags, localNames, maxstack, concreteArg, 
-				abstractFingerprint, concreteFingerprint, codeblock, src, scopeIn,
-				constantStore, typeConstantStore, froms, tos, types, handlers, fromSPs,
-				lastHandler, scopeId, isCoroutine, refs, isVarArgs, continuationPoints);
-		func.funId = funId;
-		return func;
-	}
+    public void setJavaMetaObjects(Class<?> clazz, Method method) {
+        assert javaClazz == null && javaMethod == null;
+        this.javaClazz = clazz;
+        this.javaMethod = method;
+    }
 }

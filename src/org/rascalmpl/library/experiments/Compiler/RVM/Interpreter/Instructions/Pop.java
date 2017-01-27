@@ -12,6 +12,6 @@ public class Pop extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitInlinePop(debug);
+		codeEmittor.emitInlinePop();
 	}
 }

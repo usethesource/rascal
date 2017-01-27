@@ -3,6 +3,7 @@ module lang::rascal::tests::library::NodeTests
 import Node;
 import ValueIO;
 import IO;
+import util::UUID;
 
 // arity
 
@@ -123,7 +124,7 @@ test bool setKW2() = setKeywordParameters(z(x=3), ("x" : 4)).x == 4;
 /*TODO: clean up tmp */
 
 private bool textWriteRead(type[&T] typ, str termString, value termValue){
-   tmp = |test-temp:///xxx-node.test|; 
+   tmp = |test-temp:///xxx-node-<"<uuidi()>">.test|; 
    writeFile(tmp, termString);
    try {
         if(readTextValueFile(typ, tmp) == termValue) return true;

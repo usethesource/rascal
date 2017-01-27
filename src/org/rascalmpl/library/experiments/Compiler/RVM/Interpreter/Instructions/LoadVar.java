@@ -29,12 +29,12 @@ public class LoadVar extends Instruction {
 			if (debug)
 				codeEmittor.emitDebugCall2(opcode.name(), fuid, pos);
 			
-			codeEmittor.emitCallWithArgsFI_A("LOADVARMODULE", codeblock.getConstantIndex(codeblock.vf.string(fuid)), debug);
+			codeEmittor.emitCallWithArgsFI_A("LOADVARMODULE", codeblock.getConstantIndex(codeblock.vf.string(fuid)));
 		} else {
 			if (debug)
 				codeEmittor.emitDebugCall2(opcode.name(), codeblock.getFunctionName(fuid), pos);
 			
-			codeEmittor.emitCallWithArgsFII_A("LOADVARSCOPED", codeblock.getFunctionIndex(fuid), pos, debug);
+			codeEmittor.emitCallWithArgsFII_A("LOADVARSCOPED", codeblock.getFunctionIndex(fuid), pos);
 		}
 
 	}

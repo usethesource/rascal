@@ -38,7 +38,7 @@ public CachedImportInfo getCachedImports(str qualfiedModuleName, PathConfig pcfg
 public void writeCachedImports(str qualfiedModuleName, PathConfig pcfg, datetime dt, ImportsInfo imps) {
 	l = cachedImportsWriteLoc(qualfiedModuleName, pcfg);
 	if (!exists(l.parent)) mkDirectory(l.parent);
-	writeBinaryValueFile(l, ciInfo(dt,imps), compression=false); 
+	writeBinaryValueFile(l, ciInfo(dt,imps)); 
 }
 
 alias ImportGraph = Graph[RName];

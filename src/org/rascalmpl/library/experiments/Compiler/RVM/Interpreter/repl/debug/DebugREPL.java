@@ -7,10 +7,12 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
+import java.nio.file.Paths;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.repl.BaseREPL;
@@ -46,7 +48,7 @@ public class DebugREPL extends BaseREPL{
 	private final BreakPointManager breakPointManager;
 
 	public DebugREPL(PathConfig pcfg, RVMCore rvm2, Frame frame, BreakPointManager breakPointManager, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal) throws IOException, URISyntaxException{
-		super(pcfg, stdin, stdout, prettyPrompt, allowColors, new File(file.getAbsolutePath() + "-debug"), terminal);
+		super(pcfg, stdin, stdout, prettyPrompt, allowColors, new File(file.getAbsolutePath() + "-debug"), terminal, null);
 		this.rvm = rvm2;
 		this.currentFrame = frame;
 		this.startFrame = frame;
@@ -57,7 +59,7 @@ public class DebugREPL extends BaseREPL{
 	}
 	
 	@Override
-	protected void initialize(PathConfig pcfg, Writer stdout, Writer stderr) {
+	protected void initialize(PathConfig pcfg, Writer stdout, Writer stderr, IDEServices ideServices) {
 		 this.stdout = new PrintWriter(stdout);
          this.stderr = new PrintWriter(stderr);
 	}
@@ -155,7 +157,7 @@ public class DebugREPL extends BaseREPL{
 			break;
 			
 		case "r": case "return":
-			breakPointManager.returnDirective(currentFrame, words);
+			breakPointManager.returnDirective(currentFrame);
 			stop();
 			throw new InterruptedException();
 			
@@ -179,6 +181,10 @@ public class DebugREPL extends BaseREPL{
 		case "disable":
 			breakPointManager.disableDirective(words);
 			break;
+			
+		case "e": case "edit":
+		    breakPointManager.edit(Paths.get(currentFrame.src.getPath()));
+		    break;
 			
 		default:
 			IValue v = EvalExpr.eval(words[0], rvm, currentFrame);
@@ -205,6 +211,7 @@ public class DebugREPL extends BaseREPL{
 			"s(tep)           Execute but stop at the first possible occasion",
 			"r(eturn)         Execute until the current function’s return is encountered",
 			"l(isting)        Print lines around current breakpoint",
+			"e(dit)           Edit current module",
 			"b(reak)          Manage break points:",
 			"                 b          List current break points",
 			"                 b <lino>   Set breakpoint at line <lino> in current module",
@@ -228,8 +235,11 @@ public class DebugREPL extends BaseREPL{
 	}
 	
 	private void printStack(){
-		for(Frame f = currentFrame; f != null && !f.src.getPath().equals(CommandExecutor.consoleInputPath); f = f.previousCallFrame) {
+		for(Frame f = currentFrame; 
+		    (f != null && !f.src.getPath().equals(CommandExecutor.consoleInputPath)); 
+		    f = f.previousCallFrame) {
 			stdout.println("\t" + f.toString() /*+ "\t" + f.src*/);
+			stdout.flush();
 		}
 	}
 

@@ -2,7 +2,6 @@
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.BytecodeGenerator;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.value.IValue;
 
 public class PushCon extends Instruction {
 
@@ -27,6 +26,6 @@ public class PushCon extends Instruction {
 			codeEmittor.emitDebugCall2(opcode.name(), val, constant);
 		}
 
-		codeEmittor.emitInlinePushConOrType(constant,true,debug);
+		codeEmittor.emitInlinePushConOrType(constant,true);
 	}
 }

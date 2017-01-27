@@ -270,7 +270,6 @@ public class ElementResult<T extends IValue> extends Result<T> {
 		return (Result<U>) makeSlice(firstIndex, secondIndex, endIndex);
 	}
 
-  @SuppressWarnings("unchecked")
   protected Result<? extends INumber> toReal(IntegerResult from) {
     return makeResult(getTypeFactory().realType(), from.getValue().toReal(getValueFactory().getPrecision()), ctx);
   }

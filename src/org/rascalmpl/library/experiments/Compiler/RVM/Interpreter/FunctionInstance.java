@@ -1,13 +1,11 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.value.IAnnotatable;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IExternalValue;
-import org.rascalmpl.value.IMapWriter;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IWithKeywordParameters;
 import org.rascalmpl.value.exceptions.IllegalOperationException;

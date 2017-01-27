@@ -33,4 +33,9 @@ public class FunctionLineBreakpoint extends BreakPoint {
 	public boolean matchOnLeave(Frame frame) {
 		return matchOnObserve(frame);
 	}
+	
+	@Override
+    public String toString(){
+        return "FunctionLineBreakpoint " + functionName + ", line " + lino;
+    }
 }

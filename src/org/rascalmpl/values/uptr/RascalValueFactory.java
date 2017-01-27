@@ -12,7 +12,8 @@
 *******************************************************************************/
 package org.rascalmpl.values.uptr;
 
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -191,6 +192,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public static final Type Symbol_Parameter = tf.constructor(uptr, Symbol, "parameter", str, "name", Symbol, "bound");
 	public static final Type Symbol_LayoutX = tf.constructor(uptr, Symbol, "layouts", str, "name");
 	public static final Type Symbol_CharClass = tf.constructor(uptr, Symbol, "char-class", tf.listType(CharRange), "ranges");
+	
 	public static final Type Symbol_Int = tf.constructor(uptr, Symbol, "int");
 	public static final Type Symbol_Rat = tf.constructor(uptr, Symbol, "rat");
 	public static final Type Symbol_Bool = tf.constructor(uptr, Symbol, "bool");
@@ -230,6 +232,13 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public static final IValue Attribute_Assoc_Non_Assoc = bootFactory.constructor(Attr_Assoc, bootFactory.constructor(Associativity_NonAssoc));
 	public static final IValue Attribute_Assoc_Assoc = bootFactory.constructor(Attr_Assoc, bootFactory.constructor(Associativity_Assoc));
 	public static final IValue Attribute_Bracket = bootFactory.constructor(Attr_Bracket);
+	
+	/* Constructors for Function instances to be used in encodeAsConstructor */
+	public static final Type Function = tf.abstractDataType(uptr, "Function");
+	public static final Type Function_Choice = tf.constructor(uptr, Function, "choice", tf.listType(Function), "alternatives", tf.listType(Function), "otherwise");
+	public static final Type Function_Function = tf.constructor(uptr, Function, "function", tf.sourceLocationType(), "id");
+	public static final Type Function_Closure = tf.constructor(uptr, Function, "closure", Function, "definition", tf.mapType(str, tf.valueType()), "environment");
+	public static final Type Function_Composition = tf.constructor(uptr, Function, "composition", Function, "lhs", Function, "rhs");
 	
 	@Deprecated
 	/** Will be replaced by keyword parameter "origin" */
@@ -311,6 +320,14 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	
 	@Override
 	public IConstructor constructor(Type constructor, IValue[] children, Map<String, IValue> kwParams) throws FactTypeUseException {
+	    if (constructor == null) {
+            throw new NullPointerException();
+        }
+        Arrays.stream(children).forEach(t -> { if (t == null) throw new NullPointerException(); });
+        if (kwParams != null) { 
+            kwParams.values().stream().forEach(t -> { if (t == null) throw new NullPointerException(); }); 
+        }
+        
 		IConstructor result = specializeConstructor(constructor, children);
 		return result != null 
 				? (kwParams != null && !kwParams.isEmpty() && result.mayHaveKeywordParameters() ? result.asWithKeywordParameters().setParameters(kwParams) : result) 
@@ -319,12 +336,19 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	
 	@Override
 	public IConstructor constructor(Type constructor, IValue... children) throws FactTypeUseException {
+	    if (constructor == null) { throw new NullPointerException(); }
+	    Arrays.stream(children).forEach(t -> { if (t == null) throw new NullPointerException(); });
+	    
 		IConstructor result = specializeConstructor(constructor, children);
 		return result != null ? result : super.constructor(constructor, children);
 	}
 	
 	@Override
 	public IConstructor constructor(Type constructor, Map<String, IValue> annotations, IValue... children) throws FactTypeUseException {
+	    if (constructor == null) { throw new NullPointerException(); }
+        Arrays.stream(children).forEach(t -> { if (t == null) throw new NullPointerException(); });
+        annotations.values().stream().forEach(t -> { if (t == null) throw new NullPointerException(); });
+        
 		IConstructor result = specializeConstructor(constructor, children);
 		return result != null 
 				? result.asAnnotatable().setAnnotations(annotations) 
@@ -358,8 +382,8 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	
 	@Override
 	public IConstructor reifiedType(IConstructor symbol, IMap definitions) {
-		java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
-		bindings.put(RascalValueFactory.TypeParam, tr.symbolToType(symbol, definitions));
+		java.util.Map<Type,Type> bindings = 
+		        Collections.singletonMap(RascalValueFactory.TypeParam, tr.symbolToType(symbol, definitions));
 		return super.constructor(RascalValueFactory.Type_Reified.instantiate(bindings), symbol, definitions);
 	}
 	

@@ -165,4 +165,11 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	public T setParameters(Map<String, IValue> params) {
 		return wrap(content, AbstractSpecialisedImmutableMap.mapOf(params));
 	}
+	
+	/**
+	 * This method is only to be used by internal methods, such as testing and fast iterators
+	 */
+	public ImmutableMap<String, IValue> internalGetParameters() {
+	    return parameters;
+	}
 }

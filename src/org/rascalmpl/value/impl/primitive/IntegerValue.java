@@ -41,7 +41,18 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 	private final static int SEVEN_BITS_MASK = 0x0000007f;
 	private final static int FIFTEEN_BITS_MASK = 0x00007fff;
 	private final static int TWENTYTHREE_BITS_MASK = 0x007fffff;
-	public final static IInteger INTEGER_ONE = newInteger(1);
+
+	private final static IInteger[] smallValues; 
+	private final static int minSmallValue = -100;
+	private final static int maxSmallValue = 100;
+	public final static IInteger INTEGER_ONE;
+	static {
+	    smallValues = new IInteger[(maxSmallValue - minSmallValue) + 1];
+	    for (int i = minSmallValue; i <= maxSmallValue; i++) {
+	        smallValues[i - minSmallValue] = new IntegerValue(i);
+	    }
+	    INTEGER_ONE = smallValues[1 - minSmallValue];
+	}
 	protected final int value;
 
 	/*
@@ -51,23 +62,27 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 		if (value.bitLength() > 31) {
 			return new BigIntegerValue(value);
 		}
-		return new IntegerValue(value.intValue());
+		return newInteger(value.intValue());
 	}
+	
 
 	/*package*/ static IInteger newInteger(int value) {
-		return new IntegerValue(value);
+	    if (minSmallValue <= value && value <= maxSmallValue) {
+	        return smallValues[value - minSmallValue];
+	    }
+        return new IntegerValue(value);
 	}
 
 	/*package*/ static IInteger newInteger(String integerValue) {
 		if (integerValue.startsWith("-")) {
 			if (integerValue.length() < 11 || (integerValue.length() == 11 && integerValue.compareTo(NEGATIVE_INTEGER_MAX_STRING) <= 0)) {
-				return new IntegerValue(Integer.parseInt(integerValue));
+				return newInteger(Integer.parseInt(integerValue));
 			}
 			return new BigIntegerValue(new BigInteger(integerValue));
 		}
 
 		if (integerValue.length() < 10 || (integerValue.length() == 10 && integerValue.compareTo(INTEGER_MAX_STRING) <= 0)) {
-			return new IntegerValue(Integer.parseInt(integerValue));
+			return newInteger(Integer.parseInt(integerValue));
 		}
 		return new BigIntegerValue(new BigInteger(integerValue));
 	}
@@ -96,7 +111,7 @@ import org.rascalmpl.value.visitors.IValueVisitor;
 				value |= ((integerData[i] & 0xff) << (j * 8));
 			}
 
-			return new IntegerValue(value);
+			return newInteger(value);
 		}
 		return new BigIntegerValue(new BigInteger(integerData));
 	}

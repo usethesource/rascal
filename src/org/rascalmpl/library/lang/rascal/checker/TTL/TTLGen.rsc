@@ -14,18 +14,18 @@ private int tcnt = 0;
 
 private int genSym() { tcnt += 1; return tcnt; }
 
-list[TestItem] infix = [];
-list[TestItem] prefix = [];
-list[TestItem] postfix = [];
-
+list[TestItem] Infix = [];
+list[TestItem] Prefix = [];
+list[TestItem] Postfix = [];
+ 
 // Main: compile all TTL specifications to Rascal tests
 
 void main() { 
   tcnt = 0;
-  infix = prefix = postfix = [];
+  Infix = Prefix = Postfix = [];
   for(loc ttl <- (TTLRoot + "specs").ls, ttl.extension == TTL)
       generate(ttl); 
-  generateSignatures(infix, prefix, postfix);
+  generateSignatures(Infix, Prefix, Postfix);
 }
 
 str basename(loc l) = l.file[ .. findFirst(l.file, ".")];
@@ -59,13 +59,13 @@ void generate(loc src){
           tests += genGeneralTest(item, decls, modules);
        } else if(item is InfixTest){
           tests += genInfixTest(item);
-          infix += item;
+          Infix += item;
        } else if(item is PrefixTest){
          tests += genUnaryTest(item, true);
-         prefix += item;
+         Prefix += item;
        } else if(item is PostfixTest){
          tests += genUnaryTest(item, false);
-         postfix += item;
+         Postfix += item;
        } else if(item is PatternTest){
          tests += genPatternTest(item);
        } else {
@@ -181,7 +181,8 @@ tuple[lrel[Name,Type],list[RegExpLiteral],str] getExpectations(list[Expect] expe
   expected_exception = "";
   for(Expect e <- expect){
       if(e is inferred){
-         inferred_type += <e.name, toSymbol(e.expectedType)>;
+         throw "JV: this next line did not compile: ";
+         //inferred_type += <e.name, toSymbol(e.expectedType)>;
       } else if (e is message){
       	 message += e.regexp;
       } else {
@@ -210,7 +211,7 @@ str buildType(str txt){   // TODO remove this limitation to 5 variables
    return startsWith(txt, "lub") || (txt[0] == "#") ? txt : "#<txt>.symbol";          
 }
 
-// Generete code for TTL test for infix operator
+// Generete code for TTL test for Infix operator
 str genInfixTest(TestItem item){
   tests = "";
   for(operator <- item.operators){
@@ -224,7 +225,7 @@ str genInfixTest(TestItem item){
 	     }
 	    
 	     tname = "<basename(item)><genSym()>";
-	     tests += "// Testing infix <item.name> <operatorName> for <sig>
+	     tests += "// Testing Infix <item.name> <operatorName> for <sig>
 	     		  'test bool <tname>(<sig.left> arg1, <sig.right> arg2){ 
 	              '  ltype = typeOf(arg1);
 	              '  rtype = typeOf(arg2);
@@ -249,15 +250,15 @@ str genInfixTest(TestItem item){
   return tests;
 }
 
-// Generete code for TTL test for unary (prefix or postfix) operator
-str genUnaryTest(TestItem item, bool prefix){
+// Generete code for TTL test for unary (Prefix or Postfix) operator
+str genUnaryTest(TestItem item, bool Prefix){
   tests = "";
   for(operator <- item.operators){
 	  operatorName = "<operator>"[1..-1]; 
 	  for(sig <- item.un_signatures){
-	     expr = prefix ? "\"<operatorName> (\<escape(arg1)\>);\"" : "\"(\<escape(arg1)\>) <operatorName>;\"";
+	     expr = Prefix ? "\"<operatorName> (\<escape(arg1)\>);\"" : "\"(\<escape(arg1)\>) <operatorName>;\"";
 	     tname = "<basename(item)><genSym()>";
-	     tests += "// Testing <prefix ? "prefix" : "postfix"> <item.name> <operatorName> for <sig>
+	     tests += "// Testing <Prefix ? "Prefix" : "Postfix"> <item.name> <operatorName> for <sig>
 	     		  'test bool <tname>(<sig.left> arg1){ 
 	              '  ltype = typeOf(arg1);
 	              '  if(isDateTimeType(ltype))

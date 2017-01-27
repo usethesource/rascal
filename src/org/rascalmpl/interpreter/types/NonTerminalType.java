@@ -13,13 +13,30 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.types;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+
+import org.rascalmpl.interpreter.TypeReifier.TypeStoreWithSyntax;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.Symbols;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
+import org.rascalmpl.value.visitors.BottomUpVisitor;
+import org.rascalmpl.value.visitors.IValueVisitor;
+import org.rascalmpl.value.visitors.IdentityVisitor;
 import org.rascalmpl.value.type.TypeStore;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -32,7 +49,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * that implements the connection between Rascal's non-terminals and Rascal types. 
  */
 public class NonTerminalType extends RascalType {
-	private IConstructor symbol;
+	private final IConstructor symbol;
 
 	/*package*/ public NonTerminalType(IConstructor cons) {
 		// TODO refactor this into different factory methods in RascalTypeFactory
@@ -70,6 +87,119 @@ public class NonTerminalType extends RascalType {
 		this(Symbols.typeToSymbol(type, lex, layout));
 	}
 	
+    public static class Reifier implements TypeReifier {
+
+        @Override
+        public Set<Type> getSymbolConstructorTypes() {
+            return Arrays.stream(new Type[] {
+                   RascalValueFactory.Symbol_Label,
+                   RascalValueFactory.Symbol_Start_Sort,
+                   RascalValueFactory.Symbol_Lit,
+                   RascalValueFactory.Symbol_CiLit,
+                   RascalValueFactory.Symbol_Empty,
+                   RascalValueFactory.Symbol_Seq,
+                   RascalValueFactory.Symbol_Opt,
+                   RascalValueFactory.Symbol_Alt,
+                   RascalValueFactory.Symbol_Sort,
+                   RascalValueFactory.Symbol_Lex,
+                   RascalValueFactory.Symbol_Keyword,
+                   RascalValueFactory.Symbol_Meta,
+                   RascalValueFactory.Symbol_Conditional,
+                   RascalValueFactory.Symbol_IterSepX,
+                   RascalValueFactory.Symbol_IterStarSepX,
+                   RascalValueFactory.Symbol_IterPlus,
+                   RascalValueFactory.Symbol_IterStar,
+                   RascalValueFactory.Symbol_ParameterizedSort,
+                   RascalValueFactory.Symbol_ParameterizedLex,
+                   RascalValueFactory.Symbol_Parameter,
+                   RascalValueFactory.Symbol_LayoutX,
+                   RascalValueFactory.Symbol_CharClass,
+                   RascalValueFactory.Production_Default
+            }).collect(Collectors.toSet());
+        }
+        
+        @Override
+        public Type getSymbolConstructorType() {
+            // this reifier is for multiple constructor types
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
+            if (symbols().isLabel(symbol)) {
+                symbol = symbols().getLabeledSymbol(symbol);
+            }
+            
+            return RTF.nonTerminalType((IConstructor) symbol);
+        }
+
+        @Override
+        public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
+                Set<IConstructor> done) {
+            if (store instanceof TypeStoreWithSyntax) {
+                TypeStoreWithSyntax syntax = (TypeStoreWithSyntax) store;
+                addRulesForSort(vf, ((NonTerminalType) type).symbol, syntax, grammar, new HashSet<>());
+            }
+        }
+        
+        @Override
+        public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store,  ISetWriter grammar, Set<IConstructor> done) {
+            asProductions(type, vf, store, grammar, done);
+            return ((NonTerminalType) type).symbol;
+        }
+        
+        private void addRulesForSymbol(IValueFactory vf, IConstructor sort, TypeStoreWithSyntax syntax, ISetWriter grammar, Set<IConstructor> done) {
+            if (SymbolAdapter.isLex(sort) || SymbolAdapter.isSort(sort) || SymbolAdapter.isKeyword(sort)) {
+                addRulesForSort(vf, sort, syntax, grammar, done); 
+            }
+            else { // composite symbol needs to be traversed
+                sort.accept(new BottomUpVisitor<>(new IdentityVisitor<RuntimeException>() {
+                    @Override
+                    public IValue visitConstructor(IConstructor o) throws RuntimeException {
+                        if (o.getType() == RascalValueFactory.Symbol) {
+                            addRulesForSort(vf, o, syntax, grammar, done);
+                        }
+                        return o;
+                    }
+                }, vf));
+            }
+        }
+        
+        private void addRulesForSort(IValueFactory vf, IConstructor sort, TypeStoreWithSyntax syntax, ISetWriter grammar, Set<IConstructor> done) {
+            if (done.contains(sort)) {
+                return;
+            }
+            
+            for (IValue rule : syntax.getRules(sort)) {
+                grammar.insert(vf.tuple(sort, rule));
+                done.add(sort);
+                
+                if (ProductionAdapter.isDefault((IConstructor) rule)) {
+                    for (IValue arg : ProductionAdapter.getSymbols((IConstructor) rule)) {
+                        addRulesForSymbol(vf, (IConstructor) arg, syntax, grammar, done);
+                    }
+                }
+            }
+        }
+
+        @Override
+        public boolean isRecursive() {
+            return true;
+        }
+        
+        @Override
+        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+            IValueFactory vf = ValueFactoryFactory.getValueFactory();
+            // TODO: this is not random enough
+            return RascalTypeFactory.getInstance().nonTerminalType(vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(randomLabel(rnd))));
+        }
+    }
+    
+    @Override
+    public TypeReifier getTypeReifier() {
+        return new Reifier();
+    }
+    
     @Override
     public boolean isNonterminal() {
     	return true;
@@ -286,11 +416,13 @@ public class NonTerminalType extends RascalType {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if(obj == null)
+		if(obj == null) {
 			return false;
+		}
+		
 		if (obj.getClass() == getClass()) {
 			NonTerminalType other = (NonTerminalType) obj;
-			return symbol.equals(other.symbol);
+			return symbol.isEqual(other.symbol);
 		}
 		
 		return false;
@@ -298,7 +430,7 @@ public class NonTerminalType extends RascalType {
 	
 	@Override
 	public int hashCode() {
-		return symbol.hashCode();
+		return 133333331 + 1331 * symbol.hashCode();
 	}
 	
 	@Override

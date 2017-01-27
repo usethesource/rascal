@@ -864,7 +864,7 @@ lexical DeciFloatExponentPart =
   ;
 
 syntax MethodSpec =
-   method: MethodName 
+   methodName: MethodName 
   |  superMethod: "super"  "." TypeArgs? Id 
   |  genericMethod: AmbName "." TypeArgs Id 
   |  qSuperMethod: TypeName "." "super"  "." TypeArgs? Id 
