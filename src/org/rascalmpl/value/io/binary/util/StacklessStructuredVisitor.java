@@ -12,33 +12,15 @@
  */ 
 package org.rascalmpl.value.io.binary.util;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
-import java.util.Iterator;
-import java.util.Map.Entry;
-
-import org.rascalmpl.value.IAnnotatable;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IDateTime;
-import org.rascalmpl.value.IExternalValue;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.INode;
-import org.rascalmpl.value.IRational;
-import org.rascalmpl.value.IReal;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.ITuple;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IWithKeywordParameters;
+import org.rascalmpl.value.*;
 import org.rascalmpl.value.impl.AbstractDefaultAnnotatable;
 import org.rascalmpl.value.impl.AbstractDefaultWithKeywordParameters;
 import org.rascalmpl.value.visitors.IValueVisitor;
 
-import io.usethesource.capsule.ImmutableMap;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.Map.Entry;
 
 public class StacklessStructuredVisitor {
 
@@ -161,7 +143,7 @@ public class StacklessStructuredVisitor {
             }
 
 
-            private void pushKWPairs(ImmutableMap<String, IValue> namedValues) {
+            private void pushKWPairs(io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> namedValues) {
                 workList.push(new NextStep<>(null, (l,w,v) -> {
                     v.leaveNamedValue();
                 }));
