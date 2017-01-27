@@ -136,7 +136,7 @@ public class BinaryWireOutputStream implements IWireOutputStream {
     public void flush() throws IOException {
         assertNotClosed();
         if (buffer.position() > 0) {
-            flushBuffer();
+            flushBuffer(buffer);
         }
         __stream.flush();
     }
