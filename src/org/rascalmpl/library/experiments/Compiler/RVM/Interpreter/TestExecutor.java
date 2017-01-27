@@ -15,35 +15,31 @@
  *******************************************************************************/
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.ITestResultListener;
-import org.rascalmpl.value.ISourceLocation;
 
 public class TestExecutor {
 
-	private final RVMExecutable executable;
+	private final RVMCore rvmCore;
 	private final ITestResultListener testResultListener;
+	private final RascalExecutionContext rex;
 
-	public TestExecutor(RVMExecutable executable, ITestResultListener testResultListener){
+	public TestExecutor(RVMCore rvmCore, ITestResultListener testResultListener, RascalExecutionContext rex){
 		super();
 
-		this.executable = executable;
+		this.rvmCore = rvmCore;
 		this.testResultListener = testResultListener;
-		// Make listener known to compiler's run-time system
-		ExecutionTools.setTestResultListener(testResultListener);
+		this.rex = rex;
 	}
 
 	public void test(String moduleName, int nTests) {
 		testResultListener.start(moduleName, nTests);
 		try {
-//			ISourceLocation src = eval.getRascalResolver().resolveModule(moduleName);
-			System.err.println("TestExecutor.test: testing " + moduleName + ", " + nTests + " tests");
-//			eval.call("executeTests", src);
-//			executable.executeTests(rex);
-			System.err.println("TestExecutor.test: testing " + moduleName + " ... done");
+//			System.err.println("TestExecutor.test: testing " + moduleName + ", " + nTests + " tests");
+			rvmCore.executeTests(testResultListener, rex);
+//			System.err.println("TestExecutor.test: testing " + moduleName + " ... done");
 		} 
 		catch (Exception e) {
-			System.err.println("TestExecutor.test: " + moduleName + " unexpected exception: " + e.getMessage());
+//			System.err.println("TestExecutor.test: " + moduleName + " unexpected exception: " + e.getMessage());
 			throw e;
 		}
 		finally {

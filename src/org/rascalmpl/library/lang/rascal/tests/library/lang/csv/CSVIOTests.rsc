@@ -1,13 +1,14 @@
 module lang::rascal::tests::library::lang::csv::CSVIOTests
-
+ 
 import IO;
 import Type;
 import lang::csv::IO;
 import util::Math;
 import ParseTree;
 import DateTime;
+import util::UUID;
 
-loc targetFile = |test-temp:///csv-test-file.csv|;
+loc targetFile = |test-temp:///csv-test-file--<"<uuidi()>">.csv|;
 
 bool readWrite(set[&T] dt) = readWrite(type(typeOf(dt), ()), dt);
 bool readWrite(type[&T] returnType, set[&T1] dt) {

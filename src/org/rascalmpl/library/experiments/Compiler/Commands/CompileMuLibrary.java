@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
-import org.rascalmpl.library.lang.rascal.boot.Kernel;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
+import org.rascalmpl.library.lang.rascal.boot.IKernel;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -24,25 +24,8 @@ public class CompileMuLibrary {
         try {
             IValueFactory vf = ValueFactoryFactory.getValueFactory();
             CommandOptions cmdOpts = new CommandOptions("compileMuLibrary");
-            cmdOpts
-            .locsOption("src")		
-            .locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
-            .respectNoDefaults()
-            .help("Add (absolute!) source location, use multiple --src arguments for multiple locations")
-            
-            .locsOption("lib")		
-            .locsDefault((co) -> vf.list(co.getCommandLocOption("bin")))
-            .respectNoDefaults()
-            .help("Add new lib location, use multiple --lib arguments for multiple locations")
-            
-            .locOption("boot")		
-            .locDefault(cmdOpts.getDefaultBootLocation())
-            .help("Rascal boot directory")
-            
-            .locOption("bin") 		
-            .respectNoDefaults()
-            .help("Directory for Rascal binaries")
-            
+            cmdOpts.pathConfigOptions()
+        
             .boolOption("help") 		
             .help("Print help message for this command")
             
@@ -58,22 +41,14 @@ public class CompileMuLibrary {
             .noModuleArgument()
             .handleArgs(args);
 
-            RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), cmdOpts.getCommandLocOption("boot"))
-                    .customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())
-                    .setTrace(cmdOpts.getCommandBoolOption("trace"))
-                    .setProfile(cmdOpts.getCommandBoolOption("profile"))
-                    //.setJVM(cmdOpts.getCommandBoolOption("jvm"))
-                    .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
-                    .build();
+            PathConfig pcfg = cmdOpts.getPathConfig();
+            IKernel kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class)
+                .trace(cmdOpts.getCommandBoolOption("trace"))
+                .profile(cmdOpts.getCommandBoolOption("profile"))
+                .verbose(cmdOpts.getCommandBoolOption("verbose")).
+                build();
 
-            Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
-
-            kernel.compileMuLibrary(
-                    cmdOpts.getCommandLocsOption("src"),
-                    cmdOpts.getCommandLocsOption("lib"),
-                    cmdOpts.getCommandLocOption("boot"),
-                    cmdOpts.getCommandLocOption("bin"), 
-                    cmdOpts.getModuleOptionsAsMap());
+            kernel.compileMuLibrary(pcfg.asConstructor(kernel), kernel.kw_compileMu());
         }
         catch (Throwable e) {
             e.printStackTrace();

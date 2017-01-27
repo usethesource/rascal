@@ -15,7 +15,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URISyntaxException;
+import java.util.Collections;
 import java.util.HashMap;
 
 import org.rascalmpl.debug.IRascalMonitor;
@@ -27,7 +27,6 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;	// remove impo
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.JavaBridge;					// remove import: NO
 import org.rascalmpl.parser.gtd.IGTD;
-import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISourceLocation;
@@ -42,7 +41,7 @@ import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class ParserGenerator {
-   private Evaluator evaluator;
+  private Evaluator evaluator;
   private final JavaBridge bridge;
   private final IValueFactory vf;
   private final TypeFactory tf;
@@ -54,20 +53,16 @@ public class ParserGenerator {
   private static final boolean debug = false;
   private static final boolean useCompiledParserGenerator = true;
 
-  static {
-
-  }
-
   public ParserGenerator(RascalExecutionContext rex) throws IOException {
     this.vf = rex.getValueFactory();
     this.tf = TypeFactory.getInstance();
-    this.bridge = new JavaBridge(rex.getClassLoaders(), rex.getValueFactory(), rex.getConfiguration());
+    this.bridge = new JavaBridge(Collections.emptyList(), rex.getValueFactory(), rex.getConfiguration());
 
       if(useCompiledParserGenerator && rvmParserGenerator == null) {
         RascalExecutionContext rex2 = 
-            RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory(), rex.getBoot(), System.out,System.err)
+            RascalExecutionContextBuilder.normalContext(rex.getPathConfig(), System.out, System.err)
             .forModule("$parsergenerator$")
-            .setJVM(true)                   // options for complete repl
+            .jvm(true)                   // options for complete repl
             .build();
         rvmParserGenerator = RVMCore.readFromFileAndInitialize(rex.getParserGenerator(), rex2);
       }
@@ -133,7 +128,7 @@ public class ParserGenerator {
 
     public IConstructor convertMapToGrammar(IMap definition) {
       TypeFactory TF = TypeFactory.getInstance();
-      TypeStore TS = RascalValueFactory.getStore(); //new TypeStore();
+      TypeStore TS = new TypeStore(RascalValueFactory.getStore()); //new TypeStore();
       Type Grammar = TF.abstractDataType(TS, "Grammar");
       Type Symbol = TF.abstractDataType(TS, "Symbol");
       Type Production = TF.abstractDataType(TS, "Production");
@@ -206,7 +201,7 @@ public class ParserGenerator {
       } catch (Throw e) {
         throw new CompilerError("parser generator: " + e.getMessage(), e);
       } catch (Thrown e) {
-        throw new CompilerError("parser generator: " + e.getMessage(), e);
+        throw new CompilerError("parser generator: " + e.value, e);
       } catch (Throwable e) {
         throw new CompilerError("parser generator: " + e.getMessage(), e);  
       } finally {

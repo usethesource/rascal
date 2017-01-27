@@ -1,37 +1,30 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.*;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireInputStream;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireOutputStream;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.binary.util.WindowSizes;
+import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeStore;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-
-import org.nustaq.serialization.FSTBasicObjectSerializer;
-import org.nustaq.serialization.FSTClazzInfo;
-import org.nustaq.serialization.FSTClazzInfo.FSTFieldInfo;
-import org.nustaq.serialization.FSTObjectInput;
-import org.nustaq.serialization.FSTObjectOutput;
 
 /**
  * CodeBlock contains all instructions needed for a single RVM function
  *
- * CodeBlock is serialized by FSTCodeBlockerializer, make sure that
- * all fields declared here are synced with the serializer.
+ * CodeBlock is serialized by write and read defined here
  */
-public class CodeBlock implements Serializable {
-
-	private static final long serialVersionUID = 6955775282462381062L;
+public class CodeBlock  {
 	
 	// Transient fields
 	transient public IValueFactory vf;
@@ -58,8 +51,6 @@ public class CodeBlock implements Serializable {
 	
 	public long[] finalCode;
 	
-	
-	
 	CodeBlock(String name, Map<IValue, Integer> constantMap, ArrayList<IValue> constantStore, IValue[] finalConstantStore,
 			Map<Type, Integer> typeConstantMap, ArrayList<Type> typeConstantStore, Type[] finalTypeConstantStore,
 			Map<String, Integer> functionMap, Map<String, Integer> resolver, Map<String, Integer> constructorMap, long[] finalCode
@@ -80,7 +71,6 @@ public class CodeBlock implements Serializable {
 	public CodeBlock(String name, IValueFactory factory){
 		labelInfo = new HashMap<String, LabelInfo>();
 		insList = new ArrayList<Instruction>();
-		new ArrayList<Integer>();
 		pc = 0;
 		this.name = name;
 		this.vf = factory;
@@ -777,8 +767,8 @@ public class CodeBlock implements Serializable {
 	}
 	
 			
-	public CodeBlock done(String fname, Map<String, Integer> codeMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) {
-		this.functionMap = codeMap;
+	public CodeBlock done(String fname, Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) {
+		this.functionMap = functionMap;
 		this.constructorMap = constructorMap;
 		this.resolver = resolver;
 		int codeSize = pc;
@@ -805,6 +795,12 @@ public class CodeBlock implements Serializable {
 	
     	return this;
     }
+	
+	public void setMaps(Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver){
+	    this.functionMap = functionMap;
+        this.constructorMap = constructorMap;
+        this.resolver = resolver;
+	}
     
     public long[] getInstructions(){
     	return finalCode;
@@ -868,6 +864,85 @@ public class CodeBlock implements Serializable {
 			gen.emitPanicReturn();
 		}
 	}
+	
+	public void write(IRVMWireOutputStream out) throws IOException{ 
+	    out.startMessage(CompilerIDs.CodeBlock.ID);
+
+        out.writeField(CompilerIDs.CodeBlock.NAME, name);
+
+        out.writeField(CompilerIDs.CodeBlock.FINAL_CONSTANT_STORE, finalConstantStore, WindowSizes.SMALL_WINDOW);
+
+        out.writeField(CompilerIDs.CodeBlock.FINAL_TYPECONSTANT_STORE, finalTypeConstantStore, WindowSizes.TINY_WINDOW);
+
+        out.writeField(CompilerIDs.CodeBlock.FINAL_CODE, finalCode);
+       
+	    out.endMessage();
+	}
+
+    public static CodeBlock read(IRVMWireInputStream in, Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) throws IOException {
+        String name = "unitialized name";
+        
+        Map<IValue, Integer> constantMap = new HashMap<>();
+        ArrayList<IValue> constantStore = new ArrayList<>();
+        IValue[] finalConstantStore = new IValue[0];
+        
+        Map<Type, Integer> typeConstantMap = new HashMap<>();
+        ArrayList<Type> typeConstantStore = new ArrayList<>();
+        Type[] finalTypeConstantStore = new Type[0];
+        
+        long[] finalCode = new long[0];
+        
+        in.next();
+        assert in.current() == IWireInputStream.MESSAGE_START;
+        if(in.message() != CompilerIDs.CodeBlock.ID){
+            throw new IOException("Unexpected message: " + in.message());
+        }
+        while(in.next() != IWireInputStream.MESSAGE_END){
+            switch(in.field()){
+                
+                case  CompilerIDs.CodeBlock.NAME: {
+                    name = in.getString(); 
+                    break;
+                }
+                
+                case CompilerIDs.CodeBlock.FINAL_CONSTANT_STORE: {
+                    finalConstantStore = in.readIValues();
+                    constantMap = new HashMap<IValue, Integer> (finalConstantStore.length);
+                    constantStore = new ArrayList<IValue>(finalConstantStore.length);
+                    for (int i = 0; i < finalConstantStore.length; i++) {
+                        constantMap.put(finalConstantStore[i], i);
+                        constantStore.add(finalConstantStore[i]);
+                    }
+                    break;
+                }
+                
+                case CompilerIDs.CodeBlock.FINAL_TYPECONSTANT_STORE: {
+                    finalTypeConstantStore = in.readTypes();
+                    typeConstantMap = new HashMap<Type, Integer>(finalTypeConstantStore.length);
+                    typeConstantStore = new ArrayList<Type>(finalTypeConstantStore.length);
+                    for(int i = 0; i < finalTypeConstantStore.length; i++){
+                        typeConstantMap.put(finalTypeConstantStore[i], i);
+                        typeConstantStore.add(finalTypeConstantStore[i]);
+                    }
+                    break;
+                }
+                
+                case CompilerIDs.CodeBlock.FINAL_CODE: {
+                    finalCode = in.readLongs();
+                    break;
+                }
+                
+                default: {
+                    System.err.println("CodeBlock.read, skips " + in.field());
+                    // skip field, normally next takes care of it
+                    in.skipNestedField();
+                }
+            }
+        }
+        
+        return new CodeBlock(name, constantMap, constantStore, finalConstantStore, typeConstantMap, typeConstantStore, finalTypeConstantStore, 
+            functionMap, resolver, constructorMap, finalCode);
+    }
 }
 
 class LabelInfo {
@@ -888,135 +963,5 @@ class LabelInfo {
 	
 	public boolean isResolved(){
 		return PC >= 0;
-	}
-}
-
-/**
- * FSTCodeBlockSerializer: serializer for CodeBlock objects
- *
- */
-class FSTCodeBlockSerializer extends FSTBasicObjectSerializer {
-
-	private static TypeStore store;
-
-	public static void initSerialization(IValueFactory vfactory, TypeStore ts){
-		store = ts;
-		store.extendStore(RascalValueFactory.getStore());
-	}
-
-	@Override
-	public void writeObject(FSTObjectOutput out, Object toWrite,
-			FSTClazzInfo arg2, FSTFieldInfo arg3, int arg4)
-					throws IOException {
-		int n;
-
-		CodeBlock cb = (CodeBlock) toWrite;
-
-		// private String name;
-
-		out.writeObject(cb.name);
-
-		// private Map<IValue, Integer> constantMap;	
-		// private ArrayList<IValue> constantStore;	
-		// private IValue[] finalConstantStore;
-
-		n = cb.finalConstantStore.length;
-		out.writeObject(n);
-		for(int i = 0; i < n; i++){
-			out.writeObject(new FSTSerializableIValue(cb.finalConstantStore[i]));
-		}
-
-		// private Map<Type, Integer> typeConstantMap;
-		// private ArrayList<Type> typeConstantStore;
-		// private Type[] finalTypeConstantStore;
-
-		n = cb.finalTypeConstantStore.length;
-		out.writeObject(n);
-		for(int i = 0; i < n; i++){
-			out.writeObject(new FSTSerializableType(cb.finalTypeConstantStore[i]));
-		}	
-
-		// private Map<String, Integer> functionMap;
-
-		out.writeObject(cb.functionMap);
-
-		// private Map<String, Integer> resolver;
-
-		out.writeObject(cb.resolver);
-
-		// private Map<String, Integer> constructorMap;
-
-		out.writeObject(cb.constructorMap);
-
-		// public int[] finalCode;
-
-		out.writeObject(cb.finalCode);
-	}
-
-	public void readObject(FSTObjectInput in, Object toRead, FSTClazzInfo clzInfo, FSTClazzInfo.FSTFieldInfo referencedBy)
-	{
-	}
-
-	@SuppressWarnings("unchecked")
-	public Object instantiate(@SuppressWarnings("rawtypes") Class objectClass, FSTObjectInput in, FSTClazzInfo serializationInfo, FSTClazzInfo.FSTFieldInfo referencee, int streamPosition) throws ClassNotFoundException, IOException 
-	{
-		int n;
-
-		// private String name;
-
-		String name = (String) in.readObject();
-
-		// private Map<IValue, Integer> constantMap;	
-		// private ArrayList<IValue> constantStore;	
-		// private IValue[] finalConstantStore;
-
-		n = (Integer) in.readObject();
-		Map<IValue,Integer> constantMap = new HashMap<IValue, Integer> ();
-		ArrayList<IValue> constantStore = new ArrayList<IValue>();
-		IValue[] finalConstantStore = new IValue[n];
-
-		for(int i = 0; i < n; i++){
-			IValue val = (IValue) in.readObject();
-			constantMap.put(val, i);
-			constantStore.add(i, val);
-			finalConstantStore[i] = val;
-		}
-
-		// private Map<Type, Integer> typeConstantMap;
-		// private ArrayList<Type> typeConstantStore;	
-		// private Type[] finalTypeConstantStore;
-		
-		n = (Integer) in.readObject();
-		Map<Type, Integer> typeConstantMap = new HashMap<Type, Integer>();
-		ArrayList<Type> typeConstantStore = new ArrayList<Type>();
-		Type[] finalTypeConstantStore = new Type[n];
-
-		for(int i = 0; i < n; i++){
-
-			Type type = (Type) in.readObject();
-			typeConstantMap.put(type, i);
-			typeConstantStore.add(i, type);
-			finalTypeConstantStore[i] = type;
-		}	
-
-		// private Map<String, Integer> functionMap;
-		
-		Map<String, Integer> functionMap = (HashMap<String, Integer>) in.readObject();
-
-		// private Map<String, Integer> resolver;
-		
-		Map<String, Integer> resolver = (HashMap<String, Integer>) in.readObject();
-
-		// private Map<String, Integer> constructorMap;
-		
-		Map<String, Integer> constructorMap = (HashMap<String, Integer>) in.readObject();
-
-		// public int[] finalCode;
-		
-		long[] finalCode = (long[]) in.readObject();
-
-		return new CodeBlock(name, constantMap, constantStore, finalConstantStore, typeConstantMap, typeConstantStore, finalTypeConstantStore, 
-				functionMap, resolver, constructorMap, finalCode);
-
 	}
 }

@@ -163,7 +163,7 @@ private MuExp translateComposeFunction(Expression e){
             throw "cannot handle composition/overloading for different arities";
          }
      }
-     comp_ftype = Symbol::func(Symbol::\value(), [Symbol::\value() | int j <- [0 .. nargs]]);
+     comp_ftype = Symbol::func(Symbol::\value(), [Symbol::\value() | int j <- [0 .. nargs]], []);
   }
     
   enterFunctionScope(comp_fuid);
@@ -735,7 +735,7 @@ private MuExp translateBoolClosure(Expression e){
 	
 	enterFunctionScope(fuid);
 	
-    ftype = Symbol::func(Symbol::\bool(),[]);
+    ftype = Symbol::func(Symbol::\bool(),[],[]);
 	nformals = 0;
 	nlocals = 0;
 	bool isVarArgs = false;
@@ -867,7 +867,7 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	           []);
 	
 	phi_argNames = ["iSubject", "matched", "hasInsert", "leaveVisit", "begin", "end"];
-	Symbol phi_ftype = Symbol::func(Symbol::\value(), phi_args);
+	Symbol phi_ftype = Symbol::func(Symbol::\value(), phi_args, []);
 	
 	enterVisit();
 	enterFunctionScope(phi_fuid);
@@ -885,7 +885,7 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	if(optimizing()){
 	   tc = getTypesAndConstructorsInVisit(cases);
 	   <reachable_syms, reachable_prods> = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
-	   //println("reachableTypesInVisit: <reachable>");
+	   //println("reachableTypesInVisit: <reachable_syms>, <reachable_prods>");
 	}
 	
 	descriptor = muCallPrim3("make_descendant_descriptor", [muCon(phi_fuid), muCon(reachable_syms), muCon(reachable_prods), muCon(concreteMatch), muCon(getDefinitions())], \visit.subject@\loc);
@@ -1582,7 +1582,7 @@ private MuExp translateSetOrList(Expression e, {Expression ","}* es, str kind){
 // -- reified type expression ---------------------------------------
 
 MuExp translate (e:(Expression) `# <Type tp>`) {
-	//println("#<tp>, translateType:");
+	//println("#<tp>, translateType: <e>");
 	//iprintln("<translateType(tp)>");
 	//iprintln("symbolToValue(translateType(tp)) = <symbolToValue(translateType(tp)).definitions>");
 	return muCon(symbolToValue(translateType(tp)));
@@ -1991,11 +1991,11 @@ MuExp translate(e:(Expression) `*<Expression argument>`) {
 // -- asType expression ---------------------------------------------
 
 MuExp translate(e:(Expression) `[ <Type typ> ] <Expression argument>`)  =
-   muCallPrim3("parse", [muCon(getModuleName()), 
+ muCallPrim3("parse", [muCon(getModuleName()), 
    					    muCon(type(symbolToValue(translateType(typ)).symbol,getGrammar())), 
    					    translate(argument)], 
    					    argument@\loc);
-   
+  
 // -- composition expression ----------------------------------------
 
 MuExp translate(e:(Expression) `<Expression lhs> o <Expression rhs>`) = 

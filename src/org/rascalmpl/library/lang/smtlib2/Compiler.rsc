@@ -16,25 +16,25 @@ import lang::smtlib2::command::Ast;
 import lang::smtlib2::theory::core::Ast;
 import lang::smtlib2::theory::ints::Ast;
 
-
+ 
 list[str] toString(Script script) = [toString(command) | command <- script.commands];
 
 // Commands
-str toString(setLogic(logic)) = "(not yet implemented)";
-str toString(setOption(option)) = "(set-option <toString(option)>)";
-str toString(setInfo(info)) = "(not yet implemented)";
-str toString(declareSort(name, arity)) = "(not yet implemented)";
-str toString(defineSort(name, sorts, types)) = "(not yet implemented)";
-str toString(declareFunction(name, params, returnType)) = "(declare-fun <name> (<toString(params)>) <toString(returnType)>)";
-str toString(defineFunction(name, params, returnType, body)) = "(define-fun <name> (<toString(params)>) <toString(returnType)> <toString(body)>)";
-str toString(\assert(expr)) = "(assert <toString(expr)>)";
+str toString(setLogic(Logic logic)) = "(not yet implemented)";
+str toString(setOption(Option option)) = "(set-option <toString(option)>)";
+str toString(setInfo(Info info)) = "(not yet implemented)";
+str toString(declareSort(str name, int arity)) = "(not yet implemented)";
+str toString(defineSort(str name, list[str] sorts, list[Sort] types)) = "(not yet implemented)";
+str toString(declareFunction(str name, list[Sort] params, Sort returnType)) = "(declare-fun <name> (<toString(params)>) <toString(returnType)>)";
+str toString(defineFunction(str name, list[SortedVar] params, Sort returnType, Expr body)) = "(define-fun <name> (<toString(params)>) <toString(returnType)> <toString(body)>)";
+str toString(\assert(Expr expr)) = "(assert <toString(expr)>)";
 str toString(checkSatisfiable()) = "(check-sat)";
 str toString(getValue(exprs)) = "(get-value (<(""| "<it> <toString(expr)>" | expr <- exprs )>))";
 str toString(getUnsatCore()) = "(get-unsat-core)";
 str toString(push(nr)) = "(push <nr>)";
 str toString(pop(nr)) = "(pop <nr>)";
 str toString(exit()) = "(exit)";
-default str toString(command) = "(unkown command)";
+default str toString(Command command) = "(unkown command)";
 
 // Options
 str toString(interactiveMode(val)) = ":interactive-mode <val>";
@@ -60,8 +60,8 @@ str toString(boolVal(b)) = b ? "true" : "false";
 str toString(intVal(i)) = "<i>";	
 
 // Expr
-str toString(var(name)) = "<name>";
-str toString(lit(lit)) = toString(lit);
+str toString(var(str name)) = "<name>";
+str toString(lit(Literal lit)) = toString(lit);
 str toString(named(labeledExpr, label)) = "(! <toString(labeledExpr)> :named <label>)";
 str toString(customFunctionCall(functionName, params)) = "(<functionName> <("" | "<it> <toString(param)>" | param <- params)>)";
 

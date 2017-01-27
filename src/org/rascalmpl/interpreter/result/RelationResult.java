@@ -182,7 +182,7 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 				wset = this.getValueFactory().setWriter();
 			} else {
 				resultType = getTypeFactory().relType(resFieldType);
-				wrel = this.getValueFactory().relationWriter();
+				wrel = this.getValueFactory().setWriter();
 			}
 
 			

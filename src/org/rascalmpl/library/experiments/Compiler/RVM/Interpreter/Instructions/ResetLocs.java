@@ -22,6 +22,6 @@ public class ResetLocs extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall1(opcode.name(), positions);
 		
-		codeEmittor.emitInlineResetLocs(positions,codeblock.getConstantValue(positions), debug) ;
+		codeEmittor.emitInlineResetLocs(codeblock.getConstantValue(positions)) ;
 	}	
 }

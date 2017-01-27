@@ -22,6 +22,6 @@ public class LoadType extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall1(opcode.name(), type);
 		
-		codeEmittor.emitInlineLoadConOrType(type, false,  debug); 
+		codeEmittor.emitInlineLoadConOrType(type, false); 
 	}
 }

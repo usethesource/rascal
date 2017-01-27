@@ -19,6 +19,6 @@ public class PushEmptyKwMap extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitInlinePushEmptyKwMap(debug);
+		codeEmittor.emitInlinePushEmptyKwMap();
 	}
 }

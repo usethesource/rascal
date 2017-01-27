@@ -13,15 +13,25 @@ package org.rascalmpl.value;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Random;
 
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.impl.fast.ValueFactory;
-import org.rascalmpl.value.io.binary.BinaryReader;
-import org.rascalmpl.value.io.binary.BinaryWriter;
+import org.rascalmpl.value.io.binary.message.IValueReader;
+import org.rascalmpl.value.io.binary.message.IValueWriter;
+import org.rascalmpl.value.io.binary.stream.IValueInputStream;
+import org.rascalmpl.value.io.binary.stream.IValueOutputStream;
+import org.rascalmpl.value.io.binary.stream.IValueOutputStream.CompressionRate;
+import org.rascalmpl.value.io.binary.util.WindowSizes;
+import org.rascalmpl.value.io.binary.wire.IWireInputStream;
+import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
+import org.rascalmpl.value.io.binary.wire.binary.BinaryWireInputStream;
+import org.rascalmpl.value.io.binary.wire.binary.BinaryWireOutputStream;
+import org.rascalmpl.value.io.old.BinaryWriter;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
+import org.rascalmpl.value.util.RandomValues;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 import junit.framework.TestCase;
 
@@ -29,92 +39,165 @@ import junit.framework.TestCase;
  * @author Arnold Lankamp
  */
 public class TestBinaryIO extends TestCase {
-	private static TypeStore ts = new TypeStore();
-	private static TypeFactory tf = TypeFactory.getInstance();
-	private static IValueFactory vf = ValueFactory.getInstance();
-	private static Type Boolean = tf.abstractDataType(ts,"Boolean");
-	
-	private static Type Name = tf.abstractDataType(ts,"Name");
-	private static Type True = tf.constructor(ts,Boolean, "true");
-	private static Type False= tf.constructor(ts,Boolean, "false");
-	private static Type And= tf.constructor(ts,Boolean, "and", Boolean, Boolean);
-	private static Type Or= tf.constructor(ts,Boolean, "or", tf.listType(Boolean));
-	private static Type Not= tf.constructor(ts,Boolean, "not", Boolean);
-	private static Type TwoTups = tf.constructor(ts,Boolean, "twotups", tf.tupleType(Boolean, Boolean), tf.tupleType(Boolean, Boolean));
-	private static Type NameNode  = tf.constructor(ts,Name, "name", tf.stringType());
-	private static Type Friends = tf.constructor(ts,Boolean, "friends", tf.listType(Name));
-	private static Type Couples = tf.constructor(ts,Boolean, "couples", tf.listType(tf.tupleType(Name, Name)));
-	
-	private IValue[] testValues = {
-			vf.constructor(True),
-			vf.constructor(And, vf.constructor(True), vf.constructor(False)),
-			vf.constructor(Not, vf.constructor(And, vf.constructor(True), vf.constructor(False))),
-			vf.constructor(TwoTups, vf.tuple(vf.constructor(True), vf.constructor(False)),vf.tuple(vf.constructor(True), vf.constructor(False))),
-			vf.constructor(Or, vf.list(vf.constructor(True), vf.constructor(False), vf.constructor(True))),
-			vf.constructor(Friends, vf.list(name("Hans"), name("Bob"))),
-			vf.constructor(Or, vf.list(Boolean)),
-			vf.constructor(Couples, vf.list(vf.tuple(name("A"), name("B")), vf.tuple(name("C"), name("D")))),
-			vf.integer(0),
-			vf.integer(1),
-			vf.integer(-1),
-			vf.string("🍝"),
-			vf.integer(Integer.MAX_VALUE),
-			vf.integer(Integer.MIN_VALUE),
-			vf.integer(new byte[]{(byte)0xfe, (byte)0xdc, (byte)0xba, (byte)0x98, (byte)0x76, (byte)0x54}),
-			vf.constructor(True).asAnnotatable().setAnnotation("test", vf.integer(1))
-	};
+	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
-	private static IValue name(String n){
-		return vf.constructor(NameNode, vf.string(n));
+	public void testBinaryIO() {
+	    TypeStore ts = new TypeStore();
+	    RandomValues.addNameType(ts);
+	    for (IValue value: RandomValues.getTestValues(vf)) {
+	        ioRoundTrip(value, 0);
+	    }
+	}
+	
+	public void testRandomBinaryIO() {
+	    TypeStore ts = new TypeStore();
+	    Type name = RandomValues.addNameType(ts);
+	    Random r = new Random(42);
+	    for (int i = 0; i < 20; i++) {
+	        IValue value = RandomValues.generate(name, ts, vf, r, 10);
+	        ioRoundTrip(value, 42);
+	    }
+	}
+	
+	public void testConstructorTypeWithLabel() {
+        TypeFactory tf = TypeFactory.getInstance();
+	    TypeStore ts = new TypeStore();
+	    Type adt = tf.abstractDataType(ts, "A");
+	    Type cons = tf.constructor(ts, adt, "b", tf.integerType(), "i");
+	    iopRoundTrip(cons, 0);
+	}
+	public void testConstructorTypeWithParams() {
+        TypeFactory tf = TypeFactory.getInstance();
+	    TypeStore ts = new TypeStore();
+	    Type adt = tf.abstractDataType(ts, "A", tf.parameterType("T"));
+	    Type cons = tf.constructor(ts, adt, "b", tf.parameterType("T"), "tje");
+	    iopRoundTrip(cons, 0);
+	}
+	public void testConstructorTypeWithInstanciatedParams() {
+        TypeFactory tf = TypeFactory.getInstance();
+	    TypeStore ts = new TypeStore();
+	    Type adt = tf.abstractDataType(ts, "A", tf.parameterType("T"));
+	    Type cons = tf.constructor(ts, adt, "b", tf.parameterType("T"), "tje");
+
+	    HashMap<Type, Type> binding = new HashMap<>();
+	    binding.put(tf.parameterType("T"), tf.integerType());
+	    iopRoundTrip(cons.instantiate(binding), 0);
+	}
+	
+	public void testRandomTypesIO() {
+        TypeFactory tf = TypeFactory.getInstance();
+	    TypeStore ts = new TypeStore();
+	    Random r = new Random();
+	    int seed = r.nextInt();
+	    r.setSeed(seed);
+        for (int i =0; i < 1000; i++) {
+            Type tp = tf.randomType(ts, r, 5);
+            iopRoundTrip(tp, seed);
+        }
+	}
+	public void testSmallRandomTypesIO() {
+        TypeFactory tf = TypeFactory.getInstance();
+	    TypeStore ts = new TypeStore();
+	    Random r = new Random();
+	    int seed = r.nextInt();
+	    r.setSeed(seed);
+        for (int i =0; i < 1000; i++) {
+            Type tp = tf.randomType(ts, r, 3);
+            iopRoundTrip(tp, seed);
+        }
+	}
+	
+	public void testOldFilesStillSupported() {
+	    TypeStore ts = new TypeStore();
+	    Type name = RandomValues.addNameType(ts);
+	    Random r = new Random(42);
+	    for (int i = 0; i < 20; i++) {
+	        IValue value = RandomValues.generate(name, ts, vf, r, 10);
+	        ioRoundTripOld(value, 42);
+	    }
+	}
+	
+	public void testConstructorWithParameterized1() {
+	    TypeStore ts = new TypeStore();
+        TypeFactory tf = TypeFactory.getInstance();
+	    Type adt = tf.abstractDataType(ts, "A", tf.parameterType("T"));
+	    Type cons = tf.constructor(ts, adt, "b", tf.parameterType("T"), "tje");
+
+	    HashMap<Type, Type> binding = new HashMap<>();
+	    binding.put(tf.parameterType("T"), tf.integerType());
+	    ioRoundTrip(vf.constructor(cons.instantiate(binding), vf.integer(42)), 0);
 	}
 
-	public void testBinaryIO(){
-		try{
-			for(int i = 0; i < testValues.length; i++){
-				IValue value = testValues[i];
-				
-				System.out.println(value); // Temp
+	public void testConstructorWithParameterized2() {
+	    TypeStore ts = new TypeStore();
+        TypeFactory tf = TypeFactory.getInstance();
+	    Type adt = tf.abstractDataType(ts, "A", tf.parameterType("T"));
+	    Type cons = tf.constructor(ts, adt, "b", tf.parameterType("T"), "tje");
 
-				ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				BinaryWriter binaryWriter = new BinaryWriter(value, baos, ts);
-				binaryWriter.serialize();
-				
-				//PBFWriter.writeValueToFile(value, new File("/tmp/testIO"+i+".pbf")); // Temp
+	    ioRoundTrip(vf.constructor(cons, vf.integer(42)), 0);
+	}
+	
 
-				byte[] data = baos.toByteArray();
-				ByteArrayInputStream bais = new ByteArrayInputStream(data);
-				BinaryReader binaryReader = new BinaryReader(vf, ts, bais);
-				printBytes(data); // Temp
-				IValue result = binaryReader.deserialize();
-
-				System.out.println(result); // Temp
-				System.out.println(); // Temp
-				
-				if(!value.isEqual(result)){
-					String message = "Not equal: \n\t"+value+" : "+value.getType()+"\n\t"+result+" : "+result.getType();
-					System.err.println(message);
-					fail(message);
-				}
-			}
-		}catch(IOException ioex){
+    private void iopRoundTrip(Type tp, int seed) {
+        try {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            try (IWireOutputStream w = new BinaryWireOutputStream(buffer, 1000)) {
+                IValueWriter.write(w, WindowSizes.SMALL_WINDOW, tp);
+            }
+            try (IWireInputStream read = new BinaryWireInputStream(new ByteArrayInputStream(buffer.toByteArray()))) {
+                Type result = IValueReader.readType(read, vf);
+                if(!tp.equals(result)){
+                    String message = "Not equal: (seed: " + seed +") \n\t"+result+" expected: "+seed;
+                    System.err.println(message);
+                    fail(message);
+                }
+            }
+		}
+	    catch(IOException ioex){
 			ioex.printStackTrace();
 			fail(ioex.getMessage());
 		}
-	}
-	
-	private final static String[] HEX = new String[]{"0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"};
-	
-	// May be handy when debugging.
-	private static void printBytes(byte[] bytes){
-		for(int i = 0; i < bytes.length; i++){
-			byte b = bytes[i];
-			int higher = (b & 0xf0) >> 4;
-			int lower = b & 0xf;
-			System.out.print("0x");
-			System.out.print(HEX[higher]);
-			System.out.print(HEX[lower]);
-			System.out.print(" ");
+    }
+
+    private void ioRoundTrip(IValue value, int seed) {
+        try {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            try (IValueOutputStream w = new IValueOutputStream(buffer, CompressionRate.Normal)) {
+                w.write(value);
+            }
+            try (IValueInputStream read = new IValueInputStream(new ByteArrayInputStream(buffer.toByteArray()), vf)) {
+                IValue result = read.read();
+                if(!value.isEqual(result)){
+                    String message = "Not equal: (seed: " + seed +") \n\t"+value+" : "+value.getType()+"\n\t"+result+" : "+result.getType();
+                    System.err.println(message);
+                    fail(message);
+                }
+            }
 		}
-		System.out.println();
-	}
+	    catch(IOException ioex){
+			ioex.printStackTrace();
+			fail(ioex.getMessage());
+		}
+    }
+
+    private void ioRoundTripOld(IValue value, int seed) {
+        try {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            BinaryWriter w = new BinaryWriter(value, buffer, new TypeStore());
+            w.serialize();
+            buffer.flush();
+            try (IValueInputStream read = new IValueInputStream(new ByteArrayInputStream(buffer.toByteArray()), vf)) {
+                IValue result = read.read();
+                if(!value.isEqual(result)){
+                    String message = "Not equal: (seed: " + seed + ") \n\t"+value+" : "+value.getType()+"\n\t"+result+" : "+result.getType();
+                    System.err.println(message);
+                    fail(message);
+                }
+            }
+		}
+	    catch(IOException ioex){
+			ioex.printStackTrace();
+			fail(ioex.getMessage());
+		}
+    }
 }
