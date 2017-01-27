@@ -30,7 +30,8 @@ import org.rascalmpl.value.io.binary.wire.IWireInputStream;
 public class BinaryWireInputStream implements IWireInputStream {
 
     private static final byte[] WIRE_VERSION = new byte[] { 1, 0, 0 };
-    private final ByteBuffer buffer;
+    private int reads;
+    private ByteBuffer buffer;
     private final InputStream __stream;
     private final TrackLastRead<String> stringsRead;
     private boolean closed = false;
@@ -85,11 +86,23 @@ public class BinaryWireInputStream implements IWireInputStream {
     private void assureAvailable(int required) throws IOException {
         ByteBuffer buffer = this.buffer;
         if (buffer.remaining() < required) {
-            if (buffer.hasRemaining()) {
-                buffer.compact();
+            reads++;
+            if (reads == 10 && buffer.capacity() < 8*1024*1024) {
+                ByteBuffer newBuffer = ByteBuffer.allocate(buffer.capacity()*2);
+                if (buffer.hasRemaining()) {
+                    newBuffer.put(buffer);
+                }
+                this.buffer = newBuffer;
+                buffer = newBuffer;
+                reads = 0;
             }
             else {
-                buffer.clear();
+                if (buffer.hasRemaining()) {
+                    buffer.compact();
+                }
+                else {
+                    buffer.clear();
+                }
             }
             byte[] backingArray = buffer.array();
             int arrayPos = buffer.arrayOffset() + buffer.position();
