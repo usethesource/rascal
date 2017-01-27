@@ -83,7 +83,7 @@ public class BinaryWireInputStream implements IWireInputStream {
         }
     }
 
-    private void assureAvailable(int required) throws IOException {
+    private ByteBuffer assureAvailable(int required) throws IOException {
         ByteBuffer buffer = this.buffer;
         if (buffer.remaining() < required) {
             reads++;
@@ -121,6 +121,7 @@ public class BinaryWireInputStream implements IWireInputStream {
             buffer.position(arrayPos - buffer.arrayOffset());
             buffer.flip();
         }
+        return buffer;
     }
 
     private byte[] readBytes(int len) throws IOException {
@@ -150,7 +151,7 @@ public class BinaryWireInputStream implements IWireInputStream {
                 pos += read;
             }
             else {
-                assureAvailable(remaining);
+                buffer = assureAvailable(remaining);
                 buffer.get(result, pos, remaining);
                 pos += remaining;
             }
@@ -161,9 +162,8 @@ public class BinaryWireInputStream implements IWireInputStream {
      * LEB128 decoding (or actually LEB32) of positive and negative integers, negative integers always use 5 bytes, positive integers are compact.
      */
     private int decodeInteger() throws IOException {
-        assureAvailable(5);
         try {
-            ByteBuffer buffer = this.buffer;
+            ByteBuffer buffer = assureAvailable(5);
             // manually unrolling the loop was the fastest for reading, yet not for writing
             byte b = buffer.get();
             if ((b & 0x80) == 0) {
