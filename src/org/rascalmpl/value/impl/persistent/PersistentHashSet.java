@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.Objects;
 
 import static org.rascalmpl.value.impl.persistent.EmptySet.EMPTY_SET;
-import static org.rascalmpl.value.impl.persistent.SetWriter.*;
+import static org.rascalmpl.value.impl.persistent.SetWriter.equivalenceComparator;
 import static org.rascalmpl.value.util.AbstractTypeBag.toTypeBag;
 
 public final class PersistentHashSet extends AbstractSet {
@@ -35,49 +35,22 @@ public final class PersistentHashSet extends AbstractSet {
   private final AbstractTypeBag elementTypeBag;
   private final Set.Immutable<IValue> content;
 
-  // TODO: make private
-  public static final ISet from(final AbstractTypeBag elementTypeBag,
-      final Set.Immutable<IValue> content) {
-    if (content.isEmpty()) {
-      return EMPTY_SET;
-    } else {
-      return new PersistentHashSet(elementTypeBag, content);
-    }
-  }
-
-  private PersistentHashSet(AbstractTypeBag elementTypeBag, Set.Immutable<IValue> content) {
+  /**
+   * Construction of persistent hash-set.
+   *
+   * DO NOT CALL OUTSIDE OF {@link PersistentSetFactory}.
+   *
+   * @param elementTypeBag precise dynamic type
+   * @param content immutable set
+   */
+  PersistentHashSet(AbstractTypeBag elementTypeBag, Set.Immutable<IValue> content) {
     this.elementTypeBag = Objects.requireNonNull(elementTypeBag);
     this.content = Objects.requireNonNull(content);
 
     assert checkDynamicType(elementTypeBag, content);
     assert !(elementTypeBag.lub() == getTypeFactory().voidType() || content.isEmpty());
 
-    // final AbstractTypeBag expectedElementTypeBag =
-    // content.stream().map(IValue::getType).collect(toTypeBag());
-    //
-    // boolean elementTypesEqual = expectedElementTypeBag.equals(elementTypeBag);
-    // assert elementTypesEqual;
-
-    // /*
-    // * EXPERIMENTAL: Enforce that empty sets are always represented as a TrieSet.
-    // */
-    // if (content.isEmpty()) {
-    // this.elementTypeBag = elementTypeBag;
-    // this.content = DefaultTrieSet.of();
-    // } else {
-//    this.elementTypeBag = Objects.requireNonNull(elementTypeBag);
-//    this.content = Objects.requireNonNull(content);
-    // }
-
-    /*
-     * EXPERIMENTAL: Enforce that binary relations always are backed by multi-maps (instead of being
-     * represented as a set of tuples).
-     */
-    // if (USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(elementTypeBag.lub())) {
-    // assert this.content.getClass() == ImmutableSetMultimapAsImmutableSetView.class;
-    // } else {
     assert this.content.getClass() == DefaultTrieSet.getTargetClass();
-    // }
   }
 
   private static final boolean checkDynamicType(final AbstractTypeBag elementTypeBag,
@@ -91,25 +64,10 @@ public final class PersistentHashSet extends AbstractSet {
     return expectedTypesEqual;
   }
 
-  // internal use: introspecting backing implementation; TODO: reconsider visibility
-  public AbstractTypeBag getElementTypeBag() {
-    return elementTypeBag;
-  }
-
-  // internal use: introspecting backing implementation; TODO: reconsider visibility
-  public Set.Immutable<IValue> getContent() {
-    return content;
-  }
-
   @Override
   public ISetRelation<ISet> asRelation() {
     validateIsRelation(this);
-
-    // if (USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(elementTypeBag.lub())) {
-    // return new DefaultRelationViewOnSetMultimap(getValueFactory(), this);
-    // } else {
     return new DefaultRelationViewOnSet(getValueFactory(), this);
-    // }
   }
 
   @Override
@@ -139,68 +97,15 @@ public final class PersistentHashSet extends AbstractSet {
 
   @Override
   public ISet insert(IValue value) {
-    if (content.isEmpty()) {
-      final Set.Immutable<IValue> contentNew;
+    final Set.Immutable<IValue> contentNew =
+        content.__insertEquivalent(value, equivalenceComparator);
 
-      if (USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(value.getType())) {
-        // TODO: directly construct set-multimap
-        return EMPTY_SET.insert(value);
-      } else {
-        contentNew = DefaultTrieSet.<IValue>of().__insertEquivalent(value, equivalenceComparator);
-      }
+    if (content == contentNew)
+      return this;
 
-      // if (USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(value.getType())) {
-      // /*
-      // * EXPERIMENTAL: Enforce that binary relations always are backed by multi-maps (instead of
-      // * being represented as a set of tuples).
-      // */
-      //
-      // final Immutable<IValue, IValue> multimap =
-      // DefaultTrieSetMultimap.of(equivalenceEqualityComparator);
-      //
-      // // NOTE: tuple untyped
-      // final BiFunction<IValue, IValue, IValue> tupleOf =
-      // (first, second) -> getValueFactory().tuple(first, second);
-      //
-      // // NOTE: tuple untyped
-      // final BiFunction<IValue, Integer, Object> tupleElementAt = (tuple, position) -> {
-      // switch (position) {
-      // case 0:
-      // return ((ITuple) tuple).get(0);
-      // case 1:
-      // return ((ITuple) tuple).get(1);
-      // default:
-      // throw new IllegalStateException();
-      // }
-      // };
-      //
-      // // NOTE: tuple untyped
-      // final Function<IValue, Boolean> tupleChecker =
-      // (argument) -> argument instanceof ITuple && ((ITuple) argument).arity() == 2;
-      //
-      // contentNew = new ImmutableSetMultimapAsImmutableSetView<IValue, IValue, IValue>(multimap,
-      // tupleOf, tupleElementAt, tupleChecker).__insertEquivalent(value, equivalenceComparator);
-      // } else {
-      // contentNew = DefaultTrieSet.<IValue>of().__insertEquivalent(value, equivalenceComparator);
-      // }
+    final AbstractTypeBag bagNew = elementTypeBag.increase(value.getType());
 
-      if (content == contentNew)
-        return this;
-
-      final AbstractTypeBag bagNew = elementTypeBag.increase(value.getType());
-
-      return PersistentHashSet.from(bagNew, contentNew);
-    } else {
-      final Set.Immutable<IValue> contentNew =
-          content.__insertEquivalent(value, equivalenceComparator);
-
-      if (content == contentNew)
-        return this;
-
-      final AbstractTypeBag bagNew = elementTypeBag.increase(value.getType());
-
-      return PersistentHashSet.from(bagNew, contentNew);
-    }
+    return PersistentSetFactory.from(bagNew, contentNew);
   }
 
   @Override
@@ -213,7 +118,7 @@ public final class PersistentHashSet extends AbstractSet {
 
     final AbstractTypeBag bagNew = elementTypeBag.decrease(value.getType());
 
-    return PersistentHashSet.from(bagNew, contentNew);
+    return PersistentSetFactory.from(bagNew, contentNew);
   }
 
   @Override
@@ -324,36 +229,18 @@ public final class PersistentHashSet extends AbstractSet {
         two = that.content;
       }
 
-      Set.Transient<IValue> tmp = one.asTransient(); // non-final due to
-                                                    // conversion
+      final Set.Transient<IValue> tmp = one.asTransient();
       boolean modified = false;
 
       for (IValue key : two) {
-        // try {
         if (tmp.__insertEquivalent(key, equivalenceComparator)) {
           modified = true;
           bag = bag.increase(key.getType());
         }
-        // } catch (ClassCastException | ArrayIndexOutOfBoundsException e) {
-        // // Conversion from ImmutableSetMultimapAsImmutableSetView to
-        // // DefaultTrieSet
-        // // TODO: use elementTypeBag for deciding upon conversion and
-        // // not exception
-        //
-        // Transient<IValue> convertedSetContent = DefaultTrieSet.transientOf();
-        // convertedSetContent.__insertAll(tmp);
-        // tmp = convertedSetContent;
-        //
-        // // retry
-        // if (tmp.__insertEquivalent(key, equivalenceComparator)) {
-        // modified = true;
-        // bag = bag.increase(key.getType());
-        // }
-        // }
       }
 
       if (modified) {
-        return PersistentHashSet.from(bag, tmp.freeze());
+        return PersistentSetFactory.from(bag, tmp.freeze());
       }
       return def;
     } else {
@@ -401,7 +288,7 @@ public final class PersistentHashSet extends AbstractSet {
       }
 
       if (modified) {
-        return PersistentHashSet.from(bag, tmp.freeze());
+        return PersistentSetFactory.from(bag, tmp.freeze());
       }
       return def;
     } else {
@@ -440,7 +327,7 @@ public final class PersistentHashSet extends AbstractSet {
       }
 
       if (modified) {
-        return PersistentHashSet.from(bag, tmp.freeze());
+        return PersistentSetFactory.from(bag, tmp.freeze());
       }
       return def;
     } else {
