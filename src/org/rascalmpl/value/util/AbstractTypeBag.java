@@ -191,7 +191,11 @@ public abstract class AbstractTypeBag implements Cloneable {
 
     @Override
     public String toString() {
-      return countMap.toString();
+      if (label != null) {
+        return String.format("PreciseType(label=%s, members=%s)", label, countMap.toString());
+      } else {
+        return String.format("PreciseType(members=%s)", countMap.toString());
+      }
     }
 
     @Override
