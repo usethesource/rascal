@@ -2,12 +2,15 @@ package org.rascalmpl.value.impl.persistent;
 
 import io.usethesource.capsule.DefaultTrieSet;
 import io.usethesource.capsule.DefaultTrieSetMultimap;
-import io.usethesource.capsule.api.deprecated.*;
+import io.usethesource.capsule.api.deprecated.Set;
+import io.usethesource.capsule.api.deprecated.SetMultimap;
 import io.usethesource.capsule.util.stream.DefaultCollector;
 import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.util.AbstractTypeBag;
 
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
@@ -33,17 +36,22 @@ public class ValueCollectors {
     };
 
     return new DefaultCollector<>(SetStruct::new, accumulator, unsupportedCombiner(),
-        struct -> PersistentHashSet.from(struct.elementTypeBag,
+        struct -> PersistentSetFactory.from(struct.elementTypeBag,
             (Set.Immutable<IValue>) struct.set.freeze()),
         UNORDERED);
   }
 
-  public static <T, K extends IValue, V extends IValue> Collector<T, ?, ISet> toSetMultimap(
-      Function<? super T, ? extends K> keyMapper, Function<? super T, ? extends V> valueMapper) {
+  /**
+   * @param keyLabel optional label of first column
+   * @param valueLabel optional label of second column
+   */
+  public static <T extends ITuple, K extends IValue, V extends IValue> Collector<T, ?, ISet> toSetMultimap(
+      Optional<String> keyLabel, Function<? super T, ? extends K> keyMapper,
+      Optional<String> valueLabel, Function<? super T, ? extends V> valueMapper) {
 
     class SetMultimapStruct {
-      AbstractTypeBag keyTypeBag = AbstractTypeBag.of();
-      AbstractTypeBag valTypeBag = AbstractTypeBag.of();
+      AbstractTypeBag keyTypeBag = AbstractTypeBag.of(keyLabel.orElse(null));
+      AbstractTypeBag valTypeBag = AbstractTypeBag.of(valueLabel.orElse(null));
       SetMultimap.Transient<K, V> map =
           DefaultTrieSetMultimap.transientOf(equivalenceEqualityComparator);
     }
@@ -60,7 +68,7 @@ public class ValueCollectors {
     };
 
     return new DefaultCollector<>(SetMultimapStruct::new, accumulator,
-        unsupportedCombiner(), struct -> PersistentHashIndexedBinaryRelation.from(struct.keyTypeBag,
+        unsupportedCombiner(), struct -> PersistentSetFactory.from(struct.keyTypeBag,
             struct.valTypeBag, (SetMultimap.Immutable<IValue, IValue>) struct.map.freeze()),
         UNORDERED);
   }
