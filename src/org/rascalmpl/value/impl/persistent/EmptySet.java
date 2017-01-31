@@ -36,9 +36,12 @@ public final class EmptySet extends AbstractSet {
   }
 
   public static final ISet of(final IValue firstElement) {
-    if (isTupleOfArityTwo.test(firstElement.getType())) {
+    final Type firstElementType = firstElement.getType();
+
+    if (isTupleOfArityTwo.test(firstElementType)) {
       return Stream.of(firstElement).map(asInstanceOf(ITuple.class))
-          .collect(toSetMultimap(tuple -> tuple.get(0), tuple -> tuple.get(1)));
+          .collect(toSetMultimap(firstElementType.getOptionalFieldName(0), tuple -> tuple.get(0),
+              firstElementType.getOptionalFieldName(1), tuple -> tuple.get(1)));
     } else {
       return Stream.of(firstElement).collect(toSet());
     }
