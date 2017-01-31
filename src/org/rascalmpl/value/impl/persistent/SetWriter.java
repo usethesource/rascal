@@ -147,7 +147,9 @@ public class SetWriter implements ISetWriter {
 //      return constructedSet;
 
       constructedSet = dataStream.map(asInstanceOf(ITuple.class))
-          .collect(ValueCollectors.toSetMultimap(tuple -> tuple.get(0), tuple -> tuple.get(1)));
+          .collect(ValueCollectors.toSetMultimap(leastUpperBound.getOptionalFieldName(0),
+              tuple -> tuple.get(0), leastUpperBound.getOptionalFieldName(1),
+              tuple -> tuple.get(1)));
 
       return constructedSet;
     } else {
