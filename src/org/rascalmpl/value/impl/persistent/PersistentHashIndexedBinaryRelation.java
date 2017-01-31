@@ -12,8 +12,8 @@
 package org.rascalmpl.value.impl.persistent;
 
 import io.usethesource.capsule.DefaultTrieSet;
-import io.usethesource.capsule.api.deprecated.*;
 import io.usethesource.capsule.api.deprecated.Set;
+import io.usethesource.capsule.api.deprecated.SetMultimap;
 import io.usethesource.capsule.util.ArrayUtilsInt;
 import io.usethesource.capsule.util.stream.CapsuleCollectors;
 import org.rascalmpl.value.*;
@@ -24,7 +24,7 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.util.AbstractTypeBag;
 
 import java.util.*;
-import java.util.Map;
+import java.util.function.BiFunction;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -41,20 +41,17 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
   private final AbstractTypeBag valTypeBag;
   private final SetMultimap.Immutable<IValue, IValue> content;
 
-  // TODO: make private
-  // DOES: canonicalize
-  // TODO: does not take into account {@link IValueFactory}
-  public static final ISet from(final AbstractTypeBag keyTypeBag, final AbstractTypeBag valTypeBag,
-      final SetMultimap.Immutable<IValue, IValue> content) {
-    if (content.isEmpty()) {
-      return EMPTY_SET;
-    } else {
-      return new PersistentHashIndexedBinaryRelation(keyTypeBag, valTypeBag, content);
-    }
-  }
-
-  private PersistentHashIndexedBinaryRelation(AbstractTypeBag keyTypeBag,
-      AbstractTypeBag valTypeBag, SetMultimap.Immutable<IValue, IValue> content) {
+  /**
+   * Construction of persistent indexed binary relation with multi-map backend.
+   *
+   * DO NOT CALL OUTSIDE OF {@link PersistentSetFactory}.
+   *
+   * @param keyTypeBag precise dynamic type of first data column
+   * @param valTypeBag precise dynamic type of second data column
+   * @param content immutable multi-map
+   */
+  PersistentHashIndexedBinaryRelation(AbstractTypeBag keyTypeBag, AbstractTypeBag valTypeBag,
+      SetMultimap.Immutable<IValue, IValue> content) {
     this.keyTypeBag = Objects.requireNonNull(keyTypeBag);
     this.valTypeBag = Objects.requireNonNull(valTypeBag);
     this.content = Objects.requireNonNull(content);
@@ -88,9 +85,27 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
   @Override
   public Type getType() {
     if (cachedRelationType == null) {
-      cachedRelationType = getTypeFactory().relType(keyTypeBag.lub(), valTypeBag.lub());
+      final String keyLabel = keyTypeBag.getLabel();
+      final String valLabel = valTypeBag.getLabel();
+
+      if (keyLabel != null && valLabel != null) {
+        final Type tupleType = getTypeFactory().tupleType(
+            new Type[] {keyTypeBag.lub(), valTypeBag.lub()}, new String[] {keyLabel, valLabel});
+
+        cachedRelationType = getTypeFactory().relTypeFromTuple(tupleType);
+      } else {
+        cachedRelationType = getTypeFactory().relType(keyTypeBag.lub(), valTypeBag.lub());
+      }
     }
     return cachedRelationType;
+  }
+
+  private final <K extends IValue, V extends IValue> BiFunction<IValue, IValue, ITuple> tupleConverter() {
+    /*
+     * TODO: independence from value factory, however tuple constructor is not visible; wanted:
+     * content.tupleIterator((first, second) -> Tuple.newTuple(tupleType, first, second);
+     */
+    return (first, second) -> getValueFactory().tuple(getElementType(), first, second);
   }
 
   @Override
@@ -100,8 +115,14 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
 
   @Override
   public ISet insert(IValue value) {
-    if (!isTupleOfArityTwo.test(value.getType()))
-      throw new UnsupportedOperationException("Conversion not supported yet.");
+    if (!isTupleOfArityTwo.test(value.getType())) {
+      /*
+       * NOTE: conversion of set representations are assumed to be scarce, but are costly if they
+       * happen though.
+       */
+      final Stream<ITuple> tupleStream = content.tupleStream(tupleConverter());
+      return Stream.concat(tupleStream, Stream.of(value)).collect(ValueCollectors.toSet());
+    }
 
     final ITuple tuple = (ITuple) value;
     final IValue key = tuple.get(0);
@@ -115,7 +136,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
     final AbstractTypeBag keyTypeBagNew = keyTypeBag.increase(key.getType());
     final AbstractTypeBag valTypeBagNew = valTypeBag.increase(val.getType());
 
-    return PersistentHashIndexedBinaryRelation.from(keyTypeBagNew, valTypeBagNew, contentNew);
+    return PersistentSetFactory.from(keyTypeBagNew, valTypeBagNew, contentNew);
   }
 
   @Override
@@ -135,7 +156,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
     final AbstractTypeBag keyTypeBagNew = keyTypeBag.decrease(key.getType());
     final AbstractTypeBag valTypeBagNew = valTypeBag.decrease(val.getType());
 
-    return PersistentHashIndexedBinaryRelation.from(keyTypeBagNew, valTypeBagNew, contentNew);
+    return PersistentSetFactory.from(keyTypeBagNew, valTypeBagNew, contentNew);
   }
 
   @Override
@@ -188,29 +209,37 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
       return content.equals(that.content);
     }
 
-    // if (other instanceof ISet) {
-    // ISet that = (ISet) other;
-    //
-    // if (this.getType() != that.getType())
-    // return false;
-    //
-    // if (this.size() != that.size())
-    // return false;
-    //
-    // for (IValue value : that) {
-    // // TODO: check if binary tuple
-    // // assert USE_MULTIMAP_BINARY_RELATIONS && isTupleOfArityTwo.test(value.getType());
-    //
-    // final ITuple tuple = (ITuple) value;
-    // final IValue key = tuple.get(0);
-    // final IValue val = tuple.get(1);
-    //
-    // if (!content.containsEntry(key, val))
-    // return false;
-    // }
-    //
-    // return true;
-    // }
+    if (other instanceof ISet) {
+      ISet that = (ISet) other;
+
+      if (this.getType() != that.getType())
+        return false;
+
+      if (this.size() != that.size())
+        return false;
+
+      /**
+       * TODO: simplify by adding stream support to {@link ISet}. Such that block below could be
+       * simplified to
+       *   {@code thatStream.allMatch(unboxTupleAndThen(content::containsEntry))}
+       * with signature
+       *   {@code Predicate<IValue> unboxTupleAndThen(BiFunction<IValue, IValue, Boolean> consumer)}
+       */
+      for (IValue value : that) {
+        if (!isTupleOfArityTwo.test(value.getType())) {
+          return false;
+        }
+
+        final ITuple tuple = (ITuple) value;
+        final IValue key = tuple.get(0);
+        final IValue val = tuple.get(1);
+
+        if (!content.containsEntry(key, val))
+          return false;
+      }
+
+      return true;
+    }
 
     return false;
   }
@@ -298,7 +327,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
       }
 
       if (modified) {
-        return PersistentHashIndexedBinaryRelation.from(keyTypeBagNew, valTypeBagNew, tmp.freeze());
+        return PersistentSetFactory.from(keyTypeBagNew, valTypeBagNew, tmp.freeze());
       }
       return def;
     } else {
@@ -353,7 +382,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
       }
 
       if (modified) {
-        return PersistentHashIndexedBinaryRelation.from(keyTypeBagNew, valTypeBagNew, tmp.freeze());
+        return PersistentSetFactory.from(keyTypeBagNew, valTypeBagNew, tmp.freeze());
       }
       return def;
     } else {
@@ -398,7 +427,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
       }
 
       if (modified) {
-        return PersistentHashIndexedBinaryRelation.from(keyTypeBagNew, valTypeBagNew, tmp.freeze());
+        return PersistentSetFactory.from(keyTypeBagNew, valTypeBagNew, tmp.freeze());
       }
       return def;
     } else {
@@ -476,7 +505,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
         final AbstractTypeBag valTypeBag = data.entrySet().stream().map(Map.Entry::getValue)
             .map(IValue::getType).collect(toTypeBag());
 
-        return PersistentHashIndexedBinaryRelation.from(keyTypeBag, valTypeBag, data);
+        return PersistentSetFactory.from(keyTypeBag, valTypeBag, data);
       }
 
       @Override
@@ -537,10 +566,13 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
        */
       @Override
       public ISet domain() {
-        if (isTupleOfArityTwo.test(thisSet.getType().getFieldType(0))) {
+        final Type fieldType0 = thisSet.getType().getFieldType(0);
+
+        if (isTupleOfArityTwo.test(fieldType0)) {
           // TODO: use lazy keySet view instead of materialized data structure
           return thisSet.content.keySet().stream().map(asInstanceOf(ITuple.class))
-              .collect(toSetMultimap(tuple -> tuple.get(0), tuple -> tuple.get(1)));
+              .collect(toSetMultimap(fieldType0.getOptionalFieldName(0), tuple -> tuple.get(0),
+                  fieldType0.getOptionalFieldName(1), tuple -> tuple.get(1)));
         }
 
         /**
