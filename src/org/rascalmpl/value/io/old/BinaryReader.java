@@ -46,8 +46,7 @@ import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.value.util.ResizingArray;
 
-import io.usethesource.capsule.TransientMap;
-import io.usethesource.capsule.TrieMap_5Bits;
+import io.usethesource.capsule.core.deprecated.TrieMap_5Bits;
 
 // TODO Change this thing so it doesn't use recursion.
 /**
@@ -545,7 +544,7 @@ public class BinaryReader implements Closeable {
 		
 		int numberOfKeywordParameters = parseInteger();
 		
-		TransientMap<String, IValue> kwParams = TrieMap_5Bits.transientOf();
+		io.usethesource.capsule.api.deprecated.Map.Transient<String, IValue> kwParams = TrieMap_5Bits.transientOf();
 		for(int i = numberOfKeywordParameters - 1; i >= 0; i--){
 			int nameLength = parseInteger();
 			byte[] nameData = new byte[nameLength];
@@ -585,7 +584,7 @@ public class BinaryReader implements Closeable {
 		
 		int numberOfAnnotations = parseInteger();
 		
-		TransientMap<String, IValue> annotations = TrieMap_5Bits.transientOf();
+		io.usethesource.capsule.api.deprecated.Map.Transient<String, IValue> annotations = TrieMap_5Bits.transientOf();
 		for(int i = numberOfAnnotations - 1; i >= 0; i--){
 			int labelLength = parseInteger();
 			byte[] labelData = new byte[labelLength];
@@ -626,7 +625,7 @@ public class BinaryReader implements Closeable {
 		
 		int numberOfKeywordParams = parseInteger();
 		
-		TransientMap<String, IValue> kwParams = TrieMap_5Bits.transientOf();
+		io.usethesource.capsule.api.deprecated.Map.Transient<String, IValue> kwParams = TrieMap_5Bits.transientOf();
 		for(int i = numberOfKeywordParams - 1; i >= 0; i--){
 			int nameLength = parseInteger();
 			byte[] nameData = new byte[nameLength];
@@ -653,7 +652,7 @@ public class BinaryReader implements Closeable {
 		
 		int numberOfAnnotations = parseInteger();
 		
-		TransientMap<String, IValue> annotations = TrieMap_5Bits.transientOf();
+		io.usethesource.capsule.api.deprecated.Map.Transient<String, IValue> annotations = TrieMap_5Bits.transientOf();
 		for(int i = numberOfAnnotations - 1; i >= 0; i--){
 			int labelLength = parseInteger();
 			byte[] labelData = new byte[labelLength];
