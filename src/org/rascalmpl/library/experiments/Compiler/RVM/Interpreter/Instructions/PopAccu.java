@@ -12,6 +12,6 @@ public class PopAccu extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitInlinePopAccu(debug);
+		codeEmittor.emitInlinePopAccu();
 	}
 }

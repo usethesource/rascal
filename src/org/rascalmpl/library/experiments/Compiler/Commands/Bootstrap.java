@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.FileSystem;
@@ -27,7 +28,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import org.rascalmpl.library.util.Reflective;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.value.io.binary.stream.IValueInputStream;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * This program is intended to be executed directly from maven; it downloads a previous version of Rascal from a hard-wired location and uses 
@@ -198,11 +206,11 @@ public class Bootstrap {
         
         final boolean realBootstrap = basicOption || validatingOption;
         final boolean validatingBootstrap = validatingOption;
-        final boolean withCourses = coursesOption;
+        final boolean withCourses = coursesOption || validatingOption;
         
         Path tmpDir = initializeTemporaryFolder(tmpFolder, cleanTempDir, versionToUse);
         
-        if (existsDeployedVersion(tmpDir, versionToBuild)) {
+        if (existsDeployedVersion(versionToBuild)) {
             System.out.println("INFO: Got the kernel version to compile: " + versionToBuild + " already from existing deployed build.");
         }
         
@@ -236,13 +244,13 @@ public class Bootstrap {
                 };
                    
                 if (!realBootstrap) {
-                  FileSystem jar = FileSystems.newFileSystem(new URI("jar:file", rvm[0], null), Collections.singletonMap("create", true));
+                  FileSystem jar = FileSystems.newFileSystem(new URI("jar", new File(rvm[0]).toURI().toString(), null), Collections.singletonMap("create", true));
                   time("Copying downloaded files", () -> copyJar(jar.getPath("boot"), targetFolder));
                   System.exit(0);
                 }
                 
                 /*------------------------------------------,-CODE---------,-RVM---,-KERNEL---,-TESTS--*/
-                time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[1], "|noreloc:///|"));
+                time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[1], "|noreloc:///|"));               
                 time("Phase 2", () -> compilePhase(tmpDir, 2, librarySource, rvm[1], kernel[1], rvm[1], "|std:///|"));
                 
                 if(validatingBootstrap){
@@ -250,7 +258,7 @@ public class Bootstrap {
                   try {
                     time("Validation", () -> {
                       long nfiles = compareGeneratedRVMCode(Paths.get(kernel[2]), Paths.get(kernel[3]));
-                      System.out.println("VALIDATION: All " + nfiles + " *.rvm.gz files in Phase 2 and Phase 3 are identical");
+                      System.out.println("VALIDATION: All " + nfiles + " *.rvm files in Phase 2 and Phase 3 are identical");
                     });
                   }
                   catch (Exception e) {
@@ -259,16 +267,19 @@ public class Bootstrap {
                   }
                 }
                 
+                // Compiling utilities
+                Path phase2Folder = phaseFolder(2, tmpDir);
+                time("Compiling Webserver", () -> compileModule   (2, rvm[1], kernel[2], librarySource, phase2Folder, "util::Webserver", "|std:///|"));
+                time("Compiling RascalExtraction", () -> compileModule   (2, rvm[1], kernel[2], librarySource, phase2Folder, "experiments::Compiler::RascalExtraction::RascalExtraction", "|std:///|"));
+                time("Compiling QuestionCompiler", () -> compileModule   (2, rvm[1], kernel[2], librarySource, phase2Folder, "experiments::tutor3::QuestionCompiler", "|std:///|"));
+                
+                // Compiling courses
                 if(withCourses){
-                  Path phase2Folder = phaseFolder(2, tmpDir);
-                  time("Compiling RascalExtraction", () -> compileModule   (2, rvm[1], kernel[2], librarySource, phase2Folder, "experiments::Compiler::RascalExtraction::RascalExtraction", "|noreloc:///"));
-                  time("Compiling courses", () -> compileCourses(rvm[1], kernel[2], librarySource, courseSource, phase2Folder));
+                   time("Compiling courses", () -> compileCourses(rvm[1], kernel[2], librarySource, courseSource, phase2Folder));
                 }
                 
                 // The result of the final compilation phase is copied to the bin folder such that it can be deployed with the other compiled (class) files
                 time("Copying bootstrapped files", () -> copyResult(new File(kernel[2]).toPath(), targetFolder.resolve("boot")));
-                time("Compiling final tests",      () -> compileTests (5, rvm[1], "|boot:///|", "|std:///|", tmpDir.resolve("test-bins")));
-                time("Running final tests",        () -> runTests(5, rvm[1], "|boot:///|", "|std:///|", tmpDir.resolve("test-bins")));
 
                 Files.write(bootstrapMarker, versionToUse.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE_NEW);
             } 
@@ -363,14 +374,14 @@ public class Bootstrap {
 
           @Override
           public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-              info("Copying " + file + " to " + targetPath.resolve(sourcePath.relativize(file)));
+              //info("Copying " + file + " to " + targetPath.resolve(sourcePath.relativize(file)));
               Files.copy(file, targetPath.resolve(sourcePath.relativize(file)), StandardCopyOption.REPLACE_EXISTING);
               return FileVisitResult.CONTINUE;
           }
       });
   }
 
-    private static boolean existsDeployedVersion(Path folder, String version) {	
+    private static boolean existsDeployedVersion(String version) {	
 		try (InputStream s = deployedVersion(version).toURL().openStream()) {
 			return s != null;
 		} catch (IOException e) {
@@ -383,7 +394,6 @@ public class Bootstrap {
      */
     private static Path getDeployedVersion(Path tmp, String version) throws IOException {
 		Path cached = cachedDeployedVersion(tmp, version);
-		
 		
 		if (!cached.toFile().exists() || "unstable".equals(version)) {
 		    if (cached.toFile().exists()) {
@@ -426,17 +436,24 @@ public class Bootstrap {
         return result;
     }
     
-    private static Path compilePhase(Path tmp, int phase, String sourcePath, String classPath, String bootPath, String testClassPath, String reloc) throws Exception {
-        Path result = phaseFolder(phase, tmp);
-        progress("phase " + phase + ": " + result);
-
-        time("- compile MuLibrary",       () -> compileMuLibrary(phase, classPath, bootPath, sourcePath, result));
-        time("- compile Kernel",          () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel", reloc));
-        time("- compile ParserGenerator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator", reloc));
-        time("- compile tests",           () -> compileTests    (phase, classPath, result.toAbsolutePath().toString(), sourcePath, result));
-        time("- run tests",               () -> runTests        (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, result));
-       
+    private static Path phaseTestFolder(int phase, Path tmp) {
+        Path result = tmp.resolve("phase-test" + phase);
+        result.toFile().mkdir();
         return result;
+    }
+    
+    private static Path compilePhase(Path tmp, int phase, String sourcePath, String classPath, String bootPath, String testClassPath, String reloc) throws Exception {
+      Path result = phaseFolder(phase, tmp);
+      Path testResults = phaseTestFolder(phase, tmp);
+      progress("phase " + phase + ": " + result);
+
+      time("- compile MuLibrary",       () -> compileMuLibrary(phase, classPath, bootPath, sourcePath, result));
+      time("- compile Kernel",          () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel", reloc));
+      time("- compile ParserGenerator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator", reloc));
+     
+      time("- compile tests",           () -> compileTests    (phase, classPath, result.toAbsolutePath().toString(), sourcePath, testResults));
+      time("- run tests",               () -> runTests        (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, testResults));
+      return result;
     }
 
     private static String[] concat(String[]... arrays) {
@@ -480,7 +497,8 @@ public class Bootstrap {
     
     private static void runTests(int phase, String classPath, String boot, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage {
         progress("Running tests with the results of " + phase);
-        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests" };
+        if (phase == 1) return;
+        String[] javaCmd = new String[] {"java", "-ea", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests" };
         String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
         String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[0];
 
@@ -541,9 +559,9 @@ public class Bootstrap {
     }
     
     /**
-     * Asserts that two directories are recursively "equal" by checking that
+     * Assert that two directories are recursively "equal" by checking that
      * - corresponding (sub)directories and files exist in expected and actual directory
-     * - of rvm.gz files actual content is compared.
+     * - of .rvm files actual content is compared.
      * 
      * If they are not, an {@link RuntimeException} is thrown with the given message.<br/>
      * Missing or additional files are considered an error.<br/>
@@ -554,6 +572,88 @@ public class Bootstrap {
      *            Path actual directory
      */
     public static final long compareGeneratedRVMCode(final Path expected, final Path actual) {
+       
+        class RVMFileCompareAndCount implements FileVisitor<Path> {
+
+          final Path absoluteExpected;
+          final Path absoluteActual;
+          int nfiles = 0;
+          IValueFactory vf;
+
+          RVMFileCompareAndCount(final Path expected, final Path actual){
+            absoluteExpected = expected.toAbsolutePath();
+            absoluteActual = actual.toAbsolutePath();
+            vf = ValueFactoryFactory.getValueFactory();
+          }
+
+          int getCount() { return nfiles; }
+          
+          private IValue read(Path path) throws IOException {
+              ISourceLocation loc = null;
+              try {
+                  loc = vf.sourceLocation(/*compressed+"*/"file", "", path.toString());
+              }
+              catch (URISyntaxException e1) {
+                  throw new IOException("Cannot create location |file://" + path.toString() + "|");
+              }
+              try (IValueInputStream in = new IValueInputStream(URIResolverRegistry.getInstance().getInputStream(loc), vf)) {
+                  return in.read();
+              }
+          }
+
+          @Override
+          public FileVisitResult preVisitDirectory(Path expectedDir, BasicFileAttributes attrs)
+              throws IOException {
+            Path relativeExpectedDir = absoluteExpected.relativize(expectedDir.toAbsolutePath());
+            Path actualDir = absoluteActual.resolve(relativeExpectedDir);
+
+            if (!Files.exists(actualDir)) {
+              throw new RuntimeException(String.format("Directory \'%s\' missing in actual.", expectedDir.getFileName()));
+            }
+
+            if(expectedDir.toFile().list().length != actualDir.toFile().list().length){
+              throw new RuntimeException(String.format("Directory sizes differ: \'%s\' and \'%s\'.", expectedDir, actualDir));
+            }
+
+            return FileVisitResult.CONTINUE;
+          }
+
+          @Override
+          public FileVisitResult visitFile(Path expectedFile, BasicFileAttributes attrs) throws IOException {
+              Path relativeExpectedFile = absoluteExpected.relativize(expectedFile.toAbsolutePath());
+              Path actualFile = absoluteActual.resolve(relativeExpectedFile);
+
+              if (!Files.exists(actualFile)) {
+                  throw new RuntimeException(String.format("File \'%s\' missing in actual.", expectedFile.getFileName()));
+              }
+              if(actualFile.toString().endsWith(".rvm")){
+                  nfiles += 1;
+                  if(actualFile.toString().endsWith("_imports.rvm")){  // Skip since base directories will always differ
+                      return FileVisitResult.CONTINUE;
+                  }
+
+                  IValue expectedValue = read(expectedFile);
+                  IValue actualValue = read(actualFile);
+                  if(!expectedValue.isEqual(actualValue)){
+                      Reflective refl = new Reflective(vf);
+                      throw new RuntimeException(String.format("File content differs: \'%s\' and \'%s\':\n%s", expectedFile, actualFile, refl.diff(expectedValue, actualValue).getValue()));
+                  }
+              }
+
+              return FileVisitResult.CONTINUE;
+          }
+
+          @Override
+          public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+            throw new RuntimeException(exc.getMessage());
+          }
+
+          @Override
+          public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+            return FileVisitResult.CONTINUE;
+          }
+        }
+
         try {
           RVMFileCompareAndCount fileVisitor = new RVMFileCompareAndCount(expected, actual); 
 
@@ -564,69 +664,4 @@ public class Bootstrap {
           throw new RuntimeException(e.getMessage());
         }
     }
-}
-
-/**
- * Compare RVM files in two directories and return how many were found
- *
- */
-class RVMFileCompareAndCount implements FileVisitor<Path> {
-
-  final Path absoluteExpected;
-  final Path absoluteActual;
-  int nfiles = 0;
-
-  RVMFileCompareAndCount(final Path expected, final Path actual){
-    absoluteExpected = expected.toAbsolutePath();
-    absoluteActual = actual.toAbsolutePath();
-  }
-
-  int getCount() { return nfiles; }
-
-  @Override
-  public FileVisitResult preVisitDirectory(Path expectedDir, BasicFileAttributes attrs)
-      throws IOException {
-    Path relativeExpectedDir = absoluteExpected.relativize(expectedDir.toAbsolutePath());
-    Path actualDir = absoluteActual.resolve(relativeExpectedDir);
-
-    if (!Files.exists(actualDir)) {
-      throw new RuntimeException(String.format("Directory \'%s\' missing in actual.", expectedDir.getFileName()));
-    }
-
-    if(expectedDir.toFile().list().length != actualDir.toFile().list().length){
-      throw new RuntimeException(String.format("Directory sizes differ: \'%s\' and \'%s\'.", expectedDir, actualDir));
-    }
-
-    return FileVisitResult.CONTINUE;
-  }
-
-  @Override
-  public FileVisitResult visitFile(Path expectedFile, BasicFileAttributes attrs) throws IOException {
-    Path relativeExpectedFile = absoluteExpected.relativize(expectedFile.toAbsolutePath());
-    Path actualFile = absoluteActual.resolve(relativeExpectedFile);
-
-    if (!Files.exists(actualFile)) {
-      throw new RuntimeException(String.format("File \'%s\' missing in actual.", expectedFile.getFileName()));
-    }
-    if(actualFile.toString().endsWith(".rvm.gz")){
-      nfiles += 1;
-      if(!Arrays.equals(Files.readAllBytes(expectedFile), Files.readAllBytes(actualFile))){
-        throw new RuntimeException(String.format("File content differs: \'%s\' and \'%s\'.", expectedFile, actualFile));
-      }
-    }
-
-    return FileVisitResult.CONTINUE;
-  }
-
-  @Override
-  public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-    throw new RuntimeException(exc.getMessage());
-  }
-
-  @Override
-  public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-    return FileVisitResult.CONTINUE;
-  }
-
-  
 }

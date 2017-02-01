@@ -2,10 +2,8 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -15,22 +13,21 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
 import java.util.Map.Entry;
+import java.util.Stack;
 import java.util.regex.Matcher;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.ITestResultListener;
+import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.FunctionType;
-import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.RascalType;
-import org.rascalmpl.interpreter.types.ReifiedType;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalFunctionInvocationHandler;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.NullFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
@@ -39,7 +36,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Trave
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.FIXEDPOINT;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.PROGRESS;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.REBUILD;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IDateTime;
@@ -61,20 +57,26 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public abstract class RVMCore {
 	public final IValueFactory vf;
-
+	
 	protected final TypeFactory tf; 
 	
+	// Only for RVM interpreter
 	protected final static IBool Rascal_TRUE = ValueFactoryFactory.getValueFactory().bool(true);
 	protected final static IBool Rascal_FALSE = ValueFactoryFactory.getValueFactory().bool(false);
 	protected final IString NOVALUE; 
+	
+	protected TypeStore typeStore;
+	private IMap symbol_definitions;
+	
 	protected Function[] functionStore;
 	protected Map<String, Integer> functionMap;
 
-	protected ArrayList<Type> constructorStore;
+	protected List<Type> constructorStore;
 	protected final Map<String, Integer> constructorMap;
 	
 	// Function overloading
@@ -84,7 +86,7 @@ public abstract class RVMCore {
 	
 	protected IFrameObserver frameObserver;
 
-	public final static Function noCompanionFunction = new Function("noCompanionFunction", null, null, null, 0, 0, false, null, 0, false, 0, 0, null, null, 0);
+	public final static Function noCompanionFunction = new Function("noCompanionFunction", null, null, null, 0, 0, false, false, null, null, 0, false, 0, 0, null, null, 0);
 	public static final HashMap<String, IValue> emptyKeywordMap = new HashMap<>(0);
 
 	protected PrintWriter stdout;
@@ -98,9 +100,8 @@ public abstract class RVMCore {
 
 	public Map<IValue, IValue> moduleVariables;
 	
-	List<ClassLoader> classLoaders;
-	private final Map<Class<?>, Object> instanceCache;
-	private final Map<String, Class<?>> classCache;
+	protected final Map<Class<?>, Object> instanceCache;
+	protected final Map<String, Class<?>> classCache;
 
 	private final Types types;
 	
@@ -150,7 +151,6 @@ public abstract class RVMCore {
 
 	  this.instanceCache = new HashMap<Class<?>, Object>();
 	  this.classCache = new HashMap<String, Class<?>>();
-	  this.classLoaders = rex.getClassLoaders();
 
 	  this.vf = rex.getValueFactory();
 	  tf = TypeFactory.getInstance();
@@ -159,6 +159,7 @@ public abstract class RVMCore {
 	  NOVALUE = vf.string("$no-value$");
 	  moduleVariables = new HashMap<IValue,IValue>();
 
+	  this.symbol_definitions = rvmExec.getSymbolDefinitions();
 	  this.functionStore = rvmExec.getFunctionStore();
 	  this.functionMap = rvmExec.getFunctionMap();
 
@@ -173,13 +174,10 @@ public abstract class RVMCore {
 
 	  IFrameObserver observer = rex.getFrameObserver(); 
 	  this.frameObserver = (observer == null) ? NullFrameObserver.getInstance() : observer;
-	  
-//	  try {
-//	    apiGen(rex.getFullModuleName());
-//	  } catch (Exception e) {
-//	    // TODO Auto-generated catch block
-//	    e.printStackTrace();
-//	  }
+	}
+	
+	public void shutdown(){
+	  frameObserver.report();
 	}
 	
 	public Map<IValue, IValue> getModuleVariables() { return moduleVariables; }
@@ -191,6 +189,13 @@ public abstract class RVMCore {
 		}
 		moduleVariables.put(name, newVal);
 	}
+	
+	public TypeStore getTypeStore() { 
+       if(typeStore == null){
+           typeStore = new TypeReifier(vf).buildTypeStore(symbol_definitions);
+       }
+       return typeStore;
+    }
 	
 	void mappifyOverloadedStore(){
 	  overloadedStoreMap = new HashMap<>();
@@ -207,199 +212,16 @@ public abstract class RVMCore {
 	  }
 	}
 	
-	void apiGen(String moduleName) throws Exception{
-	  System.err.println("MODULE: " + moduleName);
-	  ArrayList<String> lines = new ArrayList<>();
-	  for(Function fun : functionStore){
-	    if(fun.ftype instanceof FunctionType && fun.getName().contains(moduleName)){
-//	      System.err.println(fun);
-//	      System.err.println(fun.getName().contains(moduleName));
-	      FunctionType ftype = (FunctionType) fun.ftype;
-	      StringWriter sw = new StringWriter();
-	      sw.append("\t");
-	      sw.append(toJavaType(ftype.getReturnType()));
-	      sw.append(" ");
-	      sw.append(fun.getPrintableName());
-	      sw.append("(");
-	      Type argTypes = ftype.getArgumentTypes();
-	      int arity = argTypes.getArity();
-	      for(int i = 0; i < arity; i++){
-	        if(i > 0){
-	          sw.append(", ");
-	        }
-	        sw.append(toJavaType(argTypes.getFieldType(i)));
-	        sw.append(" ");
-	        sw.append("arg" + i);
-	      }
-	      Type kwType = fun.kwType;
-	      if(kwType.getArity() > 0){
-	        if(arity > 0){
-	          sw.append(", ");
-	        }
-	        sw.append("Map<String, IValue> kwparams");
-	      }
-	      
-	      sw.append(");\n");
-	      String line = sw.toString();
-	      if(!lines.contains(line)){
-	        lines.add(line);
-	      }
-	    }
-	  }
-	  for(String line : lines){
-	    System.err.println(line);
-	  }
-	}
-	
-	String toJavaType(Type t) throws Exception{
-	  return t.accept(new DefaultRascalTypeVisitor<String,RuntimeException>("") {
-
-        @Override
-        public String visitReal(Type type) throws RuntimeException {
-            return "double";
-        }
-
-        @Override
-        public String visitInteger(Type type) throws RuntimeException {
-            return "int";
-        }
-
-        @Override
-        public String visitRational(Type type)
-                throws RuntimeException {
-            return "IRational";
-        }
-
-        @Override
-        public String visitList(Type type) throws RuntimeException {
-            return "IList";
-        }
-
-        @Override
-        public String visitMap(Type type) throws RuntimeException {
-            return "IMap";
-        }
-
-        @Override
-        public String visitNumber(Type type) throws RuntimeException {
-            return "INumber";
-        }
-
-        @Override
-        public String visitAlias(Type type) throws RuntimeException {
-            throw new CompilerError("Alias cannot occur as interface type");
-        }
-
-        @Override
-        public String visitSet(Type type) throws RuntimeException {
-            return "ISet";
-        }
-
-        @Override
-        public String visitSourceLocation(Type type)
-                throws RuntimeException {
-            return "ISourceLocation";
-        }
-
-        @Override
-        public String visitString(Type type) throws RuntimeException {
-            return "String";
-        }
-
-        @Override
-        public String visitNode(Type type) throws RuntimeException {
-            return "INode";
-        }
-
-        @Override
-        public String visitConstructor(Type type)
-                throws RuntimeException {
-            return "IConstructor";
-        }
-
-        @Override
-        public String visitAbstractData(Type type)
-                throws RuntimeException {
-            return "IConstructor";
-        }
-
-        @Override
-        public String visitTuple(Type type) throws RuntimeException {
-            return "ITuple";
-        }
-
-        @Override
-        public String visitValue(Type type) throws RuntimeException {
-            return "IValue";
-        }
-
-        @Override
-        public String visitVoid(Type type) throws RuntimeException  {
-            return "void";
-        }
-
-        @Override
-        public String visitBool(Type type) throws RuntimeException {
-            return "boolean";
-        }
-
-        @Override
-        public String visitParameter(Type type)
-                throws RuntimeException {
-          return "IValue";
-        }
-
-        @Override
-        public String visitExternal(Type type)
-            throws RuntimeException {
-          if(type instanceof FunctionType){
-            return "IValue";
-          } else if(type instanceof ReifiedType){
-            return "IConstructor";
-          } else if(type instanceof NonTerminalType){
-            return "IConstructor";
-          }
-
-          throw new CompilerError("External cannot occur as interface type: " + type);
-        }
-        
-        @Override
-        public String visitNonTerminal(RascalType type)
-                throws RuntimeException {
-            return "IConstructor";
-        }
-        
-        @Override
-        public String visitReified(RascalType type)
-                throws RuntimeException {
-            return "IConstructor";
-        }
-        
-        @Override
-        public String visitFunction(RascalType type)
-                throws RuntimeException {
-            return "IValue";
-        }
-        
-        @Override
-        public String visitOverloadedFunction(RascalType type)
-                throws RuntimeException {
-          throw new CompilerError("External cannot occur as interface type: " + type);
-        }
-
-        @Override
-        public String visitDateTime(Type type)
-                throws RuntimeException {
-            return "IDateTime";
-        }});
-	}
-
 	/**
-	 * Create an object which implements the provided interface by forwarding calls to its methods directly to Rascal functions.
+	 * Create an object which implements the provided interface (that is
+	 * usually created by ApiGen.generate) by forwarding calls 
+	 * to its methods directly to Rascal functions.
 	 * 
 	 * This works for interfaces which contain a specific kind of methods:
-	 *    * each method should have a name which maps to a Rascal function name which is loaded into the current RVMCore
-	 *    * the arity of the method should be equal to at least one of the Rascal functions with the given name
+	 *    * each method should have a name which maps to a Rascal function name which 
+	 *      is loaded into the current RVMCore
+	 *    * the arity of the method should be equal to at least one of the Rascal 
+	 *      functions with the given name
 	 *    * all arguments of the methods should have a type which is a sub-type of IValue
 	 *    * the return type of the methods should be either IValue or void
 	 *    
@@ -407,21 +229,22 @@ public abstract class RVMCore {
 	 * @return an object which implements this interface by forwarding to Rascal functions
 	 */
 	public <T> T asInterface(Class<T> interf) {
-	    return interf.cast(Proxy.newProxyInstance(RVMCore.class.getClassLoader(), new Class<?> [] { interf }, new ProxyInvocationHandler(this, interf)));
+	    return interf.cast(Proxy.newProxyInstance(RVMCore.class.getClassLoader(), new Class<?> [] { interf }, new RascalFunctionInvocationHandler(this, interf)));
 	}
 	
 	public PrintWriter getStdErr() { return rex.getStdErr(); }
 	
 	public PrintWriter getStdOut() { return rex.getStdOut(); }
-	
-	URIResolverRegistry getResolverRegistry() { return URIResolverRegistry.getInstance(); }
-	
+		
 	IRascalMonitor getMonitor() {return rex.getMonitor();}
 	
-	List<ClassLoader> getClassLoaders() { return rex.getClassLoaders(); }
-
 	public IFrameObserver getFrameObserver() {
 		return frameObserver;
+	}
+	
+	public void setFrameObserver(IFrameObserver observer){
+	    frameObserver = observer;
+	    rex.setFrameObserver(observer);
 	}
 	
 	protected String getFunctionName(int n) {
@@ -448,38 +271,70 @@ public abstract class RVMCore {
 	}
 	
 	public Function getFunction(String name, Type returnType, Type argumentTypes){
-		for(Function f : functionStore){
-			if(f.name.contains("/" + name + "(") && f.ftype instanceof FunctionType){
-				FunctionType ft = (FunctionType) f.ftype;
-				if(returnType.equals(ft.getReturnType()) &&
-				   argumentTypes.equals(ft.getArgumentTypes())){
-					return f;
-				}
-			}
-		}
-		return null;
+	  next:
+	    for(Function f : functionStore){
+	      if(f.name.contains("/" + name + "(") && f.ftype instanceof FunctionType){
+	        FunctionType ft = (FunctionType) f.ftype;
+	        int arity = argumentTypes.getArity();
+	        if(returnType.equals(ft.getReturnType()) && arity == ft.getArgumentTypes().getArity()){
+	          for(int i = 0; i < arity; i++){ // ignore field names
+	            if(!argumentTypes.getFieldType(i).equals(ft.getArgumentTypes().getFieldType(i))){
+	              continue next;
+	            }
+	          }
+	          return f;
+	        }
+	      }
+	    }
+	return null;
 	}
 	
-	private OverloadedFunction getOverloadedFunctionByNameAndArity(String name, int arity) throws NoSuchRascalFunction {
-	  //System.err.println("getFirstOverloadedFunctionByNameAndArity: " + name + ", " + arity);  
+	private ArrayList<Integer> getFunctionByNameAndArity(String name, int arity){
+	  ArrayList<Integer> functions = new ArrayList<>();
+      for(int n = 0; n < functionStore.length; n++){
+        Function f = functionStore[n];
+          if(f.name.contains("/" + name + "(") && f.ftype instanceof FunctionType){
+              FunctionType ft = (FunctionType) f.ftype;
+              if(ft.getArgumentTypes().getArity() == arity){
+                  functions.add(n);
+              }
+          }
+      }
+      return functions;
+  }
+	
+	public OverloadedFunction getOverloadedFunctionByNameAndArity(String name, int arity) throws NoSuchRascalFunction {
+//    System.err.println("getFirstOverloadedFunctionByNameAndArity: " + name + ", " + arity);  
 	  OverloadedFunction of = overloadedStoreMap.get(name);
 	  Type tp = null;
 	  //System.err.println(of);
 	  ArrayList<Integer> filteredAlts = new ArrayList<>();
-	  for (int alt : of.getFunctions()) {
-	    //System.err.println("alt: " + functionStore[alt].ftype);
-	    if (functionStore[alt].ftype.getArity() == arity) {
-	      tp = functionStore[alt].ftype;
-	      filteredAlts.add(alt);
+	  if(of != null){
+	    for (int alt : of.getFunctions()) {
+	      //System.err.println("alt: " + functionStore[alt].ftype);
+	      if (functionStore[alt].ftype.getArity() == arity) {
+	        tp = functionStore[alt].ftype;
+	        filteredAlts.add(alt);
+	      }
+	    }
+	    if(filteredAlts.size() > 0){
+	      int falts[] = new int[filteredAlts.size()];
+	      for(int i = 0; i < falts.length; i++){
+	        falts[i] = filteredAlts.get(i);
+	      }
+	      return new OverloadedFunction(name, tp,  falts, new int[] { }, "");
 	    }
 	  }
+	  filteredAlts = getFunctionByNameAndArity(name, arity);
 	  if(filteredAlts.size() > 0){
-	    int falts[] = new int[filteredAlts.size()];
-	    for(int i = 0; i < falts.length; i++){
-	      falts[i] = filteredAlts.get(i);
-	    }
-	    return new OverloadedFunction(name, tp,  falts, new int[] { }, "");
-	  }
+	    tp = tf.tupleType(tf.valueType()); // arbitrary!
+        int falts[] = new int[filteredAlts.size()];
+        for(int i = 0; i < falts.length; i++){
+          falts[i] = filteredAlts.get(i);
+        }
+        return new OverloadedFunction(name, tp,  falts, new int[] { }, "");
+      }
+	  
 
 	  // ?? why are constructors not part of overloaded functions?
 	  for(int i = 0; i < constructorStore.size(); i++){
@@ -492,12 +347,14 @@ public abstract class RVMCore {
 	  throw new NoSuchRascalFunction(name);
 	}
 	
+	// deprecated
 	public OverloadedFunction getOverloadedFunction(String signature) throws NoSuchRascalFunction{
 		OverloadedFunction result = null;
 		
 		String name = types.getFunctionName(signature);
 		Type funType = types.getFunctionType(signature);
 		FunctionType ft = (FunctionType) funType;
+		int arity = ft.getArity();
 		
 		for(OverloadedFunction of : overloadedStore){
 			if(of.matchesNameAndSignature(name, funType)){
@@ -516,6 +373,16 @@ public abstract class RVMCore {
 			return result;
 		}
 		
+		ArrayList<Integer> filteredAlts = getFunctionByNameAndArity(name, arity);
+		if(filteredAlts.size() > 0){
+		  Type tp = tf.tupleType(tf.valueType()); // arbitrary!
+		  int falts[] = new int[filteredAlts.size()];
+		  for(int i = 0; i < falts.length; i++){
+		    falts[i] = filteredAlts.get(i);
+		  }
+		  return new OverloadedFunction(name, tp,  falts, new int[] { }, "");
+		}
+
 		for(int i = 0; i < constructorStore.size(); i++){
 			Type tp = constructorStore.get(i);
 			if(name.equals(tp.getName()) && ft.getFieldTypes().comparable(funType.getFieldTypes()) 
@@ -612,36 +479,19 @@ public abstract class RVMCore {
 				return executeRVMFunction(ofi, posArgs, kwArgs);
 		} else {
 			Type cons = constructorStore.get(func.getConstructors()[0]);
-			return vf.constructor(cons, posArgs);
+			return vf.constructor(cons, posArgs, kwArgs);
 		}
 	}
 	
-//	/**
-//	 * Execute an OverloadedFunction with positional and keyword arguments
-//	 * @param func	OverloadedFunction
-//	 * @param args	Positional arguments
-//	 * @param kwArgs Keyword arguments
-//	 * @return		Result of function execution
-//	 */
-//	public IValue executeRVMFunction(OverloadedFunction func, IValue[] posArgs, IMap kwArgs){
-//		IValue[] args = new IValue[posArgs.length + 1];
-//		int i = 0;
-//		for(IValue argValue : posArgs) {
-//			args[i++] = argValue;
-//		}
-//		args[i] = kwArgs;
-//		
-//		if(func.getFunctions().length > 0){
-//				Function firstFunc = functionStore[func.getFunctions()[0]]; 
-//				Frame root = new Frame(func.scopeIn, null, null, func.getArity()+2, firstFunc);
-//				OverloadedFunctionInstance ofi = OverloadedFunctionInstance.computeOverloadedFunctionInstance(func.functions, func.constructors, root, func.scopeIn, functionStore, constructorStore, this);
-//				
-//				return executeRVMFunction(ofi, args, null);
-//		} else {
-//			Type cons = constructorStore.get(func.getConstructors()[0]);
-//			return vf.constructor(cons, args);
-//		}
-//	}
+	public IList executeTests(ITestResultListener testResultListener, RascalExecutionContext rex){
+	  IListWriter w = vf.listWriter();
+	  for(Function f : functionStore){
+	    if(f.isTest){
+	      w.append(f.executeTest(testResultListener, getTypeStore(), rex));
+	    }
+	  }
+	  return w.done();
+	}
 	
 	/************************************************************************************/
 	/*		Abstract methods to execute RVMFunctions and RVMPrograms					*/
@@ -794,7 +644,7 @@ public abstract class RVMCore {
 			return "Matcher[" + ((Matcher) o).pattern() + "]";
 		}
 		if(o instanceof Thrown) {
-			return "THROWN[ " + asString(((Thrown) o).value) + " ]";
+			return "THROWN[ " + asString(((Thrown) o).getValue()) + " ]";
 		}
 		
 		if(o instanceof StringBuilder){
@@ -821,103 +671,6 @@ public abstract class RVMCore {
 	public String asString(Object o, int w){
 		String repr = asString(o);
 		return (repr.length() < w) ? repr : repr.substring(0, w) + "...";
-	}
-	
-	private static class ProxyInvocationHandler implements InvocationHandler {
-	  private final RVMCore core;
-	  private Map<String,IValue> emptyKWParams;
-	  private Map<Method,OverloadedFunction> overloadedFunctionsByMethod;
-
-	  public ProxyInvocationHandler(RVMCore core, Class<?> clazz) {
-	    this.core = core;
-	    emptyKWParams = new HashMap<>();
-	    overloadedFunctionsByMethod = new HashMap<>();
-	    initialize(clazz);
-	  }
-
-	  private void initialize(Class<?> clazz) {
-	    // TODO: some static checking and some caching.
-	  }
-	  
-	  boolean hasKeywordParams(Object[] args){
-	    return args[args.length - 1] instanceof Map<?,?>;
-	  }
-	  
-	  OverloadedFunction getOverloadedFunction(Method method, Object[] args) throws NoSuchRascalFunction{
-	    OverloadedFunction f = overloadedFunctionsByMethod.get(method);
-	    if(f != null){
-	      return f;
-	    }
-
-	    f = core.getOverloadedFunctionByNameAndArity(method.getName(), method.getParameterCount() - (hasKeywordParams(args) ? 1 : 0));
-	    overloadedFunctionsByMethod.put(method,  f);
-	    return f;
-	  }
-
-	  @SuppressWarnings("unchecked")
-	  @Override
-	  public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-	    OverloadedFunction f = getOverloadedFunction(method, args);
-	    boolean hka = hasKeywordParams(args);
-	    Map<String,IValue> kwArgs = hka ? (Map<String,IValue>) args[args.length - 1] : emptyKWParams;
-	    return unmarshall(core.executeRVMFunction(f, marshalArgs(args, hka), kwArgs), method.getReturnType());
-	  }
-
-	  private IValue[] marshalArgs(Object[] args, boolean skipKeywordArguments) {
-	    int len = args.length - (skipKeywordArguments ? 1 : 0);
-	    IValue[] result = new IValue[len];
-
-	    for (int i = 0; i < len; i++) {
-	      result[i] = marshalArg(args[i]);
-	    }
-
-	    return result;
-	  }
-
-	  private IValue marshalArg(Object object) {
-	    if (object instanceof Boolean) {
-	      return core.vf.bool((Boolean) object);
-	    }
-	    if (object instanceof Integer) {
-	      return core.vf.integer((Integer) object);
-	    }
-	    else if (object instanceof String) {
-	      return core.vf.string((String) object);
-	    }
-	    else if (object instanceof Float) {
-	      return core.vf.real((Float) object);
-	    }
-	    else if (object instanceof Double) {
-	      return core.vf.real((Double) object);
-	    }
-	    else if (object instanceof IValue) {
-	      return (IValue) object;
-	    }
-
-	    throw new IllegalArgumentException("parameter is not convertible to IValue:" + object.getClass().getCanonicalName());
-	  }
-
-	  private Object unmarshall(IValue v, Class<?> returnType) {
-	    Type t = v.getType();
-	    if (t.isBool() && returnType.getName().equals("boolean")) {
-	      return ((IBool) v).getValue();
-	    }
-	    if (t.isInteger() && returnType.getName().equals("int")) {
-	      return ((IInteger) v).intValue();
-	    }
-	    else if (t.isString() && returnType.getName().equals("String")) {
-	      return ((IString) v).getValue();
-	    }
-	    else if (t.isReal() && returnType.getName().equals("Float")) {
-	      return ((IReal) v).floatValue();
-	    }
-	    else if (t.isReal() && returnType.getName().equals("Double")) {
-	      return ((IReal) v).doubleValue();
-	    }
-	    else {
-	      return v;
-	    }
-	  }
 	}
 	
 	/********************************************************************************/
@@ -1072,7 +825,7 @@ public abstract class RVMCore {
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == varScope) {
 				// TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues
-				fr.stack[pos] = ((Thrown) stack[--sp]).value;
+				fr.stack[pos] = ((Thrown) stack[--sp]).getValue();
 				return sp;
 			}
 		}
@@ -1219,14 +972,14 @@ public abstract class RVMCore {
 	
 	// CALLCONSTR
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "unused"})
 	protected int CALLCONSTR(final Object[] stack, int sp, final int iconstructor, final int arity){
 		
 		Type constructor = constructorStore.get(iconstructor);
 		IValue[] args = new IValue[constructor.getArity()];
 
 		java.util.Map<String,IValue> kwargs;
-		@SuppressWarnings("unused")
+		
 		Type type = (Type) stack[--sp];		// TODO: emove from instruction
 		
 		kwargs = (java.util.Map<String,IValue>) stack[--sp];
@@ -1297,24 +1050,16 @@ public abstract class RVMCore {
 		if(clazz != null){
 			return clazz;
 		}
+		
 		try {
 			clazz = this.getClass().getClassLoader().loadClass(className);
-		} catch(ClassNotFoundException e1) {
-			// If the class is not found, try other class loaders
-			for(ClassLoader loader : this.classLoaders) {
-				try {
-					clazz = loader.loadClass(className);
-					break;
-				} catch(ClassNotFoundException e2) {
-					;
-				}
-			}
+			classCache.put(className, clazz);
+	        return clazz;
+		} 
+		catch(ClassNotFoundException | NoClassDefFoundError e1) {
+			throw new CompilerError("Class " + className + " not found", e1);
 		}
-		if(clazz == null) {
-			throw new CompilerError("Class " + className + " not found");
-		}
-		classCache.put(className, clazz);
-		return clazz;
+		
 	}
 	
 	public Object getJavaClassInstance(Class<?> clazz){
@@ -1332,13 +1077,25 @@ public abstract class RVMCore {
 		} 
 	}
 	
+	Method getJavaMethod(Class<?> clazz, String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect) {
+	    try {
+	        return clazz.getMethod(methodName, makeJavaTypes(methodName, className, parameterTypes, keywordTypes, reflect));
+	    }
+	    catch (NoSuchMethodException | SecurityException e) {
+	        throw new CompilerError("could not find Java method", e);
+	    }
+    }
+	
 	int callJavaMethod(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect, Object[] stack, int sp) throws Throw, Throwable {
-		Class<?> clazz = null;
-		try {
-			clazz = getJavaClass(className);
+	    Class<?> clazz = getJavaClass(className);
+	    Method m = getJavaMethod(clazz, methodName, className, parameterTypes, keywordTypes, reflect);
+	    return callJavaMethod(clazz, m, parameterTypes, keywordTypes, reflect, stack, sp);
+	}
+
+
+    int callJavaMethod(Class<?> clazz, Method m, Type parameterTypes, Type keywordTypes, int reflect, Object[] stack, int sp) throws Throw, Throwable {
+	    try {
 			Object instance = getJavaClassInstance(clazz);
-			
-			Method m = clazz.getMethod(methodName, makeJavaTypes(methodName, className, parameterTypes, keywordTypes, reflect));
 			int arity = parameterTypes.getArity();
 			int kwArity = keywordTypes.getArity();
 			int kwMaps = kwArity > 0 ? 2 : 0;
@@ -1364,12 +1121,12 @@ public abstract class RVMCore {
 			}
 			
 			if(reflect == 1) {
-				parameters[arity + kwArity] = converted.contains(className + "." + methodName) ? this.rex : null /*this.getEvaluatorContext()*/; // TODO: remove CTX
+				parameters[arity + kwArity] = converted.contains(clazz.getName() + "." + m.getName()) ? this.rex : null /*this.getEvaluatorContext()*/; // TODO: remove CTX
 			}
 			stack[sp - arity - kwMaps] =  m.invoke(instance, parameters);
 			return sp - arity - kwMaps + 1;
 		} 
-		catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException e) {
+		catch (SecurityException | IllegalAccessException | IllegalArgumentException e) {
 			throw new CompilerError("could not call Java method", e);
 		} 
 		catch (InvocationTargetException e) {
@@ -1384,7 +1141,8 @@ public abstract class RVMCore {
 		}
 	}
 	
-	private HashSet<String> converted = new HashSet<String>(Arrays.asList(
+	// Reflective methods where the CTX arguments has already been replaced by a REX argument
+	private static HashSet<String> converted = new HashSet<String>(Arrays.asList(
 			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ParsingTools.parseFragment",
 			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram.executeProgram",
 			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.startCoverage",
@@ -1415,13 +1173,16 @@ public abstract class RVMCore {
 			"org.rascalmpl.library.util.MonitorCompiled.event",
 			"org.rascalmpl.library.util.MonitorCompiled.endJob",
 			"org.rascalmpl.library.util.MonitorCompiled.todo",
+			"org.rascalmpl.library.util.ReflectiveCompiled.getCurrentPathConfig",
 			"org.rascalmpl.library.util.ReflectiveCompiled.parseModule",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getModuleLocation",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getSearchPathLocation",
 			"org.rascalmpl.library.util.ReflectiveCompiled.inCompiledMode",
+			"org.rascalmpl.library.util.ReflectiveCompiled.parseNamedModuleWithSpaces",
 			"org.rascalmpl.library.util.ReflectiveCompiled.diff",
-			"org.rascalmpl.library.util.ReflectiveCompiled.watch"
-
+			"org.rascalmpl.library.util.ReflectiveCompiled.watch",
+			"org.rascalmpl.library.util.WebserverCompiled.serve"
+		
 			/*
 			 * 	TODO:
 			 * cobra::util::outputlogger::startLog
@@ -1461,15 +1222,9 @@ public abstract class RVMCore {
 			 *  util::tasks::Manager
 			 *  util::Eval
 			 *  util::Monitor
-			 *  util::Reflective
-			 *  
-			 *  util::Webserver
-			 *  
 			 *  vis::Figure::color
 			 *  
 			 *  Traversal::getTraversalContext
-			 *  
-			 *  tutor::HTMLGenerator
 			 *  
 			 *  **eclipse**
 			 *  util::Editors
@@ -1483,7 +1238,7 @@ public abstract class RVMCore {
 			 */
 	));
 			
-	Class<?>[] makeJavaTypes(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect){
+	private static Class<?>[] makeJavaTypes(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect){
 		JavaClasses javaClasses = new JavaClasses();
 		int arity = parameterTypes.getArity();
 		int kwArity = keywordTypes.getArity();

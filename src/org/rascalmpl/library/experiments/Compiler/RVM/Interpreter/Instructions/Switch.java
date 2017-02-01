@@ -48,6 +48,6 @@ public class Switch extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall(opcode.name());
 
-		codeEmittor.emitInlineSwitch(caseLabels, caseDefault, useConcreteFingerprint, debug) ;
+		codeEmittor.emitInlineSwitch(caseLabels, caseDefault, useConcreteFingerprint) ;
 	}
 }

@@ -27,7 +27,6 @@ public class RecursiveTestSuite extends Suite {
 		super(setupClass, getClasses(setupClass));
 	}
 
-
 	private static Class<?>[] getClasses(Class<?> setupClass) {
 		List<Class<?>> result = new ArrayList<Class<?>>();
 		if (setupClass.isAnnotationPresent(RecursiveTest.class)) {
@@ -82,6 +81,5 @@ public class RecursiveTestSuite extends Suite {
 				}
 			}
 		}
-
 	}
 }

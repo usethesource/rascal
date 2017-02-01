@@ -2,7 +2,6 @@ package org.rascalmpl.library.lang.java.m3.internal;
 
 import java.util.Stack;
 
-import org.rascalmpl.ast.Comprehension.Map;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISetWriter;

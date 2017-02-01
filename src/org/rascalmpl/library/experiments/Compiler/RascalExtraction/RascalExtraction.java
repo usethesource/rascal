@@ -3,12 +3,8 @@ package org.rascalmpl.library.experiments.Compiler.RascalExtraction;
 import java.io.IOException;
 import java.util.Map;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
@@ -23,20 +19,20 @@ public class RascalExtraction {
 	private RVMCore rvm;
 	
 	public RascalExtraction(IValueFactory vf, PathConfig pcfg) throws IOException{
-		this.vf = vf;
-		if(rvm == null){
-			RascalExecutionContext rex = 
-					RascalExecutionContextBuilder.normalContext(vf, pcfg.getboot() /* TODO needs a kernel location */, System.out, System.err)
-						.setJVM(true)					// options for complete repl
-						.setTrace(false)
-						.build();
-			rvm = ExecutionTools.initializedRVM(rex.getRascalExtraction(), rex);
-		}
-		try {
-			extractDoc = rvm.getOverloadedFunction("tuple[str moduleDoc, list[DeclarationInfo] declarationInfo] extractDoc(str parent, loc moduleLoc)");
-		} catch (NoSuchRascalFunction e) {
-			e.printStackTrace();
-		}
+//		this.vf = vf;
+//		if(rvm == null){
+//			RascalExecutionContext rex = 
+//					RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot() /* TODO needs a kernel location */, System.out, System.err)
+//						.setJVM(true)					// options for complete repl
+//						.setTrace(false)
+//						.build();
+//			rvm = ExecutionTools.initializedRVM(rex.getRascalExtraction(), rex);
+//		}
+//		try {
+//			extractDoc = rvm.getOverloadedFunction("tuple[str moduleDoc, list[DeclarationInfo] declarationInfo] extractDoc(str parent, loc moduleLoc)");
+//		} catch (NoSuchRascalFunction e) {
+//			e.printStackTrace();
+//		}
 	}
 	
 	/**

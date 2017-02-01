@@ -18,11 +18,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -60,9 +62,9 @@ public abstract class BaseRascalREPL extends BaseREPL {
     private final StandardTextWriter singleLinePrettyPrinter;
     private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 
-    public BaseRascalREPL(PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors,File persistentHistory, Terminal terminal)
+    public BaseRascalREPL(PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors,File persistentHistory, Terminal terminal, IDEServices ideServices)
                     throws IOException, URISyntaxException {
-        super(pcfg, stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal);
+        super(pcfg, stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal, ideServices);
         if (terminal.isAnsiSupported() && allowColors) {
             indentedPrettyPrinter = new ReplTextWriter();
             singleLinePrettyPrinter = new ReplTextWriter(false);
@@ -116,7 +118,11 @@ public abstract class BaseRascalREPL extends BaseREPL {
             }
         } catch (IOException ie) {
             throw new RuntimeException(ie);
+        } catch (Ambiguous e) {
+            getErrorWriter().println("Internal error: ambiguous command: " + TreeAdapter.yield(e.getTree()));
+            return;
         }
+        
     }
 
     @Override
@@ -137,7 +143,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
         }
         Type type = result.getType();
 
-        if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree)) {
+        if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree) && !type.isBottom()) {
             out.print(type.toString());
             out.print(": ");
             // we unparse the tree
@@ -361,7 +367,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
         }
     }
 
-    protected CompletionResult completeModule(String line, int cursor) {
+    public CompletionResult completeModule(String line, int cursor) {
         OffsetLengthTerm identifier = StringUtils.findRascalIdentifierAtOffset(line, line.length());
         if (identifier != null) {
             String[] qualified = StringUtils.splitQualifiedName(unescapeKeywords(identifier.term));

@@ -32,4 +32,9 @@ public class SourceLocationBreakpoint extends BreakPoint {
 	public boolean matchOnLeave(Frame frame) {
 		return matchOnObserve(frame);
 	}
+	
+	@Override
+    public String toString(){
+        return "SourceLocationBreakpoint " + loc;
+    }
 }

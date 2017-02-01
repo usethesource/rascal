@@ -15,5 +15,10 @@ import Exception;
 import String;
 
 @javaClass{org.rascalmpl.library.util.SystemAPI}
-public java str getSystemProperty(str property);
+java str getSystemProperty(str property);
 
+@javaClass{org.rascalmpl.library.util.SystemAPI}
+java map[str,str] getSystemProperties();
+
+@javaClass{org.rascalmpl.library.util.SystemAPI}
+java map[str,str] getSystemEnvironment();

@@ -27,6 +27,7 @@ import org.asciidoctor.Placement;
 import org.asciidoctor.SafeMode;
 import org.rascalmpl.library.experiments.Compiler.Commands.CommandOptions;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISourceLocation;
@@ -123,7 +124,8 @@ public class CourseCompiler {
 //		}
 //	}
 	
-	public static void compileCourse(Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, RascalCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
+	@SuppressWarnings("unused")
+    public static void compileCourse(Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
 		
 		copyStandardFilesPerCourse(srcPath, courseName, destPath);
 		new Onthology(srcPath, courseName, destPath, libSrcPath, pcfg, executor);
@@ -160,6 +162,7 @@ public class CourseCompiler {
 		System.err.println("srcPath: " + srcPath + ", destPath: " + destPath);
 		
 		ArrayList<String> files  = new ArrayList<>();
+		files.add("tutor-prelude.js");
 		files.add("favicon.ico");
 		files.add("css/style.css");
 		files.add("docinfo.html");
@@ -169,7 +172,10 @@ public class CourseCompiler {
 		files.add("fonts/fontawesome-webfont.ttf");
 		files.add("fonts/fontawesome-webfont.woff");
 		files.add("fonts/fontawesome-webfont.woff2");
+		
 		files.add("images/rascal-tutor-small.png");
+		files.add("images/good.png");
+		files.add("images/bad.png");
 		for(int i = 1; i <= 15; i++){
 			files.add("images/" + i + ".png");
 		}
@@ -233,7 +239,6 @@ public class CourseCompiler {
          .help("Directory for Rascal binaries")
          
          .locOption("boot")         
-         .respectNoDefaults()
          .help("Rascal boot directory")
          
          .boolOption("all")
@@ -250,24 +255,23 @@ public class CourseCompiler {
          .handleArgs(args);
 		
 		PathConfig pcfg = 
-				new PathConfig(cmdOpts.getCommandlocsOption("src"),
-							   cmdOpts.getCommandlocsOption("lib"),
+				new PathConfig(cmdOpts.getCommandLocsOption("src"),
+							   cmdOpts.getCommandLocsOption("lib"),
 					           cmdOpts.getCommandLocOption("bin"),
 					           cmdOpts.getCommandLocOption("boot"),
-					           cmdOpts.getCommandlocsOption("course"));   
+					           cmdOpts.getCommandLocsOption("course"));   
 		
-		Path coursesSrcPath = Paths.get(((ISourceLocation)pcfg.getcourses().get(0)).getPath());
+		Path coursesSrcPath = Paths.get(((ISourceLocation)pcfg.getCourses().get(0)).getPath());
 		Path libSrcPath = Paths.get(((ISourceLocation)pcfg.getSrcs().get(0)).getPath());
 		
-		System.out.println("coursesSrcPath: " + coursesSrcPath);
-		System.out.println("libSrcPath: " + libSrcPath);
+		System.out.println(pcfg);
 		
 		Path destPath = Paths.get(((ISourceLocation)pcfg.getBin()).getPath()).resolve("courses");
 		copyStandardFiles(coursesSrcPath, destPath);
 		
 		StringWriter sw = new StringWriter();
 		PrintWriter err = new PrintWriter(sw);
-		RascalCommandExecutor executor = new RascalCommandExecutor(pcfg, err);
+		TutorCommandExecutor executor = new TutorCommandExecutor(pcfg, err, new BasicIDEServices());
 		
 		if(cmdOpts.getCommandBoolOption("all")){
 			IList givenCourses = cmdOpts.getModules();
@@ -286,14 +290,14 @@ public class CourseCompiler {
 		err.flush();
 		writeFile(destPath + "/course-compilation-errors.txt", sw.toString());
 		
-//		System.err.println("Removing intermediate files");
-//		
-//		FileVisitor<Path> fileProcessor = new RemoveAdocs();
-//		try {
-//			Files.walkFileTree(destPath, fileProcessor);
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//		System.err.println("Course compilation done");
+		System.err.println("Removing intermediate files");
+		
+		FileVisitor<Path> fileProcessor = new RemoveAdocs();
+		try {
+			Files.walkFileTree(destPath, fileProcessor);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		System.err.println("Course compilation done");
 	}
 }

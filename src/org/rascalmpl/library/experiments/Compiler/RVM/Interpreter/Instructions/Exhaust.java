@@ -13,6 +13,6 @@ public class Exhaust extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitInlineExhaust(debug);
+		codeEmittor.emitInlineExhaust();
 	}
 }

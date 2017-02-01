@@ -13,11 +13,8 @@ Test Case
 .Usage
 
 .Details
-
-[source,rascal-shell,error]
-----
-NOW = $T20:11:01.463+00:00$;
-NOW.year = 2020;
-----
+ 
 
 .Description
+
+VERSIE 3

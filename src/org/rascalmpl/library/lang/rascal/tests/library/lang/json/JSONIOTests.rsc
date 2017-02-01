@@ -4,8 +4,9 @@ import IO;
 import Type;
 import util::Math;
 import lang::json::IO;
+import util::UUID;
 
-loc targetFile = |test-temp:///test.json|;
+loc targetFile = |test-temp:///test-<"<uuidi()>">.json|;
 
 bool writeRead(&T dt) = writeRead(type(typeOf(dt), ()), dt);
 
@@ -48,9 +49,6 @@ test bool jsonWithList2(list[int] dt) = writeRead(dt);
 test bool jsonWithSet2(set[int] dt) = writeRead(dt);
 test bool jsonWithMap2(map[int, int]  dt) = writeRead(dt);
 test bool jsonWithNode2(node  dt) = writeRead(dt);
-
-test bool jsonWithDATA12(DATA1 dt) = writeRead(dt);
-test bool jsonWithDATA22(DATA2 dt) = writeRead(dt);
 
 test bool jsonRandom2(&T dt) = writeRead(dt);
 

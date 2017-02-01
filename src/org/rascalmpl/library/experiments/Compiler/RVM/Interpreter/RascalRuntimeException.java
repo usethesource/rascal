@@ -16,7 +16,7 @@ public class RascalRuntimeException {
 	private static TypeFactory TF = TypeFactory.getInstance();
 	private static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	
-	public static final TypeStore TS = RascalValueFactory.getStore(); //new TypeStore();
+	public static final TypeStore TS = new TypeStore(RascalValueFactory.getStore()); //new TypeStore();
 	public static final Type Exception = TF.abstractDataType(TS, "RuntimeException");
 	
 //	public static final Type StackOverflow = TF.constructor(TS, Exception, "StackOverflow");
@@ -116,7 +116,7 @@ public class RascalRuntimeException {
 	}
 	
 	public static Thrown invalidArgument(IValue v, Frame currentFrame) {
-		return Thrown.getInstance(VF.constructor(InvalidArgument), currentFrame);	
+		return Thrown.getInstance(VF.constructor(InvalidArgument, v), currentFrame);	
 	}
 	
 	public static Thrown invalidArgument(IValue v, Frame currentFrame, String message) {
@@ -163,7 +163,7 @@ public class RascalRuntimeException {
 
 		if (cause != null && cause != targetException) {
 			Thrown throwCause = cause instanceof Thrown ? (Thrown) cause : javaException(cause, loc, currentFrame);
-			return javaException(clazz, msg != null ? msg : "", throwCause.value, loc, currentFrame);
+			return javaException(clazz, msg != null ? msg : "", throwCause.getValue(), loc, currentFrame);
 		}
 		else {
 			return javaException(clazz, msg != null ? msg : "", loc, currentFrame);

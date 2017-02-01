@@ -23,6 +23,6 @@ public class Throw extends Instruction {
 			codeEmittor.emitDebugCall1(opcode.name(), codeblock.getConstantIndex(src));
 		
 		// TODO add source lines.
-		codeEmittor.emitInlineThrow(debug);
+		codeEmittor.emitInlineThrow();
 	}
 }

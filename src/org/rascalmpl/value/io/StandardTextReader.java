@@ -83,7 +83,6 @@ public class StandardTextReader extends AbstractTextReader {
 	private int current;
 	private Cache<String, ISourceLocation> sourceLocationCache;
 
-	@SuppressWarnings("serial")
   public IValue read(IValueFactory factory, TypeStore store, Type type, Reader stream) throws FactTypeUseException, IOException {
 		this.store = store;
 		this.stream = new NoWhiteSpaceReader(stream);

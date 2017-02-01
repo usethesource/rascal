@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2017 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,14 +25,17 @@ import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.rascalmpl.unicode.UnicodeInputStreamReader;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
+import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -43,6 +46,7 @@ public class URIResolverRegistry {
 	private final Map<String,ISourceLocationInput> inputResolvers = new HashMap<>();
 	private final Map<String,ISourceLocationOutput> outputResolvers = new HashMap<>();
 	private final Map<String, Map<String,ILogicalSourceLocationResolver>> logicalResolvers = new HashMap<>();
+    private final Map<String, IClassloaderLocationResolver> classloaderResolvers = new HashMap<>();
 	
 	private static class InstanceHolder {
 		static URIResolverRegistry sInstance = new URIResolverRegistry();
@@ -55,60 +59,82 @@ public class URIResolverRegistry {
 	private void loadServices() {
 	    try {
             Enumeration<URL> resources = getClass().getClassLoader().getResources(RESOLVERS_CONFIG);
-            while (resources.hasMoreElements()) {
-                loadServices(resources.nextElement());
-            }
+            Collections.list(resources).forEach(f -> loadServices(f));
         } catch (IOException e) {
-            System.err.println("WARNING: Could not load URIResolverRegistry extensions from " + RESOLVERS_CONFIG);
+            throw new Error("WARNING: Could not load URIResolverRegistry extensions from " + RESOLVERS_CONFIG, e);
         }
     }
-
-	private void loadServices(URL nextElement) throws IOException {
-	    for (String name : readConfigFile(nextElement)) {
-	        name = name.trim();
-
-	        if (name.startsWith("#")) { 
-	            // source code comment
-	            continue;
-	        }
-
-	        try {
-	            Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(name);
-	            Object instance;
-	            
-	            try {
-	                instance = clazz.getDeclaredConstructor(URIResolverRegistry.class).newInstance(this);
-	            }
-	            catch (NoSuchMethodException e) {
-	                instance = clazz.newInstance();
-	            }
-	            
-	            boolean ok = false;
-
-	            if (instance instanceof ILogicalSourceLocationResolver) {
-	                registerLogical((ILogicalSourceLocationResolver) instance);
-	                ok = true;
-	            }
-
-	            if (instance instanceof ISourceLocationInput) {
-	                registerInput((ISourceLocationInput) instance);
-	                ok = true;
-	            }
-
-	            if (instance instanceof ISourceLocationOutput) {
-	                registerOutput((ISourceLocationOutput) instance);
-	                ok = true;
-	            }
-
-	            if (!ok) {
-	                System.err.println("WARNING: could not load resolver " + name + " because it does not implement ISourceLocationInput or ISourceLocationOutput or ILogicalSourceLocationResolver");
-	            }
-	        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException | IllegalArgumentException | InvocationTargetException | SecurityException e) {
-	            System.err.println("WARNING: could not load resolver " + name + " due to " + e.getMessage());
-	            e.printStackTrace();
-	        }
-	    }
+	
+	public Set<String> getRegisteredInputSchemes() {
+	    return Collections.unmodifiableSet(inputResolvers.keySet());
 	}
+	
+	public Set<String> getRegisteredOutputSchemes() {
+	    return Collections.unmodifiableSet(outputResolvers.keySet());
+	}
+	
+	public Set<String> getRegisteredLogicalSchemes() {
+	    return Collections.unmodifiableSet(logicalResolvers.keySet());
+	}
+	
+	public Set<String> getRegisteredClassloaderSchemes() {
+	    return Collections.unmodifiableSet(classloaderResolvers.keySet());
+	}
+	
+	private void loadServices(URL nextElement) {
+	  try {
+	    for (String name : readConfigFile(nextElement)) {
+	      name = name.trim();
+
+	      if (name.startsWith("#") || name.isEmpty()) { 
+	        // source code comment or empty line
+	        continue;
+	      }
+
+	      Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(name);
+	      Object instance;
+
+	      try {
+	        instance = clazz.getDeclaredConstructor(URIResolverRegistry.class).newInstance(this);
+	      }
+	      catch (NoSuchMethodException e) {
+	        instance = clazz.newInstance();
+	      }
+
+	      boolean ok = false;
+
+	      if (instance instanceof ILogicalSourceLocationResolver) {
+	        registerLogical((ILogicalSourceLocationResolver) instance);
+	        ok = true;
+	      }
+
+	      if (instance instanceof ISourceLocationInput) {
+	        registerInput((ISourceLocationInput) instance);
+	        ok = true;
+	      }
+
+	      if (instance instanceof ISourceLocationOutput) {
+	        registerOutput((ISourceLocationOutput) instance);
+	        ok = true;
+	      }
+	      
+	      if (instance instanceof IClassloaderLocationResolver) {
+	          registerClassloader((IClassloaderLocationResolver) instance);
+	          ok = true;
+	      }
+
+	      if (!ok) {
+	        System.err.println("WARNING: could not load resolver " + name + " because it does not implement ISourceLocationInput or ISourceLocationOutput or ILogicalSourceLocationResolver");
+	      }
+
+	    }
+	  } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException | IllegalArgumentException | InvocationTargetException | SecurityException | IOException e) {
+	    System.err.println("WARNING: could not load resolver due to " + e.getMessage());
+	    e.printStackTrace();
+	  }
+	}
+
+  
 
     private String[] readConfigFile(URL nextElement) throws IOException {
         try (Reader in = new InputStreamReader(nextElement.openStream())) {
@@ -264,6 +290,12 @@ public class URIResolverRegistry {
 			map.put(resolver.authority(), resolver);
 		}
 	}
+	
+	private void registerClassloader(IClassloaderLocationResolver resolver) {
+	    synchronized (classloaderResolvers) {
+	        classloaderResolvers.put(resolver.scheme(), resolver);
+        }
+	}
 
 	public void unregisterLogical(String scheme, String auth) {
 		synchronized (logicalResolvers) {
@@ -337,6 +369,7 @@ public class URIResolverRegistry {
 		ISourceLocationInput resolver = getInputResolver(uri.getScheme());
 
 		if (resolver == null) {
+		    // TODO: should this not throw an exception? 
 			return false;
 		}
 
@@ -447,6 +480,16 @@ public class URIResolverRegistry {
 		else {
 			return res;
 		}
+	}
+	
+	public ClassLoader getClassLoader(ISourceLocation uri, ClassLoader parent) throws IOException {
+	    IClassloaderLocationResolver resolver = classloaderResolvers.get(uri.getScheme());
+	    
+	    if (resolver == null) {
+	        throw new IOException("No classloader resolver registered for this URI scheme: " + uri);
+	    }
+	    
+	    return resolver.getClassLoader(uri, parent);
 	}
 	
 	public InputStream getInputStream(ISourceLocation uri) throws IOException {

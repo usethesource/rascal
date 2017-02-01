@@ -1,14 +1,32 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
+import org.rascalmpl.library.experiments.tutor3.Feedback;
+import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISourceLocation;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.ITuple;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 import fi.iki.elonen.NanoHTTPD;
 import fi.iki.elonen.NanoHTTPD.Response.Status;
@@ -17,6 +35,12 @@ public class HelpServer extends NanoHTTPD {
 
 	private final ISourceLocation root;
 	private final HelpManager helpManager;
+	private CommandExecutor executor;
+	IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	StringWriter outWriter;
+    PrintWriter outPrintWriter;
+    StringWriter errWriter;
+    PrintWriter errPrintWriter;
 
 	public HelpServer(int port, HelpManager helpManager, ISourceLocation root) throws IOException {
 		super(port);
@@ -28,6 +52,7 @@ public class HelpServer extends NanoHTTPD {
 	@Override
 	public Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> parms, Map<String, String> files) {
 	  Response response;
+	   //System.err.println("serve: " + uri);
 	
 	  if(uri.startsWith("/Search")){
 	    try {
@@ -37,25 +62,61 @@ public class HelpServer extends NanoHTTPD {
 	      return newFixedLengthResponse(Status.OK, "text/plain", e.getStackTrace().toString());
 	    }
 	  }
-	  if(uri.startsWith("/Validate")){
+	  if(uri.startsWith("/ValidateCodeQuestion")){
 	    try {
-	      if(parms.get("listing") == null || parms.get("question") == null || parms.get("hole0") == null){
-	        newFixedLengthResponse(Status.NOT_FOUND, "text/plain", "missing listing, question or hole0 parameter");
+	      if(parms.get("listing") == null || parms.get("question") == null || parms.get("hole1") == null){
+	        newFixedLengthResponse(Status.NOT_FOUND, "text/plain", "missing listing, question or hole1 parameter");
 	      }
 	      String listing = URLDecoder.decode(parms.get("listing"), "UTF-8");
 	      String question = URLDecoder.decode(parms.get("question"), "UTF-8");
 
 	      ArrayList<String> holes = new ArrayList<>();
-	      for(int i = 0; parms.containsKey("hole" + i); i++){
+	      for(int i = 1; parms.containsKey("hole" + i); i++){
 	        holes.add(URLDecoder.decode(parms.get("hole" + i), "UTF-8"));
 	      }
-
-	      return newFixedLengthResponse(Status.OK, "text/html", listing + "\n" + question + "\n" + holes);
+	      int k = 0;
+	      while(listing.indexOf("_") >= 0 && k < holes.size()){
+	        listing = listing.replaceFirst("_", holes.get(k++));
+	      }
+	      if(executor == null){
+	        PathConfig pcfg = helpManager.getPathConfig();
+	        outWriter = new StringWriter();
+	        outPrintWriter = new PrintWriter(outWriter);
+	        errWriter = new StringWriter();
+            errPrintWriter = new PrintWriter(errWriter);
+	        pcfg = pcfg.addSourceLoc(vf.sourceLocation("test-modules", "", ""));
+	        executor = new CommandExecutor(pcfg, outPrintWriter, errPrintWriter, new BasicIDEServices(), null);
+	      } else {
+	        outWriter.getBuffer().setLength(0);
+	        errWriter.getBuffer().setLength(0);
+	      }
+	      
+	      writeModule(question, listing);
+	      
+	      try {
+	        IConstructor tr = executor.executeTestsRaw(question);
+	        System.err.println(tr);
+	        outPrintWriter.flush();
+	        errPrintWriter.flush();
+	        return newFixedLengthResponse(Status.OK, "application/json", formatTestResults(tr));
+	      } catch (ParseError e){
+	        return newFixedLengthResponse(Status.OK, "application/json", "{ \"ok\": false, \"failed\": [], \"exceptions\": [], \"syntax\": " + makeLoc(e)
+	                                                  + " }");
+	      }
 
 	    } catch (UnsupportedEncodingException e) {
 	      // TODO Auto-generated catch block
 	      e.printStackTrace();
-	    }
+	    } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      } catch (NoSuchRascalFunction e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      } catch (URISyntaxException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
 	  }
 	  try {
 	    ISourceLocation requestedItem = URIUtil.correctLocation(root.getScheme(), root.getAuthority(), root.getPath() + "/" + normalize(uri));
@@ -67,7 +128,75 @@ public class HelpServer extends NanoHTTPD {
 	  }
 	}
 	
-	String getExtension(String uri){
+	String makeLoc(ParseError e){
+	  return
+	      "{" + "\"beginLine\": "   + e.getBeginLine() + ", "
+	          + "\"beginColumn\": " + e.getBeginColumn()  + ", "
+	          + "\"endLine\": "     + e.getEndLine()  + ", "
+	          + "\"endColumn\": "   + e.getEndColumn()
+	          + "}";
+	}
+	
+	String makeLoc(ISourceLocation l){
+	  return
+	  "{" + "\"beginLine\": "   + l.getBeginLine() + ", "
+	      + "\"beginColumn\": " + l.getBeginColumn()  + ", "
+	      + "\"endLine\": "     + l.getEndLine()  + ", "
+	      + "\"endColumn\": "   + l.getEndColumn()
+	      + "}";
+	}
+	
+	String makeResult(ISourceLocation l, IString msg){
+	  return "{" + "\"src\": " + makeLoc(l) + ", "
+	             + "\"msg\": " + msg + "}";
+	}
+	
+	String formatTestResults(IConstructor tr){
+	  IList results = (IList) tr.get("results");
+	  IList exceptions = (IList) tr.get("exceptions");
+	  boolean ok = true;
+	  String failed = "[";
+
+	  IInteger zero = vf.integer(0);
+	  String sep = "";
+	  for(IValue v : results){
+	    ITuple tup = (ITuple) v;
+	    if(tup.get(1).equals(zero)){
+	      ok = false;
+	      failed += sep + makeResult((ISourceLocation) tup.get(0), (IString) tup.get(2)) ;
+	      sep = ", ";
+	    }
+	  }
+	  failed += "]";
+
+	  String sexceptions = "[";
+	  sep = "";
+	  for(IValue v : exceptions){
+	    sexceptions += sep + ((IString) v).getValue();
+	    sep = ", ";
+	  }
+	  sexceptions += "]";
+	  
+	  ok &= exceptions.length() == 0;
+	  
+	  return "{" + "\"ok\": " + ok + ", "
+	             + "\"failed\": " + failed + "," 
+	             + "\"exceptions\": " + sexceptions + ","
+	             + "\"feedback\": " + Feedback.give(ok)
+	             + "}";
+	}
+	
+	private void writeModule(String question, String listing) throws IOException, URISyntaxException {
+	  URIResolverRegistry reg = URIResolverRegistry.getInstance();
+	  ISourceLocation sloc = vf.sourceLocation("test-modules", "", question + ".rsc");
+	  OutputStream out = reg.getOutputStream(sloc, false);
+	  listing = listing.replaceAll("\\\\n", "\n");
+      out.write(listing.getBytes(), 0, listing.length());
+      out.close();
+      System.err.println("written to " + sloc + ":" + "\n" + listing);
+  }
+
+  String getExtension(String uri){
 		int n = uri.lastIndexOf(".");
 		if(n >= 0){
 			return uri.substring(n + 1);

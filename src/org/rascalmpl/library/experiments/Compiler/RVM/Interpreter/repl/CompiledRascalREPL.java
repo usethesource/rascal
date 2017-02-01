@@ -24,6 +24,7 @@ import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.BaseRascalREPL;
@@ -45,25 +46,33 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   static {
 	  	String[] shellVerbValues = {
 		  // General commands
-		  "help", "apropos", "set", "declarations", "modules", "unimport", "undeclare", "quit", "test",
+		  "apropos", "clean", "declarations", "edit", "help",  /*"modules",*/ "quit", "set", "test", "undeclare", "unimport",    
 		  // Debugging commands
-		  "break", "enable", "disable", "clear", "ignore"
+		  "break", "clear", "disable", "enable", "ignore"
 	  	};
 	  	SHELL_VERBS = new TreeSet<String>(Arrays.asList(shellVerbValues));
   }
   
   private PathConfig pcfg;
+  protected final IDEServices ideServices;
   
-  public CompiledRascalREPL(PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal)
+  public CompiledRascalREPL(PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal, IDEServices ideServices)
       throws IOException, URISyntaxException {
-    super(pcfg, stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal);
+    super(pcfg, stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal, ideServices);
     this.pcfg = pcfg;
+    this.ideServices = ideServices;
   }
   
   @Override
   protected boolean isREPLCommand(String line){
-	  String[] words = line.split(" ");
-	  return SHELL_VERBS.contains(words[0]);
+      if(line.length() > 0){
+          int idx = line.indexOf(" ");
+          if(idx > 0){
+              return SHELL_VERBS.contains(line.substring(0,  idx));
+          }
+          return SHELL_VERBS.contains(line);
+      }
+	 return false;
   }
   
   @Override
@@ -101,15 +110,15 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   }
 
   @Override
-  protected void initialize(PathConfig pcfg, Writer stdout, Writer stderr) throws IOException, URISyntaxException {
+  protected void initialize(PathConfig pcfg, Writer stdout, Writer stderr, IDEServices ideServices) throws IOException, URISyntaxException {
     try {
-        executor = constructCommandExecutor(pcfg, new PrintWriter(stdout), new PrintWriter(stderr));
+        executor = constructCommandExecutor(pcfg, new PrintWriter(stdout), new PrintWriter(stderr), ideServices);
     } catch (NoSuchRascalFunction e) {
         throw new RuntimeException(e);
     }
   }
   
-  protected abstract CommandExecutor constructCommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr) throws IOException, NoSuchRascalFunction, URISyntaxException;
+  protected abstract CommandExecutor constructCommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices) throws IOException, NoSuchRascalFunction, URISyntaxException;
   
   
   @Override
@@ -127,6 +136,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
 		  String[] words = statement.split(" ");
 		  if(words.length > 0 && SHELL_VERBS.contains(words[0])){
 			  if(words[0].equals("quit")){
+			      executor.shutdown();
 				  stop();
 				  return null;
 			  }
@@ -192,10 +202,10 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
     }
   }
 
-//  @Override
-//  protected boolean printSpaceAfterFullCompletion() {
-//      return true;
-//  }
+  @Override
+  protected boolean printSpaceAfterFullCompletion() {
+      return false;
+  }
   
   @Override
   protected Collection<String> completeModule(String qualifier, String partialModuleName) {
@@ -203,7 +213,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
       if (entries != null && entries.size() > 0) {
           if (entries.contains(partialModuleName)) {
               // we have a full directory name (at least the option)
-              List<String> subEntries = pcfg.getRascalSearchPath().listModuleEntries(qualifier + "::" + partialModuleName);
+              List<String> subEntries = pcfg.listModuleEntries(qualifier + "::" + partialModuleName);
               if (subEntries != null) {
                   entries.remove(partialModuleName);
                   subEntries.forEach(e -> entries.add(partialModuleName + "::" + e));
@@ -238,10 +248,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   static {
      commandLineOptions.add("profile"); 
      commandLineOptions.add("trace"); 
-     commandLineOptions.add("coverage"); 
-     commandLineOptions.add("debugRVM"); 
-     commandLineOptions.add("testsuite");
-     commandLineOptions.add("optimize"); 
+     commandLineOptions.add("coverage");  
   }
   @Override
   protected SortedSet<String> getCommandLineOptions() {

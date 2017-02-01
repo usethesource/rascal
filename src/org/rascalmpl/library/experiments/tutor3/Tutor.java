@@ -8,32 +8,25 @@ import java.net.URISyntaxException;
 import org.rascalmpl.library.experiments.Compiler.Commands.CommandOptions;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help.HelpManager;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
+import org.rascalmpl.library.util.PathConfig;
 
 public class Tutor {
 	
 	public static void main(String[] args) throws IOException, NoSuchRascalFunction, URISyntaxException, InterruptedException {
-	  
-	  IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	    CommandOptions cmdOpts = new CommandOptions("CompiledRascalShell");
-	    try {
-	        cmdOpts
-	        .locOption("bin").locDefault(vf.sourceLocation("home", "", "bin"))
-	        .help("Directory for Rascal binaries")
-	        
-	        .boolOption("help")
-	        .help("Print help message for this command")
-	        .noModuleArgument()
-	        .handleArgs(args);
-	        
-	    } catch (URISyntaxException e1) {
-	        e1.printStackTrace();
-	        System.exit(1);
-	    }  
-	  HelpManager hm = new HelpManager(cmdOpts.getCommandLocOption("bin"), new PrintWriter(System.out), new PrintWriter(System.err));
+	    cmdOpts.pathConfigOptions()
+	    .boolOption("help")
+	    .help("Print help message for this command")
+	    .noModuleArgument()
+	    .handleArgs(args);
+	 
+	  PathConfig pcfg = new PathConfig(cmdOpts.getCommandLocsOption("src"), cmdOpts.getCommandLocsOption("lib"), cmdOpts.getCommandLocOption("bin"), cmdOpts.getCommandLocOption("boot"));
+	  IDEServices ideServices = new BasicIDEServices();
+	  HelpManager hm = new HelpManager(pcfg, new PrintWriter(System.out), new PrintWriter(System.err), ideServices);
 	  
-	  hm.openInBrowser(new URI("http://localhost:" + hm.getPort() + "/TutorHome/index.html"));
+	  ideServices.browse(new URI("http://localhost:" + hm.getPort() + "/TutorHome/index.html"));
 	  Thread.sleep(864000000);  // a hack a day keeps the doctor away (and the debugger close)
 	}
 }
