@@ -230,22 +230,22 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		return values.constructor(constr, removeNulls(children));
 	}
 	
-	protected void setAnnotation(String annoName, IValue annoValue) {
+	protected void setKeywordParameter(String label, IValue value) {
 		if(this.ownValue == null) {
       return ;
     }
-		if (annoValue != null && ownValue.getType().declaresAnnotation(this.typeStore, annoName)) {
-      ownValue = ((IConstructor) ownValue).asAnnotatable().setAnnotation(annoName, annoValue);
+		if (value != null && ownValue.getType().hasKeywordField(label, typeStore)) {
+		ownValue = ((IConstructor) ownValue).asWithKeywordParameters().setParameter(label, value);
     }
 	}
 	
-	protected void setAnnotation(String annoName, IValueList annoList) {
-		IList annos = (IList) annoList.asList();
+	protected void setKeywordParameters(String label, IValueList valueList) {
+		IList values = (IList) valueList.asList();
 		if(this.ownValue == null) {
       return ;
     }
-		if (annoList != null && this.ownValue.getType().declaresAnnotation(this.typeStore, annoName) && !annos.isEmpty()) {
-      this.ownValue = ((IConstructor) this.ownValue).asAnnotatable().setAnnotation(annoName, annos);
+		if (valueList != null && this.ownValue.getType().hasKeywordField(label, typeStore) && !values.isEmpty()) {
+		this.ownValue = ((IConstructor) this.ownValue).asWithKeywordParameters().setParameter(label, values);
     }
 	}
 	
@@ -302,7 +302,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 				result.add(values.constructor(constr, values.string(problems[i].getMessage()), pos));
 			}
 		}
-		setAnnotation("messages", result.asList());
+		setKeywordParameter("messages", result.asList());
 	}
 
 	public void insert(IListWriter listW, IValue message) {
