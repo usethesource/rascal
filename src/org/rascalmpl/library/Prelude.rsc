@@ -36,19 +36,16 @@ module Prelude
 extend Boolean;
 extend DateTime;
 extend Exception;
+extend Grammar;
 extend IO;
 extend List;
+extend ListRelation;
 extend Map;
 extend Node;
 extend ParseTree;
-// extend Rational;
-extend ListRelation;
 extend Relation;
 extend Set;
-extend String;
-extend ToString;
-extend ValueIO;
-
-
-
-
+extend String; 
+extend Traversal;
+extend Type;
+extend ValueIO;  

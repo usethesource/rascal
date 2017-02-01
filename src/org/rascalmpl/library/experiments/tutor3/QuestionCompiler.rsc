@@ -14,7 +14,6 @@ import util::Reflective;
 import DateTime;
 import ParseTree;
 
-import Ambiguity;
 import experiments::tutor3::Questions;
 import experiments::tutor3::ParseQuestions;
 import experiments::tutor3::ValueGenerator;

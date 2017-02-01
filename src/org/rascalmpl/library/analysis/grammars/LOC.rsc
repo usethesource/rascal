@@ -1,4 +1,4 @@
-module util::LOC
+module analysis::grammars::LOC
 
 import Exception;
 import Message;

@@ -9,7 +9,6 @@ import ListRelation;
 import Node;
 import Message;
 import String;
-import ToString;
 import experiments::Compiler::RVM::AST;
 
 import experiments::Compiler::muRascal::AST;

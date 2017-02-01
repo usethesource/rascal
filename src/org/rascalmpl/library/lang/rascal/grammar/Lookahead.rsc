@@ -16,7 +16,7 @@ import lang::rascal::grammar::definition::Characters;
 import lang::rascal::grammar::definition::Productions;
 import ParseTree;
 import List;
-import Set;
+import Set; 
 import IO;
 import Map;
 import Exception;

@@ -7,8 +7,8 @@
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Bas Basten - Bas.Basten@cwi.nl - CWI}
-module Ambiguity
-
+module analysis::grammars::Ambiguity
+ 
 import Exception;
 import ParseTree;
 import IO;
