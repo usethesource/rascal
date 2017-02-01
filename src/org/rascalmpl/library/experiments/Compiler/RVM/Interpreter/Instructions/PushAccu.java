@@ -12,6 +12,6 @@ public class PushAccu extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitInlinePushAccu(debug);
+		codeEmittor.emitInlinePushAccu();
 	}
 }

@@ -23,6 +23,6 @@ public class PushNestedFun extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall2(opcode.name(), codeblock.getFunctionName(fuid), codeblock.getFunctionIndex(scopeIn));
 		
-		codeEmittor.emitCallWithArgsSSFII_S("insnPUSH_NESTED_FUN", codeblock.getFunctionIndex(fuid), codeblock.getFunctionIndex(scopeIn),debug);
+		codeEmittor.emitCallWithArgsSSFII_S("insnPUSH_NESTED_FUN", codeblock.getFunctionIndex(fuid), codeblock.getFunctionIndex(scopeIn));
 	}
 }

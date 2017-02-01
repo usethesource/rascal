@@ -29,6 +29,6 @@ public class PushVarDeref extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall2(opcode.name(), (pos == -1) ? fuid : codeblock.getFunctionName(fuid), pos);
 
-		codeEmittor.emitCallWithArgsSSFII_S("PUSHVARDEREF", what, pos, debug);
+		codeEmittor.emitCallWithArgsSSFII_S("PUSHVARDEREF", what, pos);
 	}
 }

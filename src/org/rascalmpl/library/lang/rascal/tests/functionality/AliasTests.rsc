@@ -1,6 +1,6 @@
 module lang::rascal::tests::functionality::AliasTests
 /*******************************************************************************
- * Copyright (c) 2009-2015 CWI
+ * Copyright (c) 2009-2016 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse License v1.0
  * which accompanies this distribution, and is available at
@@ -13,6 +13,7 @@ module lang::rascal::tests::functionality::AliasTests
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
 *******************************************************************************/
 import Type;
+import IO;
 
 alias INTEGER0 = int;
 		
@@ -65,50 +66,78 @@ test bool aliasAndADT2() {
 alias trans = tuple[str, str, str]; 
 alias block = set[trans];
 alias partition = set[block];
+
+data P[&T] = p(&T a);
                  
 test bool  transitiveAliasAcrossTuples() {
     block aBlock = {<"a", "b", "c">};
     return aBlock == {<"a", "b", "c">};
 }	
 
-@ignoreCompiler{since aliases are fully expanded in compiled code}
-test bool reifiedAlias1a() = 
+test bool reifiedAlias1() = 
   #partition == 
   type(
-  \alias(
-    "partition",
-    [],
-    \set(\alias(
-        "block",
-        [],
-        \rel([
-            \str(),
-            \str(),
-            \str()
-          ])))),
+  \set(\set(\tuple([
+          \str(),
+          \str(),
+          \str()
+        ]))),
   ());
 
-//TODO: it could be that ignoreComopiler is broken after bootstrapping ...
-//@ignoreInterpreter{since aliases are preserved in interpreted code}
-//test bool reifiedAlias1b() = 
-//  #partition ==  
-//  type(
-//  \alias(
-//    "partition",
-//    [],
-//    \set(\rel([
-//          \str(),
-//          \str(),
-//          \str()
-//        ]))),
-//  ());
-	
+test bool reifiedAlias2() =
+  #P[partition] ==
+   type(
+  adt(
+    "P",
+    [\set(\set(\tuple([
+              \str(),
+              \str(),
+              \str()
+            ])))]),
+  (adt(
+      "P",
+      [parameter(
+          "T",
+          \value())]):choice(
+      adt(
+        "P",
+        [parameter(
+            "T",
+            \value())]),
+      {cons(
+          label(
+            "p",
+            adt(
+              "P",
+              [parameter(
+                  "T",
+                  \value())])),
+          [label(
+              "a",
+              parameter(
+                "T",
+                \value()))],
+          [],
+          {})})));
+          
+alias LIST[&T] = list[&T];
+
+test bool reifiedAlias3() =
+   #LIST[LIST[int]].symbol == \list(\list(\int()));
+   
+test bool reifiedAlias4() =
+   #LIST[LIST[LIST[int]]].symbol == \list(\list(\list(\int())));
+
+alias TUPLELIST[&T] = tuple[LIST[&T], LIST[&T]];
+
+test bool reifiedAlias5() =
+    #TUPLELIST[int].symbol == \tuple([\list(\int()), \list(\int())]);
 
 alias STRING = str;
 
 data DATA1 = d1(STRING s);
 
-test bool reifiedAlias2() = #DATA1 ==
+test bool reifiedAlias6() = #DATA1 ==
 type(
   adt(
     "DATA1",
@@ -134,8 +163,7 @@ type(
 
 data DATA2 = d2(DATA1(STRING) fun);
 
-@ignoreCompiler{since aliases are fully expanded in compiled code}
-test bool reifiedAlias3a() = #DATA2 ==
+test bool reifiedAlias7() = #DATA2 ==
 type(
   adt(
     "DATA2",
@@ -159,10 +187,7 @@ type(
                 adt(
                   "DATA1",
                   []),
-                [\alias(
-                    "STRING",
-                    [],
-                    \str())]))],
+                [\str()],[]))],
           [],
           {})}),
     adt(
@@ -184,8 +209,7 @@ type(
           {})})
   ));
 
-@ignoreInterpreter{since aliases are preserved in interpreted code}
-test bool reifiedAlias3b() = #DATA2 ==
+test bool reifiedAlias8() = #DATA2 ==
 type(
   adt(
     "DATA2",
@@ -209,7 +233,7 @@ type(
                 adt(
                   "DATA1",
                   []),
-                [\str()]))],
+                [\str()],[]))],
           [],
           {})}),
     adt(

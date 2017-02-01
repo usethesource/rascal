@@ -16,19 +16,26 @@ public interface IFrameObserver {
 	
 	default void report() { }
 	
-	default void report(IList data) { }
+	@SuppressWarnings("unused")
+    default void report(IList data) { }
 	
-	default void setRVM(RVMCore rvm) { }
+	@SuppressWarnings("unused")
+    default void setRVM(RVMCore rvm) { }
 	
 	default RVMCore getRVM() { throw new RuntimeException("No access to RVM availabe"); }
 	
-	default boolean observe(Frame frame) { return true; }
+	@SuppressWarnings("unused")
+    default boolean observe(Frame frame) { return true; }
 	
-	default boolean observeRVM(RVMCore rvm, Frame frame, int pc, Object[] stack, int sp, Object accu) { return true; }
+	@SuppressWarnings("unused")
+    default boolean observeRVM(RVMCore rvm, Frame frame, int pc, Object[] stack, int sp, Object accu) { return true; }
 	
-	default boolean enter(Frame frame) { return true; }
+	@SuppressWarnings("unused")
+    default boolean enter(Frame frame) { return true; }
 	
-	default boolean leave(Frame frame, Object rval) { return true; }
+	@SuppressWarnings("unused")
+    default boolean leave(Frame frame, Object rval) { return true; }
 	
-	default boolean exception(Frame frame, Thrown thrown) { return false; }
+	@SuppressWarnings("unused")
+    default boolean exception(Frame frame, Thrown thrown) { throw thrown; }
 }

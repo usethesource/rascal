@@ -65,7 +65,7 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
       case \map(ti,ti2) : return "tf.mapType(<type2FactoryCall(ti)>,<type2FactoryCall(ti2)>)";
       case \tuple(tis) : return "tf.tupleType(<typeList2FactoryVarArgs(tis)>)";
       case \rel(tis) : return "tf.relType(<typeList2FactoryVarArgs(tis)>)";
-      case \func(returnType, args): 
+      case \func(returnType, args, _):  
         return "rtf.functionType(<type2FactoryCall(returnType)>,
                '                 tf.tupleType(<typeList2FactoryVarArgsFirstPos(args)>)";
       case \adt(name, _) : return resolveType(name);
@@ -176,7 +176,7 @@ public str apiGen(str apiName,list[type[value]] ts, map[str,str] externalTypes) 
       case \str() :  result =  "IString";
       case \datetime() : result =  "IDateTime";
       case \tuple(_) : result =   "ITuple";     
-      case \func(returnType, args): result = "ICallableValue";
+      case \func(returnType, args, _): result = "ICallableValue";
       case \alias(_,_,a) : result = typeToJavaType(a);
       default : result = "IValue";
     }

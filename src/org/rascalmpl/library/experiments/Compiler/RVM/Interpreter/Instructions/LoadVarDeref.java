@@ -31,6 +31,6 @@ public class LoadVarDeref extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall2(opcode.name(), (pos == -1) ? fuid : codeblock.getFunctionName(fuid), pos);
 		
-		codeEmittor.emitCallWithArgsFII_A("LOADVARDEREF", what, pos, debug);
+		codeEmittor.emitCallWithArgsFII_A("LOADVARDEREF", what, pos);
 	}
 }

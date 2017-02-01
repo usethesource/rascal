@@ -200,7 +200,7 @@ public class ListRelationResult extends ListOrRelationResult<IList> {
 				wset = this.getValueFactory().listWriter();
 			} else {
 				resultType = getTypeFactory().lrelType(resFieldType);
-				wrel = this.getValueFactory().listRelationWriter();
+				wrel = this.getValueFactory().listWriter();
 			}
 
 			

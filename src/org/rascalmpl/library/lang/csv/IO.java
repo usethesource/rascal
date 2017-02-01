@@ -8,6 +8,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -125,7 +126,7 @@ public class IO {
 
 	private IValue computeType(ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx) {
 		IValue csvResult = this.read(null, loc, header, separator, encoding, values.bool(true), ctx);
-		return ((IConstructor) new TypeReifier(values).typeToValue(csvResult.getType(), ctx).getValue());
+		return new TypeReifier(values).typeToValue(csvResult.getType(), ctx.getCurrentEnvt().getStore(), values.mapWriter().done());
 	}
 	
 	private String[] readFirstRecord(FieldReader reader) throws IOException {

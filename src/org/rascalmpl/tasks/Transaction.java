@@ -26,13 +26,16 @@ import org.rascalmpl.tasks.facts.AbstractFact;
 import org.rascalmpl.value.IAnnotatable;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IExternalValue;
+import org.rascalmpl.value.ISetWriter;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.IWithKeywordParameters;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.impl.AbstractExternalValue;
 import org.rascalmpl.value.type.ExternalType;
 import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.value.visitors.IValueVisitor;
 
 public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternalValue,
@@ -55,6 +58,18 @@ IExpirationListener<IValue> {
 		protected Type glbWithExternal(Type type) {
 			// TODO Auto-generated method stub
 			return null;
+		}
+
+		@Override
+		public IConstructor asSymbol(IValueFactory vf, TypeStore store, ISetWriter grammar, Set<IConstructor> done) {
+		  // TODO Auto-generated method stub
+		  return null;
+		}
+
+		@Override
+		public Type asAbstractDataType() {
+		  // TODO Auto-generated method stub
+		  return null;
 		}};
 	private final Transaction parent;
 	private final boolean commitEnabled;

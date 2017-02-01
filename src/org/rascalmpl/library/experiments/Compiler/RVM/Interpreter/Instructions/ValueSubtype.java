@@ -23,6 +23,6 @@ public class ValueSubtype extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitInlineValueSubtype(type, debug) ;
+		codeEmittor.emitInlineValueSubtype(type) ;
 	}
 }

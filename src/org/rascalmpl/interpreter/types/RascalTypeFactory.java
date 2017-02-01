@@ -14,12 +14,13 @@ package org.rascalmpl.interpreter.types;
 import java.util.Set;
 
 import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 
 public class RascalTypeFactory {
 	private TypeFactory tf = TypeFactory.getInstance();
-
+	
 	private static class InstanceHolder {
 		public static final RascalTypeFactory sInstance = new RascalTypeFactory();
 	}
@@ -46,5 +47,9 @@ public class RascalTypeFactory {
 
 	public Type reifiedType(Type arg) {
 		return tf.externalType(new ReifiedType(arg));
+	}
+	
+	public Type failureType(ISet messages) {
+	    return tf.externalType(new FailureType(messages));
 	}
 }

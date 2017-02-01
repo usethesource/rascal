@@ -12,6 +12,6 @@ public class Return0 extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitInlineReturn(0,debug);
+		codeEmittor.emitInlineReturn(0);
 	}
 }

@@ -15,21 +15,16 @@ package org.rascalmpl.value;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.io.StringReader;
 import java.io.StringWriter;
 
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.impl.reference.ValueFactory;
-import org.rascalmpl.value.io.SerializableValue;
 import org.rascalmpl.value.io.StandardTextReader;
 import org.rascalmpl.value.io.StandardTextWriter;
 import org.rascalmpl.value.io.XMLReader;
 import org.rascalmpl.value.io.XMLWriter;
+import org.rascalmpl.value.io.binary.SerializableValue;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
@@ -77,7 +72,7 @@ public class TestIO extends TestCase {
 
 	public void testSerializable() {
 		for (IValue t : testValues) {
-			SerializableValue<IValue> v = new SerializableValue<IValue>(vf, t);
+			SerializableValue<IValue> v = new SerializableValue<IValue>(vf, t, ts);
 			ByteArrayOutputStream buf = new ByteArrayOutputStream();
 			try {
 				v.write(buf);
