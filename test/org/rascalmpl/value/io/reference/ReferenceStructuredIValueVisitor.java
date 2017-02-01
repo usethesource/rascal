@@ -12,36 +12,14 @@
  */ 
 package org.rascalmpl.value.io.reference;
 
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map.Entry;
-
-import org.rascalmpl.value.IAnnotatable;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IDateTime;
-import org.rascalmpl.value.IExternalValue;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.INode;
-import org.rascalmpl.value.IRational;
-import org.rascalmpl.value.IReal;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.ITuple;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IWithKeywordParameters;
+import org.rascalmpl.value.*;
 import org.rascalmpl.value.impl.AbstractDefaultAnnotatable;
 import org.rascalmpl.value.impl.AbstractDefaultWithKeywordParameters;
 import org.rascalmpl.value.io.binary.util.StructuredIValueVisitor;
 import org.rascalmpl.value.visitors.IValueVisitor;
 
-import io.usethesource.capsule.ImmutableMap;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class ReferenceStructuredIValueVisitor {
     public static <E extends Throwable> void accept(IValue root, StructuredIValueVisitor<E> visit) throws E {
@@ -147,7 +125,7 @@ public class ReferenceStructuredIValueVisitor {
                         if(okw.hasParameters()){
                             assert okw instanceof AbstractDefaultWithKeywordParameters;
                             AbstractDefaultWithKeywordParameters<INode> nodeKw = (AbstractDefaultWithKeywordParameters<INode>)(okw);
-                            ImmutableMap<String, IValue> params = nodeKw.internalGetParameters();
+                            io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> params = nodeKw.internalGetParameters();
                             visit.enterNodeKeywordParameters();
                             visitNamedValues(params);
                         }
@@ -156,7 +134,7 @@ public class ReferenceStructuredIValueVisitor {
                         if(oan.hasAnnotations()){
                             assert oan instanceof AbstractDefaultAnnotatable;
                             AbstractDefaultAnnotatable<INode> nodeAnno = (AbstractDefaultAnnotatable<INode>)(oan);
-                            ImmutableMap<String, IValue> annos = nodeAnno.internalGetAnnotations();
+                            io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> annos = nodeAnno.internalGetAnnotations();
                             visit.enterNodeAnnotations();
                             visitNamedValues(annos);
                         }
@@ -166,7 +144,7 @@ public class ReferenceStructuredIValueVisitor {
                 return null;
             }
 
-            private void visitNamedValues(ImmutableMap<String, IValue> namedValues) throws E {
+            private void visitNamedValues(io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> namedValues) throws E {
                 // since the PrePostValueIterator uses a stack, we see the annotations an keyword params in reverse (but in pairs)
                 List<Entry<String, IValue>> reverseEntries = new ArrayList<>();
                 Iterator<Entry<String, IValue>> iterator = namedValues.entryIterator();
@@ -194,7 +172,7 @@ public class ReferenceStructuredIValueVisitor {
                         if(okw.hasParameters()){
                             assert okw instanceof AbstractDefaultWithKeywordParameters;
                             AbstractDefaultWithKeywordParameters<IConstructor> nodeKw = (AbstractDefaultWithKeywordParameters<IConstructor>)(okw);
-                            ImmutableMap<String, IValue> params = nodeKw.internalGetParameters();
+                            io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> params = nodeKw.internalGetParameters();
                             visit.enterConstructorKeywordParameters();
                             visitNamedValues(params);
                         }
@@ -203,7 +181,7 @@ public class ReferenceStructuredIValueVisitor {
                         if(oan.hasAnnotations()){
                             assert oan instanceof AbstractDefaultAnnotatable;
                             AbstractDefaultAnnotatable<IConstructor> nodeAnno = (AbstractDefaultAnnotatable<IConstructor>)(oan);
-                            ImmutableMap<String, IValue> annos = nodeAnno.internalGetAnnotations();
+                            io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> annos = nodeAnno.internalGetAnnotations();
                             visit.enterConstructorAnnotations();
                             visitNamedValues(annos);
                         }
