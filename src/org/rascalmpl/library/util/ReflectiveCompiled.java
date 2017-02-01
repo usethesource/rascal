@@ -14,20 +14,20 @@
 package org.rascalmpl.library.util;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.PreludeCompiled;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
+import org.rascalmpl.library.lang.rascal.boot.IJava2Rascal;
+import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
-import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
@@ -46,31 +46,24 @@ public class ReflectiveCompiled extends Reflective {
 		preludeCompiled = new PreludeCompiled(values);
 	}
 	
-//	private char[] getResourceContent(ISourceLocation location) throws IOException{
-//		char[] data;
-//		Reader textStream = null;
-//		
-//		URIResolverRegistry resolverRegistry = URIResolverRegistry.getInstance();
-//		try {
-//			textStream = resolverRegistry.getCharacterReader(location);
-//			data = InputConverter.toChar(textStream);
-//		}
-//		finally{
-//			if(textStream != null){
-//				textStream.close();
-//			}
-//		}
-//		
-//		return data;
-//	}
-	
-    
+    public IValue getCurrentPathConfig(RascalExecutionContext rex) {
+        return rex.getPathConfig().asConstructor(rex.getRVM().asInterface(IKernel.class));
+    }
+
 	public IValue parseCommand(IString str, ISourceLocation loc,  RascalExecutionContext rex) {
 		throw RascalRuntimeException.notImplemented("parseCommand", null, null);
 	}
 
 	public IValue parseCommands(IString str, ISourceLocation loc,  RascalExecutionContext rex) {
 		throw RascalRuntimeException.notImplemented("parseCommands", null, null);
+	}
+	
+	public IValue parseNamedModuleWithSpaces(IString modulePath,  RascalExecutionContext rex){
+	    ISourceLocation moduleLoc = rex.getPathConfig().resolveModule(modulePath.getValue());
+	    if(moduleLoc == null){
+	        throw RascalRuntimeException.io(values.string("Module " + modulePath.getValue() + " not found"), null);
+	    }
+	    return parseModuleWithSpaces(moduleLoc);
 	}
 	
 	public IValue parseModuleWithSpaces(ISourceLocation loc) {
@@ -81,34 +74,6 @@ public class ReflectiveCompiled extends Reflective {
             throw RascalRuntimeException.io(values.string(e.getMessage()), null);
         }
     }
-	
-//	private IValue lastModified(ISourceLocation sloc) {
-//		try {
-//			return values.datetime(URIResolverRegistry.getInstance().lastModified(sloc));
-//		} catch(FileNotFoundException e){
-//			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
-//		}
-//		catch (IOException e) {
-//			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-//		}
-//	}
-	
-//	public IValue parseModule(ISourceLocation loc,  RascalExecutionContext rex) {
-//		
-//		String key = loc.toString() + lastModified(loc).toString();
-//		return rex.getParsedModuleCache().get(key, k -> {
-//			IActionExecutor<ITree> actions = new NoActionExecutor();	
-//
-//			try {
-//				ITree tree = new RascalParser().parse(Parser.START_MODULE, loc.getURI(), getResourceContent(rex.resolveSourceLocation(loc)), actions, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(true));
-//				System.err.println("parseModule (from loc), cache new tree " + key);
-//				return tree;
-//			} catch (IOException e) {
-//				throw RascalRuntimeException.io(values.string(e.getMessage()), null);
-//			}
-//		});
-//	}
-	
 	
 	public IValue parseModuleAndFragments(ISourceLocation loc,  RascalExecutionContext rex) {
 		throw RascalRuntimeException.notImplemented("parseModule", null, null);
@@ -123,49 +88,17 @@ public class ReflectiveCompiled extends Reflective {
     }
 	
 	public IValue getModuleLocation(IString modulePath,  RascalExecutionContext rex) {
-		ISourceLocation uri = rex.getRascalSearchPath().resolveModule(modulePath.getValue());
-		if (uri == null) {
-		  throw RascalRuntimeException.io(modulePath, null);
-		}
-		return uri;
-	}
-	
-	public ISourceLocation getSearchPathLocation(IString path, RascalExecutionContext rex) {
-		String value = path.getValue();
-
-		if (path.length() == 0) {
-			throw RuntimeExceptionFactory.io(values.string("File not found in search path: [" + path + "]"), null, null);
-		}
-
-		if (!value.startsWith("/")) {
-			value = "/" + value;
-		}
-
-		try {
-			ISourceLocation uri = rex.getRascalSearchPath().resolvePath(value);
-			if (uri == null) {
-				URI parent = URIUtil.getParentURI(URIUtil.createFile(value));
-
-				if (parent == null) {
-					// if the parent does not exist we are at the root and we look up the first path contributor:
-					parent = URIUtil.createFile("/"); 
-				}
-
-				// here we recurse on the parent to see if it might exist
-				ISourceLocation result = getSearchPathLocation(values.string(parent.getPath()), rex);
-
-				if (result != null) {
-					String child = URIUtil.getURIName(URIUtil.createFile(value));
-					return URIUtil.getChildLocation(result, child);
-				}
-
-				throw RuntimeExceptionFactory.io(values.string("File not found in search path: " + path), null, null);
-			}
-
-			return uri;
-		} catch (URISyntaxException e) {
-			throw  RuntimeExceptionFactory.malformedURI(value, null, null);
-		}
+	    ISourceLocation uri;
+	    try {
+            uri = rex.getPathConfig().getModuleLoc(modulePath.getValue());
+            if (uri == null) {
+                throw RascalRuntimeException.io(modulePath, null);
+              }
+            return uri;
+        }
+        catch (IOException e) {           
+            throw RascalRuntimeException.io(modulePath, null);
+        }
 	}
 	
 	public IBool inCompiledMode() { return values.bool(true); }
@@ -201,5 +134,4 @@ public class ReflectiveCompiled extends Reflective {
 			throw RuntimeExceptionFactory.assertionFailed(values.string("Watchpoint " + name1 + ": " + idiff("", oldVal, newVal)), null, null);
 		}
 	}
-
 }

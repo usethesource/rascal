@@ -12,10 +12,8 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -33,9 +31,9 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.KWParams;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
-import org.rascalmpl.library.experiments.Compiler.RascalExtraction.RascalExtraction;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
+import org.rascalmpl.library.experiments.Compiler.RascalExtraction.IRascalExtraction;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
@@ -63,7 +61,8 @@ public class Onthology {
 	
 	Map<Path,Concept> conceptMap;
 	private IValueFactory vf;
-	private RascalExtraction rascalExtraction;
+	private IRascalExtraction rascalExtraction;
+	private IQuestionCompiler questionCompiler;
 	private String courseName;
 	
 	private IndexWriter iwriter;
@@ -86,7 +85,7 @@ public class Onthology {
 		return new PerFieldAnalyzerWrapper(stdAnalyzer, analyzerMap);
 	}
 
-	public Onthology(Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, RascalCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException{
+	public Onthology(Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException{
 		this.vf = ValueFactoryFactory.getValueFactory();
 		this.pcfg = pcfg;
 		this.srcPath = srcPath;
@@ -175,6 +174,10 @@ public class Onthology {
 		return p.resolve(p.getFileName().toString() + ".remote");
 	}
 	
+	private Path makeQuestionsFilePath(Path p){
+      return p.resolve(p.getFileName().toString() + ".questions");
+  }
+	
 	private Path makeConceptName(Path p){
 		return  srcPath.relativize(p);
 	}
@@ -225,27 +228,47 @@ public class Onthology {
 				Concept concept = new Concept(conceptName, readFile(makeConceptFilePath(aDir).toString()), destPath, libSrcPath);
 				conceptMap.put(conceptName, concept);
 				iwriter.addDocument(makeLuceneDocument(conceptName.toString(), concept.getIndex(), concept.getSynopsis(), concept.getText()));
-			} else
-				if(Files.exists(makeRemoteFilePath(aDir))){
-						ISourceLocation remoteLoc = readLocFromFile(makeRemoteFilePath(aDir).toString());
-						String parentName = aDir.getName(aDir.getNameCount()-2).toString();
-						Path remoteConceptName = makeConceptName(aDir);
-						if(rascalExtraction == null){
-							// Lazily load the RascalExtraction tool
-							rascalExtraction = new RascalExtraction(vf, pcfg);
-						}
-						ITuple extracted = rascalExtraction.extractDoc(vf.string(parentName), remoteLoc, new KWParams(vf).build());
-						IString remoteConceptText = (IString) extracted.get(0);
-						IList declarationInfoList = (IList) extracted.get(1);
-						//System.err.println(remoteConceptText.getValue());
-						Concept remoteConcept = new Concept(remoteConceptName, remoteConceptText.getValue(), destPath, libSrcPath);
-						conceptMap.put(remoteConceptName, remoteConcept);
-						
-						iwriter.addDocument(makeLuceneDocument(remoteConceptName.toString(), remoteConcept.getIndex(), remoteConcept.getSynopsis(), remoteConcept.getText()));
-						for(IValue d : declarationInfoList){
-							addDeclarationInfo(remoteConceptName, (IConstructor)d);
-						}
-				}
+			} else if(Files.exists(makeRemoteFilePath(aDir))){
+			  ISourceLocation remoteLoc = readLocFromFile(makeRemoteFilePath(aDir).toString());
+			  String parentName = aDir.getName(aDir.getNameCount()-2).toString();
+			  Path remoteConceptName = makeConceptName(aDir);
+			  if(rascalExtraction == null){
+			    // Lazily load the RascalExtraction tool
+			    //rascalExtraction = new RascalExtraction(vf, pcfg);
+			    rascalExtraction = Java2Rascal.Builder.bridge(vf, pcfg, IRascalExtraction.class).build();
+			  }
+			  ITuple extracted = rascalExtraction.extractDoc(vf.string(parentName), remoteLoc);
+			  IString remoteConceptText = (IString) extracted.get(0);
+			  IList declarationInfoList = (IList) extracted.get(1);
+			  //System.err.println(remoteConceptText.getValue());
+			  Concept remoteConcept = new Concept(remoteConceptName, remoteConceptText.getValue(), destPath, libSrcPath);
+			  remoteConcept.setRemote();
+			  conceptMap.put(remoteConceptName, remoteConcept);
+
+			  iwriter.addDocument(makeLuceneDocument(remoteConceptName.toString(), remoteConcept.getIndex(), remoteConcept.getSynopsis(), remoteConcept.getText()));
+			  for(IValue d : declarationInfoList){
+			    addDeclarationInfo(remoteConceptName, (IConstructor)d);
+			  }
+			} else if(Files.exists(makeQuestionsFilePath(aDir))){
+			  Path questionsName = makeConceptName(aDir);
+//			  if(!questionsName.equals(courseName)){
+//			    Path questionsDestPath = destPath.resolve(questionsName);
+//			    if(!Files.exists(questionsDestPath)){
+//			      Files.createDirectories(questionsDestPath);
+//			    }
+//			  }
+			  if(questionCompiler == null){
+			    // Lazily load the QuestionCompiler tool
+			    //questionCompiler = new QuestionCompiler(vf, pcfg);
+			    questionCompiler = Java2Rascal.Builder.bridge(vf, pcfg, IQuestionCompiler.class).build();
+			  }
+			  String qtext = questionCompiler.compileQuestions(vf.string(questionsName.toString()), pcfg.asConstructor(questionCompiler) /*pcfg.getSrcs(), pcfg.getLibs(), pcfg.getcourses(), pcfg.getBin(), pcfg.getBoot()*/).getValue();
+			  System.err.println("qtext: " + qtext);
+			  Concept questionsConcept = new Concept(questionsName, qtext, destPath, libSrcPath);
+			  questionsConcept.setQuestions();
+			  
+              conceptMap.put(questionsName, questionsConcept);
+			}
 			return FileVisitResult.CONTINUE;
 		}
 	}

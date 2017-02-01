@@ -15,7 +15,6 @@ private list[str] extended_modules = [];			// modules extended by current module
 private list[MuFunction] functions_in_module = [];	// functions declared in current module
 private list[MuVariable] variables_in_module = [];	// variables declared in current module
 private list[MuExp] variable_initializations = [];	// initialized variables declared in current module
-private list[MuExp] tests = [];						// tests declared in current module
 
 private set[str] overriddenLibs = {};				// Java libraries overriden for compiler
 private set[str] notOverriddenLibs = {};			// Java libraries not overridden for compiler
@@ -122,14 +121,6 @@ public list[MuExp] getVariableInitializationsInModule(){
 	return variable_initializations;
 }
 
-public void addTestToModule(MuExp tst){
-	tests += tst;
-}
-
-public list[MuExp] getTestsInModule(){
-	return tests;
-}		
-
 // Reset global state
 
 void resetModuleInfo(bool optimize_flag, bool enableAsserts_flag) {
@@ -143,7 +134,6 @@ void resetModuleInfo(bool optimize_flag, bool enableAsserts_flag) {
 	functions_in_module = [];
 	variables_in_module = [];
 	variable_initializations = [];
-	tests = [];
 	resetTmpAndLabel();
 	overriddenLibs = {};
     notOverriddenLibs = {};

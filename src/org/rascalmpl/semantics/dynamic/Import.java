@@ -506,7 +506,7 @@ public abstract class Import {
 
       @Override
        public ITree visitTreeAmb(ITree arg) {
-         throw new ImplementationError("unexpected ambiguity: " + arg);
+         throw new Ambiguous(arg);
        }
      });
   }
@@ -596,7 +596,16 @@ public abstract class Import {
     catch (Ambiguous e) {
         ISourceLocation ambLocation = e.getLocation();
         ISourceLocation loc = TreeAdapter.getLocation(tree);
-        ISourceLocation src = eval.getValueFactory().sourceLocation(loc.top(), loc.getOffset() + ambLocation.getOffset(), loc.getLength(), loc.getBeginLine() + ambLocation.getBeginLine() - 1, loc.getEndLine() + ambLocation.getEndLine() - 1, loc.getBeginColumn() + ambLocation.getBeginColumn(), loc.getBeginColumn() + ambLocation.getEndColumn());
+        ISourceLocation src = ambLocation.hasOffsetLength() 
+            ? eval.getValueFactory().sourceLocation(loc.top(), 
+                loc.getOffset() + ambLocation.getOffset() , 
+                loc.getLength(), 
+                loc.getBeginLine() + ambLocation.getBeginLine() - 1, 
+                loc.getEndLine() + ambLocation.getEndLine() - 1, 
+                loc.getBeginColumn() + ambLocation.getBeginColumn(), 
+                loc.getBeginColumn() + ambLocation.getEndColumn()) 
+            : loc;
+        
         eval.getMonitor().warning("ambiguity in concrete syntax", src);
         return (ITree) tree.asAnnotatable().setAnnotation("parseError", src);
     }

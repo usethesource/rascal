@@ -9,8 +9,6 @@ import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.RascalShellExecutionException;
-
 public class Concept {
 	private final Path name;
 	private String text = null;
@@ -21,19 +19,21 @@ public class Concept {
 	private String index;
 	private Path libSrcPath;
 
-	public Concept(Path name, String text, Path destPath, Path libSrcPath, boolean remote){
+	public Concept(Path name, String text, Path destPath, Path libSrcPath){
 		this.name = name;
 		this.text = text;
 		this.destPath = destPath;
 		this.libSrcPath = libSrcPath;
-		this.remote = remote;
 		title = extract(titlePat);
 		synopsis = extractSynopsis();
 		index = extractIndex();
 	}
 	
-	public Concept(Path name, String text, Path destDir, Path libSrcPath){
-		this(name, text, destDir, libSrcPath, false);
+	public void setRemote(){
+	  remote = true;
+	}
+	
+	public void setQuestions(){
 	}
 	
 	public Path getName(){
@@ -158,7 +158,7 @@ public class Concept {
       return sw.toString();
     }
     
-	public void preprocess(Onthology onthology, RascalCommandExecutor executor) throws IOException{
+	public void preprocess(Onthology onthology, TutorCommandExecutor executor) throws IOException{
 		System.err.println("Preprocessing: " + name);
 		BufferedReader reader = new BufferedReader(new StringReader(text));
 

@@ -1,6 +1,5 @@
 module experiments::tutor3::QuestionCompiler
 
-import ParseTree;
 import IO;
 import String;
 import util::Math;
@@ -12,615 +11,539 @@ import experiments::Compiler::Execute;
 import util::SystemAPI;
 import IO;
 import util::Reflective;
+import DateTime;
+import ParseTree;
 
 import Ambiguity;
-
-// Syntax of the Question language
-
-lexical LAYOUT = [\ \t \n];
-
-layout Layout = LAYOUT* !>> LAYOUT;
-
-keyword Reserved
-    = "question"
-    | "prep"
-    | "expr"
-    | "end"
-    ;
-
-keyword TypeNames
-    = "bool"
-    | "int"
-    | "real"
-    | "num"
-    | "str"
-    | "loc"
-    | "datetime"
-    | "list"
-    | "set"
-    | "map"
-    | "tuple"
-    | "rel"
-    | "lrel"
-    | "value"
-    | "void"
-    | "arb"
-    ;
-
-lexical InsName = ([A-Z a-z] [A-Z a-z 0-9 _]* !>> [A-Z a-z 0-9 _]) \ TypeNames;
-
-lexical Name = [A-Z a-z] [A-Z a-z 0-9 _]* !>> [A-Z a-z 0-9 _];
-
-lexical IntCon = "-"?[0-9]+ !>> [0-9];
-
-lexical HoleContents
-    = "\\" !<< "{" ( ![{}] | ("\\" [{}]) | HoleContents)* parts "\\" !<< "}";
-    
-lexical HoleCmd 
-    = "?" HoleContents contents
-    ;
-    
-lexical NonInsertText
-    = ![!{} \ \n \t]
-    ;
-
-syntax EvalCmd
-    = "%{" EvalElem+ elements "}"
-    ;
-
-syntax EvalElem
-    = insert_cmd: InsertCmd insertCmd
-    | non_insert_cmd: NonInsertText
-    ;
-    
-syntax InsertCmd = "!{" Insert insertDetails "}";
-
-syntax Insert =
-         InsName name
-       | InsName name ":" Type type
-       | Type type
-       ;
-       
-syntax Range = "[" IntCon min "," IntCon max "]" range;
-
-syntax Type 
-        = "bool" 
-        | "int"
-        | "int" Range range
-        | "real"
-        | "real" Range range
-        | "num"
-        | "num" Range range
-        | "str"
-        | "loc"
-        | "datetime"
-        | "list" "[" Type elemType "]"
-        | "list" "[" Type elemType "]" Range range
-        | "set" "[" Type elemType "]"
-        | "set" "[" Type elemType "]" Range range
-        | "map" "[" Type keyType "," Type valType "]"
-        | "map" "[" Type keyType "," Type valType "]" Range range
-        | "tuple" "[" {Type ","}+ elemTypes "]"
-        | "tuple" "[" {Type ","}+ elemTypes "]" Range range
-        | "rel" "[" {Type ","}+ elemTypes "]"
-        | "lrel" "[" {Type ","}+ elemTypes "]"
-        | "value"
-        | "void"
-        | "arb" "[" IntCon depth ","  {Type ","}+ elemTypes  "]"
-        ;
-
-lexical Op = [? % !];
-
-lexical AlphaNum = [a-z A-Z 0-9 _];
-
-lexical NonOp = !([? % !] || [a-z A-Z 0-9 _] || [\ \t \n]);
-
-lexical AnyText
-    = NonOp+ !>> !([? % !] || [a-z A-Z 0-9 _] || [\ \t \n])
-   // = NonOp+ !>> NonOp    // Should be the same but does not work.
-    | Op !>> "{"
-    | AlphaNum+ !>> [a-z A-Z 0-9 _]
-    ;
+import experiments::tutor3::Questions;
+import experiments::tutor3::ParseQuestions;
+import experiments::tutor3::ValueGenerator;
  
-lexical AnyButReserved = AnyText \ Reserved; 
-
-syntax QuestionPart = (HoleCmd | InsertCmd | EvalCmd | AnyButReserved)+;
-
-syntax Question = "question" QuestionPart text Body body "end";
-
-syntax Body 
-    = Prep prep
-    | Prep prep Expr expr
-    | Expr expr
-    ;
-
-syntax Text = "text" ":" QuestionPart text;
-
-syntax Prep = "prep" ":" QuestionPart text;
-
-syntax Expr = "expr" Name name ":" QuestionPart text;
-
-value main1(){
-    q = parse(#Question, "question Replace _ by the value of the given expression and make the test true:
-            'prep: lrel[str country, int year, int amount] GDP = [ ];
-            'expr relSubscript: GDP[\"US\",2008]
-            'end"); 
-    //println(diagnose(parse(#QuestionPart, "[]]", allowAmbiguity=true)));
-    //q = parse(#QuestionPart, "= [ ];"); 
-    //println(q.body is expr);
-   return true;
-}
-
-// Type generation
-
-Type generateType(Type tp){
-    return
-        visit(tp){
-           case (Type) `arb[<IntCon depth>,<{Type ","}+ elemTypes>]` =>
-            generateArbType(toInt("<depth>"), elemTypes)
-        };
-}
-
-Type generateArbType(int n, {Type ","}+ prefs){
-   //println("generateArbType: <n>, <prefs>");
-   if(n <= 0){
-       lprefs = [pref | pref <- prefs];
-       return getOneFrom(lprefs);
-      // We want: return getOneFrom(prefs);
-   }
-     
-   switch(arbInt(6)){
-     case 0: { elemType = generateArbType(n-1, prefs); return (Type) `list[<Type elemType>]`; }
-     case 1: { elemType = generateArbType(n-1, prefs); return (Type) `set[<Type elemType>]`; }
-     case 2: { keyType = generateArbType(n-1, prefs);
-               valType = generateArbType(n-1, prefs); 
-               return (Type) `map[<Type keyType>,<Type valType>]`;
-               }
-     case 3: return generateArbTupleType(n-1, prefs);
-     case 4: return generateArbRelType(n-1, prefs);
-     case 5: return generateArbLRelType(n-1, prefs);
-   }
-} 
-
-int size({Type ","}+ ets) = size([et | et <- ets]);
-
-Type makeTupleType({Type ","}+ ets) =  [Type] "tuple[<intercalate(",", [et | et <- ets])>]";
-
-Type generateArbTupleType(int n, {Type ","}+ prefs){
-   arity = 1 + arbInt(5);
-   return [Type] "tuple[<intercalate(",", [generateArbType(n-1, prefs) | int i <- [0 .. 1+arbInt(5)] ])>]";
-}
-
-Type generateArbRelType(int n, {Type ","}+ prefs){
-   return [Type] "rel[<intercalate(",", [generateArbType(n - 1, prefs) | int i <- [0 .. 1+arbInt(5)] ])>]";
-}
-
-Type generateArbLRelType(int n, {Type ","}+ prefs){
-   return [Type] "lrel[<intercalate(",", [generateArbType(n - 1, prefs) | int i <- [0 .. 1+arbInt(5)] ])>]";
-}
-
-// Value generation
-
-public str generateValue(Type tp){
-     //println("generateValue(<tp>, <env>)");
-     switch(tp){
-        case (Type) `bool`:          
-            return generateBool();
-            
-        case (Type) `int`:      
-            return generateInt(-100,100);
-            
-        case (Type) `int[<IntCon f>,<IntCon t>]`:      
-            return generateInt(toInt("<f>"), toInt("<t>"));
-            
-        case (Type) `real`:      
-            return generateReal(-100,100);
-            
-        case (Type) `real[<IntCon f>,<IntCon t>]`:      
-            return generateReal(toInt("<f>"), toInt("<t>"));
-            
-        case (Type) `num`:      
-            return generateNum(-100,100);
-            
-        case (Type) `num[<IntCon f>,<IntCon t>]`:      
-            return generateNum(toInt("<f>"), toInt("<t>"));
-       
-       case (Type) `str`:
-            return generateString();
-            
-       case (Type) `loc`:
-            return generateLoc();
-            
-       case (Type) `datetime`:            
-            return generateDateTime();
-            
-       case (Type) `list[<Type et>]`: 
-            return generateList(et);
-            
-       case (Type) `list[<Type et>][<IntCon f>,<IntCon t>]`: 
-            return generateList(et, from=toInt("<f>"), to=toInt("<t>"));
-            
-       case (Type) `set[<Type et>]`: 
-            return generateSet(et);
-            
-       case (Type) `set[<Type et>] [<IntCon f>,<IntCon t>]`: 
-            return generateSet(et, from=toInt("<f>"), to=toInt("<t>"));
-            
-       case (Type) `map[<Type kt>,<Type vt>]`:           
-            return generateMap(kt, vt);
-       
-       case (Type) `map[<Type kt>,<Type vt>][<IntCon f>,<IntCon t>]`:           
-            return generateMap(kt, vt, from=toInt("<f>"), to=toInt("<t>"));
-       
-       case (Type) `tuple[<{Type ","}+ ets>]`:   
-            return generateTuple(ets);
-            
-       case (Type) `tuple[<{Type ","}+ ets>][<IntCon f>,<IntCon t>]`:   
-            return generateTuple(ets, from=toInt("<f>"), to=toInt("<t>"));
-            
-       case (Type) `rel[<{Type ","}+ ets>]`: 
-            return generateSet(makeTupleType(ets));
-            
-       case (Type) `lrel[<{Type ","}+ ets>]`: 
-            return generateList(makeTupleType(ets));
-            
-       case (Type) `value`:               
-            return generateArb(0, baseTypes);
-     }
-     throw "Unknown type: <tp>";
-}
-
-set[set[str]] vocabularies =
-{
-// Letters:
-{"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P",
-"Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"},
-
-// Sesame Street:
-{"Bert", "Ernie", "Big Bird", "Cookie Monster", "Grover", "Elmo",
-"Slimey the Worm", "Telly Monster", "Count Von Count", "Countess Darling Von Darling",
-"Countess Von Backwards", "Guy Smiley", "Barkley the Dog", "Little Bird",
-"Forgetful Jones", "Bruno", "Hoots The Owl", "Prince Charming",
-"Mumford the Magician", "Two-Headed Monster"},
-
-// Star trek
-
-// Dr Who
-
-// Star Wars:
-{"Jar Jar Binks", "C-3PO", "E-3PO", "Boba Fett", "Isolder", "Jabba the Hut",
-"Luke Skywalker", "Obi-Wan Kenobi", "Darth Sidious", "Pincess Leia",
-"Emperor Palpatine", "R2-D2", "Admiral Sarn", "Boba Fett", 
-"Anakin Skywalker", "Sy Snootles", "Han Solo", "Tibor", "Darth Vader",
-"Ailyn Vel", "Yoda", "Zekk", "Joh Yowza"},
-
-// Game of Thrones:
-{"Tyrion", "Cersei", "Daenerys", "Petyr", "Jorah", "Sansa", "Arya",
- "Theon", "Bran", "Sandor", "Joffrey", "Catelyn", "Robb", "Ned",
- "Viserys", "Khal", "Varys", "Samwell", "Bronn", "Tywin", "Shae",
- "Jeor", "Gendry", "Tommen", "Jaqen", "Davos", "Melisandre",
- "Margaery", "Stannis", "Ygritte", "Talisa", "Brienne", "Gilly",
- "Roose", "Tormund", "Ramsay", "Daario", "Missandei", "Eilaria",
- "The High Sparrow"},
- 
- // World of Warcraft:
-
- {"Archimonde", "Kil\'jaeden", "Mannoroth", "Ner\'zhul", "Sargeras",
- "Balnazzar", "Magtheridon", "Mal\'Ganis", "Tichondrius", "Varimathras",
- "Azgalor", "Hakkar", "Kazzak", "Detheroc", "Akama", "Velen", 
- "Alexstrasza", "Malygos", "Neltharion", "Nozdormu", "Ysera",
- "Korialstrasz", "Kalecgos", "Brann", "Muradin"},
- 
-// Fruits:
-{"Blackcurrant", "Redcurrant", "Gooseberry", "Eggplant", "Guava",
-"Pomegranate", "Kiwifruit", "Grape", "Cranberry", "Blueberry",  "Pumpkin",
-"Melon", "Orange", "Lemon", "Lime", "Grapefruit", "Blackberry",
- "Raspberry", "Pineapple", "Fig", "Apple", "Strawberry",
- "Mandarin", "Coconut", "Date", "Prune", "Lychee", "Mango", "Papaya",
- "Watermelon"},
-
-// Herbs and spices:
-{"Anise", "Basil", "Musterd", "Nutmeg", "Cardamon", "Cayenne", 
-"Celery", "Pepper", "Cinnamon", "Coriander", "Cumin",
-"Curry", "Dill", "Garlic", "Ginger", "Jasmine",
-"Lavender", "Mint", "Oregano", "Parsley", "Peppermint",
-"Rosemary", "Saffron", "Sage", "Sesame", "Thyme",
-"Vanilla", "Wasabi"}
-
-};      
-       
-public str generateBool(){
-   return toString(arbBool());
-}
- 
- public str generateInt(int from, int to){
-   return toString(from + arbInt(to - from));
-}
- 
- public str generateReal(int from, int to){
-   return toString(from + arbReal() * (to - from));
-}
-
-public str generateNumber(int from, int to){
-   return (arbBool()) ? generateInt(from, to) : generateReal(from, to);
-}
-
-public str generateLoc(){
-  return "|file:///home/paulk/pico.trm|(0,1,\<2,3\>,\<4,5\>)";
-   /*
-   scheme = getOneFrom(["http", "file", "stdlib", "cwd"]);
-   authority = "auth";
-   host = "www.cwi.nl";
-   port = "80";
-   path = "/a/b";
-
-uri: the URI of the location. Also subfields of the URI can be accessed:
-
-scheme: the scheme (or protocol) like http or file. Also supported is cwd: for current working directory (the directory from which Rascal was started).
-
-authority: the domain where the data are located.
-
-host: the host where the URI is hosted (part of authority).
-
-port: port on host (part ofauthority).
-
-path: path name of file on host.
-
-extension: file name extension.
-
-query: query data
-
-fragment: the fragment name following the path name and query data.
-
-user: user info (only present in schemes like mailto).
-
-offset: start of text area.
-
-length: length of text area
-
-begin.line, begin.column: begin line and column of text area.
-
-end.line, end.column end line and column of text area.
-*/
-}
-
-public str generateDateTime(){
-   year = 1990 + arbInt(150);
-   month = 1 + arbInt(11);
-   day = 1 + arbInt(6);
-   dt1 = createDate(year, month, day);
-   if(arbBool())
-      return "<dt1>";
-   hour = arbInt(24);
-   minute = arbInt(60);
-   second = arbInt(60);
-   milli = arbInt(1000);
-   dt2 = createTime(hour, minute, second, milli);
-  return "<joinDateAndTime(dt1, dt2)>";
-}
-
-public str generateString(){
-  vocabulary = getOneFrom(vocabularies);
-  return "\"<getOneFrom(vocabulary)>\"";
-}
-
-public str generateList(Type et, int from=0, int to=5){
-   n = from;
-   if(from < to)
-      n = from + arbInt(to - from + 1);
-   elms = [];
-   while(size(elms) < n){
-        elms += generateValue(et);
-   }
-   return "[<intercalate(", ", elms)>]";
-}
-
-public str generateSet(Type et, int from=0, int to=5){
-   n = from;
-   if(from < to)
-      n = from + arbInt(to - from + 1);
-   elms = [];
-   attempt = 0;
-   while(size(elms) < n && attempt < 100){
-     attempt += 1;
-     elm = generateValue(et);
-     if(elm notin elms)
-        elms += elm;
-   }
-   return "{<intercalate(", ", elms)>}";
-}
-
-public str generateMap(Type kt, Type vt){
-   keys = { generateValue(kt, env) | int i <- [0 .. arbInt(5)] }; // ensures unique keys
-   keyList = toList(keys);
-   return "(<for(i <- index(keyList)){><(i==0)?"":", "><keyList[i]>: <generateValue(vt)><}>)";
-}
-
-public str generateTuple({Type ","}+ ets){
-   return intercalate(", ", [generateValue(et) | et <-ets]);
-   //return "\<<for(int i <- [0 .. size(ets)]){><(i==0)?"":", "><generateValue(ets[i])><}>\>";
-}
-
-public str generateRel({Type ","}+ ets){
-   return "\<<for(int i <- [0 .. size(ets)]){><(i==0)?"":", "><generateValue(ets[i])><}>\>";
-}
-
-public str generateLRel({Type ","}+ ets){
-   return "\<<for(int i <- [0 .. size(ets)]){><(i==0)?"":", "><generateValue(ets[i])><}>\>";
-}
-
-public str generateArb(int n, {Type ","}+ prefs){
-   if(n <= 0)
-      return generateValue(getOneFrom(prefs));
-      
-   switch(arbInt(5)){
-     case 0: return generateList(generateArbType(n-1, prefs), minSize, maxSize);
-     case 1: return generateSet(generateArbType(n-1, prefs), minSize, maxSize);
-     case 2: return generateMap(generateArbType(n-1, prefs), generateArbType(n-1, prefs));
-     case 3: return generateTuple(prefs);
-     case 4: return generateRel(prefs);
-   }
-} 
-
-int countInsertCmds(EvalCmd c){
+int countGenAndUse((Cmd) `<EvalCmd c>`){
     n = 0;
-    visit(c){ case InsertCmd ins: n += 1; }
+    visit(c){ case GenCmd gen: n += 1; 
+              case UseCmd use: n += 1;
+             }
     return n;
 }
 
-tuple[str quoted, str execute, bool hasHoles, map[str,str] bindings] preprocess(QuestionPart q, str setup, map[str,str] initialEnv){
-    quoted = "";
-    executed = "";
-    holes = false;
+str holeMarkup(int n) = "+++\<div class=\"hole\" id=\"hole<n>\"/\>+++";
+str clickMarkup(int n, str text) = "+++\<span class=\"clickable\" id=\"clickable<n>\" clicked=\"false\" onclick=\"handleClick(\'clickable<n>\')\"\><text>\</span\>+++";
+
+tuple[str quoted, str execute, bool hasHoles, map[str,str] bindings] preprocessCode(int questionId, 
+                                                                                TokenOrCmdList q, 
+                                                                                str setup, 
+                                                                                map[str,str] initialEnv, 
+                                                                                PathConfig pcfg){
+    nholes = 0;
     map[str,str] env = initialEnv;
     
-    str handle(InsertCmd ins){
-        switch(ins.insertDetails){  
-            case (Insert) `<InsName name>:<Type tp>`: {
+    println("preprocessCode: <questionId>, <q>, <setup>, <initialEnv>");
+    
+    tuple[str quote, str execute] handleCmd((Cmd) `<GenCmd gen>`){
+        println("handleCmd: <gen>");
+        switch(gen){  
+            case (GenCmd) `$gen(<Type tp>,<Name name>)`: {
                 str v = generateValue(generateType(tp));
                 if(env["<name>"]?){
-                    throw "Double declaration for <name> in <ins>";
+                    throw "Double declaration for <name> in <gen>";
                 }
                 env["<name>"] = v;
-                //println("added <name> : <v>");
-                return v;
+                println("added <name> : <v>");
+                return <v, v>;
             }
-            case (Insert) `<Type tp>`: {
+            case (GenCmd) `$gen(<Type tp>)`: {
                 Type tp1 = generateType(tp);
-                return generateValue(generateType(tp));
+                v = generateValue(generateType(tp));
+                return <v, v>;
             }
-            case (Insert) `<InsName name>`: {
-                return env["<name>"];
-            }
+            default:
+                throw "Unhandled $gen <gen>";
         }
     }
     
-    str handle(EvalCmd c){
-        expr = "";
-        for(elem <- c.elements){
-            if(elem is insert_cmd){
-                expr += handle(elem.insertCmd);
-           } else {
-                expr += "<elem>";
-           }
+    tuple[str quote, str execute] handleCmd((Cmd) `<UseCmd use>`){
+        if(!env["<use.name>"]?){
+           throw "Undeclared <use.name> used in <use>";
         }
-        //println("Eval: <expr>");
-        v = eval(expr, setup);
-        return "<v>";
+        v = env["<use.name>"];
+        return <v, v>;
     }
     
-    top-down-break visit(q){
-        case InsertCmd ins: {
-            v = handle(ins);
-            quoted += v; executed += v;
-        }   
-        case HoleCmd h: {
-            holes = true;
-            txt = "<h.contents.parts>";
-            quoted += "_";
+    tuple[str quote, str execute] handleCmd((Cmd) `<EvalCmd c>`){
+        println("handleCmd: <c>");
+        <qt, expr> = handle(c.elements);
+        println("Eval: <expr>");
+        v = "<eval(questionId, expr, setup, pcfg)>";
+        return <v, v>;
+    }
+    
+    tuple[str quote, str execute] handleCmd((Cmd) `<AnswerCmd ans>`){
+            println("visit AnswerCmd: <ans>");
+            nholes += 1;
+            txt = "<ans.elements>";
+            qt = holeMarkup(nholes);
             try {
-                ins = [InsertCmd] "!{<txt>}";
-                v = handle(ins);
-                executed += v;
-                //println("hole: InsertCmd: <v>");
+                gen = [Cmd] "$gen(<txt>)";
+                <qt1, ex> = handleCmd(gen);
+                println("answer: AnswerCmd: <qt>, <ex>");
+                return <qt, ex>;
             } catch: {
                 try {
-                    c = [EvalCmd] "%{<txt>}";
-                    if(countInsertCmds(c) == 0) throw "";
-                    v = handle(c);
-                    executed += v;
-                    //println("hole: EvalCmd: <v>");
+                    c = [Cmd] "$eval(<txt>)";
+                    if(countGenAndUse(c) == 0) throw "";
+                    <qt1, ex1> = handleCmd(c);
+                    println("hole: EvalCmd: <qt> <ex1>");
+                    return <qt, ex1>;
                 } catch : {
-                    executed += "<txt>";
-                    //println("hole: plain: <txt>");
+                    v = "<txt>";
+                    println("hole: plain: <qt>, <v>");
+                    return <qt, v>;
                 }
             }
-         }
-         
-         case EvalCmd c: {
-            v = handle(c);
-            quoted += v; executed += v;
-         }
-        
-        case AnyText a: { 
-            quoted += "<a>";  
-            executed += "<a>";
-        }
-        case LAYOUT l: {
-            quoted += "<l>";
-            executed += "<l>";
+    }
+    
+    tuple[str quote, str execute] handle(TokenOrCmd toc){
+        println("handle: <toc>");
+        if(toc is aCmd){
+          return handleCmd(toc.aCmd);
+        } else {
+          v = "<toc>";
+          return <v, v>;
         }
     }
     
-    return <quoted, executed, holes, env>;
+    tuple[str quote, str execute] handle(TokenOrCmdList tocList){
+        if(appl(_,list[Tree] args) := tocList) {
+            qt = "";
+            ex = "";
+            if(tocList is parens){
+               qt += "(<args[1]>"; ex += "(<args[1]>";
+               <qt1, ex1> = handle(tocList.tocList);
+               qt += "<qt1><args[3]>)"; ex += "<ex1><args[3]>)";
+               if(TokenOrCmdList toc2 <- tocList.optTocList){
+                  qt += "<args[5]>"; ex += "<args[5]>"; 
+                  <qt2, ex2> = handle(toc2);
+                  qt += qt2; ex += ex2;
+               }
+            } else {
+              <qt, ex> = handle(tocList.toc);
+              if(TokenOrCmdList toc2 <- tocList.optTocList){
+                  qt += "<args[1]>"; ex += "<args[1]>"; 
+                  <qt1, ex1> = handle(toc2);
+                  qt += qt1; ex += ex1;
+               }
+            }
+            println("handle toc: <tocList> =\> <qt>, <ex>");
+            return <qt, ex>;
+        } else {
+          throw "Cannot match parse tree: <tocList>";
+        }
+    }
+    
+    <qt, ex> = handle(q);
+    return <qt, ex, nholes > 0, env>;
 }
 
-void process(str question){
-    res = process(parse(#Question, question));
-    println("<question>\n==\>\n<res>");
+str preprocessClick(int questionId, TokenOrCmdList q){
+    nholes = 0;
+    
+    println("preprocessClick: <questionId>, <q>");
+    
+    tuple[str quote, str execute] handleCmd((Cmd) `<ClickCmd cc>`){
+            println("visit ClickCmd: <cc>");
+            nholes += 1;
+            txt = "<cc.elements>";
+            qt = clickMarkup(nholes, txt);
+            return <qt, qt>;
+    }
+    
+    tuple[str quote, str execute] handle(TokenOrCmd toc){
+        println("handle: <toc>");
+        if(toc is aCmd){
+          return handleCmd(toc.aCmd);
+        } else {
+          v = "<toc>";
+          return <v, v>;
+        }
+    }
+    
+    tuple[str quote, str execute] handle(TokenOrCmdList tocList){
+        if(appl(_,list[Tree] args) := tocList) {
+            qt = "";
+            ex = "";
+            if(tocList is parens){
+               qt += "(<args[1]>"; ex += "(<args[1]>";
+               <qt1, ex1> = handle(tocList.tocList);
+               qt += "<qt1><args[3]>)"; ex += "<ex1><args[3]>)";
+               if(TokenOrCmdList toc2 <- tocList.optTocList){
+                  qt += "<args[5]>"; ex += "<args[5]>"; 
+                  <qt2, ex2> = handle(toc2);
+                  qt += qt2; ex += ex2;
+               }
+            } else {
+              <qt, ex> = handle(tocList.toc);
+              if(TokenOrCmdList toc2 <- tocList.optTocList){
+                  qt += "<args[1]>"; ex += "<args[1]>"; 
+                  <qt1, ex1> = handle(toc2);
+                  qt += qt1; ex += ex1;
+               }
+            }
+            println("handle toc: <tocList> =\> <qt>, <ex>");
+            return <qt, ex>;
+        } else {
+          throw "Cannot match parse tree: <tocList>";
+        }
+    }
+    
+    <qt, ex> = handle(q);
+    return qt;
 }
 
-str process(Question q){
-    text = "<q.text>";
-    body = q.body;
+int questionId = 0;
+
+//void process(loc qloc, loc aloc, str questions){
+//    qs = parse(questions);
+//    questionId = 0;
+//    for(q <- qs.questions){
+//        println(process(q));
+//    }
+//}
+
+str removeComments(Intro? intro){
+   res = "";
+   for(line <- split("\n", "<intro>")){
+       if(!startsWith(line, "//")){
+          res += line + "\n";
+       }
+   }
+   //println("removeComments: intro = @<intro>@ =\> <res>");
+   return res;
+}
+
+@deprecated
+public str compileQuestions(str qmodule, list[loc] srcs, list[loc] libs, list[loc] courses, loc bin, loc boot) {
+    println("compileQuestions: <qmodule>, <srcs>, <libs>, <courses>, <bin>, <boot>");
+    pcfg = pathConfig(srcs=[|test-modules:///|]+srcs,libs=libs,bin=bin, boot=boot);
+    bn = split("/", qmodule)[-1];
+    qloc = courses[0] + ("/" + qmodule + "/" + bn + ".questions");
+    println("compileQuestions: qloc=<qloc>");
+    return compileQuestions(qloc, pcfg);
+}
+
+public str compileQuestions(str qmodule, PathConfig pcfg) {
+    println("compileQuestions: <qmodule>, <pcfg>");
+    pcfg = pathConfig(srcs=[|test-modules:///|]+pcfg.srcs,libs=pcfg.libs,bin=pcfg.bin, boot=pcfg.boot,courses=pcfg.courses);
+    bn = split("/", qmodule)[-1];
+    qloc = pcfg.courses[0] + ("/" + qmodule + "/" + bn + ".questions");
+    println("compileQuestions: qloc=<qloc>");
+    return compileQuestions(qloc, pcfg);
+}
+
+public str compileQuestions(loc qloc, PathConfig pcfg){
+   println("compileQuestions: <qloc>");
+   return process(qloc, pcfg);
+}
+
+str process(loc qloc, PathConfig pcfg){
+    iqs = parse(qloc);
+    questionId = 0;
+    
+    bn = qloc.file;
+    if(/^<b:.*>\..*$/ := qloc.file) bn = b;
+    
+    res = "# <bn>
+          '
+          '++++
+          '\<script src=\"http:///code.jquery.com/jquery-3.1.1.js\"\>\</script\>
+          '\<script type=\"text/javascript\" src=\"https://code.jquery.com/ui/1.11.4/jquery-ui.min.js\"\>\</script\>
+          '++++
+          '";
+    for(iq <- iqs.introAndQuestions){
+        println("process: <iq>");
+        intro = removeComments(iq.intro);
+        res += (intro + "\n" + process("<iq.description>", iq.question, pcfg) +"\n");
+    }
+    res += "
+           '++++
+           '\<script src=\"tutor-prelude.js\"\>\</script\>
+           '++++
+           '";
+    return res;
+}
+
+// ---- CodeQuestion
+
+str process(str text, (Question) `<CodeQuestion q>`, PathConfig pcfg){
     prep_quoted = prep_executed = "";
     prep_holes = false;
     env1 = ();
+    questionId += 1;
   
-    if(body has prep){
-        <prep_quoted, prep_executed, prep_holes, env1> = preprocess(body.prep.text, "", ());
+    if(Prep p <- q.prep){
+        <prep_quoted, prep_executed, prep_holes, env1> = preprocessCode(questionId, p.text, "", (), pcfg);
+        println("prep_quoted: <prep_quoted>, prep_executed: <prep_executed>, prep_holes: <prep_holes>");
     }
     
     expr_quoted = expr_executed = "";
     expr_holes = false;
     env2 = env1;
-    if(body has expr){
-        <expr_quoted, expr_executed, expr_holes, env2> = preprocess(body.expr.text, prep_executed, env1);
-        return questionMarkup(text, "module Question
+    if(Expr e <- q.expr){
+        <expr_quoted, expr_executed, expr_holes, env2> = preprocessCode(questionId, e.text, prep_executed, env1, pcfg);
+        println("expr_quoted: <expr_quoted>, expr_executed: <expr_executed> expr_holes: <expr_holes>");
+        return codeQuestionMarkup(questionId, text, 
+                                    "module Question<questionId>
                                     '<prep_quoted><"<prep_quoted>" == "" ? "" : "\n">
-                                    'test bool <body.expr.name>() = <expr_quoted> == <expr_holes ? eval(expr_executed, prep_executed) : "_">;");
+                                    'test bool <e.name>() = 
+                                    '     <expr_quoted> == <expr_holes ? eval(questionId, expr_executed, prep_executed, pcfg) : holeMarkup(1)>;
+                                    '");
     }
     if(prep_holes){
-        runTests(prep_executed);
-        return questionMarkup(text, "module Question
+        println("prep_holes: <prep_executed>");
+        
+        runTests(questionId, prep_executed, pcfg);
+        return codeQuestionMarkup(questionId, text, "module Question<questionId>
                                     '<prep_quoted>
                                     ");
     }
     throw "Incorrect question: no expr given and no holes in prep code";
-      
 }
 
-str questionMarkup(str text, str code){
-    return ".Question
+str replaceHoles(str code){
+    return replaceAll(visit(code){
+        case /^\+\+\+[^\+]+\+\+\+/ => "_"
+    }, "\n", "\\n");
+}
+
+str escape(str code){
+    return replaceAll(code, "\"", "&quot;");
+}
+
+str removeSpacesAroundHoles(str code){
+    return visit(code){
+        case /^[ ]+\+\+\+/ => " +++"
+        case /^\+\+\+[ ]+/ => "+++ "
+    };
+}
+
+str codeQuestionMarkup(int n, str text, str code){
+    return ".Question <n>
            '<text>
-           '[source,rascal]
+           '++++
+           '\<div id=\"Question<n>\" 
+           '    class=\"code-question\"
+           '    listing=\"<escape(replaceHoles(code))>\"\>
+           '++++
+           '[source,rascal,subs=\"normal\"]
+           '----
+           '<removeSpacesAroundHoles(code)>
+           '----
+           '++++
+           '\</div\>
+           '++++";
+}
+
+// ---- ChoiceQuestion
+
+str process(str text, (Question) `<ChoiceQuestion q>`, PathConfig pcfg){
+    questionId += 1;
+    return choiceQuestionMarkup(questionId, text, q.choices);
+}
+
+str choiceQuestionMarkup(int n, str explanation, Choice* choices){
+    return ".Question <n>
+           '<explanation>
+           '++++
+           '\<div id=\"Question<n>\"
+           '      class=\"choice-question\"\>
+           '<for(ch <- choices){>
+           '    \<input type=\"radio\" class=\"choice-input\" name=\"Question<n>\" value=\"<ch.correct>\" feedback=\"<trim("<ch.feedback>")>\"\>
+           '        \<div class=\"choice-description\"\> <ch.description>\</div\>
+           '<}>
+           '\</div\>
+            '++++
+           '";
+}
+
+// ---- ClickQuestion
+
+str process(str explanation, (Question) `<ClickQuestion q>`, PathConfig pcfg){
+    questionId += 1;
+    qt = preprocessClick(questionId, q.text);
+    
+    return clickQuestionMarkup(questionId, explanation, qt);
+}
+
+str clickQuestionMarkup(int n, str explanation, str code){
+ return ".Question <n>
+           '<explanation>
+           '++++
+           '\<div id=\"Question<n>\"
+           '      class=\"click-question\"\>
+           '++++
+           '[source,rascal,subs=\"normal\"]
            '----
            '<code>
-           '----";
+           '----
+           '++++
+           '\</div\>
+            '++++
+           '";
 }
 
-PathConfig pcfg = 
-    pathConfig(srcs=[|test-modules:///|, |std:///|], 
-               bin=|home:///bin|, 
-               libs=[|home:///bin|, |home:///git/rascal/bin/boot|]);
+// ---- MoveQuestion
 
-loc makeQuestion(){
+str process(str explanation, (Question) `<MoveQuestion q>`, PathConfig pcfg){
+    println("process: <q>");
+    questionId += 1;
+    if(Decoy d <- q.decoy){
+        return moveQuestionMarkup(questionId, explanation, "<q.text>", "<d.text>");
+    } else {
+        return moveQuestionMarkup(questionId, explanation, "<q.text>", "");
+    }
+}
+
+data Fragment = fragment(int index, list[str] lines, int pre, int post);
+
+int indent(str s) = /^<a:[ ]*>/ := s ? size(a) : 0;
+
+list[list[str]] makeSegments(list[str] lines){
+   list[list[str]] segments = [];
+   if(any(str line <- lines, startsWith(line, "---"))){
+        cur = [];
+        for(str line <- lines){
+            if(startsWith(line, "---")){
+                segments += [cur];
+                cur = [];
+            } else {
+                cur += [line];
+            }
+        }
+        if(size(cur) > 0){
+            segments += [cur];
+        }
+    } else {
+      for(int i <- index(lines)){
+          if(i + 2 < size(lines)){
+            segments += [lines[i .. i + 2]];
+          } else {
+            segments += [lines[i ..]];
+          }
+      }
+   }
+   return segments;
+}
+
+str moveQuestionMarkup(int n, str explanation, str code, str decoy){
+    println("code: <code>");
+    println("decoy: <decoy>");
+    code_lines = split("\n", code);
+    segments = makeSegments(code_lines);
+    fragments = [fragment(i, segments[i], indent(segments[i][0]), indent(segments[i][-1])) | i <- index(segments)];
+    
+    decoy_fragments = [];
+    decoy_lines = split("\n", decoy);
+    if(size(decoy) > 0){
+        decoy_segments = makeSegments(decoy_lines);
+        decoy_fragments = [fragment(-1, decoy_segments[i], 0, 0) | i <- index(decoy_segments)];
+    }
+
+    gcode = "";
+    ftop = -260;
+    initialIndent = fragments[0].pre;
+    
+    for(f <- shuffle(fragments + decoy_fragments)){
+        
+        minIndent = min(f.pre, f.post);
+        flines = "";
+        for(line <- f.lines){
+           flines += line[minIndent..] + "\n";
+        }
+        gcode += "\<div id=\"box-<f.index>\" class=\"movable-code\" index=\"<f.index>\" indent=\"<(f.pre - initialIndent)/2>\" style=\"position:relative;top:<ftop>px;\"\>
+                  '\<pre\>\<code\>"
+                  +
+                  "<flines>\</code\>\</pre\>\</div\>\n";
+        ftop += size(f.lines) * 9;
+    }
+    id = "Question<n>";
+    return 
+    ".Question <n>
+           '<explanation>
+           '++++
+           '\<div id=\"<id>\"
+           '      class=\"move-question\"\>
+           '\<div id=\"movable-code-src-<id>\" class=\"movable-code-src\" \"lines=\"<size(code_lines + decoy_lines)>\"\>
+           '\<div id=\"movable-code-target-<id>\" class=\"movable-code-target\"\>
+           '\</div\>
+            "
+            + gcode
+            +
+           "\</div\>
+           '\</div\>
+            '++++
+           '";
+           
+           // '\<form id=\"movable-code-form-<id>\" class=\"movable-code-form\"\>
+           //'\<input type=\"submit\" value=\"Submit Answer\"\>
+           // '\</form\>
+}
+
+// ---- FactQuestion
+str process(str explanation, (Question) `<FactQuestion q>`, PathConfig pcfg){
+    questionId += 1;
+    return factQuestionMarkup(questionId, explanation, q.facts);
+}
+
+str factQuestionMarkup(int n, str explanation, Fact+ facts){
+    s1 = [];
+    s2 = [];
+    
+    afacts = [f | f <- facts];
+    
+    for(int i <- index(afacts)){
+        fact = afacts[i];
+        s1 += ["\<li index=\"<i>\" class=\"fact-item\"\>\<tt\><trim("<fact.leftText>")>\</tt\>\</li\>\n"];
+        s2 += ["\<li index=\"<i>\" class=\"fact-item\"\>\<tt\><trim("<fact.rightText>")>\</tt\>\</li\>\n"];
+    }
+    
+    id = "Question<n>";
+    return 
+           ".Question <n>
+           '<explanation>
+           '++++
+           '\<div id=\"<id>\" class=\"fact-question\"\>
+           '\<ul id=\"sortable1-<id>\" class=\"sortableLeft\"\>
+           '<intercalate("\n", shuffle(s1))>
+           '\</ul\>
+           '\<ul id=\"sortable2-<id>\" class=\"sortableRight\"\>
+           '<intercalate("\n", shuffle(s2))>
+           '\</ul\>
+           '\</div\>
+           '++++
+           '";
+}
+
+// ----
+
+
+loc makeQuestion(int questionId, PathConfig pcfg){
     for(f <- pcfg.bin.ls){
         if(/Question/ := "<f>"){
-        println("remove: <f>");
+        //println("remove: <f>");
            remove(f);
         }
     }
-    mloc = |test-modules:///| + "Question.rsc";
+    mloc = |test-modules:///| + "Question<questionId>.rsc";
     return mloc;
 }
 
-value eval(str exp, str setup) {
-    Q = makeQuestion();
-    msrc = "module Question <setup> value main() {<exp>;}";
+value eval(int questionId, str exp, str setup, PathConfig pcfg) {
+    println("eval: <exp>, <setup>");
+    Q = makeQuestion(questionId, pcfg);
+    msrc = "module Question<questionId> <setup> value main() {<exp>;}";
     writeFile(Q, msrc);
     try {
-       compileAndLink("Question", pcfg); 
+       compileAndLink("Question<questionId>", pcfg); 
        return execute(Q, pcfg);
     } catch e:{
        println("*** While evaluating <exp> in
@@ -631,14 +554,16 @@ value eval(str exp, str setup) {
     }
 }
 
-void runTests(str mbody){
-    Q = makeQuestion();
-    msrc = "module Question <mbody>";
+void runTests(int questionId, str mbody, PathConfig pcfg){
+    Q = makeQuestion(questionId, pcfg);
+    msrc = "module Question<questionId> <mbody>";
+    println(msrc);
     writeFile(Q, msrc);
     try {
-       compileAndLink("Question", pcfg); 
-       res = execute(Q, pcfg, testsuite=true);
-       if(!printTestReport(res, [])){
+       //compileAndLink("Question<questionId>", pcfg); 
+       //res = execute(Q, pcfg, testsuite=true);
+       //if(!printTestReport(res, [])){
+       if(true !:= rascalTests(["Question<questionId>"], pcfg, recompile=true)){
           throw "Errors while executing testsuite for question";
        }
     } catch e: {
@@ -651,79 +576,14 @@ void runTests(str mbody){
 } 
 
 value main(){
-
-    //process("question Replace _ by an expression and make the test true:
-    //        'expr setComprehension: [?{n-1} | int n \<- !{list[int]}]
-    //        'end");
-            
-    //process("question Replace _ by a function name and make the test true:
-    //        'prep: 
-    //        'import List;
-    //        'expr listFunction: ?{headTail}(!{list[int]})
-    //        'end"); 
-             
-//    process("question Replace _ by a value and make the test true:
-//            'expr setIn: ?{A:int} in %{  !{B:set[int]} + !{A} }
-//            'end");         
-// 
-    process("question Replace _ by the result of the intersection and make the test true:
-            'expr setIntersection: %{ !{A:set[int]} + !{B:set[int]} } & %{ !{C:set[int]} + !{B} }
-            'end");
-//    
-//    process("question Replace _ by the value of the given expression and make the test true:
-//            'prep:
-//            'lrel[str country, int year, int amount] GDP = 
-//            '   [\<\"US\", 2008, 14264600\>, 
-//            '    \<\"EU\", 2008, 18394115\>,
-//            '    \<\"Japan\", 2008, 4923761\>, 
-//            '    \<\"US\", 2007, 13811200\>, 
-//            '    \<\"EU\", 2007, 13811200\>, 
-//            '    \<\"Japan\", 2007, 4376705\>];
-//            'expr relSubscript: GDP[\"US\",2008]
-//            'end");
-//    
-//    process("question Replace _ by the size of the list and make the test true:
-//            'prep:
-//            'import List;
-//            'expr sizeList: size(!{list[int]})
-//            'end");
-//            
-//    process("question Replace _ (two times!) and make the test true:
-//            'prep:
-//            'import ?{List};
-//            'expr sizeList: size(!{list[int]})
-//            'end");
-//   
-//    process("question Complete the body of the function palindrome and let all tests pass:
-//            'prep:
-//            'import String;
-//            '
-//            'bool isPalindrome(str words) = ?{size(words) \<= 1 || words[0] == words[-1] && isPalindrome(words[1..-1])};
-//            '
-//            'test bool palindrome1() = isPalindrome(\"\");
-//            'test bool palindrome2() = isPalindrome(\"a\");
-//            'test bool palindrome3() = isPalindrome(\"aa\");
-//            'test bool palindrome4() = isPalindrome(\"abcba\");
-//            'test bool palindrome5() = !isPalindrome(\"abc\");
-//            'end");
-//     
-//     process("question Given the data type `ColoredTree`, complete the definition of the function `flipRedChildren` 
-//             'that exchanges the children of all red nodes.
-//             'prep:
-//             'data ColoredTree = leaf(int N)      
-//             '        | red(ColoredTree left, ColoredTree right) 
-//             '        | black(ColoredTree left, ColoredTree right);
-//             '
-//             'ColoredTree rb = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));
-//
-//             'ColoredTree flipRedChildren(ColoredTree t){
-//             '   return visit(t){
-//             '      case red(l,r) =\> ?{red(r,l)}
-//             '   };
-//             '}
-//
-//             'test bool ct1() = flipRedChildren(rb) == red( black(leaf(3), leaf(4)), black(leaf(1), red(leaf(3),leaf(2))));
-//             'end");
-     
+    println("In main");
+    PathConfig pcfg = 
+    pathConfig(srcs=[|test-modules:///|, |file:///Users/paulklint/git/rascal/src/org/rascalmpl/library|], 
+               bin=|file:///Users/paulklint/git/rascal/bootstrap/phase2|, 
+               boot=|file:///Users/paulklint/git/rascal/bootstrap/phase2|,
+               libs=[|home:///git/rascal/bootstrap/phase2/org/rascal/mpl/library|]);
+    res = compileQuestions("ADocTest/Questions", pcfg.srcs, pcfg.libs, [|home:///git/rascal/src/org/rascalmpl/courses|], pcfg.bin, pcfg.boot);
+    println(res);
+    writeFile(|file:///Users/paulklint/git/rascal/bootstrap/phase2/courses/AdocTest/Questions/Questions.adoc|, res);
     return true;
 }

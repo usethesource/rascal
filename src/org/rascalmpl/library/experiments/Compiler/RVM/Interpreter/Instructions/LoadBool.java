@@ -21,6 +21,6 @@ public class LoadBool extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall1(opcode.name(), bool ? 1 : 0);
 		
-		codeEmittor.emitInlineLoadBool(bool,debug) ;
+		codeEmittor.emitInlineLoadBool(bool) ;
 	}
 }

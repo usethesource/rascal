@@ -24,7 +24,6 @@ import org.rascalmpl.library.lang.json.io.JsonValueReader;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
@@ -74,12 +73,10 @@ public class IOCompiled extends IO {
     }
 	
 	public IValue fromJSON(IValue type, IString src, RascalExecutionContext rex) {
-		TypeStore store = new TypeStore();
+		TypeStore store = rex.getTypeStore(); // new TypeStore();
 		
 		IConstructor type_cons = ((IConstructor) type);
-		IMap definitions = rex.getSymbolDefinitions();
 
-		tr.declareAbstractDataTypes(definitions, store);
 		Type start = tr.valueToType(type_cons, store);
 		
 		//TypeStore store = ctx.getCurrentEnvt().getStore();

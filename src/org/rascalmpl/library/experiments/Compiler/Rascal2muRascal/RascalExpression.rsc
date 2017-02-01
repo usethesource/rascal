@@ -163,7 +163,7 @@ private MuExp translateComposeFunction(Expression e){
             throw "cannot handle composition/overloading for different arities";
          }
      }
-     comp_ftype = Symbol::func(Symbol::\value(), [Symbol::\value() | int j <- [0 .. nargs]]);
+     comp_ftype = Symbol::func(Symbol::\value(), [Symbol::\value() | int j <- [0 .. nargs]], []);
   }
     
   enterFunctionScope(comp_fuid);
@@ -173,7 +173,7 @@ private MuExp translateComposeFunction(Expression e){
   body_exps =  [muReturn1(muOCall4(lhsReceiver, \tuple([lhsType]), [rhsCall, kwargs ], e.lhs@\loc))];
    
   leaveFunctionScope();
-  fun = muFunction(comp_fuid, comp_name, comp_ftype, Symbol::\tuple([]), scopeId, nargs, 2, false, false, \e@\loc, [], (), false, 0, 0, muBlock(body_exps));
+  fun = muFunction(comp_fuid, comp_name, comp_ftype, ["a", "b"], Symbol::\tuple([]), scopeId, nargs, 2, false, false, \e@\loc, [], (), false, 0, 0, muBlock(body_exps));
  
   int uid = declareGeneratedFunction(comp_name, comp_fuid, comp_ftype, e@\loc);
   addFunctionToModule(fun);  
@@ -718,7 +718,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
     
     tuple[str fuid,int pos] addr = uid2addr[uid];
     
-    addFunctionToModule(muFunction(fuid, "CLOSURE", ftype, Symbol::\tuple([]), (addr.fuid in moduleNames) ? "" : addr.fuid, 
+    addFunctionToModule(muFunction(fuid, "CLOSURE", ftype, getParameterNames(parameters.formals.formals), Symbol::\tuple([]), (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									  getFormals(uid), getScopeSize(fuid), 
   									  isVarArgs, false, e@\loc, [], (), 
   									  false, 0, 0,
@@ -735,13 +735,13 @@ private MuExp translateBoolClosure(Expression e){
 	
 	enterFunctionScope(fuid);
 	
-    ftype = Symbol::func(Symbol::\bool(),[]);
+    ftype = Symbol::func(Symbol::\bool(),[],[]);
 	nformals = 0;
 	nlocals = 0;
 	bool isVarArgs = false;
   	
     MuExp body = muReturn1(translate(e));
-    addFunctionToModule(muFunction(fuid, "CLOSURE", ftype, Symbol::\tuple([]), addr.fuid, nformals, nlocals, isVarArgs, false, e@\loc, [], (), false, 0, 0, body));
+    addFunctionToModule(muFunction(fuid, "CLOSURE", ftype, [], Symbol::\tuple([]), addr.fuid, nformals, nlocals, isVarArgs, false, e@\loc, [], (), false, 0, 0, body));
   	
   	leaveFunctionScope();								  
   	
@@ -866,7 +866,8 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	           :
 	           []);
 	
-	Symbol phi_ftype = Symbol::func(Symbol::\value(), phi_args);
+	phi_argNames = ["iSubject", "matched", "hasInsert", "leaveVisit", "begin", "end"];
+	Symbol phi_ftype = Symbol::func(Symbol::\value(), phi_args, []);
 	
 	enterVisit();
 	enterFunctionScope(phi_fuid);
@@ -884,7 +885,7 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	if(optimizing()){
 	   tc = getTypesAndConstructorsInVisit(cases);
 	   <reachable_syms, reachable_prods> = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
-	   //println("reachableTypesInVisit: <reachable>");
+	   //println("reachableTypesInVisit: <reachable_syms>, <reachable_prods>");
 	}
 	
 	descriptor = muCallPrim3("make_descendant_descriptor", [muCon(phi_fuid), muCon(reachable_syms), muCon(reachable_prods), muCon(concreteMatch), muCon(getDefinitions())], \visit.subject@\loc);
@@ -975,7 +976,7 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	
 	//println("size functions after lift: <size(getFunctionsInModule())>");
 	
-	addFunctionToModule(muFunction(phi_fuid, "PHI", phi_ftype, Symbol::\tuple([]), scopeId, NumberOfPhiFormals, pos_in_phi, false, false, \visit@\loc, [], (), false, 0, 0, body));
+	addFunctionToModule(muFunction(phi_fuid, "PHI", phi_ftype, phi_argNames, Symbol::\tuple([]), scopeId, NumberOfPhiFormals, pos_in_phi, false, false, \visit@\loc, [], (), false, 0, 0, body));
 	
 	leaveFunctionScope();
 	leaveVisit();
@@ -1298,7 +1299,12 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        	if(isVarArgs(fdef) && !isVarArgs(fuse)){
        		un = size(upar);
        		dn = size(dpar);
-       		Symbol var_elm_type = dpar[-1].symbol;
+       		va = dpar[-1];
+       		//if(label(_, s) := va){
+         //      va = s;
+         //   }
+       		Symbol var_elm_type = va.symbol;
+       		
        		i = un - 1;
        		while(i > 0){
        			if(subtype(upar[i], var_elm_type)){
@@ -1576,7 +1582,7 @@ private MuExp translateSetOrList(Expression e, {Expression ","}* es, str kind){
 // -- reified type expression ---------------------------------------
 
 MuExp translate (e:(Expression) `# <Type tp>`) {
-	//println("#<tp>, translateType:");
+	//println("#<tp>, translateType: <e>");
 	//iprintln("<translateType(tp)>");
 	//iprintln("symbolToValue(translateType(tp)) = <symbolToValue(translateType(tp)).definitions>");
 	return muCon(symbolToValue(translateType(tp)));
@@ -1985,11 +1991,11 @@ MuExp translate(e:(Expression) `*<Expression argument>`) {
 // -- asType expression ---------------------------------------------
 
 MuExp translate(e:(Expression) `[ <Type typ> ] <Expression argument>`)  =
-   muCallPrim3("parse", [muCon(getModuleName()), 
+ muCallPrim3("parse", [muCon(getModuleName()), 
    					    muCon(type(symbolToValue(translateType(typ)).symbol,getGrammar())), 
    					    translate(argument)], 
    					    argument@\loc);
-   
+  
 // -- composition expression ----------------------------------------
 
 MuExp translate(e:(Expression) `<Expression lhs> o <Expression rhs>`) = 

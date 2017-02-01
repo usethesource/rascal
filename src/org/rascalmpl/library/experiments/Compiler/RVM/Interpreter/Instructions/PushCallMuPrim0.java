@@ -25,6 +25,6 @@ public class PushCallMuPrim0 extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall1(opcode.name(), muprim.ordinal());
 		
-		codeEmittor.emitInlinePushCallMuPrim0(muprim, debug);
+		codeEmittor.emitInlinePushCallMuPrim0(muprim);
 	}
 }

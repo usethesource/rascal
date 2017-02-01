@@ -1,7 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
-import java.io.PrintWriter;
-
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CompilerError;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.MuPrimitive;
@@ -280,40 +278,6 @@ public enum Opcode {
 	 Opcode(int op, int pc_incr){
 		this.op = op;
 		this.pc_incr = pc_incr;
-	}
-	 
-//	static long opFrequencies[];
-	static boolean profiling = false;
-//	private static PrintWriter stdout;
-	
-	public static void init(PrintWriter stdoutWriter, boolean doProfile) {
-//	  stdout = stdoutWriter;
-	  profiling = doProfile;
-//      opFrequencies = new long[values.length];
-	}
-	
-	public static void use(int instruction){
-//		opFrequencies[CodeBlock.fetchOp(instruction)]++;
-	}
-	
-	public static void exit(){
-		if(profiling)
-			printProfile();
-	}
-	
-	private static void printProfile(){
-//		stdout.println("\nOpcode Frequencies");
-//		long total = 0;
-//		TreeMap<Long,String> data = new TreeMap<Long,String>();
-//		for(int i = 0; i < values.length; i++){
-//			if(opFrequencies[i] > 0 ){
-//				data.put(opFrequencies[i], values[i].name());
-//				total += opFrequencies[i];
-//			}
-//		}
-//		for(long t : data.descendingKeySet()){
-//			stdout.printf("%30s: %3d%% (%d)\n", data.get(t), t * 100 / total, t);
-//		}
 	}
 	
 	public int getPcIncrement(){

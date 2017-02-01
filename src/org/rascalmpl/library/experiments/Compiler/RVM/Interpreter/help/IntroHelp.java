@@ -11,17 +11,16 @@ public class IntroHelp {
 				"    quit or EOF            Quit this RascalShell",
 				"    help <topic>           Open a browser with help about topic",
 				"    apropos <topic>        Textual summary of help about topic",
-				"    declarations           List all declarations",
-				"    modules                List all imported modules",
+				"    declarations           List all declarations and imports",
 				"    undeclare <name>       Remove declaration of <name>",
 				"    unimport <name>        Remove import of module <name>",
-				"    set <option> <value>   Set RascalShell <option> to <value>",
-				"    e.g. set profile true",
-				"         set trace false",
-				"         set coverage true",
+				"    set <option> <bool>    Set RascalShell <option> to true or false",
+				"                           Option: profile, trace, coverage",
 				"    set                    List all current option values",
 				"    test                   Run all tests in currently imported modules",
 				"    test <modules>         Run all test in given <modules>",
+				"    edit <module>          Edit <module>",
+				"    clean                  Clean bin directory",
 				"",
 				"Debugging commands:",
 				"    break                  List current break points",
@@ -39,9 +38,6 @@ public class IntroHelp {
 				"    <CTRL>e                Move cursor to end of line",
 				"    <CTRL>k                Kill remainder of line after cursor",
 				"    <CTRL>l                Clear screen"
-				//"Further help: XXX"
-				//":edit <modulename>         Opens an editor for that module",
-				//":test                      Runs all unit tests currently loaded",
 				//":history                   Print the command history",
 		};
 	

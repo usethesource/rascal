@@ -21,7 +21,6 @@ public class NameCompleter {
 				return a.compareTo(b);
 			}
 		});
-		
 	}
 	
 	public SortedSet<String> getResult(){
@@ -29,22 +28,11 @@ public class NameCompleter {
 	}
 	
     public void add(String completeName, String partialName) {
-		if(completeName.startsWith("Library/")){
-			return;
-		}
-		String shortName;
-		int start = completeName.indexOf("/");
-		int end = completeName.indexOf("(");
-		if(start >= 0 && end > 0){
-			shortName = completeName.substring(start + 1, end);
-		} else {
-			shortName = completeName;
-		}
-		if (shortName.startsWith(partialName) && !shortName.equals(partialName)) {
-			if (shortName.contains("-")) {
-				shortName = "\\" + shortName;
+		if (completeName.startsWith(partialName) && !completeName.equals(partialName)) {
+			if (completeName.contains("-")) {
+			  completeName = "\\" + completeName;
 			}
-			result.add(shortName);
+			result.add(completeName);
 		}
 	}
 }

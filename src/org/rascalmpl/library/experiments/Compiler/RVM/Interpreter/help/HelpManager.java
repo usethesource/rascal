@@ -1,8 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help;
 
-//import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
-
-import java.awt.Desktop;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -27,8 +24,10 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.experiments.tutor3.Concept;
 import org.rascalmpl.library.experiments.tutor3.Onthology;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.ISourceLocation;
@@ -36,17 +35,23 @@ import org.rascalmpl.value.ISourceLocation;
 public class HelpManager {
 	
 	private ISourceLocation coursesDir;
+	private PathConfig pcfg;
 	private final int maxSearch = 25;
 	private final PrintWriter stdout;
 	private final PrintWriter stderr;
 	private IndexSearcher indexSearcher;
 	private final int port = 8000;
+    @SuppressWarnings("unused")
     private HelpServer helpServer;
+    private final IDEServices ideServices;
 
-    public HelpManager(ISourceLocation binDir, PrintWriter stdout, PrintWriter stderr){
+    public HelpManager(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices){
+      this.pcfg = pcfg;
       this.stdout = stdout;
       this.stderr = stderr;
+      this.ideServices = ideServices;
      
+      ISourceLocation binDir = pcfg.getBin();
       coursesDir = URIUtil.correctLocation(binDir.getScheme(), binDir.getAuthority(), binDir.getPath() + "/courses");
 
       try {
@@ -55,6 +60,10 @@ public class HelpManager {
       } catch (IOException e) {
         System.err.println("HelpManager: " + e.getMessage());
       }
+    }
+    
+    PathConfig getPathConfig(){
+      return pcfg;
     }
 	
 	Path copyToTmp(ISourceLocation fromDir) throws IOException{
@@ -115,20 +124,6 @@ public class HelpManager {
 		return false;
 	}
 	
-	public void openInBrowser(URI uri)
-	{
-		Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-		if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
-			try {
-				desktop.browse(uri);
-			} catch (IOException e) {
-				System.err.println(e.getMessage());
-			}
-		} else {
-			System.err.println("Desktop not supported, cannout open browser");
-		}
-	}
-	
 	void appendURL(StringWriter w, String conceptName){
 		String[] parts = conceptName.split("/");
 		int n = parts.length;
@@ -171,7 +166,7 @@ public class HelpManager {
 	public void handleHelp(String[] words){
 		if(words[0].equals("help") && words.length > 1){
 			try {
-				openInBrowser(makeSearchURI(words));
+				ideServices.browse(makeSearchURI(words));
 			} catch (URISyntaxException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -218,7 +213,7 @@ public class HelpManager {
 			if(words[0].equals("help")){
 				return reportHelp(words, indexSearcher.search(query, maxSearch).scoreDocs);
 			} else {
-				return reportApropos(words, indexSearcher.search(query, maxSearch).scoreDocs);
+				return reportApropos(indexSearcher.search(query, maxSearch).scoreDocs);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -297,7 +292,7 @@ public class HelpManager {
 		}
 	}
 	
-	String reportApropos(String[] words, ScoreDoc[] hits) throws IOException{
+	String reportApropos(ScoreDoc[] hits) throws IOException{
 		StringWriter w = new StringWriter();
 		for (int i = 0; i < Math.min(hits.length, maxSearch); i++) {
 			Document hitDoc = indexSearcher.doc(hits[i].doc);

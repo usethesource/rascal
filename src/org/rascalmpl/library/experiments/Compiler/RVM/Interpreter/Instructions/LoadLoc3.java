@@ -13,6 +13,6 @@ public class LoadLoc3 extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall(opcode.name());
 		
-		codeEmittor.emitInlineLoadLocN(3,debug);
+		codeEmittor.emitInlineLoadLocN(3);
 	}
 }

@@ -11,6 +11,7 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.value.IConstructor;
@@ -52,7 +53,7 @@ public class TermREPL {
         private final ICallableValue completor;
 
         public TheREPL(IConstructor repl, IEvaluatorContext ctx, PathConfig pcfg) throws IOException, URISyntaxException {
-            super(pcfg, ctx.getREPL() == null ? System.in : ctx.getREPL().getInput(), ctx.getREPL() == null ? System.out : ctx.getREPL().getOutput(), true, true, ((ISourceLocation)repl.get("history")), ctx.getREPL() == null ? TerminalFactory.get() : ctx.getREPL().getTerminal());
+            super(pcfg, ctx.getREPL() == null ? System.in : ctx.getREPL().getInput(), ctx.getREPL() == null ? System.out : ctx.getREPL().getOutput(), true, true, ((ISourceLocation)repl.get("history")), ctx.getREPL() == null ? TerminalFactory.get() : ctx.getREPL().getTerminal(), null);
             this.ctx = ctx;
             this.handler = (ICallableValue)repl.get("handler");
             this.completor = (ICallableValue)repl.get("completor");
@@ -93,7 +94,7 @@ public class TermREPL {
 
 
         @Override
-        protected void initialize(PathConfig pcfg, Writer stdout, Writer stderr) {
+        protected void initialize(PathConfig pcfg, Writer stdout, Writer stderr, IDEServices ideServices) {
             this.stdout = new PrintWriter(stdout);
             this.stderr = new PrintWriter(stderr);
         }

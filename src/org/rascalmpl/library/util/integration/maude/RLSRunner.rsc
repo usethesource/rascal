@@ -14,8 +14,6 @@ import Message;
 import ParseTree;
 import String;
 import util::ShellExec;
-import vis::Figure;
-import vis::Render;
 
 @doc{RLSResult holds the result of running and RLS task. This type should be extended for more specific results.}
 data RLSResult = NoResultHandler(str output) ;
@@ -150,14 +148,14 @@ public str unescape(str s) {
     return s;
 }
 
-@doc{Display the results in a new tab with the given tab name}
-public void displayResultsAsTab(str tabName, str res) {
-    render(tabName, 
-        vcat([
-            space(text("",fontSize(14)),gap(5), vis::Figure::left()),
-            space(text(substring(res,1,size(res)-2), fontSize(14), font("Courier New"), vis::Figure::left()), gap(5))
-            ], vis::Figure::left()));
-}
+//@doc{Display the results in a new tab with the given tab name}
+//public void displayResultsAsTab(str tabName, str res) {
+//    render(tabName, 
+//        vcat([
+//            space(text("",fontSize(14)),gap(5), vis::Figure::left()),
+//            space(text(substring(res,1,size(res)-2), fontSize(14), font("Courier New"), vis::Figure::left()), gap(5))
+//            ], vis::Figure::left()));
+//}
 
 @doc{Display the results on the console}
 public void displayResultsInConsole(str resultTag, str res) {

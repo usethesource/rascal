@@ -23,6 +23,6 @@ public class StoreLoc extends  Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall1(opcode.name(), pos);
 		
-		codeEmittor.emitInlineStoreLoc(pos, debug);
+		codeEmittor.emitInlineStoreLoc(pos);
 	}
 }
