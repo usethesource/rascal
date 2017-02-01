@@ -22,12 +22,7 @@ public class SnakesAndLadders {
         this.vf = vf;
     }
     
-    public IBool equalAnnotations(IValue a, IValue b) {
-        return vf.bool(a.equals(b));
-    }
-
     public ISourceLocation getSnakesAndLaddersPath() {
-
         try {
             URIResolverRegistry reg = URIResolverRegistry.getInstance();
             ISourceLocation tempRoot = URIUtil.correctLocation("tmp", "", "/snakes-ladders/");

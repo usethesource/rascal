@@ -1,5 +1,7 @@
 module lang::rascal::tests::library::lang::java::m3::BasicM3Tests
 
+import List;
+import Message;
 import IO;
 import util::FileSystem;
 import ValueIO;
@@ -24,26 +26,59 @@ public M3 getSnakesAndLaddersM3() {
     return composeJavaM3(|project://SnakesAndLadders/|, createM3sFromFiles(find(rootPath +"/src/", "java"),sourcePath = srcPath, classPath = libPath, javaVersion ="1.7"));
 }
 
-@javaClass{org.rascalmpl.library.lang.rascal.tests.library.lang.java.m3.SnakesAndLadders}
-private java bool equalAnnotations(value a, value b);
+private bool compareASTs(set[Declaration] a, set[Declaration] b) = a == b;
 
-private bool compareASTs(set[Declaration] a, set[Declaration] b) {
-    if (equalAnnotations(a,b)) {
-        return true;
-    }
-    else {
-        if (a == b) {
-            throw "ASTs are equal, but not their annotations";
-        }
-        throw "The ASTs are different";
-    }
+private bool compareMessages(Message a, Message b) {
+	return "<a>" < "<b>";
+} 
+
+private bool compareM3s(M3 a, M3 b) {
+	aKeys = getKeywordParameters(a);
+	bKeys = getKeywordParameters(b);
+	for (ak <- aKeys) {
+		if (!(ak in bKeys)) {
+			throw "<ak>  missing in reference";
+		}
+		if (aKeys[ak] != bKeys[ak]) {
+			if (set[value] aks := aKeys[ak] && set[value] bks := bKeys[ak]) {
+				println("Missing in relation to reference: ");
+				iprintln(bks - aks);
+				println("More than reference:");
+				iprintln(aks - bks);
+			}
+			else if (list[Message] akl := aKeys[ak] && list[Message] bkl := bKeys[ak]) {
+				if (size(akl) != size(bkl)) {
+					throw "Different sized lists";
+				}
+				akl = sort(akl, compareMessages);
+				bkl = sort(bkl, compareMessages);
+				if (akl == bkl) {
+					//No worries, just sorting!;
+					continue;
+				}
+				for (i <- [0..size(akl)]) {
+					if (akl[i] != bkl[i]) {
+						println("<i> differs");
+						iprintln([(akl[i]), (bkl[i])]);
+					}
+				}
+			}
+			throw "<ak> has different value";
+		}
+	}
+	for (bk <- bKeys) {
+		if (!(bk in aKeys)) {
+			throw "<bk> missing in result";
+		}
+	}
+	return true;
 }
-
-private bool compareM3s(M3 a, M3 b) = a == b && getAnnotations(a) == getAnnotations(b);
 
 @ignore{M3 not yet supported}
 public test bool m3sAreSame() 
     = getSnakesAndLaddersPath().scheme != "unknown" && compareM3s(getSnakesAndLaddersM3(), readBinaryValueFile(#M3, |compressed+testdata:///example-project/p2-SnakesAndLadders/m3-results/m3.bin.xz|));
+
+
 @ignore{M3 not yet supported}
 public test bool astsAreSame() 
     = getSnakesAndLaddersPath().scheme != "unknown" && compareASTs(getSnakesAndLaddersASTs(), readBinaryValueFile(#set[Declaration], |compressed+testdata:///example-project/p2-SnakesAndLadders/m3-results/m3ast.bin.xz|));
