@@ -14,7 +14,9 @@ package org.rascalmpl.value.impl.persistent;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.Objects;
 
+import io.usethesource.capsule.api.deprecated.Map;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
@@ -23,12 +25,7 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.util.AbstractTypeBag;
 import org.rascalmpl.value.util.EqualityUtils;
 
-import java.util.Objects;
-
-import io.usethesource.capsule.ImmutableMap;
-import io.usethesource.capsule.TransientMap;
-
-public final class PDBPersistentHashMap extends AbstractMap {
+public final class PersistentHashMap extends AbstractMap {
 		
 	@SuppressWarnings("unchecked")
 	private static final Comparator<Object> equivalenceComparator = EqualityUtils.getEquivalenceComparator();
@@ -36,13 +33,13 @@ public final class PDBPersistentHashMap extends AbstractMap {
 	private Type cachedMapType;
 	private final AbstractTypeBag keyTypeBag; 
 	private final AbstractTypeBag valTypeBag;
-	private final ImmutableMap<IValue,IValue> content; 
+	private final Map.Immutable<IValue,IValue> content;
 	
 	/* 
 	 * Passing an pre-calulated map type is only allowed from inside this class.
 	 */
-	protected PDBPersistentHashMap(AbstractTypeBag keyTypeBag,
-			AbstractTypeBag valTypeBag, ImmutableMap<IValue, IValue> content) {
+	protected PersistentHashMap(AbstractTypeBag keyTypeBag,
+                              AbstractTypeBag valTypeBag, Map.Immutable<IValue, IValue> content) {
 		Objects.requireNonNull(content);
 		this.cachedMapType = null;
 		this.keyTypeBag = keyTypeBag;
@@ -80,7 +77,7 @@ public final class PDBPersistentHashMap extends AbstractMap {
 
 	@Override
 	public IMap put(IValue key, IValue value) {
-		final ImmutableMap<IValue,IValue> contentNew = 
+		final Map.Immutable<IValue,IValue> contentNew =
 				content.__putEquivalent(key, value, equivalenceComparator);
 		
 		if (content == contentNew)
@@ -100,7 +97,7 @@ public final class PDBPersistentHashMap extends AbstractMap {
 			valBagNew = valTypeBag.increase(value.getType());
 		}
 		
-		return new PDBPersistentHashMap(keyBagNew, valBagNew, contentNew);
+		return new PersistentHashMap(keyBagNew, valBagNew, contentNew);
 	}
 	
 	@Override
@@ -135,8 +132,8 @@ public final class PDBPersistentHashMap extends AbstractMap {
 		if (other == null)
 			return false;
 		
-		if (other instanceof PDBPersistentHashMap) {
-			PDBPersistentHashMap that = (PDBPersistentHashMap) other;
+		if (other instanceof PersistentHashMap) {
+			PersistentHashMap that = (PersistentHashMap) other;
 
 			if (this.size() != that.size())
 				return false;
@@ -222,10 +219,10 @@ public final class PDBPersistentHashMap extends AbstractMap {
 	
 	@Override
 	public IMap join(IMap other) {
-		if (other instanceof PDBPersistentHashMap) {
-			PDBPersistentHashMap that = (PDBPersistentHashMap) other;
+		if (other instanceof PersistentHashMap) {
+			PersistentHashMap that = (PersistentHashMap) other;
 
-			final TransientMap<IValue, IValue> transientContent = content.asTransient();
+			final Map.Transient<IValue, IValue> transientContent = content.asTransient();
 
 			boolean isModified = false;
 			int previousSize = size();
@@ -274,7 +271,7 @@ public final class PDBPersistentHashMap extends AbstractMap {
 			}
 
 			if (isModified) {
-				return new PDBPersistentHashMap(keyBagNew, valBagNew, transientContent.freeze());
+				return new PersistentHashMap(keyBagNew, valBagNew, transientContent.freeze());
 			} else {
 				return this;
 			}

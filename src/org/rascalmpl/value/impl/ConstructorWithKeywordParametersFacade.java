@@ -27,13 +27,11 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.value.visitors.IValueVisitor;
 
-import io.usethesource.capsule.ImmutableMap;
-
 public class ConstructorWithKeywordParametersFacade implements IConstructor {
 	protected final IConstructor content;
-	protected final ImmutableMap<String, IValue> parameters;
+	protected final io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> parameters;
 	
-	public ConstructorWithKeywordParametersFacade(final IConstructor content, final ImmutableMap<String, IValue> parameters) {
+	public ConstructorWithKeywordParametersFacade(final IConstructor content, final io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> parameters) {
 		this.content = content;
 		this.parameters = parameters;
 	}
@@ -142,7 +140,7 @@ public class ConstructorWithKeywordParametersFacade implements IConstructor {
 	public IWithKeywordParameters<? extends IConstructor> asWithKeywordParameters() {
 	  return new AbstractDefaultWithKeywordParameters<IConstructor>(content, parameters) {
       @Override
-      protected IConstructor wrap(IConstructor content, ImmutableMap<String, IValue> parameters) {
+      protected IConstructor wrap(IConstructor content, io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> parameters) {
         return new ConstructorWithKeywordParametersFacade(content, parameters);
       }
       
