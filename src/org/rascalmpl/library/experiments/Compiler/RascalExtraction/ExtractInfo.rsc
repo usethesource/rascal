@@ -61,6 +61,15 @@ str align({Variant "|"}+ variants){
    }
    return res + "\n     ;";
 }
+
+list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters> ;`) { 
+    dtags = getTags(tags);
+    adtName = "<user.name>";
+    content = trim(dtags["doc"] ? "");
+    return dataInfo(moduleName, adtName, "data <user> <commonKeywordParameters>",
+                                       d@\loc, getSynopis(content), content);
+}
+
 list[DeclarationInfo]  extractDecl(str moduleName, d: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ variants> ;`) { 
     dtags = getTags(tags);
     adtName = "<user.name>";
