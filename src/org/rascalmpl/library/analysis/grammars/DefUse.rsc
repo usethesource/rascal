@@ -6,7 +6,7 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
-module lang::rascal::grammar::analyze::DefUse
+module analysis::grammars::DefUse
 
 import Grammar;
 import ParseTree;
