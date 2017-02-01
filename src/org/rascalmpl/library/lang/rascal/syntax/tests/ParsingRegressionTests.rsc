@@ -13,7 +13,7 @@ import util::FileSystem;
 import Exception;
 import String;
 import ParseTree;
-import Ambiguity;
+import analysis::grammars::Ambiguity;
 import util::Monitor;
 
 public bool hasAmb(Tree x) = /a:amb(_) := x;
