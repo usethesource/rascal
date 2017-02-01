@@ -16,6 +16,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import io.usethesource.capsule.api.deprecated.Map;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.IMapWriter;
 import org.rascalmpl.value.ITuple;
@@ -26,7 +27,6 @@ import org.rascalmpl.value.util.AbstractTypeBag;
 import org.rascalmpl.value.util.EqualityUtils;
 
 import io.usethesource.capsule.DefaultTrieMap;
-import io.usethesource.capsule.TransientMap;
 
 final class MapWriter implements IMapWriter {
 
@@ -36,7 +36,7 @@ final class MapWriter implements IMapWriter {
 
 	protected AbstractTypeBag keyTypeBag;
 	protected AbstractTypeBag valTypeBag;
-	protected final TransientMap<IValue, IValue> mapContent;
+	protected final Map.Transient<IValue, IValue> mapContent;
 
 	protected final boolean checkUpperBound;
 	protected final Type upperBoundKeyType;
@@ -161,7 +161,7 @@ final class MapWriter implements IMapWriter {
 	@Override
 	public IMap done() {
 		if (constructedMap == null) {
-			constructedMap = new PDBPersistentHashMap(keyTypeBag, valTypeBag, mapContent.freeze());
+			constructedMap = new PersistentHashMap(keyTypeBag, valTypeBag, mapContent.freeze());
 		}
 
 		return constructedMap;

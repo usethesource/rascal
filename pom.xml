@@ -238,7 +238,7 @@
 		<dependency>
 			<groupId>io.usethesource</groupId>
 			<artifactId>capsule</artifactId>
-			<version>0.1.0</version>
+			<version>0.3.0.HETEROGENEOUS-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ow2.asm</groupId>
@@ -310,7 +310,12 @@
 			<artifactId>nanohttpd</artifactId>
 			<version>2.3.1</version>
 		</dependency>
-        <dependency>
+		<dependency>
+			<groupId>com.ibm.icu</groupId>
+			<artifactId>icu4j</artifactId>
+			<version>58.1</version>
+		</dependency>
+		<dependency>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctorj</artifactId>
             <version>1.5.4.1</version>

@@ -12,23 +12,8 @@
  */ 
 package org.rascalmpl.value.io.binary.message;
 
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.net.URISyntaxException;
-import java.util.Collections;
-
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.IMapWriter;
-import org.rascalmpl.value.INode;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISetWriter;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.capsule.core.deprecated.TrieMap_5Bits;
+import org.rascalmpl.value.*;
 import org.rascalmpl.value.io.binary.stream.IValueInputStream;
 import org.rascalmpl.value.io.binary.util.TrackLastRead;
 import org.rascalmpl.value.io.binary.util.WindowCacheFactory;
@@ -38,9 +23,11 @@ import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
-import io.usethesource.capsule.ImmutableMap;
-import io.usethesource.capsule.TransientMap;
-import io.usethesource.capsule.TrieMap_5Bits;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.net.URISyntaxException;
+import java.util.Collections;
 
 /**
  * An utility class for the {@link IValueInputStream}. Only directly use methods in this class if you have nested IValues in an exisiting {@link IWireInputStream}.
@@ -611,8 +598,8 @@ public class IValueReader {
     private IValue readNode(final IWireInputStream reader) throws IOException {
         String name = null;
         IValue[] children = new IValue[0];
-        ImmutableMap<String, IValue> annos = null;
-        ImmutableMap<String, IValue> kwParams = null;
+        io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> annos = null;
+        io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> kwParams = null;
 
 
         boolean backReference = false;
@@ -657,8 +644,8 @@ public class IValueReader {
     private IValue readConstructor(final IWireInputStream reader) throws IOException {
         Type type = null;
         IValue[] children = new IValue[0];
-        ImmutableMap<String, IValue> annos = null;
-        ImmutableMap<String, IValue> kwParams = null;
+        io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> annos = null;
+        io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> kwParams = null;
 
 
         boolean backReference = false;
@@ -728,8 +715,8 @@ public class IValueReader {
         return true;
     }
 
-    private ImmutableMap<String, IValue> readNamedValues(IWireInputStream reader) throws IOException {
-        TransientMap<String, IValue> result = TrieMap_5Bits.transientOf();
+    private io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> readNamedValues(IWireInputStream reader) throws IOException {
+        io.usethesource.capsule.api.deprecated.Map.Transient<String, IValue> result = TrieMap_5Bits.transientOf();
         String[] names = null;
         reader.next();
         while (reader.next() != IWireInputStream.MESSAGE_END) {
