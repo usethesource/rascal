@@ -70,7 +70,7 @@ public class ParserGenerator {
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Literals");
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Parameters");
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Symbols");
-			evaluator.doImport(monitor, "Ambiguity");
+			evaluator.doImport(monitor, "analysis::grammars::Ambiguity");
 		}
 		finally {
 			monitor.endJob(true);
