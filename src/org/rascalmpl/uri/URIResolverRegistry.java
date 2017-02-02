@@ -26,6 +26,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -359,6 +360,24 @@ public class URIResolverRegistry {
 		}
 		return resolver.supportsHost();
 	}
+	
+	public boolean supportsReadableFileChannel(ISourceLocation uri) {
+	    uri = safeResolve(uri);
+	    ISourceLocationInput resolver = getInputResolver(uri.getScheme());
+	    if (resolver == null) {
+	        return false;
+	    }
+	    return resolver.supportsReadableFileChannel();
+	}
+	
+	public boolean supportsWritableFileChannel(ISourceLocation uri) {
+        uri = safeResolve(uri);
+        ISourceLocationOutput resolver = getOutputResolver(uri.getScheme());
+        if (resolver == null) {
+            return false;
+        }
+        return resolver.supportsWritableFileChannel();
+    }
 
 	public boolean exists(ISourceLocation uri) {
 		if (logicalResolvers.containsKey(uri.getScheme())) {
@@ -506,6 +525,18 @@ public class URIResolverRegistry {
 		return makeBuffered(resolver.getInputStream(uri));
 	}
 
+	public FileChannel getReadableFileChannel(ISourceLocation uri) throws IOException {
+	    uri = safeResolve(uri);
+	    ISourceLocationInput resolver = getInputResolver(uri.getScheme());
+
+	    if (resolver == null || !resolver.supportsReadableFileChannel()) {
+	        throw new UnsupportedSchemeException(uri.getScheme());
+	    }
+
+	    return resolver.getReadableFileChannel(uri);
+	}
+
+	
 
 	public Charset getCharset(ISourceLocation uri) throws IOException {
 		uri = safeResolve(uri);
@@ -533,6 +564,23 @@ public class URIResolverRegistry {
 		mkParentDir(uri);
 
 		return makeBuffered(resolver.getOutputStream(uri, append));
+	}
+	
+	public FileChannel getWriteableFileChannel(ISourceLocation uri, boolean append) throws IOException {
+	    uri = safeResolve(uri);
+	    ISourceLocationOutput resolver = getOutputResolver(uri.getScheme());
+
+	    if (resolver == null || !resolver.supportsWritableFileChannel()) {
+	        throw new UnsupportedSchemeException(uri.getScheme());
+	    }
+
+	    if (uri.getPath() != null && uri.getPath().startsWith("/..")) {
+	        throw new IllegalArgumentException("Can not navigate beyond the root of a URI: " + uri);
+	    }
+
+	    mkParentDir(uri);
+
+	    return resolver.getWritableOutputStream(uri, append);
 	}
 
 	private void mkParentDir(ISourceLocation uri) throws IOException {
