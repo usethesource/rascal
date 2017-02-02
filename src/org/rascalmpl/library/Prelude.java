@@ -34,6 +34,8 @@ import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileChannel.MapMode;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -1073,21 +1075,44 @@ public class Prelude {
 	}
 	
 	public IValue md5HashFile(ISourceLocation sloc){
-		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(sloc)){
-			MessageDigest md = MessageDigest.getInstance("MD5");
-			byte[] buf = new byte[FILE_BUFFER_SIZE];
-			int count;
+		byte[] hash;
+		
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            boolean useInputStream = !URIResolverRegistry.getInstance().supportsReadableFileChannel(sloc);
+            if (!useInputStream) {
+                try (FileChannel file = URIResolverRegistry.getInstance().getReadableFileChannel(sloc)) {
+                    ByteBuffer contents = null;
+                    if (file.size() > FILE_BUFFER_SIZE) {
+                        try {
+                            contents = file.map(MapMode.READ_ONLY, 0, file.size());
+                        } catch (IOException e) {
+                            useInputStream = true;
+                            contents = null;
+                        }
+                    }
+                    else {
+                        contents = ByteBuffer.allocate((int)file.size());
+                        file.read(contents);
+                        contents.flip();
+                    }
+                    if (contents != null) {
+                        md.update(contents);
+                    }
+                }
+            }
+            if (useInputStream) {
+                try (InputStream in = URIResolverRegistry.getInstance().getInputStream(sloc)) {
+                    byte[] buf = new byte[FILE_BUFFER_SIZE];
+                    int count;
 
-			while((count = in.read(buf, 0, buf.length)) != -1){
-				md.update(buf, 0, count);
-			}
+                    while((count = in.read(buf, 0, buf.length)) != -1){
+                        md.update(buf, 0, count);
+                    }
+                }
+            }
 			
-			byte[] hash = md.digest();
-			StringBuffer result = new StringBuffer(hash.length * 2);
-			for (int i = 0; i < hash.length; i++) {
-				result.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
-			}
-			return values.string(result.toString());
+			hash = md.digest();
 		}catch(FileNotFoundException fnfex){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
 		}catch(IOException ioex){
@@ -1095,6 +1120,13 @@ public class Prelude {
 		} catch (NoSuchAlgorithmException e) {
 			throw RuntimeExceptionFactory.io(values.string("Cannot load MD5 digest algorithm"), null, null);
 		}
+        
+        StringBuffer result = new StringBuffer(hash.length * 2);
+        for (int i = 0; i < hash.length; i++) {
+            result.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
+        }
+        return values.string(result.toString());
+
 	}
 	
 	public IBool copyFile(ISourceLocation source, ISourceLocation target) {
