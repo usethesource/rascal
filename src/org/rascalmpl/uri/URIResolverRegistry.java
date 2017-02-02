@@ -16,6 +16,8 @@ package org.rascalmpl.uri;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -153,16 +155,17 @@ public class URIResolverRegistry {
 	}
 
 	private static InputStream makeBuffered(InputStream original) {
-		if (original.getClass() != BufferedInputStream.class) {
-			return new BufferedInputStream(original);
-		}
-		return original;
+	    if (original instanceof BufferedInputStream || original instanceof ByteArrayInputStream) {
+	        return original;
+	    }
+		return new BufferedInputStream(original);
 	}
+
 	private static OutputStream makeBuffered(OutputStream original) {
-		if (original.getClass() != BufferedOutputStream.class) {
-			return new BufferedOutputStream(original);
-		}
-		return original;
+	    if (original instanceof BufferedOutputStream || original instanceof ByteArrayOutputStream) {
+	        return original;
+	    }
+	    return new BufferedOutputStream(original);
 	}
 	
 	/**
