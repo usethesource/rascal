@@ -514,22 +514,22 @@ public class IO {
 		}
 	}
 	
-  /**
-   * Normalize a label in the header for use in the relation type.
-   *
-   * @param label the string found in the header
-   * @param pos position in the header
-   * @return the label (with non-fieldname characters removed) or "field<pos>" when empty
-   */
-  private String normalizeLabel(final String label, final int pos) {
-    final String normalizedLabel = label.replaceAll("[^a-zA-Z0-9]+", "");
+	/**
+	 * Normalize a label in the header for use in the relation type.
+	 *
+	 * @param label the string found in the header
+	 * @param pos position in the header
+	 * @return the label (with non-fieldname characters removed) or "field<pos>" when empty
+	 */
+	private String normalizeLabel(final String label, final int pos) {
+	    final String normalizedLabel = label.replaceAll("[^a-zA-Z0-9]+", "");
 
-    if (!normalizedLabel.isEmpty()) {
-      return normalizedLabel;
-    } else {
-      return "field" + pos;
-    }
-  }
+	    if (!normalizedLabel.isEmpty()) {
+	        return normalizedLabel;
+	    } else {
+	        return "field" + pos;
+	    }
+	}
 }
 
 /**
