@@ -65,11 +65,17 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
   private static final boolean checkDynamicType(final AbstractTypeBag keyTypeBag,
       final AbstractTypeBag valTypeBag, final SetMultimap.Immutable<IValue, IValue> content) {
 
-    final AbstractTypeBag expectedKeyTypeBag = content.entrySet().stream().map(Map.Entry::getKey)
+    AbstractTypeBag expectedKeyTypeBag = content.entrySet().stream().map(Map.Entry::getKey)
         .map(IValue::getType).collect(toTypeBag());
 
-    final AbstractTypeBag expectedValTypeBag = content.entrySet().stream().map(Map.Entry::getValue)
+    AbstractTypeBag expectedValTypeBag = content.entrySet().stream().map(Map.Entry::getValue)
         .map(IValue::getType).collect(toTypeBag());
+    
+    // the label is not on the stream of values and keys
+    // so we have to set that back to the type bag,
+    // else the equals that does compare the labels can fail.
+    expectedKeyTypeBag = expectedKeyTypeBag.setLabel(keyTypeBag.getLabel());
+    expectedValTypeBag = expectedValTypeBag.setLabel(valTypeBag.getLabel());
 
     boolean keyTypesEqual = expectedKeyTypeBag.equals(keyTypeBag);
     boolean valTypesEqual = expectedValTypeBag.equals(valTypeBag);
