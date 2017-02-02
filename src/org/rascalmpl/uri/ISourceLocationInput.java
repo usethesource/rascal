@@ -14,12 +14,16 @@ package org.rascalmpl.uri;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 
 import org.rascalmpl.value.ISourceLocation;
 
 public interface ISourceLocationInput {
-	InputStream getInputStream(ISourceLocation uri) throws IOException;  
+	InputStream getInputStream(ISourceLocation uri) throws IOException;
+	default FileChannel getReadableFileChannel(ISourceLocation uri) throws IOException {
+	    throw new UnsupportedOperationException("File channels not supported for: " + scheme());
+	}
 	Charset getCharset(ISourceLocation uri) throws IOException;
 	boolean exists(ISourceLocation uri);
 	long lastModified(ISourceLocation uri)  throws IOException; 
@@ -28,4 +32,7 @@ public interface ISourceLocationInput {
 	String[] list(ISourceLocation uri)  throws IOException;
 	String scheme();
 	boolean supportsHost();
+	default boolean supportsReadableFileChannel() {
+	    return false;
+	}
 }
