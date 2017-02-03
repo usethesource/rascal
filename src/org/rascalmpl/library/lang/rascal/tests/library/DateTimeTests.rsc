@@ -36,8 +36,10 @@ test bool printDateTime_simpleFormat(datetime gen) =
     printDateTime(gen) == "<formattedDate(gen)> <formattedTime(gen)>";
 
 test bool incrementDays_withOneDay(datetime gen) =
-  incrementDays(createDate(gen.year, gen.month, gen.day)) == incDateByOneDay(gen);
+  gen.year > 1751 ? incrementDays(createDate(gen.year, gen.month, gen.day)) == incDateByOneDay(gen) : true;
+  // TIL; apparently before the year 1752 the US was still on the Julian calendar which calculated a leap year every 4 years. The algorithm used here only works for the Gregorian calendar 
 
+// Increment a date by a day according to the Gregorian calendar algorithm for leap year calculation
 datetime incDateByOneDay(datetime dt) {
 	if (dt.day < 28) {
 		return createDate(dt.year, dt.month, dt.day+1);
