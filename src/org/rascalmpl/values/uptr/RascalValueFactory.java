@@ -17,7 +17,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.Supplier;
 
+import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.parser.gtd.util.ArrayList;
@@ -44,13 +46,12 @@ import org.rascalmpl.value.impl.ConstructorWithKeywordParametersFacade;
 import org.rascalmpl.value.impl.persistent.ValueFactory;
 import org.rascalmpl.value.io.StandardTextReader;
 import org.rascalmpl.value.io.StandardTextWriter;
+import org.rascalmpl.value.io.binary.message.IValueReader;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.value.visitors.IValueVisitor;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
-
-import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 
 /**
  * The RascalValueFactory extends a given IValueFactory with the Rascal-specific builtin
@@ -285,6 +286,20 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public static TypeStore getStore() {
 		return uptr;
 	}
+
+	/**
+   * Allocates new {@link TypeStore} environments that are used within {@link IValueReader}.
+   *
+   * Type stores are used as encapsulated namespaces for types. The supplier creates a fresh type
+   * store environment, to avoid name clashes when nesting types / values.
+   */
+  public static final Supplier<TypeStore> TYPE_STORE_SUPPLIER = () -> {
+    TypeStore typeStore = new TypeStore();
+    typeStore.declareAbstractDataType(RascalValueFactory.Type);
+    typeStore.declareConstructor(RascalValueFactory.Type_Reified);
+    typeStore.declareAbstractDataType(RascalValueFactory.ADTforType);
+    return typeStore;
+  };
 
 	@Override
 	public INode node(String name, IValue... children) {

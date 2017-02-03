@@ -1,7 +1,5 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -313,7 +311,7 @@ public class RVMExecutable {
 	        if(compressionLevel > 0){
 	            cout = new ZstdOutputStream(out, compressionLevel);
 	        }
-	        try(IRVMWireOutputStream iout = new RVMWireOutputStream(new BinaryWireOutputStream(cout, 50_000), 50_000)){
+	        try(IRVMWireOutputStream iout = new RVMWireOutputStream(new BinaryWireOutputStream(cout, 50_000), vf, 50_000)){
 	            write(iout);
 	        }
 	    }

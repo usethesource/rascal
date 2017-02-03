@@ -37,6 +37,8 @@ import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.io.binary.stream.IValueInputStream;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+import static org.rascalmpl.values.uptr.RascalValueFactory.TYPE_STORE_SUPPLIER;
+
 /**
  * This program is intended to be executed directly from maven; it downloads a previous version of Rascal from a hard-wired location and uses 
  * this to start a bootstrap cycle to eventually arrive at a compiled Rascal compiler which is copied to the target folder of the maven build.
@@ -596,7 +598,7 @@ public class Bootstrap {
               catch (URISyntaxException e1) {
                   throw new IOException("Cannot create location |file://" + path.toString() + "|");
               }
-              try (IValueInputStream in = new IValueInputStream(URIResolverRegistry.getInstance().getInputStream(loc), vf)) {
+              try (IValueInputStream in = new IValueInputStream(URIResolverRegistry.getInstance().getInputStream(loc), vf, TYPE_STORE_SUPPLIER)) {
                   return in.read();
               }
           }
