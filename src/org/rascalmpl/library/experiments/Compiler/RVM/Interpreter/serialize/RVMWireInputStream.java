@@ -29,6 +29,8 @@ import org.rascalmpl.value.type.Type;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
+import static org.rascalmpl.values.uptr.RascalValueFactory.TYPE_STORE_SUPPLIER;
+
 public class RVMWireInputStream implements IRVMWireInputStream {
     
     private final IWireInputStream stream;
@@ -65,7 +67,7 @@ public class RVMWireInputStream implements IRVMWireInputStream {
                     result = (T) window.lookBack(getInteger());
                     break;
                 case CompilerIDs.NestedType.VALUE:
-                    result = (T) IValueReader.readValue(stream, vf);
+                    result = (T) IValueReader.readValue(stream, vf, TYPE_STORE_SUPPLIER);
                     window.read(result);
                     break;
             }
@@ -86,7 +88,7 @@ public class RVMWireInputStream implements IRVMWireInputStream {
                     result = (Type) window.lookBack(getInteger());
                     break;
                 case CompilerIDs.NestedType.VALUE:
-                    result = IValueReader.readType(stream, vf);
+                    result = IValueReader.readType(stream, vf, TYPE_STORE_SUPPLIER);
                     window.read(result);
                     break;
             }

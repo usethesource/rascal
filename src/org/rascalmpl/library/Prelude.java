@@ -117,6 +117,8 @@ import com.ibm.icu.util.Calendar;
 import com.ibm.icu.util.TimeZone;
 import com.ibm.icu.util.ULocale;
 
+import static org.rascalmpl.values.uptr.RascalValueFactory.TYPE_STORE_SUPPLIER;
+
 @SuppressWarnings("deprecation")
 public class Prelude {
 	private static final int FILE_BUFFER_SIZE = 8 * 1024;
@@ -3407,7 +3409,7 @@ public class Prelude {
 		TypeStore store = new TypeStore(RascalValueFactory.getStore());
 		Type start = tr.valueToType((IConstructor) type, store);
 		
-		try (IValueInputStream in = new IValueInputStream(URIResolverRegistry.getInstance().getInputStream(loc), values)) {
+		try (IValueInputStream in = new IValueInputStream(URIResolverRegistry.getInstance().getInputStream(loc), values, TYPE_STORE_SUPPLIER)) {
 			IValue val = in.read();;
 			if(val.getType().isSubtypeOf(start)){
 				return val;
@@ -3494,7 +3496,7 @@ public class Prelude {
 
     public void writeBinaryValueFile(ISourceLocation loc, IValue value, IBool compression){
         // TODO: transient for boot
-		try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), CompressionRate.Normal)) {
+		try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), values, CompressionRate.Normal)) {
 		    writer.write(value);
 		}
 		catch (IOException ioex){
@@ -3506,7 +3508,7 @@ public class Prelude {
     public void writeBinaryValueFile(ISourceLocation loc, IValue value, IConstructor compression){
     	if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
         // ready for after new boot
-		try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), translateCompression(compression))) {
+		try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), values, translateCompression(compression))) {
 		    writer.write(value);
 		}
 		catch (IOException ioex){
