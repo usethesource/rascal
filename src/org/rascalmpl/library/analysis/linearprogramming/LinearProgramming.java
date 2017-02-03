@@ -17,7 +17,6 @@ import org.apache.commons.math.optimization.linear.LinearConstraint;
 import org.apache.commons.math.optimization.linear.LinearObjectiveFunction;
 import org.apache.commons.math.optimization.linear.Relationship;
 import org.apache.commons.math.optimization.linear.SimplexSolver;
-import org.rascalmpl.library.util.Maybe;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
@@ -54,6 +53,15 @@ public class LinearProgramming {
 			LLSolution, "llSolution", LLVariableVals, "varVals",
 			tf.numberType(), "funVal");
 
+
+	public static final Type TP = tf.parameterType("T");
+
+	public static final Type Maybe = tf.abstractDataType(typestore, "Maybe", TP);
+	
+	public static final Type Maybe_just = tf.constructor(typestore, Maybe, "just", TP, "val");
+	
+	public static final Type Maybe_nothing = tf.constructor(typestore, Maybe, "nothing");
+	
 	public static final Type ConstraintType = tf.abstractDataType(typestore,
 			"ConstraintType");
 
@@ -122,8 +130,7 @@ public class LinearProgramming {
 	}
 
 	private static IList convertToRealList(double[] l, IValueFactory vf) {
-		TypeFactory tf = TypeFactory.getInstance();
-		IListWriter writer = vf.listWriter(tf.realType());
+		IListWriter writer = vf.listWriter();
 		for (int i = 0; i < l.length; i++) {
 			writer.append(vf.real(l[i]));
 		}
@@ -169,13 +176,13 @@ public class LinearProgramming {
 		try {
 			RealPointValuePair res = 
 					solver.optimize(fJ, constraintsJ, goal,nonNegativeJ);
-			return vf.constructor(Maybe.Maybe_just, 
+			return vf.constructor(Maybe_just, 
 					vf.constructor(
 							LLSolution_llSolution, convertToRealList(res.getPoint(), vf), 
 							vf.real(res.getValue()) )
 					);
 		} catch (Exception e) {
-			return  vf.constructor(Maybe.Maybe_nothing); 
+			return  vf.constructor(Maybe_nothing); 
 		}
 
 	}
