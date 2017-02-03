@@ -18,7 +18,7 @@ import ParseTree;
 import Grammar;
 import lang::rascal::grammar::definition::Characters;
 import lang::rascal::grammar::definition::Literals;
-import lang::rascal::grammar::analyze::Dependency;
+import analysis::grammars::Dependency;
 import lang::rascal::format::Escape;
 import IO;
 import Set;
