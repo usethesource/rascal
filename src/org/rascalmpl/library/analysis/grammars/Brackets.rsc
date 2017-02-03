@@ -7,7 +7,7 @@
 }
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 
-module util::Brackets
+module analysis::grammars::Brackets
 
 import Grammar;
 import Node;
