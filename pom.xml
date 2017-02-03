@@ -85,6 +85,21 @@
 		</testResources>
 
 		<plugins>
+		<plugin>
+		    <artifactId>maven-clean-plugin</artifactId>
+		    <version>3.0.0</version>
+		    <configuration>
+		      <filesets>
+			<fileset>
+			  <directory>${project.basedir}/bin</directory>
+			  <includes>
+			    <include>**/*.*</include>
+			  </includes>
+			  <followSymlinks>false</followSymlinks>
+			</fileset>
+		      </filesets>
+		    </configuration>
+		  </plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
