@@ -6777,14 +6777,14 @@ public enum RascalPrimitive {
 
 			case "begin":
 				if(sloc.hasLineColumn()){
-					v = vf.tuple(lineColumnType, vf.integer(sloc.getBeginLine()), vf.integer(sloc.getBeginColumn()));
+					v = vf.tuple(vf.integer(sloc.getBeginLine()), vf.integer(sloc.getBeginColumn()));
 					break;
 				} else {
 				  return RascalRuntimeException.unavailableInformation("begin", currentFrame);
 				}
 			case "end":
 				if(sloc.hasLineColumn()){
-					v = vf.tuple(lineColumnType, vf.integer(sloc.getEndLine()), vf.integer(sloc.getEndColumn()));
+					v = vf.tuple(vf.integer(sloc.getEndLine()), vf.integer(sloc.getEndColumn()));
 					break;
 				} else {
 				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("end", currentFrame));

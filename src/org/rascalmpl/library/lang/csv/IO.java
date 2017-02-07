@@ -230,7 +230,7 @@ public class IO {
 				rec[i] = values.string(rec[i].toString());
 			}
 		}
-		return values.tuple(tupleType, rec);
+		return values.tuple(rec);
 	}
 
 	private IValue readAndBuild(Reader stream, Type actualType, TypeStore store, IEvaluatorContext ctx) throws IOException {
