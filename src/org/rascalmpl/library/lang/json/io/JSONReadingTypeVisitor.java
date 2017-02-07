@@ -386,7 +386,7 @@ public class JSONReadingTypeVisitor implements
 					types[i] = elements[i].getType();
 				}
 
-				return vf.tuple(tf.tupleType(types), elements);
+				return vf.tuple(elements);
 			}
 
 			@Override
@@ -611,7 +611,7 @@ public class JSONReadingTypeVisitor implements
 			args[i] = read(type.getFieldType(i));
 			stack.pop();
 		}
-		return vf.tuple(type, args);
+		return vf.tuple(args);
 	}
 
 	@Override
