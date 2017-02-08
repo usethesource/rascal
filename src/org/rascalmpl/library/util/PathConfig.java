@@ -406,6 +406,16 @@ public class PathConfig {
 	        }
 	    }
 	    
+	    for (ISourceLocation dir : libs) {
+	        if(modulePath.startsWith(dir.getPath()) && moduleLoc.getScheme() == dir.getScheme()){
+                String moduleName = modulePath.replaceFirst(dir.getPath(), "").replace(".tc", "");
+                if(moduleName.startsWith("/")){
+                    moduleName = moduleName.substring(1, moduleName.length());
+                }
+                return moduleName.replace("/", "::");
+            }
+	    }
+	    
 	    throw new IOException("No module name found for " + moduleLoc);
 	        
 	}
