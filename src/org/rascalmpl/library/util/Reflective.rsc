@@ -187,6 +187,20 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
            return moduleName;
         }
     }
+    
+     for(loc dir <- pcfg.libs){
+        if(startsWith(modulePath, dir.path) && moduleLoc.scheme == dir.scheme){
+           moduleName = replaceFirst(modulePath, dir.path, "");
+           moduleName = replaceLast(moduleName, ".tc", "");
+           if(moduleName[0] == "/"){
+              moduleName = moduleName[1..];
+           }
+           moduleName = replaceAll(moduleName, "/", "::");
+           return moduleName;
+        }
+    }
+    
+    
     throw "No module name found for <moduleLoc>";
 }
 
