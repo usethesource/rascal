@@ -17,14 +17,14 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.io.binary.message.IValueWriter;
-import org.rascalmpl.value.io.binary.util.TrackLastWritten;
-import org.rascalmpl.value.io.binary.util.WindowCacheFactory;
-import org.rascalmpl.value.io.binary.util.WindowSizes;
-import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.io.binary.message.IValueWriter;
+import io.usethesource.vallang.io.binary.util.TrackLastWritten;
+import io.usethesource.vallang.io.binary.util.WindowCacheFactory;
+import io.usethesource.vallang.io.binary.util.WindowSizes;
+import io.usethesource.vallang.io.binary.wire.IWireOutputStream;
+import io.usethesource.vallang.type.Type;
 
 public class RVMWireOutputStream implements IRVMWireOutputStream {
     

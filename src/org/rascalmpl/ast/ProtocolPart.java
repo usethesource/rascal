@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.ISourceLocation;
 
 public abstract class ProtocolPart extends AbstractAST {
   public ProtocolPart(ISourceLocation src, IConstructor node) {

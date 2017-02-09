@@ -48,11 +48,11 @@ import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.interpreter.utils.Cases;
 import org.rascalmpl.interpreter.utils.Cases.CaseBlock;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
 
 public abstract class Statement extends org.rascalmpl.ast.Statement {
 

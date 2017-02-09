@@ -10,11 +10,11 @@ package org.rascalmpl.library.analysis.statistics;
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.stat.regression.SimpleRegression;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.INumber;
-import org.rascalmpl.value.ITuple;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.INumber;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 
 public class SimpleRegressions {
 	

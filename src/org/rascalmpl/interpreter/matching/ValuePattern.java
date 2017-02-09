@@ -18,9 +18,9 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 /**
  * For matching a closed pattern (i.e. a value that simply needs to be checked for equality.

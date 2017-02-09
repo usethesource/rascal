@@ -1,7 +1,7 @@
 package org.rascalmpl.interpreter.cursors;
 
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.IValue;
 
 public class SetContext extends Context {
 	private final Context ctx;

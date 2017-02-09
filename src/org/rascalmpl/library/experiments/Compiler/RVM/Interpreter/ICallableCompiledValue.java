@@ -3,8 +3,8 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.util.Map;
 
 import org.rascalmpl.debug.IRascalMonitor;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 public interface ICallableCompiledValue {
 

@@ -18,9 +18,9 @@ import java.util.List;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
 
 public abstract class FunctionBody extends org.rascalmpl.ast.FunctionBody {
 

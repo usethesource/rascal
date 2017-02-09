@@ -11,7 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.debug;
 
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 /**
  * Factory to support the creation of {@link IDebugMessage} instances.

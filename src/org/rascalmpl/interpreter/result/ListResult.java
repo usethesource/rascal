@@ -22,14 +22,14 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArity;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.ITuple;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 public class ListResult extends ListOrRelationResult<IList> {
 	

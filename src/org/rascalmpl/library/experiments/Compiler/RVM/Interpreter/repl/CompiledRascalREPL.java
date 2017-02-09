@@ -30,8 +30,8 @@ import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.BaseRascalREPL;
 import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 import jline.Terminal;
 

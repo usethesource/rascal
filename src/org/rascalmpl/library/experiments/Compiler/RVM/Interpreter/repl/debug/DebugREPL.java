@@ -17,7 +17,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandEx
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IValue;
 
 import jline.Terminal;
 

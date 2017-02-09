@@ -1,6 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse;
 
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IValue;
 
 public interface ITraverse {
 

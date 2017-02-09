@@ -2,10 +2,10 @@ package org.rascalmpl.interpreter.cursors;
 
 import java.util.Iterator;
 
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISetRelation;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISetRelation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 public class SetCursor extends Cursor implements ISet {
 

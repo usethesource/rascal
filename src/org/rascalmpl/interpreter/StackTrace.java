@@ -16,7 +16,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 
 public class StackTrace implements Iterable<StackTraceEntry> {

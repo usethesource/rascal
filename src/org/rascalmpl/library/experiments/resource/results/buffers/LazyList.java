@@ -10,16 +10,16 @@ package org.rascalmpl.library.experiments.resource.results.buffers;
 import java.util.Iterator;
 import java.util.Random;
 
-import org.rascalmpl.value.IAnnotatable;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListRelation;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IWithKeywordParameters;
-import org.rascalmpl.value.exceptions.FactTypeUseException;
-import org.rascalmpl.value.exceptions.IllegalOperationException;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
-import org.rascalmpl.value.visitors.IValueVisitor;
+import io.usethesource.vallang.IAnnotatable;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListRelation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IWithKeywordParameters;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.exceptions.IllegalOperationException;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.visitors.IValueVisitor;
 
 public class LazyList implements IList {
 

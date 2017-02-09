@@ -14,8 +14,8 @@
 package org.rascalmpl.interpreter.staticErrors;
 
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.type.Type;
 
 public class UnexpectedType extends StaticError {
 	private static final long serialVersionUID = -9009407553448884728L;

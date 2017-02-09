@@ -44,9 +44,9 @@ import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Rascalify {

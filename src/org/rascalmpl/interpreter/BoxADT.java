@@ -12,13 +12,13 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
-import org.rascalmpl.value.type.TypeStore;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class BoxADT {

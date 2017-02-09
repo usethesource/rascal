@@ -15,8 +15,8 @@ package org.rascalmpl.interpreter.matching;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IValue;
 
 public class MapKeyValueIterator implements Iterator<IValue> {
 	private Iterator<Entry<IValue,IValue>> iter;

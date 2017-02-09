@@ -32,9 +32,9 @@ import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.semantics.dynamic.RegExpLiteral;
 import org.rascalmpl.semantics.dynamic.RegExpLiteral.InterpolationElement;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 public class RegExpPatternValue extends AbstractMatchingResult  {
 	private final List<InterpolationElement> regexp;

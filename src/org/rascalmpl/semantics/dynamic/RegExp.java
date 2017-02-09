@@ -20,8 +20,8 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.RegExpPatternValue;
 import org.rascalmpl.semantics.dynamic.RegExpLiteral.InterpolationElement;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.ISourceLocation;
 
 public abstract class RegExp extends org.rascalmpl.ast.RegExp {
 

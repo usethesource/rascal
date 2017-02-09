@@ -2,12 +2,12 @@ package org.rascalmpl.interpreter.cursors;
 
 import java.util.Iterator;
 
-import org.rascalmpl.value.IAnnotatable;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.INode;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IWithKeywordParameters;
-import org.rascalmpl.value.exceptions.FactTypeUseException;
+import io.usethesource.vallang.IAnnotatable;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.INode;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IWithKeywordParameters;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
 
 public class NodeCursor extends Cursor implements INode {
 	public NodeCursor(INode value) {

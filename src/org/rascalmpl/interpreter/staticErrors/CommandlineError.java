@@ -1,8 +1,8 @@
 package org.rascalmpl.interpreter.staticErrors;
 
 import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 public class CommandlineError extends RuntimeException {
   private static final long serialVersionUID = -5679812063174925071L;

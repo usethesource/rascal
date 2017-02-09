@@ -17,13 +17,13 @@ import java.io.IOException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalKeywordParameters;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalModule;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
 
 /**
  * IKernel provides access to the kernel functionality of the Rascal system
