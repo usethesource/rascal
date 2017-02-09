@@ -13,7 +13,7 @@
 package org.rascalmpl.interpreter.matching;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.type.TypeFactory;
 
 public abstract class AbstractBooleanResult implements IBooleanResult {
 	protected boolean initialized = false;

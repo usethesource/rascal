@@ -2,10 +2,10 @@ package org.rascalmpl.library.experiments.Compiler.Commands;
 
 import java.util.function.Function;
 
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 
 public class  OptionBuilder {
 	CommandOptions commandOptions;

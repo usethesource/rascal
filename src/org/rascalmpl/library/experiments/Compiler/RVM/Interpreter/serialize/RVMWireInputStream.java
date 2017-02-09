@@ -17,14 +17,14 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.io.binary.message.IValueReader;
-import org.rascalmpl.value.io.binary.util.TrackLastRead;
-import org.rascalmpl.value.io.binary.util.WindowCacheFactory;
-import org.rascalmpl.value.io.binary.wire.FieldKind;
-import org.rascalmpl.value.io.binary.wire.IWireInputStream;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.io.binary.message.IValueReader;
+import io.usethesource.vallang.io.binary.util.TrackLastRead;
+import io.usethesource.vallang.io.binary.util.WindowCacheFactory;
+import io.usethesource.vallang.io.binary.wire.FieldKind;
+import io.usethesource.vallang.io.binary.wire.IWireInputStream;
+import io.usethesource.vallang.type.Type;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;

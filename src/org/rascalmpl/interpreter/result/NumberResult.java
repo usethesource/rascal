@@ -19,11 +19,11 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.INumber;
-import org.rascalmpl.value.IReal;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.INumber;
+import io.usethesource.vallang.IReal;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class NumberResult extends ElementResult<INumber> {

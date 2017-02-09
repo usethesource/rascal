@@ -13,7 +13,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.staticErrors;
 
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class SyntaxError extends StaticError {
 	private static final long serialVersionUID = 333331541118811177L;

@@ -26,9 +26,9 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 public class DynamicGenerator extends AbstractFunction {
 

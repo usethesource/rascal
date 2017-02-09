@@ -5,12 +5,12 @@ import java.util.Map;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.staticErrors.ArgumentMismatch;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredFunction;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.exceptions.FactTypeUseException;
-import org.rascalmpl.value.impl.AbstractValueFactoryAdapter;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.impl.AbstractValueFactoryAdapter;
+import io.usethesource.vallang.type.Type;
 
 /**
  * Using this ValueFactory, constructor functions will be called in the current scope instead

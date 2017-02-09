@@ -14,7 +14,7 @@
 package org.rascalmpl.interpreter.staticErrors;
 
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.type.Type;
 
 public class UnexpectedKeywordArgumentType extends StaticError {
 	private static final long serialVersionUID = -9009407553448884728L;

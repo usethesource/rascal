@@ -14,8 +14,8 @@ package org.rascalmpl.interpreter.result;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.type.TypeFactory;
 
 public class LessThanOrEqualResult extends BoolResult {
   private final boolean less;

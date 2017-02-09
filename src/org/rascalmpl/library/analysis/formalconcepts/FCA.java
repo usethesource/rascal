@@ -2,11 +2,11 @@ package org.rascalmpl.library.analysis.formalconcepts;
 
 import java.util.Iterator;
 
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISetRelation;
-import org.rascalmpl.value.ISetWriter;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISetRelation;
+import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 
 public class FCA {
 

@@ -17,7 +17,7 @@ import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public interface ISourceLocationInput {
 	InputStream getInputStream(ISourceLocation uri) throws IOException;

@@ -9,11 +9,11 @@ package org.rascalmpl.library.analysis.statistics;
 
 import org.apache.commons.math.stat.Frequency;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.INumber;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.INumber;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 
 public class Frequencies {
 	private final IValueFactory values;

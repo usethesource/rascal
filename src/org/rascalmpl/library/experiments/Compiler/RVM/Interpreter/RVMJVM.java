@@ -12,7 +12,7 @@ import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 import org.rascalmpl.uri.classloaders.PathConfigClassLoader;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IValue;
 
 public class RVMJVM extends RVMCore {
 	final RVMExecutable rvmExec;

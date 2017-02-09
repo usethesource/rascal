@@ -4,8 +4,8 @@ import java.io.PrintWriter;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISourceLocation;
 
 public class ProfileFrameObserver implements IFrameObserver {
 

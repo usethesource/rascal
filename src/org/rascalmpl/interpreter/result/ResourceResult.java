@@ -12,16 +12,16 @@
 package org.rascalmpl.interpreter.result;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.value.IAnnotatable;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IExternalValue;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IWithKeywordParameters;
-import org.rascalmpl.value.exceptions.IllegalOperationException;
-import org.rascalmpl.value.impl.AbstractExternalValue;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.visitors.IValueVisitor;
+import io.usethesource.vallang.IAnnotatable;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IExternalValue;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IWithKeywordParameters;
+import io.usethesource.vallang.exceptions.IllegalOperationException;
+import io.usethesource.vallang.impl.AbstractExternalValue;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.visitors.IValueVisitor;
 
 public abstract class ResourceResult extends Result<IValue> implements IExternalValue {
 

@@ -3,7 +3,7 @@ package org.rascalmpl.semantics.dynamic;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IValue;
 
 public class SetComprehensionWriter extends ComprehensionWriter {
 

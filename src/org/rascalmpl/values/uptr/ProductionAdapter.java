@@ -16,13 +16,13 @@
 package org.rascalmpl.values.uptr;
 
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.INode;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.INode;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ProductionAdapter {

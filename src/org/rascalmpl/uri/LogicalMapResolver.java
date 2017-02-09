@@ -1,7 +1,7 @@
 package org.rascalmpl.uri;
 
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.ISourceLocation;
 
 public class LogicalMapResolver implements ILogicalSourceLocationResolver {
 	private final IMap map;
