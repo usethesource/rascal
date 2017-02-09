@@ -2,7 +2,7 @@ package org.rascalmpl.uri.libraries;
 
 import org.rascalmpl.uri.AbstractSourceLocationInputOutputAdapter;
 import org.rascalmpl.uri.file.FileURIResolver;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class CoursesURIResolver extends AbstractSourceLocationInputOutputAdapter {
     private static final class WriteableCourseResolver extends FileURIResolver {

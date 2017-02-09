@@ -18,16 +18,16 @@ import java.util.Set;
 
 import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.library.Prelude;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.IMapWriter;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISetWriter;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
-import org.rascalmpl.value.type.TypeStore;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IMapWriter;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 

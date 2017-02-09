@@ -35,7 +35,7 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RascalJUnitTestRunner extends Runner {

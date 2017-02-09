@@ -11,7 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.type.Type;
 
 /**
  * Marker interface to identify all variable related patterns

@@ -15,7 +15,7 @@ package org.rascalmpl.uri.file;
 
 import org.rascalmpl.uri.ILogicalSourceLocationResolver;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 /**
  * For reading and writing files relative to the current working directory.

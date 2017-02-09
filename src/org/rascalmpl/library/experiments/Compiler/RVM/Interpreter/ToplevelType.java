@@ -2,11 +2,11 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.RascalType;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.INode;
-import org.rascalmpl.value.ITuple;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.INode;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 import org.rascalmpl.values.uptr.ITree;
 
 public enum ToplevelType {

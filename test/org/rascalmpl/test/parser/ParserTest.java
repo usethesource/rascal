@@ -15,11 +15,11 @@ import java.io.IOException;
 
 import org.junit.Assert;
 import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.TypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import junit.framework.TestCase;

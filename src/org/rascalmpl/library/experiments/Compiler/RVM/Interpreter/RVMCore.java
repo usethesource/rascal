@@ -36,28 +36,28 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Trave
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.FIXEDPOINT;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.PROGRESS;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.REBUILD;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IDateTime;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.IMapWriter;
-import org.rascalmpl.value.INode;
-import org.rascalmpl.value.INumber;
-import org.rascalmpl.value.IRational;
-import org.rascalmpl.value.IReal;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISetWriter;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.ITuple;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
-import org.rascalmpl.value.type.TypeStore;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IDateTime;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IMapWriter;
+import io.usethesource.vallang.INode;
+import io.usethesource.vallang.INumber;
+import io.usethesource.vallang.IRational;
+import io.usethesource.vallang.IReal;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public abstract class RVMCore {
@@ -1276,92 +1276,92 @@ public abstract class RVMCore {
 		}
 		
 		@Override
-		public Class<?> visitBool(org.rascalmpl.value.type.Type boolType) {
+		public Class<?> visitBool(io.usethesource.vallang.type.Type boolType) {
 			return IBool.class;
 		}
 
 		@Override
-		public Class<?> visitReal(org.rascalmpl.value.type.Type type) {
+		public Class<?> visitReal(io.usethesource.vallang.type.Type type) {
 			return IReal.class;
 		}
 
 		@Override
-		public Class<?> visitInteger(org.rascalmpl.value.type.Type type) {
+		public Class<?> visitInteger(io.usethesource.vallang.type.Type type) {
 			return IInteger.class;
 		}
 		
 		@Override
-		public Class<?> visitRational(org.rascalmpl.value.type.Type type) {
+		public Class<?> visitRational(io.usethesource.vallang.type.Type type) {
 			return IRational.class;
 		}
 		
 		@Override
-		public Class<?> visitNumber(org.rascalmpl.value.type.Type type) {
+		public Class<?> visitNumber(io.usethesource.vallang.type.Type type) {
 			return INumber.class;
 		}
 
 		@Override
-		public Class<?> visitList(org.rascalmpl.value.type.Type type) {
+		public Class<?> visitList(io.usethesource.vallang.type.Type type) {
 			return IList.class;
 		}
 
 		@Override
-		public Class<?> visitMap(org.rascalmpl.value.type.Type type) {
+		public Class<?> visitMap(io.usethesource.vallang.type.Type type) {
 			return IMap.class;
 		}
 
 		@Override
-		public Class<?> visitAlias(org.rascalmpl.value.type.Type type) {
+		public Class<?> visitAlias(io.usethesource.vallang.type.Type type) {
 			return type.getAliased().accept(this);
 		}
 
 		@Override
-		public Class<?> visitAbstractData(org.rascalmpl.value.type.Type type) {
+		public Class<?> visitAbstractData(io.usethesource.vallang.type.Type type) {
 			return IConstructor.class;
 		}
 
 		@Override
-		public Class<?> visitSet(org.rascalmpl.value.type.Type type) {
+		public Class<?> visitSet(io.usethesource.vallang.type.Type type) {
 			return ISet.class;
 		}
 
 		@Override
-		public Class<?> visitSourceLocation(org.rascalmpl.value.type.Type type) {
+		public Class<?> visitSourceLocation(io.usethesource.vallang.type.Type type) {
 			return ISourceLocation.class;
 		}
 
 		@Override
-		public Class<?> visitString(org.rascalmpl.value.type.Type type) {
+		public Class<?> visitString(io.usethesource.vallang.type.Type type) {
 			return IString.class;
 		}
 
 		@Override
-		public Class<?> visitNode(org.rascalmpl.value.type.Type type) {
+		public Class<?> visitNode(io.usethesource.vallang.type.Type type) {
 			return INode.class;
 		}
 
 		@Override
-		public Class<?> visitConstructor(org.rascalmpl.value.type.Type type) {
+		public Class<?> visitConstructor(io.usethesource.vallang.type.Type type) {
 			return IConstructor.class;
 		}
 
 		@Override
-		public Class<?> visitTuple(org.rascalmpl.value.type.Type type) {
+		public Class<?> visitTuple(io.usethesource.vallang.type.Type type) {
 			return ITuple.class;
 		}
 
 		@Override
-		public Class<?> visitValue(org.rascalmpl.value.type.Type type) {
+		public Class<?> visitValue(io.usethesource.vallang.type.Type type) {
 			return IValue.class;
 		}
 
 		@Override
-		public Class<?> visitVoid(org.rascalmpl.value.type.Type type) {
+		public Class<?> visitVoid(io.usethesource.vallang.type.Type type) {
 			return null;
 		}
 
 		@Override
-		public Class<?> visitParameter(org.rascalmpl.value.type.Type parameterType) {
+		public Class<?> visitParameter(io.usethesource.vallang.type.Type parameterType) {
 			return parameterType.getBound().accept(this);
 		}
 

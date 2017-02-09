@@ -26,8 +26,8 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatch;
 import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public abstract class AbstractMatchingResult extends AbstractBooleanResult implements IMatchingResult {

@@ -28,13 +28,13 @@ import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
 import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.uptr.ITree;
 
 public class ReflectiveCompiled extends Reflective {

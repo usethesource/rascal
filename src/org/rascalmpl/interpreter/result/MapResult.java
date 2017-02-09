@@ -27,15 +27,15 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArity;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.IMapWriter;
-import org.rascalmpl.value.ISetWriter;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.exceptions.UndeclaredFieldException;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeStore;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IMapWriter;
+import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.exceptions.UndeclaredFieldException;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class MapResult extends ElementResult<IMap> {

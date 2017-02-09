@@ -12,7 +12,7 @@
 package org.rascalmpl.interpreter.staticErrors;
 
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.type.Type;
 
 public class Arity extends StaticError {
 	private static final long serialVersionUID = -8995239033315812561L;

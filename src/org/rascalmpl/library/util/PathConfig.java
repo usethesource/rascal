@@ -13,12 +13,12 @@ import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.library.lang.rascal.boot.IJava2Rascal;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class PathConfig {

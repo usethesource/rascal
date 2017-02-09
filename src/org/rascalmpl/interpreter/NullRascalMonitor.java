@@ -14,7 +14,7 @@
 package org.rascalmpl.interpreter;
 
 import org.rascalmpl.debug.IRascalMonitor;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class NullRascalMonitor implements IRascalMonitor {
 	@Override

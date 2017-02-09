@@ -14,7 +14,7 @@ package org.rascalmpl.debug;
 import java.util.Set;
 
 import org.rascalmpl.interpreter.result.IRascalResult;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public interface IRascalFrame {
     /**

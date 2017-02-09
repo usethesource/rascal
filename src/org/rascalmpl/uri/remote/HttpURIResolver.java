@@ -18,7 +18,7 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 
 import org.rascalmpl.uri.ISourceLocationInput;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class HttpURIResolver implements ISourceLocationInput {
 

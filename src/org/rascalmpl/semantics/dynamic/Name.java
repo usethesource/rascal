@@ -1,7 +1,7 @@
 package org.rascalmpl.semantics.dynamic;
 
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.ISourceLocation;
 
 public abstract class Name extends org.rascalmpl.ast.Name {
 

@@ -11,8 +11,8 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.type.TypeFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 

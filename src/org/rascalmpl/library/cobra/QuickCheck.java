@@ -24,12 +24,12 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.types.FunctionType;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.Type;
 
 public class QuickCheck {
 	

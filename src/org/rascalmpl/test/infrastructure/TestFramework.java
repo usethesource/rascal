@@ -36,11 +36,11 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.exceptions.FactTypeUseException;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.type.TypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 

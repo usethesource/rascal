@@ -15,7 +15,7 @@
 package org.rascalmpl.interpreter.staticErrors;
 
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 /**
  * A static error represents all errors that are detected by the interpreter

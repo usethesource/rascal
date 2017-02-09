@@ -12,7 +12,7 @@
 package org.rascalmpl.interpreter.staticErrors;
 
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.type.Type;
 
 public class UnsupportedSlice extends StaticError {
 	private static final long serialVersionUID = -3153224466166484727L;

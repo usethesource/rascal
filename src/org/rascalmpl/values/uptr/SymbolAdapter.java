@@ -63,13 +63,13 @@ import static org.rascalmpl.values.uptr.RascalValueFactory.Symbol_Value;
 import static org.rascalmpl.values.uptr.RascalValueFactory.Symbol_Void;
 
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class SymbolAdapter {

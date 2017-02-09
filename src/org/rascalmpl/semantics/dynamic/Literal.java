@@ -33,11 +33,11 @@ import org.rascalmpl.interpreter.matching.LiteralPattern;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 public abstract class Literal extends org.rascalmpl.ast.Literal {
 

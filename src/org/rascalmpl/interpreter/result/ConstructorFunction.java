@@ -37,12 +37,12 @@ import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IWithKeywordParameters;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IWithKeywordParameters;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class ConstructorFunction extends NamedFunction {

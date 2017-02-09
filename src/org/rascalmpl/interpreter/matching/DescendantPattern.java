@@ -23,9 +23,9 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.TypeReachability;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 public class DescendantPattern extends AbstractMatchingResult  {
 	private IMatchingResult pat;

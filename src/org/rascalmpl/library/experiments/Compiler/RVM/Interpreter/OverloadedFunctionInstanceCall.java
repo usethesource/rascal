@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.exceptions.FactTypeUseException;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.type.Type;
 
 public class OverloadedFunctionInstanceCall {
 	

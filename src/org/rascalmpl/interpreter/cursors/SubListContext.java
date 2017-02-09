@@ -1,7 +1,7 @@
 package org.rascalmpl.interpreter.cursors;
 
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IValue;
 
 public class SubListContext extends Context {
 

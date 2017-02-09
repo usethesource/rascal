@@ -45,12 +45,12 @@ import org.rascalmpl.interpreter.staticErrors.RedeclaredType;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredType;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.exceptions.FactTypeDeclarationException;
-import org.rascalmpl.value.exceptions.FactTypeRedeclaredException;
-import org.rascalmpl.value.exceptions.RedeclaredFieldNameException;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.exceptions.FactTypeDeclarationException;
+import io.usethesource.vallang.exceptions.FactTypeRedeclaredException;
+import io.usethesource.vallang.exceptions.RedeclaredFieldNameException;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 public class TypeDeclarationEvaluator {
 	private Evaluator eval;
@@ -145,7 +145,7 @@ public class TypeDeclarationEvaluator {
 							env.getStore().declareKeywordParameter(cons.getConstructorType(), label, kwType.getFieldType(label));
 						}
 					}
-				} catch (org.rascalmpl.value.exceptions.RedeclaredConstructorException e) {
+				} catch (io.usethesource.vallang.exceptions.RedeclaredConstructorException e) {
 					throw new RedeclaredType(altName, var);
 				} catch (RedeclaredFieldNameException e) {
 					throw new RedeclaredField(e.getMessage(), var);

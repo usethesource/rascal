@@ -7,7 +7,7 @@
 *******************************************************************************/
 package org.rascalmpl.library.experiments.resource.results.buffers;
 
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IValue;
 
 public interface ILazyFiller {
 

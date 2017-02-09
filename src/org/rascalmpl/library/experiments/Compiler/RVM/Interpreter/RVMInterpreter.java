@@ -10,15 +10,15 @@ import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.control_exceptions.Throw;	// TODO: remove import: NOT YET: JavaCalls generate a Throw
 import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 public class RVMInterpreter extends RVMCore {
 	
@@ -34,7 +34,7 @@ public class RVMInterpreter extends RVMCore {
 	
 	/* (non-Javadoc)
 	 * Implements abstract function for RVM interpreter
-	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function, org.rascalmpl.value.IValue[], java.util.Map)
+	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function, io.usethesource.vallang.IValue[], java.util.Map)
 	 */
 	public Object executeRVMFunction(Function func, IValue[] posArgs, Map<String,IValue> kwArgs){
 		// Assumption here is that the function called is not a nested one
@@ -57,7 +57,7 @@ public class RVMInterpreter extends RVMCore {
 	
 	/* (non-Javadoc)
 	 * Implements abstract function for RVM interpreter
-	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FunctionInstance, org.rascalmpl.value.IValue[])
+	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FunctionInstance, io.usethesource.vallang.IValue[])
 	 */
 	public IValue executeRVMFunction(FunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs){
 		Frame root = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
@@ -77,7 +77,7 @@ public class RVMInterpreter extends RVMCore {
 	
 	/* (non-Javadoc)
 	 * Implements abstract function for RVM interpreter
-	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunctionInstance, org.rascalmpl.value.IValue[])
+	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunctionInstance, io.usethesource.vallang.IValue[])
 	 */
 	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs){
 		Function firstFunc = functionStore[func.getFunctions()[0]]; // TODO: null?
@@ -122,7 +122,7 @@ public class RVMInterpreter extends RVMCore {
 	
 	/* (non-Javadoc)
 	 *  Implements abstract function for RVM interpreter
-	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMProgram(java.lang.String, java.lang.String, org.rascalmpl.value.IValue[], java.util.HashMap)
+	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMProgram(java.lang.String, java.lang.String, io.usethesource.vallang.IValue[], java.util.HashMap)
 	 */
 	public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] args, Map<String,IValue> kwArgs) {
 		

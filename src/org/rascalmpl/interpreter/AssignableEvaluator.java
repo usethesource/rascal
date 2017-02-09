@@ -26,8 +26,8 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.TypeFactory;
 
 
 /**
@@ -41,7 +41,7 @@ public class AssignableEvaluator {
     private Result<IValue> value;
     private final Environment env;
     private final IEvaluator<Result<IValue>> eval;
-	private static final TypeFactory tf = org.rascalmpl.value.type.TypeFactory.getInstance();
+	private static final TypeFactory tf = io.usethesource.vallang.type.TypeFactory.getInstance();
     
 	public AssignableEvaluator(Environment env, Assignment operator, Result<IValue> value, IEvaluator<Result<IValue>> eval) {
 		if(operator == null || operator.isDefault())

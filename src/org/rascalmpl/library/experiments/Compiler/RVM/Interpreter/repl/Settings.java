@@ -20,11 +20,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.exceptions.FactTypeUseException;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import com.google.gson.JsonArray;

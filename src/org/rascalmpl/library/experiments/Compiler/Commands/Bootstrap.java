@@ -31,10 +31,10 @@ import java.util.stream.Stream;
 import org.rascalmpl.library.util.Reflective;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.io.binary.stream.IValueInputStream;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.io.binary.stream.IValueInputStream;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import static org.rascalmpl.values.uptr.RascalValueFactory.TYPE_STORE_SUPPLIER;

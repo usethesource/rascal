@@ -1,6 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.Examples;
 
-import org.rascalmpl.value.*;
+import io.usethesource.vallang.*;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalKeywordParameters;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalModule;

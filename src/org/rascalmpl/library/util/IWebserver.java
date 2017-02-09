@@ -15,10 +15,10 @@ package org.rascalmpl.library.util;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalKeywordParameters;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalModule;
 import org.rascalmpl.library.lang.rascal.boot.IJava2Rascal;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
 
 @RascalModule("util::Webserver")
 public interface IWebserver extends IJava2Rascal {

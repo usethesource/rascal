@@ -12,7 +12,7 @@
 package org.rascalmpl.interpreter.asserts;
 
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 

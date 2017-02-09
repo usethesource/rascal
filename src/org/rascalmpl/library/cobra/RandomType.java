@@ -19,8 +19,8 @@ import java.util.Set;
 
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 public class RandomType {
 

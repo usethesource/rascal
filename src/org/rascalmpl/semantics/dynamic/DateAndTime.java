@@ -21,13 +21,13 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.DateTimeSyntax;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.exceptions.FactParseError;
-import org.rascalmpl.value.exceptions.FactTypeUseException;
-import org.rascalmpl.value.io.StandardTextReader;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.exceptions.FactParseError;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.io.StandardTextReader;
+import io.usethesource.vallang.type.Type;
 
 public abstract class DateAndTime extends org.rascalmpl.ast.DateAndTime {
 

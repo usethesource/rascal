@@ -24,8 +24,8 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RascalTutor {
