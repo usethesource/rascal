@@ -13,7 +13,7 @@ package org.rascalmpl.value.impl;
 
 import java.util.Iterator;
 
-import io.usethesource.capsule.api.deprecated.Map;
+import io.usethesource.capsule.api.Map;
 import org.rascalmpl.value.IAnnotatable;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.INode;

@@ -598,8 +598,8 @@ public class IValueReader {
     private IValue readNode(final IWireInputStream reader) throws IOException {
         String name = null;
         IValue[] children = new IValue[0];
-        io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> annos = null;
-        io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> kwParams = null;
+        io.usethesource.capsule.api.Map.Immutable<String, IValue> annos = null;
+        io.usethesource.capsule.api.Map.Immutable<String, IValue> kwParams = null;
 
 
         boolean backReference = false;
@@ -644,8 +644,8 @@ public class IValueReader {
     private IValue readConstructor(final IWireInputStream reader) throws IOException {
         Type type = null;
         IValue[] children = new IValue[0];
-        io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> annos = null;
-        io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> kwParams = null;
+        io.usethesource.capsule.api.Map.Immutable<String, IValue> annos = null;
+        io.usethesource.capsule.api.Map.Immutable<String, IValue> kwParams = null;
 
 
         boolean backReference = false;
@@ -715,8 +715,8 @@ public class IValueReader {
         return true;
     }
 
-    private io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> readNamedValues(IWireInputStream reader) throws IOException {
-        io.usethesource.capsule.api.deprecated.Map.Transient<String, IValue> result = TrieMap_5Bits.transientOf();
+    private io.usethesource.capsule.api.Map.Immutable<String, IValue> readNamedValues(IWireInputStream reader) throws IOException {
+        io.usethesource.capsule.api.Map.Transient<String, IValue> result = TrieMap_5Bits.transientOf();
         String[] names = null;
         reader.next();
         while (reader.next() != IWireInputStream.MESSAGE_END) {

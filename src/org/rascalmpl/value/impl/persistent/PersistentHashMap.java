@@ -16,7 +16,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 import java.util.Objects;
 
-import io.usethesource.capsule.api.deprecated.Map;
+import io.usethesource.capsule.api.Map;
 import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;

@@ -2,8 +2,8 @@ package org.rascalmpl.value.impl.persistent;
 
 import io.usethesource.capsule.DefaultTrieSet;
 import io.usethesource.capsule.DefaultTrieSetMultimap;
-import io.usethesource.capsule.api.deprecated.Set;
-import io.usethesource.capsule.api.deprecated.SetMultimap;
+import io.usethesource.capsule.api.Set;
+import io.usethesource.capsule.api.SetMultimap;
 import io.usethesource.capsule.util.stream.DefaultCollector;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ITuple;
