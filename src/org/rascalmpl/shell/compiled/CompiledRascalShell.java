@@ -43,6 +43,7 @@ public class CompiledRascalShell  {
           if (sneakyRepl != null) {
               term = new EclipseTerminalConnection(term, Integer.parseInt(sneakyRepl));
           }
+          
           runner = new CompiledREPLRunner(cmdOpts.getPathConfig(), System.in, System.out, new BasicIDEServices(), term);
       }
       runner.run(args);

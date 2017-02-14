@@ -14,6 +14,7 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
+import org.rascalmpl.repl.ILanguageProtocol;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IList;
@@ -37,13 +38,14 @@ public class TermREPL {
 
     public void startREPL(IConstructor repl, IEvaluatorContext ctx) {
         try {
-            new TheREPL(repl, ctx, null).run();
+            // TODO: this used to get a repl from the IEvaluatorContext but that was wrong. Need to fix later. 
+            new BaseREPL(new TheREPL(repl, ctx), null, System.in, System.out, true, true, ((ISourceLocation)repl.get("history")), TerminalFactory.get(), null).run();
         } catch (IOException | URISyntaxException e) {
             e.printStackTrace(ctx.getStdErr());
         }
     }
 
-    class TheREPL extends BaseREPL {
+    class TheREPL implements ILanguageProtocol {
         private final TypeFactory tf = TypeFactory.getInstance();
         private PrintWriter stdout;
         private PrintWriter stderr;
@@ -52,8 +54,7 @@ public class TermREPL {
         private final IEvaluatorContext ctx;
         private final ICallableValue completor;
 
-        public TheREPL(IConstructor repl, IEvaluatorContext ctx, PathConfig pcfg) throws IOException, URISyntaxException {
-            super(pcfg, ctx.getREPL() == null ? System.in : ctx.getREPL().getInput(), ctx.getREPL() == null ? System.out : ctx.getREPL().getOutput(), true, true, ((ISourceLocation)repl.get("history")), ctx.getREPL() == null ? TerminalFactory.get() : ctx.getREPL().getTerminal(), null);
+        public TheREPL(IConstructor repl, IEvaluatorContext ctx) throws IOException, URISyntaxException {
             this.ctx = ctx;
             this.handler = (ICallableValue)repl.get("handler");
             this.completor = (ICallableValue)repl.get("completor");
@@ -63,24 +64,23 @@ public class TermREPL {
         }
         
         @Override
-        protected void cancelRunningCommandRequested() {
+        public void cancelRunningCommandRequested() {
             ctx.interrupt();
         }
         
         @Override
-        protected void terminateRequested() {
+        public void terminateRequested() {
             ctx.interrupt();
         }
         
         @Override
         public void stop() {
             ctx.interrupt();
-            super.stop();
         }
         
         
         @Override
-        protected void stackTraceRequested() {
+        public void stackTraceRequested() {
             StackTrace trace = ctx.getStackTrace();
             Writer err = ctx.getStdErr();
             try {
@@ -94,18 +94,18 @@ public class TermREPL {
 
 
         @Override
-        protected void initialize(PathConfig pcfg, Writer stdout, Writer stderr, IDEServices ideServices) {
+        public void initialize(PathConfig pcfg, Writer stdout, Writer stderr, IDEServices ideServices) {
             this.stdout = new PrintWriter(stdout);
             this.stderr = new PrintWriter(stderr);
         }
 
         @Override
-        protected String getPrompt() {
+        public String getPrompt() {
             return currentPrompt;
         }
 
         @Override
-        protected void handleInput(String line) throws InterruptedException {
+        public void handleInput(String line) throws InterruptedException {
             ITuple result = (ITuple)call(handler, new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
             String str = ((IString)result.get(0)).getValue();
             if (!str.isEmpty()) {
@@ -122,12 +122,12 @@ public class TermREPL {
         }
 
         @Override
-        protected boolean supportsCompletion() {
+        public boolean supportsCompletion() {
             return true;
         }
 
         @Override
-        protected boolean printSpaceAfterFullCompletion() {
+        public boolean printSpaceAfterFullCompletion() {
             return false;
         }
 
@@ -149,7 +149,7 @@ public class TermREPL {
         }
 
         @Override
-        protected CompletionResult completeFragment(String line, int cursor) {
+        public CompletionResult completeFragment(String line, int cursor) {
             ITuple result = (ITuple)call(completor, new Type[] { tf.stringType(), tf.integerType() },
                             new IValue[] { vf.string(line), vf.integer(cursor) }); 
 
@@ -169,7 +169,7 @@ public class TermREPL {
         }
         
         @Override
-        protected void handleReset() throws InterruptedException {
+        public void handleReset() throws InterruptedException {
             // TODO: add a rascal callback for this?
             handleInput("");
         }

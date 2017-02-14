@@ -1,9 +1,6 @@
 package org.rascalmpl.repl;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
@@ -24,8 +21,6 @@ import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedExcepti
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
-import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IConstructor;
@@ -40,7 +35,7 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 import jline.Terminal;
 
-public abstract class BaseRascalREPL extends BaseREPL {
+public abstract class BaseRascalREPL implements ILanguageProtocol {
     protected enum State {
         FRESH,
         CONTINUATION,
@@ -62,9 +57,8 @@ public abstract class BaseRascalREPL extends BaseREPL {
     private final StandardTextWriter singleLinePrettyPrinter;
     private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 
-    public BaseRascalREPL(PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors,File persistentHistory, Terminal terminal, IDEServices ideServices)
+    public BaseRascalREPL(boolean prettyPrompt, boolean allowColors, Terminal terminal)
                     throws IOException, URISyntaxException {
-        super(pcfg, stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal, ideServices);
         if (terminal.isAnsiSupported() && allowColors) {
             indentedPrettyPrinter = new ReplTextWriter();
             singleLinePrettyPrinter = new ReplTextWriter(false);
@@ -76,12 +70,12 @@ public abstract class BaseRascalREPL extends BaseREPL {
     }
 
     @Override
-    protected String getPrompt() {
+    public String getPrompt() {
         return currentPrompt;
     }
 
     @Override
-    protected void handleInput(String line) throws InterruptedException {
+    public void handleInput(String line) throws InterruptedException {
         assert line != null;
 
         try {
@@ -126,7 +120,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
     }
 
     @Override
-    protected void handleReset() throws InterruptedException {
+    public void handleReset() throws InterruptedException {
         handleInput("");
     }
 
@@ -169,8 +163,8 @@ public abstract class BaseRascalREPL extends BaseREPL {
     protected abstract PrintWriter getErrorWriter();
     protected abstract PrintWriter getOutputWriter();
 
-    protected abstract boolean isStatementComplete(String command);
-    protected abstract IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException;
+    public abstract boolean isStatementComplete(String command);
+    public abstract IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException;
 
     /**
      * provide which :set flags  (:set profiling true for example)
@@ -185,7 +179,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
     }
 
     @Override
-    protected CompletionResult completeFragment(String line, int cursor) {
+    public CompletionResult completeFragment(String line, int cursor) {
         if (currentState == State.FRESH) {
             String trimmedLine = line.trim();
             if (isREPLCommand(trimmedLine)) {
@@ -317,12 +311,12 @@ public abstract class BaseRascalREPL extends BaseREPL {
 
 
     @Override
-    protected boolean supportsCompletion() {
+    public boolean supportsCompletion() {
         return true;
     }
 
     @Override
-    protected boolean printSpaceAfterFullCompletion() {
+    public boolean printSpaceAfterFullCompletion() {
         return false;
     }
 
