@@ -54,9 +54,9 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   private PathConfig pcfg;
   protected final IDEServices ideServices;
   
-  public CompiledRascalREPL(PathConfig pcfg, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal, IDEServices ideServices)
+  public CompiledRascalREPL(PathConfig pcfg, boolean prettyPrompt, boolean allowColors, File persistentHistory, IDEServices ideServices)
       throws IOException, URISyntaxException {
-    super(prettyPrompt, allowColors, terminal);
+    super(prettyPrompt, allowColors);
     this.pcfg = pcfg;
     this.ideServices = ideServices;
   }
@@ -108,7 +108,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   }
 
   @Override
-  public void initialize(PathConfig pcfg, Writer stdout, Writer stderr, IDEServices ideServices) {
+  public void initialize(Writer stdout, Writer stderr) {
     try {
         executor = constructCommandExecutor(pcfg, new PrintWriter(stdout), new PrintWriter(stderr), ideServices);
     } catch (NoSuchRascalFunction | IOException | URISyntaxException e) {

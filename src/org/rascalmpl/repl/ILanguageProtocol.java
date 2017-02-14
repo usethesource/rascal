@@ -16,23 +16,18 @@ import java.io.IOException;
 import java.io.Writer;
 import java.net.URISyntaxException;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
-import org.rascalmpl.library.util.PathConfig;
 
 public interface ILanguageProtocol {
 
     /**
      * During the constructor call initialize is called after the REPL is setup enough to have a stdout and std err to write to.
-     * @param pcfg the PathConfig to be used
      * @param stdout the output stream to write normal output to.
      * @param stderr the error stream to write error messages on, depending on the environment and options passed, will print in red.
-     * @param ideServices TODO
      * @throws NoSuchRascalFunction 
      * @throws IOException 
      * @throws URISyntaxException 
      */
-    void initialize(PathConfig pcfg, Writer stdout, Writer stderr, IDEServices ideServices);
+    void initialize(Writer stdout, Writer stderr);
 
     /**
      * Will be called everytime a new prompt is printed.

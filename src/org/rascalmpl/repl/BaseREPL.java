@@ -91,7 +91,7 @@ public class BaseREPL {
         else {
             this.stdErr = new FilterWriter(reader.getOutput()) { }; // create a basic wrapper to avoid locking on stdout and stderr
         }
-        initialize(pcfg, reader.getOutput(), stdErr, ideServices);
+        initialize(reader.getOutput(), stdErr);
         if (supportsCompletion()) {
             reader.addCompleter(new Completer(){
                 @Override
@@ -135,8 +135,8 @@ public class BaseREPL {
      * @throws IOException 
      * @throws URISyntaxException 
      */
-    protected void initialize(PathConfig pcfg, Writer stdout, Writer stderr, IDEServices ideServices) throws IOException, URISyntaxException {
-        language.initialize(pcfg, stdout, stderr, ideServices);
+    protected void initialize(Writer stdout, Writer stderr) throws IOException, URISyntaxException {
+        language.initialize(stdout, stderr);
     }
 
     /**

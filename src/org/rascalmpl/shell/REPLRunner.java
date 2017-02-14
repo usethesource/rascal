@@ -35,7 +35,7 @@ public class REPLRunner extends BaseREPL  implements ShellRunner {
   }
 
   private static ILanguageProtocol makeInterpreter(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal) throws IOException, URISyntaxException {
-    RascalInterpreterREPL repl = new RascalInterpreterREPL(stdin, stdout, true, true, getHistoryFile(), terminal) {
+    RascalInterpreterREPL repl = new RascalInterpreterREPL(stdin, stdout, true, true, getHistoryFile()) {
         @Override
         protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
           return ShellEvaluatorFactory.getDefaultEvaluator(new PrintWriter(stdout), new PrintWriter(stderr));
