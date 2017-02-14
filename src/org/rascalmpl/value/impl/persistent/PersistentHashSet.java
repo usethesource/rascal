@@ -12,7 +12,7 @@
 package org.rascalmpl.value.impl.persistent;
 
 import io.usethesource.capsule.DefaultTrieSet;
-import io.usethesource.capsule.api.deprecated.Set;
+import io.usethesource.capsule.api.Set;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISetRelation;
 import org.rascalmpl.value.IValue;

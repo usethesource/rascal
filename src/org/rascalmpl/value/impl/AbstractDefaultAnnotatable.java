@@ -11,12 +11,12 @@
  *******************************************************************************/
 package org.rascalmpl.value.impl;
 
+import java.util.Map;
+
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import org.rascalmpl.value.IAnnotatable;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
-
-import java.util.Map;
 
 /**
  * A generic wrapper for an {@link IValue} that associates annotations to it.
@@ -26,7 +26,7 @@ import java.util.Map;
 public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IAnnotatable<T> {
 
 	protected final T content;
-	protected final io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> annotations;
+	protected final io.usethesource.capsule.api.Map.Immutable<String, IValue> annotations;
 
 	/**
 	 * Creates an {@link IAnnotatable} view on {@literal content} with empty
@@ -49,7 +49,7 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 	 * @param annotations
 	 *            is the map of annotations associated to {@link #content}
 	 */
-	public AbstractDefaultAnnotatable(T content, io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> annotations) {
+	public AbstractDefaultAnnotatable(T content, io.usethesource.capsule.api.Map.Immutable<String, IValue> annotations) {
 		this.content = content;
 		this.annotations = annotations;
 	}
@@ -66,7 +66,7 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 	 * @return a new representations of {@link #content} with associated
 	 *         {@link #annotations}
 	 */
-	protected abstract T wrap(final T content, final io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> annotations);
+	protected abstract T wrap(final T content, final io.usethesource.capsule.api.Map.Immutable<String, IValue> annotations);
 
 	@Override
 	public boolean hasAnnotations() {
@@ -125,7 +125,7 @@ public abstract class AbstractDefaultAnnotatable<T extends IValue> implements IA
 	/**
 	 * This method is only to be used by internal methods, such as testing and fast iterators
 	 */
-	public io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> internalGetAnnotations() {
+	public io.usethesource.capsule.api.Map.Immutable<String, IValue> internalGetAnnotations() {
 	    return annotations;
 	}
 //	@Override

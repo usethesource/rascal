@@ -29,7 +29,7 @@ import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
  */
 public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> implements IWithKeywordParameters<T> {
 	protected final T content;
-	protected final io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> parameters;
+	protected final io.usethesource.capsule.api.Map.Immutable<String, IValue> parameters;
 
 	/**
 	 * Creates an {@link IWithKeywordParameters} view on {@link #content} with already
@@ -40,7 +40,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	 * @param parameters
 	 *            is the map of annotations associated to {@link #content}
 	 */
-	public AbstractDefaultWithKeywordParameters(T content, io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> parameters) {
+	public AbstractDefaultWithKeywordParameters(T content, io.usethesource.capsule.api.Map.Immutable<String, IValue> parameters) {
 		this.content = content;
 		this.parameters = parameters;
 	}
@@ -57,7 +57,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	 * @return a new representations of {@link #content} with associated
 	 *         {@link #parameters}
 	 */
-	protected abstract T wrap(final T content, final io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> parameters);
+	protected abstract T wrap(final T content, final io.usethesource.capsule.api.Map.Immutable<String, IValue> parameters);
 
 	@Override
 	public String toString() {
@@ -76,7 +76,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	
 	@Override
 	public T unsetParameter(String label) {
-		io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> removed = parameters.__remove(label);
+		io.usethesource.capsule.api.Map.Immutable<String, IValue> removed = parameters.__remove(label);
 		
 		if (removed.size() == 0) {
 			return content;
@@ -169,7 +169,7 @@ public abstract class AbstractDefaultWithKeywordParameters<T extends IValue> imp
 	/**
 	 * This method is only to be used by internal methods, such as testing and fast iterators
 	 */
-	public io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> internalGetParameters() {
+	public io.usethesource.capsule.api.Map.Immutable<String, IValue> internalGetParameters() {
 	    return parameters;
 	}
 }

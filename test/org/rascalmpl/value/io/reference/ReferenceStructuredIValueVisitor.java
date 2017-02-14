@@ -125,7 +125,7 @@ public class ReferenceStructuredIValueVisitor {
                         if(okw.hasParameters()){
                             assert okw instanceof AbstractDefaultWithKeywordParameters;
                             AbstractDefaultWithKeywordParameters<INode> nodeKw = (AbstractDefaultWithKeywordParameters<INode>)(okw);
-                            io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> params = nodeKw.internalGetParameters();
+                            io.usethesource.capsule.api.Map.Immutable<String, IValue> params = nodeKw.internalGetParameters();
                             visit.enterNodeKeywordParameters();
                             visitNamedValues(params);
                         }
@@ -134,7 +134,7 @@ public class ReferenceStructuredIValueVisitor {
                         if(oan.hasAnnotations()){
                             assert oan instanceof AbstractDefaultAnnotatable;
                             AbstractDefaultAnnotatable<INode> nodeAnno = (AbstractDefaultAnnotatable<INode>)(oan);
-                            io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> annos = nodeAnno.internalGetAnnotations();
+                            io.usethesource.capsule.api.Map.Immutable<String, IValue> annos = nodeAnno.internalGetAnnotations();
                             visit.enterNodeAnnotations();
                             visitNamedValues(annos);
                         }
@@ -144,7 +144,7 @@ public class ReferenceStructuredIValueVisitor {
                 return null;
             }
 
-            private void visitNamedValues(io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> namedValues) throws E {
+            private void visitNamedValues(io.usethesource.capsule.api.Map.Immutable<String, IValue> namedValues) throws E {
                 // since the PrePostValueIterator uses a stack, we see the annotations an keyword params in reverse (but in pairs)
                 List<Entry<String, IValue>> reverseEntries = new ArrayList<>();
                 Iterator<Entry<String, IValue>> iterator = namedValues.entryIterator();
@@ -172,7 +172,7 @@ public class ReferenceStructuredIValueVisitor {
                         if(okw.hasParameters()){
                             assert okw instanceof AbstractDefaultWithKeywordParameters;
                             AbstractDefaultWithKeywordParameters<IConstructor> nodeKw = (AbstractDefaultWithKeywordParameters<IConstructor>)(okw);
-                            io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> params = nodeKw.internalGetParameters();
+                            io.usethesource.capsule.api.Map.Immutable<String, IValue> params = nodeKw.internalGetParameters();
                             visit.enterConstructorKeywordParameters();
                             visitNamedValues(params);
                         }
@@ -181,7 +181,7 @@ public class ReferenceStructuredIValueVisitor {
                         if(oan.hasAnnotations()){
                             assert oan instanceof AbstractDefaultAnnotatable;
                             AbstractDefaultAnnotatable<IConstructor> nodeAnno = (AbstractDefaultAnnotatable<IConstructor>)(oan);
-                            io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> annos = nodeAnno.internalGetAnnotations();
+                            io.usethesource.capsule.api.Map.Immutable<String, IValue> annos = nodeAnno.internalGetAnnotations();
                             visit.enterConstructorAnnotations();
                             visitNamedValues(annos);
                         }
