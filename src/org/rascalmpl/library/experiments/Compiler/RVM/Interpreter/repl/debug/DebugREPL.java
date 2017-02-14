@@ -1,9 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
@@ -15,11 +12,9 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitiv
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
+import org.rascalmpl.repl.ILanguageProtocol;
 import org.rascalmpl.value.IValue;
-
-import jline.Terminal;
 
 /*
  * Shopping list of ideas for the Rascal debugger.
@@ -35,7 +30,7 @@ import jline.Terminal;
  * 
  */
 
-public class DebugREPL extends BaseREPL{
+public class DebugREPL implements ILanguageProtocol {
 
 	private PrintWriter stdout;
 	private PrintWriter stderr;
@@ -47,8 +42,7 @@ public class DebugREPL extends BaseREPL{
 
 	private final BreakPointManager breakPointManager;
 
-	public DebugREPL(PathConfig pcfg, RVMCore rvm2, Frame frame, BreakPointManager breakPointManager, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal) throws IOException, URISyntaxException{
-		super(pcfg, stdin, stdout, prettyPrompt, allowColors, new File(file.getAbsolutePath() + "-debug"), terminal, null);
+	public DebugREPL(RVMCore rvm2, Frame frame, BreakPointManager breakPointManager) throws IOException, URISyntaxException{
 		this.rvm = rvm2;
 		this.currentFrame = frame;
 		this.startFrame = frame;
@@ -59,13 +53,13 @@ public class DebugREPL extends BaseREPL{
 	}
 	
 	@Override
-	protected void initialize(PathConfig pcfg, Writer stdout, Writer stderr, IDEServices ideServices) {
+	public void initialize(PathConfig pcfg, Writer stdout, Writer stderr, IDEServices ideServices) {
 		 this.stdout = new PrintWriter(stdout);
          this.stderr = new PrintWriter(stderr);
 	}
 
 	@Override
-	protected String getPrompt() {
+	public String getPrompt() {
 		return currentPrompt;
 	}
 	
@@ -74,7 +68,7 @@ public class DebugREPL extends BaseREPL{
 	}
 
 	@Override
-	protected void handleInput(String line) throws InterruptedException {
+	public void handleInput(String line) throws InterruptedException {
 		setPrompt();
 		
 		String[] words = line.split(" ");
@@ -244,41 +238,46 @@ public class DebugREPL extends BaseREPL{
 	}
 
 	@Override
-	protected void handleReset() throws InterruptedException {
+	public void handleReset() throws InterruptedException {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
-	protected boolean supportsCompletion() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	protected boolean printSpaceAfterFullCompletion() {
+	public boolean supportsCompletion() {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	protected CompletionResult completeFragment(String line, int cursor) {
+	public boolean printSpaceAfterFullCompletion() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public CompletionResult completeFragment(String line, int cursor) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	protected void cancelRunningCommandRequested() {
+	public void cancelRunningCommandRequested() {
 	    stop();
 	}
 
 	@Override
-	protected void terminateRequested() {
+	public void terminateRequested() {
 	    stop();
 	}
 
 	@Override
-	protected void stackTraceRequested() {
+	public void stackTraceRequested() {
 		// TODO Auto-generated method stub
 	}
+
+    @Override
+    public void stop() {
+        // TODO Auto-generated method stub
+    }
 
 }
