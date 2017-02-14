@@ -26,7 +26,6 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.repl.RascalInterpreterREPL;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 
@@ -66,6 +65,4 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	
 	
 	public Collection<String> completePartialIdentifier(String qualifier, String partialIdentifier);
-	
-	public RascalInterpreterREPL getREPL();
 }

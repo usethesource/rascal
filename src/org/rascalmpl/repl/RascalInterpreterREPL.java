@@ -44,7 +44,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
 
     public RascalInterpreterREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal)
                     throws IOException, URISyntaxException {
-        super(null, stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal, null);
+        super(prettyPrompt, allowColors, terminal);
         originalOutput = stdout;
     }
 
@@ -57,9 +57,8 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     }
 
     @Override
-    protected void initialize(PathConfig pcfg, Writer stdout, Writer stderr, IDEServices ideServices) {
+    public void initialize(PathConfig pcfg, Writer stdout, Writer stderr, IDEServices ideServices) {
         eval = constructEvaluator(stdout, stderr);
-        eval.setREPL(this);
     }
 
     protected abstract Evaluator constructEvaluator(Writer stdout, Writer stderr);
@@ -77,21 +76,20 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     @Override
     public void stop() {
         eval.interrupt();
-        super.stop();
     }
 
     @Override
-    protected void cancelRunningCommandRequested() {
+    public void cancelRunningCommandRequested() {
         eval.interrupt();
     }
 
     @Override
-    protected void terminateRequested() {
+    public void terminateRequested() {
         eval.interrupt();
     }
 
     @Override
-    protected void stackTraceRequested() {
+    public void stackTraceRequested() {
         StackTrace trace = eval.getStackTrace();
         Writer err = getErrorWriter();
         try {
@@ -104,7 +102,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     }
 
     @Override
-    protected IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException {
+    public IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException {
         try {
             Result<IValue> value;
             long duration;
@@ -148,7 +146,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     }
 
     @Override
-    protected boolean isStatementComplete(String command) {
+    public boolean isStatementComplete(String command) {
         try {
             eval.parseCommand(null, command, URIUtil.rootLocation("prompt"));
         }
@@ -203,13 +201,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
         return commandLineOptions;
     }
 
-    public Terminal getTerminal() {
-        return reader.getTerminal();
-    }
-
-    public InputStream getInput() {
-        return reader.getInput();
-    }
+    
     public OutputStream getOutput() {
         return originalOutput;
     }

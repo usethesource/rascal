@@ -6,8 +6,6 @@ import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwM
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
@@ -56,9 +54,9 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   private PathConfig pcfg;
   protected final IDEServices ideServices;
   
-  public CompiledRascalREPL(PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal, IDEServices ideServices)
+  public CompiledRascalREPL(PathConfig pcfg, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal, IDEServices ideServices)
       throws IOException, URISyntaxException {
-    super(pcfg, stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal, ideServices);
+    super(prettyPrompt, allowColors, terminal);
     this.pcfg = pcfg;
     this.ideServices = ideServices;
   }
@@ -94,26 +92,26 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   }
   
   @Override
-  protected void cancelRunningCommandRequested() {
+  public void cancelRunningCommandRequested() {
  	  stop();
   }
   
   @Override
-  protected void terminateRequested() {
+  public void terminateRequested() {
       stop();
   }
   
   @Override
-  protected void stackTraceRequested() {
+  public void stackTraceRequested() {
       // TODO: print current stack trace, without stopping  the running code.
       // reminder: this method is called from a different thread.
   }
 
   @Override
-  protected void initialize(PathConfig pcfg, Writer stdout, Writer stderr, IDEServices ideServices) throws IOException, URISyntaxException {
+  public void initialize(PathConfig pcfg, Writer stdout, Writer stderr, IDEServices ideServices) {
     try {
         executor = constructCommandExecutor(pcfg, new PrintWriter(stdout), new PrintWriter(stderr), ideServices);
-    } catch (NoSuchRascalFunction e) {
+    } catch (NoSuchRascalFunction | IOException | URISyntaxException e) {
         throw new RuntimeException(e);
     }
   }
@@ -122,12 +120,12 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   
   
   @Override
-  protected boolean isStatementComplete(String command) {
+  public boolean isStatementComplete(String command) {
 	  return executor.isStatementComplete(command);
   }
 
   @Override
-  protected IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException {
+  public IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException {
 	  try {
 		  if(executor.semiColonAdded){
 			  statement = statement + ";";
@@ -203,7 +201,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   }
 
   @Override
-  protected boolean printSpaceAfterFullCompletion() {
+  public boolean printSpaceAfterFullCompletion() {
       return false;
   }
   

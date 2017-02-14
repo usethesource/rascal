@@ -5,6 +5,7 @@ import java.io.FilterWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
@@ -351,7 +352,20 @@ public class BaseREPL {
      * stop the REPL without waiting for it to stop
      */
     public void stop() {
+        language.stop();
         keepRunning = false;
         reader.shutdown();
+    }
+    
+    public Terminal getTerminal() {
+        return reader.getTerminal();
+    }
+
+    public InputStream getInput() {
+        return reader.getInput();
+    }
+
+    public PrintStream getOutput() {
+        return new PrintStream(originalStdOut);
     }
 }
