@@ -12,9 +12,7 @@
  */ 
 package org.rascalmpl.repl;
 
-import java.io.IOException;
 import java.io.Writer;
-import java.net.URISyntaxException;
 
 
 public interface ILanguageProtocol {
@@ -23,9 +21,6 @@ public interface ILanguageProtocol {
      * During the constructor call initialize is called after the REPL is setup enough to have a stdout and std err to write to.
      * @param stdout the output stream to write normal output to.
      * @param stderr the error stream to write error messages on, depending on the environment and options passed, will print in red.
-     * @throws NoSuchRascalFunction 
-     * @throws IOException 
-     * @throws URISyntaxException 
      */
     void initialize(Writer stdout, Writer stderr);
 
