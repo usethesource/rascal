@@ -62,6 +62,11 @@ public class PathConfigClassLoader extends ClassLoader {
     
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
+        if (name.contains("org.rascalmpl.value")) {
+            System.err.println("renaming value to vallang");
+            name = name.replace("org.rascalmpl.value", "io.usethesource.vallang");
+        }
+        
         for (ClassLoader l : path) {
             try {
                 return l.loadClass(name);
