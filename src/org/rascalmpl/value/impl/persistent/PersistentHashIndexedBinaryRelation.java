@@ -11,25 +11,35 @@
  *******************************************************************************/
 package org.rascalmpl.value.impl.persistent;
 
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.BiFunction;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
 import io.usethesource.capsule.DefaultTrieSet;
-import io.usethesource.capsule.api.deprecated.Set;
-import io.usethesource.capsule.api.deprecated.SetMultimap;
+import io.usethesource.capsule.api.Set;
+import io.usethesource.capsule.api.SetMultimap;
 import io.usethesource.capsule.util.ArrayUtilsInt;
 import io.usethesource.capsule.util.stream.CapsuleCollectors;
-import org.rascalmpl.value.*;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.ISetRelation;
+import org.rascalmpl.value.ITuple;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.impl.AbstractSet;
 import org.rascalmpl.value.impl.func.SetFunctions;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.util.AbstractTypeBag;
 
-import java.util.*;
-import java.util.function.BiFunction;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
-
 import static org.rascalmpl.value.impl.persistent.EmptySet.EMPTY_SET;
-import static org.rascalmpl.value.impl.persistent.SetWriter.*;
+import static org.rascalmpl.value.impl.persistent.SetWriter.USE_MULTIMAP_BINARY_RELATIONS;
+import static org.rascalmpl.value.impl.persistent.SetWriter.asInstanceOf;
+import static org.rascalmpl.value.impl.persistent.SetWriter.isTupleOfArityTwo;
 import static org.rascalmpl.value.impl.persistent.ValueCollectors.toSet;
 import static org.rascalmpl.value.impl.persistent.ValueCollectors.toSetMultimap;
 import static org.rascalmpl.value.util.AbstractTypeBag.toTypeBag;
@@ -154,7 +164,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
     final IValue key = tuple.get(0);
     final IValue val = tuple.get(1);
 
-    final SetMultimap.Immutable<IValue, IValue> contentNew = content.__removeEntry(key, val);
+    final SetMultimap.Immutable<IValue, IValue> contentNew = content.__remove(key, val);
 
     if (content == contentNew)
       return this;
@@ -425,7 +435,7 @@ public final class PersistentHashIndexedBinaryRelation extends AbstractSet {
         final IValue key = tuple.getKey();
         final IValue val = tuple.getValue();
 
-        if (tmp.__removeTuple(key, val)) {
+        if (tmp.__remove(key, val)) {
           modified = true;
           keyTypeBagNew = keyTypeBagNew.decrease(key.getType());
           valTypeBagNew = valTypeBagNew.decrease(val.getType());
