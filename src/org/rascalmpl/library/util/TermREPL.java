@@ -11,7 +11,6 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.repl.ILanguageProtocol;
@@ -94,7 +93,7 @@ public class TermREPL {
 
 
         @Override
-        public void initialize(PathConfig pcfg, Writer stdout, Writer stderr, IDEServices ideServices) {
+        public void initialize(Writer stdout, Writer stderr) {
             this.stdout = new PrintWriter(stdout);
             this.stderr = new PrintWriter(stderr);
         }
