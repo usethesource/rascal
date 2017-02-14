@@ -27,7 +27,7 @@ public class CompiledREPLRunner extends BaseREPL  implements ShellRunner {
 	}
 
     private static CompiledRascalREPL makeCompiledRascalREPL(PathConfig pcfg, IDEServices ideServices, Terminal term, final DebugREPLFrameObserver observer) throws IOException, URISyntaxException {
-        return new CompiledRascalREPL(pcfg, true, true, getHistoryFile(), term, ideServices) {
+        return new CompiledRascalREPL(pcfg, true, term.isAnsiSupported(), getHistoryFile(), ideServices) {
             @Override
             public void stop() {
                 
@@ -40,7 +40,6 @@ public class CompiledREPLRunner extends BaseREPL  implements ShellRunner {
                 setMeasureCommandTime(true);
                 return exec;
             }
-
         };
     }
 

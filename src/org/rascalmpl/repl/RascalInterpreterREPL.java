@@ -42,9 +42,9 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     private boolean measureCommandTime;
     private final OutputStream originalOutput;
 
-    public RascalInterpreterREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal)
+    public RascalInterpreterREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory)
                     throws IOException, URISyntaxException {
-        super(prettyPrompt, allowColors, terminal);
+        super(prettyPrompt, allowColors);
         originalOutput = stdout;
     }
 
@@ -57,7 +57,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     }
 
     @Override
-    public void initialize(PathConfig pcfg, Writer stdout, Writer stderr, IDEServices ideServices) {
+    public void initialize(Writer stdout, Writer stderr) {
         eval = constructEvaluator(stdout, stderr);
     }
 

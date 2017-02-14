@@ -33,8 +33,6 @@ import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
-import jline.Terminal;
-
 public abstract class BaseRascalREPL implements ILanguageProtocol {
     protected enum State {
         FRESH,
@@ -57,9 +55,8 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     private final StandardTextWriter singleLinePrettyPrinter;
     private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 
-    public BaseRascalREPL(boolean prettyPrompt, boolean allowColors, Terminal terminal)
-                    throws IOException, URISyntaxException {
-        if (terminal.isAnsiSupported() && allowColors) {
+    public BaseRascalREPL(boolean prettyPrompt, boolean allowColors) throws IOException, URISyntaxException {
+        if (allowColors) {
             indentedPrettyPrinter = new ReplTextWriter();
             singleLinePrettyPrinter = new ReplTextWriter(false);
         }

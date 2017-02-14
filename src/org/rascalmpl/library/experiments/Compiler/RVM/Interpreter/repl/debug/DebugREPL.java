@@ -53,7 +53,7 @@ public class DebugREPL implements ILanguageProtocol {
 	}
 	
 	@Override
-	public void initialize(PathConfig pcfg, Writer stdout, Writer stderr, IDEServices ideServices) {
+	public void initialize(Writer stdout, Writer stderr) {
 		 this.stdout = new PrintWriter(stdout);
          this.stderr = new PrintWriter(stderr);
 	}
