@@ -18,7 +18,7 @@ import io.usethesource.vallang.ISourceLocation;
 
 public interface IClassloaderLocationResolver {
     /**
-     * @return the scheme this resolved supports
+     * @return the scheme this resolver supports
      */
     String scheme();
     

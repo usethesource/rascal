@@ -235,7 +235,7 @@ public class Bootstrap {
             try { 
                 String[] rvm    = new String[] { 
                         getDeployedVersion(tmpDir, versionToUse).toAbsolutePath().toString(), // this is the released jar
-                        targetFolder + ":" + /*deps*/ classpath // this is the pre-compiled target folder with the new RVM implementation 
+                        targetFolder + ":" + /*deps*/ classpath /* this is the pre-compiled target folder with the new RVM implementation */  
                 };
                 
                 String[] kernel = new String[] {
@@ -244,16 +244,20 @@ public class Bootstrap {
                         phaseFolderString(2, tmpDir),  
                         phaseFolderString(3, tmpDir)
                 };
-                   
+                  
+                FileSystem jar = FileSystems.newFileSystem(new URI("jar", new File(rvm[0]).toURI().toString(), null), Collections.singletonMap("create", true));
+                
                 if (!realBootstrap) {
-                  FileSystem jar = FileSystems.newFileSystem(new URI("jar", new File(rvm[0]).toURI().toString(), null), Collections.singletonMap("create", true));
                   time("Copying downloaded files", () -> copyJar(jar.getPath("boot"), targetFolder));
                   System.exit(0);
                 }
                 
                 /*------------------------------------------,-CODE---------,-RVM---,-KERNEL---,-TESTS--*/
-                time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[1], "|noreloc:///|"));               
-                time("Phase 2", () -> compilePhase(tmpDir, 2, librarySource, rvm[1], kernel[1], rvm[1], "|std:///|"));
+                time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[1], "|noreloc:///|"));
+                
+                copyParserGenerator(jar.getPath("/"), phaseFolder(1, tmpDir));
+                
+                time("Phase 2", () -> compilePhase(tmpDir, 2, librarySource, rvm[0], kernel[1], rvm[1], "|std:///|"));
                 
                 if(validatingBootstrap){
                   time("Phase 3", () -> compilePhase(tmpDir, 3, librarySource, rvm[1], kernel[2], rvm[1], "|std:///|"));
@@ -451,13 +455,17 @@ public class Bootstrap {
 
       time("- compile MuLibrary",       () -> compileMuLibrary(phase, classPath, bootPath, sourcePath, result));
       time("- compile Kernel",          () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel", reloc));
-      time("- compile ParserGenerator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator", reloc));
-     
-      if (phase >= 2) {
+
+      if (phase >= 3) {
+          time("- compile ParserGenerator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator", reloc));
           time("- compile tests",           () -> compileTests    (phase, classPath, result.toAbsolutePath().toString(), sourcePath, testResults));
           time("- run tests",               () -> runTests        (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, testResults));
       }
       return result;
+    }
+
+    private static void copyParserGenerator(Path jar, Path result) throws IOException {
+        Files.copy(jar.resolve("boot/lang/rascal/grammar/ParserGenerator.rvmx"), result.resolve("lang/rascal/grammar/ParserGenerator.rvmx"));
     }
 
     private static String[] concat(String[]... arrays) {
