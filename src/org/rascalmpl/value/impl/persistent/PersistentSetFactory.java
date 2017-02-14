@@ -11,8 +11,8 @@
  *******************************************************************************/
 package org.rascalmpl.value.impl.persistent;
 
-import io.usethesource.capsule.api.deprecated.Set;
-import io.usethesource.capsule.api.deprecated.SetMultimap;
+import io.usethesource.capsule.api.Set;
+import io.usethesource.capsule.api.SetMultimap;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ITuple;
 import org.rascalmpl.value.IValue;

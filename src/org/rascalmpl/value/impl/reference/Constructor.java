@@ -173,7 +173,7 @@ public class Constructor extends Node implements IConstructor {
 		return new AbstractDefaultAnnotatable<IConstructor>(this) {
 			@Override
 			protected IConstructor wrap(IConstructor content,
-					io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> annotations) {
+					io.usethesource.capsule.api.Map.Immutable<String, IValue> annotations) {
 				return new AnnotatedConstructorFacade(content, annotations);
 			}
 		};
@@ -188,7 +188,7 @@ public class Constructor extends Node implements IConstructor {
 	public IWithKeywordParameters<IConstructor> asWithKeywordParameters() {
 	  return new AbstractDefaultWithKeywordParameters<IConstructor>(this, AbstractSpecialisedImmutableMap.<String,IValue>mapOf()) {
 		  @Override
-		  protected IConstructor wrap(IConstructor content, io.usethesource.capsule.api.deprecated.Map.Immutable<String, IValue> parameters) {
+		  protected IConstructor wrap(IConstructor content, io.usethesource.capsule.api.Map.Immutable<String, IValue> parameters) {
 			  return new ConstructorWithKeywordParametersFacade(content, parameters);
 		  }
 

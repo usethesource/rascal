@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.rascalmpl.value.impl.persistent;
 
-import io.usethesource.capsule.api.deprecated.Set;
+import io.usethesource.capsule.api.Set;
 import io.usethesource.capsule.util.EqualityComparator;
 import org.rascalmpl.value.ISet;
 import org.rascalmpl.value.ISetWriter;
