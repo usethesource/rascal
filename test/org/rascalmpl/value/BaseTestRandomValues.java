@@ -13,6 +13,8 @@ package org.rascalmpl.value;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
@@ -21,26 +23,23 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.INumber;
-import org.rascalmpl.value.IRational;
-import org.rascalmpl.value.IReal;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.io.BinaryValueReader;
-import org.rascalmpl.value.io.BinaryValueWriter;
+import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.io.IValueBinaryReader;
 import org.rascalmpl.value.io.IValueBinaryWriter;
 import org.rascalmpl.value.io.IValueTextReader;
 import org.rascalmpl.value.io.IValueTextWriter;
 import org.rascalmpl.value.io.StandardTextReader;
 import org.rascalmpl.value.io.StandardTextWriter;
+import org.rascalmpl.value.io.binary.stream.IValueInputStream;
+import org.rascalmpl.value.io.binary.stream.IValueOutputStream;
+import org.rascalmpl.value.io.binary.stream.IValueOutputStream.CompressionRate;
 import org.rascalmpl.value.random.DataGenerator;
 import org.rascalmpl.value.random.RandomIntegerGenerator;
 import org.rascalmpl.value.random.RandomNumberGenerator;
 import org.rascalmpl.value.random.RandomRationalGenerator;
 import org.rascalmpl.value.random.RandomRealGenerator;
 import org.rascalmpl.value.type.Type;
+import org.rascalmpl.value.type.TypeStore;
 
 import junit.framework.AssertionFailedError;
 import junit.framework.TestCase;
@@ -203,12 +202,69 @@ abstract public class BaseTestRandomValues extends TestCase {
 	protected void assertEqual(Type l, Type r) {
 		assertTrue("Expected " + l + " got " + r, l.equivalent(r));
 	}
+	
+	// test are build around this old interface
+	private class IValueInputStreamWrapper implements IValueBinaryReader {
+
+        @Override
+        public IValue read(IValueFactory factory, TypeStore store, Type type, InputStream stream)
+                throws FactTypeUseException, IOException {
+            assert stream instanceof ByteArrayInputStream; // else the closing contract is broken!
+            try (IValueInputStream reader = new IValueInputStream(stream, factory)) {
+                return reader.read();
+            }
+        }
+
+        @Override
+        public IValue read(IValueFactory factory, Type type, InputStream stream)
+                throws FactTypeUseException, IOException {
+            return read(factory, new TypeStore(), type, stream);
+        }
+
+        @Override
+        public IValue read(IValueFactory factory, InputStream stream)
+                throws FactTypeUseException, IOException {
+            return read(factory, new TypeStore(), null, stream);
+        }
+	    
+	}
+	
+	private class IValueOutputStreamWrapper implements IValueBinaryWriter {
+
+        @Override
+        public void write(IValue value, OutputStream stream) throws IOException {
+            write(value, stream, new TypeStore());
+            
+        }
+        @Override
+        public void write(IValue value, OutputStream stream, boolean compression)
+                throws IOException {
+            write(value, stream);
+        }
+
+        @Override
+        public void write(IValue value, OutputStream stream, TypeStore typeStore)
+                throws IOException {
+            try(IValueOutputStream writer = new IValueOutputStream(stream, CompressionRate.Normal)) {
+                writer.write(value);
+            }
+        }
+
+        @Override
+        public void write(IValue value, OutputStream stream, boolean compression,
+                TypeStore typeStore) throws IOException {
+            write(value, stream, typeStore);
+        }
+
+	    
+	}
+	
 
 	public void testIO() throws IOException {
 		if(noisy)
 			System.out.println("Test I/O: " + "(" + getClass().getPackage().getName() + ")");
 
-		ioHelperBin("PBF", new BinaryValueReader(), new BinaryValueWriter());
+		ioHelperBin("RV Serializer", new IValueInputStreamWrapper(), new IValueOutputStreamWrapper());
 		ioHelperText("Text", new StandardTextReader(), new StandardTextWriter());
 	}
 

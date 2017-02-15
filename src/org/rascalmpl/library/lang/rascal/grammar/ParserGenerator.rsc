@@ -548,7 +548,7 @@ public str esc(str s){
     return escape(s, javaStringEscapes);
 }
 
-map[str,str] javaIdEscapes = javaStringEscapes + ("-":"_", "_": "__");
+map[str,str] javaIdEscapes     = ( "\n":"\\n", "\"":"\\\"", "\t":"\\t", "\r":"\\r","\\u":"\\\\u","\\":"\\\\", "-":"_", "_": "__"); // inlined for speed
 
 public str escId(str s){
     return escape(s, javaIdEscapes);

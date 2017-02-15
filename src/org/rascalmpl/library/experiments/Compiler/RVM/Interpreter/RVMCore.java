@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -14,19 +13,21 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 import java.util.Map.Entry;
+import java.util.Stack;
 import java.util.regex.Matcher;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
+import org.rascalmpl.interpreter.ITestResultListener;
+import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalType;
-
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalFunctionInvocationHandler;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.NullFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
@@ -35,7 +36,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Trave
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.FIXEDPOINT;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.PROGRESS;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.REBUILD;
-import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IDateTime;
@@ -57,29 +57,36 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public abstract class RVMCore {
 	public final IValueFactory vf;
-
+	
 	protected final TypeFactory tf; 
 	
+	// Only for RVM interpreter
 	protected final static IBool Rascal_TRUE = ValueFactoryFactory.getValueFactory().bool(true);
 	protected final static IBool Rascal_FALSE = ValueFactoryFactory.getValueFactory().bool(false);
 	protected final IString NOVALUE; 
+	
+	protected TypeStore typeStore;
+	private IMap symbol_definitions;
+	
 	protected Function[] functionStore;
 	protected Map<String, Integer> functionMap;
 
-	protected ArrayList<Type> constructorStore;
+	protected List<Type> constructorStore;
 	protected final Map<String, Integer> constructorMap;
 	
 	// Function overloading
 	protected final Map<String, Integer> resolver;
 	protected final OverloadedFunction[] overloadedStore;
+	private Map<String, OverloadedFunction> overloadedStoreMap;
 	
 	protected IFrameObserver frameObserver;
 
-	public final static Function noCompanionFunction = new Function("noCompanionFunction", null, null, 0, 0, false, null, 0, false, 0, 0, null, null, 0);
+	public final static Function noCompanionFunction = new Function("noCompanionFunction", null, null, null, 0, 0, false, false, null, null, 0, false, 0, 0, null, null, 0);
 	public static final HashMap<String, IValue> emptyKeywordMap = new HashMap<>(0);
 
 	protected PrintWriter stdout;
@@ -93,9 +100,8 @@ public abstract class RVMCore {
 
 	public Map<IValue, IValue> moduleVariables;
 	
-	List<ClassLoader> classLoaders;
-	private final Map<Class<?>, Object> instanceCache;
-	private final Map<String, Class<?>> classCache;
+	protected final Map<Class<?>, Object> instanceCache;
+	protected final Map<String, Class<?>> classCache;
 
 	private final Types types;
 	
@@ -104,7 +110,7 @@ public abstract class RVMCore {
 		return ExecutionTools.initializedRVM(rvmExecutable, rex);
 	}
 
-	public static IValue readFromFileAndExecuteProgram(ISourceLocation rvmBinaryLocation, IMap keywordArguments, RascalExecutionContext rex) throws Exception{
+	public static IValue readFromFileAndExecuteProgram(ISourceLocation rvmBinaryLocation, Map<String, IValue> keywordArguments, RascalExecutionContext rex) throws Exception{
 		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);
 		return ExecutionTools.executeProgram(rvmExecutable, keywordArguments, rex);
 	}
@@ -139,34 +145,40 @@ public abstract class RVMCore {
 	};
 
 	public RVMCore(RVMExecutable rvmExec, RascalExecutionContext rex){
-		this.rex = rex;
-		rex.setRVM(this);
-		
-		this.instanceCache = new HashMap<Class<?>, Object>();
-		this.classCache = new HashMap<String, Class<?>>();
-		this.classLoaders = rex.getClassLoaders();
-		
-		this.vf = rex.getValueFactory();
-		tf = TypeFactory.getInstance();
-		this.stdout = rex.getStdOut();
-		this.stderr = rex.getStdErr();
-		NOVALUE = vf.string("$no-value$");
-		moduleVariables = new HashMap<IValue,IValue>();
-		
-		this.functionStore = rvmExec.getFunctionStore();
-		this.functionMap = rvmExec.getFunctionMap();
-		
-		this.resolver = rvmExec.getResolver();
-		this.overloadedStore = rvmExec.getOverloadedStore();
-		
-		this.constructorStore = rvmExec.getConstructorStore();
-		this.constructorMap = rvmExec.getConstructorMap();
-		
-		this.types = new Types(vf);
-		
-		IFrameObserver observer = rex.getFrameObserver(); 
-		this.frameObserver = (observer == null) ? NullFrameObserver.getInstance() : observer;
-		}
+	  this.rex = rex;
+	  rex.setRVM(this);
+	  rex.setFullModuleName(rvmExec.getModuleName());
+
+	  this.instanceCache = new HashMap<Class<?>, Object>();
+	  this.classCache = new HashMap<String, Class<?>>();
+
+	  this.vf = rex.getValueFactory();
+	  tf = TypeFactory.getInstance();
+	  this.stdout = rex.getStdOut();
+	  this.stderr = rex.getStdErr();
+	  NOVALUE = vf.string("$no-value$");
+	  moduleVariables = new HashMap<IValue,IValue>();
+
+	  this.symbol_definitions = rvmExec.getSymbolDefinitions();
+	  this.functionStore = rvmExec.getFunctionStore();
+	  this.functionMap = rvmExec.getFunctionMap();
+
+	  this.resolver = rvmExec.getResolver();
+	  this.overloadedStore = rvmExec.getOverloadedStore();
+	  mappifyOverloadedStore();
+
+	  this.constructorStore = rvmExec.getConstructorStore();
+	  this.constructorMap = rvmExec.getConstructorMap();
+
+	  this.types = new Types(vf);
+
+	  IFrameObserver observer = rex.getFrameObserver(); 
+	  this.frameObserver = (observer == null) ? NullFrameObserver.getInstance() : observer;
+	}
+	
+	public void shutdown(){
+	  frameObserver.report();
+	}
 	
 	public Map<IValue, IValue> getModuleVariables() { return moduleVariables; }
 	
@@ -177,13 +189,39 @@ public abstract class RVMCore {
 		}
 		moduleVariables.put(name, newVal);
 	}
-
+	
+	public TypeStore getTypeStore() { 
+       if(typeStore == null){
+           typeStore = new TypeReifier(vf).buildTypeStore(symbol_definitions);
+       }
+       return typeStore;
+    }
+	
+	void mappifyOverloadedStore(){
+	  overloadedStoreMap = new HashMap<>();
+	  for(OverloadedFunction of : overloadedStore){
+	    String name = of.getName();
+	    if(overloadedStoreMap.containsKey(name)){
+	      OverloadedFunction previous = overloadedStoreMap.get(name);
+	      if(of.getFunctions().length > previous.getFunctions().length){
+	        overloadedStoreMap.put(name, of);
+	      }
+	    } else {
+	      overloadedStoreMap.put(name, of);
+	    }
+	  }
+	}
+	
 	/**
-	 * Create an object which implements the provided interface by forwarding calls to its methods directly to Rascal functions.
+	 * Create an object which implements the provided interface (that is
+	 * usually created by ApiGen.generate) by forwarding calls 
+	 * to its methods directly to Rascal functions.
 	 * 
 	 * This works for interfaces which contain a specific kind of methods:
-	 *    * each method should have a name which maps to a Rascal function name which is loaded into the current RVMCore
-	 *    * the arity of the method should be equal to at least one of the Rascal functions with the given name
+	 *    * each method should have a name which maps to a Rascal function name which 
+	 *      is loaded into the current RVMCore
+	 *    * the arity of the method should be equal to at least one of the Rascal 
+	 *      functions with the given name
 	 *    * all arguments of the methods should have a type which is a sub-type of IValue
 	 *    * the return type of the methods should be either IValue or void
 	 *    
@@ -191,21 +229,22 @@ public abstract class RVMCore {
 	 * @return an object which implements this interface by forwarding to Rascal functions
 	 */
 	public <T> T asInterface(Class<T> interf) {
-	    return interf.cast(Proxy.newProxyInstance(RVMCore.class.getClassLoader(), new Class<?> [] { interf }, new ProxyInvocationHandler(this, interf)));
+	    return interf.cast(Proxy.newProxyInstance(RVMCore.class.getClassLoader(), new Class<?> [] { interf }, new RascalFunctionInvocationHandler(this, interf)));
 	}
 	
 	public PrintWriter getStdErr() { return rex.getStdErr(); }
 	
 	public PrintWriter getStdOut() { return rex.getStdOut(); }
-	
-	URIResolverRegistry getResolverRegistry() { return URIResolverRegistry.getInstance(); }
-	
+		
 	IRascalMonitor getMonitor() {return rex.getMonitor();}
 	
-	List<ClassLoader> getClassLoaders() { return rex.getClassLoaders(); }
-
 	public IFrameObserver getFrameObserver() {
 		return frameObserver;
+	}
+	
+	public void setFrameObserver(IFrameObserver observer){
+	    frameObserver = observer;
+	    rex.setFrameObserver(observer);
 	}
 	
 	protected String getFunctionName(int n) {
@@ -232,46 +271,90 @@ public abstract class RVMCore {
 	}
 	
 	public Function getFunction(String name, Type returnType, Type argumentTypes){
-		for(Function f : functionStore){
-			if(f.name.contains("/" + name + "(") && f.ftype instanceof FunctionType){
-				FunctionType ft = (FunctionType) f.ftype;
-				if(returnType.equals(ft.getReturnType()) &&
-				   argumentTypes.equals(ft.getArgumentTypes())){
-					return f;
-				}
-			}
-		}
-		return null;
+	  next:
+	    for(Function f : functionStore){
+	      if(f.name.contains("/" + name + "(") && f.ftype instanceof FunctionType){
+	        FunctionType ft = (FunctionType) f.ftype;
+	        int arity = argumentTypes.getArity();
+	        if(returnType.equals(ft.getReturnType()) && arity == ft.getArgumentTypes().getArity()){
+	          for(int i = 0; i < arity; i++){ // ignore field names
+	            if(!argumentTypes.getFieldType(i).equals(ft.getArgumentTypes().getFieldType(i))){
+	              continue next;
+	            }
+	          }
+	          return f;
+	        }
+	      }
+	    }
+	return null;
 	}
 	
-	private OverloadedFunction getFirstOverloadedFunctionByNameAndArity(String name, int arity) throws NoSuchRascalFunction {
-        for(OverloadedFunction of : overloadedStore) {
-            if (of.getName().equals(name)) {
-                for (int alt : of.getFunctions()) {
-                    if (functionStore[alt].ftype.getArity() == arity) {
-                        return of;
-                    }
-                }
-            }
+	private ArrayList<Integer> getFunctionByNameAndArity(String name, int arity){
+	  ArrayList<Integer> functions = new ArrayList<>();
+      for(int n = 0; n < functionStore.length; n++){
+        Function f = functionStore[n];
+          if(f.name.contains("/" + name + "(") && f.ftype instanceof FunctionType){
+              FunctionType ft = (FunctionType) f.ftype;
+              if(ft.getArgumentTypes().getArity() == arity){
+                  functions.add(n);
+              }
+          }
+      }
+      return functions;
+  }
+	
+	public OverloadedFunction getOverloadedFunctionByNameAndArity(String name, int arity) throws NoSuchRascalFunction {
+//    System.err.println("getFirstOverloadedFunctionByNameAndArity: " + name + ", " + arity);  
+	  OverloadedFunction of = overloadedStoreMap.get(name);
+	  Type tp = null;
+	  //System.err.println(of);
+	  ArrayList<Integer> filteredAlts = new ArrayList<>();
+	  if(of != null){
+	    for (int alt : of.getFunctions()) {
+	      //System.err.println("alt: " + functionStore[alt].ftype);
+	      if (functionStore[alt].ftype.getArity() == arity) {
+	        tp = functionStore[alt].ftype;
+	        filteredAlts.add(alt);
+	      }
+	    }
+	    if(filteredAlts.size() > 0){
+	      int falts[] = new int[filteredAlts.size()];
+	      for(int i = 0; i < falts.length; i++){
+	        falts[i] = filteredAlts.get(i);
+	      }
+	      return new OverloadedFunction(name, tp,  falts, new int[] { }, "");
+	    }
+	  }
+	  filteredAlts = getFunctionByNameAndArity(name, arity);
+	  if(filteredAlts.size() > 0){
+	    tp = tf.tupleType(tf.valueType()); // arbitrary!
+        int falts[] = new int[filteredAlts.size()];
+        for(int i = 0; i < falts.length; i++){
+          falts[i] = filteredAlts.get(i);
         }
+        return new OverloadedFunction(name, tp,  falts, new int[] { }, "");
+      }
+	  
 
-        // ?? why are constructors not part of overloaded functions?
-        for(int i = 0; i < constructorStore.size(); i++){
-            Type tp = constructorStore.get(i);
-            if (tp.getName().equals(name) && tp.getArity() == arity) {
-                return new OverloadedFunction(name, tp,  new int[]{}, new int[] { i }, "");
-            }
-        }
-        
-        throw new NoSuchRascalFunction(name);
+	  // ?? why are constructors not part of overloaded functions?
+	  for(int i = 0; i < constructorStore.size(); i++){
+	    tp = constructorStore.get(i);
+	    if (tp.getName().equals(name) && tp.getArity() == arity) {
+	      return new OverloadedFunction(name, tp,  new int[]{}, new int[] { i }, "");
+	    }
+	  }
+
+	  throw new NoSuchRascalFunction(name);
 	}
 	
+	// deprecated
 	public OverloadedFunction getOverloadedFunction(String signature) throws NoSuchRascalFunction{
 		OverloadedFunction result = null;
 		
 		String name = types.getFunctionName(signature);
 		Type funType = types.getFunctionType(signature);
 		FunctionType ft = (FunctionType) funType;
+		int arity = ft.getArity();
 		
 		for(OverloadedFunction of : overloadedStore){
 			if(of.matchesNameAndSignature(name, funType)){
@@ -290,6 +373,16 @@ public abstract class RVMCore {
 			return result;
 		}
 		
+		ArrayList<Integer> filteredAlts = getFunctionByNameAndArity(name, arity);
+		if(filteredAlts.size() > 0){
+		  Type tp = tf.tupleType(tf.valueType()); // arbitrary!
+		  int falts[] = new int[filteredAlts.size()];
+		  for(int i = 0; i < falts.length; i++){
+		    falts[i] = filteredAlts.get(i);
+		  }
+		  return new OverloadedFunction(name, tp,  falts, new int[] { }, "");
+		}
+
 		for(int i = 0; i < constructorStore.size(); i++){
 			Type tp = constructorStore.get(i);
 			if(name.equals(tp.getName()) && ft.getFieldTypes().comparable(funType.getFieldTypes()) 
@@ -373,47 +466,31 @@ public abstract class RVMCore {
 	
 	/**
 	 * Execute an OverloadedFunction
-	 * @param func	OverloadedFunction
-	 * @param posAndKwArgs	Arguments (last one is a map with keyword arguments)
-	 * @return		Result of function execution
+	 * @param func	   OverloadedFunction
+	 * @param posArgs  Arguments (last one is a map with keyword arguments)
+	 * @param kwArgs   Keyword arguments
+	 * @return		   Result of function execution
 	 */
-	public IValue executeRVMFunction(OverloadedFunction func, IValue[] posAndKwArgs){
+	public IValue executeRVMFunction(OverloadedFunction func, IValue[] posArgs, Map<String, IValue> kwArgs){
 		if(func.getFunctions().length > 0){
 				Function firstFunc = functionStore[func.getFunctions()[0]]; 
 				Frame root = new Frame(func.scopeIn, null, null, func.getArity()+2, firstFunc);
 				OverloadedFunctionInstance ofi = OverloadedFunctionInstance.computeOverloadedFunctionInstance(func.functions, func.constructors, root, func.scopeIn, functionStore, constructorStore, this);
-				return executeRVMFunction(ofi, posAndKwArgs);
+				return executeRVMFunction(ofi, posArgs, kwArgs);
 		} else {
 			Type cons = constructorStore.get(func.getConstructors()[0]);
-			return vf.constructor(cons, posAndKwArgs);
+			return vf.constructor(cons, posArgs, kwArgs);
 		}
 	}
 	
-	/**
-	 * Execute an OverloadedFunction with positional and keyword arguments
-	 * @param func	OverloadedFunction
-	 * @param args	Positional arguments
-	 * @param kwArgs Keyword arguments
-	 * @return		Result of function execution
-	 */
-	public IValue executeRVMFunction(OverloadedFunction func, IValue[] posArgs, IMap kwArgs){
-		IValue[] args = new IValue[posArgs.length + 1];
-		int i = 0;
-		for(IValue argValue : posArgs) {
-			args[i++] = argValue;
-		}
-		args[i] = kwArgs;
-		
-		if(func.getFunctions().length > 0){
-				Function firstFunc = functionStore[func.getFunctions()[0]]; 
-				Frame root = new Frame(func.scopeIn, null, null, func.getArity()+2, firstFunc);
-				OverloadedFunctionInstance ofi = OverloadedFunctionInstance.computeOverloadedFunctionInstance(func.functions, func.constructors, root, func.scopeIn, functionStore, constructorStore, this);
-				
-				return executeRVMFunction(ofi, args);
-		} else {
-			Type cons = constructorStore.get(func.getConstructors()[0]);
-			return vf.constructor(cons, args);
-		}
+	public IList executeTests(ITestResultListener testResultListener, RascalExecutionContext rex){
+	  IListWriter w = vf.listWriter();
+	  for(Function f : functionStore){
+	    if(f.isTest){
+	      w.append(f.executeTest(testResultListener, getTypeStore(), rex));
+	    }
+	  }
+	  return w.done();
 	}
 	
 	/************************************************************************************/
@@ -433,18 +510,20 @@ public abstract class RVMCore {
 	/**
 	 * Execute a FunctionInstance
 	 * @param func		Function instance
-	 * @param posAndKwArgs		Arguments (last one is a map with keyword arguments)
+	 * @param posArgs	Arguments (last one is a map with keyword arguments)
+	 * @param kwArgs    Keyword arguments
 	 * @return			Result of function execution
 	 */
-	abstract public IValue executeRVMFunction(FunctionInstance func, IValue[] posAndKwArgs);
+	abstract public IValue executeRVMFunction(FunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs);
 	
 	/**
 	 * Execute an OverloadedFunctionInstance
-	 * @param func	OverloadedFunctionInstance
-	 * @param posAndKwArgs	Arguments (last one is a map with keyword arguments)
-	 * @return		Result of function execution
+	 * @param func	   OverloadedFunctionInstance
+	 * @param posArgs  Positional arguments
+	 * @param kwArgs   Keyword arguments
+	 * @return		   Result of function execution
 	 */
-	abstract public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posAndKwArgs);
+	abstract public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs);
 
 	/**
 	 * Execute a function during a visit
@@ -565,7 +644,7 @@ public abstract class RVMCore {
 			return "Matcher[" + ((Matcher) o).pattern() + "]";
 		}
 		if(o instanceof Thrown) {
-			return "THROWN[ " + asString(((Thrown) o).value) + " ]";
+			return "THROWN[ " + asString(((Thrown) o).getValue()) + " ]";
 		}
 		
 		if(o instanceof StringBuilder){
@@ -592,59 +671,6 @@ public abstract class RVMCore {
 	public String asString(Object o, int w){
 		String repr = asString(o);
 		return (repr.length() < w) ? repr : repr.substring(0, w) + "...";
-	}
-	
-	private static class ProxyInvocationHandler implements InvocationHandler {
-	    private final RVMCore core;
-
-        public ProxyInvocationHandler(RVMCore core, Class<?> clazz) {
-	        this.core = core;
-	        initialize(clazz);
-        }
-	    
-	    private void initialize(Class<?> clazz) {
-	        // TODO: some static checking and some caching.
-        }
-
-        @Override
-	    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            if (args[args.length - 1] instanceof IMap) { 
-                // keyword parameters present
-                OverloadedFunction f = core.getFirstOverloadedFunctionByNameAndArity(method.getName(), method.getParameterCount() - 1);
-                IMap kwArgs = (IMap) args[args.length - 1];
-                return core.executeRVMFunction(f, prepareArguments(args, true), kwArgs);
-            }
-            else { 
-                // no keyword parameters present
-                OverloadedFunction f = core.getFirstOverloadedFunctionByNameAndArity(method.getName(), method.getParameterCount());
-                return core.executeRVMFunction(f, prepareArguments(args, false));
-            }
-	    }
-
-        private IValue[] prepareArguments(Object[] args, boolean skipKeywordArguments) {
-            int len = args.length - (skipKeywordArguments ? 1 : 0);
-            IValue[] result = new IValue[len];
-            
-            for (int i = 0; i < len; i++) {
-                result[i] = prepareArgument(args[i]);
-            }
-            
-            return result;
-        }
-
-        private IValue prepareArgument(Object object) {
-           if (object instanceof Integer) {
-               return core.vf.integer((Integer) object);
-           }
-           else if (object instanceof String) {
-               return core.vf.string((String) object);
-           }
-           else if (object instanceof IValue) {
-               return (IValue) object;
-           }
-           
-           throw new IllegalArgumentException("parameter is not convertible to IValue:" + object.getClass().getCanonicalName());
-        }
 	}
 	
 	/********************************************************************************/
@@ -799,7 +825,7 @@ public abstract class RVMCore {
 		for (Frame fr = cf; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == varScope) {
 				// TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues
-				fr.stack[pos] = ((Thrown) stack[--sp]).value;
+				fr.stack[pos] = ((Thrown) stack[--sp]).getValue();
 				return sp;
 			}
 		}
@@ -834,33 +860,33 @@ public abstract class RVMCore {
 	
 	@SuppressWarnings("unchecked")
 	protected Object LOADVARKWP(final Frame cf, final int varScope, final int iname){
-		String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
-		
-		for(Frame f = cf.previousScope; f != null; f = f.previousCallFrame) {
-			if (f.scopeId == varScope) {	
-				if(f.function.nformals > 0){
-					Object okargs = f.stack[f.function.nformals - 1];
-					if(okargs instanceof Map<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
-						Map<String, IValue> kargs = (Map<String,IValue>) okargs;
-						if(kargs.containsKey(name)) {
-							IValue val = kargs.get(name);
-							//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
-							return val;
-							//}
-						}
-						Map<String, Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) f.stack[f.function.nformals];
+	  String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
 
-						if(defaults.containsKey(name)) {
-							Entry<Type, IValue> defaultValue = defaults.get(name);
-							//if(val.getType().isSubtypeOf(defaultValue.getKey())) {
-							return defaultValue.getValue();
-							//}
-						}
-					}
-				}
-			}
-		}				
-		throw new CompilerError("LOADVARKWP cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
+	  for(Frame f = cf.previousScope; f != null; f = f.previousCallFrame) {
+	    if (f.scopeId == varScope) {    
+	      if(f.function.nformals > 0){
+	        Object okargs = f.stack[f.function.nformals - 1];
+	        if(okargs instanceof Map<?,?>){ // Not all frames provide kwargs, i.e. generated PHI functions.
+	          Map<String, IValue> kargs = (Map<String,IValue>) okargs;
+	          if(kargs.containsKey(name)) {
+	            IValue val = kargs.get(name);
+	            //if(val.getType().isSubtypeOf(defaultValue.getKey())) {
+	            return val;
+	            //}
+	          }
+	          Map<String, Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) f.stack[f.function.nformals];
+
+	          if(defaults.containsKey(name)) {
+	            Entry<Type, IValue> defaultValue = defaults.get(name);
+	            //if(val.getType().isSubtypeOf(defaultValue.getKey())) {
+	            return defaultValue.getValue();
+	            //}
+	          }
+	        }
+	      }
+	    }
+	  }               
+	  throw new CompilerError("LOADVARKWP cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
 	protected int PUSHVARKWP(final Object[] stack, int sp, final Frame cf, final int varScope, final int iname){
@@ -914,29 +940,29 @@ public abstract class RVMCore {
 	
 	@SuppressWarnings("unchecked")
 	protected Object LOADLOCKWP(final Object[] stack, final Frame cf, final int iname){
-		String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
+	  String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
 
-		Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
-		Map.Entry<Type, IValue> defaultValue = defaults.get(name);
-		Frame f = cf;
-		
-		// TODO: UNCOMMENT TO GET KEYWORD PARAMETER PROPAGATION
-		//for(Frame f = cf; f != null; f = f.previousCallFrame) {
-			int nf = f.function.nformals;
-			if(nf > 0){								// Some generated functions have zero args, i.e. EQUIVALENCE
-				Object okargs = f.stack[nf - 1];
-				if(okargs instanceof Map<?,?>){	// Not all frames provide kwargs, i.e. generated PHI functions.
-					Map<String, IValue> kargs = (Map<String,IValue>) okargs;
-					if(kargs.containsKey(name)) {
-						IValue val = kargs.get(name);
-						if(val.getType().isSubtypeOf(defaultValue.getKey())) {
-							return val;
-						}
-					}
-				}
-			}
-		//}				
-		return defaultValue.getValue();
+	  Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
+	  Map.Entry<Type, IValue> defaultValue = defaults.get(name);
+	  Frame f = cf;
+
+	  // TODO: UNCOMMENT TO GET KEYWORD PARAMETER PROPAGATION
+	  //for(Frame f = cf; f != null; f = f.previousCallFrame) {
+	  int nf = f.function.nformals;
+	  if(nf > 0){                              // Some generated functions have zero args, i.e. EQUIVALENCE
+	    Object okargs = f.stack[nf - 1];
+	    if(okargs instanceof Map<?,?>){        // Not all frames provide kwargs, i.e. generated PHI functions.
+	      Map<String, IValue> kargs = (Map<String,IValue>) okargs;
+	      if(kargs.containsKey(name)) {
+	        IValue val = kargs.get(name);
+	        if(val.getType().isSubtypeOf(defaultValue.getKey())) {
+	          return val;
+	        }
+	      }
+	    }
+	  }
+	  //}             
+	  return defaultValue.getValue();
 	}
 	
 	protected int PUSHLOCKWP(final Object[] stack, int sp, final Frame cf, final int iname){
@@ -946,14 +972,14 @@ public abstract class RVMCore {
 	
 	// CALLCONSTR
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "unused"})
 	protected int CALLCONSTR(final Object[] stack, int sp, final int iconstructor, final int arity){
 		
 		Type constructor = constructorStore.get(iconstructor);
 		IValue[] args = new IValue[constructor.getArity()];
 
 		java.util.Map<String,IValue> kwargs;
-		@SuppressWarnings("unused")
+		
 		Type type = (Type) stack[--sp];		// TODO: emove from instruction
 		
 		kwargs = (java.util.Map<String,IValue>) stack[--sp];
@@ -1024,24 +1050,16 @@ public abstract class RVMCore {
 		if(clazz != null){
 			return clazz;
 		}
+		
 		try {
 			clazz = this.getClass().getClassLoader().loadClass(className);
-		} catch(ClassNotFoundException e1) {
-			// If the class is not found, try other class loaders
-			for(ClassLoader loader : this.classLoaders) {
-				try {
-					clazz = loader.loadClass(className);
-					break;
-				} catch(ClassNotFoundException e2) {
-					;
-				}
-			}
+			classCache.put(className, clazz);
+	        return clazz;
+		} 
+		catch(ClassNotFoundException | NoClassDefFoundError e1) {
+			throw new CompilerError("Class " + className + " not found", e1);
 		}
-		if(clazz == null) {
-			throw new CompilerError("Class " + className + " not found");
-		}
-		classCache.put(className, clazz);
-		return clazz;
+		
 	}
 	
 	public Object getJavaClassInstance(Class<?> clazz){
@@ -1059,13 +1077,25 @@ public abstract class RVMCore {
 		} 
 	}
 	
+	Method getJavaMethod(Class<?> clazz, String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect) {
+	    try {
+	        return clazz.getMethod(methodName, makeJavaTypes(methodName, className, parameterTypes, keywordTypes, reflect));
+	    }
+	    catch (NoSuchMethodException | SecurityException e) {
+	        throw new CompilerError("could not find Java method", e);
+	    }
+    }
+	
 	int callJavaMethod(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect, Object[] stack, int sp) throws Throw, Throwable {
-		Class<?> clazz = null;
-		try {
-			clazz = getJavaClass(className);
+	    Class<?> clazz = getJavaClass(className);
+	    Method m = getJavaMethod(clazz, methodName, className, parameterTypes, keywordTypes, reflect);
+	    return callJavaMethod(clazz, m, parameterTypes, keywordTypes, reflect, stack, sp);
+	}
+
+
+    int callJavaMethod(Class<?> clazz, Method m, Type parameterTypes, Type keywordTypes, int reflect, Object[] stack, int sp) throws Throw, Throwable {
+	    try {
 			Object instance = getJavaClassInstance(clazz);
-			
-			Method m = clazz.getMethod(methodName, makeJavaTypes(methodName, className, parameterTypes, keywordTypes, reflect));
 			int arity = parameterTypes.getArity();
 			int kwArity = keywordTypes.getArity();
 			int kwMaps = kwArity > 0 ? 2 : 0;
@@ -1091,12 +1121,12 @@ public abstract class RVMCore {
 			}
 			
 			if(reflect == 1) {
-				parameters[arity + kwArity] = converted.contains(className + "." + methodName) ? this.rex : null /*this.getEvaluatorContext()*/; // TODO: remove CTX
+				parameters[arity + kwArity] = converted.contains(clazz.getName() + "." + m.getName()) ? this.rex : null /*this.getEvaluatorContext()*/; // TODO: remove CTX
 			}
 			stack[sp - arity - kwMaps] =  m.invoke(instance, parameters);
 			return sp - arity - kwMaps + 1;
 		} 
-		catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException e) {
+		catch (SecurityException | IllegalAccessException | IllegalArgumentException e) {
 			throw new CompilerError("could not call Java method", e);
 		} 
 		catch (InvocationTargetException e) {
@@ -1111,7 +1141,8 @@ public abstract class RVMCore {
 		}
 	}
 	
-	private HashSet<String> converted = new HashSet<String>(Arrays.asList(
+	// Reflective methods where the CTX arguments has already been replaced by a REX argument
+	private static HashSet<String> converted = new HashSet<String>(Arrays.asList(
 			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ParsingTools.parseFragment",
 			"org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram.executeProgram",
 			"org.rascalmpl.library.experiments.Compiler.CoverageCompiled.startCoverage",
@@ -1142,13 +1173,16 @@ public abstract class RVMCore {
 			"org.rascalmpl.library.util.MonitorCompiled.event",
 			"org.rascalmpl.library.util.MonitorCompiled.endJob",
 			"org.rascalmpl.library.util.MonitorCompiled.todo",
+			"org.rascalmpl.library.util.ReflectiveCompiled.getCurrentPathConfig",
 			"org.rascalmpl.library.util.ReflectiveCompiled.parseModule",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getModuleLocation",
 			"org.rascalmpl.library.util.ReflectiveCompiled.getSearchPathLocation",
 			"org.rascalmpl.library.util.ReflectiveCompiled.inCompiledMode",
+			"org.rascalmpl.library.util.ReflectiveCompiled.parseNamedModuleWithSpaces",
 			"org.rascalmpl.library.util.ReflectiveCompiled.diff",
-			"org.rascalmpl.library.util.ReflectiveCompiled.watch"
-
+			"org.rascalmpl.library.util.ReflectiveCompiled.watch",
+			"org.rascalmpl.library.util.WebserverCompiled.serve"
+		
 			/*
 			 * 	TODO:
 			 * cobra::util::outputlogger::startLog
@@ -1188,15 +1222,9 @@ public abstract class RVMCore {
 			 *  util::tasks::Manager
 			 *  util::Eval
 			 *  util::Monitor
-			 *  util::Reflective
-			 *  
-			 *  util::Webserver
-			 *  
 			 *  vis::Figure::color
 			 *  
 			 *  Traversal::getTraversalContext
-			 *  
-			 *  tutor::HTMLGenerator
 			 *  
 			 *  **eclipse**
 			 *  util::Editors
@@ -1210,7 +1238,7 @@ public abstract class RVMCore {
 			 */
 	));
 			
-	Class<?>[] makeJavaTypes(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect){
+	private static Class<?>[] makeJavaTypes(String methodName, String className, Type parameterTypes, Type keywordTypes, int reflect){
 		JavaClasses javaClasses = new JavaClasses();
 		int arity = parameterTypes.getArity();
 		int kwArity = keywordTypes.getArity();

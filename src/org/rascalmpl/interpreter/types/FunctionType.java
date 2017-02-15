@@ -14,15 +14,27 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.types;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
+import org.rascalmpl.value.IConstructor;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IListWriter;
+import org.rascalmpl.value.ISetWriter;
+import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.IllegalOperationException;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeFactory.TypeReifier;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
@@ -33,13 +45,123 @@ public class FunctionType extends RascalType {
 	private final Type argumentTypes;
 	private final Type keywordParameters;
 	
-	private static final TypeFactory TF = TypeFactory.getInstance();
 	private static final RascalTypeFactory RTF = RascalTypeFactory.getInstance();
 	
 	/*package*/ FunctionType(Type returnType, Type argumentTypes, Type keywordParameters) {
-		this.argumentTypes = argumentTypes.isTuple() ? argumentTypes : TF.tupleType(argumentTypes);
+		this.argumentTypes = argumentTypes.isBottom() ? TF.tupleEmpty() : argumentTypes;
 		this.returnType = returnType;
 		this.keywordParameters = keywordParameters == null ? null : keywordParameters.isBottom() || (keywordParameters.isTuple() && keywordParameters.getArity() == 0) ? null : keywordParameters;
+	}
+	
+	public static class Reifier implements TypeReifier {
+	    @Override
+	    public Type getSymbolConstructorType() {
+	        throw new UnsupportedOperationException();
+	    }
+	    
+        @Override
+        public Set<Type> getSymbolConstructorTypes() {
+            return Arrays.stream(new Type[] { 
+                    normalFunctionSymbol(),
+                    oldNormalFunctionSymbol(),
+                    // TODO: remove this deprecated representation. A prod type is the same as a function type
+                    prodFunctionSymbol()
+            }).collect(Collectors.toSet());
+        }
+
+        private Type prodFunctionSymbol() {
+            return symbols().typeSymbolConstructor("prod", symbols().symbolADT(),  "sort", TF.stringType(), "name", TF.listType(symbols().symbolADT()), "parameters", TF.setType(symbols().attrADT()), "attributes");
+        }
+
+        private Type normalFunctionSymbol() {
+            return symbols().typeSymbolConstructor("func", symbols().symbolADT(), "ret", TF.listType(symbols().symbolADT()), "parameters", TF.listType(symbols().symbolADT()), "kwTypes");
+        }
+        
+        private Type oldNormalFunctionSymbol() {
+            return symbols().typeSymbolConstructor("func", symbols().symbolADT(), "ret", TF.listType(symbols().symbolADT()), "parameters");
+        }
+
+        @Override
+        public Type fromSymbol(IConstructor symbol, TypeStore store, Function<IConstructor, Set<IConstructor>> grammar) {
+            if (symbol.getConstructorType() == prodFunctionSymbol()) {
+                // TODO remove support for deprecated representation after bootstrap
+                Type returnType = symbols().fromSymbol((IConstructor) symbol.get("sort"), store, grammar);
+                Type parameters = symbols().fromSymbols((IList) symbol.get("parameters"), store, grammar);
+                
+                return RTF.functionType(returnType, parameters, TF.tupleEmpty());
+            } else {
+                Type returnType = symbols().fromSymbol((IConstructor) symbol.get("ret"), store, grammar);
+                Type parameters = symbols().fromSymbols((IList) symbol.get("parameters"), store, grammar);
+                
+                if (symbol.getConstructorType()  == oldNormalFunctionSymbol()) {
+                    return RTF.functionType(returnType, parameters, TF.tupleEmpty());
+                }
+                
+                Type kwTypes = symbols().fromSymbols((IList) symbol.get("kwTypes"), store, grammar);
+
+                // TODO: while merging the other branch had tf.voidType()...    
+                return RTF.functionType(returnType, parameters, kwTypes);
+            }
+        }
+        
+        @Override
+        public boolean isRecursive() {
+            return true;
+        }
+
+        @Override
+        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+            return RascalTypeFactory.getInstance().functionType(next.get(), randomTuple(next, store, rnd), rnd.nextBoolean() ? tf().voidType() : randomTuple(next, store, rnd));
+        }
+        
+        @Override
+        public void asProductions(Type type, IValueFactory vf, TypeStore store, ISetWriter grammar,
+                Set<IConstructor> done) {
+            ((FunctionType) type).getReturnType().asProductions(vf, store, grammar, done);
+
+            for (Type arg : ((FunctionType) type).getArgumentTypes()) {
+                arg.asProductions(vf, store, grammar, done);
+            }
+        }
+        
+        @Override
+        public IConstructor toSymbol(Type type, IValueFactory vf, TypeStore store,  ISetWriter grammar, Set<IConstructor> done) {
+            IListWriter w = vf.listWriter();
+            
+            int i = 0;
+            Type args = ((FunctionType) type).getArgumentTypes();
+            for (Type arg : args) {
+                IConstructor sym = arg.asSymbol(vf, store, grammar, done);
+                if (args.hasFieldNames()) {
+                    sym = symbols().labelSymbol(vf, sym, args.getFieldName(i));
+                }
+                i++;
+                w.append(sym);
+            }
+            
+            IListWriter kw = vf.listWriter();
+            
+            i = 0;
+            Type kwArgs = ((FunctionType) type).getKeywordParameterTypes();
+            if (kwArgs != null && !kwArgs.isBottom()) {
+                for (Type arg : kwArgs) {
+                    IConstructor sym = arg.asSymbol(vf, store, grammar, done);
+                    if (kwArgs.hasFieldNames()) {
+                        sym = symbols().labelSymbol(vf, sym, kwArgs.getFieldName(i));
+                    }
+                    i++;
+                    kw.append(sym);
+                }
+            }
+            
+            
+            return vf.constructor(normalFunctionSymbol(), ((FunctionType) type).getReturnType().asSymbol(vf, store, grammar, done), w.done(), kw.done());
+        }
+	}
+	
+	@Override
+	public TypeReifier getTypeReifier() {
+	    return new Reifier();
 	}
 	
 	@Override
@@ -51,6 +173,8 @@ public class FunctionType extends RascalType {
 	public Type asAbstractDataType() {
 		return RascalValueFactory.Production;
 	}
+	
+	
 	
 	@Override
 	public Type getFieldType(int i) {
@@ -173,9 +297,10 @@ public class FunctionType extends RascalType {
 	  Type returnType = getReturnType().lub(f.getReturnType());
 	  Type argumentTypes = getArgumentTypes().glb(f.getArgumentTypes());
 	  
-	  if (argumentTypes.isTuple()) {
-	    // TODO: figure out what lub means for keyword parameters!
-	    return RTF.functionType(returnType, argumentTypes, TF.voidType());
+	  if (argumentTypes.isTuple() && argumentTypes.getArity() == getArity()) {
+	    return RTF.functionType(returnType, 
+	        argumentTypes, 
+	        getKeywordParameterTypes() == f.getKeywordParameterTypes() ? getKeywordParameterTypes() : TF.voidType());
 	  }
 	  
 	  return TF.valueType();
@@ -231,10 +356,28 @@ public class FunctionType extends RascalType {
 		sb.append('(');
 		int i = 0;
 		for (Type arg : argumentTypes) {
-			if (i++ > 0) {
+			if (i > 0) {
 				sb.append(", ");
 			}
 			sb.append(arg.toString());
+			if (argumentTypes.hasFieldNames()) {
+			    sb.append(" " + argumentTypes.getFieldName(i));
+			}
+			
+			i++;
+		}
+		
+		if (keywordParameters != null) {
+		    i = 0;
+	        for (Type arg : keywordParameters) {
+	            sb.append(", ");
+	            sb.append(arg.toString());
+	            if (argumentTypes.hasFieldNames()) {
+	                sb.append(" " + argumentTypes.getFieldName(i) + " = ...");
+	            }
+	            
+	            i++;
+	        }
 		}
 		sb.append(')');
 		return sb.toString();

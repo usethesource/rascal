@@ -10,13 +10,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-
+ 
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.uri.URIUtil; 
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.IMapWriter;
 import org.rascalmpl.value.ISourceLocation;
 import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
@@ -26,9 +25,10 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
- * Option values can have the foloowing types;
+ * Option values can have the following types;
  *
  */
 enum OptionType {INT, STR, BOOL, LOCS, LOC};
@@ -65,26 +65,34 @@ enum OptionType {INT, STR, BOOL, LOCS, LOC};
  * <p>
  *     .boolOption("Y").help("and Y too!")
  *     <p>
- *     .rascalModule("Module to analyze")
+ *     .mdule("Module to analyze")
  *     <p>
  *     .handleArgs(args); // the string arguments coming from the command line
  * </code>
  */
 public class CommandOptions {
-
-	protected TypeFactory tf;
+    private static final String CLASSLOADERS_PATH_CONFIG_OPTION = "classloaders";
+    private static final String JAVA_COMPILER_PATH_PATH_CONFIG_OPTION = "javaCompilerPath";
+    private static final String COURSES_PATH_CONFIG_OPTION = "courses";
+    private static final String BOOT_PATH_CONFIG_OPTION = "boot";
+    private static final String BIN_PATH_CONFIG_OPTION = "bin";
+    private static final String LIB_PATH_CONFIG_OPTION = "lib";
+    private static final String SRC_PATH_CONFIG_OPTION = "src";
+    
+    protected TypeFactory tf;
 	protected org.rascalmpl.value.IValueFactory vf;
 	private boolean inCommandOptions = true;
 	private boolean singleModule = true;
 	
-	private IList rascalModules;
-	private String rascalModuleHelp;
+	private IList modules;
+	private int minModules = 0;
+	private int maxModules = 0;
+	private String moduleHelp;
 	
 	protected Options commandOptions;
 	private Options moduleOptions;
 	
 	private String commandName;
-    private boolean noModuleArgument = false;
 	
 	public CommandOptions(String commandName){
 		this.commandName = commandName;
@@ -92,8 +100,8 @@ public class CommandOptions {
 		vf = ValueFactoryFactory.getValueFactory();
 		commandOptions = new Options();
 		moduleOptions = new Options();
-		rascalModules = vf.list();
-		rascalModuleHelp = "Rascal Module";
+		modules = vf.list();
+		moduleHelp = "Rascal Module";
 	}
 	
 	public CommandOptions addOption(Option option){
@@ -212,7 +220,7 @@ public class CommandOptions {
 	 * @param name
 	 * @return value of option
 	 */
-	public IList getCommandlocsOption(String name){
+	public IList getCommandLocsOption(String name){
 		return (IList) commandOptions.get(OptionType.LOCS, name);
 	}
 
@@ -230,43 +238,59 @@ public class CommandOptions {
 	/****************************************************************************/
 	
 	/**
-	 * Command has one Rascal Module as argument
+	 * Command has one Module (Rascal Module, Course, ...) as argument
 	 * @param helpText describes the role of the single module argument
 	 * @return this CommandOptions
 	 */
-	public CommandOptions rascalModule(String helpText){
-		singleModule = true;
-		inCommandOptions = false;
-		rascalModuleHelp = helpText;
-		return this;
+	public CommandOptions module(String helpText){
+	    return modules(helpText, 1, 1);
 	}
 	
 	/**
-	 * Get the name of the single Rascal module argument of the command
+	 * Get the name of the single module argument of the command
 	 * @return module name
 	 */
-	public IString getRascalModule(){
-		return (IString) rascalModules.get(0);
+	public IString getModule(){
+		return (IString) modules.get(0);
 	}
 	
 	/**
-	 * Command has one or more Rascal Modules as argument
+	 * Command has one or more Modules as argument
 	 * @param helpText describes the role of the one or more module arguments
 	 * @return this CommandOptions
 	 */
-	public CommandOptions rascalModules(String helpText){
-		singleModule = false;
-		inCommandOptions = false;
-		rascalModuleHelp = helpText;
-		return this;
+	public CommandOptions modules(String helpText){
+	  return modules(helpText, 1, 1000000);
 	}
+	
+	/**
+     * Command has min or more Modules as argument
+     * @param helpText describes the role of the one or more module arguments
+     * @return this CommandOptions
+     */
+    public CommandOptions modules(String helpText, int min){
+      return modules(helpText, min, 1000000);
+    }
+	
+	/**
+     * Command has between min and max Modules as argument
+     * @param helpText describes the role of the one or more module arguments
+     * @return this CommandOptions
+     */
+    public CommandOptions modules(String helpText, int min, int max){
+        minModules = min;
+        maxModules = max;
+        inCommandOptions = false;
+        moduleHelp = helpText;
+        return this;
+    }
 
 	/**
-	 * Get the names of the Rascal module arguments of the command
+	 * Get the names of the module arguments of the command
 	 * @return list of module names
 	 */
-	public IList getRascalModules(){
-		return rascalModules;
+	public IList getModules(){
+		return modules;
 	}
 	
 	/****************************************************************************/
@@ -313,7 +337,7 @@ public class CommandOptions {
 					i += 2;
 				}
 			} else {
-				rascalModules = rascalModules.append(vf.string(args[i]));
+				modules = modules.append(vf.string(args[i]));
 				mainSeen = true;
 				i++;
 			}
@@ -342,12 +366,12 @@ public class CommandOptions {
 		}
 		checkDefaults();
 		
-		if (!noModuleArgument && rascalModules.length() == 0) {
+		if (modules.length() == 0 && minModules > 0) {
 			printUsageAndExit("Missing Rascal module" + (singleModule ? "" : "s"));
-		} else if (noModuleArgument && rascalModules.length() > 0) {
+		} else if (modules.length() > 0 && maxModules == 0) {
 		    printUsageAndExit("No modules expected");
-		} else if(rascalModules.length() > 1 && singleModule) {
-			printUsageAndExit("Duplicate modules defined: " + rascalModules);
+		} else if(modules.length() > maxModules) {
+			printUsageAndExit("Too many modules defined: " + modules);
 		}
 	}
 	
@@ -437,7 +461,7 @@ public class CommandOptions {
 			System.err.printf("%20s  %s\n", option.help(), option.helpText);
 		}
 
-		System.err.printf("%20s  %s\n", singleModule ? " <RascalModule>" : " <RascalModules>", rascalModuleHelp);
+		System.err.printf("%20s  %s\n", singleModule ? " <RascalModule>" : " <RascalModules>", moduleHelp);
 		for(Option option : moduleOptions){
 			System.err.printf("%20s  %s\n", option.help(), option.helpText);
 		}
@@ -460,14 +484,14 @@ public class CommandOptions {
 	}
 	
 	/**
-	 * @return all module options as an IMap
+	 * @return all module options as a Map
 	 */
-	public IMap getModuleOptionsAsIMap(){
-		IMapWriter w = vf.mapWriter();
+	public Map<String, IValue> getModuleOptionsAsMap(){
+	    Map<String,IValue> result = new HashMap<>();
 		for(Option option : moduleOptions){
-			w.put(vf.string(option.name), option.currentValue);
+			result.put(option.name, option.currentValue);
 		}
-		return w.done();
+		return result;
 	}
 	
 	/**
@@ -480,7 +504,7 @@ public class CommandOptions {
 	 */
 	ISourceLocation convertLoc(String loc){
 		if(loc.startsWith("|") && loc.endsWith("|")){
-			TypeStore store = new TypeStore();
+			TypeStore store = new TypeStore(RascalValueFactory.getStore());
 			Type start = TypeFactory.getInstance().sourceLocationType();
 
 			try (StringReader in = new StringReader(loc)) {
@@ -507,51 +531,81 @@ public class CommandOptions {
 		}
 	}
 	
-	public ISourceLocation getDefaultCourseLocation(){
-		try {
-			return vf.sourceLocation("courses", "", "");
-		} catch (URISyntaxException e) {
-			printUsageAndExit("Cannot create default course location: " + e.getMessage());
-			return null;
-		}
-	}
-
 	public IList getDefaultStdlocs(){
 		return vf.list(getDefaultStdLocation());
 	}
 	
 	public IList getDefaultCourses(){
-		return vf.list(getDefaultCourseLocation());
+		return PathConfig.getDefaultCoursesList();
 	}
 
 	public ISourceLocation getKernelLocation(){
-		try {
-			ISourceLocation boot = getCommandLocOption("boot");
-			return vf.sourceLocation("compressed+" + boot.getScheme(), "", boot.getPath() + "lang/rascal/boot/Kernel.rvm.ser.gz");
-		} catch (URISyntaxException e) {
-			printUsageAndExit("Cannot create default location: " + e.getMessage());
-			return null;
-		}
+	  ISourceLocation boot = getCommandLocOption(BOOT_PATH_CONFIG_OPTION);
+	  return RascalExecutionContext.getKernel(boot);
 	}
 
-	public ISourceLocation getDefaultBootLocation(){
-		try {
-			return vf.sourceLocation("boot", "", "");
-		} catch (URISyntaxException e) {
-			printUsageAndExit("Cannot create default location: " + e.getMessage());
-			return null;
-		}
-	}
+	public ISourceLocation getDefaultRelocLocation(){
+      try {
+          return vf.sourceLocation("noreloc", "", "");
+      } catch (URISyntaxException e) {
+          printUsageAndExit("Cannot create default location: " + e.getMessage());
+          return null;
+      }
+  }
 	
 	public PathConfig getPathConfig(){
-		return new PathConfig(getCommandlocsOption("src"),
-							  getCommandlocsOption("lib"),
-							  getCommandLocOption("bin"),
-							  getCommandLocOption("boot"));
+		return new PathConfig(getCommandLocsOption(SRC_PATH_CONFIG_OPTION),
+							  getCommandLocsOption(LIB_PATH_CONFIG_OPTION),
+							  getCommandLocOption(BIN_PATH_CONFIG_OPTION),
+							  getCommandLocOption(BOOT_PATH_CONFIG_OPTION),
+							  getCommandLocsOption(COURSES_PATH_CONFIG_OPTION),
+							  getCommandLocsOption(JAVA_COMPILER_PATH_PATH_CONFIG_OPTION),
+							  getCommandLocsOption(CLASSLOADERS_PATH_CONFIG_OPTION));
 	}
 
     public CommandOptions noModuleArgument() {
-        noModuleArgument = true;
+        return this;
+    }
+
+    public CommandOptions pathConfigOptions() {
+        this.locsOption(LIB_PATH_CONFIG_OPTION)      
+        .locsDefault((co) -> vf.list(co.getCommandLocOption(BIN_PATH_CONFIG_OPTION)))
+        .help("Add new lib location, use multiple --lib arguments for multiple locations")
+
+        .locsOption(SRC_PATH_CONFIG_OPTION)      
+        .locsDefault(getDefaultStdlocs().isEmpty() ? vf.list(getDefaultStdlocs()) : getDefaultStdlocs())
+        .help("Add (absolute!) source location, use multiple --src arguments for multiple locations")
+
+        .locOption(BOOT_PATH_CONFIG_OPTION)      
+        .locDefault(PathConfig.getDefaultBoot())
+        .help("Rascal boot directory")
+
+        .locOption(BIN_PATH_CONFIG_OPTION)
+        .locDefault(v -> {
+            IList srcs = v.getCommandLocsOption(SRC_PATH_CONFIG_OPTION);
+            if (srcs.length() > 0) {
+                return URIUtil.getChildLocation((ISourceLocation) srcs.get(0), "../bin");
+            }
+            else {
+                System.err.println("WARNING: using cwd:///rascal-bin as default bin target folder for Rascal compiler.");
+                return URIUtil.correctLocation("cwd", "", "rascal-bin");
+            }
+        })
+        .help("Directory for Rascal binaries")
+
+        .locsOption(COURSES_PATH_CONFIG_OPTION)
+        .locsDefault(PathConfig.getDefaultCoursesList())
+        .help("Add new courses location, use multiple --courses arguments for multiple locations")
+        
+        .locsOption(JAVA_COMPILER_PATH_PATH_CONFIG_OPTION)
+        .locsDefault(PathConfig.getDefaultJavaCompilerPathList())
+        .help("Add new java classpath location, use multiple --javaCompilerPath options for multiple locations")
+    
+        .locsOption(CLASSLOADERS_PATH_CONFIG_OPTION)
+        .locsDefault(PathConfig.getDefaultClassloadersList())
+        .help("Add new java classloader location, use multiple --classloader options for multiple locations")
+        ;
+    
         return this;
     }
 

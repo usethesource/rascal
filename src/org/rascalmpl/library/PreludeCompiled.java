@@ -193,7 +193,8 @@ public class PreludeCompiled extends Prelude {
 
 		public boolean less(IValue x, IValue y) {
 			return ((IBool) less.call(new Type[] { x.getType(), y.getType() },
-					new IValue[] { x, y }, null)).getValue();
+					                  new IValue[] { x, y }, 
+					                  null)).getValue();
 		}
 	}
 
@@ -297,12 +298,12 @@ public class PreludeCompiled extends Prelude {
 	
 	// public java &T<:Tree parse(type[&T<:Tree] begin, str input);
 	public IValue parse(IValue start, ISourceLocation input, IBool allowAmbiguity, RascalExecutionContext rex) {
-		return rex.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, allowAmbiguity.getValue(), null, rex);
+		return rex.getParsingTools().parse(super.values.string(rex.getFullModuleName()), start, input, allowAmbiguity.getValue(), null, rex);
 	}
 
 	// public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin);
 	public IValue parse(IValue start, IString input, IBool allowAmbiguity, RascalExecutionContext rex) {
-		return rex.getParsingTools().parse(super.values.string(rex.getCurrentModuleName()), start, input, allowAmbiguity.getValue(), null, rex);
+		return rex.getParsingTools().parse(super.values.string(rex.getFullModuleName()), start, input, allowAmbiguity.getValue(), null, rex);
 	}
 	
 	private TypeStore typeStore = new TypeStore();

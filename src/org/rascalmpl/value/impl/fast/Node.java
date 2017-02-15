@@ -24,7 +24,7 @@ import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.visitors.IValueVisitor;
 
-import io.usethesource.capsule.ArrayIterator;
+import io.usethesource.capsule.util.iterator.ArrayIterator;
 
 /**
  * Implementation of INode.

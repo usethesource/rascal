@@ -19,7 +19,7 @@ tools".
 
 */
 
-
+ 
 import List;
 import String;
 import IO;
@@ -32,7 +32,7 @@ int hv2h_crit = 70;
 alias options = map [str, int];
 options  oDefault = ("h":1,"v":0, "i":2, "t":10);
 
-@doc{Print boxes}   
+@doc{Print boxes}    
 public void fprint(Box b) {
   print(format(b));
 }
@@ -360,7 +360,7 @@ text QQ(Box b, Box c, options opts, foptions f, int m) {
          case  HV(list[Box] bl):{return  HVHV(bl, c, opts, m);}
          case  SPACE(int n):{return  hskip(n);}
          case  A(list[Box] bl):{return AA(bl, c, opts, f, m);}
-         case  R(list[Box] bl):{return RR(bl, c, opts, f, m);}
+         case  R(list[Box] bl):{return RR(bl, c, opts, m);}
          case KW(Box a):{return font(O(a, c, opts, m),"KW");}
          case VAR(Box a):{return  font(O( a, c, opts, m),"VR");}
          case NM(Box a):{return font(O( a, c, opts, m),"NM");}
@@ -405,9 +405,9 @@ list[list[Box]] RR(list[Box] bl, Box c, options opts, int m) {
      return [ [ boxSize(z, c, opts, m) | Box z <- b ] | list[Box] b<- g];
 }
 
-int maxWidth(list[Box] b) {
-     return max([c@width| Box c <- b]);
-     }
+int getMaxWidth(list[Box] b) {
+   return max([c@width| Box c <- b]);
+}
 
 list[int] Awidth(list[list[Box]] a) {
      if (isEmpty(a)) return [];
@@ -605,25 +605,25 @@ public text text2txt(text t) {
        
 
 
-
-public value toText(Box b, loc src, loc dest) {
-     text t = box2text(b);
-     writeData(src, dest, t, ".txt");
-     return t;
-     }
-     
-public value toLatex(Box b, loc src, loc dest) {
-     text t = box2latex(b);
-     writeData(src, dest, t, ".tex");
-     return t;
-     }
-
-  
-public value toHtml(Box b, loc src, loc dest) {
-     text t = box2html(b);
-     writeData(src, dest, t, ".html");
-     return t;
-     } 
+// JV TODO: these functions do not compile because writeData does not exist
+//public value toText(Box b, loc src, loc dest) {
+//     text t = box2text(b);
+//     writeData(src, dest, t, ".txt");
+//     return t;
+//     }
+//     
+//public value toLatex(Box b, loc src, loc dest) {
+//     text t = box2latex(b);
+//     writeData(src, dest, t, ".tex");
+//     return t;
+//     }
+//
+//  
+//public value toHtml(Box b, loc src, loc dest) {
+//     text t = box2html(b);
+//     writeData(src, dest, t, ".html");
+//     return t;
+//     } 
         
 void tst() {
   Box  b1 = R([L("ab"), L("c")]);
@@ -631,10 +631,6 @@ void tst() {
   Box  b3 = R([L("ijkl"), L("m")]);
   Box b = A([b1, b2, b3]);
   b@format=["c","c"];
-  /*
-  Box b = V([L("a"), V([L("b"), L("c")])@vs=0)@vs=1;
-  fprintln(b);
-  */
 } 
 
 public str baseName(str input) {

@@ -161,7 +161,7 @@ private map[UID inner_scope,UID outer_scope] containedIn = ();				// inverse of 
 
 private map[UID outer_scope, set[UID] inner_scopes_or_entities] containedOrDeclaredInPlus = ();
 
-private set[UID scope] importedModuleScopes = {};
+private set[UID] importedModuleScopes = {};
 private map[tuple[list[UID], UID], list[UID]] accessibleFunctions = ();
 private map[UID, set[UID]] accessibleScopes = ();
 
@@ -306,6 +306,8 @@ void extractScopes(Configuration c){
 	// - uid2str
 
    config = c;
+   
+   consLocationTypes = (l : t | l <- config.locationTypes, t:cons(_,_,_) := config.locationTypes[l]); 
 
    for(uid <- sort(toList(domain(config.store)))){
       item = config.store[uid];
@@ -358,12 +360,22 @@ void extractScopes(Configuration c){
              //}	
         }
         case constructor(rname,rtype,_,inScope,src): { 
-             //println("<uid>: <item>");
+             //if(!contains("<rtype>", "RuntimeException")){
+             //   println("<uid>: <item>");
+             //}
 			 constructors += {uid};
 			 declares += {<inScope, uid>};
 			 loc2uid[src] = uid;
 			 for(l <- config.uses[uid]) {
+			     //println("add from use: <l>");
 			     loc2uid[l] = uid;
+			 }
+			 /*!!!*/
+			 for(l <- consLocationTypes){
+			     if(consLocationTypes[l] == rtype){
+			        //println("add from locationTypes: <l>");
+			        loc2uid[l] = uid;
+			     }
 			 }
 			 // Fill in uid2name
 		     uid2name[uid] = getCUID(getSimpleName(rname),rtype);
@@ -374,6 +386,9 @@ void extractScopes(Configuration c){
         case datatype(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, set[loc] ats): {
             //println("<uid>: <item>");
             datatypes[rtype] = uid;
+            /*!!!*/
+            uid2name[uid] = getSimpleName(name);
+            uid2type[uid] = rtype;
         }
         case production(rname, rtype, inScope, p, src): {
              //println("<uid>: <item>");
@@ -458,11 +473,6 @@ void extractScopes(Configuration c){
       }
     }
     
-    // Make sure that the original and the normalized location is present.
-    //for(l <- config.Execu){
-    //	config.locationTypes[l] = config.locationTypes[l];
-    //}
-    
     // Precompute some derived values for efficiency:
     containmentPlus = containment+;
     declaresMap = toMap(declares);
@@ -485,11 +495,16 @@ void extractScopes(Configuration c){
     	//println("topdecls:");
     	//for(td <- topdecls){ println(td); }
     	
- 		fuid_module_init = getFUID(convert2fuid(muid),"#<module_name>_init",Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]),0);
+ 		fuid_module_init = getFUID(convert2fuid(muid),"#<module_name>_init",Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())],[]),0);
  		
     	for(i <- index(topdecls)) {
     		// Assign a position to module variables
-            uid2addr[topdecls[i]] = <fuid_module_init, i + 1>;
+    		mvar_pos = <fuid_module_init, i + 1>;
+            uid2addr[topdecls[i]] = mvar_pos;
+            // Associate this module variable's address with all its uses
+            for(u <- config.uses[topdecls[i]] ? {}){
+                uid2addr[getLoc2uid(u)] = mvar_pos;
+            }
             // Assign local positions to variables occurring in module variable initializations
             for(os <- outerScopes){
                 //println("os = <os>, <config.store[os].at>, <config.store[topdecls[i]].at>, <config.store[os].at < config.store[topdecls[i]].at>");
@@ -560,14 +575,25 @@ void extractScopes(Configuration c){
         for(int i <- index(decls_non_kwp)) {
         	// Note: we need to reserve positions for variables that will replace formal parameter patterns
         	// '+ 1' is needed to allocate the first local variable to store default values of keyword parameters
-        	uid2addr[decls_non_kwp[i]] = <fuid_str, i + nformals + 1>;
+        	non_kwp_pos = <fuid_str, i + nformals + 1>;
+        	uid2addr[decls_non_kwp[i]] = non_kwp_pos;
+        	// Associate this non-keyword variable's address with all its uses
+        	for(u <- config.uses[decls_non_kwp[i]] ? {}){
+                uid2addr[getLoc2uid(u)] = non_kwp_pos;
+            }
         }
         // Filter all the keyword variables (parameters) within the function scope
         decls_kwp = sort([ uid | UID uid <- declaresInnerScopes, variable(RName name,_,_,_,_) := config.store[uid], name in keywordParams ]);
        
         for(int i <- index(decls_kwp)) {
             keywordParameters += decls_kwp[i];
-            uid2addr[decls_kwp[i]] = <fuid_str, -1>; // ***Note: keyword parameters do not have a position
+            kwp_pos = <fuid_str, -1>; // ***Note: keyword parameters do not have a position
+            uid2addr[decls_kwp[i]] = kwp_pos;
+            
+            // Associate this keyword variable's address with all its uses
+            for(u <- config.uses[decls_kwp[i]] ? {}){
+                uid2addr[getLoc2uid(u)] = kwp_pos;
+            }
         }
         // Then, functions
         decls = [ uid | uid <- declaresInnerScopes, 
@@ -757,7 +783,7 @@ void extractConstantDefaultExpressions(){
         }  
      }
  
-    // Pass 2: collect all keyword fields and add them to constructorFields
+     // Pass 2: collect all keyword fields and add them to constructorFields
     
      for(tp <- config.dataKeywordDefaults){
         uid = tp[0];
@@ -787,7 +813,7 @@ void extractConstantDefaultExpressions(){
          the_constructor = config.store[uid];   // either constructor or datatype
          //println("the_constructor: <the_constructor>");
          //println("the_constructor.rtype: <the_constructor.rtype>");
-        if(!(the_constructor is datatype)){
+         if(!(the_constructor is datatype)){
              
              Symbol the_adt = (the_constructor.rtype has adt) ? the_constructor.rtype.\adt : the_constructor.rtype;
              //println("the_adt = <the_adt>");
@@ -818,8 +844,6 @@ void extractConstantDefaultExpressions(){
          }
     }
     //println("constructorConstantDefaultExpressions");
-    //println(constructorConstantDefaultExpressions);
-  
 }
 
 // Identify constant expressions and compute their value
@@ -876,14 +900,15 @@ int declareGeneratedFunction(str name, str fuid, Symbol rtype, loc src){
 
 // Get the type of an expression as Symbol
 Symbol getType(loc l) {
-   
+//   println("getType(<l>)");
     if(config.locationTypes[l]?){
+        //println("getType(<l>) = <config.locationTypes[l]>");
     	return config.locationTypes[l];
     }
     //////l = normalize(l);
-    iprintln(config.locationTypes);
+ //   iprintln(config.locationTypes);
     assert config.locationTypes[l]? : "getType for <l>";
-	//println("getType(<l>) = <config.locationTypes[l]>");
+//	println("getType(<l>) = <config.locationTypes[l]>");
 	return config.locationTypes[l];
 }	
 
@@ -977,17 +1002,17 @@ str getField(Symbol::label(l, t)) = "<t> <l>";
 default str getField(Symbol t) = "<t>";
 
 str getFUID(str fname, Symbol \type, int case_num) =
-  "<fname>(<for(p<-\type.parameters){><p>;<}>)#<case_num>";
+  "<fname>(<for(p<-\type.parameters?[]){><p>;<}>)#<case_num>";
   	
 str getFUID(str modName, str fname, Symbol \type, int case_num) = 
-	"<modName>/<fname>(<for(p<-\type.parameters){><p>;<}>)#<case_num>";
+	"<modName>/<fname>(<for(p<-\type.parameters?[]){><p>;<}>)#<case_num>";
 
 // NOTE: was "<\type.\adt>::<cname>(<for(label(l,t)<-tparams){><t> <l>;<}>)"; but that did not cater for unlabeled fields
-str getCUID(str cname, Symbol \type) = "<\type.\adt>::<cname>(<for(p<-\type.parameters){><getField(p)>;<}>)";
-str getCUID(str modName, str cname, Symbol \type) = "<modName>/<\type.\adt>::<cname>(<for(p <-\type.parameters){><getField(p)>;<}>)";
+str getCUID(str cname, Symbol \type) = "<\type.\adt>::<cname>(<for(p<-\type.parameters?[]){><getField(p)>;<}>)";
+str getCUID(str modName, str cname, Symbol \type) = "<modName>/<\type.\adt>::<cname>(<for(p <-\type.parameters?[]){><getField(p)>;<}>)";
 
-str getPUID(str pname, Symbol \type) = "<\type.\sort>::<pname>(<for(p <-\type.parameters){><getField(p)>;<}>)";
-str getPUID(str modName, str pname, Symbol \type) = "<modName>/<\type.\sort>::<pname>(<for(p <-\type.parameters){><getField(p)>;<}>)";
+str getPUID(str pname, Symbol \type) = "<\type.\sort>::<pname>(<for(p <-\type.parameters?[]){><getField(p)>;<}>)";
+str getPUID(str modName, str pname, Symbol \type) = "<modName>/<\type.\sort>::<pname>(<for(p <-\type.parameters?[]){><getField(p)>;<}>)";
 
 
 @doc{Generates a unique scope id: non-empty 'funNames' list implies a nested function}
@@ -1161,9 +1186,10 @@ public UID declaredScope(UID uid) {
 }
 
 public list[UID] accessibleAlts(list[UID] uids, loc luse){
-  //////luse = normalize(luse);
+  //println("accessibleAlts: <uids>, <luse>");
   inScope = config.usedIn[luse] ? 0; // All generated functions are placed in scope 0
   
+  //println("inScope = <inScope>");
   key = <uids, inScope>;
   if(accessibleFunctions[key]?){
   	res = accessibleFunctions[key];
@@ -1176,7 +1202,7 @@ public list[UID] accessibleAlts(list[UID] uids, loc luse){
   if(accessibleScopes[inScope]?){
      accessible = accessibleScopes[inScope];
   } else {
-     accessible = {0, 1, inScope} + containedOrDeclaredInPlus[inScope] + importedModuleScopes;
+     accessible = {0, 1, inScope} + (containedOrDeclaredInPlus[inScope] ? {}) + importedModuleScopes;
      accessibleScopes[inScope] = accessible;
      cachedScope = false;
   }
@@ -1191,26 +1217,28 @@ MuExp mkVar(str name, loc l) {
   //////l = normalize(l);
   //name = unescape(name);
   //println("mkVar: <name>, <l>");
+  //println("mkVar:getLoc2uid, <name>, <l>");
   uid = getLoc2uid(l);
-  //println("uid = <uid>");
   //iprintln(uid2addr);
   tuple[str fuid,int pos] addr = uid2addr[uid];
-  //println("addr = <addr>");
   
   // Pass all the functions through the overloading resolution
   if(uid in functions || uid in constructors || uid in ofunctions) {
     // Get the function uids of an overloaded function
-    //println("config.store[<uid>] = <config.store[uid]>");
     list[int] ofuids = (uid in functions || uid in constructors) ? [uid] : sortOverloadedFunctions(config.store[uid].items);
     //println("@@@ mkVar: <name>, <l>, ofuids = <ofuids>");
     //for(nnuid <- ofuids){
     //	println("<nnuid>: <config.store[nnuid]>");
     //}
     // Generate a unique name for an overloaded function resolved for this specific use
-    str ofuid = convert2fuid(config.usedIn[l]) + "/use:<name>#<l.begin.line>-<l.offset>";
+    //println("config.usedIn: <config.usedIn>");
     
+    str ofuid = (config.usedIn[l]? ? convert2fuid(config.usedIn[l]) : "") + "/use:<name>#<l.begin.line>-<l.offset>";
+ 
+    //str ofuid = convert2fuid(config.usedIn[l]) + "/use:<name>#<l.begin.line>-<l.offset>";
  
     addOverloadedFunctionAndResolver(ofuid, <name, config.store[uid].rtype, addr.fuid, ofuids>);
+    //println("return: <muOFun(ofuid)>");
   	return muOFun(ofuid);
   }
   
@@ -1301,88 +1329,114 @@ Symbol getElementType(Symbol t) = Symbol::\value();
 /*
  * translateType: translate a concrete (textual) type description to a Symbol
  */
+ 
+Symbol translateType(Type t) = simplifyAliases(translateType1(t));
 
-Symbol translateType((BasicType) `value`) 		= Symbol::\value();
-Symbol translateType(t: (BasicType) `loc`) 		= Symbol::\loc();
-Symbol translateType(t: (BasicType) `node`) 	= Symbol::\node();
-Symbol translateType(t: (BasicType) `num`) 		= Symbol::\num();
-Symbol translateType(t: (BasicType) `int`) 		= Symbol::\int();
-Symbol translateType(t: (BasicType) `real`) 	= Symbol::\real();
-Symbol translateType(t: (BasicType) `rat`)      = Symbol::\rat();
-Symbol translateType(t: (BasicType) `str`) 		= Symbol::\str();
-Symbol translateType(t: (BasicType) `bool`) 	= Symbol::\bool();
-Symbol translateType(t: (BasicType) `void`) 	= Symbol::\void();
-Symbol translateType(t: (BasicType) `datetime`)	= Symbol::\datetime();
+Symbol simplifyAliases(Symbol s){
+    return visit(s) { case \alias(str aname, [], Symbol aliased) => aliased };
+}
 
-Symbol translateType(t: (StructuredType) `bag [ <TypeArg arg> ]`) 
-												= \bag(translateType(arg)); 
-Symbol translateType(t: (StructuredType) `list [ <TypeArg arg> ]`) 
-												= \list(translateType(arg)); 
-Symbol translateType(t: (StructuredType) `map[ <TypeArg arg1> , <TypeArg arg2> ]`) 
-												= \map(translateType(arg1), translateType(arg2)); 
-Symbol translateType(t: (StructuredType) `set [ <TypeArg arg> ]`)
-												= \set(translateType(arg)); 
-Symbol translateType(t: (StructuredType) `rel [ <{TypeArg ","}+ args> ]`) 
-												= \rel([ translateType(arg) | arg <- args]);
-Symbol translateType(t: (StructuredType) `lrel [ <{TypeArg ","}+ args> ]`) 
-												= \lrel([ translateType(arg) | arg <- args]);
-Symbol translateType(t: (StructuredType) `tuple [ <{TypeArg ","}+ args> ]`)
-												= \tuple([ translateType(arg) | arg <- args]);
-Symbol translateType(t: (StructuredType) `type [ < TypeArg arg> ]`)
-												= \reified(translateType(arg));      
+private Symbol translateType1((BasicType) `value`) 		= Symbol::\value();
+private Symbol translateType1(t: (BasicType) `loc`) 	= Symbol::\loc();
+private Symbol translateType1(t: (BasicType) `node`) 	= Symbol::\node();
+private Symbol translateType1(t: (BasicType) `num`) 	= Symbol::\num();
+private Symbol translateType1(t: (BasicType) `int`) 	= Symbol::\int();
+private Symbol translateType1(t: (BasicType) `real`) 	= Symbol::\real();
+private Symbol translateType1(t: (BasicType) `rat`)     = Symbol::\rat();
+private Symbol translateType1(t: (BasicType) `str`) 	= Symbol::\str();
+private Symbol translateType1(t: (BasicType) `bool`) 	= Symbol::\bool();
+private Symbol translateType1(t: (BasicType) `void`) 	= Symbol::\void();
+private Symbol translateType1(t: (BasicType) `datetime`)= Symbol::\datetime();
 
-Symbol translateType(t : (Type) `(<Type tp>)`) 
-												= translateType(tp);
-Symbol translateType(t : (Type) `<UserType user>`) 
-												= translateType(user);
-Symbol translateType(t : (Type) `<FunctionType function>`) 
-												= translateType(function);
-Symbol translateType(t : (Type) `<StructuredType structured>`)  
-												= translateType(structured);
-Symbol translateType(t : (Type) `<BasicType basic>`)  
-												= translateType(basic);
-Symbol translateType(t : (Type) `<DataTypeSelector selector>`)  
+private Symbol translateType1(t: (StructuredType) `bag [ <TypeArg arg> ]`) 
+												= \bag(translateType1(arg)); 
+private Symbol translateType1(t: (StructuredType) `list [ <TypeArg arg> ]`) 
+												= \list(translateType1(arg)); 
+private Symbol translateType1(t: (StructuredType) `map[ <TypeArg arg1> , <TypeArg arg2> ]`) 
+												= \map(translateType1(arg1), translateType1(arg2)); 
+private Symbol translateType1(t: (StructuredType) `set [ <TypeArg arg> ]`)
+												= \set(translateType1(arg)); 
+private Symbol translateType1(t: (StructuredType) `rel [ <{TypeArg ","}+ args> ]`) 
+												= \rel([ translateType1(arg) | arg <- args]);
+private Symbol translateType1(t: (StructuredType) `lrel [ <{TypeArg ","}+ args> ]`) 
+												= \lrel([ translateType1(arg) | arg <- args]);
+private Symbol translateType1(t: (StructuredType) `tuple [ <{TypeArg ","}+ args> ]`)
+												= \tuple([ translateType1(arg) | arg <- args]);
+private Symbol translateType1(t: (StructuredType) `type [ < TypeArg arg> ]`)
+												= \reified(translateType1(arg));      
+
+private Symbol translateType1(t : (Type) `(<Type tp>)`) 
+												= translateType1(tp);
+private Symbol translateType1(t : (Type) `<UserType user>`) 
+												= translateType1(user);
+private Symbol translateType1(t : (Type) `<FunctionType function>`) 
+												= translateType1(function);
+private Symbol translateType1(t : (Type) `<StructuredType structured>`)  
+												= translateType1(structured);
+private Symbol translateType1(t : (Type) `<BasicType basic>`)  
+												= translateType1(basic);
+private Symbol translateType1(t : (Type) `<DataTypeSelector selector>`)  
 												{ throw "DataTypeSelector"; }
-Symbol translateType(t : (Type) `<TypeVar typeVar>`) 
-												= translateType(typeVar);
-Symbol translateType(t : (Type) `<Sym symbol>`)  
+private Symbol translateType1(t : (Type) `<TypeVar typeVar>`) 
+												= translateType1(typeVar);
+private Symbol translateType1(t : (Type) `<Sym symbol>`)  
 												= insertLayout(sym2symbol(symbol));		// make sure concrete lists have layout defined
 								 							   
-Symbol translateType(t : (TypeArg) `<Type tp>`) 
-												= translateType(tp);
-Symbol translateType(t : (TypeArg) `<Type tp> <Name name>`) 
-												= \label(getSimpleName(convertName(name)), translateType(tp));
+private Symbol translateType1(t : (TypeArg) `<Type tp>`) 
+												= translateType1(tp);
+private Symbol translateType1(t : (TypeArg) `<Type tp> <Name name>`) 
+												= \label(getSimpleName(convertName(name)), translateType1(tp));
 
-Symbol translateType(t: (FunctionType) `<Type tp> (<{TypeArg ","}* args>)`) 
-												= \func(translateType(tp), [ translateType(arg) | arg <- args]);
+private Symbol translateType1(t: (FunctionType) `<Type tp> (<{TypeArg ","}* args>)`) 
+												= Symbol::\func(translateType1(tp), [ translateType1(arg) | arg <- args], []);
 									
-Symbol translateType(t: (UserType) `<QualifiedName name>`) {
+private Symbol translateType1(t: (UserType) `<QualifiedName name>`) {
 	// look up the name in the type environment
 	val = getAbstractValueForQualifiedName(name);
-	
+
 	if(isDataType(val) || isNonTerminalType(val) || isAlias(val)) {
 		return val.rtype;
 	}
 	throw "The name <name> is not resolved to a type: <val>.";
 }
-Symbol translateType(t: (UserType) `<QualifiedName name>[<{Type ","}+ parameters>]`) {
+private Symbol translateType1(t: (UserType) `<QualifiedName name>[<{Type ","}+ parameters>]`) {
 	// look up the name in the type environment
 	val = getAbstractValueForQualifiedName(name);
 	
-	if(isDataType(val) || isNonTerminalType(val) || isAlias(val)) {
+	if(isAlias(val)) {
 		// instantiate type parameters
-		val.rtype.parameters = [ translateType(param) | param <- parameters];
-		return val.rtype;
+		aparameters = [p | p <- parameters]; // should be unnecessary
+		boundParams = [ translateType1(p) | p <- aparameters];
+		
+		assert size(aparameters) == size(val.rtype.parameters);
+		
+		bindings = (val.rtype.parameters[i].name : translateType1(aparameters[i]) | int i <- index(aparameters));
+		return visit(val.rtype.aliased){
+		          case param: \parameter(pname, bound): {
+    		          if(bindings[pname]?){
+    		            insert bindings[pname];
+    		          } else {
+    		            fail;
+    		          }
+		          }
+		       //case \alias(str aname, [], Symbol aliased) => aliased
+		       };
+	}
+	if(isDataType(val) || isNonTerminalType(val)){
+	    val.rtype.parameters = [ translateType1(param) | param <- parameters];
+        return val.rtype;
 	}
 	throw "The name <name> is not resolved to a type: <val>.";
 }  
 									
-Symbol translateType(t: (TypeVar) `& <Name name>`) 
+private Symbol translateType1(t: (TypeVar) `& <Name name>`) 
 												= \parameter(getSimpleName(convertName(name)), Symbol::\value());  
-Symbol translateType(t: (TypeVar) `& <Name name> \<: <Type bound>`) 
-												= \parameter(getSimpleName(convertName(name)), translateType(bound));  
+private Symbol translateType1(t: (TypeVar) `& <Name name> \<: <Type bound>`) 
+												= \parameter(getSimpleName(convertName(name)), translateType1(bound));  
 
-default Symbol translateType(Type t) {
+private default Symbol translateType1(Type t) {
 	throw "Cannot translate type <t>";
 }
+
+
 

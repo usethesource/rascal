@@ -4,9 +4,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
-import org.rascalmpl.library.lang.rascal.boot.Kernel;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
+import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -24,16 +23,8 @@ public class BootstrapRascalParser {
 	    try {
 	        IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	        CommandOptions cmdOpts = new CommandOptions("generateParser");
-	        cmdOpts
-	        .locsOption("src")		
-	        .locsDefault(cmdOpts.getDefaultStdlocs().isEmpty() ? vf.list(cmdOpts.getDefaultStdlocs()) : cmdOpts.getDefaultStdlocs())
-	        .respectNoDefaults()
-	        .help("Add (absolute!) source location, use multiple --src arguments for multiple locations")
-	        
-	        .locOption("boot")		
-	        .locDefault(cmdOpts.getDefaultBootLocation())
-	        .help("Rascal boot directory")
-	        
+	        cmdOpts.pathConfigOptions()
+        
             .boolOption("trace") 		
             .help("Print Rascal functions during execution of compiler")
             
@@ -46,16 +37,9 @@ public class BootstrapRascalParser {
 	        .noModuleArgument()
 	        .handleArgs(args);
 
-	        RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(ValueFactoryFactory.getValueFactory())
-	                .customSearchPath(cmdOpts.getPathConfig().getRascalSearchPath())
-	                .setTrace(cmdOpts.getCommandBoolOption("trace"))
-	                .setProfile(cmdOpts.getCommandBoolOption("profile"))
-	                .setVerbose(cmdOpts.getCommandBoolOption("verbose"))
-	                .build();
+	        IKernel kernel = Java2Rascal.Builder.bridge(vf, cmdOpts.getPathConfig(), IKernel.class).build();
 
-	        Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
-
-	        kernel.bootstrapRascalParser(cmdOpts.getCommandlocsOption("src"));
+	        kernel.bootstrapRascalParser(cmdOpts.getCommandLocsOption("src"));
 	    }
 		catch (Throwable e) {
 		    e.printStackTrace();

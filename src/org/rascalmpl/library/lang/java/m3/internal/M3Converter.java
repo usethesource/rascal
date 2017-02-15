@@ -2,7 +2,6 @@ package org.rascalmpl.library.lang.java.m3.internal;
 
 import java.util.Stack;
 
-import org.rascalmpl.ast.Comprehension.Map;
 import org.rascalmpl.value.IConstructor;
 import org.rascalmpl.value.IList;
 import org.rascalmpl.value.ISetWriter;
@@ -67,20 +66,20 @@ public abstract class M3Converter extends JavaToRascalConverter {
 	
 	public IValue getModel(boolean insertErrors) {
 		ownValue = values.constructor(CONSTRUCTOR_M3, loc);
-		setAnnotation("declarations", declarations.done());
-		setAnnotation("uses", uses.done());
-		setAnnotation("containment", containment.done());
-		setAnnotation("extends", extendsRelations.done());
-		setAnnotation("implements", implementsRelations.done());
-		setAnnotation("methodInvocation", methodInvocation.done());
-		setAnnotation("modifiers", modifiers.done());
-		setAnnotation("typeDependency", typeDependency.done());
-		setAnnotation("documentation", documentation.done());
-		setAnnotation("fieldAccess", fieldAccess.done());
-		setAnnotation("names", names.done());
-		setAnnotation("methodOverrides", methodOverrides.done());
-		setAnnotation("types", types.done());
-		setAnnotation("annotations", annotations.done());
+		setKeywordParameter("declarations", declarations.done());
+		setKeywordParameter("uses", uses.done());
+		setKeywordParameter("containment", containment.done());
+		setKeywordParameter("extends", extendsRelations.done());
+		setKeywordParameter("implements", implementsRelations.done());
+		setKeywordParameter("methodInvocation", methodInvocation.done());
+		setKeywordParameter("modifiers", modifiers.done());
+		setKeywordParameter("typeDependency", typeDependency.done());
+		setKeywordParameter("documentation", documentation.done());
+		setKeywordParameter("fieldAccess", fieldAccess.done());
+		setKeywordParameter("names", names.done());
+		setKeywordParameter("methodOverrides", methodOverrides.done());
+		setKeywordParameter("types", types.done());
+		setKeywordParameter("annotations", annotations.done());
 		insertCompilationUnitMessages(insertErrors, messages.done());
 		return ownValue;
 	}

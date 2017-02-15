@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.rascalmpl.interpreter.types.FunctionType;  // TODO: remove import: NO
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.value.IInteger;
 import org.rascalmpl.value.IListWriter;
 import org.rascalmpl.value.ISourceLocation;
@@ -27,7 +28,7 @@ public class Frame {
 	 * 
 	 * stack[0] ... stack[nformals-1] 		  : the given actual parameters
 	 * stack[nformals-1] 					  : actual keyword parameters
-	 * stack[nformals]                        : defaul keyword parameters
+	 * stack[nformals]                        : default keyword parameters
 	 * stack[nformals+1] ... stack[nlocals-1] : local variables and temporaries
 	 * stack[nlocals] ... stack[stackSize-1]  : intermediate results during execution
 	 * 
@@ -165,7 +166,7 @@ public class Frame {
 		int start = sp - arity;
 		assert start >= 0;
 		if(!function.isVarArgs) {
-			assert this.sp + arity == function.nformals;
+			//assert this.sp + arity == function.nformals;
 			for(int i = 0; i < arity; i++){
 				this.stack[this.sp++] = stack[start + i]; 
 			}
@@ -245,11 +246,15 @@ public class Frame {
 //		}
 		
 		s.append(")");
-		if(src != null){
-			s.append(" at ").append(src);
+		if(src != null && !isConsoleMainFrame()){
+			s.append("\n\t\tat ").append(src);
 		}
 		return s.toString();
 	}
+	
+	boolean isConsoleMainFrame(){
+      return src.getPath().contentEquals(CommandExecutor.consoleInputPath) && function.getPrintableName().contains("main");
+    }
 	
 	private StringBuilder indent(){
 		int n = 0;
@@ -287,11 +292,11 @@ public class Frame {
 			String varName = ((IString) entry.getValue()).getValue();
 			int varPos = ((IInteger) entry.getKey()).intValue();
 			Object v = stack[varPos];
-			if(v != null && !varName.equals("map_of_default_values") && v instanceof IValue){
+			if(v != null && !varName.equals("map_of_default_values") && v instanceof IValue && varPos >  this.function.nformals){
 				    if(varName.matches("[0-9]+")){
 				    	varName = "arg " + varName;
 				    }
-					stdout.println("\t" + varName + ": " + RascalPrimitive.$value2string((IValue) v));
+					stdout.println("\t" + varName + ": " + abbrev(RascalPrimitive.$value2string((IValue) v)));
 			}
 		}
 		if(stack[function.nformals-1] instanceof HashMap<?, ?>){
@@ -300,7 +305,8 @@ public class Frame {
 			for(String kwParam : kwParams.keySet()){
 				IValue v = kwParams.get(kwParam);
 				if(v != null){
-					stdout.println("\t" + kwParam + "=" + RascalPrimitive.$value2string(v));
+					stdout.println("\t" + kwParam + "=" + abbrev(RascalPrimitive.$value2string(v))
+					);
 				}
 			}
 		}

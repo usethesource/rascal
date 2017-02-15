@@ -83,7 +83,6 @@ public class StandardTextReader extends AbstractTextReader {
 	private int current;
 	private Cache<String, ISourceLocation> sourceLocationCache;
 
-	@SuppressWarnings("serial")
   public IValue read(IValueFactory factory, TypeStore store, Type type, Reader stream) throws FactTypeUseException, IOException {
 		this.store = store;
 		this.stream = new NoWhiteSpaceReader(stream);
@@ -989,11 +988,11 @@ public class StandardTextReader extends AbstractTextReader {
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
 			sb.append(String.format("%02d",hour)).append(":").append(String.format("%02d",minute)).append(":").append(String.format("%02d",second)).append(".").append(String.format("%03d",millisecond));
-			if (timezoneHours < 0)
+			if (timezoneHours < 0 || (timezoneHours == 0 && timezoneMinutes < 0))
 				sb.append("-");
 			else
 				sb.append("+");
-			sb.append(String.format("%02d",Math.abs(timezoneHours))).append(":").append(String.format("%02d",timezoneMinutes));
+			sb.append(String.format("%02d",Math.abs(timezoneHours))).append(":").append(String.format("%02d",Math.abs(timezoneMinutes)));
 			return sb.toString();
 		}
 	}

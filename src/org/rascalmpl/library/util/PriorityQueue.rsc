@@ -21,7 +21,7 @@ Priority queues maintain (priority, value) pairs in sorted order. They are imple
 http://en.wikipedia.org/wiki/Binomial_heap[Binomial Heap]. Priority queue are, for instance, used to implement shortest path algorithms.
 
 Provides the following functions:
-subtoc::[1]
+loctoc::[1]
 
 .Examples
 
@@ -216,24 +216,6 @@ private PriorityQueue mergeQueue(PriorityQueue p, PriorityQueue q){
    //println("heapTrees=<heapTrees>");
    //println("minIndexFromEnd=<minIndexFromEnd>, minPrio=<minPrio>, min=<min>");
     return priorityQueue(heapTrees, min);
-}
-    
-test bool prioTest() {
-   
-   Q = mkPriorityQueue();
-   
-   elms = [10, 8, 50, 30, 1];
-   for(int i <- elms)
-    	Q = insertElement(Q, i, i);
-    
-   
-   list[int] sorted = [];
-   while(size(sorted) < size(elms)){
-   	         <minimum, minVal, Q> = extractMinimum(Q);
-   	         sorted = sorted + [minimum];
-   }
-   
-   return true;
 }
 		
         

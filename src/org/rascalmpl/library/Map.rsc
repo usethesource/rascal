@@ -18,7 +18,7 @@ Library functions for maps.
 For operators on maps see link:/Rascal#Values-Map[Map] in the Rascal Language Reference.
 
 The following functions are defined for maps:
-subtoc::[1]
+loctoc::[1]
 }
 module Map
 

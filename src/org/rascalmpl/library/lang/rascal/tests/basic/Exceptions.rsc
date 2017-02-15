@@ -515,6 +515,8 @@ test bool exceptionHandlingNotHandled(){
 	}
 }
 
+//@ignoreCompiler{Renamed Exception}
+@ignore
 test bool exceptionHandlingNotHandledSimple(){
 	void divide() { 1/0; }
 
@@ -528,6 +530,23 @@ test bool exceptionHandlingNotHandledSimple(){
 	catch value v: {
 		return v == ArithmeticException("/ by zero");
 	}
+}
+
+//@ignoreInterpreter{Renamed Exception}
+@ignore
+test bool exceptionHandlingNotHandledSimple(){
+    void divide() { 1/0; }
+
+    value main() {
+        return divide();
+    }
+    
+    try {
+        return main();
+    } 
+    catch value v: {
+        return v == ArithmeticException("divide by zero");
+    }
 }
 
 test bool rascalException1() {

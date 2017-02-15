@@ -15,20 +15,20 @@ public class Thrown extends RuntimeException {
 	private static Thrown instance = new Thrown();
 	
 	public IValue value;
-	ISourceLocation loc;
-	Throwable cause;
+	private ISourceLocation loc;
+	private Throwable cause;
 	
 	Frame currentFrame;
 	
 	private Thrown() {
 		super();
-		this.value = null;
+		this.setValue(null);
 		this.currentFrame = null;
 		this.cause = null;
 	}
 	
 	public static Thrown getInstance(IValue value, ISourceLocation loc, Frame currentFrame) {
-		instance.value = value;
+		instance.setValue(value);
 		instance.loc = loc;
 		instance.currentFrame = currentFrame;
 		return instance;
@@ -43,46 +43,72 @@ public class Thrown extends RuntimeException {
 	public static Thrown getInstance(IValue value, Frame currentFrame) {
 		return getInstance(value,  currentFrame != null ? currentFrame.src : null, currentFrame);
 	}
+	
+	 public IValue getValue() {
+	    return value;
+	  }
+
+	  public void setValue(IValue value) {
+	    this.value = value;
+	  }
+	
+	public Frame getFrame(){
+	  return currentFrame;
+	}
 
 	public String toString() {
-		return value.toString();
+		return getValue().toString();
 	}
 	
 	public String getAdvice(){
-		if(value.getType().isConstructor()){
+		if(getValue().getType().isConstructor()){
 			String prefix = "http://tutor.rascal-mpl.org/Errors/Dynamic/";
-			String cn = ((IConstructor) value).getName();
+			String cn = ((IConstructor) getValue()).getName();
 			return "Advice: |" + prefix + cn + "/" + cn + ".html|";
 		}
 		return "";
 	}
 	
 	public void printStackTrace(PrintWriter stdout) {
-		stdout.println(this.toString() + ((loc != null) ? " at " + loc : "") );
-		
-		while (cause != null) {
-			stdout.println("Caused by (most recent first):");
-			for (StackTraceElement e : cause.getStackTrace()) {
-				if (e.getMethodName().equals("invoke0")) {
-					break;
-				}
-				String location = "|file:///" + e.getFileName() + "|(0,1,<" + e.getLineNumber() + ",1>,<" +  e.getLineNumber() + ",1>)";
-				stdout.println("\t"+location +":" + e.getClassName() + "." + e.getMethodName() + "()");
-			}
-			
-			cause = cause.getCause() != cause ? getCause() : null;
-		}
-		
-		if(currentFrame != null){
-			stdout.println("Call stack (most recent first):");
+	  if(currentFrame != null){
+	    if(!currentFrame.isConsoleMainFrame()){
+	      stdout.println(this.toString() + ((loc != null) ? " at " + loc : "") );
+	    }
 
-			for(Frame f = currentFrame; f != null; f = f.previousCallFrame) {
-				stdout.println("\t" + f/* + " at " + f.src*/);
-			}
-		} else {
-			stdout.println("No call stack available");
-		}
-		stdout.println(getAdvice());
+	    while (cause != null) {
+	      stdout.println("Caused by (most recent first):");
+	      for (StackTraceElement e : cause.getStackTrace()) {
+	        if (e.getMethodName().equals("invoke0")) {
+	          break;
+	        }
+	        String location = "|file:///" + e.getFileName() + "|(0,1,<" + e.getLineNumber() + ",1>,<" +  e.getLineNumber() + ",1>)";
+	        stdout.println("\t"+location +":" + e.getClassName() + "." + e.getMethodName() + "()");
+	      }
+
+	      cause = cause.getCause() != cause ? getCause() : null;
+	    }
+
+	    if(currentFrame != null){
+	      if(!currentFrame.isConsoleMainFrame()){
+	        stdout.println("Call stack (most recent first):");
+
+	        for(Frame f = currentFrame; f != null; f = f.previousCallFrame) {
+	          if(f.isConsoleMainFrame()){
+	            stdout.println("\tinput from console");
+	          } else {
+	            stdout.println("\t" + f);
+	          }
+	        }
+	        stdout.println(getAdvice());
+	      }
+	    } else {
+	      stdout.println("No call stack available");
+	    }
+	  }
 	}
+
+ 
+	
+	
 	
 }

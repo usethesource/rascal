@@ -34,7 +34,7 @@ void translate(t: (Toplevel) `<Declaration decl>`) = translate(decl);
 
 void translate(d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <{Variable ","}+ variables> ;`) {
 	module_name = getModuleName();
-    ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
+    ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())], []);
     enterFunctionScope(getFUID(module_name,"#<module_name>_init",ftype,0));
    	for(var <- variables){
    		addVariableToModule(muVariable("<var.name>"));
@@ -80,86 +80,130 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   enterFunctionDeclaration(fd@\loc);
 
   try {
-  ttags =  translateTags(fd.tags);
-  if(ignoreTest(ttags)){
-  	return;
-  }
-  tmods = translateModifiers(fd.signature.modifiers);
-  
-  ftype = getFunctionType(fd@\loc);
-  nformals = size(ftype.parameters);
-  uid = getLoc2uid(fd@\loc);
-  fuid = convert2fuid(uid);
- 
-  enterFunctionScope(fuid);
-  
-  tuple[str fuid,int pos] addr = uid2addr[uid];
-  bool isVarArgs = (varArgs(_,_) := fd.signature.parameters);
-  
-  // Keyword parameters
-  list[MuExp] kwps = translateKeywordParameters(fd.signature.parameters, fuid, getFormals(uid), fd@\loc);
-  
-  if(ttags["javaClass"]?){
-     paramTypes = \tuple([param | param <- ftype.parameters]);
-     params = [ muVar("<ftype.parameters[i]>", fuid, i) | i <- [ 0 .. nformals] ];
+      ttags =  translateTags(fd.tags);
+      tmods = translateModifiers(fd.signature.modifiers);
+      if(ignoreTest(ttags)){
+          // The type checker does not generate type information for ignored functions
+          addFunctionToModule(muFunction("/ignored-<fd@\loc.offset>()", 
+                                         "<fd.signature.name>", 
+                                         Symbol::\void(),
+                                         [],
+                                         Symbol::\tuple([]),
+                                         "", 
+                                         0, 
+                                         0, 
+                                         false, 
+                                         true, 
+                                         fd@\loc, 
+                                         tmods, 
+                                         ttags,
+                                         false, 
+                                         0,
+                                         0,
+                                         muReturn1(muCon(false))));
+          	return;
+      }
      
-     keywordTypes = \tuple([]);
-     KeywordFormals kwfs = fd.signature.parameters.keywordFormals;
-     if(kwfs is \default) {
-      	keywordTypes = \tuple([ label("<kwf.name>", translateType(kwf.\type)) | KeywordFormal kwf <- kwfs.keywordFormalList]);
-      	params +=  [ muVar("map_of_keyword_values",fuid,nformals), muVar("map_of_default_values",fuid,nformals+1)];
-     }
-     if("<fd.signature.name>" == "typeOf"){		// Take note: special treatment of Types::typeOf
-     	body = muCallPrim3("type2symbol", [ muCallPrim3("typeOf", params, fd@\loc), muCon(getGrammar()) ], fd@\loc);
-     } else {
-        body = muCallJava("<fd.signature.name>", ttags["javaClass"], paramTypes, keywordTypes, ("reflect" in ttags) ? 1 : 0, params);
-     }
-  }
- 
-  isPub = !fd.visibility is \private;
-  isMemo = ttags["memo"]?;
-  tbody = translateFunction("<fd.signature.name>", fd.signature.parameters.formals.formals, isVarArgs, kwps, body, isMemo, when_conditions);
- 
-  formals = [formal | formal <- fd.signature.parameters.formals.formals];
-  //if(nformals > 0) println("formals[0] = <formals[0]>");
-  
-  absfpArg = nformals > 0 ? fingerprint(formals[0], false) : 0;
-  //println("absfpArg = <absfpArg>");
-  isConcreteArg = nformals > 0 ? isConcretePattern(formals[0]) : false;
-  concfpArg = nformals > 0 && isConcreteArg ? fingerprint(formals[0], true) : 0;
-  //println("concfpArg = <concfpArg>");
- 
- 
-  //println("translateFunctionDeclaration, fd = <fd>");
-  
-  //println("translateFunctionDeclaration: <fuid>, <addr.fuid>, <moduleNames>,  addr.fuid in moduleNames = <addr.fuid in moduleNames>");
-  
-  addFunctionToModule(muFunction(fuid, 
-  								 "<fd.signature.name>", 
-  								 ftype, 
-  								 (addr.fuid in moduleNames) ? "" : addr.fuid, 
-  								 getFormals(uid), 
-  								 getScopeSize(fuid), 
-  								 isVarArgs, 
-  								 isPub, 
-  								 fd@\loc, 
-  								 tmods, 
-  								 ttags,
-  								 isConcreteArg, 
-  								 absfpArg,
-  								 concfpArg,
-  								 tbody));
-  
-  if("test" in tmods){
-     params = ftype.parameters;
-     addTestToModule(muCallPrim3("testreport_add", [muCon(fuid),  muCon(ignoreTest(ttags)), muCon(ttags["expected"] ? ""), muCon(fd@\loc)] + [ muCon(symbolToValue(\tuple([param | param <- params ]))) ], fd@\loc));
-  }
-  leaveFunctionScope();
-  leaveFunctionDeclaration();
-  
+      ftype = getFunctionType(fd@\loc);
+      argNames = getParameterNames(fd.signature.parameters.formals.formals);
+      nformals = size(ftype.parameters);
+      uid = getLoc2uid(fd@\loc);
+      fuid = convert2fuid(uid);
+      
+      //println("argNames = <argNames>, nformals = <nformals>");
+     
+      enterFunctionScope(fuid);
+      
+      tuple[str fuid,int pos] addr = uid2addr[uid];
+      bool isVarArgs = (varArgs(_,_) := fd.signature.parameters);
+      
+      // Keyword parameters
+      list[MuExp] kwps = translateKeywordParameters(fd.signature.parameters, fuid, getFormals(uid), fd@\loc);
+      
+      KeywordFormals kwfs = fd.signature.parameters.keywordFormals;
+      keywordTypes = \tuple([]);
+      if(kwfs is \default){
+         keywordTypes = \tuple([ label("<kwf.name>", translateType(kwf.\type)) | KeywordFormal kwf <- kwfs.keywordFormalList]);
+      }
+      
+      if(ttags["javaClass"]?){
+         paramTypes = \tuple([param | param <- ftype.parameters]);
+         params = [ muVar(argNames[i], fuid, i) | i <- [ 0 .. nformals] ];
+         
+         if(kwfs is \default) {
+          	params +=  [ muVar("map_of_keyword_values",fuid,nformals), muVar("map_of_default_values",fuid,nformals+1)];
+         }
+         if("<fd.signature.name>" == "typeOf"){		// Take note: special treatment of Types::typeOf
+         	body = muCallPrim3("type2symbol", [ muCallPrim3("typeOf", params, fd@\loc), muCon(getGrammar()) ], fd@\loc);
+         } else {
+            body = muCallJava("<fd.signature.name>", ttags["javaClass"], paramTypes, keywordTypes, ("reflect" in ttags) ? 1 : 0, params);
+         }
+      }
+     
+      isPub = !fd.visibility is \private;
+      isMemo = ttags["memo"]?;
+      tbody = translateFunction("<fd.signature.name>", fd.signature.parameters.formals.formals, isVarArgs, kwps, body, isMemo, when_conditions);
+     
+      formals = [formal | formal <- fd.signature.parameters.formals.formals];
+      //if(nformals > 0) println("formals[0] = <formals[0]>");
+      
+      absfpArg = nformals > 0 ? fingerprint(formals[0], false) : 0;
+      //println("absfpArg = <absfpArg>");
+      isConcreteArg = nformals > 0 ? isConcretePattern(formals[0]) : false;
+      concfpArg = nformals > 0 && isConcreteArg ? fingerprint(formals[0], true) : 0;
+      //println("concfpArg = <concfpArg>");
+     
+     
+      //println("translateFunctionDeclaration, fd = <fd>");
+      
+      //println("translateFunctionDeclaration: <fuid>, <addr.fuid>, <moduleNames>,  addr.fuid in moduleNames = <addr.fuid in moduleNames>");
+      
+      addFunctionToModule(muFunction(fuid, 
+      								 "<fd.signature.name>", 
+      								 ftype,
+      								 argNames,
+      								 keywordTypes,
+      								 (addr.fuid in moduleNames) ? "" : addr.fuid, 
+      								 getFormals(uid), 
+      								 getScopeSize(fuid), 
+      								 isVarArgs, 
+      								 isPub, 
+      								 fd@\loc, 
+      								 tmods, 
+      								 ttags,
+      								 isConcreteArg, 
+      								 absfpArg,
+      								 concfpArg,
+      								 tbody));
+      
+      leaveFunctionScope();
+      leaveFunctionDeclaration();
+      
   } catch e: {
         throw "EXCEPTION in translateFunctionDeclaration, compiling <fd.signature.name>: <e>";
   }
+}
+
+list[str] getParameterNames({Pattern ","}* formals){
+     int arity = size(formals);
+    
+     abs_formals = [f | f <- formals];
+     names =
+     for(int i <- [0 .. arity]){
+         str argName = "arg<i>";
+         
+         if((Pattern)`<Type pt> <Name pn>` := abs_formals[i]){
+              argName = "<pn>";
+         } else if((Pattern)`<Name pn>` := abs_formals[i]){
+              argName = "<pn>";
+         } else if((Pattern) `<Name name> : <Pattern pattern>` := abs_formals[i]){
+            argName = "<name>";
+         } else if((Pattern) `<Type tp> <Name name> : <Pattern pattern>` := abs_formals[i]){
+            argName = "<name>";
+         }
+         append argName; 
+     }
+     return names; 
 }
 
 /********************************************************************/
@@ -230,6 +274,8 @@ public map[str,str] translateTags(Tags tags){
    }
    return m;
 }
+
+private bool ignoreCompilerTest(map[str, str] tags) = !isEmpty(domain(tags) & {"ignoreCompiler", "IgnoreCompiler"});
 
 private bool ignoreTest(map[str, str] tags) = !isEmpty(domain(tags) & {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
 

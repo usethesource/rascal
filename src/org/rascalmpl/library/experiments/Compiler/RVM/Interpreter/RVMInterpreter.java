@@ -23,9 +23,7 @@ import org.rascalmpl.value.type.Type;
 public class RVMInterpreter extends RVMCore {
 	
 	public RVMInterpreter(RVMExecutable rvmExec, RascalExecutionContext rex) {
-		super(rvmExec, rex);			
-
-		Opcode.init(stdout, rex.getProfile());
+		super(rvmExec, rex);
 	}
 	
 	Configuration getConfiguration() { return rex.getConfiguration(); }
@@ -61,14 +59,15 @@ public class RVMInterpreter extends RVMCore {
 	 * Implements abstract function for RVM interpreter
 	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FunctionInstance, org.rascalmpl.value.IValue[])
 	 */
-	public IValue executeRVMFunction(FunctionInstance func, IValue[] args){
+	public IValue executeRVMFunction(FunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs){
 		Frame root = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
 		Frame cf = root;
 
 		// Pass the program arguments to main
-		for(int i = 0; i < args.length; i++) {
-			cf.stack[i] = args[i]; 
+		for(int i = 0; i < posArgs.length; i++) {
+			cf.stack[i] = posArgs[i]; 
 		}
+		cf.stack[func.args.length-1] =  kwArgs;       // CHECK
 		Object o = interpretRVMProgram(root, cf);
 		if(o instanceof Thrown){
 			throw (Thrown) o;
@@ -80,10 +79,10 @@ public class RVMInterpreter extends RVMCore {
 	 * Implements abstract function for RVM interpreter
 	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunctionInstance, org.rascalmpl.value.IValue[])
 	 */
-	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] args){
+	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs){
 		Function firstFunc = functionStore[func.getFunctions()[0]]; // TODO: null?
-		int arity = args.length;
-		int scopeId = func.env.scopeId;
+		int arity = posArgs.length + 1;
+		int scopeId = func.env == null ? 0 : func.env.scopeId;
 		Frame root = new Frame(scopeId, null, func.env, arity+2, firstFunc);
 		root.sp = arity;
 		
@@ -93,11 +92,12 @@ public class RVMInterpreter extends RVMCore {
 				
 		Frame cf = c_ofun_call_next.nextFrame(functionStore);
 		// Pass the program arguments to func
-		for(int i = 0; i < args.length; i++) {
-			cf.stack[i] = args[i]; 
+		for(int i = 0; i < posArgs.length; i++) {
+			cf.stack[i] = posArgs[i]; 
 		}
-		cf.sp = args.length;
-		cf.previousCallFrame = null;		// ensure that func will retrun here
+		cf.stack[arity - 1] = kwArgs;
+		cf.sp = arity;
+		cf.previousCallFrame = null;		// ensure that func will return here
 		Object o = interpretRVMProgram(root, cf, c_ofun_call_next);
 		if(o instanceof Thrown){
 			throw (Thrown) o;
@@ -126,13 +126,14 @@ public class RVMInterpreter extends RVMCore {
 	 */
 	public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] args, Map<String,IValue> kwArgs) {
 		
-		String oldModuleName = rex.getCurrentModuleName();
-		rex.setCurrentModuleName(moduleName);
+		String oldModuleName = rex.getFullModuleName();
+		rex.setFullModuleName(moduleName);
 		
 		Function main_function = functionStore[functionMap.get(uid_main)];
 
 		if (main_function == null) {
 			throw RascalRuntimeException.noMainFunction(null);
+		  //throw new RuntimeException("No main function found");
 		}
 		
 		Frame root = new Frame(main_function.scopeId, null, main_function.maxstack, main_function);
@@ -147,7 +148,7 @@ public class RVMInterpreter extends RVMCore {
 		}
 		IValue res = narrow(o);
 
-		rex.setCurrentModuleName(oldModuleName);
+		rex.setFullModuleName(oldModuleName);
 		return res;
 	}
 	
@@ -1109,7 +1110,7 @@ public class RVMInterpreter extends RVMCore {
 				case Opcode.OP_UNWRAPTHROWNLOC: {
 					pos = CodeBlock.fetchArg1(instruction);
 					assert pos < cf.function.getNlocals() : "UNWRAPTHROWNLOC: pos larger that nlocals at " + cf.src;
-					stack[pos] = ((Thrown) stack[--sp]).value;
+					stack[pos] = ((Thrown) stack[--sp]).getValue();
 					continue NEXT_INSTRUCTION;
 				}
 				
@@ -1293,7 +1294,7 @@ public class RVMInterpreter extends RVMCore {
 					// then, if not found, look up the caller function(s)
 					
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
-						int handler = f.function.getHandler(f.pc - 1, thrown.value.getType());
+						int handler = f.function.getHandler(f.pc - 1, thrown.getValue().getType());
 						if(handler != -1) {
 							int fromSP = f.function.getFromSP();
 							if(f != cf) {

@@ -1,9 +1,15 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
+import java.lang.invoke.ConstantCallSite;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.invoke.CallSite;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.ref.SoftReference;
+import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -13,12 +19,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import org.rascalmpl.interpreter.TypeReifier;		// TODO: remove import: YES, has dependencies on EvaluatorContext but not by the methods called here
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
-import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
-import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.value.IBool;
@@ -44,10 +47,11 @@ import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
 import org.rascalmpl.value.exceptions.FactTypeUseException;
 import org.rascalmpl.value.exceptions.InvalidDateTimeException;
-import org.rascalmpl.value.type.ITypeVisitor;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
+import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -408,10 +412,10 @@ public enum RascalPrimitive {
 			catch (URISyntaxException e) {
 				// this is actually an unexpected run-time exception since Rascal prevents you from 
 				// creating non-encoded 
-				throw RascalRuntimeException.malformedURI(uri.getValue(), currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidURI(uri.getValue(), currentFrame));
 			}
 			catch (UnsupportedOperationException e) {
-				throw RascalRuntimeException.malformedURI(uri.getValue() + ":" + e.getMessage(), currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidURI(uri.getValue() + ":" + e.getMessage(), currentFrame));
 			}
 		}
 	},
@@ -464,16 +468,10 @@ public enum RascalPrimitive {
 	reifiedType_create {
 		@Override
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-
 			IConstructor type_cons = (IConstructor) arg_2;
 			IMap idefinitions = (IMap) arg_1;
 
-			Type type = rex.symbolToType(type_cons, idefinitions);
-
-			java.util.Map<Type,Type> bindings = new HashMap<Type,Type>();
-			bindings.put(RascalValueFactory.TypeParam, type);
-
-			return vf.constructor(RascalValueFactory.Type_Reified.instantiate(bindings), type_cons, idefinitions);
+			return IRascalValueFactory.getInstance().reifiedType(type_cons, idefinitions);
 		}
 	},
 
@@ -1129,7 +1127,7 @@ public enum RascalPrimitive {
 				path = path + "/";
 			}
 			path = path.concat(s);
-			return $loc_field_update(sloc, "path", vf.string(path), currentFrame);
+			return $loc_field_update(sloc, "path", vf.string(path), currentFrame, rex);
 		}
 	},
 
@@ -2288,7 +2286,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IInteger) arg_2).divide((IInteger) arg_1);
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+			  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
 			}
 		}
 	},
@@ -2304,7 +2302,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IInteger) arg_2).divide((INumber) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
 			}
 		}
 	},
@@ -2320,7 +2318,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IInteger) arg_2).divide((IRational) arg_1);
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
 			}
 		}
 	},
@@ -2336,7 +2334,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IInteger) arg_2).divide((IReal) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
 			}
 		}
 	},
@@ -2352,7 +2350,7 @@ public enum RascalPrimitive {
 			try {
 				return ((INumber) arg_2).divide((IInteger) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
 			}
 		}
 	},
@@ -2368,7 +2366,7 @@ public enum RascalPrimitive {
 			try {
 				return ((INumber) arg_2).divide((INumber) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
 			}
 		}
 	},
@@ -2384,7 +2382,7 @@ public enum RascalPrimitive {
 			try {
 				return ((INumber) arg_2).divide((IRational) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
 			}
 		}
 	},
@@ -2400,7 +2398,7 @@ public enum RascalPrimitive {
 			try {
 				return ((INumber) arg_2).divide((IReal) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
 			}
 		}
 	},
@@ -2416,7 +2414,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IRational) arg_2).divide((IInteger) arg_1);
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
 			}
 		}
 	},
@@ -2432,7 +2430,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IRational) arg_2).divide((INumber) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
 			}
 		}
 	},
@@ -2448,7 +2446,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IRational) arg_2).divide((IRational) arg_1);
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
 			}
 		}
 	},
@@ -2464,7 +2462,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IRational) arg_2).divide((IReal) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
 			}
 		}
 	},
@@ -2480,7 +2478,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IReal) arg_2).divide((INumber) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
 			}
 		}
 	},
@@ -2496,7 +2494,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IReal) arg_2).divide((IInteger) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
 			}
 		}
 	},
@@ -2512,7 +2510,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IReal) arg_2).divide((IReal) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
 			}
 		}
 	},
@@ -2528,7 +2526,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IReal) arg_2).divide((IRational) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-				throw RascalRuntimeException.arithmeticException("/ by zero", currentFrame);
+			  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
 			}
 		}
 	},
@@ -3883,7 +3881,7 @@ public enum RascalPrimitive {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			if(((IInteger)arg_1).intValue() < 0){
-				throw RascalRuntimeException.indexOutOfBounds(((IInteger)arg_1), currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds(((IInteger)arg_1), currentFrame));
 			}
 			return Rascal_TRUE;
 		}
@@ -6088,7 +6086,7 @@ public enum RascalPrimitive {
 	template_add {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			IString iarg_s = vf.string($value_to_string(arg_1, currentFrame));
+			IString iarg_s = vf.string($value_to_string(arg_1, currentFrame, rex));
 			String arg_s = $removeMargins(iarg_s, rex).getValue();
 
 			rex.getTemplateBuilder().append(arg_s);
@@ -6282,10 +6280,11 @@ public enum RascalPrimitive {
 					return sp - 2;
 				}
 				
-				throw RascalRuntimeException.noSuchField(fieldName, currentFrame);
+				rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField(fieldName, currentFrame));
 			} catch(FactTypeUseException e) {
-				throw RascalRuntimeException.noSuchField(fieldName, currentFrame);
+			    rex.getFrameObserver().exception(currentFrame,  RascalRuntimeException.noSuchField(fieldName, currentFrame));
 			}
+			return sp - 2;
 		}
 	},
 	
@@ -6303,16 +6302,12 @@ public enum RascalPrimitive {
 			IString field = ((IString) arg_1);
 			String fieldName = field.getValue();
 			Type tp = cons.getConstructorType();
-			
 			try {
 				
 				// A positional field?
 				
 				if(tp.hasField(fieldName)){	
-					temp_array_of_2[0] = Rascal_TRUE;
-					int fld_index = tp.getFieldIndex(fieldName);
-					temp_array_of_2[1] = cons.get(fld_index);
-					return temp_array_of_2;
+					return new Object[] { Rascal_TRUE, cons.get(tp.getFieldIndex(fieldName)) };
 				} 
 				
 				// A default field that was set?
@@ -6322,9 +6317,7 @@ public enum RascalPrimitive {
 					v = cons.asWithKeywordParameters().getParameter(fieldName);
 				}
 				if(v != null){
-					temp_array_of_2[0] = Rascal_TRUE;
-					temp_array_of_2[1] = v;
-					return temp_array_of_2;
+					return new Object[] { Rascal_TRUE, v };
 				}
 				
 				// TODO jurgen rewrite to ITree API
@@ -6339,9 +6332,7 @@ public enum RascalPrimitive {
 							IConstructor arg = (IConstructor) prod_symbols.get(i);
 							if(arg.getConstructorType() == RascalValueFactory.Symbol_Label){
 								if(((IString) arg.get(0)).equals(field)){
-									temp_array_of_2[0] = Rascal_TRUE;
-									temp_array_of_2[1] = appl_args.get(i);
-									return  temp_array_of_2;
+									return new Object[] {  Rascal_TRUE, appl_args.get(i) };
 								}
 							}
 						}
@@ -6353,8 +6344,7 @@ public enum RascalPrimitive {
 			} catch(FactTypeUseException e) {
 				
 			}
-			temp_array_of_2[0] = Rascal_FALSE;
-			return temp_array_of_2;
+			return new Object[] { Rascal_FALSE, null };
 		}
 	},
 	
@@ -6380,9 +6370,7 @@ public enum RascalPrimitive {
 					v = nd.asWithKeywordParameters().getParameter(fieldName);
 				}
 				if(v != null){
-					temp_array_of_2[0] = Rascal_TRUE;
-					temp_array_of_2[1] = v;
-					return temp_array_of_2;
+					return new Object[] { Rascal_TRUE, v };
 				}
 				
 			// Final resort: an unset default field: fall through and return false
@@ -6390,8 +6378,7 @@ public enum RascalPrimitive {
 			} catch(FactTypeUseException e) {
 				
 			}
-			temp_array_of_2[0] = Rascal_FALSE;
-			return temp_array_of_2;
+			return new Object[] { Rascal_FALSE, null };
 		}
 	},
 	
@@ -6443,69 +6430,69 @@ public enum RascalPrimitive {
 						v = vf.integer(dt.getCentury());
 						break;
 					}
-					throw RascalRuntimeException.unavailableInformation("Can not retrieve the century on a time value", currentFrame);
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the century on a time value", currentFrame));
 				case "year":
 					if (!dt.isTime()) {
 						v = vf.integer(dt.getYear());
 						break;
 					}
-					throw RascalRuntimeException.unavailableInformation("Can not retrieve the year on a time value", currentFrame);
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the year on a time value", currentFrame));
 
 				case "month":
 					if (!dt.isTime()) {
 						v = vf.integer(dt.getMonthOfYear());
 						break;
 					}
-					throw RascalRuntimeException.unavailableInformation("Can not retrieve the month on a time value", currentFrame);
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the month on a time value", currentFrame));
 				case "day":
 					if (!dt.isTime()) {
 						v = vf.integer(dt.getDayOfMonth());
 						break;
 					}
-					throw RascalRuntimeException.unavailableInformation("Can not retrieve the day on a time value", currentFrame);
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the day on a time value", currentFrame));
 				case "hour":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getHourOfDay());
 						break;
 					}
-					throw RascalRuntimeException.unavailableInformation("Can not retrieve the hour on a date value", currentFrame);
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the hour on a date value", currentFrame));
 				case "minute":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getMinuteOfHour());
 						break;
 					}
-					throw RascalRuntimeException.unavailableInformation("Can not retrieve the minute on a date value", currentFrame);
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the minute on a date value", currentFrame));
 				case "second":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getSecondOfMinute());
 						break;
 					}
-					throw RascalRuntimeException.unavailableInformation("Can not retrieve the second on a date value", currentFrame);
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the second on a date value", currentFrame));
 				case "millisecond":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getMillisecondsOfSecond());
 						break;
 					}
-					throw RascalRuntimeException.unavailableInformation("Can not retrieve the millisecond on a date value", currentFrame);
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the millisecond on a date value", currentFrame));
 				case "timezoneOffsetHours":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getTimezoneOffsetHours());
 						break;
 					}
-					throw RascalRuntimeException.unavailableInformation("Can not retrieve the timezone offset hours on a date value", currentFrame);
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the timezone offset hours on a date value", currentFrame));
 				case "timezoneOffsetMinutes":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getTimezoneOffsetMinutes());
 						break;
 					}
-					throw RascalRuntimeException.unavailableInformation("Can not retrieve the timezone offset minutes on a date value", currentFrame);
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the timezone offset minutes on a date value", currentFrame));
 
 				case "justDate":
 					if (!dt.isTime()) {
 						v = vf.date(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth());
 						break;
 					}
-					throw RascalRuntimeException.unavailableInformation("Can not retrieve the date component of a time value", currentFrame);
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the date component of a time value", currentFrame));
 				case "justTime":
 					if (!dt.isDate()) {
 						v = vf.time(dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute(), 
@@ -6513,14 +6500,14 @@ public enum RascalPrimitive {
 								dt.getTimezoneOffsetMinutes());
 						break;
 					}
-					throw RascalRuntimeException.unavailableInformation("Can not retrieve the time component of a date value", currentFrame);
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the time component of a date value", currentFrame));
 				default:
-					throw RascalRuntimeException.noSuchField(field, currentFrame);
+				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField(field, currentFrame));
 				}
 				return v;
 
 			} catch (InvalidDateTimeException e) {
-				throw RascalRuntimeException.illegalArgument(dt, currentFrame, e.getMessage());
+			  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(dt, currentFrame, e.getMessage()));
 			}
 		}
 	},
@@ -6554,69 +6541,69 @@ public enum RascalPrimitive {
 
 				case "year":
 					if (dt.isTime()) {
-						throw RascalRuntimeException.invalidUseOfTimeException("Can not update the year on a time value", currentFrame);
+					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfTime("Can not update the year on a time value", currentFrame));
 					}
 					year = ((IInteger)repl).intValue();
 					break;
 
 				case "month":
 					if (dt.isTime()) {
-						throw RascalRuntimeException.invalidUseOfTimeException("Can not update the month on a time value", currentFrame);
+					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfTime("Can not update the month on a time value", currentFrame));
 					}
 					month = ((IInteger)repl).intValue();
 					break;
 
 				case "day":
 					if (dt.isTime()) {
-						throw RascalRuntimeException.invalidUseOfTimeException("Can not update the day on a time value", currentFrame);
+					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfTime("Can not update the day on a time value", currentFrame));
 					}	
 					day = ((IInteger)repl).intValue();
 					break;
 
 				case "hour":
 					if (dt.isDate()) {
-						throw RascalRuntimeException.invalidUseOfDateException("Can not update the hour on a date value", currentFrame);
+					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfDate("Can not update the hour on a date value", currentFrame));
 					}	
 					hour = ((IInteger)repl).intValue();
 					break;
 
 				case "minute":
 					if (dt.isDate()) {
-						throw RascalRuntimeException.invalidUseOfDateException("Can not update the minute on a date value", currentFrame);
+					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfDate("Can not update the minute on a date value", currentFrame));
 					}
 					minute = ((IInteger)repl).intValue();
 					break;
 
 				case "second":
 					if (dt.isDate()) {
-						throw RascalRuntimeException.invalidUseOfDateException("Can not update the second on a date value", currentFrame);
+					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfDate("Can not update the second on a date value", currentFrame));
 					}
 					second = ((IInteger)repl).intValue();
 					break;
 
 				case "millisecond":
 					if (dt.isDate()) {
-						throw RascalRuntimeException.invalidUseOfDateException("Can not update the millisecond on a date value", currentFrame);
+					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfDate("Can not update the millisecond on a date value", currentFrame));
 					}
 					milli = ((IInteger)repl).intValue();
 					break;
 
 				case "timezoneOffsetHours":
 					if (dt.isDate()) {
-						throw RascalRuntimeException.invalidUseOfDateException("Can not update the timezone offset hours on a date value", currentFrame);
+					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfDate("Can not update the timezone offset hours on a date value", currentFrame));
 					}
 					tzOffsetHour = ((IInteger)repl).intValue();
 					break;
 
 				case "timezoneOffsetMinutes":
 					if (dt.isDate()) {
-						throw RascalRuntimeException.invalidUseOfDateException("Can not update the timezone offset minutes on a date value", currentFrame);
+					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfDate("Can not update the timezone offset minutes on a date value", currentFrame));
 					}
 					tzOffsetMin = ((IInteger)repl).intValue();
 					break;			
 
 				default:
-					throw RascalRuntimeException.noSuchField(field, currentFrame);
+				  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField(field, currentFrame));
 				}
 				IDateTime newdt = null;
 				if (dt.isDate()) {
@@ -6631,11 +6618,12 @@ public enum RascalPrimitive {
 				return sp - 2;
 			}
 			catch (IllegalArgumentException e) {
-				throw RascalRuntimeException.illegalArgument(repl, currentFrame, "Cannot update field " + field + ", this would generate an invalid datetime value");
+			    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(repl, currentFrame, "Cannot update field " + field + ", this would generate an invalid datetime value"));
 			}
 			catch (InvalidDateTimeException e) {
-				throw RascalRuntimeException.illegalArgument(dt, currentFrame, e.getMessage());
+			  rex.getFrameObserver().exception(currentFrame,  RascalRuntimeException.invalidArgument(dt, currentFrame, e.getMessage()));
 			}
+			return sp - 2;
 		}
 	},
 
@@ -6664,7 +6652,7 @@ public enum RascalPrimitive {
 
 			case "host":
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-					throw RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the host field, use authority instead.", currentFrame);
+				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the host field, use authority instead.", currentFrame));
 				}
 				s = sloc.getURI().getHost();
 				v = vf.string(s == null ? "" : s);
@@ -6677,7 +6665,7 @@ public enum RascalPrimitive {
 			case "parent":
 				String path = sloc.getPath();
 				if (path.equals("")) {
-					throw RascalRuntimeException.noParent(sloc, currentFrame);
+				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noParent(sloc, currentFrame));
 				}
 				int i = path.lastIndexOf("/");
 
@@ -6690,9 +6678,9 @@ public enum RascalPrimitive {
 							path += "/";
 						}
 					}
-					v = $loc_field_update(sloc, "path", vf.string(path), currentFrame);
+					v = $loc_field_update(sloc, "path", vf.string(path), currentFrame, rex);
 				} else {
-					throw RascalRuntimeException.noParent(sloc, currentFrame);
+				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noParent(sloc, currentFrame));
 				}
 				break;	
 
@@ -6709,8 +6697,8 @@ public enum RascalPrimitive {
 
 			case "ls":
 				try {
-					ISourceLocation resolved = rex.resolveSourceLocation(sloc);
-					//ISourceLocation resolved = rvm.ctx.getHeap().resolveSourceLocation(sloc);
+					// Why is this needed: ISourceLocation resolved = rex.resolveSourceLocation(sloc);
+				    ISourceLocation resolved = sloc;
 					IListWriter w = vf.listWriter();
 
 					for (ISourceLocation elem : URIResolverRegistry.getInstance().list(resolved)) {
@@ -6720,7 +6708,7 @@ public enum RascalPrimitive {
 					v = w.done();
 					break;
 				} catch (IOException e) {
-					throw RascalRuntimeException.io(vf.string(e.getMessage()), currentFrame);
+				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.io(vf.string(e.getMessage()), currentFrame));
 				}
 
 			case "extension":
@@ -6757,7 +6745,7 @@ public enum RascalPrimitive {
 
 			case "user":
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-					throw RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the user field, use authority instead.", currentFrame);
+				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the user field, use authority instead.", currentFrame));
 				}
 				s = sloc.getURI().getUserInfo();
 				v = vf.string(s == null ? "" : s);
@@ -6765,7 +6753,7 @@ public enum RascalPrimitive {
 
 			case "port":
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-					throw RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the port field, use authority instead.", currentFrame);
+				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the port field, use authority instead.", currentFrame));
 				}
 				int n = sloc.getURI().getPort();
 				v = vf.integer(n);
@@ -6776,7 +6764,7 @@ public enum RascalPrimitive {
 					v = vf.integer(sloc.getLength());
 					break;
 				} else {
-					throw RascalRuntimeException.unavailableInformation("length", currentFrame);
+				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("length", currentFrame));
 				}
 
 			case "offset":
@@ -6784,7 +6772,7 @@ public enum RascalPrimitive {
 					v = vf.integer(sloc.getOffset());
 					break;
 				} else {
-					throw RascalRuntimeException.unavailableInformation("offset", currentFrame);
+				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("offset", currentFrame));
 				}
 
 			case "begin":
@@ -6792,14 +6780,14 @@ public enum RascalPrimitive {
 					v = vf.tuple(lineColumnType, vf.integer(sloc.getBeginLine()), vf.integer(sloc.getBeginColumn()));
 					break;
 				} else {
-					throw RascalRuntimeException.unavailableInformation("begin", currentFrame);
+				  return RascalRuntimeException.unavailableInformation("begin", currentFrame);
 				}
 			case "end":
 				if(sloc.hasLineColumn()){
 					v = vf.tuple(lineColumnType, vf.integer(sloc.getEndLine()), vf.integer(sloc.getEndColumn()));
 					break;
 				} else {
-					throw RascalRuntimeException.unavailableInformation("end", currentFrame);
+				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("end", currentFrame));
 				}
 
 			case "uri":
@@ -6811,7 +6799,7 @@ public enum RascalPrimitive {
 				break;
 
 			default:
-				throw RascalRuntimeException.noSuchField(field, currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField(field, currentFrame));
 			}
 
 			return v;
@@ -6829,12 +6817,10 @@ public enum RascalPrimitive {
 		@Override
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			try {
-				temp_array_of_2[1] = loc_field_access.execute2(arg_2, arg_1, currentFrame, rex);
-				temp_array_of_2[0] = Rascal_TRUE;
+				return new Object[] { Rascal_TRUE, loc_field_access.execute2(arg_2, arg_1, currentFrame, rex) };
 			} catch (Exception e) { // TODO: this hides implementation bugs and its not the semantics of isDefined. 
-				temp_array_of_2[0] = Rascal_FALSE;
+				return new Object[] { Rascal_FALSE, null };
 			}
-			return temp_array_of_2;
 		}
 	},
 
@@ -6850,7 +6836,7 @@ public enum RascalPrimitive {
 			ISourceLocation sloc = ((ISourceLocation) stack[sp - 3]);
 			String field = ((IString) stack[sp - 2]).getValue();
 			IValue repl = (IValue) stack[sp - 1];
-			stack[sp - 3] = $loc_field_update(sloc, field, repl, currentFrame);
+			stack[sp - 3] = $loc_field_update(sloc, field, repl, currentFrame, rex);
 			return sp - 2;
 		}
 	},
@@ -6930,7 +6916,7 @@ public enum RascalPrimitive {
 				}
 			}
 
-			throw RascalRuntimeException.noSuchField(field.getValue(), currentFrame);
+			return  RascalRuntimeException.noSuchField(field.getValue(), currentFrame);
 		}
 	},
 
@@ -6975,7 +6961,8 @@ public enum RascalPrimitive {
 				}
 			}
 
-			throw RascalRuntimeException.noSuchField(field.getValue(), currentFrame);
+			rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField(field.getValue(), currentFrame));
+			return sp - 2;
 		}
 	},
 
@@ -7087,11 +7074,12 @@ public enum RascalPrimitive {
 					return sp - 2;
 				}
 				
-				throw new CompilerError("Assignment to parse tree field not yet implemented");
+				rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.notImplemented("Assignment to parse tree field not yet implemented", currentFrame.src, currentFrame));
 				
 			} catch(FactTypeUseException e) {
-				throw RascalRuntimeException.noSuchField(((IString) stack[sp - 2]).getValue(), currentFrame);
+			    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField(((IString) stack[sp - 2]).getValue(), currentFrame));
 			}
+			return sp - 2;
 		}
 	},
 
@@ -7400,7 +7388,7 @@ public enum RascalPrimitive {
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity == 5;
 			IString str = (IString) stack[sp - 5];
-			SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), str.length(), currentFrame);
+			SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), str.length());
 			IString repl = (IString) stack[sp - 1];
 			stack[sp - 5] = str.replace(sd.first, sd.second, sd.end, repl);
 			return sp - 4;
@@ -7417,7 +7405,7 @@ public enum RascalPrimitive {
 			assert arity == 5;
 			INode node = (INode) stack[sp - 5];
 			int nd_arity = node.arity();
-			SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), nd_arity, currentFrame);
+			SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), nd_arity);
 			IList repl = (IList) stack[sp - 1];
 			stack[sp - 5] = node.replace(sd.first, sd.second, sd.end, repl);
 			return sp - 4;
@@ -7434,7 +7422,7 @@ public enum RascalPrimitive {
 			assert arity == 4;
 
 			IList lst = (IList) stack[sp - 4];
-			stack[sp - 4] = $makeSlice(lst, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), lst.length(), currentFrame));
+			stack[sp - 4] = $makeSlice(lst, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), lst.length()));
 			return sp - 3;
 		}
 	},
@@ -7449,7 +7437,7 @@ public enum RascalPrimitive {
 			assert arity == 4;
 
 			IString str = (IString) stack[sp - 4];
-			stack[sp - 4] = $makeSlice(str, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), str.length(), currentFrame));
+			stack[sp - 4] = $makeSlice(str, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), str.length()));
 			return sp - 3;
 		}
 	},
@@ -7465,7 +7453,7 @@ public enum RascalPrimitive {
 
 			INode node = (INode) stack[sp - 4];
 			int nd_arity = node.arity();
-			stack[sp - 4] = $makeSlice(node, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), nd_arity, currentFrame));
+			stack[sp - 4] = $makeSlice(node, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), nd_arity));
 			return sp - 3;
 		}
 	},
@@ -7485,9 +7473,9 @@ public enum RascalPrimitive {
 			int sep_count = TreeAdapter.getSeparatorCount(tree);
 			int list_length = (len == 0) ? 0 : ((sep_count == 0 ? len : 1 + len/(1 + sep_count)));
 			int min_length =  $getInt((IValue) stack[sp - 1]);
-			stack[sp - 5] = $makeSlice(tree, sep_count, min_length, $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), list_length, currentFrame));
+			stack[sp - 5] = $makeSlice(tree, sep_count, min_length, $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), list_length));
 			if(stack[sp - 5] == null){
-				throw RascalRuntimeException.illegalArgument(tree, currentFrame, "sliced value should have length of at least " + min_length);
+			    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(tree, currentFrame, "sliced value should have length of at least " + min_length));
 			}
 			return sp - 4;
 		}
@@ -7504,7 +7492,7 @@ public enum RascalPrimitive {
 
 			ITree tree = (ITree) stack[sp - 4];
 			int tree_arity = TreeAdapter.getArgs(tree).length();
-			stack[sp - 4] = $makeSlice(tree, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), tree_arity, currentFrame));
+			stack[sp - 4] = $makeSlice(tree, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), tree_arity));
 			return sp - 3;
 		}
 	},
@@ -7520,7 +7508,7 @@ public enum RascalPrimitive {
 
 			ITree tree = (ITree) stack[sp - 4];
 			int tree_arity = TreeAdapter.getArgs(tree).length();
-			stack[sp - 4] = $makeSlice(tree, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), tree_arity, currentFrame));
+			stack[sp - 4] = $makeSlice(tree, $makeSliceDescriptor($getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), $getInt((IValue) stack[sp - 1]), tree_arity));
 			return sp - 3;
 		}
 	},
@@ -7615,126 +7603,6 @@ public enum RascalPrimitive {
 	},
 
 	/************************************************************************************************/
-	/*					Test reports																*/
-	/************************************************************************************************/
-
-	/**
-	 * Open a test report
-	 * 
-	 * [ ... ] => [ ..., IListWriter w ]
-	 */
-	testreport_open {
-		@Override
-		public Object execute0(final Frame currentFrame, final RascalExecutionContext rex) {
-			rex.setTestResults(vf.listWriter());
-			return null;
-		}
-	},
-
-	/**
-	 * Close a test report
-	 * 
-	 * [ ..., IListWriter w] => [ ..., IList test results ]
-	 */
-	testreport_close {
-		@Override
-		public Object execute0(final Frame currentFrame, final RascalExecutionContext rex) {
-			rex.getTestResultListener().done();
-			return rex.getTestResults().done();
-		}
-	},
-
-	/**
-	 * Execute test results for function fun to a test report
-	 * 
-	 * [ ..., IListWriter w, IString fun, IBool ignore, IString expected, ISourceLocation src ] => [ ..., w ]
-	 */
-	testreport_add {
-		@Override
-		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
-			assert arity == 5; 
-
-			String fun = ((IString) stack[sp - 5]).getValue();
-			boolean ignore =  ((IBool) stack[sp - 4]).getValue();
-			String expected =  ((IString) stack[sp - 3]).getValue();
-			ISourceLocation src = ((ISourceLocation) stack[sp - 2]);
-			//Type argType = (Type) stack[sp - 1];
-
-			if(ignore){
-				rex.getTestResults().append(vf.tuple(src,  vf.integer(2), vf.string("")));
-				rex.getTestResultListener().ignored("", src);
-				return sp - 4;
-			}
-			IConstructor type_cons = ((IConstructor) stack[sp - 1]);
-//			TypeReifier typeReifier = new TypeReifier(vf);          // TODO: relation with global?******
-			Type argType = rex.valueToType(type_cons);
-//			IMap definitions = (IMap) type_cons.get("definitions");
-
-//			typeReifier.declareAbstractDataTypes(definitions, rex.getTypeStore());
-
-			int nargs = argType.getArity();
-			IValue[] args = new IValue[nargs];
-
-			TypeParameterVisitor tpvisit = new TypeParameterVisitor();
-			Type requestedType = tf.tupleType(argType);
-			HashMap<Type, Type> tpbindings = tpvisit.bindTypeParameters(requestedType);
-			RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, MAXDEPTH, tpbindings, rex.getTypeStore());
-
-			int tries = nargs == 0 ? 1 : TRIES;
-			boolean passed = true;
-			String message = "";
-			Throwable exception = null;
-			for(int i = 0; i < tries; i++){
-				if(nargs > 0){
-					message = "test fails for arguments: ";
-					ITuple tup = (ITuple) randomValue.generate(argType);
-					for(int j = 0; j < nargs; j++){
-						args[j] = tup.get(j);
-						message = message + args[j].toString() + " ";
-					}
-				}
-				try {
-					//System.err.println("Before executing test " + fun);
-//					for(String fname : rex.getRVM().functionMap.keySet()){
-//						if(fname.contains("companion")) System.err.println("testreport_add: " + fname);
-//					}
-					IValue res = (IValue) rex.getRVM().executeRVMFunction(fun, args, null); 
-					//System.err.println("After executing test " + fun);
-					passed = ((IBool) res).getValue();
-					if(!passed){
-						break;
-					}
-				} catch (Thrown e){
-					String ename;
-					if(e.value instanceof IConstructor){
-						ename = ((IConstructor) e.value).getName();
-					} else {
-						ename = e.toString();
-					}
-					if(!ename.equals(expected)){
-						message = e.toString() + message;
-						passed = false;
-						exception = e;
-						break;
-					}
-				}
-				catch (Exception e){
-					message = e.getMessage() + message;
-					passed = false;
-					break;
-				}
-			}
-			if(passed)
-				message = "";
-			
-			rex.getTestResults().append(vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message)));
-
-			rex.getTestResultListener().report(passed, $computeTestName(fun, src), src, message, exception);
-			return sp - 4;
-		}
-	},
-
-	/************************************************************************************************/
 	/*                               Subscripting													*/
 	/************************************************************************************************/
 
@@ -7751,7 +7619,7 @@ public enum RascalPrimitive {
 			try {
 				return cons.get((idx >= 0) ? idx : (cons.arity() + idx));
 			} catch(IndexOutOfBoundsException e) {
-				throw RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame));
 			}
 		}
 	},
@@ -7767,12 +7635,10 @@ public enum RascalPrimitive {
 			IConstructor cons =  (IConstructor) arg_2;
 			int idx = ((IInteger) arg_1).intValue();
 			try {
-				temp_array_of_2[1] = cons.get((idx >= 0) ? idx : (cons.arity() + idx));
-				temp_array_of_2[0] = Rascal_TRUE;
+				return new Object[] { Rascal_TRUE, cons.get((idx >= 0) ? idx : (cons.arity() + idx)) };
 			} catch(IndexOutOfBoundsException e) {
-				temp_array_of_2[0] = Rascal_FALSE;
+				return new Object[] { Rascal_FALSE, null };
 			}
-			return temp_array_of_2;
 		}
 	},
 
@@ -7792,7 +7658,7 @@ public enum RascalPrimitive {
 				}
 				return node.get(idx);  
 			} catch(IndexOutOfBoundsException e) {
-				throw RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame));
 			}
 		}
 	},
@@ -7811,12 +7677,10 @@ public enum RascalPrimitive {
 				if(idx < 0){
 					idx =  node.arity() + idx;
 				}
-				temp_array_of_2[0] = Rascal_TRUE;
-				temp_array_of_2[1] = node.get(idx);  
+				return new Object[] { Rascal_TRUE, node.get(idx) };
 			} catch(IndexOutOfBoundsException e) {
-				temp_array_of_2[0] = Rascal_FALSE;
+				return new Object[] { Rascal_FALSE, null };
 			}
-			return temp_array_of_2;
 		}
 	},
 
@@ -7833,7 +7697,7 @@ public enum RascalPrimitive {
 			try {
 				return lst.get((idx >= 0) ? idx : (lst.length() + idx));
 			} catch(IndexOutOfBoundsException e) {
-				throw RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame));
 			}
 		}
 	},
@@ -7849,12 +7713,10 @@ public enum RascalPrimitive {
 			IList lst = ((IList) arg_2);
 			int idx = ((IInteger) arg_1).intValue();
 			try {
-				temp_array_of_2[0] = Rascal_TRUE;
-				temp_array_of_2[1] = lst.get((idx >= 0) ? idx : (lst.length() + idx));
+				return new Object[] { Rascal_TRUE, lst.get((idx >= 0) ? idx : (lst.length() + idx)) };
 			} catch(IndexOutOfBoundsException e) {
-				temp_array_of_2[0] = Rascal_FALSE;
+				return new Object[] { Rascal_FALSE, null };
 			}
-			return temp_array_of_2;
 		}
 	},
 
@@ -7868,7 +7730,7 @@ public enum RascalPrimitive {
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			IValue result = ((IMap) arg_2).get((IValue) arg_1);
 			if(result == null) {
-				throw RascalRuntimeException.noSuchKey((IValue) arg_1, currentFrame);
+			  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchKey((IValue) arg_1, currentFrame));
 			}
 			return result;
 		}
@@ -7883,9 +7745,7 @@ public enum RascalPrimitive {
 		@Override
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			Object v = ((IMap) arg_2).get((IValue) arg_1);
-			temp_array_of_2[0] = (v == null) ? Rascal_FALSE : Rascal_TRUE;
-			temp_array_of_2[1] = v;
-			return temp_array_of_2;
+			return new Object[] { (v == null) ? Rascal_FALSE : Rascal_TRUE, v };
 		}
 	},
 
@@ -7903,7 +7763,7 @@ public enum RascalPrimitive {
 				return (idx >= 0) ? str.substring(idx, idx+1)
 						          : str.substring(str.length() + idx, str.length() + idx + 1);
 			} catch(IndexOutOfBoundsException e) {
-				throw RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame));
 			}
 		}
 	},
@@ -7919,13 +7779,11 @@ public enum RascalPrimitive {
 			IString str = ((IString) arg_2);
 			int idx = ((IInteger) arg_1).intValue();
 			try {
-				temp_array_of_2[0] = Rascal_TRUE;
-				temp_array_of_2[1] = (idx >= 0) ? str.substring(idx, idx+1)
-						: str.substring(str.length() + idx, str.length() + idx + 1);
+				return new Object[] { Rascal_TRUE,  (idx >= 0) ? str.substring(idx, idx+1)
+                                                               : str.substring(str.length() + idx, str.length() + idx + 1) };
 			} catch(IndexOutOfBoundsException e) {
-				temp_array_of_2[0] = Rascal_FALSE;
+				return new Object[] { Rascal_FALSE, null };
 			}
-			return temp_array_of_2;
 		}
 	},
 
@@ -7942,7 +7800,7 @@ public enum RascalPrimitive {
 			try {
 				return tup.get((idx >= 0) ? idx : tup.arity() + idx);
 			} catch(IndexOutOfBoundsException e) {
-				throw RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame));
 			}
 		}
 	},
@@ -7958,12 +7816,10 @@ public enum RascalPrimitive {
 			ITuple tup = (ITuple) arg_2;
 			int idx = ((IInteger) arg_1).intValue();
 			try {
-				temp_array_of_2[0] = Rascal_TRUE;
-				temp_array_of_2[1] = tup.get((idx >= 0) ? idx : tup.arity() + idx);
+				return new Object[] { Rascal_TRUE, tup.get((idx >= 0) ? idx : tup.arity() + idx) };
 			} catch(IndexOutOfBoundsException e) {
-				temp_array_of_2[0] = Rascal_FALSE;
+				return new Object[] { Rascal_FALSE, null };
 			}
-			return temp_array_of_2;
 		}
 	},
 	
@@ -8093,7 +7949,7 @@ public enum RascalPrimitive {
 	rel_subscript {
 		@Override
 		public int executeN(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
-			assert arity >= 4;
+			//assert arity >= 4;
 			
 			ISet rel = ((ISet) stack[sp - arity]);
 			if(rel.isEmpty()){
@@ -8158,20 +8014,19 @@ public enum RascalPrimitive {
 				if(idx.getType().isString()){
 					String sidx = ((IString) idx).getValue();
 					if(sidx.equals("_")){
-						throw new CompilerError("Wild card _ not implemented");
+					    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.notImplemented("Wild card _ not implemented", currentFrame.src, currentFrame));
 					}
 				}
 				try {
-					temp_array_of_2[0] = Rascal_TRUE;
-					temp_array_of_2[1] = idx.getType().isSet() ? 
-							(arity == 2 ? RascalPrimitive.rel2_subscript1_set.execute2(arg_2, arg_1, currentFrame, rex)
-									    : RascalPrimitive.rel_subscript1_set.execute2(arg_2, arg_1, currentFrame, rex))
-							: (arity == 2 ? RascalPrimitive.rel2_subscript1_noset.execute2(arg_2, arg_1, currentFrame, rex)
-										  : RascalPrimitive.rel_subscript1_noset.execute2(arg_2, arg_1, currentFrame, rex));
+					return new Object[] { Rascal_TRUE,
+		                                  idx.getType().isSet() ? (arity == 2 ? RascalPrimitive.rel2_subscript1_set.execute2(arg_2, arg_1, currentFrame, rex)
+		                                                                      : RascalPrimitive.rel_subscript1_set.execute2(arg_2, arg_1, currentFrame, rex))
+		                                                        : (arity == 2 ? RascalPrimitive.rel2_subscript1_noset.execute2(arg_2, arg_1, currentFrame, rex)
+		                                                                      : RascalPrimitive.rel_subscript1_noset.execute2(arg_2, arg_1, currentFrame, rex)) };
 				} catch(Exception e) {
-					temp_array_of_2[0] = Rascal_FALSE;
+				    return new Object[] { Rascal_FALSE, null };
+					
 				}
-				return temp_array_of_2;
 			}
 	},
 
@@ -8258,6 +8113,17 @@ public enum RascalPrimitive {
 			return sp - arity + 1;
 		}
 	},
+	/**
+     * Subscript of a lrel with single int index
+     * 
+     * [ ..., IListRelation r, IValue idx1] => r[idx1, idx2, ...] ]
+     */
+    lrel_subscript_int {
+        @Override
+        public Object execute2(final Object arg_2, final Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
+            return list_subscript_int.execute2(arg_2, arg_1, currentFrame, rex);
+        }
+	},
 
 	/**
 	 * Get argument with given index from nonterminal
@@ -8272,7 +8138,7 @@ public enum RascalPrimitive {
 				tree = (ITree) TreeAdapter.getArgs(tree).get(0);
 			}
 			if(!TreeAdapter.isList(tree)){
-				throw new CompilerError("subscript not supported on " + TreeAdapter.getProduction(tree), currentFrame);
+			  throw new CompilerError("subscript not supported on " + TreeAdapter.getProduction(tree), currentFrame);
 			}
 
 			IList elems = TreeAdapter.getArgs(tree);
@@ -8285,11 +8151,11 @@ public enum RascalPrimitive {
 				index = log_length + index;
 			}
 			if(index < 0 || index >= log_length){
-				throw RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame));
 			}
 			IValue result = elems.get(index * (sep_count + 1));
 			if(result == null){
-				throw RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame));
 			}
 
 			return result;
@@ -8309,7 +8175,7 @@ public enum RascalPrimitive {
 				tree = (ITree) TreeAdapter.getArgs(tree).get(0);
 			}
 			if(!TreeAdapter.isList(tree)){
-				throw new CompilerError("subscript not supported on " + TreeAdapter.getProduction(tree), currentFrame);
+			    throw new CompilerError("subscript not supported on " + TreeAdapter.getProduction(tree), currentFrame);
 			}
 			int index = ((IInteger) arg_1).intValue();
 			int delta = 1;
@@ -8358,9 +8224,22 @@ public enum RascalPrimitive {
 				stack[sp - 3] = lst.put(n, (IValue) stack[sp - 1]);
 				return sp - 2;
 			} catch (IndexOutOfBoundsException e){
-				throw RascalRuntimeException.indexOutOfBounds(vf.integer(n), currentFrame);
+			    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds(vf.integer(n), currentFrame));
+			    return sp - 2;
 			}
 		}
+	},
+	
+	/**
+     * Update list element
+     * 
+     * [ ..., IList cons, IInteger idx, IValue repl ] => [ ..., new IList with lst[idx] == repl ]
+     */
+    lrel_update {
+        @Override
+        public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
+            return list_update.executeN(stack, sp, arity, currentFrame, rex);
+        }
 	},
 
 	/**
@@ -8394,7 +8273,8 @@ public enum RascalPrimitive {
 				stack[sp - 3] = tup.set(n, (IValue) stack[sp - 1]);
 				return sp - 2;
 			} catch (IndexOutOfBoundsException e){
-				throw RascalRuntimeException.indexOutOfBounds(vf.integer(n), currentFrame);
+			  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds(vf.integer(n), currentFrame));
+			  return sp - 2;
 			}
 		}
 	},
@@ -8418,11 +8298,11 @@ public enum RascalPrimitive {
 				IValue result = val.asAnnotatable().getAnnotation(label);
 
 				if(result == null) {
-					throw RascalRuntimeException.noSuchAnnotation(label, currentFrame);
+				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchAnnotation(label, currentFrame));
 				}
 				return result;
 			} catch (FactTypeUseException e) {
-				throw RascalRuntimeException.noSuchAnnotation(label, currentFrame);
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchAnnotation(label, currentFrame));
 			}
 		}
 	},
@@ -8440,12 +8320,10 @@ public enum RascalPrimitive {
 			String label = ((IString) arg_1).getValue();
 			try {
 				IValue v = val.asAnnotatable().getAnnotation(label);
-				temp_array_of_2[0] = (v == null) ? Rascal_FALSE : Rascal_TRUE;
-				temp_array_of_2[1] = v;
+				return new Object[] { (v == null) ? Rascal_FALSE : Rascal_TRUE, v };
 			} catch (FactTypeUseException e) {
-				temp_array_of_2[0] = Rascal_FALSE;
+				return new Object[] { Rascal_FALSE, null };
 			}
-			return temp_array_of_2;
 		}
 	},
 
@@ -8521,7 +8399,7 @@ public enum RascalPrimitive {
 						ISet prodset = (ISet) stack[sp - 3];
 						IBool concreteMatch = (IBool) stack[sp - 2];
 						IMap definitions = (IMap) stack[sp - 1];
-						return new DescendantDescriptor(vf, symbolset, prodset, definitions, concreteMatch, rex);
+						return new DescendantDescriptor(symbolset, prodset, definitions, concreteMatch, rex);
 					});
 			return sp - 4;
 		};
@@ -8541,8 +8419,7 @@ public enum RascalPrimitive {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			IString message = (IString) arg_1;
-			rex.getStdOut().println("Assertion " + message + " failed at " + currentFrame.src);
-			throw RascalRuntimeException.assertionFailed(message, currentFrame.src,  currentFrame);
+			return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.assertionFailed(message, currentFrame.src,  currentFrame));
 		}
 	},
 
@@ -8583,7 +8460,7 @@ public enum RascalPrimitive {
 	value_to_string {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			return vf.string($value_to_string(arg_1, currentFrame));
+			return vf.string($value_to_string(arg_1, currentFrame, rex));
 		}
 	},
 
@@ -8740,22 +8617,23 @@ public enum RascalPrimitive {
 	 * @param rex			the current RascalExecutionContext
 	 * @return				new value for stack pointer (sp)
 	 */
-//	public int execute(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
-//		throw new CompilerError("Not implemented RascalPrimitive");
-//	}
+
 	public Object execute0(Frame currentFrame, RascalExecutionContext rex) {
-		throw new CompilerError("Not implemented RascalPrimitive.execute0 " + name());
+	  throw RascalRuntimeException.notImplemented("RascalPrimitive.execute0 " + name(), currentFrame.src, currentFrame);
 	}
-	public Object execute1(Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
-		throw new CompilerError("Not implemented RascalPrimitiv.execute1 " + name());
-	}
-	
-	public Object execute2(Object arg_2, Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
-		throw new CompilerError("Not implemented RascalPrimitive.execute2 " + name());
+	@SuppressWarnings("unused")
+    public Object execute1(Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
+	  throw RascalRuntimeException.notImplemented("RascalPrimitive.execute1 " + name(), currentFrame.src, currentFrame);
 	}
 
-	public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
-		throw new CompilerError("Not implemented RascalPrimitive.executeN " + name());
+	@SuppressWarnings("unused")
+    public Object execute2(Object arg_2, Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
+	  throw RascalRuntimeException.notImplemented("RascalPrimitive.execute2 " + name(), currentFrame.src, currentFrame);
+	}
+
+	@SuppressWarnings("unused")
+    public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
+	  throw RascalRuntimeException.notImplemented("RascalPrimitive.executeN " + name(), currentFrame.src, currentFrame);
 	}
 
 	/**
@@ -8775,7 +8653,6 @@ public enum RascalPrimitive {
 	public static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private static final TypeFactory tf = TypeFactory.getInstance();
 
-	@SuppressWarnings("deprecation")
 	private static final Type lineColumnType = TypeFactory.getInstance().tupleType(new Type[] {TypeFactory.getInstance().integerType(), TypeFactory.getInstance().integerType()},
 			new String[] {"line", "column"});
 	
@@ -8788,57 +8665,32 @@ public enum RascalPrimitive {
 	public static final IBool Rascal_TRUE =  ValueFactoryFactory.getValueFactory().bool(true);
 	public static final IBool Rascal_FALSE =  ValueFactoryFactory.getValueFactory().bool(false);
 	
-	// Constants for test generation
-	
-	private static final int MAXDEPTH = 5;
-	private static final int TRIES = 500;
-	
-	// For profiling of RascalPrimitives
-	
-	private static final Object[] temp_array_of_2 = new Object[2];
-	private static final long timeSpent[] = new long[values.length];
-	private static final boolean profileRascalPrimitives = false;
-
-	/**
-	 * Record spent in a RascalPrimitive
-	 * @param index of RascalPrimitive
-	 * @param duration spents in its execution
-	 */
-	public void recordTime(final int n, final long duration){
-		timeSpent[n] += duration;
-	}
-
 	/**
 	 * Generic exit function that allows some post execution actions (like printing a profile)
 	 * @param rex
 	 */
 	public static void exit(RascalExecutionContext rex){
-		if(profileRascalPrimitives)
-			printProfile(rex.getStdOut());
 	}
 
-	private static void printProfile(PrintWriter stdout){
-		stdout.println("\nRascalPrimitive execution times (ms)");
-		long total = 0;
-		TreeMap<Long,String> data = new TreeMap<Long,String>();
-		for(int i = 0; i < values.length; i++){
-			if(timeSpent[i] > 0 ){
-				data.put(timeSpent[i], values[i].name());
-				total += timeSpent[i];
-			}
-		}
-		for(long t : data.descendingKeySet()){
-			stdout.printf("%30s: %3d%% (%d ms)\n", data.get(t), t * 100 / total, t);
-		}
+	
+	// Bootstrap method used for invokeDynamic on RascalPrimitives, see BytecoeGenerator
+	
+	@SuppressWarnings("unused")
+    public static CallSite bootstrapRascalPrimitive(MethodHandles.Lookup caller, String name, MethodType type) throws NoSuchMethodException, IllegalAccessException {
+	    MethodHandles.Lookup lookup = MethodHandles.lookup();
+	    RascalPrimitive enumElement = RascalPrimitive.valueOf(name);
+        Class<?>[] parameters = type.parameterArray();
+        int arity = parameters.length - 2;  // do not count common arguments cf and rex
+        String suffix = arity <= 2 ? String.valueOf(arity): "N";
+	    Method execute = enumElement.getClass().getMethod("execute" + suffix, parameters);
+
+	    MethodHandle foundMethod = lookup.unreflect(execute).bindTo(enumElement);
+	    return new ConstantCallSite(foundMethod.asType(type));
 	}
 
 	/************************************************************************************
 	 * 					AUXILIARY FUNCTIONS	 (prefixed with $) used in RascalPrimitives	*	
 	 ************************************************************************************/
-
-	private static String $computeTestName(final String name, final ISourceLocation loc){
-		return name.substring(name.indexOf("/")+1, name.indexOf("(")); // Resembles Function.getPrintableName
-	}
 
 	/*
 	 * String templates
@@ -8921,7 +8773,7 @@ public enum RascalPrimitive {
 		//return vf.string(org.rascalmpl.interpreter.utils.StringUtils.unescapeSingleQuoteAndBackslash(jstr));
 	}
 
-	private static ISourceLocation $loc_field_update(final ISourceLocation sloc, final String field, final IValue repl, final Frame currentFrame) {		
+	private static ISourceLocation $loc_field_update(final ISourceLocation sloc, final String field, final IValue repl, final Frame currentFrame, RascalExecutionContext rex) {		
 		Type replType = repl.getType();
 
 		int iLength = sloc.hasOffsetLength() ? sloc.getLength() : -1;
@@ -8969,7 +8821,7 @@ public enum RascalPrimitive {
 
 			case "host":
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-					throw RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the host field, use authority instead.", currentFrame);
+				  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the host field, use authority instead.", currentFrame));
 				}
 				uri = URIUtil.changeHost(sloc.getURI(), newStringValue);
 				authority = uri.getAuthority();
@@ -9006,7 +8858,7 @@ public enum RascalPrimitive {
 				break;	
 
 			case "ls":
-				throw RascalRuntimeException.noSuchField("Cannot update the children of a location", currentFrame);
+			    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("Cannot update the children of a location", currentFrame));
 
 			case "extension":
 				String ext = newStringValue;
@@ -9059,7 +8911,7 @@ public enum RascalPrimitive {
 
 			case "user":
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-					throw RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the user field, use authority instead.", currentFrame);
+				    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the user field, use authority instead.", currentFrame));
 				}
 				uri = sloc.getURI();
 				if (uri.getHost() != null) {
@@ -9072,7 +8924,7 @@ public enum RascalPrimitive {
 
 			case "port":
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-					throw RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the port field, use authority instead.", currentFrame);
+				    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the port field, use authority instead.", currentFrame));
 				}
 				if (sloc.getURI().getHost() != null) {
 					int port = Integer.parseInt(((IInteger) repl).getStringRepresentation());
@@ -9085,14 +8937,14 @@ public enum RascalPrimitive {
 			case "length":
 				iLength = ((IInteger) repl).intValue();
 				if (iLength < 0) {
-					throw RascalRuntimeException.illegalArgument(repl, currentFrame);
+				    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(repl, currentFrame));
 				}
 				break;
 
 			case "offset":
 				iOffset = ((IInteger) repl).intValue();
 				if (iOffset < 0) {
-					throw RascalRuntimeException.illegalArgument(repl, currentFrame);
+				    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(repl, currentFrame));
 				}
 				break;
 
@@ -9101,7 +8953,7 @@ public enum RascalPrimitive {
 				iBeginColumn = ((IInteger) ((ITuple) repl).get(1)).intValue();
 
 				if (iBeginColumn < 0 || iBeginLine < 0) {
-					throw RascalRuntimeException.illegalArgument(repl, currentFrame);
+				    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(repl, currentFrame));
 				}
 				break;
 			case "end":
@@ -9109,12 +8961,12 @@ public enum RascalPrimitive {
 				iEndColumn = ((IInteger) ((ITuple) repl).get(1)).intValue();
 
 				if (iEndColumn < 0 || iEndLine < 0) {
-					throw RascalRuntimeException.illegalArgument(repl, currentFrame);
+				    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(repl, currentFrame));
 				}
 				break;			
 
 			default:
-				throw RascalRuntimeException.noSuchField("Modification of field " + field + " in location not allowed", currentFrame);
+			    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("Modification of field " + field + " in location not allowed", currentFrame));
 			}
 
 			ISourceLocation newLoc = sloc;
@@ -9152,7 +9004,7 @@ public enum RascalPrimitive {
 
 			if (iBeginColumn != -1 || iEndColumn != -1 || iBeginLine != -1 || iBeginColumn != -1) {
 				// trying to add line/column info to a uri that has no offset length
-				throw RascalRuntimeException.invalidUseOfLocation("Can not add line/column information without offset/length", currentFrame);
+			    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfLocation("Can not add line/column information without offset/length", currentFrame));
 			}
 
 			// trying to set offset that was not there before, adding length automatically
@@ -9178,10 +9030,11 @@ public enum RascalPrimitive {
 			return newLoc;
 
 		} catch (IllegalArgumentException e) {
-			throw RascalRuntimeException.illegalArgument(currentFrame);
+		    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(currentFrame));
 		} catch (URISyntaxException e) {
-			throw RascalRuntimeException.malformedURI(e.getMessage(), currentFrame);
+		    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidURI(e.getMessage(), currentFrame));
 		}
+		return null;
 	}
 
 	private static IBool $list_less_list(IList left, IList right) {
@@ -9253,8 +9106,7 @@ public enum RascalPrimitive {
 		return v instanceof IInteger ? ((IInteger) v).intValue() : null;
 	}
 
-	public SliceDescriptor $makeSliceDescriptor(Integer first, Integer second, Integer end, int len, Frame currentFrame) {
-
+	public SliceDescriptor $makeSliceDescriptor(Integer first, Integer second, Integer end, int len) {
 
 		int firstIndex = 0;
 		int secondIndex = 1;
@@ -9321,7 +9173,7 @@ public enum RascalPrimitive {
 	public int $list_slice_operator(final Object[] stack, final int sp, final int arity, final SliceOperator op, final Frame currentFrame, final RascalExecutionContext rex) {
 		assert arity == 5;
 		IList lst = (IList) stack[sp - 5];
-		SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), lst.length(), currentFrame);
+		SliceDescriptor sd = $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), lst.length());
 		IList repl = (IList) stack[sp - 1];
 		stack[sp - 5] = $updateListSlice(lst, sd, op, repl, currentFrame, rex);
 		return sp - 4;
@@ -9509,8 +9361,8 @@ public enum RascalPrimitive {
 
 	// TODO: merge the following two functions
 
-	private static String $value_to_string(final Object given, final Frame currentFrame) {
-		String res;
+	private static String $value_to_string(final Object given, final Frame currentFrame, RascalExecutionContext rex) {
+		String res = null;
 		if(given instanceof IValue){
 			IValue val = (IValue) given;
 			Type tp = val.getType();
@@ -9532,7 +9384,7 @@ public enum RascalPrimitive {
 		} else if(given instanceof Integer){
 			res = ((Integer) given).toString();
 		} else {
-			throw RascalRuntimeException.illegalArgument(vf.string(given.toString()), currentFrame);
+		    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(vf.string(given.toString()), currentFrame));
 		}
 		return res;
 	}
@@ -9559,150 +9411,7 @@ public enum RascalPrimitive {
 	 * @return t converted to a symbol
 	 */
 	static IConstructor $type2symbol(final Type t){
-		IConstructor result = t.accept(new ITypeVisitor<IConstructor,RuntimeException>() {
-
-			@Override
-			public IConstructor visitReal(final Type type) throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Real);
-			}
-
-			@Override
-			public IConstructor visitInteger(final Type type) throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Int);
-			}
-
-			@Override
-			public IConstructor visitRational(final Type type)
-					throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Rat);
-			}
-
-			@Override
-			public IConstructor visitList(final Type type) throws RuntimeException {
-				Type elementType = type.getElementType();
-				if(elementType.isTuple()){
-					IConstructor[] fields = new IConstructor[elementType.getArity()];
-					for(int i = 0; i < elementType.getArity(); i++){
-						fields[i] =elementType.getFieldType(i).accept(this);
-					}
-					return vf.constructor(RascalValueFactory.Symbol_ListRel, vf.list(fields));
-				}
-				return vf.constructor(RascalValueFactory.Symbol_List, type.getElementType().accept(this));
-			}
-
-			@Override
-			public IConstructor visitMap(final Type type) throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Map, type.getKeyType().accept(this), type.getValueType().accept(this));
-			}
-
-			@Override
-			public IConstructor visitNumber(final Type type) throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Num);
-			}
-
-			@Override
-			public IConstructor visitAlias(final Type type) throws RuntimeException {
-				throw new RuntimeException();
-			}
-
-			@Override
-			public IConstructor visitSet(final Type type) throws RuntimeException {
-				Type elementType = type.getElementType();
-				if(elementType.isTuple()){
-					IConstructor[] fields = new IConstructor[elementType.getArity()];
-					for(int i = 0; i < elementType.getArity(); i++){
-						fields[i] =elementType.getFieldType(i).accept(this);
-					}
-					return vf.constructor(RascalValueFactory.Symbol_Rel, vf.list(fields));
-				}
-				return vf.constructor(RascalValueFactory.Symbol_Set, type.getElementType().accept(this));
-			}
-
-			@Override
-			public IConstructor visitSourceLocation(final Type type)
-					throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Loc);
-			}
-
-			@Override
-			public IConstructor visitString(final Type type) throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Str);
-			}
-
-			@Override
-			public IConstructor visitNode(final Type type) throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Node);
-			}
-
-			@Override
-			public IConstructor visitConstructor(final Type type)
-					throws RuntimeException {
-				Type fieldTypes = type.getFieldTypes();
-				IValue args[] = new IValue[fieldTypes.getArity()];
-				for(int i = 0; i < fieldTypes.getArity(); i++){
-					args[i] = fieldTypes.getFieldType(i).accept(this);
-				}
-				return vf.constructor(RascalValueFactory.Symbol_Cons, type.getAbstractDataType().accept(this), vf.string(type.getName()), vf.list(args));
-			}
-
-			@Override
-			public IConstructor visitAbstractData(final Type type)
-					throws RuntimeException {
-				Type parameterType = type.getTypeParameters();
-				IValue args[] = new IValue[parameterType.getArity()];
-				for(int i = 0; i < parameterType.getArity(); i++){
-					args[i] = parameterType.getFieldType(i).accept(this);
-				}
-				return vf.constructor(RascalValueFactory.Symbol_Adt, vf.string(type.getName()), vf.list(args));
-			}
-
-			@Override
-			public IConstructor visitTuple(final Type type) throws RuntimeException {
-				IConstructor fields[] = new IConstructor[type.getArity()];
-				for(int i = 0; i < type.getArity(); i++){
-					fields[i] = type.getFieldType(i).accept(this);
-				}
-				return vf.constructor(RascalValueFactory.Symbol_Tuple, vf.list(fields));
-			}
-
-			@Override
-			public IConstructor visitValue(final Type type) throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Value);
-			}
-
-			@Override
-			public IConstructor visitVoid(Type type) throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Void);
-			}
-
-			@Override
-			public IConstructor visitBool(final Type type) throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Bool);
-			}
-
-			@Override
-			public IConstructor visitParameter(final Type type)
-					throws RuntimeException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public IConstructor visitExternal(final Type type)
-					throws RuntimeException {
-				return type.accept(this);
-			}
-
-			@Override
-			public IConstructor visitDateTime(final Type type)
-					throws RuntimeException {
-				return vf.constructor(RascalValueFactory.Symbol_Datetime);
-			}
-
-		});
-
-		//rex.getType2SymbolCache().put(t, result);
-		return result;
+	    return t.asSymbol(vf, /*new TypeStore()*/ new TypeStore(RascalValueFactory.getStore()), vf.setWriter(), new HashSet<>());
 	}
 	
 	private static Map<String,IValue> $getAllKeywordParameters(IValue v, RascalExecutionContext rex){

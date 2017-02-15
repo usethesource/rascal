@@ -32,6 +32,7 @@ private list[str] basicTests = [
 	"Sets",
 	"SolvedIssues",
 	"Strings",
+	"TestsForTests",
 	"Tuples"					
 ];
 
@@ -66,21 +67,23 @@ private list[str] functionalityTests = [
 "ConcretePatternTests2",
 "ConcretePatternTests3",
 "ConcreteSubscriptAndSliceTests",
+"ConcreteSyntaxKeywordFields",
 "ConcreteSyntaxTests1",
 "ConcreteSyntaxTests2",
 "ConcreteSyntaxTests3", 
 "ConcreteSyntaxTests4",
+"ConcreteSyntaxTests5",
 "ConcreteTerms",
 "DataDeclarationTests",
 "DataTypeTests",
 "DeclarationTests",
 "FunctionCompositionTests",
 "InterpolationTests",
-//"KeywordParameterImportTests1::DiamondTop",
-//"KeywordParameterImportTests1::DiamondLeft",
-//"KeywordParameterImportTests1::DiamondRight",
-//"KeywordParameterImportTests1::DiamondBottom",
-//"KeywordParameterImportTests2::Tests",
+"KeywordParameterImportTests1::DiamondTop",
+"KeywordParameterImportTests1::DiamondLeft",
+"KeywordParameterImportTests1::DiamondRight",
+"KeywordParameterImportTests1::DiamondBottom",
+"KeywordParameterImportTests2::Tests",
 "KeywordParameterTests",
 "LayoutTests",
 "ParsingTests",
@@ -94,15 +97,30 @@ private list[str] functionalityTests = [
 //"ScopeTests",				// OK but OutOfMemory????
 "SetMatchTests1", 
 "SetMatchTests2",
+"SimpleVisitTest",
 "StatementTests",
 "SubscriptTests",
 "TryCatchTests",  				
 "VisitTests"
 ];
 
+private list[str] importTests = [
+"ImportTests1", 
+"ImportTests2",
+"ImportTests3",
+"ImportTests4",
+"ImportTests5",
+"ImportTests6",
+"ImportTests7",
+"ImportTests8", 
+"ImportTests9", 
+"ModuleInitRange"
+];
+
 
 private list[str] libraryTests = [
 "BooleanTests",
+"DateTimeTests",
 "IntegerTests",
 "ListRelationTests",
 "ListTests",
@@ -115,6 +133,7 @@ private list[str] libraryTests = [
 "StringTests",
 "TypeTests",
 "ValueIOTests",
+"analysis::formalconcepts::FCATest",
 "analysis::graphs::GraphTests",
 "analysis::statistics::DescriptiveTests",
 "analysis::statistics::RangeUtils",
@@ -123,17 +142,7 @@ private list[str] libraryTests = [
 "util::SemVerTests"
 ];
 
-private list[str] importTests = [
-"ImportTests1", 
-"ImportTests2",
-"ImportTests3",
-"ImportTests4",
-"ImportTests5",
-"ImportTests6",
-"ImportTests7",
-"ImportTests8", 
-"ModuleInitRange"
-];
+
 
 private list[str] extendTests  = [
 "ABSTRACTTYPE",
@@ -282,17 +291,19 @@ lrel[loc,int,str] runTests(list[str] names, str base, PathConfig pcfg, bool jvm=
   return all_test_results;
 }
   
-value main(bool jvm=true) = allRascalTests(bin=|home:///bin-tests-comp|, jvm=jvm);
+value main(bool jvm=true) = allRascalTests(pathConfig());
   
-value allRascalTests(loc bin=|home:///bin-tests-intp|, bool jvm=true){
-  
-  println("Using bin = <bin>");
+value allRascalTests(PathConfig pcfg){ //loc bin=|home:///bin-tests-intp|, loc boot=|boot:///|, bool jvm=true){
+
+  println("Using <pcfg>");
+  jvm = true;
   timestamp = now();
   crashes = [];
   partial_results = [];
   lrel[loc,int,str] all_results = [];
+  jvm = true;
   
-  pcfg = pathConfig(srcs=[|std:///|], bin=bin, libs=[bin]);
+  //pcfg = pathConfig(srcs=[|std:///|], bin=bin, boot=boot, libs=[bin]);
   
   all_results += runTests(basicTests, "lang::rascal::tests::basic", pcfg, jvm=jvm);
   all_results += runTests(functionalityTests, "lang::rascal::tests::functionality", pcfg, jvm=jvm);
@@ -308,7 +319,7 @@ value allRascalTests(loc bin=|home:///bin-tests-intp|, bool jvm=true){
       println("<prog>: <s>");
   
   println("\nFailed/IGNORED TESTS:");
-  printTestReport(all_results, []);
+  printTestReport(testResults(all_results, []));
   
   if(size(crashes) > 0){
      println("\nCRASHED TESTS:");

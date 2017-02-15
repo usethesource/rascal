@@ -91,7 +91,9 @@ data Symbol      // <3>
      | \adt(str name, list[Symbol] parameters)
      | \cons(Symbol \adt, str name, list[Symbol] parameters)
      | \alias(str name, list[Symbol] parameters, Symbol aliased)
-     | \func(Symbol ret, list[Symbol] parameters)
+     | \func(Symbol ret, list[Symbol] parameters, list[Symbol] kwTypes)
+     | \func(Symbol ret, list[Symbol] parameters) // deprecated
+     | \overloaded(set[Symbol] alternatives)
      | \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg)
      | \reified(Symbol symbol)
      ;
@@ -135,7 +137,7 @@ data Attr
 Transform a function with varargs (`...`) to a normal function with a list argument.
 }
 public Symbol \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg) =
-              \func(ret, parameters + \list(varArg));
+              \func(ret, parameters + \list(varArg), []);
 
 // The following normalization rules canonicalize grammars to prevent arbitrary case distinctions later
 
@@ -231,6 +233,8 @@ public bool subtype(Symbol::\rel(list[Symbol] l), Symbol::\set(Symbol r)) = subt
 
 public bool subtype(Symbol::\bag(Symbol s), Symbol::\bag(Symbol t)) = subtype(s, t);  
 public bool subtype(Symbol::\map(Symbol from1, Symbol to1), Symbol::\map(Symbol from2, Symbol to2)) = subtype(from1, from2) && subtype(to1, to2);
+public bool subtype(Symbol::\func(Symbol r1, list[Symbol] p1, list[Symbol] _), Symbol f2) = subtype(\func(r1, p1), f2);
+public bool subtype(Symbol f2, Symbol::\func(Symbol r1, list[Symbol] p1, list[Symbol] _)) = subtype(f2, \func(r1, p1));
 public bool subtype(Symbol::\func(Symbol r1, list[Symbol] p1), Symbol::\func(Symbol r2, list[Symbol] p2)) = subtype(r1, r2) && subtype(p2, p1); // note the contra-variance of the argument types
 public bool subtype(Symbol::\parameter(str _, Symbol bound), Symbol r) = subtype(bound, r);
 public bool subtype(Symbol l, Symbol::\parameter(str _, Symbol bound)) = subtype(l, bound);
@@ -307,10 +311,6 @@ eq(1,1.0)
 }
 @javaClass{org.rascalmpl.library.Type}
 public java bool eq(value x, value y);
-
-//data Symbol 
-//  | \func(Symbol ret, list[Symbol] parameters)
-//  ;
 
 @doc{
 .Synopsis
@@ -398,11 +398,11 @@ public Symbol lub(Symbol l, Symbol::\parameter(str _, Symbol bound)) = lub(l, bo
 public Symbol lub(Symbol::\reified(Symbol l), Symbol::\reified(Symbol r)) = Symbol::\reified(lub(l,r));
 public Symbol lub(Symbol::\reified(Symbol l), Symbol::\node()) = Symbol::\node();
 
-public Symbol lub(Symbol::\func(Symbol lr, list[Symbol] lp), Symbol::\func(Symbol rr, list[Symbol] rp)) {
+public Symbol lub(Symbol::\func(Symbol lr, list[Symbol] lp, list[Symbol] lkw), Symbol::\func(Symbol rr, list[Symbol] rp, list[Symbol] rkw)) {
 	lubReturn = lub(lr,rr);
 	lubParams = glb(Symbol::\tuple(lp),Symbol::\tuple(rp));
 	if (isTupleType(lubParams))
-		return \func(lubReturn, lubParams.symbols);
+		return \func(lubReturn, lubParams.symbols, lkw == rkw ? lkw : []);
 	else
 		return Symbol::\value();
 }
@@ -501,11 +501,11 @@ public Symbol glb(Symbol l, Symbol::\parameter(str _, Symbol bound)) = glb(l, bo
 public Symbol glb(Symbol::\reified(Symbol l), Symbol::\reified(Symbol r)) = Symbol::\reified(glb(l,r));
 public Symbol glb(Symbol::\reified(Symbol l), Symbol::\node()) = Symbol::\node();
 
-public Symbol glb(Symbol::\func(Symbol lr, list[Symbol] lp), Symbol::\func(Symbol rr, list[Symbol] rp)) {
+public Symbol glb(Symbol::\func(Symbol lr, list[Symbol] lp, list[Symbol] lkw), Symbol::\func(Symbol rr, list[Symbol] rp, list[Symbol] rkw)) {
 	glbReturn = glb(lr,rr);
 	glbParams = lub(Symbol::\tuple(lp),Symbol::\tuple(rp));
 	if (isTupleType(glbParams))
-		return \func(glbReturn, glbParams.symbols);
+		return \func(glbReturn, glbParams.symbols, lkw == rkw ? lkw : []);
 	else
 		return Symbol::\value();
 }
@@ -800,6 +800,7 @@ Determine if the given type is a function.
 public bool isFunctionType(Symbol::\alias(_,_,Symbol at)) = isFunctionType(at);
 public bool isFunctionType(Symbol::\parameter(_,Symbol tvb)) = isFunctionType(tvb);
 public bool isFunctionType(Symbol::\label(_,Symbol lt)) = isFunctionType(lt);
+public bool isFunctionType(Symbol::\func(_,_,_)) = true;
 public bool isFunctionType(Symbol::\func(_,_)) = true;
 //public bool isFunctionType(\var-func(_,_,_)) = true;
 public default bool isFunctionType(Symbol _) = false;

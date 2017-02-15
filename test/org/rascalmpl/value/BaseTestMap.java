@@ -18,14 +18,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.IMapWriter;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.io.binary.BinaryReader;
-import org.rascalmpl.value.io.binary.BinaryWriter;
+import org.rascalmpl.value.io.binary.stream.IValueInputStream;
+import org.rascalmpl.value.io.binary.stream.IValueOutputStream;
 import org.rascalmpl.value.type.Type;
 import org.rascalmpl.value.type.TypeFactory;
 import org.rascalmpl.value.type.TypeStore;
@@ -325,15 +319,13 @@ public abstract class BaseTestMap extends TestCase {
 		switch(kind) {
 		case BINARY: {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			BinaryWriter binaryWriter = new BinaryWriter(val, baos, ts);
-			binaryWriter.serialize();
+			try (IValueOutputStream w = new IValueOutputStream(baos)) {
+			    w.write(val);
+			}
 
-			byte[] data = baos.toByteArray();
-			ByteArrayInputStream bais = new ByteArrayInputStream(data);
-			BinaryReader binaryReader = new BinaryReader(vf, ts, bais);
-			System.out.print("data: ");
-			printBytes(data); // Temp
-			return binaryReader.deserialize();
+			try (IValueInputStream r = new IValueInputStream(new ByteArrayInputStream(baos.toByteArray()), vf)) {
+			    return r.read();
+			}
 		}
 		/*// Doesn't work, but should, perhaps?
 		case XML: {

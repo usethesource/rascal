@@ -27,6 +27,6 @@ public class PushCallPrim0 extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall1(opcode.name(), prim.ordinal());
 
-		codeEmittor.emitInlinePushCallPrim0(prim, codeblock.getConstantIndex(src), debug); 
+		codeEmittor.emitInlinePushCallPrim0(prim, codeblock.getConstantIndex(src)); 
 	}
 }

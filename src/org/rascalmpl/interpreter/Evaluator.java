@@ -455,7 +455,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	
 	public IValue call(String returnType, String name, IValue... args) {
-	  return call(Names.toQualifiedName(returnType, name, getCurrentEnvt().getLocation()), null, args);
+	  return call(Names.toQualifiedName(returnType, name, getCurrentEnvt().getLocation()), Collections.emptyMap(), args);
 	};
 	
 	@Override

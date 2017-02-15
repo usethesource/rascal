@@ -41,13 +41,13 @@ import experiments::Compiler::Rascal2muRascal::RascalExpression;
 /********************************************************************/
 
 @doc{Compile a parsed Rascal source module to muRascal}
-MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, bool verbose = true, bool optimize = true, bool enableAsserts=false){
+MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = true, bool optimize = true, bool enableAsserts=false){
    try {
       resetModuleInfo(optimize, enableAsserts);
       module_name = "<M.header.name>";
       setModuleName(module_name);
       setModuleTags(translateTags(M.header.tags));
-      //if(verbose) println("r2mu: entering ... <module_name>");
+      if(verbose) println("r2mu: entering ... <module_name>, enableAsserts: <enableAsserts>");
    	  
    	  // Extract scoping information available from the configuration returned by the type checker  
    	  extractScopes(config); 
@@ -79,8 +79,6 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
    	  translateModule(M);
    	 
    	  modName = replaceAll("<M.header.name>","\\","");
-   	 
-   	  generate_tests(modName, M@\loc);
    	  
    	  //println("overloadedFunctions"); for(tp <- getOverloadedFunctions()) println(tp);
    	  // Overloading resolution...	  
@@ -97,7 +95,8 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
    	  	| tuple[str name, Symbol funType, str scopeIn, list[int] fuids] of <- getOverloadedFunctions() 
    	  	];  
    	  
-   	  return muModule(modName,
+   	  return relocMuModule(
+   	            muModule(modName,
    	  				  getModuleTags(),
    	                  config.messages, 
    	  				  getImportsInModule(),
@@ -112,7 +111,9 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
    	  				  overloaded_functions, 
    	  				  getGrammar(),
    	  				  {<prettyPrintName(rn1), prettyPrintName(rn2)> | <rn1, rn2> <- config.importGraph},
-   	  				  M@\loc);
+   	  				  M@\loc),
+   	  				  reloc,
+   	  				  pcfg.srcs);
 
    }
    catch ParseError(loc l): {
@@ -127,6 +128,48 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, boo
    	   resetScopeExtraction();
    }
    throw "r2mu: cannot come here!";
+}
+
+loc relocLoc(loc org, loc reloc, list[loc] srcs){
+    for(src <- srcs){
+        opath = org.path;
+        if(startsWith(opath, src.path)){
+           npath = opath[size(src.path) .. ];
+           return org.offset? ? (reloc + npath)[offset=org.offset][length=org.length][begin=org.begin][end=org.end]
+                                 : reloc + npath;
+        }
+    }
+    println("Not relocated: <org>");
+    return org;
+}
+
+MuModule relocMuModule(MuModule m, loc reloc, list[loc] srcs){
+    if(reloc.scheme == "noreloc"){
+        return m;
+    }
+    m.src = relocLoc(m.src, reloc, srcs);
+    m.functions = for(f <- m.functions){
+                      f.src = relocLoc(f.src, reloc, srcs);
+                      f.body = relocBody(f.body, reloc, srcs);
+                      append f;
+                  }
+   return m;                                 
+}
+
+MuExp relocBody(MuExp body, loc reloc, list[loc] srcs){
+ return
+        visit(body){ 
+        case muOCall3(MuExp fun, list[MuExp] largs, loc src)    => muOCall3(fun, largs, relocLoc(src, reloc, srcs))
+        case muOCall4(MuExp fun, Symbol types, list[MuExp] largs, loc src)
+                                                                => muOCall4(fun, types, largs, relocLoc(src, reloc, srcs))
+        case muCallPrim2(str name, loc src)                     => muCallPrim2(name, relocLoc(src, reloc, srcs))                
+        case muCallPrim3(str name, list[MuExp] exps, loc src)   => muCallPrim3(name, exps, relocLoc(src, reloc, srcs))
+        case muThrow(MuExp exp, loc src)                        => muThrow(exp, relocLoc(src, reloc, srcs))
+        };    
+}
+
+Configuration relocConfig(Configuration config, loc reloc, list[loc] srcs){
+        return visit(config) { case loc l => relocLoc(l, reloc, srcs) };
 }
 
 void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration config, bool verbose = true){
@@ -152,20 +195,23 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
         */
          
        str fuid = getCompanionForUID(uid);
-       Symbol ftype = Symbol::func(getConstructorResultType(\type), [ t | Symbol::label(l,t) <- getConstructorArgumentTypes(\type) ]);
+       Symbol ftype = Symbol::func(getConstructorResultType(\type), [ t | Symbol::label(l,t) <- getConstructorArgumentTypes(\type) ], []);
+       list[str] argNames = [ l | Symbol::label(l,t) <- getConstructorArgumentTypes(\type) ];
        tuple[str fuid,int pos] addr = uid2addr[uid];
        int nformals = size(\type.parameters) + 1;
        int defaults_pos = nformals;
         
        //println("enter function scope <fuid>");
        enterFunctionScope(fuid);
-         
-       MuExp body = muReturn1(muCall(muConstr(uid2str[uid]), [ muVar("<i>",fuid,i) | int i <- [0..size(\type.parameters)] ] 
+       
+       kwTypes = Symbol::\tuple([ Symbol::label(getSimpleName(rname),allKWFieldsAndTypes[rname]) | rname <- allKWFieldsAndTypes ]);
+       //println("kwTypes: <kwTypes>");
+       MuExp body = muReturn1(muCall(muConstr(uid2str[uid]), [ muVar("arg<i>",fuid,i) | int i <- [0..size(\type.parameters)] ] 
                                                                + [ muVar("kwparams", fuid, size(\type.parameters)),
-                                                                   muTypeCon(Symbol::\tuple([ Symbol::label(getSimpleName(rname),allKWFieldsAndTypes[rname]) | rname <- allKWFieldsAndTypes ])) 
+                                                                   muTypeCon(kwTypes) 
                                                                ]));                          
        leaveFunctionScope();
-       addFunctionToModule(muFunction(fuid, name.name, ftype, (addr.fuid in moduleNames) ? "" : addr.fuid,nformals, nformals + 1, false, true, |std:///|, [], (), false, 0, 0, body));                                             
+       addFunctionToModule(muFunction(fuid, name.name, ftype, argNames, kwTypes, (addr.fuid in moduleNames) ? "" : addr.fuid,nformals, nformals + 1, false, true, |std:///|, [], (), false, 0, 0, body));                                             
      
        /*
         * Create companion for computing the values of defaults
@@ -200,7 +246,7 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
        //iprintln(bodyDefaults);
        
        leaveFunctionScope();
-       addFunctionToModule(muFunction(fuidDefaults, name.name, ftype, (addrDefaults.fuid in moduleNames) ? "" : addrDefaults.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefaults));                                             
+       addFunctionToModule(muFunction(fuidDefaults, name.name, ftype, argNames, Symbol::\tuple([]), (addrDefaults.fuid in moduleNames) ? "" : addrDefaults.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefaults));                                             
        
        /*
         * Create companions for each common keyword field
@@ -233,7 +279,7 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
                //println("**** enter scope <fuidDefault>");
                enterFunctionScope(fuidDefault);
                
-               ftype = Symbol::func(allKWFieldsAndTypes[mainKwf], [ Symbol::\void() ]);
+               ftype = Symbol::func(allKWFieldsAndTypes[mainKwf], [ Symbol::\void() ], []);
                
                kwps = [ muAssign("map_of_default_values", fuidDefault, defaults_pos, muCallMuPrim("make_mmap_str_entry",[])) ];
                  
@@ -257,7 +303,7 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
               // iprintln(bodyDefault);
          
                leaveFunctionScope();
-               addFunctionToModule(muFunction(fuidDefault, prettyPrintName(mainKwf), ftype, (addrDefault.fuid in moduleNames) ? "" : addrDefault.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefault));                                             
+               addFunctionToModule(muFunction(fuidDefault, prettyPrintName(mainKwf), ftype, argNames, Symbol::\tuple([]), (addrDefault.fuid in moduleNames) ? "" : addrDefault.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefault));                                             
              }
        }
    }
@@ -274,11 +320,11 @@ void translateModule((Module) `<Header header> <Body body>`) {
 /********************************************************************/
 
 private void importModule((Import) `import <QualifiedName qname> ;`){
-    addImportToModule("<qname>");
+    addImportToModule(prettyPrintName(convertName(qname)));
 }
 
 private void importModule((Import) `extend <QualifiedName qname> ;`){
-	moduleName = "<qname>";
+	moduleName = prettyPrintName(convertName(qname));
 	addImportToModule(moduleName);
 	addExtendToModule(moduleName);
 }
@@ -287,19 +333,4 @@ private void importModule((Import) `<SyntaxDefinition syntaxdef>`){ /* nothing t
 
 private default void importModule(Import imp){
     throw "Unimplemented import: <imp>";
-}
-
-/********************************************************************/
-/*                  Translate the tests in a module                 */
-/********************************************************************/
- 
-private void generate_tests(str module_name, loc src){
-   testcode = getTestsInModule();
-   if(!isEmpty(testcode)){
-      code = muBlock([ muCallPrim3("testreport_open", [], src), *testcode, muReturn1(muCallPrim3("testreport_close", [], src)) ]);
-      ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())]);
-      name_testsuite = "<module_name>_testsuite";
-      main_testsuite = getFUID(name_testsuite,name_testsuite,ftype,0);
-      addFunctionToModule(muFunction(main_testsuite, "testsuite", ftype, "" /*in the root*/, 2, 2, false, true, src, [], (), false, 0, 0, code));
-   }
 }

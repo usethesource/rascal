@@ -17,7 +17,7 @@ Library functions for input/output.
 .Description
 
 The following input/output functions are defined:
-subtoc::[1]
+loctoc::[1]
 }
 module IO
 
@@ -145,22 +145,6 @@ public bool bprintln(value arg)
   println(arg);
   return true;
 }
-
-
-/*
- The following functions are identical to printExp and printlnExp, I have removed them -- Paul
-@doc{Synopsis: Prints message and returns the value.}
-public &T discardPrintExp(str s, &T t){
-	print(s);
-	return t;
-}
-
-@doc{Synopsis: Prints message on a line and returns the value.}
-public &T discardPrintlnExp(str s, &T t){
-	println(s);
-	return t;
-}
-*/
 
 @doc{
 .Synopsis

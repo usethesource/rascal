@@ -125,7 +125,7 @@ public class IO {
 
 	private IValue computeType(ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx) {
 		IValue csvResult = this.read(null, loc, header, separator, encoding, values.bool(true), ctx);
-		return ((IConstructor) new TypeReifier(values).typeToValue(csvResult.getType(), ctx).getValue());
+		return new TypeReifier(values).typeToValue(csvResult.getType(), ctx.getCurrentEnvt().getStore(), values.mapWriter().done());
 	}
 	
 	private String[] readFirstRecord(FieldReader reader) throws IOException {
@@ -516,17 +516,19 @@ public class IO {
 	
 	/**
 	 * Normalize a label in the header for use in the relation type.
-	 * The name is escaped to avoid conflicts with Rascal keywords.
-	 * @param label	The string found in the header
-	 * @param pos	Position in the header
-	 * @return		The label (with non-fieldname characters removed) or "field<pos>" when empty
+	 *
+	 * @param label the string found in the header
+	 * @param pos position in the header
+	 * @return the label (with non-fieldname characters removed) or "field<pos>" when empty
 	 */
-	private String normalizeLabel(String label, int pos){
-		label = label.replaceAll("[^a-zA-Z0-9]+", "");
-		if(label.isEmpty())
-			return "field" + pos;
-		else 
-		  return "\\" + label;
+	private String normalizeLabel(final String label, final int pos) {
+	    final String normalizedLabel = label.replaceAll("[^a-zA-Z0-9]+", "");
+
+	    if (!normalizedLabel.isEmpty()) {
+	        return normalizedLabel;
+	    } else {
+	        return "field" + pos;
+	    }
 	}
 }
 

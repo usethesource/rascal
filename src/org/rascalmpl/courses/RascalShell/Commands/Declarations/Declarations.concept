@@ -1,0 +1,20 @@
+# Declarations Command
+
+.Synopsis
+Show all declarations in current RascalShell session.
+
+.Syntax
+`declarations`
+
+.Description
+All declarations entered during the current session are shown.
+Also see <<Undeclare Command>> to remove a declaration.
+
+.Examples
+
+[source,rascal-shell]
+----
+real pi = 3.14;
+data D = d1(int n) | d2(str s);
+declarations
+----

@@ -22,6 +22,6 @@ public class CreateDyn extends Instruction {
 		if ( debug ) 
 			codeEmittor.emitDebugCall1(opcode.name(), arity);
 		
-		codeEmittor.emitInlineCreateDyn(arity, debug);
+		codeEmittor.emitInlineCreateDyn(arity);
 	}
 }

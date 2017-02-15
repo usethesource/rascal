@@ -22,6 +22,6 @@ public class PushOFun extends Instruction {
 		if (debug)
 			codeEmittor.emitDebugCall1(opcode.name(), codeblock.getOverloadedFunctionIndex(fuid));
 		
-		codeEmittor.emitCallWithArgsSSFI_S("insnPUSHOFUN", codeblock.getOverloadedFunctionIndex(fuid),debug);
+		codeEmittor.emitCallWithArgsSSFI_S("insnPUSHOFUN", codeblock.getOverloadedFunctionIndex(fuid));
 	}
 }

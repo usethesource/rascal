@@ -2,35 +2,24 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
 import java.util.Map;
 
-import org.rascalmpl.interpreter.ITestResultListener;
-import org.rascalmpl.interpreter.load.RascalSearchPath;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions.Opcode;
+import org.rascalmpl.interpreter.DefaultTestResultListener;
+import org.rascalmpl.interpreter.utils.Timing;
+import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.value.IBool;
 import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.IMap;
 import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
 import org.rascalmpl.value.IValue;
 import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ExecutionTools {
 
 	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
-	private static ITestResultListener testResultListener;		//TODO where should it be used?
-
-	static void setTestResultListener(ITestResultListener trl){
-		testResultListener = trl;
-	}
-	
 	public static RascalExecutionContext makeRex(
+	                PathConfig pcfg,
 					RVMExecutable rvmExecutable,
 					PrintWriter out,
 					PrintWriter err,
@@ -39,24 +28,23 @@ public class ExecutionTools {
 					IBool testsuite, 
 					IBool profile, 
 					IBool trace, 
-					IBool coverage, IBool jvm, RascalSearchPath rascalSearchPath
+					IBool coverage, 
+					IBool jvm
 	) {
-		return RascalExecutionContextBuilder.normalContext(vf, out != null ? out : new PrintWriter(System.out), err != null ? err : new PrintWriter(System.err))
+		return RascalExecutionContextBuilder.normalContext(pcfg, out != null ? out : new PrintWriter(System.out), err != null ? err : new PrintWriter(System.err))
 			.withModuleTags(rvmExecutable.getModuleTags())
-			.withSymbolDefinitions(	rvmExecutable.getSymbolDefinitions())
-			.setDebug(debug.getValue())
-			.setDebugRVM(debugRVM.getValue())
-			.setTestsuite(testsuite.getValue())
-			.setProfile(profile.getValue())
-			.setTrace(trace.getValue())
-			.setCoverage(coverage.getValue())
-			.setJVM(jvm.getValue())
-			.customSearchPath(rascalSearchPath)
+			.withSymbolDefinitions(rvmExecutable.getSymbolDefinitions())
+			.coverage(coverage.getValue())
+			.debug(debug.getValue())
+			.debugRVM(debugRVM.getValue())
+			.jvm(jvm.getValue())
+			.profile(profile.getValue())
+			.testsuite(testsuite.getValue())
+			.trace(trace.getValue())
 			.build();
 	}
 	
 	public static RVMExecutable linkProgram(
-					 ISourceLocation rvmProgramLoc,
 					 IConstructor rvmProgram,
 					 IBool jvm	
     ) throws IOException {
@@ -77,12 +65,11 @@ public class ExecutionTools {
 			 	IBool jvm
 	) throws IOException {
 
-		TypeStore typeStore = new TypeStore();
-		RVMLinker linker = new RVMLinker(vf, typeStore);
+		RVMLinker linker = new RVMLinker(vf);
 		return linker.link(rvmProgram,	jvm.getValue());
 	}
 		
-	public static IValue executeProgram(RVMExecutable executable, IMap keywordArguments, RascalExecutionContext rex){
+	public static IValue executeProgram(RVMExecutable executable, Map<String, IValue> keywordArguments, RascalExecutionContext rex){
 		RVMCore rvm = rex.getJVM() ? new RVMJVM(executable, rex) : new RVMInterpreter(executable, rex);
 		
 		Map<IValue, IValue> moduleVariables = rex.getModuleVariables();
@@ -107,55 +94,41 @@ public class ExecutionTools {
 	 * @param rex				Execution context
 	 * @return					Result of executing program with given parameters in given context
 	 */
-	public static IValue executeProgram(RVMCore rvm, RVMExecutable executable, IMap keywordArguments, RascalExecutionContext rex){
+	public static IValue executeProgram(RVMCore rvm, RVMExecutable executable, Map<String, IValue> keywordArguments, RascalExecutionContext rex){
 		
 		IValue[] arguments = new IValue[0];
-		HashMap<String, IValue> hmKeywordArguments = new HashMap<>();
-		
-		for(IValue key : keywordArguments){
-			String keyString = ((IString) key).getValue();
-			hmKeywordArguments.put(keyString, keywordArguments.get(key));
-		}
 
 		//try {
-			//long start = Timing.getCpuTime();
+			long start = Timing.getCpuTime();
 			IValue result = null;
 			String uid_module_init = executable.getUidModuleInit();
+			if(!uid_module_init.isEmpty()){
+              rvm.executeRVMProgram("INIT", executable.getUidModuleInit(), arguments, keywordArguments);
+            }
 			if(rex.getTestSuite()){
 				/*
 				 * Execute as testsuite
 				 */
-				if(!uid_module_init.isEmpty()){
-					rvm.executeRVMProgram("TESTSUITE", executable.getUidModuleInit(), arguments, hmKeywordArguments);
-				}
+				result = executable.executeTests(new DefaultTestResultListener(rex.getStdOut()), rex);
 
-				IListWriter w = vf.listWriter();
-				int n = 0;
-				for(String uid_testsuite: executable.getTestSuites()){
-					rex.clearCaches();
-					//System.out.println("Testsuite: " + uid_testsuite);
-					IList test_results = (IList)rvm.executeRVMProgram("TESTSUITE" + n++, uid_testsuite, arguments, hmKeywordArguments);
-					w.insertAll(test_results);
-				}
-				result = w.done();
 			} else {
 				/*
 				 * Standard execution of main function
 				 */
 				if(executable.getUidModuleMain().equals("")) {
 					throw RascalRuntimeException.noMainFunction(null);
+					//throw new RuntimeException("No main function found");
 				}
 				String moduleName = executable.getModuleName();
 //				if(!uid_module_init.isEmpty()){
 //					rvm.executeRVMProgram(moduleName, executable.getUidModuleInit(), arguments, hmKeywordArguments);
 //				}
 				//System.out.println("Initializing: " + (Timing.getCpuTime() - start)/1000000 + "ms");
-				result = rvm.executeRVMProgram(moduleName, executable.getUidModuleMain(), arguments, hmKeywordArguments);
+				result = rvm.executeRVMProgram(moduleName, executable.getUidModuleMain(), arguments, keywordArguments);
 			}
-			//long now = Timing.getCpuTime();
+			long now = Timing.getCpuTime();
 			MuPrimitive.exit(rvm.getStdOut());
 			RascalPrimitive.exit(rex);
-			Opcode.exit();
 			rvm.getFrameObserver().report();
 
 			//rex.printCacheStats();
@@ -172,60 +145,36 @@ public class ExecutionTools {
 	 * @param executable	RVM exectable
 	 * @return				an initialized RVM instance
 	 */
-	 public static RVMCore initializedRVM(RVMExecutable executable, RascalExecutionContext rex){
-		
-		RVMCore rvm = rex.getJVM() ? new RVMJVM(executable, rex) : new RVMInterpreter(executable, rex);
-		
-		// Execute initializers of imported modules
-		for(String initializer: executable.getInitializers()){
-			rvm.executeRVMProgram("UNDEFINED", initializer, new IValue[0], null);
-		}
-		
-		return rvm;
+	public static RVMCore initializedRVM(RVMExecutable executable, RascalExecutionContext rex){
+
+	  RVMCore rvm = rex.getJVM() ? new RVMJVM(executable, rex) : new RVMInterpreter(executable, rex);
+
+	  // Execute initializers of imported modules
+	  for(String initializer: executable.getInitializers()){
+	    rvm.executeRVMProgram(executable.getModuleName(), initializer, new IValue[0], null);
+	  }
+
+	  return rvm;
 	}
-	 
-	 /**
-	  * Create initialized RVM given a scheme and path of a compiled binary
-	  * @param bin of compiled binary
-	  * @return initialized RVM
+
+	/**
+	 * Create initialized RVM given a scheme and path of a compiled binary
+	 * @param scheme of compiled binary
+	 * @param path of compiled binary
+	 * @param rex the execution context to be used
+	 * @return initialized RVM
 	 * @throws IOException 
-	  */
-	public static RVMCore initializedRVM(ISourceLocation bin) throws IOException  {
-		 RVMExecutable rvmExecutable = RVMExecutable.read(bin);
-		 RascalExecutionContext rex = 
-				 RascalExecutionContextBuilder.normalContext(vf)
-				 .forModule(rvmExecutable.getModuleName())
-				 .setJVM(true)
-				 .build();
-
-		 RVMCore rvm = rex.getJVM() ? new RVMJVM(rvmExecutable, rex) : new RVMInterpreter(rvmExecutable, rex);
-
-		 // Execute initializers of imported modules
-		 for(String initializer: rvmExecutable.getInitializers()){
-			 rvm.executeRVMProgram("UNDEFINED", initializer, new IValue[0], null);
-		 }
-
-		 return rvm;
-	 }
-	
-	 /**
-	  * Create initialized RVM given a scheme and path of a compiled binary
-	  * @param scheme of compiled binary
-	  * @param path of compiled binary
-	  * @param rex the execution context to be used
-	  * @return initialized RVM
-	 * @throws IOException 
-	  */
+	 */
 	public static RVMCore initializedRVM(ISourceLocation bin,  RascalExecutionContext rex) throws IOException {
-		 RVMExecutable rvmExecutable  = RVMExecutable.read(bin);
+	  RVMExecutable rvmExecutable  = RVMExecutable.read(bin);
 
-		 RVMCore rvm = rex.getJVM() ? new RVMJVM(rvmExecutable, rex) : new RVMInterpreter(rvmExecutable, rex);
+	  RVMCore rvm = rex.getJVM() ? new RVMJVM(rvmExecutable, rex) : new RVMInterpreter(rvmExecutable, rex);
 
-		 // Execute initializers of imported modules
-		 for(String initializer: rvmExecutable.getInitializers()){
-			 rvm.executeRVMProgram("UNDEFINED", initializer, new IValue[0], null);
-		 }
+	  // Execute initializers of imported modules
+	  for(String initializer: rvmExecutable.getInitializers()){
+	    rvm.executeRVMProgram(rvmExecutable.getModuleName(), initializer, new IValue[0], null);
+	  }
 
-		 return rvm;
-	 }
+	  return rvm;
+	}
 }

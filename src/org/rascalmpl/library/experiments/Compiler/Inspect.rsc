@@ -20,8 +20,8 @@ import lang::rascal::types::CheckerConfig;
 import lang::rascal::types::CheckTypes;
 import lang::rascal::types::AbstractName;
 
-import experiments::vis2::sandbox::Figure;
-import experiments::vis2::sandbox::FigureServer;
+//import experiments::vis2::sandbox::Figure;
+//import experiments::vis2::sandbox::FigureServer;
 
 /*
  * A mini-query language to query .rvm and .tc files
@@ -101,13 +101,13 @@ bool hasMatches(map[&K,&KV] m, Query query) = !isEmpty(m) && evalQuery(m, query)
 
 
 void inspect(str qualifiedModuleName,   // nameof Rascal source module
-          PathConfig pcfg = pathConfig(),// path configuration where binaries are stored
+          PathConfig pcfg,              // path configuration where binaries are stored
           Query select = none(),        // select function names to be shown
           int line = -1,                // select line of function to be shown
           bool listing = false,         // show instruction listing
           bool linked = false           // inspect the fully linked version of the program
           ){
-           <e, rvmLoc> = linked ? RVMExecutableCompressedReadLoc(qualifiedModuleName, pcfg) : RVMModuleReadLoc(qualifiedModuleName, pcfg);
+           <e, rvmLoc> = linked ? RVMExecutableReadLoc(qualifiedModuleName, pcfg) : RVMModuleReadLoc(qualifiedModuleName, pcfg);
     inspect(rvmLoc, select=select, line=line, listing=listing);
 }
            
@@ -272,6 +272,7 @@ void printDecl(RVMDeclaration d){
     if(d is FUNCTION){
         println("\tFUNCTION <d.uqname>, <d.qname>, <d.ftype>");
         print("\t\tisPublic=<d.isPublic>, isDefault=<d.isDefault>, ");
+        println("\t\tlocalNames=<d.localNames>");
     } else {
         println("\tCOROUTINE <d.uqname>, <d.qname>");
         print("\t\t");
@@ -314,7 +315,7 @@ void statistics(loc root = |std:///|,
                 PathConfig pcfg = pathConfig(),
                 bool printMessages = false
                 ){
-    allFiles = find(root, "gz");
+    allFiles = find(root, "rvm");
     println(allFiles);
     
     nfunctions = 0;
@@ -349,7 +350,7 @@ void statistics(loc root = |std:///|,
             for(decl <- p.declarations){
                 if(decl is FUNCTION){
                     nfunctions += 1;
-                    locals[decl.name] = decl.nlocals;
+                    locals[decl.qname] = decl.nlocals;
                 } else {
                     ncoroutines += 1;
                 }
@@ -392,22 +393,15 @@ void statistics(loc root = |std:///|,
             '");
 }
 
-set[loc] getFunctionLocations(
-						   loc src,                  // location of Rascal source file
-   							loc bin = |home:///bin|   // location where binaries are stored
-							){
-   rvmLoc = RVMModuleLocation(src, bin);
-   try {
-        p = readBinaryValueFile(#RVMModule, rvmLoc);
-        
-        return {d.src | d <- p.declarations};
-   } catch e: {
-        println("Reading: <rvmLoc>: <e>");
-   }
-} 
+void pconfig(str qualifiedModuleName,                // name of Rascal source module
+            PathConfig pcfg,
+            Query select = none()){
+          
+     println(config(qualifiedModuleName, pcfg, select=select));
+}
 
 str config(str qualifiedModuleName,                // name of Rascal source module
-            PathConfig pcfg = pathConfig(),
+            PathConfig pcfg,
             Query select = none()){
             
    if(<true, cloc> := cachedConfigReadLoc(qualifiedModuleName,pcfg)){
@@ -464,24 +458,39 @@ str config(loc cloc,  Query select = none()){
    return res;
 }
 
-void importGraph(str qualifiedModuleName,  // name of Rascal source module
-            PathConfig pcfg = pathConfig()){
-    
-    //config(qualifiedModuleName);
-    if(<true, cloc> := cachedConfigReadLoc(qualifiedModuleName,pcfg)){
-       Configuration c = readBinaryValueFile(#Configuration, cloc); 
-        
-  
-	    if(c.importGraph != {}) {
-	        modules = [<prettyPrintName(nm), box(fig=text(getSimpleName(nm), fontSize=12), tooltip=prettyPrintName(nm))> | nm <- carrier(c.importGraph)];
-	        edges = [edge(prettyPrintName(nm1), prettyPrintName(nm2)) | <nm1, nm2> <- c.importGraph];
-	        g = box(fig=graph(modules, edges, width = 3000, height = 1000, lineWidth=1, graphOptions=graphOptions(nodeSep=50,layerSep=50, edgeSep=50)));
-	        println(g);
-	        render(g);
-	    } else {
-	        println("Import graph is empty");
-	    }
-	} else {
-	  println("Config file does not exist");
-	}    
- }
+//void importGraph(str qualifiedModuleName,  // name of Rascal source module
+//            PathConfig pcfg = pathConfig()){
+//    
+//    //config(qualifiedModuleName);
+//    if(<true, cloc> := cachedConfigReadLoc(qualifiedModuleName,pcfg)){
+//       Configuration c = readBinaryValueFile(#Configuration, cloc); 
+//        
+//  
+//	    if(c.importGraph != {}) {
+//	        modules = [<prettyPrintName(nm), box(fig=text(getSimpleName(nm), fontSize=12), tooltip=prettyPrintName(nm))> | nm <- carrier(c.importGraph)];
+//	        edges = [edge(prettyPrintName(nm1), prettyPrintName(nm2)) | <nm1, nm2> <- c.importGraph];
+//	        g = box(fig=graph(modules, edges, width = 3000, height = 1000, lineWidth=1, graphOptions=graphOptions(nodeSep=50,layerSep=50, edgeSep=50)));
+//	        println(g);
+//	        render(g);
+//	    } else {
+//	        println("Import graph is empty");
+//	    }
+//	} else {
+//	  println("Config file does not exist");
+//	}    
+// }
+
+set[loc] getFunctionLocations(
+                            str qualifiedModuleName,                  // location of Rascal source file
+                            PathConfig pcfg                  // location where binaries are stored
+                            ){
+   if(<true, rvmLoc> := getDerivedReadLoc(qualifiedModuleName, "rvm", pcfg)){
+       try {
+            p = readBinaryValueFile(#RVMModule, rvmLoc);
+            
+            return {d.src | d <- p.declarations};
+       } catch e: {
+            println("Reading: <rvmLoc>: <e>");
+       }
+   }
+}

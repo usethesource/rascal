@@ -141,7 +141,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Type t> <Parameters ps>
     // when building the function type, are created in the closure environment
     // instead of in the surrounding environment.   
     < cFun, rt > = convertAndExpandType(t,c);
-    Symbol funType = Symbol::\func(rt,[]);
+    Symbol funType = Symbol::\func(rt,[],[]);
     cFun = addClosure(cFun, funType, ( ), exp@\loc);
     
     // Calculate the parameter types. This returns the parameters as a tuple. As
@@ -209,7 +209,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Parameters ps> { <State
     // when building the function type, are created in the closure environment
     // instead of in the surrounding environment.   
     rt = Symbol::\void();
-    Symbol funType = Symbol::\func(rt,[]);
+    Symbol funType = Symbol::\func(rt,[],[]);
     cFun = addClosure(c, funType, ( ), exp@\loc);
     
     // Calculate the parameter types. This returns the parameters as a tuple. As
@@ -527,6 +527,91 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
     	return < targetType, kpm, canInstantiate, c >;	
 	}
 	
+ 	tuple[Symbol, KeywordParamMap, bool, Configuration] instantiateConstructorTypeArgs(Configuration c, Symbol targetType, KeywordParamMap kpm) {
+		// If the constructor is parametric, we need to calculate the actual types of the
+    	// parameters and make sure they fall within the proper bounds.
+    	formalArgs = getConstructorArgumentTypes(targetType);
+		set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- (formalArgs + targetType) };
+		map[str,Symbol] bindings = ( getTypeVarName(tv) : Symbol::\void() | tv <- typeVars );
+    	bool canInstantiate = true;   
+		for (idx <- index(tl)) {
+			try {
+				if (isOverloadedType(tl[idx])) {
+					// Note: this means the bindings must be consistant across all overload options, since we will only
+					// get this when we have a higher-order function being passed in and then we want to make sure this
+					// is true. The alternative would be to use this as a filter as well, discarding options that don't
+					// work with these bindings.
+					for (topt <- (getDefaultOverloadOptions(tl[idx]) + getNonDefaultOverloadOptions(tl[idx]))) {
+						bindings = match(formalArgs[idx],topt,bindings,bindIdenticalVars=true);
+					}
+				} else {
+					bindings = match(formalArgs[idx],tl[idx],bindings,bindIdenticalVars=true);
+				}
+			} catch : {
+				canInstantiate = false;  
+			}
+		}
+    	for (kn <- kpm) {
+    		try {
+    			bindings = match(kpm[kn], ((kn in kl) ? kl[kn] : kpm[kn]), bindings,bindIdenticalVars=true);
+    		} catch : {
+    			canInstantiate = false;
+    		}
+    	}
+    	if (canInstantiate) {
+        	try {
+            	targetType = instantiate(targetType, bindings);
+        	} catch : {
+            	canInstantiate = false;
+        	}
+    	}
+    	return < targetType, kpm, canInstantiate, c >;	
+	}
+	
+ 	tuple[Symbol, KeywordParamMap, bool, Configuration] instantiateProductionTypeArgs(Configuration c, Symbol targetType, KeywordParamMap kpm) {
+ 		// TODO: At this point I believe kpm will always be empty. Verify that this is true -- it doesn't hurt to leave the code related to
+ 		// keyword params here for now, but it may not be needed.
+ 		
+		// If the constructor is parametric, we need to calculate the actual types of the
+    	// parameters and make sure they fall within the proper bounds.
+    	formalArgs = getProductionArgumentTypes(targetType);
+		set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- (formalArgs + targetType) };
+		map[str,Symbol] bindings = ( getTypeVarName(tv) : Symbol::\void() | tv <- typeVars );
+    	bool canInstantiate = true;   
+		for (idx <- index(tl)) {
+			try {
+				if (isOverloadedType(tl[idx])) {
+					// Note: this means the bindings must be consistant across all overload options, since we will only
+					// get this when we have a higher-order function being passed in and then we want to make sure this
+					// is true. The alternative would be to use this as a filter as well, discarding options that don't
+					// work with these bindings.
+					for (topt <- (getDefaultOverloadOptions(tl[idx]) + getNonDefaultOverloadOptions(tl[idx]))) {
+						bindings = match(formalArgs[idx],topt,bindings,bindIdenticalVars=true);
+					}
+				} else {
+					bindings = match(formalArgs[idx],tl[idx],bindings,bindIdenticalVars=true);
+				}
+			} catch : {
+				canInstantiate = false;  
+			}
+		}
+    	for (kn <- kpm) {
+    		try {
+    			bindings = match(kpm[kn], ((kn in kl) ? kl[kn] : kpm[kn]), bindings,bindIdenticalVars=true);
+    		} catch : {
+    			canInstantiate = false;
+    		}
+    	}
+    	if (canInstantiate) {
+        	try {
+            	targetType = instantiate(targetType, bindings);
+        	} catch : {
+            	canInstantiate = false;
+        	}
+    	}
+    	return < targetType, kpm, canInstantiate, c >;	
+	}	
+	
 	// Special handling for overloads -- if we have an overload, at least one of the overload options
 	// should be a subtype of the other type, but some of them may not be.
 	bool subtypeOrOverload(Symbol t1, Symbol t2) {
@@ -671,29 +756,46 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         set[str] failureReasons = { };
         for (a <- alts, isConstructorType(a), kpm <- ( (!isEmpty(constructorKP[a])) ? constructorKP[a] : { ( ) })) {
             list[Symbol] args = getConstructorArgumentTypes(a);
-            if ( (size(epsList) == size(args) && size(epsList) == 0) || (size(epsList) == size(args) && false notin { subtype(tl[idx],args[idx]) | idx <- index(epsList) }) ) {
-	     		unknownKP = kl<0>-kpm<0>;
-	     		if (size(unknownKP) > 0) {
-	     			kpAsUpper = ( toUpperCase(prettyPrintName(kpmi)) : prettyPrintName(kpmi) | kpmi <- kpm<0> );
-	     			for (kpname <- unknownKP) {
-	     				if (toUpperCase(prettyPrintName(kpname)) in kpAsUpper) {
-	     					failureReasons += "Unknown keyword parameter passed: <prettyPrintName(kpname)>, did you mean <kpAsUpper[toUpperCase(prettyPrintName(kpname))]>?";
-	     				} else {
-	     					failureReasons += "Unknown keyword parameter passed: <prettyPrintName(kpname)>";
-	     				}
-	     			}
-	     		} else {
-	     			kpFailures = { kpname | kpname <- kl<0>, !subtypeOrOverload(kl[kpname],kpm[kpname]) };
-	     			if (size(kpFailures) > 0) {
-	     				for (kpname <- kpFailures) {
-	     					failureReasons += "Keyword parameter of type <prettyPrintType(kpm[kpname])> cannot be assigned argument of type <prettyPrintType(kl[kpname])>";
-	     				}
-	     			} else {
-	        			matches += < a, kpm > ;
-	        		}
-	        	}
+            if (size(epsList) == size(args)) {
+				if (typeContainsTypeVars(a)) {
+    				< instantiated, instantiatedKP, b, c > = instantiateConstructorTypeArgs(c, a, kpm);
+    				if (!b) {
+    					failureReasons += "Could not instantiate type variables in type <prettyPrintType(a)> with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+    					continue;
+    				}
+    				args = getConstructorArgumentTypes(instantiated);
+    				kpm = instantiatedKP;
+    			}
+    			
+    			if (false notin { subtype(tl[idx],args[idx]) | idx <- index(epsList) }) {
+		     		unknownKP = kl<0>-kpm<0>;
+		     		if (size(unknownKP) > 0) {
+		     			kpAsUpper = ( toUpperCase(prettyPrintName(kpmi)) : prettyPrintName(kpmi) | kpmi <- kpm<0> );
+		     			for (kpname <- unknownKP) {
+		     				if (toUpperCase(prettyPrintName(kpname)) in kpAsUpper) {
+		     					failureReasons += "Unknown keyword parameter passed: <prettyPrintName(kpname)>, did you mean <kpAsUpper[toUpperCase(prettyPrintName(kpname))]>?";
+		     				} else {
+		     					failureReasons += "Unknown keyword parameter passed: <prettyPrintName(kpname)>";
+		     				}
+		     			}
+		     		} else {
+		     			kpFailures = { kpname | kpname <- kl<0>, !subtypeOrOverload(kl[kpname],kpm[kpname]) };
+		     			if (size(kpFailures) > 0) {
+		     				for (kpname <- kpFailures) {
+		     					failureReasons += "Keyword parameter of type <prettyPrintType(kpm[kpname])> cannot be assigned argument of type <prettyPrintType(kl[kpname])>";
+		     				}
+		     			} else {
+		        			matches += < a, kpm > ;
+		        		}
+		        	}
+				} else {
+            		for (idx <- index(epsList), !subtype(tl[idx],args[idx])) {
+						failureReasons += "Argument <idx>: <prettyPrintType(tl[idx])> is not a subtype of <prettyPrintType(args[idx])>";
+						failureAdded = true;            			
+            		}
+            	}				
             } else {
-                failureReasons += "Constructor of type <prettyPrintType(a)> cannot be built with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+				failureReasons += "Constructor accepts <size(args)> arguments but was given only <size(epsList)> arguments";
             }
         }
         // TODO: Here would be a good place to filter out constructors that are "masked" by functions with the
@@ -707,14 +809,30 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         set[str] failureReasons = { };
         for (a <- alts, isProductionType(a)) {
             list[Symbol] args = getProductionArgumentTypes(a);
-            if (size(epsList) == size(args) && size(epsList) == 0) {
-                matches += a;
-            } else if (size(epsList) == size(args) && false notin { subtype(tl[idx],args[idx]) | idx <- index(epsList) }) {
-                matches += a;
+            if (size(epsList) == size(args)) {
+				if (typeContainsTypeVars(a)) {
+					// TODO: If we can have production keyword params, they should be used for the last parameter here
+    				< instantiated, _, b, c > = instantiateProductionTypeArgs(c, a, ( ));
+    				if (!b) {
+    					failureReasons += "Could not instantiate type variables in type <prettyPrintType(a)> with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+    					continue;
+    				}
+    				args = getProductionArgumentTypes(instantiated);
+    			}
+    			
+    			if (false notin { subtype(tl[idx],args[idx]) | idx <- index(epsList) }) {
+        			matches += a ;
+				} else {
+            		for (idx <- index(epsList), !subtype(tl[idx],args[idx])) {
+						failureReasons += "Argument <idx>: <prettyPrintType(tl[idx])> is not a subtype of <prettyPrintType(args[idx])>";
+						failureAdded = true;            			
+            		}
+            	}				
             } else {
-                failureReasons += "Production of type <prettyPrintType(a)> cannot be built with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
+				failureReasons += "Production accepts <size(args)> arguments but was given only <size(epsList)> arguments";
             }
         }
+        
         // TODO: Here would be a good place to filter out productions that are "masked" by functions with the
         // same name and signature. We already naturally mask function declarations by using a set, but we do
         // need to keep track there of possible matching IDs so we can link things up correctly.
@@ -803,24 +921,10 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             if (typeContainsTypeVars(rt)) {
                 // If the constructor is parametric, we need to calculate the actual types of the
                 // parameters and make sure they fall within the proper bounds.
-                formalArgs = getConstructorArgumentTypes(rt);
-                set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- (formalArgs+rt) };
-                map[str,Symbol] bindings = ( getTypeVarName(tv) : Symbol::\void() | tv <- typeVars );
-                for (idx <- index(tl)) {
-                    try {
-                        bindings = match(formalArgs[idx],tl[idx],bindings);
-                    } catch : {
-                        c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
-                        cannotInstantiateConstructor = true;  
-                    }
-                }
-                if (!cannotInstantiateConstructor) {
-                    try {
-                        rt = instantiate(rt, bindings);
-                        finalDefaultMatches += rt;
-                    } catch : {
-                        cannotInstantiateConstructor = true;
-                    }
+                < rt, instantiatedKP, canInstantiate, c > = instantiateConstructorTypeArgs(c, rt, ());
+                cannotInstantiateConstructor = !canInstantiate;
+                if (canInstantiate) {
+                	finalDefaultMatches += rt;
                 }
             } else {
             	finalDefaultMatches += rt;
@@ -832,24 +936,10 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             if (typeContainsTypeVars(rt)) {
                 // If the production is parametric, we need to calculate the actual types of the
                 // parameters and getProductionArgumentTypes sure they fall within the proper bounds.
-                formalArgs = getConstructorArgumentTypes(rt);
-                set[Symbol] typeVars = { *collectTypeVars(fa) | fa <- (formalArgs+rt) };
-                map[str,Symbol] bindings = ( getTypeVarName(tv) : Symbol::\void() | tv <- typeVars );
-                for (idx <- index(tl)) {
-                    try {
-                        bindings = match(formalArgs[idx],tl[idx],bindings);
-                    } catch : {
-                        c = addScopeError(c,"Cannot instantiate parameter <idx+1>, parameter type <prettyPrintType(tl[idx])> violates bound of type parameter in formal argument with type <prettyPrintType(formalArgs[idx])>", epsList[idx]@\loc);
-                        cannotInstantiateProduction = true;  
-                    }
-                }
-                if (!cannotInstantiateProduction) {
-                    try {
-                        rt = instantiate(rt, bindings);
-                        finalDefaultMatches += rt;
-                    } catch : {
-                        cannotInstantiateProduction = true;
-                    }
+                < rt, instantiateKP, canInstantiate, c > = instantiateProductionTypeArgs(c, rt, ());
+                cannotInstantiateProduction = !canInstantiate;
+                if (canInstantiate) {
+                	finalDefaultMatches += rt;
                 }
             } else {
             	finalDefaultMatches += rt;
@@ -1922,7 +2012,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> o <Expre
         }
         
         // If both of those pass, the result type is a function with the args of t2 and the return type of t1
-		rt = Symbol::\func(compositeRet, compositeArgs);
+		rt = Symbol::\func(compositeRet, compositeArgs,[]);
 		return markLocationType(c, exp@\loc, rt);         
     }
     
@@ -1937,7 +2027,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e1> o <Expre
     	
     	// Step 3: combine the ones we can -- the return of the rightmost type has to be allowed
     	// as the parameter for the leftmost type
-    	newFunTypes = { Symbol::\func(getFunctionReturnType(lf), getFunctionArgumentTypes(rf)) |
+    	newFunTypes = { Symbol::\func(getFunctionReturnType(lf), getFunctionArgumentTypes(rf), []) |
     		rf <- rightFuns, lf <- leftFuns, subtype(getFunctionReturnType(rf),getFunctionArgumentTypes(lf)[0]) };
     		
     	// Step 4: If we get an empty set, fail; if we get just 1, return that; if we get multiple possibilities,
@@ -6186,7 +6276,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
         // Put the function in, so we can enter the correct scope. This also puts the function name into the
         // scope -- we don't want to inadvertently use the function name as the name of a pattern variable,
         // and this makes sure we find it when checking the patterns in the signature.
-        cFun = addFunction(cFun, rn, Symbol::\func(Symbol::\void(),[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+        cFun = addFunction(cFun, rn, Symbol::\func(Symbol::\void(),[],[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
 	    
 	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
 	    // scope of the function
@@ -6247,7 +6337,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     if (fd@\loc notin c.definitions<1>) { 
     	set[Modifier] modifiers = getModifiers(sig);
         cFun = enterSignature(c, fd@\loc); // prepareSignatureEnv(c);
-        cFun = addFunction(cFun, rn, Symbol::\func(Symbol::\void(),[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+        cFun = addFunction(cFun, rn, Symbol::\func(Symbol::\void(),[],[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
 
 	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
 	    // scope of the function
@@ -6318,7 +6408,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     if (fd@\loc notin c.definitions<1>) {
     	set[Modifier] modifiers = getModifiers(sig); 
         cFun = enterSignature(c, fd@\loc); // prepareSignatureEnv(c);
-        cFun = addFunction(cFun, rn, Symbol::\func(Symbol::\void(),[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+        cFun = addFunction(cFun, rn, Symbol::\func(Symbol::\void(),[],[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
 
 	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
 	    // scope of the function
@@ -6401,7 +6491,7 @@ public Configuration checkFunctionDeclaration(FunctionDeclaration fd:(FunctionDe
     if (fd@\loc notin c.definitions<1>) { 
     	set[Modifier] modifiers = getModifiers(sig);
         cFun = enterSignature(c, fd@\loc); // prepareSignatureEnv(c);
-        cFun = addFunction(cFun, rn, Symbol::\func(Symbol::\void(),[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
+        cFun = addFunction(cFun, rn, Symbol::\func(Symbol::\void(),[],[]), ( ), modifiers, isVarArgs(sig), getVis(vis), throwsTypes, fd@\loc);
         
 	    // Push the function ID onto the scope stack, this ensures the formals are contained within the
 	    // scope of the function
@@ -6723,6 +6813,13 @@ public Configuration loadConfigurationTypes(Configuration c, Configuration d, RN
 					for (at <- ats) {
 						c = addADT(c, name, itemVis, at, rtype, kpList);
 					}
+					// Copy type information for keyword defaults
+					for (ke <- kpList<2>, (ke@\loc)?, ke@\loc in d.locationTypes) {
+						defaultLocations = { l | l <- d.locationTypes, l <= ke@\loc };
+						for (l <- defaultLocations, l notin c.locationTypes) {
+							c.locationTypes[l] = d.locationTypes[l];
+						}
+					}
 					loadedIds = loadedIds + itemId;
 				}
 				
@@ -6818,6 +6915,14 @@ public Configuration loadConfigurationCons(Configuration c, Configuration d, RNa
 					//println("Loading constructor <prettyPrintName(name)> from module <prettyPrintName(mName)>");
 					kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
 					c = addConstructor(c, name, at, rtype, kpList);
+					// Copy type information for keyword defaults
+					for (ke <- kpList<2>, (ke@\loc)?, ke@\loc in d.locationTypes) {
+						defaultLocations = { l | l <- d.locationTypes, l <= ke@\loc };
+						for (l <- defaultLocations, l notin c.locationTypes) {
+							c.locationTypes[l] = d.locationTypes[l];
+						}
+					}
+					
 					loadedIds = loadedIds + itemId;
 				}
 				
@@ -6923,6 +7028,14 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 					for (at <- ats) {
 						c = addADT(c, name, itemVis, at, rtype, kpList, updateType=updateTypes);
 					}
+					// Copy type information for keyword defaults
+					for (ke <- kpList<2>, (ke@\loc)?, ke@\loc in d.locationTypes) {
+						defaultLocations = { l | l <- d.locationTypes, l <= ke@\loc };
+						for (l <- defaultLocations, l notin c.locationTypes) {
+							c.locationTypes[l] = d.locationTypes[l];
+							c.usedIn[l] = c.usedIn[l] ? containedIn;
+						}
+					}
 					loadedIds = loadedIds + itemId;
 				}
 				
@@ -6936,6 +7049,16 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 				case constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at) : {
 					kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
 					c = addConstructor(c, name, at, rtype, kpList);
+					// Copy type information for keyword defaults
+					for (ke <- kpList<2>, (ke@\loc)?, ke@\loc in d.locationTypes) {
+						defaultLocations = { l | l <- d.locationTypes, l <= ke@\loc };
+						for (l <- defaultLocations, l notin c.locationTypes) {
+							c.locationTypes[l] = d.locationTypes[l];
+							uid = c.fcvEnv[name];	
+							c.uses = {<uid, l>};
+							c.usedIn[l] = c.usedIn[l] ? containedIn;
+						}
+					}					
 					loadedIds = loadedIds + itemId;
 				}
 				
@@ -6972,6 +7095,13 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 			for (at <- ats) {
 				c = addADT(c, name, itemVis, at, rtype, kpList, registerName = false);
 			}
+			// Copy type information for keyword defaults
+			for (ke <- kpList<2>, (ke@\loc)?, ke@\loc in d.locationTypes) {
+				defaultLocations = { l | l <- d.locationTypes, l <= ke@\loc };
+				for (l <- defaultLocations, l notin c.locationTypes) {
+					c.locationTypes[l] = d.locationTypes[l];
+				}
+			}			
 			loadedIds = loadedIds + itemId;
 		}
 	}
@@ -6981,6 +7111,13 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 		if (constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at) := av) {
 			kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
 			c = addConstructor(c, name, at, rtype, kpList, registerName = false);
+			// Copy type information for keyword defaults
+			for (ke <- kpList<2>, (ke@\loc)?, ke@\loc in d.locationTypes) {
+				defaultLocations = { l | l <- d.locationTypes, l <= ke@\loc };
+				for (l <- defaultLocations, l notin c.locationTypes) {
+					c.locationTypes[l] = d.locationTypes[l];
+				}
+			}			
 			loadedIds = loadedIds + itemId;
 		}
 	}
@@ -7367,17 +7504,17 @@ map[RName,datetime] getCachedDateMap(str qualifiedModuleName, PathConfig pcfg){
 void writeCachedDate(str qualifiedModuleName, PathConfig pcfg, datetime dateval) {
 	l = cachedDateWriteLoc(qualifiedModuleName,pcfg);
 	if (!exists(l.parent)) mkDirectory(l.parent);
-	writeBinaryValueFile(l, dateval, compression=false); 
+	writeBinaryValueFile(l, dateval); 
 }
 void writeCachedConfig(str qualifiedModuleName, PathConfig pcfg, Configuration c) {
 	l = cachedConfigWriteLoc(qualifiedModuleName, pcfg); 
 	if (!exists(l.parent)) mkDirectory(l.parent);
-	writeBinaryValueFile(l, c, compression=false); 
+	writeBinaryValueFile(l, c); 
 }
 void writeCachedDateMap(str qualifiedModuleName, PathConfig pcfg, map[RName,datetime] m) {
 	l = cachedDateMapWriteLoc(qualifiedModuleName, pcfg); 
 	if (!exists(l.parent)) mkDirectory(l.parent);
-	writeBinaryValueFile(l, m, compression=false); 
+	writeBinaryValueFile(l, m); 
 }
 
 void clearDirtyModules(str qualifiedModuleName, PathConfig pcfg, bool transitive=true) {
@@ -8178,7 +8315,7 @@ public CheckResult convertAndExpandThrowType(Type t, Configuration c) {
             c.usedIn[utc@at] = head(c.stack);
             return <c, rt>;   
         }
-    } else if (\func(utc:\user(rn,pl), ps) := rt && isEmpty(pl) && c.fcvEnv[rn]? && !(c.typeEnv[rn]?) ) {
+    } else if (\func(utc:\user(rn,pl), ps, kws) := rt && isEmpty(pl) && c.fcvEnv[rn]? && !(c.typeEnv[rn]?) ) {
         // Check if there is a value constructor with this name in the current environment
         if(constructor(_,_,_,_,_) := c.store[c.fcvEnv[rn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[rn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
             // TODO: More precise resolution requires a new overloaded function to be used, which contains only value contructors;
