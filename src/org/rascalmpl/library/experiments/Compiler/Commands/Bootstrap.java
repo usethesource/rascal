@@ -245,15 +245,15 @@ public class Bootstrap {
                         phaseFolderString(3, tmpDir)
                 };
                   
-                FileSystem jar = FileSystems.newFileSystem(new URI("jar", new File(rvm[0]).toURI().toString(), null), Collections.singletonMap("create", true));
-                
                 if (!realBootstrap) {
-                  time("Copying downloaded files", () -> copyJar(jar.getPath("boot"), targetFolder));
+                  time("Copying downloaded files", () -> copyJar(jarFileSystem(rvm[0]).getPath("boot"), targetFolder));
                   System.exit(0);
                 }
                 
                 /*------------------------------------------,-CODE---------,-RVM---,-KERNEL---,-TESTS--*/
-                time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[1], "|noreloc:///|"));               
+                time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[1], "|noreloc:///|"));
+                
+                
                 time("Phase 2", () -> compilePhase(tmpDir, 2, librarySource, rvm[0], kernel[1], rvm[1], "|std:///|"));
                 
                 if(validatingBootstrap){
@@ -293,6 +293,10 @@ public class Bootstrap {
             } 
         });
         printTimings();
+    }
+
+    private static FileSystem jarFileSystem(String jarFile) throws IOException, URISyntaxException {
+        return FileSystems.newFileSystem(new URI("jar", new File(jarFile).toURI().toString(), null), Collections.singletonMap("create", true));
     }
 
     private static void initializeShutdownhook() {
@@ -453,12 +457,18 @@ public class Bootstrap {
       time("- compile MuLibrary",       () -> compileMuLibrary(phase, classPath, bootPath, sourcePath, result));
       time("- compile Kernel",          () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel", reloc));
 
-      time("- compile ParserGenerator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator", reloc));
-
       if (phase > 1) {
+          time("- compile ParserGenerator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator", reloc));
+
           // phase 1 tests often fail for no other reason than an incompatibility.
           time("- compile tests",           () -> compileTests    (phase, classPath, result.toAbsolutePath().toString(), sourcePath, testResults));
           time("- run tests",               () -> runTests        (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, testResults));
+      }
+      else {
+          assert phase == 1;
+          // the new parser generator would refer to classes which may not exist yet. Subce stage 2 we still run against this old version
+          // we now copy an old version of the generator to be used in phase 2.
+          copyParserGenerator(jarFileSystem(bootPath).getRootDirectories().iterator().next(), result);
       }
       
       return result;
