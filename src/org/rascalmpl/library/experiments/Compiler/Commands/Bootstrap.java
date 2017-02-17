@@ -251,7 +251,7 @@ public class Bootstrap {
                 
                 /*------------------------------------------,-CODE---------,-RVM---,-KERNEL---,-TESTS--*/
                 time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[1], "|noreloc:///|"));               
-                time("Phase 2", () -> compilePhase(tmpDir, 2, librarySource, rvm[1], kernel[1], rvm[1], "|std:///|"));
+                time("Phase 2", () -> compilePhase(tmpDir, 2, librarySource, rvm[0], kernel[1], rvm[1], "|std:///|"));
                 
                 if(validatingBootstrap){
                   time("Phase 3", () -> compilePhase(tmpDir, 3, librarySource, rvm[1], kernel[2], rvm[1], "|std:///|"));
