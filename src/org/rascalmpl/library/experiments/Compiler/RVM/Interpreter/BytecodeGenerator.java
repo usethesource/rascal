@@ -83,6 +83,8 @@ public class BytecodeGenerator implements Opcodes {
       return name;
   }
   
+  
+  
   // Locations of the variables in a compiled RVM function.
 	
     // Common local variables
