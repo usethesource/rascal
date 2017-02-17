@@ -68,7 +68,9 @@ public class Bootstrap {
             "lang::rascal::tests::basic::Relations",
             "lang::rascal::tests::basic::Sets",
             "lang::rascal::tests::basic::Strings",
-            "lang::rascal::tests::basic::Tuples",
+            "lang::rascal::tests::basic::Tuples" };
+    
+    private static final String[] syntaxTestModules = { 
             "lang::rascal::tests::functionality::ConcreteSyntaxTests1",
             "lang::rascal::tests::functionality::ConcreteSyntaxTests2",
             "lang::rascal::tests::functionality::ConcreteSyntaxTests3",
@@ -457,19 +459,27 @@ public class Bootstrap {
       time("- compile MuLibrary",       () -> compileMuLibrary(phase, classPath, bootPath, sourcePath, result));
       time("- compile Kernel",          () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel", reloc));
 
-      if (phase > 1) {
-          time("- compile ParserGenerator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator", reloc));
-
-          // phase 1 tests often fail for no other reason than an incompatibility.
-          time("- compile tests",           () -> compileTests    (phase, classPath, result.toAbsolutePath().toString(), sourcePath, testResults));
-          time("- run tests",               () -> runTests        (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, testResults));
-      }
-      else {
-          assert phase == 1;
+      if (phase == 1) {
           // the new parser generator would refer to classes which may not exist yet. Subce stage 2 we still run against this old version
           // we now copy an old version of the generator to be used in phase 2.
           copyParserGenerator(jarFileSystem(classPath).getRootDirectories().iterator().next(), result);
       }
+      else {
+          time("- compile ParserGenerator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator", reloc));
+      }
+
+      if (phase > 1) {
+          // phase 1 tests often fail for no other reason than an incompatibility.
+          time("- compile simple tests",           () -> compileTests    (phase, classPath, result.toAbsolutePath().toString(), sourcePath, testResults, testModules));
+          time("- run simple tests",               () -> runTests        (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, testResults, testModules));
+      }
+      
+      if (phase > 2) {
+          // phase 2 tests can not succeed in case the parser generator changed, so we can only test this after phase 3 has completed
+          time("- compile simple tests",           () -> compileTests    (phase, classPath, result.toAbsolutePath().toString(), sourcePath, testResults, syntaxTestModules));
+          time("- run simple tests",               () -> runTests        (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, testResults, syntaxTestModules));
+      }
+      
       
       return result;
     }
@@ -482,7 +492,7 @@ public class Bootstrap {
         return Stream.of(arrays).flatMap(Stream::of).toArray(sz -> new String[sz]);
     }
     
-    private static void compileTests(int phase, String classPath, String boot, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage {
+    private static void compileTests(int phase, String classPath, String boot, String sourcePath, Path result, String[] testModules) throws IOException, InterruptedException, BootstrapMessage {
         progress("\tcompiling tests (phase " + phase +")");
         String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
         String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[] {};
@@ -517,7 +527,7 @@ public class Bootstrap {
         }
     }
     
-    private static void runTests(int phase, String classPath, String boot, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage {
+    private static void runTests(int phase, String classPath, String boot, String sourcePath, Path result, String[] testModules) throws IOException, InterruptedException, BootstrapMessage {
         progress("Running tests with the results of " + phase);
         if (phase == 1) return;
         String[] javaCmd = new String[] {"java", "-ea", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests" };
