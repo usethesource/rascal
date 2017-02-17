@@ -34,17 +34,6 @@ public class ExecuteProgram {
 		exec.write(rvmProgramLoc, 6);
 	}
 	
-	@Deprecated
-	public void linkAndSerializeProgram(
-        ISourceLocation rvmProgramLoc,
-        IConstructor rvmProgram,
-        IBool jvm
-        ) throws IOException {
-
-    RVMExecutable exec = ExecutionTools.link(rvmProgram, jvm, vf.mapWriter().done());
-    exec.write(rvmProgramLoc, 6);
-}
-	
 	// Library function to execute a RVMProgram
 	// (Interpreter version)
 
