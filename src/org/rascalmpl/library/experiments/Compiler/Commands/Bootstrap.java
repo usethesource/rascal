@@ -468,7 +468,7 @@ public class Bootstrap {
           assert phase == 1;
           // the new parser generator would refer to classes which may not exist yet. Subce stage 2 we still run against this old version
           // we now copy an old version of the generator to be used in phase 2.
-          copyParserGenerator(jarFileSystem(bootPath).getRootDirectories().iterator().next(), result);
+          copyParserGenerator(jarFileSystem(classPath).getRootDirectories().iterator().next(), result);
       }
       
       return result;
