@@ -23,6 +23,8 @@ import experiments::Compiler::Compile;
 import experiments::Compiler::muRascal2RVM::mu2rvm;
 import util::Reflective;
 
+private map[str,str] classRenamings = ();
+
 private loc MuLibraryLoc(PathConfig pcfg) = getSearchPathLoc("experiments/Compiler/muRascal2RVM/MuLibrary.mu", pcfg);
 
 private str MuLibrary() = "experiments::Compiler::muRascal2RVM::MuLibrary";
@@ -523,7 +525,7 @@ RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg,
    link_time = cpuTime() - start_linking;
    if(verbose) println("linking: <link_time/1000000> msec");  
    mergedLoc =  RVMExecutableWriteLoc(mainModule.name, pcfg);   
-   linkAndSerializeProgram(mergedLoc, merged, jvm);
+   linkAndSerializeProgram(mergedLoc, merged, jvm, classRenamings);
    return merged;
 }
 

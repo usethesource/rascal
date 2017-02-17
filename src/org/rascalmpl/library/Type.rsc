@@ -312,10 +312,6 @@ eq(1,1.0)
 @javaClass{org.rascalmpl.library.Type}
 public java bool eq(value x, value y);
 
-//data Symbol 
-//  | \func(Symbol ret, list[Symbol] parameters)
-//  ;
-
 @doc{
 .Synopsis
 The least-upperbound (lub) between two types.
