@@ -382,7 +382,7 @@ public class CommandExecutor {
 																	  .verbose(compile_verbose)
 																	  .jvm(true)
 																	);
-			rvmConsoleExecutable = ExecutionTools.link(rvmProgram, ValueFactoryFactory.getValueFactory().bool(true));
+			rvmConsoleExecutable = ExecutionTools.link(rvmProgram,vf.bool(true), vf.mapWriter().done());
 
 			if(noErrors(rvmConsoleExecutable)){
 				RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(pcfg, stdout, stderr)
