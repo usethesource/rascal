@@ -30,40 +30,57 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import io.usethesource.vallang.IBool;
-import io.usethesource.vallang.IInteger;
-import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IMap;
-import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.IString;
-import io.usethesource.vallang.ITuple;
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
+import org.rascalmpl.value.IBool;
+import org.rascalmpl.value.IInteger;
+import org.rascalmpl.value.IList;
+import org.rascalmpl.value.IMap;
+import org.rascalmpl.value.ISet;
+import org.rascalmpl.value.IString;
+import org.rascalmpl.value.ITuple;
+import org.rascalmpl.value.IValue;
+import org.rascalmpl.value.IValueFactory;
 
 public class BytecodeGenerator implements Opcodes {
 
   // constant references to types used in emitting method calls and field references
-  private static final Type BOOLEAN_TYPE = Type.BOOLEAN_TYPE;
-  private static final Type OBJECT_A_TYPE = getType(Object[].class);
-  private static final Type IVALUE_TYPE = getType(IValue.class);
-  private static final String FRAME_NAME = getInternalName(Frame.class);
-  private static final String FUNCTION_NAME = getInternalName(Function.class);
-  private static final Type FUNCTION_TYPE = getType(Function.class);
-  private static final Type TYPE_TYPE = getType(io.usethesource.vallang.type.Type.class);
-  private static final String INIT_NAME = "<init>";
-  private static final Type INT_TYPE = Type.INT_TYPE;
-  private static final Type VOID_TYPE = Type.VOID_TYPE;
-  private static final Type FRAME_TYPE = getType(Frame.class);
-  private static final Type OBJECT_TYPE = getType(Object.class);
+  private  final Type BOOLEAN_TYPE = Type.BOOLEAN_TYPE;
+  private  final Type OBJECT_A_TYPE = getType(Object[].class);
+  private  final Type IVALUE_TYPE = getType(IValue.class);
+  private  final String FRAME_NAME = getInternalName(Frame.class);
+  private  final String FUNCTION_NAME = getInternalName(Function.class);
+  private  final Type FUNCTION_TYPE = getType(Function.class);
+  private  final Type TYPE_TYPE = getType(org.rascalmpl.value.type.Type.class);
+  private  final String INIT_NAME = "<init>";
+  private  final Type INT_TYPE = Type.INT_TYPE;
+  private  final Type VOID_TYPE = Type.VOID_TYPE;
+  private  final Type FRAME_TYPE = getType(Frame.class);
+  private  final Type OBJECT_TYPE = getType(Object.class);
  
-  private static Type getType(Class<?> clazz) {
-      // TODO: add renaming 
-      return Type.getType(clazz);
+  private Type getType(Class<?> cls) {
+      if (classRenamings == null || classRenamings.isEmpty()) {
+          return Type.getType(cls);
+      }
+      else {
+          String descriptor = Type.getType(cls).getDescriptor();
+          
+          for (String key : classRenamings.keySet()) {
+              descriptor.replaceAll(key, classRenamings.get(key));
+          }
+          
+          return Type.getType(descriptor);
+      }
   }
   
-  private static String getInternalName(Class<?> clazz) {
-      // TODO: add renaming
-      return Type.getInternalName(clazz);
+  private String getInternalName(Class<?> cls) {
+      String name = Type.getInternalName(cls);
+      
+      if (classRenamings != null && !classRenamings.isEmpty()) {
+          for (String key : classRenamings.keySet()) {
+              name.replaceAll(key, classRenamings.get(key));
+          }
+      }
+      
+      return name;
   }
   
   // Locations of the variables in a compiled RVM function.
@@ -114,6 +131,8 @@ public class BytecodeGenerator implements Opcodes {
 	Map<String, Integer> functionMap;
 	Map<String, Integer> constructorMap;
 	Map<String, Integer> resolver;
+	
+    private final Map<String, String> classRenamings;
 
 	private Label getNamedLabel(String targetLabel) {
 		Label lb = labelMap.get(targetLabel);
@@ -125,12 +144,13 @@ public class BytecodeGenerator implements Opcodes {
 	}
 
 	public BytecodeGenerator(Function[] functionStore, OverloadedFunction[] overloadedStore,
-			Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) {
+			Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver, Map<String,String> classRenamings) {
 		this.functionStore = functionStore;
 		this.overloadedStore = overloadedStore;
 		this.functionMap = functionMap;
 		this.resolver = resolver;
 		this.constructorMap = constructorMap;
+		this.classRenamings = classRenamings;
 	}
 
 	//Function currentFunction;
@@ -275,7 +295,7 @@ public class BytecodeGenerator implements Opcodes {
 		if (f.typeConstantStore.length != 0) {
 			mv.visitVarInsn(ALOAD, CF);
 			mv.visitFieldInsn(GETFIELD, FRAME_NAME, "function", Type.getDescriptor(Function.class));
-			mv.visitFieldInsn(GETFIELD, FUNCTION_NAME, "typeConstantStore", Type.getDescriptor(io.usethesource.vallang.type.Type[].class));
+			mv.visitFieldInsn(GETFIELD, FUNCTION_NAME, "typeConstantStore", Type.getDescriptor(org.rascalmpl.value.type.Type[].class));
 			mv.visitVarInsn(ASTORE, TS);
 		}
 
@@ -540,11 +560,11 @@ public class BytecodeGenerator implements Opcodes {
 		emitValueFactory();
 		
 		emitObjectFromTopOfStack();
-		mv.visitTypeInsn(CHECKCAST, getInternalName(io.usethesource.vallang.type.Type.class));
+		mv.visitTypeInsn(CHECKCAST, getInternalName(org.rascalmpl.value.type.Type.class));
 		
 		mv.visitVarInsn(ALOAD, ACCU);			// right
-		mv.visitTypeInsn(CHECKCAST, getInternalName(io.usethesource.vallang.type.Type.class));
-		mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(io.usethesource.vallang.type.Type.class), "isSubtypeOf", Type.getMethodDescriptor(BOOLEAN_TYPE, TYPE_TYPE), false);
+		mv.visitTypeInsn(CHECKCAST, getInternalName(org.rascalmpl.value.type.Type.class));
+		mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(org.rascalmpl.value.type.Type.class), "isSubtypeOf", Type.getMethodDescriptor(BOOLEAN_TYPE, TYPE_TYPE), false);
 		
 		mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(IValueFactory.class), "bool", Type.getMethodDescriptor(getType(IBool.class), BOOLEAN_TYPE), true);
 		mv.visitVarInsn(ASTORE, ACCU);
@@ -1197,7 +1217,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, ACCU);
 		mv.visitTypeInsn(CHECKCAST, getInternalName(IValue.class));
 		mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(IValue.class), "getType", Type.getMethodDescriptor(TYPE_TYPE), true);
-		mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(io.usethesource.vallang.type.Type.class), predicate, Type.getMethodDescriptor(BOOLEAN_TYPE), false);
+		mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(org.rascalmpl.value.type.Type.class), predicate, Type.getMethodDescriptor(BOOLEAN_TYPE), false);
 		mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(IValueFactory.class), "bool", Type.getMethodDescriptor(getType(IBool.class), BOOLEAN_TYPE), true);
 		mv.visitVarInsn(ASTORE, ACCU);
 	}
@@ -1615,8 +1635,8 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(IValue.class), "getType", Type.getMethodDescriptor(TYPE_TYPE), true);
 		
 		mv.visitVarInsn(ALOAD, ACCU);	// arg_1 from accu
-		mv.visitTypeInsn(CHECKCAST, getInternalName(io.usethesource.vallang.type.Type.class));
-		mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(io.usethesource.vallang.type.Type.class), "isSubtypeOf", Type.getMethodDescriptor(BOOLEAN_TYPE, TYPE_TYPE), false);
+		mv.visitTypeInsn(CHECKCAST, getInternalName(org.rascalmpl.value.type.Type.class));
+		mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(org.rascalmpl.value.type.Type.class), "isSubtypeOf", Type.getMethodDescriptor(BOOLEAN_TYPE, TYPE_TYPE), false);
 		mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(IValueFactory.class), "bool", Type.getMethodDescriptor(getType(IBool.class), BOOLEAN_TYPE), true);
 		mv.visitVarInsn(ASTORE, ACCU);
 	}
@@ -1633,7 +1653,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitTypeInsn(CHECKCAST, getInternalName(IValue.class));
 		mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(IValue.class), "getType", Type.getMethodDescriptor(TYPE_TYPE), true);
 		
-		mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(io.usethesource.vallang.type.Type.class), "isSubtypeOf", Type.getMethodDescriptor(BOOLEAN_TYPE, TYPE_TYPE), false);
+		mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(org.rascalmpl.value.type.Type.class), "isSubtypeOf", Type.getMethodDescriptor(BOOLEAN_TYPE, TYPE_TYPE), false);
 		mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(IValueFactory.class), "bool", Type.getMethodDescriptor(getType(IBool.class), BOOLEAN_TYPE), true);
 		mv.visitVarInsn(ASTORE, ACCU);
 	}
@@ -1690,8 +1710,8 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(IValue.class), "getType", Type.getMethodDescriptor(TYPE_TYPE), true);
 		
 		mv.visitVarInsn(ALOAD, ACCU);	// arg_1 from accu
-		mv.visitTypeInsn(CHECKCAST, getInternalName(io.usethesource.vallang.type.Type.class));
-		mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(io.usethesource.vallang.type.Type.class), "isSubtypeOf", Type.getMethodDescriptor(BOOLEAN_TYPE, TYPE_TYPE), false);
+		mv.visitTypeInsn(CHECKCAST, getInternalName(org.rascalmpl.value.type.Type.class));
+		mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(org.rascalmpl.value.type.Type.class), "isSubtypeOf", Type.getMethodDescriptor(BOOLEAN_TYPE, TYPE_TYPE), false);
 		mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(IValueFactory.class), "bool", Type.getMethodDescriptor(getType(IBool.class), BOOLEAN_TYPE), true);
 		mv.visitInsn(AASTORE);
 		mv.visitIincInsn(SP, 1);
@@ -1714,7 +1734,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ALOAD, ACCU);		// arg_1 from accu
 		mv.visitTypeInsn(CHECKCAST, getInternalName(IValue.class));
 		mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(IValue.class), "getType", Type.getMethodDescriptor(TYPE_TYPE), true);
-		mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(io.usethesource.vallang.type.Type.class), "isSubtypeOf", Type.getMethodDescriptor(BOOLEAN_TYPE, TYPE_TYPE), false);
+		mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(org.rascalmpl.value.type.Type.class), "isSubtypeOf", Type.getMethodDescriptor(BOOLEAN_TYPE, TYPE_TYPE), false);
 		mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(IValueFactory.class), "bool", Type.getMethodDescriptor(getType(IBool.class), BOOLEAN_TYPE), true);
 		
 		mv.visitInsn(AASTORE);
@@ -1979,12 +1999,12 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitMethodInsn(INVOKEINTERFACE, getInternalName(IValue.class), "getType", Type.getMethodDescriptor(TYPE_TYPE),true);
 		mv.visitVarInsn(ALOAD, CF);
 		mv.visitFieldInsn(GETFIELD, FRAME_NAME, "function", Type.getDescriptor(Function.class));
-		mv.visitFieldInsn(GETFIELD, FUNCTION_NAME, "typeConstantStore", Type.getDescriptor(io.usethesource.vallang.type.Type[].class));
+		mv.visitFieldInsn(GETFIELD, FUNCTION_NAME, "typeConstantStore", Type.getDescriptor(org.rascalmpl.value.type.Type[].class));
 
 		emitIntValue(type);
 
 		mv.visitInsn(AALOAD);
-		mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(io.usethesource.vallang.type.Type.class), "isSubtypeOf", Type.getMethodDescriptor(BOOLEAN_TYPE, TYPE_TYPE),false);
+		mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(org.rascalmpl.value.type.Type.class), "isSubtypeOf", Type.getMethodDescriptor(BOOLEAN_TYPE, TYPE_TYPE),false);
 		mv.visitJumpInsn(IFNE, noReThrow);
 		mv.visitVarInsn(ALOAD, EXCEPTION);
 		mv.visitInsn(ATHROW);
@@ -2070,7 +2090,7 @@ public class BytecodeGenerator implements Opcodes {
 
 		mv.visitInsn(AALOAD);
 		
-		mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(io.usethesource.vallang.type.Type.class), "isSubtypeOf", Type.getMethodDescriptor(BOOLEAN_TYPE, TYPE_TYPE),false);
+		mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(org.rascalmpl.value.type.Type.class), "isSubtypeOf", Type.getMethodDescriptor(BOOLEAN_TYPE, TYPE_TYPE),false);
 		mv.visitJumpInsn(IFEQ, l1);
 		mv.visitVarInsn(ALOAD, STACK);
 

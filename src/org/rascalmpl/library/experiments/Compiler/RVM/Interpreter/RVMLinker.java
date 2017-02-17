@@ -340,7 +340,7 @@ public class RVMLinker {
 		return w.done();
 	}
 	
-	public RVMExecutable link(IConstructor program, boolean jvm) throws IOException {
+	public RVMExecutable link(IConstructor program, boolean jvm, Map<String, String> classRenamings) throws IOException {
 		
 		ISet errors = getErrors(program);
 		
@@ -560,7 +560,8 @@ public class RVMLinker {
 								 uid_module_init, 
 								 uid_module_main, 
 								 vf, 
-								 jvm);
+								 jvm,
+								 classRenamings);
 	}
 	
 	/*
