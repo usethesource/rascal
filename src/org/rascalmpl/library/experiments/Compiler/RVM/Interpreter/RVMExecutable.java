@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -99,7 +100,8 @@ public class RVMExecutable {
 			String uid_module_init,
 			String uid_module_main,
 			IValueFactory vfactory,
-			boolean jvm
+			boolean jvm,
+			final Map<String,String> classRenamings
 			) throws IOException{
 		
 		vf = vfactory;
@@ -125,7 +127,7 @@ public class RVMExecutable {
 		this.uid_module_main = uid_module_main;
 		
 		if(jvm){
-			generateClassFile(false);
+			generateClassFile(false, classRenamings);
 			clearForJVM();
 		}
 	}
@@ -271,9 +273,9 @@ public class RVMExecutable {
 		return packageName + (packageName.isEmpty() ? "" : ".") + className;
 	}
 
-	void generateClassFile(boolean debug) {
+	void generateClassFile(boolean debug, Map<String,String> classRenamings) {
 		try {			
-			BytecodeGenerator codeEmittor = new BytecodeGenerator(functionStore, overloadedStore, functionMap, constructorMap, resolver);
+			BytecodeGenerator codeEmittor = new BytecodeGenerator(functionStore, overloadedStore, functionMap, constructorMap, resolver, classRenamings);
 	
 			codeEmittor.buildClass(getGeneratedPackageName(), getGeneratedClassName(), debug) ;
 
@@ -593,7 +595,7 @@ public class RVMExecutable {
 
 	    RVMExecutable ex = new RVMExecutable(module_name, moduleTags, symbol_definitions, functionMap, functionStore, 
 	        constructorMap, constructorStore, resolver, overloadedStore, initializers, uid_module_init, 
-	        uid_module_main, vf, false);
+	        uid_module_main, vf, false, Collections.emptyMap());
 	    ex.setJvmByteCode(jvmByteCode);
 	    ex.setFullyQualifiedDottedName(fullyQualifiedDottedName);
 

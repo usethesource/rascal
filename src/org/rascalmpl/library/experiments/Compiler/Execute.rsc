@@ -23,6 +23,8 @@ import experiments::Compiler::Compile;
 import experiments::Compiler::muRascal2RVM::mu2rvm;
 import util::Reflective;
 
+private map[str,str] classRenamings = ();
+
 private loc MuLibraryLoc(PathConfig pcfg) = getSearchPathLoc("experiments/Compiler/muRascal2RVM/MuLibrary.mu", pcfg);
 
 private str MuLibrary() = "experiments::Compiler::muRascal2RVM::MuLibrary";
