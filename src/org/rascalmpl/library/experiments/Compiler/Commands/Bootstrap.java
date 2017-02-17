@@ -54,7 +54,6 @@ public class Bootstrap {
             "lang::rascal::tests::basic::Equality",
             "lang::rascal::tests::basic::Exceptions",
             "lang::rascal::tests::basic::Functions",
-            "lang::rascal::tests::basic::Matching",
             "lang::rascal::tests::basic::Integers",
             "lang::rascal::tests::basic::IO",
             "lang::rascal::tests::basic::IsDefined",
@@ -71,6 +70,7 @@ public class Bootstrap {
             "lang::rascal::tests::basic::Tuples" };
     
     private static final String[] syntaxTestModules = { 
+            "lang::rascal::tests::basic::Matching",
             "lang::rascal::tests::functionality::ConcreteSyntaxTests1",
             "lang::rascal::tests::functionality::ConcreteSyntaxTests2",
             "lang::rascal::tests::functionality::ConcreteSyntaxTests3",
