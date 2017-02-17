@@ -40,7 +40,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<lucence-version>6.1.0</lucence-version>
 		<exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
-		<rascal.boot.version>0.8.3-bs7</rascal.boot.version>
+		<rascal.boot.version>0.8.3-bs10</rascal.boot.version>
 		<rascal.boot>--download</rascal.boot>
 	</properties>
 
@@ -85,6 +85,21 @@
 		</testResources>
 
 		<plugins>
+		<plugin>
+		    <artifactId>maven-clean-plugin</artifactId>
+		    <version>3.0.0</version>
+		    <configuration>
+		      <filesets>
+			<fileset>
+			  <directory>${project.basedir}/bin</directory>
+			  <includes>
+			    <include>**/*.*</include>
+			  </includes>
+			  <followSymlinks>false</followSymlinks>
+			</fileset>
+		      </filesets>
+		    </configuration>
+		  </plugin>
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
@@ -112,6 +127,33 @@
 							</arguments>
 						</configuration>
 						<id>bootstrap</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+					</execution> 
+					<execution>
+						<configuration>
+							<executable>java</executable>
+							<classpathScope>compile</classpathScope>
+							<workingDirectory>target/classes/</workingDirectory>
+							<arguments>
+								<argument>-Xmx1256m</argument>
+								<argument>-cp</argument>
+								<classpath />
+								<argument>org.rascalmpl.library.experiments.Compiler.Commands.RascalC</argument>
+								<argument>--boot</argument>
+                                                                <argument>${project.build.directory}/classes/boot</argument>
+                                                                <argument>--bin</argument>
+                                                                <argument>${project.build.directory}/classes/std</argument>
+                                                                <argument>--reloc</argument>
+                                                                <argument>|std:///|</argument>
+                                                                <argument>--src</argument>
+                                                                <argument>${project.basedir}/src/org/rascalmpl/library</argument>
+                                                                <argument>StandardLibrary</argument>
+							</arguments>
+						</configuration>
+						<id>standardlibrary</id>
 						<phase>compile</phase>
 						<goals>
 							<goal>exec</goal>

@@ -2,6 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.Collections;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;  // TODO: remove import? NOT YET: Only used as argument of reflective library function
 import org.rascalmpl.library.util.PathConfig;
@@ -25,10 +26,11 @@ public class ExecuteProgram {
 	public void linkAndSerializeProgram(
 			ISourceLocation rvmProgramLoc,
 			IConstructor rvmProgram,
-			IBool jvm
+			IBool jvm,
+			IMap classRenamings
 			) throws IOException {
 
-		RVMExecutable exec = ExecutionTools.link(rvmProgram, jvm);
+		RVMExecutable exec = ExecutionTools.link(rvmProgram, jvm, classRenamings);
 		exec.write(rvmProgramLoc, 6);
 	}
 	
@@ -48,7 +50,7 @@ public class ExecuteProgram {
 			IEvaluatorContext ctx
 			) throws IOException {
 		
-		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm);
+		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm, vf.mapWriter().done());
 		if(executable.isValid()){
 			RascalExecutionContext rex = null;
 			// TODO: the new PathConfig() with only defaults here is syspe
@@ -78,7 +80,7 @@ public class ExecuteProgram {
 			RascalExecutionContext rex
 			) throws IOException {
 
-		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm);
+		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm, vf.mapWriter().done());
 
 		if(executable.isValid()){
 			RascalExecutionContext rex2 = ExecutionTools.makeRex(rex.getPathConfig(), executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm);
