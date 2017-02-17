@@ -525,7 +525,7 @@ RVMProgram compileAndLink(str qualifiedModuleName, PathConfig pcfg,
    link_time = cpuTime() - start_linking;
    if(verbose) println("linking: <link_time/1000000> msec");  
    mergedLoc =  RVMExecutableWriteLoc(mainModule.name, pcfg);   
-   linkAndSerializeProgram(mergedLoc, merged, jvm);
+   linkAndSerializeProgram(mergedLoc, merged, jvm, classRenamings);
    return merged;
 }
 
