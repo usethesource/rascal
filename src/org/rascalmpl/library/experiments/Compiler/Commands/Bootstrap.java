@@ -468,7 +468,7 @@ public class Bootstrap {
           time("- compile ParserGenerator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator", reloc));
       }
 
-      if (phase > 1) {
+      if (phase > 2) {
           // phase 1 tests often fail for no other reason than an incompatibility.
           time("- compile simple tests",           () -> compileTests    (phase, classPath, result.toAbsolutePath().toString(), sourcePath, testResults, testModules));
           time("- run simple tests",               () -> runTests        (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, testResults, testModules));
