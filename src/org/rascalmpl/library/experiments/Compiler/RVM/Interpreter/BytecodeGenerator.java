@@ -66,7 +66,7 @@ public class BytecodeGenerator implements Opcodes {
           String descriptor = Type.getType(cls).getDescriptor();
           
           for (String key : classRenamings.keySet()) {
-              descriptor.replaceAll(key, classRenamings.get(key));
+              descriptor = descriptor.replaceAll(key, classRenamings.get(key));
           }
           
           return Type.getType(descriptor);
@@ -78,7 +78,7 @@ public class BytecodeGenerator implements Opcodes {
       
       if (classRenamings != null && !classRenamings.isEmpty()) {
           for (String key : classRenamings.keySet()) {
-              name.replaceAll(key, classRenamings.get(key));
+              name = name.replaceAll(key, classRenamings.get(key));
           }
       }
       
@@ -90,7 +90,7 @@ public class BytecodeGenerator implements Opcodes {
       
       if (classRenamings != null && !classRenamings.isEmpty()) {
           for (String key : classRenamings.keySet()) {
-              descr.replaceAll(key, classRenamings.get(key));
+              descr = descr.replaceAll(key, classRenamings.get(key));
           }
       }
       
@@ -102,7 +102,7 @@ public class BytecodeGenerator implements Opcodes {
       
       if (classRenamings != null && !classRenamings.isEmpty()) {
           for (String key : classRenamings.keySet()) {
-              descr.replaceAll(key, classRenamings.get(key));
+              descr = descr.replaceAll(key, classRenamings.get(key));
           }
       }
       
