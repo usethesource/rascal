@@ -59,18 +59,21 @@ public class BytecodeGenerator implements Opcodes {
   private  final Type OBJECT_TYPE = getType(Object.class);
  
   private Type getType(Class<?> cls) {
+      Type res;
       if (classRenamings == null || classRenamings.isEmpty()) {
-          return Type.getType(cls);
+          res = Type.getType(cls);
       }
       else {
           String descriptor = Type.getType(cls).getDescriptor();
           
           for (String key : classRenamings.keySet()) {
-              descriptor = descriptor.replaceAll(key, classRenamings.get(key));
+              descriptor = descriptor.replaceAll(key, Type.getType(classRenamings.get(key)).getInternalName());
           }
           
-          return Type.getType(descriptor);
+          res = Type.getType(descriptor);
       }
+      System.err.println("getType: " + res);
+      return res;
   }
   
   private String getInternalName(Class<?> cls) {
@@ -78,10 +81,10 @@ public class BytecodeGenerator implements Opcodes {
       
       if (classRenamings != null && !classRenamings.isEmpty()) {
           for (String key : classRenamings.keySet()) {
-              name = name.replaceAll(key, classRenamings.get(key));
+              name = name.replaceAll(key, Type.getType(classRenamings.get(key)).getInternalName());
           }
       }
-      
+      System.err.println("getInternalName: " + name);
       return name;
   }
   
@@ -90,10 +93,10 @@ public class BytecodeGenerator implements Opcodes {
       
       if (classRenamings != null && !classRenamings.isEmpty()) {
           for (String key : classRenamings.keySet()) {
-              descr = descr.replaceAll(key, classRenamings.get(key));
+              descr = descr.replaceAll(key, Type.getType(classRenamings.get(key)).getDescriptor());
           }
       }
-      
+      System.err.println("getDescriptor: " + descr);
       return descr;
   }
   
@@ -102,10 +105,10 @@ public class BytecodeGenerator implements Opcodes {
       
       if (classRenamings != null && !classRenamings.isEmpty()) {
           for (String key : classRenamings.keySet()) {
-              descr = descr.replaceAll(key, classRenamings.get(key));
+              descr = descr.replaceAll(key, Type.getType(classRenamings.get(key)).getDescriptor());
           }
       }
-      
+      System.err.println("getMethodDescriptor: " + descr);
       return descr;
   }
   
