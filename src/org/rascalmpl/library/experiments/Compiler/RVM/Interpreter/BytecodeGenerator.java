@@ -72,7 +72,7 @@ public class BytecodeGenerator implements Opcodes {
           
           res = Type.getType(descriptor);
       }
-      System.err.println("getType: " + res);
+      //System.err.println("getType: " + res);
       return res;
   }
   
@@ -84,7 +84,7 @@ public class BytecodeGenerator implements Opcodes {
               name = name.replaceAll(key, Type.getType(classRenamings.get(key)).getInternalName());
           }
       }
-      System.err.println("getInternalName: " + name);
+      //System.err.println("getInternalName: " + name);
       return name;
   }
   
@@ -96,7 +96,7 @@ public class BytecodeGenerator implements Opcodes {
               descr = descr.replaceAll(key, Type.getType(classRenamings.get(key)).getDescriptor());
           }
       }
-      System.err.println("getDescriptor: " + descr);
+      //System.err.println("getDescriptor: " + descr);
       return descr;
   }
   
@@ -108,7 +108,7 @@ public class BytecodeGenerator implements Opcodes {
               descr = descr.replaceAll(key, Type.getType(classRenamings.get(key)).getDescriptor());
           }
       }
-      System.err.println("getMethodDescriptor: " + descr);
+      //System.err.println("getMethodDescriptor: " + descr);
       return descr;
   }
   
