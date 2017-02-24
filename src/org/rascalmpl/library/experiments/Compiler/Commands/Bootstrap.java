@@ -235,10 +235,12 @@ public class Bootstrap {
        
         time("Bootstrap:", () -> {
             try { 
+                
                 String[] rvm    = new String[] { 
                         getDeployedVersion(tmpDir, versionToUse).toAbsolutePath().toString(), // this is the released jar
                         targetFolder + ":" + /*deps*/ classpath /* this is the pre-compiled target folder with the new RVM implementation */  
                 };
+                
                 
                 String[] kernel = new String[] {
                         "|boot:///|",  // This is retrieved from the released jar
@@ -255,6 +257,13 @@ public class Bootstrap {
                 /*------------------------------------------,-CODE---------,-RVM---,-KERNEL---,-TESTS--*/
                 time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[1], "|noreloc:///|"));
                 
+                // Identify jars that contain new names and should be included in the classpath
+                String renamedJars = System.getProperty("user.home") 
+                    + "/.m2/repository/io/usethesource/vallang/0.7.0-SNAPSHOT/vallang-0.7.0-SNAPSHOT.jar";
+                if(!renamedJars.isEmpty()){
+                    rvm[0] += ":" + renamedJars;
+                    rvm[1] += ":" + renamedJars;
+                }
                 
                 time("Phase 2", () -> compilePhase(tmpDir, 2, librarySource, rvm[0], kernel[1], rvm[1], "|std:///|"));
                 
@@ -560,7 +569,7 @@ public class Bootstrap {
          *     suspend=n - starts up and does not wait for attaching a debugger
          *     suspend=y - waits until a debugger is attached before to proceed
          */
-        String[] javaCmd = new String[] {"java", "-cp", classPath + ":" + "/Users/paulklint/git/rascal-value/target/vallang-0.7.0-SNAPSHOT.jar", "-Xmx2G", /*"-Xdebug -Xrunjdwp:transport=dt_socket,address=8001,server=y,suspend=n",*/ "org.rascalmpl.library.experiments.Compiler.Commands.RascalC" };
+        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", /*"-Xdebug -Xrunjdwp:transport=dt_socket,address=8001,server=y,suspend=n",*/ "org.rascalmpl.library.experiments.Compiler.Commands.RascalC" };
         return runChildProcess(concat(javaCmd, arguments));
     }
 
