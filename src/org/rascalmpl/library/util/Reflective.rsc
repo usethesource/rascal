@@ -165,7 +165,7 @@ loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
     throw "Module <qualifiedModuleName> not found";
 }
 
-@reflect{need to get the configuration from the evaluation context}
+@reflect{Need to get the configuration from the evaluation context}
 @javaClass{org.rascalmpl.library.util.Reflective}
 java str getRascalClasspath();
 
