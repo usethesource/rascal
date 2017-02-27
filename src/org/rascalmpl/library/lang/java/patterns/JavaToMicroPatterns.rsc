@@ -80,7 +80,7 @@ rel[loc from, loc to] flattenedExtends(M3 m) = m@extends+;
 
 @memo
 private set[loc] instanceFields(M3 m, loc e)
-	= { f | f <- fields(m,e), !(<f,final()> in m@modifiers) };
+	= { f | f <- fields(m,e), !(<f,final()> in m.modifiers) };
 
 
 private Expression dropArrayAccess(arrayAccess(a,_)) = dropArrayAccess(a);
@@ -100,7 +100,7 @@ rel[loc lhs, loc src] assignments(M3 m, loc method) {
 private set[loc] constructors(M3 m, loc c)
 	= { con | con <- elements(m, c), con.scheme == "java+constructor" };
 	
-private bool isAbstract(M3 m, loc e) = <e, abstract()> in m@modifiers;
+private bool isAbstract(M3 m, loc e) = <e, abstract()> in m.modifiers;
 
 @memo 
 private set[loc] abstractMethods(M3 m, loc c)
@@ -108,11 +108,11 @@ private set[loc] abstractMethods(M3 m, loc c)
 
 @memo
 private set[loc] staticFinalFields(M3 m, loc c)
-	= { f | f <- fields(m,c), <f, static()> in m@modifiers, <f, final()> in m@modifiers };
+	= { f | f <- fields(m,c), <f, static()> in m.modifiers, <f, final()> in m.modifiers };
 	
 @memo
 private set[loc] publicMethods(M3 m, loc c)
-	= { met | met <- methods(m,c), <met, \public()> in m@modifiers };
+	= { met | met <- methods(m,c), <met, \public()> in m.modifiers };
 	
 private str name(loc l) {
 	if (isMethod(l)) {
@@ -128,8 +128,8 @@ private str name(loc l) {
 @doc{A class/interface with absolutely no members (transitivly, except for Object). }
 private bool isDesignator(M3 m, loc e) 
 	= (isClass(e) || isInterface(e))
-	&& m@containment[e] == {}
-	&& m@containment[flattenedExtends(m)[e] - Object] == {}
+	&& m.containment[e] == {}
+	&& m.containment[flattenedExtends(m)[e] - Object] == {}
 	;
 
 private set[loc] removeConstuctors(set[loc] ll)
@@ -140,15 +140,15 @@ private set[loc] removeConstuctors(set[loc] ll)
 private bool isTaxonomy(M3 m, loc e) 
 	= 
 	( isInterface(e) 
-		&&  m@containment[e] == {}
+		&&  m.containment[e] == {}
 		&& size(m@extends[e]) == 1
-		&& m@containment[flattenedExtends(m)[e]] != {}
+		&& m.containment[flattenedExtends(m)[e]] != {}
 	)
 	||
 	( isClass(e)
 		&& m@implements[e] == {}
-		&& removeConstuctors(m@containment[e]) == {}
-		&& removeConstuctors(m@containment[flattenedExtends(m)[e]]) != {}
+		&& removeConstuctors(m.containment[e]) == {}
+		&& removeConstuctors(m.containment[flattenedExtends(m)[e]]) != {}
 	)
 	;
 
@@ -156,12 +156,12 @@ private bool isTaxonomy(M3 m, loc e)
 private bool isJoiner(M3 m, loc e) 
 	= 
 	( isInterface(e) 
-		&& m@containment[e] == {}
+		&& m.containment[e] == {}
 		&& size(m@extends[e]) > 1
 	)
 	||
 	( isClass(e)
-		&& removeConstuctors(m@containment[e]) == {}
+		&& removeConstuctors(m.containment[e]) == {}
 		&& size(m@implements[e]) > 1
 	)
 	;
@@ -171,17 +171,17 @@ private bool isJoiner(M3 m, loc e)
 private bool isPool(M3 m, loc e)
 	= isClass(e)
 	&& methods(m, e) == {}
-	&& all(f <- fields(m, e), <f, static()> in m@modifiers && <f,final()> in m@modifiers)
+	&& all(f <- fields(m, e), <f, static()> in m.modifiers && <f,final()> in m.modifiers)
 	;
 
 // TODO: unclear if constructors are allowed
 @doc{Classes with no fields, and only a single public instance method}
 private bool isFunctionPointer(M3 m, loc e) 
 	= isClass(e)
-	&& {meth} := m@containment[e]
+	&& {meth} := m.containment[e]
 	&& meth.scheme == "java+method"
-	&& \public() in m@modifiers[meth]
-	&& !(static() in m@modifiers[meth])
+	&& \public() in m.modifiers[meth]
+	&& !(static() in m.modifiers[meth])
 	;
 	
 @doc{Like function pointers, but with instance fields and possible constructors }
@@ -189,9 +189,9 @@ bool isFunctionObject(M3 m, loc e)
 	= isClass(e)
 	&& {meth} := removeConstuctors(methods(m, e))
 	&& fields(m,e) != {}
-	&& !(static() in m@modifiers[fields(m, e)])
-	&& \public() in m@modifiers[meth]
-	&& !(static() in m@modifiers[meth])
+	&& !(static() in m.modifiers[fields(m, e)])
+	&& \public() in m.modifiers[meth]
+	&& !(static() in m.modifiers[meth])
 	;
 
 private set[loc] removeNestedUnits(set[loc] ll)
@@ -202,16 +202,16 @@ private bool isCobolLike(M3 m, loc e)
 	= isClass(e)
 	&& {meth} := removeConstuctors(methods(m, e))
 	&& meth.scheme == "java+method"
-	&& static() in m@modifiers[meth]
-	&& \public() in m@modifiers[meth]
-	&& all(f <- fields(m,e), <f, static()> in m@modifiers)
+	&& static() in m.modifiers[meth]
+	&& \public() in m.modifiers[meth]
+	&& all(f <- fields(m,e), <f, static()> in m.modifiers)
 	;
 	
 @doc{Classes with static/instance methods and all the fields are static final}
 private bool isStateless(M3 m, loc e)
 	= isClass(e)
 	&& methods(m,e) != {}
-	&& all(f <- fields(m, e), <f, static()> in m@modifiers && <f, final()> in m@modifiers)
+	&& all(f <- fields(m, e), <f, static()> in m.modifiers && <f, final()> in m.modifiers)
 	;
 	
 
@@ -219,8 +219,8 @@ private bool isStateless(M3 m, loc e)
 private bool isCommonState(M3 m, loc e)
 	= isClass(e)
 	&& methods(m,e) != {}
-	&& all(loc f <- fields(m, e), <f,static()> in m@modifiers)
-	&& any(loc f <- fields(m, e), !(<f,final()> in m@modifiers))
+	&& all(loc f <- fields(m, e), <f,static()> in m.modifiers)
+	&& any(loc f <- fields(m, e), !(<f,final()> in m.modifiers))
 	;
 	
 
@@ -245,15 +245,15 @@ private bool isCanopy(M3 m, loc e)
 @doc{A class with no public constructors and at least on static field of the same type of the class}
 private bool isRestrictedCreation(M3 m, loc e)
 	= isClass(e)
-	&& !any(loc c <- constructors(m, e), !(<c, \public()> in m@modifiers))
-	&& any(loc f <- fields(m, e), <f, static()> in m@modifiers && <f, e> in m@typeDependency)
+	&& !any(loc c <- constructors(m, e), !(<c, \public()> in m.modifiers))
+	&& any(loc f <- fields(m, e), <f, static()> in m.modifiers && <f, e> in m@typeDependency)
 	;
 
 @doc{A class with at least one public constructor and at least one static field of the same type of the class}
 private bool isSampler(M3 m, loc e)
 	= isClass(e)
-	&& any(loc c <- constructors(m, e), <c, \public()> in m@modifiers)
-	&& any(loc f <- fields(m, e), <f, static()> in m@modifiers && <f, e> in m@typeDependency)
+	&& any(loc c <- constructors(m, e), <c, \public()> in m.modifiers)
+	&& any(loc f <- fields(m, e), <f, static()> in m.modifiers && <f, e> in m@typeDependency)
 	;
 
 // TODO: unclear about Object methods
@@ -275,8 +275,8 @@ private bool isCompoundBox(M3 m, loc e)
 @doc{All instance fields are public, no declared methods}
 private bool isRecord(M3 m, loc e)
 	= isClass(e)
-	&& all(f <- fields(m,e), <f, \public()> in m@modifiers)
-	&& !(static() in m@modifiers[fields(m,e)])
+	&& all(f <- fields(m,e), <f, \public()> in m.modifiers)
+	&& !(static() in m.modifiers[fields(m,e)])
 	&& !any(met <- methods(m,e), met.scheme =="java+method" && !isObjectMethod(met))
 	;
 
@@ -285,7 +285,7 @@ private  bool isDataManager(M3 m, loc e)
 	= isClass(e)
 	&& set[loc] fs := instanceFields(m,e)
 	&& fs != {}
-	&& !(\public() in m@modifiers[fs])
+	&& !(\public() in m.modifiers[fs])
 	&& meths := methods(m,e) - constructors(m,e)
 	&& (size(meths) > 0 | it &&  (startsWith(name(meth), "set") || startsWith(name(meth), "get") || isObjectMethod(meth)) | meth <- meths)
 	;
@@ -353,7 +353,7 @@ private bool isAugmentedType(M3 m, loc e)
 private bool isPseudoClass(M3 m, loc e)
 	= isClass(e)
 	&& isAbstract(m,e)
-	&& all(u <- (methods(m,e) - abstractMethods(m,e)) + fields(m, e), <u, static()> in m@modifiers)
+	&& all(u <- (methods(m,e) - abstractMethods(m,e)) + fields(m, e), <u, static()> in m.modifiers)
 	;
 	
 // unsure if this should be for (super classes)+
