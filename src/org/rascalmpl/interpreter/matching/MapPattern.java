@@ -20,7 +20,7 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.type.Type;
 
 /* package */ class MapPattern extends AbstractMatchingResult {
 	private java.util.List<IMatchingResult> children;

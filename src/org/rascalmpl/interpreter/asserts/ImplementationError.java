@@ -14,7 +14,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.asserts;
 
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 
 /**

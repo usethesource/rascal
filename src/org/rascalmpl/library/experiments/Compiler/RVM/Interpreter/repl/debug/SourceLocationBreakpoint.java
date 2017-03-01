@@ -3,7 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug;
 import java.io.PrintWriter;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class SourceLocationBreakpoint extends BreakPoint {
 	private final ISourceLocation loc;

@@ -11,11 +11,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 
-import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.IMapWriter;
-import org.rascalmpl.value.ISetWriter;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.IMapWriter;
+import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 
 /**
  * Use this class to create values from arbitrary Java objects.

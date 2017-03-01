@@ -17,8 +17,8 @@ package org.rascalmpl.interpreter.matching;
 import java.util.Iterator;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.IValue;
 
 /**
  * Generate all subsets of a given set

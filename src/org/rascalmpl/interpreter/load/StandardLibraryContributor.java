@@ -18,8 +18,8 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import org.rascalmpl.interpreter.utils.RascalManifest;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 

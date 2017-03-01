@@ -11,7 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IValue;
 
 public class TraverseResult {
 	/*

@@ -9,7 +9,7 @@ package org.rascalmpl.library.experiments.resource.results.buffers;
 
 import java.util.Iterator;
 
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IValue;
 
 	public class LazyIterator implements Iterator<IValue> {
 		

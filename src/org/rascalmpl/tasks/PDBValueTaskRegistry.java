@@ -19,8 +19,8 @@ import java.util.Set;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 public class PDBValueTaskRegistry extends TaskRegistry<Type, IValue, IValue> implements ITaskRegistry<Type, IValue, IValue> {
 	private static volatile PDBValueTaskRegistry instance = null;

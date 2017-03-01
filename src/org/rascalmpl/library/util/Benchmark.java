@@ -13,8 +13,8 @@
 package org.rascalmpl.library.util;
 
 import org.rascalmpl.interpreter.utils.Timing;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 
 public class Benchmark {
 	private final IValueFactory values;

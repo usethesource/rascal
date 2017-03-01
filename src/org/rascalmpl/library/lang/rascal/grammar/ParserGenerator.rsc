@@ -87,13 +87,13 @@ public str newGenerate(str package, str name, Grammar gr) {
            'import java.io.IOException;
            'import java.io.StringReader;
            '
-           'import org.rascalmpl.value.type.TypeFactory;
-           'import org.rascalmpl.value.IConstructor;
-           'import org.rascalmpl.value.ISourceLocation;
-           'import org.rascalmpl.value.IValue;
-           'import org.rascalmpl.value.IValueFactory;
-           'import org.rascalmpl.value.exceptions.FactTypeUseException;
-           'import org.rascalmpl.value.io.StandardTextReader;
+           'import io.usethesource.vallang.type.TypeFactory;
+           'import io.usethesource.vallang.IConstructor;
+           'import io.usethesource.vallang.ISourceLocation;
+           'import io.usethesource.vallang.IValue;
+           'import io.usethesource.vallang.IValueFactory;
+           'import io.usethesource.vallang.exceptions.FactTypeUseException;
+           'import io.usethesource.vallang.io.StandardTextReader;
            'import org.rascalmpl.parser.gtd.stack.*;
            'import org.rascalmpl.parser.gtd.stack.filter.*;
            'import org.rascalmpl.parser.gtd.stack.filter.follow.*;
@@ -111,7 +111,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            'public class <name> extends org.rascalmpl.parser.gtd.SGTDBF\<IConstructor, ITree, ISourceLocation\> {
            '  protected final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
            '
-           '  protected static IValue _read(java.lang.String s, org.rascalmpl.value.type.Type type) {
+           '  protected static IValue _read(java.lang.String s, io.usethesource.vallang.type.Type type) {
            '    try {
            '      return new StandardTextReader().read(VF, org.rascalmpl.values.uptr.RascalValueFactory.uptr, type, new StringReader(s));
            '    }

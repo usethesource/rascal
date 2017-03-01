@@ -16,7 +16,7 @@ package org.rascalmpl.interpreter.staticErrors;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.type.Type;
 
 public class UndeclaredFunction extends StaticError {
 	private static final long serialVersionUID = -3215674987633177L;

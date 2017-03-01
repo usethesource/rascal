@@ -15,8 +15,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 public class TypeReachability {
 	public static boolean mayOccurIn(Type small, Type large, Environment env) {

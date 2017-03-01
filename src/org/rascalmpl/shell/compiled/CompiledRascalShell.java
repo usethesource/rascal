@@ -11,7 +11,7 @@ import org.rascalmpl.shell.EclipseTerminalConnection;
 import org.rascalmpl.shell.ManifestRunner;
 import org.rascalmpl.shell.RascalShell;
 import org.rascalmpl.shell.ShellRunner;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import jline.Terminal;

@@ -34,9 +34,9 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 abstract public class NamedFunction extends AbstractFunction {
     private static final String RESOURCE_TAG = "resource";

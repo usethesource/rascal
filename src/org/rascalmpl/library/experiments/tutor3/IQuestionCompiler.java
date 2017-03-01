@@ -14,8 +14,8 @@ package org.rascalmpl.library.experiments.tutor3;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalModule;
 import org.rascalmpl.library.lang.rascal.boot.IJava2Rascal;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IString;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IString;
 
 @RascalModule("experiments::tutor3::QuestionCompiler")
 public interface IQuestionCompiler extends IJava2Rascal {

@@ -15,7 +15,7 @@ package org.rascalmpl.interpreter.matching;
 import java.util.Iterator;
 
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IValue;
 
 
 /*

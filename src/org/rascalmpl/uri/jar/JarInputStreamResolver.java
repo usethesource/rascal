@@ -20,7 +20,7 @@ import java.util.jar.JarInputStream;
 import org.rascalmpl.uri.FileTree;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class JarInputStreamResolver extends JarFileResolver {
 	private final URIResolverRegistry CTX;

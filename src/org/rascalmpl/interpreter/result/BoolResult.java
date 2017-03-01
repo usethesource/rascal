@@ -19,9 +19,9 @@ import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import java.util.Iterator;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 public class BoolResult extends ElementResult<IBool> {
 	

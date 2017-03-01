@@ -20,16 +20,16 @@ import java.util.Map.Entry;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.exceptions.FactTypeUseException;
-import org.rascalmpl.value.type.TypeFactory;
-import org.rascalmpl.value.type.TypeStore;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 public class Type {
 	private final IValueFactory vf;
@@ -58,10 +58,10 @@ public class Type {
 	
 	public IValue make(IValue type, IString name, IList args, IMap keywordParameters) {
 		TypeStore store = new TypeStore();
-		org.rascalmpl.value.type.Type t = new TypeReifier(vf).valueToType((IConstructor) type, store);
+		io.usethesource.vallang.type.Type t = new TypeReifier(vf).valueToType((IConstructor) type, store);
 		
 		IValue[] children = new IValue[args.length()];
-		org.rascalmpl.value.type.Type[] argsTypes = new org.rascalmpl.value.type.Type[args.length()];
+		io.usethesource.vallang.type.Type[] argsTypes = new io.usethesource.vallang.type.Type[args.length()];
 
 		for (int i = 0; i < args.length(); i++) {
 			children[i] = args.get(i);
@@ -84,7 +84,7 @@ public class Type {
 		
 		try {
 			
-			org.rascalmpl.value.type.Type constructor 
+			io.usethesource.vallang.type.Type constructor
 			= store.lookupConstructor(t, name.getValue(), TypeFactory.getInstance().tupleType(argsTypes));
 			
 			if (constructor == null) {
