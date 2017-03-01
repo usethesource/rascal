@@ -34,11 +34,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.ConsoleRascalMonitor;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 
 /**
@@ -307,7 +307,7 @@ public class BasicIDEServices implements IDEServices {
   }
 
   /* (non-Javadoc)
-   * @see org.rascalmpl.debug.IRascalMonitor#warning(java.lang.String, org.rascalmpl.value.ISourceLocation)
+   * @see org.rascalmpl.debug.IRascalMonitor#warning(java.lang.String, io.usethesource.vallang.ISourceLocation)
    */
   @Override
   public void warning(String message, ISourceLocation src) {

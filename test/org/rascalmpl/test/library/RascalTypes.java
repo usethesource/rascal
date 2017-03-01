@@ -21,7 +21,7 @@ import org.junit.Test;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.library.cobra.RandomType;
 import org.rascalmpl.test.infrastructure.TestFramework;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.type.Type;
 
 public class RascalTypes extends TestFramework {
 	

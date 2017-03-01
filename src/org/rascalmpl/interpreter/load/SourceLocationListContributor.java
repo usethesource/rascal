@@ -2,10 +2,10 @@ package org.rascalmpl.interpreter.load;
 
 import java.util.List;
 
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.TypeFactory;
 
 public class SourceLocationListContributor implements IRascalSearchPathContributor {
   private IList locs;

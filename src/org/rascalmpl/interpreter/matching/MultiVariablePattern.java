@@ -17,7 +17,7 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IValue;
 
 public class MultiVariablePattern extends QualifiedNamePattern {
 

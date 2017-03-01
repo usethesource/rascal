@@ -2,7 +2,7 @@ package org.rascalmpl.library.lang.json.io;
 
 import java.io.IOException;
 
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IValue;
 
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;

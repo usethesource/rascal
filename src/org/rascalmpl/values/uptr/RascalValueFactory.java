@@ -17,40 +17,41 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
+import java.util.function.Supplier;
 
+import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.parser.gtd.util.ArrayList;
-import org.rascalmpl.value.IAnnotatable;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IExternalValue;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListRelation;
-import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.INode;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.IWithKeywordParameters;
-import org.rascalmpl.value.exceptions.FactTypeUseException;
-import org.rascalmpl.value.exceptions.UndeclaredFieldException;
-import org.rascalmpl.value.impl.AbstractDefaultAnnotatable;
-import org.rascalmpl.value.impl.AbstractDefaultWithKeywordParameters;
-import org.rascalmpl.value.impl.AbstractValueFactoryAdapter;
-import org.rascalmpl.value.impl.AnnotatedConstructorFacade;
-import org.rascalmpl.value.impl.ConstructorWithKeywordParametersFacade;
-import org.rascalmpl.value.impl.persistent.ValueFactory;
-import org.rascalmpl.value.io.StandardTextReader;
-import org.rascalmpl.value.io.StandardTextWriter;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
-import org.rascalmpl.value.type.TypeStore;
-import org.rascalmpl.value.visitors.IValueVisitor;
+import io.usethesource.vallang.IAnnotatable;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IExternalValue;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListRelation;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.INode;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.IWithKeywordParameters;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.exceptions.UndeclaredFieldException;
+import io.usethesource.vallang.impl.AbstractDefaultAnnotatable;
+import io.usethesource.vallang.impl.AbstractDefaultWithKeywordParameters;
+import io.usethesource.vallang.impl.AbstractValueFactoryAdapter;
+import io.usethesource.vallang.impl.AnnotatedConstructorFacade;
+import io.usethesource.vallang.impl.ConstructorWithKeywordParametersFacade;
+import io.usethesource.vallang.impl.persistent.ValueFactory;
+import io.usethesource.vallang.io.StandardTextReader;
+import io.usethesource.vallang.io.StandardTextWriter;
+import io.usethesource.vallang.io.binary.message.IValueReader;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
+import io.usethesource.vallang.visitors.IValueVisitor;
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
-
-import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 
 /**
  * The RascalValueFactory extends a given IValueFactory with the Rascal-specific builtin
@@ -285,6 +286,20 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public static TypeStore getStore() {
 		return uptr;
 	}
+
+	/**
+   * Allocates new {@link TypeStore} environments that are used within {@link IValueReader}.
+   *
+   * Type stores are used as encapsulated namespaces for types. The supplier creates a fresh type
+   * store environment, to avoid name clashes when nesting types / values.
+   */
+  public static final Supplier<TypeStore> TYPE_STORE_SUPPLIER = () -> {
+    TypeStore typeStore = new TypeStore();
+    typeStore.declareAbstractDataType(RascalValueFactory.Type);
+    typeStore.declareConstructor(RascalValueFactory.Type_Reified);
+    typeStore.declareAbstractDataType(RascalValueFactory.ADTforType);
+    return typeStore;
+  };
 
 	@Override
 	public INode node(String name, IValue... children) {

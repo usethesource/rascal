@@ -19,9 +19,9 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.io.StandardTextWriter;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.io.StandardTextWriter;
 
 /**
  * This class is for representing all run-time exceptions in Rascal.

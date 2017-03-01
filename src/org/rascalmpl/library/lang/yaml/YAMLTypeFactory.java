@@ -12,9 +12,9 @@
 *******************************************************************************/
 package org.rascalmpl.library.lang.yaml;
 
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
-import org.rascalmpl.value.type.TypeStore;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 public class YAMLTypeFactory {
 	public static final TypeStore yaml = new TypeStore();

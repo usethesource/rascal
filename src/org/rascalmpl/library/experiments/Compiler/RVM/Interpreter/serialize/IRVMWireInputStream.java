@@ -15,9 +15,9 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
 import java.io.IOException;
 import java.util.Map;
 
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.io.binary.wire.IWireInputStream;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.io.binary.wire.IWireInputStream;
+import io.usethesource.vallang.type.Type;
 
 public interface IRVMWireInputStream extends IWireInputStream {
     /** can only be called once! */

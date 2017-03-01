@@ -14,10 +14,10 @@
 package org.rascalmpl.values.uptr.visitors;
 
 import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.INode;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.visitors.IdentityVisitor;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.INode;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.visitors.IdentityVisitor;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 

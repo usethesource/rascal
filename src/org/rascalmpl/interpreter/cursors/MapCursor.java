@@ -3,9 +3,9 @@ package org.rascalmpl.interpreter.cursors;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 public class MapCursor extends Cursor implements IMap {
 

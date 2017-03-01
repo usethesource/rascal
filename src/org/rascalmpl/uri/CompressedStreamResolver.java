@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class CompressedStreamResolver implements ISourceLocationInputOutput {
     private final URIResolverRegistry registry;

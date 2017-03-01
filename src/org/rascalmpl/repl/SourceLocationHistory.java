@@ -10,7 +10,7 @@ import java.io.PrintStream;
 import java.io.Reader;
 
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 import jline.console.history.MemoryHistory;
 import jline.console.history.PersistentHistory;

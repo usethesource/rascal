@@ -9,10 +9,10 @@ import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireInputStream;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireOutputStream;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.io.binary.util.WindowSizes;
-import org.rascalmpl.value.io.binary.wire.IWireInputStream;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.io.binary.util.WindowSizes;
+import io.usethesource.vallang.io.binary.wire.IWireInputStream;
+import io.usethesource.vallang.type.Type;
 
 /**
  * Represent one overloaded function given

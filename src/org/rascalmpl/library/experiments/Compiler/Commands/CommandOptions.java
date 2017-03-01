@@ -14,16 +14,16 @@ import java.util.function.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIUtil; 
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.exceptions.FactTypeUseException;
-import org.rascalmpl.value.io.StandardTextReader;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
-import org.rascalmpl.value.type.TypeStore;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.io.StandardTextReader;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
@@ -80,7 +80,7 @@ public class CommandOptions {
     private static final String SRC_PATH_CONFIG_OPTION = "src";
     
     protected TypeFactory tf;
-	protected org.rascalmpl.value.IValueFactory vf;
+	protected io.usethesource.vallang.IValueFactory vf;
 	private boolean inCommandOptions = true;
 	private boolean singleModule = true;
 	

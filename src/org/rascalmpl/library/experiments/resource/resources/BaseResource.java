@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.rascalmpl.library.experiments.resource.IResource;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
-import org.rascalmpl.value.type.TypeStore;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 public abstract class BaseResource implements IResource {
 

@@ -27,9 +27,9 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 public class SetPattern extends AbstractMatchingResult {
 	private List<IMatchingResult> patternChildren; // The elements of the set pattern

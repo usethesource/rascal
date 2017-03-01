@@ -22,7 +22,7 @@ import java.util.jar.JarFile;
 
 import org.rascalmpl.uri.FileTree;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;

@@ -12,7 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.debug;
 
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public interface IRascalMonitor {
 	/**

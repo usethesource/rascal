@@ -14,8 +14,8 @@ package org.rascalmpl.interpreter.matching;
 
 import java.util.Iterator;
 
-import org.rascalmpl.value.INode;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.INode;
+import io.usethesource.vallang.IValue;
 
 class NodeChildIterator implements Iterator<IValue> {
 	private INode node;

@@ -14,7 +14,7 @@ package org.rascalmpl.uri.classloaders;
 
 import java.io.IOException;
 
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 /**
  * A default classloader resolver for testing purposes. It always returns the system's default classloader.

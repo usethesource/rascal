@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.ISourceLocation;
 
 public abstract class Type extends AbstractAST {
   public Type(ISourceLocation src, IConstructor node) {

@@ -17,8 +17,8 @@ import org.rascalmpl.ast.TypeArg;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.PartiallyLabeledFields;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredField;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 public final class TypeUtils {
 	private static TypeFactory TF = TypeFactory.getInstance();
