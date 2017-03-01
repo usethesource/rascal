@@ -27,10 +27,10 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Names;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -44,7 +44,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 	private boolean iDeclaredItMyself;
 	
 	public ConcreteListVariablePattern(IEvaluatorContext ctx, AbstractAST x,
-			org.rascalmpl.value.type.Type type, org.rascalmpl.ast.Name name) {
+			io.usethesource.vallang.type.Type type, org.rascalmpl.ast.Name name) {
 		super(ctx, x);
 		this.name = Names.name(name);
 		this.declaredType = (NonTerminalType) type;
@@ -54,7 +54,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult implemen
 	}
 
 	public ConcreteListVariablePattern(IEvaluatorContext ctx, AbstractAST x,
-			org.rascalmpl.value.type.Type type, String name) {
+			io.usethesource.vallang.type.Type type, String name) {
 		super(ctx, x);
 		this.name = name;
 		this.declaredType = (NonTerminalType) type;

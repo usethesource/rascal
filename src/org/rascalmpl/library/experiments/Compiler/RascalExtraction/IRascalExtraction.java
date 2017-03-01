@@ -14,9 +14,9 @@ package org.rascalmpl.library.experiments.Compiler.RascalExtraction;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalModule;
 import org.rascalmpl.library.lang.rascal.boot.IJava2Rascal;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.ITuple;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
 
 @RascalModule("experiments::Compiler::RascalExtraction::RascalExtraction")
 public interface IRascalExtraction extends IJava2Rascal {

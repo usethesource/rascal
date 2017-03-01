@@ -22,4 +22,3 @@ public Graph[Symbol] symbolDependencies(Grammar g) =
 
 public Graph[Symbol] symbolDependencies(GrammarDefinition d) =
   { *symbolDependencies(d.modules[m].grammar) | m <- d.modules };
-    

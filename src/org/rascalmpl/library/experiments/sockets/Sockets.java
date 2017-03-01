@@ -9,9 +9,9 @@ import java.net.Socket;
 import java.util.HashMap;
 
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValueFactory;
 
 public class Sockets {
 	private static HashMap<IInteger, ServerSocket> serverSockets = new HashMap<IInteger, ServerSocket>();

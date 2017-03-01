@@ -14,8 +14,8 @@ import java.util.ArrayList;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class CharStreamFiller implements ILazyFiller {

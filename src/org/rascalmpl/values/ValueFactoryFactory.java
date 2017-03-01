@@ -15,7 +15,7 @@
 *******************************************************************************/
 package org.rascalmpl.values;
 
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 
 public class ValueFactoryFactory{

@@ -12,8 +12,8 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 public class RegExpVar implements IVarPattern {
 	private String name;

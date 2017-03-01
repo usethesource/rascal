@@ -17,17 +17,19 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.io.binary.message.IValueReader;
-import org.rascalmpl.value.io.binary.util.TrackLastRead;
-import org.rascalmpl.value.io.binary.util.WindowCacheFactory;
-import org.rascalmpl.value.io.binary.wire.FieldKind;
-import org.rascalmpl.value.io.binary.wire.IWireInputStream;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.io.binary.message.IValueReader;
+import io.usethesource.vallang.io.binary.util.TrackLastRead;
+import io.usethesource.vallang.io.binary.util.WindowCacheFactory;
+import io.usethesource.vallang.io.binary.wire.FieldKind;
+import io.usethesource.vallang.io.binary.wire.IWireInputStream;
+import io.usethesource.vallang.type.Type;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+
+import static org.rascalmpl.values.uptr.RascalValueFactory.TYPE_STORE_SUPPLIER;
 
 public class RVMWireInputStream implements IRVMWireInputStream {
     
@@ -65,7 +67,7 @@ public class RVMWireInputStream implements IRVMWireInputStream {
                     result = (T) window.lookBack(getInteger());
                     break;
                 case CompilerIDs.NestedType.VALUE:
-                    result = (T) IValueReader.readValue(stream, vf);
+                    result = (T) IValueReader.readValue(stream, vf, TYPE_STORE_SUPPLIER);
                     window.read(result);
                     break;
             }
@@ -86,7 +88,7 @@ public class RVMWireInputStream implements IRVMWireInputStream {
                     result = (Type) window.lookBack(getInteger());
                     break;
                 case CompilerIDs.NestedType.VALUE:
-                    result = IValueReader.readType(stream, vf);
+                    result = IValueReader.readType(stream, vf, TYPE_STORE_SUPPLIER);
                     window.read(result);
                     break;
             }

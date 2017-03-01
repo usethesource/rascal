@@ -13,7 +13,7 @@
 package org.rascalmpl.interpreter.staticErrors;
 
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class ModuleNameMismatch extends StaticError {
 	private static final long serialVersionUID = 6984933453355489423L;

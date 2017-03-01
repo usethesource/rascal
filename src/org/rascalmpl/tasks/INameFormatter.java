@@ -11,7 +11,7 @@
 *******************************************************************************/
 package org.rascalmpl.tasks;
 
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IValue;
 
 public interface INameFormatter {
 	String format(IValue name);

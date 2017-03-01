@@ -3,10 +3,10 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 
 /**
  * Builder-like class to create IMap with keyword parameters

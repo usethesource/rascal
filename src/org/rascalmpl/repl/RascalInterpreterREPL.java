@@ -32,7 +32,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.ID
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IValue;
 
 import jline.Terminal;
 

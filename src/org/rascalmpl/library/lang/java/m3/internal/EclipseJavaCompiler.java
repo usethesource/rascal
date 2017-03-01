@@ -39,15 +39,15 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeE
 import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISetWriter;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.type.TypeStore;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 public class EclipseJavaCompiler {
     protected final IValueFactory VF;

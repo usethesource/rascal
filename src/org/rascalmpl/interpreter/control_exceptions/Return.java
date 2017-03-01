@@ -15,8 +15,8 @@
 package org.rascalmpl.interpreter.control_exceptions;
 
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
 
 public class Return extends ControlException {
 	private static final long serialVersionUID = -6601026099925601817L;

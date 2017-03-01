@@ -14,9 +14,9 @@ import org.rascalmpl.interpreter.result.ResourceResult;
 import org.rascalmpl.library.experiments.resource.results.buffers.LazyList;
 import org.rascalmpl.library.experiments.resource.results.buffers.LineStreamFiller;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class LineStreamResult extends ResourceResult {

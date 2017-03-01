@@ -16,9 +16,9 @@ import java.util.Map;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.value.IExternalValue;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IExternalValue;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 public interface ICallableValue extends IExternalValue {
 	public int getArity();

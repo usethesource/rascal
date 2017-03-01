@@ -25,11 +25,11 @@ import org.rascalmpl.interpreter.types.ReifiedType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CompilerError;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.Type;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ApiGen {
@@ -61,7 +61,7 @@ public class ApiGen {
     String packageContrib = (b < 0 ? "" :  "." + moduleName.substring(0, b)).replaceAll("::", ".");
     sw.append("package " + javaPackage + packageContrib + ";\n\n");
     
-    sw.append("import org.rascalmpl.value.*;\n\n");    
+    sw.append("import io.usethesource.vallang.*;\n\n");
     sw.append("import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalKeywordParameters;\n");
     sw.append("import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalModule;\n\n");
 

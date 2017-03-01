@@ -3,7 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
-import org.rascalmpl.value.IList;
+import io.usethesource.vallang.IList;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public interface IFrameObserver {

@@ -3,10 +3,10 @@ package org.rascalmpl.interpreter.cursors;
 import java.util.Map;
 import java.util.Set;
 
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IWithKeywordParameters;
-import org.rascalmpl.value.exceptions.FactTypeUseException;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IWithKeywordParameters;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
 
 public class WithKeywordParametersCursor extends Cursor implements IWithKeywordParameters<IConstructor> {
 

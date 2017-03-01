@@ -25,17 +25,17 @@ import java.util.Map;
 import java.util.Set;
 
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.IMapWriter;
-import org.rascalmpl.value.ISetWriter;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.io.StandardTextReader;
-import org.rascalmpl.value.type.ITypeVisitor;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
-import org.rascalmpl.value.type.TypeStore;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.IMapWriter;
+import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.io.StandardTextReader;
+import io.usethesource.vallang.type.ITypeVisitor;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;

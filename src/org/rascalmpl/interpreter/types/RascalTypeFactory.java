@@ -13,10 +13,10 @@ package org.rascalmpl.interpreter.types;
 
 import java.util.Set;
 
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 public class RascalTypeFactory {
 	private TypeFactory tf = TypeFactory.getInstance();
