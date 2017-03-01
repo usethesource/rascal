@@ -41,7 +41,7 @@ data Status
   ; 
     
 @javaClass{org.rascalmpl.library.util.Webserver}
-@reflect{to get access to the data types}
+@reflect{To get access to the data types}
 java void serve(loc server, Response (Request) callback);
 
 @javaClass{org.rascalmpl.library.util.Webserver}
