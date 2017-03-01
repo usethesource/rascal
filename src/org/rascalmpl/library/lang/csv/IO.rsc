@@ -113,7 +113,7 @@ R1 = readCSV(|courses:///Rascal/Libraries/lang/csv/ex1.csv|, separator = ";");
 
 }
 @javaClass{org.rascalmpl.library.lang.csv.IO}
-@reflect{Uses URI Resolver Registry}
+@reflect{For getting IO streams}
 public java value readCSV(loc location, bool header = true, str separator = ",", str encoding = "UTF8", bool printInferredType = false);
 
 @deprecated{use the readCSV with keyword parameters}
@@ -123,11 +123,11 @@ public value readCSV(loc location, map[str,str] options) {
 
 
 @javaClass{org.rascalmpl.library.lang.csv.IO}
-@reflect{Uses URI Resolver Registry}
+@reflect{For getting IO streams}
 public java &T readCSV(type[&T] result, loc location, bool header = true, str separator = ",", str encoding = "UTF8");
 
 @javaClass{org.rascalmpl.library.lang.csv.IO}
-@reflect{Uses URI Resolver Registry}
+@reflect{For getting IO streams}
 public java type[value] getCSVType(loc location, bool header = true, str separator = ",", str encoding = "UTF8");
 
 @doc{

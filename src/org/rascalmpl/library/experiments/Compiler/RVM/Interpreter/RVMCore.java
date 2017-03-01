@@ -1193,20 +1193,13 @@ public abstract class RVMCore {
 			 * experiments::resource::Resource::registerResource
 			 * experiments::resource::Resource::getTypedResource
 			 * experiments::resource::Resource::generateTypedInterfaceInternal
-			
-			 * experiments::vis2::vega::Vega::color
-			 * 
-			 * lang::aterm::IO::readTextATermFile
-			 * lang::aterm::IO::writeTextATermFile
-			 * 
-			 * lang::html::IO::readHTMLFile
 			 * 
 			 * lang::java::m3::AST::setEnvironmentOptions
 			 * lang::java::m3::AST::createAstFromFile
 			 * lang::java::m3::AST::createAstFromString
 			 * lang::java::m3::Core::createM3FromFile
 			 * lang::java::m3::Core::createM3FromFile
-			 *  lang::java::m3::Core::createM3FromJarClass
+			 * lang::java::m3::Core::createM3FromJarClass
 			 *  
 			 *  lang::jvm::run::RunClassFile::runClassFile
 			 *  lang::jvm::transform::SerializeClass::serialize
@@ -1221,8 +1214,6 @@ public abstract class RVMCore {
 			 *  resource::jdbc::JDBC::registerJDBCClass
 			 *  util::tasks::Manager
 			 *  util::Eval
-			 *  util::Monitor
-			 *  vis::Figure::color
 			 *  
 			 *  Traversal::getTraversalContext
 			 *  

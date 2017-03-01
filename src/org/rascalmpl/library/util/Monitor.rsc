@@ -28,15 +28,15 @@ The various forms of `startJob` do the following:
   and a total amount of steps to do.
 }
 @javaClass{org.rascalmpl.library.util.Monitor}
-@reflect
+@reflect{To access monitor in context}
 public java void startJob(str name);
 
 @javaClass{org.rascalmpl.library.util.Monitor}
-@reflect 
+@reflect{To access monitor in context}
 public java void startJob(str name, int totalWork);
 
 @javaClass{org.rascalmpl.library.util.Monitor}
-@reflect 
+@reflect{To access monitor in context}
 public java void startJob(str name, int workShare, int totalWork);
 
 @doc{
@@ -53,15 +53,15 @@ The various forms of `event` behave as follows:
   An event is finished when the next event is logged, or when <<endJob>> is called.
 }
 @javaClass{org.rascalmpl.library.util.Monitor}
-@reflect 
+@reflect{To access monitor in context}
 public java void event(str name);
 
 @javaClass{org.rascalmpl.library.util.Monitor}
-@reflect 
+@reflect{To access monitor in context}
 public java void event(str name, int inc);
 
 @javaClass{org.rascalmpl.library.util.Monitor}
-@reflect 
+@reflect{To access monitor in context}
 public java void event(int inc);
 
 @doc{
@@ -73,7 +73,7 @@ This should always be called once for every startJob, unless an exception is thr
 Returns the amount of work completed for this job (to help in future estimates)
 }
 @javaClass{org.rascalmpl.library.util.Monitor}
-@reflect 
+@reflect{To access monitor in context}
 public java int endJob(bool succeeded);
 
 @doc{
@@ -85,5 +85,5 @@ Set the estimated remaining work for the current (sub)job.
 The argument `work` is the amount of work remaining to be done, or 0 for unknown.
 }
 @javaClass{org.rascalmpl.library.util.Monitor}
-@reflect 
+@reflect{To access monitor in context}
 public java void todo(int work);
