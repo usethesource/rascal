@@ -70,16 +70,22 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 		< wlName, worklist > = takeFirstFrom(worklist);
 		try {
 		    ppWlName = prettyPrintName(wlName);
-			wlLoc = getModuleLocation(ppWlName,pcfg);
 					
 			if (<true, _> := cachedImportsReadLoc(ppWlName,pcfg)) {
 				ci = getCachedImports(ppWlName, pcfg);
-				if (ci.dt == lastModified(wlLoc)) {
-					minfoMap[wlName] = ci.ii;
+				try {
+				   wlLoc = getModuleLocation(ppWlName,pcfg);
+				   if (ci.dt == lastModified(wlLoc)) {
+					   minfoMap[wlName] = ci.ii;
+				   }
+				} catch ex: {
+				    // No source available, always use the cached imports
+				    minfoMap[wlName] = ci.ii;
 				}
 			}
 			
 			if (wlName notin minfoMap) {
+			    wlLoc = getModuleLocation(ppWlName,pcfg);
 				dt = lastModified(wlLoc);
 				//pt = getModuleParseTree(ppWlName, pcfg);
 				pt = parseNamedModuleWithSpaces(ppWlName, pcfg);
@@ -100,7 +106,8 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 				}
 			}
 		} catch x : {
-			; // TODO: Add code here to handle cases where we could not find an imported module, generally we can leave this to the checker though...
+		    println("getImportGraphAndInfo: <x>");
+			// TODO: Add code here to handle cases where we could not find an imported module, generally we can leave this to the checker though...
 		}
 		
 		if (wlName in minfoMap) {

@@ -7608,7 +7608,12 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 				; // TODO: Add a warning here, this means we are importing something that we cannot find
 			}
 		} catch ex: {
-			c = addScopeError(c, "Cannot import module <prettyPrintName(imn)>", md@\loc);
+		    // There was no source file, try binary only
+		    if(<true, imloc> := cachedImportsReadLoc(prettyPrintName(imn),pcfg)){
+		       currentDates[imn] = lastModified(imloc);
+		    } else {
+			  c = addScopeError(c, "Cannot import module <prettyPrintName(imn)>", md@\loc);
+			}
 		}
 	}
 	

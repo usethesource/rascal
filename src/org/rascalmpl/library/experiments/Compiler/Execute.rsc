@@ -40,13 +40,13 @@ loc getMuLibraryCompiledWriteLoc(PathConfig pcfg) = getDerivedWriteLoc(MuLibrary
 
 alias Resolved = tuple[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors];
 
-RVMModule getImport(loc importedLoc){
-    return getImport1(importedLoc, lastModified(importedLoc));
+RVMModule getRVMImport(loc importedRVMLoc){
+    return getRVMImport1(importedRVMLoc, lastModified(importedRVMLoc));
 }
 
 @memo
-RVMModule getImport1(loc importedLoc, datetime lastModified){
-    return readBinaryValueFile(#RVMModule, importedLoc);
+RVMModule getRVMImport1(loc importedRVMLoc, datetime lastModified){
+    return readBinaryValueFile(#RVMModule, importedRVMLoc);
 }
 
 bool valid(loc mergedImportsLoc, RVMModule mergedProgram, RVMModule program, PathConfig pcfg){
@@ -139,10 +139,10 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool jvm = true, 
        for(str impName <- orderedImports) {
           // println("execute: IMPORT <impName>");
            
-           imp = getModuleLocation(impName, pcfg);
-           <existsImportedLoc, importedLoc> = RVMModuleReadLoc(impName, pcfg);
+           //imp = getModuleLocation(impName, pcfg);
+           <existsImportedLoc, importedRVMLoc> = RVMModuleReadLoc(impName, pcfg);
            try {
-               RVMModule importedRvmModule = getImport(importedLoc);
+               RVMModule importedRvmModule = getRVMImport(importedRVMLoc);
                
                extensions = {};
                 
@@ -176,7 +176,7 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool jvm = true, 
                imported_overloaded_functions = imported_overloaded_functions + importedRvmModule.overloaded_functions;
                imported_overloading_resolvers = imported_overloading_resolvers + ( ofname : (importedRvmModule.resolver[ofname] + pos_delta) | str ofname <- importedRvmModule.resolver );
            
-           } catch x: throw "execute: Reading <importedLoc> did not succeed: <x>";      
+           } catch x: throw "execute: Reading <importedRVMLoc> did not succeed: <x>";      
        }
    }
    

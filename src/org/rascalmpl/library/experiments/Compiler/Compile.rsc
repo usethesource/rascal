@@ -25,6 +25,7 @@ import experiments::Compiler::muRascal2RVM::mu2rvm;
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckerConfig;
 import lang::rascal::types::CheckTypes;
+import lang::rascal::types::CheckModule;
 import lang::rascal::types::AbstractName;
 
 str basename(loc l) = l.file[ .. findFirst(l.file, ".")];  // TODO: for library
@@ -53,12 +54,22 @@ loc getMergedImportsWriteLoc(str mainQualifiedName, PathConfig pcfg){
     return getDerivedWriteLoc(merged_imports_qname, "rvm", pcfg);
 }
 
+loc sourceOrImportsLoc(str qualifiedModuleName, PathConfig pcfg){
+    try {
+        return getModuleLocation(qualifiedModuleName, pcfg);
+    } catch ex: {
+        if(<true, importsLoc> := cachedImportsReadLoc(qualifiedModuleName, pcfg)){
+           return importsLoc;
+        }
+        throw "No source or imports loc found for <qualifiedModuleName>";
+    }
+}
 
 bool validRVM(str qualifiedModuleName, PathConfig pcfg){
 	<existsRvmLoc, rvmLoc> = RVMModuleReadLoc(qualifiedModuleName, pcfg);
 	//println("exists(<rvmLoc>): <exists(rvmLoc)>");
 	//println("lastModified(<rvmLoc>) \>= lastModified(<src>): <lastModified(rvmLoc) >= lastModified(src)>");
-	res = existsRvmLoc && lastModified(rvmLoc) >= lastModified(getModuleLocation(qualifiedModuleName, pcfg));
+	res = existsRvmLoc && lastModified(rvmLoc) >= lastModified(sourceOrImportsLoc(qualifiedModuleName, pcfg));
 	//println("validRVM(<src>) =\> <res>");
 	return res;
 }
@@ -255,6 +266,7 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
         start_checking = cpuTime();
         //M = parse(#start[Module], moduleLoc).top;
         M = parseModule(moduleLoc);
+        println("compile1Incremental, parsing done");
         if(!reuseConfig || previousConfig == noPreviousConfig){
             lang::rascal::\syntax::Rascal::Module M1 = removeMain(M);
             previousConfig = checkModule(M1, newConfiguration(pcfg));
@@ -262,11 +274,14 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
         } else {
           previousConfig.dirtyModules = {};
         }
+        println("compile1Incremental, before getMain");
         mainDecl = getMain(M);
-        //println("<mainDecl>");
+        println("<mainDecl>");
         
+        println("compile1Incremental, before checkDeclaration");
+        iprintln(previousConfig);
         config  = checkDeclaration(mainDecl, true, previousConfig);
-        //println("checkDeclaration: done");
+        println("checkDeclaration: done");
         check_time = (cpuTime() - start_checking)/1000000;
     } catch e: {
         throw e;
