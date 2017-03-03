@@ -161,7 +161,7 @@ public class CommandExecutor {
 		kernel_coverage      = settings.getBool("kernel.coverage", false);
 		kernel_debug         = settings.getBool("kernel.debug", false);                            
         kernel_profile       = settings.getBool("kernel.profile", false);
-        kernel_trace         = settings.getBool("kernel.trace", false);
+        kernel_trace         = settings.getBool("kernel.trace", true);
         kernel_verbose       = settings.getBool("kernel.verbose", false);
         
         // options for compiler
@@ -172,7 +172,7 @@ public class CommandExecutor {
         compile_optimize      = settings.getBool("compile.optimize", false);
         compile_profile       = settings.getBool("compile.profile", false);
         compile_testsuite     = settings.getBool("compile.testsuite", false);
-        compile_trace         = settings.getBool("compile.trace", false);
+        compile_trace         = settings.getBool("compile.trace", true);
         compile_verbose       = settings.getBool("compile.verbose", false);
        
         // options per executed command
@@ -183,7 +183,7 @@ public class CommandExecutor {
 		execute_jvm           = settings.getBool("execute.jvm", true);
 		execute_profile       = settings.getBool("execute.profile", false);
 		execute_testsuite     = settings.getBool("execute.testsuite", false);
-		execute_trace         = settings.getBool("execute.trace", false);
+		execute_trace         = settings.getBool("execute.trace", true);
 		execute_verbose       = settings.getBool("execute.verbose", false);
 		
 		// options for the repl itself
