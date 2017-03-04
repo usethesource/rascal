@@ -131,6 +131,7 @@ bool argumentMismatch(str stmts, list[str] importedModules = [], list[str] initi
 	check(stmts, [
 		"Function of type _ cannot be called with argument types _", 
 		"Constructor of type _ cannot be built with argument types _",
+		"Constructor accepts _ arguments but was given only _ arguments",
 		"Keyword parameter of type _ cannot be assigned argument of type _",
 		"Unknown keyword parameter passed: _"
 	], importedModules=importedModules, initialDecls=initialDecls);
