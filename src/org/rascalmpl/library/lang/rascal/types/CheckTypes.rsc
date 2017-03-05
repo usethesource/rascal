@@ -7598,6 +7598,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	// so we can see if they have changed
 	map[RName,datetime] currentDates = ( );
 	map[RName,loc] moduleLocations = ( );
+	set[RName] binaryOnly = {};
 	for (imn <- carrier(ig)) {
 		try {
 			chloc = getModuleLocation(prettyPrintName(imn), pcfg);
@@ -7611,6 +7612,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		    // There was no source file, try binary only
 		    if(<true, imloc> := cachedImportsReadLoc(prettyPrintName(imn),pcfg)){
 		       currentDates[imn] = lastModified(imloc);
+		       binaryOnly += imn;
 		    } else {
 			  c = addScopeError(c, "Cannot import module <prettyPrintName(imn)>", md@\loc);
 			}
@@ -7699,6 +7701,8 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		}
 	}
 	
+	dirtyModules -= binaryOnly;    // Reuse binary-only modules without recomputing them
+	
 	// Save the modules that we are recomputing; this is any dirty modules plus anything
 	// that imports them.
 	c.dirtyModules = dirtyModules + igRev[dirtyModules];
@@ -7707,12 +7711,20 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	// for this module is the same as the current last modified date, and we have a config, return
 	// that, we don't need to recompute anything.
 	modifiedDate = now();
+	
 	if (exists(moduleLoc)) {
-		modifiedDate = lastModified(moduleLoc); 
-		mname = prettyPrintName(moduleName);
+	    mname = prettyPrintName(moduleName);
+		modifiedDate = lastModified(moduleLoc);
 		if (isEmpty(c.dirtyModules) && !forceCheck && <true, _> := cachedDateReadLoc(mname, pcfg) && getCachedDate(mname, pcfg) == modifiedDate && <true, _> := cachedConfigReadLoc(mname, pcfg)) {
 			return getCachedConfig(mname, pcfg);
 		}
+	} else {
+	   mname = prettyPrintName(moduleName);
+	   if(isEmpty(c.dirtyModules) && !forceCheck && <true, _> := cachedConfigReadLoc(mname, pcfg)){
+	       return getCachedConfig(mname, pcfg);    // when there is no source, reuse existing config.
+	   } else {
+	     throw "Source file for <mname> is missing; config cannot be reused";
+	   }
 	}
 		
 	// For each of the dirty modules, get the information we will need to check it, including
