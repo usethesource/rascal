@@ -1,3 +1,3 @@
-module experiments::Compiler::Examples::Tst1
+module experiments::Compiler::Examples::Tst1r
 
 int inc(int n) = n + 1;
