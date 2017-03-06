@@ -7607,12 +7607,15 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 				currentDates[imn] = lastModified(chloc);
 			} else {
 				; // TODO: Add a warning here, this means we are importing something that we cannot find
+			      // I think this cannot happen, otherwise getModuleLocation would have failed (PK) 
 			}
 		} catch ex: {
-		    // There was no source file, try binary only
-		    if(<true, imloc> := cachedImportsReadLoc(prettyPrintName(imn),pcfg)){
+		    // There was no source file, try binary config file
+		    
+		    if(<true, imloc> := cachedConfigReadLoc(prettyPrintName(imn),pcfg)){
 		       currentDates[imn] = lastModified(imloc);
 		       binaryOnly += imn;
+		       if (verbose) println("Using binary config for <prettyPrintName(imn)>");
 		    } else {
 			  c = addScopeError(c, "Cannot import module <prettyPrintName(imn)>", md@\loc);
 			}
