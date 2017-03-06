@@ -26,8 +26,9 @@ import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import org.rascalmpl.repl.RascalInterpreterREPL;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 
 // TODO: this interface needs to be split into an external interface, for clients
 // which want to call Rascal from Java, and an internal interface for managing the global

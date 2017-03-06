@@ -13,7 +13,7 @@ package org.rascalmpl.debug;
 
 import java.util.Stack;
 
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public interface IRascalRuntimeInspection {
     /**

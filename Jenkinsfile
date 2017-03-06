@@ -21,7 +21,9 @@ node {
     }
     
     stage('Deploy') {
-      sh "mvn -s ${env.HOME}/usethesource-maven-settings.xml -DskipTests -B deploy"
+      if (env.BRANCH_NAME == "master") {
+        sh "mvn -s ${env.HOME}/usethesource-maven-settings.xml -DskipTests -B deploy"
+      }
     }
     
     stage('Archive') {

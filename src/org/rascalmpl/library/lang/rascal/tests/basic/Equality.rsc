@@ -83,7 +83,7 @@ test bool setTransLTE(set[value] x, set[value] y, set[value] z) = (x <= y && y <
 /*TODO:
 
 java.lang.Exception: Test submapOrdering1 failed due to
-	org.rascalmpl.value.type.IntegerType cannot be cast to org.rascalmpl.value.util.TrieMap$CompactMapNode
+	io.usethesource.vallang.type.IntegerType cannot be cast to io.usethesource.vallang.util.TrieMap$CompactMapNode
 
 Actual parameters:
 	map[value, value] =>(true:("":[]))

@@ -8,7 +8,8 @@ import Type;
 public java value linkAndSerializeProgram(
                     loc rvmProgramLoc,
                     RVMProgram rvmProgram,
-                    bool jvm);
+                    bool jvm, 
+                    map[str,str] classRenamings /* for bootstrapping to a refactored RVM hierarchy */);
                                             
 @javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram}
 @reflect{Uses execution context}

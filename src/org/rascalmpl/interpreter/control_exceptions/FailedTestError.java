@@ -12,7 +12,7 @@
 package org.rascalmpl.interpreter.control_exceptions;
 
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class FailedTestError extends ControlException {
 	private static final long serialVersionUID = 8282771874859604692L;

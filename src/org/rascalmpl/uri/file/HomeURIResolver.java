@@ -13,7 +13,7 @@ package org.rascalmpl.uri.file;
 
 import org.rascalmpl.uri.ILogicalSourceLocationResolver;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class HomeURIResolver implements ILogicalSourceLocationResolver {
 

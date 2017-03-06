@@ -3,11 +3,11 @@ package org.rascalmpl.interpreter.cursors;
 import java.util.Iterator;
 import java.util.Random;
 
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListRelation;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.exceptions.FactTypeUseException;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListRelation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.type.Type;
 
 public class ListCursor extends Cursor implements IList {
 

@@ -22,7 +22,7 @@ import java.util.Set;
 import java.util.function.IntSupplier;
 
 import org.rascalmpl.debug.IDebugMessage.Detail;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public final class DebugHandler implements IDebugHandler {
 

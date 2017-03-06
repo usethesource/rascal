@@ -12,12 +12,12 @@
 package org.rascalmpl.interpreter;
 
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 public class BasicTypeEvaluator {
-	private final static TypeFactory tf = org.rascalmpl.value.type.TypeFactory.getInstance();
+	private final static TypeFactory tf = io.usethesource.vallang.type.TypeFactory.getInstance();
 	private final Type typeArgument;
 	private final IValue[] valueArguments; // for adt, constructor and
 											// non-terminal representations

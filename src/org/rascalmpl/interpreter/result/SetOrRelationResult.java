@@ -18,10 +18,10 @@ import static org.rascalmpl.interpreter.result.ResultFactory.bool;
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {
 

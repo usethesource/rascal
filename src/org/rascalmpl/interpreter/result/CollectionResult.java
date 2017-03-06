@@ -16,9 +16,9 @@ package org.rascalmpl.interpreter.result;
 
 
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.value.IReal;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IReal;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 public class CollectionResult<T extends IValue> extends ElementResult<T> {
 	/*
