@@ -15,10 +15,10 @@ import java.util.Calendar;
 import java.util.Random;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IReal;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IReal;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 
 public class Arbitrary {
 

@@ -2,7 +2,7 @@ package org.rascalmpl.test.infrastructure;
 
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.libraries.ClassResourceInput;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class RascalProjectInput extends ClassResourceInput {
 	private static String projectPrefix = "/src/org/rascalmpl/library";

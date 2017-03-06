@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public abstract class AbstractSourceLocationInputOutputAdapter implements ISourceLocationInputOutput {
     private final ISourceLocationInput input;

@@ -25,6 +25,7 @@ import experiments::Compiler::muRascal2RVM::mu2rvm;
 import lang::rascal::types::TestChecker;
 import lang::rascal::types::CheckerConfig;
 import lang::rascal::types::CheckTypes;
+import lang::rascal::types::CheckModule;
 import lang::rascal::types::AbstractName;
 
 str basename(loc l) = l.file[ .. findFirst(l.file, ".")];  // TODO: for library
@@ -53,12 +54,22 @@ loc getMergedImportsWriteLoc(str mainQualifiedName, PathConfig pcfg){
     return getDerivedWriteLoc(merged_imports_qname, "rvm", pcfg);
 }
 
+loc sourceOrImportsLoc(str qualifiedModuleName, PathConfig pcfg){
+    try {
+        return getModuleLocation(qualifiedModuleName, pcfg);
+    } catch ex: {
+        if(<true, importsLoc> := cachedImportsReadLoc(qualifiedModuleName, pcfg)){
+           return importsLoc;
+        }
+        throw "No source or imports loc found for <qualifiedModuleName>";
+    }
+}
 
 bool validRVM(str qualifiedModuleName, PathConfig pcfg){
 	<existsRvmLoc, rvmLoc> = RVMModuleReadLoc(qualifiedModuleName, pcfg);
 	//println("exists(<rvmLoc>): <exists(rvmLoc)>");
 	//println("lastModified(<rvmLoc>) \>= lastModified(<src>): <lastModified(rvmLoc) >= lastModified(src)>");
-	res = existsRvmLoc && lastModified(rvmLoc) >= lastModified(getModuleLocation(qualifiedModuleName, pcfg));
+	res = existsRvmLoc && lastModified(rvmLoc) >= lastModified(sourceOrImportsLoc(qualifiedModuleName, pcfg));
 	//println("validRVM(<src>) =\> <res>");
 	return res;
 }
@@ -83,14 +94,14 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
         }
         rvmMod = errorRVMModule(qualifiedModuleName, {error("Module not found: <qualifiedModuleName>", |unknown:///|)}, |unknown:///|);
         writeBinaryValueFile(rvmModuleLoc, rvmMod);
-        return <config, rvmMod>;
+        return <newConfiguration(pcfg), rvmMod>;
     }
    	try {
    	    if(verbose) println("rascal2rvm: <moduleLoc>");
    	    start_checking = cpuTime();
    		//M = parse(#start[Module], moduleLoc).top;
    		M = parseModule(moduleLoc);
-   	    config  = checkModule(M, newConfiguration(pcfg));
+   	    config  = checkModule(M, newConfiguration(pcfg), verbose=verbose);
    	    if(reloc != |noreloc:///|){
    	        configWriteLoc = ConfigWriteLoc(qualifiedModuleName, pcfg);
    	        writeBinaryValueFile(configWriteLoc, relocConfig(config, reloc, pcfg.srcs));
@@ -248,25 +259,29 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
     lang::rascal::\syntax::Rascal::Module M;
     int check_time;
     int comp_time;
+    
     moduleLoc = getModuleLocation(qualifiedModuleName, pcfg);
     try {
-        moduleLoc = getModuleLocation(qualifiedModuleName, pcfg);
         if(verbose) println("rascal2rvm: Parsing and incremental checking <moduleLoc>");
         start_checking = cpuTime();
         //M = parse(#start[Module], moduleLoc).top;
         M = parseModule(moduleLoc);
+        println("compile1Incremental, parsing done");
         if(!reuseConfig || previousConfig == noPreviousConfig){
             lang::rascal::\syntax::Rascal::Module M1 = removeMain(M);
-            previousConfig = checkModule(M1, newConfiguration(pcfg));
+            previousConfig = checkModule(M1, newConfiguration(pcfg), verbose=verbose);
             previousConfig.stack = [0]; // make sure we are in the module scope
         } else {
           previousConfig.dirtyModules = {};
         }
+        println("compile1Incremental, before getMain");
         mainDecl = getMain(M);
-        //println("<mainDecl>");
+        println("<mainDecl>");
         
+        println("compile1Incremental, before checkDeclaration");
+        iprintln(previousConfig);
         config  = checkDeclaration(mainDecl, true, previousConfig);
-        //println("checkDeclaration: done");
+        println("checkDeclaration: done");
         check_time = (cpuTime() - start_checking)/1000000;
     } catch e: {
         throw e;

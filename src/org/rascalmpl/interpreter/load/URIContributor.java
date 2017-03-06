@@ -14,7 +14,7 @@ package org.rascalmpl.interpreter.load;
 
 import java.util.List;
 
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 
 public class URIContributor implements IRascalSearchPathContributor {

@@ -1,12 +1,11 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -21,18 +20,18 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMW
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMWireOutputStream;
 import org.rascalmpl.library.util.SemVer;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.io.binary.util.WindowSizes;
-import org.rascalmpl.value.io.binary.wire.IWireInputStream;
-import org.rascalmpl.value.io.binary.wire.binary.BinaryWireInputStream;
-import org.rascalmpl.value.io.binary.wire.binary.BinaryWireOutputStream;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeStore;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.io.binary.util.WindowSizes;
+import io.usethesource.vallang.io.binary.wire.IWireInputStream;
+import io.usethesource.vallang.io.binary.wire.binary.BinaryWireInputStream;
+import io.usethesource.vallang.io.binary.wire.binary.BinaryWireOutputStream;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import com.github.luben.zstd.ZstdInputStream;
@@ -99,7 +98,8 @@ public class RVMExecutable {
 			String uid_module_init,
 			String uid_module_main,
 			IValueFactory vfactory,
-			boolean jvm
+			boolean jvm,
+			final Map<String,String> classRenamings
 			) throws IOException{
 		
 		vf = vfactory;
@@ -125,7 +125,7 @@ public class RVMExecutable {
 		this.uid_module_main = uid_module_main;
 		
 		if(jvm){
-			generateClassFile(false);
+			generateClassFile(false, classRenamings);
 			clearForJVM();
 		}
 	}
@@ -271,9 +271,9 @@ public class RVMExecutable {
 		return packageName + (packageName.isEmpty() ? "" : ".") + className;
 	}
 
-	void generateClassFile(boolean debug) {
+	void generateClassFile(boolean debug, Map<String,String> classRenamings) {
 		try {			
-			BytecodeGenerator codeEmittor = new BytecodeGenerator(functionStore, overloadedStore, functionMap, constructorMap, resolver);
+			BytecodeGenerator codeEmittor = new BytecodeGenerator(functionStore, overloadedStore, functionMap, constructorMap, resolver, classRenamings);
 	
 			codeEmittor.buildClass(getGeneratedPackageName(), getGeneratedClassName(), debug) ;
 
@@ -313,7 +313,7 @@ public class RVMExecutable {
 	        if(compressionLevel > 0){
 	            cout = new ZstdOutputStream(out, compressionLevel);
 	        }
-	        try(IRVMWireOutputStream iout = new RVMWireOutputStream(new BinaryWireOutputStream(cout, 50_000), 50_000)){
+	        try(IRVMWireOutputStream iout = new RVMWireOutputStream(new BinaryWireOutputStream(cout, 50_000), vf, 50_000)){
 	            write(iout);
 	        }
 	    }
@@ -593,7 +593,7 @@ public class RVMExecutable {
 
 	    RVMExecutable ex = new RVMExecutable(module_name, moduleTags, symbol_definitions, functionMap, functionStore, 
 	        constructorMap, constructorStore, resolver, overloadedStore, initializers, uid_module_init, 
-	        uid_module_main, vf, false);
+	        uid_module_main, vf, false, Collections.emptyMap());
 	    ex.setJvmByteCode(jvmByteCode);
 	    ex.setFullyQualifiedDottedName(fullyQualifiedDottedName);
 

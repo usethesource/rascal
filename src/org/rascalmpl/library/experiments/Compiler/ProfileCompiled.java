@@ -2,8 +2,8 @@ package org.rascalmpl.library.experiments.Compiler;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.ProfileFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IValueFactory;
 
 public class ProfileCompiled extends Profile {
 	

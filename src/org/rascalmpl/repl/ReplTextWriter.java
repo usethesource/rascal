@@ -6,9 +6,9 @@ import java.io.StringWriter;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
 import org.fusesource.jansi.Ansi.Color;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.io.StandardTextWriter;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.io.StandardTextWriter;
 
 public class ReplTextWriter extends StandardTextWriter {
 

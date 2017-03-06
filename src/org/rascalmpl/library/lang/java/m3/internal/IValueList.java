@@ -13,8 +13,8 @@ package org.rascalmpl.library.lang.java.m3.internal;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 
 public class IValueList {
 	private final IValueFactory values;

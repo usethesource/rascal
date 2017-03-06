@@ -36,7 +36,7 @@ programmer should take care to call <<unregisterProject>> to prevent memory leak
 }
 void registerProject(loc project, M3 model) {
     rel[str scheme, loc name, loc src] perScheme 
-      = {<name.scheme, name, src> | <name, src> <- model@declarations};
+      = {<name.scheme, name, src> | <name, src> <- model.declarations};
     
     for (str scheme <- perScheme<scheme>)
        registerLocations(scheme, project.authority, (name : src | <name, src> <- perScheme[scheme]));

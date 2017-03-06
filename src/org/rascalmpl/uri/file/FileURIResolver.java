@@ -35,7 +35,7 @@ import org.rascalmpl.uri.BadURIException;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class FileURIResolver implements ISourceLocationInputOutput, IClassloaderLocationResolver {
 	public FileURIResolver(){

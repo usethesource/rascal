@@ -21,10 +21,10 @@ import org.rascalmpl.ast.ProtocolPart;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
 
 public abstract class LocationLiteral extends org.rascalmpl.ast.LocationLiteral {
 

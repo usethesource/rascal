@@ -3,9 +3,9 @@ package org.rascalmpl.shell;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.io.StandardTextWriter;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.io.StandardTextWriter;
 import org.rascalmpl.interpreter.Evaluator;
 
 public class ModuleRunner implements ShellRunner {

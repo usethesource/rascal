@@ -1,7 +1,7 @@
 package org.rascalmpl.interpreter.types;
 
-import org.rascalmpl.value.type.ExternalType;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.type.ExternalType;
+import io.usethesource.vallang.type.Type;
 
 public abstract class RascalType extends ExternalType {
   protected final static RascalTypeFactory RTF = RascalTypeFactory.getInstance();

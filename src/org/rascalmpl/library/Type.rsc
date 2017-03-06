@@ -565,7 +565,7 @@ typeOf(x)
    since values may escape the scope in which they've been constructed leaving their contents possibly undefined.
 }
 @javaClass{org.rascalmpl.library.Type}
-@reflect
+@reflect{Accesses type store}
 public java Symbol typeOf(value v);
 
 @doc{

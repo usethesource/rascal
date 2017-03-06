@@ -1,12 +1,12 @@
 package org.rascalmpl.interpreter.cursors;
 
-import org.rascalmpl.value.IAnnotatable;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IWithKeywordParameters;
-import org.rascalmpl.value.exceptions.FactTypeUseException;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeStore;
+import io.usethesource.vallang.IAnnotatable;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IWithKeywordParameters;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeStore;
 
 public class ConstructorCursor extends NodeCursor implements IConstructor {
 
