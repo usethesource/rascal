@@ -259,9 +259,9 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
     lang::rascal::\syntax::Rascal::Module M;
     int check_time;
     int comp_time;
-
+    
+    moduleLoc = getModuleLocation(qualifiedModuleName, pcfg);
     try {
-        moduleLoc = getModuleLocation(qualifiedModuleName, pcfg);
         if(verbose) println("rascal2rvm: Parsing and incremental checking <moduleLoc>");
         start_checking = cpuTime();
         //M = parse(#start[Module], moduleLoc).top;
