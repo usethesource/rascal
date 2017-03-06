@@ -94,14 +94,14 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
         }
         rvmMod = errorRVMModule(qualifiedModuleName, {error("Module not found: <qualifiedModuleName>", |unknown:///|)}, |unknown:///|);
         writeBinaryValueFile(rvmModuleLoc, rvmMod);
-        return <config, rvmMod>;
+        return <newConfiguration(pcfg), rvmMod>;
     }
    	try {
    	    if(verbose) println("rascal2rvm: <moduleLoc>");
    	    start_checking = cpuTime();
    		//M = parse(#start[Module], moduleLoc).top;
    		M = parseModule(moduleLoc);
-   	    config  = checkModule(M, newConfiguration(pcfg));
+   	    config  = checkModule(M, newConfiguration(pcfg), verbose=verbose);
    	    if(reloc != |noreloc:///|){
    	        configWriteLoc = ConfigWriteLoc(qualifiedModuleName, pcfg);
    	        writeBinaryValueFile(configWriteLoc, relocConfig(config, reloc, pcfg.srcs));
@@ -269,7 +269,7 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
         println("compile1Incremental, parsing done");
         if(!reuseConfig || previousConfig == noPreviousConfig){
             lang::rascal::\syntax::Rascal::Module M1 = removeMain(M);
-            previousConfig = checkModule(M1, newConfiguration(pcfg));
+            previousConfig = checkModule(M1, newConfiguration(pcfg), verbose=verbose);
             previousConfig.stack = [0]; // make sure we are in the module scope
         } else {
           previousConfig.dirtyModules = {};
