@@ -219,7 +219,7 @@ import IO;
 iprint(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
 ----
 }
-@reflect{for getting IO streams}
+@reflect{For getting IO streams}
 @javaClass{org.rascalmpl.library.Prelude}
 public java void iprint(value arg, int lineLimit = 1000); 
 
@@ -304,7 +304,7 @@ iprintln(["fruits", ("spider" : 8, "snake" : 0), [10, 20, 30]]);
 iprintln([ {"hi"} | i <- [0..1000]], lineLimit = 10);
 ----
 }
-@reflect{for getting IO streams}
+@reflect{For getting IO streams}
 @javaClass{org.rascalmpl.library.Prelude}
 public java void iprintln(value arg, int lineLimit = 1000); 
 
@@ -398,7 +398,7 @@ glued to the output of `print`.
 }
 
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{for getting IO streams}
+@reflect{For getting IO streams}
 public java void print(value arg);
 
 @doc{
@@ -462,11 +462,11 @@ println();
 ----
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{for getting IO streams}
+@reflect{For getting IO streams}
 public java void println(value arg);
 
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{for getting IO streams}
+@reflect{For getting IO streams}
 public java void println();
 
 @doc{
@@ -504,7 +504,7 @@ Raw print of a value.
 This function is only available for internal use in the Rascal development team.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{for getting IO streams}
+@reflect{For getting IO streams}
 public java void rprint(value arg);
 
     
@@ -518,7 +518,7 @@ Raw print of a value followed by newline.
 This function is only available for internal use in the Rascal development team.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{for getting IO streams}
+@reflect{For getting IO streams}
 public java void rprintln(value arg);
 
 @doc{

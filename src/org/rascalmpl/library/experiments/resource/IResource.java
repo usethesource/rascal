@@ -11,8 +11,8 @@ import java.util.List;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ResourceResult;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.type.Type;
 
 public interface IResource {
 

@@ -7,8 +7,8 @@ import java.util.Map;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IValue;
 
 /**
  * Builder for constructing RascalExecutionContexts.

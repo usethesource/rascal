@@ -38,11 +38,11 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.semantics.dynamic.QualifiedName;
 import org.rascalmpl.semantics.dynamic.Tree;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.INode;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.INode;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
@@ -204,7 +204,7 @@ public class Cases  {
 		@Override
 		public boolean matchAndEval(IEvaluator<Result<IValue>> eval, Result<IValue> subject) {
 			IValue value = subject.getValue();
-			org.rascalmpl.value.type.Type subjectType = value
+			io.usethesource.vallang.type.Type subjectType = value
 					.getType();
 
 			if (subjectType.isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isAppl((org.rascalmpl.values.uptr.ITree) value)) {
@@ -356,7 +356,7 @@ public class Cases  {
 		@Override
 		public boolean matchAndEval(IEvaluator<Result<IValue>> eval, Result<IValue> subject) {
 			IValue value = subject.getValue();
-			org.rascalmpl.value.type.Type subjectType = value
+			io.usethesource.vallang.type.Type subjectType = value
 					.getType();
 
 			if (subjectType.isSubtypeOf(TF.nodeType())) {

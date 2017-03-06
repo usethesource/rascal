@@ -12,7 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public interface ITestResultListener{
 	void start(String context, int count);

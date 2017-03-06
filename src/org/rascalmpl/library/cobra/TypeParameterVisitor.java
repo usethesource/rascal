@@ -2,9 +2,9 @@ package org.rascalmpl.library.cobra;
 
 import java.util.HashMap;
 
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.ITypeVisitor;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.ITypeVisitor;
+import io.usethesource.vallang.type.Type;
 
 public class TypeParameterVisitor implements ITypeVisitor<IValue,RuntimeException> {
 	

@@ -5,8 +5,8 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FunctionInstan
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Reference;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IValue;
 import org.rascalmpl.values.uptr.ITree;
 
 public class TraversalState {

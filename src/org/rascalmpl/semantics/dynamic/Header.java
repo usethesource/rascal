@@ -21,9 +21,9 @@ import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.ast.Tags;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
 
 public abstract class Header extends org.rascalmpl.ast.Header {
 

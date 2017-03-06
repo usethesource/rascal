@@ -78,33 +78,33 @@ import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.LogicalMapResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IDateTime;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.IMapWriter;
-import org.rascalmpl.value.INode;
-import org.rascalmpl.value.IRational;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISetWriter;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.ITuple;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.exceptions.FactTypeUseException;
-import org.rascalmpl.value.io.StandardTextReader;
-import org.rascalmpl.value.io.StandardTextWriter;
-import org.rascalmpl.value.io.binary.stream.IValueInputStream;
-import org.rascalmpl.value.io.binary.stream.IValueOutputStream;
-import org.rascalmpl.value.io.binary.stream.IValueOutputStream.CompressionRate;
-import org.rascalmpl.value.io.old.BinaryValueReader;
-import org.rascalmpl.value.io.old.BinaryValueWriter;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeStore;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IDateTime;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IMapWriter;
+import io.usethesource.vallang.INode;
+import io.usethesource.vallang.IRational;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.io.StandardTextReader;
+import io.usethesource.vallang.io.StandardTextWriter;
+import io.usethesource.vallang.io.binary.stream.IValueInputStream;
+import io.usethesource.vallang.io.binary.stream.IValueOutputStream;
+import io.usethesource.vallang.io.binary.stream.IValueOutputStream.CompressionRate;
+import io.usethesource.vallang.io.old.BinaryValueReader;
+import io.usethesource.vallang.io.old.BinaryValueWriter;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeStore;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -116,6 +116,8 @@ import com.ibm.icu.text.SimpleDateFormat;
 import com.ibm.icu.util.Calendar;
 import com.ibm.icu.util.TimeZone;
 import com.ibm.icu.util.ULocale;
+
+import static org.rascalmpl.values.uptr.RascalValueFactory.TYPE_STORE_SUPPLIER;
 
 @SuppressWarnings("deprecation")
 public class Prelude {
@@ -3407,7 +3409,7 @@ public class Prelude {
 		TypeStore store = new TypeStore(RascalValueFactory.getStore());
 		Type start = tr.valueToType((IConstructor) type, store);
 		
-		try (IValueInputStream in = new IValueInputStream(URIResolverRegistry.getInstance().getInputStream(loc), values)) {
+		try (IValueInputStream in = new IValueInputStream(URIResolverRegistry.getInstance().getInputStream(loc), values, TYPE_STORE_SUPPLIER)) {
 			IValue val = in.read();;
 			if(val.getType().isSubtypeOf(start)){
 				return val;
@@ -3494,7 +3496,7 @@ public class Prelude {
 
     public void writeBinaryValueFile(ISourceLocation loc, IValue value, IBool compression){
         // TODO: transient for boot
-		try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), CompressionRate.Normal)) {
+		try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), values, CompressionRate.Normal)) {
 		    writer.write(value);
 		}
 		catch (IOException ioex){
@@ -3506,7 +3508,7 @@ public class Prelude {
     public void writeBinaryValueFile(ISourceLocation loc, IValue value, IConstructor compression){
     	if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
         // ready for after new boot
-		try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), translateCompression(compression))) {
+		try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), values, translateCompression(compression))) {
 		    writer.write(value);
 		}
 		catch (IOException ioex){

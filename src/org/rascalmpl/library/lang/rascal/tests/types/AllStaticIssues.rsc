@@ -274,16 +274,11 @@ test bool Issue480(){
  				value main() = (!(ellipse(inner=emptyFigure(fillColor=\"red\")).fillColor == \"white\"));");
 	return checkOK("true;", importedModules=["MMM"]);
 } 
- 
-// https://github.com/cwi-swat/rascal/issues/482
-
-test bool Issue482() =                                       // TODO: it is possible that there are also real errors in APIGen
-	checkModuleOK(|std:///APIGen.rsc|);
 	
 // https://github.com/cwi-swat/rascal/issues/483
 
 test bool Issue483() =                                       // TODO: it is possible that there are also real errors in Ambiguity
-	checkModuleOK(|std:///Ambiguity.rsc|);
+	checkModuleOK(|std:///analysis::grammars::Ambiguity.rsc|);
 	
 	
 // https://github.com/cwi-swat/rascal/issues/491

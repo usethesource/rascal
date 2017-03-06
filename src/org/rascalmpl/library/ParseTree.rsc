@@ -438,20 +438,15 @@ catch ParseError(loc l): {
 ----
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{uses information about syntax definitions at call site}
+@reflect{Uses information about syntax definitions at call site}
 public java &T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false);
 
-//@experimental
-//@javaClass{org.rascalmpl.library.Prelude}
-//@reflect{uses information about syntax definitions at call site}
-//public java &T<:Tree parse(type[&T<:Tree] begin, map[Production robust, CharClass lookaheads] recovery, str input, loc origin);
-
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{uses information about syntax definitions at call site}
+@reflect{Uses information about syntax definitions at call site}
 public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false);
 
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{uses information about syntax definitions at call site}
+@reflect{Uses information about syntax definitions at call site}
 public java &T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false);
 
 @doc{
@@ -505,7 +500,7 @@ saveParser(|file:///tmp/Exp.jar|); //<2>
 <2> Save the parser to a JAR file.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-@reflect{uses evaluator's parser interface}
+@reflect{Uses evaluator's parser interface}
 public java str saveParser(loc outFile);
 
 @javaClass{org.rascalmpl.library.Prelude}

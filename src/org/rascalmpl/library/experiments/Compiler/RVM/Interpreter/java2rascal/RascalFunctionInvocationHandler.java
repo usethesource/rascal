@@ -23,7 +23,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFu
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IValue;
 
 /**
  * Handle the invocation of Rascal functions from Java

@@ -14,7 +14,7 @@ package org.rascalmpl.uri;
 import java.io.IOException;
 import java.nio.charset.Charset;
 
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public interface ISourceLocationInputOutput extends 
         ISourceLocationInput,

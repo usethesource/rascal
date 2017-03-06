@@ -19,7 +19,7 @@ import java.util.HashMap;
 import org.rascalmpl.ast.Expression.CallOrTree;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.type.Type;
 
 class ConcreteAmbiguityPattern extends AbstractMatchingResult {
 

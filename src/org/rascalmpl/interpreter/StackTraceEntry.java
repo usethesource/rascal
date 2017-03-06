@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.rascalmpl.interpreter;
 
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 class StackTraceEntry {
 	private final ISourceLocation loc;

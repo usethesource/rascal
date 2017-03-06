@@ -15,8 +15,8 @@ package org.rascalmpl.interpreter.matching;
 
 import java.util.Iterator;
 
-import org.rascalmpl.value.ITuple;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValue;
 
 public class TupleElementIterator implements Iterator<IValue> {
 	private ITuple tuple;

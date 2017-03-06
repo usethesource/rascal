@@ -15,10 +15,10 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize;
 import java.io.IOException;
 import java.util.Map;
 
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.io.binary.util.WindowSizes;
-import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.io.binary.util.WindowSizes;
+import io.usethesource.vallang.io.binary.wire.IWireOutputStream;
+import io.usethesource.vallang.type.Type;
 
 public interface IRVMWireOutputStream extends IWireOutputStream {
     
