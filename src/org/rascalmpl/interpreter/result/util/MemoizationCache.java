@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IValue;
 
 public class MemoizationCache<TResult> {
 	

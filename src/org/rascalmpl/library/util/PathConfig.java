@@ -13,12 +13,12 @@ import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.library.lang.rascal.boot.IJava2Rascal;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class PathConfig {
@@ -31,8 +31,9 @@ public class PathConfig {
 	private final List<ISourceLocation> javaCompilerPath;     // List of (library) locations to search for course source files
 	private final List<ISourceLocation> classloaders;     // List of (library) locations to search for course source files
     
-	private ISourceLocation bin; 			// Global location for derived files outside projects or libraries
-	private ISourceLocation boot;			// Location with Rascal boot files
+	private final ISourceLocation bin;  // Global location for derived files outside projects or libraries
+	private final ISourceLocation boot; // Location with Rascal boot files
+	private final ISourceLocation repo; // Global location for finding installed Rascal packages
 
 	private static ISourceLocation defaultStd;
 	private static List<ISourceLocation> defaultCourses;
@@ -40,6 +41,8 @@ public class PathConfig {
 	private static List<ISourceLocation> defaultClassloaders;
 	private static ISourceLocation defaultBin;
 	private static ISourceLocation defaultBoot;
+	private static ISourceLocation defaultRepo;
+    
 	
 	static {
 		try {
@@ -47,6 +50,7 @@ public class PathConfig {
 			defaultStd =  vf.sourceLocation("std", "", "");
 			defaultBin = vf.sourceLocation("home", "", "bin");
 			defaultBoot = vf.sourceLocation("boot", "", "");
+			defaultRepo = vf.sourceLocation("home","",".r2d2");
 			defaultCourses = Arrays.asList(vf.sourceLocation("courses", "", ""));
 			defaultJavaCompilerPath = computeDefaultJavaCompilerPath();
 			defaultClassloaders = computeDefaultClassLoaders();
@@ -60,9 +64,12 @@ public class PathConfig {
 		courses = defaultCourses;
 		bin = defaultBin;
 		boot = defaultBoot;
+		// TODO: this should be |std:///| and |bin:///| by default, after
+		// the boot folder will not contain the library anymore. 
 		libs = Arrays.asList(bin, boot);
 		javaCompilerPath = defaultJavaCompilerPath;
 		classloaders = defaultClassloaders;
+		repo = defaultRepo;
 	}
 	
 	private static List<ISourceLocation> computeDefaultClassLoaders() {
@@ -109,6 +116,10 @@ public class PathConfig {
     }
 	
 	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, ISourceLocation boot, List<ISourceLocation> courses, List<ISourceLocation> javaCompilerPath, List<ISourceLocation> classloaders){
+	    this(srcs, libs, bin, boot, courses, javaCompilerPath, classloaders, defaultRepo);
+	}
+	
+	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, ISourceLocation boot, List<ISourceLocation> courses, List<ISourceLocation> javaCompilerPath, List<ISourceLocation> classloaders, ISourceLocation repo){
 		this.srcs = srcs;
 		this.courses = courses;
 		this.libs = libs;
@@ -116,6 +127,7 @@ public class PathConfig {
 		this.boot = boot;
 		this.javaCompilerPath = javaCompilerPath;
 		this.classloaders = classloaders;
+		this.repo = repo;
 	}
 	
 	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot){
@@ -123,16 +135,18 @@ public class PathConfig {
         this.libs = convertLocs(libs);
         this.bin = bin;
         this.boot = boot;
+        this.repo = defaultRepo;
         this.courses = defaultCourses;
         this.javaCompilerPath = defaultJavaCompilerPath;
         this.classloaders = defaultClassloaders;
     }
 	
-	public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList courses){
+	public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList courses, ISourceLocation repo){
         this.srcs = convertLocs(srcs);
         this.libs = convertLocs(libs);
         this.bin = bin;
         this.boot = defaultBoot;
+        this.repo = defaultRepo;
         this.courses = convertLocs(courses);
         this.javaCompilerPath = defaultJavaCompilerPath;
         this.classloaders = defaultClassloaders;
@@ -146,6 +160,7 @@ public class PathConfig {
         this.courses = convertLocs(courses);
         this.javaCompilerPath = defaultJavaCompilerPath;
         this.classloaders = defaultClassloaders;
+        this.repo = defaultRepo;
     }
 	
 	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot, IList courses, IList javaCompilerPath){
@@ -156,6 +171,7 @@ public class PathConfig {
         this.courses = convertLocs(courses);
         this.javaCompilerPath = convertLocs(javaCompilerPath);
         this.classloaders = defaultClassloaders;
+        this.repo = defaultRepo;
     }
 	
 	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot, IList courses, IList javaCompilerPath, IList classloaders){
@@ -166,6 +182,18 @@ public class PathConfig {
         this.courses = convertLocs(courses);
         this.javaCompilerPath = convertLocs(javaCompilerPath);
         this.classloaders = convertLocs(classloaders);
+        this.repo = defaultRepo;
+    }
+	
+	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot, IList courses, IList javaCompilerPath, IList classloaders, ISourceLocation repo){
+        this.srcs = convertLocs(srcs);
+        this.libs = convertLocs(libs);
+        this.bin = bin;
+        this.boot = boot;
+        this.courses = convertLocs(courses);
+        this.javaCompilerPath = convertLocs(javaCompilerPath);
+        this.classloaders = convertLocs(classloaders);
+        this.repo = repo;
     }
 	
 	List<ISourceLocation> convertLocs(IList locs){
@@ -194,6 +222,10 @@ public class PathConfig {
 	
 	public static ISourceLocation getDefaultBoot(){
         return defaultBoot;
+    }
+	
+	public static ISourceLocation getDefaultRepo() {
+        return defaultRepo;
     }
 	
 	public static List<ISourceLocation> getDefaultJavaCompilerPath() {
@@ -321,6 +353,10 @@ public class PathConfig {
         return boot;
     }
 	
+	public ISourceLocation getRepo() {
+	    return repo;
+	}
+	
 	public ISourceLocation getBin() {
         return bin;
     }
@@ -368,6 +404,16 @@ public class PathConfig {
 	            }
 	            return moduleName.replace("/", "::");
 	        }
+	    }
+	    
+	    for (ISourceLocation dir : libs) {
+	        if(modulePath.startsWith(dir.getPath()) && moduleLoc.getScheme() == dir.getScheme()){
+                String moduleName = modulePath.replaceFirst(dir.getPath(), "").replace(".tc", "");
+                if(moduleName.startsWith("/")){
+                    moduleName = moduleName.substring(1, moduleName.length());
+                }
+                return moduleName.replace("/", "::");
+            }
 	    }
 	    
 	    throw new IOException("No module name found for " + moduleLoc);
@@ -434,13 +480,13 @@ public class PathConfig {
 	
 	public String toString(){
 	  StringWriter w = new StringWriter();
-      w.append("srcs:    ").append(getSrcs().toString()).append("\n")
-       .append("libs:    ").append(getLibs().toString()).append("\n")
-       .append("courses: ").append(getCourses().toString()).append("\n")
-       .append("boot:    ").append(getBoot().toString()).append("\n")
-       .append("bin:     ").append(getBin().toString()).append("\n")
-       .append("clsspath:").append(getJavaCompilerPath().toString()).append("\n")
-       .append("loaders: ").append(getClassloaders().toString()).append("\n")
+      w.append("srcs:      ").append(getSrcs().toString()).append("\n")
+       .append("libs:      ").append(getLibs().toString()).append("\n")
+       .append("courses:   ").append(getCourses().toString()).append("\n")
+       .append("boot:      ").append(getBoot().toString()).append("\n")
+       .append("bin:       ").append(getBin().toString()).append("\n")
+       .append("classpath: ").append(getJavaCompilerPath().toString()).append("\n")
+       .append("loaders:   ").append(getClassloaders().toString()).append("\n")
        ;
        
       return w.toString();

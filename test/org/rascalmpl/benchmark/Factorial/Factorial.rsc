@@ -14,45 +14,6 @@ import IO;
 import util::Benchmark;
 
 /*
-import Ambiguity;
-import APIGen;
-import ATermIO;
-import AUT;
-import Boolean;
-import DateTime;
-import Exception;
-import FileSystem;
-import Grammar;
-import  analysis::graphs::Graph;
-import HTMLIO;
-import util::Math;
-import Javac;
-import LabeledGraph;
-import List;
-import Map;
-import Message;
-import Node;
-import Origins;
-import ParseTree;
-import PriorityQueue;
-import Real;
-import Reflective;
-import Relation;
-import RSF;
-import Scripting;
-import Set;
-import SourceHierarchy;
-import String;
-import SystemAPI;
-import Time;
-import ToString;
-import ValueIO;
-import XMLDOM;
-import XMLIO;
-import vis::Figure;
-*/
-
-/*
  * fac -- function definition for factorial
  */
 

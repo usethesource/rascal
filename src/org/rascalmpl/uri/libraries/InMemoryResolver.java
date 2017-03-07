@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentNavigableMap;
 
 import org.rascalmpl.uri.FileTree;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 /**
  * This resolver is used for example for the scheme "test-modules", which amongst others 

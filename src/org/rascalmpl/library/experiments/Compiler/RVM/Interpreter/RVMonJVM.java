@@ -12,20 +12,25 @@
 
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.lang.invoke.CallSite;
+import java.lang.invoke.ConstantCallSite;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RVMonJVM extends RVMCore {
@@ -41,7 +46,8 @@ public class RVMonJVM extends RVMCore {
 	public Frame root; // Root frame of a program
 	Thrown thrown;
 	
-//	public static Function[] staticFunctionStore;
+	//EXPERIMENTAL
+	public static Function[] staticFunctionStore;
 
 	// TODO : ccf, cccf and activeCoroutines needed to allow exception handling in coroutines. :(
 	
@@ -56,7 +62,7 @@ public class RVMonJVM extends RVMCore {
 
 	public RVMonJVM(RVMExecutable rvmExec, RascalExecutionContext rex) {
 		super(rvmExec, rex);
-//		staticFunctionStore = functionStore;
+		staticFunctionStore = functionStore;
 	}
 	
 	/************************************************************************************/
@@ -65,7 +71,7 @@ public class RVMonJVM extends RVMCore {
 	
 	/* (non-Javadoc)
 	 * Implements abstract function for RVMonJVM
-	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function, org.rascalmpl.value.IValue[], java.util.Map)
+	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function, io.usethesource.vallang.IValue[], java.util.Map)
 	 */
 	@Override
 	public Object executeRVMFunction(Function func, IValue[] posArgs, Map<String,IValue> kwArgs){
@@ -101,7 +107,7 @@ public class RVMonJVM extends RVMCore {
 
 	/* (non-Javadoc)
 	 * Implements abstract function for RVMonJVM
-	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FunctionInstance, org.rascalmpl.value.IValue[])
+	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FunctionInstance, io.usethesource.vallang.IValue[])
 	 */
 	@Override
 	public IValue executeRVMFunction(FunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs) {
@@ -147,7 +153,7 @@ public class RVMonJVM extends RVMCore {
 	
 	/* (non-Javadoc)
 	 * Implements abstract function for RVMonJVM
-	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunctionInstance, org.rascalmpl.value.IValue[])
+	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunctionInstance, io.usethesource.vallang.IValue[])
 	 */
 	@Override
 	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs){		
@@ -215,7 +221,7 @@ public class RVMonJVM extends RVMCore {
 	
 	/* (non-Javadoc)
 	 * Implements abstract function for RVMonJVM
-	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMProgram(java.lang.String, java.lang.String, org.rascalmpl.value.IValue[], java.util.HashMap)
+	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMProgram(java.lang.String, java.lang.String, io.usethesource.vallang.IValue[], java.util.HashMap)
 	 */
 	@Override
 	public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] posArgs, Map<String,IValue> kwArgs) {
@@ -339,16 +345,14 @@ public class RVMonJVM extends RVMCore {
 	/************************************************************************************************/
 //EXPERIMENTAL	
 //	public static CallSite bootstrapGetFrame(MethodHandles.Lookup caller, String name, MethodType type, Object arg) throws NoSuchMethodException, IllegalAccessException {
-//	    System.err.println("bootstrapGetFrame");
 //	    MethodHandles.Lookup lookup = MethodHandles.lookup();
 //	    Function func = staticFunctionStore[(Integer)arg];
 //	    MethodType getFrameType = MethodType.methodType(Frame.class, Function.class, Frame.class, int.class, int.class);
 //
 //	    MethodHandle getFrame = lookup.findVirtual(Frame.class, "getFrame", getFrameType);
-//	    MethodHandle getFrame1 = MethodHandles.filterArguments(getFrame, 1, null, MethodHandles.constant(Function.class, func));
+//	    MethodHandle getFrame1 = MethodHandles.insertArguments(getFrame, 1, func);
+//	    MethodHandle getFrame2 = MethodHandles.insertArguments(getFrame1, 2, func.nformals);
 //	    
-//	    MethodHandle getFrame2 = MethodHandles.filterArguments(getFrame1, 1, MethodHandles.constant(int.class, func.nformals));
-//	    System.err.println(getFrame2);
 //	    return new ConstantCallSite(getFrame2.asType(type));
 //	}
 

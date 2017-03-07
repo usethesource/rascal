@@ -41,12 +41,13 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.TestExecutor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.uri.ILogicalSourceLocationResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
@@ -80,6 +81,30 @@ public class RascalJUnitCompiledTestRunner extends Runner {
         this.prefix = clazz.getAnnotation(RascalJUnitTestPrefix.class).value().replaceAll("\\\\", "");
         this.pcfg = initializePathConfig();
         this.IGNORED_DIRECTORIES = initializeIgnoredDirectories();
+        
+        URIResolverRegistry reg = URIResolverRegistry.getInstance();
+        if (!reg.getRegisteredInputSchemes().contains("project")) {
+            reg.registerLogical(new ILogicalSourceLocationResolver() {
+                ISourceLocation root = vf.sourceLocation(Paths.get(".").toAbsolutePath().toString().replaceFirst("\\.", ""));
+                
+                @Override
+                public String scheme() {
+                    return "project";
+                }
+                
+                @Override
+                public ISourceLocation resolve(ISourceLocation input) {
+                    return URIUtil.getChildLocation(root, input.getPath());
+                }
+                
+                @Override
+                public String authority() {
+                    return "rascal";
+                }
+            });
+            
+            pcfg.addLibLoc(URIUtil.correctLocation("project", "rascal", "bin"));
+        }
         
         System.err.println(pcfg);
     }
@@ -142,20 +167,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 
     private PathConfig initializePathConfig() {
         ISourceLocation rootProject = vf.sourceLocation(Paths.get(".").toAbsolutePath().toString().replaceFirst("\\.", ""));
-        assert "file".equals(rootProject.getScheme());
-
-        List<ISourceLocation> libs = new ArrayList<>();
-        List<ISourceLocation> srcs = new ArrayList<>();
-
-        ISourceLocation binFolder = URIUtil.getChildLocation(rootProject, "bin");
-        libs.add(binFolder);
-
-        RascalManifest mf = new RascalManifest();
-        for (String src : mf.getManifestSourceRoots(mf.manifest(rootProject))) {
-            srcs.add(URIUtil.getChildLocation(rootProject, src));
-        }
-
-        return new PathConfig(srcs, libs, binFolder);
+        return new RascalManifest().makePathConfig(rootProject);
     }
 
     @Override

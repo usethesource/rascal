@@ -16,6 +16,8 @@ package org.rascalmpl.uri;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,6 +26,7 @@ import java.io.OutputStream;
 import java.io.Reader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -36,8 +39,8 @@ import java.util.regex.Pattern;
 import org.rascalmpl.unicode.UnicodeInputStreamReader;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class URIResolverRegistry {
@@ -153,16 +156,17 @@ public class URIResolverRegistry {
 	}
 
 	private static InputStream makeBuffered(InputStream original) {
-		if (original.getClass() != BufferedInputStream.class) {
-			return new BufferedInputStream(original);
-		}
-		return original;
+	    if (original instanceof BufferedInputStream || original instanceof ByteArrayInputStream) {
+	        return original;
+	    }
+		return new BufferedInputStream(original);
 	}
+
 	private static OutputStream makeBuffered(OutputStream original) {
-		if (original.getClass() != BufferedOutputStream.class) {
-			return new BufferedOutputStream(original);
-		}
-		return original;
+	    if (original instanceof BufferedOutputStream || original instanceof ByteArrayOutputStream) {
+	        return original;
+	    }
+	    return new BufferedOutputStream(original);
 	}
 	
 	/**
@@ -356,6 +360,24 @@ public class URIResolverRegistry {
 		}
 		return resolver.supportsHost();
 	}
+	
+	public boolean supportsReadableFileChannel(ISourceLocation uri) {
+	    uri = safeResolve(uri);
+	    ISourceLocationInput resolver = getInputResolver(uri.getScheme());
+	    if (resolver == null) {
+	        return false;
+	    }
+	    return resolver.supportsReadableFileChannel();
+	}
+	
+	public boolean supportsWritableFileChannel(ISourceLocation uri) {
+        uri = safeResolve(uri);
+        ISourceLocationOutput resolver = getOutputResolver(uri.getScheme());
+        if (resolver == null) {
+            return false;
+        }
+        return resolver.supportsWritableFileChannel();
+    }
 
 	public boolean exists(ISourceLocation uri) {
 		if (logicalResolvers.containsKey(uri.getScheme())) {
@@ -503,6 +525,18 @@ public class URIResolverRegistry {
 		return makeBuffered(resolver.getInputStream(uri));
 	}
 
+	public FileChannel getReadableFileChannel(ISourceLocation uri) throws IOException {
+	    uri = safeResolve(uri);
+	    ISourceLocationInput resolver = getInputResolver(uri.getScheme());
+
+	    if (resolver == null || !resolver.supportsReadableFileChannel()) {
+	        throw new UnsupportedSchemeException(uri.getScheme());
+	    }
+
+	    return resolver.getReadableFileChannel(uri);
+	}
+
+	
 
 	public Charset getCharset(ISourceLocation uri) throws IOException {
 		uri = safeResolve(uri);
@@ -530,6 +564,23 @@ public class URIResolverRegistry {
 		mkParentDir(uri);
 
 		return makeBuffered(resolver.getOutputStream(uri, append));
+	}
+	
+	public FileChannel getWriteableFileChannel(ISourceLocation uri, boolean append) throws IOException {
+	    uri = safeResolve(uri);
+	    ISourceLocationOutput resolver = getOutputResolver(uri.getScheme());
+
+	    if (resolver == null || !resolver.supportsWritableFileChannel()) {
+	        throw new UnsupportedSchemeException(uri.getScheme());
+	    }
+
+	    if (uri.getPath() != null && uri.getPath().startsWith("/..")) {
+	        throw new IllegalArgumentException("Can not navigate beyond the root of a URI: " + uri);
+	    }
+
+	    mkParentDir(uri);
+
+	    return resolver.getWritableOutputStream(uri, append);
 	}
 
 	private void mkParentDir(ISourceLocation uri) throws IOException {

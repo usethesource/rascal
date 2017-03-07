@@ -1,11 +1,11 @@
 package org.rascalmpl.interpreter.cursors;
 
 import org.rascalmpl.library.util.Cursor;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.IWithKeywordParameters;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.IWithKeywordParameters;
 
 public class WithKeywordParametersContext extends Context {
 	private Context ctx;

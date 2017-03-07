@@ -47,3 +47,63 @@ int generateAndTimePicoParser() {
 value main() = generateAndTimePicoParser();
 
 test bool tstgeneratePicoParser() = sameLines(generatePicoParser(), readFile(PicoParserLoc));
+
+test bool cntChoice1()      {cnt = 0; visit(Pico){ case choice(_,_): cnt += 1; }; return cnt == 15; }
+test bool cntChoice2()      = size([x | /x:choice(_,_) := Pico]) == 15;
+
+test bool cntLex1()         {cnt = 0; visit(Pico){ case lex(_): cnt += 1; }; return cnt == 20; }
+test bool cntLex2()         = size([x | /x:lex(_) := Pico]) == 20;
+
+test bool cntEmpty1()       {cnt = 0; visit(Pico){ case empty(): cnt += 1; }; return cnt == 3; }
+test bool cntEmpty2()       = size([x | /x:empty() := Pico]) == 3;
+
+test bool cntSort1()        {cnt = 0; visit(Pico){ case sort(_): cnt += 1; }; return cnt == 52; }
+test bool cntSort2()        = size([x | /x:sort(_) := Pico]) == 52;
+
+test bool cntLit1()         {cnt = 0; visit(Pico){ case lit(_): cnt += 1; }; return cnt == 30; }
+test bool cntLit2()         = size([x | /x:lit(_) := Pico]) == 30;
+
+test bool cntLabel1()       {cnt = 0; visit(Pico){ case label(_,_): cnt += 1; }; return cnt == 38; }
+test bool cntLabel2()       = size([x | /x:label(_,_) := Pico]) == 38;
+
+test bool cntCharClass1()   {cnt = 0; visit(Pico){ case \char-class(_): cnt += 1; }; return cnt == 9; }
+test bool cntCharClass2()   = size([x | /x:\char-class(_) := Pico]) == 9;
+                        
+test bool cntProd1()        {cnt = 0; visit(Pico){ case \prod(_,_,_): cnt += 1; }; return cnt == 25; }
+test bool cntProd2()        = size([x | /x:\prod(_,_,_) := Pico]) == 25;
+
+test bool cntEmptyList1()   {cnt = 0; visit(Pico){ case []: cnt += 1; }; return cnt == 2; }
+test bool cntEmptyList2()   = size([x | /x:[] := Pico]) == 2;
+                         
+test bool cntList1()        {cnt = 0; visit(Pico){ case [*value s]: cnt += 1; }; return cnt == 40; }
+test bool cntList2()        = size([x | /x:[*value s] := Pico]) == 40;
+
+test bool cntEmptySet1()    {cnt = 0; visit(Pico){ case {}: cnt += 1; }; return cnt == 19; }
+test bool cntEmptySet2()    = size([x | /x:{} := Pico]) == 19;
+
+test bool cntSet1()         {cnt = 0; visit(Pico){ case {*value s}: cnt += 1; }; return cnt == 45; }
+test bool cntSet2()         = size([x | /x:{*value s} := Pico]) == 45;
+@ignoreInterpreter{gives wrong answer 1186}
+test bool cntStr1()         {cnt = 0; visit(Pico){ case str s: cnt += 1; }; return cnt == 187; }
+test bool cntStr2()         = size([x | /x:str s := Pico]) == 187;
+
+test bool cntInt1()         {cnt = 0; visit(Pico){ case int n: cnt += 1; }; return cnt == 38; }
+test bool cntInt2()         = size([x | /x:int n := Pico]) == 38;
+
+test bool cntIter1()        {cnt = 0; visit(Pico){ case \iter(_): cnt += 1; }; return cnt == 2; }
+test bool cntIter2()        = size([x | /x:\iter(_) := Pico]) == 2;
+
+test bool cntIterStar1()    {cnt = 0; visit(Pico){ case \iter-star(_): cnt += 1; }; return cnt == 4; }
+test bool cntIterStar2()    = size([x | /x:\iter-star(_) := Pico]) == 4;
+
+test bool cntIterSeps1()    {cnt = 0; visit(Pico){ case \iter-seps(_,_): cnt += 1; }; return cnt == 0; }
+test bool cntIterSeps2()    = size([x | /x:\iter-seps(_,_) := Pico]) == 0;
+
+test bool cntIterStarSeps1(){cnt = 0; visit(Pico){ case \iter-star-seps(_,_): cnt += 1; }; return cnt == 5; }
+test bool cntIterStarSeps2()= size([x | /x: \iter-star-seps(_,_) := Pico]) == 5;
+
+test bool cntConditional1() {cnt = 0; visit(Pico){ case \conditional(_,_): cnt += 1; }; return cnt == 3; }
+test bool cntConditional2() = size([x | /x:\conditional(_,_) := Pico]) == 3;
+
+test bool cntRange1()       {cnt = 0; visit(Pico){ case \range(_,_): cnt += 1; }; return cnt == 19; }
+test bool cntRange2()       = size([x | /x:\range(_,_) := Pico]) == 19;

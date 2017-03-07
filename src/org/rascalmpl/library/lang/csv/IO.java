@@ -8,7 +8,6 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -20,24 +19,24 @@ import org.rascalmpl.library.Prelude;
 import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.ITuple;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.IWriter;
-import org.rascalmpl.value.exceptions.FactParseError;
-import org.rascalmpl.value.exceptions.UnexpectedTypeException;
-import org.rascalmpl.value.io.StandardTextReader;
-import org.rascalmpl.value.type.DefaultTypeVisitor;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
-import org.rascalmpl.value.type.TypeStore;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.IWriter;
+import io.usethesource.vallang.exceptions.FactParseError;
+import io.usethesource.vallang.exceptions.UnexpectedTypeException;
+import io.usethesource.vallang.io.StandardTextReader;
+import io.usethesource.vallang.type.DefaultTypeVisitor;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 public class IO {
 	private static final TypeFactory types = TypeFactory.getInstance();
@@ -231,7 +230,7 @@ public class IO {
 				rec[i] = values.string(rec[i].toString());
 			}
 		}
-		return values.tuple(tupleType, rec);
+		return values.tuple(rec);
 	}
 
 	private IValue readAndBuild(Reader stream, Type actualType, TypeStore store, IEvaluatorContext ctx) throws IOException {
@@ -517,17 +516,19 @@ public class IO {
 	
 	/**
 	 * Normalize a label in the header for use in the relation type.
-	 * The name is escaped to avoid conflicts with Rascal keywords.
-	 * @param label	The string found in the header
-	 * @param pos	Position in the header
-	 * @return		The label (with non-fieldname characters removed) or "field<pos>" when empty
+	 *
+	 * @param label the string found in the header
+	 * @param pos position in the header
+	 * @return the label (with non-fieldname characters removed) or "field<pos>" when empty
 	 */
-	private String normalizeLabel(String label, int pos){
-		label = label.replaceAll("[^a-zA-Z0-9]+", "");
-		if(label.isEmpty())
-			return "field" + pos;
-		else 
-		  return "\\" + label;
+	private String normalizeLabel(final String label, final int pos) {
+	    final String normalizedLabel = label.replaceAll("[^a-zA-Z0-9]+", "");
+
+	    if (!normalizedLabel.isEmpty()) {
+	        return normalizedLabel;
+	    } else {
+	        return "field" + pos;
+	    }
 	}
 }
 

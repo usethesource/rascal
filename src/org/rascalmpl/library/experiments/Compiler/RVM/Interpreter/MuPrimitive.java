@@ -15,7 +15,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -23,23 +22,23 @@ import java.util.regex.PatternSyntaxException;
 import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantMatchIterator;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IInteger;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.INode;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISetWriter;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.ITuple;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.exceptions.FactTypeUseException;
-import org.rascalmpl.value.impl.AnnotatedConstructorFacade;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.INode;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.impl.AnnotatedConstructorFacade;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory.AnnotatedAmbFacade;
@@ -1975,11 +1974,7 @@ public enum MuPrimitive {
 	public static final MuPrimitive[] values = MuPrimitive.values();
 	
 	private static final HashSet<IValue> emptyMset = new HashSet<IValue>(0);
-	
-	private static final boolean profileMuPrimitives = false;
-
-	private static final long timeSpent[] = new long[values.length];
-	
+		
 	public static MuPrimitive fromInteger(int muprim) {
 		return values[muprim];
 	}
@@ -2006,31 +2001,8 @@ public enum MuPrimitive {
     public int executeN(final Object[] stack, final int sp, final int arity) {
 	  throw RascalRuntimeException.notImplemented("MuPrimitive.executeN " + name(), null, null);
 	}
-	
-	public static void recordTime(int n, long duration){
-		timeSpent[n] += duration;
-	}
 
 	public static void exit(PrintWriter out) {
-		if(profileMuPrimitives){
-			printProfile(out);
-		}
-	}
-	
-	static void printProfile(PrintWriter out){
-		out.println("\nMuPrimitive execution times (ms)");
-		long total = 0;
-		TreeMap<Long,String> data = new TreeMap<Long,String>();
-		for(int i = 0; i < values.length; i++){
-			if(timeSpent[i] > 0 ){
-				data.put(timeSpent[i], values[i].name());
-				total += timeSpent[i];
-			}
-		}
-	
-		for(long t : data.descendingKeySet()){
-			out.printf("%30s: %3d%% (%d ms)\n", data.get(t), t * 100 / total, t);
-		}
 	}
 	
 	// Bootstrap method used for invokeDynamic on MuPrimitives, see BytecoeGenerator

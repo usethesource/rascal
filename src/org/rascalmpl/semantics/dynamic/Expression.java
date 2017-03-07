@@ -88,17 +88,17 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.IMapWriter;
-import org.rascalmpl.value.ISetWriter;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IMapWriter;
+import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
@@ -2307,8 +2307,17 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			eval.setCurrentAST(this);
 			eval.notifyAboutSuspension(this);			
 
-			final IMap gr = (IMap) eval.getEvaluator().getGrammar(eval.getCurrentEnvt()).get("rules");
 			Type t = getType().typeOf(eval.getCurrentEnvt(), false, eval);
+			IMap gr = eval.__getVf().mapWriter().done();
+			
+			if (!t.isTop()) {
+			    // if t == value then let's not call the parser generator.
+			    // the reason is that #value occurs in the parser generator itself
+			    // so this would trigger an infinite cascade of parser generators loading
+			    // each other
+			    gr = (IMap) eval.getEvaluator().getGrammar(eval.getCurrentEnvt()).get("rules");
+			}
+			
 			IConstructor value = new TypeReifier(eval.__getVf()).typeToValue(t, eval.getCurrentEnvt().getStore(), gr);
 			
 			// the static type of a reified type is always equal to its dynamic type

@@ -31,13 +31,13 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Profiler;
 import org.rascalmpl.parser.gtd.IGTD;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 
@@ -70,7 +70,7 @@ public class ParserGenerator {
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Literals");
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Parameters");
 			evaluator.doImport(monitor, "lang::rascal::grammar::definition::Symbols");
-			evaluator.doImport(monitor, "Ambiguity");
+			evaluator.doImport(monitor, "analysis::grammars::Ambiguity");
 		}
 		finally {
 			monitor.endJob(true);

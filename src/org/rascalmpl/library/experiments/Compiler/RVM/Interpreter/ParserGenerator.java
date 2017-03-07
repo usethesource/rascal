@@ -27,21 +27,21 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;	// remove impo
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.JavaBridge;					// remove import: NO
 import org.rascalmpl.parser.gtd.IGTD;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
-import org.rascalmpl.value.type.TypeStore;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class ParserGenerator {
-   private Evaluator evaluator;
+  private Evaluator evaluator;
   private final JavaBridge bridge;
   private final IValueFactory vf;
   private final TypeFactory tf;
@@ -52,10 +52,6 @@ public class ParserGenerator {
   private static final String packageName = "org.rascalmpl.java.parser.object";
   private static final boolean debug = false;
   private static final boolean useCompiledParserGenerator = true;
-
-  static {
-
-  }
 
   public ParserGenerator(RascalExecutionContext rex) throws IOException {
     this.vf = rex.getValueFactory();
@@ -110,7 +106,7 @@ public class ParserGenerator {
           evaluator.doImport(monitor, "lang::rascal::grammar::definition::Literals");
           evaluator.doImport(monitor, "lang::rascal::grammar::definition::Parameters");
           evaluator.doImport(monitor, "lang::rascal::grammar::definition::Symbols");
-          evaluator.doImport(monitor, "Ambiguity");
+          evaluator.doImport(monitor, "analysis::grammars::Ambiguity");
         }
         finally {
           monitor.endJob(true);
@@ -205,7 +201,7 @@ public class ParserGenerator {
       } catch (Throw e) {
         throw new CompilerError("parser generator: " + e.getMessage(), e);
       } catch (Thrown e) {
-        throw new CompilerError("parser generator: " + e.getMessage(), e);
+        throw new CompilerError("parser generator: " + e.value, e);
       } catch (Throwable e) {
         throw new CompilerError("parser generator: " + e.getMessage(), e);  
       } finally {

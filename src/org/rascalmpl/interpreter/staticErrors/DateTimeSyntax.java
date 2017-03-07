@@ -12,7 +12,7 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.staticErrors;
 
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class DateTimeSyntax extends StaticError {
 

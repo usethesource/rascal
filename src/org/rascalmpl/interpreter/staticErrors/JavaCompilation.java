@@ -12,7 +12,7 @@
 package org.rascalmpl.interpreter.staticErrors;
 
 import org.rascalmpl.ast.AbstractAST;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class JavaCompilation extends StaticError {
 	private static final long serialVersionUID = 3200356264732532487L;

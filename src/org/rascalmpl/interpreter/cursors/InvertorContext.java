@@ -1,8 +1,8 @@
 package org.rascalmpl.interpreter.cursors;
 
 import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 public class InvertorContext extends Context {
 	private final Context ctx;

@@ -29,11 +29,11 @@ import org.rascalmpl.library.experiments.Compiler.Commands.CommandOptions;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
 import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
@@ -239,7 +239,6 @@ public class CourseCompiler {
          .help("Directory for Rascal binaries")
          
          .locOption("boot")         
-         .respectNoDefaults()
          .help("Rascal boot directory")
          
          .boolOption("all")
@@ -265,8 +264,7 @@ public class CourseCompiler {
 		Path coursesSrcPath = Paths.get(((ISourceLocation)pcfg.getCourses().get(0)).getPath());
 		Path libSrcPath = Paths.get(((ISourceLocation)pcfg.getSrcs().get(0)).getPath());
 		
-		System.out.println("coursesSrcPath: " + coursesSrcPath);
-		System.out.println("libSrcPath: " + libSrcPath);
+		System.out.println(pcfg);
 		
 		Path destPath = Paths.get(((ISourceLocation)pcfg.getBin()).getPath()).resolve("courses");
 		copyStandardFiles(coursesSrcPath, destPath);

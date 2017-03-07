@@ -24,13 +24,18 @@ import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 import org.rascalmpl.uri.BadURIException;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class FileURIResolver implements ISourceLocationInputOutput, IClassloaderLocationResolver {
 	public FileURIResolver(){
@@ -134,4 +139,41 @@ public class FileURIResolver implements ISourceLocationInputOutput, IClassloader
 	public Charset getCharset(ISourceLocation uri) throws IOException {
 		return null;
 	}
+	
+	@Override
+	public boolean supportsReadableFileChannel() {
+	    return true;
+	}
+	
+	@Override
+	public FileChannel getReadableFileChannel(ISourceLocation uri) throws IOException {
+	    String path = getPath(uri);
+	    if (path != null) {
+	        return FileChannel.open(new File(path).toPath(), StandardOpenOption.READ);
+	    }
+	    throw new IOException("uri has no path: " + uri);
+	}
+	
+	@Override
+	public boolean supportsWritableFileChannel() {
+	    return true;
+	}
+	
+	@Override
+	public FileChannel getWritableOutputStream(ISourceLocation uri, boolean append) throws IOException {
+	    String path = getPath(uri);
+	    if (path != null) {
+	        OpenOption[] options;
+	        if (append) {
+	            options = new OpenOption[] { StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ, StandardOpenOption.APPEND };
+	        }
+	        else {
+	            options = new OpenOption[] { StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.READ };
+	        }
+	        return FileChannel.open(new File(path).toPath(), options);
+	    }
+	    throw new IOException("uri has no path: " + uri);
+	}
+	
+
 }

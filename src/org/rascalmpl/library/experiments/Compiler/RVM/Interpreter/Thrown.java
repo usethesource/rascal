@@ -2,9 +2,9 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
 
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 
 public class Thrown extends RuntimeException {

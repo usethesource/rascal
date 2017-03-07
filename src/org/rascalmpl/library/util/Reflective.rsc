@@ -80,11 +80,11 @@ data PathConfig
   = pathConfig(list[loc] srcs = [|std:///|],        // List of directories to search for source files
                list[loc] courses = [|courses:///|], // List of locations to search for course source files
                loc bin = |home:///bin/|,            // Global directory for derived files outside projects
-               loc boot = |boot:///|/*|boot+compressed:///|*/,    // Directory with Rascal boot files
-                                                    // List of directories to search source for derived files
-               list[loc] libs = [|home:///bin/|, |boot:///|],
+               loc boot = |boot:///| ,          // Directory with Rascal boot files
+               loc repo = |home:///.r2d2|,      // Directory for installed Rascal jar packages                                                 
+               list[loc] libs = [|home:///bin/|],          // List of directories to search source for derived files
                list[loc] javaCompilerPath = [], // TODO: must generate the same defaults as in PathConfig 
-               list[loc] classloaders = []  // TODO: must generate the same defaults as in PathConfig      
+               list[loc] classloaders = []      // TODO: must generate the same defaults as in PathConfig
               );
 
 data RascalManifest
@@ -165,7 +165,7 @@ loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
     throw "Module <qualifiedModuleName> not found";
 }
 
-@reflect{need to get the configuration from the evaluation context}
+@reflect{Need to get the configuration from the evaluation context}
 @javaClass{org.rascalmpl.library.util.Reflective}
 java str getRascalClasspath();
 
@@ -187,6 +187,20 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
            return moduleName;
         }
     }
+    
+     for(loc dir <- pcfg.libs){
+        if(startsWith(modulePath, dir.path) && moduleLoc.scheme == dir.scheme){
+           moduleName = replaceFirst(modulePath, dir.path, "");
+           moduleName = replaceLast(moduleName, ".tc", "");
+           if(moduleName[0] == "/"){
+              moduleName = moduleName[1..];
+           }
+           moduleName = replaceAll(moduleName, "/", "::");
+           return moduleName;
+        }
+    }
+    
+    
     throw "No module name found for <moduleLoc>";
 }
 

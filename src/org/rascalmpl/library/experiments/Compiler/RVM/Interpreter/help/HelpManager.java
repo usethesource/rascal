@@ -30,7 +30,7 @@ import org.rascalmpl.library.experiments.tutor3.Onthology;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public class HelpManager {
 	
@@ -51,7 +51,7 @@ public class HelpManager {
       this.stderr = stderr;
       this.ideServices = ideServices;
      
-      ISourceLocation binDir = pcfg.getBoot();
+      ISourceLocation binDir = pcfg.getBin();
       coursesDir = URIUtil.correctLocation(binDir.getScheme(), binDir.getAuthority(), binDir.getPath() + "/courses");
 
       try {

@@ -2,9 +2,9 @@ package org.rascalmpl.interpreter.cursors;
 
 import java.util.Iterator;
 
-import org.rascalmpl.value.ITuple;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.exceptions.FactTypeUseException;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
 
 public class TupleCursor extends Cursor implements ITuple {
 

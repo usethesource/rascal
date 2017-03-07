@@ -16,6 +16,7 @@ module lang::rascal::tests::library::ValueIOTests
 import ValueIO;
 import IO;
 import util::Reflective;
+import util::UUID;
 
 data Bool(str def = "2") = btrue() | bfalse(bool falsity = true) | band(Bool left, Bool right) | bor(Bool left, Bool right);
 
@@ -25,11 +26,13 @@ alias X[&T] = list[&T];
 
 alias Y = int;
 
+loc value_io_test = |test-temp:///value-io-<"<uuidi()>">.test|;
+
 /*TODO: cleanup generated files as in Java version */
 
 private bool  binaryWriteRead(type[&T] typ, value exp) {
-   writeBinaryValueFile(|test-temp:///value-io.test|,exp);
-   if (&T N := readBinaryValueFile(|test-temp:///value-io.test|) && N == exp) return true;
+   writeBinaryValueFile(value_io_test,exp);
+   if (&T N := readBinaryValueFile(value_io_test) && N == exp) return true;
    return false;
    }
    
@@ -62,16 +65,18 @@ test bool binParametrizedAdt2() = binaryWriteRead(#Maybe[int], some(1));
 test bool binParamAliasListInt() = binaryWriteRead(#X[int], [1]);
  
 test bool binParamAliasInt() = binaryWriteRead(#Y, 1);
- 
+
+loc value_io2_test = |test-temp:///value-io2-<"<uuidi()>">.test|;
+
 private bool textWriteRead(type[&T] typ, value exp) {
-   writeTextValueFile(|test-temp:///value-io2.temp|,exp);
-   if (&T N := readTextValueFile(|test-temp:///value-io2.temp|) && N == exp) return true;
+   writeTextValueFile(value_io2_test,exp);
+   if (&T N := readTextValueFile(value_io2_test) && N == exp) return true;
    return false;
    }
    
 private bool textWriteRead1(type[&T] typ, value exp) {
-   writeTextValueFile(|test-temp:///value-io2.temp|,exp);
-   if (&T N := readTextValueFile(typ, |test-temp:///value-io2.temp|) && N == exp) return true;
+   writeTextValueFile(value_io2_test,exp);
+   if (&T N := readTextValueFile(typ, value_io2_test) && N == exp) return true;
    return false;
    }
    
@@ -117,9 +122,11 @@ test bool listBinary(list[value] v) = binaryWriteRead(#list[value], v);
 test bool tupleBinary(tuple[value,value,value] v) = binaryWriteRead(#tuple[value,value,value], v);
 test bool numBinary(num v) = binaryWriteRead(#num, v);
 
+loc compression_off = |test-temp:///compression-off-<"<uuidi()>">.test|;
+
 test bool disablingCompressionWorks(value v) {
-   writeBinaryValueFile(|test-temp:///compression-off.test|,v, compression=false);
-   return readBinaryValueFile(|test-temp:///compression-off.test|) == v;
+   writeBinaryValueFile(compression_off,v, compression=false);
+   return readBinaryValueFile(compression_off) == v;
 }
 
 data NestedValue
@@ -128,30 +135,34 @@ data NestedValue
 	| inItself(NestedValue nv)
 	;
 
+loc compression_shared = |test-temp:///compression-shared-<"<uuidi()>">.test|;
+
 @maxDepth{20}
 test bool disablingCompressionWorksWithSharedValues(set[NestedValue] a, set[NestedValue] b, NestedValue c, value d) {
 	lab = [a,b];
 	joined = <a,b,inAList(lab), inASet({a,c}), inAList([lab, d])>;
-   writeBinaryValueFile(|test-temp:///compression-shared.test|, joined, compression=false);
-   return readBinaryValueFile(|test-temp:///compression-shared.test|) == joined;
+   writeBinaryValueFile(compression_shared, joined, compression=false);
+   return readBinaryValueFile(compression_shared) == joined;
 }
+
+loc parsetree1 = |test-temp:///parsetree1-<"<uuidi()>">.test|;
 
 test bool writingParseTreeWorks() {
 	t = parseNamedModuleWithSpaces("lang::rascal::syntax::Rascal");
-	writeBinaryValueFile(|test-temp:///parsetree1|, t);
-	return readBinaryValueFile(|test-temp:///parsetree1|) == t;
+	writeBinaryValueFile(parsetree1, t);
+	return readBinaryValueFile(parsetree1) == t;
 }
 test bool writingParseTreeWorksWithoutCompression() {
 	t = parseNamedModuleWithSpaces("lang::rascal::syntax::Rascal");
-	writeBinaryValueFile(|test-temp:///parsetree1|, t, compression=false);
-	return readBinaryValueFile(|test-temp:///parsetree1|) == t;
+	writeBinaryValueFile(parsetree1, t, compression=false);
+	return readBinaryValueFile(parsetree1) == t;
 }
 
 // Reified types
  
 private bool  binaryWriteRead(type[&T] typ) {
-   writeBinaryValueFile(|test-temp:///value-io.test|,typ);
-   rtyp = readBinaryValueFile(|test-temp:///value-io.test|);
+   writeBinaryValueFile(value_io_test,typ);
+   rtyp = readBinaryValueFile(value_io_test);
    if (type[&T] N := rtyp && N == typ) return true;
    return false;
 }

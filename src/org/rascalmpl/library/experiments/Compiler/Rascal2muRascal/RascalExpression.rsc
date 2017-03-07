@@ -885,7 +885,7 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	if(optimizing()){
 	   tc = getTypesAndConstructorsInVisit(cases);
 	   <reachable_syms, reachable_prods> = getReachableTypes(subjectType, tc.constructors, tc.types, concreteMatch);
-	   //println("reachableTypesInVisit: <reachable>");
+	   //println("reachableTypesInVisit: <reachable_syms>, <reachable_prods>");
 	}
 	
 	descriptor = muCallPrim3("make_descendant_descriptor", [muCon(phi_fuid), muCon(reachable_syms), muCon(reachable_prods), muCon(concreteMatch), muCon(getDefinitions())], \visit.subject@\loc);
@@ -1991,11 +1991,11 @@ MuExp translate(e:(Expression) `*<Expression argument>`) {
 // -- asType expression ---------------------------------------------
 
 MuExp translate(e:(Expression) `[ <Type typ> ] <Expression argument>`)  =
-   muCallPrim3("parse", [muCon(getModuleName()), 
+ muCallPrim3("parse", [muCon(getModuleName()), 
    					    muCon(type(symbolToValue(translateType(typ)).symbol,getGrammar())), 
    					    translate(argument)], 
    					    argument@\loc);
-   
+  
 // -- composition expression ----------------------------------------
 
 MuExp translate(e:(Expression) `<Expression lhs> o <Expression rhs>`) = 

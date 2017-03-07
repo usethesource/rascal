@@ -2,16 +2,21 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.DefaultTestResultListener;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ExecutionTools {
@@ -49,7 +54,7 @@ public class ExecutionTools {
 					 IBool jvm	
     ) throws IOException {
 		
-		return link(rvmProgram, jvm);
+		return link(rvmProgram, jvm, vf.mapWriter().done());
 	}
 	
 	// Read a RVMExecutable from file
@@ -62,14 +67,22 @@ public class ExecutionTools {
 	
 	public static RVMExecutable link(
 			 	IConstructor rvmProgram,
-			 	IBool jvm
+			 	IBool jvm, IMap classRenamings
 	) throws IOException {
 
 		RVMLinker linker = new RVMLinker(vf);
-		return linker.link(rvmProgram,	jvm.getValue());
+		return linker.link(rvmProgram,	jvm.getValue(), convertMap(classRenamings));
 	}
 		
-	public static IValue executeProgram(RVMExecutable executable, Map<String, IValue> keywordArguments, RascalExecutionContext rex){
+	private static Map<String,String> convertMap(IMap classRenamings) {
+        Map<String, String> result = new HashMap<>();
+        for (IValue k : classRenamings) {
+            result.put(((IString) k).getValue(), ((IString) classRenamings.get(k)).getValue());
+        }
+        return Collections.unmodifiableMap(result);
+    }
+
+    public static IValue executeProgram(RVMExecutable executable, Map<String, IValue> keywordArguments, RascalExecutionContext rex){
 		RVMCore rvm = rex.getJVM() ? new RVMJVM(executable, rex) : new RVMInterpreter(executable, rex);
 		
 		Map<IValue, IValue> moduleVariables = rex.getModuleVariables();
@@ -132,7 +145,7 @@ public class ExecutionTools {
 			rvm.getFrameObserver().report();
 
 			//rex.printCacheStats();
-			System.out.println("Executing: " + (now - start)/1000000 + "ms");
+			//System.out.println("Executing: " + (now - start)/1000000 + "ms");
 			return (IValue) result;
 			
 //		} catch(Thrown e) {

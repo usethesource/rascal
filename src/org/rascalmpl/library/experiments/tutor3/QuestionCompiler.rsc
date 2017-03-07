@@ -14,7 +14,6 @@ import util::Reflective;
 import DateTime;
 import ParseTree;
 
-import Ambiguity;
 import experiments::tutor3::Questions;
 import experiments::tutor3::ParseQuestions;
 import experiments::tutor3::ValueGenerator;
@@ -299,6 +298,8 @@ str process(str text, (Question) `<CodeQuestion q>`, PathConfig pcfg){
                                     '");
     }
     if(prep_holes){
+        println("prep_holes: <prep_executed>");
+        
         runTests(questionId, prep_executed, pcfg);
         return codeQuestionMarkup(questionId, text, "module Question<questionId>
                                     '<prep_quoted>
@@ -555,6 +556,7 @@ value eval(int questionId, str exp, str setup, PathConfig pcfg) {
 void runTests(int questionId, str mbody, PathConfig pcfg){
     Q = makeQuestion(questionId, pcfg);
     msrc = "module Question<questionId> <mbody>";
+    println(msrc);
     writeFile(Q, msrc);
     try {
        //compileAndLink("Question<questionId>", pcfg); 

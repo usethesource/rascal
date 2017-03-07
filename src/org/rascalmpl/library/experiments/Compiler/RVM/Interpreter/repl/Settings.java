@@ -20,11 +20,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.exceptions.FactTypeUseException;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import com.google.gson.JsonArray;
@@ -38,20 +38,24 @@ public class Settings {
   JsonObject jobject;
   IValueFactory vf;
 
-  Settings () {
+  Settings (boolean useSettings) {
       vf = ValueFactoryFactory.getValueFactory();
       Path cwd = Paths.get(System.getProperty("user.home"));
       Path settings = cwd.resolve("settings.json");
       JsonElement jsettings;
-      try {
-          jsettings = new JsonParser().parse(new InputStreamReader(Files.newInputStream(settings)));
-          jobject = jsettings.getAsJsonObject();
-          return;
-      } catch (JsonSyntaxException | IOException e) {
+      if(useSettings){
+          try {
+              jsettings = new JsonParser().parse(new InputStreamReader(Files.newInputStream(settings)));
+              jobject = jsettings.getAsJsonObject();
+              return;
+          } catch (JsonSyntaxException | IOException e) {
+              System.err.println("Could not read settings, using defaults");
+          }
+      } else {
           System.err.println("Using default settings");
-          jsettings = new JsonParser().parse("{}");
-          jobject = jsettings.getAsJsonObject();
       }
+      jsettings = new JsonParser().parse("{}");
+      jobject = jsettings.getAsJsonObject();
   }
 
   boolean getBool(String accessor, boolean def){

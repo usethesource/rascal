@@ -2,7 +2,6 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,19 +20,19 @@ import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.IMapWriter;
-import org.rascalmpl.value.INode;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISetWriter;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IMapWriter;
+import io.usethesource.vallang.INode;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.type.Type;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -48,10 +47,10 @@ public class ParsingTools {
 	private final IValueFactory vf;
 	
 	//TODO this cache can move to RascalexecutionContext once we are fully boostrapped and independent of the Interpreter:
-	// reason: parseFragment called from the interpreter creates a new REX and destrouys caching.
+	// reason: parseFragment called from the interpreter creates a new REX and destroys caching.
 	private Cache<IValue,  Class<IGTD<IConstructor, ITree, ISourceLocation>>> parserCache;
 	private final int parserCacheSize = 30;
-	private final boolean paserCacheEnabled = true;
+	private final boolean parserCacheEnabled = true;
 
     /**
      * @param vf    required to build parse trees
@@ -62,7 +61,7 @@ public class ParsingTools {
 		this.vf = vf;
 		parserCache = Caffeine.newBuilder()
 			    .weakValues()
-				.maximumSize(paserCacheEnabled ? parserCacheSize : 0)
+				.maximumSize(parserCacheEnabled ? parserCacheSize : 0)
 				.build();
 	}
 	
@@ -151,6 +150,7 @@ public class ParsingTools {
 			throw new CompilerError("Undeclared non-terminal: " + e.getName() + ", " + e.getClassName(), currentFrame);
 		}
 		catch (Exception e) {
+		    e.printStackTrace();
 			throw new CompilerError("Unexpected exception:" + e, currentFrame);
 		}
 	}

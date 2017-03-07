@@ -17,7 +17,7 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IValue;
 
 
 public class BasicBooleanResult extends AbstractBooleanResult {

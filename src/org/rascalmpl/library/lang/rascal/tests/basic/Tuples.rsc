@@ -1,6 +1,5 @@
 module lang::rascal::tests::basic::Tuples
   
-import Tuple;
  
 test bool subscription(tuple[&A] T) = <T[0]> == T;
 test bool subscription(tuple[&A, &B] T) = <T[0], T[1]> == T;

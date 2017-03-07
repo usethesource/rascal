@@ -11,9 +11,9 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.ResourceResult;
 import org.rascalmpl.library.experiments.resource.resources.BaseResource;
 import org.rascalmpl.library.experiments.resource.results.FileResult;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 public class File extends BaseResource {
 

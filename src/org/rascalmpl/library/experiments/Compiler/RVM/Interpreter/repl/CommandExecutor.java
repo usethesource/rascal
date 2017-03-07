@@ -45,21 +45,21 @@ import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.repl.LimitedWriter;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IList;
-import org.rascalmpl.value.IListWriter;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.IMapWriter;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IString;
-import org.rascalmpl.value.ITuple;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.exceptions.FactTypeUseException;
-import org.rascalmpl.value.io.StandardTextWriter;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IMapWriter;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.io.StandardTextWriter;
+import io.usethesource.vallang.type.Type;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -138,7 +138,7 @@ public class CommandExecutor {
 		vf = ValueFactoryFactory.getValueFactory();
 		prelude = new Prelude(vf);
 		
-		settings = new Settings();
+		settings = new Settings(false);   // TODO: definition solution when we introduce generic Config files
 	
 		this.pcfg = settings.getPathConfig(pcfg).addSourceLoc(vf.sourceLocation("test-modules", "", ""));
 		
@@ -382,7 +382,7 @@ public class CommandExecutor {
 																	  .verbose(compile_verbose)
 																	  .jvm(true)
 																	);
-			rvmConsoleExecutable = ExecutionTools.link(rvmProgram, ValueFactoryFactory.getValueFactory().bool(true));
+			rvmConsoleExecutable = ExecutionTools.link(rvmProgram,vf.bool(true), vf.mapWriter().done());
 
 			if(noErrors(rvmConsoleExecutable)){
 				RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(pcfg, stdout, stderr)

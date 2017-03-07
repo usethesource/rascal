@@ -31,11 +31,13 @@ import java.util.stream.Stream;
 import org.rascalmpl.library.util.Reflective;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.io.binary.stream.IValueInputStream;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.io.binary.stream.IValueInputStream;
 import org.rascalmpl.values.ValueFactoryFactory;
+
+import static org.rascalmpl.values.uptr.RascalValueFactory.TYPE_STORE_SUPPLIER;
 
 /**
  * This program is intended to be executed directly from maven; it downloads a previous version of Rascal from a hard-wired location and uses 
@@ -52,7 +54,6 @@ public class Bootstrap {
             "lang::rascal::tests::basic::Equality",
             "lang::rascal::tests::basic::Exceptions",
             "lang::rascal::tests::basic::Functions",
-            "lang::rascal::tests::basic::Matching",
             "lang::rascal::tests::basic::Integers",
             "lang::rascal::tests::basic::IO",
             "lang::rascal::tests::basic::IsDefined",
@@ -66,7 +67,10 @@ public class Bootstrap {
             "lang::rascal::tests::basic::Relations",
             "lang::rascal::tests::basic::Sets",
             "lang::rascal::tests::basic::Strings",
-            "lang::rascal::tests::basic::Tuples",
+            "lang::rascal::tests::basic::Tuples" };
+    
+    private static final String[] syntaxTestModules = { 
+            "lang::rascal::tests::basic::Matching",
             "lang::rascal::tests::functionality::ConcreteSyntaxTests1",
             "lang::rascal::tests::functionality::ConcreteSyntaxTests2",
             "lang::rascal::tests::functionality::ConcreteSyntaxTests3",
@@ -232,10 +236,12 @@ public class Bootstrap {
        
         time("Bootstrap:", () -> {
             try { 
+                
                 String[] rvm    = new String[] { 
                         getDeployedVersion(tmpDir, versionToUse).toAbsolutePath().toString(), // this is the released jar
-                        targetFolder + ":" + /*deps*/ classpath // this is the pre-compiled target folder with the new RVM implementation 
+                        targetFolder + ":" + /*deps*/ classpath /* this is the pre-compiled target folder with the new RVM implementation */  
                 };
+                
                 
                 String[] kernel = new String[] {
                         "|boot:///|",  // This is retrieved from the released jar
@@ -243,16 +249,24 @@ public class Bootstrap {
                         phaseFolderString(2, tmpDir),  
                         phaseFolderString(3, tmpDir)
                 };
-                   
+                  
                 if (!realBootstrap) {
-                  FileSystem jar = FileSystems.newFileSystem(new URI("jar:file", rvm[0], null), Collections.singletonMap("create", true));
-                  time("Copying downloaded files", () -> copyJar(jar.getPath("boot"), targetFolder));
+                  time("Copying downloaded files", () -> copyJar(jarFileSystem(rvm[0]).getPath("boot"), targetFolder));
                   System.exit(0);
                 }
                 
                 /*------------------------------------------,-CODE---------,-RVM---,-KERNEL---,-TESTS--*/
-                time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[1], "|noreloc:///|"));               
-                time("Phase 2", () -> compilePhase(tmpDir, 2, librarySource, rvm[1], kernel[1], rvm[1], "|std:///|"));
+                time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[1], "|noreloc:///|"));
+                
+                // Identify jars that contain new names and should be included in the classpath
+                String renamedJars = System.getProperty("user.home") 
+                    + "/.m2/repository/io/usethesource/vallang/0.7.0-SNAPSHOT/vallang-0.7.0-SNAPSHOT.jar";
+                if(!renamedJars.isEmpty()){
+                    rvm[0] += ":" + renamedJars;
+                    rvm[1] += ":" + renamedJars;
+                }
+                
+                time("Phase 2", () -> compilePhase(tmpDir, 2, librarySource, rvm[0], kernel[1], rvm[1], "|std:///|"));
                 
                 if(validatingBootstrap){
                   time("Phase 3", () -> compilePhase(tmpDir, 3, librarySource, rvm[1], kernel[2], rvm[1], "|std:///|"));
@@ -291,6 +305,10 @@ public class Bootstrap {
             } 
         });
         printTimings();
+    }
+
+    private static FileSystem jarFileSystem(String jarFile) throws IOException, URISyntaxException {
+        return FileSystems.newFileSystem(new URI("jar", new File(jarFile).toURI().toString(), null), Collections.singletonMap("create", true));
     }
 
     private static void initializeShutdownhook() {
@@ -450,18 +468,41 @@ public class Bootstrap {
 
       time("- compile MuLibrary",       () -> compileMuLibrary(phase, classPath, bootPath, sourcePath, result));
       time("- compile Kernel",          () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel", reloc));
-      time("- compile ParserGenerator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator", reloc));
-     
-      time("- compile tests",           () -> compileTests    (phase, classPath, result.toAbsolutePath().toString(), sourcePath, testResults));
-      time("- run tests",               () -> runTests        (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, testResults));
+
+      if (phase == 1) {
+          // the new parser generator would refer to classes which may not exist yet. Subce stage 2 we still run against this old version
+          // we now copy an old version of the generator to be used in phase 2.
+          copyParserGenerator(jarFileSystem(classPath).getRootDirectories().iterator().next(), result);
+      }
+      else {
+          time("- compile ParserGenerator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator", reloc));
+      }
+
+      if (phase > 2) {
+          // phase 1 tests often fail for no other reason than an incompatibility.
+          time("- compile simple tests",           () -> compileTests    (phase, classPath, result.toAbsolutePath().toString(), sourcePath, testResults, testModules));
+          time("- run simple tests",               () -> runTests        (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, testResults, testModules));
+      }
+      
+      if (phase > 2) {
+          // phase 2 tests can not succeed in case the parser generator changed, so we can only test this after phase 3 has completed
+          time("- compile simple tests",           () -> compileTests    (phase, classPath, result.toAbsolutePath().toString(), sourcePath, testResults, syntaxTestModules));
+          time("- run simple tests",               () -> runTests        (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, testResults, syntaxTestModules));
+      }
+      
+      
       return result;
+    }
+
+    private static void copyParserGenerator(Path jar, Path result) throws IOException {
+        Files.copy(jar.resolve("boot/lang/rascal/grammar/ParserGenerator.rvmx"), result.resolve("lang/rascal/grammar/ParserGenerator.rvmx"));
     }
 
     private static String[] concat(String[]... arrays) {
         return Stream.of(arrays).flatMap(Stream::of).toArray(sz -> new String[sz]);
     }
     
-    private static void compileTests(int phase, String classPath, String boot, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage {
+    private static void compileTests(int phase, String classPath, String boot, String sourcePath, Path result, String[] testModules) throws IOException, InterruptedException, BootstrapMessage {
         progress("\tcompiling tests (phase " + phase +")");
         String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
         String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[] {};
@@ -496,7 +537,7 @@ public class Bootstrap {
         }
     }
     
-    private static void runTests(int phase, String classPath, String boot, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage {
+    private static void runTests(int phase, String classPath, String boot, String sourcePath, Path result, String[] testModules) throws IOException, InterruptedException, BootstrapMessage {
         progress("Running tests with the results of " + phase);
         if (phase == 1) return;
         String[] javaCmd = new String[] {"java", "-ea", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests" };
@@ -597,7 +638,7 @@ public class Bootstrap {
               catch (URISyntaxException e1) {
                   throw new IOException("Cannot create location |file://" + path.toString() + "|");
               }
-              try (IValueInputStream in = new IValueInputStream(URIResolverRegistry.getInstance().getInputStream(loc), vf)) {
+              try (IValueInputStream in = new IValueInputStream(URIResolverRegistry.getInstance().getInputStream(loc), vf, TYPE_STORE_SUPPLIER)) {
                   return in.read();
               }
           }

@@ -23,20 +23,20 @@ import java.util.Set;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.tasks.IDependencyListener.Change;
 import org.rascalmpl.tasks.facts.AbstractFact;
-import org.rascalmpl.value.IAnnotatable;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IExternalValue;
-import org.rascalmpl.value.ISetWriter;
-import org.rascalmpl.value.ITuple;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.IWithKeywordParameters;
-import org.rascalmpl.value.exceptions.IllegalOperationException;
-import org.rascalmpl.value.impl.AbstractExternalValue;
-import org.rascalmpl.value.type.ExternalType;
-import org.rascalmpl.value.type.Type;
-import org.rascalmpl.value.type.TypeStore;
-import org.rascalmpl.value.visitors.IValueVisitor;
+import io.usethesource.vallang.IAnnotatable;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IExternalValue;
+import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.IWithKeywordParameters;
+import io.usethesource.vallang.exceptions.IllegalOperationException;
+import io.usethesource.vallang.impl.AbstractExternalValue;
+import io.usethesource.vallang.type.ExternalType;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeStore;
+import io.usethesource.vallang.visitors.IValueVisitor;
 
 public class Transaction  implements ITransaction<Type,IValue,IValue>, IExternalValue,
 IExpirationListener<IValue> {

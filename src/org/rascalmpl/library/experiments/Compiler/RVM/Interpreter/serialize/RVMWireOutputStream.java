@@ -17,13 +17,14 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.io.binary.message.IValueWriter;
-import org.rascalmpl.value.io.binary.util.TrackLastWritten;
-import org.rascalmpl.value.io.binary.util.WindowCacheFactory;
-import org.rascalmpl.value.io.binary.util.WindowSizes;
-import org.rascalmpl.value.io.binary.wire.IWireOutputStream;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.io.binary.message.IValueWriter;
+import io.usethesource.vallang.io.binary.util.TrackLastWritten;
+import io.usethesource.vallang.io.binary.util.WindowCacheFactory;
+import io.usethesource.vallang.io.binary.util.WindowSizes;
+import io.usethesource.vallang.io.binary.wire.IWireOutputStream;
+import io.usethesource.vallang.type.Type;
 
 public class RVMWireOutputStream implements IRVMWireOutputStream {
     
@@ -32,10 +33,12 @@ public class RVMWireOutputStream implements IRVMWireOutputStream {
     static final int HEADER_ID = 0x4242;
     static final int WINDOW_SIZE = 1;
     private final IWireOutputStream stream;
+    private final IValueFactory vf;
     private TrackLastWritten<Object> cache;
 
-    public RVMWireOutputStream(IWireOutputStream stream, int nestedValueWindowSize) throws IOException {
+    public RVMWireOutputStream(IWireOutputStream stream, IValueFactory vf, int nestedValueWindowSize) throws IOException {
         this.stream = stream;
+        this.vf = vf;
         stream.startMessage(HEADER_ID);
         stream.writeField(WINDOW_SIZE, nestedValueWindowSize);
         stream.endMessage();
@@ -119,7 +122,7 @@ public class RVMWireOutputStream implements IRVMWireOutputStream {
         }
         else {
             writeNestedField(CompilerIDs.NestedValue.VALUE);
-            IValueWriter.write(stream, window, v);
+            IValueWriter.write(stream, vf, window, v);
             cache.write(v);
         }
         endMessage();
@@ -133,7 +136,7 @@ public class RVMWireOutputStream implements IRVMWireOutputStream {
         }
         else {
             writeNestedField(CompilerIDs.NestedType.VALUE);
-            IValueWriter.write(stream, window, t);
+            IValueWriter.write(stream, vf, window, t);
             cache.write(t);
         }
         endMessage();

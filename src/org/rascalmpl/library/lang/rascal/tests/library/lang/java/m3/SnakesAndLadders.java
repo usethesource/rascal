@@ -10,10 +10,10 @@ import java.util.Queue;
 
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 
 public class SnakesAndLadders {
     private final IValueFactory vf;
@@ -22,12 +22,7 @@ public class SnakesAndLadders {
         this.vf = vf;
     }
     
-    public IBool equalAnnotations(IValue a, IValue b) {
-        return vf.bool(a.equals(b));
-    }
-
     public ISourceLocation getSnakesAndLaddersPath() {
-
         try {
             URIResolverRegistry reg = URIResolverRegistry.getInstance();
             ISourceLocation tempRoot = URIUtil.correctLocation("tmp", "", "/snakes-ladders/");

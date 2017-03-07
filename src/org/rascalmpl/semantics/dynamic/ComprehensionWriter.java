@@ -7,15 +7,15 @@ import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.IValueFactory;
-import org.rascalmpl.value.IWriter;
-import org.rascalmpl.value.type.TypeFactory;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.IWriter;
+import io.usethesource.vallang.type.TypeFactory;
 
 public abstract class ComprehensionWriter {
-	protected org.rascalmpl.value.type.Type elementType1;
-	protected org.rascalmpl.value.type.Type elementType2;
-	protected org.rascalmpl.value.type.Type resultType;
+	protected io.usethesource.vallang.type.Type elementType1;
+	protected io.usethesource.vallang.type.Type elementType2;
+	protected io.usethesource.vallang.type.Type resultType;
 	protected final java.util.List<Expression> resultExprs;
 	protected IWriter writer;
 	protected final org.rascalmpl.interpreter.IEvaluator<Result<IValue>> ev;
@@ -32,7 +32,7 @@ public abstract class ComprehensionWriter {
 	}
 
 	public void check(Result<IValue> r,
-			org.rascalmpl.value.type.Type t, String kind,
+			io.usethesource.vallang.type.Type t, String kind,
 			Expression expr) {
 		if (!r.getType().isSubtypeOf(t)) {
 			throw new UnexpectedType(t, r.getType(), expr);

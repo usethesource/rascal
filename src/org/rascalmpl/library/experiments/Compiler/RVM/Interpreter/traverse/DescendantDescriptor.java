@@ -4,12 +4,12 @@ import java.util.HashSet;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
-import org.rascalmpl.value.IBool;
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.IMap;
-import org.rascalmpl.value.ISet;
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 import org.rascalmpl.values.uptr.ITree;
 
 /**
@@ -25,24 +25,24 @@ public class DescendantDescriptor {
 	private final HashSet<Object> mSymbolSet;
 	private final boolean concreteMatch;
 	private final boolean containsNodeOrValueType;
-	//private int counter = 0;
 	
 	public DescendantDescriptor(ISet symbolset, ISet prodset, IMap definitions, IBool concreteMatch, RascalExecutionContext rex){
 		mSymbolSet = new HashSet<Object>(symbolset.size() + prodset.size());
 		this.concreteMatch = concreteMatch.getValue();
 		boolean nodeOrValue = true;
-//		for(IValue v : symbolset){
-//			Type tp = rex.symbolToType((IConstructor) v, definitions);
-//			mSymbolSet.add(tp);								// Add as TYPE to the set
-//			if(tp == RascalPrimitive.nodeType || tp == RascalPrimitive.valueType){
-//				nodeOrValue = true;
-//			}
-//		}
 		
-//		for(IValue v : prodset){
-//			IConstructor cons = (IConstructor) v;
-//			mSymbolSet.add(cons);							// Add the production itself to the set
-//		}
+		for(IValue v : symbolset){
+			Type tp = rex.symbolToType((IConstructor) v, definitions);
+			mSymbolSet.add(tp);								// Add as TYPE to the set
+			if(tp == RascalPrimitive.nodeType || tp == RascalPrimitive.valueType){
+				nodeOrValue = true;
+			}
+		}
+		
+		for(IValue v : prodset){
+			IConstructor cons = (IConstructor) v;
+			mSymbolSet.add(cons);							// Add the production itself to the set
+		}
 
 		containsNodeOrValueType = nodeOrValue;
 	}

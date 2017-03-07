@@ -16,8 +16,8 @@
 package org.rascalmpl.ast;
 
 
-import org.rascalmpl.value.IConstructor;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.ISourceLocation;
 
 public abstract class Bound extends AbstractAST {
   public Bound(ISourceLocation src, IConstructor node) {

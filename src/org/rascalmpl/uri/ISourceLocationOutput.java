@@ -15,18 +15,26 @@ package org.rascalmpl.uri;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
-import org.apache.commons.compress.utils.Charsets;
-import org.rascalmpl.value.ISourceLocation;
+import io.usethesource.vallang.ISourceLocation;
 
 public interface ISourceLocationOutput {
 	OutputStream getOutputStream(ISourceLocation uri, boolean append) throws IOException;
+	default FileChannel getWritableOutputStream(ISourceLocation uri, boolean append) throws IOException {
+	    throw new UnsupportedOperationException("The " + scheme() + " scheme does not support writable output channels.");
+	}
 	String scheme();
 	boolean supportsHost();
+	default boolean supportsWritableFileChannel() {
+	    return false;
+	}
 	void mkDirectory(ISourceLocation uri) throws IOException;
 	void remove(ISourceLocation uri) throws IOException;
 	default Charset getCharset(ISourceLocation uri) throws IOException {
-		return Charsets.UTF_8;
+		return StandardCharsets.UTF_8;
 	}
+	
 }

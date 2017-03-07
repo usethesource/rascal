@@ -11,8 +11,8 @@
 *******************************************************************************/
 package org.rascalmpl.tasks;
 
-import org.rascalmpl.value.IValue;
-import org.rascalmpl.value.type.Type;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 public interface IIValueTask extends ITask<Type,IValue,IValue> {
 

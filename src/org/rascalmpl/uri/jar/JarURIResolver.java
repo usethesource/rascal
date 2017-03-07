@@ -7,8 +7,8 @@ import java.nio.charset.Charset;
 
 import org.rascalmpl.uri.ISourceLocationInput;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.value.ISourceLocation;
-import org.rascalmpl.value.IValueFactory;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class JarURIResolver implements ISourceLocationInput {

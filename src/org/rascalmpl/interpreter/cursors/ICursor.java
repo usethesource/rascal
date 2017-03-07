@@ -1,6 +1,6 @@
 package org.rascalmpl.interpreter.cursors;
 
-import org.rascalmpl.value.IValue;
+import io.usethesource.vallang.IValue;
 
 public interface ICursor extends IValue {
 	IValue root();
