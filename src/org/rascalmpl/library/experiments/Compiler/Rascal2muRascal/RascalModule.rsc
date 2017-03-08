@@ -139,7 +139,7 @@ loc relocLoc(loc org, loc reloc, list[loc] srcs){
                                  : reloc + npath;
         }
     }
-    println("Not relocated: <org>");
+    // println("Not relocated: <org>");
     return org;
 }
 
