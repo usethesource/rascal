@@ -274,14 +274,9 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
         } else {
           previousConfig.dirtyModules = {};
         }
-        println("compile1Incremental, before getMain");
         mainDecl = getMain(M);
-        println("<mainDecl>");
-        
-        println("compile1Incremental, before checkDeclaration");
-        iprintln(previousConfig);
         config  = checkDeclaration(mainDecl, true, previousConfig);
-        println("checkDeclaration: done");
+       
         check_time = (cpuTime() - start_checking)/1000000;
     } catch e: {
         throw e;
