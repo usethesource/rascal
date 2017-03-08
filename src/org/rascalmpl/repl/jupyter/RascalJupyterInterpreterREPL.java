@@ -37,7 +37,7 @@ import io.usethesource.vallang.IValue;
 
 import jline.Terminal;
 
-public abstract class RascalJupyterInterpreterREPL extends BaseRascalREPL {
+public abstract class RascalJupyterInterpreterREPL extends JupyterRascalREPL {
 
     protected Evaluator eval;
     private boolean measureCommandTime;
