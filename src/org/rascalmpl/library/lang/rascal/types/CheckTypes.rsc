@@ -7632,13 +7632,19 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	// We keep track of the hashes of all imported modules to see if they have changed since we
 	// last checked this one. If the hash for this module exists, load it. 
 	map[RName,map[RName,datetime]] moduleDates = ( );
-	for (wl <- carrier(ig), wl in moduleLocations) {
+	for (wl <- carrier(ig)) {
 		if (verbose) println("Checking for date map for <prettyPrintName(wl)>");
 		dependency = prettyPrintName(wl);
-		dependencyLoc = moduleLocations[wl];
-		moduleLocations[wl] = dependencyLoc;
-		if (exists(dependencyLoc) && <true, dateMapLoc> := cachedDateMapReadLoc(dependency, pcfg)) {
-			moduleDates[wl] = getCachedDateMap(dependency, pcfg);
+		if(wl in moduleLocations){
+    	   dependencyLoc = moduleLocations[wl];
+    	   moduleLocations[wl] = dependencyLoc;
+    	   if (exists(dependencyLoc) && <true, dateMapLoc> := cachedDateMapReadLoc(dependency, pcfg)) {
+    		   moduleDates[wl] = getCachedDateMap(dependency, pcfg);
+    	   }
+		} else if(wl in binaryOnlyModules){
+		   if(<true, dateMapLoc> := cachedDateMapReadLoc(dependency, pcfg)){
+		      moduleDates[wl] = getCachedDateMap(dependency, pcfg);
+		   }
 		}
 	}
 		
