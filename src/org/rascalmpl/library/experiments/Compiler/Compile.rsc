@@ -264,9 +264,9 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
     try {
         if(verbose) println("rascal2rvm: Parsing and incremental checking <moduleLoc>");
         start_checking = cpuTime();
-        //M = parse(#start[Module], moduleLoc).top;
+        
         M = parseModule(moduleLoc);
-        println("compile1Incremental, parsing done");
+        
         if(!reuseConfig || previousConfig == noPreviousConfig){
             lang::rascal::\syntax::Rascal::Module M1 = removeMain(M);
             previousConfig = checkModule(M1, newConfiguration(pcfg), verbose=verbose);

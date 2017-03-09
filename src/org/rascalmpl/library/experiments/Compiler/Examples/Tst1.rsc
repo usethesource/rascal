@@ -1,3 +1,3 @@
 module experiments::Compiler::Examples::Tst1
 
-int XXXXXXXXXXinc(int n) = n + 1;
+public int XXXXXXXXXX(int n) { return n + 1; }
