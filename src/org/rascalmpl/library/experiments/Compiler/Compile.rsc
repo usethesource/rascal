@@ -269,7 +269,7 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
         
         if(!reuseConfig || previousConfig == noPreviousConfig){
             lang::rascal::\syntax::Rascal::Module M1 = removeMain(M);
-            previousConfig = checkModule(M1, newConfiguration(pcfg), verbose=verbose);
+            previousConfig = checkModule(M1, moduleLoc, newConfiguration(pcfg), verbose=verbose);
             previousConfig.stack = [0]; // make sure we are in the module scope
         } else {
           previousConfig.dirtyModules = {};
