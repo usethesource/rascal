@@ -7480,25 +7480,25 @@ loc cachedDateWriteLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedWri
 tuple[bool,loc] cachedDateMapReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "sigs", pcfg);
 loc cachedDateMapWriteLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedWriteLoc(qualifiedModuleName, "sigs", pcfg);
 
-datetime getCachedDate(str qualifiedModuleName, PathConfig pcfg) {
+tuple[bool, datetime] getCachedDate(str qualifiedModuleName, PathConfig pcfg) {
     if(<true, l> := cachedDateReadLoc(qualifiedModuleName,pcfg)){
-       return readBinaryValueFile(#datetime, l);
+       return <true, readBinaryValueFile(#datetime, l)>;
     }
-    throw "getCachedDate: no date found for <qualifiedModuleName>";
+    return <false, $2017-03-10T18:56:53.386+00:00$>;
 }
 
-Configuration getCachedConfig(str qualifiedModuleName, PathConfig pcfg) {
+tuple[bool, Configuration] getCachedConfig(str qualifiedModuleName, PathConfig pcfg) {
     if(<true, l> := cachedConfigReadLoc(qualifiedModuleName,pcfg)){
-       return readBinaryValueFile(#Configuration, l);
+       return <true, readBinaryValueFile(#Configuration, l)>;
     }
-    throw "getCachedConfig: no config found for <qualifiedModuleName>";
+    return <false,  newConfiguration(pcfg)>;
 }    
-    
-map[RName,datetime] getCachedDateMap(str qualifiedModuleName, PathConfig pcfg){
+
+tuple[bool, map[RName,datetime]] getCachedDateMap(str qualifiedModuleName, PathConfig pcfg){
     if(<true, l> := cachedDateMapReadLoc(qualifiedModuleName,pcfg)){
-       return readBinaryValueFile(#map[RName,datetime], l);
+       return <true, readBinaryValueFile(#map[RName,datetime], l)>;
     }
-    throw "getCachedDateMap: no DateMap found for <qualifiedModuleName>";
+    return <false, ()>;
 } 
 
 void writeCachedDate(str qualifiedModuleName, PathConfig pcfg, datetime dateval) {
@@ -7518,15 +7518,14 @@ void writeCachedDateMap(str qualifiedModuleName, PathConfig pcfg, map[RName,date
 }
 
 void clearDirtyModules(str qualifiedModuleName, PathConfig pcfg, bool transitive=true) {
-    if(<true, l> := cachedConfigReadLoc(qualifiedModuleName, pcfg)){
-		Configuration c = getCachedConfig(qualifiedModuleName, pcfg);
-		c.dirtyModules = { };
-		writeCachedConfig(qualifiedModuleName, pcfg, c);
+    if(<true, c1> := getCachedConfig(qualifiedModuleName, pcfg)){
+		c1.dirtyModules = { };
+		writeCachedConfig(qualifiedModuleName, pcfg, c1);
 		
 		if (transitive) {
-			reachableModules = { prettyPrintName(mn) | mn <- carrier(c.importGraph) } - qualifiedModuleName;
-			for (qmname <- reachableModules) {
-				writeCachedConfig(qmname, pcfg, getCachedConfig(qmname, pcfg)[dirtyModules={}]);
+			reachableModules = { prettyPrintName(mn) | mn <- carrier(c1.importGraph) } - qualifiedModuleName;
+			for (qmname <- reachableModules, <true, c2> := getCachedConfig(qmname, pcfg)) {
+				writeCachedConfig(qmname, pcfg, c2[dirtyModules={}]);
 			}
 		}
 	}
@@ -7603,12 +7602,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		try {
 			chloc = getModuleLocation(prettyPrintName(imn), pcfg);
 			moduleLocations[imn] = chloc;
-			if (exists(chloc)) {
-				currentDates[imn] = lastModified(chloc);
-			} else {
-				; // TODO: Add a warning here, this means we are importing something that we cannot find
-			      // I think this cannot happen, otherwise getModuleLocation would have failed (PK) 
-			}
+			currentDates[imn] = lastModified(chloc);
 		} catch ex: {
 		    // There was no source file, try binary config file
 		    
@@ -7637,13 +7631,12 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		dependency = prettyPrintName(wl);
 		if(wl in moduleLocations){
     	   dependencyLoc = moduleLocations[wl];
-    	   moduleLocations[wl] = dependencyLoc;
-    	   if (exists(dependencyLoc) && <true, dateMapLoc> := cachedDateMapReadLoc(dependency, pcfg)) {
-    		   moduleDates[wl] = getCachedDateMap(dependency, pcfg);
+    	   if (<true, dmap> := getCachedDateMap(dependency, pcfg)) {
+    		   moduleDates[wl] = dmap;
     	   }
 		} else if(wl in binaryOnlyModules){
-		   if(<true, dateMapLoc> := cachedDateMapReadLoc(dependency, pcfg)){
-		      moduleDates[wl] = getCachedDateMap(dependency, pcfg);
+		   if(<true, dmap> := getCachedDateMap(dependency, pcfg)){
+		      moduleDates[wl] = dmap;
 		   }
 		}
 	}
@@ -7661,13 +7654,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 				// check it and save the config.
 				if (verbose) println("No config exists for module <prettyPrintName(wl)>");
 				dirtyModules = dirtyModules + wl;
-			} else if (<false, _> := cachedDateReadLoc(dependency, pcfg)) {
-				// If we don't have a saved date for the module, it hasn't been checked
-				// before or the has info was deleted, so we need to check it now. 
-				if (verbose) println("No cached date exists for module <prettyPrintName(wl)>");
-				dirtyModules = dirtyModules + wl;
-			} else {
-				existingDate = getCachedDate(dependency, pcfg);
+			} else if (<true, existingDate> := getCachedDate(dependency, pcfg)) {
 				if (wl in currentDates) {
 					modifiedDate = currentDates[wl];
 					if (existingDate != modifiedDate) {
@@ -7696,11 +7683,12 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 								dirtyModules = dirtyModules + i;
 							}
 						}
-					}
-				} else {
-					// TODO: This is an error state, this means we could not compute a current date
-					// for the file, so most likely there is some problem with it
-					;
+					} 
+			    } else {
+			        // If we don't have a saved date for the module, it hasn't been checked
+                    // before or the info was deleted, so we need to check it now. 
+                    if (verbose) println("No cached date exists for module <prettyPrintName(wl)>");
+                    dirtyModules = dirtyModules + wl;
 				}
 			}
 		} catch : {
@@ -7724,13 +7712,15 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	if (exists(moduleLoc)) {
 	    mname = prettyPrintName(moduleName);
 		modifiedDate = lastModified(moduleLoc);
-		if (isEmpty(c.dirtyModules) && !forceCheck && <true, _> := cachedDateReadLoc(mname, pcfg) && getCachedDate(mname, pcfg) == modifiedDate && <true, _> := cachedConfigReadLoc(mname, pcfg)) {
-			return getCachedConfig(mname, pcfg);
+		if (isEmpty(c.dirtyModules) && !forceCheck && 
+		    <true, modifiedDate> := getCachedDate(mname, pcfg) &&
+		    <true, c2> := getCachedConfig(mname, pcfg)) {
+			return c2;
 		}
 	} else {
 	   mname = prettyPrintName(moduleName);
-	   if(isEmpty(c.dirtyModules) && !forceCheck && <true, _> := cachedConfigReadLoc(mname, pcfg)){
-	       return getCachedConfig(mname, pcfg);    // when there is no source, reuse existing config.
+	   if(isEmpty(c.dirtyModules) && !forceCheck && <true, c2> := getCachedConfig(mname, pcfg)){
+	       return c2;    // when there is no source, reuse existing config.
 	   } else {
 	     throw "Source file for <mname> is missing; config cannot be reused";
 	   }
@@ -7825,7 +7815,11 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
     }
 	
 	// Load configs for the modules that we do not need to re-check
-	map[RName,Configuration] existingConfigs = ( wl : getCachedConfig(prettyPrintName(wl),pcfg) | wl <- carrier(ig), wl in sourceOrBinaryModules, wl notin c.dirtyModules, <true, _> := cachedConfigReadLoc(prettyPrintName(wl),pcfg) );
+	map[RName,Configuration] existingConfigs = 
+	   ( wl : c2 | wl <- carrier(ig), 
+	               wl in sourceOrBinaryModules, 
+	               wl notin c.dirtyModules, 
+	               <true, c2> := getCachedConfig(prettyPrintName(wl),pcfg) );
 	
 	if(verbose) println("Actually loaded configs: <domain(existingConfigs)>");
 	
@@ -8294,12 +8288,10 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	
 	for (mn <- moduleLocations, mn in workingConfigs) {
 		// Note: This writes more than we need of the hashes. We should probably use domainX to remove non-reachable modules.
-		if (exists(moduleLocations[mn])) {
-		    ppmn = prettyPrintName(mn);
-			writeCachedDate(ppmn, pcfg, currentDates[mn]);
-			writeCachedConfig(ppmn, pcfg, workingConfigs[mn]);
-			writeCachedDateMap(ppmn, pcfg, currentDates);
-		}
+	    ppmn = prettyPrintName(mn);
+		writeCachedDate(ppmn, pcfg, currentDates[mn]);
+		writeCachedConfig(ppmn, pcfg, workingConfigs[mn]);
+		writeCachedDateMap(ppmn, pcfg, currentDates);
 	}
 			
 	return workingConfigs[moduleName];	
