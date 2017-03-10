@@ -53,7 +53,7 @@ import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 
 public abstract class JupyterRascalREPL implements ILanguageProtocol{
-    
+
     protected enum State {
         FRESH,
         CONTINUATION,
@@ -69,26 +69,17 @@ public abstract class JupyterRascalREPL implements ILanguageProtocol{
 
     private final static int LINE_LIMIT = 200;
     private final static int CHAR_LIMIT = LINE_LIMIT * 20;
-    protected String currentPrompt = ReadEvalPrintDialogMessages.PROMPT;
     private StringBuffer currentCommand;
     private final StandardTextWriter indentedPrettyPrinter;
-    private final StandardTextWriter singleLinePrettyPrinter;
     private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 
-    public JupyterRascalREPL(boolean prettyPrompt, boolean allowColors) throws IOException, URISyntaxException {
-        if (allowColors) {
-            indentedPrettyPrinter = new ReplTextWriter();
-            singleLinePrettyPrinter = new ReplTextWriter(false);
-        }
-        else {
-            indentedPrettyPrinter = new StandardTextWriter();
-            singleLinePrettyPrinter = new StandardTextWriter(false);
-        }
+    public JupyterRascalREPL() throws IOException, URISyntaxException {
+        indentedPrettyPrinter = new ReplTextWriter();
     }
 
     @Override
     public String getPrompt() {
-        return currentPrompt;
+        return null;
     }
 
     @Override
@@ -100,7 +91,6 @@ public abstract class JupyterRascalREPL implements ILanguageProtocol{
                 System.out.println("ZERO");
                 // cancel command
                 getErrorWriter().println(ReadEvalPrintDialogMessages.CANCELLED);
-                currentPrompt = ReadEvalPrintDialogMessages.PROMPT;
                 currentCommand = null;
                 currentState = State.FRESH;
                 return;
@@ -113,7 +103,6 @@ public abstract class JupyterRascalREPL implements ILanguageProtocol{
                 }
                 else {
                     currentCommand = new StringBuffer(line);
-                    currentPrompt = ReadEvalPrintDialogMessages.CONTINUE_PROMPT;
                     currentState = State.CONTINUATION;
                     return;
                 }
@@ -124,7 +113,6 @@ public abstract class JupyterRascalREPL implements ILanguageProtocol{
                 currentCommand.append(line);
                 if (isStatementComplete(currentCommand.toString())) {
                     printResult(evalStatement(currentCommand.toString(), line));
-                    currentPrompt = ReadEvalPrintDialogMessages.PROMPT;
                     currentCommand = null;
                     currentState = State.FRESH;
                     return;
@@ -136,7 +124,6 @@ public abstract class JupyterRascalREPL implements ILanguageProtocol{
             getErrorWriter().println("Internal error: ambiguous command: " + TreeAdapter.yield(e.getTree()));
             return;
         }
-        
     }
 
     @Override
@@ -190,10 +177,10 @@ public abstract class JupyterRascalREPL implements ILanguageProtocol{
      * provide which :set flags  (:set profiling true for example)
      * @return strings that can be set
      */
-    protected abstract SortedSet<String> getCommandLineOptions();
+//    protected abstract SortedSet<String> getCommandLineOptions();
     protected abstract Collection<String> completePartialIdentifier(String line, int cursor, String qualifier, String identifier);
     protected abstract Collection<String> completeModule(String qualifier, String partialModuleName);
-    
+
     protected boolean isREPLCommand(String line){
         return line.startsWith(":");
     }
@@ -240,17 +227,17 @@ public abstract class JupyterRascalREPL implements ILanguageProtocol{
     private static final Pattern splitIdentifiers = Pattern.compile("[:][:]");
     private static Collection<String> escapeKeywords(Collection<String> suggestions) {
         return suggestions.stream()
-                        .map(s -> splitIdentifiers.splitAsStream(s + " ") // add space such that the ending "::" is not lost
-                                        .map(JupyterRascalREPL::escapeKeyword)
-                                        .collect(Collectors.joining("::")).trim()
-                                        )
-                        .collect(Collectors.toList());
+            .map(s -> splitIdentifiers.splitAsStream(s + " ") // add space such that the ending "::" is not lost
+                .map(JupyterRascalREPL::escapeKeyword)
+                .collect(Collectors.joining("::")).trim()
+                )
+            .collect(Collectors.toList());
     }
     private static String unescapeKeywords(String term) {
         return splitIdentifiers.splitAsStream(term + " ") // add space such that the ending "::" is not lost
-                        .map(JupyterRascalREPL::unescapeKeyword)
-                        .collect(Collectors.joining("::")).trim()
-                        ;
+            .map(JupyterRascalREPL::unescapeKeyword)
+            .collect(Collectors.joining("::")).trim()
+            ;
     }
 
     private static final Set<String> RASCAL_KEYWORDS =  new HashSet<String>();
@@ -401,7 +388,7 @@ public abstract class JupyterRascalREPL implements ILanguageProtocol{
     }
 
     protected CompletionResult completeREPLCommand(String line, int cursor) {
-        return RascalCommandCompletion.complete(line, cursor, getCommandLineOptions(), (l,i) -> completeIdentifier(l,i), (l,i) -> completeModule(l,i));
+        return RascalCommandCompletion.complete(line, cursor, null, (l,i) -> completeIdentifier(l,i), (l,i) -> completeModule(l,i));
     }
 
 }
