@@ -1,14 +1,22 @@
+/** 
+ * Copyright (c) 2017, Mauricio Verano Merino, Centrum Wiskunde & Informatica (CWI) 
+ * All rights reserved. 
+ *  
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: 
+ *  
+ * 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer. 
+ *  
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution. 
+ *  
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
+ */ 
 package org.rascalmpl.repl.jupyter;
 
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.parseErrorMessage;
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.staticErrorMessage;
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwMessage;
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwableMessage;
-
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
@@ -17,7 +25,6 @@ import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.StackTrace;
@@ -28,24 +35,18 @@ import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.Timing;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
-import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.repl.BaseRascalREPL;
 import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.IValue;
 
-import jline.Terminal;
 
 public abstract class RascalJupyterInterpreterREPL extends JupyterRascalREPL {
 
     protected Evaluator eval;
     private boolean measureCommandTime;
     
-    public RascalJupyterInterpreterREPL(boolean prettyPrompt, boolean allowColors, File persistentHistory)
-                    throws IOException, URISyntaxException {
-        super(prettyPrompt, allowColors);
-        System.out.println("VAMOS!!");
+    public RascalJupyterInterpreterREPL()throws IOException, URISyntaxException {
+        super();
     }
 
     public void setMeasureCommandTime(boolean measureCommandTime) {
@@ -190,17 +191,5 @@ public abstract class RascalJupyterInterpreterREPL extends JupyterRascalREPL {
 
         }
         return null;
-    }
-
-    private static final SortedSet<String> commandLineOptions = new TreeSet<>();
-    static {
-        commandLineOptions.add(Configuration.GENERATOR_PROFILING_PROPERTY.substring("rascal.".length()));
-        commandLineOptions.add(Configuration.PROFILING_PROPERTY.substring("rascal.".length()));
-        commandLineOptions.add(Configuration.ERRORS_PROPERTY.substring("rascal.".length()));
-        commandLineOptions.add(Configuration.TRACING_PROPERTY.substring("rascal.".length()));
-    }
-    @Override
-    protected SortedSet<String> getCommandLineOptions() {
-        return commandLineOptions;
     }
 }
