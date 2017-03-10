@@ -125,7 +125,7 @@ public class Prelude {
 	protected final IValueFactory values;
 	private final Random random;
 	
-	private final boolean trackIO = true;
+	private final boolean trackIO = false;
 	
 	public Prelude(IValueFactory values){
 		super();
