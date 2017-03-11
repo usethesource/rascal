@@ -266,10 +266,16 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
         start_checking = cpuTime();
         
         M = parseModule(moduleLoc);
+        // TODO: the rewritten module -- after calling removeMain -- will contain
+        // locations from Compile.rsc; Figure out whether that is ok or not.
+        //println("Original module at <moduleLoc>");
+        //iprintln(M);
         
         if(!reuseConfig || previousConfig == noPreviousConfig){
             lang::rascal::\syntax::Rascal::Module M1 = removeMain(M);
-            println("top loc of M1 = <(M1@\loc).top>");
+            //println("Module after removed main:");
+            //iprintln(M1);
+            //println("top loc of M1 = <(M1@\loc).top>");
             previousConfig = checkModule(M1, moduleLoc, newConfiguration(pcfg), verbose=verbose);
             previousConfig.stack = [0]; // make sure we are in the module scope
         } else {
