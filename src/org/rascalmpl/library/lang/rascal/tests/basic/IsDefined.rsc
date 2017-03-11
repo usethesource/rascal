@@ -42,7 +42,7 @@ test bool isDefinedLoc1() = |project://x/y.txt|(5,4,<1,5>,<1,9>).begin?;
 test bool isDefinedLoc2() = |project://x/y.txt|(5,4,<1,5>,<1,9>).end?;
 test bool isDefinedLoc3() = !(|project://x/y.txt|(5,4,<1,5>,<1,9>).host?);
 
-@ignoreCompiler{compiler does not implement ? correctly for loc access (does not return false if file is not a directory)}
+@ignoreCompiler{FIX: compiler does not implement ? correctly for loc access (does not return false if file is not a directory)}
 test bool isDefinedLoc4() = !(|std:///List.rsc|.ls?);
 test bool isDefinedLoc5() = |std:///util|.ls?;
 
@@ -165,7 +165,7 @@ test bool isDefinedTuple1(){
     return tup.n?;
 }
 
-@ignoreCompiler{Already detected by type checker: Field x does not exist on type tuple[int n, str s]}
+@ignoreCompiler{Remove-after-transtion-to-compiler: Already detected by type checker: Field x does not exist on type tuple[int n, str s]}
 @expected{UndeclaredField}
 test bool isDefinedTuple3(){
     tuple[int n, str s] tup = <0, "a">;
@@ -188,7 +188,7 @@ test bool isDefinedRel1(){
     return ({<1, "a">, <2, "b">}[0])?;
 }
 
-@ignoreCompiler{Already detected by type checker}
+@ignoreCompiler{Remove-after-transtion-to-compiler: Already detected by type checker}
 @expected{UnsupportedSubscriptArity}
 test bool isDefinedRel2(){
     return !({<1, "a">, <2, "b">}[1,2,3])?;
@@ -210,7 +210,7 @@ test bool isDefinedLRel1(){
     return ([<1, "a">, <2, "b">][0])?;
 }
 
-@ignoreCompiler{Already detected by type checker}
+@ignoreCompiler{Remove-after-transtion-to-compiler: Already detected by type checker}
 @expected{UnsupportedSubscriptArity}
 test bool isDefinedLRel2(){
     return !([<1, "a">, <2, "b">][1,2,3])?;
