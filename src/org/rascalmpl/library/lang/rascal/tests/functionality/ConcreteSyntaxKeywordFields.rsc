@@ -12,37 +12,37 @@ data Tree(str y = "y");
 
 // to be able to access the kw param feature, you have to remove the loc annotation first (until we remove annotations):
 &T<:Tree get(&T<:Tree e) = delAnnotation(e, "loc");
-@ignoreCompiler{Not implemented}
+@ignoreCompiler{FIX: Not implemented}
 test bool assignKw() {
    a = get((A) `a`);
    a.y = "2";
    return a.y == "2";
 }
-@ignoreCompiler{Not implemented}
+@ignoreCompiler{FIX: Not implemented}
 test bool eqTest() = get((A)`a`) == get((A)`a`);
-@ignoreCompiler{Not implemented}
+@ignoreCompiler{FIX: Not implemented}
 test bool eqTest2() = get((A)`a`).y == get((A)`a`)[y="y"].y;
-@ignoreCompiler{Not implemented}
+@ignoreCompiler{FIX: Not implemented}
 test bool eqTest3() = get((A)`a`) != get((A)`a`)[y="y"] && eqTest2() /* superfluous for doc purposes */;
-@ignoreCompiler{Not implemented}
+@ignoreCompiler{FIX: Not implemented}
 test bool updateKw() = get((A)`a`)[y="z"].y == "z";
-@ignoreCompiler{Not implemented}
+@ignoreCompiler{FIX: Not implemented}
 test bool neqKwTest1() = get((A)`a`)[y="z"] != (A)`a`;
-@ignoreCompiler{Not implemented}
+@ignoreCompiler{FIX: Not implemented}
 test bool defKw() = get((A)`a`).y == "y";
-@ignoreCompiler{Not implemented}
+@ignoreCompiler{FIX: Not implemented}
 test bool normalProd() = prod(sort("A"),[lit("a")],{}) := get((A)`a`)[y="z"].prod; 
-@ignoreCompiler{Not implemented}
+@ignoreCompiler{FIX: Not implemented}
 test bool normalArgs() = [_] := get((A) `a`)[y="y"].args;
 
 
-@ignoreCompiler{Not implemented}
+@ignoreCompiler{FIX: Not implemented}
 test bool ambTest() = get([B] "b").y == "y";
-@ignoreCompiler{Not implemented}
+@ignoreCompiler{FIX: Not implemented}
 test bool ambTest2() = {_,_} := get([B] "b")[y="z"].alternatives; 
-@ignoreCompiler{Not implemented}
+@ignoreCompiler{FIX: Not implemented}
 test bool ambTest3() = get([B] "b")[y="z"].y == "z";
-@ignoreCompiler{Not implemented}
+@ignoreCompiler{FIX: Not implemented}
 test bool ambTest4() {
    t = get([B] "b");
    t.y = "z";
