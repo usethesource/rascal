@@ -47,6 +47,11 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
         super(prettyPrompt, allowColors);
         originalOutput = stdout;
     }
+    
+    public RascalInterpreterREPL() throws IOException, URISyntaxException{
+        super(true, true);
+        originalOutput = null;
+    }
 
     public void setMeasureCommandTime(boolean measureCommandTime) {
         this.measureCommandTime = measureCommandTime;
