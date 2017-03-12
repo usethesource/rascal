@@ -65,7 +65,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
             singleLinePrettyPrinter = new StandardTextWriter(false);
         }
     }
-
+    
     @Override
     public String getPrompt() {
         return currentPrompt;
@@ -160,7 +160,6 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     protected abstract PrintWriter getErrorWriter();
     protected abstract PrintWriter getOutputWriter();
 
-    public abstract boolean isStatementComplete(String command);
     public abstract IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException;
 
     /**
