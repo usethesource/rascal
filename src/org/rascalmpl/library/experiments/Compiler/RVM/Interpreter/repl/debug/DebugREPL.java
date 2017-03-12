@@ -280,4 +280,10 @@ public class DebugREPL implements ILanguageProtocol {
         // TODO Auto-generated method stub
     }
 
+    @Override
+    public boolean isStatementComplete(String command) {
+        // TODO Auto-generated method stub
+        return true;
+    }
+
 }

@@ -173,6 +173,12 @@ public class TermREPL {
             handleInput("");
         }
 
+        @Override
+        public boolean isStatementComplete(String command) {
+            // TODO Auto-generated method stub
+            return true;
+        }
+
     }
 
 

@@ -84,6 +84,8 @@ public interface ILanguageProtocol {
      */
     void stackTraceRequested();
     
+    public abstract boolean isStatementComplete(String command);
+    
     /**
      * Tell the language to stop without waiting for it to stop
      */
