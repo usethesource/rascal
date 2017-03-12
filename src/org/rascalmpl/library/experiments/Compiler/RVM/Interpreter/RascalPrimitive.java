@@ -6652,7 +6652,7 @@ public enum RascalPrimitive {
 
 			case "host":
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the host field, use authority instead.", currentFrame));
+				  return RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the host field, use authority instead.", currentFrame);
 				}
 				s = sloc.getURI().getHost();
 				v = vf.string(s == null ? "" : s);
@@ -6664,8 +6664,8 @@ public enum RascalPrimitive {
 
 			case "parent":
 				String path = sloc.getPath();
-				if (path.equals("")) {
-				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noParent(sloc, currentFrame));
+				if (path.equals("") || path.equals("/")) {
+				  return RascalRuntimeException.noParent(sloc, currentFrame);
 				}
 				int i = path.lastIndexOf("/");
 
@@ -6680,7 +6680,7 @@ public enum RascalPrimitive {
 					}
 					v = $loc_field_update(sloc, "path", vf.string(path), currentFrame, rex);
 				} else {
-				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noParent(sloc, currentFrame));
+				  return RascalRuntimeException.noParent(sloc, currentFrame);
 				}
 				break;	
 
@@ -6696,19 +6696,23 @@ public enum RascalPrimitive {
 				break;
 
 			case "ls":
-				try {
-					// Why is this needed: ISourceLocation resolved = rex.resolveSourceLocation(sloc);
-				    ISourceLocation resolved = sloc;
+			    ISourceLocation resolved = sloc;
+			    if(URIResolverRegistry.getInstance().exists(resolved) && URIResolverRegistry.getInstance().isDirectory(resolved)){
 					IListWriter w = vf.listWriter();
 
-					for (ISourceLocation elem : URIResolverRegistry.getInstance().list(resolved)) {
-						w.append(elem);
-					}
+					try {
+                        for (ISourceLocation elem : URIResolverRegistry.getInstance().list(resolved)) {
+                        	w.append(elem);
+                        }
+                    }
+                    catch (FactTypeUseException | IOException e) {
+                        return RascalRuntimeException.io(vf.string(e.getMessage()), currentFrame);
+                    }
 
 					v = w.done();
 					break;
-				} catch (IOException e) {
-				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.io(vf.string(e.getMessage()), currentFrame));
+				} else {
+				  return RascalRuntimeException.io(vf.string("You can only access ls on a directory, or a container."), currentFrame);
 				}
 
 			case "extension":
@@ -6745,7 +6749,7 @@ public enum RascalPrimitive {
 
 			case "user":
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the user field, use authority instead.", currentFrame));
+				  return RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the user field, use authority instead.", currentFrame);
 				}
 				s = sloc.getURI().getUserInfo();
 				v = vf.string(s == null ? "" : s);
@@ -6753,7 +6757,7 @@ public enum RascalPrimitive {
 
 			case "port":
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the port field, use authority instead.", currentFrame));
+				  return RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the port field, use authority instead.", currentFrame);
 				}
 				int n = sloc.getURI().getPort();
 				v = vf.integer(n);
@@ -6764,7 +6768,7 @@ public enum RascalPrimitive {
 					v = vf.integer(sloc.getLength());
 					break;
 				} else {
-				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("length", currentFrame));
+				  return RascalRuntimeException.unavailableInformation("length", currentFrame);
 				}
 
 			case "offset":
@@ -6772,7 +6776,7 @@ public enum RascalPrimitive {
 					v = vf.integer(sloc.getOffset());
 					break;
 				} else {
-				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("offset", currentFrame));
+				  return RascalRuntimeException.unavailableInformation("offset", currentFrame);
 				}
 
 			case "begin":
@@ -6787,7 +6791,7 @@ public enum RascalPrimitive {
 					v = vf.tuple(vf.integer(sloc.getEndLine()), vf.integer(sloc.getEndColumn()));
 					break;
 				} else {
-				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("end", currentFrame));
+				  return RascalRuntimeException.unavailableInformation("end", currentFrame);
 				}
 
 			case "uri":
@@ -6799,7 +6803,7 @@ public enum RascalPrimitive {
 				break;
 
 			default:
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField(field, currentFrame));
+			    return RascalRuntimeException.noSuchField(field, currentFrame);
 			}
 
 			return v;
@@ -6814,14 +6818,12 @@ public enum RascalPrimitive {
 	 */
 	
 	is_defined_loc_field_access_get {
-		@Override
-		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			try {
-				return new Object[] { Rascal_TRUE, loc_field_access.execute2(arg_2, arg_1, currentFrame, rex) };
-			} catch (Exception e) { // TODO: this hides implementation bugs and its not the semantics of isDefined. 
-				return new Object[] { Rascal_FALSE, null };
-			}
-		}
+	    @Override
+	    public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+	        Object result = loc_field_access.execute2(arg_2, arg_1, currentFrame, rex);
+	        return (result instanceof Thrown) ? new Object[] { Rascal_FALSE, null }
+	                                          : new Object[] { Rascal_TRUE, result };
+	    }
 	},
 
 	/**
