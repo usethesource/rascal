@@ -271,7 +271,7 @@ public class CourseCompiler {
 		
 		StringWriter sw = new StringWriter();
 		PrintWriter err = new PrintWriter(sw);
-		TutorCommandExecutor executor = new TutorCommandExecutor(pcfg, err, new BasicIDEServices());
+		TutorCommandExecutor executor = new TutorCommandExecutor(pcfg, err, new BasicIDEServices(err));
 		
 		if(cmdOpts.getCommandBoolOption("all")){
 			IList givenCourses = cmdOpts.getModules();
