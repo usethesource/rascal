@@ -9,7 +9,7 @@
 	<packaging>jar</packaging>
 
 	<scm>
-		<developerConnection>scm:git:https://github.com/usethesource/rascal.git</developerConnection>
+		<developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
 	</scm>
 
 	<!-- deployment configuration (usethesource) -->
@@ -187,6 +187,14 @@
 						<include>**/org/rascalmpl/test_compiled/MediumSuite.java</include>
 					</includes>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.3</version>
+                <configuration>
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
+                </configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
