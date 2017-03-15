@@ -145,7 +145,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 
 	  reifier = new TypeReifier(vf);
 
-	  this.ideServices = ideServices == null ? new BasicIDEServices() : ideServices;
+	  this.ideServices = ideServices == null ? new BasicIDEServices(stderr) : ideServices;
 	  this.stdout = stdout;
 	  this.stderr = stderr;
 	  config = new Configuration();

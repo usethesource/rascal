@@ -338,7 +338,7 @@ public class Function {
           message = "test fails for arguments: ";
           ITuple tup = (ITuple) randomValue.generate(requestedType);
           if(tup == null){
-            System.err.println(name + "(" + nargs + "): " + requestedType + ", " + tup );
+            rex.getStdErr().println(name + "(" + nargs + "): " + requestedType + ", " + tup );
             printTypeStore(typeStore);
         
           } 

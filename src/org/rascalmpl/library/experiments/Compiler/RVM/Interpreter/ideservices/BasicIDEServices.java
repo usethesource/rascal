@@ -15,6 +15,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
@@ -54,16 +55,18 @@ public class BasicIDEServices implements IDEServices {
   private HashSet<Path> roots = new HashSet<>();
   private Map<WatchKey,Path> keys;
   private IValueFactory vf;
+  private PrintWriter stderr;
 
-  public BasicIDEServices(){
+  public BasicIDEServices(PrintWriter stderr){
+    this.stderr = stderr;
     monitor = new ConsoleRascalMonitor();
     roots = new HashSet<>();
     vf = IRascalValueFactory.getInstance();
   }
   
-  public BasicIDEServices(IValueFactory vf){
-      this.vf = vf;
-  }
+//  public BasicIDEServices(IValueFactory vf){
+//      this.vf = vf;
+//  }
   
   public void browse(ISourceLocation loc){
       browse(loc.getURI());
@@ -78,16 +81,16 @@ public class BasicIDEServices implements IDEServices {
       try {
         desktop.browse(uri);
       } catch (IOException e) {
-        System.err.println(e.getMessage());
+        stderr.println(e.getMessage());
       }
     } else {
-      System.err.println("Desktop not supported, cannot open browser");
+      stderr.println("Desktop not supported, cannot open browser");
     }
   }
   
   public void edit(ISourceLocation loc){
       if(loc.getScheme() != "file"){
-         System.err.println("Can only edit files using the \"file\" scheme"); 
+         stderr.println("Can only edit files using the \"file\" scheme"); 
       }
       edit(Paths.get(loc.getURI()));
   }
@@ -102,10 +105,10 @@ public class BasicIDEServices implements IDEServices {
       try {
         desktop.edit(file);
       } catch (IOException e) {
-        System.err.println(e.getMessage());
+        stderr.println(e.getMessage());
       }
     } else {
-      System.err.println("Desktop not supported, cannout open editor");
+      stderr.println("Desktop not supported, cannout open editor");
     }
   }
 
