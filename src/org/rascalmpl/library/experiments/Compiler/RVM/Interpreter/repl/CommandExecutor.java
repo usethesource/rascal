@@ -153,7 +153,8 @@ public class CommandExecutor {
 		    ideServices.watch(Paths.get(((ISourceLocation) isrc).getPath()));
 		  } 
 		} catch (IOException e){
-		  /*stderr*/stdout.println("Unable to watch file changes due to: " + e);
+		  stderr.println("Unable to watch file changes due to: " + e);
+		  stderr.flush();
 		}
 		
 		// options for the kernel
@@ -220,12 +221,14 @@ public class CommandExecutor {
 		indentedPrettyPrinter = new StandardTextWriter(true);
         //singleLinePrettyPrinter = new StandardTextWriter(false);
          
-		/*stderr*/stdout.println("Type 'help' for information or 'quit' to leave");
+		stderr.println("Type 'help' for information or 'quit' to leave");
+		stderr.flush();
 	}
 	
 	private void startupMessage(PathConfig pcfg){
 	  if(repl_verbose){
-	    /*stderr*/stdout.println(pcfg);
+	    stderr.println(pcfg);
+	    stderr.flush();
 	  }
 	}
 	
@@ -262,7 +265,8 @@ public class CommandExecutor {
 	private boolean anyFilesChanged(){
 	  for(Path p : ideServices.fileChanges()){
 	    if(p.getFileName().toString().endsWith(".rsc")){
-	      /*stderr*/stdout.println("File changed: " + p);
+	      stderr.println("File changed: " + p);
+	      stderr.flush();
 	      return true;
 	    }
 	  }
@@ -312,7 +316,8 @@ public class CommandExecutor {
 	        w.append(vf.string(imports.get(i)));
 	      }
 	    } else {
-	      /*stderr*/stdout.println("No tests to execute; import modules with tests or give list of modules with tests");
+	      stderr.println("No tests to execute; import modules with tests or give list of modules with tests");
+	      stderr.flush();
 	      return;
 	    }
 	  }
@@ -322,7 +327,8 @@ public class CommandExecutor {
 	                                  .jvm(true)
 	                                  .recompile(true)
 	      );
-	  /*stderr*/stdout.println("executeTests: " + res);
+	  stderr.println("executeTests: " + res);
+	  stderr.flush();
 	}
 	
 	public IConstructor executeTestsRaw(String mname){
@@ -406,7 +412,8 @@ public class CommandExecutor {
 				vocabulary = null;
 				return val;
 			} else {
-				/*stderr*/stdout.println(getErrors(modString, rvmConsoleExecutable));
+				stderr.println(getErrors(modString, rvmConsoleExecutable));
+				stderr.flush();
 				return null;
 				
 			}
@@ -414,16 +421,19 @@ public class CommandExecutor {
 		    StringWriter sw = new StringWriter();
 		    e.printStackTrace(new PrintWriter(sw));
 		    if(e.getFrame() != null){
-		        /*stderr*/stdout.println(e);
+		        stderr.println(e);
+		        stderr.flush();
 		        debugObserver.exception(e.getFrame(), e);
 		    } else {
-		        /*stderr*/stdout.println("Exception [debugger cannot break at null frame]: " + e);
+		        stderr.println("Exception [debugger cannot break at null frame]: " + e);
+		        stderr.flush();
 		    }
 			return null; //throw new RascalShellExecutionException(sw.toString());
 		} catch (IOException e){
 		  throw new RascalShellExecutionException("Error: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
 		} catch (Exception e){
-		  e.printStackTrace(/*stderr*/stdout);
+		  e.printStackTrace(stderr);
+		  stderr.flush();
 		  throw new RascalShellExecutionException("Error: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
 		}
 	}
@@ -874,6 +884,7 @@ public class CommandExecutor {
 		  stderr.println("edit: " + words[1]);
 		  ISourceLocation loc = pcfg.resolveModule(words[1]);
 		  stderr.println("loc: " + loc);
+		  stderr.flush();
 		  ideServices.edit( Paths.get(loc.getPath()));
 		  break;
 		  
@@ -884,11 +895,13 @@ public class CommandExecutor {
 		      && variables.isEmpty()
 		      && imports.isEmpty()){
 		    stderr.println("No declarations");
+		    stderr.flush();
 		  } else {
 		    
 		    StringWriter w = new StringWriter();
 		    moduleDeclarations(w);
 		    stderr.println(w.toString());
+		    stderr.flush();
 		  }
 		  break;
 			
@@ -896,14 +909,17 @@ public class CommandExecutor {
 			if(words.length > 1){
 				for(int i = 1; i <words.length; i++){
 					if(imports.remove(words[i])){
-					    stderr.println("Import " + words[i] + "removed");
+					    stderr.println("Import " + words[i] + " removed");
+					    stderr.flush();
 					} else {
 					    stderr.println("No import " + words[i] + " found");
+					    stderr.flush();
 					}
 				}
 			} else {
 				imports = new ArrayList<String>();
 				stderr.println("All imports removed");
+				stderr.flush();
 			}
 			executeModule(makeMain("true;"), false);
 			break;
@@ -916,8 +932,10 @@ public class CommandExecutor {
 					     functionDeclarations.remove(words[i]) == null ||
 					     dataDeclarations.remove(words[i]) == null){
 					  stderr.println("No declaration for  " + words[i] + " found");
+					  stderr.flush();
 					} else {
 					  stderr.println("Declaration for  " + words[i] + " removed");
+					  stderr.flush();
 					}
 				}
 			} else {
@@ -926,6 +944,7 @@ public class CommandExecutor {
 				functionDeclarations = new HashMap<>();
 				dataDeclarations = new HashMap<>();
 				stderr.println("All declarations removed");
+				stderr.flush();
 				}
 			executeModule(makeMain("true;"), false);
 			break;
@@ -1117,12 +1136,14 @@ public class CommandExecutor {
 	      @Override
 	      public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
 	        stderr.println("delete: " + filePath);
+	        stderr.flush();
 	        Files.delete(filePath);
 	        return FileVisitResult.CONTINUE;
 	      }
 	    });
 	  } catch (IOException e){
 	    stderr.println("Could not clean project: " + e);
+	    stderr.flush();
 	  }
 	}
 }

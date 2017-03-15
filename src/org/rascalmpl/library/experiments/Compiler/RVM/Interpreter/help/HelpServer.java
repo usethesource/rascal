@@ -85,7 +85,7 @@ public class HelpServer extends NanoHTTPD {
 	        errWriter = new StringWriter();
             errPrintWriter = new PrintWriter(errWriter);
 	        pcfg = pcfg.addSourceLoc(vf.sourceLocation("test-modules", "", ""));
-	        executor = new CommandExecutor(pcfg, outPrintWriter, errPrintWriter, new BasicIDEServices(), null);
+	        executor = new CommandExecutor(pcfg, outPrintWriter, errPrintWriter, new BasicIDEServices(errPrintWriter), null);
 	      } else {
 	        outWriter.getBuffer().setLength(0);
 	        errWriter.getBuffer().setLength(0);
