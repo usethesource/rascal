@@ -3409,7 +3409,7 @@ public class Prelude {
 		TypeStore store = new TypeStore(RascalValueFactory.getStore());
 		Type start = tr.valueToType((IConstructor) type, store);
 		
-		try (IValueInputStream in = new IValueInputStream(URIResolverRegistry.getInstance().getInputStream(loc), values, TYPE_STORE_SUPPLIER)) {
+		try (IValueInputStream in = createValueReader(loc)) {
 			IValue val = in.read();;
 			if(val.getType().isSubtypeOf(start)){
 				return val;
@@ -3426,6 +3426,17 @@ public class Prelude {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 	}
+
+    private IValueInputStream createValueReader(ISourceLocation loc) throws IOException {
+        URIResolverRegistry registry = URIResolverRegistry.getInstance();
+        if (registry.supportsReadableFileChannel(loc)) {
+            FileChannel channel = registry.getReadableFileChannel(loc);
+            if (channel != null) {
+                return new IValueInputStream(channel, values, TYPE_STORE_SUPPLIER);
+            }
+        }
+        return new IValueInputStream(registry.getInputStream(loc), values, TYPE_STORE_SUPPLIER);
+    }
 
 	public IValue readBinaryValueFileOld(IValue type, ISourceLocation loc){
 		if(trackIO) System.err.println("readBinaryValueFile: " + loc);
@@ -3496,19 +3507,30 @@ public class Prelude {
 
     public void writeBinaryValueFile(ISourceLocation loc, IValue value, IBool compression){
         // TODO: transient for boot
-		try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), values, CompressionRate.Normal)) {
+		try (IValueOutputStream writer = constructValueWriter(loc, CompressionRate.Normal)) {
 		    writer.write(value);
 		}
 		catch (IOException ioex){
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
 		}
     }
+
+    private IValueOutputStream constructValueWriter(ISourceLocation loc, CompressionRate compression) throws IOException {
+        URIResolverRegistry registry = URIResolverRegistry.getInstance();
+        if (registry.supportsWritableFileChannel(loc)) {
+            FileChannel channel = registry.getWriteableFileChannel(loc, false);
+            if (channel != null) {
+                return new IValueOutputStream(channel, values, compression);
+            }
+        }
+        return new IValueOutputStream(registry.getOutputStream(loc, false), values, compression);
+    }
 	
     
     public void writeBinaryValueFile(ISourceLocation loc, IValue value, IConstructor compression){
     	if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
         // ready for after new boot
-		try (IValueOutputStream writer = new IValueOutputStream(URIResolverRegistry.getInstance().getOutputStream(loc, false), values, translateCompression(compression))) {
+		try (IValueOutputStream writer = constructValueWriter(loc, translateCompression(compression))) {
 		    writer.write(value);
 		}
 		catch (IOException ioex){
