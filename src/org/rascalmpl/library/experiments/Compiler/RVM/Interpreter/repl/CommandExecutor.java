@@ -153,7 +153,7 @@ public class CommandExecutor {
 		    ideServices.watch(Paths.get(((ISourceLocation) isrc).getPath()));
 		  } 
 		} catch (IOException e){
-		  System.err.println("Unable to watch file changes due to: " + e);
+		  /*stderr*/stdout.println("Unable to watch file changes due to: " + e);
 		}
 		
 		// options for the kernel
@@ -188,7 +188,7 @@ public class CommandExecutor {
 		
 		// options for the repl itself
 		
-		repl_verbose          = settings.getBool("repl.verbose", false);
+		repl_verbose          = settings.getBool("repl.verbose", true);
 		
 		IMapWriter w = vf.mapWriter();
 		//w.put(vf.string("bootstrapParser"), vf.string(""));
@@ -220,12 +220,12 @@ public class CommandExecutor {
 		indentedPrettyPrinter = new StandardTextWriter(true);
         //singleLinePrettyPrinter = new StandardTextWriter(false);
          
-		stderr.println("Type 'help' for information or 'quit' to leave");
+		/*stderr*/stdout.println("Type 'help' for information or 'quit' to leave");
 	}
 	
 	private void startupMessage(PathConfig pcfg){
 	  if(repl_verbose){
-	    System.err.println(pcfg);
+	    /*stderr*/stdout.println(pcfg);
 	  }
 	}
 	
@@ -262,7 +262,7 @@ public class CommandExecutor {
 	private boolean anyFilesChanged(){
 	  for(Path p : ideServices.fileChanges()){
 	    if(p.getFileName().toString().endsWith(".rsc")){
-	      System.err.println("File changed: " + p);
+	      /*stderr*/stdout.println("File changed: " + p);
 	      return true;
 	    }
 	  }
@@ -312,7 +312,7 @@ public class CommandExecutor {
 	        w.append(vf.string(imports.get(i)));
 	      }
 	    } else {
-	      stderr.println("No tests to execute; import modules with tests or give list of modules with tests");
+	      /*stderr*/stdout.println("No tests to execute; import modules with tests or give list of modules with tests");
 	      return;
 	    }
 	  }
@@ -322,7 +322,7 @@ public class CommandExecutor {
 	                                  .jvm(true)
 	                                  .recompile(true)
 	      );
-	  stderr.println("executeTests: " + res);
+	  /*stderr*/stdout.println("executeTests: " + res);
 	}
 	
 	public IConstructor executeTestsRaw(String mname){
@@ -369,7 +369,7 @@ public class CommandExecutor {
 		moduleDeclarations(w);
 		w.append(main);
 		String modString = w.toString();
-		//System.err.println(modString);
+		//stderr.println(modString);
 		try {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
 			IBool reuseConfig = vf.bool(onlyMainChanged && !forceRecompilation && !anyFilesChanged());
@@ -406,7 +406,7 @@ public class CommandExecutor {
 				vocabulary = null;
 				return val;
 			} else {
-				System.err.println(getErrors(modString, rvmConsoleExecutable));
+				/*stderr*/stdout.println(getErrors(modString, rvmConsoleExecutable));
 				return null;
 				
 			}
@@ -414,16 +414,16 @@ public class CommandExecutor {
 		    StringWriter sw = new StringWriter();
 		    e.printStackTrace(new PrintWriter(sw));
 		    if(e.getFrame() != null){
-		        System.err.println(e);
+		        /*stderr*/stdout.println(e);
 		        debugObserver.exception(e.getFrame(), e);
 		    } else {
-		        System.err.println("Exception [debugger cannot break at null frame]: " + e);
+		        /*stderr*/stdout.println("Exception [debugger cannot break at null frame]: " + e);
 		    }
 			return null; //throw new RascalShellExecutionException(sw.toString());
 		} catch (IOException e){
 		  throw new RascalShellExecutionException("Error: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
 		} catch (Exception e){
-		  e.printStackTrace();
+		  e.printStackTrace(/*stderr*/stdout);
 		  throw new RascalShellExecutionException("Error: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
 		}
 	}
@@ -871,9 +871,9 @@ public class CommandExecutor {
 			break;
 			
 		case "edit":
-		  System.err.println("edit: " + words[1]);
+		  stderr.println("edit: " + words[1]);
 		  ISourceLocation loc = pcfg.resolveModule(words[1]);
-		  System.err.println("loc: " + loc);
+		  stderr.println("loc: " + loc);
 		  ideServices.edit( Paths.get(loc.getPath()));
 		  break;
 		  
@@ -1116,13 +1116,13 @@ public class CommandExecutor {
 	    Files.walkFileTree(binRoot, new SimpleFileVisitor<Path>() {
 	      @Override
 	      public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
-	        System.err.println("delete: " + filePath);
+	        stderr.println("delete: " + filePath);
 	        Files.delete(filePath);
 	        return FileVisitResult.CONTINUE;
 	      }
 	    });
 	  } catch (IOException e){
-	    System.err.println("Could not clean project: " + e);
+	    stderr.println("Could not clean project: " + e);
 	  }
 	}
 }
