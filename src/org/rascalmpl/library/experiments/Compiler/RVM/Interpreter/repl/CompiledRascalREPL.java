@@ -112,7 +112,7 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   @Override
   protected void initialize(PathConfig pcfg, Writer stdout, Writer stderr, IDEServices ideServices) throws IOException, URISyntaxException {
     try {
-        executor = constructCommandExecutor(pcfg, new PrintWriter(stdout), new PrintWriter(stderr), ideServices);
+        executor = constructCommandExecutor(pcfg, new PrintWriter(stdout), new PrintWriter(stderr, true), ideServices);
     } catch (NoSuchRascalFunction e) {
         throw new RuntimeException(e);
     }
