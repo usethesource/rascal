@@ -60,8 +60,8 @@ public class DebugREPL extends BaseREPL{
 	
 	@Override
 	protected void initialize(PathConfig pcfg, Writer stdout, Writer stderr, IDEServices ideServices) {
-		 this.stdout = new PrintWriter(stdout);
-         this.stderr = new PrintWriter(stderr);
+		 this.stdout = new PrintWriter(stdout, true);
+         this.stderr = new PrintWriter(stderr, true);
 	}
 
 	@Override
