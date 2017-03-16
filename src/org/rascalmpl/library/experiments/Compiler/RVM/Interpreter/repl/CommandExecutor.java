@@ -669,7 +669,11 @@ public class CommandExecutor {
 			    try {
 			      forceRecompilation = true;
 			      result = executeModule(makeMain(name + " = " + initial + ";"), false);
-			      updateVar(name, result);
+			      if(result != null){
+			          updateVar(name, result);
+			      } else {
+			          undeclareVar(name);
+			      }
 			    } catch (RascalShellExecutionException e){
 			      undeclareVar(name);
 			      return null;
@@ -679,6 +683,9 @@ public class CommandExecutor {
 			    try {
 			      forceRecompilation = true;
 			      result = executeModule(makeMain("true;"), false);
+			      if(result == null){
+			          undeclareVar(name);
+			      }
 			    } catch (RascalShellExecutionException e){
 			      undeclareVar(name);
 			    }
@@ -696,6 +703,10 @@ public class CommandExecutor {
 		  dataDeclarations.put(name,  alts);
 		  try {
 		    result = executeModule(makeMain("true;"), false);
+		    if(result == null){
+		        alts.remove(src);
+	            dataDeclarations.put(name,  alts); 
+		    }
 		    return null;
 		  } catch (RascalShellExecutionException e) {
 		    alts.remove(src);
@@ -713,6 +724,10 @@ public class CommandExecutor {
 		      functionDeclarations.put(name,  alts);
 		      try {
 		        result = executeModule(makeMain("true;"), false);
+		        if(result == null){
+		            alts.remove(src);
+	                functionDeclarations.put(name,  alts); 
+		        }
 		        return null;
 		      } catch (RascalShellExecutionException e) {
 		        alts.remove(src);
@@ -733,6 +748,9 @@ public class CommandExecutor {
 			try {
 				forceRecompilation = true;
 				result = executeModule(makeMainOk(), false);
+				if(result == null){
+				    imports.remove(impName); 
+				}
 				return null;
 			} catch (RascalShellExecutionException e){
 				imports.remove(impName);
@@ -750,6 +768,9 @@ public class CommandExecutor {
             syntaxDefinitions.put(name, alts);
 			try {
 				result = executeModule(makeMainOk(), false);
+				if(result ==null){
+				    alts.remove(src);
+				}
 				return null;
 			} catch (RascalShellExecutionException e){
 			    alts.remove(src);
