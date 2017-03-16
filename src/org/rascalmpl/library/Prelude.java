@@ -3409,7 +3409,7 @@ public class Prelude {
 		TypeStore store = new TypeStore(RascalValueFactory.getStore());
 		Type start = tr.valueToType((IConstructor) type, store);
 		
-		try (IValueInputStream in = createValueReader(loc)) {
+		try (IValueInputStream in = constructValueReader(loc)) {
 			IValue val = in.read();;
 			if(val.getType().isSubtypeOf(start)){
 				return val;
@@ -3427,14 +3427,14 @@ public class Prelude {
 		}
 	}
 
-    private IValueInputStream createValueReader(ISourceLocation loc) throws IOException {
+    private IValueInputStream constructValueReader(ISourceLocation loc) throws IOException {
         URIResolverRegistry registry = URIResolverRegistry.getInstance();
-        if (registry.supportsReadableFileChannel(loc)) {
-            FileChannel channel = registry.getReadableFileChannel(loc);
-            if (channel != null) {
-                return new IValueInputStream(channel, values, TYPE_STORE_SUPPLIER);
-            }
-        }
+//        if (registry.supportsReadableFileChannel(loc)) {
+//            FileChannel channel = registry.getReadableFileChannel(loc);
+//            if (channel != null) {
+//                return new IValueInputStream(channel, values, TYPE_STORE_SUPPLIER);
+//            }
+//        }
         return new IValueInputStream(registry.getInputStream(loc), values, TYPE_STORE_SUPPLIER);
     }
 
@@ -3517,12 +3517,12 @@ public class Prelude {
 
     private IValueOutputStream constructValueWriter(ISourceLocation loc, CompressionRate compression) throws IOException {
         URIResolverRegistry registry = URIResolverRegistry.getInstance();
-        if (registry.supportsWritableFileChannel(loc)) {
-            FileChannel channel = registry.getWriteableFileChannel(loc, false);
-            if (channel != null) {
-                return new IValueOutputStream(channel, values, compression);
-            }
-        }
+//        if (registry.supportsWritableFileChannel(loc)) {
+//            FileChannel channel = registry.getWriteableFileChannel(loc, false);
+//            if (channel != null) {
+//                return new IValueOutputStream(channel, values, compression);
+//            }
+//        }
         return new IValueOutputStream(registry.getOutputStream(loc, false), values, compression);
     }
 	
