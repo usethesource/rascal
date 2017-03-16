@@ -3,14 +3,12 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.GZIPInputStream;
 
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TypeReifier;
@@ -22,30 +20,22 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMW
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMWireOutputStream;
 import org.rascalmpl.library.util.SemVer;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.values.ValueFactoryFactory;
-
-import com.github.luben.zstd.ZstdInputStream;
-import com.github.luben.zstd.ZstdOutputStream;
-
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.io.binary.util.ByteBufferInputStream;
-import io.usethesource.vallang.io.binary.util.ByteBufferOutputStream;
-import io.usethesource.vallang.io.binary.util.DelayedCompressionOutputStream;
-import io.usethesource.vallang.io.binary.util.DelayedZstdOutputStream;
-import io.usethesource.vallang.io.binary.util.DirectZstdInputStream;
-import io.usethesource.vallang.io.binary.util.FileChannelDirectInputStream;
-import io.usethesource.vallang.io.binary.util.FileChannelDirectOutputStream;
 import io.usethesource.vallang.io.binary.util.WindowSizes;
 import io.usethesource.vallang.io.binary.wire.IWireInputStream;
 import io.usethesource.vallang.io.binary.wire.binary.BinaryWireInputStream;
 import io.usethesource.vallang.io.binary.wire.binary.BinaryWireOutputStream;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
+import org.rascalmpl.values.ValueFactoryFactory;
+
+import com.github.luben.zstd.ZstdInputStream;
+import com.github.luben.zstd.ZstdOutputStream;
 
 /**
  * RVMExecutable contains all data needed for executing an RVM program.
@@ -315,39 +305,19 @@ public class RVMExecutable {
 	
 	@SuppressWarnings("resource")
     public void write(ISourceLocation rvmExecutable, int compressionLevel) throws IOException {
-	    try(OutputStream out = getOutputStream(rvmExecutable)){
+	    try(OutputStream out = URIResolverRegistry.getInstance().getOutputStream(rvmExecutable, false)){
 	        out.write(EXEC_HEADER);
 	        out.write(EXEC_VERSION);
+	        out.write(compressionLevel > 0 ? EXEC_COMPRESSION_ZSTD : EXEC_COMPRESSION_NONE);
 	        OutputStream cout = out;
-	        
-	        if (compressionLevel > 0 ) {
-	            if (out instanceof ByteBufferOutputStream) {
-	                cout = new DelayedZstdOutputStream((ByteBufferOutputStream)out, EXEC_COMPRESSION_ZSTD, compressionLevel);
-	            }
-	            else {
-	                cout = new DelayedCompressionOutputStream(out, EXEC_COMPRESSION_ZSTD, o -> new ZstdOutputStream(o, compressionLevel));
-	            }
+	        if(compressionLevel > 0){
+	            cout = new ZstdOutputStream(out, compressionLevel);
 	        }
-	        else {
-	            cout.write(EXEC_COMPRESSION_NONE);
-	        }
-	        
 	        try(IRVMWireOutputStream iout = new RVMWireOutputStream(new BinaryWireOutputStream(cout, 50_000), vf, 50_000)){
 	            write(iout);
 	        }
 	    }
 	}
-
-    private OutputStream getOutputStream(ISourceLocation loc) throws IOException {
-        URIResolverRegistry registry = URIResolverRegistry.getInstance();
-        if (registry.supportsWritableFileChannel(loc)) {
-            FileChannel chan = registry.getWriteableFileChannel(loc, false);
-            if (chan != null) {
-                return new FileChannelDirectOutputStream(chan, 10);
-            }
-        }
-        return registry.getOutputStream(loc, false);
-    }
 	
     private void write(IRVMWireOutputStream out) throws IOException {
 	    out.startMessage(CompilerIDs.Executable.ID);
@@ -407,7 +377,7 @@ public class RVMExecutable {
 	
 	@SuppressWarnings("resource")
     public static RVMExecutable read(ISourceLocation rvmExecutable) throws IOException {
-	    try(InputStream in = getInputStream(rvmExecutable)){
+	    try(InputStream in = URIResolverRegistry.getInstance().getInputStream(rvmExecutable)){
 	        byte[] header = new byte[EXEC_HEADER.length];
 	        in.read(header);
 	        if(Arrays.equals(header, EXEC_HEADER)){
@@ -419,15 +389,7 @@ public class RVMExecutable {
 	            int compression = in.read();
 	            InputStream cin = in;
 	            if(compression != EXEC_COMPRESSION_NONE){
-	                if (compression == EXEC_COMPRESSION_ZSTD && in instanceof ByteBufferInputStream && ((ByteBufferInputStream)in).getByteBuffer().isDirect()) {
-	                    cin = new DirectZstdInputStream((ByteBufferInputStream) in);
-	                }
-	                else if (compression == EXEC_COMPRESSION_ZSTD){
-	                    cin = new ZstdInputStream(in);
-	                }
-	                else if (compression == EXEC_COMPRESSION_GZIP) {
-	                    cin = new GZIPInputStream(in);
-	                }
+	                cin = new ZstdInputStream(in);
 	            }
 	            try(IRVMWireInputStream win = new RVMWireInputStream(new BinaryWireInputStream(cin), ValueFactoryFactory.getValueFactory())){
 	                return read(win, ValueFactoryFactory.getValueFactory());
@@ -437,17 +399,6 @@ public class RVMExecutable {
 	        }
 	    }
 	}
-
-    private static InputStream getInputStream(ISourceLocation loc) throws IOException {
-        URIResolverRegistry registry = URIResolverRegistry.getInstance();
-        if (registry.supportsReadableFileChannel(loc)) {
-            FileChannel chan = registry.getReadableFileChannel(loc);
-            if (chan != null) {
-                return new FileChannelDirectInputStream(chan);
-            }
-        }
-        return registry.getInputStream(loc);
-    }
 	
 	private static RVMExecutable read(IRVMWireInputStream in, IValueFactory vf) throws IOException {
 	    ISet errors = vf.set();
