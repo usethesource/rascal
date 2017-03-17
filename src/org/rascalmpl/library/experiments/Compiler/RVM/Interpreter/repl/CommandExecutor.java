@@ -153,7 +153,7 @@ public class CommandExecutor {
 		    ideServices.watch(Paths.get(((ISourceLocation) isrc).getPath()));
 		  } 
 		} catch (IOException e){
-		  System.err.println("Unable to watch file changes due to: " + e);
+		  stderr.println("Unable to watch file changes due to: " + e);
 		}
 		
 		// options for the kernel
@@ -225,7 +225,7 @@ public class CommandExecutor {
 	
 	private void startupMessage(PathConfig pcfg){
 	  if(repl_verbose){
-	    System.err.println(pcfg);
+	    stderr.println(pcfg);
 	  }
 	}
 	
@@ -262,7 +262,7 @@ public class CommandExecutor {
 	private boolean anyFilesChanged(){
 	  for(Path p : ideServices.fileChanges()){
 	    if(p.getFileName().toString().endsWith(".rsc")){
-	      System.err.println("File changed: " + p);
+	      stderr.println("File changed: " + p);
 	      return true;
 	    }
 	  }
@@ -369,7 +369,7 @@ public class CommandExecutor {
 		moduleDeclarations(w);
 		w.append(main);
 		String modString = w.toString();
-		//System.err.println(modString);
+		//stderr.println(modString);
 		try {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
 			IBool reuseConfig = vf.bool(onlyMainChanged && !forceRecompilation && !anyFilesChanged());
@@ -406,7 +406,7 @@ public class CommandExecutor {
 				vocabulary = null;
 				return val;
 			} else {
-				System.err.println(getErrors(modString, rvmConsoleExecutable));
+				stderr.println(getErrors(modString, rvmConsoleExecutable));
 				return null;
 				
 			}
@@ -414,16 +414,16 @@ public class CommandExecutor {
 		    StringWriter sw = new StringWriter();
 		    e.printStackTrace(new PrintWriter(sw));
 		    if(e.getFrame() != null){
-		        System.err.println(e);
+		        stderr.println(e);
 		        debugObserver.exception(e.getFrame(), e);
 		    } else {
-		        System.err.println("Exception [debugger cannot break at null frame]: " + e);
+		        stderr.println("Exception [debugger cannot break at null frame]: " + e);
 		    }
 			return null; //throw new RascalShellExecutionException(sw.toString());
 		} catch (IOException e){
 		  throw new RascalShellExecutionException("Error: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
 		} catch (Exception e){
-		  e.printStackTrace();
+		  e.printStackTrace(stderr);
 		  throw new RascalShellExecutionException("Error: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
 		}
 	}
@@ -669,7 +669,11 @@ public class CommandExecutor {
 			    try {
 			      forceRecompilation = true;
 			      result = executeModule(makeMain(name + " = " + initial + ";"), false);
-			      updateVar(name, result);
+			      if(result != null){
+			          updateVar(name, result);
+			      } else {
+			          undeclareVar(name);
+			      }
 			    } catch (RascalShellExecutionException e){
 			      undeclareVar(name);
 			      return null;
@@ -679,6 +683,9 @@ public class CommandExecutor {
 			    try {
 			      forceRecompilation = true;
 			      result = executeModule(makeMain("true;"), false);
+			      if(result == null){
+			          undeclareVar(name);
+			      }
 			    } catch (RascalShellExecutionException e){
 			      undeclareVar(name);
 			    }
@@ -696,6 +703,10 @@ public class CommandExecutor {
 		  dataDeclarations.put(name,  alts);
 		  try {
 		    result = executeModule(makeMain("true;"), false);
+		    if(result == null){
+		        alts.remove(src);
+	            dataDeclarations.put(name,  alts); 
+		    }
 		    return null;
 		  } catch (RascalShellExecutionException e) {
 		    alts.remove(src);
@@ -713,6 +724,10 @@ public class CommandExecutor {
 		      functionDeclarations.put(name,  alts);
 		      try {
 		        result = executeModule(makeMain("true;"), false);
+		        if(result == null){
+		            alts.remove(src);
+	                functionDeclarations.put(name,  alts); 
+		        }
 		        return null;
 		      } catch (RascalShellExecutionException e) {
 		        alts.remove(src);
@@ -733,6 +748,9 @@ public class CommandExecutor {
 			try {
 				forceRecompilation = true;
 				result = executeModule(makeMainOk(), false);
+				if(result == null){
+				    imports.remove(impName); 
+				}
 				return null;
 			} catch (RascalShellExecutionException e){
 				imports.remove(impName);
@@ -750,6 +768,9 @@ public class CommandExecutor {
             syntaxDefinitions.put(name, alts);
 			try {
 				result = executeModule(makeMainOk(), false);
+				if(result ==null){
+				    alts.remove(src);
+				}
 				return null;
 			} catch (RascalShellExecutionException e){
 			    alts.remove(src);
@@ -871,9 +892,9 @@ public class CommandExecutor {
 			break;
 			
 		case "edit":
-		  System.err.println("edit: " + words[1]);
+		  stderr.println("edit: " + words[1]);
 		  ISourceLocation loc = pcfg.resolveModule(words[1]);
-		  System.err.println("loc: " + loc);
+		  stderr.println("loc: " + loc);
 		  ideServices.edit( Paths.get(loc.getPath()));
 		  break;
 		  
@@ -896,7 +917,7 @@ public class CommandExecutor {
 			if(words.length > 1){
 				for(int i = 1; i <words.length; i++){
 					if(imports.remove(words[i])){
-					    stderr.println("Import " + words[i] + "removed");
+					    stderr.println("Import " + words[i] + " removed");
 					} else {
 					    stderr.println("No import " + words[i] + " found");
 					}
@@ -1116,13 +1137,13 @@ public class CommandExecutor {
 	    Files.walkFileTree(binRoot, new SimpleFileVisitor<Path>() {
 	      @Override
 	      public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
-	        System.err.println("delete: " + filePath);
+	        stderr.println("delete: " + filePath);
 	        Files.delete(filePath);
 	        return FileVisitResult.CONTINUE;
 	      }
 	    });
 	  } catch (IOException e){
-	    System.err.println("Could not clean project: " + e);
+	    stderr.println("Could not clean project: " + e);
 	  }
 	}
 }

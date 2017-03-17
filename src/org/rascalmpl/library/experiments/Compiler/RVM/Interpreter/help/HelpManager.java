@@ -58,7 +58,7 @@ public class HelpManager {
         helpServer = new HelpServer(getPort(), this, coursesDir);
         indexSearcher = makeIndexSearcher();
       } catch (IOException e) {
-        System.err.println("HelpManager: " + e.getMessage());
+        stderr.println("HelpManager: " + e.getMessage());
       }
     }
     

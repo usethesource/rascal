@@ -36,7 +36,7 @@ public class ExecutionTools {
 					IBool coverage, 
 					IBool jvm
 	) {
-		return RascalExecutionContextBuilder.normalContext(pcfg, out != null ? out : new PrintWriter(System.out), err != null ? err : new PrintWriter(System.err))
+		return RascalExecutionContextBuilder.normalContext(pcfg, out != null ? out : new PrintWriter(System.out), err != null ? err : new PrintWriter(System.err, true))
 			.withModuleTags(rvmExecutable.getModuleTags())
 			.withSymbolDefinitions(rvmExecutable.getSymbolDefinitions())
 			.coverage(coverage.getValue())
