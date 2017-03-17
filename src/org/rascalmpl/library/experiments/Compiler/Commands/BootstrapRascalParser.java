@@ -6,6 +6,8 @@ import java.net.URISyntaxException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
+
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -39,7 +41,7 @@ public class BootstrapRascalParser {
 
 	        IKernel kernel = Java2Rascal.Builder.bridge(vf, cmdOpts.getPathConfig(), IKernel.class).build();
 
-	        kernel.bootstrapRascalParser(cmdOpts.getCommandLocsOption("src"));
+	        kernel.bootstrapRascalParser((ISourceLocation) cmdOpts.getCommandLocsOption("src").get(0));
 	    }
 		catch (Throwable e) {
 		    e.printStackTrace();
