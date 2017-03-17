@@ -50,6 +50,9 @@ public class Marshall {
   }
   
   public static Object unmarshall(IValue v, Class<?> returnType) {
+    if(v == null){
+        return null; // a void result
+    }
     Type t = v.getType();
     if (t.isBool() && returnType.getName().equals("boolean")) {
       return ((IBool) v).getValue();
