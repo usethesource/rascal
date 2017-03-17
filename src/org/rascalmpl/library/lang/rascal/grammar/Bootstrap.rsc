@@ -31,6 +31,15 @@ public void bootstrapRascalParser(loc rascalHome) {
   bootParser(gr, rascalHome);
 }
 
+public void bootstrapRascalParser(list[loc] srcs) {
+  rascalLib = srcs[0];
+  println("generating from <rascalLib>");
+  gr = getRascalGrammar(rascalLib + "lang/rascal/syntax/Rascal.rsc");
+  event("generating new Rascal parser");
+  source = newGenerate(package, rootName, gr);
+  writeFile(rascalLib + "lang/rascal/syntax/<rootName>.java", source);
+}
+
 public void bootstrap(loc rascalHome) {
   println("generating from <rascalHome>");
   gr = getRascalGrammar(rascalHome + "src/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc");
