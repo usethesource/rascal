@@ -148,13 +148,13 @@ public class CommandExecutor {
 		this.repl = repl;
 		
 		consoleInputLocation = vf.sourceLocation("test-modules", "", consoleInputName + ".rsc");
-		try {
-		  for(IValue isrc : pcfg.getSrcs()){
-		    ideServices.watch(Paths.get(((ISourceLocation) isrc).getPath()));
-		  } 
-		} catch (IOException e){
-		  stderr.println("Unable to watch file changes due to: " + e);
-		}
+//		try {
+//		  for(IValue isrc : pcfg.getSrcs()){
+//		    ideServices.watch(Paths.get(((ISourceLocation) isrc).getPath()));
+//		  } 
+//		} catch (IOException e){
+//		  stderr.println("Unable to watch file changes due to: " + e);
+//		}
 		
 		// options for the kernel
 		
@@ -259,15 +259,15 @@ public class CommandExecutor {
 	  return s.substring(0,1).toUpperCase() + s.substring(1);
 	}
 	
-	private boolean anyFilesChanged(){
-	  for(Path p : ideServices.fileChanges()){
-	    if(p.getFileName().toString().endsWith(".rsc")){
-	      stderr.println("File changed: " + p);
-	      return true;
-	    }
-	  }
-	  return false;
-	}
+//	private boolean anyFilesChanged(){
+//	  for(Path p : ideServices.fileChanges()){
+//	    if(p.getFileName().toString().endsWith(".rsc")){
+//	      stderr.println("File changed: " + p);
+//	      return true;
+//	    }
+//	  }
+//	  return false;
+//	}
 	
 	private String getErrors(String modString, RVMExecutable exec){
       ISet errors = exec.getErrors();
@@ -372,7 +372,7 @@ public class CommandExecutor {
 		//stderr.println(modString);
 		try {
 			prelude.writeFile(consoleInputLocation, vf.list(vf.string(modString)));
-			IBool reuseConfig = vf.bool(onlyMainChanged && !forceRecompilation && !anyFilesChanged());
+			IBool reuseConfig = vf.bool(onlyMainChanged && !forceRecompilation /* && !anyFilesChanged()*/);
 			forceRecompilation = true;
 			IConstructor rvmProgram = kernel.compileAndMergeProgramIncremental(vf.string(consoleInputName), 
 																	reuseConfig, 
