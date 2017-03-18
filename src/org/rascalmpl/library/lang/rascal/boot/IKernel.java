@@ -86,9 +86,18 @@ public interface IKernel extends IJava2Rascal {
   /**
    * Regenerate the parser for Rascal itself (used only in bootstrapping stages).
    * Writes in a source directory!
+   * @param rascalHome    Rascal source directory
+   */
+  //deprecated
+  public void bootstrapRascalParser(ISourceLocation rascalHome);
+  
+  /**
+   * Regenerate the parser for Rascal itself (used only in bootstrapping stages).
+   * Writes in a source directory!
    * @param srcs    List of source directories
    */
   public void bootstrapRascalParser(IList srcs);
+
 
   /**
    * Compile and link a Rascal module
