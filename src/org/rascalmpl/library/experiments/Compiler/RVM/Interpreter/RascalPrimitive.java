@@ -7095,22 +7095,11 @@ public enum RascalPrimitive {
 		@Override
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity >= 2;
-			ISet rel = (ISet) stack[sp - arity];
-			int indexArity = arity - 1;
 			int[] fields = new int[arity - 1];
 			for(int i = 1; i < arity; i++){
 				fields[i - 1] = ((IInteger)stack[sp - arity + i]).intValue();
 			}
-			ISetWriter w = vf.setWriter();
-			IValue[] elems = new IValue[arity - 1];
-			for(IValue vtup : rel){
-				ITuple tup = (ITuple) vtup;
-				for(int j = 0; j < fields.length; j++){
-					elems[j] = tup.get(fields[j]);
-				}
-				w.insert((indexArity > 1) ? vf.tuple(elems) : elems[0]);
-			}
-			stack[sp - arity] = w.done();
+			stack[sp - arity] = ((ISet) stack[sp - arity]).asRelation().project(fields);
 			return sp - arity + 1;
 		}
 	},
