@@ -12,6 +12,7 @@ import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -4529,7 +4530,7 @@ public enum RascalPrimitive {
 			ISourceLocation left = (ISourceLocation) arg_2;
 			ISourceLocation right = (ISourceLocation) arg_1;
 
-			int compare = left.top().toString().compareTo(right.top().toString());
+			int compare = URICompare.compare(left, right);
 			if (compare < 0) {
 				return Rascal_TRUE;
 			}
@@ -5071,7 +5072,7 @@ public enum RascalPrimitive {
 			ISourceLocation left = (ISourceLocation) arg_2;
 			ISourceLocation right = (ISourceLocation) arg_1;
 
-			int compare = left.top().toString().compareTo(right.top().toString());
+			int compare = URICompare.compare(left, right);
 			if (compare < 0) {
 				return Rascal_TRUE;
 			}
@@ -9570,4 +9571,93 @@ enum SliceOperator {
 		this.operator = op;
 	}
 
+}
+
+class URIIterator implements Iterable<String> {
+
+    private static final int NONE = 0;
+    private static final int SCHEME = 1;
+    private static final int SCHEME_SEP = 2;
+    private static final int AUTHORITY = 3;
+    private static final int AUTHORITY_SEP = 4;
+    private static final int PATH = 5;
+    private static final int QUERY_PRE = 6;
+    private static final int QUERY = 7;
+    private static final int FRAGMENT_PRE = 8;
+    private static final int FRAGMENT = 9;
+    
+    private final ISourceLocation loc;
+
+    public URIIterator(ISourceLocation loc) {
+        this.loc = loc;
+    }
+    
+    @Override
+    public Iterator<String> iterator() {
+        return new Iterator<String>() {
+            int next = SCHEME;
+            @Override
+            public String next() {
+                switch (next) {
+                    case SCHEME:
+                        next = SCHEME_SEP;
+                        return loc.getScheme();
+                    case SCHEME_SEP:
+                        next = loc.hasAuthority() ? AUTHORITY : AUTHORITY_SEP;
+                        return "://";
+                    case AUTHORITY:
+                        next = AUTHORITY_SEP;
+                        return loc.getAuthority();
+                    case AUTHORITY_SEP:
+                        next = loc.hasPath() ? PATH : (loc.hasQuery() ? QUERY_PRE : (loc.hasFragment() ? FRAGMENT_PRE : NONE));
+                        return "/";
+                    case PATH:
+                        next = (loc.hasQuery() ? QUERY_PRE : (loc.hasFragment() ? FRAGMENT_PRE : NONE));
+                        return loc.getPath();
+                    case QUERY_PRE:
+                        next = QUERY;
+                        return "?";
+                    case QUERY:
+                        next = loc.hasFragment() ? FRAGMENT_PRE : NONE;
+                        return loc.getQuery();
+                    case FRAGMENT_PRE:
+                        next = FRAGMENT;
+                        return "#";
+                    case FRAGMENT:
+                        next = NONE;
+                        return loc.getFragment();
+                    default:
+                        return null;
+                }
+            }
+            
+            @Override
+            public boolean hasNext() {
+                return next != NONE;
+            }
+        };
+    }
+}
+
+class URICompare {
+    public static int compare(ISourceLocation a, ISourceLocation b) {
+        Iterator<String> left = new URIIterator(a).iterator();
+        Iterator<String> right = new URIIterator(b).iterator();
+        while (left.hasNext() && right.hasNext()) {
+            String leftChunk = left.next();
+            String rightChunk = right.next();
+            int result = leftChunk.compareTo(rightChunk);
+            if (result != 0) {
+                return result;
+            }
+        }
+        if (!left.hasNext() && !right.hasNext()) {
+            return 0;
+        }
+        if (right.hasNext()) {
+            // left was shorter but equal for shared part 
+            return -1;
+        }
+        return 1;
+   }
 }
