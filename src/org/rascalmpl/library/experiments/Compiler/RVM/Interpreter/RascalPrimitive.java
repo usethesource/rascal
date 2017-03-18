@@ -9573,88 +9573,82 @@ enum SliceOperator {
 
 }
 
-class URIIterator implements Iterable<String> {
-
-    private static final int NONE = 0;
-    private static final int SCHEME = 1;
-    private static final int SCHEME_SEP = 2;
-    private static final int AUTHORITY = 3;
-    private static final int AUTHORITY_SEP = 4;
-    private static final int PATH = 5;
-    private static final int QUERY_PRE = 6;
-    private static final int QUERY = 7;
-    private static final int FRAGMENT_PRE = 8;
-    private static final int FRAGMENT = 9;
-    
-    private final ISourceLocation loc;
-
-    public URIIterator(ISourceLocation loc) {
-        this.loc = loc;
-    }
-    
-    @Override
-    public Iterator<String> iterator() {
-        return new Iterator<String>() {
-            int next = SCHEME;
-            @Override
-            public String next() {
-                switch (next) {
-                    case SCHEME:
-                        next = SCHEME_SEP;
-                        return loc.getScheme();
-                    case SCHEME_SEP:
-                        next = loc.hasAuthority() ? AUTHORITY : AUTHORITY_SEP;
-                        return "://";
-                    case AUTHORITY:
-                        next = AUTHORITY_SEP;
-                        return loc.getAuthority();
-                    case AUTHORITY_SEP:
-                        next = loc.hasPath() ? PATH : (loc.hasQuery() ? QUERY_PRE : (loc.hasFragment() ? FRAGMENT_PRE : NONE));
-                        return "/";
-                    case PATH:
-                        next = (loc.hasQuery() ? QUERY_PRE : (loc.hasFragment() ? FRAGMENT_PRE : NONE));
-                        return loc.getPath();
-                    case QUERY_PRE:
-                        next = QUERY;
-                        return "?";
-                    case QUERY:
-                        next = loc.hasFragment() ? FRAGMENT_PRE : NONE;
-                        return loc.getQuery();
-                    case FRAGMENT_PRE:
-                        next = FRAGMENT;
-                        return "#";
-                    case FRAGMENT:
-                        next = NONE;
-                        return loc.getFragment();
-                    default:
-                        return null;
-                }
-            }
-            
-            @Override
-            public boolean hasNext() {
-                return next != NONE;
-            }
-        };
-    }
-}
-
 class URICompare {
+    
+    private static interface URIIterator {
+        String current(ISourceLocation loc);
+        URIIterator next(ISourceLocation loc);
+    }
+    
+    private final static URIIterator NONE = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return null; }
+        public String current(ISourceLocation loc) { return null; }
+    }; 
+    
+    private final static URIIterator  SCHEME = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return SCHEME_SEP; }
+        public String current(ISourceLocation loc) { return loc.getScheme(); }
+    };
+    
+    private final static URIIterator  SCHEME_SEP = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return loc.hasAuthority() ? AUTHORITY : AUTHORITY_SEP; }
+        public String current(ISourceLocation loc) { return "://"; }
+    };
+    
+    private final static URIIterator  AUTHORITY = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return AUTHORITY_SEP; }
+        public String current(ISourceLocation loc) { return loc.getAuthority(); }
+    };
+    
+    private final static URIIterator  AUTHORITY_SEP = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return loc.hasPath() ? PATH : (loc.hasQuery() ? QUERY_PRE : (loc.hasFragment() ? FRAGMENT_PRE : NONE)); }
+        public String current(ISourceLocation loc) { return "/"; }
+    };
+    
+    private final static URIIterator  PATH = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return (loc.hasQuery() ? QUERY_PRE : (loc.hasFragment() ? FRAGMENT_PRE : NONE)); }
+        public String current(ISourceLocation loc) { return loc.getPath(); }
+    };
+    
+    private final static URIIterator  QUERY_PRE = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return QUERY; }
+        public String current(ISourceLocation loc) { return "?"; }
+    };
+    
+    private final static URIIterator  QUERY = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return loc.hasFragment() ? FRAGMENT_PRE : NONE; }
+        public String current(ISourceLocation loc) { return loc.getQuery(); }
+    };
+    
+    private final static URIIterator  FRAGMENT_PRE = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return FRAGMENT; }
+        public String current(ISourceLocation loc) { return "#"; }
+    };
+    
+    private final static URIIterator  FRAGMENT = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return NONE; }
+        public String current(ISourceLocation loc) { return loc.getFragment(); }
+    };
+
+
+    
     public static int compare(ISourceLocation a, ISourceLocation b) {
-        Iterator<String> left = new URIIterator(a).iterator();
-        Iterator<String> right = new URIIterator(b).iterator();
-        while (left.hasNext() && right.hasNext()) {
-            String leftChunk = left.next();
-            String rightChunk = right.next();
+        URIIterator left = SCHEME;
+        URIIterator right = SCHEME;
+        while (left != NONE && right != NONE) {
+            String leftChunk = left.current(a);
+            String rightChunk = right.current(b);
             int result = leftChunk.compareTo(rightChunk);
             if (result != 0) {
                 return result;
             }
+            left = left.next(b);
+            right = right.next(b);
         }
-        if (!left.hasNext() && !right.hasNext()) {
+        if (left == NONE && right == NONE) {
             return 0;
         }
-        if (right.hasNext()) {
+        if (right != NONE) {
             // left was shorter but equal for shared part 
             return -1;
         }
