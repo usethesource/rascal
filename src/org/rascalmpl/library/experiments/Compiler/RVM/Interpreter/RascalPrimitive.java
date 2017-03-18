@@ -12,6 +12,7 @@ import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -4529,7 +4530,7 @@ public enum RascalPrimitive {
 			ISourceLocation left = (ISourceLocation) arg_2;
 			ISourceLocation right = (ISourceLocation) arg_1;
 
-			int compare = left.top().toString().compareTo(right.top().toString());
+			int compare = URICompare.compare(left, right);
 			if (compare < 0) {
 				return Rascal_TRUE;
 			}
@@ -5071,7 +5072,7 @@ public enum RascalPrimitive {
 			ISourceLocation left = (ISourceLocation) arg_2;
 			ISourceLocation right = (ISourceLocation) arg_1;
 
-			int compare = left.top().toString().compareTo(right.top().toString());
+			int compare = URICompare.compare(left, right);
 			if (compare < 0) {
 				return Rascal_TRUE;
 			}
@@ -9570,4 +9571,87 @@ enum SliceOperator {
 		this.operator = op;
 	}
 
+}
+
+class URICompare {
+    
+    private static interface URIIterator {
+        String current(ISourceLocation loc);
+        URIIterator next(ISourceLocation loc);
+    }
+    
+    private final static URIIterator NONE = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return null; }
+        public String current(ISourceLocation loc) { return null; }
+    }; 
+    
+    private final static URIIterator  SCHEME = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return SCHEME_SEP; }
+        public String current(ISourceLocation loc) { return loc.getScheme(); }
+    };
+    
+    private final static URIIterator  SCHEME_SEP = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return loc.hasAuthority() ? AUTHORITY : AUTHORITY_SEP; }
+        public String current(ISourceLocation loc) { return "://"; }
+    };
+    
+    private final static URIIterator  AUTHORITY = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return AUTHORITY_SEP; }
+        public String current(ISourceLocation loc) { return loc.getAuthority(); }
+    };
+    
+    private final static URIIterator  AUTHORITY_SEP = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return loc.hasPath() ? PATH : (loc.hasQuery() ? QUERY_PRE : (loc.hasFragment() ? FRAGMENT_PRE : NONE)); }
+        public String current(ISourceLocation loc) { return "/"; }
+    };
+    
+    private final static URIIterator  PATH = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return (loc.hasQuery() ? QUERY_PRE : (loc.hasFragment() ? FRAGMENT_PRE : NONE)); }
+        public String current(ISourceLocation loc) { return loc.getPath(); }
+    };
+    
+    private final static URIIterator  QUERY_PRE = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return QUERY; }
+        public String current(ISourceLocation loc) { return "?"; }
+    };
+    
+    private final static URIIterator  QUERY = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return loc.hasFragment() ? FRAGMENT_PRE : NONE; }
+        public String current(ISourceLocation loc) { return loc.getQuery(); }
+    };
+    
+    private final static URIIterator  FRAGMENT_PRE = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return FRAGMENT; }
+        public String current(ISourceLocation loc) { return "#"; }
+    };
+    
+    private final static URIIterator  FRAGMENT = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return NONE; }
+        public String current(ISourceLocation loc) { return loc.getFragment(); }
+    };
+
+
+    
+    public static int compare(ISourceLocation a, ISourceLocation b) {
+        URIIterator left = SCHEME;
+        URIIterator right = SCHEME;
+        while (left != NONE && right != NONE) {
+            String leftChunk = left.current(a);
+            String rightChunk = right.current(b);
+            int result = leftChunk.compareTo(rightChunk);
+            if (result != 0) {
+                return result;
+            }
+            left = left.next(b);
+            right = right.next(b);
+        }
+        if (left == NONE && right == NONE) {
+            return 0;
+        }
+        if (right != NONE) {
+            // left was shorter but equal for shared part 
+            return -1;
+        }
+        return 1;
+   }
 }
