@@ -291,7 +291,7 @@
 		<dependency>
 			<groupId>io.usethesource</groupId>
 			<artifactId>vallang</artifactId>
-			<version>0.7.7</version>
+			<version>0.7.8</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ow2.asm</groupId>
