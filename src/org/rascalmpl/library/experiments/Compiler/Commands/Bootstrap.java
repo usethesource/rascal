@@ -465,9 +465,6 @@ public class Bootstrap {
       Path testResults = phaseTestFolder(phase, tmp);
       progress("phase " + phase + ": " + result);
 
-//      if(phase == 2){
-//          time("- generate and compile RascalParser", () -> generateAndCompileRascalParser(phase, classPath, sourcePath, result));
-//      }
       time("- compile MuLibrary",       () -> compileMuLibrary(phase, classPath, bootPath, sourcePath, result));
       time("- compile Kernel",          () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel", reloc));
 
@@ -479,6 +476,10 @@ public class Bootstrap {
       else {
           time("- compile ParserGenerator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator", reloc));
       }
+      
+//      if(phase == 2){
+//          time("- generate and compile RascalParser", () -> generateAndCompileRascalParser(phase, classPath, sourcePath, bootPath, result));
+//      }
       
       
 
@@ -497,18 +498,17 @@ public class Bootstrap {
       return result;
     }
 
-    private static void generateAndCompileRascalParser(int phase, String classPath, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage {
-        bootstrapRascalParser(classPath, result);
-        String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(),
-                                         sourcePath + "src/org/rascalmpl/library/lang/rascal/syntax/RascalParser.java" };
-        if (runJavaCompiler(classPath, concat(paths)) != 0) {
+    private static void generateAndCompileRascalParser(int phase, String classPath, String sourcePath, String bootPath, Path result) throws IOException, InterruptedException, BootstrapMessage {
+        bootstrapRascalParser(classPath, sourcePath, bootPath, result);
+        String[] paths = new String [] { sourcePath + "/lang/rascal/syntax/RascalParser.java" };
+        if (runJavaCompiler(classPath, result.toAbsolutePath().toString(), concat(paths)) != 0) {
             throw new BootstrapMessage(phase);
         }
     }
     
-    private static int bootstrapRascalParser(String classPath,Path result) throws IOException, InterruptedException {
+    private static int bootstrapRascalParser(String classPath, String srcPath, String bootPath, Path result) throws IOException, InterruptedException {
         String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "org.rascalmpl.library.experiments.Compiler.Commands.BootstrapRascalParser"};
-        String[] paths = new String[] {"--bin", result.toAbsolutePath().toString() };
+        String[] paths = new String[] {"--src", srcPath, "--bin", result.toAbsolutePath().toString(), "--boot", bootPath };
         return runChildProcess(concat(javaCmd, paths));
     }
 
@@ -525,7 +525,7 @@ public class Bootstrap {
         String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
         String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[] {};
 
-        if (runJavaCompiler(classPath, concat(concat(paths, otherArgs), testModules)) != 0) {
+        if (runRascalCompiler(classPath, concat(concat(paths, otherArgs), testModules)) != 0) {
             throw new BootstrapMessage(phase);
         }
     }
@@ -539,7 +539,7 @@ public class Bootstrap {
                            : new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot};
         String[] otherArgs = VERBOSE? new String[] {"--verbose", module} : new String[] {module};
 
-        if (runJavaCompiler(classPath, concat(paths, otherArgs)) != 0) {
+        if (runRascalCompiler(classPath, concat(paths, otherArgs)) != 0) {
             throw new BootstrapMessage(phase);
         }
     }
@@ -578,8 +578,13 @@ public class Bootstrap {
           throw new BootstrapMessage(5);
       }
   }
+    
+    private static int runJavaCompiler(String classPath, String result, String... arguments) throws IOException, InterruptedException {
+        String[] javaCmd = new String[] {"javac", "-cp", classPath, "-d", result };
+        return runChildProcess(concat(javaCmd, arguments));
+    }
 
-    private static int runJavaCompiler(String classPath, String... arguments) throws IOException, InterruptedException {
+    private static int runRascalCompiler(String classPath, String... arguments) throws IOException, InterruptedException {
         /*
          * Remote Debugging Example:
          *     -Xdebug -Xrunjdwp:transport=dt_socket,address=8001,server=y,suspend=n
