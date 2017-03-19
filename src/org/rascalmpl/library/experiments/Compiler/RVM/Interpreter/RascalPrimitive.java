@@ -7827,17 +7827,7 @@ public enum RascalPrimitive {
 			if(rel.isEmpty()){
 				return rel;
 			}
-			IValue index = (IValue) arg_1;
-			ISetWriter wset = vf.setWriter();
-
-			for (IValue v : rel) {
-				ITuple tup = (ITuple)v;
-
-				if(tup.get(0).isEqual(index)){
-					wset.insert(tup.get(1));
-				} 
-			}
-			return wset.done();
+			return rel.asRelation().index((IValue) arg_1);
 		}
 	},
 
@@ -7880,23 +7870,7 @@ public enum RascalPrimitive {
 			if(rel.isEmpty()){
 				return rel;
 			}
-			int relArity = rel.getElementType().getArity();
-			
-			IValue index = (IValue) arg_1;
-			ISetWriter wset = vf.setWriter();
-			IValue args[] = new IValue[relArity - 1];
-
-			for (IValue v : rel) {
-				ITuple tup = (ITuple)v;
-
-				if(tup.get(0).isEqual(index)){
-					for (int i = 1; i < relArity; i++) {
-						args[i - 1] = tup.get(i);
-					}
-					wset.insert(vf.tuple(args));
-				} 
-			}
-			return wset.done();
+			return rel.asRelation().index((IValue) arg_1);
 		}
 	},
 	
