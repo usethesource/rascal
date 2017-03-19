@@ -41,7 +41,7 @@ public class BootstrapRascalParser {
 
 	        IKernel kernel = Java2Rascal.Builder.bridge(vf, cmdOpts.getPathConfig(), IKernel.class).build();
 
-	        kernel.bootstrapRascalParser((ISourceLocation) cmdOpts.getCommandLocsOption("src").get(0));
+	        kernel.bootstrapRascalParser(cmdOpts.getCommandLocsOption("src"));
 	    }
 		catch (Throwable e) {
 		    e.printStackTrace();

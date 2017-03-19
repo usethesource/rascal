@@ -26,16 +26,16 @@ public Grammar getRascalGrammar(loc grammarFile) {
 }
 
 public void bootstrapRascalParser(loc rascalHome) {
-  println("generating from <rascalHome>");
-  gr = getRascalGrammar(rascalHome + "src/org/rascalmpl/library/lang/rascal/syntax/Rascal.rsc");
+  println("bootstrapRascalParser1: generating from <rascalHome>");
+  gr = getRascalGrammar(rascalHome + "lang/rascal/syntax/Rascal.rsc");
   bootParser(gr, rascalHome);
 }
 
 public void bootstrapRascalParser(list[loc] srcs) {
   rascalLib = srcs[0];
-  println("generating from <rascalLib>");
+  println("bootstrapRascalParser2: generating from <rascalLib>");
   gr = getRascalGrammar(rascalLib + "lang/rascal/syntax/Rascal.rsc");
-  event("generating new Rascal parser");
+  event("bootstrapRascalParser2: generating new Rascal parser");
   source = newGenerate(package, rootName, gr);
   writeFile(rascalLib + "lang/rascal/syntax/<rootName>.java", source);
 }
@@ -58,7 +58,7 @@ public void bootstrapAst(loc rascalHome) {
 public void bootParser(Grammar gr, loc rascalHome) {
   event("generating new Rascal parser");
   source = newGenerate(package, rootName, gr);
-  writeFile(rascalHome + "src/org/rascalmpl/library/lang/rascal/syntax/<rootName>.java", source);
+  writeFile(rascalHome + "lang/rascal/syntax/<rootName>.java", source);
 }
 
 public void bootAST(Grammar g, loc rascalHome) {
