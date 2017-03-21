@@ -1747,3 +1747,11 @@ test bool matchInLoop2(){
   {
       return [*int L1, *L1, *L1] := L;
   }
+  
+  test bool while_with_pattern_vars(){
+    syms = [10,9,1,3,5];
+    while([*pre, x, y, *post] := syms, x > y){
+      syms = [*pre, y, x, *post];
+    }
+    return syms == [1,3,5,9,10];
+}
