@@ -3,7 +3,6 @@ module lang::rascal::grammar::tests::ModulesTests
 // Used during development/testing, can be removed later
 
 import Grammar;
-import lang::rascal::grammar::tests::GetGrammar;
 
 import experiments::Compiler::Compile;
 import experiments::Compiler::Execute;
