@@ -88,8 +88,9 @@ MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditi
     enterBacktrackingScope(whilename);
     enterBacktrackingScope(ifname);
     
-    loopBody = muWhile(whilename, muCon(true), [ muIfelse(ifname, makeBoolExp("ALL", [ translate(c) | c <- conditions ], s@\loc), 
-                                                                  [ visit(translateLoopBody(body)) { case muFail(whileName) => muFail(ifname) } ], 
+    reset_vars = resetBlockVars(s);
+    loopBody = muWhile(whilename, muCon(true), [ muIfelse(ifname, muBlock([*reset_vars, *makeBoolExp("ALL", [ translate(c) | c <- conditions ], s@\loc)]), 
+                                                                  [ visit(translate(body)) { case muFail(whileName) => muFail(ifname) } ], 
                                                                   [ muBreak(whilename) ]) ]);
                                                                 
     code = usesAppend ? muBlockWithTmps([ < tmp, fuid > ], 
