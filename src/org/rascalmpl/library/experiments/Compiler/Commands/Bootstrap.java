@@ -477,7 +477,7 @@ public class Bootstrap {
           time("- compile ParserGenerator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator", reloc));
       }
       
-      if(phase == 2){
+      if(phase >= 2){
           time("- generate and compile RascalParser", () -> generateAndCompileRascalParser(phase, classPath, sourcePath, bootPath, result));
       }
       
