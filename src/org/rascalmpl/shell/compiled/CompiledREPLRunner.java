@@ -23,8 +23,6 @@ public class CompiledREPLRunner extends CompiledRascalREPL  implements ShellRunn
 	
 	public CompiledREPLRunner(PathConfig pcfg, InputStream stdin, OutputStream stdout, IDEServices ideServices, Terminal term) throws IOException, URISyntaxException {
 		super(pcfg, stdin, stdout, true, true, getHistoryFile(), term, ideServices);
-		getErrorWriter().println("***************");
-		getErrorWriter().flush();
 		debugObserver = new DebugREPLFrameObserver(pcfg, reader.getInput(), stdout, true, true, getHistoryFile(), term, ideServices);
 		executor.setDebugObserver(debugObserver);
 		setMeasureCommandTime(true);
