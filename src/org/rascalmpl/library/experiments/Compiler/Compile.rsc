@@ -65,7 +65,7 @@ loc sourceOrImportsLoc(str qualifiedModuleName, PathConfig pcfg){
     }
 }
 
-bool validRVM(str qualifiedModuleName, PathConfig pcfg){
+bool validRVM(str qualifiedModuleName, PathConfig pcfg) {
 	<existsRvmLoc, rvmLoc> = RVMModuleReadLoc(qualifiedModuleName, pcfg);
 	//println("exists(<rvmLoc>): <exists(rvmLoc)>");
 	//println("lastModified(<rvmLoc>) \>= lastModified(<src>): <lastModified(rvmLoc) >= lastModified(src)>");
@@ -96,7 +96,7 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
         writeBinaryValueFile(rvmModuleLoc, rvmMod);
         return <newConfiguration(pcfg), rvmMod>;
     }
-   	try {
+   	//try {
    	    if(verbose) println("rascal2rvm: <moduleLoc>");
    	    start_checking = cpuTime();
    		//M = parse(#start[Module], moduleLoc).top;
@@ -107,9 +107,9 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
    	        writeBinaryValueFile(configWriteLoc, relocConfig(config, reloc, pcfg.srcs));
    	    }
    	    check_time = (cpuTime() - start_checking)/1000000;
-   	} catch e: {
-   	    throw e;
-   	}
+   	//} catch e: {
+   	//    throw e;
+   	//}
    	errors = [ e | e:error(_,_) <- config.messages];
    	warnings = [ w | w:warning(_,_) <- config.messages ];
    
