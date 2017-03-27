@@ -18,28 +18,28 @@ test bool simpleBinaryDependency() {
    clean(top);
    
    // write two modules in different source folders, A and B
-   writeFile(top + "a/BDTestA.rsc",
-     "module BDTestA
-     'import BDTestB;
+   writeFile(top + "a/A.rsc",
+     "module A
+     'import B;
      'int testa() = testb();
      'int main() = testa();
      ");
      
-   writeFile(top + "b/BDTestB.rsc",
-     "module BDTestB
+   writeFile(top + "b/B.rsc",
+     "module B
      'int testb() = 42;
      ");
      
    // first we compile module B to a B binary 
    pcfgB = pathConfig(srcs=[top + "b", |std:///|], bin=top + "BinB", libs=[top + "BinB"]);
-   compileAndLink("BDTestB", pcfgB, jvm=true);
+   compileAndLink("B", pcfgB, jvm=true);
    
    // then we compile A which uses B, but only on the library path available as binary
    pcfgA = pathConfig(srcs=[top + "a", |std:///|], bin=top + "BinA", libs=[top + "BinB", top + "BinA"]);
-   compileAndLink("BDTestA", pcfgA, jvm=true); 
+   compileAndLink("A", pcfgA, jvm=true); 
    
    // see if it works
-   return execute("BDTestA", pcfgA, recompile=false) == 42; 
+   return execute("A", pcfgA, recompile=false) == 42; 
 }
 
 @doc{single module recompilation after edit should have an effect}
@@ -48,29 +48,29 @@ test bool simpleRecompile() {
    clean(top);
    
    // create a module
-   writeFile(top + "a/BDTestA.rsc",
-     "module BDTestA
+   writeFile(top + "a/A.rsc",
+     "module A
      'int main() = 42;
      ");
      
    // compile the module  
    pcfgA = pathConfig(srcs=[top + "a", |std:///|], bin=top + "BinA", libs=[top + "BinA"]);
-   compileAndLink("BDTestA", pcfgA, jvm=true); 
+   compileAndLink("A", pcfgA, jvm=true); 
    
    // run the module
-   first = execute("BDTestA", pcfgA, recompile=false);
+   first = execute("A", pcfgA, recompile=false);
    
    // edit the module
-   writeFile(top + "a/BDTestA.rsc",
-     "module BDTestA
+   writeFile(top + "a/A.rsc",
+     "module A
      'int main() = 43;
      ");
   
    // recompile
-   compileAndLink("BDTestA", pcfgA, jvm=true); 
+   compileAndLink("A", pcfgA, jvm=true); 
      
    // expect change  
-   second = execute("BDTestA", pcfgA, recompile=false);
+   second = execute("A", pcfgA, recompile=false);
   
    return first != second && second == 43;
 }
@@ -80,32 +80,32 @@ test bool sourceDependencyRecompile() {
    top = |test-modules:///sourceDependencyRecompile|;
    clean(top);
    
-   writeFile(top + "BDTestA.rsc",
-     "module BDTestA
-     'import BDTestB;
+   writeFile(top + "A.rsc",
+     "module A
+     'import B;
      'int testa() = testb();
      'int main() = testa();
      ");
      
-   writeFile(top + "BDTestB.rsc",
-     "module BDTestB
+   writeFile(top + "B.rsc",
+     "module B
      'int testb() = 42;
      ");
      
    pcfgA = pathConfig(srcs=[top, |std:///|], bin=top + "Bin", libs=[top + "Bin"]);
-   compileAndLink("BDTestA", pcfgA, jvm=true); 
+   compileAndLink("A", pcfgA, jvm=true); 
    
-   first = execute("BDTestA", pcfgA, recompile=false); 
+   first = execute("A", pcfgA, recompile=false); 
    
-   writeFile(top + "BDTestB.rsc",
-     "module BDTestB
+   writeFile(top + "B.rsc",
+     "module B
      'int testb() = 43;
      ");
      
    // notice the top module is recompiled, not the changed module  
-   compileAndLink("BDTestA", pcfgA, jvm=true);
+   compileAndLink("A", pcfgA, jvm=true);
    
-   second = execute("BDTestA", pcfgA, recompile=false);
+   second = execute("A", pcfgA, recompile=false);
    
    return first != second && second == 43; 
 }
@@ -115,45 +115,45 @@ test bool binaryDependencyRecompile() {
    top = |test-modules:///binaryDependencyRecompile|;
    clean(top);  
    
-   writeFile(top + "a/BDTestA.rsc",
-     "module BDTestA
-     'import BDTestB;
+   writeFile(top + "a/A.rsc",
+     "module A
+     'import B;
      'int testa() = testb();
      'int main() = testa();
      ");
      
-   writeFile(top + "b/BDTestB.rsc",
-     "module BDTestB
+   writeFile(top + "b/B.rsc",
+     "module B
      'int testb() = 42;
      ");
      
     // first we compile module B to a B binary 
    pcfgB = pathConfig(srcs=[top + "b", |std:///|], bin=top + "BinB", libs=[top + "BinB"]);
-   compileAndLink("BDTestB", pcfgB, jvm=true);
+   compileAndLink("B", pcfgB, jvm=true);
      
    // then in another bin we compile A  
    pcfgA = pathConfig(srcs=[top + "a", |std:///|], bin=top + "BinA", libs=[top + "BinA",top + "BinB"]);
-   compileAndLink("BDTestA", pcfgA, jvm=true); 
+   compileAndLink("A", pcfgA, jvm=true); 
    
    // see what comes out
-   first = execute("BDTestA", pcfgA, recompile=false); 
+   first = execute("A", pcfgA, recompile=false); 
    
    // change module B
-   writeFile(top + "b/BDTestB.rsc",
-     "module BDTestB
+   writeFile(top + "b/B.rsc",
+     "module B
      'int testb() = 43;
      ");
      
    // recompile B 
    pcfgB = pathConfig(srcs=[top + "b", |std:///|], bin=top + "BinB", libs=[top + "BinB"]);
-   compileAndLink("BDTestB", pcfgB, jvm=true);
+   compileAndLink("B", pcfgB, jvm=true);
      
    // recompile A
    pcfgA = pathConfig(srcs=[top + "a", |std:///|], bin=top + "BinA", libs=[top + "BinA",top + "BinB"]);
-   compileAndLink("BDTestA", pcfgA, jvm=true); 
+   compileAndLink("A", pcfgA, jvm=true); 
    
    // see what comes out
-   second = execute("BDTestA", pcfgA, recompile=false);
+   second = execute("A", pcfgA, recompile=false);
    
    return first != second && second == 43; 
 }
@@ -163,32 +163,32 @@ test bool binaryDependencyNoTransitiveRecompile() {
    top = |test-modules:///binaryDependencyNoTransitiveRecompile|;
    clean(top);
    
-   writeFile(top + "a/BDTestA.rsc",
-     "module BDTestA
-     'import BDTestB;
+   writeFile(top + "a/A.rsc",
+     "module A
+     'import B;
      'int testa() = testb();
      'int main() = testa();
      ");
      
-   writeFile(top + "b/BDTestB.rsc",
-     "module BDTestB
+   writeFile(top + "b/B.rsc",
+     "module B
      'int testb() = 42;
      ");
      
     // first we compile module B to a B binary 
    pcfgB = pathConfig(srcs=[top + "b", |std:///|], bin=top + "BinB", libs=[top + "BinB"]);
-   compileAndLink("BDTestB", pcfgB, jvm=true);
+   compileAndLink("B", pcfgB, jvm=true);
      
    // then in another bin we compile A  
    pcfgA = pathConfig(srcs=[top + "a", |std:///|], bin=top + "BinA", libs=[top + "BinA", top + "BinB"]);
-   compileAndLink("BDTestA", pcfgA, jvm=true); 
+   compileAndLink("A", pcfgA, jvm=true); 
    
    // see what comes out
-   first = execute("BDTestA", pcfgA, recompile=false); 
+   first = execute("A", pcfgA, recompile=false); 
    
    // change module B
-   writeFile(top + "b/BDTestB.rsc",
-     "module BDTestB
+   writeFile(top + "b/B.rsc",
+     "module B
      'int testb() = 43;
      ");
      
@@ -196,10 +196,10 @@ test bool binaryDependencyNoTransitiveRecompile() {
      
    // recompile A, even with "recompile=true"
    pcfgA = pathConfig(srcs=[top + "a", |std:///|], bin=top + "BinA", libs=[top + "BinA", top + "BinB"]);
-   compileAndLink("BDTestA", pcfgA, jvm=true, recompile=true); 
+   compileAndLink("A", pcfgA, jvm=true, recompile=true); 
    
    // see what comes out
-   second = execute("BDTestA", pcfgA, recompile=true);
+   second = execute("A", pcfgA, recompile=true);
    
    // no change expected
    return first == second; 
