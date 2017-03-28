@@ -18,6 +18,8 @@ import org.fusesource.jansi.Ansi;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.util.PathConfig;
+
+import fi.iki.elonen.NanoHTTPD.Response;
 import io.usethesource.vallang.ISourceLocation;
 
 import jline.Terminal;
@@ -153,7 +155,8 @@ public class BaseREPL {
      * @throws InterruptedException throw this exception to stop the REPL (instead of calling .stop())
      */
     protected void handleInput(String line) throws InterruptedException {
-        language.handleInput(line);
+        Response res = language.handleInput(line);
+        stdout.print(res.getData());
     }
 
     /**
