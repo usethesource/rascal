@@ -3,6 +3,7 @@ package org.rascalmpl.repl;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -72,7 +73,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     }
 
     @Override
-    public void handleInput(String line) throws InterruptedException {
+    public Repsonse handleInput(String line) throws InterruptedException {
         assert line != null;
 
         try {
@@ -87,7 +88,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
             if (currentCommand == null) {
                 // we are still at a new command so let's see if the line is a full command
                 if (isStatementComplete(line)) {
-                    printResult(evalStatement(line, line));
+                    return printResult(evalStatement(line, line));
                 }
                 else {
                     currentCommand = new StringBuffer(line);
@@ -121,7 +122,9 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         handleInput("");
     }
 
-    private void printResult(IRascalResult result) throws IOException {
+    private Response printResult(IRascalResult result) throws IOException {
+        StringWriter out = new StringWriter();
+        
         if (result == null) {
             return;
         }
@@ -155,6 +158,8 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         }
         out.println();
         out.flush();
+        
+        return new Response();
     }
 
     protected abstract PrintWriter getErrorWriter();

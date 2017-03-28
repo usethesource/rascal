@@ -1007,7 +1007,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		__setInterrupt(false);
     IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
     ITree tree =  new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
-
 		if (!noBacktickOutsideStringConstant(command)) {
 		  tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
 		}

@@ -33,6 +33,10 @@ public class REPLRunner extends BaseREPL  implements ShellRunner {
   public REPLRunner(InputStream stdin, OutputStream stdout, Terminal term)  throws IOException, URISyntaxException{
     super(makeInterpreter(stdin, stdout, true, true, getHistoryFile(), term), null, stdin, stdout, true, true, getHistoryFile(), term, null);
   }
+  
+  public REPLRunner(ILanguageProtocol language)  throws IOException, URISyntaxException{
+      super(language, null, null, null, true, true, new File(""), null, null);
+    }
 
   private static ILanguageProtocol makeInterpreter(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal) throws IOException, URISyntaxException {
     RascalInterpreterREPL repl = new RascalInterpreterREPL(stdin, stdout, true, true, getHistoryFile()) {

@@ -35,7 +35,7 @@ public interface ILanguageProtocol {
      * @param line the current line entered.
      * @throws InterruptedException throw this exception to stop the REPL (instead of calling .stop())
      */
-    void handleInput(String line) throws InterruptedException;
+    Response handleInput(String line) throws InterruptedException;
 
     /**
      * If a line is canceled with ctrl-C this method is called too handle the reset in the child-class.
