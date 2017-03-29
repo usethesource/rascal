@@ -86,7 +86,7 @@ public class RascalJUnitCompiledTestRunnerPar extends Runner {
         this.IGNORED_DIRECTORIES = initializeIgnoredDirectories();
 
         try {
-            kernel = Java2Rascal.Builder.bridge(vf, this.pcfg, IKernel.class)
+            kernel = Java2Rascal.Builder.bridge(vf, new PathConfig(), IKernel.class)
                 .trace(false)
                 .profile(false)
                 .verbose(false)
