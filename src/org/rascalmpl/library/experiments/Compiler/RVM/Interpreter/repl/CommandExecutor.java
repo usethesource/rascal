@@ -140,8 +140,10 @@ public class CommandExecutor {
 		
 		settings = new Settings(false);   // TODO: definition solution when we introduce generic Config files
 	
-		this.pcfg = settings.getPathConfig(pcfg).addSourceLoc(vf.sourceLocation("test-modules", "", ""));
+		//this.pcfg = settings.getPathConfig(pcfg).addSourceLoc(vf.sourceLocation("test-modules", "", ""));
 		
+		this.pcfg = new PathConfig().addSourceLoc(vf.sourceLocation("test-modules", "", ""));
+
 		this.stdout = stdout;
 		this.stderr = stderr; 
 		this.ideServices = ideServices;
@@ -198,7 +200,7 @@ public class CommandExecutor {
 //		w.put(vf.string(shellModuleName), CompiledRascalShellModuleTags);
 //		w.put(vf.string(consoleInputName), CompiledRascalShellModuleTags);
 		
-		kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class)
+		kernel = Java2Rascal.Builder.bridge(vf, new PathConfig(), IKernel.class)
 		        .coverage(kernel_coverage)
 		        .debug(kernel_debug)
 		        .profile(kernel_profile)
@@ -206,7 +208,7 @@ public class CommandExecutor {
 		        .verbose(kernel_verbose)
 		        .build();
 		
-		startupMessage(pcfg);
+		startupMessage(this.pcfg);
 		
 		variables = new HashMap<>();
 		imports = new ArrayList<>();
