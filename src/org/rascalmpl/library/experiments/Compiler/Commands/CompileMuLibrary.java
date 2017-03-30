@@ -41,14 +41,13 @@ public class CompileMuLibrary {
             .noModuleArgument()
             .handleArgs(args);
 
-           
-            IKernel kernel = Java2Rascal.Builder.bridge(vf, new PathConfig(), IKernel.class)
+            PathConfig pcfg = cmdOpts.getPathConfig();
+            IKernel kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class)
                 .trace(cmdOpts.getCommandBoolOption("trace"))
                 .profile(cmdOpts.getCommandBoolOption("profile"))
                 .verbose(cmdOpts.getCommandBoolOption("verbose")).
                 build();
-
-            PathConfig pcfg = cmdOpts.getPathConfig();
+            
             kernel.compileMuLibrary(pcfg.asConstructor(kernel), kernel.kw_compileMu());
         }
         catch (Throwable e) {
