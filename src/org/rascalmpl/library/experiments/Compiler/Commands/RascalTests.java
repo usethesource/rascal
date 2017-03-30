@@ -51,9 +51,9 @@ public class RascalTests {
 			
 			.handleArgs(args);
 
-		
-		IKernel kernel = Java2Rascal.Builder.bridge(vf, new PathConfig(), IKernel.class).build();
 		PathConfig pcfg = cmdOpts.getPathConfig();
+		IKernel kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class).build();
+		
 		try {
 		    IBool success =
 		        (IBool) kernel.rascalTests(cmdOpts.getModules(), pcfg.asConstructor(kernel),
