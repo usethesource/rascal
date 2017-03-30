@@ -282,15 +282,15 @@ public class Bootstrap {
                 }
                 
                 // Compiling utilities
-//                Path phase2Folder = phaseFolder(2, tmpDir);
-//                time("Compiling Webserver", () -> compileModule   (2, rvm[1], kernel[2], librarySource, phase2Folder, "util::Webserver", "|std:///|"));
-//                time("Compiling RascalExtraction", () -> compileModule   (2, rvm[1], kernel[2], librarySource, phase2Folder, "experiments::Compiler::RascalExtraction::RascalExtraction", "|std:///|"));
-//                time("Compiling QuestionCompiler", () -> compileModule   (2, rvm[1], kernel[2], librarySource, phase2Folder, "experiments::tutor3::QuestionCompiler", "|std:///|"));
-//                
-//                // Compiling courses
-//                if(withCourses){
-//                   time("Compiling courses", () -> compileCourses(rvm[1], kernel[2], librarySource, courseSource, phase2Folder));
-//                }
+                Path phase2Folder = phaseFolder(2, tmpDir);
+                time("Compiling Webserver", () -> compileModule   (2, rvm[1], kernel[2], librarySource, phase2Folder, "util::Webserver", "|std:///|"));
+                time("Compiling RascalExtraction", () -> compileModule   (2, rvm[1], kernel[2], librarySource, phase2Folder, "experiments::Compiler::RascalExtraction::RascalExtraction", "|std:///|"));
+                time("Compiling QuestionCompiler", () -> compileModule   (2, rvm[1], kernel[2], librarySource, phase2Folder, "experiments::tutor3::QuestionCompiler", "|std:///|"));
+                
+                // Compiling courses
+                if(withCourses){
+                   time("Compiling courses", () -> compileCourses(rvm[1], kernel[2], librarySource, courseSource, phase2Folder));
+                }
                 
                 // The result of the final compilation phase is copied to the bin folder such that it can be deployed with the other compiled (class) files
                 time("Copying bootstrapped files", () -> copyResult(new File(kernel[2]).toPath(), targetFolder.resolve("boot")));
@@ -477,7 +477,7 @@ public class Bootstrap {
           time("- compile ParserGenerator", () -> compileModule   (phase, classPath, bootPath, sourcePath, phaseResult, "lang::rascal::grammar::ParserGenerator", reloc));
       }
       
-      if(phase >= 2){
+      if(phase == 2){
           time("- generate and compile RascalParser", () -> generateAndCompileRascalParser(phase, classPath, sourcePath, bootPath, phaseResult, targetFolder));
       }
 
