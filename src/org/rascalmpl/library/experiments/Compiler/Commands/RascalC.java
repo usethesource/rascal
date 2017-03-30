@@ -95,15 +95,13 @@ public class RascalC {
               }
             }
            
-
-            //Kernel kernel = new Kernel(vf, rex, cmdOpts.getCommandLocOption("boot"));
-            IKernel kernel = Java2Rascal.Builder.bridge(vf, new PathConfig(), IKernel.class)
+            PathConfig pcfg = cmdOpts.getPathConfig();
+            IKernel kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class)
                 .trace(cmdOpts.getCommandBoolOption("trace"))
                 .profile(cmdOpts.getCommandBoolOption("profile"))
                 .verbose(cmdOpts.getCommandBoolOption("verbose"))
                 .build();
 
-            PathConfig pcfg = cmdOpts.getPathConfig();
             boolean ok = true;
             
             IList modules = cmdOpts.getModules();
