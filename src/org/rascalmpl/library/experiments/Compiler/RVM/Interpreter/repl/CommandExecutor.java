@@ -45,12 +45,15 @@ import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.repl.LimitedWriter;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.TreeAdapter;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
-import io.usethesource.vallang.IMap;
-import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
@@ -60,10 +63,6 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class CommandExecutor {
 	
@@ -148,14 +147,6 @@ public class CommandExecutor {
 		this.repl = repl;
 		
 		consoleInputLocation = vf.sourceLocation("test-modules", "", consoleInputName + ".rsc");
-//		try {
-//		  for(IValue isrc : pcfg.getSrcs()){
-//		    ideServices.watch(Paths.get(((ISourceLocation) isrc).getPath()));
-//		  } 
-//		} catch (IOException e){
-//		  stderr.println("Unable to watch file changes due to: " + e);
-//		}
-		
 		// options for the kernel
 		
 		kernel_coverage      = settings.getBool("kernel.coverage", false);
@@ -189,14 +180,6 @@ public class CommandExecutor {
 		// options for the repl itself
 		
 		repl_verbose          = settings.getBool("repl.verbose", false);
-		
-		IMapWriter w = vf.mapWriter();
-		//w.put(vf.string("bootstrapParser"), vf.string(""));
-		IMap CompiledRascalShellModuleTags = w.done();
-		
-//		w = vf.mapWriter();
-//		w.put(vf.string(shellModuleName), CompiledRascalShellModuleTags);
-//		w.put(vf.string(consoleInputName), CompiledRascalShellModuleTags);
 		
 		kernel = Java2Rascal.Builder.bridge(vf, this.pcfg, IKernel.class)
 		        .coverage(kernel_coverage)
@@ -419,13 +402,13 @@ public class CommandExecutor {
 		    } else {
 		        stderr.println("Exception [debugger cannot break at null frame]: " + e);
 		    }
-			return null; //throw new RascalShellExecutionException(sw.toString());
-		} catch (IOException e){
-		  throw new RascalShellExecutionException("Error: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
-		} catch (Exception e){
-		  e.printStackTrace(stderr);
-		  throw new RascalShellExecutionException("Error: " + (e.getMessage() != null ? e.getMessage() : e.toString()));
+			return null; 
 		}
+		catch (Throwable e) {
+		    stderr.println("Apologies, an unexpected internal error occurred:");
+		    e.printStackTrace(new PrintWriter(stderr));
+		    return null;
+        }
 	}
 	
 	private boolean is(ITree tree, String consName){
@@ -445,12 +428,7 @@ public class CommandExecutor {
 		}
 	}
 	
-//	public String evalPrint(String statement, ISourceLocation rootLocation) throws IOException, ExecutionException{
-//		IValue result = eval(statement, rootLocation);
-//		return resultToString(result);
-//	}
-	
-	public IValue eval(String statement, ISourceLocation rootLocation) throws RascalShellExecutionException, IOException {
+	public IValue eval(String statement, ISourceLocation rootLocation) throws RascalShellExecutionException {
 		ITree cmd = parseCommand(statement, rootLocation);
 		
 		cmd = TreeAdapter.getStartTop(cmd);
@@ -462,21 +440,10 @@ public class CommandExecutor {
 			return evalStatement(statement, get(cmd, "statement"));
 		}
 		if(is(cmd, "import")){
-//			try {
-				return evalImport(statement, get(cmd, "imported"));
-//			} catch (FactTypeUseException | IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//			return null;
+		    return evalImport(statement, get(cmd, "imported"));
 		}
 		if(is(cmd, "declaration")){
-			//try {
-				return evalDeclaration(statement, get(cmd, "declaration"));
-//			} catch (FactTypeUseException | IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
+		    return evalDeclaration(statement, get(cmd, "declaration"));
 		}
 		return null;
 	}
@@ -525,7 +492,7 @@ public class CommandExecutor {
 	  throw new RascalShellExecutionException("Error: " + msg);
 	}
 
-	private String getBaseVar(ITree assignable) throws FactTypeUseException, IOException{
+	private String getBaseVar(ITree assignable) throws FactTypeUseException, RascalShellExecutionException {
 		if(is(assignable, "variable")){
 			return unparse(get(assignable, "qualifiedName"));
 		}
@@ -543,15 +510,13 @@ public class CommandExecutor {
 	  return "\nvalue main() = \"ok\";\n";
 	}
 	
-	private IValue evalStatement(String src, ITree stat) throws IOException, RascalShellExecutionException {
-		
+	private IValue evalStatement(String src, ITree stat) throws RascalShellExecutionException {
 		String consName = TreeAdapter.getConstructorName(stat);
 		switch(consName){
 		
 		case "expression":
-			String innerExp = unparse(get(stat, "expression"));
-			return executeModule(makeMain(innerExp + ";"), true);
-			
+		        String innerExp = unparse(get(stat, "expression"));
+		        return executeModule(makeMain(innerExp + ";"), true);
 		case "assignment":
 			//assignment: Assignable assignable Assignment operator Statement!functionDeclaration!variableDeclaration statement
 
@@ -576,7 +541,7 @@ public class CommandExecutor {
 					return val;
 				}
 			}
-			case "annotation": {
+			case "annotation":  {
 				String annoName = unparse(get(assignable, "annotation"));
 				String name = getBaseVar(assignable);
 				Variable var = variables.get(name);
@@ -586,7 +551,6 @@ public class CommandExecutor {
 				}
 				return val;
 			}
-				
 			case "ifDefinedOrDefault": {
 				String name = getBaseVar(assignable);
 				Variable var = variables.get(name);
@@ -597,7 +561,7 @@ public class CommandExecutor {
 				}
 				return val;
 			}
-				
+			
 			case "tuple": {
 				ITree elements = get(assignable, "elements");
 				val = executeModule(makeMain(unparse(get(stat, "statement"))), true);
@@ -653,7 +617,7 @@ public class CommandExecutor {
 		}
 	}
 	
-	private IValue evalDeclaration(String src, ITree cmd) throws FactTypeUseException, IOException, RascalShellExecutionException{
+	private IValue evalDeclaration(String src, ITree cmd) throws FactTypeUseException, RascalShellExecutionException{
 		IValue result = null;
 		if(is(cmd, "variable")){
 			ITree type = get(cmd, "type");
@@ -738,7 +702,7 @@ public class CommandExecutor {
 		return reportError("Not supported construct: " + src);
 	}
 	
-	private IValue evalImport(String src, ITree imp) throws FactTypeUseException, IOException, RascalShellExecutionException{
+	private IValue evalImport(String src, ITree imp) throws FactTypeUseException, RascalShellExecutionException{
 		IValue result;
 		if(is(imp, "default")){
 			String impName = unparse(get(get(imp, "module"), "name"));
@@ -758,9 +722,7 @@ public class CommandExecutor {
 			}
 		}
 		if(is(imp, "syntax")){
-			StringWriter w = new StringWriter();
-			TreeAdapter.unparse(get(get(imp, "syntax"), "defined"), w);
-			String name = w.toString();
+			String name = unparse(get(get(imp, "syntax"), "defined"));
 			List<String> alts = syntaxDefinitions.containsKey(name) 
 			                          ? syntaxDefinitions.get(name)
 			                          : new ArrayList<String>();
@@ -791,44 +753,54 @@ public class CommandExecutor {
 		}
 	}
 	
-	private String unparse(ITree tree) throws FactTypeUseException, IOException{
-		StringWriter w = new StringWriter();
-		TreeAdapter.unparse(tree, w);
-		return w.toString();
+	private String unparse(ITree tree) throws FactTypeUseException, RascalShellExecutionException {
+		try {
+		    StringWriter w = new StringWriter();
+		    TreeAdapter.unparse(tree, w);
+
+		    return w.toString();
+		} 
+		catch (IOException e) {
+            throw new RascalShellExecutionException("command", e);
+        }
 	}
 	
-	//TODO merge with BaseRascalRepl
-	
-	public String resultToString(IValue value) throws IOException {
-		StringWriter out = new StringWriter();
-		if (value == null) {
-			out.append("ok\n");
-			return out.toString();
-		}
-		Type type = value.getType();
+	public String resultToString(IValue value) throws RascalShellExecutionException {
+	    try {
+	        StringWriter out = new StringWriter();
+	        if (value == null) {
+	            out.append("ok\n");
+	            return out.toString();
+	        }
+	        Type type = value.getType();
 
-		if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree)) {
-			out.append(type.toString());
-			out.append(": ");
-			// we unparse the tree
-			out.append("(" + type.toString() +") `");
-			TreeAdapter.yield((IConstructor)value, false, out);
-			out.append("`");
-		} else if(type.isAbstractData() && type.getName().equals("RuntimeException")){
-		    out.append("Error: ");
-		    out.append(value.toString());
-		} else {
-			out.append(type.toString());
-			out.append(": ");
-			 try (Writer wrt = new LimitedWriter(new LimitedLineWriter(out, LINE_LIMIT), CHAR_LIMIT)) {
+	        if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree)) {
+	            out.append(type.toString());
+	            out.append(": ");
+	            // we unparse the tree
+	            out.append("(" + type.toString() +") `");
+	            TreeAdapter.yield((IConstructor)value, false, out);
+	            out.append("`");
+	        } else if(type.isAbstractData() && type.getName().equals("RuntimeException")){
+	            out.append("Error: ");
+	            out.append(value.toString());
+	        } else {
+	            out.append(type.toString());
+	            out.append(": ");
+	            try (Writer wrt = new LimitedWriter(new LimitedLineWriter(out, LINE_LIMIT), CHAR_LIMIT)) {
 	                indentedPrettyPrinter.write(value, wrt);
 	            }
 	            catch (IOLimitReachedException e) {
 	                // ignore since this is what we wanted
 	            }
-		}
-		out.append("\n");
-		return out.toString();
+	        }
+	        out.append("\n");
+	        return out.toString();
+	    } 
+	    catch (IOException e) {
+	        // this can not happen
+	        throw new RascalShellExecutionException("toString", e);
+	    }
 	}
 
 	private IValue showOptions(){
