@@ -328,3 +328,7 @@ public java int getFingerprint(value val, int arity, bool concretePatterns);
 @doc{Compute a fingerprint of a complete node for the benefit of the compiler and the compiler runtime}
 @javaClass{org.rascalmpl.library.util.Reflective}
 public java int getFingerprintNode(node nd);
+
+@doc{Throw a raw Java NullPointerException, to help simulate an unexpected exception in test scenarios}
+@javaClass{org.rascalmpl.library.util.Reflective}
+java void throwNullPointerException();

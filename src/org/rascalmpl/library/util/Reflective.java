@@ -566,4 +566,7 @@ public class Reflective {
 		return values.integer(ToplevelType.getFingerprintNode(nd));
 	}
 
+	public void throwNullPointerException() {
+        throw new NullPointerException();
+    }
 }
