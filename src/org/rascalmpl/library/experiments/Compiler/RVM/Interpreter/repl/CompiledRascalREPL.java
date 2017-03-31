@@ -187,20 +187,11 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
 		  executor.getStdErr().println("Quiting REPL");
 		  throw new InterruptedException();
 	  }
-	  //    catch (Throwable e) {
-	  //      eval.getStdErr().println(throwableMessage(e, eval.getStackTrace()));
-	  //      return null;
-	  //    }
 	  catch (RascalShellExecutionException e) {
 	    executor.getStdErr().println(e.getMessage());
 	    return null;
 	  }
-	  catch (IOException e) {
-	    executor.getStdErr().println(e.getMessage());
-        e.printStackTrace();
-        return null;
     }
-  }
 
   @Override
   protected boolean printSpaceAfterFullCompletion() {

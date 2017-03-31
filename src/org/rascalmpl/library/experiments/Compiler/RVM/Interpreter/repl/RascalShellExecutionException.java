@@ -15,8 +15,11 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl;
 public class RascalShellExecutionException extends Exception {
   private static final long serialVersionUID = -1812423726623584599L;
 
-  RascalShellExecutionException(String message){
+  public RascalShellExecutionException(String message){
     super(message);
   }
 
+  public RascalShellExecutionException(String message, Throwable cause){
+      super(message, cause);
+  }
 }
