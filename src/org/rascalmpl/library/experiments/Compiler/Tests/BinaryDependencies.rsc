@@ -42,6 +42,36 @@ test bool simpleBinaryDependency() {
    return execute("A", pcfgA, recompile=false) == 42; 
 }
 
+@doc{check if dependency on a binary module for which no source module is available works}
+test bool simpleBinaryDependencyIncremental() {
+   top = |test-modules:///simpleBinaryDependencyIncremental|;
+   clean(top);
+   
+   // write two modules in different source folders, A and B
+   writeFile(top + "a/A.rsc",
+     "module A
+     'import B;
+     'int testa() = testb();
+     'int main() = testa();
+     ");
+     
+   writeFile(top + "b/B.rsc",
+     "module B
+     'int testb() = 42;
+     ");
+     
+   // first we compile module B to a B binary 
+   pcfgB = pathConfig(srcs=[top + "b", |std:///|], bin=top + "BinB", libs=[top + "BinB"]);
+   compileAndMergeProgramIncremental("B", true, pcfgB, jvm=true, recompile=true);
+   
+   // then we compile A which uses B, but only on the library path available as binary
+   pcfgA = pathConfig(srcs=[top + "a", |std:///|], bin=top + "BinA", libs=[top + "BinB", top + "BinA"]);
+   compileAndMergeProgramIncremental("A", true, pcfgA, jvm=true, recompile=true); 
+   
+   // see if it works
+   return execute("A", pcfgA, recompile=true) == 42; 
+}
+
 @doc{single module recompilation after edit should have an effect}
 test bool simpleRecompile() {
    top = |test-modules:///simpleRecompile|;
