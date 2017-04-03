@@ -6,12 +6,13 @@ import util::SystemAPI;
 import IO;
 import util::Reflective;
 import util::FileSystem;
+import experiments::Compiler::RVM::AST;
 
 private void clean(loc t) {
   for (/file(loc f) := crawl(t))
     remove(f);
 }
-
+ 
 @doc{check if dependency on a binary module for which no source module is available works}
 test bool simpleBinaryDependency() {
    top = |test-modules:///simpleBinaryDependency|;
@@ -53,23 +54,25 @@ test bool simpleBinaryDependencyIncremental() {
      'import B;
      'int testa() = testb();
      'int main() = testa();
+     'int main1() = 1; // dummy last declaration that is always removed by compile1Incremental
      ");
-     
+      
    writeFile(top + "b/B.rsc",
      "module B
      'int testb() = 42;
+     'int main2() = 2;  // dummy last declaration that is always removed by compile1Incremental
      ");
      
-   // first we compile module B to a B binary 
+   // first we compile (standard, non-incremental) module B to a B binary 
    pcfgB = pathConfig(srcs=[top + "b", |std:///|], bin=top + "BinB", libs=[top + "BinB"]);
-   compileAndMergeProgramIncremental("B", true, pcfgB, jvm=true, recompile=true);
+   rvmProgramB = compileAndLink("B", pcfgB, jvm=true, verbose=false);
    
    // then we compile A which uses B, but only on the library path available as binary
    pcfgA = pathConfig(srcs=[top + "a", |std:///|], bin=top + "BinA", libs=[top + "BinB", top + "BinA"]);
-   compileAndMergeProgramIncremental("A", true, pcfgA, jvm=true, recompile=true); 
+   rvmProgramA = compileAndMergeProgramIncremental("A", true, pcfgA, jvm=true, verbose=false); 
    
-   // see if it works
-   return execute("A", pcfgA, recompile=true) == 42; 
+   // see if it works by executing (without recompiling!)
+   return execute(rvmProgramA, pcfgA, verbose=false) == 42; 
 }
 
 @doc{single module recompilation after edit should have an effect}
