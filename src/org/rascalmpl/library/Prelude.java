@@ -3507,6 +3507,7 @@ public class Prelude {
 
     public void writeBinaryValueFile(ISourceLocation loc, IValue value, IBool compression){
         // TODO: transient for boot
+        if(trackIO) System.err.println("_writeBinaryValueFile: " + loc);
 		try (IValueOutputStream writer = constructValueWriter(loc, CompressionRate.Normal)) {
 		    writer.write(value);
 		}
