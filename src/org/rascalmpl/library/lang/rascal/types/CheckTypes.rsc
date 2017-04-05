@@ -8289,9 +8289,10 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	for (mn <- moduleLocations, mn in workingConfigs) {
 		// Note: This writes more than we need of the hashes. We should probably use domainX to remove non-reachable modules.
 	    ppmn = prettyPrintName(mn);
-		writeCachedDate(ppmn, pcfg, currentDates[mn]);
-		writeCachedConfig(ppmn, pcfg, workingConfigs[mn]);
-		writeCachedDateMap(ppmn, pcfg, currentDates);
+	    org_pcfg = workingConfigs[mn].pathConfiguration;
+		writeCachedDate(ppmn, org_pcfg, currentDates[mn]);
+		writeCachedConfig(ppmn, org_pcfg, workingConfigs[mn]);
+		writeCachedDateMap(ppmn, org_pcfg, currentDates);
 	}
 			
 	return workingConfigs[moduleName];	
