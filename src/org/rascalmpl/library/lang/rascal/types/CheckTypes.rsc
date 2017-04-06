@@ -393,9 +393,6 @@ public tuple[Configuration,KeywordParamMap] getConstructorKeywordParams(Configur
 	adtIdSet = invert(c.adtConstructors)[itemId];
 	if (size(adtIdSet) == 1) {
 		adtId = getFirstFrom(adtIdSet);
-		if (adtId == 847) {
-			println("Found it");
-		}
 		adtParams = c.store[adtId].keywordParams;
 		consParams = c.store[itemId].keywordParams;
 		typeParams = consParams + domainX(adtParams, consParams<0>);
