@@ -99,7 +99,11 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
             }
         }
         rvmMod = errorRVMModule(qualifiedModuleName, {error("Module not found: <qualifiedModuleName>", |unknown:///|)}, |unknown:///|);
-        writeBinaryValueFile(rvmModuleLoc, rvmMod);
+        try {
+            writeBinaryValueFile(rvmModuleLoc, rvmMod);
+        } catch IO(str msg): {
+            println("CANNOT WRITE ERROR MODULE FOR <qualifiedModuleName>: <msg>");
+        }
         return <newConfiguration(pcfg), rvmMod>;
     }
    	//try {
@@ -123,7 +127,12 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
     
    	if(size(errors) > 0) {
    		rvmMod = errorRVMModule("<M.header.name>", config.messages, moduleLoc);
-   		writeBinaryValueFile(rvmModuleLoc, rvmMod);
+   		try {
+            writeBinaryValueFile(rvmModuleLoc, rvmMod);
+        } catch IO(str msg): {
+            println("CANNOT WRITE ERROR MODULE FOR <M.header.name>: <msg>");
+        }
+   		
    	    return <config, rvmMod>;
    	}
    	
