@@ -5,7 +5,7 @@ import org.rascalmpl.uri.libraries.ClassResourceInput;
 public class BinaryStandardLibraryURIResolver extends ClassResourceInput {
 
     public BinaryStandardLibraryURIResolver() {
-        super("stdlib", BinaryStandardLibraryURIResolver.class, "/org/rascalmpl/library");
+        super("stdlib", BinaryStandardLibraryURIResolver.class, "/std");
     }
 
 }
