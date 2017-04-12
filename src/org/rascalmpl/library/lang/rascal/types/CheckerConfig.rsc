@@ -1080,16 +1080,18 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 			if (RSimpleName("") != n) {
 				// If the production is named, another production will overlap if it has the same name and a different type, including
 				// labels -- it is only acceptable to repeat a production exactly
-				overlaps = { i | i <- c.nonterminalConstructors[sortId], c.store[i].name == n, c.store[i].rtype != rtype}; 
-				if (size(overlaps) > 0)
-					c = addScopeError(c,"Production overlaps existing productions in the same nonterminal : <productionItemId>, <overlaps>",l);
+				overlaps = { i | i <- c.nonterminalConstructors[sortId], c.store[i].name == n, c.store[i].rtype != rtype};
+				for (overlapId <- overlaps) {
+					c = addScopeError(c,"Production has the same name, but a different declared type, as the production at location <c.store[overlapId].at>",l);
+				} 
 			} else {
 				// If the production isn't named, we have a slightly different rule: the productions don't need to match, but if
 				// they match not accounting for labels, they have to match given labels -- so, the production can be different,
 				// but if it has the same parts, they have to have the same names
 				overlaps = { i | i <- c.nonterminalConstructors[sortId], c.store[i].name == n, removeAllLabels(c.store[i].rtype) == removeAllLabels(rtype), c.store[i].rtype != rtype};
-				if (size(overlaps) > 0)
-					c = addScopeError(c,"Production overlaps existing productions in the same nonterminal : <productionItemId>, <overlaps>",l);		
+				for (overlapId <- overlaps) {
+					c = addScopeError(c,"Production has the same name, but a different declared type, as the production at location <c.store[overlapId].at>",l);
+				} 
 			}
 		}
 				
@@ -1110,15 +1112,17 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 				// If the production is named, another production will overlap if it has the same name and a different type, including
 				// labels -- it is only acceptable to repeat a production exactly
 				overlaps = { i | i <- c.nonterminalConstructors[sortId], c.store[i].name == n, c.store[i].rtype != rtype}; 
-				if (size(overlaps) > 0)
-					c = addScopeError(c,"Production overlaps existing productions in the same nonterminal : <productionItemId>, <overlaps>",l);
+				for (overlapId <- overlaps) {
+					c = addScopeError(c,"Production has the same name, but a different declared type, as the production at location <c.store[overlapId].at>",l);
+				} 
 			} else {
 				// If the production isn't named, we have a slightly different rule: the productions don't need to match, but if
 				// they match not accounting for labels, they have to match given labels -- so, the production can be different,
 				// but if it has the same parts, they have to have the same names
 				overlaps = { i | i <- c.nonterminalConstructors[sortId], c.store[i].name == n, removeAllLabels(c.store[i].rtype) == removeAllLabels(rtype), c.store[i].rtype != rtype};
-				if (size(overlaps) > 0)
-					c = addScopeError(c,"Production overlaps existing productions in the same nonterminal : <productionItemId>, <overlaps>",l);		
+				for (overlapId <- overlaps) {
+					c = addScopeError(c,"Production has the same name, but a different declared type, as the production at location <c.store[overlapId].at>",l);
+				} 
 			}
 
 			addProductionItem(n, productionItemId);
