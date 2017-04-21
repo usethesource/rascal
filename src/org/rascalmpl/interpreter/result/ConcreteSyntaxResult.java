@@ -102,18 +102,21 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 			int found = -1;
 			IConstructor foundType = null;
 			IConstructor prod = TreeAdapter.getProduction(tree);
-			IList syms = ProductionAdapter.getSymbols(prod);
 			
-			// TODO: find deeper into optionals, alternatives and sequences checking the actual arguments for presence/absence of optional trees.
-			for (int i = 0; i < syms.length(); i++) {
-				IConstructor sym = (IConstructor) syms.get(i);
-				if (SymbolAdapter.isLabel(sym)) {
-					if (SymbolAdapter.getLabel(sym).equals(name)) {
-						found = i;
-						foundType = SymbolAdapter.delabel(sym);
-						break;
-					}
-				}
+			if (ProductionAdapter.isDefault(prod)) {
+			    IList syms = ProductionAdapter.getSymbols(prod);
+
+			    // TODO: find deeper into optionals, alternatives and sequences checking the actual arguments for presence/absence of optional trees.
+			    for (int i = 0; i < syms.length(); i++) {
+			        IConstructor sym = (IConstructor) syms.get(i);
+			        if (SymbolAdapter.isLabel(sym)) {
+			            if (SymbolAdapter.getLabel(sym).equals(name)) {
+			                found = i;
+			                foundType = SymbolAdapter.delabel(sym);
+			                break;
+			            }
+			        }
+			    }
 			}
 			
 			if (found != -1) {
