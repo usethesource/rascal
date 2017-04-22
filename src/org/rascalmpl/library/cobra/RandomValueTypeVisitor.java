@@ -212,29 +212,41 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 	@Override
 	public IValue visitDateTime(Type type) {
 		Calendar cal = Calendar.getInstance();
-		int milliOffset = stRandom.nextInt(1000) * (stRandom.nextBoolean() ? -1 : 1);
-		cal.roll(Calendar.MILLISECOND, milliOffset);
-		int second = stRandom.nextInt(60) * (stRandom.nextBoolean() ? -1 : 1);
-		cal.roll(Calendar.SECOND, second);
-		int minute = stRandom.nextInt(60) * (stRandom.nextBoolean() ? -1 : 1);
-		cal.roll(Calendar.MINUTE, minute);
-		int hour = stRandom.nextInt(60) * (stRandom.nextBoolean() ? -1 : 1);
-		cal.roll(Calendar.HOUR_OF_DAY, hour);
-		int day = stRandom.nextInt(30) * (stRandom.nextBoolean() ? -1 : 1);
-		cal.roll(Calendar.DAY_OF_MONTH, day);
-		int month = stRandom.nextInt(12) * (stRandom.nextBoolean() ? -1 : 1);
-		cal.roll(Calendar.MONTH, month);
 		
-		// make sure we do not go over the 4 digit year limit, which breaks things
-		int year = stRandom.nextInt(5000) * (stRandom.nextBoolean() ? -1 : 1);
-		
-		// make sure we don't go into negative territory
-		if (cal.get(Calendar.YEAR) + year < 1)
-			cal.add(Calendar.YEAR, 1);
-		else
-			cal.add(Calendar.YEAR, year);
-		
-		return vf.datetime(cal.getTimeInMillis());
+		try {
+		    int milliOffset = stRandom.nextInt(1000) * (stRandom.nextBoolean() ? -1 : 1);
+		    cal.roll(Calendar.MILLISECOND, milliOffset);
+		    int second = stRandom.nextInt(60) * (stRandom.nextBoolean() ? -1 : 1);
+		    cal.roll(Calendar.SECOND, second);
+		    int minute = stRandom.nextInt(60) * (stRandom.nextBoolean() ? -1 : 1);
+		    cal.roll(Calendar.MINUTE, minute);
+		    int hour = stRandom.nextInt(60) * (stRandom.nextBoolean() ? -1 : 1);
+		    cal.roll(Calendar.HOUR_OF_DAY, hour);
+		    int day = stRandom.nextInt(30) * (stRandom.nextBoolean() ? -1 : 1);
+		    cal.roll(Calendar.DAY_OF_MONTH, day);
+		    int month = stRandom.nextInt(12) * (stRandom.nextBoolean() ? -1 : 1);
+		    cal.roll(Calendar.MONTH, month);
+
+		    // make sure we do not go over the 4 digit year limit, which breaks things
+		    int year = stRandom.nextInt(5000) * (stRandom.nextBoolean() ? -1 : 1);
+
+		    // make sure we don't go into negative territory
+		    if (cal.get(Calendar.YEAR) + year < 1)
+		        cal.add(Calendar.YEAR, 1);
+		    else
+		        cal.add(Calendar.YEAR, year);
+
+		    return vf.datetime(cal.getTimeInMillis());
+		}
+		catch (IllegalArgumentException e) {
+		    // this may happen if the generated random time does
+		    // not exist due to timezone shifting or due to historical
+		    // calendar standardization changes
+		    // So, we just try again until we hit a better random date
+		    return visitDateTime(type);
+		    // the recursion until stack overflow is theoretically possible, but infinetesimally unlikely...
+		    // if you see it, buy a lottery ticket. 
+		}
 	}
 
 	@Override
