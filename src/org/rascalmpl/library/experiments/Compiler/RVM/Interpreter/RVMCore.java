@@ -1068,8 +1068,24 @@ public abstract class RVMCore {
 			return instance;
 		}
 		try {
-			Constructor<?> constructor = clazz.getConstructor(IValueFactory.class);
-			instance = constructor.newInstance(vf);
+		    
+		    Constructor<?> cons = clazz.getConstructors()[0];
+		    Class<?>[] parameterTypes = cons.getParameterTypes();
+
+		    switch (parameterTypes.length) {
+		        case 0: 
+		            instance = cons.newInstance(); 
+		            break;
+		        case 1: 
+		            instance = cons.newInstance(vf);
+		            break;
+		        case 2:
+		            instance = cons.newInstance(vf, asInterface(parameterTypes[1]));
+		            break;
+		        default:
+		            throw new NoSuchMethodException(clazz + " does not have a fitting constructor (nullary, IValueFactory, of IValueFactor + IOwnInterface");
+		    }
+		    
 			instanceCache.put(clazz, instance);
 			return instance;
 		} catch (IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException | SecurityException | NoSuchMethodException e) {
