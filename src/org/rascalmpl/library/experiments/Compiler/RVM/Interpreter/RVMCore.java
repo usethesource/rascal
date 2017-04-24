@@ -229,7 +229,7 @@ public abstract class RVMCore {
 	 * @return an object which implements this interface by forwarding to Rascal functions
 	 */
 	public <T> T asInterface(Class<T> interf) {
-	    return interf.cast(Proxy.newProxyInstance(RVMCore.class.getClassLoader(), new Class<?> [] { interf }, new RascalFunctionInvocationHandler(this, interf)));
+	    return interf.cast(Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class<?> [] { interf }, new RascalFunctionInvocationHandler(this, interf)));
 	}
 	
 	public PrintWriter getStdErr() { return rex.getStdErr(); }
