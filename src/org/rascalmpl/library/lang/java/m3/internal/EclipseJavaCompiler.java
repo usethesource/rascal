@@ -61,7 +61,7 @@ public class EclipseJavaCompiler {
         store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
         store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
         JarConverter converter = new JarConverter(store, new HashMap<>());
-        converter.convert(jarLoc, eval);
+        converter.convert(jarLoc);
         return converter.getModel(false);
     }
 
