@@ -41,6 +41,21 @@ public set[Declaration] getJunitASTs(loc root)
 public M3 getJunitM3(loc root) 
     = buildM3(|project://junit4|, root + "/src/", junitClassPath(root), junitSourcePath(root));
 
+
+private list[loc] snakesClassPath(loc root)
+    = [root + "jexample-4.5-391.jar"];
+
+private list[loc] snakesSourcePath(loc root)
+    = [root + "/src/"];
+    
+
+public set[Declaration] getSnakesASTs(loc root) 
+    = buildASTs(root + "/src/", snakesClassPath(root), snakesSourcePath(root));
+
+public M3 getSnakesM3(loc root) 
+    = buildM3(|project://snakes-and-ladders|, root + "/src/", snakesClassPath(root), snakesSourcePath(root));
+
+
 set[Declaration] buildASTs(loc root, list[loc] classPath, list[loc] sourcePath) 
     = createAstsFromFiles(find(root, "java"), true, sourcePath = sourcePath, classPath = classPath, javaVersion ="1.7");
 
@@ -48,38 +63,37 @@ private M3 buildM3(loc projectName, loc root, list[loc] classPath, list[loc] sou
     = composeJavaM3(projectName, createM3sFromFiles(find(root, "java"),sourcePath = sourcePath, classPath = classPath, javaVersion ="1.7"));
 
 
-// TODO: refactor out test similarities
+// unpackExampleProject("snakes-and-ladders", |testdata:///m3/snakes-and-ladders-project-source.zip|);
+
+private bool compareM3s(loc reference, str projectName, loc sourceZip, M3 (loc) builder)
+    = compareM3s(
+        readBinaryValueFile(#M3, reference),
+        builder(unpackExampleProject(projectName, sourceZip)) 
+   );
+
 @ignoreCompiler{M3 not yet supported}
 public test bool junitM3RemainedTheSame() 
-    = compareM3s(
-        readBinaryValueFile(#M3, |testdata:///m3/junit4-m3s.bin|),
-        getJunitM3(unpackExampleProject("junit4", |testdata:///m3/junit4-project-source.zip|)) 
-   );
+    = compareM3s(|testdata:///m3/junit4-m3s.bin|, "junit4", |testdata:///m3/junit4-project-source.zip|, getJunitM3); 
+ 
+@ignoreCompiler{M3 not yet supported}
+public test bool snakesM3RemainedTheSame() 
+    = compareM3s(|testdata:///m3/snakes-and-ladders-m3s.bin|, "snakes-and-ladders", |testdata:///m3/snakes-and-ladders-project-source.zip|, getSnakesM3); 
+ 
+ 
+private bool compareASTs(loc reference, str projectName, loc sourceZip, set[Declaration] (loc) builder) 
+    = compareASTs(
+        readBinaryValueFile(#set[Declaration], reference),
+        builder(unpackExampleProject(projectName, sourceZip)) 
+    );
  
 @ignoreCompiler{M3 not yet supported}
 public test bool junitASTsRemainedTheSame() 
-    = compareASTs(
-        readBinaryValueFile(#set[Declaration], |testdata:///m3/junit4-asts.bin|),
-        getJunitASTs(unpackExampleProject("junit4", |testdata:///m3/junit4-project-source.zip|)) 
-    );
-  
-   
+    = compareASTs(|testdata:///m3/junit4-asts.bin|, "junit4", |testdata:///m3/junit4-project-source.zip|, getJunitASTs);
+        
+@ignoreCompiler{M3 not yet supported}
+public test bool snakesASTsRemainedTheSame() 
+    = compareASTs(|testdata:///m3/snakes-and-ladders-asts.bin|, "snakes-and-ladders", |testdata:///m3/snakes-and-ladders-project-source.zip|, getSnakesASTs);    
 
-
-
-public set[Declaration] getSnakesAndLaddersASTs() {
-    rootPath = getSnakesAndLaddersPath();
-    libPath = [rootPath + "jexample-4.5-391.jar"];
-    srcPath = [rootPath + "/src/"];
-    return createAstsFromFiles(find(rootPath + "/src/", "java"), true, sourcePath = srcPath, classPath = libPath, javaVersion ="1.7");
-}
-
-public M3 getSnakesAndLaddersM3() {
-    rootPath = getSnakesAndLaddersPath();
-    libPath = [rootPath + "jexample-4.5-391.jar"];
-    srcPath = [rootPath + "/src/"];
-    return composeJavaM3(|project://SnakesAndLadders/|, createM3sFromFiles(find(rootPath +"/src/", "java"),sourcePath = srcPath, classPath = libPath, javaVersion ="1.7"));
-}
 
 private bool compareASTs(set[Declaration] a, set[Declaration] b) = a == b;
 
@@ -129,12 +143,3 @@ private bool compareM3s(M3 a, M3 b) {
 	}
 	return true;
 }
-
-@ignoreCompiler{M3 not yet supported}
-public test bool m3sAreSame() 
-    = getSnakesAndLaddersPath().scheme != "unknown" && compareM3s(getSnakesAndLaddersM3(), readBinaryValueFile(#M3, |compressed+testdata:///example-project/p2-SnakesAndLadders/m3-results/m3.bin.xz|));
-
-
-@ignoreCompiler{M3 not yet supported}
-public test bool astsAreSame() 
-    = getSnakesAndLaddersPath().scheme != "unknown" && compareASTs(getSnakesAndLaddersASTs(), readBinaryValueFile(#set[Declaration], |compressed+testdata:///example-project/p2-SnakesAndLadders/m3-results/m3ast.bin.xz|));
