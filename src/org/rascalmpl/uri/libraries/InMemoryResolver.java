@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.nio.file.AccessDeniedException;
 import java.util.concurrent.ConcurrentNavigableMap;
 
 import org.rascalmpl.uri.FileTree;
@@ -44,6 +45,8 @@ import io.usethesource.vallang.ISourceLocation;
  * - program execution
  * - replacement by another in-memory filesystem for the same scheme
  *
+ * The resolver supports the following trick to simulate readonly files, used for testing purposes:
+ * If the scheme of a URI ends with `+readonly` the writing part of the resolved throws exceptions. 
  */
 
 public abstract class InMemoryResolver implements ISourceLocationInputOutput {
@@ -104,6 +107,10 @@ public abstract class InMemoryResolver implements ISourceLocationInputOutput {
 	@Override
 	public OutputStream getOutputStream(ISourceLocation uri, boolean append)
 			throws IOException {
+	    if (uri.getScheme().endsWith("+readonly")) {
+	        throw new AccessDeniedException(uri.toString());
+	    }
+	    
 		ByteArrayOutputStream result = new ByteArrayOutputStream() {
 			@Override
 			public void close() throws IOException {
@@ -169,6 +176,9 @@ public abstract class InMemoryResolver implements ISourceLocationInputOutput {
 
 	@Override
 	public void mkDirectory(ISourceLocation uri) throws IOException {
+	    if (uri.getScheme().endsWith("+readonly")) {
+            throw new AccessDeniedException(uri.toString());
+        }
 	}
 
 	@Override
