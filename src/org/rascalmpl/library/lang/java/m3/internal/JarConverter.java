@@ -48,7 +48,7 @@ public class JarConverter extends M3Converter {
   private String className;
   private boolean classIsEnum;
 
-  JarConverter(TypeStore typeStore, Map<String, ISourceLocation> cache) {
+  JarConverter(LimitedTypeStore typeStore, Map<String, ISourceLocation> cache) {
     super(typeStore, cache);
   }
 
