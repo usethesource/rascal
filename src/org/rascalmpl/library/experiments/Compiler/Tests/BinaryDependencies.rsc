@@ -38,9 +38,38 @@ test bool simpleBinaryDependency() {
    // then we compile A which uses B, but only on the library path available as binary
    pcfgA = pathConfig(srcs=[top + "a", |std:///|], bin=top + "BinA", libs=[top + "BinB", top + "BinA"]);
    compileAndLink("A", pcfgA, jvm=true); 
-   
+      
    // see if it works
    return execute("A", pcfgA, recompile=false) == 42; 
+}
+
+test bool simpleBinaryDependencyNoJunk() {
+   top = |test-modules:///simpleBinaryDependency|;
+   clean(top);
+   
+   // write two modules in different source folders, A and B
+   writeFile(top + "a/A.rsc",
+     "module A
+     'import B;
+     'int testa() = testb();
+     'int main() = testa();
+     ");
+     
+   writeFile(top + "b/B.rsc",
+     "module B
+     'int testb() = 42;
+     ");
+     
+   // first we compile module B to a B binary 
+   pcfgB = pathConfig(srcs=[top + "b", |std:///|], bin=top + "BinB", libs=[top + "BinB"]);
+   compileAndLink("B", pcfgB, jvm=true);
+   
+   // then we compile A which uses B, but only on the library path available as binary
+   pcfgA = pathConfig(srcs=[top + "a", |std:///|], bin=top + "BinA", libs=[top + "BinB", top + "BinA"]);
+   compileAndLink("A", pcfgA, jvm=true); 
+      
+   // see if it works
+   return !any(loc f <- (top + "BinA").ls, /B\..*/ := f.file, bprintln("module output of binary dependency written to current bin: <f>"));
 }
 
 @doc{check if dependency on a binary module for which no source module is available works}
