@@ -19,6 +19,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.AccessDeniedException;
 import java.util.concurrent.ConcurrentNavigableMap;
@@ -85,6 +87,7 @@ public abstract class InMemoryResolver implements ISourceLocationInputOutput {
 			lastModified = newTimestamp;
 			contents = byteArray;
 		}
+		
 		public String toString(){
 		    return String.valueOf(lastModified) ;//+ ":\n" +new String(contents, StandardCharsets.UTF_8);
 		}
@@ -183,6 +186,10 @@ public abstract class InMemoryResolver implements ISourceLocationInputOutput {
 
 	@Override
 	public void remove(ISourceLocation uri) throws IOException {
+	    if (uri.getScheme().endsWith("+readonly")) {
+            throw new AccessDeniedException(uri.toString());
+        }
+	    
 	    fileSystem.getFileSystem().remove(uri.getPath());
 	}
 }
