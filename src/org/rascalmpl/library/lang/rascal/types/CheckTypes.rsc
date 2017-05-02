@@ -7516,13 +7516,16 @@ void writeCachedDateMap(str qualifiedModuleName, PathConfig pcfg, map[RName,date
 
 void clearDirtyModules(str qualifiedModuleName, PathConfig pcfg, bool transitive=true) {
     if(<true, c1> := getCachedConfig(qualifiedModuleName, pcfg)){
-		c1.dirtyModules = { };
-		writeCachedConfig(qualifiedModuleName, pcfg, c1);
+        if(!isEmpty(c1.dirtyModules)){
+		   writeCachedConfig(qualifiedModuleName, pcfg, c1[dirtyModules={}]);
+		}
 		
 		if (transitive) {
 			reachableModules = { prettyPrintName(mn) | mn <- carrier(c1.importGraph) } - qualifiedModuleName;
 			for (qmname <- reachableModules, <true, c2> := getCachedConfig(qmname, pcfg)) {
-				writeCachedConfig(qmname, pcfg, c2[dirtyModules={}]);
+			    if(!isEmpty(c2.dirtyModules)){
+				   writeCachedConfig(qmname, pcfg, c2[dirtyModules={}]);
+				}   
 			}
 		}
 	}
@@ -8283,9 +8286,10 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	//     }
 	//}
 	
-	for (mn <- moduleLocations, mn in workingConfigs) {
+	for (mn <- moduleLocations, mn in workingConfigs, mn notin binaryOnlyModules) {
 		// Note: This writes more than we need of the hashes. We should probably use domainX to remove non-reachable modules.
 	    ppmn = prettyPrintName(mn);
+	    
 	    org_pcfg = workingConfigs[mn].pathConfiguration;
 		writeCachedDate(ppmn, org_pcfg, currentDates[mn]);
 		writeCachedConfig(ppmn, org_pcfg, workingConfigs[mn]);
