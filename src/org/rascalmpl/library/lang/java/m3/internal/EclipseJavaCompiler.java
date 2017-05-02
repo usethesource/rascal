@@ -55,25 +55,34 @@ public class EclipseJavaCompiler {
     public EclipseJavaCompiler(IValueFactory vf) {
         this.VF = vf;
     }
-
-    public IValue createM3FromJarClass(ISourceLocation jarLoc, IEvaluatorContext eval) {
+    
+    private LimitedTypeStore getM3Store(IEvaluatorContext eval) {
         TypeStore store = new TypeStore();
         store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
         store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
+        return new TypeStoreWrapper(store);
+    }
+
+    public IValue createM3FromJarClass(ISourceLocation jarLoc, IEvaluatorContext eval) {
+        return createM3FromJarClass(jarLoc, getM3Store(eval));
+    }
+    
+    protected IValue createM3FromJarClass(ISourceLocation jarLoc, LimitedTypeStore store) {
         JarConverter converter = new JarConverter(store, new HashMap<>());
         converter.convert(jarLoc);
         return converter.getModel(false);
     }
-
+    
     public IValue createM3sFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, IEvaluatorContext eval) {
+        return createM3sFromFiles(files, errorRecovery, sourcePath, classPath, javaVersion, getM3Store(eval), () -> checkInterrupted(eval));
+    }
+
+    protected IValue createM3sFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, LimitedTypeStore store, Runnable interruptChecker) {
         try {
-            TypeStore store = new TypeStore();
-            store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
-            store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
             Map<String, ISourceLocation> cache = new HashMap<>();
             ISetWriter result = VF.setWriter();
             buildCompilationUnits(files, true, errorRecovery.getValue(), sourcePath, classPath, javaVersion, (loc, cu) -> {
-                checkInterrupted(eval);
+                interruptChecker.run();
                 result.insert(convertToM3(store, cache, loc, cu));
             });
             return result.done();
@@ -87,17 +96,17 @@ public class EclipseJavaCompiler {
           throw new InterruptException(eval.getStackTrace(), eval.getCurrentAST().getLocation());
         }
     }
-
     public IValue createM3sAndAstsFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, IEvaluatorContext eval) {
+        return createM3sAndAstsFromFiles(files, errorRecovery, sourcePath, classPath, javaVersion, getM3Store(eval), () -> checkInterrupted(eval));
+    }
+    
+    protected IValue createM3sAndAstsFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, LimitedTypeStore store, Runnable interruptChecker) {
         try {
-            TypeStore store = new TypeStore();
-            store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
-            store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
             Map<String, ISourceLocation> cache = new HashMap<>();
             ISetWriter m3s = VF.setWriter();
             ISetWriter asts = VF.setWriter();
             buildCompilationUnits(files, true, errorRecovery.getValue(), sourcePath, classPath, javaVersion, (loc, cu) -> {
-                checkInterrupted(eval);
+                interruptChecker.run();
                 m3s.insert(convertToM3(store, cache, loc, cu));
                 asts.insert(convertToAST(VF.bool(true), cache, loc, cu, store));
             });
@@ -108,32 +117,31 @@ public class EclipseJavaCompiler {
         
     }
 
-
     public IValue createM3FromString(ISourceLocation loc, IString contents, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, IEvaluatorContext eval) {
+        return createM3FromString(loc, contents, errorRecovery, sourcePath, classPath, javaVersion, getM3Store(eval)); 
+    }
+    
+    
+    protected IValue createM3FromString(ISourceLocation loc, IString contents, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, LimitedTypeStore store) {
         try {
             CompilationUnit cu = getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), true, errorRecovery.getValue(), javaVersion, translatePaths(sourcePath), translatePaths(classPath));
-
-            TypeStore store = new TypeStore();
-            store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
-            store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
-
             return convertToM3(store, new HashMap<>(), loc, cu);
         } catch (IOException e) {
             throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
         }
     }
+    
+    public IValue createAstsFromFiles(ISet files, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, IEvaluatorContext eval) {
+        return createAstsFromFiles(files, collectBindings, errorRecovery, sourcePath, classPath, javaVersion, getM3Store(eval), () -> checkInterrupted(eval));
+    }
 
-    public IValue createAstsFromFiles(ISet files, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion,
-            IEvaluatorContext eval) {
+    protected IValue createAstsFromFiles(ISet files, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, LimitedTypeStore store, Runnable interruptChecker) {
         try {
-            TypeStore store = new TypeStore();
-            store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
-            
             Map<String, ISourceLocation> cache = new HashMap<>();
             ISetWriter result = VF.setWriter();
 
             buildCompilationUnits(files, collectBindings.getValue(), errorRecovery.getValue(), sourcePath, classPath, javaVersion, (loc, cu) -> {
-                checkInterrupted(eval);
+                interruptChecker.run();
                 result.insert(convertToAST(collectBindings, cache, loc, cu, store));
             });
             return result.done();
@@ -142,22 +150,20 @@ public class EclipseJavaCompiler {
         }
     }
 
-    public IValue createAstFromString(ISourceLocation loc, IString contents, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion,
-            IEvaluatorContext eval) {
+    public IValue createAstFromString(ISourceLocation loc, IString contents, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, IEvaluatorContext eval) {
+        return createAstFromString(loc, contents, collectBindings, errorRecovery, sourcePath, classPath, javaVersion, getM3Store(eval));
+    }
+    
+    protected IValue createAstFromString(ISourceLocation loc, IString contents, IBool collectBindings, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, LimitedTypeStore store) {
         try {
             CompilationUnit cu = getCompilationUnit(loc.getPath(), contents.getValue().toCharArray(), collectBindings.getValue(), errorRecovery.getValue(), javaVersion, translatePaths(sourcePath), translatePaths(classPath));
-
-            TypeStore store = new TypeStore();
-            store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
-
             return convertToAST(collectBindings, new HashMap<>(), loc, cu, store);
         } catch (IOException e) {
             throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), null, null);
         }
     }
 
-    protected IValue convertToM3(TypeStore store, Map<String, ISourceLocation> cache, ISourceLocation loc,
-            CompilationUnit cu) {
+    protected IValue convertToM3(LimitedTypeStore store, Map<String, ISourceLocation> cache, ISourceLocation loc,   CompilationUnit cu) {
         SourceConverter converter = new SourceConverter(store, cache);
         converter.convert(cu, cu, loc);
         for (Object cm: cu.getCommentList()) {
@@ -262,7 +268,7 @@ public class EclipseJavaCompiler {
     }
 
     protected IValue convertToAST(IBool collectBindings, Map<String, ISourceLocation> cache, ISourceLocation loc,
-            CompilationUnit cu, TypeStore store) {
+            CompilationUnit cu, LimitedTypeStore store) {
         ASTConverter converter = new ASTConverter(store, cache, collectBindings.getValue());
         converter.convert(cu, cu, loc);
         converter.insertCompilationUnitMessages(true, null);
