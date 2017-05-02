@@ -56,7 +56,7 @@ public class EclipseJavaCompiler {
         this.VF = vf;
     }
     
-    private LimitedTypeStore getM3Store(IEvaluatorContext eval) {
+    protected LimitedTypeStore getM3Store(IEvaluatorContext eval) {
         TypeStore store = new TypeStore();
         store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
         store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
