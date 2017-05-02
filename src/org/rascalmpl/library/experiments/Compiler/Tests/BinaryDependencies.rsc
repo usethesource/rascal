@@ -44,6 +44,42 @@ test bool simpleBinaryDependency() {
 }
 
 @doc{check if dependency on a binary module for which no source module is available works}
+test bool simpleBinaryDependencyReadonly() {
+   top = |test-modules:///simpleBinaryDependencyReadonly|;
+   readonlyTop = top[scheme=top.scheme + "+readonly"];
+   
+   clean(top);
+   
+   // write two modules in different source folders, A and B
+   writeFile(top + "a/A.rsc",
+     "module A
+     'import B;
+     'int testa() = testb();
+     'int main() = testa();
+     ");
+     
+   writeFile(top + "b/B.rsc",
+     "module B
+     'int testb() = 42;
+     ");
+     
+   // first we compile module B to a B binary 
+   pcfgB = pathConfig(srcs=[top + "b", |std:///|], bin=top + "BinB", libs=[top + "BinB"]);
+   compileAndLink("B", pcfgB, jvm=true);
+   
+   // remove the source file entirely, just to be sure of non-interference
+   remove(top + "b/B.rsc");
+   
+   // then we compile A which uses B, but only on the library path available as (readonly) binary
+   pcfgA = pathConfig(srcs=[top + "a", |std:///|], bin=top + "BinA", libs=[readonlyTop + "BinB", top + "BinA"]);
+   compileAndLink("A", pcfgA, jvm=true); 
+   
+   // see if it works
+   return execute("A", pcfgA, recompile=false) == 42; 
+}
+
+
+@doc{check if dependency on a binary module for which no source module is available works}
 test bool simpleBinaryDependencyIncremental() {
    top = |test-modules:///simpleBinaryDependencyIncremental|;
    clean(top);
@@ -69,6 +105,42 @@ test bool simpleBinaryDependencyIncremental() {
    
    // then we compile A which uses B, but only on the library path available as binary
    pcfgA = pathConfig(srcs=[top + "a", |std:///|], bin=top + "BinA", libs=[top + "BinB", top + "BinA"]);
+   rvmProgramA = compileAndMergeProgramIncremental("A", true, pcfgA, jvm=true, verbose=false); 
+   
+   // see if it works by executing (without recompiling!)
+   return execute(rvmProgramA, pcfgA, verbose=false) == 42; 
+}
+
+@doc{check if dependency on a binary module for which no source module is available works}
+test bool simpleBinaryDependencyIncrementalReadonly() {
+   top = |test-modules:///simpleBinaryDependencyIncremental|;
+   readonlyTop = top[scheme=top.scheme + "+readonly"];
+   clean(top);
+   
+   // write two modules in different source folders, A and B
+   writeFile(top + "a/A.rsc",
+     "module A
+     'import B;
+     'int testa() = testb();
+     'int main() = testa();
+     'int main1() = 1; // dummy last declaration that is always removed by compile1Incremental
+     ");
+      
+   writeFile(top + "b/B.rsc",
+     "module B
+     'int testb() = 42;
+     'int main2() = 2;  // dummy last declaration that is always removed by compile1Incremental
+     ");
+     
+   // first we compile (standard, non-incremental) module B to a B binary 
+   pcfgB = pathConfig(srcs=[top + "b", |std:///|], bin=top + "BinB", libs=[top + "BinB"]);
+   rvmProgramB = compileAndLink("B", pcfgB, jvm=true, verbose=false);
+   
+   // remove the source file entirely
+   remove(top + "b/B.rsc");
+   
+   // then we compile A which uses B, but only on the library path available as binary
+   pcfgA = pathConfig(srcs=[top + "a", |std:///|], bin=top + "BinA", libs=[readonlyTop + "BinB", top + "BinA"]);
    rvmProgramA = compileAndMergeProgramIncremental("A", true, pcfgA, jvm=true, verbose=false); 
    
    // see if it works by executing (without recompiling!)
@@ -146,6 +218,7 @@ test bool sourceDependencyRecompile() {
 @doc{the imported module is only on the library path in binary form, and this imported library receives an update before the importer is recompiled}
 test bool binaryDependencyRecompile() {
    top = |test-modules:///binaryDependencyRecompile|;
+   readonlyTop = top[scheme=top.scheme + "+readonly"];
    clean(top);  
    
    writeFile(top + "a/A.rsc",
@@ -165,7 +238,7 @@ test bool binaryDependencyRecompile() {
    compileAndLink("B", pcfgB, jvm=true);
      
    // then in another bin we compile A  
-   pcfgA = pathConfig(srcs=[top + "a", |std:///|], bin=top + "BinA", libs=[top + "BinA",top + "BinB"]);
+   pcfgA = pathConfig(srcs=[top + "a", |std:///|], bin=top + "BinA", libs=[top + "BinA", readonlyTop + "BinB"]);
    compileAndLink("A", pcfgA, jvm=true); 
    
    // see what comes out
@@ -182,7 +255,7 @@ test bool binaryDependencyRecompile() {
    compileAndLink("B", pcfgB, jvm=true);
      
    // recompile A
-   pcfgA = pathConfig(srcs=[top + "a", |std:///|], bin=top + "BinA", libs=[top + "BinA",top + "BinB"]);
+   pcfgA = pathConfig(srcs=[top + "a", |std:///|], bin=top + "BinA", libs=[top + "BinA",readonlyTop + "BinB"]);
    compileAndLink("A", pcfgA, jvm=true); 
    
    // see what comes out
