@@ -310,3 +310,23 @@ test bool binaryDependencyNoTransitiveRecompile() {
    // no change expected
    return first == second; 
 }
+
+test bool binaryStandardLibraryTest() {
+   top = |test-modules:///binaryStandardLibraryTest|;
+   clean(top);
+   
+   writeFile(top + "a/A.rsc",
+     "module A
+     'import IO;
+     'int testa() = bprintln(\"Hello binaryStandardLibraryTest\") ? 1 : 0;
+     'int main() = testa();
+     ");
+     
+   // then in another bin we compile A  
+   pcfgA = pathConfig(srcs=[top + "a"], bin=top + "BinA", libs=[top + "BinA", |stdlib:///|]);
+   compileAndLink("A", pcfgA, jvm=true); 
+   
+   result = execute("A", pcfgA, recompile=true);
+   
+   return result == 1;
+}
