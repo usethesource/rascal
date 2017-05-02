@@ -111,7 +111,7 @@ public class ASTConverter extends JavaToRascalConverter {
 	 * Type parameters need to come out of annotations
 	 * calls may need to be broken up into superconstructor, constructor, supermethod, method calls or separate them in bindings
 	 */
-	public ASTConverter(final TypeStore typeStore, Map<String, ISourceLocation> cache, boolean collectBindings) {
+	public ASTConverter(final LimitedTypeStore typeStore, Map<String, ISourceLocation> cache, boolean collectBindings) {
 		super(typeStore, cache, collectBindings);
 	}
 	

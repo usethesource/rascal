@@ -32,7 +32,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	protected static final IValueFactory values = ValueFactoryFactory.getValueFactory();
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 
-	protected final TypeStore typeStore;
+	protected final LimitedTypeStore typeStore;
 	
 	protected IValue ownValue;
 	private static final String DATATYPE_RASCAL_AST_TYPE_NODE 			= "Type";
@@ -60,7 +60,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 	protected IListWriter messages;
     protected final Map<String, ISourceLocation> locationCache;
 
-	JavaToRascalConverter(final TypeStore typeStore, Map<String, ISourceLocation> cache, boolean collectBindings) {
+	JavaToRascalConverter(final LimitedTypeStore typeStore, Map<String, ISourceLocation> cache, boolean collectBindings) {
 		super(true);
 		this.typeStore = typeStore;
 		this.bindingsResolver = new BindingsResolver(typeStore, cache, collectBindings);
@@ -234,7 +234,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		if(this.ownValue == null) {
       return ;
     }
-		if (value != null && ownValue.getType().hasKeywordField(label, typeStore)) {
+		if (value != null && typeStore.hasKeywordField(ownValue.getType(), label)) {
 		ownValue = ((IConstructor) ownValue).asWithKeywordParameters().setParameter(label, value);
     }
 	}
@@ -244,7 +244,7 @@ public abstract class JavaToRascalConverter extends ASTVisitor {
 		if(this.ownValue == null) {
       return ;
     }
-		if (valueList != null && this.ownValue.getType().hasKeywordField(label, typeStore) && !values.isEmpty()) {
+		if (valueList != null && typeStore.hasKeywordField(ownValue.getType(), label) && !values.isEmpty()) {
 		this.ownValue = ((IConstructor) this.ownValue).asWithKeywordParameters().setParameter(label, values);
     }
 	}

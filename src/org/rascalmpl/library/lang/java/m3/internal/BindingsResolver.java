@@ -56,7 +56,7 @@ import io.usethesource.vallang.type.TypeStore;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 public class BindingsResolver {
-	private TypeStore store;
+	private LimitedTypeStore store;
 	private final IValueFactory values = ValueFactoryFactory.getValueFactory();
 	private final TypeFactory tf = TypeFactory.getInstance();
 	private final boolean collectBindings;
@@ -70,9 +70,9 @@ public class BindingsResolver {
     private final Map<String, ISourceLocation> locationCache;
     private final boolean debug = false;
 	
-	BindingsResolver(final TypeStore store, Map<String, ISourceLocation> cache, boolean collectBindings) {
+	BindingsResolver(final LimitedTypeStore typeStore, Map<String, ISourceLocation> cache, boolean collectBindings) {
 		this.collectBindings = collectBindings;
-		this.store = store;
+		this.store = typeStore;
 		this.locationCache = cache;
 	}
 	
