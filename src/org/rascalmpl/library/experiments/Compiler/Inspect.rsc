@@ -128,17 +128,24 @@ str getSelected(value v1, value v2, Query query){
 bool hasMatches(set[&T] s, Query query) = !isEmpty(s) && evalQuery(s, query);
 bool hasMatches(map[&K,&KV] m, Query query) = !isEmpty(m) && evalQuery(m, query);
 
-
-
-void inspectRVM(str qualifiedModuleName,   // nameof Rascal source module
-          PathConfig pcfg,              // path configuration where binaries are stored
-          Query select = none(),        // select function names to be shown
-          int line = -1,                // select line of function to be shown
-          bool listing = false,         // show instruction listing
-          bool linked = false           // inspect the fully linked version of the program
+void inspectRVM(str qualifiedModuleName, // nameof Rascal source module
+          PathConfig pcfg,               // path configuration where binaries are stored
+          Query select = none(),         // select function names to be shown
+          int line = -1,                 // select line of function to be shown
+          bool listing = false           // show instruction listing
           ){
-           <e, rvmLoc> = linked ? RVMExecutableReadLoc(qualifiedModuleName, pcfg) : RVMModuleReadLoc(qualifiedModuleName, pcfg);
-    inspect(rvmLoc, select=select, line=line, listing=listing);
+    <e, rvmLoc> = RVMModuleReadLoc(qualifiedModuleName, pcfg);
+    inspectRVM(rvmLoc, select=select, line=line, listing=listing);
+}
+
+void inspectRVMX(str qualifiedModuleName, // nameof Rascal source module
+          PathConfig pcfg,                // path configuration where binaries are stored
+          Query select = none(),          // select function names to be shown
+          int line = -1,                  // select line of function to be shown
+          bool listing = false            // show instruction listing
+          ){
+    <e, rvmLoc> = RVMExecutableReadLoc(qualifiedModuleName, pcfg);
+    inspectRVM(rvmLoc, select=select, line=line, listing=listing);
 }
            
 /*
@@ -302,12 +309,11 @@ void printDecl(RVMDeclaration d){
     if(d is FUNCTION){
         println("\tFUNCTION <d.uqname>, <d.qname>, <d.ftype>");
         print("\t\tisPublic=<d.isPublic>, isDefault=<d.isDefault>, ");
-        println("\t\tlocalNames=<d.localNames>");
+        println("isConcreteArg=<d.isConcreteArg>, localNames=<d.localNames>");
     } else {
         println("\tCOROUTINE <d.uqname>, <d.qname>");
-        print("\t\t");
     }
-    println("nformals=<d.nformals>, nlocals=<d.nlocals>, maxStack=<d.maxStack>, instructions=<size(d.instructions)>, scopeIn=<d.scopeIn>");
+    println("\t\tnformals=<d.nformals>, nlocals=<d.nlocals>, maxStack=<d.maxStack>, instructions=<size(d.instructions)>, scopeIn=<d.scopeIn>");
     println("\t\tsrc=<d.src>");
     println("\t\tusedOverLoadedFunctions=<d.usedOverloadedFunctions>");
     println("\t\tusedFunctions=<d.usedFunctions>");
@@ -425,27 +431,26 @@ void statistics(loc root = |std:///|,
 
 void inspectTC(str qualifiedModuleName,                // name of Rascal source module
             PathConfig pcfg,
-            Query select = none()){
-          
-     println(config(qualifiedModuleName, pcfg, select=select));
+            Query select = none()){        
+     println(tc(qualifiedModuleName, pcfg, select=select));
 }
 
 void inspectTC(loc cloc,  Query select = none()){
-    println(config(cloc, select=select));
+    println(tc(cloc, select=select));
 }
 
-str config(str qualifiedModuleName,                // name of Rascal source module
+str tc(str qualifiedModuleName,                // name of Rascal source module
             PathConfig pcfg,
             Query select = none()){
             
    if(<true, cloc> := cachedConfigReadLoc(qualifiedModuleName,pcfg)){
-      return config(cloc,  select=select);
+      return tc(cloc,  select=select);
    } else {
-       return "Config file does not exist for: <qualifiedModuleName>";
+       return "Config (.tc) file does not exist for: <qualifiedModuleName>";
     }
 }
             
-str config(loc cloc,  Query select = none()){
+str tc(loc cloc,  Query select = none()){
    Configuration c = readBinaryValueFile(#Configuration, cloc);
    res = "";
    
@@ -474,8 +479,8 @@ str config(loc cloc,  Query select = none()){
    if(hasMatches(c.usedIn, select)) {  res += "usedIn:\n"; for(uid <- sort(domain(c.usedIn)))  res += getSelected(uid, c.usedIn[uid], select); }
    if(hasMatches(c.adtConstructors, select)) {  res += "adtConstructors:\n"; for(uid <- sort(domain(c.adtConstructors)))  res += getSelected(uid, c.adtConstructors[uid], select); }
    if(hasMatches(c.nonterminalConstructors, select)) {  res += "nonterminalConstructors:\n"; for(uid <- sort(domain(c.nonterminalConstructors)))  res += getSelected(uid,c.nonterminalConstructors[uid], select); }
-   res += "stack: <c.stack>\n";
-   res += "labelStack: <c.labelStack>\n";
+   if(!isEmpty(c.stack)) { res += "stack: <c.stack>\n"; }
+   if(!isEmpty(c.labelStack)) { res += "labelStack: <c.labelStack>\n"; }
    if(hasMatches(c.keywordDefaults, select)) {  res += "keywordDefaults:\n"; for(uid <- sort(domain(c.keywordDefaults)))  res += getSelected(uid, c.keywordDefaults[uid], select); }
    if(hasMatches(c.dataKeywordDefaults, select)) {  res += "dataKeywordDefaults:\n"; for(uid <- sort(domain(c.dataKeywordDefaults)))  res += getSelected(uid, c.dataKeywordDefaults[uid], select); }
    if(hasMatches(c.tvarBounds, select)) {  res += "tvarBounds:\n"; for(uid <- sort(domain(c.tvarBounds)))  res += getSelected(uid, c.tvarBounds[uid], select); }
@@ -486,44 +491,7 @@ str config(loc cloc,  Query select = none()){
    
    if(hasMatches(c.deferredSignatures, select)) {  res += "deferredSignatures:\n"; for(uid <- sort(domain(c.deferredSignatures)))  res += getSelected(uid, c.deferredSignatures[uid], select); }
    if(hasMatches(c.unimportedNames, select)) {  res += "unimportedNames:\n"; for(uid <- sort(c.unimportedNames))  res += getSelected(uid, select); }
-   if(c.importGraph != {}) {  res += "importGraph:\n"; for(<nm1, nm2> <- c.importGraph) res += "\t\<<prettyPrintName(nm1)>, <prettyPrintName(nm2)>\>\n"; }
-   if(c.dirtyModules != {}) { res += "dirtyModules:\n"; for(dirty <- c.dirtyModules) res += "\t<prettyPrintName(dirty)>\n"; }
+   //if(c.importGraph != {}) {  res += "importGraph:\n"; for(<nm1, nm2> <- c.importGraph) res += "\t\<<prettyPrintName(nm1)>, <prettyPrintName(nm2)>\>\n"; }
+   //if(c.dirtyModules != {}) { res += "dirtyModules:\n"; for(dirty <- c.dirtyModules) res += "\t<prettyPrintName(dirty)>\n"; }
    return res;
-}
-
-//void importGraph(str qualifiedModuleName,  // name of Rascal source module
-//            PathConfig pcfg = pathConfig()){
-//    
-//    //config(qualifiedModuleName);
-//    if(<true, cloc> := cachedConfigReadLoc(qualifiedModuleName,pcfg)){
-//       Configuration c = readBinaryValueFile(#Configuration, cloc); 
-//        
-//  
-//	    if(c.importGraph != {}) {
-//	        modules = [<prettyPrintName(nm), box(fig=text(getSimpleName(nm), fontSize=12), tooltip=prettyPrintName(nm))> | nm <- carrier(c.importGraph)];
-//	        edges = [edge(prettyPrintName(nm1), prettyPrintName(nm2)) | <nm1, nm2> <- c.importGraph];
-//	        g = box(fig=graph(modules, edges, width = 3000, height = 1000, lineWidth=1, graphOptions=graphOptions(nodeSep=50,layerSep=50, edgeSep=50)));
-//	        println(g);
-//	        render(g);
-//	    } else {
-//	        println("Import graph is empty");
-//	    }
-//	} else {
-//	  println("Config file does not exist");
-//	}    
-// }
-
-set[loc] getFunctionLocations(
-                            str qualifiedModuleName,                  // location of Rascal source file
-                            PathConfig pcfg                  // location where binaries are stored
-                            ){
-   if(<true, rvmLoc> := getDerivedReadLoc(qualifiedModuleName, "rvm", pcfg)){
-       try {
-            p = readBinaryValueFile(#RVMModule, rvmLoc);
-            
-            return {d.src | d <- p.declarations};
-       } catch e: {
-            println("Reading: <rvmLoc>: <e>");
-       }
-   }
 }
