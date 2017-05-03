@@ -109,7 +109,7 @@ public class RVMLinker {
 			f.funId = index ;
 		}
 		
-		//System.out.println("declareFunction: " + index + "  => " + f.getName());
+		if(f.getName().contains("EXTENDED_FUNCTION"))System.out.println("declareFunction: " + index + "  => " + f.getName());
 	}
 	
 	private Integer useConstructorName(String cname) {
@@ -145,6 +145,8 @@ public class RVMLinker {
 			String of = ((IString) fuid).getValue();
 			int index = ((IInteger) resolver.get(fuid)).intValue();
 			this.resolver.put(of, index);
+			if(of.contains("EXTENDED_FUNCTION"))
+			    System.err.println("addResolver: " + index + ", " + of);
 		}
 	}
 	
@@ -181,6 +183,8 @@ public class RVMLinker {
 			
 			OverloadedFunction res = new OverloadedFunction(funName, new TypeReifier(vf).symbolToType(funType, vf.mapWriter().done()), funs, constrs, scopeIn);
 			this.overloadedStore.add(res);
+			if(funName.contains("EXTENDED_FUNCTION"))
+			    System.out.println("fillOverloadedStore: add " + res);
 		}
 	}
 	
@@ -236,6 +240,7 @@ public class RVMLinker {
 			Function fn = functionStore.get(i);
 			if(!used.contains(vf.string(fn.name))){
 				functionMap.remove(fn.name);
+				//System.err.println("Remove " + fn.name);
 				shift++;
 			} else {
 				int ishifted = i - shift;
@@ -302,7 +307,7 @@ public class RVMLinker {
 						break;
 					}
 				}
-				System.out.println("finalizeInstructions, null at index: " + i + ", " + nameAtIndex);
+				//System.out.println("finalizeInstructions, null at index: " + i + ", " + nameAtIndex);
 			} else {
 				//System.out.println("finalizeInstructions: " + f.name);
 			}
