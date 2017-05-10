@@ -16,7 +16,9 @@ anno loc QualifiedName@\loc;
 anno loc Signature@\loc;
 anno loc Prod@\loc;
 
-node outline(Tree m) {
+node outline(start[Module] m) = outline(m.top);
+
+node outline(Module m) {
    n = "";
    aliases = [];
    annotations = [];
@@ -94,10 +96,10 @@ node outline(Tree m) {
 
    return n(
       "Functions"(functions)[@label="Functions (<size(functions)>)"],
-      "Tests"(tests)[@label="Functions (<size(functions)>)"],
+      "Tests"(tests)[@label="Tests (<size(tests)>)"],
       "Variables"(variables)[@label="Variables (<size(variables)>)"],
-      "Aliases"(aliases)[@label="Aliases (<size(functions)>)"],
-      "Data"(\data)[@label="Functions <size(functions)>"],
+      "Aliases"(aliases)[@label="Aliases (<size(aliases)>)"],
+      "Data"(\data)[@label="Data <size(adts)>"],
       "Annotations"(annotations)[@label="Annotations <size(annotations)>"],
       "Tags"(tags)[@label="Tags <size(tags)>"],
       "Imports"(imports)[@label="Imports <size(imports)>"],
