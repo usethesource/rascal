@@ -416,7 +416,7 @@ public class PathConfig {
             }
 	    }
 	    
-	    throw new IOException("No module name found for " + moduleLoc);
+	    throw new IOException("No module name found for " + moduleLoc + "\n" + this);
 	        
 	}
 	
