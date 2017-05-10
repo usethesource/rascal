@@ -99,7 +99,7 @@ node outline(Module m) {
       "Tests"(tests)[@label="Tests (<size(tests)>)"],
       "Variables"(variables)[@label="Variables (<size(variables)>)"],
       "Aliases"(aliases)[@label="Aliases (<size(aliases)>)"],
-      "Data"(\data)[@label="Data <size(adts)>"],
+      "Data"(adts)[@label="Data <size(adts)>"],
       "Annotations"(annotations)[@label="Annotations <size(annotations)>"],
       "Tags"(tags)[@label="Tags <size(tags)>"],
       "Imports"(imports)[@label="Imports <size(imports)>"],
