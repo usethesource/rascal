@@ -1,11 +1,11 @@
-module experiments::Compiler::Examples::Base
+module experiments::Compiler::Examples::Base2
 
 import IO;
 import ParseTree;
-
+  
 default void EXTENDED_FUNCTION(int n, Tree t) { println("default use: <t> :-("); }
 
-void bug() =
+void bug2() =  
 EXTENDED_FUNCTION(0,
 appl(
   prod(
@@ -20,4 +20,3 @@ appl(
       [char(97)])])[
   @\loc=|test-modules:///ConsoleInput.rsc|(0,1,<1,0>,<1,1>)
 ]);
-
