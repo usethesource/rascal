@@ -59,7 +59,7 @@ node outline(Tree m) {
          c += [ "kf: <k.name>" | k <- kws.keywordFormalList];
        }
        
-       c += [ "<v.name>"()[\loc=v@\loc] | v <- variants];
+       c += [ "<v.name>"()[@\loc=v@\loc] | v <- variants];
        
        adts[f] = c;
      }
