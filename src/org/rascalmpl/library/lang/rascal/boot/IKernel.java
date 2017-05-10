@@ -20,6 +20,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFra
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
+import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
@@ -224,6 +225,13 @@ public interface IKernel extends IJava2Rascal {
    * @return          The contents of the doc string of that definition
    */
   public IString getDocForDefinition(ISourceLocation def);
+  
+  /**
+   * Produce an outline representation for a Rascal module
+   * @param module a parse tree of a Rascal module
+   * @return a hierarchical model of a Rascal module
+   */
+  public INode outline(IConstructor module);
   
   /*
    * Some Kernel management methods
