@@ -164,12 +164,11 @@ RVMModule compile(str qualifiedModuleName, PathConfig pcfg, loc reloc=|noreloc:/
 }
 
 list[RVMModule] compileAll(loc moduleRoot, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = false, bool optimize=true, bool enableAsserts=false){
-    return [ compile(getModuleName(moduleLoc, pcfg), pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts) | moduleLoc <- find(moduleRoot, "rsc")];
+    return compile([ getModuleName(moduleLoc, pcfg) | moduleLoc <- find(moduleRoot, "rsc") ], pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
 }
- 
 
 list[RVMModule] compile(list[loc] moduleLocs, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = false, bool optimize=true, bool enableAsserts=false){
-    return [ compile(getModuleName(moduleLoc, pcfg), pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts) | moduleLoc <- moduleLocs ];
+    return compile([ getModuleName(moduleLoc, pcfg) | moduleLoc <- moduleLocs ], pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
 }
 
 list[RVMModule] compile(list[str] qualifiedModuleNames, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = false, bool optimize=true, bool enableAsserts=false){
@@ -183,9 +182,7 @@ list[RVMModule] compile(list[str] qualifiedModuleNames, PathConfig pcfg, loc rel
     writeFile(containerLocation, container);
     pcfg.srcs = |test-modules:///| + pcfg.srcs;
     println("pcfg=<pcfg>");
-    return [compile("Container", pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts)];
-
-    //return [ compile(qualifiedModuleName, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts) | qualifiedModuleName <- qualifiedModuleNames ];
+    return [ compile(containerName, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts) ];
 }
 
 @deprecated
