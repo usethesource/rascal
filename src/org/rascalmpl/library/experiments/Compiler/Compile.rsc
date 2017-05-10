@@ -178,11 +178,16 @@ list[RVMModule] compile(list[str] qualifiedModuleNames, PathConfig pcfg, loc rel
     container = "module <containerName>
                 '<for(str m <- qualifiedModuleNames){>
                 'import <m>;<}>";
-    println(container);
     writeFile(containerLocation, container);
     pcfg.srcs = |test-modules:///| + pcfg.srcs;
-    println("pcfg=<pcfg>");
-    return [ compile(containerName, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts) ];
+
+    res = [ compile(containerName, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts) ];
+    for(loc moduleLoc <- files(pcfg.bin), contains(moduleLoc.path, containerName)){
+        try {
+            remove(moduleLoc);
+        } catch e: /* ignore failure to remove file */;
+    }
+    return res;
 }
 
 @deprecated
