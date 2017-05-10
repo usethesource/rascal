@@ -1,0 +1,106 @@
+@bootstrapParser
+module lang::rascal::ide::Outline
+
+import ParseTree;
+import lang::rascal::\syntax::Rascal;
+import Node;
+import Map;
+import List;
+ 
+anno str node@label;
+anno loc node@\loc;
+anno loc FunctionDeclaration@\loc;
+anno loc Declaration@\loc;
+anno loc Name@\loc;
+anno loc QualifiedName@\loc;
+anno loc Signature@\loc;
+anno loc Prod@\loc;
+
+node outline(Tree m) {
+   n = "";
+   aliases = [];
+   annotations = [];
+   functions = ();
+   imports = [];
+   grammars = ();
+   tags = [];
+   tests = ();
+   adts = ();
+   variables = []; 
+   list[node] e = [];
+   
+   visit (m) {
+     case Header h : n = "<h.name>";
+     case (Declaration) `<Tags ta> <Visibility vs> <Type t> <{Variable ","}+ vars>;`:
+       variables   += ["<v.name>"()[@\loc=v@\loc] | v <- vars]; 
+     case (Declaration) `<Tags ta> <Visibility vs> anno <Type t> <Type ot>@<Name name>;`:  
+       annotations += ["<name>"()[@\loc=name@\loc]];
+     case (Declaration) `<Tags ta> <Visibility vs> alias <UserType u> = <Type base>;`:
+       aliases += ["<u.name>"()[@\loc=u.name@\loc]];  
+     case (Declaration) `<Tags ta> <Visibility vs> tag <Kind k> <Name name> on <{Type ","}+ types>;`:
+       tags += ["<name>"()[@\loc=name@\loc]];
+       
+     case (Declaration) `<Tags ta> <Visibility vs> data <UserType u> <CommonKeywordParameters kws>;`: {
+       f = "<u.name>";
+       c = adts["<u.name>"]?e;
+       
+       if (kws is present) {
+         c += [ "kf: <k.name>" | KeywordFormal k <- kws.keywordFormalList];
+       }
+       
+       adts[f] = c;
+     }
+     
+     case (Declaration) `<Tags ta> <Visibility vs> data <UserType u> <CommonKeywordParameters kws> = <{Variant "|"}+ variants>;` : {
+       f = "<u.name>";
+       c = adts[f]?e;
+       
+       if (kws is present) {
+         c += [ "kf: <k.name>" | k <- kws.keywordFormalList];
+       }
+       
+       c += [ "<v.name>"()[\loc=v@\loc] | v <- variants];
+       
+       adts[f] = c;
+     }
+     
+     case FunctionDeclaration func : {
+       f = "<func.signature.name>"()[@label="<func.signature.name> <func.signature.parameters>"][@\loc=func.signature@\loc];
+       
+       if (/(FunctionModifier) `test` := func.signature) {
+         tests["<func.signature.name>"]?e += [f];
+       }
+       else {
+         functions["<func.signature.name>"]?e += [f];
+       }
+     }
+     
+     case (Import) `extend <ImportedModule mm>;` :
+       imports += ["<mm.name>"()[@\loc=mm@\loc]];
+       
+     case (Import) `import <ImportedModule mm>;` :
+       imports += ["<mm.name>"()[@\loc=mm@\loc]];
+       
+     case (Import) `import <QualifiedName m2> = <LocationLiteral at>;` :
+       imports += ["<m2>"()[@\loc=m2@\loc]];
+       
+     case SyntaxDefinition def : {
+       f = "<def.defined>";
+       c = grammars[f]?e;
+       c += ["<p>"()[@label="<p.syms>"][@\loc=p@\loc] | /Prod p := def.production, p is labeled || p is unlabeled];
+       grammars[f] = c;
+     }    
+   }
+
+   return n(
+      "Functions"(functions)[@label="Functions (<size(functions)>)"],
+      "Tests"(tests)[@label="Functions (<size(functions)>)"],
+      "Variables"(variables)[@label="Variables (<size(variables)>)"],
+      "Aliases"(aliases)[@label="Aliases (<size(functions)>)"],
+      "Data"(\data)[@label="Functions <size(functions)>"],
+      "Annotations"(annotations)[@label="Annotations <size(annotations)>"],
+      "Tags"(tags)[@label="Tags <size(tags)>"],
+      "Imports"(imports)[@label="Imports <size(imports)>"],
+      "Syntax"(grammars)[@label="Syntax <size(grammars)>"]
+   );    
+}
