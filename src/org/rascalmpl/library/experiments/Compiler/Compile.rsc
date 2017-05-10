@@ -9,6 +9,7 @@ import ParseTree;
 import util::Reflective;
 import util::Benchmark;
 import util::FileSystem;
+import util::UUID;
 import Map;
 import Relation;
 import Exception;
@@ -154,7 +155,7 @@ RVMModule compile(loc moduleLoc, PathConfig pcfg, loc reloc = |noreloc:///|, boo
     compile(getModuleName(moduleLoc, pcfg), pcfg, reloc=reloc, verbose = verbose, optimize=optimize, enableAsserts=enableAsserts);
 
 
-@doc{Compile a Rascal source module (given at a location) to RVM}
+@doc{Compile a Rascal source module (given as qualifiedModuleName) to RVM}
 RVMModule compile(str qualifiedModuleName, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = false, bool optimize=true, bool enableAsserts=false){
 	<cfg, rvmMod> = compile1(qualifiedModuleName, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
 	// TODO: JV worrying side-effect noticed here:
@@ -165,14 +166,26 @@ RVMModule compile(str qualifiedModuleName, PathConfig pcfg, loc reloc=|noreloc:/
 list[RVMModule] compileAll(loc moduleRoot, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = false, bool optimize=true, bool enableAsserts=false){
     return [ compile(getModuleName(moduleLoc, pcfg), pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts) | moduleLoc <- find(moduleRoot, "rsc")];
 }
-
+ 
 
 list[RVMModule] compile(list[loc] moduleLocs, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = false, bool optimize=true, bool enableAsserts=false){
     return [ compile(getModuleName(moduleLoc, pcfg), pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts) | moduleLoc <- moduleLocs ];
 }
 
 list[RVMModule] compile(list[str] qualifiedModuleNames, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = false, bool optimize=true, bool enableAsserts=false){
-    return [ compile(qualifiedModuleName, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts) | qualifiedModuleName <- qualifiedModuleNames ];
+    uniq = uuidi();
+    containerName = "Container<uniq < 0 ? -uniq : uniq>";
+    containerLocation = |test-modules:///<containerName>.rsc|;
+    container = "module <containerName>
+                '<for(str m <- qualifiedModuleNames){>
+                'import <m>;<}>";
+    println(container);
+    writeFile(containerLocation, container);
+    pcfg.srcs = |test-modules:///| + pcfg.srcs;
+    println("pcfg=<pcfg>");
+    return [compile("Container", pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts)];
+
+    //return [ compile(qualifiedModuleName, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts) | qualifiedModuleName <- qualifiedModuleNames ];
 }
 
 @deprecated
