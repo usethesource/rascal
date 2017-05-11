@@ -40,10 +40,4 @@ public class TypeStoreWrapper implements LimitedTypeStore {
     public Set<Type> lookupConstructor(Type adt, String constructorName) throws FactTypeUseException {
         return store.lookupConstructor(adt, constructorName);
     }
-    
-    @Override
-    public boolean hasKeywordField(Type constructor, String name) {
-        return constructor.hasKeywordField(name, store);
-    }
-
 }

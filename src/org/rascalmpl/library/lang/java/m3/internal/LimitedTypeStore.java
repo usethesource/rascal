@@ -21,5 +21,4 @@ public interface LimitedTypeStore {
     Type lookupAbstractDataType(String name);
     Type lookupConstructor(Type adt, String cons, Type args);
     Set<Type> lookupConstructor(Type adt, String constructorName) throws FactTypeUseException;
-    boolean hasKeywordField(Type constructor, String name);
 }
