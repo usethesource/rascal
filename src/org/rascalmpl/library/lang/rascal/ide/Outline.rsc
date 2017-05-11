@@ -36,7 +36,7 @@ node outline(Module m) {
      case (Declaration) `<Tags ta> <Visibility vs> <Type t> <{Variable ","}+ vars>;`:
        variables   += ["<v.name>"()[@\loc=v@\loc] | v <- vars]; 
      case (Declaration) `<Tags ta> <Visibility vs> anno <Type t> <Type ot>@<Name name>;`:  
-       annotations += ["<name>"()[@\loc=name@\loc]];
+       annotations += ["<name> on <ot> : <t>"()[@\loc=name@\loc]];
      case (Declaration) `<Tags ta> <Visibility vs> alias <UserType u> = <Type base>;`:
        aliases += ["<u.name>"()[@\loc=u.name@\loc]];  
      case (Declaration) `<Tags ta> <Visibility vs> tag <Kind k> <Name name> on <{Type ","}+ types>;`:
@@ -61,7 +61,7 @@ node outline(Module m) {
          c += [ "kf: <k.name>" | k <- kws.keywordFormalList];
        }
        
-       c += [ "<v.name>"()[@\loc=v@\loc] | v <- variants];
+       c += [ "<v>"()[@\loc=v@\loc] | v <- variants];
        
        adts[f] = c;
      }
@@ -99,10 +99,10 @@ node outline(Module m) {
       "Tests"(tests)[@label="Tests (<size(tests)>)"],
       "Variables"(variables)[@label="Variables (<size(variables)>)"],
       "Aliases"(aliases)[@label="Aliases (<size(aliases)>)"],
-      "Data"(adts)[@label="Data <size(adts)>"],
+      "Data"(adts)[@label="Data (<size(adts)>)"],
       "Annotations"(annotations)[@label="Annotations <size(annotations)>"],
-      "Tags"(tags)[@label="Tags <size(tags)>"],
-      "Imports"(imports)[@label="Imports <size(imports)>"],
-      "Syntax"(grammars)[@label="Syntax <size(grammars)>"]
+      "Tags"(tags)[@label="Tags (<size(tags)>)"],
+      "Imports"(imports)[@label="Imports (<size(imports)>)"],
+      "Syntax"(grammars)[@label="Syntax (<size(grammars)>)"]
    );    
 }
