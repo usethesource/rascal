@@ -1251,13 +1251,6 @@ public abstract class RVMCore {
 			 * experiments::resource::Resource::registerResource
 			 * experiments::resource::Resource::getTypedResource
 			 * experiments::resource::Resource::generateTypedInterfaceInternal
-			 * 
-			 * lang::java::m3::AST::setEnvironmentOptions
-			 * lang::java::m3::AST::createAstFromFile
-			 * lang::java::m3::AST::createAstFromString
-			 * lang::java::m3::Core::createM3FromFile
-			 * lang::java::m3::Core::createM3FromFile
-			 * lang::java::m3::Core::createM3FromJarClass
 			 *  
 			 *  lang::jvm::run::RunClassFile::runClassFile
 			 *  lang::jvm::transform::SerializeClass::serialize
