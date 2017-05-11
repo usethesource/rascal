@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Matcher;
 
@@ -287,6 +288,40 @@ public abstract class RVMCore {
 	      }
 	    }
 	return null;
+	}
+	
+	public Type getConstructor(String name, Type adtType, Type argumentTypes) throws NoSuchRascalFunction{
+	    for(int i = 0; i < constructorStore.size(); i++){
+	        Type tp = constructorStore.get(i);
+	        if (tp.getName().equals(name) && 
+	            tp.getAbstractDataType().equals(adtType) &&
+	            tp.getFieldTypes().equals(argumentTypes)) {
+	            return tp;
+	        }
+	    }
+	    throw new NoSuchRascalFunction(name);
+	}
+	
+	public Set<Type> getConstructor(String name, Type adtType) {
+	    Set<Type> types = new HashSet<>();
+        for(int i = 0; i < constructorStore.size(); i++){
+            Type tp = constructorStore.get(i);
+            if (tp.getName().equals(name) && 
+                tp.getAbstractDataType().equals(adtType)) {
+                types.add(tp);
+            }
+        }
+        return types;
+    }
+	
+	public Type getAbstractDataType(String name) throws NoSuchRascalFunction{
+	    for(int i = 0; i < constructorStore.size(); i++){
+            Type adt = constructorStore.get(i).getAbstractDataType();
+            if (adt.getName().equals(name)){ 
+                return adt;
+            }
+        }
+        throw new NoSuchRascalFunction(name);
 	}
 	
 	private ArrayList<Integer> getFunctionByNameAndArity(String name, int arity){
@@ -1197,7 +1232,14 @@ public abstract class RVMCore {
 			"org.rascalmpl.library.util.ReflectiveCompiled.parseNamedModuleWithSpaces",
 			"org.rascalmpl.library.util.ReflectiveCompiled.diff",
 			"org.rascalmpl.library.util.ReflectiveCompiled.watch",
-			"org.rascalmpl.library.util.WebserverCompiled.serve"
+			"org.rascalmpl.library.util.WebserverCompiled.serve",
+			
+			"lang::java::m3::AST::setEnvironmentOptions",
+            "lang::java::m3::AST::createAstFromFile",
+            "lang::java::m3::AST::createAstFromString",
+            "lang::java::m3::Core::createM3FromFile",
+            "lang::java::m3::Core::createM3FromFile",
+            "lang::java::m3::Core::createM3FromJarClass"
 		
 			/*
 			 * 	TODO:
