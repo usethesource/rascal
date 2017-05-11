@@ -36,7 +36,7 @@ node outline(Module m) {
      case (Declaration) `<Tags ta> <Visibility vs> <Type t> <{Variable ","}+ vars>;`:
        variables   += ["<v.name>"()[@\loc=v@\loc] | v <- vars]; 
      case (Declaration) `<Tags ta> <Visibility vs> anno <Type t> <Type ot>@<Name name>;`:  
-       annotations += ["<name> on <ot> : <t>"()[@\loc=name@\loc]];
+       annotations += ["<name>: <t> <ot>@<name>"()[@\loc=name@\loc]];
      case (Declaration) `<Tags ta> <Visibility vs> alias <UserType u> = <Type base>;`:
        aliases += ["<u.name>"()[@\loc=u.name@\loc]];  
      case (Declaration) `<Tags ta> <Visibility vs> tag <Kind k> <Name name> on <{Type ","}+ types>;`:
@@ -94,15 +94,18 @@ node outline(Module m) {
      }    
    }
 
+   map[str,list[node]] count(map[str,list[node]] m)
+     = ("<k> (<size(m[k])>)" : m[k] | k <- m);
+     
    return n(
-      "Functions"(functions)[@label="Functions (<size(functions)>)"],
-      "Tests"(tests)[@label="Tests (<size(tests)>)"],
+      "Functions"(count(functions))[@label="Functions (<size(functions)>)"],
+      "Tests"(count(tests))[@label="Tests (<size(tests)>)"],
       "Variables"(variables)[@label="Variables (<size(variables)>)"],
       "Aliases"(aliases)[@label="Aliases (<size(aliases)>)"],
-      "Data"(adts)[@label="Data (<size(adts)>)"],
+      "Data"(count(adts))[@label="Data (<size(adts)>)"],
       "Annotations"(annotations)[@label="Annotations <size(annotations)>"],
       "Tags"(tags)[@label="Tags (<size(tags)>)"],
       "Imports"(imports)[@label="Imports (<size(imports)>)"],
-      "Syntax"(grammars)[@label="Syntax (<size(grammars)>)"]
+      "Syntax"(count(grammars))[@label="Syntax (<size(grammars)>)"]
    );    
 }
