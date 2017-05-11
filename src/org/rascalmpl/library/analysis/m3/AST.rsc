@@ -47,26 +47,26 @@ public loc unresolvedDecl = |unresolved:///|;
 public loc unresolvedType = |unresolved:///|;  
 
 data Declaration(
-	loc src = unknownSource,
-	loc decl = unresolvedDecl, 
+	loc src = |unknown:///|,
+	loc decl = |unresolved:///|, //unresolvedDecl
 	TypeSymbol typ = \any(),
 	list[Modifier] modifiers = [],
 	list[Message] messages = []
 );
 
 data Statement(
-	loc src = unknownSource,
-	loc decl = unresolvedDecl
+	loc src = |unknown:///|,
+	loc decl = |unresolved:///| //unresolvedDecl
 );
 
 data Expression(
-	loc src = unknownSource,
-	loc decl = unresolvedDecl,
+	loc src = |unknown:///|,
+	loc decl = |unresolved:///|, //unresolvedDecl,
 	TypeSymbol typ = \any()
 );
 
 data Type(
-	loc name = unresolvedType,              
+	loc name = |unresolved:///|, //unresolvedType,              
 	TypeSymbol typ = \any()
 );
 
