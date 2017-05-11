@@ -33,7 +33,7 @@ public class EclipseJavaCompilerCompiled extends EclipseJavaCompiler {
     }
 
     private LimitedTypeStore getM3Store(RascalExecutionContext rex) {
-        throw new RuntimeException("Not implemented");
+        return new TypeStoreWrapperCompiled(rex);
     }
 
     public IValue createM3FromJarClass(ISourceLocation jarLoc, RascalExecutionContext rex) {
