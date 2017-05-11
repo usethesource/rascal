@@ -34,9 +34,9 @@ node outline(Module m) {
    visit (m) {
      case Header h : n = "<h.name>";
      case (Declaration) `<Tags ta> <Visibility vs> <Type t> <{Variable ","}+ vars>;`:
-       variables   += ["<v.name>"()[@\loc=v@\loc] | v <- vars]; 
+       variables   += ["<v.name> <t>"()[@\loc=v@\loc] | v <- vars]; 
      case (Declaration) `<Tags ta> <Visibility vs> anno <Type t> <Type ot>@<Name name>;`:  
-       annotations += ["<name>: <t> <ot>@<name>"()[@\loc=name@\loc]];
+       annotations += ["<name> <t> <ot>@<name>"()[@\loc=name@\loc]];
      case (Declaration) `<Tags ta> <Visibility vs> alias <UserType u> = <Type base>;`:
        aliases += ["<u.name>"()[@\loc=u.name@\loc]];  
      case (Declaration) `<Tags ta> <Visibility vs> tag <Kind k> <Name name> on <{Type ","}+ types>;`:
@@ -47,7 +47,7 @@ node outline(Module m) {
        c = adts["<u.name>"]?e;
        
        if (kws is present) {
-         c += [ "kf: <k.name>" | KeywordFormal k <- kws.keywordFormalList];
+         c += [ ".<k.name> <k.\type>"()[@\loc=k@\loc] | KeywordFormal k <- kws.keywordFormalList];
        }
        
        adts[f] = c;
@@ -58,7 +58,7 @@ node outline(Module m) {
        c = adts[f]?e;
        
        if (kws is present) {
-         c += [ "kf: <k.name>" | k <- kws.keywordFormalList];
+         c += [ ".<k.name> <k.\type>"()[@\loc=k@\loc] | k <- kws.keywordFormalList];
        }
        
        c += [ "<v>"()[@\loc=v@\loc] | v <- variants];
@@ -94,8 +94,8 @@ node outline(Module m) {
      }    
    }
 
-   map[str,list[node]] count(map[str,list[node]] m)
-     = ("<k> (<size(m[k])>)" : m[k] | k <- m);
+   map[node,list[node]] count(map[str,list[node]] m)
+     = ("<k> (<size(m[k])>)"()[@\loc=(m[k][0])@\loc] : m[k] | k <- m);
      
    return n(
       "Functions"(count(functions))[@label="Functions (<size(functions)>)"],
