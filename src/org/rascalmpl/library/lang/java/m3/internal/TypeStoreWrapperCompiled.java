@@ -56,11 +56,4 @@ public class TypeStoreWrapperCompiled implements LimitedTypeStore {
     public Set<Type> lookupConstructor(Type adt, String constructorName) throws FactTypeUseException {
         return rvm.getConstructor(constructorName, adt);
     }
-
-    @Override
-    public boolean hasKeywordField(Type constructor, String name) {
-        // TODO Auto-generated method stub
-        return true;
-    }
-
 }
