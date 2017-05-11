@@ -201,7 +201,7 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
     }
     
     
-    throw "No module name found for <moduleLoc>";
+    throw "No module name found for <moduleLoc>;\nsrcs=<pcfg.srcs>;\nlibs=<pcfg.libs>";
 }
 
 @doc{   
