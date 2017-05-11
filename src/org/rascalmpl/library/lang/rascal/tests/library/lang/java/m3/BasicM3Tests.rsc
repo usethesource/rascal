@@ -19,7 +19,7 @@ public loc unpackExampleProject(str name, loc projectZip) {
     if (copyDirectory(sourceRoot, targetRoot)) {
         return targetRoot;
     }
-    throw io("Could not copy contents of <projectZip> to <targetRoot>");
+    throw IO("Could not copy contents of <projectZip> to <targetRoot>");
 }
 
 
