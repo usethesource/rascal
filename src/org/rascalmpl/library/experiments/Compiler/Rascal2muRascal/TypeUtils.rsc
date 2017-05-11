@@ -1046,7 +1046,7 @@ str qualifiedNameToPath(QualifiedName qname){
 
 str convert2fuid(UID uid) {
 	if(!uid2name[uid]?) {
-		throw "uid2str is not applicable for <uid>!";
+		throw "uid2str is not applicable for <uid>: <config.store[uid]>";
 	}
 	str name = uid2name[uid];
 	
