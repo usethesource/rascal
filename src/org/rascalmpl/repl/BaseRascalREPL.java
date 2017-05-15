@@ -9,6 +9,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -22,17 +23,19 @@ import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedExcepti
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
+import org.rascalmpl.repl.exceptions.REPLException;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.TreeAdapter;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public abstract class BaseRascalREPL implements ILanguageProtocol {
     protected enum State {
@@ -73,7 +76,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     }
 
     @Override
-    public Repsonse handleInput(String line) throws InterruptedException {
+    public void handleInput(String line, Map<String, String> output, Map<String, String> metadata)  throws InterruptedException {
         assert line != null;
 
         try {
@@ -88,7 +91,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
             if (currentCommand == null) {
                 // we are still at a new command so let's see if the line is a full command
                 if (isStatementComplete(line)) {
-                    return printResult(evalStatement(line, line));
+                    printResult(evalStatement(line, line), output, metadata);
                 }
                 else {
                     currentCommand = new StringBuffer(line);
@@ -101,7 +104,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
                 currentCommand.append('\n');
                 currentCommand.append(line);
                 if (isStatementComplete(currentCommand.toString())) {
-                    printResult(evalStatement(currentCommand.toString(), line));
+                    printResult(evalStatement(currentCommand.toString(), line), output, metadata);
                     currentPrompt = ReadEvalPrintDialogMessages.PROMPT;
                     currentCommand = null;
                     currentState = State.FRESH;
@@ -118,48 +121,64 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     }
 
     @Override
-    public void handleReset() throws InterruptedException {
-        handleInput("");
+    public void handleReset(Map<String,String> output, Map<String,String> metadata) throws InterruptedException {
+        handleInput("", output, metadata);
     }
-
-    private Response printResult(IRascalResult result) throws IOException {
-        StringWriter out = new StringWriter();
-        
+    
+    protected void printResult(IRascalResult result, Map<String,String> output, Map<String, String> metadata) throws IOException {
         if (result == null) {
             return;
         }
-        PrintWriter out = getOutputWriter();
+        StringWriter out = new StringWriter();
+        
         IValue value = result.getValue();
         if (value == null) {
-            out.println("ok");
-            out.flush();
             return;
-        }
-        Type type = result.getType();
-
-        if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree) && !type.isBottom()) {
-            out.print(type.toString());
-            out.print(": ");
-            // we unparse the tree
-            out.print("(" + type.toString() +") `");
-            TreeAdapter.yield((IConstructor)result.getValue(), true, out);
-            out.print("`");
+            // out.write("ok");
+            // With the notebook fron-end we are not going to print 'ok'
         }
         else {
-            out.print(type.toString());
-            out.print(": ");
-            // limit both the lines and the characters
-            try (Writer wrt = new LimitedWriter(new LimitedLineWriter(out, LINE_LIMIT), CHAR_LIMIT)) {
-                indentedPrettyPrinter.write(value, wrt);
+            Type type = result.getType();
+
+            if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree) && !type.isBottom()) {
+                out.write(type.toString());
+                out.write(": ");
+                // we unparse the tree
+                out.write("(" + type.toString() +") `");
+                TreeAdapter.yield((IConstructor)result.getValue(), true, out);
+                out.write("`");
             }
-            catch (IOLimitReachedException e) {
-                // ignore since this is what we wanted
+            else {
+//                out.write(type.toString());
+//                out.write(": ");
+                writeBasicRascalToHTML(type, value, out);
+                
+                // limit both the lines and the characters
+//                try (Writer wrt = new LimitedWriter(new LimitedLineWriter(out, LINE_LIMIT), CHAR_LIMIT)) {
+//                    indentedPrettyPrinter.write(value, wrt);
+//                }
+//                catch (IOLimitReachedException e) {
+//                    // ignore since this is what we wanted
+//                }
             }
+//            out.write("\n");
         }
-        out.println();
-        out.flush();
-        
-        return new Response();
+        if (!out.toString().equals("")) {
+            output.put("text/html", out.toString());
+        }
+    }
+    
+    public void writeBasicRascalToHTML(Type type, IValue val, StringWriter out){  
+        String value = val.toString();
+         switch (type.toString()) {
+            case "loc":
+                value = value.substring(1, value.length()-1);
+                out.write("<pre title=\"Type: "+ type.toString()+"\">"+"<a href=\""+ value+"\">"+value +"</a></pre>");
+                break;
+            default:
+                out.write("<pre title=\"Type: "+ type.toString()+"\">"+value +"</pre>");
+                break;
+        }
     }
 
     protected abstract PrintWriter getErrorWriter();

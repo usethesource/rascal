@@ -10,7 +10,9 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -19,9 +21,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFu
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.util.PathConfig;
 
-import fi.iki.elonen.NanoHTTPD.Response;
 import io.usethesource.vallang.ISourceLocation;
-
 import jline.Terminal;
 import jline.console.ConsoleReader;
 import jline.console.UserInterruptException;
@@ -155,16 +155,22 @@ public class BaseREPL {
      * @throws InterruptedException throw this exception to stop the REPL (instead of calling .stop())
      */
     protected void handleInput(String line) throws InterruptedException {
-        Response res = language.handleInput(line);
-        stdout.print(res.getData());
+        Map<String,String> output = new HashMap<>();
+        
+        language.handleInput(line, output, new HashMap<>());
+        
+        // TODO: maybe we can do this cleaner, but this works for now
+        for (String out : output.values()) {
+            new PrintWriter(originalStdOut).print(out);
+        }
     }
 
     /**
      * If a line is canceled with ctrl-C this method is called too handle the reset in the child-class.
      * @throws InterruptedException throw this exception to stop the REPL (instead of calling .stop())
      */
-    protected void handleReset() throws InterruptedException {
-        language.handleReset();
+    protected void handleReset(Map<String,String> output, Map<String,String> metadata) throws InterruptedException {
+        language.handleReset(output, metadata);
     }
 
     /**
@@ -317,7 +323,14 @@ public class BaseREPL {
                 }
                 catch (UserInterruptException u) {
                     reader.println();
-                    handleReset();
+                    Map<String,String> output = new HashMap<>();
+                    
+                    handleReset(output, new HashMap<>());
+                    
+                    for (String out : output.values()) {
+                        reader.print(out);
+                    }
+                    
                     updatePrompt();
                 }
 
