@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -285,7 +286,7 @@ public class Frame {
 		return this.function.getPrintableName() + ":" + line;
 	}
 	
-	public void printVars(PrintWriter stdout){
+	public void printVars(StringWriter out){
 		Iterator<Entry<IValue, IValue>> iter = function.localNames.entryIterator();
 		while(iter.hasNext()){
 			Entry<IValue, IValue> entry = iter.next();
@@ -296,7 +297,7 @@ public class Frame {
 				    if(varName.matches("[0-9]+")){
 				    	varName = "arg " + varName;
 				    }
-					stdout.println("\t" + varName + ": " + abbrev(RascalPrimitive.$value2string((IValue) v)));
+					out.write("\t" + varName + ": " + abbrev(RascalPrimitive.$value2string((IValue) v)) + "\n");
 			}
 		}
 		if(stack[function.nformals-1] instanceof HashMap<?, ?>){
@@ -305,7 +306,7 @@ public class Frame {
 			for(String kwParam : kwParams.keySet()){
 				IValue v = kwParams.get(kwParam);
 				if(v != null){
-					stdout.println("\t" + kwParam + "=" + abbrev(RascalPrimitive.$value2string(v))
+					out.write("\t" + kwParam + "=" + abbrev(RascalPrimitive.$value2string(v) + "\n")
 					);
 				}
 			}

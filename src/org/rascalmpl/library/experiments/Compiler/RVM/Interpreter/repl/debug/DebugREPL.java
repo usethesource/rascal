@@ -2,9 +2,11 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
+import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
@@ -14,6 +16,8 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandEx
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.repl.ILanguageProtocol;
+import org.rascalmpl.repl.exceptions.REPLException;
+
 import io.usethesource.vallang.IValue;
 
 /*
@@ -68,14 +72,14 @@ public class DebugREPL implements ILanguageProtocol {
 	}
 
 	@Override
-	public void handleInput(String line) throws InterruptedException {
+	public void handleInput(String line, Map<String,String> output, Map<String,String> metadata) throws InterruptedException {
 		setPrompt();
-		
+		StringWriter out = new StringWriter();
 		String[] words = line.split(" ");
 		switch(words[0]){
 		
 		case "h": case "help":
-			printHelp(); 
+			printHelp(out); 
 			break;
 			
 		case "d": case "down":
@@ -84,7 +88,7 @@ public class DebugREPL implements ILanguageProtocol {
 			} else {
 				 this.stderr.println("Cannot go down");
 			}
-			printStack();
+			printStack(out);
 			break;
 			
 		case "u": case "up":
@@ -98,7 +102,7 @@ public class DebugREPL implements ILanguageProtocol {
 			} else {
 				this.stderr.println("Cannot go up");
 			}
-			printStack();
+			printStack(out);
 			break;
 			
 		case "l": case "listing":
@@ -106,11 +110,11 @@ public class DebugREPL implements ILanguageProtocol {
 			break;
 			
 		case "w": case "where":
-			printStack();
+			printStack(out);
 			break;
 			
 		case "v": case "vars":
-			currentFrame.printVars(stdout);
+			currentFrame.printVars(out);
 			break;
 			
 		case "s": case "step":
@@ -130,7 +134,7 @@ public class DebugREPL implements ILanguageProtocol {
 			
 		case "": 
 			if(previousCommand != null){
-				handleInput(previousCommand);
+				handleInput(previousCommand, output, metadata);
 			}
 			break;
 			
@@ -183,7 +187,7 @@ public class DebugREPL implements ILanguageProtocol {
 		default:
 			IValue v = EvalExpr.eval(words[0], rvm, currentFrame);
 			if(v != null){
-				stdout.println(v);
+				out.write(v.toString());
 			} else {
 			    stderr.println("'" + line + "' not recognized (or variable has undefined value)");
 			}
@@ -192,9 +196,11 @@ public class DebugREPL implements ILanguageProtocol {
 		if(!line.isEmpty()){
 			previousCommand = line;
 		}
+		
+		output.put("text/plain", out.toString());
 	}
 	
-	private void printHelp(){
+	private void printHelp(StringWriter out){
 		String[] lines = {
 			"h(elp)           This help text",
 			"u(p)             Move up to newer call frame",
@@ -224,21 +230,20 @@ public class DebugREPL implements ILanguageProtocol {
 			"disable <bpnos>  Disable breakpoints <bpnos> (empty list disables all)"
 		};
 		for(String line : lines){
-			stdout.println(line);
+			out.write(line + "\n");
 		}
 	}
 	
-	private void printStack(){
+	private void printStack(StringWriter out){
 		for(Frame f = currentFrame; 
 		    (f != null && !f.src.getPath().equals(CommandExecutor.consoleInputPath)); 
 		    f = f.previousCallFrame) {
-			stdout.println("\t" + f.toString() /*+ "\t" + f.src*/);
-			stdout.flush();
+			out.write("\t" + f.toString() + "\n");
 		}
 	}
 
 	@Override
-	public void handleReset() throws InterruptedException {
+	public void handleReset(Map<String,String> output, Map<String,String> metadata) throws InterruptedException {
 		// TODO Auto-generated method stub
 	}
 
