@@ -13,6 +13,9 @@
 package org.rascalmpl.repl;
 
 import java.io.Writer;
+import java.util.Map;
+
+import org.rascalmpl.repl.exceptions.REPLException;
 
 
 public interface ILanguageProtocol {
@@ -33,15 +36,17 @@ public interface ILanguageProtocol {
     /**
      * After a newline is pressed, the current line is handed to this method.
      * @param line the current line entered.
+     * @param output is a map from mime-type string to output string (this is the result of a computation)
+     * @param metadata is a map to encode a plain object with meta-data encoded as strings
      * @throws InterruptedException throw this exception to stop the REPL (instead of calling .stop())
      */
-    Response handleInput(String line) throws InterruptedException;
-
+    void handleInput(String line, Map<String,String> output, Map<String,String> metadata) throws InterruptedException;
+    
     /**
      * If a line is canceled with ctrl-C this method is called too handle the reset in the child-class.
      * @throws InterruptedException throw this exception to stop the REPL (instead of calling .stop())
      */
-    void handleReset() throws InterruptedException;
+    void handleReset(Map<String,String> output, Map<String,String> metadata) throws InterruptedException;
 
     /**
      * Test if completion of statement in the current line is supported

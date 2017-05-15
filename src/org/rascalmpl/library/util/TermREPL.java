@@ -6,6 +6,7 @@ import java.io.Writer;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -14,6 +15,8 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.repl.ILanguageProtocol;
+import org.rascalmpl.repl.exceptions.REPLException;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
@@ -104,12 +107,13 @@ public class TermREPL {
         }
 
         @Override
-        public void handleInput(String line) throws InterruptedException {
+        public void handleInput(String line, Map<String,String> output, Map<String,String> metadata) throws InterruptedException {
             ITuple result = (ITuple)call(handler, new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
             String str = ((IString)result.get(0)).getValue();
-            if (!str.isEmpty()) {
-                stdout.write(str + "\n");
-            }
+            
+            // TODO: change the signature of the handler
+            // TODO: decode the resulting map with Rascal values to text/html or text/json
+            output.put("text/html", str);
 
             IList errors = (IList)result.get(1);
             for (IValue v: errors) {
@@ -168,9 +172,9 @@ public class TermREPL {
         }
         
         @Override
-        public void handleReset() throws InterruptedException {
+        public void handleReset(Map<String,String> output, Map<String,String> metadata) throws InterruptedException {
             // TODO: add a rascal callback for this?
-            handleInput("");
+            handleInput("", output, metadata);
         }
 
         @Override
