@@ -199,7 +199,7 @@ public bool fcvExists(Configuration c, RName n) = n in c.fcvEnv;
 public int definingContainer(Configuration c, int i) {
 	if (c.store[i] is overload) return definingContainer(c, getFirstFrom(c.store[i].items));
     cid = c.store[i].containedIn;
-    if (c.store[cid] is \module || c.store[cid] is function || c.store[cid] is closure) return cid;
+    if (c.store[cid] is \module || c.store[cid] is function || c.store[cid] is closure || c.store[i] is signatureScope) return cid;
     return definingContainer(c,cid);
 }
 
