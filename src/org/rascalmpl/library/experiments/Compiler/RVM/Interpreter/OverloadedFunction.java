@@ -248,6 +248,9 @@ public class OverloadedFunction {
 	 * @param rvm	needed for access to the function declarations via rvm.functionStore
 	 */
 	private void filterFunctions(ArrayList<Function> functionStore){
+	    if(name.contains("EXTENDED_FUNCTION")){
+	        System.out.println("filterFunctions");
+	    }
 		if(functions.length > 1){
 			filteredFunctions = new HashMap<Integer,int[]>();
 		} else {
@@ -321,6 +324,7 @@ public class OverloadedFunction {
 			for(int i = 0; i < functions.length; i++){
 				sb.append(" ").append(functions[i]);
 			}
+			sb.append(" allConcreteFunctionArgs=").append(allConcreteFunctionArgs);
 		}
 		if(constructors.length > 0){
 			if(functions.length > 0){
@@ -330,6 +334,7 @@ public class OverloadedFunction {
 			for(int i = 0; i < constructors.length; i++){
 				sb.append(" ").append(constructors[i]);
 			}
+			sb.append(" allConcreteConstructorArgs=").append(allConcreteConstructorArgs);
 		}
 		sb.append("]");
 		return sb.toString();
