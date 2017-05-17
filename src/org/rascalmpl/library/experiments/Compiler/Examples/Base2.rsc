@@ -2,11 +2,11 @@ module experiments::Compiler::Examples::Base2
 
 import IO;
 import ParseTree;
-  
-default void EXTENDED_FUNCTION(int n, Tree t) { println("default use: <t> :-("); }
+
+default void EXTENDED_FUNCTION(Tree t) { println("default use: <t> :-("); }
 
 void bug2() =  
-EXTENDED_FUNCTION(0,
+EXTENDED_FUNCTION(
 appl(
   prod(
     sort("A"),
