@@ -438,7 +438,9 @@ void extractScopes(Configuration c){
         }
         case signatureScope(inScope,src): {
              //println("<uid>: <item>");
-             containment += {<loc2uid[src], uid>};  //redirect to the actual declaration
+             //was: containment += {<loc2uid[src], uid>};  //redirect to the actual declaration
+             containment += {<inScope, uid>}; 
+             loc2uid[src] = uid;
              // Fill in uid2name
              if(sig_scopes[inScope]?) {
                 sig_scopes[inScope] = sig_scopes[inScope] + 1;
