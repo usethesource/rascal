@@ -992,8 +992,11 @@ tuple[str fuid,int pos] getVariableScope(str name, loc l) {
 
 // Create unique symbolic names for functions, constructors and productions
 
+Symbol mapSortToTree(Symbol s){
+    return sort(_) := s ? adt("Tree",[]) : s;
+}
 str getFUID(str fname, Symbol \type) { 
-    res = "<fname>(<for(p<-\type.parameters){><p>;<}>)";
+    res = "<fname>(<for(p<-\type.parameters){><mapSortToTree(p)>;<}>)";
     //println("getFUID: <fname>, <\type> =\> <res>");
     return res;
 }
@@ -1001,11 +1004,13 @@ str getFUID(str fname, Symbol \type) {
 str getField(Symbol::label(l, t)) = "<t> <l>";
 default str getField(Symbol t) = "<t>";
 
-str getFUID(str fname, Symbol \type, int case_num) =
-  "<fname>(<for(p<-\type.parameters?[]){><p>;<}>)#<case_num>";
+str getFUID(str fname, Symbol \type, int case_num) {
+  //println("getFUID: <fname>, <\type>");
+  return "<fname>(<for(p<-\type.parameters?[]){><mapSortToTree(p)>;<}>)#<case_num>";
+}
   	
 str getFUID(str modName, str fname, Symbol \type, int case_num) = 
-	"<modName>/<fname>(<for(p<-\type.parameters?[]){><p>;<}>)#<case_num>";
+	"<modName>/<fname>(<for(p<-\type.parameters?[]){><mapSortToTree(p)>;<}>)#<case_num>";
 
 // NOTE: was "<\type.\adt>::<cname>(<for(label(l,t)<-tparams){><t> <l>;<}>)"; but that did not cater for unlabeled fields
 str getCUID(str cname, Symbol \type) = "<\type.\adt>::<cname>(<for(p<-\type.parameters?[]){><getField(p)>;<}>)";
