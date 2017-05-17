@@ -411,7 +411,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
     
     list[Expression] epsList = [ epsi | epsi <- eps ];
     < c, t1 > = checkExp(e, c);
-    
+
     usedItems = invert(c.uses)[e@\loc];
     usedItems = { ui | ui <- usedItems, !(c.store[ui] is overload)} + { uii | ui <- usedItems, c.store[ui] is overload, uii <- c.store[ui].items };
     rel[Symbol,KeywordParamMap] functionKP = { < c.store[ui].rtype, c.store[ui].keywordParams > | ui <- usedItems, c.store[ui] is function };
@@ -6153,7 +6153,7 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
 				c.messages += getFailures(collapseFailTypes(failures));
 			} else { 
 				c = addConstructor(c, cn, vr@\loc, Symbol::\cons(adtType,getSimpleName(cn),targs), kfrel);
-			}       
+			}
 		}
 	}
 
@@ -6164,7 +6164,7 @@ public Configuration checkConstructorKeywordParams(Declaration decl:(Declaration
 	commonParamList = [ ];
 	if ((CommonKeywordParameters)`( <{KeywordFormal ","}+ kfs> )` := commonParams) commonParamList = [ kfi | kfi <- kfs ];
 
-	cCons = enterBlock(c, decl@\loc);
+	cCons = enterSignature(c, decl@\loc);
 	if (size(commonParamList) > 0) {
 		for (KeywordFormal kfi <- commonParamList) {
 			< cCons, kfT > = convertAndExpandType(kfi.\type, cCons);
@@ -6185,7 +6185,7 @@ public Configuration checkConstructorKeywordParams(Declaration decl:(Declaration
 				vargN = convertName(varg.name);
 				cSig = addLocalVariable(cSig, vargN, false, varg@\loc, vargT);
 			} 
-			for (KeywordFormal kfi <- commonParamList + kfl) {
+			for (KeywordFormal kfi <- kfl) {
 				< cSig, kfT > = convertAndExpandType(kfi.\type, cSig);
 				< cSig, _ > = calculateKeywordParamRel(cSig, [ kfi ], typesOnly = false ); 
 				cSig = addLocalVariable(cSig, convertName(kfi.name), false, kfi@\loc, kfT);
@@ -6198,7 +6198,7 @@ public Configuration checkConstructorKeywordParams(Declaration decl:(Declaration
 		}
 	}
 	
-	c = exitBlock(cCons, c);
+	c = leaveSignature(cCons, c);
 
 	return c;
 }
