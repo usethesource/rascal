@@ -1563,30 +1563,40 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
     } else if (isStartNonTerminalType(t1)) {
 		nonterminalName = RSimpleName("start[<getNonTerminalName(t1)>]");
 		if (nonterminalName in c.globalSortMap && c.store[c.globalSortMap[nonterminalName]] is sorttype) {
-			sortId = c.globalSortMap[nonterminalName];
-			if (fAsString == "top") {
-				return getStartNonTerminalType(t1);
-			} else if (<sortId,fAsString> notin c.nonterminalFields) {
-				return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
-			} else {
-				originalType = c.store[sortId].rtype;
-				originalParams = getNonTerminalTypeParameters(originalType);
-				fieldType = c.nonterminalFields[<sortId,fAsString>];
-				if (size(originalParams) > 0) {
-					actualParams = getNonTerminalTypeParameters(t1);
-					if (size(originalParams) != size(actualParams)) {
-						return makeFailType("Invalid nonterminal type, the number of type parameters (<size(originalParams)>,<size(actualParams)>) is inconsistent", l);
-					} else {
-						bindings = ( getTypeVarName(originalParams[idx]) : actualParams[idx] | idx <- index(originalParams));
-	                    try {
-	                        fieldType = instantiate(fieldType, bindings);
-	                    } catch : {
-	                        return makeFailType("Failed to instantiate type parameters in field type", l);
-	                    }						
-					}
-				}									        	
-	            return fieldType;
-			}
+            sortId = c.globalSortMap[nonterminalName];
+            usingTree = false;
+            if (fAsString == "top") {
+                return getStartNonTerminalType(t1);
+            }
+            if (<sortId,fAsString> notin c.nonterminalFields) {
+                if (RSimpleName("Tree") in c.globalAdtMap && c.store[c.globalAdtMap[RSimpleName("Tree")]] is datatype) {
+                    treeId = c.globalAdtMap[RSimpleName("Tree")];
+                    if (<treeId,fAsString> notin c.adtFields) {
+                        return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
+                    }
+                    sortId = treeId; // The field is not on the nonterminal directly, but is on Tree
+                    usingTree = true;
+                } else {
+                    return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
+                }
+            } 
+            originalType = c.store[sortId].rtype;
+            originalParams = getNonTerminalTypeParameters(originalType);
+            fieldType = usingTree ? c.adtFields[<sortId,fAsString>] : c.nonterminalFields[<sortId,fAsString>];
+			if (size(originalParams) > 0) {
+				actualParams = getNonTerminalTypeParameters(t1);
+				if (size(originalParams) != size(actualParams)) {
+					return makeFailType("Invalid nonterminal type, the number of type parameters (<size(originalParams)>,<size(actualParams)>) is inconsistent", l);
+				} else {
+					bindings = ( getTypeVarName(originalParams[idx]) : actualParams[idx] | idx <- index(originalParams));
+                    try {
+                        fieldType = instantiate(fieldType, bindings);
+                    } catch : {
+                        return makeFailType("Failed to instantiate type parameters in field type", l);
+                    }						
+				}
+			}									        	
+            return fieldType;
 		} else {
 			return makeFailType("Cannot compute type of field <fAsString>, nonterminal type <prettyPrintType(t1)> has not been declared", l);
 		} 
@@ -1594,27 +1604,36 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
         nonterminalName = RSimpleName(getNonTerminalName(t1));
         if (nonterminalName in c.globalSortMap && c.store[c.globalSortMap[nonterminalName]] is sorttype) {
 			sortId = c.globalSortMap[nonterminalName];
+			usingTree = false;
 	        if (<sortId,fAsString> notin c.nonterminalFields) {
-	            return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
-	        } else {
-				originalType = c.store[sortId].rtype;
-				originalParams = getNonTerminalTypeParameters(originalType);
-				fieldType = c.nonterminalFields[<sortId,fAsString>];
-				if (size(originalParams) > 0) {
-					actualParams = getNonTerminalTypeParameters(t1);
-					if (size(originalParams) != size(actualParams)) {
-						return makeFailType("Invalid nonterminal type, the number of type parameters (<size(originalParams)>,<size(actualParams)>) is inconsistent", l);
-					} else {
-						bindings = ( getTypeVarName(originalParams[idx]) : actualParams[idx] | idx <- index(originalParams));
-	                    try {
-	                        fieldType = instantiate(fieldType, bindings);
-	                    } catch : {
-	                        return makeFailType("Failed to instantiate type parameters in field type", l);
-	                    }						
-					}
-				}									        	
-	            return fieldType;
-	        }
+                if (RSimpleName("Tree") in c.globalAdtMap && c.store[c.globalAdtMap[RSimpleName("Tree")]] is datatype) {
+                    treeId = c.globalAdtMap[RSimpleName("Tree")];
+                    if (<treeId,fAsString> notin c.adtFields) {
+                        return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
+                    }
+                    sortId = treeId; // The field is not on the nonterminal directly, but is on Tree
+                    usingTree = true;
+                } else {
+                    return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
+                }
+	        } 
+			originalType = c.store[sortId].rtype;
+			originalParams = getNonTerminalTypeParameters(originalType);
+			fieldType = usingTree ? c.adtFields[<sortId,fAsString>] : c.nonterminalFields[<sortId,fAsString>];
+			if (size(originalParams) > 0) {
+				actualParams = getNonTerminalTypeParameters(t1);
+				if (size(originalParams) != size(actualParams)) {
+					return makeFailType("Invalid nonterminal type, the number of type parameters (<size(originalParams)>,<size(actualParams)>) is inconsistent", l);
+				} else {
+					bindings = ( getTypeVarName(originalParams[idx]) : actualParams[idx] | idx <- index(originalParams));
+                    try {
+                        fieldType = instantiate(fieldType, bindings);
+                    } catch : {
+                        return makeFailType("Failed to instantiate type parameters in field type", l);
+                    }						
+				}
+			}									        	
+            return fieldType;
 	    } else {
 	    	return makeFailType("Cannot compute type of field <fAsString>, nonterminal type <prettyPrintType(t1)> has not been declared", l); 
 	    }  
