@@ -1,6 +1,5 @@
 module experiments::Compiler::RVM::AST
 
-import Type;
 import Message;
 import ParseTree;
 

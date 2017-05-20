@@ -21,7 +21,6 @@ import List;
 import Map;
 import Set;
 import Relation;
-import Type;
 
 import IO;
 
