@@ -22,10 +22,6 @@ import lang::rascal::types::AbstractType;
 import experiments::Compiler::Rascal2muRascal::TypeReifier;
 import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 
-//alias KeywordParamMap = map[RName kpName, Symbol kpType]; // TODO: duplicate of CheckerConfig!!!!
-
-//import experiments::Compiler::Rascal2muRascal::RascalType;
-
 /*
  * This module provides a bridge to the "Configuration" delivered by the type checker
  * See declaration of Configuration in lang::rascal::types::CheckTypes.
@@ -59,7 +55,7 @@ alias UID = int;                                    // A UID is a unique identif
                                                     // with (integer) values in domain(config.store)
 
 /*
- * We will use FUID (for Flexible UID) to create a readable string representation for 
+ * We will use FUID (for Function UID) to create a readable string representation for 
  * any enity of interest. Typically a FUID consists of:
  * - the name of the entity
  * - its type
@@ -81,36 +77,15 @@ public int getLoc2uid(loc l){
     	return loc2uid[l];
     }
     throw "getLoc2uid: <l>";
- 	//l = normalize(l);
-  //  //println("getLoc2uid: <l>");
-  //  //iprintln(loc2uid);
-  //  assert loc2uid[l]? : "getLoc2uid <l>";
-  //  return loc2uid[l];
 }
 
-//public loc normalize(loc l) {
-//
-//    if(l.scheme == "std"){
-//      
-//  	   res = getSearchPathLocation(l.path);
-//  	   try {
-//  	   		res = res(l.offset, l.length, l.begin,l.end);
-//  	   } catch: ;
-//  	   
-//  	  println("**** normalize: <l> =\> <res>");
-//  	   return res;
-//    }
-//    println("**** normalize: unchanged: <l>");
-//    return l;
-//}
+private set[UID] modules = {};                       // declared modules
 
-private set[UID] modules = {};
-
-private set[UID] functions = {};						// declared functions
+private set[UID] functions = {};					 // declared functions
 
 public bool isFunction(UID uid) = uid in functions;
 
-private set[UID] defaultFunctions = {};				// declared default functions
+private set[UID] defaultFunctions = {};				 // declared default functions
 
 public bool isDefaultFunction(UID uid) = uid in defaultFunctions;
 
@@ -126,7 +101,7 @@ public bool isConstructor(UID uid) = uid in constructors;
 
 public set[UID] variables = {};						// declared variables
 
-private map[str,int] module_var_init_locals = ();	        // number of local variables in module variable initializations
+private map[str,int] module_var_init_locals = ();	// number of local variables in module variable initializations
 
 int getModuleVarInitLocals(str mname) {
 	assert module_var_init_locals[mname]? : "getModuleVarInitLocals <mname>";
@@ -134,9 +109,9 @@ int getModuleVarInitLocals(str mname) {
 }
 public set[UID] keywordParameters = {};				// declared keyword parameters
                                                     // common keyword fields declared on datatypes
-public set[UID] ofunctions = {};					// declared overloaded functions
+public set[UID] keywordParameters = {};			    // declared overloaded functions
 
-public set[UID] outerScopes= {};					// outermost scopes, i.e. scopes directly contained in the module scope;
+public set[UID] keywordParameters= {};				// outermost scopes, i.e. scopes directly contained in the module scope;
 
 public set[str] moduleNames = {};					// encountered module names
 
@@ -148,16 +123,17 @@ private map[UID uid,int n] blocks = ();             // number of blocks within a
 private map[UID uid,int n] closures = ();           // number of closures within a scope
 private map[UID uid,int n] bool_scopes = ();        // number of boolean scopes within a scope
 private map[UID uid,int n] sig_scopes = ();         // number of signature scopes within a scope
+
 private map[loc, UID] blockScopes = ();				// map from location to blockscope.
 
 @doc{Handling nesting}
-private rel[UID scope,UID entity] declares = {};
+private rel[UID scope, UID entity] declares = {};
 private map[UID scope, set[UID] entities] declaresMap = ();
-private rel[UID outer_scope,UID inner_scope] containment = {};
-private rel[UID outer_scope,UID inner_scope] containmentPlus = {};			// containment+
+private rel[UID outer_scope, UID inner_scope] containment = {};
+private rel[UID outer_scope, UID inner_scope] containmentPlus = {};		  // containment+
 
-private map[UID entity,UID scope] declaredIn = ();				// inverse of declares
-private map[UID inner_scope,UID outer_scope] containedIn = ();				// inverse of containment
+private map[UID entity,UID scope] declaredIn = ();				          // inverse of declares
+private map[UID inner_scope,UID outer_scope] containedIn = ();			  // inverse of containment
 
 private map[UID outer_scope, set[UID] inner_scopes_or_entities] containedOrDeclaredInPlus = ();
 
@@ -196,9 +172,9 @@ public list[OFUN] getOverloadedFunctions() = overloadedFunctions;
 
 public map[str,int] getOverloadingResolver() = overloadingResolver;
 
-bool hasOverloadingResolver(FUID fuid) = overloadingResolver[fuid]?;
+bool getOverloadedFunctions(FUID fuid) = overloadingResolver[fuid]?;
 
-OFUN getOverloadedFunction(FUID fuid) {
+OFUN getOverloadedFunctions(FUID fuid) {
 	assert overloadingResolver[fuid]? : "No overloading resolver defined for <fuid>";
 	resolver = overloadingResolver[fuid];
 	//println("getOverloadedFunction(<fuid>) ==\> <overloadedFunctions[resolver]>");

@@ -1,7 +1,6 @@
 module experiments::Compiler::Tests::AllRascalTests
 
 import IO;
-import Type;
 import List;
 import DateTime;
 import experiments::Compiler::Execute;

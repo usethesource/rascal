@@ -11,7 +11,6 @@ import util::Reflective;
 //import util::ValueUI;
 
 import ParseTree;
-import Type;
 
 import lang::rascal::\syntax::Rascal;
 import experiments::Compiler::muRascal::AST;
