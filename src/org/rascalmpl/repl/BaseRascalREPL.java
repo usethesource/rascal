@@ -66,11 +66,11 @@ public abstract class BaseRascalREPL extends BaseREPL {
                     throws IOException, URISyntaxException {
         super(pcfg, stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal, ideServices);
         if (terminal.isAnsiSupported() && allowColors) {
-            indentedPrettyPrinter = new ReplTextWriter();
+            indentedPrettyPrinter = new ReplTextWriter(true);
             singleLinePrettyPrinter = new ReplTextWriter(false);
         }
         else {
-            indentedPrettyPrinter = new StandardTextWriter();
+            indentedPrettyPrinter = new StandardTextWriter(true);
             singleLinePrettyPrinter = new StandardTextWriter(false);
         }
     }

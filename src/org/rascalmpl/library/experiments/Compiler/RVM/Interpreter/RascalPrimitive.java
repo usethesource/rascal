@@ -12,6 +12,7 @@ import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -4529,7 +4530,7 @@ public enum RascalPrimitive {
 			ISourceLocation left = (ISourceLocation) arg_2;
 			ISourceLocation right = (ISourceLocation) arg_1;
 
-			int compare = left.top().toString().compareTo(right.top().toString());
+			int compare = URICompare.compare(left, right);
 			if (compare < 0) {
 				return Rascal_TRUE;
 			}
@@ -5071,7 +5072,7 @@ public enum RascalPrimitive {
 			ISourceLocation left = (ISourceLocation) arg_2;
 			ISourceLocation right = (ISourceLocation) arg_1;
 
-			int compare = left.top().toString().compareTo(right.top().toString());
+			int compare = URICompare.compare(left, right);
 			if (compare < 0) {
 				return Rascal_TRUE;
 			}
@@ -6654,7 +6655,7 @@ public enum RascalPrimitive {
 
 			case "host":
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the host field, use authority instead.", currentFrame));
+				  return RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the host field, use authority instead.", currentFrame);
 				}
 				s = sloc.getURI().getHost();
 				v = vf.string(s == null ? "" : s);
@@ -6666,8 +6667,8 @@ public enum RascalPrimitive {
 
 			case "parent":
 				String path = sloc.getPath();
-				if (path.equals("")) {
-				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noParent(sloc, currentFrame));
+				if (path.equals("") || path.equals("/")) {
+				  return RascalRuntimeException.noParent(sloc, currentFrame);
 				}
 				int i = path.lastIndexOf("/");
 
@@ -6682,7 +6683,7 @@ public enum RascalPrimitive {
 					}
 					v = $loc_field_update(sloc, "path", vf.string(path), currentFrame, rex);
 				} else {
-				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noParent(sloc, currentFrame));
+				  return RascalRuntimeException.noParent(sloc, currentFrame);
 				}
 				break;	
 
@@ -6698,19 +6699,23 @@ public enum RascalPrimitive {
 				break;
 
 			case "ls":
-				try {
-					// Why is this needed: ISourceLocation resolved = rex.resolveSourceLocation(sloc);
-				    ISourceLocation resolved = sloc;
+			    ISourceLocation resolved = sloc;
+			    if(URIResolverRegistry.getInstance().exists(resolved) && URIResolverRegistry.getInstance().isDirectory(resolved)){
 					IListWriter w = vf.listWriter();
 
-					for (ISourceLocation elem : URIResolverRegistry.getInstance().list(resolved)) {
-						w.append(elem);
-					}
+					try {
+                        for (ISourceLocation elem : URIResolverRegistry.getInstance().list(resolved)) {
+                        	w.append(elem);
+                        }
+                    }
+                    catch (FactTypeUseException | IOException e) {
+                        return RascalRuntimeException.io(vf.string(e.getMessage()), currentFrame);
+                    }
 
 					v = w.done();
 					break;
-				} catch (IOException e) {
-				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.io(vf.string(e.getMessage()), currentFrame));
+				} else {
+				  return RascalRuntimeException.io(vf.string("You can only access ls on a directory, or a container."), currentFrame);
 				}
 
 			case "extension":
@@ -6747,7 +6752,7 @@ public enum RascalPrimitive {
 
 			case "user":
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the user field, use authority instead.", currentFrame));
+				  return RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the user field, use authority instead.", currentFrame);
 				}
 				s = sloc.getURI().getUserInfo();
 				v = vf.string(s == null ? "" : s);
@@ -6755,7 +6760,7 @@ public enum RascalPrimitive {
 
 			case "port":
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the port field, use authority instead.", currentFrame));
+				  return RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the port field, use authority instead.", currentFrame);
 				}
 				int n = sloc.getURI().getPort();
 				v = vf.integer(n);
@@ -6766,7 +6771,7 @@ public enum RascalPrimitive {
 					v = vf.integer(sloc.getLength());
 					break;
 				} else {
-				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("length", currentFrame));
+				  return RascalRuntimeException.unavailableInformation("length", currentFrame);
 				}
 
 			case "offset":
@@ -6774,7 +6779,7 @@ public enum RascalPrimitive {
 					v = vf.integer(sloc.getOffset());
 					break;
 				} else {
-				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("offset", currentFrame));
+				  return RascalRuntimeException.unavailableInformation("offset", currentFrame);
 				}
 
 			case "begin":
@@ -6789,7 +6794,7 @@ public enum RascalPrimitive {
 					v = vf.tuple(vf.integer(sloc.getEndLine()), vf.integer(sloc.getEndColumn()));
 					break;
 				} else {
-				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("end", currentFrame));
+				  return RascalRuntimeException.unavailableInformation("end", currentFrame);
 				}
 
 			case "uri":
@@ -6801,7 +6806,7 @@ public enum RascalPrimitive {
 				break;
 
 			default:
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField(field, currentFrame));
+			    return RascalRuntimeException.noSuchField(field, currentFrame);
 			}
 
 			return v;
@@ -6816,14 +6821,12 @@ public enum RascalPrimitive {
 	 */
 	
 	is_defined_loc_field_access_get {
-		@Override
-		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			try {
-				return new Object[] { Rascal_TRUE, loc_field_access.execute2(arg_2, arg_1, currentFrame, rex) };
-			} catch (Exception e) { // TODO: this hides implementation bugs and its not the semantics of isDefined. 
-				return new Object[] { Rascal_FALSE, null };
-			}
-		}
+	    @Override
+	    public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+	        Object result = loc_field_access.execute2(arg_2, arg_1, currentFrame, rex);
+	        return (result instanceof Thrown) ? new Object[] { Rascal_FALSE, null }
+	                                          : new Object[] { Rascal_TRUE, result };
+	    }
 	},
 
 	/**
@@ -7094,22 +7097,11 @@ public enum RascalPrimitive {
 		@Override
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity >= 2;
-			ISet rel = (ISet) stack[sp - arity];
-			int indexArity = arity - 1;
 			int[] fields = new int[arity - 1];
 			for(int i = 1; i < arity; i++){
 				fields[i - 1] = ((IInteger)stack[sp - arity + i]).intValue();
 			}
-			ISetWriter w = vf.setWriter();
-			IValue[] elems = new IValue[arity - 1];
-			for(IValue vtup : rel){
-				ITuple tup = (ITuple) vtup;
-				for(int j = 0; j < fields.length; j++){
-					elems[j] = tup.get(fields[j]);
-				}
-				w.insert((indexArity > 1) ? vf.tuple(elems) : elems[0]);
-			}
-			stack[sp - arity] = w.done();
+			stack[sp - arity] = ((ISet) stack[sp - arity]).asRelation().project(fields);
 			return sp - arity + 1;
 		}
 	},
@@ -7837,17 +7829,7 @@ public enum RascalPrimitive {
 			if(rel.isEmpty()){
 				return rel;
 			}
-			IValue index = (IValue) arg_1;
-			ISetWriter wset = vf.setWriter();
-
-			for (IValue v : rel) {
-				ITuple tup = (ITuple)v;
-
-				if(tup.get(0).isEqual(index)){
-					wset.insert(tup.get(1));
-				} 
-			}
-			return wset.done();
+			return rel.asRelation().index((IValue) arg_1);
 		}
 	},
 
@@ -7890,23 +7872,7 @@ public enum RascalPrimitive {
 			if(rel.isEmpty()){
 				return rel;
 			}
-			int relArity = rel.getElementType().getArity();
-			
-			IValue index = (IValue) arg_1;
-			ISetWriter wset = vf.setWriter();
-			IValue args[] = new IValue[relArity - 1];
-
-			for (IValue v : rel) {
-				ITuple tup = (ITuple)v;
-
-				if(tup.get(0).isEqual(index)){
-					for (int i = 1; i < relArity; i++) {
-						args[i - 1] = tup.get(i);
-					}
-					wset.insert(vf.tuple(args));
-				} 
-			}
-			return wset.done();
+			return rel.asRelation().index((IValue) arg_1);
 		}
 	},
 	
@@ -9469,7 +9435,7 @@ public enum RascalPrimitive {
 	 * Main program: handy to map a primitive index back to its name (e.g., in profiles!)
 	 */
 	public static void main(String[] args) {
-		int n = 364;
+		int n = 427;
 		
 		System.err.println("RascalPrimitive: " + fromInteger(n) + " (" + n + ")");
 	}
@@ -9570,4 +9536,87 @@ enum SliceOperator {
 		this.operator = op;
 	}
 
+}
+
+class URICompare {
+    
+    private static interface URIIterator {
+        String current(ISourceLocation loc);
+        URIIterator next(ISourceLocation loc);
+    }
+    
+    private final static URIIterator NONE = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return null; }
+        public String current(ISourceLocation loc) { return null; }
+    }; 
+    
+    private final static URIIterator  SCHEME = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return SCHEME_SEP; }
+        public String current(ISourceLocation loc) { return loc.getScheme(); }
+    };
+    
+    private final static URIIterator  SCHEME_SEP = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return loc.hasAuthority() ? AUTHORITY : AUTHORITY_SEP; }
+        public String current(ISourceLocation loc) { return "://"; }
+    };
+    
+    private final static URIIterator  AUTHORITY = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return AUTHORITY_SEP; }
+        public String current(ISourceLocation loc) { return loc.getAuthority(); }
+    };
+    
+    private final static URIIterator  AUTHORITY_SEP = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return loc.hasPath() ? PATH : (loc.hasQuery() ? QUERY_PRE : (loc.hasFragment() ? FRAGMENT_PRE : NONE)); }
+        public String current(ISourceLocation loc) { return "/"; }
+    };
+    
+    private final static URIIterator  PATH = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return (loc.hasQuery() ? QUERY_PRE : (loc.hasFragment() ? FRAGMENT_PRE : NONE)); }
+        public String current(ISourceLocation loc) { return loc.getPath(); }
+    };
+    
+    private final static URIIterator  QUERY_PRE = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return QUERY; }
+        public String current(ISourceLocation loc) { return "?"; }
+    };
+    
+    private final static URIIterator  QUERY = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return loc.hasFragment() ? FRAGMENT_PRE : NONE; }
+        public String current(ISourceLocation loc) { return loc.getQuery(); }
+    };
+    
+    private final static URIIterator  FRAGMENT_PRE = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return FRAGMENT; }
+        public String current(ISourceLocation loc) { return "#"; }
+    };
+    
+    private final static URIIterator  FRAGMENT = new URIIterator() {
+        public URIIterator next(ISourceLocation loc) { return NONE; }
+        public String current(ISourceLocation loc) { return loc.getFragment(); }
+    };
+
+
+    
+    public static int compare(ISourceLocation a, ISourceLocation b) {
+        URIIterator left = SCHEME;
+        URIIterator right = SCHEME;
+        while (left != NONE && right != NONE) {
+            String leftChunk = left.current(a);
+            String rightChunk = right.current(b);
+            int result = leftChunk.compareTo(rightChunk);
+            if (result != 0) {
+                return result;
+            }
+            left = left.next(b);
+            right = right.next(b);
+        }
+        if (left == NONE && right == NONE) {
+            return 0;
+        }
+        if (right != NONE) {
+            // left was shorter but equal for shared part 
+            return -1;
+        }
+        return 1;
+   }
 }

@@ -360,9 +360,7 @@ void extractScopes(Configuration c){
              //}	
         }
         case constructor(rname,rtype,_,inScope,src): { 
-             //if(!contains("<rtype>", "RuntimeException")){
-             //   println("<uid>: <item>");
-             //}
+             //println("<uid>: <item>");
 			 constructors += {uid};
 			 declares += {<inScope, uid>};
 			 loc2uid[src] = uid;
@@ -438,7 +436,13 @@ void extractScopes(Configuration c){
         }
         case signatureScope(inScope,src): {
              //println("<uid>: <item>");
-             containment += {<loc2uid[src], uid>};  //redirect to the actual declaration
+             //was: containment += {<loc2uid[src], uid>};  //redirect to the actual declaration
+             if(loc2uid[src]?){
+                containment  += {<loc2uid[src], uid>};
+             } else {
+                containment += {<inScope, uid>}; 
+                loc2uid[src] = uid;
+             }
              // Fill in uid2name
              if(sig_scopes[inScope]?) {
                 sig_scopes[inScope] = sig_scopes[inScope] + 1;
@@ -614,6 +618,7 @@ void extractScopes(Configuration c){
            
             its_adt = config.store[fuid1].rtype.\adt;
             uid_adt = datatypes[its_adt];
+            //println("uid_adt = <uid_adt>");
             dataKeywordParams = config.dataKeywordDefaults[uid_adt];
             
             if(size(keywordParams) > 0 || size(dataKeywordParams) > 0){
@@ -621,7 +626,9 @@ void extractScopes(Configuration c){
                 //println("*** <dataKeywordParams>");
                 
                 innerScopes = {fuid1} + containmentPlus[fuid1];
+                //println("innerScopes = <innerScopes>");
                 declaresInnerScopes = {*(declaresMap[iscope] ? {}) | iscope <- innerScopes};
+                //println("declaresInnerScopes = <declaresInnerScopes>");
                 
                 // There may be default expressions with variables, so introduce variable addresses inside the companion function
                 // println("fuid1 = <fuid1>, nformals = <nformals>, innerScopes = <innerScopes>, keywordParams = <keywordParams>");
@@ -647,6 +654,11 @@ void extractScopes(Configuration c){
                 for(int i <- index(decls_kwp)) {
                     keywordParameters += decls_kwp[i];
                     uid2addr[decls_kwp[i]] = <fuid_str, -1>; // ***Note: keyword parameters do not have a position
+                }
+                for(int uidn <- config.store, variable(RName name,_,_,scopeIn,_) := config.store[uidn], name in domain(dataKeywordParams), 
+                    signatureScope(0, at) := config.store[scopeIn], at in config.store[uid_adt].ats){
+                    keywordParameters += {uidn};
+                    uid2addr[uidn] = <fuid_str, -1>; // ***Note: keyword parameters do not have a position
                 }
             }
         }
@@ -992,8 +1004,11 @@ tuple[str fuid,int pos] getVariableScope(str name, loc l) {
 
 // Create unique symbolic names for functions, constructors and productions
 
+Symbol mapSortToTree(Symbol s){
+    return sort(_) := s ? adt("Tree",[]) : s;
+}
 str getFUID(str fname, Symbol \type) { 
-    res = "<fname>(<for(p<-\type.parameters){><p>;<}>)";
+    res = "<fname>(<for(p<-\type.parameters){><mapSortToTree(p)>;<}>)";
     //println("getFUID: <fname>, <\type> =\> <res>");
     return res;
 }
@@ -1001,11 +1016,13 @@ str getFUID(str fname, Symbol \type) {
 str getField(Symbol::label(l, t)) = "<t> <l>";
 default str getField(Symbol t) = "<t>";
 
-str getFUID(str fname, Symbol \type, int case_num) =
-  "<fname>(<for(p<-\type.parameters?[]){><p>;<}>)#<case_num>";
+str getFUID(str fname, Symbol \type, int case_num) {
+  //println("getFUID: <fname>, <\type>");
+  return "<fname>(<for(p<-\type.parameters?[]){><mapSortToTree(p)>;<}>)#<case_num>";
+}
   	
 str getFUID(str modName, str fname, Symbol \type, int case_num) = 
-	"<modName>/<fname>(<for(p<-\type.parameters?[]){><p>;<}>)#<case_num>";
+	"<modName>/<fname>(<for(p<-\type.parameters?[]){><mapSortToTree(p)>;<}>)#<case_num>";
 
 // NOTE: was "<\type.\adt>::<cname>(<for(label(l,t)<-tparams){><t> <l>;<}>)"; but that did not cater for unlabeled fields
 str getCUID(str cname, Symbol \type) = "<\type.\adt>::<cname>(<for(p<-\type.parameters?[]){><getField(p)>;<}>)";
@@ -1046,7 +1063,7 @@ str qualifiedNameToPath(QualifiedName qname){
 
 str convert2fuid(UID uid) {
 	if(!uid2name[uid]?) {
-		throw "uid2str is not applicable for <uid>!";
+		throw "uid2str is not applicable for <uid>: <config.store[uid]>";
 	}
 	str name = uid2name[uid];
 	
@@ -1219,7 +1236,8 @@ MuExp mkVar(str name, loc l) {
   //println("mkVar: <name>, <l>");
   //println("mkVar:getLoc2uid, <name>, <l>");
   uid = getLoc2uid(l);
-  //iprintln(uid2addr);
+  //iprintln("uid: <uid>");
+  
   tuple[str fuid,int pos] addr = uid2addr[uid];
   
   // Pass all the functions through the overloading resolution
@@ -1242,13 +1260,13 @@ MuExp mkVar(str name, loc l) {
   	return muOFun(ofuid);
   }
   
-  // Keyword parameters
+   // Keyword parameters
   if(uid in keywordParameters) {
      if(contains(topFunctionScope(), "companion")){
         // While compiling a companion function, force all references to keyword fields to be local
         return muLocKwp(name);
      } else {
-  	   //println("return <topFunctionScope()>, <muVarKwp(addr.fuid,name)>");
+       //println("return <topFunctionScope()>, <muVarKwp(addr.fuid,name)>");
        return muVarKwp(addr.fuid, name);
      }
   }
