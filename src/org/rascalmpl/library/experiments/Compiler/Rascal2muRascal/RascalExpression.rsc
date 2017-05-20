@@ -1307,7 +1307,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        		
        		i = un - 1;
        		while(i > 0){
-       			if(subtype(upar[i], var_elm_type)){
+       			if(comparable(upar[i], var_elm_type)){
        				i -= 1;
        			} else {
        				break;
