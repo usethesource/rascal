@@ -172,9 +172,9 @@ public list[OFUN] getOverloadedFunctions() = overloadedFunctions;
 
 public map[str,int] getOverloadingResolver() = overloadingResolver;
 
-bool getOverloadedFunctions(FUID fuid) = overloadingResolver[fuid]?;
+bool hasOverloadingResolver(FUID fuid) = overloadingResolver[fuid]?;
 
-OFUN getOverloadedFunctions(FUID fuid) {
+OFUN getOverloadedFunction(FUID fuid) {
 	assert overloadingResolver[fuid]? : "No overloading resolver defined for <fuid>";
 	resolver = overloadingResolver[fuid];
 	//println("getOverloadedFunction(<fuid>) ==\> <overloadedFunctions[resolver]>");
