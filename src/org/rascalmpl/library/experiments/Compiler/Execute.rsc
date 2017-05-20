@@ -3,7 +3,6 @@ module experiments::Compiler::Execute
 import IO;
 import ValueIO;
 import String;
-import Type;
 import Message;
 import List;
 import Map;
@@ -189,18 +188,19 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool jvm = true, 
    void resolve_module_extensions(str importName, list[RVMDeclaration] imported_declarations, list[RVMDeclaration] new_declarations){
         
        for(decl <- new_declarations){
-          //println("resolve_module_extensions: <decl>");
+          // println("resolve_module_extensions: <decl>");
           if(decl has ftype){
-            
-             overloads = imported_overloaded_functions[decl.uqname, decl.ftype, decl.scopeIn];
+             overloads = [<ofunctions, oconstructors> | <Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors> <- imported_overloaded_functions[decl.uqname],
+                                                         scope == decl.scopeIn, comparable(funType, decl.ftype)];
+                          
              if(overloads != []){
                 //println("decl = <decl>");
                 imported_overloaded_functions =
                     for(Resolved tup: <str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors> <- imported_overloaded_functions){
                         //println("tup = <tup>");
-                        if(name == decl.uqname && funType == decl.ftype && scope == decl.scopeIn, decl.qname notin tup.ofunctions && does_extend(importName, tup.ofunctions)){
+                        if(name == decl.uqname && scope == decl.scopeIn && comparable(funType, decl.ftype) && decl.qname notin tup.ofunctions && does_extend(importName, tup.ofunctions)){
                             
-                            //if(verbose) println("execute: *** added as extension: <decl.uqname>, it overlaps with: <overloads> ***");
+                            if(verbose) println("execute: *** added as extension: <decl.uqname>, it overlaps with: <overloads> ***");
                             append <name, 
                                     funType, 
                                     decl.scopeIn, 
