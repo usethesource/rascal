@@ -248,9 +248,6 @@ public class OverloadedFunction {
 	 * @param rvm	needed for access to the function declarations via rvm.functionStore
 	 */
 	private void filterFunctions(ArrayList<Function> functionStore){
-	    if(name.contains("EXTENDED_FUNCTION")){
-	        System.out.println("filterFunctions");
-	    }
 		if(functions.length > 1){
 			filteredFunctions = new HashMap<Integer,int[]>();
 		} else {
@@ -286,9 +283,13 @@ public class OverloadedFunction {
 		}
 		int ndefaults = defaults.size();
 		
+		// TODO: values in alts may also occur in defaults, then the list will contain duplicate elements
 		for(int fp : filtered.keySet()){
 			ArrayList<Integer> alts = filtered.get(fp);
 			int nalts = alts.size();
+			
+            //defaults.removeIf(x -> alts.contains(x));
+			
 			int[] funs = new int[nalts + ndefaults];
 			for(int i = 0; i < nalts; i++){
 				funs[i] = alts.get(i);
