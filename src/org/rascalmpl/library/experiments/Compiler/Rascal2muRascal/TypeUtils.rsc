@@ -109,9 +109,9 @@ int getModuleVarInitLocals(str mname) {
 }
 public set[UID] keywordParameters = {};				// declared keyword parameters
                                                     // common keyword fields declared on datatypes
-public set[UID] keywordParameters = {};			    // declared overloaded functions
+public set[UID] ofunctions = {};			        // declared overloaded functions
 
-public set[UID] keywordParameters= {};				// outermost scopes, i.e. scopes directly contained in the module scope;
+public set[UID] outerScopes= {};				    // outermost scopes, i.e. scopes directly contained in the module scope;
 
 public set[str] moduleNames = {};					// encountered module names
 
