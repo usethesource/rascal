@@ -184,7 +184,7 @@ public class RVMLinker {
 			OverloadedFunction res = new OverloadedFunction(funName, new TypeReifier(vf).symbolToType(funType, vf.mapWriter().done()), funs, constrs, scopeIn);
 			this.overloadedStore.add(res);
 			if(funName.contains("EXTENDED_FUNCTION"))
-			    System.out.println("fillOverloadedStore: add " + res);
+			    System.out.println("fillOverloadedStore: add " + (this.overloadedStore.size()-1) + ", " + res);
 		}
 	}
 	
