@@ -342,7 +342,7 @@ public class OverloadedFunctionType extends RascalType {
 		b.append(getReturnType() + "(");
 		int i = 0;
 		for (FunctionType t : alternatives) {
-		    assert t.getReturnType() == getReturnType();
+		    //assert t.getReturnType() == getReturnType();
 		    if (i++ != 0) {
 		        b.append(" + ");
 		    }
