@@ -11,6 +11,7 @@
 @bootstrapParser
 module lang::rascal::types::AbstractType
 
+import List;
 import Set;
 import String;
 extend ParseTree;
@@ -74,7 +75,7 @@ public str prettyPrintType(Symbol::\cons(Symbol a, str name, list[Symbol] fs)) =
 public str prettyPrintType(Symbol::\alias(str s, list[Symbol] ps, Symbol t)) = "alias <s> = <prettyPrintType(t)>" when size(ps) == 0;
 public str prettyPrintType(Symbol::\alias(str s, list[Symbol] ps, Symbol t)) = "alias <s>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>] = <prettyPrintType(t)>" when size(ps) > 0;
 public str prettyPrintType(Symbol s:Symbol::\func(Symbol rt, list[Symbol] ps)) = "fun <prettyPrintType(rt)>(<intercalate(", ", [ prettyPrintType(p) | p <- ps])>";
-public str prettyPrintType(Symbol::\func(Symbol rt, list[Symbol] ps, list[Symbol] kw)) = "fun <prettyPrintType(rt)>(<intercalate(", ", [ prettyPrintType(p) | p <- ps])>, <intercalate(", ", [ prettyPrintType(p) | p <- kw])>)";
+public str prettyPrintType(Symbol::\func(Symbol rt, list[Symbol] ps, list[Symbol] kw)) = "fun <prettyPrintType(rt)>(<intercalate(", ", [ prettyPrintType(p) | p <- ps])><isEmpty(kw) ? "" : ", "><intercalate(", ", [ prettyPrintType(p) | p <- kw])>)";
 public str prettyPrintType(Symbol::\var-func(Symbol rt, list[Symbol] ps, Symbol va)) = "fun <prettyPrintType(rt)>(<intercalate(", ", [ prettyPrintType(p) | p <- ps+va])>...)";
 public str prettyPrintType(Symbol::\reified(Symbol t)) = "type[<prettyPrintType(t)>]";
 public str prettyPrintType(Symbol::\user(RName rn, list[Symbol] ps)) = "<prettyPrintName(rn)>[<intercalate(", ", [ prettyPrintType(p) | p <- ps ])>]";
