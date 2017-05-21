@@ -207,6 +207,13 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool jvm = true, 
                                     decl.isDefault ? tup.ofunctions + decl.qname : decl.qname + tup.ofunctions,
                                     tup.oconstructors>;
                         } else {
+                            if(verbose && name == decl.uqname){
+                                println("not added as extension <decl.uqname>: <tup>");
+                                println("scope == decl.scopeIn: <scope == decl.scopeIn>");
+                                println("comparable(funType, decl.ftype): <comparable(funType, decl.ftype)>");
+                                println("decl.qname notin tup.ofunctions: <decl.qname notin tup.ofunctions>");
+                                println("does_extend(importName, tup.ofunctions): <does_extend(importName, tup.ofunctions)>");
+                            }
                             append tup;
                         }   
                     };
