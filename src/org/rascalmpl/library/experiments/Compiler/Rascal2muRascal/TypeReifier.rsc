@@ -85,7 +85,7 @@ public void extractDeclarationInfo(Configuration config){
 	Production value2prod(constructor(_, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at))
 	  = \cons(label(rtype.name, rtype.\adt), rtype.parameters, [label(l, keywordParams[n]) | n:RSimpleName(l) <- keywordParams], {});
 	  
-	constructors = { <c.rtype.\adt, value2prod(c)> | int uid <- config.store, c := config.store[uid]};
+	constructors = { <c.rtype.\adt, value2prod(c)> | int uid <- config.store, c := config.store[uid], c is cons};
 
     typeRel += { <n, a> | <Symbol a:adt(str n,_),_> <- constructors };
     
