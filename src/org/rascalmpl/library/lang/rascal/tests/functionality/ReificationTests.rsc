@@ -25,10 +25,10 @@ test bool relLabels() = #rel[int a, int b].symbol == \rel([label("a", \int()),la
 
 test bool everyTypeCanBeReifiedWithoutExceptions(&T u) = _ := typeOf(u);
 
-data P = prop(str name) | and(P l, P r) | or(P l, P r) | not(P a) | t() | f();
+data P = prop(str name) | and(P l, P r) | or(P l, P r) | not(P a) | t() | f() | axiom(P mine = t());
 
 test bool allConstructorsAreDefined() 
-  = (0 | it + 1 | /cons(_,_,_,_) := #P.definitions) == 6;
+  = (0 | it + 1 | /cons(_,_,_,_) := #P.definitions) == 7;
 
 test bool allConstructorsForAnAlternativeDefineTheSameSort() 
   = !(/choice(def, /cons(label(_,def),_,_,_)) !:= #P.definitions);
@@ -42,19 +42,16 @@ test bool typeParameterReificationIsStatic3(&T <: list[&F] f) = #&T.symbol == \p
 test bool dynamicTypesAreAlwaysGeneric(value v) = !(type[value] _ !:= type(typeOf(v),()));
 
 // New tests which can be enabled after succesful bootstrap
-//data P(int size = 0);
-//data P = axiom(P mine = t());
-//
-//test bool allConstructorsHaveTheCommonKwParam()
-//  =  all(/choice(def, /cons(_,_,kws,_)) := #P.definitions, label(\int(),"size") in kws);
-//  
-//test bool axiomHasItsKwParam()
-//  =  /cons(label(_,"axiom"),_,kws,_) := #P.definitions && label(\adt("P",[]),"mine") in kws;  
-//  
-//test bool axiomsKwParamIsExclusive()
-//  =  all(/cons(label(_,!"axiom"),_,kws,_) := #P.definitions, label(\adt("P",[]),"mine") notin kws);
-//  
+data P(int size = 0);
+
+test bool allConstructorsHaveTheCommonKwParam()
+  =  all(/choice(def, /cons(_,_,kws,_)) := #P.definitions, label("size", \int()) in kws);
+   
+test bool axiomHasItsKwParam()
+  =  /cons(label("axiom",_),_,kws,_) := #P.definitions && label("mine", \adt("P",[])) in kws;  
   
+test bool axiomsKwParamIsExclusive()
+  =  all(/cons(label(!"axiom",_),_,kws,_) := #P.definitions, label("mine", \adt("P",[])) notin kws);
   
   
   
