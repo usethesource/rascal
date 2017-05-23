@@ -901,7 +901,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 		if (registerName) {
 			overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt), c.store[i].rtype != rt}; //, !equivalent(c.store[i].rtype,rt)};
 			if (size(overlaps) > 0)
-				c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <constructorItemId>, <overlaps>",l);
+				c = addScopeError(c,"Constructor <prettyPrintName(n)> overlaps existing constructors in the same datatype <prettyPrintName(c.store[adtId].name)>",l);
 		}
 		
 		// NOTE: This will pick one if we have multiple types for the same name, but we will have already issued
@@ -925,7 +925,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 		for (constructorItemId <- existingIds, constructorItemId notin existingNameIds) {
 			overlaps = { i | i <- c.adtConstructors[adtId], c.store[i].name == n, comparable(c.store[i].rtype,rt), c.store[i].rtype != rt}; //, !equivalent(c.store[i].rtype,rt)};
 			if (size(overlaps) > 0)
-				c = addScopeError(c,"Constructor overlaps existing constructors in the same datatype : <constructorItemId>, <overlaps>",l);
+			     c = addScopeError(c,"Constructor <prettyPrintName(n)> overlaps existing constructors in the same datatype <prettyPrintName(c.store[adtId].name)>",l);
 
 			addConstructorItem(n, constructorItemId);
 			addConstructorItem(nameWithAdt, constructorItemId);
