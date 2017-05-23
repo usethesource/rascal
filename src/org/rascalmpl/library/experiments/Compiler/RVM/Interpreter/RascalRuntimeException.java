@@ -75,6 +75,8 @@ public class RascalRuntimeException {
 
 	public static final Type NoMainFunction = TF.constructor(TS, Exception, "NoMainFunction");
 	
+	public static final Type IncompletelyDefinedFunction = TF.constructor(TS, Exception, "IncompletelyDefinedFunction", TF.stringType(), "message");
+	
 	public static final Type RegExpSyntaxError = TF.constructor(TS, Exception, "RegExpSyntaxError", TF.stringType(), "message");
 
 	public static final Type NotImplemented = TF.constructor(TS, Exception, "NotImplemented", TF.stringType(), "message");
@@ -217,6 +219,10 @@ public class RascalRuntimeException {
 	
 	public static Thrown noMainFunction(Frame currentFrame) {
 		return Thrown.getInstance(VF.constructor(NoMainFunction), currentFrame);
+	}
+	
+	public static Thrown incompletelyDefinedFunction(String message, Frame currentFrame){
+	    return Thrown.getInstance(VF.constructor(IncompletelyDefinedFunction, VF.string(message)), currentFrame);
 	}
 	
 	public static Thrown noParent(ISourceLocation noparentloc, Frame currentFrame) {
