@@ -26,7 +26,7 @@ import IO;
 
 private rel[str,Symbol] typeRel = {};
 private set[Symbol] types = {};
-private rel[Symbol,Symbol] constructors = {};
+private rel[Symbol,Production] constructors = {};
 private rel[Symbol,Symbol] productions = {};
 private map[Symbol,Production] grammar = ();
 private map[Symbol,Production] cachedGrammar = ();
@@ -81,15 +81,22 @@ public void extractDeclarationInfo(Configuration config){
             ;
     //println("typeRel:");for(x <- typeRel) println("\t<x>");
 	// Collect all the constructors of the adt types in the type environment
+	 
+	KeywordParamMap getCommons(str adt) 
+	  = (config.typeEnv[RSimpleName(adt)]?) ? config.store[config.typeEnv[RSimpleName(adt)]].keywordParams : ();
 	
-	constructors = { <\type.\adt, \type> | int uid <- config.store, 
-												constructor(_, Symbol \type, _, _, _) := config.store[uid]
-												//\type.\adt in types 
-												};
+	Production value2prod(constructor(_, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at), KeywordParamMap commonParams)
+	  = \cons(label(rtype.name, rtype.\adt)
+	         , rtype.parameters
+	         , [label(l, keywordParams[n]) | n:RSimpleName(l) <- keywordParams]
+	         + [label(l, commonParams[n])  | n:RSimpleName(l) <- commonParams]
+	         , {});  
+	  
+	constructors = { <c.rtype.\adt, value2prod(c, getCommons(c.rtype.\adt.name))> 
+	               | int uid <- config.store, c := config.store[uid], c is constructor
+	               };
 
-	//constructors += <#Tree.symbol, type(Tree, ())>;
-	
-    typeRel += { <cns[1].adt.name, cns[1].adt> | cns <- constructors };
+    typeRel += { <n, a> | <Symbol a:adt(str n,_),_> <- constructors };
     
     types = range(typeRel);
     
@@ -150,7 +157,7 @@ private map[Symbol,Production] getGrammar1() {
 
 public map[Symbol,Production] getDefinitions() {
    	// Collect all symbols
-   	set[Symbol] symbols = types + carrier(constructors) + carrier(productions) + domain(grammar);
+   	set[Symbol] symbols = types + domain(constructors) + carrier(productions) + domain(grammar);
    	
    	map[Symbol,Production] definitions  = (() | reify(symbol, it) | Symbol symbol <- symbols);
  	
@@ -218,9 +225,8 @@ private default rel[Symbol,Symbol] getDependencies(Symbol s) = {};
 // - visit
 
 private void computeReachableTypesAndConstructors(){
-	rel[value,value] containment = constructors
-								   + {*getDependencies(c)|  <s, c> <- constructors};
-	                              ;
+	rel[Symbol,Symbol] containment = {<s, rc>, *getDependencies(rc) |  <s, \cons(label(s2,n),params,_,_)> <- constructors, rc := Symbol::\cons(n, s2, params)};
+	                              
 	reachableTypes = containment+;
 	
 	//println("reachableTypes [<size(reachableTypes)>] ="); //for(elm <- reachableTypes) { println("\t<elm>"); }
@@ -525,6 +531,12 @@ public map[Symbol,Production] reify(Symbol symbol, map[Symbol,Production] defini
     return result;
 }
 
+map[Symbol,Production] reify1(\cons(Symbol def, list[Symbol] symbols, list[Symbol] kwTypes, set[Attr] attributes), map[Symbol,Production] definitions)
+  = (definitions | reify1(sym, it) | sym <- symbols + kwTypes);
+  
+map[Symbol,Production] reify1(prod(Symbol def, list[Symbol] symbols, set[Attr] attributes), map[Symbol,Production] definitions)
+  = (definitions | reify1(sym, it) | sym <- symbols);
+
 // primitive
 private map[Symbol,Production] reify1(Symbol symbol, map[Symbol,Production] definitions) 
 	= definitions when isIntType(symbol) || isBoolType(symbol) || isRealType(symbol) || isRatType(symbol) ||
@@ -574,9 +586,9 @@ private map[Symbol,Production] reify1(Symbol::\adt(str name, list[Symbol] symbol
 	   if(adtDef: Symbol::\adt(name,_) := s){
           //assert Symbol::\adt(name,_) := adtDef;
           if(!definitions[adtDef]?) {
-        	 alts = { sym2prod(sym) | sym <- constructors[adtDef] };
+        	 alts = constructors[adtDef];
         	 definitions[adtDef] = Production::\choice(adtDef, alts);
-        	 definitions = ( definitions | reify1(sym, it) | sym <- constructors[adtDef] );
+        	 definitions = ( definitions | reify1(prod, it) | Production prod <- constructors[adtDef] );
           }
           definitions = ( definitions | reify1(sym, it) | sym <- symbols );
           //println("reify1 adt <name> =\> <definitions>");
@@ -717,20 +729,6 @@ private map[Symbol,Production] reify1(Condition cond, map[Symbol,Production] def
 private map[Symbol,Production] reify1(Condition cond, map[Symbol,Production] definitions) = definitions;
 		   
 private default map[Symbol,Production] reify1(Symbol symbol, map[Symbol,Production] definitions) = definitions;
-
-private Production sym2prod(Symbol::\cons(Symbol \type, str name, list[Symbol] parameters)) 
-	= Production::\cons(Symbol::label(name, \type), parameters, [], /*(),*/ {}) 
-		when Symbol::\adt(str _, list[Symbol] _) := \type;
-		
-private Production sym2prod(Symbol::\prod(Symbol \type, str name, list[Symbol] parameters, set[Attr] attributes))
-	= Production::\prod(Symbol::\label(name, \type), parameters, attributes) 
-		when name != "" && \type has name;
-		
-private Production sym2prod(Symbol::\prod(Symbol \type, str name, list[Symbol] parameters, set[Attr] attributes))
-	= Production::\prod(\type, parameters, attributes) 
-		when name == "" && \type has name;
-		
-default Production sym2prod(Symbol s) { throw "Could not transform the symbol <s> to a Production node"; }
 
 @doc{Intermix with an active layout}
 public Production \layouts(Production prod, set[Symbol] others) {
