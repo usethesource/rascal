@@ -1,9 +1,5 @@
 module experiments::Compiler::Examples::Tst3
 
-import Map;
-import Set;
-import Relation;
+data D = d(int n) | d (value v);
 
-// toRel (on plain maps)
-@ignoreCompiler{FIX: Typechecker says: Multiple functions found which could be applied} 
-test bool toRel_g1() = toRel(()) == {};
+value main() = d(3);
