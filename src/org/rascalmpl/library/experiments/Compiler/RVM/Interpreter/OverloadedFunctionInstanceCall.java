@@ -111,21 +111,22 @@ public class OverloadedFunctionInstanceCall {
 	public Type nextConstructor(final List<Type> constructorStore) {
 		if(types == null) {
 			if(getConstructors().length == 0){
-				System.err.println("No alternative found for (overloaded) function or constructor;\narity: " + arity + ", previousScope: " + previousScope);
+			    StringBuffer sb = new StringBuffer("No alternative found for (overloaded) function or constructor;\narity: " + arity + ", previousScope: " + previousScope + "\n");	
 				if(getFunctions().length > 0){
-					System.err.print("Function(s):");
+					sb.append("Function(s):\n");
 					for(int i = 0; i < getFunctions().length; i++){
-						System.err.print(" " + getFunctions()[i]);
+						sb.append(" " + getFunctions()[i]);
 					}
-					System.err.println("");
+					sb.append("\n");
 				}
 				if(getConstructors().length > 0){
-					System.err.println("Constructor(s):");
+					sb.append("Constructor(s):\n");
 					for(int i = 0; i < getConstructors().length; i++){
-						System.err.print(" " + getConstructors()[i]);
+						sb.append(" " + getConstructors()[i]);
 					}
-					System.err.println("");
+					sb.append("\n");
 				}
+				throw RascalRuntimeException.incompletelyDefinedFunction(sb.toString(), cf);
 			}
 			assert getConstructors().length >= 1;
 			return constructorStore.get(getConstructors()[0]);
