@@ -82,10 +82,16 @@ public void extractDeclarationInfo(Configuration config){
     //println("typeRel:");for(x <- typeRel) println("\t<x>");
 	// Collect all the constructors of the adt types in the type environment
 	
-	Production value2prod(constructor(_, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at))
-	  = \cons(label(rtype.name, rtype.\adt), rtype.parameters, [label(l, keywordParams[n]) | n:RSimpleName(l) <- keywordParams], {});
+	Production value2prod(constructor(_, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at), 
+	                      datatype(_, _, KeywordParamMap commonParams, _, _))
+	  = \cons(label(rtype.name, rtype.\adt)
+	         , rtype.parameters
+	         , [label(l, keywordParams[n]) | n:RSimpleName(l) <- keywordParams + commonParams]
+	         , {});
 	  
-	constructors = { <c.rtype.\adt, value2prod(c)> | int uid <- config.store, c := config.store[uid], c is cons};
+	constructors = { <c.rtype.\adt, value2prod(c, config.store[adtid])> 
+	               | int uid <- config.store, c := config.store[uid], c is constructor
+	               , int adtid := config.typeEnv[RSimpleName(c.rtype.\adt.name)]};
 
     typeRel += { <n, a> | <Symbol a:adt(str n,_),_> <- constructors };
     
