@@ -40,3 +40,21 @@ test bool typeParameterReificationIsStatic2(list[&F] f) = #list[&F].symbol == \l
 test bool typeParameterReificationIsStatic3(&T <: list[&F] f) = #&T.symbol == \parameter("T", \list(\parameter("F",\value())));
 
 test bool dynamicTypesAreAlwaysGeneric(value v) = !(type[value] _ !:= type(typeOf(v),()));
+
+// New tests which can be enabled after succesful bootstrap
+//data P(int size = 0);
+//data P = axiom(P mine = t());
+//
+//test bool allConstructorsHaveTheCommonKwParam()
+//  =  all(/choice(def, /cons(_,_,kws,_)) := #P.definitions, label(\int(),"size") in kws);
+//  
+//test bool axiomHasItsKwParam()
+//  =  /cons(label(_,"axiom"),_,kws,_) := #P.definitions && label(\adt("P",[]),"mine") in kws;  
+//  
+//test bool axiomsKwParamIsExclusive()
+//  =  all(/cons(label(_,!"axiom"),_,kws,_) := #P.definitions, label(\adt("P",[]),"mine") notin kws);
+//  
+  
+  
+  
+  
