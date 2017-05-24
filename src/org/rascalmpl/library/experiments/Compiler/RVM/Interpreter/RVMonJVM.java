@@ -798,7 +798,16 @@ public class RVMonJVM extends RVMCore {
 		    }
 		    frame = ofun_call.nextFrame(functionStore);
 		}
-		Type constructor = ofun_call.nextConstructor(constructorStore);
+		Type constructor;
+		try {
+		    constructor = ofun_call.nextConstructor(constructorStore);
+		} catch (Throwable e) {
+		    if(e instanceof Thrown){
+		        throw (Thrown) e;
+		    } else {
+		        throw new RuntimeException(e);
+		    }
+		}
 		
 		sp = sp - arity;
 		cf.sp = sp;
