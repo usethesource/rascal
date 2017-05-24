@@ -8,4 +8,4 @@ int f("a") = 10;
 
 value main() = g();
 
-value g() = [][0];
+value g() = f(3);
