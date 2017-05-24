@@ -114,7 +114,7 @@ public class OverloadedFunctionInstanceCall {
 	public Type nextConstructor(final List<Type> constructorStore) {
 		if(types == null) {
 			if(getConstructors().length == 0){
-			    StringBuffer sb = new StringBuffer("No alternative found for (overloaded) function or constructor;\narity: " + arity + ", previousScope: " + previousScope + "\n");	
+			    StringBuffer sb = new StringBuffer("No alternative found for (overloaded) function or constructor\n");	
 				if(getFunctions().length > 0){
 					sb.append("Function(s):\n");
 					for(int i = 0; i < getFunctions().length; i++){
