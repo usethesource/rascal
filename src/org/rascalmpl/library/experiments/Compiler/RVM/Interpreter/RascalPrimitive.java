@@ -6116,9 +6116,11 @@ public enum RascalPrimitive {
 	/******************************************************************************************/
 
 	/**
-	 * Runtime check whether given constructor has a named field
+	 * Runtime check whether given constructor has a named field (positional or keyword).
+	 * hasMap represents required type information and has entries in the format:
+	 * [consName, fieldNames] => [kwNames]
 	 * 
-	 * [ ..., IConstructor cons, IString fieldName, IMap fieldMap ] => [ ..., IBool true if cons does have fieldName ]
+	 * [ ..., IConstructor cons, IString fieldName, IMap hasMap ] => [ ..., IBool true if cons does have fieldName ]
 	 */
 	adt_has_field {
 		@Override
@@ -6127,28 +6129,47 @@ public enum RascalPrimitive {
 			IConstructor cons = (IConstructor) stack[sp - 3];
 			IString field = ((IString) stack[sp - 2]);
 			String fieldName = field.getValue();
-			IMap fieldNames = (IMap) stack[sp - 1];
+			Type consType = cons.getConstructorType();
 			
-			ISet fields = (ISet) fieldNames.get(vf.string(cons.getName()));
-			if(fields != null && fields.contains(field)){
-				stack[sp - 3] = Rascal_TRUE;
-			} else {
-				if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
-					IConstructor prod = ((ITree) cons).getProduction();
+			// Does fieldName exist as positional field?
+			if(consType.hasField(fieldName)){
+			    stack[sp - 3] = Rascal_TRUE;
+			    return sp - 2;
+			}
+			
+			// Check for keyword parameter
+			String[] fieldNames = consType.getFieldNames();
+			if(fieldNames == null){
+			    fieldNames = new String[0];
+			}
+			IMap consFieldMap = (IMap) stack[sp - 1];
+			IListWriter w = vf.listWriter();
+			w.append(vf.string(cons.getName()));
+			for(String fname : fieldNames){
+			    w.append(vf.string(fname));
+			}
 
-					for(IValue elem : ProductionAdapter.getSymbols(prod)) {
-						IConstructor arg = (IConstructor) elem;
-						if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(fieldName)) {
-							stack[sp - 3] = Rascal_TRUE;
-							return sp - 2;
-						}
-					}
-				}
-				if(cons.isAnnotatable()){
-					stack[sp - 3] = cons.asAnnotatable().getAnnotation(fieldName) == null ? Rascal_FALSE : Rascal_TRUE;
-				} else {
-				  stack[sp - 3] = Rascal_FALSE;
-				}
+			IList kwNames = (IList) consFieldMap.get(w.done());
+			if(kwNames != null && kwNames.contains(field)){
+			    stack[sp - 3] = Rascal_TRUE;
+			    return sp - 2;
+			}
+			
+			if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
+			    IConstructor prod = ((ITree) cons).getProduction();
+
+			    for(IValue elem : ProductionAdapter.getSymbols(prod)) {
+			        IConstructor arg = (IConstructor) elem;
+			        if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(fieldName)) {
+			            stack[sp - 3] = Rascal_TRUE;
+			            return sp - 2;
+			        }
+			    }
+			}
+			if(cons.isAnnotatable()){
+			    stack[sp - 3] = cons.asAnnotatable().getAnnotation(fieldName) == null ? Rascal_FALSE : Rascal_TRUE;
+			} else {
+			    stack[sp - 3] = Rascal_FALSE;
 			}
 			return sp - 2;
 		}
