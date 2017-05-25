@@ -105,24 +105,24 @@ test bool sharedKWParams1() = xx().y == 1;
 test bool sharedKWParams2() = xx().yy == 2;
 test bool sharedKWParams3() = xx().yyy == 3;
 
-//// has 
-//data F11(int y = 1) = d11(int n, real r = 1.5) | d11(str s, bool b = true) | d11(int n, str s);
-//
-//test bool has1() = d11(0) has n;
-//test bool has2() = d11(0) has r;
-//test bool has3() = d11(0) has y;
-//test bool has4() = !(d11(0) has s);
-//test bool has5() = !(d11(0) has b);
-//
-//test bool has6() = d11("abc") has s;
-//test bool has7() = d11("abc") has b;
-//test bool has8() = d11("abc") has y;
-//test bool has9() = !(d11("abc") has n);
-//test bool has10() = !(d11("abc") has r);
-//
-//test bool has11() = d11(0, "abc") has n;
-//test bool has12() = d11(0, "abc") has s;
-//test bool has13() = d11(0, "abc") has y;
-//test bool has14() = !(d11(0, "abc") has r);
-//test bool has15() = !(d11(0, "abc") has b);
+// has 
+data F11(int y = 1) = d11(int n, real r = 1.5) | d11(str s, bool b = true) | d11(int n, str s);
+
+test bool has1() = d11(0) has n;
+test bool has2() = d11(0) has r;
+test bool has3() = d11(0) has y;
+test bool has4() = !(d11(0) has s);
+test bool has5() = !(d11(0) has b);
+
+test bool has6() = d11("abc") has s;
+test bool has7() = d11("abc") has b;
+test bool has8() = d11("abc") has y;
+test bool has9() = !(d11("abc") has n);
+test bool has10() = !(d11("abc") has r);
+
+test bool has11() = d11(0, "abc") has n;
+test bool has12() = d11(0, "abc") has s;
+test bool has13() = d11(0, "abc") has y;
+test bool has14() = !(d11(0, "abc") has r);
+test bool has15() = !(d11(0, "abc") has b);
 
