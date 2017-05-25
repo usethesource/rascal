@@ -484,7 +484,7 @@ value rascalTests(list[str] qualifiedModuleNames, PathConfig pcfg,
                         jvm=jvm,
                         verbose=verbose
                        );
-   return printTestReport(trs);
+   return makeTestReport(trs);
 }
 
 @deprecated
@@ -570,34 +570,31 @@ RVMProgram compileAndMergeProgramIncremental(str qualifiedModuleName, bool reuse
 
 str makeTestSummary(lrel[loc,int,str] test_results) = "<size(test_results)> tests executed; < size(test_results[_,0])> failed; < size(test_results[_,2])> ignored";
 
-bool printTestReport(TestResults trs){
+tuple[bool,str] makeTestReport(TestResults trs){
   test_results = trs.results;
   exceptions = trs.exceptions;
-  //if(lrel[loc,int,str] test_results := results){
-      failed = test_results[_,0];
-      if(size(failed) > 0){
-          println("\nFAILED TESTS:");
-          for(<l, 0, msg> <- test_results){
-              println("<l>: FALSE <msg>");
-          }
-      }
-      ignored = test_results[_,2];
-      if(size(ignored) > 0){
-          println("\nIGNORED TESTS:");
-          for(<l, 2, msg> <- test_results){
-              println("<l>: IGNORED");
-          }
-      }
-      if(size(exceptions) > 0){
-         println("\nEXCEPTIONS:");
-         for(exc <- exceptions){
-             println(exc);
-         }
-      }
+ 
+  failed = test_results[_,0];
+  failed_messages = size(failed) == 0 ? "" :
+      "\nFAILED TESTS:
+      '<for(<l, 0, msg> <- test_results){>
+      '<l>: FALSE <msg>
+      <}>";
       
-      println("\nTEST SUMMARY: " + makeTestSummary(test_results));
-      return size(failed) == 0 && size(exceptions) == 0;
-  //} else {
-  //  throw "cannot create report for test results: <results>";
-  //}
+  ignored = test_results[_,2];
+  ignored_messages = size(ignored) == 0 ? "" :
+      "\nIGNORED TESTS:
+      '<for(<l, 2, msg> <- test_results){>
+      '<l>: IGNORED
+      <}>";
+ 
+  exception_messages = size(exceptions) == 0 ? "" :
+     "\nEXCEPTIONS:
+     '<for(exc <- exceptions){>
+     '<exc>
+     '<}>";
+  
+  messages = "<failed_messages><ignored_messages><exception_messages>
+             'TEST SUMMARY: <makeTestSummary(test_results)>";
+  return <size(failed) == 0 && size(exceptions) == 0, messages>;
 }
