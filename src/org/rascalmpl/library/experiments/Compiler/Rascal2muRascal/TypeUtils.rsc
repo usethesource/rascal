@@ -599,7 +599,7 @@ void extractScopes(Configuration c){
             
             if(size(keywordParams) > 0 || size(dataKeywordParams) > 0){
                 //println("*** <keywordParams>");
-                //println("*** <dataKeywordParams>");
+                // println("*** <dataKeywordParams>");
                 
                 innerScopes = {fuid1} + containmentPlus[fuid1];
                 //println("innerScopes = <innerScopes>");
@@ -632,7 +632,8 @@ void extractScopes(Configuration c){
                     uid2addr[decls_kwp[i]] = <fuid_str, -1>; // ***Note: keyword parameters do not have a position
                 }
                 for(int uidn <- config.store, variable(RName name,_,_,scopeIn,_) := config.store[uidn], name in domain(dataKeywordParams), 
-                    signatureScope(0, at) := config.store[scopeIn], at in config.store[uid_adt].ats){
+                    (signatureScope(0, at) := config.store[scopeIn] || blockScope(0, at) := config.store[scopeIn]),
+                    at in config.store[uid_adt].ats){
                     keywordParameters += {uidn};
                     uid2addr[uidn] = <fuid_str, -1>; // ***Note: keyword parameters do not have a position
                 }
@@ -1209,9 +1210,10 @@ MuExp mkVar(str name, loc l) {
   //println("mkVar: <name>, <l>");
   //println("mkVar:getLoc2uid, <name>, <l>");
   uid = getLoc2uid(l);
-  //iprintln("uid: <uid>");
+  //println("uid: <uid>");
   
   tuple[str fuid,int pos] addr = uid2addr[uid];
+  //println("addr = <addr>");
   
   // Pass all the functions through the overloading resolution
   if(uid in functions || uid in constructors || uid in ofunctions) {
