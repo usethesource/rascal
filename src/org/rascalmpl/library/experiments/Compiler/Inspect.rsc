@@ -246,8 +246,8 @@ void printSymbolDefinitions(map[Symbol, Production] sym_defs){
 		for(sym <- sym_defs){
         	if(choice(s, choices) := sym_defs[sym]){
             	println("\t<s>:");
-                for(c <- choices){
-                	println("\t\t<c>");
+                for(ch <- choices){
+                	println("\t\t<ch>");
                 }
             } else {
             	println("\t<sym>: <sym_defs[sym]>");
