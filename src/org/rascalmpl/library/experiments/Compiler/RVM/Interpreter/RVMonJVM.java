@@ -170,7 +170,7 @@ public class RVMonJVM extends RVMCore {
 		root.sp = arity;
 		root.previousCallFrame = null;
 
-		OverloadedFunctionInstanceCall ofunCall = new OverloadedFunctionInstanceCall(root, func.getFunctions(), func.getConstructors(), func.env, null, arity);
+		OverloadedFunctionInstanceCall ofunCall = new OverloadedFunctionInstanceCall(root, func.getFunctions(), func.getConstructors(), func.env, null, arity, rex);
 
 		Frame frame = ofunCall.nextFrame(functionStore);
 		while (frame != null) {
@@ -776,8 +776,8 @@ public class RVMonJVM extends RVMCore {
 	    
 		Object arg0 = stack[sp - arity];
 		OverloadedFunctionInstanceCall ofun_call = 
-		    of.getScopeIn() == -1 ? new OverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), cf, null, arity) 
-				                  : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), of.getScopeIn(), null, arity);
+		    of.getScopeIn() == -1 ? new OverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), cf, null, arity, rex) 
+				                  : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), of.getScopeIn(), null, arity, rex);
 		
 		Frame frame = ofun_call.nextFrame(functionStore);
 		
@@ -798,7 +798,16 @@ public class RVMonJVM extends RVMCore {
 		    }
 		    frame = ofun_call.nextFrame(functionStore);
 		}
-		Type constructor = ofun_call.nextConstructor(constructorStore);
+		Type constructor;
+		try {
+		    constructor = ofun_call.nextConstructor(constructorStore);
+		} catch (Throwable e) {
+		    if(e instanceof Thrown){
+		        throw (Thrown) e;
+		    } else {
+		        throw new RuntimeException(e);
+		    }
+		}
 		
 		sp = sp - arity;
 		cf.sp = sp;
@@ -856,7 +865,7 @@ public class RVMonJVM extends RVMCore {
 		// 2. OverloadedFunctionInstance due to named Rascal
 		// functions
 		OverloadedFunctionInstance of_instance = (OverloadedFunctionInstance) funcObject;
-		ofunCall = new OverloadedFunctionInstanceCall(cf, of_instance.getFunctions(), of_instance.getConstructors(), of_instance.env, types, arity);
+		ofunCall = new OverloadedFunctionInstanceCall(cf, of_instance.getFunctions(), of_instance.getConstructors(), of_instance.env, types, arity, rex);
 
 		boolean stackPointerAdjusted = false;
 		Frame frame = ofunCall.nextFrame(functionStore);

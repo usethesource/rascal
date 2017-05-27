@@ -305,7 +305,8 @@ public class CommandExecutor {
 	                                  .jvm(true)
 	                                  .recompile(true)
 	      );
-	  stderr.println("executeTests: " + res);
+	  
+	  stderr.println(((IString) ((ITuple) res).get(1)).getValue());
 	}
 	
 	public IConstructor executeTestsRaw(String mname){

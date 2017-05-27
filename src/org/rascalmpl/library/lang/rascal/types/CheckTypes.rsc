@@ -4913,7 +4913,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`fail <Target target>;`, 
     if ((Target)`<Name n>` := target) {
         rn = convertName(n);
         // TODO: Check to see what category the label is in?
-        if (rn notin c.labelEnv) return markLocationFailed(c, stmt@\loc, makeFailType("Target label not defined", stmt@\loc));
+        if (rn notin c.labelEnv) return markLocationFailed(c, stmt@\loc, makeFailType("Target label <n> not defined", stmt@\loc));
     }   
     return markLocationType(c, stmt@\loc, Symbol::\void());
 }
@@ -4925,7 +4925,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`break <Target target>;`,
     if ((Target)`<Name n>` := target) {
         rn = convertName(n);
         // TODO: Check to see what category the label is in?
-        if (rn notin c.labelEnv) return markLocationFailed(c, stmt@\loc, makeFailType("Target label not defined", stmt@\loc));
+        if (rn notin c.labelEnv) return markLocationFailed(c, stmt@\loc, makeFailType("Target label <n> not defined", stmt@\loc));
     }
     
     if (!labelTypeInStack(c, {forLabel(), whileLabel(), doWhileLabel()})) {
@@ -4945,7 +4945,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`continue <Target target>
     if ((Target)`<Name n>` := target) {
         rn = convertName(n);
         // TODO: Check to see what category the label is in?
-        if (rn notin c.labelEnv) return markLocationFailed(c, stmt@\loc, makeFailType("Target label not defined", stmt@\loc));
+        if (rn notin c.labelEnv) return markLocationFailed(c, stmt@\loc, makeFailType("Target label <n> not defined", stmt@\loc));
     }   
 
     if (!labelTypeInStack(c, {forLabel(), whileLabel(), doWhileLabel()})) {
@@ -5137,7 +5137,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`insert <DataTarget dt> <
         labelName = convertName(n);
         // TODO: Check to see what category the label is in?
         if (labelName notin c.labelEnv) {
-            failures += makeFailType("Target label not defined", dt@\loc);
+            failures += makeFailType("Target label <n> not defined", dt@\loc);
         } else if (visitLabel() !:= c.store[c.labelEnv[labelName]].source) {
             failures += makeFailType("Target label must refer to a visit statement or expression", dt@\loc);
         }
@@ -5172,7 +5172,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`append <DataTarget dt> <
         rn = convertName(n);
         // TODO: Check to see what category the label is in?
         if (rn notin c.labelEnv) 
-            failures += makeFailType("Target label not defined", dt@\loc);
+            failures += makeFailType("Target label <n> not defined", dt@\loc);
         else
             c = addAppendTypeInfo(c, t1, rn, { forLabel(), whileLabel(), doWhileLabel() }, stmt@\loc);
     } else {

@@ -553,22 +553,6 @@ MuExp translate(e:(Expression) `<Concrete concrete>`) {
     return translateConcrete(concrete);
 }
 
-//public MuExp getConstructor(str cons) {
-//   cons = unescape(cons);
-//   uid = -1;
-//   for(c <- getConstructors()){
-//     //println("c = <c>, uid2name = <uid2name[c]>, uid2str = <convert2fuid(c)>");
-//     if(cons == getSimpleName(getConfiguration().store[c].name)){
-//        //println("c = <c>, <config.store[c]>,  <uid2addr[c]>");
-//        uid = c;
-//        break;
-//     }
-//   }
-//   if(uid < 0)
-//      throw("No definition for constructor: <cons>");
-//   return muConstr(convert2fuid(uid));
-//}
-
 /* Recap of relevant rules from Rascal grammar:
 
    lexical Concrete 
@@ -1307,7 +1291,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        		
        		i = un - 1;
        		while(i > 0){
-       			if(subtype(upar[i], var_elm_type)){
+       			if(comparable(upar[i], var_elm_type)){
        				i -= 1;
        			} else {
        				break;
@@ -1827,6 +1811,16 @@ MuExp translate (e:(Expression) `<Expression expression> is <Name name>`) =
 
 // -- has expression -----------------------------------------------
 
+list[str] getNames(list[Symbol] s){
+    return [nm | /label(str nm, _) := s];
+}
+
+// For each constructor map its name + positional fieldNames to list of kw names
+map[list[str], list[str]] makeHasTable(type[value] reif){
+    choices = reif.definitions[reif.symbol];
+    return (getNames([def]) + getNames(symbols) : getNames(kwTypes) | /cons(Symbol def, list[Symbol] symbols, list[Symbol] kwTypes, _) := choices);
+}
+
 MuExp translate (e:(Expression) `<Expression expression> has <Name name>`) {
 	
     outer = getOuterType(expression);
@@ -1843,8 +1837,8 @@ MuExp translate (e:(Expression) `<Expression expression> has <Name name>`) {
      		return muCon(hasField(getType(expression@\loc), unescape("<name>")));		
     }
     if(op == "adt"){	
-        af = getAllConstructorFields(expression@\loc);
-        return muCallPrim3("<op>_has_field", [translate(expression), muCon(unescape("<name>")), muCon(af)], e@\loc);  
+        reif = symbolToValue(getType(expression@\loc));
+        return muCallPrim3("<op>_has_field", [translate(expression), muCon(unescape("<name>")), muCon(makeHasTable(reif))], e@\loc);  
     }
     return muCallPrim3("<op>_has_field", [translate(expression), muCon(unescape("<name>"))], e@\loc);				    
 }

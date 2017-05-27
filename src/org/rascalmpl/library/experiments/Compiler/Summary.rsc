@@ -30,9 +30,10 @@ private map[loc from, Symbol tp] getLocationTypes(Configuration c) =
     c.locationTypes;
     
 private rel[loc from, loc to] getUseDef(Configuration c){
+    mod_use_def = {<name@at, at> | int uid <- c.store, m:\module(RName name, loc at) := c.store[uid], bprintln(m), name@at?};
     definitions = c.definitions;
     uses = invert(c.uses + c.narrowedUses);
-    return uses o definitions;
+    return mod_use_def + (uses o definitions);
 }
 
 private set[str] getVocabulary(Configuration c) = {name | /RSimpleName(str name) := c};
