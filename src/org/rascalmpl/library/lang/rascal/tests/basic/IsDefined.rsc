@@ -247,8 +247,10 @@ test bool isDefinedNode2(){
     return !("f"(0,1,2)[5])?;
 }
 
+@ignoreCompiler{Typechecker forbids field selection on node}
 test bool isDefinedNode3() = "aap"(noot=1).noot?;
 
+@ignoreCompiler{Typechecker forbids field selection on node}
 test bool isDefinedNode4() = !("aap"(boot=1).noot?);
 
 test bool hasNode1() = "aap"(noot=1) has noot;
