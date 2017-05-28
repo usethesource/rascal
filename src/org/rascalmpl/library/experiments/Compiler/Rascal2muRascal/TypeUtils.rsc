@@ -76,6 +76,8 @@ public int getLoc2uid(loc l){
     if(loc2uid[l]?){
     	return loc2uid[l];
     }
+    println("getLoc2uid <l>");
+    //iprintln(loc2uid);
     throw "getLoc2uid: <l>";
 }
 
@@ -631,9 +633,14 @@ void extractScopes(Configuration c){
                     keywordParameters += decls_kwp[i];
                     uid2addr[decls_kwp[i]] = <fuid_str, -1>; // ***Note: keyword parameters do not have a position
                 }
-                for(int uidn <- config.store, variable(RName name,_,_,scopeIn,_) := config.store[uidn], name in domain(dataKeywordParams), 
-                    (signatureScope(0, at) := config.store[scopeIn] || blockScope(0, at) := config.store[scopeIn]),
-                    at in config.store[uid_adt].ats){
+                for(int uidn <- config.store, variable(RName name,_,_,scopeIn,_) := config.store[uidn], name in domain(dataKeywordParams)
+                    (signatureScope(0, at) := config.store[scopeIn] || blockScope(0, at) := config.store[scopeIn])
+                    at in config.store[uid_adt].ats
+                    ){
+                    //println("add: <name>, <uidn>, <config.uses[uidn]>");
+                    for(loc l <- config.uses[uidn]) {
+                        loc2uid[l] = uidn;
+                    }
                     keywordParameters += {uidn};
                     uid2addr[uidn] = <fuid_str, -1>; // ***Note: keyword parameters do not have a position
                 }
@@ -1205,8 +1212,6 @@ public list[UID] accessibleAlts(list[UID] uids, loc luse){
 }
  
 MuExp mkVar(str name, loc l) {
-  //////l = normalize(l);
-  //name = unescape(name);
   //println("mkVar: <name>, <l>");
   //println("mkVar:getLoc2uid, <name>, <l>");
   uid = getLoc2uid(l);
@@ -1239,6 +1244,7 @@ MuExp mkVar(str name, loc l) {
   if(uid in keywordParameters) {
      if(contains(topFunctionScope(), "companion")){
         // While compiling a companion function, force all references to keyword fields to be local
+        //println("return <topFunctionScope()>, <muLocKwp(name)>");
         return muLocKwp(name);
      } else {
        //println("return <topFunctionScope()>, <muVarKwp(addr.fuid,name)>");
