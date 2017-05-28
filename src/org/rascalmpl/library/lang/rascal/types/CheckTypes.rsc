@@ -1643,7 +1643,8 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
         else
             return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
     } else if (isNodeType(t1)) {
-        return \value();
+        return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
+        //return \value();
     }
      
 
