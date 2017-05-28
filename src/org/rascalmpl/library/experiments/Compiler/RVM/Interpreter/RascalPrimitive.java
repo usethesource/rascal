@@ -6197,6 +6197,31 @@ public enum RascalPrimitive {
 			}
 		}
 	},
+	
+	/**
+     * Retrieve value of named field of node
+     * 
+     * [ ..., INode nd, IString fieldName ] => [ ..., IValue value of field fieldName ]
+     */
+	node_field_access {
+	    @Override
+	    public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
+	        INode nd = (INode) arg_2;
+	        IString field = (IString) arg_1;
+	        String fieldName = field.getValue();
+	        // A default field that was set?
+
+	        IValue v = null;
+	        if(nd.mayHaveKeywordParameters()){
+	            v = nd.asWithKeywordParameters().getParameter(fieldName);
+	        }
+	        if(v != null){
+	            return v;
+	        }
+
+	        return rex.getFrameObserver().exception(currentFrame,  RascalRuntimeException.noSuchField(fieldName, currentFrame));
+	    }
+	},
 
 	/**
 	 * Retrieve value of named field of constructor
@@ -7068,6 +7093,30 @@ public enum RascalPrimitive {
 			stack[sp - arity] = (arity - 1 > 1) ? vf.tuple(newFields) : newFields[0];
 			return sp - arity + 1;
 		}
+	},
+	
+	 /**
+     * Set named field of node value
+     * 
+     * [ ..., INode nd, IString fieldName, IValue repl... ] => [ ...,  new INode with named field set to repl ]
+     */
+    node_field_update {
+        @Override
+        public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
+            assert arity == 3;
+            INode nd = (INode) stack[sp - 3];
+            IString field = ((IString) stack[sp - 2]);
+            String fieldName = field.getValue();
+            IValue repl = (IValue) stack[sp - 1];
+            if(nd.mayHaveKeywordParameters()){
+                stack[sp - 3] = nd.asWithKeywordParameters().setParameter(fieldName, repl);
+                return sp - 2;
+            } else {
+                rex.getFrameObserver().exception(currentFrame, 
+                    RascalRuntimeException.noSuchField(fieldName, currentFrame));
+            }
+            return sp - 2;
+        }
 	},
 
 	/**
