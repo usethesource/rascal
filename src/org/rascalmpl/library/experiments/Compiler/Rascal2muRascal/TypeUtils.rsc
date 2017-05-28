@@ -634,7 +634,7 @@ void extractScopes(Configuration c){
                     uid2addr[decls_kwp[i]] = <fuid_str, -1>; // ***Note: keyword parameters do not have a position
                 }
                 for(int uidn <- config.store, variable(RName name,_,_,scopeIn,_) := config.store[uidn], name in domain(dataKeywordParams)
-                    (signatureScope(0, at) := config.store[scopeIn] || blockScope(0, at) := config.store[scopeIn])
+                    (signatureScope(0, at) := config.store[scopeIn] || blockScope(0, at) := config.store[scopeIn]),
                     at in config.store[uid_adt].ats
                     ){
                     //println("add: <name>, <uidn>, <config.uses[uidn]>");
