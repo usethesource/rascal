@@ -1760,6 +1760,8 @@ MuExp translate (e:(Expression) `<Expression expression> [ <Name key> = <Express
         return muCallPrim3("adt_field_update", [ translate(expression), muCon(unescape("<key>")), translate(replacement) ], e@\loc);
     } else if(isLocType(tp)){
      	return muCallPrim3("loc_field_update", [ translate(expression), muCon(unescape("<key>")), translate(replacement) ], e@\loc);
+    } else if(isNodeType(tp)){
+        throw "Field update on node: <e>";
     }
     if(tupleHasFieldNames(tp)){
     	  fieldNames = getTupleFieldNames(tp);
