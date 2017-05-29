@@ -271,7 +271,7 @@ public class CommandExecutor {
           } else if(txt.contains("Cannot import")){
               origin = "";
           }
-          sw.append(capitalize(msgKind)).append(": ").append(txt).append(origin);
+          sw.append(capitalize(msgKind)).append(": ").append(txt).append(origin).append("\n");
       }
       return sw.toString();
   }
