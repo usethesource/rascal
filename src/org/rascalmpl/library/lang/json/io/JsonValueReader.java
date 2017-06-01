@@ -367,7 +367,6 @@ public class JsonValueReader {
               throw new IOException("Can not read JSon object as a map if the key type of the map (" + type + ") is not a string at " + in.getPath());
             }
             
-            in.beginObject();
             while (in.hasNext()) {
               w.put(vf.string(in.nextName()), read(in, type.getValueType()));
             }
