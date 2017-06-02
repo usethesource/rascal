@@ -1076,6 +1076,23 @@ public class Prelude {
 		return values.string(res.toString());
 	}
 	
+	public IString hashMD5(IString in) throws IOException {
+	  byte[] hash;
+	  try {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        md.update(StandardCharsets.UTF_8.encode(in.getValue()));
+    		hash = md.digest();
+		} catch (NoSuchAlgorithmException e) {
+			throw RuntimeExceptionFactory.io(values.string("Cannot load MD5 digest algorithm"), null, null);
+		}
+		
+		StringBuffer result = new StringBuffer(hash.length * 2);
+    for (int i = 0; i < hash.length; i++) {
+      result.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
+    }
+    return values.string(result.toString());
+	}
+	
 	public IValue md5HashFile(ISourceLocation sloc){
 		byte[] hash;
 		

@@ -608,6 +608,9 @@ public java str toBase64(str src);
 @javaClass{org.rascalmpl.library.Prelude}
 public java str fromBase64(str src);
 
+@javaClass{org.rascalmpl.library.Prelude}
+public java str hashMD5(str src);
+
 @doc{
 .Synopsis
 Word wrap a string to fit in a certain width.
