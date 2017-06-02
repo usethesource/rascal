@@ -52,3 +52,25 @@ test bool jsonWithNode2(node  dt) = writeRead(dt);
 
 test bool jsonRandom2(&T dt) = writeRead(dt);
 
+data D 
+    = date(datetime dt)
+    | uri(loc l)
+    | string(str s)
+    | integer(int n)
+    | float(real r)
+    | lists(list[D] ls)
+    | nested(D d1, D d2)
+    | kwparams(int x = 2, D d = number(0))
+    ;
+    
+@ignore{Currently not working with datetimes not as ints}
+test bool jsonStreaming1(D dt) {
+    writeJSON(targetFile, dt, dateTimeAsInt=false);
+    return readJSON(#D, targetFile) == dt;
+}
+
+test bool jsonStreaming2(D dt) {
+    writeJSON(targetFile, dt, dateTimeAsInt=true);
+    return readJSON(#D, targetFile) == dt;
+}
+
