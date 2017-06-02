@@ -123,7 +123,7 @@ public class JsonValueReader {
         try {
           switch (in.peek()) {
             case NUMBER:
-              return vf.real(in.nextInt());
+              return vf.real(in.nextDouble());
             case STRING:
               return vf.real(in.nextString());
             case NULL:
