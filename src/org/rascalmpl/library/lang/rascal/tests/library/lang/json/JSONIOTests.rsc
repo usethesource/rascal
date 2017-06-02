@@ -59,6 +59,8 @@ data D
     | integer(int n)
     | float(real r)
     | lists(list[D] ls)
+    | maps(map[str,str] strmaps)
+    | maps2(map[str,D] dmaps)
     | nested(D d1, D d2)
     | kwparams(int x = 2, D d = number(0))
     ;
