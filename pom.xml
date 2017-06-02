@@ -176,11 +176,11 @@
 				</executions>
 				<configuration>
 					<argLine>
-                        @{argLine} 
 						-ea
 						-Xmx2g
 						-Xss128m
 						-Dfile.encoding=UTF-8
+                        ${argLine}
 					</argLine>
 					<includes>
 						<include>**/org/rascalmpl/test/AllSuiteParallel.java</include>
