@@ -406,7 +406,7 @@ public class CommandExecutor {
 			return null; 
 		}
 		catch (Throwable e) {
-		    stderr.println("Apologies, an unexpected internal error occurred:");
+		    stderr.println("An unexpected internal error occurred:");
 		    e.printStackTrace(new PrintWriter(stderr));
 		    return null;
         }
