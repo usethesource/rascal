@@ -116,7 +116,7 @@ public class JavaBridge {
 		try {
 			// watch out, if you start sharing this compiler, classes will not be able to reload
 			List<String> commandline = Arrays.asList(new String[] {"-cp", config.getRascalJavaClassPathProperty()});
-			JavaCompiler<T> javaCompiler = new JavaCompiler<T>(parent.getClassLoader(), fileManagerCache.get(parent), commandline);
+			JavaCompiler<T> javaCompiler = new JavaCompiler<>(parent.getClassLoader(), fileManagerCache.get(parent), commandline);
 			Class<T> result = javaCompiler.compile(className, source, null, Object.class);
 			fileManagerCache.put(result, javaCompiler.getFileManager());
 			return result;
@@ -477,7 +477,7 @@ public class JavaBridge {
 	public void saveToJar(String packageName, Class<?> clazz, Class<?> mainClazz, OutputStream outStream,
 			boolean recursive) throws IOException {
 		JavaFileManager manager = fileManagerCache.get(clazz);
-		List<JavaFileObject> list = new ArrayList<JavaFileObject>();
+		List<JavaFileObject> list = new ArrayList<>();
 		
 		for(JavaFileObject obj : manager.list(StandardLocation.CLASS_PATH, packageName,
 			Collections.singleton(JavaFileObject.Kind.CLASS), false))
@@ -496,7 +496,7 @@ public class JavaBridge {
 			JarOutputStream target = new JarOutputStream(outStream, manifest);
 			JarEntry entry = new JarEntry("META-INF/");
 			target.putNextEntry(entry);
-			Collection<String> dirs = new ArrayList<String>();
+			Collection<String> dirs = new ArrayList<>();
 
 			for (JavaFileObject o : list) {
 				String binaryName = manager.inferBinaryName(StandardLocation.CLASS_PATH, o);

@@ -421,7 +421,7 @@ public class RascalFunction extends NamedFunction {
 
 	private List<Expression> replaceLast(List<Expression> formals,
 			Expression last) {
-		List<Expression> tmp = new ArrayList<Expression>(formals.size());
+		List<Expression> tmp = new ArrayList<>(formals.size());
 		tmp.addAll(formals);
 		tmp.set(formals.size() - 1, last);
 		formals = tmp;

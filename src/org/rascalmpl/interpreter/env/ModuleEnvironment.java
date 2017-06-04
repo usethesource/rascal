@@ -245,8 +245,8 @@ public class ModuleEnvironment extends Environment {
 	 * See lang::rascal::grammar::definition::Modules.modules2grammar()
 	 */
 	public IMap getSyntaxDefinition() {
-		List<String> todo = new LinkedList<String>();
-		Set<String> done = new HashSet<String>();
+		List<String> todo = new LinkedList<>();
+		Set<String> done = new HashSet<>();
 		todo.add(getName());
 		
 		IValueFactory VF = ValueFactoryFactory.getValueFactory();
@@ -335,7 +335,7 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public List<AbstractFunction> getTests() {
-		List<AbstractFunction> result = new LinkedList<AbstractFunction>();
+		List<AbstractFunction> result = new LinkedList<>();
 		
 		if (functionEnvironment != null) {
 			for (List<AbstractFunction> f : functionEnvironment.values()) {
@@ -353,9 +353,9 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public Set<String> getImportsTransitive() {
-		List<String> todo = new LinkedList<String>();
-		Set<String> done = new HashSet<String>();
-		Set<String> result = new HashSet<String>();
+		List<String> todo = new LinkedList<>();
+		Set<String> done = new HashSet<>();
+		Set<String> result = new HashSet<>();
 		todo.add(this.getName());
 		GlobalEnvironment heap = getHeap();
 		
@@ -407,7 +407,7 @@ public class ModuleEnvironment extends Environment {
 		Type adt = getAbstractDataType(modulename);
 		
 		if (adt != null) {
-			List<AbstractFunction> result = new LinkedList<AbstractFunction>();
+			List<AbstractFunction> result = new LinkedList<>();
 			getAllFunctions(adt, cons, result);
 			
 			if (result.isEmpty()) {
@@ -977,9 +977,9 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public Set<String> getExtendsTransitive() {
-		List<String> todo = new LinkedList<String>();
-		Set<String> done = new HashSet<String>();
-		Set<String> result = new HashSet<String>();
+		List<String> todo = new LinkedList<>();
+		Set<String> done = new HashSet<>();
+		Set<String> result = new HashSet<>();
 		todo.add(this.getName());
 		GlobalEnvironment heap = getHeap();
 		

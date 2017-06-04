@@ -71,13 +71,13 @@ public class Names {
 	}
 	
 	static public QualifiedName toQualifiedName(String name, ISourceLocation loc) {
-		List<Name> list = new LinkedList<Name>();
+		List<Name> list = new LinkedList<>();
 		list.add(toName(name, loc));
 		return ASTBuilder.make("QualifiedName", loc, list);
 	}
 
 	static public QualifiedName toQualifiedName(String returnType, String name, ISourceLocation loc) {
-    List<Name> list = new LinkedList<Name>();
+    List<Name> list = new LinkedList<>();
     list.add(toName(returnType, loc));
     list.add(toName(name, loc));
     return ASTBuilder.make("QualifiedName", loc, list);

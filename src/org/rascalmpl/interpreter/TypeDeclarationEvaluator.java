@@ -63,9 +63,9 @@ public class TypeDeclarationEvaluator {
 
 	public void evaluateDeclarations(List<Toplevel> decls, Environment env) {
 		this.env = env;
-		Set<UserType> abstractDataTypes = new HashSet<UserType>();
-		Set<Data> constructorDecls = new HashSet<Data>();
-		Set<Alias> aliasDecls = new HashSet<Alias>();
+		Set<UserType> abstractDataTypes = new HashSet<>();
+		Set<Data> constructorDecls = new HashSet<>();
+		Set<Alias> aliasDecls = new HashSet<>();
 
 		// this code is very much order dependent
 		collectDeclarations(decls, abstractDataTypes, constructorDecls,
@@ -167,7 +167,7 @@ public class TypeDeclarationEvaluator {
 	}
 	
 	private void declareAliases(Set<Alias> aliasDecls) {
-		List<Alias> todo = new LinkedList<Alias>();
+		List<Alias> todo = new LinkedList<>();
 		todo.addAll(aliasDecls);
 		
 		int countdown = todo.size();
@@ -216,7 +216,7 @@ public class TypeDeclarationEvaluator {
 //			declareAbstractDataType(decl, env);
 //		}
 		
-		List<UserType> todo = new LinkedList<UserType>();
+		List<UserType> todo = new LinkedList<>();
 		todo.addAll(abstractDataTypes);
 		
 		int countdown = todo.size();
