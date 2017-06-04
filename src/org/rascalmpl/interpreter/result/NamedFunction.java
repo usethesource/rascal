@@ -74,13 +74,7 @@ abstract public class NamedFunction extends AbstractFunction {
     }
 
     protected static boolean hasTestMod(Signature sig) {
-        for (FunctionModifier m : sig.getModifiers().getModifiers()) {
-            if (m.isTest()) {
-                return true;
-            }
-        }
-
-        return false;
+        return sig.getModifiers().getModifiers().stream().anyMatch(m -> m.isTest());
     }
 
     @Override
@@ -144,12 +138,7 @@ abstract public class NamedFunction extends AbstractFunction {
     }
 
     protected boolean checkMemoization(FunctionDeclaration func) {
-        for (Tag tag : func.getTags().getTags()) {
-            if (Names.name(tag.getName()).equalsIgnoreCase("memo")) {
-                return true;
-            }
-        }
-        return false;
+        return func.getTags().getTags().stream().anyMatch(tag -> Names.name(tag.getName()).equalsIgnoreCase("memo"));
     }
     
     protected int computeIndexedPosition(AbstractAST node) {
