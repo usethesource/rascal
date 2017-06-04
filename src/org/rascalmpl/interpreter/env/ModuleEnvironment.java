@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.KeywordFormal;
@@ -338,11 +339,8 @@ public class ModuleEnvironment extends Environment {
 		
 		if (functionEnvironment != null) {
 			for (List<AbstractFunction> f : functionEnvironment.values()) {
-				for (AbstractFunction c : f) {
-					if (c.isTest()) {
-						result.add(c);
-					}
-				}
+				result  = f.stream().filter(c -> c.isTest())
+				                    .collect(Collectors.toList());
 			}
 		}
 		
@@ -565,11 +563,7 @@ public class ModuleEnvironment extends Environment {
 		if (functionEnvironment != null) {
 			List<AbstractFunction> lst = functionEnvironment.get(name);
 			if (lst != null) {
-				for (AbstractFunction func : lst) {
-					if (func.isPublic()) {
-						collection.add(func);
-					}
-				}
+				collection  = lst.stream().filter(func -> func.isPublic()).collect(Collectors.toList());
 			}
 		}
 	}
@@ -579,11 +573,7 @@ public class ModuleEnvironment extends Environment {
 			List<AbstractFunction> lst = functionEnvironment.get(name);
 			
 			if (lst != null) {
-				for (AbstractFunction func : lst) {
-					if (func.isPublic() && returnType.isSubtypeOf(func.getReturnType())) {
-						collection.add(func);
-					}
-				}
+				collection  = lst.stream().filter(func -> func.isPublic() && returnType.isSubtypeOf(func.getReturnType())).collect(Collectors.toList());
 			}
 		}
 	}
