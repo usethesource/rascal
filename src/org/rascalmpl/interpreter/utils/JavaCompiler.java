@@ -236,11 +236,7 @@ public class JavaCompiler<T> {
             compiled.put(qualifiedClassName, newClass);
          }
          return compiled;
-      } catch (ClassNotFoundException e) {
-         throw new JavaCompilerException(classes.keySet(), e, diagnostics);
-      } catch (IllegalArgumentException e) {
-         throw new JavaCompilerException(classes.keySet(), e, diagnostics);
-      } catch (SecurityException e) {
+      } catch(ClassNotFoundException | IllegalArgumentException | SecurityException e) {
          throw new JavaCompilerException(classes.keySet(), e, diagnostics);
       }
    }

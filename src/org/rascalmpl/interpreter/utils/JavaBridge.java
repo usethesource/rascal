@@ -333,17 +333,7 @@ public class JavaBridge {
 			instance = constructor.newInstance(vf);
 			instanceCache.put(clazz, instance);
 			return instance;
-		} catch (IllegalArgumentException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (InstantiationException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (IllegalAccessException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (InvocationTargetException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (SecurityException e) {
-			throw new ImplementationError(e.getMessage(), e);
-		} catch (NoSuchMethodException e) {
+		} catch(IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException | SecurityException | NoSuchMethodException e) {
 			throw new ImplementationError(e.getMessage(), e);
 		} 
 	}
@@ -365,26 +355,11 @@ public class JavaBridge {
 					instance = constructor.newInstance(vf);
 					instanceCache.put(clazz, instance);
 					return instance;
-				}
-				catch(ClassNotFoundException e){
+				}catch(ClassNotFoundException e){
 					continue;
 				} 
 			}
-		} 
-		catch(NoClassDefFoundError e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
-		}
-		catch (IllegalArgumentException e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
-		} catch (InstantiationException e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
-		} catch (IllegalAccessException e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
-		} catch (InvocationTargetException e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
-		} catch (SecurityException e) {
-			throw new JavaMethodLink(className, e.getMessage(), func, e);
-		} catch (NoSuchMethodException e) {
+		} catch(NoClassDefFoundError | IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException | SecurityException | NoSuchMethodException e) {
 			throw new JavaMethodLink(className, e.getMessage(), func, e);
 		}
 		

@@ -227,14 +227,11 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 			try {
 				try {
 					return getRight().call(argTypes, argValues, keyArgValues);
-				} catch(MatchFailed e) {
-					// try another one
-				} catch(Failure e) {
+				} catch(MatchFailed | Failure e) {
 					// try another one
 				}
 		 		return getLeft().call(argTypes, argValues, keyArgValues);
-			} 
-			catch (MatchFailed e) {
+			} catch (MatchFailed e) {
 				List<AbstractFunction> candidates = Arrays.<AbstractFunction>asList((AbstractFunction) getLeft(), (AbstractFunction) getRight());
         throw new ArgumentMismatch("+ composition", candidates, argTypes, ctx.getCurrentAST());
 			} 
