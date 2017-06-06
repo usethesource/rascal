@@ -91,6 +91,13 @@ public class RascalFunctionActionExecutor implements IActionExecutor<ITree> {
 	}
 
 	public ITree filterAmbiguity(ITree ambCluster, Object environment) {
+	    if (!TreeAdapter.isAmb(ambCluster)) {
+	        // this may happen when due to filtering during the bottom-up
+	        // construction of a tree a singleton amb cluster was build
+	        // and then canonicalized to the single instance tree.
+	        // nothing to worry about. 
+	        return ambCluster;
+	    }
 		ISet alts = (ISet) ambCluster.get("alternatives");
 		
 		if (alts.size() == 0) {

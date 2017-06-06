@@ -22,7 +22,6 @@ public class UndeclaredNonTerminal extends StaticError {
 	public UndeclaredNonTerminal(String name, String module, AbstractAST ast) {
 		super("Undeclared non-terminal: " + name + " in module " + module, ast);
 		this.name = name;
-//		printStackTrace();
 	}
 
 	public String getName() {

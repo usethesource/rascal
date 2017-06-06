@@ -47,7 +47,7 @@ public class CompileMuLibrary {
                 .profile(cmdOpts.getCommandBoolOption("profile"))
                 .verbose(cmdOpts.getCommandBoolOption("verbose")).
                 build();
-
+            
             kernel.compileMuLibrary(pcfg.asConstructor(kernel), kernel.kw_compileMu());
         }
         catch (Throwable e) {

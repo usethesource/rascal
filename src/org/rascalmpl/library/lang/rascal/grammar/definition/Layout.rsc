@@ -76,7 +76,7 @@ list[Symbol] intermix(list[Symbol] syms, Symbol l, set[Symbol] others) {
   
   // Note that if a user manually put a layouts symbol, then this code makes sure not to override it and
   // not to surround it with new layout symbols  
-  while ([*pre, sym1, sym2, *pst] := syms, !(sym1 in others || sym2 in others)) {
+  while ([*Symbol pre, Symbol sym1, Symbol sym2, *Symbol pst] := syms, !(sym1 in others || sym2 in others)) {
       syms = [*pre, sym1, l, sym2, *pst];
   }
   

@@ -123,7 +123,7 @@ public class JsonValueReader {
         try {
           switch (in.peek()) {
             case NUMBER:
-              return vf.real(in.nextInt());
+              return vf.real(in.nextDouble());
             case STRING:
               return vf.real(in.nextString());
             case NULL:
@@ -367,7 +367,6 @@ public class JsonValueReader {
               throw new IOException("Can not read JSon object as a map if the key type of the map (" + type + ") is not a string at " + in.getPath());
             }
             
-            in.beginObject();
             while (in.hasNext()) {
               w.put(vf.string(in.nextName()), read(in, type.getValueType()));
             }

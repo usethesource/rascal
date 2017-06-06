@@ -45,7 +45,7 @@ test bool boolFieldUpdate5() { Bool b = bor(bfalse(),bfalse()); b.left=btrue(); 
   		
  @expected{NoSuchField}
 test bool boolFieldUpdate6() { Bool b = btrue(); return b.left == btrue();}
-  		
+
 // let
   
 test bool let1() {Exp e = \int(1); return e == \int(1);}
@@ -109,4 +109,23 @@ test bool escape1b() = \g(1, "a").\lft == 1;
 test bool escape1c() = \g(1, "a").\rht == "a";
 test bool escape1c() = \g(1, "a") is \g;
 test bool escape1c() = \g(1, "a") has \lft;
+
+//// has
+//
+//data D = d(int n) | d(str s) | d(int n, str s);
+//
+//test bool has1() = d(0) has n;
+//test bool has2() = !(d(0) has s);
+//
+//test bool has3() = d("abc") has s;
+//test bool has4() = !(d("abc") has n);
+//
+//test bool has5() = d(0, "abc") has n;
+//test bool has6() = d(0, "abc") has s;
+//
+//// is
+//
+//test bool is1() = d(0) is d;
+//test bool is2() = d("abc") is d;
+//test bool is3() = d(0, "abc") is d;
 

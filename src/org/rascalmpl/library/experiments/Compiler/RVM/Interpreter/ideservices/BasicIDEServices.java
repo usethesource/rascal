@@ -15,54 +15,35 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.URI;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardWatchEventKinds;
-import java.nio.file.WatchEvent;
-import java.nio.file.WatchKey;
-import java.nio.file.WatchService;
-import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 
 import org.rascalmpl.interpreter.ConsoleRascalMonitor;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
 
 /**
  * IDEServices for a Desktop environment that rely on the
- * default System browser and editor. File changes are implemented
- * Java WatchService.
+ * default System browser and editor.
  *
  */
 public class BasicIDEServices implements IDEServices {
   
-  private WatchService watcher;
   private static ConsoleRascalMonitor monitor = new ConsoleRascalMonitor();
-  private HashSet<Path> roots = new HashSet<>();
-  private Map<WatchKey,Path> keys;
   private IValueFactory vf;
+  private PrintWriter stderr;
 
-  public BasicIDEServices(){
+  public BasicIDEServices(PrintWriter stderr){
+    this.stderr = stderr;
     monitor = new ConsoleRascalMonitor();
-    roots = new HashSet<>();
     vf = IRascalValueFactory.getInstance();
-  }
-  
-  public BasicIDEServices(IValueFactory vf){
-      this.vf = vf;
   }
   
   public void browse(ISourceLocation loc){
@@ -78,16 +59,16 @@ public class BasicIDEServices implements IDEServices {
       try {
         desktop.browse(uri);
       } catch (IOException e) {
-        System.err.println(e.getMessage());
+        stderr.println(e.getMessage());
       }
     } else {
-      System.err.println("Desktop not supported, cannot open browser");
+      stderr.println("Desktop not supported, cannot open browser");
     }
   }
   
   public void edit(ISourceLocation loc){
       if(loc.getScheme() != "file"){
-         System.err.println("Can only edit files using the \"file\" scheme"); 
+         stderr.println("Can only edit files using the \"file\" scheme"); 
       }
       edit(Paths.get(loc.getURI()));
   }
@@ -102,104 +83,11 @@ public class BasicIDEServices implements IDEServices {
       try {
         desktop.edit(file);
       } catch (IOException e) {
-        System.err.println(e.getMessage());
+        stderr.println(e.getMessage());
       }
     } else {
-      System.err.println("Desktop not supported, cannout open editor");
+      stderr.println("Desktop not supported, cannout open editor");
     }
-  }
-
-  /* (non-Javadoc)
-   * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices#watch(java.nio.file.Path)
-   */
-  public void watch(Path root) throws IOException {
-    if(watcher == null){
-      watcher = FileSystems.getDefault().newWatchService();
-      keys = new HashMap<>();
-    }
-    roots.add(root);
-    registerRecursive(root);
-  }
-  
-  private void registerRecursive(final Path root) throws IOException {
-    Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
-      @Override
-      public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-        WatchKey key = dir.register(watcher, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_DELETE, StandardWatchEventKinds.ENTRY_MODIFY);
-        keys.put(key,  dir);
-        return FileVisitResult.CONTINUE;
-      }
-    });
-  }
-  
-  /* (non-Javadoc)
-   * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices#unwatch(java.nio.file.Path)
-   */
-  public void unwatch(Path root) throws IOException{
-    if(watcher != null && roots.contains(root)){
-      roots.remove(root);
-      watcher.close();
-    }
-    if(!roots.isEmpty()){
-      watcher = FileSystems.getDefault().newWatchService();
-      for(Path path : roots){
-        registerRecursive(path);
-      }
-    }
-  }
-  
-  /* (non-Javadoc)
-   * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices#unwatchAll()
-   */
-  public void unwatchAll() throws IOException {
-    if(watcher != null){
-      watcher.close();
-      watcher = null;
-      roots = null;
-    }
-  }
-
-  /* (non-Javadoc)
-   * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices#fileChanges()
-   */
-  /* (non-Javadoc)
-   * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices#fileChanges()
-   */
-  public List<Path> fileChanges() {
-    List<Path> results = new ArrayList<>();
-    WatchKey key;
-    while((key = watcher.poll()) != null) {
-
-      for (WatchEvent<?> event: key.pollEvents()) {
-        WatchEvent.Kind<?> kind = event.kind();
-
-        // An OVERFLOW event can occur regardless if events are lost or discarded.
-        if (kind == StandardWatchEventKinds.OVERFLOW) {
-          continue;
-        }
-
-        // The filename is the context of the event.
-        @SuppressWarnings("unchecked")
-        WatchEvent<Path> ev = (WatchEvent<Path>)event;
-        results.add(keys.get(key).resolve(ev.context()));
-      }
-
-      // Reset the key -- this step is critical if you want to
-      // receive further watch events.  If the key is no longer valid,
-      // the directory is inaccessible so exit the loop.
-      boolean valid = key.reset();
-      if (!valid) {
-        break;
-      }
-    }
-    return results;
-  }
-  
-  /* (non-Javadoc)
-   * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices#anyFileChanges()
-   */
-  public boolean anyFileChanges() {
-      return fileChanges().size() > 0;
   }
 
   /* (non-Javadoc)

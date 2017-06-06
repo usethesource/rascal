@@ -34,7 +34,7 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 		this.stdout = stdout;
 		this.historyFile = file;
 		this.terminal = terminal;
-		this.breakPointManager = new BreakPointManager(pcfg, new PrintWriter(stdout), ideServices);
+		this.breakPointManager = new BreakPointManager(pcfg, new PrintWriter(stdout, true), ideServices);
 	}
 	
 	void reset(){

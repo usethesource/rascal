@@ -40,7 +40,7 @@ public abstract class M3Converter extends JavaToRascalConverter {
 	protected final io.usethesource.vallang.type.Type CONSTRUCTOR_M3;
 	
 	@SuppressWarnings("deprecation")
-	M3Converter(final TypeStore typeStore, java.util.Map<String, ISourceLocation> cache) {
+	M3Converter(final LimitedTypeStore typeStore, java.util.Map<String, ISourceLocation> cache) {
 		super(typeStore, cache, true);
 		this.DATATYPE_M3_NODE_TYPE = this.typeStore.lookupAbstractDataType(DATATYPE_M3_NODE);
 		TypeFactory tf = TypeFactory.getInstance();

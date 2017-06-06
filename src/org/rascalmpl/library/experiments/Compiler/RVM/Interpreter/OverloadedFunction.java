@@ -283,9 +283,13 @@ public class OverloadedFunction {
 		}
 		int ndefaults = defaults.size();
 		
+		// TODO: values in alts may also occur in defaults, then the list will contain duplicate elements
 		for(int fp : filtered.keySet()){
 			ArrayList<Integer> alts = filtered.get(fp);
 			int nalts = alts.size();
+			
+            //defaults.removeIf(x -> alts.contains(x));
+			
 			int[] funs = new int[nalts + ndefaults];
 			for(int i = 0; i < nalts; i++){
 				funs[i] = alts.get(i);
@@ -321,6 +325,7 @@ public class OverloadedFunction {
 			for(int i = 0; i < functions.length; i++){
 				sb.append(" ").append(functions[i]);
 			}
+			sb.append(" allConcreteFunctionArgs=").append(allConcreteFunctionArgs);
 		}
 		if(constructors.length > 0){
 			if(functions.length > 0){
@@ -330,6 +335,7 @@ public class OverloadedFunction {
 			for(int i = 0; i < constructors.length; i++){
 				sb.append(" ").append(constructors[i]);
 			}
+			sb.append(" allConcreteConstructorArgs=").append(allConcreteConstructorArgs);
 		}
 		sb.append("]");
 		return sb.toString();

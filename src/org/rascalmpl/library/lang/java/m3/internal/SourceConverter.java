@@ -54,7 +54,7 @@ import io.usethesource.vallang.type.TypeStore;
 
 @SuppressWarnings({"rawtypes", "deprecation"})
 public class SourceConverter extends M3Converter {
-	SourceConverter(TypeStore typeStore, Map<String, ISourceLocation> cache) {
+	SourceConverter(LimitedTypeStore typeStore, Map<String, ISourceLocation> cache) {
 		super(typeStore, cache);
 	}
 	

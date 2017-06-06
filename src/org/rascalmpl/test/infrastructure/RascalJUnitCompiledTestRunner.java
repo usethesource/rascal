@@ -166,7 +166,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
     }
 
     private PathConfig initializePathConfig() {
-        ISourceLocation rootProject = vf.sourceLocation(Paths.get(".").toAbsolutePath().toString().replaceFirst("\\.", ""));
+        ISourceLocation rootProject = URIUtil.correctLocation("project", "rascal", "/");
         return new RascalManifest().makePathConfig(rootProject);
     }
 

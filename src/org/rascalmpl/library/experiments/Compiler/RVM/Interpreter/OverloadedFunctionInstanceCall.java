@@ -13,6 +13,7 @@ public class OverloadedFunctionInstanceCall {
 	private final int[] functions;
 	private final int[] constructors;
 	final Frame cf;
+	final RascalExecutionContext rex;
 	
 	final Frame previousScope;
 	final Type types;
@@ -23,7 +24,7 @@ public class OverloadedFunctionInstanceCall {
 	
 	int alternative = 0;
 	
-	public OverloadedFunctionInstanceCall(final Frame cf, final int[] functions, final int[] constructors, final Frame previousScope, final Type types, final int arity) {
+	public OverloadedFunctionInstanceCall(final Frame cf, final int[] functions, final int[] constructors, final Frame previousScope, final Type types, final int arity, RascalExecutionContext rex) {
 		this.cf = cf;
 		assert functions.length + constructors.length > 0;
 		assert functions.length == 0 && types == null ? constructors.length > 0 : true;
@@ -34,6 +35,7 @@ public class OverloadedFunctionInstanceCall {
 		this.arity = arity;
 		this.stack = cf.stack;
 		this.sp = cf.sp;
+		this.rex = rex;
 	}
 	
 	int[] getFunctions() {
@@ -69,12 +71,13 @@ public class OverloadedFunctionInstanceCall {
 	
 	/**
 	 * Assumption: scopeIn != -1; 
+	 * @param rex TODO
 	 */
-	public static OverloadedFunctionInstanceCall computeOverloadedFunctionInstanceCall(final Frame cf, final int[] functions, final int[] constructors, final int scopeIn, final Type types, final int arity) {
+	public static OverloadedFunctionInstanceCall computeOverloadedFunctionInstanceCall(final Frame cf, final int[] functions, final int[] constructors, final int scopeIn, final Type types, final int arity, RascalExecutionContext rex) {
 		assert scopeIn != -1 : "OverloadedFunctionInstanceCall, scopeIn should not be -1";
 		for(Frame previousScope = cf; previousScope != null; previousScope = previousScope.previousScope) {
 			if (previousScope.scopeId == scopeIn) {
-				return new OverloadedFunctionInstanceCall(cf, functions, constructors, previousScope, types, arity);
+				return new OverloadedFunctionInstanceCall(cf, functions, constructors, previousScope, types, arity, rex);
 			}
 		}
 		throw new CompilerError("Could not find a matching scope when computing a nested overloaded function instance: " + scopeIn, cf);
@@ -111,21 +114,23 @@ public class OverloadedFunctionInstanceCall {
 	public Type nextConstructor(final List<Type> constructorStore) {
 		if(types == null) {
 			if(getConstructors().length == 0){
-				System.err.println("No alternative found for (overloaded) function or constructor;\narity: " + arity + ", previousScope: " + previousScope);
+			    StringBuffer sb = new StringBuffer("No alternative found for (overloaded) function or constructor\n");	
 				if(getFunctions().length > 0){
-					System.err.print("Function(s):");
+					sb.append("Function(s):\n");
 					for(int i = 0; i < getFunctions().length; i++){
-						System.err.print(" " + getFunctions()[i]);
+						sb.append(" " + getFunctions()[i]);
 					}
-					System.err.println("");
+					sb.append("\n");
 				}
 				if(getConstructors().length > 0){
-					System.err.println("Constructor(s):");
+					sb.append("Constructor(s):\n");
 					for(int i = 0; i < getConstructors().length; i++){
-						System.err.print(" " + getConstructors()[i]);
+						sb.append(" " + getConstructors()[i]);
 					}
-					System.err.println("");
+					sb.append("\n");
 				}
+				rex.getFrameObserver().exception(cf, RascalRuntimeException.incompletelyDefinedFunction(sb.toString(), cf));
+				return null;
 			}
 			assert getConstructors().length >= 1;
 			return constructorStore.get(getConstructors()[0]);

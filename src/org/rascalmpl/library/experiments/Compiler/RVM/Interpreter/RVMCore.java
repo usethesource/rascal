@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Matcher;
 
@@ -229,7 +230,7 @@ public abstract class RVMCore {
 	 * @return an object which implements this interface by forwarding to Rascal functions
 	 */
 	public <T> T asInterface(Class<T> interf) {
-	    return interf.cast(Proxy.newProxyInstance(RVMCore.class.getClassLoader(), new Class<?> [] { interf }, new RascalFunctionInvocationHandler(this, interf)));
+	    return interf.cast(Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class<?> [] { interf }, new RascalFunctionInvocationHandler(this, interf)));
 	}
 	
 	public PrintWriter getStdErr() { return rex.getStdErr(); }
@@ -287,6 +288,40 @@ public abstract class RVMCore {
 	      }
 	    }
 	return null;
+	}
+	
+	public Type getConstructor(String name, Type adtType, Type argumentTypes) throws NoSuchRascalFunction{
+	    for(int i = 0; i < constructorStore.size(); i++){
+	        Type tp = constructorStore.get(i);
+	        if (tp.getName().equals(name) && 
+	            tp.getAbstractDataType().equals(adtType) &&
+	            tp.getFieldTypes().equals(argumentTypes)) {
+	            return tp;
+	        }
+	    }
+	    throw new NoSuchRascalFunction(name);
+	}
+	
+	public Set<Type> getConstructor(String name, Type adtType) {
+	    Set<Type> types = new HashSet<>();
+        for(int i = 0; i < constructorStore.size(); i++){
+            Type tp = constructorStore.get(i);
+            if (tp.getName().equals(name) && 
+                tp.getAbstractDataType().equals(adtType)) {
+                types.add(tp);
+            }
+        }
+        return types;
+    }
+	
+	public Type getAbstractDataType(String name) throws NoSuchRascalFunction{
+	    for(int i = 0; i < constructorStore.size(); i++){
+            Type adt = constructorStore.get(i).getAbstractDataType();
+            if (adt.getName().equals(name)){ 
+                return adt;
+            }
+        }
+        throw new NoSuchRascalFunction(name);
 	}
 	
 	private ArrayList<Integer> getFunctionByNameAndArity(String name, int arity){
@@ -1068,8 +1103,24 @@ public abstract class RVMCore {
 			return instance;
 		}
 		try {
-			Constructor<?> constructor = clazz.getConstructor(IValueFactory.class);
-			instance = constructor.newInstance(vf);
+		    
+		    Constructor<?> cons = clazz.getConstructors()[0];
+		    Class<?>[] parameterTypes = cons.getParameterTypes();
+
+		    switch (parameterTypes.length) {
+		        case 0: 
+		            instance = cons.newInstance(); 
+		            break;
+		        case 1: 
+		            instance = cons.newInstance(vf);
+		            break;
+		        case 2:
+		            instance = cons.newInstance(vf, asInterface(parameterTypes[1]));
+		            break;
+		        default:
+		            throw new NoSuchMethodException(clazz + " does not have a fitting constructor (nullary, IValueFactory, of IValueFactor + IOwnInterface");
+		    }
+		    
 			instanceCache.put(clazz, instance);
 			return instance;
 		} catch (IllegalArgumentException | InstantiationException | IllegalAccessException | InvocationTargetException | SecurityException | NoSuchMethodException e) {
@@ -1181,7 +1232,14 @@ public abstract class RVMCore {
 			"org.rascalmpl.library.util.ReflectiveCompiled.parseNamedModuleWithSpaces",
 			"org.rascalmpl.library.util.ReflectiveCompiled.diff",
 			"org.rascalmpl.library.util.ReflectiveCompiled.watch",
-			"org.rascalmpl.library.util.WebserverCompiled.serve"
+			"org.rascalmpl.library.util.WebserverCompiled.serve",
+			
+			"lang::java::m3::AST::setEnvironmentOptions",
+            "lang::java::m3::AST::createAstFromFile",
+            "lang::java::m3::AST::createAstFromString",
+            "lang::java::m3::Core::createM3FromFile",
+            "lang::java::m3::Core::createM3FromFile",
+            "lang::java::m3::Core::createM3FromJarClass"
 		
 			/*
 			 * 	TODO:
@@ -1193,13 +1251,6 @@ public abstract class RVMCore {
 			 * experiments::resource::Resource::registerResource
 			 * experiments::resource::Resource::getTypedResource
 			 * experiments::resource::Resource::generateTypedInterfaceInternal
-			 * 
-			 * lang::java::m3::AST::setEnvironmentOptions
-			 * lang::java::m3::AST::createAstFromFile
-			 * lang::java::m3::AST::createAstFromString
-			 * lang::java::m3::Core::createM3FromFile
-			 * lang::java::m3::Core::createM3FromFile
-			 * lang::java::m3::Core::createM3FromJarClass
 			 *  
 			 *  lang::jvm::run::RunClassFile::runClassFile
 			 *  lang::jvm::transform::SerializeClass::serialize

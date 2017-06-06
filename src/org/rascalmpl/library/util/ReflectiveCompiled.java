@@ -103,6 +103,9 @@ public class ReflectiveCompiled extends Reflective {
 	
 	public IBool inCompiledMode() { return values.bool(true); }
 
+	public void throwNullPointerException() {
+	    throw new NullPointerException();
+	}
 	
 	public IValue watch(IValue tp, IValue val, IString name, RascalExecutionContext rex){
 		return watch(tp, val, name, values.string(""), rex);

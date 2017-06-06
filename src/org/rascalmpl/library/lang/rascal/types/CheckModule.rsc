@@ -57,13 +57,14 @@ public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndIn
 		}
 	}
 	
-	return getImportGraphAndInfo(mname, minfoMap, pcfg, removeExtends=removeExtends, defaultImports=defaultImports);
+	return getImportGraphAndInfo(mname, m@\loc, minfoMap, pcfg, removeExtends=removeExtends, defaultImports=defaultImports);
 }
 
-public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndInfo(RName mname, map[RName,ImportsInfo] minfoMap, PathConfig pcfg, bool removeExtends=false, rel[RName mname, bool isext] defaultImports={}) {
+public tuple[ImportGraph ig, map[RName,ImportsInfo] infomap] getImportGraphAndInfo(RName mname, loc mloc, map[RName,ImportsInfo] minfoMap, PathConfig pcfg, bool removeExtends=false, rel[RName mname, bool isext] defaultImports={}) {
 	// Build an initial worklist based on the imports of module mname
 	worklist = { convertNameString(wli) | wli <- (minfoMap[mname].importedModules + minfoMap[mname].extendedModules) };
 	set[RName] worked = { mname };
+	writeCachedImports(prettyPrintName(mname), pcfg, lastModified(mloc), minfoMap[mname]);
 	
 	// Get the imports of everything transitively reachable through m
 	while (!isEmpty(worklist)) {

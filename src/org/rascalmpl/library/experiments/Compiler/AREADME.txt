@@ -1,13 +1,12 @@
 README for Rascal Compiler
 
-The Rascal compiler translates Rascal code to code for the Rascal Virtual Machine (RVM) or JVM
+The Rascal compiler translates Rascal code to code for the Rascal Virtual Machine (RVM) and JVM
 
 Used file extensions:
 
-rsc				Rascal source code
-rvm				RVM code for single module
-rvm.gz			Compressed RVM code for single module
-rvm.ser.gz		Serialized and compressed RVM code for linked Rascal application
+rsc			Rascal source code
+rvm			Compressed RVM code for single module
+rvmx		Serialized and compressed RVM code for linked Rascal application
 
 Conventions:
 
@@ -68,6 +67,7 @@ Inspect.rsc		Inspect RVM and config (type checker) files
 Subdirectories:
 
 Benchmarks		Examples for benchmarking
+Commands        Commands including rascal, rascalc and rascalTests for running Rascal from the command line
 Examples		Other examples
 RVM				Defines the RVM (Rascal Virtual Machine) and its implementation
 Rascal2muRascal	Translator Rascal -> muRascal
