@@ -1,5 +1,6 @@
 package org.rascalmpl.library.util;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
@@ -32,20 +33,22 @@ public class TermREPL {
 
     private final IValueFactory vf;
 
+    private ILanguageProtocol lang;
     public TermREPL(IValueFactory vf) {
         this.vf = vf;
     }
 
     public void startREPL(IConstructor repl, IEvaluatorContext ctx) {
         try {
+            lang = new TheREPL(repl, ctx);
             // TODO: this used to get a repl from the IEvaluatorContext but that was wrong. Need to fix later. 
-            new BaseREPL(new TheREPL(repl, ctx), null, System.in, System.out, true, true, ((ISourceLocation)repl.get("history")), TerminalFactory.get(), null).run();
+            new BaseREPL(lang, null, System.in, System.out, true, true, ((ISourceLocation)repl.get("history")), TerminalFactory.get(), null).run();
         } catch (IOException | URISyntaxException e) {
             e.printStackTrace(ctx.getStdErr());
         }
     }
 
-    class TheREPL implements ILanguageProtocol extends BaseREPL {
+    class TheREPL implements ILanguageProtocol {
         private final TypeFactory tf = TypeFactory.getInstance();
         private PrintWriter stdout;
         private PrintWriter stderr;
@@ -59,6 +62,7 @@ public class TermREPL {
             this.handler = (ICallableValue)repl.get("handler");
             this.completor = (ICallableValue)repl.get("completor");
             this.currentPrompt = ((IString)repl.get("prompt")).getValue();
+            stdout = new PrintWriter(System.out);
             assert stdout != null;
             stdout.println(((IString)repl.get("welcome")).getValue());
         }

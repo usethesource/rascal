@@ -146,17 +146,17 @@ test bool all17()  = all(int i <- [0, 1] && [0, 1][i] == i);
   		
 @ignoreInterpreter{Changed semantics}
 test bool all18a()  = all(_ <- []) == true;
-@ignoreCompiler{Changed semantics}
+@ignoreCompiler{Remove-after-transtion-to-compiler: Changed semantics}
 test bool all18b()  = all(_ <- []) == false;
 
 @ignoreInterpreter{Changed semantics}
 test bool all19a()  = all(_ <- {}) == true;
-@ignoreCompiler{Changed semantics}
+@ignoreCompiler{Remove-after-transtion-to-compiler: Changed semantics}
 test bool all19b()  = all(_ <- {}) == false;
 
 @ignoreInterpreter{Changed semantics}
 test bool all20a()  = all(_ <- ()) == true;
-@ignoreCompiler{Changed semantics}
+@ignoreCompiler{Remove-after-transtion-to-compiler: Changed semantics}
 test bool all20b()  = all(_ <- ()) == false;
 
 @ignoreInterpreter{Gives wrong answer}
@@ -362,10 +362,6 @@ test bool listComprehensionNestedGenerator() = [ y | <x, y> <- [<a, 10*a> | a <-
 test bool setComprehensionNestedRange() = [ i | int i <- [10..12] ] == [10..12];
 
 // emptyTupleGenerator
-
-// @ignoreCompiler{Type checker rejects this} test bool emptyTupleGeneratorError1() = {<X,Y> | <int X, int Y> <- {}} == {} ;
-
-// @ignoreCompiler{Type checker rejects this} test bool emptyTupleGeneratorError2() = {<X,Y> | <int X, int Y> <- []} == {} ;
 
 test bool emptyTupleGeneratorError3() = {<X,Y> | int X <- {}, int Y <- {}} == {};
 test bool emptyTupleGeneratorError4() = {<X,Y> | int X <- [], int Y <- []} == {};

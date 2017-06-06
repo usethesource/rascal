@@ -134,7 +134,7 @@ test bool testKwParams2() {
   return X.kw1 == 2;
 }
 
-@ignoreCompiler{Exception differs}
+@ignoreCompiler{Remove-after-transtion-to-compiler: Exception differs}
 @expected{UninitializedVariable}
 test bool testUnInitAssignment1() {
   map[int,int] m = ();
@@ -154,7 +154,7 @@ test bool testInitAssignment1() {
   return m[0] == 1;
 }
 
-@ignoreCompiler{Exception differs}
+@ignoreCompiler{Remove-after-transtion-to-compiler: Exception differs}
 @expected{UninitializedVariable}
 test bool testUnInitAssignment2() {
   map[int,int] m = ();
@@ -168,7 +168,7 @@ test bool testUnInitAssignment2() {
   m[0] -= 1;
 }
 
-@ignoreCompiler{Exception differs}
+@ignoreCompiler{Remove-after-transtion-to-compiler: Exception differs}
 @expected{UninitializedVariable}
 test bool testUnInitAssignment3() {
   map[int,int] m = ();
@@ -182,7 +182,7 @@ test bool testUnInitAssignment3() {
   m[0] *= 1;
 }
 
-@ignoreCompiler{Exception differs}
+@ignoreCompiler{Remove-after-transtion-to-compiler: Exception differs}
 @expected{UninitializedVariable}
 test bool testUnInitAssignment4() {
   map[int,int]m = ();

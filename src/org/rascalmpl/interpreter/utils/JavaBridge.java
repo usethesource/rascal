@@ -125,8 +125,13 @@ public class JavaBridge {
 			throw new JavaCompilation(e.getMessage(), loc);
 		} 
 		catch (JavaCompilerException e) {
-			Diagnostic<? extends JavaFileObject> msg = e.getDiagnostics().getDiagnostics().iterator().next();
-            throw new JavaCompilation(msg.getMessage(null) + " at " + msg.getLineNumber() + ", " + msg.getColumnNumber() + " with classpath [" + config.getRascalJavaClassPathProperty() + "]", loc);
+		    if (!e.getDiagnostics().getDiagnostics().isEmpty()) {
+		        Diagnostic<? extends JavaFileObject> msg = e.getDiagnostics().getDiagnostics().iterator().next();
+		        throw new JavaCompilation(msg.getMessage(null) + " at " + msg.getLineNumber() + ", " + msg.getColumnNumber() + " with classpath [" + config.getRascalJavaClassPathProperty() + "]", loc);
+		    }
+		    else {
+		        throw new JavaCompilation(e.getMessage(), loc);
+		    }
 		}
 	}
 

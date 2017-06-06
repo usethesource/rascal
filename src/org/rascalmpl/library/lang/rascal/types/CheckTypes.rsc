@@ -393,9 +393,6 @@ public tuple[Configuration,KeywordParamMap] getConstructorKeywordParams(Configur
 	adtIdSet = invert(c.adtConstructors)[itemId];
 	if (size(adtIdSet) == 1) {
 		adtId = getFirstFrom(adtIdSet);
-		if (adtId == 847) {
-			println("Found it");
-		}
 		adtParams = c.store[adtId].keywordParams;
 		consParams = c.store[itemId].keywordParams;
 		typeParams = consParams + domainX(adtParams, consParams<0>);
@@ -414,7 +411,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
     
     list[Expression] epsList = [ epsi | epsi <- eps ];
     < c, t1 > = checkExp(e, c);
-    
+
     usedItems = invert(c.uses)[e@\loc];
     usedItems = { ui | ui <- usedItems, !(c.store[ui] is overload)} + { uii | ui <- usedItems, c.store[ui] is overload, uii <- c.store[ui].items };
     rel[Symbol,KeywordParamMap] functionKP = { < c.store[ui].rtype, c.store[ui].keywordParams > | ui <- usedItems, c.store[ui] is function };
@@ -1566,30 +1563,40 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
     } else if (isStartNonTerminalType(t1)) {
 		nonterminalName = RSimpleName("start[<getNonTerminalName(t1)>]");
 		if (nonterminalName in c.globalSortMap && c.store[c.globalSortMap[nonterminalName]] is sorttype) {
-			sortId = c.globalSortMap[nonterminalName];
-			if (fAsString == "top") {
-				return getStartNonTerminalType(t1);
-			} else if (<sortId,fAsString> notin c.nonterminalFields) {
-				return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
-			} else {
-				originalType = c.store[sortId].rtype;
-				originalParams = getNonTerminalTypeParameters(originalType);
-				fieldType = c.nonterminalFields[<sortId,fAsString>];
-				if (size(originalParams) > 0) {
-					actualParams = getNonTerminalTypeParameters(t1);
-					if (size(originalParams) != size(actualParams)) {
-						return makeFailType("Invalid nonterminal type, the number of type parameters (<size(originalParams)>,<size(actualParams)>) is inconsistent", l);
-					} else {
-						bindings = ( getTypeVarName(originalParams[idx]) : actualParams[idx] | idx <- index(originalParams));
-	                    try {
-	                        fieldType = instantiate(fieldType, bindings);
-	                    } catch : {
-	                        return makeFailType("Failed to instantiate type parameters in field type", l);
-	                    }						
-					}
-				}									        	
-	            return fieldType;
-			}
+            sortId = c.globalSortMap[nonterminalName];
+            usingTree = false;
+            if (fAsString == "top") {
+                return getStartNonTerminalType(t1);
+            }
+            if (<sortId,fAsString> notin c.nonterminalFields) {
+                if (RSimpleName("Tree") in c.globalAdtMap && c.store[c.globalAdtMap[RSimpleName("Tree")]] is datatype) {
+                    treeId = c.globalAdtMap[RSimpleName("Tree")];
+                    if (<treeId,fAsString> notin c.adtFields) {
+                        return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
+                    }
+                    sortId = treeId; // The field is not on the nonterminal directly, but is on Tree
+                    usingTree = true;
+                } else {
+                    return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
+                }
+            } 
+            originalType = c.store[sortId].rtype;
+            originalParams = getNonTerminalTypeParameters(originalType);
+            fieldType = usingTree ? c.adtFields[<sortId,fAsString>] : c.nonterminalFields[<sortId,fAsString>];
+			if (size(originalParams) > 0) {
+				actualParams = getNonTerminalTypeParameters(t1);
+				if (size(originalParams) != size(actualParams)) {
+					return makeFailType("Invalid nonterminal type, the number of type parameters (<size(originalParams)>,<size(actualParams)>) is inconsistent", l);
+				} else {
+					bindings = ( getTypeVarName(originalParams[idx]) : actualParams[idx] | idx <- index(originalParams));
+                    try {
+                        fieldType = instantiate(fieldType, bindings);
+                    } catch : {
+                        return makeFailType("Failed to instantiate type parameters in field type", l);
+                    }						
+				}
+			}									        	
+            return fieldType;
 		} else {
 			return makeFailType("Cannot compute type of field <fAsString>, nonterminal type <prettyPrintType(t1)> has not been declared", l);
 		} 
@@ -1597,27 +1604,36 @@ public Symbol computeFieldType(Symbol t1, RName fn, loc l, Configuration c) {
         nonterminalName = RSimpleName(getNonTerminalName(t1));
         if (nonterminalName in c.globalSortMap && c.store[c.globalSortMap[nonterminalName]] is sorttype) {
 			sortId = c.globalSortMap[nonterminalName];
+			usingTree = false;
 	        if (<sortId,fAsString> notin c.nonterminalFields) {
-	            return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
-	        } else {
-				originalType = c.store[sortId].rtype;
-				originalParams = getNonTerminalTypeParameters(originalType);
-				fieldType = c.nonterminalFields[<sortId,fAsString>];
-				if (size(originalParams) > 0) {
-					actualParams = getNonTerminalTypeParameters(t1);
-					if (size(originalParams) != size(actualParams)) {
-						return makeFailType("Invalid nonterminal type, the number of type parameters (<size(originalParams)>,<size(actualParams)>) is inconsistent", l);
-					} else {
-						bindings = ( getTypeVarName(originalParams[idx]) : actualParams[idx] | idx <- index(originalParams));
-	                    try {
-	                        fieldType = instantiate(fieldType, bindings);
-	                    } catch : {
-	                        return makeFailType("Failed to instantiate type parameters in field type", l);
-	                    }						
-					}
-				}									        	
-	            return fieldType;
-	        }
+                if (RSimpleName("Tree") in c.globalAdtMap && c.store[c.globalAdtMap[RSimpleName("Tree")]] is datatype) {
+                    treeId = c.globalAdtMap[RSimpleName("Tree")];
+                    if (<treeId,fAsString> notin c.adtFields) {
+                        return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
+                    }
+                    sortId = treeId; // The field is not on the nonterminal directly, but is on Tree
+                    usingTree = true;
+                } else {
+                    return makeFailType("Field <fAsString> does not exist on type <prettyPrintType(t1)>", l);
+                }
+	        } 
+			originalType = c.store[sortId].rtype;
+			originalParams = getNonTerminalTypeParameters(originalType);
+			fieldType = usingTree ? c.adtFields[<sortId,fAsString>] : c.nonterminalFields[<sortId,fAsString>];
+			if (size(originalParams) > 0) {
+				actualParams = getNonTerminalTypeParameters(t1);
+				if (size(originalParams) != size(actualParams)) {
+					return makeFailType("Invalid nonterminal type, the number of type parameters (<size(originalParams)>,<size(actualParams)>) is inconsistent", l);
+				} else {
+					bindings = ( getTypeVarName(originalParams[idx]) : actualParams[idx] | idx <- index(originalParams));
+                    try {
+                        fieldType = instantiate(fieldType, bindings);
+                    } catch : {
+                        return makeFailType("Failed to instantiate type parameters in field type", l);
+                    }						
+				}
+			}									        	
+            return fieldType;
 	    } else {
 	    	return makeFailType("Cannot compute type of field <fAsString>, nonterminal type <prettyPrintType(t1)> has not been declared", l); 
 	    }  
@@ -4904,7 +4920,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`fail <Target target>;`, 
     if ((Target)`<Name n>` := target) {
         rn = convertName(n);
         // TODO: Check to see what category the label is in?
-        if (rn notin c.labelEnv) return markLocationFailed(c, stmt@\loc, makeFailType("Target label not defined", stmt@\loc));
+        if (rn notin c.labelEnv) return markLocationFailed(c, stmt@\loc, makeFailType("Target label <n> not defined", stmt@\loc));
     }   
     return markLocationType(c, stmt@\loc, Symbol::\void());
 }
@@ -4916,7 +4932,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`break <Target target>;`,
     if ((Target)`<Name n>` := target) {
         rn = convertName(n);
         // TODO: Check to see what category the label is in?
-        if (rn notin c.labelEnv) return markLocationFailed(c, stmt@\loc, makeFailType("Target label not defined", stmt@\loc));
+        if (rn notin c.labelEnv) return markLocationFailed(c, stmt@\loc, makeFailType("Target label <n> not defined", stmt@\loc));
     }
     
     if (!labelTypeInStack(c, {forLabel(), whileLabel(), doWhileLabel()})) {
@@ -4936,7 +4952,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`continue <Target target>
     if ((Target)`<Name n>` := target) {
         rn = convertName(n);
         // TODO: Check to see what category the label is in?
-        if (rn notin c.labelEnv) return markLocationFailed(c, stmt@\loc, makeFailType("Target label not defined", stmt@\loc));
+        if (rn notin c.labelEnv) return markLocationFailed(c, stmt@\loc, makeFailType("Target label <n> not defined", stmt@\loc));
     }   
 
     if (!labelTypeInStack(c, {forLabel(), whileLabel(), doWhileLabel()})) {
@@ -5128,7 +5144,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`insert <DataTarget dt> <
         labelName = convertName(n);
         // TODO: Check to see what category the label is in?
         if (labelName notin c.labelEnv) {
-            failures += makeFailType("Target label not defined", dt@\loc);
+            failures += makeFailType("Target label <n> not defined", dt@\loc);
         } else if (visitLabel() !:= c.store[c.labelEnv[labelName]].source) {
             failures += makeFailType("Target label must refer to a visit statement or expression", dt@\loc);
         }
@@ -5163,7 +5179,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`append <DataTarget dt> <
         rn = convertName(n);
         // TODO: Check to see what category the label is in?
         if (rn notin c.labelEnv) 
-            failures += makeFailType("Target label not defined", dt@\loc);
+            failures += makeFailType("Target label <n> not defined", dt@\loc);
         else
             c = addAppendTypeInfo(c, t1, rn, { forLabel(), whileLabel(), doWhileLabel() }, stmt@\loc);
     } else {
@@ -6156,7 +6172,7 @@ public Configuration checkDeclaration(Declaration decl:(Declaration)`<Tags tags>
 				c.messages += getFailures(collapseFailTypes(failures));
 			} else { 
 				c = addConstructor(c, cn, vr@\loc, Symbol::\cons(adtType,getSimpleName(cn),targs), kfrel);
-			}       
+			}
 		}
 	}
 
@@ -6167,7 +6183,7 @@ public Configuration checkConstructorKeywordParams(Declaration decl:(Declaration
 	commonParamList = [ ];
 	if ((CommonKeywordParameters)`( <{KeywordFormal ","}+ kfs> )` := commonParams) commonParamList = [ kfi | kfi <- kfs ];
 
-	cCons = enterBlock(c, decl@\loc);
+	cCons = enterSignature(c, decl@\loc);
 	if (size(commonParamList) > 0) {
 		for (KeywordFormal kfi <- commonParamList) {
 			< cCons, kfT > = convertAndExpandType(kfi.\type, cCons);
@@ -6188,7 +6204,7 @@ public Configuration checkConstructorKeywordParams(Declaration decl:(Declaration
 				vargN = convertName(varg.name);
 				cSig = addLocalVariable(cSig, vargN, false, varg@\loc, vargT);
 			} 
-			for (KeywordFormal kfi <- commonParamList + kfl) {
+			for (KeywordFormal kfi <- kfl) {
 				< cSig, kfT > = convertAndExpandType(kfi.\type, cSig);
 				< cSig, _ > = calculateKeywordParamRel(cSig, [ kfi ], typesOnly = false ); 
 				cSig = addLocalVariable(cSig, convertName(kfi.name), false, kfi@\loc, kfT);
@@ -6201,7 +6217,7 @@ public Configuration checkConstructorKeywordParams(Declaration decl:(Declaration
 		}
 	}
 	
-	c = exitBlock(cCons, c);
+	c = leaveSignature(cCons, c);
 
 	return c;
 }
@@ -7480,25 +7496,25 @@ loc cachedDateWriteLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedWri
 tuple[bool,loc] cachedDateMapReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "sigs", pcfg);
 loc cachedDateMapWriteLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedWriteLoc(qualifiedModuleName, "sigs", pcfg);
 
-datetime getCachedDate(str qualifiedModuleName, PathConfig pcfg) {
+tuple[bool, datetime] getCachedDate(str qualifiedModuleName, PathConfig pcfg) {
     if(<true, l> := cachedDateReadLoc(qualifiedModuleName,pcfg)){
-       return readBinaryValueFile(#datetime, l);
+       return <true, readBinaryValueFile(#datetime, l)>;
     }
-    throw "getCachedDate: no date found for <qualifiedModuleName>";
+    return <false, $2017-03-10T18:56:53.386+00:00$>;
 }
 
-Configuration getCachedConfig(str qualifiedModuleName, PathConfig pcfg) {
+tuple[bool, Configuration] getCachedConfig(str qualifiedModuleName, PathConfig pcfg) {
     if(<true, l> := cachedConfigReadLoc(qualifiedModuleName,pcfg)){
-       return readBinaryValueFile(#Configuration, l);
+       return <true, readBinaryValueFile(#Configuration, l)>;
     }
-    throw "getCachedConfig: no config found for <qualifiedModuleName>";
+    return <false,  newConfiguration(pcfg)>;
 }    
-    
-map[RName,datetime] getCachedDateMap(str qualifiedModuleName, PathConfig pcfg){
+
+tuple[bool, map[RName,datetime]] getCachedDateMap(str qualifiedModuleName, PathConfig pcfg){
     if(<true, l> := cachedDateMapReadLoc(qualifiedModuleName,pcfg)){
-       return readBinaryValueFile(#map[RName,datetime], l);
+       return <true, readBinaryValueFile(#map[RName,datetime], l)>;
     }
-    throw "getCachedDateMap: no DateMap found for <qualifiedModuleName>";
+    return <false, ()>;
 } 
 
 void writeCachedDate(str qualifiedModuleName, PathConfig pcfg, datetime dateval) {
@@ -7518,15 +7534,17 @@ void writeCachedDateMap(str qualifiedModuleName, PathConfig pcfg, map[RName,date
 }
 
 void clearDirtyModules(str qualifiedModuleName, PathConfig pcfg, bool transitive=true) {
-    if(<true, l> := cachedConfigReadLoc(qualifiedModuleName, pcfg)){
-		Configuration c = getCachedConfig(qualifiedModuleName, pcfg);
-		c.dirtyModules = { };
-		writeCachedConfig(qualifiedModuleName, pcfg, c);
+    if(<true, c1> := getCachedConfig(qualifiedModuleName, pcfg)){
+        if(!isEmpty(c1.dirtyModules)){
+		   writeCachedConfig(qualifiedModuleName, pcfg, c1[dirtyModules={}]);
+		}
 		
 		if (transitive) {
-			reachableModules = { prettyPrintName(mn) | mn <- carrier(c.importGraph) } - qualifiedModuleName;
-			for (qmname <- reachableModules) {
-				writeCachedConfig(qmname, pcfg, getCachedConfig(qmname, pcfg)[dirtyModules={}]);
+			reachableModules = { prettyPrintName(mn) | mn <- carrier(c1.importGraph) } - qualifiedModuleName;
+			for (qmname <- reachableModules, <true, c2> := getCachedConfig(qmname, pcfg)) {
+			    if(!isEmpty(c2.dirtyModules)){
+				   writeCachedConfig(qmname, pcfg, c2[dirtyModules={}]);
+				}   
 			}
 		}
 	}
@@ -7598,23 +7616,18 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	// so we can see if they have changed
 	map[RName,datetime] currentDates = ( );
 	map[RName,loc] moduleLocations = ( );
-	set[RName] binaryOnly = {};
+	set[RName] binaryOnlyModules = {};
 	for (imn <- carrier(ig)) {
 		try {
 			chloc = getModuleLocation(prettyPrintName(imn), pcfg);
 			moduleLocations[imn] = chloc;
-			if (exists(chloc)) {
-				currentDates[imn] = lastModified(chloc);
-			} else {
-				; // TODO: Add a warning here, this means we are importing something that we cannot find
-			      // I think this cannot happen, otherwise getModuleLocation would have failed (PK) 
-			}
+			currentDates[imn] = lastModified(chloc);
 		} catch ex: {
 		    // There was no source file, try binary config file
 		    
 		    if(<true, imloc> := cachedConfigReadLoc(prettyPrintName(imn),pcfg)){
 		       currentDates[imn] = lastModified(imloc);
-		       binaryOnly += imn;
+		       binaryOnlyModules += imn;
 		       if (verbose) println("Using binary config for <prettyPrintName(imn)>");
 		    } else {
 			  c = addScopeError(c, "Cannot import module <prettyPrintName(imn)>", md@\loc);
@@ -7632,13 +7645,18 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	// We keep track of the hashes of all imported modules to see if they have changed since we
 	// last checked this one. If the hash for this module exists, load it. 
 	map[RName,map[RName,datetime]] moduleDates = ( );
-	for (wl <- carrier(ig), wl in moduleLocations) {
+	for (wl <- carrier(ig)) {
 		if (verbose) println("Checking for date map for <prettyPrintName(wl)>");
 		dependency = prettyPrintName(wl);
-		dependencyLoc = moduleLocations[wl];
-		moduleLocations[wl] = dependencyLoc;
-		if (exists(dependencyLoc) && <true, dateMapLoc> := cachedDateMapReadLoc(dependency, pcfg)) {
-			moduleDates[wl] = getCachedDateMap(dependency, pcfg);
+		if(wl in moduleLocations){
+    	   dependencyLoc = moduleLocations[wl];
+    	   if (<true, dmap> := getCachedDateMap(dependency, pcfg)) {
+    		   moduleDates[wl] = dmap;
+    	   }
+		} else if(wl in binaryOnlyModules){
+		   if(<true, dmap> := getCachedDateMap(dependency, pcfg)){
+		      moduleDates[wl] = dmap;
+		   }
 		}
 	}
 		
@@ -7655,13 +7673,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 				// check it and save the config.
 				if (verbose) println("No config exists for module <prettyPrintName(wl)>");
 				dirtyModules = dirtyModules + wl;
-			} else if (<false, _> := cachedDateReadLoc(dependency, pcfg)) {
-				// If we don't have a saved date for the module, it hasn't been checked
-				// before or the has info was deleted, so we need to check it now. 
-				if (verbose) println("No cached date exists for module <prettyPrintName(wl)>");
-				dirtyModules = dirtyModules + wl;
-			} else {
-				existingDate = getCachedDate(dependency, pcfg);
+			} else if (<true, existingDate> := getCachedDate(dependency, pcfg)) {
 				if (wl in currentDates) {
 					modifiedDate = currentDates[wl];
 					if (existingDate != modifiedDate) {
@@ -7690,11 +7702,12 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 								dirtyModules = dirtyModules + i;
 							}
 						}
-					}
-				} else {
-					// TODO: This is an error state, this means we could not compute a current date
-					// for the file, so most likely there is some problem with it
-					;
+					} 
+			    } else {
+			        // If we don't have a saved date for the module, it hasn't been checked
+                    // before or the info was deleted, so we need to check it now. 
+                    if (verbose) println("No cached date exists for module <prettyPrintName(wl)>");
+                    dirtyModules = dirtyModules + wl;
 				}
 			}
 		} catch : {
@@ -7704,8 +7717,8 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		}
 	}
 	
-	dirtyModules -= binaryOnly;    // Reuse binary-only modules without recomputing them
-	
+	dirtyModules -= binaryOnlyModules;    // Reuse binary-only modules without recomputing them
+		
 	// Save the modules that we are recomputing; this is any dirty modules plus anything
 	// that imports them.
 	c.dirtyModules = dirtyModules + igRev[dirtyModules];
@@ -7718,13 +7731,15 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	if (exists(moduleLoc)) {
 	    mname = prettyPrintName(moduleName);
 		modifiedDate = lastModified(moduleLoc);
-		if (isEmpty(c.dirtyModules) && !forceCheck && <true, _> := cachedDateReadLoc(mname, pcfg) && getCachedDate(mname, pcfg) == modifiedDate && <true, _> := cachedConfigReadLoc(mname, pcfg)) {
-			return getCachedConfig(mname, pcfg);
+		if (isEmpty(c.dirtyModules) && !forceCheck && 
+		    <true, modifiedDate> := getCachedDate(mname, pcfg) &&
+		    <true, c2> := getCachedConfig(mname, pcfg)) {
+			return c2;
 		}
 	} else {
 	   mname = prettyPrintName(moduleName);
-	   if(isEmpty(c.dirtyModules) && !forceCheck && <true, _> := cachedConfigReadLoc(mname, pcfg)){
-	       return getCachedConfig(mname, pcfg);    // when there is no source, reuse existing config.
+	   if(isEmpty(c.dirtyModules) && !forceCheck && <true, c2> := getCachedConfig(mname, pcfg)){
+	       return c2;    // when there is no source, reuse existing config.
 	   } else {
 	     throw "Source file for <mname> is missing; config cannot be reused";
 	   }
@@ -7810,13 +7825,26 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		}
 		importFilter[mn] = importFrom;
 	}	
-
+	
+	
+	set[RName] sourceOrBinaryModules = domain(moduleLocations) + binaryOnlyModules;
+	
+	if(verbose){
+       println("loading configs for <sourceOrBinaryModules>");
+    }
+	
 	// Load configs for the modules that we do not need to re-check
-	map[RName,Configuration] existingConfigs = ( wl : getCachedConfig(prettyPrintName(wl),pcfg) | wl <- carrier(ig), wl in moduleLocations, wl notin c.dirtyModules, <true, _> := cachedConfigReadLoc(prettyPrintName(wl),pcfg) );
+	map[RName,Configuration] existingConfigs = 
+	   ( wl : c2 | wl <- carrier(ig), 
+	               wl in sourceOrBinaryModules, 
+	               wl notin c.dirtyModules, 
+	               <true, c2> := getCachedConfig(prettyPrintName(wl),pcfg) );
+	
+	if(verbose) println("Actually loaded configs: <domain(existingConfigs)>");
 	
 	Configuration fullyCheckSingleModule(Configuration ci, RName itemName) {
 		// Using the checked type information, load in the info for each module
-		for (wl <- allImports[itemName], wl in moduleLocations) {
+		for (wl <- allImports[itemName], wl in sourceOrBinaryModules) {
 		     if(wl notin existingConfigs){
 		        println("*** fullyCheckSingleModule, checking <itemName>, <wl> not in existingConfigs");
 		        if(wl in workingConfigs){
@@ -7833,7 +7861,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		// extending to give an initial "seed" for our environment. We will just use the standard
 		// add functions for this.
 		ci.stack = moduleIds[itemName] + ci.stack;
-		ci = loadExtendedModuleTypes(ci, { mn | < mn, true > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
+		ci = loadExtendedModuleTypes(ci, { mn | < mn, true > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in sourceOrBinaryModules });
 	
 		// Now process all the syntax in the current module. We first "extract" information about all
 		// the syntax (using the existing functionality for extracting module signatures), then add
@@ -7893,7 +7921,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	
 			// Bring in type names from the imported modules as long as they don't
 			// conflict with the type names just added.
-			ci = loadImportedTypesAndTags(ci, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
+			ci = loadImportedTypesAndTags(ci, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in sourceOrBinaryModules });
 			
 			// Now, actually process the aliases
 			bool modified = true;
@@ -7916,18 +7944,18 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 			// Process the current module. We start by merging in everything from the modules we are
 			// extending to give an initial "seed" for our environment. We will just use the standard
 			// add functions for this.
-			ci = loadExtendedModuleNames(ci, { mn | < mn, true > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
+			ci = loadExtendedModuleNames(ci, { mn | < mn, true > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in sourceOrBinaryModules });
 	
 			// Next, process the annotations
 			for (t <- annotations) ci = checkDeclaration(t,true,ci);
 	
 			// Bring in annotations from the imported modules as long as they don't
 			// conflict with the annotations just added.
-			ci = loadImportedAnnotations(ci, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
+			ci = loadImportedAnnotations(ci, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in sourceOrBinaryModules });
 					
 			// Bring in names from the imported modules as long as they don't
 			// conflict with the names just added.
-			ci = loadImportedNames(ci,  varNamesToDeclare, funNamesToDeclare, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
+			ci = loadImportedNames(ci,  varNamesToDeclare, funNamesToDeclare, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in sourceOrBinaryModules});
 			
 			// Next, introduce names into the environment
 			for (t <- names) ci = checkDeclaration(t,false,ci);
@@ -7948,7 +7976,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	Configuration checkSingleModuleThroughAliases(Configuration ci, RName itemName, set[RName] componentMembers) {
 		// Load in the configurations for modules that are not in the same connected component (so they do not
 		// depend on the results of checking the current module) 
-		for (wl <- allImports[itemName], wl notin componentMembers, wl in moduleLocations) {
+		for (wl <- allImports[itemName], wl notin componentMembers, wl in sourceOrBinaryModules) {
 		    assert wl in existingConfigs : "checkSingleModuleThroughAliases, <wl>";
 			ci = loadConfigurationAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName]);
 		}
@@ -7959,7 +7987,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 		// the connected component. Allowing this seems like it would be semantically problematic.
 		// TODO: Add a check to ensure we don't allow this inadvertently.
 		ci.stack = moduleIds[itemName] + ci.stack;
-		ci = loadExtendedModuleTypes(ci, { mn | < mn, true > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
+		ci = loadExtendedModuleTypes(ci, { mn | < mn, true > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in sourceOrBinaryModules });
 	
 		// Now process all the syntax nonterminals for the current module. At this point we just
 		// introduce the nonterminals, not the productions, since these could use nonterminals
@@ -8004,7 +8032,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	Configuration checkSingleModulePastAliases(Configuration ci, RName itemName, set[RName] componentMembers) {
 		// Load in the configurations of the modules in the connected component. At this point, this will just
 		// load type information.
-		for (wl <- allImports[itemName], wl in componentMembers, wl != itemName, wl in moduleLocations) {
+		for (wl <- allImports[itemName], wl in componentMembers, wl != itemName, wl in sourceOrBinaryModules) {
 		    assert wl in existingConfigs: "checkSingleModulePastAliases, <wl>";
 			ci = loadConfigurationTypesAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName]);
 		}
@@ -8066,7 +8094,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 			// Bring in type names from the imported modules as long as they don't
 			// conflict with the type names just added. This will import these names
 			// from all imports, including those in the same connected component.
-			ci = loadImportedTypesAndTags(ci, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
+			ci = loadImportedTypesAndTags(ci, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in sourceOrBinaryModules});
 			
 			// Now, actually process the aliases
 			bool modified = true;
@@ -8089,7 +8117,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 			// Process the current module. We start by merging in everything from the modules we are
 			// extending to give an initial "seed" for our environment. We will just use the standard
 			// add functions for this.
-			ci = loadExtendedModuleNames(ci, { mn | < mn, true > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
+			ci = loadExtendedModuleNames(ci, { mn | < mn, true > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in sourceOrBinaryModules });
 	
 			// Next, process the annotations. These just need type information to allow them to be
 			// declared, so this can be done in this step.
@@ -8105,7 +8133,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	Configuration checkSingleModuleNamesOnly(Configuration ci, RName itemName, set[RName] componentMembers) {
 		// Load in the configurations of the modules in the connected component. At this point, this will just
 		// load information on constructors and productions.
-		for (wl <- allImports[itemName], wl in componentMembers, wl != itemName, wl in moduleLocations) {
+		for (wl <- allImports[itemName], wl in componentMembers, wl != itemName, wl in sourceOrBinaryModules) {
 		    assert wl in existingConfigs: "checkSingleModuleNamesOnly, <wl>";
 			if (verbose) println("Loading constructors into module <prettyPrintName(itemName)>");
 			ci = loadConfigurationConsAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName]);
@@ -8153,7 +8181,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 			// Bring in names from the imported modules as long as they don't
 			// conflict with the names just added. This just brings in constructors
 			// and productions at this point.
-			ci = loadImportedCPNames(ci,  varNamesToDeclare, funNamesToDeclare, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
+			ci = loadImportedCPNames(ci,  varNamesToDeclare, funNamesToDeclare, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in sourceOrBinaryModules});
 
 			for (t <- names) ci = checkDeclaration(t,false,ci);
 	
@@ -8167,7 +8195,7 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	Configuration checkSingleModuleAndFinalize(Configuration ci, RName itemName, set[RName] componentMembers) {
 		// Using the checked type information, load in the info for each module. This will replace the already
 		// loaded info, and will include functions, variables, etc that are exported from the module.
-		for (wl <- allImports[itemName], wl in componentMembers, wl in moduleLocations) {
+		for (wl <- allImports[itemName], wl in componentMembers, wl in sourceOrBinaryModules) {
 		     assert wl in existingConfigs: "checkSingleModuleAndFinalize, <wl>";
 			ci = loadConfigurationAndReset(ci, existingConfigs[wl], wl, importFilter[itemName][wl], allImports[itemName], updateTypes=true);
 		}
@@ -8208,12 +8236,12 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	
 			// Bring in annotations from the imported modules as long as they don't
 			// conflict with the annotations just added.
-			ci = loadImportedAnnotations(ci, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
+			ci = loadImportedAnnotations(ci, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in sourceOrBinaryModules});
 					
 			// Bring in names from the imported modules as long as they don't
 			// conflict with the names just added. We brought in constructor
 			// and production names before, so this brings in functions and vars.
-			ci = loadImportedFVNames(ci,  varNamesToDeclare, funNamesToDeclare, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in moduleLocations });
+			ci = loadImportedFVNames(ci,  varNamesToDeclare, funNamesToDeclare, { mn | < mn, false > <- (modulesToImport[itemName] + defaultModules[itemName]), mn in sourceOrBinaryModules});
 			
 			// Reprocess the constructors, checking keyword parameters (which can use functions, other constructors, etc)
 			for (t <- typesAndTags) ci = checkConstructorKeywordParams(t,ci);
@@ -8277,14 +8305,14 @@ public Configuration checkModule(lang::rascal::\syntax::Rascal::Module md:(Modul
 	//     }
 	//}
 	
-	for (mn <- moduleLocations, mn in workingConfigs) {
+	for (mn <- moduleLocations, mn in workingConfigs, mn notin binaryOnlyModules) {
 		// Note: This writes more than we need of the hashes. We should probably use domainX to remove non-reachable modules.
-		if (exists(moduleLocations[mn])) {
-		    ppmn = prettyPrintName(mn);
-			writeCachedDate(ppmn, pcfg, currentDates[mn]);
-			writeCachedConfig(ppmn, pcfg, workingConfigs[mn]);
-			writeCachedDateMap(ppmn, pcfg, currentDates);
-		}
+	    ppmn = prettyPrintName(mn);
+	    
+	    org_pcfg = workingConfigs[mn].pathConfiguration;
+		writeCachedDate(ppmn, org_pcfg, currentDates[mn]);
+		writeCachedConfig(ppmn, org_pcfg, workingConfigs[mn]);
+		writeCachedDateMap(ppmn, org_pcfg, currentDates);
 	}
 			
 	return workingConfigs[moduleName];	

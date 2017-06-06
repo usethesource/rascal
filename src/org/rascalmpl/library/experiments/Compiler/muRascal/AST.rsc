@@ -2,8 +2,7 @@ module experiments::Compiler::muRascal::AST
 
 import Message;
 import List;
-import Node;
-import Type;   
+import Node;   
 import ParseTree;
 
 /*

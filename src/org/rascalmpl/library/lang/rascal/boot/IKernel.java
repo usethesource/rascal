@@ -20,6 +20,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFra
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
+import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
@@ -86,9 +87,18 @@ public interface IKernel extends IJava2Rascal {
   /**
    * Regenerate the parser for Rascal itself (used only in bootstrapping stages).
    * Writes in a source directory!
+   * @param rascalHome    Rascal source directory
+   */
+  //deprecated
+  public void bootstrapRascalParser(ISourceLocation rascalHome);
+  
+  /**
+   * Regenerate the parser for Rascal itself (used only in bootstrapping stages).
+   * Writes in a source directory!
    * @param srcs    List of source directories
    */
   public void bootstrapRascalParser(IList srcs);
+
 
   /**
    * Compile and link a Rascal module
@@ -215,6 +225,13 @@ public interface IKernel extends IJava2Rascal {
    * @return          The contents of the doc string of that definition
    */
   public IString getDocForDefinition(ISourceLocation def);
+  
+  /**
+   * Produce an outline representation for a Rascal module
+   * @param module a parse tree of a Rascal module
+   * @return a hierarchical model of a Rascal module
+   */
+  public INode outline(IConstructor module);
   
   /*
    * Some Kernel management methods

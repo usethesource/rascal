@@ -152,7 +152,7 @@ bool cannotMatch(str stmts, list[str] importedModules = [], list[str] initialDec
 
 bool declarationError(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
 	check(stmts, [
-		"Constructor overlaps existing constructors in the same datatype", 
+		"Constructor _ overlaps existing constructors in the same datatype", 
 		"Initializer type",
 		"Errors present in constructor parameters, cannot add constructor to scope"
 	], importedModules=importedModules, initialDecls=initialDecls);

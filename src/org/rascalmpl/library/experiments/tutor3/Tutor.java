@@ -23,8 +23,9 @@ public class Tutor {
 	    .handleArgs(args);
 	 
 	  PathConfig pcfg = new PathConfig(cmdOpts.getCommandLocsOption("src"), cmdOpts.getCommandLocsOption("lib"), cmdOpts.getCommandLocOption("bin"), cmdOpts.getCommandLocOption("boot"));
-	  IDEServices ideServices = new BasicIDEServices();
-	  HelpManager hm = new HelpManager(pcfg, new PrintWriter(System.out), new PrintWriter(System.err), ideServices);
+	  PrintWriter stderr = new PrintWriter(System.err);
+	  IDEServices ideServices = new BasicIDEServices(stderr);
+	  HelpManager hm = new HelpManager(pcfg, new PrintWriter(System.out), stderr, ideServices);
 	  
 	  ideServices.browse(new URI("http://localhost:" + hm.getPort() + "/TutorHome/index.html"));
 	  Thread.sleep(864000000);  // a hack a day keeps the doctor away (and the debugger close)

@@ -14,7 +14,7 @@ Still to be implemented:
 x memo functions
 - resources
 x keyword parameters across imports (needs infor from type checker)
-- ignored tests are not even compiled, but keep a count of ignored tests for test reporting
+x ignored tests are not even compiled, but keep a count of ignored tests for test reporting
 
 Bootstrapping
 x Compile and test parser generator 
@@ -22,7 +22,7 @@ x Compile and test type checker
 x Compile and test compiler
 x Test compiled compiler
 
-Runtime environment end IDE integration
+Runtime environment and IDE integration
 - Make info available for RascalShell Rascal IDE:
   - Preserve @doc per function/module in compiled code
   - Preserve use/def info per function/module
@@ -41,7 +41,7 @@ Code improvement
 Performance improvement
 x Make the compiler truly incremental:
   x Best done using import graph (as provided by typechecker) 
-- Optimize the case of an overloaded function call with only one remaining alternative.
+x Optimize the case of an overloaded function call with only one remaining alternative.
 x Currently, RVM does null pointer checking; these checks can disappear when there is a guarantee that
   variables are always initialized. (Switched off)
 - Potentially, more constant elimination could be done (e.g. replace size([1,2,3]) by 3)
@@ -55,7 +55,7 @@ x Make a Java/muRascal bridge to allow calling muRascal code from Java. This mak
 
 Potential optimizations
 - (Optionally) implement int using int64 in RascalPrimitives
-- Temporaries in generated code are never reused and this may lead to very large stack frames:
+x Temporaries in generated code are never reused and this may lead to very large stack frames:
   reuse them (and unfortunately also reset to undefined; needed to correctly implement variables in patterns)
 x Optimize descandant matching
 - Optimize list matching

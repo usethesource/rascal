@@ -5,4 +5,6 @@ public class TestModuleURIResolver extends InMemoryResolver {
     public TestModuleURIResolver() {
         super("test-modules");
     }
+    
+    
 }

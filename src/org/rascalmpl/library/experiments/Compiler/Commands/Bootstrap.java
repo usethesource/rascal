@@ -255,7 +255,7 @@ public class Bootstrap {
                 }
                 
                 /*------------------------------------------,-CODE---------,-RVM---,-KERNEL---,-TESTS--*/
-                time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[1], "|noreloc:///|"));
+                time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[1], "|noreloc:///|", targetFolder));
                 
                 // Identify jars that contain new names and should be included in the classpath
                 String renamedJars = System.getProperty("user.home") 
@@ -265,10 +265,10 @@ public class Bootstrap {
                     rvm[1] += ":" + renamedJars;
                 }
                 
-                time("Phase 2", () -> compilePhase(tmpDir, 2, librarySource, rvm[0], kernel[1], rvm[1], "|std:///|"));
+                time("Phase 2", () -> compilePhase(tmpDir, 2, librarySource, rvm[0], kernel[1], rvm[1], "|std:///|", targetFolder));
                 
                 if(validatingBootstrap){
-                  time("Phase 3", () -> compilePhase(tmpDir, 3, librarySource, rvm[1], kernel[2], rvm[1], "|std:///|"));
+                  time("Phase 3", () -> compilePhase(tmpDir, 3, librarySource, rvm[1], kernel[2], rvm[1], "|std:///|", targetFolder));
                   try {
                     time("Validation", () -> {
                       long nfiles = compareGeneratedRVMCode(Paths.get(kernel[2]), Paths.get(kernel[3]));
@@ -460,75 +460,92 @@ public class Bootstrap {
         return result;
     }
     
-    private static Path compilePhase(Path tmp, int phase, String sourcePath, String classPath, String bootPath, String testClassPath, String reloc) throws Exception {
-      Path result = phaseFolder(phase, tmp);
+    private static Path compilePhase(Path tmp, int phase, String sourcePath, String classPath, String bootPath, String testClassPath, String reloc, Path targetFolder) throws Exception {
+      Path phaseResult = phaseFolder(phase, tmp);
       Path testResults = phaseTestFolder(phase, tmp);
-      progress("phase " + phase + ": " + result);
+      progress("phase " + phase + ": " + phaseResult);
 
-      time("- compile MuLibrary",       () -> compileMuLibrary(phase, classPath, bootPath, sourcePath, result));
-      time("- compile Kernel",          () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::boot::Kernel", reloc));
+      time("- compile MuLibrary",       () -> compileMuLibrary(phase, classPath, bootPath, sourcePath, phaseResult));
+      time("- compile Kernel",          () -> compileModule   (phase, classPath, bootPath, sourcePath, phaseResult, "lang::rascal::boot::Kernel", reloc));
 
       if (phase == 1) {
           // the new parser generator would refer to classes which may not exist yet. Subce stage 2 we still run against this old version
           // we now copy an old version of the generator to be used in phase 2.
-          copyParserGenerator(jarFileSystem(classPath).getRootDirectories().iterator().next(), result);
+          copyParserGenerator(jarFileSystem(classPath).getRootDirectories().iterator().next(), phaseResult);
       }
       else {
-          time("- compile ParserGenerator", () -> compileModule   (phase, classPath, bootPath, sourcePath, result, "lang::rascal::grammar::ParserGenerator", reloc));
+          time("- compile ParserGenerator", () -> compileModule   (phase, classPath, bootPath, sourcePath, phaseResult, "lang::rascal::grammar::ParserGenerator", reloc));
+      }
+      
+      if(phase == 2){
+          time("- generate and compile RascalParser", () -> generateAndCompileRascalParser(phase, classPath, sourcePath, bootPath, phaseResult, targetFolder));
       }
 
       if (phase > 2) {
           // phase 1 tests often fail for no other reason than an incompatibility.
-          time("- compile simple tests",           () -> compileTests    (phase, classPath, result.toAbsolutePath().toString(), sourcePath, testResults, testModules));
-          time("- run simple tests",               () -> runTests        (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, testResults, testModules));
+          time("- compile simple tests",           () -> compileTests    (phase, classPath, phaseResult.toAbsolutePath().toString(), sourcePath, testResults, testModules));
+          time("- run simple tests",               () -> runTests        (phase, testClassPath, phaseResult.toAbsolutePath().toString(), sourcePath, testResults, testModules));
       }
       
       if (phase > 2) {
           // phase 2 tests can not succeed in case the parser generator changed, so we can only test this after phase 3 has completed
-          time("- compile simple tests",           () -> compileTests    (phase, classPath, result.toAbsolutePath().toString(), sourcePath, testResults, syntaxTestModules));
-          time("- run simple tests",               () -> runTests        (phase, testClassPath, result.toAbsolutePath().toString(), sourcePath, testResults, syntaxTestModules));
+          time("- compile simple tests",           () -> compileTests    (phase, classPath, phaseResult.toAbsolutePath().toString(), sourcePath, testResults, syntaxTestModules));
+          time("- run simple tests",               () -> runTests        (phase, testClassPath, phaseResult.toAbsolutePath().toString(), sourcePath, testResults, syntaxTestModules));
       }
       
-      
-      return result;
+      return phaseResult;
     }
 
-    private static void copyParserGenerator(Path jar, Path result) throws IOException {
-        Files.copy(jar.resolve("boot/lang/rascal/grammar/ParserGenerator.rvmx"), result.resolve("lang/rascal/grammar/ParserGenerator.rvmx"));
+    private static void generateAndCompileRascalParser(int phase, String classPath, String sourcePath, String bootPath, Path phaseResult, Path targetFolder) throws IOException, InterruptedException, BootstrapMessage {
+        bootstrapRascalParser(classPath, sourcePath, bootPath, phaseResult);
+        String[] paths = new String [] { sourcePath + "/lang/rascal/syntax/RascalParser.java" };
+        if (runJavaCompiler(classPath, targetFolder.toAbsolutePath().toString(), concat(paths)) != 0) {
+            throw new BootstrapMessage(phase);
+        }
+    }
+    
+    private static int bootstrapRascalParser(String classPath, String srcPath, String bootPath, Path phaseResult) throws IOException, InterruptedException {
+        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "org.rascalmpl.library.experiments.Compiler.Commands.BootstrapRascalParser"};
+        String[] paths = new String[] {"--src", srcPath, "--bin", phaseResult.toAbsolutePath().toString(), "--boot", bootPath };
+        return runChildProcess(concat(javaCmd, paths));
+    }
+
+    private static void copyParserGenerator(Path jar, Path phaseResult) throws IOException {
+        Files.copy(jar.resolve("boot/lang/rascal/grammar/ParserGenerator.rvmx"), phaseResult.resolve("lang/rascal/grammar/ParserGenerator.rvmx"));
     }
 
     private static String[] concat(String[]... arrays) {
         return Stream.of(arrays).flatMap(Stream::of).toArray(sz -> new String[sz]);
     }
     
-    private static void compileTests(int phase, String classPath, String boot, String sourcePath, Path result, String[] testModules) throws IOException, InterruptedException, BootstrapMessage {
+    private static void compileTests(int phase, String classPath, String boot, String sourcePath, Path phaseResult, String[] testModules) throws IOException, InterruptedException, BootstrapMessage {
         progress("\tcompiling tests (phase " + phase +")");
-        String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
+        String[] paths = new String [] { "--bin", phaseResult.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
         String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[] {};
 
-        if (runCompiler(classPath, concat(concat(paths, otherArgs), testModules)) != 0) {
+        if (runRascalCompiler(classPath, concat(concat(paths, otherArgs), testModules)) != 0) {
             throw new BootstrapMessage(phase);
         }
     }
     
-    private static void compileModule(int phase, String classPath, String boot, String sourcePath, Path result,
+    private static void compileModule(int phase, String classPath, String boot, String sourcePath, Path phaseResult,
             String module, String reloc) throws IOException, InterruptedException, BootstrapMessage {
         progress("\tcompiling " + module + " (phase " + phase +")");
        
         String[] paths;
-        paths = phase >= 2 ? new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot , "--reloc", reloc }
-                           : new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot};
+        paths = phase >= 2 ? new String [] { "--bin", phaseResult.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot , "--reloc", reloc }
+                           : new String [] { "--bin", phaseResult.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot};
         String[] otherArgs = VERBOSE? new String[] {"--verbose", module} : new String[] {module};
 
-        if (runCompiler(classPath, concat(paths, otherArgs)) != 0) {
+        if (runRascalCompiler(classPath, concat(paths, otherArgs)) != 0) {
             throw new BootstrapMessage(phase);
         }
     }
     
-    private static void compileMuLibrary(int phase, String classPath, String bootDLoc, String sourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage {
+    private static void compileMuLibrary(int phase, String classPath, String bootDLoc, String sourcePath, Path phaseResult) throws IOException, InterruptedException, BootstrapMessage {
         progress("\tcompiling MuLibrary (phase " + phase +")");
         
-        String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", bootDLoc };
+        String[] paths = new String [] { "--bin", phaseResult.toAbsolutePath().toString(), "--src", sourcePath, "--boot", bootDLoc };
         String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[0];
 
         if (runMuLibraryCompiler(classPath, concat(paths, otherArgs)) != 0) {
@@ -536,11 +553,11 @@ public class Bootstrap {
         }
     }
     
-    private static void runTests(int phase, String classPath, String boot, String sourcePath, Path result, String[] testModules) throws IOException, InterruptedException, BootstrapMessage {
+    private static void runTests(int phase, String classPath, String boot, String sourcePath, Path phaseResult, String[] testModules) throws IOException, InterruptedException, BootstrapMessage {
         progress("Running tests with the results of " + phase);
         if (phase == 1) return;
         String[] javaCmd = new String[] {"java", "-ea", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests" };
-        String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
+        String[] paths = new String [] { "--bin", phaseResult.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
         String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[0];
 
         if (runChildProcess(concat(javaCmd, paths, otherArgs, testModules)) != 0) { 
@@ -548,19 +565,24 @@ public class Bootstrap {
         }
     }
     
-    private static void compileCourses(String classPath, String boot, String sourcePath, String courseSourcePath, Path result) throws IOException, InterruptedException, BootstrapMessage {
+    private static void compileCourses(String classPath, String boot, String sourcePath, String courseSourcePath, Path phaseResult) throws IOException, InterruptedException, BootstrapMessage {
       progress("Compiling all courses");
       System.out.println("courseSourcePath: " + courseSourcePath);
       String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.tutor3.CourseCompiler" };
-      String[] paths = new String [] { "--bin", result.toAbsolutePath().toString(), "--src", sourcePath, "--course", courseSourcePath, "--boot", boot, "--all" };
+      String[] paths = new String [] { "--bin", phaseResult.toAbsolutePath().toString(), "--src", sourcePath, "--course", courseSourcePath, "--boot", boot, "--all" };
       String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[0];
 
       if (runChildProcess(concat(javaCmd, paths, otherArgs)) != 0) { 
           throw new BootstrapMessage(5);
       }
   }
+    
+    private static int runJavaCompiler(String classPath, String targetFolder, String... arguments) throws IOException, InterruptedException {
+        String[] javaCmd = new String[] {"javac", "-cp", classPath, "-d", targetFolder };
+        return runChildProcess(concat(javaCmd, arguments));
+    }
 
-    private static int runCompiler(String classPath, String... arguments) throws IOException, InterruptedException {
+    private static int runRascalCompiler(String classPath, String... arguments) throws IOException, InterruptedException {
         /*
          * Remote Debugging Example:
          *     -Xdebug -Xrunjdwp:transport=dt_socket,address=8001,server=y,suspend=n

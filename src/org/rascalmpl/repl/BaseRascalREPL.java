@@ -25,7 +25,6 @@ import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedExcepti
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
-import org.rascalmpl.repl.exceptions.REPLException;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -61,13 +60,21 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     private final StandardTextWriter singleLinePrettyPrinter;
     private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 
+//<<<<<<< HEAD
     public BaseRascalREPL(boolean prettyPrompt, boolean allowColors) throws IOException, URISyntaxException {
         if (allowColors) {
             indentedPrettyPrinter = new ReplTextWriter();
+//=======
+//    public BaseRascalREPL(PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors,File persistentHistory, Terminal terminal, IDEServices ideServices)
+//                    throws IOException, URISyntaxException {
+//        super(pcfg, stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal, ideServices);
+//        if (terminal.isAnsiSupported() && allowColors) {
+//            indentedPrettyPrinter = new ReplTextWriter(true);
+//>>>>>>> 44a414ac26fba6bced00686bcbf400169f1e5e5e
             singleLinePrettyPrinter = new ReplTextWriter(false);
         }
         else {
-            indentedPrettyPrinter = new StandardTextWriter();
+            indentedPrettyPrinter = new StandardTextWriter(true);
             singleLinePrettyPrinter = new StandardTextWriter(false);
         }
     }
