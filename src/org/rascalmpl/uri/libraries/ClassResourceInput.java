@@ -21,15 +21,17 @@ import java.net.URL;
 import java.nio.charset.Charset;
 
 import org.rascalmpl.uri.ISourceLocationInput;
+import org.rascalmpl.uri.StandardLibraryURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
-import io.usethesource.vallang.ISourceLocation;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+import io.usethesource.vallang.ISourceLocation;
+
 /**
- * This class implements both input and output methods for files that reside in Java resources of a certain class.
- * Depending on where these resources are, i.e. on disk, or in a jar, (which depends on the classloader of the class)
- * some functionality may or may not work. Typically, the user will eventually get a "SchemeNotSupportedException" 
- * if an operation is not provided. 
+ * This reusable class implements input methods for files that reside in Java resources of a certain class.
+ * Extend it and bind the scheme, the clazz and the prefix by calling the
+ * super() method in the sub-class' constructor with static values, e.g:
+ * {@see StandardLibraryURIResolver}
  */
 public abstract class ClassResourceInput implements ISourceLocationInput {
 	protected final Class<?> clazz;

@@ -3,7 +3,6 @@ module experiments::Compiler::Execute
 import IO;
 import ValueIO;
 import String;
-import Type;
 import Message;
 import List;
 import Map;
@@ -189,24 +188,32 @@ RVMProgram mergeImports(RVMModule mainModule, PathConfig pcfg, bool jvm = true, 
    void resolve_module_extensions(str importName, list[RVMDeclaration] imported_declarations, list[RVMDeclaration] new_declarations){
         
        for(decl <- new_declarations){
-          //println("resolve_module_extensions: <decl>");
+          // println("resolve_module_extensions: <decl>");
           if(decl has ftype){
-            
-             overloads = imported_overloaded_functions[decl.uqname, decl.ftype, decl.scopeIn];
+             overloads = [<ofunctions, oconstructors> | <Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors> <- imported_overloaded_functions[decl.uqname],
+                                                         scope == decl.scopeIn, comparable(funType, decl.ftype)];
+                          
              if(overloads != []){
                 //println("decl = <decl>");
                 imported_overloaded_functions =
                     for(Resolved tup: <str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors> <- imported_overloaded_functions){
                         //println("tup = <tup>");
-                        if(name == decl.uqname && funType == decl.ftype && scope == decl.scopeIn, decl.qname notin tup.ofunctions && does_extend(importName, tup.ofunctions)){
+                        if(name == decl.uqname && scope == decl.scopeIn && comparable(funType, decl.ftype) && decl.qname notin tup.ofunctions && does_extend(importName, tup.ofunctions)){
                             
-                            //if(verbose) println("execute: *** added as extension: <decl.uqname>, it overlaps with: <overloads> ***");
+                            if(verbose) println("execute: *** added as extension: <decl.uqname>, it overlaps with: <overloads> ***");
                             append <name, 
                                     funType, 
                                     decl.scopeIn, 
                                     decl.isDefault ? tup.ofunctions + decl.qname : decl.qname + tup.ofunctions,
                                     tup.oconstructors>;
                         } else {
+                            if(verbose && name == decl.uqname){
+                                println("not added as extension <decl.uqname>: <tup>");
+                                println("scope == decl.scopeIn: <scope == decl.scopeIn>");
+                                println("comparable(funType, decl.ftype): <comparable(funType, decl.ftype)>");
+                                println("decl.qname notin tup.ofunctions: <decl.qname notin tup.ofunctions>");
+                                println("does_extend(importName, tup.ofunctions): <does_extend(importName, tup.ofunctions)>");
+                            }
                             append tup;
                         }   
                     };
@@ -477,7 +484,7 @@ value rascalTests(list[str] qualifiedModuleNames, PathConfig pcfg,
                         jvm=jvm,
                         verbose=verbose
                        );
-   return printTestReport(trs);
+   return makeTestReport(trs);
 }
 
 @deprecated
@@ -563,34 +570,31 @@ RVMProgram compileAndMergeProgramIncremental(str qualifiedModuleName, bool reuse
 
 str makeTestSummary(lrel[loc,int,str] test_results) = "<size(test_results)> tests executed; < size(test_results[_,0])> failed; < size(test_results[_,2])> ignored";
 
-bool printTestReport(TestResults trs){
+tuple[bool,str] makeTestReport(TestResults trs){
   test_results = trs.results;
   exceptions = trs.exceptions;
-  //if(lrel[loc,int,str] test_results := results){
-      failed = test_results[_,0];
-      if(size(failed) > 0){
-          println("\nFAILED TESTS:");
-          for(<l, 0, msg> <- test_results){
-              println("<l>: FALSE <msg>");
-          }
-      }
-      ignored = test_results[_,2];
-      if(size(ignored) > 0){
-          println("\nIGNORED TESTS:");
-          for(<l, 2, msg> <- test_results){
-              println("<l>: IGNORED");
-          }
-      }
-      if(size(exceptions) > 0){
-         println("\nEXCEPTIONS:");
-         for(exc <- exceptions){
-             println(exc);
-         }
-      }
+ 
+  failed = test_results[_,0];
+  failed_messages = size(failed) == 0 ? "" :
+      "\nFAILED TESTS:
+      '<for(<l, 0, msg> <- test_results){>
+      '<l>: FALSE <msg>
+      <}>";
       
-      println("\nTEST SUMMARY: " + makeTestSummary(test_results));
-      return size(failed) == 0 && size(exceptions) == 0;
-  //} else {
-  //  throw "cannot create report for test results: <results>";
-  //}
+  ignored = test_results[_,2];
+  ignored_messages = size(ignored) == 0 ? "" :
+      "\nIGNORED TESTS:
+      '<for(<l, 2, msg> <- test_results){>
+      '<l>: IGNORED
+      <}>";
+ 
+  exception_messages = size(exceptions) == 0 ? "" :
+     "\nEXCEPTIONS:
+     '<for(exc <- exceptions){>
+     '<exc>
+     '<}>";
+  
+  messages = "<failed_messages><ignored_messages><exception_messages>
+             'TEST SUMMARY: <makeTestSummary(test_results)>";
+  return <size(failed) == 0 && size(exceptions) == 0, messages>;
 }

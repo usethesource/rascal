@@ -5,7 +5,6 @@ import ParseTree;
 import String;
 import List;
 import Set;
-import Type;
 
 MuExp translateConstantCall(str name, list[MuExp] args) =
 	tcc(name, args);

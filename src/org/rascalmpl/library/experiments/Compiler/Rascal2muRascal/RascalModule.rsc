@@ -11,7 +11,6 @@ import util::Reflective;
 //import util::ValueUI;
 
 import ParseTree;
-import Type;
 
 import lang::rascal::\syntax::Rascal;
 import experiments::Compiler::muRascal::AST;
@@ -139,7 +138,7 @@ loc relocLoc(loc org, loc reloc, list[loc] srcs){
                                  : reloc + npath;
         }
     }
-    println("Not relocated: <org>");
+    // println("Not relocated: <org>");
     return org;
 }
 

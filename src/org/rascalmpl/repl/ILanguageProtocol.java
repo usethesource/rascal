@@ -15,8 +15,6 @@ package org.rascalmpl.repl;
 import java.io.Writer;
 import java.util.Map;
 
-import org.rascalmpl.repl.exceptions.REPLException;
-
 
 public interface ILanguageProtocol {
 

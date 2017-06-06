@@ -9,7 +9,7 @@
 	<packaging>jar</packaging>
 
 	<scm>
-		<developerConnection>scm:git:https://github.com/usethesource/rascal.git</developerConnection>
+		<developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
 	</scm>
 
 	<!-- deployment configuration (usethesource) -->
@@ -40,7 +40,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<lucence-version>6.1.0</lucence-version>
 		<exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
-		<rascal.boot.version>0.8.4-bs</rascal.boot.version>
+		<rascal.boot.version>0.8.4-bs9</rascal.boot.version>
 		<rascal.boot>--download</rascal.boot>
 	</properties>
 
@@ -180,6 +180,7 @@
 						-Xmx2g
 						-Xss128m
 						-Dfile.encoding=UTF-8
+                        ${argLine}
 					</argLine>
 					<includes>
 						<include>**/org/rascalmpl/test/AllSuiteParallel.java</include>
@@ -187,6 +188,33 @@
 						<include>**/org/rascalmpl/test_compiled/MediumSuite.java</include>
 					</includes>
 				</configuration>
+			</plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.7.9</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5.3</version>
+                <configuration>
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
+                </configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -207,7 +235,7 @@
 								</transformer>
 								<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
                                                                    <resource>org/rascalmpl/uri/resolvers.config</resource>
-                                                                   <resource>org/rascalmpl/value/type/types.config </resource>
+                                                                   <resource>io/usethesource/vallang/type/types.config </resource>
                                                                 </transformer>
 							</transformers>
 							<!--
@@ -283,7 +311,7 @@
 		<dependency>
 			<groupId>io.usethesource</groupId>
 			<artifactId>vallang</artifactId>
-			<version>0.7.0</version>
+			<version>0.7.11</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ow2.asm</groupId>

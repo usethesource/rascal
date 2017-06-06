@@ -1,3 +1,11 @@
-module experiments::Compiler::Examples::Tst1r
+module experiments::Compiler::Examples::Tst1
 
-int inc(int n) = n + 1;
+int f(1) = 1;
+
+int f(2) = 2;
+
+int f("a") = 10;
+
+value main() = g();
+
+value g() = f(3);

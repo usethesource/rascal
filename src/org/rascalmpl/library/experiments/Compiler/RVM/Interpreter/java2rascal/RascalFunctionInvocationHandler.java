@@ -16,9 +16,11 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.ClassUtils;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
@@ -42,8 +44,11 @@ public class RascalFunctionInvocationHandler implements InvocationHandler {
   }
   
   boolean hasKeywordParams(Object[] args){
-    // All normal arguments are IValues, a non-IValue must be a keyword proxy
-    return args != null && args.length > 0 && !(args[args.length - 1] instanceof IValue);
+    // All normal arguments are IValues or one of the supported marshalled primitive types, 
+    // the last parameter could a keyword parameters proxy object.
+    return args != null 
+        && args.length > 0 
+        && Proxy.isProxyClass(args[args.length - 1].getClass());
   }
   
   OverloadedFunction getOverloadedFunction(Method method, Object[] args) throws NoSuchRascalFunction{

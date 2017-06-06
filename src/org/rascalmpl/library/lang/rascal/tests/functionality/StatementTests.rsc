@@ -76,18 +76,28 @@ test bool doWhile2() {return {int n = 0; m = 2; do {m = m * m; n = n + 1;} while
 test bool testWhile1() {return {int n = 0; int m = 2; while(n != 0){ m = m * m;}; (n == 0)&& (m == 2);};}
 test bool testWhile2() {return {int n = 0; int m = 2; while(n < 3){ m = m * m; n = n + 1;}; (n ==3) && (m == 256);};}
 
-test bool testWhileWithBacktracking() {
+test bool testWhileWithBacktracking1() {
     list[list[int]] res = [];
     l:while([*int x, *int y] := [1,2,3]) {
         res = res + [ x ];
         fail l;
     }
+    return res ==  [[],[1],[1,2],[1,2,3]];
+}
+
+test bool testWhileWithBacktracking2() {
+    list[list[int]] res = [];
     
     while(true) {
         res = res + [ [999] ];
         fail;
     }
-    
+    return res == [[999]];
+}
+
+test bool testWhileWithBacktracking3(){
+    list[list[int]] res = [];
+   
     n = 0;
     while([*int x, *int y] := [3,4,3,4], n < 3) {
         if(x == y) {
@@ -98,28 +108,49 @@ test bool testWhileWithBacktracking() {
             fail;
         }
     }
-    
+    return res ==  [[0],[0],[3,4],[0],[0],[3,4],[0],[0],[3,4]];
+}
+
+test bool testWhileWithBacktracking4(){
+    list[list[int]] res = [];
+
     n = 0;
     while(n < 3) {
         res = res + [ [10] ];
         n = n + 1;
     }
-    
+    return res == [[10],[10],[10]];
+}
+
+test bool testWhileWithBacktracking5(){
+    list[list[int]] res = [];
+
     n = 0;
     while(1 == 1, n < 3) {
         res = res + [ [11] ];
         n = n + 1;
     }
-    
+    return res == [[11],[11],[11]];
+}
+
+test bool testWhileWithBacktracking6(){
+    list[list[int]] res = [];
+
     n = 0;
     while(1 == 2 || n < 3) {
         res = res + [ [12] ];
         n = n + 1;
     }
-    
-    return res == [[],[1],[1,2],[1,2,3],[999],[0],[0],[3,4],[0],[0],[3,4],
-  				   [0],[0],[3,4],[10],[10],[10],[11],[11],[11],[12],[12],[12]
-  				  ];
+    return res ==  [[12],[12],[12]];
+}
+
+@ignoreCompiler{FIX: pre and post should be reset to undefined on loop entry}
+test bool testWhileWithPatternVariables(){
+    syms = [10,9,1,3,5];
+    while([*pre, x, y, *post] := syms, x > y){
+      syms = [*pre, y, x, *post];
+    }
+    return syms == [1,3,5,9,10];
 }
  	
 data D = d(int i) | d();

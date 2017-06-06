@@ -24,7 +24,7 @@ str createValidScheme(str s) {
 @expected{InvalidURI}
 test bool noOpaqueURI() = loc l := |home:://this:is:opaque|;
 
-@ignoreCompiler{Renaming}
+@ignoreCompiler{Remove-after-transtion-to-compiler: Renaming}
 @expected{MalFormedURI}
 test bool noOpaqueURI() = loc l := |home:://this:is:opaque|;
 

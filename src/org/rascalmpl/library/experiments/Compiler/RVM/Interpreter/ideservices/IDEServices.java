@@ -12,7 +12,6 @@
  */ 
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices;
 
-import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Path;
 
@@ -35,38 +34,5 @@ public interface IDEServices extends IRascalMonitor {
    * @param path
    */
   void edit(Path path);
-  
-  
-  /**
-   * Start watching changes in the given directory and all its subdirectories.
-   * @param dir
-   * @throws IOException
-   */
-  void watch(Path dir) throws IOException;
-  
-  /**
-   * Stop watching changes in the given directory and all its subdirectories.
-   * @param dir
-   * @throws IOException 
-   */
-  void unwatch(Path dir) throws IOException;
-  
-  /**
-   * Stop watching any watched directories.
-   * @throws IOException
-   */
-  void unwatchAll() throws IOException;
-  
-  /**
-   * Get file changes.
-   * @return a list of changed files in the watched directories
-   */
-  Iterable<Path> fileChanges();
-
-  /**
-   * Did any file change?
-   * @return true if any file has changed in the watched directories
-   */
-  boolean anyFileChanges();
 
 }

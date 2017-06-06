@@ -31,7 +31,6 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.InnerClassNode;
 import org.objectweb.asm.tree.MethodNode;
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.uri.URIResolverRegistry;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
@@ -49,7 +48,7 @@ public class JarConverter extends M3Converter {
   private String className;
   private boolean classIsEnum;
 
-  JarConverter(TypeStore typeStore, Map<String, ISourceLocation> cache) {
+  JarConverter(LimitedTypeStore typeStore, Map<String, ISourceLocation> cache) {
     super(typeStore, cache);
   }
 
@@ -63,7 +62,7 @@ public class JarConverter extends M3Converter {
   }
 
   @SuppressWarnings("unchecked")
-  public void convert(ISourceLocation jarLoc, IEvaluatorContext ctx) {
+  public void convert(ISourceLocation jarLoc) {
 
       this.loc = jarLoc;
     this.jarFile = extractJarName(jarLoc);
