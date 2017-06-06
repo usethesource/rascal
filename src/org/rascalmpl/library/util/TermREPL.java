@@ -15,8 +15,6 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.repl.ILanguageProtocol;
-import org.rascalmpl.repl.exceptions.REPLException;
-
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
@@ -47,7 +45,7 @@ public class TermREPL {
         }
     }
 
-    class TheREPL implements ILanguageProtocol {
+    class TheREPL implements ILanguageProtocol extends BaseREPL {
         private final TypeFactory tf = TypeFactory.getInstance();
         private PrintWriter stdout;
         private PrintWriter stderr;
