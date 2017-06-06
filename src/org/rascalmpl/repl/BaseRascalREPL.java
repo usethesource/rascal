@@ -18,6 +18,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
+import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.interpreter.result.ElementResult;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
@@ -151,7 +153,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
             else {
 //                out.write(type.toString());
 //                out.write(": ");
-                writeBasicRascalToHTML(type, value, out);
+                    writeRascalToHTML(result, out);   
                 
                 // limit both the lines and the characters
 //                try (Writer wrt = new LimitedWriter(new LimitedLineWriter(out, LINE_LIMIT), CHAR_LIMIT)) {
@@ -168,17 +170,55 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         }
     }
     
-    public void writeBasicRascalToHTML(Type type, IValue val, StringWriter out){  
-        String value = val.toString();
-         switch (type.toString()) {
-            case "loc":
-                value = value.substring(1, value.length()-1);
-                out.write("<pre title=\"Type: "+ type.toString()+"\">"+"<a href=\""+ value+"\">"+value +"</a></pre>");
-                break;
-            default:
-                out.write("<pre title=\"Type: "+ type.toString()+"\">"+value +"</pre>");
-                break;
+    public void writeRascalToHTML(IRascalResult result, StringWriter out){  
+        if( result instanceof ElementResult){
+            String value = result.getValue().toString();
+            String type =result.getType().toString();
+            switch (type) {
+                case "loc":
+                    value = value.substring(1, value.length()-1);
+                    value = value.replace("file://", "./");
+                    if(isImage(value)){
+                        if(value.toLowerCase().endsWith(".tiff")){
+                            String id = value.replaceAll("/|\\.", "");
+                            out.write("<script>loadTiffImage('"+ value+ "', '"+ id+"');</script><div id='" + id +"'></div>");
+                        }
+                        else
+                            out.write("<img src = \""+value +" \"><");
+                    }
+                    else if(isSourceCodeLocation(value)){
+                        out.write("<pre title=\"Type: "+ type.toString()+"\">"+"<a href=\""+ value.replace("./", "../edit/")+"\">"+value.substring(2) +"</a></pre>");
+                    }
+                    else{
+                        out.write("<pre title=\"Type: "+ type.toString()+"\">"+"<a href=\""+ value+"\">"+value.substring(2) +"</a></pre>");
+                    }
+                    break;
+                default:
+                    out.write("<pre title=\"Type: "+ type.toString()+"\">"+value +"</pre>");
+                    break;
+            }
         }
+        else if( result instanceof AbstractFunction){
+            
+        }
+        else{
+            
+        }
+    }
+
+    public boolean isSourceCodeLocation(String value) {
+        if(value.endsWith(".py")||value.endsWith(".java")||value.endsWith(".js")||value.endsWith(".rsc"))
+            return true;
+        else        
+            return false;
+    }
+
+    public boolean isImage(String value) {
+        value = value.toLowerCase();
+        if(value.endsWith(".png")||value.endsWith(".jpeg")||value.endsWith(".bmp")||value.endsWith(".gif")||value.endsWith(".jpg")||value.endsWith(".tiff"))
+            return true;
+        else
+            return false;
     }
 
     protected abstract PrintWriter getErrorWriter();
