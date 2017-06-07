@@ -67,7 +67,6 @@ public class IO {
         return read(result, loc, header, separator, encoding, values.bool(false), ctx.getStdOut(), ctx::getCurrentAST, ctx::getStackTrace);
     }
 
-
     /*
      * Calculate the type of a CSV file, returned as the string 
      */
@@ -75,6 +74,15 @@ public class IO {
         return computeType(loc, header, separator, encoding, ctx.getStdOut(), ctx::getCurrentAST, ctx::getStackTrace, (IValue v) -> new TypeReifier(values).typeToValue(v.getType(), ctx.getCurrentEnvt().getStore(), values.mapWriter().done()));
     }
 
+    /*
+     * Write a CSV file.
+     */
+    public void writeCSV(IValue rel, ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
+        writeCSV(rel, loc, header, separator, encoding, ctx.getCurrentEnvt().getTypeBindings().get(types.parameterType("T")),  ctx::getCurrentAST, ctx::getStackTrace);
+    }
+
+    
+    
     //////
 
     protected IValue read(IValue resultTypeConstructor, ISourceLocation loc, IBool header, IString separator, IString encoding, IBool printInferredType, PrintWriter stdOut, Supplier<AbstractAST> currentAST, Supplier<StackTrace> stackTrace) {
@@ -516,18 +524,13 @@ public class IO {
 
 
 
-    /*
-     * Write a CSV file.
-     */
-    public void writeCSV(IValue rel, ISourceLocation loc, IBool header, IString separator, IString encoding, IEvaluatorContext ctx){
+    protected void writeCSV(IValue rel, ISourceLocation loc, IBool header, IString separator, IString encoding, Type paramType, Supplier<AbstractAST> currentAST, Supplier<StackTrace> stackTrace) {
         String sep = separator != null ? separator.getValue() : ",";
         Boolean head = header != null ? header.getValue() : true;
         Writer out = null;
 
-        Type paramType = ctx.getCurrentEnvt().getTypeBindings().get(types.parameterType("T"));
         if(!paramType.isRelation() && !paramType.isListRelation()){
-            throw RuntimeExceptionFactory.illegalTypeArgument("A relation type is required instead of " + paramType,ctx.getCurrentAST(), 
-                ctx.getStackTrace());
+            throw RuntimeExceptionFactory.illegalTypeArgument("A relation type is required instead of " + paramType, currentAST.get(), stackTrace.get());
         }
 
         try{
@@ -586,14 +589,14 @@ public class IO {
             }
         }
         catch(IOException e){
-            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), currentAST.get(), stackTrace.get());
         }finally{
             if(out != null){
                 try{
                     out.flush();
                     out.close();
                 }catch(IOException ioex){
-                    throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
+                    throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()),  currentAST.get(), stackTrace.get());
                 }
             }
         }
