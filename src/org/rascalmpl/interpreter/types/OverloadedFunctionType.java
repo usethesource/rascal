@@ -236,12 +236,7 @@ public class OverloadedFunctionType extends RascalType {
 	protected boolean isSubtypeOfFunction(RascalType type) {
 	// TODO: this is broken because of defaults. We should distinguish!
 	  
-	  for (FunctionType a : alternatives) {
-	    if (a.isSubtypeOf(type)) {
-	      return true;
-	    }
-	  }
-	  return false;
+	  return alternatives.stream().anyMatch(a -> a.isSubtypeOf(type));
 	}
 	
 	@Override

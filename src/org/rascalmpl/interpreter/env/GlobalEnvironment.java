@@ -44,20 +44,20 @@ import org.rascalmpl.values.uptr.ITree;
  */
 public class GlobalEnvironment {
 	/** The heap of Rascal */
-	private final HashMap<String, ModuleEnvironment> moduleEnvironment = new HashMap<String, ModuleEnvironment>();
+	private final HashMap<String, ModuleEnvironment> moduleEnvironment = new HashMap<>();
 		
 	/** Keeping track of module locations */
-	private final HashMap<String, URI> moduleLocations = new HashMap<String,URI>();
-	private final HashMap<URI, String> locationModules = new HashMap<URI,String>();
+	private final HashMap<String, URI> moduleLocations = new HashMap<>();
+	private final HashMap<URI, String> locationModules = new HashMap<>();
 	
 	/**
 	 * Source location resolvers map user defined schemes to primitive schemes
 	 */
-	private final HashMap<String, ICallableValue> sourceResolvers = new HashMap<String, ICallableValue>();
+	private final HashMap<String, ICallableValue> sourceResolvers = new HashMap<>();
 	
 	/** Keeping track of generated parsers */
-	private final HashMap<String,ParserTuple> objectParsersForModules = new HashMap<String,ParserTuple>();
-	private final HashMap<String,ParserTuple> rascalParsersForModules = new HashMap<String,ParserTuple>();
+	private final HashMap<String,ParserTuple> objectParsersForModules = new HashMap<>();
+	private final HashMap<String,ParserTuple> rascalParsersForModules = new HashMap<>();
 
   private boolean bootstrapper;
 	
@@ -201,7 +201,7 @@ public class GlobalEnvironment {
 	}
 	
 	public Set<String> getImportingModules(String mod) {
-		Set<String> result = new HashSet<String>();
+		Set<String> result = new HashSet<>();
 		
 		for (ModuleEnvironment env : moduleEnvironment.values()) {
 			if (env.getImports().contains(mod)) {
@@ -213,8 +213,8 @@ public class GlobalEnvironment {
 	}
 	
 	public Set<String> getExtendingModules(String mod) {
-		Set<String> result = new HashSet<String>();
-		List<String> todo = new LinkedList<String>();
+		Set<String> result = new HashSet<>();
+		List<String> todo = new LinkedList<>();
 		todo.add(mod);
 		
 		while (!todo.isEmpty()) {

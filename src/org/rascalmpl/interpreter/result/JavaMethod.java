@@ -101,12 +101,7 @@ public class JavaMethod extends NamedFunction {
 	}
 	
 	private boolean hasReflectiveAccess(FunctionDeclaration func) {
-		for (Tag tag : func.getTags().getTags()) {
-			if (Names.name(tag.getName()).equals("reflect")) {
-				return true;
-			}
-		}
-		return false;
+		return func.getTags().getTags().stream().anyMatch(tag -> Names.name(tag.getName()).equals("reflect"));
 	}
 	
 	@Override

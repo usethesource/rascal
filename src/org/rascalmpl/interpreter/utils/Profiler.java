@@ -138,7 +138,7 @@ public class Profiler extends Thread {
 	 */
 	
 	private List<Map.Entry<ISourceLocation, Count>> sortData(Map<ISourceLocation,Count> data) {
-	  List<Map.Entry<ISourceLocation, Count>> sortedData = new Vector<Entry<ISourceLocation, Count>>(data.entrySet());
+	  List<Map.Entry<ISourceLocation, Count>> sortedData = new Vector<>(data.entrySet());
 
 	  java.util.Collections.sort(sortedData, new Comparator<Map.Entry<ISourceLocation, Count>>(){
 	    public int compare(Entry<ISourceLocation, Count> entry1, Entry<ISourceLocation, Count> entry2) {

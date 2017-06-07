@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.KeywordFormal;
@@ -335,11 +336,9 @@ public class Environment implements IRascalFrame {
 			List<AbstractFunction> locals = functionEnvironment.get(name);
 			
 			if (locals != null) {
-				for (AbstractFunction func : locals) {
-					if (func.getReturnType().comparable(returnType)) {
-						collection.add(func);
-					}
-				}
+				collection  = locals.stream()
+                                                    .filter(func -> func.getReturnType().comparable(returnType))
+                                                    .collect(Collectors.toList());
 			}
 		}
 		

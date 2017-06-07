@@ -103,7 +103,7 @@ public class RascalSearchPath {
 	}
 	
 	public List<ISourceLocation> collect() { 
-		List<ISourceLocation> paths = new LinkedList<ISourceLocation>();
+		List<ISourceLocation> paths = new LinkedList<>();
 		for (IRascalSearchPathContributor c : contributors) {
 			c.contributePaths(paths);
 		}

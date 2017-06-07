@@ -31,7 +31,7 @@ public class ReifiedTypePattern extends AbstractMatchingResult {
 
 	public ReifiedTypePattern(IEvaluatorContext ctx, Expression x, IMatchingResult symbol, IMatchingResult def) {
 		super(ctx, x);
-		List<IMatchingResult> arguments = new ArrayList<IMatchingResult>(2);
+		List<IMatchingResult> arguments = new ArrayList<>(2);
 		arguments.add(symbol);
 		arguments.add(def);
         this.nodePattern = new NodePattern(ctx, x, new LiteralPattern(ctx, x, ctx.getValueFactory().string("type")), null, RascalValueFactory.Type_Reified, arguments, Collections.<String,IMatchingResult>emptyMap());

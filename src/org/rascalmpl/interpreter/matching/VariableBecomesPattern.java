@@ -60,7 +60,7 @@ public class VariableBecomesPattern extends AbstractMatchingResult {
 	public List<IVarPattern> getVariables() {
 		List<IVarPattern> first = var.getVariables();
 		List<IVarPattern> second = pat.getVariables();
-		List<IVarPattern> vars = new ArrayList<IVarPattern>(first.size() + second.size());
+		List<IVarPattern> vars = new ArrayList<>(first.size() + second.size());
 		vars.addAll(first);
 		vars.addAll(second);
 		return vars;
