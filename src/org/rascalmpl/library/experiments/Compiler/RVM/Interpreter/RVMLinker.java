@@ -437,6 +437,7 @@ public class RVMLinker {
 						IString scopeIn = (IString) declaration.get("scopeIn");
 						rootWriter.insert(iname);
 						rootWriter.insert(scopeIn);
+						//System.err.println("Mark as used: " + iname + ", " + scopeIn);
 					}
 
 					if(hasExtends){
