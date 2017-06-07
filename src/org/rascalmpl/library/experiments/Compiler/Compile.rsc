@@ -170,6 +170,11 @@ list[RVMModule] compileAll(loc moduleRoot, PathConfig pcfg, loc reloc=|noreloc:/
 list[RVMModule] compile(list[loc] moduleLocs, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = false, bool optimize=true, bool enableAsserts=false){
     return compile([ getModuleName(moduleLoc, pcfg) | moduleLoc <- moduleLocs ], pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
 }
+ 
+str escapeQualifiedName(str qualifiedModuleName){
+    reserved = getRascalReservedIdentifiers();
+    return intercalate("::", [nm in reserved ? "\\<nm>" : nm | nm <- split("::", qualifiedModuleName)]);
+}
 
 list[RVMModule] compile(list[str] qualifiedModuleNames, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = false, bool optimize=true, bool enableAsserts=false){
     uniq = uuidi();
@@ -177,7 +182,7 @@ list[RVMModule] compile(list[str] qualifiedModuleNames, PathConfig pcfg, loc rel
     containerLocation = |test-modules:///<containerName>.rsc|;
     container = "module <containerName>
                 '<for(str m <- qualifiedModuleNames){>
-                'import <m>;<}>";
+                'import <escapeQualifiedName(m)>;<}>";
     writeFile(containerLocation, container);
     pcfg.srcs = |test-modules:///| + pcfg.srcs;
 
