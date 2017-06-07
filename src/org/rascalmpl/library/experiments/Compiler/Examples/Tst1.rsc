@@ -1,11 +1,5 @@
 module experiments::Compiler::Examples::Tst1
 
-int f(1) = 1;
+data X(int left = 10, int leftsq = left * left) = ly(int leftcb = leftsq * left);
 
-int f(2) = 2;
-
-int f("a") = 10;
-
-value main() = g();
-
-value g() = f(3);
+value main() = ly();
