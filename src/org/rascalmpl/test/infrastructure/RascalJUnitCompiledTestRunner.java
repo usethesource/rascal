@@ -77,9 +77,9 @@ public class RascalJUnitCompiledTestRunner extends Runner {
     
     public RascalJUnitCompiledTestRunner(Class<?> clazz) {
         initializeKernel();
-        
+       
         this.prefix = clazz.getAnnotation(RascalJUnitTestPrefix.class).value().replaceAll("\\\\", "");
-        this.pcfg = initializePathConfig();
+       
         this.IGNORED_DIRECTORIES = initializeIgnoredDirectories();
         
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
@@ -102,9 +102,10 @@ public class RascalJUnitCompiledTestRunner extends Runner {
                     return "rascal";
                 }
             });
-            
-            pcfg.addLibLoc(URIUtil.correctLocation("project", "rascal", "bin"));
         }
+        this.pcfg = initializePathConfig();
+        
+        pcfg.addLibLoc(URIUtil.correctLocation("project", "rascal", "bin"));
         
         System.err.println(pcfg);
     }
