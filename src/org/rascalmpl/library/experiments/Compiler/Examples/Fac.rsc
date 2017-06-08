@@ -2,7 +2,8 @@ module experiments::Compiler::Examples::Fac
 
 import IO;
 
-@doc{This is factorial}
+@doc{This is factorial
+}
 int   fac(int n) = (n <= 1) ? 1 : n * fac(n-1);
  
 //int main(str n = "24"){
