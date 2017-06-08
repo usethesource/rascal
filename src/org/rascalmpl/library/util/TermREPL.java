@@ -1,6 +1,5 @@
 package org.rascalmpl.library.util;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
@@ -16,6 +15,7 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.repl.ILanguageProtocol;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
@@ -26,7 +26,6 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-
 import jline.TerminalFactory;
 
 public class TermREPL {
@@ -40,7 +39,7 @@ public class TermREPL {
 
     public void startREPL(IConstructor repl, IEvaluatorContext ctx) {
         try {
-            lang = new TheREPL(repl, ctx);
+            lang = new TheREPL(vf, repl, ctx);
             // TODO: this used to get a repl from the IEvaluatorContext but that was wrong. Need to fix later. 
             new BaseREPL(lang, null, System.in, System.out, true, true, ((ISourceLocation)repl.get("history")), TerminalFactory.get(), null).run();
         } catch (IOException | URISyntaxException e) {
@@ -48,7 +47,7 @@ public class TermREPL {
         }
     }
 
-    class TheREPL implements ILanguageProtocol {
+    public static class TheREPL implements ILanguageProtocol {
         private final TypeFactory tf = TypeFactory.getInstance();
         private PrintWriter stdout;
         private PrintWriter stderr;
@@ -56,13 +55,15 @@ public class TermREPL {
         private final ICallableValue handler;
         private final IEvaluatorContext ctx;
         private final ICallableValue completor;
+        private final IValueFactory vf;
 
-        public TheREPL(IConstructor repl, IEvaluatorContext ctx) throws IOException, URISyntaxException {
+        public TheREPL(IValueFactory vf, IConstructor repl, IEvaluatorContext ctx) throws IOException, URISyntaxException {
             this.ctx = ctx;
+            this.vf = vf;
             this.handler = (ICallableValue)repl.get("handler");
             this.completor = (ICallableValue)repl.get("completor");
             this.currentPrompt = ((IString)repl.get("prompt")).getValue();
-            stdout = new PrintWriter(System.out);
+            stdout = ctx.getStdOut();
             assert stdout != null;
             stdout.println(((IString)repl.get("welcome")).getValue());
         }
