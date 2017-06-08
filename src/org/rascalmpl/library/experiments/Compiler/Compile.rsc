@@ -185,14 +185,28 @@ list[RVMModule] compile(list[str] qualifiedModuleNames, PathConfig pcfg, loc rel
                 'import <escapeQualifiedName(m)>;<}>";
     writeFile(containerLocation, container);
     pcfg.srcs = |test-modules:///| + pcfg.srcs;
-
-    res = [ compile(containerName, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts) ];
+    
+    rvmContainer = compile(containerName, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
+    messages = rvmContainer.messages;
+    for(str qualifiedModuleName <- qualifiedModuleNames){
+            rvmModuleLoc = RVMModuleWriteLoc(qualifiedModuleName, pcfg);
+            if(exists(rvmModuleLoc)){
+                try {
+                   rvmMod = readBinaryValueFile(#RVMModule, rvmModuleLoc);
+                   messages += rvmMod.messages;
+                }  catch IO(str msg): {
+                    println("CANNOT READ RVM MODULE FOR <qualifiedModuleName>: <msg>");
+                }
+             }
+    }
+    rvmContainer.messages = messages;
+    
     for(loc moduleLoc <- files(pcfg.bin), contains(moduleLoc.path, containerName)){
         try {
             remove(moduleLoc);
         } catch e: /* ignore failure to remove file */;
     }
-    return res;
+    return [rvmContainer];
 }
 
 @deprecated
