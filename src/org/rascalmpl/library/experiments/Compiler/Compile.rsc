@@ -195,7 +195,7 @@ list[RVMModule] compile(list[str] qualifiedModuleNames, PathConfig pcfg, loc rel
                    rvmMod = readBinaryValueFile(#RVMModule, rvmModuleLoc);
                    messages += rvmMod.messages;
                 }  catch IO(str msg): {
-                    println("CANNOT READ RVM MODULE FOR <qualifiedModuleName>: <msg>");
+                   messages += error("Cannot read RVM module for <qualifiedModuleName>: <msg>", rvmModuleLoc);
                 }
              }
     }
