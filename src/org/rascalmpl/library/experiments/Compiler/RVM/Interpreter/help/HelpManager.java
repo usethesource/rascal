@@ -55,8 +55,7 @@ public class HelpManager {
       this.stderr = stderr;
       this.ideServices = ideServices;
      
-      ISourceLocation binDir = pcfg.getBin();
-      coursesDir = URIUtil.correctLocation(binDir.getScheme(), binDir.getAuthority(), binDir.getPath() + "boot/courses");
+      coursesDir = URIUtil.correctLocation("boot", "", "/courses");
 
       for(port = BASE_PORT; port < BASE_PORT+ATTEMPTS; port++){
           try {
