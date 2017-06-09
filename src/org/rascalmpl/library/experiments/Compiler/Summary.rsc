@@ -101,10 +101,10 @@ set[loc] getDefinitions(ModuleSummary summary, loc use){
 
 @doc{
 .Synopsis
-Get the type for a given use.
+Get the (pretty printed) type for a given use.
 }
-Symbol getType(ModuleSummary summary, loc use){
-    return summary.locationTypes[use] ? Symbol::\value();
+str getType(ModuleSummary summary, loc use){
+    return summary.locationTypes[use] ? "";
 }
 
 @doc{
