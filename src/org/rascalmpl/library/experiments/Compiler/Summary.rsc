@@ -7,6 +7,7 @@ import ValueIO;
 import Relation;
 import String;
 import lang::rascal::types::AbstractName;
+import lang::rascal::types::AbstractType;
 import lang::rascal::types::CheckerConfig;
 import lang::rascal::types::CheckTypes;
 
@@ -28,14 +29,14 @@ A `ModuleSummary` summarizes a Rascal module for the benefit of IDE support like
 * Name completion.
 }
 data ModuleSummary =
-     moduleSummary(map[loc from, Symbol tp] locationTypes = (),
+     moduleSummary(map[loc from, str tp] locationTypes = (),
                    rel[loc from, loc to] useDef = {},
                    set[str] vocabulary = {},
-                   map[loc def, str synopsis] synopses= (),
+                   map[loc def, str synopsis] synopses = (),
                    map[loc def, loc docLoc] docLocs = ());
 
-private map[loc from, Symbol tp] getLocationTypes(Configuration c) =
-    c.locationTypes;
+private map[loc from, str tp] getLocationTypes(Configuration c) =
+    (from : prettyPrintType(c.locationTypes[from]) | from <- c.locationTypes);
     
 private rel[loc from, loc to] getUseDef(Configuration c){
     mod_use_def = {<name@at, at> | int uid <- c.store, m:\module(RName name, loc at) := c.store[uid], name@at?};
