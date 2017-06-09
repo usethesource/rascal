@@ -40,7 +40,11 @@ public class HelpManager {
 	private final PrintWriter stdout;
 	private final PrintWriter stderr;
 	private IndexSearcher indexSearcher;
-	private final int port = 8000;
+	
+	private final int BASE_PORT = 8750;
+	private final int ATTEMPTS = 100;
+	private int port = BASE_PORT;
+	
     @SuppressWarnings("unused")
     private HelpServer helpServer;
     private final IDEServices ideServices;
@@ -54,11 +58,15 @@ public class HelpManager {
       ISourceLocation binDir = pcfg.getBin();
       coursesDir = URIUtil.correctLocation(binDir.getScheme(), binDir.getAuthority(), binDir.getPath() + "boot/courses");
 
-      try {
-        helpServer = new HelpServer(getPort(), this, coursesDir);
-        indexSearcher = makeIndexSearcher();
-      } catch (IOException e) {
-        stderr.println("HelpManager: " + e.getMessage());
+      for(port = BASE_PORT; port < BASE_PORT+ATTEMPTS; port++){
+          try {
+              helpServer = new HelpServer(port, this, coursesDir);
+              indexSearcher = makeIndexSearcher();
+              stderr.println("HelpManager: using port " + port);
+              return;
+          } catch (IOException e) {
+              stderr.println("HelpManager: " + e.getMessage());
+          }
       }
     }
     
