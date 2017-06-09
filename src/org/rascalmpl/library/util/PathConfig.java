@@ -391,7 +391,7 @@ public class PathConfig {
         return null;
     }
 	
-	String getModuleName(ISourceLocation moduleLoc) throws IOException{
+	public String getModuleName(ISourceLocation moduleLoc) throws IOException{
 	    String modulePath = moduleLoc.getPath();
 	    if(!modulePath.endsWith(".rsc")){
 	        throw new IOException("Not a Rascal source file: " + moduleLoc);
