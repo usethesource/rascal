@@ -52,7 +52,7 @@ public class HelpManager {
       this.ideServices = ideServices;
      
       ISourceLocation binDir = pcfg.getBin();
-      coursesDir = URIUtil.correctLocation(binDir.getScheme(), binDir.getAuthority(), binDir.getPath() + "/courses");
+      coursesDir = URIUtil.correctLocation(binDir.getScheme(), binDir.getAuthority(), binDir.getPath() + "boot/courses");
 
       try {
         helpServer = new HelpServer(getPort(), this, coursesDir);

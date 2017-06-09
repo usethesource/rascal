@@ -60,7 +60,6 @@
 				<includes>
 					<include>plugin.xml</include>
 					<include>META-INF/RASCAL.MF</include>
-                                        <include>courses/**/*.*</include>
 				</includes>
 			</resource>
 			<resource>
