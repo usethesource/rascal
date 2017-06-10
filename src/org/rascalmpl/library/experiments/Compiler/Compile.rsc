@@ -187,26 +187,30 @@ list[RVMModule] compile(list[str] qualifiedModuleNames, PathConfig pcfg, loc rel
     pcfg.srcs = |test-modules:///| + pcfg.srcs;
     
     rvmContainer = compile(containerName, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
-    messages = rvmContainer.messages;
-    for(str qualifiedModuleName <- qualifiedModuleNames){
+    messages = {};
+    compiledModules =
+        for(str qualifiedModuleName <- qualifiedModuleNames){
             rvmModuleLoc = RVMModuleWriteLoc(qualifiedModuleName, pcfg);
             if(exists(rvmModuleLoc)){
                 try {
                    rvmMod = readBinaryValueFile(#RVMModule, rvmModuleLoc);
-                   messages += rvmMod.messages;
+                   append rvmMod;
                 }  catch IO(str msg): {
                    messages += error("Cannot read RVM module for <qualifiedModuleName>: <msg>", rvmModuleLoc);
                 }
              }
     }
-    rvmContainer.messages = messages;
+  
+    if(!isEmpty(messages) && !isEmpty(compiledModules)){
+        compiledModules[0].messages += messages;
+    }
     
     for(loc moduleLoc <- files(pcfg.bin), contains(moduleLoc.path, containerName)){
         try {
             remove(moduleLoc);
         } catch e: /* ignore failure to remove file */;
     }
-    return [rvmContainer];
+    return compiledModules;
 }
 
 @deprecated
