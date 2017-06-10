@@ -11,6 +11,7 @@ import util::Benchmark;
 import util::FileSystem;
 import util::UUID;
 import Map;
+import Set;
 import Relation;
 import Exception;
 
@@ -187,7 +188,7 @@ list[RVMModule] compile(list[str] qualifiedModuleNames, PathConfig pcfg, loc rel
     pcfg.srcs = |test-modules:///| + pcfg.srcs;
     
     rvmContainer = compile(containerName, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
-    messages = {};
+    set[Message] messages = {};
     compiledModules =
         for(str qualifiedModuleName <- qualifiedModuleNames){
             rvmModuleLoc = RVMModuleWriteLoc(qualifiedModuleName, pcfg);
