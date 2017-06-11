@@ -662,7 +662,7 @@ public abstract class RVMCore {
 			}
 			return "OverloadedFunction[ alts: " + alts + "]";
 		}
-		if(o instanceof IReference){
+		if(o instanceof Reference){
 			Reference ref = (Reference) o;
 			return ref.toString(); //"Reference[" + ref.stack + ", " + ref.pos + "]";
 		}
