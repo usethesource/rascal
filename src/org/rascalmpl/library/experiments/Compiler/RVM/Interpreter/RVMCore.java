@@ -662,9 +662,9 @@ public abstract class RVMCore {
 			}
 			return "OverloadedFunction[ alts: " + alts + "]";
 		}
-		if(o instanceof Reference){
+		if(o instanceof IReference){
 			Reference ref = (Reference) o;
-			return "Reference[" + ref.stack + ", " + ref.pos + "]";
+			return ref.toString(); //"Reference[" + ref.stack + ", " + ref.pos + "]";
 		}
 		if(o instanceof IListWriter){
 			return "ListWriter[" + ((IListWriter) o).toString() + "]";
@@ -754,7 +754,8 @@ public abstract class RVMCore {
 	}
 	
 	protected Object LOADVARREFMODULE(final Frame cf, final int varScope){
-		return moduleVariables.get(cf.function.constantStore[varScope]);
+	    return new Reference(moduleVariables, cf.function.constantStore[varScope]);
+		//return moduleVariables.get(cf.function.constantStore[varScope]);
 	}
 	
 	protected Object LOADVARREFSCOPED(final Frame cf, final int varScope, final int pos){
@@ -871,7 +872,8 @@ public abstract class RVMCore {
 		for (Frame fr = cf.previousScope; fr != null; fr = fr.previousScope) { 
 			if (fr.scopeId == varScope) {
 				Reference ref = (Reference) fr.stack[pos];
-				ref.stack[ref.pos] = accu;
+				//ref.stack[ref.pos] = accu;
+				ref.setValue(accu);
 			}
 		}
 		throw new CompilerError("STOREVARDEREF cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);

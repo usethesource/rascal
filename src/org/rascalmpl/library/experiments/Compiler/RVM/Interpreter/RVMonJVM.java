@@ -562,7 +562,8 @@ public class RVMonJVM extends RVMCore {
 		}
 		for (int i = 0; i < arity; i++) {
 			Reference ref = (Reference) lstack[refs[arity - 1 - i]];
-			ref.stack[ref.pos] = lstack[--sop];
+			//ref.stack[ref.pos] = lstack[--sop];
+			ref.setValue(lstack[--sop]);
 		}
 
 		returnValue = RascalPrimitive.Rascal_TRUE;
@@ -655,7 +656,8 @@ public class RVMonJVM extends RVMCore {
 
 		for (int i = 0; i < arity; i++) {
 			Reference ref = (Reference) stack[refs[arity - 1 - i]];
-			ref.stack[ref.pos] = stack[--sp];
+			//ref.stack[ref.pos] = stack[--sp];
+			ref.setValue(stack[--sp]);
 		}
 
 		cf.hotEntryPoint = ep;

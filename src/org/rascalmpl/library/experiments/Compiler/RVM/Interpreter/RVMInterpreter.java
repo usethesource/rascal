@@ -784,7 +784,8 @@ public class RVMInterpreter extends RVMCore {
 						}
 						for(int i = 0; i < arity; i++) {
 							ref = (Reference) stack[refs[arity - 1 - i]];
-							ref.stack[ref.pos] = stack[--sp];
+							//ref.stack[ref.pos] = stack[--sp];
+							ref.setValue(stack[--sp]);
 						}
 					}
 					
@@ -968,7 +969,8 @@ public class RVMInterpreter extends RVMCore {
 						// Assign the reference parameters of the currently active coroutine instance
 						for(int i = 0; i < arity; i++) {
 							ref = (Reference) stack[refs[arity - 1 - i]]; 
-							ref.stack[ref.pos] = stack[--sp];
+							//ref.stack[ref.pos] = stack[--sp];
+							ref.setValue(stack[--sp]);;
 						}
 					}
 					cf.pc = pc;
