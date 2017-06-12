@@ -628,62 +628,51 @@ public class BytecodeGenerator implements Opcodes {
 	
 	// LoadLocDeref:
 	//	Reference ref = (Reference) stack[pos];
-	//	accu = ref.stack[ref.pos];
+	//	accu = ref.getValue();
 
 	public void emitInlineLoadLocDeref(int pos){
-		mv.visitVarInsn(ALOAD, STACK);
-		emitIntValue(pos);
-		mv.visitInsn(AALOAD);
-		mv.visitTypeInsn(CHECKCAST, getInternalName(Reference.class));
-		mv.visitVarInsn(ASTORE, TMP1);
-		
-		mv.visitVarInsn(ALOAD, TMP1);
-		mv.visitFieldInsn(GETFIELD, getInternalName(Reference.class), "stack", getDescriptor(Object[].class));
-		mv.visitVarInsn(ALOAD, TMP1);
-		mv.visitFieldInsn(GETFIELD, getInternalName(Reference.class), "pos", Type.INT_TYPE.getDescriptor());
-		mv.visitInsn(AALOAD);
-		mv.visitVarInsn(ASTORE, ACCU);
+	    mv.visitVarInsn(ALOAD, STACK);
+        emitIntValue(pos);
+        mv.visitInsn(AALOAD);
+        mv.visitTypeInsn(CHECKCAST, getInternalName(Reference.class));
+        
+        mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(Reference.class), "getValue", getMethodDescriptor(OBJECT_TYPE), false);
+        mv.visitVarInsn(ASTORE, ACCU);
 	}
 	
 	// PushLocDeref:
 	// Reference ref = (Reference) stack[pos];
-	// stack[sp++] = ref.stack[ref.pos];
+	// stack[sp++] = ref.getValue();
 	
 	public void emitInlinePushLocDeref(int pos){
-		mv.visitVarInsn(ALOAD, STACK);
-		emitIntValue(pos);
-		mv.visitInsn(AALOAD);
-		mv.visitTypeInsn(CHECKCAST, getInternalName(Reference.class));
-		
-		mv.visitVarInsn(ASTORE, TMP1);
-		mv.visitVarInsn(ALOAD, STACK);
-		mv.visitVarInsn(ILOAD, SP);
-		mv.visitIincInsn(SP, 1);
-		mv.visitVarInsn(ALOAD, TMP1);
-		mv.visitFieldInsn(GETFIELD, getInternalName(Reference.class), "stack", getDescriptor(Object[].class));
-		mv.visitVarInsn(ALOAD, TMP1);
-		mv.visitFieldInsn(GETFIELD, getInternalName(Reference.class), "pos", Type.INT_TYPE.getDescriptor());
-		mv.visitInsn(AALOAD);
-		mv.visitInsn(AASTORE);
+	    mv.visitVarInsn(ALOAD, STACK);
+        emitIntValue(pos);
+        mv.visitInsn(AALOAD);
+        mv.visitTypeInsn(CHECKCAST, getInternalName(Reference.class));
+        
+        mv.visitVarInsn(ASTORE, TMP1);
+        mv.visitVarInsn(ALOAD, STACK);
+        mv.visitVarInsn(ILOAD, SP);
+        mv.visitIincInsn(SP, 1);
+        mv.visitVarInsn(ALOAD, TMP1);
+        mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(Reference.class), "getValue", getMethodDescriptor(OBJECT_TYPE), false);
+        mv.visitInsn(AASTORE);
+        
 	}
 	
 	// StoreLocDeref:
 	// Reference ref = (Reference) stack[pos];
-	// ref.stack[ref.pos] = accu;
+	// ref.storeValue(accu);
 
 	public void emitInlineStoreLocDeref(int pos){
-		mv.visitVarInsn(ALOAD, STACK);
-		emitIntValue(pos);
-		mv.visitInsn(AALOAD);
-		mv.visitTypeInsn(CHECKCAST, getInternalName(Reference.class));
-		mv.visitVarInsn(ASTORE, TMP1);
-		
-		mv.visitVarInsn(ALOAD, TMP1);
-		mv.visitFieldInsn(GETFIELD, getInternalName(Reference.class), "stack", getDescriptor(Object[].class));
-		mv.visitVarInsn(ALOAD, TMP1);
-		mv.visitFieldInsn(GETFIELD, getInternalName(Reference.class), "pos", Type.INT_TYPE.getDescriptor());
-		mv.visitVarInsn(ALOAD, ACCU);
-		mv.visitInsn(AASTORE);
+	    
+	    mv.visitVarInsn(ALOAD, STACK);
+        emitIntValue(pos);
+        mv.visitInsn(AALOAD);
+        mv.visitTypeInsn(CHECKCAST, getInternalName(Reference.class));
+    
+        mv.visitVarInsn(ALOAD, ACCU);
+        mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(Reference.class), "setValue", getMethodDescriptor(VOID_TYPE, OBJECT_TYPE), false);
 	}
 	
 	public void emitInlineExhaust() {		
