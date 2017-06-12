@@ -5847,8 +5847,11 @@ public enum RascalPrimitive {
 	is_appl {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			Object treeSubject = arg_1;
-			return vf.bool(treeSubject instanceof ITree && TreeAdapter.isAppl((ITree) treeSubject));
+			try {
+			    return vf.bool(TreeAdapter.isAppl((ITree) arg_1));
+			} catch (ClassCastException e) {}
+			
+			return vf.bool(false);
 		}	
 	},
 
@@ -5860,8 +5863,11 @@ public enum RascalPrimitive {
 	is_amb {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			Object treeSubject = arg_1;
-			return vf.bool(treeSubject instanceof ITree && TreeAdapter.isAmb((ITree) treeSubject));
+			try {
+			    return vf.bool(TreeAdapter.isAmb((ITree) arg_1));
+			} catch (ClassCastException e) {}
+            
+            return vf.bool(false);
 		}	
 	},
 
@@ -5873,9 +5879,11 @@ public enum RascalPrimitive {
 	is_layout {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			IValue treeSubject = (IValue) arg_1;
-			Type subjectType = treeSubject.getType();
-			return vf.bool(subjectType.isAbstractData() && TreeAdapter.isLayout((ITree)treeSubject));
+			try {
+			return vf.bool(TreeAdapter.isLayout((ITree) arg_1));
+			} catch (ClassCastException e) {}
+			
+			return vf.bool(false);
 		}	
 	},
 
@@ -5887,9 +5895,11 @@ public enum RascalPrimitive {
 	is_concretelist {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			IValue treeSubject = (IValue) arg_1;
-			Type subjectType = treeSubject.getType();
-			return vf.bool(subjectType.isAbstractData() && (TreeAdapter.isList((ITree)treeSubject) || TreeAdapter.isOpt((ITree)treeSubject)));
+			try {
+			    return vf.bool(TreeAdapter.isList((ITree)arg_1) || TreeAdapter.isOpt((ITree)arg_1));
+			} catch (ClassCastException e) {}
+            
+            return vf.bool(false);
 		}	
 	},
 
@@ -5901,9 +5911,11 @@ public enum RascalPrimitive {
 	is_lexical {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			IValue treeSubject = (IValue) arg_1;
-			Type subjectType = treeSubject.getType();
-			return vf.bool(subjectType.isAbstractData() && TreeAdapter.isLexical((ITree)treeSubject));
+			try {
+			    return vf.bool(TreeAdapter.isLexical((ITree)arg_1));
+			} catch (ClassCastException e) {}
+            
+            return vf.bool(false);
 		}	
 	},
 
@@ -5915,9 +5927,11 @@ public enum RascalPrimitive {
 	is_char {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			IValue treeSubject = (IValue) arg_1;
-			Type subjectType = treeSubject.getType();
-			return vf.bool(subjectType.isAbstractData() && TreeAdapter.isChar((ITree)treeSubject));
+			try {
+			    return vf.bool(TreeAdapter.isChar((ITree)arg_1));
+			} catch (ClassCastException e) {}
+            
+            return vf.bool(false);
 		}	
 	},
 
@@ -7247,8 +7261,7 @@ public enum RascalPrimitive {
 	get_nonlayout_args {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			IValue treeSubject = (IValue) arg_1;
-			return TreeAdapter.getNonLayoutArgs((ITree)treeSubject);
+			return TreeAdapter.getNonLayoutArgs((ITree)arg_1);
 		}	
 	},
 
@@ -7260,8 +7273,7 @@ public enum RascalPrimitive {
 	get_appl_args {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			IValue treeSubject = (IValue) arg_1;
-			return TreeAdapter.getArgs((ITree)treeSubject);
+			return TreeAdapter.getArgs((ITree)arg_1);
 		}	
 	},
 
@@ -7273,8 +7285,7 @@ public enum RascalPrimitive {
 	get_amb_alternatives {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			ITree treeSubject = (ITree) arg_1;
-			return TreeAdapter.getAlternatives(treeSubject);
+			return TreeAdapter.getAlternatives((ITree)arg_1);
 		}	
 	},
 
@@ -7351,8 +7362,7 @@ public enum RascalPrimitive {
 	get_tree_type_as_symbol {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			IValue treeSubject = (IValue) arg_1;
-			return TreeAdapter.getType((ITree)treeSubject);
+			return TreeAdapter.getType((ITree)arg_1);
 		}	
 	},
 
@@ -7364,8 +7374,7 @@ public enum RascalPrimitive {
 	get_tree_type_as_type {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			IValue treeSubject = (IValue) arg_1;
-			IConstructor symbol = TreeAdapter.getType((ITree)treeSubject);
+			IConstructor symbol = TreeAdapter.getType((ITree)arg_1);
 			String typeName = ((IString)symbol.get(0)).getValue();
 			return vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(typeName));
 		}	
