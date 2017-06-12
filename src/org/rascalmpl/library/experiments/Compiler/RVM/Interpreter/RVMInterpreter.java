@@ -448,12 +448,12 @@ public class RVMInterpreter extends RVMCore {
 					
 				case Opcode.OP_LOADLOCDEREF: {
 					Reference ref = (Reference) stack[CodeBlock.fetchArg1(instruction)];
-					accu = ref.stack[ref.pos];
+					accu = ref.getValue();
 					continue NEXT_INSTRUCTION;
 				}
 				case Opcode.OP_PUSHLOCDEREF: {
 					Reference ref = (Reference) stack[CodeBlock.fetchArg1(instruction)];
-					stack[sp++] = ref.stack[ref.pos];
+					stack[sp++] = ref.getValue();
 					continue NEXT_INSTRUCTION;
 				}
 				
@@ -465,7 +465,7 @@ public class RVMInterpreter extends RVMCore {
 					
 				case Opcode.OP_STORELOCDEREF:
 					Reference ref = (Reference) stack[CodeBlock.fetchArg1(instruction)];
-					ref.stack[ref.pos] = accu; // TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues    
+					ref.setValue(accu); // TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues    
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_PUSH_ROOT_FUN:
