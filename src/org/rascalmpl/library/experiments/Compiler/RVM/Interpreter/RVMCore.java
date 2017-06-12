@@ -788,7 +788,7 @@ public abstract class RVMCore {
 		for (Frame fr = cf.previousScope; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == varScope) {
 				Reference ref = (Reference) fr.stack[pos];
-				return ref.stack[ref.pos];
+				ref.getValue();
 			}
 		}
 		throw new CompilerError("LOADVARDEREF cannot find matching scope: " + varScope, cf);
