@@ -45,11 +45,10 @@ public class HelpManager {
 	private final int ATTEMPTS = 100;
 	private int port = BASE_PORT;
 	
-    @SuppressWarnings("unused")
-    private HelpServer helpServer;
+    private final HelpServer helpServer;
     private final IDEServices ideServices;
 
-    public HelpManager(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices){
+    public HelpManager(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices) throws IOException {
       this.pcfg = pcfg;
       this.stdout = stdout;
       this.stderr = stderr;
@@ -57,16 +56,26 @@ public class HelpManager {
      
       coursesDir = URIUtil.correctLocation("boot", "", "/courses");
 
-      for(port = BASE_PORT; port < BASE_PORT+ATTEMPTS; port++){
-          try {
-              helpServer = new HelpServer(port, this, coursesDir);
-              indexSearcher = makeIndexSearcher();
-              stderr.println("HelpManager: using port " + port);
-              return;
-          } catch (IOException e) {
-              stderr.println("HelpManager: " + e.getMessage());
+      helpServer = startServer(stderr);
+    }
+
+    private HelpServer startServer(PrintWriter stderr) throws IOException {
+        for(port = BASE_PORT; port < BASE_PORT+ATTEMPTS; port++){
+              try {
+                  HelpServer helpServer = new HelpServer(port, this, coursesDir);
+                  indexSearcher = makeIndexSearcher();
+                  stderr.println("HelpManager: using port " + port);
+                  return helpServer;
+              } catch (IOException e) {
+                  // this is expected if the port is taken
+              }
           }
-      }
+          
+          throw new IOException("Could not find port to run help server on");
+    }
+    
+    public void stopServer() {
+        helpServer.stop();
     }
     
     PathConfig getPathConfig(){

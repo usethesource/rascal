@@ -857,11 +857,16 @@ public class CommandExecutor {
 			}
 	
 		case "help": case "apropos":
-			if(helpManager == null){
-				helpManager = new HelpManager(pcfg, stdout, stderr, ideServices);
-			}
-			
-			helpManager.handleHelp(words);
+		    try {
+		        if(helpManager == null){
+		            helpManager = new HelpManager(pcfg, stdout, stderr, ideServices);
+		        }
+
+		        helpManager.handleHelp(words);
+		    }
+		    catch (IOException e) {
+		        throw new RascalShellExecutionException("Can not provide help at the moment", e);
+		    }
 			break;
 			
 		case "edit":
