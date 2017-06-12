@@ -8645,30 +8645,50 @@ public enum RascalPrimitive {
 	/********************************************************************************************************/
 
 	/**
-	 * Abstract declaration for the execute method in each RascalPrimitive:
-	 * @param stack			stack in currentFrame
-	 * @param sp			stack pointer in currentFrame
-	 * @param arity			arity of this primitive
+	 * Abstract declaration for the execute0 method in a RascalPrimitive:
 	 * @param currentFrame	the stackFram of the function that calls this primitive
 	 * @param rex			the current RascalExecutionContext
-	 * @return				new value for stack pointer (sp)
+	 * @return				value of of this execute method
 	 */
 
 	public Object execute0(Frame currentFrame, RascalExecutionContext rex) {
 	  throw RascalRuntimeException.notImplemented("RascalPrimitive.execute0 " + name(), currentFrame.src, currentFrame);
 	}
+	
+	/**
+     * Abstract declaration for the execute1 method in a RascalPrimitive:
+     * @param Object arg_1  argument of execute1
+     * @param currentFrame  the stackFrame of the function that calls this primitive
+     * @param rex           the current RascalExecutionContext
+     * @return              value of of this execute method
+     */
 	@SuppressWarnings("unused")
     public Object execute1(Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
 	  throw RascalRuntimeException.notImplemented("RascalPrimitive.execute1 " + name(), currentFrame.src, currentFrame);
 	}
 
+	/**
+     * Abstract declaration for the execute2 method in a RascalPrimitive:
+     * @param Object arg_1, Object arg_1  arguments of execute2
+     * @param currentFrame  the stackFrame of the function that calls this primitive
+     * @param rex           the current RascalExecutionContext
+     * @return              value of of this execute method
+     */
 	@SuppressWarnings("unused")
     public Object execute2(Object arg_2, Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
 	  throw RascalRuntimeException.notImplemented("RascalPrimitive.execute2 " + name(), currentFrame.src, currentFrame);
 	}
 
-	@SuppressWarnings("unused")
-    public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
+	/**
+	 * Abstract declaration for the executen method in a RascalPrimitive:
+	 * @param stack    Current stack
+	 * @param sp       stack pointer
+	 * @param arity    numbers of arguments (found on the stack)
+	 * @param currentFrame the stackFrame of the function that calls this primitive
+	 * @param rex      the current RascalExecutionContext
+	 * @return         new value for stack pointer (sp)
+	 */
+	public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 	  throw RascalRuntimeException.notImplemented("RascalPrimitive.executeN " + name(), currentFrame.src, currentFrame);
 	}
 
