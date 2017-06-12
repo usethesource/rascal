@@ -9,7 +9,7 @@ import io.usethesource.vallang.IValue;
  * to retrieve that variable's value or destructively update its value.
  * TODO: Split in two classes LocalReference and GlobalReference that implement IReference
  */
-public class Reference {
+public class Reference implements IReference {
 
     public final Object[] stack;
     public final int pos;
@@ -32,6 +32,7 @@ public class Reference {
     /**
      * @return the variable's value
      */
+    @Override
     public Object getValue(){
         return stack == null ? moduleVariables.get(varName) : stack[pos];
     }
@@ -40,6 +41,7 @@ public class Reference {
      * Set the variable to new value v
      * @param the new value
      */
+    @Override
     public void setValue(Object v){
         if(stack == null){
             moduleVariables.put(varName, (IValue) v);
@@ -51,6 +53,7 @@ public class Reference {
     /**
      * @return true when this reference refers to a variable with non-null value.
      */
+    @Override
     public boolean isDefined(){
         return (stack == null ? moduleVariables.get(varName) : stack[pos]) != null;
     }
@@ -58,6 +61,7 @@ public class Reference {
     /**
      * Set the variable identified by this reference to undefined (null).
      */
+    @Override
     public void undefine(){
         if(stack == null){
             moduleVariables.put(varName, null);
@@ -69,8 +73,9 @@ public class Reference {
     /**
      * @return string representation of this reference
      */
+    @Override
     public String toString(){
-        return stack == null ? "ref[@" + varName + " => " + moduleVariables.get(varName) + "]"
+        return stack == null ? "ref["  + varName + " => " + moduleVariables.get(varName) + "]"
                              : "ref[@" + stack.hashCode() + ":" + pos + " => " + stack[pos] + "]";
     } 
 }
