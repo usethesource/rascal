@@ -17,6 +17,16 @@
 import List;
 import Set;
   	
+public int ModVar42 = 42;
+public int ModVar44 = 44;
+public list[int] ModVarList_41_42_43 = [41, 42, 43];
+public set[int] ModVarSet_41_42_43 = {41, 42, 43};
+
+
+test bool matchModuleVar1() = ModVar42 := 42;
+test bool matchModuleVar2() = ModVarList_41_42_43 := ModVarList_41_42_43;
+test bool matchModuleVar3() = ModVarSet_41_42_43 := ModVarSet_41_42_43;
+
 // matchList1
   		
 test bool matchList1() = !([] := [2]);
@@ -597,7 +607,13 @@ test bool matchList48() {
 @ignore{investigate} test bool matchList() {([1, list[int] L, [10, list[int] M, 100], list[int] N, 1000] := [1, [10,100],1000]);}
   		
 test bool matchListFalse1() {list[value] l = [1,2,3]; return [1, str S, 2] !:= l; }
-  
+
+test bool matchListModuleVar1() = [ModVar42] := [42];
+test bool matchListModuleVar2() = [*ModVarList_41_42_43] := ModVarList_41_42_43;
+test bool matchListModuleVar3() = [ModVar42, *ModVarList_41_42_43] := [ModVar42, *ModVarList_41_42_43];
+@ignoreInterpreter{Seems to be a bug in the interpreter}
+test bool matchListModuleVar4() = [ModVar42, ModVarList_41_42_43] := [ModVar42, ModVarList_41_42_43];
+
 //	matchNestedList
 
 test bool matchNestedList1() = !([] := [[2]]);
@@ -651,7 +667,7 @@ test bool matchExternalListVars1() {int n;  return n := 3 && n == 3; }
 /*TODO:fails*/
 @Ignore
 test bool matchExternalListVars2() {list[int] L; return ([1, *L, 4, 5] := [1, 2, 3, 4, 5] && L == [2, 3]);}
-  	
+
 //	matchListMultiVars
 
 test bool matchListMultiVars1() = [1, L*, 4, 5] := [1, 2, 3, 4, 5] && L == [2, 3];
@@ -1400,6 +1416,13 @@ test bool matchSet61(){
 		  }
 		};
 }
+
+test bool matchSetModuleVar1() = {ModVar42} := {42};
+test bool matchSetModuleVar2() = {*ModVarSet_41_42_43} := ModVarSet_41_42_43;
+test bool matchSetModuleVar3() = {ModVar44, *ModVarSet_41_42_43} := {ModVar44, *ModVarSet_41_42_43};
+@ignoreInterpreter{Seems to be a bug in the interpreter}
+test bool matchSetModuleVar3() = {ModVar44, ModVarSet_41_42_43} := {ModVar44, ModVarSet_41_42_43};
+
   	
 // matchListSetVariableScopes
   		
