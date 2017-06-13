@@ -197,14 +197,14 @@
                                 <classpath />
                                 <argument>org.rascalmpl.library.experiments.Compiler.Commands.RascalC</argument>
                                 <argument>--boot</argument>
-                                                                <argument>${project.build.directory}/classes/boot</argument>
-                                                                <argument>--bin</argument>
-                                                                <argument>${project.build.directory}/classes/boot</argument>
-                                                                <argument>--reloc</argument>
-                                                                <argument>|std:///|</argument>
-                                                                <argument>--src</argument>
-                                                                <argument>${project.basedir}/src/org/rascalmpl/library</argument>
-                                                                <argument>experiments::Compiler::RascalExtraction::RascalExtraction</argument>
+                                <argument>${project.build.directory}/classes/boot</argument>
+                                <argument>--bin</argument>
+                                <argument>${project.build.directory}/classes/boot</argument>
+                                <argument>--reloc</argument>
+                                <argument>|std:///|</argument>
+                                <argument>--src</argument>
+                                <argument>${project.basedir}/src/org/rascalmpl/library</argument>
+                                <argument>experiments::Compiler::RascalExtraction::RascalExtraction</argument>
                             </arguments>
                         </configuration>
                         <id>rascalextractor</id>
@@ -224,14 +224,14 @@
                                 <classpath />
                                 <argument>org.rascalmpl.library.experiments.Compiler.Commands.RascalC</argument>
                                 <argument>--boot</argument>
-                                                                <argument>${project.build.directory}/classes/boot</argument>
-                                                                <argument>--bin</argument>
-                                                                <argument>${project.build.directory}/classes/boot</argument>
-                                                                <argument>--reloc</argument>
-                                                                <argument>|std:///|</argument>
-                                                                <argument>--src</argument>
-                                                                <argument>${project.basedir}/src/org/rascalmpl/library</argument>
-                                                                <argument>experiments::tutor3::QuestionCompiler</argument>
+                                <argument>${project.build.directory}/classes/boot</argument>
+                                <argument>--bin</argument>
+                                <argument>${project.build.directory}/classes/boot</argument>
+                                <argument>--reloc</argument>
+                                <argument>|std:///|</argument>
+                                <argument>--src</argument>
+                                <argument>${project.basedir}/src/org/rascalmpl/library</argument>
+                                <argument>experiments::tutor3::QuestionCompiler</argument>
                             </arguments>
                         </configuration>
                         <id>questioncompiler</id>
@@ -252,14 +252,14 @@
                                 <argument>-Dfile.encoding=UTF-8</argument>
                                 <argument>org.rascalmpl.library.experiments.tutor3.CourseCompiler</argument>
                                 <argument>--bin</argument>
-                                                                <argument>${project.build.directory}/classes/boot</argument>
-                                                                <argument>--src</argument>
-                                                                <argument>${project.basedir}/src/org/rascalmpl/library</argument>
-                                                                <argument>--boot</argument>
-                                                                <argument>${project.build.directory}/classes/boot</argument>
-                                                                <argument>--course</argument>
-                                                                <argument>${project.basedir}/src/org/rascalmpl/courses</argument>
-                                                                <argument>--all</argument>
+                                <argument>${project.build.directory}/classes/boot</argument>
+                                <argument>--src</argument>
+                                <argument>${project.basedir}/src/org/rascalmpl/library</argument>
+                                <argument>--boot</argument>
+                                <argument>${project.build.directory}/classes/boot</argument>
+                                <argument>--course</argument>
+                                <argument>${project.basedir}/src/org/rascalmpl/courses</argument>
+                                <argument>--all</argument>
                             </arguments>
                         </configuration>
                         <id>courses</id>
