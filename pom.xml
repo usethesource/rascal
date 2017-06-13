@@ -263,7 +263,7 @@
                             </arguments>
                         </configuration>
                         <id>courses</id>
-                        <phase>prepare-package</phase>
+                        <phase>compile</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
