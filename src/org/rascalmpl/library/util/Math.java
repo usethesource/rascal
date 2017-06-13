@@ -126,6 +126,7 @@ public class Math {
 			throw RuntimeExceptionFactory.arithmeticException(ae.getMessage(), null, null);
 		}
 	}
+	
 	public IValue pow(INumber x, IReal y){
 		try {
 			return x.toReal(values.getPrecision()).pow(y, values.getPrecision());
