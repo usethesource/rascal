@@ -174,7 +174,7 @@
                                                                 <argument>--bin</argument>
                                                                 <argument>${project.build.directory}/classes/boot</argument>
                                                                 <argument>--reloc</argument>
-                                                                <argument>|boot:///|</argument>
+                                                                <argument>|std:///|</argument>
                                                                 <argument>--src</argument>
                                                                 <argument>${project.basedir}/src/org/rascalmpl/library</argument>
                                                                 <argument>util::Webserver</argument>
@@ -201,7 +201,7 @@
                                                                 <argument>--bin</argument>
                                                                 <argument>${project.build.directory}/classes/boot</argument>
                                                                 <argument>--reloc</argument>
-                                                                <argument>|boot:///|</argument>
+                                                                <argument>|std:///|</argument>
                                                                 <argument>--src</argument>
                                                                 <argument>${project.basedir}/src/org/rascalmpl/library</argument>
                                                                 <argument>experiments::Compiler::RascalExtraction::RascalExtraction</argument>
@@ -228,7 +228,7 @@
                                                                 <argument>--bin</argument>
                                                                 <argument>${project.build.directory}/classes/boot</argument>
                                                                 <argument>--reloc</argument>
-                                                                <argument>|boot:///|</argument>
+                                                                <argument>|std:///|</argument>
                                                                 <argument>--src</argument>
                                                                 <argument>${project.basedir}/src/org/rascalmpl/library</argument>
                                                                 <argument>experiments::tutor3::QuestionCompiler</argument>
@@ -263,7 +263,7 @@
                             </arguments>
                         </configuration>
                         <id>courses</id>
-                        <phase>compile</phase>
+                        <phase>prepare-package</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
