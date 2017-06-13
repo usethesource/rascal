@@ -143,14 +143,14 @@
                                 <classpath />
                                 <argument>org.rascalmpl.library.experiments.Compiler.Commands.RascalC</argument>
                                 <argument>--boot</argument>
-                                                                <argument>${project.build.directory}/classes/boot</argument>
-                                                                <argument>--bin</argument>
-                                                                <argument>${project.build.directory}/classes/std</argument>
-                                                                <argument>--reloc</argument>
-                                                                <argument>|std:///|</argument>
-                                                                <argument>--src</argument>
-                                                                <argument>${project.basedir}/src/org/rascalmpl/library</argument>
-                                                                <argument>StandardLibrary</argument>
+                                <argument>${project.build.directory}/classes/boot</argument>
+                                <argument>--bin</argument>
+                                <argument>${project.build.directory}/classes/std</argument>
+                                <argument>--reloc</argument>
+                                <argument>|std:///|</argument>
+                                <argument>--src</argument>
+                                <argument>${project.basedir}/src/org/rascalmpl/library</argument>
+                                <argument>StandardLibrary</argument>
                             </arguments>
                         </configuration>
                         <id>standardlibrary</id>
