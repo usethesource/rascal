@@ -191,7 +191,6 @@ public class Bootstrap {
         boolean cleanTempDir = false;
         boolean basicOption = false;
         boolean validatingOption = false;
-        boolean coursesOption = false;
         
         for (;arg < args.length; arg++) {
             switch (args[arg]) {
@@ -200,7 +199,6 @@ public class Bootstrap {
                 case "--basic" : basicOption = true; break;
                 case "--download" : basicOption = false; break;
                 case "--validating" : validatingOption = true; break;
-                case "--withCourses":  basicOption = true; coursesOption = true; break;
                 default: 
                     System.err.println(args[arg] + " is not a supported argument.");
                     System.exit(1);
@@ -210,7 +208,6 @@ public class Bootstrap {
         
         final boolean realBootstrap = basicOption || validatingOption;
         final boolean validatingBootstrap = validatingOption;
-        final boolean withCourses = coursesOption || validatingOption;
         
         Path tmpDir = initializeTemporaryFolder(tmpFolder, cleanTempDir, versionToUse);
         
@@ -279,17 +276,6 @@ public class Bootstrap {
                     System.out.println("Comparison between Phase 2 and Phase 3 failed: " + e.getMessage());
                     System.exit(1);
                   }
-                }
-                
-                // Compiling utilities
-                Path phase2Folder = phaseFolder(2, tmpDir);
-                time("Compiling Webserver", () -> compileModule   (2, rvm[1], kernel[2], librarySource, phase2Folder, "util::Webserver", "|std:///|"));
-                time("Compiling RascalExtraction", () -> compileModule   (2, rvm[1], kernel[2], librarySource, phase2Folder, "experiments::Compiler::RascalExtraction::RascalExtraction", "|std:///|"));
-                time("Compiling QuestionCompiler", () -> compileModule   (2, rvm[1], kernel[2], librarySource, phase2Folder, "experiments::tutor3::QuestionCompiler", "|std:///|"));
-                
-                // Compiling courses
-                if(withCourses){
-                   time("Compiling courses", () -> compileCourses(rvm[1], kernel[2], librarySource, courseSource, phase2Folder));
                 }
                 
                 // The result of the final compilation phase is copied to the bin folder such that it can be deployed with the other compiled (class) files
@@ -564,18 +550,6 @@ public class Bootstrap {
             throw new BootstrapMessage(phase);
         }
     }
-    
-    private static void compileCourses(String classPath, String boot, String sourcePath, String courseSourcePath, Path phaseResult) throws IOException, InterruptedException, BootstrapMessage {
-      progress("Compiling all courses");
-      System.out.println("courseSourcePath: " + courseSourcePath);
-      String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.tutor3.CourseCompiler" };
-      String[] paths = new String [] { "--bin", phaseResult.toAbsolutePath().toString(), "--src", sourcePath, "--course", courseSourcePath, "--boot", boot, "--all" };
-      String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[0];
-
-      if (runChildProcess(concat(javaCmd, paths, otherArgs)) != 0) { 
-          throw new BootstrapMessage(5);
-      }
-  }
     
     private static int runJavaCompiler(String classPath, String targetFolder, String... arguments) throws IOException, InterruptedException {
         String[] javaCmd = new String[] {"javac", "-cp", classPath, "-d", targetFolder };
