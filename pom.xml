@@ -146,6 +146,8 @@
                                 <argument>${project.build.directory}/classes/boot</argument>
                                 <argument>--bin</argument>
                                 <argument>${project.build.directory}/classes/std</argument>
+                                <argument>--lib</argument>
+                                <argument>${project.build.directory}/classes/std</argument>
                                 <argument>--reloc</argument>
                                 <argument>|std:///|</argument>
                                 <argument>--src</argument>
@@ -172,6 +174,8 @@
                                 <argument>--boot</argument>
                                 <argument>${project.build.directory}/classes/boot</argument>
                                 <argument>--bin</argument>
+                                <argument>${project.build.directory}/classes/boot</argument>
+                                <argument>--lib</argument>
                                 <argument>${project.build.directory}/classes/boot</argument>
                                 <argument>--reloc</argument>
                                 <argument>|std:///|</argument>
@@ -200,6 +204,8 @@
                                 <argument>${project.build.directory}/classes/boot</argument>
                                 <argument>--bin</argument>
                                 <argument>${project.build.directory}/classes/boot</argument>
+                                <argument>--lib</argument>
+                                <argument>${project.build.directory}/classes/boot</argument>
                                 <argument>--reloc</argument>
                                 <argument>|std:///|</argument>
                                 <argument>--src</argument>
@@ -226,6 +232,8 @@
                                 <argument>--boot</argument>
                                 <argument>${project.build.directory}/classes/boot</argument>
                                 <argument>--bin</argument>
+                                <argument>${project.build.directory}/classes/boot</argument>
+                                <argument>--lib</argument>
                                 <argument>${project.build.directory}/classes/boot</argument>
                                 <argument>--reloc</argument>
                                 <argument>|std:///|</argument>
