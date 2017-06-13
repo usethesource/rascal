@@ -173,9 +173,7 @@ public class Bootstrap {
         System.out.println("sourceFolder: " + sourceFolder);
         
         String librarySource = sourceFolder.resolve("org/rascalmpl/library").toAbsolutePath().toString();
-        String courseSource = sourceFolder.resolve("org/rascalmpl/courses").toAbsolutePath().toString();
         
-        System.out.println("courseSource: " + courseSource);
         Path targetFolder = new File(args[arg++]).toPath();
         if (!Files.exists(targetFolder.resolve("org/rascalmpl/library/Prelude.class"))) {	// PK: PreludeCompiled
         	throw new RuntimeException("target folder " + sourceFolder + " should point to source folder of compiler library and the RVM interpreter.");
