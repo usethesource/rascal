@@ -93,7 +93,8 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
                                          0, 
                                          0, 
                                          false, 
-                                         true, 
+                                         true,
+                                         false,
                                          fd@\loc, 
                                          tmods, 
                                          ttags,
@@ -141,10 +142,19 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
       }
      
       isPub = !fd.visibility is \private;
-      isMemo = ttags["memo"]?;
+      isMemo = ttags["memo"]?; 
+   
       tbody = translateFunction("<fd.signature.name>", fd.signature.parameters.formals.formals, isVarArgs, kwps, body, isMemo, when_conditions);
      
       formals = [formal | formal <- fd.signature.parameters.formals.formals];
+      
+      simpleArgs = true;
+      for(pat <- formals){
+        if(!(pat is typedVariable || pat is literal)){
+            simpleArgs = false;
+        }
+      }
+  
       //if(nformals > 0) println("formals[0] = <formals[0]>");
       
       absfpArg = nformals > 0 ? fingerprint(formals[0], false) : 0;
@@ -167,7 +177,8 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
       								 getFormals(uid), 
       								 getScopeSize(fuid), 
       								 isVarArgs, 
-      								 isPub, 
+      								 isPub,
+      								 simpleArgs,
       								 fd@\loc, 
       								 tmods, 
       								 ttags,

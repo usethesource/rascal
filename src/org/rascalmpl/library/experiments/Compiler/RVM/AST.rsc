@@ -24,6 +24,7 @@ public data RVMDeclaration =
 		  		   bool isPublic,
 		  		   bool isDefault,
 		  		   bool isTest,
+		  		   bool simpleArgs,
 		  		   map[str,str] tags,
 		  		   loc src,
 		  		   int maxStack,

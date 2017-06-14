@@ -210,7 +210,7 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
                                                                    muTypeCon(kwTypes) 
                                                                ]));                          
        leaveFunctionScope();
-       addFunctionToModule(muFunction(fuid, name.name, ftype, argNames, kwTypes, (addr.fuid in moduleNames) ? "" : addr.fuid,nformals, nformals + 1, false, true, |std:///|, [], (), false, 0, 0, body));                                             
+       addFunctionToModule(muFunction(fuid, name.name, ftype, argNames, kwTypes, (addr.fuid in moduleNames) ? "" : addr.fuid,nformals, nformals + 1, false, true, true, |std:///|, [], (), false, 0, 0, body));                                             
      
        /*
         * Create companion for computing the values of defaults
@@ -245,7 +245,7 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
        //iprintln(bodyDefaults);
        
        leaveFunctionScope();
-       addFunctionToModule(muFunction(fuidDefaults, name.name, ftype, argNames, Symbol::\tuple([]), (addrDefaults.fuid in moduleNames) ? "" : addrDefaults.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefaults));                                             
+       addFunctionToModule(muFunction(fuidDefaults, name.name, ftype, argNames, Symbol::\tuple([]), (addrDefaults.fuid in moduleNames) ? "" : addrDefaults.fuid, nformals, nformals+1, false, true, true, |std:///|, [], (), false, 0, 0, bodyDefaults));                                             
        
        /*
         * Create companions for each common keyword field
@@ -302,7 +302,7 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
               // iprintln(bodyDefault);
          
                leaveFunctionScope();
-               addFunctionToModule(muFunction(fuidDefault, prettyPrintName(mainKwf), ftype, argNames, Symbol::\tuple([]), (addrDefault.fuid in moduleNames) ? "" : addrDefault.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefault));                                             
+               addFunctionToModule(muFunction(fuidDefault, prettyPrintName(mainKwf), ftype, argNames, Symbol::\tuple([]), (addrDefault.fuid in moduleNames) ? "" : addrDefault.fuid, nformals, nformals+1, false, true, true, |std:///|, [], (), false, 0, 0, bodyDefault));                                             
              }
        }
    }
