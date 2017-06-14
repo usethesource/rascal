@@ -200,9 +200,9 @@ public class BytecodeGenerator implements Opcodes {
 	        } 
 	    }
 	    
-	    for(int fn : overloadedFunctions){
-	        System.err.println("overloaded: " + functionStore[fn].getName());
-	    }
+//	    for(int fn : overloadedFunctions){
+//	        System.err.println("overloaded: " + functionStore[fn].getName());
+//	    }
 	}
 
 	//Function currentFunction
