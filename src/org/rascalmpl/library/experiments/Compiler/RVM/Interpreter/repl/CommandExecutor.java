@@ -872,8 +872,13 @@ public class CommandExecutor {
 		case "edit":
 		  stderr.println("edit: " + words[1]);
 		  ISourceLocation loc = pcfg.resolveModule(words[1]);
-		  stderr.println("loc: " + loc);
-		  ideServices.edit(loc);
+		  if (loc != null) {
+		      stderr.println("loc: " + loc);
+		      ideServices.edit(loc);
+		  }
+		  else {
+		      stderr.println(words[1] + " could not be found.");
+		  }
 		  break;
 		  
 		case "declarations":
