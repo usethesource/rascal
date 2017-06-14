@@ -7,7 +7,6 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
-import java.nio.file.Paths;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
@@ -17,8 +16,8 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandEx
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
-import io.usethesource.vallang.IValue;
 
+import io.usethesource.vallang.IValue;
 import jline.Terminal;
 
 /*
@@ -183,7 +182,7 @@ public class DebugREPL extends BaseREPL{
 			break;
 			
 		case "e": case "edit":
-		    breakPointManager.edit(Paths.get(currentFrame.src.getPath()));
+		    breakPointManager.edit(currentFrame.src);
 		    break;
 			
 		default:

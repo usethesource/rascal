@@ -93,7 +93,7 @@ public class BreakPointManager {
 		returnFrame = null;
 	}
 	
-	void edit(Path file){
+	void edit(ISourceLocation file){
 	  ideServices.edit(file);
 	}
 	
