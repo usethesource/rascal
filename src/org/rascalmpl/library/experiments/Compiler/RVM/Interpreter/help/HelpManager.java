@@ -176,7 +176,7 @@ public class HelpManager {
 			if(i < words.length - 1) w.append(" ");
 		}
 		String encoded = URLEncoder.encode(w.toString(), "UTF-8");
-		return new URI("http", "localhost:" + getPort() + "/Search?searchFor=" + encoded, null);
+		return URIUtil.create("http", "localhost:" + getPort(), "/Search?searchFor=" + encoded);
 	}
 	
 	public void handleHelp(String[] words){
