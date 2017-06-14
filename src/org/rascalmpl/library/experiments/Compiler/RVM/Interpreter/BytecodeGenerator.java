@@ -16,6 +16,8 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.FileOutputStream;
 import java.lang.invoke.CallSite;
+import java.lang.invoke.ConstantCallSite;
+import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.HashMap;
@@ -31,6 +33,7 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
@@ -127,9 +130,9 @@ public class BytecodeGenerator implements Opcodes {
 	// Local variables in coroutines
 	
 	public static final int LPRECONDITION = 5;	// Boolean variable used in guard code
-	public static final int TMP1 = 5;			// Temp variable outside Guard code
+	//public static final int TMP1 = 5;			// Temp variable outside Guard code
 	public static final int LCOROUTINE = 6;		// Local coroutine instance in guard code
-	public static final int TMP2 = 6;			// Temp variable outside Guard code
+	//public static final int TMP2 = 6;			// Temp variable outside Guard code
 	public static final int EXCEPTION = 7;
 	
 	// Only needed when function needed constant store or type store
@@ -155,15 +158,17 @@ public class BytecodeGenerator implements Opcodes {
 	private Map<String, ExceptionLine> catchTargets = new HashMap<String, ExceptionLine>();
 	private Label[] hotEntryLabels = null;		// entry labels for coroutines
 	private Label exitLabel = null;				// special case for labels without code
-												// TODO: peephole optimizer now removes them; can disappear?
+											    // TODO: peephole optimizer now removes them; can disappear?
 
-	Function[] functionStore;
+	static Function[] functionStore;
 	OverloadedFunction[] overloadedStore;
 	Map<String, Integer> functionMap;
 	Map<String, Integer> constructorMap;
 	Map<String, Integer> resolver;
 	
     private final Map<String, String> classRenamings;
+    
+    Set<Integer> overloadedFunctions;
 
 	private Label getNamedLabel(String targetLabel) {
 		Label lb = labelMap.get(targetLabel);
@@ -182,15 +187,31 @@ public class BytecodeGenerator implements Opcodes {
 		this.resolver = resolver;
 		this.constructorMap = constructorMap;
 		this.classRenamings = classRenamings;
+		findOverloadedFunctions();
+	}
+	
+	private void findOverloadedFunctions(){
+	    overloadedFunctions = new HashSet<>();
+	    for(OverloadedFunction ovf : overloadedStore){
+	        if(ovf.functions.length > 1){
+	            for(int fn : ovf.functions){
+	                overloadedFunctions.add(fn);
+	            };
+	        } 
+	    }
+	    
+	    for(int fn : overloadedFunctions){
+	        System.err.println("overloaded: " + functionStore[fn].getName());
+	    }
 	}
 
-	//Function currentFunction;
+	//Function currentFunction
 	
 	public void buildClass(String packageName, String className, boolean debug) {
 		emitClass(packageName,className);
 
-		for (Function f : functionStore) {
-		    emitMethod(f, debug);
+		for (int fn = 0; fn < functionStore.length; fn++){
+		    emitMethod(fn,  debug);
 		}
 		
 		//OverloadedFunction[] overloadedStoreV2 = new OverloadedFunction[overloadedStore.length];
@@ -283,10 +304,37 @@ public class BytecodeGenerator implements Opcodes {
 		}
 	}
 
+	int locCompensation = 0;
+	
+	int compensate(int pos) {
+	    if(pos < 0)
+	        return pos;
+	    int res = pos + locCompensation;
+	    if(res < 0){
+	        System.err.println("negative pos!");
+	        return pos;
+	    }
+	    return res;
+	}
+	
+	boolean inOverloadedFunction() {
+	    return locCompensation == 0;
+	}
+	
 	/*
 	 * Generate a method for one RVM function
 	 */
-	public void emitMethod(Function f, boolean debug) {
+	public void emitMethod(int fn, boolean debug) {
+	    Function f = functionStore[fn];
+	    //System.err.println("emitMethod: " + f);
+//	    boolean overloaded = overloadedFunctions.contains(fn);
+//	    boolean hasJavaTag = f.tags.get(ValueFactoryFactory.getValueFactory().string("java")) != null;
+//	    if(overloaded || hasJavaTag || f.isCoroutine){
+	        locCompensation = 0;
+//	    } else {
+//	        locCompensation = f.nformals == 0 ? 0 : -(f.nformals + 1);
+//	    }
+	    //System.err.println("emitMethod: COMPENSATION = " + locCompensation);
 		labelMap.clear(); // New set of labels.
 		catchTargetLabels.clear();
 		catchTargets.clear();
@@ -606,7 +654,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitTypeInsn(NEW, getInternalName(Reference.class));
 		mv.visitInsn(DUP);
 		mv.visitVarInsn(ALOAD, STACK);
-		emitIntValue(pos);
+		emitIntValue(compensate(pos));
 		mv.visitMethodInsn(INVOKESPECIAL, getInternalName(Reference.class), INIT_NAME, getMethodDescriptor(VOID_TYPE, OBJECT_A_TYPE, INT_TYPE), false);
 		mv.visitVarInsn(ASTORE, ACCU);
 	}
@@ -620,7 +668,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitTypeInsn(NEW, getInternalName(Reference.class));
 		mv.visitInsn(DUP);
 		mv.visitVarInsn(ALOAD, STACK);
-		emitIntValue(pos);
+		emitIntValue(compensate(pos));
 		
 		mv.visitMethodInsn(INVOKESPECIAL, getInternalName(Reference.class), INIT_NAME, getMethodDescriptor(VOID_TYPE, OBJECT_A_TYPE, INT_TYPE), false);
 		mv.visitInsn(AASTORE);
@@ -632,7 +680,7 @@ public class BytecodeGenerator implements Opcodes {
 
 	public void emitInlineLoadLocDeref(int pos){
 	    mv.visitVarInsn(ALOAD, STACK);
-        emitIntValue(pos);
+        emitIntValue(compensate(pos));
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, getInternalName(Reference.class));
         
@@ -646,18 +694,16 @@ public class BytecodeGenerator implements Opcodes {
 	
 	public void emitInlinePushLocDeref(int pos){
 	    mv.visitVarInsn(ALOAD, STACK);
-        emitIntValue(pos);
+        mv.visitVarInsn(ILOAD, SP);
+        mv.visitIincInsn(SP, 1);
+        
+	    mv.visitVarInsn(ALOAD, STACK);
+        emitIntValue(compensate(pos));
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, getInternalName(Reference.class));
         
-        mv.visitVarInsn(ASTORE, TMP1);
-        mv.visitVarInsn(ALOAD, STACK);
-        mv.visitVarInsn(ILOAD, SP);
-        mv.visitIincInsn(SP, 1);
-        mv.visitVarInsn(ALOAD, TMP1);
         mv.visitMethodInsn(INVOKEVIRTUAL, getInternalName(Reference.class), "getValue", getMethodDescriptor(OBJECT_TYPE), false);
         mv.visitInsn(AASTORE);
-        
 	}
 	
 	// StoreLocDeref:
@@ -667,7 +713,7 @@ public class BytecodeGenerator implements Opcodes {
 	public void emitInlineStoreLocDeref(int pos){
 	    
 	    mv.visitVarInsn(ALOAD, STACK);
-        emitIntValue(pos);
+        emitIntValue(compensate(pos));
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, getInternalName(Reference.class));
     
@@ -882,7 +928,7 @@ public class BytecodeGenerator implements Opcodes {
 
 	public void emitInlineLoadLocN(int pos) {
 		mv.visitVarInsn(ALOAD, STACK);
-		emitIntValue(pos);
+		emitIntValue(compensate(pos));
 		mv.visitInsn(AALOAD);
 		mv.visitVarInsn(ASTORE, ACCU);
 	}
@@ -892,7 +938,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitIincInsn(SP, 1);
 		mv.visitVarInsn(ALOAD, STACK);
-		emitIntValue(pos);
+		emitIntValue(compensate(pos));
 		mv.visitInsn(AALOAD);
 		mv.visitInsn(AASTORE);
 	}
@@ -1834,15 +1880,15 @@ public class BytecodeGenerator implements Opcodes {
 			int[] ctors = of.getConstructors();
 			if (ctors.length == 0) {
 				Function fu = functionStore[functions[0]];
-				if (of.getScopeFun().equals("")) {
+				//if (of.getScopeFun().equals("")) {
 					emitOcallSingle(rvm2jvmName(fu.getName()), functions[0], arity, srcIndex);
-				} else {
-					// Nested function needs link to containing frame
-					// TODO srcIndex
-					emitCallWithArgsSSFII_A("jvmOCALL", overloadedFunctionIndex, arity);
-					mv.visitIincInsn(SP, -arity);
-					emitReturnValue2ACCU();
-				}
+//				} else {
+//					// Nested function needs link to containing frame
+//					// TODO srcIndex
+//					emitCallWithArgsSSFII_A("jvmOCALL", overloadedFunctionIndex, arity);
+//					mv.visitIincInsn(SP, -arity);
+//					emitReturnValue2ACCU();
+//				}
 			} else {
 				// Has a constructor.
 				// TODO srcIndex
@@ -1863,14 +1909,8 @@ public class BytecodeGenerator implements Opcodes {
 			emitReturnValue2ACCU();
 		}
 	}
-	
-//	Handle bootstrapGetFrame(){
-//        MethodType bmt = MethodType.methodType(CallSite.class, MethodHandles.Lookup.class, String.class, MethodType.class, Object.class);
-//        Handle bootstrap = new Handle(Opcodes.H_INVOKESTATIC, (RVMonJVM.class.getName()).replace('.', '/'), "bootstrapGetFrame",
-//            bmt.toMethodDescriptorString());
-//        return bootstrap;
-//    }
-//
+
+//    // EXPERIMENTAL
 //	private void emitOcallSingle(String funName, int fun, int arity, int srcIndex) {
 //		mv.visitVarInsn(ALOAD, THIS);
 //		mv.visitVarInsn(ALOAD, CF);
@@ -1879,8 +1919,13 @@ public class BytecodeGenerator implements Opcodes {
 //		mv.visitVarInsn(ILOAD, SP);
 //		emitInlineFrameEnter(srcIndex);
 //		
+//		// Set up invokeDynamic of getFrame
+//		MethodType bmt = MethodType.methodType(CallSite.class, MethodHandles.Lookup.class, String.class, MethodType.class, Object.class, Object.class);
+//		Handle bootstrap = new Handle(Opcodes.H_INVOKESTATIC, (RVMonJVM.class.getName()).replace('.', '/'), "bootstrapGetFrame",
+//	          bmt.toMethodDescriptorString());
+//		 
 //	    mv.visitInvokeDynamicInsn("getFrame", 
-//	            getMethodDescriptor(FRAME_TYPE, FRAME_TYPE, FRAME_TYPE, INT_TYPE), bootstrapGetFrame(), fun);
+//	            getMethodDescriptor(FRAME_TYPE, FRAME_TYPE, FRAME_TYPE, INT_TYPE), bootstrap, fun, fullClassName);
 //
 //		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, funName, getMethodDescriptor(OBJECT_TYPE, FRAME_TYPE),false);
 //		mv.visitInsn(POP);
@@ -2059,7 +2104,7 @@ public class BytecodeGenerator implements Opcodes {
 	
 	public void emitInlineResetLoc(int position) {
 		mv.visitVarInsn(ALOAD, STACK);
-		emitIntValue(position);
+		emitIntValue(compensate(position));
 		mv.visitInsn(ACONST_NULL);
 		mv.visitInsn(AASTORE);
 	}
@@ -2069,7 +2114,7 @@ public class BytecodeGenerator implements Opcodes {
 		for (IValue v : il) {
 			int stackPos = ((IInteger) v).intValue();
 			mv.visitVarInsn(ALOAD, STACK);
-			emitIntValue(stackPos);
+			emitIntValue(compensate(stackPos));
 		}
 		mv.visitInsn(ACONST_NULL);
 
@@ -2083,13 +2128,17 @@ public class BytecodeGenerator implements Opcodes {
 	public void emitInlineResetVar(int what, int pos) {
 		mv.visitVarInsn(ALOAD, THIS);
 		emitIntValue(what);
-		emitIntValue(pos);
+		emitIntValue(compensate(pos));
 		mv.visitVarInsn(ALOAD, CF);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "jvmRESETVAR", getMethodDescriptor(VOID_TYPE, INT_TYPE, INT_TYPE, FRAME_TYPE),false);
 	}
 
 	// TODO: compare with performance of insnCHECKARGTYPEANDCOPY
 	public void emitInlineCheckArgTypeAndCopy(int pos1, int type, int pos2) {
+	    
+	    if(!inOverloadedFunction()){
+	        return;
+	    }
 		Label l1 = new Label();
 		Label l5 = new Label();
 
