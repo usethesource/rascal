@@ -9,7 +9,7 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 
 @bootstrapParser
-module ExamManager
+module experiments::tutor3::LegacyExamManager
 
 import String;
 import List;
