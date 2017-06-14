@@ -100,6 +100,7 @@
 		      </filesets>
 		    </configuration>
 		  </plugin>
+		  
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
@@ -148,8 +149,6 @@
                                 <argument>${project.build.directory}/classes/std</argument>
                                 <argument>--lib</argument>
                                 <argument>${project.build.directory}/classes/std</argument>
-                                <argument>--reloc</argument>
-                                <argument>|std:///|</argument>
                                 <argument>--src</argument>
                                 <argument>${project.basedir}/src/org/rascalmpl/library</argument>
                                 <argument>StandardLibrary</argument>
@@ -177,8 +176,6 @@
                                 <argument>${project.build.directory}/classes/boot</argument>
                                 <argument>--lib</argument>
                                 <argument>${project.build.directory}/classes/boot</argument>
-                                <argument>--reloc</argument>
-                                <argument>|std:///|</argument>
                                 <argument>--src</argument>
                                 <argument>${project.basedir}/src/org/rascalmpl/library</argument>
                                 <argument>util::Webserver</argument>
@@ -206,8 +203,6 @@
                                 <argument>${project.build.directory}/classes/boot</argument>
                                 <argument>--lib</argument>
                                 <argument>${project.build.directory}/classes/boot</argument>
-                                <argument>--reloc</argument>
-                                <argument>|std:///|</argument>
                                 <argument>--src</argument>
                                 <argument>${project.basedir}/src/org/rascalmpl/library</argument>
                                 <argument>experiments::Compiler::RascalExtraction::RascalExtraction</argument>
@@ -235,8 +230,6 @@
                                 <argument>${project.build.directory}/classes/boot</argument>
                                 <argument>--lib</argument>
                                 <argument>${project.build.directory}/classes/boot</argument>
-                                <argument>--reloc</argument>
-                                <argument>|std:///|</argument>
                                 <argument>--src</argument>
                                 <argument>${project.basedir}/src/org/rascalmpl/library</argument>
                                 <argument>experiments::tutor3::QuestionCompiler</argument>
@@ -265,6 +258,8 @@
                                 <argument>${project.basedir}/src/org/rascalmpl/library</argument>
                                 <argument>--boot</argument>
                                 <argument>${project.build.directory}/classes/boot</argument>
+                                <argument>--lib</argument>
+                                <argument>${project.build.directory}/classes/std</argument>
                                 <argument>--course</argument>
                                 <argument>${project.basedir}/src/org/rascalmpl/courses</argument>
                                 <argument>--all</argument>
