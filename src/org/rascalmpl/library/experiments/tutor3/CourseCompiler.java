@@ -155,7 +155,10 @@ public class CourseCompiler {
 		}
 	}
 	
-	private static void copyStandardFiles(Path srcPath, Path destPath) throws IOException {
+	/**
+	 * @return true iff no files were copied because they are already in the destination path
+	 */
+	private static boolean copyStandardFiles(Path srcPath, Path destPath) throws IOException {
 		
 		System.err.println("Copying standard files");
 		System.err.println("srcPath: " + srcPath + ", destPath: " + destPath);
@@ -183,6 +186,12 @@ public class CourseCompiler {
 		for(String file : files){
 			Path src = srcPath.resolve(file);
 			Path dest = destPath.resolve(file);
+			
+			if (Files.exists(dest)) {
+			    // break early, it already exists
+			    return true;
+			}
+			
 			Path parent = dest.getParent();
 			if(!Files.exists(parent)){
 				Files.createDirectories(parent);
@@ -190,6 +199,8 @@ public class CourseCompiler {
 			//System.out.println("cp " + src + " " + dest);
 			Files.copy(src, dest, REPLACE_EXISTING);
 		}
+		
+		return false;
 	}
 	
 	private static class RemoveAdocs extends SimpleFileVisitor<Path> {
@@ -266,7 +277,11 @@ public class CourseCompiler {
 		System.out.println(pcfg);
 		
 		Path destPath = Paths.get(((ISourceLocation)pcfg.getBin()).getPath()).resolve("courses");
-		copyStandardFiles(coursesSrcPath, destPath);
+		
+		if (copyStandardFiles(coursesSrcPath, destPath)) {
+		    System.err.println("Bailing out because target files are already present...");
+		    return;
+		}
 		
 		StringWriter sw = new StringWriter();
 		PrintWriter err = new PrintWriter(sw);
