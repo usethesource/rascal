@@ -873,7 +873,7 @@ public class CommandExecutor {
 		  stderr.println("edit: " + words[1]);
 		  ISourceLocation loc = pcfg.resolveModule(words[1]);
 		  stderr.println("loc: " + loc);
-		  ideServices.edit( Paths.get(loc.getPath()));
+		  ideServices.edit(loc);
 		  break;
 		  
 		case "declarations":
