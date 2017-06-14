@@ -160,6 +160,7 @@ public class BytecodeGenerator implements Opcodes {
 	private Label exitLabel = null;				// special case for labels without code
 											    // TODO: peephole optimizer now removes them; can disappear?
 
+	//EXPERIMENTAL "static"
 	static Function[] functionStore;
 	OverloadedFunction[] overloadedStore;
 	Map<String, Integer> functionMap;
