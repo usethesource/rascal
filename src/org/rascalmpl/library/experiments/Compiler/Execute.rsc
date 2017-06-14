@@ -282,7 +282,8 @@ value execute(RVMProgram program, PathConfig pcfg,
                            profile, 
                            trace, 
                            coverage,
-                           jvm);
+                           jvm, 
+                           verbose);
  
    //if(verbose) println("Executing: <(cpuTime() - startTime)/1000000> ms");
    //return v;                            
@@ -356,7 +357,7 @@ value execute(str qualifiedModuleName, PathConfig pcfg,
       if(<true, compressed> := RVMExecutableReadLoc(qualifiedModuleName, pcfg)){
          if(verbose) println("Using <compressed>");
          startTime = cpuTime();
-         v = executeProgram(compressed, keywordArguments, debug, debugRVM, testsuite, profile, trace, coverage, jvm);
+         v = executeProgram(compressed, keywordArguments, debug, debugRVM, testsuite, profile, trace, coverage, jvm, verbose);
          if(verbose) println("Executing: <(cpuTime() - startTime)/1000000> ms");
          if(!testsuite && verbose){
             println("Result = <v>");
@@ -432,7 +433,7 @@ TestResults rascalTestsRaw(list[str] qualifiedModuleNames, PathConfig pcfg,
        try {
        if(!recompile && <true, compressed> := RVMExecutableReadLoc(qualifiedModuleName, pcfg)){
            if(verbose) println("Using <compressed>");
-           v = executeProgram(compressed, keywordArguments, debug, debugRVM, true, profile, trace, coverage, jvm);
+           v = executeProgram(compressed, keywordArguments, debug, debugRVM, true, profile, trace, coverage, jvm, verbose);
        } else {
            if(!recompile){
               throw "No executable found for <qualifiedModuleName>";
