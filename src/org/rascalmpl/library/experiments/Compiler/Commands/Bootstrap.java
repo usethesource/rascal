@@ -473,8 +473,8 @@ public class Bootstrap {
       
       if (phase > 2) {
           // phase 2 tests can not succeed in case the parser generator changed, so we can only test this after phase 3 has completed
-          time("- compile simple tests",           () -> compileTests    (phase, classPath, phaseResult.toAbsolutePath().toString(), sourcePath, testResults, syntaxTestModules));
-          time("- run simple tests",               () -> runTests        (phase, testClassPath, phaseResult.toAbsolutePath().toString(), sourcePath, testResults, syntaxTestModules));
+          time("- compile syntax tests",           () -> compileTests    (phase, classPath, phaseResult.toAbsolutePath().toString(), sourcePath, testResults, syntaxTestModules));
+          time("- run syntax tests",               () -> runTests        (phase, testClassPath, phaseResult.toAbsolutePath().toString(), sourcePath, testResults, syntaxTestModules));
       }
       
       return phaseResult;
