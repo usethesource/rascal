@@ -79,51 +79,6 @@ public class CourseCompiler {
 	  asciidoctor.convertFile(new File(courseDestDir.resolve(courseName + ".adoc").toString()),  options);
 	}
 	
-//	private static final String ASCIIDOCTOR_DEFAULT = "/usr/local/bin/asciidoctor";
-//	
-//	static void runAsciiDocter(Path srcPath, String courseName, Path destPath, PrintWriter err) throws IOException {
-//		Path courseDestDir = destPath.resolve(courseName);
-//		String asciidoctor = System.getProperty("rascal.asciidoctor");
-//		if(asciidoctor == null){
-//			asciidoctor = ASCIIDOCTOR_DEFAULT;
-//		}
-//		String cmd = 
-//			asciidoctor
-//			+ " -n"												// numbered sections
-//			+ " -v"												// verbose
-//			+ " -a toc-title=" + courseName						// table of contents
-//			+ " -a toc=left"									// at left side
-//		    //+ " -a toclevels=2"
-//			+ " -a linkcss"										// link the style sheet
-//			+ " -a stylesheet=" + "../css/style.css"				// use our own style sheet
-//			+ " -d book"										// book style
-//			+ " -D " + courseDestDir							// destination directory
-//		    + " -B " + courseDestDir 							// base directory
-//			+ " " + courseDestDir.resolve(courseName + ".adoc")	// the adoc source file
-//			+ " -o " + courseDestDir + "/" + "index.html"		// the html output file
-//			;
-//		System.err.println(cmd);
-//		Process p = Runtime.getRuntime().exec(cmd);
-//		BufferedReader input = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-//
-//		String line = null;
-//
-//		while ((line = input.readLine()) != null)
-//		{
-//			System.err.println(line);
-//			err.println(line);
-//		}
-//
-//		try {
-//			int exitVal = p.waitFor();
-//			if(exitVal != 0){
-//				System.err.println("asciidoctor exits with error code " + exitVal);
-//			}
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//	}
-	
     public static void compileCourse(Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
 		
 		copyStandardFilesPerCourse(srcPath, courseName, destPath);
@@ -273,8 +228,6 @@ public class CourseCompiler {
 		
 		Path coursesSrcPath = Paths.get(((ISourceLocation)pcfg.getCourses().get(0)).getPath());
 		Path libSrcPath = Paths.get(((ISourceLocation)pcfg.getSrcs().get(0)).getPath());
-		
-		System.out.println(pcfg);
 		
 		Path destPath = Paths.get(((ISourceLocation)pcfg.getBin()).getPath()).resolve("courses");
 		
