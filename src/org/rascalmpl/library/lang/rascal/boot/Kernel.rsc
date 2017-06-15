@@ -11,9 +11,18 @@ module lang::rascal::boot::Kernel
  * of the Rascal project.
  */
  
+
+// this group of modules takes care of running the compiler
 extend experiments::Compiler::Compile;
 extend experiments::Compiler::Execute;
 extend experiments::Compiler::CompileMuLibrary;
 extend lang::rascal::grammar::Bootstrap;
+
+// this for IDE features
 extend experiments::Compiler::Summary;
 extend lang::rascal::ide::Outline;
+
+// this is for the documentation compiler and help server
+extend util::Webserver;
+extend experiments::tutor3::QuestionCompiler;
+extend experiments::Compiler::RascalExtraction::RascalExtraction;

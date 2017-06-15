@@ -18,7 +18,7 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 
-@RascalModule("experiments::Compiler::RascalExtraction::RascalExtraction")
+@RascalModule("lang::rascal::boot::Kernel")
 public interface IRascalExtraction extends IJava2Rascal {
   /**
    * Extract concepts from the source code of a "remote" Rascal module, i.e. located outside a documentation hierarchy
