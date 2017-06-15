@@ -239,8 +239,6 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 
                 //  Do a sufficient but not complete check on the binary; changes to imports will go unnoticed!
                 if(!resolver.exists(binary) || resolver.lastModified(source) > resolver.lastModified(binary)){
-                    System.err.println("Compiling: " + qualifiedName);
-
                     IList programs = kernel.compileAndLink(
                         vf.list(vf.string(qualifiedName)),
                         pcfg.asConstructor(kernel),
