@@ -37,10 +37,8 @@ tuple[str quoted, str execute, bool hasHoles, map[str,str] bindings] preprocessC
     nholes = 0;
     map[str,str] env = initialEnv;
     
-    println("preprocessCode: <questionId>, <q>, <setup>, <initialEnv>");
     
     tuple[str quote, str execute] handleCmd((Cmd) `<GenCmd gen>`){
-        println("handleCmd: <gen>");
         switch(gen){  
             case (GenCmd) `$gen(<Type tp>,<Name name>)`: {
                 str v = generateValue(generateType(tp));
@@ -48,7 +46,6 @@ tuple[str quoted, str execute, bool hasHoles, map[str,str] bindings] preprocessC
                     throw "Double declaration for <name> in <gen>";
                 }
                 env["<name>"] = v;
-                println("added <name> : <v>");
                 return <v, v>;
             }
             case (GenCmd) `$gen(<Type tp>)`: {
@@ -70,40 +67,33 @@ tuple[str quoted, str execute, bool hasHoles, map[str,str] bindings] preprocessC
     }
     
     tuple[str quote, str execute] handleCmd((Cmd) `<EvalCmd c>`){
-        println("handleCmd: <c>");
         <qt, expr> = handle(c.elements);
-        println("Eval: <expr>");
         v = "<eval(questionId, expr, setup, pcfg)>";
         return <v, v>;
     }
     
     tuple[str quote, str execute] handleCmd((Cmd) `<AnswerCmd ans>`){
-            println("visit AnswerCmd: <ans>");
             nholes += 1;
             txt = "<ans.elements>";
             qt = holeMarkup(nholes);
             try {
                 gen = [Cmd] "$gen(<txt>)";
                 <qt1, ex> = handleCmd(gen);
-                println("answer: AnswerCmd: <qt>, <ex>");
                 return <qt, ex>;
             } catch: {
                 try {
                     c = [Cmd] "$eval(<txt>)";
                     if(countGenAndUse(c) == 0) throw "";
                     <qt1, ex1> = handleCmd(c);
-                    println("hole: EvalCmd: <qt> <ex1>");
                     return <qt, ex1>;
                 } catch : {
                     v = "<txt>";
-                    println("hole: plain: <qt>, <v>");
                     return <qt, v>;
                 }
             }
     }
     
     tuple[str quote, str execute] handle(TokenOrCmd toc){
-        println("handle: <toc>");
         if(toc is aCmd){
           return handleCmd(toc.aCmd);
         } else {
@@ -133,7 +123,6 @@ tuple[str quoted, str execute, bool hasHoles, map[str,str] bindings] preprocessC
                   qt += qt1; ex += ex1;
                }
             }
-            println("handle toc: <tocList> =\> <qt>, <ex>");
             return <qt, ex>;
         } else {
           throw "Cannot match parse tree: <tocList>";
@@ -147,10 +136,7 @@ tuple[str quoted, str execute, bool hasHoles, map[str,str] bindings] preprocessC
 str preprocessClick(int questionId, TokenOrCmdList q){
     nholes = 0;
     
-    println("preprocessClick: <questionId>, <q>");
-    
     tuple[str quote, str execute] handleCmd((Cmd) `<ClickCmd cc>`){
-            println("visit ClickCmd: <cc>");
             nholes += 1;
             txt = "<cc.elements>";
             qt = clickMarkup(nholes, txt);
@@ -158,7 +144,6 @@ str preprocessClick(int questionId, TokenOrCmdList q){
     }
     
     tuple[str quote, str execute] handle(TokenOrCmd toc){
-        println("handle: <toc>");
         if(toc is aCmd){
           return handleCmd(toc.aCmd);
         } else {
@@ -188,7 +173,6 @@ str preprocessClick(int questionId, TokenOrCmdList q){
                   qt += qt1; ex += ex1;
                }
             }
-            println("handle toc: <tocList> =\> <qt>, <ex>");
             return <qt, ex>;
         } else {
           throw "Cannot match parse tree: <tocList>";
@@ -201,14 +185,6 @@ str preprocessClick(int questionId, TokenOrCmdList q){
 
 int questionId = 0;
 
-//void process(loc qloc, loc aloc, str questions){
-//    qs = parse(questions);
-//    questionId = 0;
-//    for(q <- qs.questions){
-//        println(process(q));
-//    }
-//}
-
 str removeComments(Intro? intro){
    res = "";
    for(line <- split("\n", "<intro>")){
@@ -216,31 +192,26 @@ str removeComments(Intro? intro){
           res += line + "\n";
        }
    }
-   //println("removeComments: intro = @<intro>@ =\> <res>");
+   
    return res;
 }
 
 @deprecated
 public str compileQuestions(str qmodule, list[loc] srcs, list[loc] libs, list[loc] courses, loc bin, loc boot) {
-    println("compileQuestions: <qmodule>, <srcs>, <libs>, <courses>, <bin>, <boot>");
     pcfg = pathConfig(srcs=[|test-modules:///|]+srcs,libs=libs,bin=bin, boot=boot);
     bn = split("/", qmodule)[-1];
     qloc = courses[0] + ("/" + qmodule + "/" + bn + ".questions");
-    println("compileQuestions: qloc=<qloc>");
     return compileQuestions(qloc, pcfg);
 }
 
 public str compileQuestions(str qmodule, PathConfig pcfg) {
-    println("compileQuestions: <qmodule>, <pcfg>");
     pcfg = pathConfig(srcs=[|test-modules:///|]+pcfg.srcs,libs=pcfg.libs,bin=pcfg.bin, boot=pcfg.boot,courses=pcfg.courses);
     bn = split("/", qmodule)[-1];
     qloc = pcfg.courses[0] + ("/" + qmodule + "/" + bn + ".questions");
-    println("compileQuestions: qloc=<qloc>");
     return compileQuestions(qloc, pcfg);
 }
 
 public str compileQuestions(loc qloc, PathConfig pcfg){
-   println("compileQuestions: <qloc>");
    return process(qloc, pcfg);
 }
 
@@ -259,7 +230,6 @@ str process(loc qloc, PathConfig pcfg){
           '++++
           '";
     for(iq <- iqs.introAndQuestions){
-        println("process: <iq>");
         intro = removeComments(iq.intro);
         res += (intro + "\n" + process("<iq.description>", iq.question, pcfg) +"\n");
     }
@@ -281,7 +251,6 @@ str process(str text, (Question) `<CodeQuestion q>`, PathConfig pcfg){
   
     if(Prep p <- q.prep){
         <prep_quoted, prep_executed, prep_holes, env1> = preprocessCode(questionId, p.text, "", (), pcfg);
-        println("prep_quoted: <prep_quoted>, prep_executed: <prep_executed>, prep_holes: <prep_holes>");
     }
     
     expr_quoted = expr_executed = "";
@@ -289,7 +258,6 @@ str process(str text, (Question) `<CodeQuestion q>`, PathConfig pcfg){
     env2 = env1;
     if(Expr e <- q.expr){
         <expr_quoted, expr_executed, expr_holes, env2> = preprocessCode(questionId, e.text, prep_executed, env1, pcfg);
-        println("expr_quoted: <expr_quoted>, expr_executed: <expr_executed> expr_holes: <expr_holes>");
         return codeQuestionMarkup(questionId, text, 
                                     "module Question<questionId>
                                     '<prep_quoted><"<prep_quoted>" == "" ? "" : "\n">
@@ -298,8 +266,6 @@ str process(str text, (Question) `<CodeQuestion q>`, PathConfig pcfg){
                                     '");
     }
     if(prep_holes){
-        println("prep_holes: <prep_executed>");
-        
         runTests(questionId, prep_executed, pcfg);
         return codeQuestionMarkup(questionId, text, "module Question<questionId>
                                     '<prep_quoted>
@@ -393,7 +359,6 @@ str clickQuestionMarkup(int n, str explanation, str code){
 // ---- MoveQuestion
 
 str process(str explanation, (Question) `<MoveQuestion q>`, PathConfig pcfg){
-    println("process: <q>");
     questionId += 1;
     if(Decoy d <- q.decoy){
         return moveQuestionMarkup(questionId, explanation, "<q.text>", "<d.text>");
@@ -434,8 +399,6 @@ list[list[str]] makeSegments(list[str] lines){
 }
 
 str moveQuestionMarkup(int n, str explanation, str code, str decoy){
-    println("code: <code>");
-    println("decoy: <decoy>");
     code_lines = split("\n", code);
     segments = makeSegments(code_lines);
     fragments = [fragment(i, segments[i], indent(segments[i][0]), indent(segments[i][-1])) | i <- index(segments)];
@@ -528,7 +491,6 @@ str factQuestionMarkup(int n, str explanation, Fact+ facts){
 loc makeQuestion(int questionId, PathConfig pcfg){
     for(f <- pcfg.bin.ls){
         if(/Question/ := "<f>"){
-        //println("remove: <f>");
            remove(f);
         }
     }
@@ -537,7 +499,6 @@ loc makeQuestion(int questionId, PathConfig pcfg){
 }
 
 value eval(int questionId, str exp, str setup, PathConfig pcfg) {
-    println("eval: <exp>, <setup>");
     Q = makeQuestion(questionId, pcfg);
     msrc = "module Question<questionId> <setup> value main() {<exp>;}";
     writeFile(Q, msrc);
@@ -556,7 +517,6 @@ value eval(int questionId, str exp, str setup, PathConfig pcfg) {
 void runTests(int questionId, str mbody, PathConfig pcfg){
     Q = makeQuestion(questionId, pcfg);
     msrc = "module Question<questionId> <mbody>";
-    println(msrc);
     writeFile(Q, msrc);
     try {
        //compileAndLink("Question<questionId>", pcfg); 
@@ -575,14 +535,12 @@ void runTests(int questionId, str mbody, PathConfig pcfg){
 } 
 
 value main(){
-    println("In main");
     PathConfig pcfg = 
     pathConfig(srcs=[|test-modules:///|, |file:///Users/paulklint/git/rascal/src/org/rascalmpl/library|], 
                bin=|file:///Users/paulklint/git/rascal/bootstrap/phase2|, 
                boot=|file:///Users/paulklint/git/rascal/bootstrap/phase2|,
                libs=[|home:///git/rascal/bootstrap/phase2/org/rascal/mpl/library|]);
     res = compileQuestions("ADocTest/Questions", pcfg.srcs, pcfg.libs, [|home:///git/rascal/src/org/rascalmpl/courses|], pcfg.bin, pcfg.boot);
-    println(res);
     writeFile(|file:///Users/paulklint/git/rascal/bootstrap/phase2/courses/AdocTest/Questions/Questions.adoc|, res);
     return true;
 }

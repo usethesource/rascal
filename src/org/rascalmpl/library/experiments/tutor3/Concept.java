@@ -159,7 +159,6 @@ public class Concept {
     }
     
 	public void preprocess(Onthology onthology, TutorCommandExecutor executor) throws IOException{
-		System.err.println("Preprocessing: " + name);
 		BufferedReader reader = new BufferedReader(new StringReader(text));
 
 		StringWriter preprocessOut = new StringWriter();
@@ -258,7 +257,6 @@ public class Concept {
 						}
 						String resultOutput = "";
 						boolean errorFree = true;
-//						System.err.println(line);
 						try {
 //							if(!isFigure){
 								resultOutput = executor.evalPrint(line);
