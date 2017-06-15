@@ -1,123 +1,14 @@
 module Library
 
-// Specific to delimited continuations (only experimental)
-
-//declares "cons(adt(\"Gen\",[]),\"NEXT\",[ label(\"cont\",func(\\value(),[])) ])"
-//declares "cons(adt(\"Gen\",[]),\"EXHAUSTED\",[])"
-
-
-function NEXT(gen) {
-    if(muprim("equal",muprim("get_name",gen),"NEXT")) {
-        return true
-    }
-    return false
-}
-
-coroutine ONE(task) {
-    if(next(create(task))){
-    	return;
-    }
-}
-
-/*
-// Semantics of the all operator
-
-coroutine ALL(tasks) 
-guard { 
-	var len = size_array(tasks); len > 0 
-} {
-    var workers = make_array(len),
-        j = 0  
-    workers[j] = create(tasks[j]())
-    while(true) {
-        while(next(workers[j])) {
-            if(j == len - 1) {
-                yield
-            } else {
-                j = j + 1
-                workers[j] = create(tasks[j]())
-            }
-        }
-        if(j > 0) {
-            j = j - 1
-        } else {
-            exhaust
-        }
-    }
-}
-
-// A specific coroutine is now generated for each OR
-coroutine OR(tasks)
-guard { 
-	var len = size_array(tasks); len > 0 
-} {
-    var j = 0 
-    while(j < len) {
-        tasks[j]()()
-        j = j + 1
-    }
-}
-*/
-
-
-
-/*
-// A specific coroutine is now generated for each RASCAL_ALL
-function RASCAL_ALL(genArray, generators) { 
-    var len = size_array(genArray), 
-        genInits = make_array(len),
-        j = 0, 
-        forward = true, 
-        gen 
-    println("RASCAL_ALL", len, genArray, generators)
-    while(true) {
-    	println("RASCAL_ALL, j=", j, forward)
-        if(generators[j]) {
-        	println("RASCAL_ALL, generators[j] == true", j, genArray[j])
-            if(forward) {
-                genInits[j] = create(genArray[j])
-            }
-            gen = genInits[j]
-            println("RASCAL_ALL, gen", gen)
-            if(next(gen)) {
-                forward = true
-                j = j + 1
-            } else {
-                forward = false
-                j = j - 1
-            }
-        } else {
-            if(forward) {
-                if(genArray[j]()) {
-                    forward = true
-                    j = j + 1
-                } else {
-                    return false
-                }
-            } else {
-                j = j - 1
-            }
-        }
-        if(j < 0) {
-           return true
-        }
-        if(j == len) {
-           forward = false
-           j = j - 2
-           if(j < 0) {
-              return true
-           }
-        }
-    }
-}
-*/
-
-// Initialize a pattern with a given value and exhaust all its possibilities
-
 /******************************************************************************************/
-/*                    Enumerators for all types                                               */
+/*                                                                                        */
+/*                  MuRascal functions and coroutines called from generated code          */
+/*                                                                                        */
 /******************************************************************************************/
 
+/******************************************************************************************/
+/*                    Enumerators for all types                                           */
+/******************************************************************************************/
 
 // Enumerators are used by
 // - ENUMERATE_AND_MATCH
@@ -1621,7 +1512,6 @@ coroutine ENUM_SUBSETS(set, rSubset) {
 /*					 descendant matching  												  */
 /******************************************************************************************/
 
-
 // ***** Match and descent for all types *****
 // Enforces the same left-most innermost traversal order as the interpreter
 // uses precomputed reachable types to avoid searching irrelevant subtrees
@@ -1646,132 +1536,6 @@ coroutine DESCENT_AND_MATCH_CONCRETE(pat, descendantDescriptor, iNd) {
         pat(getNext(iter))
     }
 }
-
-/*
-coroutine DESCENT_AND_MATCH(pat, descendantDescriptor, iVal) 
-{
-	//println("DESCENT_AND_MATCH", typeOf(iVal),  descendantDescriptor)
-	if(prim("should_descent_in_abstract", iVal, descendantDescriptor)){
-	    typeswitch(iVal) {
-	        case list:        DESCENT_AND_MATCH_LIST (pat, descendantDescriptor, iVal)
-	        case lrel:        DESCENT_AND_MATCH_LIST (pat, descendantDescriptor, iVal)
-	        case node:        DESCENT_AND_MATCH_NODE (pat, descendantDescriptor, iVal)
-	        case constructor: DESCENT_AND_MATCH_NODE (pat, descendantDescriptor, iVal)
-	        case map:         DESCENT_AND_MATCH_MAP  (pat, descendantDescriptor, iVal)
-	        case set:         DESCENT_AND_MATCH_SET  (pat, descendantDescriptor, iVal)
-	        case rel:         DESCENT_AND_MATCH_SET  (pat, descendantDescriptor, iVal)
-	        case tuple:       DESCENT_AND_MATCH_TUPLE(pat, descendantDescriptor, iVal)
-	        default:          true
-	    }
-	   // println("DESCENT_AND_MATCH, applying pat to", typeOf(iVal))
-	 }
-	 pat(iVal) 
-}
-
-
-coroutine DESCENT_AND_MATCH_LITERAL(pat, descendantDescriptor, iSubject) {
-    if(equal(pat, iSubject)) {
-        yield
-        exhaust
-    }
-}
-
-coroutine DESCENT_AND_MATCH_LIST(pat, descendantDescriptor, iLst)
-{
- 	var iter = iterator(iLst);
-    while(hasNext(iter)){
-        DESCENT_AND_MATCH(pat, descendantDescriptor, getNext(iter))
-    }
-}
-
-coroutine DESCENT_AND_MATCH_SET(pat, descendantDescriptor, iSet) 
-{
-	var iter = iterator(iSet);
-    while(hasNext(iter)){
-        DESCENT_AND_MATCH(pat, descendantDescriptor, getNext(iter))
-    }
-}
-
-coroutine DESCENT_AND_MATCH_MAP(pat, descendantDescriptor, iMap)
-{
-	var iter = iterator(iMap),
-	    iKey;
-    while(hasNext(iter)){
-    	iKey = getNext(iter)
-    	DESCENT_AND_MATCH(pat, descendantDescriptor, iKey)
-        DESCENT_AND_MATCH(pat, descendantDescriptor, prim("map_subscript", iMap, iKey))
-    }
-}
-
-coroutine DESCENT_AND_MATCH_NODE(pat, descendantDescriptor, iNd)
-{
-   var val, iter;
-   
-   //println("DESCENT_AND_MATCH_NODE", iNd);
-   iter = iterator(get_children_and_keyword_values(iNd))                  
-    
-   while(hasNext(iter)) {
-         DESCENT_AND_MATCH(pat, descendantDescriptor, getNext(iter))
-   }
-}
-
-coroutine DESCENT_AND_MATCH_TUPLE(pat, descendantDescriptor, iTup) {
-    var iter = iterator(iTup)
-
-    while(hasNext(iter)) {
-        DESCENT_AND_MATCH(pat, descendantDescriptor, getNext(iter))
-    }
-}
-
-
-// Descent and match a concrete tree
-
-coroutine DESCENT_AND_MATCH_CONCRETE(pat, descendantDescriptor, iNd) 
-{  var val, iter;
-
-   //println("DESCENT_AND_MATCH_CONCRETE", typeOf(iNd),  descendantDescriptor)
-	
-   if(prim("is_amb", iNd)){
-      iter = iterator(prim("get_amb_alternatives", iNd))
-      while(hasNext(iter)) {
-            val = getNext(iter)
-            DESCENT_AND_MATCH_CONCRETE_NODE(pat, descendantDescriptor, val)
-      }
-      exhaust
-   }
-   
-   DESCENT_AND_MATCH_CONCRETE_NODE (pat, descendantDescriptor, iNd)
-   pat(iNd) 
-}
-
-coroutine DESCENT_AND_MATCH_CONCRETE_NODE(pat, descendantDescriptor, iNd)
-guard
-	prim("should_descent_in_concrete", iNd, descendantDescriptor)
-{
-   var val, iter;
-   
-   //println("DESCENT_AND_MATCH_CONCRETE_NODE", iNd);
-   
-   if(prim("is_concretelist", iNd)){
-      //println("DESCENT_AND_MATCH_CONCRETE_NODE, start list matching", prim("get_tree_type_as_symbol", iNd))
-      iter = iterator(prim("get_nonlayout_args", iNd))
-      while(hasNext(iter)) {
-         	val = getNext(iter)
-           	DESCENT_AND_MATCH_CONCRETE(pat,descendantDescriptor,  val)
-      }
-      exhaust
-   }      
-
-   iter = iterator(prim("get_appl_args", iNd))
-   while(hasNext(iter)) {
-         val = getNext(iter)
-         //println("DESCENT_AND_MATCH_CONCRETE_NODE, is_appl", val);
-         DESCENT_AND_MATCH_CONCRETE(pat, descendantDescriptor, val)
-   }
-   exhaust
-}
-
-*/
 
 // ***** Regular expressions *****
 
