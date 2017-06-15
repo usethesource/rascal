@@ -150,6 +150,8 @@
                                 <argument>${project.build.directory}/classes/std</argument>
                                 <argument>--src</argument>
                                 <argument>${project.basedir}/src/org/rascalmpl/library</argument>
+                                <argument>--reloc</argument>
+                                <argument>|std:///|</argument>
                                 <argument>StandardLibrary</argument>
                             </arguments>
                         </configuration>
@@ -159,87 +161,7 @@
                             <goal>exec</goal>
                         </goals>
                     </execution>
-                    <execution><!--  compile the webserver -->
-                        <configuration>
-                            <executable>java</executable>
-                            <classpathScope>compile</classpathScope>
-                            <workingDirectory>target/classes/</workingDirectory>
-                            <arguments>
-                                <argument>-Xmx1256m</argument>
-                                <argument>-cp</argument>
-                                <classpath />
-                                <argument>org.rascalmpl.library.experiments.Compiler.Commands.RascalC</argument>
-                                <argument>--boot</argument>
-                                <argument>${project.build.directory}/classes/boot</argument>
-                                <argument>--bin</argument>
-                                <argument>${project.build.directory}/classes/boot</argument>
-                                <argument>--lib</argument>
-                                <argument>${project.build.directory}/classes/boot</argument>
-                                <argument>--src</argument>
-                                <argument>${project.basedir}/src/org/rascalmpl/library</argument>
-                                <argument>util::Webserver</argument>
-                            </arguments>
-                        </configuration>
-                        <id>webserver</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                    </execution>
-                    <execution><!--  compile the rascal extractor -->
-                        <configuration>
-                            <executable>java</executable>
-                            <classpathScope>compile</classpathScope>
-                            <workingDirectory>target/classes/</workingDirectory>
-                            <arguments>
-                                <argument>-Xmx1256m</argument>
-                                <argument>-cp</argument>
-                                <classpath />
-                                <argument>org.rascalmpl.library.experiments.Compiler.Commands.RascalC</argument>
-                                <argument>--boot</argument>
-                                <argument>${project.build.directory}/classes/boot</argument>
-                                <argument>--bin</argument>
-                                <argument>${project.build.directory}/classes/boot</argument>
-                                <argument>--lib</argument>
-                                <argument>${project.build.directory}/classes/boot</argument>
-                                <argument>--src</argument>
-                                <argument>${project.basedir}/src/org/rascalmpl/library</argument>
-                                <argument>experiments::Compiler::RascalExtraction::RascalExtraction</argument>
-                            </arguments>
-                        </configuration>
-                        <id>rascalextractor</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                    </execution>
-                    <execution><!--  compile the question compiler -->
-                        <configuration>
-                            <executable>java</executable>
-                            <classpathScope>compile</classpathScope>
-                            <workingDirectory>target/classes/</workingDirectory>
-                            <arguments>
-                                <argument>-Xmx1256m</argument>
-                                <argument>-cp</argument>
-                                <classpath />
-                                <argument>org.rascalmpl.library.experiments.Compiler.Commands.RascalC</argument>
-                                <argument>--boot</argument>
-                                <argument>${project.build.directory}/classes/boot</argument>
-                                <argument>--bin</argument>
-                                <argument>${project.build.directory}/classes/boot</argument>
-                                <argument>--lib</argument>
-                                <argument>${project.build.directory}/classes/boot</argument>
-                                <argument>--src</argument>
-                                <argument>${project.basedir}/src/org/rascalmpl/library</argument>
-                                <argument>experiments::tutor3::QuestionCompiler</argument>
-                            </arguments>
-                        </configuration>
-                        <id>questioncompiler</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                    </execution>
+                    
                     <execution> <!--  compile the courses -->
                         <configuration>
                             <executable>java</executable>
