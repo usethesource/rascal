@@ -35,6 +35,8 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFu
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.experiments.Compiler.RascalExtraction.IRascalExtraction;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.uri.URIResolverRegistry;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
@@ -230,6 +232,10 @@ public class Onthology {
 				iwriter.addDocument(makeLuceneDocument(conceptName.toString(), concept.getIndex(), concept.getSynopsis(), concept.getText()));
 			} else if(Files.exists(makeRemoteFilePath(aDir))){
 			  ISourceLocation remoteLoc = readLocFromFile(makeRemoteFilePath(aDir).toString());
+			  System.err.println("remoteLoc: " + remoteLoc);
+			  if (!URIResolverRegistry.getInstance().exists(remoteLoc)) {
+			      System.err.println("WARNING: remote loc does not exist!" + remoteLoc);
+			  }
 			  String parentName = aDir.getName(aDir.getNameCount()-2).toString();
 			  Path remoteConceptName = makeConceptName(aDir);
 			  if(rascalExtraction == null){
