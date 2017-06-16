@@ -19,10 +19,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+
+import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
@@ -48,7 +48,17 @@ public class ShellExec {
 	public IInteger createProcess(IString processCommand, ISourceLocation workingDir, IList arguments, IMap envVars) {
 		return createProcessInternal(processCommand,arguments,envVars,workingDir);
 	}
+	
+	public IBool isAlive(IInteger pid) {
+	    Process p = runningProcesses.get(pid);
+        return p != null ? vf.bool(p.isAlive()) : vf.bool(false);
+	}
 
+	public IBool isZombie(IInteger pid) {
+        Process p = runningProcesses.get(pid);
+        return vf.bool(p != null && !p.isAlive());
+    }
+	
 	private synchronized IInteger createProcessInternal(IString processCommand, IList arguments, IMap envVars, ISourceLocation workingDir) {
 		try {
 			// Build the arg array using the command and the command arguments passed in the arguments list
@@ -111,7 +121,7 @@ public class ShellExec {
 		}
 	}
 
-	public synchronized void killProcess(IInteger processId) {
+	public synchronized void killProcess(IInteger processId, IBool force) {
 		if (!runningProcesses.containsKey(processId))
 			throw RuntimeExceptionFactory.illegalArgument(processId, null, null);
 
@@ -146,8 +156,31 @@ public class ShellExec {
 		}
 
 		Process runningProcess = runningProcesses.get(processId);
-		runningProcess.destroy();
-		runningProcesses.remove(processId);
+		
+		if (runningProcess.isAlive()) {
+		    if (force.getValue()) {
+		        runningProcess.destroyForcibly();
+		    }
+		    else {
+		        runningProcess.destroy();    
+		    }
+		}
+		
+		new Thread("zombie process clean up") {
+		    public void run() {
+		        try {
+                    Thread.sleep(1000);
+                    if (!runningProcess.isAlive()) {
+                        runningProcesses.remove(processId);
+                    }
+                }
+                catch (InterruptedException e) {
+                    // may happen occasionally
+                }
+		    };
+		}.start();
+		 
+		
 		return;
 	}
 	
