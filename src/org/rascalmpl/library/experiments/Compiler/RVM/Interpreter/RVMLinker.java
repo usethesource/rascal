@@ -629,12 +629,16 @@ public class RVMLinker {
 		ISourceLocation src = (ISourceLocation) declaration.get("src");
 		boolean isDefault = false;
 		boolean isTest = false;
+		boolean simpleArgs = false;
 		IMap tags = null;
 		boolean isConcreteArg = false;
 		int abstractFingerprint = 0;
 		int concreteFingerprint = 0;
 		if(!isCoroutine){
 			isDefault = ((IBool) declaration.get("isDefault")).getValue();
+			if(declaration.has("simpleArgs")){                           // Remove after next boot release
+			    simpleArgs = ((IBool) declaration.get("simpleArgs")).getValue();
+			}
 			if(declaration.has("isTest")){   // Transitional for boot
 			  isTest = ((IBool) declaration.get("isTest")).getValue();
 			  tags = ((IMap) declaration.get("tags"));
@@ -1121,11 +1125,11 @@ public class RVMLinker {
 										 nlocals, 
 										 isDefault, 
 										 isTest, 
+										 simpleArgs,
 										 tags,
 										 localNames,
-										 maxstack,
-										 isConcreteArg, 
-										 abstractFingerprint, concreteFingerprint, codeblock, src, continuationPoints);
+										 maxstack, 
+										 isConcreteArg, abstractFingerprint, concreteFingerprint, codeblock, src, continuationPoints);
 		
 		function.attachExceptionTable((IList) declaration.get("exceptions"));
 		
@@ -1139,7 +1143,6 @@ public class RVMLinker {
 			}
 			function.refs = refs;
 		} else {
-			
 			boolean isVarArgs = ((IBool) declaration.get("isVarArgs")).getValue();
 			function.isVarArgs = isVarArgs;
 		}

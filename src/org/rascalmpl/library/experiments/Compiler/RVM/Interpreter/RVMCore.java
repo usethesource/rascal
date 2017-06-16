@@ -87,7 +87,7 @@ public abstract class RVMCore {
 	
 	protected IFrameObserver frameObserver;
 
-	public final static Function noCompanionFunction = new Function("noCompanionFunction", null, null, null, 0, 0, false, false, null, null, 0, false, 0, 0, null, null, 0);
+	public final static Function noCompanionFunction = new Function("noCompanionFunction", null, null, null, 0, 0, false, false, false, null, null, 0, false, 0, 0, null, null, 0);
 	public static final HashMap<String, IValue> emptyKeywordMap = new HashMap<>(0);
 
 	protected PrintWriter stdout;
