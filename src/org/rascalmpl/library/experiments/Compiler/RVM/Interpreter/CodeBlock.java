@@ -853,17 +853,32 @@ public class CodeBlock  {
     	return Opcode.toString(this, opc, n);
     }
 
-	public void genByteCode(BytecodeGenerator gen, boolean debug) {
-		for(Instruction ins : insList){
-			ins.generateByteCode(gen, debug);
-		}
-		if (insList.get(insList.size() - 1) instanceof Label) {
-			// The mu2rvm code generator emits faulty code and jumps outside existing space
-			// put in a panic return, code is also generated on a not used label.
-			// Activate the peephole optimizer :).
-			gen.emitPanicReturn();
-		}
-	}
+    public void genByteCode(BytecodeGenerator gen, boolean suppressCheckArgTypeAndCopy, boolean debug) {
+        if(suppressCheckArgTypeAndCopy){
+            int i = 0;
+            int n = insList.size();
+            while(i < n){
+                Instruction ins = insList.get(i);
+                // Suppress CheckArgTypeAndCopy and the test that follows it
+                if(ins instanceof CheckArgTypeAndCopy){
+                    i++;
+                } else {
+                    ins.generateByteCode(gen, debug);
+                }
+                i++;
+            }
+        } else {
+            for(Instruction ins : insList){
+                ins.generateByteCode(gen, debug);
+            }
+        }
+        if (insList.get(insList.size() - 1) instanceof Label) {
+            // The mu2rvm code generator emits faulty code and jumps outside existing space
+            // put in a panic return, code is also generated on a not used label.
+            // Activate the peephole optimizer :).
+            gen.emitPanicReturn();
+        }
+    }
 	
 	public void write(IRVMWireOutputStream out) throws IOException{ 
 	    out.startMessage(CompilerIDs.CodeBlock.ID);

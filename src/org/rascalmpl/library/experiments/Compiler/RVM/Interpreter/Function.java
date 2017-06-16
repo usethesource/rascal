@@ -56,6 +56,7 @@ public class Function {
 	private int nlocals;
 	boolean isDefault;
 	boolean isTest;
+	boolean simpleArgs;
 	IMap tags;
 	int maxstack;
 	public CodeBlock codeblock;
@@ -98,8 +99,8 @@ public class Function {
     public MethodHandle handle;
 	
 	public Function(final String name, final Type ftype, final Type kwType, final String funIn, final int nformals, final int nlocals, boolean isDefault, boolean isTest, 
-			 final IMap tags, final IMap localNames, final int maxstack,
-			boolean concreteArg, int abstractFingerprint, int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src, int ctpt){
+			 boolean simpleArgs, final IMap tags, final IMap localNames,
+			final int maxstack, boolean concreteArg, int abstractFingerprint, int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src, int ctpt){
 		this.name = name;
 		this.ftype = ftype;
 		this.kwType = (kwType == null) ? TypeFactory.getInstance().tupleEmpty() : kwType;
@@ -108,6 +109,7 @@ public class Function {
 		this.setNlocals(nlocals);
 		this.isDefault = isDefault;
 		this.isTest = isTest;
+		this.simpleArgs = simpleArgs;
 		this.tags = (tags == null) ? ValueFactoryFactory.getValueFactory().mapWriter().done() : tags;
 		this.localNames = localNames;
 		this.maxstack = maxstack;
@@ -120,10 +122,10 @@ public class Function {
 	}
 	
 	Function(final String name, final Type ftype, final Type kwType, final String funIn, final int nformals, final int nlocals, boolean isDefault, boolean isTest, 
-			 final IMap tags, final IMap localNames, final int maxstack,
-			boolean concreteArg, int abstractFingerprint, int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src, int scopeIn,
-			IValue[] constantStore, Type[] typeConstantStore, int[] froms, int[] tos, int[] types, int[] handlers, int[] fromSPs,
-			int lastHandler, int scopeId, boolean isCoroutine, int[] refs, boolean isVarArgs, int ctpt){
+			 boolean simpleArgs, final IMap tags, final IMap localNames,
+			final int maxstack, boolean concreteArg, int abstractFingerprint, int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src,
+			int scopeIn, IValue[] constantStore, Type[] typeConstantStore, int[] froms, int[] tos, int[] types, int[] handlers,
+			int[] fromSPs, int lastHandler, int scopeId, boolean isCoroutine, int[] refs, boolean isVarArgs, int ctpt){
 		this.name = name;
 		this.ftype = ftype;
         this.kwType = (kwType == null) ? TypeFactory.getInstance().tupleEmpty() : kwType;
@@ -428,6 +430,10 @@ public class Function {
             out.writeField(CompilerIDs.Function.IS_TEST, 1);
         }
         
+        if(simpleArgs){
+            out.writeField(CompilerIDs.Function.SIMPLEARGS, 1);
+        }
+        
         if(tags != null){
             out.writeField(CompilerIDs.Function.TAGS, tags, WindowSizes.TINY_WINDOW);
         }
@@ -495,6 +501,7 @@ public class Function {
         int nlocals = 0;
         boolean isDefault = false;
         boolean isTest = false;
+        boolean simpleArgs = false;
         
         IMap emptyIMap = vf.mapWriter().done();
         IMap tags = emptyIMap;
@@ -582,6 +589,12 @@ public class Function {
                 case CompilerIDs.Function.IS_TEST: {
                     int n = in.getInteger();
                     isTest = n == 1 ? true : false;
+                    break;
+                }
+                
+                case CompilerIDs.Function.SIMPLEARGS: {
+                    int n = in.getInteger();
+                    simpleArgs = n == 1 ? true : false;
                     break;
                 }
                 
@@ -703,10 +716,10 @@ public class Function {
      
         // TODO: check fields are valid
         
-        Function func = new Function(name, ftype, kwType, funIn, nformals, nlocals, isDefault, isTest, tags, localNames, maxstack, concreteArg, 
-            abstractFingerprint, concreteFingerprint, codeblock, src, scopeIn,
-            constantStore, typeConstantStore, froms, tos, types, handlers, fromSPs,
-            lastHandler, scopeId, isCoroutine, refs, isVarArgs, continuationPoints);
+        Function func = new Function(name, ftype, kwType, funIn, nformals, nlocals, isDefault, isTest, simpleArgs, tags, localNames, maxstack, 
+            concreteArg, abstractFingerprint, concreteFingerprint, codeblock, src,
+            scopeIn, constantStore, typeConstantStore, froms, tos, types, handlers,
+            fromSPs, lastHandler, scopeId, isCoroutine, refs, isVarArgs, continuationPoints);
         func.funId = funId;
         return func;
     }
