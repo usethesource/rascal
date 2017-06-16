@@ -201,9 +201,9 @@ public class BytecodeGenerator implements Opcodes {
 	        } 
 	    }
 	    
-//	    for(int fn : overloadedFunctions){
-//	        System.err.println("overloaded: " + functionStore[fn].getName());
-//	    }
+	    for(int fn : overloadedFunctions){
+	        System.err.println("overloaded: " + functionStore[fn].getName());
+	    }
 	}
 
 	//Function currentFunction
@@ -305,12 +305,13 @@ public class BytecodeGenerator implements Opcodes {
 		}
 	}
 
-	int locCompensation = 0;
+	int formalShift = 0;
+	int currentNformals = 0;
 	
-	int compensate(int pos) {
-	    if(pos < 0)
+	int shiftFormal(int pos) {
+	    if(pos < 0 || (pos >= currentNformals && pos < 2 * currentNformals + 1))
 	        return pos;
-	    int res = pos + locCompensation;
+	    int res = pos + formalShift;
 	    if(res < 0){
 	        System.err.println("negative pos!");
 	        return pos;
@@ -319,7 +320,7 @@ public class BytecodeGenerator implements Opcodes {
 	}
 	
 	boolean inOverloadedFunction() {
-	    return locCompensation == 0;
+	    return formalShift == 0;
 	}
 	
 	/*
@@ -327,15 +328,16 @@ public class BytecodeGenerator implements Opcodes {
 	 */
 	public void emitMethod(int fn, boolean debug) {
 	    Function f = functionStore[fn];
-	    //System.err.println("emitMethod: " + f);
-//	    boolean overloaded = overloadedFunctions.contains(fn);
-//	    boolean hasJavaTag = f.tags.get(ValueFactoryFactory.getValueFactory().string("java")) != null;
-//	    if(overloaded || hasJavaTag || f.isCoroutine){
-	        locCompensation = 0;
-//	    } else {
-//	        locCompensation = f.nformals == 0 ? 0 : -(f.nformals + 1);
-//	    }
-	    //System.err.println("emitMethod: COMPENSATION = " + locCompensation);
+	    System.err.println("emitMethod: " + f);
+	    boolean overloaded = overloadedFunctions.contains(fn);
+	    boolean hasJavaTag = f.tags.get(ValueFactoryFactory.getValueFactory().string("java")) != null;
+	    if(overloaded || hasJavaTag || f.isCoroutine || !f.simpleArgs){
+	        formalShift = 0;
+	    } else {
+	        formalShift = f.nformals == 0 ? 0 : -(f.nformals + 1);
+	        currentNformals = f.nformals;
+	    }
+	    System.err.println("emitMethod: formalShift = " + formalShift);
 		labelMap.clear(); // New set of labels.
 		catchTargetLabels.clear();
 		catchTargets.clear();
@@ -399,7 +401,7 @@ public class BytecodeGenerator implements Opcodes {
 			exitLabel = null;
 		}
 
-		f.codeblock.genByteCode(this, debug);
+		f.codeblock.genByteCode(this, !inOverloadedFunction(), debug);
 
 		if (exitLabel != null) {
 			mv.visitLabel(exitLabel);
@@ -655,7 +657,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitTypeInsn(NEW, getInternalName(Reference.class));
 		mv.visitInsn(DUP);
 		mv.visitVarInsn(ALOAD, STACK);
-		emitIntValue(compensate(pos));
+		emitIntValue(shiftFormal(pos));
 		mv.visitMethodInsn(INVOKESPECIAL, getInternalName(Reference.class), INIT_NAME, getMethodDescriptor(VOID_TYPE, OBJECT_A_TYPE, INT_TYPE), false);
 		mv.visitVarInsn(ASTORE, ACCU);
 	}
@@ -669,7 +671,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitTypeInsn(NEW, getInternalName(Reference.class));
 		mv.visitInsn(DUP);
 		mv.visitVarInsn(ALOAD, STACK);
-		emitIntValue(compensate(pos));
+		emitIntValue(shiftFormal(pos));
 		
 		mv.visitMethodInsn(INVOKESPECIAL, getInternalName(Reference.class), INIT_NAME, getMethodDescriptor(VOID_TYPE, OBJECT_A_TYPE, INT_TYPE), false);
 		mv.visitInsn(AASTORE);
@@ -681,7 +683,7 @@ public class BytecodeGenerator implements Opcodes {
 
 	public void emitInlineLoadLocDeref(int pos){
 	    mv.visitVarInsn(ALOAD, STACK);
-        emitIntValue(compensate(pos));
+        emitIntValue(shiftFormal(pos));
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, getInternalName(Reference.class));
         
@@ -699,7 +701,7 @@ public class BytecodeGenerator implements Opcodes {
         mv.visitIincInsn(SP, 1);
         
 	    mv.visitVarInsn(ALOAD, STACK);
-        emitIntValue(compensate(pos));
+        emitIntValue(shiftFormal(pos));
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, getInternalName(Reference.class));
         
@@ -714,7 +716,7 @@ public class BytecodeGenerator implements Opcodes {
 	public void emitInlineStoreLocDeref(int pos){
 	    
 	    mv.visitVarInsn(ALOAD, STACK);
-        emitIntValue(compensate(pos));
+        emitIntValue(shiftFormal(pos));
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, getInternalName(Reference.class));
     
@@ -929,7 +931,7 @@ public class BytecodeGenerator implements Opcodes {
 
 	public void emitInlineLoadLocN(int pos) {
 		mv.visitVarInsn(ALOAD, STACK);
-		emitIntValue(compensate(pos));
+		emitIntValue(shiftFormal(pos));
 		mv.visitInsn(AALOAD);
 		mv.visitVarInsn(ASTORE, ACCU);
 	}
@@ -939,7 +941,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitIincInsn(SP, 1);
 		mv.visitVarInsn(ALOAD, STACK);
-		emitIntValue(compensate(pos));
+		emitIntValue(shiftFormal(pos));
 		mv.visitInsn(AALOAD);
 		mv.visitInsn(AASTORE);
 	}
@@ -2105,7 +2107,7 @@ public class BytecodeGenerator implements Opcodes {
 	
 	public void emitInlineResetLoc(int position) {
 		mv.visitVarInsn(ALOAD, STACK);
-		emitIntValue(compensate(position));
+		emitIntValue(shiftFormal(position));
 		mv.visitInsn(ACONST_NULL);
 		mv.visitInsn(AASTORE);
 	}
@@ -2115,7 +2117,7 @@ public class BytecodeGenerator implements Opcodes {
 		for (IValue v : il) {
 			int stackPos = ((IInteger) v).intValue();
 			mv.visitVarInsn(ALOAD, STACK);
-			emitIntValue(compensate(stackPos));
+			emitIntValue(shiftFormal(stackPos));
 		}
 		mv.visitInsn(ACONST_NULL);
 
@@ -2129,7 +2131,7 @@ public class BytecodeGenerator implements Opcodes {
 	public void emitInlineResetVar(int what, int pos) {
 		mv.visitVarInsn(ALOAD, THIS);
 		emitIntValue(what);
-		emitIntValue(compensate(pos));
+		emitIntValue(shiftFormal(pos));
 		mv.visitVarInsn(ALOAD, CF);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "jvmRESETVAR", getMethodDescriptor(VOID_TYPE, INT_TYPE, INT_TYPE, FRAME_TYPE),false);
 	}

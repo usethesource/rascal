@@ -1,5 +1,7 @@
 module experiments::Compiler::Examples::Tst1
 
-data X(int left = 10, int leftsq = left * left) = ly(int leftcb = leftsq * left);
+int f(int n, int m) = n * m;
 
-value main() = ly();
+int   fac(int n) = (n <= 1) ? 1 : n * fac(n-1);
+
+value main() { n = fac(1000); return n; }
