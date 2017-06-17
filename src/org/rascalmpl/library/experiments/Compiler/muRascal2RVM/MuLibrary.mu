@@ -10,6 +10,19 @@ module Library
 /*                    Enumerators for all types                                           */
 /******************************************************************************************/
 
+function NEXT(gen) {
+    if(muprim("equal",muprim("get_name",gen),"NEXT")) {
+        return true
+    }
+    return false
+}
+
+coroutine ONE(task) {
+    if(next(create(task))){
+    	return;
+    }
+}
+
 // Enumerators are used by
 // - ENUMERATE_AND_MATCH
 // - ENUMERATE_AND_ASSIGN
