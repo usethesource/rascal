@@ -859,11 +859,10 @@ public class CodeBlock  {
             int n = insList.size();
             while(i < n){
                 Instruction ins = insList.get(i);
-                // Suppress CheckArgTypeAndCopy and the test that follows it
+                ins.generateByteCode(gen, debug);
                 if(ins instanceof CheckArgTypeAndCopy){
+                    // CheckArgTypeAndCopy will only record from/to positions; suppress the test that follows it
                     i++;
-                } else {
-                    ins.generateByteCode(gen, debug);
                 }
                 i++;
             }
