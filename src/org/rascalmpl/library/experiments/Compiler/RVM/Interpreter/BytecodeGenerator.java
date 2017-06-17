@@ -169,7 +169,7 @@ public class BytecodeGenerator implements Opcodes {
 	
     private final Map<String, String> classRenamings;
     
-    Set<Integer> overloadedFunctions;
+    Set<Integer> uniqueFunctions;
 
 	private Label getNamedLabel(String targetLabel) {
 		Label lb = labelMap.get(targetLabel);
@@ -188,22 +188,27 @@ public class BytecodeGenerator implements Opcodes {
 		this.resolver = resolver;
 		this.constructorMap = constructorMap;
 		this.classRenamings = classRenamings;
-		findOverloadedFunctions();
+		findUniqueFunctions();
 	}
 	
-	private void findOverloadedFunctions(){
-	    overloadedFunctions = new HashSet<>();
+	private void findUniqueFunctions(){
+	    
+	    uniqueFunctions = new HashSet<>();
+	    for(int i = 0; i < functionStore.length; i++){
+	        uniqueFunctions.add(i);
+	    }
+	    
 	    for(OverloadedFunction ovf : overloadedStore){
 	        if(ovf.functions.length > 1){
 	            for(int fn : ovf.functions){
-	                overloadedFunctions.add(fn);
+	                uniqueFunctions.remove(fn);
 	            };
 	        } 
 	    }
 	    
-	    for(int fn : overloadedFunctions){
-	        System.err.println("overloaded: " + functionStore[fn].getName());
-	    }
+//	    for(int fn : uniqueFunctions){
+//	        System.err.println("unique: " + functionStore[fn].getName());
+//	    }
 	}
 
 	//Function currentFunction
@@ -304,23 +309,33 @@ public class BytecodeGenerator implements Opcodes {
 			e.printStackTrace();
 		}
 	}
-
-	int formalShift = 0;
-	int currentNformals = 0;
 	
-	int shiftFormal(int pos) {
-	    if(pos < 0 || (pos >= currentNformals && pos < 2 * currentNformals + 1))
-	        return pos;
-	    int res = pos + formalShift;
-	    if(res < 0){
-	        System.err.println("negative pos!");
+	/*
+	 * Generate a method per function
+	 * 
+	 * Unique functions are optimized as follows:
+	 * - CHECKARGTYPEANDCOPY + JUMPFALSE are eliminated
+	 * - Access to a parameter is via its original position and the one their were copied to
+	 */
+
+	boolean inUniqueFunction = false;  // Remember whether we are generated code inside a unique function
+	
+	boolean inUniqueFunction() {
+        return inUniqueFunction;
+    }
+	
+	Map<Integer,Integer> copiedFormals = new HashMap<>(); // Mapping between copied and original parameter location
+	
+	/*
+	 * Position of a local; Inside a unique function formals are mapped to their original position
+	 */
+	int posOfLocal(int pos) {
+	    if(inUniqueFunction){
+	        Integer oldPos = copiedFormals.get(pos);
+	        return oldPos == null ? pos : oldPos;
+	    } else {
 	        return pos;
 	    }
-	    return res;
-	}
-	
-	boolean inOverloadedFunction() {
-	    return formalShift == 0;
 	}
 	
 	/*
@@ -328,16 +343,16 @@ public class BytecodeGenerator implements Opcodes {
 	 */
 	public void emitMethod(int fn, boolean debug) {
 	    Function f = functionStore[fn];
-	    System.err.println("emitMethod: " + f);
-	    boolean overloaded = overloadedFunctions.contains(fn);
+	    
+	    copiedFormals.clear();
+	    boolean unique = uniqueFunctions.contains(fn);
 	    boolean hasJavaTag = f.tags.get(ValueFactoryFactory.getValueFactory().string("java")) != null;
-	    if(overloaded || hasJavaTag || f.isCoroutine || !f.simpleArgs){
-	        formalShift = 0;
+	    if(!unique || hasJavaTag || f.isCoroutine || !f.simpleArgs){
+	        inUniqueFunction = false;
 	    } else {
-	        formalShift = f.nformals == 0 ? 0 : -(f.nformals + 1);
-	        currentNformals = f.nformals;
+	        inUniqueFunction = true;
 	    }
-	    System.err.println("emitMethod: formalShift = " + formalShift);
+
 		labelMap.clear(); // New set of labels.
 		catchTargetLabels.clear();
 		catchTargets.clear();
@@ -401,7 +416,7 @@ public class BytecodeGenerator implements Opcodes {
 			exitLabel = null;
 		}
 
-		f.codeblock.genByteCode(this, !inOverloadedFunction(), debug);
+		f.codeblock.genByteCode(this, inUniqueFunction(), debug);
 
 		if (exitLabel != null) {
 			mv.visitLabel(exitLabel);
@@ -657,7 +672,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitTypeInsn(NEW, getInternalName(Reference.class));
 		mv.visitInsn(DUP);
 		mv.visitVarInsn(ALOAD, STACK);
-		emitIntValue(shiftFormal(pos));
+		emitIntValue(posOfLocal(pos));
 		mv.visitMethodInsn(INVOKESPECIAL, getInternalName(Reference.class), INIT_NAME, getMethodDescriptor(VOID_TYPE, OBJECT_A_TYPE, INT_TYPE), false);
 		mv.visitVarInsn(ASTORE, ACCU);
 	}
@@ -671,7 +686,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitTypeInsn(NEW, getInternalName(Reference.class));
 		mv.visitInsn(DUP);
 		mv.visitVarInsn(ALOAD, STACK);
-		emitIntValue(shiftFormal(pos));
+		emitIntValue(posOfLocal(pos));
 		
 		mv.visitMethodInsn(INVOKESPECIAL, getInternalName(Reference.class), INIT_NAME, getMethodDescriptor(VOID_TYPE, OBJECT_A_TYPE, INT_TYPE), false);
 		mv.visitInsn(AASTORE);
@@ -683,7 +698,7 @@ public class BytecodeGenerator implements Opcodes {
 
 	public void emitInlineLoadLocDeref(int pos){
 	    mv.visitVarInsn(ALOAD, STACK);
-        emitIntValue(shiftFormal(pos));
+        emitIntValue(posOfLocal(pos));
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, getInternalName(Reference.class));
         
@@ -701,7 +716,7 @@ public class BytecodeGenerator implements Opcodes {
         mv.visitIincInsn(SP, 1);
         
 	    mv.visitVarInsn(ALOAD, STACK);
-        emitIntValue(shiftFormal(pos));
+        emitIntValue(posOfLocal(pos));
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, getInternalName(Reference.class));
         
@@ -716,7 +731,7 @@ public class BytecodeGenerator implements Opcodes {
 	public void emitInlineStoreLocDeref(int pos){
 	    
 	    mv.visitVarInsn(ALOAD, STACK);
-        emitIntValue(shiftFormal(pos));
+        emitIntValue(posOfLocal(pos));
         mv.visitInsn(AALOAD);
         mv.visitTypeInsn(CHECKCAST, getInternalName(Reference.class));
     
@@ -931,7 +946,7 @@ public class BytecodeGenerator implements Opcodes {
 
 	public void emitInlineLoadLocN(int pos) {
 		mv.visitVarInsn(ALOAD, STACK);
-		emitIntValue(shiftFormal(pos));
+		emitIntValue(posOfLocal(pos));
 		mv.visitInsn(AALOAD);
 		mv.visitVarInsn(ASTORE, ACCU);
 	}
@@ -941,7 +956,7 @@ public class BytecodeGenerator implements Opcodes {
 		mv.visitVarInsn(ILOAD, SP);
 		mv.visitIincInsn(SP, 1);
 		mv.visitVarInsn(ALOAD, STACK);
-		emitIntValue(shiftFormal(pos));
+		emitIntValue(posOfLocal(pos));
 		mv.visitInsn(AALOAD);
 		mv.visitInsn(AASTORE);
 	}
@@ -2107,7 +2122,7 @@ public class BytecodeGenerator implements Opcodes {
 	
 	public void emitInlineResetLoc(int position) {
 		mv.visitVarInsn(ALOAD, STACK);
-		emitIntValue(shiftFormal(position));
+		emitIntValue(posOfLocal(position));
 		mv.visitInsn(ACONST_NULL);
 		mv.visitInsn(AASTORE);
 	}
@@ -2117,7 +2132,7 @@ public class BytecodeGenerator implements Opcodes {
 		for (IValue v : il) {
 			int stackPos = ((IInteger) v).intValue();
 			mv.visitVarInsn(ALOAD, STACK);
-			emitIntValue(shiftFormal(stackPos));
+			emitIntValue(posOfLocal(stackPos));
 		}
 		mv.visitInsn(ACONST_NULL);
 
@@ -2131,7 +2146,7 @@ public class BytecodeGenerator implements Opcodes {
 	public void emitInlineResetVar(int what, int pos) {
 		mv.visitVarInsn(ALOAD, THIS);
 		emitIntValue(what);
-		emitIntValue(shiftFormal(pos));
+		emitIntValue(posOfLocal(pos));
 		mv.visitVarInsn(ALOAD, CF);
 		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, "jvmRESETVAR", getMethodDescriptor(VOID_TYPE, INT_TYPE, INT_TYPE, FRAME_TYPE),false);
 	}
@@ -2139,7 +2154,8 @@ public class BytecodeGenerator implements Opcodes {
 	// TODO: compare with performance of insnCHECKARGTYPEANDCOPY
 	public void emitInlineCheckArgTypeAndCopy(int pos1, int type, int pos2) {
 	    
-	    if(!inOverloadedFunction()){
+	    if(!inUniqueFunction()){
+	        copiedFormals.put(pos2,  pos1);
 	        return;
 	    }
 		Label l1 = new Label();
