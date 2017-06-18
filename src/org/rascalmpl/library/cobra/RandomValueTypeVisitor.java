@@ -52,42 +52,24 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 	private final TypeFactory tf = TypeFactory.getInstance();
 	private final ModuleEnvironment rootEnv;
 	private final int maxDepth;
-	private final HashMap<Type, ICallableValue> generators;
 	private final Map<Type, Type> typeParameters;
 
 	public RandomValueTypeVisitor(IValueFactory vf, ModuleEnvironment rootEnv,
-			int maxDepth, HashMap<Type, ICallableValue> generators, Map<Type, Type> typeParameters) {
+			int maxDepth, Map<Type, Type> typeParameters) {
 		this.vf = vf;
 		this.rootEnv = rootEnv;
 		this.maxDepth = maxDepth;
-		this.generators = generators;
 		this.typeParameters = typeParameters;
-	}
-
-	private IValue callGenerator(Type type, int depthLimit) {
-		if (depthLimit < 0) {
-			return null;
-		}
-		TypeFactory tf = TypeFactory.getInstance();
-
-		ICallableValue generator = generators.get(type);
-		Result<IValue> result = generator.call(new Type[] { tf.integerType() },
-				new IValue[] { vf.integer(depthLimit) }, null);
-		return result.getValue();
 	}
 
 	private RandomValueTypeVisitor descend() {
 		RandomValueTypeVisitor visitor = new RandomValueTypeVisitor(vf,
-				rootEnv, maxDepth - 1, generators, typeParameters);
+				rootEnv, maxDepth - 1, typeParameters);
 		return visitor;
 	}
 
 	public IValue generate(Type t) {
-		if (generators.containsKey(t)) {
-			return callGenerator(t, maxDepth);
-		} else {
-			return t.accept(this);
-		}
+	    return t.accept(this);
 	}
 
 	private IValue genSet(Type type) {
@@ -421,16 +403,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 		if (stRandom.nextBoolean() || maxDepth <= 0) {
 			return vf.string("");
 		}
-		String result = null;
-		if (generators.containsKey(type)) {
-			// we have a custom string generator,  call that.
-			RandomValueTypeVisitor visitor = descend();
-			result = visitor.generate(type).toString();
-		}
-		else {
-			// no custom generator so lets generate a string
-			result = RandomUtil.string(stRandom, 1 + stRandom.nextInt(maxDepth + 3));
-		}
+		String result = RandomUtil.string(stRandom, 1 + stRandom.nextInt(maxDepth + 3));
 		// make sure we are not generating very strange sequences
 		result = Normalizer.normalize(result, Form.NFC);
 		return vf.string(result);
