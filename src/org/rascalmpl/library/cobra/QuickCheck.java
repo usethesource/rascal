@@ -39,7 +39,6 @@ public class QuickCheck {
 		public static final QuickCheck sInstance = new QuickCheck();
 	}
 
-	static final HashMap<Type, ICallableValue> generators = new HashMap<Type, ICallableValue>();
 
 	public static QuickCheck getInstance() {
 		return InstanceHolder.sInstance;
@@ -49,7 +48,7 @@ public class QuickCheck {
 			IValueFactory vf, Map<Type, Type> typeParameters) {
 
 		RandomValueTypeVisitor visitor = new RandomValueTypeVisitor(vf,
-				(ModuleEnvironment) env, depthLimit, generators, typeParameters);
+				(ModuleEnvironment) env, depthLimit, typeParameters);
 
 		IValue result = visitor.generate(type);
 		if (result == null) {
@@ -58,20 +57,6 @@ public class QuickCheck {
 		return result;
 	}
 
-
-	private boolean generatorExists(Type t) {
-		return generators.containsKey(t);
-	}
-
-	public IValue getGenerator(IValue t, IEvaluatorContext eval) {
-		Type reified = Cobra.reifyType(t);
-		if (generatorExists(reified)) {
-			return generators.get(reified);
-		}
-
-		return new DynamicGenerator(eval.getEvaluator(), reified,
-				eval.getCurrentEnvt(), generators);
-	}
 
 	public boolean quickcheck(AbstractFunction function, int maxDepth,
 			int tries, boolean verbose, PrintWriter out) {
@@ -174,20 +159,6 @@ public class QuickCheck {
 	private boolean reportMissingException(String name, String msg, PrintWriter out){
 		out.println("Test " + name + " failed due to\n\tmissing exception: " + msg + "\n");
 		return false;
-	}
-
-	public void resetGenerator(IValue type) {
-		Type reified = Cobra.reifyType(type);
-		generators.remove(reified);
-	}
-
-	public void setGenerator(IValue f) {
-		FunctionType functionType = (FunctionType) f.getType();
-		Type returnType = functionType.getReturnType();
-
-		ICallableValue generator = (ICallableValue) f;
-
-		generators.put(returnType, generator);
 	}
 
 }
