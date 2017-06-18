@@ -32,22 +32,14 @@ import io.usethesource.vallang.type.Type;
 
 public class DynamicGenerator extends AbstractFunction {
 
-	private final HashMap<Type, ICallableValue> generators;
-
-	public DynamicGenerator(IEvaluator<Result<IValue>> eval, Type returnType, Environment env,
-			HashMap<Type, ICallableValue> generators) {
+	public DynamicGenerator(IEvaluator<Result<IValue>> eval, Type returnType, Environment env) {
 		super(null, eval, (FunctionType) RascalTypeFactory.getInstance()
 				.functionType(returnType, TF.integerType(), TF.voidType()), Collections.<KeywordFormal>emptyList(), false, env);
-		this.generators = generators;
 	}
 	
 	@Override
 	public DynamicGenerator cloneInto(Environment env) {
-		HashMap<Type, ICallableValue> newGens = new HashMap<>();
-		for (Type t: generators.keySet()) {
-			newGens.put(t, generators.get(t).cloneInto(env));
-		}
-		return new DynamicGenerator(eval, getReturnType(), env, newGens);
+		return new DynamicGenerator(eval, getReturnType(), env);
 	}
 
 	@Override
@@ -60,7 +52,7 @@ public class DynamicGenerator extends AbstractFunction {
 
 		RandomValueTypeVisitor v = new RandomValueTypeVisitor(
 				getValueFactory(), (ModuleEnvironment) getEnv().getRoot(),
-				maxDepth.intValue(), generators, ctx.getCurrentEnvt().getTypeBindings());
+				maxDepth.intValue(), ctx.getCurrentEnvt().getTypeBindings());
 
 		IValue returnVal = instantiatedReturnType.accept(v);
 
