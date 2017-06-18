@@ -1927,8 +1927,36 @@ public class BytecodeGenerator implements Opcodes {
 			emitReturnValue2ACCU();
 		}
 	}
+    
+//    // EXPERIMENTAL2
+//    private void emitOcallSingle(String funName, int fun, int arity, int srcIndex) {
+//        mv.visitVarInsn(ALOAD, THIS);
+//        mv.visitVarInsn(ALOAD, CF);
+//        
+//        mv.visitVarInsn(ALOAD, CF);
+//        mv.visitVarInsn(ILOAD, SP);
+//        emitInlineFrameEnter(srcIndex);
+//        
+//        // Set up invokeDynamic of getFrame
+//        MethodType bmt = MethodType.methodType(CallSite.class, MethodHandles.Lookup.class, String.class, MethodType.class, Object.class);
+//        Handle bootstrap = new Handle(Opcodes.H_INVOKESTATIC, (RVMonJVM.class.getName()).replace('.', '/'), "bootstrapGetFrame",
+//              bmt.toMethodDescriptorString());
+//         
+//        mv.visitInvokeDynamicInsn("getFrame", 
+//                getMethodDescriptor(OBJECT_TYPE, FRAME_TYPE, FRAME_TYPE, INT_TYPE), bootstrap, fun);
+//
+//        //mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, funName, getMethodDescriptor(OBJECT_TYPE, FRAME_TYPE),false);
+//        mv.visitInsn(POP);
+//
+//        mv.visitVarInsn(ALOAD, CF);
+//        mv.visitFieldInsn(GETFIELD, FRAME_NAME, "sp", INT_TYPE.getDescriptor());
+//        mv.visitVarInsn(ISTORE, SP);
+//        
+//        emitInlineFrameLeave(srcIndex);
+//        emitReturnValue2ACCU();
+//    }
 
-//    // EXPERIMENTAL
+//    // EXPERIMENTAL1
 //	private void emitOcallSingle(String funName, int fun, int arity, int srcIndex) {
 //		mv.visitVarInsn(ALOAD, THIS);
 //		mv.visitVarInsn(ALOAD, CF);
@@ -1938,12 +1966,12 @@ public class BytecodeGenerator implements Opcodes {
 //		emitInlineFrameEnter(srcIndex);
 //		
 //		// Set up invokeDynamic of getFrame
-//		MethodType bmt = MethodType.methodType(CallSite.class, MethodHandles.Lookup.class, String.class, MethodType.class, Object.class, Object.class);
+//		MethodType bmt = MethodType.methodType(CallSite.class, MethodHandles.Lookup.class, String.class, MethodType.class, Object.class);
 //		Handle bootstrap = new Handle(Opcodes.H_INVOKESTATIC, (RVMonJVM.class.getName()).replace('.', '/'), "bootstrapGetFrame",
 //	          bmt.toMethodDescriptorString());
 //		 
 //	    mv.visitInvokeDynamicInsn("getFrame", 
-//	            getMethodDescriptor(FRAME_TYPE, FRAME_TYPE, FRAME_TYPE, INT_TYPE), bootstrap, fun, fullClassName);
+//	            getMethodDescriptor(FRAME_TYPE, FRAME_TYPE, FRAME_TYPE, INT_TYPE), bootstrap, fun);
 //
 //		mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, funName, getMethodDescriptor(OBJECT_TYPE, FRAME_TYPE),false);
 //		mv.visitInsn(POP);
