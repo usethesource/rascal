@@ -2,16 +2,16 @@ package org.rascalmpl.library.cobra;
 
 import java.util.HashMap;
 
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.ITypeVisitor;
+import io.usethesource.vallang.type.DefaultTypeVisitor;
 import io.usethesource.vallang.type.Type;
 
-public class TypeParameterVisitor implements ITypeVisitor<IValue,RuntimeException> {
+public class TypeParameterVisitor extends DefaultTypeVisitor<Void,RuntimeException> {
 	
 	private HashMap<Type, Type> typeParameters;
 	private final RandomType randomType;
 	
 	public TypeParameterVisitor(){
+	    super(null);
 		randomType = new RandomType();
 	}
 	
@@ -22,7 +22,7 @@ public class TypeParameterVisitor implements ITypeVisitor<IValue,RuntimeExceptio
 	}
 
 	@Override
-	public IValue visitParameter(Type parameterType) {
+	public Void visitParameter(Type parameterType) {
 		Type type = typeParameters.get(parameterType);
 		if(type == null){
 			Type bound = parameterType.getBound();
@@ -39,7 +39,7 @@ public class TypeParameterVisitor implements ITypeVisitor<IValue,RuntimeExceptio
 	}
 	
 	@Override
-	public IValue visitTuple(Type type) {
+	public Void visitTuple(Type type) {
 		for(int i = 0; i < type.getArity(); i++){
 			type.getFieldType(i).accept(this);
 		}
@@ -47,103 +47,21 @@ public class TypeParameterVisitor implements ITypeVisitor<IValue,RuntimeExceptio
 	}
 
 	@Override
-	public IValue visitReal(Type type) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public IValue visitInteger(Type type) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public IValue visitRational(Type type) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public IValue visitList(Type type) {
+	public Void visitList(Type type) {
 		type.getElementType().accept(this);
 		return null;
 	}
 
 	@Override
-	public IValue visitMap(Type type) {
+	public Void visitMap(Type type) {
 		type.getKeyType().accept(this);
 		type.getValueType().accept(this);
 		return null;
 	}
 
 	@Override
-	public IValue visitNumber(Type type) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public IValue visitAlias(Type type) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public IValue visitSet(Type type) {
+	public Void visitSet(Type type) {
 		type.getElementType().accept(this);
 		return null;
 	}
-
-	@Override
-	public IValue visitSourceLocation(Type type) {
-		return null;
-	}
-
-	@Override
-	public IValue visitString(Type type) {
-		return null;
-	}
-
-	@Override
-	public IValue visitNode(Type type) {
-		return null;
-	}
-
-	@Override
-	public IValue visitConstructor(Type type) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public IValue visitAbstractData(Type type) {
-		return null;
-	}
-
-	@Override
-	public IValue visitValue(Type type) {
-		return null;
-	}
-
-	@Override
-	public IValue visitVoid(Type type) {
-		return null;
-	}
-
-	@Override
-	public IValue visitBool(Type boolType) {
-		return null;
-	}
-
-	@Override
-	public IValue visitExternal(Type externalType) {
-		return null;
-	}
-
-	@Override
-	public IValue visitDateTime(Type type) {
-		return null;
-	}
-
 }
