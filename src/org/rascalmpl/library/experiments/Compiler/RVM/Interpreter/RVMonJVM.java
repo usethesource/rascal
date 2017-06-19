@@ -16,6 +16,8 @@ import java.lang.invoke.CallSite;
 import java.lang.invoke.ConstantCallSite;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import static java.lang.invoke.MethodHandle.*;
+import static java.lang.invoke.MethodHandles.*;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -45,9 +47,6 @@ public class RVMonJVM extends RVMCore {
 	 */
 	public Frame root; // Root frame of a program
 	Thrown thrown;
-	
-	//EXPERIMENTAL
-	public static Function[] staticFunctionStore;
 
 	// TODO : ccf, cccf and activeCoroutines needed to allow exception handling in coroutines. :(
 	
@@ -59,9 +58,14 @@ public class RVMonJVM extends RVMCore {
 	static protected final IString PANIC 		= ValueFactoryFactory.getValueFactory().string("$panic$");
 	
 	protected Object returnValue = null;		// Actual return value of functions
+	
+	//EXPERIMENTAL
+	static RVMonJVM currentRVMonJVM;
+	static Function[] staticFunctionStore;
 
 	public RVMonJVM(RVMExecutable rvmExec, RascalExecutionContext rex) {
 		super(rvmExec, rex);
+		currentRVMonJVM = this;
 		staticFunctionStore = functionStore;
 	}
 	
@@ -344,21 +348,23 @@ public class RVMonJVM extends RVMCore {
 	/*  - *helper methods are called as part of the inline implementation of one RVM instruction	*/
 	/**
 	 * @throws ClassNotFoundException **********************************************************************************************/
-////EXPERIMENTAL	
-//	public static CallSite bootstrapGetFrame(MethodHandles.Lookup caller, String name, MethodType type, Object arg, Object bytecodeClassName) throws NoSuchMethodException, IllegalAccessException, ClassNotFoundException {
-//	    MethodHandles.Lookup lookup = MethodHandles.lookup();
-//	    Function func = staticFunctionStore[(Integer)arg];
-//	    MethodType getFrameType = MethodType.methodType(Frame.class, Function.class, Frame.class, int.class, int.class);
-//
-//	    MethodHandle getFrame = lookup.findVirtual(Frame.class, "getFrame", getFrameType);
-//	    MethodHandle getFrame1 = MethodHandles.insertArguments(getFrame, 1, func);
-//	    MethodHandle getFrame2 = MethodHandles.insertArguments(getFrame1, 2, func.nformals);
-//	    
-//	    MethodType funType = MethodType.methodType(Object.class, Frame.class);   
-//	    MethodHandle funToCall = lookup.findVirtual(Class.forName((String) bytecodeClassName), func.getName(), funType);
-//	    
-//	    return new ConstantCallSite(getFrame2.asType(type));
-//	}
+//EXPERIMENTAL	
+	public static CallSite bootstrapGetFrame(MethodHandles.Lookup caller, String name, MethodType type, Object arg) throws NoSuchMethodException, IllegalAccessException, ClassNotFoundException {
+	    MethodHandles.Lookup lookup = caller;
+	    Function func = staticFunctionStore[(Integer) arg];
+	    MethodType getFrameType = MethodType.methodType(Frame.class, Function.class, Frame.class, int.class, int.class);
+
+	    MethodHandle getFrame = lookup.findVirtual(Frame.class, "getFrame", getFrameType);
+	    MethodHandle getFrame1 = MethodHandles.insertArguments(getFrame, 1, func);
+	    MethodHandle getFrame2 = MethodHandles.insertArguments(getFrame1, 2, func.nformals);
+	    
+	    //MethodType combinedType = MethodType.methodType(Object.class, Frame.class, Frame.class, Type.INT_TYPE);   
+	    MethodHandle funToCall = func.handle;
+	    MethodHandle funToCall1 = MethodHandles.insertArguments(funToCall, 0, currentRVMonJVM);
+	    MethodHandle combined = filterReturnValue(getFrame2, funToCall1);
+	    
+	    return new ConstantCallSite(combined.asType(type));
+	}
 
 	public int insnUNWRAPTHROWNLOC(Object[] stack, int sp, int target) {
 		stack[target] = ((Thrown) stack[--sp]).getValue();
