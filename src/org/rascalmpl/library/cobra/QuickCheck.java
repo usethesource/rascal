@@ -16,6 +16,7 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
@@ -32,9 +33,14 @@ import io.usethesource.vallang.type.Type;
 public class QuickCheck {
 
     private final String EXPECT_TAG = "expected";
+    private final Random stRandom;
 
     private static class InstanceHolder {
         public static final QuickCheck sInstance = new QuickCheck();
+    }
+    
+    private QuickCheck() {
+        stRandom = new Random();
     }
 
 
@@ -42,11 +48,10 @@ public class QuickCheck {
         return InstanceHolder.sInstance;
     }
 
-    public IValue arbitrary(Type type, int depthLimit, Environment env,
+    private IValue arbitrary(Type type, int depthLimit, Environment env,
         IValueFactory vf, Map<Type, Type> typeParameters) {
 
-        RandomValueTypeVisitor visitor = new RandomValueTypeVisitor(vf,
-            (ModuleEnvironment) env, depthLimit, typeParameters);
+        RandomValueTypeVisitor visitor = new RandomValueTypeVisitor(stRandom, vf, env::lookupAlternatives,  env.getStore()::getAnnotations, env.getStore()::getKeywordParameters, depthLimit, typeParameters);
 
         IValue result = visitor.generate(type);
         if (result == null) {
