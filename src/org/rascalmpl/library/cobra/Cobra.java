@@ -23,37 +23,37 @@ import io.usethesource.vallang.type.Type;
 
 public class Cobra {
 
-	public static final String TRIES = "tries";
-	public static final String MAXDEPTH = "maxDepth";
+    public static final String TRIES = "tries";
+    public static final String MAXDEPTH = "maxDepth";
 
-	public static Type reifyType(IValue type) {
-		Type reified = type.getType();
-		if (!(reified instanceof ReifiedType)) {
-			throw RuntimeExceptionFactory.illegalArgument(type, null, null,
-					"A reified type is required instead of " + reified);
-		}
-		return reified.getTypeParameters().getFieldType(0);
-	}
-
-
-	final IValueFactory vf;
+    public static Type reifyType(IValue type) {
+        Type reified = type.getType();
+        if (!(reified instanceof ReifiedType)) {
+            throw RuntimeExceptionFactory.illegalArgument(type, null, null,
+                "A reified type is required instead of " + reified);
+        }
+        return reified.getTypeParameters().getFieldType(0);
+    }
 
 
-	public Cobra(IValueFactory vf) {
-		this.vf = vf;
-	}
+    final IValueFactory vf;
 
-	public static int readIntTag(AbstractFunction test, String key, int defaultVal) {
-		if (test.hasTag(key)) {
-			int result = Integer.parseInt(((IString) test.getTag(key)).getValue());
-			if (result < 1) {
-				throw new IllegalArgumentException(key + " smaller than 1");
-			}
-			return result;
-		} else {
-			return defaultVal;
-		}
-	}
+
+    public Cobra(IValueFactory vf) {
+        this.vf = vf;
+    }
+
+    public static int readIntTag(AbstractFunction test, String key, int defaultVal) {
+        if (test.hasTag(key)) {
+            int result = Integer.parseInt(((IString) test.getTag(key)).getValue());
+            if (result < 1) {
+                throw new IllegalArgumentException(key + " smaller than 1");
+            }
+            return result;
+        } else {
+            return defaultVal;
+        }
+    }
 
 
 }
