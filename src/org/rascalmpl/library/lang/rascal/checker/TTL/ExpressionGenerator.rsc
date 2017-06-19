@@ -4,7 +4,6 @@ import Prelude;
 import Type;
 
 import cobra::arbitrary;
-import cobra::quickcheck;
 import lang::rascal::checker::TTL::Library;
 extend lang::rascal::checker::TTL::TTLsyntax;
 import util::Math;

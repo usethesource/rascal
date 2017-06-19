@@ -16,7 +16,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.Normalizer;
 import java.text.Normalizer.Form;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -26,10 +25,9 @@ import java.util.Random;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.ConstructorFunction;
-import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.library.cobra.util.RandomUtil;
 import org.rascalmpl.uri.URIUtil;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -193,48 +191,12 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 
 	@Override
 	public IValue visitDateTime(Type type) {
-		Calendar cal = Calendar.getInstance();
-		
-		try {
-		    int milliOffset = stRandom.nextInt(1000) * (stRandom.nextBoolean() ? -1 : 1);
-		    cal.roll(Calendar.MILLISECOND, milliOffset);
-		    int second = stRandom.nextInt(60) * (stRandom.nextBoolean() ? -1 : 1);
-		    cal.roll(Calendar.SECOND, second);
-		    int minute = stRandom.nextInt(60) * (stRandom.nextBoolean() ? -1 : 1);
-		    cal.roll(Calendar.MINUTE, minute);
-		    int hour = stRandom.nextInt(60) * (stRandom.nextBoolean() ? -1 : 1);
-		    cal.roll(Calendar.HOUR_OF_DAY, hour);
-		    int day = stRandom.nextInt(30) * (stRandom.nextBoolean() ? -1 : 1);
-		    cal.roll(Calendar.DAY_OF_MONTH, day);
-		    int month = stRandom.nextInt(12) * (stRandom.nextBoolean() ? -1 : 1);
-		    cal.roll(Calendar.MONTH, month);
-
-		    // make sure we do not go over the 4 digit year limit, which breaks things
-		    int year = stRandom.nextInt(5000) * (stRandom.nextBoolean() ? -1 : 1);
-
-		    // make sure we don't go into negative territory
-		    if (cal.get(Calendar.YEAR) + year < 1)
-		        cal.add(Calendar.YEAR, 1);
-		    else
-		        cal.add(Calendar.YEAR, year);
-
-		    return vf.datetime(cal.getTimeInMillis());
-		}
-		catch (IllegalArgumentException e) {
-		    // this may happen if the generated random time does
-		    // not exist due to timezone shifting or due to historical
-		    // calendar standardization changes
-		    // So, we just try again until we hit a better random date
-		    return visitDateTime(type);
-		    // the recursion until stack overflow is theoretically possible, but infinetesimally unlikely...
-		    // if you see it, buy a lottery ticket. 
-		}
+	    return Arbitrary.arbDateTime(vf, stRandom);
 	}
 
 	@Override
 	public IValue visitExternal(Type externalType) {
-		throw new Throw(vf.string("Can't handle ExternalType."),
-				(ISourceLocation) null, null);
+		throw new Throw(vf.string("Can't handle ExternalType."), (ISourceLocation) null, null);
 	}
 
 	@Override

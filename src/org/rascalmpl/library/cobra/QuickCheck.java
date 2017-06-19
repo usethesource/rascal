@@ -17,13 +17,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.interpreter.result.ICallableValue;
-import org.rascalmpl.interpreter.types.FunctionType;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IString;
@@ -43,20 +41,19 @@ public class QuickCheck {
 	public static QuickCheck getInstance() {
 		return InstanceHolder.sInstance;
 	}
-
+	
 	public IValue arbitrary(Type type, int depthLimit, Environment env,
-			IValueFactory vf, Map<Type, Type> typeParameters) {
+	    IValueFactory vf, Map<Type, Type> typeParameters) {
 
-		RandomValueTypeVisitor visitor = new RandomValueTypeVisitor(vf,
-				(ModuleEnvironment) env, depthLimit, typeParameters);
+	    RandomValueTypeVisitor visitor = new RandomValueTypeVisitor(vf,
+	        (ModuleEnvironment) env, depthLimit, typeParameters);
 
-		IValue result = visitor.generate(type);
-		if (result == null) {
-			throw new IllegalArgumentException("No construction possible at this depth or less.");
-		}
-		return result;
+	    IValue result = visitor.generate(type);
+	    if (result == null) {
+	        throw new IllegalArgumentException("No construction possible at this depth or less.");
+	    }
+	    return result;
 	}
-
 
 	public boolean quickcheck(AbstractFunction function, int maxDepth,
 			int tries, boolean verbose, PrintWriter out) {
