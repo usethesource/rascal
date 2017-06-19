@@ -21,10 +21,9 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
+import java.util.function.Function;
 
-import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.interpreter.result.ConstructorFunction;
 import org.rascalmpl.library.cobra.util.RandomUtil;
 import org.rascalmpl.uri.URIUtil;
 
@@ -44,26 +43,34 @@ import io.usethesource.vallang.type.TypeFactory;
 
 public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeException> {
 
-    private static final Random stRandom = new Random();
+    private final Random stRandom;
 
     private final IValueFactory vf;
     private final TypeFactory tf = TypeFactory.getInstance();
-    private final ModuleEnvironment rootEnv;
     private final int maxDepth;
     private final Map<Type, Type> typeParameters;
+    private final Function<Type, Set<Type>> lookupAlternatives;
 
-    public RandomValueTypeVisitor(IValueFactory vf, ModuleEnvironment rootEnv,
+    private final Function<Type, Map<String, Type>> getAnnotations;
+
+    private final Function<Type, Map<String, Type>> getKeywordParameters;
+
+    public RandomValueTypeVisitor(Random stRandom, IValueFactory vf, 
+        Function<Type, Set<Type>> lookupAlternatives, 
+        Function<Type, Map<String, Type>> getAnnotations,
+        Function<Type, Map<String, Type>> getKeywordParameters,
         int maxDepth, Map<Type, Type> typeParameters) {
+        this.stRandom = stRandom;
         this.vf = vf;
-        this.rootEnv = rootEnv;
+        this.lookupAlternatives = lookupAlternatives;
+        this.getAnnotations = getAnnotations;
+        this.getKeywordParameters = getKeywordParameters;
         this.maxDepth = maxDepth;
         this.typeParameters = typeParameters;
     }
 
     private RandomValueTypeVisitor descend() {
-        RandomValueTypeVisitor visitor = new RandomValueTypeVisitor(vf,
-            rootEnv, maxDepth - 1, typeParameters);
-        return visitor;
+        return new RandomValueTypeVisitor(stRandom, vf, lookupAlternatives, getAnnotations, getKeywordParameters, maxDepth - 1, typeParameters);
     }
 
     public IValue generate(Type t) {
@@ -98,14 +105,13 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
     @Override
     public IValue visitAbstractData(Type type) {
         LinkedList<Type> alternatives = new LinkedList<Type>();
-        alternatives.addAll(this.rootEnv.lookupAlternatives(type));
+        alternatives.addAll(lookupAlternatives.apply(type));
         Collections.shuffle(alternatives);
         for (Type pick : alternatives) {
             IConstructor result = (IConstructor) this.generate(pick);
             if (result != null) {
                 RandomValueTypeVisitor visitor = descend();
-                Map<String, Type> annotations = rootEnv.getStore()
-                    .getAnnotations(type);
+                Map<String, Type> annotations = getAnnotations.apply(type);
                 for (Map.Entry<String, Type> entry : annotations.entrySet()) {
                     IValue value = visitor.generate(entry.getValue());
                     if (value == null) {
@@ -139,9 +145,10 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
          * alternative with more than 0 arguments is defined as the maximum
          * depth of the list of arguments plus 1.
          */
-        ConstructorFunction cons = this.rootEnv.getConstructorFunction(type);
-
-        if (type.getArity() == 0 && !cons.hasKeywordArguments()) { 
+        
+        Map<String, Type> kwParamsType = getKeywordParameters.apply(type);
+        
+        if (type.getArity() == 0 && kwParamsType.size() == 0) { 
             return vf.constructor(type);
         } else if (this.maxDepth <= 0) {
             return null;
@@ -163,13 +170,12 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
             values.add(argument);
         }
         IValue[] params = values.toArray(new IValue[values.size()]);
-        Type kwArgTypes = cons.getKeywordArgumentTypes(this.rootEnv);
 
-        if (stRandom.nextBoolean() && kwArgTypes.getArity() > 0) {
+        if (stRandom.nextBoolean() && kwParamsType.size() > 0) {
             Map<String, IValue> kwParams = new HashMap<>();
-            for (String kw: kwArgTypes.getFieldNames()) {
+            for (String kw: kwParamsType.keySet()) {
                 if (stRandom.nextBoolean()) continue;
-                Type fieldType = kwArgTypes.getFieldType(kw);
+                Type fieldType = kwParamsType.get(kw);
                 IValue argument = visitor.generate(fieldType);
                 if (argument == null) {
                     return null;
@@ -192,7 +198,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 
     @Override
     public IValue visitExternal(Type externalType) {
-        throw new Throw(vf.string("Can't handle ExternalType."), (ISourceLocation) null, null);
+        throw new RuntimeException("Can't handle ExternalType");
     }
 
     @Override
@@ -385,7 +391,6 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 
     @Override
     public IValue visitVoid(Type type) {
-        throw new Throw(vf.string("void has no values."), (ISourceLocation) null, null);
+        throw new RuntimeException("Void has no values.");
     }
-
 }
