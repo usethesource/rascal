@@ -90,7 +90,7 @@ public class Concept {
 	}
 	
 	private String getADocFileName(){
-		return destPath.toString() + "/" + name + (remote ? "" : ("/" + getConceptBaseName())) + ".adoc";
+		return destPath.toString() + "/" + name + ("/" + getConceptBaseName()) + ".adoc";
 	}
 	
 	public String genInclude(){
