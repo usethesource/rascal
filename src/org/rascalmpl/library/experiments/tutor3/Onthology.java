@@ -300,7 +300,7 @@ public class Onthology {
 	
 	private void addDeclarationInfo(Path remoteConceptName, IConstructor d) throws IOException{
 		String consName = d.getName();
-		String moduleName = remoteConceptName + "/" + ((IString) d.get("moduleName")).getValue().replaceAll("::",  "/");
+		String moduleName = remoteConceptName.toString();
 		
 		String doc = d.has("doc") ? ((IString) d.get("doc")).getValue() : "";
 		String synopsis = d.has("synopsis") ? ((IString) d.get("synopsis")).getValue() : "";
