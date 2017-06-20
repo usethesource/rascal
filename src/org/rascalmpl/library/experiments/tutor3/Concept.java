@@ -18,6 +18,7 @@ public class Concept {
 	private String synopsis;
 	private String index;
 	private Path libSrcPath;
+	private String toc;
 
 	public Concept(Path name, String text, Path destPath, Path libSrcPath){
 		this.name = name;
@@ -29,8 +30,9 @@ public class Concept {
 		index = extractIndex();
 	}
 	
-	public void setRemote(){
-	  remote = true;
+	public void setRemote(String toc){
+	    this.toc = toc;
+	    remote = true;
 	}
 	
 	public void setQuestions(){
@@ -316,7 +318,11 @@ public class Concept {
 						String intStr = m.group(1);
 						depth = intStr.equals("") ? 1 : Integer.parseInt(intStr.substring(0,intStr.length()));
 					}
-					preprocessOut.append(onthology.genSubToc(name, depth, true, details));
+					if(remote){
+					    preprocessOut.append(toc);
+					} else {
+					    preprocessOut.append(onthology.genSubToc(name, depth, true, details));
+					}
 				} else if(line.contains("image:")){
 					Pattern p = Pattern.compile("(^.*)(image::?)([^\\[]+)(\\[.*$)");
 					Matcher m = p.matcher(line);
