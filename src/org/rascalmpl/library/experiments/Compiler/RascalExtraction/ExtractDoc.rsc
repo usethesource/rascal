@@ -7,6 +7,7 @@ import IO;
 import experiments::Compiler::RascalExtraction::DeclarationInfo;
 import experiments::Compiler::RascalExtraction::ExtractInfo;
 
+@doc{Extract documentation from a Rascal module and convert it into AsciiDoc markup.}
 tuple[str moduleDoc, list[DeclarationInfo] declarationInfo] extractDoc(str parent, loc moduleLoc){
     dinfo = extractInfo(moduleLoc);
     res = "";
