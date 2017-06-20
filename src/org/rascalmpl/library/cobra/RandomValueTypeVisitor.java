@@ -217,7 +217,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 
     private IValue genList(Type type){
         IListWriter writer = vf.listWriter();
-        if (maxDepth > 0 || (stRandom.nextInt(2) != 0)) {
+        if (maxDepth > 0 && stRandom.nextInt(2) == 0) {
             RandomValueTypeVisitor visitor = descend();
             IValue element = visitor.generate(type.getElementType());
             if (element != null) {
@@ -237,7 +237,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
     public IValue visitMap(Type type) {
         IMapWriter writer = vf.mapWriter(); // type.writer(vf);
 
-        if (maxDepth > 0 || (stRandom.nextInt(2) != 0)) {
+        if (maxDepth > 0 && stRandom.nextInt(2) == 0) {
             RandomValueTypeVisitor visitor = descend();
             IValue key = visitor.generate(type.getKeyType());
             IValue value = visitor.generate(type.getValueType());
