@@ -231,7 +231,9 @@ public class CourseCompiler {
 		
 		Path destPath = Paths.get(((ISourceLocation)pcfg.getBin()).getPath()).resolve("courses");
 		
-		if (copyStandardFiles(coursesSrcPath, destPath)) {
+		if (
+		    copyStandardFiles(coursesSrcPath, destPath)
+		 ) {
 		    System.err.println("Bailing out because target files are already present...");
 		    return;
 		}

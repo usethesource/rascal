@@ -218,8 +218,12 @@ public class Onthology {
 				return FileVisitResult.CONTINUE;
 			}
 			
-			//System.err.println(aDir);
 			if(Files.exists(makeConceptFilePath(aDir))){
+			    /*
+			     * An ordinary concept
+			     * - create a Concept
+			     * - add to index
+			     */
 				Path conceptName = makeConceptName(aDir);
 				if(!conceptName.equals(courseName)){
 					Path conceptDestPath = destPath.resolve(conceptName);
@@ -231,6 +235,11 @@ public class Onthology {
 				conceptMap.put(conceptName, concept);
 				iwriter.addDocument(makeLuceneDocument(conceptName.toString(), concept.getIndex(), concept.getSynopsis(), concept.getText()));
 			} else if(Files.exists(makeRemoteFilePath(aDir))){
+			    /*
+			     * A remote concept (points to a Rascal source file)
+			     * - extract info from source file
+			     * - add to index
+			     */
 			  ISourceLocation remoteLoc = readLocFromFile(makeRemoteFilePath(aDir).toString());
 			  System.err.println("remoteLoc: " + remoteLoc);
 			  if (!URIResolverRegistry.getInstance().exists(remoteLoc)) {
@@ -240,15 +249,15 @@ public class Onthology {
 			  Path remoteConceptName = makeConceptName(aDir);
 			  if(rascalExtraction == null){
 			    // Lazily load the RascalExtraction tool
-			    //rascalExtraction = new RascalExtraction(vf, pcfg);
 			    rascalExtraction = Java2Rascal.Builder.bridge(vf, pcfg, IRascalExtraction.class).build();
 			  }
 			  ITuple extracted = rascalExtraction.extractDoc(vf.string(parentName), remoteLoc);
 			  IString remoteConceptText = (IString) extracted.get(0);
 			  IList declarationInfoList = (IList) extracted.get(1);
 			  //System.err.println(remoteConceptText.getValue());
+			  String toc = makeToc(remoteConceptName, declarationInfoList);
 			  Concept remoteConcept = new Concept(remoteConceptName, remoteConceptText.getValue(), destPath, libSrcPath);
-			  remoteConcept.setRemote();
+			  remoteConcept.setRemote(toc);
 			  conceptMap.put(remoteConceptName, remoteConcept);
 
 			  iwriter.addDocument(makeLuceneDocument(remoteConceptName.toString(), remoteConcept.getIndex(), remoteConcept.getSynopsis(), remoteConcept.getText()));
@@ -265,7 +274,6 @@ public class Onthology {
 //			  }
 			  if(questionCompiler == null){
 			    // Lazily load the QuestionCompiler tool
-			    //questionCompiler = new QuestionCompiler(vf, pcfg);
 			    questionCompiler = Java2Rascal.Builder.bridge(vf, pcfg, IQuestionCompiler.class).build();
 			  }
 			  String qtext = questionCompiler.compileQuestions(vf.string(questionsName.toString()), pcfg.asConstructor(questionCompiler) /*pcfg.getSrcs(), pcfg.getLibs(), pcfg.getcourses(), pcfg.getBin(), pcfg.getBoot()*/).getValue();
@@ -277,6 +285,30 @@ public class Onthology {
 			}
 			return FileVisitResult.CONTINUE;
 		}
+	}
+	
+	private String makeToc(Path remoteConceptName, IList declarationInfoList){
+	    StringWriter w = new StringWriter();
+	  w.append("\n");
+	    for(IValue d : declarationInfoList){
+	        IConstructor cons = (IConstructor)d;
+	        if(cons.getName().equals("moduleInfo")){
+	            continue;
+	        }
+	        String name = ((IString) cons.get("name")).getValue();
+	        String synopsis = cons.has("synopsis") ? ((IString) cons.get("synopsis")).getValue() : "";
+	        w.append("* <<")
+	         .append(remoteConceptName.toString())
+	         .append("-")
+	         .append(name)
+	         .append(",")
+	         .append(name)
+	         .append(">>: ")
+	         .append(synopsis)
+	         .append("\n");
+	    }
+	    w.append("\n");
+	    return w.toString();
 	}
 	
 	private Document makeLuceneDocument(String name, String index, String synopsis, String doc){
@@ -432,6 +464,6 @@ public class Onthology {
 				genListItemForSubConcept(conceptName, fullSubConceptName, start, start + depth, withSynopsis, result);
 			}
 		}
-		return result.toString();
+ 		return result.toString();
 	}
 }
