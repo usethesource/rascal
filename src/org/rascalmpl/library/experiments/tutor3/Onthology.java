@@ -209,7 +209,7 @@ public class Onthology {
 		@Override  public FileVisitResult preVisitDirectory(Path aDir, BasicFileAttributes aAttrs) throws IOException {
 			String cpf = makeConceptFilePath(aDir).toString();
 			if(cpf.contains("/ValueUI") 
-			   || cpf.contains("/Vis/") 
+			   || cpf.contains("/vis/") 
 			   || cpf.contains("/SyntaxHighlightingTemplates")
 			   || cpf.contains("/ShellExec")
 			   || cpf.contains("/Resources")
