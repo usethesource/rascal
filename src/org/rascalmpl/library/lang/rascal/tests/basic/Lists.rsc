@@ -471,7 +471,7 @@ test bool tstToRel(list[&T] L) = isEmpty(L) || toRel(L) == {<elementAt(L,i), ele
 
 test bool tstToSet(list[&T] L) = toSet(L) == {x | x <- L};
 
- 
+@ignore{not all values can be read-back after writing to string}
 test bool tstToString(list[value] L) = (readTextValueString(#list[value], toString(L)) == L);
 
 

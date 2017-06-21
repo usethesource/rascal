@@ -4,17 +4,17 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
-import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireInputStream;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireOutputStream;
 import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -27,10 +27,10 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.binary.util.WindowSizes;
 import io.usethesource.vallang.io.binary.wire.IWireInputStream;
+import io.usethesource.vallang.random.util.TypeParameterBinder;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * Function contains all data needed for a single RVM function
@@ -328,8 +328,7 @@ public class Function {
       int nargs = requestedType.getArity();
       IValue[] args = new IValue[nargs];
 
-      TypeParameterVisitor tpvisit = new TypeParameterVisitor();
-      HashMap<Type, Type> tpbindings = tpvisit.bindTypeParameters(requestedType);
+      Map<Type, Type> tpbindings = new TypeParameterBinder().bind(requestedType);
       RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, maxDepth, tpbindings, typeStore);
 
       boolean passed = true;
