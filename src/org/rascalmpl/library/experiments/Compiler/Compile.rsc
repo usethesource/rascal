@@ -303,14 +303,14 @@ lang::rascal::\syntax::Rascal::Declaration getMain(lang::rascal::\syntax::Rascal
     if(m2: (Module) `<Header h> <Toplevel* pre> <Toplevel tl_main>` := m){
        return tl_main.declaration;
     }
-    throw InternalCompilerError("getMain: cannot match toplevels", m@\loc);
+    throw InternalCompilerError(error("getMain: cannot match toplevels", m@\loc));
 }
 
 Module removeMain(lang::rascal::\syntax::Rascal::Module m) {
     if(m2: (Module) `<Header h> <Toplevel* pre> <Toplevel mn>` := m){
        return (Module) `<Header h> <Toplevel* pre>`;
     }
-    throw InternalCompilerError("removeMain: no main found", m@\loc);
+    throw InternalCompilerError(error("removeMain: no main found", m@\loc));
 }
 
 Configuration noPreviousConfig = newConfiguration(pathConfig());
