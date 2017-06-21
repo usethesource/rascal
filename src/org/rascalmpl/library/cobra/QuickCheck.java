@@ -49,7 +49,7 @@ public class QuickCheck {
     }
 
 
-    public boolean quickcheck(AbstractFunction function, int maxDepth,
+    public boolean quickcheck(AbstractFunction function, int maxDepth, int maxWidth,
         int tries, boolean verbose, PrintWriter out) {
 
         String fname = function.getEnv().getName() + "::" + function.getName();
@@ -81,7 +81,7 @@ public class QuickCheck {
             tries = 1;
         }
 
-        RandomValueGenerator generator = new RandomValueGenerator(vf, stRandom, maxDepth);
+        RandomValueGenerator generator = new RandomValueGenerator(vf, stRandom, maxDepth, maxWidth);
         for (int i = 0; i < tries; i++) {
             for (int n = 0; n < values.length; n++) {
                 values[n] = generator.generate(types[n], declEnv.getRoot().getStore(), tpbindings);
