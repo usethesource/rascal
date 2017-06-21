@@ -329,6 +329,12 @@ public class ParsingTools {
 	      ISourceLocation src = vf.sourceLocation(loc, loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
 	      throw RascalRuntimeException.parseError(src, null);
 	    }
+	    catch (Ambiguous e) {
+            ITree tree1 = e.getTree();
+            throw RascalRuntimeException.ambiguity(e.getLocation(), 
+                    vf.string(SymbolAdapter.toString(TreeAdapter.getType(tree1), false)), 
+                    vf.string(TreeAdapter.yield(tree)), null);
+        }
 	  }
 	  
 	  private char[] replaceAntiQuotesByHoles(ITree lit, Map<String, ITree> antiquotes, RascalExecutionContext rex) throws IOException {
