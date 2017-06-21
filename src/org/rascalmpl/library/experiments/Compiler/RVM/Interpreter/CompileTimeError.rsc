@@ -4,4 +4,5 @@ import Message;
 
 data Exception
     = CompileTimeError(Message msg)
+    | InternalCompilerError(Message msg)
     ;
