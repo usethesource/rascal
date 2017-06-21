@@ -14,13 +14,11 @@ package org.rascalmpl.library.cobra;
 
 import java.io.PrintWriter;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 
 import io.usethesource.vallang.IBool;
@@ -28,6 +26,8 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.random.RandomValueGenerator;
+import io.usethesource.vallang.random.util.TypeParameterBinder;
 import io.usethesource.vallang.type.Type;
 
 public class QuickCheck {
@@ -48,17 +48,6 @@ public class QuickCheck {
         return InstanceHolder.sInstance;
     }
 
-    private IValue arbitrary(Type type, int depthLimit, Environment env,
-        IValueFactory vf, Map<Type, Type> typeParameters) {
-
-        RandomValueTypeVisitor visitor = new RandomValueTypeVisitor(stRandom, vf, env::lookupAlternatives,  env.getStore()::getAnnotations, env.getStore()::getKeywordParameters, depthLimit, typeParameters);
-
-        IValue result = visitor.generate(type);
-        if (result == null) {
-            throw new IllegalArgumentException("No construction possible at this depth or less.");
-        }
-        return result;
-    }
 
     public boolean quickcheck(AbstractFunction function, int maxDepth,
         int tries, boolean verbose, PrintWriter out) {
@@ -81,26 +70,26 @@ public class QuickCheck {
         for (int n = 0; n < formals.getArity(); n++) {
             types[n] = formals.getFieldType(n);
         }
-
+        
+        Map<Type, Type> tpbindings = new TypeParameterBinder().bind(formals);
+        Type[] actualTypes = new Type[types.length];
+        for(int j = 0; j < types.length; j ++) {
+            actualTypes[j] = types[j].instantiate(tpbindings);
+        }
+ 
         if (formals.getArity() == 0) {
             tries = 1;
         }
 
-        TypeParameterVisitor tpvisit = new TypeParameterVisitor();
-
+        RandomValueGenerator generator = new RandomValueGenerator(vf, stRandom, maxDepth);
         for (int i = 0; i < tries; i++) {
-            values = new IValue[formals.getArity()];
-
-            HashMap<Type, Type> tpbindings = tpvisit.bindTypeParameters(formals);
-            for (int n = 0; n < formals.getArity(); n++) {
-                values[n] = arbitrary(types[n], maxDepth, declEnv.getRoot(), vf, tpbindings);
+            for (int n = 0; n < values.length; n++) {
+                values[n] = generator.generate(types[n], declEnv.getRoot().getStore(), tpbindings);
             }
+            
             boolean expectedThrown = false;
             try {
-                Type[] actualTypes = new Type[formals.getArity()];
-                for(int j = 0; j < types.length; j ++) {
-                    actualTypes[j] = types[j].instantiate(tpbindings);
-                }
+
                 IValue result = function.call(actualTypes, values, null).getValue();
                 function.getEval().getStdOut().flush();
 
@@ -141,7 +130,7 @@ public class QuickCheck {
         return true;
     }
 
-    private boolean reportFailed(String name, String msg, HashMap<Type, Type> tpbindings, Type formals, IValue[] values, PrintWriter out){
+    private boolean reportFailed(String name, String msg, Map<Type, Type> tpbindings, Type formals, IValue[] values, PrintWriter out){
         out.println("Test " + name + " failed due to\n\t" + msg + "\n");
         if(tpbindings.size() > 0){
             out.println("Type parameters:");
