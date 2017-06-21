@@ -67,17 +67,17 @@ public class RVMLinker {
 		int nfs = functionStore.size();
 		//System.out.println("size functionStore: " + nfs);
 		if(nfs >= CodeBlock.maxArg){
-			throw new CompilerError("functionStore size " + nfs + " exceeds limit " + CodeBlock.maxArg1);
+			throw new InternalCompilerError("functionStore size " + nfs + " exceeds limit " + CodeBlock.maxArg1);
 		}
 		int ncs = constructorStore.size();
 		//System.out.println("size constructorStore: " + ncs);
 		if(ncs >= CodeBlock.maxArg){
-			throw new CompilerError("constructorStore size " + ncs + " exceeds limit " + CodeBlock.maxArg1);
+			throw new InternalCompilerError("constructorStore size " + ncs + " exceeds limit " + CodeBlock.maxArg1);
 		}
 		int nov = overloadedStore.size();
 		//System.out.println("size overloadedStore: " + nov);
 		if(nov >= CodeBlock.maxArg){
-			throw new CompilerError("overloadedStore size " + nov + " exceeds limit " + CodeBlock.maxArg1);
+			throw new InternalCompilerError("overloadedStore size " + nov + " exceeds limit " + CodeBlock.maxArg1);
 		}
 	}
 	
@@ -276,7 +276,7 @@ public class RVMLinker {
 				for (int uuid : of.functions){
 					Function function = functionStore.get(uuid);
 					if (function == null) {
-					    throw new CompilerError("No function for uuid " + uuid + " in store, part of overloaded function:" + of);
+					    throw new InternalCompilerError("No function for uuid " + uuid + " in store, part of overloaded function:" + of);
 					}
 					w.insert(vf.tuple(left, vf.string(function.name)));
 				}
@@ -1108,12 +1108,12 @@ public class RVMLinker {
 				break;
 				
 			default:
-				throw new CompilerError("In function " + name + ", unknown instruction: " + opcode);
+				throw new InternalCompilerError("In function " + name + ", unknown instruction: " + opcode);
 			}
 
 		}
 		} catch (Exception e){
-			throw new CompilerError("In function " + name + " : " + e.getMessage(), e);
+			throw new InternalCompilerError("In function " + name + " : " + e.getMessage(), e);
 		}
 		
 		

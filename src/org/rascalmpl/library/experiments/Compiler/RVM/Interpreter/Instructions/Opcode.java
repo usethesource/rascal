@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CompilerError;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.InternalCompilerError;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.MuPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 
@@ -652,6 +652,6 @@ public enum Opcode {
 			break;
 		}	
 		
-		throw new CompilerError("unrecognized opcode " + opc);
+		throw new InternalCompilerError("unrecognized opcode " + opc);
 	}
 }
