@@ -422,11 +422,11 @@ public class Bootstrap {
 	        return unstableVersion();
 	    }
 
-	    return URIUtil.assumeCorrect("http", "update.rascal-mpl.org", "/console/rascal-" + version + ".jar");
+	    return URIUtil.assumeCorrect("https", "update.rascal-mpl.org", "/console/rascal-" + version + ".jar");
 	}
 	
 	private static URI unstableVersion() {
-        return URIUtil.assumeCorrect("http", "update.rascal-mpl.org", "/console/rascal-shell-unstable.jar");
+        return URIUtil.assumeCorrect("https", "update.rascal-mpl.org", "/console/rascal-shell-unstable.jar");
     }
 	
 	private static String phaseFolderString(int phase, Path tmp) {
