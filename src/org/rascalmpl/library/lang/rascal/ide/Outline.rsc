@@ -17,7 +17,7 @@ anno loc Signature@\loc;
 anno loc Prod@\loc;
 
 node outline(start[Module] m) = outline(m.top);
-
+ 
 node outline(Module m) {
    n = "";
    aliases = [];
@@ -34,13 +34,13 @@ node outline(Module m) {
    visit (m) {
      case Header h : n = "<h.name>";
      case (Declaration) `<Tags ta> <Visibility vs> <Type t> <{Variable ","}+ vars>;`:
-       variables   += ["<v.name> <t>"()[@\loc=v@\loc] | v <- vars]; 
+       variables   += [clean("<v.name> <t>")()[@\loc=v@\loc] | v <- vars]; 
      case (Declaration) `<Tags ta> <Visibility vs> anno <Type t> <Type ot>@<Name name>;`:  
-       annotations += ["<name> <t> <ot>@<name>"()[@\loc=name@\loc]];
+       annotations += [clean("<name> <t> <ot>@<name>")()[@\loc=name@\loc]];
      case (Declaration) `<Tags ta> <Visibility vs> alias <UserType u> = <Type base>;`:
-       aliases += ["<u.name>"()[@\loc=u.name@\loc]];  
+       aliases += [clean("<u.name>")()[@\loc=u.name@\loc]];  
      case (Declaration) `<Tags ta> <Visibility vs> tag <Kind k> <Name name> on <{Type ","}+ types>;`:
-       tags += ["<name>"()[@\loc=name@\loc]];
+       tags += [clean("<name>")()[@\loc=name@\loc]];
        
      case (Declaration) `<Tags ta> <Visibility vs> data <UserType u> <CommonKeywordParameters kws>;`: {
        f = "<u.name>";
@@ -61,19 +61,19 @@ node outline(Module m) {
          c += [ ".<k.name> <k.\type>"()[@\loc=k@\loc] | k <- kws.keywordFormalList];
        }
        
-       c += [ "<v>"()[@\loc=v@\loc] | v <- variants];
+       c += [ clean("<v>")()[@\loc=v@\loc] | v <- variants];
        
        adts[f] = c;
      }
      
      case FunctionDeclaration func : {
-       f = "<func.signature.name>"()[@label="<func.signature.name> <func.signature.parameters>"][@\loc=func.signature@\loc];
+       f = clean("<func.signature.name>")()[@label="<func.signature.name> <func.signature.parameters>"][@\loc=func.signature@\loc];
        
        if (/(FunctionModifier) `test` := func.signature) {
-         tests["<func.signature.name>"]?e += [f];
+         tests[clean("<func.signature.name>")]?e += [f];
        }
        else {
-         functions["<func.signature.name>"]?e += [f];
+         functions[clean("<func.signature.name>")]?e += [f];
        }
      }
      
@@ -109,3 +109,6 @@ node outline(Module m) {
       "Syntax"(count(grammars))[@label="Syntax (<size(grammars)>)"]
    );    
 }
+
+str clean(/\\<rest:.*>/) = rest;
+default str clean(str x) = x;
