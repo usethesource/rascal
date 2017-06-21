@@ -11,6 +11,7 @@ import util::Reflective;
 //import util::ValueUI;
 
 import ParseTree;
+import experiments::Compiler::RVM::Interpreter::CompileTimeError;
 
 import lang::rascal::\syntax::Rascal;
 import experiments::Compiler::muRascal::AST;
@@ -119,9 +120,12 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, Pat
         if (verbose) println("Parse error in concrete syntax <l>; returning error module");
         return errorMuModule(getModuleName(), {error("Parse error in concrete syntax fragment", l)}, M@\loc);
    }
-   catch value e: {
-        return errorMuModule(getModuleName(), {error("Unexpected compiler exception <e>", M@\loc)}, M@\loc);
+   catch CompileTimeError(Message m): {
+        return errorMuModule(getModuleName(), {m}, M@\loc);
    }
+   //catch value e: {
+   //     return errorMuModule(getModuleName(), {error("Unexpected compiler exception <e>", M@\loc)}, M@\loc);
+   //}
    finally {
    	   resetModuleInfo(optimize, enableAsserts);
    	   resetScopeExtraction();
