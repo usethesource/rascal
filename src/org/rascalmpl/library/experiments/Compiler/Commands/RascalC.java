@@ -40,45 +40,43 @@ public class RascalC {
             
             cmdOpts.pathConfigOptions()
         
-            .locOption("reloc")       
-            .locDefault(cmdOpts.getDefaultRelocLocation())
-            .help("Relocate source locations")
+                   .locOption("reloc")       
+                   .locDefault(cmdOpts.getDefaultRelocLocation())
+                   .help("Relocate source locations")
 
-            .boolOption("noLinking")	
-            .help("Do not link compiled modules")
+                   .boolOption("noLinking")	
+                   .help("Do not link compiled modules")
             
-            .strOption("apigen")
-            .strDefault("")
-            .help("Package name for generating api for Java -> Rascal")
+                   .strOption("apigen")
+                   .strDefault("")
+                   .help("Package name for generating api for Java -> Rascal")
             
-            .locOption("src-gen")
-            .locDefault((co) -> (ISourceLocation) co.getCommandLocsOption("src").get(0))
-            .help("Target directory for generated source code")
+                   .locOption("src-gen")
+                   .locDefault((co) -> (ISourceLocation) co.getCommandLocsOption("src").get(0))
+                   .help("Target directory for generated source code")
 
-            .boolOption("help") 		
-            .help("Print help message for this command")
+                   .boolOption("help") 		
+                   .help("Print help message for this command")
 
-            .boolOption("trace") 		
-            .help("Print Rascal functions during execution of compiler")
+                   .boolOption("trace") 		
+                   .help("Print Rascal functions during execution of compiler")
 
-            .boolOption("profile") 		
-            .help("Profile execution of compiler")
+                   .boolOption("profile") 		
+                   .help("Profile execution of compiler")
             
-            .boolOption("optimize")
-            .boolDefault(true)
-            .help("Apply code optimizations")
+                   .boolOption("optimize")
+                   .boolDefault(true)
+                   .help("Apply code optimizations")
             
-            .boolOption("enableAsserts")
-            .help("Enable checking of assertions")
+                   .boolOption("enableAsserts")
+                   .help("Enable checking of assertions")
 
-            //.boolOption("jvm") 			.help("Generate JVM code")
+                   .boolOption("verbose")
+                   .help("Make the compiler verbose")
 
-            .boolOption("verbose")
-            .help("Make the compiler verbose")
+                   .modules("List of module names to be compiled or a single location for a directory to compile all modules from")
 
-            .modules("List of module names to be compiled or a single location for a directory to compile all modules from")
-
-            .handleArgs(args);
+                   .handleArgs(args);
             
             ISourceLocation srcGen = cmdOpts.getCommandLocOption("src-gen");
             
@@ -97,10 +95,10 @@ public class RascalC {
            
             PathConfig pcfg = cmdOpts.getPathConfig();
             IKernel kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class)
-                .trace(cmdOpts.getCommandBoolOption("trace"))
-                .profile(cmdOpts.getCommandBoolOption("profile"))
-                .verbose(cmdOpts.getCommandBoolOption("verbose"))
-                .build();
+                                                .trace(cmdOpts.getCommandBoolOption("trace"))
+                                                .profile(cmdOpts.getCommandBoolOption("profile"))
+                                                .verbose(cmdOpts.getCommandBoolOption("verbose"))
+                                                .build();
 
             boolean ok = true;
             
@@ -122,7 +120,7 @@ public class RascalC {
             else {
                 IList programs = kernel.compileAndLink(modules, pcfg.asConstructor(kernel),
                                                        kernel.kw_compileAndLink()
-                                                       .reloc(cmdOpts.getCommandLocOption("reloc"))
+                                                             .reloc(cmdOpts.getCommandLocOption("reloc"))
                                                        );
                 
                 ok = handleMessages(programs, pcfg);
