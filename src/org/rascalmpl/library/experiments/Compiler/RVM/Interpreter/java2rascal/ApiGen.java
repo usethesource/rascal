@@ -22,7 +22,7 @@ import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalType;
 import org.rascalmpl.interpreter.types.ReifiedType;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CompilerError;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.InternalCompilerError;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
 import io.usethesource.vallang.IMap;
@@ -252,7 +252,7 @@ public class ApiGen {
 
       @Override
       public String visitAlias(Type type) throws RuntimeException {
-          throw new CompilerError("Alias cannot occur as interface type");
+          throw new InternalCompilerError("Alias cannot occur as interface type");
       }
 
       @Override
@@ -325,7 +325,7 @@ public class ApiGen {
           return "IConstructor";
         }
 
-        throw new CompilerError("External cannot occur as interface type: " + type);
+        throw new InternalCompilerError("External cannot occur as interface type: " + type);
       }
       
       @Override
@@ -349,7 +349,7 @@ public class ApiGen {
       @Override
       public String visitOverloadedFunction(RascalType type)
               throws RuntimeException {
-        throw new CompilerError("External cannot occur as interface type: " + type);
+        throw new InternalCompilerError("External cannot occur as interface type: " + type);
       }
 
       @Override

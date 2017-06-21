@@ -1,6 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CompilerError;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.InternalCompilerError;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FunctionInstance;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Reference;
@@ -121,7 +121,7 @@ public class Traverse {
 					}
 				}
 			}
-			throw new CompilerError("Traversal specialization not found: " + direction + ", "
+			throw new InternalCompilerError("Traversal specialization not found: " + direction + ", "
 					+ progress + ", " + fixedpoint + ", " + rebuild + ", concreteMatch = " + descriptor.isConcreteMatch());
 
 		} catch (ReturnFromTraversalException e) {
