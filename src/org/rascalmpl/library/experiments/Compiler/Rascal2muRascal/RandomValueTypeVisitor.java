@@ -24,7 +24,7 @@ import java.util.Random;
 
 import org.rascalmpl.library.cobra.RandomType;
 import org.rascalmpl.library.cobra.util.RandomUtil;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CompilerError;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.InternalCompilerError;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -216,7 +216,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 
 	@Override
 	public IValue visitExternal(Type externalType) {
-		throw new CompilerError("Can't handle ExternalType.");
+		throw new InternalCompilerError("Can't handle ExternalType.");
 	}
 
 	@Override
@@ -418,7 +418,7 @@ public class RandomValueTypeVisitor implements ITypeVisitor<IValue, RuntimeExcep
 
 	@Override
 	public IValue visitVoid(Type type) {
-		throw new CompilerError("void has no values.");
+		throw new InternalCompilerError("void has no values.");
 	}
 	
 	public static void main(String[] args) {

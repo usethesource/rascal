@@ -5,7 +5,7 @@ import java.io.OutputStream;
 import java.net.URISyntaxException;
 import java.util.Set;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CompilerError;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.InternalCompilerError;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.ApiGen;
@@ -182,7 +182,7 @@ public class RascalC {
     		}
 
     		if (!program.has("messages")) {
-    			throw new CompilerError("unexpected output of compiler, has no messages field");
+    			throw new InternalCompilerError("unexpected output of compiler, has no messages field");
     		}
 
     		ISet messages = (ISet) program.get("messages");
