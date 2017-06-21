@@ -5,6 +5,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
 import java.util.Map;
+import java.util.Random;
 
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TypeReifier;
@@ -12,7 +13,6 @@ import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireInputStream;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireOutputStream;
-import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IBool;
@@ -27,6 +27,7 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.binary.util.WindowSizes;
 import io.usethesource.vallang.io.binary.wire.IWireInputStream;
+import io.usethesource.vallang.random.RandomValueGenerator;
 import io.usethesource.vallang.random.util.TypeParameterBinder;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -289,6 +290,7 @@ public class Function {
 	}
 	
 	private static final int MAXDEPTH = 5;
+	private static final int MAXWIDTH = 5;
     private static final int TRIES = 500;
     
     public int getTries(){
@@ -302,6 +304,11 @@ public class Function {
     public int getDepth(){
       IValue imaxDepth = tags.get(vf.string("maxDepth"));
       return imaxDepth == null ? MAXDEPTH : Integer.parseInt(((IString) imaxDepth).getValue());
+    }
+    
+    public int getWidth(){
+        IValue imaxWidth = tags.get(vf.string("maxWidth"));
+        return imaxWidth == null ? MAXWIDTH : Integer.parseInt(((IString) imaxWidth).getValue());
     }
 	
     /**
@@ -322,6 +329,7 @@ public class Function {
       String expected = iexpected == null ? "" : ((IString) iexpected).getValue();
       
       int maxDepth = getDepth();
+      int maxWidth = getWidth();
       int tries = getTries();
 
       Type requestedType = ftype.getFieldTypes();
@@ -329,7 +337,8 @@ public class Function {
       IValue[] args = new IValue[nargs];
 
       Map<Type, Type> tpbindings = new TypeParameterBinder().bind(requestedType);
-      RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, maxDepth, tpbindings, typeStore);
+      RandomValueGenerator randomValue = new RandomValueGenerator(vf, new Random(), maxDepth, maxWidth);
+      //RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, maxDepth, tpbindings, typeStore);
 
       boolean passed = true;
       String message = "";
@@ -337,14 +346,8 @@ public class Function {
       for(int i = 0; i < tries; i++){
         if(nargs > 0){
           message = "test fails for arguments: ";
-          ITuple tup = (ITuple) randomValue.generate(requestedType);
-          if(tup == null){
-            rex.getStdErr().println(name + "(" + nargs + "): " + requestedType + ", " + tup );
-            printTypeStore(typeStore);
-        
-          } 
           for(int j = 0; j < nargs; j++){
-            args[j] = tup.get(j);
+            args[j] = randomValue.generate(requestedType.getFieldType(j), typeStore, tpbindings);
             message = message + args[j].toString() + " ";
           }
         }
