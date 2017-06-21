@@ -14,6 +14,7 @@ import Map;
 import Set;
 import Relation;
 import Exception;
+import experiments::Compiler::RVM::Interpreter::CompileTimeError;
 
 import lang::rascal::\syntax::Rascal;
 //import experiments::Compiler::Rascal2muRascal::ParseModule;
@@ -138,17 +139,26 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
    	    return <config, rvmMod>;
    	}
    	
-    //if(verbose) println("rascal2rvm: Compiling <moduleLoc>");
-    start_comp = cpuTime();
-   	muMod = r2mu(M, config, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
-
-   	
-    rvmMod = mu2rvm(muMod, verbose=verbose, optimize=optimize); 
-    comp_time = (cpuTime() - start_comp)/1000000;
-    if(verbose) println("Compiling <moduleLoc>: check: <check_time>, compile: <comp_time>, total: <check_time+comp_time> ms");
-    //if(verbose) println("compile: Writing RVMModule <rvmModuleLoc>");
-    writeBinaryValueFile(rvmModuleLoc, rvmMod);
-    return <config, rvmMod>;  
+   	try {
+        //if(verbose) println("rascal2rvm: Compiling <moduleLoc>");
+        start_comp = cpuTime();
+       	muMod = r2mu(M, config, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
+    
+        rvmMod = mu2rvm(muMod, verbose=verbose, optimize=optimize); 
+        comp_time = (cpuTime() - start_comp)/1000000;
+        if(verbose) println("Compiling <moduleLoc>: check: <check_time>, compile: <comp_time>, total: <check_time+comp_time> ms");
+        //if(verbose) println("compile: Writing RVMModule <rvmModuleLoc>");
+        writeBinaryValueFile(rvmModuleLoc, rvmMod);
+        return <config, rvmMod>;  
+    } catch e: CompileTimeError(m): {
+      rvmMod = errorRVMModule("<M.header.name>", {m}, moduleLoc);
+        try {
+            writeBinaryValueFile(rvmModuleLoc, rvmMod);
+        } catch IO(str msg): {
+            println("CANNOT WRITE ERROR MODULE FOR <M.header.name>: <msg>");
+        }      
+        return <config, rvmMod>;
+    }
 }	
 
 @doc{Compile a Rascal source module (given at a location) to RVM}
@@ -293,15 +303,14 @@ lang::rascal::\syntax::Rascal::Declaration getMain(lang::rascal::\syntax::Rascal
     if(m2: (Module) `<Header h> <Toplevel* pre> <Toplevel tl_main>` := m){
        return tl_main.declaration;
     }
-    throw "getMain: cannot match toplevels";
+    throw InternalCompilerError("getMain: cannot match toplevels", m@\loc);
 }
 
 Module removeMain(lang::rascal::\syntax::Rascal::Module m) {
     if(m2: (Module) `<Header h> <Toplevel* pre> <Toplevel mn>` := m){
        return (Module) `<Header h> <Toplevel* pre>`;
     }
-    throw "removeMain: no main found";
-    return m;
+    throw InternalCompilerError("removeMain: no main found", m@\loc);
 }
 
 Configuration noPreviousConfig = newConfiguration(pathConfig());
@@ -348,18 +357,27 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
     }
     
     rvmModuleLoc = RVMModuleWriteLoc(qualifiedModuleName, pcfg);
-    
-    if(verbose) println("rascal2rvm: Compiling <moduleLoc>");
-    start_comp = cpuTime();
-    muMod = r2mu(M, config, pcfg, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);  // never a reloc
-    
-    rvmMod = mu2rvm(muMod, verbose=verbose, optimize=optimize); 
-    comp_time = (cpuTime() - start_comp)/1000000;
-    if(verbose) println("Compiling <moduleLoc>: check: <check_time>, compile: <comp_time>, total: <check_time+comp_time> ms");
-    if(verbose) println("compile: Writing RVMModule <rvmModuleLoc>");
-    writeBinaryValueFile(rvmModuleLoc, rvmMod);
-   
-    return <config, rvmMod>;  
+    try {
+        if(verbose) println("rascal2rvm: Compiling <moduleLoc>");
+        start_comp = cpuTime();
+        muMod = r2mu(M, config, pcfg, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);  // never a reloc
+        
+        rvmMod = mu2rvm(muMod, verbose=verbose, optimize=optimize); 
+        comp_time = (cpuTime() - start_comp)/1000000;
+        if(verbose) println("Compiling <moduleLoc>: check: <check_time>, compile: <comp_time>, total: <check_time+comp_time> ms");
+        if(verbose) println("compile: Writing RVMModule <rvmModuleLoc>");
+        writeBinaryValueFile(rvmModuleLoc, rvmMod);
+       
+        return <config, rvmMod>;  
+    } catch e: CompileTimeError(m): {
+      rvmMod = errorRVMModule("<M.header.name>", {m}, moduleLoc);
+        try {
+            writeBinaryValueFile(rvmModuleLoc, rvmMod);
+        } catch IO(str msg): {
+            println("CANNOT WRITE ERROR MODULE FOR <M.header.name>: <msg>");
+        }      
+        return <config, rvmMod>;
+    }
 }  
 
 RVMModule compileIncremental(str qualifiedModuleName, bool reuseConfig, PathConfig pcfg, bool verbose = false, bool optimize = true, bool enableAsserts=false){
