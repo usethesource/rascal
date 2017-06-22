@@ -121,12 +121,12 @@ public abstract class RVMCore {
 
 		@Override
 		public void next(Frame previousCallFrame) {
-			throw new CompilerError("Attempt to activate an exhausted coroutine instance.");
+			throw new InternalCompilerError("Attempt to activate an exhausted coroutine instance.");
 		}
 		
 		@Override
 		public void suspend(Frame current) {
-			throw new CompilerError("Attempt to suspend an exhausted coroutine instance.");
+			throw new InternalCompilerError("Attempt to suspend an exhausted coroutine instance.");
 		}
 		
 		@Override
@@ -141,7 +141,7 @@ public abstract class RVMCore {
 
 		@Override
 		public Coroutine copy() {
-			throw new CompilerError("Attempt to copy an exhausted coroutine instance.");
+			throw new InternalCompilerError("Attempt to copy an exhausted coroutine instance.");
 		}  
 	};
 
@@ -186,7 +186,7 @@ public abstract class RVMCore {
 	public void updateModuleVariable(IValue name, IValue newVal){
 		IValue oldVal = moduleVariables.get(name);
 		if(oldVal != null && !oldVal.getType().comparable(newVal.getType())){
-			throw new CompilerError("Module variable " + name + " initalized with incompatible value " + newVal + " was " + oldVal);
+			throw new InternalCompilerError("Module variable " + name + " initalized with incompatible value " + newVal + " was " + oldVal);
 		}
 		moduleVariables.put(name, newVal);
 	}
@@ -254,7 +254,7 @@ public abstract class RVMCore {
 				return fname;
 			}
 		}
-		throw new CompilerError("Undefined function index " + n);
+		throw new InternalCompilerError("Undefined function index " + n);
 	}
 	
 	public String findVarName(Frame cf, int s, int pos){
@@ -609,7 +609,7 @@ public abstract class RVMCore {
 		if(result == null){
 			return null;
 		}
-		throw new CompilerError("Cannot convert object back to IValue: " + result);
+		throw new InternalCompilerError("Cannot convert object back to IValue: " + result);
 	}
 	
 	/**
@@ -729,7 +729,7 @@ public abstract class RVMCore {
 				return fr.stack[pos];											// TODO: undefined case
 			}
 		}
-		throw new CompilerError("LOADVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
+		throw new InternalCompilerError("LOADVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 
 	protected int PUSHVAR(final Object[] stack, int sp, final Frame cf, final int varScope, final int pos){
@@ -764,7 +764,7 @@ public abstract class RVMCore {
 				return new Reference(fr.stack, pos);
 			}
 		}
-		throw new CompilerError("LOADVARREF cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
+		throw new InternalCompilerError("LOADVARREF cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
 	protected int PUSHVARREF(final Object[] stack, int sp, final Frame cf, final int varScope, final int pos){
@@ -791,7 +791,7 @@ public abstract class RVMCore {
 				ref.getValue();
 			}
 		}
-		throw new CompilerError("LOADVARDEREF cannot find matching scope: " + varScope, cf);
+		throw new InternalCompilerError("LOADVARDEREF cannot find matching scope: " + varScope, cf);
 	}
 	
 	protected int PUSHVARDEREF(final Object[] stack, int sp, final Frame cf, final int varScope, final int pos){
@@ -823,7 +823,7 @@ public abstract class RVMCore {
 				return;
 			}
 		}
-		throw new CompilerError("STOREVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
+		throw new InternalCompilerError("STOREVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
 	// RESETVAR
@@ -841,7 +841,7 @@ public abstract class RVMCore {
 				return;
 			}
 		}
-		throw new CompilerError("RESETVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
+		throw new InternalCompilerError("RESETVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
 	// UNWRAPTHROWNVAR
@@ -865,7 +865,7 @@ public abstract class RVMCore {
 				return sp;
 			}
 		}
-		throw new CompilerError("UNWRAPTHROWNVAR cannot find matching scope: " + varScope, cf);
+		throw new InternalCompilerError("UNWRAPTHROWNVAR cannot find matching scope: " + varScope, cf);
 	}
 	
 	protected void STOREVARDEREF(Frame cf, int varScope, int pos, Object accu){
@@ -876,7 +876,7 @@ public abstract class RVMCore {
 				ref.setValue(accu);
 			}
 		}
-		throw new CompilerError("STOREVARDEREF cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
+		throw new InternalCompilerError("STOREVARDEREF cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
 	// STORELOCKWP
@@ -923,7 +923,7 @@ public abstract class RVMCore {
 	      }
 	    }
 	  }               
-	  throw new CompilerError("LOADVARKWP cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
+	  throw new InternalCompilerError("LOADVARKWP cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
 	protected int PUSHVARKWP(final Object[] stack, int sp, final Frame cf, final int varScope, final int iname){
@@ -970,7 +970,7 @@ public abstract class RVMCore {
 				}
 			}
 		}				
-		throw new CompilerError("STOREVARKWP cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
+		throw new InternalCompilerError("STOREVARKWP cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
 	// LOAD/PUSH LOCKWP
@@ -1094,7 +1094,7 @@ public abstract class RVMCore {
 	        return clazz;
 		} 
 		catch(ClassNotFoundException | NoClassDefFoundError e1) {
-			throw new CompilerError("Class " + className + " not found", e1);
+			throw new InternalCompilerError("Class " + className + " not found", e1);
 		}
 		
 	}
@@ -1135,7 +1135,7 @@ public abstract class RVMCore {
 	        return clazz.getMethod(methodName, makeJavaTypes(methodName, className, parameterTypes, keywordTypes, reflect));
 	    }
 	    catch (NoSuchMethodException | SecurityException e) {
-	        throw new CompilerError("could not find Java method", e);
+	        throw new InternalCompilerError("could not find Java method", e);
 	    }
     }
 	
@@ -1180,7 +1180,7 @@ public abstract class RVMCore {
 			return sp - arity - kwMaps + 1;
 		} 
 		catch (SecurityException | IllegalAccessException | IllegalArgumentException e) {
-			throw new CompilerError("could not call Java method", e);
+			throw new InternalCompilerError("could not call Java method", e);
 		} 
 		catch (InvocationTargetException e) {
 			if(e.getTargetException() instanceof Throw) {

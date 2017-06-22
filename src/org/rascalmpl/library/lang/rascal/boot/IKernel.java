@@ -79,8 +79,9 @@ public interface IKernel extends IJava2Rascal {
 
   @RascalKeywordParameters
   interface KWcompileMu {
-      KWcompile verbose(boolean val);
-      KWcompile jvm(boolean val);
+      KWcompileMu verbose(boolean val);
+      KWcompileMu reloc(ISourceLocation val);
+      KWcompileMu jvm(boolean val);
   }
   KWcompileMu kw_compileMu();
   

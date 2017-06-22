@@ -179,7 +179,7 @@ public class RVMInterpreter extends RVMCore {
 			assert arity + fun_instance.next <= fun_instance.function.nformals : "APPLYDYN, too many arguments at " + cf.src;
 			fun_instance = fun_instance.applyPartial(arity, stack, sp);
 		} else {
-			throw new CompilerError("Unexpected argument type for APPLYDYN: " + asString(src), cf);
+			throw new InternalCompilerError("Unexpected argument type for APPLYDYN: " + asString(src), cf);
 		}
 		sp = sp - arity;
 		stack[sp++] = fun_instance;
@@ -212,7 +212,7 @@ public class RVMInterpreter extends RVMCore {
 		Object accu = null;
 		
 		if(rex.getJVM()){
-			throw new CompilerError("*** SHOULD NOT BE CALLED IN JVM MODE: interpretRVMProgram: " + cf.toString());
+			throw new InternalCompilerError("*** SHOULD NOT BE CALLED IN JVM MODE: interpretRVMProgram: " + cf.toString());
 		}
 		// Overloading specific
 		Stack<OverloadedFunctionInstanceCall> ocalls = new Stack<OverloadedFunctionInstanceCall>();
@@ -588,7 +588,7 @@ public class RVMInterpreter extends RVMCore {
 						cf = cf.getFrame(fun, root, arity, sp);
 						
 					} else {
-						throw new CompilerError("Unexpected argument type for CALLDYN: " + asString(stack[sp - 1]), cf);
+						throw new InternalCompilerError("Unexpected argument type for CALLDYN: " + asString(stack[sp - 1]), cf);
 					}
 					
 					frameObserver.enter(cf);
@@ -780,7 +780,7 @@ public class RVMInterpreter extends RVMCore {
 						arity = CodeBlock.fetchArg1(instruction);
 						int[] refs = cf.function.refs;
 						if(arity != refs.length) {
-							throw new CompilerError("Coroutine " + cf.function.name + ": arity of return (" + arity  + ") unequal to number of reference parameters (" +  refs.length + ")", cf);
+							throw new InternalCompilerError("Coroutine " + cf.function.name + ": arity of return (" + arity  + ") unequal to number of reference parameters (" +  refs.length + ")", cf);
 						}
 						for(int i = 0; i < arity; i++) {
 							ref = (Reference) stack[refs[arity - 1 - i]];
@@ -848,7 +848,7 @@ public class RVMInterpreter extends RVMCore {
 							FunctionInstance fun_instance = (FunctionInstance) src;
 							cccf = cf.getCoroutineFrame(fun_instance, arity, sp);
 						} else {
-							throw new CompilerError("Unexpected argument type for INIT: " + src.getClass() + ", " + src, cf);
+							throw new InternalCompilerError("Unexpected argument type for INIT: " + src.getClass() + ", " + src, cf);
 						}
 					}
 					sp = cf.sp;
@@ -875,7 +875,7 @@ public class RVMInterpreter extends RVMCore {
 //					} else if(rval instanceof Boolean) {
 //						precondition = (Boolean) rval;
 					} else {
-						throw new CompilerError("Guard's expression has to be boolean!", cf);
+						throw new InternalCompilerError("Guard's expression has to be boolean!", cf);
 					}
 					
 					if(cf == cccf) {
@@ -963,7 +963,7 @@ public class RVMInterpreter extends RVMCore {
 						int[] refs = cf.function.refs; 
 						
 						if(arity != refs.length) {
-							throw new CompilerError("YIELD requires same number of arguments as the number of coroutine's reference parameters; arity: " + arity + "; reference parameter number: " + refs.length, cf);
+							throw new InternalCompilerError("YIELD requires same number of arguments as the number of coroutine's reference parameters; arity: " + arity + "; reference parameter number: " + refs.length, cf);
 						}
 						
 						// Assign the reference parameters of the currently active coroutine instance
@@ -1181,7 +1181,7 @@ public class RVMInterpreter extends RVMCore {
 					continue NEXT_INSTRUCTION;
 								
 				case Opcode.OP_LABEL:
-					throw new CompilerError("LABEL instruction at runtime", cf);
+					throw new InternalCompilerError("LABEL instruction at runtime", cf);
 					
 				case Opcode.OP_HALT:
 					return stack[sp - 1];
@@ -1277,7 +1277,7 @@ public class RVMInterpreter extends RVMCore {
 					continue NEXT_INSTRUCTION;
 								
 				default:
-					throw new CompilerError("RVM main loop -- cannot decode instruction", cf);
+					throw new InternalCompilerError("RVM main loop -- cannot decode instruction", cf);
 				}
 				
 				switch(postOp){
@@ -1344,8 +1344,8 @@ public class RVMInterpreter extends RVMCore {
 			}
 			stdout.flush();
 			e.printStackTrace(stderr);
-			String e2s = (e instanceof CompilerError) ? e.getMessage() : e.toString();
-			throw new CompilerError(e2s + "; function: " + cf + "; instruction: " + cf.function.codeblock.toString(pc - 1), cf, e);
+			String e2s = (e instanceof InternalCompilerError) ? e.getMessage() : e.toString();
+			throw new InternalCompilerError(e2s + "; function: " + cf + "; instruction: " + cf.function.codeblock.toString(pc - 1), cf, e);
 		}
 	}
 	

@@ -792,7 +792,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             		}
             	}				
             } else {
-				failureReasons += "Constructor accepts <size(args)> arguments but was given only <size(epsList)> arguments";
+				failureReasons += "Constructor accepts <size(args)> argument(s) but was given <size(epsList)> argument(s)";
             }
         }
         // TODO: Here would be a good place to filter out constructors that are "masked" by functions with the
@@ -826,7 +826,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             		}
             	}				
             } else {
-				failureReasons += "Production accepts <size(args)> arguments but was given only <size(epsList)> arguments";
+				failureReasons += "Production accepts <size(args)> argument(s) <size(epsList)> argument(s)";
             }
         }
         

@@ -1,5 +1,6 @@
 module experiments::Compiler::RascalExtraction::DeclarationInfo
 
+@doc{Representation of documentation-related information extracted from a module.}
 data DeclarationInfo
      = moduleInfo(str moduleName, loc src, str synopsis, str doc)
      | functionInfo(str moduleName, str name, str signature, loc src, str synopsis, str doc)
