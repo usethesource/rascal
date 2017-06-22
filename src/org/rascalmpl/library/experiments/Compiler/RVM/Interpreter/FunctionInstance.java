@@ -48,7 +48,7 @@ public class FunctionInstance implements ICallableCompiledValue, IExternalValue 
 			System.err.println(env.scopeId);
 		}
 		
-		throw new CompilerError("Inside " + cf.function.name + " (" + cf.src + ") and scope " + scopeIn + ": cannot find matching scope when looking for nested function " + function.name, rvm.getStdErr(), cf);
+		throw new InternalCompilerError("Inside " + cf.function.name + " (" + cf.src + ") and scope " + scopeIn + ": cannot find matching scope when looking for nested function " + function.name, rvm.getStdErr(), cf);
 	}
 	
 	/**

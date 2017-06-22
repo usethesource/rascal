@@ -354,6 +354,9 @@ public class Bootstrap {
 	        @Override
 	        public FileVisitResult preVisitDirectory(final Path dir,  final BasicFileAttributes attrs) throws IOException {
 	            Files.createDirectories(Paths.get(targetPath.toString(), dir.toString()));
+	            if (dir.toString().contains("courses")) {
+	                return FileVisitResult.SKIP_SUBTREE;
+	            }
 	            return FileVisitResult.CONTINUE;
 	        }
 
@@ -419,11 +422,11 @@ public class Bootstrap {
 	        return unstableVersion();
 	    }
 
-	    return URIUtil.assumeCorrect("http", "update.rascal-mpl.org", "/console/rascal-" + version + ".jar");
+	    return URIUtil.assumeCorrect("https", "update.rascal-mpl.org", "/console/rascal-" + version + ".jar");
 	}
 	
 	private static URI unstableVersion() {
-        return URIUtil.assumeCorrect("http", "update.rascal-mpl.org", "/console/rascal-shell-unstable.jar");
+        return URIUtil.assumeCorrect("https", "update.rascal-mpl.org", "/console/rascal-shell-unstable.jar");
     }
 	
 	private static String phaseFolderString(int phase, Path tmp) {
@@ -449,7 +452,7 @@ public class Bootstrap {
       Path testResults = phaseTestFolder(phase, tmp);
       progress("phase " + phase + ": " + phaseResult);
 
-      time("- compile MuLibrary",       () -> compileMuLibrary(phase, classPath, bootPath, sourcePath, phaseResult));
+      time("- compile MuLibrary",       () -> compileMuLibrary(phase, classPath, bootPath, sourcePath, phaseResult, reloc));
       time("- compile Kernel",          () -> compileModule   (phase, classPath, bootPath, sourcePath, phaseResult, "lang::rascal::boot::Kernel", reloc));
 
       if (phase == 1) {
@@ -526,10 +529,12 @@ public class Bootstrap {
         }
     }
     
-    private static void compileMuLibrary(int phase, String classPath, String bootDLoc, String sourcePath, Path phaseResult) throws IOException, InterruptedException, BootstrapMessage {
+    private static void compileMuLibrary(int phase, String classPath, String bootDLoc, String sourcePath, Path phaseResult, String reloc) throws IOException, InterruptedException, BootstrapMessage {
         progress("\tcompiling MuLibrary (phase " + phase +")");
         
-        String[] paths = new String [] { "--bin", phaseResult.toAbsolutePath().toString(), "--src", sourcePath, "--boot", bootDLoc };
+        String[] paths = // transitional, switch after next boot release
+                         new String [] { "--bin", phaseResult.toAbsolutePath().toString(), "--src", sourcePath, "--boot", bootDLoc };
+                         //: new String [] { "--bin", phaseResult.toAbsolutePath().toString(), "--src", sourcePath, "--boot", bootDLoc, "--reloc", reloc };
         String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[0];
 
         if (runMuLibraryCompiler(classPath, concat(paths, otherArgs)) != 0) {

@@ -90,7 +90,7 @@ public class CodeBlock  {
 			labelInfo.put(label, new LabelInfo(ins, labelIndex++, pc));
 		} else {
 			if(info.isResolved()){
-				throw new CompilerError("In function " + name + ": double declaration of label " + label);
+				throw new InternalCompilerError("In function " + name + ": double declaration of label " + label);
 			}
 			info.instruction = ins;
 			info.PC = pc;
@@ -109,7 +109,7 @@ public class CodeBlock  {
 	public int getLabelPC(String label){
 		LabelInfo info = labelInfo.get(label);
 		if(info == null){
-			throw new CompilerError("In function " + name + " undefined label " + label);
+			throw new InternalCompilerError("In function " + name + " undefined label " + label);
 		}
 		return info.PC;
 	}
@@ -117,7 +117,7 @@ public class CodeBlock  {
 	public Instruction getLabelInstruction(String label){
 		LabelInfo info = labelInfo.get(label);
 		if(info == null){
-			throw new CompilerError("In function " + name + ": undefined label " + label);
+			throw new InternalCompilerError("In function " + name + ": undefined label " + label);
 		}
 		return info.instruction;
 	}
@@ -128,7 +128,7 @@ public class CodeBlock  {
 				return constant;
 			}
 		}
-		throw new CompilerError("In function " + name + ": undefined constant index " + finalCode2);
+		throw new InternalCompilerError("In function " + name + ": undefined constant index " + finalCode2);
 	}
 	
 	public int getConstantIndex(IValue v){
@@ -147,7 +147,7 @@ public class CodeBlock  {
 				return type;
 			}
 		}
-		throw new CompilerError("In function " + name + ": undefined type constant index " + n);
+		throw new InternalCompilerError("In function " + name + ": undefined type constant index " + n);
 	}
 	
 	public int getTypeConstantIndex(Type type){
@@ -166,7 +166,7 @@ public class CodeBlock  {
 				return fname;
 			}
 		}
-		throw new CompilerError("In function " + name + ": undefined function index " + n);
+		throw new InternalCompilerError("In function " + name + ": undefined function index " + n);
 	}
 	
 	public String getFunctionName(String name){
@@ -176,13 +176,13 @@ public class CodeBlock  {
 				return fname;
 			}
 		}
-		throw new CompilerError("In function " + name + ": undefined function index " + n);
+		throw new InternalCompilerError("In function " + name + ": undefined function index " + n);
 	}
 	
 	public int getFunctionIndex(String name){
 		Integer n = functionMap.get(name);
 		if(n == null){
-			throw new CompilerError("In function " + name + ": undefined function name " + name);
+			throw new InternalCompilerError("In function " + name + ": undefined function name " + name);
 		}
 		return n;
 	}
@@ -193,7 +193,7 @@ public class CodeBlock  {
 				return fname;
 			}
 		}
-		throw new CompilerError("In function " + name + ": undefined overloaded function index " + n);
+		throw new InternalCompilerError("In function " + name + ": undefined overloaded function index " + n);
 	}
 	
 	public int getOverloadedFunctionIndex(String name){
@@ -210,13 +210,13 @@ public class CodeBlock  {
 			if(constructorMap.get(cname) == n)
 				return cname;
 		}
-		throw new CompilerError("In function " + name + ": undefined constructor index " + n);
+		throw new InternalCompilerError("In function " + name + ": undefined constructor index " + n);
 	}
 	
 	public int getConstructorIndex(String name) {
 		Integer n = constructorMap.get(name);
 		if(n == null)
-			throw new CompilerError("In function " + name + ": undefined constructor name " + name);
+			throw new InternalCompilerError("In function " + name + ": undefined constructor name " + name);
 		return n;
 	}
 	
@@ -787,10 +787,10 @@ public class CodeBlock  {
 		}
 		
 		if(constantStore.size() >= maxArg){
-			throw new CompilerError("In function " + fname + ": constantStore size " + constantStore.size() + "exceeds limit " + maxArg);
+			throw new InternalCompilerError("In function " + fname + ": constantStore size " + constantStore.size() + "exceeds limit " + maxArg);
 		}
 		if(typeConstantStore.size() >= maxArg){
-			throw new CompilerError("In function " + fname + ": typeConstantStore size " + typeConstantStore.size() + "exceeds limit " + maxArg);
+			throw new InternalCompilerError("In function " + fname + ": typeConstantStore size " + typeConstantStore.size() + "exceeds limit " + maxArg);
 		}
 	
     	return this;

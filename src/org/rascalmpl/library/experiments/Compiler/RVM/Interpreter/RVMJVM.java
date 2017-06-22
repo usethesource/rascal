@@ -97,7 +97,7 @@ public class RVMJVM extends RVMCore {
 	        return clazz;
 	    } 
 	    catch(ClassNotFoundException | NoClassDefFoundError e1) {
-	        throw new CompilerError("Class " + className + " not found", e1);
+	        throw new InternalCompilerError("Class " + className + " not found", e1);
 	    }
 	}
 	

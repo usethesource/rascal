@@ -37,15 +37,22 @@ import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
+ * A course is organized as a collection of Concepts organized as a tree (maintained as an Onthology)
+ * 
+ * Each course MyCourse is represented by a top-level concept MyCourse.
+ * 
+ * Each concept C is represented in the file system as
+ * - a directory C
+ * - either a file C.concept (containing AsciiDoc markup)
+ * - or a file C.remote (containing Rascal source code with @doc{} tags)
+ * 
  * CourseCompiler compiles all courses to HTML in the following steps:
- * - each concept is translated to an AsciiDoc file. Note that the property rascal.asciidoctor
- *   can be used to override the default location for asciidoctor.
- * - all generated AsciiDoc files are transformed to a single HTML file per course
+ * - each .concept file is translated to an AsciiDoc .adoc file.
+ * - all generated AsciiDoc files are transformed to a single HTML file index.html per course
  * - the contributions to the Lucene index are computed and stored per course
  */
 public class CourseCompiler {
-	
-	
+
 	static void writeFile(String path, String content) throws IOException {
 	  FileWriter fout = new FileWriter(path);
 	  fout.write(content);
@@ -231,7 +238,9 @@ public class CourseCompiler {
 		
 		Path destPath = Paths.get(((ISourceLocation)pcfg.getBin()).getPath()).resolve("courses");
 		
-		if (copyStandardFiles(coursesSrcPath, destPath)) {
+		if (
+		    copyStandardFiles(coursesSrcPath, destPath)
+		 ) {
 		    System.err.println("Bailing out because target files are already present...");
 		    return;
 		}
