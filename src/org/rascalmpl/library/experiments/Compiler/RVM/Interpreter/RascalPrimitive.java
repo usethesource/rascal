@@ -9690,7 +9690,7 @@ class URICompare {
             if (result != 0) {
                 return result;
             }
-            left = left.next(b);
+            left = left.next(a);
             right = right.next(b);
         }
         if (left == NONE && right == NONE) {
