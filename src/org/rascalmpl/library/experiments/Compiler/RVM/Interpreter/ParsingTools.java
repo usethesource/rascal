@@ -147,11 +147,11 @@ public class ParsingTools {
 					vf.string(TreeAdapter.yield(tree)), currentFrame);
 		}
 		catch (UndeclaredNonTerminalException e){
-			throw new CompilerError("Undeclared non-terminal: " + e.getName() + ", " + e.getClassName(), currentFrame);
+			throw new InternalCompilerError("Undeclared non-terminal: " + e.getName() + ", " + e.getClassName(), currentFrame);
 		}
 		catch (Exception e) {
 		    e.printStackTrace();
-			throw new CompilerError("Unexpected exception:" + e, currentFrame);
+			throw new InternalCompilerError("Unexpected exception:" + e, currentFrame);
 		}
 	}
 	
@@ -222,7 +222,7 @@ public class ParsingTools {
 		//rex.startJob("Compiled -- Loading parser generator", 40);
 		if(parserGenerator == null ){
 		  if (isBootstrapper()) {
-		     throw new CompilerError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
+		     throw new InternalCompilerError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
 		  }
 		 
 		  parserGenerator = new ParserGenerator(rex);
@@ -249,7 +249,7 @@ public class ParsingTools {
 	            .newInstance();
 	    } 
 	    catch (InstantiationException | IllegalAccessException | ExceptionInInitializerError e) {
-	        throw new CompilerError(e.getMessage() + e);
+	        throw new InternalCompilerError(e.getMessage() + e);
 	    } 
 	  }
 	  
@@ -329,6 +329,12 @@ public class ParsingTools {
 	      ISourceLocation src = vf.sourceLocation(loc, loc.getOffset() + e.getOffset(), loc.getLength(), loc.getBeginLine() + e.getBeginLine() - 1, loc.getEndLine() + e.getEndLine() - 1, loc.getBeginColumn() + e.getBeginColumn(), loc.getBeginColumn() + e.getEndColumn());
 	      throw RascalRuntimeException.parseError(src, null);
 	    }
+	    catch (Ambiguous e) {
+            ITree tree1 = e.getTree();
+            throw RascalRuntimeException.ambiguity(e.getLocation(), 
+                    vf.string(SymbolAdapter.toString(TreeAdapter.getType(tree1), false)), 
+                    vf.string(TreeAdapter.yield(tree)), null);
+        }
 	  }
 	  
 	  private char[] replaceAntiQuotesByHoles(ITree lit, Map<String, ITree> antiquotes, RascalExecutionContext rex) throws IOException {
@@ -371,7 +377,7 @@ public class ParsingTools {
 	  }
 
 	  private ITree replaceHolesByAntiQuotes(ITree fragment, final Map<String, ITree> antiquotes) {
-		  return (ITree) fragment.accept(new IdentityTreeVisitor<CompilerError>() {
+		  return (ITree) fragment.accept(new IdentityTreeVisitor<InternalCompilerError>() {
 
 			  @Override
 			  public ITree visitTreeAppl(ITree tree)  {
@@ -405,7 +411,7 @@ public class ParsingTools {
 					  }
 				  }
 
-				  throw new CompilerError("expected to find a holeType, but did not: " + tree);
+				  throw new InternalCompilerError("expected to find a holeType, but did not: " + tree);
 			  }
 
 			  @Override

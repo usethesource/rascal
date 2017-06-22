@@ -157,7 +157,7 @@ public class RascalRuntimeException {
 		return Thrown.getInstance(VF.constructor(Java, VF.string(clazz), VF.string(message)), loc, currentFrame);
 	}
 	
-	public static Thrown javaException(Throwable targetException, ISourceLocation loc, Frame currentFrame) throws CompilerError {
+	public static Thrown javaException(Throwable targetException, ISourceLocation loc, Frame currentFrame) throws InternalCompilerError {
 		String clazz = targetException.getClass().getSimpleName();
 		String msg = targetException.getMessage();
 		//List<Frame> trace = buildTrace(targetException, currentFrame);

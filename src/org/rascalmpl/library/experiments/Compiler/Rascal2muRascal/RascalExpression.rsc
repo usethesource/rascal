@@ -9,6 +9,8 @@ import Map;
 import Set;
 import ParseTree;
 import util::Reflective;
+import Exception;
+import experiments::Compiler::RVM::Interpreter::CompileTimeError;
 
 import lang::rascal::\syntax::Rascal;
 
@@ -588,7 +590,13 @@ public Tree parseConcrete(e: appl(Production cprod, list[Tree] cargs)){
     //println("translateConcrete, fragType = <fragType>");
     reifiedFragType = symbolToValue(fragType);
     // TODO: getGrammar uses a global variable. Add as parameter to the call stack instead
-    return parseFragment(getModuleName(), getModuleTags(), reifiedFragType, e, e@\loc, getGrammar());
+    try {
+        return parseFragment(getModuleName(), getModuleTags(), reifiedFragType, e, e@\loc, getGrammar());
+    } catch ParseError(loc src): {
+        throw CompileTimeError(error("Parse error in concrete fragment or pattern", src));
+    } catch Ambiguity(loc src, str stype, str string): {
+        throw CompileTimeError(error("Ambiguity in concrete fragment or pattern (of type <stype>)", src));
+    }
 }  
 
 public MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){ 
