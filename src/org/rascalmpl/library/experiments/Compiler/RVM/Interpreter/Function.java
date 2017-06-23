@@ -319,72 +319,73 @@ public class Function {
      **/
 
     public ITuple executeTest(ITestResultListener testResultListener, TypeStore typeStore, RascalExecutionContext rex) {
-      String fun = name;
-      if(isIgnored()){
-        testResultListener.ignored(computeTestName(), src);
-        return vf.tuple(src,  vf.integer(2), vf.string(""));
-      }
-      
-      IValue iexpected =  tags.get(vf.string("expected"));
-      String expected = iexpected == null ? "" : ((IString) iexpected).getValue();
-      
-      int maxDepth = getDepth();
-      int maxWidth = getWidth();
-      int tries = getTries();
-
-      Type requestedType = ftype.getFieldTypes();
-      int nargs = requestedType.getArity();
-      IValue[] args = new IValue[nargs];
-
-      Map<Type, Type> tpbindings = new TypeParameterBinder().bind(requestedType);
-      RandomValueGenerator randomValue = new RandomValueGenerator(vf, new Random(), maxDepth, maxWidth);
-      //RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, maxDepth, tpbindings, typeStore);
-
-      boolean passed = true;
-      String message = "";
-      Throwable exception = null;
-      for(int i = 0; i < tries; i++){
-        if(nargs > 0){
-          message = "test fails for arguments: ";
-          for(int j = 0; j < nargs; j++){
-            args[j] = randomValue.generate(requestedType.getFieldType(j), typeStore, tpbindings);
-            message = message + args[j].toString() + " ";
-          }
+        String fun = name;
+        if(isIgnored()){
+            testResultListener.ignored(computeTestName(), src);
+            return vf.tuple(src,  vf.integer(2), vf.string(""));
         }
-        try {
-   
-          IValue res = (IValue) rex.getRVM().executeRVMFunction(fun, args, null); 
-          passed = ((IBool) res).getValue();
-          if(!passed){
-            break;
-          }
-        } catch (Thrown e){
-          String ename;
-          if(e.getValue() instanceof IConstructor){
-            ename = ((IConstructor) e.getValue()).getName();
-          } else {
-            ename = e.toString();
-          }
-          if(!ename.equals(expected)){
-            message = e.toString() + message;
-            passed = false;
-            exception = e;
-            break;
-          }
-        }
-        catch (Exception e){
-          message = e.getMessage() + message;
-          passed = false;
-          break;
-        }
-      }
-      if(passed)
-        message = "";
 
-      testResultListener.report(passed, computeTestName(), src, message, exception);
-      return vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message));
+        IValue iexpected =  tags.get(vf.string("expected"));
+        String expected = iexpected == null ? "" : ((IString) iexpected).getValue();
+
+        int maxDepth = getDepth();
+        int maxWidth = getWidth();
+        int tries = getTries();
+
+        Type requestedType = ftype.getFieldTypes();
+        int nargs = requestedType.getArity();
+        IValue[] args = new IValue[nargs];
+
+        Map<Type, Type> tpbindings = new TypeParameterBinder().bind(requestedType);
+        RandomValueGenerator randomValue = new RandomValueGenerator(vf, new Random(), maxDepth, maxWidth);
+        //RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, maxDepth, tpbindings, typeStore);
+
+        boolean passed = true;
+        String message = "";
+        Throwable exception = null;
+        for(int i = 0; i < tries; i++){
+            if(nargs > 0){
+                message = "test fails for arguments: ";
+                for(int j = 0; j < nargs; j++){
+                    args[j] = randomValue.generate(requestedType.getFieldType(j), typeStore, tpbindings);
+                    message = message + args[j].toString() + " ";
+                }
+            }
+            try {
+
+                IValue res = (IValue) rex.getRVM().executeRVMFunction(fun, args, null); 
+                passed = ((IBool) res).getValue();
+                if(!passed){
+
+                    break;
+                }
+            } catch (Thrown e){
+                String ename;
+                if(e.getValue() instanceof IConstructor){
+                    ename = ((IConstructor) e.getValue()).getName();
+                } else {
+                    ename = e.toString();
+                }
+                if(!ename.equals(expected)){
+                    message = e.toString() + message;
+                    passed = false;
+                    exception = e;
+                    break;
+                }
+            }
+            catch (Exception e){
+                message = e.getMessage() + message;
+                passed = false;
+                break;
+            }
+        }
+        if(passed)
+            message = "";
+
+        testResultListener.report(passed, computeTestName(), src, message, exception);
+        return vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message));
     }
-    
+
     public String computeTestName(){    // Resembles Function.getPrintableName
       String base = name;
       int colons = name.lastIndexOf("::");
