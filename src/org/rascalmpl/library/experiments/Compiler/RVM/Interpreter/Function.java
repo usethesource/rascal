@@ -341,22 +341,15 @@ public class Function {
         //RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, maxDepth, tpbindings, typeStore);
 
         boolean passed = true;
-        String message = "";
         Throwable exception = null;
         for(int i = 0; i < tries; i++){
-            if(nargs > 0){
-                message = "test fails for arguments: ";
-                for(int j = 0; j < nargs; j++){
-                    args[j] = randomValue.generate(requestedType.getFieldType(j), typeStore, tpbindings);
-                    message = message + args[j].toString() + " ";
-                }
+            for(int j = 0; j < nargs; j++){
+                args[j] = randomValue.generate(requestedType.getFieldType(j), typeStore, tpbindings);
             }
             try {
-
                 IValue res = (IValue) rex.getRVM().executeRVMFunction(fun, args, null); 
                 passed = ((IBool) res).getValue();
                 if(!passed){
-
                     break;
                 }
             } catch (Thrown e){
@@ -367,21 +360,37 @@ public class Function {
                     ename = e.toString();
                 }
                 if(!ename.equals(expected)){
-                    message = e.toString() + message;
                     passed = false;
                     exception = e;
                     break;
                 }
             }
             catch (Exception e){
-                message = e.getMessage() + message;
+                exception = e;
                 passed = false;
                 break;
             }
         }
-        if(passed)
+        
+        String message;
+        if(passed) {
             message = "";
-
+        }
+        else  {
+            if (nargs > 0) {
+                message = "test fails for arguments: ";
+                for(int j = 0; j < nargs; j++){
+                    message = message + args[j].toString() + " ";
+                }
+            }
+            else {
+                message = "test failed";
+            }
+            
+            if (exception != null) {
+                message = exception.getMessage() + message;
+            }
+        }
         testResultListener.report(passed, computeTestName(), src, message, exception);
         return vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message));
     }
