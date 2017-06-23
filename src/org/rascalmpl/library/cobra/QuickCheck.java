@@ -139,6 +139,9 @@ public class QuickCheck {
 
     private IValue[] findSmallestInput(AbstractFunction function, String expected, int maxDepth, int maxWidth, int tries, Environment declEnv,
         IValueFactory vf, Type[] types, IValue[] values, Map<Type, Type> tpbindings, Type[] actualTypes) {
+        if (types.length == 0) {
+            return values;
+        }
         values = findSmallestFailing(
             generateAlternatives(types, vf, stRandom, tries, maxDepth, maxWidth, declEnv.getRoot().getStore(), tpbindings),
             (IValue[] args) -> {
