@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
+import org.rascalmpl.library.cobra.QuickCheck;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireInputStream;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireOutputStream;
@@ -342,33 +344,17 @@ public class Function {
 
         boolean passed = true;
         Throwable exception = null;
-        for(int i = 0; i < tries; i++){
+        for(int i = 0; i < tries && passed; i++){
             for(int j = 0; j < nargs; j++){
                 args[j] = randomValue.generate(requestedType.getFieldType(j), typeStore, tpbindings);
             }
-            try {
-                IValue res = (IValue) rex.getRVM().executeRVMFunction(fun, args, null); 
-                passed = ((IBool) res).getValue();
-                if(!passed){
-                    break;
-                }
-            } catch (Thrown e){
-                String ename;
-                if(e.getValue() instanceof IConstructor){
-                    ename = ((IConstructor) e.getValue()).getName();
-                } else {
-                    ename = e.toString();
-                }
-                if(!ename.equals(expected)){
-                    passed = false;
-                    exception = e;
-                    break;
-                }
+            Object result = runTest(rex, fun, args, expected);
+            if (result instanceof Boolean) {
+                passed = (Boolean)result;
             }
-            catch (Exception e){
-                exception = e;
-                passed = false;
-                break;
+            else {
+                assert result instanceof Throwable;
+                exception = (Throwable)result;
             }
         }
         
@@ -378,6 +364,32 @@ public class Function {
         }
         else  {
             if (nargs > 0) {
+                // try to find a smaller case
+                Type[] types = new Type[nargs];
+                for(int j = 0; j < nargs; j++){
+                    types[j] = requestedType.getFieldType(j);
+                }
+
+                Iterator<IValue[]> alternatives = QuickCheck.generateAlternatives(types, vf, new Random(), tries, maxDepth, maxWidth, typeStore, tpbindings);
+                IValue[] originalArgs = args;
+                boolean passed2 = true;
+                exception = null;
+                while (alternatives.hasNext() && passed2) {
+                    args = alternatives.next();
+                    Object result = runTest(rex, fun, args, expected);
+                    if (result instanceof Boolean) {
+                        passed2 = (Boolean)result;
+                    }
+                    else {
+                        assert result instanceof Throwable;
+                        exception = (Throwable)result;
+                    }
+                }
+                if (passed2) {
+                    args = originalArgs;
+                }
+                
+                // now print message
                 message = "test fails for arguments: ";
                 for(int j = 0; j < nargs; j++){
                     message = message + args[j].toString() + " ";
@@ -394,6 +406,29 @@ public class Function {
         testResultListener.report(passed, computeTestName(), src, message, exception);
         return vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message));
     }
+    
+    private Object runTest(RascalExecutionContext rex, String fun, IValue[] args, String expected) {
+        try {
+            IValue res = (IValue) rex.getRVM().executeRVMFunction(fun, args, null); 
+            return ((IBool) res).getValue();
+        } catch (Thrown e){
+            String ename;
+            if(e.getValue() instanceof IConstructor){
+                ename = ((IConstructor) e.getValue()).getName();
+            } else {
+                ename = e.toString();
+            }
+            if(!ename.equals(expected)){
+                return e;
+            }
+            return true;
+        }
+        catch (Exception e){
+            return e;
+        }
+
+    }
+    
 
     public String computeTestName(){    // Resembles Function.getPrintableName
       String base = name;
