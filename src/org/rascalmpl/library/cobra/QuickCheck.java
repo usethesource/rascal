@@ -170,7 +170,7 @@ public class QuickCheck {
     }
     
     
-    private Iterator<IValue[]> generateAlternatives(Type[] types, IValueFactory vf, Random random, int maxTries, int maxDepth, int maxWidth, TypeStore store, Map<Type, Type> parameterBindings) {
+    public static Iterator<IValue[]> generateAlternatives(Type[] types, IValueFactory vf, Random random, int maxTries, int maxDepth, int maxWidth, TypeStore store, Map<Type, Type> parameterBindings) {
         return new Iterator<IValue[]>() {
             private int currentDepth = 1;
             private int currentWidth = 1;
