@@ -181,8 +181,18 @@ public class RVMLinker {
 			}
 			
 			OverloadedFunction res = new OverloadedFunction(funName, new TypeReifier(vf).symbolToType(funType, vf.mapWriter().done()), funs, constrs, scopeIn);
-			this.overloadedStore.add(res);
-//			System.out.println("fillOverloadedStore: add " + (this.overloadedStore.size()-1) + ", " + res);
+//			boolean equal = false;
+//			for(OverloadedFunction itm : this.overloadedStore){
+//			    if(itm.equals(res)){
+//			        System.err.println("EQUAL!!!");
+//			        equal = true;
+//			        break;
+//			    }
+//			}
+//			if(!equal){
+			    this.overloadedStore.add(res);
+//			    System.out.println("fillOverloadedStore: add " + (this.overloadedStore.size()-1) + ", " + res);
+//			}
 		}
 	}
 	
@@ -217,6 +227,32 @@ public class RVMLinker {
 				System.err.println("OverloadedStore has null entry for: "+ oname + " at index " + n);
 			}
 		}
+	}
+	
+	private void printStatistics(){
+	    System.err.println("Linker statistics");
+	    System.err.println("functionStore:    " + functionStore.size());
+	    System.err.println("constructorStore: " + constructorStore.size());
+	    System.err.println("overloadedStore:  " + overloadedStore.size());
+	    
+	    System.err.println("Analysis of overloaded functions");
+	    for(int i = 0; i < overloadedStore.size(); i++){
+	        OverloadedFunction ovl = overloadedStore.get(i);
+	        int norg = ovl.functions.length;
+	        if(norg > 0){
+	            System.err.print(i + ": " + ovl + ": buckets=[ ");
+	            if(ovl.filteredFunctions != null){
+	                for(Integer funid : ovl.filteredFunctions.keySet()){
+	                    System.err.print(funid + ": [ ");
+	                    for(int funid1 : ovl.filteredFunctions.get(funid)){
+	                        System.err.print(funid1 + " ");;
+	                    }
+	                    System.err.print("] ");
+	                }
+	            }
+	            System.err.println("]");
+	        }
+	    }
 	}
 	
 	/*
@@ -548,6 +584,8 @@ public class RVMLinker {
 		validateExecutable();
 
 		validateOverloading();
+		
+		//printStatistics();
 
 		//System.out.println("Linking: " +  (Timing.getCpuTime() - start)/1000000 + " ms");
 
