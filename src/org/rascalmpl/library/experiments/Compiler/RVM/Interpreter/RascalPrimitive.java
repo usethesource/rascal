@@ -5847,8 +5847,7 @@ public enum RascalPrimitive {
 	is_appl {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			Object treeSubject = arg_1;
-			return vf.bool(treeSubject instanceof ITree && TreeAdapter.isAppl((ITree) treeSubject));
+			return vf.bool(arg_1 instanceof ITree && TreeAdapter.isAppl((ITree) arg_1));
 		}	
 	},
 
@@ -9413,31 +9412,35 @@ public enum RascalPrimitive {
 	// TODO: merge the following two functions
 
 	private static String $value_to_string(final Object given, final Frame currentFrame, RascalExecutionContext rex) {
-		String res = null;
-		if(given instanceof IValue){
-			IValue val = (IValue) given;
-			Type tp = val.getType();
-			if(tp.isList()){
-				Type elemType = tp.getElementType();
-				if(!elemType.equals(tf.voidType()) && elemType.isNode() && elemType.isSubtypeOf(RascalValueFactory.Tree)){
-					IList lst = (IList) val;
-					StringWriter w = new StringWriter();
-					for(int i = 0; i < lst.length(); i++){
-						w.write($value2string(lst.get(i)));
-					}
-					res = w.toString();
-				} else {
-					res = $value2string(val);
-				}
-			} else {
-				res = $value2string(val);
-			}
-		} else if(given instanceof Integer){
-			res = ((Integer) given).toString();
-		} else {
-		    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(vf.string(given.toString()), currentFrame));
-		}
-		return res;
+	    String res = null;
+	    if(given != null){
+	        if(given instanceof IValue){
+	            IValue val = (IValue) given;
+	            Type tp = val.getType();
+	            if(tp.isList()){
+	                Type elemType = tp.getElementType();
+	                if(!elemType.equals(tf.voidType()) && elemType.isNode() && elemType.isSubtypeOf(RascalValueFactory.Tree)){
+	                    IList lst = (IList) val;
+	                    StringWriter w = new StringWriter();
+	                    for(int i = 0; i < lst.length(); i++){
+	                        w.write($value2string(lst.get(i)));
+	                    }
+	                    res = w.toString();
+	                } else {
+	                    res = $value2string(val);
+	                }
+	            } else {
+	                res = $value2string(val);
+	            }
+	        } else if(given instanceof Integer){
+	            res = ((Integer) given).toString();
+	        } else {
+	            rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(vf.string(given.toString()), currentFrame));
+	        }
+	    } else {
+	        return "";
+	    }
+	    return res;
 	}
 
 	public static String $value2string(final IValue val){
