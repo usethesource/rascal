@@ -129,6 +129,12 @@ public class Frame {
 		this.sp = frame.pushFunctionArguments(arity, this.stack, sp);
 		return frame;
 	}
+	
+	public Frame reuseFrame(){
+	    java.util.Arrays.fill(stack, function.getNlocals(), stack.length-1, null);
+	    this.sp = function.getNlocals();
+	    return this;
+	}
 		
 	public Frame getFrame(final Function f, final Frame previousScope, final Object[] args) {
 		Frame frame = new Frame(f.scopeId, this, previousScope, f.maxstack, f);
