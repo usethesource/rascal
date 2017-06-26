@@ -553,7 +553,7 @@ public class CommandOptions {
       }
   }
 	
-	public PathConfig getPathConfig(){
+	public PathConfig getPathConfig() throws IOException {
 		return new PathConfig(getCommandLocsOption(SRC_PATH_CONFIG_OPTION),
 							  getCommandLocsOption(LIB_PATH_CONFIG_OPTION),
 							  getCommandLocOption(BIN_PATH_CONFIG_OPTION),
