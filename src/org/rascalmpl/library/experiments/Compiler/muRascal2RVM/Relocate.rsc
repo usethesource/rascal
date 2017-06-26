@@ -2,6 +2,7 @@ module experiments::Compiler::muRascal2RVM::Relocate
 
 import String;
 import ParseTree;
+import IO;
 
 import experiments::Compiler::muRascal::AST;
 
@@ -14,11 +15,16 @@ loc relocLoc(loc org, loc reloc, list[loc] srcs){
                                  : reloc + npath;
         }
     }
-    // println("Not relocated: <org>");
+    //if(org != reloc){
+    //    println("Not relocated: <org>");
+    //}
     return org;
 }
 
 MuModule relocMuModule(MuModule m, loc reloc, list[loc] srcs){
+    if("<m.name>" != "ConsoleInput"){
+        println("relocMuModule:<m.name>, <reloc>");
+    }
     if(reloc.scheme == "noreloc"){
         return m;
     }

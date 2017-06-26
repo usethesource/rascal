@@ -23,8 +23,8 @@ import experiments::Compiler::muRascal2RVM::mu2rvm;
 import util::Reflective;
 
 @doc{Use classRenamings to map old names of class files used in generated JVM bytecode to new names, in case of refactoring/renaming/moving them}
-// NOTE: Be aware that old dotted names are mapped to new, slash-separated, names
-private map[str,str] classRenamings = ("org.rascalmpl.value":"io/usethesource/vallang");
+// NOTE: Be aware that old dotted names are mapped to new, slash-separated, names, e.g., ("org.rascalmpl.value":"io/usethesource/vallang")
+private map[str,str] classRenamings = ();
 
 private loc MuLibraryLoc(PathConfig pcfg) = getSearchPathLoc("experiments/Compiler/muRascal2RVM/MuLibrary.mu", pcfg);
 
