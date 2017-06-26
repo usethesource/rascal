@@ -91,6 +91,10 @@ public class OverloadedFunction {
 		return funType.getArity();
 	}
 	
+	public boolean equals(OverloadedFunction other){
+	    return this == other || this.name.equals(other.name) && this.funType.equals(other.funType) && this.scopeIn == other.scopeIn && compareIntArrays(this.functions, other.functions) && compareIntArrays(this.constructors, other.constructors);
+	}
+	
 	public void  finalize(final Map<String, Integer> functionMap, ArrayList<Function> functionStore, Map<Integer, Integer> indexMap){
 		if(funIn.length() > 0){ // != null) {
 			Integer si = functionMap.get(funIn);
@@ -281,21 +285,20 @@ public class OverloadedFunction {
 			defaults = new ArrayList<Integer>();
 			filtered.put(0,  defaults);
 		}
-		int ndefaults = defaults.size();
 		
-		// TODO: values in alts may also occur in defaults, then the list will contain duplicate elements
+		// Values in alts may also occur in defaults, we ensure that the list will not contain duplicate elements
 		for(int fp : filtered.keySet()){
 			ArrayList<Integer> alts = filtered.get(fp);
 			int nalts = alts.size();
-			
-            //defaults.removeIf(x -> alts.contains(x));
-			
-			int[] funs = new int[nalts + ndefaults];
+			ArrayList<Integer> defaults1 = (ArrayList<Integer>) defaults.clone();
+            defaults1.removeIf(x -> alts.contains(x));
+            int ndefaults1 = defaults1.size();
+			int[] funs = new int[nalts + ndefaults1];
 			for(int i = 0; i < nalts; i++){
 				funs[i] = alts.get(i);
 			}
-			for(int i = 0; i < ndefaults; i++){
-				funs[nalts + i] = defaults.get(i);
+			for(int i = 0; i < ndefaults1; i++){
+				funs[nalts + i] = defaults1.get(i);
 			}
 			filteredFunctions.put(fp, funs);
 		}
@@ -325,7 +328,7 @@ public class OverloadedFunction {
 			for(int i = 0; i < functions.length; i++){
 				sb.append(" ").append(functions[i]);
 			}
-			sb.append(" allConcreteFunctionArgs=").append(allConcreteFunctionArgs);
+			sb.append(" acfa=").append(allConcreteFunctionArgs);
 		}
 		if(constructors.length > 0){
 			if(functions.length > 0){
@@ -335,7 +338,7 @@ public class OverloadedFunction {
 			for(int i = 0; i < constructors.length; i++){
 				sb.append(" ").append(constructors[i]);
 			}
-			sb.append(" allConcreteConstructorArgs=").append(allConcreteConstructorArgs);
+			sb.append(" acca=").append(allConcreteConstructorArgs);
 		}
 		sb.append("]");
 		return sb.toString();

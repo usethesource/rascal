@@ -34,6 +34,7 @@ import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 public class NodeResult extends ElementResult<INode> {
 
@@ -59,6 +60,19 @@ public class NodeResult extends ElementResult<INode> {
 		}
 		
 		return makeResult(getTypeFactory().boolType(), getValueFactory().bool(true), ctx);
+	}
+	
+	@Override
+	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
+	    if (value.mayHaveKeywordParameters()) {
+	        IValue parameter = value.asWithKeywordParameters().getParameter(name);
+	        
+	        if (parameter != null) {
+	            return makeResult(getTypeFactory().valueType(), parameter, ctx);
+	        }
+	    }
+	    
+	    throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 
 	@Override
