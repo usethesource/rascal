@@ -52,7 +52,7 @@ public class CompileMuLibrary {
                                                 .profile(cmdOpts.getCommandBoolOption("profile"))
                                                 .verbose(cmdOpts.getCommandBoolOption("verbose"))
                                                 .build();
-            
+            System.err.println("CompileMuLibary.java: reloc = " + cmdOpts.getCommandLocOption("reloc"));
             kernel.compileMuLibrary(pcfg.asConstructor(kernel), kernel.kw_compileMu().reloc(cmdOpts.getCommandLocOption("reloc")));
         }
         catch (Throwable e) {

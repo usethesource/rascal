@@ -629,7 +629,7 @@ public class Bootstrap {
           private IValue read(Path path) throws IOException {
               ISourceLocation loc = null;
               try {
-                  loc = vf.sourceLocation(/*compressed+"*/"file", "", path.toString());
+                  loc = vf.sourceLocation("file", "", path.toString());
               }
               catch (URISyntaxException e1) {
                   throw new IOException("Cannot create location |file://" + path.toString() + "|");
