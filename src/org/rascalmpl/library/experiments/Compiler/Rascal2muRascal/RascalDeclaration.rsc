@@ -8,6 +8,8 @@ import String;
 import lang::rascal::\syntax::Rascal;
 import ParseTree;
 
+import experiments::Compiler::RVM::Interpreter::CompileTimeError;
+
 import experiments::Compiler::muRascal::AST;
 
 import lang::rascal::types::AbstractName;
@@ -189,8 +191,12 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
       
       leaveFunctionScope();
       leaveFunctionDeclaration();
-      
-  } catch e: {
+  } catch e: CompileTimeError(m): {
+      throw e;  
+  } catch Ambiguity(loc src, str stype, str string): {
+      throw CompileTimeError(error("Ambiguous code", src));
+  }
+  catch e: {
         throw "EXCEPTION in translateFunctionDeclaration, compiling <fd.signature.name>: <e>";
   }
 }

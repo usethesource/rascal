@@ -30,28 +30,28 @@ public class RascalTests {
 		CommandOptions cmdOpts = new CommandOptions("rascalTests");
 		cmdOpts.pathConfigOptions()
 
-			.boolOption("recompile")
-			.help("Recompile before running tests, when false existing binary is used")
+			   .boolOption("recompile")
+			   .help("Recompile before running tests, when false existing binary is used")
 			
-			.boolOption("help")
-			.help("Print help message for this command")
+			   .boolOption("help")
+			   .help("Print help message for this command")
 			
-			.boolOption("trace")
-			.help("Print Rascal functions during execution of compiler")
+			   .boolOption("trace")
+			   .help("Print Rascal functions during execution of compiler")
 			
-			.boolOption("profile")
-			.help("Profile execution of compiler")
+			   .boolOption("profile")
+			   .help("Profile execution of compiler")
 			
-			.boolOption("verbose")		
-			.help("Make the compiler verbose")
+			   .boolOption("verbose")		
+			   .help("Make the compiler verbose")
 			
-			.boolOption("enableAsserts")
-			.boolDefault(true)
-	        .help("Enable checking of assertions")
+			   .boolOption("enableAsserts")
+			   .boolDefault(true)
+			   .help("Enable checking of assertions")
 			
-			.modules("Rascal modules with tests")
+			   .modules("Rascal modules with tests")
 			
-			.handleArgs(args);
+			   .handleArgs(args);
 
 		PathConfig pcfg = cmdOpts.getPathConfig();
 		IKernel kernel = Java2Rascal.Builder.bridge(vf, pcfg, IKernel.class).build();
@@ -60,10 +60,10 @@ public class RascalTests {
 		    IValue outcome =
 		                kernel.rascalTests(cmdOpts.getModules(), pcfg.asConstructor(kernel),
 		                                   kernel.kw_rascalTests()
-		                                   .recompile(cmdOpts.getCommandBoolOption("recompile"))
-		                                   .trace(cmdOpts.getCommandBoolOption("trace"))
-		                                   .profile(cmdOpts.getCommandBoolOption("profile"))
-		                                   .verbose(cmdOpts.getCommandBoolOption("verbose"))
+		                                         .recompile(cmdOpts.getCommandBoolOption("recompile"))
+		                                         .trace(cmdOpts.getCommandBoolOption("trace"))
+		                                         .profile(cmdOpts.getCommandBoolOption("profile"))
+		                                         .verbose(cmdOpts.getCommandBoolOption("verbose"))
 		        );
 		    IBool success = outcome.getType().isBool() ? (IBool) outcome
 		                                               : (IBool) ((ITuple) outcome).get(0);
