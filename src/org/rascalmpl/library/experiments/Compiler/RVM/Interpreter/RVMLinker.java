@@ -67,17 +67,17 @@ public class RVMLinker {
 		int nfs = functionStore.size();
 		//System.out.println("size functionStore: " + nfs);
 		if(nfs >= CodeBlock.maxArg){
-			throw new CompilerError("functionStore size " + nfs + " exceeds limit " + CodeBlock.maxArg1);
+			throw new InternalCompilerError("functionStore size " + nfs + " exceeds limit " + CodeBlock.maxArg1);
 		}
 		int ncs = constructorStore.size();
 		//System.out.println("size constructorStore: " + ncs);
 		if(ncs >= CodeBlock.maxArg){
-			throw new CompilerError("constructorStore size " + ncs + " exceeds limit " + CodeBlock.maxArg1);
+			throw new InternalCompilerError("constructorStore size " + ncs + " exceeds limit " + CodeBlock.maxArg1);
 		}
 		int nov = overloadedStore.size();
 		//System.out.println("size overloadedStore: " + nov);
 		if(nov >= CodeBlock.maxArg){
-			throw new CompilerError("overloadedStore size " + nov + " exceeds limit " + CodeBlock.maxArg1);
+			throw new InternalCompilerError("overloadedStore size " + nov + " exceeds limit " + CodeBlock.maxArg1);
 		}
 	}
 	
@@ -181,8 +181,18 @@ public class RVMLinker {
 			}
 			
 			OverloadedFunction res = new OverloadedFunction(funName, new TypeReifier(vf).symbolToType(funType, vf.mapWriter().done()), funs, constrs, scopeIn);
-			this.overloadedStore.add(res);
-//			System.out.println("fillOverloadedStore: add " + (this.overloadedStore.size()-1) + ", " + res);
+//			boolean equal = false;
+//			for(OverloadedFunction itm : this.overloadedStore){
+//			    if(itm.equals(res)){
+//			        System.err.println("EQUAL!!!");
+//			        equal = true;
+//			        break;
+//			    }
+//			}
+//			if(!equal){
+			    this.overloadedStore.add(res);
+//			    System.out.println("fillOverloadedStore: add " + (this.overloadedStore.size()-1) + ", " + res);
+//			}
 		}
 	}
 	
@@ -217,6 +227,32 @@ public class RVMLinker {
 				System.err.println("OverloadedStore has null entry for: "+ oname + " at index " + n);
 			}
 		}
+	}
+	
+	private void printStatistics(){
+	    System.err.println("Linker statistics");
+	    System.err.println("functionStore:    " + functionStore.size());
+	    System.err.println("constructorStore: " + constructorStore.size());
+	    System.err.println("overloadedStore:  " + overloadedStore.size());
+	    
+	    System.err.println("Analysis of overloaded functions");
+	    for(int i = 0; i < overloadedStore.size(); i++){
+	        OverloadedFunction ovl = overloadedStore.get(i);
+	        int norg = ovl.functions.length;
+	        if(norg > 0){
+	            System.err.print(i + ": " + ovl + ": buckets=[ ");
+	            if(ovl.filteredFunctions != null){
+	                for(Integer funid : ovl.filteredFunctions.keySet()){
+	                    System.err.print(funid + ": [ ");
+	                    for(int funid1 : ovl.filteredFunctions.get(funid)){
+	                        System.err.print(funid1 + " ");;
+	                    }
+	                    System.err.print("] ");
+	                }
+	            }
+	            System.err.println("]");
+	        }
+	    }
 	}
 	
 	/*
@@ -276,7 +312,7 @@ public class RVMLinker {
 				for (int uuid : of.functions){
 					Function function = functionStore.get(uuid);
 					if (function == null) {
-					    throw new CompilerError("No function for uuid " + uuid + " in store, part of overloaded function:" + of);
+					    throw new InternalCompilerError("No function for uuid " + uuid + " in store, part of overloaded function:" + of);
 					}
 					w.insert(vf.tuple(left, vf.string(function.name)));
 				}
@@ -548,6 +584,8 @@ public class RVMLinker {
 		validateExecutable();
 
 		validateOverloading();
+		
+		//printStatistics();
 
 		//System.out.println("Linking: " +  (Timing.getCpuTime() - start)/1000000 + " ms");
 
@@ -1108,12 +1146,12 @@ public class RVMLinker {
 				break;
 				
 			default:
-				throw new CompilerError("In function " + name + ", unknown instruction: " + opcode);
+				throw new InternalCompilerError("In function " + name + ", unknown instruction: " + opcode);
 			}
 
 		}
 		} catch (Exception e){
-			throw new CompilerError("In function " + name + " : " + e.getMessage(), e);
+			throw new InternalCompilerError("In function " + name + " : " + e.getMessage(), e);
 		}
 		
 		

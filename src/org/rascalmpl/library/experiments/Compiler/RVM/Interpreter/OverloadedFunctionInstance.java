@@ -92,7 +92,7 @@ public class OverloadedFunctionInstance implements ICallableCompiledValue, IExte
 				return new OverloadedFunctionInstance(functions, constructors, env, functionStore, constructorStore, rvm);
 			}
 		}
-		throw new CompilerError("Could not find a matching scope when computing a nested overloaded function instance: " + scopeIn, rvm.getStdErr(), cf);
+		throw new InternalCompilerError("Could not find a matching scope when computing a nested overloaded function instance: " + scopeIn, rvm.getStdErr(), cf);
 	}
 
 	@Override

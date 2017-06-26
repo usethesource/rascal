@@ -42,29 +42,30 @@ public class Rascal {
             CommandOptions cmdOpts = new CommandOptions("rascal");
             cmdOpts.pathConfigOptions()
             
-            .boolOption("verbose")		
-            .help("Print compilation steps")
+                   .boolOption("verbose")		
+                   .help("Print compilation steps")
 
-            .boolOption("help")			
-            .help("Print help message for this command")
+                   .boolOption("help")			
+                   .help("Print help message for this command")
 
-            .boolOption("trace")		
-            .help("Print Rascal functions during execution")
+                   .boolOption("trace")		
+                   .help("Print Rascal functions during execution")
 
-            .boolOption("profile")		
-            .help("Profile execution of Rascal program")
+                   .boolOption("profile")		
+                   .help("Profile execution of Rascal program")
 
-            .module("RascalModule::main() to be executed")
+                   .module("RascalModule::main() to be executed")
 
-            .handleArgs(args);
+                   .handleArgs(args);
 
             PathConfig pcfg = cmdOpts.getPathConfig();
-            RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(pcfg)
-                    .trace(cmdOpts.getCommandBoolOption("trace"))
-                    .profile(cmdOpts.getCommandBoolOption("profile"))
-                    .forModule(cmdOpts.getModule().getValue())
-                    .verbose(cmdOpts.getCommandBoolOption("verbose"))
-                    .build();
+            RascalExecutionContext rex = 
+                RascalExecutionContextBuilder.normalContext(pcfg)
+                                             .trace(cmdOpts.getCommandBoolOption("trace"))
+                                             .profile(cmdOpts.getCommandBoolOption("profile"))
+                                             .forModule(cmdOpts.getModule().getValue())
+                                             .verbose(cmdOpts.getCommandBoolOption("verbose"))
+                                             .build();
 
             ISourceLocation binary = findBinary(cmdOpts.getCommandLocOption("bin"), cmdOpts.getModule().getValue());
             System.out.println(RVMCore.readFromFileAndExecuteProgram(binary, cmdOpts.getModuleOptionsAsMap(), rex));
