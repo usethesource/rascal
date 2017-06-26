@@ -154,7 +154,13 @@ public class RascalJUnitCompiledTestRunnerPar extends Runner {
             srcs.add(URIUtil.getChildLocation(rootProject, src));
         }
 
-        return new PathConfig(srcs, libs, binFolder);
+        try {
+            return new PathConfig(srcs, libs, binFolder);
+        }
+        catch (IOException e) {
+            assert false; // since there are no libraries not to be found
+            return null;
+        }
     }
 
     @Override

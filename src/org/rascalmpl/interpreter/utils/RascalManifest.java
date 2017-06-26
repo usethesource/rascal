@@ -113,13 +113,6 @@ public class RascalManifest {
     /**
      * @return a list of bundle names this jar depends on, or 'null' if none is configured.
      */
-    public List<String> getRequiredBundles(JarInputStream jarStream) {
-        return getManifestRequiredBundles(manifest(jarStream));
-    }
-
-    /**
-     * @return a list of bundle names this jar depends on, or 'null' if none is configured.
-     */
     public List<String> getRequiredLibraries(JarInputStream jarStream) {
         return getManifestRequiredLibraries(manifest(jarStream));
     }
@@ -151,20 +144,6 @@ public class RascalManifest {
     public boolean hasMainModule(Class<?> clazz) {
         return getManifestMainModule(manifest(clazz)) != null;
     }  
-
-    /**
-     * @return a list of bundle names this jar depends on, or 'null' if none is configured.
-     */
-    public List<String> getRequiredBundles(Class<?> clazz) {
-        return getManifestRequiredBundles(manifest(clazz));
-    }
-
-    /**
-     * @return a list of bundle names this jar depends on, or 'null' if none is configured.
-     */
-    public List<String> getRequiredBundles(File jarFile) {
-        return getManifestRequiredBundles(manifest(jarFile));
-    }
 
     /**
      * @return a list of bundle names this jar depends on, or 'null' if none is configured.
@@ -213,13 +192,6 @@ public class RascalManifest {
     /**
      * @return a list of bundle names this jar depends on, or 'null' if none is configured.
      */
-    public List<String> getManifestRequiredBundles(InputStream project) {
-        return getManifestAttributeList(project, REQUIRE_BUNDLES, null);
-    }
-
-    /**
-     * @return a list of bundle names this jar depends on, or 'null' if none is configured.
-     */
     public List<String> getManifestRequiredLibraries(InputStream project) {
         return getManifestAttributeList(project, REQUIRE_LIBRARIES, null);
     }
@@ -230,7 +202,7 @@ public class RascalManifest {
 
     public InputStream manifest(ISourceLocation root) {
         try {
-            return URIResolverRegistry.getInstance().getInputStream(URIUtil.getChildLocation(root, META_INF_RASCAL_MF));
+            return URIResolverRegistry.getInstance().getInputStream(URIUtil.getChildLocation(jarify(root), META_INF_RASCAL_MF));
         } catch (IOException e) {
             return null;
         }
@@ -244,8 +216,7 @@ public class RascalManifest {
         return getManifestRequiredLibraries(manifest(root));
     }
 
-    public PathConfig makePathConfig(ISourceLocation root) {
-        URIResolverRegistry reg = URIResolverRegistry.getInstance();
+    public PathConfig makePathConfig(ISourceLocation root) throws IOException {
         List<ISourceLocation> libs = new ArrayList<>();
         List<ISourceLocation> srcs = new ArrayList<>();
 
@@ -257,32 +228,14 @@ public class RascalManifest {
             srcs.add(URIUtil.getChildLocation(root, src));
         }
 
-        for (String lib : mf.getRequiredLibraries(root)) {
-            ISourceLocation loc = URIUtil.getChildLocation(root, lib);
-            lib = addExtension(lib);
-
-            if (reg.exists(loc)) {
-                libs.add(jarify(loc));
-            }
-
-            loc = URIUtil.getChildLocation(PathConfig.getDefaultRepo(), lib);
-            if (reg.exists(loc)) {
-                libs.add(jarify(loc));
-            }   
-        }
-
         return new PathConfig(srcs, libs, binFolder);
     }
 
-    private String addExtension(String lib) {
-        if (lib.endsWith(".jar")) {
-            return lib + ".jar";
+    public static ISourceLocation jarify(ISourceLocation loc) {
+        if (!loc.getPath().endsWith(".jar")) {
+            return loc;
         }
-
-        return lib;
-    }
-
-    private ISourceLocation jarify(ISourceLocation loc) {
+        
         try {
             loc = URIUtil.changeScheme(loc, "jar+" + loc.getScheme());
             loc = URIUtil.changePath(loc, loc.getPath() + "!");
