@@ -18,8 +18,9 @@ private str MuLibrary() = "experiments::Compiler::muRascal2RVM::MuLibrary";
 
 loc getMuLibraryCompiledWriteLoc(PathConfig pcfg) = getDerivedWriteLoc(MuLibrary(), "rvm", pcfg);
 
-list[RVMDeclaration] compileMuLibrary(PathConfig pcfg, bool verbose = false, bool jvm=true, loc reloc=|noreloc:///|){
+list[RVMDeclaration] compileMuLibrary(PathConfig pcfg, bool verbose = false, bool jvm=true, loc reloc=|std:///| /* loc reloc=|noreloc:///|*/ ){ // switch to |noreloc:///| as default after next boot release
     str basename(loc l) = l.file[ .. findFirst(l.file, ".")];  // TODO: for library
+    println("compileMuLibrary: <MuLibraryLoc(pcfg)>.mu, <reloc>");
     if(verbose) println("execute: Recompiling library <basename(MuLibraryLoc(pcfg))>.mu");
     MuLibraryCompiled = getMuLibraryCompiledWriteLoc(pcfg);
     libModule = load(MuLibraryLoc(pcfg));
@@ -32,6 +33,6 @@ list[RVMDeclaration] compileMuLibrary(PathConfig pcfg, bool verbose = false, boo
     return functions; 
 }
 
-void compileMuLibrary(list[loc] srcs, list[loc] libs, loc boot, loc bin, bool verbose = false, bool jvm=true) {
-  compileMuLibrary(pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin), verbose=verbose, jvm=jvm);
+void compileMuLibrary(list[loc] srcs, list[loc] libs, loc boot, loc bin, bool verbose = false, bool jvm=true, loc reloc=|noreloc:///|) {
+  compileMuLibrary(pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin), verbose=verbose, jvm=jvm, reloc=reloc);
 }
