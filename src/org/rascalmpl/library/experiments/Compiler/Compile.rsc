@@ -94,7 +94,8 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
         println("\<existsConfig, configLoc\> = \<<existsConfig>, <configLoc>\>"); 
         if(existsConfig){
             config = readBinaryValueFile(#Configuration, configLoc);
-            rvmModuleLoc = RVMModuleWriteLoc(qualifiedModuleName, config.pathConfiguration);
+            //rvmModuleLoc = RVMModuleWriteLoc(qualifiedModuleName, config.pathConfiguration);
+            rvmModuleLoc = configLoc[extension="rvm"];
             if(exists(rvmModuleLoc)){
                rvmMod = readBinaryValueFile(#RVMModule, rvmModuleLoc);
                if(verbose) println("No source found for <qualifiedModuleName>, reusing existing binary");
