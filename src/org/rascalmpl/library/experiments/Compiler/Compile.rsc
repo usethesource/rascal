@@ -89,9 +89,12 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
         moduleLoc = getModuleLocation(qualifiedModuleName, pcfg);
     } catch e: {
         <existsConfig, configLoc> = ConfigReadLoc(qualifiedModuleName, pcfg);
-        println("No source module for <qualifiedModuleName>");
-        println(pcfg);
-        println("\<existsConfig, configLoc\> = \<<existsConfig>, <configLoc>\>"); 
+        
+        if (verbose) {
+          println("No source module for <qualifiedModuleName>");
+          println("\<existsConfig, configLoc\> = \<<existsConfig>, <configLoc>\>");
+        }
+         
         if(existsConfig){
             config = readBinaryValueFile(#Configuration, configLoc);
             //rvmModuleLoc = RVMModuleWriteLoc(qualifiedModuleName, config.pathConfiguration);
