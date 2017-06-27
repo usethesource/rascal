@@ -11,8 +11,9 @@ public class Thrown extends RuntimeException {
 	
 	private static final long serialVersionUID = 5789848344801944419L;
 	
-	// TODO: this is not thread safe
-	private static Thrown instance = new Thrown();
+	private static class InstanceKeeper {
+	    public final static Thrown instance = new Thrown();
+	}
 	
 	public IValue value;
 	private ISourceLocation loc;
@@ -27,15 +28,17 @@ public class Thrown extends RuntimeException {
 		this.cause = null;
 	}
 	
+	// TODO: this is not thread safe
 	public static Thrown getInstance(IValue value, ISourceLocation loc, Frame currentFrame) {
-		instance.setValue(value);
-		instance.loc = loc;
-		instance.currentFrame = currentFrame;
-		return instance;
+		InstanceKeeper.instance.setValue(value);
+		InstanceKeeper.instance.loc = loc;
+		InstanceKeeper.instance.currentFrame = currentFrame;
+		return InstanceKeeper.instance;
 	}
 	
+	// TODO: this is not thread safe
 	public static Thrown getInstance(Throwable cause, ISourceLocation loc, Frame currentFrame) {
-		instance.cause = cause;
+	    InstanceKeeper.instance.cause = cause;
 		IRascalValueFactory vf = IRascalValueFactory.getInstance();
 		return getInstance(vf.node(cause.getClass().getCanonicalName(), vf.string(cause.getMessage())), loc, currentFrame);
 	}
