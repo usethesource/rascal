@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.utils.RascalManifest;
@@ -74,32 +75,7 @@ public class PathConfig {
 		repo = defaultRepo;
 	}
 	
-	private static List<ISourceLocation> computeDefaultClassLoaders() {
-	    List<ISourceLocation> result = new ArrayList<>();
-        String javaClasspath = System.getProperty("java.class.path");
-        if (javaClasspath != null) {
-            for (String path : javaClasspath.split(":")) {
-                result.add(vf.sourceLocation(new File(path).getAbsolutePath()));
-            }
-        }
-        else {
-            result.add(URIUtil.correctLocation("system", "", ""));
-        }
-        return result;
-    }
-
-    private static List<ISourceLocation> computeDefaultJavaCompilerPath() {
-        List<ISourceLocation> result = new ArrayList<>();
-        String classPath = System.getProperty("java.class.path");
-        
-        if (classPath != null) {
-            for (String path : classPath.split(":")) {
-                result.add(vf.sourceLocation(new File(path).getAbsolutePath()));
-            }
-        }
-        
-        return result;
-    }
+	
 
     public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin) throws IOException {
 		this(srcs, libs, bin, defaultBoot);
@@ -124,7 +100,7 @@ public class PathConfig {
 	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, ISourceLocation boot, List<ISourceLocation> courses, List<ISourceLocation> javaCompilerPath, List<ISourceLocation> classloaders, ISourceLocation repo) throws IOException{
 		this.srcs = srcs;
 		this.courses = courses;
-		this.libs = transitiveClosure(libs);
+		this.libs = transitiveClosure(libs, this.srcs, repo);
 		this.bin = bin;
 		this.boot = boot;
 		this.javaCompilerPath = javaCompilerPath;
@@ -134,7 +110,7 @@ public class PathConfig {
 	
 	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot) throws IOException{
         this.srcs = convertLocs(srcs);
-        this.libs = transitiveClosure(convertLocs(libs));
+        this.libs = transitiveClosure(convertLocs(libs), this.srcs, defaultRepo);
         this.bin = bin;
         this.boot = boot;
         this.repo = defaultRepo;
@@ -145,10 +121,10 @@ public class PathConfig {
 	
 	public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList courses, ISourceLocation repo) throws IOException{
         this.srcs = convertLocs(srcs);
-        this.libs = transitiveClosure(convertLocs(libs));
+        this.libs = transitiveClosure(convertLocs(libs), this.srcs, repo);
         this.bin = bin;
         this.boot = defaultBoot;
-        this.repo = defaultRepo;
+        this.repo = repo;
         this.courses = convertLocs(courses);
         this.javaCompilerPath = defaultJavaCompilerPath;
         this.classloaders = defaultClassloaders;
@@ -156,7 +132,7 @@ public class PathConfig {
 	
 	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot, IList courses) throws IOException{
         this.srcs = convertLocs(srcs);
-        this.libs = transitiveClosure(convertLocs(libs));
+        this.libs = transitiveClosure(convertLocs(libs), this.srcs, defaultRepo);
         this.bin = bin;
         this.boot = boot;
         this.courses = convertLocs(courses);
@@ -167,7 +143,7 @@ public class PathConfig {
 	
 	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot, IList courses, IList javaCompilerPath) throws IOException{
         this.srcs = convertLocs(srcs);
-        this.libs = transitiveClosure(convertLocs(libs));
+        this.libs = transitiveClosure(convertLocs(libs), this.srcs, defaultRepo);
         this.bin = bin;
         this.boot = boot;
         this.courses = convertLocs(courses);
@@ -178,7 +154,7 @@ public class PathConfig {
 	
 	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot, IList courses, IList javaCompilerPath, IList classloaders) throws IOException {
         this.srcs = convertLocs(srcs);
-        this.libs = transitiveClosure(convertLocs(libs));
+        this.libs = transitiveClosure(convertLocs(libs), this.srcs, defaultRepo);
         this.bin = bin;
         this.boot = boot;
         this.courses = convertLocs(courses);
@@ -187,6 +163,33 @@ public class PathConfig {
         this.repo = defaultRepo;
     }
 	
+	private static List<ISourceLocation> computeDefaultClassLoaders() {
+        List<ISourceLocation> result = new ArrayList<>();
+        String javaClasspath = System.getProperty("java.class.path");
+        if (javaClasspath != null) {
+            for (String path : javaClasspath.split(":")) {
+                result.add(vf.sourceLocation(new File(path).getAbsolutePath()));
+            }
+        }
+        else {
+            result.add(URIUtil.correctLocation("system", "", ""));
+        }
+        return result;
+    }
+
+    private static List<ISourceLocation> computeDefaultJavaCompilerPath() {
+        List<ISourceLocation> result = new ArrayList<>();
+        String classPath = System.getProperty("java.class.path");
+        
+        if (classPath != null) {
+            for (String path : classPath.split(":")) {
+                result.add(vf.sourceLocation(new File(path).getAbsolutePath()));
+            }
+        }
+        
+        return result;
+    }
+    
 	/**
 	 * This locates necessary libraries on the search path by taking the current libraries, finding the RASCAL.MF file and looking
 	 * at the Required-Libraries field. The required libraries are then sought out in the {@see r2d2} installation folder and the process
@@ -194,50 +197,66 @@ public class PathConfig {
 	 * dependencies have been discovered.
 	 * 
 	 * @param seedLibraries are the root of the dependence hierarchy
+	 * @param seedSources are source folders which may contain additional MANIFEST/RASCAL.MF files for library dependencies
+	 * @param repo 
 	 * @return the full list of transitively required libraries
 	 * @throws IOException when a required library is not found.
 	 */
-	private List<ISourceLocation> transitiveClosure(List<ISourceLocation> seedLibraries) throws IOException {
-        List<ISourceLocation> todo = seedLibraries;
+	private List<ISourceLocation> transitiveClosure(List<ISourceLocation> seedLibraries, List<ISourceLocation> seedSources, ISourceLocation repo) throws IOException {
+        List<ISourceLocation> todo = new LinkedList<>();
         List<ISourceLocation> done = new LinkedList<>();
         
+        todo.addAll(seedSources);
+        todo.addAll(seedLibraries);
+        
         while (!todo.isEmpty()) {
+            List<ISourceLocation> more = new LinkedList<>();
+            
             for (ISourceLocation lib : todo) {
                 if (done.contains(lib)) {
                     continue;
+                } else {
+                    done.add(lib);
                 }
                 
-                todo.remove(lib);
-                
                 for (String recLib : new RascalManifest().getRequiredLibraries(lib)) {
-                    ISourceLocation libLoc = findLibrary(recLib);
+                    ISourceLocation libLoc = findLibrary(recLib, repo);
                     
                     if (libLoc != null) {
                         if (!done.contains(libLoc)) {
-                            todo.add(libLoc);
+                            more.add(libLoc);
                         }
                     }
                     else {
                         throw new IOException("Required Rascal library not found: " + recLib + ", needed by " + lib);
                     }
                 }
-                
-                lib = RascalManifest.jarify(lib);
-                if (!done.contains(lib)) {
-                    done.add(lib);
-                }
             }
+            
+            todo.addAll(more);
+            todo.removeAll(done);
         }
         
-        return done;
-    }
 
-    private ISourceLocation findLibrary(String name) throws IOException {
+        // sources already have their associated bin folder, so we don't need them
+        // on the library path. They were just used to find transitive dependencies in the source folder RASCAL.MF
+        done.removeAll(seedSources);
+         
+        // make all libraries look inside jar files where possible
+        List<ISourceLocation> result = new LinkedList<>();
+        for (ISourceLocation l : done) {
+            result.add(RascalManifest.jarify(l));
+        }
+        
+        return Collections.unmodifiableList(result);
+	}
+	
+    private ISourceLocation findLibrary(String name, ISourceLocation repo) throws IOException {
         ISourceLocation found = null;
         
-        for (ISourceLocation file : URIResolverRegistry.getInstance().list(getRepo())) {
+        for (ISourceLocation file : URIResolverRegistry.getInstance().list(repo)) {
             String path = file.getPath();
-            
+            path = path.substring(repo.getPath().length() + 1 /* for removing the / */);
             
             if (path.startsWith(name)) {
                 String afterName = path.substring(name.length());
@@ -258,7 +277,7 @@ public class PathConfig {
 
     public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot, IList courses, IList javaCompilerPath, IList classloaders, ISourceLocation repo) throws IOException{
         this.srcs = convertLocs(srcs);
-        this.libs = transitiveClosure(convertLocs(libs));
+        this.libs = transitiveClosure(convertLocs(libs), this.srcs, repo);
         this.bin = bin;
         this.boot = boot;
         this.courses = convertLocs(courses);
