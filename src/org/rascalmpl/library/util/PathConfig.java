@@ -2,6 +2,7 @@ package org.rascalmpl.library.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -9,20 +10,21 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.lang.rascal.boot.IJava2Rascal;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
+import io.usethesource.vallang.io.StandardTextReader;
 
 public class PathConfig {
 	
@@ -75,8 +77,6 @@ public class PathConfig {
 		repo = defaultRepo;
 	}
 	
-	
-
     public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin) throws IOException {
 		this(srcs, libs, bin, defaultBoot);
 	}
@@ -219,8 +219,9 @@ public class PathConfig {
                     done.add(lib);
                 }
                 
+                
                 for (String recLib : new RascalManifest().getRequiredLibraries(lib)) {
-                    ISourceLocation libLoc = findLibrary(recLib, repo);
+                    ISourceLocation libLoc = recLib.startsWith("|") ? parseSourceLocation(recLib) : findLibrary(recLib, repo);
                     
                     if (libLoc != null) {
                         if (!done.contains(libLoc)) {
@@ -250,6 +251,12 @@ public class PathConfig {
         
         return Collections.unmodifiableList(result);
 	}
+
+
+
+    private ISourceLocation parseSourceLocation(String recLib) throws IOException {
+        return (ISourceLocation) new StandardTextReader().read(vf, new StringReader(recLib));
+    }
 	
     private ISourceLocation findLibrary(String name, ISourceLocation repo) throws IOException {
         ISourceLocation found = null;
