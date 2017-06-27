@@ -202,11 +202,10 @@ public class PathConfig {
 	 * @return the full list of transitively required libraries
 	 * @throws IOException when a required library is not found.
 	 */
-	private List<ISourceLocation> transitiveClosure(List<ISourceLocation> seedLibraries, List<ISourceLocation> seedSources, ISourceLocation repo) throws IOException {
+	private List<ISourceLocation> transitiveClosure(List<ISourceLocation> seedLibraries, ISourceLocation repo) throws IOException {
         List<ISourceLocation> todo = new LinkedList<>();
         List<ISourceLocation> done = new LinkedList<>();
         
-        todo.addAll(seedSources);
         todo.addAll(seedLibraries);
         
         while (!todo.isEmpty()) {
@@ -219,19 +218,9 @@ public class PathConfig {
                     done.add(lib);
                 }
                 
-                
-                for (String recLib : new RascalManifest().getRequiredLibraries(lib)) {
-                    ISourceLocation libLoc = recLib.startsWith("|") ? parseSourceLocation(recLib) : findLibrary(recLib, repo);
-                    
-                    if (libLoc != null) {
-                        if (!done.contains(libLoc)) {
-                            more.add(libLoc);
-                        }
-                    }
-                    else {
-                        throw new IOException("Required Rascal library not found: " + recLib + ", needed by " + lib);
-                    }
-                }
+                List<ISourceLocation> next = getMoreLibraries(repo, lib);
+                next.removeAll(done);
+                more.addAll(next);
             }
             
             todo.addAll(more);
@@ -239,10 +228,6 @@ public class PathConfig {
         }
         
 
-        // sources already have their associated bin folder, so we don't need them
-        // on the library path. They were just used to find transitive dependencies in the source folder RASCAL.MF
-        done.removeAll(seedSources);
-         
         // make all libraries look inside jar files where possible
         List<ISourceLocation> result = new LinkedList<>();
         for (ISourceLocation l : done) {
@@ -252,7 +237,35 @@ public class PathConfig {
         return Collections.unmodifiableList(result);
 	}
 
+    private List<ISourceLocation> getMoreLibraries(ISourceLocation repo, ISourceLocation lib) throws IOException {
+        List<ISourceLocation> result = new LinkedList<>();
+        
+        for (String recLib : new RascalManifest().getRequiredLibraries(lib)) {
+            ISourceLocation libLoc = recLib.startsWith("|") ? parseSourceLocation(recLib) : findLibrary(recLib, repo);
+            
+            if (libLoc != null) {
+                result.add(libLoc);
+            }
+            else {
+                throw new IOException("Required Rascal library not found: " + recLib + ", needed by " + lib);
+            }
+        }
+        
+        return result;
+    }
 
+
+	private List<ISourceLocation> transitiveClosure(List<ISourceLocation> seedLibraries, List<ISourceLocation> seedSources, ISourceLocation repo) throws IOException {
+	    List<ISourceLocation> more = new LinkedList<>();
+	    
+	    for (ISourceLocation src: seedSources) {
+	        more.addAll(getMoreLibraries(repo, src));
+	    }
+	    
+	    more.removeAll(seedLibraries);
+	    more.addAll(seedLibraries);
+	    return transitiveClosure(more, repo);
+    }
 
     private ISourceLocation parseSourceLocation(String recLib) throws IOException {
         return (ISourceLocation) new StandardTextReader().read(vf, new StringReader(recLib));
