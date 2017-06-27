@@ -238,7 +238,7 @@ public class RascalManifest {
         
         try {
             loc = URIUtil.changeScheme(loc, "jar+" + loc.getScheme());
-            loc = URIUtil.changePath(loc, loc.getPath() + "!");
+            loc = URIUtil.changePath(loc, loc.getPath() + "!/");
             return loc;
         }
         catch (URISyntaxException e) {
