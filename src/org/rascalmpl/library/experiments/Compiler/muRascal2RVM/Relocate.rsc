@@ -22,9 +22,9 @@ loc relocLoc(loc org, loc reloc, list[loc] srcs){
 }
 
 MuModule relocMuModule(MuModule m, loc reloc, list[loc] srcs){
-    if("<m.name>" != "ConsoleInput"){
-        println("relocMuModule:<m.name>, <reloc>");
-    }
+    //if("<m.name>" != "ConsoleInput"){
+    //    println("relocMuModule:<m.name>, <reloc>");
+    //}
     if(reloc.scheme == "noreloc"){
         return m;
     }
