@@ -32,9 +32,9 @@ import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.InnerClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.rascalmpl.uri.URIResolverRegistry;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.type.TypeStore;
 
 public class JarConverter extends M3Converter {
   private final int CLASSE = 0;
