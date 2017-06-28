@@ -112,11 +112,11 @@ public class QuickCheck {
                 }
 
                 // we have a (hopefully smaller) case, let's report it
-                if (expectedException != null && thrownException == null) {
-                    return new ExceptionNotThrownResult(functionName, actualTypes, tpbindings, values, expectedException);
-                }
-                else if (thrownException != null && wasExpectedException(expectedException, thrownException)) {
+                if (thrownException != null && !wasExpectedException(expectedException, thrownException)) {
                     return new UnExpectedExceptionThrownResult(functionName, actualTypes, tpbindings, values, thrownException);
+                }
+                else if (expectedException != null && thrownException == null) {
+                    return new ExceptionNotThrownResult(functionName, actualTypes, tpbindings, values, expectedException);
                 }
                 else {
                     return new TestFailedResult(functionName, "test returned false", actualTypes, tpbindings, values);
