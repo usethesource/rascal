@@ -2,8 +2,11 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
@@ -38,6 +41,10 @@ public class OverloadedFunction {
 	boolean allConcreteConstructorArgs = false;
 	Map<Integer, int[]> filteredFunctions;		// Functions and constructors filtered on fingerprint of first argument
 	Map<Integer, int[]> filteredConstructors;
+	
+	Function[] functionsAsFunction;
+	Type[] constructorsAsType;
+	Map<Integer, Function[]> filteredFunctionsAsFunction;
 	
 	public OverloadedFunction(String name, Type funType, final int[] functions, final int[] constructors, final String funIn) {
 		if(funIn == null){
@@ -95,7 +102,10 @@ public class OverloadedFunction {
 	    return this == other || this.name.equals(other.name) && this.funType.equals(other.funType) && this.scopeIn == other.scopeIn && compareIntArrays(this.functions, other.functions) && compareIntArrays(this.constructors, other.constructors);
 	}
 	
-	public void  finalize(final Map<String, Integer> functionMap, ArrayList<Function> functionStore, Map<Integer, Integer> indexMap){
+	public void finalize(final Map<String, Integer> functionMap, List<Function> functionStore, List<Type> constructorStore, Map<Integer, Integer> indexMap){
+	    if(name.equals("pathConfig")){
+	        System.err.println("pathConfig");
+	    }
 		if(funIn.length() > 0){ // != null) {
 			Integer si = functionMap.get(funIn);
 			if(si == null){		// Give up, containing scope is not included in final RVM image created by loader
@@ -131,6 +141,38 @@ public class OverloadedFunction {
 //			}
 //		}
 		filter(functionStore);
+	}
+	
+	void fids2objects(Function[] functionStore, Type[] constructorStore){
+	    if(filteredFunctions == null){
+	        filterFunctions(new ArrayList<>(Arrays.asList(functionStore)));    // TODO: efficiency!
+	    }
+	    if(functionsAsFunction != null){
+	        return;
+	    }
+	    functionsAsFunction = new Function[functions.length];
+        for(int i = 0; i < functions.length; i++){
+            int fid = functions[i];
+            functionsAsFunction[i] = functionStore[fid];
+        }
+        
+        constructorsAsType = new Type[constructors.length];
+        for(int i = 0; i < constructors.length; i++){
+            int cid = constructors[i];
+            constructorsAsType[i] = constructorStore[cid];
+        }
+        
+        filteredFunctionsAsFunction = new HashMap<Integer,Function[]>();
+        if(filteredFunctions != null){
+            for(Entry<Integer,int[]> e : filteredFunctions.entrySet()){
+                int[] fids = e.getValue();
+                Function[] funs = new Function[fids.length];
+                for(int i = 0; i < fids.length; i++){
+                    funs[i] = functionStore[fids[i]];
+                }
+                filteredFunctionsAsFunction.put(e.getKey(), funs);
+            }
+        }
 	}
 	
 	void printArray(){
@@ -217,14 +259,14 @@ public class OverloadedFunction {
 	 * @param arg0	first actual parameter
 	 * @return	list of overloadings
 	 */
-	public int[] getFunctions(Object arg0){
+	public Function[] getFunctions(Object arg0){
 		if(functions.length <= 1 || !(arg0 instanceof IValue)){
-			return functions;
+			return functionsAsFunction;
 		}
 
 		int fp = ToplevelType.getFingerprint((IValue) arg0, allConcreteFunctionArgs);
-		int[] funs = filteredFunctions.get(fp);
-		return funs == null ? filteredFunctions.get(0) : funs;
+		Function[] funs = filteredFunctionsAsFunction.get(fp);
+		return funs == null ? filteredFunctionsAsFunction.get(0) : funs;
 	}
 	
 	/**
@@ -234,11 +276,11 @@ public class OverloadedFunction {
 	 * 
 	 * Note: at the moment we do not (yet?) filter constructor alternatives
 	 */
-	public int[] getConstructors(Object arg0) {
-			return constructors;
+	public Type[] getConstructors(Object arg0) {
+			return constructorsAsType;
 	}
 	
-	private void filter(ArrayList<Function> functionStore){
+	private void filter(List<Function> functionStore){
 		filterFunctions(functionStore);
 		//filterConstructors(rvm);
 	}
@@ -251,7 +293,7 @@ public class OverloadedFunction {
 	 *   
 	 * @param rvm	needed for access to the function declarations via rvm.functionStore
 	 */
-	private void filterFunctions(ArrayList<Function> functionStore){
+	private void filterFunctions(List<Function> functionStore){
 		if(functions.length > 1){
 			filteredFunctions = new HashMap<Integer,int[]>();
 		} else {
@@ -293,14 +335,13 @@ public class OverloadedFunction {
 			ArrayList<Integer> defaults1 = (ArrayList<Integer>) defaults.clone();
             defaults1.removeIf(x -> alts.contains(x));
             int ndefaults1 = defaults1.size();
-			int[] funs = new int[nalts + ndefaults1];
+			Function[] funs = new Function[nalts + ndefaults1];
 			for(int i = 0; i < nalts; i++){
-				funs[i] = alts.get(i);
+				funs[i] = functionStore.get(alts.get(i));
 			}
 			for(int i = 0; i < ndefaults1; i++){
-				funs[nalts + i] = defaults1.get(i);
+				funs[nalts + i] = functionStore.get(defaults1.get(i));
 			}
-			filteredFunctions.put(fp, funs);
 		}
 	}
 	

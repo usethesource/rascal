@@ -1,7 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,40 +20,35 @@ import io.usethesource.vallang.visitors.IValueVisitor;
 
 public class OverloadedFunctionInstance implements ICallableCompiledValue, IExternalValue {
 	
-	final int[] functions;
-	private final int[] constructors;
+	final Function[] functions;
+	private final Type[] constructors;
 	final Frame env;
 	
 	private Type type;
-	private Function[] functionStore;
-	private List<Type> constructorStore;
 	
 	final RVMCore rvm;
 	
-	public OverloadedFunctionInstance(final int[] functions, final int[] constructors, final Frame env, 
-									  final Function[] functionStore, final List<Type> constructorStore, final RVMCore rvm) {
+	public OverloadedFunctionInstance(final Function[] functions, final Type[] constructors, final Frame env, final RVMCore rvm) {
 		this.functions = functions;
 		this.constructors = constructors;
 		this.env = env;
-		this.functionStore = functionStore;
-		this.constructorStore = constructorStore;
 		this.rvm = rvm;
 	}
 	
-	public int[] getFunctions() {
+	public Function[] getFunctions() {
 		return functions;
 	}
 
-	int[] getConstructors() {
+	Type[] getConstructors() {
 		return constructors;
 	}
 	
 	int getArity(){
 		if(functions.length > 0){
-			return functionStore[functions[0]].nformals;
+			return functions[0].nformals;
 		}
 		if(constructors.length > 0){
-			return constructorStore.get(constructors[0]).getArity();
+			return constructors[0].getArity();
 		}
 		throw new RuntimeException("Cannot get arity without functions and constructors");
 	}
@@ -64,8 +58,8 @@ public class OverloadedFunctionInstance implements ICallableCompiledValue, IExte
 		if(getFunctions().length > 0){
 			sb.append("functions:");
 			for(int i = 0; i < getFunctions().length; i++){
-				int fi = getFunctions()[i];
-				sb.append(" ").append(functionStore[fi].getName()).append("/").append(fi);
+				Function fi = getFunctions()[i];
+				sb.append(" ").append(fi.getName()).append("/").append(fi);
 			}
 		}
 		if(getConstructors().length > 0){
@@ -74,8 +68,8 @@ public class OverloadedFunctionInstance implements ICallableCompiledValue, IExte
 			}
 			sb.append("constructors:");
 			for(int i = 0; i < getConstructors().length; i++){
-				int ci = getConstructors()[i];
-				sb.append(" ").append(constructorStore.get(ci).getName()).append("/").append(ci);
+				Type ci = getConstructors()[i];
+				sb.append(" ").append(ci.getName()).append("/").append(ci);
 			}
 		}
 		sb.append("]");
@@ -85,11 +79,11 @@ public class OverloadedFunctionInstance implements ICallableCompiledValue, IExte
 	/**
 	 * Assumption: scopeIn != -1  
 	 */
-	public static OverloadedFunctionInstance computeOverloadedFunctionInstance(final int[] functions, final int[] constructors, final Frame cf, final int scopeIn,
-			                                                                   final Function[] functionStore, final List<Type> constructorStore, final RVMCore rvm) {
+	public static OverloadedFunctionInstance computeOverloadedFunctionInstance(final Function[] functions, final Type[] constructors, final Frame cf, final int scopeIn,
+			                                                                   final RVMCore rvm) {
 		for(Frame env = cf; env != null; env = env.previousScope) {
 			if (env.scopeId == scopeIn) {
-				return new OverloadedFunctionInstance(functions, constructors, env, functionStore, constructorStore, rvm);
+				return new OverloadedFunctionInstance(functions, constructors, env, rvm);
 			}
 		}
 		throw new InternalCompilerError("Could not find a matching scope when computing a nested overloaded function instance: " + scopeIn, rvm.getStdErr(), cf);
@@ -102,11 +96,10 @@ public class OverloadedFunctionInstance implements ICallableCompiledValue, IExte
 			return this.type;
 		}
 		Set<FunctionType> types = new HashSet<FunctionType>();
-		for(int fun : this.getFunctions()) {
-			types.add((FunctionType) functionStore[fun].ftype);
+		for(Function fun : this.getFunctions()) {
+			types.add((FunctionType) fun.ftype);
 		}
-		for(int constr : this.getConstructors()) {
-			Type type = constructorStore.get(constr);
+		for(Type type : this.getConstructors()) {
 			// TODO: void type for the keyword parameters is not right. They should be retrievable from a type store dynamically.
 			types.add((FunctionType) RascalTypeFactory.getInstance().functionType(type.getAbstractDataType(), type.getFieldTypes(), TypeFactory.getInstance().voidType()));
 		}

@@ -161,7 +161,7 @@ public class RVMonJVM extends RVMCore {
 	 */
 	@Override
 	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs){		
-		Function firstFunc = functionStore[func.getFunctions()[0]]; // TODO: null?
+		Function firstFunc = func.getFunctions()[0]; // TODO: null?
 		int arity = posArgs.length + 1;
 		int scopeId = func.env == null ? 0 : func.env.scopeId;
 		Frame root = new Frame(scopeId, null, func.env, arity+2, firstFunc);
@@ -176,7 +176,7 @@ public class RVMonJVM extends RVMCore {
 
 		OverloadedFunctionInstanceCall ofunCall = new OverloadedFunctionInstanceCall(root, func.getFunctions(), func.getConstructors(), func.env, null, arity, rex);
 
-		Frame frame = ofunCall.nextFrame(functionStore);
+		Frame frame = ofunCall.nextFrame();
 		while (frame != null) {
 		    
 			Object result;
@@ -193,9 +193,9 @@ public class RVMonJVM extends RVMCore {
 			if (result == NONE) {
 				return narrow(returnValue); // Alternative matched.
 			}
-			frame = ofunCall.nextFrame(functionStore);
+			frame = ofunCall.nextFrame();
 		}
-		Type constructor = ofunCall.nextConstructor(constructorStore);
+		Type constructor = ofunCall.nextConstructor();
 
 		return vf.constructor(constructor, ofunCall.getConstructorArguments(constructor.getArity()));
 	}
@@ -383,13 +383,13 @@ public class RVMonJVM extends RVMCore {
 
 	public int insnPUSHOFUN(Object[] stack, int sp, Frame cf, int ofun) {
 		OverloadedFunction of = overloadedStore[ofun];
-		stack[sp++] = of.getScopeIn() == -1 ? new OverloadedFunctionInstance(of.functions, of.constructors, root, functionStore, constructorStore, this) 
-				                            : OverloadedFunctionInstance.computeOverloadedFunctionInstance(of.functions, of.constructors, cf, of.getScopeIn(), functionStore, constructorStore, this);
+		stack[sp++] = of.getScopeIn() == -1 ? new OverloadedFunctionInstance(of.functionsAsFunction, of.constructorsAsType, root, this) 
+				                            : OverloadedFunctionInstance.computeOverloadedFunctionInstance(of.functionsAsFunction, of.constructorsAsType, cf, of.getScopeIn(), this);
 		return sp;
 	}
 
 	public int insnPUSHCONSTR(Object[] stack, int sp, int construct) {
-		Type constructor = constructorStore.get(construct);
+		Type constructor = constructorStore[construct];
 		stack[sp++] = constructor;
 		return sp;
 	}
@@ -791,7 +791,7 @@ public class RVMonJVM extends RVMCore {
 		    of.getScopeIn() == -1 ? new OverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), cf, null, arity, rex) 
 				                  : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(cf, of.getFunctions(arg0), of.getConstructors(arg0), of.getScopeIn(), null, arity, rex);
 		
-		Frame frame = ofun_call.nextFrame(functionStore);
+		Frame frame = ofun_call.nextFrame();
 		
 		frameObserver.enter(root);
 		
@@ -808,11 +808,11 @@ public class RVMonJVM extends RVMCore {
 		            throw new RuntimeException(e);
 		        }
 		    }
-		    frame = ofun_call.nextFrame(functionStore);
+		    frame = ofun_call.nextFrame();
 		}
 		Type constructor;
 		try {
-		    constructor = ofun_call.nextConstructor(constructorStore);
+		    constructor = ofun_call.nextConstructor();
 		} catch (Throwable e) {
 		    if(e instanceof Thrown){
 		        throw (Thrown) e;
@@ -834,7 +834,7 @@ public class RVMonJVM extends RVMCore {
 
 		OverloadedFunction of = overloadedStore[ofun];
 	    
-		Type constructor = constructorStore.get(of.getConstructors()[0]);
+		Type constructor = of.constructorsAsType[0];
 		
 		IValue[] args = new IValue[arity - 1];	// Ignore kw parameters, see OverloadedFunctionInstanceCall.getConstructorArguments
 		for(int i = 0; i < arity - 1; i++) {		
@@ -880,7 +880,7 @@ public class RVMonJVM extends RVMCore {
 		ofunCall = new OverloadedFunctionInstanceCall(cf, of_instance.getFunctions(), of_instance.getConstructors(), of_instance.env, types, arity, rex);
 
 		boolean stackPointerAdjusted = false;
-		Frame frame = ofunCall.nextFrame(functionStore);
+		Frame frame = ofunCall.nextFrame();
 		while (frame != null) {
 		    stackPointerAdjusted = true; // See text at OCALL
 		    Object result;
@@ -897,9 +897,9 @@ public class RVMonJVM extends RVMCore {
 		    if (result == NONE) {
 		        return cf.sp; // Alternative matched.
 		    }
-		    frame = ofunCall.nextFrame(functionStore);
+		    frame = ofunCall.nextFrame();
 		}
-		Type constructor = ofunCall.nextConstructor(constructorStore);
+		Type constructor = ofunCall.nextConstructor();
 		if (stackPointerAdjusted == false) {
 			sp = sp - arity;
 		}

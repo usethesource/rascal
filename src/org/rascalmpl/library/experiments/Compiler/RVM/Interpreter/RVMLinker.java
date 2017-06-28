@@ -229,7 +229,8 @@ public class RVMLinker {
 		}
 	}
 	
-	private void printStatistics(){
+	@SuppressWarnings("unused")
+    private void printStatistics(){
 	    System.err.println("Linker statistics");
 	    System.err.println("functionStore:    " + functionStore.size());
 	    System.err.println("constructorStore: " + constructorStore.size());
@@ -334,7 +335,8 @@ public class RVMLinker {
 		for(String fname : functionMap.keySet()) {
 			Function f = functionStore.get(functionMap.get(fname));
 			if(f == null){
-				String nameAtIndex = "**unknown**";
+				@SuppressWarnings("unused")
+                String nameAtIndex = "**unknown**";
 				for(String fname2 : functionMap.keySet()){
 					if(functionMap.get(fname2) == i){
 						nameAtIndex = fname2;
@@ -349,7 +351,7 @@ public class RVMLinker {
 			i++;
 		}
 		for(OverloadedFunction of : overloadedStore) {
-			of.finalize(functionMap, functionStore, indexMap);
+			of.finalize(functionMap, functionStore, constructorStore, indexMap);
 		}
 	}
 	
@@ -595,7 +597,7 @@ public class RVMLinker {
 								 functionMap, 
 								 functionStore.toArray(new Function[functionStore.size()]), 
 								 constructorMap,
-								 constructorStore,	
+								 constructorStore.toArray(new Type[constructorStore.size()]),	
 								 resolver, 
 								 overloadedStore.toArray(new OverloadedFunction[overloadedStore.size()]),  
 								 initializers,
