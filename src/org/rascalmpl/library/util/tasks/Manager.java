@@ -13,7 +13,6 @@ package org.rascalmpl.library.util.tasks;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,6 +29,8 @@ import org.rascalmpl.tasks.ITaskRegistry;
 import org.rascalmpl.tasks.ITransaction;
 import org.rascalmpl.tasks.PDBValueTaskRegistry;
 import org.rascalmpl.tasks.Transaction;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISet;
@@ -38,7 +39,6 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Manager {
 	private Transaction base = null;
