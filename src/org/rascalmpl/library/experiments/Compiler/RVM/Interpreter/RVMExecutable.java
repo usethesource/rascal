@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
@@ -72,7 +73,7 @@ public class RVMExecutable {
 	private  Map<String, Integer> functionMap;
 	
 	// Constructors
-	private List<Type> constructorStore;
+	private Type[] constructorStore;
 	private Map<String, Integer> constructorMap;
 	
 	// Function overloading
@@ -99,7 +100,7 @@ public class RVMExecutable {
 			final Function[] functionStore,
 			
 			final Map<String, Integer> constructorMap,
-			final List<Type> constructorStore,
+			final Type[] constructorStore,
 	
 			final Map<String, Integer> resolver,
 			final OverloadedFunction[] overloadedStore,
@@ -133,6 +134,8 @@ public class RVMExecutable {
 		
 		this.uid_module_init = uid_module_init;
 		this.uid_module_main = uid_module_main;
+		
+		fids2objects();
 		
 		if(jvm){
 			generateClassFile(false, classRenamings);
@@ -181,7 +184,7 @@ public class RVMExecutable {
 		return functionMap;
 	}
 
-	public List<Type> getConstructorStore() {
+	public Type[] getConstructorStore() {
 		return constructorStore;
 	}
 
@@ -306,6 +309,12 @@ public class RVMExecutable {
 		}
 	}
 	
+	void fids2objects(){
+	    for(OverloadedFunction ovl : overloadedStore){
+	        ovl.fids2objects(functionStore, constructorStore);
+	    }
+	}
+	
 	static byte EXEC_HEADER[] = new byte[] { 'R', 'V','M' };
 	static byte[] EXEC_VERSION = new byte[] {1, 0, 0};
 	static byte EXEC_COMPRESSION_NONE = 0;
@@ -384,7 +393,7 @@ public class RVMExecutable {
             function.write(out);
         }
 
-        out.writeField(CompilerIDs.Executable.CONSTRUCTOR_STORE, constructorStore.toArray(new Type[constructorStore.size()]), WindowSizes.SMALL_WINDOW);
+        out.writeField(CompilerIDs.Executable.CONSTRUCTOR_STORE, constructorStore, WindowSizes.SMALL_WINDOW);
 
         out.writeRepeatedNestedField(CompilerIDs.Executable.OVERLOADED_STORE, getOverloadedStore().length);
         for(OverloadedFunction ovl : getOverloadedStore()){
@@ -405,8 +414,7 @@ public class RVMExecutable {
         out.endMessage();
     }
 	
-	@SuppressWarnings("resource")
-    public static RVMExecutable read(ISourceLocation rvmExecutable) throws IOException {
+	public static RVMExecutable read(ISourceLocation rvmExecutable) throws IOException {
 	    try(InputStream in = getInputStream(rvmExecutable)){
 	        byte[] header = new byte[EXEC_HEADER.length];
 	        in.read(header);
@@ -462,7 +470,7 @@ public class RVMExecutable {
 	    Map<String, Integer> functionMap = null;
 
 	    // Constructors
-	    List<Type> constructorStore = new ArrayList<>();
+	    Type[] constructorStore = new Type[0];
 	    Map<String, Integer> constructorMap = null;
 
 	    // Function overloading
@@ -589,7 +597,7 @@ public class RVMExecutable {
                 }
                 
                 case CompilerIDs.Executable.CONSTRUCTOR_STORE: {
-                    constructorStore = Arrays.asList(in.readTypes());
+                    constructorStore = in.readTypes();
                     break;
                 }
                 

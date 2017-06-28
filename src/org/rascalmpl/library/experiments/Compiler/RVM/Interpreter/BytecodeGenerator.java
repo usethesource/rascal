@@ -1875,33 +1875,33 @@ public class BytecodeGenerator implements Opcodes {
 		}
 	}
     
-    // EXPERIMENTAL2
-    private void emitOcallSingle(String funName, int fun, int arity, int srcIndex) {
-        //mv.visitVarInsn(ALOAD, THIS);
-        mv.visitVarInsn(ALOAD, CF);
-        
-        mv.visitVarInsn(ALOAD, CF);
-        mv.visitVarInsn(ILOAD, SP);
-        emitInlineFrameEnter(srcIndex);
-        
-        // Set up invokeDynamic of getFrame
-        MethodType bmt = MethodType.methodType(CallSite.class, MethodHandles.Lookup.class, String.class, MethodType.class, Object.class);
-        Handle bootstrap = new Handle(Opcodes.H_INVOKESTATIC, (RVMonJVM.class.getName()).replace('.', '/'), "bootstrapGetFrame",
-              bmt.toMethodDescriptorString());
-         
-        mv.visitInvokeDynamicInsn("getFrame", 
-                getMethodDescriptor(OBJECT_TYPE, FRAME_TYPE, FRAME_TYPE, INT_TYPE), bootstrap, fun);
-
-        //mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, funName, getMethodDescriptor(OBJECT_TYPE, FRAME_TYPE),false);
-        mv.visitInsn(POP);
-
-        mv.visitVarInsn(ALOAD, CF);
-        mv.visitFieldInsn(GETFIELD, FRAME_NAME, "sp", INT_TYPE.getDescriptor());
-        mv.visitVarInsn(ISTORE, SP);
-        
-        emitInlineFrameLeave(srcIndex);
-        emitReturnValue2ACCU();
-    }
+//    // EXPERIMENTAL2
+//    private void emitOcallSingle(String funName, int fun, int arity, int srcIndex) {
+//        //mv.visitVarInsn(ALOAD, THIS);
+//        mv.visitVarInsn(ALOAD, CF);
+//        
+//        mv.visitVarInsn(ALOAD, CF);
+//        mv.visitVarInsn(ILOAD, SP);
+//        emitInlineFrameEnter(srcIndex);
+//        
+//        // Set up invokeDynamic of getFrame
+//        MethodType bmt = MethodType.methodType(CallSite.class, MethodHandles.Lookup.class, String.class, MethodType.class, Object.class);
+//        Handle bootstrap = new Handle(Opcodes.H_INVOKESTATIC, (RVMonJVM.class.getName()).replace('.', '/'), "bootstrapGetFrame",
+//              bmt.toMethodDescriptorString());
+//         
+//        mv.visitInvokeDynamicInsn("getFrame", 
+//                getMethodDescriptor(OBJECT_TYPE, FRAME_TYPE, FRAME_TYPE, INT_TYPE), bootstrap, fun);
+//
+//        //mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, funName, getMethodDescriptor(OBJECT_TYPE, FRAME_TYPE),false);
+//        mv.visitInsn(POP);
+//
+//        mv.visitVarInsn(ALOAD, CF);
+//        mv.visitFieldInsn(GETFIELD, FRAME_NAME, "sp", INT_TYPE.getDescriptor());
+//        mv.visitVarInsn(ISTORE, SP);
+//        
+//        emitInlineFrameLeave(srcIndex);
+//        emitReturnValue2ACCU();
+//    }
 
 //    // EXPERIMENTAL1
 //	private void emitOcallSingle(String funName, int fun, int arity, int srcIndex) {
@@ -1931,37 +1931,37 @@ public class BytecodeGenerator implements Opcodes {
 //		emitReturnValue2ACCU();
 //	}
 	
-//	private void emitOcallSingle(String funName, int fun, int arity, int srcIndex) {
-//        mv.visitVarInsn(ALOAD, THIS);
-//        mv.visitVarInsn(ALOAD, CF);
-//        
-//        mv.visitVarInsn(ALOAD, THIS);
-//        mv.visitFieldInsn(GETFIELD, fullClassName, "functionStore", getDescriptor(Function[].class));
-//        emitIntValue(fun);
-//        mv.visitInsn(AALOAD);
-//
-//        mv.visitVarInsn(ALOAD, CF);
-//        
-//        emitIntValue(arity);
-//        mv.visitVarInsn(ILOAD, SP);
-//        emitInlineFrameEnter(srcIndex);
-//
-//        mv.visitMethodInsn(
-//                INVOKEVIRTUAL,
-//                FRAME_NAME,
-//                "getFrame",
-//                getMethodDescriptor(FRAME_TYPE, FUNCTION_TYPE, FRAME_TYPE, INT_TYPE, INT_TYPE),false);
-//        
-//        mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, funName, getMethodDescriptor(OBJECT_TYPE, FRAME_TYPE),false);
-//        mv.visitInsn(POP);
-//
-//        mv.visitVarInsn(ALOAD, CF);
-//        mv.visitFieldInsn(GETFIELD, FRAME_NAME, "sp", INT_TYPE.getDescriptor());
-//        mv.visitVarInsn(ISTORE, SP);
-//        
-//        emitInlineFrameLeave(srcIndex);
-//        emitReturnValue2ACCU();
-//    }
+	private void emitOcallSingle(String funName, int fun, int arity, int srcIndex) {
+        mv.visitVarInsn(ALOAD, THIS);
+        mv.visitVarInsn(ALOAD, CF);
+        
+        mv.visitVarInsn(ALOAD, THIS);
+        mv.visitFieldInsn(GETFIELD, fullClassName, "functionStore", getDescriptor(Function[].class));
+        emitIntValue(fun);
+        mv.visitInsn(AALOAD);
+
+        mv.visitVarInsn(ALOAD, CF);
+        
+        emitIntValue(arity);
+        mv.visitVarInsn(ILOAD, SP);
+        emitInlineFrameEnter(srcIndex);
+
+        mv.visitMethodInsn(
+                INVOKEVIRTUAL,
+                FRAME_NAME,
+                "getFrame",
+                getMethodDescriptor(FRAME_TYPE, FUNCTION_TYPE, FRAME_TYPE, INT_TYPE, INT_TYPE),false);
+        
+        mv.visitMethodInsn(INVOKEVIRTUAL, fullClassName, funName, getMethodDescriptor(OBJECT_TYPE, FRAME_TYPE),false);
+        mv.visitInsn(POP);
+
+        mv.visitVarInsn(ALOAD, CF);
+        mv.visitFieldInsn(GETFIELD, FRAME_NAME, "sp", INT_TYPE.getDescriptor());
+        mv.visitVarInsn(ISTORE, SP);
+        
+        emitInlineFrameLeave(srcIndex);
+        emitReturnValue2ACCU();
+    }
 
 	public void emitInlineSwitch(IMap caseLabels, String caseDefault, boolean concrete) {
 		Map<Integer, String> jumpBlock = new TreeMap<Integer, String>(); // This map is sorted on its keys.
