@@ -77,6 +77,7 @@ public class CommandOptions {
     private static final String BOOT_PATH_CONFIG_OPTION = "boot";
     private static final String BIN_PATH_CONFIG_OPTION = "bin";
     private static final String LIB_PATH_CONFIG_OPTION = "lib";
+    private static final String PROJECT_PATH_CONFIG_OPTION = "project";
     private static final String SRC_PATH_CONFIG_OPTION = "src";
     
     protected TypeFactory tf;
@@ -531,6 +532,8 @@ public class CommandOptions {
 		}
 	}
 	
+	
+	
 	public IList getDefaultStdlocs(){
 		return vf.list(getDefaultStdLocation());
 	}
@@ -554,13 +557,19 @@ public class CommandOptions {
   }
 	
 	public PathConfig getPathConfig() throws IOException {
-		return new PathConfig(getCommandLocsOption(SRC_PATH_CONFIG_OPTION),
-							  getCommandLocsOption(LIB_PATH_CONFIG_OPTION),
-							  getCommandLocOption(BIN_PATH_CONFIG_OPTION),
-							  getCommandLocOption(BOOT_PATH_CONFIG_OPTION),
-							  getCommandLocsOption(COURSES_PATH_CONFIG_OPTION),
-							  getCommandLocsOption(JAVA_COMPILER_PATH_PATH_CONFIG_OPTION),
-							  getCommandLocsOption(CLASSLOADERS_PATH_CONFIG_OPTION));
+	    ISourceLocation project = getCommandLocOption(PROJECT_PATH_CONFIG_OPTION);
+        if (project != null) {
+	        return PathConfig.fromSourceProjectRascalManifest(project);
+	    }
+        else {
+            return new PathConfig(getCommandLocsOption(SRC_PATH_CONFIG_OPTION),
+                getCommandLocsOption(LIB_PATH_CONFIG_OPTION),
+                getCommandLocOption(BIN_PATH_CONFIG_OPTION),
+                getCommandLocOption(BOOT_PATH_CONFIG_OPTION),
+                getCommandLocsOption(COURSES_PATH_CONFIG_OPTION),
+                getCommandLocsOption(JAVA_COMPILER_PATH_PATH_CONFIG_OPTION),
+                getCommandLocsOption(CLASSLOADERS_PATH_CONFIG_OPTION));
+        }
 	}
 
     public CommandOptions noModuleArgument() {
@@ -568,7 +577,12 @@ public class CommandOptions {
     }
 
     public CommandOptions pathConfigOptions() {
-        this.locsOption(LIB_PATH_CONFIG_OPTION)      
+        this
+        .locOption(PROJECT_PATH_CONFIG_OPTION)
+        .locDefault(PathConfig.getDefaultProject())
+        .help("Top level location where a project is located with its META-INF/RASCAL.MF file")
+        
+        .locsOption(LIB_PATH_CONFIG_OPTION)      
         .locsDefault((co) -> vf.list(co.getCommandLocOption(BIN_PATH_CONFIG_OPTION)))
         .help("Add new lib location, use multiple --lib arguments for multiple locations")
 
@@ -604,6 +618,7 @@ public class CommandOptions {
         .locsOption(CLASSLOADERS_PATH_CONFIG_OPTION)
         .locsDefault(PathConfig.getDefaultClassloadersList())
         .help("Add new java classloader location, use multiple --classloader options for multiple locations")
+        
         ;
     
         return this;
