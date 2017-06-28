@@ -21,7 +21,6 @@ import java.net.URL;
 import java.nio.charset.Charset;
 
 import org.rascalmpl.uri.ISourceLocationInput;
-import org.rascalmpl.uri.StandardLibraryURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 

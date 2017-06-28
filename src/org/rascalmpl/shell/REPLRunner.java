@@ -12,7 +12,6 @@ import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.repl.RascalInterpreterREPL;
 
 import jline.Terminal;
-import jline.TerminalFactory;
 
 public class REPLRunner extends RascalInterpreterREPL  implements ShellRunner {
 
