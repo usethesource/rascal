@@ -77,7 +77,7 @@ public abstract class RVMCore {
 	protected Function[] functionStore;
 	protected Map<String, Integer> functionMap;
 
-	protected List<Type> constructorStore;
+	protected Type[] constructorStore;
 	protected final Map<String, Integer> constructorMap;
 	
 	// Function overloading
@@ -291,8 +291,8 @@ public abstract class RVMCore {
 	}
 	
 	public Type getConstructor(String name, Type adtType, Type argumentTypes) throws NoSuchRascalFunction{
-	    for(int i = 0; i < constructorStore.size(); i++){
-	        Type tp = constructorStore.get(i);
+	    for(int i = 0; i < constructorStore.length; i++){
+	        Type tp = constructorStore[i];
 	        if (tp.getName().equals(name) && 
 	            tp.getAbstractDataType().equals(adtType) &&
 	            tp.getFieldTypes().equals(argumentTypes)) {
@@ -304,8 +304,8 @@ public abstract class RVMCore {
 	
 	public Set<Type> getConstructor(String name, Type adtType) {
 	    Set<Type> types = new HashSet<>();
-        for(int i = 0; i < constructorStore.size(); i++){
-            Type tp = constructorStore.get(i);
+        for(int i = 0; i < constructorStore.length; i++){
+            Type tp = constructorStore[i];
             if (tp.getName().equals(name) && 
                 tp.getAbstractDataType().equals(adtType)) {
                 types.add(tp);
@@ -315,8 +315,8 @@ public abstract class RVMCore {
     }
 	
 	public Type getAbstractDataType(String name) throws NoSuchRascalFunction{
-	    for(int i = 0; i < constructorStore.size(); i++){
-            Type adt = constructorStore.get(i).getAbstractDataType();
+	    for(int i = 0; i < constructorStore.length; i++){
+            Type adt = constructorStore[i].getAbstractDataType();
             if (adt.getName().equals(name)){ 
                 return adt;
             }
@@ -372,8 +372,8 @@ public abstract class RVMCore {
 	  
 
 	  // ?? why are constructors not part of overloaded functions?
-	  for(int i = 0; i < constructorStore.size(); i++){
-	    tp = constructorStore.get(i);
+	  for(int i = 0; i < constructorStore.length; i++){
+	    tp = constructorStore[i];
 	    if (tp.getName().equals(name) && tp.getArity() == arity) {
 	      return new OverloadedFunction(name, tp,  new int[]{}, new int[] { i }, "");
 	    }
@@ -418,8 +418,8 @@ public abstract class RVMCore {
 		  return new OverloadedFunction(name, tp,  falts, new int[] { }, "");
 		}
 
-		for(int i = 0; i < constructorStore.size(); i++){
-			Type tp = constructorStore.get(i);
+		for(int i = 0; i < constructorStore.length; i++){
+			Type tp = constructorStore[i];
 			if(name.equals(tp.getName()) && ft.getFieldTypes().comparable(funType.getFieldTypes()) 
 					                     && ft.getReturnType().comparable(tp.getAbstractDataType())
 					){
@@ -507,13 +507,14 @@ public abstract class RVMCore {
 	 * @return		   Result of function execution
 	 */
 	public IValue executeRVMFunction(OverloadedFunction func, IValue[] posArgs, Map<String, IValue> kwArgs){
+	    func.fids2objects(functionStore, constructorStore);
 		if(func.getFunctions().length > 0){
-				Function firstFunc = functionStore[func.getFunctions()[0]]; 
+				Function firstFunc = func.functionsAsFunction[0]; 
 				Frame root = new Frame(func.scopeIn, null, null, func.getArity()+2, firstFunc);
-				OverloadedFunctionInstance ofi = OverloadedFunctionInstance.computeOverloadedFunctionInstance(func.functions, func.constructors, root, func.scopeIn, functionStore, constructorStore, this);
+				OverloadedFunctionInstance ofi = OverloadedFunctionInstance.computeOverloadedFunctionInstance(func.functionsAsFunction, func.constructorsAsType, root, func.scopeIn, this);
 				return executeRVMFunction(ofi, posArgs, kwArgs);
 		} else {
-			Type cons = constructorStore.get(func.getConstructors()[0]);
+			Type cons = func.constructorsAsType[0];
 			return vf.constructor(cons, posArgs, kwArgs);
 		}
 	}
@@ -655,12 +656,7 @@ public abstract class RVMCore {
 			return "Function[" + ((FunctionInstance)o).function.getName() + "]";
 		}
 		if(o instanceof OverloadedFunctionInstance) {
-			OverloadedFunctionInstance of = (OverloadedFunctionInstance) o;
-			String alts = "";
-			for(Integer fun : of.getFunctions()) {
-				alts = alts + fun + "; ";
-			}
-			return "OverloadedFunction[ alts: " + alts + "]";
+			return ((OverloadedFunctionInstance) o).toString();
 		}
 		if(o instanceof Reference){
 			Reference ref = (Reference) o;
@@ -1012,7 +1008,7 @@ public abstract class RVMCore {
 	@SuppressWarnings({"unchecked", "unused"})
 	protected int CALLCONSTR(final Object[] stack, int sp, final int iconstructor, final int arity){
 		
-		Type constructor = constructorStore.get(iconstructor);
+		Type constructor = constructorStore[iconstructor];
 		IValue[] args = new IValue[constructor.getArity()];
 
 		java.util.Map<String,IValue> kwargs;
