@@ -10,9 +10,8 @@ import java.util.Queue;
 
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import io.usethesource.vallang.IBool;
+
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
 public class SnakesAndLadders {

@@ -46,14 +46,14 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class BindingsResolver {
 	private LimitedTypeStore store;

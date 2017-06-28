@@ -12,12 +12,12 @@
 
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import static java.lang.invoke.MethodHandles.filterReturnValue;
+
 import java.lang.invoke.CallSite;
 import java.lang.invoke.ConstantCallSite;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import static java.lang.invoke.MethodHandle.*;
-import static java.lang.invoke.MethodHandles.*;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.util.HashSet;
@@ -25,6 +25,8 @@ import java.util.Map;
 
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -33,7 +35,6 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class RVMonJVM extends RVMCore {
 	
