@@ -26,6 +26,7 @@ public class Cobra {
     public static final String TRIES = "tries";
     public static final String MAXDEPTH = "maxDepth";
     public static final String MAXWIDTH = "maxWidth";
+    public static final String EXPECT_TAG = "expected";
 
     public static Type reifyType(IValue type) {
         Type reified = type.getType();

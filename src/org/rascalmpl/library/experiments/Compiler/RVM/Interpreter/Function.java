@@ -1,20 +1,22 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.invoke.MethodHandle;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
 
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
-import org.rascalmpl.library.cobra.QuickCheck;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireInputStream;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireOutputStream;
+import org.rascalmpl.test.infrastructure.QuickCheck;
+import org.rascalmpl.test.infrastructure.QuickCheck.TestResult;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IBool;
@@ -29,8 +31,6 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.binary.util.WindowSizes;
 import io.usethesource.vallang.io.binary.wire.IWireInputStream;
-import io.usethesource.vallang.random.RandomValueGenerator;
-import io.usethesource.vallang.random.util.TypeParameterBinder;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
@@ -328,115 +328,49 @@ public class Function {
         }
 
         IValue iexpected =  tags.get(vf.string("expected"));
-        String expected = iexpected == null ? "" : ((IString) iexpected).getValue();
+        String expected = iexpected == null ? null : ((IString) iexpected).getValue();
 
         int maxDepth = getDepth();
         int maxWidth = getWidth();
         int tries = getTries();
 
-        Type requestedType = ftype.getFieldTypes();
-        int nargs = requestedType.getArity();
-        IValue[] args = new IValue[nargs];
-
-        Map<Type, Type> tpbindings = new TypeParameterBinder().bind(requestedType);
-        RandomValueGenerator randomValue = new RandomValueGenerator(vf, new Random(), maxDepth, maxWidth);
-        //RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, maxDepth, tpbindings, typeStore);
-
-        boolean passed = true;
-        Throwable exception = null;
-        for(int i = 0; i < tries && passed; i++){
-            for(int j = 0; j < nargs; j++){
-                args[j] = randomValue.generate(requestedType.getFieldType(j), typeStore, tpbindings);
+        TestResult result = new QuickCheck(new Random(), vf).test(fun.replace("/", "::").replaceAll("[(].*$", ""), ftype.getFieldTypes(), expected, (Type[] actuals, IValue[] args) -> {
+            try {
+                IValue res = (IValue) rex.getRVM().executeRVMFunction(fun, args, null);
+                if (((IBool)res).getValue()) {
+                    return QuickCheck.SUCCESS; 
+                }
+                else {
+                    return new TestResult(false, null);
+                }
+            } catch (Throwable e){
+                return new TestResult(false, e);
             }
-            Object result = runTest(rex, fun, args, expected);
-            if (result instanceof Boolean) {
-                passed = (Boolean)result;
-            }
-            else {
-                assert result instanceof Throwable;
-                exception = (Throwable)result;
-            }
-        }
+        }, typeStore, tries, maxDepth, maxWidth);
         
-        String message;
-        if(passed) {
-            message = "";
+        if (!result.succeeded()) {
+            StringWriter sw = new StringWriter();
+            PrintWriter out = new PrintWriter(sw);
+            result.writeMessage(out);
+            out.flush();
+            testResultListener.report(false, computeTestName(), src, sw.getBuffer().toString(), result.thrownException());
+            return vf.tuple(src,  vf.integer(0), vf.string(sw.getBuffer().toString()));
         }
-        else  {
-            if (nargs > 0) {
-                // try to find a smaller case
-                Type[] types = new Type[nargs];
-                for(int j = 0; j < nargs; j++){
-                    types[j] = requestedType.getFieldType(j);
-                }
-
-                Iterator<IValue[]> alternatives = QuickCheck.generateAlternatives(types, vf, new Random(), tries, maxDepth, maxWidth, typeStore, tpbindings);
-                IValue[] originalArgs = args;
-                boolean passed2 = true;
-                exception = null;
-                while (alternatives.hasNext() && passed2) {
-                    args = alternatives.next();
-                    Object result = runTest(rex, fun, args, expected);
-                    if (result instanceof Boolean) {
-                        passed2 = (Boolean)result;
-                    }
-                    else {
-                        assert result instanceof Throwable;
-                        exception = (Throwable)result;
-                    }
-                }
-                if (passed2) {
-                    args = originalArgs;
-                }
-                
-                // now print message
-                message = "test fails for arguments: ";
-                for(int j = 0; j < nargs; j++){
-                    message = message + args[j].toString() + " ";
-                }
-            }
-            else {
-                message = "test failed";
-            }
-            
-            if (exception != null) {
-                message = exception.getMessage() + message;
-            }
+        else {
+            testResultListener.report(true, computeTestName(), src, "", null);
+            return vf.tuple(src,  vf.integer(1), vf.string(""));
         }
-        testResultListener.report(passed, computeTestName(), src, message, exception);
-        return vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message));
     }
     
-    private Object runTest(RascalExecutionContext rex, String fun, IValue[] args, String expected) {
-        try {
-            IValue res = (IValue) rex.getRVM().executeRVMFunction(fun, args, null); 
-            return ((IBool) res).getValue();
-        } catch (Thrown e){
-            String ename;
-            if(e.getValue() instanceof IConstructor){
-                ename = ((IConstructor) e.getValue()).getName();
-            } else {
-                ename = e.toString();
-            }
-            if(!ename.equals(expected)){
-                return e;
-            }
-            return true;
-        }
-        catch (Exception e){
-            return e;
-        }
-
-    }
     
 
     public String computeTestName(){    // Resembles Function.getPrintableName
-      String base = name;
-      int colons = name.lastIndexOf("::");
+      String base = name.replaceAll("/", "::");
+      int colons = base.lastIndexOf("::");
       if(colons > 0){
-        base = name.substring(colons+2, name.indexOf("(")).replaceAll("/",  "::"); 
+        base = base.substring(colons+2, base.indexOf("(")).replaceAll("/",  "::"); 
       } else {
-        base = name.substring(name.indexOf("/")+1, name.indexOf("(")); 
+        base = base.substring(base.indexOf("/")+1, base.indexOf("(")); 
       }
       return base + ": <" + src.getOffset() +"," + src.getLength() +">";
     }

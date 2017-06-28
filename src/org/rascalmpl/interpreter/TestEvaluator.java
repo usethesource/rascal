@@ -20,13 +20,18 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
-import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.library.cobra.Cobra;
-import org.rascalmpl.library.cobra.QuickCheck;
+import org.rascalmpl.test.infrastructure.QuickCheck;
+import org.rascalmpl.test.infrastructure.QuickCheck.TestResult;
+
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 public class TestEvaluator {
 
@@ -70,7 +75,7 @@ public class TestEvaluator {
         tests = new ArrayList<>(tests); // just to be sure, clone the list
         Collections.shuffle(tests);
 
-        //		try {
+        QuickCheck qc = new QuickCheck(new Random(), eval.__getVf());  
         for (AbstractFunction test: tests) {
             if (test.hasTag("ignore") || test.hasTag("Ignore") || test.hasTag("ignoreInterpreter") || test.hasTag("IgnoreInterpreter")) {
                 testResultListener.ignored(test.getName(), test.getAst().getLocation());
@@ -78,28 +83,41 @@ public class TestEvaluator {
             }
 
             try{
-                QuickCheck qc = QuickCheck.getInstance();
-                StringWriter sw = new StringWriter();
-                PrintWriter out = new PrintWriter(sw);
                 int maxDepth = Cobra.readIntTag(test, Cobra.MAXDEPTH, 5);
                 int maxWidth = Cobra.readIntTag(test, Cobra.MAXWIDTH, 5);
                 int tries = Cobra.readIntTag(test, Cobra.TRIES, 500);
-
-                boolean result = qc.quickcheck(test, maxDepth, maxWidth, tries, false, out);
-                if (!result) {
-                    out.flush();
-                    testResultListener.report(false, test.getName(), test.getAst().getLocation(), sw.getBuffer()
-                            .toString(), null);
-                } else {
-                    testResultListener.report(true, test.getName(), test.getAst().getLocation(), sw.getBuffer()
-                            .toString(), null);
+                String expected = null;
+                if(test.hasTag(Cobra.EXPECT_TAG)){
+                    expected = ((IString) test.getTag(Cobra.EXPECT_TAG)).getValue();
                 }
-            }
-            catch(StaticError e) {
-                testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
-            }
-            catch(Throw e){
-                testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
+
+                TestResult result = qc.test(test.getEnv().getName() + "::" + test.getName(), test.getFormals(), expected, (Type[] actuals, IValue[] args) -> {
+                    try {
+                        IValue testResult = test.call(actuals, args, null).getValue();
+                        if (((IBool)testResult).getValue()) {
+                            return QuickCheck.SUCCESS;
+                        }
+                        else {
+                            return new TestResult(false, null);
+                        }
+                    }
+                    catch (Throwable e) {
+                        return new TestResult(false, e);
+                    }
+                }, env.getRoot().getStore(), tries, maxDepth, maxWidth);
+                
+                eval.getStdOut().flush();
+                eval.getStdErr().flush();
+                
+                if (!result.succeeded()) {
+                    StringWriter sw = new StringWriter();
+                    PrintWriter out = new PrintWriter(sw);
+                    result.writeMessage(out);
+                    out.flush();
+                    testResultListener.report(false, test.getName(), test.getAst().getLocation(), sw.getBuffer().toString(), result.thrownException());
+                } else {
+                    testResultListener.report(true, test.getName(), test.getAst().getLocation(), "test succeeded", null);
+                }
             }
             catch(Throwable e){
                 testResultListener.report(false, test.getName(), test.getAst().getLocation(), e.getMessage(), e);
