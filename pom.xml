@@ -162,36 +162,7 @@
                         </goals>
                     </execution>
                     
-                    <execution> <!--  compile the courses -->
-                        <configuration>
-                            <executable>java</executable>
-                            <classpathScope>compile</classpathScope>
-                            <workingDirectory>target/classes/</workingDirectory>
-                            <arguments>
-                                <argument>-Xmx2G</argument>
-                                <argument>-cp</argument>
-                                <classpath />
-                                <argument>-Dfile.encoding=UTF-8</argument>
-                                <argument>org.rascalmpl.library.experiments.tutor3.CourseCompiler</argument>
-                                <argument>--bin</argument>
-                                <argument>${project.build.directory}/classes/boot</argument>
-                                <argument>--src</argument>
-                                <argument>${project.basedir}/src/org/rascalmpl/library</argument>
-                                <argument>--boot</argument>
-                                <argument>${project.build.directory}/classes/boot</argument>
-                                <argument>--lib</argument>
-                                <argument>${project.build.directory}/classes/std</argument>
-                                <argument>--course</argument>
-                                <argument>${project.basedir}/src/org/rascalmpl/courses</argument>
-                                <argument>--all</argument>
-                            </arguments>
-                        </configuration>
-                        <id>courses</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                    </execution>
+                    
 				</executions>
 			</plugin>
 			<plugin>

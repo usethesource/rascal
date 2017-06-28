@@ -2,7 +2,6 @@ package org.rascalmpl.library.experiments.Compiler.Commands;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,10 +9,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
- 
+
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.uri.URIUtil; 
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
@@ -24,8 +26,6 @@ import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * Option values can have the following types;
@@ -444,14 +444,14 @@ public class CommandOptions {
 		if(respectNoDefaults.isEmpty()){
 			return "";
 		}
-		StringWriter w = new StringWriter();
-		w.append("Forbid use of default values for");
+		StringBuilder sb = new StringBuilder();
+		sb.append("Forbid use of default values for");
 		String sep = " ";
 		for(String name : respectNoDefaults){
-			w.append(sep).append(name);
+			sb.append(sep).append(name);
 			sep = ", ";
 		}
-		return w.toString();
+		return sb.toString();
 	}
 	
 	private void help(){

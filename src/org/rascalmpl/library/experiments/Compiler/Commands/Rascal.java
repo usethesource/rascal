@@ -1,30 +1,30 @@
 package org.rascalmpl.library.experiments.Compiler.Commands;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.net.URISyntaxException;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Rascal {
 
     static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
     public static ISourceLocation findBinary(ISourceLocation bin, String moduleName) throws IOException {
-        StringWriter sw = new StringWriter();
-        sw.append(bin.getPath())
+        StringBuilder sb = new StringBuilder();
+        sb.append(bin.getPath())
         .append("/")
         .append(moduleName.replaceAll("::", "/"))
         .append(".rvmx");
         
         try {
-            return vf.sourceLocation(bin.getScheme(), bin.getAuthority(), sw.toString());
+            return vf.sourceLocation(bin.getScheme(), bin.getAuthority(), sb.toString());
         }
         catch (URISyntaxException e) {
             throw new IOException(e);
