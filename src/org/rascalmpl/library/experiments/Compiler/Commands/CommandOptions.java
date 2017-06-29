@@ -582,10 +582,7 @@ public class CommandOptions {
         .locDefault(getDefaultProjectLocation())
         .help("Top level location where a project is located with its META-INF/RASCAL.MF file")
         
-        .locsOption(LIB_PATH_CONFIG_OPTION)      
-        .locsDefault((co) -> vf.list(co.getCommandLocOption(BIN_PATH_CONFIG_OPTION)))
-        .help("Add new lib location, use multiple --lib arguments for multiple locations")
-
+      
         .locsOption(SRC_PATH_CONFIG_OPTION)      
         .locsDefault(getDefaultStdlocs().isEmpty() ? vf.list(getDefaultStdlocs()) : getDefaultStdlocs())
         .help("Add (absolute!) source location, use multiple --src arguments for multiple locations")
@@ -606,6 +603,10 @@ public class CommandOptions {
             }
         })
         .help("Directory for Rascal binaries")
+
+        .locsOption(LIB_PATH_CONFIG_OPTION)      
+        .locsDefault((co) -> vf.list(co.getCommandLocOption(BIN_PATH_CONFIG_OPTION)))
+        .help("Add new lib location, use multiple --lib arguments for multiple locations")
 
         .locsOption(COURSES_PATH_CONFIG_OPTION)
         .locsDefault(PathConfig.getDefaultCoursesList())
@@ -643,6 +644,11 @@ class Option {
 		this.defaultValue = defaultValue;
 		this.respectsNoDefaults = respectsNoDefaults;
 		this.helpText = helpText;
+	}
+	
+	@Override
+	public String toString() {
+	    return name + ":" + currentValue != null ? currentValue.toString() : defaultValue.toString();
 	}
 	
 	public boolean set(OptionType optionType, String name, IValue newValue){
