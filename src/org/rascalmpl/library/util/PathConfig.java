@@ -231,7 +231,10 @@ public class PathConfig {
         // make all libraries look inside jar files where possible
         List<ISourceLocation> result = new LinkedList<>();
         for (ISourceLocation l : done) {
-            result.add(RascalManifest.jarify(l));
+            ISourceLocation jarred = RascalManifest.jarify(l);
+            if (!result.contains(jarred)) {
+                result.add(jarred);
+            }
         }
         
         return Collections.unmodifiableList(result);
@@ -254,7 +257,7 @@ public class PathConfig {
         return result;
     }
 
-    private ISourceLocation parseSourceLocation(String recLib) throws IOException {
+    private static ISourceLocation parseSourceLocation(String recLib) throws IOException {
         return (ISourceLocation) new StandardTextReader().read(vf, new StringReader(recLib));
     }
 	
@@ -488,7 +491,7 @@ public class PathConfig {
         
         // These are jar files which make contain compiled Rascal code to link to:
         for (String lib : manifest.getRequiredLibraries(manifestRoot)) {
-            ISourceLocation jar = URIUtil.getChildLocation(manifestRoot, lib);
+            ISourceLocation jar = lib.startsWith("|") ? parseSourceLocation(lib) : URIUtil.getChildLocation(manifestRoot, lib);
             libsWriter.append(jar);
             classloaders.append(jar);
         }
