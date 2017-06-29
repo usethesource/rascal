@@ -456,7 +456,7 @@ public class Bootstrap {
       time("- compile Kernel",          () -> compileModule   (phase, classPath, bootPath, sourcePath, phaseResult, "lang::rascal::boot::Kernel", reloc));
 
       if (phase == 1) {
-          // the new parser generator would refer to classes which may not exist yet. Subce stage 2 we still run against this old version
+          // the new parser generator would refer to classes which may not exist yet. Until stage 2 we still run against this old version
           // we now copy an old version of the generator to be used in phase 2.
           copyParserGenerator(jarFileSystem(classPath).getRootDirectories().iterator().next(), phaseResult);
       }
