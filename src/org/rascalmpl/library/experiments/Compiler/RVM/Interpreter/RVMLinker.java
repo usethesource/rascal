@@ -93,7 +93,7 @@ public class RVMLinker {
 			//System.out.println("useFunctionName (undef): " + index + "  => " + fname);
 			usedFunctions.add(fname);
 		}
-		//System.out.println("useFunctionName: " + index + "  => " + fname);
+		System.out.println("useFunctionName: " + index + "  => " + fname);
 		return index;
 	}
 	
@@ -109,7 +109,7 @@ public class RVMLinker {
 			f.funId = index ;
 		}
 		
-//		System.out.println("declareFunction: " + index + "  => " + f.getName());
+		System.out.println("declareFunction: " + index + "  => " + f.getName());
 	}
 	
 	private Integer useConstructorName(String cname) {
@@ -227,6 +227,34 @@ public class RVMLinker {
 				System.err.println("OverloadedStore has null entry for: "+ oname + " at index " + n);
 			}
 		}
+		
+		for(OverloadedFunction ovf : overloadedStore){
+		    if(ovf.name.contains("isDefined")){
+		        System.err.println("isDefined");
+		    }
+		    int nfun = functionStore.size();
+		    for(int fid : ovf.functions){
+		        if(fid >= nfun){
+		            System.err.println("OverloadedFunction " + ovf.name + ": functions contains illegal fid (" + fid + "): " + ovf.functions);
+		        }
+		    }
+		    int ncon = constructorStore.size();
+		    for(int cid : ovf.constructors){
+                if(cid >= ncon){
+                    System.err.println("OverloadedFunction " + ovf.name + ": constructors contains illegal cid (" + cid + "): " + ovf.constructors);
+                }
+            }
+		    if(ovf.filteredFunctions != null){
+		        for(int[] funs : ovf.filteredFunctions.values()){
+		            for(int fid : funs){
+		                if(fid >= nfun){
+		                    System.err.println("OverloadedFunction " + ovf.name + ": filteredFunctions contains illegal fid (" + fid + "): " + funs);
+		                }
+		            }
+		        }
+		    }
+		}
+	
 	}
 	
 	@SuppressWarnings("unused")
@@ -389,7 +417,7 @@ public class RVMLinker {
 			return new RVMExecutable(errors);
 		}
 		
-		boolean eliminateDeadCode = true;
+		boolean eliminateDeadCode = false;
 		
 		functionStore = new ArrayList<Function>();
 		constructorStore = new ArrayList<Type>();

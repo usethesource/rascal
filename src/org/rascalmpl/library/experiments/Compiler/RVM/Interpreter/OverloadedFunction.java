@@ -70,6 +70,9 @@ public class OverloadedFunction {
 		this.allConcreteConstructorArgs = allConcreteConstructorArgs;
 		this.filteredFunctions = filteredFunctions;
 		this.filteredConstructors = filteredConstructors;
+		if(name.contains("isDefault")){
+		    System.err.println("isDefault");
+		}
 	}
 
 	public boolean matchesNameAndSignature(String name, Type funType){
@@ -103,8 +106,8 @@ public class OverloadedFunction {
 	}
 	
 	public void finalize(final Map<String, Integer> functionMap, List<Function> functionStore, List<Type> constructorStore, Map<Integer, Integer> indexMap){
-	    if(name.equals("pathConfig")){
-	        System.err.println("pathConfig");
+	    if(name.equals("isDefined")){
+	        System.err.println("isDefined");
 	    }
 		if(funIn.length() > 0){ // != null) {
 			Integer si = functionMap.get(funIn);
@@ -144,6 +147,14 @@ public class OverloadedFunction {
 	}
 	
 	void fids2objects(Function[] functionStore, Type[] constructorStore){
+	    
+	 // TODO: temp consistency tests
+	    for(int fid : functions){
+            if(fid < 0 || fid >= functionStore.length){
+                System.err.println("OverloadedFunction " + name + ", fids2objects fid outside functionStore: " + fid);
+            }
+        }
+        
 	    if(filteredFunctions == null){
 	        filterFunctions(new ArrayList<>(Arrays.asList(functionStore)));    // TODO: efficiency!
 	    }
@@ -266,7 +277,11 @@ public class OverloadedFunction {
 
 		int fp = ToplevelType.getFingerprint((IValue) arg0, allConcreteFunctionArgs);
 		Function[] funs = filteredFunctionsAsFunction.get(fp);
-		return funs == null ? filteredFunctionsAsFunction.get(0) : funs;
+		Function[] res = funs == null ? filteredFunctionsAsFunction.get(0) : funs;
+		if(res == null){
+		    System.err.println("getFunctions ==> null");
+		}
+		return res;
 	}
 	
 	/**
@@ -330,18 +345,28 @@ public class OverloadedFunction {
 		
 		// Values in alts may also occur in defaults, we ensure that the list will not contain duplicate elements
 		for(int fp : filtered.keySet()){
-			ArrayList<Integer> alts = filtered.get(fp);
-			int nalts = alts.size();
-			ArrayList<Integer> defaults1 = (ArrayList<Integer>) defaults.clone();
-            defaults1.removeIf(x -> alts.contains(x));
-            int ndefaults1 = defaults1.size();
-			Function[] funs = new Function[nalts + ndefaults1];
-			for(int i = 0; i < nalts; i++){
-				funs[i] = functionStore.get(alts.get(i));
-			}
-			for(int i = 0; i < ndefaults1; i++){
-				funs[nalts + i] = functionStore.get(defaults1.get(i));
-			}
+		    ArrayList<Integer> alts = filtered.get(fp);
+		    int nalts = alts.size();
+		    int[] funs;
+
+		    if(fp == 0){
+		        funs = new int[nalts];
+		        for(int i = 0; i < nalts; i++){
+		            funs[i] = alts.get(i);
+		        }
+		    } else {
+		        ArrayList<Integer> defaults1 = (ArrayList<Integer>) defaults.clone();
+		        defaults1.removeIf(x -> alts.contains(x));
+		        int ndefaults1 = defaults1.size();
+		        funs = new int[nalts + ndefaults1];
+		        for(int i = 0; i < nalts; i++){
+		            funs[i] = alts.get(i);
+		        }
+		        for(int i = 0; i < ndefaults1; i++){
+		            funs[nalts + i] = defaults1.get(i);
+		        }
+		    }
+		    filteredFunctions.put(fp,  funs);
 		}
 	}
 	
