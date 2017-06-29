@@ -548,17 +548,17 @@ public class CommandOptions {
 	}
 
 	public ISourceLocation getDefaultRelocLocation(){
-      try {
-          return vf.sourceLocation("noreloc", "", "");
-      } catch (URISyntaxException e) {
-          printUsageAndExit("Cannot create default location: " + e.getMessage());
-          return null;
-      }
+          return URIUtil.correctLocation("noreloc", "", "");
+	}
+	
+	public ISourceLocation getDefaultProjectLocation(){
+        return URIUtil.correctLocation("noproject", "", "");
   }
 	
 	public PathConfig getPathConfig() throws IOException {
-	    ISourceLocation project = getCommandLocOption(PROJECT_PATH_CONFIG_OPTION);
-        if (project != null) {
+        ISourceLocation project = getCommandLocOption(PROJECT_PATH_CONFIG_OPTION);
+        
+        if (!project.equals(getDefaultProjectLocation())) {
 	        return PathConfig.fromSourceProjectRascalManifest(project);
 	    }
         else {
@@ -579,7 +579,7 @@ public class CommandOptions {
     public CommandOptions pathConfigOptions() {
         this
         .locOption(PROJECT_PATH_CONFIG_OPTION)
-        .locDefault(PathConfig.getDefaultProject())
+        .locDefault(getDefaultProjectLocation())
         .help("Top level location where a project is located with its META-INF/RASCAL.MF file")
         
         .locsOption(LIB_PATH_CONFIG_OPTION)      

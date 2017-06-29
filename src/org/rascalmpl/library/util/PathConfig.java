@@ -322,10 +322,6 @@ public class PathConfig {
         return defaultBoot;
     }
 	
-	public static ISourceLocation getDefaultProject() {
-        return URIUtil.correctLocation("cwd", "", "");
-    }
-	
 	public static ISourceLocation getDefaultRepo() {
         return defaultRepo;
     }
