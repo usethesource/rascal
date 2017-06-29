@@ -484,7 +484,10 @@ public class Bootstrap {
     }
 
     private static void generateAndCompileRascalParser(int phase, String classPath, String sourcePath, String bootPath, Path phaseResult, Path targetFolder) throws IOException, InterruptedException, BootstrapMessage {
-        bootstrapRascalParser(classPath, sourcePath, bootPath, phaseResult);
+        if (bootstrapRascalParser(classPath, sourcePath, bootPath, phaseResult) != 0) {
+            throw new BootstrapMessage(phase);
+        }
+        
         String[] paths = new String [] { sourcePath + "/lang/rascal/syntax/RascalParser.java" };
         if (runJavaCompiler(classPath, targetFolder.toAbsolutePath().toString(), concat(paths)) != 0) {
             throw new BootstrapMessage(phase);
@@ -580,7 +583,11 @@ public class Bootstrap {
             info("command: " + Arrays.stream(command).reduce("", (x,y) -> x + " " + y));
             childProcess = new ProcessBuilder(command).inheritIO().start();
             childProcess.waitFor();
-            return childProcess.exitValue();    
+            int exitValue = childProcess.exitValue();
+            if (exitValue != 0) {
+                error("Command failed: " + command);
+            }
+            return exitValue;
         }
     }
     
