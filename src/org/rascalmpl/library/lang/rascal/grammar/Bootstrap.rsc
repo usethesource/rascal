@@ -25,12 +25,6 @@ public Grammar getRascalGrammar(loc grammarFile) {
   return modules2grammar("lang::rascal::syntax::Rascal", {\module});
 }
 
-public void bootstrapRascalParser(loc rascalHome) {
-  println("bootstrapRascalParser1: generating from <rascalHome>");
-  gr = getRascalGrammar(rascalHome + "lang/rascal/syntax/Rascal.rsc");
-  bootParser(gr, rascalHome);
-}
-
 public void bootstrapRascalParser(list[loc] srcs) {
   rascalLib = srcs[0];
   println("bootstrapRascalParser2: generating from <rascalLib>");
