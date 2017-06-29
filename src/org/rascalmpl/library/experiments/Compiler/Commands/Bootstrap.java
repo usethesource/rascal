@@ -37,6 +37,8 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.binary.stream.IValueInputStream;
 import org.rascalmpl.values.ValueFactoryFactory;
 
+import com.beust.jcommander.internal.Lists;
+
 import static org.rascalmpl.values.uptr.RascalValueFactory.TYPE_STORE_SUPPLIER;
 
 /**
@@ -484,9 +486,11 @@ public class Bootstrap {
     }
 
     private static void generateAndCompileRascalParser(int phase, String classPath, String sourcePath, String bootPath, Path phaseResult, Path targetFolder) throws IOException, InterruptedException, BootstrapMessage {
-        if (bootstrapRascalParser(classPath, sourcePath, bootPath, phaseResult) != 0) {
-            throw new BootstrapMessage(phase);
-        }
+//        if (
+            bootstrapRascalParser(classPath, sourcePath, bootPath, phaseResult); 
+//            != 0) {
+//            throw new BootstrapMessage(phase);
+//        }
         
         String[] paths = new String [] { sourcePath + "/lang/rascal/syntax/RascalParser.java" };
         if (runJavaCompiler(classPath, targetFolder.toAbsolutePath().toString(), concat(paths)) != 0) {
@@ -585,12 +589,20 @@ public class Bootstrap {
             childProcess.waitFor();
             int exitValue = childProcess.exitValue();
             if (exitValue != 0) {
-                error("Command failed: " + command);
+                error("Command failed: " + Arrays.stream(command).reduce("", ((s,e) -> s + (safeString(e.toString()) + " "))));
             }
             return exitValue;
         }
     }
     
+    private static String safeString(String x) {
+        x = x.trim();
+        if (x.startsWith("|")) {
+            return "\"" + x + "\"";
+        }
+        
+        return x;
+    }
     private static void progress(String msg) {
          System.err.println("BOOTSTRAP:" + msg);
     }
