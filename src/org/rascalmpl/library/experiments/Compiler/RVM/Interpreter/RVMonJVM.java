@@ -786,6 +786,9 @@ public class RVMonJVM extends RVMCore {
 		cf.sp = sp;
 
 		OverloadedFunction of = overloadedStore[ofun];
+		if(of.name.contains("subset")){
+		    System.err.println("subset");
+		}
 	    
 		Object arg0 = stack[sp - arity];
 		OverloadedFunctionInstanceCall ofun_call = 
