@@ -151,7 +151,7 @@
                                 <argument>--src</argument>
                                 <argument>${project.basedir}/src/org/rascalmpl/library</argument>
                                 <argument>--reloc</argument>
-                                <argument>|std:///|</argument>
+                                <argument>|stdlib:///|</argument>
                                 <argument>StandardLibrary</argument>
                             </arguments>
                         </configuration>
