@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.utils.RascalManifest;
@@ -482,6 +483,7 @@ public class PathConfig {
 	 */
 	public static PathConfig fromSourceProjectRascalManifest(ISourceLocation manifestRoot) throws IOException {
         RascalManifest manifest = new RascalManifest();
+        Set<String> loaderSchemes = URIResolverRegistry.getInstance().getRegisteredClassloaderSchemes();
         
         IListWriter libsWriter = vf.listWriter();
         IListWriter srcsWriter = vf.listWriter();
@@ -493,7 +495,10 @@ public class PathConfig {
         for (String lib : manifest.getRequiredLibraries(manifestRoot)) {
             ISourceLocation jar = lib.startsWith("|") ? parseSourceLocation(lib) : URIUtil.getChildLocation(manifestRoot, lib);
             libsWriter.append(jar);
-            classloaders.append(jar);
+            
+            if (loaderSchemes.contains(jar.getScheme())) {
+                classloaders.append(jar);
+            }
         }
         
         for (String srcName : manifest.getSourceRoots(manifestRoot)) {
