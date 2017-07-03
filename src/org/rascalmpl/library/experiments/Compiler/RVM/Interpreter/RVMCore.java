@@ -103,8 +103,6 @@ public abstract class RVMCore {
 	
 	protected final Map<Class<?>, Object> instanceCache;
 	protected final Map<String, Class<?>> classCache;
-
-	private final Types types;
 	
 	public static RVMCore readFromFileAndInitialize(ISourceLocation rvmBinaryLocation, RascalExecutionContext rex) throws IOException{
 		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);
@@ -170,8 +168,6 @@ public abstract class RVMCore {
 
 	  this.constructorStore = rvmExec.getConstructorStore();
 	  this.constructorMap = rvmExec.getConstructorMap();
-
-	  this.types = new Types(vf);
 
 	  IFrameObserver observer = rex.getFrameObserver(); 
 	  this.frameObserver = (observer == null) ? NullFrameObserver.getInstance() : observer;
@@ -380,67 +376,6 @@ public abstract class RVMCore {
 	  }
 
 	  throw new NoSuchRascalFunction(name);
-	}
-	
-	// deprecated
-	public OverloadedFunction getOverloadedFunction(String signature) throws NoSuchRascalFunction{
-		OverloadedFunction result = null;
-		
-		String name = types.getFunctionName(signature);
-		Type funType = types.getFunctionType(signature);
-		FunctionType ft = (FunctionType) funType;
-		int arity = ft.getArity();
-		
-		for(OverloadedFunction of : overloadedStore){
-			if(of.matchesNameAndSignature(name, funType)){
-				if(result == null){
-					result = of;
-				} else {
-					if(result.getFunctions().length < of.getFunctions().length ||
-					   result.getConstructors().length < of.getConstructors().length){
-						result = of;
-					}
-				}
-			}
-		}
-		
-		if(result != null){
-			return result;
-		}
-		
-		ArrayList<Integer> filteredAlts = getFunctionByNameAndArity(name, arity);
-		if(filteredAlts.size() > 0){
-		  Type tp = tf.tupleType(tf.valueType()); // arbitrary!
-		  int falts[] = new int[filteredAlts.size()];
-		  for(int i = 0; i < falts.length; i++){
-		    falts[i] = filteredAlts.get(i);
-		  }
-		  return new OverloadedFunction(name, tp,  falts, new int[] { }, "");
-		}
-
-		for(int i = 0; i < constructorStore.size(); i++){
-			Type tp = constructorStore.get(i);
-			if(name.equals(tp.getName()) && ft.getFieldTypes().comparable(funType.getFieldTypes()) 
-					                     && ft.getReturnType().comparable(tp.getAbstractDataType())
-					){
-				return new OverloadedFunction(name, tp,  new int[]{}, new int[] { i }, "");
-			}
-		}
-		
-	
-		// No overloaded function or constructor matched, only nonterminals remain ...
-		for(int i = 0; i < functionStore.length; i++){
-			Function fun = functionStore[i];
-			if(fun.name.contains("/" + name + "(")){
-				if(fun.ftype instanceof FunctionType){
-					FunctionType tp = (FunctionType) fun.ftype;
-					if(tp.comparable(ft)){
-						return new OverloadedFunction(name, tp, new int[]{ i }, new int[] { }, "");
-					}
-				}
-			}
-		}
-		throw new NoSuchRascalFunction(signature);
 	}
 	
 	public Function getCompanionDefaultsFunction(String name, Type ftype){
