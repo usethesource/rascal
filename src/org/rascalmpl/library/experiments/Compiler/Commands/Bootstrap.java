@@ -37,8 +37,6 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.binary.stream.IValueInputStream;
 import org.rascalmpl.values.ValueFactoryFactory;
 
-import com.beust.jcommander.internal.Lists;
-
 import static org.rascalmpl.values.uptr.RascalValueFactory.TYPE_STORE_SUPPLIER;
 
 /**
