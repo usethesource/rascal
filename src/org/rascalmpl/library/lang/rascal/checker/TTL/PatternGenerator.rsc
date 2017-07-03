@@ -15,7 +15,6 @@ module lang::rascal::checker::TTL::PatternGenerator
 import Prelude;
 import Type;
 import cobra::arbitrary;
-import cobra::quickcheck;
 import lang::rascal::checker::TTL::Library;
 
 private list[Symbol] baseTypes = [Symbol::\bool(), Symbol::\int(), Symbol::\real(), Symbol::\num(), Symbol::\str(), Symbol::\loc(), Symbol::\datetime()];
