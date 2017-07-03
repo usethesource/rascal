@@ -9,6 +9,7 @@ import Map;
 import Set;
 import ParseTree;
 import util::Benchmark;
+import util::FileSystem;
 import analysis::graphs::Graph;
 import DateTime;
 
@@ -427,9 +428,18 @@ TestResults rascalTestsRaw(list[str] qualifiedModuleNames, PathConfig pcfg,
    
    exceptions = [];
    value v;
-   //bool executables_available = true;
-   
+
+   expandedModuleNames = [];    // replace any directories by the (nested) Rascal modules found there
    for(qualifiedModuleName <- qualifiedModuleNames){
+        try {
+            loc moduleLoc = getModuleLocation(qualifiedModuleName, pcfg, extension="");
+            expandedModuleNames += [ getModuleName(subModuleLoc, pcfg) | subModuleLoc <- find(moduleLoc, "rsc") ];
+        } catch e: {
+            expandedModuleNames += qualifiedModuleName;
+        }
+   }
+   
+   for(qualifiedModuleName <- expandedModuleNames){
        try {
        if(!recompile && <true, compressed> := RVMExecutableReadLoc(qualifiedModuleName, pcfg)){
            if(verbose) println("Using <compressed>");
