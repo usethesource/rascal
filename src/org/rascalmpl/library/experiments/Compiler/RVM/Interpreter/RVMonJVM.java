@@ -20,6 +20,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -61,13 +62,14 @@ public class RVMonJVM extends RVMCore {
 	protected Object returnValue = null;		// Actual return value of functions
 	
 	//EXPERIMENTAL
-	static RVMonJVM currentRVMonJVM;
-	static Function[] staticFunctionStore;
+	static HashMap<String,RVMonJVM> currentRVMonJVM = new HashMap<>();
+	static HashMap<String,Function[]> functionStores = new HashMap<>();
 
 	public RVMonJVM(RVMExecutable rvmExec, RascalExecutionContext rex) {
 		super(rvmExec, rex);
-		currentRVMonJVM = this;
-		staticFunctionStore = functionStore;
+		String generatedClassName = rvmExec.getGeneratedClassQualifiedName();
+		currentRVMonJVM.put(generatedClassName, this);
+		functionStores.put(generatedClassName, functionStore);
 	}
 	
 	/************************************************************************************/
@@ -350,18 +352,18 @@ public class RVMonJVM extends RVMCore {
 	/**
 	 * @throws ClassNotFoundException **********************************************************************************************/
 //EXPERIMENTAL	
-	public static CallSite bootstrapGetFrame(MethodHandles.Lookup caller, String name, MethodType type, Object arg) throws NoSuchMethodException, IllegalAccessException, ClassNotFoundException {
+	public static CallSite bootstrapGetFrameAndCall(MethodHandles.Lookup caller, String name, MethodType type, Object className, Object funId, Object arity) throws NoSuchMethodException, IllegalAccessException, ClassNotFoundException {
 	    MethodHandles.Lookup lookup = caller;
-	    Function func = staticFunctionStore[(Integer) arg];
+	    String generatedClassName = (String) className;
+	    Function func = functionStores.get(generatedClassName)[(Integer) funId];
 	    MethodType getFrameType = MethodType.methodType(Frame.class, Function.class, Frame.class, int.class, int.class);
 
 	    MethodHandle getFrame = lookup.findVirtual(Frame.class, "getFrame", getFrameType);
 	    MethodHandle getFrame1 = MethodHandles.insertArguments(getFrame, 1, func);
-	    MethodHandle getFrame2 = MethodHandles.insertArguments(getFrame1, 2, func.nformals);
-	    
-	    //MethodType combinedType = MethodType.methodType(Object.class, Frame.class, Frame.class, Type.INT_TYPE);   
+	    MethodHandle getFrame2 = MethodHandles.insertArguments(getFrame1, 2, (Integer) arity);
+	     
 	    MethodHandle funToCall = func.handle;
-	    MethodHandle funToCall1 = MethodHandles.insertArguments(funToCall, 0, currentRVMonJVM);
+	    MethodHandle funToCall1 = MethodHandles.insertArguments(funToCall, 0, currentRVMonJVM.get(generatedClassName));
 	    MethodHandle combined = filterReturnValue(getFrame2, funToCall1);
 	    
 	    return new ConstantCallSite(combined.asType(type));
@@ -781,14 +783,64 @@ public class RVMonJVM extends RVMCore {
 		
 		return NONE;// i.e., signal a failure;
 	}
+	public Object jvmOCALL(final Object[] stack, final int sp, final Frame cf, final int ofun, final int arity) {
+        cf.sp = sp;
 
-	public Object jvmOCALL(final Object[] stack, int sp, final Frame cf, final int ofun, final int arity) {
+        OverloadedFunction of = overloadedStore[ofun];
+        
+        Object arg0 = stack[sp - arity];
+        Function[] functions = of.getFunctions(arg0);
+        
+        Frame previousScope = cf;        
+        frameObserver.enter(root);
+        
+        for(int fid = 0; fid < functions.length; fid++){
+            Frame frame = cf.getFrame(functions[fid], previousScope, arity, sp);
+            try {
+                if(frame.function.handle.invoke(this, frame) == NONE){
+                    frameObserver.leave(root, returnValue);
+                    return returnValue; // Alternative matched.
+                }
+            } catch (Throwable e) {
+                if(e instanceof Thrown){
+                    throw (Thrown) e;
+                } else {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+        Type[] constructors = of.getConstructors(arg0);
+        if(constructors.length > 0){
+            Type constructor;
+            try {
+                constructor = constructors[0];
+            } catch (Throwable e) {
+                if(e instanceof Thrown){
+                    throw (Thrown) e;
+                } else {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            cf.sp = sp - arity;
+
+            int carity = constructor.getArity();
+            IValue[] cargs = new IValue[carity];
+            int basesp = sp - carity - 1;
+            for(int i = 0; i < carity; i++) {
+                cargs[i] = (IValue) stack[basesp + i]; 
+            }
+
+            returnValue = vf.constructor(constructor, cargs);
+            //frameObserver.leave(frame, returnValue);
+        }
+        return returnValue; // TODO; what if no constructor?
+    }
+
+	public Object jvmOCALL_OLD(final Object[] stack, int sp, final Frame cf, final int ofun, final int arity) {
 		cf.sp = sp;
 
 		OverloadedFunction of = overloadedStore[ofun];
-		if(of.name.contains("subset")){
-		    System.err.println("subset");
-		}
 	    
 		Object arg0 = stack[sp - arity];
 		OverloadedFunctionInstanceCall ofun_call = 
