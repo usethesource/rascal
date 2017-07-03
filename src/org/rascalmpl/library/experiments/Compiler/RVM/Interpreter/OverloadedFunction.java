@@ -42,6 +42,7 @@ public class OverloadedFunction {
 	Map<Integer, int[]> filteredFunctions;		// Functions and constructors filtered on fingerprint of first argument
 	Map<Integer, int[]> filteredConstructors;
 	
+	// transient
 	Function[] functionsAsFunction;
 	Type[] constructorsAsType;
 	Map<Integer, Function[]> filteredFunctionsAsFunction;
@@ -70,9 +71,6 @@ public class OverloadedFunction {
 		this.allConcreteConstructorArgs = allConcreteConstructorArgs;
 		this.filteredFunctions = filteredFunctions;
 		this.filteredConstructors = filteredConstructors;
-		if(name.contains("isDefault")){
-		    System.err.println("isDefault");
-		}
 	}
 
 	public boolean matchesNameAndSignature(String name, Type funType){
@@ -105,21 +103,19 @@ public class OverloadedFunction {
 	    return this == other || this.name.equals(other.name) && this.funType.equals(other.funType) && this.scopeIn == other.scopeIn && compareIntArrays(this.functions, other.functions) && compareIntArrays(this.constructors, other.constructors);
 	}
 	
-	public void finalize(final Map<String, Integer> functionMap, List<Function> functionStore, List<Type> constructorStore, Map<Integer, Integer> indexMap){
-	    if(name.equals("isDefined")){
-	        System.err.println("isDefined");
-	    }
+	public void finalize(final Map<String, Integer> functionMap, List<Function> functionStore, List<Type> constructorStore, Map<Integer, Integer> shiftedFunctionindexMap){
 		if(funIn.length() > 0){ // != null) {
 			Integer si = functionMap.get(funIn);
 			if(si == null){		// Give up, containing scope is not included in final RVM image created by loader
+			    System.err.println("OverloadedFunction: enclosing scope " + funIn + " not found");
 				return;
 			}
 			this.setScopeIn(si);
 		}
-		if(indexMap != null){
+		if(shiftedFunctionindexMap != null){
 			int nelems = 0;
 			for(int i = 0; i < functions.length; i++){
-				Integer newIndex = indexMap.get(functions[i]);
+				Integer newIndex = shiftedFunctionindexMap.get(functions[i]);
 				if(newIndex != null){
 					functions[nelems++] = newIndex;
 				}
@@ -151,7 +147,7 @@ public class OverloadedFunction {
 	 // TODO: temp consistency tests
 	    for(int fid : functions){
             if(fid < 0 || fid >= functionStore.length){
-                System.err.println("OverloadedFunction " + name + ", fids2objects fid outside functionStore: " + fid);
+                System.err.println("OverloadedFunction " + name + ", fids2objects fid outside functionStore (" + fid + ") should be in [0.." + functionStore.length + "]");
             }
         }
         
