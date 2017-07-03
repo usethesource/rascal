@@ -76,8 +76,6 @@ public class Function {
 	int[] fromSPs;
 	int lastHandler = -1;
 
-	public Integer funId; // USED in dynRun to find the function, in the JVM version only.
-
 	public String[] fromLabels;
 	public String[] toLabels;
     public String[] handlerLabels;
@@ -137,6 +135,7 @@ public class Function {
 		this.setNlocals(nlocals);
 		this.isDefault = isDefault;
 		this.isTest = isTest;
+		this.simpleArgs = simpleArgs;
         this.tags = (tags == null) ? ValueFactoryFactory.getValueFactory().mapWriter().done() : tags;
 		this.localNames = localNames;
 		this.maxstack = maxstack;
@@ -448,8 +447,6 @@ public class Function {
 
         out.writeField(CompilerIDs.Function.LAST_HANDLER, lastHandler);
         
-        out.writeField(CompilerIDs.Function.FUN_ID, funId.intValue()); // Why Integer and not int?
-
         if(isCoroutine){
             out.writeField(CompilerIDs.Function.IS_COROUTINE, 1);
         }
@@ -500,8 +497,6 @@ public class Function {
         int[] handlers = new int[0];
         int[] fromSPs = new int[0];
         int lastHandler = -1;
-
-        Integer funId = -1; // USED in dynRun to find the function, in the JVM version only.
         
         int continuationPoints = 0;
         
@@ -651,7 +646,7 @@ public class Function {
                 }
                 
                 case CompilerIDs.Function.FUN_ID: {
-                    funId = in.getInteger();
+                    in.getInteger();    // legacy field
                     break;
                 }
                 
@@ -697,12 +692,10 @@ public class Function {
      
         // TODO: check fields are valid
         
-        Function func = new Function(name, ftype, kwType, funIn, nformals, nlocals, isDefault, isTest, simpleArgs, tags, localNames, maxstack, 
+        return new Function(name, ftype, kwType, funIn, nformals, nlocals, isDefault, isTest, simpleArgs, tags, localNames, maxstack, 
             concreteArg, abstractFingerprint, concreteFingerprint, codeblock, src,
             scopeIn, constantStore, typeConstantStore, froms, tos, types, handlers,
             fromSPs, lastHandler, scopeId, isCoroutine, refs, isVarArgs, continuationPoints);
-        func.funId = funId;
-        return func;
     }
 
     public Class<?> getJavaClass() {
