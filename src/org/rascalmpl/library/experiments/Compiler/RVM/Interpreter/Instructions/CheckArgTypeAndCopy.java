@@ -29,7 +29,7 @@ public class CheckArgTypeAndCopy extends Instruction {
 		}
 		
 		// TODO: determine which version is better
-		codeEmittor.emitCallWithArgsSSFIII_A("insnCHECKARGTYPEANDCOPY", pos1, type, pos2);
-		//codeEmittor.emitInlineCheckArgTypeAndCopy(pos1,type,pos2) ;
+		//codeEmittor.emitCallWithArgsSSFIII_A("insnCHECKARGTYPEANDCOPY", pos1, type, pos2);
+		codeEmittor.emitInlineCheckArgTypeAndCopy(pos1,type,pos2) ;
 	}
 }
