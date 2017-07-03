@@ -140,7 +140,8 @@ PathConfig applyManifests(PathConfig cfg) {
    return cfg;
 }
 
-str makeFileName(str qualifiedModuleName, str extension = "rsc") = replaceAll(qualifiedModuleName, "::", "/") + "." + extension;
+str makeFileName(str qualifiedModuleName, str extension = "rsc") = 
+    replaceAll(qualifiedModuleName, "::", "/") + (isEmpty(extension) ? "" : ("." + extension));
 
 loc getSearchPathLoc(str filePath, PathConfig pcfg){
     for(loc dir <- pcfg.srcs + pcfg.libs){
@@ -153,8 +154,8 @@ loc getSearchPathLoc(str filePath, PathConfig pcfg){
     throw "Module with path <filePath> not found";
 }
 
-loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
-    fileName = makeFileName(qualifiedModuleName);
+loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg, str extension = "rsc"){
+    fileName = makeFileName(qualifiedModuleName, extension=extension);
     for(loc dir <- pcfg.srcs){
         fileLoc = dir + fileName;
         if(exists(fileLoc)){
