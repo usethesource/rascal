@@ -95,10 +95,6 @@ public class OverloadedFunctionInstanceCall {
 		return cf.getFrame(f, previousScope, arity, sp);
 	}
 	
-	public Function nextFunction(final Function[] functionStore) {
-		return nextFunction();
-	}
-	
 	public Function nextFunction() {
 		if(types == null) {
 			return alternative < getFunctions().length ? getFunctions()[alternative++] : null;
@@ -117,10 +113,6 @@ public class OverloadedFunctionInstanceCall {
 			}
 		}
 		return null;
-	}
-	
-	public Type nextConstructor(final List<Type> constructorStore){
-		return nextConstructor();
 	}
 	
 	public Type nextConstructor() {
