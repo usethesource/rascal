@@ -21,7 +21,7 @@ public class Frame {
     public Frame previousCallFrame;			// Backpointer to caller
     public final Frame previousScope;
 	public final Object[] stack;			// The local stack
-	public int sp;							// Stack pointer
+	public int sp;							// Stack pointer in local stack
 	
 	/*
 	 * Layout of the stack for a function with 'nformals' formals arguments and 'nlocals' local variables:
@@ -33,7 +33,7 @@ public class Frame {
 	 * stack[nlocals] ... stack[stackSize-1]  : intermediate results during execution
 	 * 
 	 */
-	int pc;									// Program counter in RVM code
+	int pc;									// Program counter in RVM code (only used in RVM interpreter)
 	public ISourceLocation src;				// Most recent source location
 	public final Function function;			// The function that is being called
 	
@@ -118,8 +118,7 @@ public class Frame {
 	}
 	
 	/**
-	 * Given a current frame (this), 
-	 * creates a new frame (frame), 
+	 * Given a current frame (this), creates a new frame (frame), 
 	 * pushes arguments from the current frame's stack to the stack of the new frame,
 	 * (re)setting the stack pointer of both the current and the new frame, and 
 	 * returns the new frame to the caller.
@@ -128,12 +127,6 @@ public class Frame {
 		Frame frame = new Frame(f.scopeId, this, previousScope, f.maxstack, f);
 		this.sp = frame.pushFunctionArguments(arity, this.stack, sp);
 		return frame;
-	}
-	
-	public Frame reuseFrame(){
-	    java.util.Arrays.fill(stack, function.getNlocals(), stack.length-1, null);
-	    this.sp = function.getNlocals();
-	    return this;
 	}
 		
 	public Frame getFrame(final Function f, final Frame previousScope, final Object[] args) {
@@ -176,17 +169,17 @@ public class Frame {
 			for(int i = 0; i < arity; i++){
 				this.stack[this.sp++] = stack[start + i]; 
 			}
-		} else {
-			int posArityMinusOne = function.nformals - 2; // The number of positional arguments minus one
-			for(int i = 0; i < posArityMinusOne; i++) {
+		} else { 
+			int posArityMinusTwo = function.nformals - 2; // The number of positional arguments minus one
+			for(int i = 0; i < posArityMinusTwo; i++) {
 				this.stack[this.sp++] = stack[start + i];
 			}
 			Type argTypes = ((FunctionType) function.ftype).getArgumentTypes();
-			if(function.nformals == arity && ((IValue) stack[start + posArityMinusOne]).getType().isSubtypeOf(argTypes.getFieldType(posArityMinusOne))) {
-				this.stack[this.sp++] = stack[start + posArityMinusOne];
+			if(function.nformals == arity && ((IValue) stack[start + posArityMinusTwo]).getType().isSubtypeOf(argTypes.getFieldType(posArityMinusTwo))) {
+				this.stack[this.sp++] = stack[start + posArityMinusTwo];
 			} else {
 				IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
-				for(int i = posArityMinusOne; i < arity - 1; i++) {
+				for(int i = posArityMinusTwo; i < arity - 1; i++) {
 					writer.append((IValue) stack[start + i]);
 				}
 				this.stack[this.sp++] = writer.done();
