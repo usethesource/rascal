@@ -19,14 +19,13 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.charset.Charset;
 import java.nio.file.AccessDeniedException;
 import java.util.concurrent.ConcurrentNavigableMap;
 
 import org.rascalmpl.uri.FileTree;
 import org.rascalmpl.uri.ISourceLocationInputOutput;
+
 import io.usethesource.vallang.ISourceLocation;
 
 /**
