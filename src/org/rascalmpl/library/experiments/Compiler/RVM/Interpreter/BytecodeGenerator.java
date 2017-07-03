@@ -311,14 +311,13 @@ public class BytecodeGenerator implements Opcodes {
 	 * 
 	 * Unique functions are optimized as follows:
 	 * - CHECKARGTYPEANDCOPY + JUMPFALSE are eliminated
-	 * - Access to a parameter is via its original position and the one they were copied to
+	 * - Access to a parameter is via its original position and not the position they were copied to
 	 */
 
 	boolean inUniqueFunction = false;  // Remember whether we are generated code inside a unique function
 	
 	boolean inUniqueFunction() {
-	    return false;
-//        return inUniqueFunction;
+        return inUniqueFunction;
     }
 	
 	Map<Integer,Integer> copiedFormals = new HashMap<>(); // Mapping between copied and original parameter location
@@ -2126,7 +2125,7 @@ public class BytecodeGenerator implements Opcodes {
 	// TODO: compare with performance of insnCHECKARGTYPEANDCOPY
 	public void emitInlineCheckArgTypeAndCopy(int pos1, int type, int pos2) {
 	    
-	    if(!inUniqueFunction()){
+	    if(inUniqueFunction()){
 	        copiedFormals.put(pos2,  pos1);
 	        return;
 	    }
