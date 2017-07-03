@@ -78,16 +78,16 @@ public abstract class RVMCore {
 	protected final IString NOVALUE; 
 	
 	protected TypeStore typeStore;
-	private IMap symbol_definitions;
+	private final IMap symbol_definitions;
 	
-	protected Function[] functionStore;
-	protected Map<String, Integer> functionMap;
+	protected final Function[] functionStore;
+	protected final Map<String, Integer> functionMap;
 
-	protected Type[] constructorStore;
+	protected final Type[] constructorStore;
 	protected final Map<String, Integer> constructorMap;
 	
 	// Function overloading
-	protected final Map<String, Integer> resolver;
+	//protected final Map<String, Integer> resolver;
 	protected final OverloadedFunction[] overloadedStore;
 	private Map<String, OverloadedFunction> overloadedStoreMap;
 	
@@ -96,14 +96,14 @@ public abstract class RVMCore {
 	public final static Function noCompanionFunction = new Function("noCompanionFunction", null, null, null, 0, 0, false, false, false, null, null, 0, false, 0, 0, null, null, 0);
 	public static final HashMap<String, IValue> emptyKeywordMap = new HashMap<>(0);
 
-	protected PrintWriter stdout;
-	protected PrintWriter stderr;
+	protected final PrintWriter stdout;
+	protected final PrintWriter stderr;
 
 	// Management of active coroutines
-	protected Stack<Coroutine> activeCoroutines = new Stack<>();
+	protected final Stack<Coroutine> activeCoroutines = new Stack<>();
 	protected Frame ccf = null; // The start frame of the current active coroutine (coroutine's main function)	
 	protected Frame cccf = null; // The candidate coroutine's start frame; used by the guard semantics
-	protected RascalExecutionContext rex;
+	protected final RascalExecutionContext rex;
 
 	public Map<IValue, IValue> moduleVariables;
 	
@@ -121,7 +121,7 @@ public abstract class RVMCore {
 	}
 	
 	// An exhausted coroutine instance
-	public static Coroutine exhausted = new Coroutine(null) {
+	public static final Coroutine exhausted = new Coroutine(null) {
 
 		@Override
 		public void next(Frame previousCallFrame) {
@@ -168,7 +168,7 @@ public abstract class RVMCore {
 	  this.functionStore = rvmExec.getFunctionStore();
 	  this.functionMap = rvmExec.getFunctionMap();
 
-	  this.resolver = rvmExec.getResolver();
+//	  this.resolver = rvmExec.getResolver();
 	  this.overloadedStore = rvmExec.getOverloadedStore();
 	  mappifyOverloadedStore();
 
@@ -359,7 +359,9 @@ public abstract class RVMCore {
 	      for(int i = 0; i < falts.length; i++){
 	        falts[i] = filteredAlts.get(i);
 	      }
-	      return new OverloadedFunction(name, tp,  falts, new int[] { }, "");
+	      OverloadedFunction ovf = new OverloadedFunction(name, tp,  falts, new int[] { }, "");
+	      ovf.fids2objects(functionStore, constructorStore);
+	      return ovf;
 	    }
 	  }
 	  filteredAlts = getFunctionByNameAndArity(name, arity);
@@ -369,7 +371,9 @@ public abstract class RVMCore {
         for(int i = 0; i < falts.length; i++){
           falts[i] = filteredAlts.get(i);
         }
-        return new OverloadedFunction(name, tp,  falts, new int[] { }, "");
+        OverloadedFunction ovf = new OverloadedFunction(name, tp,  falts, new int[] { }, "");
+        ovf.fids2objects(functionStore, constructorStore);
+        return ovf;
       }
 	  
 
@@ -377,7 +381,9 @@ public abstract class RVMCore {
 	  for(int i = 0; i < constructorStore.length; i++){
 	    tp = constructorStore[i];
 	    if (tp.getName().equals(name) && tp.getArity() == arity) {
-	      return new OverloadedFunction(name, tp,  new int[]{}, new int[] { i }, "");
+	      OverloadedFunction ovf = new OverloadedFunction(name, tp,  new int[]{}, new int[] { i }, "");
+	      ovf.fids2objects(functionStore, constructorStore);
+          return ovf;
 	    }
 	  }
 
