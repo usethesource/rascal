@@ -6927,10 +6927,12 @@ public Configuration loadConfigurationCons(Configuration c, Configuration d, RNa
 			loadedIds = loadedIds + itemId;
 		} else if (itemId in filteredIds) {
 			switch(av) {
-				case constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at) : {
+				case constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, int origContainedIn, loc at) : {
 					//println("Loading constructor <prettyPrintName(name)> from module <prettyPrintName(mName)>");
 					kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
-					c = addConstructor(c, name, at, rtype, kpList);
+					
+					// link the new constructor to the old context
+					c = addConstructor(c, name, at, rtype, kpList, oldScope=origContainedIn);
 					// Copy type information for keyword defaults
 					for (ke <- kpList<2>, (ke@\loc)?, ke@\loc in d.locationTypes) {
 						defaultLocations = { l | l <- d.locationTypes, l <= ke@\loc };
@@ -6942,7 +6944,7 @@ public Configuration loadConfigurationCons(Configuration c, Configuration d, RNa
 					loadedIds = loadedIds + itemId;
 				}
 				
-				case production(RName name, Symbol rtype, int containedIn, Production p, loc at) : {
+				case production(RName name, Symbol rtype, int containedIn, int origContainedIn, Production p, loc at) : {
 					//c = importProduction(p, at, c); 
 					//c = addProduction(c, name, at, p); 
 					loadedIds = loadedIds + itemId;
@@ -7030,11 +7032,11 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 					c = addTopLevelVariable(c, name, inferred, itemVis, at, rtype);
 					loadedIds = loadedIds + itemId;
 				}
-				
-				case function(RName name, Symbol rtype, KeywordParamMap keywordParams, bool isVarArgs, int containedIn, list[Symbol] throwsTypes, bool isDeferred, loc at) : {
+				 
+				case function(RName name, Symbol rtype, KeywordParamMap keywordParams, bool isVarArgs, int containedIn, int origContainedIn, list[Symbol] throwsTypes, bool isDeferred, loc at) : {
 					itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
 					mods = d.functionModifiers[itemId];
-					c = addFunction(c, name, rtype, keywordParams, mods, isVarArgs, itemVis, throwsTypes, at);
+					c = addFunction(c, name, rtype, keywordParams, mods, isVarArgs, itemVis, throwsTypes, at, oldScope=origContainedIn);
 					loadedIds = loadedIds + itemId;
 				}
 				
@@ -7062,9 +7064,9 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 					loadedIds = loadedIds + itemId;
 				}
 				
-				case constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at) : {
+				case constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, int origContainedIn, loc at) : {
 					kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
-					c = addConstructor(c, name, at, rtype, kpList);
+					c = addConstructor(c, name, at, rtype, kpList, oldScope=origContainedIn);
 					// Copy type information for keyword defaults
 					for (ke <- kpList<2>, (ke@\loc)?, ke@\loc in d.locationTypes) {
 						defaultLocations = { l | l <- d.locationTypes, l <= ke@\loc };
@@ -7078,7 +7080,7 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 					loadedIds = loadedIds + itemId;
 				}
 				
-				case production(RName name, Symbol rtype, int containedIn, Production p, loc at) : {
+				case production(RName name, Symbol rtype, int containedIn, int origContainedIn, Production p, loc at) : {
 					//c = importProduction(p, at, c); 
 					//c = addProduction(c, name, at, p); 
 					loadedIds = loadedIds + itemId;
@@ -7124,9 +7126,9 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 
 	void loadTransConstructor(int itemId) {
 		AbstractValue av = d.store[itemId];
-		if (constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at) := av) {
+		if (constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, int origContainedIn, loc at) := av) {
 			kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
-			c = addConstructor(c, name, at, rtype, kpList, registerName = false);
+			c = addConstructor(c, name, at, rtype, kpList, registerName = false, oldScope=origContainedIn);
 			// Copy type information for keyword defaults
 			for (ke <- kpList<2>, (ke@\loc)?, ke@\loc in d.locationTypes) {
 				defaultLocations = { l | l <- d.locationTypes, l <= ke@\loc };
@@ -8357,7 +8359,7 @@ public CheckResult convertAndExpandThrowType(Type t, Configuration c) {
     rt = convertType(t);
     if( utc:\user(rn,pl) := rt && isEmpty(pl) && c.fcvEnv[rn]? && !(c.typeEnv[rn]?) ) {
         // Check if there is a value constructor with this name in the current environment
-        if(constructor(_,_,_,_,_) := c.store[c.fcvEnv[rn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[rn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
+        if(constructor(_,_,_,_,_,_) := c.store[c.fcvEnv[rn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[rn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
             // TODO: More precise resolution requires a new overloaded function to be used, which contains only value contructors;
             c.uses = c.uses + <c.fcvEnv[rn], utc@at>;
             c.usedIn[utc@at] = head(c.stack);
@@ -8365,7 +8367,7 @@ public CheckResult convertAndExpandThrowType(Type t, Configuration c) {
         }
     } else if (\func(utc:\user(rn,pl), ps, kws) := rt && isEmpty(pl) && c.fcvEnv[rn]? && !(c.typeEnv[rn]?) ) {
         // Check if there is a value constructor with this name in the current environment
-        if(constructor(_,_,_,_,_) := c.store[c.fcvEnv[rn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[rn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
+        if(constructor(_,_,_,_,_,_) := c.store[c.fcvEnv[rn]] || ( overload(_,overloaded(_,defaults)) := c.store[c.fcvEnv[rn]] && !isEmpty(filterSet(defaults, isConstructorType)) )) {
             // TODO: More precise resolution requires a new overloaded function to be used, which contains only value contructors;
             c.uses = c.uses + <c.fcvEnv[rn], utc@at>;
             c.usedIn[utc@at] = head(c.stack);

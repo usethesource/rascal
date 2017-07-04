@@ -91,7 +91,7 @@ public set[RName] getVariablesInScope(Configuration c) {
 }
 
 public set[RName] getFunctionsInScope(Configuration c) {
-	return { n | l <- c.fcvEnv, i:function(n,_,_,_,_,_,_,_) := c.store[c.fcvEnv[l]] };
+	return { n | l <- c.fcvEnv, i:function(n,_,_,_,_,_,_,_,_) := c.store[c.fcvEnv[l]] }; 
 }
 
 public set[AbstractValue] getPatternVariableValues(Configuration c) {
