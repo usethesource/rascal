@@ -651,10 +651,12 @@ public abstract class RVMCore {
 		return (repr.length() < w) ? repr : repr.substring(0, w) + "...";
 	}
 	
-	/********************************************************************************/
-	/*			Auxiliary functions that implement specific instructions and are	*/
-	/*  		used both by RVM interpreter and generated JVM bytecod				*/
-	/********************************************************************************/
+	/*******************************************************************************/
+	/*			Auxiliary functions that implement specific instructions and are   */
+	/*  		used both by RVM interpreter and generated JVM bytecode            */
+	/* 		    Note: some of these methods are inlined for efficiency, left here  */
+	/*          for documentation purposes                                         */
+	/*******************************************************************************/
 	
 	// LOAD/PUSH VAR
 
@@ -1037,7 +1039,7 @@ public abstract class RVMCore {
 	        return clazz;
 		} 
 		catch(ClassNotFoundException | NoClassDefFoundError e1) {
-			throw new InternalCompilerError("Class " + className + " not found", e1);
+			throw new InternalCompilerError("class " + className + " not found", e1);
 		}
 		
 	}
@@ -1063,7 +1065,7 @@ public abstract class RVMCore {
 		            instance = cons.newInstance(vf, asInterface(parameterTypes[1]));
 		            break;
 		        default:
-		            throw new NoSuchMethodException(clazz + " does not have a fitting constructor (nullary, IValueFactory, of IValueFactor + IOwnInterface");
+		            throw new NoSuchMethodException(clazz + " does not have a suitable constructor (nullary, IValueFactory, of IValueFactor + IOwnInterface");
 		    }
 		    
 			instanceCache.put(clazz, instance);
@@ -1078,7 +1080,7 @@ public abstract class RVMCore {
 	        return clazz.getMethod(methodName, makeJavaTypes(methodName, className, parameterTypes, keywordTypes, reflect));
 	    }
 	    catch (NoSuchMethodException | SecurityException e) {
-	        throw new InternalCompilerError("could not find Java method", e);
+	        throw new InternalCompilerError("could not find Java method " + methodName + " in class " + className , e);
 	    }
     }
 	
@@ -1123,7 +1125,7 @@ public abstract class RVMCore {
 			return sp - arity - kwMaps + 1;
 		} 
 		catch (SecurityException | IllegalAccessException | IllegalArgumentException e) {
-			throw new InternalCompilerError("could not call Java method", e);
+			throw new InternalCompilerError("could not call Java method " + m.getName(), e);
 		} 
 		catch (InvocationTargetException e) {
 			if(e.getTargetException() instanceof Throw) {
