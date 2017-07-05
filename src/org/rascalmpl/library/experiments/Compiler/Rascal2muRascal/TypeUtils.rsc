@@ -1053,13 +1053,13 @@ str convert2fuid(UID uid) {
 		name = convert2fuid(containedIn[uid]) + "/" + name;
 	} else if(declaredIn[uid]?) {
 	    val = config.store[uid];
-	    if( (function(_,_,_,_,inScope,_,_,_,src) := val || 
-	         constructor(_,_,_,inScope,_,src) := val || 
-	         production(_,_,inScope,_,_,src) := val ),  
+	    if( (function(_,_,_,_,inScope, oldScope,_,_,src) := val || 
+	         constructor(_,_,_,inScope, oldScope,src) := val || 
+	         production(_,_,inScope, oldScope,_,src) := val ),  
 	        \module(RName mname,loc at) := config.store[inScope]) {
         	
           if (at.path != src.path) { // the source of this function comes from a different module due to `extend`
-        	    return convert2fuid(inScope) + "/" + name;
+        	    return convert2fuid(oldScope) + "/" + name;
           }
         }
         
