@@ -20,6 +20,12 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.RVMT
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.values.ValueFactoryFactory;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import com.github.benmanes.caffeine.cache.stats.CacheStats;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
@@ -29,11 +35,6 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.values.ValueFactoryFactory;
-
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-import com.github.benmanes.caffeine.cache.stats.CacheStats;
 
 /**
  * Provides all context information that is needed during the execution of a compiled Rascal program
@@ -233,6 +234,16 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	public PathConfig getPathConfig(){
 	    return pcfg;
+	}
+	
+	public IMap getModuleTags(){
+	    return moduleTags;
+	}
+	
+	public  IMap getModuleTagsCurrentModule(){
+	    IString mname = vf.string(currentModuleName);
+	    IMap m = (IMap) moduleTags.get(mname);
+	    return m == null ? vf.mapWriter().done() : (IMap) m.get(mname);
 	}
 	
 	public ISourceLocation getKernel() {

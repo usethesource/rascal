@@ -84,7 +84,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   try {
       ttags =  translateTags(fd.tags);
       tmods = translateModifiers(fd.signature.modifiers);
-      if(ignoreTest(ttags)){
+      if("test" in tmods && ignoreTest(ttags)){
           // The type checker does not generate type information for ignored functions
           addFunctionToModule(muFunction("/ignored-<fd@\loc.offset>()", 
                                          "<fd.signature.name>", 
