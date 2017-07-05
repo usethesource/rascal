@@ -1,20 +1,24 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.invoke.MethodHandle;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
-import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireInputStream;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireOutputStream;
-import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
+import org.rascalmpl.test.infrastructure.QuickCheck;
+import org.rascalmpl.test.infrastructure.QuickCheck.TestResult;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -30,7 +34,6 @@ import io.usethesource.vallang.io.binary.wire.IWireInputStream;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * Function contains all data needed for a single RVM function
@@ -289,6 +292,7 @@ public class Function {
 	}
 	
 	private static final int MAXDEPTH = 5;
+	private static final int MAXWIDTH = 5;
     private static final int TRIES = 500;
     
     public int getTries(){
@@ -303,6 +307,11 @@ public class Function {
       IValue imaxDepth = tags.get(vf.string("maxDepth"));
       return imaxDepth == null ? MAXDEPTH : Integer.parseInt(((IString) imaxDepth).getValue());
     }
+    
+    public int getWidth(){
+        IValue imaxWidth = tags.get(vf.string("maxWidth"));
+        return imaxWidth == null ? MAXWIDTH : Integer.parseInt(((IString) imaxWidth).getValue());
+    }
 	
     /**
      * Execute current function as test
@@ -312,84 +321,56 @@ public class Function {
      **/
 
     public ITuple executeTest(ITestResultListener testResultListener, TypeStore typeStore, RascalExecutionContext rex) {
-      String fun = name;
-      if(isIgnored()){
-        testResultListener.ignored(computeTestName(), src);
-        return vf.tuple(src,  vf.integer(2), vf.string(""));
-      }
-      
-      IValue iexpected =  tags.get(vf.string("expected"));
-      String expected = iexpected == null ? "" : ((IString) iexpected).getValue();
-      
-      int maxDepth = getDepth();
-      int tries = getTries();
+        String fun = name;
+        if(isIgnored()){
+            testResultListener.ignored(computeTestName(), src);
+            return vf.tuple(src,  vf.integer(2), vf.string(""));
+        }
 
-      Type requestedType = ftype.getFieldTypes();
-      int nargs = requestedType.getArity();
-      IValue[] args = new IValue[nargs];
+        IValue iexpected =  tags.get(vf.string("expected"));
+        String expected = iexpected == null ? null : ((IString) iexpected).getValue();
 
-      TypeParameterVisitor tpvisit = new TypeParameterVisitor();
-      HashMap<Type, Type> tpbindings = tpvisit.bindTypeParameters(requestedType);
-      RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, maxDepth, tpbindings, typeStore);
+        int maxDepth = getDepth();
+        int maxWidth = getWidth();
+        int tries = getTries();
 
-      boolean passed = true;
-      String message = "";
-      Throwable exception = null;
-      for(int i = 0; i < tries; i++){
-        if(nargs > 0){
-          message = "test fails for arguments: ";
-          ITuple tup = (ITuple) randomValue.generate(requestedType);
-          if(tup == null){
-            rex.getStdErr().println(name + "(" + nargs + "): " + requestedType + ", " + tup );
-            printTypeStore(typeStore);
+        TestResult result = new QuickCheck(new Random(), vf).test(fun.replace("/", "::").replaceAll("[(].*$", ""), ftype.getFieldTypes(), expected, (Type[] actuals, IValue[] args) -> {
+            try {
+                IValue res = (IValue) rex.getRVM().executeRVMFunction(fun, args, null);
+                if (((IBool)res).getValue()) {
+                    return QuickCheck.SUCCESS; 
+                }
+                else {
+                    return new TestResult(false, null);
+                }
+            } catch (Throwable e){
+                return new TestResult(false, e);
+            }
+        }, typeStore, tries, maxDepth, maxWidth);
         
-          } 
-          for(int j = 0; j < nargs; j++){
-            args[j] = tup.get(j);
-            message = message + args[j].toString() + " ";
-          }
+        if (!result.succeeded()) {
+            StringWriter sw = new StringWriter();
+            PrintWriter out = new PrintWriter(sw);
+            result.writeMessage(out);
+            out.flush();
+            testResultListener.report(false, computeTestName(), src, sw.getBuffer().toString(), result.thrownException());
+            return vf.tuple(src,  vf.integer(0), vf.string(sw.getBuffer().toString()));
         }
-        try {
-   
-          IValue res = (IValue) rex.getRVM().executeRVMFunction(fun, args, null); 
-          passed = ((IBool) res).getValue();
-          if(!passed){
-            break;
-          }
-        } catch (Thrown e){
-          String ename;
-          if(e.getValue() instanceof IConstructor){
-            ename = ((IConstructor) e.getValue()).getName();
-          } else {
-            ename = e.toString();
-          }
-          if(!ename.equals(expected)){
-            message = e.toString() + message;
-            passed = false;
-            exception = e;
-            break;
-          }
+        else {
+            testResultListener.report(true, computeTestName(), src, "", null);
+            return vf.tuple(src,  vf.integer(1), vf.string(""));
         }
-        catch (Exception e){
-          message = e.getMessage() + message;
-          passed = false;
-          break;
-        }
-      }
-      if(passed)
-        message = "";
-
-      testResultListener.report(passed, computeTestName(), src, message, exception);
-      return vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message));
     }
     
+    
+
     public String computeTestName(){    // Resembles Function.getPrintableName
-      String base = name;
-      int colons = name.lastIndexOf("::");
+      String base = name.replaceAll("/", "::");
+      int colons = base.lastIndexOf("::");
       if(colons > 0){
-        base = name.substring(colons+2, name.indexOf("(")).replaceAll("/",  "::"); 
+        base = base.substring(colons+2, base.indexOf("(")).replaceAll("/",  "::"); 
       } else {
-        base = name.substring(name.indexOf("/")+1, name.indexOf("(")); 
+        base = base.substring(base.indexOf("/")+1, base.indexOf("(")); 
       }
       return base + ": <" + src.getOffset() +"," + src.getLength() +">";
     }
