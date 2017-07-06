@@ -191,7 +191,7 @@ public void resetScopeExtraction() {
 	
 	modules = {};
 	moduleNames = {};
-	functions = {};
+	functions = {}; 
 	defaultFunctions = {};
 	datatypes = ();
 	constructors = {};
@@ -872,7 +872,7 @@ int declareGeneratedFunction(str name, str fuid, Symbol rtype, loc src){
     uid = config.nextLoc;
     config.nextLoc = config.nextLoc + 1;
     // TODO: all are placed in scope 0, is that ok?
-    config.store[uid] = function(RSimpleName(name), rtype, (), false, 0, 0, [], false, src);
+    config.store[uid] = function(RSimpleName(name), rtype, (), false, 0, Unknown(), [], false, src);
     functions += {uid};
     //declares += {<inScope, uid>}; TODO: do we need this?
      
@@ -1055,11 +1055,11 @@ str convert2fuid(UID uid) {
 	    val = config.store[uid];
 	    if( (function(_,_,_,_,inScope, oldScope,_,_,src) := val || 
 	         constructor(_,_,_,inScope, oldScope,src) := val || 
-	         production(_,_,inScope, oldScope,_,src) := val ),  
-	        \module(RName mname,loc at) := config.store[inScope]) {
+	         production(_,_,inScope, oldScope,_,src) := val),  
+	        \module(_, loc at) := config.store[inScope]) {
         	
           if (at.path != src.path) { // the source of this function comes from a different module due to `extend`
-        	    return convert2fuid(oldScope) + "/" + name;
+        	    return "<prettyPrintName(oldScope)>/<name>";
           }
         }
         
