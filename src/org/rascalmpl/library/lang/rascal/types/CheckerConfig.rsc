@@ -64,14 +64,14 @@ alias KeywordParamRel = lrel[RName pname, Symbol ptype, Expression pinit];
 data AbstractValue 
     = label(RName name, LabelSource source, int containedIn, loc at) 
     | variable(RName name, Symbol rtype, bool inferred, int containedIn, loc at)
-    | function(RName name, Symbol rtype, KeywordParamMap keywordParams, bool isVarArgs, int containedIn, int originalContainedIn, list[Symbol] throwsTypes, bool isDeferred, loc at)
+    | function(RName name, Symbol rtype, KeywordParamMap keywordParams, bool isVarArgs, int containedIn, RName originalModule, list[Symbol] throwsTypes, bool isDeferred, loc at)
     | closure(Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at)
     | \module(RName name, loc at)
     | overload(set[int] items, Symbol rtype)
     | datatype(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, set[loc] ats)
     | sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats)
-    | constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, int originalContainedIn, loc at)
-    | production(RName name, Symbol rtype, int containedIn, int originalContainedIn, Production p, loc at)
+    | constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, RName originalModule, loc at)
+    | production(RName name, Symbol rtype, int containedIn, RName originalModule, Production p, loc at)
     | annotation(RName name, Symbol rtype, Symbol onType, int containedIn, loc at)
     | \tag(RName name, TagKind tkind, set[Symbol] onTypes, int containedIn, loc at)
     | \alias(RName name, Symbol rtype, int containedIn, loc at)
@@ -779,7 +779,7 @@ public Configuration addImportedAlias(Configuration c, RName n, int itemId, bool
 }
 
 @doc{Add a constructor into the configuration}
-public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, KeywordParamRel keywordParams, bool registerName=true, int oldScope=-1) {
+public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, KeywordParamRel keywordParams, bool registerName=true, RName originalModule=Unknown()) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 	fullName = appendName(moduleName, n);
@@ -909,7 +909,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 		keywordParamMap = ( pn : pt | pn <- keywordParams<0>, pt := getFirstFrom(keywordParams[pn]<0>) );
 		
 		inScope = head([i | i <- c.stack, \module(_,_) := c.store[i]]);
-		constructorItem = constructor(n,rt,keywordParamMap,inScope, oldScope == -1 ? inScope : oldScope,l);
+		constructorItem = constructor(n,rt,keywordParamMap,inScope, originalModule == Unknown() ? moduleName : originalModule,l);
 		c.store[constructorItemId] = constructorItem;
 		c.definitions = c.definitions + < constructorItemId, l >;
 		c.adtConstructors = c.adtConstructors + < adtId, constructorItemId >;
@@ -1097,7 +1097,7 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 		}
 				
 	    inScope = head([i | i <- c.stack, \module(_,_) := c.store[i]]);			
-		productionItem = production(n, rtype, inScope, inScope, prod, l);
+		productionItem = production(n, rtype, inScope, moduleName, prod, l);
 		c.store[productionItemId] = productionItem;
 		c.definitions = c.definitions + < productionItemId, l >;
 		c.nonterminalConstructors = c.nonterminalConstructors + < sortId, productionItemId >;
@@ -1259,7 +1259,7 @@ public Configuration addClosure(Configuration c, Symbol rt, KeywordParamMap keyw
 }
 
 @doc{Add a function into the configuration.}
-public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordParamMap keywordParams, set[Modifier] modifiers, bool isVarArgs, Vis visibility, list[Symbol] throwsTypes, loc l, bool isDeferred=false, int oldScope=-1) {
+public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordParamMap keywordParams, set[Modifier] modifiers, bool isVarArgs, Vis visibility, list[Symbol] throwsTypes, loc l, bool isDeferred=false, RName originalModule=Unknown()) {
     // TODO: Handle the visibility properly. The main point is that we should not have variants
     // for the same function that are given different visibilities.
     // TODO: Verify the scoping is working properly for the second and third cases. It should be the
@@ -1274,11 +1274,12 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordPar
     rt = normalizeType(rt);
     rt@isVarArgs = isVarArgs;
     currentModuleId = head([i | i <- c.stack, \module(_,_) := c.store[i]]);
-
+    moduleName = c.store[currentModuleId].name;
+    
 	// Create the new function item and insert it into the store; also keep track of
 	// the item Id. This also handles other bookkeeping information, such as the
 	// information on definitions and visibilities.
-	functionItem = function(n,rt,keywordParams,isVarArgs,head(c.stack), oldScope == -1 ?  head(c.stack) : oldScope, throwsTypes,isDeferred,l); 
+	functionItem = function(n,rt,keywordParams,isVarArgs,head(c.stack), originalModule == Unknown() ?  moduleName : originalModule, throwsTypes,isDeferred,l); 
 	functionId = c.nextLoc;
 	existingDefs = invert(c.definitions)[l];
 	if (!isEmpty(existingDefs)) { 
