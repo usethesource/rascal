@@ -166,7 +166,13 @@ public class DebugREPL extends BaseREPL{
 			throw new InterruptedException();
 		
 		case "p": case "print":
-			stdout.println(RascalPrimitive.$value2string(EvalExpr.eval(words[1], rvm, currentFrame)));
+                IValue eval = EvalExpr.eval(words[1], rvm, currentFrame);
+                if (eval != null) {
+                    stdout.println(RascalPrimitive.$value2string(eval));
+                }
+                else {
+                    stdout.println(words[1] + " is undefined.");
+                }
 			break;
 		
 		case "i": case "ignore":

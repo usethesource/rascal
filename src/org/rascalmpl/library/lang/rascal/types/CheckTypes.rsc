@@ -6927,12 +6927,12 @@ public Configuration loadConfigurationCons(Configuration c, Configuration d, RNa
 			loadedIds = loadedIds + itemId;
 		} else if (itemId in filteredIds) {
 			switch(av) {
-				case constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, int origContainedIn, loc at) : {
+				case constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, RName origContainedIn, loc at) : {
 					//println("Loading constructor <prettyPrintName(name)> from module <prettyPrintName(mName)>");
 					kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
 					
 					// link the new constructor to the old context
-					c = addConstructor(c, name, at, rtype, kpList, oldScope=origContainedIn);
+					c = addConstructor(c, name, at, rtype, kpList, originalModule=origContainedIn);
 					// Copy type information for keyword defaults
 					for (ke <- kpList<2>, (ke@\loc)?, ke@\loc in d.locationTypes) {
 						defaultLocations = { l | l <- d.locationTypes, l <= ke@\loc };
@@ -6944,7 +6944,7 @@ public Configuration loadConfigurationCons(Configuration c, Configuration d, RNa
 					loadedIds = loadedIds + itemId;
 				}
 				
-				case production(RName name, Symbol rtype, int containedIn, int origContainedIn, Production p, loc at) : {
+				case production(RName name, Symbol rtype, int containedIn, RName origContainedIn, Production p, loc at) : {
 					//c = importProduction(p, at, c); 
 					//c = addProduction(c, name, at, p); 
 					loadedIds = loadedIds + itemId;
@@ -7033,10 +7033,10 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 					loadedIds = loadedIds + itemId;
 				}
 				 
-				case function(RName name, Symbol rtype, KeywordParamMap keywordParams, bool isVarArgs, int containedIn, int origContainedIn, list[Symbol] throwsTypes, bool isDeferred, loc at) : {
+				case function(RName name, Symbol rtype, KeywordParamMap keywordParams, bool isVarArgs, int containedIn, RName origContainedIn, list[Symbol] throwsTypes, bool isDeferred, loc at) : {
 					itemVis = (itemId in d.visibilities) ? d.visibilities[itemId] : defaultVis();
 					mods = d.functionModifiers[itemId];
-					c = addFunction(c, name, rtype, keywordParams, mods, isVarArgs, itemVis, throwsTypes, at, oldScope=origContainedIn);
+					c = addFunction(c, name, rtype, keywordParams, mods, isVarArgs, itemVis, throwsTypes, at, originalModule=origContainedIn);
 					loadedIds = loadedIds + itemId;
 				}
 				
@@ -7064,9 +7064,9 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 					loadedIds = loadedIds + itemId;
 				}
 				
-				case constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, int origContainedIn, loc at) : {
+				case constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, RName origContainedIn, loc at) : {
 					kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
-					c = addConstructor(c, name, at, rtype, kpList, oldScope=origContainedIn);
+					c = addConstructor(c, name, at, rtype, kpList, originalModule=origContainedIn);
 					// Copy type information for keyword defaults
 					for (ke <- kpList<2>, (ke@\loc)?, ke@\loc in d.locationTypes) {
 						defaultLocations = { l | l <- d.locationTypes, l <= ke@\loc };
@@ -7080,7 +7080,7 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 					loadedIds = loadedIds + itemId;
 				}
 				
-				case production(RName name, Symbol rtype, int containedIn, int origContainedIn, Production p, loc at) : {
+				case production(RName name, Symbol rtype, int containedIn, RName origContainedIn, Production p, loc at) : {
 					//c = importProduction(p, at, c); 
 					//c = addProduction(c, name, at, p); 
 					loadedIds = loadedIds + itemId;
@@ -7126,9 +7126,9 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 
 	void loadTransConstructor(int itemId) {
 		AbstractValue av = d.store[itemId];
-		if (constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, int origContainedIn, loc at) := av) {
+		if (constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, RName origContainedIn, loc at) := av) {
 			kpList = [<kp,kt,ke> | kp <- keywordParams, kt := keywordParams[kp], kev <- d.dataKeywordDefaults[itemId,kp], Expression ke := kev];
-			c = addConstructor(c, name, at, rtype, kpList, registerName = false, oldScope=origContainedIn);
+			c = addConstructor(c, name, at, rtype, kpList, registerName = false, originalModule=origContainedIn);
 			// Copy type information for keyword defaults
 			for (ke <- kpList<2>, (ke@\loc)?, ke@\loc in d.locationTypes) {
 				defaultLocations = { l | l <- d.locationTypes, l <= ke@\loc };

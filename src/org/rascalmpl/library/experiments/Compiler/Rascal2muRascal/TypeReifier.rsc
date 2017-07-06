@@ -85,7 +85,7 @@ public void extractDeclarationInfo(Configuration config){
 	KeywordParamMap getCommons(str adt) 
 	  = (config.typeEnv[RSimpleName(adt)]?) ? config.store[config.typeEnv[RSimpleName(adt)]].keywordParams : ();
 	
-	Production value2prod(constructor(_, Symbol rtype, KeywordParamMap keywordParams, int containedIn, int _, loc at), KeywordParamMap commonParams)
+	Production value2prod(constructor(_, Symbol rtype, KeywordParamMap keywordParams, int containedIn, _, loc at), KeywordParamMap commonParams)
 	  = \cons(label(rtype.name, rtype.\adt)
 	         , rtype.parameters
 	         , [label(l, keywordParams[n]) | n:RSimpleName(l) <- keywordParams]
