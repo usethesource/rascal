@@ -1058,9 +1058,16 @@ str convert2fuid(UID uid) {
 	         production(_,_,inScope, oldScope,_,src) := val),  
 	        \module(_, loc at) := config.store[inScope]) {
         	
-          if (at.path != src.path) { // the source of this function comes from a different module due to `extend`
-        	    return "<prettyPrintName(oldScope)>/<name>";
-          }
+          //if (at.path != src.path) { // the source of this function comes from a different module due to `extend`
+        	 //   return "<prettyPrintName(oldScope)>/<name>";
+          //}
+          
+           if(at.path != src.path) {
+                  res = getModuleName(src, config.pathConfiguration) + "/" + name;
+                  //println("1. convert2fuid(<uid>) =\> <res>");
+                  return res;
+                       }
+          
         }
         
 		name = convert2fuid(declaredIn[uid]) + "/" + name;
