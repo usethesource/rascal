@@ -191,13 +191,13 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
                             out.write("<script>loadTiffImage('"+ value+ "', '"+ id+"');</script><div id='" + id +"'></div>");
                         }
                         else
-                            out.write("<img src = \""+value +" \"><");
+                            out.write("<img src = \""+value +"\">");
                     }
                     else if(isSourceCodeLocation(value)){
                         out.write("<pre title=\"Type: "+ type.toString()+"\">"+"<a href=\""+ value.replace("./", "../edit/")+"\">"+value.substring(2) +"</a></pre>");
                     }
                     else{
-                        out.write("<pre title=\"Type: "+ type.toString()+"\">"+"<a href=\""+ value+"\">"+value.substring(2) +"</a></pre>");
+                        out.write("<pre title=\"Type: "+ type.toString()+"\">"+"<a href=\""+ value+"\">"+value +"</a></pre>");
                     }
                     break;
                 default:
