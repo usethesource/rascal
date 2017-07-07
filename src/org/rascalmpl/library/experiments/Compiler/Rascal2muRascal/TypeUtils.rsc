@@ -539,8 +539,8 @@ void extractScopes(Configuration c){
 	//
 	//}
 	
-    for(UID fuid1 <- functions) {
-    	nformals = getFormals(fuid1); // ***Note: Includes keyword parameters as a single map parameter 
+    for(UID fuid1 <- functions, !(uid2type[fuid] is failure)) {
+    	    nformals = getFormals(fuid1); // ***Note: Includes keyword parameters as a single map parameter 
   
         innerScopes = {fuid1} + containmentPlus[fuid1];
         declaresInnerScopes = {*(declaresMap[iscope] ? {}) | iscope <- innerScopes};
@@ -587,7 +587,7 @@ void extractScopes(Configuration c){
         }
     }
   
-    for(UID fuid1 <- constructors){
+    for(UID fuid1 <- constructors, !(uid2type[fuid1] is failure)){
         nformals = getFormals(fuid1); // ***Note: Includes keyword parameters as a single map parameter 
         // First, fill in variables to get their positions right
         //println("fuid1 = <fuid1>");
@@ -650,7 +650,7 @@ void extractScopes(Configuration c){
     }
     
     // Fill in uid2addr for overloaded functions;
-    for(UID fuid2 <- ofunctions) {
+    for(UID fuid2 <- ofunctions, !(uid2type[fuid2] is failure)) {
         set[UID] funs = config.store[fuid2].items;
     	if(UID fuid3 <- funs, production(rname,_,_,_,_,_) := config.store[fuid3] && isEmpty(getSimpleName(rname)))
     	    continue;
@@ -659,7 +659,7 @@ void extractScopes(Configuration c){
     	    
     	set[str] scopes = {};
     	str scopeIn = convert2fuid(0);
-    	for(UID fuid5 <- funs) {
+    	for(UID fuid5 <- funs, !(uid2type[fuid5] is failure)) {
     		//println("<fuid5>: <config.store[fuid5]>");
     	    funScopeIn = uid2addr[fuid5].fuid;
     		if(funScopeIn notin moduleNames) {
@@ -1053,20 +1053,28 @@ str convert2fuid(UID uid) {
 		name = convert2fuid(containedIn[uid]) + "/" + name;
 	} else if(declaredIn[uid]?) {
 	    val = config.store[uid];
-	    if( (function(_,_,_,_,inScope, oldScope,_,_,src) := val || 
-	         constructor(_,_,_,inScope, oldScope,src) := val || 
-	         production(_,_,inScope, oldScope,_,src) := val),  
+	    if( (function(_,_,_,_,inScope, RName oldScope,_,_,src) := val || 
+	         constructor(_,_,_,inScope, RName oldScope,src) := val || 
+	         production(_,_,inScope, RName oldScope,_,src) := val),  
 	        \module(_, loc at) := config.store[inScope]) {
         	
-          //if (at.path != src.path) { // the source of this function comes from a different module due to `extend`
-        	 //   return "<prettyPrintName(oldScope)>/<name>";
+        	  // the source of this function comes from a different module due to `extend`
+          //if (at.path != src.path) { 
+        	  //   return "<prettyPrintName(oldScope)>/<name>";
           //}
           
-           if(at.path != src.path) {
-                  res = getModuleName(src, config.pathConfiguration) + "/" + name;
-                  //println("1. convert2fuid(<uid>) =\> <res>");
-                  return res;
-                       }
+          // the source of this function comes from a different module due to `extend`
+          if (at.path != src.path) {
+             o1 = getModuleName(src, config.pathConfiguration) + "/" + name;
+             o2 = "<prettyPrintName(oldScope)>/<name>";
+             
+             if (o1 != o2) {
+               println("WARNING: proposed new name for func/prod/cons [<o2>] is different from the old name [<o1>]");
+               println("\t here: <at>, orig: <src>");
+             } 
+             
+             return getModuleName(src, config.pathConfiguration) + "/" + name;
+          }
           
         }
         
@@ -1095,7 +1103,7 @@ public MuExp getConstructor(str cons) {
 public bool isDataType(AbstractValue::datatype(_,_,_,_,_)) = true;
 public default bool isDataType(AbstractValue _) = false;
 
-public bool isNonTerminalType(sorttype(_,_,_,_)) = true;
+public bool isNonTerminalType(sorttype(_,_,_,_,_)) = true;
 public default bool isNonTerminalType(AbstractValue _) = false;
 
 public bool isAlias(AbstractValue::\alias(_,_,_,_)) = true;

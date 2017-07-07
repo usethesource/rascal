@@ -69,7 +69,7 @@ data AbstractValue
     | \module(RName name, loc at)
     | overload(set[int] items, Symbol rtype)
     | datatype(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, set[loc] ats)
-    | sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats)
+    | sorttype(RName name, Symbol rtype, int containedIn, RName originalModule, set[loc] ats)
     | constructor(RName name, Symbol rtype, KeywordParamMap keywordParams, int containedIn, RName originalModule, loc at)
     | production(RName name, Symbol rtype, int containedIn, RName originalModule, Production p, loc at)
     | annotation(RName name, Symbol rtype, Symbol onType, int containedIn, loc at)
@@ -622,7 +622,7 @@ public Configuration addImportedADT(Configuration c, RName n, int itemId, bool a
 }
 
 @doc{Add a user-defined non-terminal type into the configuration}
-public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort, bool registerName=true, bool updateType=false) {
+public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort, bool registerName=true, bool updateType=false, RName originalModule=Unknown()) {
 	moduleId = head([i | i <- c.stack, m:\module(_,_) := c.store[i]]);
 	moduleName = c.store[moduleId].name;
 	fullName = appendName(moduleName, n);
@@ -633,7 +633,7 @@ public Configuration addNonterminal(Configuration c, RName n, loc l, Symbol sort
 		}
 		itemId = c.nextLoc;
 		c.nextLoc = c.nextLoc + 1;
-		c.store[itemId] = sorttype(n,sort,moduleId,{ l });
+		c.store[itemId] = sorttype(n,sort,moduleId,originalModule == Unknown() ? moduleName : originalModule, { l });
 		c.definitions = c.definitions + < itemId, l >;
 		c.globalSortMap[n] = itemId;
 
@@ -996,7 +996,7 @@ private set[int] idsForName(Configuration c, RName n) {
 }
 
 @doc{Add a production into the configuration.}
-public Configuration addProduction(Configuration c, RName n, loc l, Production prod, bool registerName=true) {
+public Configuration addProduction(Configuration c, RName n, loc l, Production prod, bool registerName=true, RName originalModule=Unknown()) {
      assert ( (prod.def is label && prod.def.symbol has name) || ( !(prod.def is label) && prod.def has name ) || prod.def is \start) :
 	        "addProduction: <prod>";
  
@@ -1097,7 +1097,7 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 		}
 				
 	    inScope = head([i | i <- c.stack, \module(_,_) := c.store[i]]);			
-		productionItem = production(n, rtype, inScope, moduleName, prod, l);
+		productionItem = production(n, rtype, inScope, originalModule == Unknown() ? moduleName : originalModule, prod, l);
 		c.store[productionItemId] = productionItem;
 		c.definitions = c.definitions + < productionItemId, l >;
 		c.nonterminalConstructors = c.nonterminalConstructors + < sortId, productionItemId >;

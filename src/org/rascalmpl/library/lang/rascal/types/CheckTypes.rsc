@@ -6702,12 +6702,12 @@ public Configuration importNonterminal(RName sort, Symbol sym, loc at, Configura
 }
 
 @doc{Import a signature item: Production}
-public Configuration importProduction(RSignatureItem item, Configuration c, bool registerName=true) {
-	return importProduction(item.prod, item.at, c, registerName=registerName);
+public Configuration importProduction(RSignatureItem item, Configuration c, bool registerName=true, RName originalModule=Unknown()) {
+	return importProduction(item.prod, item.at, c, registerName=registerName, originalModule=originalModule);
 }
 
 @doc{Import a signature item: Production}
-public Configuration importProduction(Production prod, loc at, Configuration c, bool registerName=true) {
+public Configuration importProduction(Production prod, loc at, Configuration c, bool registerName=true, RName originalModule=Unknown()) {
 	// Signature item contains a syntax definition production
 	if( (prod.def is label && prod.def.symbol has name) 
 			|| (!(prod.def is label) && prod.def has name) 
@@ -6718,9 +6718,9 @@ public Configuration importProduction(Production prod, loc at, Configuration c, 
 	// Productions that end up in the store
 	for(/Production p := prod, p is prod) {
 		if(label(str l, Symbol _) := p.def) {
-    		c = addProduction(c, RSimpleName(l), at, p, registerName=registerName);
+    		c = addProduction(c, RSimpleName(l), at, p, registerName=registerName, originalModule=originalModule);
     	} else {
-    		c = addProduction(c, RSimpleName(""), at, p, registerName=registerName);
+    		c = addProduction(c, RSimpleName(""), at, p, registerName=registerName, originalModule=originalModule);
     	} 
     }
     return c;
@@ -6839,9 +6839,9 @@ public Configuration loadConfigurationTypes(Configuration c, Configuration d, RN
 					loadedIds = loadedIds + itemId;
 				}
 				
-				case sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats) : {
+				case sorttype(RName name, Symbol rtype, int containedIn, RName originalModule, set[loc] ats) : {
 					for (at <- ats) {
-						c = addNonterminal(c, name, at, rtype);
+						c = addNonterminal(c, name, at, rtype, originalModule=originalModule);
 					} 
 					loadedIds = loadedIds + itemId;
 				}
@@ -6945,8 +6945,6 @@ public Configuration loadConfigurationCons(Configuration c, Configuration d, RNa
 				}
 				
 				case production(RName name, Symbol rtype, int containedIn, RName origContainedIn, Production p, loc at) : {
-					//c = importProduction(p, at, c); 
-					//c = addProduction(c, name, at, p); 
 					loadedIds = loadedIds + itemId;
 				}
 			}
@@ -7057,9 +7055,9 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 					loadedIds = loadedIds + itemId;
 				}
 				
-				case sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats) : {
+				case sorttype(RName name, Symbol rtype, int containedIn, RName originalModule, set[loc] ats) : {
 					for (at <- ats) {
-						c = addNonterminal(c, name, at, rtype, updateType=updateTypes);
+						c = addNonterminal(c, name, at, rtype, updateType=updateTypes, originalModule=originalModule);
 					} 
 					loadedIds = loadedIds + itemId;
 				}
@@ -7081,8 +7079,6 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 				}
 				
 				case production(RName name, Symbol rtype, int containedIn, RName origContainedIn, Production p, loc at) : {
-					//c = importProduction(p, at, c); 
-					//c = addProduction(c, name, at, p); 
 					loadedIds = loadedIds + itemId;
 				}
 				
@@ -7142,22 +7138,14 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 
 	void loadTransSort(int itemId) {
 		AbstractValue av = d.store[itemId];
-		if (sorttype(RName name, Symbol rtype, int containedIn, set[loc] ats) := av) {		
+		if (sorttype(RName name, Symbol rtype, int containedIn, RName originalModule, set[loc] ats) := av) {		
 			for (at <- ats) {
-				c = addNonterminal(c, name, at, rtype, registerName = false);
+				c = addNonterminal(c, name, at, rtype, registerName = false, originalModule=originalModule);
 				loadedIds = loadedIds + itemId;
 			} 
 		}
 	}
 
-	//void loadTransProduction(int itemId) {
-	//	AbstractValue av = d.store[itemId];
-	//	if (production(RName name, Symbol rtype, int containedIn, Production p, loc at) := av) {
-	//		c = importProduction(p, at, c, registerName=false); 
-	//		loadedIds = loadedIds + itemId;
-	//	}
-	//}
-				
 	// Add the items from d into c
 	// NOTE: This seems repetitive, but we cannot just collapse all the IDs into a set
 	// since there are order dependencies -- we cannot load an annotation until type types
@@ -7191,10 +7179,10 @@ public Configuration loadConfiguration(Configuration c, Configuration d, RName m
 	// scope.
 	for (itemId <- d.typeEnv<1>, itemId in filteredIds, d.store[itemId] is sorttype, itemId in d.grammar) {
 		itemToLoad = d.store[itemId];
-		c = importProduction(d.grammar[itemId], getFirstFrom(d.store[itemId].ats), c);
+		c = importProduction(d.grammar[itemId], getFirstFrom(d.store[itemId].ats), c, originalModule=d.store[itemId].originalModule);
 	}
 	for (itemId <- notLoadedSorts, itemId in d.grammar) {
-		c = importProduction(d.grammar[itemId], getFirstFrom(d.store[itemId].ats), c, registerName=false);
+		c = importProduction(d.grammar[itemId], getFirstFrom(d.store[itemId].ats), c, registerName=false, originalModule=d.store[itemId].originalModule);
 	}
 	
 	notLoadedConstructors = { di | di <- d.store<0>, d.store[di] is constructor } - loadedIds;
@@ -9195,7 +9183,7 @@ public Module check(Module m, PathConfig pcfg) {
             toAdd = { c.store[itm].at | itm <- items };
         } else if (datatype(_,_,_,_,ats) := c.store[i]) {
             toAdd = ats;
-        } else if (sorttype(_,_,_,ats) := c.store[i]) {
+        } else if (sorttype(_,_,_,_,ats) := c.store[i]) {
            toAdd = ats;
         } else {
             toAdd = { c.store[i].at };
