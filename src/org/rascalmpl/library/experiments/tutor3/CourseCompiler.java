@@ -186,7 +186,6 @@ public class CourseCompiler {
 	 * @throws URISyntaxException
 	 */
 	public static void main(String[] args) throws IOException, NoSuchRascalFunction, URISyntaxException {
-
 		 IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		 CommandOptions cmdOpts = new CommandOptions("course-compiler");
          
