@@ -62,7 +62,7 @@ public Grammar compileLookaheads(Grammar G) {
   // first we remove first and assoc groups for simplicity's sake
   G = visit (G) {
     case lookahead(rhs, {}, a) => choice(rhs, {})
-    case priority(rhs, order)     => choice(rhs, {p | p <- order})
+    case priority(rhs, ordr)     => choice(rhs, {p | p <- ordr})
     case associativity(rhs, a, alts)  => choice(rhs, alts)
   }
 
@@ -72,11 +72,16 @@ public Grammar compileLookaheads(Grammar G) {
   }
 }
 
+// TODO: The following function was defined local to optimizeLookaheads
+// but this gives a not yet explained validation error for the
+// function ids in the corresponding overloaded function
+
+list[CharRange] order(list[CharRange] x) {
+    return sort([ e | e <- x, e != \empty-range()], lessThan);
+}
+  
 public Production optimizeLookaheads(Symbol rhs, set[Production] alts) {
   list[CharRange] l = [];
-  list[CharRange] order(list[CharRange] x) {
-    return sort([ e | e <- x, e != \empty-range()], lessThan);
-  }  
   
   // first we identify which unique ranges there are for all the different productions
   for (lookahead(_,set[Symbol] classes, Production p) <- alts) { 
