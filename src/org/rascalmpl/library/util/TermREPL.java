@@ -116,7 +116,8 @@ public class TermREPL {
             
             // TODO: change the signature of the handler
             // TODO: decode the resulting map with Rascal values to text/html or text/json
-            output.put("text/html", str);
+            if(!str.equals(""))
+                output.put("text/html", str);
 
             IList errors = (IList)result.get(1);
             for (IValue v: errors) {
