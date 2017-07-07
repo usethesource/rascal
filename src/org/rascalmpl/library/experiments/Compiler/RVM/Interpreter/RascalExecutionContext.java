@@ -242,7 +242,14 @@ public class RascalExecutionContext implements IRascalMonitor {
 	
 	public  IMap getModuleTagsCurrentModule(){
 	    IString mname = vf.string(currentModuleName);
-	    IMap m = (IMap) moduleTags.get(mname);
+	    if(moduleTags == null){
+	        return vf.mapWriter().done();
+	    }
+	    IValue v = moduleTags.get(mname);
+	    if(v == null){
+	        return vf.mapWriter().done();
+	    }
+	    IMap m = (IMap) v;
 	    return m == null ? vf.mapWriter().done() : (IMap) m.get(mname);
 	}
 	
