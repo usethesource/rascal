@@ -120,7 +120,7 @@ public class OverloadedFunction {
 					functions[nelems++] = newIndex;
 				}
 			}
-			if(functions.length > nelems){
+			if(functions.length > nelems){   // we have eliminated some unused functions
 				int[] newFunctions = new int[nelems];
 				for(int i = 0; i < nelems; i++){
 					newFunctions[i] = functions[i];
@@ -144,10 +144,9 @@ public class OverloadedFunction {
 	
 	void fids2objects(Function[] functionStore, Type[] constructorStore){
 	    
-	 // TODO: temp consistency tests
 	    for(int fid : functions){
             if(fid < 0 || fid >= functionStore.length){
-                System.err.println("OverloadedFunction " + name + ", fids2objects fid outside functionStore (" + fid + ") should be in [0.." + functionStore.length + "]");
+                throw new RuntimeException("OverloadedFunction " + name + ", fids2objects fid outside functionStore (" + fid + ") should be in [0.." + functionStore.length + "]");
             }
         }
         
