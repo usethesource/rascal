@@ -9,7 +9,7 @@ node {
     }
     
     stage('Build') {
-      sh "mvn -Drascal.boot=--validating -B clean compile test"
+      sh "mvn -Drascal.courses=--buildCourses -Drascal.boot=--validating -B clean compile test"
       sh "curl https://codecov.io/bash | bash -s - -K -X gcov -t e8b4481a-d178-4148-a4ff-502906390512"
     }
     

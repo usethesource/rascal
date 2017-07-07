@@ -674,6 +674,7 @@ class Option {
 			}
 			if(defaultValue != null){
 				// type check has been done at creation
+			    
 				if(defaultValue instanceof Function<?,?>){
 					currentValue = ((Function<CommandOptions,IValue>) defaultValue).apply(commandOptions);
 				}  else {
