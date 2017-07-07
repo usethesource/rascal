@@ -84,7 +84,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   try {
       ttags =  translateTags(fd.tags);
       tmods = translateModifiers(fd.signature.modifiers);
-      if("test" in tmods && ignoreTest(ttags)){
+      if(ignoreTest(ttags)){
           // The type checker does not generate type information for ignored functions
           addFunctionToModule(muFunction("/ignored-<fd@\loc.offset>()", 
                                          "<fd.signature.name>", 
@@ -294,7 +294,7 @@ public map[str,str] translateTags(Tags tags){
 
 private bool ignoreCompilerTest(map[str, str] tags) = !isEmpty(domain(tags) & {"ignoreCompiler", "IgnoreCompiler"});
 
-private bool ignoreTest(map[str, str] tags) = !isEmpty(domain(tags) & {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
+bool ignoreTest(map[str, str] tags) = !isEmpty(domain(tags) & {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
 
 /********************************************************************/
 /*       Translate the modifiers in a function declaration          */
