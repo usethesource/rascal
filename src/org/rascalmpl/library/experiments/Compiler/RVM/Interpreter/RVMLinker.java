@@ -218,7 +218,7 @@ public class RVMLinker {
 	 *   function indices in overloading vectors
 	 */
 	private HashMap<Integer,Integer> removeUnusedFunctions(ISet used){
-//	    System.err.println("removeUnusedFunctions, used = " + used);
+	   
 		int newSize = used.size();
 		ArrayList<Function> newFunctionStore = new ArrayList<Function>(newSize);
 		
@@ -231,7 +231,7 @@ public class RVMLinker {
 			Function fn = functionStore.get(i);
 			if(!used.contains(vf.string(fn.name))){
 				functionMap.remove(fn.name);
-//				System.err.println("Remove " + fn.name);
+				if(fn.name.contains("Layout/")) System.err.println("Remove " + fn.name);
 				shift++;
 			} else {
 				int ishifted = i - shift;
@@ -239,25 +239,27 @@ public class RVMLinker {
 				functionMap.put(fn.name, ishifted);
 				newFunctionStore.add(fn);
 				shiftedFunctionIndexMap.put(i, ishifted);
-//				System.err.println("Shift " + fn.name + " from " + i + " to " + ishifted);
+				if(fn.name.contains("Layout/")) System.err.println("Shift " + fn.name + " from " + i + " to " + ishifted);
 			}
 		}
 		
+		System.err.println("removeUnusedFunctions: functionStore, size was " + functionStore.size() + " becomes " + newFunctionStore.size());
+		 
 		functionStore = newFunctionStore;
 		
 		for(Function fn : functionStore){
 		    if(fn.scopeIn >= 0){
 		        Integer shiftedScopeIn = shiftedFunctionIndexMap.get(fn.scopeIn);
 		        if(shiftedScopeIn != null){
+		            if(fn.name.contains("Layout/")) System.err.println("Shift scopeIn " + fn.name + " from " + fn.scopeIn + " to " + shiftedScopeIn);
 		            fn.scopeIn = shiftedScopeIn;
-//		            System.err.println("Shift scopeIn " + fn.name + " from " + fn.scopeIn + " to " + shiftedScopeIn);
 		        }
 		    }
 		    if(fn.scopeId >= 0){
 		        Integer shiftedScopeId = shiftedFunctionIndexMap.get(fn.scopeId);
 		        if(shiftedScopeId != null){
+		            if(fn.name.contains("Layout/")) System.err.println("Shift scopeId " + fn.name + " from " + fn.scopeId + " to " + shiftedScopeId);
 		            fn.scopeId = shiftedScopeId;
-//		            System.err.println("Shift scopeId " + fn.name + " from " + fn.scopeId + " to " + shiftedScopeId);
 		        }
 		    }
 		}
@@ -267,7 +269,7 @@ public class RVMLinker {
 		        Integer shiftedScopeIn = shiftedFunctionIndexMap.get(ovf.scopeIn);
 		        if(shiftedScopeIn != null){
 		            ovf.scopeIn = shiftedFunctionIndexMap.get(ovf.scopeIn);
-//		            System.err.println("Shift scopeIn " + ovf.name + " from " + ovf.scopeIn + " to " + shiftedScopeIn);
+		            if(ovf.name.contains("Layout/")) System.err.println("Shift scopeIn " + ovf.name + " from " + ovf.scopeIn + " to " + shiftedScopeIn);
 		        }
 		    }
 		}
@@ -286,7 +288,7 @@ public class RVMLinker {
 		ISetWriter w = vf.setWriter();
 		for(IValue v : initial){
 			ITuple tup = (ITuple) v;
-			IString left = (IString) tup.get(0);
+			IString left = (IString) tup.get(0); // left uses right
 			IString right = (IString) tup.get(1);
 			Integer uresolver = resolver.get(right.getValue());
 		
@@ -312,7 +314,7 @@ public class RVMLinker {
 		int i = 0;
 		for(String fname : functionMap.keySet()){
 			if(functionMap.get(fname) == null){
-				System.out.println("finalizeInstructions, null for function : " + fname);
+				throw new RuntimeException("finalizeInstructions, null for function : " + fname);
 			}
 		}
 		for(String fname : functionMap.keySet()) {
@@ -325,7 +327,7 @@ public class RVMLinker {
 						break;
 					}
 				}
-				System.out.println("finalizeInstructions, null at index: " + i + ", " + nameAtIndex);
+				throw new RuntimeException("finalizeInstructions, null at index: " + i + ", " + nameAtIndex);
 			} else {
 //				System.out.println("finalizeInstructions: " + f.name);
 			}
@@ -333,19 +335,20 @@ public class RVMLinker {
 			i++;
 		}
 		for(OverloadedFunction of : overloadedStore) {
+		    if(of.name.contains("Layout/")) System.err.println("finalize: " + of.name);
 			of.finalize(functionMap, functionStore, constructorStore, shiftedFunctionindexMap);
 		}
 	}
 	
 	private void addFunctionUses(ISetWriter w, IString fname, ISet uses){
-//	    System.err.println("addFunctionUses:" + fname + ", " + uses);
+	    //System.err.println("addFunctionUses:" + fname + ", " + uses);
 		for(IValue use : uses){
 			w.insert(vf.tuple(fname, use));
 		}
 	}
 	
 	private void addOverloadedFunctionUses(ISetWriter w, IString fname, ISet uses){
-//		System.err.println("addOverloadedFunctionUses:" + fname + ", " + uses);
+		//System.err.println("addOverloadedFunctionUses:" + fname + ", " + uses);
 		for(IValue use : uses){
 			w.insert(vf.tuple(fname, use));
 		}
@@ -359,7 +362,7 @@ public class RVMLinker {
 
         if(name.contains("companion")){ // always preserve generated companion and companion-defaults functions
             rootWriter.insert(iname);
-            loadInstructions(name, declaration, false);
+            //loadInstructions(name, declaration, false); // TODO: <===?
         }
         
         IString scopeIn = (IString) declaration.get("scopeIn");
@@ -368,7 +371,7 @@ public class RVMLinker {
                                            // (this is an overapproximation and may result in preserving unused functions)
             rootWriter.insert(iname);
             rootWriter.insert(scopeIn);
-//            System.err.println("Mark as used: " + iname + ", " + scopeIn);
+            if(name.contains("Layout/")) System.err.println("Mark as used: " + iname + ", " + scopeIn);
         }
 
         if(name.contains("closure#")){  // preserve generated closure functions and their enclosing function
@@ -376,7 +379,7 @@ public class RVMLinker {
             scopeIn = (IString) declaration.get("scopeIn");
             rootWriter.insert(iname);
             rootWriter.insert(scopeIn);
-//            System.err.println("Mark as used: " + iname + ", " + scopeIn);
+            if(name.contains("Layout/")) System.err.println("Mark as used: " + iname + ", " + scopeIn);
         }
 
         if(hasExtends){
