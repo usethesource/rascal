@@ -87,7 +87,6 @@ public abstract class RVMCore {
 	protected final Map<String, Integer> constructorMap;
 	
 	// Function overloading
-	//protected final Map<String, Integer> resolver;
 	protected final OverloadedFunction[] overloadedStore;
 	private Map<String, OverloadedFunction> overloadedStoreMap;
 	
@@ -168,7 +167,6 @@ public abstract class RVMCore {
 	  this.functionStore = rvmExec.getFunctionStore();
 	  this.functionMap = rvmExec.getFunctionMap();
 
-//	  this.resolver = rvmExec.getResolver();
 	  this.overloadedStore = rvmExec.getOverloadedStore();
 	  mappifyOverloadedStore();
 
@@ -828,7 +826,9 @@ public abstract class RVMCore {
 	
 	@SuppressWarnings("unchecked")
 	protected void STORELOCKWP(final Object[] stack, Frame cf, int iname, Object accu){
-		String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
+		//String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
+	    String name = ((IString) cf.function.constantStore[iname]).getValue();
+	    
 		Map<String, IValue> kargs = (Map<String, IValue>) stack[cf.function.nformals - 1];
 		if(kargs == emptyKeywordMap){
 			System.err.println("Creating new kw map while updating: " + name);
@@ -842,8 +842,9 @@ public abstract class RVMCore {
 	
 	@SuppressWarnings("unchecked")
 	protected Object LOADVARKWP(final Frame cf, final int varScope, final int iname){
-	  String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
-
+	  //String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
+	  String name = ((IString) cf.function.constantStore[iname]).getValue();
+	    
 	  for(Frame f = cf.previousScope; f != null; f = f.previousCallFrame) {
 	    if (f.scopeId == varScope) {    
 	      if(f.function.nformals > 0){
@@ -881,7 +882,8 @@ public abstract class RVMCore {
 	@SuppressWarnings("unchecked")
 	protected void STOREVARKWP(final Frame cf, final int varScope, final int iname, final Object accu){
 		
-		String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
+		//String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
+		String name = ((IString) cf.function.constantStore[iname]).getValue();
 		IValue val = (IValue) accu;
 		for(Frame f = cf.previousScope; f != null; f = f.previousCallFrame) {
 			if (f.scopeId == varScope) {
@@ -922,7 +924,8 @@ public abstract class RVMCore {
 	
 	@SuppressWarnings("unchecked")
 	protected Object LOADLOCKWP(final Object[] stack, final Frame cf, final int iname){
-	  String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
+	  //String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
+	  String name = ((IString) cf.function.constantStore[iname]).getValue();
 
 	  Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
 	  Map.Entry<Type, IValue> defaultValue = defaults.get(name);
