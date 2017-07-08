@@ -131,10 +131,10 @@ public class RVMExecutable {
 			final Map<String,String> classRenamings
 			) throws IOException{
 	
-	    System.err.println("RVMExecutable " + module_name);
-	    System.err.println("functionStore:    " + functionStore.length);
-	    System.err.println("constructorStore: " + constructorStore.length);
-	    System.err.println("overloadedStore:  " + overloadedStore.length);
+//	    System.err.println("RVMExecutable " + module_name);
+//	    System.err.println("functionStore:    " + functionStore.length);
+//	    System.err.println("constructorStore: " + constructorStore.length);
+//	    System.err.println("overloadedStore:  " + overloadedStore.length);
 	    
 		vf = vfactory;
 		this.errors = vf.set();
@@ -158,7 +158,6 @@ public class RVMExecutable {
 		this.uid_module_main = uid_module_main;
 		
 		if(validating){
-		    System.err.println("Validating " + module_name);
 		    validate();
 		    fids2objects();
 		}
@@ -334,7 +333,6 @@ public class RVMExecutable {
 	
 	private void validateFunctions(){
         int nfun = functionStore.length;
-        System.err.println("validateFunctions: " + nfun + " functions in functionStore");
         if(nfun != functionMap.size()){
             throw new RuntimeException("functionStore and functionMap have different size: " + nfun + " vs " + functionMap.size());
         }
@@ -686,7 +684,7 @@ public class RVMExecutable {
                         Function function = Function.read(in, functionMap, constructorMap, resolver);
                         functionStore[i] = function;
                     }
-                    System.err.println("read functionStore: " + functionStore.length);
+                 
                     break;
                 }
                 
