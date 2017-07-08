@@ -137,6 +137,7 @@ test bool overloadingPlusVarArgsSpecialCase(){
 
 @IgnoreCompiler{Map patterns not supported}
 private bool singletonSetWithMap({()}) = true;
+
 @IgnoreCompiler{Map patterns not supported}
 private default bool singletonSetWithMap(value _) = false;
 
