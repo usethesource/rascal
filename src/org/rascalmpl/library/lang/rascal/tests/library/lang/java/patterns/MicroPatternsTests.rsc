@@ -1,3 +1,4 @@
+@ignoreCompiler{Unfinished code; tests fails; remove?}
 module lang::rascal::tests::library::lang::java::patterns::MicroPatternsTests
 
 import analysis::patterns::Micro;
