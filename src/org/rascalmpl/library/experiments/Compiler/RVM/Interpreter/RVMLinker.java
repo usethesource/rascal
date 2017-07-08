@@ -243,7 +243,7 @@ public class RVMLinker {
 			}
 		}
 		
-		System.err.println("removeUnusedFunctions: functionStore, size was " + functionStore.size() + " becomes " + newFunctionStore.size());
+		//System.err.println("removeUnusedFunctions: functionStore, size was " + functionStore.size() + " becomes " + newFunctionStore.size());
 		 
 		functionStore = newFunctionStore;
 		
