@@ -159,8 +159,8 @@ public class Function {
 	}
 	
 	public void  finalize(final Map<String, Integer> functionMap, final Map<String, Integer> constructorMap, final Map<String, Integer> resolver){
-		if(constructorMap == null){
-			System.out.println("finalize: null");
+		if(codeblock == null){
+			return;
 		}
 		codeblock.done(name, functionMap, constructorMap, resolver);
 		this.scopeId = codeblock.getFunctionIndex(name);
@@ -171,8 +171,8 @@ public class Function {
 		this.typeConstantStore = codeblock.getTypeConstants();
 	}
 	
-	public void clearForJVM(){
-		codeblock.clearForJVM();
+	public void removeCodeBlocks(){
+	    codeblock = null;
 	}
 	
 	public void attachExceptionTable(final IList exceptions) {
@@ -442,8 +442,10 @@ public class Function {
 
         out.writeField(CompilerIDs.Function.MAX_STACK, maxstack);
 
-        out.writeNestedField(CompilerIDs.Function.CODEBLOCK);
-        codeblock.write(out);
+        if(codeblock != null){
+            out.writeNestedField(CompilerIDs.Function.CODEBLOCK);
+            codeblock.write(out);
+        }
         
         out.writeField(CompilerIDs.Function.CONSTANT_STORE, constantStore);
 
