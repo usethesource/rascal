@@ -597,13 +597,12 @@ public class RVMLinker {
 								 functionStore.toArray(new Function[functionStore.size()]), 
 								 constructorMap,
 								 constructorStore.toArray(new Type[constructorStore.size()]),	
-								 resolver, 
-								 overloadedStore.toArray(new OverloadedFunction[overloadedStore.size()]),  
-								 initializers,
-								 uid_module_init, 
+								 overloadedStore.toArray(new OverloadedFunction[overloadedStore.size()]), 
+								 initializers,  
+								 uid_module_init,
 								 uid_module_main, 
 								 vf, 
-								 jvm,
+								 jvm, 
 								 classRenamings);
 	}
 	
@@ -675,10 +674,10 @@ public class RVMLinker {
 		int concreteFingerprint = 0;
 		if(!isCoroutine){
 			isDefault = ((IBool) declaration.get("isDefault")).getValue();
-			if(declaration.has("simpleArgs")){                           // Remove after next boot release
+			if(declaration.has("simpleArgs")){                           // TODO: Remove after next boot release
 			    simpleArgs = ((IBool) declaration.get("simpleArgs")).getValue();
 			}
-			if(declaration.has("isTest")){   // Transitional for boot
+			if(declaration.has("isTest")){                               // TODO: Transitional for boot
 			  isTest = ((IBool) declaration.get("isTest")).getValue();
 			  tags = ((IMap) declaration.get("tags"));
 			} else {
