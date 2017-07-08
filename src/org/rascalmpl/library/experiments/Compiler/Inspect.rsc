@@ -35,7 +35,9 @@ void inspect(loc file,  Query select = none(), bool listing = false){
     }
     switch(file.extension){
     case "rvm":  inspectRVM(file, select=select, listing=listing);
-    case "rvmx": inspectRVM(file, select=select, listing=listing);
+    case "rvmx": {
+        println("Inspect: cannot handle extension `rvmx`; Use RVMExecutable.main instead");
+    }
     case "tc":   inspectTC(file, select=select);
     case "imps": iprintln(readBinaryValueFile(#CachedImportInfo, file));
     case "sig":  println(readBinaryValueFile(#datetime, file));
@@ -135,16 +137,6 @@ void inspectRVM(str qualifiedModuleName, // nameof Rascal source module
           bool listing = false           // show instruction listing
           ){
     <e, rvmLoc> = RVMModuleReadLoc(qualifiedModuleName, pcfg);
-    inspectRVM(rvmLoc, select=select, line=line, listing=listing);
-}
-
-void inspectRVMX(str qualifiedModuleName, // nameof Rascal source module
-          PathConfig pcfg,                // path configuration where binaries are stored
-          Query select = none(),          // select function names to be shown
-          int line = -1,                  // select line of function to be shown
-          bool listing = false            // show instruction listing
-          ){
-    <e, rvmLoc> = RVMExecutableReadLoc(qualifiedModuleName, pcfg);
     inspectRVM(rvmLoc, select=select, line=line, listing=listing);
 }
            
