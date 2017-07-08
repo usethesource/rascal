@@ -79,7 +79,6 @@ public class RVMExecutable {
 	
 	// Function overloading
 	private final OverloadedFunction[] overloadedStore;
-	private final Map<String, Integer> resolver;
 	
 	private final List<String> initializers;
 	private final String uid_module_init;
@@ -103,7 +102,6 @@ public class RVMExecutable {
         this.constructorMap = null;
         this.constructorStore = null;
 
-        this.resolver = null;
         this.overloadedStore = null;
         
         this.initializers = null;
@@ -123,10 +121,9 @@ public class RVMExecutable {
 			final Map<String, Integer> constructorMap,
 			final Type[] constructorStore,
 	
-			final Map<String, Integer> resolver,
 			final OverloadedFunction[] overloadedStore,
-			
 			List<String> initializers2,
+			
 			String uid_module_init,
 			String uid_module_main,
 			IValueFactory vfactory,
@@ -138,7 +135,6 @@ public class RVMExecutable {
 	    System.err.println("functionStore:    " + functionStore.length);
 	    System.err.println("constructorStore: " + constructorStore.length);
 	    System.err.println("overloadedStore:  " + overloadedStore.length);
-	    System.err.println("resolver:         " + resolver.size());
 	    
 		vf = vfactory;
 		this.errors = vf.set();
@@ -154,7 +150,6 @@ public class RVMExecutable {
 		this.constructorMap = constructorMap;
 		this.constructorStore = constructorStore;
 
-		this.resolver = resolver;
 		this.overloadedStore = overloadedStore;
 		
 		this.initializers = initializers2;
@@ -171,13 +166,13 @@ public class RVMExecutable {
 		if(jvm){
 			generateClassFile(false, classRenamings);
 			System.err.println("jvmByteCode:      " + jvmByteCode.length);
-			clearForJVM();
+			removeCodeBlocks();
 		}
 	}
 	
-	void clearForJVM(){
+	void removeCodeBlocks(){
 		for(Function f : functionStore){
-			f.clearForJVM();
+			f.removeCodeBlocks();
 		}
 	}
 	
@@ -226,10 +221,6 @@ public class RVMExecutable {
 	
 	OverloadedFunction[] getOverloadedStore() {
 		return overloadedStore;
-	}
-	
-	Map<String, Integer> getResolver() {
-		return resolver;
 	}
 	
 	List<String> getInitializers() {
@@ -375,16 +366,6 @@ public class RVMExecutable {
     }
 	
 	private void validateOverloading(){
-	    System.err.println("validateFunctions: " + functionStore.length + " functions in functionStore");
-        for(String oname : resolver.keySet()){
-            int n = resolver.get(oname);
-            if(n < 0 || n >= overloadedStore.length){
-                System.err.println(oname + " outside overloadStore (unused?): " + n);
-            }
-            if(overloadedStore[n] == null){
-                throw new RuntimeException("OverloadedStore has null entry for: "+ oname + " at index " + n);
-            }
-        }
         
         for(OverloadedFunction ovf : overloadedStore){
             int nfun = functionStore.length;
@@ -497,7 +478,7 @@ public class RVMExecutable {
         
         out.writeFieldStringInt(CompilerIDs.Executable.CONSTRUCTOR_MAP, getConstructorMap());
         
-        out.writeFieldStringInt(CompilerIDs.Executable.RESOLVER, getResolver());
+//        out.writeFieldStringInt(CompilerIDs.Executable.RESOLVER, getResolver());
         
         // FUNCTION_MAP, CONSTRUCTOR_MAP and RESOLVER should come before FUNCTION_STORE
         
@@ -700,9 +681,7 @@ public class RVMExecutable {
                     if(constructorMap == null){
                         throw new IOException("CONSTRUCTOR_MAP should be defined before FUNCTION_STORE");
                     }
-                    if(resolver == null){
-                        throw new IOException("RESOLVER should be defined before FUNCTION_STORE");
-                    }
+
                     for(int i = 0; i < n; i++){
                         Function function = Function.read(in, functionMap, constructorMap, resolver);
                         functionStore[i] = function;
@@ -764,8 +743,8 @@ public class RVMExecutable {
         }
 
 	    RVMExecutable ex = new RVMExecutable(module_name, moduleTags, symbol_definitions, functionMap, functionStore, 
-	        constructorMap, constructorStore, resolver, overloadedStore, initializers, uid_module_init, 
-	        uid_module_main, vf, false, Collections.emptyMap());
+	        constructorMap, constructorStore, overloadedStore, initializers, uid_module_init, uid_module_main, 
+	        vf, false, Collections.emptyMap());
 	    ex.setJvmByteCode(jvmByteCode);
 	    ex.setFullyQualifiedDottedName(fullyQualifiedDottedName);
 
