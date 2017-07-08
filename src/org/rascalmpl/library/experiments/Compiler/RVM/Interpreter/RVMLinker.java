@@ -231,7 +231,7 @@ public class RVMLinker {
 			Function fn = functionStore.get(i);
 			if(!used.contains(vf.string(fn.name))){
 				functionMap.remove(fn.name);
-				if(fn.name.contains("Layout/")) System.err.println("Remove " + fn.name);
+				//System.err.println("Remove " + fn.name);
 				shift++;
 			} else {
 				int ishifted = i - shift;
@@ -239,7 +239,7 @@ public class RVMLinker {
 				functionMap.put(fn.name, ishifted);
 				newFunctionStore.add(fn);
 				shiftedFunctionIndexMap.put(i, ishifted);
-				if(fn.name.contains("Layout/")) System.err.println("Shift " + fn.name + " from " + i + " to " + ishifted);
+				//System.err.println("Shift " + fn.name + " from " + i + " to " + ishifted);
 			}
 		}
 		
@@ -251,14 +251,14 @@ public class RVMLinker {
 		    if(fn.scopeIn >= 0){
 		        Integer shiftedScopeIn = shiftedFunctionIndexMap.get(fn.scopeIn);
 		        if(shiftedScopeIn != null){
-		            if(fn.name.contains("Layout/")) System.err.println("Shift scopeIn " + fn.name + " from " + fn.scopeIn + " to " + shiftedScopeIn);
+		            //System.err.println("Shift scopeIn " + fn.name + " from " + fn.scopeIn + " to " + shiftedScopeIn);
 		            fn.scopeIn = shiftedScopeIn;
 		        }
 		    }
 		    if(fn.scopeId >= 0){
 		        Integer shiftedScopeId = shiftedFunctionIndexMap.get(fn.scopeId);
 		        if(shiftedScopeId != null){
-		            if(fn.name.contains("Layout/")) System.err.println("Shift scopeId " + fn.name + " from " + fn.scopeId + " to " + shiftedScopeId);
+		            //System.err.println("Shift scopeId " + fn.name + " from " + fn.scopeId + " to " + shiftedScopeId);
 		            fn.scopeId = shiftedScopeId;
 		        }
 		    }
@@ -269,7 +269,7 @@ public class RVMLinker {
 		        Integer shiftedScopeIn = shiftedFunctionIndexMap.get(ovf.scopeIn);
 		        if(shiftedScopeIn != null){
 		            ovf.scopeIn = shiftedFunctionIndexMap.get(ovf.scopeIn);
-		            if(ovf.name.contains("Layout/")) System.err.println("Shift scopeIn " + ovf.name + " from " + ovf.scopeIn + " to " + shiftedScopeIn);
+		            //System.err.println("Shift scopeIn " + ovf.name + " from " + ovf.scopeIn + " to " + shiftedScopeIn);
 		        }
 		    }
 		}
@@ -335,7 +335,7 @@ public class RVMLinker {
 			i++;
 		}
 		for(OverloadedFunction of : overloadedStore) {
-		    if(of.name.contains("Layout/")) System.err.println("finalize: " + of.name);
+		    //System.err.println("finalize: " + of.name);
 			of.finalize(functionMap, functionStore, constructorStore, shiftedFunctionindexMap);
 		}
 	}
@@ -362,7 +362,6 @@ public class RVMLinker {
 
         if(name.contains("companion")){ // always preserve generated companion and companion-defaults functions
             rootWriter.insert(iname);
-            //loadInstructions(name, declaration, false); // TODO: <===?
         }
         
         IString scopeIn = (IString) declaration.get("scopeIn");
@@ -371,7 +370,7 @@ public class RVMLinker {
                                            // (this is an overapproximation and may result in preserving unused functions)
             rootWriter.insert(iname);
             rootWriter.insert(scopeIn);
-            if(name.contains("Layout/")) System.err.println("Mark as used: " + iname + ", " + scopeIn);
+            //System.err.println("Mark as used: " + iname + ", " + scopeIn);
         }
 
         if(name.contains("closure#")){  // preserve generated closure functions and their enclosing function
@@ -379,7 +378,7 @@ public class RVMLinker {
             scopeIn = (IString) declaration.get("scopeIn");
             rootWriter.insert(iname);
             rootWriter.insert(scopeIn);
-            if(name.contains("Layout/")) System.err.println("Mark as used: " + iname + ", " + scopeIn);
+            //System.err.println("Mark as used: " + iname + ", " + scopeIn);
         }
 
         if(hasExtends){
