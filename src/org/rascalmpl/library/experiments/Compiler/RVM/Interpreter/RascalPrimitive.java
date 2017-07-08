@@ -406,7 +406,7 @@ public enum RascalPrimitive {
 			IString uri = ((IString) arg_1);
 
 			try {
-				return vf.sourceLocation(URIUtil.createFromEncoded(uri.getValue()));
+				return URIUtil.createFromURI(uri.getValue());
 			} 
 			catch (URISyntaxException e) {
 				// this is actually an unexpected run-time exception since Rascal prevents you from 
