@@ -911,9 +911,10 @@ public class RVMonJVM extends RVMCore {
         OverloadedFunctionInstanceCall ofunCall = null;
         cf.sp = sp;
 
-        // Get function types to perform a type-based dynamic
-        // resolution
-        Type types = cf.function.codeblock.getConstantType(typesel);
+        // Get function types to perform a type-based dynamic resolution
+        
+        Type types = cf.function.typeConstantStore[typesel];
+        
         // Objects of two types may appear on the stack:
         // 1. FunctionInstance due to closures whom will have no overloading
         if (funcObject instanceof FunctionInstance) {
