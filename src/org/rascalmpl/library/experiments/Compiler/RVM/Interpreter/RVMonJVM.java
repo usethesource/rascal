@@ -912,7 +912,6 @@ public class RVMonJVM extends RVMCore {
         cf.sp = sp;
 
         // Get function types to perform a type-based dynamic resolution
-        
         Type types = cf.function.typeConstantStore[typesel];
         
         // Objects of two types may appear on the stack:
