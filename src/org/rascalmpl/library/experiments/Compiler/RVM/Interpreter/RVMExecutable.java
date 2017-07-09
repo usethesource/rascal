@@ -3,6 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URISyntaxException;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,6 +56,7 @@ import io.usethesource.vallang.type.TypeStore;
 public class RVMExecutable {
 	
 	static final String RASCAL_MAGIC = "Rascal Vincit Omnia";
+	static boolean validating = true;
 	
 	// transient fields
 	private static IValueFactory vf;
@@ -77,7 +79,6 @@ public class RVMExecutable {
 	
 	// Function overloading
 	private final OverloadedFunction[] overloadedStore;
-	private final Map<String, Integer> resolver;
 	
 	private final List<String> initializers;
 	private final String uid_module_init;
@@ -100,8 +101,6 @@ public class RVMExecutable {
         
         this.constructorMap = null;
         this.constructorStore = null;
-
-        this.resolver = null;
         this.overloadedStore = null;
         
         this.initializers = null;
@@ -121,7 +120,6 @@ public class RVMExecutable {
 			final Map<String, Integer> constructorMap,
 			final Type[] constructorStore,
 	
-			final Map<String, Integer> resolver,
 			final OverloadedFunction[] overloadedStore,
 			
 			List<String> initializers2,
@@ -136,7 +134,6 @@ public class RVMExecutable {
 //	    System.err.println("functionStore:    " + functionStore.length);
 //	    System.err.println("constructorStore: " + constructorStore.length);
 //	    System.err.println("overloadedStore:  " + overloadedStore.length);
-//	    System.err.println("resolver:         " + resolver.size());
 	    
 		vf = vfactory;
 		this.errors = vf.set();
@@ -152,7 +149,6 @@ public class RVMExecutable {
 		this.constructorMap = constructorMap;
 		this.constructorStore = constructorStore;
 
-		this.resolver = resolver;
 		this.overloadedStore = overloadedStore;
 		
 		this.initializers = initializers2;
@@ -160,19 +156,21 @@ public class RVMExecutable {
 		this.uid_module_init = uid_module_init;
 		this.uid_module_main = uid_module_main;
 		
-		validate();
-		fids2objects();
+		if(validating){
+		    validate();
+		    fids2objects();
+		}
 		
 		if(jvm){
 			generateClassFile(false, classRenamings);
 //			System.err.println("jvmByteCode:      " + jvmByteCode.length);
-			clearForJVM();
+			removeCodeBlocks();
 		}
 	}
 	
-	void clearForJVM(){
+	void removeCodeBlocks(){
 		for(Function f : functionStore){
-			f.clearForJVM();
+			f.removeCodeBlocks();
 		}
 	}
 	
@@ -221,10 +219,6 @@ public class RVMExecutable {
 	
 	OverloadedFunction[] getOverloadedStore() {
 		return overloadedStore;
-	}
-	
-	Map<String, Integer> getResolver() {
-		return resolver;
 	}
 	
 	List<String> getInitializers() {
@@ -336,70 +330,66 @@ public class RVMExecutable {
 		}
 	}
 	
-	private void validateFunctions(){
+    private void validateFunctions(){
         int nfun = functionStore.length;
         if(nfun != functionMap.size()){
-            System.err.println("functionStore and functionMap have different size: " + nfun + " vs " + functionMap.size());
+            throw new RuntimeException("functionStore and functionMap have different size: " + nfun + " vs " + functionMap.size());
         }
         for(String fname : functionMap.keySet()){
             int n = functionMap.get(fname);
             if(functionStore[n] == null){
-                System.err.println("FunctionStore has null entry for: "+ fname + " at index " + n);
+                throw new RuntimeException("FunctionStore has null entry for: "+ fname + " at index " + n);
             }
         }
         
         for(Function fn : functionStore){
             if(fn.scopeIn >= 0 && fn.scopeIn >= functionStore.length){
-                System.err.println("Function " + fn.name + ": scopeIn out of range (" + fn.scopeIn + ")");
+                throw new RuntimeException("Function " + fn.name + ": scopeIn out of range (" + fn.scopeIn + ")");
             }
         }
     }
 	
-	private void validateConstructors(){
+    private void validateConstructors(){
         int ncon = constructorStore.length;
         if(ncon != constructorMap.size()){
-            System.err.println("constructorStore and constructorMap have different size: " + ncon + " vs " + constructorMap.size());
+            throw new RuntimeException("constructorStore and constructorMap have different size: " + ncon + " vs " + constructorMap.size());
         }
         for(String cname : constructorMap.keySet()){
             int n = constructorMap.get(cname);
             if(constructorStore[n] == null){
-                System.err.println("ConstructorStore has null entry for: "+ cname + " at index " + n);
+                throw new RuntimeException("ConstructorStore has null entry for: "+ cname + " at index " + n);
             }
         }
     }
 	
-	private void validateOverloading(){
-        for(String oname : resolver.keySet()){
-            int n = resolver.get(oname);
-            if(overloadedStore[n] == null){
-                System.err.println("OverloadedStore has null entry for: "+ oname + " at index " + n);
-            }
-        }
+   private void validateOverloading(){
         
         for(OverloadedFunction ovf : overloadedStore){
             int nfun = functionStore.length;
+            if(ovf.scopeIn >= 0 && ovf.scopeIn > nfun){
+            	throw new RuntimeException(ovf.name + ": scopeIn out-of-range (" + ovf.scopeIn + ") should be in [0.." + nfun + "]");
+            }
             for(int fid : ovf.functions){
                 if(fid < 0 || fid >= nfun){
-                    System.err.println("OverloadedFunction " + ovf.name + ": functions contains out-of-range fid (" + fid + ") should be in [0.." + nfun + "]");
+                    throw new RuntimeException("OverloadedFunction " + ovf.name + ": functions contains out-of-range fid (" + fid + ") should be in [0.." + nfun + "]");
                 }
             }
             int ncon = constructorStore.length;
             for(int cid : ovf.constructors){
                 if(cid < 0 || cid >= ncon){
-                    System.err.println("OverloadedFunction " + ovf.name + ": constructors contains out-of-range cid (" + cid + ") should be in [0.." + ncon + "]");
+                    throw new RuntimeException("OverloadedFunction " + ovf.name + ": constructors contains out-of-range cid (" + cid + ") should be in [0.." + ncon + "]");
                 }
             }
             if(ovf.filteredFunctions != null){
                 for(int[] funs : ovf.filteredFunctions.values()){
                     for(int fid : funs){
                         if(fid < 0 || fid >= nfun){
-                            System.err.println("OverloadedFunction " + ovf.name + ": filteredFunctions contains out-of-range fid (" + fid + ") should be in [0.." + nfun + "]");
+                            throw new RuntimeException("OverloadedFunction " + ovf.name + ": filteredFunctions contains out-of-range fid (" + fid + ") should be in [0.." + nfun + "]");
                         }
                     }
                 }
             }
         }
-    
     }
 	
 	private void validate(){
@@ -483,7 +473,7 @@ public class RVMExecutable {
         
         out.writeFieldStringInt(CompilerIDs.Executable.CONSTRUCTOR_MAP, getConstructorMap());
         
-        out.writeFieldStringInt(CompilerIDs.Executable.RESOLVER, getResolver());
+//        out.writeFieldStringInt(CompilerIDs.Executable.RESOLVER, getResolver());
         
         // FUNCTION_MAP, CONSTRUCTOR_MAP and RESOLVER should come before FUNCTION_STORE
         
@@ -685,13 +675,12 @@ public class RVMExecutable {
                     if(constructorMap == null){
                         throw new IOException("CONSTRUCTOR_MAP should be defined before FUNCTION_STORE");
                     }
-                    if(resolver == null){
-                        throw new IOException("RESOLVER should be defined before FUNCTION_STORE");
-                    }
+
                     for(int i = 0; i < n; i++){
                         Function function = Function.read(in, functionMap, constructorMap, resolver);
                         functionStore[i] = function;
                     }
+                 
                     break;
                 }
                 
@@ -748,11 +737,24 @@ public class RVMExecutable {
         }
 
 	    RVMExecutable ex = new RVMExecutable(module_name, moduleTags, symbol_definitions, functionMap, functionStore, 
-	        constructorMap, constructorStore, resolver, overloadedStore, initializers, uid_module_init, 
-	        uid_module_main, vf, false, Collections.emptyMap());
+	        constructorMap, constructorStore, overloadedStore, initializers, uid_module_init, uid_module_main, 
+	        vf, false, Collections.emptyMap());
 	    ex.setJvmByteCode(jvmByteCode);
 	    ex.setFullyQualifiedDottedName(fullyQualifiedDottedName);
 
 	    return ex;
 	}
+	
+	 public static void main(String[] args) throws URISyntaxException  {
+	     IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	     ISourceLocation rvmx = vf.sourceLocation("home", "", "/git/rascal/bootstrap/phase2/lang/rascal/grammar/ParserGenerator.rvmx");
+	     //RVMExecutable.validating = false;
+	     try {
+            RVMExecutable exec = read(rvmx);
+        }
+        catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+	 }
 }
