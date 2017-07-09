@@ -1,6 +1,8 @@
 module lang::rascal::tests::library::lang::json::JSONIOTests
 
 import IO;
+import String;
+import Node;
 import Type;
 import util::Math;
 import lang::json::IO;
@@ -10,8 +12,28 @@ loc targetFile = |test-temp:///test-<"<uuidi()>">.json|;
 
 bool writeRead(&T dt) = writeRead(type(typeOf(dt), ()), dt);
 
-bool writeRead(type[&T] returnType, &T dt) = fromJSON(returnType, json) == dt
-  when str json := toJSON(dt);
+    
+bool jsonFeaturesSupported(value v) {
+    for (/num r := v, size("<r>") > 10) {
+         // json can only contain double precision video's
+         // so let's ignore the cases
+        return false;
+    }
+    for (/node n := v, getAnnotations(n) != ()) {
+         // json reader/writer can't handle annotations at the moment
+        return false;
+    }
+    return true;
+}    
+
+
+bool writeRead(type[&T] returnType, &T dt) {
+    if (!jsonFeaturesSupported(dt)) {
+        return true;
+    }
+    json = toJSON(dt);
+    return fromJSON(returnType, json) == dt;
+}
 	
 data DATA1 = f1(int n) | f1(int n, str s) | rec1(DATA1 d1, DATA1 d2);
 
@@ -67,11 +89,17 @@ data D
     
 @ignore{Currently not working with datetimes not as ints}
 test bool jsonStreaming1(D dt) {
+    if (!jsonFeaturesSupported(dt)) {
+        return true;
+    }
     writeJSON(targetFile, dt, dateTimeAsInt=false);
     return readJSON(#D, targetFile) == dt;
 }
 
 test bool jsonStreaming2(D dt) {
+    if (!jsonFeaturesSupported(dt)) {
+        return true;
+    }
     writeJSON(targetFile, dt, dateTimeAsInt=true);
     return readJSON(#D, targetFile) == dt;
 }

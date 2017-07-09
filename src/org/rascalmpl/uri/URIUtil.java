@@ -319,4 +319,7 @@ public class URIUtil {
 	public static ISourceLocation removeOffset(ISourceLocation prev) {
 		return prev.top();
 	}
+    public static ISourceLocation createFromURI(String value) throws URISyntaxException {
+        return vf.sourceLocation(createFromEncoded(value));
+    }
 }

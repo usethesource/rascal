@@ -826,7 +826,6 @@ public abstract class RVMCore {
 	
 	@SuppressWarnings("unchecked")
 	protected void STORELOCKWP(final Object[] stack, Frame cf, int iname, Object accu){
-		//String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
 	    String name = ((IString) cf.function.constantStore[iname]).getValue();
 	    
 		Map<String, IValue> kargs = (Map<String, IValue>) stack[cf.function.nformals - 1];
@@ -842,7 +841,6 @@ public abstract class RVMCore {
 	
 	@SuppressWarnings("unchecked")
 	protected Object LOADVARKWP(final Frame cf, final int varScope, final int iname){
-	  //String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
 	  String name = ((IString) cf.function.constantStore[iname]).getValue();
 	    
 	  for(Frame f = cf.previousScope; f != null; f = f.previousCallFrame) {
@@ -881,8 +879,6 @@ public abstract class RVMCore {
 	
 	@SuppressWarnings("unchecked")
 	protected void STOREVARKWP(final Frame cf, final int varScope, final int iname, final Object accu){
-		
-		//String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
 		String name = ((IString) cf.function.constantStore[iname]).getValue();
 		IValue val = (IValue) accu;
 		for(Frame f = cf.previousScope; f != null; f = f.previousCallFrame) {
@@ -924,7 +920,6 @@ public abstract class RVMCore {
 	
 	@SuppressWarnings("unchecked")
 	protected Object LOADLOCKWP(final Object[] stack, final Frame cf, final int iname){
-	  //String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
 	  String name = ((IString) cf.function.constantStore[iname]).getValue();
 
 	  Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
