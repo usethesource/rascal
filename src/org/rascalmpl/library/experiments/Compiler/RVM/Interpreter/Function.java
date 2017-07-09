@@ -48,6 +48,7 @@ public class Function {
 	private static final IString IgnoreTag = vf.string("Ignore");
 	private static final IString ignoreCompilerTag = vf.string("ignoreCompiler");
 	private static final IString IgnoreCompilerTag = vf.string("IgnoreCompiler");
+	private static final IString[] ignoreTags = {ignoreTag, IgnoreTag, ignoreCompilerTag, IgnoreCompilerTag};
 	
 	String name;
 	public Type ftype;
@@ -161,8 +162,8 @@ public class Function {
 	}
 	
 	public void  finalize(final Map<String, Integer> functionMap, final Map<String, Integer> constructorMap, final Map<String, Integer> resolver){
-		if(constructorMap == null){
-			System.out.println("finalize: null");
+		if(codeblock == null){
+			return;
 		}
 		codeblock.done(name, functionMap, constructorMap, resolver);
 		this.scopeId = codeblock.getFunctionIndex(name);
@@ -173,8 +174,8 @@ public class Function {
 		this.typeConstantStore = codeblock.getTypeConstants();
 	}
 	
-	public void clearForJVM(){
-		codeblock.clearForJVM();
+	public void removeCodeBlocks(){
+	    codeblock = null;
 	}
 	
 	public void attachExceptionTable(final IList exceptions) {
@@ -282,12 +283,14 @@ public class Function {
 		return sb.toString();
 	}
 	
-	public boolean isIgnored(){
-	  return    tags.containsKey(ignoreTag) 
-	         || tags.containsKey(IgnoreTag)
-	         || tags.containsKey(ignoreCompilerTag)
-	         || tags.containsKey(IgnoreCompilerTag)
-	         ;
+	public boolean isIgnored(RascalExecutionContext rex){
+	  IMap mtags = rex.getModuleTagsCurrentModule();
+	  for(IString tag : ignoreTags ){
+	      if(tags.containsKey(tag) || mtags.containsKey(tag)){
+	          return true;
+	      }
+	  }
+	  return  false;
 	}
 	
 	private static final int MAXDEPTH = 5;
@@ -321,7 +324,7 @@ public class Function {
 
     public ITuple executeTest(ITestResultListener testResultListener, TypeStore typeStore, RascalExecutionContext rex) {
         String fun = name;
-        if(isIgnored()){
+        if(isIgnored(rex)){
             testResultListener.ignored(computeTestName(), src);
             return vf.tuple(src,  vf.integer(2), vf.string(""));
         }
@@ -420,8 +423,10 @@ public class Function {
 
         out.writeField(CompilerIDs.Function.MAX_STACK, maxstack);
 
-        out.writeNestedField(CompilerIDs.Function.CODEBLOCK);
-        codeblock.write(out);
+        if(codeblock != null){
+            out.writeNestedField(CompilerIDs.Function.CODEBLOCK);
+            codeblock.write(out);
+        }
         
         out.writeField(CompilerIDs.Function.CONSTANT_STORE, constantStore);
 
