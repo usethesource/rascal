@@ -164,7 +164,7 @@ public class RVMExecutable {
 		
 		if(jvm){
 			generateClassFile(false, classRenamings);
-			System.err.println("jvmByteCode:      " + jvmByteCode.length);
+//			System.err.println("jvmByteCode:      " + jvmByteCode.length);
 			removeCodeBlocks();
 		}
 	}
@@ -391,7 +391,6 @@ public class RVMExecutable {
                 }
             }
         }
-    
     }
 	
 	private void validate(){

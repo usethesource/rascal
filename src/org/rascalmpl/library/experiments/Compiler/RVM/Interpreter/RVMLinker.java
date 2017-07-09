@@ -218,7 +218,6 @@ public class RVMLinker {
 	 *   function indices in overloading vectors
 	 */
 	private HashMap<Integer,Integer> removeUnusedFunctions(ISet used){
-	   
 		int newSize = used.size();
 		ArrayList<Function> newFunctionStore = new ArrayList<Function>(newSize);
 		
@@ -231,7 +230,7 @@ public class RVMLinker {
 			Function fn = functionStore.get(i);
 			if(!used.contains(vf.string(fn.name))){
 				functionMap.remove(fn.name);
-				//System.err.println("Remove " + fn.name);
+//				System.err.println("Remove " + fn.name);
 				shift++;
 			} else {
 				int ishifted = i - shift;
@@ -335,7 +334,6 @@ public class RVMLinker {
 			i++;
 		}
 		for(OverloadedFunction of : overloadedStore) {
-		    //System.err.println("finalize: " + of.name);
 			of.finalize(functionMap, functionStore, constructorStore, shiftedFunctionindexMap);
 		}
 	}
@@ -348,7 +346,7 @@ public class RVMLinker {
 	}
 	
 	private void addOverloadedFunctionUses(ISetWriter w, IString fname, ISet uses){
-		//System.err.println("addOverloadedFunctionUses:" + fname + ", " + uses);
+//		System.err.println("addOverloadedFunctionUses:" + fname + ", " + uses);
 		for(IValue use : uses){
 			w.insert(vf.tuple(fname, use));
 		}
@@ -599,6 +597,7 @@ public class RVMLinker {
 								 overloadedStore.toArray(new OverloadedFunction[overloadedStore.size()]), 
 								 initializers,  
 								 uid_module_init,
+
 								 uid_module_main, 
 								 vf, 
 								 jvm, 

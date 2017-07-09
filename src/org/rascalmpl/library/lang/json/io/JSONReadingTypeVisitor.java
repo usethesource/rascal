@@ -269,25 +269,15 @@ public class JSONReadingTypeVisitor implements
 								+ name);
 			}
 		}
-
-		if (path != null && offset != -1 && length != -1 && beginLine != -1 && endLine != -1 && beginColumn != -1 && endColumn != -1) {
-			return vf.sourceLocation(path, offset, length, beginLine, endLine, beginColumn, endColumn);
-		}
 		try {
-			if (scheme != null && authority != null && query != null && fragment != null) {
-				return vf.sourceLocation(scheme, authority, path, query, fragment);
-			}
-			if (scheme != null) {
-				return vf.sourceLocation(scheme, authority == null ? "" : authority, path);
-			}
+		    ISourceLocation top = vf.sourceLocation(scheme, authority, path, query, fragment);
+		    if (offset != -1 && length != -1 && beginLine != -1 && endLine != -1 && beginColumn != -1 && endColumn != -1) {
+		        return vf.sourceLocation(top, offset, length, beginLine, endLine, beginColumn, endColumn);
+		    }
+		    return top;
 		} catch (URISyntaxException e) {
 			throw new IOException(e);
 		}
-
-		if (path != null) {
-			return vf.sourceLocation(path);
-		}
-		throw new IOException("Could not parse complete source location");
 	}
 
 	@Override
