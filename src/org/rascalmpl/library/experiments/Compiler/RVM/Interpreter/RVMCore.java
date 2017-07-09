@@ -87,7 +87,6 @@ public abstract class RVMCore {
 	protected final Map<String, Integer> constructorMap;
 	
 	// Function overloading
-	//protected final Map<String, Integer> resolver;
 	protected final OverloadedFunction[] overloadedStore;
 	private Map<String, OverloadedFunction> overloadedStoreMap;
 	
@@ -168,7 +167,6 @@ public abstract class RVMCore {
 	  this.functionStore = rvmExec.getFunctionStore();
 	  this.functionMap = rvmExec.getFunctionMap();
 
-//	  this.resolver = rvmExec.getResolver();
 	  this.overloadedStore = rvmExec.getOverloadedStore();
 	  mappifyOverloadedStore();
 
@@ -651,10 +649,12 @@ public abstract class RVMCore {
 		return (repr.length() < w) ? repr : repr.substring(0, w) + "...";
 	}
 	
-	/********************************************************************************/
-	/*			Auxiliary functions that implement specific instructions and are	*/
-	/*  		used both by RVM interpreter and generated JVM bytecod				*/
-	/********************************************************************************/
+	/*******************************************************************************/
+	/*			Auxiliary functions that implement specific instructions and are   */
+	/*  		used both by RVM interpreter and generated JVM bytecode            */
+	/* 		    Note: some of these methods are inlined for efficiency, left here  */
+	/*          for documentation purposes                                         */
+	/*******************************************************************************/
 	
 	// LOAD/PUSH VAR
 
@@ -826,7 +826,8 @@ public abstract class RVMCore {
 	
 	@SuppressWarnings("unchecked")
 	protected void STORELOCKWP(final Object[] stack, Frame cf, int iname, Object accu){
-		String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
+	    String name = ((IString) cf.function.constantStore[iname]).getValue();
+	    
 		Map<String, IValue> kargs = (Map<String, IValue>) stack[cf.function.nformals - 1];
 		if(kargs == emptyKeywordMap){
 			System.err.println("Creating new kw map while updating: " + name);
@@ -840,8 +841,8 @@ public abstract class RVMCore {
 	
 	@SuppressWarnings("unchecked")
 	protected Object LOADVARKWP(final Frame cf, final int varScope, final int iname){
-	  String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
-
+	  String name = ((IString) cf.function.constantStore[iname]).getValue();
+	    
 	  for(Frame f = cf.previousScope; f != null; f = f.previousCallFrame) {
 	    if (f.scopeId == varScope) {    
 	      if(f.function.nformals > 0){
@@ -878,8 +879,7 @@ public abstract class RVMCore {
 	
 	@SuppressWarnings("unchecked")
 	protected void STOREVARKWP(final Frame cf, final int varScope, final int iname, final Object accu){
-		
-		String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
+		String name = ((IString) cf.function.constantStore[iname]).getValue();
 		IValue val = (IValue) accu;
 		for(Frame f = cf.previousScope; f != null; f = f.previousCallFrame) {
 			if (f.scopeId == varScope) {
@@ -920,7 +920,7 @@ public abstract class RVMCore {
 	
 	@SuppressWarnings("unchecked")
 	protected Object LOADLOCKWP(final Object[] stack, final Frame cf, final int iname){
-	  String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
+	  String name = ((IString) cf.function.constantStore[iname]).getValue();
 
 	  Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
 	  Map.Entry<Type, IValue> defaultValue = defaults.get(name);
@@ -1037,7 +1037,7 @@ public abstract class RVMCore {
 	        return clazz;
 		} 
 		catch(ClassNotFoundException | NoClassDefFoundError e1) {
-			throw new InternalCompilerError("Class " + className + " not found", e1);
+			throw new InternalCompilerError("class " + className + " not found", e1);
 		}
 		
 	}
@@ -1063,7 +1063,7 @@ public abstract class RVMCore {
 		            instance = cons.newInstance(vf, asInterface(parameterTypes[1]));
 		            break;
 		        default:
-		            throw new NoSuchMethodException(clazz + " does not have a fitting constructor (nullary, IValueFactory, of IValueFactor + IOwnInterface");
+		            throw new NoSuchMethodException(clazz + " does not have a suitable constructor (nullary, IValueFactory, of IValueFactor + IOwnInterface");
 		    }
 		    
 			instanceCache.put(clazz, instance);
@@ -1078,7 +1078,7 @@ public abstract class RVMCore {
 	        return clazz.getMethod(methodName, makeJavaTypes(methodName, className, parameterTypes, keywordTypes, reflect));
 	    }
 	    catch (NoSuchMethodException | SecurityException e) {
-	        throw new InternalCompilerError("could not find Java method", e);
+	        throw new InternalCompilerError("could not find Java method " + methodName + " in class " + className , e);
 	    }
     }
 	
@@ -1123,7 +1123,7 @@ public abstract class RVMCore {
 			return sp - arity - kwMaps + 1;
 		} 
 		catch (SecurityException | IllegalAccessException | IllegalArgumentException e) {
-			throw new InternalCompilerError("could not call Java method", e);
+			throw new InternalCompilerError("could not call Java method " + m.getName(), e);
 		} 
 		catch (InvocationTargetException e) {
 			if(e.getTargetException() instanceof Throw) {

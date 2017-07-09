@@ -286,7 +286,7 @@ public class RVMLinker {
 		ISetWriter w = vf.setWriter();
 		for(IValue v : initial){
 			ITuple tup = (ITuple) v;
-			IString left = (IString) tup.get(0);
+			IString left = (IString) tup.get(0); // left uses right
 			IString right = (IString) tup.get(1);
 			Integer uresolver = resolver.get(right.getValue());
 		
@@ -312,7 +312,7 @@ public class RVMLinker {
 		int i = 0;
 		for(String fname : functionMap.keySet()){
 			if(functionMap.get(fname) == null){
-				System.out.println("finalizeInstructions, null for function : " + fname);
+				throw new RuntimeException("finalizeInstructions, null for function : " + fname);
 			}
 		}
 		for(String fname : functionMap.keySet()) {
@@ -325,7 +325,7 @@ public class RVMLinker {
 						break;
 					}
 				}
-				System.out.println("finalizeInstructions, null at index: " + i + ", " + nameAtIndex);
+				throw new RuntimeException("finalizeInstructions, null at index: " + i + ", " + nameAtIndex);
 			} else {
 //				System.out.println("finalizeInstructions: " + f.name);
 			}
@@ -359,7 +359,6 @@ public class RVMLinker {
 
         if(name.contains("companion")){ // always preserve generated companion and companion-defaults functions
             rootWriter.insert(iname);
-            loadInstructions(name, declaration, false);
         }
         
         IString scopeIn = (IString) declaration.get("scopeIn");
@@ -593,8 +592,7 @@ public class RVMLinker {
 								 functionMap, 
 								 functionStore.toArray(new Function[functionStore.size()]), 
 								 constructorMap,
-								 constructorStore.toArray(new Type[constructorStore.size()]),	
-								 resolver, 
+								 constructorStore.toArray(new Type[constructorStore.size()]),	 
 								 overloadedStore.toArray(new OverloadedFunction[overloadedStore.size()]),  
 								 initializers,
 								 uid_module_init, 
@@ -672,10 +670,10 @@ public class RVMLinker {
 		int concreteFingerprint = 0;
 		if(!isCoroutine){
 			isDefault = ((IBool) declaration.get("isDefault")).getValue();
-			if(declaration.has("simpleArgs")){                           // Remove after next boot release
+			if(declaration.has("simpleArgs")){                           // TODO: Remove after next boot release
 			    simpleArgs = ((IBool) declaration.get("simpleArgs")).getValue();
 			}
-			if(declaration.has("isTest")){   // Transitional for boot
+			if(declaration.has("isTest")){                               // TODO: Transitional for boot
 			  isTest = ((IBool) declaration.get("isTest")).getValue();
 			  tags = ((IMap) declaration.get("tags"));
 			} else {
