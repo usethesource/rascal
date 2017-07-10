@@ -234,6 +234,24 @@ public java bool isEmpty(str s);
 
 @doc{
 .Synopsis
+Generate a arbitrary string.
+
+.Description
+Returns a string of maximum `n` length, with arbitrary characters.
+
+.Examples
+[source,rascal-shell]
+----
+import String;
+arbString(3);
+arbString(10);
+----
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java bool arbString(int n);
+
+@doc{
+.Synopsis
 Left alignment of string in given space.
 
 .Description

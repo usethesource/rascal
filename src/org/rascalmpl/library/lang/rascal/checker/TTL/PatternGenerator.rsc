@@ -13,8 +13,8 @@
 module lang::rascal::checker::TTL::PatternGenerator
 
 import Prelude;
+import util::Math;
 import Type;
-import cobra::arbitrary;
 import lang::rascal::checker::TTL::Library;
 
 private list[Symbol] baseTypes = [Symbol::\bool(), Symbol::\int(), Symbol::\real(), Symbol::\num(), Symbol::\str(), Symbol::\loc(), Symbol::\datetime()];
@@ -58,9 +58,9 @@ public PV generatePattern(type[&T] t){
 
 public PV generatePattern(type[&T] t, int nvars, VarEnv env){
  if(isIntType(t.symbol)) // Avoid ambiguous pattern -1 := 1
-        return generatePrimitive(arbInt(0, 10000), 0, ());
+        return generatePrimitive(arbInt(10000), 0, ());
      if(isRealType(t.symbol)) // Avoid ambiguous pattern -1.5 := 1.5
-        return generatePrimitive(arbReal(0.0, 10000.0), 0, ());
+        return generatePrimitive((arbReal() * 10000.0), 0, ());
      if(isRatType(t.symbol)) // Avoid ambiguous pattern -1r2 := 1r2
         return generatePrimitive(arbPosRat(), 0, ());
      return generatePattern(t, nvars, env,  true);
@@ -69,14 +69,14 @@ public PV generatePattern(type[&T] t, int nvars, VarEnv env){
 public PV generatePattern(type[&T] t, int nvars, VarEnv env, bool allowVars){
      //println("generatePattern(<t>, <nvars>, <env>, <allowVars>)");
      if(allowVars){
-	     if(arbInt(0,3) == 0){ // Use existing variable
+	     if(arbInt(3) == 0){ // Use existing variable
 	        for(str var <- env){
 	            if(env[var].symbol == t.symbol){
 	               return <var, env[var].val, nvars, env>;
 	             }
 	        } 
 	     }
-	     if(arbInt(0,3) == 0){  // Introduce new variable;
+	     if(arbInt(3) == 0){  // Introduce new variable;
 	        str var = "X<nvars>";
 	        value val;
 	        <pat, val, nvars, env> = generateValue(t, nvars + 1, env, false);
@@ -84,7 +84,7 @@ public PV generatePattern(type[&T] t, int nvars, VarEnv env, bool allowVars){
 	        return <arbBool() || !isAssignable(t) ? "<var>" : "<t> <var>", val, nvars, env>;
 	     }
 	     
-	     if(arbInt(0,3) == 0){  // Introduce named pattern;
+	     if(arbInt(3) == 0){  // Introduce named pattern;
 	        str var = "N<nvars>";
 	        value val;
 	        <pat, val, nvars, env> = generateValue(t, nvars + 1, env, true);
@@ -141,26 +141,12 @@ public num arbNumber(){
    return (arbBool()) ? arbInt() : arbReal();
 }
 
-public loc  arbLoc(){
- g = getGenerator(#loc);
- return g(5);
-}
-
-public rat arbRat(){
-  g = getGenerator(#rat);
- return g(5);
-}
 
 public rat arbPosRat(){
-  g = getGenerator(#rat);
-  r = g(5);
+  r = arbRat();
   return r >= 0 ? r :  -r;
 }
 
-public node arbNode(){
-  g = getGenerator(#node);
- return g(5);
-}
 
 public PV arbList(type[&T] et, int nvars, VarEnv env, bool allowVars){
    if(isVoidType(et.symbol))
