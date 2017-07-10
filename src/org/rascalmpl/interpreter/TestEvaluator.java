@@ -24,7 +24,6 @@ import java.util.Random;
 
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.library.cobra.Cobra;
 import org.rascalmpl.test.infrastructure.QuickCheck;
 import org.rascalmpl.test.infrastructure.QuickCheck.TestResult;
 
@@ -69,6 +68,20 @@ public class TestEvaluator {
         }
     }
 
+    public static int readIntTag(AbstractFunction test, String key, int defaultVal) {
+        if (test.hasTag(key)) {
+            int result = Integer.parseInt(((IString) test.getTag(key)).getValue());
+            if (result < 1) {
+                throw new IllegalArgumentException(key + " smaller than 1");
+            }
+            return result;
+        } else {
+            return defaultVal;
+        }
+    }
+
+    
+
     private void runTests(ModuleEnvironment env, List<AbstractFunction> tests) {
         testResultListener.start(env.getName(), tests.size());
         // first, let's shuffle the tests
@@ -83,12 +96,12 @@ public class TestEvaluator {
             }
 
             try{
-                int maxDepth = Cobra.readIntTag(test, Cobra.MAXDEPTH, 5);
-                int maxWidth = Cobra.readIntTag(test, Cobra.MAXWIDTH, 5);
-                int tries = Cobra.readIntTag(test, Cobra.TRIES, 500);
+                int maxDepth = readIntTag(test, QuickCheck.MAXDEPTH, 5);
+                int maxWidth = readIntTag(test, QuickCheck.MAXWIDTH, 5);
+                int tries = readIntTag(test, QuickCheck.TRIES, 500);
                 String expected = null;
-                if(test.hasTag(Cobra.EXPECT_TAG)){
-                    expected = ((IString) test.getTag(Cobra.EXPECT_TAG)).getValue();
+                if(test.hasTag(QuickCheck.EXPECT_TAG)){
+                    expected = ((IString) test.getTag(QuickCheck.EXPECT_TAG)).getValue();
                 }
 
                 TestResult result = qc.test(test.getEnv().getName() + "::" + test.getName(), test.getFormals(), expected, (Type[] actuals, IValue[] args) -> {
