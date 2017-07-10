@@ -32,6 +32,12 @@ import io.usethesource.vallang.type.TypeStore;
 
 public class QuickCheck {
 
+    public static final String TRIES = "tries";
+    public static final String MAXDEPTH = "maxDepth";
+    public static final String MAXWIDTH = "maxWidth";
+    public static final String EXPECT_TAG = "expected";
+
+    
     public static final TestResult SUCCESS = new TestResult(true, null);
 
     public static class TestResult {
