@@ -539,7 +539,7 @@ void extractScopes(Configuration c){
 	//
 	//}
 	
-    for(UID fuid1 <- functions, !(uid2type[fuid] is failure)) {
+    for(UID fuid1 <- functions, !(uid2type[fuid1] is failure)) {
     	    nformals = getFormals(fuid1); // ***Note: Includes keyword parameters as a single map parameter 
   
         innerScopes = {fuid1} + containmentPlus[fuid1];
@@ -650,7 +650,7 @@ void extractScopes(Configuration c){
     }
     
     // Fill in uid2addr for overloaded functions;
-    for(UID fuid2 <- ofunctions, !(uid2type[fuid2] is failure)) {
+    for(UID fuid2 <- ofunctions) {
         set[UID] funs = config.store[fuid2].items;
     	if(UID fuid3 <- funs, production(rname,_,_,_,_,_) := config.store[fuid3] && isEmpty(getSimpleName(rname)))
     	    continue;
@@ -1065,15 +1065,21 @@ str convert2fuid(UID uid) {
           
           // the source of this function comes from a different module due to `extend`
           if (at.path != src.path) {
-             o1 = getModuleName(src, config.pathConfiguration) + "/" + name;
-             o2 = "<prettyPrintName(oldScope)>/<name>";
+             try {
+               o1 = getModuleName(src, config.pathConfiguration) + "/" + name;
+               o2 = "<prettyPrintName(oldScope)>/<name>";
              
-             if (o1 != o2) {
-               println("WARNING: proposed new name for func/prod/cons [<o2>] is different from the old name [<o1>]");
-               println("\t here: <at>, orig: <src>");
-             } 
+               if (o1 != o2) {
+                 println("WARNING: proposed new name for func/prod/cons [<o2>] is different from the old name [<o1>]");
+                 println("\t here: <at>, orig: <src>");
+               } 
              
-             return getModuleName(src, config.pathConfiguration) + "/" + name;
+               return getModuleName(src, config.pathConfiguration) + "/" + name;
+             }
+             catch str x : if (/^No module name found for/ := x) {
+               println("WARNING: proposed old naming scheme (getModuleName) resolution failed, trying new one.");
+               return "<prettyPrintName(oldScope)>/<name>";
+             } else { throw x; }
           }
           
         }
