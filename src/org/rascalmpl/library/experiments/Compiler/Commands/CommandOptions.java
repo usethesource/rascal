@@ -77,6 +77,7 @@ public class CommandOptions {
     private static final String BOOT_PATH_CONFIG_OPTION = "boot";
     private static final String BIN_PATH_CONFIG_OPTION = "bin";
     private static final String LIB_PATH_CONFIG_OPTION = "lib";
+    private static final String PROJECT_PATH_CONFIG_OPTION = "project";
     private static final String SRC_PATH_CONFIG_OPTION = "src";
     
     protected TypeFactory tf;
@@ -531,6 +532,8 @@ public class CommandOptions {
 		}
 	}
 	
+	
+	
 	public IList getDefaultStdlocs(){
 		return vf.list(getDefaultStdLocation());
 	}
@@ -545,22 +548,28 @@ public class CommandOptions {
 	}
 
 	public ISourceLocation getDefaultRelocLocation(){
-      try {
-          return vf.sourceLocation("noreloc", "", "");
-      } catch (URISyntaxException e) {
-          printUsageAndExit("Cannot create default location: " + e.getMessage());
-          return null;
-      }
+          return URIUtil.correctLocation("noreloc", "", "");
+	}
+	
+	public ISourceLocation getDefaultProjectLocation(){
+        return URIUtil.correctLocation("noproject", "", "");
   }
 	
-	public PathConfig getPathConfig(){
-		return new PathConfig(getCommandLocsOption(SRC_PATH_CONFIG_OPTION),
-							  getCommandLocsOption(LIB_PATH_CONFIG_OPTION),
-							  getCommandLocOption(BIN_PATH_CONFIG_OPTION),
-							  getCommandLocOption(BOOT_PATH_CONFIG_OPTION),
-							  getCommandLocsOption(COURSES_PATH_CONFIG_OPTION),
-							  getCommandLocsOption(JAVA_COMPILER_PATH_PATH_CONFIG_OPTION),
-							  getCommandLocsOption(CLASSLOADERS_PATH_CONFIG_OPTION));
+	public PathConfig getPathConfig() throws IOException {
+        ISourceLocation project = getCommandLocOption(PROJECT_PATH_CONFIG_OPTION);
+        
+        if (!project.equals(getDefaultProjectLocation())) {
+	        return PathConfig.fromSourceProjectRascalManifest(project);
+	    }
+        else {
+            return new PathConfig(getCommandLocsOption(SRC_PATH_CONFIG_OPTION),
+                getCommandLocsOption(LIB_PATH_CONFIG_OPTION),
+                getCommandLocOption(BIN_PATH_CONFIG_OPTION),
+                getCommandLocOption(BOOT_PATH_CONFIG_OPTION),
+                getCommandLocsOption(COURSES_PATH_CONFIG_OPTION),
+                getCommandLocsOption(JAVA_COMPILER_PATH_PATH_CONFIG_OPTION),
+                getCommandLocsOption(CLASSLOADERS_PATH_CONFIG_OPTION));
+        }
 	}
 
     public CommandOptions noModuleArgument() {
@@ -568,10 +577,12 @@ public class CommandOptions {
     }
 
     public CommandOptions pathConfigOptions() {
-        this.locsOption(LIB_PATH_CONFIG_OPTION)      
-        .locsDefault((co) -> vf.list(co.getCommandLocOption(BIN_PATH_CONFIG_OPTION)))
-        .help("Add new lib location, use multiple --lib arguments for multiple locations")
-
+        this
+        .locOption(PROJECT_PATH_CONFIG_OPTION)
+        .locDefault(getDefaultProjectLocation())
+        .help("Top level location where a project is located with its META-INF/RASCAL.MF file")
+        
+      
         .locsOption(SRC_PATH_CONFIG_OPTION)      
         .locsDefault(getDefaultStdlocs().isEmpty() ? vf.list(getDefaultStdlocs()) : getDefaultStdlocs())
         .help("Add (absolute!) source location, use multiple --src arguments for multiple locations")
@@ -593,6 +604,10 @@ public class CommandOptions {
         })
         .help("Directory for Rascal binaries")
 
+        .locsOption(LIB_PATH_CONFIG_OPTION)      
+        .locsDefault((co) -> vf.list(co.getCommandLocOption(BIN_PATH_CONFIG_OPTION)))
+        .help("Add new lib location, use multiple --lib arguments for multiple locations")
+
         .locsOption(COURSES_PATH_CONFIG_OPTION)
         .locsDefault(PathConfig.getDefaultCoursesList())
         .help("Add new courses location, use multiple --courses arguments for multiple locations")
@@ -604,6 +619,7 @@ public class CommandOptions {
         .locsOption(CLASSLOADERS_PATH_CONFIG_OPTION)
         .locsDefault(PathConfig.getDefaultClassloadersList())
         .help("Add new java classloader location, use multiple --classloader options for multiple locations")
+        
         ;
     
         return this;
@@ -628,6 +644,11 @@ class Option {
 		this.defaultValue = defaultValue;
 		this.respectsNoDefaults = respectsNoDefaults;
 		this.helpText = helpText;
+	}
+	
+	@Override
+	public String toString() {
+	    return name + ":" + currentValue != null ? currentValue.toString() : defaultValue.toString();
 	}
 	
 	public boolean set(OptionType optionType, String name, IValue newValue){
