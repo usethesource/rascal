@@ -47,7 +47,12 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, Pat
       resetModuleInfo(optimize, enableAsserts);
       module_name = "<M.header.name>";
       setModuleName(module_name);
-      setModuleTags(translateTags(M.header.tags));
+      mtags = translateTags(M.header.tags);
+      setModuleTags(mtags);
+      if(ignoreTest(mtags)){
+            return errorMuModule(getModuleName(), {info("Ignore tag suppressed compilation", M@\loc)}, M@\loc);
+      }
+     
       if(verbose) println("r2mu: entering ... <module_name>, enableAsserts: <enableAsserts>");
    	  
    	  // Extract scoping information available from the configuration returned by the type checker  

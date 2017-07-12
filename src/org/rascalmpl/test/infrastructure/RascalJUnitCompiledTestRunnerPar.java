@@ -255,7 +255,7 @@ public class RascalJUnitCompiledTestRunnerPar extends Runner {
                         modDesc.addChild(d);
                         ntests++;
  
-                        if(f.isIgnored()){
+                        if(f.isIgnored(rex)){
                             module_ignored.add(d);
                         }
                     }

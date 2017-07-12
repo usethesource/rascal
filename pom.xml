@@ -40,8 +40,9 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<lucence-version>6.1.0</lucence-version>
 		<exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
-		<rascal.boot.version>0.8.4-bs12</rascal.boot.version>
+		<rascal.boot.version>0.8.4-bs13</rascal.boot.version>
 		<rascal.boot>--download</rascal.boot>
+		<rascal.courses>--skipCourses</rascal.courses>
 	</properties>
 
 	<build>
@@ -160,8 +161,7 @@
                         <goals>
                             <goal>exec</goal>
                         </goals>
-                    </execution>
-                    
+                    </execution>      
                     <execution> <!--  compile the courses -->
                         <configuration>
                             <executable>java</executable>
@@ -184,6 +184,7 @@
                                 <argument>--course</argument>
                                 <argument>${project.basedir}/src/org/rascalmpl/courses</argument>
                                 <argument>--all</argument>
+                                <argument>${rascal.courses}</argument>
                             </arguments>
                         </configuration>
                         <id>courses</id>
@@ -344,7 +345,7 @@
 		<dependency>
 			<groupId>io.usethesource</groupId>
 			<artifactId>vallang</artifactId>
-			<version>0.7.12</version>
+			<version>0.7.14</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ow2.asm</groupId>

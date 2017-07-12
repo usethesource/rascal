@@ -1251,11 +1251,11 @@ public enum RascalPrimitive {
 				stack[sp - 2] = ((IString) stack[sp - 2]).concat((IString) stack[sp - 1]);
 				return sp - 1;
 			} else {
-				StringWriter w = new StringWriter();
+				StringBuilder sb = new StringBuilder();
 				for(int i = 0; i < arity; i++){
-					w.append(((IString)stack[sp - arity + i]).getValue());
+					sb.append(((IString)stack[sp - arity + i]).getValue());
 				}
-				stack[sp - arity] = vf.string(w.toString());
+				stack[sp - arity] = vf.string(sb.toString());
 				return sp - arity + 1;
 			}
 		}		
