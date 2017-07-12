@@ -156,7 +156,7 @@ public class Settings {
     return def;
   }
 
-  PathConfig getPathConfig(PathConfig given){
+  PathConfig getPathConfig(PathConfig given) throws IOException {
       // TODO: this clone should be in PathConfig itself, because it co-evolves
     IList srcs = getLocs("srcs", given.getSrcs());
     IList libs = getLocs("libs", given.getLibs());

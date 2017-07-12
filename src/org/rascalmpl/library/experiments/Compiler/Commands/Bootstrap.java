@@ -456,7 +456,7 @@ public class Bootstrap {
       time("- compile Kernel",          () -> compileModule   (phase, classPath, bootPath, sourcePath, phaseResult, "lang::rascal::boot::Kernel", reloc));
 
       if (phase == 1) {
-          // the new parser generator would refer to classes which may not exist yet. Subce stage 2 we still run against this old version
+          // the new parser generator would refer to classes which may not exist yet. Until stage 2 we still run against this old version
           // we now copy an old version of the generator to be used in phase 2.
           copyParserGenerator(jarFileSystem(classPath).getRootDirectories().iterator().next(), phaseResult);
       }
@@ -484,7 +484,12 @@ public class Bootstrap {
     }
 
     private static void generateAndCompileRascalParser(int phase, String classPath, String sourcePath, String bootPath, Path phaseResult, Path targetFolder) throws IOException, InterruptedException, BootstrapMessage {
-        bootstrapRascalParser(classPath, sourcePath, bootPath, phaseResult);
+//        if (
+            bootstrapRascalParser(classPath, sourcePath, bootPath, phaseResult); 
+//            != 0) {
+//            throw new BootstrapMessage(phase);
+//        }
+        
         String[] paths = new String [] { sourcePath + "/lang/rascal/syntax/RascalParser.java" };
         if (runJavaCompiler(classPath, targetFolder.toAbsolutePath().toString(), concat(paths)) != 0) {
             throw new BootstrapMessage(phase);
@@ -580,10 +585,22 @@ public class Bootstrap {
             info("command: " + Arrays.stream(command).reduce("", (x,y) -> x + " " + y));
             childProcess = new ProcessBuilder(command).inheritIO().start();
             childProcess.waitFor();
-            return childProcess.exitValue();    
+            int exitValue = childProcess.exitValue();
+            if (exitValue != 0) {
+                error("Command failed: " + Arrays.stream(command).reduce("", ((s,e) -> s + (safeString(e.toString()) + " "))));
+            }
+            return exitValue;
         }
     }
     
+    private static String safeString(String x) {
+        x = x.trim();
+        if (x.startsWith("|")) {
+            return "\"" + x + "\"";
+        }
+        
+        return x;
+    }
     private static void progress(String msg) {
          System.err.println("BOOTSTRAP:" + msg);
     }

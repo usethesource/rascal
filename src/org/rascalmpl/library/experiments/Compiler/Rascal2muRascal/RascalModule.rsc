@@ -64,8 +64,8 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, Pat
    	  map[str,Symbol] types = 
    	  	( uid2str[uid] : \type | 
    	  	  int uid <- config.store, 
-   	  	  ( AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, int containedIn, loc at) := config.store[uid]
-   	  	  || AbstractValue::production(RName name, Symbol \type, int containedIn, Production p, loc at) := config.store[uid] 
+   	  	  ( AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, int containedIn, _, loc at) := config.store[uid]
+   	  	  || AbstractValue::production(RName name, Symbol \type, int containedIn, _, Production p, loc at) := config.store[uid] 
    	  	  ),
    	  	  //bprintln(config.store[uid]), bprintln(config.store[containedIn].at.path), bprintln(at.path),
    	  	  !isEmpty(getSimpleName(name)),
@@ -149,9 +149,9 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
  
    // Generate companion functions  constructors with keyword fields or common keyword fields     
    // This enables evaluation of potentially non-constant default expressions and semantics of implicit keyword arguments
-                
+                 
    for(int uid <- config.store, 
-       AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, int scopeIn, constructorLoc) := config.store[uid], 
+       AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, int scopeIn, _, constructorLoc) := config.store[uid], 
        //bprintln("<uid>: <name>: <constructorLoc>, <M@\loc> <constructorLoc < M@\loc>, <constructorLoc.path == M@\loc.path>"),
        //constructorLoc.path == M@\loc.path,
        allKwFields := getAllKeywordFields(uid), 
