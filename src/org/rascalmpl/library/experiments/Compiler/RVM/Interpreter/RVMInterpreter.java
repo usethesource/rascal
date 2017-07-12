@@ -80,7 +80,7 @@ public class RVMInterpreter extends RVMCore {
 	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunctionInstance, io.usethesource.vallang.IValue[])
 	 */
 	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs){
-		Function firstFunc = functionStore[func.getFunctions()[0]]; // TODO: null?
+		Function firstFunc = func.getFunctions()[0]; // TODO: null?
 		int arity = posArgs.length + 1;
 		int scopeId = func.env == null ? 0 : func.env.scopeId;
 		Frame root = new Frame(scopeId, null, func.env, arity+2, firstFunc);
@@ -90,7 +90,7 @@ public class RVMInterpreter extends RVMCore {
 				scopeId == -1 ? new OverloadedFunctionInstanceCall(root, func.getFunctions(), func.getConstructors(), root, null, arity, rex)  // changed root to cf
         					  : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(root, func.getFunctions(), func.getConstructors(), scopeId, null, arity, rex);
 				
-		Frame cf = c_ofun_call_next.nextFrame(functionStore);
+		Frame cf = c_ofun_call_next.nextFrame();
 		// Pass the program arguments to func
 		for(int i = 0; i < posArgs.length; i++) {
 			cf.stack[i] = posArgs[i]; 
@@ -481,12 +481,12 @@ public class RVMInterpreter extends RVMCore {
 				
 				case Opcode.OP_PUSHOFUN:
 					OverloadedFunction of = overloadedStore[CodeBlock.fetchArg1(instruction)];
-					stack[sp++] = of.getScopeIn() == -1 ? new OverloadedFunctionInstance(of.functions, of.constructors, root, functionStore, constructorStore, this)
-					                               : OverloadedFunctionInstance.computeOverloadedFunctionInstance(of.functions, of.constructors, cf, of.getScopeIn(), functionStore, constructorStore, this);
+					stack[sp++] = of.getScopeIn() == -1 ? new OverloadedFunctionInstance(of.functionsAsFunction, of.constructorsAsType, root, this)
+					                               : OverloadedFunctionInstance.computeOverloadedFunctionInstance(of.functionsAsFunction, of.constructorsAsType, cf, of.getScopeIn(), this);
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_PUSHCONSTR:
-					Type constructor = constructorStore.get(CodeBlock.fetchArg1(instruction));  
+					Type constructor = constructorStore[CodeBlock.fetchArg1(instruction)];  
 					stack[sp++] = constructor;
 					continue NEXT_INSTRUCTION;
 				
@@ -640,7 +640,7 @@ public class RVMInterpreter extends RVMCore {
 					}
 					
 					
-					Frame frame = c_ofun_call_next.nextFrame(functionStore);
+					Frame frame = c_ofun_call_next.nextFrame();
 					
 					if(frame != null) {
 						c_ofun_call = c_ofun_call_next;
@@ -653,7 +653,7 @@ public class RVMInterpreter extends RVMCore {
 						sp = cf.sp;
 						pc = cf.pc;
 					} else {
-						constructor = c_ofun_call_next.nextConstructor(constructorStore);
+						constructor = c_ofun_call_next.nextConstructor();
 						sp = sp - arity;
 						accu = vf.constructor(constructor, c_ofun_call_next.getConstructorArguments(constructor.getArity()));
 					}
@@ -688,7 +688,7 @@ public class RVMInterpreter extends RVMCore {
 				case Opcode.OP_FAILRETURN:
 					assert cf.previousCallFrame == c_ofun_call.cf : "FAILRETURN, incorrect frame at" + cf.src;
 					
-					frame = c_ofun_call.nextFrame(functionStore);				
+					frame = c_ofun_call.nextFrame();				
 					if(frame != null) {
 												
 						cf = frame;
@@ -702,7 +702,7 @@ public class RVMInterpreter extends RVMCore {
 						stack = cf.stack;
 						sp = cf.sp;
 						pc = cf.pc;
-						constructor = c_ofun_call.nextConstructor(constructorStore);
+						constructor = c_ofun_call.nextConstructor();
 						accu = vf.constructor(constructor, c_ofun_call.getConstructorArguments(constructor.getArity()));
 						ocalls.pop();
 						c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();

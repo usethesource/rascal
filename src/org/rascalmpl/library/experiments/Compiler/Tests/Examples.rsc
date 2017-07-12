@@ -1,3 +1,4 @@
+@ignoreCompiler{Work in progress}
 module experiments::Compiler::Tests::Examples
 
 import Prelude;

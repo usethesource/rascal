@@ -209,6 +209,14 @@ public class CourseCompiler {
          .respectNoDefaults()
          .help("Directory for Rascal binaries")
          
+         .boolOption("skipCourses")
+         .boolDefault(false)
+         .help("Skip the compilation of courses")
+         
+         .boolOption("buildCourses")
+         .boolDefault(true)
+         .help("Skip the compilation of courses")
+         
          .locOption("boot")         
          .help("Rascal boot directory")
          
@@ -247,6 +255,12 @@ public class CourseCompiler {
 		StringWriter sw = new StringWriter();
 		PrintWriter err = new PrintWriter(sw);
 		TutorCommandExecutor executor = new TutorCommandExecutor(pcfg, err, new BasicIDEServices(err));
+		
+		if (cmdOpts.getCommandBoolOption("skipCourses")) {
+		    assert !cmdOpts.getCommandBoolOption("buildCourses");
+		    System.err.println("Skipping compilation of courses.");
+		    System.exit(0);
+		}
 		
 		if(cmdOpts.getCommandBoolOption("all")){
 			IList givenCourses = cmdOpts.getModules();

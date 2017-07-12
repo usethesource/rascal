@@ -10,8 +10,8 @@ import io.usethesource.vallang.type.Type;
 
 public class OverloadedFunctionInstanceCall {
 	
-	private final int[] functions;
-	private final int[] constructors;
+	private final Function[] functions;
+	private final Type[] constructors;
 	final Frame cf;
 	final RascalExecutionContext rex;
 	
@@ -24,7 +24,7 @@ public class OverloadedFunctionInstanceCall {
 	
 	int alternative = 0;
 	
-	public OverloadedFunctionInstanceCall(final Frame cf, final int[] functions, final int[] constructors, final Frame previousScope, final Type types, final int arity, RascalExecutionContext rex) {
+	public OverloadedFunctionInstanceCall(final Frame cf, final Function[] functions, final Type[] constructors, final Frame previousScope, final Type types, final int arity, RascalExecutionContext rex) {
 		this.cf = cf;
 		assert functions.length + constructors.length > 0;
 		assert functions.length == 0 && types == null ? constructors.length > 0 : true;
@@ -38,21 +38,21 @@ public class OverloadedFunctionInstanceCall {
 		this.rex = rex;
 	}
 	
-	int[] getFunctions() {
+	private Function[] getFunctions() {
 		return functions;
 	}
 
-	int[] getConstructors() {
+	private Type[] getConstructors() {
 		return constructors;
 	}
 
-	public String toString(List<Function> functionStore, List<Type> constructorStore){
+	public String toString(){
 		StringBuilder sb = new StringBuilder("OverloadedFunctionInstanceCall[");
 		if(getFunctions().length > 0){
 			sb.append("functions:");
 			for(int i = 0; i < getFunctions().length; i++){
-				int fi = getFunctions()[i];
-				sb.append(" ").append(functionStore.get(fi).getName()).append("/").append(fi);
+				Function fi = getFunctions()[i];
+				sb.append(" ").append(fi.getName()).append("/").append(fi);
 			}
 		}
 		if(getConstructors().length > 0){
@@ -61,8 +61,8 @@ public class OverloadedFunctionInstanceCall {
 			}
 			sb.append("constructors:");
 			for(int i = 0; i < getConstructors().length; i++){
-				int ci = getConstructors()[i];
-				sb.append(" ").append(constructorStore.get(ci).getName()).append("/").append(ci);
+				Type ci = getConstructors()[i];
+				sb.append(" ").append(ci.getName()).append("/").append(ci);
 			}
 		}
 		sb.append("]");
@@ -73,7 +73,7 @@ public class OverloadedFunctionInstanceCall {
 	 * Assumption: scopeIn != -1; 
 	 * @param rex TODO
 	 */
-	public static OverloadedFunctionInstanceCall computeOverloadedFunctionInstanceCall(final Frame cf, final int[] functions, final int[] constructors, final int scopeIn, final Type types, final int arity, RascalExecutionContext rex) {
+	public static OverloadedFunctionInstanceCall computeOverloadedFunctionInstanceCall(final Frame cf, final Function[] functions, final Type[] constructors, final int scopeIn, final Type types, final int arity, RascalExecutionContext rex) {
 		assert scopeIn != -1 : "OverloadedFunctionInstanceCall, scopeIn should not be -1";
 		for(Frame previousScope = cf; previousScope != null; previousScope = previousScope.previousScope) {
 			if (previousScope.scopeId == scopeIn) {
@@ -84,19 +84,23 @@ public class OverloadedFunctionInstanceCall {
 	}
 	
 	public Frame nextFrame(final Function[] functionStore) {
-		Function f = this.nextFunction(functionStore);
+		return nextFrame();
+	}
+	
+	public Frame nextFrame() {
+		Function f = this.nextFunction();
 		if(f == null) {
 			return null;
 		}
 		return cf.getFrame(f, previousScope, arity, sp);
 	}
 	
-	public Function nextFunction(final Function[] functionStore) {
+	public Function nextFunction() {
 		if(types == null) {
-			return alternative < getFunctions().length ? functionStore[getFunctions()[alternative++]] : null;
+			return alternative < getFunctions().length ? getFunctions()[alternative++] : null;
 		} else {
 			while(alternative < getFunctions().length) {
-				Function fun = functionStore[getFunctions()[alternative++]];
+				Function fun = getFunctions()[alternative++];
 				for(Type type : types) {
 					try {
 						Map<Type,Type> bindings = new HashMap<Type,Type>();
@@ -111,7 +115,7 @@ public class OverloadedFunctionInstanceCall {
 		return null;
 	}
 	
-	public Type nextConstructor(final List<Type> constructorStore) {
+	public Type nextConstructor() {
 		if(types == null) {
 			if(getConstructors().length == 0){
 			    StringBuffer sb = new StringBuffer("No alternative found for (overloaded) function or constructor\n");	
@@ -133,10 +137,9 @@ public class OverloadedFunctionInstanceCall {
 				return null;
 			}
 			assert getConstructors().length >= 1;
-			return constructorStore.get(getConstructors()[0]);
+			return getConstructors()[0];
 		} else {
-			for(int index : getConstructors()) {
-				Type constructor = constructorStore.get(index);
+			for(Type constructor : getConstructors()) {
 				for(Type type : types) {
 					try {
 						Map<Type,Type> bindings = new HashMap<Type,Type>();

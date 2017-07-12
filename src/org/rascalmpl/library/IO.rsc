@@ -706,3 +706,8 @@ bool copyDirectory(loc source, loc target) {
 	}
 	return result;
 }
+
+
+@javaClass{org.rascalmpl.library.Prelude}
+java loc arbLoc();
+
