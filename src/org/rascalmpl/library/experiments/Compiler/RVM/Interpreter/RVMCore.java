@@ -18,6 +18,12 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Matcher;
 
+import java.lang.invoke.ConstantCallSite;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import static java.lang.invoke.MethodHandle.*;
+import static java.lang.invoke.MethodHandles.*;
+
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.ITestResultListener;
@@ -72,16 +78,15 @@ public abstract class RVMCore {
 	protected final IString NOVALUE; 
 	
 	protected TypeStore typeStore;
-	private IMap symbol_definitions;
+	private final IMap symbol_definitions;
 	
-	protected Function[] functionStore;
-	protected Map<String, Integer> functionMap;
+	protected final Function[] functionStore;
+	protected final Map<String, Integer> functionMap;
 
-	protected List<Type> constructorStore;
+	protected final Type[] constructorStore;
 	protected final Map<String, Integer> constructorMap;
 	
 	// Function overloading
-	protected final Map<String, Integer> resolver;
 	protected final OverloadedFunction[] overloadedStore;
 	private Map<String, OverloadedFunction> overloadedStoreMap;
 	
@@ -90,14 +95,14 @@ public abstract class RVMCore {
 	public final static Function noCompanionFunction = new Function("noCompanionFunction", null, null, null, 0, 0, false, false, false, null, null, 0, false, 0, 0, null, null, 0);
 	public static final HashMap<String, IValue> emptyKeywordMap = new HashMap<>(0);
 
-	protected PrintWriter stdout;
-	protected PrintWriter stderr;
+	protected final PrintWriter stdout;
+	protected final PrintWriter stderr;
 
 	// Management of active coroutines
-	protected Stack<Coroutine> activeCoroutines = new Stack<>();
+	protected final Stack<Coroutine> activeCoroutines = new Stack<>();
 	protected Frame ccf = null; // The start frame of the current active coroutine (coroutine's main function)	
 	protected Frame cccf = null; // The candidate coroutine's start frame; used by the guard semantics
-	protected RascalExecutionContext rex;
+	protected final RascalExecutionContext rex;
 
 	public Map<IValue, IValue> moduleVariables;
 	
@@ -115,7 +120,7 @@ public abstract class RVMCore {
 	}
 	
 	// An exhausted coroutine instance
-	public static Coroutine exhausted = new Coroutine(null) {
+	public static final Coroutine exhausted = new Coroutine(null) {
 
 		@Override
 		public void next(Frame previousCallFrame) {
@@ -162,7 +167,6 @@ public abstract class RVMCore {
 	  this.functionStore = rvmExec.getFunctionStore();
 	  this.functionMap = rvmExec.getFunctionMap();
 
-	  this.resolver = rvmExec.getResolver();
 	  this.overloadedStore = rvmExec.getOverloadedStore();
 	  mappifyOverloadedStore();
 
@@ -287,8 +291,8 @@ public abstract class RVMCore {
 	}
 	
 	public Type getConstructor(String name, Type adtType, Type argumentTypes) throws NoSuchRascalFunction{
-	    for(int i = 0; i < constructorStore.size(); i++){
-	        Type tp = constructorStore.get(i);
+	    for(int i = 0; i < constructorStore.length; i++){
+	        Type tp = constructorStore[i];
 	        if (tp.getName().equals(name) && 
 	            tp.getAbstractDataType().equals(adtType) &&
 	            tp.getFieldTypes().equals(argumentTypes)) {
@@ -300,8 +304,8 @@ public abstract class RVMCore {
 	
 	public Set<Type> getConstructor(String name, Type adtType) {
 	    Set<Type> types = new HashSet<>();
-        for(int i = 0; i < constructorStore.size(); i++){
-            Type tp = constructorStore.get(i);
+        for(int i = 0; i < constructorStore.length; i++){
+            Type tp = constructorStore[i];
             if (tp.getName().equals(name) && 
                 tp.getAbstractDataType().equals(adtType)) {
                 types.add(tp);
@@ -311,8 +315,8 @@ public abstract class RVMCore {
     }
 	
 	public Type getAbstractDataType(String name) throws NoSuchRascalFunction{
-	    for(int i = 0; i < constructorStore.size(); i++){
-            Type adt = constructorStore.get(i).getAbstractDataType();
+	    for(int i = 0; i < constructorStore.length; i++){
+            Type adt = constructorStore[i].getAbstractDataType();
             if (adt.getName().equals(name)){ 
                 return adt;
             }
@@ -353,7 +357,9 @@ public abstract class RVMCore {
 	      for(int i = 0; i < falts.length; i++){
 	        falts[i] = filteredAlts.get(i);
 	      }
-	      return new OverloadedFunction(name, tp,  falts, new int[] { }, "");
+	      OverloadedFunction ovf = new OverloadedFunction(name, tp,  falts, new int[] { }, "");
+	      ovf.fids2objects(functionStore, constructorStore);
+	      return ovf;
 	    }
 	  }
 	  filteredAlts = getFunctionByNameAndArity(name, arity);
@@ -363,21 +369,25 @@ public abstract class RVMCore {
         for(int i = 0; i < falts.length; i++){
           falts[i] = filteredAlts.get(i);
         }
-        return new OverloadedFunction(name, tp,  falts, new int[] { }, "");
+        OverloadedFunction ovf = new OverloadedFunction(name, tp,  falts, new int[] { }, "");
+        ovf.fids2objects(functionStore, constructorStore);
+        return ovf;
       }
 	  
 
 	  // ?? why are constructors not part of overloaded functions?
-	  for(int i = 0; i < constructorStore.size(); i++){
-	    tp = constructorStore.get(i);
+	  for(int i = 0; i < constructorStore.length; i++){
+	    tp = constructorStore[i];
 	    if (tp.getName().equals(name) && tp.getArity() == arity) {
-	      return new OverloadedFunction(name, tp,  new int[]{}, new int[] { i }, "");
+	      OverloadedFunction ovf = new OverloadedFunction(name, tp,  new int[]{}, new int[] { i }, "");
+	      ovf.fids2objects(functionStore, constructorStore);
+          return ovf;
 	    }
 	  }
 
 	  throw new NoSuchRascalFunction(name);
 	}
-	
+
 	public Function getCompanionDefaultsFunction(String name, Type ftype){
 		all:
 			for(Function f : functionStore){
@@ -442,13 +452,14 @@ public abstract class RVMCore {
 	 * @return		   Result of function execution
 	 */
 	public IValue executeRVMFunction(OverloadedFunction func, IValue[] posArgs, Map<String, IValue> kwArgs){
+	    func.fids2objects(functionStore, constructorStore);
 		if(func.getFunctions().length > 0){
-				Function firstFunc = functionStore[func.getFunctions()[0]]; 
+				Function firstFunc = func.functionsAsFunction[0]; 
 				Frame root = new Frame(func.scopeIn, null, null, func.getArity()+2, firstFunc);
-				OverloadedFunctionInstance ofi = OverloadedFunctionInstance.computeOverloadedFunctionInstance(func.functions, func.constructors, root, func.scopeIn, functionStore, constructorStore, this);
+				OverloadedFunctionInstance ofi = OverloadedFunctionInstance.computeOverloadedFunctionInstance(func.functionsAsFunction, func.constructorsAsType, root, func.scopeIn, this);
 				return executeRVMFunction(ofi, posArgs, kwArgs);
 		} else {
-			Type cons = constructorStore.get(func.getConstructors()[0]);
+			Type cons = func.constructorsAsType[0];
 			return vf.constructor(cons, posArgs, kwArgs);
 		}
 	}
@@ -590,12 +601,7 @@ public abstract class RVMCore {
 			return "Function[" + ((FunctionInstance)o).function.getName() + "]";
 		}
 		if(o instanceof OverloadedFunctionInstance) {
-			OverloadedFunctionInstance of = (OverloadedFunctionInstance) o;
-			String alts = "";
-			for(Integer fun : of.getFunctions()) {
-				alts = alts + fun + "; ";
-			}
-			return "OverloadedFunction[ alts: " + alts + "]";
+			return ((OverloadedFunctionInstance) o).toString();
 		}
 		if(o instanceof Reference){
 			Reference ref = (Reference) o;
@@ -643,10 +649,12 @@ public abstract class RVMCore {
 		return (repr.length() < w) ? repr : repr.substring(0, w) + "...";
 	}
 	
-	/********************************************************************************/
-	/*			Auxiliary functions that implement specific instructions and are	*/
-	/*  		used both by RVM interpreter and generated JVM bytecod				*/
-	/********************************************************************************/
+	/*******************************************************************************/
+	/*			Auxiliary functions that implement specific instructions and are   */
+	/*  		used both by RVM interpreter and generated JVM bytecode            */
+	/* 		    Note: some of these methods are inlined for efficiency, left here  */
+	/*          for documentation purposes                                         */
+	/*******************************************************************************/
 	
 	// LOAD/PUSH VAR
 
@@ -818,7 +826,8 @@ public abstract class RVMCore {
 	
 	@SuppressWarnings("unchecked")
 	protected void STORELOCKWP(final Object[] stack, Frame cf, int iname, Object accu){
-		String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
+	    String name = ((IString) cf.function.constantStore[iname]).getValue();
+	    
 		Map<String, IValue> kargs = (Map<String, IValue>) stack[cf.function.nformals - 1];
 		if(kargs == emptyKeywordMap){
 			System.err.println("Creating new kw map while updating: " + name);
@@ -832,8 +841,8 @@ public abstract class RVMCore {
 	
 	@SuppressWarnings("unchecked")
 	protected Object LOADVARKWP(final Frame cf, final int varScope, final int iname){
-	  String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
-
+	  String name = ((IString) cf.function.constantStore[iname]).getValue();
+	    
 	  for(Frame f = cf.previousScope; f != null; f = f.previousCallFrame) {
 	    if (f.scopeId == varScope) {    
 	      if(f.function.nformals > 0){
@@ -870,8 +879,7 @@ public abstract class RVMCore {
 	
 	@SuppressWarnings("unchecked")
 	protected void STOREVARKWP(final Frame cf, final int varScope, final int iname, final Object accu){
-		
-		String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
+		String name = ((IString) cf.function.constantStore[iname]).getValue();
 		IValue val = (IValue) accu;
 		for(Frame f = cf.previousScope; f != null; f = f.previousCallFrame) {
 			if (f.scopeId == varScope) {
@@ -912,7 +920,7 @@ public abstract class RVMCore {
 	
 	@SuppressWarnings("unchecked")
 	protected Object LOADLOCKWP(final Object[] stack, final Frame cf, final int iname){
-	  String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
+	  String name = ((IString) cf.function.constantStore[iname]).getValue();
 
 	  Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
 	  Map.Entry<Type, IValue> defaultValue = defaults.get(name);
@@ -947,7 +955,7 @@ public abstract class RVMCore {
 	@SuppressWarnings({"unchecked", "unused"})
 	protected int CALLCONSTR(final Object[] stack, int sp, final int iconstructor, final int arity){
 		
-		Type constructor = constructorStore.get(iconstructor);
+		Type constructor = constructorStore[iconstructor];
 		IValue[] args = new IValue[constructor.getArity()];
 
 		java.util.Map<String,IValue> kwargs;
@@ -1029,7 +1037,7 @@ public abstract class RVMCore {
 	        return clazz;
 		} 
 		catch(ClassNotFoundException | NoClassDefFoundError e1) {
-			throw new InternalCompilerError("Class " + className + " not found", e1);
+			throw new InternalCompilerError("class " + className + " not found", e1);
 		}
 		
 	}
@@ -1055,7 +1063,7 @@ public abstract class RVMCore {
 		            instance = cons.newInstance(vf, asInterface(parameterTypes[1]));
 		            break;
 		        default:
-		            throw new NoSuchMethodException(clazz + " does not have a fitting constructor (nullary, IValueFactory, of IValueFactor + IOwnInterface");
+		            throw new NoSuchMethodException(clazz + " does not have a suitable constructor (nullary, IValueFactory, of IValueFactor + IOwnInterface");
 		    }
 		    
 			instanceCache.put(clazz, instance);
@@ -1070,7 +1078,7 @@ public abstract class RVMCore {
 	        return clazz.getMethod(methodName, makeJavaTypes(methodName, className, parameterTypes, keywordTypes, reflect));
 	    }
 	    catch (NoSuchMethodException | SecurityException e) {
-	        throw new InternalCompilerError("could not find Java method", e);
+	        throw new InternalCompilerError("could not find Java method " + methodName + " in class " + className , e);
 	    }
     }
 	
@@ -1115,7 +1123,7 @@ public abstract class RVMCore {
 			return sp - arity - kwMaps + 1;
 		} 
 		catch (SecurityException | IllegalAccessException | IllegalArgumentException e) {
-			throw new InternalCompilerError("could not call Java method", e);
+			throw new InternalCompilerError("could not call Java method " + m.getName(), e);
 		} 
 		catch (InvocationTargetException e) {
 			if(e.getTargetException() instanceof Throw) {

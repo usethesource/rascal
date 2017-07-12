@@ -48,6 +48,7 @@ public class Function {
 	private static final IString IgnoreTag = vf.string("Ignore");
 	private static final IString ignoreCompilerTag = vf.string("ignoreCompiler");
 	private static final IString IgnoreCompilerTag = vf.string("IgnoreCompiler");
+	private static final IString[] ignoreTags = {ignoreTag, IgnoreTag, ignoreCompilerTag, IgnoreCompilerTag};
 	
 	String name;
 	public Type ftype;
@@ -75,8 +76,6 @@ public class Function {
 	int[] handlers;
 	int[] fromSPs;
 	int lastHandler = -1;
-
-	public Integer funId; // USED in dynRun to find the function, in the JVM version only.
 
 	public String[] fromLabels;
 	public String[] toLabels;
@@ -137,6 +136,7 @@ public class Function {
 		this.setNlocals(nlocals);
 		this.isDefault = isDefault;
 		this.isTest = isTest;
+		this.simpleArgs = simpleArgs;
         this.tags = (tags == null) ? ValueFactoryFactory.getValueFactory().mapWriter().done() : tags;
 		this.localNames = localNames;
 		this.maxstack = maxstack;
@@ -162,8 +162,8 @@ public class Function {
 	}
 	
 	public void  finalize(final Map<String, Integer> functionMap, final Map<String, Integer> constructorMap, final Map<String, Integer> resolver){
-		if(constructorMap == null){
-			System.out.println("finalize: null");
+		if(codeblock == null){
+			return;
 		}
 		codeblock.done(name, functionMap, constructorMap, resolver);
 		this.scopeId = codeblock.getFunctionIndex(name);
@@ -174,8 +174,8 @@ public class Function {
 		this.typeConstantStore = codeblock.getTypeConstants();
 	}
 	
-	public void clearForJVM(){
-		codeblock.clearForJVM();
+	public void removeCodeBlocks(){
+	    codeblock = null;
 	}
 	
 	public void attachExceptionTable(final IList exceptions) {
@@ -283,12 +283,14 @@ public class Function {
 		return sb.toString();
 	}
 	
-	public boolean isIgnored(){
-	  return    tags.containsKey(ignoreTag) 
-	         || tags.containsKey(IgnoreTag)
-	         || tags.containsKey(ignoreCompilerTag)
-	         || tags.containsKey(IgnoreCompilerTag)
-	         ;
+	public boolean isIgnored(RascalExecutionContext rex){
+	  IMap mtags = rex.getModuleTagsCurrentModule();
+	  for(IString tag : ignoreTags ){
+	      if(tags.containsKey(tag) || mtags.containsKey(tag)){
+	          return true;
+	      }
+	  }
+	  return  false;
 	}
 	
 	private static final int MAXDEPTH = 5;
@@ -322,11 +324,11 @@ public class Function {
 
     public ITuple executeTest(ITestResultListener testResultListener, TypeStore typeStore, RascalExecutionContext rex) {
         String fun = name;
-        if(isIgnored()){
+        if(isIgnored(rex)){
             testResultListener.ignored(computeTestName(), src);
             return vf.tuple(src,  vf.integer(2), vf.string(""));
         }
-
+        
         IValue iexpected =  tags.get(vf.string("expected"));
         String expected = iexpected == null ? null : ((IString) iexpected).getValue();
 
@@ -347,7 +349,7 @@ public class Function {
                 return new TestResult(false, e);
             }
         }, typeStore, tries, maxDepth, maxWidth);
-        
+
         if (!result.succeeded()) {
             StringWriter sw = new StringWriter();
             PrintWriter out = new PrintWriter(sw);
@@ -421,8 +423,10 @@ public class Function {
 
         out.writeField(CompilerIDs.Function.MAX_STACK, maxstack);
 
-        out.writeNestedField(CompilerIDs.Function.CODEBLOCK);
-        codeblock.write(out);
+        if(codeblock != null){
+            out.writeNestedField(CompilerIDs.Function.CODEBLOCK);
+            codeblock.write(out);
+        }
         
         out.writeField(CompilerIDs.Function.CONSTANT_STORE, constantStore);
 
@@ -448,8 +452,6 @@ public class Function {
 
         out.writeField(CompilerIDs.Function.LAST_HANDLER, lastHandler);
         
-        out.writeField(CompilerIDs.Function.FUN_ID, funId.intValue()); // Why Integer and not int?
-
         if(isCoroutine){
             out.writeField(CompilerIDs.Function.IS_COROUTINE, 1);
         }
@@ -500,8 +502,6 @@ public class Function {
         int[] handlers = new int[0];
         int[] fromSPs = new int[0];
         int lastHandler = -1;
-
-        Integer funId = -1; // USED in dynRun to find the function, in the JVM version only.
         
         int continuationPoints = 0;
         
@@ -651,7 +651,7 @@ public class Function {
                 }
                 
                 case CompilerIDs.Function.FUN_ID: {
-                    funId = in.getInteger();
+                    in.getInteger();    // legacy field
                     break;
                 }
                 
@@ -697,12 +697,10 @@ public class Function {
      
         // TODO: check fields are valid
         
-        Function func = new Function(name, ftype, kwType, funIn, nformals, nlocals, isDefault, isTest, simpleArgs, tags, localNames, maxstack, 
+        return new Function(name, ftype, kwType, funIn, nformals, nlocals, isDefault, isTest, simpleArgs, tags, localNames, maxstack, 
             concreteArg, abstractFingerprint, concreteFingerprint, codeblock, src,
             scopeIn, constantStore, typeConstantStore, froms, tos, types, handlers,
             fromSPs, lastHandler, scopeId, isCoroutine, refs, isVarArgs, continuationPoints);
-        func.funId = funId;
-        return func;
     }
 
     public Class<?> getJavaClass() {

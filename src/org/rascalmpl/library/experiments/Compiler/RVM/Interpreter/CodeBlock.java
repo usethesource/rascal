@@ -80,10 +80,6 @@ public class CodeBlock  {
 		this.typeConstantStore = new ArrayList<Type>();
 	}
 	
-	void clearForJVM(){
-		finalCode = new long[] {};
-	}
-	
 	public void defLabel(String label, Instruction ins){
 		LabelInfo info = labelInfo.get(label);
 		if(info == null){
@@ -123,11 +119,14 @@ public class CodeBlock  {
 	}
 	
 	public IValue getConstantValue(long finalCode2){
-		for(IValue constant : constantMap.keySet()){
-			if(constantMap.get(constant) == finalCode2){
-				return constant;
-			}
-		}
+	    if(finalCode2 < constantStore.size()){
+	        return constantStore.get((int) finalCode2);
+	    }
+//		for(IValue constant : constantMap.keySet()){
+//			if(constantMap.get(constant) == finalCode2){
+//				return constant;
+//			}
+//		}
 		throw new InternalCompilerError("In function " + name + ": undefined constant index " + finalCode2);
 	}
 	
@@ -142,11 +141,14 @@ public class CodeBlock  {
 	}
 	
 	public Type getConstantType(int n){
-		for(Type type : typeConstantMap.keySet()){
-			if(typeConstantMap.get(type) == n){
-				return type;
-			}
-		}
+	    if(n < typeConstantStore.size()){
+	        return typeConstantStore.get(n);
+	    } else 
+//		for(Type type : typeConstantMap.keySet()){
+//			if(typeConstantMap.get(type) == n){
+//				return type;
+//			}
+//		}
 		throw new InternalCompilerError("In function " + name + ": undefined type constant index " + n);
 	}
 	
@@ -243,15 +245,10 @@ public class CodeBlock  {
 	} 
 	
 	public void addCode1(int op, int arg1){
-//		finalCode[pc++] = op;
-//		finalCode[pc++] = arg1;
 		finalCode[pc++] = encode1(op, arg1);
 	}
 	
 	public void addCode2(int op, int arg1, int arg2){
-//		finalCode[pc++] = op;
-//		finalCode[pc++] = arg1;
-//		finalCode[pc++] = arg2;
 		finalCode[pc++] = encode2(op, arg1, arg2);
 	}
 	
@@ -861,7 +858,7 @@ public class CodeBlock  {
                 Instruction ins = insList.get(i);
                 ins.generateByteCode(gen, debug);
                 if(ins instanceof CheckArgTypeAndCopy){
-                    // CheckArgTypeAndCopy will only record from/to positions; suppress the test that follows it
+                    // CheckArgTypeAndCopy will only copy from/to positions; suppress the test that follows it
                     i++;
                 }
                 i++;

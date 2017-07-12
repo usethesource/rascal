@@ -94,7 +94,7 @@ public class ApiGen {
           isConstructor = true;
           String consName = funName.substring(0, k);
           int cn = rvmExec.getConstructorMap().get(consName);
-          Type consType =  rvmExec.getConstructorStore().get(cn);
+          Type consType =  rvmExec.getConstructorStore()[cn];
           returnType = consType.getAbstractDataType();
           argTypes = consType.getFieldTypes();
         } else {

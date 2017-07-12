@@ -1,3 +1,4 @@
+@ignoreCompiler{Mysterious loop in tests}
 @bootstrapParser
 module lang::rascal::tests::types::AliasTCTests
 

@@ -42,6 +42,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -103,7 +104,10 @@ import io.usethesource.vallang.io.binary.stream.IValueOutputStream;
 import io.usethesource.vallang.io.binary.stream.IValueOutputStream.CompressionRate;
 import io.usethesource.vallang.io.old.BinaryValueReader;
 import io.usethesource.vallang.io.old.BinaryValueWriter;
+import io.usethesource.vallang.random.RandomValueGenerator;
+import io.usethesource.vallang.random.util.TypeParameterBinder;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -135,6 +139,12 @@ public class Prelude {
 		random = new Random();
 	}
 
+    private IValue createRandomValue(Type t, int depth, int width) {
+        return new RandomValueGenerator(values, random, depth, width)
+            .generate(t, new TypeStore(), Collections.emptyMap());
+    }
+
+	
 	/*
 	 * Boolean
 	 */
@@ -193,6 +203,10 @@ public class Prelude {
 				timezoneMinuteOffset.intValue());
 	}
 		
+	
+	public IValue arbDateTime() {
+	    return createRandomValue(TypeFactory.getInstance().dateTimeType(), 5, 5);
+	}
 	public IValue joinDateAndTime(IDateTime date, IDateTime time)
 	//@doc{Create a new datetime by combining a date and a time.}
 	{
@@ -1370,6 +1384,10 @@ public class Prelude {
 		return values.string("\uE007["+title.getValue().replaceAll("\\]", "_")+"]("+target.getValue()+")");
 	}
 	
+	public IValue arbLoc() {
+	    return createRandomValue(TypeFactory.getInstance().sourceLocationType(), 1 + random.nextInt(5), 1 + random.nextInt(5));
+	}
+	
 	/*
 	 * List
 	 */
@@ -2108,6 +2126,10 @@ public class Prelude {
     public INode unset(INode node) {
         return  node.mayHaveKeywordParameters() ? node.asWithKeywordParameters().unsetAll() : node;
     }
+    
+    public IValue arbNode() {
+        return createRandomValue(TypeFactory.getInstance().nodeType(), 1 + random.nextInt(5), 1 + random.nextInt(5));
+    }
 	
 	/*
 	 * ParseTree
@@ -2815,6 +2837,11 @@ public class Prelude {
 	/*
 	 * String
 	 */
+	
+	public IString arbString(IInteger n) {
+	    return (IString) createRandomValue(TypeFactory.getInstance().stringType(), n.intValue(), n.intValue());
+	}
+
 	
 	public IBool isValidCharacter(IInteger i) {
 		return values.bool(Character.isValidCodePoint(i.intValue()));
@@ -3609,6 +3636,21 @@ public class Prelude {
 			throw RuntimeExceptionFactory.io(values.string("could not generate unique number " + uuid), null, null);
 		}
 	}
+	
+
+	// **** util::Random ***
+	
+	public IValue randomValue(IValue type, IInteger depth, IInteger width){
+	    return randomValue(type, values.integer(random.nextInt()), depth, width);
+	}
+	
+	public IValue randomValue(IValue type, IInteger seed, IInteger depth, IInteger width){
+	    TypeStore store = new TypeStore(RascalValueFactory.getStore());
+	    Type start = tr.valueToType((IConstructor) type, store);
+	    return new RandomValueGenerator(values, new Random(seed.intValue()), depth.intValue(), width.intValue())
+	        .generate(start, store, Collections.emptyMap());	    
+	}
+
 }
 
 // Utilities used by Graph
