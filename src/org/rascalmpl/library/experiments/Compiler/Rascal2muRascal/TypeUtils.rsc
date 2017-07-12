@@ -1058,30 +1058,7 @@ str convert2fuid(UID uid) {
 	         production(_,_,inScope, RName oldScope,_,src) := val),  
 	        \module(_, loc at) := config.store[inScope]) {
         	
-        	  // the source of this function comes from a different module due to `extend`
-          //if (at.path != src.path) { 
-        	  //   return "<prettyPrintName(oldScope)>/<name>";
-          //}
-          
-          // the source of this function comes from a different module due to `extend`
-          if (at.path != src.path) {
-             try {
-               o1 = getModuleName(src, config.pathConfiguration) + "/" + name;
-               o2 = "<prettyPrintName(oldScope)>/<name>";
-             
-               if (o1 != o2) {
-                 println("WARNING: proposed new name for func/prod/cons [<o2>] is different from the old name [<o1>]");
-                 println("\t here: <at>, orig: <src>");
-               } 
-             
-               return getModuleName(src, config.pathConfiguration) + "/" + name;
-             }
-             catch str x : if (/^No module name found for/ := x) {
-               println("WARNING: proposed old naming scheme (getModuleName) resolution failed, trying new one.");
-               return "<prettyPrintName(oldScope)>/<name>";
-             } else { throw x; }
-          }
-          
+           return "<prettyPrintName(oldScope)>/<name>";
         }
         
 		name = convert2fuid(declaredIn[uid]) + "/" + name;
