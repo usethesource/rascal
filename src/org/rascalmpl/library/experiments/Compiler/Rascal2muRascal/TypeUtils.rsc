@@ -191,7 +191,7 @@ public void resetScopeExtraction() {
 	
 	modules = {};
 	moduleNames = {};
-	functions = {};
+	functions = {}; 
 	defaultFunctions = {};
 	datatypes = ();
 	constructors = {};
@@ -291,7 +291,7 @@ void extractScopes(Configuration c){
       item = config.store[uid];
       //println("<uid>: <item>");
       switch(item){
-        case function(rname,rtype,keywordParams,_,inScope,_,_,src): { 
+        case function(rname,rtype,keywordParams,_,inScope,_,_,_,src): { 
          	 //println("<uid>: <item>, scope: <inScope>");
 	         functions += {uid};
 	         declares += {<inScope, uid>}; 
@@ -337,7 +337,7 @@ void extractScopes(Configuration c){
             	//	println("<l> : <loc2uid[l]>");
              //}	
         }
-        case constructor(rname,rtype,_,inScope,src): { 
+        case constructor(rname,rtype,_,inScope,_,src): { 
              //println("<uid>: <item>");
 			 constructors += {uid};
 			 declares += {<inScope, uid>};
@@ -366,7 +366,7 @@ void extractScopes(Configuration c){
             uid2name[uid] = getSimpleName(name);
             uid2type[uid] = rtype;
         }
-        case production(rname, rtype, inScope, p, src): {
+        case production(rname, rtype, inScope, _, p, src): {
              //println("<uid>: <item>");
              if(!isEmpty(getSimpleName(rname))) {
              	constructors += {uid};
@@ -507,10 +507,10 @@ void extractScopes(Configuration c){
     	// Then, functions
     	
     	topdecls = [ uid | uid <- (declaresMap[muid] ? {}), 
-    	                      function(_,_,_,_,_,_,_,_) := config.store[uid] 
+    	                      function(_,_,_,_,_,_,_,_,_) := config.store[uid] 
     	                   || closure(_,_,_,_)          := config.store[uid] 
-    	                   || constructor(_,_,_,_,_)    := config.store[uid] 
-    	                   || ( production(rname,_,_,_,_) := config.store[uid] && !isEmpty(getSimpleName(rname)) ) 
+    	                   || constructor(_,_,_,_,_,_)    := config.store[uid] 
+    	                   || ( production(rname,_,_,_,_,_) := config.store[uid] && !isEmpty(getSimpleName(rname)) ) 
     	                   || variable(_,_,_,_,_)       := config.store[uid] 
     	           ];
     	for(i <- index(topdecls)) {
@@ -539,8 +539,8 @@ void extractScopes(Configuration c){
 	//
 	//}
 	
-    for(UID fuid1 <- functions) {
-    	nformals = getFormals(fuid1); // ***Note: Includes keyword parameters as a single map parameter 
+    for(UID fuid1 <- functions, !(uid2type[fuid1] is failure)) {
+    	    nformals = getFormals(fuid1); // ***Note: Includes keyword parameters as a single map parameter 
   
         innerScopes = {fuid1} + containmentPlus[fuid1];
         declaresInnerScopes = {*(declaresMap[iscope] ? {}) | iscope <- innerScopes};
@@ -579,7 +579,7 @@ void extractScopes(Configuration c){
         }
         // Then, functions
         decls = [ uid | uid <- declaresInnerScopes, 
-                        function(_,_,_,_,_,_,_,_) := config.store[uid] ||
+                        function(_,_,_,_,_,_,_,_,_) := config.store[uid] ||
         				closure(_,_,_,_) := config.store[uid]
         		];
         for(i <- index(decls)) {
@@ -587,7 +587,7 @@ void extractScopes(Configuration c){
         }
     }
   
-    for(UID fuid1 <- constructors){
+    for(UID fuid1 <- constructors, !(uid2type[fuid1] is failure)){
         nformals = getFormals(fuid1); // ***Note: Includes keyword parameters as a single map parameter 
         // First, fill in variables to get their positions right
         //println("fuid1 = <fuid1>");
@@ -652,14 +652,14 @@ void extractScopes(Configuration c){
     // Fill in uid2addr for overloaded functions;
     for(UID fuid2 <- ofunctions) {
         set[UID] funs = config.store[fuid2].items;
-    	if(UID fuid3 <- funs, production(rname,_,_,_,_) := config.store[fuid3] && isEmpty(getSimpleName(rname)))
+    	if(UID fuid3 <- funs, production(rname,_,_,_,_,_) := config.store[fuid3] && isEmpty(getSimpleName(rname)))
     	    continue;
     	 if(UID fuid4 <- funs,   annotation(_,_,_,_,_) := config.store[fuid4])
     	 continue; 
     	    
     	set[str] scopes = {};
     	str scopeIn = convert2fuid(0);
-    	for(UID fuid5 <- funs) {
+    	for(UID fuid5 <- funs, !(uid2type[fuid5] is failure)) {
     		//println("<fuid5>: <config.store[fuid5]>");
     	    funScopeIn = uid2addr[fuid5].fuid;
     		if(funScopeIn notin moduleNames) {
@@ -872,7 +872,7 @@ int declareGeneratedFunction(str name, str fuid, Symbol rtype, loc src){
     uid = config.nextLoc;
     config.nextLoc = config.nextLoc + 1;
     // TODO: all are placed in scope 0, is that ok?
-    config.store[uid] = function(RSimpleName(name), rtype, (), false, 0, [], false, src);
+    config.store[uid] = function(RSimpleName(name), rtype, (), false, 0, Unknown(), [], false, src);
     functions += {uid};
     //declares += {<inScope, uid>}; TODO: do we need this?
      
@@ -936,7 +936,7 @@ str getOuterType(Tree e) {
 Symbol getFunctionType(loc l) {  
    UID uid = getLoc2uid(l);
    fun = config.store[uid];
-   if(function(_,Symbol rtype,_,_,_,_,_,_) := fun) {
+   if(function(_,Symbol rtype,_,_,_,_,_,_,_) := fun) {
        return rtype;
    } else {
        throw "Looked up a function, but got: <fun> instead";
@@ -1053,18 +1053,14 @@ str convert2fuid(UID uid) {
 		name = convert2fuid(containedIn[uid]) + "/" + name;
 	} else if(declaredIn[uid]?) {
 	    val = config.store[uid];
-	    if( (function(_,_,_,_,inScope,_,_,src) := val || 
-	         constructor(_,_,_,inScope,src) := val || 
-	         production(_,_,inScope,_,src) := val ), 
-	        \module(RName mname,loc at) := config.store[inScope]) {
-	        //println("<name>, <mname>, <prettyPrintName(mname)>, <declaredIn[uid]>");
-	       
-        	if(at.path != src.path) {
-        	   res = getModuleName(src, config.pathConfiguration) + "/" + name;
-        	   //println("1. convert2fuid(<uid>) =\> <res>");
-        	   return res;
-			}
+	    if( (function(_,_,_,_,inScope, RName oldScope,_,_,src) := val || 
+	         constructor(_,_,_,inScope, RName oldScope,src) := val || 
+	         production(_,_,inScope, RName oldScope,_,src) := val),  
+	        \module(_, loc at) := config.store[inScope]) {
+        	
+           return "<prettyPrintName(oldScope)>/<name>";
         }
+        
 		name = convert2fuid(declaredIn[uid]) + "/" + name;
 	}
 	//println("3. convert2fuid(<uid>) =\> <name>");
@@ -1090,7 +1086,7 @@ public MuExp getConstructor(str cons) {
 public bool isDataType(AbstractValue::datatype(_,_,_,_,_)) = true;
 public default bool isDataType(AbstractValue _) = false;
 
-public bool isNonTerminalType(sorttype(_,_,_,_)) = true;
+public bool isNonTerminalType(sorttype(_,_,_,_,_)) = true;
 public default bool isNonTerminalType(AbstractValue _) = false;
 
 public bool isAlias(AbstractValue::\alias(_,_,_,_)) = true;

@@ -65,7 +65,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
     private static IKernel kernel;
     private final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
-    private final PathConfig pcfg;
+    private PathConfig pcfg;
     private final String[] IGNORED_DIRECTORIES;
    
     private final HashMap<String, Integer> testsPerModule = new HashMap<String, Integer>();
@@ -103,9 +103,14 @@ public class RascalJUnitCompiledTestRunner extends Runner {
                 }
             });
         }
-        this.pcfg = initializePathConfig();
         
-        pcfg.addLibLoc(URIUtil.correctLocation("project", "rascal", "bin"));
+        try {
+            this.pcfg = initializePathConfig();
+            pcfg.addLibLoc(URIUtil.correctLocation("project", "rascal", "bin"));
+        }
+        catch (IOException e) {
+            assert false; // this project should exist
+        }
         
         System.err.println(pcfg);
     }
@@ -166,7 +171,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
         }
     }
 
-    private PathConfig initializePathConfig() {
+    private PathConfig initializePathConfig() throws IOException {
         ISourceLocation rootProject = URIUtil.correctLocation("project", "rascal", "/");
         return new RascalManifest().makePathConfig(rootProject);
     }

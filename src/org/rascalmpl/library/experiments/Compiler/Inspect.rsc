@@ -240,7 +240,7 @@ void printSymbolDefinitions(map[Symbol, Production] sym_defs){
             	println("\t<s>:");
                 for(ch <- choices){
                 	println("\t\t<ch>");
-                }
+                }    
             } else {
             	println("\t<sym>: <sym_defs[sym]>");
             }

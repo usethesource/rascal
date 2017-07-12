@@ -151,7 +151,7 @@ loc getSearchPathLoc(str filePath, PathConfig pcfg){
             return fileLoc;
         }
     }
-    throw "Module with path <filePath> not found";
+    throw "Module with path <filePath> not found"; 
 }
 
 loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg, str extension = "rsc"){
