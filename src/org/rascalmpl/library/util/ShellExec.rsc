@@ -31,6 +31,9 @@ Start a new external process.
 @javaClass{org.rascalmpl.library.util.ShellExec}
 public java PID createProcess(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str,str] envVars = ());
 
+@javaClass{org.rascalmpl.library.util.ShellExec}
+public java PID createBackgroundProcess(str processCommand, loc workingDir=|cwd:///|, list[str] args = [], map[str,str] envVars = ());
+
 @doc{
 .Synopsis
 start, run and kill an external process returning its output as a string.
