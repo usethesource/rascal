@@ -6,44 +6,38 @@ import Message;
 import util::REPL;
 import util::ShellExec;
 
-data REPL
-  = repl(str title, str welcome, str prompt, loc history, 
-         CommandResult (str line) handler,
-         Completion (str line, int cursor) completor);
+data Notebook
+	= notebook(REPL repl, loc kernelPath)
+	;
 
 
 //@javaClass{org.rascalmpl.library.util.Notebook}
 //@reflect
 //java str startNotebook(REPL repl);
 
-	str jupyter = "/Library/Frameworks/Python.framework/Versions/3.5/bin/jupyter";
+str JUPYTER_PATH = "/Library/Frameworks/Python.framework/Versions/3.6/bin/jupyter";
 
-str startNotebook(str moduleName, str variableName, str languageName){
-	
-	str kernelContentFile = createKernelFile(moduleName, variableName, languageName);
-	loc kernelPath = |tmp:///<languageName>|+"kernel.json";
-	writeFile(kernelPath, kernelContentFile);
-	PID x = createProcess("/Library/Frameworks/Python.framework/Versions/3.5/bin/jupyter", args=["kernelspec", "install", resolveLocation(|tmp:///<languageName>|).path]);
-	return resolveLocation(kernelPath).path +"//\\" +readEntireErrStream(x);
-
+loc startNotebook(str projectPath, str moduleName, str variableName, str languageName){
+	str kernelContentFile = createKernelFile(projectPath, moduleName, variableName, languageName);
+	writeFile(|tmp:///<languageName>|+"kernel.json", kernelContentFile);
+	PID kernelInstallation = createProcess(JUPYTER_PATH, args=["kernelspec", "install", resolveLocation(|tmp:///<languageName>|).path]);
+	PID jupyterExecution = createBackgroundProcess(JUPYTER_PATH, args =["notebook", "--no-browser"]);
+	return |http://localhost:8888/|;
 }
 
-str createKernelFile(str moduleName, str variableName, str languageName)
+str createKernelFile(str projectPath, str moduleName, str variableName, str languageName)
 	= "{
-  	'\"argv\": [
-    '	\"java\",
-    '	\"-jar\",
-    '	\"/Users/Mauricio/IdeaProjects/jupyterJavaKernel/target/JupyterJavaKernel-1.0-SNAPSHOT-jar-with-dependencies.jar\",
-    '	\"{connection_file}\",
-    '	\"<moduleName>\",
-    '	\"<variableName>\"
-  	'],
-  	'\"display_name\": \"<languageName> Kernel\",
-  	'\"language\": \"<languageName>\"
+  	'	\"argv\": [
+    '		\"java\",
+    '		\"-jar\",
+    '		\"/Users/mveranom/Documents/Rascal/JupyterKernel/target/JupyterJavaKernel-1.0-SNAPSHOT-jar-with-dependencies.jar\",
+    '		\"{connection_file}\",
+    '		\"<projectPath>\",
+    '		\"<moduleName>\",
+    '		\"<variableName>\"
+  	'	],
+  	'	\"display_name\": \"<languageName> Kernel\",
+  	'	\"language\": \"<languageName>\"
 	'}
 	"
-	;
-
-data Notebook
-	= notebook(REPL repl, loc kernelPath)
 	;
