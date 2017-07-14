@@ -19,9 +19,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import org.omg.CORBA.Environment;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
@@ -48,6 +51,16 @@ public class ShellExec {
 	public IInteger createProcess(IString processCommand, ISourceLocation workingDir, IList arguments, IMap envVars) {
 		return createProcessInternal(processCommand,arguments,envVars,workingDir);
 	}
+	
+	public IInteger createBackgroundProcess(IString processCommand, ISourceLocation workingDir, IList arguments, IMap envVars) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                processCounter = createProcessInternal(processCommand,arguments,envVars,workingDir);
+            }
+        } ).start();
+        return processCounter;
+    }
 
 	private synchronized IInteger createProcessInternal(IString processCommand, IList arguments, IMap envVars, ISourceLocation workingDir) {
 		try {
@@ -100,6 +113,7 @@ public class ShellExec {
 			}
 			
 			Process newProcess = pb.start();
+
 			if (processCounter == null) {
 				processCounter = vf.integer(0);
 			}
