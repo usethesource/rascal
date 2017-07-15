@@ -248,7 +248,7 @@ arbString(10);
 ----
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java bool arbString(int n);
+public java str arbString(int n);
 
 @doc{
 .Synopsis
