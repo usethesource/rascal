@@ -108,6 +108,10 @@ public abstract class RVMCore {
 	
 	protected final Map<Class<?>, Object> instanceCache;
 	protected final Map<String, Class<?>> classCache;
+
+    public final IValue[] globalConstantStore;
+
+    public final Type[] globalTypeConstantStore;
 	
 	public static RVMCore readFromFileAndInitialize(ISourceLocation rvmBinaryLocation, RascalExecutionContext rex) throws IOException{
 		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);
@@ -172,6 +176,9 @@ public abstract class RVMCore {
 
 	  this.constructorStore = rvmExec.getConstructorStore();
 	  this.constructorMap = rvmExec.getConstructorMap();
+	  
+	  this.globalConstantStore = rvmExec.getGlobalConstantStore();
+	  this.globalTypeConstantStore = rvmExec.getGlobalTypeConstantStore();
 
 	  IFrameObserver observer = rex.getFrameObserver(); 
 	  this.frameObserver = (observer == null) ? NullFrameObserver.getInstance() : observer;

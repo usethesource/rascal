@@ -879,11 +879,12 @@ default INS trMuApply(MuExp fun, list[MuExp] args, Dest d, CDest c) = [ *tr_args
 
 INS tr(muOCall3(muOFun(str fuid), list[MuExp] args, loc src), Dest d, CDest c) {
     usedOverloadedFunctions += fuid;
-    return [*tr_args_stack(args), OCALL(fuid, size(args), src), *plug(accu(), d)];
+    return [BEGINCALL(size(args)), *tr_args_stack(args), OCALL(fuid, size(args), src), *plug(accu(), d)];
 }
 
 INS tr(muOCall4(MuExp fun, Symbol types, list[MuExp] args, loc src), Dest d, CDest c) 
-    = [ *tr_args_stack(args),
+    = [ BEGINCALL(size(args)),
+        *tr_args_stack(args),
         *tr_arg_stack(fun), 
         OCALLDYN(types, size(args), src),
         *plug(accu(), d)
@@ -929,7 +930,7 @@ default INS trMuCallPrim3(str name, list[MuExp] args, loc src, Dest d, CDest c) 
                 "tuple_field_project", "adt_field_update", "rel_field_project", "lrel_field_project", "map_field_project",
                 "list_slice_replace", "list_slice_add", "list_slice_subtract", "list_slice_product", "list_slice_divide", 
                 "list_slice_intersect", "str_slice_replace", "node_slice_replace", "list_slice", 
-                "rel_subscript", "lrel_subscript" }){ // varyadic MuPrimitives
+                "rel_subscript", "lrel_subscript" }){ // varyadic RascalPrimitives
         return  d == stack() ? [*tr_args_stack(args), PUSHCALLPRIMN(name, n, src)]
                              : [*tr_args_stack(args), CALLPRIMN(name, n, src), *plug(accu(), d)];
     }
@@ -983,7 +984,7 @@ INS trMuCallMuPrim("make_mmap", [], Dest d, CDest c) =  PUSHEMPTYKWMAP() + plug(
     
 default INS trMuCallMuPrim(str name, list[MuExp] args, Dest d, CDest c) {
    n = size(args);
-   if(name in {"make_array", "make_mmap", "copy_and_update_keyword_mmap"}){ // varyadic MuPrimtives
+   if(name in {"make_array", "make_mmap", "copy_and_update_keyword_mmap"}){ // varyadic MuPrimitives
         return d == stack() ? [*tr_args_stack(args), PUSHCALLMUPRIMN(name, n)]
                             : [*tr_args_stack(args), CALLMUPRIMN(name, n), *plug(accu(), d)];
     }
@@ -1041,9 +1042,18 @@ INS tr(muCreate2(MuExp coro, list[MuExp] args), Dest d, CDest c) = [ *tr_args_st
 INS tr(muNext1(MuExp coro), Dest d, CDest c) = [*tr_arg_accu(coro), NEXT0(), *plug(accu(), d)];
 INS tr(muNext2(MuExp coro, list[MuExp] args), Dest d, CDest c) = [*tr_args_stack(args), *tr_arg_accu(coro),  NEXT1(), *plug(accu(), d)]; // note the order!
 
-INS tr(muYield0(), Dest d, CDest c) = [YIELD0(), *plug(stack(), d)];
-INS tr(muYield1(MuExp exp), Dest d, CDest c) = [*tr_arg_stack(exp), YIELD1(1), *plug(stack(), d)];
-INS tr(muYield2(MuExp exp, list[MuExp] exps), Dest d, CDest c) = [ *tr_args_stack(exp + exps), YIELD1(size(exps) + 1), *plug(stack(), d) ];
+INS tr(muYield0(), Dest d, CDest c) { 
+    //println("@@@<currentFunction.qname>: <currentFunction is muCoroutine>");
+    return [YIELD0(), *plug(stack(), d)];
+}
+INS tr(muYield1(MuExp exp), Dest d, CDest c) {
+    //println("@@@<currentFunction.qname>: <currentFunction is muCoroutine>");
+    return [*tr_arg_stack(exp), YIELD1(1), *plug(stack(), d)];
+}
+INS tr(muYield2(MuExp exp, list[MuExp] exps), Dest d, CDest c){
+    //println("@@@<currentFunction.qname>: <currentFunction is muCoroutine>");
+    return [ *tr_args_stack(exp + exps), YIELD1(size(exps) + 1), *plug(stack(), d) ];
+}
 
 INS tr(experiments::Compiler::muRascal::AST::muExhaust(), Dest d, CDest c) = [ EXHAUST() ];
 

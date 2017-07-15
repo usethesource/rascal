@@ -144,6 +144,7 @@ public data Instruction =
 		| PUSHVARDEREF(str fuid, int pos)           // Push value of a variable in outer scope identified by reference on stack 
 		| STOREVARDEREF(str fuid, int pos)          // Store value at stack[sp - 2] in outer variable identified by reference at stack[sp -1] (value remains on stack)		
 		
+	
 		| CALL(str fuid, int arity)					// Call a named *muRascal* function
 		| CALLDYN(int arity)						// Call a *muRascal* function on stack
 		
@@ -153,6 +154,7 @@ public data Instruction =
 				
 		| CALLCONSTR(str fuid, int arity /*, loc src*/)	// Call a constructor
 		
+		| BEGINCALL(int arity)                      //  Mark begin of arguments
 		| OCALL(str fuid, int arity, loc src)		// Call a named *Rascal* function
 		| OCALLDYN(Symbol types, int arity, loc src)// Call a *Rascal* function on stack
 		

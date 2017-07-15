@@ -8,10 +8,12 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 import org.rascalmpl.uri.classloaders.PathConfigClassLoader;
+
 import io.usethesource.vallang.IValue;
 
 public class RVMJVM extends RVMCore {
@@ -69,18 +71,33 @@ public class RVMJVM extends RVMCore {
 	}
 	
 	private void setupInvokeDynamic(Class<?> generatedClass) throws NoSuchMethodException, IllegalAccessException{
-        MethodHandles.Lookup lookup = MethodHandles.lookup(); 
-        
-        MethodType funType = MethodType.methodType(Object.class, Frame.class);
-        MethodType rtType = MethodType.methodType(Object.class, RVMonJVM.class, Frame.class);
+        MethodHandles.Lookup lookup = MethodHandles.lookup();
 
         for (Map.Entry<String, Integer> e : functionMap.entrySet()) {
             String fname = e.getKey();
             Integer findex = e.getValue();
             Function func = functionStore[findex];
             String methodName = BytecodeGenerator.rvm2jvmName(fname);
+            
+            Class<?>[] argTypes1 = new Class<?>[func.nformals];
+            //argTypes[0] = RVMonJVM.class;
+            for(int i = 0; i < func.nformals-1; i++){
+                argTypes1[i] = Object.class;
+            }
+            argTypes1[func.nformals-1] = HashMap.class;
+            
+            Class<?>[] argTypes2 = new Class<?>[func.nformals+1];
+            argTypes2[0] = RVMonJVM.class;
+            for(int i = 1; i < func.nformals; i++){
+                argTypes2[i] = Object.class;
+            }
+            argTypes2[func.nformals] = HashMap.class;
+            
+            MethodType funType =  MethodType.methodType(Object.class, argTypes1);
+            MethodType funType2 = MethodType.methodType(Object.class, argTypes2);
+            
             MethodHandle mh = lookup.findVirtual(generatedClass, methodName, funType);
-            func.handle = new ConstantCallSite(mh.asType(rtType)).dynamicInvoker();
+            func.handle = new ConstantCallSite(mh.asType(funType2)).dynamicInvoker();
         }
     }
 	

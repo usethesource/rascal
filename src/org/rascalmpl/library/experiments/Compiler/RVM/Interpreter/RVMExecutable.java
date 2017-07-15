@@ -33,6 +33,7 @@ import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.binary.util.ByteBufferInputStream;
 import io.usethesource.vallang.io.binary.util.ByteBufferOutputStream;
@@ -80,6 +81,9 @@ public class RVMExecutable {
 	// Function overloading
 	private final OverloadedFunction[] overloadedStore;
 	
+	private final IValue[] globalConstantStore;
+	private Type[] globalTypeConstantStore;
+	
 	private final List<String> initializers;
 	private final String uid_module_init;
 	private final String uid_module_main;
@@ -103,6 +107,8 @@ public class RVMExecutable {
         this.constructorStore = null;
 
         this.overloadedStore = null;
+        this.globalConstantStore = null;
+        this.globalTypeConstantStore = null;
         
         this.initializers = null;
         
@@ -161,6 +167,26 @@ public class RVMExecutable {
 		    validate();
 		    fids2objects();
 		}
+		int nConstants = 0;
+		int nTypeConstants = 0;
+		
+		for(Function f : functionStore){
+		    nConstants += f.constantStore.length;
+		    nTypeConstants += f.typeConstantStore.length;
+		}
+		globalConstantStore = new IValue[nConstants];
+		globalTypeConstantStore = new Type[nTypeConstants];
+		
+		int inConstants = 0;
+		int inTypeConstants = 0;
+		for(Function f : functionStore){
+		    for(IValue v : f.constantStore){
+		        globalConstantStore[inConstants++] = v;
+		    }
+		    for(Type t : f.typeConstantStore){
+		        globalTypeConstantStore[inTypeConstants++] = t;
+		    }
+        }
 		
 		if(jvm){
 			generateClassFile(false, classRenamings);
@@ -224,6 +250,14 @@ public class RVMExecutable {
 	
 	List<String> getInitializers() {
 		return initializers;
+	}
+	
+	IValue[] getGlobalConstantStore(){
+	    return globalConstantStore;
+	}
+	
+	Type[] getGlobalTypeConstantStore(){
+	    return globalTypeConstantStore;
 	}
 	
 	public ArrayList<Function> getTests(){

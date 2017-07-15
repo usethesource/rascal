@@ -763,6 +763,9 @@ public class CodeBlock  {
 		return add(new PopAccu(this));
 	}
 	
+	public CodeBlock BEGINCALL(int arity) {
+	    return add(new BeginCall(this, arity));     
+	}
 			
 	public CodeBlock done(String fname, Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) {
 		this.functionMap = functionMap;

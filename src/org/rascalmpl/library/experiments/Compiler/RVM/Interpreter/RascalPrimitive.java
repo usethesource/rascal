@@ -151,7 +151,7 @@ public enum RascalPrimitive {
 	 * 
 	 * [ ..., IString name, IValue arg1, IValue arg2, ... ] => [ ..., name(arg1, arg2, ...) ]
 	 */
-	node_create {
+	node_create {  // N-ARY
 		@SuppressWarnings("unchecked")
 		@Override
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
@@ -186,7 +186,7 @@ public enum RascalPrimitive {
 	 * 
 	 * [ ... IValue val1, IValue val2, ... ] => [ ..., [val1, val2, ...] ]
 	 */
-	list_create {
+	list_create { // N-ARY
 		@Override
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity >= 0;
@@ -270,7 +270,7 @@ public enum RascalPrimitive {
 	 * 
 	 *  * [ ... IValue val1, IValue val2, ... ] => [ ..., {val1, val2, ...} ]
 	 */
-	set_create {
+	set_create {// N-ARY
 		@Override
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity >= 0;
@@ -303,7 +303,7 @@ public enum RascalPrimitive {
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			ISet set = (ISet) arg_1;
 			if(set.size() != 1)
-				throw new InternalCompilerError("set2elm: set should have a single element", rex.getStdErr(), currentFrame);
+				throw new InternalCompilerError("set2elm: set should have a single element", rex.getStdErr(), currentFrame); // REX USED // currentFrame USED
 			return set.iterator().next();
 		}
 	},
@@ -354,7 +354,7 @@ public enum RascalPrimitive {
 	 * 
 	 *  * [ ... IValue val1, IValue val2, ... ] => [ ..., <val1, val2, ...> ]
 	 */
-	tuple_create {
+	tuple_create {// N-ARY
 		@Override
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity >= 0;
@@ -374,7 +374,7 @@ public enum RascalPrimitive {
 	 * 
 	 * [ ... IValue key1, IValue val1, IValue key2, IValue val2... ] => [ ..., (key1 : val1, key2 : val2, ...) ]
 	 */
-	map_create {
+	map_create {// N-ARY
 		@Override
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity >= 0;
@@ -411,10 +411,10 @@ public enum RascalPrimitive {
 			catch (URISyntaxException e) {
 				// this is actually an unexpected run-time exception since Rascal prevents you from 
 				// creating non-encoded 
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidURI(uri.getValue(), currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidURI(uri.getValue(), currentFrame));// REX USED// currentFrame USED
 			}
 			catch (UnsupportedOperationException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidURI(uri.getValue() + ":" + e.getMessage(), currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidURI(uri.getValue() + ":" + e.getMessage(), currentFrame));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -491,7 +491,7 @@ public enum RascalPrimitive {
 	 * [ ..., IListWriter e, IValue arg1, IValue arg2, ... ] => [ ..., IListWriter e]
 	 *
 	 */
-	listwriter_add {
+	listwriter_add {// N-ARY
 		@Override
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity > 0;
@@ -525,7 +525,7 @@ public enum RascalPrimitive {
 	 * [ ..., ISetWriter e, IValue arg1, IValue arg2, ... ] => [ ..., ISetWriter e]
 	 *
 	 */
-	setwriter_add {
+	setwriter_add {// N-ARY
 		@Override
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity > 0;
@@ -704,7 +704,7 @@ public enum RascalPrimitive {
 				case SET:
 					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 			case NUM:
 				switch (rhsType) {
@@ -721,7 +721,7 @@ public enum RascalPrimitive {
 				case SET:
 					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 			case REAL:
 				switch (rhsType) {
@@ -738,7 +738,7 @@ public enum RascalPrimitive {
 				case SET:
 					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 			case RAT:
 				switch (rhsType) {
@@ -755,7 +755,7 @@ public enum RascalPrimitive {
 				case SET:
 					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 			case SET:
 				return set_add_elm.execute2(lhs, rhs, currentFrame, rex);
@@ -768,7 +768,7 @@ public enum RascalPrimitive {
 				case STR:
 					return loc_add_str.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 			case LREL:
 				switch (rhsType) {
@@ -777,14 +777,14 @@ public enum RascalPrimitive {
 				case LREL:
 					return lrel_add_lrel.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 			case MAP:
 				switch (rhsType) {
 				case MAP:
 					return map_add_map.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 			case REL:
 				switch (rhsType) {
@@ -793,21 +793,21 @@ public enum RascalPrimitive {
 				case REL:
 					return rel_add_rel.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 			case STR:
 				switch (rhsType) {
 				case STR:
 					return str_add_str.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 			case TUPLE:
 				switch (rhsType) {
 				case TUPLE:
 					return tuple_add_tuple.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 			default:
 				switch (rhsType) {
@@ -816,7 +816,7 @@ public enum RascalPrimitive {
 				case LIST:
 					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 			}
 		}
@@ -1243,7 +1243,7 @@ public enum RascalPrimitive {
 	 * 
 	 * [ ... IString val1, IString val2] => [ ..., val1 + val2]
 	 */
-	str_add_str {
+	str_add_str {// N-ARY
 		@Override
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity >= 2;
@@ -1318,7 +1318,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return int_subtract_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);// currentFrame USED
 				}
 			case NUM:
 				switch (rhsType) {
@@ -1331,7 +1331,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return num_subtract_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);// currentFrame USED
 				}
 			case REAL:
 				switch (rhsType) {
@@ -1344,7 +1344,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return real_subtract_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);// currentFrame USED
 				}
 			case RAT:
 				switch (rhsType) {
@@ -1357,10 +1357,10 @@ public enum RascalPrimitive {
 				case RAT:
 					return rat_subtract_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);// currentFrame USED
 				}
 			default:
-				throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
+				throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);// currentFrame USED
 			}
 		}
 	},
@@ -1750,7 +1750,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return int_product_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 			case NUM:
 				switch (rhsType) {
@@ -1763,7 +1763,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return num_product_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 			case REAL:
 				switch (rhsType) {
@@ -1776,7 +1776,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return real_product_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 			case RAT:
 				switch (rhsType) {
@@ -1789,7 +1789,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return rat_product_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 			default:
 				throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
@@ -2069,7 +2069,7 @@ public enum RascalPrimitive {
 			if(lhs.getType().isInteger() && rhs.getType().isInteger()){
 				return int_remainder_int.execute2(lhs, rhs, currentFrame, rex);
 			}
-			throw new InternalCompilerError("remainder: unexpected type combination" + lhs.getType() + " and " + rhs.getType(), currentFrame);
+			throw new InternalCompilerError("remainder: unexpected type combination" + lhs.getType() + " and " + rhs.getType(), currentFrame);// currentFrame USED
 		}
 	},
 
@@ -2116,7 +2116,7 @@ public enum RascalPrimitive {
 			case MAP:
 				return map_compose_map.execute2(left, right, currentFrame, rex);
 			default:
-				throw new InternalCompilerError("RascalPrimtive compose: unexpected type " + leftType, rex.getStdErr(), currentFrame);
+				throw new InternalCompilerError("RascalPrimtive compose: unexpected type " + leftType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -2180,7 +2180,7 @@ public enum RascalPrimitive {
 			if(lhs.getType().isInteger() && rhs.getType().isInteger()){
 				return int_mod_int.execute2(lhs, rhs, currentFrame, rex);
 			}
-			throw new InternalCompilerError("RascalPrimitive mod: unexpected type combination" + lhs.getType() + " and " + rhs.getType(), rex.getStdErr(), currentFrame);
+			throw new InternalCompilerError("RascalPrimitive mod: unexpected type combination" + lhs.getType() + " and " + rhs.getType(), rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 		}
 	},
 
@@ -2227,7 +2227,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return int_divide_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 			case NUM:
 				switch (rhsType) {
@@ -2240,7 +2240,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return num_divide_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 			case REAL:
 				switch (rhsType) {
@@ -2253,7 +2253,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return real_divide_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 			case RAT:
 				switch (rhsType) {
@@ -2266,10 +2266,10 @@ public enum RascalPrimitive {
 				case RAT:
 					return rat_divide_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 			default:
-				throw new InternalCompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+				throw new InternalCompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -2285,7 +2285,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IInteger) arg_2).divide((IInteger) arg_1);
 			} catch(ArithmeticException e) {
-			  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -2301,7 +2301,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IInteger) arg_2).divide((INumber) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -2317,7 +2317,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IInteger) arg_2).divide((IRational) arg_1);
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -2333,7 +2333,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IInteger) arg_2).divide((IReal) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -2349,7 +2349,7 @@ public enum RascalPrimitive {
 			try {
 				return ((INumber) arg_2).divide((IInteger) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -2365,7 +2365,7 @@ public enum RascalPrimitive {
 			try {
 				return ((INumber) arg_2).divide((INumber) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -2381,7 +2381,7 @@ public enum RascalPrimitive {
 			try {
 				return ((INumber) arg_2).divide((IRational) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -2397,7 +2397,7 @@ public enum RascalPrimitive {
 			try {
 				return ((INumber) arg_2).divide((IReal) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -2413,7 +2413,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IRational) arg_2).divide((IInteger) arg_1);
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -2429,7 +2429,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IRational) arg_2).divide((INumber) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -2445,7 +2445,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IRational) arg_2).divide((IRational) arg_1);
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -2461,7 +2461,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IRational) arg_2).divide((IReal) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -2477,7 +2477,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IReal) arg_2).divide((INumber) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -2493,7 +2493,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IReal) arg_2).divide((IInteger) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -2509,7 +2509,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IReal) arg_2).divide((IReal) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -2525,7 +2525,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IReal) arg_2).divide((IRational) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -3545,7 +3545,7 @@ public enum RascalPrimitive {
 				case LREL:
 					return list_intersect_lrel.execute2(left, right, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("intersect: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("intersect: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 			case SET:
 				switch (ToplevelType.getToplevelType(rightType)) {
@@ -3554,13 +3554,13 @@ public enum RascalPrimitive {
 				case REL:
 					return set_intersect_rel.execute2(left, right, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("intersect: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("intersect: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 			case MAP:
 				return map_intersect_map.execute2(left, right, currentFrame, rex);
 
 			default:
-				throw new InternalCompilerError("intersect: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
+				throw new InternalCompilerError("intersect: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -3705,7 +3705,7 @@ public enum RascalPrimitive {
 			case MAP:
 				return elm_in_map.execute2(left, right, currentFrame, rex);
 			default:
-				throw new InternalCompilerError("in: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
+				throw new InternalCompilerError("in: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -3804,7 +3804,7 @@ public enum RascalPrimitive {
 			case MAP:
 				return elm_notin_map.execute2(left, right, currentFrame, rex);
 			default:
-				throw new InternalCompilerError("notin: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
+				throw new InternalCompilerError("notin: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -3880,7 +3880,7 @@ public enum RascalPrimitive {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			if(((IInteger)arg_1).intValue() < 0){
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds(((IInteger)arg_1), currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds(((IInteger)arg_1), currentFrame));// REX USED// currentFrame USED
 			}
 			return Rascal_TRUE;
 		}
@@ -3909,7 +3909,7 @@ public enum RascalPrimitive {
 				case LREL:
 					return list_join_lrel.execute2(left, right, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 			case LREL:
 				switch (ToplevelType.getToplevelType(rightType)) {
@@ -3918,7 +3918,7 @@ public enum RascalPrimitive {
 				case LREL:
 					return lrel_join_lrel.execute2(left, right, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 			case SET:
 				switch (ToplevelType.getToplevelType(rightType)) {
@@ -3927,7 +3927,7 @@ public enum RascalPrimitive {
 				case REL:
 					return set_join_rel.execute2(left, right, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 
 			case REL:
@@ -3937,11 +3937,11 @@ public enum RascalPrimitive {
 				case REL:
 					return rel_join_rel.execute2(left, right, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 				}
 
 			default:
-				throw new InternalCompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
+				throw new InternalCompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -4242,7 +4242,7 @@ public enum RascalPrimitive {
 			case TUPLE:
 				return tuple_less_tuple.execute2(left, right, currentFrame, rex);
 			default:
-				throw new InternalCompilerError("less: unexpected type " + leftType, rex.getStdErr(), currentFrame);
+				throw new InternalCompilerError("less: unexpected type " + leftType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -4559,7 +4559,7 @@ public enum RascalPrimitive {
 			}
 
 			if (!right.hasOffsetLength()) {
-				throw new InternalCompilerError("offset length missing", rex.getStdErr(), currentFrame);
+				throw new InternalCompilerError("offset length missing", rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 			}
 			return Rascal_FALSE;
 		}
@@ -4790,7 +4790,7 @@ public enum RascalPrimitive {
 			case TUPLE:
 				return tuple_lessequal_tuple.execute2(left, right, currentFrame, rex);
 			default:
-				throw new InternalCompilerError("lessequal: unexpected type " + leftType, rex.getStdErr(), currentFrame);
+				throw new InternalCompilerError("lessequal: unexpected type " + leftType, rex.getStdErr(), currentFrame);// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -5243,7 +5243,7 @@ public enum RascalPrimitive {
 			if(lhsType.isRelation()){
 				return rel_transitive_closure.execute1(arg_1, currentFrame, rex);
 			}
-			throw new InternalCompilerError("transitive_closure: unexpected type " + lhsType, currentFrame);
+			throw new InternalCompilerError("transitive_closure: unexpected type " + lhsType, currentFrame);// REX USED// currentFrame USED
 		}
 
 	},
@@ -5294,7 +5294,7 @@ public enum RascalPrimitive {
 			if(lhsType.isRelation()){
 				return rel_transitive_reflexive_closure.execute1(arg_1, currentFrame, rex);
 			}
-			throw new InternalCompilerError("transitive_reflexive_closure: unexpected type " + lhsType, currentFrame);
+			throw new InternalCompilerError("transitive_reflexive_closure: unexpected type " + lhsType, currentFrame);// REX USED// currentFrame USED
 		}
 	},
 
@@ -5557,7 +5557,7 @@ public enum RascalPrimitive {
 			case REAL: return negative_real.execute1(left, currentFrame, rex);
 			case RAT: return negative_rat.execute1(left, currentFrame, rex);
 			default:
-				throw new InternalCompilerError("negative: unexpected type " + leftType, currentFrame);
+				throw new InternalCompilerError("negative: unexpected type " + leftType, currentFrame);// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -6028,7 +6028,7 @@ public enum RascalPrimitive {
 	 * This may cause problems (i.e. leaving spurious builders on that stack)  when an exception
 	 * occurs during template construction. 
 	 */
-	template_open {
+	template_open {// N-ARY
 		@Override
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity <= 1;
@@ -6474,69 +6474,69 @@ public enum RascalPrimitive {
 						v = vf.integer(dt.getCentury());
 						break;
 					}
-					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the century on a time value", currentFrame));
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the century on a time value", currentFrame));// REX USED// currentFrame USED
 				case "year":
 					if (!dt.isTime()) {
 						v = vf.integer(dt.getYear());
 						break;
 					}
-					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the year on a time value", currentFrame));
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the year on a time value", currentFrame));// REX USED// currentFrame USED
 
 				case "month":
 					if (!dt.isTime()) {
 						v = vf.integer(dt.getMonthOfYear());
 						break;
 					}
-					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the month on a time value", currentFrame));
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the month on a time value", currentFrame));// REX USED// currentFrame USED
 				case "day":
 					if (!dt.isTime()) {
 						v = vf.integer(dt.getDayOfMonth());
 						break;
 					}
-					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the day on a time value", currentFrame));
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the day on a time value", currentFrame));// REX USED// currentFrame USED
 				case "hour":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getHourOfDay());
 						break;
 					}
-					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the hour on a date value", currentFrame));
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the hour on a date value", currentFrame));// REX USED// currentFrame USED
 				case "minute":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getMinuteOfHour());
 						break;
 					}
-					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the minute on a date value", currentFrame));
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the minute on a date value", currentFrame));// REX USED// currentFrame USED
 				case "second":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getSecondOfMinute());
 						break;
 					}
-					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the second on a date value", currentFrame));
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the second on a date value", currentFrame));// REX USED// currentFrame USED
 				case "millisecond":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getMillisecondsOfSecond());
 						break;
 					}
-					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the millisecond on a date value", currentFrame));
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the millisecond on a date value", currentFrame));// REX USED// currentFrame USED
 				case "timezoneOffsetHours":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getTimezoneOffsetHours());
 						break;
 					}
-					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the timezone offset hours on a date value", currentFrame));
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the timezone offset hours on a date value", currentFrame));// REX USED// currentFrame USED
 				case "timezoneOffsetMinutes":
 					if (!dt.isDate()) {
 						v = vf.integer(dt.getTimezoneOffsetMinutes());
 						break;
 					}
-					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the timezone offset minutes on a date value", currentFrame));
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the timezone offset minutes on a date value", currentFrame));// REX USED// currentFrame USED
 
 				case "justDate":
 					if (!dt.isTime()) {
 						v = vf.date(dt.getYear(), dt.getMonthOfYear(), dt.getDayOfMonth());
 						break;
 					}
-					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the date component of a time value", currentFrame));
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the date component of a time value", currentFrame));// REX USED// currentFrame USED
 				case "justTime":
 					if (!dt.isDate()) {
 						v = vf.time(dt.getHourOfDay(), dt.getMinuteOfHour(), dt.getSecondOfMinute(), 
@@ -6544,14 +6544,14 @@ public enum RascalPrimitive {
 								dt.getTimezoneOffsetMinutes());
 						break;
 					}
-					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the time component of a date value", currentFrame));
+					return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.unavailableInformation("Can not retrieve the time component of a date value", currentFrame));// REX USED// currentFrame USED
 				default:
-				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField(field, currentFrame));
+				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField(field, currentFrame));// REX USED// currentFrame USED
 				}
 				return v;
 
 			} catch (InvalidDateTimeException e) {
-			  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(dt, currentFrame, e.getMessage()));
+			  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(dt, currentFrame, e.getMessage()));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -6585,63 +6585,63 @@ public enum RascalPrimitive {
 
 				case "year":
 					if (dt.isTime()) {
-					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfTime("Can not update the year on a time value", currentFrame));
+					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfTime("Can not update the year on a time value", currentFrame));// REX USED// currentFrame USED
 					}
 					year = ((IInteger)repl).intValue();
 					break;
 
 				case "month":
 					if (dt.isTime()) {
-					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfTime("Can not update the month on a time value", currentFrame));
+					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfTime("Can not update the month on a time value", currentFrame));// REX USED// currentFrame USED
 					}
 					month = ((IInteger)repl).intValue();
 					break;
 
 				case "day":
 					if (dt.isTime()) {
-					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfTime("Can not update the day on a time value", currentFrame));
+					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfTime("Can not update the day on a time value", currentFrame));// REX USED// currentFrame USED
 					}	
 					day = ((IInteger)repl).intValue();
 					break;
 
 				case "hour":
 					if (dt.isDate()) {
-					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfDate("Can not update the hour on a date value", currentFrame));
+					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfDate("Can not update the hour on a date value", currentFrame));// REX USED// currentFrame USED
 					}	
 					hour = ((IInteger)repl).intValue();
 					break;
 
 				case "minute":
 					if (dt.isDate()) {
-					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfDate("Can not update the minute on a date value", currentFrame));
+					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfDate("Can not update the minute on a date value", currentFrame));// REX USED// currentFrame USED
 					}
 					minute = ((IInteger)repl).intValue();
 					break;
 
 				case "second":
 					if (dt.isDate()) {
-					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfDate("Can not update the second on a date value", currentFrame));
+					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfDate("Can not update the second on a date value", currentFrame));// REX USED// currentFrame USED
 					}
 					second = ((IInteger)repl).intValue();
 					break;
 
 				case "millisecond":
 					if (dt.isDate()) {
-					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfDate("Can not update the millisecond on a date value", currentFrame));
+					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfDate("Can not update the millisecond on a date value", currentFrame));// REX USED// currentFrame USED
 					}
 					milli = ((IInteger)repl).intValue();
 					break;
 
 				case "timezoneOffsetHours":
 					if (dt.isDate()) {
-					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfDate("Can not update the timezone offset hours on a date value", currentFrame));
+					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfDate("Can not update the timezone offset hours on a date value", currentFrame));// REX USED// currentFrame USED
 					}
 					tzOffsetHour = ((IInteger)repl).intValue();
 					break;
 
 				case "timezoneOffsetMinutes":
 					if (dt.isDate()) {
-					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfDate("Can not update the timezone offset minutes on a date value", currentFrame));
+					  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfDate("Can not update the timezone offset minutes on a date value", currentFrame));// REX USED// currentFrame USED
 					}
 					tzOffsetMin = ((IInteger)repl).intValue();
 					break;			
@@ -6662,7 +6662,7 @@ public enum RascalPrimitive {
 				return sp - 2;
 			}
 			catch (IllegalArgumentException e) {
-			    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(repl, currentFrame, "Cannot update field " + field + ", this would generate an invalid datetime value"));
+			    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(repl, currentFrame, "Cannot update field " + field + ", this would generate an invalid datetime value"));// REX USED// currentFrame USED
 			}
 			catch (InvalidDateTimeException e) {
 			  rex.getFrameObserver().exception(currentFrame,  RascalRuntimeException.invalidArgument(dt, currentFrame, e.getMessage()));
@@ -6696,7 +6696,7 @@ public enum RascalPrimitive {
 
 			case "host":
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-				  return RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the host field, use authority instead.", currentFrame);
+				  return RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the host field, use authority instead.", currentFrame);// REX USED// currentFrame USED
 				}
 				s = sloc.getURI().getHost();
 				v = vf.string(s == null ? "" : s);
@@ -6756,7 +6756,7 @@ public enum RascalPrimitive {
 					v = w.done();
 					break;
 				} else {
-				  return RascalRuntimeException.io(vf.string("You can only access ls on a directory, or a container."), currentFrame);
+				  return RascalRuntimeException.io(vf.string("You can only access ls on a directory, or a container."), currentFrame);// REX USED// currentFrame USED
 				}
 
 			case "extension":
@@ -6793,7 +6793,7 @@ public enum RascalPrimitive {
 
 			case "user":
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-				  return RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the user field, use authority instead.", currentFrame);
+				  return RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the user field, use authority instead.", currentFrame);// REX USED// currentFrame USED
 				}
 				s = sloc.getURI().getUserInfo();
 				v = vf.string(s == null ? "" : s);
@@ -6801,7 +6801,7 @@ public enum RascalPrimitive {
 
 			case "port":
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-				  return RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the port field, use authority instead.", currentFrame);
+				  return RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the port field, use authority instead.", currentFrame);// REX USED// currentFrame USED
 				}
 				int n = sloc.getURI().getPort();
 				v = vf.integer(n);
@@ -6812,7 +6812,7 @@ public enum RascalPrimitive {
 					v = vf.integer(sloc.getLength());
 					break;
 				} else {
-				  return RascalRuntimeException.unavailableInformation("length", currentFrame);
+				  return RascalRuntimeException.unavailableInformation("length", currentFrame);// REX USED// currentFrame USED
 				}
 
 			case "offset":
@@ -6820,7 +6820,7 @@ public enum RascalPrimitive {
 					v = vf.integer(sloc.getOffset());
 					break;
 				} else {
-				  return RascalRuntimeException.unavailableInformation("offset", currentFrame);
+				  return RascalRuntimeException.unavailableInformation("offset", currentFrame);// REX USED// currentFrame USED
 				}
 
 			case "begin":
@@ -6828,14 +6828,14 @@ public enum RascalPrimitive {
 					v = vf.tuple(vf.integer(sloc.getBeginLine()), vf.integer(sloc.getBeginColumn()));
 					break;
 				} else {
-				  return RascalRuntimeException.unavailableInformation("begin", currentFrame);
+				  return RascalRuntimeException.unavailableInformation("begin", currentFrame);// REX USED// currentFrame USED
 				}
 			case "end":
 				if(sloc.hasLineColumn()){
 					v = vf.tuple(vf.integer(sloc.getEndLine()), vf.integer(sloc.getEndColumn()));
 					break;
 				} else {
-				  return RascalRuntimeException.unavailableInformation("end", currentFrame);
+				  return RascalRuntimeException.unavailableInformation("end", currentFrame);// REX USED// currentFrame USED
 				}
 
 			case "uri":
@@ -6847,7 +6847,7 @@ public enum RascalPrimitive {
 				break;
 
 			default:
-			    return RascalRuntimeException.noSuchField(field, currentFrame);
+			    return RascalRuntimeException.noSuchField(field, currentFrame);// REX USED// currentFrame USED
 			}
 
 			return v;
@@ -6962,7 +6962,7 @@ public enum RascalPrimitive {
 				}
 			}
 
-			return  RascalRuntimeException.noSuchField(field.getValue(), currentFrame);
+			return  RascalRuntimeException.noSuchField(field.getValue(), currentFrame);// REX USED// currentFrame USED
 		}
 	},
 
@@ -7007,7 +7007,7 @@ public enum RascalPrimitive {
 				}
 			}
 
-			rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField(field.getValue(), currentFrame));
+			rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField(field.getValue(), currentFrame));// REX USED// currentFrame USED
 			return sp - 2;
 		}
 	},
@@ -7075,7 +7075,7 @@ public enum RascalPrimitive {
 	 * 
 	 * [ ..., ITuple tup, IValue nameOrIndex1, IValue  nameOrIndex2, ... ] => [ ...,  new ITuple containing the projected elements ]
 	 */
-	tuple_field_project {
+	tuple_field_project {// N-ARY
 		@SuppressWarnings("deprecation")
 		@Override
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
@@ -7110,7 +7110,7 @@ public enum RascalPrimitive {
                 return sp - 2;
             } else {
                 rex.getFrameObserver().exception(currentFrame, 
-                    RascalRuntimeException.noSuchField(fieldName, currentFrame));
+                    RascalRuntimeException.noSuchField(fieldName, currentFrame));// REX USED// currentFrame USED
             }
             return sp - 2;
         }
@@ -7144,10 +7144,10 @@ public enum RascalPrimitive {
 					return sp - 2;
 				}
 				
-				rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.notImplemented("Assignment to parse tree field not yet implemented", currentFrame.src, currentFrame));
+				rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.notImplemented("Assignment to parse tree field not yet implemented", currentFrame.src, currentFrame));// REX USED// currentFrame USED
 				
 			} catch(FactTypeUseException e) {
-			    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField(((IString) stack[sp - 2]).getValue(), currentFrame));
+			    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField(((IString) stack[sp - 2]).getValue(), currentFrame));// REX USED// currentFrame USED
 			}
 			return sp - 2;
 		}
@@ -7158,7 +7158,7 @@ public enum RascalPrimitive {
 	 * 
 	 * [ ..., IRelation rel, IValue nameOrIndex1, IValue  nameOrIndex2, ... ] => [ ...,  new IRelation containing the projected elements ]
 	 */
-	rel_field_project {
+	rel_field_project {// N-ARY
 		@Override
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity >= 2;
@@ -7176,7 +7176,7 @@ public enum RascalPrimitive {
 	 * 
 	 * [ ..., IListRelation lrel, IValue nameOrIndex1, IValue  nameOrIndex2, ... ] => [ ...,  new IListRelation containing the projected elements ]
 	 */
-	lrel_field_project {
+	lrel_field_project {// N-ARY
 		@Override
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity >= 2;
@@ -7205,7 +7205,7 @@ public enum RascalPrimitive {
 	 * 
 	 * [ ..., IMap map, IValue nameOrIndex1, IValue  nameOrIndex2, ... ] => [ ...,  new IMap containing the projected elements ]
 	 */
-	map_field_project {
+	map_field_project {// N-ARY
 		@Override
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity >= 2;
@@ -7529,7 +7529,7 @@ public enum RascalPrimitive {
 			int min_length =  $getInt((IValue) stack[sp - 1]);
 			stack[sp - 5] = $makeSlice(tree, sep_count, min_length, $makeSliceDescriptor($getInt((IValue) stack[sp - 4]), $getInt((IValue) stack[sp - 3]), $getInt((IValue) stack[sp - 2]), list_length));
 			if(stack[sp - 5] == null){
-			    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(tree, currentFrame, "sliced value should have length of at least " + min_length));
+			    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(tree, currentFrame, "sliced value should have length of at least " + min_length));// REX USED// currentFrame USED
 			}
 			return sp - 4;
 		}
@@ -7673,7 +7673,7 @@ public enum RascalPrimitive {
 			try {
 				return cons.get((idx >= 0) ? idx : (cons.arity() + idx));
 			} catch(IndexOutOfBoundsException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -7712,7 +7712,7 @@ public enum RascalPrimitive {
 				}
 				return node.get(idx);  
 			} catch(IndexOutOfBoundsException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -7751,7 +7751,7 @@ public enum RascalPrimitive {
 			try {
 				return lst.get((idx >= 0) ? idx : (lst.length() + idx));
 			} catch(IndexOutOfBoundsException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -7784,7 +7784,7 @@ public enum RascalPrimitive {
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			IValue result = ((IMap) arg_2).get((IValue) arg_1);
 			if(result == null) {
-			  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchKey((IValue) arg_1, currentFrame));
+			  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchKey((IValue) arg_1, currentFrame));// REX USED// currentFrame USED
 			}
 			return result;
 		}
@@ -7817,7 +7817,7 @@ public enum RascalPrimitive {
 				return (idx >= 0) ? str.substring(idx, idx+1)
 						          : str.substring(str.length() + idx, str.length() + idx + 1);
 			} catch(IndexOutOfBoundsException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -7854,7 +7854,7 @@ public enum RascalPrimitive {
 			try {
 				return tup.get((idx >= 0) ? idx : tup.arity() + idx);
 			} catch(IndexOutOfBoundsException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -7974,7 +7974,7 @@ public enum RascalPrimitive {
 	 * 
 	 * [ ..., IRelation r, IList subsDesc, IValue idx1, IValue idx2, ...] => rel[idx1, idx2, ...] ]
 	 */
-	rel_subscript {
+	rel_subscript {// N-ARY
 		@Override
 		public int executeN(final Object[] stack, final int sp, final int arity, final Frame currentFrame, final RascalExecutionContext rex) {
 			//assert arity >= 4;
@@ -8042,7 +8042,7 @@ public enum RascalPrimitive {
 				if(idx.getType().isString()){
 					String sidx = ((IString) idx).getValue();
 					if(sidx.equals("_")){
-					    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.notImplemented("Wild card _ not implemented", currentFrame.src, currentFrame));
+					    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.notImplemented("Wild card _ not implemented", currentFrame.src, currentFrame)); // REX USED// currentFrame USED
 					}
 				}
 				try {
@@ -8063,7 +8063,7 @@ public enum RascalPrimitive {
 	 * 
 	 * [ ..., IListRelation r, IValue idx1, IValue idx2, ...] => r[idx1, idx2, ...] ]
 	 */
-	lrel_subscript {
+	lrel_subscript {// N-ARY
 		@Override
 		public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 			assert arity >= 2;
@@ -8166,7 +8166,7 @@ public enum RascalPrimitive {
 				tree = (ITree) TreeAdapter.getArgs(tree).get(0);
 			}
 			if(!TreeAdapter.isList(tree)){
-			  throw new InternalCompilerError("subscript not supported on " + TreeAdapter.getProduction(tree), currentFrame);
+			  throw new InternalCompilerError("subscript not supported on " + TreeAdapter.getProduction(tree), currentFrame);// REX USED// currentFrame USED
 			}
 
 			IList elems = TreeAdapter.getArgs(tree);
@@ -8179,11 +8179,11 @@ public enum RascalPrimitive {
 				index = log_length + index;
 			}
 			if(index < 0 || index >= log_length){
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame));// REX USED// currentFrame USED
 			}
 			IValue result = elems.get(index * (sep_count + 1));
 			if(result == null){
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds((IInteger) arg_1, currentFrame));// REX USED// currentFrame USED
 			}
 
 			return result;
@@ -8203,7 +8203,7 @@ public enum RascalPrimitive {
 				tree = (ITree) TreeAdapter.getArgs(tree).get(0);
 			}
 			if(!TreeAdapter.isList(tree)){
-			    throw new InternalCompilerError("subscript not supported on " + TreeAdapter.getProduction(tree), currentFrame);
+			    throw new InternalCompilerError("subscript not supported on " + TreeAdapter.getProduction(tree), currentFrame);// REX USED// currentFrame USED
 			}
 			int index = ((IInteger) arg_1).intValue();
 			int delta = 1;
@@ -8252,7 +8252,7 @@ public enum RascalPrimitive {
 				stack[sp - 3] = lst.put(n, (IValue) stack[sp - 1]);
 				return sp - 2;
 			} catch (IndexOutOfBoundsException e){
-			    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds(vf.integer(n), currentFrame));
+			    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds(vf.integer(n), currentFrame));// REX USED// currentFrame USED
 			    return sp - 2;
 			}
 		}
@@ -8301,7 +8301,7 @@ public enum RascalPrimitive {
 				stack[sp - 3] = tup.set(n, (IValue) stack[sp - 1]);
 				return sp - 2;
 			} catch (IndexOutOfBoundsException e){
-			  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds(vf.integer(n), currentFrame));
+			  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.indexOutOfBounds(vf.integer(n), currentFrame));// REX USED// currentFrame USED
 			  return sp - 2;
 			}
 		}
@@ -8326,11 +8326,11 @@ public enum RascalPrimitive {
 				IValue result = val.asAnnotatable().getAnnotation(label);
 
 				if(result == null) {
-				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchAnnotation(label, currentFrame));
+				  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchAnnotation(label, currentFrame));// REX USED// currentFrame USED
 				}
 				return result;
 			} catch (FactTypeUseException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchAnnotation(label, currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchAnnotation(label, currentFrame));// REX USED// currentFrame USED
 			}
 		}
 	},
@@ -8447,7 +8447,7 @@ public enum RascalPrimitive {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			IString message = (IString) arg_1;
-			return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.assertionFailed(message, currentFrame.src,  currentFrame));
+			return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.assertionFailed(message, currentFrame.src,  currentFrame));// REX USED// currentFrame USED
 		}
 	},
 
@@ -8538,7 +8538,7 @@ public enum RascalPrimitive {
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			
 			IValue result = (IValue) arg_1;
-			Function fun = currentFrame.function;
+			Function fun = currentFrame.function; // currentFrame USED
 			int nformals = fun.nformals;
 			IValue[] args = new IValue[nformals - 1];
 			for(int i = 0; i < nformals - 1; i++){
@@ -8549,7 +8549,7 @@ public enum RascalPrimitive {
 				cache = new MemoizationCache<>();
 	            fun.memoization = new SoftReference<>(cache);
 			}
-			cache.storeResult(args, (Map<String,IValue>)currentFrame.stack[nformals - 1], result);
+			cache.storeResult(args, (Map<String,IValue>)currentFrame.stack[nformals - 1], result);// currentFrame USED
 			return result;
 		}
 	},
@@ -8721,7 +8721,7 @@ public enum RascalPrimitive {
 	}
 
 	
-	// Bootstrap method used for invokeDynamic on RascalPrimitives, see BytecoeGenerator
+	// Bootstrap method used for invokeDynamic on RascalPrimitives, see BytecodeGenerator
 	
 	@SuppressWarnings("unused")
     public static CallSite bootstrapRascalPrimitive(MethodHandles.Lookup caller, String name, MethodType type) throws NoSuchMethodException, IllegalAccessException {
@@ -8869,7 +8869,7 @@ public enum RascalPrimitive {
 
 			case "host":
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-				  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the host field, use authority instead.", currentFrame));
+				  rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the host field, use authority instead.", currentFrame));// REX USED // currentFrame USED
 				}
 				uri = URIUtil.changeHost(sloc.getURI(), newStringValue);
 				authority = uri.getAuthority();
@@ -8906,7 +8906,7 @@ public enum RascalPrimitive {
 				break;	
 
 			case "ls":
-			    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("Cannot update the children of a location", currentFrame));
+			    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("Cannot update the children of a location", currentFrame));// REX USED // currentFrame USED
 
 			case "extension":
 				String ext = newStringValue;
@@ -8959,7 +8959,7 @@ public enum RascalPrimitive {
 
 			case "user":
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-				    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the user field, use authority instead.", currentFrame));
+				    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the user field, use authority instead.", currentFrame));// REX USED // currentFrame USED
 				}
 				uri = sloc.getURI();
 				if (uri.getHost() != null) {
@@ -8972,7 +8972,7 @@ public enum RascalPrimitive {
 
 			case "port":
 				if (!URIResolverRegistry.getInstance().supportsHost(sloc)) {
-				    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the port field, use authority instead.", currentFrame));
+				    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("The scheme " + sloc.getScheme() + " does not support the port field, use authority instead.", currentFrame));// REX USED // currentFrame USED
 				}
 				if (sloc.getURI().getHost() != null) {
 					int port = Integer.parseInt(((IInteger) repl).getStringRepresentation());
@@ -8985,14 +8985,14 @@ public enum RascalPrimitive {
 			case "length":
 				iLength = ((IInteger) repl).intValue();
 				if (iLength < 0) {
-				    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(repl, currentFrame));
+				    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(repl, currentFrame));// REX USED // currentFrame USED
 				}
 				break;
 
 			case "offset":
 				iOffset = ((IInteger) repl).intValue();
 				if (iOffset < 0) {
-				    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(repl, currentFrame));
+				    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(repl, currentFrame));// REX USED // currentFrame USED
 				}
 				break;
 
@@ -9001,7 +9001,7 @@ public enum RascalPrimitive {
 				iBeginColumn = ((IInteger) ((ITuple) repl).get(1)).intValue();
 
 				if (iBeginColumn < 0 || iBeginLine < 0) {
-				    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(repl, currentFrame));
+				    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(repl, currentFrame));// REX USED // currentFrame USED
 				}
 				break;
 			case "end":
@@ -9009,12 +9009,12 @@ public enum RascalPrimitive {
 				iEndColumn = ((IInteger) ((ITuple) repl).get(1)).intValue();
 
 				if (iEndColumn < 0 || iEndLine < 0) {
-				    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(repl, currentFrame));
+				    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(repl, currentFrame));// REX USED // currentFrame USED
 				}
 				break;			
 
 			default:
-			    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("Modification of field " + field + " in location not allowed", currentFrame));
+			    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("Modification of field " + field + " in location not allowed", currentFrame));// REX USED // currentFrame USED
 			}
 
 			ISourceLocation newLoc = sloc;
@@ -9052,7 +9052,7 @@ public enum RascalPrimitive {
 
 			if (iBeginColumn != -1 || iEndColumn != -1 || iBeginLine != -1 || iBeginColumn != -1) {
 				// trying to add line/column info to a uri that has no offset length
-			    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfLocation("Can not add line/column information without offset/length", currentFrame));
+			    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidUseOfLocation("Can not add line/column information without offset/length", currentFrame));// REX USED // currentFrame USED
 			}
 
 			// trying to set offset that was not there before, adding length automatically
@@ -9078,9 +9078,9 @@ public enum RascalPrimitive {
 			return newLoc;
 
 		} catch (IllegalArgumentException e) {
-		    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(currentFrame));
+		    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(currentFrame));// REX USED // currentFrame USED
 		} catch (URISyntaxException e) {
-		    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidURI(e.getMessage(), currentFrame));
+		    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidURI(e.getMessage(), currentFrame));// REX USED // currentFrame USED
 		}
 		return null;
 	}
@@ -9433,7 +9433,7 @@ public enum RascalPrimitive {
 	        } else if(given instanceof Integer){
 	            res = ((Integer) given).toString();
 	        } else {
-	            rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(vf.string(given.toString()), currentFrame));
+	            rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(vf.string(given.toString()), currentFrame));// REX USED // currentFrame USED
 	        }
 	    } else {
 	        return "";
@@ -9519,7 +9519,7 @@ public enum RascalPrimitive {
 	 * Main program: handy to map a primitive index back to its name (e.g., in profiles!)
 	 */
 	public static void main(String[] args) {
-		int n = 427;
+		int n = 101;
 		
 		System.err.println("RascalPrimitive: " + fromInteger(n) + " (" + n + ")");
 	}

@@ -130,6 +130,7 @@ public enum Opcode {
 	
 	CORETURN0			(110,	1),
 	CORETURN1			(111,	1),
+	BEGINCALL           (112,   1)
 	;
 	
 	
@@ -267,6 +268,7 @@ public enum Opcode {
 	
 	static public final int OP_CORETURN0 = 110;
 	static public final int OP_CORETURN1 = 111;
+	static public final int OP_BEGINCALL = 112;
 	
 	/*
 	 * Meta-instructions that are generated dynamically during execution and
@@ -445,6 +447,9 @@ public enum Opcode {
 		case PUSHOFUN:
 			return "LOADOFUN " + cb.getOverloadedFunctionName(arg1);
 			
+		case BEGINCALL:
+		    return "BEGINCALL " + arg1;
+		    
 		case OCALL:
 			return "OCALL " +  cb.getOverloadedFunctionName(arg1)  + ", " 
 						    + arg2 + ", " 

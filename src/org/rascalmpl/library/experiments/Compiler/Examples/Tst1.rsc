@@ -1,10 +1,16 @@
 module experiments::Compiler::Examples::Tst1
 
-syntax As = "a"* as;
+int fac(int n) = n <= 1 ? 1 : n * fac(n-1);
 
 
-// Concrete lists
+value work() { 
+    i = 0;
+    
+    while(i < 100){
+        fac(50);
+        i += 1;
+     }
+     return i;
+}
 
-value f() = [As] "aaa";
-
-value main() = f();
+value main() = work();

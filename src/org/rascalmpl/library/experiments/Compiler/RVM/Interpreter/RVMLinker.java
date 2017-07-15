@@ -924,6 +924,10 @@ public class RVMLinker {
 								   getLocField(instruction, "src"));
 				break;
 
+			case "BEGINCALL":
+			    codeblock.BEGINCALL(getIntField(instruction, "arity"));
+			    break;
+			    
 			case "CALLJAVA":
 				codeblock.CALLJAVA(getStrField(instruction, "name"), 
 						           getStrField(instruction, "class"), 

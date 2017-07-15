@@ -20,6 +20,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -64,6 +65,7 @@ public class RVMonJVM extends RVMCore {
     //EXPERIMENTAL
     static HashMap<String,RVMonJVM> currentRVMonJVM = new HashMap<>();
     static HashMap<String,Function[]> functionStores = new HashMap<>();
+  
 
     public RVMonJVM(RVMExecutable rvmExec, RascalExecutionContext rex) {
         super(rvmExec, rex);
@@ -272,9 +274,19 @@ public class RVMonJVM extends RVMCore {
         root.stack[0] = vf.list(args); // pass the program argument to
         root.stack[1] = kwArgs;
         root.sp = func.getNlocals();
+        
+        int arity = func.nformals;
+        
+        ArrayList<Object> actuals = new ArrayList<>();
+        actuals.add(this);
+  
+        for(int i = 1; i < arity; i++){
+            actuals.add(args[i]);
+        }
+        actuals.add(kwArgs);
 
         try {
-            return func.handle.invoke(this, root);
+            return func.handle.invokeWithArguments(actuals);
         } catch (Throwable e) {
             if(e instanceof Thrown){
                 throw (Thrown) e;
@@ -283,6 +295,37 @@ public class RVMonJVM extends RVMCore {
             }
         }
     }
+    
+    public static Object[] make0() { return new Object[0]; }
+    
+    public static Object[] make0(int len) { 
+        return new Object[len];
+    }
+    
+    public static Object[] make1(Object arg0, int len) { 
+        Object [] ar = new Object[len];
+        ar[0] = arg0;
+        return ar;
+    }
+    
+    public static Object[] make2(Object arg0, Object arg1, int len) { 
+        Object [] ar = new Object[len];
+        ar[0] = arg0;
+        ar[1] = arg1;
+        return ar;
+    }
+    
+    public static Object[] make3(Object arg0, Object arg1, Object arg2, int len) { 
+        Object [] ar = new Object[len];
+        ar[0] = arg0;
+        ar[1] = arg1;
+        ar[2] = arg2;
+        return ar;
+    }
+    
+//    static Object[] make2(Object arg0, Object arg1) { return new Object[] { arg0, arg1 }; }
+//    
+//    static Object[] make3(Object arg0, Object arg1, Object arg2) { return new Object[] { arg0, arg1, arg2 }; }
     
     /********************************************************************************************/
     /*  When the BytecodeGenerator is called with debug == true, calls will be generated to the */
@@ -383,17 +426,38 @@ public class RVMonJVM extends RVMCore {
         MethodHandles.Lookup lookup = caller;
         String generatedClassName = (String) className;
         Function func = functionStores.get(generatedClassName)[(Integer) funId];
-        MethodType getFrameType = MethodType.methodType(Frame.class, Function.class, Frame.class, int.class, int.class);
+        MethodType getFrameType = MethodType.methodType(Frame.class, Function.class, Frame.class, Object[].class);
 
         MethodHandle getFrame = lookup.findVirtual(Frame.class, "getFrame", getFrameType);
         MethodHandle getFrame1 = MethodHandles.insertArguments(getFrame, 1, func);
-        MethodHandle getFrame2 = MethodHandles.insertArguments(getFrame1, 2, (Integer) arity);
+        //MethodHandle getFrame2 = MethodHandles.insertArguments(getFrame1, 2, (Integer) arity);
+        //MethodHandle getFrame3 = MethodHandles.insertArguments(getFrame2, 3, (Object[]) args);
+        
          
         MethodHandle funToCall = func.handle;
         MethodHandle funToCall1 = MethodHandles.insertArguments(funToCall, 0, currentRVMonJVM.get(generatedClassName));
-        MethodHandle combined = filterReturnValue(getFrame2, funToCall1);
+        MethodHandle combined = filterReturnValue(getFrame1, funToCall1);
         
         return new ConstantCallSite(combined.asType(type));
+    }
+    
+    public static CallSite bootstrapCall(MethodHandles.Lookup caller, String name, MethodType type, Object className, Object funId, Object arity) throws NoSuchMethodException, IllegalAccessException, ClassNotFoundException {
+        MethodHandles.Lookup lookup = caller;
+        String generatedClassName = (String) className;
+        Function func = functionStores.get(generatedClassName)[(Integer) funId];
+        
+        Class<?>[] argTypes = new Class<?>[func.nformals+1];
+        argTypes[0] = RVMonJVM.class;
+        for(int i = 1; i < func.nformals; i++){
+            argTypes[i] = Object.class;
+        }
+        argTypes[func.nformals] = HashMap.class;
+        MethodType funType = MethodType.methodType(Object.class, argTypes);
+         
+        MethodHandle funToCall = func.handle;
+        //MethodHandle funToCall1 = MethodHandles.insertArguments(funToCall, 0, currentRVMonJVM.get(generatedClassName));
+        
+        return new ConstantCallSite(funToCall.asType(funType));
     }
 
     public int insnUNWRAPTHROWNLOC(Object[] stack, int sp, int target) {
