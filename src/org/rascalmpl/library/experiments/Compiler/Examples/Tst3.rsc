@@ -1,5 +1,10 @@
 module experiments::Compiler::Examples::Tst3
 
-data D = d(int n) | d (value v);
+import String;
 
-value main() = d(3);
+public str functionPath(str fname, str namespace="") = 
+    fname when size(namespace) == 0;
+public str functionPath(str fname, str namespace="") = 
+    namespace + "/" + fname when size(namespace) > 0;
+    
+value main() = functionPath("broken");
