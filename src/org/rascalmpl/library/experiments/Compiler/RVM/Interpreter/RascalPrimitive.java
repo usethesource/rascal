@@ -8661,7 +8661,7 @@ public enum RascalPrimitive {
 
 	/**
      * Abstract declaration for the execute2 method in a RascalPrimitive:
-     * @param Object arg_1, Object arg_1  arguments of execute2
+     * @param Object arg_2, Object arg_1  arguments of execute2
      * @param currentFrame  the stackFrame of the function that calls this primitive
      * @param rex           the current RascalExecutionContext
      * @return              value of of this execute method
@@ -8670,9 +8670,45 @@ public enum RascalPrimitive {
     public Object execute2(Object arg_2, Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
 	  throw RascalRuntimeException.notImplemented("RascalPrimitive.execute2 " + name(), currentFrame.src, currentFrame);
 	}
+	
+	/**
+     * Abstract declaration for the execute3 method in a RascalPrimitive:
+     * @param Object arg_3, Object arg_2, Object arg_1  arguments of execute3
+     * @param currentFrame  the stackFrame of the function that calls this primitive
+     * @param rex           the current RascalExecutionContext
+     * @return              value of of this execute method
+     */
+    @SuppressWarnings("unused")
+    public Object execute3(Object arg_3, Object arg_2, Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
+      throw RascalRuntimeException.notImplemented("RascalPrimitive.execute3 " + name(), currentFrame.src, currentFrame);
+    }
+    
+    /**
+     * Abstract declaration for the execute4 method in a RascalPrimitive:
+     * @param Object arg_4, Object arg_3, Object arg_2, Object arg_1  arguments of execute4
+     * @param currentFrame  the stackFrame of the function that calls this primitive
+     * @param rex           the current RascalExecutionContext
+     * @return              value of of this execute method
+     */
+    @SuppressWarnings("unused")
+    public Object execute4(Object arg_4, Object arg_3, Object arg_2, Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
+      throw RascalRuntimeException.notImplemented("RascalPrimitive.execute4 " + name(), currentFrame.src, currentFrame);
+    }
+    
+    /**
+     * Abstract declaration for the execute5 method in a RascalPrimitive:
+     * @param Object arg_5, Object arg_4, Object arg_3, Object arg_2, Object arg_1  arguments of execute5
+     * @param currentFrame  the stackFrame of the function that calls this primitive
+     * @param rex           the current RascalExecutionContext
+     * @return              value of of this execute method
+     */
+    @SuppressWarnings("unused")
+    public Object execute5(Object arg_5, Object arg_4, Object arg_3, Object arg_2, Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
+      throw RascalRuntimeException.notImplemented("RascalPrimitive.execute5 " + name(), currentFrame.src, currentFrame);
+    }
 
 	/**
-	 * Abstract declaration for the executen method in a RascalPrimitive:
+	 * Abstract declaration for the (n-ary) executeN method in a RascalPrimitive:
 	 * @param stack    Current stack
 	 * @param sp       stack pointer
 	 * @param arity    numbers of arguments (found on the stack)

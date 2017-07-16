@@ -470,16 +470,14 @@ public class RVMExecutable {
 
         out.writeField(CompilerIDs.Executable.SYMBOL_DEFINITIONS, getSymbolDefinitions(), WindowSizes.NORMAL_WINDOW);
 
-        System.err.println("Write functionMap: " + getFunctionMap().size());
         out.writeFieldStringInt(CompilerIDs.Executable.FUNCTION_MAP, getFunctionMap());
         
         out.writeFieldStringInt(CompilerIDs.Executable.CONSTRUCTOR_MAP, getConstructorMap());
         
 //        out.writeFieldStringInt(CompilerIDs.Executable.RESOLVER, getResolver());
         
-        // FUNCTION_MAP, CONSTRUCTOR_MAP and RESOLVER should come before FUNCTION_STORE
+        // FUNCTION_MAP, CONSTRUCTOR_MAP should come before FUNCTION_STORE
         
-        System.err.println("Write functionStore: " + functionStore.length);
         out.writeRepeatedNestedField(CompilerIDs.Executable.FUNCTION_STORE, functionStore.length);
         for(Function function : functionStore){
             function.write(out);
