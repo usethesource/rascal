@@ -1513,6 +1513,33 @@ public class BytecodeGenerator implements Opcodes {
 	    emitInlineCallMuPrim2(muprim, true);
 	}
 	
+	// CallMuPrim3
+    
+	public void emitInlineCallMuPrim3(MuPrimitive muprim){
+	    emitInlineCallMuPrim3(muprim, false);
+	}
+
+	private void emitInlineCallMuPrim3(MuPrimitive muprim, boolean push) {
+	    switch(muprim.name()){
+
+	    }
+	    emitInlineCallMuPrim3General(muprim, push);
+	}
+	private void emitInlineCallMuPrim3General(MuPrimitive muprim, boolean push) {    
+	    prepare2(push);
+
+	    mv.visitInvokeDynamicInsn(muprim.name(), 
+	        getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE, OBJECT_TYPE, OBJECT_TYPE), bootstrapMuPrimitive());
+
+	    result(push);
+	}
+	
+	// PushCallMuPrim3
+	
+	public void emitInlinePushCallMuPrim3(MuPrimitive muprim){
+        emitInlineCallMuPrim3(muprim, true);
+    }
+	
 	// CallMuPrimN
 	
 	public void emitInlineCallMuPrimN(MuPrimitive muprim, int arity) {
@@ -1755,6 +1782,96 @@ public class BytecodeGenerator implements Opcodes {
 	public void emitInlinePushCallPrim2(RascalPrimitive prim, int srcIndex){
 	    emitInlineCallPrim2(prim, srcIndex, true);
 	}
+	
+	// CallPrim3
+    
+    public void emitInlineCallPrim3(RascalPrimitive prim, int srcIndex){
+        emitInlineCallPrim3(prim, srcIndex, false);
+    }
+    
+    private void emitInlineCallPrim3(RascalPrimitive prim, int srcIndex, boolean push) {
+    
+        emitInlineCallPrim3General(prim, srcIndex, push);
+    }
+    
+    private void emitInlineCallPrim3General(RascalPrimitive prim, int srcIndex, boolean push) {
+        emitInlineFrameObserve(srcIndex);
+        prepare2(push);
+
+        mv.visitVarInsn(ALOAD, CF);     // currentFrame
+        emitRex();
+
+        mv.visitInvokeDynamicInsn(prim.name(), 
+            getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE, OBJECT_TYPE, OBJECT_TYPE, FRAME_TYPE, getType(RascalExecutionContext.class)), bootstrapRascalPrimitive());
+
+        result(push);
+    }
+    
+    // PushCallPrim3
+    
+    public void emitInlinePushCallPrim3(RascalPrimitive prim, int srcIndex){
+        emitInlineCallPrim3(prim, srcIndex, true);
+    }
+    
+    // CallPrim4
+    
+    public void emitInlineCallPrim4(RascalPrimitive prim, int srcIndex){
+        emitInlineCallPrim4(prim, srcIndex, false);
+    }
+    
+    private void emitInlineCallPrim4(RascalPrimitive prim, int srcIndex, boolean push) {
+    
+        emitInlineCallPrim4General(prim, srcIndex, push);
+    }
+    
+    private void emitInlineCallPrim4General(RascalPrimitive prim, int srcIndex, boolean push) {
+        emitInlineFrameObserve(srcIndex);
+        prepare2(push);
+
+        mv.visitVarInsn(ALOAD, CF);     // currentFrame
+        emitRex();
+
+        mv.visitInvokeDynamicInsn(prim.name(), 
+            getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE, OBJECT_TYPE, OBJECT_TYPE, OBJECT_TYPE, FRAME_TYPE, getType(RascalExecutionContext.class)), bootstrapRascalPrimitive());
+
+        result(push);
+    }
+    
+    // PushCallPrim4
+    
+    public void emitInlinePushCallPrim4(RascalPrimitive prim, int srcIndex){
+        emitInlineCallPrim4(prim, srcIndex, true);
+    }
+    
+    // CallPrim5
+    
+    public void emitInlineCallPrim5(RascalPrimitive prim, int srcIndex){
+        emitInlineCallPrim4(prim, srcIndex, false);
+    }
+    
+    private void emitInlineCallPrim5(RascalPrimitive prim, int srcIndex, boolean push) {
+    
+        emitInlineCallPrim5General(prim, srcIndex, push);
+    }
+    
+    private void emitInlineCallPrim5General(RascalPrimitive prim, int srcIndex, boolean push) {
+        emitInlineFrameObserve(srcIndex);
+        prepare2(push);
+
+        mv.visitVarInsn(ALOAD, CF);     // currentFrame
+        emitRex();
+
+        mv.visitInvokeDynamicInsn(prim.name(), 
+            getMethodDescriptor(OBJECT_TYPE, OBJECT_TYPE, OBJECT_TYPE, OBJECT_TYPE, OBJECT_TYPE, OBJECT_TYPE, FRAME_TYPE, getType(RascalExecutionContext.class)), bootstrapRascalPrimitive());
+
+        result(push);
+    }
+    
+    // PushCallPrim5
+    
+    public void emitInlinePushCallPrim5(RascalPrimitive prim, int srcIndex){
+        emitInlineCallPrim5(prim, srcIndex, true);
+    }
 	
 	// CallPrimN
 	
