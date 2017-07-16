@@ -849,7 +849,7 @@ MuExp translateFormals(list[Pattern] formals, bool isVarArgs, bool isMemo, int i
         ifname = nextLabel();
         enterBacktrackingScope(ifname);
         conditions = [ translate(cond) | cond <- when_conditions];
-        mubody = muIfelse(ifname,makeBoolExp("ALL",conditions, src), [ *kwps, returnFromFunction(translateFunctionBody(body), isMemo, src) ], [ muFailReturn() ]);
+        mubody = muBlock([*kwps, muIfelse(ifname,makeBoolExp("ALL",conditions, src), [ returnFromFunction(translateFunctionBody(body), isMemo, src) ], [ muFailReturn() ]) ]);
         leaveBacktrackingScope();
         return mubody;
     }
@@ -915,7 +915,7 @@ MuExp translateFunction(str fname, {Pattern ","}* formals, bool isVarArgs, list[
       };
       conditions += [ translate(cond) | cond <- when_conditions];
 
-      mubody = functionBody(muIfelse(fname, makeBoolExp("ALL",conditions, formals@\loc), [ *kwps, returnFromFunction(translateFunctionBody(body), isMemo, formals@\loc) ], [ muFailReturn() ]),
+      mubody = functionBody(muBlock([*kwps, muIfelse(fname, makeBoolExp("ALL",conditions, formals@\loc), [ returnFromFunction(translateFunctionBody(body), isMemo, formals@\loc) ], [ muFailReturn() ])]),
                             isMemo, formals@\loc);
       leaveBacktrackingScope();
       return mubody;
