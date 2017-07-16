@@ -162,21 +162,29 @@ public data Instruction =
 		| CALLMUPRIM0(str name)                     // Call a muRascal primitive, arity 0, result in accu
 		| CALLMUPRIM1(str name)                     // Call a muRascal primitive, arity 1, result in accu 
 		| CALLMUPRIM2(str name)                     // Call a muRascal primitive, arity 2, result in accu
+		| CALLMUPRIM3(str name)                     // Call a muRascal primitive, arity 3, result in accu
 		| CALLMUPRIMN(str name, int arity)          // Call a muRascal primitive, arity arity, result in accu
 		
 		| PUSHCALLMUPRIM0(str name)                 // Call a muRascal primitive, arity 0, push result on stack
         | PUSHCALLMUPRIM1(str name)                 // Call a muRascal primitive, arity 1, push result on stack
         | PUSHCALLMUPRIM2(str name)                 // Call a muRascal primitive, arity 2, push result on stack
+        | PUSHCALLMUPRIM3(str name)                 // Call a muRascal primitive, arity 3, push result on stack
         | PUSHCALLMUPRIMN(str name, int arity)      // Call a muRascal primitive, arity arity, push result on stack
 		
 		| CALLPRIM0(str name, loc src)              // Call a Rascal primitive, result in accu
 		| CALLPRIM1(str name, loc src)              // Call a Rascal primitive, result in accu
 		| CALLPRIM2(str name, loc src)              // Call a Rascal primitive, result in accu
+		| CALLPRIM3(str name, loc src)              // Call a Rascal primitive, result in accu
+		| CALLPRIM4(str name, loc src)              // Call a Rascal primitive, result in accu
+		| CALLPRIM5(str name, loc src)              // Call a Rascal primitive, result in accu
 		| CALLPRIMN(str name, int arity, loc src)   // Call a Rascal primitive, result in accu
 		
 		| PUSHCALLPRIM0(str name, loc src)          // Call a Rascal primitive, push result on stack
         | PUSHCALLPRIM1(str name, loc src)          // Call a Rascal primitive, push result on stack
         | PUSHCALLPRIM2(str name, loc src)          // Call a Rascal primitive, push result on stack
+        | PUSHCALLPRIM3(str name, loc src)          // Call a Rascal primitive, push result on stack
+        | PUSHCALLPRIM4(str name, loc src)          // Call a Rascal primitive, push result on stack
+        | PUSHCALLPRIM5(str name, loc src)          // Call a Rascal primitive, push result on stack
         | PUSHCALLPRIMN(str name, int arity, loc src)  // Call a Rascal primitive, push result on stack
 		
 		

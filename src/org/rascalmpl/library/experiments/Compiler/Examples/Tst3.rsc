@@ -2,9 +2,8 @@ module experiments::Compiler::Examples::Tst3
 
 import String;
 
-public str functionPath(str fname, str namespace="") = 
-    fname when size(namespace) == 0;
-public str functionPath(str fname, str namespace="") = 
-    namespace + "/" + fname when size(namespace) > 0;
+public str functionPath(str fname, str namespace="") =
+    "aaa" when namespace=="";
+    
     
 value main() = functionPath("broken");
