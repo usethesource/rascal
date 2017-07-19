@@ -1083,14 +1083,6 @@ public class RVMLinker {
 				codeblock.PUSHCALLMUPRIM2(MuPrimitive.valueOf(getStrField(instruction, "name")));
 				break;
 				
-			case "CALLMUPRIM3":
-                codeblock.CALLMUPRIM3(MuPrimitive.valueOf(getStrField(instruction, "name")));
-                break;
-                
-            case "PUSHCALLMUPRIM3":
-                codeblock.PUSHCALLMUPRIM3(MuPrimitive.valueOf(getStrField(instruction, "name")));
-                break;
-				
 			case "CALLMUPRIMN":
 				codeblock.CALLMUPRIMN(MuPrimitive.valueOf(getStrField(instruction, "name")), 
 									 getIntField(instruction, "arity"));
@@ -1130,34 +1122,6 @@ public class RVMLinker {
 				codeblock.PUSHCALLPRIM2(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
 								   getLocField(instruction, "src"));
 				break;
-			case "CALLPRIM3":
-                codeblock.CALLPRIM3(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
-                                   getLocField(instruction, "src"));
-                break;
-                
-            case "PUSHCALLPRIM3":
-                codeblock.PUSHCALLPRIM3(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
-                                   getLocField(instruction, "src"));
-                break;
-                
-            case "CALLPRIM4":
-                codeblock.CALLPRIM4(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
-                                   getLocField(instruction, "src"));
-                break;
-                
-            case "PUSHCALLPRIM4":
-                codeblock.PUSHCALLPRIM4(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
-                                   getLocField(instruction, "src"));
-                break;
-            case "CALLPRIM5":
-                codeblock.CALLPRIM5(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
-                                   getLocField(instruction, "src"));
-                break;
-                
-            case "PUSHCALLPRIM5":
-                codeblock.PUSHCALLPRIM5(RascalPrimitive.valueOf(getStrField(instruction, "name")), 
-                                   getLocField(instruction, "src"));
-                break;
 				
 			case "CALLPRIMN":
 				codeblock.CALLPRIMN(RascalPrimitive.valueOf(getStrField(instruction, "name")), 

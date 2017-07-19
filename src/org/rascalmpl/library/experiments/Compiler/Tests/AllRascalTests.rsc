@@ -310,7 +310,7 @@ value allRascalTests(PathConfig pcfg){ //loc bin=|home:///bin-tests-intp|, loc b
   all_results += runTests(importTests, "lang::rascal::tests::imports", pcfg, jvm=jvm);
   all_results += runTests(extendTests, "lang::rascal::tests::extends", pcfg, jvm=jvm);  
   all_results += runTests(files_with_tests, "", pcfg, jvm=jvm);
-  all_results += runTests(typeTests, "lang::rascal::tests::types", pcfg, jvm=jvm);
+  //all_results += runTests(typeTests, "lang::rascal::tests::types", pcfg, jvm=jvm);
    
   println("TESTS RUN AT <timestamp>");
   println("\nRESULTS PER FILE:");

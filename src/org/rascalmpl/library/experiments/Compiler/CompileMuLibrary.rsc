@@ -12,9 +12,9 @@ import experiments::Compiler::muRascal2RVM::Relocate;
 
 import experiments::Compiler::muRascal2RVM::mu2rvm;
 
-private loc MuLibraryLoc(PathConfig pcfg) = getSearchPathLoc("experiments/Compiler/muRascal2RVM/MuLibrary.mu", pcfg);
+public loc MuLibraryLoc(PathConfig pcfg) = getSearchPathLoc("experiments/Compiler/muRascal2RVM/MuLibrary.mu", pcfg);
 
-private str MuLibrary() = "experiments::Compiler::muRascal2RVM::MuLibrary";
+public str MuLibrary() = "experiments::Compiler::muRascal2RVM::MuLibrary";
 
 loc getMuLibraryCompiledWriteLoc(PathConfig pcfg) = getDerivedWriteLoc(MuLibrary(), "rvm", pcfg);
 
