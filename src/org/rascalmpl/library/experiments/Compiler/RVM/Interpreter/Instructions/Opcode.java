@@ -130,18 +130,6 @@ public enum Opcode {
 	
 	CORETURN0			(110,	1),
 	CORETURN1			(111,	1),
-	
-	CALLMUPRIM3         (112,   1),
-	PUSHCALLMUPRIM3     (113,   1),
-	
-	CALLPRIM3           (114,    1),
-	CALLPRIM4           (115,    1),
-	CALLPRIM5           (116,    1),
-	
-	PUSHCALLPRIM3       (117,    1),
-	PUSHCALLPRIM4       (118,    1),
-	PUSHCALLPRIM5       (119,    1),
-	
 	;
 	
 	
@@ -623,8 +611,6 @@ public enum Opcode {
 			return "CALLMUPRIM1 " + MuPrimitive.fromInteger(arg1).name();
 		case CALLMUPRIM2:
 			return "CALLMUPRIM2 " + MuPrimitive.fromInteger(arg1).name();
-		case CALLMUPRIM3:
-            return "CALLMUPRIM3 " + MuPrimitive.fromInteger(arg1).name();
 		case CALLMUPRIMN:
 			return "CALLMUPRIMN " + MuPrimitive.fromInteger(arg1).name() +  ", " 
 				     + arg2;
@@ -635,8 +621,6 @@ public enum Opcode {
 			return "PUSHCALLMUPRIM1 " + MuPrimitive.fromInteger(arg1).name();
 		case PUSHCALLMUPRIM2:
 			return "PUSHCALLMUPRIM2 " + MuPrimitive.fromInteger(arg1).name();
-		case PUSHCALLMUPRIM3:
-            return "PUSHCALLMUPRIM3 " + MuPrimitive.fromInteger(arg1).name();
 		case PUSHCALLMUPRIMN:
 			return "PUSHCALLMUPRIMN " + MuPrimitive.fromInteger(arg1).name() +  ", " 
 				     + arg2;
@@ -650,15 +634,6 @@ public enum Opcode {
 		case CALLPRIM2:
 			return "CALLPRIM2 " + RascalPrimitive.fromInteger(arg1).name() +  ", " 
 							    + cb.getConstantValue(cb.finalCode[pc + 1]);
-		case CALLPRIM3:
-            return "CALLPRIM3 " + RascalPrimitive.fromInteger(arg1).name() +  ", " 
-                                + cb.getConstantValue(cb.finalCode[pc + 1]);
-		case CALLPRIM4:
-            return "CALLPRIM4 " + RascalPrimitive.fromInteger(arg1).name() +  ", " 
-                                + cb.getConstantValue(cb.finalCode[pc + 1]);
-		case CALLPRIM5:
-            return "CALLPRIM5 " + RascalPrimitive.fromInteger(arg1).name() +  ", " 
-                                + cb.getConstantValue(cb.finalCode[pc + 1]);
 			
 		case CALLPRIMN:
 			return "CALLPRIMN " + RascalPrimitive.fromInteger(arg1).name() +  ", " 

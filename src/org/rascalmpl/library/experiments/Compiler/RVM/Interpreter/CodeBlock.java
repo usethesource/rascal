@@ -466,14 +466,6 @@ public class CodeBlock  {
 		return add(new PushCallMuPrim2(this, muprim));
 	}
 	
-	public CodeBlock CALLMUPRIM3(MuPrimitive muprim) {
-	    return add(new CallMuPrim3(this, muprim));
-	}
-
-	public CodeBlock PUSHCALLMUPRIM3(MuPrimitive muprim) {
-	    return add(new PushCallMuPrim3(this, muprim));
-	}
-	
 	public CodeBlock CALLMUPRIMN (MuPrimitive muprim, int arity){
 		return add(new CallMuPrimN(this, muprim, arity));
 	}
@@ -505,30 +497,6 @@ public class CodeBlock  {
 	public CodeBlock PUSHCALLPRIM2 (RascalPrimitive prim, ISourceLocation src){
 		return add(new PushCallPrim2(this, prim, src));
 	}
-	
-	public CodeBlock CALLPRIM3(RascalPrimitive prim, ISourceLocation src) {
-	    return add(new CallPrim3(this, prim, src));
-    }
-
-    public CodeBlock PUSHCALLPRIM3(RascalPrimitive prim, ISourceLocation src) {
-        return add(new PushCallPrim3(this, prim, src));
-    }
-
-    public CodeBlock CALLPRIM4(RascalPrimitive prim, ISourceLocation src) {
-        return add(new CallPrim4(this, prim, src));
-    }
-
-    public CodeBlock PUSHCALLPRIM4(RascalPrimitive prim, ISourceLocation src) {
-        return add(new PushCallPrim4(this, prim, src));
-    }
-
-    public CodeBlock CALLPRIM5(RascalPrimitive prim, ISourceLocation src) {
-        return add(new CallPrim5(this, prim, src));
-    }
-
-    public CodeBlock PUSHCALLPRIM5(RascalPrimitive prim, ISourceLocation src) {
-        return add(new PushCallPrim5(this, prim, src));
-    }
 	
 	public CodeBlock CALLPRIMN (RascalPrimitive prim, int arity, ISourceLocation src){
 		return add(new CallPrimN(this, prim, arity, src));
