@@ -19,6 +19,7 @@ import experiments::Compiler::RVM::Interpreter::CompileTimeError;
 import lang::rascal::\syntax::Rascal;
 //import experiments::Compiler::Rascal2muRascal::ParseModule;
 import experiments::Compiler::muRascal::AST;
+//import experiments::Compiler::muRascal::mu2mu;
 import experiments::Compiler::RVM::AST;
 
 import experiments::Compiler::Rascal2muRascal::RascalModule;
@@ -148,6 +149,8 @@ tuple[Configuration, RVMModule] compile1(str qualifiedModuleName, PathConfig pcf
         start_comp = cpuTime();
        	muMod = r2mu(M, config, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
     
+//        muMod = transform(muMod, pcfg);
+        
         rvmMod = mu2rvm(muMod, verbose=verbose, optimize=optimize); 
         comp_time = (cpuTime() - start_comp)/1000000;
         if(verbose) println("Compiling <moduleLoc>: check: <check_time>, compile: <comp_time>, total: <check_time+comp_time> ms");
@@ -366,6 +369,7 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
         start_comp = cpuTime();
         muMod = r2mu(M, config, pcfg, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);  // never a reloc
         
+ //       muMod = transform(muMod, pcfg);
         rvmMod = mu2rvm(muMod, verbose=verbose, optimize=optimize); 
         comp_time = (cpuTime() - start_comp)/1000000;
         if(verbose) println("Compiling <moduleLoc>: check: <check_time>, compile: <comp_time>, total: <check_time+comp_time> ms");
