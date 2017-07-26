@@ -22,15 +22,20 @@ list[RVMDeclaration] compileMuLibrary(PathConfig pcfg, bool verbose = false, boo
     str basename(loc l) = l.file[ .. findFirst(l.file, ".")];  // TODO: for library
     println("compileMuLibrary: <MuLibraryLoc(pcfg)>.mu, <reloc>");
     if(verbose) println("execute: Recompiling library <basename(MuLibraryLoc(pcfg))>.mu");
-    MuLibraryCompiled = getMuLibraryCompiledWriteLoc(pcfg);
-    libModule = load(MuLibraryLoc(pcfg));
- 
-    libModule = relocMuModule(libModule, reloc, pcfg.srcs);
+    
+    libModule = getMuLibrary(pcfg, verbose=verbose,jvm=jvm,reloc=reloc);
     functions =  mulib2rvm(libModule);
+    MuLibraryCompiled = getMuLibraryCompiledWriteLoc(pcfg);
     writeBinaryValueFile(MuLibraryCompiled, functions);
     if(verbose) println("execute: Writing compiled version of library <MuLibraryCompiled>");
     
     return functions; 
+}
+
+MuModule getMuLibrary(PathConfig pcfg, bool verbose = false, bool jvm=true, loc reloc=|std:///|){
+    MuLibraryCompiled = getMuLibraryCompiledWriteLoc(pcfg);
+    libModule = load(MuLibraryLoc(pcfg));
+    return libModule = relocMuModule(libModule, reloc, pcfg.srcs);
 }
 
 void compileMuLibrary(list[loc] srcs, list[loc] libs, loc boot, loc bin, bool verbose = false, bool jvm=true, loc reloc=|noreloc:///|) {
