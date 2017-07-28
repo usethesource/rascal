@@ -8,8 +8,10 @@ alias Completion
  = tuple[int offset, list[str] suggestions];
 
 alias CommandResult
-  = tuple[str result, list[Message] messages, str prompt] 
+  = tuple[str result, list[Message] messages] 
   ;
+  
+
   
 alias CompletionFunction = Completion (str prefix, int requestOffset)
   ;
@@ -18,17 +20,22 @@ alias CompletionFunction = Completion (str prefix, int requestOffset)
 data REPL
   = repl(str title, str welcome, str prompt, loc history, 
          CommandResult (str line) handler,
-         Completion(str line, int cursor) completor);
+         Completion(str line, int cursor) completor)
+  | repl( 
+         CommandResult (str line) handler,
+         Completion(str line, int cursor) completor
+         )
+  ;
 
 @javaClass{org.rascalmpl.library.util.TermREPL}
 @reflect
 java void startREPL(REPL repl);
 
-public REPL repl(str title, str welcome, str prompt, loc history, CommandResult (str line) handler, type[&N <: Tree] g){
-	return repl(title, welcome, prompt, history, handler, completion(g));
+public REPL repl(CommandResult (str line) handler, type[&N <: Tree] g){
+	return repl(handler, createCompletor(g));
 }
 
-public CompletionFunction completion(type[&N <: Tree] g){
+public CompletionFunction createCompletor(type[&N <: Tree] g){
 	return Completion (str prefix, int offset) {
     	proposerFunction = proposer(g);
    		return <0, ["<prop.newText>"|prop <- proposerFunction(prefix, offset)]>;
