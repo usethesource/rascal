@@ -62,10 +62,8 @@ public class TermREPL {
             this.vf = vf;
             this.handler = (ICallableValue)repl.get("handler");
             this.completor = (ICallableValue)repl.get("completor");
-            this.currentPrompt = ((IString)repl.get("prompt")).getValue();
             stdout = ctx.getStdOut();
             assert stdout != null;
-            stdout.println(((IString)repl.get("welcome")).getValue());
         }
         
         @Override
@@ -113,19 +111,16 @@ public class TermREPL {
         public void handleInput(String line, Map<String,String> output, Map<String,String> metadata) throws InterruptedException {
             ITuple result = (ITuple)call(handler, new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
             String str = ((IString)result.get(0)).getValue();
-            
             // TODO: change the signature of the handler
-            // TODO: decode the resulting map with Rascal values to text/html or text/json
             if(!str.equals(""))
                 output.put("text/html", str);
 
             IList errors = (IList)result.get(1);
             for (IValue v: errors) {
                 IConstructor msg = (IConstructor)v;
-                stderr.write(msg.toString() + "\n");
+                String err = ((IString) msg.get("msg")).getValue(); 
+                stderr.write( err);
             }
-
-            currentPrompt = ((IString)result.get(2)).getValue();
         }
 
         @Override
