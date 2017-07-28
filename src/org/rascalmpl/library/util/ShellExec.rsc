@@ -75,6 +75,14 @@ public java str readFromErr(PID processId);
 
 @doc{
 .Synopsis
+Read from an existing process's error output stream. This blocks until a full line is read and
+waits for one second maximally for this line to appear.
+}
+@javaClass{org.rascalmpl.library.util.ShellExec}
+public java str readLineFromErr(PID processId, int wait=200, int maxTries=50);
+
+@doc{
+.Synopsis
 Read the entire stream from an existing process's output stream. This is blocking.
 }
 @javaClass{org.rascalmpl.library.util.ShellExec}
