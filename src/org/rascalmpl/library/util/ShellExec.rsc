@@ -79,7 +79,7 @@ Read from an existing process's error output stream. This blocks until a full li
 waits for one second maximally for this line to appear.
 }
 @javaClass{org.rascalmpl.library.util.ShellExec}
-public java str readLineFromErr(PID processId, int wait=200, int maxTries=50);
+public java str readLineFromErr(PID processId, int wait=200, int maxTries=5);
 
 @doc{
 .Synopsis
