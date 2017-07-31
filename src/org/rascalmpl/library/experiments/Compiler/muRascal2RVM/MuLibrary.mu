@@ -357,6 +357,7 @@ guard
     }
     if(has_label(iSubject, iName)) {
         MATCH_N(pats, get_children_without_layout_or_separators_without_keyword_map(iSubject))
+        exhaust
     }
 }
 

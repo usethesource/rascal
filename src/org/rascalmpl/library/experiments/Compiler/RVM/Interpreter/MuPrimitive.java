@@ -150,6 +150,7 @@ public enum MuPrimitive {
 	equal {
 		@Override
 		public Object execute2(final Object arg_2, final Object arg_1) {
+		    System.err.println("equal: " + arg_2 + ", " + arg_1);
 			if (arg_2 instanceof IValue	&& (arg_1 instanceof IValue)) {
 				return vf.bool(((IValue) arg_2).isEqual(((IValue) arg_1)));
 			} else if (arg_2 instanceof Type && (arg_1 instanceof Type)) {
@@ -977,6 +978,7 @@ public enum MuPrimitive {
 		@SuppressWarnings("unchecked")
 		@Override
 		public Object execute1(final Object arg_1) {
+		    System.err.println("iterator_hasNext"); System.err.flush();
 			return vf.bool(((Iterator<IValue>) arg_1).hasNext());
 		};
 	},
@@ -985,6 +987,7 @@ public enum MuPrimitive {
 		@SuppressWarnings("unchecked")
 		@Override
 		public Object execute1(final Object arg_1) {
+		    System.err.println("iterator_next"); System.err.flush();
 			return ((Iterator<IValue>) arg_1).next();
 		};
 	},
@@ -1028,6 +1031,7 @@ public enum MuPrimitive {
 	mint {
 		@Override
 		public Object execute1(final Object arg_1) {
+		    System.err.println("mint: " + arg_1);
 			if(arg_1 instanceof IInteger){
 				return ((IInteger) arg_1).intValue();
 			}
@@ -1757,6 +1761,7 @@ public enum MuPrimitive {
 	subscript_array_mint {
 		@Override
 		public Object execute2(final Object arg_2, final Object arg_1) {
+		    System.err.println("subscript_array_mint: " + arg_2 + ", " + arg_1);
 			return ((Object[]) arg_2)[((int) arg_1)];
 		};
 	},
