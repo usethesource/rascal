@@ -5,7 +5,6 @@ import IO;
 value main() = <123> := <124> ? 10 : 20;
 
 
-
 //{ for(int x <- [1, 2, 3], x >= 2, int y <- {10,20,30}) println(x+y); return 12345;}
 // { x = true; for(x <- [-1,2,-3], x > 0) println(x); return 12345;}
 // 1 := 2 ? 10 : 20;
