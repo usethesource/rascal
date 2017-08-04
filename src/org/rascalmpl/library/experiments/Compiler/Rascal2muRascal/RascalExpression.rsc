@@ -1540,11 +1540,11 @@ MuExp translate(Expression e:(Expression)`[ <{Expression ","}* es> ]`) =
 
 // Translate SetOrList including spliced elements
 
-private bool containSplices({Expression ","}* es) =
+private bool containsSplices({Expression ","}* es) =
     any(Expression e <- es, e is splice);
 
 private MuExp translateSetOrList(Expression e, {Expression ","}* es, str kind){
- if(containSplices(es)){
+ if(containsSplices(es)){
        str fuid = topFunctionScope();
        writer = nextTmp();
        elmType = getElementType(getType(e@\loc));
@@ -1989,7 +1989,7 @@ MuExp translate(e:(Expression) `-<Expression argument>`) =
 // -- splice expression ---------------------------------------------
 
 MuExp translate(e:(Expression) `*<Expression argument>`) {
-    throw "Splice cannot occur outside set or list";
+    throw "Splice `<e>` cannot occur outside set or list at <e@\loc>";
 }
    
 // -- asType expression ---------------------------------------------
@@ -2123,22 +2123,50 @@ MuExp translate(e:(Expression) `<Pattern pat> \<- <Expression exp>`) {
        return muMulti(muApply(mkCallToLibFun("Library", "RANGE_STEP<kind>"), [ translatePat(pat, elmType), translate(first), translate(second), translate(last)]));
     }
     
+    kind = getOuterType(exp);
+    str generatorType = "";
+    switch(kind){
+        case "void":  generatorType = "LITERAL";
+        case "value": generatorType = "LITERAL";
+        case "bool":  generatorType = "LITERAL";
+        case "datetime":  
+                      generatorType = "LITERAL";
+        case "real":  generatorType = "LITERAL";
+        case "int":   generatorType = "LITERAL";
+        case "rat":   generatorType = "LITERAL";
+        case "num":   generatorType = "LITERAL";
+        case "loc":   generatorType = "LITERAL";
+        case "str":   generatorType = "LITERAL";
+        case "list":  generatorType = "LIST";
+        case "lrel":  generatorType = "LIST";
+        case "node":  generatorType = "NODE";
+        case "adt":   generatorType = "NODE";
+        case "nonterminal":  
+                      generatorType = "NODE";
+        case "map":   generatorType = "MAP";
+        case "set":   generatorType = "SET";
+        case "rel":   generatorType = "SET";
+        case "tuple": generatorType = "TUPLE";
+        default:      generatorType = "NODE";   // all constructors
+    }
+    
     if((Pattern) `<QualifiedName name>` := pat){
        <fuid, pos> = getVariableScope("<name>", name@\loc);
-       return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN"), [muVarRef("<name>", fuid, pos), translate(exp)]));
+       return muMulti(muApply(mkCallToLibFun("Library", "ENUM_<generatorType>"), [translate(exp), muVarRef("<name>", fuid, pos)]));
     }
+
     if((Pattern) `<Type tp> <Name name>` := pat){
        <fuid, pos> = getVariableScope("<name>", name@\loc);
        elemType = translateType(tp);
-       generatorType = getType(exp@\loc);
-       if(generatorType == \list(elemType) || generatorType == \set(elemType)){
-          return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN"), [muVarRef("<name>", fuid, pos), translate(exp)]));
+       generatorType1 = getType(exp@\loc);
+       if(generatorType1 == \list(elemType) || generatorType1 == \set(elemType)){
+          return muMulti(muApply(mkCallToLibFun("Library", "ENUM_<generatorType>"), [translate(exp), muVarRef("<name>", fuid, pos)]));
        }
-       return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_CHECK_AND_ASSIGN"), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos), translate(exp)]));
+       return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_CHECK_AND_ASSIGN_<generatorType>"), [translate(exp), muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos)]));
     }
 
     elmType = getElementType(getType(exp@\loc));
-    return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_MATCH"), [translatePat(pat, elmType), translate(exp)]));
+    return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_MATCH_<generatorType>"), [translate(exp), translatePat(pat, elmType)])); 
 }
 
 // -- implies expression --------------------------------------------

@@ -112,6 +112,7 @@ coroutine ENUM_TUPLE(iTup, rVal)
     }
 }
 
+// deprecated
 coroutine ENUMERATE_AND_MATCH1(enumerator, pat) {
     var iElm 
     enumerator = create(enumerator, ref iElm)
@@ -120,6 +121,7 @@ coroutine ENUMERATE_AND_MATCH1(enumerator, pat) {
     }
 }
 
+// deprecated
 coroutine ENUMERATE_AND_MATCH(pat, iVal) { 
     typeswitch(iVal) {
         case list:         ENUMERATE_AND_MATCH1(ENUM_LIST   (iVal), pat)
@@ -134,6 +136,55 @@ coroutine ENUMERATE_AND_MATCH(pat, iVal) {
     }
 }
 
+coroutine ENUMERATE_AND_MATCH_LIST(iLst, pat) {
+    var iElm, 
+        enumerator = create(ENUM_LIST, iLst, ref iElm);
+    while(next(enumerator)) {
+        pat(iElm)
+    }
+}
+
+coroutine ENUMERATE_AND_MATCH_NODE(iNode, pat) {
+    var iElm,
+        enumerator = create(ENUM_NODE, iNode, ref iElm);
+    while(next(enumerator)) {
+        pat(iElm)
+    }
+}
+
+coroutine ENUMERATE_AND_MATCH_MAP(iMap, pat) {
+    var iElm,
+        enumerator = create(ENUM_MAP, iMap, ref iElm);
+    while(next(enumerator)) {
+        pat(iElm)
+    }
+}
+
+coroutine ENUMERATE_AND_MATCH_SET(iSet, pat) {
+    var iElm, 
+        enumerator = create(ENUM_SET, iSet, ref iElm);
+    while(next(enumerator)) {
+        pat(iElm)
+    }
+}
+
+coroutine ENUMERATE_AND_MATCH_TUPLE(iTup, pat) {
+    var iElm, 
+        enumerator = create(ENUM_TUPLE, iTup, ref iElm);
+    while(next(enumerator)) {
+        pat(iElm)
+    }
+}
+
+coroutine ENUMERATE_AND_MATCH_LITERAL(iLit, pat) {
+    var iElm, 
+        enumerator = create(ENUM_LITERAL, iLit, ref iElm);
+    while(next(enumerator)) {
+        pat(iElm)
+    }
+}
+
+// deprecated
 coroutine ENUMERATE_AND_ASSIGN(rVar, iVal) {
     //println("ENUMERATE_AND_ASSIGN", iVal);
     typeswitch(iVal) {
@@ -149,6 +200,7 @@ coroutine ENUMERATE_AND_ASSIGN(rVar, iVal) {
     }
 }
 
+// deprecated
 coroutine ENUMERATE_CHECK_AND_ASSIGN1(enumerator, typ, rVar) {
     var iElm
     enumerator = create(enumerator, ref iElm) 
@@ -159,6 +211,7 @@ coroutine ENUMERATE_CHECK_AND_ASSIGN1(enumerator, typ, rVar) {
     } 
 }
 
+// deprecated
 coroutine ENUMERATE_CHECK_AND_ASSIGN(typ, rVar, iVal) {
     typeswitch(iVal) {
         case list:         ENUMERATE_CHECK_AND_ASSIGN1(ENUM_LIST   (iVal), typ, rVar)
@@ -171,6 +224,66 @@ coroutine ENUMERATE_CHECK_AND_ASSIGN(typ, rVar, iVal) {
         case tuple:        ENUMERATE_CHECK_AND_ASSIGN1(ENUM_TUPLE  (iVal), typ, rVar)
         default:           ENUMERATE_CHECK_AND_ASSIGN1(ENUM_LITERAL(iVal), typ, rVar)
     }
+}
+
+coroutine ENUMERATE_CHECK_AND_ASSIGN_LIST(iLst, typ, rVar) {
+    var iElm,
+        enumerator = create(ENUM_LIST, iLst, ref iElm);
+    while(next(enumerator)) {
+        if(value_is_subtype(iElm, typ)) {
+             yield iElm
+        }
+    } 
+}
+
+coroutine ENUMERATE_CHECK_AND_ASSIGN_NODE(iNode, typ, rVar) {
+    var iElm,
+        enumerator = create(ENUM_NODE, iNode, ref iElm);
+    while(next(enumerator)) {
+        if(value_is_subtype(iElm, typ)) {
+             yield iElm
+        }
+    } 
+}
+
+coroutine ENUMERATE_CHECK_AND_ASSIGN_MAP(iMap, typ, rVar) {
+    var iElm,
+        enumerator = create(ENUM_MAP, iMap, ref iElm);
+    while(next(enumerator)) {
+        if(value_is_subtype(iElm, typ)) {
+             yield iElm
+        }
+    } 
+}
+
+coroutine ENUMERATE_CHECK_AND_ASSIGN_SET(iSet, typ, rVar) {
+    var iElm,
+        enumerator = create(ENUM_SET, iSet, ref iElm);
+    while(next(enumerator)) {
+        if(value_is_subtype(iElm, typ)) {
+             yield iElm
+        }
+    } 
+}
+
+coroutine ENUMERATE_CHECK_AND_ASSIGN_TUPLE(iTup, typ, rVar) {
+    var iElm,
+        enumerator = create(ENUM_TUPLE, iTup, ref iElm); 
+    while(next(enumerator)) {
+        if(value_is_subtype(iElm, typ)) {
+             yield iElm
+        }
+    } 
+}
+
+coroutine ENUMERATE_CHECK_AND_ASSIGN_LITERAL(iLit, typ, rVar) {
+    var iElm,
+        enumerator = create(ENUM_LITERAL, iLit, ref iElm); 
+    while(next(enumerator)) {
+        if(value_is_subtype(iElm, typ)) {
+             yield iElm
+        }
+    } 
 }
 
 /******************************************************************************************/
