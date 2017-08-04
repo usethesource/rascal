@@ -204,8 +204,8 @@ public class Prelude {
 	}
 		
 	
-	public IValue arbDateTime() {
-	    return createRandomValue(TypeFactory.getInstance().dateTimeType(), 5, 5);
+	public IDateTime arbDateTime() {
+	    return (IDateTime) createRandomValue(TypeFactory.getInstance().dateTimeType(), 5, 5);
 	}
 	public IValue joinDateAndTime(IDateTime date, IDateTime time)
 	//@doc{Create a new datetime by combining a date and a time.}
@@ -1384,8 +1384,8 @@ public class Prelude {
 		return values.string("\uE007["+title.getValue().replaceAll("\\]", "_")+"]("+target.getValue()+")");
 	}
 	
-	public IValue arbLoc() {
-	    return createRandomValue(TypeFactory.getInstance().sourceLocationType(), 1 + random.nextInt(5), 1 + random.nextInt(5));
+	public ISourceLocation arbLoc() {
+	    return (ISourceLocation) createRandomValue(TypeFactory.getInstance().sourceLocationType(), 1 + random.nextInt(5), 1 + random.nextInt(5));
 	}
 	
 	/*
@@ -2127,8 +2127,8 @@ public class Prelude {
         return  node.mayHaveKeywordParameters() ? node.asWithKeywordParameters().unsetAll() : node;
     }
     
-    public IValue arbNode() {
-        return createRandomValue(TypeFactory.getInstance().nodeType(), 1 + random.nextInt(5), 1 + random.nextInt(5));
+    public INode arbNode() {
+        return (INode) createRandomValue(TypeFactory.getInstance().nodeType(), 1 + random.nextInt(5), 1 + random.nextInt(5));
     }
 	
 	/*
