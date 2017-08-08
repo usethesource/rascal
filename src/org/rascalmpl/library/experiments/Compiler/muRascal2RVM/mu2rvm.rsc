@@ -650,7 +650,7 @@ Instruction jmp(labelDest(name)) { usedLabels += name; return JMP(name); }
 Instruction jmp(returnDest()) = RETURN1();
 
 Instruction jmpfalse(labelDest(name)) { usedLabels += name; return JMPFALSE(name); }
-
+Instruction jmpfalse(returnDest()) = RETURN1();
 
 Instruction jmptrue(returnDest()) = RETURN1();
 Instruction jmptrue(labelDest(name)) { usedLabels += name; return JMPTRUE(name); }
@@ -1436,6 +1436,7 @@ INS tr_cond(muMulti(MuExp exp), int coro, str continueLab, str failLab, CDest fa
 }
 
 default INS tr_cond(MuExp exp, int coro, str continueLab, str failLab, CDest falseDest) {
+      println("tr_cond: <exp>, <coro>, <continueLab>, <failLab>, <falseDest>");
       if(exp == muCon(true)){
         return isEmpty(failLab) ? [ LABEL(continueLab) ]
                                 : [ JMP(continueLab), LABEL(failLab), jmp(falseDest), LABEL(continueLab) ];

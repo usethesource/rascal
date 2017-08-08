@@ -1,8 +1,10 @@
 module experiments::Compiler::Examples::Tst1
 
-import IO;
+int f(int n) = 2 * n;
 
-value main() = <123> := <124> ? 10 : 20;
+value main() = <1,2> := <1,3> ? 10 : 20;
+
+//{ n = 0; for(int x <- [1,2,3]) {n += f(x);} return n;}
 
 
 //{ for(int x <- [1, 2, 3], x >= 2, int y <- {10,20,30}) println(x+y); return 12345;}
