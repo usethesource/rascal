@@ -42,10 +42,11 @@ public class JarConverter extends M3Converter {
   private final int FIELDE = 2;
 
   private String jarFile;
-  private String ClassFile;
-  private String LogPath;
+  private String classFile;
+  private String logPath;
   private String classScheme;
   private String className;
+  private String packageName;
   private boolean classIsEnum;
 
   JarConverter(LimitedTypeStore typeStore, Map<String, ISourceLocation> cache) {
@@ -64,16 +65,14 @@ public class JarConverter extends M3Converter {
   @SuppressWarnings("unchecked")
   public void convert(ISourceLocation jarLoc) {
 
-      this.loc = jarLoc;
+    this.loc = jarLoc;
     this.jarFile = extractJarName(jarLoc);
-    this.ClassFile = extractClassName(jarLoc);
-    this.LogPath = this.ClassFile.replace(".class", "");
-    String packageName;
+    this.classFile = extractClassName(jarLoc);
+    this.logPath = this.classFile.replace(".class", "");
+    this.packageName = logPath.substring(0, logPath.lastIndexOf("/"));
 
-    // System.out.println(this.ClassFile);
-    packageName = LogPath.substring(0, LogPath.lastIndexOf("/"));
-    if (this.LogPath.contains("$")) {
-      this.LogPath = LogPath.replace("$", "/");
+    if (this.logPath.contains("$")) {
+      this.logPath = logPath.replace("$", "/");
     }
     try {
       ClassReader cr = new ClassReader(URIResolverRegistry.getInstance().getInputStream(jarLoc));
@@ -97,12 +96,14 @@ public class JarConverter extends M3Converter {
       this.insert(this.containment, values.sourceLocation("java+package", "", "/" + packageName),
           values.sourceLocation("java+compilationUnit", "", "/jar:///" + jarFile));
       this.insert(this.containment, values.sourceLocation("java+compilationUnit", "", "/jar:///" + jarFile),
-          values.sourceLocation("java+class", "", "/" + LogPath));
+          values.sourceLocation("java+class", "", "/" + logPath));
 
       // <|java+package:///Main|,|java+compilationUnit:///src/Main/BaseInt.java|>,
 
       this.insert(this.declarations, values.sourceLocation(classScheme, "", "/" + className),
-          values.sourceLocation(jarFile + "!" + ClassFile));
+          values.sourceLocation("jar", "", jarFile + "!" + classFile));
+      this.insert(this.declarations, values.sourceLocation("java+package", "", "/" + packageName),
+          values.sourceLocation("jar", "", jarFile + "!" + packageName));
 
       if (cn.superName != null
           && !(cn.superName.equalsIgnoreCase("java/lang/Object") || cn.superName.equalsIgnoreCase("java/lang/Enum"))) {
@@ -165,7 +166,7 @@ public class JarConverter extends M3Converter {
         }
 
         if (method.name.contains("<")) {
-          String name = LogPath.substring(LogPath.lastIndexOf("/"));
+          String name = logPath.substring(logPath.lastIndexOf("/"));
           insertDeclMethod("java+constructor", method.signature, eliminateOutterClass(method.desc), name, method.access);
         }
         else {
@@ -200,7 +201,7 @@ public class JarConverter extends M3Converter {
       params = TypeSig.split(",");
       for (int i = 0; i < params.length; i++) {
         this.insert(this.typeDependency,
-            values.sourceLocation("java+parameter", "", LogPath + "/" + name + "(" + sig + ")" + "/" + params[i] + i),
+            values.sourceLocation("java+parameter", "", logPath + "/" + name + "(" + sig + ")" + "/" + params[i] + i),
             values.sourceLocation(printParameterType(params[i]), "", params[i]));
       }
     }
@@ -208,8 +209,8 @@ public class JarConverter extends M3Converter {
     // Return type
     if (type.equals("java+constructor")) {
       this.insert(this.typeDependency,
-          values.sourceLocation("java+constructor", "", LogPath + "/" + name + "(" + sig + ")"),
-          values.sourceLocation("java+class", "", LogPath));
+          values.sourceLocation("java+constructor", "", logPath + "/" + name + "(" + sig + ")"),
+          values.sourceLocation("java+class", "", logPath));
     }
     else {
       String rType = null;
@@ -221,27 +222,27 @@ public class JarConverter extends M3Converter {
       }
       rType = rType.substring(0, rType.indexOf(' '));
       this.insert(this.typeDependency,
-          values.sourceLocation("java+method", "", LogPath + "/" + name + "(" + sig + ")"),
+          values.sourceLocation("java+method", "", logPath + "/" + name + "(" + sig + ")"),
           values.sourceLocation(printParameterType(rType), "", rType));
     }
 
-    this.insert(this.declarations, values.sourceLocation(type, "", LogPath + "/" + name + "(" + sig + ")"),
-        values.sourceLocation(jarFile + "!" + ClassFile));
+    this.insert(this.declarations, values.sourceLocation(type, "", logPath + "/" + name + "(" + sig + ")"),
+        values.sourceLocation(jarFile + "!" + classFile));
     for (int fs = 0; fs < 15; fs++) {
       if ((access & (0x0001 << fs)) != 0) {
-        this.insert(this.modifiers, values.sourceLocation(type, "", LogPath + "/" + name + "(" + sig + ")"),
+        this.insert(this.modifiers, values.sourceLocation(type, "", logPath + "/" + name + "(" + sig + ")"),
             mapFieldAccesCode(0x0001 << fs, METHODE));
       }
     }
 
     // Containment of methods.
-    this.insert(this.containment, values.sourceLocation(classScheme, "", LogPath),
-        values.sourceLocation(type, "", LogPath + "/" + name + "(" + sig + ")"));
+    this.insert(this.containment, values.sourceLocation(classScheme, "", logPath),
+        values.sourceLocation(type, "", logPath + "/" + name + "(" + sig + ")"));
 
 
     // Deprecated method emit type annotation dependency Deprecated.
     if ((access & 0x20000) == 0x20000)
-      this.insert(this.annotations, values.sourceLocation("java+method", "", LogPath + "/" + name + "(" + sig + ")"),
+      this.insert(this.annotations, values.sourceLocation("java+method", "", logPath + "/" + name + "(" + sig + ")"),
           values.sourceLocation("java+interface", "", "/java/lang/Deprecated"));
     // <|java+method:///Main/Main/FindMe(java.lang.String)|,|java+interface:///java/lang/Deprecated|>,
 
@@ -258,7 +259,7 @@ public class JarConverter extends M3Converter {
     }
 
     // if the first argument is contained in the class path, remove it
-    if ((outter != null) && ClassFile.contains(outter))
+    if ((outter != null) && classFile.contains(outter))
       return "(" + desc.substring(semi + 1);
     else
       return desc;
@@ -349,26 +350,26 @@ public class JarConverter extends M3Converter {
         String fieldScheme = isEnum ? "java+enumConstant" : "java+field";
 
         // System.out.println("Debug......." + field.name);
-        this.insert(this.declarations, values.sourceLocation(fieldScheme, "", LogPath + "/" + field.name),
-            values.sourceLocation(jarFile + "!" + ClassFile));
+        this.insert(this.declarations, values.sourceLocation(fieldScheme, "", logPath + "/" + field.name),
+            values.sourceLocation(jarFile + "!" + classFile));
 
         // Containment of fields.
-        this.insert(this.containment, values.sourceLocation(classScheme, "", LogPath),
-            values.sourceLocation(fieldScheme, "", LogPath + "/" + field.name));
+        this.insert(this.containment, values.sourceLocation(classScheme, "", logPath),
+            values.sourceLocation(fieldScheme, "", logPath + "/" + field.name));
 
         if (!isEnum) {
           // The jvm acces codes specify 15 different modifiers (more then in the Java language
           // itself)
           for (int fs = 0; fs < 15; fs++) {
             if ((field.access & (0x0001 << fs)) != 0) {
-              this.insert(this.modifiers, values.sourceLocation("java+field", "", LogPath + "/" + field.name),
+              this.insert(this.modifiers, values.sourceLocation("java+field", "", logPath + "/" + field.name),
                   mapFieldAccesCode(1 << fs, FIELDE));
             }
           }
         }
         // Put deprecated field in the annotations anno.
         if ((field.access & 0x20000) == 0x20000)
-          this.insert(this.annotations, values.sourceLocation("java+field", "", LogPath + "/" + field.name),
+          this.insert(this.annotations, values.sourceLocation("java+field", "", logPath + "/" + field.name),
               values.sourceLocation("java+interface", "", "/java/lang/Deprecated"));
         // <|java+method:///Main/Main/FindMe(java.lang.String)|,|java+interface:///java/lang/Deprecated|>,
 
@@ -390,8 +391,8 @@ public class JarConverter extends M3Converter {
       try {
         // System.out.println(name);
         JarConverter.this.insert(JarConverter.this.declarations,
-            values.sourceLocation("java+typeVariable", "", LogPath + "/" + name),
-            values.sourceLocation(jarFile + "!" + ClassFile));
+            values.sourceLocation("java+typeVariable", "", logPath + "/" + name),
+            values.sourceLocation(jarFile + "!" + classFile));
       }
       catch (URISyntaxException e) {
         // TODO Auto-generated catch block
