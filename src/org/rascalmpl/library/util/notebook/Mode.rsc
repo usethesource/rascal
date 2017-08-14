@@ -35,7 +35,7 @@ Mode grammar2mode(str name, type[&T <: Tree] sym) {
   defs = sym.definitions;
   
   str reEsc(str c) //= c in {"*", "\\", "+", "?", "|"} ? "\\<c>" : c;
-    = escape(c, ("*": "\\*", "\\": "\\\\", "+": "\\+", "?": "\\?", "|": "\\|"));
+    = escape(c, ("*": "\\*", "\\": "\\\\", "+": "\\+", "?": "\\?", "|": "\\|", "^": "\\^", "/": "\\/", "^^": "\\^\\^"));
   
   set[str] lits = { x | /lit(x:/^[a-zA-Z0-9_]*$/) := defs };
   
