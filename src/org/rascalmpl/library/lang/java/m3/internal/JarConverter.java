@@ -39,6 +39,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 
 public class JarConverter extends M3Converter {
@@ -101,7 +102,7 @@ public class JarConverter extends M3Converter {
             if(resolver.isFile(local) && local.getPath().endsWith(".class")) {
                 packagesWriter.insert(uri);
                 classesWriter.insert(local);
-                setCompUnitContainment(local);
+                setCompUnitAndPackageRelations(local);
             }
             else if(resolver.isDirectory(local)) {
                 resolvePackages(local, packagesWriter, classesWriter);
@@ -109,27 +110,40 @@ public class JarConverter extends M3Converter {
         }
     }
     
-    private void setCompUnitContainment(ISourceLocation uri) throws URISyntaxException {
-        String qualifiedName = uri.getPath().substring(uri.getPath().lastIndexOf("!") + 1).replace(".class", ".java");
-        String currentPackage = qualifiedName.substring(0,qualifiedName.lastIndexOf("/"));
+    private void setCompUnitAndPackageRelations(ISourceLocation uri) throws URISyntaxException {
+        String compUnit = uri.getPath().substring(uri.getPath().lastIndexOf("!") + 1).replace(".class", ".java");
+        IString compUnitName = values.string(compUnit.substring(compUnit.lastIndexOf("/") + 1).replace(".java", ""));
+        String currentPackage = compUnit.substring(0,compUnit.lastIndexOf("/"));
         int packages = currentPackage.length() - currentPackage.replace("/", "").length();
         
-        this.insert(this.containment, values.sourceLocation("java+package", "", qualifiedName.substring(0, qualifiedName.lastIndexOf("/"))), 
-            values.sourceLocation("java+compilationUnit", "", qualifiedName));
-        this.insert(this.declarations, values.sourceLocation("java+compilationUnit", "", qualifiedName),
-            URIUtil.changePath(loc, loc.getPath() + qualifiedName));
+        ISourceLocation packageLogical = values.sourceLocation("java+package", "", compUnit.substring(0, compUnit.lastIndexOf("/")));
+        ISourceLocation compUnitLogical = values.sourceLocation("java+compilationUnit", "", compUnit);
+        ISourceLocation compUnitPhysical = URIUtil.changePath(loc, loc.getPath() + compUnit);
+        
+        this.insert(this.containment, packageLogical, compUnitLogical);
+        this.insert(this.declarations, compUnitLogical, compUnitPhysical);
+        this.insert(this.uses, compUnitPhysical, compUnitLogical);
+        this.insert(this.names, compUnitName, compUnitLogical);
         
         for(int i = 1; i < packages; i++) {
             String parentPackage = currentPackage.substring(0, currentPackage.lastIndexOf("/"));
+            IString currentName = values.string(currentPackage.substring(currentPackage.lastIndexOf("/") + 1));
             
-            this.insert(this.containment, values.sourceLocation("java+package", "", parentPackage),
-                values.sourceLocation("java+package", "", currentPackage));
-            this.insert(this.declarations, values.sourceLocation("java+package", "", currentPackage),
-                URIUtil.changePath(loc, loc.getPath() + currentPackage));
+            ISourceLocation parentPkgLogical = values.sourceLocation("java+package", "", parentPackage);
+            ISourceLocation parentPkgPhysical = URIUtil.changePath(loc, loc.getPath() + parentPackage);
+            ISourceLocation currentPkgLogical = values.sourceLocation("java+package", "", currentPackage);
+            ISourceLocation currentPkgPhysical = URIUtil.changePath(loc, loc.getPath() + currentPackage);
+            
+            this.insert(this.containment, parentPkgLogical, currentPkgLogical);
+            this.insert(this.declarations, currentPkgLogical, currentPkgPhysical);
+            this.insert(this.uses, currentPkgPhysical, currentPkgLogical);
+            this.insert(this.names, currentName, currentPkgLogical);
             
             if(i == packages - 1) {
-                this.insert(this.declarations, values.sourceLocation("java+package", "", parentPackage),
-                    URIUtil.changePath(loc, loc.getPath() + parentPackage));
+                IString parentName = values.string(parentPackage.substring(parentPackage.lastIndexOf("/") + 1));
+                this.insert(this.declarations, parentPkgLogical, parentPkgPhysical);
+                this.insert(this.uses, parentPkgPhysical, parentPkgLogical);
+                this.insert(this.names, parentName, parentPkgLogical);
             }
             
             currentPackage = parentPackage;
