@@ -87,6 +87,10 @@ public java M3 createM3FromString(loc fileName, str contents, bool errorRecovery
 @reflect
 public java M3 createM3FromJarClass(loc jarClass);
 
+@javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
+@reflect
+public java M3 createM3FromJarFile(loc jarLoc);
+
 @doc{
 .Synopsis
 globs for jars, class files and java files in a directory and tries to compile all source files into an [$analysis/m3] model
@@ -113,26 +117,39 @@ public M3 createM3FromDirectory(loc project, bool errorRecovery = false, str jav
 
 
 public M3 createM3FromJar(loc jarFile) {
-    str jarName = substring(jarFile.path, 0, findFirst(jarFile.path, "!"));
-    jarName = substring(jarName, findLast(jarName, "/")+1);
-    loc jarLoc = |jar:///|;
-    jarLoc.authority = jarName;
+	loc jarLoc = jarFile;
+	
+	if(!startsWith(jarLoc.scheme, "jar")) {
+		jarLoc.scheme = "jar+<jarLoc.scheme>";
+		jarLoc.path = "<jarLoc.path>!";
+	}
+	else {
+		jarLoc.path = if(!endsWith(jarLoc.path,"!")) "<jarLoc.path>!"; else jarLoc.path;
+	}
+	
+	if(!isDirectory(jarLoc)) {
+		throw "The provided file is not a vali Jar URI.";
+	}
+    M3 model = createM3FromJarFile(jarLoc);
+    println(model.containment);
 
-    map[str,M3] m3Map = (classPathToStr(jc): createM3FromJarClass(jc) | /file(jc) <- crawl(jarFile), jc.extension == "class");
+	return model;
+   // map[str,M3] m3Map = (classPathToStr(jc): createM3FromJarClass(jc) | /file(jc) <- crawl(jarFile), jc.extension == "class");
     
-    rel[str,str] inheritsFrom = { *{ <c.path, i.path> | <c, i> <- (model.implements + model.extends),
-        c.path in m3Map && i.path in m3Map } | model <- range(m3Map) }+;
-    
-    map[str, rel[loc from,loc to]] methodOverrides = ( c: m3Map[c].methodOverrides | c <- m3Map );
-    for(<c, sc> <- inheritsFrom) {
-	        // this is not	100% correct, since java method overriden allows be on a subtype in the signatures since java6
-	        methodSC = { <m.file, m> | <m, p> <- m3Map[sc].modifiers, (p == \public() || p == \protected()) && m.scheme == "java+method"  };	
-	        ownMethods = { <m, m.file> |  m <- methods(m3Map[c]) - constructors(m3Map[c])};
-	        methodOverrides[c] += ownMethods o methodSC;
-    }
-    
-    return composeJavaM3(jarLoc, {m3Map[c][methodOverrides = methodOverrides[c]] | c <- m3Map });
+    //rel[str,str] inheritsFrom = { *{ <c.path, i.path> | <c, i> <- (model.implements + model.extends),
+    //    c.path in m3Map && i.path in m3Map } | model <- range(m3Map) }+;
+    //
+    //map[str, rel[loc from,loc to]] methodOverrides = ( c: m3Map[c].methodOverrides | c <- m3Map );
+    //for(<c, sc> <- inheritsFrom) {
+	   //     // this is not	100% correct, since java method overriden allows be on a subtype in the signatures since java6
+	   //     methodSC = { <m.file, m> | <m, p> <- m3Map[sc].modifiers, (p == \public() || p == \protected()) && m.scheme == "java+method"  };	
+	   //     ownMethods = { <m, m.file> |  m <- methods(m3Map[c]) - constructors(m3Map[c])};
+	   //     methodOverrides[c] += ownMethods o methodSC;
+    //}
+    //
+    //return composeJavaM3(jarLoc, {m3Map[c][methodOverrides = methodOverrides[c]] | c <- m3Map });
 }
+
 private str classPathToStr(loc jarClass) {
     return substring(jarClass.path,findLast(jarClass.path,"!")+1,findLast(jarClass.path,"."));
 }
