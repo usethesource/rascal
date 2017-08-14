@@ -1,8 +1,8 @@
 module util::notebook::CodeMirror
 
-import util::notebook::Mode;
-import String;
 import IO;
+import String;
+import util::notebook::Mode;
 
 
 void createCodeMirrorModeFile(Mode mode, loc path){
