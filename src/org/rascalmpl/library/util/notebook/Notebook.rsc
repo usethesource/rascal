@@ -3,6 +3,7 @@ module util::notebook::Notebook
 import IO;
 import String;
 import Message;
+import ParseTree;
 import util::REPL;
 import util::ShellExec;
 import util::notebook::Mode;
@@ -27,6 +28,12 @@ loc startNotebook(KernelInfo kernelInfo ){
 loc startNotebook(KernelInfo kernelInfo, Mode mode){
 	generateKernel(kernelInfo);
 	generateCodeMirror(mode);
+	return startJupyterServer();
+}
+
+loc startNotebook(KernelInfo kernelInfo, type[&T <: Tree] sym){
+	generateKernel(kernelInfo);
+	generateCodeMirror(grammar2mode(kernelInfo.languageName, sym));
 	return startJupyterServer();
 }
 
