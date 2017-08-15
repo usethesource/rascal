@@ -155,6 +155,8 @@ public class JarConverter extends M3Converter {
         insert(names, className, classLogical);
         
         setInnerClassRelations(cn, classLogical);
+        setClassExtendsRelation(cn, classLogical);
+        setClassImplementsRelation(cn, classLogical);
     }
 
     private void setInnerClassRelations(ClassNode cn, ISourceLocation classLogical) throws URISyntaxException {
@@ -163,10 +165,26 @@ public class JarConverter extends M3Converter {
             String innerClassPath = icn.name.replace("$", "/");
             
             if(!innerClassPath.equals(cn.name.replace("$", "/"))) {
-                System.out.println(cn.name.replace("$", "/") + " - " + icn.name.replace("$", "/"));
-                ISourceLocation innerClasslogical = values.sourceLocation(getClassScheme(icn.access), "", icn.name.replace("$", "/"));
-                insert(containment, classLogical, innerClasslogical);
+                ISourceLocation innerClassLogical = values.sourceLocation(getClassScheme(icn.access), "", innerClassPath);
+                insert(containment, classLogical, innerClassLogical);
             }
+        }
+    }
+    
+    private void setClassExtendsRelation(ClassNode cn, ISourceLocation classLogical) throws URISyntaxException {
+        if(cn.superName != null && !(cn.superName.equalsIgnoreCase(Object.class.getName().replace(".", "/")) ||
+            cn.superName.equalsIgnoreCase(Enum.class.getName().replace(".", "/")))) {
+            //TODO: check class scheme (interfaces)
+            ISourceLocation extendsLogical = values.sourceLocation(classLogical.getScheme(), "", cn.superName.replace("$", "/"));
+            insert(extendsRelations, classLogical, extendsLogical);
+        }
+    }
+    
+    private void setClassImplementsRelation(ClassNode cn, ISourceLocation classLogical) throws URISyntaxException {
+        for(int i = 0; i < cn.interfaces.size(); i++) {
+            ISourceLocation implementsLogical = values.sourceLocation(INTERFACE_SCHEME, "", 
+                ((String) cn.interfaces.get(i)).replace("$", "/"));
+            insert(implementsRelations, classLogical, implementsLogical);
         }
     }
     
