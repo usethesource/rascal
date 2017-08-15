@@ -28,6 +28,9 @@ import org.objectweb.asm.tree.InnerClassNode;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
@@ -41,6 +44,7 @@ public class JarConverter extends M3Converter {
     private final static String INTERFACE_SCHEME = "java+interface";
     private final static String PACKAGE_SCHEME = "java+package";
     
+    private IMap modifiersMap;
     private ISet packages;
     private ISet compilationUnits;
 
@@ -51,6 +55,8 @@ public class JarConverter extends M3Converter {
     @SuppressWarnings("unchecked")
     public void convert(ISourceLocation jarLoc) {
         this.loc = jarLoc;
+        initializeModifiers();
+        
         try {
             ISetWriter packagesWriter = values.setWriter();
             ISetWriter compUnitsWriter = values.setWriter();
@@ -65,6 +71,22 @@ public class JarConverter extends M3Converter {
         catch (IOException e) {
             e.printStackTrace();
         }
+    }
+    
+    private void initializeModifiers() {
+        IMapWriter writer = values.mapWriter();
+        writer.put(values.integer(Opcodes.ACC_ABSTRACT), constructModifierNode("abstract"));
+        writer.put(values.integer(Opcodes.ACC_FINAL), constructModifierNode("final"));
+        writer.put(values.integer(Opcodes.ACC_NATIVE), constructModifierNode("native"));
+        writer.put(values.integer(Opcodes.ACC_PRIVATE), constructModifierNode("private"));
+        writer.put(values.integer(Opcodes.ACC_PROTECTED), constructModifierNode("protected"));
+        writer.put(values.integer(Opcodes.ACC_PUBLIC), constructModifierNode("public"));
+        writer.put(values.integer(Opcodes.ACC_STATIC), constructModifierNode("static"));
+        writer.put(values.integer(Opcodes.ACC_STRICT), constructModifierNode("strictfp"));
+        writer.put(values.integer(Opcodes.ACC_SYNCHRONIZED), constructModifierNode("synchronized"));
+        writer.put(values.integer(Opcodes.ACC_TRANSIENT), constructModifierNode("transient"));
+        writer.put(values.integer(Opcodes.ACC_VOLATILE), constructModifierNode("volatile"));
+        modifiersMap = writer.done();
     }
     
     private void resolvePackages(ISourceLocation uri, ISetWriter packagesWriter, ISetWriter classesWriter) 
@@ -157,6 +179,7 @@ public class JarConverter extends M3Converter {
         setInnerClassRelations(cn, classLogical);
         setClassExtendsRelation(cn, classLogical);
         setClassImplementsRelation(cn, classLogical);
+        setClassModifiers(cn, classLogical);
     }
 
     private void setInnerClassRelations(ClassNode cn, ISourceLocation classLogical) throws URISyntaxException {
@@ -185,6 +208,17 @@ public class JarConverter extends M3Converter {
             ISourceLocation implementsLogical = values.sourceLocation(INTERFACE_SCHEME, "", 
                 ((String) cn.interfaces.get(i)).replace("$", "/"));
             insert(implementsRelations, classLogical, implementsLogical);
+        }
+    }
+    
+    private void setClassModifiers(ClassNode cn, ISourceLocation classLogical) {
+        for(int i = 0; i < 15; i++) {
+            // Identify modifiers by filtering the access flags
+            int shift = 0x1 << i;
+            IConstructor modifier = (IConstructor) modifiersMap.get(values.integer(shift));
+            if((cn.access & shift) != 0 && modifier != null && shift != Opcodes.ACC_SYNCHRONIZED) {
+                insert(modifiers, classLogical, modifier);
+            }
         }
     }
     
