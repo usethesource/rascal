@@ -19,14 +19,20 @@ package org.rascalmpl.library.lang.java.m3.internal;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InnerClassNode;
+import org.objectweb.asm.tree.MethodNode;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+
+import com.ibm.icu.text.DisplayContext.Type;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
@@ -180,6 +186,7 @@ public class JarConverter extends M3Converter {
         setClassExtendsRelation(cn, classLogical);
         setClassImplementsRelation(cn, classLogical);
         setClassModifiers(cn, classLogical);
+        setClassAnnotations(cn, classLogical);
     }
 
     private void setInnerClassRelations(ClassNode cn, ISourceLocation classLogical) throws URISyntaxException {
@@ -211,6 +218,8 @@ public class JarConverter extends M3Converter {
         }
     }
     
+    //TODO: SourceConverter does not consider abstract modifier. Check.
+    //TODO: Use parseModifiers(int modifiers) -> JavaToRascalConverter?
     private void setClassModifiers(ClassNode cn, ISourceLocation classLogical) {
         for(int i = 0; i < 15; i++) {
             // Identify modifiers by filtering the access flags
@@ -219,6 +228,29 @@ public class JarConverter extends M3Converter {
             if((cn.access & shift) != 0 && modifier != null && shift != Opcodes.ACC_SYNCHRONIZED) {
                 insert(modifiers, classLogical, modifier);
             }
+        }
+    }
+    
+    private void setClassAnnotations(ClassNode cn, ISourceLocation classLogical) throws URISyntaxException {
+        List<AnnotationNode> allAnnotations = new ArrayList<AnnotationNode>();
+        if(cn.visibleAnnotations != null) {
+            allAnnotations.addAll(cn.visibleAnnotations);
+        }
+        if(cn.invisibleAnnotations != null) {
+            allAnnotations.addAll(cn.invisibleAnnotations);
+        }
+        
+        for(AnnotationNode node : allAnnotations) {
+            ISourceLocation annotationLogical = values.sourceLocation(INTERFACE_SCHEME, "", 
+                org.objectweb.asm.Type.getType(node.desc).getInternalName());
+            insert(annotations, classLogical, annotationLogical);
+        }
+    }
+    
+    private void setMethodRelations(ClassNode cn, ISourceLocation classLogical) {
+        for(int i = 0; i < cn.methods.size(); i++) {
+            MethodNode method = (MethodNode) cn.methods.get(i);
+            
         }
     }
     
