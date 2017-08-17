@@ -21,10 +21,12 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InnerClassNode;
@@ -32,13 +34,9 @@ import org.objectweb.asm.tree.MethodNode;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
-import com.ibm.icu.text.DisplayContext.Type;
-
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
-import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 
@@ -46,13 +44,14 @@ public class JarConverter extends M3Converter {
     
     private final static String CLASS_SCHEME = "java+class";
     private final static String COMP_UNIT_SCHEME = "java+compilationUnit";
+    private final static String CONSTRUCTOR_SCHEME = "java+constructor";
     private final static String ENUM_SCHEME = "java+enum";
     private final static String INTERFACE_SCHEME = "java+interface";
+    private final static String METHOD_SCHEME = "java+method";
     private final static String PACKAGE_SCHEME = "java+package";
+    private final static String COMPILED_CONSTRUCTOR_NAME = "<init>";
     
     private IMap modifiersMap;
-    private ISet packages;
-    private ISet compilationUnits;
 
     public JarConverter(LimitedTypeStore typeStore, Map<String, ISourceLocation> cache) {
         super(typeStore, cache);
@@ -63,13 +62,8 @@ public class JarConverter extends M3Converter {
         this.loc = jarLoc;
         initializeModifiers();
         
-        try {
-            ISetWriter packagesWriter = values.setWriter();
-            ISetWriter compUnitsWriter = values.setWriter();
-            
-            resolvePackages(loc, packagesWriter, compUnitsWriter);
-            this.packages = packagesWriter.done();
-            this.compilationUnits = compUnitsWriter.done();
+        try {            
+            createM3(loc);
         }
         catch (URISyntaxException e) {
             e.printStackTrace();
@@ -79,6 +73,7 @@ public class JarConverter extends M3Converter {
         }
     }
     
+ // org.objectweb.asm.Type.BOOLEAN_TYPE.getDescriptor()
     private void initializeModifiers() {
         IMapWriter writer = values.mapWriter();
         writer.put(values.integer(Opcodes.ACC_ABSTRACT), constructModifierNode("abstract"));
@@ -95,29 +90,25 @@ public class JarConverter extends M3Converter {
         modifiersMap = writer.done();
     }
     
-    private void resolvePackages(ISourceLocation uri, ISetWriter packagesWriter, ISetWriter classesWriter) 
+    private void createM3(ISourceLocation uri) 
         throws IOException, URISyntaxException {
         URIResolverRegistry resgistry = URIResolverRegistry.getInstance();
         String[] content = resgistry.listEntries(uri);
             
         for(String path : content) {
-            ISourceLocation local = URIUtil.changePath(uri, uri.getPath() + "/" + path);
+            ISourceLocation local = getPhysicalLoc(uri, path);
             
-            if(resgistry.isFile(local) && local.getPath().endsWith(".class")) {
-                packagesWriter.insert(uri);
-                classesWriter.insert(local);
-                
+            if(resgistry.isFile(local) && local.getPath().endsWith(".class")) {                
                 setCompilationUnitRelations(local);
                 setPackagesRelations(local);
                 setClassRelations(local);
             }
             else if(resgistry.isDirectory(local)) {
-                resolvePackages(local, packagesWriter, classesWriter);
+                createM3(local);
             }
         }
     }
     
-    //uri - compUnitUri
     private void setCompilationUnitRelations(ISourceLocation compUnitPhysical) throws URISyntaxException {
         String compUnit = compUnitPhysical.getPath().substring(compUnitPhysical.getPath().lastIndexOf("!") + 1);
         IString compUnitName = values.string(compUnit.substring(compUnit.lastIndexOf("/") + 1).replace(".class", ""));
@@ -125,12 +116,11 @@ public class JarConverter extends M3Converter {
         ISourceLocation packageLogical = values.sourceLocation(PACKAGE_SCHEME, "", compUnit.substring(0, compUnit.lastIndexOf("/")));
         ISourceLocation compUnitLogical = values.sourceLocation(COMP_UNIT_SCHEME, "", compUnit);
         
-        insert(containment, packageLogical, compUnitLogical);
+        addToContainment(packageLogical, compUnitLogical);
         //TODO: same offset of the contained class?
-        insert(declarations, compUnitLogical, compUnitPhysical);
-        insert(uses, compUnitPhysical, compUnitLogical);
+        addToDeclarations(compUnitPhysical, compUnitLogical);
         //TODO: M3 from directory does not add it to the names relation. Check.
-        //insert(names, compUnitName, compUnitLogical); 
+        //addToNames(compUnitName, compUnitLogical);
     }
     
     private void setPackagesRelations(ISourceLocation compUnitPhysical) throws URISyntaxException {
@@ -147,16 +137,14 @@ public class JarConverter extends M3Converter {
             ISourceLocation currentPkgLogical = values.sourceLocation(PACKAGE_SCHEME, "", currentPackage);
             ISourceLocation currentPkgPhysical = URIUtil.changePath(loc, loc.getPath() + currentPackage);
             
-            insert(containment, parentPkgLogical, currentPkgLogical);
-            insert(declarations, currentPkgLogical, currentPkgPhysical);
-            insert(uses, currentPkgPhysical, currentPkgLogical);
-            insert(names, currentName, currentPkgLogical);
+            addToContainment(parentPkgLogical, currentPkgLogical);
+            addToDeclarations(currentPkgPhysical, currentPkgLogical);
+            addToNames(currentName, currentPkgLogical);
             
             if(i == packages - 1) {
                 IString parentName = values.string(parentPackage.substring(parentPackage.lastIndexOf("/") + 1));
-                insert(declarations, parentPkgLogical, parentPkgPhysical);
-                insert(uses, parentPkgPhysical, parentPkgLogical);
-                insert(names, parentName, parentPkgLogical);
+                addToDeclarations(parentPkgPhysical, parentPkgLogical);
+                addToNames(parentName, parentPkgLogical);
             }
             
             currentPackage = parentPackage;
@@ -169,24 +157,24 @@ public class JarConverter extends M3Converter {
         cr.accept(cn, ClassReader.SKIP_DEBUG);
         
         String compUnit = compUnitPhysical.getPath().substring(compUnitPhysical.getPath().lastIndexOf("!") + 1);
-        String classPath = cn.name.replace("$", "/");
        
-        IString className = values.string(classPath.substring(classPath.lastIndexOf("/") + 1));
+        IString className = getClassName(cn);
         ISourceLocation compUnitLogical = values.sourceLocation(COMP_UNIT_SCHEME, "", compUnit);
-        ISourceLocation classLogical = values.sourceLocation(getClassScheme(cn.access), "", classPath);
+        ISourceLocation classLogical = values.sourceLocation(getClassScheme(cn.access), "", getClassRelativePath(cn));
         //TODO: check the offset and length info. 
         ISourceLocation classPhysical = values.sourceLocation(compUnitPhysical, cr.header, cr.b.length);
-
-        insert(containment, compUnitLogical, classLogical);
-        insert(declarations, classLogical, classPhysical);
-        insert(uses, classPhysical, classLogical);
-        insert(names, className, classLogical);
+        
+        addToContainment(compUnitLogical, classLogical);
+        addToDeclarations(classPhysical, classLogical);
+        addToNames(className, classLogical);
         
         setInnerClassRelations(cn, classLogical);
         setClassExtendsRelation(cn, classLogical);
         setClassImplementsRelation(cn, classLogical);
-        setClassModifiers(cn, classLogical);
-        setClassAnnotations(cn, classLogical);
+        
+        setModifiers(cn.access, classLogical);
+        setAnnotations(composeAnnotations(cn.visibleAnnotations, cn.invisibleAnnotations), classLogical);
+        setMethodRelations(cn, classLogical);
     }
 
     private void setInnerClassRelations(ClassNode cn, ISourceLocation classLogical) throws URISyntaxException {
@@ -196,7 +184,7 @@ public class JarConverter extends M3Converter {
             
             if(!innerClassPath.equals(cn.name.replace("$", "/"))) {
                 ISourceLocation innerClassLogical = values.sourceLocation(getClassScheme(icn.access), "", innerClassPath);
-                insert(containment, classLogical, innerClassLogical);
+                addToContainment(classLogical, innerClassLogical);
             }
         }
     }
@@ -220,42 +208,106 @@ public class JarConverter extends M3Converter {
     
     //TODO: SourceConverter does not consider abstract modifier. Check.
     //TODO: Use parseModifiers(int modifiers) -> JavaToRascalConverter?
-    private void setClassModifiers(ClassNode cn, ISourceLocation classLogical) {
+    private void setModifiers(int access, ISourceLocation classLogical) {
         for(int i = 0; i < 15; i++) {
             // Identify modifiers by filtering the access flags
             int shift = 0x1 << i;
             IConstructor modifier = (IConstructor) modifiersMap.get(values.integer(shift));
-            if((cn.access & shift) != 0 && modifier != null && shift != Opcodes.ACC_SYNCHRONIZED) {
+            if((access & shift) != 0 && modifier != null && shift != Opcodes.ACC_SYNCHRONIZED) {
                 insert(modifiers, classLogical, modifier);
             }
         }
     }
     
-    private void setClassAnnotations(ClassNode cn, ISourceLocation classLogical) throws URISyntaxException {
-        List<AnnotationNode> allAnnotations = new ArrayList<AnnotationNode>();
-        if(cn.visibleAnnotations != null) {
-            allAnnotations.addAll(cn.visibleAnnotations);
-        }
-        if(cn.invisibleAnnotations != null) {
-            allAnnotations.addAll(cn.invisibleAnnotations);
-        }
-        
-        for(AnnotationNode node : allAnnotations) {
+    private void setAnnotations(List<AnnotationNode> annotations, ISourceLocation classLogical) throws URISyntaxException {
+        for(AnnotationNode node : annotations) {
             ISourceLocation annotationLogical = values.sourceLocation(INTERFACE_SCHEME, "", 
                 org.objectweb.asm.Type.getType(node.desc).getInternalName());
-            insert(annotations, classLogical, annotationLogical);
+            insert(this.annotations, classLogical, annotationLogical);
         }
     }
     
-    private void setMethodRelations(ClassNode cn, ISourceLocation classLogical) {
+    //TODO: set offset and length
+    private void setMethodRelations(ClassNode cn, ISourceLocation classLogical) throws URISyntaxException {
         for(int i = 0; i < cn.methods.size(); i++) {
-            MethodNode method = (MethodNode) cn.methods.get(i);
             
+            MethodNode mn = (MethodNode) cn.methods.get(i);
+            ListIterator<AbstractInsnNode> iterator = mn.instructions.iterator();
+            
+            // TODO: check
+            if(!getClassScheme(cn.access).equals(ENUM_SCHEME) && !(mn.name.equalsIgnoreCase("values") || 
+                mn.name.equalsIgnoreCase("valueOf"))) {
+                String signature = getMethodSignature(mn, classLogical);
+                
+                IString methodName = values.string(signature.substring(0,signature.indexOf("(")));
+                ISourceLocation methodLogical = values.sourceLocation(getMethodScheme(mn), "", 
+                    classLogical.getPath() + "/" + signature);
+                ISourceLocation methodPhysical = getPhysicalLoc(loc, classLogical.getPath() + "/" + signature);
+                
+                addToContainment(classLogical, methodLogical);
+                addToDeclarations(methodLogical, methodPhysical);
+                addToNames(methodName, methodLogical);
+                
+                setModifiers(mn.access, methodLogical);
+                setAnnotations(composeAnnotations(mn.visibleAnnotations, mn.invisibleAnnotations), methodLogical);
+                
+            }
         }
+    }
+    
+    private void addToContainment(ISourceLocation parent, ISourceLocation child) {
+        insert(containment, parent, child);
+    }
+    
+    private void addToDeclarations(ISourceLocation physical, ISourceLocation logical) {
+        insert(declarations, logical, physical);
+    }
+    
+    private void addToNames(IString name, ISourceLocation logical) {
+        insert(names, name, logical);
+    }
+    
+    private List<AnnotationNode> composeAnnotations(List<AnnotationNode> ann1, List<AnnotationNode> ann2) {
+        List<AnnotationNode> annotations = (ann1 != null) ? new ArrayList<AnnotationNode>(ann1) : new ArrayList<AnnotationNode>();
+        if(ann2 != null) {
+            annotations.addAll(ann2);
+        }
+        return annotations;
+    }
+    
+    private String getClassRelativePath(ClassNode cn) {
+        return cn.name.replace("$", "/");
+    }
+    
+    private IString getClassName(ClassNode cn) {
+        String classPath = cn.name.replace("$", "/");
+        return values.string(classPath.substring(classPath.lastIndexOf("/") + 1));
+    }
+    
+    private String getClassName(ISourceLocation classLogical) {
+        return classLogical.getPath().substring(classLogical.getPath().lastIndexOf("/") + 1);
+    }
+    
+    private ISourceLocation getPhysicalLoc(ISourceLocation uri, String path) throws URISyntaxException {
+        return URIUtil.changePath(uri, uri.getPath() + "/" + path);
+    }
+    
+    private String getMethodSignature(MethodNode mn, ISourceLocation classLogical) {
+        String signature = (mn.name.equals(COMPILED_CONSTRUCTOR_NAME)) ? getClassName(classLogical) + "(" : mn.name + "(";
+        org.objectweb.asm.Type[] arguments = org.objectweb.asm.Type.getType(mn.desc).getArgumentTypes();
+        for(org.objectweb.asm.Type argument : arguments) {
+            signature += (signature.endsWith("(")) ? argument.getClassName() : "," + argument.getClassName();
+        }
+        signature += ")";
+        return signature;
     }
     
     private String getClassScheme(int access) {
         return ((access & Opcodes.ACC_INTERFACE) != 0) ? INTERFACE_SCHEME : 
             ((access & Opcodes.ACC_ENUM) != 0) ? ENUM_SCHEME : CLASS_SCHEME;
+    }
+    
+    private String getMethodScheme(MethodNode mn) {
+        return (mn.name.equals(COMPILED_CONSTRUCTOR_NAME)) ? CONSTRUCTOR_SCHEME : METHOD_SCHEME;
     }
 }
