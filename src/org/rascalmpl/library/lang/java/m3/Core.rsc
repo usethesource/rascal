@@ -131,7 +131,6 @@ public M3 createM3FromJar(loc jarFile) {
 		throw "The provided file is not a vali Jar URI.";
 	}
     M3 model = createM3FromJarFile(jarLoc);
-    println(model.containment);
 
 	return model;
    // map[str,M3] m3Map = (classPathToStr(jc): createM3FromJarClass(jc) | /file(jc) <- crawl(jarFile), jc.extension == "class");

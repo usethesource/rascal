@@ -21,14 +21,13 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.InnerClassNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -46,12 +45,15 @@ public class JarConverter extends M3Converter {
     private final static String COMP_UNIT_SCHEME = "java+compilationUnit";
     private final static String CONSTRUCTOR_SCHEME = "java+constructor";
     private final static String ENUM_SCHEME = "java+enum";
+    private final static String ENUM_CONSTANT_SCHEME = "java+enumConstant";
+    private final static String FIELD_SCHEME = "java+field";
     private final static String INTERFACE_SCHEME = "java+interface";
     private final static String METHOD_SCHEME = "java+method";
     private final static String PACKAGE_SCHEME = "java+package";
     private final static String COMPILED_CONSTRUCTOR_NAME = "<init>";
     
     private IMap modifiersMap;
+    private ISourceLocation compUnitPhysical;
 
     public JarConverter(LimitedTypeStore typeStore, Map<String, ISourceLocation> cache) {
         super(typeStore, cache);
@@ -98,10 +100,11 @@ public class JarConverter extends M3Converter {
         for(String path : content) {
             ISourceLocation local = getPhysicalLoc(uri, path);
             
-            if(resgistry.isFile(local) && local.getPath().endsWith(".class")) {                
-                setCompilationUnitRelations(local);
-                setPackagesRelations(local);
-                setClassRelations(local);
+            if(resgistry.isFile(local) && local.getPath().endsWith(".class")) {     
+                compUnitPhysical = local;
+                setCompilationUnitRelations();
+                setPackagesRelations();
+                setClassRelations();
             }
             else if(resgistry.isDirectory(local)) {
                 createM3(local);
@@ -109,7 +112,7 @@ public class JarConverter extends M3Converter {
         }
     }
     
-    private void setCompilationUnitRelations(ISourceLocation compUnitPhysical) throws URISyntaxException {
+    private void setCompilationUnitRelations() throws URISyntaxException {
         String compUnit = compUnitPhysical.getPath().substring(compUnitPhysical.getPath().lastIndexOf("!") + 1);
         IString compUnitName = values.string(compUnit.substring(compUnit.lastIndexOf("/") + 1).replace(".class", ""));
        
@@ -123,7 +126,7 @@ public class JarConverter extends M3Converter {
         //addToNames(compUnitName, compUnitLogical);
     }
     
-    private void setPackagesRelations(ISourceLocation compUnitPhysical) throws URISyntaxException {
+    private void setPackagesRelations() throws URISyntaxException {
         String compUnit = compUnitPhysical.getPath().substring(compUnitPhysical.getPath().lastIndexOf("!") + 1);
         String currentPackage = compUnit.substring(0,compUnit.lastIndexOf("/"));
         int packages = currentPackage.length() - currentPackage.replace("/", "").length();
@@ -151,7 +154,7 @@ public class JarConverter extends M3Converter {
         }
     }
     
-    private void setClassRelations(ISourceLocation compUnitPhysical) throws IOException, URISyntaxException {
+    private void setClassRelations() throws IOException, URISyntaxException {
         ClassReader cr = new ClassReader(URIResolverRegistry.getInstance().getInputStream(compUnitPhysical));
         ClassNode cn = new ClassNode();
         cr.accept(cn, ClassReader.SKIP_DEBUG);
@@ -175,6 +178,7 @@ public class JarConverter extends M3Converter {
         setModifiers(cn.access, classLogical);
         setAnnotations(composeAnnotations(cn.visibleAnnotations, cn.invisibleAnnotations), classLogical);
         setMethodRelations(cn, classLogical);
+        setFieldRelations(cn, classLogical);
     }
 
     private void setInnerClassRelations(ClassNode cn, ISourceLocation classLogical) throws URISyntaxException {
@@ -206,6 +210,67 @@ public class JarConverter extends M3Converter {
         }
     }
     
+    //TODO: set offset and length
+    private void setMethodRelations(ClassNode cn, ISourceLocation classLogical) throws URISyntaxException {
+        if(cn.methods != null) {
+            for(int i = 0; i < cn.methods.size(); i++) {
+                MethodNode mn = (MethodNode) cn.methods.get(i);
+                //ListIterator<AbstractInsnNode> iterator = mn.instructions.iterator();
+                
+                // TODO: check
+                if(!getClassScheme(cn.access).equals(ENUM_SCHEME) && !(mn.name.equalsIgnoreCase("values") || 
+                    mn.name.equalsIgnoreCase("valueOf"))) {
+                    String signature = getMethodSignature(mn, classLogical);
+                    
+                    IString methodName = values.string(signature.substring(0,signature.indexOf("(")));
+                    ISourceLocation methodLogical = values.sourceLocation(getMethodScheme(mn), "", 
+                        classLogical.getPath() + "/" + signature);
+                    //TODO: check offset + length
+                    ISourceLocation methodPhysical = compUnitPhysical;
+                    
+                    addToContainment(classLogical, methodLogical);
+                    addToDeclarations(methodLogical, methodPhysical);
+                    addToNames(methodName, methodLogical);
+                    
+                    setModifiers(mn.access, methodLogical);
+                    setAnnotations(composeAnnotations(mn.visibleAnnotations, mn.invisibleAnnotations), methodLogical);
+                    //TODO: we do not have access to parameters names - Check
+                    //setParameterRelations(mn, methodLogical);
+                }
+            }
+        }
+    }
+
+    private void setParameterRelations(MethodNode mn, ISourceLocation methodLogical) {
+        String[] parameters = getMethodParameters(mn);
+        for(String parameter : parameters) {
+            System.out.println(parameter);
+        }
+    }
+    
+    private void setFieldRelations(ClassNode cn, ISourceLocation classLogical) throws URISyntaxException {
+        if(cn.fields != null) {
+            for(int i = 0; i < cn.fields.size(); i++) {
+                FieldNode fn = (FieldNode) cn.fields.get(i);
+                System.out.println("NAME " + cn.name + " - METHOD: " + fn.name + " - " + fn.desc + " - " + fn.value);
+                if((fn.access & Opcodes.ACC_SYNTHETIC) != 0) {
+                    IString fieldName = values.string(fn.name);
+                    ISourceLocation fieldLogical = values.sourceLocation(getFiledScheme(fn), "", 
+                        classLogical.getPath() + "/" + fn.name);
+                    //TODO: check offset + length
+                    ISourceLocation fieldPhysical = compUnitPhysical;
+                    
+                    addToContainment(classLogical, fieldLogical);
+                    addToDeclarations(fieldLogical, fieldPhysical);
+                    addToNames(fieldName, fieldLogical);
+                    
+                    setModifiers(fn.access, fieldLogical);
+                    setAnnotations(composeAnnotations(fn.visibleAnnotations, fn.invisibleAnnotations), fieldLogical);
+                }
+            }
+        }
+    }    
+    
     //TODO: SourceConverter does not consider abstract modifier. Check.
     //TODO: Use parseModifiers(int modifiers) -> JavaToRascalConverter?
     private void setModifiers(int access, ISourceLocation classLogical) {
@@ -227,32 +292,12 @@ public class JarConverter extends M3Converter {
         }
     }
     
-    //TODO: set offset and length
-    private void setMethodRelations(ClassNode cn, ISourceLocation classLogical) throws URISyntaxException {
-        for(int i = 0; i < cn.methods.size(); i++) {
-            
-            MethodNode mn = (MethodNode) cn.methods.get(i);
-            ListIterator<AbstractInsnNode> iterator = mn.instructions.iterator();
-            
-            // TODO: check
-            if(!getClassScheme(cn.access).equals(ENUM_SCHEME) && !(mn.name.equalsIgnoreCase("values") || 
-                mn.name.equalsIgnoreCase("valueOf"))) {
-                String signature = getMethodSignature(mn, classLogical);
-                
-                IString methodName = values.string(signature.substring(0,signature.indexOf("(")));
-                ISourceLocation methodLogical = values.sourceLocation(getMethodScheme(mn), "", 
-                    classLogical.getPath() + "/" + signature);
-                ISourceLocation methodPhysical = getPhysicalLoc(loc, classLogical.getPath() + "/" + signature);
-                
-                addToContainment(classLogical, methodLogical);
-                addToDeclarations(methodLogical, methodPhysical);
-                addToNames(methodName, methodLogical);
-                
-                setModifiers(mn.access, methodLogical);
-                setAnnotations(composeAnnotations(mn.visibleAnnotations, mn.invisibleAnnotations), methodLogical);
-                
-            }
+    private List<AnnotationNode> composeAnnotations(List<AnnotationNode> ann1, List<AnnotationNode> ann2) {
+        List<AnnotationNode> annotations = (ann1 != null) ? new ArrayList<AnnotationNode>(ann1) : new ArrayList<AnnotationNode>();
+        if(ann2 != null) {
+            annotations.addAll(ann2);
         }
+        return annotations;
     }
     
     private void addToContainment(ISourceLocation parent, ISourceLocation child) {
@@ -265,14 +310,6 @@ public class JarConverter extends M3Converter {
     
     private void addToNames(IString name, ISourceLocation logical) {
         insert(names, name, logical);
-    }
-    
-    private List<AnnotationNode> composeAnnotations(List<AnnotationNode> ann1, List<AnnotationNode> ann2) {
-        List<AnnotationNode> annotations = (ann1 != null) ? new ArrayList<AnnotationNode>(ann1) : new ArrayList<AnnotationNode>();
-        if(ann2 != null) {
-            annotations.addAll(ann2);
-        }
-        return annotations;
     }
     
     private String getClassRelativePath(ClassNode cn) {
@@ -294,12 +331,23 @@ public class JarConverter extends M3Converter {
     
     private String getMethodSignature(MethodNode mn, ISourceLocation classLogical) {
         String signature = (mn.name.equals(COMPILED_CONSTRUCTOR_NAME)) ? getClassName(classLogical) + "(" : mn.name + "(";
-        org.objectweb.asm.Type[] arguments = org.objectweb.asm.Type.getType(mn.desc).getArgumentTypes();
-        for(org.objectweb.asm.Type argument : arguments) {
-            signature += (signature.endsWith("(")) ? argument.getClassName() : "," + argument.getClassName();
+        String[] parameters = getMethodParameters(mn);
+        for(String parameter : parameters) {
+            signature += (signature.endsWith("(")) ? parameter : "," + parameter;
         }
         signature += ")";
         return signature;
+    }
+    
+    private String[] getMethodParameters(MethodNode mn) {
+        org.objectweb.asm.Type[] arguments = org.objectweb.asm.Type.getType(mn.desc).getArgumentTypes();
+        String[] parameters = new String[arguments.length];
+        
+        for(int i = 0; i < arguments.length; i++) {
+            parameters[i] = arguments[i].getClassName();
+        }
+        
+        return parameters;
     }
     
     private String getClassScheme(int access) {
@@ -309,5 +357,9 @@ public class JarConverter extends M3Converter {
     
     private String getMethodScheme(MethodNode mn) {
         return (mn.name.equals(COMPILED_CONSTRUCTOR_NAME)) ? CONSTRUCTOR_SCHEME : METHOD_SCHEME;
+    }
+    
+    private String getFiledScheme(FieldNode fn) {
+        return ((fn.access & Opcodes.ACC_ENUM) != 0) ? ENUM_CONSTANT_SCHEME : FIELD_SCHEME;
     }
 }
