@@ -94,10 +94,11 @@ public class ConstructorResult extends NodeResult {
 		try {
 			Type consType = getValue().getConstructorType();
 			
-//			if (!getType().hasField(name, store)
-//					&& !getType().hasKeywordField(name, store)) {
-//				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
-//			}
+
+			if (!getType().hasField(name, store)
+					&& !getType().hasKeywordField(name, store)) {
+				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
+			}
 
 			if (!consType.hasField(name)
 					&& !consType.hasKeywordField(name, store)) {
@@ -107,10 +108,10 @@ public class ConstructorResult extends NodeResult {
 
 			if (getValue().mayHaveKeywordParameters() && getType().hasKeywordField(name, store)) { // it's a keyword parameter
 			    Type kwType = store.getKeywordParameterType(getValue().getConstructorType(), name);
-//			    if (kwType == null) {
-//			        kwType = store.getKeywordParameterType(getType(), name);
-//			    }
-//				assert kwType != null;
+			    if (kwType == null) {
+			        kwType = store.getKeywordParameterType(getType(), name);
+			    }
+				assert kwType != null;
 				
 			    IValue parameter = getValue().asWithKeywordParameters().getParameter(name);
 
