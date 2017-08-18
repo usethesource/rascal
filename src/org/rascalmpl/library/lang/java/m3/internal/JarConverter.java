@@ -278,10 +278,16 @@ public class JarConverter extends M3Converter {
     //Containment:
     //<|java+constructor:///uniandes/cupi2/lineasTelefonicas/interfaz/PanelLineaTelefonica/PanelLineaTelefonica(uniandes.cupi2.lineasTelefonicas.interfaz.InterfazLineasTelefonicas,int)|,
     //|java+parameter:///uniandes/cupi2/lineasTelefonicas/interfaz/PanelLineaTelefonica/PanelLineaTelefonica(uniandes.cupi2.lineasTelefonicas.interfaz.InterfazLineasTelefonicas,int)/scope(pNumeroLinea)/scope(0)/pNumeroLinea|>
-    private void setParameterRelations(MethodNode mn, ISourceLocation methodLogical) {
+    private void setParameterRelations(MethodNode mn, ISourceLocation methodLogical) throws URISyntaxException {
         String[] parameters = getMethodParameters(mn);
-        for(String parameter : parameters) {
-            System.out.println(parameter);
+        for(int i = 0; i < parameters.length; i++) {
+            IString parameterName = values.string("param" + 1);
+            ISourceLocation parameterLogical = URIUtil.changePath(methodLogical, methodLogical.getPath() + "/" + parameterName.getValue());
+            ISourceLocation parameterPhysical = compUnitPhysical;
+            
+            addToContainment(methodLogical, parameterLogical);
+            addToDeclarations(parameterPhysical, parameterLogical);
+            addToNames(parameterName, parameterLogical);
         }
     }
     
