@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.Commands;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URISyntaxException;
@@ -518,7 +519,7 @@ public class CommandOptions {
 				printUsageAndExit(e.getMessage());
 			}
 		} else {
-			return URIUtil.correctLocation(loc.startsWith("/") ? "file" : "cwd", "", loc);
+			return URIUtil.correctLocation(new File(loc).isAbsolute() ? "file" : "cwd", "", loc);
 		}
 		return null;
 	}
