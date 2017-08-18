@@ -99,6 +99,16 @@ public class ConstructorResult extends NodeResult {
 	        return keywordFieldAccess(consType, name, store);
 	    }
 	    else {
+	        // If the keyword field was defined on any of the other constructors, then 
+            // we see this as a dynamic error. (the programmer could not have known since
+            // constructor types are not first class citizens in Rascal). Otherwise the programmer
+            // used a completely unknown field name and we flag it as static error.
+            for (Type alt : store.lookupAlternatives(consType.getAbstractDataType())) {
+                if (store.hasKeywordParameter(alt, name)) {
+                    throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null); 
+                }
+            }
+            
 	        throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
 	    }
 	}
@@ -137,6 +147,7 @@ public class ConstructorResult extends NodeResult {
 	        }  
 
 	        throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
+	        
 	    } catch (UndeclaredAbstractDataTypeException e) {
 	        throw new UndeclaredType(getType().toString(), ctx.getCurrentAST());
 	    }
