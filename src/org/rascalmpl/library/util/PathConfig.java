@@ -430,7 +430,7 @@ public class PathConfig {
 	
 	public ISourceLocation getCourseLoc(String courseName) throws URISyntaxException, IOException{
 		for(ISourceLocation dir : courses){
-			ISourceLocation fileLoc = vf.sourceLocation(dir.getScheme(), dir.getAuthority(), dir.getPath() + courseName);
+			ISourceLocation fileLoc = vf.sourceLocation(dir.getScheme(), dir.getAuthority(), dir.getPath() + "/" + courseName);
 			if(URIResolverRegistry.getInstance().exists(fileLoc)){
 		    	return fileLoc;
 		    }
