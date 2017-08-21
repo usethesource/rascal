@@ -21,15 +21,17 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.InnerClassNode;
-import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
@@ -51,9 +53,12 @@ public class JarConverter extends M3Converter {
     private final static String INTERFACE_SCHEME = "java+interface";
     private final static String METHOD_SCHEME = "java+method";
     private final static String PACKAGE_SCHEME = "java+package";
+    private final static String PARAMETER_SCHEME = "java+parameter";
+    private final static String PRIMITIVE_TYPE_SCHEME = "java+primitiveType";
     private final static String COMPILED_CONSTRUCTOR_NAME = "<init>";
     
     private IMap modifiersMap;
+    private IMap primitiveTypesMap;
     private ISourceLocation compUnitPhysical;
 
     public JarConverter(LimitedTypeStore typeStore, Map<String, ISourceLocation> cache) {
@@ -64,6 +69,7 @@ public class JarConverter extends M3Converter {
     public void convert(ISourceLocation jarLoc) {
         this.loc = jarLoc;
         initializeModifiers();
+        initializePrimitiveTypes();
         
         try {            
             createM3(loc);
@@ -76,7 +82,6 @@ public class JarConverter extends M3Converter {
         }
     }
     
- // org.objectweb.asm.Type.BOOLEAN_TYPE.getDescriptor()
     private void initializeModifiers() {
         IMapWriter writer = values.mapWriter();
         writer.put(values.integer(Opcodes.ACC_ABSTRACT), constructModifierNode("abstract"));
@@ -91,6 +96,17 @@ public class JarConverter extends M3Converter {
         writer.put(values.integer(Opcodes.ACC_TRANSIENT), constructModifierNode("transient"));
         writer.put(values.integer(Opcodes.ACC_VOLATILE), constructModifierNode("volatile"));
         modifiersMap = writer.done();
+    }
+    
+    private void initializePrimitiveTypes() {
+        IMapWriter writer = values.mapWriter();
+        writer.put(values.string(Type.BOOLEAN_TYPE.getDescriptor()), values.string(Type.BOOLEAN_TYPE.getClassName()));
+        writer.put(values.string(Type.CHAR_TYPE.getDescriptor()), values.string(Type.CHAR_TYPE.getClassName()));
+        writer.put(values.string(Type.DOUBLE_TYPE.getDescriptor()), values.string(Type.DOUBLE_TYPE.getClassName()));
+        writer.put(values.string(Type.INT_TYPE.getDescriptor()), values.string(Type.INT_TYPE.getClassName()));
+        writer.put(values.string(Type.LONG_TYPE.getDescriptor()), values.string(Type.LONG_TYPE.getClassName()));
+        writer.put(values.string(Type.SHORT_TYPE.getDescriptor()), values.string(Type.SHORT_TYPE.getClassName()));
+        primitiveTypesMap = writer.done();
     }
     
     private void createM3(ISourceLocation uri) 
@@ -168,13 +184,12 @@ public class JarConverter extends M3Converter {
         addToContainment(compUnitLogical, classLogical);
         addToDeclarations(classPhysical, classLogical);
         addToNames(className, classLogical);
+        addToExtends(cn, classLogical);
+        addToImplements(cn, classLogical);
+        addToModifiers(cn.access, classLogical, true);
+        addToAnnotations(composeAnnotations(cn.visibleAnnotations, cn.invisibleAnnotations), classLogical);
         
         setInnerClassRelations(cn, classLogical);
-        setClassExtendsRelation(cn, classLogical);
-        setClassImplementsRelation(cn, classLogical);
-        
-        setModifiers(cn.access, classLogical, true);
-        setAnnotations(composeAnnotations(cn.visibleAnnotations, cn.invisibleAnnotations), classLogical);
         setMethodRelations(cn, classLogical);
         setFieldRelations(cn, classLogical);
     }
@@ -191,7 +206,7 @@ public class JarConverter extends M3Converter {
         }
     }
     
-    private void setClassExtendsRelation(ClassNode cn, ISourceLocation classLogical) throws URISyntaxException {
+    private void addToExtends(ClassNode cn, ISourceLocation classLogical) throws URISyntaxException {
         if(cn.superName != null && !(cn.superName.equalsIgnoreCase(Object.class.getName().replace(".", "/")) ||
             cn.superName.equalsIgnoreCase(Enum.class.getName().replace(".", "/")))) {
             //TODO: check class scheme (interfaces)
@@ -200,7 +215,7 @@ public class JarConverter extends M3Converter {
         }
     }
     
-    private void setClassImplementsRelation(ClassNode cn, ISourceLocation classLogical) throws URISyntaxException {
+    private void addToImplements(ClassNode cn, ISourceLocation classLogical) throws URISyntaxException {
         if(cn.interfaces != null) {
             for(int i = 0; i < cn.interfaces.size(); i++) {
                 ISourceLocation implementsLogical = values.sourceLocation(INTERFACE_SCHEME, "", 
@@ -215,7 +230,6 @@ public class JarConverter extends M3Converter {
         if(cn.methods != null) {
             for(int i = 0; i < cn.methods.size(); i++) {
                 MethodNode mn = (MethodNode) cn.methods.get(i);
-                //ListIterator<AbstractInsnNode> iterator = mn.instructions.iterator();
                 
                 // TODO: check
                 if(!getClassScheme(cn.access).equals(ENUM_SCHEME) && !(mn.name.equalsIgnoreCase("values") || 
@@ -231,10 +245,11 @@ public class JarConverter extends M3Converter {
                     addToContainment(classLogical, methodLogical);
                     addToDeclarations(methodLogical, methodPhysical);
                     addToNames(methodName, methodLogical);
+                    addToModifiers(mn.access, methodLogical);
+                    addToAnnotations(composeAnnotations(mn.visibleAnnotations, mn.invisibleAnnotations), methodLogical);
+                    addToTypeDependency(methodLogical, Type.getType(mn.desc).getReturnType().getDescriptor());
+                    addMethodOverrides(cn, mn, methodLogical);
                     
-                    setModifiers(mn.access, methodLogical);
-                    setAnnotations(composeAnnotations(mn.visibleAnnotations, mn.invisibleAnnotations), methodLogical);
-                    setMethodOverridesRelations(cn, mn, methodLogical);
                     //TODO: we do not have access to parameters names - Check
                     setParameterRelations(mn, methodLogical);
                     //setVariableRelations(mn, methodLogical);
@@ -243,7 +258,7 @@ public class JarConverter extends M3Converter {
         }
     }
 
-    private void setMethodOverridesRelations(ClassNode cn, MethodNode mn, ISourceLocation methodLogical) throws IOException, URISyntaxException {
+    private void addMethodOverrides(ClassNode cn, MethodNode mn, ISourceLocation methodLogical) throws IOException, URISyntaxException {
         if(cn.superName != null && !cn.superName.isEmpty()) {
             setMethodOverridesRelation(cn.superName, mn, methodLogical);
         }
@@ -269,34 +284,30 @@ public class JarConverter extends M3Converter {
                             superLogical.getPath() + "/" + signature);
                         
                         insert(methodOverrides, methodLogical, methodSuperLogical);
-                        setMethodOverridesRelations(cn, mn, methodLogical);
+                        addMethodOverrides(cn, mn, methodLogical);
                     }
                 }
             }
     }
     
-    //Containment:
-    //<|java+constructor:///uniandes/cupi2/lineasTelefonicas/interfaz/PanelLineaTelefonica/PanelLineaTelefonica(uniandes.cupi2.lineasTelefonicas.interfaz.InterfazLineasTelefonicas,int)|,
-    //|java+parameter:///uniandes/cupi2/lineasTelefonicas/interfaz/PanelLineaTelefonica/PanelLineaTelefonica(uniandes.cupi2.lineasTelefonicas.interfaz.InterfazLineasTelefonicas,int)/scope(pNumeroLinea)/scope(0)/pNumeroLinea|>
     private void setParameterRelations(MethodNode mn, ISourceLocation methodLogical) throws URISyntaxException {
-        String[] parameters = getMethodParameters(mn);
+        Type[] parameters = Type.getType(mn.desc).getArgumentTypes();
         for(int i = 0; i < parameters.length; i++) {
             IString parameterName = values.string("param" + 1);
-            ISourceLocation parameterLogical = URIUtil.changePath(methodLogical, methodLogical.getPath() + "/" + parameterName.getValue());
+            ISourceLocation parameterLogical = values.sourceLocation(PARAMETER_SCHEME, "", 
+                methodLogical.getPath() + "/" + parameterName.getValue());
             ISourceLocation parameterPhysical = compUnitPhysical;
             
             addToContainment(methodLogical, parameterLogical);
             addToDeclarations(parameterPhysical, parameterLogical);
             addToNames(parameterName, parameterLogical);
+            addToTypeDependency(parameterLogical, parameters[i].getDescriptor());
         }
     }
     
     private void setVariableRelations(MethodNode mn, ISourceLocation methodLogical) {
-        if(mn.localVariables != null) {
-            for(int i = 0; i < mn.localVariables.size(); i++) {
-                LocalVariableNode vn = (LocalVariableNode) mn.localVariables.get(i);
-                System.out.println(vn.desc + " - From: " + vn.start + " To: " + vn.end + " - " + vn.name + " - " + vn.signature);
-            }
+        if(mn.instructions != null) {
+            ListIterator<AbstractInsnNode> iterator = mn.instructions.iterator();
         }
     }
     
@@ -315,17 +326,29 @@ public class JarConverter extends M3Converter {
                     addToContainment(classLogical, fieldLogical);
                     addToDeclarations(fieldLogical, fieldPhysical);
                     addToNames(fieldName, fieldLogical);
-                    
-                    setModifiers(fn.access, fieldLogical);
-                    setAnnotations(composeAnnotations(fn.visibleAnnotations, fn.invisibleAnnotations), fieldLogical);
+                    addToModifiers(fn.access, fieldLogical);
+                    addToAnnotations(composeAnnotations(fn.visibleAnnotations, fn.invisibleAnnotations), fieldLogical);
+                    addToTypeDependency(fieldLogical, fn.desc);
                 }
             }
         }
     }    
     
+    private void addToContainment(ISourceLocation parent, ISourceLocation child) {
+        insert(containment, parent, child);
+    }
+    
+    private void addToDeclarations(ISourceLocation logical, ISourceLocation physical) {
+        insert(declarations, logical, physical);
+    }
+    
+    private void addToNames(IString name, ISourceLocation logical) {
+        insert(names, name, logical);
+    }
+    
     //TODO: SourceConverter does not consider abstract modifier. Check.
     //TODO: Use parseModifiers(int modifiers) -> JavaToRascalConverter?
-    private void setModifiers(int access, ISourceLocation logical, boolean...isClass) {
+    private void addToModifiers(int access, ISourceLocation logical, boolean...isClass) {
         for(int i = 0; i < 15; i++) {
             // Identify modifiers by filtering the access flags
             int shift = 0x1 << i;
@@ -337,11 +360,19 @@ public class JarConverter extends M3Converter {
         }
     }
     
-    private void setAnnotations(List<AnnotationNode> annotations, ISourceLocation classLogical) throws URISyntaxException {
+    private void addToAnnotations(List<AnnotationNode> annotations, ISourceLocation classLogical) throws URISyntaxException {
         for(AnnotationNode node : annotations) {
             ISourceLocation annotationLogical = values.sourceLocation(INTERFACE_SCHEME, "", 
-                org.objectweb.asm.Type.getType(node.desc).getInternalName());
+                Type.getType(node.desc).getInternalName());
             insert(this.annotations, classLogical, annotationLogical);
+        }
+    }
+    
+    //Desc: descriptor ASM
+    private void addToTypeDependency(ISourceLocation logical, String desc) throws URISyntaxException {
+        if(!desc.equals(Type.VOID_TYPE.getDescriptor())) {
+            ISourceLocation classLogical = getLogicalLoc(desc);
+            insert(typeDependency, logical, classLogical);
         }
     }
     
@@ -351,18 +382,6 @@ public class JarConverter extends M3Converter {
             annotations.addAll(ann2);
         }
         return annotations;
-    }
-    
-    private void addToContainment(ISourceLocation parent, ISourceLocation child) {
-        insert(containment, parent, child);
-    }
-    
-    private void addToDeclarations(ISourceLocation physical, ISourceLocation logical) {
-        insert(declarations, logical, physical);
-    }
-    
-    private void addToNames(IString name, ISourceLocation logical) {
-        insert(names, name, logical);
     }
     
     private ClassReader getClassReader(String className) throws IOException, URISyntaxException {
@@ -392,6 +411,14 @@ public class JarConverter extends M3Converter {
         return classLogical.getPath().substring(classLogical.getPath().lastIndexOf("/") + 1);
     }
     
+    //TODO: All fields cannot have a clear scheme (e.g. interface). "java+class" will be the default scheme.
+    private ISourceLocation getLogicalLoc(String desc) throws URISyntaxException {
+        String scheme = (primitiveTypesMap.containsKey(values.string(desc))) ? PRIMITIVE_TYPE_SCHEME : CLASS_SCHEME;
+        ISourceLocation classLogical = values.sourceLocation(scheme, "", 
+            org.objectweb.asm.Type.getType(desc).getClassName().replace(".", "/"));
+        return classLogical;
+    }
+    
     private ISourceLocation getPhysicalLoc(ISourceLocation uri, String path) throws URISyntaxException {
         return URIUtil.changePath(uri, uri.getPath() + "/" + path);
     }
@@ -407,7 +434,7 @@ public class JarConverter extends M3Converter {
     }
     
     private String[] getMethodParameters(MethodNode mn) {
-        org.objectweb.asm.Type[] arguments = org.objectweb.asm.Type.getType(mn.desc).getArgumentTypes();
+        org.objectweb.asm.Type[] arguments = Type.getType(mn.desc).getArgumentTypes();
         String[] parameters = new String[arguments.length];
         
         for(int i = 0; i < arguments.length; i++) {
