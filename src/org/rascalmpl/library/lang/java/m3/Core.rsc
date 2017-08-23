@@ -136,20 +136,6 @@ public M3 createM3FromJar(loc jarFile) {
     model.typeDependency = model.typeDependency + dependsOn;
 
 	return model;
-   // map[str,M3] m3Map = (classPathToStr(jc): createM3FromJarClass(jc) | /file(jc) <- crawl(jarFile), jc.extension == "class");
-    
-    //rel[str,str] inheritsFrom = { *{ <c.path, i.path> | <c, i> <- (model.implements + model.extends),
-    //    c.path in m3Map && i.path in m3Map } | model <- range(m3Map) }+;
-    //
-    //map[str, rel[loc from,loc to]] methodOverrides = ( c: m3Map[c].methodOverrides | c <- m3Map );
-    //for(<c, sc> <- inheritsFrom) {
-	   //     // this is not	100% correct, since java method overriden allows be on a subtype in the signatures since java6
-	   //     methodSC = { <m.file, m> | <m, p> <- m3Map[sc].modifiers, (p == \public() || p == \protected()) && m.scheme == "java+method"  };	
-	   //     ownMethods = { <m, m.file> |  m <- methods(m3Map[c]) - constructors(m3Map[c])};
-	   //     methodOverrides[c] += ownMethods o methodSC;
-    //}
-    //
-    //return composeJavaM3(jarLoc, {m3Map[c][methodOverrides = methodOverrides[c]] | c <- m3Map });
 }
 
 private str classPathToStr(loc jarClass) {
