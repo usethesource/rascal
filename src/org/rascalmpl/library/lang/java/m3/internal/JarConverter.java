@@ -30,6 +30,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.InnerClassNode;
 import org.objectweb.asm.tree.MethodInsnNode;
@@ -340,7 +341,7 @@ public class JarConverter extends M3Converter {
                     addToModifiers(mn.access, methodLogical);
                     addToAnnotations(composeAnnotations(mn.visibleAnnotations, mn.invisibleAnnotations), methodLogical);
                     addToTypeDependency(methodLogical, Type.getType(mn.desc).getReturnType().getDescriptor());
-                    addMethodOverrides(cn, mn, methodLogical);
+                    addToMethodOverrides(cn, mn, methodLogical);
                     
                     //TODO: we do not have access to parameters names - Check
                     setParameterRelations(mn, methodLogical);
@@ -354,7 +355,7 @@ public class JarConverter extends M3Converter {
      * Generates method overrides relations among and input method
      * node and super class and interfaces methods.
      */
-    private void addMethodOverrides(ClassNode cn, MethodNode mn, ISourceLocation methodLogical) throws IOException, URISyntaxException {
+    private void addToMethodOverrides(ClassNode cn, MethodNode mn, ISourceLocation methodLogical) throws IOException, URISyntaxException {
         if(cn.superName != null && !cn.superName.isEmpty()) {
             setMethodOverridesRelation(cn.superName, mn, methodLogical);
         }
@@ -386,7 +387,7 @@ public class JarConverter extends M3Converter {
                                 superLogical.getPath() + "/" + signature);
                             
                             insert(methodOverrides, methodLogical, methodSuperLogical);
-                            addMethodOverrides(cn, mn, methodLogical);
+                            addToMethodOverrides(cn, mn, methodLogical);
                         }
                     }
                 }
@@ -429,12 +430,15 @@ public class JarConverter extends M3Converter {
                 if(n instanceof MethodInsnNode) {
                     visit(mn, methodLogical, (MethodInsnNode) n);
                 }
+                else if(n instanceof FieldInsnNode) {
+                    visit(mn, methodLogical, (FieldInsnNode) n);
+                }
             }
         }
     }
     
     /**
-     * Visits an ASM MethodInsNode wich represents a method invocation 
+     * Visits an ASM MethodInsNode which represents a method invocation 
      * instruction. Generates the method invocation relation.
      */
     private void visit(MethodNode mn, ISourceLocation methodLogical, MethodInsnNode n) throws URISyntaxException {
@@ -442,6 +446,16 @@ public class JarConverter extends M3Converter {
         ISourceLocation methodInvocationLogical = values.sourceLocation(getMethodScheme(n.name), "", 
             n.owner + "/" + signature);
         addToMethodInvocation(methodLogical, methodInvocationLogical);
+    }
+    
+    //TODO: default scheme: java+field. Constants are not considered.
+    /**
+     * Visits an ASM FieldInsNode which represents a field loading or storing 
+     * instruction. Generates the field access relation.
+     */
+    private void visit(MethodNode mn, ISourceLocation methodLogical, FieldInsnNode n) throws URISyntaxException {
+        ISourceLocation fieldLogical = values.sourceLocation(FIELD_SCHEME, "", n.owner + "/" + n.name);
+        addToFieldAccess(methodLogical, fieldLogical);
     }
     
     /**
@@ -535,6 +549,13 @@ public class JarConverter extends M3Converter {
      */
     private void addToMethodInvocation(ISourceLocation methodLogical, ISourceLocation methodInvocationLogical) {
         insert(methodInvocation, methodLogical, methodInvocationLogical);
+    }
+    
+    /**
+     * Adds a method-field location tuple to the field access relation.
+     */
+    private void addToFieldAccess(ISourceLocation methodLogical, ISourceLocation fieldLogical) {
+        insert(fieldAccess, methodLogical, fieldLogical);
     }
     
     /**
