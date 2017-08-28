@@ -35,6 +35,7 @@ import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.InnerClassNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.TypeInsnNode;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
@@ -433,29 +434,45 @@ public class JarConverter extends M3Converter {
                 else if(n instanceof FieldInsnNode) {
                     visit(mn, methodLogical, (FieldInsnNode) n);
                 }
+                else if(n instanceof TypeInsnNode) {
+                    visit(mn, methodLogical, (TypeInsnNode) n);
+                }
             }
         }
     }
     
     /**
      * Visits an ASM MethodInsNode which represents a method invocation 
-     * instruction. Generates the method invocation relation.
+     * instruction. Generates the method invocation relation and adds the 
+     * corresponding type dependency tuple.
      */
     private void visit(MethodNode mn, ISourceLocation methodLogical, MethodInsnNode n) throws URISyntaxException {
         String signature = getMethodSignature(n.name, n.desc, ((IString)getClassName(n.owner)).getValue());
         ISourceLocation methodInvocationLogical = values.sourceLocation(getMethodScheme(n.name), "", 
             n.owner + "/" + signature);
         addToMethodInvocation(methodLogical, methodInvocationLogical);
+        // The class of the current method may also have a dependency on the same type.
+        addToTypeDependency(methodLogical, n.owner);
     }
     
     //TODO: default scheme: java+field. Constants are not considered.
     /**
      * Visits an ASM FieldInsNode which represents a field loading or storing 
-     * instruction. Generates the field access relation.
+     * instruction. Generates the field access relation and adds the corresponding
+     * type dependency tuple.
      */
     private void visit(MethodNode mn, ISourceLocation methodLogical, FieldInsnNode n) throws URISyntaxException {
         ISourceLocation fieldLogical = values.sourceLocation(FIELD_SCHEME, "", n.owner + "/" + n.name);
         addToFieldAccess(methodLogical, fieldLogical);
+        addToTypeDependency(methodLogical, n.owner);
+    }
+    
+    /**
+     * Visits an ASM TypeInsnNode which represents a type instruction (receives 
+     * a type descriptor. Generates the type dependency relation.
+     */
+    private void visit(MethodNode mn, ISourceLocation methodLogical, TypeInsnNode n) throws URISyntaxException {
+        addToTypeDependency(methodLogical, n.desc);
     }
     
     /**
@@ -520,7 +537,7 @@ public class JarConverter extends M3Converter {
     }
     
     /**
-     * Adds a class-super class location tuple to the extends relation.
+     * Adds a class-superclass location tuple to the extends relation.
      */
     private void addToExtends(ClassNode cn, ISourceLocation classLogical) throws URISyntaxException {
         if(cn.superName != null && !(cn.superName.equalsIgnoreCase(Object.class.getName().replace(".", "/")) ||
@@ -632,9 +649,9 @@ public class JarConverter extends M3Converter {
     //TODO: All fields cannot have a clear scheme (e.g. interface). "java+class" will be the default scheme.
     private ISourceLocation getTypeLogicalLoc(String desc) throws URISyntaxException {
         String scheme = (primitiveTypesMap.containsKey(values.string(desc))) ? PRIMITIVE_TYPE_SCHEME : CLASS_SCHEME;
-        ISourceLocation classLogical = values.sourceLocation(scheme, "", 
-            Type.getType(desc).getClassName().replace(".", "/"));
-        return classLogical;
+        return (scheme == CLASS_SCHEME && !desc.startsWith("L")) ? 
+            values.sourceLocation(scheme, "", desc) :
+            values.sourceLocation(scheme, "", Type.getType(desc).getClassName().replace(".", "/"));
     }
     
     /**
