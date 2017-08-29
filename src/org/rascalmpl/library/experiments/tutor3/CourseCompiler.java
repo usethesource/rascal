@@ -240,10 +240,10 @@ public class CourseCompiler {
 					           cmdOpts.getCommandLocOption("boot"),
 					           cmdOpts.getCommandLocsOption("course"));   
 		
-		Path coursesSrcPath = Paths.get(((ISourceLocation)pcfg.getCourses().get(0)).getPath());
-		Path libSrcPath = Paths.get(((ISourceLocation)pcfg.getSrcs().get(0)).getPath());
+		Path coursesSrcPath = Paths.get(((ISourceLocation)pcfg.getCourses().get(0)).getURI());
+		Path libSrcPath = Paths.get(((ISourceLocation)pcfg.getSrcs().get(0)).getURI());
 		
-		Path destPath = Paths.get(((ISourceLocation)pcfg.getBin()).getPath()).resolve("courses");
+		Path destPath = Paths.get(((ISourceLocation)pcfg.getBin()).getURI()).resolve("courses");
 		
 		if (
 		    copyStandardFiles(coursesSrcPath, destPath)
