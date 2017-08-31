@@ -9,50 +9,43 @@ import util::ShellExec;
 import util::notebook::Mode;
 import util::notebook::CodeMirror;
 
-//alias Notebook[&T] = tuple[void() serve, void() stop];
-
-data Notebook
-	= notebook(REPL repl, loc kernelPath)
-	;
+	
+data NotebookServer = 
+	notebook(void () serve, void() stop);	
 	
 data KernelInfo
-	= kernelInfo(str languageName, str projectPath, str moduleName, str variableName)
-	;
+	= kernelInfo(str languageName, str projectPath, str moduleName, str variableName, loc logo = |tmp:///|);
 
 str JUPYTER_PATH = "/Library/Frameworks/Python.framework/Versions/3.6/bin/jupyter";
 loc JUPYTER_FRONTEND_PATH = |home:///Documents/Jupyter/forked-notebook/notebook/static/components/codemirror/mode/|;
 
 /*
-* This function starts a notebook without a custom codemirror mode
+* This function starts a notebook WITHOUT a custom codemirror mode
 */
-PID startNotebook(KernelInfo kernelInfo, loc logo =|tmp:///|){
+NotebookServer startNotebookServer(KernelInfo kernelInfo){
 	generateKernel(kernelInfo);
-	if(logo!=|tmp:///|)
-		copyLogoToKernel(logo, |tmp:///<kernelInfo.languageName>|);
-	return startJupyterServer();
+	return notebook( void () { pid = startJupyterServer(); }, void () { killProcess(pid); });
 }
 
 /* 
 * This function starts a notebook with a custom codemirror mode generated based on on the defined mode
 */
-PID startNotebook(KernelInfo kernelInfo, Mode mode, loc logo =|tmp:///|){
+NotebookServer startNotebookServer(KernelInfo kernelInfo, Mode mode){
 	generateKernel(kernelInfo);
-	if(logo!=|tmp:///|)
-		copyLogoToKernel(logo, |tmp:///<kernelInfo.languageName>|);
 	generateCodeMirror(mode);
-	return startJupyterServer();
+	return notebook( void () { pid = startJupyterServer(); }, void () { killProcess(pid); });
 }
 
 /*
 * This function starts a notebook with a custom codemirror mode generated based on the grammar
 */
-PID startNotebook(KernelInfo kernelInfo, type[&T <: Tree] sym, loc logo =|tmp:///|){
+NotebookServer startNotebookServer(KernelInfo kernelInfo, type[&T <: Tree] sym){
 	generateKernel(kernelInfo);
-	if(logo!=|tmp:///|)
-		copyLogoToKernel(logo, |tmp:///<kernelInfo.languageName>|);
 	generateCodeMirror(grammar2mode(kernelInfo.languageName, sym));
-	return startJupyterServer();
+	int pid = -1;
+	return notebook( void () { pid = startJupyterServer(); }, void () { killProcess(pid); });
 }
+
 /*
 * This function takes the url of a logo image (64x64) for the language to be displayed in the browser when the kernel is loaded
 */
@@ -73,6 +66,8 @@ void generateCodeMirror(Mode mode){
 
 void generateKernel(KernelInfo kernelInfo){
 	writeFile(|tmp:///<kernelInfo.languageName>|+"kernel.json", createKernelFile(kernelInfo));
+	if(kernelInfo.logo != |tmp:///|)
+		copyLogoToKernel(kernelInfo.logo, |tmp:///<kernelInfo.languageName>|);
 	PID kernelInstallation = createProcess(JUPYTER_PATH, args=["kernelspec", "install", resolveLocation(|tmp:///<kernelInfo.languageName>|).path]);
 }
 
