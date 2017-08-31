@@ -11,8 +11,6 @@ alias CommandResult
   = tuple[str result, list[Message] messages] 
   ;
   
-
-  
 alias CompletionFunction = Completion (str prefix, int requestOffset)
   ;
   
