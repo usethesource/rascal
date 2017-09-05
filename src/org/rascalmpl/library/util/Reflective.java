@@ -81,6 +81,10 @@ public class Reflective {
 	}
 	
 	
+	public void resetJavaBridge(IEvaluatorContext ctx) {
+	    ctx.getEvaluator().resetJavaBridge();
+	}
+	
 	public IValue getRascalClasspath(IEvaluatorContext ctx) {
 	    return values.string(ctx.getConfiguration().getRascalJavaClassPathProperty());
 	}
