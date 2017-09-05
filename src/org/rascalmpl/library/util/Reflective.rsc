@@ -21,6 +21,12 @@ import util::SystemAPI;
 import lang::rascal::\syntax::Rascal;
 import lang::manifest::IO;
 
+
+@javaClass{org.rascalmpl.library.util.Reflective}
+@reflect{Manipulates evaluator to forget about old class instances}
+public java void resetJavaBridge();
+
+
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to evaluate}
 public java lrel[str result, str out, str err] evalCommands(list[str] command, loc org);
