@@ -128,7 +128,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	 */
 	private volatile boolean interrupt = false;
 
-	private final JavaBridge javaBridge; // TODO: sharable if synchronized
+	private JavaBridge javaBridge; // TODO: sharable if synchronized
 
 	/**
 	 * Used in runtime error messages
@@ -258,6 +258,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
 	}
 
+	public void resetJavaBridge() {
+	    this.javaBridge = new JavaBridge(classLoaders, vf, config);
+	}
+	
 	@Override
 	public IRascalMonitor setMonitor(IRascalMonitor monitor) {
 		if (monitor == this) {
