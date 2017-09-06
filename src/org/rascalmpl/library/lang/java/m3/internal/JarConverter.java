@@ -18,11 +18,14 @@
 package org.rascalmpl.library.lang.java.m3.internal;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
 
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
@@ -46,11 +49,11 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 
 public class JarConverter extends M3Converter {
-    
+
     //------------------------------------------------------------
     // Constants
     //------------------------------------------------------------
-    
+
     /**
      * Constants with common sour location schemes.
      */
@@ -65,47 +68,47 @@ public class JarConverter extends M3Converter {
     private final static String PACKAGE_SCHEME = "java+package";
     private final static String PARAMETER_SCHEME = "java+parameter";
     private final static String PRIMITIVE_TYPE_SCHEME = "java+primitiveType";
-    
+
     /**
      * Constant with the name of consructor methods in Java bytecode.
      */
     private final static String COMPILED_CONSTRUCTOR_NAME = "<init>";
-    
-    
+
+
     //------------------------------------------------------------
     // Fields
     //------------------------------------------------------------
-    
+
     /**
      * Map relating modifiers opcodes with modifier nodes.
      */
     private IMap modifiersMap;
-    
+
     /**
      * Map relating primitive type descriptors with their corresponding type names.
      */
     private IMap primitiveTypesMap;
-    
+
     /**
      * Physical source location of the current compilation unit. A .class file
      * is considered as a computational unit.
      */
     private ISourceLocation compUnitPhysical;
-    
+
     /**
      * URI resolver registry
      */
     private URIResolverRegistry resgistry;
 
-    
+
     //------------------------------------------------------------
     // Methods
     //------------------------------------------------------------
-    
+
     public JarConverter(LimitedTypeStore typeStore, Map<String, ISourceLocation> cache) {
         super(typeStore, cache);
     }
-    
+
     /**
      * Orchestrates the generation of a M3 model from a Jar file. 
      * @param jarLoc - the source location is delivered with a 
@@ -115,10 +118,10 @@ public class JarConverter extends M3Converter {
     public void convert(ISourceLocation jarLoc) {
         loc = jarLoc;
         resgistry = URIResolverRegistry.getInstance();
-        
+
         initializeModifiers();
         initializePrimitiveTypes();
-        
+
         try {            
             createM3(loc);
         }
@@ -129,7 +132,7 @@ public class JarConverter extends M3Converter {
             e.printStackTrace();
         }
     }
-    
+
     /**
      * Initialized the modifiers map by considering modifier opcodes
      * and their corresponding modifier nodes.
@@ -149,7 +152,7 @@ public class JarConverter extends M3Converter {
         writer.put(values.integer(Opcodes.ACC_VOLATILE), constructModifierNode("volatile"));
         modifiersMap = writer.done();
     }
-    
+
     /**
      * Initializes the primitive types map by considering Java bytecode
      * descriptors and their corresponding type names.
@@ -164,33 +167,56 @@ public class JarConverter extends M3Converter {
         writer.put(values.string(Type.SHORT_TYPE.getDescriptor()), values.string(Type.SHORT_TYPE.getClassName()));
         primitiveTypesMap = writer.done();
     }
-    
+
     /**
      * From a physical source location the method searches recursively for all existing 
      * .class files. Once a file is found the compilation unit is set and 
      * relations related to it, to related packages and classes are generated.
      */
+    //TODO: change when JarInputStream problem is solved.
     private void createM3(ISourceLocation uri) 
         throws IOException, URISyntaxException {
-        String[] content = resgistry.listEntries(uri);
-            
-        for(String path : content) {
-            ISourceLocation local = getPhysicalLoc(uri, path);
-            
-            if(resgistry.isFile(local) && local.getPath().endsWith(".class")) {     
-                compUnitPhysical = local;
+        ISourceLocation jarLocation = values.sourceLocation("file", "", loc.getPath().substring(0,loc.getPath().indexOf("!")));
+        InputStream is = resgistry.getInputStream(jarLocation);
+        JarInputStream jarStream = new JarInputStream(is);
+        JarEntry entry = jarStream.getNextJarEntry();
+
+        while (entry != null) {
+            compUnitPhysical = getPhysicalLoc(uri, entry.getName());
+            if(entry.getName().endsWith(".class")) {
                 String compUnit = getCompilationUnitRelativePath();
-                
+                ClassReader cr = getClassReader(jarStream);
+
                 setCompilationUnitRelations(compUnit);
                 setPackagesRelations(compUnit);
-                setClassRelations(compUnit);
+                setClassRelations(cr, compUnit);
             }
-            else if(resgistry.isDirectory(local)) {
-                createM3(local);
-            }
+            entry = jarStream.getNextJarEntry();
         }
     }
-    
+
+    //  private void createM3(ISourceLocation uri) 
+    //  throws IOException, URISyntaxException {
+    //  String[] content = resgistry.listEntries(uri);
+    //      
+    //  for(String path : content) {
+    //      ISourceLocation local = getPhysicalLoc(uri, path);
+    //      System.out.println(local);
+    //      
+    //      if(resgistry.isFile(local) && local.getPath().endsWith(".class")) {     
+    //          compUnitPhysical = local;
+    //          String compUnit = getCompilationUnitRelativePath();
+    //          
+    //          setCompilationUnitRelations(compUnit);
+    //          setPackagesRelations(compUnit);
+    //          setClassRelations(compUnit);
+    //      }
+    //      else if(resgistry.isDirectory(local)) {
+    //          createM3(local);
+    //      }
+    //  }
+    //}
+
     /**
      * Generates compilation unit relations given a compilation unit relative
      * path. Considered relations: containment, declarations, and names.
@@ -199,14 +225,14 @@ public class JarConverter extends M3Converter {
         IString compUnitName = values.string(compUnitRelative);
         ISourceLocation packageLogical = getParentPackageLogicalLoc(compUnitRelative);
         ISourceLocation compUnitLogical = values.sourceLocation(COMP_UNIT_SCHEME, "", compUnitRelative);
-        
+
         addToContainment(packageLogical, compUnitLogical);
         //TODO: same offset of the contained class?
         addToDeclarations(compUnitLogical, compUnitPhysical);
         //TODO: M3 from directory does not add it to the names relation. Check.
         //addToNames(compUnitName, compUnitLogical);
     }
-    
+
     /**
      * Generates package relations given a compilation unit relative path. 
      * Considered relations: containment, declarations, and names.
@@ -214,46 +240,47 @@ public class JarConverter extends M3Converter {
     private void setPackagesRelations(String compUnitRelative) throws URISyntaxException {
         ISourceLocation currentPkgLogical = getParentPackageLogicalLoc(compUnitRelative);
         int packages = currentPkgLogical.getPath().length() - currentPkgLogical.getPath().replace("/", "").length();
-        
+
         for(int i = 1; i < packages; i++) {
             IString currentName = getName(currentPkgLogical);
             ISourceLocation parentPkgLogical = getParentPackageLogicalLoc(currentPkgLogical.getPath());
             ISourceLocation parentPkgPhysical = getPhysicalLoc(loc, parentPkgLogical.getPath());
             ISourceLocation currentPkgPhysical = getPhysicalLoc(loc, currentPkgLogical.getPath());
-            
+
             addToContainment(parentPkgLogical, currentPkgLogical);
             addToDeclarations(currentPkgLogical, currentPkgPhysical);
             addToNames(currentName, currentPkgLogical);
-            
+
             if(i == packages - 1) {
                 IString parentName = getName(parentPkgLogical);
                 addToDeclarations(parentPkgLogical, parentPkgPhysical);
                 addToNames(parentName, parentPkgLogical);
             }
-            
+
             currentPkgLogical = parentPkgLogical;
         }
     }
-    
+
     /**
      * Generates class relations given a compilation unit relative path. 
      * Then, inner class, field, and method relations are generated.
      * Considered relations: containment, declarations, names, extends,
      * implements, modifiers, and annotations.    
      */
-    private void setClassRelations(String compUnitRelative) throws IOException, URISyntaxException {
-        ClassReader cr = getClassReader(compUnitRelative);
-        
+    private void setClassRelations(ClassReader cr, String compUnitRelative) throws IOException, URISyntaxException {
+        //TODO: change when JarInputStream problem is solved.
+        //ClassReader cr = getClassReader(compUnitRelative);
+
         if(cr != null) {
             ClassNode cn = new ClassNode();
             cr.accept(cn, ClassReader.SKIP_DEBUG);
-            
+
             IString className = getClassName(cn.name);
             ISourceLocation compUnitLogical = values.sourceLocation(COMP_UNIT_SCHEME, "", compUnitRelative);
             ISourceLocation classLogical = values.sourceLocation(getClassScheme(cn.access), "", getClassRelativePath(cn.name));
             //TODO: check the offset and length info. 
             ISourceLocation classPhysical = values.sourceLocation(compUnitPhysical, cr.header, cr.b.length);
-            
+
             addToContainment(compUnitLogical, classLogical);
             addToDeclarations(classLogical, classPhysical);
             addToNames(className, classLogical);
@@ -261,7 +288,7 @@ public class JarConverter extends M3Converter {
             addToImplements(cn, classLogical);
             addToModifiers(cn.access, classLogical, true);
             addToAnnotations(composeAnnotations(cn.visibleAnnotations, cn.invisibleAnnotations), classLogical);
-            
+
             setInnerClassRelations(cn, classLogical);
             setFieldRelations(cn, classLogical);
             setMethodRelations(cn, classLogical);
@@ -277,7 +304,7 @@ public class JarConverter extends M3Converter {
             for(int i = 0; i < cn.innerClasses.size(); i++) {
                 InnerClassNode icn = (InnerClassNode) cn.innerClasses.get(i);
                 String innerClassPath = icn.name.replace("$", "/");
-                
+
                 if(!innerClassPath.equals(cn.name.replace("$", "/"))) {
                     ISourceLocation innerClassLogical = values.sourceLocation(getClassScheme(icn.access), "", innerClassPath);
                     addToContainment(classLogical, innerClassLogical);
@@ -285,7 +312,7 @@ public class JarConverter extends M3Converter {
             }
         }
     }
-    
+
     /**
      * Generates field relations given an ASM class node and its logical 
      * source location. Considered relations: containment, declarations, 
@@ -295,14 +322,14 @@ public class JarConverter extends M3Converter {
         if(cn.fields != null) {
             for(int i = 0; i < cn.fields.size(); i++) {
                 FieldNode fn = (FieldNode) cn.fields.get(i);
-                
+
                 if((fn.access & Opcodes.ACC_SYNTHETIC) == 0) {
                     IString fieldName = values.string(fn.name);
                     ISourceLocation fieldLogical = values.sourceLocation(getFieldScheme(fn.access), "", 
                         classLogical.getPath() + "/" + fn.name);
                     //TODO: check offset + length
                     ISourceLocation fieldPhysical = compUnitPhysical;
-                    
+
                     addToContainment(classLogical, fieldLogical);
                     addToDeclarations(fieldLogical, fieldPhysical);
                     addToNames(fieldName, fieldLogical);
@@ -313,7 +340,7 @@ public class JarConverter extends M3Converter {
             }
         }
     }
-    
+
     /**
      * Generates method relations given an ASM class node and its logical 
      * source location. Then, parameter and variable relations are generated. 
@@ -324,18 +351,18 @@ public class JarConverter extends M3Converter {
         if(cn.methods != null) {
             for(int i = 0; i < cn.methods.size(); i++) {
                 MethodNode mn = (MethodNode) cn.methods.get(i);
-                
+
                 // TODO: check
                 if(!getClassScheme(cn.access).equals(ENUM_SCHEME) && !(mn.name.equalsIgnoreCase("values") || 
                     mn.name.equalsIgnoreCase("valueOf"))) {
                     String signature = getMethodSignature(mn.name, mn.desc, getName(classLogical).getValue());
-                    
+
                     IString methodName = values.string(signature.substring(0,signature.indexOf("(")));
                     ISourceLocation methodLogical = values.sourceLocation(getMethodScheme(mn.name), "", 
                         classLogical.getPath() + "/" + signature);
                     //TODO: check offset + length
                     ISourceLocation methodPhysical = compUnitPhysical;
-                    
+
                     addToContainment(classLogical, methodLogical);
                     addToDeclarations(methodLogical, methodPhysical);
                     addToNames(methodName, methodLogical);
@@ -343,7 +370,7 @@ public class JarConverter extends M3Converter {
                     addToAnnotations(composeAnnotations(mn.visibleAnnotations, mn.invisibleAnnotations), methodLogical);
                     addToTypeDependency(methodLogical, Type.getType(mn.desc).getReturnType().getDescriptor());
                     addToMethodOverrides(cn, mn, methodLogical);
-                    
+
                     //TODO: we do not have access to parameters names - Check
                     setParameterRelations(mn, methodLogical);
                     setInstructionRelations(mn, methodLogical);
@@ -366,35 +393,35 @@ public class JarConverter extends M3Converter {
             }
         }
     }
-    
+
     /**
      * Generates method overrides relations among and input method
      * node and super class and interfaces methods.
      */
     private void setMethodOverridesRelation(String classRelative, MethodNode mn, ISourceLocation methodLogical) throws IOException, URISyntaxException {
-            ClassReader cr = getClassReader(classRelative);
-            
-            if(cr != null) {
-                ClassNode cn = new ClassNode();
-                cr.accept(cn, ClassReader.SKIP_DEBUG);
-                
-                if(cn.methods != null) {
-                    for(int i = 0; i < cn.methods.size(); i++) {
-                        MethodNode mnSuper = (MethodNode) cn.methods.get(i);
-                        if(mnSuper.name.equals(mn.name) && mnSuper.desc.equals(mn.desc)) {  
-                            String signature = getMethodSignature(mnSuper.name, mn.desc, ((IString)getClassName(cn.name)).getValue());
-                            ISourceLocation superLogical = values.sourceLocation(getClassScheme(cn.access), "", cn.name.replace("$", "/"));
-                            ISourceLocation methodSuperLogical = values.sourceLocation(getMethodScheme(mnSuper.name), "", 
-                                superLogical.getPath() + "/" + signature);
-                            
-                            insert(methodOverrides, methodLogical, methodSuperLogical);
-                            addToMethodOverrides(cn, mn, methodLogical);
-                        }
+        ClassReader cr = getClassReader(classRelative);
+
+        if(cr != null) {
+            ClassNode cn = new ClassNode();
+            cr.accept(cn, ClassReader.SKIP_DEBUG);
+
+            if(cn.methods != null) {
+                for(int i = 0; i < cn.methods.size(); i++) {
+                    MethodNode mnSuper = (MethodNode) cn.methods.get(i);
+                    if(mnSuper.name.equals(mn.name) && mnSuper.desc.equals(mn.desc)) {  
+                        String signature = getMethodSignature(mnSuper.name, mn.desc, ((IString)getClassName(cn.name)).getValue());
+                        ISourceLocation superLogical = values.sourceLocation(getClassScheme(cn.access), "", cn.name.replace("$", "/"));
+                        ISourceLocation methodSuperLogical = values.sourceLocation(getMethodScheme(mnSuper.name), "", 
+                            superLogical.getPath() + "/" + signature);
+
+                        insert(methodOverrides, methodLogical, methodSuperLogical);
+                        addToMethodOverrides(cn, mn, methodLogical);
                     }
                 }
             }
+        }
     }
-    
+
     /**
      * Generates paramater relations given an ASM method node and its logical 
      * source location. Considered relations: containment, declarations, 
@@ -402,21 +429,21 @@ public class JarConverter extends M3Converter {
      */
     private void setParameterRelations(MethodNode mn, ISourceLocation methodLogical) throws URISyntaxException {
         Type[] parameters = Type.getType(mn.desc).getArgumentTypes();
-        
+
         for(int i = 0; i < parameters.length; i++) {
             IString parameterName = values.string("param" + i);
             ISourceLocation parameterLogical = values.sourceLocation(PARAMETER_SCHEME, "", 
                 methodLogical.getPath() + "/" + parameterName.getValue());
             //TODO: offset + length
             ISourceLocation parameterPhysical = compUnitPhysical;
-            
+
             addToContainment(methodLogical, parameterLogical);
             addToDeclarations(parameterLogical, parameterPhysical);
             addToNames(parameterName, parameterLogical);
             addToTypeDependency(parameterLogical, parameters[i].getDescriptor());
         }
     }
-    
+
     /**
      * Navigates the set of instructions related to a given method node.
      * Depending on the instruction type an action is defined.
@@ -424,10 +451,10 @@ public class JarConverter extends M3Converter {
     private void setInstructionRelations(MethodNode mn, ISourceLocation methodLogical) throws URISyntaxException {
         if(mn.instructions != null) {
             ListIterator<AbstractInsnNode> iterator = mn.instructions.iterator();
-            
+
             while(iterator.hasNext()) {
                 AbstractInsnNode n = iterator.next();
-                
+
                 if(n instanceof MethodInsnNode) {
                     visit(mn, methodLogical, (MethodInsnNode) n);
                 }
@@ -440,7 +467,7 @@ public class JarConverter extends M3Converter {
             }
         }
     }
-    
+
     /**
      * Visits an ASM MethodInsNode which represents a method invocation 
      * instruction. Generates the method invocation relation and adds the 
@@ -454,7 +481,7 @@ public class JarConverter extends M3Converter {
         // The class of the current method may also have a dependency on the same type.
         addToTypeDependency(methodLogical, n.owner);
     }
-    
+
     //TODO: default scheme: java+field. Constants are not considered.
     /**
      * Visits an ASM FieldInsNode which represents a field loading or storing 
@@ -466,7 +493,7 @@ public class JarConverter extends M3Converter {
         addToFieldAccess(methodLogical, fieldLogical);
         addToTypeDependency(methodLogical, n.owner);
     }
-    
+
     /**
      * Visits an ASM TypeInsnNode which represents a type instruction (receives 
      * a type descriptor. Generates the type dependency relation.
@@ -474,28 +501,28 @@ public class JarConverter extends M3Converter {
     private void visit(MethodNode mn, ISourceLocation methodLogical, TypeInsnNode n) throws URISyntaxException {
         addToTypeDependency(methodLogical, n.desc);
     }
-    
+
     /**
      * Adds a parent-child tuple to the containment relation.
      */
     private void addToContainment(ISourceLocation parent, ISourceLocation child) {
         insert(containment, parent, child);
     }
-    
+
     /**
      * Adds a logical-physical location tuple to the declarations relation.
      */
     private void addToDeclarations(ISourceLocation logical, ISourceLocation physical) {
         insert(declarations, logical, physical);
     }
-    
+
     /**
      * Adds a name-logical location tuple to the names relation.
      */
     private void addToNames(IString name, ISourceLocation logical) {
         insert(names, name, logical);
     }
-    
+
     //TODO: SourceConverter does not consider abstract modifier. Check.
     //TODO: Use parseModifiers(int modifiers) -> JavaToRascalConverter?
     /**
@@ -507,13 +534,13 @@ public class JarConverter extends M3Converter {
             // Identify modifiers by filtering the access flags
             int shift = 0x1 << i;
             IConstructor modifier = (IConstructor) modifiersMap.get(values.integer(shift));
-            
+
             if((access & shift) != 0 && modifier != null && !(isClass.length >= 1 && shift == Opcodes.ACC_SYNCHRONIZED)) {
                 insert(modifiers, logical, modifier);
             }
         }
     }
-    
+
     /**
      * Adds a logical-annotation tuple to the annotations relation.
      */
@@ -524,7 +551,7 @@ public class JarConverter extends M3Converter {
             insert(this.annotations, classLogical, annotationLogical);
         }
     }
-    
+
     /**
      * Adds a logical-type tuple to the type dependency relation.
      * "desc" refers to a type descriptor identified by ASM library.
@@ -535,7 +562,7 @@ public class JarConverter extends M3Converter {
             insert(typeDependency, logical, classLogical);
         }
     }
-    
+
     /**
      * Adds a class-superclass location tuple to the extends relation.
      */
@@ -547,7 +574,7 @@ public class JarConverter extends M3Converter {
             insert(extendsRelations, classLogical, extendsLogical);
         }
     }
-    
+
     /**
      * Adds a class-interface location tuple to the implements relation.
      */
@@ -560,21 +587,21 @@ public class JarConverter extends M3Converter {
             }
         }
     }
-    
+
     /**
      * Adds a method-method location tuple to the method invocation relation.
      */
     private void addToMethodInvocation(ISourceLocation methodLogical, ISourceLocation methodInvocationLogical) {
         insert(methodInvocation, methodLogical, methodInvocationLogical);
     }
-    
+
     /**
      * Adds a method-field location tuple to the field access relation.
      */
     private void addToFieldAccess(ISourceLocation methodLogical, ISourceLocation fieldLogical) {
         insert(fieldAccess, methodLogical, fieldLogical);
     }
-    
+
     /**
      * Composes two annotation node lists. It manages null values.
      */
@@ -585,24 +612,47 @@ public class JarConverter extends M3Converter {
         }
         return annotations;
     }
-    
+
     /**
      * Returns an ASM ClassReader based on compilation unit location or name. 
      */
-    private ClassReader getClassReader(String className) throws IOException, URISyntaxException {
+    private ClassReader getClassReader(String className) {
         try {
-            return new ClassReader(resgistry.getInputStream(getPhysicalLoc(loc, className + ".class")));
+            return new ClassReader(className);
         }
-        catch(IOException e) {
-            try {
-                return new ClassReader(className);
-            }
-            catch(IOException e1) {
-                return null;
-            }
+        catch(Exception e) {
+            return null;
         }
     }
-    
+
+    /**
+     * Returns an ASM ClassReader based on an input stream. 
+     */
+    private ClassReader getClassReader(InputStream classStream) throws IOException, URISyntaxException {
+        try {
+            return new ClassReader(classStream);
+        }
+        catch(Exception e) {
+            return null;
+        }
+    }
+
+    //TODO: change when JarInputStream problem is solved.
+    //  private ClassReader getClassReader(String className) throws IOException, URISyntaxException {
+    //  try {
+    //      System.out.println("CLASS READER: " + getPhysicalLoc(loc, className + ".class"));
+    //      return new ClassReader(resgistry.getInputStream(getPhysicalLoc(loc, className + ".class")));
+    //  }
+    //  catch(IOException e) {
+    //      try {
+    //          return new ClassReader(className);
+    //      }
+    //      catch(IOException e1) {
+    //          return null;
+    //      }
+    //  }
+    //}
+
     /**
      * Returns a compilation unit relative path with regards to the Jar
      * physical location.
@@ -611,7 +661,7 @@ public class JarConverter extends M3Converter {
         String abs = compUnitPhysical.getPath().substring(compUnitPhysical.getPath().lastIndexOf("!") + 1).replace(".class", "");
         return abs.substring(abs.indexOf("/"));
     }
-    
+
     /**
      * Returns the logical location of the current package (cf. relativePath)
      * parent. A relative path with regards to the Jar location ir required.
@@ -619,14 +669,14 @@ public class JarConverter extends M3Converter {
     private ISourceLocation getParentPackageLogicalLoc(String relativePath) throws URISyntaxException {
         return values.sourceLocation(PACKAGE_SCHEME, "", relativePath.substring(0, relativePath.lastIndexOf("/")));
     }
-    
+
     /**
      * If an inner class is managed, '$' are replaced by '/'.
      */
     private String getClassRelativePath(String name) {
         return name.replace("$", "/");
     }
-    
+
     /**
      * Returns a vallang String with the name of a class node. 
      */
@@ -634,7 +684,7 @@ public class JarConverter extends M3Converter {
         String classPath = getClassRelativePath(name);
         return values.string(classPath.substring(classPath.lastIndexOf("/") + 1));
     }
-    
+
     /**
      * Returns a vallang String based on a logical location. It considers
      * the last fragment of the location path.
@@ -642,18 +692,19 @@ public class JarConverter extends M3Converter {
     private IString getName(ISourceLocation logical) {
         return values.string(logical.getPath().substring(logical.getPath().lastIndexOf("/") + 1));
     }
-    
+
     /**
      * Returns a type logical location based on its descriptor (cf. ASM library).
      */
     //TODO: All fields cannot have a clear scheme (e.g. interface). "java+class" will be the default scheme.
     private ISourceLocation getTypeLogicalLoc(String desc) throws URISyntaxException {
+        desc = desc.replace("[", "").replace("%5B", "");
         String scheme = (primitiveTypesMap.containsKey(values.string(desc))) ? PRIMITIVE_TYPE_SCHEME : CLASS_SCHEME;
-        return (scheme == CLASS_SCHEME && !desc.startsWith("L")) ? 
-            values.sourceLocation(scheme, "", desc) :
-            values.sourceLocation(scheme, "", Type.getType(desc).getClassName().replace(".", "/"));
+        return (scheme == CLASS_SCHEME && !desc.startsWith("L")) ? values.sourceLocation(scheme, "", desc) :
+            (scheme == CLASS_SCHEME && desc.startsWith("L")) ? values.sourceLocation(scheme, "", Type.getType(desc).getClassName().replace(".", "/")) :
+                values.sourceLocation(scheme, "", Type.getType(desc.toUpperCase()).getClassName().replace(".", "/"));
     }
-    
+
     /**
      * Returns a physical location based on an existing physicial location
      * and a relative path. E.g. uri: |jar+file://path/to/jar/file.jar!|,
@@ -662,7 +713,7 @@ public class JarConverter extends M3Converter {
     private ISourceLocation getPhysicalLoc(ISourceLocation uri, String path) throws URISyntaxException {
         return URIUtil.changePath(uri, uri.getPath() + "/" + path);
     }
-    
+
     /**
      * Returns a String with a method signature. If the name of the method 
      * node is "<init>", then the method name is replaced with the name of
@@ -677,21 +728,21 @@ public class JarConverter extends M3Converter {
         signature += ")";
         return signature;
     }
-    
+
     /**
      * Returns a String array with the a method parameters' type names.
      */
     private String[] getMethodParameters(String desc) {
         Type[] arguments = Type.getType(desc).getArgumentTypes();
         String[] parameters = new String[arguments.length];
-        
+
         for(int i = 0; i < arguments.length; i++) {
             parameters[i] = arguments[i].getClassName();
         }
-        
+
         return parameters;
     }
-    
+
     /**
      * Returns a class scheme based on the class' access flags.
      * java+interface, java+enum, and java+class are the possible schemes.
@@ -700,7 +751,7 @@ public class JarConverter extends M3Converter {
         return ((access & Opcodes.ACC_INTERFACE) != 0) ? INTERFACE_SCHEME : 
             ((access & Opcodes.ACC_ENUM) != 0) ? ENUM_SCHEME : CLASS_SCHEME;
     }
-    
+
     /**
      * Returns a method scheme based on the method node name.
      * If "<init>" the java+constructor scheme is returned, java+method
@@ -709,7 +760,7 @@ public class JarConverter extends M3Converter {
     private String getMethodScheme(String name) {
         return (name.equals(COMPILED_CONSTRUCTOR_NAME)) ? CONSTRUCTOR_SCHEME : METHOD_SCHEME;
     }
-    
+
     /**
      * Returns a field scheme based on the field's access flags.
      * java+enumConstant and java+field are the possible schemes.
