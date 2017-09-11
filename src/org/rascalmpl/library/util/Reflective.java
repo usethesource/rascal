@@ -80,6 +80,9 @@ public class Reflective {
 		prelude = new Prelude(values);
 	}
 	
+	public IString getLineSeparator() {
+        return values.string(System.lineSeparator());
+    }
 	
 	public void resetJavaBridge(IEvaluatorContext ctx) {
 	    ctx.getEvaluator().resetJavaBridge();

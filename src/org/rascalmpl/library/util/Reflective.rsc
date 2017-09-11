@@ -21,11 +21,13 @@ import util::SystemAPI;
 import lang::rascal::\syntax::Rascal;
 import lang::manifest::IO;
 
+@doc{Returns the system-dependent line separator string}
+@javaClass{org.rascalmpl.library.util.Reflective}
+public java str getLineSeparator();
 
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Manipulates evaluator to forget about old class instances}
 public java void resetJavaBridge();
-
 
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to evaluate}

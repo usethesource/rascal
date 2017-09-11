@@ -4,7 +4,7 @@ import IO;
 import String;
 import List;
 import util::Math;
-
+import util::Reflective;
 
 test bool subscription(str S){
   R = "";
@@ -282,5 +282,5 @@ test bool tstWrap(str S1 , str S2) {
   if (S1 == "" && S2 == "") return true;
   S = S1 + " " + S2 + " " + S1 + " " + S2;
   n = max(size(S1), size(S2)) + 2;
-  return trim(S) == trim(replaceAll(wrap(S, n), "\n", " "));
+  return trim(S) == trim(replaceAll(wrap(S, n), getLineSeparator(), " "));
 }
