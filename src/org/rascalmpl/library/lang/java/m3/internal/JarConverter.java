@@ -176,8 +176,8 @@ public class JarConverter extends M3Converter {
     //TODO: change when JarInputStream problem is solved.
     private void createM3(ISourceLocation uri) 
         throws IOException, URISyntaxException {
-        ISourceLocation jarLocation = values.sourceLocation("file", "", loc.getPath().substring(0,loc.getPath().indexOf("!")));
-        InputStream is = resgistry.getInputStream(jarLocation);
+        //ISourceLocation jarLocation = values.sourceLocation("file", "", loc.getPath().substring(0,loc.getPath().indexOf("!")));
+        InputStream is = resgistry.getInputStream(uri);
         JarInputStream jarStream = new JarInputStream(is);
         JarEntry entry = jarStream.getNextJarEntry();
 

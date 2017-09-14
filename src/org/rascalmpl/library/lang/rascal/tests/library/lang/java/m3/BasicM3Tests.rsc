@@ -102,11 +102,6 @@ private bool compareMessages(Message a, Message b) {
 	return "<a>" < "<b>";
 } 
 
-public loc unpackJar(loc jar) {
-    jarRoot = if(!startsWith(jar.scheme,"jar")) jar[scheme = "jar+<jar.scheme>"][path = jar.path + "!/"]; else jar;
-    return jarRoot;
-}
-
 private M3 buildM3FromJar(loc jar) 
     = createM3FromJar(jar);
     
@@ -116,11 +111,12 @@ public M3 getHamcrestM3(loc root)
 private bool compareJarM3s(loc reference, loc jar, M3 (loc) builder)
     = compareM3s(
         readBinaryValueFile(#M3, reference),
-        builder(unpackJar(jar)) 
+        builder(jar) 
    );
-   
+
+@ignoreCompiler{M3 not yet supported}
 public test bool hamcrestJarM3RemainedTheSame()
-	= compareJarM3s(|testdata:///m3/hamcrest-library-1.3-m3.bin|, |testdata:///m3/hamcrest-library-1.3.jar|, getHamcrestM3);
+	= compareJarM3s(|testdata:///m3/hamcrest-library-1.3-m3.bin|, |jar+testdata:///m3/hamcrest-library-1.3.jar.zip!hamcrest-library-1.3.jar|, getHamcrestM3);
 	
 // TODO: think if this can be replaced by the generic diff function.
 private bool compareM3s(M3 a, M3 b) {
