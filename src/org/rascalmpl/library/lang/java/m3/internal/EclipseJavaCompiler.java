@@ -83,6 +83,16 @@ public class EclipseJavaCompiler {
         return converter.getModel(false);
     }
     
+    public IValue createM3FromJarFile(ISourceLocation jarLoc, IEvaluatorContext eval) {
+        return createM3FromJarFile(jarLoc, getM3Store(eval));
+    }
+    
+    protected IValue createM3FromJarFile(ISourceLocation jarLoc, LimitedTypeStore store) {
+        JarConverter converter = new JarConverter(store, new HashMap<>());
+        converter.convert(jarLoc);
+        return converter.getModel(false);
+    }
+    
     public IValue createM3sFromFiles(ISet files, IBool errorRecovery, IList sourcePath, IList classPath, IString javaVersion, IEvaluatorContext eval) {
         return createM3sFromFiles(files, errorRecovery, sourcePath, classPath, javaVersion, getM3Store(eval), () -> checkInterrupted(eval));
     }
