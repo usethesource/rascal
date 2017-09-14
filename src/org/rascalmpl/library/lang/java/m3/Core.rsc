@@ -115,20 +115,17 @@ public M3 createM3FromDirectory(loc project, bool errorRecovery = false, str jav
     return result;
 }
 
-
+//TODO: check accepted location schemes.
 public M3 createM3FromJar(loc jarFile) {
 	loc jarLoc = jarFile;
 	
-	if(!startsWith(jarLoc.scheme, "jar")) {
-		jarLoc.scheme = "jar+<jarLoc.scheme>";
-		jarLoc.path = "<jarLoc.path>!";
+	if(jarLoc.scheme == "jar" && endsWith(jarLoc.scheme, "!")) {
+		jarLoc.scheme = "file";
+		jarLoc.path = substring(jarLoc.path,0,findLast(jarLoc.path,"!"));
 	}
-	else {
-		jarLoc.path = if(!endsWith(jarLoc.path,"!")) "<jarLoc.path>!"; else jarLoc.path;
-	}
-	
-	if(!isDirectory(jarLoc)) {
-		throw "The provided file is not a vali Jar URI.";
+	else if(startsWith(jarLoc.scheme, "jar+") && endsWith(jarLoc.scheme, "!")) {
+		jarLoc.scheme = substring(jarLoc.scheme, findLast(jarLoc.scheme, "+") + 1);
+		jarLoc.path = substring(jarLoc.path,0,findLast(jarLoc.path,"!"));
 	}
 	
     M3 model = createM3FromJarFile(jarLoc);
