@@ -88,56 +88,69 @@ public class ConstructorResult extends NodeResult {
 				+ getType() + " node as a function", ctx.getCurrentAST());
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
-		try {
-			Type consType = getValue().getConstructorType();
-			
+	    Type consType = getValue().getConstructorType();
 
-			if (!getType().hasField(name, store)
-					&& !getType().hasKeywordField(name, store)) {
-				throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
-			}
+	    if (getType().hasField(name, store)) {
+	        return positionalFieldAccess(consType, name);
+	    }
+	    else if (consType.hasKeywordField(name, store)) {
+	        return keywordFieldAccess(consType, name, store);
+	    }
+	    else {
+	        // If the keyword field was defined on any of the other constructors, then 
+            // we see this as a dynamic error. (the programmer could not have known since
+            // constructor types are not first class citizens in Rascal). Otherwise the programmer
+            // used a completely unknown field name and we flag it as static error.
+            for (Type alt : store.lookupAlternatives(consType.getAbstractDataType())) {
+                if (store.hasKeywordParameter(alt, name)) {
+                    throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null); 
+                }
+            }
+            
+	        throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
+	    }
+	}
+	
+	public <U extends IValue> Result<U> positionalFieldAccess(Type consType, String name) {
+	    if (consType.hasField(name)) {
+	        int index = consType.getFieldIndex(name);
+	        return makeResult(consType.getFieldType(index),
+	            getValue().get(index), ctx);
+	    }
+	    else {
+	        throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null);
+	    }
+	}
+	
+	@SuppressWarnings("unchecked")
+	public <U extends IValue> Result<U> keywordFieldAccess(Type consType, String name, TypeStore store) {
+	    try {
+	        if (getValue().mayHaveKeywordParameters()) { 
+	            Type kwType = store.getKeywordParameterType(getValue().getConstructorType(), name);
+	            IValue parameter = getValue().asWithKeywordParameters().getParameter(name);
 
-			if (!consType.hasField(name)
-					&& !consType.hasKeywordField(name, store)) {
-				throw RuntimeExceptionFactory.noSuchField(name,
-						ctx.getCurrentAST(), null);
-			}
+	            if (parameter == null) { // the 'default' case, the field is not present, but it is declared 
+	                ConstructorFunction cons = ctx.getCurrentEnvt().getConstructorFunction(consType);
 
-			if (getValue().mayHaveKeywordParameters() && getType().hasKeywordField(name, store)) { // it's a keyword parameter
-			    Type kwType = store.getKeywordParameterType(getValue().getConstructorType(), name);
-			    if (kwType == null) {
-			        kwType = store.getKeywordParameterType(getType(), name);
-			    }
-				assert kwType != null;
-				
-			    IValue parameter = getValue().asWithKeywordParameters().getParameter(name);
+	                if (cons != null) {
+	                    return (Result<U>) cons.computeDefaultKeywordParameter(name, getValue(), ctx.getCurrentEnvt());
+	                }
+	                else {
+	                    // The constructor is not in scope, but there might be a generic keyword parameter in scope nevertheless
+	                    return (Result<U>) computeGenericDefaultKeywordParameter(name);
+	                }
+	            } else {
+	                return makeResult(kwType, parameter, ctx);
+	            }
+	        }  
 
-				if (parameter == null) {
-				    ConstructorFunction cons = ctx.getCurrentEnvt().getConstructorFunction(consType);
-				    
-				    if (cons != null) {
-				        return (Result<U>) cons.computeDefaultKeywordParameter(name, getValue(), ctx.getCurrentEnvt());
-				    }
-				    else {
-				        // The constructor is not in scope, but there might be a generic keyword parameter in scope nevertheless
-				        return (Result<U>) computeGenericDefaultKeywordParameter(name);
-				    }
-				} else {
-					return makeResult(kwType, parameter, ctx);
-				}
-			} else if (consType.hasField(name)){ // it is a normal parameter
-				int index = consType.getFieldIndex(name);
-				return makeResult(consType.getFieldType(index),
-						getValue().get(index), ctx);
-			}
-			
-			throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
-		} catch (UndeclaredAbstractDataTypeException e) {
-			throw new UndeclaredType(getType().toString(), ctx.getCurrentAST());
-		}
+	        throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
+	        
+	    } catch (UndeclaredAbstractDataTypeException e) {
+	        throw new UndeclaredType(getType().toString(), ctx.getCurrentAST());
+	    }
 	}
 
 	private Result<IValue> computeGenericDefaultKeywordParameter(String label) {
