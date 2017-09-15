@@ -16,6 +16,7 @@ package org.rascalmpl.library.lang.json;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.StringReader;
 import java.nio.charset.Charset;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -95,6 +96,25 @@ public class IO {
         throw RuntimeExceptionFactory.io(values.string("NPE"), null, null);
       }
     }
+	
+	public IValue parseJSON(IValue type, IString src, IBool implicitConstructors, IBool implicitNodes, IString dateTimeFormat) {
+	      TypeStore store = new TypeStore();
+	      Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
+	      
+	      try (JsonReader in = new JsonReader(new StringReader(src.getValue()))) {
+	        return new JsonValueReader(values, store)
+	            .setConstructorsAsObjects(implicitConstructors.getValue())
+	            .setNodesAsObjects(implicitNodes.getValue())
+	            .setCalendarFormat(dateTimeFormat.getValue())
+	            .read(in, start);
+	      }
+	      catch (IOException e) {
+	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+	      }
+	      catch (NullPointerException e) {
+	        throw RuntimeExceptionFactory.io(values.string("NPE"), null, null);
+	      }
+	    }
 	
 	public void writeJSON(ISourceLocation loc, IValue value, IBool implicitConstructors, IBool implicitNodes, IString dateTimeFormat, IBool dateTimeAsInt) {
 	  try (JsonWriter out = new JsonWriter(new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), Charset.forName("UTF8")))) {
