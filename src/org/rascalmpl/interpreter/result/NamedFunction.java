@@ -180,7 +180,7 @@ abstract public class NamedFunction extends AbstractFunction {
     }
 
     protected Map<String, IValue> parseTags(FunctionDeclaration declaration) {
-        final Map<String, IValue> result = new HashMap<String, IValue>();
+        final Map<String, IValue> result = new HashMap<>();
         Tags tags = declaration.getTags();
         if (tags.hasTags()) {
             for (Tag tag : tags.getTags()) {
