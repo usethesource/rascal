@@ -134,7 +134,7 @@ public class JavaToRascal {
 	}
 
 	private Object[] _listValue(IList q) {
-		ArrayList<Object> r = new ArrayList<Object>();
+		ArrayList<Object> r = new ArrayList<>();
 		for (IValue v : q) {
 			r.add(javaObject(v));
 		}
@@ -223,7 +223,7 @@ public class JavaToRascal {
 			evaluator.doImport(null, moduleName);
 			ModuleEnvironment env = evaluator.getCurrentEnvt().getImport(
 					moduleName);
-			ArrayList<AbstractFunction> funcs = new ArrayList<AbstractFunction>();
+			ArrayList<AbstractFunction> funcs = new ArrayList<>();
 			Type typ = getType(env, procedureResultType);
 			if (typ == null)
 				return false;
