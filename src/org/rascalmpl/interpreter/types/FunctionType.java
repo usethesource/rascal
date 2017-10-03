@@ -273,7 +273,7 @@ public class FunctionType extends RascalType {
 	    // because the argument types are co-variant. This would be weird since
 	    // instantiated functions are supposed to be substitutable for their generic
 	    // counter parts. So, we try to instantiate first, and then check again.
-	    Map<Type,Type> bindings = new HashMap<Type,Type>();
+	    Map<Type,Type> bindings = new HashMap<>();
 
 	    if (!otherType.match(this, bindings)) {
 	      return false;
@@ -456,7 +456,7 @@ public class FunctionType extends RascalType {
 		if (right.isBottom()) {
 			return right;
 		}
-		Set<FunctionType> newAlternatives = new HashSet<FunctionType>();
+		Set<FunctionType> newAlternatives = new HashSet<>();
 		
 		if(right instanceof FunctionType) {
 			if(TF.tupleType(((FunctionType) right).returnType).isSubtypeOf(this.argumentTypes)) {

@@ -252,7 +252,7 @@ public class OverloadedFunctionType extends RascalType {
 	  
 	  OverloadedFunctionType of = (OverloadedFunctionType) type;
 
-	  Set<FunctionType> newAlternatives = new HashSet<FunctionType>();
+	  Set<FunctionType> newAlternatives = new HashSet<>();
 	  
 	  for(FunctionType f : getAlternatives()) {
 		  for(FunctionType g : of.getAlternatives()) {
@@ -272,7 +272,7 @@ public class OverloadedFunctionType extends RascalType {
 	protected Type lubWithFunction(RascalType type) {
 	  FunctionType f = (FunctionType) type;
 
-	  Set<FunctionType> newAlternatives = new HashSet<FunctionType>();
+	  Set<FunctionType> newAlternatives = new HashSet<>();
 	  newAlternatives.add(f);
 	  
 	  return this.lubWithOverloadedFunction((RascalType)RTF.overloadedFunctionType(newAlternatives));
@@ -286,7 +286,7 @@ public class OverloadedFunctionType extends RascalType {
 		  
 	  OverloadedFunctionType of = (OverloadedFunctionType) type;
 		  
-	  Set<FunctionType> newAlternatives = new HashSet<FunctionType>();
+	  Set<FunctionType> newAlternatives = new HashSet<>();
 	  
 	  if(getReturnType() == of.getReturnType()) {
 	    newAlternatives.addAll(getAlternatives());
@@ -311,7 +311,7 @@ public class OverloadedFunctionType extends RascalType {
 	protected Type glbWithFunction(RascalType type) {
 	  FunctionType f = (FunctionType) type;
 
-	  Set<FunctionType> newAlternatives = new HashSet<FunctionType>();
+	  Set<FunctionType> newAlternatives = new HashSet<>();
 	  newAlternatives.add(f);
 		  
 	  return this.glbWithOverloadedFunction((RascalType)RTF.overloadedFunctionType(newAlternatives));
@@ -362,7 +362,7 @@ public class OverloadedFunctionType extends RascalType {
 		if (right.isBottom()) {
 			return right;
 		}
-		Set<FunctionType> newAlternatives = new HashSet<FunctionType>();
+		Set<FunctionType> newAlternatives = new HashSet<>();
 		if(right instanceof FunctionType) {
 			for(FunctionType ftype : this.alternatives) {
 				if(TF.tupleType(((FunctionType) right).getReturnType()).isSubtypeOf(ftype.getArgumentTypes())) {
