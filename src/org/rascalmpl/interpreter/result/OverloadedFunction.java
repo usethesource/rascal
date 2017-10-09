@@ -197,7 +197,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		Map<String, List<AbstractFunction>>[] constructors = new Map[10];
 		@SuppressWarnings("unchecked")
 		Map<IConstructor, List<AbstractFunction>>[] productions = new Map[10];
-		List<AbstractFunction> other = new LinkedList<AbstractFunction>();
+		List<AbstractFunction> other = new LinkedList<>();
 
 
 		for (AbstractFunction func : candidates) {
@@ -354,7 +354,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 
 	private static Type lub(List<AbstractFunction> candidates) {
-		Set<FunctionType> alternatives = new HashSet<FunctionType>();
+		Set<FunctionType> alternatives = new HashSet<>();
 		Iterator<AbstractFunction> iter = candidates.iterator();
 		if(!iter.hasNext()) {
 			return TF.voidType();
@@ -436,8 +436,8 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		if (other == null) {
 			return this;
 		}
-		List<AbstractFunction> joined = new ArrayList<AbstractFunction>(other.primaryCandidates.size() + primaryCandidates.size());
-		List<AbstractFunction> defJoined = new ArrayList<AbstractFunction>(other.defaultCandidates.size() + defaultCandidates.size());
+		List<AbstractFunction> joined = new ArrayList<>(other.primaryCandidates.size() + primaryCandidates.size());
+		List<AbstractFunction> defJoined = new ArrayList<>(other.defaultCandidates.size() + defaultCandidates.size());
 
 		joined.addAll(primaryCandidates);
 		defJoined.addAll(defaultCandidates);
@@ -458,9 +458,9 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 
 	public OverloadedFunction add(AbstractFunction candidate) {
-		List<AbstractFunction> joined = new ArrayList<AbstractFunction>(primaryCandidates.size() + 1);
+		List<AbstractFunction> joined = new ArrayList<>(primaryCandidates.size() + 1);
 		joined.addAll(primaryCandidates);
-		List<AbstractFunction> defJoined = new ArrayList<AbstractFunction>(defaultCandidates.size() + 1);
+		List<AbstractFunction> defJoined = new ArrayList<>(defaultCandidates.size() + 1);
 		defJoined.addAll(defaultCandidates);
 
 		if (candidate.isDefault() && !defJoined.contains(candidate)) {
@@ -565,7 +565,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 
 	public List<AbstractFunction> getFunctions(){
-		List<AbstractFunction> result = new LinkedList<AbstractFunction>();
+		List<AbstractFunction> result = new LinkedList<>();
 		for (AbstractFunction f : primaryCandidates) {
 			result.add(f);
 		}
@@ -578,7 +578,7 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 
 	public List<AbstractFunction> getTests() {
-		List<AbstractFunction> result = new LinkedList<AbstractFunction>();
+		List<AbstractFunction> result = new LinkedList<>();
 		for (AbstractFunction f : getFunctions()) {
 			if (f.isTest()) {
 				result.add(f);
