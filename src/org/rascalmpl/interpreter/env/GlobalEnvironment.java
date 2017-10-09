@@ -201,7 +201,7 @@ public class GlobalEnvironment {
 	}
 	
 	public Set<String> getImportingModules(String mod) {
-		Set<String> result = new HashSet<String>();
+		Set<String> result = new HashSet<>();
 		
 		for (ModuleEnvironment env : moduleEnvironment.values()) {
 			if (env.getImports().contains(mod)) {
@@ -213,8 +213,8 @@ public class GlobalEnvironment {
 	}
 	
 	public Set<String> getExtendingModules(String mod) {
-		Set<String> result = new HashSet<String>();
-		List<String> todo = new LinkedList<String>();
+		Set<String> result = new HashSet<>();
+		List<String> todo = new LinkedList<>();
 		todo.add(mod);
 		
 		while (!todo.isEmpty()) {
