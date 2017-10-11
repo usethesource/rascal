@@ -248,8 +248,8 @@ public class CourseCompiler {
 		if (
 		    copyStandardFiles(coursesSrcPath, destPath)
 		 ) {
-		    System.err.println("Bailing out because target files are already present...");
-		    return;
+//		    System.err.println("Bailing out because target files are already present...");
+//		    return;
 		}
 		
 		StringWriter sw = new StringWriter();
@@ -272,6 +272,9 @@ public class CourseCompiler {
 			}
 		} else {
 			for(IValue iCourseName : cmdOpts.getModules()){
+			    String courseName = ((IString) iCourseName).getValue();
+			    ISourceLocation courseLoc = pcfg.getCourseLoc(courseName);
+			    coursesSrcPath = Paths.get(courseLoc.getURI()).getParent();
 				compileCourse(coursesSrcPath, ((IString)iCourseName).getValue(), destPath, libSrcPath, pcfg, executor);
 			}
 		}
