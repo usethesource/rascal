@@ -1,0 +1,156 @@
+# Create an FRCModel
+
+.Synopsis
+An `FRCBuilder` enables the incremental addition of facts and requirements to an `FRCModel`.
+
+.Description
+The life cycle of the `FRCBuilder` looks like this:
+
+image::FRCBuilder.png[500,500,align="center"]
+
+First, a fresh `FRCBuilder` is created by `newFRCBuilder`, let's assign it to variable `frb`.
+
+Next, two dozen functions is available that fall into the following categories:
+
+* _Define & Use_: define and use identifiers in various ways.
+* _Facts, Requirements & Calculators_: establish facts, define requirements and calculators.
+* _Inference_: create new type variables for type inference.
+* _Scoping_: enter and leave a scope, ask for current scope.
+* _Scope Info_: add information to the current scope or retrieve that information.
+* _Global Info_: add global information or retrieve that information.
+* _Reporting_: report errors and warnings.
+
+The FRBuilder is actually represented as a data type with a single constructor
+that has fields that correspond to the functions provided by the builder.
+For instance, calling the `define` function on the FRBuilder we just created amounts to: `frb.define(the-arguments-of-define)`.
+The builder functions are applied repeatedly until all
+information has been extracted from the source program.
+
+Finally, `build` creates the desired `FRModel` that will be used for validation.  
+      
+== Creating & building
+[source,rascal]
+----
+FRCBuilder newFRCBuilder();    
+FRCModel build();
+----
+Given a parse tree `pt` of the program to be checked, a typical scenario is:
+----
+frb = newFRCBuilder();
+collect(pt, frb);
+model = frb.build();
+----
+        
+== Define & Use
+
+=== Define a name
+
+The function `define` is used to add in the _current_ scope the definition of a name to the FRCModel:
+[source,rascal]
+----
+void define(str id, IdRole idRole, Tree def, DefInfo info);
+----
+where:
+
+* `id` is the textual appearance of the name.
+* `idRole` is the role played by the name.
+* `def` is the part of the parse tree that corresponds to the definition of the name.
+* `info` is information to be associated with this definition.
+
+=== Use an unqualified name
+There are four functions to describe the occurrence of a name in a parse tree as a use.
+The most elementary use of a name is described by:
+[source,rascal]
+----
+void use(Tree occ, set[IdRole] idRoles) use,
+----
+The parse tree `occ` is a use to be resolved in the current scope in one of the given roles `idRoles`.
+The use of a variable in an expression is typically modelled with this use function.
+
+=== Use an unqualified name via a path
+The next version of use, represents a use that refers to another tree using a specific path label:
+[source,rascal]
+----
+void useViaPath(Tree occ, set[IdRole] idRoles, PathRole pathRole);
+----
+
+=== Use a qualified name
+
+Next we consider the use of qualified names, i.e., a list of identifiers that will be resolved from left to right.
+We will call these identifiers (except the last one) qualifiers and the last one the qualified identifier.
+[source,rascal]
+----
+void useQualified(list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles);  
+----
+
+Here `ids` is the qualified name, `occ` is the actual occurrence, and there are two sets of roles:
+`idRoles` are the possible roles for the qualified identifier iself and `qualifierRolesa are the possible roles for the qualifiers.
+
+=== Use a qualified name via a path
+[source,rascal]
+----
+void useQualifiedViaPath(list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles, PathRole pathRole);   
+----  
+
+== Facts, Requirements & Calculators
+
+=== Define a fact
+A fact is known type information for a program fragment and is defined using:
+[source,rascal]
+----
+void fact(Tree src, AType tp);
+----
+
+=== Define a requirement
+[source,rascal]
+----
+void require(str name, Tree src, list[value] dependencies, void() preds) require;
+void requireEager(str name, Tree src, list[value] dependencies, void() preds);
+----      
+
+=== Define a calculator
+[source,rascal]
+----      
+void calculate(str name, Tree src, list[value] dependencies, AType() calculator);
+void calculateEager(str name, Tree src, list[value] dependencies, AType() calculator);
+----
+
+== Inference
+[source,rascal]
+----   
+AType newTypeVar();
+----
+
+== Scoping
+[source,rascal]
+----      
+void enterScope(Tree inner);
+void leaveScope(Tree inner);
+loc () getScope,
+----
+
+== Scope Info
+[source,rascal]
+----    
+void setScopeInfo(Key scope, ScopeRole scopeRole, value info);
+lrel[Key scope, value scopeInfo]  getScopeInfo(ScopeRole scopeRole);
+----
+
+== Global Info
+[source,rascal]
+----    
+void store(str key, value val);
+set[value] getStored(str key);
+----
+
+
+== Error reporting
+[source,rascal]
+----
+void reportError(Tree src, str msg);
+void reportWarning(Tree src, str msg);
+void reportInfo(Tree src, str msg);
+----
+
+ 
+       

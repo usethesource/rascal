@@ -206,7 +206,7 @@ FRModel resolvePath(FRModel frm, set[Key] (FRModel, Use) lookupFun = lookup){
 
 data FRBuilder 
     = frbuilder(
-        Tree (str id, IdRole idRole, Tree def, DefInfo info) define,
+        void (str id, IdRole idRole, Tree def, DefInfo info) define,
         void (Tree occ, set[IdRole] idRoles) use,
         void (Tree occ, set[IdRole] idRoles, PathRole pathRole) use_ref,
         void (list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles) use_qual,
