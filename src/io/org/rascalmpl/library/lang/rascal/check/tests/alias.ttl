@@ -1,0 +1,16 @@
+test A1 [[ module A alias INT = int; INT z = 13; ]]
+
+test A2 [[ module A INT z = 13; ]] 
+expect { "Invalid variable initialization;" }
+
+test A3 [[ module A alias INT = int; INT[str] z = 13; ]] 
+expect { "Expected 0 type parameters for `int`, found 1" }
+
+test A4 [[ module A alias LIST[&T] = list[&T]; LIST[int] z = [1,2]; ]] 
+
+test A5 [[ module A alias LIST[&T] = list[&T]; LIST[str] z = [1,2]; ]] 
+expect { "Type of initialization should be subtype of `LIST[str]`, found `list[int]`" }
+
+test A6 [[ module A alias LIST[&T] = LIST1[&T]; alias LIST1[&T] = list[&T]; LIST[int] z = [1,2]; ]] 
+
+test A7 [[ module A alias LIST1[&T] = list[&T]; alias LIST[&T] = LIST1[&T];  LIST[int] z = [1,2]; ]]
