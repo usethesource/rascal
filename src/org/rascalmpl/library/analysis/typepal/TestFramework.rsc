@@ -69,11 +69,11 @@ str deescape(str s)  {  // copied from RascalExpression, belongs in library
 
 //bool runTests(loc tests, type[&T<:Tree] begin, 
 //              FRBuilder(Tree t) frBuilder = defaultFRBuilder,
-//              set[Key] (FRModel, Use) lookupFun = lookup,
+//              set[Key] (TModel, Use) lookupFun = lookup,
 //              bool verbose = false
 //){
 
-bool runTests(list[loc] suites, FRModel(str txt) getModel, bool verbose = false){
+bool runTests(list[loc] suites, TModel(str txt) getModel, bool verbose = false){
     TTL ttlProgram;
     
     failedTests = ();
@@ -96,10 +96,7 @@ bool runTests(list[loc] suites, FRModel(str txt) getModel, bool verbose = false)
         for(ti <- ttlProgram.items){
             ntests += 1;
             try {
-              //p = parse(begin, "<ti.tokens>");
-              //model = validate(extractFRModel(p, frBuilder=frBuilder, lookupFun=lookupFun), lookupFun=lookupFun, debug=false);
               model = getModel("<ti.tokens>");
-              //iprintln(model);
               messages = model.messages;
               if(verbose) println("runTests: <messages>");
               ok = ok && isEmpty(messages);
@@ -164,8 +161,8 @@ Message relocate(Message msg, loc base){
 set[Message] relocate(set[Message] messages, loc base)
     = { relocate(msg, base) | msg <- messages };
 
-FRModel relocate(FRModel frm, loc base){
-    return visit(frm) {
+TModel relocate(TModel tm, loc base){
+    return visit(tm) {
            case loc l => relocate(l, base) when l.scheme == "unknown"
     }
 
