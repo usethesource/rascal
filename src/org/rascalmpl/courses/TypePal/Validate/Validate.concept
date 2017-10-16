@@ -1,4 +1,72 @@
-# Validate an FRCModel
+# Validate a FRCModel
 
 .Synopsis
-xxx
+The functions available during validation
+
+.Description
+Recall that requirements and calculators use function parameters of the respective types `void() predicates` and
+`AType() calculator`. Although this are ordinary Rascal functions it is useful to summarize the TypePal-specific
+functions that can be used inside these functions:
+
+
+image::RequireAndCalculate.png[200,200,align="center"]
+
+== typeof
+The workhorse of TypePal is the function `typeof` that determines the type of given tree or source location.
+When that is known, it is returned as value.
+If it is not known, the internal exception `TypeUnavailable()` is thrown which will abort the execution of the
+current requirement or calculator which will be tried later again.
+
+[source,rascal]
+----
+AType typeof(Tree tree);
+AType typeof(loc src);
+AType typeof(str id, Key scope, set[IdRole] idRoles);
+----
+NOTE: Rascal has a builtin function `typeOf`; how can we avoid confusion with the above `typeof`?
+
+== onError
+
+Several of the available functions express their failure by way of an ErrorHandler defined as:
+
+[source,rascal]
+----
+data ErrorHandler
+    = onError(loc where, str msg)
+    | noError()
+    ;
+   
+ErrorHandler onError(Tree t, str msg);
+----
+
+For convenience, `onError` is available both for Tree and loc arguments;
+
+== subtype
+The function `subtype` determines whether `t1` is a subtype of `t2`.
+Under the hood, the user-provided function `myIsSubType` is called.
+When the outcome is true, `subtype` just returns, otherwise the error handler is invoked.
+
+[source,rascal]
+----
+void subtype(AType t1, AType t2, ErrorHandler handler);
+----
+
+== lub
+The function `lub` return the least upper bound of two types.
+Under the hood, the user-provided function `myLUB` is called.
+[source,rascal]
+----
+AType lub(AType t1, AType t2);
+----
+
+== unify
+The function `unify` tries to unify two types.
+When successful, this may lead to the binding of type variables occurring in these types.
+When unsuccessful, the error handler is called.
+[source,rascal]
+----
+void unify(AType t1, AType t2, ErrorHandler handler);
+----
+== instantiate
+== reportError
+== fmt
