@@ -62,7 +62,7 @@ data DefInfo
     = noDefInfo()
     ;
 
-default FRModel finalizeFRModel(FRModel frm) = frm;
+default TModel finalizeTModel(TModel tm) = tm;
 
 // A single definition: in scope, id is bound in a IdRole to defined, with DefInfo attached
 alias Define  = tuple[Key scope, str id, IdRole idRole, Key defined, DefInfo defInfo];
@@ -70,41 +70,41 @@ alias Defines = set[Define];                                 // All definitions
 alias Scopes  = map[Key inner, Key outer];                   // Syntactic containment
 alias Paths   = rel[Key from, PathRole pathRole, Key to];    // Semantic containment path
 
-data FRModel (
+data TModel (
     Defines defines = {},
     Scopes scopes = (),
     Paths paths = {}, 
     ReferPaths referPaths = {},
     Uses uses = [],
     map[tuple[Key, str], rel[IdRole idRole, Key defined]] definesMap = ()
-)   = frModel()
+)   = tModel()
     ;
 
-void printFRModel(FRModel frm){
-    println("FRModel(");
+void printTModel(TModel tm){
+    println("TModel(");
     println("  defines = {");
-    for(Define d <- frm.defines){
+    for(Define d <- tm.defines){
         println("    \<<d.scope>, <d.id>, <d.idRole>, <d.defined>\>"); 
     }
     println("  },");
     println("  scopes = (");
-    for(Key inner <- frm.scopes){
-        println("    <inner>: <frm.scopes[inner]>");
+    for(Key inner <- tm.scopes){
+        println("    <inner>: <tm.scopes[inner]>");
     }
     println("  ),");
     println("  paths = {");
-    for(<Key from, PathRole pathRole, Key to> <- frm.paths){
+    for(<Key from, PathRole pathRole, Key to> <- tm.paths){
         println("    \<<from>, <pathRole>, <to>\>");
     }
     println("  },");
     println("  referPath = {");
-    for(c <- frm.referPaths){
+    for(c <- tm.referPaths){
         println("    <c>");
     }
     println("  },");
-    //iprintln(frm.uses);
+    //iprintln(tm.uses);
     println("  uses = [");
-    for(Use u <- frm.uses){
+    for(Use u <- tm.uses){
         println("    use(<u.ids? ? u.ids : u.id>, <u.occ>, <u.scope>, <u.idRoles>, <u.qualifierRoles? ? u.qualifierRoles : "">)");
     }
     println("  ]");
@@ -112,9 +112,9 @@ void printFRModel(FRModel frm){
 }
 
 // Retrieve a unique binding for use in given syntactic scope
-private Key bind(FRModel frm, Key scope, str id, set[IdRole] idRoles){
+private Key bind(TModel tm, Key scope, str id, set[IdRole] idRoles){
     //throw "Cannot be called";
-    defs = frm.defines[scope, id, idRoles];
+    defs = tm.defines[scope, id, idRoles];
     
     if(luDebug) println("\tbind: <scope>, <id>, <idRoles>
                        '\tbind: <defs>");
@@ -133,10 +133,10 @@ private Key bind(FRModel frm, Key scope, str id, set[IdRole] idRoles){
 
 
 // Lookup use in given syntactic scope
-private Key lookupScope(FRModel frm, Key scope, Use use){
+private Key lookupScope(TModel tm, Key scope, Use use){
     if(luDebug) println("\tlookupScope: <scope>, <use>");
-    def = bind(frm, scope, use.id, use.idRoles);
-    if(isAcceptableSimple(frm, def, use) == acceptBinding()){
+    def = bind(tm, scope, use.id, use.idRoles);
+    if(isAcceptableSimple(tm, def, use) == acceptBinding()){
        if(luDebug) println("\tlookupScope, <scope>. <use> ==\> <def>");
        return def;
     }
@@ -147,13 +147,13 @@ private Key lookupScope(FRModel frm, Key scope, Use use){
 
 
 // Find all (semantics induced) bindings for use in given syntactic scope via PathRole
-private list[Key] lookupPaths(FRModel frm, Key scope, Use use, PathRole pathRole){
+private list[Key] lookupPaths(TModel tm, Key scope, Use use, PathRole pathRole){
     //println("\tlookupPaths: <use.id> in scope <scope>, pathRole <pathRole>");
     res = 
-      for(<scope, pathRole, Key parent> <- frm.paths){
+      for(<scope, pathRole, Key parent> <- tm.paths){
         try {
-            def = lookupScope(frm, parent, use);
-            switch(isAcceptablePath(frm, parent, def, use, pathRole)){
+            def = lookupScope(tm, parent, use);
+            switch(isAcceptablePath(tm, parent, def, use, pathRole)){
             case acceptBinding():
                append def;
              case ignoreContinue():
@@ -170,26 +170,26 @@ private list[Key] lookupPaths(FRModel frm, Key scope, Use use, PathRole pathRole
 
 // Get all pathRoles and remember them
 @memo 
-private set[PathRole] pathRoles(FRModel frm){
-    //return {pl | /PathRole pl := frm};
-    return frm.paths.pathRole;
+private set[PathRole] pathRoles(TModel tm){
+    //return {pl | /PathRole pl := tm};
+    return tm.paths.pathRole;
 }
 
 // Lookup use in syntactic scope and via all semantic paths
-private Key lookupQual(FRModel frm, Key scope, Use u){
+private Key lookupQual(TModel tm, Key scope, Use u){
      try 
-        return lookupScope(frm, scope, u);
+        return lookupScope(tm, scope, u);
     catch NoKey(): {
         
-        if(luDebug) println("\tlookupQual: loop over <pathRoles(frm)>");
+        if(luDebug) println("\tlookupQual: loop over <pathRoles(tm)>");
         nextPath:
-        for(PathRole pathRole <- pathRoles(frm)){
-           candidates = lookupPaths(frm, scope, u, pathRole);
+        for(PathRole pathRole <- pathRoles(tm)){
+           candidates = lookupPaths(tm, scope, u, pathRole);
            if(size(candidates) == 1){
               return candidates[0];
            }
            for(Key candidate <- candidates){
-               switch(isAcceptableSimple(frm, candidate, u)){
+               switch(isAcceptableSimple(tm, candidate, u)){
                case acceptBinding():
                   return candidate;
                case ignoreContinue():
@@ -208,27 +208,27 @@ private Key lookupQual(FRModel frm, Key scope, Use u){
 
 // Lookup use in syntactic scope and via all semantic paths,
 // recur to syntactic parent until found
-private Key lookupNest(FRModel frm, Key scope, Use u){
+private Key lookupNest(TModel tm, Key scope, Use u){
     if(luDebug)println("\tlookupNest: <scope>, <u>");
     try 
-        return lookupQual(frm, scope, u);
+        return lookupQual(tm, scope, u);
     catch NoKey(): {
-        if(frm.scopes[scope] ?){
-           parent = frm.scopes[scope];
+        if(tm.scopes[scope] ?){
+           parent = tm.scopes[scope];
            if(luDebug)println("\tlookupNest: <scope>, <u> move up to <parent>");
-           return lookupNest(frm, parent, u);
+           return lookupNest(tm, parent, u);
         }
         if(luDebug) println("\t---- lookupNest, NoKey: <u>");
         throw NoKey();
     }
 }
 
-public Key lookup1(FRModel frm, Use u){
+public Key lookup1(TModel tm, Use u){
     scope = u.scope;
     if(luDebug) println("lookup: <u>");
     if(!(u has qualifierRoles)){
-       res = lookupNest(frm, scope, u);
-       if(isAcceptableSimple(frm, res, u) == acceptBinding()){
+       res = lookupNest(tm, scope, u);
+       if(isAcceptableSimple(tm, res, u) == acceptBinding()){
           if(luDebug) println("lookup: <u> ==\> <res>");
           return res;
        }
@@ -238,18 +238,18 @@ public Key lookup1(FRModel frm, Use u){
           scope = startScope;
            for(id <- u.ids[0..-1]){ 
                if(luDebug)println("lookup, search for <id>");
-               scope = lookupNest(frm, scope, use(id, u.occ, scope, u.qualifierRoles));
+               scope = lookupNest(tm, scope, use(id, u.occ, scope, u.qualifierRoles));
             }
        
             try {
-                res = lookupNest(frm, scope, use(u.ids[-1], u.occ, scope, u.idRoles));
-                if(isAcceptableQualified(frm, res, u) == acceptBinding()){
+                res = lookupNest(tm, scope, use(u.ids[-1], u.occ, scope, u.idRoles));
+                if(isAcceptableQualified(tm, res, u) == acceptBinding()){
                    if(luDebug) println("lookup: <u> ==\> <res>");
                    return res;
                 }
             } catch NoKey(): {
-                  if(frm.scopes[startScope]?){
-                     startScope = frm.scopes[startScope];
+                  if(tm.scopes[startScope]?){
+                     startScope = tm.scopes[startScope];
                      if(luDebug)println("^^^^ lookup move to scope <startScope>");
                   } else {
                      throw NoKey();
@@ -261,9 +261,9 @@ public Key lookup1(FRModel frm, Use u){
      throw NoKey();
 }
 
-public set[Key] lookup(FRModel frm, Use u){
+public set[Key] lookup(TModel tm, Use u){
     try {
-        return {lookup1(frm, u)};
+        return {lookup1(tm, u)};
     } catch AmbiguousDefinition(set[Key] definitions):
         return definitions;
 }
@@ -278,9 +278,9 @@ public set[Key] lookup(FRModel frm, Use u){
 bool wdebug = true;
 
 // Retrieve all bindings for use in given syntactic scope
-private set[Key] bindWide(FRModel frm, Key scope, str id, set[IdRole] idRoles){
+private set[Key] bindWide(TModel tm, Key scope, str id, set[IdRole] idRoles){
     try {
-        preDefs = frm.definesMap[<scope, id>];
+        preDefs = tm.definesMap[<scope, id>];
         if(preDefs<0> <= idRoles){
             res = preDefs<1>;
             if(isEmpty(res)){
@@ -299,11 +299,11 @@ private set[Key] bindWide(FRModel frm, Key scope, str id, set[IdRole] idRoles){
 }
 
 // Lookup use in the given syntactic scope
-private set[Key] lookupScopeWide(FRModel frm, Key scope, Use use){
+private set[Key] lookupScopeWide(TModel tm, Key scope, Use use){
     if(wdebug) println("\tlookupScopeWide: <use.id> in scope <scope>");
     defs = {};
     try {
-        defs = {def | def <- bindWide(frm, scope, use.id, use.idRoles), isAcceptableSimple(frm, def, use) == acceptBinding()}; 
+        defs = {def | def <- bindWide(tm, scope, use.id, use.idRoles), isAcceptableSimple(tm, def, use) == acceptBinding()}; 
     } catch NoKey():{
         if(wdebug) println("\tlookupScopeWide: <use.id> in scope <scope> ==\> NoKey");
         throw NoKey();
@@ -317,20 +317,20 @@ private set[Key] lookupScopeWide(FRModel frm, Key scope, Use use){
 }
 
 // Find all (semantics induced, one-level) bindings for use in given syntactic scope via PathRole
-private set[Key] lookupPathsWide(FRModel frm, Key scope, Use use, PathRole pathRole){
-    if(wdebug) println("\tlookupPathsWide: <use.id> in scope <scope>, role <pathRole>\n<for(p <- frm.paths){>\t---- <p>\n<}>");
+private set[Key] lookupPathsWide(TModel tm, Key scope, Use use, PathRole pathRole){
+    if(wdebug) println("\tlookupPathsWide: <use.id> in scope <scope>, role <pathRole>\n<for(p <- tm.paths){>\t---- <p>\n<}>");
     res = {};
     
     seenParents = {};
     solve(res, scope) {
     next_path:
-        for(<scope, pathRole, Key parent> <- frm.paths, parent notin seenParents){
+        for(<scope, pathRole, Key parent> <- tm.paths, parent notin seenParents){
             seenParents += parent;
             if(wdebug) println("\tlookupPathsWide: scope: <scope>, trying semantic path to: <parent>");
             try {
-                defs = lookupScopeWide(frm, parent, use);
+                defs = lookupScopeWide(tm, parent, use);
                 for(def <- defs){
-                    switch(isAcceptablePath(frm, parent, def, use, pathRole)){
+                    switch(isAcceptablePath(tm, parent, def, use, pathRole)){
                     case acceptBinding():
                        res += def;
                      case ignoreContinue():
@@ -351,24 +351,24 @@ private set[Key] lookupPathsWide(FRModel frm, Key scope, Use use, PathRole pathR
 }
 
 // Lookup use in given syntactic scope and via all semantic paths
-private set[Key] lookupQualWide(FRModel frm, Key scope, Use u){
+private set[Key] lookupQualWide(TModel tm, Key scope, Use u){
     if(wdebug) println("\tlookupQualWide: <u.id> in scope <scope>");
     res = {};
     try {
-        res = lookupScopeWide(frm, scope, u);
+        res = lookupScopeWide(tm, scope, u);
         if(wdebug) println("\tlookupQualWide: <u.id> in scope <scope>, after lookupScopeWide:\n<for(r <- res){>\t--\> <r><}>");
         //return res; //<<<
     } catch NoKey(): { /* nothing found */; }
 
    
-    if(wdebug) println("\tlookupQualWide: <res>, loop over <pathRoles(frm)>");
+    if(wdebug) println("\tlookupQualWide: <res>, loop over <pathRoles(tm)>");
     nextPath:
-    for(PathRole pathRole <- pathRoles(frm)){
+    for(PathRole pathRole <- pathRoles(tm)){
        try {
-           candidates = lookupPathsWide(frm, scope, u, pathRole);
+           candidates = lookupPathsWide(tm, scope, u, pathRole);
            if(wdebug) println("\tlookupQualWide: candidates: <candidates>");
            for(Key candidate <- candidates){
-               switch(isAcceptableSimple(frm, candidate, u)){
+               switch(isAcceptableSimple(tm, candidate, u)){
                case acceptBinding():
                   res += candidate;
                case ignoreContinue():
@@ -391,20 +391,20 @@ private set[Key] lookupQualWide(FRModel frm, Key scope, Use u){
 
 // Lookup use in syntactic scope and via all semantic paths,
 // recur to syntactic parent until found
-private set[Key] lookupNestWide(FRModel frm, Key scope, Use u){
+private set[Key] lookupNestWide(TModel tm, Key scope, Use u){
     if(wdebug) println("\tlookupNestWide: <u.id> in scope <scope>");
     res = {};
     try {
-        res = lookupQualWide(frm, scope, u);
+        res = lookupQualWide(tm, scope, u);
         if(wdebug) println("\tlookupNestWide: <u.id> in scope <scope> found:\n<for(r <- res){>\t==\> <r><}>");
         return res; // <<<
     } catch NoKey(): { /* nothing found */; }
     
     try {
-        if(frm.scopes[scope] ?){
-           parent = frm.scopes[scope];
+        if(tm.scopes[scope] ?){
+           parent = tm.scopes[scope];
            if(wdebug) println("\tlookupNestWide: <u.id> in scope <scope> move up to <parent>");
-           res += lookupNestWide(frm, parent, u);
+           res += lookupNestWide(tm, parent, u);
         }
     } catch NoKey():
         /* do nothing */;
@@ -417,11 +417,11 @@ private set[Key] lookupNestWide(FRModel frm, Key scope, Use u){
     }
 }
 
-public set[Key] lookupWide(FRModel frm, Use u){
+public set[Key] lookupWide(TModel tm, Use u){
     scope = u.scope;
     if(wdebug) println("lookupWide: <u>");
     if(!(u has qualifierRoles)){
-       defs = {def | def <- lookupNestWide(frm, scope, u), isAcceptableSimple(frm, def, u) == acceptBinding()};
+       defs = {def | def <- lookupNestWide(tm, scope, u), isAcceptableSimple(tm, def, u) == acceptBinding()};
        if(wdebug) println("lookupWide: <u> returns:\n<for(d <- defs){>\t==\> <d><}>");
        wdebug = false;
        return defs;
@@ -431,19 +431,19 @@ public set[Key] lookupWide(FRModel frm, Use u){
            qscopes = {};
            for(id <- u.ids[0..-1]){ 
                if(wdebug) println("lookup, search for <id>"); 
-               qscopes = lookupNestWide(frm, scope, use(id, u.occ, scope, u.qualifierRoles));
+               qscopes = lookupNestWide(tm, scope, use(id, u.occ, scope, u.qualifierRoles));
             }
             try {
                 defs = {};
                 for(scope <- qscopes){
-                    defs += { def | def <- lookupNestWide(frm, scope, use(u.ids[-1], u.occ, scope, u.idRoles)), isAcceptableQualified(frm, def, u) == acceptBinding()};              
+                    defs += { def | def <- lookupNestWide(tm, scope, use(u.ids[-1], u.occ, scope, u.idRoles)), isAcceptableQualified(tm, def, u) == acceptBinding()};              
                 }
                 
                 if(wdebug) println("lookupWide: <u> returns:\n<for(d <- defs){>\t==\> <d><}>");
                 return defs;
             } catch NoKey(): {
-                  if(frm.scopes[startScope]?){
-                     startScope = frm.scopes[startScope];
+                  if(tm.scopes[startScope]?){
+                     startScope = tm.scopes[startScope];
                      if(wdebug) println("^^^^ lookup move to scope <startScope>");
                   } else {
                      throw NoKey();
@@ -460,32 +460,32 @@ data Accept
     | ignoreSkipPath()
     ;
 
-default Accept isAcceptableSimple(FRModel frm, Key candidate, Use use) {
+default Accept isAcceptableSimple(TModel tm, Key candidate, Use use) {
     if(wdebug) println("default isAcceptableSimple: <use.id> candidate: <candidate>");
     return acceptBinding();
 }
 
-default Accept isAcceptablePath(FRModel frm, Key defScope, Key def, Use use, PathRole pathRole) {
+default Accept isAcceptablePath(TModel tm, Key defScope, Key def, Use use, PathRole pathRole) {
     if(wdebug) println("default isAcceptablePath: <use.id>, defScope: <defScope>, def <def>");
     return acceptBinding();
 }
 
-default Accept isAcceptableQualified(FRModel frm, Key candidate, Use use) = acceptBinding();
+default Accept isAcceptableQualified(TModel tm, Key candidate, Use use) = acceptBinding();
 
-default bool checkPaths(FRModel frm, Key from, Key to, PathRole pathRole, bool(FRModel,Key) pred) {
+default bool checkPaths(TModel tm, Key from, Key to, PathRole pathRole, bool(TModel,Key) pred) {
     current = from;
     path = [from];
     do {
-        if({def} := frm.paths[current, pathRole]){
+        if({def} := tm.paths[current, pathRole]){
            path += [def];
            current = def; 
         } else {
             throw "isAcceptablePath: <current>, <use>";
         }
     } while(current != to);
-    return all(p <- path, pred(frm, p));
+    return all(p <- path, pred(tm, p));
 }
 
-bool existsPath(FRModel frm, Key from, Key to, PathRole pathRole){
-    return <from, to> in frm.paths<1,0,2>[pathRole]*;
+bool existsPath(TModel tm, Key from, Key to, PathRole pathRole){
+    return <from, to> in tm.paths<1,0,2>[pathRole]*;
 }

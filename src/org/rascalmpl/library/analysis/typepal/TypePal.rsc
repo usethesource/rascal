@@ -24,7 +24,7 @@ import Exception;
 
 extend analysis::typepal::ScopeGraph;
 extend analysis::typepal::AType;
-extend analysis::typepal::ExtractFRModel;
+extend analysis::typepal::ExtractTModel;
 
 syntax ANONYMOUS_OCCURRENCE = "anonymous_occurence";
 private loc anonymousOccurrence = ([ANONYMOUS_OCCURRENCE] "anonymous_occurence")@\loc;
@@ -96,7 +96,7 @@ bool surrounds (Message msg1, Message msg2){
 // Global variables, used by validate and callbacks (define, require, etc.)
 
 // Used outside validate
-FRModel extractedFRModel;
+TModel extractedTModel;
 
 map[loc, AType] facts = ();
 
@@ -110,10 +110,10 @@ set[Requirement] requirementJobs = {};
 
 set[Message] messages = {};
 
-set[Key] (FRModel, Use) lookupFun = lookup;
+set[Key] (TModel, Use) lookupFun = lookup;
 
-FRModel getFRModel(){
-    return extractedFRModel[facts=facts];
+TModel getTModel(){
+    return extractedTModel[facts=facts];
 }
 
 AType lub(AType t1, AType t2) = lub([t1, t2]);
@@ -406,7 +406,7 @@ void fireTriggers(loc l, bool protected=true){
 // The binding of a type variable that occurs inside the scope of that type variable can be turned into a fact
 void bindings2facts(map[loc, AType] bindings, loc occ){
     for(b <- bindings){
-        if(isTypeVariable(b) && !facts[b]? && (!extractedFRModel.tvScopes[b]? || occ <= extractedFRModel.tvScopes[b])){
+        if(isTypeVariable(b) && !facts[b]? && (!extractedTModel.tvScopes[b]? || occ <= extractedTModel.tvScopes[b])){
            addFact(b, bindings[b]);
            //if(cdebug) println("bindings2facts, added: <b> : <bindings[b]>");
         }
@@ -472,11 +472,11 @@ AType typeof(loc l){
 
 AType typeof(str id, Key scope, set[IdRole] idRoles){
     try {
-        foundDefs = lookupFun(extractedFRModel, use(id, anonymousOccurrence, scope, idRoles));
+        foundDefs = lookupFun(extractedTModel, use(id, anonymousOccurrence, scope, idRoles));
         if({def} := foundDefs){
            return instantiate(facts[def]);
         } else {
-          if(myMayOverload(foundDefs, extractedFRModel.definitions)){
+          if(myMayOverload(foundDefs, extractedTModel.definitions)){
                   return overloadedAType({<d, instantiate(facts[d])> | d <- foundDefs});
           } else {
                throw AmbiguousDefinition(foundDefs);
@@ -531,7 +531,7 @@ bool unify(AType given, AType expected){
 
 // The "subtype" predicate
 void subtype(AType small, AType large, ErrorHandler onError){
-    extractedFRModel.facts = facts;
+    extractedTModel.facts = facts;
     r = myIsSubType(small, large);
     //println("subtype: <small>, <large> ==\> <r>");
     if(!r){
@@ -540,7 +540,7 @@ void subtype(AType small, AType large, ErrorHandler onError){
 }
 
 bool subtype(AType small, AType large){
-    extractedFRModel.facts = facts;
+    extractedTModel.facts = facts;
     if(isFullyInstantiated(small) && isFullyInstantiated(large)){
        r = myIsSubType(small, large);
        //println("subtype: <small>, <large> ==\> <r>");
@@ -552,7 +552,7 @@ bool subtype(AType small, AType large){
 
 // The "comparable" predicate
 void comparable(AType atype1, AType atype2, ErrorHandler onError){
-    extractedFRModel.facts = facts;
+    extractedTModel.facts = facts;
     if(isFullyInstantiated(atype1) && isFullyInstantiated(atype2)){
         if(!(myIsSubType(atype1, atype2) || myIsSubType(atype2, atype1))){
             throw checkFailed(onError.where, onError.msg);
@@ -563,7 +563,7 @@ void comparable(AType atype1, AType atype2, ErrorHandler onError){
 }
 
 default bool comparable(AType atype1, AType atype2){
-    extractedFRModel.facts = facts;
+    extractedTModel.facts = facts;
     if(isFullyInstantiated(atype1) && isFullyInstantiated(atype2)){
         return myIsSubType(atype1, atype2) || myIsSubType(atype2, atype1);
     } else {
@@ -587,19 +587,19 @@ void reportWarning(loc src, str msg){
 }
 
 /*
- *  validate: validates an extracted FRModel via constraint solving
+ *  validate: validates an extracted TModel via constraint solving
  *  
  */
 
-FRModel validate(FRModel er,  set[Key] (FRModel, Use) lookupFun = lookup, bool debug = false){
+TModel validate(TModel er,  set[Key] (TModel, Use) lookupFun = lookup, bool debug = false){
     // Initialize global state
-    extractedFRModel = er;
+    extractedTModel = er;
  
-    facts = extractedFRModel.facts;
-    openFacts = extractedFRModel.openFacts;
+    facts = extractedTModel.facts;
+    openFacts = extractedTModel.openFacts;
     bindings = ();
-    openReqs = extractedFRModel.openReqs;
-     messages = extractedFRModel.messages;
+    openReqs = extractedTModel.openReqs;
+     messages = extractedTModel.messages;
     triggersRequirement = ();
     triggersFact = ();
   
@@ -611,7 +611,7 @@ FRModel validate(FRModel er,  set[Key] (FRModel, Use) lookupFun = lookup, bool d
     
     // Initialize local state
     map[Key, set[Key]] defs = ();
-    map[loc, Calculator] calculators = extractedFRModel.calculators;
+    map[loc, Calculator] calculators = extractedTModel.calculators;
     set[Use] openUses = {};
    
     iterations = 0;
@@ -619,17 +619,17 @@ FRModel validate(FRModel er,  set[Key] (FRModel, Use) lookupFun = lookup, bool d
    
     println("calculators: <size(calculators)>; facts: <size(facts)>; openFacts: <size(openFacts)>; openReqs: <size(openReqs)>");
     if(cdebug){
-       printFRModel(extractedFRModel);
+       printTModel(extractedTModel);
     }
     
     if(cdebug) println("..... filter double declarations");
  
     // Check for illegal overloading in the same scope
-    for(<scope, id> <- extractedFRModel.defines<0,1>){
-        foundDefines = extractedFRModel.defines[scope, id];
+    for(<scope, id> <- extractedTModel.defines<0,1>){
+        foundDefines = extractedTModel.defines[scope, id];
         if(size(foundDefines) > 1){
            ds = {defined | <IdRole idRole, Key defined, DefInfo defInfo> <- foundDefines};
-           if(!myMayOverload(ds, extractedFRModel.definitions)){
+           if(!myMayOverload(ds, extractedTModel.definitions)){
               messages += {error("Double declaration of `<id>`", defined) | <IdRole idRole, Key defined, DefInfo defInfo>  <- foundDefines};
            }
         }
@@ -639,11 +639,11 @@ FRModel validate(FRModel er,  set[Key] (FRModel, Use) lookupFun = lookup, bool d
     
     // Check that all uses have a definition and that all overloading is allowed
     
-    for(u <- extractedFRModel.uses){
+    for(u <- extractedTModel.uses){
         try {
-           foundDefs = lookupFun(extractedFRModel, u);
+           foundDefs = lookupFun(extractedTModel, u);
            
-           if(size(foundDefs) == 1 || myMayOverload(foundDefs, extractedFRModel.definitions)){
+           if(size(foundDefs) == 1 || myMayOverload(foundDefs, extractedTModel.definitions)){
               defs[u.occ] = foundDefs;
               openUses += u;
               if(cdebug) println("  use of \"<u has id ? u.id : u.ids>\" at <u.occ> ==\> <foundDefs>");
@@ -661,7 +661,7 @@ FRModel validate(FRModel er,  set[Key] (FRModel, Use) lookupFun = lookup, bool d
     
     if(cdebug) println("..... handle defines");
     
-    for(Define d <- extractedFRModel.defines){
+    for(Define d <- extractedTModel.defines){
        try {
            if(d.defInfo is noDefInfo){
            ;
@@ -839,11 +839,11 @@ FRModel validate(FRModel er,  set[Key] (FRModel, Use) lookupFun = lookup, bool d
        return er;
 }
 
-rel[loc, loc] getUseDef(FRModel frm){
+rel[loc, loc] getUseDef(TModel tm){
     res = {};
-    for(Use u <- frm.uses){
+    for(Use u <- tm.uses){
         try {
-           foundDefs =  lookup(frm, u);
+           foundDefs =  lookup(tm, u);
            res += { <u.occ, def> | def <- foundDefs };
         } catch NoKey(): {
             ;// ignore it
@@ -854,11 +854,11 @@ rel[loc, loc] getUseDef(FRModel frm){
     return res;
 }
 
-set[str] getVocabulary(FRModel frm)
-    = {d.id | Define d <- frm.defines};
+set[str] getVocabulary(TModel tm)
+    = {d.id | Define d <- tm.defines};
 
-map[loc, AType] getFacts(FRModel frm)
-    = frm.facts;
+map[loc, AType] getFacts(TModel tm)
+    = tm.facts;
 
-set[Message] getMessages(FRModel frm)
-    = frm.messages;
+set[Message] getMessages(TModel tm)
+    = tm.messages;
