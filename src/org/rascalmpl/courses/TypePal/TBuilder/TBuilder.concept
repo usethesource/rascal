@@ -1,17 +1,39 @@
-# Create a TModel
+# Build a TModel
 
 .Synopsis
-An `TBuilder` enables the incremental addition of facts and requirements to an `TModel`.
+A `TBuilder` enables the incremental addition of facts, requirements and calculators to a `TModel`.
 
 .Description
-The life cycle of the `TBuilder` looks like this:
+
+A `TBuilder` is a statefull functional object that provides all the functions described below
+to access and change its internal state. The global services provided by a `TBuilder` are:
+
+* Register facts, requirements and calculators as collected from the source program.
+* Maintain a global (key,value) store to store global information relevant for the collection process. Typical examples are:
+  ** Configuration information.
+  ** The files that have been imported.
+* Maintain scopes. Typically, scopes of functions and blocks.
+* Maintain a single value per scope. This enables decoupling the collection of information from separate but related language constructs.
+  Typical examples are:
+  ** While collecting information from a function declaration: associate the required return type with a new function scope so 
+     that return statements in the function body can check that
+    (a) they occur inside a function; (b) that the type of their returned value is compatible with the required return type.
+  ** While collecting information from an optionally labelled loop statement: associate the label with a new loop scope so that break/continue statements can check that:
+    (a) they occur inside a loop statement; (b) which loop statement they should (dis)continue.
+* Reporting.
+
+The functions provided by a `TBuilder` and its lifecycle looks like this:
 
 image::TBuilder.png[500,500,align="center"]
 
-First, a fresh `TBuilder` is created by `newTBuilder`, let's assign it to variable `tb`.
 
-Next, two dozen functions is available that fall into the following categories:
+The `TBuilder` is represented as a data type with a single constructor
+that has fields that correspond to the functions provided by the builder.
+For instance, calling the `define` function on a `TBuilder` named `tb` amounts to: `tb.define(the-arguments-of-define)`.
 
+Two dozen functions are available that fall into the following categories:
+
+* _Create, Collect & Build_: create `TBuilder`, collect information from source program, and build the `TModel`.
 * _Define & Use_: define and use identifiers in various ways.
 * _Facts, Requirements & Calculators_: establish facts, define requirements and calculators.
 * _Inference_: create new type variables for type inference.
@@ -20,15 +42,13 @@ Next, two dozen functions is available that fall into the following categories:
 * _Global Info_: add global information or retrieve that information.
 * _Reporting_: report errors and warnings.
 
-The TBuilder is actually represented as a data type with a single constructor
-that has fields that correspond to the functions provided by the builder.
-For instance, calling the `define` function on the TBuilder we just created amounts to: `tb.define(the-arguments-of-define)`.
 The builder functions are applied repeatedly until all
-information has been extracted from the source program.
+information has been collected from the source program.
 
-Finally, `build` creates the desired `TModel` that will be used for validation.  
+Finally, `build` creates the desired `TModel` that will be used for validation.
       
-== Creating & building
+== Create, Collect & Build
+A `TBuilder` is created using the function `newTBuilder`. By way of `build` it is converted into a `TModel`.
 [source,rascal]
 ----
 TBuilder newTBuilder();    
@@ -39,6 +59,7 @@ Given a parse tree `pt` of the program to be checked, a typical scenario is:
 tb = newTBuilder();
 collect(pt, tb);
 model = tb.build();
+... continue with validation ...
 ----
         
 == Define & Use
