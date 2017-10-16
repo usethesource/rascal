@@ -33,7 +33,7 @@ TypePal is a declarative framework that operates on a model of the analysed prog
   this computation may also need the types of one or more other source code fragments,
   e.g., compute the type of the addition operator based on the types of its operands.
   
-Unsurprisingly, this is called the _FRCModel_ of the program: facts describe elementary observations,
+This is called the _TModel_ (for "Type Model") of the program: facts describe elementary observations,
 requirements impose restrictions on the types of program fragments, and calculators compute new types.
 A requirement or calculator may detect a type violation and will then generate an error message. 
 When a requirement is satisfied or a calculator computes a new type, 

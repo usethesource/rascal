@@ -1,14 +1,14 @@
-# Create an FRCModel
+# Create a TModel
 
 .Synopsis
-An `FRCBuilder` enables the incremental addition of facts and requirements to an `FRCModel`.
+An `TBuilder` enables the incremental addition of facts and requirements to an `TModel`.
 
 .Description
-The life cycle of the `FRCBuilder` looks like this:
+The life cycle of the `TBuilder` looks like this:
 
-image::FRCBuilder.png[500,500,align="center"]
+image::TBuilder.png[500,500,align="center"]
 
-First, a fresh `FRCBuilder` is created by `newFRCBuilder`, let's assign it to variable `frb`.
+First, a fresh `TBuilder` is created by `newTBuilder`, let's assign it to variable `tb`.
 
 Next, two dozen functions is available that fall into the following categories:
 
@@ -20,32 +20,32 @@ Next, two dozen functions is available that fall into the following categories:
 * _Global Info_: add global information or retrieve that information.
 * _Reporting_: report errors and warnings.
 
-The FRBuilder is actually represented as a data type with a single constructor
+The TBuilder is actually represented as a data type with a single constructor
 that has fields that correspond to the functions provided by the builder.
-For instance, calling the `define` function on the FRBuilder we just created amounts to: `frb.define(the-arguments-of-define)`.
+For instance, calling the `define` function on the TBuilder we just created amounts to: `tb.define(the-arguments-of-define)`.
 The builder functions are applied repeatedly until all
 information has been extracted from the source program.
 
-Finally, `build` creates the desired `FRModel` that will be used for validation.  
+Finally, `build` creates the desired `TModel` that will be used for validation.  
       
 == Creating & building
 [source,rascal]
 ----
-FRCBuilder newFRCBuilder();    
-FRCModel build();
+TBuilder newTBuilder();    
+TModel build();
 ----
 Given a parse tree `pt` of the program to be checked, a typical scenario is:
 ----
-frb = newFRCBuilder();
-collect(pt, frb);
-model = frb.build();
+tb = newTBuilder();
+collect(pt, tb);
+model = tb.build();
 ----
         
 == Define & Use
 
 === Define a name
 
-The function `define` is used to add in the _current_ scope the definition of a name to the FRCModel:
+The function `define` is used to add in the _current_ scope the definition of a name to the TModel:
 [source,rascal]
 ----
 void define(str id, IdRole idRole, Tree def, DefInfo info);
