@@ -77,7 +77,7 @@ data TModel (
     ReferPaths referPaths = {},
     Uses uses = [],
     map[tuple[Key, str], rel[IdRole idRole, Key defined]] definesMap = ()
-)   = tModel()
+)   = tmodel()
     ;
 
 void printTModel(TModel tm){
