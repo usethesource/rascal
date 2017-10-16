@@ -55,11 +55,28 @@ TBuilder newTBuilder();
 TModel build();
 ----
 Given a parse tree `pt` of the program to be checked, a typical scenario is:
+[source,rascal]
 ----
 tb = newTBuilder();
 collect(pt, tb);
 model = tb.build();
 ... continue with validation ...
+----
+NOTE: The `collect` function has to be supplied by the author of the type checker and looks like this:
+[source,rascal]
+----
+void collect(LanguageConstruct lc, TBuilder tb){ ... }
+----
+where:
+
+* `lc` is a syntactic type from the language under consideration.
+* `tb` is a `TBuilder`.
+
+NOTE: Each collect function is responsible for visiting its subtrees. This achieved by the following mandatory call
+at the end of each `collect` function:
+[source,rascal]
+----
+collectParts(lc, tb);
 ----
         
 == Define & Use
