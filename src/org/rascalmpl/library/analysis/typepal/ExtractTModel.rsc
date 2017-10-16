@@ -519,7 +519,7 @@ TBuilder newTBuilder(Tree t, bool debug = false){
     TModel _build(){
         if(building){
            building = false;
-           tm = TModel();
+           tm = tmodel();
            finalizeDefines();
            tm.defines = defines;
            tm.scopes = scopes;
