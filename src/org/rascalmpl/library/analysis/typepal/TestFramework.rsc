@@ -67,12 +67,6 @@ str deescape(str s)  {  // copied from RascalExpression, belongs in library
     return res;
 }
 
-//bool runTests(loc tests, type[&T<:Tree] begin, 
-//              FRBuilder(Tree t) frBuilder = defaultFRBuilder,
-//              set[Key] (TModel, Use) lookupFun = lookup,
-//              bool verbose = false
-//){
-
 bool runTests(list[loc] suites, TModel(str txt) getModel, bool verbose = false){
     TTL ttlProgram;
     
