@@ -148,7 +148,7 @@ FRModel extractFRModel(Tree root, FRBuilder(Tree t) frBuilder = defaultFRBuilder
 // Default definition for collect; to be overridden in a specific type checker
 // for handling syntax-constructs-of-interest
 default void collect(Tree currentTree, FRBuilder frb){
-  println("default collect: <typeOf(currentTree)>: <currentTree>");
+    //println("default collect: <typeOf(currentTree)>: <currentTree>");
    collectParts(currentTree, frb);
 }
 
