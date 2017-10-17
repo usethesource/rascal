@@ -490,6 +490,37 @@ AType typeof(str id, Key scope, set[IdRole] idRoles){
        }
 }
 
+Define getDefinition(Tree tree){
+    try {
+        return extractedTModel.definitions[getLoc(tree)];
+     } catch NoSuchKey(k):
+            throw TypeUnavailable();
+       catch NoKey(): {
+            println("getDefinition: <id> in scope <scope> ==\> TypeUnavailable1");
+            throw TypeUnavailable();
+       }
+}
+
+set[Define] getDefinitions(str id, Key scope, set[IdRole] idRoles){
+    try {
+        foundDefs = lookupFun(extractedTModel, use(id, anonymousOccurrence, scope, idRoles));
+        if({def} := foundDefs){
+           return foundDefs;
+        } else {
+          if(myMayOverload(foundDefs, extractedTModel.definitions)){
+                  return foundDefs;
+          } else {
+               throw AmbiguousDefinition(foundDefs);
+          }
+        }
+     } catch NoSuchKey(k):
+            throw TypeUnavailable();
+       catch NoKey(): {
+            println("getDefinitions: <id> in scope <scope> ==\> TypeUnavailable1");
+            throw TypeUnavailable();
+       }
+}
+
 // The "equal" predicate that succeeds or gives error
 void equal(AType given, AType expected, ErrorHandler onError){
     if(given != expected){
