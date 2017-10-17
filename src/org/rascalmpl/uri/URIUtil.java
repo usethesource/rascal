@@ -11,8 +11,14 @@
 package org.rascalmpl.uri;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+
+import javax.xml.stream.events.Characters;
 
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
@@ -52,6 +58,33 @@ public class URIUtil {
 		path = fixWindowsPath(path);
 		return fixUnicode(new URI("file","", path, null));
 	}
+	
+	/**
+	 * Some URLs exist which are not strictly in compliance with RFC 2396. Their toURI() method will then produce
+	 * bad URI syntax leading to IO exceptions later. This method tries to circumvent the problem by decoding
+	 * the content of the URL first back to basic UTF8 characters and then recoding the URI from scratch.
+	 *  
+	 * @param  url a possibly non-rfc-2396 compliant URL
+	 * @return (hopefully) a correctly encoded URI
+	 * @throws URISyntaxException when either the decoder of URLs or the encoder of URIs finds a bad input.
+	 */
+	public static URI fromURL(URL url) throws URISyntaxException {
+	    try {
+	        return create(
+	            url.getProtocol(), 
+	            decodeURLPart(url.getAuthority()),
+	            decodeURLPart(url.getPath()),
+	            decodeURLPart(url.getQuery()),
+	            decodeURLPart(url.getRef()));
+	    }
+        catch (UnsupportedEncodingException e) {
+            throw new URISyntaxException(url.toString(), e.getMessage());
+        }
+	}
+	
+    private static String decodeURLPart(String part) throws UnsupportedEncodingException {
+        return part == null || part.isEmpty() ? "" : URLDecoder.decode(part, StandardCharsets.UTF_8.name());
+    }
 	
 	public static ISourceLocation createFileLocation(String path) throws URISyntaxException {
 		return vf.sourceLocation(createFile(path));
