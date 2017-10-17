@@ -74,8 +74,8 @@ public class URIUtil {
 	            url.getProtocol(), 
 	            decodeURLPart(url.getAuthority()),
 	            decodeURLPart(url.getPath()),
-	            decodeURLPart(url.getQuery()),
-	            decodeURLPart(url.getRef()));
+	            url.getQuery() == null ? null : decodeURLPart(url.getQuery()),
+	            url.getRef() == null ? null : decodeURLPart(url.getRef()));
 	    }
         catch (UnsupportedEncodingException e) {
             throw new URISyntaxException(url.toString(), e.getMessage());
