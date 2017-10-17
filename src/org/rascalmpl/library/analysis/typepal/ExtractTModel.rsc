@@ -208,9 +208,9 @@ data TBuilder
     = tbuilder(
         void (str id, IdRole idRole, Tree def, DefInfo info) define,
         void (Tree occ, set[IdRole] idRoles) use,
-        void (Tree occ, set[IdRole] idRoles, PathRole pathRole) use_ref,
-        void (list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles) use_qual,
-        void (list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles, PathRole pathRole) use_qual_ref,   
+        void (Tree occ, set[IdRole] idRoles, PathRole pathRole) useViaPath,
+        void (list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles) useQualified,
+        void (list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles, PathRole pathRole) useQualifiedViaPath,   
         void (Tree inner) enterScope,
         void (Tree inner) leaveScope,
         void (Key scope, ScopeRole scopeRole, value info) setScopeInfo,
@@ -301,30 +301,30 @@ TBuilder newTBuilder(Tree t, bool debug = false){
         }
     }
     
-    void _use_ref(Tree occ, set[IdRole] idRoles, PathRole pathRole) {
+    void _useViaPath(Tree occ, set[IdRole] idRoles, PathRole pathRole) {
         if(building){
             u = use(stripLeadingEscape("<occ>"), getLoc(occ), currentScope, idRoles);
             uses += [u];
             referPaths += {refer(u, pathRole)};
         } else {
-            throw TypePalUsage("Cannot call `use_ref` on TBuilder after `build`");
+            throw TypePalUsage("Cannot call `useViaPath` on TBuilder after `build`");
         }
     }
     
-    void _use_qual(list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles){
+    void _useQualified(list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles){
         if(building){
            uses += [useq([stripLeadingEscape(id) | id <- ids], getLoc(occ), currentScope, idRoles, qualifierRoles)];
         } else {
-            throw TypePalUsage("Cannot call `use_qual` on TBuilder after `build`");
+            throw TypePalUsage("Cannot call `useQualified` on TBuilder after `build`");
         }  
      }
-     void _use_qual_ref(list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles, PathRole pathRole){
+     void _useQualifiedViaPath(list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles, PathRole pathRole){
         if(building){
             u = useq([stripLeadingEscape(id) | id <- ids], getLoc(occ), currentScope, idRoles, qualifierRoles);
             uses += [u];
             referPaths += {refer(u, pathRole)};
         } else {
-            throw TypePalUsage("Cannot call `use_qual_ref` on TBuilder after `build`");
+            throw TypePalUsage("Cannot call `useQualifiedViaPath` on TBuilder after `build`");
         } 
     }
     
@@ -548,9 +548,9 @@ TBuilder newTBuilder(Tree t, bool debug = false){
     
     return tbuilder(_define, 
                      _use, 
-                     _use_ref, 
-                     _use_qual, 
-                     _use_qual_ref, 
+                     _useViaPath, 
+                     _useQualified, 
+                     _useQualifiedViaPath, 
                      _enterScope, 
                      _leaveScope,
                      _setScopeInfo,
