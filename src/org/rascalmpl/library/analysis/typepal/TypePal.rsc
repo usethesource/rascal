@@ -505,10 +505,10 @@ set[Define] getDefinitions(str id, Key scope, set[IdRole] idRoles){
     try {
         foundDefs = lookupFun(extractedTModel, use(id, anonymousOccurrence, scope, idRoles));
         if({def} := foundDefs){
-           return foundDefs;
+           return {extractedTModel.definitions[def]};
         } else {
           if(myMayOverload(foundDefs, extractedTModel.definitions)){
-                  return foundDefs;
+            return {extractedTModel.definitions[def] | def <- foundDefs};
           } else {
                throw AmbiguousDefinition(foundDefs);
           }
