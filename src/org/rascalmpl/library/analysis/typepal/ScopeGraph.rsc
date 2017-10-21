@@ -275,13 +275,14 @@ public set[Key] lookup(TModel tm, Use u){
 /* parents) and definitions that can be reached in a single step via semantic links */                             
 /************************************************************************************/
 
-bool wdebug = false;
+bool wdebug = true;
 
 // Retrieve all bindings for use in given syntactic scope
 private set[Key] bindWide(TModel tm, Key scope, str id, set[IdRole] idRoles){
     try {
         preDefs = tm.definesMap[<scope, id>];
-        if(preDefs<0> <= idRoles){
+           
+        if(!isEmpty(preDefs<0> & idRoles)){
             res = preDefs<1>;
             if(isEmpty(res)){
                if(wdebug) println("\tbindWide, <id> in scope <scope> ==\> NoKey");
