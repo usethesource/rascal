@@ -42,11 +42,11 @@ default AType myLUB(AType atype1, AType atype2){
 }
 
 default AType myATypeMin(){
-    throw TypePalUsage("`atypeMin()` called but `myATypeMin` is not specified");
+    throw TypePalUsage("`myATypeMin()` called but `myATypeMin` is not specified");
 }
 
 default AType myATypeMax(){
-    throw TypePalUsage("`atypeMax()` called but `myATypeMax` is not specified");
+    throw TypePalUsage("`myATypeMax()` called but `myATypeMax` is not specified");
 }
 
 default bool myMayOverload(set[Key] defs, map[Key, Define] defines) = false;
@@ -446,7 +446,6 @@ AType typeof(Tree tree) {
         //    throw TypeUnavailable();
         //}
     } catch NoSuchKey(l): {
-        iprintln(facts);
         throw TypeUnavailable();
     }
 }

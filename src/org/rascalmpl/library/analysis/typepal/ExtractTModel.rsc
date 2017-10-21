@@ -220,7 +220,6 @@ data TBuilder
         void (str name, Tree src, list[value] dependencies, void() preds) require,
         void (str name, Tree src, list[value] dependencies, void() preds) requireEager,
         void (Tree src, AType tp) fact,
-        //void (Tree src, list[value] dependencies, AType() getAType) fact,
         void (str name, Tree src, list[value] dependencies, AType() calculator) calculate,
         void (str name, Tree src, list[value] dependencies, AType() calculator) calculateEager,
         void (Tree src, str msg) reportError,
