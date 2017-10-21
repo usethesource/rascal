@@ -275,7 +275,7 @@ public set[Key] lookup(TModel tm, Use u){
 /* parents) and definitions that can be reached in a single step via semantic links */                             
 /************************************************************************************/
 
-bool wdebug = true;
+bool wdebug = false;
 
 // Retrieve all bindings for use in given syntactic scope
 private set[Key] bindWide(TModel tm, Key scope, str id, set[IdRole] idRoles){
