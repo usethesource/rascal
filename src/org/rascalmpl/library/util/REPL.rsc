@@ -2,7 +2,7 @@ module util::REPL
 
 import Message;
 import ParseTree;
-import util::Proposer;
+import util::notebook::Proposer;
 
 alias Completion
  = tuple[int offset, list[str] suggestions];
