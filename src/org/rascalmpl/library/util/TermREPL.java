@@ -115,11 +115,11 @@ public class TermREPL {
             if(!str.equals(""))
                 output.put("text/html", str);
 
-            IList errors = (IList)result.get(1);
-            for (IValue v: errors) {
-                IConstructor msg = (IConstructor)v;
-                String err = ((IString) msg.get("msg")).getValue(); 
-                stderr.write( err);
+            IList messages = (IList) result.get(1);
+            for (IValue v: messages) {
+                IConstructor msg = (IConstructor) v;
+                if(msg.getName().equals("error"))
+                    stderr.write( ((IString) msg.get("msg")).getValue());
             }
         }
 
