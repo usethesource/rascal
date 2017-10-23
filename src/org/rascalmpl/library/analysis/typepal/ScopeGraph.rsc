@@ -430,16 +430,20 @@ public set[Key] lookupWide(TModel tm, Use u){
        startScope = scope;
        while(true){
            qscopes = {};
-           for(id <- u.ids[0..-1]){ 
+           for(str id <- u.ids[0..-1]){ 
                if(wdebug) println("lookup, search for <id>"); 
                qscopes = lookupNestWide(tm, scope, use(id, u.occ, scope, u.qualifierRoles));
             }
             try {
                 defs = {};
-                for(scope <- qscopes){
-                    defs += { def | def <- lookupNestWide(tm, scope, use(u.ids[-1], u.occ, scope, u.idRoles)), isAcceptableQualified(tm, def, u) == acceptBinding()};              
+                for(Key scope <- qscopes){
+                    scopeLookups = {};
+                    try {
+                        scopeLookups = lookupNestWide(tm, scope, use(u.ids[-1], u.occ, scope, u.idRoles));
+                        defs += { def | def <- scopeLookups, isAcceptableQualified(tm, def, u) == acceptBinding()}; 
+                    } catch NoKey(): /* lookup in scope failed, continue with next one */;            
                 }
-                
+                if(isEmpty(defs)) throw NoKey();
                 if(wdebug) println("lookupWide: <u> returns:\n<for(d <- defs){>\t==\> <d><}>");
                 return defs;
             } catch NoKey(): {
