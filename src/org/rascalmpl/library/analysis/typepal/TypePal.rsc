@@ -93,6 +93,24 @@ bool surrounds (Message msg1, Message msg2){
     return msg1.at.offset <= msg2.at.offset && msg1.at.offset + msg1.at.length > msg2.at.offset + msg2.at.length;
 }
 
+str intercalateAnd(list[str] strs){
+    switch(size(strs)){
+      case 0: return "";
+      case 1: return strs[0];
+      default: 
+              return intercalate(", ", strs[0..-1]) + " and " + strs[-1];
+      };
+}
+
+str intercalateOr(list[str] strs){
+    switch(size(strs)){
+      case 0: return "";
+      case 1: return strs[0];
+      default: 
+              return intercalate(", ", strs[0..-1]) + " or " + strs[-1];
+      };
+}
+
 // Global variables, used by validate and callbacks (define, require, etc.)
 
 // Used outside validate
@@ -673,6 +691,10 @@ TModel validate(TModel er,  set[Key] (TModel, Use) lookupFun = lookup, bool debu
         try {
            foundDefs = lookupFun(extractedTModel, u);
            
+           if(isEmpty(foundDefs)){
+              roles = size(u.idRoles) > 3 ? "name" : intercalateOr([replaceAll(getName(idRole), "Id", "") | idRole <-u.idRoles]);
+              messages += error("Undefined <roles> `<getId(u)>`", u.occ);
+           } else 
            if(size(foundDefs) == 1 || myMayOverload(foundDefs, extractedTModel.definitions)){
               defs[u.occ] = foundDefs;
               openUses += u;
@@ -683,7 +705,7 @@ TModel validate(TModel er,  set[Key] (TModel, Use) lookupFun = lookup, bool debu
             }
         }
         catch NoKey(): {
-            roles = size(u.idRoles) > 3 ? "name" : intercalate(", or ", [replaceAll(getName(idRole), "Id", "") | idRole <-u.idRoles]);
+            roles = size(u.idRoles) > 3 ? "name" : intercalateOr([replaceAll(getName(idRole), "Id", "") | idRole <-u.idRoles]);
             messages += error("Undefined <roles> `<getId(u)>`", u.occ);
             if(cdebug) println("  use of \"<u has id ? u.id : u.ids>\" at <u.occ> ==\> ** undefined **");
         }
@@ -735,9 +757,10 @@ TModel validate(TModel er,  set[Key] (TModel, Use) lookupFun = lookup, bool debu
            
     solve(facts, openReqs, openFacts, openUses, requirementJobs){       
        
+       handleFacts:
        for(u <- openUses){
            foundDefs = defs[u.occ];
-           //if (cdebug) println("Consider unresolved use: <u>, foundDefs=<foundDefs>");
+           if (cdebug) println("Consider unresolved use: <u>, foundDefs=<foundDefs>");
            try {
                if({def} := foundDefs){  // unique definition found
                    if(facts[def]?){  // has type of def become available?
@@ -750,8 +773,26 @@ TModel validate(TModel er,  set[Key] (TModel, Use) lookupFun = lookup, bool debu
                        if(cdebug) println("  use of \"<u has id ? u.id : u.ids>\" at <u.occ> ==\> <facts[u.occ] ? "** unavailable **">");
                    }
                 } else {                // Multiple definitions found
-                    if(all(d <- foundDefs, facts[d]?)){ 
-                       addFact(u.occ, overloadedAType({<d, instantiate(facts[d])> | d <- foundDefs}));
+                    foundDefs1 = {d | d <- foundDefs, extractedTModel.definitions[d].idRole in u.idRoles}; 
+                    for(dkey <- foundDefs1){
+                        d = extractedTModel.definitions[dkey];
+                        try {
+                           if(d.defInfo is noDefInfo){
+                           ;
+                           } else if(d.defInfo has atype){             // <+++++++ refactor
+                              addFact(d.defined, d.defInfo.atype);
+                           } else if(d.defInfo has getAType){
+                              addFact(openFact(d.defined, d.defInfo.dependsOn, d.defInfo.getAType));
+                           } else if(d.defInfo has getATypes){
+                              addFact(openFact(d.defInfo.defines, d.defInfo.dependsOn, d.defInfo.getATypes));
+                           } else {
+                                throw TypePalInternalError("Cannot handle <d>");
+                           }
+                       } catch TypeUnavailable:
+                            continue handleFacts;
+                    }
+                    if(all(d <- foundDefs1, facts[d]?)){ 
+                       addFact(u.occ, overloadedAType({<d, instantiate(facts[d])> | d <- foundDefs1}));
                        openUses -= u;
                        if(cdebug) println("  use of \"<u has id ? u.id : u.ids>\" at <u.occ> ==\> <facts[u.occ]>");
                     }

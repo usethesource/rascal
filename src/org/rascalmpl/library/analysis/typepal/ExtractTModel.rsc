@@ -84,15 +84,6 @@ str fmt(set[value] vals)    = intercalateAnd([fmt(vl) | vl <- vals]);
 str fmt(int n, str descr)   = n == 1 ? "<n> <descr>" : "<n> <descr>s";
 default str fmt(value v)    = "`<v>`";
 
-str intercalateAnd(list[str] strs){
-    switch(size(strs)){
-      case 0: return "";
-      case 1: return strs[0];
-      default: 
-              return intercalate(", ", strs[0..-1]) + " and " + strs[-1];
-      };
-}
-
 void reportError(Tree t, str msg){
     throw checkFailed({error(msg, getLoc(t))});
 }
@@ -148,7 +139,7 @@ TModel extractTModel(Tree root, TBuilder(Tree t) tBuilder = defaultTBuilder, set
 // Default definition for collect; to be overridden in a specific type checker
 // for handling syntax-constructs-of-interest
 default void collect(Tree currentTree, TBuilder tb){
-    //println("default collect: <typeOf(currentTree)>: <currentTree>");
+   //println("default collect: <typeOf(currentTree)>: <currentTree>");
    collectParts(currentTree, tb);
 }
 
@@ -187,7 +178,7 @@ TModel resolvePath(TModel tm, set[Key] (TModel, Use) lookupFun = lookup){
                    //println("resolvePath: resolve <c.use> to <def>");
                    tm.paths += {<c.use.scope, c.pathRole, def>};  
                 } else {
-                   msgs += error("Name <fmt(c.use.id)> is ambiguous", c.use.occ);
+                   msgs += error("Name <fmt(c.use.id)> is ambiguous <fmt(foundDefs)>", c.use.occ);
                 }
                 tm.referPaths -= {c}; 
             }
@@ -367,7 +358,18 @@ TBuilder newTBuilder(Tree t, bool debug = false){
     void _setScopeInfo(Key scope, ScopeRole scopeRole, value scopeInfo){
         if(building){           
            for(int i <- index(scopeStack), <scope, lubScope, map[ScopeRole,value] scopeInfo2> := scopeStack[i]){
-               scopeStack[i].scopeInfo[scopeRole] = scopeInfo;
+               scopeInfo2[scopeRole] = scopeInfo;
+               //scopeStack[i] = <scope, lubScope, scopeInfo2>; TODO: why does this not work?
+               if(i == 0){
+                  scopeStack =  <scope, lubScope, scopeInfo2> + tail(scopeStack);
+               } else {
+                 scopeStack =  scopeStack[0..i] + <scope, lubScope, scopeInfo2> + scopeStack[i+1..];
+               }
+               //println("setScopeInfo: <i>, <scope>, <scopeRole>");
+               //if(scopeRole == loopScope()){
+               //  iprintln(scopeStack[i]);
+               //  println("loop scope");
+               //  }
                return;
            }
            throw TypePalUsage("`setScopeInfo` scope cannot be found");
@@ -378,10 +380,13 @@ TBuilder newTBuilder(Tree t, bool debug = false){
     
     lrel[Key scope, value scopeInfo] _getScopeInfo(ScopeRole scopeRole){
         if(building){
-            return
+            res =
                 for(<Key scope, lubScope, map[ScopeRole,value] scopeInfo> <- scopeStack, scopeRole in scopeInfo){
                     append <scope, scopeInfo[scopeRole]>;
-          }
+                }
+            //println("getScopeInfo: <scopeRole>, <size(res)>");
+            //iprintln(res);
+            return res;
         } else {
            throw TypePalUsage("Cannot call `getScopeInfo` on TBuilder after `build`");
         }
