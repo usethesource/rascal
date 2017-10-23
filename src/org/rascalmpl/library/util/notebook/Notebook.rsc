@@ -7,6 +7,7 @@ import ParseTree;
 import util::REPL;
 import util::ShellExec;
 import util::notebook::Mode;
+import util::notebook::HTML;
 import util::notebook::CodeMirror;
 
 	
@@ -14,7 +15,7 @@ data NotebookServer =
 	notebook(void () serve, void() stop);	
 	
 data KernelInfo
-	= kernelInfo(str languageName, str projectPath, str moduleName, str variableName, loc logo = |tmp:///|);
+	= kernelInfo(str languageName, loc projectPath, str moduleName, str variableName, loc logo = |tmp:///|);
 
 str JUPYTER_PATH = "/Library/Frameworks/Python.framework/Versions/3.6/bin/jupyter";
 loc JUPYTER_FRONTEND_PATH = |home:///Documents/Jupyter/forked-notebook/notebook/static/components/codemirror/mode/|;
@@ -24,6 +25,7 @@ loc JUPYTER_FRONTEND_PATH = |home:///Documents/Jupyter/forked-notebook/notebook/
 */
 NotebookServer startNotebookServer(KernelInfo kernelInfo){
 	generateKernel(kernelInfo);
+	int pid = -1;
 	return notebook( void () { pid = startJupyterServer(); }, void () { killProcess(pid); });
 }
 
@@ -33,6 +35,7 @@ NotebookServer startNotebookServer(KernelInfo kernelInfo){
 NotebookServer startNotebookServer(KernelInfo kernelInfo, Mode mode){
 	generateKernel(kernelInfo);
 	generateCodeMirror(mode);
+	int pid = -1;
 	return notebook( void () { pid = startJupyterServer(); }, void () { killProcess(pid); });
 }
 
@@ -69,6 +72,7 @@ void generateKernel(KernelInfo kernelInfo){
 	if(kernelInfo.logo != |tmp:///|)
 		copyLogoToKernel(kernelInfo.logo, |tmp:///<kernelInfo.languageName>|);
 	PID kernelInstallation = createProcess(JUPYTER_PATH, args=["kernelspec", "install", resolveLocation(|tmp:///<kernelInfo.languageName>|).path]);
+	//killProcess(kernelInstallation);
 }
 
 /*
@@ -88,6 +92,7 @@ PID startJupyterServer(){
 /*
 * This function produces the content of the kernel.json file using the kernel information received as parameter.
 */
+//    '		\"-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000 \",
 str createKernelFile(KernelInfo kernelInfo) = 
 	"{
   	'	\"argv\": [
@@ -95,7 +100,7 @@ str createKernelFile(KernelInfo kernelInfo) =
     '		\"-jar\",
     '		\"/Users/mveranom/Documents/Rascal/JupyterKernel/target/JupyterJavaKernel-1.0-SNAPSHOT-jar-with-dependencies.jar\",
     '		\"{connection_file}\",
-    '		\"<kernelInfo.projectPath>\",
+    '		\"<resolveLocation(kernelInfo.projectPath).path>\",
     '		\"<kernelInfo.moduleName>\",
     '		\"<kernelInfo.variableName>\",
     '		\"<kernelInfo.languageName>\"
