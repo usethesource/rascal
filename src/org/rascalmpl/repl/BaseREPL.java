@@ -164,9 +164,9 @@ public class BaseREPL {
         String out = output.get("text/plain");
         
         if (out != null) {
-            try (PrintWriter w = new PrintWriter(originalStdOut)) {
-                w.print(out);
-            }
+            PrintWriter w = new PrintWriter(originalStdOut);
+            w.print(out);
+            w.flush();
         }
     }
 
