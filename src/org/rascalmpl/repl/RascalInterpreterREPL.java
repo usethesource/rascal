@@ -28,13 +28,10 @@ import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.Timing;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
-import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIUtil;
-import io.usethesource.vallang.IValue;
 
-import jline.Terminal;
+import io.usethesource.vallang.IValue;
 
 public abstract class RascalInterpreterREPL extends BaseRascalREPL {
 
@@ -42,14 +39,14 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     private boolean measureCommandTime;
     private final OutputStream originalOutput;
 
-    public RascalInterpreterREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory)
+    public RascalInterpreterREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, boolean htmlOutput, File persistentHistory)
                     throws IOException, URISyntaxException {
-        super(prettyPrompt, allowColors);
+        super(prettyPrompt, allowColors, htmlOutput);
         originalOutput = stdout;
     }
     
     public RascalInterpreterREPL() throws IOException, URISyntaxException{
-        super(true, true);
+        super(true, true, false);
         originalOutput = null;
     }
 

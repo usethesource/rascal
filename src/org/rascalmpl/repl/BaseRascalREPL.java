@@ -18,8 +18,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
-import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.interpreter.result.ElementResult;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
@@ -57,25 +55,17 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     protected String currentPrompt = ReadEvalPrintDialogMessages.PROMPT;
     private StringBuffer currentCommand;
     private final StandardTextWriter indentedPrettyPrinter;
-    private final StandardTextWriter singleLinePrettyPrinter;
+    private final boolean htmlOutput;
     private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 
-//<<<<<<< HEAD
-    public BaseRascalREPL(boolean prettyPrompt, boolean allowColors) throws IOException, URISyntaxException {
+    public BaseRascalREPL(boolean prettyPrompt, boolean allowColors, boolean htmlOutput) throws IOException, URISyntaxException {
+        this.htmlOutput = htmlOutput;
+        
         if (allowColors) {
-            indentedPrettyPrinter = new ReplTextWriter();
-//=======
-//    public BaseRascalREPL(PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors,File persistentHistory, Terminal terminal, IDEServices ideServices)
-//                    throws IOException, URISyntaxException {
-//        super(pcfg, stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal, ideServices);
-//        if (terminal.isAnsiSupported() && allowColors) {
-//            indentedPrettyPrinter = new ReplTextWriter(true);
-//>>>>>>> 44a414ac26fba6bced00686bcbf400169f1e5e5e
-            singleLinePrettyPrinter = new ReplTextWriter(false);
+            indentedPrettyPrinter = new ReplTextWriter(true);
         }
         else {
             indentedPrettyPrinter = new StandardTextWriter(true);
-            singleLinePrettyPrinter = new StandardTextWriter(false);
         }
     }
     
@@ -135,97 +125,73 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     }
     
     protected void printResult(IRascalResult result, Map<String,String> output, Map<String, String> metadata) throws IOException {
-        if (result == null) {
+        if (result == null || result.getValue() == null) {
             return;
         }
+       
         StringWriter out = new StringWriter();
         
-        IValue value = result.getValue();
-        if (value == null) {
-            return;
-            // out.write("ok");
-            // With the notebook fron-end we are not going to print 'ok'
+        if (htmlOutput) {
+            writeRascalToHTML(result, out);    
         }
         else {
-            Type type = result.getType();
-
-            if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree) && !type.isBottom()) {
-                out.write(type.toString());
-                out.write(": ");
-                // we unparse the tree
-                out.write("(" + type.toString() +") `");
-                TreeAdapter.yield((IConstructor)result.getValue(), true, out);
-                out.write("`");
-            }
-            else {
-//                out.write(type.toString());
-//                out.write(": ");
-                    writeRascalToHTML(result, out);   
-                
-                // limit both the lines and the characters
-//                try (Writer wrt = new LimitedWriter(new LimitedLineWriter(out, LINE_LIMIT), CHAR_LIMIT)) {
-//                    indentedPrettyPrinter.write(value, wrt);
-//                }
-//                catch (IOLimitReachedException e) {
-//                    // ignore since this is what we wanted
-//                }
-            }
-//            out.write("\n");
+            writeOutputToString(result, out);
         }
+        
         if (!out.toString().equals("")) {
-            output.put("text/html", out.toString());
+            output.put("text/" + (htmlOutput ? "html" : "plain"), out.toString());
         }
+    }            
+
+    private void writeOutputToString(IRascalResult result, StringWriter out) throws IOException {
+        IValue value = result.getValue();
+        Type type = result.getType();
+
+        if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree) && !type.isBottom()) {
+            out.write(type.toString());
+            out.write(": ");
+            // we unparse the tree
+            out.write("(" + type.toString() +") `");
+            TreeAdapter.yield((IConstructor)result.getValue(), true, out);
+            out.write("`");
+        }
+        else {
+            out.write(type.toString());
+            out.write(": ");
+               
+            // limit both the lines and the characters
+            try (Writer wrt = new LimitedWriter(new LimitedLineWriter(out, LINE_LIMIT), CHAR_LIMIT)) {
+                indentedPrettyPrinter.write(value, wrt);
+            }
+            catch (IOLimitReachedException e) {
+                // ignore since this is what we wanted
+            }
+        }
+        
+        out.write("\n");
     }
     
-    public void writeRascalToHTML(IRascalResult result, StringWriter out){  
-        if( result instanceof ElementResult){
-            String value = result.getValue().toString();
-            String type =result.getType().toString();
-            switch (type) {
-                case "loc":
-                    value = value.substring(1, value.length()-1);
-                    value = value.replace("file://", "./");
-                    if(isImage(value)){
-                        if(value.toLowerCase().endsWith(".tiff")){
-                            String id = value.replaceAll("/|\\.", "");
-                            out.write("<script>loadTiffImage('"+ value+ "', '"+ id+"');</script><div id='" + id +"'></div>");
-                        }
-                        else
-                            out.write("<img src = \""+value +"\">");
-                    }
-                    else if(isSourceCodeLocation(value)){
-                        out.write("<pre title=\"Type: "+ type.toString()+"\">"+"<a href=\""+ value.replace("./", "../edit/")+"\">"+value.substring(2) +"</a></pre>");
-                    }
-                    else{
-                        out.write("<pre title=\"Type: "+ type.toString()+"\">"+"<a href=\""+ value+"\">"+value +"</a></pre>");
-                    }
-                    break;
-                default:
-                    out.write("<pre title=\"Type: "+ type.toString()+"\">"+value +"</pre>");
-                    break;
+    public void writeRascalToHTML(IRascalResult result, StringWriter out) throws IOException {
+        Type type = result.getType();
+        
+        if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree) && !type.isBottom()) {
+            out.write("<pre title=\"" + type.toString() + "\">");
+            out.write("`");
+            TreeAdapter.yield((IConstructor)result.getValue(), true, out);
+            out.write("`");
+            out.write("</pre>");
+        }
+        else {
+            out.write("<pre title=\"" + type.toString() + "\">");
+            
+            try (Writer wrt = new LimitedWriter(new LimitedLineWriter(out, LINE_LIMIT), CHAR_LIMIT)) {
+                indentedPrettyPrinter.write(result.getValue(), wrt);
             }
+            catch (IOLimitReachedException e) {
+                // ignore since this is what we wanted
+            }
+            out.write("</pre>");
         }
-        else if( result instanceof AbstractFunction){
-            
-        }
-        else{
-            
-        }
-    }
-
-    public boolean isSourceCodeLocation(String value) {
-        if(value.endsWith(".py")||value.endsWith(".java")||value.endsWith(".js")||value.endsWith(".rsc"))
-            return true;
-        else        
-            return false;
-    }
-
-    public boolean isImage(String value) {
-        value = value.toLowerCase();
-        if(value.endsWith(".png")||value.endsWith(".jpeg")||value.endsWith(".bmp")||value.endsWith(".gif")||value.endsWith(".jpg")||value.endsWith(".tiff"))
-            return true;
-        else
-            return false;
     }
 
     protected abstract PrintWriter getErrorWriter();
