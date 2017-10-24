@@ -241,7 +241,7 @@ public class JarConverter extends M3Converter {
         ISourceLocation currentPkgLogical = getParentPackageLogicalLoc(compUnitRelative);
         int packages = currentPkgLogical.getPath().length() - currentPkgLogical.getPath().replace("/", "").length();
 
-        for(int i = 1; i < packages; i++) {
+        for(int i = 0; i < packages; i++) {
             IString currentName = getName(currentPkgLogical);
             ISourceLocation parentPkgLogical = getParentPackageLogicalLoc(currentPkgLogical.getPath());
             ISourceLocation parentPkgPhysical = getPhysicalLoc(loc, parentPkgLogical.getPath());
@@ -658,7 +658,7 @@ public class JarConverter extends M3Converter {
      * physical location.
      */
     private String getCompilationUnitRelativePath() {
-        String abs = compUnitPhysical.getPath().substring(compUnitPhysical.getPath().lastIndexOf("!") + 1).replace(".class", "");
+        String abs = compUnitPhysical.getPath().substring(loc.getPath().length()).replace(".class", "");
         return abs.substring(abs.indexOf("/"));
     }
 
