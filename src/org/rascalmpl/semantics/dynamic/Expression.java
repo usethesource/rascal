@@ -79,6 +79,7 @@ import org.rascalmpl.interpreter.staticErrors.UnguardedIt;
 import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatch;
 import org.rascalmpl.interpreter.staticErrors.UninitializedVariable;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
+import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
@@ -2851,7 +2852,12 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public IMatchingResult buildMatcher(IEvaluatorContext eval) {
-			IMatchingResult pat = this.getPattern().buildMatcher(eval);
+			org.rascalmpl.ast.Expression pattern = this.getPattern();
+			
+			if (pattern instanceof Splice) {
+			    throw new UnsupportedPattern("named splices (i.e. name:*pattern)", this);
+			}
+            IMatchingResult pat = pattern.buildMatcher(eval);
 			LinkedList<Name> names = new LinkedList<Name>();
 			names.add(this.getName());
 			IMatchingResult var = new QualifiedNamePattern(eval, this, ASTBuilder.<org.rascalmpl.ast.QualifiedName> make("QualifiedName", "Default", this.getLocation(), names));

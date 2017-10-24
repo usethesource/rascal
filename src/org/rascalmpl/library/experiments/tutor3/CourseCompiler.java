@@ -37,15 +37,22 @@ import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
+ * A course is organized as a collection of Concepts organized as a tree (maintained as an Onthology)
+ * 
+ * Each course MyCourse is represented by a top-level concept MyCourse.
+ * 
+ * Each concept C is represented in the file system as
+ * - a directory C
+ * - either a file C.concept (containing AsciiDoc markup)
+ * - or a file C.remote (containing Rascal source code with @doc{} tags)
+ * 
  * CourseCompiler compiles all courses to HTML in the following steps:
- * - each concept is translated to an AsciiDoc file. Note that the property rascal.asciidoctor
- *   can be used to override the default location for asciidoctor.
- * - all generated AsciiDoc files are transformed to a single HTML file per course
+ * - each .concept file is translated to an AsciiDoc .adoc file.
+ * - all generated AsciiDoc files are transformed to a single HTML file index.html per course
  * - the contributions to the Lucene index are computed and stored per course
  */
 public class CourseCompiler {
-	
-	
+
 	static void writeFile(String path, String content) throws IOException {
 	  FileWriter fout = new FileWriter(path);
 	  fout.write(content);
@@ -79,52 +86,6 @@ public class CourseCompiler {
 	  asciidoctor.convertFile(new File(courseDestDir.resolve(courseName + ".adoc").toString()),  options);
 	}
 	
-//	private static final String ASCIIDOCTOR_DEFAULT = "/usr/local/bin/asciidoctor";
-//	
-//	static void runAsciiDocter(Path srcPath, String courseName, Path destPath, PrintWriter err) throws IOException {
-//		Path courseDestDir = destPath.resolve(courseName);
-//		String asciidoctor = System.getProperty("rascal.asciidoctor");
-//		if(asciidoctor == null){
-//			asciidoctor = ASCIIDOCTOR_DEFAULT;
-//		}
-//		String cmd = 
-//			asciidoctor
-//			+ " -n"												// numbered sections
-//			+ " -v"												// verbose
-//			+ " -a toc-title=" + courseName						// table of contents
-//			+ " -a toc=left"									// at left side
-//		    //+ " -a toclevels=2"
-//			+ " -a linkcss"										// link the style sheet
-//			+ " -a stylesheet=" + "../css/style.css"				// use our own style sheet
-//			+ " -d book"										// book style
-//			+ " -D " + courseDestDir							// destination directory
-//		    + " -B " + courseDestDir 							// base directory
-//			+ " " + courseDestDir.resolve(courseName + ".adoc")	// the adoc source file
-//			+ " -o " + courseDestDir + "/" + "index.html"		// the html output file
-//			;
-//		System.err.println(cmd);
-//		Process p = Runtime.getRuntime().exec(cmd);
-//		BufferedReader input = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-//
-//		String line = null;
-//
-//		while ((line = input.readLine()) != null)
-//		{
-//			System.err.println(line);
-//			err.println(line);
-//		}
-//
-//		try {
-//			int exitVal = p.waitFor();
-//			if(exitVal != 0){
-//				System.err.println("asciidoctor exits with error code " + exitVal);
-//			}
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//	}
-	
-	@SuppressWarnings("unused")
     public static void compileCourse(Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
 		
 		copyStandardFilesPerCourse(srcPath, courseName, destPath);
@@ -156,7 +117,10 @@ public class CourseCompiler {
 		}
 	}
 	
-	private static void copyStandardFiles(Path srcPath, Path destPath) throws IOException {
+	/**
+	 * @return true iff no files were copied because they are already in the destination path
+	 */
+	private static boolean copyStandardFiles(Path srcPath, Path destPath) throws IOException {
 		
 		System.err.println("Copying standard files");
 		System.err.println("srcPath: " + srcPath + ", destPath: " + destPath);
@@ -184,6 +148,12 @@ public class CourseCompiler {
 		for(String file : files){
 			Path src = srcPath.resolve(file);
 			Path dest = destPath.resolve(file);
+			
+			if (Files.exists(dest)) {
+			    // break early, it already exists
+			    return true;
+			}
+			
 			Path parent = dest.getParent();
 			if(!Files.exists(parent)){
 				Files.createDirectories(parent);
@@ -191,6 +161,8 @@ public class CourseCompiler {
 			//System.out.println("cp " + src + " " + dest);
 			Files.copy(src, dest, REPLACE_EXISTING);
 		}
+		
+		return false;
 	}
 	
 	private static class RemoveAdocs extends SimpleFileVisitor<Path> {
@@ -214,7 +186,6 @@ public class CourseCompiler {
 	 * @throws URISyntaxException
 	 */
 	public static void main(String[] args) throws IOException, NoSuchRascalFunction, URISyntaxException {
-
 		 IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		 CommandOptions cmdOpts = new CommandOptions("course-compiler");
          
@@ -237,6 +208,14 @@ public class CourseCompiler {
          .locOption("bin") 		
          .respectNoDefaults()
          .help("Directory for Rascal binaries")
+         
+         .boolOption("skipCourses")
+         .boolDefault(false)
+         .help("Skip the compilation of courses")
+         
+         .boolOption("buildCourses")
+         .boolDefault(true)
+         .help("Skip the compilation of courses")
          
          .locOption("boot")         
          .help("Rascal boot directory")
@@ -261,17 +240,27 @@ public class CourseCompiler {
 					           cmdOpts.getCommandLocOption("boot"),
 					           cmdOpts.getCommandLocsOption("course"));   
 		
-		Path coursesSrcPath = Paths.get(((ISourceLocation)pcfg.getCourses().get(0)).getPath());
-		Path libSrcPath = Paths.get(((ISourceLocation)pcfg.getSrcs().get(0)).getPath());
+		Path coursesSrcPath = Paths.get(((ISourceLocation)pcfg.getCourses().get(0)).getURI());
+		Path libSrcPath = Paths.get(((ISourceLocation)pcfg.getSrcs().get(0)).getURI());
 		
-		System.out.println(pcfg);
+		Path destPath = Paths.get(((ISourceLocation)pcfg.getBin()).getURI()).resolve("courses");
 		
-		Path destPath = Paths.get(((ISourceLocation)pcfg.getBin()).getPath()).resolve("courses");
-		copyStandardFiles(coursesSrcPath, destPath);
+		if (
+		    copyStandardFiles(coursesSrcPath, destPath)
+		 ) {
+//		    System.err.println("Bailing out because target files are already present...");
+//		    return;
+		}
 		
 		StringWriter sw = new StringWriter();
 		PrintWriter err = new PrintWriter(sw);
 		TutorCommandExecutor executor = new TutorCommandExecutor(pcfg, err, new BasicIDEServices(err));
+		
+		if (cmdOpts.getCommandBoolOption("skipCourses")) {
+		    assert !cmdOpts.getCommandBoolOption("buildCourses");
+		    System.err.println("Skipping compilation of courses.");
+		    System.exit(0);
+		}
 		
 		if(cmdOpts.getCommandBoolOption("all")){
 			IList givenCourses = cmdOpts.getModules();
@@ -283,6 +272,9 @@ public class CourseCompiler {
 			}
 		} else {
 			for(IValue iCourseName : cmdOpts.getModules()){
+			    String courseName = ((IString) iCourseName).getValue();
+			    ISourceLocation courseLoc = pcfg.getCourseLoc(courseName);
+			    coursesSrcPath = Paths.get(courseLoc.getURI()).getParent();
 				compileCourse(coursesSrcPath, ((IString)iCourseName).getValue(), destPath, libSrcPath, pcfg, executor);
 			}
 		}

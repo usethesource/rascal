@@ -536,10 +536,10 @@ This function will build a constructor if the definition exists and throw an exc
 }
 @javaClass{org.rascalmpl.library.Type}
 public java &T make(type[&T] typ, str name, list[value] args);
-
+ 
 @javaClass{org.rascalmpl.library.Type}
 public java &T make(type[&T] typ, str name, list[value] args, map[str,value] keywordArgs);
-
+ 
 @doc{
 .Synopsis
 Returns the dynamic type of a value as a reified type.

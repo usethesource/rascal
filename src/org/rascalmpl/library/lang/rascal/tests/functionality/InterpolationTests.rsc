@@ -1,5 +1,7 @@
 module lang::rascal::tests::functionality::InterpolationTests
 
+import util::Reflective;
+
 test bool interpolateWhile()  { x = 10; return "<while (x > 0) {> <{x -= 1; x; }> <}>" == " 9  8  7  6  5  4  3  2  1  0 "; }
     
 test bool interpolateDoWhile() { x = 10; return "<do {> <{x -= 1; x; }> <} while (x > 0)>" == " 9  8  7  6  5  4  3  2  1  0 "; }
@@ -27,7 +29,37 @@ test bool interpolateFor2() {
             '    <}>
             '<}>";
     return s ==
-    "\n    \n        i = 0\n    \n\n    \n\n    \n        i = 2\n    \n\n    \n\n    \n        i = 4\n    \n\n    \n\n    \n        i = 6\n    \n\n    \n\n    \n        i = 8\n    \n\n    \n";    
+    "
+    '    
+    '        i = 0
+    '    
+    '
+    '    
+    '
+    '    
+    '        i = 2
+    '    
+    '
+    '    
+    '
+    '    
+    '        i = 4
+    '    
+    '
+    '    
+    '
+    '    
+    '        i = 6
+    '    
+    '
+    '    
+    '
+    '    
+    '        i = 8
+    '    
+    '
+    '    
+    '";    
 }
 
 test bool interpolateQuotes() {
@@ -78,6 +110,7 @@ test bool interpolationWithNewline() {
    
    str d = "AAA
            'BBB";
-   return declInfo2Doc(d) == "----\nAAA\nBBB\n++++";
+   str ls = getLineSeparator();
+   return declInfo2Doc(d) == "----"+ls+"AAA"+ls+"BBB"+ls+"++++";
 }
 

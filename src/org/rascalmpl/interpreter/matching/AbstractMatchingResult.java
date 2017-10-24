@@ -89,7 +89,7 @@ public abstract class AbstractMatchingResult extends AbstractBooleanResult imple
 	
 	public HashMap<String,IVarPattern> merge(HashMap<String,IVarPattern> left, List<IVarPattern> right){
 		if(left == null){
-			HashMap<String,IVarPattern> res = new  HashMap<String,IVarPattern>();
+			HashMap<String,IVarPattern> res = new HashMap<>();
 			for(IVarPattern vpr: right){
 				res.put(vpr.name(), vpr);
 			}

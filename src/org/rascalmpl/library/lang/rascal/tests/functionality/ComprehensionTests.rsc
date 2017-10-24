@@ -143,19 +143,20 @@ test bool all15()  = !(all(<int X, int Y> <- {<1,10>,<30,3>,<2,20>}, X < Y));
 test bool all16()  = !(all(<int X, int Y> <- [<1,10>,<30,3>,<2,20>], X < Y));
   		
 test bool all17()  = all(int i <- [0, 1] && [0, 1][i] == i);
-  		
-@ignoreInterpreter{Changed semantics}
-test bool all18a()  = all(_ <- []) == true;
+ 
+//TODO: Settle this 		
+//@ignore{Changed semantics}
+//test bool all18a()  = all(_ <- []) == true;
 @ignoreCompiler{Remove-after-transtion-to-compiler: Changed semantics}
 test bool all18b()  = all(_ <- []) == false;
 
-@ignoreInterpreter{Changed semantics}
-test bool all19a()  = all(_ <- {}) == true;
+//@ignore{Changed semantics}
+//test bool all19a()  = all(_ <- {}) == true;
 @ignoreCompiler{Remove-after-transtion-to-compiler: Changed semantics}
 test bool all19b()  = all(_ <- {}) == false;
 
-@ignoreInterpreter{Changed semantics}
-test bool all20a()  = all(_ <- ()) == true;
+//@ignore{Changed semantics}
+//test bool all20a()  = all(_ <- ()) == true;
 @ignoreCompiler{Remove-after-transtion-to-compiler: Changed semantics}
 test bool all20b()  = all(_ <- ()) == false;
 

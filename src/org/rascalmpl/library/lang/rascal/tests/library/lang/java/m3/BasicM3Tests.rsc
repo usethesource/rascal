@@ -1,3 +1,4 @@
+@ignoreCompiler{Test fail; Waiting for Eclipse integration}
 module lang::rascal::tests::library::lang::java::m3::BasicM3Tests
 
 import List;
@@ -7,6 +8,7 @@ import util::FileSystem;
 import Exception;
 import ValueIO;
 import Node;
+import String;
 import lang::java::m3::Core;
 import lang::java::m3::AST;
 
@@ -21,7 +23,6 @@ public loc unpackExampleProject(str name, loc projectZip) {
     }
     throw IO("Could not copy contents of <projectZip> to <targetRoot>");
 }
-
 
 private list[loc] junitClassPath(loc root)
     = [
@@ -94,13 +95,29 @@ public test bool junitASTsRemainedTheSame()
 public test bool snakesASTsRemainedTheSame() 
     = compareASTs(|testdata:///m3/snakes-and-ladders-asts.bin|, "snakes-and-ladders", |testdata:///m3/snakes-and-ladders-project-source.zip|, getSnakesASTs);    
 
-
+	 
 private bool compareASTs(set[Declaration] a, set[Declaration] b) = a == b;
 
 private bool compareMessages(Message a, Message b) {
 	return "<a>" < "<b>";
 } 
 
+private M3 buildM3FromJar(loc jar) 
+    = createM3FromJar(jar);
+    
+public M3 getHamcrestM3(loc root) 
+    = buildM3FromJar(root);
+    
+private bool compareJarM3s(loc reference, loc jar, M3 (loc) builder)
+    = compareM3s(
+        readBinaryValueFile(#M3, reference),
+        builder(jar) 
+   );
+
+@ignoreCompiler{M3 not yet supported}
+public test bool hamcrestJarM3RemainedTheSame()
+	= compareJarM3s(|testdata:///m3/hamcrest-library-1.3-m3.bin|, |jar+testdata:///m3/hamcrest-library-1.3.jar.zip!hamcrest-library-1.3.jar|, getHamcrestM3);
+	
 // TODO: think if this can be replaced by the generic diff function.
 private bool compareM3s(M3 a, M3 b) {
 	aKeys = getKeywordParameters(a);

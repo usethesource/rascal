@@ -1,3 +1,4 @@
+@ignoreCompiler{Not yet implemented in type checker}
 @license{
 Copyright (c) 2014-2015 CWI
 All rights reserved. This program and the accompanying materials

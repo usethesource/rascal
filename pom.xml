@@ -1,16 +1,16 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.rascalmpl</groupId>
 	<artifactId>rascal</artifactId>
-	<version>0.8.4-SNAPSHOT</version>
+	<version>0.9.1-SNAPSHOT</version>
 
 	<packaging>jar</packaging>
 
 	<scm>
 		<developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-	</scm>
+	  <tag>HEAD</tag>
+  </scm>
 
 	<!-- deployment configuration (usethesource) -->
 	<distributionManagement>
@@ -40,8 +40,9 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<lucence-version>6.1.0</lucence-version>
 		<exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
-		<rascal.boot.version>0.8.4-bs9</rascal.boot.version>
+		<rascal.boot.version>0.8.4-bs14</rascal.boot.version>
 		<rascal.boot>--download</rascal.boot>
+		<rascal.courses>--skipCourses</rascal.courses>
 	</properties>
 
 	<build>
@@ -100,12 +101,13 @@
 		      </filesets>
 		    </configuration>
 		  </plugin>
+		  
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>1.4.0</version>
 				<executions>
-					<execution>
+					<execution> <!-- compile the compiler -->
 						<configuration>
 							<executable>java</executable>
 							<classpathScope>compile</classpathScope>
@@ -121,7 +123,6 @@
 								<argument>${project.basedir}/src</argument>
 								<argument>${project.build.directory}/classes</argument>
 								<argument>${project.basedir}/bootstrap</argument>
-								<argument>--verbose</argument>
 								<argument>--clean</argument>
 								<argument>${rascal.boot}</argument>
 							</arguments>
@@ -132,39 +133,72 @@
 							<goal>exec</goal>
 						</goals>
 					</execution> 
-					<execution>
-						<configuration>
-							<executable>java</executable>
-							<classpathScope>compile</classpathScope>
-							<workingDirectory>target/classes/</workingDirectory>
-							<arguments>
-								<argument>-Xmx1256m</argument>
-								<argument>-cp</argument>
-								<classpath />
-								<argument>org.rascalmpl.library.experiments.Compiler.Commands.RascalC</argument>
-								<argument>--boot</argument>
-                                                                <argument>${project.build.directory}/classes/boot</argument>
-                                                                <argument>--bin</argument>
-                                                                <argument>${project.build.directory}/classes/std</argument>
-                                                                <argument>--reloc</argument>
-                                                                <argument>|std:///|</argument>
-                                                                <argument>--src</argument>
-                                                                <argument>${project.basedir}/src/org/rascalmpl/library</argument>
-                                                                <argument>StandardLibrary</argument>
-							</arguments>
-						</configuration>
-						<id>standardlibrary</id>
-						<phase>compile</phase>
-						<goals>
-							<goal>exec</goal>
-						</goals>
-					</execution>
+					<execution><!--  compile the standard library -->
+                        <configuration>
+                            <executable>java</executable>
+                            <classpathScope>compile</classpathScope>
+                            <workingDirectory>target/classes/</workingDirectory>
+                            <arguments>
+                                <argument>-Xmx1256m</argument>
+                                <argument>-cp</argument>
+                                <classpath />
+                                <argument>org.rascalmpl.library.experiments.Compiler.Commands.RascalC</argument>
+                                <argument>--boot</argument>
+                                <argument>${project.build.directory}/classes/boot</argument>
+                                <argument>--bin</argument>
+                                <argument>${project.build.directory}/classes/std</argument>
+                                <argument>--lib</argument>
+                                <argument>${project.build.directory}/classes/std</argument>
+                                <argument>--src</argument>
+                                <argument>${project.basedir}/src/org/rascalmpl/library</argument>
+                                <argument>--reloc</argument>
+                                <argument>|stdlib:///|</argument>
+                                <argument>StandardLibrary</argument>
+                            </arguments>
+                        </configuration>
+                        <id>standardlibrary</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>      
+                    <execution> <!--  compile the courses -->
+                        <configuration>
+                            <executable>java</executable>
+                            <classpathScope>compile</classpathScope>
+                            <workingDirectory>target/classes/</workingDirectory>
+                            <arguments>
+                                <argument>-Xmx2G</argument>
+                                <argument>-cp</argument>
+                                <classpath />
+                                <argument>-Dfile.encoding=UTF-8</argument>
+                                <argument>org.rascalmpl.library.experiments.tutor3.CourseCompiler</argument>
+                                <argument>--bin</argument>
+                                <argument>${project.build.directory}/classes/boot</argument>
+                                <argument>--src</argument>
+                                <argument>${project.basedir}/src/org/rascalmpl/library</argument>
+                                <argument>--boot</argument>
+                                <argument>${project.build.directory}/classes/boot</argument>
+                                <argument>--lib</argument>
+                                <argument>${project.build.directory}/classes/std</argument>
+                                <argument>--course</argument>
+                                <argument>${project.basedir}/src/org/rascalmpl/courses</argument>
+                                <argument>--all</argument>
+                                <argument>${rascal.courses}</argument>
+                            </arguments>
+                        </configuration>
+                        <id>courses</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
 				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.12.4</version>
+				<version>2.20</version>
 				<executions>
 					<execution>
 						<id>test</id>
@@ -283,7 +317,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore></ignore>
+										<ignore />
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
@@ -311,7 +345,7 @@
 		<dependency>
 			<groupId>io.usethesource</groupId>
 			<artifactId>vallang</artifactId>
-			<version>0.7.11</version>
+			<version>0.8.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ow2.asm</groupId>
@@ -336,7 +370,7 @@
 		<dependency>
 			<groupId>jline</groupId>
 			<artifactId>jline</artifactId>
-			<version>2.13</version>
+			<version>2.14.4</version>
 		</dependency>
 		<dependency>
 			<groupId>org.yaml</groupId>

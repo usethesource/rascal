@@ -87,7 +87,8 @@ public class CompilerIDs {
         public static final int IS_VARARGS = 28;
         public static final int SRC = 29;
         public static final int LOCAL_NAMES = 30;
-        public static final int CONTINUATION_POINTS = 31;    
+        public static final int CONTINUATION_POINTS = 31; 
+        public static final int SIMPLEARGS = 32;
     }
  
     public static class OverloadedFunction {

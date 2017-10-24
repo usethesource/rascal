@@ -1,10 +1,9 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
-import java.lang.invoke.ConstantCallSite;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.invoke.CallSite;
+import java.lang.invoke.ConstantCallSite;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -12,19 +11,25 @@ import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.TreeMap;
 
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.DescendantDescriptor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
@@ -51,13 +56,6 @@ import io.usethesource.vallang.exceptions.InvalidDateTimeException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 /*
  * The primitives that can be called via the CALLPRIM instruction are defined here.
@@ -305,7 +303,7 @@ public enum RascalPrimitive {
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			ISet set = (ISet) arg_1;
 			if(set.size() != 1)
-				throw new CompilerError("set2elm: set should have a single element", rex.getStdErr(), currentFrame);
+				throw new InternalCompilerError("set2elm: set should have a single element", rex.getStdErr(), currentFrame);
 			return set.iterator().next();
 		}
 	},
@@ -408,7 +406,7 @@ public enum RascalPrimitive {
 			IString uri = ((IString) arg_1);
 
 			try {
-				return vf.sourceLocation(URIUtil.createFromEncoded(uri.getValue()));
+				return URIUtil.createFromURI(uri.getValue());
 			} 
 			catch (URISyntaxException e) {
 				// this is actually an unexpected run-time exception since Rascal prevents you from 
@@ -706,7 +704,7 @@ public enum RascalPrimitive {
 				case SET:
 					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case NUM:
 				switch (rhsType) {
@@ -723,7 +721,7 @@ public enum RascalPrimitive {
 				case SET:
 					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case REAL:
 				switch (rhsType) {
@@ -740,7 +738,7 @@ public enum RascalPrimitive {
 				case SET:
 					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case RAT:
 				switch (rhsType) {
@@ -757,7 +755,7 @@ public enum RascalPrimitive {
 				case SET:
 					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case SET:
 				return set_add_elm.execute2(lhs, rhs, currentFrame, rex);
@@ -770,7 +768,7 @@ public enum RascalPrimitive {
 				case STR:
 					return loc_add_str.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case LREL:
 				switch (rhsType) {
@@ -779,14 +777,14 @@ public enum RascalPrimitive {
 				case LREL:
 					return lrel_add_lrel.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case MAP:
 				switch (rhsType) {
 				case MAP:
 					return map_add_map.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case REL:
 				switch (rhsType) {
@@ -795,21 +793,21 @@ public enum RascalPrimitive {
 				case REL:
 					return rel_add_rel.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case STR:
 				switch (rhsType) {
 				case STR:
 					return str_add_str.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case TUPLE:
 				switch (rhsType) {
 				case TUPLE:
 					return tuple_add_tuple.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			default:
 				switch (rhsType) {
@@ -818,7 +816,7 @@ public enum RascalPrimitive {
 				case LIST:
 					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new CompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			}
 		}
@@ -1253,11 +1251,11 @@ public enum RascalPrimitive {
 				stack[sp - 2] = ((IString) stack[sp - 2]).concat((IString) stack[sp - 1]);
 				return sp - 1;
 			} else {
-				StringWriter w = new StringWriter();
+				StringBuilder sb = new StringBuilder();
 				for(int i = 0; i < arity; i++){
-					w.append(((IString)stack[sp - arity + i]).getValue());
+					sb.append(((IString)stack[sp - arity + i]).getValue());
 				}
-				stack[sp - arity] = vf.string(w.toString());
+				stack[sp - arity] = vf.string(sb.toString());
 				return sp - arity + 1;
 			}
 		}		
@@ -1320,7 +1318,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return int_subtract_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
 				}
 			case NUM:
 				switch (rhsType) {
@@ -1333,7 +1331,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return num_subtract_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
 				}
 			case REAL:
 				switch (rhsType) {
@@ -1346,7 +1344,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return real_subtract_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
 				}
 			case RAT:
 				switch (rhsType) {
@@ -1359,10 +1357,10 @@ public enum RascalPrimitive {
 				case RAT:
 					return rat_subtract_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
 				}
 			default:
-				throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
+				throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
 			}
 		}
 	},
@@ -1752,7 +1750,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return int_product_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case NUM:
 				switch (rhsType) {
@@ -1765,7 +1763,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return num_product_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case REAL:
 				switch (rhsType) {
@@ -1778,7 +1776,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return real_product_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case RAT:
 				switch (rhsType) {
@@ -1791,10 +1789,10 @@ public enum RascalPrimitive {
 				case RAT:
 					return rat_product_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			default:
-				throw new CompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
+				throw new InternalCompilerError("Illegal type combination: " + lhsType + " and " + rhsType, currentFrame);
 			}
 		}
 	},
@@ -2071,7 +2069,7 @@ public enum RascalPrimitive {
 			if(lhs.getType().isInteger() && rhs.getType().isInteger()){
 				return int_remainder_int.execute2(lhs, rhs, currentFrame, rex);
 			}
-			throw new CompilerError("remainder: unexpected type combination" + lhs.getType() + " and " + rhs.getType(), currentFrame);
+			throw new InternalCompilerError("remainder: unexpected type combination" + lhs.getType() + " and " + rhs.getType(), currentFrame);
 		}
 	},
 
@@ -2118,7 +2116,7 @@ public enum RascalPrimitive {
 			case MAP:
 				return map_compose_map.execute2(left, right, currentFrame, rex);
 			default:
-				throw new CompilerError("RascalPrimtive compose: unexpected type " + leftType, rex.getStdErr(), currentFrame);
+				throw new InternalCompilerError("RascalPrimtive compose: unexpected type " + leftType, rex.getStdErr(), currentFrame);
 			}
 		}
 	},
@@ -2182,7 +2180,7 @@ public enum RascalPrimitive {
 			if(lhs.getType().isInteger() && rhs.getType().isInteger()){
 				return int_mod_int.execute2(lhs, rhs, currentFrame, rex);
 			}
-			throw new CompilerError("RascalPrimitive mod: unexpected type combination" + lhs.getType() + " and " + rhs.getType(), rex.getStdErr(), currentFrame);
+			throw new InternalCompilerError("RascalPrimitive mod: unexpected type combination" + lhs.getType() + " and " + rhs.getType(), rex.getStdErr(), currentFrame);
 		}
 	},
 
@@ -2229,7 +2227,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return int_divide_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new CompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case NUM:
 				switch (rhsType) {
@@ -2242,7 +2240,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return num_divide_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new CompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case REAL:
 				switch (rhsType) {
@@ -2255,7 +2253,7 @@ public enum RascalPrimitive {
 				case RAT:
 					return real_divide_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new CompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			case RAT:
 				switch (rhsType) {
@@ -2268,10 +2266,10 @@ public enum RascalPrimitive {
 				case RAT:
 					return rat_divide_rat.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new CompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 				}
 			default:
-				throw new CompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+				throw new InternalCompilerError("RascalPrimitive divide: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
 			}
 		}
 	},
@@ -3547,7 +3545,7 @@ public enum RascalPrimitive {
 				case LREL:
 					return list_intersect_lrel.execute2(left, right, currentFrame, rex);
 				default:
-					throw new CompilerError("intersect: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("intersect: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
 				}
 			case SET:
 				switch (ToplevelType.getToplevelType(rightType)) {
@@ -3556,13 +3554,13 @@ public enum RascalPrimitive {
 				case REL:
 					return set_intersect_rel.execute2(left, right, currentFrame, rex);
 				default:
-					throw new CompilerError("intersect: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("intersect: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
 				}
 			case MAP:
 				return map_intersect_map.execute2(left, right, currentFrame, rex);
 
 			default:
-				throw new CompilerError("intersect: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
+				throw new InternalCompilerError("intersect: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
 			}
 		}
 	},
@@ -3707,7 +3705,7 @@ public enum RascalPrimitive {
 			case MAP:
 				return elm_in_map.execute2(left, right, currentFrame, rex);
 			default:
-				throw new CompilerError("in: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
+				throw new InternalCompilerError("in: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
 			}
 		}
 	},
@@ -3806,7 +3804,7 @@ public enum RascalPrimitive {
 			case MAP:
 				return elm_notin_map.execute2(left, right, currentFrame, rex);
 			default:
-				throw new CompilerError("notin: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
+				throw new InternalCompilerError("notin: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
 			}
 		}
 	},
@@ -3911,7 +3909,7 @@ public enum RascalPrimitive {
 				case LREL:
 					return list_join_lrel.execute2(left, right, currentFrame, rex);
 				default:
-					throw new CompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
 				}
 			case LREL:
 				switch (ToplevelType.getToplevelType(rightType)) {
@@ -3920,7 +3918,7 @@ public enum RascalPrimitive {
 				case LREL:
 					return lrel_join_lrel.execute2(left, right, currentFrame, rex);
 				default:
-					throw new CompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
 				}
 			case SET:
 				switch (ToplevelType.getToplevelType(rightType)) {
@@ -3929,7 +3927,7 @@ public enum RascalPrimitive {
 				case REL:
 					return set_join_rel.execute2(left, right, currentFrame, rex);
 				default:
-					throw new CompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
 				}
 
 			case REL:
@@ -3939,11 +3937,11 @@ public enum RascalPrimitive {
 				case REL:
 					return rel_join_rel.execute2(left, right, currentFrame, rex);
 				default:
-					throw new CompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
 				}
 
 			default:
-				throw new CompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
+				throw new InternalCompilerError("join: illegal combination " + leftType + " and " + rightType, rex.getStdErr(), currentFrame);
 			}
 		}
 	},
@@ -4244,7 +4242,7 @@ public enum RascalPrimitive {
 			case TUPLE:
 				return tuple_less_tuple.execute2(left, right, currentFrame, rex);
 			default:
-				throw new CompilerError("less: unexpected type " + leftType, rex.getStdErr(), currentFrame);
+				throw new InternalCompilerError("less: unexpected type " + leftType, rex.getStdErr(), currentFrame);
 			}
 		}
 	},
@@ -4561,7 +4559,7 @@ public enum RascalPrimitive {
 			}
 
 			if (!right.hasOffsetLength()) {
-				throw new CompilerError("offset length missing", rex.getStdErr(), currentFrame);
+				throw new InternalCompilerError("offset length missing", rex.getStdErr(), currentFrame);
 			}
 			return Rascal_FALSE;
 		}
@@ -4792,7 +4790,7 @@ public enum RascalPrimitive {
 			case TUPLE:
 				return tuple_lessequal_tuple.execute2(left, right, currentFrame, rex);
 			default:
-				throw new CompilerError("lessequal: unexpected type " + leftType, rex.getStdErr(), currentFrame);
+				throw new InternalCompilerError("lessequal: unexpected type " + leftType, rex.getStdErr(), currentFrame);
 			}
 		}
 	},
@@ -5103,7 +5101,7 @@ public enum RascalPrimitive {
 			}
 
 			if (!right.hasOffsetLength()) {
-				throw new CompilerError("missing offset length", rex.getStdErr(), currentFrame);
+				throw new InternalCompilerError("missing offset length", rex.getStdErr(), currentFrame);
 			}
 			return Rascal_FALSE;
 		}
@@ -5245,7 +5243,7 @@ public enum RascalPrimitive {
 			if(lhsType.isRelation()){
 				return rel_transitive_closure.execute1(arg_1, currentFrame, rex);
 			}
-			throw new CompilerError("transitive_closure: unexpected type " + lhsType, currentFrame);
+			throw new InternalCompilerError("transitive_closure: unexpected type " + lhsType, currentFrame);
 		}
 
 	},
@@ -5296,7 +5294,7 @@ public enum RascalPrimitive {
 			if(lhsType.isRelation()){
 				return rel_transitive_reflexive_closure.execute1(arg_1, currentFrame, rex);
 			}
-			throw new CompilerError("transitive_reflexive_closure: unexpected type " + lhsType, currentFrame);
+			throw new InternalCompilerError("transitive_reflexive_closure: unexpected type " + lhsType, currentFrame);
 		}
 	},
 
@@ -5559,7 +5557,7 @@ public enum RascalPrimitive {
 			case REAL: return negative_real.execute1(left, currentFrame, rex);
 			case RAT: return negative_rat.execute1(left, currentFrame, rex);
 			default:
-				throw new CompilerError("negative: unexpected type " + leftType, currentFrame);
+				throw new InternalCompilerError("negative: unexpected type " + leftType, currentFrame);
 			}
 		}
 	},
@@ -5847,8 +5845,7 @@ public enum RascalPrimitive {
 	is_appl {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			Object treeSubject = arg_1;
-			return vf.bool(treeSubject instanceof ITree && TreeAdapter.isAppl((ITree) treeSubject));
+			return vf.bool(arg_1 instanceof ITree && TreeAdapter.isAppl((ITree) arg_1));
 		}	
 	},
 
@@ -7247,8 +7244,7 @@ public enum RascalPrimitive {
 	get_nonlayout_args {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			IValue treeSubject = (IValue) arg_1;
-			return TreeAdapter.getNonLayoutArgs((ITree)treeSubject);
+			return TreeAdapter.getNonLayoutArgs((ITree)arg_1);
 		}	
 	},
 
@@ -7260,8 +7256,7 @@ public enum RascalPrimitive {
 	get_appl_args {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			IValue treeSubject = (IValue) arg_1;
-			return TreeAdapter.getArgs((ITree)treeSubject);
+			return TreeAdapter.getArgs((ITree)arg_1);
 		}	
 	},
 
@@ -7273,8 +7268,7 @@ public enum RascalPrimitive {
 	get_amb_alternatives {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			ITree treeSubject = (ITree) arg_1;
-			return TreeAdapter.getAlternatives(treeSubject);
+			return TreeAdapter.getAlternatives((ITree)arg_1);
 		}	
 	},
 
@@ -7351,8 +7345,7 @@ public enum RascalPrimitive {
 	get_tree_type_as_symbol {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			IValue treeSubject = (IValue) arg_1;
-			return TreeAdapter.getType((ITree)treeSubject);
+			return TreeAdapter.getType((ITree)arg_1);
 		}	
 	},
 
@@ -7364,8 +7357,7 @@ public enum RascalPrimitive {
 	get_tree_type_as_type {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			IValue treeSubject = (IValue) arg_1;
-			IConstructor symbol = TreeAdapter.getType((ITree)treeSubject);
+			IConstructor symbol = TreeAdapter.getType((ITree)arg_1);
 			String typeName = ((IString)symbol.get(0)).getValue();
 			return vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(typeName));
 		}	
@@ -8174,7 +8166,7 @@ public enum RascalPrimitive {
 				tree = (ITree) TreeAdapter.getArgs(tree).get(0);
 			}
 			if(!TreeAdapter.isList(tree)){
-			  throw new CompilerError("subscript not supported on " + TreeAdapter.getProduction(tree), currentFrame);
+			  throw new InternalCompilerError("subscript not supported on " + TreeAdapter.getProduction(tree), currentFrame);
 			}
 
 			IList elems = TreeAdapter.getArgs(tree);
@@ -8211,7 +8203,7 @@ public enum RascalPrimitive {
 				tree = (ITree) TreeAdapter.getArgs(tree).get(0);
 			}
 			if(!TreeAdapter.isList(tree)){
-			    throw new CompilerError("subscript not supported on " + TreeAdapter.getProduction(tree), currentFrame);
+			    throw new InternalCompilerError("subscript not supported on " + TreeAdapter.getProduction(tree), currentFrame);
 			}
 			int index = ((IInteger) arg_1).intValue();
 			int delta = 1;
@@ -8645,30 +8637,86 @@ public enum RascalPrimitive {
 	/********************************************************************************************************/
 
 	/**
-	 * Abstract declaration for the execute method in each RascalPrimitive:
-	 * @param stack			stack in currentFrame
-	 * @param sp			stack pointer in currentFrame
-	 * @param arity			arity of this primitive
+	 * Abstract declaration for the execute0 method in a RascalPrimitive:
 	 * @param currentFrame	the stackFram of the function that calls this primitive
 	 * @param rex			the current RascalExecutionContext
-	 * @return				new value for stack pointer (sp)
+	 * @return				value of of this execute method
 	 */
 
 	public Object execute0(Frame currentFrame, RascalExecutionContext rex) {
 	  throw RascalRuntimeException.notImplemented("RascalPrimitive.execute0 " + name(), currentFrame.src, currentFrame);
 	}
+	
+	/**
+     * Abstract declaration for the execute1 method in a RascalPrimitive:
+     * @param Object arg_1  argument of execute1
+     * @param currentFrame  the stackFrame of the function that calls this primitive
+     * @param rex           the current RascalExecutionContext
+     * @return              value of of this execute method
+     */
 	@SuppressWarnings("unused")
     public Object execute1(Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
 	  throw RascalRuntimeException.notImplemented("RascalPrimitive.execute1 " + name(), currentFrame.src, currentFrame);
 	}
 
+	/**
+     * Abstract declaration for the execute2 method in a RascalPrimitive:
+     * @param Object arg_2, Object arg_1  arguments of execute2
+     * @param currentFrame  the stackFrame of the function that calls this primitive
+     * @param rex           the current RascalExecutionContext
+     * @return              value of of this execute method
+     */
 	@SuppressWarnings("unused")
     public Object execute2(Object arg_2, Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
 	  throw RascalRuntimeException.notImplemented("RascalPrimitive.execute2 " + name(), currentFrame.src, currentFrame);
 	}
+	
+	/**
+     * Abstract declaration for the execute3 method in a RascalPrimitive:
+     * @param Object arg_3, Object arg_2, Object arg_1  arguments of execute3
+     * @param currentFrame  the stackFrame of the function that calls this primitive
+     * @param rex           the current RascalExecutionContext
+     * @return              value of of this execute method
+     */
+    @SuppressWarnings("unused")
+    public Object execute3(Object arg_3, Object arg_2, Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
+      throw RascalRuntimeException.notImplemented("RascalPrimitive.execute3 " + name(), currentFrame.src, currentFrame);
+    }
+    
+    /**
+     * Abstract declaration for the execute4 method in a RascalPrimitive:
+     * @param Object arg_4, Object arg_3, Object arg_2, Object arg_1  arguments of execute4
+     * @param currentFrame  the stackFrame of the function that calls this primitive
+     * @param rex           the current RascalExecutionContext
+     * @return              value of of this execute method
+     */
+    @SuppressWarnings("unused")
+    public Object execute4(Object arg_4, Object arg_3, Object arg_2, Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
+      throw RascalRuntimeException.notImplemented("RascalPrimitive.execute4 " + name(), currentFrame.src, currentFrame);
+    }
+    
+    /**
+     * Abstract declaration for the execute5 method in a RascalPrimitive:
+     * @param Object arg_5, Object arg_4, Object arg_3, Object arg_2, Object arg_1  arguments of execute5
+     * @param currentFrame  the stackFrame of the function that calls this primitive
+     * @param rex           the current RascalExecutionContext
+     * @return              value of of this execute method
+     */
+    @SuppressWarnings("unused")
+    public Object execute5(Object arg_5, Object arg_4, Object arg_3, Object arg_2, Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
+      throw RascalRuntimeException.notImplemented("RascalPrimitive.execute5 " + name(), currentFrame.src, currentFrame);
+    }
 
-	@SuppressWarnings("unused")
-    public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
+	/**
+	 * Abstract declaration for the (n-ary) executeN method in a RascalPrimitive:
+	 * @param stack    Current stack
+	 * @param sp       stack pointer
+	 * @param arity    numbers of arguments (found on the stack)
+	 * @param currentFrame the stackFrame of the function that calls this primitive
+	 * @param rex      the current RascalExecutionContext
+	 * @return         new value for stack pointer (sp)
+	 */
+	public int executeN(Object[] stack, int sp, int arity, Frame currentFrame, RascalExecutionContext rex) {
 	  throw RascalRuntimeException.notImplemented("RascalPrimitive.executeN " + name(), currentFrame.src, currentFrame);
 	}
 
@@ -9398,31 +9446,35 @@ public enum RascalPrimitive {
 	// TODO: merge the following two functions
 
 	private static String $value_to_string(final Object given, final Frame currentFrame, RascalExecutionContext rex) {
-		String res = null;
-		if(given instanceof IValue){
-			IValue val = (IValue) given;
-			Type tp = val.getType();
-			if(tp.isList()){
-				Type elemType = tp.getElementType();
-				if(!elemType.equals(tf.voidType()) && elemType.isNode() && elemType.isSubtypeOf(RascalValueFactory.Tree)){
-					IList lst = (IList) val;
-					StringWriter w = new StringWriter();
-					for(int i = 0; i < lst.length(); i++){
-						w.write($value2string(lst.get(i)));
-					}
-					res = w.toString();
-				} else {
-					res = $value2string(val);
-				}
-			} else {
-				res = $value2string(val);
-			}
-		} else if(given instanceof Integer){
-			res = ((Integer) given).toString();
-		} else {
-		    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(vf.string(given.toString()), currentFrame));
-		}
-		return res;
+	    String res = null;
+	    if(given != null){
+	        if(given instanceof IValue){
+	            IValue val = (IValue) given;
+	            Type tp = val.getType();
+	            if(tp.isList()){
+	                Type elemType = tp.getElementType();
+	                if(!elemType.equals(tf.voidType()) && elemType.isNode() && elemType.isSubtypeOf(RascalValueFactory.Tree)){
+	                    IList lst = (IList) val;
+	                    StringWriter w = new StringWriter();
+	                    for(int i = 0; i < lst.length(); i++){
+	                        w.write($value2string(lst.get(i)));
+	                    }
+	                    res = w.toString();
+	                } else {
+	                    res = $value2string(val);
+	                }
+	            } else {
+	                res = $value2string(val);
+	            }
+	        } else if(given instanceof Integer){
+	            res = ((Integer) given).toString();
+	        } else {
+	            rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.invalidArgument(vf.string(given.toString()), currentFrame));
+	        }
+	    } else {
+	        return "";
+	    }
+	    return res;
 	}
 
 	public static String $value2string(final IValue val){
@@ -9496,7 +9548,7 @@ public enum RascalPrimitive {
 			}
 		}
 		
-		throw new CompilerError("getAllKeywordParameters");
+		throw new InternalCompilerError("getAllKeywordParameters");
 	}
 	
 	/*
@@ -9675,7 +9727,7 @@ class URICompare {
             if (result != 0) {
                 return result;
             }
-            left = left.next(b);
+            left = left.next(a);
             right = right.next(b);
         }
         if (left == NONE && right == NONE) {

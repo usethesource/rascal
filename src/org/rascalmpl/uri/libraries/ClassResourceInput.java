@@ -21,8 +21,8 @@ import java.net.URL;
 import java.nio.charset.Charset;
 
 import org.rascalmpl.uri.ISourceLocationInput;
-import org.rascalmpl.uri.StandardLibraryURIResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -106,7 +106,7 @@ public abstract class ClassResourceInput implements ISourceLocationInput {
 			if (res.getProtocol().equals("jar") && res.getPath().startsWith("file:/")) {
 			  return ValueFactoryFactory.getValueFactory().sourceLocation("jar", null, res.getPath().substring("file:".length()));
 			}
-			return ValueFactoryFactory.getValueFactory().sourceLocation(res.toURI());
+			return ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.fromURL(res));
 		} catch (URISyntaxException e) {
 			assert false;
 			throw new IOException(e);

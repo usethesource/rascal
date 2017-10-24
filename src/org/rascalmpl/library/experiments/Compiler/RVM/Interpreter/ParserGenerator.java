@@ -71,21 +71,21 @@ public class ParserGenerator {
         Type symSort = RascalTypeFactory.getInstance().nonTerminalType(vf.constructor(RascalValueFactory.Symbol_Sort, vf.string("Sym")));
         getParserMethodNameFunction = rvmParserGenerator.getFunction("getParserMethodName", tf.stringType(), tf.tupleType(symSort));
         if(getParserMethodNameFunction == null){
-          throw new CompilerError("Function getParserMethodName not found");
+          throw new InternalCompilerError("Function getParserMethodName not found");
         }
 
         newGenerateFunction = rvmParserGenerator.getFunction("newGenerate", tf.stringType(), 
             tf.tupleType(tf.stringType(), tf.stringType(), 
                 tf.abstractDataType(rex.getTypeStore(), "Grammar")));
         if(newGenerateFunction == null){
-          throw new CompilerError("Function newGenerate not found");
+          throw new InternalCompilerError("Function newGenerate not found");
         }
 
         Type cpLex = RascalTypeFactory.getInstance().nonTerminalType(vf.constructor(RascalValueFactory.Symbol_Lex, vf.string("ConcretePart")));
         createHoleFunction = rvmParserGenerator.getFunction("createHole", tf.stringType(), 
             tf.tupleType(cpLex, tf.integerType()));
         if(createHoleFunction == null){
-          throw new CompilerError("Function createHole not found");
+          throw new InternalCompilerError("Function createHole not found");
         }
       } else {
         GlobalEnvironment heap = new GlobalEnvironment();
@@ -197,13 +197,13 @@ public class ParserGenerator {
         rex.event("Compiling generated java code: " + name, 30);
         return bridge.compileJava(loc, packageName + "." + normName, this.getClass(), classString.getValue());
       }  catch (ClassCastException e) {
-        throw new CompilerError("parser generator:" + e.getMessage(), e);
+        throw new InternalCompilerError("parser generator:" + e.getMessage(), e);
       } catch (Throw e) {
-        throw new CompilerError("parser generator: " + e.getMessage(), e);
+        throw new InternalCompilerError("parser generator: " + e.getMessage(), e);
       } catch (Thrown e) {
-        throw new CompilerError("parser generator: " + e.value, e);
+        throw new InternalCompilerError("parser generator: " + e.value, e);
       } catch (Throwable e) {
-        throw new CompilerError("parser generator: " + e.getMessage(), e);  
+        throw new InternalCompilerError("parser generator: " + e.getMessage(), e);  
       } finally {
         rex.endJob(true);
       }

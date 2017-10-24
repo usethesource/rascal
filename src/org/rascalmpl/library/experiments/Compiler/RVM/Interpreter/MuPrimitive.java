@@ -155,7 +155,7 @@ public enum MuPrimitive {
 			} else if (arg_2 instanceof Type && (arg_1 instanceof Type)) {
 				return vf.bool(((Type) arg_2) == ((Type) arg_1));
 			} else {
-				throw new CompilerError("MuPrimitive equal -- not defined on "
+				throw new InternalCompilerError("MuPrimitive equal -- not defined on "
 						+ arg_2.getClass() + " and "
 						+ arg_1.getClass());
 			}
@@ -1895,7 +1895,7 @@ public enum MuPrimitive {
 				}
 				return TypeFactory.getInstance().setType(elmType);
 			}
-			throw new CompilerError("typeOfMset");
+			throw new InternalCompilerError("typeOfMset");
 		};
 	},
 	

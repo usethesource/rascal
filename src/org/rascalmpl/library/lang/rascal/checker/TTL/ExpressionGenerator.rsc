@@ -2,9 +2,8 @@ module lang::rascal::checker::TTL::ExpressionGenerator
 
 import Prelude;
 import Type;
+import util::Random;
 
-import cobra::arbitrary;
-import cobra::quickcheck;
 import lang::rascal::checker::TTL::Library;
 extend lang::rascal::checker::TTL::TTLsyntax;
 import util::Math;
@@ -87,7 +86,7 @@ list[&T] permute(list[&T] lst) {
 
 str generateExpression(Symbol t, real valueProbability, bool correct){
    //println("generateExpression: <t>, <valueProbability>, <correct>");
-   if(arbReal(0.0, 1.0) > valueProbability){
+   if(arbReal() > valueProbability){
        vp = valueProbability + 0.2;
 	   for(sig <- permute(SIGNATURES)){
 	       <m, env> = canMatch(t, sig.result, ());
@@ -132,35 +131,31 @@ str generateArg(Symbol t,  real valueProbability, bool correct){
 }
 
 str arb(Symbol t){
-  g = getGenerator(type(t, ()));
-  v = g(5);
+  v = randomValue(type(t, ()));
   nt = typeOf(v);
   return /Symbol::\void() := nt || "<v>" == "" ? arb(t) : "<escape(v)>";
 }
 
 str arbNonEqual(Symbol t){
-  g = getGenerator(#value);
-  v = g(5);
+  v = randomValue(#value);
   while(typeOf(v) == t || "<v>" == ""){
-    v = g(5);
+    v = randomValue(#value);
   }
   return "<escape(v)>";
 }
 
 str arbNonVoidNonEqual(Symbol t){
-  g = getGenerator(#value);
-  v = g(5);
+  v = randomValue(#value);
   while(typeOf(v) == t ||  /Symbol::\void() := typeOf(v) || "<v>" == ""){
-    v = g(5);
+    v = randomValue(#value);
   }
   return "<escape(v)>";
 }
 
 Symbol arbNonVoidType(){
-  g = getGenerator(#value);
-  nt = typeOf(g(5));
+  nt = typeOf(randomValue(#value));
   while(/Symbol::\void() := nt){
-     nt = typeOf(g(5));
+     nt = typeOf(randomValue(#value));
   }
   return nt;
 }

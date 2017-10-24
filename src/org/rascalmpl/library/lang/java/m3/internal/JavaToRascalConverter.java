@@ -18,6 +18,8 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -26,8 +28,6 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public abstract class JavaToRascalConverter extends ASTVisitor {
 	protected static final IValueFactory values = ValueFactoryFactory.getValueFactory();

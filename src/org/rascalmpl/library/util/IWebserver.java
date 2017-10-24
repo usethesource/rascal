@@ -20,7 +20,7 @@ import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 
-@RascalModule("util::Webserver")
+@RascalModule("lang::rascal::boot::Kernel")
 public interface IWebserver extends IJava2Rascal {
 
     //  Status
