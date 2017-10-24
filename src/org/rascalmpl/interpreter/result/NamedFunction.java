@@ -88,6 +88,10 @@ abstract public class NamedFunction extends AbstractFunction {
         return name;
     }
 
+    public void clearMemoizationCache() {
+        memoization = null;
+    }
+    
     protected Result<IValue> getMemoizedResult(IValue[] argValues, Map<String, IValue> keyArgValues) {
         if (hasMemoization()) {
             MemoizationCache<Result<IValue>> memoizationActual = getMemoizationCache(false);
