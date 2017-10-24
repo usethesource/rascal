@@ -22,12 +22,12 @@ public class CompiledREPLRunner extends BaseREPL  implements ShellRunner {
 	
 	public CompiledREPLRunner(PathConfig pcfg, InputStream stdin, OutputStream stdout, IDEServices ideServices, Terminal term) throws IOException, URISyntaxException {
 		super(makeCompiledRascalREPL(pcfg, ideServices, term, 
-		    new DebugREPLFrameObserver(pcfg, stdin, stdout, true, true, getHistoryFile(), term, ideServices)), 
-		    pcfg, stdin, stdout, true, true, getHistoryFile(), term, ideServices);
+		    new DebugREPLFrameObserver(pcfg, stdin, stdout, true, term.isAnsiSupported(), getHistoryFile(), term, ideServices)), 
+		    pcfg, stdin, stdout, true, term.isAnsiSupported(), getHistoryFile(), term, ideServices);
 	}
 
     private static CompiledRascalREPL makeCompiledRascalREPL(PathConfig pcfg, IDEServices ideServices, Terminal term, final DebugREPLFrameObserver observer) throws IOException, URISyntaxException {
-        return new CompiledRascalREPL(pcfg, true, term.isAnsiSupported(), getHistoryFile(), ideServices) {
+        return new CompiledRascalREPL(pcfg, true, term.isAnsiSupported(), false, getHistoryFile(), ideServices) {
             @Override
             public void stop() {
                 
