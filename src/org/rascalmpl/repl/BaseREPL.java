@@ -160,8 +160,12 @@ public class BaseREPL {
         language.handleInput(line, output, new HashMap<>());
         
         // TODO: maybe we can do this cleaner, but this works for now
-        for (String out : output.values()) {
-            new PrintWriter(originalStdOut).print(out);
+        String out = output.get("text/plain");
+        
+        if (out != null) {
+            try (PrintWriter w = new PrintWriter(originalStdOut)) {
+                w.print(out);
+            }
         }
     }
 

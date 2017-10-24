@@ -28,10 +28,9 @@ import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.BaseRascalREPL;
 import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.uri.URIUtil;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-
-import jline.Terminal;
 
 public abstract class CompiledRascalREPL extends BaseRascalREPL {
 
@@ -54,9 +53,9 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   private PathConfig pcfg;
   protected final IDEServices ideServices;
   
-  public CompiledRascalREPL(PathConfig pcfg, boolean prettyPrompt, boolean allowColors, File persistentHistory, IDEServices ideServices)
+  public CompiledRascalREPL(PathConfig pcfg, boolean prettyPrompt, boolean allowColors, boolean htmlOutput, File persistentHistory, IDEServices ideServices)
       throws IOException, URISyntaxException {
-    super(prettyPrompt, allowColors);
+    super(prettyPrompt, allowColors, htmlOutput);
     this.pcfg = pcfg;
     this.ideServices = ideServices;
   }

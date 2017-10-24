@@ -30,6 +30,7 @@ public interface ILanguageProtocol {
      * @return The string representing the prompt.
      */
     String getPrompt();
+    // TODO: This isn't used with the notebooks
 
     /**
      * After a newline is pressed, the current line is handed to this method.
