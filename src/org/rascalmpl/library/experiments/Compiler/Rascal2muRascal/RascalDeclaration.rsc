@@ -8,6 +8,8 @@ import String;
 import lang::rascal::\syntax::Rascal;
 import ParseTree;
 
+import experiments::Compiler::RVM::Interpreter::CompileTimeError;
+
 import experiments::Compiler::muRascal::AST;
 
 import lang::rascal::types::AbstractName;
@@ -93,7 +95,8 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
                                          0, 
                                          0, 
                                          false, 
-                                         true, 
+                                         true,
+                                         false,
                                          fd@\loc, 
                                          tmods, 
                                          ttags,
@@ -141,10 +144,19 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
       }
      
       isPub = !fd.visibility is \private;
-      isMemo = ttags["memo"]?;
+      isMemo = ttags["memo"]?; 
+   
       tbody = translateFunction("<fd.signature.name>", fd.signature.parameters.formals.formals, isVarArgs, kwps, body, isMemo, when_conditions);
      
       formals = [formal | formal <- fd.signature.parameters.formals.formals];
+      
+      simpleArgs = true;
+      for(pat <- formals){
+        if(!(pat is typedVariable || pat is literal)){
+            simpleArgs = false;
+        }
+      }
+  
       //if(nformals > 0) println("formals[0] = <formals[0]>");
       
       absfpArg = nformals > 0 ? fingerprint(formals[0], false) : 0;
@@ -167,7 +179,8 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
       								 getFormals(uid), 
       								 getScopeSize(fuid), 
       								 isVarArgs, 
-      								 isPub, 
+      								 isPub,
+      								 simpleArgs,
       								 fd@\loc, 
       								 tmods, 
       								 ttags,
@@ -178,8 +191,12 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
       
       leaveFunctionScope();
       leaveFunctionDeclaration();
-      
-  } catch e: {
+  } catch e: CompileTimeError(m): {
+      throw e;  
+  } catch Ambiguity(loc src, str stype, str string): {
+      throw CompileTimeError(error("Ambiguous code", src));
+  }
+  catch e: {
         throw "EXCEPTION in translateFunctionDeclaration, compiling <fd.signature.name>: <e>";
   }
 }
@@ -262,7 +279,7 @@ public map[str,str] translateTags(Tags tags){
    m = ();
    for(tg <- tags.tags){
      str name = "<tg.name>";
-     if(name == "doc" || name == "license")
+     if(name == "license")
        continue;
      if(tg is \default){
         cont = "<tg.contents>"[1 .. -1];
@@ -277,7 +294,7 @@ public map[str,str] translateTags(Tags tags){
 
 private bool ignoreCompilerTest(map[str, str] tags) = !isEmpty(domain(tags) & {"ignoreCompiler", "IgnoreCompiler"});
 
-private bool ignoreTest(map[str, str] tags) = !isEmpty(domain(tags) & {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
+bool ignoreTest(map[str, str] tags) = !isEmpty(domain(tags) & {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
 
 /********************************************************************/
 /*       Translate the modifiers in a function declaration          */

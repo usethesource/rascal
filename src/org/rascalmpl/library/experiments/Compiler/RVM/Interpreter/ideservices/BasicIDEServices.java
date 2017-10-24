@@ -68,7 +68,8 @@ public class BasicIDEServices implements IDEServices {
   
   public void edit(ISourceLocation loc){
       if(loc.getScheme() != "file"){
-         stderr.println("Can only edit files using the \"file\" scheme"); 
+         stderr.println("Can only edit files using the \"file\" scheme");
+         return;
       }
       edit(Paths.get(loc.getURI()));
   }

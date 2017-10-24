@@ -396,7 +396,7 @@ test bool tstMix(list[&T] L, list[&U] R) {
 public int factorial(int n) = (n <= 0) ? 1 : n * factorial(n -1);
 
 test bool tstPermutations(list[int] L) =
-  size(L) == size({*L}) ==>
+  (size(L) == size({*L}) && size(L) < 8) ==>
     (size(permutations(L)) <= factorial(size(L)) &&
    all(P <- permutations(L), size(P) == size(L), isEmpty(L - P), isEmpty(P - L)));
   
@@ -471,7 +471,7 @@ test bool tstToRel(list[&T] L) = isEmpty(L) || toRel(L) == {<elementAt(L,i), ele
 
 test bool tstToSet(list[&T] L) = toSet(L) == {x | x <- L};
 
- 
+@ignore{not all values can be read-back after writing to string}
 test bool tstToString(list[value] L) = (readTextValueString(#list[value], toString(L)) == L);
 
 

@@ -1,7 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Instructions;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CodeBlock;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.CompilerError;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.InternalCompilerError;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.MuPrimitive;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 
@@ -268,12 +268,23 @@ public enum Opcode {
 	static public final int OP_CORETURN0 = 110;
 	static public final int OP_CORETURN1 = 111;
 	
+	static public final int OP_CALLMUPRIM3 = 112;
+	static public final int OP_PUSHCALLMUPRIM3 = 113;
+    
+	static public final int OP_CALLPRIM3 = 114;
+	static public final int OP_CALLPRIM4 = 115;
+	static public final int OP_CALLPRIM5 = 116;
+    
+	static public final int OP_PUSHCALLPRIM3 = 117;
+	static public final int OP_PUSHCALLPRIM4 = 118;
+	static public final int OP_PUSHCALLPRIM5 = 119;
+	
 	/*
 	 * Meta-instructions that are generated dynamically during execution and
 	 * will never occur in generated code.
 	 */
-	static public final int POSTOP_CHECKUNDEF = 112;
-	static public final int POSTOP_HANDLEEXCEPTION = 113;
+	static public final int POSTOP_CHECKUNDEF = 120;
+	static public final int POSTOP_HANDLEEXCEPTION = 121;
 	
 	 Opcode(int op, int pc_incr){
 		this.op = op;
@@ -652,6 +663,6 @@ public enum Opcode {
 			break;
 		}	
 		
-		throw new CompilerError("unrecognized opcode " + opc);
+		throw new InternalCompilerError("unrecognized opcode " + opc);
 	}
 }

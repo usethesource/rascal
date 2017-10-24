@@ -2,28 +2,34 @@ package org.rascalmpl.library.util;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.rascalmpl.interpreter.Configuration;
+import org.rascalmpl.interpreter.utils.RascalManifest;
 import org.rascalmpl.library.lang.rascal.boot.IJava2Rascal;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
+import io.usethesource.vallang.io.StandardTextReader;
 
 public class PathConfig {
 	
-	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
 	private final List<ISourceLocation> srcs;		// List of locations to search for source files
 	private final List<ISourceLocation> libs;     // List of (library) locations to search for derived files
@@ -72,8 +78,94 @@ public class PathConfig {
 		repo = defaultRepo;
 	}
 	
+    public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin) throws IOException {
+		this(srcs, libs, bin, defaultBoot);
+	}
+	
+	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, ISourceLocation boot) throws IOException {
+		this(srcs, libs, bin, boot, defaultCourses);
+	}
+	
+	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, ISourceLocation boot, List<ISourceLocation> courses) throws IOException {
+	    this(srcs, libs, bin, boot, courses, defaultJavaCompilerPath);
+	}
+	
+	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, ISourceLocation boot, List<ISourceLocation> courses, List<ISourceLocation> javaCompilerPath) throws IOException {
+        this(srcs, libs, bin, boot, courses, javaCompilerPath, defaultClassloaders);
+    }
+	
+	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, ISourceLocation boot, List<ISourceLocation> courses, List<ISourceLocation> javaCompilerPath, List<ISourceLocation> classloaders) throws IOException{
+	    this(srcs, libs, bin, boot, courses, javaCompilerPath, classloaders, defaultRepo);
+	}
+	
+	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, ISourceLocation boot, List<ISourceLocation> courses, List<ISourceLocation> javaCompilerPath, List<ISourceLocation> classloaders, ISourceLocation repo) throws IOException{
+		this.srcs = srcs;
+		this.courses = courses;
+		this.libs = transitiveClosure(libs, repo);
+		this.bin = bin;
+		this.boot = boot;
+		this.javaCompilerPath = javaCompilerPath;
+		this.classloaders = classloaders;
+		this.repo = repo;
+	}
+	
+	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot) throws IOException{
+        this.srcs = convertLocs(srcs);
+        this.libs = transitiveClosure(convertLocs(libs), defaultRepo);
+        this.bin = bin;
+        this.boot = boot;
+        this.repo = defaultRepo;
+        this.courses = defaultCourses;
+        this.javaCompilerPath = defaultJavaCompilerPath;
+        this.classloaders = defaultClassloaders;
+    }
+	
+	public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList courses, ISourceLocation repo) throws IOException{
+        this.srcs = convertLocs(srcs);
+        this.libs = transitiveClosure(convertLocs(libs), repo);
+        this.bin = bin;
+        this.boot = defaultBoot;
+        this.repo = repo;
+        this.courses = convertLocs(courses);
+        this.javaCompilerPath = defaultJavaCompilerPath;
+        this.classloaders = defaultClassloaders;
+    }
+	
+	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot, IList courses) throws IOException{
+        this.srcs = convertLocs(srcs);
+        this.libs = transitiveClosure(convertLocs(libs), defaultRepo);
+        this.bin = bin;
+        this.boot = boot;
+        this.courses = convertLocs(courses);
+        this.javaCompilerPath = defaultJavaCompilerPath;
+        this.classloaders = defaultClassloaders;
+        this.repo = defaultRepo;
+    }
+	
+	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot, IList courses, IList javaCompilerPath) throws IOException{
+        this.srcs = convertLocs(srcs);
+        this.libs = transitiveClosure(convertLocs(libs), defaultRepo);
+        this.bin = bin;
+        this.boot = boot;
+        this.courses = convertLocs(courses);
+        this.javaCompilerPath = convertLocs(javaCompilerPath);
+        this.classloaders = defaultClassloaders;
+        this.repo = defaultRepo;
+    }
+	
+	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot, IList courses, IList javaCompilerPath, IList classloaders) throws IOException {
+        this.srcs = convertLocs(srcs);
+        this.libs = transitiveClosure(convertLocs(libs), defaultRepo);
+        this.bin = bin;
+        this.boot = boot;
+        this.courses = convertLocs(courses);
+        this.javaCompilerPath = convertLocs(javaCompilerPath);
+        this.classloaders = convertLocs(classloaders);
+        this.repo = defaultRepo;
+    }
+	
 	private static List<ISourceLocation> computeDefaultClassLoaders() {
-	    List<ISourceLocation> result = new ArrayList<>();
+        List<ISourceLocation> result = new ArrayList<>();
         String javaClasspath = System.getProperty("java.class.path");
         if (javaClasspath != null) {
             for (String path : javaClasspath.split(":")) {
@@ -98,96 +190,105 @@ public class PathConfig {
         
         return result;
     }
+    
+	/**
+	 * This locates necessary libraries on the search path by taking the current libraries, finding the RASCAL.MF file and looking
+	 * at the Required-Libraries field. The required libraries are then sought out in the {@see r2d2} installation folder and the process
+	 * continues transitively until either a library is not found and an exception is raised, or until the process terminates because no new
+	 * dependencies have been discovered.
+	 * 
+	 * @param seedLibraries are the root of the dependence hierarchy
+	 * @param seedSources are source folders which may contain additional MANIFEST/RASCAL.MF files for library dependencies
+	 * @param repo 
+	 * @return the full list of transitively required libraries
+	 * @throws IOException when a required library is not found.
+	 */
+	private List<ISourceLocation> transitiveClosure(List<ISourceLocation> seedLibraries, ISourceLocation repo) throws IOException {
+        List<ISourceLocation> todo = new LinkedList<>();
+        List<ISourceLocation> done = new LinkedList<>();
+        
+        todo.addAll(seedLibraries);
+        
+        while (!todo.isEmpty()) {
+            List<ISourceLocation> more = new LinkedList<>();
+            
+            for (ISourceLocation lib : todo) {
+                if (done.contains(lib)) {
+                    continue;
+                } else {
+                    done.add(lib);
+                }
+                
+                List<ISourceLocation> next = getMoreLibraries(repo, lib);
+                next.removeAll(done);
+                more.addAll(next);
+            }
+            
+            todo.addAll(more);
+            todo.removeAll(done);
+        }
+        
 
-    public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin) {
-		this(srcs, libs, bin, defaultBoot);
+        // make all libraries look inside jar files where possible
+        List<ISourceLocation> result = new LinkedList<>();
+        for (ISourceLocation l : done) {
+            ISourceLocation jarred = RascalManifest.jarify(l);
+            if (!result.contains(jarred)) {
+                result.add(jarred);
+            }
+        }
+        
+        return Collections.unmodifiableList(result);
 	}
-	
-	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, ISourceLocation boot) {
-		this(srcs, libs, bin, boot, defaultCourses);
-	}
-	
-	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, ISourceLocation boot, List<ISourceLocation> courses) {
-	    this(srcs, libs, bin, boot, courses, defaultJavaCompilerPath);
-	}
-	
-	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, ISourceLocation boot, List<ISourceLocation> courses, List<ISourceLocation> javaCompilerPath) {
-        this(srcs, libs, bin, boot, courses, javaCompilerPath, defaultClassloaders);
+
+    private List<ISourceLocation> getMoreLibraries(ISourceLocation repo, ISourceLocation lib) throws IOException {
+        List<ISourceLocation> result = new LinkedList<>();
+        
+        for (String recLib : new RascalManifest().getRequiredLibraries(lib)) {
+            ISourceLocation libLoc = recLib.startsWith("|") ? parseSourceLocation(recLib) : findLibrary(recLib, repo);
+            
+            if (libLoc != null) {
+                result.add(libLoc);
+            }
+            else {
+                throw new IOException("Required Rascal library not found: " + recLib + ", needed by " + lib);
+            }
+        }
+        
+        return result;
+    }
+
+    private static ISourceLocation parseSourceLocation(String recLib) throws IOException {
+        return (ISourceLocation) new StandardTextReader().read(vf, new StringReader(recLib));
     }
 	
-	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, ISourceLocation boot, List<ISourceLocation> courses, List<ISourceLocation> javaCompilerPath, List<ISourceLocation> classloaders){
-	    this(srcs, libs, bin, boot, courses, javaCompilerPath, classloaders, defaultRepo);
-	}
-	
-	public PathConfig(List<ISourceLocation> srcs, List<ISourceLocation> libs, ISourceLocation bin, ISourceLocation boot, List<ISourceLocation> courses, List<ISourceLocation> javaCompilerPath, List<ISourceLocation> classloaders, ISourceLocation repo){
-		this.srcs = srcs;
-		this.courses = courses;
-		this.libs = libs;
-		this.bin = bin;
-		this.boot = boot;
-		this.javaCompilerPath = javaCompilerPath;
-		this.classloaders = classloaders;
-		this.repo = repo;
-	}
-	
-	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot){
-        this.srcs = convertLocs(srcs);
-        this.libs = convertLocs(libs);
-        this.bin = bin;
-        this.boot = boot;
-        this.repo = defaultRepo;
-        this.courses = defaultCourses;
-        this.javaCompilerPath = defaultJavaCompilerPath;
-        this.classloaders = defaultClassloaders;
+    private ISourceLocation findLibrary(String name, ISourceLocation repo) throws IOException {
+        ISourceLocation found = null;
+        
+        for (ISourceLocation file : URIResolverRegistry.getInstance().list(repo)) {
+            String path = file.getPath();
+            path = path.substring(repo.getPath().length() + 1 /* for removing the / */);
+            
+            if (path.startsWith(name)) {
+                String afterName = path.substring(name.length());
+                
+                if (afterName.length() > 0 && (afterName.equals(".jar") || (afterName.startsWith("-") && afterName.endsWith(".jar")))) {
+                    if (found == null) {
+                        found = file;
+                    }
+                    else {
+                        throw new IOException("Ambiguous duplicate library entry named " + file + ", as indistuinguishable from " + found + " for library requirement " + name);
+                    }
+                }
+            }
+        }
+        
+        return found;
     }
-	
-	public PathConfig(IList srcs, IList libs, ISourceLocation bin, IList courses, ISourceLocation repo){
+
+    public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot, IList courses, IList javaCompilerPath, IList classloaders, ISourceLocation repo) throws IOException{
         this.srcs = convertLocs(srcs);
-        this.libs = convertLocs(libs);
-        this.bin = bin;
-        this.boot = defaultBoot;
-        this.repo = defaultRepo;
-        this.courses = convertLocs(courses);
-        this.javaCompilerPath = defaultJavaCompilerPath;
-        this.classloaders = defaultClassloaders;
-    }
-	
-	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot, IList courses){
-        this.srcs = convertLocs(srcs);
-        this.libs = convertLocs(libs);
-        this.bin = bin;
-        this.boot = boot;
-        this.courses = convertLocs(courses);
-        this.javaCompilerPath = defaultJavaCompilerPath;
-        this.classloaders = defaultClassloaders;
-        this.repo = defaultRepo;
-    }
-	
-	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot, IList courses, IList javaCompilerPath){
-        this.srcs = convertLocs(srcs);
-        this.libs = convertLocs(libs);
-        this.bin = bin;
-        this.boot = boot;
-        this.courses = convertLocs(courses);
-        this.javaCompilerPath = convertLocs(javaCompilerPath);
-        this.classloaders = defaultClassloaders;
-        this.repo = defaultRepo;
-    }
-	
-	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot, IList courses, IList javaCompilerPath, IList classloaders){
-        this.srcs = convertLocs(srcs);
-        this.libs = convertLocs(libs);
-        this.bin = bin;
-        this.boot = boot;
-        this.courses = convertLocs(courses);
-        this.javaCompilerPath = convertLocs(javaCompilerPath);
-        this.classloaders = convertLocs(classloaders);
-        this.repo = defaultRepo;
-    }
-	
-	public PathConfig(IList srcs, IList libs, ISourceLocation bin, ISourceLocation boot, IList courses, IList javaCompilerPath, IList classloaders, ISourceLocation repo){
-        this.srcs = convertLocs(srcs);
-        this.libs = convertLocs(libs);
+        this.libs = transitiveClosure(convertLocs(libs), repo);
         this.bin = bin;
         this.boot = boot;
         this.courses = convertLocs(courses);
@@ -205,6 +306,7 @@ public class PathConfig {
 				throw new RuntimeException("Path should contain source locations and not " + p.getClass().getName());
 			}
 		}
+		
 		return result;
 	}
 	
@@ -277,19 +379,37 @@ public class PathConfig {
 	public PathConfig addSourceLoc(ISourceLocation dir) {
 		List<ISourceLocation> extendedsrcs = new ArrayList<ISourceLocation>(srcs);
 		extendedsrcs.add(dir);
-		return new PathConfig(extendedsrcs, libs, bin, boot, courses, javaCompilerPath, classloaders);
+		try {
+            return new PathConfig(extendedsrcs, libs, bin, boot, courses, javaCompilerPath, classloaders);
+        }
+        catch (IOException e) {
+            assert false;
+            return this;
+        }
 	}
 	
 	public PathConfig addJavaCompilerPath(ISourceLocation dir) {
 	    List<ISourceLocation> extended = new ArrayList<ISourceLocation>(javaCompilerPath);
         extended.add(dir);
-        return new PathConfig(srcs, libs, bin, boot, courses, extended, classloaders);
+        try {
+            return new PathConfig(srcs, libs, bin, boot, courses, extended, classloaders);
+        }
+        catch (IOException e) {
+            assert false;
+            return this;
+        }
 	}
 	
 	public PathConfig addClassloader(ISourceLocation dir) {
         List<ISourceLocation> extended = new ArrayList<ISourceLocation>(classloaders);
         extended.add(dir);
-        return new PathConfig(srcs, libs, bin, boot, courses, javaCompilerPath, extended);
+        try {
+            return new PathConfig(srcs, libs, bin, boot, courses, javaCompilerPath, extended);
+        }
+        catch (IOException e) {
+            assert false;
+            return this;
+        }
     }
 	
 	public IList getCourses() {
@@ -299,12 +419,18 @@ public class PathConfig {
 	public PathConfig addCourseLoc(ISourceLocation dir) {
 		List<ISourceLocation> extendedcourses = new ArrayList<ISourceLocation>(courses);
 		extendedcourses.add(dir);
-		return new PathConfig(srcs, libs, bin, boot, extendedcourses, javaCompilerPath, classloaders);
+		try {
+            return new PathConfig(srcs, libs, bin, boot, extendedcourses, javaCompilerPath, classloaders);
+        }
+        catch (IOException e) {
+            assert false;
+            return this;
+        }
 	}
 	
 	public ISourceLocation getCourseLoc(String courseName) throws URISyntaxException, IOException{
 		for(ISourceLocation dir : courses){
-			ISourceLocation fileLoc = vf.sourceLocation(dir.getScheme(), dir.getAuthority(), dir.getPath() + courseName);
+			ISourceLocation fileLoc = vf.sourceLocation(dir.getScheme(), dir.getAuthority(), dir.getPath() + "/" + courseName);
 			if(URIResolverRegistry.getInstance().exists(fileLoc)){
 		    	return fileLoc;
 		    }
@@ -343,10 +469,58 @@ public class PathConfig {
         return vf.list(libs.toArray(new IValue[0]));
     }
 	
-	public PathConfig addLibLoc(ISourceLocation dir){
+	public PathConfig addLibLoc(ISourceLocation dir) throws IOException {
 		List<ISourceLocation> extendedlibs = new ArrayList<ISourceLocation>(libs);
 		extendedlibs.add(dir);
 		return new PathConfig(srcs, extendedlibs, bin, boot, courses, javaCompilerPath, classloaders);
+	}
+	
+	/**
+	 * This will _add_ the configuration parameters found (srcs, libs, etc.) as found in the given manifest file.
+	 * 
+	 * @param manifest the source location of the folder which contains MANIFEST/RASCAL.MF.
+	 * @return
+	 */
+	public static PathConfig fromSourceProjectRascalManifest(ISourceLocation manifestRoot) throws IOException {
+        RascalManifest manifest = new RascalManifest();
+        Set<String> loaderSchemes = URIResolverRegistry.getInstance().getRegisteredClassloaderSchemes();
+        
+        IListWriter libsWriter = vf.listWriter();
+        IListWriter srcsWriter = vf.listWriter();
+        IListWriter classloaders = vf.listWriter();
+        
+        libsWriter.append(URIUtil.correctLocation("stdlib", "", ""));
+        
+        // These are jar files which make contain compiled Rascal code to link to:
+        for (String lib : manifest.getRequiredLibraries(manifestRoot)) {
+            ISourceLocation jar = lib.startsWith("|") ? parseSourceLocation(lib) : URIUtil.getChildLocation(manifestRoot, lib);
+            libsWriter.append(jar);
+            
+            if (loaderSchemes.contains(jar.getScheme())) {
+                classloaders.append(jar);
+            }
+        }
+        
+        for (String srcName : manifest.getSourceRoots(manifestRoot)) {
+            srcsWriter.append(URIUtil.getChildLocation(manifestRoot, srcName));
+        }
+        
+        ISourceLocation bin = URIUtil.getChildLocation(manifestRoot, "bin");
+        ISourceLocation boot = URIUtil.correctLocation("boot", "", "");
+        
+        libsWriter.insert(bin);
+      
+        // for the Rascal run-time
+        classloaders.append(URIUtil.correctLocation("system", "", ""));
+        
+        return new PathConfig(
+                srcsWriter.done(), 
+                libsWriter.done(), 
+                bin, 
+                boot, 
+                vf.list(), 
+                getDefaultJavaCompilerPathList(), 
+                classloaders.done());
 	}
 	
 	public ISourceLocation getBoot() {
@@ -391,7 +565,7 @@ public class PathConfig {
         return null;
     }
 	
-	String getModuleName(ISourceLocation moduleLoc) throws IOException{
+	public String getModuleName(ISourceLocation moduleLoc) throws IOException{
 	    String modulePath = moduleLoc.getPath();
 	    if(!modulePath.endsWith(".rsc")){
 	        throw new IOException("Not a Rascal source file: " + moduleLoc);

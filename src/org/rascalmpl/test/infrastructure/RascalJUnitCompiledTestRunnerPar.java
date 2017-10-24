@@ -23,7 +23,6 @@ import java.util.Queue;
 import java.util.Scanner;
 import java.util.concurrent.Semaphore;
 
-import org.junit.internal.TextListener;
 import org.junit.runner.Description;
 import org.junit.runner.Result;
 import org.junit.runner.Runner;
@@ -46,11 +45,12 @@ import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * A JUnit test runner for compiled Rascal tests. Works only in the rascal project itself.
@@ -154,7 +154,13 @@ public class RascalJUnitCompiledTestRunnerPar extends Runner {
             srcs.add(URIUtil.getChildLocation(rootProject, src));
         }
 
-        return new PathConfig(srcs, libs, binFolder);
+        try {
+            return new PathConfig(srcs, libs, binFolder);
+        }
+        catch (IOException e) {
+            assert false; // since there are no libraries not to be found
+            return null;
+        }
     }
 
     @Override
@@ -225,8 +231,6 @@ public class RascalJUnitCompiledTestRunnerPar extends Runner {
 
                 //  Do a sufficient but not complete check on the binary; changes to imports will go unnoticed!
                 if(!resolver.exists(binary) || resolver.lastModified(source) > resolver.lastModified(binary)){
-                    System.err.println("Compiling: " + qualifiedName);
-
                     IList programs = kernel.compileAndLink(
                         vf.list(vf.string(qualifiedName)),
                         pcfg.asConstructor(kernel),
@@ -251,7 +255,7 @@ public class RascalJUnitCompiledTestRunnerPar extends Runner {
                         modDesc.addChild(d);
                         ntests++;
  
-                        if(f.isIgnored()){
+                        if(f.isIgnored(rex)){
                             module_ignored.add(d);
                         }
                     }

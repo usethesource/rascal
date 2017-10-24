@@ -11,9 +11,11 @@ import util::Reflective;
 //import util::ValueUI;
 
 import ParseTree;
+import experiments::Compiler::RVM::Interpreter::CompileTimeError;
 
 import lang::rascal::\syntax::Rascal;
 import experiments::Compiler::muRascal::AST;
+import experiments::Compiler::muRascal2RVM::Relocate;
 
 import lang::rascal::types::AbstractName;
 import lang::rascal::types::AbstractType;
@@ -45,7 +47,12 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, Pat
       resetModuleInfo(optimize, enableAsserts);
       module_name = "<M.header.name>";
       setModuleName(module_name);
-      setModuleTags(translateTags(M.header.tags));
+      mtags = translateTags(M.header.tags);
+      setModuleTags(mtags);
+      if(ignoreTest(mtags)){
+            return errorMuModule(getModuleName(), {info("Ignore tag suppressed compilation", M@\loc)}, M@\loc);
+      }
+     
       if(verbose) println("r2mu: entering ... <module_name>, enableAsserts: <enableAsserts>");
    	  
    	  // Extract scoping information available from the configuration returned by the type checker  
@@ -57,8 +64,8 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, Pat
    	  map[str,Symbol] types = 
    	  	( uid2str[uid] : \type | 
    	  	  int uid <- config.store, 
-   	  	  ( AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, int containedIn, loc at) := config.store[uid]
-   	  	  || AbstractValue::production(RName name, Symbol \type, int containedIn, Production p, loc at) := config.store[uid] 
+   	  	  ( AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, int containedIn, _, loc at) := config.store[uid]
+   	  	  || AbstractValue::production(RName name, Symbol \type, int containedIn, _, Production p, loc at) := config.store[uid] 
    	  	  ),
    	  	  //bprintln(config.store[uid]), bprintln(config.store[containedIn].at.path), bprintln(at.path),
    	  	  !isEmpty(getSimpleName(name)),
@@ -119,52 +126,17 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, Configuration config, Pat
         if (verbose) println("Parse error in concrete syntax <l>; returning error module");
         return errorMuModule(getModuleName(), {error("Parse error in concrete syntax fragment", l)}, M@\loc);
    }
-   catch value e: {
-        return errorMuModule(getModuleName(), {error("Unexpected compiler exception <e>", M@\loc)}, M@\loc);
+   catch CompileTimeError(Message m): {
+        return errorMuModule(getModuleName(), {m}, M@\loc);
    }
+   //catch value e: {
+   //     return errorMuModule(getModuleName(), {error("Unexpected compiler exception <e>", M@\loc)}, M@\loc);
+   //}
    finally {
    	   resetModuleInfo(optimize, enableAsserts);
    	   resetScopeExtraction();
    }
    throw "r2mu: cannot come here!";
-}
-
-loc relocLoc(loc org, loc reloc, list[loc] srcs){
-    for(src <- srcs){
-        opath = org.path;
-        if(startsWith(opath, src.path)){
-           npath = opath[size(src.path) .. ];
-           return org.offset? ? (reloc + npath)[offset=org.offset][length=org.length][begin=org.begin][end=org.end]
-                                 : reloc + npath;
-        }
-    }
-    // println("Not relocated: <org>");
-    return org;
-}
-
-MuModule relocMuModule(MuModule m, loc reloc, list[loc] srcs){
-    if(reloc.scheme == "noreloc"){
-        return m;
-    }
-    m.src = relocLoc(m.src, reloc, srcs);
-    m.functions = for(f <- m.functions){
-                      f.src = relocLoc(f.src, reloc, srcs);
-                      f.body = relocBody(f.body, reloc, srcs);
-                      append f;
-                  }
-   return m;                                 
-}
-
-MuExp relocBody(MuExp body, loc reloc, list[loc] srcs){
- return
-        visit(body){ 
-        case muOCall3(MuExp fun, list[MuExp] largs, loc src)    => muOCall3(fun, largs, relocLoc(src, reloc, srcs))
-        case muOCall4(MuExp fun, Symbol types, list[MuExp] largs, loc src)
-                                                                => muOCall4(fun, types, largs, relocLoc(src, reloc, srcs))
-        case muCallPrim2(str name, loc src)                     => muCallPrim2(name, relocLoc(src, reloc, srcs))                
-        case muCallPrim3(str name, list[MuExp] exps, loc src)   => muCallPrim3(name, exps, relocLoc(src, reloc, srcs))
-        case muThrow(MuExp exp, loc src)                        => muThrow(exp, relocLoc(src, reloc, srcs))
-        };    
 }
 
 Configuration relocConfig(Configuration config, loc reloc, list[loc] srcs){
@@ -177,9 +149,9 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
  
    // Generate companion functions  constructors with keyword fields or common keyword fields     
    // This enables evaluation of potentially non-constant default expressions and semantics of implicit keyword arguments
-                
+                 
    for(int uid <- config.store, 
-       AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, int scopeIn, constructorLoc) := config.store[uid], 
+       AbstractValue::constructor(RName name, Symbol \type, KeywordParamMap keywordParams, int scopeIn, _, constructorLoc) := config.store[uid], 
        //bprintln("<uid>: <name>: <constructorLoc>, <M@\loc> <constructorLoc < M@\loc>, <constructorLoc.path == M@\loc.path>"),
        //constructorLoc.path == M@\loc.path,
        allKwFields := getAllKeywordFields(uid), 
@@ -210,7 +182,7 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
                                                                    muTypeCon(kwTypes) 
                                                                ]));                          
        leaveFunctionScope();
-       addFunctionToModule(muFunction(fuid, name.name, ftype, argNames, kwTypes, (addr.fuid in moduleNames) ? "" : addr.fuid,nformals, nformals + 1, false, true, |std:///|, [], (), false, 0, 0, body));                                             
+       addFunctionToModule(muFunction(fuid, name.name, ftype, argNames, kwTypes, (addr.fuid in moduleNames) ? "" : addr.fuid,nformals, nformals + 1, false, true, true, |std:///|, [], (), false, 0, 0, body));                                             
      
        /*
         * Create companion for computing the values of defaults
@@ -245,7 +217,7 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
        //iprintln(bodyDefaults);
        
        leaveFunctionScope();
-       addFunctionToModule(muFunction(fuidDefaults, name.name, ftype, argNames, Symbol::\tuple([]), (addrDefaults.fuid in moduleNames) ? "" : addrDefaults.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefaults));                                             
+       addFunctionToModule(muFunction(fuidDefaults, name.name, ftype, argNames, Symbol::\tuple([]), (addrDefaults.fuid in moduleNames) ? "" : addrDefaults.fuid, nformals, nformals+1, false, true, true, |std:///|, [], (), false, 0, 0, bodyDefaults));                                             
        
        /*
         * Create companions for each common keyword field
@@ -302,7 +274,7 @@ void generateCompanions(lang::rascal::\syntax::Rascal::Module M, Configuration c
               // iprintln(bodyDefault);
          
                leaveFunctionScope();
-               addFunctionToModule(muFunction(fuidDefault, prettyPrintName(mainKwf), ftype, argNames, Symbol::\tuple([]), (addrDefault.fuid in moduleNames) ? "" : addrDefault.fuid, nformals, nformals+1, false, true, |std:///|, [], (), false, 0, 0, bodyDefault));                                             
+               addFunctionToModule(muFunction(fuidDefault, prettyPrintName(mainKwf), ftype, argNames, Symbol::\tuple([]), (addrDefault.fuid in moduleNames) ? "" : addrDefault.fuid, nformals, nformals+1, false, true, true, |std:///|, [], (), false, 0, 0, bodyDefault));                                             
              }
        }
    }

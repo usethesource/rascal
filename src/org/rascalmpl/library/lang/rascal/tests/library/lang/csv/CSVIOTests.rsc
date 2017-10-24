@@ -1,3 +1,4 @@
+@ignoreCompiler{Tests randomly fails due to "inferred types"}
 module lang::rascal::tests::library::lang::csv::CSVIOTests
  
 import IO;
@@ -82,6 +83,27 @@ test bool csvRandom(rel[&T,&X] dt) = readWrite(dt);
 
 test bool csvMoreTuples(rel[str a, str b, int c, bool d, real e] dt) = readWrite(dt);
 test bool csvMoreRandomTypes(rel[&T1 a, &T2 b, int c, str d, &T3 e] dt) = readWrite(dt);
+
+bool checkType(type[value] expected, str input) {
+    writeFile(targetFile, input);
+    return expected == getCSVType(targetFile);
+}
+
+test bool csvTypeInference1() = checkType(#rel[str,int], 
+    "col1,col2
+    'a,2
+    '");
+
+test bool csvTypeInference2() = checkType(#rel[bool,real], 
+    "col1,col2
+    'true,42.0
+    '");
+
+test bool csvTypeInference3() = checkType(#rel[num,int], 
+    "col1,col2
+    '2.0,2
+    '2,3
+    '");
 
 
 @memo str createString(int j) = ("a" | it + "<i>" | i <- [0..j]);

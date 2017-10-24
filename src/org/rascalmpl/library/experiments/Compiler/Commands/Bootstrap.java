@@ -173,9 +173,7 @@ public class Bootstrap {
         System.out.println("sourceFolder: " + sourceFolder);
         
         String librarySource = sourceFolder.resolve("org/rascalmpl/library").toAbsolutePath().toString();
-        String courseSource = sourceFolder.resolve("org/rascalmpl/courses").toAbsolutePath().toString();
         
-        System.out.println("courseSource: " + courseSource);
         Path targetFolder = new File(args[arg++]).toPath();
         if (!Files.exists(targetFolder.resolve("org/rascalmpl/library/Prelude.class"))) {	// PK: PreludeCompiled
         	throw new RuntimeException("target folder " + sourceFolder + " should point to source folder of compiler library and the RVM interpreter.");
@@ -191,7 +189,6 @@ public class Bootstrap {
         boolean cleanTempDir = false;
         boolean basicOption = false;
         boolean validatingOption = false;
-        boolean coursesOption = false;
         
         for (;arg < args.length; arg++) {
             switch (args[arg]) {
@@ -200,7 +197,6 @@ public class Bootstrap {
                 case "--basic" : basicOption = true; break;
                 case "--download" : basicOption = false; break;
                 case "--validating" : validatingOption = true; break;
-                case "--withCourses":  basicOption = true; coursesOption = true; break;
                 default: 
                     System.err.println(args[arg] + " is not a supported argument.");
                     System.exit(1);
@@ -210,7 +206,6 @@ public class Bootstrap {
         
         final boolean realBootstrap = basicOption || validatingOption;
         final boolean validatingBootstrap = validatingOption;
-        final boolean withCourses = coursesOption || validatingOption;
         
         Path tmpDir = initializeTemporaryFolder(tmpFolder, cleanTempDir, versionToUse);
         
@@ -279,17 +274,6 @@ public class Bootstrap {
                     System.out.println("Comparison between Phase 2 and Phase 3 failed: " + e.getMessage());
                     System.exit(1);
                   }
-                }
-                
-                // Compiling utilities
-                Path phase2Folder = phaseFolder(2, tmpDir);
-                time("Compiling Webserver", () -> compileModule   (2, rvm[1], kernel[2], librarySource, phase2Folder, "util::Webserver", "|std:///|"));
-                time("Compiling RascalExtraction", () -> compileModule   (2, rvm[1], kernel[2], librarySource, phase2Folder, "experiments::Compiler::RascalExtraction::RascalExtraction", "|std:///|"));
-                time("Compiling QuestionCompiler", () -> compileModule   (2, rvm[1], kernel[2], librarySource, phase2Folder, "experiments::tutor3::QuestionCompiler", "|std:///|"));
-                
-                // Compiling courses
-                if(withCourses){
-                   time("Compiling courses", () -> compileCourses(rvm[1], kernel[2], librarySource, courseSource, phase2Folder));
                 }
                 
                 // The result of the final compilation phase is copied to the bin folder such that it can be deployed with the other compiled (class) files
@@ -370,6 +354,9 @@ public class Bootstrap {
 	        @Override
 	        public FileVisitResult preVisitDirectory(final Path dir,  final BasicFileAttributes attrs) throws IOException {
 	            Files.createDirectories(Paths.get(targetPath.toString(), dir.toString()));
+	            if (dir.toString().contains("courses")) {
+	                return FileVisitResult.SKIP_SUBTREE;
+	            }
 	            return FileVisitResult.CONTINUE;
 	        }
 
@@ -435,11 +422,11 @@ public class Bootstrap {
 	        return unstableVersion();
 	    }
 
-	    return URIUtil.assumeCorrect("http", "update.rascal-mpl.org", "/console/rascal-" + version + ".jar");
+	    return URIUtil.assumeCorrect("https", "update.rascal-mpl.org", "/console/rascal-" + version + ".jar");
 	}
 	
 	private static URI unstableVersion() {
-        return URIUtil.assumeCorrect("http", "update.rascal-mpl.org", "/console/rascal-shell-unstable.jar");
+        return URIUtil.assumeCorrect("https", "update.rascal-mpl.org", "/console/rascal-shell-unstable.jar");
     }
 	
 	private static String phaseFolderString(int phase, Path tmp) {
@@ -465,11 +452,11 @@ public class Bootstrap {
       Path testResults = phaseTestFolder(phase, tmp);
       progress("phase " + phase + ": " + phaseResult);
 
-      time("- compile MuLibrary",       () -> compileMuLibrary(phase, classPath, bootPath, sourcePath, phaseResult));
+      time("- compile MuLibrary",       () -> compileMuLibrary(phase, classPath, bootPath, sourcePath, phaseResult, reloc));
       time("- compile Kernel",          () -> compileModule   (phase, classPath, bootPath, sourcePath, phaseResult, "lang::rascal::boot::Kernel", reloc));
 
       if (phase == 1) {
-          // the new parser generator would refer to classes which may not exist yet. Subce stage 2 we still run against this old version
+          // the new parser generator would refer to classes which may not exist yet. Until stage 2 we still run against this old version
           // we now copy an old version of the generator to be used in phase 2.
           copyParserGenerator(jarFileSystem(classPath).getRootDirectories().iterator().next(), phaseResult);
       }
@@ -489,15 +476,20 @@ public class Bootstrap {
       
       if (phase > 2) {
           // phase 2 tests can not succeed in case the parser generator changed, so we can only test this after phase 3 has completed
-          time("- compile simple tests",           () -> compileTests    (phase, classPath, phaseResult.toAbsolutePath().toString(), sourcePath, testResults, syntaxTestModules));
-          time("- run simple tests",               () -> runTests        (phase, testClassPath, phaseResult.toAbsolutePath().toString(), sourcePath, testResults, syntaxTestModules));
+          time("- compile syntax tests",           () -> compileTests    (phase, classPath, phaseResult.toAbsolutePath().toString(), sourcePath, testResults, syntaxTestModules));
+          time("- run syntax tests",               () -> runTests        (phase, testClassPath, phaseResult.toAbsolutePath().toString(), sourcePath, testResults, syntaxTestModules));
       }
       
       return phaseResult;
     }
 
     private static void generateAndCompileRascalParser(int phase, String classPath, String sourcePath, String bootPath, Path phaseResult, Path targetFolder) throws IOException, InterruptedException, BootstrapMessage {
-        bootstrapRascalParser(classPath, sourcePath, bootPath, phaseResult);
+//        if (
+            bootstrapRascalParser(classPath, sourcePath, bootPath, phaseResult); 
+//            != 0) {
+//            throw new BootstrapMessage(phase);
+//        }
+        
         String[] paths = new String [] { sourcePath + "/lang/rascal/syntax/RascalParser.java" };
         if (runJavaCompiler(classPath, targetFolder.toAbsolutePath().toString(), concat(paths)) != 0) {
             throw new BootstrapMessage(phase);
@@ -542,10 +534,10 @@ public class Bootstrap {
         }
     }
     
-    private static void compileMuLibrary(int phase, String classPath, String bootDLoc, String sourcePath, Path phaseResult) throws IOException, InterruptedException, BootstrapMessage {
+    private static void compileMuLibrary(int phase, String classPath, String bootDLoc, String sourcePath, Path phaseResult, String reloc) throws IOException, InterruptedException, BootstrapMessage {
         progress("\tcompiling MuLibrary (phase " + phase +")");
         
-        String[] paths = new String [] { "--bin", phaseResult.toAbsolutePath().toString(), "--src", sourcePath, "--boot", bootDLoc };
+        String[] paths = new String [] { "--bin", phaseResult.toAbsolutePath().toString(), "--src", sourcePath, "--boot", bootDLoc, "--reloc", reloc };
         String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[0];
 
         if (runMuLibraryCompiler(classPath, concat(paths, otherArgs)) != 0) {
@@ -564,18 +556,6 @@ public class Bootstrap {
             throw new BootstrapMessage(phase);
         }
     }
-    
-    private static void compileCourses(String classPath, String boot, String sourcePath, String courseSourcePath, Path phaseResult) throws IOException, InterruptedException, BootstrapMessage {
-      progress("Compiling all courses");
-      System.out.println("courseSourcePath: " + courseSourcePath);
-      String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.tutor3.CourseCompiler" };
-      String[] paths = new String [] { "--bin", phaseResult.toAbsolutePath().toString(), "--src", sourcePath, "--course", courseSourcePath, "--boot", boot, "--all" };
-      String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[0];
-
-      if (runChildProcess(concat(javaCmd, paths, otherArgs)) != 0) { 
-          throw new BootstrapMessage(5);
-      }
-  }
     
     private static int runJavaCompiler(String classPath, String targetFolder, String... arguments) throws IOException, InterruptedException {
         String[] javaCmd = new String[] {"javac", "-cp", classPath, "-d", targetFolder };
@@ -605,10 +585,22 @@ public class Bootstrap {
             info("command: " + Arrays.stream(command).reduce("", (x,y) -> x + " " + y));
             childProcess = new ProcessBuilder(command).inheritIO().start();
             childProcess.waitFor();
-            return childProcess.exitValue();    
+            int exitValue = childProcess.exitValue();
+            if (exitValue != 0) {
+                error("Command failed: " + Arrays.stream(command).reduce("", ((s,e) -> s + (safeString(e.toString()) + " "))));
+            }
+            return exitValue;
         }
     }
     
+    private static String safeString(String x) {
+        x = x.trim();
+        if (x.startsWith("|")) {
+            return "\"" + x + "\"";
+        }
+        
+        return x;
+    }
     private static void progress(String msg) {
          System.err.println("BOOTSTRAP:" + msg);
     }
@@ -654,7 +646,7 @@ public class Bootstrap {
           private IValue read(Path path) throws IOException {
               ISourceLocation loc = null;
               try {
-                  loc = vf.sourceLocation(/*compressed+"*/"file", "", path.toString());
+                  loc = vf.sourceLocation("file", "", path.toString());
               }
               catch (URISyntaxException e1) {
                   throw new IOException("Cannot create location |file://" + path.toString() + "|");

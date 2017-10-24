@@ -2,8 +2,11 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
@@ -38,6 +41,11 @@ public class OverloadedFunction {
 	boolean allConcreteConstructorArgs = false;
 	Map<Integer, int[]> filteredFunctions;		// Functions and constructors filtered on fingerprint of first argument
 	Map<Integer, int[]> filteredConstructors;
+	
+	// transient
+	Function[] functionsAsFunction;
+	Type[] constructorsAsType;
+	Map<Integer, Function[]> filteredFunctionsAsFunction;
 	
 	public OverloadedFunction(String name, Type funType, final int[] functions, final int[] constructors, final String funIn) {
 		if(funIn == null){
@@ -91,23 +99,28 @@ public class OverloadedFunction {
 		return funType.getArity();
 	}
 	
-	public void  finalize(final Map<String, Integer> functionMap, ArrayList<Function> functionStore, Map<Integer, Integer> indexMap){
+	public boolean equals(OverloadedFunction other){
+	    return this == other || this.name.equals(other.name) && this.funType.equals(other.funType) && this.scopeIn == other.scopeIn && compareIntArrays(this.functions, other.functions) && compareIntArrays(this.constructors, other.constructors);
+	}
+	
+	public void finalize(final Map<String, Integer> functionMap, List<Function> functionStore, List<Type> constructorStore, Map<Integer, Integer> shiftedFunctionindexMap){
 		if(funIn.length() > 0){ // != null) {
 			Integer si = functionMap.get(funIn);
 			if(si == null){		// Give up, containing scope is not included in final RVM image created by loader
+			    System.err.println("OverloadedFunction: enclosing scope " + funIn + " not found");
 				return;
 			}
 			this.setScopeIn(si);
 		}
-		if(indexMap != null){
+		if(shiftedFunctionindexMap != null){
 			int nelems = 0;
 			for(int i = 0; i < functions.length; i++){
-				Integer newIndex = indexMap.get(functions[i]);
+				Integer newIndex = shiftedFunctionindexMap.get(functions[i]);
 				if(newIndex != null){
 					functions[nelems++] = newIndex;
 				}
 			}
-			if(functions.length > nelems){
+			if(functions.length > nelems){   // we have eliminated some unused functions
 				int[] newFunctions = new int[nelems];
 				for(int i = 0; i < nelems; i++){
 					newFunctions[i] = functions[i];
@@ -127,6 +140,45 @@ public class OverloadedFunction {
 //			}
 //		}
 		filter(functionStore);
+	}
+	
+	void fids2objects(Function[] functionStore, Type[] constructorStore){
+	    
+	    for(int fid : functions){
+            if(fid < 0 || fid >= functionStore.length){
+                throw new RuntimeException("OverloadedFunction " + name + ", fids2objects fid outside functionStore (" + fid + ") should be in [0.." + functionStore.length + "]");
+            }
+        }
+        
+	    if(filteredFunctions == null){
+	        filterFunctions(new ArrayList<>(Arrays.asList(functionStore)));    // TODO: efficiency!
+	    }
+	    if(functionsAsFunction != null){
+	        return;
+	    }
+	    functionsAsFunction = new Function[functions.length];
+        for(int i = 0; i < functions.length; i++){
+            int fid = functions[i];
+            functionsAsFunction[i] = functionStore[fid];
+        }
+        
+        constructorsAsType = new Type[constructors.length];
+        for(int i = 0; i < constructors.length; i++){
+            int cid = constructors[i];
+            constructorsAsType[i] = constructorStore[cid];
+        }
+        
+        filteredFunctionsAsFunction = new HashMap<Integer,Function[]>();
+        if(filteredFunctions != null){
+            for(Entry<Integer,int[]> e : filteredFunctions.entrySet()){
+                int[] fids = e.getValue();
+                Function[] funs = new Function[fids.length];
+                for(int i = 0; i < fids.length; i++){
+                    funs[i] = functionStore[fids[i]];
+                }
+                filteredFunctionsAsFunction.put(e.getKey(), funs);
+            }
+        }
 	}
 	
 	void printArray(){
@@ -213,14 +265,18 @@ public class OverloadedFunction {
 	 * @param arg0	first actual parameter
 	 * @return	list of overloadings
 	 */
-	public int[] getFunctions(Object arg0){
+	public Function[] getFunctions(Object arg0){
 		if(functions.length <= 1 || !(arg0 instanceof IValue)){
-			return functions;
+			return functionsAsFunction;
 		}
 
 		int fp = ToplevelType.getFingerprint((IValue) arg0, allConcreteFunctionArgs);
-		int[] funs = filteredFunctions.get(fp);
-		return funs == null ? filteredFunctions.get(0) : funs;
+		Function[] funs = filteredFunctionsAsFunction.get(fp);
+		Function[] res = funs == null ? filteredFunctionsAsFunction.get(0) : funs;
+		if(res == null){
+		    System.err.println("getFunctions ==> null");
+		}
+		return res;
 	}
 	
 	/**
@@ -230,11 +286,11 @@ public class OverloadedFunction {
 	 * 
 	 * Note: at the moment we do not (yet?) filter constructor alternatives
 	 */
-	public int[] getConstructors(Object arg0) {
-			return constructors;
+	public Type[] getConstructors(Object arg0) {
+			return constructorsAsType;
 	}
 	
-	private void filter(ArrayList<Function> functionStore){
+	private void filter(List<Function> functionStore){
 		filterFunctions(functionStore);
 		//filterConstructors(rvm);
 	}
@@ -247,7 +303,7 @@ public class OverloadedFunction {
 	 *   
 	 * @param rvm	needed for access to the function declarations via rvm.functionStore
 	 */
-	private void filterFunctions(ArrayList<Function> functionStore){
+	private void filterFunctions(List<Function> functionStore){
 		if(functions.length > 1){
 			filteredFunctions = new HashMap<Integer,int[]>();
 		} else {
@@ -281,23 +337,31 @@ public class OverloadedFunction {
 			defaults = new ArrayList<Integer>();
 			filtered.put(0,  defaults);
 		}
-		int ndefaults = defaults.size();
 		
-		// TODO: values in alts may also occur in defaults, then the list will contain duplicate elements
+		// Values in alts may also occur in defaults, we ensure that the list will not contain duplicate elements
 		for(int fp : filtered.keySet()){
-			ArrayList<Integer> alts = filtered.get(fp);
-			int nalts = alts.size();
-			
-            //defaults.removeIf(x -> alts.contains(x));
-			
-			int[] funs = new int[nalts + ndefaults];
-			for(int i = 0; i < nalts; i++){
-				funs[i] = alts.get(i);
-			}
-			for(int i = 0; i < ndefaults; i++){
-				funs[nalts + i] = defaults.get(i);
-			}
-			filteredFunctions.put(fp, funs);
+		    ArrayList<Integer> alts = filtered.get(fp);
+		    int nalts = alts.size();
+		    int[] funs;
+
+		    if(fp == 0){
+		        funs = new int[nalts];
+		        for(int i = 0; i < nalts; i++){
+		            funs[i] = alts.get(i);
+		        }
+		    } else {
+		        ArrayList<Integer> defaults1 = (ArrayList<Integer>) defaults.clone();
+		        defaults1.removeIf(x -> alts.contains(x));
+		        int ndefaults1 = defaults1.size();
+		        funs = new int[nalts + ndefaults1];
+		        for(int i = 0; i < nalts; i++){
+		            funs[i] = alts.get(i);
+		        }
+		        for(int i = 0; i < ndefaults1; i++){
+		            funs[nalts + i] = defaults1.get(i);
+		        }
+		    }
+		    filteredFunctions.put(fp,  funs);
 		}
 	}
 	
@@ -325,7 +389,7 @@ public class OverloadedFunction {
 			for(int i = 0; i < functions.length; i++){
 				sb.append(" ").append(functions[i]);
 			}
-			sb.append(" allConcreteFunctionArgs=").append(allConcreteFunctionArgs);
+			sb.append(" acfa=").append(allConcreteFunctionArgs);
 		}
 		if(constructors.length > 0){
 			if(functions.length > 0){
@@ -335,7 +399,7 @@ public class OverloadedFunction {
 			for(int i = 0; i < constructors.length; i++){
 				sb.append(" ").append(constructors[i]);
 			}
-			sb.append(" allConcreteConstructorArgs=").append(allConcreteConstructorArgs);
+			sb.append(" acca=").append(allConcreteConstructorArgs);
 		}
 		sb.append("]");
 		return sb.toString();

@@ -230,6 +230,10 @@ public &T <: node unsetRec(&T <: node x) = visit(x) {
 };
 
 
+@javaClass{org.rascalmpl.library.Prelude}
+public java node arbNode();
+
+
 @doc{
 .Synopsis
 Convert a node to a string.

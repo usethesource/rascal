@@ -9,6 +9,7 @@ import Map;
 import Set;
 import ParseTree;
 import util::Benchmark;
+import util::FileSystem;
 import analysis::graphs::Graph;
 import DateTime;
 
@@ -23,8 +24,8 @@ import experiments::Compiler::muRascal2RVM::mu2rvm;
 import util::Reflective;
 
 @doc{Use classRenamings to map old names of class files used in generated JVM bytecode to new names, in case of refactoring/renaming/moving them}
-// NOTE: Be aware that old dotted names are mapped to new, slash-separated, names
-private map[str,str] classRenamings = ("org.rascalmpl.value":"io/usethesource/vallang");
+// NOTE: Be aware that old dotted names are mapped to new, slash-separated, names, e.g., ("org.rascalmpl.value":"io/usethesource/vallang")
+private map[str,str] classRenamings = ();
 
 private loc MuLibraryLoc(PathConfig pcfg) = getSearchPathLoc("experiments/Compiler/muRascal2RVM/MuLibrary.mu", pcfg);
 
@@ -282,7 +283,8 @@ value execute(RVMProgram program, PathConfig pcfg,
                            profile, 
                            trace, 
                            coverage,
-                           jvm);
+                           jvm, 
+                           verbose);
  
    //if(verbose) println("Executing: <(cpuTime() - startTime)/1000000> ms");
    //return v;                            
@@ -356,7 +358,7 @@ value execute(str qualifiedModuleName, PathConfig pcfg,
       if(<true, compressed> := RVMExecutableReadLoc(qualifiedModuleName, pcfg)){
          if(verbose) println("Using <compressed>");
          startTime = cpuTime();
-         v = executeProgram(compressed, keywordArguments, debug, debugRVM, testsuite, profile, trace, coverage, jvm);
+         v = executeProgram(compressed, keywordArguments, debug, debugRVM, testsuite, profile, trace, coverage, jvm, verbose);
          if(verbose) println("Executing: <(cpuTime() - startTime)/1000000> ms");
          if(!testsuite && verbose){
             println("Result = <v>");
@@ -426,13 +428,22 @@ TestResults rascalTestsRaw(list[str] qualifiedModuleNames, PathConfig pcfg,
    
    exceptions = [];
    value v;
-   //bool executables_available = true;
-   
+
+   expandedModuleNames = [];    // replace any directories by the (nested) Rascal modules found there
    for(qualifiedModuleName <- qualifiedModuleNames){
+        try {
+            loc moduleLoc = getModuleLocation(qualifiedModuleName, pcfg, extension="");
+            expandedModuleNames += [ getModuleName(subModuleLoc, pcfg) | subModuleLoc <- find(moduleLoc, "rsc") ];
+        } catch e: {
+            expandedModuleNames += qualifiedModuleName;
+        }
+   }
+   
+   for(qualifiedModuleName <- expandedModuleNames){
        try {
        if(!recompile && <true, compressed> := RVMExecutableReadLoc(qualifiedModuleName, pcfg)){
            if(verbose) println("Using <compressed>");
-           v = executeProgram(compressed, keywordArguments, debug, debugRVM, true, profile, trace, coverage, jvm);
+           v = executeProgram(compressed, keywordArguments, debug, debugRVM, true, profile, trace, coverage, jvm, verbose);
        } else {
            if(!recompile){
               throw "No executable found for <qualifiedModuleName>";

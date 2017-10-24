@@ -80,7 +80,7 @@ public class RVMInterpreter extends RVMCore {
 	 * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunctionInstance, io.usethesource.vallang.IValue[])
 	 */
 	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs){
-		Function firstFunc = functionStore[func.getFunctions()[0]]; // TODO: null?
+		Function firstFunc = func.getFunctions()[0]; // TODO: null?
 		int arity = posArgs.length + 1;
 		int scopeId = func.env == null ? 0 : func.env.scopeId;
 		Frame root = new Frame(scopeId, null, func.env, arity+2, firstFunc);
@@ -90,7 +90,7 @@ public class RVMInterpreter extends RVMCore {
 				scopeId == -1 ? new OverloadedFunctionInstanceCall(root, func.getFunctions(), func.getConstructors(), root, null, arity, rex)  // changed root to cf
         					  : OverloadedFunctionInstanceCall.computeOverloadedFunctionInstanceCall(root, func.getFunctions(), func.getConstructors(), scopeId, null, arity, rex);
 				
-		Frame cf = c_ofun_call_next.nextFrame(functionStore);
+		Frame cf = c_ofun_call_next.nextFrame();
 		// Pass the program arguments to func
 		for(int i = 0; i < posArgs.length; i++) {
 			cf.stack[i] = posArgs[i]; 
@@ -179,7 +179,7 @@ public class RVMInterpreter extends RVMCore {
 			assert arity + fun_instance.next <= fun_instance.function.nformals : "APPLYDYN, too many arguments at " + cf.src;
 			fun_instance = fun_instance.applyPartial(arity, stack, sp);
 		} else {
-			throw new CompilerError("Unexpected argument type for APPLYDYN: " + asString(src), cf);
+			throw new InternalCompilerError("Unexpected argument type for APPLYDYN: " + asString(src), cf);
 		}
 		sp = sp - arity;
 		stack[sp++] = fun_instance;
@@ -212,7 +212,7 @@ public class RVMInterpreter extends RVMCore {
 		Object accu = null;
 		
 		if(rex.getJVM()){
-			throw new CompilerError("*** SHOULD NOT BE CALLED IN JVM MODE: interpretRVMProgram: " + cf.toString());
+			throw new InternalCompilerError("*** SHOULD NOT BE CALLED IN JVM MODE: interpretRVMProgram: " + cf.toString());
 		}
 		// Overloading specific
 		Stack<OverloadedFunctionInstanceCall> ocalls = new Stack<OverloadedFunctionInstanceCall>();
@@ -448,12 +448,12 @@ public class RVMInterpreter extends RVMCore {
 					
 				case Opcode.OP_LOADLOCDEREF: {
 					Reference ref = (Reference) stack[CodeBlock.fetchArg1(instruction)];
-					accu = ref.stack[ref.pos];
+					accu = ref.getValue();
 					continue NEXT_INSTRUCTION;
 				}
 				case Opcode.OP_PUSHLOCDEREF: {
 					Reference ref = (Reference) stack[CodeBlock.fetchArg1(instruction)];
-					stack[sp++] = ref.stack[ref.pos];
+					stack[sp++] = ref.getValue();
 					continue NEXT_INSTRUCTION;
 				}
 				
@@ -465,7 +465,7 @@ public class RVMInterpreter extends RVMCore {
 					
 				case Opcode.OP_STORELOCDEREF:
 					Reference ref = (Reference) stack[CodeBlock.fetchArg1(instruction)];
-					ref.stack[ref.pos] = accu; // TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues    
+					ref.setValue(accu); // TODO: We need to re-consider how to guarantee safe use of both Java objects and IValues    
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_PUSH_ROOT_FUN:
@@ -481,12 +481,12 @@ public class RVMInterpreter extends RVMCore {
 				
 				case Opcode.OP_PUSHOFUN:
 					OverloadedFunction of = overloadedStore[CodeBlock.fetchArg1(instruction)];
-					stack[sp++] = of.getScopeIn() == -1 ? new OverloadedFunctionInstance(of.functions, of.constructors, root, functionStore, constructorStore, this)
-					                               : OverloadedFunctionInstance.computeOverloadedFunctionInstance(of.functions, of.constructors, cf, of.getScopeIn(), functionStore, constructorStore, this);
+					stack[sp++] = of.getScopeIn() == -1 ? new OverloadedFunctionInstance(of.functionsAsFunction, of.constructorsAsType, root, this)
+					                               : OverloadedFunctionInstance.computeOverloadedFunctionInstance(of.functionsAsFunction, of.constructorsAsType, cf, of.getScopeIn(), this);
 					continue NEXT_INSTRUCTION;
 				
 				case Opcode.OP_PUSHCONSTR:
-					Type constructor = constructorStore.get(CodeBlock.fetchArg1(instruction));  
+					Type constructor = constructorStore[CodeBlock.fetchArg1(instruction)];  
 					stack[sp++] = constructor;
 					continue NEXT_INSTRUCTION;
 				
@@ -588,7 +588,7 @@ public class RVMInterpreter extends RVMCore {
 						cf = cf.getFrame(fun, root, arity, sp);
 						
 					} else {
-						throw new CompilerError("Unexpected argument type for CALLDYN: " + asString(stack[sp - 1]), cf);
+						throw new InternalCompilerError("Unexpected argument type for CALLDYN: " + asString(stack[sp - 1]), cf);
 					}
 					
 					frameObserver.enter(cf);
@@ -640,7 +640,7 @@ public class RVMInterpreter extends RVMCore {
 					}
 					
 					
-					Frame frame = c_ofun_call_next.nextFrame(functionStore);
+					Frame frame = c_ofun_call_next.nextFrame();
 					
 					if(frame != null) {
 						c_ofun_call = c_ofun_call_next;
@@ -653,7 +653,7 @@ public class RVMInterpreter extends RVMCore {
 						sp = cf.sp;
 						pc = cf.pc;
 					} else {
-						constructor = c_ofun_call_next.nextConstructor(constructorStore);
+						constructor = c_ofun_call_next.nextConstructor();
 						sp = sp - arity;
 						accu = vf.constructor(constructor, c_ofun_call_next.getConstructorArguments(constructor.getArity()));
 					}
@@ -688,7 +688,7 @@ public class RVMInterpreter extends RVMCore {
 				case Opcode.OP_FAILRETURN:
 					assert cf.previousCallFrame == c_ofun_call.cf : "FAILRETURN, incorrect frame at" + cf.src;
 					
-					frame = c_ofun_call.nextFrame(functionStore);				
+					frame = c_ofun_call.nextFrame();				
 					if(frame != null) {
 												
 						cf = frame;
@@ -702,7 +702,7 @@ public class RVMInterpreter extends RVMCore {
 						stack = cf.stack;
 						sp = cf.sp;
 						pc = cf.pc;
-						constructor = c_ofun_call.nextConstructor(constructorStore);
+						constructor = c_ofun_call.nextConstructor();
 						accu = vf.constructor(constructor, c_ofun_call.getConstructorArguments(constructor.getArity()));
 						ocalls.pop();
 						c_ofun_call = ocalls.isEmpty() ? null : ocalls.peek();
@@ -780,11 +780,12 @@ public class RVMInterpreter extends RVMCore {
 						arity = CodeBlock.fetchArg1(instruction);
 						int[] refs = cf.function.refs;
 						if(arity != refs.length) {
-							throw new CompilerError("Coroutine " + cf.function.name + ": arity of return (" + arity  + ") unequal to number of reference parameters (" +  refs.length + ")", cf);
+							throw new InternalCompilerError("Coroutine " + cf.function.name + ": arity of return (" + arity  + ") unequal to number of reference parameters (" +  refs.length + ")", cf);
 						}
 						for(int i = 0; i < arity; i++) {
 							ref = (Reference) stack[refs[arity - 1 - i]];
-							ref.stack[ref.pos] = stack[--sp];
+							//ref.stack[ref.pos] = stack[--sp];
+							ref.setValue(stack[--sp]);
 						}
 					}
 					
@@ -847,7 +848,7 @@ public class RVMInterpreter extends RVMCore {
 							FunctionInstance fun_instance = (FunctionInstance) src;
 							cccf = cf.getCoroutineFrame(fun_instance, arity, sp);
 						} else {
-							throw new CompilerError("Unexpected argument type for INIT: " + src.getClass() + ", " + src, cf);
+							throw new InternalCompilerError("Unexpected argument type for INIT: " + src.getClass() + ", " + src, cf);
 						}
 					}
 					sp = cf.sp;
@@ -874,7 +875,7 @@ public class RVMInterpreter extends RVMCore {
 //					} else if(rval instanceof Boolean) {
 //						precondition = (Boolean) rval;
 					} else {
-						throw new CompilerError("Guard's expression has to be boolean!", cf);
+						throw new InternalCompilerError("Guard's expression has to be boolean!", cf);
 					}
 					
 					if(cf == cccf) {
@@ -962,13 +963,14 @@ public class RVMInterpreter extends RVMCore {
 						int[] refs = cf.function.refs; 
 						
 						if(arity != refs.length) {
-							throw new CompilerError("YIELD requires same number of arguments as the number of coroutine's reference parameters; arity: " + arity + "; reference parameter number: " + refs.length, cf);
+							throw new InternalCompilerError("YIELD requires same number of arguments as the number of coroutine's reference parameters; arity: " + arity + "; reference parameter number: " + refs.length, cf);
 						}
 						
 						// Assign the reference parameters of the currently active coroutine instance
 						for(int i = 0; i < arity; i++) {
 							ref = (Reference) stack[refs[arity - 1 - i]]; 
-							ref.stack[ref.pos] = stack[--sp];
+							//ref.stack[ref.pos] = stack[--sp];
+							ref.setValue(stack[--sp]);;
 						}
 					}
 					cf.pc = pc;
@@ -1179,7 +1181,7 @@ public class RVMInterpreter extends RVMCore {
 					continue NEXT_INSTRUCTION;
 								
 				case Opcode.OP_LABEL:
-					throw new CompilerError("LABEL instruction at runtime", cf);
+					throw new InternalCompilerError("LABEL instruction at runtime", cf);
 					
 				case Opcode.OP_HALT:
 					return stack[sp - 1];
@@ -1275,7 +1277,7 @@ public class RVMInterpreter extends RVMCore {
 					continue NEXT_INSTRUCTION;
 								
 				default:
-					throw new CompilerError("RVM main loop -- cannot decode instruction", cf);
+					throw new InternalCompilerError("RVM main loop -- cannot decode instruction", cf);
 				}
 				
 				switch(postOp){
@@ -1342,8 +1344,8 @@ public class RVMInterpreter extends RVMCore {
 			}
 			stdout.flush();
 			e.printStackTrace(stderr);
-			String e2s = (e instanceof CompilerError) ? e.getMessage() : e.toString();
-			throw new CompilerError(e2s + "; function: " + cf + "; instruction: " + cf.function.codeblock.toString(pc - 1), cf, e);
+			String e2s = (e instanceof InternalCompilerError) ? e.getMessage() : e.toString();
+			throw new InternalCompilerError(e2s + "; function: " + cf + "; instruction: " + cf.function.codeblock.toString(pc - 1), cf, e);
 		}
 	}
 	

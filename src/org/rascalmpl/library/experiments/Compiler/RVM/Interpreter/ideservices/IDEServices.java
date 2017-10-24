@@ -13,9 +13,10 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices;
 
 import java.net.URI;
-import java.nio.file.Path;
 
 import org.rascalmpl.debug.IRascalMonitor;
+
+import io.usethesource.vallang.ISourceLocation;
 
 /**
  * IDEServices provides external services that can be called by the
@@ -33,6 +34,6 @@ public interface IDEServices extends IRascalMonitor {
    * Open an editor for file at given path.
    * @param path
    */
-  void edit(Path path);
+  void edit(ISourceLocation path);
 
 }

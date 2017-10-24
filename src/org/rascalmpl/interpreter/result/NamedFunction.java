@@ -88,6 +88,10 @@ abstract public class NamedFunction extends AbstractFunction {
         return name;
     }
 
+    public void clearMemoizationCache() {
+        memoization = null;
+    }
+    
     protected Result<IValue> getMemoizedResult(IValue[] argValues, Map<String, IValue> keyArgValues) {
         if (hasMemoization()) {
             MemoizationCache<Result<IValue>> memoizationActual = getMemoizationCache(false);
@@ -180,7 +184,7 @@ abstract public class NamedFunction extends AbstractFunction {
     }
 
     protected Map<String, IValue> parseTags(FunctionDeclaration declaration) {
-        final Map<String, IValue> result = new HashMap<String, IValue>();
+        final Map<String, IValue> result = new HashMap<>();
         Tags tags = declaration.getTags();
         if (tags.hasTags()) {
             for (Tag tag : tags.getTags()) {

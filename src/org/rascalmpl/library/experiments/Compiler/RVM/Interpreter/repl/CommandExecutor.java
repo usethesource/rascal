@@ -406,7 +406,7 @@ public class CommandExecutor {
 			return null; 
 		}
 		catch (Throwable e) {
-		    stderr.println("Apologies, an unexpected internal error occurred:");
+		    stderr.println("An unexpected internal error occurred:");
 		    e.printStackTrace(new PrintWriter(stderr));
 		    return null;
         }
@@ -532,12 +532,16 @@ public class CommandExecutor {
 				Variable var = variables.get(name);
 				if(var != null){
 					val = executeModule("\nvalue main() { " + src + "}\n", true);
-					updateVar(name, val);
+					if(val != null){
+					    updateVar(name, val);
+					}
 					return val;
 				} else {
 					val = executeModule(makeMain(unparse(get(stat, "statement"))), true);
-					declareVar(val.getType().toString(), name);
-					updateVar(name, val);
+					if(val != null){
+					    declareVar(val.getType().toString(), name);
+					    updateVar(name, val);
+					}
 					forceRecompilation = true;
 					return val;
 				}
@@ -547,7 +551,7 @@ public class CommandExecutor {
 				String name = getBaseVar(assignable);
 				Variable var = variables.get(name);
 				val = executeModule(makeMain(unparse(get(stat, "statement"))), true);
-				if(var != null){
+				if(var != null && val != null){
 				  annotateVar(name, annoName, val);
 				}
 				return val;
@@ -556,7 +560,7 @@ public class CommandExecutor {
 				String name = getBaseVar(assignable);
 				Variable var = variables.get(name);
 				val = executeModule(makeMain(src), true);
-				if(var == null){
+				if(var == null && val != null){
 				  declareVar(val.getType().toString(), name);
 				  updateVar(name, val);
 				}
@@ -566,19 +570,20 @@ public class CommandExecutor {
 			case "tuple": {
 				ITree elements = get(assignable, "elements");
 				val = executeModule(makeMain(unparse(get(stat, "statement"))), true);
-
-				ITuple tupleVal = (ITuple) val;
-				IList elemList = TreeAdapter.getListASTArgs(elements);
-				for(int i = 0; i < elemList.length(); i++){
-				  ITree element = (ITree) elemList.get(i);
-				  String elemName = getBaseVar((ITree)element);
-				  if(elemName != null){
-				    declareVar(val.getType().getFieldType(i).toString(), elemName);
-				    updateVar(elemName, tupleVal.get(i));
-				    forceRecompilation = true;
-				  } else {
-				    return reportError("Assignable is not supported: " + unparse((ITree)element));
-				  }
+				if(val != null){
+				    ITuple tupleVal = (ITuple) val;
+				    IList elemList = TreeAdapter.getListASTArgs(elements);
+				    for(int i = 0; i < elemList.length(); i++){
+				        ITree element = (ITree) elemList.get(i);
+				        String elemName = getBaseVar((ITree)element);
+				        if(elemName != null){
+				            declareVar(val.getType().getFieldType(i).toString(), elemName);
+				            updateVar(elemName, tupleVal.get(i));
+				            forceRecompilation = true;
+				        } else {
+				            return reportError("Assignable is not supported: " + unparse((ITree)element));
+				        }
+				    }
 				}
 				return val;
 			}
@@ -857,18 +862,28 @@ public class CommandExecutor {
 			}
 	
 		case "help": case "apropos":
-			if(helpManager == null){
-				helpManager = new HelpManager(pcfg, stdout, stderr, ideServices);
-			}
-			
-			helpManager.handleHelp(words);
+		    try {
+		        if(helpManager == null){
+		            helpManager = new HelpManager(pcfg, stdout, stderr, ideServices);
+		        }
+
+		        helpManager.handleHelp(words);
+		    }
+		    catch (IOException e) {
+		        throw new RascalShellExecutionException("Can not provide help at the moment", e);
+		    }
 			break;
 			
 		case "edit":
 		  stderr.println("edit: " + words[1]);
 		  ISourceLocation loc = pcfg.resolveModule(words[1]);
-		  stderr.println("loc: " + loc);
-		  ideServices.edit( Paths.get(loc.getPath()));
+		  if (loc != null) {
+		      stderr.println("loc: " + loc);
+		      ideServices.edit(loc);
+		  }
+		  else {
+		      stderr.println(words[1] + " could not be found.");
+		  }
 		  break;
 		  
 		case "declarations":

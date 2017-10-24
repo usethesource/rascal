@@ -1,3 +1,4 @@
+@ignoreCompiler{Not yet implemented in type checker}
 module lang::rascal::tests::functionality::CommonKeywordParameterTests4::B
 
 extend lang::rascal::tests::functionality::CommonKeywordParameterTests4::C;

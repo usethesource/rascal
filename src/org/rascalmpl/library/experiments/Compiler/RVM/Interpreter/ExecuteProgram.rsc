@@ -22,7 +22,8 @@ public java value executeProgram(
 					bool profile,
 					bool trace,
 					bool coverage,
-					bool jvm);	
+					bool jvm, 
+					bool verbose);	
 										    
 										    
 @javaClass{org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecuteProgram}
@@ -36,4 +37,5 @@ public java value executeProgram(
 					bool profile,
 					bool trace,
 					bool coverage,
-					bool jvm);
+					bool jvm,
+					bool verbose);

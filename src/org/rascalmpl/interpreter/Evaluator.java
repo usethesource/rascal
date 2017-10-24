@@ -128,7 +128,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	 */
 	private volatile boolean interrupt = false;
 
-	private final JavaBridge javaBridge; // TODO: sharable if synchronized
+	private JavaBridge javaBridge; // TODO: sharable if synchronized
 
 	/**
 	 * Used in runtime error messages
@@ -249,6 +249,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		setEventTrigger(AbstractInterpreterEventTrigger.newNullEventTrigger());
 	}
 
+	public void resetJavaBridge() {
+	    this.javaBridge = new JavaBridge(classLoaders, vf, config);
+	}
+	
 	@Override
 	public IRascalMonitor setMonitor(IRascalMonitor monitor) {
 		if (monitor == this) {
@@ -539,14 +543,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
   }
 
   public Map<String, IValue> parseKeywordCommandLineArgs(IRascalMonitor monitor, String[] commandline, AbstractFunction func) {
-    Map<String, Type> expectedTypes = new HashMap<String,Type>();
+    Map<String, Type> expectedTypes = new HashMap<>();
     Type kwTypes = func.getKeywordArgumentTypes(getCurrentEnvt());
     
     for (String kwp : kwTypes.getFieldNames()) {
       expectedTypes.put(kwp, kwTypes.getFieldType(kwp));
     }
 
-    Map<String, IValue> params = new HashMap<String,IValue>();
+    Map<String, IValue> params = new HashMap<>();
     
     for (int i = 0; i < commandline.length; i++) {
       if (commandline[i].equals("-help")) {
@@ -694,7 +698,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		
 		for (IValue prod : robust) {
 			robustProds[i] = (IConstructor) prod;
-			List<Integer> chars = new LinkedList<Integer>();
+			List<Integer> chars = new LinkedList<>();
 			IList ranges = (IList) robust.get(prod);
 			
 			for (IValue range : ranges) {
@@ -1249,8 +1253,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	 * @return
 	 */
 	private Set<String> getImportingModules(Set<String> names) {
-		Set<String> found = new HashSet<String>();
-		LinkedList<String> todo = new LinkedList<String>(names);
+		Set<String> found = new HashSet<>();
+		LinkedList<String> todo = new LinkedList<>(names);
 		
 		while (!todo.isEmpty()) {
 			String mod = todo.pop();
@@ -1264,8 +1268,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 	
 	private Set<String> getExtendingModules(Set<String> names) {
-		Set<String> found = new HashSet<String>();
-		LinkedList<String> todo = new LinkedList<String>(names);
+		Set<String> found = new HashSet<>();
+		LinkedList<String> todo = new LinkedList<>(names);
 		
 		while (!todo.isEmpty()) {
 			String mod = todo.pop();

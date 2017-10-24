@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2017 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,8 @@
 *******************************************************************************/
 
 package org.rascalmpl.library;
+
+import static org.rascalmpl.values.uptr.RascalValueFactory.TYPE_STORE_SUPPLIER;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -42,6 +44,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -78,6 +81,18 @@ import org.rascalmpl.unicode.UnicodeOutputStreamWriter;
 import org.rascalmpl.uri.LogicalMapResolver;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.uptr.visitors.TreeVisitor;
+
+import com.ibm.icu.text.SimpleDateFormat;
+import com.ibm.icu.util.Calendar;
+import com.ibm.icu.util.TimeZone;
+import com.ibm.icu.util.ULocale;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
@@ -103,21 +118,10 @@ import io.usethesource.vallang.io.binary.stream.IValueOutputStream;
 import io.usethesource.vallang.io.binary.stream.IValueOutputStream.CompressionRate;
 import io.usethesource.vallang.io.old.BinaryValueReader;
 import io.usethesource.vallang.io.old.BinaryValueWriter;
+import io.usethesource.vallang.random.RandomValueGenerator;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
-import org.rascalmpl.values.uptr.visitors.TreeVisitor;
-
-import com.ibm.icu.text.SimpleDateFormat;
-import com.ibm.icu.util.Calendar;
-import com.ibm.icu.util.TimeZone;
-import com.ibm.icu.util.ULocale;
-
-import static org.rascalmpl.values.uptr.RascalValueFactory.TYPE_STORE_SUPPLIER;
 
 @SuppressWarnings("deprecation")
 public class Prelude {
@@ -135,6 +139,12 @@ public class Prelude {
 		random = new Random();
 	}
 
+    private IValue createRandomValue(Type t, int depth, int width) {
+        return new RandomValueGenerator(values, random, depth, width)
+            .generate(t, new TypeStore(), Collections.emptyMap());
+    }
+
+	
 	/*
 	 * Boolean
 	 */
@@ -193,6 +203,10 @@ public class Prelude {
 				timezoneMinuteOffset.intValue());
 	}
 		
+	
+	public IDateTime arbDateTime() {
+	    return (IDateTime) createRandomValue(TypeFactory.getInstance().dateTimeType(), 5, 5);
+	}
 	public IValue joinDateAndTime(IDateTime date, IDateTime time)
 	//@doc{Create a new datetime by combining a date and a time.}
 	{
@@ -1040,7 +1054,7 @@ public class Prelude {
 		return w.done();
 	} 
 	
-	public IValue readFile(ISourceLocation sloc){
+	public IString readFile(ISourceLocation sloc){
 		if(trackIO) System.err.println("readFile: " + sloc);
 		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc);){
 			return consumeInputStream(reader);
@@ -1368,6 +1382,10 @@ public class Prelude {
 	
 	public IString createLink(IString title, IString target) {
 		return values.string("\uE007["+title.getValue().replaceAll("\\]", "_")+"]("+target.getValue()+")");
+	}
+	
+	public ISourceLocation arbLoc() {
+	    return (ISourceLocation) createRandomValue(TypeFactory.getInstance().sourceLocationType(), 1 + random.nextInt(5), 1 + random.nextInt(5));
 	}
 	
 	/*
@@ -1837,6 +1855,11 @@ public class Prelude {
 	 * Map
 	 */
 	
+// Anticipating implementation in vallang:
+//	public IValue delete(IMap M, IValue key) {
+//	    return M.removeKey(key);
+//	}
+	
 	public IValue domain(IMap M)
 	//@doc{domain -- return the domain (keys) of a map}
 
@@ -2107,6 +2130,10 @@ public class Prelude {
     
     public INode unset(INode node) {
         return  node.mayHaveKeywordParameters() ? node.asWithKeywordParameters().unsetAll() : node;
+    }
+    
+    public INode arbNode() {
+        return (INode) createRandomValue(TypeFactory.getInstance().nodeType(), 1 + random.nextInt(5), 1 + random.nextInt(5));
     }
 	
 	/*
@@ -2815,6 +2842,11 @@ public class Prelude {
 	/*
 	 * String
 	 */
+	
+	public IString arbString(IInteger n) {
+	    return (IString) createRandomValue(TypeFactory.getInstance().stringType(), n.intValue(), n.intValue());
+	}
+
 	
 	public IBool isValidCharacter(IInteger i) {
 		return values.bool(Character.isValidCodePoint(i.intValue()));
@@ -3609,6 +3641,21 @@ public class Prelude {
 			throw RuntimeExceptionFactory.io(values.string("could not generate unique number " + uuid), null, null);
 		}
 	}
+	
+
+	// **** util::Random ***
+	
+	public IValue randomValue(IValue type, IInteger depth, IInteger width){
+	    return randomValue(type, values.integer(random.nextInt()), depth, width);
+	}
+	
+	public IValue randomValue(IValue type, IInteger seed, IInteger depth, IInteger width){
+	    TypeStore store = new TypeStore(RascalValueFactory.getStore());
+	    Type start = tr.valueToType((IConstructor) type, store);
+	    return new RandomValueGenerator(values, new Random(seed.intValue()), depth.intValue(), width.intValue())
+	        .generate(start, store, Collections.emptyMap());	    
+	}
+
 }
 
 // Utilities used by Graph

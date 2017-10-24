@@ -41,14 +41,21 @@ public class HelpServer extends NanoHTTPD {
     PrintWriter outPrintWriter;
     StringWriter errWriter;
     PrintWriter errPrintWriter;
-
+    private final int port;
+     
 	public HelpServer(int port, HelpManager helpManager, ISourceLocation root) throws IOException {
 		super(port);
+		this.port = port;
 		start();
 		this.helpManager = helpManager;
 		this.root = root;
 	}
-
+	
+	
+	public int getPort() {
+        return port;
+    }
+	
 	@Override
 	public Response serve(String uri, Method method, Map<String, String> headers, Map<String, String> parms, Map<String, String> files) {
 	  Response response;

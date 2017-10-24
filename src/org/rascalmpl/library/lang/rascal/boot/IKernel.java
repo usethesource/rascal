@@ -79,18 +79,11 @@ public interface IKernel extends IJava2Rascal {
 
   @RascalKeywordParameters
   interface KWcompileMu {
-      KWcompile verbose(boolean val);
-      KWcompile jvm(boolean val);
+      KWcompileMu verbose(boolean val);
+      KWcompileMu reloc(ISourceLocation val);
+      KWcompileMu jvm(boolean val);
   }
   KWcompileMu kw_compileMu();
-  
-  /**
-   * Regenerate the parser for Rascal itself (used only in bootstrapping stages).
-   * Writes in a source directory!
-   * @param rascalHome    Rascal source directory
-   */
-  //deprecated
-  public void bootstrapRascalParser(ISourceLocation rascalHome);
   
   /**
    * Regenerate the parser for Rascal itself (used only in bootstrapping stages).

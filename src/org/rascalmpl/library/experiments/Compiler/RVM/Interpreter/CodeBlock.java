@@ -80,17 +80,13 @@ public class CodeBlock  {
 		this.typeConstantStore = new ArrayList<Type>();
 	}
 	
-	void clearForJVM(){
-		finalCode = new long[] {};
-	}
-	
 	public void defLabel(String label, Instruction ins){
 		LabelInfo info = labelInfo.get(label);
 		if(info == null){
 			labelInfo.put(label, new LabelInfo(ins, labelIndex++, pc));
 		} else {
 			if(info.isResolved()){
-				throw new CompilerError("In function " + name + ": double declaration of label " + label);
+				throw new InternalCompilerError("In function " + name + ": double declaration of label " + label);
 			}
 			info.instruction = ins;
 			info.PC = pc;
@@ -109,7 +105,7 @@ public class CodeBlock  {
 	public int getLabelPC(String label){
 		LabelInfo info = labelInfo.get(label);
 		if(info == null){
-			throw new CompilerError("In function " + name + " undefined label " + label);
+			throw new InternalCompilerError("In function " + name + " undefined label " + label);
 		}
 		return info.PC;
 	}
@@ -117,18 +113,21 @@ public class CodeBlock  {
 	public Instruction getLabelInstruction(String label){
 		LabelInfo info = labelInfo.get(label);
 		if(info == null){
-			throw new CompilerError("In function " + name + ": undefined label " + label);
+			throw new InternalCompilerError("In function " + name + ": undefined label " + label);
 		}
 		return info.instruction;
 	}
 	
 	public IValue getConstantValue(long finalCode2){
-		for(IValue constant : constantMap.keySet()){
-			if(constantMap.get(constant) == finalCode2){
-				return constant;
-			}
-		}
-		throw new CompilerError("In function " + name + ": undefined constant index " + finalCode2);
+	    if(finalCode2 < constantStore.size()){
+	        return constantStore.get((int) finalCode2);
+	    }
+//		for(IValue constant : constantMap.keySet()){
+//			if(constantMap.get(constant) == finalCode2){
+//				return constant;
+//			}
+//		}
+		throw new InternalCompilerError("In function " + name + ": undefined constant index " + finalCode2);
 	}
 	
 	public int getConstantIndex(IValue v){
@@ -142,12 +141,15 @@ public class CodeBlock  {
 	}
 	
 	public Type getConstantType(int n){
-		for(Type type : typeConstantMap.keySet()){
-			if(typeConstantMap.get(type) == n){
-				return type;
-			}
-		}
-		throw new CompilerError("In function " + name + ": undefined type constant index " + n);
+	    if(n < typeConstantStore.size()){
+	        return typeConstantStore.get(n);
+	    } else 
+//		for(Type type : typeConstantMap.keySet()){
+//			if(typeConstantMap.get(type) == n){
+//				return type;
+//			}
+//		}
+		throw new InternalCompilerError("In function " + name + ": undefined type constant index " + n);
 	}
 	
 	public int getTypeConstantIndex(Type type){
@@ -166,7 +168,7 @@ public class CodeBlock  {
 				return fname;
 			}
 		}
-		throw new CompilerError("In function " + name + ": undefined function index " + n);
+		throw new InternalCompilerError("In function " + name + ": undefined function index " + n);
 	}
 	
 	public String getFunctionName(String name){
@@ -176,13 +178,13 @@ public class CodeBlock  {
 				return fname;
 			}
 		}
-		throw new CompilerError("In function " + name + ": undefined function index " + n);
+		throw new InternalCompilerError("In function " + name + ": undefined function index " + n);
 	}
 	
 	public int getFunctionIndex(String name){
 		Integer n = functionMap.get(name);
 		if(n == null){
-			throw new CompilerError("In function " + name + ": undefined function name " + name);
+			throw new InternalCompilerError("In function " + name + ": undefined function name " + name);
 		}
 		return n;
 	}
@@ -193,7 +195,7 @@ public class CodeBlock  {
 				return fname;
 			}
 		}
-		throw new CompilerError("In function " + name + ": undefined overloaded function index " + n);
+		throw new InternalCompilerError("In function " + name + ": undefined overloaded function index " + n);
 	}
 	
 	public int getOverloadedFunctionIndex(String name){
@@ -210,13 +212,13 @@ public class CodeBlock  {
 			if(constructorMap.get(cname) == n)
 				return cname;
 		}
-		throw new CompilerError("In function " + name + ": undefined constructor index " + n);
+		throw new InternalCompilerError("In function " + name + ": undefined constructor index " + n);
 	}
 	
 	public int getConstructorIndex(String name) {
 		Integer n = constructorMap.get(name);
 		if(n == null)
-			throw new CompilerError("In function " + name + ": undefined constructor name " + name);
+			throw new InternalCompilerError("In function " + name + ": undefined constructor name " + name);
 		return n;
 	}
 	
@@ -243,15 +245,10 @@ public class CodeBlock  {
 	} 
 	
 	public void addCode1(int op, int arg1){
-//		finalCode[pc++] = op;
-//		finalCode[pc++] = arg1;
 		finalCode[pc++] = encode1(op, arg1);
 	}
 	
 	public void addCode2(int op, int arg1, int arg2){
-//		finalCode[pc++] = op;
-//		finalCode[pc++] = arg1;
-//		finalCode[pc++] = arg2;
 		finalCode[pc++] = encode2(op, arg1, arg2);
 	}
 	
@@ -766,6 +763,7 @@ public class CodeBlock  {
 		return add(new PopAccu(this));
 	}
 	
+	
 			
 	public CodeBlock done(String fname, Map<String, Integer> functionMap, Map<String, Integer> constructorMap, Map<String, Integer> resolver) {
 		this.functionMap = functionMap;
@@ -787,10 +785,10 @@ public class CodeBlock  {
 		}
 		
 		if(constantStore.size() >= maxArg){
-			throw new CompilerError("In function " + fname + ": constantStore size " + constantStore.size() + "exceeds limit " + maxArg);
+			throw new InternalCompilerError("In function " + fname + ": constantStore size " + constantStore.size() + "exceeds limit " + maxArg);
 		}
 		if(typeConstantStore.size() >= maxArg){
-			throw new CompilerError("In function " + fname + ": typeConstantStore size " + typeConstantStore.size() + "exceeds limit " + maxArg);
+			throw new InternalCompilerError("In function " + fname + ": typeConstantStore size " + typeConstantStore.size() + "exceeds limit " + maxArg);
 		}
 	
     	return this;
@@ -853,17 +851,31 @@ public class CodeBlock  {
     	return Opcode.toString(this, opc, n);
     }
 
-	public void genByteCode(BytecodeGenerator gen, boolean debug) {
-		for(Instruction ins : insList){
-			ins.generateByteCode(gen, debug);
-		}
-		if (insList.get(insList.size() - 1) instanceof Label) {
-			// The mu2rvm code generator emits faulty code and jumps outside existing space
-			// put in a panic return, code is also generated on a not used label.
-			// Activate the peephole optimizer :).
-			gen.emitPanicReturn();
-		}
-	}
+    public void genByteCode(BytecodeGenerator gen, boolean suppressCheckArgTypeAndCopy, boolean debug) {
+        if(suppressCheckArgTypeAndCopy){
+            int i = 0;
+            int n = insList.size();
+            while(i < n){
+                Instruction ins = insList.get(i);
+                ins.generateByteCode(gen, debug);
+                if(ins instanceof CheckArgTypeAndCopy){
+                    // CheckArgTypeAndCopy will only copy from/to positions; suppress the test that follows it
+                    i++;
+                }
+                i++;
+            }
+        } else {
+            for(Instruction ins : insList){
+                ins.generateByteCode(gen, debug);
+            }
+        }
+        if (insList.get(insList.size() - 1) instanceof Label) {
+            // The mu2rvm code generator emits faulty code and jumps outside existing space
+            // put in a panic return, code is also generated on a not used label.
+            // Activate the peephole optimizer :).
+            gen.emitPanicReturn();
+        }
+    }
 	
 	public void write(IRVMWireOutputStream out) throws IOException{ 
 	    out.startMessage(CompilerIDs.CodeBlock.ID);
@@ -943,6 +955,8 @@ public class CodeBlock  {
         return new CodeBlock(name, constantMap, constantStore, finalConstantStore, typeConstantMap, typeConstantStore, finalTypeConstantStore, 
             functionMap, resolver, constructorMap, finalCode);
     }
+
+    
 }
 
 class LabelInfo {

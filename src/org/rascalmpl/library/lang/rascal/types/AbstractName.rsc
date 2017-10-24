@@ -17,7 +17,8 @@ import lang::rascal::\syntax::Rascal;
 @doc{Abstract syntax for names.} 
 data RName =
 	  RSimpleName(str name)
-	| RCompoundName(list[str] nameParts)     
+	| RCompoundName(list[str] nameParts)   
+	| Unknown()  
 	;
 
 @doc{Annotate abstract names with locations.}
@@ -66,7 +67,7 @@ public str prettyPrintNameList(list[str] nameList) = intercalate("::", nameList)
 	
 @doc{Pretty-print the abstract representation of a name.}
 public str prettyPrintName(RSimpleName(str s)) = s;
-public str prettyPrintName(RCompoundName(list[str] sl)) = prettyPrintNameList(sl);
+public str prettyPrintName(RCompoundName(list[str] sl)) = prettyPrintNameList(sl); 
 
 @doc{Covert a string to an RName}
 public RName convertNameString(str s) {

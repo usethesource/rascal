@@ -1,20 +1,24 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.invoke.MethodHandle;
 import java.lang.ref.SoftReference;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
-import org.rascalmpl.library.cobra.TypeParameterVisitor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.CompilerIDs;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireInputStream;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.IRVMWireOutputStream;
-import org.rascalmpl.library.experiments.Compiler.Rascal2muRascal.RandomValueTypeVisitor;
+import org.rascalmpl.test.infrastructure.QuickCheck;
+import org.rascalmpl.test.infrastructure.QuickCheck.TestResult;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -30,7 +34,6 @@ import io.usethesource.vallang.io.binary.wire.IWireInputStream;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * Function contains all data needed for a single RVM function
@@ -45,6 +48,7 @@ public class Function {
 	private static final IString IgnoreTag = vf.string("Ignore");
 	private static final IString ignoreCompilerTag = vf.string("ignoreCompiler");
 	private static final IString IgnoreCompilerTag = vf.string("IgnoreCompiler");
+	private static final IString[] ignoreTags = {ignoreTag, IgnoreTag, ignoreCompilerTag, IgnoreCompilerTag};
 	
 	String name;
 	public Type ftype;
@@ -56,6 +60,7 @@ public class Function {
 	private int nlocals;
 	boolean isDefault;
 	boolean isTest;
+	boolean simpleArgs;
 	IMap tags;
 	int maxstack;
 	public CodeBlock codeblock;
@@ -71,8 +76,6 @@ public class Function {
 	int[] handlers;
 	int[] fromSPs;
 	int lastHandler = -1;
-
-	public Integer funId; // USED in dynRun to find the function, in the JVM version only.
 
 	public String[] fromLabels;
 	public String[] toLabels;
@@ -98,8 +101,8 @@ public class Function {
     public MethodHandle handle;
 	
 	public Function(final String name, final Type ftype, final Type kwType, final String funIn, final int nformals, final int nlocals, boolean isDefault, boolean isTest, 
-			 final IMap tags, final IMap localNames, final int maxstack,
-			boolean concreteArg, int abstractFingerprint, int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src, int ctpt){
+			 boolean simpleArgs, final IMap tags, final IMap localNames,
+			final int maxstack, boolean concreteArg, int abstractFingerprint, int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src, int ctpt){
 		this.name = name;
 		this.ftype = ftype;
 		this.kwType = (kwType == null) ? TypeFactory.getInstance().tupleEmpty() : kwType;
@@ -108,6 +111,7 @@ public class Function {
 		this.setNlocals(nlocals);
 		this.isDefault = isDefault;
 		this.isTest = isTest;
+		this.simpleArgs = simpleArgs;
 		this.tags = (tags == null) ? ValueFactoryFactory.getValueFactory().mapWriter().done() : tags;
 		this.localNames = localNames;
 		this.maxstack = maxstack;
@@ -120,10 +124,10 @@ public class Function {
 	}
 	
 	Function(final String name, final Type ftype, final Type kwType, final String funIn, final int nformals, final int nlocals, boolean isDefault, boolean isTest, 
-			 final IMap tags, final IMap localNames, final int maxstack,
-			boolean concreteArg, int abstractFingerprint, int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src, int scopeIn,
-			IValue[] constantStore, Type[] typeConstantStore, int[] froms, int[] tos, int[] types, int[] handlers, int[] fromSPs,
-			int lastHandler, int scopeId, boolean isCoroutine, int[] refs, boolean isVarArgs, int ctpt){
+			 boolean simpleArgs, final IMap tags, final IMap localNames,
+			final int maxstack, boolean concreteArg, int abstractFingerprint, int concreteFingerprint, final CodeBlock codeblock, final ISourceLocation src,
+			int scopeIn, IValue[] constantStore, Type[] typeConstantStore, int[] froms, int[] tos, int[] types, int[] handlers,
+			int[] fromSPs, int lastHandler, int scopeId, boolean isCoroutine, int[] refs, boolean isVarArgs, int ctpt){
 		this.name = name;
 		this.ftype = ftype;
         this.kwType = (kwType == null) ? TypeFactory.getInstance().tupleEmpty() : kwType;
@@ -132,6 +136,7 @@ public class Function {
 		this.setNlocals(nlocals);
 		this.isDefault = isDefault;
 		this.isTest = isTest;
+		this.simpleArgs = simpleArgs;
         this.tags = (tags == null) ? ValueFactoryFactory.getValueFactory().mapWriter().done() : tags;
 		this.localNames = localNames;
 		this.maxstack = maxstack;
@@ -157,8 +162,8 @@ public class Function {
 	}
 	
 	public void  finalize(final Map<String, Integer> functionMap, final Map<String, Integer> constructorMap, final Map<String, Integer> resolver){
-		if(constructorMap == null){
-			System.out.println("finalize: null");
+		if(codeblock == null){
+			return;
 		}
 		codeblock.done(name, functionMap, constructorMap, resolver);
 		this.scopeId = codeblock.getFunctionIndex(name);
@@ -169,8 +174,8 @@ public class Function {
 		this.typeConstantStore = codeblock.getTypeConstants();
 	}
 	
-	public void clearForJVM(){
-		codeblock.clearForJVM();
+	public void removeCodeBlocks(){
+	    codeblock = null;
 	}
 	
 	public void attachExceptionTable(final IList exceptions) {
@@ -278,15 +283,18 @@ public class Function {
 		return sb.toString();
 	}
 	
-	public boolean isIgnored(){
-	  return    tags.containsKey(ignoreTag) 
-	         || tags.containsKey(IgnoreTag)
-	         || tags.containsKey(ignoreCompilerTag)
-	         || tags.containsKey(IgnoreCompilerTag)
-	         ;
+	public boolean isIgnored(RascalExecutionContext rex){
+	  IMap mtags = rex.getModuleTagsCurrentModule();
+	  for(IString tag : ignoreTags ){
+	      if(tags.containsKey(tag) || mtags.containsKey(tag)){
+	          return true;
+	      }
+	  }
+	  return  false;
 	}
 	
 	private static final int MAXDEPTH = 5;
+	private static final int MAXWIDTH = 5;
     private static final int TRIES = 500;
     
     public int getTries(){
@@ -301,6 +309,11 @@ public class Function {
       IValue imaxDepth = tags.get(vf.string("maxDepth"));
       return imaxDepth == null ? MAXDEPTH : Integer.parseInt(((IString) imaxDepth).getValue());
     }
+    
+    public int getWidth(){
+        IValue imaxWidth = tags.get(vf.string("maxWidth"));
+        return imaxWidth == null ? MAXWIDTH : Integer.parseInt(((IString) imaxWidth).getValue());
+    }
 	
     /**
      * Execute current function as test
@@ -310,84 +323,56 @@ public class Function {
      **/
 
     public ITuple executeTest(ITestResultListener testResultListener, TypeStore typeStore, RascalExecutionContext rex) {
-      String fun = name;
-      if(isIgnored()){
-        testResultListener.ignored(computeTestName(), src);
-        return vf.tuple(src,  vf.integer(2), vf.string(""));
-      }
-      
-      IValue iexpected =  tags.get(vf.string("expected"));
-      String expected = iexpected == null ? "" : ((IString) iexpected).getValue();
-      
-      int maxDepth = getDepth();
-      int tries = getTries();
-
-      Type requestedType = ftype.getFieldTypes();
-      int nargs = requestedType.getArity();
-      IValue[] args = new IValue[nargs];
-
-      TypeParameterVisitor tpvisit = new TypeParameterVisitor();
-      HashMap<Type, Type> tpbindings = tpvisit.bindTypeParameters(requestedType);
-      RandomValueTypeVisitor randomValue = new RandomValueTypeVisitor(vf, maxDepth, tpbindings, typeStore);
-
-      boolean passed = true;
-      String message = "";
-      Throwable exception = null;
-      for(int i = 0; i < tries; i++){
-        if(nargs > 0){
-          message = "test fails for arguments: ";
-          ITuple tup = (ITuple) randomValue.generate(requestedType);
-          if(tup == null){
-            rex.getStdErr().println(name + "(" + nargs + "): " + requestedType + ", " + tup );
-            printTypeStore(typeStore);
+        String fun = name;
+        if(isIgnored(rex)){
+            testResultListener.ignored(computeTestName(), src);
+            return vf.tuple(src,  vf.integer(2), vf.string(""));
+        }
         
-          } 
-          for(int j = 0; j < nargs; j++){
-            args[j] = tup.get(j);
-            message = message + args[j].toString() + " ";
-          }
-        }
-        try {
-   
-          IValue res = (IValue) rex.getRVM().executeRVMFunction(fun, args, null); 
-          passed = ((IBool) res).getValue();
-          if(!passed){
-            break;
-          }
-        } catch (Thrown e){
-          String ename;
-          if(e.getValue() instanceof IConstructor){
-            ename = ((IConstructor) e.getValue()).getName();
-          } else {
-            ename = e.toString();
-          }
-          if(!ename.equals(expected)){
-            message = e.toString() + message;
-            passed = false;
-            exception = e;
-            break;
-          }
-        }
-        catch (Exception e){
-          message = e.getMessage() + message;
-          passed = false;
-          break;
-        }
-      }
-      if(passed)
-        message = "";
+        IValue iexpected =  tags.get(vf.string("expected"));
+        String expected = iexpected == null ? null : ((IString) iexpected).getValue();
 
-      testResultListener.report(passed, computeTestName(), src, message, exception);
-      return vf.tuple(src,  vf.integer(passed ? 1 : 0), vf.string(message));
+        int maxDepth = getDepth();
+        int maxWidth = getWidth();
+        int tries = getTries();
+
+        TestResult result = new QuickCheck(new Random(), vf).test(fun.replace("/", "::").replaceAll("[(].*$", ""), ftype.getFieldTypes(), expected, (Type[] actuals, IValue[] args) -> {
+            try {
+                IValue res = (IValue) rex.getRVM().executeRVMFunction(fun, args, null);
+                if (((IBool)res).getValue()) {
+                    return QuickCheck.SUCCESS; 
+                }
+                else {
+                    return new TestResult(false, null);
+                }
+            } catch (Throwable e){
+                return new TestResult(false, e);
+            }
+        }, typeStore, tries, maxDepth, maxWidth);
+
+        if (!result.succeeded()) {
+            StringWriter sw = new StringWriter();
+            PrintWriter out = new PrintWriter(sw);
+            result.writeMessage(out);
+            out.flush();
+            testResultListener.report(false, computeTestName(), src, sw.getBuffer().toString(), result.thrownException());
+            return vf.tuple(src,  vf.integer(0), vf.string(sw.getBuffer().toString()));
+        }
+        else {
+            testResultListener.report(true, computeTestName(), src, "", null);
+            return vf.tuple(src,  vf.integer(1), vf.string(""));
+        }
     }
     
+    
+
     public String computeTestName(){    // Resembles Function.getPrintableName
-      String base = name;
-      int colons = name.lastIndexOf("::");
+      String base = name.replaceAll("/", "::");
+      int colons = base.lastIndexOf("::");
       if(colons > 0){
-        base = name.substring(colons+2, name.indexOf("(")).replaceAll("/",  "::"); 
+        base = base.substring(colons+2, base.indexOf("(")).replaceAll("/",  "::"); 
       } else {
-        base = name.substring(name.indexOf("/")+1, name.indexOf("(")); 
+        base = base.substring(base.indexOf("/")+1, base.indexOf("(")); 
       }
       return base + ": <" + src.getOffset() +"," + src.getLength() +">";
     }
@@ -428,14 +413,20 @@ public class Function {
             out.writeField(CompilerIDs.Function.IS_TEST, 1);
         }
         
+        if(simpleArgs){
+            out.writeField(CompilerIDs.Function.SIMPLEARGS, 1);
+        }
+        
         if(tags != null){
             out.writeField(CompilerIDs.Function.TAGS, tags, WindowSizes.TINY_WINDOW);
         }
 
         out.writeField(CompilerIDs.Function.MAX_STACK, maxstack);
 
-        out.writeNestedField(CompilerIDs.Function.CODEBLOCK);
-        codeblock.write(out);
+        if(codeblock != null){
+            out.writeNestedField(CompilerIDs.Function.CODEBLOCK);
+            codeblock.write(out);
+        }
         
         out.writeField(CompilerIDs.Function.CONSTANT_STORE, constantStore);
 
@@ -461,8 +452,6 @@ public class Function {
 
         out.writeField(CompilerIDs.Function.LAST_HANDLER, lastHandler);
         
-        out.writeField(CompilerIDs.Function.FUN_ID, funId.intValue()); // Why Integer and not int?
-
         if(isCoroutine){
             out.writeField(CompilerIDs.Function.IS_COROUTINE, 1);
         }
@@ -495,6 +484,7 @@ public class Function {
         int nlocals = 0;
         boolean isDefault = false;
         boolean isTest = false;
+        boolean simpleArgs = false;
         
         IMap emptyIMap = vf.mapWriter().done();
         IMap tags = emptyIMap;
@@ -512,8 +502,6 @@ public class Function {
         int[] handlers = new int[0];
         int[] fromSPs = new int[0];
         int lastHandler = -1;
-
-        Integer funId = -1; // USED in dynRun to find the function, in the JVM version only.
         
         int continuationPoints = 0;
         
@@ -582,6 +570,12 @@ public class Function {
                 case CompilerIDs.Function.IS_TEST: {
                     int n = in.getInteger();
                     isTest = n == 1 ? true : false;
+                    break;
+                }
+                
+                case CompilerIDs.Function.SIMPLEARGS: {
+                    int n = in.getInteger();
+                    simpleArgs = n == 1 ? true : false;
                     break;
                 }
                 
@@ -657,7 +651,7 @@ public class Function {
                 }
                 
                 case CompilerIDs.Function.FUN_ID: {
-                    funId = in.getInteger();
+                    in.getInteger();    // legacy field
                     break;
                 }
                 
@@ -703,12 +697,10 @@ public class Function {
      
         // TODO: check fields are valid
         
-        Function func = new Function(name, ftype, kwType, funIn, nformals, nlocals, isDefault, isTest, tags, localNames, maxstack, concreteArg, 
-            abstractFingerprint, concreteFingerprint, codeblock, src, scopeIn,
-            constantStore, typeConstantStore, froms, tos, types, handlers, fromSPs,
-            lastHandler, scopeId, isCoroutine, refs, isVarArgs, continuationPoints);
-        func.funId = funId;
-        return func;
+        return new Function(name, ftype, kwType, funIn, nformals, nlocals, isDefault, isTest, simpleArgs, tags, localNames, maxstack, 
+            concreteArg, abstractFingerprint, concreteFingerprint, codeblock, src,
+            scopeIn, constantStore, typeConstantStore, froms, tos, types, handlers,
+            fromSPs, lastHandler, scopeId, isCoroutine, refs, isVarArgs, continuationPoints);
     }
 
     public Class<?> getJavaClass() {
