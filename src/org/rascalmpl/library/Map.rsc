@@ -36,7 +36,6 @@ import Map;
 delete(("apple":1,"pear":2), "apple");
 ----
 }
-@javaClass{org.rascalmpl.library.Prelude}
 public map[&K,&V] delete(map[&K,&V] m, &K k) = m - (k:0); 
   
 
