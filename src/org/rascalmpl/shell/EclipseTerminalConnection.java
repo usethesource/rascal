@@ -133,4 +133,15 @@ public class EclipseTerminalConnection implements Terminal {
     public String getOutputEncoding() {
         return base.getOutputEncoding();
     }
+    
+    @Override
+    public void enableInterruptCharacter() {
+        base.enableInterruptCharacter();
+    }
+    
+    @Override
+    public void disableInterruptCharacter() {
+        base.disableInterruptCharacter();
+    }
+
 }

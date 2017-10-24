@@ -9,6 +9,8 @@ import Map;
 import Set;
 import ParseTree;
 import util::Reflective;
+import Exception;
+import experiments::Compiler::RVM::Interpreter::CompileTimeError;
 
 import lang::rascal::\syntax::Rascal;
 
@@ -173,7 +175,7 @@ private MuExp translateComposeFunction(Expression e){
   body_exps =  [muReturn1(muOCall4(lhsReceiver, \tuple([lhsType]), [rhsCall, kwargs ], e.lhs@\loc))];
    
   leaveFunctionScope();
-  fun = muFunction(comp_fuid, comp_name, comp_ftype, ["a", "b"], Symbol::\tuple([]), scopeId, nargs, 2, false, false, \e@\loc, [], (), false, 0, 0, muBlock(body_exps));
+  fun = muFunction(comp_fuid, comp_name, comp_ftype, ["a", "b"], Symbol::\tuple([]), scopeId, nargs, 2, false, false, true, \e@\loc, [], (), false, 0, 0, muBlock(body_exps));
  
   int uid = declareGeneratedFunction(comp_name, comp_fuid, comp_ftype, e@\loc);
   addFunctionToModule(fun);  
@@ -588,7 +590,13 @@ public Tree parseConcrete(e: appl(Production cprod, list[Tree] cargs)){
     //println("translateConcrete, fragType = <fragType>");
     reifiedFragType = symbolToValue(fragType);
     // TODO: getGrammar uses a global variable. Add as parameter to the call stack instead
-    return parseFragment(getModuleName(), getModuleTags(), reifiedFragType, e, e@\loc, getGrammar());
+    try {
+        return parseFragment(getModuleName(), getModuleTags(), reifiedFragType, e, e@\loc, getGrammar());
+    } catch ParseError(loc src): {
+        throw CompileTimeError(error("Parse error in concrete fragment or pattern", src));
+    } catch Ambiguity(loc src, str stype, str string): {
+        throw CompileTimeError(error("Ambiguity in concrete fragment or pattern (of type <stype>)", src));
+    }
 }  
 
 public MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){ 
@@ -704,7 +712,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
     
     addFunctionToModule(muFunction(fuid, "CLOSURE", ftype, getParameterNames(parameters.formals.formals), Symbol::\tuple([]), (addr.fuid in moduleNames) ? "" : addr.fuid, 
   									  getFormals(uid), getScopeSize(fuid), 
-  									  isVarArgs, false, e@\loc, [], (), 
+  									  isVarArgs, false, false, e@\loc, [], (), 
   									  false, 0, 0,
   									  body));
   	
@@ -725,7 +733,7 @@ private MuExp translateBoolClosure(Expression e){
 	bool isVarArgs = false;
   	
     MuExp body = muReturn1(translate(e));
-    addFunctionToModule(muFunction(fuid, "CLOSURE", ftype, [], Symbol::\tuple([]), addr.fuid, nformals, nlocals, isVarArgs, false, e@\loc, [], (), false, 0, 0, body));
+    addFunctionToModule(muFunction(fuid, "CLOSURE", ftype, [], Symbol::\tuple([]), addr.fuid, nformals, nlocals, isVarArgs, false, true, e@\loc, [], (), false, 0, 0, body));
   	
   	leaveFunctionScope();								  
   	
@@ -960,7 +968,7 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	
 	//println("size functions after lift: <size(getFunctionsInModule())>");
 	
-	addFunctionToModule(muFunction(phi_fuid, "PHI", phi_ftype, phi_argNames, Symbol::\tuple([]), scopeId, NumberOfPhiFormals, pos_in_phi, false, false, \visit@\loc, [], (), false, 0, 0, body));
+	addFunctionToModule(muFunction(phi_fuid, "PHI", phi_ftype, phi_argNames, Symbol::\tuple([]), scopeId, NumberOfPhiFormals, pos_in_phi, false, false, true, \visit@\loc, [], (), false, 0, 0, body));
 	
 	leaveFunctionScope();
 	leaveVisit();
@@ -1532,11 +1540,11 @@ MuExp translate(Expression e:(Expression)`[ <{Expression ","}* es> ]`) =
 
 // Translate SetOrList including spliced elements
 
-private bool containSplices({Expression ","}* es) =
+private bool containsSplices({Expression ","}* es) =
     any(Expression e <- es, e is splice);
 
 private MuExp translateSetOrList(Expression e, {Expression ","}* es, str kind){
- if(containSplices(es)){
+ if(containsSplices(es)){
        str fuid = topFunctionScope();
        writer = nextTmp();
        elmType = getElementType(getType(e@\loc));
@@ -1981,7 +1989,7 @@ MuExp translate(e:(Expression) `-<Expression argument>`) =
 // -- splice expression ---------------------------------------------
 
 MuExp translate(e:(Expression) `*<Expression argument>`) {
-    throw "Splice cannot occur outside set or list";
+    throw "Splice `<e>` cannot occur outside set or list at <e@\loc>";
 }
    
 // -- asType expression ---------------------------------------------
@@ -2115,22 +2123,50 @@ MuExp translate(e:(Expression) `<Pattern pat> \<- <Expression exp>`) {
        return muMulti(muApply(mkCallToLibFun("Library", "RANGE_STEP<kind>"), [ translatePat(pat, elmType), translate(first), translate(second), translate(last)]));
     }
     
+    kind = getOuterType(exp);
+    str generatorType = "";
+    switch(kind){
+        case "void":  generatorType = "LITERAL";
+        case "value": generatorType = "LITERAL";
+        case "bool":  generatorType = "LITERAL";
+        case "datetime":  
+                      generatorType = "LITERAL";
+        case "real":  generatorType = "LITERAL";
+        case "int":   generatorType = "LITERAL";
+        case "rat":   generatorType = "LITERAL";
+        case "num":   generatorType = "LITERAL";
+        case "loc":   generatorType = "LITERAL";
+        case "str":   generatorType = "LITERAL";
+        case "list":  generatorType = "LIST";
+        case "lrel":  generatorType = "LIST";
+        case "node":  generatorType = "NODE";
+        case "adt":   generatorType = "NODE";
+        case "nonterminal":  
+                      generatorType = "NODE";
+        case "map":   generatorType = "MAP";
+        case "set":   generatorType = "SET";
+        case "rel":   generatorType = "SET";
+        case "tuple": generatorType = "TUPLE";
+        default:      generatorType = "NODE";   // all constructors
+    }
+    
     if((Pattern) `<QualifiedName name>` := pat){
        <fuid, pos> = getVariableScope("<name>", name@\loc);
-       return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN"), [muVarRef("<name>", fuid, pos), translate(exp)]));
+       return muMulti(muApply(mkCallToLibFun("Library", "ENUM_<generatorType>"), [translate(exp), muVarRef("<name>", fuid, pos)]));
     }
+
     if((Pattern) `<Type tp> <Name name>` := pat){
        <fuid, pos> = getVariableScope("<name>", name@\loc);
        elemType = translateType(tp);
-       generatorType = getType(exp@\loc);
-       if(generatorType == \list(elemType) || generatorType == \set(elemType)){
-          return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_ASSIGN"), [muVarRef("<name>", fuid, pos), translate(exp)]));
+       generatorType1 = getType(exp@\loc);
+       if(generatorType1 == \list(elemType) || generatorType1 == \set(elemType)){
+          return muMulti(muApply(mkCallToLibFun("Library", "ENUM_<generatorType>"), [translate(exp), muVarRef("<name>", fuid, pos)]));
        }
-       return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_CHECK_AND_ASSIGN"), [muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos), translate(exp)]));
+       return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_CHECK_AND_ASSIGN_<generatorType>"), [translate(exp), muTypeCon(translateType(tp)), muVarRef("<name>", fuid, pos)]));
     }
 
     elmType = getElementType(getType(exp@\loc));
-    return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_MATCH"), [translatePat(pat, elmType), translate(exp)]));
+    return muMulti(muApply(mkCallToLibFun("Library", "ENUMERATE_AND_MATCH_<generatorType>"), [translate(exp), translatePat(pat, elmType)])); 
 }
 
 // -- implies expression --------------------------------------------

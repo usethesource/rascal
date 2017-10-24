@@ -126,3 +126,11 @@ test bool has13() = d11(0, "abc") has y;
 test bool has14() = !(d11(0, "abc") has r);
 test bool has15() = !(d11(0, "abc") has b);
 
+// when
+
+int f13(int n, str s = "") = n when s == "";
+int f13(int n, str s = "") = -n when s != "";
+
+test bool when1() = f13(10) == 10;
+test bool when2() = f13(10, s="a") == -10;
+

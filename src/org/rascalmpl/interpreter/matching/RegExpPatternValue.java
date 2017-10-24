@@ -174,7 +174,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	
 	@Override
 	public List<IVarPattern> getVariables(){
-		List<IVarPattern> res = new LinkedList<IVarPattern>();
+		List<IVarPattern> res = new LinkedList<>();
 		for(String name : patternVars){
 			res.add(new RegExpVar(name));
 		}

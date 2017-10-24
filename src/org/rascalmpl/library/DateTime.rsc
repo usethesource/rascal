@@ -52,6 +52,7 @@ createDate(2012,1,1);
 public java datetime createDate(int year, int month, int day);
 
 
+
 @doc{
 .Synopsis
 Create a new time (with optional timezone offset).
@@ -721,3 +722,18 @@ public java str printDateTimeInLocale(datetime inputDateTime, str formatString, 
 // Print an input datetime using a specific locale and a default format string
 @javaClass{org.rascalmpl.library.Prelude}
 public java str printDateTimeInLocale(datetime inputDateTime, str locale);
+
+@doc{
+.Synopsis
+Create a new arbitrary datetime.
+
+.Examples
+[source,rascal-shell]
+----
+import DateTime;
+arbDateTime();
+----
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java datetime arbDateTime();
+

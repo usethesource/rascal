@@ -18,6 +18,12 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Matcher;
 
+import java.lang.invoke.ConstantCallSite;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import static java.lang.invoke.MethodHandle.*;
+import static java.lang.invoke.MethodHandles.*;
+
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.ITestResultListener;
@@ -72,39 +78,36 @@ public abstract class RVMCore {
 	protected final IString NOVALUE; 
 	
 	protected TypeStore typeStore;
-	private IMap symbol_definitions;
+	private final IMap symbol_definitions;
 	
-	protected Function[] functionStore;
-	protected Map<String, Integer> functionMap;
+	protected final Function[] functionStore;
+	protected final Map<String, Integer> functionMap;
 
-	protected List<Type> constructorStore;
+	protected final Type[] constructorStore;
 	protected final Map<String, Integer> constructorMap;
 	
 	// Function overloading
-	protected final Map<String, Integer> resolver;
 	protected final OverloadedFunction[] overloadedStore;
 	private Map<String, OverloadedFunction> overloadedStoreMap;
 	
 	protected IFrameObserver frameObserver;
 
-	public final static Function noCompanionFunction = new Function("noCompanionFunction", null, null, null, 0, 0, false, false, null, null, 0, false, 0, 0, null, null, 0);
+	public final static Function noCompanionFunction = new Function("noCompanionFunction", null, null, null, 0, 0, false, false, false, null, null, 0, false, 0, 0, null, null, 0);
 	public static final HashMap<String, IValue> emptyKeywordMap = new HashMap<>(0);
 
-	protected PrintWriter stdout;
-	protected PrintWriter stderr;
+	protected final PrintWriter stdout;
+	protected final PrintWriter stderr;
 
 	// Management of active coroutines
-	protected Stack<Coroutine> activeCoroutines = new Stack<>();
+	protected final Stack<Coroutine> activeCoroutines = new Stack<>();
 	protected Frame ccf = null; // The start frame of the current active coroutine (coroutine's main function)	
 	protected Frame cccf = null; // The candidate coroutine's start frame; used by the guard semantics
-	protected RascalExecutionContext rex;
+	protected final RascalExecutionContext rex;
 
 	public Map<IValue, IValue> moduleVariables;
 	
 	protected final Map<Class<?>, Object> instanceCache;
 	protected final Map<String, Class<?>> classCache;
-
-	private final Types types;
 	
 	public static RVMCore readFromFileAndInitialize(ISourceLocation rvmBinaryLocation, RascalExecutionContext rex) throws IOException{
 		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);
@@ -117,16 +120,16 @@ public abstract class RVMCore {
 	}
 	
 	// An exhausted coroutine instance
-	public static Coroutine exhausted = new Coroutine(null) {
+	public static final Coroutine exhausted = new Coroutine(null) {
 
 		@Override
 		public void next(Frame previousCallFrame) {
-			throw new CompilerError("Attempt to activate an exhausted coroutine instance.");
+			throw new InternalCompilerError("Attempt to activate an exhausted coroutine instance.");
 		}
 		
 		@Override
 		public void suspend(Frame current) {
-			throw new CompilerError("Attempt to suspend an exhausted coroutine instance.");
+			throw new InternalCompilerError("Attempt to suspend an exhausted coroutine instance.");
 		}
 		
 		@Override
@@ -141,7 +144,7 @@ public abstract class RVMCore {
 
 		@Override
 		public Coroutine copy() {
-			throw new CompilerError("Attempt to copy an exhausted coroutine instance.");
+			throw new InternalCompilerError("Attempt to copy an exhausted coroutine instance.");
 		}  
 	};
 
@@ -164,14 +167,11 @@ public abstract class RVMCore {
 	  this.functionStore = rvmExec.getFunctionStore();
 	  this.functionMap = rvmExec.getFunctionMap();
 
-	  this.resolver = rvmExec.getResolver();
 	  this.overloadedStore = rvmExec.getOverloadedStore();
 	  mappifyOverloadedStore();
 
 	  this.constructorStore = rvmExec.getConstructorStore();
 	  this.constructorMap = rvmExec.getConstructorMap();
-
-	  this.types = new Types(vf);
 
 	  IFrameObserver observer = rex.getFrameObserver(); 
 	  this.frameObserver = (observer == null) ? NullFrameObserver.getInstance() : observer;
@@ -186,7 +186,7 @@ public abstract class RVMCore {
 	public void updateModuleVariable(IValue name, IValue newVal){
 		IValue oldVal = moduleVariables.get(name);
 		if(oldVal != null && !oldVal.getType().comparable(newVal.getType())){
-			throw new CompilerError("Module variable " + name + " initalized with incompatible value " + newVal + " was " + oldVal);
+			throw new InternalCompilerError("Module variable " + name + " initalized with incompatible value " + newVal + " was " + oldVal);
 		}
 		moduleVariables.put(name, newVal);
 	}
@@ -254,7 +254,7 @@ public abstract class RVMCore {
 				return fname;
 			}
 		}
-		throw new CompilerError("Undefined function index " + n);
+		throw new InternalCompilerError("Undefined function index " + n);
 	}
 	
 	public String findVarName(Frame cf, int s, int pos){
@@ -291,8 +291,8 @@ public abstract class RVMCore {
 	}
 	
 	public Type getConstructor(String name, Type adtType, Type argumentTypes) throws NoSuchRascalFunction{
-	    for(int i = 0; i < constructorStore.size(); i++){
-	        Type tp = constructorStore.get(i);
+	    for(int i = 0; i < constructorStore.length; i++){
+	        Type tp = constructorStore[i];
 	        if (tp.getName().equals(name) && 
 	            tp.getAbstractDataType().equals(adtType) &&
 	            tp.getFieldTypes().equals(argumentTypes)) {
@@ -304,8 +304,8 @@ public abstract class RVMCore {
 	
 	public Set<Type> getConstructor(String name, Type adtType) {
 	    Set<Type> types = new HashSet<>();
-        for(int i = 0; i < constructorStore.size(); i++){
-            Type tp = constructorStore.get(i);
+        for(int i = 0; i < constructorStore.length; i++){
+            Type tp = constructorStore[i];
             if (tp.getName().equals(name) && 
                 tp.getAbstractDataType().equals(adtType)) {
                 types.add(tp);
@@ -315,8 +315,8 @@ public abstract class RVMCore {
     }
 	
 	public Type getAbstractDataType(String name) throws NoSuchRascalFunction{
-	    for(int i = 0; i < constructorStore.size(); i++){
-            Type adt = constructorStore.get(i).getAbstractDataType();
+	    for(int i = 0; i < constructorStore.length; i++){
+            Type adt = constructorStore[i].getAbstractDataType();
             if (adt.getName().equals(name)){ 
                 return adt;
             }
@@ -357,7 +357,9 @@ public abstract class RVMCore {
 	      for(int i = 0; i < falts.length; i++){
 	        falts[i] = filteredAlts.get(i);
 	      }
-	      return new OverloadedFunction(name, tp,  falts, new int[] { }, "");
+	      OverloadedFunction ovf = new OverloadedFunction(name, tp,  falts, new int[] { }, "");
+	      ovf.fids2objects(functionStore, constructorStore);
+	      return ovf;
 	    }
 	  }
 	  filteredAlts = getFunctionByNameAndArity(name, arity);
@@ -367,82 +369,25 @@ public abstract class RVMCore {
         for(int i = 0; i < falts.length; i++){
           falts[i] = filteredAlts.get(i);
         }
-        return new OverloadedFunction(name, tp,  falts, new int[] { }, "");
+        OverloadedFunction ovf = new OverloadedFunction(name, tp,  falts, new int[] { }, "");
+        ovf.fids2objects(functionStore, constructorStore);
+        return ovf;
       }
 	  
 
 	  // ?? why are constructors not part of overloaded functions?
-	  for(int i = 0; i < constructorStore.size(); i++){
-	    tp = constructorStore.get(i);
+	  for(int i = 0; i < constructorStore.length; i++){
+	    tp = constructorStore[i];
 	    if (tp.getName().equals(name) && tp.getArity() == arity) {
-	      return new OverloadedFunction(name, tp,  new int[]{}, new int[] { i }, "");
+	      OverloadedFunction ovf = new OverloadedFunction(name, tp,  new int[]{}, new int[] { i }, "");
+	      ovf.fids2objects(functionStore, constructorStore);
+          return ovf;
 	    }
 	  }
 
 	  throw new NoSuchRascalFunction(name);
 	}
-	
-	// deprecated
-	public OverloadedFunction getOverloadedFunction(String signature) throws NoSuchRascalFunction{
-		OverloadedFunction result = null;
-		
-		String name = types.getFunctionName(signature);
-		Type funType = types.getFunctionType(signature);
-		FunctionType ft = (FunctionType) funType;
-		int arity = ft.getArity();
-		
-		for(OverloadedFunction of : overloadedStore){
-			if(of.matchesNameAndSignature(name, funType)){
-				if(result == null){
-					result = of;
-				} else {
-					if(result.getFunctions().length < of.getFunctions().length ||
-					   result.getConstructors().length < of.getConstructors().length){
-						result = of;
-					}
-				}
-			}
-		}
-		
-		if(result != null){
-			return result;
-		}
-		
-		ArrayList<Integer> filteredAlts = getFunctionByNameAndArity(name, arity);
-		if(filteredAlts.size() > 0){
-		  Type tp = tf.tupleType(tf.valueType()); // arbitrary!
-		  int falts[] = new int[filteredAlts.size()];
-		  for(int i = 0; i < falts.length; i++){
-		    falts[i] = filteredAlts.get(i);
-		  }
-		  return new OverloadedFunction(name, tp,  falts, new int[] { }, "");
-		}
 
-		for(int i = 0; i < constructorStore.size(); i++){
-			Type tp = constructorStore.get(i);
-			if(name.equals(tp.getName()) && ft.getFieldTypes().comparable(funType.getFieldTypes()) 
-					                     && ft.getReturnType().comparable(tp.getAbstractDataType())
-					){
-				return new OverloadedFunction(name, tp,  new int[]{}, new int[] { i }, "");
-			}
-		}
-		
-	
-		// No overloaded function or constructor matched, only nonterminals remain ...
-		for(int i = 0; i < functionStore.length; i++){
-			Function fun = functionStore[i];
-			if(fun.name.contains("/" + name + "(")){
-				if(fun.ftype instanceof FunctionType){
-					FunctionType tp = (FunctionType) fun.ftype;
-					if(tp.comparable(ft)){
-						return new OverloadedFunction(name, tp, new int[]{ i }, new int[] { }, "");
-					}
-				}
-			}
-		}
-		throw new NoSuchRascalFunction(signature);
-	}
-	
 	public Function getCompanionDefaultsFunction(String name, Type ftype){
 		all:
 			for(Function f : functionStore){
@@ -507,13 +452,14 @@ public abstract class RVMCore {
 	 * @return		   Result of function execution
 	 */
 	public IValue executeRVMFunction(OverloadedFunction func, IValue[] posArgs, Map<String, IValue> kwArgs){
+	    func.fids2objects(functionStore, constructorStore);
 		if(func.getFunctions().length > 0){
-				Function firstFunc = functionStore[func.getFunctions()[0]]; 
+				Function firstFunc = func.functionsAsFunction[0]; 
 				Frame root = new Frame(func.scopeIn, null, null, func.getArity()+2, firstFunc);
-				OverloadedFunctionInstance ofi = OverloadedFunctionInstance.computeOverloadedFunctionInstance(func.functions, func.constructors, root, func.scopeIn, functionStore, constructorStore, this);
+				OverloadedFunctionInstance ofi = OverloadedFunctionInstance.computeOverloadedFunctionInstance(func.functionsAsFunction, func.constructorsAsType, root, func.scopeIn, this);
 				return executeRVMFunction(ofi, posArgs, kwArgs);
 		} else {
-			Type cons = constructorStore.get(func.getConstructors()[0]);
+			Type cons = func.constructorsAsType[0];
 			return vf.constructor(cons, posArgs, kwArgs);
 		}
 	}
@@ -609,7 +555,7 @@ public abstract class RVMCore {
 		if(result == null){
 			return null;
 		}
-		throw new CompilerError("Cannot convert object back to IValue: " + result);
+		throw new InternalCompilerError("Cannot convert object back to IValue: " + result);
 	}
 	
 	/**
@@ -655,16 +601,11 @@ public abstract class RVMCore {
 			return "Function[" + ((FunctionInstance)o).function.getName() + "]";
 		}
 		if(o instanceof OverloadedFunctionInstance) {
-			OverloadedFunctionInstance of = (OverloadedFunctionInstance) o;
-			String alts = "";
-			for(Integer fun : of.getFunctions()) {
-				alts = alts + fun + "; ";
-			}
-			return "OverloadedFunction[ alts: " + alts + "]";
+			return ((OverloadedFunctionInstance) o).toString();
 		}
 		if(o instanceof Reference){
 			Reference ref = (Reference) o;
-			return "Reference[" + ref.stack + ", " + ref.pos + "]";
+			return ref.toString(); //"Reference[" + ref.stack + ", " + ref.pos + "]";
 		}
 		if(o instanceof IListWriter){
 			return "ListWriter[" + ((IListWriter) o).toString() + "]";
@@ -708,10 +649,12 @@ public abstract class RVMCore {
 		return (repr.length() < w) ? repr : repr.substring(0, w) + "...";
 	}
 	
-	/********************************************************************************/
-	/*			Auxiliary functions that implement specific instructions and are	*/
-	/*  		used both by RVM interpreter and generated JVM bytecod				*/
-	/********************************************************************************/
+	/*******************************************************************************/
+	/*			Auxiliary functions that implement specific instructions and are   */
+	/*  		used both by RVM interpreter and generated JVM bytecode            */
+	/* 		    Note: some of these methods are inlined for efficiency, left here  */
+	/*          for documentation purposes                                         */
+	/*******************************************************************************/
 	
 	// LOAD/PUSH VAR
 
@@ -729,7 +672,7 @@ public abstract class RVMCore {
 				return fr.stack[pos];											// TODO: undefined case
 			}
 		}
-		throw new CompilerError("LOADVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
+		throw new InternalCompilerError("LOADVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 
 	protected int PUSHVAR(final Object[] stack, int sp, final Frame cf, final int varScope, final int pos){
@@ -754,7 +697,8 @@ public abstract class RVMCore {
 	}
 	
 	protected Object LOADVARREFMODULE(final Frame cf, final int varScope){
-		return moduleVariables.get(cf.function.constantStore[varScope]);
+	    return new Reference(moduleVariables, cf.function.constantStore[varScope]);
+		//return moduleVariables.get(cf.function.constantStore[varScope]);
 	}
 	
 	protected Object LOADVARREFSCOPED(final Frame cf, final int varScope, final int pos){
@@ -763,7 +707,7 @@ public abstract class RVMCore {
 				return new Reference(fr.stack, pos);
 			}
 		}
-		throw new CompilerError("LOADVARREF cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
+		throw new InternalCompilerError("LOADVARREF cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
 	protected int PUSHVARREF(final Object[] stack, int sp, final Frame cf, final int varScope, final int pos){
@@ -787,10 +731,10 @@ public abstract class RVMCore {
 		for (Frame fr = cf.previousScope; fr != null; fr = fr.previousScope) {
 			if (fr.scopeId == varScope) {
 				Reference ref = (Reference) fr.stack[pos];
-				return ref.stack[ref.pos];
+				ref.getValue();
 			}
 		}
-		throw new CompilerError("LOADVARDEREF cannot find matching scope: " + varScope, cf);
+		throw new InternalCompilerError("LOADVARDEREF cannot find matching scope: " + varScope, cf);
 	}
 	
 	protected int PUSHVARDEREF(final Object[] stack, int sp, final Frame cf, final int varScope, final int pos){
@@ -822,7 +766,7 @@ public abstract class RVMCore {
 				return;
 			}
 		}
-		throw new CompilerError("STOREVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
+		throw new InternalCompilerError("STOREVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
 	// RESETVAR
@@ -840,7 +784,7 @@ public abstract class RVMCore {
 				return;
 			}
 		}
-		throw new CompilerError("RESETVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
+		throw new InternalCompilerError("RESETVAR cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
 	// UNWRAPTHROWNVAR
@@ -864,24 +808,26 @@ public abstract class RVMCore {
 				return sp;
 			}
 		}
-		throw new CompilerError("UNWRAPTHROWNVAR cannot find matching scope: " + varScope, cf);
+		throw new InternalCompilerError("UNWRAPTHROWNVAR cannot find matching scope: " + varScope, cf);
 	}
 	
 	protected void STOREVARDEREF(Frame cf, int varScope, int pos, Object accu){
 		for (Frame fr = cf.previousScope; fr != null; fr = fr.previousScope) { 
 			if (fr.scopeId == varScope) {
 				Reference ref = (Reference) fr.stack[pos];
-				ref.stack[ref.pos] = accu;
+				//ref.stack[ref.pos] = accu;
+				ref.setValue(accu);
 			}
 		}
-		throw new CompilerError("STOREVARDEREF cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
+		throw new InternalCompilerError("STOREVARDEREF cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
 	// STORELOCKWP
 	
 	@SuppressWarnings("unchecked")
 	protected void STORELOCKWP(final Object[] stack, Frame cf, int iname, Object accu){
-		String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
+	    String name = ((IString) cf.function.constantStore[iname]).getValue();
+	    
 		Map<String, IValue> kargs = (Map<String, IValue>) stack[cf.function.nformals - 1];
 		if(kargs == emptyKeywordMap){
 			System.err.println("Creating new kw map while updating: " + name);
@@ -895,8 +841,8 @@ public abstract class RVMCore {
 	
 	@SuppressWarnings("unchecked")
 	protected Object LOADVARKWP(final Frame cf, final int varScope, final int iname){
-	  String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
-
+	  String name = ((IString) cf.function.constantStore[iname]).getValue();
+	    
 	  for(Frame f = cf.previousScope; f != null; f = f.previousCallFrame) {
 	    if (f.scopeId == varScope) {    
 	      if(f.function.nformals > 0){
@@ -921,7 +867,7 @@ public abstract class RVMCore {
 	      }
 	    }
 	  }               
-	  throw new CompilerError("LOADVARKWP cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
+	  throw new InternalCompilerError("LOADVARKWP cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
 	protected int PUSHVARKWP(final Object[] stack, int sp, final Frame cf, final int varScope, final int iname){
@@ -933,8 +879,7 @@ public abstract class RVMCore {
 	
 	@SuppressWarnings("unchecked")
 	protected void STOREVARKWP(final Frame cf, final int varScope, final int iname, final Object accu){
-		
-		String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
+		String name = ((IString) cf.function.constantStore[iname]).getValue();
 		IValue val = (IValue) accu;
 		for(Frame f = cf.previousScope; f != null; f = f.previousCallFrame) {
 			if (f.scopeId == varScope) {
@@ -968,14 +913,14 @@ public abstract class RVMCore {
 				}
 			}
 		}				
-		throw new CompilerError("STOREVARKWP cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
+		throw new InternalCompilerError("STOREVARKWP cannot find matching scope: " + varScope + " from scope " + cf.scopeId, cf);
 	}
 	
 	// LOAD/PUSH LOCKWP
 	
 	@SuppressWarnings("unchecked")
 	protected Object LOADLOCKWP(final Object[] stack, final Frame cf, final int iname){
-	  String name = ((IString) cf.function.codeblock.getConstantValue(iname)).getValue();
+	  String name = ((IString) cf.function.constantStore[iname]).getValue();
 
 	  Map<String, Map.Entry<Type, IValue>> defaults = (Map<String, Map.Entry<Type, IValue>>) stack[cf.function.nformals];
 	  Map.Entry<Type, IValue> defaultValue = defaults.get(name);
@@ -1010,7 +955,7 @@ public abstract class RVMCore {
 	@SuppressWarnings({"unchecked", "unused"})
 	protected int CALLCONSTR(final Object[] stack, int sp, final int iconstructor, final int arity){
 		
-		Type constructor = constructorStore.get(iconstructor);
+		Type constructor = constructorStore[iconstructor];
 		IValue[] args = new IValue[constructor.getArity()];
 
 		java.util.Map<String,IValue> kwargs;
@@ -1092,7 +1037,7 @@ public abstract class RVMCore {
 	        return clazz;
 		} 
 		catch(ClassNotFoundException | NoClassDefFoundError e1) {
-			throw new CompilerError("Class " + className + " not found", e1);
+			throw new InternalCompilerError("class " + className + " not found", e1);
 		}
 		
 	}
@@ -1118,7 +1063,7 @@ public abstract class RVMCore {
 		            instance = cons.newInstance(vf, asInterface(parameterTypes[1]));
 		            break;
 		        default:
-		            throw new NoSuchMethodException(clazz + " does not have a fitting constructor (nullary, IValueFactory, of IValueFactor + IOwnInterface");
+		            throw new NoSuchMethodException(clazz + " does not have a suitable constructor (nullary, IValueFactory, of IValueFactor + IOwnInterface");
 		    }
 		    
 			instanceCache.put(clazz, instance);
@@ -1133,7 +1078,7 @@ public abstract class RVMCore {
 	        return clazz.getMethod(methodName, makeJavaTypes(methodName, className, parameterTypes, keywordTypes, reflect));
 	    }
 	    catch (NoSuchMethodException | SecurityException e) {
-	        throw new CompilerError("could not find Java method", e);
+	        throw new InternalCompilerError("could not find Java method " + methodName + " in class " + className , e);
 	    }
     }
 	
@@ -1178,7 +1123,7 @@ public abstract class RVMCore {
 			return sp - arity - kwMaps + 1;
 		} 
 		catch (SecurityException | IllegalAccessException | IllegalArgumentException e) {
-			throw new CompilerError("could not call Java method", e);
+			throw new InternalCompilerError("could not call Java method " + m.getName(), e);
 		} 
 		catch (InvocationTargetException e) {
 			if(e.getTargetException() instanceof Throw) {

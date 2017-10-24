@@ -46,6 +46,7 @@ public class ExecuteProgram {
 			IBool trace, 
 			IBool coverage, 
 			IBool jvm,
+			IBool verbose,
 			IEvaluatorContext ctx
 			) throws IOException {
 		
@@ -53,7 +54,7 @@ public class ExecuteProgram {
 		if(executable.isValid()){
 			RascalExecutionContext rex = null;
 			// TODO: the new PathConfig() with only defaults here is syspe
-			rex = ExecutionTools.makeRex(new PathConfig(), executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm);
+			rex = ExecutionTools.makeRex(new PathConfig(), executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, verbose);
 			
 			rex.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
 			
@@ -76,13 +77,14 @@ public class ExecuteProgram {
 			IBool trace, 
 			IBool coverage, 
 			IBool jvm,
+			IBool verbose,
 			RascalExecutionContext rex
 			) throws IOException {
 
 		RVMExecutable executable = ExecutionTools.link(rvmProgram, jvm, vf.mapWriter().done());
 
 		if(executable.isValid()){
-			RascalExecutionContext rex2 = ExecutionTools.makeRex(rex.getPathConfig(), executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm);
+			RascalExecutionContext rex2 = ExecutionTools.makeRex(rex.getPathConfig(), executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm,verbose);
 			
 			return ExecutionTools.executeProgram(executable, new KWArgs(vf).add(keywordArguments).build(), rex2);
 		} else {
@@ -103,12 +105,13 @@ public class ExecuteProgram {
 			IBool trace, 
 			IBool coverage,
 			IBool jvm,
+			IBool verbose,
 			IEvaluatorContext ctx
 			) throws IOException {
                
 	    RVMExecutable executable = ExecutionTools.load(rvmExecutableLoc);
 	    if(executable.isValid()){
-	        RascalExecutionContext rex = ExecutionTools.makeRex(new PathConfig(), executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm);
+	        RascalExecutionContext rex = ExecutionTools.makeRex(new PathConfig(), executable, ctx.getStdOut(), ctx.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, verbose);
 	        rex.getConfiguration().setRascalJavaClassPathProperty(ctx.getConfiguration().getRascalJavaClassPathProperty());
 
 	        return ExecutionTools.executeProgram(executable, new KWArgs(vf).add(keywordArguments).build(), rex);
@@ -130,12 +133,13 @@ public class ExecuteProgram {
 			IBool trace, 
 			IBool coverage,
 			IBool jvm,
+			IBool verbose,
 			RascalExecutionContext rex
 			) throws IOException {
 
 	    RVMExecutable executable = ExecutionTools.load(rvmExecutableLoc);
 		if(executable.isValid()){
-			RascalExecutionContext rex2 = ExecutionTools.makeRex(rex.getPathConfig(), executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm);
+			RascalExecutionContext rex2 = ExecutionTools.makeRex(rex.getPathConfig(), executable, rex.getStdOut(), rex.getStdErr(), debug, debugRVM, testsuite, profile, trace, coverage, jvm, verbose);
 			
 			return ExecutionTools.executeProgram(executable, new KWArgs(vf).add(keywordArguments).build(), rex2);
 		} else {

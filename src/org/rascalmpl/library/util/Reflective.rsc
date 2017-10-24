@@ -21,6 +21,14 @@ import util::SystemAPI;
 import lang::rascal::\syntax::Rascal;
 import lang::manifest::IO;
 
+@doc{Returns the system-dependent line separator string}
+@javaClass{org.rascalmpl.library.util.Reflective}
+public java str getLineSeparator();
+
+@javaClass{org.rascalmpl.library.util.Reflective}
+@reflect{Manipulates evaluator to forget about old class instances}
+public java void resetJavaBridge();
+
 @javaClass{org.rascalmpl.library.util.Reflective}
 @reflect{Uses Evaluator to evaluate}
 public java lrel[str result, str out, str err] evalCommands(list[str] command, loc org);
@@ -140,7 +148,8 @@ PathConfig applyManifests(PathConfig cfg) {
    return cfg;
 }
 
-str makeFileName(str qualifiedModuleName, str extension = "rsc") = replaceAll(qualifiedModuleName, "::", "/") + "." + extension;
+str makeFileName(str qualifiedModuleName, str extension = "rsc") = 
+    replaceAll(qualifiedModuleName, "::", "/") + (isEmpty(extension) ? "" : ("." + extension));
 
 loc getSearchPathLoc(str filePath, PathConfig pcfg){
     for(loc dir <- pcfg.srcs + pcfg.libs){
@@ -150,11 +159,11 @@ loc getSearchPathLoc(str filePath, PathConfig pcfg){
             return fileLoc;
         }
     }
-    throw "Module with path <filePath> not found";
+    throw "Module with path <filePath> not found"; 
 }
 
-loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg){
-    fileName = makeFileName(qualifiedModuleName);
+loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg, str extension = "rsc"){
+    fileName = makeFileName(qualifiedModuleName, extension=extension);
     for(loc dir <- pcfg.srcs){
         fileLoc = dir + fileName;
         if(exists(fileLoc)){
@@ -332,3 +341,25 @@ public java int getFingerprintNode(node nd);
 @doc{Throw a raw Java NullPointerException, to help simulate an unexpected exception in test scenarios}
 @javaClass{org.rascalmpl.library.util.Reflective}
 java void throwNullPointerException();
+
+@doc{Return a list of all Rascal reserved identifiers (a.k.a. keywords)}
+set[str] getRascalReservedIdentifiers() = {
+    "alias", "all", "anno", "any", "append", "assert", "assoc",  
+    "bag", "bool", "bracket", "break", 
+    "case", "catch", "continue", 
+    "data", "datetime", "default", "dynamic",  
+    "else", "extend",  
+    "fail", "false", "filter", "finally", "for",  
+    "if", "import", "in", "insert", "int", "it",  
+    "join",  
+    "keyword", 
+    "layout", "lexical", "list", "loc", "lrel", 
+    "map", "mod","module",  
+    "node", "non-assoc", "notin", "num",  
+    "o", "one",  
+    "private", "public",  
+    "rat", "real", "rel", "return",  
+    "set", "solve", "start", "str", "switch", "syntax", 
+    "tag", "test", "throw", "throws", "true", "try", "tuple", "type",  
+    "value", "visit", "void",  
+    "while"}; 

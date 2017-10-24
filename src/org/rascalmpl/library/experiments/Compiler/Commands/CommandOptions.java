@@ -1,8 +1,8 @@
 package org.rascalmpl.library.experiments.Compiler.Commands;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,10 +10,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
- 
+
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.uri.URIUtil; 
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
@@ -24,8 +27,6 @@ import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * Option values can have the following types;
@@ -77,6 +78,7 @@ public class CommandOptions {
     private static final String BOOT_PATH_CONFIG_OPTION = "boot";
     private static final String BIN_PATH_CONFIG_OPTION = "bin";
     private static final String LIB_PATH_CONFIG_OPTION = "lib";
+    private static final String PROJECT_PATH_CONFIG_OPTION = "project";
     private static final String SRC_PATH_CONFIG_OPTION = "src";
     
     protected TypeFactory tf;
@@ -444,14 +446,14 @@ public class CommandOptions {
 		if(respectNoDefaults.isEmpty()){
 			return "";
 		}
-		StringWriter w = new StringWriter();
-		w.append("Forbid use of default values for");
+		StringBuilder sb = new StringBuilder();
+		sb.append("Forbid use of default values for");
 		String sep = " ";
 		for(String name : respectNoDefaults){
-			w.append(sep).append(name);
+			sb.append(sep).append(name);
 			sep = ", ";
 		}
-		return w.toString();
+		return sb.toString();
 	}
 	
 	private void help(){
@@ -517,7 +519,7 @@ public class CommandOptions {
 				printUsageAndExit(e.getMessage());
 			}
 		} else {
-			return URIUtil.correctLocation(loc.startsWith("/") ? "file" : "cwd", "", loc);
+			return URIUtil.correctLocation(new File(loc).isAbsolute() ? "file" : "cwd", "", loc);
 		}
 		return null;
 	}
@@ -530,6 +532,8 @@ public class CommandOptions {
 			return null;
 		}
 	}
+	
+	
 	
 	public IList getDefaultStdlocs(){
 		return vf.list(getDefaultStdLocation());
@@ -545,22 +549,28 @@ public class CommandOptions {
 	}
 
 	public ISourceLocation getDefaultRelocLocation(){
-      try {
-          return vf.sourceLocation("noreloc", "", "");
-      } catch (URISyntaxException e) {
-          printUsageAndExit("Cannot create default location: " + e.getMessage());
-          return null;
-      }
+          return URIUtil.correctLocation("noreloc", "", "");
+	}
+	
+	public ISourceLocation getDefaultProjectLocation(){
+        return URIUtil.correctLocation("noproject", "", "");
   }
 	
-	public PathConfig getPathConfig(){
-		return new PathConfig(getCommandLocsOption(SRC_PATH_CONFIG_OPTION),
-							  getCommandLocsOption(LIB_PATH_CONFIG_OPTION),
-							  getCommandLocOption(BIN_PATH_CONFIG_OPTION),
-							  getCommandLocOption(BOOT_PATH_CONFIG_OPTION),
-							  getCommandLocsOption(COURSES_PATH_CONFIG_OPTION),
-							  getCommandLocsOption(JAVA_COMPILER_PATH_PATH_CONFIG_OPTION),
-							  getCommandLocsOption(CLASSLOADERS_PATH_CONFIG_OPTION));
+	public PathConfig getPathConfig() throws IOException {
+        ISourceLocation project = getCommandLocOption(PROJECT_PATH_CONFIG_OPTION);
+        
+        if (!project.equals(getDefaultProjectLocation())) {
+	        return PathConfig.fromSourceProjectRascalManifest(project);
+	    }
+        else {
+            return new PathConfig(getCommandLocsOption(SRC_PATH_CONFIG_OPTION),
+                getCommandLocsOption(LIB_PATH_CONFIG_OPTION),
+                getCommandLocOption(BIN_PATH_CONFIG_OPTION),
+                getCommandLocOption(BOOT_PATH_CONFIG_OPTION),
+                getCommandLocsOption(COURSES_PATH_CONFIG_OPTION),
+                getCommandLocsOption(JAVA_COMPILER_PATH_PATH_CONFIG_OPTION),
+                getCommandLocsOption(CLASSLOADERS_PATH_CONFIG_OPTION));
+        }
 	}
 
     public CommandOptions noModuleArgument() {
@@ -568,10 +578,12 @@ public class CommandOptions {
     }
 
     public CommandOptions pathConfigOptions() {
-        this.locsOption(LIB_PATH_CONFIG_OPTION)      
-        .locsDefault((co) -> vf.list(co.getCommandLocOption(BIN_PATH_CONFIG_OPTION)))
-        .help("Add new lib location, use multiple --lib arguments for multiple locations")
-
+        this
+        .locOption(PROJECT_PATH_CONFIG_OPTION)
+        .locDefault(getDefaultProjectLocation())
+        .help("Top level location where a project is located with its META-INF/RASCAL.MF file")
+        
+      
         .locsOption(SRC_PATH_CONFIG_OPTION)      
         .locsDefault(getDefaultStdlocs().isEmpty() ? vf.list(getDefaultStdlocs()) : getDefaultStdlocs())
         .help("Add (absolute!) source location, use multiple --src arguments for multiple locations")
@@ -593,6 +605,10 @@ public class CommandOptions {
         })
         .help("Directory for Rascal binaries")
 
+        .locsOption(LIB_PATH_CONFIG_OPTION)      
+        .locsDefault((co) -> vf.list(co.getCommandLocOption(BIN_PATH_CONFIG_OPTION)))
+        .help("Add new lib location, use multiple --lib arguments for multiple locations")
+
         .locsOption(COURSES_PATH_CONFIG_OPTION)
         .locsDefault(PathConfig.getDefaultCoursesList())
         .help("Add new courses location, use multiple --courses arguments for multiple locations")
@@ -604,6 +620,7 @@ public class CommandOptions {
         .locsOption(CLASSLOADERS_PATH_CONFIG_OPTION)
         .locsDefault(PathConfig.getDefaultClassloadersList())
         .help("Add new java classloader location, use multiple --classloader options for multiple locations")
+        
         ;
     
         return this;
@@ -628,6 +645,11 @@ class Option {
 		this.defaultValue = defaultValue;
 		this.respectsNoDefaults = respectsNoDefaults;
 		this.helpText = helpText;
+	}
+	
+	@Override
+	public String toString() {
+	    return name + ":" + currentValue != null ? currentValue.toString() : defaultValue.toString();
 	}
 	
 	public boolean set(OptionType optionType, String name, IValue newValue){
@@ -674,6 +696,7 @@ class Option {
 			}
 			if(defaultValue != null){
 				// type check has been done at creation
+			    
 				if(defaultValue instanceof Function<?,?>){
 					currentValue = ((Function<CommandOptions,IValue>) defaultValue).apply(commandOptions);
 				}  else {

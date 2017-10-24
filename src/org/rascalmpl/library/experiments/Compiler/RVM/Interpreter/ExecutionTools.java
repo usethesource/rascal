@@ -34,7 +34,8 @@ public class ExecutionTools {
 					IBool profile, 
 					IBool trace, 
 					IBool coverage, 
-					IBool jvm
+					IBool jvm,
+					IBool verbose
 	) {
 		return RascalExecutionContextBuilder.normalContext(pcfg, out != null ? out : new PrintWriter(System.out), err != null ? err : new PrintWriter(System.err, true))
 			.withModuleTags(rvmExecutable.getModuleTags())
@@ -46,6 +47,7 @@ public class ExecutionTools {
 			.profile(profile.getValue())
 			.testsuite(testsuite.getValue())
 			.trace(trace.getValue())
+			.verbose(verbose.getValue())
 			.build();
 	}
 	
@@ -122,7 +124,7 @@ public class ExecutionTools {
 				/*
 				 * Execute as testsuite
 				 */
-				result = executable.executeTests(new DefaultTestResultListener(rex.getStdOut()), rex);
+				result = executable.executeTests(new DefaultTestResultListener(rex.getStdOut(), rex.getVerbose()), rex);
 
 			} else {
 				/*

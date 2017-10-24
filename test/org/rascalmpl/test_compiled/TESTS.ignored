@@ -1,7 +1,7 @@
 CommonKeywordParameterImportTests2  // Not yet supported by compiler
 CommonKeywordParameterTests4        // Not yet supported by compiler
-//KeywordParameterImportTests1        // Not yet supported by compiler
-//KeywordParameterImportTests2        // Not yet supported by compiler
+KeywordParameterImportTests1        // Not yet supported by compiler
+KeywordParameterImportTests2        // Not yet supported by compiler
 MicroPatternsTests                  // Unfinished code, remove?
 FCATest                             // Fix failing test
 BasicM3Tests                        // Waits for Eclipse integration

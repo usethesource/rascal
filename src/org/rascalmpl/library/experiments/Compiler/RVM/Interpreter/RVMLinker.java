@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.rascalmpl.interpreter.TypeReifier;
 import io.usethesource.vallang.IBool;
@@ -67,17 +68,17 @@ public class RVMLinker {
 		int nfs = functionStore.size();
 		//System.out.println("size functionStore: " + nfs);
 		if(nfs >= CodeBlock.maxArg){
-			throw new CompilerError("functionStore size " + nfs + " exceeds limit " + CodeBlock.maxArg1);
+			throw new InternalCompilerError("functionStore size " + nfs + " exceeds limit " + CodeBlock.maxArg1);
 		}
 		int ncs = constructorStore.size();
 		//System.out.println("size constructorStore: " + ncs);
 		if(ncs >= CodeBlock.maxArg){
-			throw new CompilerError("constructorStore size " + ncs + " exceeds limit " + CodeBlock.maxArg1);
+			throw new InternalCompilerError("constructorStore size " + ncs + " exceeds limit " + CodeBlock.maxArg1);
 		}
 		int nov = overloadedStore.size();
 		//System.out.println("size overloadedStore: " + nov);
 		if(nov >= CodeBlock.maxArg){
-			throw new CompilerError("overloadedStore size " + nov + " exceeds limit " + CodeBlock.maxArg1);
+			throw new InternalCompilerError("overloadedStore size " + nov + " exceeds limit " + CodeBlock.maxArg1);
 		}
 	}
 	
@@ -103,13 +104,10 @@ public class RVMLinker {
 			index = functionStore.size();
 			functionMap.put(f.getName(), index);
 			functionStore.add(f);
-			f.funId = index ;
 		} else {
 			functionStore.set(index, f);
-			f.funId = index ;
 		}
-		
-		if(f.getName().contains("EXTENDED_FUNCTION"))System.out.println("declareFunction: " + index + "  => " + f.getName());
+//		System.out.println("declareFunction: " + index + "  => " + f.getName());
 	}
 	
 	private Integer useConstructorName(String cname) {
@@ -145,8 +143,6 @@ public class RVMLinker {
 			String of = ((IString) fuid).getValue();
 			int index = ((IInteger) resolver.get(fuid)).intValue();
 			this.resolver.put(of, index);
-			if(of.contains("EXTENDED_FUNCTION"))
-			    System.err.println("addResolver: " + index + ", " + of);
 		}
 	}
 	
@@ -182,43 +178,37 @@ public class RVMLinker {
 			}
 			
 			OverloadedFunction res = new OverloadedFunction(funName, new TypeReifier(vf).symbolToType(funType, vf.mapWriter().done()), funs, constrs, scopeIn);
+
 			this.overloadedStore.add(res);
-			if(funName.contains("EXTENDED_FUNCTION"))
-			    System.out.println("fillOverloadedStore: add " + (this.overloadedStore.size()-1) + ", " + res);
+//			System.out.println("fillOverloadedStore: add " + (this.overloadedStore.size()-1) + ", " + res);
 		}
 	}
 	
-	private void validateExecutable(){
-		int nfun = functionStore.size();
-		if(nfun != functionMap.size()){
-			System.err.println("functionStore and functionMap have different size: " + nfun + " vs " + functionMap.size());
-		}
-		for(String fname : functionMap.keySet()){
-			int n = functionMap.get(fname);
-			if(functionStore.get(n) == null){
-				System.err.println("FunctionStore has null entry for: "+ fname + " at index " + n);
-			}
-		}
-		
-		int ncon = constructorStore.size();
-		if(ncon != constructorMap.size()){
-			System.err.println("constructorStore and constructorMap have different size: " + ncon + " vs " + constructorMap.size());
-		}
-		for(String cname : constructorMap.keySet()){
-			int n = constructorMap.get(cname);
-			if(constructorStore.get(n) == null){
-				System.err.println("ConstructorStore has null entry for: "+ cname + " at index " + n);
-			}
-		}
-	}
-	
-	private void validateOverloading(){
-		for(String oname : resolver.keySet()){
-			int n = resolver.get(oname);
-			if(overloadedStore.get(n) == null){
-				System.err.println("OverloadedStore has null entry for: "+ oname + " at index " + n);
-			}
-		}
+	@SuppressWarnings("unused")
+    private void printStatistics(){
+	    System.err.println("Linker statistics");
+	    System.err.println("functionStore:    " + functionStore.size());
+	    System.err.println("constructorStore: " + constructorStore.size());
+	    System.err.println("overloadedStore:  " + overloadedStore.size());
+	    
+	    System.err.println("Analysis of overloaded functions");
+	    for(int i = 0; i < overloadedStore.size(); i++){
+	        OverloadedFunction ovl = overloadedStore.get(i);
+	        int norg = ovl.functions.length;
+	        if(norg > 0){
+	            System.err.print(i + ": " + ovl + ": buckets=[ ");
+	            if(ovl.filteredFunctions != null){
+	                for(Integer funid : ovl.filteredFunctions.keySet()){
+	                    System.err.print(funid + ": [ ");
+	                    for(int funid1 : ovl.filteredFunctions.get(funid)){
+	                        System.err.print(funid1 + " ");;
+	                    }
+	                    System.err.print("] ");
+	                }
+	            }
+	            System.err.println("]");
+	        }
+	    }
 	}
 	
 	/*
@@ -231,7 +221,7 @@ public class RVMLinker {
 		int newSize = used.size();
 		ArrayList<Function> newFunctionStore = new ArrayList<Function>(newSize);
 		
-		HashMap<Integer,Integer> functionIndexMap = new HashMap<>(newSize);
+		HashMap<Integer,Integer> shiftedFunctionIndexMap = new HashMap<>(newSize);
 		
 		// Prune and shift functionMap and functionStore
 		
@@ -240,35 +230,64 @@ public class RVMLinker {
 			Function fn = functionStore.get(i);
 			if(!used.contains(vf.string(fn.name))){
 				functionMap.remove(fn.name);
-				//System.err.println("Remove " + fn.name);
+//				System.err.println("Remove " + fn.name);
 				shift++;
 			} else {
 				int ishifted = i - shift;
-				fn.funId = ishifted;
+				
 				functionMap.put(fn.name, ishifted);
 				newFunctionStore.add(fn);
-				functionIndexMap.put(i, ishifted);
+				shiftedFunctionIndexMap.put(i, ishifted);
 				//System.err.println("Shift " + fn.name + " from " + i + " to " + ishifted);
 			}
 		}
 		
+		//System.err.println("removeUnusedFunctions: functionStore, size was " + functionStore.size() + " becomes " + newFunctionStore.size());
+		 
 		functionStore = newFunctionStore;
+		
+		for(Function fn : functionStore){
+		    if(fn.scopeIn >= 0){
+		        Integer shiftedScopeIn = shiftedFunctionIndexMap.get(fn.scopeIn);
+		        if(shiftedScopeIn != null){
+		            //System.err.println("Shift scopeIn " + fn.name + " from " + fn.scopeIn + " to " + shiftedScopeIn);
+		            fn.scopeIn = shiftedScopeIn;
+		        }
+		    }
+		    if(fn.scopeId >= 0){
+		        Integer shiftedScopeId = shiftedFunctionIndexMap.get(fn.scopeId);
+		        if(shiftedScopeId != null){
+		            //System.err.println("Shift scopeId " + fn.name + " from " + fn.scopeId + " to " + shiftedScopeId);
+		            fn.scopeId = shiftedScopeId;
+		        }
+		    }
+		}
+		
+		for(OverloadedFunction ovf : overloadedStore){
+		    if(used.contains(vf.string(ovf.name))){       // TODO name never matches!!!
+		        Integer shiftedScopeIn = shiftedFunctionIndexMap.get(ovf.scopeIn);
+		        if(shiftedScopeIn != null){
+		            ovf.scopeIn = shiftedFunctionIndexMap.get(ovf.scopeIn);
+		            //System.err.println("Shift scopeIn " + ovf.name + " from " + ovf.scopeIn + " to " + shiftedScopeIn);
+		        }
+		    }
+		}
 
-		return functionIndexMap;
+		return shiftedFunctionIndexMap;
 	}
 	
 	/*
 	 * After collecting the basic use relation for all functions we have
-	 * to expand each overlaoded function to all its possible alternatives.
+	 * to expand each overloaded function to all its possible alternatives.
 	 * This can only be done in a second pass over the use relation
-	 *  when all function overloading information is available.
+	 * when all function overloading information is available.
 	 */
 	
 	private ISet expandOverloadedFunctionUses(ISet initial){
 		ISetWriter w = vf.setWriter();
 		for(IValue v : initial){
 			ITuple tup = (ITuple) v;
-			IString left = (IString) tup.get(0);
+			IString left = (IString) tup.get(0); // left uses right
 			IString right = (IString) tup.get(1);
 			Integer uresolver = resolver.get(right.getValue());
 		
@@ -278,7 +297,7 @@ public class RVMLinker {
 				for (int uuid : of.functions){
 					Function function = functionStore.get(uuid);
 					if (function == null) {
-					    throw new CompilerError("No function for uuid " + uuid + " in store, part of overloaded function:" + of);
+					    throw new InternalCompilerError("No function for uuid " + uuid + " in store, part of overloaded function:" + of);
 					}
 					w.insert(vf.tuple(left, vf.string(function.name)));
 				}
@@ -290,46 +309,88 @@ public class RVMLinker {
 		return w.done();
 	}
 	
-	private void finalizeInstructions(Map<Integer, Integer> indexMap){
+	private void finalizeInstructions(Map<Integer, Integer> shiftedFunctionindexMap){
 		int i = 0;
 		for(String fname : functionMap.keySet()){
 			if(functionMap.get(fname) == null){
-				System.out.println("finalizeInstructions, null for function : " + fname);
+				throw new RuntimeException("finalizeInstructions, null for function : " + fname);
 			}
 		}
 		for(String fname : functionMap.keySet()) {
 			Function f = functionStore.get(functionMap.get(fname));
 			if(f == null){
-				String nameAtIndex = "**unknown**";
+                String nameAtIndex = "**unknown**";
 				for(String fname2 : functionMap.keySet()){
 					if(functionMap.get(fname2) == i){
 						nameAtIndex = fname2;
 						break;
 					}
 				}
-				//System.out.println("finalizeInstructions, null at index: " + i + ", " + nameAtIndex);
+				throw new RuntimeException("finalizeInstructions, null at index: " + i + ", " + nameAtIndex);
 			} else {
-				//System.out.println("finalizeInstructions: " + f.name);
+//				System.out.println("finalizeInstructions: " + f.name);
 			}
 			f.finalize(functionMap, constructorMap, resolver);
 			i++;
 		}
 		for(OverloadedFunction of : overloadedStore) {
-			of.finalize(functionMap, functionStore, indexMap);
+			of.finalize(functionMap, functionStore, constructorStore, shiftedFunctionindexMap);
 		}
 	}
 	
 	private void addFunctionUses(ISetWriter w, IString fname, ISet uses){
+	    //System.err.println("addFunctionUses:" + fname + ", " + uses);
 		for(IValue use : uses){
 			w.insert(vf.tuple(fname, use));
 		}
 	}
 	
 	private void addOverloadedFunctionUses(ISetWriter w, IString fname, ISet uses){
-		//System.err.println("addOverloadedFunctionUses:" + fname + ", " + uses);
+//		System.err.println("addOverloadedFunctionUses:" + fname + ", " + uses);
 		for(IValue use : uses){
 			w.insert(vf.tuple(fname, use));
 		}
+	}
+	
+	private void collectFunctionRoots(IConstructor declaration, boolean hasExtends, Set<String> extendedModuleSet, ISetWriter rootWriter, ISetWriter usesWriter){
+	    IString iname = (IString) declaration.get("qname");
+        String name = iname.getValue();
+	    addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
+        addFunctionUses(usesWriter, iname, (ISet) declaration.get("usedFunctions"));
+
+        if(name.contains("companion")){ // always preserve generated companion and companion-defaults functions
+            rootWriter.insert(iname);
+        }
+        
+        IString scopeIn = (IString) declaration.get("scopeIn");
+        
+        if(!scopeIn.getValue().isEmpty()){ // preserve nested functions and their enclosing function
+                                           // (this is an overapproximation and may result in preserving unused functions)
+            rootWriter.insert(iname);
+            rootWriter.insert(scopeIn);
+            //System.err.println("Mark as used: " + iname + ", " + scopeIn);
+        }
+
+        if(name.contains("closure#")){  // preserve generated closure functions and their enclosing function
+                                        // (this is an overapproximation and may result in preserving unused functions)
+            scopeIn = (IString) declaration.get("scopeIn");
+            rootWriter.insert(iname);
+            rootWriter.insert(scopeIn);
+            //System.err.println("Mark as used: " + iname + ", " + scopeIn);
+        }
+
+        if(hasExtends){
+            int n = name.indexOf("/");
+            if(n >=0 && extendedModuleSet.contains(name.substring(0, n))){
+                rootWriter.insert(iname);
+            }
+        }
+	}
+	
+	private void collectCoroutineRoots(IConstructor declaration, ISetWriter usesWriter){
+	    IString iname = (IString) declaration.get("qname");
+	    addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
+        addFunctionUses(usesWriter, iname, (ISet) declaration.get("usedFunctions"));
 	}
 	
 	public ISet getErrors(IConstructor program){
@@ -400,14 +461,15 @@ public class RVMLinker {
 		addResolver((IMap) main_module.get("resolver"));
 		fillOverloadedStore((IList) main_module.get("overloaded_functions"));
 
-		ISetWriter usesWriter = vf.setWriter();
-		ISetWriter rootWriter = vf.setWriter();
+		ISetWriter usesWriter = vf.setWriter();   // collects function uses
+		ISetWriter rootWriter = vf.setWriter();   // collects functions that act as root of call chains
 		
 		/** Imported functions */
 		
 		ArrayList<String> initializers = new ArrayList<String>();  	// initializers of imported modules
 
 		IList imported_declarations = (IList) program.get("imported_declarations");
+
 		for(IValue imp : imported_declarations){
 			IConstructor declaration = (IConstructor) imp;
 			IString iname = (IString) declaration.get("qname");
@@ -423,38 +485,15 @@ public class RVMLinker {
 				loadInstructions(name, declaration, false);
 
 				if(eliminateDeadCode){
-
-					addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
-					addFunctionUses(usesWriter, iname, (ISet) declaration.get("usedFunctions"));
-
-					if(name.contains("companion")){	// always preserve generated companion and companion-defaults functions
-						rootWriter.insert(iname);
-						loadInstructions(name, declaration, false);
-					}
-
-					if(name.contains("closure#")){	// preserve generated closure functions and their enclosing function
-						// (this is an overapproximation and may result in preserving some unused functions)
-						IString scopeIn = (IString) declaration.get("scopeIn");
-						rootWriter.insert(iname);
-						rootWriter.insert(scopeIn);
-					}
-
-					if(hasExtends){
-						int n = name.indexOf("/");
-						if(n >=0 && extendedModuleSet.contains(name.substring(0, n))){
-							rootWriter.insert(iname);
-						}
-					}
+				    collectFunctionRoots(declaration, hasExtends, extendedModuleSet, rootWriter, usesWriter);
 				}
 			}
 			if (declaration.getName().contentEquals("COROUTINE")) {
 				loadInstructions(name, declaration, true);
 
 				if(eliminateDeadCode){
-					addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
-					addFunctionUses(usesWriter, iname, (ISet) declaration.get("usedFunctions"));
+				    collectCoroutineRoots(declaration, usesWriter);
 				}
-
 			}
 		}
 
@@ -487,7 +526,7 @@ public class RVMLinker {
 
 			if (declaration.getName().contentEquals("FUNCTION")) {
 				
-				//System.out.println("FUNCTION: " + name);
+//				System.out.println("FUNCTION: " + name);
 				
 				if(name.endsWith(main) || name.endsWith(mu_main)) {
 					uid_module_main = name;					// Get main's uid in current module
@@ -500,22 +539,20 @@ public class RVMLinker {
 				loadInstructions(name, declaration, false);
 				
 				if(eliminateDeadCode){
-					rootWriter.insert(iname);
-					addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
-					addFunctionUses(usesWriter, iname, (ISet) declaration.get("usedFunctions"));
+				    rootWriter.insert(iname);
+				    collectFunctionRoots(declaration, hasExtends, extendedModuleSet, rootWriter, usesWriter);
 				}
 			}
 				
 			if(declaration.getName().contentEquals("COROUTINE")) {
 				loadInstructions(name, declaration, true);
 				if(eliminateDeadCode){
-					addOverloadedFunctionUses(usesWriter, iname, (ISet) declaration.get("usedOverloadedFunctions"));
-					addFunctionUses(usesWriter, iname, (ISet) declaration.get("usedFunctions"));
+				    collectCoroutineRoots(declaration, usesWriter);
 				}
 			}
 		}
 		
-		HashMap<Integer, Integer> indexMap = null;
+		HashMap<Integer, Integer> shiftedFunctionIndexMap = null;
 		
 		if(eliminateDeadCode){
 			ISet uses =  expandOverloadedFunctionUses(usesWriter.done());
@@ -537,18 +574,16 @@ public class RVMLinker {
 
 			ISet used = usedWriter.done();
 
-			indexMap = removeUnusedFunctions(used);
+			shiftedFunctionIndexMap = removeUnusedFunctions(used);
 		}
 		
 		/** Finalize & validate */
 
-		finalizeInstructions(indexMap);
+		finalizeInstructions(shiftedFunctionIndexMap);
 
 		validateInstructionAdressingLimits();
-
-		validateExecutable();
-
-		validateOverloading();
+		
+		//printStatistics();
 
 		//System.out.println("Linking: " +  (Timing.getCpuTime() - start)/1000000 + " ms");
 
@@ -558,14 +593,14 @@ public class RVMLinker {
 								 functionMap, 
 								 functionStore.toArray(new Function[functionStore.size()]), 
 								 constructorMap,
-								 constructorStore,	
-								 resolver, 
-								 overloadedStore.toArray(new OverloadedFunction[overloadedStore.size()]),  
-								 initializers,
-								 uid_module_init, 
+								 constructorStore.toArray(new Type[constructorStore.size()]),	
+								 overloadedStore.toArray(new OverloadedFunction[overloadedStore.size()]), 
+								 initializers,  
+								 uid_module_init,
+
 								 uid_module_main, 
 								 vf, 
-								 jvm,
+								 jvm, 
 								 classRenamings);
 	}
 	
@@ -630,13 +665,17 @@ public class RVMLinker {
 		ISourceLocation src = (ISourceLocation) declaration.get("src");
 		boolean isDefault = false;
 		boolean isTest = false;
+		boolean simpleArgs = false;
 		IMap tags = null;
 		boolean isConcreteArg = false;
 		int abstractFingerprint = 0;
 		int concreteFingerprint = 0;
 		if(!isCoroutine){
 			isDefault = ((IBool) declaration.get("isDefault")).getValue();
-			if(declaration.has("isTest")){   // Transitional for boot
+			if(declaration.has("simpleArgs")){                           // TODO: Remove after next boot release
+			    simpleArgs = ((IBool) declaration.get("simpleArgs")).getValue();
+			}
+			if(declaration.has("isTest")){                               // TODO: Transitional for boot
 			  isTest = ((IBool) declaration.get("isTest")).getValue();
 			  tags = ((IMap) declaration.get("tags"));
 			} else {
@@ -1105,12 +1144,12 @@ public class RVMLinker {
 				break;
 				
 			default:
-				throw new CompilerError("In function " + name + ", unknown instruction: " + opcode);
+				throw new InternalCompilerError("In function " + name + ", unknown instruction: " + opcode);
 			}
 
 		}
 		} catch (Exception e){
-			throw new CompilerError("In function " + name + " : " + e.getMessage(), e);
+			throw new InternalCompilerError("In function " + name + " : " + e.getMessage(), e);
 		}
 		
 		
@@ -1122,11 +1161,11 @@ public class RVMLinker {
 										 nlocals, 
 										 isDefault, 
 										 isTest, 
+										 simpleArgs,
 										 tags,
 										 localNames,
-										 maxstack,
-										 isConcreteArg, 
-										 abstractFingerprint, concreteFingerprint, codeblock, src, continuationPoints);
+										 maxstack, 
+										 isConcreteArg, abstractFingerprint, concreteFingerprint, codeblock, src, continuationPoints);
 		
 		function.attachExceptionTable((IList) declaration.get("exceptions"));
 		
@@ -1140,7 +1179,6 @@ public class RVMLinker {
 			}
 			function.refs = refs;
 		} else {
-			
 			boolean isVarArgs = ((IBool) declaration.get("isVarArgs")).getValue();
 			function.isVarArgs = isVarArgs;
 		}

@@ -5,15 +5,12 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
-import java.nio.file.Paths;
 import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
-import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.repl.ILanguageProtocol;
 
@@ -164,7 +161,13 @@ public class DebugREPL implements ILanguageProtocol {
 			throw new InterruptedException();
 		
 		case "p": case "print":
-			stdout.println(RascalPrimitive.$value2string(EvalExpr.eval(words[1], rvm, currentFrame)));
+                IValue eval = EvalExpr.eval(words[1], rvm, currentFrame);
+                if (eval != null) {
+                    stdout.println(RascalPrimitive.$value2string(eval));
+                }
+                else {
+                    stdout.println(words[1] + " is undefined.");
+                }
 			break;
 		
 		case "i": case "ignore":
@@ -180,7 +183,7 @@ public class DebugREPL implements ILanguageProtocol {
 			break;
 			
 		case "e": case "edit":
-		    breakPointManager.edit(Paths.get(currentFrame.src.getPath()));
+		    breakPointManager.edit(currentFrame.src);
 		    break;
 			
 		default:

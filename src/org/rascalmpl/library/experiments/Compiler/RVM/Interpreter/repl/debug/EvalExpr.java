@@ -109,10 +109,10 @@ public class EvalExpr {
 				else if(matcher.end("field2") > 0){
 					base = select(base, matcher.group("field2"));
 				}
+				
 				return base;
 			}
 		}
-
 		catch (Exception e){
 			
 		}

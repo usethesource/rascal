@@ -85,6 +85,7 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	public GlobalEnvironment __getHeap();
 	public void __setInterrupt(boolean interrupt);	
 	public JavaBridge __getJavaBridge();
+	public void resetJavaBridge();
 	public TypeDeclarationEvaluator __getTypeDeclarator();
 	public IValueFactory __getVf();
 	public TraversalEvaluator __getCurrentTraversalEvaluator();

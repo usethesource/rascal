@@ -68,7 +68,7 @@ public void extractDeclarationInfo(Configuration config){
     // Collect all the types that are in the type environment
     // TODO: simplify
 	typeRel = { < getSimpleName(rname), config.store[config.typeEnv[rname]].rtype > | rname <- config.typeEnv, config.store[config.typeEnv[rname]] has rtype }
-	        + { < getSimpleName(rname) , rtype > | int uid <- config.store, sorttype(rname,rtype,_,_) := config.store[uid] }
+	        + { < getSimpleName(rname) , rtype > | int uid <- config.store, sorttype(rname,rtype,_,_,_) := config.store[uid] }
             + { < getSimpleName(config.store[uid].name), config.store[uid].rtype > | int uid <- config.store, config.store[uid] has name, config.store[uid] has rtype }
             + { <"Tree", adt("Tree",[])> }
             + { <"Symbol", adt("Symbol",[])> }
@@ -85,7 +85,7 @@ public void extractDeclarationInfo(Configuration config){
 	KeywordParamMap getCommons(str adt) 
 	  = (config.typeEnv[RSimpleName(adt)]?) ? config.store[config.typeEnv[RSimpleName(adt)]].keywordParams : ();
 	
-	Production value2prod(constructor(_, Symbol rtype, KeywordParamMap keywordParams, int containedIn, loc at), KeywordParamMap commonParams)
+	Production value2prod(constructor(_, Symbol rtype, KeywordParamMap keywordParams, int containedIn, _, loc at), KeywordParamMap commonParams)
 	  = \cons(label(rtype.name, rtype.\adt)
 	         , rtype.parameters
 	         , [label(l, keywordParams[n]) | n:RSimpleName(l) <- keywordParams]

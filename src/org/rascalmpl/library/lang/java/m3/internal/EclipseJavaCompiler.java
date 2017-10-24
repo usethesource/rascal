@@ -34,6 +34,7 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.FileASTRequestor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
+import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
 import org.rascalmpl.parser.gtd.io.InputConverter;
@@ -58,7 +59,16 @@ public class EclipseJavaCompiler {
     
     protected LimitedTypeStore getM3Store(IEvaluatorContext eval) {
         TypeStore store = new TypeStore();
-        store.extendStore(eval.getHeap().getModule("lang::java::m3::Core").getStore());
+        ModuleEnvironment coreModule = eval.getHeap().getModule("lang::java::m3::Core");
+        if (coreModule != null) {
+            store.extendStore(coreModule.getStore());    
+        }
+        else {
+            ModuleEnvironment typeSymbolModule = eval.getHeap().getModule("lang::java::m3::TypeSymbol");
+            if (typeSymbolModule != null) {
+                store.extendStore(typeSymbolModule.getStore());
+            }
+        }
         store.extendStore(eval.getHeap().getModule("lang::java::m3::AST").getStore());
         return new TypeStoreWrapper(store);
     }
@@ -68,6 +78,16 @@ public class EclipseJavaCompiler {
     }
     
     protected IValue createM3FromJarClass(ISourceLocation jarLoc, LimitedTypeStore store) {
+        JarConverter converter = new JarConverter(store, new HashMap<>());
+        converter.convert(jarLoc);
+        return converter.getModel(false);
+    }
+    
+    public IValue createM3FromJarFile(ISourceLocation jarLoc, IEvaluatorContext eval) {
+        return createM3FromJarFile(jarLoc, getM3Store(eval));
+    }
+    
+    protected IValue createM3FromJarFile(ISourceLocation jarLoc, LimitedTypeStore store) {
         JarConverter converter = new JarConverter(store, new HashMap<>());
         converter.convert(jarLoc);
         return converter.getModel(false);

@@ -9,7 +9,6 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.type.TypeStore;
 
 public abstract class M3Converter extends JavaToRascalConverter {
 	private static final String DATATYPE_M3_NODE							= "M3";
@@ -44,7 +43,7 @@ public abstract class M3Converter extends JavaToRascalConverter {
 		super(typeStore, cache, true);
 		this.DATATYPE_M3_NODE_TYPE = this.typeStore.lookupAbstractDataType(DATATYPE_M3_NODE);
 		TypeFactory tf = TypeFactory.getInstance();
-    this.CONSTRUCTOR_M3= this.typeStore.lookupConstructor(DATATYPE_M3_NODE_TYPE, "m3", tf.tupleType(tf.sourceLocationType()));
+		this.CONSTRUCTOR_M3= this.typeStore.lookupConstructor(DATATYPE_M3_NODE_TYPE, "m3", tf.tupleType(tf.sourceLocationType()));
 		this.DATATYPE_TYPESYMBOL = this.typeStore.lookupAbstractDataType("TypeSymbol");
 		uses = values.relationWriter(m3TupleType);
 		declarations = values.relationWriter(m3TupleType);

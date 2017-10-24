@@ -65,7 +65,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
     private static IKernel kernel;
     private final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
-    private final PathConfig pcfg;
+    private PathConfig pcfg;
     private final String[] IGNORED_DIRECTORIES;
    
     private final HashMap<String, Integer> testsPerModule = new HashMap<String, Integer>();
@@ -77,9 +77,9 @@ public class RascalJUnitCompiledTestRunner extends Runner {
     
     public RascalJUnitCompiledTestRunner(Class<?> clazz) {
         initializeKernel();
-        
+       
         this.prefix = clazz.getAnnotation(RascalJUnitTestPrefix.class).value().replaceAll("\\\\", "");
-        this.pcfg = initializePathConfig();
+       
         this.IGNORED_DIRECTORIES = initializeIgnoredDirectories();
         
         URIResolverRegistry reg = URIResolverRegistry.getInstance();
@@ -102,8 +102,14 @@ public class RascalJUnitCompiledTestRunner extends Runner {
                     return "rascal";
                 }
             });
-            
+        }
+        
+        try {
+            this.pcfg = initializePathConfig();
             pcfg.addLibLoc(URIUtil.correctLocation("project", "rascal", "bin"));
+        }
+        catch (IOException e) {
+            assert false; // this project should exist
         }
         
         System.err.println(pcfg);
@@ -165,7 +171,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
         }
     }
 
-    private PathConfig initializePathConfig() {
+    private PathConfig initializePathConfig() throws IOException {
         ISourceLocation rootProject = URIUtil.correctLocation("project", "rascal", "/");
         return new RascalManifest().makePathConfig(rootProject);
     }
@@ -238,8 +244,6 @@ public class RascalJUnitCompiledTestRunner extends Runner {
 
                 //  Do a sufficient but not complete check on the binary; changes to imports will go unnoticed!
                 if(!resolver.exists(binary) || resolver.lastModified(source) > resolver.lastModified(binary)){
-                    System.err.println("Compiling: " + qualifiedName);
-
                     IList programs = kernel.compileAndLink(
                         vf.list(vf.string(qualifiedName)),
                         pcfg.asConstructor(kernel),
@@ -264,7 +268,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
                         modDesc.addChild(d);
                         ntests++;
  
-                        if(f.isIgnored()){
+                        if(f.isIgnored(rex)){
                             module_ignored.add(d);
                         }
                     }

@@ -75,13 +75,11 @@ distribution([4,4,4,3,1,2,1,1,3,4]);
 ----
 }
 public map[&T element, int occurs] distribution(list[&T] lst) {
-	res = while(!isEmpty(lst)) {
-		e = head(lst);
-		occurs = size([el | &T el <- lst, el == e]);
-		lst = [el | &T el <- lst, el != e];
-		append <e,occurs>;
-	}
-	return toMapUnique(res);
+     map[&T element, int occurs] res = ();
+     for (e <- lst) {
+        res[e] ? 0 += 1;
+     }
+     return res; 
 }
 
 @doc{

@@ -40,6 +40,8 @@ import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.uri.URIUtil;
+
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
@@ -94,8 +96,9 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	@Override
 	public IConstructor encodeAsConstructor() {
-	    return getValueFactory().constructor(RascalValueFactory.Function_Function,
-	            getAst().getLocation());
+	    AbstractAST ast2 = getAst();
+        return getValueFactory().constructor(RascalValueFactory.Function_Function,
+	            ast2 != null ? ast2.getLocation() : URIUtil.correctLocation("unknown", "", ""));
 	}
 
 	protected static List<KeywordFormal> getFormals(FunctionDeclaration func) {

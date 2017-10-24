@@ -9,16 +9,12 @@ node {
     }
     
     stage('Build') {
-      sh "mvn -DskipTests -Drascal.boot=--validating -B clean compile"
-    }
-    
-    stage('Test') {
-      sh "mvn -B test"
-      sh "curl https://codecov.io/bash | bash -s - -K -t e8b4481a-d178-4148-a4ff-502906390512"
+      sh "mvn -Drascal.courses=--buildCourses -Drascal.boot=--validating -B clean compile test"
+      sh "curl https://codecov.io/bash | bash -s - -K -X gcov -t e8b4481a-d178-4148-a4ff-502906390512"
     }
     
     stage('Packaging') {
-      sh "mvn -DskipTest -B package"
+      sh "mvn -DskipTests -B package"
     }
     
     stage('Deploy') {

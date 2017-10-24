@@ -2,29 +2,29 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
 
-public class CompilerError extends RuntimeException {
+public class InternalCompilerError extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 	
-	public CompilerError(String msg) {
+	public InternalCompilerError(String msg) {
 		super(msg);
 	}
 	
-	public CompilerError(String msg, Throwable cause) {
+	public InternalCompilerError(String msg, Throwable cause) {
 		super(msg, cause);
 	}
 
-	public CompilerError(String msg, Frame currentFrame, Throwable cause) {
+	public InternalCompilerError(String msg, Frame currentFrame, Throwable cause) {
         super(msg, cause);
         printStackTrace(currentFrame, new PrintWriter(System.out, true));
     }
 	
-	public CompilerError(String msg, Frame currentFrame) {
+	public InternalCompilerError(String msg, Frame currentFrame) {
 		super(msg);
 		printStackTrace(currentFrame, new PrintWriter(System.out, true));
 	}
 	
-	public CompilerError(String msg, PrintWriter out, Frame currentFrame) {
+	public InternalCompilerError(String msg, PrintWriter out, Frame currentFrame) {
 		super(msg);
 		printStackTrace(currentFrame, out);
 	}

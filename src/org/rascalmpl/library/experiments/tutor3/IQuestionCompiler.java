@@ -17,7 +17,7 @@ import org.rascalmpl.library.lang.rascal.boot.IJava2Rascal;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IString;
 
-@RascalModule("experiments::tutor3::QuestionCompiler")
+@RascalModule("lang::rascal::boot::Kernel")
 public interface IQuestionCompiler extends IJava2Rascal {
   
   /**

@@ -6,7 +6,6 @@ import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,16 +26,17 @@ import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.uri.URIResolverRegistry;
-import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 
 public class BreakPointManager {
 	
@@ -93,7 +93,7 @@ public class BreakPointManager {
 		returnFrame = null;
 	}
 	
-	void edit(Path file){
+	void edit(ISourceLocation file){
 	  ideServices.edit(file);
 	}
 	

@@ -1,1 +1,2 @@
 Source: src/org/rascalmpl/library, src/org/rascalmpl/tutor
+Require-Libraries: library
