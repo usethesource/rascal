@@ -104,8 +104,9 @@ public class MemoizationCache<TResult> {
 		
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj) 
+			if (this == obj) {
 				return true;
+			}
 			if (obj instanceof LookupKey) {
 				return ((LookupKey)obj).equals(this);
 			}
