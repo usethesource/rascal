@@ -49,6 +49,14 @@ public abstract class ResourceResult extends Result<IValue> implements IExternal
 	}
 	
 	@Override
+    public boolean match(IValue other) {
+        if (other instanceof ResourceResult) {
+            return fullURI.equals(((ResourceResult) other).fullURI);
+        }
+        return false;
+    }
+	
+	@Override
 	public boolean isAnnotatable() {
 		return false;
 	}

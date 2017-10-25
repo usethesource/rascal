@@ -31,6 +31,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -187,6 +188,11 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 	public boolean isEqual(IValue other) {
 		return other == this;
 	}
+	
+	@Override
+    public boolean match(IValue other) throws FactTypeUseException {
+        return other == this;
+    }
 	
 	@Override
 	public IValue getValue() {
