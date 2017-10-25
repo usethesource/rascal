@@ -165,6 +165,8 @@ public class Bootstrap {
             info("YOU ARE NOT SUPPOSED TO BOOTSTRAP OFF AN UNSTABLE VERSION! ***ONLY FOR DEBUGGING PURPOSES***");
         }
         
+        System.out.println("Bootstrapping: " + versionToBuild);
+        
         Path sourceFolder = new File(args[arg++]).toPath();
         if (!Files.exists(sourceFolder.resolve("org/rascalmpl/library/Prelude.rsc"))) {
         	throw new RuntimeException("source folder " + sourceFolder + " should point to source folder of standard library containing Prelude and the compiler");
@@ -204,8 +206,11 @@ public class Bootstrap {
             }
         }
         
-        final boolean realBootstrap = basicOption || validatingOption;
-        final boolean validatingBootstrap = validatingOption;
+        final boolean releaseBootstrap = !versionToBuild.endsWith("-SNAPSHOT");
+        final boolean realBootstrap = basicOption || validatingOption || releaseBootstrap;
+        final boolean validatingBootstrap = validatingOption || releaseBootstrap;
+        
+       
         
         Path tmpDir = initializeTemporaryFolder(tmpFolder, cleanTempDir, versionToUse);
         
@@ -241,7 +246,8 @@ public class Bootstrap {
                         "|boot:///|",  // This is retrieved from the released jar
                         phaseFolderString(1, tmpDir), 
                         phaseFolderString(2, tmpDir),  
-                        phaseFolderString(3, tmpDir)
+                        phaseFolderString(3, tmpDir),
+                        phaseFolderString(4, tmpDir)
                 };
                   
                 if (!realBootstrap) {
@@ -274,7 +280,22 @@ public class Bootstrap {
                     System.out.println("Comparison between Phase 2 and Phase 3 failed: " + e.getMessage());
                     System.exit(1);
                   }
+                  if (releaseBootstrap) {
+                      time("Phase 4", () -> compilePhase(tmpDir, 4, librarySource, rvm[1], kernel[3], rvm[1], "|std:///|", targetFolder));  
+                      try {
+                          time("Validation 2", () -> {
+                              long nfiles = compareGeneratedRVMCode(Paths.get(kernel[3]), Paths.get(kernel[4]));
+                              System.out.println("VALIDATION: All " + nfiles + " *.rvm files in Phase 3 and Phase 4 are identical");
+                          });
+                      }
+                      catch (Exception e) {
+                          System.out.println("Comparison between Phase 3 and Phase 4 failed: " + e.getMessage());
+                          System.exit(1);
+                      }
+                  }
                 }
+                
+      
                 
                 // The result of the final compilation phase is copied to the bin folder such that it can be deployed with the other compiled (class) files
                 time("Copying bootstrapped files", () -> copyResult(new File(kernel[2]).toPath(), targetFolder.resolve("boot")));
