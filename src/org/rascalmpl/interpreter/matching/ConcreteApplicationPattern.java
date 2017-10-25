@@ -32,6 +32,7 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
+import io.usethesource.vallang.impl.func.TupleFunctions;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.visitors.IValueVisitor;
 import org.rascalmpl.values.uptr.ITree;
@@ -86,23 +87,12 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		}
 
 		public boolean isEqual(IValue other) {
-			if (!(other instanceof ITuple)) {
-				return false;
-			}
-			
-			if (arity() != ((ITuple) other).arity()) {
-				return false;
-			}
-			
-			int i = 0;
-			for (IValue otherChild : (ITuple) other) {
-				if (!get(i++).isEqual(otherChild)) {
-					return false;
-				}
-			}
-			
-			return true;
+		    return TupleFunctions.isEqual(this, other);
 		}
+		
+		public boolean match(IValue other) {
+            return TupleFunctions.match(this, other);
+        }
 
 		
 		public Iterator<IValue> iterator() {

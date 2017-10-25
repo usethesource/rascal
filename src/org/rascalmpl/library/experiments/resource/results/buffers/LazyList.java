@@ -57,6 +57,12 @@ public class LazyList implements IList {
 		throw new IllegalOperationException("isEqual over buffered list",
 				getType());
 	}
+	
+	@Override
+    public boolean match(IValue other) {
+        throw new IllegalOperationException("match over buffered list",
+                getType());
+    }
 
 	@Override
 	public Type getElementType() {

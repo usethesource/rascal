@@ -1855,10 +1855,9 @@ public class Prelude {
 	 * Map
 	 */
 	
-// Anticipating implementation in vallang:
-//	public IValue delete(IMap M, IValue key) {
-//	    return M.removeKey(key);
-//	}
+	public IValue delete(IMap M, IValue key) {
+	    return M.removeKey(key);
+	}
 	
 	public IValue domain(IMap M)
 	//@doc{domain -- return the domain (keys) of a map}
