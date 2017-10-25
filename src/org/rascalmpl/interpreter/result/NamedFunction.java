@@ -90,12 +90,7 @@ abstract public class NamedFunction extends AbstractFunction {
     }
 
     public boolean clearMemoizationCache() {
-        if (hasMemoization) {
-            memoization = null;
-            return true;
-        } else {
-            return false;
-        }
+        memoization = null;
     }
     
     protected Result<IValue> getMemoizedResult(IValue[] argValues, Map<String, IValue> keyArgValues) {
@@ -185,7 +180,7 @@ abstract public class NamedFunction extends AbstractFunction {
         return 0;
     }
 
-    protected boolean hasMemoization() {
+    public boolean hasMemoization() {
         return hasMemoization;
     }
 
