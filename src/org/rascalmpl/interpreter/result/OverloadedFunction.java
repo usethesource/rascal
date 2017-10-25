@@ -513,6 +513,12 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 		return false;
 	}
 
+	
+	@Override
+    public boolean match(IValue other) {
+       return isEqual(other);
+    }
+	
 	@Override
 	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToOverloadedFunction(this);
