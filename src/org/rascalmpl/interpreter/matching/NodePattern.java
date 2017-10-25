@@ -392,6 +392,11 @@ public class NodePattern extends AbstractMatchingResult {
 		public boolean isEqual(IValue other) {
 			throw new UnsupportedOperationException();
 		}
+		
+		@Override
+        public boolean match(IValue other) {
+            throw new UnsupportedOperationException();
+        }
 
 		@Override
 		public IValue get(int i) throws IndexOutOfBoundsException {

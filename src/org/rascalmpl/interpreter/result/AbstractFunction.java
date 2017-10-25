@@ -423,9 +423,14 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 
 	@Override
-	public boolean isEqual(IValue other) throws FactTypeUseException {
+	public boolean isEqual(IValue other) {
 		return other == this;
 	}
+	
+	@Override
+    public boolean match(IValue other) {
+        return other == this;
+    }
 
 	public boolean isIdentical(IValue other) throws FactTypeUseException {
 		return other == this;

@@ -108,6 +108,12 @@ public class LazySet implements ISet {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	@Override
+    public boolean match(IValue other) {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
 	@Override
 	public String toString() {
