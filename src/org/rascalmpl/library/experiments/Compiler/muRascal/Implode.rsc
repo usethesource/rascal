@@ -278,6 +278,7 @@ MuExp preprocessMuCall(MuExp org_exp, str fname, list[MuExp] exps){
     case "set2list":                return muCallMuPrim("set2list", exps);
     case "mset2list":               return muCallMuPrim("mset2list", exps);
     case "equal":                   return muCallMuPrim("equal", exps);
+    case "match":                   return muCallMuPrim("match", exps);
     case "equal_set_mset":          return muCallMuPrim("equal_set_mset", exps);
     case "get_children":            return muCallMuPrim("get_children", exps);
     case "get_children_and_keyword_mmap":
