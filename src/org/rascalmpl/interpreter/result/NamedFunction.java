@@ -89,7 +89,7 @@ abstract public class NamedFunction extends AbstractFunction {
         return name;
     }
 
-    public boolean clearMemoizationCache() {
+    public void clearMemoizationCache() {
         memoization = null;
     }
     
