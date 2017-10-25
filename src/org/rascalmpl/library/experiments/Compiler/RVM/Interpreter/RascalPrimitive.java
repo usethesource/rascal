@@ -5845,7 +5845,7 @@ public enum RascalPrimitive {
 	is_appl {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			return vf.bool(arg_1 instanceof ITree && TreeAdapter.isAppl((ITree) arg_1));
+			return vf.bool(arg_1 instanceof ITree && ((ITree) arg_1).isAppl());
 		}	
 	},
 
@@ -5858,7 +5858,7 @@ public enum RascalPrimitive {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			Object treeSubject = arg_1;
-			return vf.bool(treeSubject instanceof ITree && TreeAdapter.isAmb((ITree) treeSubject));
+			return vf.bool(treeSubject instanceof ITree && ((ITree) arg_1).isAmb());
 		}	
 	},
 
@@ -5872,7 +5872,7 @@ public enum RascalPrimitive {
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			IValue treeSubject = (IValue) arg_1;
 			Type subjectType = treeSubject.getType();
-			return vf.bool(subjectType.isAbstractData() && TreeAdapter.isLayout((ITree)treeSubject));
+			return vf.bool(subjectType.isAbstractData() && TreeAdapter.isLayout(((ITree)treeSubject));
 		}	
 	},
 
