@@ -5872,7 +5872,7 @@ public enum RascalPrimitive {
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			IValue treeSubject = (IValue) arg_1;
 			Type subjectType = treeSubject.getType();
-			return vf.bool(subjectType.isAbstractData() && TreeAdapter.isLayout(((ITree)treeSubject));
+			return vf.bool(subjectType.isAbstractData() && TreeAdapter.isLayout((ITree)treeSubject));
 		}	
 	},
 
