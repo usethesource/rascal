@@ -242,6 +242,14 @@ public class MemoizationCache<TResult> {
 		return result == null ? null : result.get();
 	}
 	
+	public void clear() {
+	    for (Entry<Object,KeySoftReference<TResult>> e : cache.entrySet()) {
+	        e.getValue().clear();
+	    }
+	    
+	    cache.clear();
+	}
+	
 
 	/**
 	 * This method assumes that the getStoredResult is first called to assure there was no result already there beforehand.
