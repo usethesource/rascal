@@ -277,7 +277,7 @@ public class JarConverter extends M3Converter {
 
             IString className = getClassName(cn.name);
             ISourceLocation compUnitLogical = values.sourceLocation(COMP_UNIT_SCHEME, "", compUnitRelative);
-            ISourceLocation classLogical = values.sourceLocation(getClassScheme(cn.access), "", getClassRelativePath(cn.name));
+            ISourceLocation classLogical = values.sourceLocation(getClassScheme(cn.access), "", cn.name);
             //TODO: check the offset and length info. 
             ISourceLocation classPhysical = values.sourceLocation(compUnitPhysical, cr.header, cr.b.length);
 
@@ -303,9 +303,9 @@ public class JarConverter extends M3Converter {
         if(cn.innerClasses != null) {
             for(int i = 0; i < cn.innerClasses.size(); i++) {
                 InnerClassNode icn = (InnerClassNode) cn.innerClasses.get(i);
-                String innerClassPath = icn.name.replace("$", "/");
+                String innerClassPath = icn.name;
 
-                if(!innerClassPath.equals(cn.name.replace("$", "/"))) {
+                if(!innerClassPath.equals(cn.name)) {
                     ISourceLocation innerClassLogical = values.sourceLocation(getClassScheme(icn.access), "", innerClassPath);
                     addToContainment(classLogical, innerClassLogical);
                 }
@@ -410,7 +410,7 @@ public class JarConverter extends M3Converter {
                     MethodNode mnSuper = (MethodNode) cn.methods.get(i);
                     if(mnSuper.name.equals(mn.name) && mnSuper.desc.equals(mn.desc)) {  
                         String signature = getMethodSignature(mnSuper.name, mn.desc, ((IString)getClassName(cn.name)).getValue());
-                        ISourceLocation superLogical = values.sourceLocation(getClassScheme(cn.access), "", cn.name.replace("$", "/"));
+                        ISourceLocation superLogical = values.sourceLocation(getClassScheme(cn.access), "", cn.name);
                         ISourceLocation methodSuperLogical = values.sourceLocation(getMethodScheme(mnSuper.name), "", 
                             superLogical.getPath() + "/" + signature);
 
@@ -570,7 +570,7 @@ public class JarConverter extends M3Converter {
         if(cn.superName != null && !(cn.superName.equalsIgnoreCase(Object.class.getName().replace(".", "/")) ||
             cn.superName.equalsIgnoreCase(Enum.class.getName().replace(".", "/")))) {
             //TODO: check class scheme (interfaces)
-            ISourceLocation extendsLogical = values.sourceLocation(classLogical.getScheme(), "", cn.superName.replace("$", "/"));
+            ISourceLocation extendsLogical = values.sourceLocation(classLogical.getScheme(), "", cn.superName);
             insert(extendsRelations, classLogical, extendsLogical);
         }
     }
@@ -582,7 +582,7 @@ public class JarConverter extends M3Converter {
         if(cn.interfaces != null) {
             for(int i = 0; i < cn.interfaces.size(); i++) {
                 ISourceLocation implementsLogical = values.sourceLocation(INTERFACE_SCHEME, "", 
-                    ((String) cn.interfaces.get(i)).replace("$", "/"));
+                    ((String) cn.interfaces.get(i)));
                 insert(implementsRelations, classLogical, implementsLogical);
             }
         }
@@ -681,7 +681,7 @@ public class JarConverter extends M3Converter {
      * Returns a vallang String with the name of a class node. 
      */
     private IString getClassName(String name) {
-        String classPath = getClassRelativePath(name);
+        String classPath = name;
         return values.string(classPath.substring(classPath.lastIndexOf("/") + 1));
     }
 
