@@ -63,6 +63,7 @@ public class JarConverter extends M3Converter {
     private final static String ENUM_SCHEME = "java+enum";
     private final static String ENUM_CONSTANT_SCHEME = "java+enumConstant";
     private final static String FIELD_SCHEME = "java+field";
+    private final static String INITIALIZER_SCHEME = "java+initializer";
     private final static String INTERFACE_SCHEME = "java+interface";
     private final static String METHOD_SCHEME = "java+method";
     private final static String PACKAGE_SCHEME = "java+package";
@@ -73,12 +74,18 @@ public class JarConverter extends M3Converter {
      * Constant with the name of consructor methods in Java bytecode.
      */
     private final static String COMPILED_CONSTRUCTOR_NAME = "<init>";
+    private final static String COMPILED_STATIC_CONSTRUCTOR_NAME = "<clinit>";
 
+    /**
+     * Constants with M3-specific names.
+     */
+    private final static String M3_STATIC_CONSTRUCTOR_NAME = "$initializer";
 
+    
     //------------------------------------------------------------
     // Fields
     //------------------------------------------------------------
-
+    
     /**
      * Map relating modifiers opcodes with modifier nodes.
      */
@@ -98,7 +105,7 @@ public class JarConverter extends M3Converter {
     /**
      * URI resolver registry
      */
-    private URIResolverRegistry resgistry;
+    private URIResolverRegistry registry;
 
 
     //------------------------------------------------------------
@@ -117,7 +124,7 @@ public class JarConverter extends M3Converter {
     @SuppressWarnings("unchecked")
     public void convert(ISourceLocation jarLoc) {
         loc = jarLoc;
-        resgistry = URIResolverRegistry.getInstance();
+        registry = URIResolverRegistry.getInstance();
 
         initializeModifiers();
         initializePrimitiveTypes();
@@ -134,7 +141,7 @@ public class JarConverter extends M3Converter {
     }
 
     /**
-     * Initialized the modifiers map by considering modifier opcodes
+     * Initializes the modifiers map by considering modifier opcodes
      * and their corresponding modifier nodes.
      */
     private void initializeModifiers() {
@@ -177,7 +184,7 @@ public class JarConverter extends M3Converter {
     private void createM3(ISourceLocation uri) 
         throws IOException, URISyntaxException {
         //ISourceLocation jarLocation = values.sourceLocation("file", "", loc.getPath().substring(0,loc.getPath().indexOf("!")));
-        InputStream is = resgistry.getInputStream(uri);
+        InputStream is = registry.getInputStream(uri);
         JarInputStream jarStream = new JarInputStream(is);
         JarEntry entry = jarStream.getNextJarEntry();
 
@@ -193,6 +200,9 @@ public class JarConverter extends M3Converter {
             }
             entry = jarStream.getNextJarEntry();
         }
+        
+        jarStream.close();
+        is.close();
     }
 
     //  private void createM3(ISourceLocation uri) 
@@ -352,29 +362,25 @@ public class JarConverter extends M3Converter {
             for(int i = 0; i < cn.methods.size(); i++) {
                 MethodNode mn = (MethodNode) cn.methods.get(i);
 
-                // TODO: check
-                if(!getClassScheme(cn.access).equals(ENUM_SCHEME) && !(mn.name.equalsIgnoreCase("values") || 
-                    mn.name.equalsIgnoreCase("valueOf"))) {
-                    String signature = getMethodSignature(mn.name, mn.desc, getName(classLogical).getValue());
+                String signature = getMethodSignature(mn.name, mn.desc, getName(classLogical).getValue());
+                IString methodName = (signature.contains("(")) ? values.string(signature.substring(0,signature.indexOf("("))) 
+                    : values.string(signature);
+                ISourceLocation methodLogical = values.sourceLocation(getMethodScheme(mn.name), "", 
+                    classLogical.getPath() + "/" + signature);
+                //TODO: check offset + length
+                ISourceLocation methodPhysical = compUnitPhysical;
 
-                    IString methodName = values.string(signature.substring(0,signature.indexOf("(")));
-                    ISourceLocation methodLogical = values.sourceLocation(getMethodScheme(mn.name), "", 
-                        classLogical.getPath() + "/" + signature);
-                    //TODO: check offset + length
-                    ISourceLocation methodPhysical = compUnitPhysical;
+                addToContainment(classLogical, methodLogical);
+                addToDeclarations(methodLogical, methodPhysical);
+                addToNames(methodName, methodLogical);
+                addToModifiers(mn.access, methodLogical);
+                addToAnnotations(composeAnnotations(mn.visibleAnnotations, mn.invisibleAnnotations), methodLogical);
+                addToTypeDependency(methodLogical, Type.getType(mn.desc).getReturnType().getDescriptor());
+                addToMethodOverrides(cn, mn, methodLogical);
 
-                    addToContainment(classLogical, methodLogical);
-                    addToDeclarations(methodLogical, methodPhysical);
-                    addToNames(methodName, methodLogical);
-                    addToModifiers(mn.access, methodLogical);
-                    addToAnnotations(composeAnnotations(mn.visibleAnnotations, mn.invisibleAnnotations), methodLogical);
-                    addToTypeDependency(methodLogical, Type.getType(mn.desc).getReturnType().getDescriptor());
-                    addToMethodOverrides(cn, mn, methodLogical);
-
-                    //TODO: we do not have access to parameters names - Check
-                    setParameterRelations(mn, methodLogical);
-                    setInstructionRelations(mn, methodLogical);
-                }
+                //TODO: we do not have access to parameters names - Check
+                setParameterRelations(mn, methodLogical);
+                setInstructionRelations(mn, methodLogical);
             }
         }
     }
@@ -671,13 +677,6 @@ public class JarConverter extends M3Converter {
     }
 
     /**
-     * If an inner class is managed, '$' are replaced by '/'.
-     */
-    private String getClassRelativePath(String name) {
-        return name.replace("$", "/");
-    }
-
-    /**
      * Returns a vallang String with the name of a class node. 
      */
     private IString getClassName(String name) {
@@ -720,12 +719,13 @@ public class JarConverter extends M3Converter {
      * the parent class.
      */
     private String getMethodSignature(String name, String desc, String constructorName) {
-        String signature = (name.equals(COMPILED_CONSTRUCTOR_NAME)) ? constructorName + "(" : name + "(";
+        String signature = (name.equals(COMPILED_CONSTRUCTOR_NAME)) ? constructorName + "(" : 
+            (name.equals(COMPILED_STATIC_CONSTRUCTOR_NAME)) ? getStaticInitializerName(constructorName) : name + "(";
         String[] parameters = getMethodParameters(desc);
         for(String parameter : parameters) {
             signature += (signature.endsWith("(")) ? parameter : "," + parameter;
         }
-        signature += ")";
+        signature += (name.equals(COMPILED_STATIC_CONSTRUCTOR_NAME)) ? "" : ")";
         return signature;
     }
 
@@ -758,7 +758,8 @@ public class JarConverter extends M3Converter {
      * otherwise.
      */
     private String getMethodScheme(String name) {
-        return (name.equals(COMPILED_CONSTRUCTOR_NAME)) ? CONSTRUCTOR_SCHEME : METHOD_SCHEME;
+        return (name.equals(COMPILED_CONSTRUCTOR_NAME)) ? CONSTRUCTOR_SCHEME : 
+            (name.equals(COMPILED_STATIC_CONSTRUCTOR_NAME)) ? INITIALIZER_SCHEME : METHOD_SCHEME;
     }
 
     /**
@@ -767,5 +768,12 @@ public class JarConverter extends M3Converter {
      */
     private String getFieldScheme(int access) {
         return ((access & Opcodes.ACC_ENUM) != 0) ? ENUM_CONSTANT_SCHEME : FIELD_SCHEME;
+    }
+    
+    /**
+     * Returns the name of a static initializer.
+     */
+    private String getStaticInitializerName(String className) {
+        return className + M3_STATIC_CONSTRUCTOR_NAME;
     }
 }
