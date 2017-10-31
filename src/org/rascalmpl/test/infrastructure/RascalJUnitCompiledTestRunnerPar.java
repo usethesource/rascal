@@ -94,7 +94,6 @@ public class RascalJUnitCompiledTestRunnerPar extends Runner {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        System.err.println(pcfg);
     }
     
     private String[] initializeIgnoredDirectories() {
@@ -166,7 +165,6 @@ public class RascalJUnitCompiledTestRunnerPar extends Runner {
     @Override
     public int testCount(){
         getDescription();
-        System.err.println("testCount: " + totalTests);
         return totalTests;
     }
 
