@@ -24,6 +24,7 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
@@ -194,6 +195,32 @@ public class ReadEvalPrintDialogMessages {
 		}
 		return content;
 	}
+	
+	public static String thrownMessage(Thrown e) {
+        LimitedResultWriter lros = new LimitedResultWriter(1000);
+        StandardTextWriter stw = new StandardTextWriter(false);
+        try {
+            stw.write(e.getValue(), lros);
+        }
+        catch(IOLimitReachedException iolrex){
+            // This is fine, ignore.
+        }
+        catch(IOException ioex){
+            // This can never happen.
+        }
+        
+        StringWriter content = new StringWriter();
+        
+        content.append(e.getLocation().toString() 
+                + ": " 
+                + lros.getBuffer().toString()
+                + "\n");
+        
+        e.printStackTrace(new PrintWriter(content));
+        content.append("\n");
+        
+        return content.toString();
+    }
 
 	public static String staticErrorMessage(StaticError e) {
 		return e.getLocation() + ": " + e.getMessage() + "\n";

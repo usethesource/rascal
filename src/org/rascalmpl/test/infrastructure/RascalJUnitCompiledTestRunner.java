@@ -177,7 +177,6 @@ public class RascalJUnitCompiledTestRunner extends Runner {
     @Override
     public int testCount(){
         getDescription();
-        System.err.println("testCount: " + totalTests);
         return totalTests;
     }
 

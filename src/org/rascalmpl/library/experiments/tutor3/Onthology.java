@@ -107,31 +107,25 @@ public class Onthology {
 		if(!Files.exists(courseDestPath)){
 			Files.createDirectories(courseDestPath);
 		}
-		try {
-			directory = FSDirectory.open(courseDestPath);
-			IndexWriterConfig config = new IndexWriterConfig(multiFieldAnalyzer);
-			config.setOpenMode( IndexWriterConfig.OpenMode.CREATE);
-			iwriter = new IndexWriter(directory, config);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+
+		directory = FSDirectory.open(courseDestPath);
+		IndexWriterConfig config = new IndexWriterConfig(multiFieldAnalyzer);
+		config.setOpenMode( IndexWriterConfig.OpenMode.CREATE);
+		iwriter = new IndexWriter(directory, config);
 
 		FileVisitor<Path> fileProcessor = new CollectConcepts();
-		try {
-			Files.walkFileTree(courseSrcPath, fileProcessor);
-			iwriter.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		Files.walkFileTree(courseSrcPath, fileProcessor);
+		
+		// TODO: fix closing a writer stored in a field
+		iwriter.close();
 		
 		for(Path conceptName : conceptMap.keySet()){
 			Concept concept = conceptMap.get(conceptName);
 			try {
 				concept.preprocess(this, executor);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			    System.err.println(e.getMessage());
+			    // TODO: handle failed file pre-processor with proper exception (with source location)
 			}
 		}
 	}
@@ -277,7 +271,6 @@ public class Onthology {
 			    questionCompiler = Java2Rascal.Builder.bridge(vf, pcfg, IQuestionCompiler.class).build();
 			  }
 			  String qtext = questionCompiler.compileQuestions(vf.string(questionsName.toString()), pcfg.asConstructor(questionCompiler) /*pcfg.getSrcs(), pcfg.getLibs(), pcfg.getcourses(), pcfg.getBin(), pcfg.getBoot()*/).getValue();
-			  System.err.println("qtext: " + qtext);
 			  Concept questionsConcept = new Concept(questionsName, qtext, destPath, libSrcPath);
 			  questionsConcept.setQuestions();
 			  
