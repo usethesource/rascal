@@ -193,7 +193,7 @@ public class JarConverter extends M3Converter {
             if(entry.getName().endsWith(".class")) {
                 String compUnit = getCompilationUnitRelativePath();
                 ClassReader cr = getClassReader(jarStream);
-
+                
                 setCompilationUnitRelations(compUnit);
                 setPackagesRelations(compUnit);
                 setClassRelations(cr, compUnit);
@@ -284,7 +284,7 @@ public class JarConverter extends M3Converter {
         if(cr != null) {
             ClassNode cn = new ClassNode();
             cr.accept(cn, ClassReader.SKIP_DEBUG);
-
+            
             IString className = getClassName(cn.name);
             ISourceLocation compUnitLogical = values.sourceLocation(COMP_UNIT_SCHEME, "", compUnitRelative);
             ISourceLocation classLogical = values.sourceLocation(getClassScheme(cn.access), "", cn.name);
@@ -298,26 +298,36 @@ public class JarConverter extends M3Converter {
             addToImplements(cn, classLogical);
             addToModifiers(cn.access, classLogical, true);
             addToAnnotations(composeAnnotations(cn.visibleAnnotations, cn.invisibleAnnotations), classLogical);
-
-            setInnerClassRelations(cn, classLogical);
+            
+            setInnerClassRelations(cn, classLogical); 
             setFieldRelations(cn, classLogical);
             setMethodRelations(cn, classLogical);
         }
     }
 
     /**
-     * Generates containment relations among the input class and
-     * its inner classes.
+     * Generates containment relations among the input class and its
+     * inner classes.
+     * Note: cn.innerClasses is not providing consistent information.
+     * Check if a new version of ASM is used. 
      */
     private void setInnerClassRelations(ClassNode cn, ISourceLocation classLogical) throws URISyntaxException {
         if(cn.innerClasses != null) {
             for(int i = 0; i < cn.innerClasses.size(); i++) {
                 InnerClassNode icn = (InnerClassNode) cn.innerClasses.get(i);
-                String innerClassPath = icn.name;
-
-                if(!innerClassPath.equals(cn.name)) {
-                    ISourceLocation innerClassLogical = values.sourceLocation(getClassScheme(icn.access), "", innerClassPath);
+                ISourceLocation innerClassLogical = values.sourceLocation(getClassScheme(icn.access), "", icn.name);
+                
+                //TODO: redundant relation for local and anonymous classes (method <- class && class <- class)
+                if(!icn.name.equals(cn.name) && icn.name.length() > cn.name.length()) {
                     addToContainment(classLogical, innerClassLogical);
+                }
+                else if(icn.name.equals(cn.name) && cn.outerMethod != null && !cn.outerMethod.isEmpty()) {
+                    String path = classLogical.getPath();
+                    if(path.contains("$")) {
+                        classLogical = URIUtil.changePath(classLogical, path.substring(0,path.lastIndexOf("$")));
+                        ISourceLocation methodLogical = getMethodLogicalLoc(cn.outerMethod, cn.outerMethodDesc, classLogical);
+                        addToContainment(methodLogical, innerClassLogical);
+                    }
                 }
             }
         }
@@ -365,8 +375,7 @@ public class JarConverter extends M3Converter {
                 String signature = getMethodSignature(mn.name, mn.desc, getName(classLogical).getValue());
                 IString methodName = (signature.contains("(")) ? values.string(signature.substring(0,signature.indexOf("("))) 
                     : values.string(signature);
-                ISourceLocation methodLogical = values.sourceLocation(getMethodScheme(mn.name), "", 
-                    classLogical.getPath() + "/" + signature);
+                ISourceLocation methodLogical = getMethodLogicalLoc(mn.name, mn.desc, classLogical);
                 //TODO: check offset + length
                 ISourceLocation methodPhysical = compUnitPhysical;
 
@@ -406,7 +415,7 @@ public class JarConverter extends M3Converter {
      */
     private void setMethodOverridesRelation(String classRelative, MethodNode mn, ISourceLocation methodLogical) throws IOException, URISyntaxException {
         ClassReader cr = getClassReader(classRelative);
-
+        
         if(cr != null) {
             ClassNode cn = new ClassNode();
             cr.accept(cn, ClassReader.SKIP_DEBUG);
@@ -741,6 +750,11 @@ public class JarConverter extends M3Converter {
         }
 
         return parameters;
+    }
+    
+    private ISourceLocation getMethodLogicalLoc(String name, String desc, ISourceLocation classLogical) throws URISyntaxException {
+        String signature = getMethodSignature(name, desc, getName(classLogical).getValue());
+        return values.sourceLocation(getMethodScheme(name), "", classLogical.getPath() + "/" + signature);
     }
 
     /**
