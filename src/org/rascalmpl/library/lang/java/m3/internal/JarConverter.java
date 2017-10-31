@@ -308,25 +308,24 @@ public class JarConverter extends M3Converter {
     /**
      * Generates containment relations among the input class and its
      * inner classes.
-     * Note: cn.innerClasses is not providing consistent information.
-     * Check if a new version of ASM is used. 
+     * Note: cn.innerClasses and cn.outerClass are not providing consistent 
+     * information. Check if a new version of ASM is used. 
      */
     private void setInnerClassRelations(ClassNode cn, ISourceLocation classLogical) throws URISyntaxException {
         if(cn.innerClasses != null) {
             for(int i = 0; i < cn.innerClasses.size(); i++) {
                 InnerClassNode icn = (InnerClassNode) cn.innerClasses.get(i);
-                ISourceLocation innerClassLogical = values.sourceLocation(getClassScheme(icn.access), "", icn.name);
+                String path = classLogical.getPath();
                 
-                //TODO: redundant relation for local and anonymous classes (method <- class && class <- class)
-                if(!icn.name.equals(cn.name) && icn.name.length() > cn.name.length()) {
-                    addToContainment(classLogical, innerClassLogical);
-                }
-                else if(icn.name.equals(cn.name) && cn.outerMethod != null && !cn.outerMethod.isEmpty()) {
-                    String path = classLogical.getPath();
-                    if(path.contains("$")) {
-                        classLogical = URIUtil.changePath(classLogical, path.substring(0,path.lastIndexOf("$")));
-                        ISourceLocation methodLogical = getMethodLogicalLoc(cn.outerMethod, cn.outerMethodDesc, classLogical);
-                        addToContainment(methodLogical, innerClassLogical);
+                if(icn.name.equals(cn.name) && path.contains("$")) {
+                    ISourceLocation outerClassLogical = URIUtil.changePath(classLogical, path.substring(0,path.lastIndexOf("$")));
+                    
+                    if(cn.outerMethod != null && !cn.outerMethod.isEmpty()) {
+                        ISourceLocation methodLogical = getMethodLogicalLoc(cn.outerMethod, cn.outerMethodDesc, outerClassLogical);
+                        addToContainment(methodLogical, classLogical);
+                    }
+                    else {
+                        addToContainment(outerClassLogical, classLogical);
                     }
                 }
             }
