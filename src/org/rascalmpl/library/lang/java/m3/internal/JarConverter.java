@@ -81,6 +81,12 @@ public class JarConverter extends M3Converter {
      */
     private final static String M3_STATIC_CONSTRUCTOR_NAME = "$initializer";
 
+    /**
+     * Source locations related constants.
+     */
+    private final static String FILE_SCHEME = "file";
+    private final static String JAR_SCHEME = "jar";
+    
     
     //------------------------------------------------------------
     // Fields
@@ -123,13 +129,13 @@ public class JarConverter extends M3Converter {
      */
     @SuppressWarnings("unchecked")
     public void convert(ISourceLocation jarLoc) {
-        loc = jarLoc;
-        registry = URIResolverRegistry.getInstance();
+        try {          
+            loc = cleanJarLoc(jarLoc);
+            registry = URIResolverRegistry.getInstance();
 
-        initializeModifiers();
-        initializePrimitiveTypes();
-
-        try {            
+            initializeModifiers();
+            initializePrimitiveTypes();
+            
             createM3(loc);
         }
         catch (URISyntaxException e) {
@@ -140,6 +146,23 @@ public class JarConverter extends M3Converter {
         }
     }
 
+    /**
+     * Returns a new source location to create the input stream.
+     */
+    //TODO: manage nested locations
+    private ISourceLocation cleanJarLoc(ISourceLocation jarLoc) throws URISyntaxException {
+        if(jarLoc.getScheme().equals(JAR_SCHEME) && jarLoc.getPath().endsWith("!")) {
+            return values.sourceLocation(FILE_SCHEME, "", jarLoc.getPath().substring(0, jarLoc.getPath().lastIndexOf("!")));
+        }
+        else if (jarLoc.getScheme().startsWith(JAR_SCHEME + "+") && jarLoc.getPath().endsWith("!")) {
+            return values.sourceLocation(jarLoc.getScheme().substring(jarLoc.getScheme().lastIndexOf("+") + 1), 
+                "", jarLoc.getPath().substring(0, jarLoc.getPath().lastIndexOf("!")));
+        }
+        else {
+            return jarLoc;
+        }
+    }
+    
     /**
      * Initializes the modifiers map by considering modifier opcodes
      * and their corresponding modifier nodes.
@@ -204,28 +227,6 @@ public class JarConverter extends M3Converter {
         jarStream.close();
         is.close();
     }
-
-    //  private void createM3(ISourceLocation uri) 
-    //  throws IOException, URISyntaxException {
-    //  String[] content = resgistry.listEntries(uri);
-    //      
-    //  for(String path : content) {
-    //      ISourceLocation local = getPhysicalLoc(uri, path);
-    //      System.out.println(local);
-    //      
-    //      if(resgistry.isFile(local) && local.getPath().endsWith(".class")) {     
-    //          compUnitPhysical = local;
-    //          String compUnit = getCompilationUnitRelativePath();
-    //          
-    //          setCompilationUnitRelations(compUnit);
-    //          setPackagesRelations(compUnit);
-    //          setClassRelations(compUnit);
-    //      }
-    //      else if(resgistry.isDirectory(local)) {
-    //          createM3(local);
-    //      }
-    //  }
-    //}
 
     /**
      * Generates compilation unit relations given a compilation unit relative
@@ -650,22 +651,6 @@ public class JarConverter extends M3Converter {
             return null;
         }
     }
-
-    //TODO: change when JarInputStream problem is solved.
-    //  private ClassReader getClassReader(String className) throws IOException, URISyntaxException {
-    //  try {
-    //      System.out.println("CLASS READER: " + getPhysicalLoc(loc, className + ".class"));
-    //      return new ClassReader(resgistry.getInputStream(getPhysicalLoc(loc, className + ".class")));
-    //  }
-    //  catch(IOException e) {
-    //      try {
-    //          return new ClassReader(className);
-    //      }
-    //      catch(IOException e1) {
-    //          return null;
-    //      }
-    //  }
-    //}
 
     /**
      * Returns a compilation unit relative path with regards to the Jar
