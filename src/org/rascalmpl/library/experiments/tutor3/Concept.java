@@ -260,15 +260,11 @@ public class Concept {
 						String resultOutput = "";
 						boolean errorFree = true;
 						try {
-//							if(!isFigure){
-								resultOutput = executor.evalPrint(line);
-//							}
-						} catch (Exception e){
+						    resultOutput = executor.evalPrint(line);
+						} catch (Throwable e){
 						  if(!mayHaveErrors){
-						    String msg = "While executing '" + complete(line) + "': " + e.getMessage();
-						    System.err.println(msg);
 						    executor.error("* __" + name + "__:");
-						    executor.error(msg);
+						    executor.error("While executing '" + complete(line) + "': " + e.getMessage());
 						  }
 						  preprocessOut.append(e.getMessage() != null ? makeRed(e.getMessage())
 						                                              : makeRed(e.toString())

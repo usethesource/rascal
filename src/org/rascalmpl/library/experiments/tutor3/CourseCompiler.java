@@ -290,7 +290,8 @@ public class CourseCompiler {
 		try {
 			Files.walkFileTree(destPath, fileProcessor);
 		} catch (IOException e) {
-			e.printStackTrace();
+		    // TODO: handle file issue (one file failed) with proper error handling mechanism.
+		    System.err.println(e.getMessage());
 		}
 
 		long duration = System.nanoTime() - startTime;
