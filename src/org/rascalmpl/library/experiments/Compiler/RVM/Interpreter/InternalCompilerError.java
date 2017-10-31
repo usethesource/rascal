@@ -16,17 +16,14 @@ public class InternalCompilerError extends RuntimeException {
 
 	public InternalCompilerError(String msg, Frame currentFrame, Throwable cause) {
         super(msg, cause);
-        printStackTrace(currentFrame, new PrintWriter(System.out, true));
     }
 	
 	public InternalCompilerError(String msg, Frame currentFrame) {
 		super(msg);
-		printStackTrace(currentFrame, new PrintWriter(System.out, true));
 	}
 	
 	public InternalCompilerError(String msg, PrintWriter out, Frame currentFrame) {
 		super(msg);
-		printStackTrace(currentFrame, out);
 	}
 	
 	
