@@ -115,17 +115,29 @@ public M3 createM3FromDirectory(loc project, bool errorRecovery = false, str jav
     return result;
 }
 
-public M3 createM3FromJar(loc jarFile) {
-    M3 model = createM3FromJarFile(jarFile);
-    rel[loc,loc] dependsOn = model.extends + model.implements;
-    model.typeDependency = model.typeDependency + dependsOn;
-
-	return model;
-}
-
 private str classPathToStr(loc jarClass) {
     return substring(jarClass.path,findLast(jarClass.path,"!")+1,findLast(jarClass.path,"."));
 }
+
+public M3 createM3FromJar(loc jarFile) {
+    M3 model = createM3FromJarFile(jarFile);
+    
+    rel[loc,loc] dependsOn = model.extends + model.implements;
+    model.typeDependency = model.typeDependency + dependsOn;
+	
+	candidates = model.implements + model.extends;
+	for(<from,to> <- candidates) {
+		model.methodOverrides += {<m, getMethodSignature(m)> 
+			| m <- containedMethods(model,from)} o {<getMethodSignature(m), m> | m <- containedMethods(model,to)};
+	}
+	return model;
+}
+
+public set[loc] containedMethods(M3 m, loc class) 
+	= {e | e <- m.containment[class], isMethod(e)};
+
+public str getMethodSignature(loc method) 
+	= substring(method.path, findLast(method.path,"/") + 1);
 
 public bool isCompilationUnit(loc entity) = entity.scheme == "java+compilationUnit";
 public bool isPackage(loc entity) = entity.scheme == "java+package";
