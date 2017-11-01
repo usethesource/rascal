@@ -124,6 +124,10 @@ IExpirationListener<IValue> {
 	public boolean isEqual(IValue other) {
 		return false;
 	}
+	
+	public boolean match(IValue other) {
+        return false;
+    }
 
 	/*@Override
 	public IValue getFact(Type key, IValue name) {

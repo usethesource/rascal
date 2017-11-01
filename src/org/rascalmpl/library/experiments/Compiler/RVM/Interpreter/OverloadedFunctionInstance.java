@@ -116,6 +116,11 @@ public class OverloadedFunctionInstance implements ICallableCompiledValue, IExte
 	public boolean isEqual(IValue other) {
 		return this == other;
 	}
+	
+	@Override
+    public boolean match(IValue other) {
+        return this == other;
+    }
 
 	@Override
 	public boolean isAnnotatable() {

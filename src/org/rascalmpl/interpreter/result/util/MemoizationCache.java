@@ -104,8 +104,9 @@ public class MemoizationCache<TResult> {
 		
 		@Override
 		public boolean equals(Object obj) {
-			if (this == obj) 
+			if (this == obj) {
 				return true;
+			}
 			if (obj instanceof LookupKey) {
 				return ((LookupKey)obj).equals(this);
 			}
@@ -240,6 +241,14 @@ public class MemoizationCache<TResult> {
 		cleanupCache();
 		KeySoftReference<TResult> result = cache.get(new LookupKey(params, keyArgs));
 		return result == null ? null : result.get();
+	}
+	
+	public void clear() {
+	    for (Entry<Object,KeySoftReference<TResult>> e : cache.entrySet()) {
+	        e.getValue().clear();
+	    }
+	    
+	    cache.clear();
 	}
 	
 

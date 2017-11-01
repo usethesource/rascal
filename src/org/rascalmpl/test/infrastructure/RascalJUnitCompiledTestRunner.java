@@ -111,8 +111,6 @@ public class RascalJUnitCompiledTestRunner extends Runner {
         catch (IOException e) {
             assert false; // this project should exist
         }
-        
-        System.err.println(pcfg);
     }
 
     private void initializeKernel() {
@@ -179,7 +177,6 @@ public class RascalJUnitCompiledTestRunner extends Runner {
     @Override
     public int testCount(){
         getDescription();
-        System.err.println("testCount: " + totalTests);
         return totalTests;
     }
 

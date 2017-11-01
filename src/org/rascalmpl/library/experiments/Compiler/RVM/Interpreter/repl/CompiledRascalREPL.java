@@ -2,7 +2,7 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl;
 
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.parseErrorMessage;
 import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.staticErrorMessage;
-import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.throwMessage;
+import static org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages.thrownMessage;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,20 +19,20 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
-import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.BaseRascalREPL;
 import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.uri.URIUtil;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-
 import jline.Terminal;
 
 public abstract class CompiledRascalREPL extends BaseRascalREPL {
@@ -179,8 +179,8 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
 		  executor.getStdErr().println(staticErrorMessage(e));
 		  return null;
 	  }
-	  catch (Throw e) {
-		  executor.getStdErr().println(throwMessage(e));
+	  catch (Thrown e) {
+		  executor.getStdErr().println(thrownMessage(e));
 		  return null;
 	  }
 	  catch (QuitException q) {

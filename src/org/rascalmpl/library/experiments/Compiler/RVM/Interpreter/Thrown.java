@@ -32,6 +32,15 @@ public class Thrown extends RuntimeException {
 		return instance;
 	}
 	
+	@Override
+	public synchronized Throwable getCause() {
+	    return cause;
+	}
+	
+	public ISourceLocation getLocation() {
+        return loc;
+    }
+	
 	public static Thrown getInstance(Throwable cause, ISourceLocation loc, Frame currentFrame) {
 	    Thrown instance = new Thrown();
 		instance.cause = cause;
@@ -58,6 +67,7 @@ public class Thrown extends RuntimeException {
 	public String toString() {
 		return getValue().toString();
 	}
+	
 	
 	public String getAdvice(){
 		if(getValue().getType().isConstructor()){
