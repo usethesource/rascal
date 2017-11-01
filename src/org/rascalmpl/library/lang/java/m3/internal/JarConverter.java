@@ -154,9 +154,10 @@ public class JarConverter extends M3Converter {
         if(jarLoc.getScheme().equals(JAR_SCHEME) && jarLoc.getPath().endsWith("!")) {
             return values.sourceLocation(FILE_SCHEME, "", jarLoc.getPath().substring(0, jarLoc.getPath().lastIndexOf("!")));
         }
-        else if (jarLoc.getScheme().startsWith(JAR_SCHEME + "+") && jarLoc.getPath().endsWith("!")) {
-            return values.sourceLocation(jarLoc.getScheme().substring(jarLoc.getScheme().lastIndexOf("+") + 1), 
-                "", jarLoc.getPath().substring(0, jarLoc.getPath().lastIndexOf("!")));
+        else if (jarLoc.getScheme().startsWith(JAR_SCHEME + "+")) {
+            return (jarLoc.getPath().endsWith("!")) ? values.sourceLocation(jarLoc.getScheme().substring(jarLoc.getScheme().lastIndexOf("+") + 1), 
+                "", jarLoc.getPath().substring(0, jarLoc.getPath().lastIndexOf("!"))) :
+                URIUtil.changeScheme(jarLoc, jarLoc.getScheme().substring(jarLoc.getScheme().lastIndexOf("+") + 1));
         }
         else {
             return jarLoc;
