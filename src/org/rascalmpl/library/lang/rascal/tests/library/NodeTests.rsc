@@ -161,3 +161,20 @@ test bool readTermFromFileADT2() = textWriteRead(#FUN, "f(1,2,3)",  f(1,2,3));
 
 test bool toStringTest() { node n = "f"(1, 2, 3); return toString(n) == "\"f\"(1,2,3)";}
     
+test bool kwParamsInfluenceUnEqual() = ""() != ""(n=1);
+
+test bool kwParamsInfluenceEqual() = !(""() == ""(n=1)); 
+
+test bool kwParamsInfluenceSetSemantics() = (0 | it + 1 | _ <- {""(), ""(n=1)}) == 2;  
+
+test bool kwParamsDoNotInfluenceMatch() {
+   node a = ""();
+   node b = ""(n=1);
+   return a := b && b := a;
+}
+
+test bool kwParamsDoNotInfluenceNoMatch() {
+   node a = ""();
+   node b = ""(n=1);
+   return !(a !:= b) && !(b !:= a);
+}
