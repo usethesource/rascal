@@ -395,20 +395,17 @@ public class CommandExecutor {
 				
 			}
 		} catch (Thrown e){
-		    StringWriter sw = new StringWriter();
-		    e.printStackTrace(new PrintWriter(sw));
 		    if(e.getFrame() != null){
-		        stderr.println(e);
 		        debugObserver.exception(e.getFrame(), e);
 		    } else {
-		        stderr.println("Exception [debugger cannot break at null frame]: " + e);
+		        // this should never happen, but if it does it would be nice to know:
+		        stderr.println("Internal warning: exception thrown from null frame: " + e);
 		    }
-			return null; 
+		    
+		    throw e;
 		}
 		catch (Throwable e) {
-		    stderr.println("An unexpected internal error occurred:");
-		    e.printStackTrace(new PrintWriter(stderr));
-		    return null;
+		    throw new RascalShellExecutionException("An unexpected internal error occurred", e);
         }
 	}
 	

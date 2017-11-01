@@ -36,26 +36,6 @@ public class QuestionCompiler {
     private RVMCore rvm;
     
     public QuestionCompiler(IValueFactory vf, PathConfig pcfg) throws IOException{
-//        this.vf = vf;
-//        srcs = pcfg.getSrcs();
-//        libs = pcfg.getLibs();
-//        bin = pcfg.getBin();
-//        boot = pcfg.getBoot();
-//        courses = pcfg.getcourses();
-//        if(rvm == null){
-//            RascalExecutionContext rex = 
-//                    RascalExecutionContextBuilder.normalContext(vf, pcfg.getBoot() /* TODO needs a kernel location */, System.out, System.err)
-//                        .setJVM(true)                   // options for complete repl
-//                        .setTrace(false)
-//                        .build();
-//            rvm = ExecutionTools.initializedRVM(rex.getQuestionCompiler(), rex);
-//        }
-//        try {
-//            compileQuestions = rvm.getOverloadedFunction("str compileQuestions(str qmodule, list[loc] srcs, list[loc] libs, list[loc] courses, loc bin, loc boot)");
-//        } catch (NoSuchRascalFunction e) {
-//            System.err.println("Function compileQuestions not found");
-//            e.printStackTrace();
-//        }
     }
     
     /**
@@ -68,9 +48,11 @@ public class QuestionCompiler {
         try {
             IString res = (IString) rvm.executeRVMFunction(compileQuestions, new IValue[] { vf.string(qmodule), srcs, libs, courses, bin, boot}, kwArgs);
             return res.getValue();
-        } catch (Exception e){
-            e.printStackTrace(System.err);
+        } catch (Throwable e){
+            System.err.println("Compilation of question failed: " + e.getMessage() + "[" + qmodule.substring(0, Math.min(qmodule.length(), 32)) + "]");
+            
+            // TODO: better error in generated documentation:
+            return "Compilation of question failed: " + e.getMessage();
         }
-        return "";
     }
 }

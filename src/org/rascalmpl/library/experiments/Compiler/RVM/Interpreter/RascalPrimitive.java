@@ -2740,18 +2740,8 @@ public enum RascalPrimitive {
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			INode leftNode = (INode) arg_2;
 			INode rightNode = (INode) arg_1;
-			int leftArity = leftNode.arity();
-			int rightArity = rightNode.arity();
 
-			if(leftArity != rightArity || !leftNode.getName().equals(rightNode.getName())){
-				return Rascal_FALSE;
-			}
-			for(int i = 0; i < leftArity; i++){
-				if(!$equal(leftNode.get(i), rightNode.get(i), currentFrame, rex).getValue()){
-					return Rascal_FALSE;
-				}
-			}
-			return Rascal_TRUE;
+			return leftNode.isEqual(rightNode) ? Rascal_TRUE : Rascal_FALSE;
 		}
 	},
 
@@ -5845,7 +5835,7 @@ public enum RascalPrimitive {
 	is_appl {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			return vf.bool(arg_1 instanceof ITree && TreeAdapter.isAppl((ITree) arg_1));
+			return vf.bool(arg_1 instanceof ITree && ((ITree) arg_1).isAppl());
 		}	
 	},
 
@@ -5858,7 +5848,7 @@ public enum RascalPrimitive {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 			Object treeSubject = arg_1;
-			return vf.bool(treeSubject instanceof ITree && TreeAdapter.isAmb((ITree) treeSubject));
+			return vf.bool(treeSubject instanceof ITree && ((ITree) arg_1).isAmb());
 		}	
 	},
 
