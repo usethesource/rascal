@@ -11,19 +11,37 @@ functions that can be used inside these functions:
 
 image::RequireAndCalculate.png[200,200,align="center"]
 
-== typeof
-The workhorse of TypePal is the function `typeof` that determines the type of given tree or source location.
+== getType
+The workhorse of TypePal is the function `getType` that determines the type of given tree or source location.
 When that is known, it is returned as value.
 If it is not known, the internal exception `TypeUnavailable()` is thrown which will abort the execution of the
 current requirement or calculator which will be tried later again.
 
 [source,rascal]
 ----
-AType typeof(Tree tree);
-AType typeof(loc src);
-AType typeof(str id, Key scope, set[IdRole] idRoles);
+AType getType(Tree tree);
+AType getType(loc src);
+AType getType(str id, Key scope, set[IdRole] idRoles);
 ----
-NOTE: Rascal has a builtin function `typeOf`; how can we avoid confusion with the above `typeof`?
+
+== getDefinitions
+
+In order to get the definition information associated with a name in a given role and scope, `getDefinitions` returns
+a set of `Define`s (since multiple definitions may apply).
+
+`Define` is defined as:
+
+[source,rascal]
+----
+alias Define  = tuple[Key scope, str id, IdRole idRole, Key defined, DefInfo defInfo];
+----
+
+and `getDefinitions` is defined as:
+
+[source,rascal]
+----
+set[Define] getDefinitions(str id, Key scope, set[IdRole] idRoles){
+----
 
 == onError
 
