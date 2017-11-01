@@ -34,6 +34,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.util.MemoizationCache;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.utils.Names;
+
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
@@ -88,6 +89,19 @@ abstract public class NamedFunction extends AbstractFunction {
         return name;
     }
 
+    public void clearMemoizationCache() {
+        if (memoization != null) {
+            MemoizationCache<Result<IValue>> m = memoization.get();
+            
+            if (m != null) {
+                m.clear();
+                memoization.clear();
+            }
+
+            memoization = null;
+        }
+    }
+    
     protected Result<IValue> getMemoizedResult(IValue[] argValues, Map<String, IValue> keyArgValues) {
         if (hasMemoization()) {
             MemoizationCache<Result<IValue>> memoizationActual = getMemoizationCache(false);
@@ -175,7 +189,7 @@ abstract public class NamedFunction extends AbstractFunction {
         return 0;
     }
 
-    protected boolean hasMemoization() {
+    public boolean hasMemoization() {
         return hasMemoization;
     }
 

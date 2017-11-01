@@ -19,6 +19,7 @@ import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
 
 import org.asciidoctor.Asciidoctor;
 import org.asciidoctor.Attributes;
@@ -187,6 +188,7 @@ public class CourseCompiler {
 	 */
 	public static void main(String[] args) throws IOException, NoSuchRascalFunction, URISyntaxException {
 		 IValueFactory vf = ValueFactoryFactory.getValueFactory();
+		 long startTime = System.nanoTime();
 		 CommandOptions cmdOpts = new CommandOptions("course-compiler");
          
          cmdOpts
@@ -288,8 +290,11 @@ public class CourseCompiler {
 		try {
 			Files.walkFileTree(destPath, fileProcessor);
 		} catch (IOException e) {
-			e.printStackTrace();
+		    // TODO: handle file issue (one file failed) with proper error handling mechanism.
+		    System.err.println(e.getMessage());
 		}
-		System.err.println("Course compilation done");
+
+		long duration = System.nanoTime() - startTime;
+		System.err.println(String.format("Course compilation done after %,d ms\n", TimeUnit.NANOSECONDS.toMillis(duration)));
 	}
 }
