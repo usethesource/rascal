@@ -116,7 +116,7 @@ private bool compareJarM3s(loc reference, loc jar, M3 (loc) builder)
 
 @ignoreCompiler{M3 not yet supported}
 public test bool hamcrestJarM3RemainedTheSame()
-	= compareJarM3s(|testdata:///m3/hamcrest-library-1.3-m3.bin|, |jar+testdata:///m3/hamcrest-library-1.3.jar.zip!hamcrest-library-1.3.jar|, getHamcrestM3);
+	= compareJarM3s(|testdata:///m3/hamcrest-library-1.3-m3.bin|, |testdata:///m3/hamcrest-library-1.3.jar|, getHamcrestM3);
 	
 // TODO: think if this can be replaced by the generic diff function.
 private bool compareM3s(M3 a, M3 b) {
