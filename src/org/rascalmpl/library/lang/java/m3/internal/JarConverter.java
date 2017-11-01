@@ -415,7 +415,7 @@ public class JarConverter extends M3Converter {
      */
     private void setMethodOverridesRelation(String classRelative, MethodNode mn, ISourceLocation methodLogical) throws IOException, URISyntaxException {
         ClassReader cr = getClassReader(classRelative);
-        
+
         if(cr != null) {
             ClassNode cn = new ClassNode();
             cr.accept(cn, ClassReader.SKIP_DEBUG);
