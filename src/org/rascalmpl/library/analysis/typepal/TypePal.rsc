@@ -53,7 +53,7 @@ default bool myMayOverload(set[Key] defs, map[Key, Define] defines) = false;
 
 // --- Error handling
 
-str fmt(Tree t)  = "`<prettyPrintAType(typeof(t))>`";
+str fmt(Tree t)  = "`<prettyPrintAType(getType(t))>`";
 
 Message error(Tree t, str msg) = error(msg, getLoc(t));
 
@@ -68,7 +68,6 @@ void reportError(Tree t, str msg){
 void reportErrors(set[Message] msgs){
     throw checkFailed(msgs);
 }
-
 
 set[Message] filterMostPrecise(set[Message] messages){
 //  = { msg | msg <- messages, !any(msg2 <- messages, surrounds(msg, msg2)) };
@@ -245,7 +244,10 @@ AType instantiate(AType atype){
   return
       visit(atype){
         case tv: tvar(loc src) => substitute(tv)
-        case lazyLub(list[AType] atypes) => lazyLub([substitute(tp) | tp <- atypes])
+        case lazyLub(list[AType] atypes) : {
+            sbs = [substitute(tp) | tp <- atypes];
+            insert lub(sbs);
+            }
       };
 }
 
@@ -347,13 +349,13 @@ bool addFact(fct:openFact(loc src, set[loc] dependsOn,  AType() getAType)){
 }
 
 bool addFact(fct:openFact(set[loc] defines, set[loc] dependsOn, list[AType()] getATypes)){
-    //if(cdebug)println("addFact3: <fct>");
+    if(cdebug)println("addFact3: <fct>");
     if(allDependenciesKnown(dependsOn, true)){
         try {    
             tp =  (getATypes[0]() | myLUB(it, getAType()) | getAType <- getATypes[1..]);    
             for(def <- defines){ facts[def] = tp;  if(cdebug)println(" fact <def> ==\> <tp>");}
             for(def <- defines) { fireTriggers(def); }
-            //if(cdebug)println("\taddFact3: lub computed: <tp> for <defines>");
+            if(cdebug)println("\taddFact3: lub computed: <tp> for <defines>");
             return true;
         } catch TypeUnavailable(): /* cannot yet compute type */;
     }
@@ -385,7 +387,7 @@ bool addFact(fct:openFact(set[loc] defines, set[loc] dependsOn, list[AType()] ge
     if(cdebug) println("last resort");
     // last resort
     openFacts += fct;
-    //if(cdebug)println("\taddFact3: adding dependencies: <dependsOn>");
+    if(cdebug)println("\taddFact3: adding dependencies: <dependsOn>");
     for(d <- dependsOn) triggersFact[d] = (triggersFact[d] ? {}) + {fct};
     for(def <- defines) fireTriggers(def);
     return false;
@@ -451,14 +453,14 @@ Get type of a tree as inferred by specified type checker
 .Description
 xxx
 }    
-AType typeof(Tree tree) {
+AType getType(Tree tree) {
     try {
         fct = find(tree@\loc);
         //println("find(<tree@\loc>) =\> <fct>");
         res = instantiate(fct);
-        //println("typeof(<tree@\loc>) =\> <res>");
+        //println("getType(<tree@\loc>) =\> <res>");
         //if(isFullyInstantiated(res)){
-             //println("typeof(<tree@\loc>) =\> <res>");
+             //println("getType(<tree@\loc>) =\> <res>");
             return res;
         //} else {
         //    throw TypeUnavailable();
@@ -468,7 +470,7 @@ AType typeof(Tree tree) {
     }
 }
 
-AType typeof(tvar(loc l)){
+AType getType(tvar(loc l)){
     try {
         tp = facts[l];
         return tp;
@@ -477,7 +479,7 @@ AType typeof(tvar(loc l)){
     }
 }
 
-AType typeof(loc l){
+AType getType(loc l){
     try {
         tp = facts[l];
         return tp;
@@ -487,14 +489,14 @@ AType typeof(loc l){
 }
 
 
-AType typeof(str id, Key scope, set[IdRole] idRoles){
+AType getType(str id, Key scope, set[IdRole] idRoles){
     try {
         foundDefs = lookupFun(extractedTModel, use(id, anonymousOccurrence, scope, idRoles));
         if({def} := foundDefs){
            return instantiate(facts[def]);
         } else {
           if(myMayOverload(foundDefs, extractedTModel.definitions)){
-                  return overloadedAType({<d, instantiate(facts[d])> | d <- foundDefs});
+                  return overloadedAType({<d, extractedTModel.definitions[d].idRole, instantiate(facts[d])> | d <- foundDefs});
           } else {
                throw AmbiguousDefinition(foundDefs);
           }
@@ -502,7 +504,7 @@ AType typeof(str id, Key scope, set[IdRole] idRoles){
      } catch NoSuchKey(k):
             throw TypeUnavailable();
        catch NoKey(): {
-            println("typeof: <id> in scope <scope> ==\> TypeUnavailable1");
+            println("getType: <id> in scope <scope> ==\> TypeUnavailable1");
             throw TypeUnavailable();
        }
 }
@@ -705,7 +707,7 @@ TModel validate(TModel er,  set[Key] (TModel, Use) lookupFun = lookup, bool debu
             }
         }
         catch NoKey(): {
-            roles = size(u.idRoles) > 3 ? "name" : intercalateOr([replaceAll(getName(idRole), "Id", "") | idRole <-u.idRoles]);
+            roles = size(u.idRoles) > 5 ? "" : intercalateOr([replaceAll(getName(idRole), "Id", "") | idRole <-u.idRoles]);
             messages += error("Undefined <roles> `<getId(u)>`", u.occ);
             if(cdebug) println("  use of \"<u has id ? u.id : u.ids>\" at <u.occ> ==\> ** undefined **");
         }
@@ -792,7 +794,7 @@ TModel validate(TModel er,  set[Key] (TModel, Use) lookupFun = lookup, bool debu
                             continue handleFacts;
                     }
                     if(all(d <- foundDefs1, facts[d]?)){ 
-                       addFact(u.occ, overloadedAType({<d, instantiate(facts[d])> | d <- foundDefs1}));
+                       addFact(u.occ, overloadedAType({<d, extractedTModel.definitions[d].idRole, instantiate(facts[d])> | d <- foundDefs1}));
                        openUses -= u;
                        if(cdebug) println("  use of \"<u has id ? u.id : u.ids>\" at <u.occ> ==\> <facts[u.occ]>");
                     }
