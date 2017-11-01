@@ -543,7 +543,7 @@ set[Define] getDefinitions(str id, Key scope, set[IdRole] idRoles){
 // The "equal" predicate that succeeds or gives error
 void equal(AType given, AType expected, ErrorHandler onError){
     if(given != expected){
-        throw {error("<onError.msg>, expected <fmt(expected)>, found <fmt(given)>", onError.where)};
+        throw checkfailed(onError.where, onError.msg);
     }
 }
 
@@ -633,7 +633,7 @@ void reportError(loc src, str msg){
 
 // The "reportWarning" assertion 
 void reportWarning(loc src, str msg){
-    throw {Message::warning(msg, src)};
+    throw {Message::warning(msg, src)}; // TODO fix me
 }
 
 /*
@@ -649,7 +649,7 @@ TModel validate(TModel er,  set[Key] (TModel, Use) lookupFun = lookup, bool debu
     openFacts = extractedTModel.openFacts;
     bindings = ();
     openReqs = extractedTModel.openReqs;
-     messages = extractedTModel.messages;
+    messages = extractedTModel.messages;
     triggersRequirement = ();
     triggersFact = ();
   
