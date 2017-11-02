@@ -345,4 +345,5 @@ java void throwNullPointerException();
 @doc{Return a list of all Rascal reserved identifiers (a.k.a. keywords)}
 set[str] getRascalReservedIdentifiers() = { n | /lit(n) := #RascalKeywords.definitions[keywords("RascalKeywords")]};
     
+@javaClass{org.rascalmpl.library.util.Reflective}
 java str getRascalVersion();    
