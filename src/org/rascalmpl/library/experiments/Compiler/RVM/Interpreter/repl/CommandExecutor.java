@@ -1120,7 +1120,7 @@ public class CommandExecutor {
 	    try {
 	        // remove everything in the bin folder (recursively), but leave the itself folder as-is:
 	        for (ISourceLocation entry : URIResolverRegistry.getInstance().list(pcfg.getBin())) {
-	            new Prelude(vf).remove(entry);
+	            prelude.remove(entry);
 	        }
 	    } catch (IOException e){
 	        stderr.println("Could not clean project: " + e);
