@@ -43,9 +43,9 @@ public class RascalShell  {
             Enumeration<URL> resources = RascalShell.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
             while (resources.hasMoreElements()) {
                 Manifest manifest = new Manifest(resources.nextElement().openStream());
-                String bundleName = manifest.getMainAttributes().getValue("Bundle-Name");
+                String bundleName = manifest.getMainAttributes().getValue("Name");
                 if (bundleName != null && bundleName.equals("rascal")) {
-                    String result = manifest.getMainAttributes().getValue("Bundle-Version");
+                    String result = manifest.getMainAttributes().getValue("Specification-Version");
                     if (result != null) {
                         System.out.println("Version: " + result);
                         return;
