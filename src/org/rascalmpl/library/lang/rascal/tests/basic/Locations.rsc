@@ -112,9 +112,9 @@ test bool enclosingTest9() = !(|tmp:///x.src|(4,11) <= |tmp:///x.src|(4,10));
 
 test bool offSetLengthEnclosing(int aOffset, int aLength, int bOffset, int bLength)
   = (abs(aOffset) < toInt(pow(2,31)) 
-  && abs(aOffset + aLength) < toInt(pow(2,31))
+  && abs(aOffset) + abs(aLength) < toInt(pow(2,31))
   && abs(bOffset) < toInt(pow(2,31)) 
-  && abs(bOffset + bLength) < toInt(pow(2,31))
+  && abs(bOffset) + abs(bLength) < toInt(pow(2,31))
   && abs(aOffset) >= abs(bOffset) 
   && abs(aOffset) <= abs(bOffset) + abs(bLength) 
   && abs(aOffset) + abs(aLength) <= abs(bOffset) + abs(bLength))
