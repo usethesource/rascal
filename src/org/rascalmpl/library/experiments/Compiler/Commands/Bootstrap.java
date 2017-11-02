@@ -165,6 +165,10 @@ public class Bootstrap {
             info("YOU ARE NOT SUPPOSED TO BOOTSTRAP OFF AN UNSTABLE VERSION! ***ONLY FOR DEBUGGING PURPOSES***");
         }
         
+        if (versionToUse.equals("latest")) {
+            info("YOU ARE BOOTSTRAPPING OFF THE LATEST RELEASE");
+        }
+        
         Path sourceFolder = new File(args[arg++]).toPath();
         if (!Files.exists(sourceFolder.resolve("org/rascalmpl/library/Prelude.rsc"))) {
         	throw new RuntimeException("source folder " + sourceFolder + " should point to source folder of standard library containing Prelude and the compiler");
@@ -398,19 +402,19 @@ public class Bootstrap {
      * Either download or get the jar of the deployed version of Rascal from a previously downloaded instance.
      */
     private static Path getDeployedVersion(Path tmp, String version) throws IOException {
-		Path cached = cachedDeployedVersion(tmp, version);
-		
-		if (!cached.toFile().exists() || "unstable".equals(version)) {
-		    if (cached.toFile().exists()) {
-		        cached.toFile().delete();
-		    }
-    		URI deployedVersion = deployedVersion(version);
-    		info("downloading " + deployedVersion);
-			Files.copy(deployedVersion.toURL().openStream(), cached);
-    	}
-		
-		info("deployed version ready: " + cached);
-		return cached;
+        Path cached = cachedDeployedVersion(tmp, version);
+
+        if (!cached.toFile().exists() || "unstable".equals(version)) {
+            if (cached.toFile().exists()) {
+                cached.toFile().delete();
+            }
+            URI deployedVersion = deployedVersion(version);
+            info("downloading " + deployedVersion);
+            Files.copy(deployedVersion.toURL().openStream(), cached);
+        }
+
+        info("deployed version ready: " + cached);
+        return cached;
     }
 
     private static Path cachedDeployedVersion(Path tmpFolder, String version) {
@@ -421,12 +425,19 @@ public class Bootstrap {
 	    if ("unstable".equals(version)) {
 	        return unstableVersion();
 	    }
+	    else if ("latest".equals(version)) {
+	        return latestReleasedVersion();
+	    }
 
 	    return URIUtil.assumeCorrect("https", "update.rascal-mpl.org", "/console/rascal-" + version + ".jar");
 	}
 	
 	private static URI unstableVersion() {
         return URIUtil.assumeCorrect("https", "update.rascal-mpl.org", "/console/rascal-shell-unstable.jar");
+    }
+	
+	private static URI latestReleasedVersion() {
+        return URIUtil.assumeCorrect("http", "nexus.usethesource.io", "/service/local/artifact/maven/content", "g=org.rascalmpl&a=rascal&r=releases&v=LATEST");
     }
 	
 	private static String phaseFolderString(int phase, Path tmp) {

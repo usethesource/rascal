@@ -40,7 +40,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<lucence-version>6.1.0</lucence-version>
 		<exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
-		<rascal.boot.version>0.9.1</rascal.boot.version>
+		<rascal.boot.version>latest</rascal.boot.version>
 		<rascal.boot>--download</rascal.boot>
 		<rascal.courses>--skipCourses</rascal.courses>
 	</properties>
@@ -265,7 +265,10 @@
 							<transformers>
 								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<manifestEntries>
+                                                                                <Name>rascal</Name>
 										<Main-Class>org.rascalmpl.shell.RascalShell</Main-Class>
+                                                                                <Specification-Version>${project.version}</Specification-Version>
+                                                                                <Specification-Vendor>http://www.usethesource.io</Specification-Vendor>
 									</manifestEntries>
 								</transformer>
 								<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
