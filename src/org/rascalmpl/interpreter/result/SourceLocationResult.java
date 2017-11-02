@@ -786,48 +786,6 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		return that.nonEqualityBoolean(this);
 	}
 	
-	protected int compareSourceLocationInt(SourceLocationResult that) {
-		// Note args have already been reversed.
-		
-		ISourceLocation left = this.getValue();
-		ISourceLocation right = that.getValue();
-		if (left.isEqual(right)) {
-			return 0;
-		}
-		
-		// they are not the same
-		int compare = left.top().toString().compareTo(right.top().toString());
-		if (compare != 0) {
-			return compare;
-		}
-		
-		// but the uri's are the same
-		// note that line/column information is superfluous and does not matter for ordering
-		
-		if (left.hasOffsetLength()) {
-			if (!right.hasOffsetLength()) {
-				return 1;
-			}
-			int roffset = right.getOffset();
-			int rlen = right.getLength();
-			int loffset = left.getOffset();
-			int llen = left.getLength();
-			if(loffset == roffset){
-				return (llen < rlen) ? -1 : ((llen == rlen) ? 0 : 1);
-			}
-			if(roffset < loffset && roffset + rlen >= loffset + llen)
-				return -1;
-			else
-				return 1;
-		}
-		
-		if (!right.hasOffsetLength()) {
-			throw new ImplementationError("assertion failed");
-		}
-		
-		return -1;
-	}
-	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that) {
 		return that.addSourceLocation(this);
