@@ -4,6 +4,7 @@ import util::Math;
 import Set;
 import Map;
 import Type;
+import Node;
 
 // the only way two values can be equal while their run-time types are not is due to conversion between int, real, rat by `==`
 test bool canonicalTypes(&T x, &Y y) = x == y ==> (typeOf(x) == typeOf(y)) || size({typeOf(x), typeOf(y)} & {\int(), \real(), \rat()}) > 1;
@@ -12,6 +13,18 @@ test bool canonicalTypes(&T x, &Y y) = x == y ==> (typeOf(x) == typeOf(y)) || si
 test bool reflexEq(value x) = x == x;
 test bool transEq(value x, value y, value z) = (x == y && y == z) ==> (x == z);
 test bool commutativeEq(value x, value y) = (x == y) <==> (y == x);
+
+// the matching operator is also an equivalence relation on values:
+test bool reflexEq(value x) = x := x;
+test bool transEq(value x, value y, value z) = (x := y && y := z) ==> (x := z);
+test bool commutativeEq(value x, value y) = (x := y) <==> (y := x);
+
+// equality subsumes matching:
+test bool allEqualValuesMatch(value x, value y) = a == b ==> a := b;
+test bool noMatchImpliesUnequal(value x, value y) = !(a := b) ==> a != b;
+
+test bool matchIsEqualityModuloKeywordFields(value x, value y) 
+  = unsetRec(x) == unsetRec(y) <==> a := b;
 
 // values have an equivalence relation, and by requiring the arguments to have the same types we may trigger bugs sooner:
 test bool transEqSame(&Same x, &Same y, &Same z) = (x == y && y == z) ==> (x == z);
@@ -102,6 +115,11 @@ test bool submapOrdering2(map[value,value]x, map[value,value] y) = (x <= y) <==>
 test bool setReflexLTE(map[value,value] x) = (x <= x);
 test bool setAntiSymmetricLTE(map[value,value] x, map[value,value] y) = (x <= y && y <= x) ==> (x == y);
 test bool setTransLTE(map[value,value] x, map[value,value] y, map[value,value] z) = (x <= y && y <= z) ==> x <= z;
+
+// locs are partially ordered
+test bool locReflexLTE(loc x) = (x <= x);
+test bool locAntiSymmetricLTE(loc x, loc y) = (x <= y && y <= x) ==> (x == y);
+test bool locTransLTE(loc x, loc y, loc z) = (x <= y && y <= z) ==> x <= z;
 
 // conversions
 test bool intToReal(int i) = i == toReal(i);
