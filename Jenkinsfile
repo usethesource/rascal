@@ -18,7 +18,7 @@ node {
     }
     
     stage('Deploy') {
-      if (env.BRANCH_NAME == "master") {
+      if (env.BRANCH_NAME == "master" || env.BRANCH_NAME == "jenkins-deploy") {
         sh "mvn -s ${env.HOME}/usethesource-maven-settings.xml -DskipTests -B deploy"
       }
     }
