@@ -7,6 +7,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.shell.RascalShell;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -37,6 +38,8 @@ public class Rascal {
      * @param args	list of command-line arguments
      */
     public static void main(String[] args) {
+        System.err.println("Rascal machine version: " + RascalShell.getVersionNumber());
+        
         try {
 
             CommandOptions cmdOpts = new CommandOptions("rascal");

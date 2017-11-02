@@ -12,6 +12,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Ap
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.shell.RascalShell;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.IConstructor;
@@ -34,6 +35,8 @@ public class RascalC {
      * @throws URISyntaxException 
      */
     public static void main(String[] args)  {
+        System.err.println("Rascal compiler version: " + RascalShell.getVersionNumber());
+        
         try {
             IValueFactory vf = ValueFactoryFactory.getValueFactory();
             CommandOptions cmdOpts = new CommandOptions("rascalc");
