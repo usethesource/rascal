@@ -44,7 +44,7 @@ public class RascalShell  {
             while (resources.hasMoreElements()) {
                 Manifest manifest = new Manifest(resources.nextElement().openStream());
                 String bundleName = manifest.getMainAttributes().getValue("Bundle-Name");
-                if (bundleName != null && bundleName.equals("rascal-shell")) {
+                if (bundleName != null && bundleName.equals("rascal")) {
                     String result = manifest.getMainAttributes().getValue("Bundle-Version");
                     if (result != null) {
                         System.out.println("Version: " + result);
@@ -52,9 +52,11 @@ public class RascalShell  {
                     }
                 }
             }
-        } catch (IOException E) {
+            
+            System.out.println("Version: not specified in META-INF/MANIFEST.MF");
+        } catch (IOException e) {
+            System.out.println("Version: unknown (due to " + e.getMessage());
         }
-        System.out.println("Version: unknown");
     }
 
 
