@@ -45,6 +45,7 @@ import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.repl.LimitedWriter;
+import org.rascalmpl.shell.RascalShell;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.IBool;
@@ -78,6 +79,10 @@ public class Reflective {
 		super();
 		this.values = values;
 		prelude = new Prelude(values);
+	}
+	
+	public IString getRascalVersion() {
+	    return values.string(RascalShell.getVersionNumber());
 	}
 	
 	public IString getLineSeparator() {
