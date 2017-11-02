@@ -26,51 +26,50 @@ public class SourceLocationURICompare {
         public String current(ISourceLocation loc) { return null; }
     }; 
     
-    private final static URIIterator  SCHEME = new URIIterator() {
+    private final static URIIterator SCHEME = new URIIterator() {
         public URIIterator next(ISourceLocation loc) { return SCHEME_SEP; }
         public String current(ISourceLocation loc) { return loc.getScheme(); }
     };
     
-    private final static URIIterator  SCHEME_SEP = new URIIterator() {
+    private final static URIIterator SCHEME_SEP = new URIIterator() {
         public URIIterator next(ISourceLocation loc) { return loc.hasAuthority() ? AUTHORITY : AUTHORITY_SEP; }
         public String current(ISourceLocation loc) { return "://"; }
     };
     
-    private final static URIIterator  AUTHORITY = new URIIterator() {
+    private final static URIIterator AUTHORITY = new URIIterator() {
         public URIIterator next(ISourceLocation loc) { return AUTHORITY_SEP; }
         public String current(ISourceLocation loc) { return loc.getAuthority(); }
     };
     
-    private final static URIIterator  AUTHORITY_SEP = new URIIterator() {
+    private final static URIIterator AUTHORITY_SEP = new URIIterator() {
         public URIIterator next(ISourceLocation loc) { return loc.hasPath() ? PATH : (loc.hasQuery() ? QUERY_PRE : (loc.hasFragment() ? FRAGMENT_PRE : NONE)); }
         public String current(ISourceLocation loc) { return "/"; }
     };
     
-    private final static URIIterator  PATH = new URIIterator() {
+    private final static URIIterator PATH = new URIIterator() {
         public URIIterator next(ISourceLocation loc) { return (loc.hasQuery() ? QUERY_PRE : (loc.hasFragment() ? FRAGMENT_PRE : NONE)); }
         public String current(ISourceLocation loc) { return loc.getPath(); }
     };
     
-    private final static URIIterator  QUERY_PRE = new URIIterator() {
+    private final static URIIterator QUERY_PRE = new URIIterator() {
         public URIIterator next(ISourceLocation loc) { return QUERY; }
         public String current(ISourceLocation loc) { return "?"; }
     };
     
-    private final static URIIterator  QUERY = new URIIterator() {
+    private final static URIIterator QUERY = new URIIterator() {
         public URIIterator next(ISourceLocation loc) { return loc.hasFragment() ? FRAGMENT_PRE : NONE; }
         public String current(ISourceLocation loc) { return loc.getQuery(); }
     };
     
-    private final static URIIterator  FRAGMENT_PRE = new URIIterator() {
+    private final static URIIterator FRAGMENT_PRE = new URIIterator() {
         public URIIterator next(ISourceLocation loc) { return FRAGMENT; }
         public String current(ISourceLocation loc) { return "#"; }
     };
     
-    private final static URIIterator  FRAGMENT = new URIIterator() {
+    private final static URIIterator FRAGMENT = new URIIterator() {
         public URIIterator next(ISourceLocation loc) { return NONE; }
         public String current(ISourceLocation loc) { return loc.getFragment(); }
     };
-
 
     
     public static int compare(ISourceLocation a, ISourceLocation b) {
@@ -79,9 +78,11 @@ public class SourceLocationURICompare {
         while (left != NONE && right != NONE) {
             String leftChunk = left.current(a);
             String rightChunk = right.current(b);
-            int result = leftChunk.compareTo(rightChunk);
-            if (result != 0) {
-                return result;
+            if (leftChunk != rightChunk) {
+                int result = leftChunk.compareTo(rightChunk);
+                if (result != 0) {
+                    return result;
+                }
             }
             left = left.next(a);
             right = right.next(b);
