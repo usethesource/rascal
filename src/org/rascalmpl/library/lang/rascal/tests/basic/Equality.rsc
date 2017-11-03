@@ -20,11 +20,11 @@ test bool transEq(value x, value y, value z) = (x := y && y := z) ==> (x := z);
 test bool commutativeEq(value x, value y) = (x := y) <==> (y := x);
 
 // equality subsumes matching:
-test bool allEqualValuesMatch(value x, value y) = a == b ==> a := b;
-test bool noMatchImpliesUnequal(value x, value y) = !(a := b) ==> a != b;
+test bool allEqualValuesMatch(value a, value b) = a == b ==> a := b;
+test bool noMatchImpliesUnequal(value a, value b) = !(a := b) ==> a != b;
 
-test bool matchIsEqualityModuloKeywordFields(value x, value y) 
-  = unsetRec(x) == unsetRec(y) <==> a := b;
+test bool matchIsEqualityModuloKeywordFields(node x, node y) 
+  = (unsetRec(x) == unsetRec(y)) <==> x := y;
 
 // values have an equivalence relation, and by requiring the arguments to have the same types we may trigger bugs sooner:
 test bool transEqSame(&Same x, &Same y, &Same z) = (x == y && y == z) ==> (x == z);

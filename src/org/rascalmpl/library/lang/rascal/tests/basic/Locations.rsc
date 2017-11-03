@@ -100,15 +100,15 @@ test bool splicePathEncoded()         = str x := " " && |tmp:///<x>.rsc| == |tmp
 @ignore
 test bool spliceArbPathEncoded(str x) = |tmp:///<x>.rsc| == |tmp:///| + "<x>.rsc";
 
-test bool enclosingTest1() = |tmp:///x.src|(5,10) < |tmp:///x.src|(2,20);
-test bool enclosingTest2() = |tmp:///x.src|(5,10) <= |tmp:///x.src|(2,20);
-test bool enclosingTest3() = |tmp:///x.src|(5,10) <= |tmp:///x.src|(5,10);
-test bool enclosingTest4() = |tmp:///x.src|(5,10,<1,2>,<1,12>) <= |tmp:///x.src|(5,10);
-test bool enclosingTest5() = |tmp:///x.src|(5,10) <= |tmp:///x.src|(5,10,<1,2>,<1,12>);
-test bool enclosingTest6() = !(|tmp:///x.src|(4,11) <= |tmp:///x.src|(5,10));
-test bool enclosingTest7() = !(|tmp:///x.src|(4,11) <= |tmp:///x.src|(5,11));
-test bool enclosingTest8() = !(|tmp:///x.src|(4,11) <= |tmp:///x.src|(4,10));
-test bool enclosingTest9() = !(|tmp:///x.src|(4,11) <= |tmp:///x.src|(4,10));
+test bool enclosingTest1() = |tmp:///x.src|(5,10,<0,0>,<0,0>) < |tmp:///x.src|(2,20,<0,0>,<0,0>);
+test bool enclosingTest2() = |tmp:///x.src|(5,10,<0,0>,<0,0>) <= |tmp:///x.src|(2,20,<0,0>,<0,0>);
+test bool enclosingTest3() = |tmp:///x.src|(5,10,<0,0>,<0,0>) <= |tmp:///x.src|(5,10,<0,0>,<0,0>);
+test bool enclosingTest4() = |tmp:///x.src|(5,10,<1,2>,<1,12>) <= |tmp:///x.src|(5,10,<0,0>,<0,0>);
+test bool enclosingTest5() = |tmp:///x.src|(5,10,<0,0>,<0,0>) <= |tmp:///x.src|(5,10,<1,2>,<1,12>);
+test bool enclosingTest6() = !(|tmp:///x.src|(4,11,<0,0>,<0,0>) <= |tmp:///x.src|(5,10,<0,0>,<0,0>));
+test bool enclosingTest7() = !(|tmp:///x.src|(4,11,<0,0>,<0,0>) <= |tmp:///x.src|(5,11,<0,0>,<0,0>));
+test bool enclosingTest8() = !(|tmp:///x.src|(4,11,<0,0>,<0,0>) <= |tmp:///x.src|(4,10,<0,0>,<0,0>));
+test bool enclosingTest9() = !(|tmp:///x.src|(4,11,<0,0>,<0,0>) <= |tmp:///x.src|(4,10,<0,0>,<0,0>));
 
 test bool offSetLengthEnclosing(int aOffset, int aLength, int bOffset, int bLength)
   = (abs(aOffset) < toInt(pow(2,31)) 
@@ -119,4 +119,4 @@ test bool offSetLengthEnclosing(int aOffset, int aLength, int bOffset, int bLeng
   && abs(aOffset) <= abs(bOffset) + abs(bLength) 
   && abs(aOffset) + abs(aLength) <= abs(bOffset) + abs(bLength))
   ==>
-  |tmp:///x.rsc|(abs(aOffset), abs(aLength)) <= |tmp:///x.rsc|(abs(bOffset), abs(bLength));
+  |tmp:///x.rsc|(abs(aOffset), abs(aLength),<0,0>,<0,0>) <= |tmp:///x.rsc|(abs(bOffset), abs(bLength),<0,0>,<0,0>);
