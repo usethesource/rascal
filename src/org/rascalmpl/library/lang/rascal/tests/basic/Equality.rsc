@@ -19,9 +19,9 @@ test bool reflexEq(value x) = x := x;
 test bool transEq(value x, value y, value z) = (x := y && y := z) ==> (x := z);
 test bool commutativeEq(value x, value y) = (x := y) <==> (y := x);
 
-// equality subsumes matching:
-test bool allEqualValuesMatch(value a, value b) = a == b ==> a := b;
-test bool noMatchImpliesUnequal(value a, value b) = !(a := b) ==> a != b;
+// equality subsumes matching, but we focus on nodes to avoid problems with num coercions of `==`:
+test bool allEqualValuesMatch(node a, node b) = a == b ==> a := b;
+test bool noMatchImpliesUnequal(node a, node b) = !(a := b) ==> a != b;
 
 test bool matchIsEqualityModuloKeywordFields(node x, node y) 
   = (unsetRec(x) == unsetRec(y)) <==> x := y;
