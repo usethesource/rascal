@@ -2,6 +2,9 @@ module lang::rascal::tests::basic::Locations
 
 import String;
 import List;
+import Set;
+import Relation;
+import ListRelation;
 import IO;
 import util::Math;
 
@@ -120,3 +123,141 @@ test bool offSetLengthEnclosing(int aOffset, int aLength, int bOffset, int bLeng
   && abs(aOffset) + abs(aLength) <= abs(bOffset) + abs(bLength))
   ==>
   |tmp:///x.rsc|(abs(aOffset), abs(aLength),<0,0>,<0,0>) <= |tmp:///x.rsc|(abs(bOffset), abs(bLength),<0,0>,<0,0>);
+  
+
+// Simulate a list of 1000 lines each of length < 1000;
+public list[int] lineSizes = [ arbInt(1000) | int i <- [1 .. 1000] ];   
+
+public int maxIndex = (0 | it + lineSizes[i] | int i <- index(lineSizes));        
+
+// Turn an index in the above list into a line/column pair
+tuple[int line, int column] getLineAndColumn(int idx){
+    int pos = 0;
+
+    for(int i <- index(lineSizes)){
+        if(pos + lineSizes[i] >= idx) return <i, idx - pos>;
+        pos += lineSizes[i];
+    }
+    throw "getLineAndColumn: <idx> out of range [0 .. <maxIndex>]";
+}
+
+// Build a location for an area from index f to index t.
+loc buildLoc(int f, int t, str base = "base.src"){
+    return |test:///<base>|(f, t-f, getLineAndColumn(f), getLineAndColumn(t));
+}
+
+// Restrict i to legal index values
+int restrict(int i){
+    if(i < 0) i = -i;
+    if(i > maxIndex) return arbInt(maxIndex);
+    return i;
+}
+
+// Get a location from index f to index t.
+loc getLoc(int f, int t, str base = "base.src"){
+    f = restrict(f); t = restrict(t);
+    return (f <= t) ? buildLoc(f, t, base=base) : buildLoc(t, f, base=base);
+}
+
+// Test the comparison operators
+
+test bool less1(int f1, int t1, int f2, int t2){
+    l1 = getLoc(f1, t1); l2 = getLoc(f2, t2);
+    return l1.offset >  l2.offset && l1.offset + l1.length <= l2.offset + l2.length ||
+           l1.offset >= l2.offset && l1.offset + l1.length <  l2.offset + l2.length
+           ? l1 < l2 : !(l1 < l2);
+}
+
+test bool less2(int f, int t){
+    f = restrict(f); t = restrict(t);
+    l1 = getLoc(f, t, base="base1.src"); l2 = getLoc(f, t, base="base2.src");
+    return l1 < l2; // path is lexicographically less, other attributes are equal
+}
+
+test  bool lessequal1(int f1, int t1, int f2, int t2){
+    l1 = getLoc(f1, t1); l2 = getLoc(f2, t2);
+    return l1 == l2 ||
+           l1.offset >  l2.offset && l1.offset + l1.length <= l2.offset + l2.length ||
+           l1.offset >= l2.offset && l1.offset + l1.length <  l2.offset + l2.length
+           ? l1 <= l2 : !(l1 <= l2);
+}
+
+test bool lessequal2(int f, int t){
+    f = restrict(f); t = restrict(t);
+    l1 = getLoc(f, t, base="base1.src"); l2 = getLoc(f, t, base="base2.src");
+    return l1 <= l2;    // path is lexicographically less, other attributes are equal
+}
+
+test  bool greater1(int f1, int t1, int f2, int t2){
+    l1 = getLoc(f1, t1); l2 = getLoc(f2, t2);
+    return l1.offset <  l2.offset && l1.offset + l1.length >= l2.offset + l2.length ||
+           l1.offset <= l2.offset && l1.offset + l1.length >  l2.offset + l2.length
+           ? l1 > l2 : !(l1 > l2);
+}
+
+test bool greater2(int f, int t){
+    f = restrict(f); t = restrict(t);
+    l1 = getLoc(f, t, base="base1.src"); l2 = getLoc(f, t, base="base2.src");
+    return !(l1 > l2);
+}
+
+test  bool greaterequal1(int f1, int t1, int f2, int t2){
+    l1 = getLoc(f1, t1); l2 = getLoc(f2, t2);
+    return l1 == l2 ||
+           l1.offset <  l2.offset && l1.offset + l1.length >= l2.offset + l2.length ||
+           l1.offset <= l2.offset && l1.offset + l1.length >  l2.offset + l2.length
+           ? l1 >= l2 : !(l1 >= l2);
+}
+
+test bool greaterequal2(int f, int t){
+    f = restrict(f); t = restrict(t);
+    l1 = getLoc(f, t, base="base1.src"); l2 = getLoc(f, t, base="base2.src");
+    return !(l1 >= l2);
+}
+
+test bool equal1(int f, int t){
+    f = restrict(f); t = restrict(t);
+    l1 = getLoc(f, t); l2 = getLoc(f, t);
+    return l1 == l2;
+}
+
+test bool equal2(int f, int t){
+    f = restrict(f); t = restrict(t);
+    l1 = getLoc(f, t, base="base1.src"); l2 = getLoc(f, t, base="base2.src");
+    return !(l1 == l2); 
+}
+
+// Create a list of n different locations
+
+list[loc] getLocs(int n){
+    locs = [getLoc(arbInt(maxIndex), arbInt(maxIndex)) | int i <- [0 .. n]];
+    return[ locs[i] | int i <- [0..n], !any(int j <- [0..n], i != j, locs[i] == locs[j]) ];
+}
+
+// Use loc in a set
+test bool locInSet(){
+    locs = getLocs(100);
+    return size(locs) == size(toSet(locs));
+}
+// Use loc in a map
+test bool locInMap(){
+    locs = getLocs(100);
+    m = (locs[i] : locs[i].offset | int i <- index(locs));
+    return all(k <- m, m[k] == k.offset);
+}
+
+// Use loc in a relation
+test bool locInRel(){
+    locs = getLocs(100);
+    m = {<locs[i], locs[i].offset> | int i <- index(locs)};
+    return all(k <- domain(m), m[k] == {k.offset});
+}
+
+// Use loc in a list relation
+test bool locInLRel(){
+    locs = getLocs(100);
+    m = [<locs[i], locs[i].offset> | int i <- index(locs)];
+    return all(k <- domain(m), m[k] == [k.offset]);
+}
+
+  
