@@ -44,6 +44,7 @@ import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.repl.LimitedWriter;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
@@ -1116,20 +1117,14 @@ public class CommandExecutor {
 	}
 	
 	private void cleanProject() {
-	  try {
-	    Path binRoot = Paths.get(pcfg.getBin().getPath());
-
-	    Files.walkFileTree(binRoot, new SimpleFileVisitor<Path>() {
-	      @Override
-	      public FileVisitResult visitFile(Path filePath, BasicFileAttributes attrs) throws IOException {
-	        stderr.println("delete: " + filePath);
-	        Files.delete(filePath);
-	        return FileVisitResult.CONTINUE;
-	      }
-	    });
-	  } catch (IOException e){
-	    stderr.println("Could not clean project: " + e);
-	  }
+	    try {
+	        // remove everything in the bin folder (recursively), but leave the itself folder as-is:
+	        for (ISourceLocation entry : URIResolverRegistry.getInstance().list(pcfg.getBin())) {
+	            prelude.remove(entry);
+	        }
+	    } catch (IOException e){
+	        stderr.println("Could not clean project: " + e);
+	    }
 	}
 }
 
