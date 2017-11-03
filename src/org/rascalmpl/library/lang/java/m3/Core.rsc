@@ -125,16 +125,16 @@ public M3 createM3FromJar(loc jarFile) {
     rel[loc,loc] dependsOn = model.extends + model.implements;
     model.typeDependency = model.typeDependency + dependsOn;
 	
-	candidates = model.implements + model.extends;
+	rel[loc from, loc to] candidates = rangeR((model.implements + model.extends), classes(model));
+	containment = domainR(model.containment, candidates.from) + domainR(model.containment, candidates.to);
+	methodContainment = {<c,m> | <c,m> <- containment, isMethod(m)};
+	
 	for(<from,to> <- candidates) {
-		model.methodOverrides += {<m, getMethodSignature(m)> 
-			| m <- containedMethods(model,from)} o {<getMethodSignature(m), m> | m <- containedMethods(model,to)};
+		model.methodOverrides += {<m, getMethodSignature(m)> | m <- methodContainment[from]} 
+			o {<getMethodSignature(m), m> | m <- methodContainment[to]};
 	}
 	return model;
 }
-
-public set[loc] containedMethods(M3 m, loc class) 
-	= {e | e <- m.containment[class], isMethod(e)};
 
 public str getMethodSignature(loc method) 
 	= substring(method.path, findLast(method.path,"/") + 1);
