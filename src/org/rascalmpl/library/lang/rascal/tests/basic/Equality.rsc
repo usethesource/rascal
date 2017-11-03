@@ -4,6 +4,7 @@ import util::Math;
 import Set;
 import Map;
 import Type;
+import Node;
 
 // the only way two values can be equal while their run-time types are not is due to conversion between int, real, rat by `==`
 test bool canonicalTypes(&T x, &Y y) = x == y ==> (typeOf(x) == typeOf(y)) || size({typeOf(x), typeOf(y)} & {\int(), \real(), \rat()}) > 1;
@@ -12,6 +13,18 @@ test bool canonicalTypes(&T x, &Y y) = x == y ==> (typeOf(x) == typeOf(y)) || si
 test bool reflexEq(value x) = x == x;
 test bool transEq(value x, value y, value z) = (x == y && y == z) ==> (x == z);
 test bool commutativeEq(value x, value y) = (x == y) <==> (y == x);
+
+// the matching operator is also an equivalence relation on values:
+test bool reflexEq(value x) = x := x;
+test bool transEq(value x, value y, value z) = (x := y && y := z) ==> (x := z);
+test bool commutativeEq(value x, value y) = (x := y) <==> (y := x);
+
+// equality subsumes matching, but we focus on nodes to avoid problems with num coercions of `==`:
+test bool allEqualValuesMatch(node a, node b) = a == b ==> a := b;
+test bool noMatchImpliesUnequal(node a, node b) = !(a := b) ==> a != b;
+
+test bool matchIsEqualityModuloKeywordFields(node x, node y) 
+  = (unsetRec(x) == unsetRec(y)) <==> x := y;
 
 // values have an equivalence relation, and by requiring the arguments to have the same types we may trigger bugs sooner:
 test bool transEqSame(&Same x, &Same y, &Same z) = (x == y && y == z) ==> (x == z);
@@ -23,15 +36,11 @@ test bool antiSymmetricLTE(value x, value y) = (x <= y && y <= x) ==> (x == y);
 test bool transLTE(value x, value y, value z) = (x <= y && y <= z) ==> x <= z;
 
 // values are partially ordered, and by requiring the arguments to have the same type we may trigger bugs sooner:
-@Ignore{This is a flaky test, example failure:  &Same =><0>  &Same =><0.0>}
-test bool antiSymmetricLTESame(&Same x, &Same y) = (x <= y && y <= x) ==> (x == y);
-test bool transLTESame(&Same x, &Same y, &Same z) = (x <= y && y <= z) ==> x <= z;
+test bool antiSymmetricLTESame(&Same <: node x , &Same <: node y) = (x <= y && y <= x) ==> (x == y);
+test bool transLTESame(&Same <: node x, &Same <: node y, &Same <: node z) = (x <= y && y <= z) ==> x <= z;
 
-@Ignore{antiSymmetricLTESame}
 test bool antiSymmetricLTEWithKeywordParamsLt1() = antiSymmetricLTESame(""(), ""(x = 3)); 
-@Ignore{antiSymmetricLTESame}
 test bool antiSymmetricLTEWithKeywordParamsLt2() = antiSymmetricLTESame(""(x = 2), ""(x = 3)); 
-@Ignore{antiSymmetricLTESame}
 test bool antiSymmetricLTEWithKeywordParamsEq() = antiSymmetricLTESame(""(x = 3), ""(x = 3)); 
 
 // numbers are totally ordered
@@ -102,6 +111,11 @@ test bool submapOrdering2(map[value,value]x, map[value,value] y) = (x <= y) <==>
 test bool setReflexLTE(map[value,value] x) = (x <= x);
 test bool setAntiSymmetricLTE(map[value,value] x, map[value,value] y) = (x <= y && y <= x) ==> (x == y);
 test bool setTransLTE(map[value,value] x, map[value,value] y, map[value,value] z) = (x <= y && y <= z) ==> x <= z;
+
+// locs are partially ordered
+test bool locReflexLTE(loc x) = (x <= x);
+test bool locAntiSymmetricLTE(loc x, loc y) = (x <= y && y <= x) ==> (x == y);
+test bool locTransLTE(loc x, loc y, loc z) = (x <= y && y <= z) ==> x <= z;
 
 // conversions
 test bool intToReal(int i) = i == toReal(i);

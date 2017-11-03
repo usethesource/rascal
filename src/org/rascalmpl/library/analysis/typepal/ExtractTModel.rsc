@@ -76,13 +76,13 @@ data ErrorHandler
    
 ErrorHandler onError(Tree t, str msg) = onError(getLoc(t), msg);
 
-str fmt(AType t)            = "`<prettyPrintAType(t)>`";
-str fmt(str s)              = "`<s>`";
-str fmt(int n)              = "<n>";
-str fmt(list[value] vals)   = intercalateAnd([fmt(vl) | vl <- vals]);
-str fmt(set[value] vals)    = intercalateAnd([fmt(vl) | vl <- vals]);
-str fmt(int n, str descr)   = n == 1 ? "<n> <descr>" : "<n> <descr>s";
-default str fmt(value v)    = "`<v>`";
+str fmt(AType t, bool quoted = true)            = quoted ? "`<prettyPrintAType(t)>`" : prettyPrintAType(t);
+str fmt(str s, bool quoted = true)              = quoted ? "`<s>`" : s;
+str fmt(int n, bool quoted = true)              = "<n>";
+str fmt(list[value] vals, bool quoted = true)   = intercalateAnd([fmt(vl) | vl <- vals]);
+str fmt(set[value] vals, bool quoted = true)    = intercalateAnd([fmt(vl) | vl <- vals]);
+str fmt(int n, str descr, bool quoted = true)   = n == 1 ? "<n> <descr>" : "<n> <descr>s";
+default str fmt(value v, bool quoted = true)    = quoted ? "`<v>`" : "<v>";
 
 void reportError(Tree t, str msg){
     throw checkFailed({error(msg, getLoc(t))});
@@ -143,26 +143,37 @@ default void collect(Tree currentTree, TBuilder tb){
    collectParts(currentTree, tb);
 }
 
-private  set[str] skipSymbols = {"lex", "layouts", "keywords", "lit", "cilit", "char-class"};
+private  set[str] skipSymbols = {/*"lex",*/ "layouts", "keywords", "lit", "cilit", "char-class"};
 
+int delta = 2;
 void collectParts(Tree currentTree, TBuilder tb){
    //println("collectParts: <typeOf(currentTree)>: <currentTree>");
    if(currentTree has prod && getName(currentTree.prod.def) notin skipSymbols){
-   //if(appl(Production p, list[Tree] args) := currentTree, getName(p.def) notin skipSymbols){
-      //bool nonLayout = true;
-       //for(Tree arg <- currentTree.args){
-       //    if(nonLayout)
-       //       collect(arg, tb);
-       //    nonLayout = !nonLayout;
-       //}
        args = currentTree.args;
        int n = size(args);
        int i = 0;
        while(i < n){
         collect(args[i], tb);
-        i += 2;
+        i += delta;
+       }
+   } 
+   //else {
+   // println("collectParts, skipping: <typeOf(currentTree)>: <currentTree>");
+   //}
+}
+void collectLexicalParts(Tree currentTree, TBuilder tb){
+   //println("collectParts: <typeOf(currentTree)>: <currentTree>");
+   delta =1 ;
+   if(currentTree has prod && getName(currentTree.prod.def) notin skipSymbols){
+       args = currentTree.args;
+       int n = size(args);
+       int i = 0;
+       while(i < n){
+        collect(args[i], tb);
+        i += 1;
        }
    }
+   delta = 2;
 }
 
 TModel resolvePath(TModel tm, set[Key] (TModel, Use) lookupFun = lookup){
@@ -197,8 +208,9 @@ TModel resolvePath(TModel tm, set[Key] (TModel, Use) lookupFun = lookup){
 
 data TBuilder 
     = tbuilder(
-        void (str id, IdRole idRole, Tree def, DefInfo info) define,
+        void (str id, IdRole idRole, value def, DefInfo info) define,
         void (Tree occ, set[IdRole] idRoles) use,
+        void (Tree occ, set[IdRole] idRoles) useLub,
         void (Tree occ, set[IdRole] idRoles, PathRole pathRole) useViaPath,
         void (list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles) useQualified,
         void (list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles, PathRole pathRole) useQualifiedViaPath,   
@@ -219,6 +231,7 @@ data TBuilder
         AType () newTypeVar,
         void (str key, value val) store,
         set[value] (str key) getStored,
+        void (TModel tm) addTModel,
         TModel () build
       ); 
 
@@ -233,8 +246,10 @@ TBuilder newTBuilder(Tree t, bool debug = false){
         
     Defines defines = {};
     Defines lubDefines = {};
+    
+    rel[loc scopeScope, str id, loc idScope, set[IdRole] idRoles, loc occ] lubUses = {};
     set[Key] lubScopes = {};
-    rel[loc scope, str id, IdRole idRole] lubKeys = {};
+    //rel[loc scope, str id, IdRole idRole] lubKeys = {};
     Scopes scopes = ();
     Paths paths = {};
     ReferPaths referPaths = {};
@@ -268,15 +283,20 @@ TBuilder newTBuilder(Tree t, bool debug = false){
     }
     
     // TODO This is language dependent!
-    str stripLeadingEscape(str n) = startsWith(n,"\\") ? substring(n,1) : n;
+    str stripEscapes(str s) = replaceAll(s, "\\", "");
     
-    void _define(str id, IdRole idRole, Tree def, DefInfo info){
+    void _define(str id, IdRole idRole, value def, DefInfo info){
         if(building){
+            loc l;
+            if(Tree tdef := def) l = getLoc(tdef);
+            else if(loc ldef := def) l = ldef;
+            else throw TypePalUsage("Argument `def` of `define` should be `Tree` or `loc`, found <typeOf(def)>");
+            
             if(info is defLub){
-                lubDefines += {<getCurrentLubScope(), id, idRole, getLoc(def), info>};
-                lubKeys += <currentScope, id, idRole>;
+                lubDefines += {<getCurrentLubScope(), id, idRole, l, info>};
+                //lubKeys += <currentScope, id, idRole>;
             } else {
-                defines += {<currentScope, id, idRole, getLoc(def), info>};
+                defines += {<currentScope, id, idRole, l, info>};
             }
         } else {
             throw TypePalUsage("Cannot call `define` on TBuilder after `build`");
@@ -285,16 +305,24 @@ TBuilder newTBuilder(Tree t, bool debug = false){
        
     void _use(Tree occ, set[IdRole] idRoles) {
         if(building){
-           uses += [use(stripLeadingEscape("<occ>"), getLoc(occ), currentScope, idRoles)];
+           uses += use(stripEscapes("<occ>"), getLoc(occ), currentScope, idRoles);
         } else {
             throw TypePalUsage("Cannot call `use` on TBuilder after `build`");
         }
     }
     
+    void _useLub(Tree occ, set[IdRole] idRoles) {
+        if(building){
+           lubUses += { <getCurrentLubScope(), stripEscapes("<occ>"), currentScope, idRoles, getLoc(occ)> };
+        } else {
+            throw TypePalUsage("Cannot call `useLub` on TBuilder after `build`");
+        }
+    }
+    
     void _useViaPath(Tree occ, set[IdRole] idRoles, PathRole pathRole) {
         if(building){
-            u = use(stripLeadingEscape("<occ>"), getLoc(occ), currentScope, idRoles);
-            uses += [u];
+            u = use(stripEscapes("<occ>"), getLoc(occ), currentScope, idRoles);
+            uses += u;
             referPaths += {refer(u, pathRole)};
         } else {
             throw TypePalUsage("Cannot call `useViaPath` on TBuilder after `build`");
@@ -303,14 +331,14 @@ TBuilder newTBuilder(Tree t, bool debug = false){
     
     void _useQualified(list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles){
         if(building){
-           uses += [useq([stripLeadingEscape(id) | id <- ids], getLoc(occ), currentScope, idRoles, qualifierRoles)];
+           uses += useq([stripEscapes(id) | id <- ids], getLoc(occ), currentScope, idRoles, qualifierRoles);
         } else {
             throw TypePalUsage("Cannot call `useQualified` on TBuilder after `build`");
         }  
      }
      void _useQualifiedViaPath(list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles, PathRole pathRole){
         if(building){
-            u = useq([stripLeadingEscape(id) | id <- ids], getLoc(occ), currentScope, idRoles, qualifierRoles);
+            u = useq([stripEscapes(id) | id <- ids], getLoc(occ), currentScope, idRoles, qualifierRoles);
             uses += [u];
             referPaths += {refer(u, pathRole)};
         } else {
@@ -484,25 +512,31 @@ TBuilder newTBuilder(Tree t, bool debug = false){
     }
     
     void finalizeDefines(){
-        // recall: alias Define = tuple[Key scope, str id, IdRole idRole, Key defined, DefInfo defInfo];
+    // Recall:
+        // alias Define = tuple[Key scope, str id, IdRole idRole, Key defined, DefInfo defInfo];
+        //rel[loc lubScope, str id, loc scope, loc idScope, set[IdRole] idRoles, loc occ] lubUses = {};
         set[Define] extra_defines = {};
         
-        for(scope <- lubScopes){   
-            lubDefs = lubDefines[scope];
-        
-            for(<str id, IdRole role> <- lubDefs<0,1>){
-                if({fixedDef} := defines[scope, id, role]){
-                    // A definition with fixed type
-                    for(<Key defined, DefInfo defInfo> <- lubDefines[scope, id, role]){
-                        res = use(id, defined, scope, {role});
-                        //println("finalizeDefines: add use: <res>");
-                        uses += res;
+        // Process all lubbables in lubScopes
+        for(lubScope <- lubScopes){   
+            lubDefsInScope = lubDefines[lubScope];
+            lubUsesInScope = lubUses[lubScope];
+ 
+            for(<str id, IdRole role> <- lubDefsInScope<0,1>){
+                if({fixedDef} := defines[lubScope, id, role]){
+                    // There exists a definition with fixed type, just use it instead of the lubDefines
+                    for(<Key defined, DefInfo defInfo> <- lubDefsInScope[id, role]){
+                        uses += use(id, defined, lubScope, {role});
                     }
-                } else {  // No definition with fixed type
+                    //for(u: <id, idScope, set[IdRole] idRoles, loc occ> <- lubUsesInScope){
+                    //    uses += use(id, occ, idScope, idRoles);
+                    //    lubUsesInScope -= u;
+                    //}
+                } else {  // No definition with fixed type, collect all lubDefs and appoint a first definition
                     deps = {}; getATypes = [];
                     defineds = {};
                     loc firstDefined;
-                    for(tuple[Key defined, DefInfo defInfo] info <- lubDefines[scope, id, role]){
+                    for(tuple[Key defined, DefInfo defInfo] info <- lubDefsInScope[id, role]){
                         defineds += info.defined;
                         if(!firstDefined? || info.defined.offset < firstDefined.offset){
                             firstDefined = info.defined;
@@ -510,14 +544,33 @@ TBuilder newTBuilder(Tree t, bool debug = false){
                         deps += info.defInfo.dependsOn;
                         getATypes += info.defInfo.getATypes;
                     }
+                    
+                    //for(u: <id, loc idScope, set[IdRole] idRoles, loc occ> <- lubUsesInScope){
+                    //    defineds += occ; 
+                    //    //uses += [use(id, occ, idScope, idRoles)];
+                    //    lubUsesInScope -= u;
+                    //}
                   
-                    res = <scope, id, role, firstDefined, defLub(deps - defineds, defineds, getATypes)>;
-                    //println("finalizeDefines: add define: <res>");
+                    res = <lubScope, id, role, firstDefined, defLub(deps - defineds, defineds, getATypes)>;
+                    //println("finalizeDefines: add define:");  iprintln(res);
                     extra_defines += res;
                 }
             }
+            
+            // Transform uncovered lubUses into ordinary uses
+        
+            for(u: <str id, loc idScope, set[IdRole] idRoles, loc occ> <- lubUsesInScope){
+                uses += use(id, occ, idScope, idRoles);
+                lubUsesInScope -= u;
+            }
         }
         defines += extra_defines;
+    }
+    
+    void _addTModel(TModel tm){
+        scopes += tm.scopes;
+        defines += tm.defines;
+        facts += tm.facts;
     }
     
     TModel _build(){
@@ -552,6 +605,7 @@ TBuilder newTBuilder(Tree t, bool debug = false){
     
     return tbuilder(_define, 
                      _use, 
+                     _useLub,
                      _useViaPath, 
                      _useQualified, 
                      _useQualifiedViaPath, 
@@ -572,5 +626,6 @@ TBuilder newTBuilder(Tree t, bool debug = false){
                      _newTypeVar, 
                      _store,
                      _getStored,
+                     _addTModel,
                      _build); 
 }
