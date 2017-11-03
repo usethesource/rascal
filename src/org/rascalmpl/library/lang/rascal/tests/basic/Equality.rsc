@@ -36,11 +36,15 @@ test bool antiSymmetricLTE(value x, value y) = (x <= y && y <= x) ==> (x == y);
 test bool transLTE(value x, value y, value z) = (x <= y && y <= z) ==> x <= z;
 
 // values are partially ordered, and by requiring the arguments to have the same type we may trigger bugs sooner:
+@Ignore
 test bool antiSymmetricLTESame(&Same <: node x , &Same <: node y) = (x <= y && y <= x) ==> (x == y);
 test bool transLTESame(&Same <: node x, &Same <: node y, &Same <: node z) = (x <= y && y <= z) ==> x <= z;
 
-test bool antiSymmetricLTEWithKeywordParamsLt1() = antiSymmetricLTESame(""(), ""(x = 3)); 
-test bool antiSymmetricLTEWithKeywordParamsLt2() = antiSymmetricLTESame(""(x = 2), ""(x = 3)); 
+@Ignore
+test bool antiSymmetricLTEWithKeywordParamsLt1() = antiSymmetricLTESame(""(), ""(x = 3));
+@Ignore 
+test bool antiSymmetricLTEWithKeywordParamsLt2() = antiSymmetricLTESame(""(x = 2), ""(x = 3));
+@Ignore 
 test bool antiSymmetricLTEWithKeywordParamsEq() = antiSymmetricLTESame(""(x = 3), ""(x = 3)); 
 
 // numbers are totally ordered
