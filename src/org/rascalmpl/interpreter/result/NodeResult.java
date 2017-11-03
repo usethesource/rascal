@@ -203,15 +203,15 @@ public class NodeResult extends ElementResult<INode> {
     	}
     }
     
-    if (!left.asWithKeywordParameters().hasParameters() && right.asWithKeywordParameters().hasParameters()) {
+    if ((!left.mayHaveKeywordParameters() || !left.asWithKeywordParameters().hasParameters()) && (right.mayHaveKeywordParameters() && right.asWithKeywordParameters().hasParameters())) {
     	return new LessThanOrEqualResult(true, false, ctx);
     }
 
-    if (left.asWithKeywordParameters().hasParameters() && !right.asWithKeywordParameters().hasParameters()) {
+    if ((left.mayHaveKeywordParameters() && left.asWithKeywordParameters().hasParameters()) && (!right.mayHaveKeywordParameters() || !right.asWithKeywordParameters().hasParameters())) {
     	return new LessThanOrEqualResult(false, false, ctx);
     }
     
-    if (left.asWithKeywordParameters().hasParameters() && right.asWithKeywordParameters().hasParameters()) {
+    if (left.mayHaveKeywordParameters() && right.mayHaveKeywordParameters() && left.asWithKeywordParameters().hasParameters() && right.asWithKeywordParameters().hasParameters()) {
     	Map<String, IValue> paramsLeft = left.asWithKeywordParameters().getParameters();
     	Map<String, IValue> paramsRight = right.asWithKeywordParameters().getParameters();
     	if (paramsLeft.size() < paramsRight.size()) {
