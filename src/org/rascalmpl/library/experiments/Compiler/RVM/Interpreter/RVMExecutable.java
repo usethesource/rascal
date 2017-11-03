@@ -24,6 +24,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.serialize.RVMW
 import org.rascalmpl.library.util.SemVer;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
 
 import com.github.luben.zstd.ZstdInputStream;
 import com.github.luben.zstd.ZstdOutputStream;
@@ -59,7 +60,7 @@ public class RVMExecutable {
 	static boolean validating = true;
 	
 	// transient fields
-	private static IValueFactory vf;
+	private final IValueFactory vf;
 	private TypeStore typeStore;
 	
 	// Serializable fields
@@ -88,7 +89,7 @@ public class RVMExecutable {
 	private String fullyQualifiedDottedName;
 	
 	public RVMExecutable(ISet errors){
-		vf = null;
+		this.vf = IRascalValueFactory.getInstance();
 		this.errors = errors;
         
         this.module_name = null;
@@ -136,7 +137,7 @@ public class RVMExecutable {
 //	    System.err.println("constructorStore: " + constructorStore.length);
 //	    System.err.println("overloadedStore:  " + overloadedStore.length);
 	    
-		vf = vfactory;
+		this.vf = vfactory;
 		this.errors = vf.set();
 		
 		this.module_name = module_name;
@@ -751,11 +752,11 @@ public class RVMExecutable {
 	     ISourceLocation rvmx = vf.sourceLocation("home", "", "/git/rascal/bootstrap/phase2/lang/rascal/grammar/ParserGenerator.rvmx");
 	     //RVMExecutable.validating = false;
 	     try {
-            RVMExecutable exec = read(rvmx);
-        }
-        catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+	         RVMExecutable exec = read(rvmx);
+	     }
+	     catch (IOException e) {
+	         // TODO Auto-generated catch block
+	         e.printStackTrace();
+	     }
 	 }
 }
