@@ -114,6 +114,7 @@
 							<workingDirectory>target/classes/</workingDirectory>
 							<arguments>
 								<argument>-Xmx256m</argument>
+                                <argument>-Dfile.encoding=UTF-8</argument>
 								<argument>-cp</argument>
 								<classpath />
 								<argument>org.rascalmpl.library.experiments.Compiler.Commands.Bootstrap</argument>
@@ -140,6 +141,7 @@
                             <workingDirectory>target/classes/</workingDirectory>
                             <arguments>
                                 <argument>-Xmx1256m</argument>
+                                <argument>-Dfile.encoding=UTF-8</argument>
                                 <argument>-cp</argument>
                                 <classpath />
                                 <argument>org.rascalmpl.library.experiments.Compiler.Commands.RascalC</argument>
@@ -169,6 +171,7 @@
                             <workingDirectory>target/classes/</workingDirectory>
                             <arguments>
                                 <argument>-Xmx2G</argument>
+                                <argument>-Dfile.encoding=UTF-8</argument>
                                 <argument>-cp</argument>
                                 <classpath />
                                 <argument>-Dfile.encoding=UTF-8</argument>
