@@ -508,7 +508,7 @@ public class Bootstrap {
     }
     
     private static int bootstrapRascalParser(String classPath, String srcPath, String bootPath, Path phaseResult) throws IOException, InterruptedException {
-        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "org.rascalmpl.library.experiments.Compiler.Commands.BootstrapRascalParser"};
+        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.BootstrapRascalParser"};
         String[] paths = new String[] {"--src", srcPath, "--bin", phaseResult.toAbsolutePath().toString(), "--boot", bootPath };
         return runChildProcess(concat(javaCmd, paths));
     }
@@ -559,7 +559,7 @@ public class Bootstrap {
     private static void runTests(int phase, String classPath, String boot, String sourcePath, Path phaseResult, String[] testModules) throws IOException, InterruptedException, BootstrapMessage {
         progress("Running tests with the results of " + phase);
         if (phase == 1) return;
-        String[] javaCmd = new String[] {"java", "-ea", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests" };
+        String[] javaCmd = new String[] {"java", "-ea", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests" };
         String[] paths = new String [] { "--bin", phaseResult.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
         String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[0];
 
@@ -569,7 +569,7 @@ public class Bootstrap {
     }
     
     private static int runJavaCompiler(String classPath, String targetFolder, String... arguments) throws IOException, InterruptedException {
-        String[] javaCmd = new String[] {"javac", "-cp", classPath, "-d", targetFolder };
+        String[] javaCmd = new String[] {"javac", "-cp", classPath, "-Dfile.encoding=UTF-8", "-d", targetFolder };
         return runChildProcess(concat(javaCmd, arguments));
     }
 
@@ -582,12 +582,12 @@ public class Bootstrap {
          *     suspend=n - starts up and does not wait for attaching a debugger
          *     suspend=y - waits until a debugger is attached before to proceed
          */
-        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", /*"-Xdebug -Xrunjdwp:transport=dt_socket,address=8001,server=y,suspend=n",*/ "org.rascalmpl.library.experiments.Compiler.Commands.RascalC" };
+        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", /*"-Xdebug -Xrunjdwp:transport=dt_socket,address=8001,server=y,suspend=n",*/ "org.rascalmpl.library.experiments.Compiler.Commands.RascalC" };
         return runChildProcess(concat(javaCmd, arguments));
     }
 
     private static int runMuLibraryCompiler(String classPath, String... arguments) throws IOException, InterruptedException {
-        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "org.rascalmpl.library.experiments.Compiler.Commands.CompileMuLibrary" };
+        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.CompileMuLibrary" };
     	return runChildProcess(concat(javaCmd, arguments));
     }
     
