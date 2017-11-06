@@ -168,6 +168,7 @@ test bool writeADTWithFunctions()
     = binaryWriteRead(#ADTFunc, a(2));
 
 @expected{Java}
+@ignoreCompiler
 test bool writeADTWithFunctions2() 
     = binaryWriteRead(#ADTFunc, c(int() { return 1;}));
 
