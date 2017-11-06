@@ -10,10 +10,6 @@ alias CommandResult
   = tuple[str result, list[Message] messages] 
   ;
   
-alias CompletionFunction = Completion (str prefix, int requestOffset)
-  ;
-  
-
 data REPL
   = repl(str title, str welcome, str prompt, loc history, 
          CommandResult (str line) handler,
@@ -27,6 +23,3 @@ data REPL
 @javaClass{org.rascalmpl.library.util.TermREPL}
 @reflect
 java void startREPL(REPL repl);
-
-
-
