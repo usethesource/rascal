@@ -150,7 +150,7 @@ public class QualifiedNamePattern extends AbstractMatchingResult implements IVar
 					System.err.println("returns " + subject.equals(varRes));
 				}
 //					iWroteItMySelf = false;
-				return subject.equals(varRes).isTrue();
+				return subject.getValue().match(varRes.getValue());
 			}
 			return false;
 		}

@@ -30,7 +30,7 @@ public class ConcatStringResult extends StringResult {
 			} else {
 				components.add(right);
 			}
-		} else if(left instanceof ConcatStringResult){
+		} else if(right instanceof ConcatStringResult){
 			components = ((ConcatStringResult) right).components;
 			components.add(0, left);
 		} else {
