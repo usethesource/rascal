@@ -569,7 +569,7 @@ public class Bootstrap {
     }
     
     private static int runJavaCompiler(String classPath, String targetFolder, String... arguments) throws IOException, InterruptedException {
-        String[] javaCmd = new String[] {"javac", "-cp", classPath, "-Dfile.encoding=UTF-8", "-d", targetFolder };
+        String[] javaCmd = new String[] {"javac", "-cp", classPath, "-encoding", "UTF-8", "-d", targetFolder };
         return runChildProcess(concat(javaCmd, arguments));
     }
 
