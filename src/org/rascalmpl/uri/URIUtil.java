@@ -138,6 +138,19 @@ public class URIUtil {
 		}
 	}
 	
+	/**
+     * Non throwing variant of <a>create</a>, in case of scenarios where input can be trusted.
+     */
+    public static URI assumeCorrect(String scheme, String authority, String path, String query) {
+        try {
+            return create(scheme, authority, path, query, null);
+        } catch (URISyntaxException e) {
+            IllegalArgumentException y = new IllegalArgumentException();
+            y.initCause(e);
+            throw y;
+        }
+    }
+	
 	public static ISourceLocation correctLocation(String scheme, String authority, String path) {
 		try {
 			return createLocation(scheme, authority, path);

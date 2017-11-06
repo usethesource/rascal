@@ -9,7 +9,7 @@ node {
     }
     
     stage('Build') {
-      sh "mvn -Drascal.courses=--buildCourses -Drascal.boot=--validating -B clean compile test"
+      sh "mvn -Drascal.courses=--buildCourses -Drascal.boot=--validating -B clean test"
       sh "curl https://codecov.io/bash | bash -s - -K -X gcov -t e8b4481a-d178-4148-a4ff-502906390512"
     }
     
@@ -18,7 +18,7 @@ node {
     }
     
     stage('Deploy') {
-      if (env.BRANCH_NAME == "master") {
+      if (env.BRANCH_NAME == "master" || env.BRANCH_NAME == "jenkins-deploy") {
         sh "mvn -s ${env.HOME}/usethesource-maven-settings.xml -DskipTests -B deploy"
       }
     }

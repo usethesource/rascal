@@ -115,29 +115,29 @@ public M3 createM3FromDirectory(loc project, bool errorRecovery = false, str jav
     return result;
 }
 
-//TODO: check accepted location schemes.
-public M3 createM3FromJar(loc jarFile) {
-	loc jarLoc = jarFile;
-	
-	if(jarLoc.scheme == "jar" && endsWith(jarLoc.scheme, "!")) {
-		jarLoc.scheme = "file";
-		jarLoc.path = substring(jarLoc.path,0,findLast(jarLoc.path,"!"));
-	}
-	else if(startsWith(jarLoc.scheme, "jar+") && endsWith(jarLoc.scheme, "!")) {
-		jarLoc.scheme = substring(jarLoc.scheme, findLast(jarLoc.scheme, "+") + 1);
-		jarLoc.path = substring(jarLoc.path,0,findLast(jarLoc.path,"!"));
-	}
-	
-    M3 model = createM3FromJarFile(jarLoc);
-    rel[loc,loc] dependsOn = model.extends + model.implements;
-    model.typeDependency = model.typeDependency + dependsOn;
-
-	return model;
-}
-
 private str classPathToStr(loc jarClass) {
     return substring(jarClass.path,findLast(jarClass.path,"!")+1,findLast(jarClass.path,"."));
 }
+
+public M3 createM3FromJar(loc jarFile) {
+    M3 model = createM3FromJarFile(jarFile);
+    
+    rel[loc,loc] dependsOn = model.extends + model.implements;
+    model.typeDependency = model.typeDependency + dependsOn;
+	
+	rel[loc from, loc to] candidates = rangeR((model.implements + model.extends), classes(model));
+	containment = domainR(model.containment, candidates.from) + domainR(model.containment, candidates.to);
+	methodContainment = {<c,m> | <c,m> <- containment, isMethod(m)};
+	
+	for(<from,to> <- candidates) {
+		model.methodOverrides += {<m, getMethodSignature(m)> | m <- methodContainment[from]} 
+			o {<getMethodSignature(m), m> | m <- methodContainment[to]};
+	}
+	return model;
+}
+
+public str getMethodSignature(loc method) 
+	= substring(method.path, findLast(method.path,"/") + 1);
 
 public bool isCompilationUnit(loc entity) = entity.scheme == "java+compilationUnit";
 public bool isPackage(loc entity) = entity.scheme == "java+package";
