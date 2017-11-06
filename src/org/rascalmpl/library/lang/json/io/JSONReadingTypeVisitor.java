@@ -574,10 +574,7 @@ public class JSONReadingTypeVisitor implements
 			}
 			return vf.constructor(JSON_array, w.done());
 		}
-		if (obj instanceof Double) {
-			return vf.constructor(JSON_null);
-			
-		}
+
 		throw new AssertionError("unhandled generic JSON object: " + obj);
 	}
 

@@ -7,6 +7,8 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFu
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.shell.RascalShell;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
@@ -24,7 +26,8 @@ public class RascalTests {
 	 * @throws URISyntaxException 
 	 */
 	public static void main(String[] args) throws IOException, NoSuchRascalFunction, URISyntaxException {
-		
+	    System.err.println("Rascal test runner version: " + RascalShell.getVersionNumber());
+	    
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		
 		CommandOptions cmdOpts = new CommandOptions("rascalTests");

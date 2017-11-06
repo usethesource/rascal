@@ -90,7 +90,16 @@ abstract public class NamedFunction extends AbstractFunction {
     }
 
     public void clearMemoizationCache() {
-        memoization = null;
+        if (memoization != null) {
+            MemoizationCache<Result<IValue>> m = memoization.get();
+            
+            if (m != null) {
+                m.clear();
+                memoization.clear();
+            }
+
+            memoization = null;
+        }
     }
     
     protected Result<IValue> getMemoizedResult(IValue[] argValues, Map<String, IValue> keyArgValues) {

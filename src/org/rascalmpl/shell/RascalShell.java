@@ -37,24 +37,28 @@ public class RascalShell  {
 
     public static final String ECLIPSE_TERMINAL_CONNECTION_REPL_KEY = "__ECLIPSE_CONNECTION";
 
-
     private static void printVersionNumber(){
+        System.err.println("Version: " + getVersionNumber());
+    }
+    
+    public static String getVersionNumber() {
         try {
             Enumeration<URL> resources = RascalShell.class.getClassLoader().getResources("META-INF/MANIFEST.MF");
             while (resources.hasMoreElements()) {
                 Manifest manifest = new Manifest(resources.nextElement().openStream());
-                String bundleName = manifest.getMainAttributes().getValue("Bundle-Name");
-                if (bundleName != null && bundleName.equals("rascal-shell")) {
-                    String result = manifest.getMainAttributes().getValue("Bundle-Version");
+                String bundleName = manifest.getMainAttributes().getValue("Name");
+                if (bundleName != null && bundleName.equals("rascal")) {
+                    String result = manifest.getMainAttributes().getValue("Specification-Version");
                     if (result != null) {
-                        System.out.println("Version: " + result);
-                        return;
+                        return result;
                     }
                 }
             }
-        } catch (IOException E) {
+            
+            return "not specified in META-INF/MANIFEST.MF";
+        } catch (IOException e) {
+            return "unknown (due to " + e.getMessage();
         }
-        System.out.println("Version: unknown");
     }
 
 

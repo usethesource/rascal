@@ -596,7 +596,7 @@ coroutine MATCH_VAR(rVar, iSubject) {
     var iVal 
     if(is_defined(rVar)) {
         iVal = deref rVar
-        if(equal(iSubject, iVal)) {
+        if(match(iSubject, iVal)) {
             yield iSubject
         }
         exhaust
@@ -636,7 +636,7 @@ coroutine MATCH_VAR_BECOMES(rVar, pat, iSubject) {
     var cpat = create(pat, iSubject)
    /* if(is_defined(rVar)){
        while(next(cpat)) {
-            if(equal(iSubject, deref rVar)){
+            if(match(iSubject, deref rVar)){
                yield iSubject
             } else {
               exhaust
@@ -839,7 +839,7 @@ guard {
     if(is_defined(rVar)) {
         //println("MATCH_VAR_IN_LIST, var is defined:", deref rVar);
         iVal = deref rVar
-        if(equal(iElem, iVal)) {
+        if(match(iElem, iVal)) {
             yield(iElem, MAKE_SUBJECT(iList, start + 1))
         }
         exhaust
@@ -1171,6 +1171,7 @@ coroutine MATCH_OPTIONAL_LAYOUT_IN_LIST(rSubject) {
             children = get_children(iElem)
             prod = children[0]
             prodchildren = get_children(prod)
+            // TODO: this dynamic check should be unneccesary
             if(equal(get_name(prodchildren[0]), "layouts")) {
                 //println("MATCH_OPTIONAL_LAYOUT_IN_LIST, skipping:", iElem)
                 yield MAKE_SUBJECT(iList, start + 1)

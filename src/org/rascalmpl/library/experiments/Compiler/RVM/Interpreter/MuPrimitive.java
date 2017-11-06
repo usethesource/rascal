@@ -163,6 +163,19 @@ public enum MuPrimitive {
 	},
 	
 	/**
+     * Matching on IValue
+     * 
+     * [ ..., IValue, IValue ] => [ ..., bool ]
+     *
+     */
+    match {
+        @Override
+        public Object execute2(final Object arg_2, final Object arg_1) {
+            return vf.bool(((IValue) arg_2).match(((IValue) arg_1)));
+        };
+    },
+    
+	/**
 	 * Equality on ISet and mset: bool = (ISet == mset)
 	 * 
 	 * [ ..., ISet, mset ] => [ ..., bool ]
