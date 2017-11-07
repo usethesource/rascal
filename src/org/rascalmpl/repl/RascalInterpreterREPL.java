@@ -28,13 +28,10 @@ import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.Timing;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
-import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIUtil;
-import io.usethesource.vallang.IValue;
 
-import jline.Terminal;
+import io.usethesource.vallang.IValue;
 
 public abstract class RascalInterpreterREPL extends BaseRascalREPL {
 
@@ -42,10 +39,15 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     private boolean measureCommandTime;
     private final OutputStream originalOutput;
 
-    public RascalInterpreterREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File persistentHistory, Terminal terminal)
+    public RascalInterpreterREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, boolean htmlOutput, File persistentHistory)
                     throws IOException, URISyntaxException {
-        super(null, stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal, null);
+        super(prettyPrompt, allowColors, htmlOutput);
         originalOutput = stdout;
+    }
+    
+    public RascalInterpreterREPL() throws IOException, URISyntaxException{
+        super(true, true, false);
+        originalOutput = null;
     }
 
     public void setMeasureCommandTime(boolean measureCommandTime) {
@@ -57,9 +59,8 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     }
 
     @Override
-    protected void initialize(PathConfig pcfg, Writer stdout, Writer stderr, IDEServices ideServices) {
+    public void initialize(Writer stdout, Writer stderr) {
         eval = constructEvaluator(stdout, stderr);
-        eval.setREPL(this);
     }
 
     protected abstract Evaluator constructEvaluator(Writer stdout, Writer stderr);
@@ -77,21 +78,20 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     @Override
     public void stop() {
         eval.interrupt();
-        super.stop();
     }
 
     @Override
-    protected void cancelRunningCommandRequested() {
+    public void cancelRunningCommandRequested() {
         eval.interrupt();
     }
 
     @Override
-    protected void terminateRequested() {
+    public void terminateRequested() {
         eval.interrupt();
     }
 
     @Override
-    protected void stackTraceRequested() {
+    public void stackTraceRequested() {
         StackTrace trace = eval.getStackTrace();
         Writer err = getErrorWriter();
         try {
@@ -104,7 +104,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     }
 
     @Override
-    protected IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException {
+    public IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException {
         try {
             Result<IValue> value;
             long duration;
@@ -148,7 +148,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     }
 
     @Override
-    protected boolean isStatementComplete(String command) {
+    public boolean isStatementComplete(String command) {
         try {
             eval.parseCommand(null, command, URIUtil.rootLocation("prompt"));
         }
@@ -203,13 +203,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
         return commandLineOptions;
     }
 
-    public Terminal getTerminal() {
-        return reader.getTerminal();
-    }
-
-    public InputStream getInput() {
-        return reader.getInput();
-    }
+    
     public OutputStream getOutput() {
         return originalOutput;
     }

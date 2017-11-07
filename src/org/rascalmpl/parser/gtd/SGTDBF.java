@@ -1107,7 +1107,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	 */
 	@SuppressWarnings("unchecked")
 	protected AbstractNode parse(AbstractStackNode<P> startNode, URI inputURI, int[] input, IRecoverer<P> recoverer, IDebugListener<P> debugListener){
-	  initTime();
+	    initTime();
 
 	  try {
 
@@ -1187,14 +1187,13 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	  try {
 	    // A parse error occured, and recovery failed as well
 	    parseErrorOccured = true;
-
+	    
 	    int errorLocation = (location == Integer.MAX_VALUE ? 0 : location);
 	    int line = positionStore.findLine(errorLocation);
 	    int column = positionStore.getColumn(errorLocation, line);
 	    if (location == input.length) {
 	      throw new ParseError("Parse error", inputURI, errorLocation, 0, line, line, column, column, (Stack<AbstractStackNode<?>>) (Stack<?>) unexpandableNodes, (Stack<AbstractStackNode<?>>) (Stack<?>) unmatchableLeafNodes, (DoubleStack<ArrayList<AbstractStackNode<?>>, AbstractStackNode<?>>) (DoubleStack<?, ?>) unmatchableMidProductionNodes, (DoubleStack<AbstractStackNode<?>, AbstractNode>) (DoubleStack<?, ?>) filteredNodes);
 	    }
-
 	    throw new ParseError("Parse error", inputURI, errorLocation, 1, line, line, column, column + 1, (Stack<AbstractStackNode<?>>) (Stack<?>) unexpandableNodes, (Stack<AbstractStackNode<?>>) (Stack<?>) unmatchableLeafNodes, (DoubleStack<ArrayList<AbstractStackNode<?>>, AbstractStackNode<?>>) (DoubleStack<?, ?>) unmatchableMidProductionNodes, (DoubleStack<AbstractStackNode<?>, AbstractNode>) (DoubleStack<?, ?>) filteredNodes);
 	  }
 	  finally {
@@ -1233,7 +1232,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	 * Parses with post parse filtering.
 	 */
 	private T parse(String nonterminal, URI inputURI, int[] input, IActionExecutor<T> actionExecutor, INodeFlattener<T, S> converter, INodeConstructorFactory<T, S> nodeConstructorFactory, IRecoverer<P> recoverer, IDebugListener<P> debugListener){
-		AbstractNode result = parse(new NonTerminalStackNode<P>(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, recoverer, debugListener);
+	    AbstractNode result = parse(new NonTerminalStackNode<P>(AbstractStackNode.START_SYMBOL_ID, 0, nonterminal), inputURI, input, recoverer, debugListener);
 		return buildResult(result, converter, nodeConstructorFactory, actionExecutor);
 	}
 	

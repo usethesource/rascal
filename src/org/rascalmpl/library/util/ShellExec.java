@@ -35,7 +35,7 @@ public class ShellExec {
 	
 	private static HashMap<IInteger, Process> runningProcesses = new HashMap<IInteger, Process>();
 	private static HashMap<IInteger, InputStreamReader> processInputStreams = new HashMap<IInteger, InputStreamReader>();
-	private static HashMap<IInteger, InputStreamReader> processErrorStreams = new HashMap<IInteger, InputStreamReader>();
+	private static HashMap<IInteger, BufferedReader> processErrorStreams = new HashMap<IInteger, BufferedReader>();
 	private static HashMap<IInteger, OutputStreamWriter> processOutputStreams = new HashMap<IInteger, OutputStreamWriter>();
 	private static IInteger processCounter = null;
 	
@@ -110,6 +110,7 @@ public class ShellExec {
 			}
 			
 			Process newProcess = pb.start();
+
 			if (processCounter == null) {
 				processCounter = vf.integer(0);
 			}
@@ -243,11 +244,11 @@ public class ShellExec {
 			throw RuntimeExceptionFactory.illegalArgument(processId, null, null);
 		try {
 			Process runningProcess = runningProcesses.get(processId);
-			InputStreamReader isr = null;
+			BufferedReader isr = null;
 			if (processErrorStreams.containsKey(processId)) {
 				isr = processErrorStreams.get(processId);
 			} else {
-				isr = new InputStreamReader(runningProcess.getErrorStream());
+				isr = new BufferedReader(new InputStreamReader(runningProcess.getErrorStream()));
 				processErrorStreams.put(processId, isr);
 			}
 			StringBuffer line = new StringBuffer();
@@ -259,7 +260,37 @@ public class ShellExec {
 			throw RuntimeExceptionFactory.javaException(e, null, null);
 		}
 	}
+	
+	public synchronized IString readLineFromErr(IInteger processId, IInteger wait, IInteger maxTries) {
+        if (!runningProcesses.containsKey(processId))
+            throw RuntimeExceptionFactory.illegalArgument(processId, null, null);
+        try {
+            Process runningProcess = runningProcesses.get(processId);
+            BufferedReader isr = null;
+            if (processErrorStreams.containsKey(processId)) {
+                isr = processErrorStreams.get(processId);
+            } else {
+                isr = new BufferedReader(new InputStreamReader(runningProcess.getErrorStream()));
+                processErrorStreams.put(processId, isr);
+            }
 
+            // wait until there is input first
+            for (long max = maxTries.longValue(); !isr.ready() && max > 0; max--) {
+                try {
+                    Thread.sleep(wait.longValue());
+                }
+                catch (InterruptedException e) {
+                    // it happens
+                }
+            }
+            
+            // block until we have an entire line
+            return vf.string(isr.readLine());
+        } catch (IOException e) {
+            throw RuntimeExceptionFactory.javaException(e, null, null);
+        }
+    }
+	
 	public synchronized IString readEntireStream(IInteger processId) {
 		if (!runningProcesses.containsKey(processId)) {
 			throw RuntimeExceptionFactory.illegalArgument(processId, null, null);
