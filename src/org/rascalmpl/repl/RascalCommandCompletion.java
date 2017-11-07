@@ -35,7 +35,6 @@ public class RascalCommandCompletion {
         assert line.trim().startsWith(":");
         Matcher m = splitCommand.matcher(line);
         if (m.find()) {
-            System.out.println("NO ENTRA");
             String currentCommand = m.group("command");
             switch(currentCommand) {
                 case "set": {
@@ -59,7 +58,6 @@ public class RascalCommandCompletion {
                 case "unimport": return completeModule.complete(line, line.length());
                 default: {
                     if (COMMAND_KEYWORDS.contains(currentCommand)) {
-                        System.out.println("HEREEE!!!");
                         return null; // nothing to complete after a full command
                     }
                     List<String> result = null;
