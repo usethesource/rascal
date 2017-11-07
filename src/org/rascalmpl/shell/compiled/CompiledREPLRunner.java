@@ -13,20 +13,35 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandEx
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CompiledRascalREPL;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug.DebugREPLFrameObserver;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.shell.ShellRunner;
 
 import jline.Terminal;
 
-public class CompiledREPLRunner extends CompiledRascalREPL  implements ShellRunner {
-	
-	private final DebugREPLFrameObserver debugObserver;
+public class CompiledREPLRunner extends BaseREPL  implements ShellRunner {
 	
 	public CompiledREPLRunner(PathConfig pcfg, InputStream stdin, OutputStream stdout, IDEServices ideServices, Terminal term) throws IOException, URISyntaxException {
-		super(pcfg, stdin, stdout, true, true, getHistoryFile(), term, ideServices);
-		debugObserver = new DebugREPLFrameObserver(pcfg, reader.getInput(), stdout, true, true, getHistoryFile(), term, ideServices);
-		executor.setDebugObserver(debugObserver);
-		setMeasureCommandTime(true);
+		super(makeCompiledRascalREPL(pcfg, ideServices, term, 
+		    new DebugREPLFrameObserver(pcfg, stdin, stdout, true, term.isAnsiSupported(), getHistoryFile(), term, ideServices)), 
+		    pcfg, stdin, stdout, true, term.isAnsiSupported(), getHistoryFile(), term, ideServices);
 	}
+
+    private static CompiledRascalREPL makeCompiledRascalREPL(PathConfig pcfg, IDEServices ideServices, Terminal term, final DebugREPLFrameObserver observer) throws IOException, URISyntaxException {
+        return new CompiledRascalREPL(pcfg, true, term.isAnsiSupported(), false, getHistoryFile(), ideServices) {
+            @Override
+            public void stop() {
+                
+            }
+            
+            @Override
+            protected CommandExecutor constructCommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices) throws IOException, NoSuchRascalFunction, URISyntaxException {
+                CommandExecutor exec = new CommandExecutor(pcfg, stdout, stderr, ideServices, this);
+                exec.setDebugObserver(observer);     
+                setMeasureCommandTime(true);
+                return exec;
+            }
+        };
+    }
 
 	private static File getHistoryFile() throws IOException {
 		File home = new File(System.getProperty("user.home"));
@@ -40,12 +55,7 @@ public class CompiledREPLRunner extends CompiledRascalREPL  implements ShellRunn
 		}
 		return historyFile;
 	}
-
-	@Override
-	protected CommandExecutor constructCommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices) throws IOException, NoSuchRascalFunction, URISyntaxException {
-		return new CommandExecutor(pcfg, stdout, stderr, ideServices, this);
-	}
-
+	
 	@Override
 	public void run(String[] args) throws IOException {
 		// there are no args for now

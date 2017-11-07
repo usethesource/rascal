@@ -10,9 +10,7 @@ import org.rascalmpl.shell.EclipseTerminalConnection;
 import org.rascalmpl.shell.ManifestRunner;
 import org.rascalmpl.shell.RascalShell;
 import org.rascalmpl.shell.ShellRunner;
-import org.rascalmpl.values.ValueFactoryFactory;
 
-import io.usethesource.vallang.IValueFactory;
 import jline.Terminal;
 import jline.TerminalFactory;
 
@@ -21,7 +19,6 @@ public class CompiledRascalShell  {
 
   public static void main(String[] args) throws IOException {
 
-	IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	CommandOptions cmdOpts = new CommandOptions("CompiledRascalShell");
 	cmdOpts
 	.pathConfigOptions()

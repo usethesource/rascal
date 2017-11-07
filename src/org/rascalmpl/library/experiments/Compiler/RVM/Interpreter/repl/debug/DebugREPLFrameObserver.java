@@ -13,6 +13,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.repl.BaseREPL;
 
 import jline.Terminal;
 
@@ -64,7 +65,7 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 	public boolean observe(Frame frame) {
 		try {
 			if(breakPointManager.matchOnObserve(frame)){
-				new DebugREPL(pcfg, rvm, frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
+				makeDebugRepl(frame);
 			}
 		} catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
@@ -76,7 +77,7 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 	public boolean enter(Frame frame)  {
 		try {
 			if(breakPointManager.matchOnEnter(frame)){
-				new DebugREPL(pcfg, rvm, frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
+				makeDebugRepl(frame);
 			}
 		} catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
@@ -88,19 +89,23 @@ public class DebugREPLFrameObserver implements IFrameObserver {
 	public boolean leave(Frame frame, Object rval) {
 		try {
 			if(breakPointManager.matchOnLeave(frame, rval)){
-				new DebugREPL(pcfg, rvm, frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
+				makeDebugRepl(frame);
 			}
 		} catch (IOException | URISyntaxException e) {
 			e.printStackTrace();
 		}
 		return breakPointManager.shouldContinue();
 	}
+
+    private void makeDebugRepl(Frame frame) throws IOException, URISyntaxException {
+        new BaseREPL(new DebugREPL(rvm, frame, breakPointManager), pcfg, stdin, stdout, true, true, historyFile, terminal, null).run();
+    }
 	
 	@Override
 	public boolean exception(Frame frame, Thrown thrown){
 		try {
 			if(breakPointManager.matchOnException(frame, thrown)){
-				new DebugREPL(pcfg, rvm, frame, breakPointManager, stdin, stdout, true, true, historyFile, terminal).run();
+			    makeDebugRepl(frame);
 			}
 		} catch (IOException | URISyntaxException e) {
 			e.printStackTrace();

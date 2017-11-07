@@ -9,11 +9,13 @@ import java.io.Writer;
 import java.net.URISyntaxException;
 
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.repl.BaseREPL;
+import org.rascalmpl.repl.ILanguageProtocol;
 import org.rascalmpl.repl.RascalInterpreterREPL;
 
 import jline.Terminal;
 
-public class REPLRunner extends RascalInterpreterREPL  implements ShellRunner {
+public class REPLRunner extends BaseREPL  implements ShellRunner {
 
   private static File getHistoryFile() throws IOException {
     File home = new File(System.getProperty("user.home"));
@@ -29,15 +31,27 @@ public class REPLRunner extends RascalInterpreterREPL  implements ShellRunner {
   }
 
   public REPLRunner(InputStream stdin, OutputStream stdout, Terminal term)  throws IOException, URISyntaxException{
-    super(stdin, stdout, true, true, getHistoryFile(), term);
-    setMeasureCommandTime(false);
-    
+    super(makeInterpreter(stdin, stdout, true, term.isAnsiSupported(), false, getHistoryFile(), term), null, stdin, stdout, true, term.isAnsiSupported(), getHistoryFile(), term, null);
+  }
+  
+  public REPLRunner(ILanguageProtocol language)  throws IOException, URISyntaxException{
+      super(language, null, null, null, true, true, new File(""), null, null);
   }
 
-  @Override
-  protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
-    return ShellEvaluatorFactory.getDefaultEvaluator(new PrintWriter(stdout), new PrintWriter(stderr));
+  private static ILanguageProtocol makeInterpreter(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, boolean htmlOutput, File persistentHistory, Terminal terminal) throws IOException, URISyntaxException {
+    RascalInterpreterREPL repl = new RascalInterpreterREPL(stdin, stdout, prettyPrompt, allowColors, htmlOutput, getHistoryFile()) {
+        @Override
+        protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
+          return ShellEvaluatorFactory.getDefaultEvaluator(new PrintWriter(stdout), new PrintWriter(stderr));
+        }
+    };
+    
+    repl.setMeasureCommandTime(false);
+    
+    return repl;
   }
+
+
 
   @Override
   public void run(String[] args) throws IOException {

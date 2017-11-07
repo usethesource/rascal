@@ -66,6 +66,4 @@ public interface IEvaluatorContext extends IRascalMonitor {
 	
 	
 	public Collection<String> completePartialIdentifier(String qualifier, String partialIdentifier);
-	
-	public RascalInterpreterREPL getREPL();
 }

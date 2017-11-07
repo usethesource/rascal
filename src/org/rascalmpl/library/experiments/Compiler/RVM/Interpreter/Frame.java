@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -8,13 +9,14 @@ import java.util.Map.Entry;
 
 import org.rascalmpl.interpreter.types.FunctionType;  // TODO: remove import: NO
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class Frame {
     public final int scopeId;               // Name of the scope introduced by this frame
@@ -287,7 +289,7 @@ public class Frame {
         return this.function.getPrintableName() + ":" + line;
     }
     
-    public void printVars(PrintWriter stdout){
+    public void printVars(StringWriter stdout){
         Iterator<Entry<IValue, IValue>> iter = function.localNames.entryIterator();
         while(iter.hasNext()){
             Entry<IValue, IValue> entry = iter.next();
@@ -298,7 +300,7 @@ public class Frame {
                     if(varName.matches("[0-9]+")){
                         varName = "arg " + varName;
                     }
-                    stdout.println("\t" + varName + ": " + abbrev(RascalPrimitive.$value2string((IValue) v)));
+                    stdout.write("\t" + varName + ": " + abbrev(RascalPrimitive.$value2string((IValue) v)) + "\n");
             }
         }
         if(stack[function.nformals-1] instanceof HashMap<?, ?>){
@@ -307,7 +309,7 @@ public class Frame {
             for(String kwParam : kwParams.keySet()){
                 IValue v = kwParams.get(kwParam);
                 if(v != null){
-                    stdout.println("\t" + kwParam + "=" + abbrev(RascalPrimitive.$value2string(v))
+                    stdout.write("\t" + kwParam + "=" + abbrev(RascalPrimitive.$value2string(v) + "\n")
                     );
                 }
             }
