@@ -5,11 +5,14 @@ import java.io.FilterWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -18,8 +21,8 @@ import org.fusesource.jansi.Ansi.Color;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.util.PathConfig;
-import io.usethesource.vallang.ISourceLocation;
 
+import io.usethesource.vallang.ISourceLocation;
 import jline.Terminal;
 import jline.console.ConsoleReader;
 import jline.console.UserInterruptException;
@@ -30,7 +33,7 @@ import jline.console.history.PersistentHistory;
 import jline.internal.ShutdownHooks;
 import jline.internal.ShutdownHooks.Task;
 
-public abstract class BaseREPL {
+public class BaseREPL {
     protected final ConsoleReader reader;
     private final OutputStream originalStdOut;
     protected final boolean prettyPrompt;
@@ -41,27 +44,26 @@ public abstract class BaseREPL {
     private volatile PersistentHistory history = null;
     private final Queue<String> commandQueue = new ConcurrentLinkedQueue<String>();
     protected IDEServices ideServices;
-
-    public BaseREPL(PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal, IDEServices ideServices) throws IOException, URISyntaxException {
-        this(pcfg, stdin, stdout, prettyPrompt, allowColors, file != null ? new FileHistory(file) : null, terminal, ideServices);
-    }
-
-    public BaseREPL(PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, ISourceLocation file, Terminal terminal, IDEServices ideServices) throws IOException, URISyntaxException {
-        this(pcfg, stdin, stdout, prettyPrompt, allowColors, file != null ? new SourceLocationHistory(file) : null, terminal, ideServices);
-    }
-
-    public static char ctrl(char ch) {
-        assert 'A' <= ch && ch <= '_'; 
-        return (char)((((int)ch) - 'A') + 1);
-    }
-
+    private final ILanguageProtocol language;
+    
     private static byte CANCEL_RUNNING_COMMAND = (byte)ctrl('C'); 
     private static byte STOP_REPL = (byte)ctrl('D'); 
     private static byte STACK_TRACE = (byte)ctrl('\\'); 
 
 
-    private BaseREPL(PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, PersistentHistory history, Terminal terminal, IDEServices ideServices) throws IOException, URISyntaxException {
+    public BaseREPL(ILanguageProtocol language, PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal, IDEServices ideServices) throws IOException, URISyntaxException {
+        this(language, pcfg, stdin, stdout, prettyPrompt, allowColors, file != null ? new FileHistory(file) : null, terminal, ideServices);
+    }
+
+    public BaseREPL(ILanguageProtocol language, PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, ISourceLocation file, Terminal terminal, IDEServices ideServices) throws IOException, URISyntaxException {
+        this(language, pcfg, stdin, stdout, prettyPrompt, allowColors, file != null ? new SourceLocationHistory(file) : null, terminal, ideServices);
+    }
+
+   
+    private BaseREPL(ILanguageProtocol language, PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, PersistentHistory history, Terminal terminal, IDEServices ideServices) throws IOException, URISyntaxException {
         this.originalStdOut = stdout;
+        this.language = language;
+        
         if (!(stdin instanceof NotifieableInputStream) && !(stdin.getClass().getCanonicalName().contains("jline"))) {
             stdin = new NotifieableInputStream(stdin, new byte[] { CANCEL_RUNNING_COMMAND, STOP_REPL, STACK_TRACE }, (Byte b) -> handleEscape(b));
         }
@@ -92,7 +94,7 @@ public abstract class BaseREPL {
         else {
             this.stdErr = new FilterWriter(reader.getOutput()) { }; // create a basic wrapper to avoid locking on stdout and stderr
         }
-        initialize(pcfg, reader.getOutput(), stdErr, ideServices);
+        initialize(reader.getOutput(), stdErr);
         if (supportsCompletion()) {
             reader.addCompleter(new Completer(){
                 @Override
@@ -119,6 +121,13 @@ public abstract class BaseREPL {
         }
     }
 
+
+    public static char ctrl(char ch) {
+        assert 'A' <= ch && ch <= '_'; 
+        return (char)((((int)ch) - 'A') + 1);
+    }
+
+
     /**
      * During the constructor call initialize is called after the REPL is setup enough to have a stdout and std err to write to.
      * @param pcfg the PathConfig to be used
@@ -129,38 +138,61 @@ public abstract class BaseREPL {
      * @throws IOException 
      * @throws URISyntaxException 
      */
-    protected abstract void initialize(PathConfig pcfg, Writer stdout, Writer stderr, IDEServices ideServices) throws IOException, URISyntaxException;
+    protected void initialize(Writer stdout, Writer stderr) throws IOException, URISyntaxException {
+        language.initialize(stdout, stderr);
+    }
 
     /**
      * Will be called everytime a new prompt is printed.
      * @return The string representing the prompt.
      */
-    protected abstract String getPrompt();
+    protected String getPrompt() {
+        return language.getPrompt();
+    }
 
     /**
      * After a newline is pressed, the current line is handed to this method.
      * @param line the current line entered.
      * @throws InterruptedException throw this exception to stop the REPL (instead of calling .stop())
      */
-    protected abstract void handleInput(String line) throws InterruptedException;
+    protected void handleInput(String line) throws InterruptedException {
+        Map<String,String> output = new HashMap<>();
+        
+        language.handleInput(line, output, new HashMap<>());
+        
+        // TODO: maybe we can do this cleaner, but this works for now
+        String out = output.get("text/plain");
+        
+        if (out != null) {
+            PrintWriter w = new PrintWriter(originalStdOut);
+            w.print(out);
+            w.flush();
+        }
+    }
 
     /**
      * If a line is canceled with ctrl-C this method is called too handle the reset in the child-class.
      * @throws InterruptedException throw this exception to stop the REPL (instead of calling .stop())
      */
-    protected abstract void handleReset() throws InterruptedException;
+    protected void handleReset(Map<String,String> output, Map<String,String> metadata) throws InterruptedException {
+        language.handleReset(output, metadata);
+    }
 
     /**
      * Test if completion of statement in the current line is supported
      * @return true if the completeFragment method can provide completions
      */
-    protected abstract boolean supportsCompletion();
+    protected boolean supportsCompletion() {
+        return language.supportsCompletion();
+    }
 
     /**
      * If the completion succeeded with one match, should a space be printed aftwards?
      * @return true if completed fragment should be followed by a space
      */
-    protected abstract boolean printSpaceAfterFullCompletion();
+    protected boolean printSpaceAfterFullCompletion() {
+        return language.printSpaceAfterFullCompletion();
+    }
 
     /**
      * If a user hits the TAB key, the current line and the offset is provided to try and complete a fragment of the current line.
@@ -168,28 +200,36 @@ public abstract class BaseREPL {
      * @param cursor The cursor offset in the line.
      * @return suggestions for the line.
      */
-    protected abstract CompletionResult completeFragment(String line, int cursor);
+    protected CompletionResult completeFragment(String line, int cursor) {
+        return language.completeFragment(line, cursor);
+    }
 
     /**
      * This method gets called from another thread, and indicates the user pressed CTLR-C during a call to handleInput.
      * 
      * Interrupt the handleInput code as soon as possible, but leave stuff in a valid state.
      */
-    protected abstract void cancelRunningCommandRequested();
+    protected void cancelRunningCommandRequested() {
+        language.cancelRunningCommandRequested();
+    }
 
     /**
      * This method gets called from another thread, and indicates the user pressed CTLR-D during a call to handleInput.
      * 
      * Quit the code from handleInput as soon as possible, assume the REPL will close after this.
      */
-    protected abstract void terminateRequested();
+    protected void terminateRequested() {
+        language.terminateRequested();
+    }
 
     /**
      * This method gets called from another thread, indicates a user pressed CTRL+\ during a call to handleInput.
      * 
      * If possible, print the current stack trace.
      */
-    protected abstract void stackTraceRequested();
+    protected void stackTraceRequested() {
+        language.stackTraceRequested();
+    }
 
     private String previousPrompt = "";
     public static final String PRETTY_PROMPT_PREFIX = Ansi.ansi().reset().bold().fg(Color.BLACK).toString();
@@ -288,7 +328,14 @@ public abstract class BaseREPL {
                 }
                 catch (UserInterruptException u) {
                     reader.println();
-                    handleReset();
+                    Map<String,String> output = new HashMap<>();
+                    
+                    handleReset(output, new HashMap<>());
+                    
+                    for (String out : output.values()) {
+                        reader.print(out);
+                    }
+                    
                     updatePrompt();
                 }
 
@@ -326,7 +373,20 @@ public abstract class BaseREPL {
      * stop the REPL without waiting for it to stop
      */
     public void stop() {
+        language.stop();
         keepRunning = false;
         reader.shutdown();
+    }
+    
+    public Terminal getTerminal() {
+        return reader.getTerminal();
+    }
+
+    public InputStream getInput() {
+        return reader.getInput();
+    }
+
+    public PrintStream getOutput() {
+        return new PrintStream(originalStdOut);
     }
 }
