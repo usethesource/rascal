@@ -33,11 +33,11 @@ test bool digit1() = Digit d := [Digit] "0";
 
 test bool hexnumber1() = HexNumber h := [HexNumber] "A";
 test bool hexnumber2() = HexNumber h := [HexNumber] "F";
-test bool hexnumber1() = HexNumber h := [HexNumber] "a";
-test bool hexnumber1() = HexNumber h := [HexNumber] "f";
+test bool hexnumber3() = HexNumber h := [HexNumber] "a";
+test bool hexnumber4() = HexNumber h := [HexNumber] "f";
 
-test bool hexnumber1() = HexNumber h := [HexNumber] "0";
-test bool hexnumber1() = HexNumber h := [HexNumber] "9";
+test bool hexnumber5() = HexNumber h := [HexNumber] "0";
+test bool hexnumber6() = HexNumber h := [HexNumber] "9";
 
 @expected{ParseError}
 test bool hexnumber1() = HexNumber h := [HexNumber] "G";
