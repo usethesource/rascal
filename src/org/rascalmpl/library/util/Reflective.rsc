@@ -346,4 +346,8 @@ java void throwNullPointerException();
 set[str] getRascalReservedIdentifiers() = { n | /lit(n) := #RascalKeywords.definitions[keywords("RascalKeywords")]};
     
 @javaClass{org.rascalmpl.library.util.Reflective}
-java str getRascalVersion();    
+java str getRascalVersion();   
+
+ @javaClass{org.rascalmpl.library.util.Reflective}
+ @reflect{Uses RVMCore to find function names}
+ java list[str] clearMemos(str moduleName);
