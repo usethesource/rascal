@@ -1,5 +1,3 @@
 module lang::rascalcore::check::Test5
 
-import lang::rascalcore::check::Test4;
-
-int quad(int m) = twice(twice(m));
+ value zz = { x = 1; <x> := <"a"> && x == "a";};

@@ -287,6 +287,7 @@ TBuilder newTBuilder(Tree t, bool debug = false){
     
     void _define(str id, IdRole idRole, value def, DefInfo info){
         if(building){
+            //if(currentScope == globalScope) throw TypePalUsage("`define` requires a user-defined scope; missing `enterScope`");
             loc l;
             if(Tree tdef := def) l = getLoc(tdef);
             else if(loc ldef := def) l = ldef;
@@ -305,6 +306,7 @@ TBuilder newTBuilder(Tree t, bool debug = false){
        
     void _use(Tree occ, set[IdRole] idRoles) {
         if(building){
+          //if(currentScope == globalScope) throw TypePalUsage("`use` requires a user-defined scope; missing `enterScope`");
            uses += use(stripEscapes("<occ>"), getLoc(occ), currentScope, idRoles);
         } else {
             throw TypePalUsage("Cannot call `use` on TBuilder after `build`");
@@ -313,6 +315,7 @@ TBuilder newTBuilder(Tree t, bool debug = false){
     
     void _useLub(Tree occ, set[IdRole] idRoles) {
         if(building){
+           //if(currentScope == globalScope) throw TypePalUsage("`use` requires a user-defined scope; missing `enterScope`");
            lubUses += { <getCurrentLubScope(), stripEscapes("<occ>"), currentScope, idRoles, getLoc(occ)> };
         } else {
             throw TypePalUsage("Cannot call `useLub` on TBuilder after `build`");
@@ -321,6 +324,7 @@ TBuilder newTBuilder(Tree t, bool debug = false){
     
     void _useViaPath(Tree occ, set[IdRole] idRoles, PathRole pathRole) {
         if(building){
+            //if(currentScope == globalScope) throw TypePalUsage("`useViaPath` requires a user-defined scope; missing `enterScope`");
             u = use(stripEscapes("<occ>"), getLoc(occ), currentScope, idRoles);
             uses += u;
             referPaths += {refer(u, pathRole)};
@@ -331,6 +335,7 @@ TBuilder newTBuilder(Tree t, bool debug = false){
     
     void _useQualified(list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles){
         if(building){
+          //if(currentScope == globalScope) throw TypePalUsage("`useQualified` requires a user-defined scope; missing `enterScope`");
            uses += useq([stripEscapes(id) | id <- ids], getLoc(occ), currentScope, idRoles, qualifierRoles);
         } else {
             throw TypePalUsage("Cannot call `useQualified` on TBuilder after `build`");
@@ -338,6 +343,7 @@ TBuilder newTBuilder(Tree t, bool debug = false){
      }
      void _useQualifiedViaPath(list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles, PathRole pathRole){
         if(building){
+           //if(currentScope == globalScope) throw TypePalUsage("`useQualifiedViaPath` requires a user-defined scope; missing `enterScope`");
             u = useq([stripEscapes(id) | id <- ids], getLoc(occ), currentScope, idRoles, qualifierRoles);
             uses += [u];
             referPaths += {refer(u, pathRole)};
@@ -422,6 +428,7 @@ TBuilder newTBuilder(Tree t, bool debug = false){
     
     Key _getScope(){
         if(building){
+           if(currentScope == globalScope) throw TypePalUsage("`getScope` requires a user-defined scope; missing `enterScope`");
             return currentScope;
         } else {
             throw TypePalUsage("Cannot call `getScope` on TBuilder after `build`");
@@ -459,6 +466,7 @@ TBuilder newTBuilder(Tree t, bool debug = false){
             throw TypePalUsage("Cannot call `calculate` on TBuilder after `build`");
         }
     }
+    
     void _calculateEager(str name, Tree src, list[value] dependencies, AType() calculator){
         if(building){
            calculators[getLoc(src)] = calculate(name, getLoc(src), dependenciesAsKeys(dependencies),  true, calculator);

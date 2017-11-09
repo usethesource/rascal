@@ -332,11 +332,11 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 return anode();
             }     
             if(overloadedAType(rel[Key, IdRole, AType] overloads) := texp){
-              //validateOverloading(expression, texp);
+              validOverloads = {};
               next_fun:
                 for(<key, idr, tp> <- overloads){                       
                     if(ft:afunc(AType ret, atypeList(list[AType] formals), list[Keyword] kwFormals) := tp){
-                       try return checkArgsAndComputeReturnType(current, scope, ret, formals, kwFormals, ft.varArgs, actuals, keywordArguments);
+                       try validOverloads += <key, dataId(), checkArgsAndComputeReturnType(current, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments)>;
                        catch checkFailed(set[Message] msgs):
                              continue next_fun;
                     }
@@ -344,16 +344,17 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                next_cons:
                  for(<key, idr, tp> <- overloads){
                     if(acons(ret:aadt(adtName, list[AType] parameters), str consName, list[NamedField] fields, list[Keyword] kwFields) := tp){
-                       try return computeADTType(current, adtName, scope, ret, fields<0>, kwFields, actuals, keywordArguments);
+                       try validOverloads += <key, dataId(), computeADTType(current, adtName, scope, ret, fields<0>, kwFields, actuals, keywordArguments)>;
                        catch checkFailed(set[Message] msgs):
                              continue next_cons;
                     }
                 }
-                reportError(current, "No function or constructor <fmt(expression)> for arguments <fmt(actuals)>");
+                if(isEmpty(validOverloads))  reportError(current, "No function or constructor <fmt(expression)> applicable for <fmt(size(actuals), "argument")> <fmt(actuals)>");
+                return overloadedAType(validOverloads);
             }
           
             if(ft:afunc(AType ret, atypeList(list[AType] formals), list[Keyword] kwFormals) := texp){
-                return checkArgsAndComputeReturnType(current, scope, ret, formals, kwFormals, ft.varArgs, actuals, keywordArguments);
+                return checkArgsAndComputeReturnType(current, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments);
             }
             if(acons(ret:aadt(adtName, list[AType] parameters), str consName, list[NamedField] fields, list[Keyword] kwFields) := texp){
                return computeADTType(current, adtName, scope, ret, fields<0>, kwFields, actuals, keywordArguments);
@@ -430,7 +431,7 @@ AType checkArgsAndComputeReturnType(Expression current, Key scope, AType retType
           reportError(current, msg);
 }
 
-AType computeADTType(Expression current, str adtName, Key scope, AType retType, list[AType] formals, list[Keyword] kwFormals, list[Expression] actuals, keywordArguments){
+AType computeADTType(Expression current, str adtName, Key scope, AType retType, list[AType] formals, list[Keyword] kwFormals, list[Expression] actuals, keywordArguments){                     
     nactuals = size(actuals); nformals = size(formals);
     if(nactuals != nformals){
         reportError(current, "Expected <fmt(nformals, "argument")>, found <nactuals>");
@@ -446,8 +447,7 @@ AType computeADTType(Expression current, str adtName, Key scope, AType retType, 
     try   iformals = [instantiateRascalTypeParams(formals[i], bindings) | int i <- index(formals)];
     catch invalidInstantiation(str msg):
           reportError(current, msg);
-      
-    
+   
     for(int i <- index(actuals)){
         if(!comparable(getType(actuals[i]), iformals[i]))
             reportError(actuals[i], "Argument <actuals[i]> should have type <fmt(formals[i])>, found <fmt(actuals[i])>");
@@ -621,15 +621,15 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl){
             reportError(current, "Expected subscript of type int, not <fmt(tl[0])>");
         else
             return astr();
-    //} else if (isNonTerminalType(t1)) {
-    //    if (size(tl) != 1)
-    //        reportError("Expected only 1 subscript for a nonterminal subscript expression, not <size(tl)>");
-    //    else if (!isIntType(tl[0]))
-    //        reportError("Expected subscript of type int, not <fmt(tl[0])>");
-    //    else if (isNonTerminalIterType(t1))
-    //        return getNonTerminalIterElement(t1);
-    //    else
-    //        return makeADTType("Tree");    
+    } else if (isNonTerminalType(t1)) {
+        if (size(tl) != 1)
+            reportError("Expected only 1 subscript for a nonterminal subscript expression, not <size(tl)>");
+        else if (!isIntType(tl[0]))
+            reportError("Expected subscript of type int, not <fmt(tl[0])>");
+        else if (isNonTerminalIterType(t1))
+            return getNonTerminalIterElement(t1);
+        else
+            return makeADTType("Tree");    
     } else {
         reportError(current, "Expressions of type <fmt(t1)> cannot be subscripted");
     }

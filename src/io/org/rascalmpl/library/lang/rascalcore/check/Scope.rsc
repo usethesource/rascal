@@ -93,7 +93,7 @@ Accept isAcceptableSimple(TModel tm, Key def, Use use){
 
     if(variableId() in use.idRoles){
        // enforce definition before use
-       if(def.path == use.scope.path && def < use.scope){
+       if(def.path == use.occ.path && /*def.path == use.scope.path &&*/ def < use.scope){
           if(use.occ.offset < def.offset){
              // allow when inside explicitly use before def parts
              if(rel[Key,Key] allowedParts := tm.store[key_allow_use_before_def]){

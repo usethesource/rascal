@@ -182,7 +182,7 @@ AType instantiateRascalTypeParams(AType pt:aparameter(str s, AType t), Bindings 
 AType instantiateRascalTypeParams(AType::aadt(str s, list[AType] ps), Bindings bindings) 
     = AType::aadt(s,[instantiateRascalTypeParams(p,bindings) | p <- ps]);
 AType instantiateRascalTypeParams(AType::acons(AType a, str name, list[NamedField] fields, list[Keyword] kwFields), Bindings bindings) = 
-    AType::acons(instantiateRascalTypeParams(a,bindings), name, [<nm, instantiateRascalTypeParams(ft,bindings)> | <nm, ft> <- fields], [<instantiateRascalTypeParams(ft,bindings), fn, de> | <ft, fn, de> <- kwFields]);
+    AType::acons(instantiateRascalTypeParams(a,bindings), name, [<instantiateRascalTypeParams(ft,bindings), nm> | <ft, nm> <- fields], [<instantiateRascalTypeParams(ft,bindings), fn, de> | <ft, fn, de> <- kwFields]);
 AType instantiateRascalTypeParams(AType::aalias(str s, list[AType] ps, AType at), Bindings bindings)
     = AType::aalias(s, [instantiateRascalTypeParams(p,bindings) | p <- ps], instantiateRascalTypeParams(at,bindings));
 AType instantiateRascalTypeParams(AType::afunc(AType rt, list[AType] formals, list[Keyword] kwFormals, varArgs=va), Bindings bindings) = 

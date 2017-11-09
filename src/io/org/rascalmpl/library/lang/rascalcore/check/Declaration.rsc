@@ -164,7 +164,7 @@ void collect(FunctionDeclaration decl, TBuilder tb){
         retType = convertType(signature.\type, tb);
         <formals, kwTypeParams, kwFormals> = checkFunctionType(scope, retType, signature.parameters, tb);
         
-        tb.requireEager("definition of return type", signature.\type, [],
+        tb.requireEager("definition of function type", signature.\type, [],
             (){ expandedRetType = expandUserTypes(retType, scope);
                 if(isVarArgs){
                    unify(ftypeStub, afunc(expandedRetType, atypeList([expandUserTypes(getType(formals[i]), scope) | int i <- [0..-1]] + alist(expandUserTypes(getType(formals[-1]), scope))), kwFormals, varArgs=true));
@@ -454,6 +454,7 @@ void dataDeclaration(Declaration current, list[Variant] variants, TBuilder tb){
     // Additionaly declare all constructors inside the scope of the ADT to make them reachable via fully qualified names
     tb.enterScope(current);
     for(<consName, vname, defT> <- allConstructorDefines){
+        //println("local defines in <current@\loc>: <consName>, constructorId(), <vname>, <defT>");
         tb.define(consName, constructorId(), vname, defT);
     }
     tb.leaveScope(current);
@@ -492,6 +493,7 @@ void collect (current: (SyntaxDefinition) `<Start strt> syntax <Sym defined> = <
 }
 
 void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterminalType, Prod production, set[SyntaxKind] syntaxKind, TBuilder tb){
+    //println("declareSyntax: <defined>, <nonterminalType>");
     AProduction pr = prod2prod(nonterminalType, production, syntaxKind);
     //println("pr: <pr>");
     if(isADTType(nonterminalType)){
@@ -504,8 +506,8 @@ void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterm
         constructorFields = { *getFields(p) | AProduction p <- productions };
         if(!isEmpty(constructorFields))  dt.constructorFields = constructorFields;
                                             
-        tb.define(ntName, nonterminalId(), current, dt);
-        //—println("define <ntName>, nonTerminalId(), <dt>");
+        tb.define(ntName, dataId(), current, dt);
+        //println("define <ntName>, dataId(), <dt>");
         allConstructorDefines = {};
         for(p <- productions){
            for(<k, c> <- prod2cons(p)){
@@ -517,6 +519,7 @@ void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterm
         // Additionaly declare all constructors inside the scope of the ADT to make them reachable via fully qualified names
         tb.enterScope(current);
         for(<consName, vname, defT> <- allConstructorDefines){
+            //println("local defines in <current>: <consName>, constructorId(), <vname>, <defT>");
             tb.define(consName, constructorId(), vname, defT);
         }
         tb.leaveScope(current);
@@ -536,7 +539,7 @@ rel[str,AType] getFields(\associativity(AType def, Associativity \assoc, set[APr
 default rel[str,AType] getFields(AProduction p) = {<t.label, t> | s <- p.symbols, isNonTerminalType(s), s.label?, t := removeConditional(s)};
 
 void collect(current: (Sym) `<Nonterminal nonterminal>`, TBuilder tb){
-    tb.use(nonterminal, {nonterminalId()});
+    tb.use(nonterminal, {dataId()});
     collectParts(current, tb);
 }
 

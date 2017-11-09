@@ -1,4 +1,7 @@
 module lang::rascalcore::check::Test1
-data Associativity 
-     = \left()
-     ;   
+    
+value main(){
+    list[int] l;
+    
+    if([*a] := l) return a + a;
+}

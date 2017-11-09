@@ -1,42 +1,51 @@
 module lang::rascalcore::check::Test3
 
-//value main(){
-//    [*post] := [1] 
-//    && z <- post;
-//}
+//import lang::rascal::\syntax::Rascal;
+    
+syntax Sym
+// named non-terminals
+    = \start: "start"
+    ;
+    
+data Symbol // <1>
+     = \start(Symbol symbol)
+     | \sort(str name)
+     | \parameterized-sort(str name, list[Symbol] parameters) // <6>
+     | \parameterized-lex(str name, list[Symbol] parameters)  // <7>
+     | \label(str name, Symbol symbol)
+     ;
 
-//java tuple[&T, set[&T]] takeOneFrom(set[&T] st);
-//
-//public &T min(set[&T] st) {
-//    <h,t> = takeOneFrom(st);
-//    return (h | e < it ? e : it | e <- t);
-//}
+data Attr;
 
-//value main(){
-//       list[int] l = [];
-//       
-//       if([post*] := l)
-//           post += 1;
-//}
+data Grammar;
 
-data CharRange = range(int begin, int end);
+data Production 
+     = prod(Symbol def, list[Symbol] symbols, set[Attr] attributes) // <1>
+     ;
 
-alias CharClass = list[CharRange];
-
-//private CharRange range(int b, int e) {
-//  //switch (r) {
-//  //  case character(Char c) : return range(charToInt(c),charToInt(c));
-//  //  case fromTo(Char l1, Char r1) : {
-//  //    <cL,cR> = <charToInt(l1),charToInt(r1)>;
-//  //    // users may flip te ranges, but after this reversed ranges will results in empty ranges
-//  //    return cL <= cR ? range(cL, cR) : range(cR, cL);
-//  //  } 
-//  //  default: throw "range, missed a case <r>";
-//  //}
-//} 
-
-public bool lessThan(CharRange r1, CharRange r2) {
-  if (range(s1,e1) := r1, range(s2,e2) := r2) {
-    return e1 < s2;
+list[Symbol] intermix(list[Symbol] syms, Symbol l, set[Symbol] others) {
+  if (syms == []) 
+    return syms;
+    
+  //syms = [ sym is layouts ? sym : regulars(sym, l, others) | sym <- syms ];
+  others += {l};
+  
+  // Note that if a user manually put a layouts symbol, then this code makes sure not to override it and
+  // not to surround it with new layout symbols  
+  while ([*Symbol pre, Symbol sym1, Symbol sym2, *Symbol pst] := syms, !(sym1 in others || sym2 in others)) {
+      syms = [*pre, sym1, l, sym2, *pst];
   }
+  
+  return syms;
 }
+
+@doc{intersperses layout symbols in all non-lexical productions}
+public Grammar \layouts(Grammar g, Symbol l, set[Symbol] others) {
+  return top-down-break visit (g) {
+    case prod(\start(Symbol y),[Symbol x], as) => prod(\start(y),[l, x, l],  as)
+    //case prod(sort(s),list[Symbol] lhs,as) => prod(sort(s),intermix(lhs, l, others),as)
+    //case prod(\parameterized-sort(s,n),list[Symbol] lhs,as) => prod(\parameterized-sort(s,n),intermix(lhs, l, others),as)
+    case prod(label(t,sort(s)),list[Symbol] lhs,as) => prod(label(t,sort(s)),intermix(lhs, l, others),as)
+    //case prod(label(t,\parameterized-sort(s,n)),list[Symbol] lhs,as) => prod(label(t,\parameterized-sort(s,n)),intermix(lhs, l, others),as) 
+  }
+} 

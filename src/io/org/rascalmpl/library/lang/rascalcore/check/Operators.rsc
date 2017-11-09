@@ -401,7 +401,9 @@ AType computeIntersectionType(Tree current, AType t1, AType t2){
 // ---- addition
 
 void collect(current: (Expression) `<Expression lhs> + <Expression rhs>`, TBuilder tb){
-    tb.calculate("addition", current, [lhs, rhs], AType() { return computeAdditionType(current, getType(lhs), getType(rhs)); });
+    tb.calculate("addition", current, [lhs, rhs], AType() { 
+        return computeAdditionType(current, getType(lhs), getType(rhs)); 
+        });
     collectParts(current, tb); 
 }
 
@@ -710,6 +712,7 @@ void collect(current: (Expression) `<Pattern pat> := <Expression expression>`, T
 
 void computeMatchPattern(Expression current, Pattern pat, str operator, Expression expression, TBuilder tb){
     tb.fact(current, abool());
+    scope = tb.getScope();
     if(pat is  qualifiedName){
         name = pat.qualifiedName;
         tau = tb.newTypeVar();
@@ -720,12 +723,71 @@ void computeMatchPattern(Expression current, Pattern pat, str operator, Expressi
                      comparable(etype, getType(name), onError(current, "Incompatible type in match (<operator>) using `<name>`")); 
                    });  
     } else {
-        tb.requireEager("match", current, [expression],
+        tb.requireEager("match", current, [pat,expression],
            () {  ptype = getType(pat); etype = getType(expression);
-                 if(isFullyInstantiated(ptype) && isFullyInstantiated(etype)){
+                 println("match: <ptype>, <etype>");
+                 if(overloadedAType(rel[Key, IdRole, AType] overloads) := ptype){
+                    if((Pattern)`<Pattern patexpression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )` := pat){   
+                        pats = [ p | Pattern p <- arguments ];
+                        for(<key, idr, tp> <- overloads){
+                            if(acons(adtType:aadt(adtName, list[AType] parameters), str consName, lrel[AType fieldType, str fieldName] fields, lrel[AType fieldType, str fieldName, Expression defaultExp] kwFields) := tp){
+                                if(!comparable(adtType, etype)) continue;
+                                nactuals = size(pats); nformals = size(fields);
+                                if(nactuals != nformals) continue next_cons;
+                                Bindings bindings = ();
+                                type_expanded_pats = [avoid() | int i <- index(pats)];
+                                for(int i <- index(fields)){
+                                    if("<pats[i]>" != "_"){
+                                        type_expanded_pat_i =  expandUserTypes(getType(pats[i]), scope);
+                                        if(isFullyInstantiated(type_expanded_pat_i)){
+                                            try {
+                                                 bindings = matchRascalTypeParams(fields[i].fieldType, type_expanded_pat_i, bindings, bindIdenticalVars=true);
+                                            } catch invalidMatch(str reason): {
+                                                 continue next_cons;
+                                            }
+                                            ifieldType = fields[i].fieldType;
+                                            
+                                            try {
+                                               // println("<i>: <fields[i].fieldType>");
+                                                ifieldType = instantiateRascalTypeParams(fields[i].fieldType, bindings);
+                                                //println("instantiation gives: <ifieldType>");
+                                            } catch invalidInstantiation(str msg): {
+                                                //println("instantiation fails");
+                                                continue next_cons;
+                                            }
+                                            ifieldType = expandUserTypes(ifieldType, scope);
+                                            if(!comparable(type_expanded_pat_i, ifieldType)) continue next_cons;
+                                        } else {
+                                           if(!unify(type_expanded_pat_i, fields[i].fieldType)) continue next_cons;
+                                           type_expanded_pats[i] = instantiate(type_expanded_pat_i);
+                                        } 
+                                    } 
+                                }
+                                try { 
+                                    checkKwArgs(kwFields, keywordArguments, bindings, scope);
+                                } catch checkFailed(set[Message] msgs):
+                                    continue next_cons;
+                                
+                                try {
+                                    adtType = instantiateRascalTypeParams(adtType, bindings);
+                                    println("match: pat =\> <adtType>");
+                                    fact(pat, adtType);
+                                    for(int i <- index(type_expanded_pats), type_expanded_pats[i] != avoid()){
+                                        println("<getType(pats[i])>, ins: <type_expanded_pats[i]>");
+                                        instantiate(type_expanded_pats[i]);
+                                    }
+                                    return;
+                                } catch invalidInstantiation(str msg): {
+                                    continue next_cons;
+                                }
+                            }
+                    }
+                    reportError(current, "No function or constructor <"<expression>"> for arguments <fmt(pats)>");
+                }
+            }
+            else if(isFullyInstantiated(ptype) && isFullyInstantiated(etype)){
                     comparable(ptype, etype, onError(current, "Cannot match (<operator>) <fmt(pat)> pattern with <fmt(expression)> subject"));
-                 } else {
-                    println("match: <ptype>, <etype>");
+            } else {
                     unify(ptype, etype, onError(pat, "Type of <operator> pattern could not be computed"));
                     ptype = instantiate(ptype);
                     etype = instantiate(etype);
@@ -734,7 +796,7 @@ void computeMatchPattern(Expression current, Pattern pat, str operator, Expressi
                     // add comparable?
                     fact(pat, ptype);
                     fact(expression, etype);
-                 }
+            }
                 
                });
     }
@@ -870,7 +932,8 @@ void collect(current: (Expression) `<Expression condition> ? <Expression thenExp
         
         tb.calculateEager("if expression", current, [condition, thenExp, thenExp],
             AType (){
-                checkConditions([condition]);
+                if(!unify(abool(), getType(condition))) reportError(condition, "Condition should be `bool`, found <fmt(condition)>");
+                //checkConditions([condition]);
                 return lub(getType(thenExp), getType(thenExp));
             });
         collectParts(current, tb);

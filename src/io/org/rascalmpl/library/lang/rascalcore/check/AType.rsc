@@ -44,11 +44,13 @@ data AType (str label = "")
      ;
 
 AType overloadedAType(rel[Key, IdRole, AType] overloads){
+    topIf:
     if(all(<Key k, IdRole idr, AType t> <- overloads, aadt(adtName, params, hasSyntax=hs) := t)){
-      str adtName;
-      list[AType] adtParams;
+      str adtName = "";
+      list[AType] adtParams = [];
       hasSyntax = false;
       for(<Key k, IdRole idr, AType t> <- overloads, aadt(adtName1, params1, hasSyntax=hs1) := t){
+        if(!isEmpty(adtName) && adtName != adtName1) fail overloadedAType; // overloading of different ADTs.
         adtName = adtName1;
         adtParams = params1;
         hasSyntax = hasSyntax || hs1;
@@ -356,8 +358,8 @@ bool asubtype(AType s, s) = true;
 default bool asubtype(AType s, AType t) = (s.label? || t.label?) ? asubtype(unset(s, "label") , unset(t, "label")) : s == t;
 
 
-bool asubtype(overloadedAType(overloads), AType r) = all(<k, idr, tp> <- overloads, asubtype(tp, r));
-bool asubtype(AType l, overloadedAType(overloads)) = all(<k, idr, tp> <- overloads, asubtype(l, tp));
+bool asubtype(overloadedAType(overloads), AType r) = any(<k, idr, tp> <- overloads, asubtype(tp, r));
+bool asubtype(AType l, overloadedAType(overloads)) = any(<k, idr, tp> <- overloads, asubtype(l, tp));
 
 bool asubtype(AType _, avalue()) = true;
 
@@ -498,7 +500,7 @@ AType alub(alrel(AType ts), alist(AType s)) = alist(alub(s,atuple(ts)));
 
 AType alub(lr1: alrel(AType l), lr2:alrel(AType r))  = size(l) == size(r) ? alrel(alub(l, r)) : alist(avalue());
 
-Type alub(t1: atuple(AType l), t2:atuple(AType r)) = size(l) == size(r) ? atuple(alub(l, r)) : atuple(avalue());
+AType alub(t1: atuple(AType l), t2:atuple(AType r)) = size(l) == size(r) ? atuple(alub(l, r)) : atuple(avalue());
 
 AType alub(m1: amap(ld, lr), m2: amap(rd, rr)) = amap(alub(ld, rd), alub(lr, rr));
 

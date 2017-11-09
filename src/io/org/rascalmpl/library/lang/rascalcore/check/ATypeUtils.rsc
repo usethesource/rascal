@@ -61,10 +61,11 @@ str prettyPrintAType(aanno(str aname, AType onType, AType annoType)) = "anno <pr
 
 str prettyPrintAType(aadt(str s, [])) = s;
 str prettyPrintAType(aadt(str s, ps)) = "<s>[<prettyPrintAType(ps)>]" when size(ps) > 0;
-str prettyPrintAType(acons(str adtName, str consName, 
+
+str prettyPrintAType(acons(AType adt, str consName, 
                  lrel[AType fieldType, str fieldName] fields, 
                  lrel[AType fieldType, str fieldName, Expression defaultExp] kwFields))
-                 = "<adtName>:<consName>(<intercalate(",", ["<prettyPrintAType(ft)> <fn>" | <ft, fn> <- fields])>,<intercalate(",", ["<prettyPrintAType(ft)> <fn>=..." | <ft, fn, de> <- kwFields])>)";
+                 = "<prettyPrintAType(adt)>::<consName>(<intercalate(", ", ["<prettyPrintAType(ft)> <fn>" | <ft, fn> <- fields])><isEmpty(kwFields) ? "" : ", "><intercalate(",", ["<prettyPrintAType(ft)> <fn>=..." | <ft, fn, de> <- kwFields])>)";
 
 str prettyPrintAType(amodule(str mname)) = "module <mname>";         
 str prettyPrintAType(aparameter(str pn, AType t)) = t == avalue() ? "&<pn>" : "&<pn> \<: <prettyPrintAType(t)>";

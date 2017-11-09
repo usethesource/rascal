@@ -41,20 +41,21 @@ start syntax Modules
 Tree mkTree(int n) = [DecimalIntegerLiteral] "<for(int i <- [0 .. n]){>6<}>"; // Create a unique tree to identify predefined names
  
 void rascalPreCollectInitialization(Tree tree, TBuilder tb){
-    //data type[&T] = type(Symbol symbol, map[Symbol,Production] definitions);
-    // | aadt(str adtName, list[AType] parameters)
-    // | acons(AType adt, str consName, list[NamedField] fields, list[Keyword] kwFields)
-    // alias Keyword = tuple[AType fieldType, str fieldName, Expression defaultExp];
-    //alias NamedField   = tuple[AType fieldType, str fieldName];
-    
-    typeType = aadt("Type", [aparameter("T", avalue())]);
-    SymbolType = aadt("Symbol", []);
-    ProductionType = aadt("Production", []);
-   // tb.define("Type", dataId(), mkTree(1), defType(typeType));
-    symbolField = <SymbolType, "symbol">;
-    definitionsField = <amap(SymbolType, ProductionType), "definitions">;
-    
-    tb.define("type", constructorId(), mkTree(2), defType(acons(typeType, "type", [symbolField, definitionsField], [])));
+    tb.enterScope(tree);
+        //data type[&T] = type(Symbol symbol, map[Symbol,Production] definitions);
+        // | aadt(str adtName, list[AType] parameters)
+        // | acons(AType adt, str consName, list[NamedField] fields, list[Keyword] kwFields)
+        // alias Keyword = tuple[AType fieldType, str fieldName, Expression defaultExp];
+        //alias NamedField   = tuple[AType fieldType, str fieldName];
+        
+        typeType = aadt("Type", [aparameter("T", avalue())]);
+        SymbolType = aadt("Symbol", []);
+        ProductionType = aadt("Production", []);
+        symbolField = <SymbolType, "symbol">;
+        definitionsField = <amap(SymbolType, ProductionType), "definitions">;
+        
+        tb.define("type", constructorId(), mkTree(2), defType(acons(typeType, "type", [symbolField, definitionsField], [])));
+    tb.leaveScope(tree);
 }
 
 // Enhance TModel before validation

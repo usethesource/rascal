@@ -52,4 +52,7 @@ test IfU1 [[ module A value zz = { if(x := 1) x + 1; }; ]]
 test IfU2 [[ module A value zz = { if(x := 1) x + 1; else x + 2;}; ]] expect { "Undefined variable, constructor, function or formal `x`" }
 test IfU3 [[ module A value zz = { if(x := 1 && x == 1 ) x + 1; }; ]]
 
+test ADT1 [[ module A data D = d1(int n); value zz = { if(d1(x) := d1(10)) x + 1; }; ]]
+test ADT2 [[ module A data D = d1(int n); value zz = { if(d1(x) := d1(10), d1(y) := d1(11)) x + y; }; ]]
+
 

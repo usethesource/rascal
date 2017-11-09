@@ -30,6 +30,16 @@ expect { "Undefined variable, constructor, function or formal `x`" }
 test Visit7  [[ module A void main() { insert 2; } ]]
 expect { "Insert found outside replacement context" }
 
+test IfT1 [[  module A void main(){ if(true) 1; }]]
+test IfT2 [[  module A void main(){ if(true,true) 1; }]]
+test IfT3 [[  module A void main(){ if(true,"a") 1; }]]
+expect { "Condition should be `bool`, found `str`" }
+
+test IfTE1 [[  module A void main(){ if(true) 1; else 2;}]]
+test IfTE2 [[  module A void main(){ if(true,true) 1; else 2; }]]
+test IfTE3 [[  module A void main(){ if(true,"a") 1; else 2;}]]
+expect { "Condition should be `bool`, found `str`" }
+
 test While1 [[ module A void main(){ while(true) 1; }]]
 test While2 [[ module A void main(){ while(13) 1; }]]
 expect { "Condition should be `bool`, found `int`" }

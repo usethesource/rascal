@@ -1,4 +1,18 @@
 module lang::rascalcore::check::Test4
-data S;
-alias SU = map[S, set[S]] ;
-SU f(SU su) { return su;}
+
+
+syntax Sym
+    = iter: Sym symbol "+" 
+    ;
+ 
+data Symbol
+     = \iter(Symbol symbol) // <13>
+     | \iter-star(Symbol symbol)  // <14>
+     ;
+     
+private Symbol getTargetSymbol(Symbol sym) {
+  switch(sym) {
+    case \iter(s1) : return s1;
+    //case \iter-star(s) : return s;  
+  } 
+}

@@ -21,6 +21,9 @@ void collect(Pattern current:(Literal)`<IntegerLiteral il>`, TBuilder tb){
     tb.fact(current, aint());
 }
 
+AType getPatternType(Pattern current:(Literal)`<IntegerLiteral il>`, AType subjectType)
+    = getType(current);
+
 void collect(Pattern current:(Literal)`<RealLiteral rl>`, TBuilder tb){
     tb.fact(current, areal());
 }
@@ -86,6 +89,14 @@ void collect(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, TBuilder tb){
         AType() {
             return alist(lub([getType(p) | p <- pats]));
         });
+}
+
+AType getPatternType(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, AType subjectType){
+    if(isListType(subjectType)){
+        elmType = getListElementType(subjectType);
+        return alist(lub([getPatternType(p, elmType) | p <- elements0]));
+    }
+    return subjectType;
 }
 
 // ---- splice pattern
@@ -165,7 +176,8 @@ void collectPatternElements(list[Pattern] pats, TBuilder tb, bool inSet = false)
                  if(isQualified(qname)) tb.reportError(name, "Qualifier not allowed");
                  tb.define(qname.name, variableId(), name, defLub([], 
                     AType() { 
-                        return inSet ? aset(getType(tau)) : alist(getType(tau)); 
+                        tp = getType(tau);
+                        return inSet ? aset(tp) : alist(tp); 
                     }));
               }
            } else {
@@ -248,9 +260,13 @@ void collect(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* argument
     collect(keywordArguments, tb);
     
     tb.calculateEager("call or tree pattern", current, expression + pats,
-        AType(){        
-            if(overloadedAType(rel[Key, IdRole, AType] overloads) := getType(expression)){
-              
+        AType(){  
+            texp = getType(expression);
+            if(isStrType(texp)){
+                return anode();
+            }         
+            if(overloadedAType(rel[Key, IdRole, AType] overloads) := texp){
+               validOverloads = {};
                next_cons:
                  for(<key, idr, tp> <- overloads){
                     if(acons(adtType:aadt(adtName, list[AType] parameters), str consName, lrel[AType fieldType, str fieldName] fields, lrel[AType fieldType, str fieldName, Expression defaultExp] kwFields) := tp){
@@ -279,7 +295,8 @@ void collect(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* argument
                                     ifieldType = expandUserTypes(ifieldType, scope);
                                     if(!comparable(type_expanded_pat_i, ifieldType)) continue next_cons;
                                 } else {
-                                   if(!unify(type_expanded_pat_i, fields[i].fieldType)) continue next_cons;
+                                   //unify(type_expanded_pat_i, fields[i].fieldType); // Too Agressive
+                                   validOverloads += <key, idr, tp>;
                                 } 
                             } 
                         }
@@ -289,13 +306,14 @@ void collect(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* argument
                             continue next_cons;
                         
                         try {
-                            return adtType = instantiateRascalTypeParams(adtType, bindings);
+                            validOverloads += <key, idr, /*acons(*/instantiateRascalTypeParams(adtType, bindings)/*, consName, fields, kwFields)*/>;
                         } catch invalidInstantiation(str msg): {
                             continue next_cons;
                         }
                     }
                 }
-                reportError(current, "No function or constructor <"<expression>"> for arguments <fmt(pats)>");
+                if(isEmpty(validOverloads)) reportError(current, "No function or constructor <"<expression>"> for arguments <fmt(pats)>");
+                return overloadedAType(validOverloads);
             }
         
             if(acons(adtType:aadt(adtName, list[AType] parameters), str consName, lrel[AType fieldType, str fieldName] fields, lrel[AType fieldType, str fieldName, Expression defaultExp] kwFields) := getType(expression)){
@@ -323,6 +341,7 @@ void collect(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* argument
                            comparable(type_expanded_pat_i, ifieldType, onError(pats[i], "Field <fmt(fields[i].fieldName)> should have type <fmt(ifieldType)>, found <fmt(type_expanded_pat_i)>"));
                         } else {
                             unify(type_expanded_pat_i, fields[i].fieldType, onError(pats[i], "Field <fmt(fields[i].fieldName)> should have type <fmt(fields[i].fieldType)>, found <fmt(type_expanded_pat_i)>"));
+                            //instantiate(type_expanded_pat_i);
                         }
                     }
                 }

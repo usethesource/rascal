@@ -163,18 +163,60 @@ void collect(current: (Statement) `<Label label> while( <{Expression ","}+ condi
         computeLoopType("while statement", loopName, current, tb);
     tb.leaveScope(conditions);
 }
+ 
+//void checkConditions(str text, Tree current, list[Expression] condList, TBUilder tb){
+//    switch(size(condList)){
+//    case 1:
+//        tb.requireEager(text, current, condList,
+//        () { tcond = getType(condList[0]);
+//             if(!unify(abool(), tcond)) reportError(cond, "Condition should be `bool`, found <fmt(tcond)>");
+//        });
+//    
+//    case 2:
+//        tb.requireEager(text, current, condList,
+//        () { tcond0 = getType(condList[0]);
+//             if(!unify(abool(), tcond0)) reportError(cond, "Condition should be `bool`, found <fmt(tcond0)>");
+//             tcond1 = getType(condList[1]);
+//             if(!unify(abool(), tcond1)) reportError(cond, "Condition should be `bool`, found <fmt(tcond1)>");
+//        });
+//    default:
+//        tb.requireEager(text, current, condList,
+//        () {  for(Expression cond <- condList){
+//                  tcond = getType(cond);
+//                  if(!unify(abool(), tcond)) reportError(cond, "Condition should be `bool`, found <fmt(tcond)>");
+//              }
+//        });
+//    }
+// }
+ 
+//void () makeCheckConditions(list[Expression] condList)
+//    = () { for(Expression cond <- condList){
+//               tcond = getType(cond);
+//               if(!unify(abool(), tcond)) reportError(cond, "Condition should be `bool`, found <fmt(tcond)>");
+//           }
+//         };
 
 void checkConditions(list[Expression] condList){
     for(Expression cond <- condList){
-        if(isFullyInstantiated(getType(cond))){
-            subtype(getType(cond), abool(), onError(cond, "Condition should be `bool`, found <fmt(cond)>"));
+        tcond = getType(cond);
+        //if(!unify(abool(), tcond)) reportError(cond, "Condition should be `bool`, found <fmt(tcond)>");
+        if(isFullyInstantiated(tcond)){
+            subtype(tcond, abool(), onError(cond, "Condition should be `bool`, found <fmt(cond)>"));
         } else {
-            if(!unify(getType(cond), abool())){
-                subtype(getType(cond), abool(), onError(cond, "Condition should be `bool`, found <fmt(cond)>"));
+            if(!unify(tcond, abool())){
+                subtype(tcond, abool(), onError(cond, "Condition should be `bool`, found <fmt(cond)>"));
             }
         }
     }
 }
+
+ //tb.fact(current, abool());
+ //  
+ //   tb.requireEager("and", current, [lhs, rhs],
+ //       (){ if(!unify(abool(), getType(lhs))) reportError(lhs, "Argument of && should be `bool`, found <fmt(lhs)>");
+ //           if(!unify(abool(), getType(rhs))) reportError(rhs, "Argument of && should be `bool`, found <fmt(rhs)>");
+ //         });
+ //   collectParts(current, tb);
 
 void computeLoopType(str loopKind, str loopName1, Statement current, TBuilder tb){
     loopScopes = tb.getScopeInfo(loopScope());
@@ -316,7 +358,8 @@ void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditio
         condList = [cond | Expression cond <- conditions];
         tb.fact(current, avalue());
         
-        tb.require("if then", current, condList, (){ checkConditions(condList); });
+        tb.requireEager("if then", current, condList, (){ checkConditions(condList); });
+        //checkConditions("if then", current, condList, tb);
         collectParts(current, tb);
     tb.leaveScope(conditions);   
 }
@@ -631,7 +674,7 @@ AType computeSliceAssignableType(Statement current, AType receiverType, AType fi
         if(!subtype(rhs, astr())) reportError(current, "Expected `str` in slice assignment, found <fmt(rhs)>");
         return receiverType;
     } else if(isNonTerminalIterType(receiverType)) {
-    ; // TODO
+        throw "Not yet implemented"; // TODO
     } else if (isNodeType(receiverType)) {
         return makeListType(avalue());
     }
