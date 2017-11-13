@@ -168,6 +168,13 @@ public class BaseREPL {
             w.print(out);
             w.flush();
         }
+        
+        try {
+            originalStdOut.flush();
+        }
+        catch (IOException e) {
+            // ?
+        }
     }
 
     /**
@@ -291,26 +298,6 @@ public class BaseREPL {
         try {
             updatePrompt();
             while(keepRunning) {
-                boolean handledQueue = false;
-                String queuedCommand;
-                while ((queuedCommand = commandQueue.poll()) != null) {
-                    handledQueue = true;
-                    reader.resetPromptLine(reader.getPrompt(), queuedCommand, 0);
-                    reader.println();
-                    reader.getHistory().add(queuedCommand);
-                    try {
-                        handlingInput = true;
-                        handleInput(queuedCommand);
-                    }
-                    finally {
-                        handlingInput = false;
-                    }
-                }
-                if (handledQueue) {
-                    String oldPrompt = reader.getPrompt();
-                    reader.resetPromptLine("", "", 0);
-                    reader.setPrompt(oldPrompt);
-                }
 
                 updatePrompt();
                 try {
@@ -318,6 +305,9 @@ public class BaseREPL {
                     if (line == null) { // EOF
                         break;
                     }
+                    
+                    handleCommandQueue();
+                    
                     try {
                         handlingInput = true;
                         handleInput(line);
@@ -328,14 +318,7 @@ public class BaseREPL {
                 }
                 catch (UserInterruptException u) {
                     reader.println();
-                    Map<String,String> output = new HashMap<>();
-                    
-                    handleReset(output, new HashMap<>());
-                    
-                    for (String out : output.values()) {
-                        reader.print(out);
-                    }
-                    
+                    handleReset(new HashMap<>(), new HashMap<>());
                     updatePrompt();
                 }
 
@@ -366,6 +349,29 @@ public class BaseREPL {
                 history.flush();
             }
             reader.shutdown();
+        }
+    }
+
+    private void handleCommandQueue() throws IOException, InterruptedException {
+        boolean handledQueue = false;
+        String queuedCommand;
+        while ((queuedCommand = commandQueue.poll()) != null) {
+            handledQueue = true;
+            reader.resetPromptLine(reader.getPrompt(), queuedCommand, 0);
+            reader.println();
+            reader.getHistory().add(queuedCommand);
+            try {
+                handlingInput = true;
+                handleInput(queuedCommand);
+            }
+            finally {
+                handlingInput = false;
+            }
+        }
+        if (handledQueue) {
+            String oldPrompt = reader.getPrompt();
+            reader.resetPromptLine("", "", 0);
+            reader.setPrompt(oldPrompt);
         }
     }
 
