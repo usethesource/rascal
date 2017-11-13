@@ -164,16 +164,12 @@ public class BaseREPL {
         String out = output.get("text/plain");
         
         if (out != null) {
-            PrintWriter w = new PrintWriter(originalStdOut);
-            w.print(out);
-            w.flush();
-        }
-        
-        try {
-            originalStdOut.flush();
-        }
-        catch (IOException e) {
-            // ?
+            try {
+                reader.print(out);
+                reader.flush();
+            }
+            catch (IOException e) {
+            }
         }
     }
 
