@@ -54,7 +54,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
  */
 public class CourseCompiler {
 
-	static void writeFile(String path, String content) throws IOException {
+    static void writeFile(String path, String content) throws IOException {
 	  FileWriter fout = new FileWriter(path);
 	  fout.write(content);
 	  fout.close();
@@ -88,11 +88,14 @@ public class CourseCompiler {
 	}
 	
     public static void compileCourse(Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
-		
-		copyStandardFilesPerCourse(srcPath, courseName, destPath);
-		new Onthology(srcPath, courseName, destPath, libSrcPath, pcfg, executor);
-		
 		try {
+		    copyStandardFilesPerCourse(srcPath, courseName, destPath);
+		    
+		    Onthology o = new Onthology(srcPath, courseName, destPath, libSrcPath, pcfg, executor);
+	        
+	        o.buildCourseMap();
+	        o.buildConcepts();
+	        
 			runAsciiDocter(srcPath, courseName, destPath, executor.err);
 		} catch (IOException e) {
 			System.err.println("Cannot run asciidoctor: " + e.getMessage());
@@ -121,7 +124,7 @@ public class CourseCompiler {
 	/**
 	 * @return true iff no files were copied because they are already in the destination path
 	 */
-	private static boolean copyStandardFiles(Path srcPath, Path destPath) throws IOException {
+	public static boolean copyStandardFiles(Path srcPath, Path destPath) throws IOException {
 		
 		System.err.println("Copying standard files");
 		System.err.println("srcPath: " + srcPath + ", destPath: " + destPath);

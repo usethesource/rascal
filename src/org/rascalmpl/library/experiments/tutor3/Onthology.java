@@ -72,6 +72,8 @@ public class Onthology {
 	private Path courseDestPath;
 	private Path libSrcPath;
     private PathConfig pcfg;
+    private TutorCommandExecutor executor;
+    private FSDirectory directory;
 	
 	public static Analyzer multiFieldAnalyzer(){
 		Analyzer stdAnalyzer = new StandardAnalyzer();
@@ -94,41 +96,49 @@ public class Onthology {
 		this.courseSrcPath = srcPath.resolve(courseName);
 		this.destPath = destPath;
 		this.courseDestPath = destPath.resolve(courseName);
-		
+		this.executor = executor;
 		this.libSrcPath = libSrcPath;
-
 		this.courseName = courseName;
 		conceptMap = new HashMap<>();
 		
-		Analyzer multiFieldAnalyzer = multiFieldAnalyzer();
-
-		Directory directory = null;
-	
 		if(!Files.exists(courseDestPath)){
 			Files.createDirectories(courseDestPath);
 		}
 
-		directory = FSDirectory.open(courseDestPath);
-		IndexWriterConfig config = new IndexWriterConfig(multiFieldAnalyzer);
-		config.setOpenMode( IndexWriterConfig.OpenMode.CREATE);
-		iwriter = new IndexWriter(directory, config);
+		this.directory = FSDirectory.open(courseDestPath);
+	}
 
-		FileVisitor<Path> fileProcessor = new CollectConcepts();
-		Files.walkFileTree(courseSrcPath, fileProcessor);
-		
-		// TODO: fix closing a writer stored in a field
-		iwriter.close();
-		
-		for(Path conceptName : conceptMap.keySet()){
-			Concept concept = conceptMap.get(conceptName);
-			try {
-				concept.preprocess(this, executor);
+    public void buildConcepts() throws IOException {
+        if (conceptMap.isEmpty()) {
+            buildCourseMap();
+        }
+        
+        for (Path conceptName : conceptMap.keySet()){
+            try {
+                Concept concept = conceptMap.get(conceptName);
+                
+                if (concept != null) {
+                    concept.preprocess(this, executor);
+                }
+                else {
+                    executor.error("missing concept for " + conceptName);
+                }
 			} catch (IOException e) {
-			    System.err.println(e.getMessage());
-			    // TODO: handle failed file pre-processor with proper exception (with source location)
+			    executor.error(e.getMessage());
 			}
 		}
-	}
+    }
+
+    public void buildCourseMap() throws IOException {
+        Analyzer multiFieldAnalyzer = multiFieldAnalyzer();
+        IndexWriterConfig config = new IndexWriterConfig(multiFieldAnalyzer);
+        config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
+        
+        try (IndexWriter iwriter = new IndexWriter(directory, config)) {
+		    FileVisitor<Path> fileProcessor = new CollectConcepts(iwriter, conceptMap);
+		    Files.walkFileTree(courseSrcPath, fileProcessor);
+		}
+    }
 	
 	public Map<Path,Concept> getConceptMap(){
 		return conceptMap;
@@ -140,7 +150,7 @@ public class Onthology {
 	    String line = null;
 
 	    while( (line = reader.readLine()) != null ) {
-	    	result.append(line).append("\n");
+	        result.append(line).append("\n");
 	    }
 	    reader.close();
 	    return result.toString();	
@@ -183,8 +193,15 @@ public class Onthology {
 	}
 
 	private class CollectConcepts extends SimpleFileVisitor<Path> {
-		
-		@Override public FileVisitResult visitFile(Path file,
+		private final IndexWriter iwriter;
+        private final Map<Path, Concept> conceptMap;
+
+        public CollectConcepts(IndexWriter iwriter, Map<Path,Concept> conceptMap) {
+            this.iwriter = iwriter;
+            this.conceptMap = conceptMap;
+        }
+
+        @Override public FileVisitResult visitFile(Path file,
                 BasicFileAttributes attrs)
                   throws IOException{
 			String fileName = file.getFileName().toString();
