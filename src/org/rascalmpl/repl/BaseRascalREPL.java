@@ -126,6 +126,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     
     protected void printResult(IRascalResult result, Map<String,String> output, Map<String, String> metadata) throws IOException {
         if (result == null || result.getValue() == null) {
+            output.put("text/" + (htmlOutput ? "html" : "plain"), "ok\n");
             return;
         }
        
@@ -137,8 +138,11 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         else {
             writeOutputToString(result, out);
         }
-        
-        if (!out.toString().equals("")) {
+
+        if (out.getBuffer().length() == 0) {
+            output.put("text/" + (htmlOutput ? "html" : "plain"), "ok\n");
+        }
+        else {
             output.put("text/" + (htmlOutput ? "html" : "plain"), out.toString());
         }
     }            
