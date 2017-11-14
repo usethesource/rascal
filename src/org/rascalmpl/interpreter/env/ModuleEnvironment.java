@@ -519,6 +519,19 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
+	public void getAllFunctions(Type returnType, List<AbstractFunction> collection) {
+	    super.getAllFunctions(returnType, collection);
+	    
+	    for (String moduleName : getImports()) {
+	        ModuleEnvironment mod = getImport(moduleName);
+	        
+	        if (mod != null) {
+	            mod.getLocalPublicFunctions(returnType, collection);
+	        }
+	    }
+	}
+	
+	@Override
 	public void getAllFunctions(String name, List<AbstractFunction> collection) {
 		super.getAllFunctions(name, collection);
 		
@@ -559,6 +572,17 @@ public class ModuleEnvironment extends Environment {
 		}
 		
 		return null;
+	}
+	
+	private void getLocalPublicFunctions(Type returnType, List<AbstractFunction> collection) {
+	    if (functionEnvironment != null) {
+	        List<AbstractFunction> lst = functionEnvironment.values().stream().collect(ArrayList::new, ArrayList::addAll, ArrayList::addAll);
+	        for (AbstractFunction func : lst) {
+	            if (func.isPublic() && returnType.isSubtypeOf(func.getReturnType())) {
+	                collection.add(func);
+	            }
+	        }
+	    }
 	}
 	
 	private void getLocalPublicFunctions(String name, List<AbstractFunction> collection) {
