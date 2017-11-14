@@ -2149,10 +2149,10 @@ public class Prelude {
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public IValue parse(IValue start, IMap robust, ISourceLocation input, IBool allowAmbiguity, IEvaluatorContext ctx) {
 		Type reified = start.getType();
-		IConstructor startSort = checkPreconditions(start, reified);
+		IConstructor grammar = checkPreconditions(start, reified);
 		
 		try {
-			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input, allowAmbiguity.getValue());
+			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, robust, input, allowAmbiguity.getValue());
 		}
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
@@ -2175,8 +2175,8 @@ public class Prelude {
 	public IValue parse(IValue start, IMap robust, IString input,  IBool allowAmbiguity, IEvaluatorContext ctx) {
 		try {
 			Type reified = start.getType();
-			IConstructor startSort = checkPreconditions(start, reified);
-			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue(), allowAmbiguity.getValue());
+			IConstructor grammar = checkPreconditions(start, reified);
+			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, robust, input.getValue(), allowAmbiguity.getValue());
 		}
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
@@ -2214,9 +2214,9 @@ public class Prelude {
 		}
 	}
 	
-	public IString saveParser(ISourceLocation outFile, IEvaluatorContext ctx) {
+	public IString saveParser(ISourceLocation outFile, IValue reified, IEvaluatorContext ctx) {
 		
-		IGTD<IConstructor, ITree, ISourceLocation> parser = org.rascalmpl.semantics.dynamic.Import.getParser(ctx.getEvaluator(), (ModuleEnvironment) ctx.getCurrentEnvt().getRoot(), URIUtil.invalidLocation(), false);
+		IGTD<IConstructor, ITree, ISourceLocation> parser = org.rascalmpl.semantics.dynamic.Import.getParser(ctx.getEvaluator(), (ModuleEnvironment) ctx.getCurrentEnvt().getRoot(), (IMap) ((IConstructor) reified).get("definitions"), false);
 		@SuppressWarnings("unchecked")
         Class<IGTD<IConstructor, ITree, ISourceLocation>> parserClass = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) parser.getClass();
 		
@@ -2224,7 +2224,7 @@ public class Prelude {
 		try(OutputStream outStream = URIResolverRegistry.getInstance().getOutputStream(outFile, false)) {
 			ctx.getEvaluator().getParserGenerator().saveToJar(parserClass, outStream);
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(ctx.getValueFactory().string("Unable to save to output file '" + outFile + "'"), null, null);
+			throw RuntimeExceptionFactory.io(values.string("Unable to save to output file '" + outFile + "'"), null, null);
 		}
 		return ctx.getValueFactory().string(parserClass.getName());
 
@@ -2633,9 +2633,7 @@ public class Prelude {
 			throw RuntimeExceptionFactory.illegalArgument(start, null, null, "A non-terminal type is required instead of  " + nt);
 		}
 		
-		IConstructor symbol = ((NonTerminalType) nt).getSymbol();
-		
-		return symbol;
+		return (IConstructor) start;
 	}
 	
 	/*
