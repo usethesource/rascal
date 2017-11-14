@@ -24,6 +24,7 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import jline.TerminalFactory;
@@ -88,7 +89,7 @@ public class TermREPL {
             Writer err = ctx.getStdErr();
             try {
                 err.write("Current stack trace:\n");
-                err.write(trace.toLinkedString());
+                trace.prettyPrintedString(err, new StandardTextWriter(true));
                 err.flush();
             }
             catch (IOException e) {
