@@ -501,7 +501,7 @@ saveParser(|file:///tmp/Exp.jar|); //<2>
 }
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses evaluator's parser interface}
-public java str saveParser(loc outFile);
+public java str saveParser(loc outFile, type[&T <: Tree] grammar);
 
 @javaClass{org.rascalmpl.library.Prelude}
 public java str printSymbol(Symbol sym, bool withLayout);
