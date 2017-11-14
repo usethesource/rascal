@@ -170,15 +170,15 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
 		  }
 	  }
 	  catch (ParseError pe) {
-		  executor.getStdErr().println(parseErrorMessage(lastLine, "prompt", pe));
+	      parseErrorMessage(executor.getStdErr(), lastLine, "prompt", pe, indentedPrettyPrinter);
 		  return null;
 	  }
 	  catch (StaticError e) {
-		  executor.getStdErr().println(staticErrorMessage(e));
+	      staticErrorMessage(executor.getStdErr(), e, indentedPrettyPrinter);
 		  return null;
 	  }
 	  catch (Thrown e) {
-		  executor.getStdErr().println(thrownMessage(e));
+	      thrownMessage(executor.getStdErr(), e, indentedPrettyPrinter);
 		  return null;
 	  }
 	  catch (QuitException q) {

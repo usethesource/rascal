@@ -11,7 +11,12 @@
  *******************************************************************************/
 package org.rascalmpl.interpreter;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.io.StandardTextWriter;
 
 class StackTraceEntry {
 	private final ISourceLocation loc;
@@ -25,10 +30,11 @@ class StackTraceEntry {
 	/**
 	 * Produce a formatted string with this stack entry
 	 * 
-	 * @param b A string builder to which the string should be added
-	 * @param withLink true if Rascal console links are desired in the output
+	 * @param b a writer to which the string should be added
+	 * @param prettyPrinter how to print source locations
+	 * @throws IOException 
 	 */
-	void format(StringBuilder b, boolean withLink) {
+    public void format(Writer b, StandardTextWriter prettyPrinter) throws IOException {
 		b.append("\tat ");
 		if (loc != null) {
 			if(name != null) {
@@ -38,24 +44,7 @@ class StackTraceEntry {
 				b.append("*** somewhere ***");
 			}
 			b.append("(");
-			if(withLink) {
-				// b.append("\uE007[");
-				b.append(loc.toString());
-			}
-			else {
-				b.append(loc.getPath());
-				// if(withLink) {
-				//	b.append("](");
-				//	b.append(uri);
-				//	b.append(")");
-				// }
-				b.append(":");
-				if(loc.hasLineColumn()) {
-					b.append(loc.getBeginLine());
-					b.append(",");
-					b.append(loc.getBeginColumn());
-				}
-			}
+			prettyPrinter.write(loc, b);
 			b.append(")");
 		}
 		else if (name != null) {
@@ -70,11 +59,16 @@ class StackTraceEntry {
 		b.append("\n");
 	}
 
+
 	@Override
 	public String toString() {
-		StringBuilder b = new StringBuilder(128);
-		format(b, false);
-		return b.toString();
+	    try (StringWriter b = new StringWriter(128)) {
+	        format(b, new StandardTextWriter(false));
+	        return b.toString();
+	    }
+	    catch (IOException e) {
+	        return e.toString();
+	    }
 	}
 
 	public ISourceLocation getLocation() {
@@ -84,4 +78,5 @@ class StackTraceEntry {
 	public String getScopeName() {
 		return name;
 	}
+
 }

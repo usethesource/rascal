@@ -54,7 +54,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     private final static int CHAR_LIMIT = LINE_LIMIT * 20;
     protected String currentPrompt = ReadEvalPrintDialogMessages.PROMPT;
     private StringBuffer currentCommand;
-    private final StandardTextWriter indentedPrettyPrinter;
+    protected final StandardTextWriter indentedPrettyPrinter;
     private final boolean htmlOutput;
     private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 
