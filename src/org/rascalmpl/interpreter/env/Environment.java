@@ -298,6 +298,21 @@ public class Environment implements IRascalFrame {
 		return null;
 	}
 	
+	public void getAllFunctions(Type returnType, List<AbstractFunction> collection) {
+	    if (functionEnvironment != null) {
+	        List<AbstractFunction> locals = functionEnvironment.values().stream().collect(ArrayList::new, ArrayList::addAll, ArrayList::addAll);
+	        if (locals != null){
+	            for (AbstractFunction func : locals) {
+	                if (func.getReturnType().comparable(returnType))
+	                    collection.add(func);
+	            }
+	        }
+	    }
+	    if (parent != null) {
+	        parent.getAllFunctions(returnType, collection);
+	    }
+	}
+	
 	public void getAllFunctions(String name, List<AbstractFunction> collection) {
 		if (functionEnvironment != null) {
 			List<AbstractFunction> locals = functionEnvironment.get(name);
