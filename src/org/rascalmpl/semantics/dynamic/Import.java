@@ -512,13 +512,13 @@ public abstract class Import {
   }
   
   @SuppressWarnings("unchecked")
-  public static IGTD<IConstructor, ITree, ISourceLocation> getParser(IEvaluator<Result<IValue>> eval, ModuleEnvironment currentModule, ISourceLocation loc, boolean force) {
+  public static IGTD<IConstructor, ITree, ISourceLocation> getParser(IEvaluator<Result<IValue>> eval, ModuleEnvironment currentModule, IMap grammar, boolean force) {
     if (currentModule.getBootstrap()) {
       return new RascalParser();
     }
     
-    if (currentModule.hasCachedParser()) {
-      String className = currentModule.getCachedParser();
+    if (currentModule.hasCachedParser(grammar)) {
+      String className = currentModule.getCachedParser(grammar);
       Class<?> clazz;
       for (ClassLoader cl: eval.getClassLoaders()) {
         try {
@@ -536,13 +536,14 @@ public abstract class Import {
     }
 
     ParserGenerator pg = eval.getParserGenerator();
-    IMap definitions = currentModule.getSyntaxDefinition();
+    IMap definitions = grammar;
     
     Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = eval.getHeap().getObjectParser(currentModule.getName(), definitions);
 
     if (parser == null || force) {
-      String parserName = currentModule.getName();
-      parser = pg.getNewParser(eval, loc, parserName, definitions);
+        // TODO: this hashCode is not good enough!
+      String parserName = currentModule.getName() + "_" + Math.abs(grammar.hashCode());
+      parser = pg.getNewParser(eval, eval.getCurrentAST().getLocation(), parserName, definitions);
       eval.getHeap().storeObjectParser(parserName, definitions, parser);
     }
 
@@ -562,7 +563,9 @@ public abstract class Import {
     ITree lit = TreeAdapter.getArg(tree, "parts");
     Map<String, ITree> antiquotes = new HashMap<>();
      
-    IGTD<IConstructor, ITree, ISourceLocation> parser = env.getBootstrap() ? new RascalParser() : getParser(eval, env, TreeAdapter.getLocation(tree), false);
+    IMap syntaxDefinition = env.getSyntaxDefinition();
+    IMap grammar = (IMap) eval.getParserGenerator().getGrammarFromModules(eval.getMonitor(),env.getName(), syntaxDefinition).get("rules");
+    IGTD<IConstructor, ITree, ISourceLocation> parser = env.getBootstrap() ? new RascalParser() : getParser(eval, env, grammar, false);
     
     try {
       String parserMethodName = eval.getParserGenerator().getParserMethodName(symTree);

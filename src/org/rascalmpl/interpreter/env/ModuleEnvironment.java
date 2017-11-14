@@ -73,7 +73,7 @@ public class ModuleEnvironment extends Environment {
 	private boolean initialized;
 	private boolean syntaxDefined;
 	private boolean bootstrap;
-	private String cachedParser;
+	private Map<IMap,String> cachedParser = new HashMap<>();
 	private String deprecated;
 	protected Map<String, AbstractFunction> resourceImporters;
 	
@@ -120,6 +120,7 @@ public class ModuleEnvironment extends Environment {
 		super.reset();
 		this.importedModules = new HashSet<String>();
 		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
+		this.cachedParser = new HashMap<>();
 		this.typeStore = new TypeStore();
 		this.productions = new HashSet<IValue>();
 		this.initialized = false;
@@ -895,16 +896,16 @@ public class ModuleEnvironment extends Environment {
 	}
 
 	// todo: bootstrap must go and use this
-	public void setCachedParser(String cachedParser) {
-		this.cachedParser = cachedParser;
+	public void setCachedParser(IMap grammar, String cachedParser) {
+		this.cachedParser.put(grammar, cachedParser);
 	}
 	
-	public String getCachedParser() {
-		return cachedParser;
+	public String getCachedParser(IMap grammar) {
+		return cachedParser.get(grammar);
 	}
 
-	public boolean hasCachedParser() {
-		return cachedParser != null;
+	public boolean hasCachedParser(IMap grammar) {
+		return cachedParser.containsKey(grammar);
 	}
 
 	@Override
