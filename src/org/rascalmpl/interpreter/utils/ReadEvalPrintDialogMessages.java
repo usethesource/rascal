@@ -150,18 +150,20 @@ public class ReadEvalPrintDialogMessages {
 		out.println();
 	}
 	
-	/*
-	public static void parseOrStaticOrThrowMessage(Writer out, RuntimeException e, StandardTextWriter writer) {
-		if (e instanceof ParseError)
-			return parseErrorMessage("unkown", "unkown", (ParseError)e, writer);
-		if (e instanceof StaticError) 
-			return staticErrorMessage((StaticError)e, writer);
-		if (e instanceof Throw)
-			return throwMessage((Throw)e, writer);
-		return "Not a rascal exception: " + e.toString();
+	public static void parseOrStaticOrThrowMessage(PrintWriter out, RuntimeException e, StandardTextWriter prettyPrinter) {
+		if (e instanceof ParseError) {
+			parseErrorMessage(out, "unkown", "unkown", (ParseError)e, prettyPrinter);
+		}
+		else if (e instanceof StaticError)  {
+			staticErrorMessage(out, (StaticError)e, prettyPrinter);
+        }
+        else if (e instanceof Throw) {
+                throwMessage(out, (Throw)e, prettyPrinter);
+        }
+        else {
+            out.write("Not a rascal exception: " + e.toString());
+        }
 	}
-
-*/
 	public static void throwMessage(PrintWriter out, Throw e, StandardTextWriter prettyPrinter) {
 		LimitedResultWriter lros = new LimitedResultWriter(1000);
 		try {
