@@ -11,12 +11,16 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.io.StandardTextWriter;
 
 
 public class StackTrace implements Iterable<StackTraceEntry> {
@@ -56,27 +60,21 @@ public class StackTrace implements Iterable<StackTraceEntry> {
 		return this;
 	}
 
-	/**
-	 * Format this stack trace using embedded links, suitable
-	 * for printing on a Rascal console.
-	 * 
-	 * @return The stack trace as a string
-	 */
-	public String toLinkedString() {
-		StringBuilder b = new StringBuilder(4096);
+    public void prettyPrintedString(Writer out, StandardTextWriter prettyPrinter) throws IOException {
 		for(StackTraceEntry e : trace) {
-			e.format(b, true);
+		    e.format(out, prettyPrinter);
 		}
-		return b.toString();
-	}
+    }
 	
 	@Override
 	public String toString() {
-		StringBuilder b = new StringBuilder(4096);
-		for(StackTraceEntry e : trace) {
-			e.format(b, false);
-		}
-		return b.toString();
+	    try (StringWriter w = new StringWriter(4096)) {
+	        prettyPrintedString(w, new StandardTextWriter(false));
+	        return w.toString();
+	    }
+        catch (IOException e) {
+            return "Error printing stack trace";
+        }
 	}
 	
 	/**
@@ -126,5 +124,6 @@ public class StackTrace implements Iterable<StackTraceEntry> {
 		}
 		
 	}
+
 }
 
