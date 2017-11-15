@@ -54,3 +54,10 @@ test bool parsingWithARemoteParameterGrammar() {
   
   return Tree _ := p(getRemoteGrammar(), "remote"); 
 }
+
+test bool parsingWithAManualGrammar() 
+  = type[Tree] gr := type(sort("MySort"), (sort("MySort") : choice(sort("MySort"), 
+      {prod(sort("MySort"), [lit("hello")],{})})))
+  && Tree t := parse(gr, "hello")
+  && "<t>" == "hello";
+  
