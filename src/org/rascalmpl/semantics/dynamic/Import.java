@@ -322,6 +322,7 @@ public abstract class Import {
     } catch (Throwable e) {
       heap.removeModule(env);
       eval.getEvaluator().warning("Could not load " + name, x);
+      e.printStackTrace();
       throw new ModuleImport(name, e.getMessage(), x);
     } 
 
@@ -544,7 +545,7 @@ public abstract class Import {
         // TODO: this hashCode is not good enough!
       String parserName = currentModule.getName() + "_" + Math.abs(grammar.hashCode());
       parser = pg.getNewParser(eval, eval.getCurrentAST().getLocation(), parserName, definitions);
-      eval.getHeap().storeObjectParser(parserName, definitions, parser);
+      eval.getHeap().storeObjectParser(currentModule.getName(), definitions, parser);
     }
 
     try {
