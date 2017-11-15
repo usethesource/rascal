@@ -20,10 +20,10 @@ syntax Stat
    | "if" Exp cond "then" {Stat ";"}* thenPart "else" {Stat ";"}* elsePart "fi"
    ;
    
-Exp e = [Exp] "x + 1";
-Stat s1 = [Stat] "a := 2 * 3";
-Stat s2 = [Stat] "b := 4 + 5";
-Stat s3 = (Stat) `if <Exp e> then <Stat s1>;<Stat s2> else <Stat s1> fi`;
+//Exp e = [Exp] "x + 1";
+//Stat s1 = [Stat] "a := 2 * 3";
+//Stat s2 = [Stat] "b := 4 + 5";
+//Stat s3 = (Stat) `if <Exp e> then <Stat s1>;<Stat s2> else <Stat s1> fi`;
 
 @ignoreInterpreter{Not properly implemented}
 test bool concreteTerm1() = s3.cond == e;
