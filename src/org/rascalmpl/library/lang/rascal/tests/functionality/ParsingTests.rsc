@@ -2,6 +2,7 @@ module lang::rascal::tests::functionality::ParsingTests
 
 import ParseTree;
 import IO;
+import lang::rascal::tests::functionality::OtherSyntax;
 
 start syntax A = "a";
 layout WS = [\ \t\n\r]*;
@@ -34,4 +35,22 @@ test bool disallowAmb2() {
 test bool locExpr() {
   writeFile(|test-temp:///locExpr.txt|,"a");
   return [A] |test-temp:///locExpr.txt| == parse(#A, |test-temp:///locExpr.txt|);
+}
+
+test bool parsingWithADynamicGrammar() =
+  B _ := parse(visit(#B) { case "b" => "bbb" }, "bbb");
+  
+test bool parsingWithAGrammarFromADifferentModule() =
+  Remote _ := parse(getRemoteGrammar(), "remote");
+  
+test bool parsingWithAParameterGrammar() {
+  Tree p(type[&T <: Tree] gr, str s) = parse(gr, s);
+  
+  return Tree _ := p(#B, "a"); 
+}
+  
+test bool parsingWithARemoteParameterGrammar() {
+  Tree p(type[&T <: Tree] gr, str s) = parse(gr, s);
+  
+  return Tree _ := p(getRemoteGrammar(), "remote"); 
 }
