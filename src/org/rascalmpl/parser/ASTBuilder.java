@@ -32,6 +32,7 @@ import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.parser.gtd.util.PointerKeyedHashMap;
 import org.rascalmpl.semantics.dynamic.Tree;
+import org.rascalmpl.values.uptr.ITree;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -155,12 +156,18 @@ public class ASTBuilder {
 		}
 
 		if (sortName(tree).equals("Pattern")) {
+		    if (isExternalEmbedding(tree)) {
+		        return null;
+		    }
 			if (isInternalEmbedding(tree)) {
 				return liftInternal(tree, true);
 			}
 		}
 
 		if (sortName(tree).equals("Expression")) {
+		    if (isExternalEmbedding(tree)) {
+		        return null;
+            }
 		    if (isInternalEmbedding(tree)) {
 				return liftInternal(tree, false);
 			}
@@ -395,6 +402,15 @@ public class ASTBuilder {
 
 	private static ImplementationError unexpectedError(Throwable e) {
 		return new ImplementationError("Unexpected error in AST construction: " + e, e);
+	}
+	
+	private boolean isExternalEmbedding(org.rascalmpl.values.uptr.ITree tree) {
+	    String name = TreeAdapter.getConstructorName(tree);
+        assert name != null;
+
+        if (name.equals("concrete") && ((ITree) TreeAdapter.getArgs(tree).get(0)).isQuote())
+            return true;
+        return false;
 	}
 
 	private boolean isInternalEmbedding(org.rascalmpl.values.uptr.ITree tree) {
