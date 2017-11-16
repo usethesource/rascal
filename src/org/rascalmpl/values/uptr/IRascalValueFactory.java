@@ -16,6 +16,7 @@ import org.rascalmpl.parser.gtd.util.ArrayList;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -38,6 +39,8 @@ public interface IRascalValueFactory extends IValueFactory {
 	ITree character(int ch);
 	
 	ITree character(byte ch);
+	
+	ITree quote(INode quoted);
 	
 	static IRascalValueFactory getInstance() {
 		return RascalValueFactory.getInstance();
