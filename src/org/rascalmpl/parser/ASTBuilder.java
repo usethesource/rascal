@@ -156,13 +156,13 @@ public class ASTBuilder {
 
 		if (sortName(tree).equals("Pattern")) {
 			if (isInternalEmbedding(tree)) {
-				return newLift(tree, true);
+				return liftInternal(tree, true);
 			}
 		}
 
 		if (sortName(tree).equals("Expression")) {
-			if (isInternalEmbedding(tree)) {
-				return newLift(tree, false);
+		    if (isInternalEmbedding(tree)) {
+				return liftInternal(tree, false);
 			}
 		}
 
@@ -419,10 +419,10 @@ public class ASTBuilder {
 		return false;
 	}
 
-	private AbstractAST newLift(org.rascalmpl.values.uptr.ITree tree, boolean match) {
+	private AbstractAST liftInternal(org.rascalmpl.values.uptr.ITree tree, boolean match) {
 		org.rascalmpl.values.uptr.ITree concrete = (org.rascalmpl.values.uptr.ITree) TreeAdapter.getArgs(tree).get(0);
 		org.rascalmpl.values.uptr.ITree fragment = (org.rascalmpl.values.uptr.ITree) TreeAdapter.getArgs(concrete).get(7);
-		return liftRec(fragment, false,  getPatternLayout(tree));
+		return liftRec(fragment, false, getPatternLayout(tree));
 	}
 
 	private static AbstractAST callMakerMethod(String sort, String cons, Object actuals[], Object keywordActuals[]) {
