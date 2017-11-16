@@ -4,6 +4,8 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.IValue;
+
 import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
 public interface ITree extends IConstructor {
@@ -23,6 +25,10 @@ public interface ITree extends IConstructor {
 		return false;
 	}
 	
+	default boolean isQuote() {
+	    return false;
+	}
+	
 	default IConstructor getProduction() {
 		throw new UnsupportedOperationException();
 	}
@@ -37,6 +43,10 @@ public interface ITree extends IConstructor {
 	
 	default IInteger getCharacter() {
 		throw new UnsupportedOperationException();
+	}
+	
+	default IValue getQuoted() {
+	    throw new UnsupportedOperationException();
 	}
 	
 	<E extends Throwable> ITree accept(TreeVisitor<E> v) throws E;
