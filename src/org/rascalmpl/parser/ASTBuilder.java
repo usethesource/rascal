@@ -155,13 +155,13 @@ public class ASTBuilder {
 		}
 
 		if (sortName(tree).equals("Pattern")) {
-			if (isNewEmbedding(tree)) {
+			if (isInternalEmbedding(tree)) {
 				return newLift(tree, true);
 			}
 		}
 
 		if (sortName(tree).equals("Expression")) {
-			if (isNewEmbedding(tree)) {
+			if (isInternalEmbedding(tree)) {
 				return newLift(tree, false);
 			}
 		}
@@ -397,7 +397,7 @@ public class ASTBuilder {
 		return new ImplementationError("Unexpected error in AST construction: " + e, e);
 	}
 
-	private boolean isNewEmbedding(org.rascalmpl.values.uptr.ITree tree) {
+	private boolean isInternalEmbedding(org.rascalmpl.values.uptr.ITree tree) {
 		String name = TreeAdapter.getConstructorName(tree);
 		assert name != null;
 
