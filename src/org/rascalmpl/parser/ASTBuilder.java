@@ -26,13 +26,19 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Commands;
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.ast.KeywordArguments_Expression;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.parser.gtd.util.PointerKeyedHashMap;
 import org.rascalmpl.semantics.dynamic.Tree;
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -40,10 +46,6 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 /**
  * Uses reflection to construct an AST hierarchy from a 
@@ -157,7 +159,7 @@ public class ASTBuilder {
 
 		if (sortName(tree).equals("Pattern")) {
 		    if (isExternalEmbedding(tree)) {
-		        return null;
+		        return liftExternal(tree, true);
 		    }
 			if (isInternalEmbedding(tree)) {
 				return liftInternal(tree, true);
@@ -166,7 +168,7 @@ public class ASTBuilder {
 
 		if (sortName(tree).equals("Expression")) {
 		    if (isExternalEmbedding(tree)) {
-		        return null;
+		        return liftExternal(tree, false);
             }
 		    if (isInternalEmbedding(tree)) {
 				return liftInternal(tree, false);
@@ -433,6 +435,16 @@ public class ASTBuilder {
 			return true;
 		}
 		return false;
+	}
+	
+	private AbstractAST liftExternal(org.rascalmpl.values.uptr.ITree tree, boolean match) {
+	    IValue quote = TreeAdapter.getArgs(tree).get(0);
+	    ISourceLocation src = null;
+	    IConstructor node = null;
+	    Expression expression = null;
+	    List<Expression> arguments = null;
+	    KeywordArguments_Expression keywordArguments = null;
+	    return new Expression.CallOrTree(src, node, expression, arguments, keywordArguments);
 	}
 
 	private AbstractAST liftInternal(org.rascalmpl.values.uptr.ITree tree, boolean match) {
