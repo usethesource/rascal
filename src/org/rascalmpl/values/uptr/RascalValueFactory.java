@@ -1696,6 +1696,34 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
         }
         
         @Override
+        public IList getArgs() {
+            return new AbstractArgumentList() {
+                @Override
+                public int length() {
+                    return 1;
+                }
+                
+                @Override
+                public IValue get(int i) throws IndexOutOfBoundsException {
+                    switch(i) {
+                    case 0: return quoted;
+                    default: throw new IndexOutOfBoundsException();
+                    }
+                }
+                
+                @Override
+                protected IList asNormal() {
+                    return getInstance().list(quoted);
+                }
+            };
+        }
+        
+        @Override
+        public boolean isQuote() {
+            return true;
+        }
+        
+        @Override
         public io.usethesource.vallang.type.Type getType() {
             return Tree;
         }
