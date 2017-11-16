@@ -134,6 +134,8 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public static final Type Tree_Cycle = tf.constructor(uptr, Tree, "cycle", Symbol, "symbol", tf.integerType(), "cycleLength");
 	public static final Type Tree_Amb = tf.constructor(uptr, Tree, "amb", Alternatives, "alternatives");
 	public static final Type Tree_Char = tf.constructor(uptr, Tree, "char", tf.integerType(), "character");
+	public static final Type Tree_Quote = tf.constructor(uptr, Tree, "quote", tf.nodeType(), "quoted");
+
 	
 	/* Constructors for Production */
 	public static final Type Production_Default = tf.constructor(uptr, Production, "prod", Symbol, "def", tf.listType(Symbol), "symbols",  tf.setType(Attr), "attributes");
@@ -420,6 +422,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public ITree appl(Map<String,IValue> annos, IConstructor prod, IList args) {
 		return (ITree) appl(prod, args).asAnnotatable().setAnnotations(annos);
 	}
+
+	@Override
+    public ITree quote(INode quoted) {
+        return new Quote(quoted);
+    }
 
 	/**
 	 * For use with the UPTRNodeFactory otherwise will be replaced
@@ -1679,6 +1686,134 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		public IInteger getCharacter() {
 		    return ((ITree) content).getCharacter();
 		}
+	}
+	
+	private static class Quote implements ITree, IExternalValue {
+        private final INode quoted;
+
+        public Quote(INode quoted) {
+            this.quoted = quoted;
+        }
+        
+        @Override
+        public io.usethesource.vallang.type.Type getType() {
+            return Tree;
+        }
+
+        @Override
+        public io.usethesource.vallang.type.Type getConstructorType() {
+            return Tree_Quote;
+        }
+
+        @Override
+        public io.usethesource.vallang.type.Type getUninstantiatedConstructorType() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public IValue get(String label) {
+            if ("quoted".equals(label)) {
+                return quoted;
+            }
+            return null;
+        }
+
+        @Override
+        public IConstructor set(String label, IValue newChild) throws FactTypeUseException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean has(String label) {
+            return Tree_Quote.hasField(label);
+        }
+
+        @Override
+        public IConstructor set(int index, IValue newChild) throws FactTypeUseException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public io.usethesource.vallang.type.Type getChildrenTypes() {
+            return Tree_Quote.getFieldTypes();
+        }
+
+        @Override
+        public boolean declaresAnnotation(TypeStore store, String label) {
+            return false;
+        }
+
+        @Override
+        public IAnnotatable<? extends IConstructor> asAnnotatable() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public IWithKeywordParameters<? extends IConstructor> asWithKeywordParameters() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public IValue get(int i) throws IndexOutOfBoundsException {
+            return quoted.get(i);
+        }
+
+        @Override
+        public int arity() {
+            return 1;
+        }
+
+        @Override
+        public String getName() {
+            return "quote";
+        }
+
+        @Override
+        public Iterable<IValue> getChildren() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public Iterator<IValue> iterator() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public INode replace(int first, int second, int end, IList repl)
+            throws FactTypeUseException, IndexOutOfBoundsException {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean isEqual(IValue other) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean isAnnotatable() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean mayHaveKeywordParameters() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public IConstructor encodeAsConstructor() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
+            throw new UnsupportedOperationException();
+        }
+	    
 	}
 	
 	private static abstract class AbstractAppl implements ITree, IExternalValue {
