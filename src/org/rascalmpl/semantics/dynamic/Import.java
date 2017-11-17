@@ -19,10 +19,13 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.rascalmpl.ast.ImportedModule;
 import org.rascalmpl.ast.LocationLiteral;
@@ -39,6 +42,7 @@ import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
@@ -65,6 +69,14 @@ import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -77,12 +89,7 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
-import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
+import io.usethesource.vallang.type.TypeFactory;
 
 public abstract class Import {
 	
@@ -561,7 +568,26 @@ public abstract class Import {
     IConstructor symTree = TreeAdapter.getArg(tree, "symbol");
     ITree lit = TreeAdapter.getArg(tree, "parts");
     Map<String, ITree> antiquotes = new HashMap<>();
-     
+    
+    
+    String name = eval.getParserGenerator().getParserMethodName(symTree);
+    Type type = env.lookupAbstractDataType(name);
+    if (type != null) { //found an ADT with the right name, checking for parse function
+//        eval.getStdOut().println("Found "+name+" ADT!");
+        List<AbstractFunction> functions = new ArrayList<>();
+        env.getAllFunctions(type, functions);
+        functions = functions.stream().filter(it -> it.hasTag("concreteSyntax") && it.getArity() == 1
+          && it.getFunctionType().getArgumentTypes().getFieldType(0).equals(TypeFactory.getInstance().stringType())).collect(Collectors.toList());
+//        functions.stream().forEach(it->eval.getStdOut().println("Function: "+it));
+        if (functions.size() > 0) { //found a function from string to ADT, assuming concrete syntax of abstract grammar
+//            eval.getStdOut().println("Found "+functions.size()+"function! "+functions.get(0));
+            SortedMap<Integer,Integer> corrections = new TreeMap<>();
+            String input = replaceAntiQuotesByHoles2(eval, env, lit, antiquotes, corrections);
+            Result<IValue> result = functions.get(0).call(new Type[] {TypeFactory.getInstance().stringType()}, new IValue[] {eval.getValueFactory().string(input)}, null);
+//            eval.getStdOut().println("Result: "+result);
+            return ((IRascalValueFactory) eval.getValueFactory()).quote((INode) result.getValue());
+        }
+    }
     IGTD<IConstructor, ITree, ISourceLocation> parser = env.getBootstrap() ? new RascalParser() : getParser(eval, env, TreeAdapter.getLocation(tree), false);
     
     try {
@@ -744,11 +770,106 @@ public abstract class Import {
     
     return b.toString().toCharArray();
   }
+  
+    private static String replaceAntiQuotesByHoles2(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, ITree lit,
+        Map<String, ITree> antiquotes, SortedMap<Integer, Integer> corrections) {
+        IList parts = TreeAdapter.getArgs(lit);
+        StringBuilder b = new StringBuilder();
+        StringBuilder original = new StringBuilder();
+
+        ISourceLocation loc = TreeAdapter.getLocation(lit);
+        int offset = 0; // where we are in the parse tree
+
+        // 012345
+        // (Exp)`a \> b` parses as "a > b"
+        // this means the loc of > must be shifted right (e.g. + 1)
+        // (so we *add* to shift when something bigger becomes smaller)
+        int shift = loc.getOffset(); // where we need to be in the location
+        corrections.put(offset, shift);
+
+        for (IValue elem : parts) {
+            ITree part = (ITree) elem;
+            String cons = TreeAdapter.getConstructorName(part);
+
+            int partLen = TreeAdapter.getLocation(part).getLength();
+            if (cons.equals("text")) {
+                offset += partLen;
+                b.append(TreeAdapter.yield(part));
+                original.append(TreeAdapter.yield(part));
+            }
+            else if (cons.equals("newline")) {
+                shift += partLen - 1;
+                corrections.put(++offset, shift);
+                b.append('\n');
+                original.append(TreeAdapter.yield(part));
+            }
+            else if (cons.equals("lt")) {
+                corrections.put(++offset, ++shift);
+                b.append('<');
+                original.append(TreeAdapter.yield(part));
+            }
+            else if (cons.equals("gt")) {
+                corrections.put(++offset, ++shift);
+                b.append('>');
+                original.append(TreeAdapter.yield(part));
+            }
+            else if (cons.equals("bq")) {
+                corrections.put(++offset, ++shift);
+                b.append('`');
+                original.append(TreeAdapter.yield(part));
+            }
+            else if (cons.equals("bs")) {
+                corrections.put(++offset, ++shift);
+                b.append('\\');
+                original.append(TreeAdapter.yield(part));
+            }
+            else if (cons.equals("hole")) {
+                String hole = createHole2(eval, env, part, antiquotes);
+                shift += partLen - hole.length();
+                offset += hole.length();
+                corrections.put(offset, shift);
+                b.append(hole);
+                original.append(TreeAdapter.yield(part));
+            }
+        }
+//        eval.getStdOut().println("Replaced "+original.toString()+" with "+b.toString());
+        return b.toString();
+    }
+
+  
+    private static String createHole2(IEvaluator<Result<IValue>> ctx, ModuleEnvironment env, ITree part, Map<String, ITree> antiquotes) {
+        final Type stringType = TypeFactory.getInstance().stringType();
+
+        String literalHole = TreeAdapter.yield(part);
+        String typ = literalHole.substring(1,literalHole.indexOf(" "));
+        Type type = env.getAbstractDataType(typ);
+        
+        List<AbstractFunction> functions = new ArrayList<>();
+        env.getAllFunctions(stringType, functions);
+//        ctx.getStdOut().println("Found "+functions.size()+" functions returning "+stringType);
+//        functions.stream().forEach(it->ctx.getStdOut().println("* "+it));
+        functions.stream()
+            .filter(it -> it.hasTag("concreteAntiquoteToHole") && it.getArity() == 2
+            && it.getFunctionType().getArgumentTypes().getFieldType(0).equals(type)
+            && it.getFunctionType().getArgumentTypes().getFieldType(1).equals(TypeFactory.getInstance().stringType()))
+            .collect(Collectors.toList());
+//        functions.stream().forEach(it->ctx.getStdOut().println("Function: "+it));
+        if (functions.size()>0){
+            Result<IValue> result = functions.get(0).call(new Type[] {type, stringType}, new IValue[] {ctx.getValueFactory().constructor(type), ctx.getValueFactory().string(antiquotes.size()+"")}, null);
+            return ((IString) result.getValue()).getValue();
+        }
+        throw new RuntimeException("FIXME");
+      }
 
   private static String createHole(IEvaluator<Result<IValue>> ctx, ITree part, Map<String, ITree> antiquotes) {
     String ph = ctx.getParserGenerator().createHole(part, antiquotes.size());
     antiquotes.put(ph, part);
     return ph;
+  }
+  
+  private static IValue replaceHolesByAntiQuotes2(final IEvaluator<Result<IValue>> eval, ITree fragment,
+        final Map<String, ITree> antiquotes, final SortedMap<Integer, Integer> corrections) {
+      return null;
   }
 
   private static ITree replaceHolesByAntiQuotes(final IEvaluator<Result<IValue>> eval, ITree fragment, 
