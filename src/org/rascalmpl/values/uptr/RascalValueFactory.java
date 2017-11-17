@@ -1839,7 +1839,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 
         @Override
         public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
-            throw new UnsupportedOperationException();
+            return (ITree) v.visitTreeAppl(this);
         }
 	    
 	}
