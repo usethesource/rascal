@@ -32,6 +32,7 @@ import org.rascalmpl.ast.Statement;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.parser.gtd.util.PointerKeyedHashMap;
+import org.rascalmpl.semantics.dynamic.Expression.CallOrTree;
 import org.rascalmpl.semantics.dynamic.Tree;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
@@ -46,6 +47,7 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.type.Type;
 
 /**
  * Uses reflection to construct an AST hierarchy from a 
@@ -285,7 +287,7 @@ public class ASTBuilder {
 			if (cons != null && !lex) { 
 				String newLayout = getLayoutName(TreeAdapter.getProduction(tree));
 
-				// this approximation is possibly harmfull. Perhaps there is a chain rule defined in another module, which nevertheless
+				// this approximation is possibly harmful. Perhaps there is a chain rule defined in another module, which nevertheless
 				// switched the applicable layout. Until we have a proper type-analysis there is nothing we can do here.
 				if (newLayout != null) {
 					layout = newLayout;
@@ -438,13 +440,20 @@ public class ASTBuilder {
 	}
 	
 	private AbstractAST liftExternal(org.rascalmpl.values.uptr.ITree tree, boolean match) {
-	    IValue quote = TreeAdapter.getArgs(tree).get(0);
-	    ISourceLocation src = null;
-	    IConstructor node = null;
-	    Expression expression = null;
-	    List<Expression> arguments = null;
-	    KeywordArguments_Expression keywordArguments = null;
-	    return new Expression.CallOrTree(src, node, expression, arguments, keywordArguments);
+	    ITree quote = (ITree) TreeAdapter.getArgs(tree).get(0);
+        return liftExternalRec(tree, match, getPatternLayout(tree));
+	}
+	
+	private Expression liftExternalRec(ITree tree, boolean lexicalParent, String layoutOfParent) {
+        if (layoutOfParent == null)
+            throw new ImplementationError("layout is null");
+
+        ISourceLocation src = TreeAdapter.getLocation(tree);
+        IConstructor node = (IConstructor) tree;
+        Expression expression = null;
+        List<Expression> arguments = new ArrayList<>();
+        KeywordArguments_Expression keywordArguments = null;
+        return new CallOrTree(src, node, expression, arguments, keywordArguments);
 	}
 
 	private AbstractAST liftInternal(org.rascalmpl.values.uptr.ITree tree, boolean match) {
