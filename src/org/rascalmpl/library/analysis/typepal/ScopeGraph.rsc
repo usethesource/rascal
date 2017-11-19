@@ -420,6 +420,7 @@ private set[Key] lookupNestWide(TModel tm, Key scope, Use u){
 
 public set[Key] lookupWide(TModel tm, Use u){
     scope = u.scope;
+ 
     if(wdebug) println("lookupWide: <u>");
     if(!(u has qualifierRoles)){
        defs = {def | def <- lookupNestWide(tm, scope, u), isAcceptableSimple(tm, def, u) == acceptBinding()};
@@ -436,10 +437,10 @@ public set[Key] lookupWide(TModel tm, Use u){
             }
             try {
                 defs = {};
-                for(Key scope <- qscopes){
+                for(Key qscope <- qscopes){
                     scopeLookups = {};
                     try {
-                        scopeLookups = lookupNestWide(tm, scope, use(u.ids[-1], u.occ, scope, u.idRoles));
+                        scopeLookups = lookupNestWide(tm, qscope, use(u.ids[-1], u.occ, qscope, u.idRoles));
                         defs += { def | def <- scopeLookups, isAcceptableQualified(tm, def, u) == acceptBinding()}; 
                     } catch NoKey(): /* lookup in scope failed, continue with next one */;            
                 }
