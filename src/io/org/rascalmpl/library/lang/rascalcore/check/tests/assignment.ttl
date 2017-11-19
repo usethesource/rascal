@@ -58,3 +58,18 @@ test FIELDSUB1 [[ module A data D = d1(list[int] ns); value main(){ x = d1([0,1,
 
 
 test TUPLE1 [[ module A value main(){ tuple[str s, int n] x = <"a", 1>; <a, b> = x; a == "a"; b == 1;} ]]
+
+test TUPLE2 [[ module A value main(){ <a, b> = <"a", 1>; a == "a"; b == 1;} ]]
+test TUPLE3 [[ module A value main(){ <a, b> = <"a", 1>; b == "a"; } ]]
+expect { "Comparison `==` not defined on `int` and `str`" }
+
+test TUPLE3 [[ module A 
+               int head(list[int] l) = l[0];
+               list[int] tail(list[int] l) = l[1..];
+               value main(){
+                    l = [1,2,3];
+                    <lhead,ltail> = <head(l), tail(l)>;
+                    lhead == 1;
+                    ltail == [2,3];
+               }
+]]

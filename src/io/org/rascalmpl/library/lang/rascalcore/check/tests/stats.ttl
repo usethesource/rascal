@@ -25,7 +25,7 @@ test Visit5  [[ module A void main() { visit(1) { case int x: insert "a"; } } ]]
 expect { "Insert type should be subtype of `int`, found `str`" }
 
 test Visit6  [[ module A void main() { visit(1) { case int x: insert 1; }; x; } ]]
-expect { "Undefined variable, constructor, function or formal `x`" }
+expect { "Undefined variable, function, formal, field or constructor `x`" }
 
 test Visit7  [[ module A void main() { insert 2; } ]]
 expect { "Insert found outside replacement context" }

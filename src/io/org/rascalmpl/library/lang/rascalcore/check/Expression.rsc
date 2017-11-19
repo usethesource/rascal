@@ -53,34 +53,76 @@ void collect(Literal l:(Literal)`<RationalLiteral rl>`, TBuilder tb){
 // ---- string literals and templates
 void collect(current:(Literal)`<StringLiteral sl>`, TBuilder tb){
     tb.fact(current, astr());
-    collectParts(current, tb);
+    collect(sl, tb);
 }
 
-void collect(template: (StringTemplate) `if(<{Expression ","}+ conditions>){ <Statement* preStats> <StringMiddle body> <Statement* postStats> }`, TBuilder tb){
-    condList = [cond | Expression cond <- conditions];
-    tb.fact(template, avalue());
-    tb.requireEager("if then template", template, condList, (){ checkConditions(condList); });
-    tb.enterScope(template);// thenPart may refer to variables defined in conditions
-        collectParts(templae, tb);
-    tb.leaveScope(template);
+void collect(current: (StringTemplate) `if(<{Expression ","}+ conditions>){ <Statement* preStats> <StringMiddle body> <Statement* postStats> }`, TBuilder tb){
+    tb.enterScope(conditions);  // thenPart may refer to variables defined in conditions
+        condList = [cond | Expression cond <- conditions];
+        tb.fact(current, avalue());
+        tb.requireEager("if then template", current, condList, (){ checkConditions(condList); });
+        beginPatternScope("conditions", tb);
+        collect(conditions, tb);
+        endPatternScope(tb);
+        collect(preStats, body, postStats, tb);
+    tb.leaveScope(conditions);
 }
 
-Tree define(template: (StringTemplate) `if( <{Expression ","}+ conditions> ){ <Statement* preStatsThen> <StringMiddle thenString> <Statement* postStatsThen> } else { <Statement* preStatsElse> <StringMiddle elseString> <Statement* postStatsElse> }`, TBuilder tb){
-    condList = [cond | Expression cond <- conditions];
-    // TODO scoping in else does not yet work
-    if(!isEmpty([s | s <- preStatsElse]))
-       storeExcludeUse(conditions, preStatsElse, tb); // variable occurrences in elsePart may not refer to variables defined in conditions
-    if(!isEmpty("<elseString>"))
-       storeExcludeUse(conditions, elseString, tb); 
-    if(!isEmpty([s | s <- postStatsElse]))
-       storeExcludeUse(conditions, postStatsElse, tb);
+void collect(current: (StringTemplate) `if( <{Expression ","}+ conditions> ){ <Statement* preStatsThen> <StringMiddle thenString> <Statement* postStatsThen> } else { <Statement* preStatsElse> <StringMiddle elseString> <Statement* postStatsElse> }`, TBuilder tb){
+    tb.enterScope(conditions);   // thenPart may refer to variables defined in conditions; elsePart may not
     
-    tb.calculate("if then else template", template, condList/* + [postStatsThen + postStatsElse]*/,
-        AType (){ checkConditions(condList); 
-                  return avalue();
-        });
-    return conditions; // thenPart may refer to variables defined in conditions
+        condList = [cond | Expression cond <- conditions];
+        // TODO scoping in else does not yet work
+        if(!isEmpty([s | s <- preStatsElse]))
+           storeExcludeUse(conditions, preStatsElse, tb); // variable occurrences in elsePart may not refer to variables defined in conditions
+        if(!isEmpty("<elseString>"))
+           storeExcludeUse(conditions, elseString, tb); 
+        if(!isEmpty([s | s <- postStatsElse]))
+           storeExcludeUse(conditions, postStatsElse, tb);
+        
+        tb.calculate("if then else template", current, condList/* + [postStatsThen + postStatsElse]*/,
+            AType (){ checkConditions(condList); 
+                      return avalue();
+            });
+        beginPatternScope("conditions", tb);
+        collect(condList, tb);
+        endPatternScope(tb);
+        collect(preStatsThen, thenString, postStatsThen, preStatsElse, elseString, postStatsElse, tb);    
+    tb.leaveScope(conditions);
 } 
+
+void collect(current: (StringTemplate) `for( <{Expression ","}+ generators> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`, TBuilder tb){
+    tb.enterScope(generators);   // body may refer to variables defined in conditions
+        condList = [cond | Expression cond <- generators];
+        tb.requireEager("for statement  template", current, condList, (){ checkConditions(condList); });
+        beginPatternScope("conditions", tb);
+        collect(condList, tb);
+        endPatternScope(tb);
+        collect(preStats, body, postStats, tb);
+    tb.leaveScope(generators);
+}
+
+void collect(current: (StringTemplate) `do { <Statement* preStats> <StringMiddle body> <Statement* postStats> } while( <Expression condition> )`, TBuilder tb){
+    tb.enterScope(current);   // condition may refer to variables defined in body
+        tb.requireEager("do statement template", current, [body, condition], (){ checkConditions([condition]); });
+        collect(preStats, body, postStats, tb);
+        beginPatternScope("conditions", tb);
+        collect(condition, tb);
+        endPatternScope(tb);
+    tb.leaveScope(current); 
+}
+
+void collect(current: (StringTemplate) `while( <Expression condition> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`, TBuilder tb){
+    tb.enterScope(condition);   // body may refer to variables defined in conditions
+        condList = [condition];
+        tb.requireEager("while statement  template", current, condList, (){ checkConditions(condList); });
+        beginPatternScope("conditions", tb);
+        collect(condList, tb);
+        endPatternScope(tb);
+        collect(preStats, body, postStats, tb);
+    tb.leaveScope(condition);
+} 
+
 
 void collect(Literal l:(Literal)`<LocationLiteral ll>`, TBuilder tb){
     tb.fact(l, aloc());
@@ -93,14 +135,14 @@ void collect(Literal l:(Literal)`<LocationLiteral ll>`, TBuilder tb){
 void collect(current: (Expression) `{ <Statement+ statements> }`, TBuilder tb){
     stats = [ stat | Statement stat <- statements ];
     tb.calculate("non-empty block expression", current, [stats[-1]],  AType() { return getType(stats[-1]); } );
-    collectParts(current, tb);
+    collect(statements, tb);
 }
 
 // ---- brackets
 
 void collect(current: (Expression) `( <Expression expression> )`, TBuilder tb){
     tb.calculate("brackets", current, [expression],  AType() { return getType(expression); } );
-    collectParts(current, tb);
+    collect(expression, tb);
 }
 
 // ---- closure
@@ -133,13 +175,13 @@ void collect(current: (Expression) `<Parameters parameters> { <Statement* statem
 void collect(current: (Expression) `[ <Expression first> , <Expression second> .. <Expression last> ]`, TBuilder tb){
     tb.calculate("step range", current, [first, second, last],
         AType(){ t1 = getType(first); t2 = getType(second); t3 = getType(last);
-                 if(!subtype(t1,anum())) reportError(first, "Invalid type: expected numeric type, found <fmt(t1)>");
-                 if(!subtype(t2,anum())) reportError(second, "Invalid type: expected numeric type, found <fmt(t2)>");
-                 if(!subtype(t3,anum())) reportError(last, "Invalid type: expected numeric type, found <fmt(t3)>");
+                 subtype(t1,anum()) || reportError(first, "Invalid type: expected numeric type, found <fmt(t1)>");
+                 subtype(t2,anum()) || reportError(second, "Invalid type: expected numeric type, found <fmt(t2)>");
+                 subtype(t3,anum()) || reportError(last, "Invalid type: expected numeric type, found <fmt(t3)>");
                  return alist(lub([t1, t2, t3]));
         
         });
-    collectParts(current, tb);    
+    collect(first, second, last, tb);    
 }
 
 // ---- range
@@ -147,11 +189,13 @@ void collect(current: (Expression) `[ <Expression first> , <Expression second> .
 void collect(current: (Expression) `[ <Expression first> .. <Expression last> ]`, TBuilder tb){
     tb.calculate("step range", current, [first, last],
         AType(){ t1 = getType(first); t2 = getType(last);
-                 if(!subtype(t1,anum())) reportError(first, "Invalid type: expected numeric type, found <fmt(t1)>");
-                 if(!subtype(t2,anum())) reportError(last, "Invalid type: expected numeric type, found <fmt(t2)>");
-                 return alist(lub([t1, t2]));
+                 subtype(t1,anum()) || reportError(first, "Invalid type: expected numeric type, found <fmt(t1)>");
+                 subtype(t2,anum()) || reportError(last, "Invalid type: expected numeric type, found <fmt(t2)>");
+                 res = alist(lub([t1, t2]));
+                 //println("range: <current>: <res>, <t1>, <t2>");
+                 return res;
         });
-    collectParts(current, tb);    
+    collect(first, last, tb);    
 }
 
 // ---- visit
@@ -164,7 +208,7 @@ void collect(current: (Expression) `<Label label> <Visit vst>`, TBuilder tb){
             tb.define("<label.name>", labelId(), label.name, noDefInfo());
         }
         tb.calculate("visit subject", vst, [vst.subject], AType(){ return getType(vst.subject); });
-        collectParts(current, tb);
+        collect(vst, tb);
     tb.leaveScope(current);
 }
 
@@ -174,7 +218,7 @@ void collect(current: (Expression) `# <Type tp>`, TBuilder tb){
     rt = convertType(tp, tb);
     scope = tb.getScope();
     tb.calculate("reified type", current, [], AType() { return areified(expandUserTypes(rt, scope)); });
-    collectParts(current, tb);
+    //collectParts(current, tb);
 }
 
 // ---- reifiedType
@@ -183,12 +227,11 @@ void collect(current: (Expression) `type ( <Expression es> , <Expression ed> )`,
     // TODO: Is there anything we can do statically to make the result type more accurate?
     tb.fact(current, areified(avalue()));
     tb.require("reified type", current, [es, ed],
-        (){ subtype(getType(es), aadt("Symbol",[]), 
-                onError(es, "Expected subtype of Symbol, instead found <fmt(getType(es))>"));
-            subtype(getType(ed), amap(aadt("Symbol",[]),aadt("Production",[])), 
-                onError(ed, "Expected subtype of map[Symbol,Production], instead found <fmt(getType(ed))>"));
+        (){ subtype(getType(es), aadt("Symbol",[])) || reportError(es, "Expected subtype of Symbol, instead found <fmt(getType(es))>");
+            subtype(getType(ed), amap(aadt("Symbol",[]),aadt("Production",[]))) || 
+                reportError(ed, "Expected subtype of map[Symbol,Production], instead found <fmt(getType(ed))>");
           });
-    collectParts(current, tb);
+    collect(es, ed, tb);
 }
 
 // ---- any
@@ -198,10 +241,12 @@ void collect(current: (Expression)`any ( <{Expression ","}+ generators> )`, TBui
     tb.fact(current, abool());
     
     tb.enterScope(current);
+    beginPatternScope("any", tb);
         tb.require("any", current, gens,
             () { for(gen <- gens) if(getType(gen) != abool()) reportError(gen, "Type of generator should be `bool`, found <fmt(getType(gen))>");
             });
-        collectParts(current, tb);
+        collect(generators, tb);
+    endPatternScope(tb);
     tb.leaveScope(current);
 }
 
@@ -211,12 +256,15 @@ void collect(current: (Expression)`all ( <{Expression ","}+ generators> )`, TBui
     gens = [gen | gen <- generators];
     tb.fact(current, abool());
     
-    tb.enterScope(current);
+    newScope = tb.getScope() != getLoc(current);
+    if(newScope) tb.enterScope(current);
+    beginPatternScope("all", tb);
         tb.require("all", current, gens,
             () { for(gen <- gens) if(getType(gen) != abool()) reportError(gen, "Type of generator should be `bool`, found <fmt(getType(gen))>");
             });
-        collectParts(current, tb);
-    tb.leaveScope(current);
+        collect(generators, tb);
+    endPatternScope(tb);
+    if(newScope) tb.leaveScope(current);
 }
 
 // ---- comprehensions and reducer
@@ -228,6 +276,7 @@ void collect(current: (Expression)`{ <{Expression ","}+ results> | <{Expression 
     res  = [r | r <- results];
     storeAllowUseBeforeDef(current, results, tb); // variable occurrences in results may refer to variables defined in generators
     tb.enterScope(current);
+    beginPatternScope("set-comprehension", tb);
         tb.require("set comprehension", current, gens,
             () { for(gen <- gens) if(getType(gen) != abool()) reportError(gen, "Type of generator should be `bool`, found <fmt(getType(gen))>");
             });
@@ -236,7 +285,8 @@ void collect(current: (Expression)`{ <{Expression ","}+ results> | <{Expression 
                 return makeSetType(lubList([ getType(r) | r <- res]));
             });
          
-        collectParts(current, tb);
+        collect(results, generators, tb);
+    endPatternScope(tb);
     tb.leaveScope(current);
 }
 
@@ -247,6 +297,7 @@ void collect(current: (Expression) `[ <{Expression ","}+ results> | <{Expression
     res  = [r | r <- results];
     storeAllowUseBeforeDef(current, results, tb); // variable occurrences in results may refer to variables defined in generators
     tb.enterScope(current);
+    beginPatternScope("list-comprehension", tb);
         tb.require("list comprehension", current, gens,
             () { for(gen <- gens) if(getType(gen) != abool()) reportError(gen, "Type of generator should be `bool`, found <fmt(getType(gen))>");
             });
@@ -255,7 +306,8 @@ void collect(current: (Expression) `[ <{Expression ","}+ results> | <{Expression
                 return makeListType(lubList([ getType(r) | r <- res]));
             });
          
-        collectParts(current, tb);
+        collect(results, generators, tb);
+    endPatternScope(tb);
     tb.leaveScope(current);
 }
 
@@ -266,6 +318,7 @@ void collect(current: (Expression) `(<Expression from> : <Expression to> | <{Exp
     storeAllowUseBeforeDef(current, from, tb); // variable occurrences in from may refer to variables defined in generators
     storeAllowUseBeforeDef(current, to, tb); // variable occurrences in to may refer to variables defined in generators
     tb.enterScope(current);
+    beginPatternScope("map-comprehension", tb);
         tb.require("map comprehension", current, gens,
             () { for(gen <- gens) if(getType(gen) != abool()) reportError(gen, "Type of generator should be `bool`, found <fmt(getType(gen))>");
             });
@@ -274,7 +327,8 @@ void collect(current: (Expression) `(<Expression from> : <Expression to> | <{Exp
                 return makeMapType(getType(from), getType(to));
             });
          
-        collectParts(current, tb);
+        collect(from, to, generators, tb);
+    endPatternScope(tb);
     tb.leaveScope(current);
 }
 
@@ -284,6 +338,7 @@ void collect(current: (Expression) `( <Expression init> | <Expression result> | 
     gens = [gen | gen <- generators];
     storeAllowUseBeforeDef(current, result, tb); // variable occurrences in result may refer to variables defined in generators
     tb.enterScope(current);
+    beginPatternScope("reducer", tb);
         //tau = tb.newTypeVar();
         tb.define("it", variableId(), init, defLub([init, result], AType() { return lub(getType(init), getType(result)); }));
         tb.require("reducer", current, gens,
@@ -292,7 +347,8 @@ void collect(current: (Expression) `( <Expression init> | <Expression result> | 
         tb.calculate("reducer result", current, [result], AType () { return getType(result); });
         //tb.requireEager("reducer it", current, [init, result], (){ unify(tau, lub(getType(init), getType(result)), onError(current, "Can determine it")); });
          
-        collectParts(current, tb);
+        collect(init, result, generators, tb);
+    endPatternScope(tb);
     tb.leaveScope(current);
 }
 
@@ -300,14 +356,13 @@ void collect(current: (Expression) `it`, TBuilder tb){
     tb.use(current, {variableId()});
 }
 
-
 // ---- set
 
 void collect(current: (Expression) `{ <{Expression ","}* elements0> }`, TBuilder tb){
     elms = [ e | Expression e <- elements0 ];
     tb.calculateEager("set expression", current, elms,
         AType() { return aset(lub([getType(elm) | elm <- elms])); });
-    collectParts(current, tb);
+    collect(elements0, tb);
 }
 
 // ---- list
@@ -316,7 +371,7 @@ void collect(current: (Expression) `[ <{Expression ","}* elements0> ]`, TBuilder
     elms = [ e | Expression e <- elements0 ];
     tb.calculateEager("list expression", current, elms,
         AType() { return alist(lub([getType(elm) | elm <- elms])); });
-    collectParts(current, tb);
+    collect(elements0, tb);
 }
 
 // ---- call or tree
@@ -325,63 +380,90 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
     actuals = [a | Expression a <- arguments];
     scope = tb.getScope();
     
-    tb.calculate("call of function/constructor", current, expression + actuals,
+    tb.calculateEager("call of function/constructor <fmt("<expression>")>", current, expression + actuals,
         AType(){   
             texp = getType(expression);
             if(isStrType(texp)){
                 return anode();
             }     
             if(overloadedAType(rel[Key, IdRole, AType] overloads) := texp){
-              validOverloads = {};
-              next_fun:
-                for(<key, idr, tp> <- overloads){                       
+              <filteredOverloads, identicalFormals> = filterOverloads(overloads, size(actuals));
+              if({<key, idr, tp>} := filteredOverloads){
+                texp = tp;
+              } else {
+                overloads = filteredOverloads;
+                validReturnTypeOverloads = {};
+                validOverloads = {};
+                next_fun:
+                for(ovl: <key, idr, tp> <- overloads){                       
                     if(ft:afunc(AType ret, atypeList(list[AType] formals), list[Keyword] kwFormals) := tp){
-                       try validOverloads += <key, dataId(), checkArgsAndComputeReturnType(current, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments)>;
-                       catch checkFailed(set[Message] msgs):
+                       try {
+                            validReturnTypeOverloads += <key, dataId(), checkArgsAndComputeReturnType(current, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals)>;
+                            validOverloads += ovl;
+                       } catch checkFailed(set[Message] msgs):
                              continue next_fun;
                     }
                  }
-               next_cons:
-                 for(<key, idr, tp> <- overloads){
+                 next_cons:
+                 for(ovl: <key, idr, tp> <- overloads){
                     if(acons(ret:aadt(adtName, list[AType] parameters), str consName, list[NamedField] fields, list[Keyword] kwFields) := tp){
-                       try validOverloads += <key, dataId(), computeADTType(current, adtName, scope, ret, fields<0>, kwFields, actuals, keywordArguments)>;
-                       catch checkFailed(set[Message] msgs):
+                       try {
+                            validReturnTypeOverloads += <key, dataId(), computeADTType(current, adtName, scope, ret, fields<1>, kwFields, actuals, keywordArguments, identicalFormals)>;
+                            validOverloads += ovl;
+                       } catch checkFailed(set[Message] msgs):
                              continue next_cons;
                     }
-                }
-                if(isEmpty(validOverloads))  reportError(current, "No function or constructor <fmt(expression)> applicable for <fmt(size(actuals), "argument")> <fmt(actuals)>");
-                return overloadedAType(validOverloads);
+                 }
+                 if({<key, idr, tp>} := validOverloads){
+                    texp = tp;  
+                    // TODO check identicalFields to see whether this can make sense
+                    // unique overload, fall through to non-overloaded case to potentially bind more type variables
+                 } else if(isEmpty(validReturnTypeOverloads)) reportError(current, "<fmt("<expression>")> applied to <fmt(actuals)> cannot be resolved given <fmt(expression)>");
+                 else return overloadedAType(validReturnTypeOverloads);
+               }
             }
           
             if(ft:afunc(AType ret, atypeList(list[AType] formals), list[Keyword] kwFormals) := texp){
-                return checkArgsAndComputeReturnType(current, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments);
+                return checkArgsAndComputeReturnType(current, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, [true | int i <- index(formals)]);
             }
             if(acons(ret:aadt(adtName, list[AType] parameters), str consName, list[NamedField] fields, list[Keyword] kwFields) := texp){
-               return computeADTType(current, adtName, scope, ret, fields<0>, kwFields, actuals, keywordArguments);
+               return computeADTType(current, adtName, scope, ret, fields<1>, kwFields, actuals, keywordArguments, [true | int i <- index(fields)]);
             }
-            reportError(current, "Function or constructor type required for <fmt(expression)>, found <fmt(expression)>");
+            reportError(current, "<fmt("<expression>")> applied to <fmt(actuals)> cannot be resolved given <fmt(expression)>");
         });
-      collectParts(current, tb);
+      collect(expression, arguments, keywordArguments, tb);
 }
 
-void validateOverloading(Expression current, overloadedAType(rel[Key, IdRole, AType] overloads)){
-    tm = getTModel();
-    fs = [<tm.definitions[k].id, tp> | <k, functionId(), tp> <- overloads];
-    for(id <- domain(fs)){
-        if([*_, afunc(AType ret1, AType formals1, _), *_, afunc(AType ret2, AType formals2, _), *_] := fs[id],
-           subtype(formals1, formals2) || subtype(formals2, formals1))
-           reportError(current, "Ambiguous function <fmt(id)>");
+tuple[rel[Key, IdRole, AType], list[bool]] filterOverloads(rel[Key, IdRole, AType] overloads, int arity){
+    filteredOverloads = {};
+    prevFormals = [];
+    identicalFormals = [true | int i <- [0 .. arity]];
+    for(ovl:<key, idr, tp> <- overloads){                       
+        if(ft:afunc(AType ret, atypeList(list[AType] formals), list[Keyword] kwFormals) := tp){
+           if(ft.varArgs ? (arity >= size(formals)) : (arity == size(formals))) {
+              filteredOverloads += ovl;
+              if(isEmpty(prevFormals)){
+                 prevFormals = formals;
+              } else {
+                 for(int i <- index(formals)) identicalFormals[i] = identicalFormals[i] && (comparable(prevFormals[i], formals[i]));
+              }
+           }
+        } else
+        if(acons(ret:aadt(adtName, list[AType] parameters), str consName, list[NamedField] fields, list[Keyword] kwFields) := tp){
+           if(size(fields) == arity){
+              filteredOverloads += ovl;
+              if(isEmpty(prevFormals)){
+                 prevFormals = fields<1>;
+              } else {
+                 for(int i <- index(fields)) identicalFormals[i] = identicalFormals[i] && (comparable(prevFormals[i], fields[i].fieldType));
+              }
+            }
+        }
     }
-    fs = [<tm.definitions[k].id, tp> | <k, constructorId(), tp> <- overloads];
-    for(id <- domain(fs)){
-        if([*_, acons(AType adt1, id, list[NamedField] fields1, _), *_, acons(AType adt2, id, list[NamedField] fields2, _), *_] := fs[id],
-            fieldTypes1 := [tp | <tp, nm> <- fields1], fieldTypes1 := [tp | <tp, nm> <- fields2],
-           subtype(fieldTypes1, fieldTypes2) || subtype(fieldTypes2, fieldTypes1))
-           reportError(current, "Ambiguous constructor <fmt(id)>");   
-    }
+    return <filteredOverloads, identicalFormals>;
 }
 
-AType checkArgsAndComputeReturnType(Expression current, Key scope, AType retType, list[AType] formals, list[Keyword] kwFormals, bool isVarArgs, list[Expression] actuals, keywordArguments){
+AType checkArgsAndComputeReturnType(Expression current, Key scope, AType retType, list[AType] formals, list[Keyword] kwFormals, bool isVarArgs, list[Expression] actuals, keywordArguments, list[bool] identicalFormals){
     nactuals = size(actuals); nformals = size(formals);
    
     list[AType] actualTypes;
@@ -414,8 +496,18 @@ AType checkArgsAndComputeReturnType(Expression current, Key scope, AType retType
     }
     
     for(int i <- index(formals)){
-        if(!comparable(actualTypes[i], iformalTypes[i]))
-           reportError(actuals[i], "Argument should have type <fmt(iformalTypes[i])>, found <fmt(actualTypes[i])>");       
+        ai = actualTypes[i];
+        ai = instantiate(ai);
+        if(!isFullyInstantiated(ai)){
+           if(identicalFormals[i]){
+              unify(ai, iformalTypes[i]) || reportError(current, "Cannot unify <fmt(ai)> with <fmt(iformalTypes[i])>");
+              ai = instantiate(ai);
+              //clearBindings();
+           } else
+              continue;
+        }
+        comparable(ai, iformalTypes[i]) ||
+           reportError(actuals[i], "Argument should have type <fmt(iformalTypes[i])>, found <fmt(ai)>");       
     }
     
     checkKwArgs(kwFormals, keywordArguments, bindings, scope);
@@ -431,15 +523,35 @@ AType checkArgsAndComputeReturnType(Expression current, Key scope, AType retType
           reportError(current, msg);
 }
 
-AType computeADTType(Expression current, str adtName, Key scope, AType retType, list[AType] formals, list[Keyword] kwFormals, list[Expression] actuals, keywordArguments){                     
+AType computeADTType(Tree current, str adtName, Key scope, AType retType, list[AType] formals, list[Keyword] kwFormals, actuals, keywordArguments, list[bool] identicalFormals){                     
+    //println("---- <current>, identicalFormals: <identicalFormals>");
     nactuals = size(actuals); nformals = size(formals);
     if(nactuals != nformals){
         reportError(current, "Expected <fmt(nformals, "argument")>, found <nactuals>");
     }
     formals = [ expandUserTypes(formals[i], scope) | i <- index(formals) ];
+    //println("formals: <formals>");
+    list[AType] actualType = [];
+    list[bool] dontCare = [];
+    switch(actuals){
+        case list[Expression] expList: {
+                dontCare = [ false | i <- index(expList) ];
+                actualType = [ getType(expList[i]) | i <- index(expList) ];
+                //print("expList: [ "); for(i <- index(expList)) print("<expList[i]> "); println(" ]");
+            }
+        case list[Pattern] patList: {
+                dontCare = [ "<patList[i]>" == "_" | i <- index(patList) ];
+                actualType = [ dontCare[i] ? formals[i] : expandUserTypes(getPatternType(patList[i], formals[i], scope), scope) | i <- index(patList) ];
+                //print("patList: [ "); for(i <- index(patList)) print("<patList[i]> "); println(" ]");
+            }
+        default:
+            throw "Illegal argument `actuals`";
+    }
+    //println("actualType: <actualType>");
+  
     Bindings bindings = ();
-    for(int i <- index(actuals)){
-        try   bindings = matchRascalTypeParams(formals[i], getType(actuals[i]), bindings, bindIdenticalVars=true);
+    for(int i <- index(formals), !dontCare[i]){
+        try   bindings = matchRascalTypeParams(formals[i], actualType[i], bindings, bindIdenticalVars=true);
         catch invalidMatch(str reason): 
               reportError(actuals[i], reason);   
     }
@@ -448,9 +560,20 @@ AType computeADTType(Expression current, str adtName, Key scope, AType retType, 
     catch invalidInstantiation(str msg):
           reportError(current, msg);
    
-    for(int i <- index(actuals)){
-        if(!comparable(getType(actuals[i]), iformals[i]))
-            reportError(actuals[i], "Argument <actuals[i]> should have type <fmt(formals[i])>, found <fmt(actuals[i])>");
+    for(int i <- index(actuals), !dontCare[i]){
+        ai = actualType[i];
+        //println("<i>: <ai>");
+        if(!isFullyInstantiated(ai)){
+            if(identicalFormals[i]){
+               unify(ai, iformals[i]) || reportError(current, "Cannot unify <fmt(ai)> with <fmt(iformals[i])>");
+               ai = instantiate(ai);
+               //println("instantiated <actuals[i]>: <ai>");
+            } else
+                continue;
+        }
+        //println("comparable?: <ai>, <iformals[i]>");
+        comparable(ai, iformals[i]) ||
+            reportError(actuals[i], "Argument <actuals[i]> should have type <fmt(formals[i])>, found <fmt(ai)>");
     }
     adtType = avalue();
     try    adtType = instantiateRascalTypeParams(expandUserTypes(getType(adtName, scope, {dataId(), nonterminalId()}), scope), bindings);
@@ -469,20 +592,18 @@ void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, K
         kwName = "<kwa.name>";
         kwType = getType(kwa.expression);
         
-        for(<ft, fn, de> <- kwFormals){
+        for(<fn, ft, de> <- kwFormals){
            if(kwName == fn){
               ift = expandUserTypes(ft, scope);
               try   ift = instantiateRascalTypeParams(ft, bindings);
               catch invalidInstantiation(str msg):
                     reportError(kwa, msg);
 
-              if(!comparable(kwType, ift)){
-                 reportError(kwa, "Keyword argument <fmt(kwName)> has type <fmt(kwType)>, expected <fmt(ift)>");
-              }
+              comparable(kwType, ift) || reportError(kwa, "Keyword argument <fmt(kwName)> has type <fmt(kwType)>, expected <fmt(ift)>");
               continue next_arg;
            } 
         }
-        reportError(kwa, "Undefined keyword argument <fmt(kwName)>; <kwFormals<0,1>>");
+        reportError(kwa, "Undefined keyword argument <fmt(kwName)><isEmpty(kwFormals) ? "" : "; available keyword parameters: <fmt(kwFormals<1>)>">");
     }
  } 
 
@@ -497,7 +618,7 @@ void collect(current: (Expression) `\< <{Expression ","}+ elements1> \>`, TBuild
         AType() {
                 return atuple(atypeList([ getType(elm) | elm <- elms ]));
         });
-    collectParts(current, tb);
+    collect(elements1, tb);
 }
 
 // ---- map
@@ -509,7 +630,7 @@ void collect(current: (Expression) `( <{Mapping[Expression] ","}* mappings>)`, T
         AType() {
                 return amap(lub([ getType(f) | f <- froms ]), lub([ getType(t) | t <- tos ]));
         });
-    collectParts(current, tb);
+    collect(mappings, tb);
 }
 
 // ---- it
@@ -521,7 +642,8 @@ void collect(current: (Expression) `<QualifiedName name>`, TBuilder tb){
     if(isQualified(qname)){     
        tb.useQualified([qname.qualifier, qname.name], name, {variableId(), functionId(), constructorId()}, {dataId(), nonterminalId(), moduleId()} );
     } else {
-       tb.useLub(name, {variableId(), formalId(), functionId(), constructorId()});
+       //println("QualfiedName Expression: <name>, useLub, <getLoc(current)>");
+       tb.useLub(name, {variableId(), formalId(), fieldId(), functionId(), constructorId()});
     }
 }
 
@@ -539,7 +661,7 @@ void collect(current:(Expression)`<Expression expression> [ <{Expression ","}+ i
     
     tb.calculate("subscription", current, expression + indexList,
                   AType(){ return computeSubscriptionType(current, getType(expression), [getType(e) | e <- indexList]);  });
-    collectParts(current, tb);
+    collect(expression, indices, tb);
 }
 
 AType computeSubscriptionType(Tree current, AType t1, list[AType] tl){
@@ -566,7 +688,7 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl){
                 if (alabel(_,rft) := rftype) rftype = rft; 
                 return makeSetType(rftype);
             } else {
-                return arel(tail(relFields,size(relFields)-size(tl)));
+                return arel(atypeList(tail(relFields,size(relFields)-size(tl))));
             }
         }
     } else if (isListRelType(t1)) {
@@ -582,7 +704,7 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl){
                 if (alabel(_,rft) := rftype) rftype = rft; 
                 return makeListType(rftype);
             } else {
-                return alrel(tail(relFields,size(relFields)-size(tl)));
+                return alrel(atypeList(tail(relFields,size(relFields)-size(tl))));
             }
         }
     } else if (isMapType(t1)) {
@@ -604,13 +726,13 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl){
             reportError(current, "Expected only 1 subscript for a tuple expression, not <size(tl)>");
         } else if (!isIntType(tl[0])) {
             reportError(current, "Expected subscript of type int, not <fmt(tl[0])>");
-        } else if ((Expression)`<DecimalIntegerLiteral dil>` := head(eslist)) {
-            tupleIndex = toInt("<dil>");
-            if (tupleIndex < 0 || tupleIndex >= size(getTupleFields(t1))) {
-                reportError(current, "Tuple index must be between 0 and <size(getTupleFields(t1))-1>");
-            } else {
-                return getTupleFields(t1)[tupleIndex];
-            }
+        //} else if ((Expression)`<DecimalIntegerLiteral dil>` := head(eslist)) {
+        //    tupleIndex = toInt("<dil>");
+        //    if (tupleIndex < 0 || tupleIndex >= size(getTupleFields(t1))) {
+        //        reportError(current, "Tuple index must be between 0 and <size(getTupleFields(t1))-1>");
+        //    } else {
+        //        return getTupleFields(t1)[tupleIndex];
+        //    }
         } else {
             return lubList(getTupleFields(t1));
         }
@@ -643,7 +765,7 @@ void collect(current: (Expression) `<Expression e> [ <OptionalExpression ofirst>
 
     tb.calculate("slice", current, [e, ofirst, olast],
         AType(){ return computeSliceType(getType(e), getType(ofirst), aint(), getType(olast)); });
-    collectParts(current, tb);
+    collect(e, ofirst, olast, tb);
 }
 
 AType computeSliceType(AType base, AType first, AType step, AType last){
@@ -671,7 +793,7 @@ void collect(current: (Expression) `<Expression e> [ <OptionalExpression ofirst>
 
     tb.calculate("slice step", current, [e, ofirst, second, olast],
         AType(){ return computeSliceType(getType(e), getType(ofirst), getType(second), getType(olast)); });
-    collectParts(current, tb);
+    collect(ofirst, second, olast, tb);
 }
 
 // ---- fieldAccess
@@ -680,8 +802,8 @@ void collect(current: (Expression) `<Expression expression> . <Name field>`, TBu
     scope = tb.getScope();
     
     tb.calculate("field access", current, [expression],
-        AType(){ return computeFieldType(current, getType(expression), prettyPrintQName(convertName(field)), scope); });
-    collectParts(current, tb);
+        AType(){ return computeFieldType(current, getType(expression) /*expandUserTypes(getType(expression), scope)*/, prettyPrintQName(convertName(field)), scope); });
+    collect(expression, tb);
 }
 
 @doc{Field names and types for built-ins}
@@ -723,7 +845,7 @@ public AType computeFieldType(Tree current, AType t1, str fieldName, Key scope) 
             //if (getADTName(t1) == "Tree" && fieldName == "top") {
             //    return t1;
             //}
-            fieldType = expandUserTypes(getType(fieldName, scope, {fieldId()}), scope);
+            fieldType = expandUserTypes(getType(fieldName, scope, {formalId(), fieldId()}), scope);
            
             declaredInfo = getDefinitions(adtName, scope, {dataId(), nonterminalId()});
             declaredType = getType(adtName, scope, {dataId(), nonterminalId()});
@@ -745,7 +867,7 @@ public AType computeFieldType(Tree current, AType t1, str fieldName, Key scope) 
             fieldType = filterFieldType(fieldType, declaredInfo, scope);
             
             for(def <- declaredInfo){
-               if(fieldName in domain(def.defInfo.constructorFields)){
+               if(fieldName in domain(def.defInfo.constructorFields) || fieldName in domain(def.defInfo.commonKeywordFields)){
                     return fieldType;
                }
             }  
@@ -845,14 +967,14 @@ AType filterFieldType(AType fieldType, set[Define] declaredInfo, Key scope){
 
 void collect(current:(Expression) `<Expression expression> [ <Name field> = <Expression repl> ]`, TBuilder tb){
     scope = tb.getScope();
-    tb.use(field, {fieldId()});
-    tb.calculate("field update", current, [expression, field, repl],
+    //tb.use(field, {fieldId()});
+    tb.calculate("field update", current, [expression, repl],
         AType(){ fieldType = computeFieldType(current, getType(expression), prettyPrintQName(convertName(field)), scope);
                  replType = getType(repl);
-                 subtype(replType, fieldType, onError(current, "Cannot assign type <fmt(replType)> into field of type <fmt(fieldType)>"));
+                 subtype(replType, fieldType) || reportError(current, "Cannot assign type <fmt(replType)> into field of type <fmt(fieldType)>");
                  return getType(expression);
         });
-    collectParts(current, tb);
+    collect(expression, repl, tb);
 }
 
 // ---- fieldProjection
@@ -937,22 +1059,22 @@ void collect(current:(Expression) `<Expression e> [ @ <Name n> = <Expression er>
     tb.use(n, {annoId()});
     tb.calculate("set annotation", current, [e, n, er],
         AType(){ t1 = getType(e); tn = getType(n); t2 = getType(er);
-                 return computeSetAnnotation(current, t1, tn, t2, tb);
+                 return computeSetAnnotationType(current, t1, tn, t2);
                });
-    collectParts(current, tb);
+    collect(e, er, tb);
 }
 
-AType computeSetAnnotation(Expression current, AType t1, AType tn, AType t2, TBuilder tb){
+AType computeSetAnnotationType(Expression current, AType t1, AType tn, AType t2){
     if (isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) {
         if(overloadedAType(rel[Key, IdRole, AType] overloads) := tn){
            for(<key, idr, tp> <- overloads, aanno(_, onType, annoType) := tp, subtype(t1, onType)){
-               subtype(t2, annoType, onError(current, "Cannot assign value of type <fmt(t2)> to annotation of type <fmt(annoType)>"));
+               subtype(t2, annoType) || reportError(current, "Cannot assign value of type <fmt(t2)> to annotation of type <fmt(annoType)>");
                return onType;
            }
            reportError(current, "Annotation on <fmt(t1)> cannot be resolved from <fmt(tn)>");
         } else
         if(aanno(_, onType, annoType) := tn){
-           subtype(t2, annoType, onError(current, "Cannot assign value of type <fmt(t2)> to annotation of type <fmt(annoType)>"));
+           subtype(t2, annoType) || reportError(current, "Cannot assign value of type <fmt(t2)> to annotation of type <fmt(annoType)>");
            return onType;
         } else
             reportError(current, "Invalid annotation type: <fmt(tn)>");
@@ -966,12 +1088,12 @@ void collect(current:(Expression) `<Expression e>@<Name n>`, TBuilder tb) {
     tb.use(n, {annoId()});
     tb.calculate("get annotation", current, [e, n],
         AType(){ t1 = getType(e); tn = getType(n);
-                 return computeGetAnnotation(current, t1, tn, tb);
+                 return computeGetAnnotationType(current, t1, tn);
                });
-    collectParts(current, tb);
+    collect(e, tb);
 }
 
-AType computeGetAnnotation(Expression current, AType t1, AType tn, TBuilder tb){
+AType computeGetAnnotationType(Expression current, AType t1, AType tn){
     if (isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) {
         if(overloadedAType(rel[Key, IdRole, AType] overloads) := tn){
            for(<key, idr, tp> <- overloads, aanno(_, onType, annoType) := tp, subtype(t1, onType)){

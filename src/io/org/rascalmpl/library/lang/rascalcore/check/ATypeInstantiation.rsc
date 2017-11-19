@@ -33,19 +33,13 @@ public Bindings matchRascalTypeParams(AType r, AType s, Bindings b, bool bindIde
 }
 
 public Bindings matchRascalTypeParams(AType r, AType s, Bindings b, bool bindIdenticalVars) {
-    // Strip off labels and aliases
-    //if (alabel(_, lt) := r) return matchRascalTypeParams(lt, s, b, bindIdenticalVars);
-    //if (alabel(_, rt) := s) return matchRascalTypeParams(r, rt, b, bindIdenticalVars);
-    //if (aalias(_,_,lt) := r) return matchRascalTypeParams(lt, s, b, bindIdenticalVars);
-    //if (aalias(_,_,rt) := s) return matchRascalTypeParams(r, rt, b, bindIdenticalVars);
 
     // The simple case: if the receiver is a basic type or a node 
     // (i.e., has no internal structure), just do a comparability
     // check. The receiver obviously does not contain a parameter.
     if (arity(r) == 0 && comparable(s,r)) return b;
 
-    // Another simple case: if the receiver has no type vars, then just return
-    // the current bindings.
+    // Another simple case: if the receiver has no type vars, then just return the current bindings.
     if (!typeContainsRascalTypeParams(r)) return b;
         
     // Handle type parameters
@@ -182,11 +176,11 @@ AType instantiateRascalTypeParams(AType pt:aparameter(str s, AType t), Bindings 
 AType instantiateRascalTypeParams(AType::aadt(str s, list[AType] ps), Bindings bindings) 
     = AType::aadt(s,[instantiateRascalTypeParams(p,bindings) | p <- ps]);
 AType instantiateRascalTypeParams(AType::acons(AType a, str name, list[NamedField] fields, list[Keyword] kwFields), Bindings bindings) = 
-    AType::acons(instantiateRascalTypeParams(a,bindings), name, [<instantiateRascalTypeParams(ft,bindings), nm> | <ft, nm> <- fields], [<instantiateRascalTypeParams(ft,bindings), fn, de> | <ft, fn, de> <- kwFields]);
+    AType::acons(instantiateRascalTypeParams(a,bindings), name, [<instantiateRascalTypeParams(ft,bindings), nm> | <ft, nm> <- fields], [<instantiateRascalTypeParams(ft,bindings), fn, de> | <fn, ft, de> <- kwFields]);
 AType instantiateRascalTypeParams(AType::aalias(str s, list[AType] ps, AType at), Bindings bindings)
     = AType::aalias(s, [instantiateRascalTypeParams(p,bindings) | p <- ps], instantiateRascalTypeParams(at,bindings));
 AType instantiateRascalTypeParams(AType::afunc(AType rt, list[AType] formals, list[Keyword] kwFormals, varArgs=va), Bindings bindings) = 
-    AType::afunc(instantiateRascalTypeParams(rt,bindings),[instantiateRascalTypeParams(f,bindings) | f <- formals], [<instantiateRascalTypeParams(ft,bindings), fn, de> | <ft, fn, de> <- kws], varArgs=va);
+    AType::afunc(instantiateRascalTypeParams(rt,bindings),[instantiateRascalTypeParams(f,bindings) | f <- formals], [<instantiateRascalTypeParams(ft,bindings), fn, de> | <fn, ft, de> <- kws], varArgs=va);
 //AType instantiateRascalTypeParams(\var-func(AType rt, list[AType] ps, AType va), Bindings bindings) = \var-func(instantiateRascalTypeParams(rt,bindings),[instantiateRascalTypeParams(p,bindings) | p <- ps],instantiateRascalTypeParams(va,bindings));
 //AType instantiateRascalTypeParams(AType::areified(AType t), Bindings bindings) = AType::areified(instantiateRascalTypeParams(t,bindings));
 //AType instantiateRascalTypeParams(AType::\aparameterized-sort(str n, list[AType] ts), Bindings bindings) = AType::aparameterized-sort(n, [instantiateRascalTypeParams(p,bindings) | p <- ts]);

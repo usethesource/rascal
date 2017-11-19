@@ -48,8 +48,9 @@ str prettyPrintAType(atuple(AType ts)) = "tuple[<prettyPrintAType(ts)>]";
 str prettyPrintAType(amap(AType d, AType r)) = "map[<prettyPrintAType(d)>, <prettyPrintAType(r)>]";
 str prettyPrintAType(arel(AType ts)) = "rel[<prettyPrintAType(ts)>]";
 str prettyPrintAType(alrel(AType ts)) = "lrel[<prettyPrintAType(ts)>]";
-str prettyPrintAType(afunc(AType ret, list[AType] formals, lrel[AType fieldType, str fieldName, Expression defaultExp] kwFormals))
-                = "<prettyPrintAType(ret)>(<intercalate(",", [prettyPrintAType(f) | f <- formals])>,<intercalate(",", ["<prettyPrintAType(ft)> <fn>=..." | <ft, fn, de> <- kwFormals])>)";
+
+str prettyPrintAType(afunc(AType ret, atypeList(list[AType] formals), lrel[AType fieldType, str fieldName, Expression defaultExp] kwFormals))
+                = "<prettyPrintAType(ret)>(<intercalate(",", [prettyPrintAType(f) | f <- formals])><isEmpty(kwFormals) ? "" : ", "><intercalate(",", ["<prettyPrintAType(ft)> <fn>=..." | <ft, fn, de> <- kwFormals])>)";
 
 str prettyPrintAType(auser(str s, [])) = s;
 str prettyPrintAType(auser(str s, ps)) ="<s>[<prettyPrintAType(ps)>]" when size(ps) > 0;
@@ -393,7 +394,9 @@ public AType getListRelElementType(AType t) {
 @doc{Get the field names of the list rel fields.}
 public list[str] getListRelFieldNames(AType t) {
     if (alrel(atypeList(tls)) := unwrapType(t)){
-        return [tp.label | tp <- tls];
+        res = [tp.label | tp <- tls];
+        println(res);
+        return res;
     }
     throw "getListRelFieldNames given non-List-Relation type <prettyPrintAType(t)>";
 }
@@ -419,10 +422,11 @@ default bool isTupleType(AType _) = false;
 @doc{Create a new tuple type, given the element types of the fields. Check any given labels for consistency.}
 AType makeTupleType(AType elementTypes...) {
     set[str] labels = { tp.label | tp <- elementTypes, !isEmpty(tp.label) };
-    if (size(labels) == 0 || size(labels) == size(elementTypes)) 
-        return atuple(atypeList(elementTypes));
-    else
-        throw rascalCheckerInternalError("For tuple types, either all fields much be given a distinct label or no fields should be labeled."); 
+    if(size(labels) > 0 && size(labels) != size(elementTypes))
+        elementTypes = [unset(e, "label") | e <- elementTypes];
+    return atuple(atypeList(elementTypes));
+    //else
+    //    throw rascalCheckerInternalError("For tuple types, either all fields much be given a distinct label or no fields should be labeled."); 
 }
 
 @doc{Indicate if the given tuple has a field of the given name.}
@@ -628,7 +632,7 @@ AType makeADTType(str n) = aadt(n,[]);
 @doc{Get the name of the ADT.}
 str getADTName(AType t) {
     if (aadt(n,_) := unwrapType(t)) return n;
-    if (acons(a,_,_) := unwrapType(t)) return getADTName(a);
+    if (acons(a,_,_,_) := unwrapType(t)) return getADTName(a);
     if (areified(_) := unwrapType(t)) return "type";
     throw "getADTName, invalid type given: <prettyPrintAType(t)>";
 }
@@ -636,7 +640,7 @@ str getADTName(AType t) {
 @doc{Get the type parameters of an ADT.}
 public list[AType] getADTTypeParameters(AType t) {
     if (aadt(n,ps) := unwrapType(t)) return ps;
-    if (acons(a,_,_) := unwrapType(t)) return getADTTypeParameters(a);
+    if (acons(a,_,_,_) := unwrapType(t)) return getADTTypeParameters(a);
     if (areified(_) := unwrapType(t)) return [];
     throw "getADTTypeParameters given non-ADT type <prettyPrintAType(t)>";
 }
@@ -650,14 +654,14 @@ bool adtHasTypeParameters(AType t) = size(getADTTypeParameters(t)) > 0;
 Determine if the given type is a constructor.
 }
 bool isConstructorType(aparameter(_,AType tvb)) = isConstructorType(tvb);
-bool isConstructorType(acons(AType _,str _,list[AType] _)) = true;
+bool isConstructorType(acons(AType _, str _, _, _)) = true;
 default bool isConstructorType(AType _) = false;
 
 @doc{Create a new constructor type.}
 AType makeConstructorType(AType adtType, str name, AType consArgs...) { 
     set[str] labels = { tp.label | tp <- consArgs, !isEmpty(tp.label) };   
     if (size(labels) == 0 || size(labels) == size(consArgs)) 
-        return acons(adtType, name, consArgs);
+        return acons(adtType, name, consArgs, []);
     else
         throw rascalCheckerInternalError("For constructor types, either all arguments much be given a distinct label or no parameters should be labeled."); 
 }
@@ -669,7 +673,7 @@ AType makeConstructorType(AType adtType, str name, AType consArgs...) {
 
 @doc{Get a list of the argument types in a constructor.}
 public list[AType] getConstructorArgumentTypes(AType ct) {
-    if (acons(_,_,cts) := unwrapType(ct)) return cts;
+    if (acons(_,_,cts,_) := unwrapType(ct)) return cts;
     throw "Cannot get constructor arguments from non-constructor type <prettyPrintAType(ct)>";
 }
 
@@ -680,7 +684,7 @@ public AType getConstructorArgumentTypesAsTuple(AType ct) {
 
 @doc{Get the ADT type of the constructor.}
 public AType getConstructorResultType(AType ct) {
-    if (acons(a,_,_) := unwrapType(ct)) return a;
+    if (acons(a,_,_,_) := unwrapType(ct)) return a;
     throw "Cannot get constructor ADT type from non-constructor type <prettyPrintAType(ct)>";
 }
 
@@ -968,4 +972,4 @@ bool subtype(AType::\iter(AType s), AType::\iter-star(AType t)) = subtype(s, t);
 // TODO: add subtype for elements under optional and alternative, but that would also require auto-wrapping/unwrapping in the run-time
 // bool subtype(AType s, \opt(AType t)) = subtype(s,t);
 // bool subtype(AType s, \alt({AType t, *_}) = true when subtype(s, t); // backtracks over the alternatives
-
+int zzzzzzzzzz = 0;

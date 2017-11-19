@@ -87,7 +87,7 @@ test I1 [[ module A
            
            module B     // <-- missing import
            int M = N;
-]] expect { "Undefined variable, constructor, function or formal `N`" }
+]] expect { "Undefined variable, function, formal, field or constructor `N`" }
 
 test I2 [[ module A
            public int N = 0;
@@ -103,7 +103,7 @@ test I3 [[ module A
            module B
            import A;
            int M = N;
-]] expect { "Undefined variable, constructor, function or formal `N`" }
+]] expect { "Undefined variable, function, formal, field or constructor `N`" }
 
 test I4 [[ module A
            int N = 0;
@@ -122,7 +122,7 @@ test I5 [[ module A
            module C
            import B;
            int X = N;
-]] expect { "Undefined variable, constructor, function or formal `N`" }
+]] expect { "Undefined variable, function, formal, field or constructor `N`" }
 
 test I6 [[ module A
            public int N = 0;
@@ -155,7 +155,7 @@ test I8 [[ module A
            module C
            extend B;
            int X = N;
-]] expect { "Undefined variable, constructor, function or formal `N`" }
+]] expect { "Undefined variable, function, formal, field or constructor `N`" }
 
 test I9 [[ module A
            import Z;

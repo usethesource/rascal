@@ -36,7 +36,7 @@ test F7 [[ module rascal::F7
 test F8 [[ module rascal::F8
     int f(int n, int k = 0) { return n; }
     void main(){ int x = g(1, kkk="a"); }
-]] expect { "Undefined variable, constructor, function or formal `g`" }
+]] expect { "Undefined variable, function, formal, field or constructor `g`" }
 
 test O1 [[ module rascal::O1
     int f(int n, int k = 0) { return n; }
@@ -109,26 +109,29 @@ test R5 [[ module rascal::R5
 
 test R6 [[ module rascal::R6
     value f(b) { if(b) 10; return b; }
-]] expect { "Condition should be `bool`, found `value`" }
+]] 
+expect { "Condition should be `bool`, found `value`" }
 
 test R7 [[ module rascal::R7
     value f(b) { b || true; return b; }
-]] expect { "Argument of || should be `bool`, found `value`" }
+]] 
+expect { "Argument of || should be `bool`, found `value`" }
 
-@@ order dependent?
 test R8 [[ module rascal::R8
     value f(b) { n = b || true; return b; }
-]] expect { "Argument of || should be `bool`, found `value`" }
+]] 
 
-@@ order dependent?
+expect { "Argument of || should be `bool`, found `value`" }
+
 test R9 [[ module rascal::R9
     value f(b) { n = b || true; if(b) 10; return b; }
-]] expect { "Argument of || should be `bool`, found `value`" }
+]] 
+expect { "Argument of || should be `bool`, found `value`" }
 
-@@ order dependent?
 test R10 [[ module rascal::R10
     value f(b) { n = b || true; if(b) 10; return b; b && false; }
-]] expect { "Argument of || should be `bool`, found `value`" }
+]] 
+expect { "Argument of || should be `bool`, found `value`" }
 
 test Issue1051 [[
     module A

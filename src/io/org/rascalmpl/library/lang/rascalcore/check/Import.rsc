@@ -53,12 +53,12 @@ void writeCachedDateMap(str qualifiedModuleName, PathConfig pcfg, map[str,dateti
 }
 
 bool addImport(str qualifiedModuleName, PathConfig pcfg, TBuilder tb){
-    return false;
+    //return false;
     <found, tplLoc> = getDerivedReadLoc(qualifiedModuleName, "tpl", pcfg);
     if(found){
         try {
             tm = readBinaryValueFile(#TModel, tplLoc);
-            println("read <tplLoc>");
+            println("*** importing <qualifiedModuleName> from <tplLoc>");
             tb.addTModel(tm);
             return true;
         } catch IO(str msg): {
@@ -70,25 +70,37 @@ bool addImport(str qualifiedModuleName, PathConfig pcfg, TBuilder tb){
    
 }
 
+AType subsitute(AType atype, map[loc, AType] facts){
+    return 
+        visit(atype){
+            case tv: tvar(loc src) => substitute(facts[src], facts)
+        };
+}
+
 void saveModule(str qualifiedModuleName, PathConfig pcfg, TModel tm){
     mpath = getModuleLocation(qualifiedModuleName, pcfg).path;
     tplLoc = getDerivedWriteLoc(qualifiedModuleName, "tpl", pcfg);
     m1 = tm;
     
+    //println("mpath: <mpath>");
     //println("MODEL <qualifiedModuleName> BEFORE REDUCTION");
     //iprintln(m1);
     
     m1.calculators = ();
     // keep m1.facts
+   // m1.facts = (key : facts[key] | key <- facts/*, key.scheme != "typevar"*/);
     m1.openFacts = {};
-    m1. openReqs = {};
+    m1.openReqs = {};
     m1.tvScopes = ();
     // keep m1.messages
+    m1.scopes = ();
+    m1.uses = [];
+    m1.store = ();
     
     // replace functions in defType by the defined type
     defs = for(tup: <Key scope, str id, IdRole idRole, Key defined, DefInfo defInfo> <- m1.defines){
        if(scope.path == mpath || scope.path == "/"){
-           //println("consider: <tup>");
+          //println("consider: <tup>");
            if((defInfo has getAType || defInfo has getATypes)){
                try {
                    dt = defType(m1.facts[defined]);
@@ -103,9 +115,9 @@ void saveModule(str qualifiedModuleName, PathConfig pcfg, TModel tm){
                }
            }
            append tup;
-       } //else println("remove: <tup>");
+       } //else println("remove: <scope.path>: <tup>");
     };
-    println("defines from <size(m1.defines)> to <size(defs)>");
+    //println("defines from <size(m1.defines)> to <size(defs)>");
    
     m1.defines = toSet(defs);
     m1.definitions = ();
@@ -113,5 +125,6 @@ void saveModule(str qualifiedModuleName, PathConfig pcfg, TModel tm){
     //println("MODEL <qualifiedModuleName> AFTER REDUCTION");
     //iprintln(m1);
     println("write to <tplLoc>");
+    //for(/loc l := m1) if(l.scheme == "typevar") println(l);
     writeBinaryValueFile(tplLoc, m1);
 }

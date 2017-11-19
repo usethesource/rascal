@@ -37,7 +37,6 @@ import util::Reflective;
 start syntax Modules
     = Module+ modules;
 
-
 Tree mkTree(int n) = [DecimalIntegerLiteral] "<for(int i <- [0 .. n]){>6<}>"; // Create a unique tree to identify predefined names
  
 void rascalPreCollectInitialization(Tree tree, TBuilder tb){
@@ -45,14 +44,14 @@ void rascalPreCollectInitialization(Tree tree, TBuilder tb){
         //data type[&T] = type(Symbol symbol, map[Symbol,Production] definitions);
         // | aadt(str adtName, list[AType] parameters)
         // | acons(AType adt, str consName, list[NamedField] fields, list[Keyword] kwFields)
-        // alias Keyword = tuple[AType fieldType, str fieldName, Expression defaultExp];
-        //alias NamedField   = tuple[AType fieldType, str fieldName];
+        // alias Keyword = tuple[str fieldName, AType fieldType, Expression defaultExp];
+        //alias NamedField   = tuple[str fieldName, AType fieldType];
         
         typeType = aadt("Type", [aparameter("T", avalue())]);
         SymbolType = aadt("Symbol", []);
         ProductionType = aadt("Production", []);
-        symbolField = <SymbolType, "symbol">;
-        definitionsField = <amap(SymbolType, ProductionType), "definitions">;
+        symbolField = <"symbol", SymbolType>;
+        definitionsField = < "definitions", amap(SymbolType, ProductionType)>;
         
         tb.define("type", constructorId(), mkTree(2), defType(acons(typeType, "type", [symbolField, definitionsField], [])));
     tb.leaveScope(tree);
@@ -120,8 +119,9 @@ TModel rascalTModelFromName(str mname, bool debug=false){
 TModel rascalTModel(Tree pt, int startTime, bool debug=false, bool inline=false){
     afterParseTime = cpuTime();
     tb = newTBuilder(pt);
+    tb.push(patternContainer, "toplevel");
     // When inline, all modules are in a single file; don't read imports from file
-    if(!inline) tb.store("pathconfig", getDefaultPathConfig()); 
+    if(!inline) tb.push("pathconfig", getDefaultPathConfig()); 
     rascalPreCollectInitialization(pt, tb);
     collect(pt, tb);
     tm = tb.build();
@@ -150,4 +150,5 @@ void testModules(str names...) {
     runTests([|project://rascal-core/src/io/org/rascalmpl/library/lang/rascalcore/check/tests/<name>.ttl| | str name <- names], rascalTModelFromStr);
 }
 
-list[str] allTests = ["adt", "alias", "assignment", "datadecl", "exp", "fields", "fundecl", "imports", "operators", "pat", "stats", "syntax"];
+list[str] allTests = ["adt", "alias", "assignment", "datadecl", "exp", "fields", "fundecl", 
+                     "imports", "operators", "pat", "scope", "stats", "syntax"];

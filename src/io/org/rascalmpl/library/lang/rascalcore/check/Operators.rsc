@@ -19,7 +19,7 @@ void collect(current: (Expression) `<Expression e> is <Name n>`, TBuilder tb){
              reportError(current, "Invalid type: expected node, ADT, or concrete syntax types, found <fmt(t1)>");
            });
     
-    collectParts(current, tb); 
+    collect(e, tb); 
 } 
 
 // ---- has
@@ -32,7 +32,7 @@ void collect(current: (Expression) `<Expression e> has <Name n>`, TBuilder tb){
              reportError(current, "Invalid type: expected relation, tuple, node or ADT types, found <fmt(t1)>");
            });
     
-    collectParts(current, tb); 
+    collect(e, tb); 
 } 
 
 // ---- transitive closure
@@ -41,7 +41,7 @@ void collect(current: (Expression) `<Expression arg> +`, TBuilder tb){
     tb.calculate("transitive closure", current, [arg],
         AType() { return computeTransClosureType(current, getType(arg)); });
     
-    collectParts(current, tb); 
+    collect(arg, tb); 
 } 
 
 AType computeTransClosureType(Expression current, AType t1){
@@ -71,7 +71,7 @@ void collect(current: (Expression) `<Expression arg> *`, TBuilder tb){
     tb.calculate("transitive clsoure", current, [arg],
         AType() { return computeReflexiveTransClosureType(current, getType(arg)); });
     
-    collectParts(current, tb); 
+    collect(arg, tb); 
 } 
 
 AType computeReflexiveTransClosureType(Expression current, AType t1){
@@ -100,7 +100,7 @@ AType computeReflexiveTransClosureType(Expression current, AType t1){
 
 void collect(current: (Expression) `<Expression arg> ?`, TBuilder tb){
     tb.fact(current, abool());
-    collectParts(current, tb); 
+    collect(arg, tb); 
 }
 
 // ---- negation
@@ -111,7 +111,7 @@ void collect(current: (Expression) `! <Expression arg>`, TBuilder tb){
         (){ t1 = getType(arg);
             if(!isBoolType(t1)) reportError(current, "Negation not defined on <fmt(t1)>");
         });
-    collectParts(current, tb); 
+    collect(arg, tb); 
 }
 
 // ---- negative
@@ -122,13 +122,14 @@ void collect(current: (Expression) `- <Expression arg>`, TBuilder tb){
                  if(isNumericType(t1)) return t1;
                  reportError(current, "Negative not defined on <fmt(t1)>");
         });
-    collectParts(current, tb); 
+    collect(arg, tb); 
 }
 // ---- splice
 
 void collect(current: (Expression) `* <Expression arg>`, TBuilder tb){
-    tb.calculate("splice", current, [arg], AType(){ return computeSpliceType(getType(arg)); });
-    collectParts(current, tb); 
+    tb.calculate("splice", current, [arg], AType(){ 
+        return computeSpliceType(getType(arg)); });
+    collect(arg, tb); 
 }
 
 AType computeSpliceType(AType t1){
@@ -147,10 +148,10 @@ void collect(current: (Expression)`[ <Type t> ] <Expression e>`, TBuilder tb){
     reqType = convertType(t, tb);
     
     tb.calculate("asType", current, [e],
-        AType() { subtype(getType(e), astr(), onError(e, "Expected str, instead found <fmt(getType(e))>"));
+        AType() { subtype(getType(e), astr()) || reportError(e, "Expected str, instead found <fmt(getType(e))>");
                   return expandUserTypes(reqType, scope);
                 });
-    collectParts(current, tb);
+    collect(e, tb);
 }
 
 
@@ -158,114 +159,112 @@ void collect(current: (Expression)`[ <Type t> ] <Expression e>`, TBuilder tb){
 
 void collect(current: (Expression) `<Expression lhs> o <Expression rhs>`, TBuilder tb){
     tb.calculate("composition", current, [lhs, rhs],  AType(){ return computeCompositionType(current, getType(lhs), getType(rhs)); });
-    collectParts(current, tb); 
+    collect(lhs, rhs, tb); 
 }
 
 AType computeCompositionType(Expression current, AType t1, AType t2){  
 
-//    // Special handling for list[void] and set[void], these should be treated as lrel[void,void]
-//    // and rel[void,void], respectively
-//    if (isListType(t1) && isVoidType(getListElementType(t1))) t1 = makeListRelType(makeVoidType(),makeVoidType());
-//    if (isListType(t2) && isVoidType(getListElementType(t2))) t2 = makeListRelType(makeVoidType(),makeVoidType());
-//    if (isSetType(t1) && isVoidType(getSetElementType(t1))) t1 = makeRelType(makeVoidType(),makeVoidType());
-//    if (isSetType(t2) && isVoidType(getSetElementType(t2))) t2 = makeRelType(makeVoidType(),makeVoidType());
-//    
-//    
-//    if (isMapType(t1) && isMapType(t2)) {
-//        if (subtype(getMapRangeType(t1),getMapDomainType(t2))) {
-//            return markLocationType(c, exp@\loc, makeMapType(stripLabel(getMapDomainType(t1)),stripLabel(getMapRangeType(t2))));
-//        } else {
-//            return markLocationFailed(c, exp@\loc, makeFailType("<prettyPrintType(getMapRangeType(t1))> must be a subtype of <prettyPrintType(getMapDomainType(t2))>", exp@\loc));
-//        }
-//    }
-//    
-//    if (isRelType(t1) && isRelType(t2)) {
-//        list[Symbol] lflds = getRelFields(t1);
-//        list[Symbol] rflds = getRelFields(t2);
-//        set[Symbol] failures = { };
-//        if (size(lflds) != 0 && size(lflds) != 2)
-//            failures += makeFailType("Relation <prettyPrintType(t1)> should have arity of 0 or 2", e1@\loc); 
-//        if (size(rflds) != 0 && size(rflds) != 2)
-//            failures += makeFailType("Relation <prettyPrintType(t2)> should have arity of 0 or 2", e2@\loc);
-//        if (!comparable(lflds[1],rflds[0]))
-//            failures += makeFailType("Range of relation <prettyPrintType(t1)> must be comparable to domain of relation <prettyPrintType(t1)>", exp@\loc);
-//        if (size(failures) > 0) return markLocationFailed(c, exp@\loc, failures);
-//        if (size(lflds) == 0 || size(rflds) == 0)
-//            return markLocationType(c, exp@\loc, \rel([]));
-//        else
-//            return markLocationType(c, exp@\loc, \rel([lflds[0],rflds[1]])); 
-//    }
-//
-//    if (isListRelType(t1) && isListRelType(t2)) {
-//        list[Symbol] lflds = getListRelFields(t1);
-//        list[Symbol] rflds = getListRelFields(t2);
-//        set[Symbol] failures = { };
-//        if (size(lflds) != 0 && size(lflds) != 2)
-//            failures += makeFailType("List relation <prettyPrintType(t1)> should have arity of 0 or 2", e1@\loc); 
-//        if (size(rflds) != 0 && size(rflds) != 2)
-//            failures += makeFailType("List relation <prettyPrintType(t2)> should have arity of 0 or 2", e2@\loc);
-//        if (!comparable(lflds[1],rflds[0]))
-//            failures += makeFailType("Range of list relation <prettyPrintType(t1)> must be comparable to domain of list relation <prettyPrintType(t1)>", exp@\loc);
-//        if (size(failures) > 0) return markLocationFailed(c, exp@\loc, failures);
-//        if (size(lflds) == 0 || size(rflds) == 0)
-//            return markLocationType(c, exp@\loc, \lrel([]));
-//        else
-//            return markLocationType(c, exp@\loc, \lrel([lflds[0],rflds[1]])); 
-//    }
-//
-//    if (isFunctionType(t1) && isFunctionType(t2)) {
-//        compositeArgs = getFunctionArgumentTypes(t2);
-//        compositeRet = getFunctionReturnType(t1);
-//        linkingArgs = getFunctionArgumentTypes(t1);
-//        
-//        // For f o g, f should have exactly one formal parameter
-//        if (size(linkingArgs) != 1) {
-//            ft = makeFailType("In a composition of two functions the leftmost function must have exactly one formal parameter.", exp@\loc);
-//            return markLocationFailed(c, exp@\loc, ft);
-//        }
-//        
-//        // and, that parameter must be of a type that a call with the return type of g would succeed
-//        linkingArg = linkingArgs[0];
-//        rightReturn = getFunctionReturnType(t2);
-//        if (!subtype(rightReturn, linkingArg)) {
-//            ft = makeFailType("The return type of the right-hand function, <prettyPrintType(rightReturn)>, cannot be passed to the left-hand function, which expects type <prettyPrintType(linkingArg)>", exp@\loc);
-//            return markLocationFailed(c, exp@\loc, ft);          
-//        }
-//        
-//        // If both of those pass, the result type is a function with the args of t2 and the return type of t1
-//        rt = Symbol::\func(compositeRet, compositeArgs,[]);
-//        return markLocationType(c, exp@\loc, rt);         
-//    }
-//    
-//    // Here, one or both types are overloaded functions, with at most one a normal function.
-//    if ((isOverloadedType(t1) || isFunctionType(t1)) && (isOverloadedType(t2) || isFunctionType(t2))) {
-//        // Step 1: get back all the type possibilities on the left and right
-//        leftFuns = (isFunctionType(t1)) ? { t1 } : (getNonDefaultOverloadOptions(t1) + getDefaultOverloadOptions(t1));
-//        rightFuns = (isFunctionType(t2)) ? { t2 } : (getNonDefaultOverloadOptions(t2) + getDefaultOverloadOptions(t2));
-//        
-//        // Step 2: filter out leftmost functions that cannot be used in compositions
-//        leftFuns = { f | f <- leftFuns, size(getFunctionArgumentTypes(f)) == 1 };
-//        
-//        // Step 3: combine the ones we can -- the return of the rightmost type has to be allowed
-//        // as the parameter for the leftmost type
-//        newFunTypes = { Symbol::\func(getFunctionReturnType(lf), getFunctionArgumentTypes(rf), []) |
-//            rf <- rightFuns, lf <- leftFuns, subtype(getFunctionReturnType(rf),getFunctionArgumentTypes(lf)[0]) };
-//            
-//        // Step 4: If we get an empty set, fail; if we get just 1, return that; if we get multiple possibilities,
-//        // return an overloaded type
-//        if (size(newFunTypes) == 0) {
-//            ft = makeFailType("The functions cannot be composed", exp@\loc);
-//            return markLocationFailed(c, exp@\loc, ft);
-//        } else if (size(newFunTypes) == 1) {
-//            return markLocationType(c, exp@\loc, getFirstFrom(newFunTypes));
-//        } else {
-//            // TODO: Do we need to keep track of defaults through all this? If so, do we compose default
-//            // and non-default functions?
-//            return markLocationType(c, exp@\loc, \overloaded(newFunTypes,{}));
-//        }
-//    }
-//
-//    return markLocationFailed(c, exp@\loc, makeFailType("Composition not defined for <prettyPrintType(t1)> and <prettyPrintType(t2)>", exp@\loc));
+    // Special handling for list[void] and set[void], these should be treated as lrel[void,void]
+    // and rel[void,void], respectively
+    if (isListType(t1) && isVoidType(getListElementType(t1))) t1 = makeListRelType(makeVoidType(),makeVoidType());
+    if (isListType(t2) && isVoidType(getListElementType(t2))) t2 = makeListRelType(makeVoidType(),makeVoidType());
+    if (isSetType(t1) && isVoidType(getSetElementType(t1))) t1 = makeRelType(makeVoidType(),makeVoidType());
+    if (isSetType(t2) && isVoidType(getSetElementType(t2))) t2 = makeRelType(makeVoidType(),makeVoidType());
+    
+    
+    if (isMapType(t1) && isMapType(t2)) {
+        if (subtype(getMapRangeType(t1),getMapDomainType(t2))) {
+            return makeMapType(getMapDomainType(t1),getMapRangeType(t2));
+        } else {
+            reportError(current, "<fmt(getMapRangeType(t1))> must be a subtype of <fmt(getMapDomainType(t2))>");
+        }
+    }
+    
+    if (isRelType(t1) && isRelType(t2)) {
+        list[AType] lflds = getRelFields(t1);
+        list[AType] rflds = getRelFields(t2);
+        set[AType] failures = { };
+        if (size(lflds) != 0 && size(lflds) != 2)
+            failures += error(e1, "Relation <fmt(t1)> should have arity of 0 or 2"); 
+        if (size(rflds) != 0 && size(rflds) != 2)
+            failures += error(e2, "Relation <fmt(t2)> should have arity of 0 or 2");
+        if (!comparable(lflds[1],rflds[0]))
+            failures += error(exp, "Range of relation <fmt(t1)> must be comparable to domain of relation <fmt(t1)>");
+        if (size(failures) > 0) return reportErrors(failures);
+        if (size(lflds) == 0 || size(rflds) == 0)
+            return arel(atypeList([]));
+        else
+            return arel(atypeList([lflds[0],rflds[1]])); 
+    }
+
+    if (isListRelType(t1) && isListRelType(t2)) {
+        list[AType] lflds = getListRelFields(t1);
+        list[AType] rflds = getListRelFields(t2);
+        set[AType] failures = { };
+        if (size(lflds) != 0 && size(lflds) != 2)
+            failures += error(e1, "List relation <fmt(t1)> should have arity of 0 or 2"); 
+        if (size(rflds) != 0 && size(rflds) != 2)
+            failures += error(e2, "List relation <fmt(t2)> should have arity of 0 or 2");
+        if (!comparable(lflds[1],rflds[0]))
+            failures += error(exp, "Range of list relation <fmt(t1)> must be comparable to domain of list relation <fmt(t1)>");
+        if (size(failures) > 0) return reportErrors(failures);
+        if (size(lflds) == 0 || size(rflds) == 0)
+            return alrel(atypeList([]));
+        else
+            return alrel(atypeList[lflds[0],rflds[1]]); 
+    }
+
+    //if (isFunctionType(t1) && isFunctionType(t2)) {
+    //    compositeArgs = getFunctionArgumentTypes(t2);
+    //    compositeRet = getFunctionReturnType(t1);
+    //    linkingArgs = getFunctionArgumentTypes(t1);
+    //    
+    //    // For f o g, f should have exactly one formal parameter
+    //    if (size(linkingArgs) != 1) {
+    //        reportError(exp, "In a composition of two functions the leftmost function must have exactly one formal parameter.");
+    //    }
+    //    
+    //    // and, that parameter must be of a type that a call with the return type of g would succeed
+    //    linkingArg = linkingArgs[0];
+    //    rightReturn = getFunctionReturnType(t2);
+    //    if (!subtype(rightReturn, linkingArg)) {
+    //        reportErrore(exp, "The return type of the right-hand function, <fmt(rightReturn)>, cannot be passed to the left-hand function, which expects type <fmt(linkingArg)>");          
+    //    }
+    //    
+    //    // If both of those pass, the result type is a function with the args of t2 and the return type of t1
+    //    rt = AType::\func(compositeRet, compositeArgs,[]);
+    //    return return rt;         
+    //}
+    //
+    //// Here, one or both types are overloaded functions, with at most one a normal function.
+    //if ((isOverloadedType(t1) || isFunctionType(t1)) && (isOverloadedType(t2) || isFunctionType(t2))) {
+    //    // Step 1: get back all the type possibilities on the left and right
+    //    leftFuns = (isFunctionType(t1)) ? { t1 } : (getNonDefaultOverloadOptions(t1) + getDefaultOverloadOptions(t1));
+    //    rightFuns = (isFunctionType(t2)) ? { t2 } : (getNonDefaultOverloadOptions(t2) + getDefaultOverloadOptions(t2));
+    //    
+    //    // Step 2: filter out leftmost functions that cannot be used in compositions
+    //    leftFuns = { f | f <- leftFuns, size(getFunctionArgumentTypes(f)) == 1 };
+    //    
+    //    // Step 3: combine the ones we can -- the return of the rightmost type has to be allowed
+    //    // as the parameter for the leftmost type
+    //    newFunTypes = { AType::\func(getFunctionReturnType(lf), getFunctionArgumentTypes(rf), []) |
+    //        rf <- rightFuns, lf <- leftFuns, subtype(getFunctionReturnType(rf),getFunctionArgumentTypes(lf)[0]) };
+    //        
+    //    // Step 4: If we get an empty set, fail; if we get just 1, return that; if we get multiple possibilities,
+    //    // return an overloaded type
+    //    if (size(newFunTypes) == 0) {
+    //        ft = makeFailType("The functions cannot be composed", exp@\loc);
+    //        return markLocationFailed(c, exp@\loc, ft);
+    //    } else if (size(newFunTypes) == 1) {
+    //        return markLocationType(c, exp@\loc, getFirstFrom(newFunTypes));
+    //    } else {
+    //        // TODO: Do we need to keep track of defaults through all this? If so, do we compose default
+    //        // and non-default functions?
+    //        return markLocationType(c, exp@\loc, \overloaded(newFunTypes,{}));
+    //    }
+    //}
+
+   reportError(current, "Composition not defined for <fmt(t1)> and <fmt(t2)>");
 
     return avalue();
 
@@ -275,7 +274,7 @@ AType computeCompositionType(Expression current, AType t1, AType t2){
 
 void collect(current: (Expression) `<Expression lhs> * <Expression rhs>`, TBuilder tb){
     tb.calculate("product", current, [lhs, rhs],  AType(){ return computeProductType(current, getType(lhs), getType(rhs)); });
-    collectParts(current, tb); 
+    collect(lhs, rhs, tb); 
 }
 
 AType computeProductType(Tree current, AType t1, AType t2){    
@@ -297,7 +296,7 @@ AType computeProductType(Tree current, AType t1, AType t2){
 
 void collect(current: (Expression) `<Expression lhs> join <Expression rhs>`, TBuilder tb){
     tb.calculate("join", current, [lhs, rhs], AType(){ return computeJoinType(current, getType(lhs), getType(rhs)); });
-    collectParts(current, tb); 
+    collect(lhs, rhs, tb); 
 }
 
 AType computeJoinType(Expression current, AType t1, AType t2){     
@@ -351,14 +350,14 @@ void collect(current: (Expression) `<Expression lhs> % <Expression rhs>`, TBuild
                  if(isIntType(t1) && isIntType(t2)) return lub(t1, t2);
                  reportError(current, "Remainder not defined on <fmt(t1)> and <fmt(t2)>");
         });
-    collectParts(current, tb); 
+    collect(lhs, rhs, tb); 
 }
 
 // ---- division
 
 void collect(current: (Expression) `<Expression lhs> / <Expression rhs>`, TBuilder tb){
     tb.calculate("division", current, [lhs, rhs], AType(){ return computeDivisionType(current, getType(lhs), getType(rhs));  });
-    collectParts(current, tb); 
+    collect(lhs, rhs, tb); 
 }
 
 AType computeDivisionType(Tree current, AType t1, AType t2){
@@ -370,7 +369,7 @@ AType computeDivisionType(Tree current, AType t1, AType t2){
 
 void collect(current: (Expression) `<Expression lhs> & <Expression rhs>`, TBuilder tb){
     tb.calculate("intersection", current, [lhs, rhs], AType() { return computeIntersectionType(current, getType(lhs), getType(rhs)); });
-    collectParts(current, tb);
+    collect(lhs, rhs, tb);
 }
 
 AType computeIntersectionType(Tree current, AType t1, AType t2){
@@ -404,7 +403,7 @@ void collect(current: (Expression) `<Expression lhs> + <Expression rhs>`, TBuild
     tb.calculate("addition", current, [lhs, rhs], AType() { 
         return computeAdditionType(current, getType(lhs), getType(rhs)); 
         });
-    collectParts(current, tb); 
+    collect(lhs, rhs, tb); 
 }
 
 default AType computeAdditionType(Tree current, AType t1, AType t2) {
@@ -488,7 +487,7 @@ default AType computeAdditionType(Tree current, AType t1, AType t2) {
 
 void collect(current: (Expression) `<Expression lhs> - <Expression rhs>`, TBuilder tb){
     tb.calculate("subtraction", current, [lhs, rhs], AType() { return computeSubtractionType(current, getType(lhs), getType(rhs)); });
-    collectParts(current, tb); 
+    collect(lhs, rhs, tb); 
 }
 
 AType computeSubtractionType(Tree current, AType t1, AType t2) { 
@@ -521,37 +520,6 @@ AType computeSubtractionType(Tree current, AType t1, AType t2) {
     reportError(current, "Subtraction not defined on <fmt(t1)> and <fmt(t2)>");
 }
 
-//AType computeSubtractionType(Expression exp, t1:alist(_), AType t2) { 
-//    if(isListType(t2)){
-//        if(comparable(getListElementType(t1),getListElementType(t2))) return t1;
-//        reportError(exp, "<isListRelType(t1) ? "List Relation" : "List"> of type <fmt(t1)> could never contain elements of second <isListRelType(t2) ? "List Relation" : "List"> type <fmt(t2)>");
-//    }
-//    if(comparable(getListElementType(t1),t2)) return t1;
-//    reportError(exp, "<isListRelType(t1) ? "List Relation" : "List"> of type <fmt(t1)> could never contain elements of type <fmt(t2)>");
-//}
-//
-//AType computeSubtractionType(t1:aset(_), AType t2) { 
-//    if(issetType(t2)){
-//        if(comparable(getSetElementType(t1),getSetElementType(t2))) return t1;
-//        reportError(exp, "<isRelType(t1) ? "Relation" : "Set"> of type <fmt(t1)> could never contain elements of second <isListRelType(t2) ? "Relation" : "Set"> type <fmt(t2)>");
-//    }
-//    if(comparable(getSetElementType(t1),t2)) return t1;
-//    reportError(exp, "<isRelType(t1) ? "Relation" : "Set"> of type <fmt(t1)> could never contain elements of type <fmt(t2)>");
-//}
-//
-//AType computeSubtractionType(t1:amap(_,_), t2:amap(_,_)) { 
-//    if(comparable(t1, t2)) return t1;
-//    reportError(exp, "Map of type <fmt(t1)> could never contain a sub-map of type <fmt(t2)>");
-//}
-//
-//default AType computeSubtractionType(Expression exp, AType t1, AType t2){
-//    if(isNumericType(t1) && isNumericType(t2)){
-//        return lub(t1, t2);
-//    }
-//    reportError(exp, "Subtraction not defined on <fmt(t1)> and <fmt(t2)>");
-//
-//}
-
 // ---- appendAfter
 
 void collect(current: (Expression) `<Expression lhs> \<\< <Expression rhs>`, TBuilder tb){
@@ -560,9 +528,9 @@ void collect(current: (Expression) `<Expression lhs> \<\< <Expression rhs>`, TBu
                  if (isListType(t1)) {
                     return makeListType(lub(getListElementType(t1),t2));
                  }
-                reportError("Expected a list type, not type <fmt(t1)>");
+                 reportError("Expected a list type, not type <fmt(t1)>");
         });
-    collectParts(current, tb); 
+    collect(lhs, rhs, tb); 
 }
 
 // ---- insertBefore
@@ -573,10 +541,9 @@ void collect(current: (Expression) `<Expression lhs> \>\> <Expression rhs>`, TBu
                  if (isListType(t2)) {
                     return makeListType(lub(getListElementType(t2),t1));
                  }
-
-                reportError("Expected a list type, not type <fmt(t2)>");
+                 reportError("Expected a list type, not type <fmt(t2)>");
         });
-    collectParts(current, tb); 
+    collect(lhs, rhs, tb); 
 }
 
 // ---- modulo
@@ -587,9 +554,9 @@ void collect(current: (Expression) `<Expression lhs> mod <Expression rhs>`, TBui
                  if (isIntType(t1) && isIntType(t2)) {
                     return aint();
                  }
-                reportError("Modulo not defined on <fmt(t1)> and <fmt(t2)>");
+                 reportError("Modulo not defined on <fmt(t1)> and <fmt(t2)>");
         });
-    collectParts(current, tb); 
+    collect(lhs, rhs, tb); 
 }
 
 // ---- notin
@@ -597,31 +564,26 @@ void collect(current: (Expression) `<Expression lhs> mod <Expression rhs>`, TBui
 void collect(current: (Expression) `<Expression lhs> notin <Expression rhs>`, TBuilder tb){
     tb.fact(current, abool());
     tb.require("notin", current, [lhs, rhs], () { checkInType(current, getType(lhs), getType(rhs)); });
-    collectParts(current, tb); 
+    collect(lhs, rhs, tb); 
 }
 
 void checkInType(Expression current, AType t1, AType t2){
 
     if (isRelType(t2)) {
         et = getRelElementType(t2);
-        if (!comparable(t1,et))
-            reportError(current, "Cannot compare <fmt(t1)> with element type of <fmt(t2)>");
+        if (!comparable(t1,et)) reportError(current, "Cannot compare <fmt(t1)> with element type of <fmt(t2)>");
     } else if (isSetType(t2)) {
         et = getSetElementType(t2);
-        if (!comparable(t1,et))
-            reportError(current, "Cannot compare <fmt(t1)> with element type of <fmt(t2)>");
+        if (!comparable(t1,et)) reportError(current, "Cannot compare <fmt(t1)> with element type of <fmt(t2)>");
     } else if (isMapType(t2)) {
         et = getMapDomainType(t2);
-        if (!comparable(t1,et))
-            reportError(current, "Cannot compare <fmt(t1)> with domain type of <fmt(t2)>");
+        if (!comparable(t1,et)) reportError(current, "Cannot compare <fmt(t1)> with domain type of <fmt(t2)>");
     } else if (isListRelType(t2)) {
         et = getListRelElementType(t2);
-        if (!comparable(t1,et))
-            reportError(current, "Cannot compare <fmt(t1)> with element type of <fmt(t2)>");
+        if (!comparable(t1,et)) reportError(current, "Cannot compare <fmt(t1)> with element type of <fmt(t2)>");
     } else if (isListType(t2)) {
         et = getListElementType(t2);
-        if (!comparable(t1,et))
-            reportError(current, "Cannot compare <fmt(t1)> with element type of <fmt(t2)>");
+        if (!comparable(t1,et)) reportError(current, "Cannot compare <fmt(t1)> with element type of <fmt(t2)>");
     } else {
         reportError(current, "in or notin not defined for <fmt(t1)> and <fmt(t2)>");
     }
@@ -632,7 +594,7 @@ void checkInType(Expression current, AType t1, AType t2){
 void collect(current: (Expression) `<Expression lhs> in <Expression rhs>`, TBuilder tb){
     tb.fact(current, abool());
     tb.require("in", current, [lhs, rhs], () { checkInType(current, getType(lhs), getType(rhs)); });
-    collectParts(current, tb); 
+    collect(lhs, rhs, tb); 
 }
 
 // ---- comparisons >=, <=, <, >, ==, !=
@@ -657,17 +619,18 @@ void collect(current: (Expression) `<Expression lhs> != <Expression rhs>`, TBuil
 
 void checkComparisonOp(str op, Expression current, TBuilder tb){
     tb.fact(current, abool());
-    tb.require("comparison <fmt(op)>", current, [current.lhs, current.rhs],
-        (){ if(!checkComparisonArgs(getType(current.lhs), getType(current.rhs))) 
-               reportError(current, "Comparison <fmt(op)> not defined on <fmt(current.lhs)> and <fmt(current.rhs)>");
+    tb.requireEager("comparison <fmt(op)>", current, [current.lhs, current.rhs],
+       (){ if(!checkComparisonArgs(getType(current.lhs), getType(current.rhs))) 
+                    reportError(current, "Comparison <fmt(op)> not defined on <fmt(current.lhs)> and <fmt(current.rhs)>");
+                 //return abool();
           });
-    collectParts(current, tb);
+    collect([current.lhs, current.rhs], tb);
 }
 
 default bool checkComparisonArgs(AType t1, AType t2){
      if(t1.label?) t1 = unset(t1, "label");
      if(t2.label?) t2 = unset(t2, "label");
-     if(t1 == t2 || (subtype(t1, anum()) && subtype(t2, anum())))
+     if(comparable(t1, t2) || (subtype(t1, anum()) && subtype(t2, anum())))
         return true;
         
      if(t1 == avoid() || t2 == avoid())
@@ -696,7 +659,7 @@ default bool checkComparisonArgs(AType t1, AType t2){
 
 void collect(current: (Expression) `<Expression e1> ? <Expression e2>`, TBuilder tb) {    
     tb.calculate("if defined", current, [e1, e2], AType(){ return lub(getType(e1), getType(e2)); });
-    collectParts(current, tb);
+    collect(e1, e2, tb);
 }
 
 // ---- noMatch
@@ -711,140 +674,58 @@ void collect(current: (Expression) `<Pattern pat> := <Expression expression>`, T
 }
 
 void computeMatchPattern(Expression current, Pattern pat, str operator, Expression expression, TBuilder tb){
-    tb.fact(current, abool());
+    //tb.fact(current, abool());
     scope = tb.getScope();
-    if(pat is  qualifiedName){
-        name = pat.qualifiedName;
-        tau = tb.newTypeVar();
-        tb.define(unescape("<name>"), variableId(), name, defLub([expression], AType(){ return getType(expression); }));
-        tb.requireEager("match (<operator>) variable `<name>`", current, [expression],
-                () { etype = getType(expression);
-                     unify(etype, getType(name), onError(pat, "Type of pattern could not be computed"));
-                     comparable(etype, getType(name), onError(current, "Incompatible type in match (<operator>) using `<name>`")); 
-                   });  
-    } else {
-        tb.requireEager("match", current, [pat,expression],
-           () {  ptype = getType(pat); etype = getType(expression);
-                 println("match: <ptype>, <etype>");
-                 if(overloadedAType(rel[Key, IdRole, AType] overloads) := ptype){
-                    if((Pattern)`<Pattern patexpression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )` := pat){   
-                        pats = [ p | Pattern p <- arguments ];
-                        for(<key, idr, tp> <- overloads){
-                            if(acons(adtType:aadt(adtName, list[AType] parameters), str consName, lrel[AType fieldType, str fieldName] fields, lrel[AType fieldType, str fieldName, Expression defaultExp] kwFields) := tp){
-                                if(!comparable(adtType, etype)) continue;
-                                nactuals = size(pats); nformals = size(fields);
-                                if(nactuals != nformals) continue next_cons;
-                                Bindings bindings = ();
-                                type_expanded_pats = [avoid() | int i <- index(pats)];
-                                for(int i <- index(fields)){
-                                    if("<pats[i]>" != "_"){
-                                        type_expanded_pat_i =  expandUserTypes(getType(pats[i]), scope);
-                                        if(isFullyInstantiated(type_expanded_pat_i)){
-                                            try {
-                                                 bindings = matchRascalTypeParams(fields[i].fieldType, type_expanded_pat_i, bindings, bindIdenticalVars=true);
-                                            } catch invalidMatch(str reason): {
-                                                 continue next_cons;
-                                            }
-                                            ifieldType = fields[i].fieldType;
-                                            
-                                            try {
-                                               // println("<i>: <fields[i].fieldType>");
-                                                ifieldType = instantiateRascalTypeParams(fields[i].fieldType, bindings);
-                                                //println("instantiation gives: <ifieldType>");
-                                            } catch invalidInstantiation(str msg): {
-                                                //println("instantiation fails");
-                                                continue next_cons;
-                                            }
-                                            ifieldType = expandUserTypes(ifieldType, scope);
-                                            if(!comparable(type_expanded_pat_i, ifieldType)) continue next_cons;
-                                        } else {
-                                           if(!unify(type_expanded_pat_i, fields[i].fieldType)) continue next_cons;
-                                           type_expanded_pats[i] = instantiate(type_expanded_pat_i);
-                                        } 
-                                    } 
-                                }
-                                try { 
-                                    checkKwArgs(kwFields, keywordArguments, bindings, scope);
-                                } catch checkFailed(set[Message] msgs):
-                                    continue next_cons;
-                                
-                                try {
-                                    adtType = instantiateRascalTypeParams(adtType, bindings);
-                                    println("match: pat =\> <adtType>");
-                                    fact(pat, adtType);
-                                    for(int i <- index(type_expanded_pats), type_expanded_pats[i] != avoid()){
-                                        println("<getType(pats[i])>, ins: <type_expanded_pats[i]>");
-                                        instantiate(type_expanded_pats[i]);
-                                    }
-                                    return;
-                                } catch invalidInstantiation(str msg): {
-                                    continue next_cons;
-                                }
-                            }
-                    }
-                    reportError(current, "No function or constructor <"<expression>"> for arguments <fmt(pats)>");
-                }
+    tb.calculateEager("match", current, [expression],
+       AType () {
+            subjectType = getType(expression);
+            patType = getPatternType(pat, subjectType, scope);
+            instantiate(subjectType);
+            if(!isFullyInstantiated(patType) || !isFullyInstantiated(subjectType)){
+                unify(patType, subjectType) || reportError(pat, "Type of pattern could not be computed");
+                ipatType = instantiate(patType);
+                if(tvar(src) := patType) fact(src, ipatType);
+                patType = ipatType;
+                isubjectType = instantiate(subjectType);
+                //if(tvar(src) := subjectType) fact(src, isubjectType);
+                subjectType = isubjectType;
+                //clearBindings();
             }
-            else if(isFullyInstantiated(ptype) && isFullyInstantiated(etype)){
-                    comparable(ptype, etype, onError(current, "Cannot match (<operator>) <fmt(pat)> pattern with <fmt(expression)> subject"));
-            } else {
-                    unify(ptype, etype, onError(pat, "Type of <operator> pattern could not be computed"));
-                    ptype = instantiate(ptype);
-                    etype = instantiate(etype);
-                    println("ptype becomes: <ptype>");
-                    println("etype becomes: <etype>");
-                    // add comparable?
-                    fact(pat, ptype);
-                    fact(expression, etype);
-            }
-                
-               });
-    }
-    collectParts(current, tb);
+            comparable(patType, subjectType) || reportError(current, "Pattern should be comparable with <fmt(subjectType)>, found <fmt(patType)>");
+            return abool();
+        });
+    collect(pat, expression, tb);
 }
 
 // ---- enumerator
 
 void collect(current: (Expression) `<Pattern pat> \<- <Expression expression>`, TBuilder tb){
 
-    tb.fact(current, abool());
-    
-    if(pat is  qualifiedName){
-        name = pat.qualifiedName;
-        tau = tb.newTypeVar();
-        tb.define(unescape("<name>"), variableId(), name, defLub([], AType(){ return getType(tau); }));
-        
-        tb.calculateEager("enumeration variable `<name>`", name, [expression],
-           AType () { 
-                     ptype = getType(expression); 
-                      etype = getType(expression);
-                     try {
-                        //if(/*!isFullyInstantiated(ptype) ||*/ !isFullyInstantiated(etype)){
-                        //   unify(ptype, etype, onError(pat, "Type of pattern could not be computed"));
-                        //   ptype = instantiate(ptype);
-                        //   etype = instantiate(etype);
-                        //}   
-                        elmType = computeEnumeratorElementType(current, etype);
-                        unify(tau, elmType, onError(name, "XXX"));
-                        return elmType;
-                        //subtype(getType(name), elmType, onError(pat, "Type of pattern could not be computed"));
-                     } catch checkFailed(set[str] msgs): {
-                             reportErrors(current, msgs);
-                     }
-                  });  
-    } else {
-        tb.requireEager("enumeration", current, [expression],
-            () { ptype = getType(pat); etype = getType(expression);
-                 elmType = avalue();
-                 elmType = computeEnumeratorElementType(current, etype);   
-                 
-                 if(!isFullyInstantiated(ptype)){
-                    unify(ptype, elmType, onError(pat, "Type of pattern could not be computed"));
-                 }      
-                 subtype(instantiate(ptype), elmType, onError(pat, "Pattern of <fmt(getType(pat))> cannot be used to enumerate over <fmt(getType(expression))>"));
-               });
-    }
-    collectParts(current, tb);
+    //tb.fact(current, abool());
+    scope = tb.getScope();
+    tb.calculateEager("enumeration", current, [expression],
+       AType () { 
+             exprType = getType(expression);
+             elmType = avalue();
+             elmType = computeEnumeratorElementType(current, exprType); 
+             patType = getPatternType(pat, elmType, scope);   
+             
+             if(!isFullyInstantiated(patType) || !isFullyInstantiated(elmType)){
+                unify(patType, elmType) || reportError(pat, "Type of pattern could not be computed");
+                ipatType = instantiate(patType);
+                if(tvar(src) := patType) fact(src, ipatType);
+                patType = ipatType;
+                ielmType = instantiate(elmType);
+                if(tvar(src) := elmType) fact(src, ielmType);
+                elmType = ielmType;
+                //clearBindings();
+             }  else {
+                    fact(pat, patType);
+             }     
+             comparable(patType, elmType) || reportError(pat, "Pattern of type <fmt(patType)> cannot be used to enumerate over <fmt(exprType)>");
+             return abool();
+           });
+    collect(pat, expression, tb);
 }
 
 @doc{Check the types of Rascal expressions: Enumerator}
@@ -881,22 +762,27 @@ void collect(current: (Expression) `<Expression lhs> ==\> <Expression rhs>`, TBu
     tb.fact(current, abool());
    
     tb.requireEager("implication", current, [lhs, rhs],
-        (){ if(!unify(abool(), getType(lhs))) reportError(lhs, "Argument of ==\> should be `bool`, found <fmt(lhs)>");
-            if(!unify(abool(), getType(rhs))) reportError(rhs, "Argument of ==\> should be `bool`, found <fmt(rhs)>");
+        (){ unify(abool(), getType(lhs)) || reportError(lhs, "Argument of ==\> should be `bool`, found <fmt(lhs)>");
+            //clearBindings();
+            unify(abool(), getType(rhs)) || reportError(rhs, "Argument of ==\> should be `bool`, found <fmt(rhs)>");
+            //clearBindings();
           });
-    collectParts(current, tb);
+    collect(lhs, rhs, tb);
 }
 
 // ---- equivalence
 
 void collect(current: (Expression) `<Expression lhs> \<==\> <Expression rhs>`, TBuilder tb){
-    tb.fact(current, abool());
+    //tb.fact(current, abool());
    
-    tb.requireEager("equivalence", current, [lhs, rhs],
-        (){ if(!unify(abool(), getType(lhs))) reportError(lhs, "Argument of \<==\> should be `bool`, found <fmt(lhs)>");
-            if(!unify(abool(), getType(rhs))) reportError(rhs, "Argument of \<==\> should be `bool`, found <fmt(rhs)>");
-          });
-    collectParts(current, tb);
+    tb.calculateEager("equivalence", current, [lhs, rhs],
+        AType (){ unify(abool(), getType(lhs)) || reportError(lhs, "Argument of \<==\> should be `bool`, found <fmt(lhs)>");
+                  //clearBindings();
+                  unify(abool(), getType(rhs)) || reportError(rhs, "Argument of \<==\> should be `bool`, found <fmt(rhs)>");
+                  //clearBindings();
+                  return abool();
+                });
+    collect(lhs, rhs, tb);
 }
 
 // ---- and
@@ -905,10 +791,13 @@ void collect(current: (Expression) `<Expression lhs> && <Expression rhs>`, TBuil
     tb.fact(current, abool());
    
     tb.requireEager("and", current, [lhs, rhs],
-        (){ if(!unify(abool(), getType(lhs))) reportError(lhs, "Argument of && should be `bool`, found <fmt(lhs)>");
-            if(!unify(abool(), getType(rhs))) reportError(rhs, "Argument of && should be `bool`, found <fmt(rhs)>");
+        (){ 
+            unify(abool(), getType(lhs)) || reportError(lhs, "Argument of && should be `bool`, found <fmt(lhs)>");
+            //clearBindings();
+            unify(abool(), getType(rhs)) || reportError(rhs, "Argument of && should be `bool`, found <fmt(rhs)>");
+            //clearBindings();
           });
-    collectParts(current, tb);
+    collect(lhs, rhs, tb);
 }
 
 // ---- or
@@ -917,25 +806,31 @@ void collect(current: (Expression) `<Expression lhs> || <Expression rhs>`, TBuil
     tb.fact(current, abool());
       
     tb.requireEager("or", current, [lhs, rhs],
-        (){ if(!unify(abool(), getType(lhs))) reportError(lhs, "Argument of || should be `bool`, found <fmt(lhs)>");
-            if(!unify(abool(), getType(rhs))) reportError(rhs, "Argument of || should be `bool`, found <fmt(rhs)>");
+        (){ unify(abool(), getType(lhs)) || reportError(lhs, "Argument of || should be `bool`, found <fmt(lhs)>");
+            //clearBindings();
+            unify(abool(), getType(rhs)) || reportError(rhs, "Argument of || should be `bool`, found <fmt(rhs)>");
+            //clearBindings();
             // TODO: check that lhs and rhs introduce the same set of variables
           });
-    collectParts(current, tb);
+    collect(lhs, rhs, tb);
 }
 
 // ---- if expression
 
-void collect(current: (Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`,  TBuilder tb){
+void collect(current: (Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`, TBuilder tb){
     tb.enterScope(condition);   // thenExp may refer to variables defined in conditions; elseExp may not
         storeExcludeUse(condition, elseExp, tb);            // variable occurrences in elseExp may not refer to variables defined in condition
         
         tb.calculateEager("if expression", current, [condition, thenExp, thenExp],
             AType (){
-                if(!unify(abool(), getType(condition))) reportError(condition, "Condition should be `bool`, found <fmt(condition)>");
+                unify(abool(), getType(condition)) || reportError(condition, "Condition should be `bool`, found <fmt(condition)>");
+                //clearBindings();
                 //checkConditions([condition]);
                 return lub(getType(thenExp), getType(thenExp));
             });
-        collectParts(current, tb);
+        beginPatternScope("conditions", tb);
+        collect(condition, tb);
+        endPatternScope(tb);
+        collect(thenExp, elseExp, tb);
     tb.leaveScope(condition); 
 }

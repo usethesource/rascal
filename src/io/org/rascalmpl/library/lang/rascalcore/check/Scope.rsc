@@ -52,7 +52,7 @@ data DefInfo(Vis vis = publicVis());
 
 // Productions and Constructor fields; common Keyword fields
 data DefInfo(set[AProduction] productions = {}, 
-             rel[str fieldName, AType fieldType] constructorFields = {},
+             set[NamedField] constructorFields = {},
              list[Keyword] commonKeywordFields = []
              );
 
@@ -60,14 +60,14 @@ data DefInfo(set[AProduction] productions = {},
 private str key_exclude_use = "exclude_use";
 
 void storeExcludeUse(Tree cond, Tree excludedPart, TBuilder tb){
-    tb.store(key_exclude_use, <getLoc(cond), getLoc(excludedPart)>);
+    tb.push(key_exclude_use, <getLoc(cond), getLoc(excludedPart)>);
 }
 
 // Maintain allow before use: where variables may be used left (before) their definition
 private str key_allow_use_before_def = "allow_use_before_def";
 
 void storeAllowUseBeforeDef(Tree container, Tree allowedPart, TBuilder tb){
-    tb.store(key_allow_use_before_def, <getLoc(container), getLoc(allowedPart)>);
+    tb.push(key_allow_use_before_def, <getLoc(container), getLoc(allowedPart)>);
 }
 
 // Define the name overloading that is allowed
@@ -81,7 +81,7 @@ bool myMayOverload(set[Key] defs, map[Key, Define] defines){
            || idRoles <= {annoId()}
            ;
     
-    //println("myMayOverload ==\> <res>");
+   // println("myMayOverload ==\> <res>");
     return res;
 }
 
@@ -89,37 +89,34 @@ bool myMayOverload(set[Key] defs, map[Key, Define] defines){
 
 Accept isAcceptableSimple(TModel tm, Key def, Use use){
     //println("isAcceptableSimple: <use.id> def=<def>, use=<use>");
-    res = acceptBinding();
-
+ 
     if(variableId() in use.idRoles){
        // enforce definition before use
        if(def.path == use.occ.path && /*def.path == use.scope.path &&*/ def < use.scope){
           if(use.occ.offset < def.offset){
              // allow when inside explicitly use before def parts
-             if(rel[Key,Key] allowedParts := tm.store[key_allow_use_before_def]){
-                 set[Key] parts = allowedParts[use.scope];
+             if(lrel[Key,Key] allowedParts := tm.store[key_allow_use_before_def] ? []){
+                 list[Key] parts = allowedParts[use.scope];
                  if(!isEmpty(parts)){
                     if(any(part <- parts, use.occ < part)){
-                       return res;
+                       return acceptBinding();
                     }
                   } else {
-                    res = ignoreContinue();
-                    //println("isAcceptableSimple =\> <res>");
-                    return res;
+                   //println("isAcceptableSimple =\> <ignoreContinue()>");
+                   return ignoreContinue();
                  }
              } else {
                 throw "Inconsistent value stored for <key_allow_use_before_def>: <tm.store[key_allow_use_before_def]>";
              }
           }
           // restrict when in excluded parts of a scope
-          if(rel[Key,Key] excludedParts := tm.store[key_exclude_use]){
-              set[Key] parts = excludedParts[use.scope];
+          if(lrel[Key,Key] excludedParts := tm.store[key_exclude_use] ? []){
+              list[Key] parts = excludedParts[use.scope];
               //println("parts = <parts>, <any(part <- parts, use.occ < part)>");
               if(!isEmpty(parts)){
                  if(any(part <- parts, use.occ < part)){
-                    res = ignoreContinue();
-                   //println("isAcceptableSimple =\> <res>");
-                   return res;
+                    //println("isAcceptableSimple =\> <ignoreContinue()>");
+                    return ignoreContinue();
                  }
               } 
           } else {
@@ -127,8 +124,8 @@ Accept isAcceptableSimple(TModel tm, Key def, Use use){
           }
        }
     }
-    //println("isAcceptableSimple =\> <res>");
-    return res;
+    //println("isAcceptableSimple =\> < acceptBinding()>");
+    return  acceptBinding();
 }
 
 Accept isAcceptablePath(TModel tm, Key defScope, Key def, Use use, PathRole pathRole) {

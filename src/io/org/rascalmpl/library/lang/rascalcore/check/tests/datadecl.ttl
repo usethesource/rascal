@@ -104,7 +104,8 @@ test P2 [[ module A
            data D[&T] = d1(str s, &T x) | d1(&T n, list[&T] l = [n]);
 
            value main() { d1(1, l=["a"]) := d1(1); }
-]] expect { "No function or constructor d1 for arguments `int`" }
+]] expect { "Keyword argument `l` has type `list[str]`, expected `list[int]`" }
+
 
 test P3 [[ module A
            data D[&T] = d1(str s, &T x) | d1(&T n, list[&T] l = [n]);
@@ -112,8 +113,9 @@ test P3 [[ module A
            value main() { d1("a", 3) := d1(1); }
 ]]
 
+
 test P4 [[ module A
            data D[&T] = d1(str s, &T x) | d1(&T n, list[&T] l = [n]);
 
            value main() { d1("a", "b") := d1(1); }
-]] expect { "Cannot match (:=) `D[str]` pattern with `D[int]` subject" }
+]] expect { "Pattern should be comparable with `D[int]`, found `D[str]`" }

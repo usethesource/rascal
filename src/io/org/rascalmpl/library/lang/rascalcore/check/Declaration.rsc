@@ -25,6 +25,7 @@ void collect(current: (Module) `<Header header> <Body body>`, TBuilder tb){
     tb.define(mname, moduleId(), current, defType(amodule(mname)));
     tb.enterScope(current);
         collectParts(current, tb);
+        //collect(header, body, tb);
     tb.leaveScope(current);
     getImports(tb);
 }
@@ -35,26 +36,26 @@ str unescape(str s) = replaceAll(s, "\\", "");
 
 void collect(current: (Import) `import <ImportedModule m> ;`, TBuilder tb){ // TODO: warn about direct self-import
     tb.useViaPath(m, {moduleId()}, importPath());
-    tb.store(key_imported, unescape("<m.name>"));
+    tb.push(key_imported, unescape("<m.name>"));
 }
 
 void getImports(TBuilder tb){
     // Do not expand imports, while we are already doing that
-    if(!isEmpty(tb.getStored(key_expanding_imports)))   return;
+    if(!isEmpty(tb.getStack(key_expanding_imports)))   return;
     
-    pcfgVal = tb.getStored("pathconfig");
+    pcfgVal = tb.getStack("pathconfig");
     
-    if({PathConfig pcfg} := pcfgVal){ 
+    if([PathConfig pcfg] := pcfgVal){ 
         allReadyImported = {};
-        tb.store(key_expanding_imports, true);
+        tb.push(key_expanding_imports, true);
         solve(allReadyImported){
-            if(set[str] importedModules := tb.getStored(key_imported)){
+            if(list[str] importedModules := tb.getStack(key_imported)){
                 println("importedModules: <importedModules>");
-                for(mname <- importedModules - allReadyImported){
+                for(mname <- toSet(importedModules) - allReadyImported){
                     allReadyImported += mname;
                     println("*** importing <mname>");
-                    done = addImport(mname, pcfg, tb);
-                    if(!done){
+                    reuse = addImport(mname, pcfg, tb);
+                    if(!reuse){
                         mloc = getModuleLocation(mname, pcfg);
                         println("*** importing <mname> from <mloc>");
                         pt = parse(#start[Modules], mloc).top;
@@ -62,14 +63,15 @@ void getImports(TBuilder tb){
                     }
                 }
             } else {
-                throw "Inconsistent value for \"imported\": <tb.getStored("imported")>";
+                throw "Inconsistent value for \"imported\": <tb.getStack("imported")>";
             }
+    
         }
     
     } else if(isEmpty(pcfgVal)){
         return;
     } else {
-        throw "Inconsistent value for \"pathconfig\": <tb.getStored("pathconfig")>";
+        throw "Inconsistent value for \"pathconfig\": <tb.getStack("pathconfig")>";
     }
 }
 
@@ -78,7 +80,7 @@ void getImports(TBuilder tb){
 void collect(current: (Import) `extend <ImportedModule m> ;`, TBuilder tb){    
     tb.useViaPath(m, {moduleId()}, extendPath());
     
-    tb.store(key_imported, unescape("<m.name>"));
+    tb.push(key_imported, unescape("<m.name>"));
 }
 
 // ---- variable declaration
@@ -92,7 +94,7 @@ Vis getVis((Visibility) ``)         = defaultVis();
 void() makeVarInitRequirement(Expression expr, AType initType, Key scope)
     = () { 
            expandedInitType = expandUserTypes(initType, scope);
-           subtype(getType(expr), expandedInitType, onError(expr, "Type of initialization should be subtype of <fmt(initType)>, found <fmt(expr)>"));
+           subtype(getType(expr), expandedInitType) || reportError(expr, "Type of initialization should be subtype of <fmt(initType)>, found <fmt(expr)>");
          };
          
 void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type \type> <{Variable ","}+ variables> ;`, TBuilder tb){
@@ -113,12 +115,13 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type \
                 catch TypeUnavailable(): reportError(current.\type, "Undeclared type <fmt("<current.\type>")>");
             });
         if(var is initialized){
-            tb.enterScope(var.initial, lubScope=true);
+            if(!(var.initial is closure)) tb.enterScope(var.initial, lubScope=true);
                 tb.require("variable initialization", var.initial, [], makeVarInitRequirement(var.initial, varType, tb.getScope()));
                 collect(var.initial, tb); 
-            tb.leaveScope(var.initial);
+            if(!(var.initial is closure)) tb.leaveScope(var.initial);
         }
-    }    
+    }  
+    collect(tags, tb);  
 }
 
 // ---- annotation
@@ -136,7 +139,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
     dt = defType([], AType() { return aanno(qname.name, expandUserTypes(ot, scope), expandUserTypes(at, scope)); });
     dt.vis=vis;
     tb.define(qname.name, annoId(), name, dt);
-    collectParts(current, tb); 
+    //collect(current, tb); 
 }
  
 
@@ -154,7 +157,8 @@ void collect(FunctionDeclaration decl, TBuilder tb){
     isVarArgs = signature.parameters is varArgs;
     fname = signature.name;
     ftypeStub = tb.newTypeVar();
-    dt = defType([ftypeStub], AType() { return getType(ftypeStub); });
+    //dt = defType([ftypeStub], AType() { return getType(ftypeStub); });
+    dt = defType(ftypeStub);
     dt.vis=vis;  // TODO: Cannot be set directly, bug in interpreter?
     tb.define(prettyPrintQName(convertName(fname)), functionId(), fname, dt);     // function is defined in outer scope, its type is filled in in inner scope
     
@@ -165,11 +169,12 @@ void collect(FunctionDeclaration decl, TBuilder tb){
         <formals, kwTypeParams, kwFormals> = checkFunctionType(scope, retType, signature.parameters, tb);
         
         tb.requireEager("definition of function type", signature.\type, [],
-            (){ expandedRetType = expandUserTypes(retType, scope);
+            (){ 
+                expandedRetType = expandUserTypes(retType, scope);
                 if(isVarArgs){
-                   unify(ftypeStub, afunc(expandedRetType, atypeList([expandUserTypes(getType(formals[i]), scope) | int i <- [0..-1]] + alist(expandUserTypes(getType(formals[-1]), scope))), kwFormals, varArgs=true));
+                   unify(ftypeStub, afunc(expandedRetType, atypeList([expandUserTypes(getPatternType(formals[i], avalue(), scope), scope) | int i <- [0..-1]] + alist(expandUserTypes(getType(formals[-1]), scope))), kwFormals, varArgs=true));
                 } else {
-                   unify(ftypeStub, afunc(expandedRetType, atypeList([expandUserTypes(getType(f), scope) | f <- formals]), kwFormals));
+                   unify(ftypeStub, afunc(expandedRetType, atypeList([expandUserTypes(getPatternType(f, avalue(), scope), scope) | f <- formals]), kwFormals));
                 }
              });
         
@@ -183,13 +188,12 @@ void collect(FunctionDeclaration decl, TBuilder tb){
             tb.requireEager("when conditions", decl.conditions, conditions,
                 (){
                 for(cond <- conditions){
-                    if(isFullyInstantiated(getType(cond))){
-                        subtype(getType(cond), abool(), onError(cond, "Condition should be `bool`, found <fmt(cond)>"));
-                    } else {
-                        if(!unify(getType(cond), abool())){
-                            subtype(getType(cond), abool(), onError(cond, "Condition should be `bool`, found <fmt(cond)>"));
-                        }
-                    }
+                    condType = getType(cond);
+                    if(!isFullyInstantiated(condType)){
+                        unify(condType, abool()) || reportError(cond, "Cannot unify condition with `bool`, found <fmt(cond)>");
+                        condType = instantiate(condType);
+                    }           
+                    subtype(getType(cond), abool()) || reportError(cond, "Condition should be `bool`, found <fmt(cond)>");
                 }
             });
             collect(decl.conditions, tb);
@@ -199,77 +203,32 @@ void collect(FunctionDeclaration decl, TBuilder tb){
     tb.leaveScope(decl);
 }
 
-void collectFormals(list[Pattern] pats, TBuilder tb){
-    previousNames = {};
-    for(pat <- pats){
-        if(namePat: (Pattern) `<QualifiedName name>` := pat){
-          qname = convertName(name);
-          if(qname.name != "_"){
-             if("<name>" in previousNames){
-                tb.use(name, {variableId()});
-             } else {
-                previousNames += "<name>";
-                tb.fact(pat, avalue());
-                if(isQualified(qname)) tb.reportError(name, "Qualifier not allowed");
-                tb.define(qname.name, formalId(), name, defLub([], AType() { return avalue(); }));
-             }
-           }
-        } else
-        if(splicePat: (Pattern) `*<QualifiedName name>` := pat || splicePat: (Pattern) `<QualifiedName name>*` := pat){ 
-           qname = convertName(name);
-           if(qname.name != "_"){      
-              if("<name>" in previousNames){
-                 tb.use(name, {variableId()});
-              } else {   
-                 previousNames += "<name>";  
-                 tb.fact(pat, avalue());
-                 if(isQualified(qname)) tb.reportError(name, "Qualifier not allowed");
-                 tb.define(qname.name, formalId(), name, defLub([], AType() { return alist(avalue()); }));
-              }
-           }
-        } else
-        if(splicePlusPat: (Pattern) `+<QualifiedName name>` := pat){
-           qname = convertName(name);
-           if(qname.name != "_"){  
-              if("<name>" in previousNames){
-                 tb.use(name, {variableId()});
-              } else {   
-                 previousNames += "<name>";
-                 tb.fact(pat, avalue());
-                 if(isQualified(qname)) tb.reportError(name, "Qualifier not allowed");
-                 tb.define(qname.name, formalId(), name, defLub([], AType() { return alist(avalue()); }));
-              }
-           }
-        } else {
-            collect(pat, tb);
-            previousNames += getAllNames(pat);
-        }
-    }
-}
-
 list[Keyword] getKeywordFormals({KeywordFormal  "," }+ keywordFormalList, TBuilder tb){    
     return 
         for(KeywordFormal kwf <- keywordFormalList){
             fieldType = convertType(kwf.\type, tb);
             fieldName = prettyPrintQName(convertName(kwf.name));
             defaultExp = kwf.expression;
-            tb.define(fieldName, formalId(), kwf.name, defType(fieldType));
-            append <fieldType, fieldName, defaultExp>;
+            tb.define(fieldName, fieldId(), kwf.name, defType(fieldType));
+            append <fieldName, fieldType, defaultExp>;
         }
 }
 
 tuple[list[Pattern] formals, set[AType] kwTypeParams, list[Keyword] kwFormals] checkFunctionType(Key scope, AType retType, Parameters params, TBuilder tb){
     formals = [pat | Pattern pat <- params.formals.formals];
-    collectFormals(formals, tb);
+    beginPatternScope("parameter", tb);
+    collect(formals, tb);
+    endPatternScope(tb);
     
     kwFormals = params.keywordFormals is \default ? getKeywordFormals(params.keywordFormals.keywordFormalList, tb) : [];
     
     kwTypeParams = {*collectRascalTypeParams(kwf.fieldType) | kwf <- kwFormals};
     tb.setScopeInfo(scope, functionScope(), returnInfo(retType, formals, kwTypeParams));
     
-    tb.require("bound type parameters", params, formals,
-        () { expandedRetType = expandUserTypes(retType, scope);
-             typeParamsInFunctionParams = {*collectRascalTypeParams(getType(f)) | f <- formals} + kwTypeParams;
+    tb.requireEager("bound type parameters", params, [], //formals,
+        () { 
+             expandedRetType = expandUserTypes(retType, scope);
+             typeParamsInFunctionParams = {*collectRascalTypeParams(getPatternType(f, avalue(), scope)) | f <- formals} + kwTypeParams;
              typeParamsInReturn = collectRascalTypeParams(expandedRetType);
              if(!(typeParamsInReturn <= typeParamsInFunctionParams)){
                 unbound = typeParamsInReturn - typeParamsInFunctionParams;
@@ -282,7 +241,7 @@ tuple[list[Pattern] formals, set[AType] kwTypeParams, list[Keyword] kwFormals] c
 void() makeReturnRequirement(Tree expr, AType retType, list[Pattern] formals, set[str] kwTypeParams, Key scope)
        = () { 
               expandedReturnType = expandUserTypes(retType, scope);
-              typeVarsInParams = {*collectRascalTypeParams(getType(f)) | f <- formals} + kwTypeParams;
+              typeVarsInParams = {*collectRascalTypeParams(getPatternType(f, avalue(), scope)) | f <- formals} + kwTypeParams;
               typeVarsInReturn = collectRascalTypeParams(expandedReturnType);
               if(!(typeVarsInReturn <= typeVarsInParams)){
                 unbound = typeVarsInReturn - typeVarsInParams;
@@ -297,10 +256,10 @@ void() makeReturnRequirement(Tree expr, AType retType, list[Pattern] formals, se
               try {
                  itexpr = instantiateRascalTypeParams(texpr, bindings);
                  if(isFullyInstantiated(itexpr)){
-                    subtype(itexpr, expandedReturnType, onError(expr, "Return type should be subtype of <fmt(expandedReturnType)>, found <fmt(itexpr)>"));
+                    subtype(itexpr, expandedReturnType) || reportError(expr, "Return type should be subtype of <fmt(expandedReturnType)>, found <fmt(itexpr)>");
                  } else
                  if(!unify(itexpr, expandedReturnType)){
-                    subtype(itexpr, expandedReturnType, onError(expr, "Return type should be subtype of <fmt(expandedReturnType)>, found <fmt(itexpr)>"));
+                    subtype(itexpr, expandedReturnType) || reportError(expr, "Return type should be subtype of <fmt(expandedReturnType)>, found <fmt(itexpr)>");
                  }
                } catch invalidInstantiation(str msg): {
                     reportError(current, msg);
@@ -315,14 +274,14 @@ void collect(current: (Statement) `return <Statement statement>`, TBuilder tb){
     functionScopes = tb.getScopeInfo(functionScope());
     if(isEmpty(functionScopes)){
         tb.reportError(current, "Return outside a function declaration");
-        collectParts(current, tb);
+        collect(statement, tb);
         return;
     }
     for(<scope, scopeInfo> <- functionScopes){
         if(returnInfo(AType retType, list[Pattern] formals, set[str] kwTypeParams) := scopeInfo){
            tb.requireEager("check return type", current, [], makeReturnRequirement(statement, retType, formals, kwTypeParams, scope));
            tb.calculate("return type", current, [statement], AType(){ return getType(statement); });
-           collectParts(current, tb);
+           collect(statement, tb);
            return;
         } else {
             throw "Inconsistent info from function scope: <scopeInfo>";
@@ -349,6 +308,7 @@ AType expandUserTypes(AType t, Key scope){
         case u: auser(str uname, ps): {
                 //println("expandUserTypes: <u>");  // TODO: handle non-empty qualifier
                 expanded = expandUserTypes(getType(uname, scope, {dataId(), aliasId(), nonterminalId()}), scope);
+                if(u.label?) expanded.label = u.label;
                 //println("expanded: <expanded>");
                 if(aadt(uname, ps2) := expanded) {
                    if(size(ps) != size(ps2)) reportError(scope, "Expected <fmt(size(ps2), "type parameter")> for <fmt(expanded)>, found <size(ps)>");
@@ -397,7 +357,6 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> data <
     = dataDeclaration(current, [v | v <- variants], tb);
 
 void dataDeclaration(Declaration current, list[Variant] variants, TBuilder tb){
-//println("********** data: <current>");
     userType = current.user;
     commonKeywordParameters = current.commonKeywordParameters;
     adtName = prettyPrintQName(convertName(userType.name));
@@ -425,13 +384,13 @@ void dataDeclaration(Declaration current, list[Variant] variants, TBuilder tb){
                     allConsFields += <fieldName, fieldType>;
                 }
                 allFieldTypeVars += collectRascalTypeParams(fieldType);
-                append <fieldType, fieldName>;
+                append <fieldName, fieldType>;
             }
     
        kwFields = [];
        if(v.keywordArguments is \default){
           kwFields += getKeywordFormals(v.keywordArguments.keywordFormalList, tb);
-          for(<kwt, kwn,kwd> <- kwFields){
+          for(<kwn, kwt, kwd> <- kwFields){
               allFieldTypeVars += collectRascalTypeParams(kwt);
               allConsFields += <kwn, kwt>;
           }
@@ -466,21 +425,21 @@ void collect(current: (SyntaxDefinition) `<Visibility vis> layout <Sym defined> 
     //println("LAYOUT: <current>");
     nonterminalType = sym2AType(defined);
     declareSyntax(current, getVis(vis), defined, nonterminalType, production, {\layout()}, tb);
-    collectParts(production, tb);
+    collect(production, tb);
 } 
 
 void collect (current: (SyntaxDefinition) `lexical <Sym defined> = <Prod production>;`, TBuilder tb){
     //println("LEXICAL: <current>");
     nonterminalType = sym2AType(defined);
     declareSyntax(current, publicVis(), defined, nonterminalType, production, {\lexical()}, tb);
-    collectParts(production, tb);
+    collect(production, tb);
 }
 
 void collect (current: (SyntaxDefinition) `keyword <Sym defined> = <Prod production>;`, TBuilder tb){
    //println("KEYWORD: <current>");
     nonterminalType = sym2AType(defined);
     declareSyntax(current, publicVis(), defined, nonterminalType, production, {\keyword()}, tb);
-    collectParts(production, tb);
+    collect(production, tb);
 } 
 
 void collect (current: (SyntaxDefinition) `<Start strt> syntax <Sym defined> = <Prod production>;`, TBuilder tb){
@@ -489,7 +448,7 @@ void collect (current: (SyntaxDefinition) `<Start strt> syntax <Sym defined> = <
     skind = { nonterminal() };
     if(strt is present) skind += {\start()};
     declareSyntax(current, publicVis(), defined, nonterminalType, production, skind, tb);
-    collectParts(production, tb);
+    collect(production, tb);
 }
 
 void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterminalType, Prod production, set[SyntaxKind] syntaxKind, TBuilder tb){
@@ -536,23 +495,23 @@ rel[str,AType] getFields(\priority(AType def, list[AProduction] choices))
 rel[str,AType] getFields(\associativity(AType def, Associativity \assoc, set[AProduction] alternatives))
     = { *getFields(a) | a <- alternatives};
 
-default rel[str,AType] getFields(AProduction p) = {<t.label, t> | s <- p.symbols, isNonTerminalType(s), s.label?, t := removeConditional(s)};
+default rel[str,AType] getFields(AProduction p) = {<t.label, t> | s <- p.asymbols, isNonTerminalType(s), s.label?, t := removeConditional(s)};
 
 void collect(current: (Sym) `<Nonterminal nonterminal>`, TBuilder tb){
     tb.use(nonterminal, {dataId()});
-    collectParts(current, tb);
+    collect(nonterminal, tb);
 }
 
 void collect(current: (Sym) `<Sym symbol> <NonterminalLabel label>`, TBuilder tb){
     tb.define("<label>", fieldId(), label, defType(sym2AType(symbol)));
-    collectParts(current, tb);
+    collect(symbol, label, tb);
 }
 
 default rel[Key, AType] prod2cons(AProduction p){
     def = p.def;
-    symbols = p.symbols;
+    symbols = p.asymbols;
     if(def.label?){
-        fields = [ <t, t.label> | s <- symbols, isNonTerminalType(s), t := removeConditional(s) ];
+        fields = [ <t.label, t> | s <- symbols, isNonTerminalType(s), t := removeConditional(s) ];
         return { <p.src, acons(unset(def, "label"), deescape(def.label), fields, [])> };
     }
     return {};
@@ -565,63 +524,3 @@ rel[Key, AType] prod2cons(\priority(AType def, list[AProduction] choices))
     
 rel[Key, AType] prod2cons(\associativity(AType def, Associativity \assoc, set[AProduction] alternatives))
     = { *prod2cons(a) | a <- alternatives};
-   
-//syntax Sym
-//// named non-terminals
-//    = nonterminal: Nonterminal nonterminal !>> "["
-//    | parameter: "&" Nonterminal nonterminal 
-//    | parametrized: Nonterminal nonterminal >> "[" "[" {Sym ","}+ parameters "]"
-//    | \start: "start" "[" Nonterminal nonterminal "]"
-//    | labeled: Sym symbol NonterminalLabel label
-//// literals 
-//    | characterClass: Class charClass 
-//    | literal: StringConstant string 
-//    | caseInsensitiveLiteral: CaseInsensitiveStringConstant cistring
-//// regular expressions
-//    | iter: Sym symbol "+" 
-//    | iterStar: Sym symbol "*" 
-//    | iterSep: "{" Sym symbol Sym sep "}" "+" 
-//    | iterStarSep: "{" Sym symbol Sym sep "}" "*" 
-//    | optional: Sym symbol "?" 
-//    | alternative: "(" Sym first "|" {Sym "|"}+ alternatives ")"
-//    | sequence: "(" Sym first Sym+ sequence ")"
-//    // TODO: MinimalIter: Sym symbol IntegerConstant minimal "+"
-//    // TODO: MinimalIterSep: "{" Sym symbol Symbol sep "}" IntegerConstant minimal "+"
-//    // TODO | Permutation: "(" Sym first "~" {Sym "~"}+ participants ")"
-//    // TODO | Combination: "(" Sym first "#" {Sym "#"}+ elements ")"
-//    | empty: "(" ")"
-//// conditionals
-//    | column: Sym symbol "@" IntegerLiteral column 
-//    | endOfLine: Sym symbol "$" 
-//    | startOfLine: "^" Sym symbol
-//    | except:   Sym symbol "!" NonterminalLabel label
-//    >  
-//    assoc ( 
-//      left  ( follow:     Sym symbol  "\>\>" Sym match
-//            | notFollow:  Sym symbol "!\>\>" Sym match
-//            )
-//      | 
-//      right ( precede:    Sym match "\<\<" Sym symbol 
-//            | notPrecede: Sym match "!\<\<" Sym symbol
-//            )
-//    )
-//    > 
-//    left unequal:  Sym symbol "\\" Sym match
-//    ;
-
-//syntax Prod
-//    = reference: ":" Name referenced
-//    | labeled: ProdModifier* modifiers Name name ":" Sym* syms 
-//    | others: "..." 
-//    | unlabeled: ProdModifier* modifiers Sym* syms
-//    | @Foldable associativityGroup: Assoc associativity "(" Prod group ")" 
-//    // | TODO add bracket rule for easy readability
-//    > left \all   : Prod lhs "|" Prod rhs 
-//    > left first : Prod lhs "\>" !>> "\>" Prod rhs
-//    ;
-
-//syntax ProdModifier
-//    = associativity: Assoc associativity 
-//    | \bracket: "bracket" 
-//    | \tag: Tag tag;
- 

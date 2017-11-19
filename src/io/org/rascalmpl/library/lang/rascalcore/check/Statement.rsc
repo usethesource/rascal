@@ -16,23 +16,23 @@ import lang::rascalcore::check::ATypeExceptions;
 void collect(current: (Statement) `assert <Expression expression>;`, TBuilder tb){
     tb.fact(current, abool());
     tb.require("assert statement", current, [expression],
-        () { subtype(getType(expression), abool(), onError(expression, "Assertion should be `bool`, found <fmt(expression)>")); });
-    collectParts(current, tb);
+        () { subtype(getType(expression), abool()) || reportError(expression, "Assertion should be `bool`, found <fmt(expression)>"); });
+    collect(expression, tb);
 } 
 
 void collect(current: (Statement) `assert <Expression expression> : <Expression message> ;`, TBuilder tb){
    tb.fact(current, abool());
    tb.require("assert statement with message", current, [expression, message],
-       () { subtype(getType(expression), abool(), onError(expression, "Assertion should be `bool`, found <fmt(expression)>"));
-            subtype(getType(message), astr(), onError(message, "Assertion message should be `str`, found <fmt(message)>"));
+       () { subtype(getType(expression), abool()) || reportError(expression, "Assertion should be `bool`, found <fmt(expression)>");
+            subtype(getType(message), astr()) || reportError(message, "Assertion message should be `str`, found <fmt(message)>");
        });
-   collectParts(current, tb);
+   collect(expression, message, tb);
 } 
      
 // ---- expression
 void collect(current: (Statement) `<Expression expression>;`, TBuilder tb){
     tb.calculate("expression as statement", current, [expression], AType(){ return getType(expression); });
-    collectParts(current, tb);
+    collect(expression, tb);
 }
 
 // ---- visit and insert
@@ -47,7 +47,7 @@ void collect(current: (Statement) `<Label label> <Visit vst>`, TBuilder tb){
             tb.define(unescape("<label.name>"), labelId(), label.name, noDefInfo());
         }
         tb.calculate("visit statement", vst, [vst.subject], AType(){ return getType(vst.subject); });
-        collectParts(current, tb);
+        collect(vst, tb);
     tb.leaveScope(current);
 }
 
@@ -59,28 +59,40 @@ void collect(current: (PatternWithAction) `<Pattern pattern> =\> <Replacement re
         if(visitOrSwitchInfo(Expression expression, bool isVisit) := scopeInfo){
             if(isVisit){
                 tb.enterScope(current);
+                beginPatternScope("pattern-with-action", tb);
                     scope = tb.getScope();
                     tb.setScopeInfo(scope, replacementScope(), replacementInfo(pattern));
-                    tb.require("pattern replacement", current, [pattern, replacement.replacementExpression],
-                       (){ subtype(getType(replacement.replacementExpression), getType(pattern), onError(current, "A pattern of type <fmt(pattern)> cannot be replaced by <fmt(replacement.replacementExpression)>")); });
+                    // force type calculation of pattern
+                    tb.calculateEager("pattern", pattern, [], AType (){ return getPatternType(pattern, avalue(), scope); });
+                    tb.requireEager("pattern replacement", current, [replacement.replacementExpression],
+                       (){ 
+                           exprType = getType(replacement.replacementExpression);
+                           patType = getPatternType(pattern, avalue(), scope);
+                           if(!isFullyInstantiated(exprType) || !isFullyInstantiated(patType)){
+                              unify(exprType, patType) || reportError(current, "Cannot unify <fmt(patType)> with <fmt(exprType)>"); 
+                              exprType = instantiate(exprType);
+                              patType = instantiate(patType); 
+                           }
+                           subtype(exprType, patType) || reportError(current, "A pattern of type <fmt(patType)> cannot be replaced by <fmt(exprType)>");
+                         });
                     
                     if(replacement is conditional){
                        conditions = [c | Expression c <- replacement.conditions];
                        storeAllowUseBeforeDef(current, replacement.replacementExpression, tb);
                        tb.requireEager("when conditions in replacement", replacement.conditions, conditions,
                           (){ for(cond <- conditions){
-                                  if(isFullyInstantiated(getType(cond))){
-                                     subtype(getType(cond), abool(), onError(cond, "Condition should be `bool`, found <fmt(cond)>"));
-                                  } else {
-                                    if(!unify(getType(cond), abool())){
-                                       subtype(getType(cond), abool(), onError(cond, "Condition should be `bool`, found <fmt(cond)>"));
-                                    }
-                                 }
+                                  condType = getType(cond);
+                                  if(!isFullyInstantiated(condType)){
+                                     unify(condType, abool()) || reportError(cond, "Canot unify <fmt(cond)> with `bool`");
+                                     condType = instantiate(condType);
+                                  }
+                                  subtype(getType(cond), abool()) || reportError(cond, "Condition should be `bool`, found <fmt(cond)>");
                                }
                             });
                     }
               
-                    collectParts(current, tb);
+                    collect(pattern, replacement, tb);
+                endPatternScope(tb);
                 tb.leaveScope(current);
                 return;
              } else {
@@ -100,17 +112,23 @@ void collect(current: (PatternWithAction) `<Pattern pattern>: <Statement stateme
                tb.enterScope(current);
                     scope = tb.getScope();
                     tb.setScopeInfo(scope, replacementScope(), replacementInfo(pattern));
-                    collectParts(current, tb);
+                    // force type calculation of pattern
+                    tb.calculateEager("pattern", pattern, [], AType (){ return getPatternType(pattern, avalue(), scope); });
+                    beginPatternScope("pattern-with-action", tb);
+                        collect(pattern, tb);
+                    endPatternScope(tb);
+                    collect(statement, tb);
               tb.leaveScope(current);
               return;
            } else {
               tb.enterScope(current);
-                    // TODO: this is a very reasonable requirements not checked by the exiting type checker,
-                    // but a breaks quite some code.
-                    //tb.require("pattern with action", current, [expression, pattern],
-                    //    (){ subtype(getType(pattern), getType(expression), onError(pattern, "Pattern should be subtype of <fmt(getType(expression))>, found <fmt(getType(pattern))>"));
-                    //      });
-                    collectParts(current, tb);
+                    // force type calculation of pattern
+                    tb.calculateEager("pattern", pattern, [], AType (){ 
+                        return getPatternType(pattern, getType(expression), scope); });
+                    beginPatternScope("pattern-with-action", tb);
+                        collect(pattern, tb);
+                    endPatternScope(tb);
+                    collect(statement, tb);
               tb.leaveScope(current);
               return;
            }
@@ -123,17 +141,18 @@ void collect(current: (Statement) `insert <Expression expr>;`, TBuilder tb){
     replacementScopes = tb.getScopeInfo(replacementScope());
     for(<scope, scopeInfo> <- replacementScopes){
       if(replacementInfo(Pattern pat) := scopeInfo){
-         tb.requireEager("insert expression", expr, [expr, pat], 
-             () { 
-                  if(isFullyInstantiated(getType(expr)) && isFullyInstantiated(getType(pat))){
-                     subtype(getType(expr), getType(pat), onError(expr, "Insert type should be subtype of <fmt(pat)>, found <fmt(expr)>"));
-                  } else {
-                  if(!unify(getType(expr), patType)){
-                     subtype(getType(expr), patType, onError(expr, "Insert type should be subtype of <fmt(patType)>, found <fmt(expr)>"));
+         tb.requireEager("insert expression", expr, [expr], 
+             () { exprType = getType(expr);
+                  patType = getPatternType(pat, avalue(), scope);
+                  if(!isFullyInstantiated(exprType) || !isFullyInstantiated(patType)){
+                     unify(exprType, patType) || reportError(current, "Cannot unify <fmt(patType)> with <fmt(exprType)>");
+                     exprType = instantiate(exprType);
+                     patType = instantiate(patType);
                   }
-                }
+                  subtype(exprType, patType) || reportError(expr, "Insert type should be subtype of <fmt(patType)>, found <fmt(exprType)>");
+                  fact(current, exprType);
              });
-          collectParts(current, tb);
+          collect(expr, tb);
           return;
       } else {
         throw "Inconsistent info from replacement scope: <info>";
@@ -159,64 +178,24 @@ void collect(current: (Statement) `<Label label> while( <{Expression ","}+ condi
         condList = [cond | Expression cond <- conditions];
         
         tb.requireEager("while statement", current, condList + [body], (){ checkConditions(condList); });
-        collectParts(current, tb);
+        beginPatternScope("conditions", tb);
+        collect(condList, tb);
+        endPatternScope(tb);
+        collect(body, tb);
         computeLoopType("while statement", loopName, current, tb);
     tb.leaveScope(conditions);
 }
- 
-//void checkConditions(str text, Tree current, list[Expression] condList, TBUilder tb){
-//    switch(size(condList)){
-//    case 1:
-//        tb.requireEager(text, current, condList,
-//        () { tcond = getType(condList[0]);
-//             if(!unify(abool(), tcond)) reportError(cond, "Condition should be `bool`, found <fmt(tcond)>");
-//        });
-//    
-//    case 2:
-//        tb.requireEager(text, current, condList,
-//        () { tcond0 = getType(condList[0]);
-//             if(!unify(abool(), tcond0)) reportError(cond, "Condition should be `bool`, found <fmt(tcond0)>");
-//             tcond1 = getType(condList[1]);
-//             if(!unify(abool(), tcond1)) reportError(cond, "Condition should be `bool`, found <fmt(tcond1)>");
-//        });
-//    default:
-//        tb.requireEager(text, current, condList,
-//        () {  for(Expression cond <- condList){
-//                  tcond = getType(cond);
-//                  if(!unify(abool(), tcond)) reportError(cond, "Condition should be `bool`, found <fmt(tcond)>");
-//              }
-//        });
-//    }
-// }
- 
-//void () makeCheckConditions(list[Expression] condList)
-//    = () { for(Expression cond <- condList){
-//               tcond = getType(cond);
-//               if(!unify(abool(), tcond)) reportError(cond, "Condition should be `bool`, found <fmt(tcond)>");
-//           }
-//         };
 
 void checkConditions(list[Expression] condList){
     for(Expression cond <- condList){
         tcond = getType(cond);
-        //if(!unify(abool(), tcond)) reportError(cond, "Condition should be `bool`, found <fmt(tcond)>");
-        if(isFullyInstantiated(tcond)){
-            subtype(tcond, abool(), onError(cond, "Condition should be `bool`, found <fmt(cond)>"));
-        } else {
-            if(!unify(tcond, abool())){
-                subtype(tcond, abool(), onError(cond, "Condition should be `bool`, found <fmt(cond)>"));
-            }
-        }
+        if(!isFullyInstantiated(tcond)){
+            unify(abool(), tcond) || reportError(cond, "Cannot unify <fmt(cond)> with `bool`");
+            tcond = instantiate(tcond); 
+        } 
+        subtype(tcond, abool()) || reportError(cond, "Condition should be `bool`, found <fmt(cond)>");
     }
 }
-
- //tb.fact(current, abool());
- //  
- //   tb.requireEager("and", current, [lhs, rhs],
- //       (){ if(!unify(abool(), getType(lhs))) reportError(lhs, "Argument of && should be `bool`, found <fmt(lhs)>");
- //           if(!unify(abool(), getType(rhs))) reportError(rhs, "Argument of && should be `bool`, found <fmt(rhs)>");
- //         });
- //   collectParts(current, tb);
 
 void computeLoopType(str loopKind, str loopName1, Statement current, TBuilder tb){
     loopScopes = tb.getScopeInfo(loopScope());
@@ -253,7 +232,11 @@ void collect(current: (Statement) `<Label label> do <Statement body> while ( <Ex
         }
         tb.setScopeInfo(tb.getScope(), loopScope(), loopInfo(loopName, [])); // appends in body
         tb.requireEager("do statement", current, [body, condition], (){ checkConditions([condition]); });
-        collectParts(current, tb);
+        
+        collect(body, tb);
+        beginPatternScope("conditions", tb);
+        collect(condition, tb);
+        endPatternScope(tb);
         computeLoopType("do statement", loopName, current, tb);
     tb.leaveScope(current); 
 }
@@ -271,8 +254,11 @@ void collect(current: (Statement) `<Label label> for( <{Expression ","}+ conditi
         condList = [cond | Expression cond <- conditions];
         
         tb.requireEager("for statement", current, condList + [body], (){ checkConditions(condList); });
-       
-        collectParts(current, tb);
+        
+        beginPatternScope("conditions", tb);
+        collect(condList, tb);
+        endPatternScope(tb);
+        collect(body, tb);
         computeLoopType("for statement", loopName, current, tb);
        
     tb.leaveScope(current);  
@@ -292,7 +278,7 @@ void collect(current: (Statement) `append <DataTarget dataTarget> <Statement sta
             if(loopName == "" || loopName == loopName1){
                 tb.setScopeInfo(scope, loopScope(), loopInfo(loopName1, appends + [current]));
                 tb.calculate("append type", current, [statement], AType(){ return getType(statement); });
-                collectParts(current, tb);
+                collect(statement, tb);
                 return;
              }
         } else {
@@ -315,7 +301,7 @@ void collect(current:(Statement) `break <Target target>;`, TBuilder tb){
     for(<scope, scopeInfo> <- tb.getScopeInfo(loopScope())){
         if(loopInfo(loopName1, list[Statement] appends) := scopeInfo){
             if(loopName == "" || loopName == loopName1){
-                collectParts(current, tb);
+                collectParts(current, tb); //<===
                 return;
              }
         } else {
@@ -359,8 +345,11 @@ void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditio
         tb.fact(current, avalue());
         
         tb.requireEager("if then", current, condList, (){ checkConditions(condList); });
-        //checkConditions("if then", current, condList, tb);
-        collectParts(current, tb);
+        
+        beginPatternScope("conditions", tb);
+        collect(condList, tb);
+        endPatternScope(tb);
+        collect(thenPart, tb);
     tb.leaveScope(conditions);   
 }
 
@@ -379,7 +368,11 @@ void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditio
                 checkConditions(condList);
                 return lub(getType(thenPart), getType(elsePart));
             });
-        collectParts(current, tb);
+        
+        beginPatternScope("conditions", tb);
+        collect(condList, tb);
+        endPatternScope(tb);
+        collect(thenPart, elsePart, tb);
     tb.leaveScope(conditions); 
 }
 
@@ -393,7 +386,7 @@ void collect(current: (Statement) `<Label label> switch ( <Expression e> ) { <Ca
         scope = tb.getScope();
         tb.setScopeInfo(scope, visitOrSwitchScope(), visitOrSwitchInfo(e, false));
         tb.fact(current, avoid());
-        collectParts(current, tb);
+        collect(e, cases, tb);
     tb.leaveScope(current);
 }
 
@@ -404,10 +397,9 @@ void collect(current: (Statement)`fail <Target target>;`, TBuilder tb){
     loopName = "";
     if(target is labeled){
         loopName = "<target.name>";
-        tb.use(target.name, {labelId()});
+        tb.use(target.name, {labelId(), functionId()});
     }
     tb.fact(current, avoid());
-    collectParts(current, tb);
 }
 
 // ---- filter
@@ -426,13 +418,13 @@ void collect(current: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bou
             tb.use(v, {variableId()});
         }
     }
-    collectParts(current, tb);
+    collect(variables, bound, body, tb);
 }
 
 void collect(Bound current, TBuilder tb){
     if(current is \default){
         tb.calculate("bound", current, [current.expression],
-            AType(){ if(subtype(getType(expression), aint())) return aint();
+            AType(){ if(subtype(getType(current.expression), aint())) return aint();
                      reportError(current.expression, "Bound should have type `int`, found `<fmt(getType(current.expression))>"); 
                    });
     } else {
@@ -447,27 +439,30 @@ void collect(Bound current, TBuilder tb){
  
  void collect(current: (Statement) `try <Statement body> <Catch+ handlers>`, TBuilder tb){
     tb.fact(current, avoid());
-    collectParts(current, tb);
+    collect(body, handlers, tb);
  }
  
 // ---- try finally
 
 void collect(current: (Statement) `try <Statement body> <Catch+ handlers> finally <Statement finallyBody>`, TBuilder tb){
     tb.fact(current, avoid());
-    collectParts(current, tb);
+    collect(body, handlers, finallyBody, tb);
 }
 
 // ---- catch
 
 void collect(current: (Catch) `catch: <Statement body>`, TBuilder tb){
     tb.fact(current, avoid());
-    collectParts(current, tb);
+    collect(body, tb);
 }
 
 void collect(current: (Catch) `catch <Pattern pattern>: <Statement body>`, TBuilder tb){
     tb.fact(current, avoid());
     tb.enterScope(current);
-        collectParts(current, tb);
+        beginPatternScope("catch", tb);
+        collect(pattern, tb);
+        endPatternScope(tb);
+        collect(body, tb);
     tb.leaveScope(current);
 }
 
@@ -479,7 +474,7 @@ void collect(current: (Statement) `<Label label> { <Statement+ statements> }`, T
     }
     stats = [ s | Statement s <- statements ];
     tb.calculate("non-empty block statement", current, [stats[-1]],  AType() { return getType(stats[-1]); } );
-    collectParts(current, tb);
+    collect(stats, tb);
 }
 
 // ---- empty block
@@ -492,21 +487,24 @@ void collect(current: (Statement) `;`, TBuilder tb){
 
 void collect(current: (Statement) `<Assignable assignable> <Assignment operator> <Statement statement>`, TBuilder tb){
     checkAssignment(current, assignable, "<operator>", statement, tb);
-    collectParts(current, tb);
+    collect(assignable, statement, tb);
 }
 
 void checkAssignment(Statement current, (Assignable) `( <Assignable arg> )`, str operator, Statement statement, TBuilder tb){
     checkAssignment(current, arg, operator, statement, tb);
 }
 
-AType computeAssignmentRhsType(Statement current, AType lhsType, "=", AType rhsType)
-    = rhsType;
+AType computeAssignmentRhsType(Statement current, AType lhsType, "=", AType rhsType){
+    return rhsType;
+}
     
 AType computeAssignmentRhsType(Statement current, AType lhsType, "+=", AType rhsType)
     = computeAdditionType(current, lhsType, rhsType);
 
-AType computeAssignmentRhsType(Statement current, AType lhsType, "-=", AType rhsType)
-    = computeSubtractionType(current, lhsType, rhsType);    
+AType computeAssignmentRhsType(Statement current, AType lhsType, "-=", AType rhsType){
+    res =  computeSubtractionType(current, lhsType, rhsType); 
+    return res;
+    }   
 
 AType computeAssignmentRhsType(Statement current, AType lhsType, "*=", AType rhsType)
     = computeProductType(current, lhsType, rhsType);       
@@ -532,23 +530,26 @@ void checkAssignment(Statement current, (Assignable) `<QualifiedName name>`, str
         tb.use_qual([qname.qualifier, qname.name], name, {variableId()}, {moduleId()});
     } else {
         if(operator == "="){
-           tb.calculate("name of assignable", name, [statement], AType(){ return getType(statement); });
+           //tb.calculate("name of assignable", name, [statement], AType(){ return getType(statement); });
            tb.define(unescape("<name>"), variableId(), name, defLub([statement], AType(){ 
-            return  getType(statement); }));
+            return  getType(statement); 
+            }));
         } else {
            tb.useLub(name, {variableId()});
         }
     }
     tb.calculate("assignment to `<name>`", current, [statement],
         AType () { 
-            asgType = computeAssignmentRhsType(current, getType(name), operator, getType(statement));
-                   if(operator == "=") subtype(getType(statement), asgType, onError(current, "Incompatible type <fmt(asgType)> in assignment to variable `<name>`, found <fmt(statement)>")); 
+            nameType = getType(name);
+            asgType = computeAssignmentRhsType(current, nameType, operator, getType(statement));
+                   if(operator == "=") 
+                      subtype(asgType, nameType) || reportError(current, "Incompatible type <fmt(asgType)> in assignment to <fmt(nameType)> variable `<name>`"); 
                    return asgType;   
                  });  
 }
 
 AType computeReceiverType(Statement current, (Assignable) `<QualifiedName name>`, Key scope)
-    = getType(name);
+    = getType(name); //expandUserTypes(getType(name), scope);
 
 AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, Key scope)
     = computeSubscriptionType(current, computeReceiverType(current, receiver, scope), [getType(subscript)]);
@@ -563,6 +564,9 @@ AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver>
 
 AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> . <Name field>`, Key scope)
     = computeFieldType(current, computeReceiverType(current, receiver, scope), "<field>", scope);
+    
+AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> @ <Name n>`, Key scope)
+    = computeGetAnnotationType(current, computeReceiverType(current, receiver, scope), getType(n), scope);
 
 AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, Key scope){
     return computeReceiverType(current, receiver);
@@ -582,7 +586,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <E
    tb.calculate("assignable with subscript", current, [subscript, rhs], 
        AType (){ 
            res = computeSubscriptAssignableType(current, computeReceiverType(current, receiver, scope),  subscript, operator, getType(rhs));
-           unify(tau, res, onError(current, "Cannot bind type variable for <fmt("<names[0]>")>"));
+           unify(tau, res) || reportError(current, "Cannot bind type variable for <fmt("<names[0]>")>");
            return res;
          });
 }
@@ -640,7 +644,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <O
    tb.calculate("assignable with slice", current, [optFirst, optLast, rhs], 
       AType (){ 
            res = computeSliceAssignableType(current, computeReceiverType(current, receiver, scope),  getType(optFirst), aint(), getType(optLast), operator, getType(rhs));
-           unify(tau, res, onError(current, "Cannot bind type variable for <fmt("<names[0]>")>"));
+           unify(tau, res) || reportError(current, "Cannot bind type variable for <fmt("<names[0]>")>");
            return res;
          });
 }
@@ -656,7 +660,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <O
    tb.calculate("assignable with slice", current, [optFirst, second, optLast, rhs], 
       AType (){ 
            res = computeSliceAssignableType(current, computeReceiverType(current, receiver, scope),  getType(optFirst), getType(second), getType(optLast), operator, getType(rhs));
-           unify(tau, res, onError(current, "Cannot bind type variable for <fmt("<names[0]>")>"));
+           unify(tau, res) || reportError(current, "Cannot bind type variable for <fmt("<names[0]>")>");
            return res;
          });
 }
@@ -669,6 +673,8 @@ AType computeSliceAssignableType(Statement current, AType receiverType, AType fi
     
     if(!isEmpty(failures)) throw reportErrors(failures);
     if (isListType(receiverType)){
+        //if(!subtype(rhs, receiverType)) reportError(current, "Expected <fmt(receiverType)> in slice assignment, found <fmt(rhs)>");
+        //return receiverType;
         return makeListType(computeAssignmentRhsType(current, getListElementType(receiverType), operator, rhs));
     } else if(isStrType(receiverType)){ 
         if(!subtype(rhs, astr())) reportError(current, "Expected `str` in slice assignment, found <fmt(rhs)>");
@@ -689,8 +695,8 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> . <N
    
    tb.calculate("assignable with field", current, [rhs], 
       AType (){ 
-           res = computeFieldAssignableType(current, computeReceiverType(current, receiver, scope),  "<field>", operator, getType(rhs), scope);
-           unify(tau, res, onError(current, "Cannot bind type variable for <fmt("<names[0]>")>"));
+           res = computeFieldAssignableType(current, computeReceiverType(current, receiver, scope),  unescape("<field>"), operator, getType(rhs), scope);
+           unify(tau, res) || reportError(current, "Cannot bind type variable for <fmt("<names[0]>")>");
            return res;
          });
 }
@@ -701,7 +707,7 @@ AType computeFieldAssignableType(Statement current, AType receiverType, str fiel
             if (getADTName(receiverType) == "Tree" && fieldName == "top") {
                 return receiverType;
             }
-            fieldType = expandUserTypes(getType(fieldName, scope, {fieldId()}), scope);
+            fieldType = expandUserTypes(getType(fieldName, scope, {formalId(), fieldId()}), scope);
             declaredInfo = getDefinitions(adtName, scope, {dataId(), nonterminalId()});
             declaredType = getType(adtName, scope, {dataId(), nonterminalId()});
             declaredTypeParams = getADTTypeParameters(declaredType);
@@ -722,10 +728,10 @@ AType computeFieldAssignableType(Statement current, AType receiverType, str fiel
             fieldType = filterFieldType(fieldType, declaredInfo, scope); 
             
             updatedFieldType = computeAssignmentRhsType(current, fieldType, operator, rhs);
-            if(!subtype(updatedFieldType, fieldType)) reportError(current, "Field <fmt(fieldName)> requires <fmt(fieldType)>, found <fmt(updatedFieldType)>");     
+            subtype(updatedFieldType, fieldType) || reportError(current, "Field <fmt(fieldName)> requires <fmt(fieldType)>, found <fmt(updatedFieldType)>");     
             
             for(def <- declaredInfo){
-               if(fieldName in domain(def.defInfo.constructorFields)){
+               if(fieldName in domain(def.defInfo.constructorFields) || fieldName in domain(def.defInfo.commonKeywordFields)){
                     return receiverType;
                }
             }                           
@@ -739,7 +745,7 @@ AType computeFieldAssignableType(Statement current, AType receiverType, str fiel
         idx = indexOf(getTupleFieldNames(receiverType), fieldName);
         if(idx >= 0){
             updatedFieldType = computeAssignmentRhsType(current, tupleFields[idx], operator, rhs)[label=fieldName];
-            if(!subtype(updatedFieldType, tupleFields[idx])) reportError(current, "Field <fmt(fieldName)> requires <fmt(tupleFields[idx])>, found <fmt(updatedFieldType)>");
+            subtype(updatedFieldType, tupleFields[idx]) || reportError(current, "Field <fmt(fieldName)> requires <fmt(tupleFields[idx])>, found <fmt(updatedFieldType)>");
             tupleFields[idx] = updatedFieldType;
             return atuple(atypeList(tupleFields));
         } else
@@ -754,8 +760,7 @@ AType computeFieldAssignableType(Statement current, AType receiverType, str fiel
 }
 
 void checkAssignment(Statement current, (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, str operator, Statement rhs, TBuilder tb){
-
-    names = getReceiver(receiver, tb);
+   names = getReceiver(receiver, tb);
    tau = tb.newTypeVar();
    tb.define(unescape("<names[0]>"), variableId(), names[0], defLub([], AType(){ return getType(tau); }));
    scope = tb.getScope();
@@ -763,7 +768,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> ? <E
    tb.calculate("assignable with default expression", current, [defaultExpression, rhs], 
       AType (){ 
            res = computeDefaultAssignableType(current, computeReceiverType(current, receiver, scope), getType(defaultExpression), operator, getType(rhs), scope);
-           unify(tau, res, onError(current, "Cannot bind type variable for <fmt("<names[0]>")>"));
+           unify(tau, res) || reportError(current, "Cannot bind type variable for <fmt("<names[0]>")>");
            return res;
          });
 }
@@ -771,7 +776,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> ? <E
 AType computeDefaultAssignableType(Statement current, AType receiverType, AType defaultType, str operator, AType rhs, Key scope){
     finalReceiverType = computeAssignmentRhsType(current, receiverType, operator, rhs);
     finalDefaultType = computeAssignmentRhsType(current, defaultType, operator, rhs);
-    if(!comparable(finalReceiverType, finalDefaultType)) reportError(current, "Receiver and default expression lead to incomparable types: <fmt(finalReceiverType)> versus <fmt(finalDefaultType)>");
+    comparable(finalReceiverType, finalDefaultType) || reportError(current, "Receiver and default expression lead to incomparable types: <fmt(finalReceiverType)> versus <fmt(finalDefaultType)>");
     return receiverType;
 }
 
@@ -797,20 +802,58 @@ void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable 
            if(size(names) != size(rhsFields)) reportError(statement, "Tuple type required of arity <size(names)>, found arity <size(rhsFields)>");
            for(int i <- index(names)){
                if(isFullyInstantiated(getType(names[i]))){
-                  subtype(rhsFields[i], getType(names[i]), onError(names[i], "Value of type <fmt(rhsFields[i])> cannot be assigned to <fmt("<names[i]>")> of type <fmt(getType(names[i]))>"));
+                  subtype(rhsFields[i], getType(names[i])) || reportError(names[i], "Value of type <fmt(rhsFields[i])> cannot be assigned to <fmt("<names[i]>")> of type <fmt(getType(names[i]))>");
                   if(flatNames[i] in namesInRhs){
                     taus[i] = getType(names[i]);
                   }
                } else {
                  if(flatNames[i] in namesInRhs){
-                    unify(taus[i], typeof(names[i]), onError(current, "Cannot bind variable <fmt("<names[i]>")>"));
+                    unify(taus[i], typeof(names[i])) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
                  } else 
-                    unify(taus[i], rhsFields[i], onError(current, "Cannot bind variable <fmt("<names[i]>")>"));
+                    unify(taus[i], rhsFields[i]) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
                }
-            }
-           return atuple(atypeList(taus));
+           }
+           return atuple(atypeList([ instantiate(taus[i]) | int i <- index(names)]));
          });
 }
+
+void checkAssignment(Statement current, (Assignable) `<Assignable receiver> @ <Name n>`, str operator, Statement rhs, TBuilder tb){
+   tb.use(n, {annoId()});
+   names = getReceiver(receiver, tb);
+   tau = tb.newTypeVar();
+   tb.define(unescape("<names[0]>"), variableId(), names[0], defLub([], AType(){ return getType(tau); }));
+   scope = tb.getScope();
+   
+   tb.calculate("assignable with annotation", current, [n, rhs], 
+      AType (){ 
+           rt = computeReceiverType(current, receiver, scope);
+           res = computeAnnoAssignableType(current, rt,  unescape("<n>"), operator, getType(rhs), scope);
+           unify(tau, res) || reportError(current, "Cannot bind type variable for <fmt("<names[0]>")>");
+           return res;
+         });
+}
+
+AType computeAnnoAssignableType(Statement current, AType receiverType, str annoName, str operator, AType rhs, Key scope){
+println("computeAnnoAssignableType: <receiverType>, <annoName>, <operator>, <rhs>");
+  
+    annoNameType = expandUserTypes(getType(annoName, scope, {annoId()}), scope);
+    println("annoNameType: <annoNameType>");
+    if (isNodeType(receiverType) || isADTType(receiverType) || isNonTerminalType(receiverType)) {
+        if(overloadedAType(rel[Key, IdRole, AType] overloads) := annoNameType){
+           for(<key, idr, tp> <- overloads, aanno(_, onType, annoNameType) := tp, subtype(receiverType, onType)){
+               return annoNameType;
+           }
+           reportError(current, "Annotation on <fmt(t1)> cannot be resolved from <fmt(fieldType)>");
+        } else
+        if(aanno(_, onType, annoType) := annoNameType){
+           return annoType;
+        } else
+            reportError(current, "Invalid annotation type: <fmt(annoNameType)>");
+    } else
+        reportError(current, "Invalid type: expected node, ADT, or concrete syntax types, found <fmt(receiverType)>");
+}
+
+
 
 list[QualifiedName] getReceiver((Assignable) `<QualifiedName name>`, TBuilder tb){
     tb.use(name,{variableId()});
@@ -820,6 +863,7 @@ list[QualifiedName] getReceiver((Assignable) `<Assignable receiver> [ <Expressio
 list[QualifiedName] getReceiver((Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, TBuilder tb) =  getReceiver(receiver, tb);
 list[QualifiedName] getReceiver((Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`, TBuilder tb) =  getReceiver(receiver, tb);
 list[QualifiedName] getReceiver((Assignable) `<Assignable receiver> . <Name field>`, TBuilder tb) = getReceiver(receiver, tb);
+list[QualifiedName] getReceiver((Assignable) `<Assignable receiver> @ <Name n>`, TBuilder tb) = getReceiver(receiver, tb);
 list[QualifiedName] getReceiver((Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, TBuilder tb) =  getReceiver(receiver, tb);
 list[QualifiedName] getReceiver((Assignable) `\< <{Assignable ","}+ elements> \>`, TBuilder tb) = [*getReceiver(element, tb) | Assignable element <- elements];
 
@@ -831,7 +875,7 @@ default list[QualifiedName] getReceiver(Assignable asg, TBuilder tb) { throw "Un
 
 void collect(current:(Statement) `throw <Statement statement>`, TBuilder tb){
     tb.fact(current, avoid());
-    collectParts(current, tb);
+    collect(statement, tb);
 }
 
 // ---- function declaration, see Declaration
@@ -871,7 +915,7 @@ void collect(current: (Statement) `<Type tp> <{Variable ","}+ variables>;`, TBui
                                 reportError(v, msg);
                           }
                        }
-                       subtype(initialType, declaredType, onError(v, "Incompatible type <fmt(initialType)> in initialization of <fmt("<v.name>")>, expected <fmt(declaredType)>"));
+                       subtype(initialType, declaredType) || reportError(v, "Incompatible type <fmt(initialType)> in initialization of <fmt("<v.name>")>, expected <fmt(declaredType)>");
                        return declaredType;                  
                    });
             } else {
@@ -893,7 +937,7 @@ void collect(current: (Statement) `<Type tp> <{Variable ","}+ variables>;`, TBui
                             reportError(v, msg);
                        }
                        unify(tau, declaredType);   // bind tau to instantiated declaredType
-                       subtype(initialType, declaredType, onError(v, "Incompatible type in initialization of <fmt("<v.name>")>, expected <fmt(initialType)>"));
+                       subtype(initialType, declaredType) || reportError(v, "Incompatible type in initialization of <fmt("<v.name>")>, expected <fmt(initialType)>");
                        return declaredType;
                    }); 
             } 
@@ -901,5 +945,5 @@ void collect(current: (Statement) `<Type tp> <{Variable ","}+ variables>;`, TBui
           tb.define(unescape("<v.name>"), variableId(), v, defType([], AType() { return expandUserTypes(tau, scope); }));
         }
     }
-    collectParts(current, tb);
+    collect(variables, tb);
 }

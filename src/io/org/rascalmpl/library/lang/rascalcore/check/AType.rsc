@@ -3,12 +3,12 @@ module lang::rascalcore::check::AType
 import Node;
 import Relation;
 extend analysis::typepal::AType;
-import lang::rascal::check::ATypeUtils;
+import lang::rascalcore::check::ATypeUtils;
 import lang::rascal::\syntax::Rascal;
 
-alias Key         = loc;
-alias Keyword     = tuple[AType fieldType, str fieldName, Expression defaultExp];
-alias NamedField  = tuple[AType fieldType, str fieldName];
+//alias Key         = loc;
+alias Keyword     = tuple[str fieldName, AType fieldType, Expression defaultExp];
+alias NamedField  = tuple[str fieldName, AType fieldType] ;
 
 data QName        = qualName(str qualifier, str name);
    
@@ -111,8 +111,8 @@ public AProduction choice(AType s, set[AProduction] choices){
 // ---- Parse Tree
 
 data Tree 
-     = appl(AProduction prod, list[Tree] args) // <1>
-     | cycle(AType symbol, int cycleLength)  // <2>
+     = appl(AProduction aprod, list[Tree] args) // <1>
+     | cycle(AType asymbol, int cycleLength)  // <2>
      | amb(set[Tree] alternatives) // <3> 
      | char(int character) // <4>
      ;
@@ -157,7 +157,7 @@ construct ordered and un-ordered compositions, and associativity groups.
     for extending priority chains and such.
 } 
 data AProduction 
-     = prod(AType def, list[AType] symbols, set[Attr] attributes={}, set[SyntaxKind] syntaxKind = {}, loc src=|unknown:///|) // <1>
+     = prod(AType def, list[AType] asymbols, set[Attr] attributes={}, set[SyntaxKind] syntaxKind = {}, loc src=|unknown:///|) // <1>
      | regular(AType def) // <2>
      | error(AProduction prod, int dot) // <3>
      | skipped() // <4>
@@ -282,11 +282,7 @@ data AType
 data AType // <19>
      = \conditional(AType symbol, set[ACondition] conditions);
 
-public bool subtype(aadt(str _, list[AType] _, hasSyntax=true), AType::\adt("Tree", _)) 
-    = true;
-    
-public bool subtype(aadt(str _, list[AType] _, hasSyntax=true), AType::\auser("Tree", _)) 
-    = true;
+
 
 @doc{
 .Synopsis
@@ -314,7 +310,11 @@ data ACondition
 // ---- end ParseTree
 
 bool myIsSubType(AType t1, AType t2) = asubtype(t1, t2);
-//{ res = asubtype(t1, t2); println("asubtype(<t1>, <t2>) ==\> <res>"); return res;}
+//{ 
+//    res = asubtype(t1, t2); 
+//    println("asubtype(<t1>, <t2>) ==\> <res>"); 
+//    return res;
+//}
 
 AType myLUB(AType t1, AType t2) = alub(t1, t2);
 //{ println("myLUB: <t1>, <t2>"); return alub(t1, t2); }
@@ -359,18 +359,36 @@ default bool asubtype(AType s, AType t) = (s.label? || t.label?) ? asubtype(unse
 
 
 bool asubtype(overloadedAType(overloads), AType r) = any(<k, idr, tp> <- overloads, asubtype(tp, r));
+//{   for(<k, idr, tp> <- overloads){
+//        println("asubtype(tp,r):");
+//        iprintln(tp);
+//        iprintln(r);
+//        if(asubtype(tp, r)) return true;
+//    }
+//    return false;
+//}
 bool asubtype(AType l, overloadedAType(overloads)) = any(<k, idr, tp> <- overloads, asubtype(l, tp));
 
 bool asubtype(AType _, avalue()) = true;
 
 bool asubtype(avoid(), AType _) = true;
 
-bool asubtype(acons(AType a, _, list[NamedField] _, list[Keyword] _), a) = true;
+bool asubtype(x:acons(AType a, _, list[NamedField] _, list[Keyword] _), b){
+    res = asubtype(a, b);
+    //println("asubtype(acons(<a>,_,_,_), <b>) ==\> <res>");
+    return res;
+}
+bool asubtype(a, x:acons(AType b, _, list[NamedField] _, list[Keyword] _)){
+    res = asubtype(a, b);
+    //println("asubtype(<a>, acons(<b>,_,_,_) ==\> <res>");
+    return res;
+}
 bool asubtype(acons(AType a, str name, list[NamedField] ap, list[Keyword] _), acons(a,name,list[NamedField] bp, list[Keyword] _)) = asubtype(ap,bp);
 
 bool asubtype(aadt(str _, list[AType] _), anode()) = true;
 bool asubtype(aadt(str n, list[AType] l), aadt(n, list[AType] r)) = asubtype(l, r);
 bool asubtype(aadt(_, _, hasSyntax=true), aadt("Tree", _)) = true;
+bool asubtype(aadt(str _, list[AType] _, hasSyntax=true), AType::\auser("Tree", _))  = true;
 
 bool asubtype(aadt(str n, list[AType] l), auser(n, list[AType] r)) = asubtype(l,r); //{throw "Illegal use of auser <n>"; } //= asubtype(l,r);
 
@@ -427,7 +445,8 @@ default bool asubtype(list[NamedField] l, list[NamedField] r) = size(l) == 0 && 
 .Synopsis
 Check if two types are comparable, i.e., have a common supertype.
 }
-bool comparable(AType s, AType t) = asubtype(s,t) || asubtype(t,s);
+bool comparable(AType s, AType t)
+    = s == t || asubtype(s,t) || asubtype(t,s);
 
 @doc{
 .Synopsis
@@ -489,18 +508,18 @@ AType alub(anum(), arat()) = anum();
 
 AType alub(aset(AType s), aset(AType t)) = aset(alub(s, t)); 
  
-AType alub(aset(AType s), arel(AType ts)) = aset(alub(s,atuple(ts)));  
-AType alub(arel(AType ts), aset(AType s)) = aset(alub(s,atuple(ts)));
+AType alub(aset(AType s), arel(atypeList(list[AType] ts))) = aset(alub(s,atuple(atypeList(ts))));  
+AType alub(arel(atypeList(list[AType] ts)), aset(AType s)) = aset(alub(s,atuple(atypeList(ts))));
 
-AType alub(r1: arel(AType l), r2:arel(AType r))  = size(l) == size(r) ? arel(alub(l, r)) : aset(avalue());
+AType alub(r1: arel(atypeList(list[AType] l)), r2:arel(atypeList(list[AType] r)))  = size(l) == size(r) ? arel(atypeList(alub(l, r))) : aset(avalue());
 
 AType alub(alist(AType s), alist(AType t)) = alist(alub(s, t));  
-AType alub(alist(AType s), alrel(AType ts)) = alist(alub(s,atuple(ts)));  
-AType alub(alrel(AType ts), alist(AType s)) = alist(alub(s,atuple(ts)));
+AType alub(alist(AType s), alrel(atypeList(list[AType] ts))) = alist(alub(s,atuple(atypeList(ts))));  
+AType alub(alrel(atypeList(list[AType] ts)), alist(AType s)) = alist(alub(s,atuple(atypeList(ts))));
 
-AType alub(lr1: alrel(AType l), lr2:alrel(AType r))  = size(l) == size(r) ? alrel(alub(l, r)) : alist(avalue());
+AType alub(lr1: alrel(atypeList(list[AType] l)), lr2:alrel(atypeList(list[AType] r)))  = size(l) == size(r) ? alrel(atypeList(alub(l, r))) : alist(avalue());
 
-AType alub(t1: atuple(AType l), t2:atuple(AType r)) = size(l) == size(r) ? atuple(alub(l, r)) : atuple(avalue());
+AType alub(t1: atuple(atypeList(list[AType] l)), t2:atuple(atypeList(list[AType] r))) = size(l) == size(r) ? atuple(atypeList(alub(l, r))) : atuple(avalue());
 
 AType alub(m1: amap(ld, lr), m2: amap(rd, rr)) = amap(alub(ld, rd), alub(lr, rr));
 

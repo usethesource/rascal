@@ -82,7 +82,7 @@ public AType convertBasicType(BasicType t, TBuilder tb) {
 public AType convertTypeArg(TypeArg ta, TBuilder tb) {
     switch(ta) {
         case (TypeArg) `<Type t>` : return convertType(t, tb);
-        case (TypeArg) `<Type t> <Name n>` :  return convertType(t, tb)[label="<n>"];
+        case (TypeArg) `<Type t> <Name n>` :  return convertType(t, tb)[label="<prettyPrintQName(convertName(n))>"];
     }
 }
 
@@ -275,7 +275,7 @@ public Name getUserTypeRawName(UserType ut, TBuilder tb) {
 @doc{Convert Rascal type variables into their abstract representation.}
 public AType convertTypeVar(TypeVar tv, TBuilder tb) {
     switch(tv) {
-        case (TypeVar) `& <Name n>` : return aparameter("<n>",avalue());
+        case (TypeVar) `& <Name n>` : return aparameter("<prettyPrintQName(convertName(n))>",avalue());
         case (TypeVar) `& <Name n> \<: <Type tp>` : {
             return aparameter("<n>",convertType(tp, tb));
         }
