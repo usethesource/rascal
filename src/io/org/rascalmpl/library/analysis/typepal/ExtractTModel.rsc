@@ -18,6 +18,7 @@ import String;
 extend analysis::typepal::ScopeGraph;
 extend analysis::typepal::AType;
 //import rascal::ATypeUtils;
+import util::Benchmark;
 
 data RuntimeException
     = TypePalUsage(str reason)
@@ -32,7 +33,12 @@ data ScopeRole
     = anonymousScope()
     ;
 
-loc getLoc(Tree t) = t@\loc ? t.args[0]@\loc;
+//loc getLoc(Tree t) = t@\loc ? t.args[0]@\loc;
+
+loc getLoc(Tree t)
+    = t@\loc ? { fst = t.args[0]@\loc; 
+                 lst = t.args[-1]@\loc;
+                 fst[length=lst.offset - fst.offset + lst.length][end=lst.end]; };
 
 RuntimeException checkFailed(Tree where, str msg) = checkFailed({ error(msg, getLoc(where)) });
 RuntimeException checkFailed(loc where, str msg) = checkFailed({ error(msg, where) });
@@ -68,13 +74,13 @@ DefInfo defType(list[value] dependsOn, AType() getAType)
 DefInfo defLub(list[value] dependsOn, AType() getAType)
     = defLub(dependenciesAsKeys(dependsOn), {}, [getAType]);
     
-// Errors found during type checking  
-data ErrorHandler
-    = onError(loc where, str msg)
-    | noError()
-    ;
-   
-ErrorHandler onError(Tree t, str msg) = onError(getLoc(t), msg);
+//// Errors found during type checking  
+//data ErrorHandler
+//    = onError(loc where, str msg)
+//    | noError()
+//    ;
+//   
+//ErrorHandler onError(Tree t, str msg) = onError(getLoc(t), msg);
 
 str fmt(AType t, bool quoted = true)            = quoted ? "`<prettyPrintAType(t)>`" : prettyPrintAType(t);
 str fmt(str s, bool quoted = true)              = quoted ? "`<s>`" : s;
@@ -100,7 +106,8 @@ void reportInfo(Tree t, str msg){
 
 // Facts about location src, given dependencies and an AType callback
 data Fact
-    = openFact(loc src, set[loc] dependsOn, AType() getAType)
+    = openFact(loc src, AType uninstantiated)
+    | openFact(loc src, set[loc] dependsOn, AType() getAType)
     | openFact(set[loc] srcs, set[loc] dependsOn, list[AType()] getATypes)
     ;
 
@@ -122,7 +129,7 @@ data TModel (
         set[Requirement] openReqs = {},
         map[loc,loc] tvScopes = (),
         set[Message] messages = {},
-        rel[str,value] store = {},
+        map[str,value] store = (),
         map[Key, Define] definitions = ()
         );
 
@@ -134,6 +141,80 @@ TModel extractTModel(Tree root, TBuilder(Tree t) tBuilder = defaultTBuilder, set
     tm = tb.build();
     tm = resolvePath(tm, lookupFun=lookupFun);
     return tm;
+}
+
+void collect(Tree t1, Tree t2, TBuilder tb){
+    collect(t1, tb);
+    collect(t2, tb);
+}
+
+void collect(Tree t1, Tree t2, Tree t3, TBuilder tb){
+    collect(t1, tb);
+    collect(t2, tb);
+    collect(t3, tb);
+}
+
+void collect(Tree t1, Tree t2, Tree t3, Tree t4, TBuilder tb){
+    collect(t1, tb);
+    collect(t2, tb);
+    collect(t3, tb);
+    collect(t4, tb);
+}
+
+void collect(Tree t1, Tree t2, Tree t3, Tree t4, Tree t5, TBuilder tb){
+    collect(t1, tb);
+    collect(t2, tb);
+    collect(t3, tb);
+    collect(t4, tb);
+    collect(t5, tb);
+}
+
+void collect(Tree t1, Tree t2, Tree t3, Tree t4, Tree t5, Tree t6, TBuilder tb){
+    collect(t1, tb);
+    collect(t2, tb);
+    collect(t3, tb);
+    collect(t4, tb);
+    collect(t5, tb);
+    collect(t6, tb);
+}
+
+void collect(Tree t1, Tree t2, Tree t3, Tree t4, Tree t5, Tree t6, Tree t7, TBuilder tb){
+    collect(t1, tb);
+    collect(t2, tb);
+    collect(t3, tb);
+    collect(t4, tb);
+    collect(t5, tb);
+    collect(t6, tb);
+    collect(t7, tb);
+}
+
+void collect(Tree t1, Tree t2, Tree t3, Tree t4, Tree t5, Tree t6, Tree t7, Tree t8, TBuilder tb){
+    collect(t1, tb);
+    collect(t2, tb);
+    collect(t3, tb);
+    collect(t4, tb);
+    collect(t5, tb);
+    collect(t6, tb);
+    collect(t7, tb);
+    collect(t8, tb);
+}
+
+void collect(Tree t1, Tree t2, Tree t3, Tree t4, Tree t5, Tree t6, Tree t7, Tree t8, Tree t9, TBuilder tb){
+    collect(t1, tb);
+    collect(t2, tb);
+    collect(t3, tb);
+    collect(t4, tb);
+    collect(t5, tb);
+    collect(t6, tb);
+    collect(t7, tb);
+    collect(t8, tb);
+    collect(t9, tb);
+}
+
+
+
+void collect(list[Tree] currentTrees, TBuilder tb){
+    for(t <- currentTrees) collect(t, tb);
 }
 
 // Default definition for collect; to be overridden in a specific type checker
@@ -229,8 +310,13 @@ data TBuilder
         void (Tree src, str msg) reportWarning,
         void (Tree src, str msg) reportInfo,
         AType () newTypeVar,
-        void (str key, value val) store,
-        set[value] (str key) getStored,
+        //void (str key, value val) store,
+        //set[value] (str key) getStored,
+        void(str key, value val) push,
+        value (str key) pop,
+        value (str key) top,
+        list[value] (str key) getStack,
+        void (str key) clearStack,
         void (TModel tm) addTModel,
         TModel () build
       ); 
@@ -241,20 +327,29 @@ void() makeClosWarning(Tree src, str msg) = void(){ throw checkFailed({ warning(
 void() makeClosInfo(Tree src, str msg) = void(){ checkFailed({ info(msg, getLoc(src)) }); };
              
 TBuilder defaultTBuilder(Tree t) = newTBuilder(t);    
-         
+ 
+alias LubDefine = tuple[Key lubScope, str id, Key scope, IdRole idRole, Key defined, DefInfo defInfo]; 
+alias LubDefine2 = tuple[str id, Key scope, IdRole idRole, Key defined, DefInfo defInfo];       
+
 TBuilder newTBuilder(Tree t, bool debug = false){
-        
+    str rootPath = getLoc(t).path;
+    Key globalScope = |global-scope:///|;
     Defines defines = {};
-    Defines lubDefines = {};
+    //set[LubDefine] lubDefines = {};
     
-    rel[loc scopeScope, str id, loc idScope, set[IdRole] idRoles, loc occ] lubUses = {};
-    set[Key] lubScopes = {};
-    //rel[loc scope, str id, IdRole idRole] lubKeys = {};
+    //rel[loc lubScope, str id, loc idScope, set[IdRole] idRoles, loc occ] lubUses = {};
+    
+    map[Key, set[Define]] definesPerLubScope = (globalScope: {});
+    map[Key, set[LubDefine2]] lubDefinesPerLubScope = (globalScope: {});
+    map[Key, rel[str id, loc idScope, set[IdRole] idRoles, loc occ]] lubUsesPerLubScope = (globalScope: {});
+    map[Key, rel[Key,Key]]  scopesPerLubScope = (globalScope: {});
+ 
     Scopes scopes = ();
+    
     Paths paths = {};
     ReferPaths referPaths = {};
     Uses uses = [];
-    rel[str,value] storeVals = {};
+    map[str,value] storeVals = ();
     
     map[loc,Calculator] calculators = ();
     map[loc,AType] facts = ();
@@ -265,22 +360,15 @@ TBuilder newTBuilder(Tree t, bool debug = false){
     luDebug = debug;
     set[Message] messages = {};
    
-    Key globalScope = |global-scope:///|;
-     
     Key currentScope = globalScope; //getLoc(t);
     Key rootScope = globalScope; //currentScope;
   
     scopes[getLoc(t)] = globalScope;
     lrel[Key scope, bool lubScope, map[ScopeRole, value] scopeInfo] scopeStack = [<globalScope, false, (anonymousScope(): false)>];
+    list[Key] lubScopeStack = [];
+    Key currentLubScope = globalScope;
     
     bool building = true;
-    
-    Key getCurrentLubScope(){
-        for(int i <- index(scopeStack), <scope, true, map[ScopeRole,value] scopeInfo2> := scopeStack[i]){     
-            return scope;
-        }
-        throw TypePalUsage("`getCurrentLubScope` scope cannot be found");
-    }
     
     // TODO This is language dependent!
     str stripEscapes(str s) = replaceAll(s, "\\", "");
@@ -294,10 +382,11 @@ TBuilder newTBuilder(Tree t, bool debug = false){
             else throw TypePalUsage("Argument `def` of `define` should be `Tree` or `loc`, found <typeOf(def)>");
             
             if(info is defLub){
-                lubDefines += {<getCurrentLubScope(), id, idRole, l, info>};
-                //lubKeys += <currentScope, id, idRole>;
+                //lubDefines += {<currentLubScope, id, currentScope, idRole, l, info>};                
+                lubDefinesPerLubScope[currentLubScope] += {<id, currentScope, idRole, l, info>};
             } else {
-                defines += {<currentScope, id, idRole, l, info>};
+                //defines += {<currentScope, id, idRole, l, info>};
+                definesPerLubScope[currentLubScope] += <currentScope, id, idRole, l, info>;
             }
         } else {
             throw TypePalUsage("Cannot call `define` on TBuilder after `build`");
@@ -316,7 +405,8 @@ TBuilder newTBuilder(Tree t, bool debug = false){
     void _useLub(Tree occ, set[IdRole] idRoles) {
         if(building){
            //if(currentScope == globalScope) throw TypePalUsage("`use` requires a user-defined scope; missing `enterScope`");
-           lubUses += { <getCurrentLubScope(), stripEscapes("<occ>"), currentScope, idRoles, getLoc(occ)> };
+           //lubUses += { <currentLubScope, stripEscapes("<occ>"), currentScope, idRoles, getLoc(occ)> };
+           lubUsesPerLubScope[currentLubScope] += <stripEscapes("<occ>"), currentScope, idRoles, getLoc(occ)>;
         } else {
             throw TypePalUsage("Cannot call `useLub` on TBuilder after `build`");
         }
@@ -355,18 +445,30 @@ TBuilder newTBuilder(Tree t, bool debug = false){
     void _enterScope(Tree inner, bool lubScope=false){
         if(building){
            innerLoc = getLoc(inner);
-           if(innerLoc != currentScope){
+            if(innerLoc == rootScope){
+              currentScope = innerLoc;
+              scopeStack = push(<innerLoc, lubScope, ()>, scopeStack);
+           } else { //if(innerLoc != currentScope){
               scopes[innerLoc] = currentScope; 
+              scopesPerLubScope[currentLubScope] += <currentScope, innerLoc>;
               currentScope = innerLoc;
               scopeStack = push(<innerLoc, lubScope, ()>, scopeStack);
-              if(lubScope) lubScopes += innerLoc;
-           } else 
-           if(innerLoc == rootScope){
-              currentScope = innerLoc;
-              scopeStack = push(<innerLoc, lubScope, ()>, scopeStack);
-           } else {
-              throw TypePalUsage("Cannot call `enterScope` with inner scope that is equal to currentScope");
-           }
+              if(lubScope){
+                lubScopeStack = push(innerLoc, lubScopeStack);
+                currentLubScope = innerLoc;
+                definesPerLubScope[currentLubScope] = {};
+                lubDefinesPerLubScope[currentLubScope] = {};
+                lubUsesPerLubScope[currentLubScope] = {};
+                scopesPerLubScope[currentLubScope] = {};
+              }
+           } 
+           //else 
+           //if(innerLoc == rootScope){
+           //   currentScope = innerLoc;
+           //   scopeStack = push(<innerLoc, lubScope, ()>, scopeStack);
+           //} else {
+           //   ;// do nothing throw TypePalUsage("Cannot call `enterScope` with inner scope <innerLoc> that is equal to currentScope");
+           //}
         } else {
           throw TypePalUsage("Cannot call `enterScope` on TBuilder after `build`");
         }
@@ -381,8 +483,17 @@ TBuilder newTBuilder(Tree t, bool debug = false){
                  throw TypePalUsage("Cannot call `leaveScope` beyond the root scope"); 
               }
               currentScope = scopeStack[0].scope;
+              if(!isEmpty(lubScopeStack) && innerLoc == lubScopeStack[0]){
+                defines += finalizeDefines(currentLubScope);
+                lubScopeStack = tail(lubScopeStack);
+                if(isEmpty(lubScopeStack)){
+                   currentLubScope = globalScope;
+                } else {
+                   currentLubScope = lubScopeStack[0];
+                }
+              }
            } else {
-              throw TypePalUsage("Cannot call `leaveScope` with a scope that is not the current scope"); 
+              throw TypePalUsage("Cannot call `leaveScope` with scope <inner> that is not the current scope"); 
            }
         } else {
           throw TypePalUsage("Cannot call `leaveScope` on TBuilder after `build`");
@@ -399,11 +510,6 @@ TBuilder newTBuilder(Tree t, bool debug = false){
                } else {
                  scopeStack =  scopeStack[0..i] + <scope, lubScope, scopeInfo2> + scopeStack[i+1..];
                }
-               //println("setScopeInfo: <i>, <scope>, <scopeRole>");
-               //if(scopeRole == loopScope()){
-               //  iprintln(scopeStack[i]);
-               //  println("loop scope");
-               //  }
                return;
            }
            throw TypePalUsage("`setScopeInfo` scope cannot be found");
@@ -418,8 +524,6 @@ TBuilder newTBuilder(Tree t, bool debug = false){
                 for(<Key scope, lubScope, map[ScopeRole,value] scopeInfo> <- scopeStack, scopeRole in scopeInfo){
                     append <scope, scopeInfo[scopeRole]>;
                 }
-            //println("getScopeInfo: <scopeRole>, <size(res)>");
-            //iprintln(res);
             return res;
         } else {
            throw TypePalUsage("Cannot call `getScopeInfo` on TBuilder after `build`");
@@ -503,76 +607,179 @@ TBuilder newTBuilder(Tree t, bool debug = false){
         if(building){
             ntypevar += 1;
             s = right("<ntypevar>", 10, "0");
-            tv = |typevar:///<s>|;
+            tv = |typevar://<rootPath>/<s>|;
             tvScopes[tv] = currentScope;
+            //println("newTypeVar: <tv> in scope <currentScope>");
             return tvar(tv);
         } else {
             throw TypePalUsage("Cannot call `newTypeVar` on TBuilder after `build`");
         }
     }
     
-    void _store(str key, value val){
-        storeVals += <key, val>;
-    }
-    
-    set[value] _getStored(str key){
-        return storeVals[key];
-    }
-    
-    void finalizeDefines(){
-    // Recall:
-        // alias Define = tuple[Key scope, str id, IdRole idRole, Key defined, DefInfo defInfo];
-        //rel[loc lubScope, str id, loc scope, loc idScope, set[IdRole] idRoles, loc occ] lubUses = {};
-        set[Define] extra_defines = {};
-        
-        // Process all lubbables in lubScopes
-        for(lubScope <- lubScopes){   
-            lubDefsInScope = lubDefines[lubScope];
-            lubUsesInScope = lubUses[lubScope];
- 
-            for(<str id, IdRole role> <- lubDefsInScope<0,1>){
-                if({fixedDef} := defines[lubScope, id, role]){
-                    // There exists a definition with fixed type, just use it instead of the lubDefines
-                    for(<Key defined, DefInfo defInfo> <- lubDefsInScope[id, role]){
-                        uses += use(id, defined, lubScope, {role});
-                    }
-                    //for(u: <id, idScope, set[IdRole] idRoles, loc occ> <- lubUsesInScope){
-                    //    uses += use(id, occ, idScope, idRoles);
-                    //    lubUsesInScope -= u;
-                    //}
-                } else {  // No definition with fixed type, collect all lubDefs and appoint a first definition
-                    deps = {}; getATypes = [];
-                    defineds = {};
-                    loc firstDefined;
-                    for(tuple[Key defined, DefInfo defInfo] info <- lubDefsInScope[id, role]){
-                        defineds += info.defined;
-                        if(!firstDefined? || info.defined.offset < firstDefined.offset){
-                            firstDefined = info.defined;
-                        }
-                        deps += info.defInfo.dependsOn;
-                        getATypes += info.defInfo.getATypes;
-                    }
-                    
-                    //for(u: <id, loc idScope, set[IdRole] idRoles, loc occ> <- lubUsesInScope){
-                    //    defineds += occ; 
-                    //    //uses += [use(id, occ, idScope, idRoles)];
-                    //    lubUsesInScope -= u;
-                    //}
-                  
-                    res = <lubScope, id, role, firstDefined, defLub(deps - defineds, defineds, getATypes)>;
-                    //println("finalizeDefines: add define:");  iprintln(res);
-                    extra_defines += res;
-                }
-            }
-            
-            // Transform uncovered lubUses into ordinary uses
-        
-            for(u: <str id, loc idScope, set[IdRole] idRoles, loc occ> <- lubUsesInScope){
-                uses += use(id, occ, idScope, idRoles);
-                lubUsesInScope -= u;
-            }
+    void _push(str key, value val){
+        if(storeVals[key]? && list[value] old := storeVals[key]){
+           storeVals[key] = val + old;
+        } else {
+           storeVals[key] = [val];
         }
-        defines += extra_defines;
+    }
+    
+    value _pop(str key){
+        if(storeVals[key]? && list[value] old := storeVals[key], size(old) > 0){
+           pval = old[0];
+           storeVals[key] = tail(old);
+           return pval;
+        } else {
+           throw TypePalUsage("Cannot pop from empty stack for key <fmt(key)>");
+        }
+    }
+    
+    value _top(str key){
+        if(storeVals[key]? && list[value] old := storeVals[key], size(old) > 0){
+           return old[0];
+        } else {
+           throw TypePalUsage("Cannot get top from empty stack for key <fmt(key)>");
+        }
+    }
+    
+    list[value] _getStack(str key){
+        if(storeVals[key]? && list[value] old := storeVals[key]){
+            return old;
+        }
+        return [];
+    }
+    
+    void _clearStack(str key){
+        storeVals[key] = [];
+    }
+    
+   // Merge all lubDefs and appoint a definition to refer to
+    
+    Define mergeLubDefs(str id, Key scope, rel[IdRole role, Key defined, DefInfo defInfo] lubDefs){
+        deps = {}; getATypes = [];
+        defineds = {};
+        loc firstDefined = |undef:///|;
+        roles = {};
+        for(tuple[IdRole role, Key defined, DefInfo defInfo] info <- lubDefs){
+            roles += info.role;
+            defineds += info.defined;
+            if(firstDefined == |undef:///| || info.defined.offset < firstDefined.offset){
+                firstDefined = info.defined;
+            }
+            deps += info.defInfo.dependsOn;
+            getATypes += info.defInfo.getATypes;
+        }
+        if({role} := roles){
+            res = <scope, id, role, firstDefined, defLub(deps - defineds, defineds, getATypes)>;
+            //println("finalizeDefines: add define:");  iprintln(res);
+            return res;
+        } else 
+             throw TypePalUsage("LubDefs should use a single role, found <fmt(roles)>");
+    }
+    
+    // Finalize all defines
+    
+     set[Define] finalizeDefines(){
+          return defines + definesPerLubScope[globalScope];
+        //return definesPerLubScope[globalScope] + {*finalizeDefines(lubScope) | lubScope <- lubScopes};
+     }
+     
+    //  Finalize all defLubs and useLubs in one lubScope:
+    //  1. A definition with a fixed type in the lubScope itself:
+    //     - change all defLubs into uses of that definition
+    //  2. A definition (but without a fixed type) in the lubScope itself:
+    //     - merge all defLubs (also in nested scopes)
+    //  3. Definitions with a fixed type in one or more subscopes:
+    //     - change all defLubs per subscope (and its subscopes) to use the definition in the subscope
+    //  4. Definitions (but without a fixed type) in one or more subscopes:
+    //     - merge all defLubs per subscope (and its subscopes)
+    // Recall:
+    // alias Define - tuple[Key scope, str id, IdRole idRole, Key defined, DefInfo defInfo];
+    // alias LubDefine2 = tuple[str id, Key scope, IdRole idRole, Key defined, DefInfo defInfo]; 
+                
+    
+     set[Define] finalizeDefines(Key lubScope){
+        
+        set[Define] extra_defines = {};
+       
+        containment = scopesPerLubScope[lubScope]* + <lubScope,lubScope>;
+        allScopes = carrier(containment);
+        
+        deflubs_in_lubscope = lubDefinesPerLubScope[lubScope];
+        deflub_names = deflubs_in_lubscope<0>;
+        uselubs_in_lubscope = lubUsesPerLubScope[lubScope];  
+         
+        
+        local_fixed_defines = definesPerLubScope[lubScope];
+        extra_defines += local_fixed_defines;
+        local_fixed_defines_scope = local_fixed_defines<1,0>;
+        ids_with_fixed_def = domain(local_fixed_defines_scope);
+        
+        for(str id <- deflub_names){
+            id_defined_in_scopes = deflubs_in_lubscope[id]<0>;
+            id_defined_in_scopes = { sc1 | sc1 <- id_defined_in_scopes, isEmpty(containment) || !any(sc2 <- id_defined_in_scopes, sc1 != sc2, <sc2, sc1> in containment)};
+            //println("Consider <id>, defined in scopes <id_defined_in_scopes>");
+                  
+            if({fixedDef} := local_fixed_defines[lubScope, id]){  // Definition exists with fixed type in the lubScope, use it instead of the lubDefines          
+               //println("---top level fixedDef: <fixedDef> in <lubScope>");
+               for(<IdRole role, Key defined, DefInfo defInfo> <- deflubs_in_lubscope[id, allScopes]){
+                   u = use(id, defined, lubScope, {role});
+                   //println("add: <u>");
+                   uses += u;
+               }
+            } else if(id in ids_with_fixed_def){ // Definition(s) with fixed type exist in one or more subscopes, use them instead of the lubDefines 
+                //println("---fixed def(s) in subscopes: <local_fixed_defines_scope[id]>");
+                for(scope <- allScopes){
+                    if(scope in local_fixed_defines_scope[id]){
+                        for(<IdRole role, Key defined, DefInfo defInfo> <- deflubs_in_lubscope[id, containment[scope]]){
+                            u = use(id, defined, scope, {role});
+                            //println("add: <u>");
+                            uses += u;
+                        }
+                    } else {
+                        id_dfs = deflubs_in_lubscope[id, scope];
+                        if(!isEmpty(id_dfs)) {
+                            extra_defines += mergeLubDefs(id, scope, id_dfs);
+                        }
+                    }
+                }
+            } else if(lubScope in id_defined_in_scopes){   // Definition exists in the lubScope without fixed type, merge all lubDefs
+                //println("---toplevel lubDef");
+                 id_dfs = deflubs_in_lubscope[id, containment[id_defined_in_scopes]];
+                 if(!isEmpty(id_dfs)){
+                    extra_defines += mergeLubDefs(id, lubScope, id_dfs);
+                 }
+           } else {                                     // Same id defined in one or more disjoint subscopes
+             for(scope <- id_defined_in_scopes){
+                if({fixedDef} := local_fixed_defines[scope, id]){ // defined in outer scope with fixed type
+                   //println("fixedDef: <fixedDef> in inner scope <scope>");
+                   // There exists a definition with fixed type in the inner scope, just use it instead of the lubDefines
+                   for(<IdRole role, Key defined, DefInfo defInfo> <- deflubs_in_lubscope[id, containment[id_defined_in_scopes]]){
+                       u = use(id, defined, scope, {role});
+                      //println("add: <u>");
+                       uses += u;
+                   }
+               } else {
+                 extra_defines += mergeLubDefs(id, scope, deflubs_in_lubscope[id, containment[scope]]);
+               }
+             }
+           }
+        }
+        
+        // Transform uncovered lubUses into ordinary uses
+    
+        for(u: <str id, loc idScope, set[IdRole] idRoles, loc occ> <- uselubs_in_lubscope){
+            //println("replace lubUse by <use(id, occ, idScope, idRoles)>");
+            uses += use(id, occ, idScope, idRoles);
+            uselubs_in_lubscope -= u;
+        }
+        
+        delete(definesPerLubScope, lubScope);   // Remove all data recorded for this lubScope
+        delete(lubDefinesPerLubScope, lubScope);
+        delete(lubUsesPerLubScope, lubScope);
+        delete(scopesPerLubScope, lubScope);
+        
+        return extra_defines;
     }
     
     void _addTModel(TModel tm){
@@ -584,26 +791,37 @@ TBuilder newTBuilder(Tree t, bool debug = false){
     TModel _build(){
         if(building){
            building = false;
+           
+           if(size(scopeStack) == 0){
+                throw TypePalUsage("Bottom entry missing from scopeStack: more leaveScopes than enterScopes");
+           }
+           
+           if(size(scopeStack) > 1){
+                unclosed = [scope | <Key scope, bool lubScope, map[ScopeRole, value] scopeInfo> <- scopeStack];
+                throw TypePalUsage("Missing `leaveScope`(s): unclosed scopes <unclosed>");
+           }
+           
            tm = tmodel();
-           finalizeDefines();
+           defines = finalizeDefines();
            tm.defines = defines;
-           tm.scopes = scopes;
+           tm.scopes = scopes;  scopes = ();
            tm.paths = paths;
            tm.referPaths = referPaths;
-           tm.uses = uses;
+           tm.uses = uses;      uses = [];
            
            tm.calculators = calculators;
-           tm.facts = facts;
-           tm.openFacts = openFacts;
-           tm.openReqs = openReqs;
-           tm.tvScopes = tvScopes;
-           tm.store = storeVals;
+           tm.facts = facts;            facts = ();
+           tm.openFacts = openFacts;    openFacts = {};    
+           tm.openReqs = openReqs;  
+           tm.tvScopes = tvScopes;      tvScopes = ();
+           tm.store = storeVals;        storeVals = ();
            tm.definitions = ( def.defined : def | Define def <- defines);
            definesMap = ();
            for(<Key scope, str id, IdRole idRole, Key defined, DefInfo defInfo> <- defines){
                 definesMap[<scope, id>] = definesMap[<scope, id>]? ?  definesMap[<scope, id>] + {<idRole, defined>} : {<idRole, defined>};
            }
            tm.definesMap = definesMap;
+           defines = {};
            tm.messages = messages;
            return tm; 
         } else {
@@ -624,16 +842,18 @@ TBuilder newTBuilder(Tree t, bool debug = false){
                      _getScope,
                      _require, 
                      _requireEager,
-                     _fact, 
-                     //_fact, 
+                     _fact,
                      _calculate, 
                      _calculateEager,
                      _reportError, 
                      _reportWarning, 
                      _reportInfo, 
                      _newTypeVar, 
-                     _store,
-                     _getStored,
+                     _push,
+                     _pop,
+                     _top,
+                     _getStack,
+                     _clearStack,
                      _addTModel,
                      _build); 
 }

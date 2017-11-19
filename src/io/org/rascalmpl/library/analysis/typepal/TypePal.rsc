@@ -22,6 +22,8 @@ import String;
 import Message;
 import Exception;
 
+import util::Benchmark;
+
 extend analysis::typepal::ScopeGraph;
 extend analysis::typepal::AType;
 extend analysis::typepal::ExtractTModel;
@@ -61,11 +63,11 @@ Message warning(Tree t, str msg) = warning(msg, getLoc(t));
 
 Message info(Tree t, str msg) = info(msg, getLoc(t));
 
-void reportError(Tree t, str msg){
+bool reportError(Tree t, str msg){
     throw checkFailed({error(msg, getLoc(t))});
 }
 
-void reportErrors(set[Message] msgs){
+bool reportErrors(set[Message] msgs){
     throw checkFailed(msgs);
 }
 
@@ -132,6 +134,8 @@ set[Key] (TModel, Use) lookupFun = lookup;
 TModel getTModel(){
     return extractedTModel[facts=facts];
 }
+
+void clearBindings() { bindings = (); }
 
 AType lub(AType t1, AType t2) = lub([t1, t2]);
 
@@ -216,12 +220,12 @@ AType find(loc src){
     //println("find: <src>");
     if(bindings[src]?){
         v = bindings[src];
-        if(tvar(loc src1) := v) return find(src1);
+        if(tvar(loc src1) := v && src1 != src) return find(src1);
         return v;
     }
     if(facts[src]?){
         v = facts[src];
-        if(tvar(loc src1) := v) return find(src1);
+        if(tvar(loc src1) := v && src1 != src) return find(src1);
         return v;
     }
     if(isTypeVariable(src)) return tvar(src);
@@ -230,8 +234,11 @@ AType find(loc src){
 
 // Substitute a type variable first using bindings, then facts; return as is when there is no binding
 AType substitute(tv: tvar(loc src)){
-    if(bindings[src]?) return substitute(bindings[src]);
-    if(facts[src]?) return substitute(facts[src]);
+    //println("substitute: <tv>
+    //        'bindings:   <bindings[src]? ? bindings[src] : "unbound">
+    //        'facts:      <facts[src]? ? facts[src] : "unbound">");
+    if(bindings[src]?) { b = bindings[src]; return b == tv ? tv : substitute(b); }
+    if(facts[src]?) { b = facts[src]; return b == tv ? tv : substitute(b); }
     return tv;
 }
 
@@ -328,7 +335,7 @@ bool addFact(<Key scope, str id, IdRole idRole, Key defined, noDefInfo()>)
     = true;
  
 bool addFact(<Key scope, str id, IdRole idRole, Key defined, defType(AType atype)>) 
-    = addFact(defined, atype);
+    = isFullyInstantiated(atype) ? addFact(defined, atype) : addFact(openFact(defined, atype));
     
 bool addFact(<Key scope, str id, IdRole idRole, Key defined, defType(set[Key] dependsOn, AType() getAType)>) 
     = addFact(openFact(defined, dependsOn, getAType));
@@ -345,6 +352,27 @@ bool addFact(loc l, AType atype){
     if(cdebug)println(" fact <l> ==\> <iatype>");
     fireTriggers(l);
     return true;
+}
+
+set[loc] getDependencies(AType atype){
+    deps = {};
+    visit(atype){
+        case tv: tvar(loc src) : deps += src;
+    };
+    return deps;
+}
+
+bool addFact(fct:openFact(loc src, AType uninstantiated)){
+    try {
+        facts[src] = getType(uninstantiated);
+        fireTriggers(src);
+        return true;
+    } catch TypeUnavailable(): /* cannot yet compute type */;
+    openFacts += fct;
+    dependsOn = getDependencies(uninstantiated);
+    for(d <- dependsOn) triggersFact[d] = (triggersFact[d] ? {}) + {fct};
+    fireTriggers(src);
+    return false;
 }
 
 bool addFact(fct:openFact(loc src, set[loc] dependsOn,  AType() getAType)){
@@ -415,8 +443,8 @@ default void addFact(Fact fct) {
 void fireTriggers(loc l, bool protected=true){
     //if(cdebug) println("\tfireTriggers: <l>");
     
-    for(fct <- triggersFact[l] ? {}){
-        if(allDependenciesKnown(fct.dependsOn, true)){
+    for(fct <- triggersFact[l] ? {}){        
+        if(fct has uninstantiated || allDependenciesKnown(fct.dependsOn, true)){
            try {
               //if(cdebug) println("\tfireTriggers: adding fact: <fct>");
               openFacts -= fct;
@@ -440,10 +468,14 @@ void fireTriggers(loc l, bool protected=true){
 
 // The binding of a type variable that occurs inside the scope of that type variable can be turned into a fact
 void bindings2facts(map[loc, AType] bindings, loc occ){
+   
     for(b <- bindings){
-        if(isTypeVariable(b) && !facts[b]? && (!extractedTModel.tvScopes[b]? || occ <= extractedTModel.tvScopes[b])){
+        if(cdebug) println("bindings2facts: <b>, <facts[b]?>");
+        if(isTypeVariable(b) && !facts[b]? /*&& (!extractedTModel.tvScopes[b]? || occ <= extractedTModel.tvScopes[b])*/){
            addFact(b, bindings[b]);
-           //if(cdebug) println("bindings2facts, added: <b> : <bindings[b]>");
+           if(cdebug) println("bindings2facts, added: <b> : <bindings[b]>");
+        } else {
+           if(cdebug) println("bindings2facts, not added: <b> : !facts: <!facts[b]?>, occ: <(!extractedTModel.tvScopes[b]? || occ <= extractedTModel.tvScopes[b])>");
         }
     }
 }
@@ -470,16 +502,7 @@ xxx
 }    
 AType getType(Tree tree) {
     try {
-        fct = find(tree@\loc);
-        //println("find(<tree@\loc>) =\> <fct>");
-        res = instantiate(fct);
-       //println("getType(<tree@\loc>) =\> <res>");
-        //if(isFullyInstantiated(res)){
-             //println("getType(<tree@\loc>) =\> <res>");
-            return res;
-        //} else {
-        //    throw TypeUnavailable();
-        //}
+        return  instantiate(find(tree@\loc));
     } catch NoSuchKey(l): {
         //println("getType: <tree@\loc> unavailable");
         throw TypeUnavailable();
@@ -488,8 +511,7 @@ AType getType(Tree tree) {
 
 AType getType(tvar(loc l)){
     try {
-        tp = facts[l];
-        return tp;
+        return facts[l];
     } catch NoSuchKey(k): {
         throw TypeUnavailable();
     }
@@ -497,13 +519,11 @@ AType getType(tvar(loc l)){
 
 AType getType(loc l){
     try {
-        tp = facts[l];
-        return tp;
+        return facts[l];
     } catch NoSuchKey(k): {
         throw TypeUnavailable();
     }
 }
-
 
 AType getType(str id, Key scope, set[IdRole] idRoles){
     try {
@@ -556,28 +576,28 @@ set[Define] getDefinitions(str id, Key scope, set[IdRole] idRoles){
        }
 }
 
-// The "equal" predicate that succeeds or gives error
-void equal(AType given, AType expected, ErrorHandler onError){
-    if(given != expected){
-        throw checkFailed(onError.where, onError.msg);
-    }
-}
+//// The "equal" predicate that succeeds or gives error
+//void equal(AType given, AType expected, ErrorHandler onError){
+//    if(given != expected){
+//        throw checkFailed(onError.where, onError.msg);
+//    }
+//}
 
 // Check the "equal" predicate
 bool equal(AType given, AType expected){
     return given == expected;
 }
 
-// The "unify" predicate that succeeds or gives error
-void unify(AType given, AType expected, ErrorHandler onError){
-    <ok, bindings1> = unify(instantiate(given), instantiate(expected), bindings);
-    if(cdebug)println("unify(<given>, <expected>) =\> <ok>, <bindings1>");
-    if(ok){
-        bindings += bindings1;
-    } else {
-        throw checkFailed(onError.where, onError.msg);
-    }
-}
+//// The "unify" predicate that succeeds or gives error
+//void unify(AType given, AType expected, ErrorHandler onError){
+//    <ok, bindings1> = unify(instantiate(given), instantiate(expected), bindings);
+//    if(cdebug)println("unify(<given>, <expected>) =\> <ok>, <bindings1>");
+//    if(ok){
+//        bindings += bindings1;
+//    } else {
+//        throw checkFailed(onError.where, onError.msg);
+//    }
+//}
 
 // Check the "unify" predicate
 bool unify(AType given, AType expected){
@@ -595,15 +615,15 @@ bool unify(AType given, AType expected){
     }
 }
 
-// The "subtype" predicate
-void subtype(AType small, AType large, ErrorHandler onError){
-    extractedTModel.facts = facts;
-    r = myIsSubType(small, large);
-    //println("subtype: <small>, <large> ==\> <r>");
-    if(!r){
-        throw checkFailed(onError.where, onError.msg);
-    }
-}
+//// The "subtype" predicate
+//void subtype(AType small, AType large, ErrorHandler onError){
+//    extractedTModel.facts = facts;
+//    r = myIsSubType(small, large);
+//    //println("subtype: <small>, <large> ==\> <r>");
+//    if(!r){
+//        throw checkFailed(onError.where, onError.msg);
+//    }
+//}
 
 bool subtype(AType small, AType large){
     extractedTModel.facts = facts;
@@ -616,17 +636,17 @@ bool subtype(AType small, AType large){
     }
 }
 
-// The "comparable" predicate
-void comparable(AType atype1, AType atype2, ErrorHandler onError){
-    extractedTModel.facts = facts;
-    if(isFullyInstantiated(atype1) && isFullyInstantiated(atype2)){
-        if(!(myIsSubType(atype1, atype2) || myIsSubType(atype2, atype1))){
-            throw checkFailed(onError.where, onError.msg);
-        }
-    } else {
-        throw TypeUnavailable();
-    }
-}
+//// The "comparable" predicate
+//void comparable(AType atype1, AType atype2, ErrorHandler onError){
+//    extractedTModel.facts = facts;
+//    if(isFullyInstantiated(atype1) && isFullyInstantiated(atype2)){
+//        if(!(myIsSubType(atype1, atype2) || myIsSubType(atype2, atype1))){
+//            throw checkFailed(onError.where, onError.msg);
+//        }
+//    } else {
+//        throw TypeUnavailable();
+//    }
+//}
 
 default bool comparable(AType atype1, AType atype2){
     extractedTModel.facts = facts;
@@ -640,6 +660,10 @@ default bool comparable(AType atype1, AType atype2){
 // The "fact" assertion
 void fact(Tree t, AType atype){
         addFact(t@\loc, atype);
+}
+
+void fact(loc src, AType atype){
+        addFact(src, atype);
 }
 
 // The "reportError" assertion 
@@ -761,8 +785,15 @@ TModel validate(TModel er,  set[Key] (TModel, Use) lookupFun = lookup, bool debu
     /****************** main solve loop *********************************/
     
     if(cdebug) println("..... start solving");
+    int nfacts = size(facts);
+    int nopenReqs = size(openReqs);
+    int nopenFacts = size(openFacts);
+    int nopenUses = size(openUses);
+    int nrequirementJobs = size(requirementJobs);
+    int ncalculators = size(calculators);
     
-    solve(facts, openReqs, openFacts, openUses, requirementJobs, calculators){   
+    solve(nfacts, nopenReqs, nopenFacts, nopenUses, nrequirementJobs, ncalculators){   
+    //while(iterations < 30){
     
         iterations += 1;
         
@@ -838,7 +869,13 @@ TModel validate(TModel er,  set[Key] (TModel, Use) lookupFun = lookup, bool debu
                  messages += messages1;
                  if(ok){
                     for(tv <- domain(bindings1), f <- triggersFact[tv] ? {}){
-                        if(allDependenciesKnown(f.dependsOn, true)){
+                        if(f has uninstantiated){
+                         try {
+                                if(addFact(f.src, instantiate(f.uninstantiated)))
+                                   openFactsToBeRemoved += f;
+                            } catch TypeUnavailable(): /* cannot yet compute type */;
+                        }
+                        else if(allDependenciesKnown(f.dependsOn, true)){
                             try {
                                 if(addFact(f.src, f.getAType()))
                                    openFactsToBeRemoved += f;
@@ -870,6 +907,13 @@ TModel validate(TModel er,  set[Key] (TModel, Use) lookupFun = lookup, bool debu
             		messages += msgs;
          }
          openFacts -= openFactsToBeRemoved;
+         
+        nfacts = size(facts);
+        nopenReqs = size(openReqs);
+        nopenFacts = size(openFacts);
+        nopenUses = size(openUses);
+        nrequirementJobs = size(requirementJobs);
+        ncalculators = size(calculators);
        }
        
        /****************** end of main solve loop *****************************/
