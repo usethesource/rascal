@@ -297,18 +297,13 @@ public class RascalJUnitCompiledTestRunnerPar extends Runner {
    
         notifier.fireTestRunStarted(desc);
         
-        if (desc.getAnnotations().stream().anyMatch(t -> t instanceof CompilationFailed)) {
-            notifier.fireTestFailure(new Failure(desc, new IllegalArgumentException("test module has compilation errors")));
-            return;
-        }
-
         for (Description mod : desc.getChildren()) {
             RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(pcfg).build();
             ISourceLocation binary = null;
             RVMCore rvmCore = null;
             
             if (mod.getAnnotations().stream().anyMatch(t -> t instanceof CompilationFailed)) {
-                notifier.fireTestFailure(new Failure(desc, new IllegalArgumentException("test module has compilation errors")));
+                notifier.fireTestFailure(new Failure(desc, new IllegalArgumentException(mod.getDisplayName() + " had compilation errors")));
                 continue;
             }
             
