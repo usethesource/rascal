@@ -71,6 +71,8 @@ test bool invert3() = invert((1:10, 2:20)) == (10:{1}, 20:{2});
 test bool invert4() = invert((1:10, 2:10, 3:30, 4:30)) == (10: {1,2}, 30:{3,4});
 test bool invert5(map[&K,&V] M) = range(M) == domain(invert(M));	
 test bool invert6(map[&K,&V] M) = domain(M) == {*invert(M)[v] | v <- invert(M)};	
+
+anno int node@x;
 test bool invertWithAnnotations() {
     m = (1: "n"()[@x=1], 2: "n"()[@x=3]);
     m_inverted = invert(m);
