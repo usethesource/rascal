@@ -1,6 +1,7 @@
 module lang::rascal::tests::functionality::ParsingTests
 
 import ParseTree;
+import Exception;
 import IO;
 import lang::rascal::tests::functionality::OtherSyntax;
 
