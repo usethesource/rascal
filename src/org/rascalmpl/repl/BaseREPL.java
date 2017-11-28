@@ -295,15 +295,14 @@ public class BaseREPL {
             updatePrompt();
             while(keepRunning) {
 
+                handleCommandQueue();
+
                 updatePrompt();
                 try {
                     String line = reader.readLine(reader.getPrompt(), null, null);
                     if (line == null) { // EOF
                         break;
                     }
-                    
-                    handleCommandQueue();
-                    
                     try {
                         handlingInput = true;
                         handleInput(line);
