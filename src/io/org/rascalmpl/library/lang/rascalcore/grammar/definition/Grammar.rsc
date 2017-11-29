@@ -30,19 +30,19 @@ Grammar is the internal representation (AST) of syntax definitions used in Rasca
 A grammar is a set of productions and set of start symbols. The productions are 
 stored in a map for efficient access.
 }
-data Grammar 
+data AGrammar 
   = \grammar(set[AType] starts, map[AType sort, AProduction def] rules)
   ;
 
-data GrammarModule
-  = \module(str name, set[str] imports, set[str] extends, Grammar grammar);
+data AGrammarModule
+  = \module(str name, set[str] imports, set[str] extends, AGrammar grammar);
  
-data GrammarDefinition
-  = \definition(str main, map[str name, GrammarModule \mod] modules);
+data AGrammarDefinition
+  = \definition(str main, map[str name, AGrammarModule \mod] modules);
 
 anno loc AProduction@\loc;
  
-public Grammar grammar(set[AType] starts, set[AProduction] prods) {
+public AGrammar grammar(set[AType] starts, set[AProduction] prods) {
   rules = ();
 
   for (p <- prods) {
@@ -52,7 +52,7 @@ public Grammar grammar(set[AType] starts, set[AProduction] prods) {
   return grammar(starts, rules);
 } 
            
-Grammar grammar(type[&T <: Tree] sym)
+AGrammar grammar(type[&T <: Tree] sym)
     = grammar({sym.symbol}, sym.definitions);
 
   
@@ -60,7 +60,7 @@ Grammar grammar(type[&T <: Tree] sym)
 .Synopsis
 An item is an index into the symbol list of a production rule.
 }  
-data Item = item(AProduction production, int index);
+data Item = item(AProduction aproduction, int index);
 
 @doc{
 .Synopsis
@@ -70,7 +70,7 @@ Compose two grammars.
 Compose two grammars by adding the rules of g2 to the rules of g1.
 The start symbols of g1 will be the start symbols of the resulting grammar.
 }
-public Grammar compose(Grammar g1, Grammar g2) {
+public AGrammar compose(AGrammar g1, AGrammar g2) {
   set[AProduction] empty = {};
   for (s <- g2.rules)
     if (g1.rules[s]?)
@@ -95,7 +95,7 @@ public Grammar compose(Grammar g1, Grammar g2) {
 // Reason: the algorithm is faster and compiled code chokes in the set matches
 // for not yet known reason.
 
-//public Grammar compose(Grammar g1, Grammar g2) {
+//public AGrammar compose(AGrammar g1, AGrammar g2) {
 //  set[AProduction] empty = {};
 //  for (s <- g2.rules)
 //    if (g1.rules[s]?)
@@ -110,11 +110,11 @@ public Grammar compose(Grammar g1, Grammar g2) {
 //  };
 //}    
 
-public rel[str, str] extends(GrammarDefinition def) {
+public rel[str, str] extends(AGrammarDefinition def) {
   return {<m,e> | m <- def.modules, \module(_, _, exts , _) := def.modules[m], e <- exts}+;
 }
 
-public rel[str,str] imports(GrammarDefinition def) {
+public rel[str,str] imports(AGrammarDefinition def) {
   return {<m,i> | m <- def.modules, \module(_, imps, _ , _) := def.modules[m], i <- imps};
 }
 

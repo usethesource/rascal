@@ -148,7 +148,8 @@ void collect(current: (Expression)`[ <Type t> ] <Expression e>`, TBuilder tb){
     reqType = convertType(t, tb);
     
     tb.calculate("asType", current, [e],
-        AType() { subtype(getType(e), astr()) || reportError(e, "Expected str, instead found <fmt(getType(e))>");
+        AType() { expType = getType(e);
+                  subtype(expType, astr()) || subtype(expType, aloc()) || reportError(e, "Expected str, instead found <fmt(getType(e))>");
                   return expandUserTypes(reqType, scope);
                 });
     collect(e, tb);
@@ -193,8 +194,9 @@ AType computeCompositionType(Expression current, AType t1, AType t2){
         if (size(failures) > 0) return reportErrors(failures);
         if (size(lflds) == 0 || size(rflds) == 0)
             return arel(atypeList([]));
-        else
+        else {
             return arel(atypeList([lflds[0],rflds[1]])); 
+         }
     }
 
     if (isListRelType(t1) && isListRelType(t2)) {
@@ -210,8 +212,9 @@ AType computeCompositionType(Expression current, AType t1, AType t2){
         if (size(failures) > 0) return reportErrors(failures);
         if (size(lflds) == 0 || size(rflds) == 0)
             return alrel(atypeList([]));
-        else
-            return alrel(atypeList[lflds[0],rflds[1]]); 
+        else {
+            return alrel(atypeList([lflds[0], rflds[1]])); 
+        }
     }
 
     //if (isFunctionType(t1) && isFunctionType(t2)) {
@@ -568,7 +571,11 @@ void collect(current: (Expression) `<Expression lhs> notin <Expression rhs>`, TB
 }
 
 void checkInType(Expression current, AType t1, AType t2){
-
+    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)){
+        unify(t1, t2) || reportError(current, "Cannot match types");
+        t1 = instantiate(t1);
+        t2 = instantiate(t2);
+    }
     if (isRelType(t2)) {
         et = getRelElementType(t2);
         if (!comparable(t1,et)) reportError(current, "Cannot compare <fmt(t1)> with element type of <fmt(t2)>");
@@ -585,7 +592,7 @@ void checkInType(Expression current, AType t1, AType t2){
         et = getListElementType(t2);
         if (!comparable(t1,et)) reportError(current, "Cannot compare <fmt(t1)> with element type of <fmt(t2)>");
     } else {
-        reportError(current, "in or notin not defined for <fmt(t1)> and <fmt(t2)>");
+        reportError(current, "`in` or `notin` not defined for <fmt(t1)> and <fmt(t2)>");
     }
 }
 
@@ -628,6 +635,7 @@ void checkComparisonOp(str op, Expression current, TBuilder tb){
 }
 
 default bool checkComparisonArgs(AType t1, AType t2){
+
      if(t1.label?) t1 = unset(t1, "label");
      if(t2.label?) t2 = unset(t2, "label");
      if(comparable(t1, t2) || (subtype(t1, anum()) && subtype(t2, anum())))
@@ -689,12 +697,15 @@ void computeMatchPattern(Expression current, Pattern pat, str operator, Expressi
                 isubjectType = instantiate(subjectType);
                 //if(tvar(src) := subjectType) fact(src, isubjectType);
                 subjectType = isubjectType;
-                //clearBindings();
+                //clearBindings(); // <===
             }
             comparable(patType, subjectType) || reportError(current, "Pattern should be comparable with <fmt(subjectType)>, found <fmt(patType)>");
             return abool();
         });
-    collect(pat, expression, tb);
+    tb.push(patternContainer, "match");
+    collect(pat, tb);
+    tb.pop(patternContainer);
+    collect(expression, tb);
 }
 
 // ---- enumerator
@@ -718,7 +729,7 @@ void collect(current: (Expression) `<Pattern pat> \<- <Expression expression>`, 
                 ielmType = instantiate(elmType);
                 if(tvar(src) := elmType) fact(src, ielmType);
                 elmType = ielmType;
-                //clearBindings();
+                //clearBindings(); // <===
              }  else {
                     fact(pat, patType);
              }     
@@ -749,10 +760,16 @@ AType computeEnumeratorElementType(Expression current, AType etype) {
         return getNonTerminalIterElement(etype);
     } else if (isNonTerminalOptType(etype)) {
         return getNonTerminalOptType(etype);
-    } else {
-        //println(etype);
-        reportError(current, "Type <fmt(etype)> is not enumerable");
-    }
+    } else if(overloadedAType(rel[Key, IdRole, AType] overloads) := etype){
+        for(<key, role, tp> <- overloads, isEnumeratorType(tp)){
+            try {
+                return computeEnumeratorElementType(current, tp);
+            } catch checkFailed(set[Message] msgs): {
+                ; // do nothing and try next overload
+            }
+        }
+    } 
+    reportError(current, "Type <fmt(etype)> is not enumerable");
 }
 
 // TODO scoping rules in Boolean operators!
@@ -807,12 +824,30 @@ void collect(current: (Expression) `<Expression lhs> || <Expression rhs>`, TBuil
       
     tb.requireEager("or", current, [lhs, rhs],
         (){ unify(abool(), getType(lhs)) || reportError(lhs, "Argument of || should be `bool`, found <fmt(lhs)>");
-            //clearBindings();
             unify(abool(), getType(rhs)) || reportError(rhs, "Argument of || should be `bool`, found <fmt(rhs)>");
-            //clearBindings();
-            // TODO: check that lhs and rhs introduce the same set of variables
           });
-    collect(lhs, rhs, tb);
+          
+    // Check that the names introduced in lhs and rhs are the same    
+    
+    namesBeforeOr = tb.getStack(patternNames);
+    collect(lhs, tb);
+    namesAfterLhs = tb.getStack(patternNames);
+    
+    // Restore patternNames
+    tb.clearStack(patternNames);
+    for(nm <- reverse(namesBeforeOr)) tb.push(patternNames, nm);
+    
+    // Trick 1: wrap rhs in a separate scope to avoid double declarations with names introduced in lhs
+    // Trick 2: use "current" as scope (to avoid clash with scope created by rhs)
+    tb.enterScope(lhs);
+        collect(rhs, tb);
+    tb.leaveScope(lhs);
+    namesAfterRhs = tb.getStack(patternNames);
+  
+    missingInLhs = namesAfterRhs - namesAfterLhs;
+    missingInRhs = namesAfterLhs - namesAfterRhs;
+    //if(!isEmpty(missingInLhs)) tb.reportError(lhs, "Left argument of `||` should also introduce <fmt(missingInLhs)>");
+    //if(!isEmpty(missingInRhs)) tb.reportError(rhs, "Right argument of `||` should also introduce <fmt(missingInRhs)>");
 }
 
 // ---- if expression

@@ -10,6 +10,7 @@
 module lang::rascalcore::grammar::definition::Productions
      
 import lang::rascalcore::check::AType;
+import lang::rascalcore::check::ATypeUtils;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::grammar::definition::Characters;

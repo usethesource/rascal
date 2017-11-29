@@ -5,6 +5,7 @@ import Relation;
 extend analysis::typepal::AType;
 import lang::rascalcore::check::ATypeUtils;
 import lang::rascal::\syntax::Rascal;
+import lang::rascalcore::check::ATypeExceptions;
 
 //alias Key         = loc;
 alias Keyword     = tuple[str fieldName, AType fieldType, Expression defaultExp];
@@ -26,6 +27,7 @@ data AType (str label = "")
      | adatetime()
      | alist(AType elmType)
      | aset(AType elmType)
+     | abag(AType elmType)
      | atuple(AType elemType)
      | amap(AType keyType, AType valType)
      | arel(AType elemType)  
@@ -58,8 +60,10 @@ AType overloadedAType(rel[Key, IdRole, AType] overloads){
       return hasSyntax ? aadt(adtName, adtParams, hasSyntax=true)
                        : aadt(adtName, adtParams);
     } else {
-        otypes = range(overloads);
-        if({<IdRole idr, AType tp>} := otypes) return tp;
+        otypes = overloads<2>;
+        if({AType tp} := otypes) return tp;
+        //otypes = { tp | tp <- otypes, !(amodule(_) := tp /*|| aalias(_,_,_) := tp*/) };
+        //if({AType tp} := otypes) return tp;
     }
     fail;
 }
@@ -208,9 +212,9 @@ Character ranges and character class
 *  `CharRange` defines a range of characters.
 *  A `CharClass` consists of a list of characters ranges.
 }
-data CharRange = range(int begin, int end);
+data ACharRange = range(int begin, int end);
 
-alias CharClass = list[CharRange];
+alias ACharClass = list[ACharRange];
 
 @doc{
 .Synopsis
@@ -264,7 +268,7 @@ data AType // <1>
 data AType 
      = \lit(str string)   // <8>
      | \cilit(str string) // <9>
-     | \char-class(list[CharRange] ranges) // <10>
+     | \char-class(list[ACharRange] ranges) // <10>
      ;
     
 // These are the regular expressions.
@@ -346,7 +350,7 @@ public bool comparableOrNum(AType l, AType r) {
 .Synopsis
 Subtype on types.
 }       
-bool asubtype(type[&T] t, type[&U] u) = asubtype(t.symbol, u.symbol);
+bool asubtype(type[&T] t, type[&U] u) { throw "asubtype not yet implemented on <t> and <u>"; } //asubtype(t.symbol, u.symbol);
 
 @doc{
 .Synopsis
@@ -373,12 +377,12 @@ bool asubtype(AType _, avalue()) = true;
 
 bool asubtype(avoid(), AType _) = true;
 
-bool asubtype(x:acons(AType a, _, list[NamedField] _, list[Keyword] _), b){
+bool asubtype(x:acons(AType a, _, list[NamedField] _, list[Keyword] _), AType b){
     res = asubtype(a, b);
     //println("asubtype(acons(<a>,_,_,_), <b>) ==\> <res>");
     return res;
 }
-bool asubtype(a, x:acons(AType b, _, list[NamedField] _, list[Keyword] _)){
+bool asubtype(AType a, x:acons(AType b, _, list[NamedField] _, list[Keyword] _)){
     res = asubtype(a, b);
     //println("asubtype(<a>, acons(<b>,_,_,_) ==\> <res>");
     return res;
@@ -390,10 +394,16 @@ bool asubtype(aadt(str n, list[AType] l), aadt(n, list[AType] r)) = asubtype(l, 
 bool asubtype(aadt(_, _, hasSyntax=true), aadt("Tree", _)) = true;
 bool asubtype(aadt(str _, list[AType] _, hasSyntax=true), AType::\auser("Tree", _))  = true;
 
+bool asubtype(AType::\iter-seps(AType s, list[AType] seps), AType::\iter-star-seps(AType t, list[AType] seps2)) = asubtype(s,t) && asubtype(seps, seps2);
+bool asubtype(AType::\iter(AType s), AType::\iter-star(AType t)) = asubtype(s, t);
+// TODO: add subtype for elements under optional and alternative, but that would also require auto-wrapping/unwrapping in the run-time
+// bool subtype(AType s, \opt(AType t)) = subtype(s,t);
+// bool subtype(AType s, \alt({AType t, *_}) = true when subtype(s, t); // backtracks over the alternatives
+
 bool asubtype(aadt(str n, list[AType] l), auser(n, list[AType] r)) = asubtype(l,r); //{throw "Illegal use of auser <n>"; } //= asubtype(l,r);
 
 bool asubtype(auser(str n, list[AType] l), aadt(n, list[AType] r)) = asubtype(l,r); //{throw "Illegal use of auser <n>"; } //= asubtype(l,r);
-bool asubtype(auser(str n, list[AType] l), auser(str n, list[AType] r)) = asubtype(l,r); //{throw "Illegal use of auser <n>"; } //= asubtype(l,r);
+bool asubtype(auser(str n, list[AType] l), auser(n, list[AType] r)) = asubtype(l,r); //{throw "Illegal use of auser <n>"; } //= asubtype(l,r);
 
 //bool asubtype(aalias(str _, list[AType] _, AType aliased), AType r) = asubtype(aliased, r);
 //bool asubtype(AType l, aalias(str _, list[AType] _, AType aliased)) = asubtype(l, aliased);
@@ -494,13 +504,13 @@ AType alub(AType s, avalue()) = avalue();
 AType alub(avoid(), AType t) = t;
 AType alub(AType s, avoid()) = s;
 AType alub(aint(), anum()) = anum();
-AType alub(aint(), areal()) = anum();
-AType alub(aint(), arat()) = anum();
+AType alub(aint(), areal()) = anum();   // why not areal();
+AType alub(aint(), arat()) = anum;      // why not arat();
 AType alub(arat(), anum()) = anum();
 AType alub(arat(), areal()) = anum();
-AType alub(arat(), aint()) = anum();
+AType alub(arat(), aint()) = anum();    // why not arat();
 AType alub(areal(), anum()) = anum();
-AType alub(areal(), aint()) = anum();
+AType alub(areal(), aint()) = anum();   // why not areal();
 AType alub(areal(), arat()) = anum();
 AType alub(anum(), aint()) = anum();
 AType alub(anum(), areal()) = anum();
@@ -531,11 +541,11 @@ AType alub(anode(), aadt(str n, list[AType] _)) = anode();
 AType alub(aadt(str n, list[AType] lp), aadt(n, list[AType] rp)) = aadt(n, addParamLabels(alub(lp,rp),getParamLabels(lp))) when size(lp) == size(rp) && getParamLabels(lp) == getParamLabels(rp) && size(getParamLabels(lp)) > 0;
 AType alub(aadt(str n, list[AType] lp), aadt(n, list[AType] rp)) = aadt(n, alub(lp,rp)) when size(lp) == size(rp) && size(getParamLabels(lp)) == 0;
 AType alub(aadt(str n, list[AType] lp), aadt(str m, list[AType] rp)) = anode() when n != m;
-AType alub(aadt(str ln, list[AType] lp), acons(AType b, _)) = alub(aadt(ln,lp),b);
+AType alub(aadt(str ln, list[AType] lp), acons(AType b, _, _, _)) = alub(aadt(ln,lp),b);
 
-AType alub(acons(AType la, _, list[AType] _), acons(AType ra, _, list[AType] _)) = alub(la,ra);
-AType alub(acons(AType a, _, list[AType] lp), aadt(str n, list[AType] rp)) = alub(a,aadt(n,rp));
-AType alub(acons(AType _, _, list[AType] _), anode()) = anode();
+AType alub(acons(AType la, _, list[NamedField] _,  list[Keyword] _), acons(AType ra, _, list[NamedField] _, list[Keyword] _)) = alub(la,ra);
+AType alub(acons(AType a,  _, list[NamedField] lp, list[Keyword] _), aadt(str n, list[AType] rp)) = alub(a,aadt(n,rp));
+AType alub(acons(AType _,  _, list[NamedField] _,  list[Keyword] _), anode()) = anode();
 
 bool keepParams(aparameter(str s1, AType bound1), aparameter(str s2, AType bound2)) = s1 == s2 && equivalent(bound1,bound2);
 
@@ -547,11 +557,11 @@ AType alub(AType l, aparameter(str _, AType bound)) = alub(l, bound) when !(isRa
 AType alub(areified(AType l), areified(AType r)) = areified(alub(l,r));
 AType alub(areified(AType l), anode()) = anode();
 
-AType alub(afunc(AType lr, list[AType] lp, list[AType] lkw), afunc(AType rr, list[AType] rp, list[AType] rkw)) {
+AType alub(afunc(AType lr, AType lp, list[Keyword] lkw), afunc(AType rr, AType rp, list[Keyword] rkw)) {
     lubReturn = alub(lr,rr);
-    lubParams = glb(atuple(lp),atuple(rp));
+    lubParams = alub(lp,rp);    // TODO was glb, check this
     if (isTupleType(lubParams))
-        return afunc(lubReturn, lubParams.ATypes, lkw == rkw ? lkw : []);
+        return afunc(lubReturn, lubParams, lkw == rkw ? lkw : []);
     else
         return avalue();
 }
@@ -566,6 +576,6 @@ private default list[AType] addParamLabels(list[AType] l, list[str] s) { throw "
 @doc{Calculate the lub of a list of types.}
 public AType lubList(list[AType] ts) {
     AType theLub = avoid();
-    for (t <- ts) theLub = lub(theLub,t);
+    for (t <- ts) theLub = alub(theLub,t);
     return theLub;
 }

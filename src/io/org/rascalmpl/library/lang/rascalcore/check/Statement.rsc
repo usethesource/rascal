@@ -515,8 +515,9 @@ AType computeAssignmentRhsType(Statement current, AType lhsType, "/=", AType rhs
 AType computeAssignmentRhsType(Statement current, AType lhsType, "&=", AType rhsType)
     = computeIntersectionType(current, lhsType, rhsType);  
     
-AType computeAssignmentRhsType(Statement current, AType lhsType, "?=", AType rhsType)
-    = lub(lhsType, rhsType);  
+AType computeAssignmentRhsType(Statement current, AType lhsType, "?=", AType rhsType){
+    return rhsType; //lub(lhsType, rhsType);  // <===
+    } 
    
 // <<=
 
@@ -565,8 +566,10 @@ AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver>
 AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> . <Name field>`, Key scope)
     = computeFieldType(current, computeReceiverType(current, receiver, scope), "<field>", scope);
     
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> @ <Name n>`, Key scope)
-    = computeGetAnnotationType(current, computeReceiverType(current, receiver, scope), getType(n), scope);
+AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> @ <Name n>`, Key scope){
+    annoNameType = expandUserTypes(getType(unescape("<n>"), scope, {annoId()}), scope);
+    return computeGetAnnotationType(current, computeReceiverType(current, receiver, scope), annoNameType);
+}
 
 AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, Key scope){
     return computeReceiverType(current, receiver);
@@ -673,9 +676,12 @@ AType computeSliceAssignableType(Statement current, AType receiverType, AType fi
     
     if(!isEmpty(failures)) throw reportErrors(failures);
     if (isListType(receiverType)){
-        //if(!subtype(rhs, receiverType)) reportError(current, "Expected <fmt(receiverType)> in slice assignment, found <fmt(rhs)>");
-        //return receiverType;
-        return makeListType(computeAssignmentRhsType(current, getListElementType(receiverType), operator, rhs));
+        if(isListType(rhs)){
+           return makeListType(computeAssignmentRhsType(current, getListElementType(receiverType), operator, getListElementType(rhs)));
+        } else {
+           //if(!subtype(rhs, receiverType)) reportError(current, "Expected <fmt(receiverType)> in slice assignment, found <fmt(rhs)>");
+           return receiverType;
+        }  
     } else if(isStrType(receiverType)){ 
         if(!subtype(rhs, astr())) reportError(current, "Expected `str` in slice assignment, found <fmt(rhs)>");
         return receiverType;
@@ -735,10 +741,13 @@ AType computeFieldAssignableType(Statement current, AType receiverType, str fiel
                     return receiverType;
                }
             }                           
-            
+            if (isNonTerminalType(declaredType)){
+                 return computeFieldAssignableType(current, aadt("Tree", []), fieldName, operator, rhs, scope);
+            }
             reportError(current, "Field <fmt(fieldName)> does not exist on type <fmt(receiverType)>");
         } catch TypeUnavailable(): {
-            reportError(current, "Cannot compute type of field <fmt(fieldName)>, user type <fmt(receiverType)> has not been declared or is out of scope"); 
+            throw TypeUnavailable();
+            //reportError(current, "Cannot compute type of field <fmt(fieldName)>, user type <fmt(receiverType)> has not been declared or is out of scope"); 
         }
     } else if (isTupleType(receiverType)) {
         tupleFields = getTupleFields(receiverType);
@@ -753,7 +762,12 @@ AType computeFieldAssignableType(Statement current, AType receiverType, str fiel
     } else if (isNodeType(receiverType)) {
         computeAssignmentRhsType(current, avalue(), operator, rhs);
         return anode();
-    } else if(isLocType(receiverType) || isDateTimeType(receiverType) || isReifiedType(receiverType) || isRelType(receiverType) || isListRelType(receiverType) || isMapType(receiverType)){
+    } else if(isLocType(receiverType) || isDateTimeType(receiverType)){
+        if(fieldName in fieldMap[receiverType]){
+            return receiverType;
+        }
+        reportError(current, "No field <fmt(fieldName)> exists on <fmt(receiverType)>");    
+    } else if(isReifiedType(receiverType) || isRelType(receiverType) || isListRelType(receiverType) || isMapType(receiverType)){
         reportError(current, "Cannot assign to any field of <fmt(receiverType)>");
     } 
     throw "Cannot assign value of type <fmt(rhs)> to assignable of type <fmt(receiverType)>";
@@ -907,7 +921,7 @@ void collect(current: (Statement) `<Type tp> <{Variable ","}+ variables>;`, TBui
                        declaredType = expandUserTypes(declaredType, scope);
                        if(!isEmpty(initialTypeParams)){
                           try {
-                            Bindings bindings = matchRascalTypeParams(declaredType, initialType, (), bindIdenticalVars=true);
+                            Bindings bindings = matchRascalTypeParams(initialType, declaredType, (), bindIdenticalVars=true);
                             initialType = instantiateRascalTypeParams(initialType, bindings);
                           } catch invalidMatch(str reason): {
                                 reportError(v, reason);

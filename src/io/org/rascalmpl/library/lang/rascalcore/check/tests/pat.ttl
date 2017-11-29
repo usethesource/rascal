@@ -44,7 +44,9 @@ test Var3 [[ module A value zz = int x := 1 && x == "a"; ]] expect { "Comparison
 test If1 [[ module A value zz = { if(int x := 1) x + 1; }; ]]
 test If2 [[ module A value zz = { if(int x := 1) x + 1; else x + 2; }; ]] expect { "Undefined variable, function, formal, field or constructor `x`" }
 test If3 [[ module A value zz = { if(int x := 1 && x == 1 ) x + 1; }; ]]
-test If4 [[ module A value zz = { if(int x := 1 && int x := 2 && x == 1 ) x + 1; }; ]] expect { "Double declaration of `x`" }
+test If4 [[ module A value zz = { if(int x := 1 && int x := 2 && x == 1 ) x + 1; }; ]]
+@@ expect { "Double declaration of `x`" }
+
 test If5 [[ module A value zz = { if(int x := 1 && int y := 2 && x == 1 ) x + y; }; ]]
 test If5 [[ module A value zz = { if(int x := 1 && int y := 2 && x == 1 ) x + y; else y;}; ]] expect { "Undefined variable, function, formal, field or constructor `y`" }
 

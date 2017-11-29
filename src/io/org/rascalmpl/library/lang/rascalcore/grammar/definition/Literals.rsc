@@ -15,7 +15,7 @@ import lang::rascalcore::check::AType;
 import String;
 import IO;
 
-public Grammar literals(Grammar g) {
+public AGrammar literals(AGrammar g) {
   return compose(g, grammar({}, {literal(s) | /lit(s) <- g} + {ciliteral(s) | /cilit(s) <- g}));
 }
 

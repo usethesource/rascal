@@ -16,7 +16,7 @@ them in four classes: normal, lex, keywords and layout. This function will
 mark all uses accordingly such that the proper interpretation can be done
 by semantic processing of parse trees
 }
-public Grammar resolve(Grammar d) {
+public AGrammar resolve(AGrammar d) {
   cd = {n | \sort(n) <- d.rules};
   pcd = {n | \parameterized-sort(n,_) <- d.rules};
   lx = {n | \lex(n) <- d.rules};

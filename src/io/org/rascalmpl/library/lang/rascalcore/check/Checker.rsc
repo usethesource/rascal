@@ -94,26 +94,28 @@ public PathConfig getDefaultPathConfig() = pathConfig(
                 |project://rascal/src/org/rascalmpl/library|
                ]);
                
-TModel rascalTModelFromStr(str text){
+TModel rascalTModelsFromStr(str text){
     startTime = cpuTime();
     pt = parse(#start[Modules], text).top;
     return rascalTModel(pt, startTime, inline=true);
 }
 
-TModel rascalTModelFromLoc(loc src){
-    startTime = cpuTime();
-    pt = parse(#start[Modules], src).top;
-    return rascalTModel(pt, startTime, inline=true);
-}
-
 TModel rascalTModelFromName(str mname, bool debug=false){
     startTime = cpuTime();
+    toBeSaved = {};
+    lastModifiedModules = ();
     pcfg = getDefaultPathConfig();
-    mloc = getModuleLocation(mname, pcfg);
-    pt = parse(#start[Module], mloc).top;
-    m = rascalTModel(pt, startTime, debug=debug);
-    saveModule(mname, pcfg, m);  
-    return m;
+    //<found, tm> = getIfValid(mname, pcfg);
+    //if(found){
+    //    println("total:    <(cpuTime() - startTime)/1000000> ms");
+    //    return tm;
+    //}
+    pt = parseNamedModuleWithSpaces(mname, pcfg).top;
+    
+    tm = rascalTModel(pt, startTime, debug=debug);
+    
+    saveModules(mname, pcfg, tm);  
+    return tm;
 }
 
 TModel rascalTModel(Tree pt, int startTime, bool debug=false, bool inline=false){
@@ -124,6 +126,7 @@ TModel rascalTModel(Tree pt, int startTime, bool debug=false, bool inline=false)
     if(!inline) tb.push("pathconfig", getDefaultPathConfig()); 
     rascalPreCollectInitialization(pt, tb);
     collect(pt, tb);
+   
     tm = tb.build();
     afterExtractTime = cpuTime();   
     tm = resolvePath(tm, lookupFun=lookupWide);
@@ -132,6 +135,7 @@ TModel rascalTModel(Tree pt, int startTime, bool debug=false, bool inline=false)
     tm = rascalPostValidation(tm);
     //iprintln(tm.definitions);
     afterValidateTime = cpuTime();
+    
     if(!inline){
         println("parse:    <(afterParseTime - startTime)/1000000> ms
                 'extract:  <(afterExtractTime - afterParseTime)/1000000> ms
@@ -147,7 +151,7 @@ set[Message] validateModules(str mname, bool debug=false) {
 
 void testModules(str names...) {
     if(isEmpty(names)) names = allTests;
-    runTests([|project://rascal-core/src/io/org/rascalmpl/library/lang/rascalcore/check/tests/<name>.ttl| | str name <- names], rascalTModelFromStr);
+    runTests([|project://rascal-core/src/io/org/rascalmpl/library/lang/rascalcore/check/tests/<name>.ttl| | str name <- names], rascalTModelsFromStr);
 }
 
 list[str] allTests = ["adt", "alias", "assignment", "datadecl", "exp", "fields", "fundecl", 

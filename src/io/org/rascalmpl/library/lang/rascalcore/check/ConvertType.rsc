@@ -14,6 +14,7 @@ import Set;
 import List;
 import String;
 import IO;
+import Node;
 
 import analysis::typepal::AType;
 import analysis::typepal::ExtractTModel;
@@ -44,9 +45,22 @@ public QName convertName(Name n) {
     else
         return qualName("","<n>");
 }
-@doc{Get the last part of a qualified name.}
-public Name getLastName(QualifiedName qn) 
-    = convertName(qn).name;
+
+public str prettyPrintName(QualifiedName qn){
+    if ((QualifiedName)`<{Name "::"}+ nl>` := qn) { 
+        nameParts = [ (startsWith("<n>","\\") ? substring("<n>",1) : "<n>") | n <- nl ];
+        return intercalate("::", nameParts); 
+    }
+    throw "Unexpected syntax for qualified name: <qn>";
+}
+
+public str prettyPrintName(Name nm){ 
+    return startsWith("<nm>","\\") ? substring("<nm>",1) : "<nm>";
+}
+
+//@doc{Get the last part of a qualified name.}
+//public Name getLastName(QualifiedName qn) 
+//    = convertName(qn).name;
 
 public bool isQualified(QName qn) = !isEmpty(qn.qualifier);
 
@@ -71,9 +85,9 @@ public AType convertBasicType(BasicType t, TBuilder tb) {
         case (BasicType)`set` : { tb.reportError(t, "Non-well-formed type, type should have one type argument"); return aset(avoid()); }
         case (BasicType)`bag` : { tb.reportError(t, "Non-well-formed type, type should have one type argument"); return abag(avoid()); }
         case (BasicType)`map` : { tb.reportError(t, "Non-well-formed type, type should have two type arguments"); return amap(avoid(),avoid()); }
-        case (BasicType)`rel` : { tb.reportError(t, "Non-well-formed type, type should have one or more type arguments"); return arel([]); }
-        case (BasicType)`lrel` : { tb.reportError(t, "Non-well-formed type, type should have one or more type arguments"); return alrel([]); }
-        case (BasicType)`tuple` : { tb.reportError(t, "Non-well-formed type, type should have one or more type arguments"); return atuple([]); }
+        case (BasicType)`rel` : { tb.reportError(t, "Non-well-formed type, type should have one or more type arguments"); return arel(atypeList([])); }
+        case (BasicType)`lrel` : { tb.reportError(t, "Non-well-formed type, type should have one or more type arguments"); return alrel(atypeList([])); }
+        case (BasicType)`tuple` : { tb.reportError(t, "Non-well-formed type, type should have one or more type arguments"); return atuple(atypeList([])); }
         case (BasicType)`type` : { tb.reportError(t, "Non-well-formed type, type should have one type argument"); return areified(avoid()); }
     }
 }
@@ -87,7 +101,7 @@ public AType convertTypeArg(TypeArg ta, TBuilder tb) {
 }
 
 @doc{Convert lists of type arguments.}
-public list[AType atype] convertTypeArgList({TypeArg ","}* tas, TBuilder tb)
+public list[AType] convertTypeArgList({TypeArg ","}* tas, TBuilder tb)
     = [convertTypeArg(ta, tb) | ta <- tas];
 
 @doc{Convert structured types, such as list<<int>>. Check here for certain syntactical 
@@ -264,13 +278,13 @@ public AType convertUserType(UserType ut, TBuilder tb) {
 
 public AType convertSymbol(Sym sym, TBuilder tb) = sym2AType(sym); 
 
-@doc{Get the raw Name component from a user type.}
-public Name getUserTypeRawName(UserType ut, TBuilder tb) {
-    switch(ut) {
-        case (UserType) `<QualifiedName n>` : return getLastName(n);
-        case (UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]` : return getLastName(n);
-    }
-}
+//@doc{Get the raw Name component from a user type.}
+//public Name getUserTypeRawName(UserType ut, TBuilder tb) {
+//    switch(ut) {
+//        case (UserType) `<QualifiedName n>` : return getLastName(n);
+//        case (UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]` : return getLastName(n);
+//    }
+//}
 
 @doc{Convert Rascal type variables into their abstract representation.}
 public AType convertTypeVar(TypeVar tv, TBuilder tb) {

@@ -14,29 +14,33 @@ import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascalcore::grammar::definition::Productions;
 
 import lang::rascalcore::check::Import;
+import lang::rascalcore::check::Pattern;
+
+import util::Reflective;
 
 // ---- Rascal declarations
 
-str key_imported = "imported";
-str key_expanding_imports = "expanding_imports";
-
 void collect(current: (Module) `<Header header> <Body body>`, TBuilder tb){
-    mname = prettyPrintQName(convertName(header.name));
+    //if(ignoreCompiler(header.tags)) return;
+    if(current has top) current = current.top;
+    mname = prettyPrintName(header.name);
+    //println("*** collect module <mname>, <getLoc(current)>");
     tb.define(mname, moduleId(), current, defType(amodule(mname)));
+    tb.push(key_current_module, mname);
     tb.enterScope(current);
         collectParts(current, tb);
         //collect(header, body, tb);
     tb.leaveScope(current);
+    tb.pop(key_current_module);
     getImports(tb);
 }
 
 // ---- import
 
-str unescape(str s) = replaceAll(s, "\\", "");
-
 void collect(current: (Import) `import <ImportedModule m> ;`, TBuilder tb){ // TODO: warn about direct self-import
     tb.useViaPath(m, {moduleId()}, importPath());
     tb.push(key_imported, unescape("<m.name>"));
+    tb.push(key_import_graph, <tb.top(key_current_module), "<m.name>">);
 }
 
 void getImports(TBuilder tb){
@@ -50,24 +54,19 @@ void getImports(TBuilder tb){
         tb.push(key_expanding_imports, true);
         solve(allReadyImported){
             if(list[str] importedModules := tb.getStack(key_imported)){
-                println("importedModules: <importedModules>");
                 for(mname <- toSet(importedModules) - allReadyImported){
                     allReadyImported += mname;
-                    println("*** importing <mname>");
                     reuse = addImport(mname, pcfg, tb);
                     if(!reuse){
-                        mloc = getModuleLocation(mname, pcfg);
-                        println("*** importing <mname> from <mloc>");
-                        pt = parse(#start[Modules], mloc).top;
+                        println("*** importing <mname> from <getModuleLocation(mname, pcfg)>");
+                        pt = parseNamedModuleWithSpaces(mname, pcfg).top;
                         collect(pt, tb);
                     }
                 }
             } else {
                 throw "Inconsistent value for \"imported\": <tb.getStack("imported")>";
             }
-    
         }
-    
     } else if(isEmpty(pcfgVal)){
         return;
     } else {
@@ -79,8 +78,9 @@ void getImports(TBuilder tb){
 
 void collect(current: (Import) `extend <ImportedModule m> ;`, TBuilder tb){    
     tb.useViaPath(m, {moduleId()}, extendPath());
-    
     tb.push(key_imported, unescape("<m.name>"));
+    tb.push(key_extended, unescape("<m.name>"));
+    tb.push(key_extend_graph, <tb.top(key_current_module), "<m.name>">);
 }
 
 // ---- variable declaration
@@ -98,6 +98,8 @@ void() makeVarInitRequirement(Expression expr, AType initType, Key scope)
          };
          
 void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type \type> <{Variable ","}+ variables> ;`, TBuilder tb){
+    if(ignoreCompiler(tags)) return;
+     
     vis = getVis(current.visibility);
     if(vis == defaultVis()){
         vis = privateVis();
@@ -108,17 +110,19 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type \
     for(var <- variables){
         dt = defType([], AType(){ return expandUserTypes(varType, scope); });
         dt.vis = vis;
-        tb.define(prettyPrintQName(convertName(var.name)), variableId(), var.name, dt);
+        tb.define(prettyPrintName(var.name), variableId(), var.name, dt);
         
         tb. require("variable type is defined", current.\type, [],
             (){ try expandUserTypes(varType, scope);
                 catch TypeUnavailable(): reportError(current.\type, "Undeclared type <fmt("<current.\type>")>");
             });
         if(var is initialized){
-            if(!(var.initial is closure)) tb.enterScope(var.initial, lubScope=true);
+            //if(!(var.initial is closure)) 
+            tb.enterScope(var, lubScope=true);
                 tb.require("variable initialization", var.initial, [], makeVarInitRequirement(var.initial, varType, tb.getScope()));
                 collect(var.initial, tb); 
-            if(!(var.initial is closure)) tb.leaveScope(var.initial);
+            //if(!(var.initial is closure)) 
+            tb.leaveScope(var);
         }
     }  
     collect(tags, tb);  
@@ -127,6 +131,9 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type \
 // ---- annotation
 
 void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <Type annoType> <Type onType> @ <Name name> ;`, TBuilder tb){
+    
+    if(ignoreCompiler(tags)) return;
+    
     vis = getVis(current.visibility);
     if(vis == defaultVis()){
         vis = publicVis();
@@ -149,6 +156,9 @@ data ReturnInfo = returnInfo(AType retType, list[Pattern] formals, set[AType] kw
 
 void collect(FunctionDeclaration decl, TBuilder tb){
 //println("********** function declaration: <decl.signature.name>");
+
+    //if(ignoreCompiler(decl.tags)) return;
+    
     vis = getVis(decl.visibility);
     if(vis == defaultVis()){
         vis = publicVis();
@@ -157,25 +167,22 @@ void collect(FunctionDeclaration decl, TBuilder tb){
     isVarArgs = signature.parameters is varArgs;
     fname = signature.name;
     ftypeStub = tb.newTypeVar();
-    //dt = defType([ftypeStub], AType() { return getType(ftypeStub); });
     dt = defType(ftypeStub);
     dt.vis=vis;  // TODO: Cannot be set directly, bug in interpreter?
-    tb.define(prettyPrintQName(convertName(fname)), functionId(), fname, dt);     // function is defined in outer scope, its type is filled in in inner scope
+    tb.define(prettyPrintName(fname), functionId(), fname, dt);     // function is defined in outer scope, its type is filled in inner scope
     
     tb.enterScope(decl, lubScope=true);
         scope = tb.getScope();
         tb.setScopeInfo(scope, functionScope(), false);
         retType = convertType(signature.\type, tb);
-        <formals, kwTypeParams, kwFormals> = checkFunctionType(scope, retType, signature.parameters, tb);
+        <formals, kwTypeParams, kwFormals> = checkFunctionType(scope, retType, signature.parameters, isVarArgs, tb);
         
         tb.requireEager("definition of function type", signature.\type, [],
             (){ 
                 expandedRetType = expandUserTypes(retType, scope);
-                if(isVarArgs){
-                   unify(ftypeStub, afunc(expandedRetType, atypeList([expandUserTypes(getPatternType(formals[i], avalue(), scope), scope) | int i <- [0..-1]] + alist(expandUserTypes(getType(formals[-1]), scope))), kwFormals, varArgs=true));
-                } else {
-                   unify(ftypeStub, afunc(expandedRetType, atypeList([expandUserTypes(getPatternType(f, avalue(), scope), scope) | f <- formals]), kwFormals));
-                }
+                ft = afunc(expandedRetType, atypeList([expandUserTypes(getPatternType(f, avalue(), scope), scope) | f <- formals]), kwFormals);
+                if(isVarArgs) ft.varArgs = true;
+                unify(ftypeStub, ft) || reportError(signature, "Cannot define function type");
              });
         
         if(decl is expression || decl is conditional){
@@ -203,24 +210,36 @@ void collect(FunctionDeclaration decl, TBuilder tb){
     tb.leaveScope(decl);
 }
 
-list[Keyword] getKeywordFormals({KeywordFormal  "," }+ keywordFormalList, TBuilder tb){    
+bool ignoreCompiler(Tags tags){
+   for(tg <- tags.tags){
+     if("<tg.name>" in {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"}) return true;
+   }
+   return false;
+}
+
+list[Keyword] getKeywordFormals({KeywordFormal  "," }+ keywordFormalList, IdRole role, TBuilder tb){    
     return 
         for(KeywordFormal kwf <- keywordFormalList){
             fieldType = convertType(kwf.\type, tb);
-            fieldName = prettyPrintQName(convertName(kwf.name));
+            fieldName = prettyPrintName(kwf.name);
             defaultExp = kwf.expression;
-            tb.define(fieldName, fieldId(), kwf.name, defType(fieldType));
+            tb.define(fieldName, role, kwf.name, defType(fieldType));
             append <fieldName, fieldType, defaultExp>;
         }
 }
 
-tuple[list[Pattern] formals, set[AType] kwTypeParams, list[Keyword] kwFormals] checkFunctionType(Key scope, AType retType, Parameters params, TBuilder tb){
+tuple[list[Pattern] formals, set[AType] kwTypeParams, list[Keyword] kwFormals] checkFunctionType(Key scope, AType retType, Parameters params, bool isVarArgs, TBuilder tb){
     formals = [pat | Pattern pat <- params.formals.formals];
     beginPatternScope("parameter", tb);
-    collect(formals, tb);
+    if(isVarArgs){
+        collect(formals[0..-1], tb);
+        collectAsVarArg(formals[-1], tb);
+    } else {
+        collect(formals, tb);
+    }
     endPatternScope(tb);
     
-    kwFormals = params.keywordFormals is \default ? getKeywordFormals(params.keywordFormals.keywordFormalList, tb) : [];
+    kwFormals = params.keywordFormals is \default ? getKeywordFormals(params.keywordFormals.keywordFormalList, variableId(), tb) : [];
     
     kwTypeParams = {*collectRascalTypeParams(kwf.fieldType) | kwf <- kwFormals};
     tb.setScopeInfo(scope, functionScope(), returnInfo(retType, formals, kwTypeParams));
@@ -238,7 +257,7 @@ tuple[list[Pattern] formals, set[AType] kwTypeParams, list[Keyword] kwFormals] c
      return <formals, kwTypeParams, kwFormals>;
 }
 
-void() makeReturnRequirement(Tree expr, AType retType, list[Pattern] formals, set[str] kwTypeParams, Key scope)
+void() makeReturnRequirement(Tree expr, AType retType, list[Pattern] formals, set[AType] kwTypeParams, Key scope)
        = () { 
               expandedReturnType = expandUserTypes(retType, scope);
               typeVarsInParams = {*collectRascalTypeParams(getPatternType(f, avalue(), scope)) | f <- formals} + kwTypeParams;
@@ -254,7 +273,10 @@ void() makeReturnRequirement(Tree expr, AType retType, list[Pattern] formals, se
               catch invalidMatch(str reason):
                     reportError(expr, reason);
               try {
-                 itexpr = instantiateRascalTypeParams(texpr, bindings);
+                 itexpr = texpr;
+                 if(!isEmpty(bindings)){
+                    itexpr = instantiateRascalTypeParams(texpr, bindings);
+                 }
                  if(isFullyInstantiated(itexpr)){
                     subtype(itexpr, expandedReturnType) || reportError(expr, "Return type should be subtype of <fmt(expandedReturnType)>, found <fmt(itexpr)>");
                  } else
@@ -262,7 +284,7 @@ void() makeReturnRequirement(Tree expr, AType retType, list[Pattern] formals, se
                     subtype(itexpr, expandedReturnType) || reportError(expr, "Return type should be subtype of <fmt(expandedReturnType)>, found <fmt(itexpr)>");
                  }
                } catch invalidInstantiation(str msg): {
-                    reportError(current, msg);
+                    reportError(expr, msg);
                }
             
             
@@ -278,7 +300,7 @@ void collect(current: (Statement) `return <Statement statement>`, TBuilder tb){
         return;
     }
     for(<scope, scopeInfo> <- functionScopes){
-        if(returnInfo(AType retType, list[Pattern] formals, set[str] kwTypeParams) := scopeInfo){
+        if(returnInfo(AType retType, list[Pattern] formals, set[AType] kwTypeParams) := scopeInfo){
            tb.requireEager("check return type", current, [], makeReturnRequirement(statement, retType, formals, kwTypeParams, scope));
            tb.calculate("return type", current, [statement], AType(){ return getType(statement); });
            collect(statement, tb);
@@ -293,8 +315,9 @@ void collect(current: (Statement) `return <Statement statement>`, TBuilder tb){
 // ---- alias declaration
 
 void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias <UserType userType> = <Type base>;`, TBuilder tb){
-//println("********** alias: <current>");
-    aliasName = prettyPrintQName(convertName(userType.name));
+    if(ignoreCompiler(tags)) return;
+    
+    aliasName = prettyPrintName(userType.name);
     aliasedType = convertType(base, tb);
     aliasTypeVarsAsList = getTypeParameters(userType, tb);
     scope = tb.getScope();
@@ -303,36 +326,6 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias 
     tb.define(aliasName, aliasId(), userType.name, defType([], AType() { return expandUserTypes(aliasedType, scope); }));
 } 
 
-AType expandUserTypes(AType t, Key scope){
-    return visit(t){
-        case u: auser(str uname, ps): {
-                //println("expandUserTypes: <u>");  // TODO: handle non-empty qualifier
-                expanded = expandUserTypes(getType(uname, scope, {dataId(), aliasId(), nonterminalId()}), scope);
-                if(u.label?) expanded.label = u.label;
-                //println("expanded: <expanded>");
-                if(aadt(uname, ps2) := expanded) {
-                   if(size(ps) != size(ps2)) reportError(scope, "Expected <fmt(size(ps2), "type parameter")> for <fmt(expanded)>, found <size(ps)>");
-                   expanded.parameters = ps;
-                   insert expanded; //aadt(uname, ps);
-                } else {
-                   params = toList(collectRascalTypeParams(expanded));  // TODO order issue?
-                   nparams = size(params);
-                   if(size(ps) != size(params)) reportError(scope, "Expected <fmt(nparams, "type parameter")> for <fmt(expanded)>, found <size(ps)>");
-                   if(nparams > 0){
-                      try {
-                         Bindings b = (params[i].pname : ps[i] | int i <- index(params));
-                         insert instantiateRascalTypeParams(expanded, b);
-                       } catch invalidMatch(str reason): 
-                                reportError(v, reason);
-                         catch invalidInstantiation(str msg):
-                                reportError(v, msg);
-                   } else {
-                     insert expanded;
-                   }
-               }
-            }
-    }
-}
 
 list[AType] getTypeParameters(UserType userType, TBuilder tb){
     if(userType is parametric){
@@ -351,34 +344,35 @@ list[AType] getTypeParameters(UserType userType, TBuilder tb){
 // ---- data declaration
 
 void collect (current: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters>;`, TBuilder tb)
-    = dataDeclaration(current, [], tb);
+    = dataDeclaration(tags, current, [], tb);
 
 void collect (current: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ variants> ;`, TBuilder tb)
-    = dataDeclaration(current, [v | v <- variants], tb);
+    = dataDeclaration(tags, current, [v | v <- variants], tb);
 
-void dataDeclaration(Declaration current, list[Variant] variants, TBuilder tb){
+void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBuilder tb){
+    if(ignoreCompiler(tags)) return;
     userType = current.user;
     commonKeywordParameters = current.commonKeywordParameters;
-    adtName = prettyPrintQName(convertName(userType.name));
+    adtName = prettyPrintName(userType.name);
     
     dataTypeVarsAsList = getTypeParameters(userType, tb);
     dataTypeVars = toSet(dataTypeVarsAsList);
     
     commonKwFields = [];
     if(commonKeywordParameters is present){
-        commonKwFields = getKeywordFormals(commonKeywordParameters.keywordFormalList, tb);
+        commonKwFields = getKeywordFormals(commonKeywordParameters.keywordFormalList, fieldId(), tb);
     }
     adtType = aadt(adtName, dataTypeVarsAsList);
     
     allConsFields = {};
     allConstructorDefines = {};
     for(Variant v <- variants){
-        consName = prettyPrintQName(convertName(v.name));
+        consName = prettyPrintName(v.name);
         allFieldTypeVars = {};
         fields = 
             for(TypeArg ta <- v.arguments){
                 fieldType = convertType(ta.\type, tb);
-                fieldName = ta has name ? prettyPrintQName(convertName(ta.name)) : "";
+                fieldName = ta has name ? prettyPrintName(ta.name) : "";
                 if(!isEmpty(fieldName)){
                     tb.define(fieldName, fieldId(), ta, defType(fieldType));
                     allConsFields += <fieldName, fieldType>;
@@ -389,7 +383,7 @@ void dataDeclaration(Declaration current, list[Variant] variants, TBuilder tb){
     
        kwFields = [];
        if(v.keywordArguments is \default){
-          kwFields += getKeywordFormals(v.keywordArguments.keywordFormalList, tb);
+          kwFields += getKeywordFormals(v.keywordArguments.keywordFormalList, fieldId(), tb);
           for(<kwn, kwt, kwd> <- kwFields){
               allFieldTypeVars += collectRascalTypeParams(kwt);
               allConsFields += <kwn, kwt>;

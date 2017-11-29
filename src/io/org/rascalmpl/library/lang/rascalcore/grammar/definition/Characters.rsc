@@ -22,11 +22,11 @@ import lang::rascalcore::grammar::definition::Grammar;
 import List;
 import IO;
 
-data CharRange = \empty-range();
+data ACharRange = \empty-range();
 
-CharRange \new-range(int from, int to) = from <= to ? range(from, to) : \empty-range();
+ACharRange \new-range(int from, int to) = from <= to ? range(from, to) : \empty-range();
  
-public AType \new-char-class(list[CharRange] ranges) 
+public AType \new-char-class(list[ACharRange] ranges) 
   = \char-class(([] | union(it, [r]) | r <- ranges));
   
 //test bool testFlip() = \new-char-class([range(2,2), range(1,1)]) == \char-class([range(1,2)]);
@@ -34,42 +34,42 @@ public AType \new-char-class(list[CharRange] ranges)
 //test bool testEnvelop() = \new-char-class([range(10,20), range(15,20), range(20,30)]) == \char-class([range(10,30)]);
 //test bool testEnvelop2() = \new-char-class([range(10,20), range(10,19), range(20,30)]) == \char-class([range(10,30)]);
 
-public AType complement(\char-class(list[CharRange] r1)) =
+public AType complement(\char-class(list[ACharRange] r1)) =
   \char-class([ r | r <- complement(r1), !(r is \empty-range)]);
   
 public default AType  complement(AType s) {
   throw "unsupported symbol for character class complement: <s>";
 }
   
-public AType difference(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2)) 	
+public AType difference(\char-class(list[ACharRange] r1), \char-class(list[ACharRange] r2)) 	
   = \char-class([r | r <- difference(r1,r2), !(r is \empty-range)]);
 
 public default AType  difference(AType s, AType t) {
   throw "unsupported symbols for  character class difference: <s> and <t>";
 }
 
-public AType union(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2))
+public AType union(\char-class(list[ACharRange] r1), \char-class(list[ACharRange] r2))
  = \char-class([ r | r <- union(r1,r2), !(r is \empty-range)]);
  
 public default AType  union(AType s, AType t) {
   throw "unsupported symbols for union: <s> and <t>";
 }
 
-public AType intersection(\char-class(list[CharRange] r1), \char-class(list[CharRange] r2)) 
+public AType intersection(\char-class(list[ACharRange] r1), \char-class(list[ACharRange] r2)) 
  = \char-class([ r | r <- intersection(r1,r2), !(r is \empty-range)]);
 
 public default AType  intersection(AType s, AType t) {
   throw "unsupported symbols for intersection: <s> and <t>";
 }
 
-public bool lessThan(CharRange r1, CharRange r2) {
+public bool lessThan(ACharRange r1, ACharRange r2) {
   if (range(s1,e1) := r1, range(s2,e2) := r2) {
     return e1 < s2;
   }
   throw "unexpected ranges <r1> and <r2>";
 }
 
-public CharRange difference(CharRange l, CharRange r) {
+public ACharRange difference(ACharRange l, ACharRange r) {
   if (l == \empty-range() || r == \empty-range()) return l;
   
   if (\range(ls,le) := l, \range(rs,re) := r) {
@@ -113,7 +113,7 @@ public CharRange difference(CharRange l, CharRange r) {
   throw "did not expect to end up here! <l> - <r>"; 
 }
 
-public CharRange intersect(CharRange r1, CharRange r2) {
+public ACharRange intersect(ACharRange r1, ACharRange r2) {
   if (r1 == \empty-range() || r2 == \empty-range()) return \empty-range();
   
   if (range(s1,e1) := r1, range(s2,e2) := r2) {
@@ -157,11 +157,11 @@ public CharRange intersect(CharRange r1, CharRange r2) {
   throw "unexpected ranges <r1> and <r2>";
 }
 
-public list[CharRange] complement(list[CharRange] s) {
+public list[ACharRange] complement(list[ACharRange] s) {
   return difference([range(1,0x10FFFF)],s); // the 0 character is excluded
 }
 
-public list[CharRange] intersection(list[CharRange] l, list[CharRange] r) {
+public list[ACharRange] intersection(list[ACharRange] l, list[ACharRange] r) {
   if (l == r) return l;
   if (l == [] || r == []) return [];
   
@@ -214,7 +214,7 @@ public list[CharRange] intersection(list[CharRange] l, list[CharRange] r) {
   
 } 
 
-public list[CharRange] union(list[CharRange] l, list[CharRange] r) {
+public list[ACharRange] union(list[ACharRange] l, list[ACharRange] r) {
   if (l == r) return l;
   if (l == []) return r;
   if (r == []) return l;
@@ -272,7 +272,7 @@ public list[CharRange] union(list[CharRange] l, list[CharRange] r) {
 // Precondition: both lists are ordered
 // Postcondition: resulting list is ordered
 
-public list[CharRange] difference(list[CharRange] l, list[CharRange] r) {
+public list[ACharRange] difference(list[ACharRange] l, list[ACharRange] r) {
   if (l == [] || r == []) return l;
   if (l == r) return [];
   
@@ -352,7 +352,7 @@ public AType cc2ranges(Class cc) {
    }
 }
       
-private CharRange range(Range r) {
+private ACharRange range(Range r) {
   switch (r) {
     case character(Char c) : return range(charToInt(c),charToInt(c));
     case fromTo(Char l1, Char r1) : {

@@ -75,7 +75,7 @@ bool myMayOverload(set[Key] defs, map[Key, Define] defines){
     //println("myMayOverload: <defs>");
     idRoles = {defines[def].idRole | def <- defs};
     //println("idRoles: <idRoles>");
-    res =    idRoles <= {functionId(), constructorId(), fieldId()}
+    res =    idRoles <= {functionId(), constructorId(), fieldId(), dataId(), annoId(), moduleId(), aliasId(), variableId()}
            || idRoles <= {dataId(), moduleId(), nonterminalId()} 
            || idRoles <= {fieldId()}
            || idRoles <= {annoId()}

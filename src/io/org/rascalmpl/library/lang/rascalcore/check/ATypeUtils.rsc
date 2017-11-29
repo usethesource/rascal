@@ -14,18 +14,59 @@ module lang::rascalcore::check::ATypeUtils
 import List;
 import Set;
 import String;
+import Node;
 extend ParseTree;
 
-extend lang::rascalcore::check::AType;
+import analysis::typepal::TypePal;
+import lang::rascalcore::check::AType;
+import lang::rascalcore::check::ATypeInstantiation;
+
+import lang::rascalcore::check::Scope;
+import lang::rascalcore::check::ATypeExceptions;
 
 import lang::rascal::\syntax::Rascal;
+
+str unescape(str s) = replaceAll(s, "\\", "");
 
 AType normalizeType(AType s){
    return
     visit(s){
-        case AType::alist(AType::atuple(list[AType] tls)) => AType::alrel(tls)
-        case AType::aset(AType::atuple(list[AType] tls))  => AType::arel(tls)
+        case alist(atuple(atypeList(list[AType] tls))) => AType::alrel(atypeList(tls))
+        case aset(atuple(atypeList(list[AType] tls)))  => AType::arel(atypeList(tls))
    }
+}
+
+@memo
+AType expandUserTypes(AType t, Key scope){
+    return visit(t){
+        case u: auser(str uname, ps): {
+                //println("expandUserTypes: <u>");  // TODO: handle non-empty qualifier
+                expanded = expandUserTypes(getType(uname, scope, {dataId(), aliasId(), nonterminalId()}), scope);
+                if(u.label?) expanded.label = u.label;
+                if(u.hasSyntax?) expanded.hasSyntax = u.hasSyntax;
+                //println("expanded: <expanded>");
+                if(aadt(uname, ps2) := expanded) {
+                   if(size(ps) != size(ps2)) reportError(scope, "Expected <fmt(size(ps2), "type parameter")> for <fmt(expanded)>, found <size(ps)>");
+                   expanded.parameters = ps;
+                   insert expanded; //aadt(uname, ps);
+                } else {
+                   params = toList(collectRascalTypeParams(expanded));  // TODO order issue?
+                   nparams = size(params);
+                   if(size(ps) != size(params)) reportError(scope, "Expected <fmt(nparams, "type parameter")> for <fmt(expanded)>, found <size(ps)>");
+                   if(nparams > 0){
+                      try {
+                         Bindings b = (params[i].pname : ps[i] | int i <- index(params));
+                         insert instantiateRascalTypeParams(expanded, b);
+                       } catch invalidMatch(str reason): 
+                                reportError(scope, reason);
+                         catch invalidInstantiation(str msg):
+                                reportError(scope, msg);
+                   } else {
+                     insert expanded;
+                   }
+               }
+            }
+    }
 }
 
 // ---- print atypes ----------------------------------------------------------
@@ -49,8 +90,8 @@ str prettyPrintAType(amap(AType d, AType r)) = "map[<prettyPrintAType(d)>, <pret
 str prettyPrintAType(arel(AType ts)) = "rel[<prettyPrintAType(ts)>]";
 str prettyPrintAType(alrel(AType ts)) = "lrel[<prettyPrintAType(ts)>]";
 
-str prettyPrintAType(afunc(AType ret, atypeList(list[AType] formals), lrel[AType fieldType, str fieldName, Expression defaultExp] kwFormals))
-                = "<prettyPrintAType(ret)>(<intercalate(",", [prettyPrintAType(f) | f <- formals])><isEmpty(kwFormals) ? "" : ", "><intercalate(",", ["<prettyPrintAType(ft)> <fn>=..." | <ft, fn, de> <- kwFormals])>)";
+str prettyPrintAType(afunc(AType ret, atypeList(list[AType] formals), lrel[str fieldName, AType fieldType, Expression defaultExp] kwFormals))
+                = "<prettyPrintAType(ret)>(<intercalate(",", [prettyPrintAType(f) | f <- formals])><isEmpty(kwFormals) ? "" : ", "><intercalate(",", ["<prettyPrintAType(ft)> <fn>=..." | <fn, ft, de> <- kwFormals])>)";
 
 str prettyPrintAType(auser(str s, [])) = s;
 str prettyPrintAType(auser(str s, ps)) ="<s>[<prettyPrintAType(ps)>]" when size(ps) > 0;
@@ -64,9 +105,9 @@ str prettyPrintAType(aadt(str s, [])) = s;
 str prettyPrintAType(aadt(str s, ps)) = "<s>[<prettyPrintAType(ps)>]" when size(ps) > 0;
 
 str prettyPrintAType(acons(AType adt, str consName, 
-                 lrel[AType fieldType, str fieldName] fields, 
-                 lrel[AType fieldType, str fieldName, Expression defaultExp] kwFields))
-                 = "<prettyPrintAType(adt)>::<consName>(<intercalate(", ", ["<prettyPrintAType(ft)> <fn>" | <ft, fn> <- fields])><isEmpty(kwFields) ? "" : ", "><intercalate(",", ["<prettyPrintAType(ft)> <fn>=..." | <ft, fn, de> <- kwFields])>)";
+                 lrel[str fieldName, AType fieldType] fields, 
+                 lrel[str fieldName, AType fieldType, Expression defaultExp] kwFields))
+                 = "<prettyPrintAType(adt)>::<consName>(<intercalate(", ", ["<prettyPrintAType(ft)> <fn>" | <fn, ft> <- fields])><isEmpty(kwFields) ? "" : ", "><intercalate(",", ["<prettyPrintAType(ft)> <fn>=..." | <fn, ft, de> <- kwFields])>)";
 
 str prettyPrintAType(amodule(str mname)) = "module <mname>";         
 str prettyPrintAType(aparameter(str pn, AType t)) = t == avalue() ? "&<pn>" : "&<pn> \<: <prettyPrintAType(t)>";
@@ -83,7 +124,7 @@ str prettyPrintAType(Keyword kw) = "<prettyPrintAType(kw.fieldType) <kw.fieldNam
 // non-terminal symbols
 //str prettyPrintAType(\sort(str name)) = name;
 //str prettyPrintAType(\start(AType s)) = "start[<prettyPrintAType(s)>]";
-str prettyPrintAType(\prod(AType s, str name, list[AType] fs, set[Attr] atrs)) = "<prettyPrintAType(s)> <name> : (<intercalate(", ", [ prettyPrintAType(f) | f <- fs ])>)";
+str prettyPrintAType(\prod(AType s, list[AType] fs)) = "<prettyPrintAType(s)> : (<intercalate(", ", [ prettyPrintAType(f) | f <- fs ])>)"; //TODO others
 //str prettyPrintAType(\lex(str name)) = name;
 //str prettyPrintAType(\layouts(str name)) = name;
 //str prettyPrintAType(\keywords(str name)) = name;
@@ -93,12 +134,12 @@ str prettyPrintAType(\prod(AType s, str name, list[AType] fs, set[Attr] atrs)) =
 //str prettyPrintAType(\aparameterized-lex(str name, list[AType] parameters)) = "<name>[<intercalate(", ", [ prettyPrintAType(p) | p <- parameters ])>]" when size(parameters) > 0;
 
 // terminal symbols
-str prettyPrintAType(\lit(str string)) = string;
-str prettyPrintAType(\cilit(str string)) = string;
-str prettyPrintAType(\char-class(list[CharRange] ranges)) = "[<intercalate(" ", [ "<r.begin>-<r.end>" | r <- ranges ])>]";
+str prettyPrintAType(AType::\lit(str string)) = string;
+str prettyPrintAType(AType::\cilit(str string)) = string;
+str prettyPrintAType(\char-class(list[ACharRange] ranges)) = "[<intercalate(" ", [ "<r.begin>-<r.end>" | r <- ranges ])>]";
 
 // regular symbols
-str prettyPrintAType(\empty()) = "()";
+str prettyPrintAType(AType::\empty()) = "()";
 str prettyPrintAType(\opt(AType symbol)) = "<prettyPrintAType(symbol)>?";
 str prettyPrintAType(\iter(AType symbol)) = "<prettyPrintAType(symbol)>+";
 str prettyPrintAType(\iter-star(AType symbol)) = "<prettyPrintAType(symbol)>*";
@@ -107,7 +148,7 @@ str prettyPrintAType(\iter-star-seps(AType symbol, list[AType] separators)) = "{
 str prettyPrintAType(\alt(set[AType] alternatives)) = "( <intercalate(" | ", [ prettyPrintAType(a) | a <- alternatives ])> )" when size(alternatives) > 1;
 str prettyPrintAType(\seq(list[AType] sequence)) = "( <intercalate(" ", [ prettyPrintAType(a) | a <- sequence ])> )" when size(sequence) > 1;
 str prettyPrintAType(\conditional(AType symbol, set[ACondition] conditions)) = "<prettyPrintAType(symbol)> { <intercalate(" ", [ prettyPrintCond(cond) | cond <- conditions ])> }";
-default str prettyPrintAType(AType s) = "<type(s,())>";
+default str prettyPrintAType(AType s) = "<s>"; //"<type(s,())>";
 
 private str prettyPrintCond(ACondition::\follow(AType symbol)) = "\>\> <prettyPrintAType(symbol)>";
 private str prettyPrintCond(ACondition::\not-follow(AType symbol)) = "!\>\> <prettyPrintAType(symbol)>";
@@ -125,7 +166,7 @@ private str prettyPrintCond(ACondition::\except(str label)) = "!<label>";
 
 @doc{Unwraps parameters and conditionals from a type.}
 AType unwrapType(p: aparameter(_,tvb)) = p.label? ? unwrapType(tvb)[label=p.label] : unwrapType(tvb);
-AType unwrapType(\conditional(sym,_)) = unwrapType(sym);
+AType unwrapType(\conditional(AType sym,  set[ACondition] _)) = unwrapType(sym);
 public default AType unwrapType(AType t) = t;
 
 bool allLabelled(list[AType] tls) = size(tls) == size([tp | tp <- tls, !isEmpty(tp.label)]);
@@ -348,7 +389,7 @@ public list[str] getRelFieldNames(AType t) {
 @doc{Get the fields of a relation.}
 public list[AType] getRelFields(AType t) {
     if (arel(atypeList(tls)) := unwrapType(t)) return tls;
-    if (aset(atuple(tls)) := unwrapType(t)) return tls;
+    if (aset(atuple(atypeList(tls))) := unwrapType(t)) return tls;
     throw "getRelFields given non-Relation type <prettyPrintAType(t)>";
 }
 
@@ -394,9 +435,7 @@ public AType getListRelElementType(AType t) {
 @doc{Get the field names of the list rel fields.}
 public list[str] getListRelFieldNames(AType t) {
     if (alrel(atypeList(tls)) := unwrapType(t)){
-        res = [tp.label | tp <- tls];
-        println(res);
-        return res;
+        return [tp.label | tp <- tls];
     }
     throw "getListRelFieldNames given non-List-Relation type <prettyPrintAType(t)>";
 }
@@ -404,10 +443,9 @@ public list[str] getListRelFieldNames(AType t) {
 @doc{Get the fields of a list relation.}
 public list[AType] getListRelFields(AType t) {
     if (alrel(atypeList(tls)) := unwrapType(t)) return tls;
-    if (alist(atuple(tls)) := unwrapType(t)) return tls;
+    if (alist(atuple(atypeList(tls))) := unwrapType(t)) return tls;
     throw "getListRelFields given non-List-Relation type <prettyPrintAType(t)>";
 }
-
 
 // ---- tuple
 
@@ -477,7 +515,7 @@ public int getTupleFieldCount(AType t) = size(getTupleFields(t));
 
 @doc{Does this tuple have field names?}
 bool tupleHasFieldNames(AType t) {
-    if (tup: atuple(atypeList(tas)) := unwrapType(t)) return size(tas) == [tp | tp <- tas, !isEmpty(tp.label)];
+    if (tup: atuple(atypeList(tas)) := unwrapType(t)) return size(tas) == size([tp | tp <- tas, !isEmpty(tp.label)]);
     throw "tupleHasFieldNames given non-Tuple type <prettyPrintAType(t)>";
 }
 
@@ -577,8 +615,8 @@ bool mapHasFieldNames(AType t) = tupleHasFieldNames(getMapFieldsAsTuple(t));
 
 @doc{Get the field names from the map fields.}
 public list[str] getMapFieldNames(AType t) {
-    if ([domain, range] := getMapFields(t)) {
-        return [ domain.label, range.label ];
+    if ([dm, rng] := getMapFields(t)) {
+        return [ dm.label, rng.label ];
     }
     throw "getMapFieldNames given map type without field names: <prettyPrintAType(t)>";        
 }
@@ -657,30 +695,30 @@ bool isConstructorType(aparameter(_,AType tvb)) = isConstructorType(tvb);
 bool isConstructorType(acons(AType _, str _, _, _)) = true;
 default bool isConstructorType(AType _) = false;
 
-@doc{Create a new constructor type.}
-AType makeConstructorType(AType adtType, str name, AType consArgs...) { 
-    set[str] labels = { tp.label | tp <- consArgs, !isEmpty(tp.label) };   
-    if (size(labels) == 0 || size(labels) == size(consArgs)) 
-        return acons(adtType, name, consArgs, []);
-    else
-        throw rascalCheckerInternalError("For constructor types, either all arguments much be given a distinct label or no parameters should be labeled."); 
-}
+//@doc{Create a new constructor type.}
+//AType makeConstructorType(AType adtType, str name, AType consArgs...) { 
+//    set[str] labels = { tp.label | tp <- consArgs, !isEmpty(tp.label) };   
+//    if (size(labels) == 0 || size(labels) == size(consArgs)) 
+//        return acons(adtType, name, consArgs, []);
+//    else
+//        throw rascalCheckerInternalError("For constructor types, either all arguments much be given a distinct label or no parameters should be labeled."); 
+//}
 
 //@doc{Create a new constructor type based on the contents of a tuple.}
 //AType makeConstructorTypeFromTuple(AType adtType, str name, AType consArgs) {    
 //    return makeConstructorType(adtType, name, getTupleFields(consArgs)); 
 //}
 
-@doc{Get a list of the argument types in a constructor.}
-public list[AType] getConstructorArgumentTypes(AType ct) {
-    if (acons(_,_,cts,_) := unwrapType(ct)) return cts;
-    throw "Cannot get constructor arguments from non-constructor type <prettyPrintAType(ct)>";
-}
+//@doc{Get a list of the argument types in a constructor.}
+//public list[NamedField] getConstructorArgumentTypes(AType ct) {
+//    if (acons(_,_,list[NamedField] cts,_) := unwrapType(ct)) return cts;
+//    throw "Cannot get constructor arguments from non-constructor type <prettyPrintAType(ct)>";
+//}
 
-@doc{Get a tuple with the argument types as the fields.}
-public AType getConstructorArgumentTypesAsTuple(AType ct) {
-    return atuple(getConstructorArgumentTypes(ct));
-}
+//@doc{Get a tuple with the argument types as the fields.}
+//public AType getConstructorArgumentTypesAsTuple(AType ct) {
+//    return atuple(atypeList(getConstructorArgumentTypes(ct)));
+//}
 
 @doc{Get the ADT type of the constructor.}
 public AType getConstructorResultType(AType ct) {
@@ -695,22 +733,21 @@ Determine if the given type is a function.
 }
 bool isFunctionType(aparameter(_,AType tvb)) = isFunctionType(tvb);
 bool isFunctionType(afunc(_,_,_)) = true;
-bool isFunctionType(afunc(_,_)) = true;
 //bool isFunctionType(\var-func(_,_,_)) = true;
 default bool isFunctionType(AType _) = false;
 
-@doc{Create a new function type with the given return and parameter types.}
-AType makeFunctionType(AType retType, bool isVarArgs, AType paramTypes...) {
-    set[str] labels = { tp.label |tp <- paramTypes, !isEmpty(tp.label) };
-    if (size(labels) == 0 || size(labels) == size(paramTypes))
-        //if (isVarArgs) { 
-        //  return \var-func(retType, head(paramTypes,size(paramTypes)-1), last(paramTypes));
-        //} else {
-            return afunc(retType, paramTypes, [])[@isVarArgs=isVarArgs];
-        //}
-    else
-        throw "For function types, either all parameters much be given a distinct label or no parameters should be labeled."; 
-}
+//@doc{Create a new function type with the given return and parameter types.}
+//AType makeFunctionType(AType retType, bool isVarArgs, AType paramTypes...) {
+//    set[str] labels = { tp.label |tp <- paramTypes, !isEmpty(tp.label) };
+//    if (size(labels) == 0 || size(labels) == size(paramTypes))
+//        //if (isVarArgs) { 
+//        //  return \var-func(retType, head(paramTypes,size(paramTypes)-1), last(paramTypes));
+//        //} else {
+//            return afunc(retType, paramTypes, [])[@isVarArgs=isVarArgs];
+//        //}
+//    else
+//        throw "For function types, either all parameters much be given a distinct label or no parameters should be labeled."; 
+//}
 
 //@doc{Create a new function type with parameters based on the given tuple.}
 //AType makeFunctionTypeFromTuple(AType retType, bool isVarArgs, AType paramTypeTuple) { 
@@ -719,22 +756,19 @@ AType makeFunctionType(AType retType, bool isVarArgs, AType paramTypes...) {
 
 @doc{Get a list of arguments for the function.}
 public list[AType] getFunctionArgumentTypes(AType ft) {
-    if (afunc(_, ats, _) := unwrapType(ft)) return ats;
-    if (afunc(_, ats) := unwrapType(ft)) return ats;
+    if (afunc(_, atypeList(ats), _) := unwrapType(ft)) return ats;
     throw "Cannot get function arguments from non-function type <prettyPrintAType(ft)>";
 }
 
 @doc{Get the arguments for a function in the form of a tuple.}
 public AType getFunctionArgumentTypesAsTuple(AType ft) {
     if (afunc(_, ats, _) := unwrapType(ft)) return atuple(ats);
-     if (afunc(_, ats) := unwrapType(ft)) return atuple(ats);
     throw "Cannot get function arguments from non-function type <prettyPrintAType(ft)>";
 }
 
 @doc{Get the return type for a function.}
 public AType getFunctionReturnType(AType ft) {
     if (afunc(rt, _, _) := unwrapType(ft)) return rt;
-    if (afunc(rt, _) := unwrapType(ft)) return rt; 
     throw "Cannot get function return type from non-function type <prettyPrintAType(ft)>";
 }
 
@@ -763,10 +797,10 @@ bool isRascalTypeParam(aparameter(_,_)) = true;
 default bool isRascalTypeParam(AType _) = false;
 
 @doc{Create a type representing a type parameter (type variable).}
-AType makeTypeVar(str varName) = aparameter(varName, avalue())[@boundGiven=false];
+AType makeTypeVar(str varName) = aparameter(varName, avalue());
 
 @doc{Create a type representing a type parameter (type variable) and bound.}
-AType makeTypeVarWithBound(str varName, AType varBound) = aparameter(varName, varBound)[@boundGiven=true];
+AType makeTypeVarWithBound(str varName, AType varBound) = aparameter(varName, varBound);
 
 @doc{Get the name of a Rascal type parameter.}
 str getRascalTypeParamName(AType t) {
@@ -811,6 +845,10 @@ bool isElementType(AType t) =
 @doc{Is this type a container type?}
 bool isContainerType(AType t) =
     isSetType(t) || isListType(t) || isMapType(t) || isBagType(t);
+    
+bool isEnumeratorType(AType t) =
+    isSetType(t) || isListType(t) || isMapType(t) || isADTType(t) || isTupleType(t) || isNodeType(t) ||
+    isNonTerminalIterType(t) || isNonTerminalOptType(t);
 
 // ---- nonterminal
 
@@ -876,12 +914,12 @@ public default AType getStartNonTerminalType(AType s) {
 @doc{Get the name of the nonterminal.}
 str getNonTerminalName(aparameter(_,AType tvb)) = getNonTerminalName(tvb);
 str getNonTerminalName(AType::\start(AType ss)) = getNonTerminalName(ss);
-str getNonTerminalName(AType::\sort(str n)) = n;
-str getNonTerminalName(AType::\lex(str n)) = n;
-str getNonTerminalName(AType::\layouts(str n)) = n;
-str getNonTerminalName(AType::\keywords(str n)) = n;
-str getNonTerminalName(AType::\aparameterized-sort(str n,_)) = n;
-str getNonTerminalName(AType::\aparameterized-lex(str n,_)) = n;
+//str getNonTerminalName(AType::\sort(str n)) = n;
+//str getNonTerminalName(AType::\lex(str n)) = n;
+//str getNonTerminalName(AType::\layouts(str n)) = n;          // <===TODO
+//str getNonTerminalName(AType::\keywords(str n)) = n;      // <=== TODO
+//str getNonTerminalName(AType::\aparameterized-sort(str n,_)) = n;
+//str getNonTerminalName(AType::\aparameterized-lex(str n,_)) = n;
 str getNonTerminalName(AType::\iter(AType ss)) = getNonTerminalName(ss);
 str getNonTerminalName(AType::\iter-star(AType ss)) = getNonTerminalName(ss);
 str getNonTerminalName(AType::\iter-seps(AType ss,_)) = getNonTerminalName(ss);
@@ -893,10 +931,10 @@ public default str getNonTerminalName(AType s) { throw "Invalid nonterminal pass
 @doc{Check to see if the type allows fields.}
 bool nonTerminalAllowsFields(aparameter(_,AType tvb)) = nonTerminalAllowsFields(tvb);
 bool nonTerminalAllowsFields(AType::\start(AType ss)) = true;
-bool nonTerminalAllowsFields(AType::\sort(str n)) = true;
-bool nonTerminalAllowsFields(AType::\lex(str n)) = true;
-bool nonTerminalAllowsFields(AType::\parameterized-sort(str n,_)) = true;
-bool nonTerminalAllowsFields(AType::\parameterized-lex(str n,_)) = true;
+//bool nonTerminalAllowsFields(AType::\sort(str n)) = true;
+//bool nonTerminalAllowsFields(AType::\lex(str n)) = true;
+//bool nonTerminalAllowsFields(AType::\parameterized-sort(str n,_)) = true;
+//bool nonTerminalAllowsFields(AType::\parameterized-lex(str n,_)) = true;
 bool nonTerminalAllowsFields(AType::\opt(AType ss)) = true;
 bool nonTerminalAllowsFields(AType::\conditional(AType ss,_)) = nonTerminalAllowsFields(ss);
 public default bool nonTerminalAllowsFields(AType s) = false;
@@ -905,71 +943,62 @@ public default bool nonTerminalAllowsFields(AType s) = false;
 //public list[AType] getNonTerminalTypeParameters(AType t) = [ rt | / AType rt : aparameter(_,_) := t ];
 public list[AType] getNonTerminalTypeParameters(AType t) {
     t = unwrapType(t);
-    if (AType::aparameterized-sort(n,ps) := t) return ps;
-    if (AType::aparameterized-lex(n,ps) := t) return ps;
-    if (AType::\start(s) := t) return getNonTerminalTypeParameters(s);
-    if (AType::\iter(s) := t) return getNonTerminalTypeParameters(s);
-    if (AType::\iter-star(s) := t) return getNonTerminalTypeParameters(s);
-    if (AType::\iter-seps(s,_) := t) return getNonTerminalTypeParameters(s);
-    if (AType::\iter-star-seps(s,_) := t) return getNonTerminalTypeParameters(s);
-    if (AType::\opt(s) := t) return getNonTerminalTypeParameters(s);
-    if (AType::\conditional(s,_) := t) return getNonTerminalTypeParameters(s);
-    if (AType::\prod(s,_,_,_) := t) return getNonTerminalTypeParameters(s);
+    //if (AType::aparameterized-sort(n,ps) := t) return ps;
+    //if (AType::aparameterized-lex(n,ps) := t) return ps;
+    if (\start(s) := t) return getNonTerminalTypeParameters(s);
+    if (\iter(s) := t) return getNonTerminalTypeParameters(s);
+    if (\iter-star(s) := t) return getNonTerminalTypeParameters(s);
+    if (\iter-seps(s,_) := t) return getNonTerminalTypeParameters(s);
+    if (\iter-star-seps(s,_) := t) return getNonTerminalTypeParameters(s);
+    if (\opt(s) := t) return getNonTerminalTypeParameters(s);
+    if (\conditional(s,_) := t) return getNonTerminalTypeParameters(s);
+ //   if (\prod(s,_) := t) return getNonTerminalTypeParameters(s); // <+===
     return [ ];
 }
 
-public AType provideNonTerminalTypeParameters(AType t, list[AType] ps) {
-    // Note: this function assumes the length is proper -- that we are replacing
-    // a list of params with a list of types that is the same length. The caller
-    // needs to check this.
-    
-    t = unwrapType(t);
-    
-    if (AType::aparameterized-sort(n,ts) := t) return t[parameters=ps];
-    if (AType::aparameterized-lex(n,ts) := t) return t[parameters=ps];
-    if (AType::\start(s) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
-    if (AType::\iter(s) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
-    if (AType::\iter-star(s) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
-    if (AType::\iter-seps(s,_) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
-    if (AType::\iter-star-seps(s,_) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
-    if (AType::\opt(s) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
-    if (AType::\conditional(s,_) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
-    if (AType::\prod(s,_,_,_) := t) return t[\sort=provideNonTerminalTypeParameters(s,ps)];
-    return t;
-}
+//public AType provideNonTerminalTypeParameters(AType t, list[AType] ps) {
+//    // Note: this function assumes the length is proper -- that we are replacing
+//    // a list of params with a list of types that is the same length. The caller
+//    // needs to check this.
+//    
+//    t = unwrapType(t);
+//    
+//    //if (AType::aparameterized-sort(n,ts) := t) return t[parameters=ps];
+//    //if (AType::aparameterized-lex(n,ts) := t) return t[parameters=ps];
+//    if (AType::\start(s) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
+//    if (AType::\iter(s) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
+//    if (AType::\iter-star(s) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
+//    if (AType::\iter-seps(s,_) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
+//    if (AType::\iter-star-seps(s,_) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
+//    if (AType::\opt(s) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
+//    if (AType::\conditional(s,_) := t) return t[symbol=provideNonTerminalTypeParameters(s,ps)];
+//    if (AType::\prod(s,_) := t) return t[\sort=provideNonTerminalTypeParameters(s,ps)];
+//    return t;
+//}
 
 @doc{Synopsis: Determine if the given type is a production.}
 bool isProductionType(aparameter(_,AType tvb)) = isProductionType(tvb);
-bool isProductionType(AType::\prod(_,_,_,_)) = true;
+bool isProductionType(\prod(_,_)) = true;
 public default bool isProductionType(AType _) = false; 
 
 public AType removeConditional(cnd:conditional(AType s, set[ACondition] _)) = cnd.label? ? s[label=cnd.label] : s;
 public default AType removeConditional(AType s) = s;
 
-@doc{Get a list of the argument types in a production.}
-public list[AType] getProductionArgumentTypes(AType pr) {
-    if (AType::\prod(_,_,ps,_) := unwrapType(pr)) {
-        return [ removeConditional(psi) | psi <- ps, isNonTerminalType(psi) ] ;
-    }
-    throw "Cannot get production arguments from non-production type <prettyPrintAType(pr)>";
-}
+//@doc{Get a list of the argument types in a production.}
+//public list[AType] getProductionArgumentTypes(AType pr) {
+//    if (AType::\prod(_,_,ps,_) := unwrapType(pr)) {
+//        return [ removeConditional(psi) | psi <- ps, isNonTerminalType(psi) ] ;
+//    }
+//    throw "Cannot get production arguments from non-production type <prettyPrintAType(pr)>";
+//}
 
-@doc{Get a tuple with the argument types as the fields.}
-public AType getProductionArgumentTypesAsTuple(AType pr) {
-    return atuple(getProductionArgumentTypes(pr));
-}
+//@doc{Get a tuple with the argument types as the fields.}
+//public AType getProductionArgumentTypesAsTuple(AType pr) {
+//    return atuple(getProductionArgumentTypes(pr));
+//}
 
-@doc{Get the sort type of the production.}
-public AType getProductionSortType(AType pr) {
-    if (AType::\prod(s,_,_,_) := unwrapType(pr)) return s;
-    throw "Cannot get production sort type from non-production type <prettyPrintAType(pr)>";
-}
-
-bool subtype(AType t, AType::aadt("Tree",[])) = true when isNonTerminalType(t);
-bool subtype(AType t, AType::anode()) = true when isNonTerminalType(t);
-bool subtype(AType::\iter-seps(AType s, list[AType] seps), AType::\iter-star-seps(AType t, list[AType] seps2)) = subtype(s,t) && subtype(seps, seps2);
-bool subtype(AType::\iter(AType s), AType::\iter-star(AType t)) = subtype(s, t);
-// TODO: add subtype for elements under optional and alternative, but that would also require auto-wrapping/unwrapping in the run-time
-// bool subtype(AType s, \opt(AType t)) = subtype(s,t);
-// bool subtype(AType s, \alt({AType t, *_}) = true when subtype(s, t); // backtracks over the alternatives
-int zzzzzzzzzz = 0;
+//@doc{Get the sort type of the production.}
+//public AType getProductionSortType(AType pr) {
+//    if (\prod(s,_) := unwrapType(pr)) return s;
+//    throw "Cannot get production sort type from non-production type <prettyPrintAType(pr)>";
+//}

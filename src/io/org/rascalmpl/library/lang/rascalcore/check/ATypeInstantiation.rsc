@@ -28,6 +28,7 @@ public alias Bindings = map[str varName, AType varType];
 // TODO: Add support for overloaded types if they can make it to here (this is
 // usually invoked on specific types that are inside overloads)
 public Bindings matchRascalTypeParams(AType r, AType s, Bindings b, bool bindIdenticalVars=false) {
+    if(tvar(l1) := r || tvar(l2) := s) throw TypeUnavailable();
     if (!typeContainsRascalTypeParams(r)) return b;
     return matchRascalTypeParams(r,s,b,bindIdenticalVars);
 }
@@ -67,7 +68,7 @@ public Bindings matchRascalTypeParams(AType r, AType s, Bindings b, bool bindIde
     // able to be matched to one another
     if ( isSetType(r) && isSetType(s) ) {
         if ( isRelType(r) && isVoidType(getSetElementType(s)) ) {
-            return matchRascalTypeParams(getSetElementType(r), atuple([avoid() | idx <- index(getRelFields(r))]), b, bindIdenticalVars);
+            return matchRascalTypeParams(getSetElementType(r), atuple(atypeList([avoid() | idx <- index(getRelFields(r))])), b, bindIdenticalVars);
         } else if ( isVoidType(getSetElementType(s)) ) {
             return b;
         } else {    
@@ -173,8 +174,9 @@ AType instantiateRascalTypeParams(AType::aparameter(str s, AType t), Bindings bi
     = invalidInstantiation(s,t,bindings[s]) when s in bindings && !asubtype(bindings[s],t);
 AType instantiateRascalTypeParams(AType pt:aparameter(str s, AType t), Bindings bindings) 
     = pt when s notin bindings;
-AType instantiateRascalTypeParams(AType::aadt(str s, list[AType] ps), Bindings bindings) 
-    = AType::aadt(s,[instantiateRascalTypeParams(p,bindings) | p <- ps]);
+AType instantiateRascalTypeParams(a: AType::aadt(str s, list[AType] ps), Bindings bindings) 
+    = a.hasSyntax? ? AType::aadt(s,[instantiateRascalTypeParams(p,bindings) | p <- ps],hasSyntax=a.hasSyntax)
+                   : AType::aadt(s,[instantiateRascalTypeParams(p,bindings) | p <- ps]);
 AType instantiateRascalTypeParams(AType::acons(AType a, str name, list[NamedField] fields, list[Keyword] kwFields), Bindings bindings) = 
     AType::acons(instantiateRascalTypeParams(a,bindings), name, [<instantiateRascalTypeParams(ft,bindings), nm> | <ft, nm> <- fields], [<instantiateRascalTypeParams(ft,bindings), fn, de> | <fn, ft, de> <- kwFields]);
 AType instantiateRascalTypeParams(AType::aalias(str s, list[AType] ps, AType at), Bindings bindings)

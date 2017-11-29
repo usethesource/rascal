@@ -1,15 +1,16 @@
 module lang::rascalcore::check::Test1
- 
-import lang::rascalcore::check::Test2;
 
-@doc{
+data F = f3();// | f3(int n) | g(int n) | deep(F f);
+anno int F@pos;
 
+test bool isDefinedAnno5(){
+    X = f3(); 
+    X@pos ? 0 += 1;
+    return X@pos == 1;
 }
-public map[&T element, int occurs] distribution(list[&T] lst) {
-     map[&T element, int occurs] res = ();
-     &T e;
-    
-        res[e] ? 0 += 1;
 
-     return res; 
+test bool isDefinedAnno7(){
+    Y = f3(); 
+    Y@pos ?= 3;
+    return Y@pos == 3;
 }

@@ -18,7 +18,7 @@ import Set;
 
 @memo
 @doc{Converts internal module representation of Rascal interpreter to single grammar definition}
-public Grammar modules2grammar(str main, map[str name, tuple[set[str] imports, set[str] extends, set[SyntaxDefinition] defs] \mod] mods) {
+public AGrammar modules2grammar(str main, map[str name, tuple[set[str] imports, set[str] extends, set[SyntaxDefinition] defs] \mod] mods) {
   // note that we ignore extends here because they're resolved by the interpreter at the moment by 
   // cloning definitions into the module that extends.
   def = \definition(main, (m:\module(m, 
@@ -32,20 +32,20 @@ public Grammar modules2grammar(str main, map[str name, tuple[set[str] imports, s
 
 @memo
 @doc{Converts concrete syntax definitions and fuses them into one single grammar definition}     
-public Grammar modules2grammar(str main, set[Module] modules) {
+public AGrammar modules2grammar(str main, set[Module] modules) {
   return resolve(fuse(layouts(modules2definition(main, modules))));
 }
 
 @doc{Converts concrete syntax definitions to abstract grammar definitions}
-public GrammarDefinition modules2definition(str main, set[Module] modules) {
+public AGrammarDefinition modules2definition(str main, set[Module] modules) {
   return \definition(main, (\mod.name:\mod | m <- modules, \mod := module2grammar(m)));
 }
 
 @doc{
-  Combines a set of modules into one big Grammar, projecting only the rules that
+  Combines a set of modules into one big AGrammar, projecting only the rules that
   are visible locally, or via import and extend.
 }
-public Grammar fuse(GrammarDefinition def) {
+public AGrammar fuse(AGrammarDefinition def) {
   result = grammar({},());
   todo = {def.main};
   done = {};
@@ -63,7 +63,7 @@ public Grammar fuse(GrammarDefinition def) {
  
 
 
-public GrammarModule module2grammar(Module \mod) {
+public AGrammarModule module2grammar(Module \mod) {
   <nm, imps, exts> = getModuleMetaInf(\mod);
   return \module(nm, imps, exts, syntax2grammar(collect(\mod)));
 } 
@@ -91,7 +91,7 @@ str deslash(str input) {
   }
 }
 
-public Grammar imports2grammar(set[Import] imports) {
+public AGrammar imports2grammar(set[Import] imports) {
   return syntax2grammar({ s | \syntax(SyntaxDefinition s) <- imports});
 }
  
