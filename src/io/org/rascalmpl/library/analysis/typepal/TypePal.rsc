@@ -71,47 +71,6 @@ bool reportErrors(set[Message] msgs){
     throw checkFailed(msgs);
 }
 
-set[Message] filterMostPrecise(set[Message] messages){
-//  = { msg | msg <- messages, !any(msg2 <- messages, surrounds(msg, msg2)) };
-    tbl = ();
-    for(msg <- messages){
-        line = msg.at.begin.line;
-        if(tbl[line]?) tbl[line] += msg; else tbl[line] = {msg};
-    }
-    result = {}; 
-    for(line <- tbl){
-        alts = tbl[line];
-        result += { msg | msg <- alts, !any(msg2 <- alts, surrounds(msg, msg2)) };
-    };
-    return result;
-}
-
-set[Message] filterMostGlobal(set[Message] messages) = messages;
-// = { msg | msg <- messages, !any(msg2 <- messages, surrounds(msg2, msg)) };
-    
-bool surrounds (Message msg1, Message msg2){
-    // TODO: return msg1.at > msg2.at should also work but does not.
-    return msg1.at.offset <= msg2.at.offset && msg1.at.offset + msg1.at.length > msg2.at.offset + msg2.at.length;
-}
-
-str intercalateAnd(list[str] strs){
-    switch(size(strs)){
-      case 0: return "";
-      case 1: return strs[0];
-      default: 
-              return intercalate(", ", strs[0..-1]) + " and " + strs[-1];
-      };
-}
-
-str intercalateOr(list[str] strs){
-    switch(size(strs)){
-      case 0: return "";
-      case 1: return strs[0];
-      default: 
-              return intercalate(", ", strs[0..-1]) + " or " + strs[-1];
-      };
-}
-
 // Global variables, used by validate and callbacks (define, require, etc.)
 
 // Used outside validate
@@ -135,30 +94,35 @@ TModel getTModel(){
     return extractedTModel[facts=facts];
 }
 
-void clearBindings() { bindings = (); }
+void clearBindings() { 
+    if(!isEmpty(bindings)) 
+        println("clearBindings: <bindings>");
+    bindings = (); 
+}
 
 AType lub(AType t1, AType t2) = lub([t1, t2]);
 
 AType lub(list[AType] atypes) {
     atypes = toList(toSet(atypes));  // remove duplicates
+    if(size(atypes) == 1) return atypes[0];
     minType = myATypeMin();
     lubbedType = (minType | myLUB(it, t) | t <- atypes, isFullyInstantiated(t));
     tvs =  [ t | t <- atypes, tvar(v) := t ];
     other = [t | t <- atypes - tvs, !isFullyInstantiated(t) ];
     lubArgs = (lubbedType == minType ? [] : [lubbedType]) + [ t | t <- atypes, !isFullyInstantiated(t) ];
     if(size(tvs) == 1 && size(other) == 0 && lubbedType == minType){
-        //println("lub <atypes> ==\> <tvs[0]>");
+        println("lub <atypes> ==\> <tvs[0]>");
         return tvs[0];
     }
     if(size(tvs) >= 1 && size(other) == 0 && lubbedType != minType){
         for(tvar(v) <- tvs){
             addFact(v, lubbedType);  
         }
-        //println("lub: <atypes> ==\> <lubbedType>");
+        println("lub: <atypes> ==\> <lubbedType>");
         return lubbedType;
     }
     lubArgs = lubbedType + tvs + other;
-    res = avalue();
+    res = minType;
     switch(size(lubArgs)){
         case 0: res = minType;
         case 1: res = lubArgs[0];
@@ -182,7 +146,9 @@ void printState(){
             } else {
                 println("\t<fact.srcs>");
             }
-            if(isEmpty(fact.dependsOn)){
+            if(fact has uninstantiated){
+                println("\t  dependsOn: <fact.uninstantiated>");
+            } else if(isEmpty(fact.dependsOn)){
                 println("\t  dependsOn: nothing");
             } else {
                 for(dep <- fact.dependsOn){
@@ -205,13 +171,13 @@ void printState(){
 
 bool allDependenciesKnown(set[loc] deps, bool eager)
     = isEmpty(deps) || (eager ? all(dep <- deps, facts[dep]?)
-                             : all(dep <- deps, facts[dep]?, isFullyInstantiated(facts[dep])));
+                              : all(dep <- deps, facts[dep]?, isFullyInstantiated(facts[dep])));
 
 bool isFullyInstantiated(AType atype){
     visit(atype){
-        case tvar(name): return facts[name]?;
-        case lazyLub(atypes): return isEmpty(atypes) || all(AType tp <- atype, isFullyInstantiated(tp));
-        case overloadedAType(overloads): all(<k, tp> <- overloads, isFullyInstantiated(tp));
+        case tvar(loc name): return facts[name]?;
+        case lazyLub(list[AType] atypes): return isEmpty(atypes) || all(AType tp <- atype, isFullyInstantiated(tp));
+        case overloadedAType(rel[Key, IdRole, AType] overloads): all(<k, idr, tp> <- overloads, isFullyInstantiated(tp));
     }
     return true;
 }
@@ -347,6 +313,9 @@ default bool addFact(Define d) {  throw TypePalInternalError("Cannot handle <d>"
 
 
 bool addFact(loc l, AType atype){
+    //if(atype == avalue()){
+    //    println("addFact: <l> ==\> <atype>");
+    //}
     iatype = instantiate(atype);
     facts[l] = iatype;
     if(cdebug)println(" fact <l> ==\> <iatype>");
@@ -363,11 +332,13 @@ set[loc] getDependencies(AType atype){
 }
 
 bool addFact(fct:openFact(loc src, AType uninstantiated)){
-    try {
-        facts[src] = getType(uninstantiated);
-        fireTriggers(src);
-        return true;
-    } catch TypeUnavailable(): /* cannot yet compute type */;
+    if(!(uninstantiated is lazyLub)){
+        try {
+            facts[src] = getType(uninstantiated);
+            fireTriggers(src);
+            return true;
+        } catch TypeUnavailable(): /* cannot yet compute type */;
+    }
     openFacts += fct;
     dependsOn = getDependencies(uninstantiated);
     for(d <- dependsOn) triggersFact[d] = (triggersFact[d] ? {}) + {fct};
@@ -534,11 +505,13 @@ AType getType(str id, Key scope, set[IdRole] idRoles){
           if(myMayOverload(foundDefs, extractedTModel.definitions)){
                   return overloadedAType({<d, extractedTModel.definitions[d].idRole, instantiate(facts[d])> | d <- foundDefs});
           } else {
-               throw AmbiguousDefinition(foundDefs);
+               //throw AmbiguousDefinition(foundDefs);
+                reportErrors({error("Double declaration of <fmt(id)>", d) | d <- foundDefs} /*+ error("Undefined `<id>` due to double declaration", u.occ) */);
           }
         }
-     } catch NoSuchKey(k):
+     } catch NoSuchKey(k): {
             throw TypeUnavailable();
+            }
        catch NoKey(): {
             println("getType: <id> in scope <scope> ==\> TypeUnavailable1");
             throw TypeUnavailable();
@@ -551,7 +524,6 @@ Define getDefinition(Tree tree){
      } catch NoSuchKey(k):
             throw TypeUnavailable();
        catch NoKey(): {
-            println("getDefinition: <id> in scope <scope> ==\> TypeUnavailable1");
             throw TypeUnavailable();
        }
 }
@@ -576,28 +548,10 @@ set[Define] getDefinitions(str id, Key scope, set[IdRole] idRoles){
        }
 }
 
-//// The "equal" predicate that succeeds or gives error
-//void equal(AType given, AType expected, ErrorHandler onError){
-//    if(given != expected){
-//        throw checkFailed(onError.where, onError.msg);
-//    }
-//}
-
 // Check the "equal" predicate
 bool equal(AType given, AType expected){
-    return given == expected;
+    return unsetRec(given) == unsetRec(expected);
 }
-
-//// The "unify" predicate that succeeds or gives error
-//void unify(AType given, AType expected, ErrorHandler onError){
-//    <ok, bindings1> = unify(instantiate(given), instantiate(expected), bindings);
-//    if(cdebug)println("unify(<given>, <expected>) =\> <ok>, <bindings1>");
-//    if(ok){
-//        bindings += bindings1;
-//    } else {
-//        throw checkFailed(onError.where, onError.msg);
-//    }
-//}
 
 // Check the "unify" predicate
 bool unify(AType given, AType expected){
@@ -605,6 +559,11 @@ bool unify(AType given, AType expected){
         bindings[name] = expected;
             return true;
     }
+    if(tvar(name) := expected){
+        bindings[name] = given;
+            return true;
+    }
+    
     <ok, bindings1> = unify(instantiate(given), instantiate(expected), bindings);
     if(cdebug)println("unify(<given>, <expected>) ==\> <ok>, <bindings1>");
     if(ok){
@@ -614,16 +573,6 @@ bool unify(AType given, AType expected){
         return false;
     }
 }
-
-//// The "subtype" predicate
-//void subtype(AType small, AType large, ErrorHandler onError){
-//    extractedTModel.facts = facts;
-//    r = myIsSubType(small, large);
-//    //println("subtype: <small>, <large> ==\> <r>");
-//    if(!r){
-//        throw checkFailed(onError.where, onError.msg);
-//    }
-//}
 
 bool subtype(AType small, AType large){
     extractedTModel.facts = facts;
@@ -635,18 +584,6 @@ bool subtype(AType small, AType large){
       throw TypeUnavailable();
     }
 }
-
-//// The "comparable" predicate
-//void comparable(AType atype1, AType atype2, ErrorHandler onError){
-//    extractedTModel.facts = facts;
-//    if(isFullyInstantiated(atype1) && isFullyInstantiated(atype2)){
-//        if(!(myIsSubType(atype1, atype2) || myIsSubType(atype2, atype1))){
-//            throw checkFailed(onError.where, onError.msg);
-//        }
-//    } else {
-//        throw TypeUnavailable();
-//    }
-//}
 
 default bool comparable(AType atype1, AType atype2){
     extractedTModel.facts = facts;
@@ -681,9 +618,9 @@ void reportWarning(loc src, str msg){
  *  
  */
 
-TModel validate(TModel er,  set[Key] (TModel, Use) lookupFun = lookup, bool debug = false){
+TModel validate(TModel tmodel,  set[Key] (TModel, Use) lookupFun = lookup, bool debug = false){
     // Initialize global state
-    extractedTModel = er;
+    extractedTModel = tmodel;
       
     facts = extractedTModel.facts;
     openFacts = extractedTModel.openFacts;
@@ -719,7 +656,7 @@ TModel validate(TModel er,  set[Key] (TModel, Use) lookupFun = lookup, bool debu
         if(size(foundDefines) > 1){
            ds = {defined | <IdRole idRole, Key defined, DefInfo defInfo> <- foundDefines};
            if(!myMayOverload(ds, extractedTModel.definitions)){
-              messages += {error("Double declaration of `<id>`", defined) | <IdRole idRole, Key defined, DefInfo defInfo>  <- foundDefines};
+                messages += {error("Double declaration of `<id>`", defined) | <IdRole idRole, Key defined, DefInfo defInfo>  <- foundDefines};
            }
         }
     }
@@ -754,6 +691,7 @@ TModel validate(TModel er,  set[Key] (TModel, Use) lookupFun = lookup, bool debu
     if(cdebug) println("..... handle defines");
 
     for(Define d <- extractedTModel.defines){
+        //if(d.id in {/*"Grammar","Exception",*/"CharClass","StringConstant"}) println("Defined: <d>");
         try addFact(d);
         catch checkFailed(set[Message] msgs):
             messages += msgs;
@@ -792,8 +730,8 @@ TModel validate(TModel er,  set[Key] (TModel, Use) lookupFun = lookup, bool debu
     int nrequirementJobs = size(requirementJobs);
     int ncalculators = size(calculators);
     
+    
     solve(nfacts, nopenReqs, nopenFacts, nopenUses, nrequirementJobs, ncalculators){   
-    //while(iterations < 30){
     
         iterations += 1;
         
@@ -804,7 +742,8 @@ TModel validate(TModel er,  set[Key] (TModel, Use) lookupFun = lookup, bool debu
        openUsesToBeRemoved = {};
        
        handleOpenUses:
-       for(Use u <- openUses){
+       for(Use u <- sort(openUses, bool(Use a, Use b){ return a.occ < b.occ; })){
+       //for(Use u <- openUses){
            foundDefs = definedBy[u.occ];
            if (cdebug) println("Consider unresolved use: <u>, foundDefs=<foundDefs>");
            try {
@@ -821,7 +760,7 @@ TModel validate(TModel er,  set[Key] (TModel, Use) lookupFun = lookup, bool debu
                     for(dkey <- foundDefs1){
                         try  addFact(extractedTModel.definitions[dkey]);
                          catch TypeUnavailable():
-                            continue handleFacts;
+                            continue handleOpenUses;
                     }
                     if(all(d <- foundDefs1, facts[d]?)){ 
                        addFact(u.occ, overloadedAType({<d, extractedTModel.definitions[d].idRole, instantiate(facts[d])> | d <- foundDefs1}));
@@ -838,7 +777,8 @@ TModel validate(TModel er,  set[Key] (TModel, Use) lookupFun = lookup, bool debu
        // ---- calculators
       
        calculatorsToBeRemoved = {};
-       for(Key calcKey <- calculators){
+       for(Key calcKey <- sort(domain(calculators), bool(Key a, Key b){ return a < b; })){
+       //for(Key calcKey <- calculators){
           calc = calculators[calcKey];
           if(allDependenciesKnown(calc.dependsOn, calc.eager)){
               try {
@@ -862,7 +802,7 @@ TModel validate(TModel er,  set[Key] (TModel, Use) lookupFun = lookup, bool debu
        openFactsToBeRemoved = {};
        openReqsToBeRemoved = {};
        requirementJobsToBeRemoved = {};
-       for(Requirement oreq <- requirementJobs){
+       for(Requirement oreq <- sort(requirementJobs, bool(Requirement a, Requirement b){ return a.src < b.src; })){
           if(allDependenciesKnown(oreq.dependsOn, oreq.eager)){  
              try {       
                  <ok, messages1, bindings1> = satisfies(oreq); 
@@ -899,7 +839,12 @@ TModel validate(TModel er,  set[Key] (TModel, Use) lookupFun = lookup, bool debu
          if(cdebug) println("..... handle openFacts");
     
          openFactsToBeRemoved = {};
-         for(Fact fct <- openFacts){
+         for(Fact fct <- sort(openFacts, 
+                              bool(Fact a, Fact b){
+                                asrc = a has src ? a.src : getFirstFrom(a.srcs);
+                                bsrc = b has src ? b.src : getFirstFrom(b.srcs);
+                                return asrc < bsrc; })){
+         //for(Fact fct <- openFacts){
              try {
              	if(addFact(fct))
                     openFactsToBeRemoved += fct;
@@ -965,18 +910,18 @@ TModel validate(TModel er,  set[Key] (TModel, Use) lookupFun = lookup, bool debu
               if(!isEmpty(openFacts)) println("*** <size(openFacts)> open facts ***");
            }
        }
-       er.facts = facts;
-       er.messages = filterMostPrecise(messages);
+       tmodel.facts = facts;
+       tmodel.messages = filterMostPrecise(messages);
        
-       if(cdebug) println("Derived facts: <size(er.facts)>");
-       return er;
+       if(cdebug) println("Derived facts: <size(tmodel.facts)>");
+       return tmodel;
 }
 
-rel[loc, loc] getUseDef(TModel tm){
+rel[loc, loc] getUseDef(TModel tmodel){
     res = {};
-    for(Use u <- tm.uses){
+    for(Use u <- tmodel.uses){
         try {
-           foundDefs =  lookup(tm, u);
+           foundDefs =  lookup(tmodel, u);
            res += { <u.occ, def> | def <- foundDefs };
         } catch NoKey(): {
             ;// ignore it
@@ -987,11 +932,11 @@ rel[loc, loc] getUseDef(TModel tm){
     return res;
 }
 
-set[str] getVocabulary(TModel tm)
-    = {d.id | Define d <- tm.defines};
+set[str] getVocabulary(TModel tmodel)
+    = {d.id | Define d <- tmodel.defines};
 
-map[loc, AType] getFacts(TModel tm)
-    = tm.facts;
+map[loc, AType] getFacts(TModel tmodel)
+    = tmodel.facts;
 
-set[Message] getMessages(TModel tm)
-    = tm.messages;
+set[Message] getMessages(TModel tmodel)
+    = tmodel.messages;

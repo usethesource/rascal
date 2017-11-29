@@ -17,6 +17,7 @@ module analysis::typepal::ScopeGraph
 import IO;
 import Set;
 import List;
+import Relation;
 
 private bool luDebug = false;
 
@@ -76,40 +77,10 @@ data TModel (
     Paths paths = {}, 
     ReferPaths referPaths = {},
     Uses uses = [],
-    map[tuple[Key, str], rel[IdRole idRole, Key defined]] definesMap = ()
+    //map[tuple[Key, str], rel[IdRole idRole, Key defined]] definesMap = ()
+    map[Key, map[str, rel[IdRole idRole, Key defined]]] definesMap = ()
 )   = tmodel()
     ;
-
-void printTModel(TModel tm){
-    println("TModel(");
-    println("  defines = {");
-    for(Define d <- tm.defines){
-        println("    \<<d.scope>, <d.id>, <d.idRole>, <d.defined>\>"); 
-    }
-    println("  },");
-    println("  scopes = (");
-    for(Key inner <- tm.scopes){
-        println("    <inner>: <tm.scopes[inner]>");
-    }
-    println("  ),");
-    println("  paths = {");
-    for(<Key from, PathRole pathRole, Key to> <- tm.paths){
-        println("    \<<from>, <pathRole>, <to>\>");
-    }
-    println("  },");
-    println("  referPath = {");
-    for(c <- tm.referPaths){
-        println("    <c>");
-    }
-    println("  },");
-    //iprintln(tm.uses);
-    println("  uses = [");
-    for(Use u <- tm.uses){
-        println("    use(<u.ids? ? u.ids : u.id>, <u.occ>, <u.scope>, <u.idRoles>, <u.qualifierRoles? ? u.qualifierRoles : "">)");
-    }
-    println("  ]");
-    println(");");
-}
 
 // Retrieve a unique binding for use in given syntactic scope
 private Key bind(TModel tm, Key scope, str id, set[IdRole] idRoles){
@@ -130,7 +101,6 @@ private Key bind(TModel tm, Key scope, str id, set[IdRole] idRoles){
     if(luDebug) println("\t---- bind, NoKey: <scope>, <id>");
     throw NoKey();
 }
-
 
 // Lookup use in given syntactic scope
 private Key lookupScope(TModel tm, Key scope, Use use){
@@ -277,49 +247,25 @@ public set[Key] lookup(TModel tm, Use u){
 
 bool wdebug = false;
 
+//@memo
 // Retrieve all bindings for use in given syntactic scope
 private set[Key] bindWide(TModel tm, Key scope, str id, set[IdRole] idRoles){
-    try {
-        preDefs = tm.definesMap[<scope, id>];
-           
-        if(!isEmpty(preDefs<0> & idRoles)){
-            res = preDefs<1>;
-            if(isEmpty(res)){
-               if(wdebug) println("\tbindWide, <id> in scope <scope> ==\> NoKey");
-               throw NoKey();
-            }
-            if(wdebug) println("\tbindWide: <id> in scope <scope> returns:\n<for(r <- res){>\t===\> <r><}>");
-            return res;
-         } else {
-            throw NoKey();
-         }
-    }  catch NoSuchKey(k): {
-        if(wdebug) println("\tbindWide, <id> in scope <scope> ==\> NoKey");
-        throw NoKey();
-       }
+    preDefs = (tm.definesMap[scope] ? ())[id] ? {};
+    
+    if(isEmpty(preDefs) || isEmpty(preDefs<0> & idRoles)) return {};
+    return preDefs<1>;
 }
 
 // Lookup use in the given syntactic scope
 private set[Key] lookupScopeWide(TModel tm, Key scope, Use use){
-    if(wdebug) println("\tlookupScopeWide: <use.id> in scope <scope>");
-    defs = {};
-    try {
-        defs = {def | def <- bindWide(tm, scope, use.id, use.idRoles), isAcceptableSimple(tm, def, use) == acceptBinding()}; 
-    } catch NoKey():{
-        if(wdebug) println("\tlookupScopeWide: <use.id> in scope <scope> ==\> NoKey");
-        throw NoKey();
-    }
-    if(isEmpty(defs)){
-        if(wdebug) println("\tlookupScopeWide: <use.id> in scope <scope> ==\> NoKey");
-        throw NoKey();
-    }
-    if(wdebug) println("\tlookupScopeWide, <use.id> in scope <scope> returns:\n<for(d <- defs){>\t===\> <d><}>"); 
-    return defs;  
+    //if(wdebug) println("\tlookupScopeWide: <use.id> in scope <scope>");
+
+    return {def | def <-  bindWide(tm, scope, use.id, use.idRoles), isAcceptableSimple(tm, def, use) == acceptBinding()}; 
 }
 
 // Find all (semantics induced, one-level) bindings for use in given syntactic scope via PathRole
 private set[Key] lookupPathsWide(TModel tm, Key scope, Use use, PathRole pathRole){
-    if(wdebug) println("\tlookupPathsWide: <use.id> in scope <scope>, role <pathRole>\n<for(p <- tm.paths){>\t---- <p>\n<}>");
+    //if(wdebug) println("\tlookupPathsWide: <use.id> in scope <scope>, role <pathRole>\n<for(p <- tm.paths){>\t---- <p>\n<}>");
     res = {};
     
     seenParents = {};
@@ -327,133 +273,103 @@ private set[Key] lookupPathsWide(TModel tm, Key scope, Use use, PathRole pathRol
     next_path:
         for(<scope, pathRole, Key parent> <- tm.paths, parent notin seenParents){
             seenParents += parent;
-            if(wdebug) println("\tlookupPathsWide: scope: <scope>, trying semantic path to: <parent>");
-            try {
-                defs = lookupScopeWide(tm, parent, use);
-                for(def <- defs){
-                    switch(isAcceptablePath(tm, parent, def, use, pathRole)){
-                    case acceptBinding():
-                       res += def;
-                     case ignoreContinue():
-                          continue; 
-                     case ignoreSkipPath():
-                          continue next_path; 
-                    }
+            //if(wdebug) println("\tlookupPathsWide: scope: <scope>, trying semantic path to: <parent>");
+            
+            for(def <- lookupScopeWide(tm, parent, use)){
+                switch(isAcceptablePath(tm, parent, def, use, pathRole)){
+                case acceptBinding():
+                   res += def;
+                 case ignoreContinue():
+                      continue; 
+                 case ignoreSkipPath():
+                      continue next_path; 
                 }
-            } catch NoKey(): {
-                ;if(wdebug) println("\tlookupPathsWide: <use.id> in scope <scope>, NoKey, move to other semantic path");
-                //break; //scope = parent;
             }
-            //scope = parent; // <<<<
         }       
     }
-    if(wdebug) println("\tlookupPathsWide: <use.id> in scope <scope>, <pathRole> ==\> <res>");
+    //if(wdebug) println("\tlookupPathsWide: <use.id> in scope <scope>, <pathRole> ==\> <res>");
     return res;
 }
 
 // Lookup use in given syntactic scope and via all semantic paths
 private set[Key] lookupQualWide(TModel tm, Key scope, Use u){
-    if(wdebug) println("\tlookupQualWide: <u.id> in scope <scope>");
-    res = {};
-    try {
-        res = lookupScopeWide(tm, scope, u);
-        if(wdebug) println("\tlookupQualWide: <u.id> in scope <scope>, after lookupScopeWide:\n<for(r <- res){>\t--\> <r><}>");
-        //return res; //<<<
-    } catch NoKey(): { /* nothing found */; }
-
+    //if(wdebug) println("\tlookupQualWide: <u.id> in scope <scope>");
+  
+    res = lookupScopeWide(tm, scope, u);
+    //if(wdebug) println("\tlookupQualWide: <u.id> in scope <scope>, after lookupScopeWide:\n<for(r <- res){>\t--\> <r><}>");
    
-    if(wdebug) println("\tlookupQualWide: <res>, loop over <pathRoles(tm)>");
+    //if(wdebug) println("\tlookupQualWide: <res>, loop over <pathRoles(tm)>");
     nextPath:
     for(PathRole pathRole <- pathRoles(tm)){
-       try {
-           candidates = lookupPathsWide(tm, scope, u, pathRole);
-           if(wdebug) println("\tlookupQualWide: candidates: <candidates>");
-           for(Key candidate <- candidates){
-               switch(isAcceptableSimple(tm, candidate, u)){
-               case acceptBinding():
-                  res += candidate;
-               case ignoreContinue():
-                  continue;
-               case ignoreSkipPath():
-                  continue nextPath;
-               }
-            }
-        } catch NoKey(): { /* nothing found */; }
+       candidates = lookupPathsWide(tm, scope, u, pathRole);
+       //if(wdebug) println("\tlookupQualWide: candidates: <candidates>");
+       for(Key candidate <- candidates){
+           switch(isAcceptableSimple(tm, candidate, u)){
+           case acceptBinding():
+              res += candidate;
+           case ignoreContinue():
+              continue;
+           case ignoreSkipPath():
+              continue nextPath;
+           }
+        }
     }
     
-    if(isEmpty(res)){
-        if(wdebug) println("\tlookupQualWide, <u.id> in scope <scope> ==\> NoKey");
-        throw NoKey();
-    } else {
-        if(wdebug) println("\tlookupQualWide: <u.id> in scope <scope> returns:\n<for(r <- res){>\t==\> <r><}>");
-        return res;
-    }
+    return res;
 }
 
 // Lookup use in syntactic scope and via all semantic paths,
 // recur to syntactic parent until found
 private set[Key] lookupNestWide(TModel tm, Key scope, Use u){
-    if(wdebug) println("\tlookupNestWide: <u.id> in scope <scope>");
-    res = {};
-    try {
-        res = lookupQualWide(tm, scope, u);
-        if(wdebug) println("\tlookupNestWide: <u.id> in scope <scope> found:\n<for(r <- res){>\t==\> <r><}>");
-        return res; // <<<
-    } catch NoKey(): { /* nothing found */; }
-    
-    try {
-        if(tm.scopes[scope] ?){
-           parent = tm.scopes[scope];
-           if(wdebug) println("\tlookupNestWide: <u.id> in scope <scope> move up to <parent>");
-           res += lookupNestWide(tm, parent, u);
-        }
-    } catch NoKey():
-        /* do nothing */;
-    if(isEmpty(res)){
-        if(wdebug) println("\tlookupNestWide: <u.id> in scope <scope> ==\> NoKey");
-        throw NoKey();
-    } else {
-        if(wdebug) println("\tlookupNestWide: <u.id> in scope <scope> returns:\n<for(r <- res){>\t==\> <r><}>");
-        return res;
+    //if(wdebug) println("\tlookupNestWide: <u.id> in scope <scope>");
+   
+    res = lookupQualWide(tm, scope, u);
+    //if(wdebug) println("\tlookupNestWide: <u.id> in scope <scope> found:\n<for(r <- res){>\t==\> <r><}>");
+    if(!isEmpty(res)) return res; // <<<
+
+    if(tm.scopes[scope] ?){
+      if(scope == tm.scopes[scope]) println(scope);
+       parent = tm.scopes[scope];
+       //if(wdebug) println("\tlookupNestWide: <u.id> in scope <scope> move up to <parent>");
+       res += lookupNestWide(tm, parent, u);
     }
+  
+    return res;
 }
 
 public set[Key] lookupWide(TModel tm, Use u){
     scope = u.scope;
  
-    if(wdebug) println("lookupWide: <u>");
+    //if(wdebug) println("lookupWide: <u>");
     if(!(u has qualifierRoles)){
        defs = {def | def <- lookupNestWide(tm, scope, u), isAcceptableSimple(tm, def, u) == acceptBinding()};
-       if(wdebug) println("lookupWide: <u> returns:\n<for(d <- defs){>\t==\> <d><}>");
-       wdebug = false;
-       return defs;
+       //if(wdebug) println("lookupWide: <u> returns:\n<for(d <- defs){>\t==\> <d><}>");
+       if(isEmpty(defs)) throw NoKey(); else return defs;
     } else {
        startScope = scope;
        while(true){
            qscopes = {};
            for(str id <- u.ids[0..-1]){ 
-               if(wdebug) println("lookup, search for <id>"); 
+               //if(wdebug) println("lookup, search for <id>"); 
                qscopes = lookupNestWide(tm, scope, use(id, u.occ, scope, u.qualifierRoles));
+               if(isEmpty(qscopes)) throw NoKey();
             }
-            try {
-                defs = {};
-                for(Key qscope <- qscopes){
-                    scopeLookups = {};
-                    try {
-                        scopeLookups = lookupNestWide(tm, qscope, use(u.ids[-1], u.occ, qscope, u.idRoles));
-                        defs += { def | def <- scopeLookups, isAcceptableQualified(tm, def, u) == acceptBinding()}; 
-                    } catch NoKey(): /* lookup in scope failed, continue with next one */;            
-                }
-                if(isEmpty(defs)) throw NoKey();
-                if(wdebug) println("lookupWide: <u> returns:\n<for(d <- defs){>\t==\> <d><}>");
+
+            defs = {};
+            for(Key qscope <- qscopes){
+                scopeLookups = lookupNestWide(tm, qscope, use(u.ids[-1], u.occ, qscope, u.idRoles));
+                defs += { def | def <- scopeLookups, isAcceptableQualified(tm, def, u) == acceptBinding()};            
+            }
+            if(!isEmpty(defs)){
+                //if(wdebug) println("lookupWide: <u> returns:\n<for(d <- defs){>\t==\> <d><}>");
                 return defs;
-            } catch NoKey(): {
-                  if(tm.scopes[startScope]?){
-                     startScope = tm.scopes[startScope];
-                     if(wdebug) println("^^^^ lookup move to scope <startScope>");
-                  } else {
-                     throw NoKey();
-                  }
+            }
+   
+            if(tm.scopes[startScope]?){
+                 startScope = tm.scopes[startScope];
+                 //if(wdebug) println("^^^^ lookup move to scope <startScope>");
+            } else {
+                 throw NoKey();
             }
         }
      }

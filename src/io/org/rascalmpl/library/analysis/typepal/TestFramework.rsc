@@ -76,16 +76,13 @@ bool runTests(list[loc] suites, TModel(str txt) getModel, bool verbose = false){
     for(suite <- suites){
         tr = parse(#start[TTL], suite, allowAmbiguity=true);
     
-        // TODO: layout of the subject language may interfere with laout of TTL
-       //       but this is a too harsh measure!
+        // TODO: layout of the subject language may interfere with layout of TTL but this is a too harsh measure!
        
         if(amb(set[Tree] alternatives) := tr){
             ttlProgram = visit(tr){ case amb(set[Tree] alternatives1) => getOneFrom(alternatives1) }.top;
         } else {
             ttlProgram = visit(tr.top){ case amb(set[Tree] alternatives2) => getOneFrom(alternatives2) };
         }
-    
-       
 
         for(ti <- ttlProgram.items){
             ntests += 1;
