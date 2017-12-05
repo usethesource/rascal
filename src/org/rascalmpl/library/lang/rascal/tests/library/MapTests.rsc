@@ -72,6 +72,19 @@ test bool invert4() = invert((1:10, 2:10, 3:30, 4:30)) == (10: {1,2}, 30:{3,4});
 test bool invert5(map[&K,&V] M) = range(M) == domain(invert(M));	
 test bool invert6(map[&K,&V] M) = domain(M) == {*invert(M)[v] | v <- invert(M)};	
 
+anno int node@x;
+test bool invertWithAnnotations() {
+    m = (1: "n"()[@x=1], 2: "n"()[@x=3]);
+    m_inverted = invert(m);
+    if (size(m_inverted) != 1) {
+        throw "More than one key was kept: <m_inverted>";
+    }
+    if (k <- m_inverted) {
+        return {1,2} == m_inverted[k];
+    }
+    return false;
+}
+
 // invertUnique
 test bool invertUnique1() = invertUnique(()) == ();
 test bool invertUnique2() = invertUnique((1:10)) == (10:1);

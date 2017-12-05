@@ -34,14 +34,8 @@ public class TestExecutor {
 	public void test(String moduleName, int nTests) {
 		testResultListener.start(moduleName, nTests);
 		try {
-//			System.err.println("TestExecutor.test: testing " + moduleName + ", " + nTests + " tests");
 			rvmCore.executeTests(testResultListener, rex);
-//			System.err.println("TestExecutor.test: testing " + moduleName + " ... done");
 		} 
-		catch (Exception e) {
-//			System.err.println("TestExecutor.test: " + moduleName + " unexpected exception: " + e.getMessage());
-			throw e;
-		}
 		finally {
 			testResultListener.done();
 		}

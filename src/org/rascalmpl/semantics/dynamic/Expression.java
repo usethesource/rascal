@@ -89,6 +89,10 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.ASTBuilder;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.SymbolAdapter;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IListWriter;
@@ -100,9 +104,6 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public abstract class Expression extends org.rascalmpl.ast.Expression {
   private static final Name IT = ASTBuilder.makeLex("Name", null, "<it>");
@@ -1083,13 +1084,16 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			try {
 				IConstructor tree = null;
 				
+				IMap gr = (IMap) __eval.getEvaluator().getGrammar(__eval.getCurrentEnvt()).get("rules");
+				IConstructor value = ((IRascalValueFactory) __eval.getValueFactory()).reifiedType(symbol, gr);
+            
 				if (result.getType().isString()) {
-					tree = __eval.parseObject(symbol, VF.mapWriter().done(),
+					tree = __eval.parseObject(value, VF.mapWriter().done(),
 						this.getLocation(),
 						((IString) result.getValue()).getValue().toCharArray(), true);
 				}
 				else if (result.getType().isSourceLocation()) {
-					tree = __eval.parseObject(__eval, symbol, VF.mapWriter().done(),
+					tree = __eval.parseObject(__eval, value, VF.mapWriter().done(),
 							((ISourceLocation) result.getValue()), true);
 				}
 				
@@ -2319,7 +2323,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			    gr = (IMap) eval.getEvaluator().getGrammar(eval.getCurrentEnvt()).get("rules");
 			}
 			
-			IConstructor value = new TypeReifier(eval.__getVf()).typeToValue(t, eval.getCurrentEnvt().getStore(), gr);
+			IConstructor value;
+			
+			if (t instanceof NonTerminalType) {
+			   value = ((IRascalValueFactory) eval.getValueFactory()).reifiedType(((NonTerminalType) t).getSymbol(), gr);
+			}
+			else {
+			    value = new TypeReifier(eval.__getVf()).typeToValue(t, eval.getCurrentEnvt().getStore(), gr);
+			}
 			
 			// the static type of a reified type is always equal to its dynamic type
 			return makeResult(value.getType(), value, eval);

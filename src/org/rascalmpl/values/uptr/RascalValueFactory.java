@@ -241,6 +241,10 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public static final Type Function_Closure = tf.constructor(uptr, Function, "closure", Function, "definition", tf.mapType(str, tf.valueType()), "environment");
 	public static final Type Function_Composition = tf.constructor(uptr, Function, "composition", Function, "lhs", Function, "rhs");
 	
+	/* grammars */
+	public static final Type Grammar = tf.abstractDataType(uptr,  "Grammar");
+	public static final Type Grammar_Default = tf.constructor(uptr,  Grammar, "grammar", tf.setType(Symbol), "starts", tf.mapType(Symbol, "sort", Production, "def"), "rules");
+    
 	@Deprecated
 	/** Will be replaced by keyword parameter "origin" */
 	public static final String Location = "loc";
@@ -404,7 +408,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	
 	@Override
 	public ITree character(int ch) {
-		if (ch >= 0 && ch <= Byte.MAX_VALUE) {
+		if (ch >= 0 && ch < Byte.MAX_VALUE) {
 			return character((byte) ch);
 		}
 		
@@ -416,6 +420,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		return byteChars[ch];
 	}
 
+	@Override
+	public IConstructor grammar(IMap rules) {
+	    return constructor(Grammar_Default, setWriter().done(), rules);
+	}
+	 
 	@Override
 	public ITree appl(Map<String,IValue> annos, IConstructor prod, IList args) {
 		return (ITree) appl(prod, args).asAnnotatable().setAnnotations(annos);
@@ -2629,5 +2638,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 	}
 
+   
 	// please put additional methods above the nested classes
 }

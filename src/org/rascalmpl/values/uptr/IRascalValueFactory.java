@@ -39,6 +39,8 @@ public interface IRascalValueFactory extends IValueFactory {
 	
 	ITree character(byte ch);
 	
+	IConstructor grammar(IMap rules);
+	
 	static IRascalValueFactory getInstance() {
 		return RascalValueFactory.getInstance();
 	}

@@ -21,11 +21,6 @@ public class SourceLocationURICompare {
         URIIterator next(ISourceLocation loc);
     }
     
-    private final static URIIterator NONE = new URIIterator() {
-        public URIIterator next(ISourceLocation loc) { return null; }
-        public String current(ISourceLocation loc) { return null; }
-    }; 
-    
     private final static URIIterator SCHEME = new URIIterator() {
         public URIIterator next(ISourceLocation loc) { return SCHEME_SEP; }
         public String current(ISourceLocation loc) { return loc.getScheme(); }
@@ -42,12 +37,12 @@ public class SourceLocationURICompare {
     };
     
     private final static URIIterator AUTHORITY_SEP = new URIIterator() {
-        public URIIterator next(ISourceLocation loc) { return loc.hasPath() ? PATH : (loc.hasQuery() ? QUERY_PRE : (loc.hasFragment() ? FRAGMENT_PRE : NONE)); }
+        public URIIterator next(ISourceLocation loc) { return loc.hasPath() ? PATH : (loc.hasQuery() ? QUERY_PRE : (loc.hasFragment() ? FRAGMENT_PRE : null)); }
         public String current(ISourceLocation loc) { return "/"; }
     };
     
     private final static URIIterator PATH = new URIIterator() {
-        public URIIterator next(ISourceLocation loc) { return (loc.hasQuery() ? QUERY_PRE : (loc.hasFragment() ? FRAGMENT_PRE : NONE)); }
+        public URIIterator next(ISourceLocation loc) { return (loc.hasQuery() ? QUERY_PRE : (loc.hasFragment() ? FRAGMENT_PRE : null)); }
         public String current(ISourceLocation loc) { return loc.getPath(); }
     };
     
@@ -57,7 +52,7 @@ public class SourceLocationURICompare {
     };
     
     private final static URIIterator QUERY = new URIIterator() {
-        public URIIterator next(ISourceLocation loc) { return loc.hasFragment() ? FRAGMENT_PRE : NONE; }
+        public URIIterator next(ISourceLocation loc) { return loc.hasFragment() ? FRAGMENT_PRE : null; }
         public String current(ISourceLocation loc) { return loc.getQuery(); }
     };
     
@@ -67,7 +62,7 @@ public class SourceLocationURICompare {
     };
     
     private final static URIIterator FRAGMENT = new URIIterator() {
-        public URIIterator next(ISourceLocation loc) { return NONE; }
+        public URIIterator next(ISourceLocation loc) { return null; }
         public String current(ISourceLocation loc) { return loc.getFragment(); }
     };
 
@@ -75,7 +70,7 @@ public class SourceLocationURICompare {
     public static int compare(ISourceLocation a, ISourceLocation b) {
         URIIterator left = SCHEME;
         URIIterator right = SCHEME;
-        while (left != NONE && right != NONE) {
+        while (left != null && right != null) {
             String leftChunk = left.current(a);
             String rightChunk = right.current(b);
             if (leftChunk != rightChunk) {
@@ -87,10 +82,10 @@ public class SourceLocationURICompare {
             left = left.next(a);
             right = right.next(b);
         }
-        if (left == NONE && right == NONE) {
+        if (left == null && right == null) {
             return 0;
         }
-        if (right != NONE) {
+        if (right != null) {
             // left was shorter but equal for shared part 
             return -1;
         }

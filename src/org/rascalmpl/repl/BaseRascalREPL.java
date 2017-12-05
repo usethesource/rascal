@@ -54,9 +54,10 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     private final static int CHAR_LIMIT = LINE_LIMIT * 20;
     protected String currentPrompt = ReadEvalPrintDialogMessages.PROMPT;
     private StringBuffer currentCommand;
-    private final StandardTextWriter indentedPrettyPrinter;
+    protected final StandardTextWriter indentedPrettyPrinter;
     private final boolean htmlOutput;
     private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
+
 
     public BaseRascalREPL(boolean prettyPrompt, boolean allowColors, boolean htmlOutput) throws IOException, URISyntaxException {
         this.htmlOutput = htmlOutput;
@@ -123,75 +124,91 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     public void handleReset(Map<String,String> output, Map<String,String> metadata) throws InterruptedException {
         handleInput("", output, metadata);
     }
+
+
+    @FunctionalInterface
+    public interface IOConsumer<T> {
+        void accept(T t) throws IOException;
+    }
+
+    private static interface OutputWriter {
+        void writeOutput(Type tp , IOConsumer<StringWriter> contentsWriter) throws IOException;
+        void finishOutput();
+    }
     
     protected void printResult(IRascalResult result, Map<String,String> output, Map<String, String> metadata) throws IOException {
+        String mimeType = "text/" + (htmlOutput ? "html" : "plain");
         if (result == null || result.getValue() == null) {
+            output.put(mimeType, "ok\n");
             return;
         }
        
-        StringWriter out = new StringWriter();
+        final StringWriter out = new StringWriter();
+
+        OutputWriter writer;
         
         if (htmlOutput) {
-            writeRascalToHTML(result, out);    
+            writer = new OutputWriter() {
+                @Override
+                public void writeOutput(Type tp, IOConsumer<StringWriter> contentsWriter) throws IOException {
+                    out.write("<pre title=\"" + tp.toString() + "\">");
+                    contentsWriter.accept(out);
+                    out.write("</pre>");
+                }
+                @Override
+                public void finishOutput() {
+                }
+            };
         }
         else {
-            writeOutputToString(result, out);
+            writer = new OutputWriter() {
+                @Override
+                public void writeOutput(Type tp, IOConsumer<StringWriter> contentsWriter) throws IOException {
+                    out.write(tp.toString());
+                    out.write(": ");
+                    contentsWriter.accept(out);
+                }
+                
+                @Override
+                public void finishOutput() {
+                    out.write('\n');
+                }
+            };
         }
-        
-        if (!out.toString().equals("")) {
-            output.put("text/" + (htmlOutput ? "html" : "plain"), out.toString());
+
+        writeOutput(result, writer);
+
+        if (out.getBuffer().length() == 0) {
+            output.put(mimeType, "ok\n");
+        }
+        else {
+            output.put(mimeType, out.toString());
         }
     }            
-
-    private void writeOutputToString(IRascalResult result, StringWriter out) throws IOException {
+        
+    private void writeOutput(IRascalResult result, OutputWriter target) throws IOException {
         IValue value = result.getValue();
         Type type = result.getType();
-
-        if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree) && !type.isBottom()) {
-            out.write(type.toString());
-            out.write(": ");
-            // we unparse the tree
-            out.write("(" + type.toString() +") `");
-            TreeAdapter.yield((IConstructor)result.getValue(), true, out);
-            out.write("`");
-        }
-        else {
-            out.write(type.toString());
-            out.write(": ");
-               
-            // limit both the lines and the characters
-            try (Writer wrt = new LimitedWriter(new LimitedLineWriter(out, LINE_LIMIT), CHAR_LIMIT)) {
-                indentedPrettyPrinter.write(value, wrt);
-            }
-            catch (IOLimitReachedException e) {
-                // ignore since this is what we wanted
-            }
-        }
-        
-        out.write("\n");
-    }
-    
-    public void writeRascalToHTML(IRascalResult result, StringWriter out) throws IOException {
-        Type type = result.getType();
         
         if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree) && !type.isBottom()) {
-            out.write("<pre title=\"" + type.toString() + "\">");
-            out.write("`");
-            TreeAdapter.yield((IConstructor)result.getValue(), true, out);
-            out.write("`");
-            out.write("</pre>");
+            target.writeOutput(type, (StringWriter w) -> {
+                w.write("(" + type.toString() +") `");
+                TreeAdapter.yield((IConstructor)result.getValue(), true, w);
+                w.write("`");
+            });
         }
         else {
-            out.write("<pre title=\"" + type.toString() + "\">");
-            
-            try (Writer wrt = new LimitedWriter(new LimitedLineWriter(out, LINE_LIMIT), CHAR_LIMIT)) {
-                indentedPrettyPrinter.write(result.getValue(), wrt);
-            }
-            catch (IOLimitReachedException e) {
-                // ignore since this is what we wanted
-            }
-            out.write("</pre>");
+            target.writeOutput(type, (StringWriter w) -> {
+                // limit both the lines and the characters
+                try (Writer wrt = new LimitedWriter(new LimitedLineWriter(w, LINE_LIMIT), CHAR_LIMIT)) {
+                    indentedPrettyPrinter.write(value, wrt);
+                }
+                catch (IOLimitReachedException e) {
+                    // ignore since this is what we wanted
+                }
+            });
         }
+        target.finishOutput();
     }
 
     protected abstract PrintWriter getErrorWriter();

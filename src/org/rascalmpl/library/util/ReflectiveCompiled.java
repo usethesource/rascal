@@ -137,4 +137,8 @@ public class ReflectiveCompiled extends Reflective {
 			throw RuntimeExceptionFactory.assertionFailed(values.string("Watchpoint " + name1 + ": " + idiff("", oldVal, newVal)), null, null);
 		}
 	}
+	
+	public IValue clearMemos(IString moduleName, RascalExecutionContext rex) {
+	    return rex.getRVM().clearMemosInModule(moduleName.getValue());
+	}
 }
