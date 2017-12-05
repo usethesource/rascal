@@ -10,7 +10,7 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module lang::rascalcore::grammar::ParserGenerator
 
-import Grammar;
+import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::grammar::definition::Parameters;
 import lang::rascalcore::grammar::definition::Regular;
 import lang::rascalcore::grammar::definition::Productions;
@@ -43,7 +43,7 @@ str getParserMethodName(label(_,Symbol s)) = getParserMethodName(s);
 str getParserMethodName(conditional(Symbol s, _)) = getParserMethodName(s);
 default str getParserMethodName(Symbol s) = value2id(s);
 
-public str newGenerate(str package, str name, Grammar gr) {	
+public str newGenerate(str package, str name, AGrammar gr) {	
     startJob("Generating parser <package>.<name>");
     int uniqueItem = 1; // -1 and -2 are reserved by the SGTDBF implementation
     int newItem() { uniqueItem += 1; return uniqueItem; };
@@ -237,7 +237,7 @@ public str newGenerate(str package, str name, Grammar gr) {
    return src;
 }  
 
-rel[int,int] computeDontNests(Items items, Grammar grammar) {
+rel[int,int] computeDontNests(Items items, AGrammar grammar) {
   // first we compute a map from productions to their last items (which identify each production)
   prodItems = (p:items[getType(rhs)][item(p,size(lhs)-1)].itemId | /Production p:prod(Symbol rhs,list[Symbol] lhs, _) := grammar);
   
@@ -279,7 +279,7 @@ default Symbol getType(Symbol s) = s;
 @doc{This function generates Java code to allocate a new item for each position in the grammar.
 We first collect these in a map, such that we can generate static fields. It's a simple matter of caching
 constants to improve run-time efficiency of the generated parser}
-map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Grammar g) {
+map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(AGrammar g) {
   map[Symbol,map[Item,tuple[str new, int itemId]]] items = ();
   map[Item,tuple[str new, int itemId]] fresh = ();
   
@@ -384,7 +384,7 @@ str generateRangeConditional(CharRange r) {
   }
 }
 
-public str generateSeparatorExpects(Grammar grammar, list[Symbol] seps) {
+public str generateSeparatorExpects(AGrammar grammar, list[Symbol] seps) {
    if (seps == []) {
      return "";
    }
@@ -392,7 +392,7 @@ public str generateSeparatorExpects(Grammar grammar, list[Symbol] seps) {
    return (sym2newitem(grammar, head(seps), 1).new | it + ", <sym2newitem(grammar, seps[i+1], i+2).new>" | int i <- index(tail(seps)));
 }
 
-public str generateSequenceExpects(Grammar grammar, list[Symbol] seps) {
+public str generateSequenceExpects(AGrammar grammar, list[Symbol] seps) {
    if (seps == []) {
      return "";
    }
@@ -400,7 +400,7 @@ public str generateSequenceExpects(Grammar grammar, list[Symbol] seps) {
    return (sym2newitem(grammar, head(seps), 0).new | it + ", <sym2newitem(grammar, seps[i+1], i+1).new>" | int i <- index(tail(seps)));
 }
 
-public str generateAltExpects(Grammar grammar, list[Symbol] seps) {
+public str generateAltExpects(AGrammar grammar, list[Symbol] seps) {
    if (seps == []) {
      return "";
    }
@@ -427,7 +427,7 @@ public str ciliterals2ints(list[Symbol] chars){
     throw "case insensitive literals not yet implemented by parser generator";
 }
 
-public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int dot){
+public tuple[str new, int itemId] sym2newitem(AGrammar grammar, Symbol sym, int dot){
     if (sym is \label)  // ignore labels 
       sym = sym.symbol;
       

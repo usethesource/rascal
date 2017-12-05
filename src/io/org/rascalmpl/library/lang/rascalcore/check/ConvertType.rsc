@@ -76,7 +76,7 @@ public AType convertBasicType(BasicType t, TBuilder tb) {
         case (BasicType)`num` : return anum();
         case (BasicType)`str` : return astr();
         case (BasicType)`value` : return avalue();
-        case (BasicType)`node` : return anode();
+        case (BasicType)`node` : return anode([]);
         case (BasicType)`void` : return avoid();
         case (BasicType)`loc` : return aloc();
         case (BasicType)`datetime` : return adatetime();

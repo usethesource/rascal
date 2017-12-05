@@ -540,17 +540,17 @@ void checkAssignment(Statement current, (Assignable) `<QualifiedName name>`, str
         }
     }
     tb.calculate("assignment to `<name>`", current, [statement],
-        AType () { 
-            nameType = getType(name);
-            asgType = computeAssignmentRhsType(current, nameType, operator, getType(statement));
+        AType () { nameType = getType(name);
+                   asgType = computeAssignmentRhsType(current, nameType, operator, getType(statement));
                    if(operator == "=") 
-                      subtype(asgType, nameType) || reportError(current, "Incompatible type <fmt(asgType)> in assignment to <fmt(nameType)> variable `<name>`"); 
+                      comparable(asgType, nameType) || reportError(current, "Incompatible type <fmt(asgType)> in assignment to <fmt(nameType)> variable `<name>`"); 
                    return asgType;   
                  });  
 }
 
-AType computeReceiverType(Statement current, (Assignable) `<QualifiedName name>`, Key scope)
-    = getType(name); //expandUserTypes(getType(name), scope);
+AType computeReceiverType(Statement current, (Assignable) `<QualifiedName name>`, Key scope){
+    return getType(name); //expandUserTypes(getType(name), scope);
+}
 
 AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, Key scope)
     = computeSubscriptionType(current, computeReceiverType(current, receiver, scope), [getType(subscript)]);
@@ -602,7 +602,7 @@ AType computeSubscriptAssignableType(Statement current, AType receiverType, Expr
     } else if (isNodeType(receiverType)) {
         if (!isIntType(subscriptType)) reportError(current, "Expected subscript of type `int`, not <fmt(subscriptType)>");
         computeAssignmentRhsType(current, avalue(), operator, rhs);
-        return anode();
+        return anode([]);
     } else if (isTupleType(receiverType)) {
         tupleFields = getTupleFields(receiverType);
         if (!isIntType(subscriptType)) reportError(current, "Expected subscript of type `int`, not <fmt(subscriptType)>");
@@ -761,7 +761,7 @@ AType computeFieldAssignableType(Statement current, AType receiverType, str fiel
             reportError(current, "Field <fmt(fieldName)> does not exist on type <fmt(receiverType)>");
     } else if (isNodeType(receiverType)) {
         computeAssignmentRhsType(current, avalue(), operator, rhs);
-        return anode();
+        return receiverType; //anode([]);
     } else if(isLocType(receiverType) || isDateTimeType(receiverType)){
         if(fieldName in fieldMap[receiverType]){
             return receiverType;
@@ -782,7 +782,6 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> ? <E
    tb.calculate("assignable with default expression", current, [defaultExpression, rhs], 
       AType (){ 
            res = computeDefaultAssignableType(current, computeReceiverType(current, receiver, scope), getType(defaultExpression), operator, getType(rhs), scope);
-           unify(tau, res) || reportError(current, "Cannot bind type variable for <fmt("<names[0]>")>");
            return res;
          });
 }
@@ -794,7 +793,9 @@ AType computeDefaultAssignableType(Statement current, AType receiverType, AType 
     return receiverType;
 }
 
-AType() makeDef(list[AType] taus, int i) = AType() { return taus[i]; };
+AType() makeDef(list[AType] taus, int i) = AType() { 
+    return taus[i]; 
+};
 
 set[str] getNames(Statement s) = {"<nm>" | /QualifiedName nm := s};
 
@@ -816,15 +817,17 @@ void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable 
            if(size(names) != size(rhsFields)) reportError(statement, "Tuple type required of arity <size(names)>, found arity <size(rhsFields)>");
            for(int i <- index(names)){
                if(isFullyInstantiated(getType(names[i]))){
-                  subtype(rhsFields[i], getType(names[i])) || reportError(names[i], "Value of type <fmt(rhsFields[i])> cannot be assigned to <fmt("<names[i]>")> of type <fmt(getType(names[i]))>");
-                  if(flatNames[i] in namesInRhs){
+                  comparable(rhsFields[i], getType(names[i])) || reportError(names[i], "Value of type <fmt(rhsFields[i])> cannot be assigned to <fmt("<names[i]>")> of type <fmt(getType(names[i]))>");
+                  //if(flatNames[i] in namesInRhs){
                     taus[i] = getType(names[i]);
-                  }
+                  //}
                } else {
                  if(flatNames[i] in namesInRhs){
                     unify(taus[i], typeof(names[i])) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
+                    taus[i] = instantiate(taus[i]);
                  } else 
                     unify(taus[i], rhsFields[i]) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
+                    taus[i] = instantiate(taus[i]);
                }
            }
            return atuple(atypeList([ instantiate(taus[i]) | int i <- index(names)]));
@@ -834,33 +837,32 @@ void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable 
 void checkAssignment(Statement current, (Assignable) `<Assignable receiver> @ <Name n>`, str operator, Statement rhs, TBuilder tb){
    tb.use(n, {annoId()});
    names = getReceiver(receiver, tb);
-   tau = tb.newTypeVar();
-   tb.define(unescape("<names[0]>"), variableId(), names[0], defLub([], AType(){ return getType(tau); }));
+   tb.useLub(names[0], {variableId()});
    scope = tb.getScope();
    
    tb.calculate("assignable with annotation", current, [n, rhs], 
       AType (){ 
            rt = computeReceiverType(current, receiver, scope);
            res = computeAnnoAssignableType(current, rt,  unescape("<n>"), operator, getType(rhs), scope);
-           unify(tau, res) || reportError(current, "Cannot bind type variable for <fmt("<names[0]>")>");
+           println("checkAssignment @, res = <res>");
            return res;
          });
 }
 
 AType computeAnnoAssignableType(Statement current, AType receiverType, str annoName, str operator, AType rhs, Key scope){
-println("computeAnnoAssignableType: <receiverType>, <annoName>, <operator>, <rhs>");
+//println("computeAnnoAssignableType: <receiverType>, <annoName>, <operator>, <rhs>");
   
     annoNameType = expandUserTypes(getType(annoName, scope, {annoId()}), scope);
-    println("annoNameType: <annoNameType>");
+    //println("annoNameType: <annoNameType>");
     if (isNodeType(receiverType) || isADTType(receiverType) || isNonTerminalType(receiverType)) {
         if(overloadedAType(rel[Key, IdRole, AType] overloads) := annoNameType){
-           for(<key, idr, tp> <- overloads, aanno(_, onType, annoNameType) := tp, subtype(receiverType, onType)){
+           for(<key, idr, tp> <- overloads, aanno(_, onType, annoNameType) := tp, subtype(receiverType, onType)){   //TODO explore all alternatives
                return annoNameType;
            }
-           reportError(current, "Annotation on <fmt(t1)> cannot be resolved from <fmt(fieldType)>");
+           reportError(current, "Annotation on <fmt(receiverTpe)> cannot be resolved from <fmt(annoNameType)>");
         } else
         if(aanno(_, onType, annoType) := annoNameType){
-           return annoType;
+           return annoNameType;
         } else
             reportError(current, "Invalid annotation type: <fmt(annoNameType)>");
     } else
@@ -929,7 +931,7 @@ void collect(current: (Statement) `<Type tp> <{Variable ","}+ variables>;`, TBui
                                 reportError(v, msg);
                           }
                        }
-                       subtype(initialType, declaredType) || reportError(v, "Incompatible type <fmt(initialType)> in initialization of <fmt("<v.name>")>, expected <fmt(declaredType)>");
+                       comparable(initialType, declaredType) || reportError(v, "Incompatible type <fmt(initialType)> in initialization of <fmt("<v.name>")>, expected <fmt(declaredType)>");
                        return declaredType;                  
                    });
             } else {
@@ -951,7 +953,7 @@ void collect(current: (Statement) `<Type tp> <{Variable ","}+ variables>;`, TBui
                             reportError(v, msg);
                        }
                        unify(tau, declaredType);   // bind tau to instantiated declaredType
-                       subtype(initialType, declaredType) || reportError(v, "Incompatible type in initialization of <fmt("<v.name>")>, expected <fmt(initialType)>");
+                       comparable(initialType, declaredType) || reportError(v, "Incompatible type in initialization of <fmt("<v.name>")>, expected <fmt(initialType)>");
                        return declaredType;
                    }); 
             } 

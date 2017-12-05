@@ -21,9 +21,10 @@ import util::Reflective;
 // ---- Rascal declarations
 
 void collect(current: (Module) `<Header header> <Body body>`, TBuilder tb){
-    //if(ignoreCompiler(header.tags)) return;
+  
     if(current has top) current = current.top;
     mname = prettyPrintName(header.name);
+    //if(ignoreCompiler(header.tags)) {println("*** ignore module <mname>"); return; }
     //println("*** collect module <mname>, <getLoc(current)>");
     tb.define(mname, moduleId(), current, defType(amodule(mname)));
     tb.push(key_current_module, mname);
@@ -98,7 +99,7 @@ void() makeVarInitRequirement(Expression expr, AType initType, Key scope)
          };
          
 void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type \type> <{Variable ","}+ variables> ;`, TBuilder tb){
-    if(ignoreCompiler(tags)) return;
+    if(ignoreCompiler(tags)) { println("*** ignore <current>"); return; }
      
     vis = getVis(current.visibility);
     if(vis == defaultVis()){
@@ -132,7 +133,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type \
 
 void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <Type annoType> <Type onType> @ <Name name> ;`, TBuilder tb){
     
-    if(ignoreCompiler(tags)) return;
+    if(ignoreCompiler(tags)) { println("*** ignore: <current>"); return; }
     
     vis = getVis(current.visibility);
     if(vis == defaultVis()){
@@ -157,7 +158,7 @@ data ReturnInfo = returnInfo(AType retType, list[Pattern] formals, set[AType] kw
 void collect(FunctionDeclaration decl, TBuilder tb){
 //println("********** function declaration: <decl.signature.name>");
 
-    //if(ignoreCompiler(decl.tags)) return;
+   
     
     vis = getVis(decl.visibility);
     if(vis == defaultVis()){
@@ -166,6 +167,9 @@ void collect(FunctionDeclaration decl, TBuilder tb){
     signature = decl.signature;
     isVarArgs = signature.parameters is varArgs;
     fname = signature.name;
+    
+    if(ignoreCompiler(decl.tags)) { println("ignore: function <fname>"); return; }
+     
     ftypeStub = tb.newTypeVar();
     dt = defType(ftypeStub);
     dt.vis=vis;  // TODO: Cannot be set directly, bug in interpreter?
@@ -315,7 +319,7 @@ void collect(current: (Statement) `return <Statement statement>`, TBuilder tb){
 // ---- alias declaration
 
 void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias <UserType userType> = <Type base>;`, TBuilder tb){
-    if(ignoreCompiler(tags)) return;
+    if(ignoreCompiler(tags)) { println("*** ignore: <current>"); return; }
     
     aliasName = prettyPrintName(userType.name);
     aliasedType = convertType(base, tb);
@@ -350,7 +354,7 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> data <
     = dataDeclaration(tags, current, [v | v <- variants], tb);
 
 void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBuilder tb){
-    if(ignoreCompiler(tags)) return;
+    if(ignoreCompiler(tags)) { println("*** ignore: <current>"); return; }
     userType = current.user;
     commonKeywordParameters = current.commonKeywordParameters;
     adtName = prettyPrintName(userType.name);

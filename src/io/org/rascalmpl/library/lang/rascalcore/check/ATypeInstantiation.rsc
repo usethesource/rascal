@@ -154,47 +154,45 @@ void invalidInstantiation(str pname, AType bound, AType actual){
     throw invalidInstantiation("Type parameter <fmt(pname)> should be less than <fmt(bound)>, but is bound to <fmt(actual)>");  
 }
 
-AType instantiateRascalTypeParams(AType::aset(AType et), Bindings bindings) 
+AType instantiateRascalTypeParams(aset(AType et), Bindings bindings) 
     = makeSetType(instantiateRascalTypeParams(et,bindings));
-AType instantiateRascalTypeParams(AType::arel(AType ets), Bindings bindings) 
-    = AType::arel(instantiateRascalTypeParams(ets,bindings));
-AType instantiateRascalTypeParams(AType::atuple(AType ets), Bindings bindings) 
-    = AType::atuple(instantiateRascalTypeParams(ets,bindings));
-AType instantiateRascalTypeParams(AType::alist(AType et), Bindings bindings) 
+AType instantiateRascalTypeParams(arel(AType ets), Bindings bindings) 
+    = arel(instantiateRascalTypeParams(ets,bindings));
+AType instantiateRascalTypeParams(atuple(AType ets), Bindings bindings) 
+    = atuple(instantiateRascalTypeParams(ets,bindings));
+AType instantiateRascalTypeParams(alist(AType et), Bindings bindings) 
     = makeListType(instantiateRascalTypeParams(et,bindings));
-AType instantiateRascalTypeParams(AType::alrel(AType ets), Bindings bindings) 
-    = AType::alrel(instantiateRascalTypeParams(ets,bindings));
-AType instantiateRascalTypeParams(AType::amap(AType md, AType mr), Bindings bindings) 
-    = AType::amap(instantiateRascalTypeParams(md,bindings), instantiateRascalTypeParams(mr,bindings));
-AType instantiateRascalTypeParams(AType::abag(AType et), Bindings bindings) 
-    = AType::abag(instantiateRascalTypeParams(et,bindings));
-AType instantiateRascalTypeParams(AType::aparameter(str s, AType t), Bindings bindings) 
+AType instantiateRascalTypeParams(alrel(AType ets), Bindings bindings) 
+    = alrel(instantiateRascalTypeParams(ets,bindings));
+AType instantiateRascalTypeParams(amap(AType md, AType mr), Bindings bindings) 
+    = amap(instantiateRascalTypeParams(md,bindings), instantiateRascalTypeParams(mr,bindings));
+AType instantiateRascalTypeParams(abag(AType et), Bindings bindings) 
+    = abag(instantiateRascalTypeParams(et,bindings));
+AType instantiateRascalTypeParams(aparameter(str s, AType t), Bindings bindings)
     = bindings[s] when s in bindings && asubtype(bindings[s],t);
-AType instantiateRascalTypeParams(AType::aparameter(str s, AType t), Bindings bindings) 
+AType instantiateRascalTypeParams(aparameter(str s, AType t), Bindings bindings) 
     = invalidInstantiation(s,t,bindings[s]) when s in bindings && !asubtype(bindings[s],t);
 AType instantiateRascalTypeParams(AType pt:aparameter(str s, AType t), Bindings bindings) 
     = pt when s notin bindings;
-AType instantiateRascalTypeParams(a: AType::aadt(str s, list[AType] ps), Bindings bindings) 
-    = a.hasSyntax? ? AType::aadt(s,[instantiateRascalTypeParams(p,bindings) | p <- ps],hasSyntax=a.hasSyntax)
-                   : AType::aadt(s,[instantiateRascalTypeParams(p,bindings) | p <- ps]);
-AType instantiateRascalTypeParams(AType::acons(AType a, str name, list[NamedField] fields, list[Keyword] kwFields), Bindings bindings) = 
-    AType::acons(instantiateRascalTypeParams(a,bindings), name, [<instantiateRascalTypeParams(ft,bindings), nm> | <ft, nm> <- fields], [<instantiateRascalTypeParams(ft,bindings), fn, de> | <fn, ft, de> <- kwFields]);
-AType instantiateRascalTypeParams(AType::aalias(str s, list[AType] ps, AType at), Bindings bindings)
-    = AType::aalias(s, [instantiateRascalTypeParams(p,bindings) | p <- ps], instantiateRascalTypeParams(at,bindings));
-AType instantiateRascalTypeParams(AType::afunc(AType rt, list[AType] formals, list[Keyword] kwFormals, varArgs=va), Bindings bindings) = 
-    AType::afunc(instantiateRascalTypeParams(rt,bindings),[instantiateRascalTypeParams(f,bindings) | f <- formals], [<instantiateRascalTypeParams(ft,bindings), fn, de> | <fn, ft, de> <- kws], varArgs=va);
-//AType instantiateRascalTypeParams(\var-func(AType rt, list[AType] ps, AType va), Bindings bindings) = \var-func(instantiateRascalTypeParams(rt,bindings),[instantiateRascalTypeParams(p,bindings) | p <- ps],instantiateRascalTypeParams(va,bindings));
-//AType instantiateRascalTypeParams(AType::areified(AType t), Bindings bindings) = AType::areified(instantiateRascalTypeParams(t,bindings));
-//AType instantiateRascalTypeParams(AType::\aparameterized-sort(str n, list[AType] ts), Bindings bindings) = AType::aparameterized-sort(n, [instantiateRascalTypeParams(p,bindings) | p <- ts]);
-//AType instantiateRascalTypeParams(AType::\aparameterized-lex(str n, list[AType] ts), Bindings bindings) = AType::aparameterized-lex(n, [instantiateRascalTypeParams(p,bindings) | p <- ts]);
-//AType instantiateRascalTypeParams(AType::\start(AType s), Bindings bindings) = AType::\start(instantiateRascalTypeParams(s,bindings));
-//AType instantiateRascalTypeParams(AType::\iter(AType s), Bindings bindings) = AType::\iter(instantiateRascalTypeParams(s,bindings));
-//AType instantiateRascalTypeParams(AType::\iter-star(AType s), Bindings bindings) = AType::\iter-star(instantiateRascalTypeParams(s,bindings));
-//AType instantiateRascalTypeParams(AType::\iter-seps(AType s, list[AType] seps), Bindings bindings) = AType::\iter-seps(instantiateRascalTypeParams(s,bindings),seps);
-//AType instantiateRascalTypeParams(AType::\iter-star-seps(AType s, list[AType] seps), Bindings bindings) = AType::\iter-star-seps(instantiateRascalTypeParams(s,bindings),seps);
-//AType instantiateRascalTypeParams(AType::\opt(AType s), Bindings bindings) = AType::\opt(instantiateRascalTypeParams(s,bindings));
-//AType instantiateRascalTypeParams(AType::\conditional(AType s, set[Condition] conds), Bindings bindings) = AType::\conditional(instantiateRascalTypeParams(s,bindings),conds);
-//AType instantiateRascalTypeParams(AType::\prod(AType s, str name, list[AType] parameters, set[Attr] attributes), Bindings bindings) = AType::\prod(instantiateRascalTypeParams(s,bindings),name,parameters,attributes);
+AType instantiateRascalTypeParams(a: aadt(str s, list[AType] ps), Bindings bindings) 
+    = a.hasSyntax? ? aadt(s,[instantiateRascalTypeParams(p,bindings) | p <- ps],hasSyntax=a.hasSyntax)
+                   : aadt(s,[instantiateRascalTypeParams(p,bindings) | p <- ps]);
+AType instantiateRascalTypeParams(acons(AType a, str name, list[NamedField] fields, list[Keyword] kwFields), Bindings bindings) = 
+    acons(instantiateRascalTypeParams(a,bindings), name, [<instantiateRascalTypeParams(ft,bindings), nm> | <ft, nm> <- fields], [<instantiateRascalTypeParams(ft,bindings), fn, de> | <fn, ft, de> <- kwFields]);
+AType instantiateRascalTypeParams(aalias(str s, list[AType] ps, AType at), Bindings bindings)
+    = aalias(s, [instantiateRascalTypeParams(p,bindings) | p <- ps], instantiateRascalTypeParams(at,bindings));
+AType instantiateRascalTypeParams(afunc(AType rt, AType formals, list[Keyword] kwFormals, varArgs=va), Bindings bindings) = 
+    afunc(instantiateRascalTypeParams(rt,bindings),instantiateRascalTypeParams(formals,bindings), [<fn, instantiateRascalTypeParams(ft,bindings), de> | <fn, ft, de> <- kwFormals], varArgs=va);
+AType instantiateRascalTypeParams(areified(AType t), Bindings bindings) = areified(instantiateRascalTypeParams(t,bindings));
+AType instantiateRascalTypeParams(\start(AType s), Bindings bindings) = \start(instantiateRascalTypeParams(s,bindings));
+AType instantiateRascalTypeParams(\iter(AType s), Bindings bindings) = \iter(instantiateRascalTypeParams(s,bindings));
+AType instantiateRascalTypeParams(\iter-star(AType s), Bindings bindings) = \iter-star(instantiateRascalTypeParams(s,bindings));
+AType instantiateRascalTypeParams(\iter-seps(AType s, list[AType] seps), Bindings bindings) = \iter-seps(instantiateRascalTypeParams(s,bindings),seps);
+AType instantiateRascalTypeParams(\iter-star-seps(AType s, list[AType] seps), Bindings bindings) = \iter-star-seps(instantiateRascalTypeParams(s,bindings),seps);
+AType instantiateRascalTypeParams(\opt(AType s), Bindings bindings) = \opt(instantiateRascalTypeParams(s,bindings));
+AType instantiateRascalTypeParams(\conditional(AType s, set[Condition] conds), Bindings bindings) = \conditional(instantiateRascalTypeParams(s,bindings),conds);
+//AType instantiateRascalTypeParams(\prod(AType def, list[AType] asymbols, set[Attr] attributes=attrs, set[SyntaxKind] syntaxKind=sk, loc src=src), Bindings bindings)
+//    = \prod(instantiateRascalTypeParams(def, bindings), asymbols, attributes=attrs, syntaxKind = sk, src=src);
 default AType instantiateRascalTypeParams(AType t, Bindings bindings) {
     return t;
 }

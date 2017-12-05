@@ -419,18 +419,24 @@ void collect(current: (Expression) `it`, TBuilder tb){
 
 void collect(current: (Expression) `{ <{Expression ","}* elements0> }`, TBuilder tb){
     elms = [ e | Expression e <- elements0 ];
-    tb.calculateEager("set expression", current, elms,
-        AType() { return aset(lub([getType(elm) | elm <- elms])); });
-    collect(elements0, tb);
+    if(isEmpty(elms)){
+        tb.fact(current, aset(avoid()));
+    } else {
+        tb.calculate("set expression", current, elms, AType() { return aset(lub([getType(elm) | elm <- elms])); });
+        collect(elements0, tb);
+    }
 }
 
 // ---- list
 
 void collect(current: (Expression) `[ <{Expression ","}* elements0> ]`, TBuilder tb){
     elms = [ e | Expression e <- elements0 ];
-    tb.calculateEager("list expression", current, elms,
-        AType() { return alist(lub([getType(elm) | elm <- elms])); });
-    collect(elements0, tb);
+    if(isEmpty(elms)){
+        tb.fact(current, alist(avoid()));
+    } else {
+        tb.calculate("list expression", current, elms, AType() { return alist(lub([getType(elm) | elm <- elms])); });
+        collect(elements0, tb);
+    }
 }
 
 // ---- call or tree
@@ -445,7 +451,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
         AType(){   
             texp = getType(expression);
             if(isStrType(texp)){
-                return anode();
+                return computeNodeType(current, scope, actuals, keywordArguments);
             } 
             if(isLocType(texp)){
                 nactuals = size(actuals);
@@ -491,7 +497,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                     texp = tp;  
                     // TODO check identicalFields to see whether this can make sense
                     // unique overload, fall through to non-overloaded case to potentially bind more type variables
-                 } else if(isEmpty(validReturnTypeOverloads)) { println(actuals); reportError(current, "<fmt("<expression>")> applied to <fmt(actuals)> cannot be resolved given <fmt(expression)>");}
+                 } else if(isEmpty(validReturnTypeOverloads)) { reportError(current, "<fmt("<expression>")> applied to <fmt(actuals)> cannot be resolved given <fmt(expression)>");}
                  else return overloadedAType(validReturnTypeOverloads);
                }
             }
@@ -666,6 +672,8 @@ AType computeADTType(Tree current, str adtName, Key scope, AType retType, list[A
     return adtType;
 }
 
+
+
 void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, Key scope, bool isExpression=true){
     if(keywordArguments is none) return;
  
@@ -689,6 +697,67 @@ void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, K
         reportError(kwa, "Undefined keyword argument <fmt(kwName)><isEmpty(kwFormals) ? "" : "; available keyword parameters: <fmt(kwFormals<1>)>">");
     }
  } 
+ 
+ AType computeNodeType(Tree current, Key scope, actuals, keywordArguments, AType subjectType=avalue()){                     
+    println("checkNodeType: <current>, <subjectType>");
+    nactuals = size(actuals); 
+    //index_formals = index(formals);
+    //println("formals: <formals>");
+    list[AType] actualType = [];
+    list[bool] dontCare = [];
+    bool isExpression = true;
+    switch(actuals){
+        case list[Expression] expList: {
+                dontCare = [ false | i <- index(expList) ];
+                actualType = [ getType(expList[i]) | i <- index(expList) ];
+                //print("expList: [ "); for(i <- index(expList)) print("<expList[i]> "); println(" ]");
+                return anode(computeKwArgs(keywordArguments, scope, isExpression=true));
+            }
+        case list[Pattern] patList: {
+                dontCare = [ "<patList[i]>" == "_" | i <- index(patList) ];
+                actualType = [ dontCare[i] ? avalue : expandUserTypes(getPatternType(patList[i], avalue(), scope), scope) | i <- index(patList) ];
+                //print("patList: [ "); for(i <- index(patList)) print("<patList[i]> "); println(" ]");
+                isExpression = false;
+            }
+        default:
+            throw "Illegal argument `actuals`";
+    }
+    //println("actualType: <actualType>");
+    if(acons(adtType:aadt(adtName, list[AType] parameters), str consName, list[NamedField] fields, list[Keyword] kwFields) := subjectType){
+        kwFormals = kwFields;
+        checkKwArgs(kwFormals + getCommonKeywords(adtType, scope), keywordArguments, (), scope, isExpression=isExpression);
+        return anode([]);
+    } else if(anode(_) := subjectType){
+        return anode([]);
+    }
+    reportError(current, "node pattern does not match <fmt(subjectType)>");
+}
+
+list[NamedField] computeKwArgs(keywordArguments, Key scope, bool isExpression=true){
+    if(keywordArguments is none) return [];
+ 
+    return for(kwa <- keywordArguments.keywordArgumentList){ 
+            kwName = "<kwa.name>";
+            kwType = isExpression ? getType(kwa.expression) : getPatternType(kwa.expression, avalue(), scope);
+            append <kwName, kwType>;
+    }
+ }
+ 
+void checkKwArgs(keywordArguments, list[NamedFields] fields, Key scope, bool isExpression=true){
+    if(keywordArguments is none) return;
+ 
+    nextKW:
+    for(kwa <- keywordArguments.keywordArgumentList){ 
+            kwName = "<kwa.name>";
+            kwType = isExpression ? getType(kwa.expression) : getPatternType(kwa.expression, avalue(), scope);
+            for(<fn, ft> <- fields){
+                if(fn == kwName){
+                ;
+                }
+                continue nextKW;
+            }
+    }
+ }  
 
 list[Keyword] getCommonKeywords(aadt(str adtName, list[AType] parameters), loc scope) = [ *d.defInfo.commonKeywordFields | d <- getDefinitions(adtName, scope, {dataId(), nonterminalId()}) ];
 list[Keyword] getCommonKeywords(overloadedAType(rel[Key, IdRole, AType] overloads), loc scope) = [ *getCommonKeywords(adt, scope) | <def, idr, adt> <- overloads ];
@@ -711,11 +780,15 @@ void collect(current: (Expression) `\< <{Expression ","}+ elements1> \>`, TBuild
 void collect(current: (Expression) `( <{Mapping[Expression] ","}* mappings>)`, TBuilder tb){
     froms = [ m.from | m <- mappings ];
     tos =  [ m.to | m <- mappings ];
-    tb.calculateEager("map expression", current, froms + tos,
-        AType() {
+    if(isEmpty(froms)){
+        tb.fact(current, amap(avoid(), avoid()));
+    } else {
+        tb.calculateEager("map expression", current, froms + tos,
+            AType() {
                 return amap(lub([ getType(f) | f <- froms ]), lub([ getType(t) | t <- tos ]));
-        });
-    collect(mappings, tb);
+            });
+        collect(mappings, tb);
+    }
 }
 
 // ---- it
@@ -759,7 +832,7 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl){
         subscript_overloads = {};
         for(<key, role, tp> <- overloads){
             try {
-                subscript_overloads += <key, role, computeSubscriptionType(current, t1, tl)>;
+                subscript_overloads += <key, role, computeSubscriptionType(current, tp, tl)>;
             } catch checkFailed(set[Message] msgs): {
                 ; // do nothing and try next overload
             } catch e:;  
@@ -1233,10 +1306,6 @@ void collect(current:(Expression) `<Expression e>@<Name n>`, TBuilder tb) {
     tb.calculate("get annotation", current, [e, n],
         AType(){ 
                  t1 = getType(e); 
-                 if(t1 == avalue()){
-                    println("getAnnotation, t1 = <t1>");
-                    t1 = getType(e);
-                 }
                  tn = getType(n);
                  return computeGetAnnotationType(current, t1, tn);
                });

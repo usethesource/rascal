@@ -16,7 +16,7 @@ import lang::rascalcore::check::AType;
 import Set;
 import IO;
 
-public Grammar expandRegularSymbols(Grammar G) {
+public AGrammar expandRegularSymbols(AGrammar G) {
   for (AType def <- G.rules) {
     if (choice(def, {regular(def)}) := G.rules[def]) { 
       Production init = choice(def,{});
@@ -29,7 +29,7 @@ public Grammar expandRegularSymbols(Grammar G) {
   return G;
 }
 
-public set[Production] expand(AType s) {
+public set[AProduction] expand(AType s) {
   switch (s) {
     case \opt(t) : 
       return {choice(s,{prod(label("absent",s),[],{}),prod(label("present",s),[t],{})})};
@@ -53,14 +53,14 @@ public set[Production] expand(AType s) {
    throw "expand, missed a case <s>";                   
 }
 
-public Grammar makeRegularStubs(Grammar g) {
+public AGrammar makeRegularStubs(AGrammar g) {
   prods = {g.rules[nont] | AType nont <- g.rules};
   stubs = makeRegularStubs(prods);
   return compose(g, grammar({},stubs));
 }
 
-public set[Production] makeRegularStubs(set[Production] prods) {
-  return {regular(reg) | /Production p:prod(_,_,_) <- prods, sym <- p.symbols, reg <- getRegular(sym) };
+public set[AProduction] makeRegularStubs(set[AProduction] prods) {
+  return {regular(reg) | /AProduction p:prod(_,_,_) <- prods, sym <- p.symbols, reg <- getRegular(sym) };
 }
 
 private set[AType] getRegular(AType s) = { t | /AType t := s, isRegular(t) }; 

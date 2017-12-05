@@ -14,13 +14,13 @@ import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascalcore::grammar::definition::Productions;
 import IO;
 
-public Grammar expandKeywords(Grammar g) {
+public AGrammar expandKeywords(AGrammar g) {
   return visit(g) {
     case conditional(sym, conds) => conditional(sym, expandKeywords(g, conds)) 
   };
 }
 
-public set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
+public set[ACondition] expandKeywords(AGrammar g, set[ACondition] conds) {
   names = {};
   done = {};
   todo = conds;
@@ -32,7 +32,7 @@ public set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
       if (cond has symbol, keywords(str name) := cond.symbol) {
         if (name notin names) {
         	names += {name};
-        	todo += {cond[symbol=s] | choice(_, set[Production] alts) := g.rules[cond.symbol], prod(_,[s],_) <- alts};
+        	todo += {cond[symbol=s] | choice(_, set[AProduction] alts) := g.rules[cond.symbol], prod(_,[s],_) <- alts};
       	}  
       } else {
         done += cond;
@@ -43,6 +43,6 @@ public set[Condition] expandKeywords(Grammar g, set[Condition] conds) {
   return done;  
 }
 
-public set[Production] getKeywords(Grammar g) {
+public set[AProduction] getKeywords(AGrammar g) {
   return {g.rules[s] | s:keywords(_) <- g.rules}; 
 }

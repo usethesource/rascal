@@ -91,12 +91,18 @@ private start[Modules] sampleModules(str name) = parse(#start[Modules], |home://
 
 public PathConfig getDefaultPathConfig() = pathConfig(   
         srcs = [|project://rascal-core/src/io/org/rascalmpl/library/|,
+                |project://TypePal/src|,
                 |project://rascal/src/org/rascalmpl/library|
                ]);
                
 TModel rascalTModelsFromStr(str text){
     startTime = cpuTime();
     pt = parse(#start[Modules], text).top;
+    return rascalTModel(pt, startTime, inline=true);
+}
+
+TModel rascalTModelsFromTree(Tree pt){
+    startTime = cpuTime();
     return rascalTModel(pt, startTime, inline=true);
 }
 
@@ -145,13 +151,13 @@ TModel rascalTModel(Tree pt, int startTime, bool debug=false, bool inline=false)
     return tm;
 }
 
-set[Message] validateModules(str mname, bool debug=false) {
+list[Message] validateModules(str mname, bool debug=false) {
     return rascalTModelFromName(mname, debug=debug).messages;
 }
 
 void testModules(str names...) {
     if(isEmpty(names)) names = allTests;
-    runTests([|project://rascal-core/src/io/org/rascalmpl/library/lang/rascalcore/check/tests/<name>.ttl| | str name <- names], rascalTModelsFromStr);
+    runTests([|project://rascal-core/src/io/org/rascalmpl/library/lang/rascalcore/check/tests/<name>.ttl| | str name <- names], #Module, rascalTModelsFromTree, verbose=true);
 }
 
 list[str] allTests = ["adt", "alias", "assignment", "datadecl", "exp", "fields", "fundecl", 

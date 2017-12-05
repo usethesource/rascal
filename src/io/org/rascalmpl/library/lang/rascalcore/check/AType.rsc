@@ -2,6 +2,7 @@ module lang::rascalcore::check::AType
 
 import Node;
 import Relation;
+import String;
 extend analysis::typepal::AType;
 import lang::rascalcore::check::ATypeUtils;
 import lang::rascal::\syntax::Rascal;
@@ -20,7 +21,7 @@ data AType (str label = "")
      | arat()
      | astr()
      | anum()
-     | anode()
+     | anode(list[NamedField] fields)
      | avoid()
      | avalue()
      | aloc()
@@ -361,6 +362,9 @@ bool asubtype(AType s, s) = true;
 
 default bool asubtype(AType s, AType t) = (s.label? || t.label?) ? asubtype(unset(s, "label") , unset(t, "label")) : s == t;
 
+bool asubtype(tvar(s), AType r) { throw "asubtype not defined for <tvar(s)> and <r>"; }
+bool asubtype(AType l, tvar(s)) { throw "asubtype not defined for <l> and <tvar(s)>"; }
+
 
 bool asubtype(overloadedAType(overloads), AType r) = any(<k, idr, tp> <- overloads, asubtype(tp, r));
 //{   for(<k, idr, tp> <- overloads){
@@ -389,7 +393,7 @@ bool asubtype(AType a, x:acons(AType b, _, list[NamedField] _, list[Keyword] _))
 }
 bool asubtype(acons(AType a, str name, list[NamedField] ap, list[Keyword] _), acons(a,name,list[NamedField] bp, list[Keyword] _)) = asubtype(ap,bp);
 
-bool asubtype(aadt(str _, list[AType] _), anode()) = true;
+bool asubtype(aadt(str _, list[AType] _), anode(_)) = true;
 bool asubtype(aadt(str n, list[AType] l), aadt(n, list[AType] r)) = asubtype(l, r);
 bool asubtype(aadt(_, _, hasSyntax=true), aadt("Tree", _)) = true;
 bool asubtype(aadt(str _, list[AType] _, hasSyntax=true), AType::\auser("Tree", _))  = true;
@@ -439,7 +443,7 @@ bool asubtype(aparameter(str _, AType bound), AType r) = asubtype(bound, r);
 bool asubtype(AType l, aparameter(str _, AType bound)) = asubtype(l, bound);
 
 bool asubtype(areified(AType s), areified(AType t)) = asubtype(s,t);
-bool asubtype(areified(AType s), anode()) = true;
+bool asubtype(areified(AType s), anode(_)) = true;
 
 // Utilities
 
@@ -535,17 +539,17 @@ AType alub(m1: amap(ld, lr), m2: amap(rd, rr)) = amap(alub(ld, rd), alub(lr, rr)
 
 AType alub(abag(AType s), abag(AType t)) = abag(alub(s, t));
 
-AType alub(aadt(str n, list[AType] _), anode()) = anode();
-AType alub(anode(), aadt(str n, list[AType] _)) = anode();
+AType alub(aadt(str n, list[AType] _), anode(_)) = anode([]);
+AType alub(anode(_), aadt(str n, list[AType] _)) = anode([]);
 
 AType alub(aadt(str n, list[AType] lp), aadt(n, list[AType] rp)) = aadt(n, addParamLabels(alub(lp,rp),getParamLabels(lp))) when size(lp) == size(rp) && getParamLabels(lp) == getParamLabels(rp) && size(getParamLabels(lp)) > 0;
 AType alub(aadt(str n, list[AType] lp), aadt(n, list[AType] rp)) = aadt(n, alub(lp,rp)) when size(lp) == size(rp) && size(getParamLabels(lp)) == 0;
-AType alub(aadt(str n, list[AType] lp), aadt(str m, list[AType] rp)) = anode() when n != m;
+AType alub(aadt(str n, list[AType] lp), aadt(str m, list[AType] rp)) = anode([]) when n != m;
 AType alub(aadt(str ln, list[AType] lp), acons(AType b, _, _, _)) = alub(aadt(ln,lp),b);
 
 AType alub(acons(AType la, _, list[NamedField] _,  list[Keyword] _), acons(AType ra, _, list[NamedField] _, list[Keyword] _)) = alub(la,ra);
 AType alub(acons(AType a,  _, list[NamedField] lp, list[Keyword] _), aadt(str n, list[AType] rp)) = alub(a,aadt(n,rp));
-AType alub(acons(AType _,  _, list[NamedField] _,  list[Keyword] _), anode()) = anode();
+AType alub(acons(AType _,  _, list[NamedField] _,  list[Keyword] _), anode(_)) = anode([]);
 
 bool keepParams(aparameter(str s1, AType bound1), aparameter(str s2, AType bound2)) = s1 == s2 && equivalent(bound1,bound2);
 
@@ -555,7 +559,7 @@ AType alub(aparameter(str _, AType bound), AType r) = alub(bound, r) when !(isRa
 AType alub(AType l, aparameter(str _, AType bound)) = alub(l, bound) when !(isRascalTypeParam(l));
 
 AType alub(areified(AType l), areified(AType r)) = areified(alub(l,r));
-AType alub(areified(AType l), anode()) = anode();
+AType alub(areified(AType l), anode(_)) = anode([]);
 
 AType alub(afunc(AType lr, AType lp, list[Keyword] lkw), afunc(AType rr, AType rp, list[Keyword] rkw)) {
     lubReturn = alub(lr,rr);

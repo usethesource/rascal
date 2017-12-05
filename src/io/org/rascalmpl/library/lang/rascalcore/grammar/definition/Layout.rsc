@@ -16,7 +16,7 @@ import List;
 import IO;
 
 @doc{intermixes the actively visible layout definition in each module into the relevant syntax definitions}
-GrammarDefinition \layouts(GrammarDefinition def) {
+AGrammarDefinition \layouts(AGrammarDefinition def) {
   deps = extends(def) + imports(def);
   for (str name <- def.modules) {
     def.modules[name].grammar 
@@ -29,7 +29,7 @@ GrammarDefinition \layouts(GrammarDefinition def) {
 }
 
 @doc{collects for a set of modules the names of all layout sorts and returns them as sorts for later processing} 
-set[AType] allLayouts(set[str] defs, GrammarDefinition def) 
+set[AType] allLayouts(set[str] defs, AGrammarDefinition def) 
   = {sort(l) | m <- defs, /prod(layouts(str l),_,_) := def.modules[m]} 
   + {sort(l) | m <- defs, /prod(label(_,layouts(str l)),_,_) := def.modules[m]} 
   ;
@@ -47,7 +47,7 @@ bool isDefault(AType s) = (s == layouts("$default$"));
      the static checker should check whether multiple visible layout definitions are active, because this function
      will just produce an arbitrary one if there are multiple definitions
 }
-AType activeLayout(str name, set[str] deps, GrammarDefinition def) {
+AType activeLayout(str name, set[str] deps, AGrammarDefinition def) {
 
   
   if (/prod(l:layouts(_),_,as) := def.modules[name], !isDefault(l), !isManual(as)) 
@@ -63,7 +63,7 @@ AType activeLayout(str name, set[str] deps, GrammarDefinition def) {
 }  
 
 @doc{intersperses layout symbols in all non-lexical productions}
-public Grammar \layouts(Grammar g, AType l, set[AType] others) {
+public AGrammar \layouts(AGrammar g, AType l, set[AType] others) {
   return top-down-break visit (g) {
     case prod(\start(y),[AType x],as) => prod(\start(y),[l, x, l],  as)
     case prod(sort(s),list[AType] lhs,as) => prod(sort(s),intermix(lhs, l, others),as)

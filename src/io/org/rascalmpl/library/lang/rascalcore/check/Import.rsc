@@ -117,7 +117,6 @@ void saveModules(str qualifiedModuleName, PathConfig pcfg, TModel tm){
     if(tm.store[key_extend_graph]? && lrel[str,str] exts := tm.store[key_extend_graph]){
         extend_graph = {<unescape(f), unescape(t)> | <f, t> <- toSet(exts)};
     }
-    
     moduleScopes = getModuleScopes(tm);
     
     for(m <- qualifiedModuleName + {unescape(tbs) | tbs <- toBeSaved}){
@@ -151,7 +150,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
     m1.openReqs = {};
     m1.tvScopes = ();
     // keep m1.messages
-    m1.messages = {msg | msg <- tm.messages, msg.at.path == mscope.path};
+    m1.messages = [msg | msg <- tm.messages, msg.at.path == mscope.path];
     moduleScopeLocs = range(moduleScopes);
     m1.scopes = (inner : outer | inner <- tm.scopes, outer := tm.scopes[inner], outer in moduleScopeLocs);
     m1.uses = [];

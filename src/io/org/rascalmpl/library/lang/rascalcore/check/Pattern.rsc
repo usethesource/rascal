@@ -477,7 +477,8 @@ AType getPatternType(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* 
     //clearBindings();    // <====
     subjectType = instantiate(subjectType);
     
-    if(isStrType(texp) && comparable(anode(),subjectType)){
+    if(isStrType(texp)){
+        return computeNodeType(current, scope, pats, keywordArguments, subjectType=subjectType);
         return anode(); // TODO force processing of arguments/keywords
     }       
     if(overloadedAType(rel[Key, IdRole, AType] overloads) := texp){

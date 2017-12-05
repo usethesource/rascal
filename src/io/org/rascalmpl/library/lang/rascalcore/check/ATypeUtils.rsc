@@ -78,7 +78,7 @@ str prettyPrintAType(areal()) = "real";
 str prettyPrintAType(arat()) = "rat";
 str prettyPrintAType(astr()) = "str";
 str prettyPrintAType(anum()) = "num";
-str prettyPrintAType(anode()) = "node";
+str prettyPrintAType(anode( lrel[str fieldName, AType fieldType] fields)) = "node(<isEmpty(fields) ? "" : intercalate(", ", ["<prettyPrintAType(ft)> <fn>" | <fn, ft> <- fields])>)";
 str prettyPrintAType(avoid()) = "void";
 str prettyPrintAType(avalue()) = "value";
 str prettyPrintAType(aloc()) = "loc";
@@ -257,12 +257,12 @@ AType makeNumType() = anum();
 Determine if the given type is a node.
 }
 bool isNodeType(aparameter(_,AType tvb)) = isNodeType(tvb);
-bool isNodeType(anode()) = true;
+bool isNodeType(anode(_)) = true;
 bool isNodeType(aadt(_,_)) = true;
 default bool isNodeType(AType _) = false;
 
 @doc{Create a new node type.}
-AType makeNodeType() = anode();
+AType makeNodeType() = anode([]);
 
 // ---- void
 

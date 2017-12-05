@@ -45,6 +45,11 @@ void collect(current: (Expression) `<Expression arg> +`, TBuilder tb){
 } 
 
 AType computeTransClosureType(Expression current, AType t1){
+
+    t1 = instantiate(t1);
+    if(!isFullyInstantiated(t1)){
+       throw TypeUnavailable();
+    }
     // Special case: if we have list[void] or set[void], these become lrel[void,void] and rel[void,void]
     if (isListType(t1) && isVoidType(getListElementType(t1)))
         return makeListRelType([makeVoidType(),makeVoidType()]);
@@ -75,6 +80,11 @@ void collect(current: (Expression) `<Expression arg> *`, TBuilder tb){
 } 
 
 AType computeReflexiveTransClosureType(Expression current, AType t1){
+
+    t1 = instantiate(t1);
+    if(!isFullyInstantiated(t1)){
+       throw TypeUnavailable();
+    }
     // Special case: if we have list[void] or set[void], these become lrel[void,void] and rel[void,void]
     if (isListType(t1) && isVoidType(getListElementType(t1)))
         return makeListRelType(atypeList([makeVoidType(),makeVoidType()]));
@@ -133,6 +143,11 @@ void collect(current: (Expression) `* <Expression arg>`, TBuilder tb){
 }
 
 AType computeSpliceType(AType t1){
+    t1 = instantiate(t1);
+    if(!isFullyInstantiated(t1)){
+       throw TypeUnavailable();
+    }
+    
     if (isListType(t1)) return getListElementType(t1);
     if (isSetType(t1)) return getSetElementType(t1);
     if (isBagType(t1)) return getBagElementType(t1);
@@ -164,6 +179,11 @@ void collect(current: (Expression) `<Expression lhs> o <Expression rhs>`, TBuild
 }
 
 AType computeCompositionType(Expression current, AType t1, AType t2){  
+    t1 = instantiate(t1);
+    t2 = instantiate(t2);
+    if(!(isFullyInstantiated(t1) && isFullyInstantiated(t2))){
+       throw TypeUnavailable();
+    }
 
     // Special handling for list[void] and set[void], these should be treated as lrel[void,void]
     // and rel[void,void], respectively
@@ -280,7 +300,14 @@ void collect(current: (Expression) `<Expression lhs> * <Expression rhs>`, TBuild
     collect(lhs, rhs, tb); 
 }
 
-AType computeProductType(Tree current, AType t1, AType t2){    
+AType computeProductType(Tree current, AType t1, AType t2){   
+
+    t1 = instantiate(t1);
+    t2 = instantiate(t2);
+    if(!(isFullyInstantiated(t1) && isFullyInstantiated(t2))){
+       throw TypeUnavailable();
+    } 
+    
     if(subtype(t1, anum()) && subtype(t2, anum())) return lub(t1, t2);
     
     if (isListType(t1) && isListType(t2))
@@ -302,7 +329,14 @@ void collect(current: (Expression) `<Expression lhs> join <Expression rhs>`, TBu
     collect(lhs, rhs, tb); 
 }
 
-AType computeJoinType(Expression current, AType t1, AType t2){     
+AType computeJoinType(Expression current, AType t1, AType t2){  
+
+    t1 = instantiate(t1);
+    t2 = instantiate(t2);
+    if(!(isFullyInstantiated(t1) && isFullyInstantiated(t2))){
+       throw TypeUnavailable();
+    }   
+    
     if ((isRelType(t1) && isRelType(t2)) || (isListRelType(t1) && isListRelType(t2))) {
        bool isRel = isRelType(t1);
         list[AType] lflds = isRel ? getRelFields(t1) : getListRelFields(t1);
@@ -364,6 +398,11 @@ void collect(current: (Expression) `<Expression lhs> / <Expression rhs>`, TBuild
 }
 
 AType computeDivisionType(Tree current, AType t1, AType t2){
+    t1 = instantiate(t1);
+    t2 = instantiate(t2);
+    if(!(isFullyInstantiated(t1) && isFullyInstantiated(t2))){
+       throw TypeUnavailable();
+    }
     if(isNumericType(t1) && isNumericType(t2)) return lub(t1, t2);
     reportError(current, "Division not defined on <fmt(t1)> and <fmt(t2)>");
 }
@@ -376,6 +415,13 @@ void collect(current: (Expression) `<Expression lhs> & <Expression rhs>`, TBuild
 }
 
 AType computeIntersectionType(Tree current, AType t1, AType t2){
+
+    t1 = instantiate(t1);
+    t2 = instantiate(t2);
+    if(!(isFullyInstantiated(t1) && isFullyInstantiated(t2))){
+       throw TypeUnavailable();
+    }
+    
     if ( ( isListRelType(t1) && isListRelType(t2) ) || 
          ( isListType(t1) && isListType(t2) ) || 
          ( isRelType(t1) && isRelType(t2) ) || 
@@ -410,6 +456,12 @@ void collect(current: (Expression) `<Expression lhs> + <Expression rhs>`, TBuild
 }
 
 default AType computeAdditionType(Tree current, AType t1, AType t2) {
+
+    t1 = instantiate(t1);
+    t2 = instantiate(t2);
+    if(!(isFullyInstantiated(t1) && isFullyInstantiated(t2))){
+       throw TypeUnavailable();
+    }   
     
     if(subtype(t1, anum()) && subtype(t2, anum())) return lub(t1, t2);
     
@@ -494,6 +546,13 @@ void collect(current: (Expression) `<Expression lhs> - <Expression rhs>`, TBuild
 }
 
 AType computeSubtractionType(Tree current, AType t1, AType t2) { 
+
+    t1 = instantiate(t1);
+    t2 = instantiate(t2);
+    if(!(isFullyInstantiated(t1) && isFullyInstantiated(t2))){
+       throw TypeUnavailable();
+    }
+    
     if(isNumericType(t1) && isNumericType(t2)){
         return lub(t1, t2);
     }
@@ -627,7 +686,8 @@ void collect(current: (Expression) `<Expression lhs> != <Expression rhs>`, TBuil
 void checkComparisonOp(str op, Expression current, TBuilder tb){
     tb.fact(current, abool());
     tb.requireEager("comparison <fmt(op)>", current, [current.lhs, current.rhs],
-       (){ if(!checkComparisonArgs(getType(current.lhs), getType(current.rhs))) 
+       (){ //println("<current>, <getLoc(current)>");
+           if(!checkComparisonArgs(getType(current.lhs), getType(current.rhs))) 
                     reportError(current, "Comparison <fmt(op)> not defined on <fmt(current.lhs)> and <fmt(current.rhs)>");
                  //return abool();
           });
@@ -635,14 +695,19 @@ void checkComparisonOp(str op, Expression current, TBuilder tb){
 }
 
 default bool checkComparisonArgs(AType t1, AType t2){
-
-     if(t1.label?) t1 = unset(t1, "label");
-     if(t2.label?) t2 = unset(t2, "label");
-     if(comparable(t1, t2) || (subtype(t1, anum()) && subtype(t2, anum())))
-        return true;
+    t1 = instantiate(t1);
+    t2 = instantiate(t2);
+    if(!(isFullyInstantiated(t1) && isFullyInstantiated(t2))){
+       throw TypeUnavailable();
+    }
+     
+    if(t1.label?) t1 = unset(t1, "label");
+    if(t2.label?) t2 = unset(t2, "label");
+    if(comparable(t1, t2) || (subtype(t1, anum()) && subtype(t2, anum())))
+       return true;
         
-     if(t1 == avoid() || t2 == avoid())
-        return false;
+    if(t1 == avoid() || t2 == avoid())
+       return false;
         
     if (isListRelType(t1) && isListRelType(t2) && comparableOrNum(getListRelElementType(t1),getListRelElementType(t2)))
         return true;
@@ -662,7 +727,7 @@ default bool checkComparisonArgs(AType t1, AType t2){
     
     return false;  
 }
-        
+    
 // ---- ifDefined
 
 void collect(current: (Expression) `<Expression e1> ? <Expression e2>`, TBuilder tb) {    
@@ -685,7 +750,7 @@ void computeMatchPattern(Expression current, Pattern pat, str operator, Expressi
     //tb.fact(current, abool());
     scope = tb.getScope();
     tb.calculateEager("match", current, [expression],
-       AType () {
+        AType () {
             subjectType = getType(expression);
             patType = getPatternType(pat, subjectType, scope);
             instantiate(subjectType);
@@ -697,8 +762,22 @@ void computeMatchPattern(Expression current, Pattern pat, str operator, Expressi
                 isubjectType = instantiate(subjectType);
                 //if(tvar(src) := subjectType) fact(src, isubjectType);
                 subjectType = isubjectType;
-                //clearBindings(); // <===
+                keepBindings(getLoc(pat)); // <===
             }
+       //AType () {
+       //     subjectType = getType(expression);
+       //     patType = getPatternType(pat, subjectType, scope);
+       //     instantiate(subjectType);
+       //     if(!isFullyInstantiated(patType) || !isFullyInstantiated(subjectType)){
+       //         unify(patType, subjectType) || reportError(pat, "Type of pattern could not be computed");
+       //         ipatType = instantiate(patType);
+       //         if(tvar(src) := patType) fact(src, ipatType);
+       //         patType = ipatType;
+       //         isubjectType = instantiate(subjectType);
+       //         //if(tvar(src) := subjectType) fact(src, isubjectType);
+       //         subjectType = isubjectType;
+       //         //clearBindings(); // <===
+       //     }
             comparable(patType, subjectType) || reportError(current, "Pattern should be comparable with <fmt(subjectType)>, found <fmt(patType)>");
             return abool();
         });
