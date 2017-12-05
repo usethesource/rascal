@@ -262,6 +262,11 @@ int getScopeSize(str fuid) =
     + 2 // '+ 2' accounts for keyword arguments and default values of keyword parameters 
     ;
 
+bool containsInvalidSymbols(AbstractValue item) {
+    visit(item) { case \inferred(int uniqueId): return true; case deferred(Symbol givenType): return true;};
+    return false;
+}
+ 
 // extractScopes: extract and convert type information from the Configuration delivered by the type checker.
 						    
 void extractScopes(Configuration c){
@@ -290,6 +295,7 @@ void extractScopes(Configuration c){
    for(uid <- sort(toList(domain(config.store)))){
       item = config.store[uid];
       //println("<uid>: <item>");
+      if(containsInvalidSymbols(item)) { println("*** Suspicious store[<uid>}: <item>"); }
       switch(item){
         case function(rname,rtype,keywordParams,_,inScope,_,_,_,src): { 
          	 //println("<uid>: <item>, scope: <inScope>");

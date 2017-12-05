@@ -1717,6 +1717,7 @@ private MuExp translateSlice(Expression expression, OptionalExpression optFirst,
         min_size = contains(ot, "star") ? 0 : 1;
         return muCallPrim3("concrete_list_slice", [ translate(expression), translateOpt(optFirst), muCon("false"), translateOpt(optLast), muCon(min_size) ], expression@\loc);
     }
+    if(ot == "lrel") ot = "list";
     return muCallPrim3("<ot>_slice", [ translate(expression), translateOpt(optFirst), muCon("false"), translateOpt(optLast) ], expression@\loc);
 }
 
@@ -1729,6 +1730,7 @@ private MuExp translateSlice(Expression expression, OptionalExpression optFirst,
         min_size = contains(ot, "star") ? 0 : 1;
         return muCallPrim3("concrete_list_slice", [ translate(expression), translateOpt(optFirst), translate(second), translateOpt(optLast), muCon(min_size) ], expression@\loc);
     }
+    if(ot == "lrel") ot = "list";
     return muCallPrim3("<ot>_slice", [  translate(expression), translateOpt(optFirst), translate(second), translateOpt(optLast) ], expression@\loc);
 }
 

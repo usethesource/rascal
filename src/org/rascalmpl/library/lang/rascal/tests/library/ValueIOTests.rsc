@@ -171,6 +171,14 @@ test bool writeADTWithFunctions()
 @ignoreCompiler
 test bool writeADTWithFunctions2() 
     = binaryWriteRead(#ADTFunc, c(int() { return 1;}));
+    
+    
+alias XX = loc;
+data ExtraAliases
+    = al0(int x)
+    | al1(rel[XX, str, ExtraAliases] dt);
+    
+test bool aliasesNested(ExtraAliases e) = binaryWriteRead(#ExtraAliases, e);
 
 // Reified types
  

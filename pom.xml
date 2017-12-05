@@ -340,7 +340,7 @@
 		<dependency>
 			<groupId>org.rascalmpl</groupId>
 			<artifactId>rascal-p2-dependencies-repackaged</artifactId>
-			<version>0.1.0</version>
+			<version>0.2.0-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Regular POM Dependencies -->
@@ -352,7 +352,7 @@
 		<dependency>
 			<groupId>io.usethesource</groupId>
 			<artifactId>vallang</artifactId>
-			<version>0.8.6</version>
+			<version>0.8.10-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ow2.asm</groupId>

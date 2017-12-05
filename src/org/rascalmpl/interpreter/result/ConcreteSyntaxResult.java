@@ -57,6 +57,18 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 		return ResultFactory.bool(false, ctx);
 	}
 	
+	@SuppressWarnings("unchecked")
+    @Override
+	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
+	    ITree t = (ITree) getValue();
+	    if (TreeAdapter.isList(t)) {
+	        return (Result<U>) new ListResult(getTypeFactory().listType(RascalValueFactory.Tree), TreeAdapter.getListASTArgs(t), ctx).subscript(subscripts);
+	    }
+	    else {
+	        return (Result<U>) new ListResult(getTypeFactory().listType(RascalValueFactory.Tree), TreeAdapter.getASTArgs(t), ctx).subscript(subscripts);
+	    }
+	}
+	
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 		ITree tree = (ITree) getValue();
