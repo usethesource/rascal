@@ -143,7 +143,7 @@ public bool isCompilationUnit(loc entity) = entity.scheme == "java+compilationUn
 public bool isPackage(loc entity) = entity.scheme == "java+package";
 public bool isClass(loc entity) = entity.scheme == "java+class";
 public bool isConstructor(loc entity) = entity.scheme == "java+constructor";
-public bool isMethod(loc entity) = entity.scheme == "java+method" || entity.scheme == "java+constructor";
+public bool isMethod(loc entity) = entity.scheme == "java+method" || entity.scheme == "java+constructor" || entity.scheme == "java+initializer";
 public bool isParameter(loc entity) = entity.scheme == "java+parameter";
 public bool isVariable(loc entity) = entity.scheme == "java+variable";
 public bool isField(loc entity) = entity.scheme == "java+field";

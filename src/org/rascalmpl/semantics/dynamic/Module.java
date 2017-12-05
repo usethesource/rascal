@@ -65,7 +65,10 @@ public abstract class Module {
 						String tagString = ((TagString.Lexical)tag.getContents()).getString();
 
 						String cachedParser =tagString.substring(1, tagString.length() - 1);
-						env.setCachedParser(cachedParser);
+						
+						// this assumes the cached parser still defines the same
+						// syntax as the current definitions in the module
+						env.setCachedParser(env.getSyntaxDefinition(), cachedParser);
 					}
 				}
 
