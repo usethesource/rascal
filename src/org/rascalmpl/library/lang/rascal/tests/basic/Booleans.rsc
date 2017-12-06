@@ -40,11 +40,11 @@ test bool shortCircuiting() {
 
 test bool compositeAndOr() {
     n = 0;
-    l = if( [*int x,*int y] := [1,2,3] || ([*int x,*int y] := [4,5,6] && [*int w,*int z] := [7,8,9] ) ) {
+    l = if( ([*int x,*int y] := [1,2,3] && int z := 3) || ([*int x,*int y] := [4,5,6] && int z := 4) )  {
         n = n + 1;
         fail;
     }
-    return n == 20;
+    return n == 8;
 }
 
 data AnotherAndData = a();
