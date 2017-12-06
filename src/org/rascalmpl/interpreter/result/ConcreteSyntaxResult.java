@@ -291,12 +291,10 @@ public class ConcreteSyntaxResult extends ConstructorResult {
         return (ITree) (leftCons.mayHaveKeywordParameters() && !leftCons.asWithKeywordParameters().getParameters().isEmpty() ? leftCons.asWithKeywordParameters().unsetAll() : leftCons);
     }
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	protected <U extends IValue> Result<U> addString(StringResult that) {
-		// Note the reverse concat.
-		return (Result<U>) new ConcatStringResult(getType(), that, 
-				new StringResult(that.getType(),ctx.getValueFactory().string(TreeAdapter.yield(getValue())), ctx), ctx);
+        // Note the reverse concat.
+	    return makeResult(that.getType(), that.getValue().concat(ctx.getValueFactory().string(TreeAdapter.yield(getValue()))), ctx);
 	}
 
 	@Override
