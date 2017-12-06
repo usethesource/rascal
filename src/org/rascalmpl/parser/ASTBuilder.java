@@ -19,6 +19,7 @@ package org.rascalmpl.parser;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -29,10 +30,18 @@ import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.KeywordArguments_Expression;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.Statement;
+import org.rascalmpl.ast.StringConstant;
+import org.rascalmpl.ast.StringConstant.Lexical;
+import org.rascalmpl.ast.StringLiteral;
+import org.rascalmpl.ast.StringLiteral.NonInterpolated;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.parser.gtd.util.PointerKeyedHashMap;
 import org.rascalmpl.semantics.dynamic.Expression.CallOrTree;
+import org.rascalmpl.semantics.dynamic.Literal;
+import org.rascalmpl.semantics.dynamic.Name;
+import org.rascalmpl.semantics.dynamic.QualifiedName;
+import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
 import org.rascalmpl.semantics.dynamic.Tree;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
@@ -45,9 +54,11 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 
 /**
  * Uses reflection to construct an AST hierarchy from a 
@@ -445,17 +456,56 @@ public class ASTBuilder {
         return liftExternalRec((IConstructor) quote.get("quoted"), match, getPatternLayout(tree));
 	}
 	
-	private Expression liftExternalRec(ITree tree, boolean lexicalParent, String layoutOfParent) {
+    private AbstractAST liftExternalRec(IValue value, boolean lexicalParent, String layoutOfParent) {
         if (layoutOfParent == null)
             throw new ImplementationError("layout is null");
 
-        ISourceLocation src = TreeAdapter.getLocation(tree);
-        IConstructor node = (IConstructor) tree;
-        Expression expression = null;
-        List<Expression> arguments = new ArrayList<>();
-        KeywordArguments_Expression keywordArguments = null;
-        return new CallOrTree(src, node, expression, arguments, keywordArguments);
-	}
+        if (value instanceof IConstructor) {
+            ISourceLocation loc = ValueFactoryFactory.getValueFactory().sourceLocation("foo:///");
+            IConstructor constructor = (IConstructor) value;
+            Type type = constructor.getConstructorType();
+            
+            String adtName = type.getAbstractDataType().getName();
+            String constructorName = type.getName();
+
+            Name.Lexical _name = new Name.Lexical(loc, constructor, adtName);
+            Name.Lexical _constName = new Name.Lexical(loc, constructor, constructorName);
+            
+            QualifiedName.Default _qualName = new Default(loc, constructor, Arrays.asList(_constName));
+            org.rascalmpl.semantics.dynamic.Expression.QualifiedName _qn = new org.rascalmpl.semantics.dynamic.Expression.QualifiedName(loc, constructor, _qualName);
+            
+            
+            List<Expression> args = new ArrayList<>();
+            for (int i = 0; i < type.getArity(); i++) {
+                IValue child = constructor.get(i);
+                if (child.getType().equals(TypeFactory.getInstance().stringType())){
+                    StringConstant.Lexical constant = new Lexical(loc, constructor, "\""+((IString) child).getValue()+"\"");
+                    NonInterpolated ni = new StringLiteral.NonInterpolated(loc, constructor, constant);
+                    Literal.String literal = new Literal.String(loc, constructor,  ni);
+                    org.rascalmpl.semantics.dynamic.Expression.Literal _lit = new org.rascalmpl.semantics.dynamic.Expression.Literal(loc, constructor, literal); 
+                    args.add(_lit);
+                } else {
+                    throw new IllegalArgumentException();
+                }
+            }
+            CallOrTree _cot = new CallOrTree(loc, constructor, _qn, args, new KeywordArguments_Expression.None(loc, constructor));
+            
+            return _cot;
+        }
+        
+        return null;
+
+        // ISourceLocation src = TreeAdapter.getLocation(tree);
+        // IConstructor node = (IConstructor) tree;
+        // Expression expression = new Expression.QualifiedName(src, tree, new
+        // QualifiedName.Default(src, tree, Arrays.asList(new Name.Lexical(src, tree,
+        // TreeAdapter.yield(tree)))));
+        // List<Expression> arguments = new ArrayList<>();
+        // KeywordArguments_Expression keywordArguments = new None(src, null);
+        // CallOrTree callOrTree = new CallOrTree(src, tree, expression, arguments,
+        // keywordArguments);
+        // return callOrTree;
+    }
 
 	private AbstractAST liftInternal(org.rascalmpl.values.uptr.ITree tree, boolean match) {
 		org.rascalmpl.values.uptr.ITree concrete = (org.rascalmpl.values.uptr.ITree) TreeAdapter.getArgs(tree).get(0);
