@@ -62,6 +62,10 @@ public class TreeAdapter {
 	private TreeAdapter() {
 		super();
 	}
+	
+	public static boolean isQuote(ITree tree) {
+	    return tree.isQuote();
+	}
 
 	public static boolean isTree(IConstructor cons) {
 		return cons instanceof ITree;
