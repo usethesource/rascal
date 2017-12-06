@@ -441,7 +441,8 @@ public class ASTBuilder {
 	
 	private AbstractAST liftExternal(org.rascalmpl.values.uptr.ITree tree, boolean match) {
 	    ITree quote = (ITree) TreeAdapter.getArgs(tree).get(0);
-        return liftExternalRec(tree, match, getPatternLayout(tree));
+	    assert TreeAdapter.isQuote(quote);
+        return liftExternalRec((IConstructor) quote.get("quoted"), match, getPatternLayout(tree));
 	}
 	
 	private Expression liftExternalRec(ITree tree, boolean lexicalParent, String layoutOfParent) {
