@@ -606,4 +606,5 @@ public list[int] primes(int upTo)  // TODO: replaced "p <- ..." by "int p <- ...
   = [p | int p <- [2..upTo], p < 4 || all(i <- [2..toInt(sqrt(p))+1], p != i ? p % i != 0 : true)];
 // Some test code: https://gist.github.com/grammarware/839f63b1a4999992ade7
 
-public int arbPrime(int upTo) = ps[arbInt(size(ps))] when ps := primes(upTo);
+// TODO: replaced "ps :=" by "list[int] ps :=" to help new typechecker
+public int arbPrime(int upTo) = ps[arbInt(size(ps))] when list[int] ps := primes(upTo);
