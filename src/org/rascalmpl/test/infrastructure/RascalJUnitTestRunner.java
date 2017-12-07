@@ -12,6 +12,7 @@ package org.rascalmpl.test.infrastructure;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.annotation.Annotation;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -127,12 +128,21 @@ public class RascalJUnitTestRunner extends Runner {
 					evaluator.doImport(new NullRascalMonitor(), name);
 				}
 				catch (Throwable e) {
-					throw new RuntimeException("Could not import " + name + " for testing...", e);
+				    System.err.println(e);
+				    Description modDesc = Description.createTestDescription(getClass(), module, new CompilationFailed() {
+                        @Override
+                        public Class<? extends Annotation> annotationType() {
+                            return getClass();
+                        }
+                    });
+				    desc.addChild(modDesc);
+				    continue;
 				}
 				
 				
 				Description modDesc = Description.createSuiteDescription(name);
-			  desc.addChild(modDesc);
+				desc.addChild(modDesc);
+				
 				// the order of the tests aren't decided by this list so no need to randomly order them.
 				for (AbstractFunction f : heap.getModule(name.replaceAll("\\\\","")).getTests()) {
 				    modDesc.addChild(Description.createTestDescription(getClass(), computeTestName(f.getName(), f.getAst().getLocation())));
@@ -155,6 +165,11 @@ public class RascalJUnitTestRunner extends Runner {
 		notifier.fireTestRunStarted(desc);
 
 		for (Description mod : desc.getChildren()) {
+		    if (mod.getAnnotations().stream().anyMatch(t -> t instanceof CompilationFailed)) {
+                notifier.fireTestFailure(new Failure(desc, new IllegalArgumentException(mod.getDisplayName() + " had importing errors")));
+                continue;
+            }
+		    
 			TestEvaluator runner = new TestEvaluator(evaluator, new Listener(notifier, mod));
 			runner.test(mod.getDisplayName());
 		}
