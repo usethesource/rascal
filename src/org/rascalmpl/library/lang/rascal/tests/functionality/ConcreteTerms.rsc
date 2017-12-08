@@ -25,12 +25,12 @@ Stat s1 = [Stat] "a := 2 * 3";
 Stat s2 = [Stat] "b := 4 + 5";
 Stat s3 = (Stat) `if <Exp e> then <Stat s1>;<Stat s2> else <Stat s1> fi`;
 
-@ignoreInterpreter{Not properly implemented}
+
 test bool concreteTerm1() = s3.cond == e;
-@ignoreInterpreter{Not properly implemented}
+
 test bool concreteTerm2() = s3.thenPart[0] == s1;
-@ignoreInterpreter{Not properly implemented}
+
 test bool concreteTerm3() = s3.thenPart[1] == s2;
-@ignoreInterpreter{Not properly implemented}
+
 test bool concreteTerm4() = s3.elsePart[0] == s1;
  

@@ -336,7 +336,21 @@ public abstract class RVMCore {
           }
       }
       return functions;
-  }
+	}
+	
+	public IList clearMemosInModule(String moduleName) {
+	    IListWriter w = vf.listWriter();
+	    for(int n = 0; n < functionStore.length; n++){
+	        Function f = functionStore[n];
+	        if(f.name.startsWith(moduleName + "/") && f.ftype instanceof FunctionType){
+	           if(f.clearMemo()) {
+	               String fname = f.name.substring(f.name.indexOf("/") + 1, f.name.indexOf("("));
+	               w.append(vf.string(fname));
+	           }
+	        }
+	    }
+	    return w.done();
+	}
 	
 	public OverloadedFunction getOverloadedFunctionByNameAndArity(String name, int arity) throws NoSuchRascalFunction {
 //    System.err.println("getFirstOverloadedFunctionByNameAndArity: " + name + ", " + arity);  
@@ -1177,7 +1191,9 @@ public abstract class RVMCore {
 			"org.rascalmpl.library.util.ReflectiveCompiled.parseNamedModuleWithSpaces",
 			"org.rascalmpl.library.util.ReflectiveCompiled.diff",
 			"org.rascalmpl.library.util.ReflectiveCompiled.watch",
+			"org.rascalmpl.library.util.ReflectiveCompiled.clearMemos",
 			"org.rascalmpl.library.util.WebserverCompiled.serve",
+			
 			
 			"lang::java::m3::AST::setEnvironmentOptions",
             "lang::java::m3::AST::createAstFromFile",

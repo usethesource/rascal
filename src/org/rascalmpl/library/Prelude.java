@@ -779,31 +779,29 @@ public class Prelude {
 	 * Graph
 	 */
 	
-	private HashMap<IValue,Distance> distance;
-	private HashMap<IValue, IValue> pred;
-	private HashSet<IValue> settled;
-	private PriorityQueue<IValue> Q;
+	private Map<IValueWrap,Distance> distance;
+	private Map<IValueWrap, IValueWrap> pred;
+	private Set<IValueWrap> settled;
+	private PriorityQueue<IValueWrap> Q;
 	private int MAXDISTANCE = 10000;
 	
-	private HashMap<IValue, LinkedList<IValue>> adjacencyList;
+	private Map<IValueWrap, LinkedList<IValueWrap>> adjacencyList;
 	
 	private void buildAdjacencyListAndDistance(ISet G){
-		adjacencyList = new HashMap<IValue, LinkedList<IValue>> ();
-		distance = new HashMap<IValue, Distance>();
+		adjacencyList = new HashMap<> ();
+		distance = new HashMap<>();
 		
 		for(IValue v : G){
 			ITuple tup = (ITuple) v;
-			IValue from = tup.get(0);
-			IValue to = tup.get(1);
+			IValueWrap from = new IValueWrap(tup.get(0));
+			IValueWrap to = new IValueWrap(tup.get(1));
 			
 			if(distance.get(from) == null)
 				distance.put(from, new Distance(MAXDISTANCE));
 			if(distance.get(to) == null)
 				distance.put(to, new Distance(MAXDISTANCE));
 			
-			LinkedList<IValue> adjacencies = adjacencyList.get(from);
-			if(adjacencies == null)
-				adjacencies = new LinkedList<IValue>();
+			LinkedList<IValueWrap> adjacencies = adjacencyList.computeIfAbsent(from, (k) -> new LinkedList<>());
 			adjacencies.add(to);
 			adjacencyList.put(from, adjacencies);
 		}
@@ -811,27 +809,28 @@ public class Prelude {
 	
 	public IValue shortestPathPair(ISet G, IValue From, IValue To){
 		buildAdjacencyListAndDistance(G);
-		distance.put(From, new Distance(0));
+		IValueWrap start = new IValueWrap(From);
+		distance.put(start, new Distance(0));
 		
-		pred = new HashMap<IValue, IValue>();
-		settled = new HashSet<IValue>();
-		Q = new PriorityQueue<IValue>(G.size(), new NodeComparator(distance));
-		Q.add(From);
+		pred = new HashMap<>();
+		settled = new HashSet<>();
+		Q = new PriorityQueue<>(G.size(), new NodeComparator(distance));
+		Q.add(start);
 		
 		while(!Q.isEmpty()){
-			IValue u = Q.remove();
-			if(u.isEqual(To))	
-				return extractPath(From, u);
+			IValueWrap u = Q.remove();
+			if(u.getValue().isEqual(To))	
+				return extractPath(start, u);
 			settled.add(u);
 			relaxNeighbours(u);
 		}
 		return values.list();
 	}
 	
-	private void relaxNeighbours(IValue u){
-		LinkedList<IValue> adjacencies = adjacencyList.get(u);
+	private void relaxNeighbours(IValueWrap u){
+		LinkedList<IValueWrap> adjacencies = adjacencyList.get(u);
 		if(adjacencies != null) {
-			for(IValue v : adjacencyList.get(u)){
+			for(IValueWrap v : adjacencyList.get(u)){
 				if(!settled.contains(v)){
 					Distance dv = distance.get(v);
 					Distance du = distance.get(u);
@@ -845,18 +844,17 @@ public class Prelude {
 		}
 	}
 	
-	private IList extractPath(IValue start, IValue u){
+	private IList extractPath(IValueWrap start, IValueWrap u){
 		IListWriter w = values.listWriter();
 		
-		if(!start.isEqual(u)){
-			w.insert(u);
-			while(!pred.get(u).isEqual(start)){
+		if(!start.equals(u)){
+			w.insert(u.getValue());
+			while(!pred.get(u).equals(start)){
 				u = pred.get(u);
-				w.insert(u);
+				w.insert(u.getValue());
 			}
-			// TODO Check if a path was found at all; it could be that we just hit the root of the graph.
 		}
-		w.insert(start);
+		w.insert(start.getValue());
 		return w.done();
 	}
 	
@@ -866,7 +864,7 @@ public class Prelude {
 		
 		try{
 			if(arg.getType().isString()){
-				currentOutStream.print(((IString) arg).getValue().toString());
+			    ((IString) arg).write(currentOutStream);
 			}
 			else if(arg.getType().isSubtypeOf(RascalValueFactory.Tree)){
 				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
@@ -878,6 +876,9 @@ public class Prelude {
 				currentOutStream.print(arg.toString());
 			}
 		}
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+        }
 		finally {
 			currentOutStream.flush();
 		}
@@ -945,7 +946,7 @@ public class Prelude {
 		
 		try{
 			if(arg.getType().isString()){
-				currentOutStream.print(((IString) arg).getValue());
+			    ((IString) arg).write(currentOutStream);
 			}
 			else if(arg.getType().isSubtypeOf(RascalValueFactory.Tree)){
 				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
@@ -957,6 +958,9 @@ public class Prelude {
 				currentOutStream.print(arg.toString());
 			}
 			currentOutStream.println();
+		}
+		catch (IOException e) {
+		    throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 		finally {
 			currentOutStream.flush();
@@ -1240,7 +1244,7 @@ public class Prelude {
 				}
 				for(IValue elem : V){
 					if (elem.getType().isString()) {
-						out.append(((IString) elem).getValue());
+						((IString) elem).write(out);
 					}
 					else if (elem.getType().isSubtypeOf(RascalValueFactory.Tree)) {
 					  TreeAdapter.yield((IConstructor) elem, out);
@@ -1758,6 +1762,9 @@ public class Prelude {
 			if (obj == null) {
 				return false;
 			}
+			if (obj == this) {
+			    return true;
+			}
 			if (obj instanceof IValueWrap) {
 				return ori.isEqual(((IValueWrap)obj).ori);
 			}
@@ -1771,7 +1778,7 @@ public class Prelude {
 	public IMap toMap(IList lst)
 	// @doc{toMap -- convert a list of tuples to a map; first value in old tuples is associated with a set of second values}
 	{
-		Map<IValueWrap,ISetWriter> hm = new HashMap<IValueWrap,ISetWriter>();
+		Map<IValueWrap,ISetWriter> hm = new HashMap<>();
 
 		for (IValue v : lst) {
 			ITuple t = (ITuple) v;
@@ -1897,15 +1904,15 @@ public class Prelude {
 	//@doc{invertUnique -- return map with key and value inverted; values are unique}
 	{
 		IMapWriter w = values.mapWriter();
-		HashSet<IValue> seenValues = new HashSet<IValue>();
+		Set<IValueWrap> seenValues = new HashSet<>();
 		Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 		while (iter.hasNext()) {
 			Entry<IValue,IValue> entry = iter.next();
 			IValue key = entry.getKey();
 			IValue val = entry.getValue();
-			if(seenValues.contains(val)) 
+			if (!seenValues.add(new IValueWrap(val))) {
 					throw RuntimeExceptionFactory.MultipleKey(val, null, null);
-			seenValues.add(val);
+			}
 			w.put(val, key);
 		}
 		return w.done();
@@ -1914,25 +1921,18 @@ public class Prelude {
 	public IValue invert(IMap M)
 	//@doc{invert -- return map with key and value inverted; values are not unique and are collected in a set}
 	{
-		HashMap<IValue,ISetWriter> hm = new HashMap<IValue,ISetWriter>();
+		Map<IValueWrap,ISetWriter> hm = new HashMap<>();
 		Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 		while (iter.hasNext()) {
 			Entry<IValue,IValue> entry = iter.next();
 			IValue key = entry.getKey();
-			IValue val = entry.getValue();
-			ISetWriter wKeySet = hm.get(val);
-			if(wKeySet == null){
-				wKeySet = values.setWriter();
-				hm.put(val, wKeySet);
-			}
-			wKeySet.insert(key);
+			IValueWrap val = new IValueWrap(entry.getValue());
+			hm.computeIfAbsent(val, (k) -> values.setWriter()).insert(key);
 		}
 		
 		IMapWriter w = values.mapWriter();
-		
-		iter = M.entryIterator();
-		for(IValue v : hm.keySet()){
-			w.put(v, hm.get(v).done());
+		for(Entry<IValueWrap, ISetWriter> v : hm.entrySet()){
+			w.put(v.getKey().getValue(), v.getValue().done());
 		}
 		return w.done();
 	}
@@ -2149,10 +2149,10 @@ public class Prelude {
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public IValue parse(IValue start, IMap robust, ISourceLocation input, IBool allowAmbiguity, IEvaluatorContext ctx) {
 		Type reified = start.getType();
-		IConstructor startSort = checkPreconditions(start, reified);
+		IConstructor grammar = checkPreconditions(start, reified);
 		
 		try {
-			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input, allowAmbiguity.getValue());
+			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, robust, input, allowAmbiguity.getValue());
 		}
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
@@ -2175,8 +2175,8 @@ public class Prelude {
 	public IValue parse(IValue start, IMap robust, IString input,  IBool allowAmbiguity, IEvaluatorContext ctx) {
 		try {
 			Type reified = start.getType();
-			IConstructor startSort = checkPreconditions(start, reified);
-			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue(), allowAmbiguity.getValue());
+			IConstructor grammar = checkPreconditions(start, reified);
+			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, robust, input.getValue(), allowAmbiguity.getValue());
 		}
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
@@ -2214,9 +2214,9 @@ public class Prelude {
 		}
 	}
 	
-	public IString saveParser(ISourceLocation outFile, IEvaluatorContext ctx) {
+	public IString saveParser(ISourceLocation outFile, IValue reified, IEvaluatorContext ctx) {
 		
-		IGTD<IConstructor, ITree, ISourceLocation> parser = org.rascalmpl.semantics.dynamic.Import.getParser(ctx.getEvaluator(), (ModuleEnvironment) ctx.getCurrentEnvt().getRoot(), URIUtil.invalidLocation(), false);
+		IGTD<IConstructor, ITree, ISourceLocation> parser = org.rascalmpl.semantics.dynamic.Import.getParser(ctx.getEvaluator(), (ModuleEnvironment) ctx.getCurrentEnvt().getRoot(), (IMap) ((IConstructor) reified).get("definitions"), false);
 		@SuppressWarnings("unchecked")
         Class<IGTD<IConstructor, ITree, ISourceLocation>> parserClass = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) parser.getClass();
 		
@@ -2224,7 +2224,7 @@ public class Prelude {
 		try(OutputStream outStream = URIResolverRegistry.getInstance().getOutputStream(outFile, false)) {
 			ctx.getEvaluator().getParserGenerator().saveToJar(parserClass, outStream);
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(ctx.getValueFactory().string("Unable to save to output file '" + outFile + "'"), null, null);
+			throw RuntimeExceptionFactory.io(values.string("Unable to save to output file '" + outFile + "'"), null, null);
 		}
 		return ctx.getValueFactory().string(parserClass.getName());
 
@@ -2633,9 +2633,7 @@ public class Prelude {
 			throw RuntimeExceptionFactory.illegalArgument(start, null, null, "A non-terminal type is required instead of  " + nt);
 		}
 		
-		IConstructor symbol = ((NonTerminalType) nt).getSymbol();
-		
-		return symbol;
+		return (IConstructor) start;
 	}
 	
 	/*
@@ -2698,54 +2696,29 @@ public class Prelude {
 	}
 	
 	public IMap index(ISet s) {
-		// TODO this code is wrong since it does not ignore annotations
-		// on the keys at it should do.
-		Map<IValue, ISetWriter> map = new HashMap<IValue, ISetWriter>(s.size());
+	    return indexIterable(s, s.size());
+	}
+	public IMap index(IList l) {
+	    return indexIterable(l, l.length());
+	}
+	
+	private IMap indexIterable(Iterable<IValue> s, int suggestedSize) {
+		Map<IValueWrap, ISetWriter> map = new HashMap<>(suggestedSize);
 		
 		for (IValue t : s) {
 			ITuple tuple = (ITuple) t;
-			IValue key = tuple.get(0);
+			IValueWrap key = new IValueWrap(tuple.get(0));
 			IValue value = tuple.get(1);
-			
-			ISetWriter writer = map.get(key);
-			if (writer == null) {
-				writer = values.setWriter();
-				map.put(key, writer);
-			}
-			writer.insert(value);
+			map.computeIfAbsent(key, (k) -> values.setWriter()).insert(value);
 		}
 		
 		IMapWriter mapWriter = values.mapWriter();
-		for (IValue key : map.keySet()) {
-			mapWriter.put(key, map.get(key).done());
+		for (Entry<IValueWrap, ISetWriter> ent: map.entrySet()) {
+			mapWriter.put(ent.getKey().getValue(), ent.getValue().done());
 		}
-		
 		return mapWriter.done();
 	}
 	
-	public IMap index(IList s) {
-		Map<IValue, ISetWriter> map = new HashMap<IValue, ISetWriter>(s.length());
-		
-		for (IValue t : s) {
-			ITuple tuple = (ITuple) t;
-			IValue key = tuple.get(0);
-			IValue value = tuple.get(1);
-			
-			ISetWriter writer = map.get(key);
-			if (writer == null) {
-				writer = values.setWriter();
-				map.put(key, writer);
-			}
-			writer.insert(value);
-		}
-		
-		IMapWriter mapWriter = values.mapWriter();
-		for (IValue key : map.keySet()) {
-			mapWriter.put(key, map.get(key).done());
-		}
-		
-		return mapWriter.done();
-	}
 
 	public IValue takeOneFrom(ISet st)
 	// @doc{takeOneFrom -- remove an arbitrary element from a set,
@@ -2787,7 +2760,7 @@ public class Prelude {
 	public IValue toMap(ISet st)
 	// @doc{toMap -- convert a set of tuples to a map; value in old map is associated with a set of keys in old map}
 	{
-		Map<IValueWrap,ISetWriter> hm = new HashMap<IValueWrap,ISetWriter>();
+		Map<IValueWrap,ISetWriter> hm = new HashMap<>();
 
 		for (IValue v : st) {
 			ITuple t = (ITuple) v;
@@ -3655,30 +3628,31 @@ public class Prelude {
 	        .generate(start, store, Collections.emptyMap());	    
 	}
 
-}
+	// Utilities used by Graph
+	//TODO: Why is this code in the library? This should be done in pure Rascal.
 
-// Utilities used by Graph
-//TODO: Why is this code in the library? This should be done in pure Rascal.
+	private static class Distance{
+	    public int intval;
 
-class Distance{
-	public int intval;
-	
-	Distance(int n){
-		intval = n;
-	}
-}
-
-class NodeComparator implements Comparator<IValue> {
-	private final HashMap<IValue,Distance> distance;
-	
-	NodeComparator(HashMap<IValue,Distance> distance){
-		this.distance = distance;
+	    Distance(int n){
+	        intval = n;
+	    }
 	}
 
-	public int compare(IValue arg0, IValue arg1) {
-		int d0 = distance.get(arg0).intval;
-		int d1 = distance.get(arg1).intval;
-		
-		return d0 < d1 ? -1 : ((d0 == d1) ? 0 : 1);
+	private static class NodeComparator implements Comparator<IValueWrap> {
+	    private final Map<IValueWrap,Distance> distance;
+
+	    NodeComparator(Map<IValueWrap,Distance> distance){
+	        this.distance = distance;
+	    }
+
+	    public int compare(IValueWrap arg0, IValueWrap arg1) {
+	        int d0 = distance.get(arg0).intval;
+	        int d1 = distance.get(arg1).intval;
+
+	        return d0 < d1 ? -1 : ((d0 == d1) ? 0 : 1);
+	    }
 	}
+
 }
+

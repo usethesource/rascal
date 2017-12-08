@@ -96,7 +96,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
         Writer err = getErrorWriter();
         try {
             err.write("Current stack trace:\n");
-            err.write(trace.toLinkedString());
+            trace.prettyPrintedString(err, indentedPrettyPrinter);
             err.flush();
         }
         catch (IOException e) {
@@ -122,19 +122,23 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
         }
         catch (InterruptException ie) {
             eval.getStdErr().println("Interrupted");
-            eval.getStdErr().println(ie.getRascalStackTrace().toLinkedString());
+            try {
+                ie.getRascalStackTrace().prettyPrintedString(eval.getStdErr(), indentedPrettyPrinter);
+            }
+            catch (IOException e) {
+            }
             return null;
         }
         catch (ParseError pe) {
-            eval.getStdErr().println(parseErrorMessage(lastLine, "prompt", pe));
+            parseErrorMessage(eval.getStdErr(), lastLine, "prompt", pe, indentedPrettyPrinter);
             return null;
         }
         catch (StaticError e) {
-            eval.getStdErr().println(staticErrorMessage(e));
+            staticErrorMessage(eval.getStdErr(),e, indentedPrettyPrinter);
             return null;
         }
         catch (Throw e) {
-            eval.getStdErr().println(throwMessage(e));
+            throwMessage(eval.getStdErr(),e, indentedPrettyPrinter);
             return null;
         }
         catch (QuitException q) {
@@ -142,7 +146,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
             throw new InterruptedException();
         }
         catch (Throwable e) {
-            eval.getStdErr().println(throwableMessage(e, eval.getStackTrace()));
+            throwableMessage(eval.getStdErr(), e, eval.getStackTrace(), indentedPrettyPrinter);
             return null;
         }
     }
