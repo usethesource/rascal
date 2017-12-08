@@ -460,6 +460,19 @@ public class ASTBuilder {
         if (layoutOfParent == null)
             throw new ImplementationError("layout is null");
 
+        if (value instanceof IList) {
+            IList list = (IList) value;
+
+            List<Expression> items = new ArrayList<>();
+            for (int i = 0; i < list.length(); i++) {
+                items.add((Expression) liftExternalRec(list.get(i), lexicalParent, layoutOfParent));
+            }
+
+            org.rascalmpl.semantics.dynamic.Expression.List lst =
+                new org.rascalmpl.semantics.dynamic.Expression.List(loc, null, items);
+            return lst;
+        }
+
         if (value instanceof IConstructor) {
             ISourceLocation loc = ValueFactoryFactory.getValueFactory().sourceLocation("foo:///");
             IConstructor constructor = (IConstructor) value;
