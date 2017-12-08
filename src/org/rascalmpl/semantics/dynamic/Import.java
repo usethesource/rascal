@@ -567,13 +567,14 @@ public abstract class Import {
   private static ITree parseFragment(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, ITree tree, ISourceLocation uri) {
     IConstructor symTree = TreeAdapter.getArg(tree, "symbol");
     ITree lit = TreeAdapter.getArg(tree, "parts");
-    Map<String, ITree> antiquotes = new HashMap<>();
+    
     
     
     String name = eval.getParserGenerator().getParserMethodName(symTree);
     Type type = env.lookupAbstractDataType(name);
     if (type != null) { //found an ADT with the right name, checking for parse function
 //        eval.getStdOut().println("Found "+name+" ADT!");
+        Map<IValue, ITree> antiquotes = new HashMap<>();
         List<AbstractFunction> functions = new ArrayList<>();
         env.getAllFunctions(type, functions);
         functions = functions.stream().filter(it -> it.hasTag("concreteSyntax") && it.getArity() == 1
@@ -591,6 +592,7 @@ public abstract class Import {
     IGTD<IConstructor, ITree, ISourceLocation> parser = env.getBootstrap() ? new RascalParser() : getParser(eval, env, TreeAdapter.getLocation(tree), false);
     
     try {
+      Map<String, ITree> antiquotes = new HashMap<>();
       String parserMethodName = eval.getParserGenerator().getParserMethodName(symTree);
       DefaultNodeFlattener<IConstructor, ITree, ISourceLocation> converter = new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>();
       UPTRNodeFactory nodeFactory = new UPTRNodeFactory(false);
@@ -772,7 +774,7 @@ public abstract class Import {
   }
   
     private static String replaceAntiQuotesByHoles2(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, ITree lit,
-        Map<String, ITree> antiquotes, SortedMap<Integer, Integer> corrections) {
+        Map<IValue, ITree> antiquotes, SortedMap<Integer, Integer> corrections) {
         IList parts = TreeAdapter.getArgs(lit);
         StringBuilder b = new StringBuilder();
         StringBuilder original = new StringBuilder();
@@ -837,7 +839,7 @@ public abstract class Import {
     }
 
   
-    private static String createHole2(IEvaluator<Result<IValue>> ctx, ModuleEnvironment env, ITree part, Map<String, ITree> antiquotes) {
+    private static String createHole2(IEvaluator<Result<IValue>> ctx, ModuleEnvironment env, ITree part, Map<IValue, ITree> antiquotes) {
         final Type stringType = TypeFactory.getInstance().stringType();
 
         String literalHole = TreeAdapter.yield(part);
@@ -867,10 +869,10 @@ public abstract class Import {
     return ph;
   }
   
-  private static IValue replaceHolesByAntiQuotes2(final IEvaluator<Result<IValue>> eval, ITree fragment,
-        final Map<String, ITree> antiquotes, final SortedMap<Integer, Integer> corrections) {
       return null;
   }
+    private static IValue replaceHolesByAntiQuotes2(final IEvaluator<Result<IValue>> eval, IConstructor constructor,
+        final Map<IValue, ITree> antiquotes, final SortedMap<Integer, Integer> corrections) {
 
   private static ITree replaceHolesByAntiQuotes(final IEvaluator<Result<IValue>> eval, ITree fragment, 
   		final Map<String, ITree> antiquotes, final SortedMap<Integer,Integer> corrections) {
