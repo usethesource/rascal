@@ -460,6 +460,16 @@ public class ASTBuilder {
         if (layoutOfParent == null)
             throw new ImplementationError("layout is null");
 
+        if (value instanceof IString) {
+            IString string = (IString) value;
+            StringConstant.Lexical constant = new Lexical(loc, null, "\"" + string.getValue() + "\"");
+            NonInterpolated nonInterpolated = new StringLiteral.NonInterpolated(loc, null, constant);
+            Literal.String stringLiteral = new Literal.String(loc, null, nonInterpolated);
+            org.rascalmpl.semantics.dynamic.Expression.Literal literalExpression =
+                new org.rascalmpl.semantics.dynamic.Expression.Literal(loc, null, stringLiteral);
+            return literalExpression;
+        }
+
         if (value instanceof IList) {
             IList list = (IList) value;
 
