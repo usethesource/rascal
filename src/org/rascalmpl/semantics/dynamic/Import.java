@@ -847,18 +847,20 @@ public abstract class Import {
         Type type = env.getAbstractDataType(typ);
         
         List<AbstractFunction> functions = new ArrayList<>();
-        env.getAllFunctions(stringType, functions);
+        env.getAllFunctions(TypeFactory.getInstance().tupleType(stringType, type), functions);
 //        ctx.getStdOut().println("Found "+functions.size()+" functions returning "+stringType);
 //        functions.stream().forEach(it->ctx.getStdOut().println("* "+it));
-        functions.stream()
-            .filter(it -> it.hasTag("concreteAntiquoteToHole") && it.getArity() == 2
-            && it.getFunctionType().getArgumentTypes().getFieldType(0).equals(type)
-            && it.getFunctionType().getArgumentTypes().getFieldType(1).equals(TypeFactory.getInstance().stringType()))
+        
+        List<AbstractFunction> functionsFiltered = functions.stream()
+            .filter(it -> it.hasTag("concreteHole") && it.getArity() == 1 && it.getFunctionType().getArgumentTypes().getFieldType(0).equals(stringType))
             .collect(Collectors.toList());
-//        functions.stream().forEach(it->ctx.getStdOut().println("Function: "+it));
-        if (functions.size()>0){
-            Result<IValue> result = functions.get(0).call(new Type[] {type, stringType}, new IValue[] {ctx.getValueFactory().constructor(type), ctx.getValueFactory().string(antiquotes.size()+"")}, null);
-            return ((IString) result.getValue()).getValue();
+//        functionsFiltered.stream().forEach(it->ctx.getStdOut().println("Function: "+it));
+        if (functionsFiltered.size()>0){
+            Result<IValue> result = functionsFiltered.get(0).call(new Type[] {stringType}, new IValue[] {ctx.getValueFactory().string(antiquotes.size()+"")}, null);
+            ITuple holeInfo = (ITuple) result.getValue();
+            
+            antiquotes.put(holeInfo.get(1), part);
+            return ((IString) holeInfo.get(0)).getValue();
         }
         throw new RuntimeException("FIXME");
       }
