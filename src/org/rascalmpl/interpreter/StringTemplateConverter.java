@@ -118,6 +118,9 @@ public class StringTemplateConverter {
 				IString fill = __eval.getCurrentIndent();
 				IString content = ((IString)v);
 				StringBuilder sb = new StringBuilder();
+				
+				// this iterates over the entire content of the interpolated string to find out
+				// where the newlines are:
 				for (int ch : content) {
 					sb.appendCodePoint(ch);
 					if (ch == '\n') {
