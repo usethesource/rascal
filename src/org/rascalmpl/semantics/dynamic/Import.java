@@ -869,10 +869,30 @@ public abstract class Import {
     return ph;
   }
   
-      return null;
-  }
     private static IValue replaceHolesByAntiQuotes2(final IEvaluator<Result<IValue>> eval, IConstructor constructor,
         final Map<IValue, ITree> antiquotes, final SortedMap<Integer, Integer> corrections) {
+        return constructor.accept(new IdentityVisitor<ImplementationError>() {
+            private final IValueFactory vf = eval.getValueFactory();
+            
+            
+            @Override
+            public IValue visitConstructor(IConstructor o) throws ImplementationError {
+                String fooz = o.toString();
+                
+                List<IValue> args = new ArrayList<>();
+                Iterator<IValue> it = o.iterator();
+                while (it.hasNext()) args.add(it.next().accept(this));
+                IValue[] vals = new IValue[args.size()];
+                for (int i = 0; i < args.size(); i++) {
+                    vals[i] = args.get(i);
+                }
+                IConstructor ret = vf.constructor(constructor.getConstructorType(), vals, constructor.asWithKeywordParameters().getParameters());
+                return ret;
+            }
+            
+            
+        });
+    }
 
   private static ITree replaceHolesByAntiQuotes(final IEvaluator<Result<IValue>> eval, ITree fragment, 
   		final Map<String, ITree> antiquotes, final SortedMap<Integer,Integer> corrections) {
