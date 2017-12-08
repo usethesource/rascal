@@ -164,16 +164,12 @@ public class BaseREPL {
         String out = output.get("text/plain");
         
         if (out != null) {
-            PrintWriter w = new PrintWriter(originalStdOut);
-            w.print(out);
-            w.flush();
-        }
-        
-        try {
-            originalStdOut.flush();
-        }
-        catch (IOException e) {
-            // ?
+            try {
+                reader.print(out);
+                reader.flush();
+            }
+            catch (IOException e) {
+            }
         }
     }
 
@@ -299,15 +295,14 @@ public class BaseREPL {
             updatePrompt();
             while(keepRunning) {
 
+                handleCommandQueue();
+
                 updatePrompt();
                 try {
                     String line = reader.readLine(reader.getPrompt(), null, null);
                     if (line == null) { // EOF
                         break;
                     }
-                    
-                    handleCommandQueue();
-                    
                     try {
                         handlingInput = true;
                         handleInput(line);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2013 CWI
+ * Copyright (c) 2009-2017 CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,6 +39,7 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
 import org.rascalmpl.values.uptr.ITree;
 
 public class ParserGenerator {
@@ -99,7 +100,7 @@ public class ParserGenerator {
 		
 		try {
 			monitor.event("Importing and normalizing grammar:" + name, 30);
-			IConstructor grammar = getGrammar(monitor, name, definition);
+			IConstructor grammar = getGrammarFromModules(monitor, name, definition);
 			debugOutput(grammar, System.getProperty("java.io.tmpdir") + "/grammar.trm");
 			String normName = name.replaceAll("::", "_");
 			monitor.event("Generating java source code for parser: " + name,30);
@@ -141,12 +142,12 @@ public class ParserGenerator {
 		}
 	}
 	
-	public IConstructor getGrammar(IRascalMonitor monitor, String main, IMap definition) {
-		return (IConstructor) evaluator.call(monitor, "modules2grammar", vf.string(main), definition);
+	public IConstructor getGrammarFromModules(IRascalMonitor monitor, String main, IMap modules) {
+		return (IConstructor) evaluator.call(monitor, "modules2grammar", vf.string(main), modules);
 	}
 	
 	public IConstructor getExpandedGrammar(IRascalMonitor monitor, String main, IMap definition) {
-		IConstructor g = getGrammar(monitor, main, definition);
+		IConstructor g = getGrammarFromModules(monitor, main, definition);
 		
 		monitor.event("Expanding keywords", 10);
 		g = (IConstructor) evaluator.call(monitor, "expandKeywords", g);
@@ -198,7 +199,7 @@ public class ParserGenerator {
 			if (profiler != null) {
 				profiler.start();
 			}
-			IConstructor grammar = getGrammar(monitor, name, definition);
+			IConstructor grammar = IRascalValueFactory.getInstance().grammar(definition);
 			debugOutput(grammar, System.getProperty("java.io.tmpdir") + "/grammar.trm");
 			return getNewParser(monitor, loc, name, grammar);
 		} catch (ClassCastException e) {
