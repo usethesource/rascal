@@ -107,6 +107,7 @@ import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
@@ -176,8 +177,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 	private final List<IRascalSuspendTriggerListener> suspendTriggerListeners;	 // TODO: can this be shared?
 	
-	private Stack<Accumulator> accumulators = new Stack<Accumulator>(); // not sharable
-	private final Stack<String> indentStack = new Stack<String>(); // not sharable
+	private Stack<Accumulator> accumulators = new Stack<>(); // not sharable
+	private final Stack<IString> indentStack = new Stack<>(); // not sharable
 	private final RascalSearchPath rascalPathResolver; // sharable if frozen
 
 	private final URIResolverRegistry resolverRegistry; // sharable
@@ -415,8 +416,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		return rascalPathResolver;
 	}
 	
-	@Override	
-	public void indent(String n) {
+	@Override
+	public void indent(IString n) {
 		indentStack.push(n);
 	}
 	
@@ -426,7 +427,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 	
 	@Override	
-	public String getCurrentIndent() {
+	public IString getCurrentIndent() {
 		return indentStack.peek();
 	}
 
