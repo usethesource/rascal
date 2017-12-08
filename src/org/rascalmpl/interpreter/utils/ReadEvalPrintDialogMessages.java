@@ -15,6 +15,7 @@ package org.rascalmpl.interpreter.utils;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.regex.Matcher;
 
 import org.rascalmpl.interpreter.StackTrace;
@@ -26,17 +27,25 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
 import org.rascalmpl.parser.gtd.exception.ParseError;
+import org.rascalmpl.uri.URIUtil;
+
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
+
+import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class ReadEvalPrintDialogMessages {
-	public static final String PROMPT = "rascal>";
+	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
+    public static final String PROMPT = "rascal>";
 	public static final String CONTINUE_PROMPT = ">>>>>>>";
 	public static final String CANCELLED = "cancelled";
+	
 	
 	public static String resultMessage(Result<IValue> result) {
 		String content;
@@ -67,8 +76,7 @@ public class ReadEvalPrintDialogMessages {
 		return content;
 	}
 
-	public static String parseErrorMessage(String command, String scheme, ParseError pe) {
-		StringBuilder content = new StringBuilder();
+	public static void parseErrorMessage(PrintWriter content, String command, String scheme, ParseError pe, StandardTextWriter writer) {
 		if (pe.getLocation().getScheme().equals(scheme)) {
 			String[] commandLines = command.split("\n");
 			int lastLine = commandLines.length;
@@ -84,38 +92,17 @@ public class ReadEvalPrintDialogMessages {
 				content.append("Parse error here");
 				if (i > 80) {
 					content.append("\nParse error at column ");
-					content.append(pe.getEndColumn());
+					content.append(""+pe.getEndColumn());
 				}
 			}
 		}
 		else {
-			content.append('|');
-			content.append(pe.getLocation().toString());
-			content.append('|');
-			content.append('(');
-			content.append(pe.getOffset());
-			content.append(',');
-			content.append(pe.getLength());
-			content.append(',');
-			content.append('<');
-			content.append(pe.getBeginLine());
-			content.append(',');
-			content.append(pe.getBeginColumn());
-			content.append('>');
-			content.append(',');
-			content.append('<');
-			content.append(pe.getEndLine());
-			content.append(',');
-			content.append(pe.getEndColumn());
-			content.append('>');
-			content.append(')');
-			content.append(':');
-			content.append(' ');
-			content.append("Parse error");
-			content.append('\n');
+		    ISourceLocation loc = vf.sourceLocation(vf.sourceLocation(pe.getLocation()), 
+		        pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn()) ;
+		    
+		    printSourceLocation(content, loc, writer);
+			content.println(": Parse error");
 		}
-		
-		return content.toString();
 	}
 
 	public static String interruptedExceptionMessage(InterruptException i) {
@@ -149,80 +136,94 @@ public class ReadEvalPrintDialogMessages {
 		return "\"" + val + "\"";
 	}
 
-	public static String throwableMessage(Throwable e, StackTrace rascalTrace) {
-		StringWriter w = new StringWriter();
-		PrintWriter p = new PrintWriter(w);
-		p.append(e.toString());
-		p.append("(internal error)");
-		p.append(rascalTrace.toLinkedString());
-		e.printStackTrace(p);
-		p.flush();
-		w.flush();
-		return w.toString();
+	public static void throwableMessage(PrintWriter out, Throwable e, StackTrace rascalTrace, StandardTextWriter prettyPrinter) {
+	    out.println(e.toString());
+		out.println("(internal error)");
+		try {
+            rascalTrace.prettyPrintedString(out, prettyPrinter);
+            out.println();
+        }
+        catch (IOException e1) {
+            out.println("Error printing stack trace");
+        }
+		e.printStackTrace(new PrintWriter(out));
+		out.println();
 	}
 	
-	public static String parseOrStaticOrThrowMessage(RuntimeException e) {
-		if (e instanceof ParseError)
-			return parseErrorMessage("unkown", "unkown", (ParseError)e);
-		if (e instanceof StaticError) 
-			return staticErrorMessage((StaticError)e);
-		if (e instanceof Throw)
-			return throwMessage((Throw)e);
-		return "Not a rascal exception: " + e.toString();
+	public static void parseOrStaticOrThrowMessage(PrintWriter out, RuntimeException e, StandardTextWriter prettyPrinter) {
+		if (e instanceof ParseError) {
+			parseErrorMessage(out, "unkown", "unkown", (ParseError)e, prettyPrinter);
+		}
+		else if (e instanceof StaticError)  {
+			staticErrorMessage(out, (StaticError)e, prettyPrinter);
+        }
+        else if (e instanceof Throw) {
+                throwMessage(out, (Throw)e, prettyPrinter);
+        }
+        else {
+            out.write("Not a rascal exception: " + e.toString());
+        }
 	}
-
-	public static String throwMessage(Throw e) {
+	public static void throwMessage(PrintWriter out, Throw e, StandardTextWriter prettyPrinter) {
 		LimitedResultWriter lros = new LimitedResultWriter(1000);
-		StandardTextWriter stw = new StandardTextWriter(false);
 		try {
-			stw.write(e.getException(), lros);
+		    prettyPrinter.write(e.getException(), lros);
+
 		}
 		catch(IOLimitReachedException iolrex){
 			// This is fine, ignore.
 		}
 		catch(IOException ioex){
-			// This can never happen.
+			// This can/should never happen.
 		}
 		
-		String content = e.getLocation().toString() 
-				+ ": " 
-				+ lros.getBuffer().toString()
-				+ "\n";
+		printSourceLocation(out, e.getLocation(), prettyPrinter);
+		out.print(": ");
+		out.println(lros.getBuffer().toString());
 		
 		StackTrace trace = e.getTrace();
 		if (trace != null) {
-			content += trace.toLinkedString() + '\n';
+		    try {
+                trace.prettyPrintedString(out, prettyPrinter);
+            }
+            catch (IOException e1) {
+                out.println("Error printing stacktrace");
+            }
 		}
-		return content;
 	}
-	
-	public static String thrownMessage(Thrown e) {
-        LimitedResultWriter lros = new LimitedResultWriter(1000);
-        StandardTextWriter stw = new StandardTextWriter(false);
+
+    private static void printSourceLocation(PrintWriter out, ISourceLocation l, StandardTextWriter prettyPrinter) {
         try {
-            stw.write(e.getValue(), lros);
-        }
-        catch(IOLimitReachedException iolrex){
-            // This is fine, ignore.
-        }
-        catch(IOException ioex){
-            // This can never happen.
-        }
-        
-        StringWriter content = new StringWriter();
-        
-        content.append(e.getLocation().toString() 
-                + ": " 
-                + lros.getBuffer().toString()
-                + "\n");
-        
-        e.printStackTrace(new PrintWriter(content));
-        content.append("\n");
-        
-        return content.toString();
+		    prettyPrinter.write(l, out);
+		} catch (IOException ex) {
+		    out.print("Error printing location");
+		}
+    }
+	
+	public static void thrownMessage(PrintWriter out, Thrown e, StandardTextWriter prettyPrinter) {
+
+		LimitedResultWriter lros = new LimitedResultWriter(1000);
+		try {
+		    prettyPrinter.write(e.getValue(), lros);
+		}
+		catch(IOLimitReachedException iolrex){
+			// This is fine, ignore.
+		}
+		catch(IOException ioex){
+			// This can/should never happen.
+		}
+		
+		printSourceLocation(out, e.getLocation(), prettyPrinter);
+		out.print(": ");
+		out.println(lros.getBuffer().toString());
+		
+        e.printStackTrace(new PrintWriter(out));
+		out.println();
     }
 
-	public static String staticErrorMessage(StaticError e) {
-		return e.getLocation() + ": " + e.getMessage() + "\n";
+	public static void staticErrorMessage(PrintWriter out, StaticError e, StandardTextWriter writer)  {
+		printSourceLocation(out, e.getLocation(), writer);
+	    out.print(": ");
+	    out.println(e.getMessage());
 	}
 }

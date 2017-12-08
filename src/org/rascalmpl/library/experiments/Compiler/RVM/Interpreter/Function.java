@@ -293,6 +293,18 @@ public class Function {
 	  return  false;
 	}
 	
+	public boolean clearMemo() {
+	    if(memoization != null) {
+	        MemoizationCache<IValue> m = memoization.get();
+	        if(m != null) {
+	           m.clear();
+	           memoization.clear();
+	           return true;
+	        }
+	    }
+	    return false;
+	}
+	
 	private static final int MAXDEPTH = 5;
 	private static final int MAXWIDTH = 5;
     private static final int TRIES = 500;
