@@ -24,11 +24,14 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ast.BooleanLiteral;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Commands;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.KeywordArguments_Expression;
 import org.rascalmpl.ast.Module;
+import org.rascalmpl.ast.RationalLiteral;
+import org.rascalmpl.ast.RealLiteral;
 import org.rascalmpl.ast.Statement;
 import org.rascalmpl.ast.StringConstant;
 import org.rascalmpl.ast.StringConstant.Lexical;
@@ -38,9 +41,16 @@ import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.parser.gtd.util.PointerKeyedHashMap;
 import org.rascalmpl.semantics.dynamic.Expression.CallOrTree;
+import org.rascalmpl.semantics.dynamic.Expression.Set;
 import org.rascalmpl.semantics.dynamic.Expression.TypedVariable;
+import org.rascalmpl.semantics.dynamic.IntegerLiteral;
 import org.rascalmpl.semantics.dynamic.Literal;
+import org.rascalmpl.semantics.dynamic.LocationLiteral;
 import org.rascalmpl.semantics.dynamic.Name;
+import org.rascalmpl.semantics.dynamic.PathChars;
+import org.rascalmpl.semantics.dynamic.PathPart;
+import org.rascalmpl.semantics.dynamic.ProtocolChars;
+import org.rascalmpl.semantics.dynamic.ProtocolPart;
 import org.rascalmpl.semantics.dynamic.QualifiedName;
 import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
 import org.rascalmpl.semantics.dynamic.Tree;
@@ -52,9 +62,14 @@ import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
+import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.INumber;
+import io.usethesource.vallang.IRational;
+import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
@@ -464,6 +479,53 @@ public class ASTBuilder {
 
         ISourceLocation loc = ValueFactoryFactory.getValueFactory().sourceLocation("unknown:///");
 
+        if (value instanceof IBool) {
+            BooleanLiteral.Lexical booleanLiteral =
+                new BooleanLiteral.Lexical(loc, (ITree) value, ((IBool) value).getValue() ? "true" : "false");
+            return new Literal.Boolean(loc, (ITree) value, booleanLiteral);
+        }
+
+        if (value instanceof INumber) {
+            if (value instanceof IInteger) {
+                IInteger iinteger = (IInteger) value;
+                String intValue = iinteger.getStringRepresentation();
+                if (intValue.startsWith("0x")) {
+                    org.rascalmpl.ast.HexIntegerLiteral hexLiteral =
+                        new org.rascalmpl.ast.HexIntegerLiteral.Lexical(loc, null, intValue);
+                    return new IntegerLiteral.HexIntegerLiteral(loc, null, hexLiteral);
+                }
+                if (intValue.contains("0")) {
+                    org.rascalmpl.ast.OctalIntegerLiteral octalLiteral =
+                        new org.rascalmpl.ast.OctalIntegerLiteral.Lexical(loc, null, intValue);
+                    return new IntegerLiteral.OctalIntegerLiteral(loc, null, octalLiteral);
+                }
+                org.rascalmpl.ast.DecimalIntegerLiteral decimalLiteral =
+                    new org.rascalmpl.ast.DecimalIntegerLiteral.Lexical(loc, null, intValue);
+                return new IntegerLiteral.DecimalIntegerLiteral(loc, (ITree) value, decimalLiteral);
+            }
+            if (value instanceof IRational) {
+                IRational irational = (IRational) value;
+                RationalLiteral.Lexical rationalLexical =
+                    new RationalLiteral.Lexical(loc, null, irational.getStringRepresentation());
+                return new Literal.Rational(loc, (ITree) value, rationalLexical);
+            }
+            if (value instanceof IReal) {
+                IReal ireal = (IReal) value;
+                RealLiteral.Lexical realLexical = new RealLiteral.Lexical(loc, null, ireal.getStringRepresentation());
+                return new Literal.Real(loc, (ITree) value, realLexical);
+            }
+        }
+
+        if (value instanceof ISourceLocation) {
+            ISourceLocation location = (ISourceLocation) value;
+            ProtocolPart.NonInterpolated protocolPart = new ProtocolPart.NonInterpolated(loc, (ITree) value,
+                new ProtocolChars.Lexical(loc, null, "|" + location.getScheme()));
+            PathPart.NonInterpolated pathPart = new PathPart.NonInterpolated(location, null,
+                new PathChars.Lexical(loc, null, location.getAuthority() + location.getPath()));
+            return new Literal.Location(loc, (ITree) value,
+                new LocationLiteral.Default(loc, null, protocolPart, pathPart));
+        }
+
         if (value instanceof IString) {
             IString string = (IString) value;
             StringConstant.Lexical constant = new Lexical(loc, null, "\"" + string.getValue() + "\"");
@@ -473,21 +535,29 @@ public class ASTBuilder {
                 new org.rascalmpl.semantics.dynamic.Expression.Literal(loc, null, stringLiteral);
             return literalExpression;
         }
-        
-        if (value instanceof ITree) { //found a hole
+
+        if (value instanceof ITree) { // found a hole
             IList args = TreeAdapter.getArgs((ITree) value);
             IList subArgs = TreeAdapter.getArgs((ITree) args.get(0));
             String variableType = TreeAdapter.yield((ITree) subArgs.get(2));
             String variableName = TreeAdapter.yield((ITree) subArgs.get(4));
-            
+
             Name.Lexical typeNameLexical = new Name.Lexical(loc, null, variableType);
             Default def = new Default(loc, null, Arrays.asList(typeNameLexical));
             UserType.Name userType_Name = new UserType.Name(loc, null, def);
             User user = new User(loc, null, userType_Name);
             Name.Lexical nameLexical = new Name.Lexical(loc, null, variableName);
-            
+
             TypedVariable typedVariable = new TypedVariable(loc, (ITree) value, user, nameLexical);
             return typedVariable;
+        }
+
+        if (value instanceof ISet) {
+            List<Expression> elements = new ArrayList<>();
+            for (IValue element : (ISet) value) {
+                elements.add((Expression) liftExternalRec(element, lexicalParent, layoutOfParent));
+            }
+            return new Set(loc, (ITree) value, elements);
         }
 
         if (value instanceof IList) {
@@ -498,9 +568,7 @@ public class ASTBuilder {
                 items.add((Expression) liftExternalRec(list.get(i), lexicalParent, layoutOfParent));
             }
 
-            org.rascalmpl.semantics.dynamic.Expression.List lst =
-                new org.rascalmpl.semantics.dynamic.Expression.List(loc, null, items);
-            return lst;
+            return new org.rascalmpl.semantics.dynamic.Expression.List(loc, null, items);
         }
 
         if (value instanceof IConstructor) {
