@@ -879,24 +879,28 @@ public abstract class Import {
         final Map<IValue, ITree> antiquotes, final SortedMap<Integer, Integer> corrections) {
         return constructor.accept(new IdentityVisitor<ImplementationError>() {
             private final IValueFactory vf = eval.getValueFactory();
-            
-            
+
             @Override
             public IValue visitConstructor(IConstructor o) throws ImplementationError {
-                String fooz = o.toString();
-                
+                for (IValue key : antiquotes.keySet()) {
+                    if (o.isEqual(key)) {
+                        return antiquotes.get(key);
+                    }
+                }
+
                 List<IValue> args = new ArrayList<>();
                 Iterator<IValue> it = o.iterator();
-                while (it.hasNext()) args.add(it.next().accept(this));
+                while (it.hasNext()) {
+                    args.add(it.next().accept(this));
+                }
                 IValue[] vals = new IValue[args.size()];
                 for (int i = 0; i < args.size(); i++) {
                     vals[i] = args.get(i);
                 }
-                IConstructor ret = vf.constructor(constructor.getConstructorType(), vals, constructor.asWithKeywordParameters().getParameters());
+                IConstructor ret = vf.constructor(constructor.getConstructorType(), vals,
+                    constructor.asWithKeywordParameters().getParameters());
                 return ret;
             }
-            
-            
         });
     }
 
