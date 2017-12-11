@@ -37,7 +37,7 @@ public class RascalManifest {
     public static final String DEFAULT_SRC = "src";
     public static final String DEFAULT_COURSES = "courses";
     protected static final String SOURCE = "Source";
-    protected static final String COURSES = "Cources";
+    protected static final String COURSES = "Courses";
     protected static final String META_INF = "META-INF";
     public static final String META_INF_RASCAL_MF = META_INF + "/RASCAL.MF";
     protected static final String MAIN_MODULE = "Main-Module";
@@ -48,7 +48,7 @@ public class RascalManifest {
     public Manifest getDefaultManifest() {
         Manifest manifest = new Manifest();
         Attributes mainAttributes = manifest.getMainAttributes();
-        mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "0.0.2");
+        mainAttributes.put(Attributes.Name.MANIFEST_VERSION, "0.0.1");
         mainAttributes.put(new Attributes.Name(SOURCE), DEFAULT_SRC);
         mainAttributes.put(new Attributes.Name(MAIN_MODULE), DEFAULT_MAIN_MODULE);
         mainAttributes.put(new Attributes.Name(MAIN_FUNCTION), DEFAULT_MAIN_FUNCTION);
@@ -109,23 +109,23 @@ public class RascalManifest {
     /**
      * @return the name of the main function of a deployment unit, or 'null' if none is configured.
      */
-    public String getCoursesFolder(File jarFile) {
-        return getManifestCoursesFolder(manifest(jarFile));
+    public List<String> getCoursesFolder(File jarFile) {
+        return getManifestCourses(manifest(jarFile));
     }
 
     /**
      * @return the name of the main function of a deployment unit, or 'null' if none is configured.
      */
-    public String getCoursesFolder(Class<?> clazz) {
-        return getManifestCoursesFolder(manifest(clazz));
+    public List<String> getCourses(Class<?> clazz) {
+        return getManifestCourses(manifest(clazz));
     }
 
 
     /**
      * @return the name of the main function of a deployment unit, or 'null' if none is configured.
      */
-    public String getCoursesFolder(JarInputStream jarStream) {
-        return getManifestCoursesFolder(manifest(jarStream));
+    public List<String> getCoursesFolder(JarInputStream jarStream) {
+        return getManifestCourses(manifest(jarStream));
     }
 
     /**
@@ -216,8 +216,8 @@ public class RascalManifest {
     /**
      * @return the name of the main function of a deployment unit, or 'null' if none is configured.
      */
-    public String getManifestCoursesFolder(InputStream project) {
-        return getManifestAttribute(project, COURSES, null);
+    public List<String> getManifestCourses(InputStream project) {
+        return getManifestAttributeList(project, COURSES, null);
     }
     
     /**
