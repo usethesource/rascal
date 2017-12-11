@@ -38,11 +38,14 @@ import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.parser.gtd.util.PointerKeyedHashMap;
 import org.rascalmpl.semantics.dynamic.Expression.CallOrTree;
+import org.rascalmpl.semantics.dynamic.Expression.TypedVariable;
 import org.rascalmpl.semantics.dynamic.Literal;
 import org.rascalmpl.semantics.dynamic.Name;
 import org.rascalmpl.semantics.dynamic.QualifiedName;
 import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
 import org.rascalmpl.semantics.dynamic.Tree;
+import org.rascalmpl.semantics.dynamic.Type.User;
+import org.rascalmpl.semantics.dynamic.UserType;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -469,6 +472,22 @@ public class ASTBuilder {
             org.rascalmpl.semantics.dynamic.Expression.Literal literalExpression =
                 new org.rascalmpl.semantics.dynamic.Expression.Literal(loc, null, stringLiteral);
             return literalExpression;
+        }
+        
+        if (value instanceof ITree) { //found a hole
+            IList args = TreeAdapter.getArgs((ITree) value);
+            IList subArgs = TreeAdapter.getArgs((ITree) args.get(0));
+            String variableType = TreeAdapter.yield((ITree) subArgs.get(2));
+            String variableName = TreeAdapter.yield((ITree) subArgs.get(4));
+            
+            Name.Lexical typeNameLexical = new Name.Lexical(loc, null, variableType);
+            Default def = new Default(loc, null, Arrays.asList(typeNameLexical));
+            UserType.Name userType_Name = new UserType.Name(loc, null, def);
+            User user = new User(loc, null, userType_Name);
+            Name.Lexical nameLexical = new Name.Lexical(loc, null, variableName);
+            
+            TypedVariable typedVariable = new TypedVariable(loc, (ITree) value, user, nameLexical);
+            return typedVariable;
         }
 
         if (value instanceof IList) {
