@@ -589,7 +589,8 @@ public abstract class Import {
             String input = replaceAntiQuotesByHoles2(eval, env, lit, antiquotes, corrections);
             Result<IValue> result = functions.get(0).call(new Type[] {TypeFactory.getInstance().stringType()}, new IValue[] {eval.getValueFactory().string(input)}, null);
 //            eval.getStdOut().println("Result: "+result);
-            return ((IRascalValueFactory) eval.getValueFactory()).quote((INode) result.getValue());
+            IValue ret = replaceHolesByAntiQuotes2(eval, (IConstructor) result.getValue(), antiquotes, corrections);
+            return ((IRascalValueFactory) eval.getValueFactory()).quote((INode) ret);
         }
     }
     IGTD<IConstructor, ITree, ISourceLocation> parser = env.getBootstrap() ? new RascalParser() : getParser(eval, env, TreeAdapter.getLocation(tree), false);
