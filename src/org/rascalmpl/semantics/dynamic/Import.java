@@ -843,31 +843,31 @@ public abstract class Import {
     }
 
   
-    private static String createHole2(IEvaluator<Result<IValue>> ctx, ModuleEnvironment env, ITree part, Map<IValue, ITree> antiquotes) {
+    private static String createHole2(IEvaluator<Result<IValue>> ctx, ModuleEnvironment env, ITree part,
+        Map<IValue, ITree> antiquotes) {
         final Type stringType = TypeFactory.getInstance().stringType();
 
         String literalHole = TreeAdapter.yield(part);
-        String typ = literalHole.substring(1,literalHole.indexOf(" "));
+        String typ = literalHole.substring(1, literalHole.indexOf(" "));
         Type type = env.getAbstractDataType(typ);
-        
+
         List<AbstractFunction> functions = new ArrayList<>();
         env.getAllFunctions(TypeFactory.getInstance().tupleType(stringType, type), functions);
-//        ctx.getStdOut().println("Found "+functions.size()+" functions returning "+stringType);
-//        functions.stream().forEach(it->ctx.getStdOut().println("* "+it));
-        
+
         List<AbstractFunction> functionsFiltered = functions.stream()
-            .filter(it -> it.hasTag("concreteHole") && it.getArity() == 1 && it.getFunctionType().getArgumentTypes().getFieldType(0).equals(stringType))
+            .filter(it -> it.hasTag("concreteHole") && it.getArity() == 1
+                && it.getFunctionType().getArgumentTypes().getFieldType(0).equals(stringType))
             .collect(Collectors.toList());
-//        functionsFiltered.stream().forEach(it->ctx.getStdOut().println("Function: "+it));
-        if (functionsFiltered.size()>0){
-            Result<IValue> result = functionsFiltered.get(0).call(new Type[] {stringType}, new IValue[] {ctx.getValueFactory().string(antiquotes.size()+"")}, null);
+        if (functionsFiltered.size() > 0) {
+            Result<IValue> result = functionsFiltered.get(0).call(new Type[] {stringType},
+                new IValue[] {ctx.getValueFactory().string(antiquotes.size() + "")}, null);
             ITuple holeInfo = (ITuple) result.getValue();
-            
+
             antiquotes.put(holeInfo.get(1), part);
             return ((IString) holeInfo.get(0)).getValue();
         }
         throw new RuntimeException("FIXME");
-      }
+    }
 
   private static String createHole(IEvaluator<Result<IValue>> ctx, ITree part, Map<String, ITree> antiquotes) {
     String ph = ctx.getParserGenerator().createHole(part, antiquotes.size());
