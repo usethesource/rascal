@@ -257,11 +257,10 @@ public class Bootstrap {
                 time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[1], "|noreloc:///|", targetFolder));
                 
                 // Identify jars that contain new names and should be included in the classpath
-                String renamedJars = System.getProperty("user.home") 
-                    + "/.m2/repository/io/usethesource/vallang/0.7.0-SNAPSHOT/vallang-0.7.0-SNAPSHOT.jar";
+                String renamedJars = "";// System.getProperty("user.home") + "/.m2/repository/io/usethesource/vallang/0.7.0-SNAPSHOT/vallang-0.7.0-SNAPSHOT.jar";
                 if(!renamedJars.isEmpty()){
-                    rvm[0] += ":" + renamedJars;
-                    rvm[1] += ":" + renamedJars;
+                    rvm[0] += File.pathSeparator + renamedJars;
+                    rvm[1] += File.pathSeparator + renamedJars;
                 }
                 
                 time("Phase 2", () -> compilePhase(tmpDir, 2, librarySource, rvm[0], kernel[1], rvm[1], "|std:///|", targetFolder));
