@@ -237,7 +237,7 @@ public class Bootstrap {
                 
                 String[] rvm    = new String[] { 
                         getDeployedVersion(tmpDir, versionToUse).toAbsolutePath().toString(), // this is the released jar
-                        targetFolder + ":" + /*deps*/ classpath /* this is the pre-compiled target folder with the new RVM implementation */  
+                        targetFolder + File.pathSeparator + /*deps*/ classpath /* this is the pre-compiled target folder with the new RVM implementation */  
                 };
                 
                 
