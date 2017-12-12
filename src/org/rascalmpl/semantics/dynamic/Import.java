@@ -879,6 +879,15 @@ public abstract class Import {
         final Map<IValue, ITree> antiquotes, final SortedMap<Integer, Integer> corrections) {
         return constructor.accept(new IdentityVisitor<ImplementationError>() {
             private final IValueFactory vf = eval.getValueFactory();
+            
+            @Override
+            public IValue visitList(IList o) throws ImplementationError {
+                IListWriter ret = vf.listWriter();
+                for (IValue element : o) {
+                    ret.append(element.accept(this));
+                }
+                return ret.done();
+            }
 
             @Override
             public IValue visitConstructor(IConstructor o) throws ImplementationError {
