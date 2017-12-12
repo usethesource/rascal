@@ -494,7 +494,7 @@ public class ASTBuilder {
                         new org.rascalmpl.ast.HexIntegerLiteral.Lexical(loc, null, intValue);
                     return new IntegerLiteral.HexIntegerLiteral(loc, null, hexLiteral);
                 }
-                if (intValue.contains("0")) {
+                if (intValue.startsWith("0")) {
                     org.rascalmpl.ast.OctalIntegerLiteral octalLiteral =
                         new org.rascalmpl.ast.OctalIntegerLiteral.Lexical(loc, null, intValue);
                     return new IntegerLiteral.OctalIntegerLiteral(loc, null, octalLiteral);
