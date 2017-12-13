@@ -27,6 +27,7 @@ import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.BooleanLiteral;
 import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Commands;
+import org.rascalmpl.ast.DecimalIntegerLiteral;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.KeywordArguments_Expression;
 import org.rascalmpl.ast.Module;
@@ -488,20 +489,9 @@ public class ASTBuilder {
         if (value instanceof INumber) {
             if (value instanceof IInteger) {
                 IInteger iinteger = (IInteger) value;
-                String intValue = iinteger.getStringRepresentation();
-                if (intValue.startsWith("0x")) {
-                    org.rascalmpl.ast.HexIntegerLiteral hexLiteral =
-                        new org.rascalmpl.ast.HexIntegerLiteral.Lexical(loc, null, intValue);
-                    return new IntegerLiteral.HexIntegerLiteral(loc, null, hexLiteral);
-                }
-                if (intValue.startsWith("0")) {
-                    org.rascalmpl.ast.OctalIntegerLiteral octalLiteral =
-                        new org.rascalmpl.ast.OctalIntegerLiteral.Lexical(loc, null, intValue);
-                    return new IntegerLiteral.OctalIntegerLiteral(loc, null, octalLiteral);
-                }
-                org.rascalmpl.ast.DecimalIntegerLiteral decimalLiteral =
-                    new org.rascalmpl.ast.DecimalIntegerLiteral.Lexical(loc, null, intValue);
-                return new IntegerLiteral.DecimalIntegerLiteral(loc, (ITree) value, decimalLiteral);
+                DecimalIntegerLiteral decimalLexical =
+                    new DecimalIntegerLiteral.Lexical(loc, null, iinteger.getStringRepresentation());
+                return new IntegerLiteral.DecimalIntegerLiteral(loc, (ITree) value, decimalLexical);
             }
             if (value instanceof IRational) {
                 IRational irational = (IRational) value;
