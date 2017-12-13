@@ -563,12 +563,12 @@ public class ASTBuilder {
         if (value instanceof IList) {
             IList list = (IList) value;
 
-            List<Expression> items = new ArrayList<>();
+            List<Expression> elements = new ArrayList<>();
             for (int i = 0; i < list.length(); i++) {
-                items.add((Expression) liftExternalRec(list.get(i), lexicalParent, layoutOfParent));
+                elements.add((Expression) liftExternalRec(list.get(i), lexicalParent, layoutOfParent));
             }
 
-            return new org.rascalmpl.semantics.dynamic.Expression.List(loc, null, items);
+            return new org.rascalmpl.semantics.dynamic.Expression.List(loc, null, elements);
         }
 
         if (value instanceof IConstructor) {
