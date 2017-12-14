@@ -526,20 +526,23 @@ public class ASTBuilder {
             return literalExpression;
         }
 
-        if (value instanceof ITree) { // found a hole
-            IList args = TreeAdapter.getArgs((ITree) value);
-            IList subArgs = TreeAdapter.getArgs((ITree) args.get(0));
-            String variableType = TreeAdapter.yield((ITree) subArgs.get(2));
-            String variableName = TreeAdapter.yield((ITree) subArgs.get(4));
+        if (value instanceof ITree) {
+            ITree tree = (ITree) value;
+            if ("hole".equals(TreeAdapter.getConstructorName(tree))) {
+                IList args = TreeAdapter.getArgs(tree);
+                IList subArgs = TreeAdapter.getArgs(tree);
+                String variableType = TreeAdapter.yield((ITree) subArgs.get(2));
+                String variableName = TreeAdapter.yield((ITree) subArgs.get(4));
 
-            Name.Lexical typeNameLexical = new Name.Lexical(loc, null, variableType);
-            Default def = new Default(loc, null, Arrays.asList(typeNameLexical));
-            UserType.Name userType_Name = new UserType.Name(loc, null, def);
-            User user = new User(loc, null, userType_Name);
-            Name.Lexical nameLexical = new Name.Lexical(loc, null, variableName);
+                Name.Lexical typeNameLexical = new Name.Lexical(loc, null, variableType);
+                Default def = new Default(loc, null, Arrays.asList(typeNameLexical));
+                UserType.Name userType_Name = new UserType.Name(loc, null, def);
+                User user = new User(loc, null, userType_Name);
+                Name.Lexical nameLexical = new Name.Lexical(loc, null, variableName);
 
-            TypedVariable typedVariable = new TypedVariable(loc, (ITree) value, user, nameLexical);
-            return typedVariable;
+                TypedVariable typedVariable = new TypedVariable(loc, (ITree) value, user, nameLexical);
+                return typedVariable;
+            }
         }
 
         if (value instanceof ISet) {
