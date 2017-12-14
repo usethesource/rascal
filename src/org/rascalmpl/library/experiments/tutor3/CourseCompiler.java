@@ -5,9 +5,11 @@ import static org.asciidoctor.Asciidoctor.Factory.create;
 import static org.asciidoctor.AttributesBuilder.attributes;
 import static org.asciidoctor.OptionsBuilder.options;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
@@ -60,9 +62,11 @@ public class CourseCompiler {
 	  fout.close();
 	}
 
-	static void runAsciiDocter(Path srcPath, String courseName, Path destPath, PrintWriter err) throws IOException {
-	  Asciidoctor asciidoctor = create();
-
+    static void runAsciiDocter(Path srcPath, String courseName, Path destPath, PrintWriter err) throws IOException {
+        runAsciiDoctor(create(), srcPath, courseName, destPath, err);
+    }
+    
+	static void runAsciiDoctor(Asciidoctor asciidoctor, Path srcPath, String courseName, Path destPath, PrintWriter err) throws IOException {
 	  Path courseDestDir = destPath.resolve(courseName);
 
 	  Attributes attributes = attributes()
@@ -81,13 +85,66 @@ public class CourseCompiler {
 	      .docType("book")
 	      .destinationDir(new File(courseDestDir.toString()))
 	      .baseDir(new File(courseDestDir.toString()))
-	      .toFile(new File(courseDestDir + "/" + "index.html"))
+	      .toFile(courseIndexFile(courseDestDir))
 	      .get();
 
-	  asciidoctor.convertFile(new File(courseDestDir.resolve(courseName + ".adoc").toString()),  options);
+	  asciidoctor.convertFile(new File(courseADocFile(courseName, courseDestDir).toString()),  options);
+	}
+
+    public static File courseIndexFile(Path courseDestDir) {
+        return new File(courseDestDir + "/" + "index.html");
+    }
+	
+	static void runAsciiDoctorCommand(String classpath, Path srcPath, String courseName, Path destPath, PrintWriter err) throws IOException {
+	    Path courseDestDir = destPath.resolve(courseName);
+
+	    String cmd = 
+	        "java -cp " + classpath
+	        + " org.asciidoctor.cli.AsciidoctorInvoker"
+	        + " -n"                                             // numbered sections
+	        + " -v"                                             // verbose
+	        + " -a toc-title=" + courseName                     // table of contents
+	        + " -a toc=left"                                    // at left side
+	        //+ " -a toclevels=2"
+	        + " -a linkcss"                                     // link the style sheet
+	        + " -a stylesheet=" + "../css/style.css"               // use our own style sheet
+	        + " -d book"                                        // book style
+	        + " -D " + courseDestDir                            // destination directory
+	        + " -B " + courseDestDir                            // base directory
+	        + " " + courseADocFile(courseName, courseDestDir) // the adoc source file
+	        + " -o " + courseIndexFile(courseDestDir)       // the html output file
+	        ;
+	    Process p = Runtime.getRuntime().exec(cmd);
+	    
+	    try (BufferedReader input = new BufferedReader(new InputStreamReader(p.getErrorStream()))) {
+	        String line = null;
+
+	        while ((line = input.readLine()) != null)
+	        {
+	            System.err.println(line);
+	            err.println(line);
+	        }
+
+	        try {
+	            int exitVal = p.waitFor();
+	            if (exitVal != 0){
+	                err.println("asciidoctor exits with error code " + exitVal);
+	            }
+	        } catch (InterruptedException e) {
+	            e.printStackTrace(err);
+	        }
+	    }
+	}
+
+    public static Path courseADocFile(String courseName, Path courseDestDir) {
+        return courseDestDir.resolve(courseName + ".adoc");
+    }
+	
+	public static void compileCourse(Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
+	    compileCourse(create(), srcPath, courseName, destPath, libSrcPath, pcfg, executor);
 	}
 	
-    public static void compileCourse(Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
+    public static void compileCourse(Asciidoctor dr, Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
 		try {
 		    copyStandardFilesPerCourse(srcPath, courseName, destPath);
 		    
@@ -96,11 +153,26 @@ public class CourseCompiler {
 	        o.buildCourseMap();
 	        o.buildConcepts();
 	        
-			runAsciiDocter(srcPath, courseName, destPath, executor.err);
+			runAsciiDoctor(dr, srcPath, courseName, destPath, executor.err);
 		} catch (IOException e) {
 			System.err.println("Cannot run asciidoctor: " + e.getMessage());
 		}
 	}
+    
+    public static void compileCourseCommand(String classpath, Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
+        try {
+            copyStandardFilesPerCourse(srcPath, courseName, destPath);
+            
+            Onthology o = new Onthology(srcPath, courseName, destPath, libSrcPath, pcfg, executor);
+            
+            o.buildCourseMap();
+            o.buildConcepts();
+            
+            runAsciiDoctorCommand(classpath, srcPath, courseName, destPath, executor.err);
+        } catch (IOException e) {
+            System.err.println("Cannot run asciidoctor: " + e.getMessage());
+        }
+    }
 	
 	private static void copyStandardFilesPerCourse(Path srcPath, String courseName, Path destPath) throws IOException {
 		ArrayList<String> files  = new ArrayList<>();
