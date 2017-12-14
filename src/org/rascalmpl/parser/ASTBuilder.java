@@ -530,7 +530,7 @@ public class ASTBuilder {
             ITree tree = (ITree) value;
             if ("hole".equals(TreeAdapter.getConstructorName(tree))) {
                 IList args = TreeAdapter.getArgs(tree);
-                IList subArgs = TreeAdapter.getArgs(tree);
+                IList subArgs = TreeAdapter.getArgs((ITree) args.get(0));
                 String variableType = TreeAdapter.yield((ITree) subArgs.get(2));
                 String variableName = TreeAdapter.yield((ITree) subArgs.get(4));
 
@@ -540,7 +540,7 @@ public class ASTBuilder {
                 User user = new User(loc, null, userType_Name);
                 Name.Lexical nameLexical = new Name.Lexical(loc, null, variableName);
 
-                TypedVariable typedVariable = new TypedVariable(loc, (ITree) value, user, nameLexical);
+                TypedVariable typedVariable = new TypedVariable(loc, tree, user, nameLexical);
                 return typedVariable;
             }
         }
