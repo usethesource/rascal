@@ -344,7 +344,7 @@ void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditio
         condList = [cond | Expression cond <- conditions];
         tb.fact(current, avalue());
         
-        tb.requireEager("if then", current, condList, (){ checkConditions(condList); });
+        tb.requireEager("if then", current, condList + thenPart, (){ checkConditions(condList); });
         
         beginPatternScope("conditions", tb);
         collect(condList, tb);
@@ -363,7 +363,7 @@ void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditio
         condList = [cond | cond <- conditions];
         storeExcludeUse(conditions, elsePart, tb); // variable occurrences in elsePart may not refer to variables defined in conditions
         
-        tb.calculateEager("if then else", current, condList + [thenPart, elsePart],
+        tb.calculate("if then else", current, condList + [thenPart, elsePart],
             AType (){
                 checkConditions(condList);
                 return lub(getType(thenPart), getType(elsePart));
@@ -498,8 +498,9 @@ AType computeAssignmentRhsType(Statement current, AType lhsType, "=", AType rhsT
     return rhsType;
 }
     
-AType computeAssignmentRhsType(Statement current, AType lhsType, "+=", AType rhsType)
-    = computeAdditionType(current, lhsType, rhsType);
+AType computeAssignmentRhsType(Statement current, AType lhsType, "+=", AType rhsType){
+    return computeAdditionType(current, lhsType, rhsType);
+    }
 
 AType computeAssignmentRhsType(Statement current, AType lhsType, "-=", AType rhsType){
     res =  computeSubtractionType(current, lhsType, rhsType); 
@@ -516,7 +517,7 @@ AType computeAssignmentRhsType(Statement current, AType lhsType, "&=", AType rhs
     = computeIntersectionType(current, lhsType, rhsType);  
     
 AType computeAssignmentRhsType(Statement current, AType lhsType, "?=", AType rhsType){
-    return rhsType; //lub(lhsType, rhsType);  // <===
+    return lub(lhsType, rhsType);  // <===
     } 
    
 // <<=
@@ -539,7 +540,7 @@ void checkAssignment(Statement current, (Assignable) `<QualifiedName name>`, str
            tb.useLub(name, {variableId()});
         }
     }
-    tb.calculate("assignment to `<name>`", current, [statement],
+    tb.calculate("assignment to `<name>`", current, [name, statement],    // TODO: add name to dependencies?
         AType () { nameType = getType(name);
                    asgType = computeAssignmentRhsType(current, nameType, operator, getType(statement));
                    if(operator == "=") 
@@ -552,8 +553,9 @@ AType computeReceiverType(Statement current, (Assignable) `<QualifiedName name>`
     return getType(name); //expandUserTypes(getType(name), scope);
 }
 
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, Key scope)
-    = computeSubscriptionType(current, computeReceiverType(current, receiver, scope), [getType(subscript)]);
+AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, Key scope){
+    return computeSubscriptionType(current, computeReceiverType(current, receiver, scope), [getType(subscript)]);
+}
     
 AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, Key scope){
     return computeSliceType(computeReceiverType(current, receiver, scope), getType(optFirst), aint(), getType(optLast));
@@ -582,7 +584,7 @@ AType computeReceiverType(Statement current, (Assignable) `\< <{Assignable ","}+
 void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, str operator, Statement rhs, TBuilder tb){
    names = getReceiver(receiver, tb);
    
-   tau = tb.newTypeVar();
+   tau = tb.newTypeVar(names[0]);
    tb.define(unescape("<names[0]>"), variableId(), names[0], defLub([], AType(){ return getType(tau); }));
    scope = tb.getScope();
    
@@ -640,7 +642,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <O
    if(optFirst is noExpression) tb.fact(optFirst, aint());
    if(optLast is noExpression) tb.fact(optLast, aint());
    
-   tau = tb.newTypeVar();
+   tau = tb.newTypeVar(names[0]);
    tb.define(unescape("<names[0]>"), variableId(), names[0], defLub([], AType(){ return getType(tau); }));
    scope = tb.getScope();
    
@@ -656,7 +658,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <O
    names = getReceiver(receiver, tb);
    if(optFirst is noExpression) tb.fact(optFirst, aint());
    if(optLast is noExpression) tb.fact(optLast, aint());
-   tau = tb.newTypeVar();
+   tau = tb.newTypeVar(names[0]);
    tb.define(unescape("<names[0]>"), variableId(), names[0], defLub([], AType(){ return getType(tau); }));
    scope = tb.getScope();
    
@@ -695,7 +697,7 @@ AType computeSliceAssignableType(Statement current, AType receiverType, AType fi
 
 void checkAssignment(Statement current, (Assignable) `<Assignable receiver> . <Name field>`, str operator, Statement rhs, TBuilder tb){
    names = getReceiver(receiver, tb);
-   tau = tb.newTypeVar();
+   tau = tb.newTypeVar(names[0]);
    tb.define(unescape("<names[0]>"), variableId(), names[0], defLub([], AType(){ return getType(tau); }));
    scope = tb.getScope();
    
@@ -775,7 +777,7 @@ AType computeFieldAssignableType(Statement current, AType receiverType, str fiel
 
 void checkAssignment(Statement current, (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, str operator, Statement rhs, TBuilder tb){
    names = getReceiver(receiver, tb);
-   tau = tb.newTypeVar();
+   tau = tb.newTypeVar(names[0]);
    tb.define(unescape("<names[0]>"), variableId(), names[0], defLub([], AType(){ return getType(tau); }));
    scope = tb.getScope();
    
@@ -787,7 +789,8 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> ? <E
 }
 
 AType computeDefaultAssignableType(Statement current, AType receiverType, AType defaultType, str operator, AType rhs, Key scope){
-    finalReceiverType = computeAssignmentRhsType(current, receiverType, operator, rhs);
+//println("computeDefaultAssignableType: <receiverType>, <defaultType>, <rhs>");
+    finalReceiverType = computeAssignmentRhsType(current, lub(receiverType, defaultType), operator, rhs);
     finalDefaultType = computeAssignmentRhsType(current, defaultType, operator, rhs);
     comparable(finalReceiverType, finalDefaultType) || reportError(current, "Receiver and default expression lead to incomparable types: <fmt(finalReceiverType)> versus <fmt(finalDefaultType)>");
     return receiverType;
@@ -803,21 +806,27 @@ void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable 
    names = getReceiver(receiver, tb);
    flatNames = ["<nm>" | nm <- names];
    namesInRhs = getNames(rhs);
-   taus = [tb.newTypeVar() | nm <- names];
+   taus = [tb.newTypeVar(nm) | nm <- names];
    for(int i <- index(names), flatNames[i] notin namesInRhs){tb.define(unescape("<names[i]>"), variableId(), names[i], defLub([rhs], makeDef(taus, i)));}
   
    scope = tb.getScope();
    
    tb.calculate("assignable with tuple", current, [rhs], 
        AType (){ 
+                if(flatNames[0] == "ordering"){
+                    println("***");
+                }
            recType  = computeReceiverType(current, receiver, scope);
            rhsType  = computeAssignmentRhsType(current, recType, operator, getType(rhs));
+         
            if(!isTupleType(rhsType)) reportError(current, "Tuple type required, found <fmt(rhsType)>");
+           recFields = getTupleFields(recType);
            rhsFields = getTupleFields(rhsType);
-           if(size(names) != size(rhsFields)) reportError(statement, "Tuple type required of arity <size(names)>, found arity <size(rhsFields)>");
+           if(size(names) != size(rhsFields)) reportError(statement, "Tuple type required of arity <size(names)>, found arity <size(rhsFields)>");           
+          
            for(int i <- index(names)){
                if(isFullyInstantiated(getType(names[i]))){
-                  comparable(rhsFields[i], getType(names[i])) || reportError(names[i], "Value of type <fmt(rhsFields[i])> cannot be assigned to <fmt("<names[i]>")> of type <fmt(getType(names[i]))>");
+                  comparable(rhsFields[i], recFields[i]) || reportError(names[i], "Value of type <fmt(rhsFields[i])> cannot be assigned to <fmt("<names[i]>")> of type <fmt(recFields[i])>");
                   //if(flatNames[i] in namesInRhs){
                     taus[i] = getType(names[i]);
                   //}
@@ -843,9 +852,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> @ <N
    tb.calculate("assignable with annotation", current, [n, rhs], 
       AType (){ 
            rt = computeReceiverType(current, receiver, scope);
-           res = computeAnnoAssignableType(current, rt,  unescape("<n>"), operator, getType(rhs), scope);
-           println("checkAssignment @, res = <res>");
-           return res;
+           return computeAnnoAssignableType(current, rt,  unescape("<n>"), operator, getType(rhs), scope);
          });
 }
 
@@ -859,7 +866,7 @@ AType computeAnnoAssignableType(Statement current, AType receiverType, str annoN
            for(<key, idr, tp> <- overloads, aanno(_, onType, annoNameType) := tp, subtype(receiverType, onType)){   //TODO explore all alternatives
                return annoNameType;
            }
-           reportError(current, "Annotation on <fmt(receiverTpe)> cannot be resolved from <fmt(annoNameType)>");
+           reportError(current, "Annotation on <fmt(receiverType)> cannot be resolved from <fmt(annoNameType)>");
         } else
         if(aanno(_, onType, annoType) := annoNameType){
            return annoNameType;
@@ -900,7 +907,7 @@ void collect(current:(Statement) `throw <Statement statement>`, TBuilder tb){
 
 void collect(current: (Statement) `<Type tp> <{Variable ","}+ variables>;`, TBuilder tb){
     declaredType = convertType(tp, tb);
-    declaredTypeParams = collectRascalTypeParams(declaredType);
+    declaredTypeParams = collectUnlabelledRascalTypeParams(declaredType);
     scope = tb.getScope();
     AType tau = declaredType;
     if(isEmpty(declaredTypeParams)){
@@ -909,7 +916,7 @@ void collect(current: (Statement) `<Type tp> <{Variable ","}+ variables>;`, TBui
        if(size([v | v <- variables]) > 1){
           tb.reportError(current, "Parameterized declared type not allowed with multiple initializations");
        }
-       tau = tb.newTypeVar();
+       tau = tb.newTypeVar(tp);
     }
     
     for(v <- variables){
@@ -919,7 +926,7 @@ void collect(current: (Statement) `<Type tp> <{Variable ","}+ variables>;`, TBui
                tb.calculate("declaration of variable `<v.name>`", v, [v.initial],   
                    AType (){ 
                        initialType = getType(v.initial); 
-                       initialTypeParams = collectRascalTypeParams(initialType);
+                       initialTypeParams = collectUnlabelledRascalTypeParams(initialType);
                        declaredType = expandUserTypes(declaredType, scope);
                        if(!isEmpty(initialTypeParams)){
                           try {
@@ -939,7 +946,7 @@ void collect(current: (Statement) `<Type tp> <{Variable ","}+ variables>;`, TBui
                tb.calculate("declaration of variable `<v.name>`, declared with parametrized type", v.name, [v.initial],
                    AType () { 
                        initialType = getType(v.initial); 
-                       initialTypeParams = collectRascalTypeParams(initialType);
+                       initialTypeParams = collectUnlabelledRascalTypeParams(initialType);
                        try {
                          declaredType = expandUserTypes(declaredType, scope);
                          Bindings bindings = matchRascalTypeParams(declaredType, initialType, (), bindIdenticalVars=true);

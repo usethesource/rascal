@@ -9,47 +9,130 @@ import lang::rascalcore::check::ATypeInstantiation;
 
 import lang::rascal::\syntax::Rascal;
 
+AType unaryOp(str op, AType(Tree, AType) computeType, Tree current, AType t1){
+//println("unaryOp: <op>");
+    t1 = instantiate(t1);
+    if(!isFullyInstantiated(t1)){
+       throw TypeUnavailable();
+    }
+    if(overloadedAType(rel[Key, IdRole, AType] overloads) := t1){
+        bin_overloads = {};
+        for(<key, idr, tp> <- overloads){
+            try {
+                bin_overloads += <key, idr, unaryOp(op, computeType, current, tp)>;
+             } catch checkFailed(set[Message] msgs): {
+                ; // do nothing and try next overload
+             } catch e: {
+                ; // do nothing and try next overload
+             }
+        }
+        if(isEmpty(bin_overloads)) reportError(current, "<fmt(op)> cannot be applied to <fmt(t1)>");
+        return overloadedAType(bin_overloads);
+    }
+    
+    return computeType(current, t1);
+}
+
+AType binaryOp(str op, AType(Tree, AType, AType) computeType, Tree current, AType t1, AType t2){
+//println("binaryOp: <op>, <current>, <t1>, <t2>");
+    t1 = instantiate(t1);
+    t2 = instantiate(t2);
+    if(!(isFullyInstantiated(t1) && isFullyInstantiated(t2))){
+       throw TypeUnavailable();
+    }
+    if(overloadedAType(rel[Key, IdRole, AType] overloads) := t1){
+        bin_overloads = {};
+        for(<key, idr, tp> <- overloads){
+            try {
+                bin_overloads += <key, idr, binaryOp(op, computeType, current, tp, t2)>;
+             } catch checkFailed(set[Message] msgs): {
+                ; // do nothing and try next overload
+             } catch e: {
+                ; // do nothing and try next overload
+             }
+        }
+        if(isEmpty(bin_overloads)) reportError(current, "<fmt(op)> cannot be applied to <fmt(t1)> and <fmt(t2)>");
+        return overloadedAType(bin_overloads);
+    }
+    
+    if(overloadedAType(rel[Key, IdRole, AType] overloads) := t2){
+        bin_overloads = {};
+        for(<key, idr, tp> <- overloads){
+            try {
+                bin_overloads += < key, idr, binaryOp(op, computeType, current, t1, tp)>;
+             } catch checkFailed(set[Message] msgs): {
+                ; // do nothing and try next overload
+             } catch e: {
+                ; // do nothing and try next overload
+             }
+        }
+        if(isEmpty(bin_overloads)) reportError(current, "<fmt(op)> cannot be applied to <fmt(t1)> and <fmt(t2)>");
+        return overloadedAType(bin_overloads);
+    }
+    return computeType(current, t1, t2);
+}
+
+@doc{Calculate the arith type for the numeric types, taking account of coercions.}
+public AType numericArithTypes(AType l, AType r) {
+    if (isIntType(l) && isIntType(r)) return aint();
+    if (isIntType(l) && isRatType(r)) return arat();
+    if (isIntType(l) && isRealType(r)) return areal();
+    if (isIntType(l) && isNumType(r)) return anum();
+
+    if (isRatType(l) && isIntType(r)) return arat();
+    if (isRatType(l) && isRatType(r)) return arat();
+    if (isRatType(l) && isRealType(r)) return areal();
+    if (isRatType(l) && isNumType(r)) return anum();
+
+    if (isRealType(l) && isIntType(r)) return areal();
+    if (isRealType(l) && isRatType(r)) return areal();
+    if (isRealType(l) && isRealType(r)) return areal();
+    if (isRealType(l) && isNumType(r)) return anum();
+
+    if (isNumType(l) && isIntType(r)) return anum();
+    if (isNumType(l) && isRatType(r)) return anum();
+    if (isNumType(l) && isRealType(r)) return anum();
+    if (isNumType(l) && isNumType(r)) return anum();
+
+    throw "Only callable for numeric types, given <prettyPrintType(l)> and <prettyPrintType(r)>";
+}
+
 // ---- is
 
 void collect(current: (Expression) `<Expression e> is <Name n>`, TBuilder tb){
-    tb.fact(current, abool());
-    tb.require("is", current, [e],
-        () { t1 = getType(e);
-             if(isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) return;
-             reportError(current, "Invalid type: expected node, ADT, or concrete syntax types, found <fmt(t1)>");
-           });
-    
+    tb.calculate("is", current, [e], AType () { return unaryOp("is", computeIsType, current, getType(e));  });
     collect(e, tb); 
-} 
+}
+
+AType computeIsType(Tree current, AType t1){
+    if(isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) return abool();
+    reportError(current, "Invalid type: expected node, ADT, or concrete syntax types, found <fmt(t1)>");
+}
 
 // ---- has
 
 void collect(current: (Expression) `<Expression e> has <Name n>`, TBuilder tb){
-    tb.fact(current, abool());
-    tb.require("has", current, [e],
-        () { t1 = getType(e);
-             if (isRelType(t1) || isListRelType(t1) || isTupleType(t1) || isADTType(t1) || isNonTerminalType(t1) || isNodeType(t1)) return;
-             reportError(current, "Invalid type: expected relation, tuple, node or ADT types, found <fmt(t1)>");
-           });
-    
+    tb.calculate("has", current, [e], AType () { return unaryOp("has", computeHasType, current, getType(e)); });
     collect(e, tb); 
 } 
+
+AType computeHasType(Tree current, AType t1){
+    if (isRelType(t1) || isListRelType(t1) || isTupleType(t1) || isADTType(t1) || isNonTerminalType(t1) || isNodeType(t1)) return abool();
+             reportError(current, "Invalid type: expected relation, tuple, node or ADT types, found <fmt(t1)>");
+
+}
 
 // ---- transitive closure
  
 void collect(current: (Expression) `<Expression arg> +`, TBuilder tb){
     tb.calculate("transitive closure", current, [arg],
-        AType() { return computeTransClosureType(current, getType(arg)); });
+        AType() { return unaryOp("transitive closure", computeTransClosureType, current, getType(arg)); });
     
     collect(arg, tb); 
 } 
 
-AType computeTransClosureType(Expression current, AType t1){
+AType computeTransClosureType(Tree current, AType t1){
 
-    t1 = instantiate(t1);
-    if(!isFullyInstantiated(t1)){
-       throw TypeUnavailable();
-    }
     // Special case: if we have list[void] or set[void], these become lrel[void,void] and rel[void,void]
     if (isListType(t1) && isVoidType(getListElementType(t1)))
         return makeListRelType([makeVoidType(),makeVoidType()]);
@@ -73,38 +156,11 @@ AType computeTransClosureType(Expression current, AType t1){
 // ---- reflexive transitive closure
 
 void collect(current: (Expression) `<Expression arg> *`, TBuilder tb){
-    tb.calculate("transitive clsoure", current, [arg],
-        AType() { return computeReflexiveTransClosureType(current, getType(arg)); });
+    tb.calculate("reflexive transitive closure", current, [arg],
+        AType() { return unaryOp("reflexive transitive closure", computeTransClosureType, current, getType(arg)); });
     
     collect(arg, tb); 
 } 
-
-AType computeReflexiveTransClosureType(Expression current, AType t1){
-
-    t1 = instantiate(t1);
-    if(!isFullyInstantiated(t1)){
-       throw TypeUnavailable();
-    }
-    // Special case: if we have list[void] or set[void], these become lrel[void,void] and rel[void,void]
-    if (isListType(t1) && isVoidType(getListElementType(t1)))
-        return makeListRelType(atypeList([makeVoidType(),makeVoidType()]));
-    if (isSetType(t1) && isVoidType(getSetElementType(t1)))
-        return makeRelType(atypeList([makeVoidType(),makeVoidType()]));
-        
-    // Normal case: we have an actual list or relation
-    if (isRelType(t1) || isListRelType(t1)) {
-        list[AType] flds = isRelType(t1) ? getRelFields(t1) : getListRelFields(t1);
-        if (size(flds) == 0) {
-            return t1;
-        } else if (size(flds) == 2 && equivalent(flds[0],flds[1])) {    
-            return t1;
-        } else {
-            reportError(current, "Invalid type: expected a binary relation over equivalent types, found <fmt(t1)>");
-        }
-    } else {
-        reportError(current, "Invalid type: expected a binary relation, found <fmt(t1)>");
-    }
-}
 
 // ---- isDefined
 
@@ -116,38 +172,37 @@ void collect(current: (Expression) `<Expression arg> ?`, TBuilder tb){
 // ---- negation
 
 void collect(current: (Expression) `! <Expression arg>`, TBuilder tb){
-    tb.fact(current, abool());
-    tb.require("negation", current, [arg],
-        (){ t1 = getType(arg);
-            if(!isBoolType(t1)) reportError(current, "Negation not defined on <fmt(t1)>");
-        });
+    tb.calculate("negation", current, [arg],
+       AType (){ return unaryOp("negation", computeNegation, current, getType(arg)); });
     collect(arg, tb); 
+}
+
+AType computeNegation(Tree current, AType t1){
+    if(isBoolType(t1)) return abool();
+    reportError(current, "Negation not defined on <fmt(t1)>");
 }
 
 // ---- negative
 
 void collect(current: (Expression) `- <Expression arg>`, TBuilder tb){
     tb.calculate("negative", current, [arg],
-        AType(){ t1 = getType(arg);
-                 if(isNumericType(t1)) return t1;
-                 reportError(current, "Negative not defined on <fmt(t1)>");
-        });
+       AType(){ return unaryOp("negative", computeNegative, current, getType(arg)); });
     collect(arg, tb); 
+}
+
+AType computeNegative(Tree current, AType t1){
+    if(isNumericType(t1)) return t1;
+    reportError(current, "Negative not defined on <fmt(t1)>");
 }
 // ---- splice
 
 void collect(current: (Expression) `* <Expression arg>`, TBuilder tb){
-    tb.calculate("splice", current, [arg], AType(){ 
-        return computeSpliceType(getType(arg)); });
+    tb.calculate("splice", current, [arg], 
+       AType(){ return unaryOp("splice", computeSpliceType, current, getType(arg)); });
     collect(arg, tb); 
 }
 
-AType computeSpliceType(AType t1){
-    t1 = instantiate(t1);
-    if(!isFullyInstantiated(t1)){
-       throw TypeUnavailable();
-    }
-    
+AType computeSpliceType(Tree current, AType t1){    
     if (isListType(t1)) return getListElementType(t1);
     if (isSetType(t1)) return getSetElementType(t1);
     if (isBagType(t1)) return getBagElementType(t1);
@@ -170,20 +225,17 @@ void collect(current: (Expression)`[ <Type t> ] <Expression e>`, TBuilder tb){
     collect(e, tb);
 }
 
-
-// ---- composition  TODO
+// ---- composition
 
 void collect(current: (Expression) `<Expression lhs> o <Expression rhs>`, TBuilder tb){
-    tb.calculate("composition", current, [lhs, rhs],  AType(){ return computeCompositionType(current, getType(lhs), getType(rhs)); });
+    tb.calculate("composition", current, [lhs, rhs],  
+       AType(){ return binaryOp("composition", computeCompositionType, current, getType(lhs), getType(rhs)); 
+            //return computeCompositionType(current, getType(lhs), getType(rhs));
+       });
     collect(lhs, rhs, tb); 
 }
 
-AType computeCompositionType(Expression current, AType t1, AType t2){  
-    t1 = instantiate(t1);
-    t2 = instantiate(t2);
-    if(!(isFullyInstantiated(t1) && isFullyInstantiated(t2))){
-       throw TypeUnavailable();
-    }
+AType computeCompositionType(Tree current, AType t1, AType t2){  
 
     // Special handling for list[void] and set[void], these should be treated as lrel[void,void]
     // and rel[void,void], respectively
@@ -236,79 +288,42 @@ AType computeCompositionType(Expression current, AType t1, AType t2){
             return alrel(atypeList([lflds[0], rflds[1]])); 
         }
     }
-
-    //if (isFunctionType(t1) && isFunctionType(t2)) {
-    //    compositeArgs = getFunctionArgumentTypes(t2);
-    //    compositeRet = getFunctionReturnType(t1);
-    //    linkingArgs = getFunctionArgumentTypes(t1);
-    //    
-    //    // For f o g, f should have exactly one formal parameter
-    //    if (size(linkingArgs) != 1) {
-    //        reportError(exp, "In a composition of two functions the leftmost function must have exactly one formal parameter.");
-    //    }
-    //    
-    //    // and, that parameter must be of a type that a call with the return type of g would succeed
-    //    linkingArg = linkingArgs[0];
-    //    rightReturn = getFunctionReturnType(t2);
-    //    if (!subtype(rightReturn, linkingArg)) {
-    //        reportErrore(exp, "The return type of the right-hand function, <fmt(rightReturn)>, cannot be passed to the left-hand function, which expects type <fmt(linkingArg)>");          
-    //    }
-    //    
-    //    // If both of those pass, the result type is a function with the args of t2 and the return type of t1
-    //    rt = AType::\func(compositeRet, compositeArgs,[]);
-    //    return return rt;         
-    //}
-    //
-    //// Here, one or both types are overloaded functions, with at most one a normal function.
-    //if ((isOverloadedType(t1) || isFunctionType(t1)) && (isOverloadedType(t2) || isFunctionType(t2))) {
-    //    // Step 1: get back all the type possibilities on the left and right
-    //    leftFuns = (isFunctionType(t1)) ? { t1 } : (getNonDefaultOverloadOptions(t1) + getDefaultOverloadOptions(t1));
-    //    rightFuns = (isFunctionType(t2)) ? { t2 } : (getNonDefaultOverloadOptions(t2) + getDefaultOverloadOptions(t2));
-    //    
-    //    // Step 2: filter out leftmost functions that cannot be used in compositions
-    //    leftFuns = { f | f <- leftFuns, size(getFunctionArgumentTypes(f)) == 1 };
-    //    
-    //    // Step 3: combine the ones we can -- the return of the rightmost type has to be allowed
-    //    // as the parameter for the leftmost type
-    //    newFunTypes = { AType::\func(getFunctionReturnType(lf), getFunctionArgumentTypes(rf), []) |
-    //        rf <- rightFuns, lf <- leftFuns, subtype(getFunctionReturnType(rf),getFunctionArgumentTypes(lf)[0]) };
-    //        
-    //    // Step 4: If we get an empty set, fail; if we get just 1, return that; if we get multiple possibilities,
-    //    // return an overloaded type
-    //    if (size(newFunTypes) == 0) {
-    //        ft = makeFailType("The functions cannot be composed", exp@\loc);
-    //        return markLocationFailed(c, exp@\loc, ft);
-    //    } else if (size(newFunTypes) == 1) {
-    //        return markLocationType(c, exp@\loc, getFirstFrom(newFunTypes));
-    //    } else {
-    //        // TODO: Do we need to keep track of defaults through all this? If so, do we compose default
-    //        // and non-default functions?
-    //        return markLocationType(c, exp@\loc, \overloaded(newFunTypes,{}));
-    //    }
-    //}
+    
+    if (isFunctionType(t1) && isFunctionType(t2)) {
+        compositeArgs = atypeList(getFunctionArgumentTypes(t2));
+        compositeRet = getFunctionReturnType(t1);
+        linkingArgs = getFunctionArgumentTypes(t1);
+        
+        // For f o g, f should have exactly one formal parameter
+        if (size(linkingArgs) != 1) {
+            reportError(current, "In a composition of two functions the leftmost function must have exactly one formal parameter.");
+        }
+        
+        // and, that parameter must be of a type that a call with the return type of g would succeed
+        linkingArg = linkingArgs[0];
+        rightReturn = getFunctionReturnType(t2);
+        if (!subtype(rightReturn, linkingArg)) {
+            reportError(current, "The return type of the right-hand function, <fmt(rightReturn)>, cannot be passed to the left-hand function, which expects type <fmt(linkingArg)>");          
+        }
+        
+        // If both of those pass, the result type is a function with the args of t2 and the return type of t1
+        rt = afunc(compositeRet, compositeArgs,[]);
+        return return rt;         
+    }
 
    reportError(current, "Composition not defined for <fmt(t1)> and <fmt(t2)>");
-
-    return avalue();
-
 }
 
 // ---- product
 
 void collect(current: (Expression) `<Expression lhs> * <Expression rhs>`, TBuilder tb){
-    tb.calculate("product", current, [lhs, rhs],  AType(){ return computeProductType(current, getType(lhs), getType(rhs)); });
+    tb.calculate("product", current, [lhs, rhs],  
+       AType(){ return binaryOp("product", computeProductType, current, getType(lhs), getType(rhs)); });
     collect(lhs, rhs, tb); 
 }
 
 AType computeProductType(Tree current, AType t1, AType t2){   
-
-    t1 = instantiate(t1);
-    t2 = instantiate(t2);
-    if(!(isFullyInstantiated(t1) && isFullyInstantiated(t2))){
-       throw TypeUnavailable();
-    } 
-    
-    if(subtype(t1, anum()) && subtype(t2, anum())) return lub(t1, t2);
+    if(isNumericType(t1) && isNumericType(t2)) return numericArithTypes(t1, t2);
     
     if (isListType(t1) && isListType(t2))
         return makeListType(atuple(atypeList([getListElementType(t1),getListElementType(t2)])));
@@ -325,18 +340,12 @@ AType computeProductType(Tree current, AType t1, AType t2){
 // ---- join
 
 void collect(current: (Expression) `<Expression lhs> join <Expression rhs>`, TBuilder tb){
-    tb.calculate("join", current, [lhs, rhs], AType(){ return computeJoinType(current, getType(lhs), getType(rhs)); });
+    tb.calculate("join", current, [lhs, rhs], 
+       AType(){ return binaryOp("join", computeJoinType, current, getType(lhs), getType(rhs)); });
     collect(lhs, rhs, tb); 
 }
 
-AType computeJoinType(Expression current, AType t1, AType t2){  
-
-    t1 = instantiate(t1);
-    t2 = instantiate(t2);
-    if(!(isFullyInstantiated(t1) && isFullyInstantiated(t2))){
-       throw TypeUnavailable();
-    }   
-    
+AType computeJoinType(Tree current, AType t1, AType t2){  
     if ((isRelType(t1) && isRelType(t2)) || (isListRelType(t1) && isListRelType(t2))) {
        bool isRel = isRelType(t1);
         list[AType] lflds = isRel ? getRelFields(t1) : getListRelFields(t1);
@@ -383,45 +392,41 @@ AType computeJoinType(Expression current, AType t1, AType t2){
 
 void collect(current: (Expression) `<Expression lhs> % <Expression rhs>`, TBuilder tb){
     tb.calculate("remainder", current, [lhs, rhs],
-        AType(){ t1 = getType(lhs); t2 = getType(rhs);
-                 if(isIntType(t1) && isIntType(t2)) return lub(t1, t2);
-                 reportError(current, "Remainder not defined on <fmt(t1)> and <fmt(t2)>");
+        AType(){ return binaryOp("remainder", computeRemainderType, current, getType(lhs), getType(rhs));
+                //t1 = getType(lhs); t2 = getType(rhs);
+                // if(isIntType(t1) && isIntType(t2)) return lub(t1, t2);
+                // reportError(current, "Remainder not defined on <fmt(t1)> and <fmt(t2)>");
         });
     collect(lhs, rhs, tb); 
+}
+
+AType computeRemainderType(Tree current, AType t1, AType t2){
+    if(isIntType(t1) && isIntType(t2)) return aint();
+    reportError(current, "Remainder not defined on <fmt(t1)> and <fmt(t2)>");
 }
 
 // ---- division
 
 void collect(current: (Expression) `<Expression lhs> / <Expression rhs>`, TBuilder tb){
-    tb.calculate("division", current, [lhs, rhs], AType(){ return computeDivisionType(current, getType(lhs), getType(rhs));  });
+    tb.calculate("division", current, [lhs, rhs], 
+       AType(){ return binaryOp("division", computeDivisionType, current, getType(lhs), getType(rhs));  });
     collect(lhs, rhs, tb); 
 }
 
 AType computeDivisionType(Tree current, AType t1, AType t2){
-    t1 = instantiate(t1);
-    t2 = instantiate(t2);
-    if(!(isFullyInstantiated(t1) && isFullyInstantiated(t2))){
-       throw TypeUnavailable();
-    }
-    if(isNumericType(t1) && isNumericType(t2)) return lub(t1, t2);
+    if(isNumericType(t1) && isNumericType(t2)) return numericArithTypes(t1, t2);
     reportError(current, "Division not defined on <fmt(t1)> and <fmt(t2)>");
 }
 
 // ---- intersection
 
 void collect(current: (Expression) `<Expression lhs> & <Expression rhs>`, TBuilder tb){
-    tb.calculate("intersection", current, [lhs, rhs], AType() { return computeIntersectionType(current, getType(lhs), getType(rhs)); });
+    tb.calculate("intersection", current, [lhs, rhs], 
+       AType() { return binaryOp("intersection", computeIntersectionType, current, getType(lhs), getType(rhs)); });
     collect(lhs, rhs, tb);
 }
 
-AType computeIntersectionType(Tree current, AType t1, AType t2){
-
-    t1 = instantiate(t1);
-    t2 = instantiate(t2);
-    if(!(isFullyInstantiated(t1) && isFullyInstantiated(t2))){
-       throw TypeUnavailable();
-    }
-    
+AType computeIntersectionType(Tree current, AType t1, AType t2){  
     if ( ( isListRelType(t1) && isListRelType(t2) ) || 
          ( isListType(t1) && isListType(t2) ) || 
          ( isRelType(t1) && isRelType(t2) ) || 
@@ -463,9 +468,9 @@ default AType computeAdditionType(Tree current, AType t1, AType t2) {
        throw TypeUnavailable();
     }   
     
-    if(subtype(t1, anum()) && subtype(t2, anum())) return lub(t1, t2);
+    if(isNumericType(t1) && isNumericType(t2)) return numericArithTypes(t1, t2);
     
-     if (isStrType(t1) && isStrType(t2))
+    if (isStrType(t1) && isStrType(t2))
         return astr();
     if (isBoolType(t1) && isBoolType(t2))
         return abool();
@@ -518,22 +523,23 @@ default AType computeAdditionType(Tree current, AType t1, AType t2) {
         return makeSetType(lub(getSetElementType(t1),t2));
     if (isBagType(t1))
         return abag(lub(getBagElementType(t1),t2));
-        
-    //// If we are adding together two functions, this creates an overloaded
-    //// type with the two items as non-defaults.
-    //// TODO: If we need to track default status here as well, we will need
-    //// to special case plus to handle f + g, where f and g are both function
-    //// names, and catch this before evaluating them both and retrieving their
-    //// types.
-    //// TODO: Can we also add together constructor types?
-    //if (isFunctionType(t1) && isFunctionType(t2))
-    //    return \overloaded({t1,t2},{});
-    //else if (\overloaded(nd1,d1) := t1 && \overloaded(nd2,d2) := t2)
-    //    return \overloaded(nd1+nd2,d1+d2);
-    //else if (\overloaded(nd1,d1) := t1 && isFunctionType(t2))
-    //    return \overloaded(nd1+t2,d1);
-    //else if (isFunctionType(t1) && \overloaded(nd2,d2) := t2)
-    //    return \overloaded(nd2+t1,d2);
+    
+    // TODO: Can we also add together constructor types?
+    // TODO: cloc is arbitrary, can we do better?
+    cloc = getLoc(current);
+    if (isFunctionType(t1)){
+        if(isFunctionType(t2))
+            return overloadedAType({<cloc, functionId(), t1>, <cloc, functionId(), t2>});
+        else if(overloadedAType(rel[Key, IdRole, AType] overloads) := t2){
+            return overloadedAType(overloads + <cloc, functionId(), t1>);
+        }
+    } else if(overloadedAType(rel[Key, IdRole, AType] overloads1)  := t1){
+        if(isFunctionType(t2))
+           return overloadedAType(overloads + <cloc, functionId(), t2>);
+        else if(overloadedAType(rel[Key, IdRole, AType] overloads2) := t2){
+            return overloadedAType(overloads1 + overloads2);
+        }
+    }
     
     reportError(current, "Addition not defined on <fmt(t1)> and <fmt(t2)>");
 }
@@ -541,20 +547,15 @@ default AType computeAdditionType(Tree current, AType t1, AType t2) {
 // ---- subtraction
 
 void collect(current: (Expression) `<Expression lhs> - <Expression rhs>`, TBuilder tb){
-    tb.calculate("subtraction", current, [lhs, rhs], AType() { return computeSubtractionType(current, getType(lhs), getType(rhs)); });
+    tb.calculate("subtraction", current, [lhs, rhs], 
+       AType() { return binaryOp("subtraction", computeSubtractionType, current, getType(lhs), getType(rhs)); });
     collect(lhs, rhs, tb); 
 }
 
 AType computeSubtractionType(Tree current, AType t1, AType t2) { 
-
-    t1 = instantiate(t1);
-    t2 = instantiate(t2);
-    if(!(isFullyInstantiated(t1) && isFullyInstantiated(t2))){
-       throw TypeUnavailable();
-    }
     
     if(isNumericType(t1) && isNumericType(t2)){
-        return lub(t1, t2);
+        return numericArithTypes(t1, t2);
     }
     if(isListType(t1) && isListType(t2)){
         if(comparable(getListElementType(t1),getListElementType(t2))) return t1;
@@ -586,70 +587,76 @@ AType computeSubtractionType(Tree current, AType t1, AType t2) {
 
 void collect(current: (Expression) `<Expression lhs> \<\< <Expression rhs>`, TBuilder tb){
     tb.calculate("append after", current, [lhs, rhs],
-        AType(){ t1 = getType(lhs); t2 = getType(rhs);
-                 if (isListType(t1)) {
-                    return makeListType(lub(getListElementType(t1),t2));
-                 }
-                 reportError("Expected a list type, not type <fmt(t1)>");
-        });
+        AType(){ return binaryOp("append after", computeAppendAfterType, current, getType(lhs), getType(rhs)); });
     collect(lhs, rhs, tb); 
+}
+
+AType computeAppendAfterType(Tree current, AType t1, AType t2) { 
+    if (isListType(t1)) {
+       return makeListType(lub(getListElementType(t1),t2));
+    }
+    reportError(current, "Expected a list type, not type <fmt(t1)>");
 }
 
 // ---- insertBefore
 
 void collect(current: (Expression) `<Expression lhs> \>\> <Expression rhs>`, TBuilder tb){
     tb.calculate("insert before", current, [lhs, rhs],
-        AType(){ t1 = getType(lhs); t2 = getType(rhs);
-                 if (isListType(t2)) {
-                    return makeListType(lub(getListElementType(t2),t1));
-                 }
-                 reportError("Expected a list type, not type <fmt(t2)>");
-        });
+       AType(){ return binaryOp("insert before", computeInsertBeforeType, current, getType(lhs), getType(rhs)); });
     collect(lhs, rhs, tb); 
+}
+
+AType computeInsertBeforeType(Tree current, AType t1, AType t2) { 
+    if (isListType(t2)) {
+        return makeListType(lub(getListElementType(t2),t1));
+    }
+     reportError(current, "Expected a list type, not type <fmt(t2)>");
 }
 
 // ---- modulo
 
 void collect(current: (Expression) `<Expression lhs> mod <Expression rhs>`, TBuilder tb){
     tb.calculate("modulo", current, [lhs, rhs],
-        AType(){ t1 = getType(lhs); t2 = getType(rhs);
-                 if (isIntType(t1) && isIntType(t2)) {
-                    return aint();
-                 }
-                 reportError("Modulo not defined on <fmt(t1)> and <fmt(t2)>");
-        });
+       AType(){ return binaryOp("modulo", computeModuloType, current, getType(lhs), getType(rhs)); });
     collect(lhs, rhs, tb); 
+}
+
+AType computeModuloType(Tree current, AType t1, AType t2) { 
+    if (isIntType(t1) && isIntType(t2)) {
+        return aint();
+    }
+    reportError(current, "Modulo not defined on <fmt(t1)> and <fmt(t2)>");
 }
 
 // ---- notin
 
 void collect(current: (Expression) `<Expression lhs> notin <Expression rhs>`, TBuilder tb){
-    tb.fact(current, abool());
-    tb.require("notin", current, [lhs, rhs], () { checkInType(current, getType(lhs), getType(rhs)); });
+    tb.calculate("notin", current, [lhs, rhs], 
+       AType () { return binaryOp("notin", computeInType, current, getType(lhs), getType(rhs)); });
     collect(lhs, rhs, tb); 
 }
 
-void checkInType(Expression current, AType t1, AType t2){
-    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)){
-        unify(t1, t2) || reportError(current, "Cannot match types");
-        t1 = instantiate(t1);
-        t2 = instantiate(t2);
-    }
+AType computeInType(Tree current, AType t1, AType t2){
     if (isRelType(t2)) {
         et = getRelElementType(t2);
-        if (!comparable(t1,et)) reportError(current, "Cannot compare <fmt(t1)> with element type of <fmt(t2)>");
+        if (comparable(t1,et)) return abool();
+        reportError(current, "Cannot compare <fmt(t1)> with element type of <fmt(t2)>");
     } else if (isSetType(t2)) {
         et = getSetElementType(t2);
-        if (!comparable(t1,et)) reportError(current, "Cannot compare <fmt(t1)> with element type of <fmt(t2)>");
+        if (comparable(t1,et)) return abool();
+        reportError(current, "Cannot compare <fmt(t1)> with element type of <fmt(t2)>");
     } else if (isMapType(t2)) {
         et = getMapDomainType(t2);
-        if (!comparable(t1,et)) reportError(current, "Cannot compare <fmt(t1)> with domain type of <fmt(t2)>");
+        if (comparable(t1,et)) return abool();
+        reportError(current, "Cannot compare <fmt(t1)> with domain type of <fmt(t2)>");
     } else if (isListRelType(t2)) {
         et = getListRelElementType(t2);
-        if (!comparable(t1,et)) reportError(current, "Cannot compare <fmt(t1)> with element type of <fmt(t2)>");
+        if (comparable(t1,et)) return abool();
+        reportError(current, "Cannot compare <fmt(t1)> with element type of <fmt(t2)>");
     } else if (isListType(t2)) {
         et = getListElementType(t2);
-        if (!comparable(t1,et)) reportError(current, "Cannot compare <fmt(t1)> with element type of <fmt(t2)>");
+        if (comparable(t1,et)) return abool();
+        reportError(current, "Cannot compare <fmt(t1)> with element type of <fmt(t2)>");
     } else {
         reportError(current, "`in` or `notin` not defined for <fmt(t1)> and <fmt(t2)>");
     }
@@ -658,8 +665,8 @@ void checkInType(Expression current, AType t1, AType t2){
 // ---- in
 
 void collect(current: (Expression) `<Expression lhs> in <Expression rhs>`, TBuilder tb){
-    tb.fact(current, abool());
-    tb.require("in", current, [lhs, rhs], () { checkInType(current, getType(lhs), getType(rhs)); });
+    tb.calculate("in", current, [lhs, rhs], 
+       AType() { return binaryOp("in", computeInType, current, getType(lhs), getType(rhs)); });
     collect(lhs, rhs, tb); 
 }
 
@@ -684,48 +691,37 @@ void collect(current: (Expression) `<Expression lhs> != <Expression rhs>`, TBuil
     = checkComparisonOp("!=", current, tb);
 
 void checkComparisonOp(str op, Expression current, TBuilder tb){
-    tb.fact(current, abool());
-    tb.requireEager("comparison <fmt(op)>", current, [current.lhs, current.rhs],
-       (){ //println("<current>, <getLoc(current)>");
-           if(!checkComparisonArgs(getType(current.lhs), getType(current.rhs))) 
-                    reportError(current, "Comparison <fmt(op)> not defined on <fmt(current.lhs)> and <fmt(current.rhs)>");
-                 //return abool();
-          });
+    tb.calculateEager("comparison <fmt(op)>", current, [current.lhs, current.rhs],
+       AType (){ return binaryOp(op, computeComparisonType, current, getType(current.lhs), getType(current.rhs)); });
     collect([current.lhs, current.rhs], tb);
 }
 
-default bool checkComparisonArgs(AType t1, AType t2){
-    t1 = instantiate(t1);
-    t2 = instantiate(t2);
-    if(!(isFullyInstantiated(t1) && isFullyInstantiated(t2))){
-       throw TypeUnavailable();
-    }
-     
+AType computeComparisonType(Tree current, AType t1, AType t2){
     if(t1.label?) t1 = unset(t1, "label");
     if(t2.label?) t2 = unset(t2, "label");
-    if(comparable(t1, t2) || (subtype(t1, anum()) && subtype(t2, anum())))
-       return true;
+    if(comparable(t1, t2) || (isNumericType(t1) && isNumericType(t2)))
+       return abool();
         
     if(t1 == avoid() || t2 == avoid())
-       return false;
+       reportError(current, "Comparison not defined on <fmt(t1)> and <fmt(t2)>");
         
     if (isListRelType(t1) && isListRelType(t2) && comparableOrNum(getListRelElementType(t1),getListRelElementType(t2)))
-        return true;
+        return abool();
     if (isListType(t1) && isListType(t2) && comparableOrNum(getListElementType(t1),getListElementType(t2)))
-        return true;
+        return abool();
     if (isMapType(t1) && isMapType(t2) && comparableOrNum(getMapDomainType(t1),getMapDomainType(t2)) && comparableOrNum(getMapRangeType(t1),getMapRangeType(t2)))
-        return true;
+        return abool();
     if (isRelType(t1) && isRelType(t2) && comparableOrNum(getRelElementType(t1),getRelElementType(t2)))
-        return true;
+        return abool();
     if (isSetType(t1) && isSetType(t2) && comparableOrNum(getSetElementType(t1),getSetElementType(t2)))
-        return true;
+        return abool();
     if (isTupleType(t1) && isTupleType(t2))
-        return true;
+        return abool();
         
     if (isValueType(t1) || isValueType(t2))
-        return true;
+        return abool();
     
-    return false;  
+    reportError(current, "Comparison not defined on <fmt(t1)> and <fmt(t2)>");
 }
     
 // ---- ifDefined
@@ -747,7 +743,6 @@ void collect(current: (Expression) `<Pattern pat> := <Expression expression>`, T
 }
 
 void computeMatchPattern(Expression current, Pattern pat, str operator, Expression expression, TBuilder tb){
-    //tb.fact(current, abool());
     scope = tb.getScope();
     tb.calculateEager("match", current, [expression],
         AType () {
@@ -764,20 +759,6 @@ void computeMatchPattern(Expression current, Pattern pat, str operator, Expressi
                 subjectType = isubjectType;
                 keepBindings(getLoc(pat)); // <===
             }
-       //AType () {
-       //     subjectType = getType(expression);
-       //     patType = getPatternType(pat, subjectType, scope);
-       //     instantiate(subjectType);
-       //     if(!isFullyInstantiated(patType) || !isFullyInstantiated(subjectType)){
-       //         unify(patType, subjectType) || reportError(pat, "Type of pattern could not be computed");
-       //         ipatType = instantiate(patType);
-       //         if(tvar(src) := patType) fact(src, ipatType);
-       //         patType = ipatType;
-       //         isubjectType = instantiate(subjectType);
-       //         //if(tvar(src) := subjectType) fact(src, isubjectType);
-       //         subjectType = isubjectType;
-       //         //clearBindings(); // <===
-       //     }
             comparable(patType, subjectType) || reportError(current, "Pattern should be comparable with <fmt(subjectType)>, found <fmt(patType)>");
             return abool();
         });
@@ -790,8 +771,6 @@ void computeMatchPattern(Expression current, Pattern pat, str operator, Expressi
 // ---- enumerator
 
 void collect(current: (Expression) `<Pattern pat> \<- <Expression expression>`, TBuilder tb){
-
-    //tb.fact(current, abool());
     scope = tb.getScope();
     tb.calculateEager("enumeration", current, [expression],
        AType () { 
@@ -935,7 +914,7 @@ void collect(current: (Expression) `<Expression condition> ? <Expression thenExp
     tb.enterScope(condition);   // thenExp may refer to variables defined in conditions; elseExp may not
         storeExcludeUse(condition, elseExp, tb);            // variable occurrences in elseExp may not refer to variables defined in condition
         
-        tb.calculateEager("if expression", current, [condition, thenExp, thenExp],
+        tb.calculate("if expression", current, [condition, thenExp, elseExp],
             AType (){
                 unify(abool(), getType(condition)) || reportError(condition, "Condition should be `bool`, found <fmt(condition)>");
                 //clearBindings();

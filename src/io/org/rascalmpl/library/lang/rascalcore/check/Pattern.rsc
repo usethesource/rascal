@@ -165,7 +165,7 @@ void collect(current: (Pattern) `<QualifiedName name>`,  TBuilder tb){
           //println("qualifiedName: <name>, parameter defLub, <getLoc(current)>");
           tb.define(qname.name, formalId(), name, defLub([], AType() { return avalue(); }));
        } else {
-          tau = tb.newTypeVar();
+          tau = tb.newTypeVar(name);
           tb.fact(name, tau);
           if(isQualified(qname)) tb.reportError(name, "Qualifier not allowed");
           //println("qualifiedName: <name>, defLub, <tau>, <getLoc(current)>");
@@ -192,7 +192,7 @@ void collectAsVarArg(current: (Pattern) `<QualifiedName name>`,  TBuilder tb){
           //println("qualifiedName: <name>, parameter defLub, <getLoc(current)>");
           tb.define(qname.name, formalId(), name, defLub([], AType() { return avalue(); }));
        } else {
-          tau = tb.newTypeVar();
+          tau = tb.newTypeVar(name);
           tb.fact(name, tau);
           if(isQualified(qname)) tb.reportError(name, "Qualifier not allowed");
           //println("qualifiedName: <name>, defLub, <tau>, <getLoc(current)>");
@@ -351,7 +351,7 @@ void collectSplicePattern(Pattern current, Pattern argument,  TBuilder tb){
               //println("qualifiedName: <name>, parameter defLub, <getLoc(current)>");
               tb.define(qname.name, formalId(), argName, defLub([], AType() { return avalue(); }));
            } else {
-              tau = tb.newTypeVar();
+              tau = tb.newTypeVar(argName);
               tb.fact(current, tau);
               if(isQualified(qname)) tb.reportError(argName, "Qualifier not allowed");
               //println("qualifiedName: <name>, defLub, <tau>, <getLoc(current)>");

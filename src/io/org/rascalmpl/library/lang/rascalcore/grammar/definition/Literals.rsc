@@ -19,8 +19,8 @@ public AGrammar literals(AGrammar g) {
   return compose(g, grammar({}, {literal(s) | /lit(s) <- g} + {ciliteral(s) | /cilit(s) <- g}));
 }
 
-public AProduction literal(str s) = prod(lit(s),str2syms(s),{});
-public AProduction ciliteral(str s) = prod(cilit(s),cistr2syms(s),{});
+public AProduction literal(str s) = aprod(lit(s),str2syms(s),{});
+public AProduction ciliteral(str s) = aprod(cilit(s),cistr2syms(s),{});
 
 public list[AType] str2syms(str x) {
   if (x == "") return [];

@@ -12,12 +12,12 @@
   Convert the Rascal internal grammar representation format (Grammar) to 
   a syntax definition in Rascal source code.
 }
-module lang::rascal::format::Grammar
+module lang::rascalcore::format::Grammar
 
 import ParseTree;
 import Grammar;
-import lang::rascal::grammar::definition::Characters;
-import lang::rascal::grammar::definition::Literals;
+import lang::rascalcore::grammar::definition::Characters;
+import lang::rascalcore::grammar::definition::Literals;
 import analysis::grammars::Dependency;
 import lang::rascal::format::Escape;
 import IO;

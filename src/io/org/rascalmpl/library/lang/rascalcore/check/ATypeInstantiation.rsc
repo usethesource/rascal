@@ -168,8 +168,8 @@ AType instantiateRascalTypeParams(amap(AType md, AType mr), Bindings bindings)
     = amap(instantiateRascalTypeParams(md,bindings), instantiateRascalTypeParams(mr,bindings));
 AType instantiateRascalTypeParams(abag(AType et), Bindings bindings) 
     = abag(instantiateRascalTypeParams(et,bindings));
-AType instantiateRascalTypeParams(aparameter(str s, AType t), Bindings bindings)
-    = bindings[s] when s in bindings && asubtype(bindings[s],t);
+AType instantiateRascalTypeParams(AType pt:aparameter(str s, AType t), Bindings bindings)
+    = pt.label? ? bindings[s][label=pt.label] : bindings[s] when s in bindings && asubtype(bindings[s],t);
 AType instantiateRascalTypeParams(aparameter(str s, AType t), Bindings bindings) 
     = invalidInstantiation(s,t,bindings[s]) when s in bindings && !asubtype(bindings[s],t);
 AType instantiateRascalTypeParams(AType pt:aparameter(str s, AType t), Bindings bindings) 

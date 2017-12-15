@@ -109,13 +109,15 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type \
     scope = tb.getScope();
     
     for(var <- variables){
-        dt = defType([], AType(){ return expandUserTypes(varType, scope); });
+        dt = defType([], AType(){ 
+            return expandUserTypes(varType, scope); });
         dt.vis = vis;
         tb.define(prettyPrintName(var.name), variableId(), var.name, dt);
         
         tb. require("variable type is defined", current.\type, [],
-            (){ try expandUserTypes(varType, scope);
-                catch TypeUnavailable(): reportError(current.\type, "Undeclared type <fmt("<current.\type>")>");
+            (){ //try 
+                expandUserTypes(varType, scope);
+                //catch TypeUnavailable(): reportError(current.\type, "Undeclared type <fmt("<current.\type>")>");
             });
         if(var is initialized){
             //if(!(var.initial is closure)) 
@@ -170,7 +172,7 @@ void collect(FunctionDeclaration decl, TBuilder tb){
     
     if(ignoreCompiler(decl.tags)) { println("ignore: function <fname>"); return; }
      
-    ftypeStub = tb.newTypeVar();
+    ftypeStub = tb.newTypeVar(fname);
     dt = defType(ftypeStub);
     dt.vis=vis;  // TODO: Cannot be set directly, bug in interpreter?
     tb.define(prettyPrintName(fname), functionId(), fname, dt);     // function is defined in outer scope, its type is filled in inner scope
@@ -245,14 +247,14 @@ tuple[list[Pattern] formals, set[AType] kwTypeParams, list[Keyword] kwFormals] c
     
     kwFormals = params.keywordFormals is \default ? getKeywordFormals(params.keywordFormals.keywordFormalList, variableId(), tb) : [];
     
-    kwTypeParams = {*collectRascalTypeParams(kwf.fieldType) | kwf <- kwFormals};
+    kwTypeParams = {*collectUnlabelledRascalTypeParams(kwf.fieldType) | kwf <- kwFormals};
     tb.setScopeInfo(scope, functionScope(), returnInfo(retType, formals, kwTypeParams));
     
     tb.requireEager("bound type parameters", params, [], //formals,
         () { 
              expandedRetType = expandUserTypes(retType, scope);
-             typeParamsInFunctionParams = {*collectRascalTypeParams(getPatternType(f, avalue(), scope)) | f <- formals} + kwTypeParams;
-             typeParamsInReturn = collectRascalTypeParams(expandedRetType);
+             typeParamsInFunctionParams = {*collectUnlabelledRascalTypeParams(getPatternType(f, avalue(), scope)) | f <- formals} + kwTypeParams;
+             typeParamsInReturn = collectUnlabelledRascalTypeParams(expandedRetType);
              if(!(typeParamsInReturn <= typeParamsInFunctionParams)){
                 unbound = typeParamsInReturn - typeParamsInFunctionParams;
                 reportError(params, "Unbound: <fmt(size(unbound), "type parameter")> <fmt(unbound)> in return type");
@@ -264,8 +266,8 @@ tuple[list[Pattern] formals, set[AType] kwTypeParams, list[Keyword] kwFormals] c
 void() makeReturnRequirement(Tree expr, AType retType, list[Pattern] formals, set[AType] kwTypeParams, Key scope)
        = () { 
               expandedReturnType = expandUserTypes(retType, scope);
-              typeVarsInParams = {*collectRascalTypeParams(getPatternType(f, avalue(), scope)) | f <- formals} + kwTypeParams;
-              typeVarsInReturn = collectRascalTypeParams(expandedReturnType);
+              typeVarsInParams = {*collectUnlabelledRascalTypeParams(getPatternType(f, avalue(), scope)) | f <- formals} + kwTypeParams;
+              typeVarsInReturn = collectUnlabelledRascalTypeParams(expandedReturnType);
               if(!(typeVarsInReturn <= typeVarsInParams)){
                 unbound = typeVarsInReturn - typeVarsInParams;
                 reportError(expr, "Unbound: <fmt(size(unbound), "type parameter")> <fmt(unbound)> in return type");
@@ -275,7 +277,9 @@ void() makeReturnRequirement(Tree expr, AType retType, list[Pattern] formals, se
               Bindings bindings = ();
               try   bindings = matchRascalTypeParams(texpr, expandedReturnType, bindings, bindIdenticalVars=true);
               catch invalidMatch(str reason):
-                    reportError(expr, reason);
+                    if(!subtype(texpr, expandedReturnType))
+                        reportError(expr, reason);
+                        
               try {
                  itexpr = texpr;
                  if(!isEmpty(bindings)){
@@ -381,7 +385,7 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBu
                     tb.define(fieldName, fieldId(), ta, defType(fieldType));
                     allConsFields += <fieldName, fieldType>;
                 }
-                allFieldTypeVars += collectRascalTypeParams(fieldType);
+                allFieldTypeVars += collectUnlabelledRascalTypeParams(fieldType);
                 append <fieldName, fieldType>;
             }
     
@@ -389,7 +393,7 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBu
        if(v.keywordArguments is \default){
           kwFields += getKeywordFormals(v.keywordArguments.keywordFormalList, fieldId(), tb);
           for(<kwn, kwt, kwd> <- kwFields){
-              allFieldTypeVars += collectRascalTypeParams(kwt);
+              allFieldTypeVars += collectUnlabelledRascalTypeParams(kwt);
               allConsFields += <kwn, kwt>;
           }
        }

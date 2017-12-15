@@ -445,6 +445,8 @@ bool asubtype(AType l, aparameter(str _, AType bound)) = asubtype(l, bound);
 bool asubtype(areified(AType s), areified(AType t)) = asubtype(s,t);
 bool asubtype(areified(AType s), anode(_)) = true;
 
+bool asubtype(anode(list[NamedField] l), anode(list[NamedField] r)) = l <= r;
+
 // Utilities
 
 bool asubtype(atypeList(list[AType] l), atypeList(list[AType] r)) = asubtype(l, r);
@@ -500,6 +502,9 @@ The least-upperbound (lub) between two types.
 .Description
 This function documents and implements the lub operation in Rascal's type system. 
 }
+bool alub(tvar(s), AType r) { throw "alub not defined for <tvar(s)> and <r>"; }
+bool alub(AType l, tvar(s)) { throw "alub not defined for <l> and <tvar(s)>"; }
+
 AType alub(AType s, s) = s;
 default AType alub(AType s, AType t) = (s.label? || t.label?) ? alub(unset(s, "label") , unset(t, "label")) : avalue();
 
@@ -551,12 +556,14 @@ AType alub(acons(AType la, _, list[NamedField] _,  list[Keyword] _), acons(AType
 AType alub(acons(AType a,  _, list[NamedField] lp, list[Keyword] _), aadt(str n, list[AType] rp)) = alub(a,aadt(n,rp));
 AType alub(acons(AType _,  _, list[NamedField] _,  list[Keyword] _), anode(_)) = anode([]);
 
+AType alub(anode(list[NamedField] l), anode(list[NamedField] r)) = anode(l & r);
+
 bool keepParams(aparameter(str s1, AType bound1), aparameter(str s2, AType bound2)) = s1 == s2 && equivalent(bound1,bound2);
 
 AType alub(AType l:aparameter(str s1, AType bound1), AType r:aparameter(str s2, AType bound2)) = l when keepParams(l,r);
 AType alub(AType l:aparameter(str s1, AType bound1), AType r:aparameter(str s2, AType bound2)) = alub(bound1,bound2) when !keepParams(l,r);
-AType alub(aparameter(str _, AType bound), AType r) = alub(bound, r) when !(isRascalTypeParam(r));
-AType alub(AType l, aparameter(str _, AType bound)) = alub(l, bound) when !(isRascalTypeParam(l));
+AType alub(aparameter(str _, AType bound), AType r) = alub(bound, r) when aparameter(_,_) !:= r; //!(isRascalTypeParam(r));
+AType alub(AType l, aparameter(str _, AType bound)) = alub(l, bound) when aparameter(_,_) !:= l; //!(isRascalTypeParam(l));
 
 AType alub(areified(AType l), areified(AType r)) = areified(alub(l,r));
 AType alub(areified(AType l), anode(_)) = anode([]);

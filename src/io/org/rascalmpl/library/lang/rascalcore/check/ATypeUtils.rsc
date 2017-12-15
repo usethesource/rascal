@@ -38,6 +38,7 @@ AType normalizeType(AType s){
 
 @memo
 AType expandUserTypes(AType t, Key scope){
+    //println("expandUserTypes: <t>");
     return visit(t){
         case u: auser(str uname, ps): {
                 //println("expandUserTypes: <u>");  // TODO: handle non-empty qualifier
@@ -50,7 +51,7 @@ AType expandUserTypes(AType t, Key scope){
                    expanded.parameters = ps;
                    insert expanded; //aadt(uname, ps);
                 } else {
-                   params = toList(collectRascalTypeParams(expanded));  // TODO order issue?
+                   params = toList(collectUnlabelledRascalTypeParams(expanded));  // TODO order issue?
                    nparams = size(params);
                    if(size(ps) != size(params)) reportError(scope, "Expected <fmt(nparams, "type parameter")> for <fmt(expanded)>, found <size(ps)>");
                    if(nparams > 0){
@@ -816,7 +817,14 @@ public AType getRascalTypeParamBound(AType t) {
 
 @doc{Get all the type parameters inside a given type.}
 public set[AType] collectRascalTypeParams(AType t) {
-    return { unset(rt, "label") | / AType rt : aparameter(_,_) := t }; // TODO: "label" is unset to enable subset check later, reconsider
+    
+    return { rt | / AType rt : aparameter(_,_) := t };
+    //return { unset(rt, "label") | / AType rt : aparameter(_,_) := t }; // TODO: "label" is unset to enable subset check later, reconsider
+}
+
+@doc{Get all the type parameters inside a given type.}
+public set[AType] collectUnlabelledRascalTypeParams(AType t) {
+   return { unset(rt, "label") | / AType rt : aparameter(_,_) := t }; // TODO: "label" is unset to enable subset check later, reconsider
 }
 
 @doc{Provide an initial type map from the type parameters in the type to void.}

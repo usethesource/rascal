@@ -545,7 +545,7 @@ tuple[rel[Key, IdRole, AType], list[bool]] filterOverloads(rel[Key, IdRole, ATyp
 AType checkArgsAndComputeReturnType(Expression current, Key scope, AType retType, list[AType] formals, list[Keyword] kwFormals, bool isVarArgs, list[Expression] actuals, keywordArguments, list[bool] identicalFormals){
     nactuals = size(actuals); nformals = size(formals);
    
-    list[AType] actualTypes;
+    list[AType] actualTypes = [];
    
     if(isVarArgs){
        if(nactuals < nformals - 1) reportError(current, "Expected at least <fmt(nformals-1, "argument")>, found <nactuals>");
@@ -560,6 +560,32 @@ AType checkArgsAndComputeReturnType(Expression current, Key scope, AType retType
     
     list[AType] formalTypes =  [ expandUserTypes(formals[i], scope) | i <- index_formals ];
     
+    for(int i <- index_formals){
+        if(overloadedAType(rel[Key, IdRole, AType] overloads) := actualTypes[i]){   // TODO only handles a single overloaded actual
+         println("checkArgsAndComputeReturnType: <current>");
+            iprintln(overloads);
+            returnTypeForOverloadedActuals = {};
+            for(ovl: <key, idr, tp> <- overloads){   
+                try {
+                    actualTypes[i] = tp;
+                    returnTypeForOverloadedActuals += <key, idr, computeReturnType(current, scope, retType, formalTypes, actuals, actualTypes, kwFormals, keywordArguments, identicalFormals)>;
+                     println("succeeds: <ovl>");
+                } catch checkFailed(set[Message] msgs): {
+                    println("fails: <ovl>");
+                    ; // continue with next overload
+                }
+             }
+             if(isEmpty(returnTypeForOverloadedActuals)) { reportError(current, "Call with arguments <fmt(actuals)> cannot be resolved");}
+             else return overloadedAType(returnTypeForOverloadedActuals);
+        }
+    }
+    //No overloaded actual
+    return computeReturnType(current, scope, retType, formalTypes, actuals, actualTypes, kwFormals, keywordArguments, identicalFormals);
+}
+
+AType computeReturnType(Expression current, Key scope, AType retType, list[AType] formalTypes, list[Expression] actuals, list[AType] actualTypes, list[Keyword] kwFormals, keywordArguments, list[bool] identicalFormals){
+
+    index_formals = index(formalTypes);
     Bindings bindings = ();
     for(int i <- index_formals){
         try   bindings = matchRascalTypeParams(formalTypes[i], actualTypes[i], bindings, bindIdenticalVars=true);
@@ -594,7 +620,7 @@ AType checkArgsAndComputeReturnType(Expression current, Key scope, AType retType
     checkKwArgs(kwFormals, keywordArguments, bindings, scope, isExpression=true);
     
     // Artificially bind unbound type parameters in the return type
-    for( rparam <- collectRascalTypeParams(retType)){
+    for(rparam <- collectUnlabelledRascalTypeParams(retType)){
         pname = rparam.pname;
         if(!bindings[pname]?) bindings[pname] = rparam;
     }
@@ -611,32 +637,54 @@ AType computeADTType(Tree current, str adtName, Key scope, AType retType, list[A
     if(nactuals != nformals){
         reportError(current, "Expected <fmt(nformals, "argument")>, found <nactuals>");
     }
-    formals = [ expandUserTypes(formals[i], scope) | i <- index(formals) ];
+    formalTypes = [ expandUserTypes(formals[i], scope) | i <- index(formals) ];
     index_formals = index(formals);
     //println("formals: <formals>");
-    list[AType] actualType = [];
+    list[AType] actualTypes = [];
     list[bool] dontCare = [];
     bool isExpression = true;
     switch(actuals){
         case list[Expression] expList: {
                 dontCare = [ false | i <- index(expList) ];
-                actualType = [ getType(expList[i]) | i <- index(expList) ];
+                actualTypes = [ getType(expList[i]) | i <- index(expList) ];
                 //print("expList: [ "); for(i <- index(expList)) print("<expList[i]> "); println(" ]");
             }
         case list[Pattern] patList: {
                 dontCare = [ "<patList[i]>" == "_" | i <- index(patList) ];
-                actualType = [ dontCare[i] ? formals[i] : expandUserTypes(getPatternType(patList[i], formals[i], scope), scope) | i <- index(patList) ];
+                actualTypes = [ dontCare[i] ? formals[i] : expandUserTypes(getPatternType(patList[i], formals[i], scope), scope) | i <- index(patList) ];
                 //print("patList: [ "); for(i <- index(patList)) print("<patList[i]> "); println(" ]");
                 isExpression = false;
             }
         default:
             throw "Illegal argument `actuals`";
     }
+    
+    for(int i <- index_formals){
+        if(overloadedAType(rel[Key, IdRole, AType] overloads) := actualTypes[i]){   // TODO only handles a single overloaded actual
+            println("computeADTType: <current>");
+            iprintln(overloads);
+            returnTypeForOverloadedActuals = {};
+            for(ovl: <key, idr, tp> <- overloads){   
+                try {
+                    actualTypes[i] = tp;
+                    returnTypeForOverloadedActuals += <key, idr, computeADTReturnType(current, adtName, scope, retType, formalTypes, actuals, actualTypes, kwFormals, keywordArguments, identicalFormals, dontCare, isExpression)>;
+                    println("succeeds: <ovl>");
+                } catch checkFailed(set[Message] msgs): {
+                    println("fails: <ovl>");
+                    ; // continue with next overload
+                }
+             }
+             if(isEmpty(returnTypeForOverloadedActuals)) { reportError(current, "Constructor with arguments <fmt(actuals)> cannot be resolved");}
+             else return overloadedAType(returnTypeForOverloadedActuals);
+        }
+    }
+    
+    return computeADTReturnType(current, adtName, scope, retType, formalTypes, actuals, actualTypes, kwFormals, keywordArguments, identicalFormals, dontCare, isExpression);
     //println("actualType: <actualType>");
   
     Bindings bindings = ();
     for(int i <- index_formals, !dontCare[i]){
-        try   bindings = matchRascalTypeParams(formals[i], actualType[i], bindings, bindIdenticalVars=true);
+        try   bindings = matchRascalTypeParams(formals[i], actualTypes[i], bindings, bindIdenticalVars=true);
         catch invalidMatch(str reason): 
               reportError(actuals[i], reason);   
     }
@@ -647,7 +695,7 @@ AType computeADTType(Tree current, str adtName, Key scope, AType retType, list[A
               reportError(current, msg);
     }
     for(int i <- index_formals, !dontCare[i]){
-        ai = actualType[i];
+        ai = actualTypes[i];
        //println("<i>: <ai>");
         if(!isFullyInstantiated(ai) && isExpression){
             if(identicalFormals[i]){
@@ -662,16 +710,57 @@ AType computeADTType(Tree current, str adtName, Key scope, AType retType, list[A
             reportError(actuals[i], "Argument <actuals[i]> should have type <fmt(formals[i])>, found <fmt(ai)>");
     }
     adtType = expandUserTypes(getType(adtName, scope, {dataId(), nonterminalId()}), scope);
+    checkKwArgs(kwFormals + getCommonKeywords(adtType, scope), keywordArguments, bindings, scope, isExpression=isExpression);
+   
     if(!isEmpty(bindings)){
-        try    adtType = instantiateRascalTypeParams(expandUserTypes(getType(adtName, scope, {dataId(), nonterminalId()}), scope), bindings);
+        try    return instantiateRascalTypeParams(expandUserTypes(getType(adtName, scope, {dataId(), nonterminalId()}), scope), bindings);
         catch invalidInstantiation(str msg):
                reportError(current, msg);
     }
-      
-    checkKwArgs(kwFormals + getCommonKeywords(adtType, scope), keywordArguments, bindings, scope, isExpression=isExpression);
+   
     return adtType;
 }
 
+AType computeADTReturnType(Tree current, str adtName, Key scope, AType retType, list[AType] formalTypes, actuals, list[AType] actualTypes, list[Keyword] kwFormals, keywordArguments, list[bool] identicalFormals, list[bool] dontCare, bool isExpression){
+    Bindings bindings = ();
+    index_formals = index(formalTypes);
+    for(int i <- index_formals, !dontCare[i]){
+        try   bindings = matchRascalTypeParams(formalTypes[i], actualTypes[i], bindings, bindIdenticalVars=true);
+        catch invalidMatch(str reason): 
+              reportError(actuals[i], reason);   
+    }
+    iformals = formalTypes;
+    if(!isEmpty(bindings)){
+        try   iformals = [instantiateRascalTypeParams(formalTypes[i], bindings) | int i <- index_formals];
+        catch invalidInstantiation(str msg):
+              reportError(current, msg);
+    }
+    for(int i <- index_formals, !dontCare[i]){
+        ai = actualTypes[i];
+       //println("<i>: <ai>");
+        if(!isFullyInstantiated(ai) && isExpression){
+            if(identicalFormals[i]){
+               unify(ai, iformals[i]) || reportError(current, "Cannot unify <fmt(ai)> with <fmt(iformals[i])>");
+               ai = instantiate(ai);
+               //println("instantiated <actuals[i]>: <ai>");
+            } else
+                continue;
+        }
+        //println("comparable?: <ai>, <iformals[i]>");
+        comparable(ai, iformals[i]) ||
+            reportError(actuals[i], "Argument <actuals[i]> should have type <fmt(formalTypes[i])>, found <fmt(ai)>");
+    }
+    adtType = expandUserTypes(getType(adtName, scope, {dataId(), nonterminalId()}), scope);
+    checkKwArgs(kwFormals + getCommonKeywords(adtType, scope), keywordArguments, bindings, scope, isExpression=isExpression);
+   
+    if(!isEmpty(bindings)){
+        try    return instantiateRascalTypeParams(expandUserTypes(getType(adtName, scope, {dataId(), nonterminalId()}), scope), bindings);
+        catch invalidInstantiation(str msg):
+               reportError(current, msg);
+    }
+   
+    return adtType;
+}
 
 
 void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, Key scope, bool isExpression=true){
@@ -699,38 +788,47 @@ void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, K
  } 
  
  AType computeNodeType(Tree current, Key scope, actuals, keywordArguments, AType subjectType=avalue()){                     
-    println("checkNodeType: <current>, <subjectType>");
-    nactuals = size(actuals); 
-    //index_formals = index(formals);
-    //println("formals: <formals>");
-    list[AType] actualType = [];
-    list[bool] dontCare = [];
-    bool isExpression = true;
+    nactuals = size(actuals);
+
     switch(actuals){
         case list[Expression] expList: {
-                dontCare = [ false | i <- index(expList) ];
                 actualType = [ getType(expList[i]) | i <- index(expList) ];
-                //print("expList: [ "); for(i <- index(expList)) print("<expList[i]> "); println(" ]");
                 return anode(computeKwArgs(keywordArguments, scope, isExpression=true));
             }
         case list[Pattern] patList: {
                 dontCare = [ "<patList[i]>" == "_" | i <- index(patList) ];
-                actualType = [ dontCare[i] ? avalue : expandUserTypes(getPatternType(patList[i], avalue(), scope), scope) | i <- index(patList) ];
-                //print("patList: [ "); for(i <- index(patList)) print("<patList[i]> "); println(" ]");
-                isExpression = false;
+                actualType = [ dontCare[i] ? avalue() : expandUserTypes(getPatternType(patList[i], avalue(), scope), scope) | i <- index(patList) ];
+               
+                if(acons(adtType:aadt(adtName, list[AType] parameters), str consName, list[NamedField] fields, list[Keyword] kwFields) := subjectType){
+                   kwFormals = kwFields;
+                   checkKwArgs(kwFormals + getCommonKeywords(adtType, scope), keywordArguments, (), scope, isExpression=isExpression);
+                   return anode([]);
+                } else if(anode(list[NamedField] fields) := subjectType){
+                   if(keywordArguments is none) return anode([]);
+                       
+                   nodeFieldTypes = [];
+                   nextKW:
+                   for(<fn, ft> <- fields){
+                       for(kwa <- keywordArguments.keywordArgumentList){ 
+                           kwName = "<kwa.name>";
+                           if(kwName == fn){
+                              kwType = getPatternType(kwa.expression,ft, scope);
+                              unify(ft, kwType) || reportError(current, "Cannot determine type of field <fmt(fn)>");
+                              nodeFieldTypes += <fn, ft>;
+                              continue nextKW;
+                           }
+                       }    
+                   }
+                   return anode(nodeFieldTypes); 
+                } else if(avalue() := subjectType){
+                    return anode([]);
+                }
+                reportError(current, "Node pattern does not match <fmt(subjectType)>");
             }
         default:
             throw "Illegal argument `actuals`";
     }
-    //println("actualType: <actualType>");
-    if(acons(adtType:aadt(adtName, list[AType] parameters), str consName, list[NamedField] fields, list[Keyword] kwFields) := subjectType){
-        kwFormals = kwFields;
-        checkKwArgs(kwFormals + getCommonKeywords(adtType, scope), keywordArguments, (), scope, isExpression=isExpression);
-        return anode([]);
-    } else if(anode(_) := subjectType){
-        return anode([]);
-    }
-    reportError(current, "node pattern does not match <fmt(subjectType)>");
+    
 }
 
 list[NamedField] computeKwArgs(keywordArguments, Key scope, bool isExpression=true){
@@ -742,22 +840,6 @@ list[NamedField] computeKwArgs(keywordArguments, Key scope, bool isExpression=tr
             append <kwName, kwType>;
     }
  }
- 
-void checkKwArgs(keywordArguments, list[NamedFields] fields, Key scope, bool isExpression=true){
-    if(keywordArguments is none) return;
- 
-    nextKW:
-    for(kwa <- keywordArguments.keywordArgumentList){ 
-            kwName = "<kwa.name>";
-            kwType = isExpression ? getType(kwa.expression) : getPatternType(kwa.expression, avalue(), scope);
-            for(<fn, ft> <- fields){
-                if(fn == kwName){
-                ;
-                }
-                continue nextKW;
-            }
-    }
- }  
 
 list[Keyword] getCommonKeywords(aadt(str adtName, list[AType] parameters), loc scope) = [ *d.defInfo.commonKeywordFields | d <- getDefinitions(adtName, scope, {dataId(), nonterminalId()}) ];
 list[Keyword] getCommonKeywords(overloadedAType(rel[Key, IdRole, AType] overloads), loc scope) = [ *getCommonKeywords(adt, scope) | <def, idr, adt> <- overloads ];
@@ -826,6 +908,9 @@ void collect(current:(Expression)`<Expression expression> [ <{Expression ","}+ i
 }
 
 AType computeSubscriptionType(Tree current, AType t1, list[AType] tl){
+    if(!isFullyInstantiated(t1) && all(tp <- tl, isFullyInstantiated(tp))){
+        throw TypeUnavailable();
+    }
 
     if(overloadedAType(rel[Key, IdRole, AType] overloads) := t1){
         //println("computeSubscriptionType: <current>, <t1>");
@@ -835,7 +920,9 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl){
                 subscript_overloads += <key, role, computeSubscriptionType(current, tp, tl)>;
             } catch checkFailed(set[Message] msgs): {
                 ; // do nothing and try next overload
-            } catch e:;  
+            } catch e: {
+                ; // do nothing and try next overload
+            }  
         }
         //println("computeSubscriptionType: <current>, <t1>, <tl> ==\> <overloadedAType(subscript_overloads)>");
         if(isEmpty(subscript_overloads)) reportError(current, "Expressions of type <fmt(t1)> cannot be subscripted");
@@ -1013,7 +1100,9 @@ public map[AType,map[str,AType]] fieldMap =
 
 @doc{Compute the type of field fn on type t1. A checkFailed is thrown if the field is not defined on the given type.}
 public AType computeFieldType(Tree current, AType t1, str fieldName, Key scope) {
+    if(!isFullyInstantiated(t1)) throw TypeUnavailable();
     
+    t1 = expandUserTypes(t1, scope);
     if(overloadedAType(rel[Key, IdRole, AType] overloads) := t1){
         field_overloads = {};
         for(<key, role, tp> <- overloads){
@@ -1027,9 +1116,9 @@ public AType computeFieldType(Tree current, AType t1, str fieldName, Key scope) 
         return overloadedAType(field_overloads);
     } else if (aadt(adtName, list[AType] actualTypeParams) := t1){
         try {
-            //if (getADTName(t1) == "Tree" && fieldName == "top") {
-            //    return t1;
-            //}
+            if ((getADTName(t1) == "Tree" || isNonTerminalType(t1)) && fieldName == "top") {
+                return t1;
+            }
             fieldType = expandUserTypes(getType(fieldName, scope, {formalId(), fieldId()}), scope);
            
             declaredInfo = getDefinitions(adtName, scope, {dataId(), nonterminalId()});
@@ -1260,8 +1349,9 @@ AType computeFieldProjectionType(Expression current, AType base, list[lang::rasc
 
 void collect(current:(Expression) `<Expression e> [ @ <Name n> = <Expression er> ]`, TBuilder tb) {
     tb.use(n, {annoId()});
+    scope = tb.getScope();
     tb.calculate("set annotation", current, [e, n, er],
-        AType(){ t1 = getType(e); tn = getType(n); t2 = getType(er);
+        AType(){ t1 = expandUserTypes(getType(e), scope); tn = getType(n); t2 = expandUserTypes(getType(er), scope);
                  return computeSetAnnotationType(current, t1, tn, t2);
                });
     collect(e, er, tb);
@@ -1303,9 +1393,10 @@ AType computeSetAnnotationType(Expression current, AType t1, AType tn, AType t2)
 
 void collect(current:(Expression) `<Expression e>@<Name n>`, TBuilder tb) {
     tb.use(n, {annoId()});
+    scope = tb.getScope();
     tb.calculate("get annotation", current, [e, n],
         AType(){ 
-                 t1 = getType(e); 
+                 t1 = expandUserTypes(getType(e), scope);
                  tn = getType(n);
                  return computeGetAnnotationType(current, t1, tn);
                });
