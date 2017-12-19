@@ -29,12 +29,24 @@ syntax Exp
   | com: Exp "," Exp
   ;
 
+
+// "modular" extensions in the priority relation
+syntax Exp = :mul > left Exp "/" Exp > left (:add | :sub);
+syntax Exp = ... > Exp "." Exp;
+
 syntax F = left "-" F | "f" | right F "+";
 syntax G = left (G "+" G | "-" G | "^" G) | "g" | right (G "-" G | G "+");
 
 syntax Opt = Exp!com? "?";  
 syntax Seq = (Exp!com Exp!number);
 syntax Alt = (Exp!com | (Exp "," Exp));
+
+Exp removeBrackets(Exp e) = visit(e) {
+  case (Exp) `(<Exp b>)` => b
+};
+
+test bool safeExt1() = (Exp) `e+e.e` == removeBrackets((Exp) `(e+e).e`);
+test bool safeExt2() = (Exp) `e*e/e+e` == removeBrackets((Exp) `(e*e)/e)+e`);
 
 test bool safeLeft() = F _ := parse(#F,"--f");
 test bool safeRight() = F _ := parse(#F,"f++");

@@ -14,6 +14,7 @@ A simple but effective internal format for the representation of context-free gr
 }
 module Grammar
 
+extend lang::rascal::grammar::definition::Productions;
 import Exception;
 import Message;
 extend ParseTree;
@@ -40,6 +41,7 @@ data GrammarDefinition
   = \definition(str main, map[str name, GrammarModule \mod] modules);
 
 anno loc Production@\loc;
+ 
  
 public Grammar grammar(set[Symbol] starts, set[Production] prods) {
   rules = ();
