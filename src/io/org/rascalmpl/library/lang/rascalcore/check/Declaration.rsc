@@ -158,9 +158,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
 data ReturnInfo = returnInfo(AType retType, list[Pattern] formals, set[AType] kwTypeParams);
 
 void collect(FunctionDeclaration decl, TBuilder tb){
-//println("********** function declaration: <decl.signature.name>");
-
-   
+println("********** function declaration: <decl.signature.name>");
     
     vis = getVis(decl.visibility);
     if(vis == defaultVis()){

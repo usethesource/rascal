@@ -101,7 +101,7 @@ test R3 [[module rascal::R3
 
 test R4 [[module rascal::R4
     list[int] f([n]) { return [n]; }
-]]
+]] expect { "Return type should be subtype of `list[int]`, found `list[value]`" }
 
 test R5 [[ module rascal::R5
     value f(b) { return b; }

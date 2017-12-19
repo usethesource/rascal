@@ -77,7 +77,7 @@ TModel rascalPostValidation(TModel m){
         nparams = userDefs[userName]<0>;
         if(size(nparams) != 1){
             for(def <- userDefs[userName,_]){
-                m.messages += { error("Type <fmt(userName)> defined with <fmt(nparams)> type parameters", def) };
+                m.messages += [ error("Type <fmt(userName)> defined with <fmt(nparams)> type parameters", def) ];
             }
         }
     }
@@ -157,7 +157,7 @@ list[Message] validateModules(str mname, bool debug=false) {
 
 void testModules(str names...) {
     if(isEmpty(names)) names = allTests;
-    runTests([|project://rascal-core/src/io/org/rascalmpl/library/lang/rascalcore/check/tests/<name>.ttl| | str name <- names], #Module, rascalTModelsFromTree, verbose=true);
+    runTests([|project://rascal-core/src/io/org/rascalmpl/library/lang/rascalcore/check/tests/<name>.ttl| | str name <- names], #Modules, rascalTModelsFromTree, verbose=true);
 }
 
 list[str] allTests = ["adt", "alias", "assignment", "datadecl", "exp", "fields", "fundecl", 

@@ -802,45 +802,117 @@ AType() makeDef(list[AType] taus, int i) = AType() {
 
 set[str] getNames(Statement s) = {"<nm>" | /QualifiedName nm := s};
 
+AType() makeTupleElem(Statement current, list[QualifiedName] names, list[str] flatNames, set[str] namesInRhs, list[AType] taus, list[Assignable] elms, int i, str operator, Statement rhs, Key scope){
+    println("Creating makeTupleElem <i>, <names[i]>");
+    return
+        AType (){
+        println("makeTupleElem <i>, <names[i]>");
+            rhsType = getType(rhs);
+            if(!isTupleType(rhsType)) reportError(current, "Tuple type required, found <fmt(rhsType)>");
+            rhsFields = getTupleFields(rhsType);
+            if(size(names) != size(rhsFields)) reportError(statement, "Tuple type required of arity <size(names)>, found arity <size(rhsFields)>"); 
+            
+            if(isFullyInstantiated(taus[i])){
+               recTypeI  = computeReceiverType(current, elms[i],  scope);
+               rhsTypeI  = computeAssignmentRhsType(current, recTypeI, operator, rhsFields[i]);
+               comparable(rhsTypeI, recTypeI) || reportError(names[i], "Value of type <fmt(rhsFields[i])> cannot be assigned to <fmt("<names[i]>")> of type <fmt(recTypeI)>");
+                  //if(flatNames[i] in namesInRhs){
+                    //taus[i] = getType(names[i]);
+                    unify(taus[i], rhsTypeI) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
+                  //}
+             } else {
+                 if(flatNames[i] in namesInRhs){
+                    unify(taus[i], typeof(names[i])) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
+                    taus[i] = instantiate(taus[i]);
+                  } else {
+                  
+                    unify(taus[i], rhsFields[i]) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
+                 }
+                 taus[i] = instantiate(taus[i]);
+             }
+             res = instantiate(taus[i]);
+             println("makeTupleElem <i>, <names[i]> returns <res>");
+             return res;
+        };
+   }
+
 void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable ","}+ elements> \>`, str operator, Statement rhs, TBuilder tb){
    names = getReceiver(receiver, tb);
    flatNames = ["<nm>" | nm <- names];
+   elms = [elm | elm <- elements];
    namesInRhs = getNames(rhs);
    taus = [tb.newTypeVar(nm) | nm <- names];
    for(int i <- index(names), flatNames[i] notin namesInRhs){tb.define(unescape("<names[i]>"), variableId(), names[i], defLub([rhs], makeDef(taus, i)));}
   
    scope = tb.getScope();
    
-   tb.calculate("assignable with tuple", current, [rhs], 
-       AType (){ 
-                if(flatNames[0] == "ordering"){
-                    println("***");
-                }
-           recType  = computeReceiverType(current, receiver, scope);
-           rhsType  = computeAssignmentRhsType(current, recType, operator, getType(rhs));
-         
-           if(!isTupleType(rhsType)) reportError(current, "Tuple type required, found <fmt(rhsType)>");
-           recFields = getTupleFields(recType);
-           rhsFields = getTupleFields(rhsType);
-           if(size(names) != size(rhsFields)) reportError(statement, "Tuple type required of arity <size(names)>, found arity <size(rhsFields)>");           
-          
-           for(int i <- index(names)){
-               if(isFullyInstantiated(getType(names[i]))){
-                  comparable(rhsFields[i], recFields[i]) || reportError(names[i], "Value of type <fmt(rhsFields[i])> cannot be assigned to <fmt("<names[i]>")> of type <fmt(recFields[i])>");
-                  //if(flatNames[i] in namesInRhs){
-                    taus[i] = getType(names[i]);
-                  //}
-               } else {
-                 if(flatNames[i] in namesInRhs){
-                    unify(taus[i], typeof(names[i])) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
-                    taus[i] = instantiate(taus[i]);
-                 } else 
-                    unify(taus[i], rhsFields[i]) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
-                    taus[i] = instantiate(taus[i]);
-               }
-           }
-           return atuple(atypeList([ instantiate(taus[i]) | int i <- index(names)]));
-         });
+   for(int i <- index(names)){
+     tb.calculate("assignable <i> of tuple", names[i], [rhs], makeTupleElem(current, names, flatNames, namesInRhs, taus, elms, i, operator, rhs, scope));
+     //tb.calculate("assignable <i> of tuple", current, [rhs], 
+     //   AType (){
+     //       rhsType = getType(rhs);
+     //       if(!isTupleType(rhsType)) reportError(current, "Tuple type required, found <fmt(rhsType)>");
+     //       rhsFields = getTupleFields(rhsType);
+     //       if(size(names) != size(rhsFields)) reportError(statement, "Tuple type required of arity <size(names)>, found arity <size(rhsFields)>"); 
+     //       
+     //       recTypeI  = computeReceiverType(current, elms[i],  scope);
+     //       rhsTypeI  = computeAssignmentRhsType(current, recTypeI, operator, rhsFields[i]);
+     //       
+     //       if(isFullyInstantiated(getType(names[i]))){
+     //             comparable(rhsTypeI, recTypeI) || reportError(names[i], "Value of type <fmt(rhsFields[i])> cannot be assigned to <fmt("<names[i]>")> of type <fmt(recTypeI)>");
+     //             //if(flatNames[i] in namesInRhs){
+     //               //taus[i] = getType(names[i]);
+     //               unify(taus[i], rhsTypeI) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
+     //             //}
+     //        } else {
+     //            if(flatNames[i] in namesInRhs){
+     //               unify(taus[i], typeof(names[i])) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
+     //               taus[i] = instantiate(taus[i]);
+     //             } else {
+     //               unify(taus[i], rhsTypeI) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
+     //            }
+     //            taus[i] = instantiate(taus[i]);
+     //        }
+     //        return instantiate(taus[i]);
+     //   });
+   }
+  
+   //tb.calculate("assignable with tuple", current, [rhs], 
+   //    AType (){ 
+   //         if(flatNames[1] == "v"){
+   //             println("***");
+   //         }
+   //        recType  = computeReceiverType(current, receiver,  scope);
+   //        rhsType  = computeAssignmentRhsType(current, recType, operator, getType(rhs));
+   //      
+   //        if(!isTupleType(rhsType)) reportError(current, "Tuple type required, found <fmt(rhsType)>");
+   //        recFields = getTupleFields(recType);
+   //        rhsFields = getTupleFields(rhsType);
+   //        if(size(names) != size(rhsFields)) reportError(statement, "Tuple type required of arity <size(names)>, found arity <size(rhsFields)>");           
+   //       
+   //        for(int i <- index(names)){
+   //            if(isFullyInstantiated(getType(names[i]))){
+   //               comparable(rhsFields[i], recFields[i]) || reportError(names[i], "Value of type <fmt(rhsFields[i])> cannot be assigned to <fmt("<names[i]>")> of type <fmt(recFields[i])>");
+   //               //if(flatNames[i] in namesInRhs){
+   //                 //taus[i] = getType(names[i]);
+   //                 unify(taus[i], rhsFields[i]) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
+   //               //}
+   //            } else {
+   //              if(flatNames[i] in namesInRhs){
+   //                 unify(taus[i], typeof(names[i])) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
+   //                 taus[i] = instantiate(taus[i]);
+   //              } else 
+   //                 unify(taus[i], rhsFields[i]) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
+   //                 taus[i] = instantiate(taus[i]);
+   //            }
+   //        }
+   //        res = atuple(atypeList([ instantiate(taus[i]) | int i <- index(names)]));
+   //        println("assignable tuple returns: <res>");
+   //        for(int i <- index(names)){
+   //         println("<i>: <taus[i]>");
+   //        }
+   //        return res;
+   //      });
 }
 
 void checkAssignment(Statement current, (Assignable) `<Assignable receiver> @ <Name n>`, str operator, Statement rhs, TBuilder tb){

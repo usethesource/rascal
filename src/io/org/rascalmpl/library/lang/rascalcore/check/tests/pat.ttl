@@ -13,7 +13,7 @@ test Lst5 [[ module A value zz = [1,2.5] := [1, 2]; ]]
 test Lst6 [[ module A value zz = [1] := ["a"]; ]] expect {"Pattern should be comparable with `list[str]`, found `list[int]`"}
 test Lst7 [[ module A value zz = [x] := ["a"]; ]]
 test Lst8 [[ module A value zz = m && x == "a"; ]] expect { "Undefined variable, function, formal, field or constructor `m`" }
-test Lst9 [[ module A value zz = { x = 1; [x] := ["a"] && x == "a";}; ]]
+test Lst9 [[ module A value zz = { x = 1; [x] := ["a"] && x == "a";}; ]] expect { "Pattern should be comparable with `str`, found `int`" }
 test Lst10 [[ module A value zz = { x = "a"; [x] := ["a"] && x == "a";}; ]] 
 
 test Set1 [[ module A value zz = {} := {1}; ]]
@@ -24,7 +24,7 @@ test Set5 [[ module A value zz = {1,2.5} := {1, 2}; ]]
 test Set6 [[ module A value zz = {1} := {"a"}; ]] expect {"Pattern should be comparable with `set[str]`, found `set[int]`"}
 test Set7 [[ module A value zz = {x} := {"a"}; ]]
 test Set8 [[ module A value zz = {x} := {"a"} && x == "a"; ]]
-test Set9 [[ module A value zz = { x = 1; {x} := {"a"} && x == "a";}; ]]
+test Set9 [[ module A value zz = { x = 1; {x} := {"a"} && x == "a";}; ]] expect { "Pattern should be comparable with `str`, found `int`" }
 test Set10 [[ module A value zz = { x = "a"; {x} := {"a"} && x == "a";}; ]] 
 
 test Tup1 [[ module A value zz = <1> := <1>; ]]
@@ -34,12 +34,12 @@ test Tup4 [[ module A value zz = <1> := <2, "b">; ]] expect { "Expected tuple pa
 test Tup5 [[ module A value zz = <1> := <"a">; ]] expect {"Pattern should be comparable with `tuple[str]`, found `tuple[int]`"}
 test Tup6 [[ module A value zz = <x> := <"a">; ]]
 test Tup7 [[ module A value zz = <x> := <"a"> && x == "a"; ]]
-test Tup8 [[ module A value zz = { x = 1; <x> := <"a"> && x == "a";}; ]]
+test Tup8 [[ module A value zz = { x = 1; <x> := <"a"> && x == "a";}; ]] expect { "Pattern should be comparable with `str`, found `int`"}
 test Tup9 [[ module A value zz = { x = "a"; <x> := <"a"> && x == "a";}; ]] 
 
 test Var1 [[ module A value zz = int x := 1; ]]
 test Var2 [[ module A value zz = int x := 1 && x == 1; ]]
-test Var3 [[ module A value zz = int x := 1 && x == "a"; ]] expect { "Comparison `==` not defined on `int` and `str`" }
+test Var3 [[ module A value zz = int x := 1 && x == "a"; ]] expect { "Comparison not defined on `int` and `str`" }
 
 test If1 [[ module A value zz = { if(int x := 1) x + 1; }; ]]
 test If2 [[ module A value zz = { if(int x := 1) x + 1; else x + 2; }; ]] expect { "Undefined variable, function, formal, field or constructor `x`" }

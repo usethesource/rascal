@@ -166,7 +166,7 @@ void collect(current: (Pattern) `<QualifiedName name>`,  TBuilder tb){
           tb.define(qname.name, formalId(), name, defLub([], AType() { return avalue(); }));
        } else {
           tau = tb.newTypeVar(name);
-          tb.fact(name, tau);
+          tb.fact(name, tau); //<====
           if(isQualified(qname)) tb.reportError(name, "Qualifier not allowed");
           //println("qualifiedName: <name>, defLub, <tau>, <getLoc(current)>");
           tb.define(qname.name, variableId(), name, defLub([], AType() { return getType(tau); }));
@@ -193,7 +193,7 @@ void collectAsVarArg(current: (Pattern) `<QualifiedName name>`,  TBuilder tb){
           tb.define(qname.name, formalId(), name, defLub([], AType() { return avalue(); }));
        } else {
           tau = tb.newTypeVar(name);
-          tb.fact(name, tau);
+          tb.fact(name, tau);     //<====
           if(isQualified(qname)) tb.reportError(name, "Qualifier not allowed");
           //println("qualifiedName: <name>, defLub, <tau>, <getLoc(current)>");
           tb.define(qname.name, variableId(), name, defLub([], AType() { return getType(tau); }));
@@ -308,8 +308,9 @@ void collect(current: (Pattern) `* <Pattern argument>`, TBuilder tb){
     collectSplicePattern(current, argument, tb);
 }
 
-AType getPatternType(current: (Pattern) `* <Pattern argument>`, AType subjectType, Key scope)
-    = getSplicePatternType(current, argument, subjectType, scope);
+AType getPatternType(current: (Pattern) `* <Pattern argument>`, AType subjectType, Key scope){
+    return  getSplicePatternType(current, argument, subjectType, scope);
+}
     
 void collectSplicePattern(Pattern current, Pattern argument,  TBuilder tb){
     inSet = inSetPattern(current, tb);
@@ -352,11 +353,12 @@ void collectSplicePattern(Pattern current, Pattern argument,  TBuilder tb){
               tb.define(qname.name, formalId(), argName, defLub([], AType() { return avalue(); }));
            } else {
               tau = tb.newTypeVar(argName);
-              tb.fact(current, tau);
+              tb.fact(current, tau);    // <===
               if(isQualified(qname)) tb.reportError(argName, "Qualifier not allowed");
-              //println("qualifiedName: <name>, defLub, <tau>, <getLoc(current)>");
+              println("collectSplicePattern, qualifiedName: <argName>, defLub, <tau>, <getLoc(current)>");
               tb.define(qname.name, variableId(), argName, 
-                        defLub([], AType() { tp = getType(tau); return inSet ? aset(expandUserTypes(tp, scope)) : alist(expandUserTypes(tp, scope));}));
+                        defLub([], AType() { 
+                        tp = getType(tau); return inSet ? aset(expandUserTypes(tp, scope)) : alist(expandUserTypes(tp, scope));}));
            }
         } else {
            tb.fact(current, avoid());
@@ -366,7 +368,6 @@ void collectSplicePattern(Pattern current, Pattern argument,  TBuilder tb){
         println("current: <current>");
         println("argument: <argument>");
         tp = collectSplicePattern(argument, argument, tb);
-        
     }
 }
 

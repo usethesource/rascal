@@ -11,7 +11,7 @@ test Or2 [[ module A value zz = 1 || false; ]] expect { "Argument of || should b
 test Or3 [[ module A value zz = true || "abc"; ]] expect { "Argument of || should be `bool`, found `str`"}
 
 test Eq1 [[ module A value zz = 1 == 1; ]]
-test Eq1 [[ module A value zz = 1 == "a"; ]] expect { "Comparison `==` not defined on `int` and `str`" }
+test Eq2 [[ module A value zz = 1 == "a"; ]] expect { "Comparison not defined on `int` and `str`" }
 
 test Lst1 [[ module A value zz = []; ]]
 test Lst2 [[ module A value zz = [1,2] + 1; ]]

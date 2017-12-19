@@ -28,7 +28,7 @@ test S8 [[ module A
            syntax EXP = intcon: INT intcon 
                       | add: EXP lhs "+" EXP rhs ;
            Exp exp;
-]] expect { "Undeclared type `Exp`" }
+]] expect { "Invalid variable type is defined" }
 
 test FLD1 [[ module A 
            lexical INT = [0-9]+; 

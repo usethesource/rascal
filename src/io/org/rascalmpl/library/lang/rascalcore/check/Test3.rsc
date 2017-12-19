@@ -1,5 +1,8 @@
 module lang::rascalcore::check::Test3
 
-value assignment5() {
-    return {<x, y> = <3, 4>; 
-        x = 5; return (x == 5) && (y == 4);};}
+
+value priority(list[int] levels) {
+  ordering = { father | [pre*,int father] := levels };
+  }
+  
+test bool matchSet18() = {*Y} := {1,2} && Y == {1,2};
