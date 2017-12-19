@@ -18,7 +18,7 @@ import lang::rascal::grammar::definition::Names;
 import Grammar;
 import List; 
 import String;    
-import ParseTree;
+extend ParseTree;   // extend: for opening recursion for choice and priority rewrite rules
 import IO;  
 import util::Math;
 import util::Maybe;
@@ -104,6 +104,19 @@ public Production choice(Symbol s, {*Production a, others(Symbol t)}) {
     return choice(s, a);
 }
 
+@doc{":prodName" in a choice is a no-op}   
+public Production choice(Symbol s, {*Production a, reference(Symbol t)}) = choice(s, a) when bprintln("dropping ...");
+
 @doc{This implements the semantics of "..." under a priority group}
-public Production choice(Symbol s, {*Production a, priority(Symbol t, [*Production b, others(Symbol u), *Production c])}) 
-  = priority(s, b + [choice(s, a)] + c);
+public Production choice(Symbol s, 
+    {*Production a, priority(Symbol t, [*Production b, others(Symbol u), *Production c])}) 
+  = priority(s, b + [choice(s, a)] + c) when bprintln("expanding ...");
+  
+@doc{This implements the semantics of :ProdName under a priority group}
+public Production choice(Symbol s, 
+   {*Production a, 
+     priority(Symbol t, 
+             [*Production b, reference(Symbol u, str name), *Production c]),
+     Production ref:prod(label(Symbol _, name), list[Symbol] _, set[Attr] _)}) 
+  = choice(s, {*a, priority(s, b + ref + c)}) when bprintln("expanding :<name>");
+  
