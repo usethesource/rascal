@@ -13,10 +13,13 @@
 module lang::rascal::tests::functionality::CallTests
  
 import ParseTree;
+import IO;
 
 import lang::rascal::tests::functionality::CallTestsAux;
 
 syntax XYZ = "x" | "y" | "z";
+
+data C = c(int i);
 
 // voidFun
   
@@ -452,4 +455,25 @@ test bool tcc3() = translateConstantCall("value", [1, 2]) == 2;
 test bool tcc4() = translateConstantCall("xxx", []) == -1;
 test bool tcc4() = translateConstantCall("xxx", [1]) == -1;
 
+// backtracking tests, also uses an alternative from CallTestsAux
 
+C c(int i) {
+  if (i == 0 || i mod 3 != 0) 
+    fail c;
+  else
+    return c(i / 3);
+}
+
+C c(int i) {
+  if (i == 0 || i mod 2 != 0) 
+    fail c;
+  else
+    return c(i / 2);
+}
+
+C c(int i) = c(i / 7) when i mod 7 == 0, i != 0;
+
+test bool bt1() = c(7 * 5 * 3 * 2) == c(1);
+test bool bt2() = c(5 * 3 * 2) == c(1);
+test bool bt3() = c(3 * 2) == c(1);
+test bool bt(int i) = (j := i mod 100) && c(xxx) := c(j) && xxx <= j;
