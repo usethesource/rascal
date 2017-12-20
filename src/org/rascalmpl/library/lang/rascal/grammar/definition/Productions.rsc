@@ -13,9 +13,9 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascal::grammar::definition::Characters;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::definition::Attributes;
-import lang::rascal::grammar::definition::Names;
+import lang::rascal::grammar::definition::qs;
 
-import Grammar;
+extend Grammar;
 import List; 
 import String;    
 extend ParseTree;   // extend: for opening recursion for choice and priority rewrite rules
@@ -66,7 +66,7 @@ private Production prod2prod(Symbol nt, Prod p) {
   switch(p) {
     case labeled(ProdModifier* ms, Name n, Sym* args) : 
       if ([Sym x] := args.args, x is empty) {
-        return prod(label("<n>",nt), [], mods2attrs(ms));
+        return prod(label(unescape("<n>"),nt), [], mods2attrs(ms));
       }
       else {
         return prod(label(unescape("<n>"),nt),args2symbols(args),mods2attrs(ms));
@@ -91,26 +91,16 @@ private Production prod2prod(Symbol nt, Prod p) {
     case associativityGroup(\associative(), Prod q) :      
       return associativity(nt, Associativity::\left(), {prod2prod(nt, q)});
     case others(): return \others(nt);
-    case reference(Name n): return \reference(nt, "<n>");
-    default: throw "prod2prod, missed a case <p>";
+    case reference(Name n): return \reference(nt, unescape("<n>"));
+    default: throw "prod2prod, missed a case <p>"; 
   } 
 }
 
-@doc{"..." in a choice is a no-op}   
-public Production choice(Symbol s, {*Production a, others(Symbol t)}) {
-  if (a == {})
-    return others(t);
-  else
-    return choice(s, a);
-}
-
-@doc{":prodName" in a choice is a no-op}   
-public Production choice(Symbol s, {*Production a, reference(Symbol t)}) = choice(s, a) when bprintln("dropping ...");
-
 @doc{This implements the semantics of "..." under a priority group}
 public Production choice(Symbol s, 
-    {*Production a, priority(Symbol t, [*Production b, others(Symbol u), *Production c])}) 
-  = priority(s, b + [choice(s, a)] + c) when bprintln("expanding ...");
+    {*Production a, priority(Symbol t, [*Production b, others(Symbol u), *Production c])})  {
+    return  priority(s, b + [choice(s, a)] + c);
+}
   
 @doc{This implements the semantics of :ProdName under a priority group}
 public Production choice(Symbol s, 
@@ -118,5 +108,7 @@ public Production choice(Symbol s,
      priority(Symbol t, 
              [*Production b, reference(Symbol u, str name), *Production c]),
      Production ref:prod(label(Symbol _, name), list[Symbol] _, set[Attr] _)}) 
-  = choice(s, {*a, priority(s, b + ref + c)}) when bprintln("expanding :<name>");
+  {
+    return choice(s, {*a, priority(s, b + ref + c)});
+  }
   

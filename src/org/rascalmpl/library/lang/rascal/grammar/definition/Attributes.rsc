@@ -29,9 +29,9 @@ public Attr mod2attr(ProdModifier m) {
     case \tag(\default(Name n, TagString s))    : return \tag("<n>"("<s>"));
     case \tag(\empty(Name n))                   : return \tag("<n>"()); 
     case \tag(\expression(Name n, literal(string(nonInterpolated(StringConstant l)))))  
-                                                : return \tag("<n>"("<unescape(l)>"));
+                                                : return \tag("<n>"("<unescapeLiteral(l)>"));
     case \tag(\expression(Name n, literal(Literal l)))
-                                                : return \tag("<n>"("<unescape("<l>")>"));
+                                                : return \tag("<n>"("<unescapeLiteral("<l>")>"));
     case \tag(\expression(Name n, Expression e))     
                                                 : return \tag("<n>"( readTextValueString("<e>")));                                       
     default: { rprintln(m); throw "mod2attr, missed a case <m>"; }
