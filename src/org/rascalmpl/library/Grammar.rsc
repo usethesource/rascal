@@ -14,7 +14,6 @@ A simple but effective internal format for the representation of context-free gr
 }
 module Grammar
 
-extend lang::rascal::grammar::definition::Productions;
 import Exception;
 import Message;
 extend ParseTree;
@@ -48,6 +47,7 @@ public Grammar grammar(set[Symbol] starts, set[Production] prods) {
 
   for (p <- prods) {
     t = (p.def is label) ? p.def.symbol : p.def;
+    iprintln(choice);
     rules[t] = t in rules ? choice(t, {p, *rules[t]}) : choice(t, {p});
   } 
   return grammar(starts, rules);
