@@ -42,9 +42,9 @@ public Symbol sym2symbol(Sym sym) {
     case \start(Nonterminal n) : 
       return Symbol::\start(sort("<n>"));
     case literal(StringConstant l): 
-      return Symbol::lit(unescape(l));
+      return Symbol::lit(unescapeLiteral(l));
     case caseInsensitiveLiteral(CaseInsensitiveStringConstant l): 
-      return Symbol::cilit(unescape(l));
+      return Symbol::cilit(unescapeLiteral(l));
     case \parametrized(Nonterminal n, {Sym ","}+ syms) : 
       return Symbol::\parameterized-sort("<n>",separgs2symbols(syms)); 
     case labeled(Sym s, NonterminalLabel n) : 
