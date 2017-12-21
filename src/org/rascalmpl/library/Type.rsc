@@ -166,7 +166,6 @@ public Production choice(Symbol s, set[Production] choices) {
 	    }
 	
 	    if (changed) {
-	        iprintln(choice);
 	       	return choice(s, new_choices);
 	    }
 	    else {
