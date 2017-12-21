@@ -320,7 +320,7 @@ public class SourceConverter extends M3Converter {
 	
 	private ISourceLocation getParent(ISourceLocation sourceLoc) {
 	    ISourceLocation result = URIUtil.getParentLocation(sourceLoc);
-	    if (result == sourceLoc) {
+	    if (result.getPath().equals("/")) {
 	        return null;
 	    }
 	    return result;
