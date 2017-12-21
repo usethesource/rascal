@@ -576,19 +576,15 @@ public abstract class Import {
     String name = eval.getParserGenerator().getParserMethodName(symTree);
     Type type = env.lookupAbstractDataType(name);
     if (type != null) { //found an ADT with the right name, checking for parse function
-//        eval.getStdOut().println("Found "+name+" ADT!");
         Map<IValue, ITree> antiquotes = new HashMap<>();
         List<AbstractFunction> functions = new ArrayList<>();
         env.getAllFunctions(type, functions);
         functions = functions.stream().filter(it -> it.hasTag("concreteSyntax") && it.getArity() == 1
           && it.getFunctionType().getArgumentTypes().getFieldType(0).equals(TypeFactory.getInstance().stringType())).collect(Collectors.toList());
-//        functions.stream().forEach(it->eval.getStdOut().println("Function: "+it));
         if (functions.size() > 0) { //found a function from string to ADT, assuming concrete syntax of abstract grammar
-//            eval.getStdOut().println("Found "+functions.size()+"function! "+functions.get(0));
             SortedMap<Integer,Integer> corrections = new TreeMap<>();
             String input = replaceAntiQuotesByHoles2(eval, env, lit, antiquotes, corrections);
             Result<IValue> result = functions.get(0).call(new Type[] {TypeFactory.getInstance().stringType()}, new IValue[] {eval.getValueFactory().string(input)}, null);
-//            eval.getStdOut().println("Result: "+result);
             IValue ret = replaceHolesByAntiQuotes2(eval, (IConstructor) result.getValue(), antiquotes, corrections);
             return ((IRascalValueFactory) eval.getValueFactory()).quote((INode) ret);
         }
@@ -838,7 +834,6 @@ public abstract class Import {
                 original.append(TreeAdapter.yield(part));
             }
         }
-//        eval.getStdOut().println("Replaced "+original.toString()+" with "+b.toString());
         return b.toString();
     }
 
@@ -854,12 +849,12 @@ public abstract class Import {
         List<AbstractFunction> functions = new ArrayList<>();
         env.getAllFunctions(TypeFactory.getInstance().tupleType(stringType, type), functions);
 
-        List<AbstractFunction> functionsFiltered = functions.stream()
+        functions = functions.stream()
             .filter(it -> it.hasTag("concreteHole") && it.getArity() == 1
                 && it.getFunctionType().getArgumentTypes().getFieldType(0).equals(stringType))
             .collect(Collectors.toList());
-        if (functionsFiltered.size() > 0) {
-            Result<IValue> result = functionsFiltered.get(0).call(new Type[] {stringType},
+        if (functions.size() > 0) {
+            Result<IValue> result = functions.get(0).call(new Type[] {stringType},
                 new IValue[] {ctx.getValueFactory().string(antiquotes.size() + "")}, null);
             ITuple holeInfo = (ITuple) result.getValue();
 
