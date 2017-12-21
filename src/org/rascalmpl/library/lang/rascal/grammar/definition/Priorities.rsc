@@ -7,44 +7,66 @@
 }
 module lang::rascal::grammar::definition::Priorities
 
-import ParseTree;
+extend ParseTree;
 import Grammar;
 import Set;
 import List;
 import IO;
 import util::Maybe;
+import Node;
  
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Symbols;
+import lang::rascal::grammar::definition::References;
 import lang::rascal::grammar::Lookahead;
 // import lang::rascal::grammar::analyze::Recursion;
+
 
 public alias Priorities = rel[Production father, Production child];
 public alias DoNotNest = rel[Production father, int position, Production child];
 
+ 
+void ass = {<prod(sort("E"),[sort("E"),layouts("$default$"),lit("+"),layouts("$default$"),sort("E")],{\assoc(\left())}),4,prod(sort("E"),[sort("E"),layouts("$default$"),lit("-"),layouts("$default$"),sort("E")],{\assoc(\left())})>,<prod(sort("E"),[sort("E"),layouts("$default$"),lit("-"),layouts("$default$"),sort("E")],{\assoc(\left())}),4,prod(sort("E"),[sort("E"),layouts("$default$"),lit("-"),layouts("$default$"),sort("E")],{\assoc(\left())})>,<prod(sort("E"),[sort("E"),layouts("$default$"),lit("+"),layouts("$default$"),sort("E")],{\assoc(\left())}),4,prod(sort("E"),[sort("E"),layouts("$default$"),lit("+"),layouts("$default$"),sort("E")],{\assoc(\left())})>,<prod(sort("E"),[sort("E"),layouts("$default$"),lit("-"),layouts("$default$"),sort("E")],{\assoc(\left())}),4,prod(sort("E"),[sort("E"),layouts("$default$"),lit("+"),layouts("$default$"),sort("E")],{\assoc(\left())})>};
+void prio = {<prod(sort("E"),[sort("E"),layouts("$default$"),lit("*"),layouts("$default$"),sort("E")],{}),prod(sort("E"),[sort("E"),layouts("$default$"),lit("+"),layouts("$default$"),sort("E")],{})>};
+
 public DoNotNest doNotNest(Grammar g) {
+  g = references(g); // references must be resolved to support the right semantics for ... and :cons references in priority and associativity groups
   DoNotNest result = {};
   
   for (s <- g.rules) {
     lefties = {s}; // leftRecursive(g, s);
     righties = {s}; //rightRecursive(g, s);
-    <ordering,ass> = doNotNest(g.rules[s], lefties, righties);
+    <ordering, ass> = doNotNest(g.rules[s], lefties, righties, g.rules);
+    
+    // associativity groups are closed under group membership
+    ass1 = ass;
+    solve (ass) {
+       ass += { <a, pos, c> | <a, pos, b> <- ass, <b, _, c> <- ass };
+    }
+    println("ass <ass1 == ass>: <ass>");
     result += ass;
     
-    ordering = ordering+; // priority is transitive
+    // priority is closed with the other elements of associativity groups
+    ord1 = ordering;
+	ordering += ordering o (ass<father,child> + ass<child,father>);
+    println("ord <ord1 == ordering>: <ordering>");
+    
+    ordering = ordering+; // finally priority is transitively closed
    
     for (<Production father, Production child> <- ordering) {
       switch (father) {
         case prod(Symbol rhs,lhs:[Symbol l,_*,Symbol r],_) : {
           if (match(l,lefties) && match(r,righties)) {
             if (prod(Symbol crhs,clhs:[_*,Symbol cl],_) := child, match(cl,righties)) {
-            result += {<father, 0, child>};
+              result += {<father, 0, child>};
+            }
+            if (prod(Symbol crhs,clhs:[Symbol cl,_*],_) := child, match(cl,lefties)) {
+              result += {<father, size(lhs) - 1, child>};
+            }
+          }   
+          else {
+            fail;
           }
-          if (prod(Symbol crhs,clhs:[Symbol cl,_*],_) := child, match(cl,lefties)) {
-            result += {<father, size(lhs) - 1, child>};
-          }
-        }   
-        else fail;
       }
       case prod(Symbol rhs,lhs:[Symbol l,_*],_) :
         if (match(l,lefties), prod(Symbol crhs,clhs:[_*,Symbol cl],_) := child, match(cl,righties)) {
@@ -113,42 +135,48 @@ public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
 }
 
 
-public tuple[Priorities prio,DoNotNest ass] doNotNest(Production p, set[Symbol] lefties, set[Symbol] righties) {
+public tuple[Priorities prio,DoNotNest ass] doNotNest(Production p, set[Symbol] lefties, set[Symbol] righties, map[Symbol, Production] rules) {
   switch (p) {
     case prod(s, [t, *Symbol \o, u],{_*,\assoc(left())}) :
-      if (match(t, lefties), match(u,righties)) return <{},{<p, size(\o) + 1, p>}>;
+      if (match(t, lefties), match(u, righties)) 
+        return <{},{<p, size(\o) + 1, p>}>;
     case prod(s,[t, *Symbol \o, u],{_*,\assoc(\assoc())}) :
-      if (match(t, lefties), match(u, righties)) return <{},{<p, size(\o) + 1, p>}>;
+      if (match(t, lefties), match(u, righties)) 
+        return <{},{<p, size(\o) + 1, p>}>;
     case prod(s,[t,_*,u],{_*,\assoc(\right())}) :
-      if (match(t, lefties), match(u, righties)) return <{},{<p, 0, p>}>; 
+      if (match(t, lefties), match(u, righties)) 
+        return <{},{<p, 0, p>}>; 
     case prod(s,[t, *Symbol \o, u],{_*,\assoc(\non-assoc())}) :
-      if (match(t, lefties) && match(u, righties)) return <{},{<p, 0, p>,<p,size(\o) + 1,p>}>;       
+      if (match(t, lefties) && match(u, righties)) 
+        return <{},{<p, 0, p>,<p,size(\o) + 1,p>}>;       
     case prod(s,[t,_*],{_*,\assoc(\non-assoc())}) :
-      if (match(t, lefties)) return <{},{<p, 0, p>}>; 
+      if (match(t, lefties)) 
+        return <{},{<p, 0, p>}>; 
     case prod(s,[*Symbol \o, t],{_*,\assoc(\non-assoc())}) :
-      if (match(t, righties)) return <{},{<p, size(\o), p>}>;
+      if (match(t, righties)) 
+        return <{},{<p, size(\o), p>}>;
     case choice(_, set[Production] alts) : {
         Priorities pr = {}; DoNotNest as = {};
-        for (a <- alts, <prA,asA> := doNotNest(a, lefties, righties)) {
+        for (a <- alts, <prA,asA> := doNotNest(a, lefties, righties, rules)) {
           pr += prA;
           as += asA;
         }
         return <pr, as>; 
       }
     case \lookahead(_,_,q) :
-      return doNotNest(q, lefties, righties); 
+      return doNotNest(q, lefties, righties, rules); 
     case priority(_, list[Production] levels) : 
-      return priority(levels, lefties, righties);
+      return priority(levels, lefties, righties, rules);
     case \associativity(_, Associativity a, set[Production] alts) : 
-      return associativity(a, alts, lefties, righties);
+      return associativity(a, alts, lefties, righties, rules);
   }
   
   return <{},{}>;
 }
 
-tuple[Priorities,DoNotNest] associativity(Associativity a, set[Production] alts, set[Symbol] lefties, set[Symbol] righties) {
+tuple[Priorities, DoNotNest] associativity(Associativity a, set[Production] alts, set[Symbol] lefties, set[Symbol] righties, map[Symbol, Production] rules) {
   result = {};
-  
+
   // note that there are nested groups and that each member of a nested group needs to be paired
   // with all the members of the other nested group. This explains the use of the / deep match operator.
   for ({Production pivot, *Production rest} := alts,  Production child:prod(_,_,_) := pivot) {
@@ -167,7 +195,7 @@ tuple[Priorities,DoNotNest] associativity(Associativity a, set[Production] alts,
   }
   
   pr = {};
-  for (x <- alts, <prX,asX> := doNotNest(x, lefties, righties)) {
+  for (x <- alts, <prX, asX> := doNotNest(x, lefties, righties, rules)) {
     pr += prX;
     result += asX;
   }
@@ -175,8 +203,8 @@ tuple[Priorities,DoNotNest] associativity(Associativity a, set[Production] alts,
   return <pr, result>;
 }
 
-public tuple[Priorities,DoNotNest] priority(list[Production] levels, set[Symbol] lefties, set[Symbol] righties) {
-  // collect basic filter
+public tuple[Priorities,DoNotNest] priority(list[Production] levels, set[Symbol] lefties, set[Symbol] righties, map[Symbol, Production] rules) {
+  // collect basic filter; note that this duplicates references such that they are resolved twice in the right positions
   ordering = { <father,child> | [pre*,Production father, Production child, post*] := levels };
 
   // flatten nested structure to obtain direct relations
@@ -199,7 +227,7 @@ public tuple[Priorities,DoNotNest] priority(list[Production] levels, set[Symbol]
   }
   
   DoNotNest as = {};
-  for (x <- levels, <prX,asX> := doNotNest(x, lefties, righties)) {
+  for (x <- levels, <prX,asX> := doNotNest(x, lefties, righties, rules)) {
     ordering += prX;
     as += asX;
   }
@@ -208,3 +236,4 @@ public tuple[Priorities,DoNotNest] priority(list[Production] levels, set[Symbol]
 }
 
 private bool match(Symbol x, set[Symbol] reference) = striprec(x) in reference;
+
