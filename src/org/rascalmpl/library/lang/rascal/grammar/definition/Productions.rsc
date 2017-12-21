@@ -14,8 +14,7 @@ import lang::rascal::grammar::definition::Characters;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::definition::Attributes;
 import lang::rascal::grammar::definition::qs;
-
-extend Grammar;
+import Grammar;
 import List; 
 import String;    
 extend ParseTree;   // extend: for opening recursion for choice and priority rewrite rules
@@ -95,20 +94,3 @@ private Production prod2prod(Symbol nt, Prod p) {
     default: throw "prod2prod, missed a case <p>"; 
   } 
 }
-
-@doc{This implements the semantics of "..." under a priority group}
-public Production choice(Symbol s, 
-    {*Production a, priority(Symbol t, [*Production b, others(Symbol u), *Production c])})  {
-    return  priority(s, b + [choice(s, a)] + c);
-}
-  
-@doc{This implements the semantics of :ProdName under a priority group}
-public Production choice(Symbol s, 
-   {*Production a, 
-     priority(Symbol t, 
-             [*Production b, reference(Symbol u, str name), *Production c]),
-     Production ref:prod(label(Symbol _, name), list[Symbol] _, set[Attr] _)}) 
-  {
-    return choice(s, {*a, priority(s, b + ref + c)});
-  }
-  
