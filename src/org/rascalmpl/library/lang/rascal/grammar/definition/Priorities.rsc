@@ -26,9 +26,6 @@ public alias Priorities = rel[Production father, Production child];
 public alias DoNotNest = rel[Production father, int position, Production child];
 
  
-void ass = {<prod(sort("E"),[sort("E"),layouts("$default$"),lit("+"),layouts("$default$"),sort("E")],{\assoc(\left())}),4,prod(sort("E"),[sort("E"),layouts("$default$"),lit("-"),layouts("$default$"),sort("E")],{\assoc(\left())})>,<prod(sort("E"),[sort("E"),layouts("$default$"),lit("-"),layouts("$default$"),sort("E")],{\assoc(\left())}),4,prod(sort("E"),[sort("E"),layouts("$default$"),lit("-"),layouts("$default$"),sort("E")],{\assoc(\left())})>,<prod(sort("E"),[sort("E"),layouts("$default$"),lit("+"),layouts("$default$"),sort("E")],{\assoc(\left())}),4,prod(sort("E"),[sort("E"),layouts("$default$"),lit("+"),layouts("$default$"),sort("E")],{\assoc(\left())})>,<prod(sort("E"),[sort("E"),layouts("$default$"),lit("-"),layouts("$default$"),sort("E")],{\assoc(\left())}),4,prod(sort("E"),[sort("E"),layouts("$default$"),lit("+"),layouts("$default$"),sort("E")],{\assoc(\left())})>};
-void prio = {<prod(sort("E"),[sort("E"),layouts("$default$"),lit("*"),layouts("$default$"),sort("E")],{}),prod(sort("E"),[sort("E"),layouts("$default$"),lit("+"),layouts("$default$"),sort("E")],{})>};
-
 public DoNotNest doNotNest(Grammar g) {
   g = references(g); // references must be resolved to support the right semantics for ... and :cons references in priority and associativity groups
   DoNotNest result = {};
@@ -39,19 +36,17 @@ public DoNotNest doNotNest(Grammar g) {
     <ordering, ass> = doNotNest(g.rules[s], lefties, righties, g.rules);
     
     // associativity groups are closed under group membership
-    ass1 = ass;
     solve (ass) {
        ass += { <a, pos, c> | <a, pos, b> <- ass, <b, _, c> <- ass };
     }
-    println("ass <ass1 == ass>: <ass>");
     result += ass;
     
     // priority is closed with the other elements of associativity groups
-    ord1 = ordering;
-	ordering += ordering o (ass<father,child> + ass<child,father>);
-    println("ord <ord1 == ordering>: <ordering>");
+	ordering += ordering o ass<father,child> 
+	          + ass<father,child> o ordering;
     
-    ordering = ordering+; // finally priority is transitively closed
+    // finally priority is transitively closed
+    ordering = ordering+; 
    
     for (<Production father, Production child> <- ordering) {
       switch (father) {

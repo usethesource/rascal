@@ -65,17 +65,17 @@ private Production prod2prod(Symbol nt, Prod p) {
   switch(p) {
     case labeled(ProdModifier* ms, Name n, Sym* args) : 
       if ([Sym x] := args.args, x is empty) {
-        return prod(label(unescape("<n>"),nt), [], mods2attrs(ms));
+        return associativity(nt, \mods2assoc(ms), prod(label(unescape("<n>"),nt), [], mods2attrs(ms)));
       }
       else {
-        return prod(label(unescape("<n>"),nt),args2symbols(args),mods2attrs(ms));
+        return associativity(nt, \mods2assoc(ms), prod(label(unescape("<n>"),nt), args2symbols(args), mods2attrs(ms)));
       }
     case unlabeled(ProdModifier* ms, Sym* args) :
       if ([Sym x] := args.args, x is empty) {
-        return prod(nt, [], mods2attrs(ms));
+        return associativity(nt, mods2assoc(ms), prod(nt, [], mods2attrs(ms)));
       }
       else {
-        return prod(nt,args2symbols(args),mods2attrs(ms));
+        return associativity(nt, mods2assoc(ms), prod(nt,args2symbols(args),mods2attrs(ms)));
       }     
     case \all(Prod l, Prod r) :
       return choice(nt,{prod2prod(nt, l), prod2prod(nt, r)});
@@ -94,3 +94,6 @@ private Production prod2prod(Symbol nt, Prod p) {
     default: throw "prod2prod, missed a case <p>"; 
   } 
 }
+
+private Production associativity(Symbol nt, nothing(), Production p) = p;
+private default Production associativity(Symbol nt, just(Associativity a), Production p) = associativity(nt, a, {p});

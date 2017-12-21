@@ -12,28 +12,32 @@ import lang::rascal::grammar::definition::Literals;
 import ParseTree;
 import IO;
 import ValueIO;
+import util::Maybe;
 
 @doc{adds an attribute to all productions it can find}
-public Production attribute(Production p, Attr a) = p[attributes=p.attributes+{a}];
+Production attribute(Production p, Attr a) = p[attributes=p.attributes+{a}];
 
-// TODO: the result set is always empty it seems. FixMe!
-public set[Attr] mods2attrs(ProdModifier* mods) = {mod2attr(m) | ProdModifier m <- mods};
+set[Attr] mods2attrs(ProdModifier* mods) = {x | ProdModifier m <- mods, just(x) := mod2attr(m)};
+
+Maybe[Associativity] mods2assoc(ProdModifier* mods) = (nothing() | just(x) | ProdModifier m <- mods, just(x) := mod2assoc(m));
  
-public Attr mod2attr(ProdModifier m) {
+Maybe[Attr] mod2attr(ProdModifier m) {
   switch (m) {
-    case \associativity(\left())                : return \assoc(Associativity::\left());
-    case \associativity(\right())               : return \assoc(Associativity::\right());
-    case \associativity(\nonAssociative())      : return \assoc(\non-assoc());
-    case \associativity(\associative())         : return \assoc(\assoc());
-    case \bracket()                             : return \bracket();
-    case \tag(\default(Name n, TagString s))    : return \tag("<n>"("<s>"));
-    case \tag(\empty(Name n))                   : return \tag("<n>"()); 
+    case \bracket()                             : return just(\bracket());
+    case \tag(\default(Name n, TagString s))    : return just(\tag("<n>"("<s>")));
+    case \tag(\empty(Name n))                   : return just(\tag("<n>"())); 
     case \tag(\expression(Name n, literal(string(nonInterpolated(StringConstant l)))))  
-                                                : return \tag("<n>"("<unescapeLiteral(l)>"));
+                                                : return just(\tag("<n>"("<unescapeLiteral(l)>")));
     case \tag(\expression(Name n, literal(Literal l)))
-                                                : return \tag("<n>"("<unescapeLiteral("<l>")>"));
+                                                : return just(\tag("<n>"("<unescapeLiteral("<l>")>")));
     case \tag(\expression(Name n, Expression e))     
-                                                : return \tag("<n>"( readTextValueString("<e>")));                                       
-    default: { rprintln(m); throw "mod2attr, missed a case <m>"; }
+                                                : return just(\tag("<n>"( readTextValueString("<e>"))));                                       
+    default                                     : return nothing();
   }
 }
+
+Maybe[Associativity] mods2assoc(\associativity(\left()))           = just(Associativity::\left());
+Maybe[Associativity] mods2assoc(\associativity(\right()))          = just(Associativity::\right());
+Maybe[Associativity] mods2assoc(\associativity(\assoc()))          = just(Associativity::\left());
+Maybe[Associativity] mods2assoc(\associativity(\nonAssociative())) = just(Associativity::\non-assoc());
+default Associativity mods2assoc(ProdModifier _)                   = nothing();
