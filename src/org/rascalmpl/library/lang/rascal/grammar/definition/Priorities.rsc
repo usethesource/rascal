@@ -33,7 +33,7 @@ public DoNotNest doNotNest(Grammar g) {
   for (s <- g.rules) {
     lefties = {s}; // leftRecursive(g, s);
     righties = {s}; //rightRecursive(g, s);
-    <ordering, ass> = doNotNest(g.rules[s], lefties, righties, g.rules);
+    <ordering, ass> = doNotNest(g.rules[s], lefties, righties);
     
     // associativity groups are closed under group membership
     solve (ass) {
@@ -130,7 +130,7 @@ public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
 }
 
 
-public tuple[Priorities prio,DoNotNest ass] doNotNest(Production p, set[Symbol] lefties, set[Symbol] righties, map[Symbol, Production] rules) {
+public tuple[Priorities prio,DoNotNest ass] doNotNest(Production p, set[Symbol] lefties, set[Symbol] righties) {
   switch (p) {
     case prod(s, [t, *Symbol \o, u],{_*,\assoc(left())}) :
       if (match(t, lefties), match(u, righties)) 
@@ -152,24 +152,24 @@ public tuple[Priorities prio,DoNotNest ass] doNotNest(Production p, set[Symbol] 
         return <{},{<p, size(\o), p>}>;
     case choice(_, set[Production] alts) : {
         Priorities pr = {}; DoNotNest as = {};
-        for (a <- alts, <prA,asA> := doNotNest(a, lefties, righties, rules)) {
+        for (a <- alts, <prA,asA> := doNotNest(a, lefties, righties)) {
           pr += prA;
           as += asA;
         }
         return <pr, as>; 
       }
     case \lookahead(_,_,q) :
-      return doNotNest(q, lefties, righties, rules); 
+      return doNotNest(q, lefties, righties); 
     case priority(_, list[Production] levels) : 
-      return priority(levels, lefties, righties, rules);
+      return priority(levels, lefties, righties);
     case \associativity(_, Associativity a, set[Production] alts) : 
-      return associativity(a, alts, lefties, righties, rules);
+      return associativity(a, alts, lefties, righties);
   }
   
   return <{},{}>;
 }
 
-tuple[Priorities, DoNotNest] associativity(Associativity a, set[Production] alts, set[Symbol] lefties, set[Symbol] righties, map[Symbol, Production] rules) {
+tuple[Priorities, DoNotNest] associativity(Associativity a, set[Production] alts, set[Symbol] lefties, set[Symbol] righties) {
   result = {};
 
   // note that there are nested groups and that each member of a nested group needs to be paired
@@ -190,7 +190,7 @@ tuple[Priorities, DoNotNest] associativity(Associativity a, set[Production] alts
   }
   
   pr = {};
-  for (x <- alts, <prX, asX> := doNotNest(x, lefties, righties, rules)) {
+  for (x <- alts, <prX, asX> := doNotNest(x, lefties, righties)) {
     pr += prX;
     result += asX;
   }
@@ -198,7 +198,7 @@ tuple[Priorities, DoNotNest] associativity(Associativity a, set[Production] alts
   return <pr, result>;
 }
 
-public tuple[Priorities,DoNotNest] priority(list[Production] levels, set[Symbol] lefties, set[Symbol] righties, map[Symbol, Production] rules) {
+public tuple[Priorities,DoNotNest] priority(list[Production] levels, set[Symbol] lefties, set[Symbol] righties) {
   // collect basic filter; note that this duplicates references such that they are resolved twice in the right positions
   ordering = { <father,child> | [pre*,Production father, Production child, post*] := levels };
 
@@ -222,7 +222,7 @@ public tuple[Priorities,DoNotNest] priority(list[Production] levels, set[Symbol]
   }
   
   DoNotNest as = {};
-  for (x <- levels, <prX,asX> := doNotNest(x, lefties, righties, rules)) {
+  for (x <- levels, <prX,asX> := doNotNest(x, lefties, righties)) {
     ordering += prX;
     as += asX;
   }
