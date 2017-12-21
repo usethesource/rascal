@@ -13,11 +13,11 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascal::grammar::definition::Characters;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::definition::Attributes;
-import lang::rascal::grammar::definition::qs;
+import lang::rascal::grammar::definition::Names;
 import Grammar;
 import List; 
 import String;    
-extend ParseTree;   // extend: for opening recursion for choice and priority rewrite rules
+import ParseTree;   
 import IO;  
 import util::Math;
 import util::Maybe;
