@@ -36,8 +36,8 @@ Maybe[Attr] mod2attr(ProdModifier m) {
   }
 }
 
-Maybe[Associativity] mods2assoc(\associativity(\left()))           = just(Associativity::\left());
-Maybe[Associativity] mods2assoc(\associativity(\right()))          = just(Associativity::\right());
-Maybe[Associativity] mods2assoc(\associativity(\assoc()))          = just(Associativity::\left());
-Maybe[Associativity] mods2assoc(\associativity(\nonAssociative())) = just(Associativity::\non-assoc());
-default Associativity mods2assoc(ProdModifier _)                   = nothing();
+Maybe[Associativity] mod2assoc(\associativity(\left()))           = just(Associativity::\left());
+Maybe[Associativity] mod2assoc(\associativity(\right()))          = just(Associativity::\right());
+Maybe[Associativity] mod2assoc(\associativity(\assoc()))          = just(Associativity::\left());
+Maybe[Associativity] mod2assoc(\associativity(\nonAssociative())) = just(Associativity::\non-assoc());
+default Maybe[Associativity] mod2assoc(ProdModifier _)            = nothing();
