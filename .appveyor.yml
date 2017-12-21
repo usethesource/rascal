@@ -16,6 +16,3 @@ install:
   - SET MAVEN_OPTS="-Dmaven.repo.local=C:/Users/appveyor/.m2"
 build_script:
   - mvn clean compile -DskipTests
-
-test_script:
-  - mvn test
