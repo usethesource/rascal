@@ -15,7 +15,7 @@ Grammar references(Grammar g) = visit (g) {
   case choice(s, ps) => choice(s, { lookup(p, g.rules) | p <- ps })
 };
 
-private Production lookup(others(Symbol s), map[Symbol, Production] rules) = choice(s, rules[s]);
+private Production lookup(others(Symbol s), map[Symbol, Production] rules) = rules[s];
 
 private Production lookup(reference(Symbol s, str name), map[Symbol, Production] rules) {
   if (/Production a:associativity(s,_,/prod(label(name, s), _, _)) := rules[s])
