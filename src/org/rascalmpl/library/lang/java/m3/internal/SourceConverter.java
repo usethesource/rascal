@@ -1,13 +1,10 @@
 package org.rascalmpl.library.lang.java.m3.internal;
 
-import java.io.File;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -48,6 +45,7 @@ import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
@@ -321,20 +319,11 @@ public class SourceConverter extends M3Converter {
     }
 	
 	private ISourceLocation getParent(ISourceLocation sourceLoc) {
-		File file = new File(sourceLoc.getPath());
-		String parent = file.getParent();
-		if (parent != null && !parent.equals("/")) {
-			parent = parent.replaceAll(Matcher.quoteReplacement("\\"), "/");
-			String authority = null;
-			if (sourceLoc.hasAuthority())
-				authority = sourceLoc.getAuthority();
-			try {
-				return values.sourceLocation(sourceLoc.getScheme(), authority, parent);
-			} catch (URISyntaxException e) {
-				throw new RuntimeException("Should not happen", e);
-			}
-		}
-		return null; // there is no parent;
+	    ISourceLocation result = URIUtil.getParentLocation(sourceLoc);
+	    if (result == sourceLoc) {
+	        return null;
+	    }
+	    return result;
 	}
 	
 	public boolean visit(PackageDeclaration node) {
