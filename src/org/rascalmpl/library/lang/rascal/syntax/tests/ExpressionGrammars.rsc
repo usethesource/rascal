@@ -29,9 +29,10 @@ syntax Exp
   | com: Exp "," Exp
   ;
 
+syntax Exp = left( add: Exp "+" Exp | minmin: Exp "--" Exp);
 
 // "modular" extensions in the priority relation
-syntax Exp = :mul > left Exp "/" Exp > left (:add | :sub);
+syntax Exp = :mul > left Exp "/" Exp > :add;
 syntax Exp = ... > Exp "." Exp;
 
 syntax F = left "-" F | "f" | right F "+";
@@ -45,8 +46,13 @@ Exp removeBrackets(Exp e) = visit(e) {
   case (Exp) `(<Exp b>)` => b
 };
 
-test bool safeExt1() = (Exp) `e+e.e` == removeBrackets((Exp) `(e+e).e`);
-test bool safeExt2() = (Exp) `e*e/e+e` == removeBrackets((Exp) `(e*e)/e)+e`);
+test bool ext1() = (Exp) `e+e.e` == removeBrackets((Exp) `(e+e).e`);
+test bool ext2() = (Exp) `e*e/e+e` == removeBrackets((Exp) `((e*e)/e)+e`);
+test bool ext3() = (Exp) `e*e--e` == removeBrackets((Exp) `(e*e)--e`);
+test bool ext4() = (Exp) `e*e.e` == removeBrackets((Exp) `(e*e).e`);
+test bool ext5() = (Exp) `e+e.e` == removeBrackets((Exp) `(e+e).e`);
+test bool ext5() = (Exp) `e--e-e` == removeBrackets((Exp) `(e--e)-e`);
+test bool ext6() = (Exp) `e-e--e` == removeBrackets((Exp) `(e-e)--e`);
 
 test bool safeLeft() = F _ := parse(#F,"--f");
 test bool safeRight() = F _ := parse(#F,"f++");
