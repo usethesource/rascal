@@ -22,8 +22,8 @@ set[Attr] mods2attrs(ProdModifier* mods) = {x | ProdModifier m <- mods, just(x) 
 Maybe[Associativity] mods2assoc(ProdModifier* mods) = (nothing() | just(x) | ProdModifier m <- mods, just(x) := mod2assoc(m));
  
 Maybe[Attr] mod2attr(ProdModifier m) {
-  switch (m) {
-    case \bracket()                             : return just(\bracket());
+  switch (m) { 
+    case \bracket()                             : return just(Attr::\bracket());
     case \tag(\default(Name n, TagString s))    : return just(\tag("<n>"("<s>")));
     case \tag(\empty(Name n))                   : return just(\tag("<n>"())); 
     case \tag(\expression(Name n, literal(string(nonInterpolated(StringConstant l)))))  
