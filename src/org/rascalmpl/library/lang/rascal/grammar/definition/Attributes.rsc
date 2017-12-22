@@ -19,8 +19,6 @@ Production attribute(Production p, Attr a) = p[attributes=p.attributes+{a}];
 
 set[Attr] mods2attrs(ProdModifier* mods) = {x | ProdModifier m <- mods, just(x) := mod2attr(m)};
 
-Maybe[Associativity] mods2assoc(ProdModifier* mods) = (nothing() | just(x) | ProdModifier m <- mods, just(x) := mod2assoc(m));
- 
 Maybe[Attr] mod2attr(ProdModifier m) {
   switch (m) { 
     case \bracket()                             : return just(Attr::\bracket());
@@ -35,6 +33,8 @@ Maybe[Attr] mod2attr(ProdModifier m) {
     default                                     : return nothing(); 
   }
 }
+
+Maybe[Associativity] mods2assoc(ProdModifier* mods) = (nothing() | just(x) | ProdModifier m <- mods, just(x) := mod2assoc(m));
 
 Maybe[Associativity] mod2assoc(\associativity(\left()))           = just(Associativity::\left());
 Maybe[Associativity] mod2assoc(\associativity(\right()))          = just(Associativity::\right());
