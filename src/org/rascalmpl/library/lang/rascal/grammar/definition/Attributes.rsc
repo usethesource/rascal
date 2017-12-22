@@ -32,12 +32,12 @@ Maybe[Attr] mod2attr(ProdModifier m) {
                                                 : return just(\tag("<n>"("<unescapeLiteral("<l>")>")));
     case \tag(\expression(Name n, Expression e))     
                                                 : return just(\tag("<n>"( readTextValueString("<e>"))));                                       
-    default                                     : return nothing();
+    default                                     : return nothing(); 
   }
 }
 
 Maybe[Associativity] mod2assoc(\associativity(\left()))           = just(Associativity::\left());
 Maybe[Associativity] mod2assoc(\associativity(\right()))          = just(Associativity::\right());
-Maybe[Associativity] mod2assoc(\associativity(\assoc()))          = just(Associativity::\left());
+Maybe[Associativity] mod2assoc(\associativity(\associative()))    = just(Associativity::\left());
 Maybe[Associativity] mod2assoc(\associativity(\nonAssociative())) = just(Associativity::\non-assoc());
 default Maybe[Associativity] mod2assoc(ProdModifier _)            = nothing();
