@@ -151,20 +151,18 @@ public tuple[Priorities prio,DoNotNest ass] doNotNest(Production p, set[Symbol] 
 
 tuple[Priorities, DoNotNest] associativity(Associativity a, set[Production] alts, set[Symbol] lefties, set[Symbol] righties) {
   result = {};
-
-  // note that there are nested groups and that each member of a nested group needs to be paired
-  // with all the members of the other nested group. This explains the use of the / deep match operator.
+  
   for ({Production pivot, *Production rest} := alts,  Production child:prod(_,_,_) := pivot) {
     switch (a) {
       case \left(): 
-        result += {<father, size(lhs) - 1, child> | /Production father:prod(Symbol rhs,lhs:[_*,Symbol r],_) <- rest, match(r,righties)};  
+        result += {<father, size(lhs) - 1, child> | /Production father:prod(Symbol rhs,lhs:[_*,Symbol r],_) <- alts, match(r,righties)};  
       case \assoc():
-        result += {<father, size(lhs) - 1, child> | /Production father:prod(Symbol rhs,lhs:[_*,Symbol r],_) <- rest, match(r,righties)};
+        result += {<father, size(lhs) - 1, child> | /Production father:prod(Symbol rhs,lhs:[_*,Symbol r],_) <- alts, match(r,righties)};
       case \right():
-        result += {<father, 0, child>             | /Production father:prod(Symbol rhs,lhs:[Symbol l,_*],_) <- rest, match(l,lefties)};
+        result += {<father, 0, child>             | /Production father:prod(Symbol rhs,lhs:[Symbol l,_*],_) <- alts, match(l,lefties)};
       case \non-assoc(): {
-        result += {<father, size(lhs) - 1, child> | /Production father:prod(Symbol rhs,lhs:[_*,Symbol r],_) <- rest, match(r,righties)}
-                + {<father, 0, child>             | /Production father:prod(Symbol rhs,lhs:[Symbol l,_*],_) <- rest, match(l,lefties)};
+        result += {<father, size(lhs) - 1, child> | /Production father:prod(Symbol rhs,lhs:[_*,Symbol r],_) <- alts, match(r,righties)}
+                + {<father, 0, child>             | /Production father:prod(Symbol rhs,lhs:[Symbol l,_*],_) <- alts, match(l,lefties)};
       }
     } 
   }
