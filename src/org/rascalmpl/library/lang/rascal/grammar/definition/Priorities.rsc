@@ -19,7 +19,7 @@ import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::definition::References;
 import lang::rascal::grammar::Lookahead;
-// import lang::rascal::grammar::analyze::Recursion;
+// import lang::rascal::grammar::analyze::Recursion; 
 
 
 public alias Priorities = rel[Production father, Production child];
@@ -132,24 +132,6 @@ public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
 
 public tuple[Priorities prio,DoNotNest ass] doNotNest(Production p, set[Symbol] lefties, set[Symbol] righties) {
   switch (p) {
-    case prod(s, [t, *Symbol \o, u],{_*,\assoc(left())}) :
-      if (match(t, lefties), match(u, righties)) 
-        return <{},{<p, size(\o) + 1, p>}>;
-    case prod(s,[t, *Symbol \o, u],{_*,\assoc(\assoc())}) :
-      if (match(t, lefties), match(u, righties)) 
-        return <{},{<p, size(\o) + 1, p>}>;
-    case prod(s,[t,_*,u],{_*,\assoc(\right())}) :
-      if (match(t, lefties), match(u, righties)) 
-        return <{},{<p, 0, p>}>; 
-    case prod(s,[t, *Symbol \o, u],{_*,\assoc(\non-assoc())}) :
-      if (match(t, lefties) && match(u, righties)) 
-        return <{},{<p, 0, p>,<p,size(\o) + 1,p>}>;       
-    case prod(s,[t,_*],{_*,\assoc(\non-assoc())}) :
-      if (match(t, lefties)) 
-        return <{},{<p, 0, p>}>; 
-    case prod(s,[*Symbol \o, t],{_*,\assoc(\non-assoc())}) :
-      if (match(t, righties)) 
-        return <{},{<p, size(\o), p>}>;
     case choice(_, set[Production] alts) : {
         Priorities pr = {}; DoNotNest as = {};
         for (a <- alts, <prA,asA> := doNotNest(a, lefties, righties)) {
@@ -158,8 +140,6 @@ public tuple[Priorities prio,DoNotNest ass] doNotNest(Production p, set[Symbol] 
         }
         return <pr, as>; 
       }
-    case \lookahead(_,_,q) :
-      return doNotNest(q, lefties, righties); 
     case priority(_, list[Production] levels) : 
       return priority(levels, lefties, righties);
     case \associativity(_, Associativity a, set[Production] alts) : 
