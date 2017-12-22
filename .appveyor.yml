@@ -3,7 +3,7 @@ version: "{branch} {build}"
 # make sure to force windows newlines in the files
 # this is to make sure certain tests behave as expected
 init:  
-  - git config --global core.autocrlf true
+  - git config --global core.autocrlf input 
 
 environment:
   APPVEYOR_CACHE_ENTRY_ZIP_ARGS: -t7z -mx0 -mmt=0 -snl -snh
