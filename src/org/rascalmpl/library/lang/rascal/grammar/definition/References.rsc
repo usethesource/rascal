@@ -10,21 +10,9 @@ extend Grammar;
 extend ParseTree;
 
 Grammar references(Grammar g) = visit (g) {
-  case priority(s, ps) => priority(s, [ lookup(p, g.rules) | p <- ps ]) 
-  case associativity(s, a, ps) => associativity(s, a, { lookup(p, g.rules) | p <- ps })
-  case choice(s, ps) => choice(s, { lookup(p, g.rules) | p <- ps })
+  case others(Symbol s)              => g.rules[s] 
+    when s in g.rules
+    
+  case reference(Symbol s, str name) => p 
+    when s in g.rules, /Production p:prod(label(name, s), _, _) := g.rules[s]
 };
-
-private Production lookup(others(Symbol s), map[Symbol, Production] rules) = rules[s];
-
-private Production lookup(reference(Symbol s, str name), map[Symbol, Production] rules) {
-  if (/Production a:associativity(s,_,/prod(label(name, s), _, _)) := rules[s])
-    return a; // a single labeled rule represents an entire associativity group
-  else if (/Production p:prod(label(name, s), _, _) := rules[s]) {
-    return p; // otherwise a labeled rule simply represents itself
-  }
-  else fail; // reference not found
-}
-
-private default Production lookup(Production p, map[Symbol, Production] rules) = p;
-
