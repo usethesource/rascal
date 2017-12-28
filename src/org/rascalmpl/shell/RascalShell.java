@@ -31,6 +31,7 @@ import org.rascalmpl.shell.compiled.CompiledRascalShell;
 
 import jline.Terminal;
 import jline.TerminalFactory;
+import jline.TerminalSupport;
 
 
 public class RascalShell  {
@@ -123,6 +124,13 @@ public class RascalShell  {
                 Terminal term = TerminalFactory.get();
                 String sneakyRepl = System.getProperty(ECLIPSE_TERMINAL_CONNECTION_REPL_KEY);
                 if (sneakyRepl != null) {
+                    if (System.getProperty("os.name").startsWith("Windows")) {
+                        // we are inside TM terminal in Windows, we need a special jline terminal that
+                        // doesn't try to convert TTY/vt100 stuff, as TM Terminal is already doing this.
+                        // having them both try to emulate windows and linux at the same time is causing a whole
+                        // bunch of problems
+                        term = new TMSimpleTerminal();
+                    }
                     term = new EclipseTerminalConnection(term, Integer.parseInt(sneakyRepl));
                 }
                 runner = new REPLRunner(System.in, System.out, term);
@@ -140,5 +148,16 @@ public class RascalShell  {
             System.out.flush();
             System.err.flush();
         }
+    }
+    private static final class TMSimpleTerminal extends TerminalSupport {
+    	public TMSimpleTerminal() {
+    		super(true);
+    		setAnsiSupported(true);
+		}
+    	@Override
+    	public void restore() throws Exception {
+    		super.restore();
+    		System.out.println(); // this is what unix terminal does after a restore
+    	}
     }
 }
