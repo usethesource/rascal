@@ -19,7 +19,7 @@ install:
   - mvn -version
 
 build_script:
-  - mvn -Drascal.boot=--validating clean compile -DskipTests
+  - mvn -Drascal.boot=--validating -Drascal.boot.version=unstable clean compile -DskipTests
 
 test_script:
   - mvn test
