@@ -3,12 +3,15 @@ module lang::rascalcore::check::AllRascalTests
 
 import IO;
 import List;
+import Set;
 import DateTime;
 extend lang::rascalcore::check::Checker;
 import String;
 import ParseTree;
 
 import util::Reflective;
+
+import util::FileSystem;
 
 // Percentage of succeeded tests, see spreadsheet TestOverview.ods
 
@@ -153,12 +156,18 @@ private list[str] extendTests  = [
 "B1",
 "B2",
 "B3",
+"CHECKTYPES",
+"COMPILER",
+"Extension1",
+"Extension2",
+"Extension3",
+"PARENT",
 "PARSETREE",
 "TYPE",
-"UseImportBase",
-"UseImportBaseExtended",
 "UseExtendBase",
-"UseExtendBaseExtended"
+"UseExtendBaseExtended",
+"UseImportBase",
+"UseImportBaseExtended"
 ];
 
 private list[str] typeTests = [
@@ -356,4 +365,48 @@ tuple[TModel org, map[str,TModel] differences] sameTPL(str qualifiedModuleName, 
   }
   println("<size(names)> modules; <size(differences)> differences");
   return <mOrgModel, differences>;
+}
+
+bool blacklisted(str qualifiedModuleName){
+    for(s <- {/*"lang::rascal::types", "experiments::Compiler", "lang::rascal::boot", "lang::rascal::tests::types" ,*/ "experiments::tutor3", "lang::java::patterns", "lang::sdf2"}){
+        if(contains(qualifiedModuleName, s)) return true;
+    }
+    return false;
+}
+
+void allFiles(PathConfig pcfg = pathConfig(   
+        srcs = [|project://rascal-core/src/io/org/rascalmpl/library/|,
+                |project://TypePal/src|,
+                |project://rascal/src/org/rascalmpl/library|,
+                |std:///|
+               ])){
+    modulePaths = find(|std:///|, bool(loc l) { return endsWith(l.path, ".rsc"); });
+    println("<size(modulePaths)> files");
+    result = ();
+    crashed = ();
+    nskipped = 0;
+    ncount = 0;
+    for(p <- modulePaths){
+        qualifiedModuleName = getModuleName(p, pcfg);
+        ncount += 1;
+        if(blacklisted(qualifiedModuleName)){
+           println("\>\>\> <ncount>: SKIPPING <qualifiedModuleName>");
+           nskipped += 1;
+           continue;
+        }
+        println("\>\>\> <ncount>: CHECKING <qualifiedModuleName> (N:<size(modulePaths)>/E:<size(result)>/C:<size(crashed)>/S:<nskipped>)");
+        try {
+            msgs = validateModules(qualifiedModuleName);
+            iprintln(msgs);
+            if(!isEmpty(msgs)) result[qualifiedModuleName] = msgs;
+        } catch e: {
+            crashed[qualifiedModuleName] = e;
+        }
+    }
+    iprintln(result);
+    iprintln(crashed);
+    println("<size(modulePaths)> files, <size(result)> with a problem, <size(crashed)> crashed, <nskipped> skipped");
+    println("\nWith errors: <sort(domain(result))>");
+    println("\nCrashed:");
+    iprintln(crashed);
 }

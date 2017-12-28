@@ -128,6 +128,20 @@ Accept isAcceptableSimple(TModel tm, Key def, Use use){
     return  acceptBinding();
 }
 
+Accept isAcceptableQualified(TModel tm, Key def, Use use){
+    if(defType(AType atype) := tm.definitions[def].defInfo){
+        defPath = replaceAll(def.path, ".rsc", "");
+        reqPath = replaceAll(use.ids[0], "::", "/");
+        if(endsWith(defPath, reqPath) || 
+           acons(ret:aadt(adtName, list[AType] parameters), str consName, list[NamedField] fields, list[Keyword] kwFields) := atype && use.ids[0] == adtName){
+           return acceptBinding();
+           } else {
+           return ignoreContinue();
+        }
+    }
+    return acceptBinding();
+}
+
 Accept isAcceptablePath(TModel tm, Key defScope, Key def, Use use, PathRole pathRole) {
     //println("isAcceptablePath <use.id>, candidate <def>, <pathRole>, <use>");
     //iprintln(tm.definitions[def]);

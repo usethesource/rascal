@@ -83,6 +83,7 @@ bool addImport(str qualifiedModuleName, PathConfig pcfg, TBuilder tb){
                }
             }
             println("*** importing <qualifiedModuleName> from <tplLoc>");
+            //iprintln(tm);
             tb.addTModel(tm);
             if(list[str] imps := tm.store[key_imported] ? []){
                 for(imp <- toSet(imps)) tb.push(key_imported, imp);
@@ -120,8 +121,8 @@ void saveModules(str qualifiedModuleName, PathConfig pcfg, TModel tm){
     moduleScopes = getModuleScopes(tm);
     
     for(m <- qualifiedModuleName + {unescape(tbs) | tbs <- toBeSaved}){
-        tms = saveModule(m, import_graph[m] ? {}, extend_graph[m] ? {}, moduleScopes, pcfg, tm);
-        if(m == "Map") iprintln(tms);
+        tms = saveModule(m, import_graph[m] ? {}, (extend_graph+)[m] ? {}, moduleScopes, pcfg, tm);
+        //if(m == "lang::rascal::syntax::Rascal") iprintln(tms, lineLimit=15000);
     }
 }
 
@@ -134,9 +135,9 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
     bom = (m : getLastModified(m, pcfg) | m <- imports + extends);
     bom[qualifiedModuleName] = getLastModified(qualifiedModuleName, pcfg);
     
-    println("==== BOM <qualifiedModuleName>"); 
+    println("=== BOM <qualifiedModuleName>"); 
     for(m <- bom) println("<bom[m]>: <m>");
-    println("==== BOM END"); 
+    println("=== BOM END"); 
     
     extendedModuleScopes = {getModuleScope(m, moduleScopes) | str m <- extends};
     filteredModuleScopes = {getModuleScope(m, moduleScopes) | str m <- (qualifiedModuleName + imports)} + extendedModuleScopes /*+ |global-scope:///|*/;
@@ -151,14 +152,16 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
     filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
     //println("filteredModuleScopePaths: <filteredModuleScopePaths>");
     m1.scopes = (inner : tm.scopes[inner] | loc inner <- tm.scopes, inner.path in filteredModuleScopePaths);
-    println("scopes: <size(tm.scopes)> ==\> <size(m1.scopes)>");
+    //println("scopes: <size(tm.scopes)> ==\> <size(m1.scopes)>");
    
     m1.store = (key_bom : bom);
     
     // Filter model for current module and replace functions in defType by their defined type
     defs = for(tup: <Key scope, str id, IdRole idRole, Key defined, DefInfo defInfo> <- tm.defines){
-           if(scope == |global-scope:///| && defined.path in filteredModuleScopePaths || scope in filteredModuleScopes || (scope.path == mscope.path && idRole in {dataId(), constructorId(), functionId()})){
-             if(id != "type"){
+           if(scope == |global-scope:///| && defined.path in filteredModuleScopePaths || scope in filteredModuleScopes || (scope.path == mscope.path && idRole in {dataId(), constructorId(), functionId(), fieldId()})){
+             if(id == "type" && idRole == constructorId()){  
+                continue; // exclude builtin constructor for "type"
+             } else {
                  if((defInfo has getAType || defInfo has getATypes)){
                    try {                   
                        dt = defType(tm.facts[defined]);

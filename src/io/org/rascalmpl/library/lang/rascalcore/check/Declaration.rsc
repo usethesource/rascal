@@ -60,8 +60,12 @@ void getImports(TBuilder tb){
                     reuse = addImport(mname, pcfg, tb);
                     if(!reuse){
                         println("*** importing <mname> from <getModuleLocation(mname, pcfg)>");
-                        pt = parseNamedModuleWithSpaces(mname, pcfg).top;
-                        collect(pt, tb);
+                        try {
+                            pt = parseNamedModuleWithSpaces(mname, pcfg).top;
+                            collect(pt, tb);
+                        } catch e: {
+                            tb.reportError(|global-scope:///|, "Error during import of <fmt(mname)>: <e>");
+                        }
                     }
                 }
             } else {
@@ -158,7 +162,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
 data ReturnInfo = returnInfo(AType retType, list[Pattern] formals, set[AType] kwTypeParams);
 
 void collect(FunctionDeclaration decl, TBuilder tb){
-println("********** function declaration: <decl.signature.name>");
+//println("********** function declaration: <decl.signature.name>");
     
     vis = getVis(decl.visibility);
     if(vis == defaultVis()){
@@ -169,7 +173,7 @@ println("********** function declaration: <decl.signature.name>");
     fname = signature.name;
     
     if(ignoreCompiler(decl.tags)) { println("ignore: function <fname>"); return; }
-     
+    parentScope = tb.getScope();
     ftypeStub = tb.newTypeVar(fname);
     dt = defType(ftypeStub);
     dt.vis=vis;  // TODO: Cannot be set directly, bug in interpreter?
@@ -180,6 +184,13 @@ println("********** function declaration: <decl.signature.name>");
         tb.setScopeInfo(scope, functionScope(), false);
         retType = convertType(signature.\type, tb);
         <formals, kwTypeParams, kwFormals> = checkFunctionType(scope, retType, signature.parameters, isVarArgs, tb);
+        
+        //expandedRetType = expandUserTypes(retType, scope);
+        //ft = afunc(expandedRetType, atypeList([expandUserTypes(getPatternType(f, avalue(), scope), scope) | f <- formals]), kwFormals);
+        //if(isVarArgs) ft.varArgs = true;
+        //dt = defType(ft);
+        //dt.vis=vis; 
+        //tb.defineInScope(parentScope, prettyPrintName(fname), functionId(), fname, dt); 
         
         tb.requireEager("definition of function type", signature.\type, [],
             (){ 
@@ -461,9 +472,14 @@ void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterm
         dt.vis = vis;
         productions = choice(definedType, set[AProduction] prods) := pr ? prods : {pr};
         dt.productions = productions;
-        //iprintln(productions);
+      
+        //  Declare all named fields that occur in the productions
         constructorFields = { *getFields(p) | AProduction p <- productions };
-        if(!isEmpty(constructorFields))  dt.constructorFields = constructorFields;
+        for(<str nm, loc def, AType tp> <- constructorFields){
+            tb.define(nm, fieldId(), def, defType(tp));
+        }
+  
+        if(!isEmpty(constructorFields))  dt.constructorFields = constructorFields<0,2>;
                                             
         tb.define(ntName, dataId(), current, dt);
         //println("define <ntName>, dataId(), <dt>");
@@ -487,15 +503,16 @@ void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterm
     }
 }
 
-rel[str,AType] getFields(choice(dt, set[AProduction] alts)) = { *getFields(a) | a <- alts};
+rel[str,loc,AType] getFields(choice(dt, set[AProduction] alts)) = { *getFields(a) | a <- alts};
 
-rel[str,AType] getFields(\priority(AType def, list[AProduction] choices))
+rel[str,loc,AType] getFields(\priority(AType def, list[AProduction] choices))
     = { *getFields(c) | c <- choices };
     
-rel[str,AType] getFields(\associativity(AType def, Associativity \assoc, set[AProduction] alternatives))
+rel[str,loc,AType] getFields(\associativity(AType def, Associativity \assoc, set[AProduction] alternatives))
     = { *getFields(a) | a <- alternatives};
-
-default rel[str,AType] getFields(AProduction p) = {<t.label, t> | s <- p.asymbols, isNonTerminalType(s), s.label?, t := removeConditional(s)};
+    
+default rel[str,loc,AType] getFields(AProduction p)
+    = {<t.label, p.src[query = "label=<t.label>"], t> | s <- p.asymbols, isNonTerminalType(s), t := removeConditional(s), t.label?};
 
 void collect(current: (Sym) `<Nonterminal nonterminal>`, TBuilder tb){
     tb.use(nonterminal, {dataId()});

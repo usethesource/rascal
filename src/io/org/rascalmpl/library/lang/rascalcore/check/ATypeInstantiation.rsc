@@ -53,7 +53,7 @@ public Bindings matchRascalTypeParams(AType r, AType s, Bindings b, bool bindIde
         varBound = getRascalTypeParamBound(r);
         
         if (varName in b) {
-            lubbed = lub([s, b[varName]]);
+            lubbed = alub(s, b[varName]);
             if (!asubtype(lubbed, varBound))
                 throw invalidMatch("Type parameter <fmt(varName)> should be less than <fmt(varBound)>, but is bound to <fmt(lubbed)>");
             b[varName] = lubbed;

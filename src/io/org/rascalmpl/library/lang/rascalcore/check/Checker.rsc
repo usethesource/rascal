@@ -42,18 +42,14 @@ Tree mkTree(int n) = [DecimalIntegerLiteral] "<for(int i <- [0 .. n]){>6<}>"; //
 void rascalPreCollectInitialization(Tree tree, TBuilder tb){
     tb.enterScope(tree);
         //data type[&T] = type(Symbol symbol, map[Symbol,Production] definitions);
-        // | aadt(str adtName, list[AType] parameters)
-        // | acons(AType adt, str consName, list[NamedField] fields, list[Keyword] kwFields)
-        // alias Keyword = tuple[str fieldName, AType fieldType, Expression defaultExp];
-        //alias NamedField   = tuple[str fieldName, AType fieldType];
         
         typeType = aadt("Type", [aparameter("T", avalue())]);
         SymbolType = aadt("Symbol", []);
         ProductionType = aadt("Production", []);
         symbolField = <"symbol", SymbolType>;
         definitionsField = < "definitions", amap(SymbolType, ProductionType)>;
-        
         tb.define("type", constructorId(), mkTree(2), defType(acons(typeType, "type", [symbolField, definitionsField], [])));
+        // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
     tb.leaveScope(tree);
 }
 
@@ -86,9 +82,6 @@ TModel rascalPostValidation(TModel m){
 
 // ----  Examples & Tests --------------------------------
 
-private start[Module] sampleModule(str name) = parse(#start[Module], |home:///git/TypePal/src/rascal/<name>.rsc|);
-private start[Modules] sampleModules(str name) = parse(#start[Modules], |home:///git/TypePal/src/rascal/<name>.mrsc|);
-
 public PathConfig getDefaultPathConfig() = pathConfig(   
         srcs = [|project://rascal-core/src/io/org/rascalmpl/library/|,
                 |project://TypePal/src|,
@@ -111,17 +104,19 @@ TModel rascalTModelFromName(str mname, bool debug=false){
     toBeSaved = {};
     lastModifiedModules = ();
     pcfg = getDefaultPathConfig();
-    //<found, tm> = getIfValid(mname, pcfg);
-    //if(found){
-    //    println("total:    <(cpuTime() - startTime)/1000000> ms");
-    //    return tm;
-    //}
-    pt = parseNamedModuleWithSpaces(mname, pcfg).top;
     
-    tm = rascalTModel(pt, startTime, debug=debug);
-    
-    saveModules(mname, pcfg, tm);  
-    return tm;
+    try {
+        pt = parseNamedModuleWithSpaces(mname, pcfg).top;
+        tm = rascalTModel(pt, startTime, debug=debug);
+        saveModules(mname, pcfg, tm); 
+        return tm;
+    } catch ParseError(loc src): {
+        return tmodel()[messages = [ error("Parse error", src)  ]];
+    } catch Message msg: {
+     return tmodel()[messages = [ error("During validation: <msg>", msg.src) ]];
+    } catch value e: {
+        return tmodel()[messages = [ error("During validation: <e>", |global-scope:///|) ]];
+    }    
 }
 
 TModel rascalTModel(Tree pt, int startTime, bool debug=false, bool inline=false){

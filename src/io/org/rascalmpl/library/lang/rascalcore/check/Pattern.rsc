@@ -248,61 +248,7 @@ bool inSetPattern(Pattern current, TBuilder tb){
     }
 }
 
-//void collectSplicePattern(Pattern current, QualifiedName name,  TBuilder tb){ 
-//   qname = convertName(name);
-//   if(qname.name != "_"){
-//      if(qname.name in tb.getStack(patternNames)){
-//         tb.useLub(name, {variableId()});
-//         return;
-//      }
-//      tb.push(patternNames, qname.name);
-//      if("parameter" := tb.top(patternContainer)){
-//         tb.fact(current, avalue());
-//         if(isQualified(qname)) tb.reportError(name, "Qualifier not allowed");
-//         tb.define(qname.name, formalId(), name, defLub([], AType() { return alist(avalue()); }));
-//      } else {
-//         tau = tb.newTypeVar();
-//         inSet = inSetPattern(current, tb);
-//         tb.fact(current, tau); 
-//         if(isQualified(qname)) tb.reportError(name, "Qualifier not allowed");
-//         tb.define(qname.name, variableId(), name, defLub([], AType() { tp = getType(tau); return inSet ? aset(tp) : alist(tp); }));
-//      }
-//   } else {
-//         tb.fact(current, avalue());
-//   } 
-//}
-
-//AType getSplicePatternType(Pattern current, QualifiedName name,  AType subjectType, Key scope){
-//    qname = convertName(name);
-//    if(qname.name != "_"){
-//       nameType = getType(current); // TODO was current
-//       if(!isFullyInstantiated(nameType)){
-//            unify(nameType, subjectType) || reportError(current, "Cannot unify <fmt(nameType)> with <fmt(subjectType)>");
-//            nameType = instantiate(nameType);
-//            //clearBindings();
-//       }
-//       nameElementType = nameType; //isListType(nameType) ? getListElementType(nameType) : getSetElementType(nameType);
-//       comparable(nameElementType, subjectType) || reportError(current, "Pattern should be comparable with <fmt(subjectType)>, found <fmt(nameElementType)>");
-//       //inameType = instantiate(nameType);
-//       return nameElementType;
-//    } else
-//        return subjectType;
-//}
-
-// ---- *QualifiedName
-
-//void collect(current: (Pattern) `*<QualifiedName name>`, TBuilder tb){
-//    collectSplicePattern(current, name, tb);
-//}
-//
-//AType getPatternType(current: (Pattern) `*<QualifiedName name>`, AType subjectType, Key scope){
-//    if(Pattern p: QualifiedName _ := name){
-//       return getSplicePatternType(current, p, subjectType, scope);
-//    }
-//    throw "Cannot happen";
-//}
- 
- // ---- splice pattern: *Pattern
+// ---- splice pattern: *Pattern
 
 void collect(current: (Pattern) `* <Pattern argument>`, TBuilder tb){
     collectSplicePattern(current, argument, tb);
@@ -352,13 +298,15 @@ void collectSplicePattern(Pattern current, Pattern argument,  TBuilder tb){
               //println("qualifiedName: <name>, parameter defLub, <getLoc(current)>");
               tb.define(qname.name, formalId(), argName, defLub([], AType() { return avalue(); }));
            } else {
-              tau = tb.newTypeVar(argName);
+              tau = tb.newTypeVar(current); // <== argName;
               tb.fact(current, tau);    // <===
               if(isQualified(qname)) tb.reportError(argName, "Qualifier not allowed");
-              println("collectSplicePattern, qualifiedName: <argName>, defLub, <tau>, <getLoc(current)>");
               tb.define(qname.name, variableId(), argName, 
                         defLub([], AType() { 
-                        tp = getType(tau); return inSet ? aset(expandUserTypes(tp, scope)) : alist(expandUserTypes(tp, scope));}));
+                        return inSet ? makeSetType(tau) : makeListType(tau);}));
+              //tb.define(qname.name, variableId(), argName, 
+              //          defLub([], AType() { 
+              //          tp = getType(tau); return inSet ? makeSetType(expandUserTypes(tp, scope)) : makeListType(expandUserTypes(tp, scope));}));
            }
         } else {
            tb.fact(current, avoid());

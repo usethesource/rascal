@@ -133,7 +133,7 @@ void collect(Literal l:(Literal)`<LocationLiteral ll>`, TBuilder tb){
 // ---- Concrete literals
 
 void collect(Concrete concrete, TBuilder tb){
-println("Concrete: <concrete>");
+//println("Concrete: <concrete>");
     tb.fact(concrete, sym2AType(concrete.symbol));
     collectLexical(concrete.parts, tb);
 }
@@ -223,7 +223,7 @@ void collect(current: (Expression) `<Parameters parameters> { <Statement* statem
     tb.enterScope(current);
         scope = tb.getScope();
         <formals, kwTypeVars, kwFormals> = checkFunctionType(scope, avoid(), parameters, false, tb);
-        tb.calculate("type of void closure", current, parameters,
+        tb.calculate("type of void closure", current, formals,
             AType (){ return afunc(avoid(), atypeList([getType(f) | f <- formals]), kwFormals); });
         collect(statements0, tb);
     tb.leaveScope(current);
@@ -497,7 +497,8 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                     texp = tp;  
                     // TODO check identicalFields to see whether this can make sense
                     // unique overload, fall through to non-overloaded case to potentially bind more type variables
-                 } else if(isEmpty(validReturnTypeOverloads)) { reportError(current, "<fmt("<expression>")> applied to <fmt(actuals)> cannot be resolved given <fmt(expression)>");}
+                 } else if(isEmpty(validReturnTypeOverloads)) { 
+                        reportError(current, "<fmt("<expression>")> applied to <fmt(actuals)> cannot be resolved given <fmt(expression)>");}
                  else return overloadedAType(validReturnTypeOverloads);
                }
             }
@@ -562,16 +563,16 @@ AType checkArgsAndComputeReturnType(Expression current, Key scope, AType retType
     
     for(int i <- index_formals){
         if(overloadedAType(rel[Key, IdRole, AType] overloads) := actualTypes[i]){   // TODO only handles a single overloaded actual
-         println("checkArgsAndComputeReturnType: <current>");
-            iprintln(overloads);
+            //println("checkArgsAndComputeReturnType: <current>");
+            //iprintln(overloads);
             returnTypeForOverloadedActuals = {};
             for(ovl: <key, idr, tp> <- overloads){   
                 try {
                     actualTypes[i] = tp;
                     returnTypeForOverloadedActuals += <key, idr, computeReturnType(current, scope, retType, formalTypes, actuals, actualTypes, kwFormals, keywordArguments, identicalFormals)>;
-                     println("succeeds: <ovl>");
+                    //println("succeeds: <ovl>");
                 } catch checkFailed(set[Message] msgs): {
-                    println("fails: <ovl>");
+                    //println("fails: <ovl>");
                     ; // continue with next overload
                 }
              }
@@ -661,16 +662,16 @@ AType computeADTType(Tree current, str adtName, Key scope, AType retType, list[A
     
     for(int i <- index_formals){
         if(overloadedAType(rel[Key, IdRole, AType] overloads) := actualTypes[i]){   // TODO only handles a single overloaded actual
-            println("computeADTType: <current>");
-            iprintln(overloads);
+            //println("computeADTType: <current>");
+            //iprintln(overloads);
             returnTypeForOverloadedActuals = {};
             for(ovl: <key, idr, tp> <- overloads){   
                 try {
                     actualTypes[i] = tp;
                     returnTypeForOverloadedActuals += <key, idr, computeADTReturnType(current, adtName, scope, retType, formalTypes, actuals, actualTypes, kwFormals, keywordArguments, identicalFormals, dontCare, isExpression)>;
-                    println("succeeds: <ovl>");
+                    //println("succeeds: <ovl>");
                 } catch checkFailed(set[Message] msgs): {
-                    println("fails: <ovl>");
+                    //println("fails: <ovl>");
                     ; // continue with next overload
                 }
              }
@@ -1226,8 +1227,8 @@ public AType computeFieldType(Tree current, AType t1, str fieldName, Key scope) 
 AType filterFieldType(AType fieldType, set[Define] declaredInfo, Key scope){
     if(overloadedAType(rel[Key, IdRole, AType] overloads) := fieldType){
        filteredOverloads = {};
-       for(<key, fieldId(), tp> <- overloads){
-           for(def <- declaredInfo){
+       for(<Key key, fieldId(), AType tp> <- overloads){
+           for(Define def <- declaredInfo){
                expandedTypes = { unset(expandUserTypes(ft, scope), "label") | <fn, ft> <- def.defInfo.constructorFields };
                if(tp in expandedTypes){
                   filteredOverloads += <key, fieldId(), tp>;

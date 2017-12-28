@@ -31,7 +31,8 @@ void collect(current: (Statement) `assert <Expression expression> : <Expression 
      
 // ---- expression
 void collect(current: (Statement) `<Expression expression>;`, TBuilder tb){
-    tb.calculate("expression as statement", current, [expression], AType(){ return getType(expression); });
+    tb.calculate("expression as statement", current, [expression], AType(){ 
+    return getType(expression); });
     collect(expression, tb);
 }
 
@@ -64,20 +65,10 @@ void collect(current: (PatternWithAction) `<Pattern pattern> =\> <Replacement re
                     tb.setScopeInfo(scope, replacementScope(), replacementInfo(pattern));
                     // force type calculation of pattern
                     tb.calculateEager("pattern", pattern, [], AType (){ return getPatternType(pattern, avalue(), scope); });
-                    tb.requireEager("pattern replacement", current, [replacement.replacementExpression],
-                       (){ 
-                           exprType = getType(replacement.replacementExpression);
-                           patType = getPatternType(pattern, avalue(), scope);
-                           if(!isFullyInstantiated(exprType) || !isFullyInstantiated(patType)){
-                              unify(exprType, patType) || reportError(current, "Cannot unify <fmt(patType)> with <fmt(exprType)>"); 
-                              exprType = instantiate(exprType);
-                              patType = instantiate(patType); 
-                           }
-                           subtype(exprType, patType) || reportError(current, "A pattern of type <fmt(patType)> cannot be replaced by <fmt(exprType)>");
-                         });
+                    
+                    conditions = replacement is conditional ? [c | Expression c <- replacement.conditions] : [];
                     
                     if(replacement is conditional){
-                       conditions = [c | Expression c <- replacement.conditions];
                        storeAllowUseBeforeDef(current, replacement.replacementExpression, tb);
                        tb.requireEager("when conditions in replacement", replacement.conditions, conditions,
                           (){ for(cond <- conditions){
@@ -90,6 +81,18 @@ void collect(current: (PatternWithAction) `<Pattern pattern> =\> <Replacement re
                                }
                             });
                     }
+                    
+                    tb.requireEager("pattern replacement", current, /*replacement.replacementExpression + */conditions,
+                       (){ 
+                           exprType = getType(replacement.replacementExpression);
+                           patType = getPatternType(pattern, avalue(), scope);
+                           if(!isFullyInstantiated(exprType) || !isFullyInstantiated(patType)){
+                              unify(exprType, patType) || reportError(current, "Cannot unify <fmt(patType)> with <fmt(exprType)>"); 
+                              exprType = instantiate(exprType);
+                              patType = instantiate(patType); 
+                           }
+                           subtype(exprType, patType) || reportError(current, "A pattern of type <fmt(patType)> cannot be replaced by <fmt(exprType)>");
+                         });
               
                     collect(pattern, replacement, tb);
                 endPatternScope(tb);
@@ -418,6 +421,7 @@ void collect(current: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bou
             tb.use(v, {variableId()});
         }
     }
+    tb.fact(current, avoid());
     collect(variables, bound, body, tb);
 }
 
@@ -427,10 +431,10 @@ void collect(Bound current, TBuilder tb){
             AType(){ if(subtype(getType(current.expression), aint())) return aint();
                      reportError(current.expression, "Bound should have type `int`, found `<fmt(getType(current.expression))>"); 
                    });
+        collect(current.expression, tb);
     } else {
         tb.fact(current, avoid());
     }
-    collectParts(current, tb);
 }
 
 // ---- try, try finally, catch
@@ -710,7 +714,10 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> . <N
 }
 
 AType computeFieldAssignableType(Statement current, AType receiverType, str fieldName, str operator, AType rhs, Key scope){
-   if (aadt(adtName, list[AType] actualTypeParams) := receiverType){
+   
+   if(auser(adtName, list[AType] actualTypeParams) := receiverType){
+      return computeFieldAssignableType(current, expandUserTypes(receiverType, scope), fieldName, operator, rhs, scope);
+   } else if (aadt(adtName, list[AType] actualTypeParams) := receiverType){
         try {
             if (getADTName(receiverType) == "Tree" && fieldName == "top") {
                 return receiverType;
@@ -802,11 +809,9 @@ AType() makeDef(list[AType] taus, int i) = AType() {
 
 set[str] getNames(Statement s) = {"<nm>" | /QualifiedName nm := s};
 
-AType() makeTupleElem(Statement current, list[QualifiedName] names, list[str] flatNames, set[str] namesInRhs, list[AType] taus, list[Assignable] elms, int i, str operator, Statement rhs, Key scope){
-    println("Creating makeTupleElem <i>, <names[i]>");
+AType() checkTupleElemAssignment(Statement current, list[QualifiedName] names, list[str] flatNames, set[str] namesInRhs, list[AType] taus, list[Assignable] elms, int i, str operator, Statement rhs, Key scope){
     return
         AType (){
-        println("makeTupleElem <i>, <names[i]>");
             rhsType = getType(rhs);
             if(!isTupleType(rhsType)) reportError(current, "Tuple type required, found <fmt(rhsType)>");
             rhsFields = getTupleFields(rhsType);
@@ -823,16 +828,14 @@ AType() makeTupleElem(Statement current, list[QualifiedName] names, list[str] fl
              } else {
                  if(flatNames[i] in namesInRhs){
                     unify(taus[i], typeof(names[i])) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
-                    taus[i] = instantiate(taus[i]);
+                    //taus[i] = instantiate(taus[i]);
                   } else {
                   
                     unify(taus[i], rhsFields[i]) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
                  }
                  taus[i] = instantiate(taus[i]);
              }
-             res = instantiate(taus[i]);
-             println("makeTupleElem <i>, <names[i]> returns <res>");
-             return res;
+             return taus[i];
         };
    }
 
@@ -847,72 +850,10 @@ void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable 
    scope = tb.getScope();
    
    for(int i <- index(names)){
-     tb.calculate("assignable <i> of tuple", names[i], [rhs], makeTupleElem(current, names, flatNames, namesInRhs, taus, elms, i, operator, rhs, scope));
-     //tb.calculate("assignable <i> of tuple", current, [rhs], 
-     //   AType (){
-     //       rhsType = getType(rhs);
-     //       if(!isTupleType(rhsType)) reportError(current, "Tuple type required, found <fmt(rhsType)>");
-     //       rhsFields = getTupleFields(rhsType);
-     //       if(size(names) != size(rhsFields)) reportError(statement, "Tuple type required of arity <size(names)>, found arity <size(rhsFields)>"); 
-     //       
-     //       recTypeI  = computeReceiverType(current, elms[i],  scope);
-     //       rhsTypeI  = computeAssignmentRhsType(current, recTypeI, operator, rhsFields[i]);
-     //       
-     //       if(isFullyInstantiated(getType(names[i]))){
-     //             comparable(rhsTypeI, recTypeI) || reportError(names[i], "Value of type <fmt(rhsFields[i])> cannot be assigned to <fmt("<names[i]>")> of type <fmt(recTypeI)>");
-     //             //if(flatNames[i] in namesInRhs){
-     //               //taus[i] = getType(names[i]);
-     //               unify(taus[i], rhsTypeI) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
-     //             //}
-     //        } else {
-     //            if(flatNames[i] in namesInRhs){
-     //               unify(taus[i], typeof(names[i])) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
-     //               taus[i] = instantiate(taus[i]);
-     //             } else {
-     //               unify(taus[i], rhsTypeI) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
-     //            }
-     //            taus[i] = instantiate(taus[i]);
-     //        }
-     //        return instantiate(taus[i]);
-     //   });
+     tb.calculate("assignable <i> of tuple", names[i], [rhs], checkTupleElemAssignment(current, names, flatNames, namesInRhs, taus, elms, i, operator, rhs, scope));
    }
-  
-   //tb.calculate("assignable with tuple", current, [rhs], 
-   //    AType (){ 
-   //         if(flatNames[1] == "v"){
-   //             println("***");
-   //         }
-   //        recType  = computeReceiverType(current, receiver,  scope);
-   //        rhsType  = computeAssignmentRhsType(current, recType, operator, getType(rhs));
-   //      
-   //        if(!isTupleType(rhsType)) reportError(current, "Tuple type required, found <fmt(rhsType)>");
-   //        recFields = getTupleFields(recType);
-   //        rhsFields = getTupleFields(rhsType);
-   //        if(size(names) != size(rhsFields)) reportError(statement, "Tuple type required of arity <size(names)>, found arity <size(rhsFields)>");           
-   //       
-   //        for(int i <- index(names)){
-   //            if(isFullyInstantiated(getType(names[i]))){
-   //               comparable(rhsFields[i], recFields[i]) || reportError(names[i], "Value of type <fmt(rhsFields[i])> cannot be assigned to <fmt("<names[i]>")> of type <fmt(recFields[i])>");
-   //               //if(flatNames[i] in namesInRhs){
-   //                 //taus[i] = getType(names[i]);
-   //                 unify(taus[i], rhsFields[i]) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
-   //               //}
-   //            } else {
-   //              if(flatNames[i] in namesInRhs){
-   //                 unify(taus[i], typeof(names[i])) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
-   //                 taus[i] = instantiate(taus[i]);
-   //              } else 
-   //                 unify(taus[i], rhsFields[i]) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
-   //                 taus[i] = instantiate(taus[i]);
-   //            }
-   //        }
-   //        res = atuple(atypeList([ instantiate(taus[i]) | int i <- index(names)]));
-   //        println("assignable tuple returns: <res>");
-   //        for(int i <- index(names)){
-   //         println("<i>: <taus[i]>");
-   //        }
-   //        return res;
-   //      });
+   tb.calculate("assignable tuple", current, [rhs], AType() { 
+    return getType(rhs); /*return atuple(atypeList([ getType(tau) | tau <- taus])); */});
 }
 
 void checkAssignment(Statement current, (Assignable) `<Assignable receiver> @ <Name n>`, str operator, Statement rhs, TBuilder tb){

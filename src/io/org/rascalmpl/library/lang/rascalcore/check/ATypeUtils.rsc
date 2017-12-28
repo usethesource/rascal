@@ -57,7 +57,10 @@ AType expandUserTypes(AType t, Key scope){
                    if(nparams > 0){
                       try {
                          Bindings b = (params[i].pname : ps[i] | int i <- index(params));
-                         insert instantiateRascalTypeParams(expanded, b);
+                         expanded = instantiateRascalTypeParams(expanded, b);
+                         if(u.label?) expanded.label = u.label;
+                         if(u.hasSyntax?) expanded.hasSyntax = u.hasSyntax;
+                         insert expanded;
                        } catch invalidMatch(str reason): 
                                 reportError(scope, reason);
                          catch invalidInstantiation(str msg):

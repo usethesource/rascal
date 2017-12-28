@@ -314,12 +314,12 @@ data ACondition
 
 // ---- end ParseTree
 
-bool myIsSubType(AType t1, AType t2) //asubtype(t1, t2);
-{ 
-    res = asubtype(t1, t2); 
-    println("asubtype(<t1>, <t2>) ==\> <res>"); 
-    return res;
-}
+bool myIsSubType(AType t1, AType t2) = asubtype(t1, t2);
+//{ 
+//    res = asubtype(t1, t2); 
+//    println("asubtype(<t1>, <t2>) ==\> <res>"); 
+//    return res;
+//}
 
 AType myLUB(AType t1, AType t2) = alub(t1, t2);
 //{ println("myLUB: <t1>, <t2>"); return alub(t1, t2); }
@@ -362,8 +362,8 @@ bool asubtype(AType s, s) = true;
 
 default bool asubtype(AType s, AType t) = (s.label? || t.label?) ? asubtype(unset(s, "label") , unset(t, "label")) : s == t;
 
-bool asubtype(tvar(s), AType r) { println("asubtype(tvar(<s>, <r>)"); /*if(getType(s) == tvar(s)) throw TypeUnavailable();*/ res = asubtype(getType(s), r);  println("asubtype(tvar(<s>, <r>) ==\> <res>"); return res;} // { throw "asubtype not defined for <tvar(s)> and <r>"; }
-bool asubtype(AType l, tvar(s)) = asubtype(l, getType(s)); //{ throw "asubtype not defined for <l> and <tvar(s)>"; }
+bool asubtype(tvar(s), AType r) { println("asubtype(tvar(<s>), <r>)"); throw TypeUnavailable(); /*if(getType(s) == tvar(s)) throw TypeUnavailable();*/ res = asubtype(getType(s), r);  println("asubtype(tvar(<s>, <r>) ==\> <res>"); return res;} // { throw "asubtype not defined for <tvar(s)> and <r>"; }
+bool asubtype(AType l, tvar(s)) { println("asubtype(<l> tvar(<s>))"); throw TypeUnavailable(); } //asubtype(l, getType(s)); //{ throw "asubtype not defined for <l> and <tvar(s)>"; }= asubtype(l, getType(s)); //
 
 
 bool asubtype(overloadedAType(overloads), AType r) = any(<k, idr, tp> <- overloads, asubtype(tp, r));
@@ -502,8 +502,8 @@ The least-upperbound (lub) between two types.
 .Description
 This function documents and implements the lub operation in Rascal's type system. 
 }
-AType alub(tvar(s), AType r) = alub(getType(s), r); //{ throw "alub not defined for <tvar(s)> and <r>"; }
-AType alub(AType l, tvar(s)) = alub(l, getType(s)); //{ throw "alub not defined for <l> and <tvar(s)>"; }
+AType alub(tvar(s), AType r) {  println("alub(tvar(<s>), <r>)"); throw TypeUnavailable(); } // alub(getType(s), r); //{ throw "alub not defined for <tvar(s)> and <r>"; }
+AType alub(AType l, tvar(s)) { println("alub(<l>, tvar(<s>))"); throw TypeUnavailable(); } //= alub(l, getType(s)); //{ throw "alub not defined for <l> and <tvar(s)>"; }
 
 AType alub(AType s, s) = s;
 default AType alub(AType s, AType t) = (s.label? || t.label?) ? alub(unset(s, "label") , unset(t, "label")) : avalue();

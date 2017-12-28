@@ -1,15 +1,21 @@
 module lang::rascalcore::check::Test1
 
-data Exp = call(str name, list[Exp] args);
+import lang::rascal::\syntax::Rascal;
+//import lang::rascalcore::check::Test2;
+//syntax A = "a";
 
-int push(list[int] mem);
-
-tuple[list[int], int] eval3(call(str name, list[Exp] args), map[str, int] env, list[int] mem) {
-   int f;
-   for (Exp a <- args) {
-     <mem, v> = <[1], 0>; //eval3(a, env, mem);
-     append v;
-   }
-   <mem, v> = <[], 0>; //eval3(f.body, env, mem);
-   return <[], 0>; //<pop(mem, scope), v>; 
+//syntax Type = "t";
+//syntax Name = "n";
+//syntax Expression = "e";
+//syntax KeywordFormal 
+//    = \default: Type type Name name "=" Expression expression
+//    ;
+//
+//syntax TypeArg
+//    = \default: Type type 
+//    | named: Type type Name name ;
+//    
+value f ( {
+    KeywordFormal k;
+    k.\type;
 }
