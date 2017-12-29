@@ -18,83 +18,162 @@ import Node;
 import lang::rascal::grammar::definition::Productions;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::definition::References;
-import lang::rascal::grammar::Lookahead;
-// import lang::rascal::grammar::analyze::Recursion; 
+import lang::rascal::format::Grammar;
 
+data Associativity = prio();
 
-public alias Priorities = rel[Production father, Production child];
+public alias Extracted = rel[Production father, Associativity rule, Production child];
 public alias DoNotNest = rel[Production father, int position, Production child];
 
- 
+@doc{
+.Synopsis
+Extract which productions are not to be nested under which other productions, at given 
+recursive positions in the parents' defining symbols list.
+
+.Description
+This DoNotNest relation is generated from the grammar using the > priority definitions,
+the associativity groups and the ! restriction operator. 
+
+* The > generates a partial order among production rules, which is transitively closed
+* The associativity groups fit into this partial order as equivalence classes on the same
+  level in the priority ordering. Within these groups left and right recursive rules are
+  limited according to the associativity declaration of the given group.
+* The DoNotNest relation contains eventually only restrictions in case between two
+  related productions an ambiguity can be "proven" to exist between the outermost (left-most
+  and right-most) recursive occurences of the defined non-terminal. This is such that
+  the disambiguation by priority and associativity remains 'syntax-safe'
+* the non-assoc groups and ! are notably not 'syntax-safe', they remove sentences from non-terminals.
+}
 public DoNotNest doNotNest(Grammar g) {
-  g = references(g); // references must be resolved to support the right semantics for ... and :cons references in priority and associativity groups
-  DoNotNest result = {};
+  g = references(g); 
+  result = {};
   
   for (s <- g.rules) {
-    lefties = {s}; // leftRecursive(g, s);
-    righties = {s}; //rightRecursive(g, s);
-    <ordering, ass> = doNotNest(g.rules[s], lefties, righties);
+    // note how the analysis is still _per non-terminal_
+    // TODO: support relations between mutually recursive non-terminals
+    // TODO: support 'deep' priority (for the ML case)
+    // TODO: instead of DoNotNest generate data-dependent constraints
+    defined = extract(g.rules[s]);
+
+    // select and then close the different relations: left, right, non-assoc and priorities 
+    // this is to make sure modular specifications (where rules for the same non-terminal are split 
+    // over several definitions) have the same semantics as a flat, single rule definition.  
+     
+    // associativity groups are closed, i.e. `a left b && b left c ==> a left c` 
+    lefts  = {<f, c> | <f, \left(), c>      <- defined}+;
+    rights = {<f, c> | <f, \right(), c>     <- defined}+;
+    nons    = {<f, c> | <f, \non-assoc(), c> <- defined}+;
+    prios  = {<f, c> | <f, \prio(), c>      <- defined};
     
-    // associativity groups are closed under group membership
-    solve (ass) {
-       ass += { <a, pos, c> | <a, pos, b> <- ass, <b, _, c> <- ass };
-    }
-    result += ass;
+    // `a left b && b > c ==> a > c`, and for right and non-assoc the same
+    // `a > b && b left c ==> a > c`, and for right and non-assoc the same
+    // TODO: what about open alternative groups specified with |?
+    groups = lefts + rights + nons;
+    prios += prios o groups + groups o prios; 
     
-    // priority is closed with the other elements of associativity groups
-	ordering += ordering o ass<father,child> 
-	          + ass<father,child> o ordering;
-    
-    // finally priority is transitively closed
-    ordering = ordering+; 
+    // the now complete priority relation is transitive
+    prios  = prios+; 
    
-    for (<Production father, Production child> <- ordering) {
-      switch (father) {
-        case prod(Symbol rhs,lhs:[Symbol l,_*,Symbol r],_) : {
-          if (match(l,lefties) && match(r,righties)) {
-            if (prod(Symbol crhs,clhs:[_*,Symbol cl],_) := child, match(cl,righties)) {
-              result += {<father, 0, child>};
-            }
-            if (prod(Symbol crhs,clhs:[Symbol cl,_*],_) := child, match(cl,lefties)) {
-              result += {<father, size(lhs) - 1, child>};
-            }
-          }   
-          else {
-            fail;
-          }
-      }
-      case prod(Symbol rhs,lhs:[Symbol l,_*],_) :
-        if (match(l,lefties), prod(Symbol crhs,clhs:[_*,Symbol cl],_) := child, match(cl,righties)) {
-          result += {<father, 0, child>};
-        }   
-        else { 
-          fail;
-        }
-      case prod(Symbol rhs,lhs:[_*,Symbol r],_) :
-        if (match(r,righties), prod(Symbol crhs,clhs:[Symbol cl,_*],_) := child, match(cl,lefties)) {
-          result += {<father, size(lhs) - 1, child>};
-        }   
-        else { 
-          fail;
-        }
-      }
-    } 
+    // here we test for some accidental associativity contradictions, remove them and warn about the removal
+    for (<f, c> <- (lefts & rights)) {
+      if (f == c)
+        println("warning, not syntax-safe: <prod2rascal(f)> is both left and right associative.");
+      else 
+        println("warning, not syntax-safe: <prod2rascal(f)> and <prod2rascal(c)> are both left and right associative to eachother.");
+    }
+    
+    // here we test for accidental priority contradictions, remove them and warn about the removal.
+    for (<f, c> <- (prios & prios<1,0>)) {
+      if (f == c)
+        println("warning, not syntax-safe: <prod2rascal(f)> \> <prod2rascal(c)>, has a priority with itself."); 
+      else 
+        println("warning, not syntax-safe: <prod2rascal(f)> {\<,\>} <prod2rascal(c)>, reflexive priority."); 
+    }
+     
+    // and now we generated the filters, but only if 
+    // ambiguity can be shown by matching left with right recursive positions
+    // TODO: support mutually recursive non-terminals here
+    result += 
+        // left with right recursive 
+        {<f,0,c> | <f:prod(Symbol s, [Symbol lr, *_], _), 
+                    c:prod(Symbol t, [*_, Symbol rr], _)> <- (prios + rights + nons)
+                 , match(s, lr), match(t, rr), match(s, t)} 
+                   
+        // right with left recursive            
+        + {<f,size(pre),c> | <f:prod(Symbol s, [pre*, Symbol rr], _), 
+                              c:prod(Symbol t, [Symbol lr,   *_], _)> <- (prios + lefts + nons)
+                           , match(s, rr), match(t, lr), match(s, t)}
+        ; 
+        
+     // and we warn about recursive productions which have been left ambiguous:
+    allProds  = {p | /p:prod(_,_,_) := g.rules[s]};
+    ambiguous = {<p, q>  | p:prod(Symbol s, [Symbol lr, *_], _) <- allProds, match(s, lr),
+                           q:prod(Symbol t, [*_, Symbol rr], _) <- allProds,
+                            match(t, rr), match(s, t)};
+    ambiguous += {<p, q> | p:prod(Symbol s, [pre*, Symbol rr], _) <- allProds, match(s, rr), 
+                           q:prod(Symbol t, [Symbol lr,   *_], _) <- allProds,
+                           match(t, lr), match(s, t), <q, p> notin ambiguous}
+              ;
+              
+    ambiguous -= (prios + prios<1,0>); // somehow the pairs are ordered
+    ambiguous -= (groups + groups<1,0>); // somehow the pairs are associative
+                  
+    for (<p,q> <- ambiguous) {
+         if (p == q) 
+           println("warning, ambiguity predicted: <prod2rascal(p)> lacks left or right associativity");
+         else   
+           println("warning, ambiguity predicted: <prod2rascal(p)> and <prod2rascal(q)> lack left or right associativity or priority (\>)");    
+    }
   }
-  
-  return result // TODO: in the future the except relation needs to be reported separately because it should not be indirect.
-       + {*except(p, g) | /Production p <- g, p is prod || p is regular}
-       ;
+    
+  return result + {*except(p, g) | /Production p <- g, p is prod || p is regular};
 }
 
+default Extracted extract(Production u) {
+  throw "unsupported production <u>";
+}
+
+Extracted extract(prod(_, _, _)) = {};
+Extracted extract(regular(_)) = {};
+
+Extracted extract(choice(Symbol s, set[Production] alts)) 
+  = {*extract(a) | a <- alts};
+
+// note that nested associativity and priority under associativity was removed by an earlier rewrite rule
+Extracted extract(associativity(Symbol s, Associativity a, set[Production] alts))  
+  = {<x, a, y> | <x, y> <- alts * alts};
+
+Extracted extract(priority(Symbol s, list[Production] levels)) 
+  = {*extract(high, low) | [pre*, Production high, Production low, post*] := levels};
+
+// the follow binary extract rules generate all priority _combinations_ in case of nested groups, 
+// and also make sure these nested groups can generate the necessary associativity relations 
+Extracted extract(high:prod(_,_,_), low:prod(_,_,_)) 
+  = {<high, prio(), low>};
+  
+Extracted extract(choice(_, set[Production] alts), Production low)
+  = {*extract(high, low) | high <- alts}; 
+  
+Extracted extract(Production high, choice(_, set[Production] alts))
+  = {*extract(high, low) | low <- alts};
+ 
+Extracted extract(Production a:associativity(_, _, set[Production] alts), Production low)
+  = {*extract(high, low) | high <- alts}
+  + extract(a); 
+  
+Extracted extract(Production high, Production a:associativity(_, _, set[Production] alts))
+  = {*extract(high, low) | low <- alts}
+  + extract(a);  
+    
 @doc{
 This one-liner searches a given production for "except restrictions". 
 For every position in the production that is restricted, and for every restriction it finds 
 at this position, it adds a 'do-not-nest' tuple to the result.
 }
 public DoNotNest except(Production p:prod(Symbol _, list[Symbol] lhs, set[Attr] _), Grammar g) 
-  = { <p, i, q>  | i <- index(lhs), conditional(s, excepts) := delabel(lhs[i]), isdef(g, s), except(c) <- excepts, /q:prod(label(c,s),_,_) := g.rules[s]};
+  = { <p, i, q>  | i <- index(lhs), conditional(s, excepts) := delabel(lhs[i]), isdef(g, s)
+                 , except(c) <- excepts, /q:prod(label(c,s),_,_) := g.rules[s]};
  
-
 //TODO: compiler issues when  g.rules[s]? is inlined
 bool isdef(Grammar g, Symbol s) = g.rules[s]?;
 
@@ -130,83 +209,5 @@ public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
 }
 
 
-public tuple[Priorities prio,DoNotNest ass] doNotNest(Production p, set[Symbol] lefties, set[Symbol] righties) {
-  switch (p) {
-    case choice(_, set[Production] alts) : {
-        Priorities pr = {}; DoNotNest as = {};
-        for (a <- alts, <prA,asA> := doNotNest(a, lefties, righties)) {
-          pr += prA;
-          as += asA;
-        }
-        return <pr, as>; 
-      }
-    case priority(_, list[Production] levels) : 
-      return priority(levels, lefties, righties);
-    case \associativity(_, Associativity a, set[Production] alts) : 
-      return associativity(a, alts, lefties, righties);
-  }
-  
-  return <{},{}>;
-}
 
-tuple[Priorities, DoNotNest] associativity(Associativity a, set[Production] alts, set[Symbol] lefties, set[Symbol] righties) {
-  result = {};
-  
-  for ({Production pivot, *Production rest} := alts,  Production child:prod(_,_,_) := pivot) {
-    switch (a) {
-      case \left(): 
-        result += {<father, size(lhs) - 1, child> | /Production father:prod(Symbol rhs,lhs:[_*,Symbol r],_) <- alts, match(r,righties)};  
-      case \assoc():
-        result += {<father, size(lhs) - 1, child> | /Production father:prod(Symbol rhs,lhs:[_*,Symbol r],_) <- alts, match(r,righties)};
-      case \right():
-        result += {<father, 0, child>             | /Production father:prod(Symbol rhs,lhs:[Symbol l,_*],_) <- alts, match(l,lefties)};
-      case \non-assoc(): {
-        result += {<father, size(lhs) - 1, child> | /Production father:prod(Symbol rhs,lhs:[_*,Symbol r],_) <- alts, match(r,righties)}
-                + {<father, 0, child>             | /Production father:prod(Symbol rhs,lhs:[Symbol l,_*],_) <- alts, match(l,lefties)};
-      }
-    } 
-  }
-  
-  pr = {};
-  for (x <- alts, <prX, asX> := doNotNest(x, lefties, righties)) {
-    pr += prX;
-    result += asX;
-  }
-  
-  return <pr, result>;
-}
-
-public tuple[Priorities,DoNotNest] priority(list[Production] levels, set[Symbol] lefties, set[Symbol] righties) {
-  // collect basic filter; note that this duplicates references such that they are resolved twice in the right positions
-  ordering = { <father,child> | [pre*,Production father, Production child, post*] := levels };
-
-  // flatten nested structure to obtain direct relations
-  todo = ordering;
-  ordering = {};
-  while (todo != {}) {
-    <prio,todo> = takeOneFrom(todo);
-    switch (prio) {
-      case <choice(_,set[Production] alts),Production child> :
-        todo += alts * {child};
-      case <Production father, choice(_,set[Production] alts)> :
-        todo += {father} * alts;
-      case <associativity(_,_,set[Production] alts),Production child> :
-        todo += alts * {child};
-      case <Production father, associativity(_,_,set[Production] alts)> :
-        todo += {father} * alts;
-      default:
-        ordering += prio;
-    }
-  }
-  
-  DoNotNest as = {};
-  for (x <- levels, <prX,asX> := doNotNest(x, lefties, righties)) {
-    ordering += prX;
-    as += asX;
-  }
-  
-  return <ordering, as>;
-}
-
-private bool match(Symbol x, set[Symbol] reference) = striprec(x) in reference;
-
+private bool match(Symbol x, Symbol ref) = striprec(x) == ref;
