@@ -95,24 +95,24 @@ public DoNotNest doNotNest(Grammar g) {
     // TODO: support mutually recursive non-terminals here
     result += 
         // left with right recursive 
-        {<f,0,c> | <f:prod(Symbol s, [Symbol lr, *_], _), 
+        {<f,0,c> | <f:prod(Symbol ss, [Symbol lr, *_], _), 
                     c:prod(Symbol t, [*_, Symbol rr], _)> <- (prios + rights + nons)
-                 , match(s, lr), match(t, rr), match(s, t)} 
+                 , match(ss, lr), match(t, rr), match(ss, t)} 
                    
         // right with left recursive            
-        + {<f,size(pre),c> | <f:prod(Symbol s, [pre*, Symbol rr], _), 
+        + {<f,size(pre),c> | <f:prod(Symbol ss, [pre*, Symbol rr], _), 
                               c:prod(Symbol t, [Symbol lr,   *_], _)> <- (prios + lefts + nons)
-                           , match(s, rr), match(t, lr), match(s, t)}
+                           , match(ss, rr), match(t, lr), match(ss, t)}
         ; 
         
      // and we warn about recursive productions which have been left ambiguous:
     allProds  = {p | /p:prod(_,_,_) := g.rules[s]};
-    ambiguous = {<p, q>  | p:prod(Symbol s, [Symbol lr, *_], _) <- allProds, match(s, lr),
+    ambiguous = {<p, q>  | p:prod(Symbol ss, [Symbol lr, *_], _) <- allProds, match(s, lr),
                            q:prod(Symbol t, [*_, Symbol rr], _) <- allProds,
-                            match(t, rr), match(s, t)};
-    ambiguous += {<p, q> | p:prod(Symbol s, [pre*, Symbol rr], _) <- allProds, match(s, rr), 
+                            match(t, rr), match(ss, t)};
+    ambiguous += {<p, q> | p:prod(Symbol ss, [pre*, Symbol rr], _) <- allProds, match(s, rr), 
                            q:prod(Symbol t, [Symbol lr,   *_], _) <- allProds,
-                           match(t, lr), match(s, t), <q, p> notin ambiguous}
+                           match(t, lr), match(ss, t), <q, p> notin ambiguous}
               ;
               
     ambiguous -= (prios + prios<1,0>); // somehow the pairs are ordered
@@ -127,10 +127,6 @@ public DoNotNest doNotNest(Grammar g) {
   }
     
   return result + {*except(p, g) | /Production p <- g, p is prod || p is regular};
-}
-
-default Extracted extract(Production u) {
-  throw "unsupported production <u>";
 }
 
 Extracted extract(prod(_, _, _)) = {};
@@ -210,4 +206,4 @@ public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
 
 
 
-private bool match(Symbol x, Symbol ref) = striprec(x) == ref;
+private bool match(Symbol x, Symbol ref) = striprec(x) == striprec(ref);
