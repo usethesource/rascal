@@ -378,11 +378,11 @@ Normalization of associativity.
 Production associativity(Symbol s, Associativity as, {*Production a, choice(Symbol t, set[Production] b)}) 
   = associativity(s, as, a+b); 
             
-Production associativity(Symbol rhs, Associativity a, {associativity(rhs, a, set[Production] alts), *Production rest})  
-  = associativity(rhs, a, rest + alts);
+Production associativity(Symbol rhs, Associativity a, {associativity(rhs, Associativity b, set[Production] alts), *Production rest})  
+  = associativity(rhs, a, rest + alts); // the nested associativity, even if contradictory, is lost
 
 Production associativity(Symbol s, Associativity as, {*Production a, priority(Symbol t, list[Production] b)}) 
-  = associativity(s, as, a + { e | e <- b}); 
+  = associativity(s, as, {*a, *b}); 
 
 @doc{
 .Synopsis
