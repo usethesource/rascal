@@ -238,7 +238,7 @@ An `Attr` (attribute) documents additional semantics of a production rule. Neith
 brackets are processed by the parser generator. Rather downstream processors are
 activated by these. Associativity is a parser generator feature though. 
 }
-data Attr = \bracket();
+data Attr = \bracket() | /*deprecated*/ \assoc(Associativity \assoc);
 
 @doc{
 .Synopsis
