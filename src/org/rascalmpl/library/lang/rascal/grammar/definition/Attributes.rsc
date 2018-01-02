@@ -21,6 +21,13 @@ set[Attr] mods2attrs(ProdModifier* mods) = {x | ProdModifier m <- mods, just(x) 
 
 Maybe[Attr] mod2attr(ProdModifier m) {
   switch (m) { 
+    /*deprecated TODO: remove after bootstrap */
+    case ass:\associativity(Assoc _)              : 
+      if (just(Associativity lra) := mod2assoc(ass)) { 
+        return just(\assoc(lra)); 
+      } else { 
+        return nothing();
+      }
     case \bracket()                             : return just(Attr::\bracket());
     case \tag(\default(Name n, TagString s))    : return just(\tag("<n>"("<s>")));
     case \tag(\empty(Name n))                   : return just(\tag("<n>"())); 
@@ -28,8 +35,7 @@ Maybe[Attr] mod2attr(ProdModifier m) {
                                                 : return just(\tag("<n>"("<unescapeLiteral(l)>")));
     case \tag(\expression(Name n, literal(Literal l)))
                                                 : return just(\tag("<n>"("<unescapeLiteral("<l>")>")));
-    case \tag(\expression(Name n, Expression e))     
-                                                : return just(\tag("<n>"( readTextValueString("<e>"))));                                       
+    case \tag(\expression(Name n, Expression e)): return just(\tag("<n>"( readTextValueString("<e>"))));                                       
     default                                     : return nothing(); 
   }
 }
