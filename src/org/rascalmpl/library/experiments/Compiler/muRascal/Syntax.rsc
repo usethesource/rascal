@@ -139,7 +139,7 @@ syntax Exp  =
 			> left preOr:               Exp lhs "||" Exp rhs
 			> non-assoc preIs:			Exp lhs [\ ]<< "is" >>[\ ] TConst typeName
 			
-			> preAssignSubscript:       Exp exp1 NoNLList "[" Exp index "]" "=" Exp exp2
+			> non-assoc preAssignSubscript:  Exp exp1 NoNLList "[" Exp index "]" "=" Exp exp2
 			//| preAssignLocList:			"[" Identifier!fvar!rvar id1 "," Identifier!fvar!rvar id2 "]" "=" Exp exp
 			
 			> preAssignLoc: 			Identifier!fvar id "=" Exp exp
