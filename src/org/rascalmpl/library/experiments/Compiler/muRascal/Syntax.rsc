@@ -123,7 +123,7 @@ syntax Exp  =
 			       )
 			
 			> left preModulo:           Exp lhs "mod" Exp rhs
-		    | left prePower :           Exp lhs "pow" Exp rhs
+		    > left prePower :           Exp lhs "pow" Exp rhs
 		    
 			> non-assoc ( preLess:		   Exp lhs "\<"  Exp rhs
 			            | preLessEqual:	   Exp lhs "\<=" Exp rhs
@@ -137,12 +137,12 @@ syntax Exp  =
 				
 			> left preAnd:				Exp lhs "&&" Exp rhs
 			> left preOr:               Exp lhs "||" Exp rhs
-			| non-assoc preIs:			Exp lhs [\ ]<< "is" >>[\ ] TConst typeName
+			> non-assoc preIs:			Exp lhs [\ ]<< "is" >>[\ ] TConst typeName
 			
 			> preAssignSubscript:       Exp exp1 NoNLList "[" Exp index "]" "=" Exp exp2
 			//| preAssignLocList:			"[" Identifier!fvar!rvar id1 "," Identifier!fvar!rvar id2 "]" "=" Exp exp
 			
-			| preAssignLoc: 			Identifier!fvar id "=" Exp exp
+			> preAssignLoc: 			Identifier!fvar id "=" Exp exp
 			| preAssign: 				FunNamePart+ funNames Identifier!fvar id "=" Exp exp
 			
 			// call-by-reference: assignment
