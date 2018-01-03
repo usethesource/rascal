@@ -32,6 +32,7 @@ import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
@@ -834,7 +835,20 @@ public class RVMonJVM extends RVMCore {
             //frameObserver.leave(frame, returnValue);
             return returnValue;
         }
-        throw new RuntimeException("No matching definition found for function or constructor " + of.name);
+        
+        IListWriter w = vf.listWriter();
+        int base = sp - arity;
+        for (int i = 0; i < arity; i++) {
+            Object arg = stack[base + i];
+            
+            if (arg instanceof IValue) {
+                w.append((IValue) arg);
+            }
+        }
+        
+        Thrown exc = RascalRuntimeException.failed(cf.src, w.done(), cf);
+        System.err.println(exc.getValue());
+        throw exc;
     }
 
 //  public Object jvmOCALL_OLD(final Object[] stack, int sp, final Frame cf, final int ofun, final int arity) {
