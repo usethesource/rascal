@@ -199,3 +199,8 @@ default AType instantiateRascalTypeParams(AType t, Bindings bindings) {
 
 AType instantiateRascalTypeParams(atypeList(list[AType] l), Bindings bindings)
     = atypeList([instantiateRascalTypeParams(t, bindings) | t <- l]);
+    
+default AType instantiateRascalTypeParams(value t, Bindings bindings){
+    println("instantiateRascalTypeParams undefined for: <t>");
+    throw "instantiateRascalTypeParams undefined for: <t>";
+}

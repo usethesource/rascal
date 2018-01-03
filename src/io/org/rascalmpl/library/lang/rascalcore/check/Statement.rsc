@@ -442,14 +442,16 @@ void collect(Bound current, TBuilder tb){
 // ---- try
  
  void collect(current: (Statement) `try <Statement body> <Catch+ handlers>`, TBuilder tb){
-    tb.fact(current, avoid());
+    lhandlers = [ h | h <- handlers ];
+    tb.calculate("try", current, body + lhandlers, AType() { return avoid(); } );
     collect(body, handlers, tb);
  }
  
 // ---- try finally
 
 void collect(current: (Statement) `try <Statement body> <Catch+ handlers> finally <Statement finallyBody>`, TBuilder tb){
-    tb.fact(current, avoid());
+    lhandlers = [h | h <- handlers];
+    tb.calculate("try finally", current, body + lhandlers + finallyBody, AType() { return avoid(); } );
     collect(body, handlers, finallyBody, tb);
 }
 
@@ -558,15 +560,15 @@ AType computeReceiverType(Statement current, (Assignable) `<QualifiedName name>`
 }
 
 AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, Key scope){
-    return computeSubscriptionType(current, computeReceiverType(current, receiver, scope), [getType(subscript)]);
+    return computeSubscriptionType(current, computeReceiverType(current, receiver, scope), [ getType(subscript) ], [ subscript ]);
 }
     
 AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, Key scope){
-    return computeSliceType(computeReceiverType(current, receiver, scope), getType(optFirst), aint(), getType(optLast));
+    return computeSliceType(current, computeReceiverType(current, receiver, scope), getType(optFirst), aint(), getType(optLast));
 }
 
 AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`, Key scope){
-    return computeSliceType(computeReceiverType(current, receiver, scope), getType(optFirst), getType(second), getType(optLast));
+    return computeSliceType(current, computeReceiverType(current, receiver, scope), getType(optFirst), getType(second), getType(optLast));
 }
 
 AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> . <Name field>`, Key scope)
@@ -601,7 +603,24 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <E
 }
 
 AType computeSubscriptAssignableType(Statement current, AType receiverType, Expression subscript, str operator, AType rhs){
-    subscriptType = getType(subscript);
+
+   if(!isFullyInstantiated(receiverType) || !isFullyInstantiated(rhs)) throw TypeUnavailable();
+   
+   if(overloadedAType(rel[Key, IdRole, AType] overloads) := receiverType){
+        sub_overloads = {};
+        for(<key, idr, tp> <- overloads){ 
+            try {
+               sub_overloads += <key, idr, computeSubscriptAssignableType(current, tp, subscript, operator, rhs)>;
+           } catch checkFailed(set[Message] msgs): {
+                ; // do nothing and try next overload
+           } catch e: ; // do nothing
+        }
+        if(isEmpty(sub_overloads)) reportError(current, "Field <fmt(fieldName)> on <fmt(receiverType)> cannot be resolved");
+        return overloadedAType(sub_overloads);
+    }
+    
+    subscriptType = getType(subscript); // TODO: overloaded?
+    
     if (isListType(receiverType)) { 
         if (!isIntType(subscriptType)) reportError(current, "Expected subscript of type `int`, not <fmt(subscriptType)>");
         return makeListType(computeAssignmentRhsType(current, getListElementType(receiverType), operator, rhs));
@@ -675,6 +694,8 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <O
 }
 
 AType computeSliceAssignableType(Statement current, AType receiverType, AType first, AType step, AType last, str operator, AType rhs){
+    if(!isFullyInstantiated(receiverType) || !isFullyInstantiated(first) || !isFullyInstantiated(step) || !isFullyInstantiated(last) || !isFullyInstantiated(rhs)) throw TypeUnavailable();
+
     failures = {};
     if(!isIntType(first)) failures += error(current, "The first slice index must be of type `int`, found <fmt(first)>");
     if(!isIntType(step)) failures  += error(current, "The slice step must be of type `int`, found <fmt(step)>");
@@ -715,11 +736,24 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> . <N
 
 AType computeFieldAssignableType(Statement current, AType receiverType, str fieldName, str operator, AType rhs, Key scope){
    
+   if(!isFullyInstantiated(receiverType) || !isFullyInstantiated(rhs)) throw TypeUnavailable();
+    
    if(auser(adtName, list[AType] actualTypeParams) := receiverType){
       return computeFieldAssignableType(current, expandUserTypes(receiverType, scope), fieldName, operator, rhs, scope);
+   } else if(overloadedAType(rel[Key, IdRole, AType] overloads) := receiverType){
+        fld_overloads = {};
+        for(<key, idr, tp> <- overloads){ 
+            try {
+               fld_overloads += <key, idr, computeFieldAssignableType(current, tp, fieldName, operator, rhs, scope)>;
+           } catch checkFailed(set[Message] msgs): {
+                ; // do nothing and try next overload
+           } catch e: ; // do nothing
+        }
+        if(isEmpty(fld_overloads)) reportError(current, "Field <fmt(fieldName)> on <fmt(receiverType)> cannot be resolved");
+        return overloadedAType(fld_overloads);
    } else if (aadt(adtName, list[AType] actualTypeParams) := receiverType){
         try {
-            if (getADTName(receiverType) == "Tree" && fieldName == "top") {
+            if ((getADTName(receiverType) == "Tree" || isNonTerminalType(receiverType)) && fieldName == "top") {
                 return receiverType;
             }
             fieldType = expandUserTypes(getType(fieldName, scope, {formalId(), fieldId()}), scope);
@@ -740,15 +774,13 @@ AType computeFieldAssignableType(Statement current, AType receiverType, str fiel
                 }
             }
             
-            fieldType = filterFieldType(fieldType, declaredInfo, scope); 
+            fieldType = filterFieldType(fieldName, fieldType, declaredInfo, scope); 
             
-            updatedFieldType = computeAssignmentRhsType(current, fieldType, operator, rhs);
-            subtype(updatedFieldType, fieldType) || reportError(current, "Field <fmt(fieldName)> requires <fmt(fieldType)>, found <fmt(updatedFieldType)>");     
+            if(overloadedAType({}) !:= fieldType){
+                updatedFieldType = computeAssignmentRhsType(current, fieldType, operator, rhs);
+                subtype(updatedFieldType, fieldType) || reportError(current, "Field <fmt(fieldName)> requires <fmt(fieldType)>, found <fmt(updatedFieldType)>");     
             
-            for(def <- declaredInfo){
-               if(fieldName in domain(def.defInfo.constructorFields) || fieldName in domain(def.defInfo.commonKeywordFields)){
-                    return receiverType;
-               }
+                return receiverType;
             }                           
             if (isNonTerminalType(declaredType)){
                  return computeFieldAssignableType(current, aadt("Tree", []), fieldName, operator, rhs, scope);
@@ -871,15 +903,32 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> @ <N
 
 AType computeAnnoAssignableType(Statement current, AType receiverType, str annoName, str operator, AType rhs, Key scope){
 //println("computeAnnoAssignableType: <receiverType>, <annoName>, <operator>, <rhs>");
-  
+   
+    if(!isFullyInstantiated(receiverType) || !isFullyInstantiated(rhs)) throw TypeUnavailable();
+    
+    if(overloadedAType(rel[Key, IdRole, AType] overloads) := receiverType){
+        anno_overloads = {};
+        for(<key, idr, tp> <- overloads){ 
+            try {
+               anno_overloads += <key, idr, computeAnnoAssignableType(current, tp, annoName, operator, rhs, scope)>;
+           } catch checkFailed(set[Message] msgs): {
+                ; // do nothing and try next overload
+           } catch e: ; // do nothing
+        }
+        if(isEmpty(anno_overloads)) reportError(current, "Annotation on <fmt(receiverType)> cannot be resolved");
+        return overloadedAType(anno_overloads);
+    }
     annoNameType = expandUserTypes(getType(annoName, scope, {annoId()}), scope);
     //println("annoNameType: <annoNameType>");
+    
     if (isNodeType(receiverType) || isADTType(receiverType) || isNonTerminalType(receiverType)) {
         if(overloadedAType(rel[Key, IdRole, AType] overloads) := annoNameType){
-           for(<key, idr, tp> <- overloads, aanno(_, onType, annoNameType) := tp, subtype(receiverType, onType)){   //TODO explore all alternatives
-               return annoNameType;
+            anno_overloads = {};
+            for(<key, annoId(), tp1> <- overloads, aanno(_, onType, tp2) := tp1, subtype(receiverType, onType)){
+               anno_overloads += <key, annoId(), tp1>;
            }
-           reportError(current, "Annotation on <fmt(receiverType)> cannot be resolved from <fmt(annoNameType)>");
+            if(isEmpty(anno_overloads)) reportError(current, "Annotation on <fmt(receiverType)> cannot be resolved from <fmt(annoNameType)>");
+            return overloadedAType(anno_overloads);
         } else
         if(aanno(_, onType, annoType) := annoNameType){
            return annoNameType;
@@ -910,7 +959,8 @@ default list[QualifiedName] getReceiver(Assignable asg, TBuilder tb) { throw "Un
 // ---- throw
 
 void collect(current:(Statement) `throw <Statement statement>`, TBuilder tb){
-    tb.fact(current, avoid());
+    //tb.fact(current, avoid());
+    tb.calculate("throw", current, [statement], AType() { return abool(); });
     collect(statement, tb);
 }
 

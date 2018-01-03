@@ -100,12 +100,20 @@ public AType numericArithTypes(AType l, AType r) {
 // ---- is
 
 void collect(current: (Expression) `<Expression e> is <Name n>`, TBuilder tb){
-    tb.calculate("is", current, [e], AType () { return unaryOp("is", computeIsType, current, getType(e));  });
+    scope = tb.getScope();
+    tb.calculate("is", current, [e], AType () { return unaryOp("is", computeIsType, current, expandUserTypes(getType(e), scope));  });
     collect(e, tb); 
 }
 
 AType computeIsType(Tree current, AType t1){
-    if(isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) return abool();
+    if(!isFullyInstantiated(t1)) throw TypeUnavailable();
+
+    if(overloadedAType(rel[Key, IdRole, AType] overloads) := t1){
+        for(<key, idrole, tp> <- overloads){
+           try return computeIsType(current, tp);
+           catch CheckFailed(_): /* ignore, try next */;
+        }
+    } else if(isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) return abool();
     reportError(current, "Invalid type: expected node, ADT, or concrete syntax types, found <fmt(t1)>");
 }
 
@@ -117,9 +125,16 @@ void collect(current: (Expression) `<Expression e> has <Name n>`, TBuilder tb){
 } 
 
 AType computeHasType(Tree current, AType t1){
-    if (isRelType(t1) || isListRelType(t1) || isTupleType(t1) || isADTType(t1) || isNonTerminalType(t1) || isNodeType(t1)) return abool();
-             reportError(current, "Invalid type: expected relation, tuple, node or ADT types, found <fmt(t1)>");
+    if(!isFullyInstantiated(t1)) throw TypeUnavailable();
 
+    if(overloadedAType(rel[Key, IdRole, AType] overloads) := t1){
+        for(<key, idrole, tp> <- overloads){
+           try return computeHasType(current, tp);
+           catch CheckFailed(_): /* ignore, try next */;
+        }
+    } else if (isRelType(t1) || isListRelType(t1) || isTupleType(t1) || isADTType(t1) || isNonTerminalType(t1) || isNodeType(t1)) return abool();
+    
+    reportError(current, "Invalid type: expected relation, tuple, node or ADT types, found <fmt(t1)>");
 }
 
 // ---- transitive closure
@@ -132,6 +147,8 @@ void collect(current: (Expression) `<Expression arg> +`, TBuilder tb){
 } 
 
 AType computeTransClosureType(Tree current, AType t1){
+
+    if(!isFullyInstantiated(t1)) throw TypeUnavailable();
 
     // Special case: if we have list[void] or set[void], these become lrel[void,void] and rel[void,void]
     if (isListType(t1) && isVoidType(getListElementType(t1)))
@@ -178,6 +195,8 @@ void collect(current: (Expression) `! <Expression arg>`, TBuilder tb){
 }
 
 AType computeNegation(Tree current, AType t1){
+    if(!isFullyInstantiated(t1)) throw TypeUnavailable();
+    
     if(isBoolType(t1)) return abool();
     reportError(current, "Negation not defined on <fmt(t1)>");
 }
@@ -191,6 +210,8 @@ void collect(current: (Expression) `- <Expression arg>`, TBuilder tb){
 }
 
 AType computeNegative(Tree current, AType t1){
+    if(!isFullyInstantiated(t1)) throw TypeUnavailable();
+    
     if(isNumericType(t1)) return t1;
     reportError(current, "Negative not defined on <fmt(t1)>");
 }
@@ -203,6 +224,8 @@ void collect(current: (Expression) `* <Expression arg>`, TBuilder tb){
 }
 
 AType computeSpliceType(Tree current, AType t1){    
+    if(!isFullyInstantiated(t1)) throw TypeUnavailable();
+    
     if (isListType(t1)) return getListElementType(t1);
     if (isSetType(t1)) return getSetElementType(t1);
     if (isBagType(t1)) return getBagElementType(t1);
@@ -236,6 +259,8 @@ void collect(current: (Expression) `<Expression lhs> o <Expression rhs>`, TBuild
 }
 
 AType computeCompositionType(Tree current, AType t1, AType t2){  
+
+    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
 
     // Special handling for list[void] and set[void], these should be treated as lrel[void,void]
     // and rel[void,void], respectively
@@ -322,7 +347,9 @@ void collect(current: (Expression) `<Expression lhs> * <Expression rhs>`, TBuild
     collect(lhs, rhs, tb); 
 }
 
-AType computeProductType(Tree current, AType t1, AType t2){   
+AType computeProductType(Tree current, AType t1, AType t2){ 
+    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();  
+    
     if(isNumericType(t1) && isNumericType(t2)) return numericArithTypes(t1, t2);
     
     if (isListType(t1) && isListType(t2))
@@ -345,7 +372,10 @@ void collect(current: (Expression) `<Expression lhs> join <Expression rhs>`, TBu
     collect(lhs, rhs, tb); 
 }
 
-AType computeJoinType(Tree current, AType t1, AType t2){  
+AType computeJoinType(Tree current, AType t1, AType t2){ 
+
+    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable(); 
+    
     if ((isRelType(t1) && isRelType(t2)) || (isListRelType(t1) && isListRelType(t2))) {
        bool isRel = isRelType(t1);
         list[AType] lflds = isRel ? getRelFields(t1) : getListRelFields(t1);
@@ -401,6 +431,8 @@ void collect(current: (Expression) `<Expression lhs> % <Expression rhs>`, TBuild
 }
 
 AType computeRemainderType(Tree current, AType t1, AType t2){
+    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
+    
     if(isIntType(t1) && isIntType(t2)) return aint();
     reportError(current, "Remainder not defined on <fmt(t1)> and <fmt(t2)>");
 }
@@ -414,6 +446,8 @@ void collect(current: (Expression) `<Expression lhs> / <Expression rhs>`, TBuild
 }
 
 AType computeDivisionType(Tree current, AType t1, AType t2){
+    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
+    
     if(isNumericType(t1) && isNumericType(t2)) return numericArithTypes(t1, t2);
     reportError(current, "Division not defined on <fmt(t1)> and <fmt(t2)>");
 }
@@ -427,6 +461,9 @@ void collect(current: (Expression) `<Expression lhs> & <Expression rhs>`, TBuild
 }
 
 AType computeIntersectionType(Tree current, AType t1, AType t2){  
+
+    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
+    
     if ( ( isListRelType(t1) && isListRelType(t2) ) || 
          ( isListType(t1) && isListType(t2) ) || 
          ( isRelType(t1) && isRelType(t2) ) || 
@@ -553,6 +590,7 @@ void collect(current: (Expression) `<Expression lhs> - <Expression rhs>`, TBuild
 }
 
 AType computeSubtractionType(Tree current, AType t1, AType t2) { 
+    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
     
     if(isNumericType(t1) && isNumericType(t2)){
         return numericArithTypes(t1, t2);
@@ -592,6 +630,8 @@ void collect(current: (Expression) `<Expression lhs> \<\< <Expression rhs>`, TBu
 }
 
 AType computeAppendAfterType(Tree current, AType t1, AType t2) { 
+    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
+   
     if (isListType(t1)) {
        return makeListType(lub(getListElementType(t1),t2));
     }
@@ -607,6 +647,8 @@ void collect(current: (Expression) `<Expression lhs> \>\> <Expression rhs>`, TBu
 }
 
 AType computeInsertBeforeType(Tree current, AType t1, AType t2) { 
+    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
+    
     if (isListType(t2)) {
         return makeListType(lub(getListElementType(t2),t1));
     }
@@ -622,6 +664,8 @@ void collect(current: (Expression) `<Expression lhs> mod <Expression rhs>`, TBui
 }
 
 AType computeModuloType(Tree current, AType t1, AType t2) { 
+    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
+    
     if (isIntType(t1) && isIntType(t2)) {
         return aint();
     }
@@ -637,6 +681,9 @@ void collect(current: (Expression) `<Expression lhs> notin <Expression rhs>`, TB
 }
 
 AType computeInType(Tree current, AType t1, AType t2){
+
+    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
+    
     if (isRelType(t2)) {
         et = getRelElementType(t2);
         if (comparable(t1,et)) return abool();
@@ -774,10 +821,10 @@ void collect(current: (Expression) `<Pattern pat> \<- <Expression expression>`, 
     scope = tb.getScope();
     tb.calculateEager("enumeration", current, [expression],
        AType () { 
-             exprType = getType(expression);
+             exprType = expandUserTypes(getType(expression), scope);
              elmType = avalue();
-             elmType = computeEnumeratorElementType(current, exprType); 
-             patType = getPatternType(pat, elmType, scope);   
+             elmType = expandUserTypes(computeEnumeratorElementType(current, exprType), scope); 
+             patType = expandUserTypes(getPatternType(pat, elmType, scope), scope);   
              
              if(!isFullyInstantiated(patType) || !isFullyInstantiated(elmType)){
                 unify(patType, elmType) || reportError(pat, "Type of pattern could not be computed");
@@ -804,6 +851,7 @@ AType computeEnumeratorElementType(Expression current, AType etype) {
 
 //println("computeEnumeratorElementType: <etype>");
      if(!isFullyInstantiated(etype)) throw TypeUnavailable();
+     
      etype = instantiate(etype);
     
     if (isSetType(etype)) {

@@ -130,14 +130,29 @@ Accept isAcceptableSimple(TModel tm, Key def, Use use){
 
 Accept isAcceptableQualified(TModel tm, Key def, Use use){
     if(defType(AType atype) := tm.definitions[def].defInfo){
-        defPath = replaceAll(def.path, ".rsc", "");
-        reqPath = replaceAll(use.ids[0], "::", "/");
-        if(endsWith(defPath, reqPath) || 
-           acons(ret:aadt(adtName, list[AType] parameters), str consName, list[NamedField] fields, list[Keyword] kwFields) := atype && use.ids[0] == adtName){
+       
+        defPath = def.path;
+        qualAsPath = replaceAll(use.ids[0], "::", "/") + ".rsc";
+        
+        // qualifier and proposed definition are the same?
+        if(endsWith(defPath, qualAsPath)){
            return acceptBinding();
-           } else {
-           return ignoreContinue();
         }
+        
+         // Qualifier is a ADT name?
+        if(acons(ret:aadt(adtName, list[AType] parameters), str consName, list[NamedField] fields, list[Keyword] kwFields) := atype && use.ids[0] == adtName){
+           return acceptBinding();
+        } 
+        
+        // Is there another acceptable qualifier via an extend?
+        
+        extendedStarBy = {<to.path, from.path> | <Key from, extendPath(), Key to> <- tm.paths}*;
+ 
+        if(!isEmpty(extendedStarBy) && any(p <- extendedStarBy[defPath]?{}, endsWith(p, defPath))){
+           return acceptBinding();
+        }
+       
+        return ignoreContinue();
     }
     return acceptBinding();
 }

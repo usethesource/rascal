@@ -27,10 +27,19 @@ AType subsitute(AType atype, map[loc, AType] facts){
         };
 }
 
-public map[str, datetime] lastModifiedModules = ();
+private map[str, datetime] lastModifiedModules = ();
+private set[str] toBeSaved = {};
 
-public set[str] toBeSaved = {};
+void init_Import(){
+    toBeSaved = {};
+}
 
+map[str, loc] getModuleScopes(TModel tm)
+    = (id: defined | <Key scope, str id, moduleId(), Key defined, DefInfo defInfo> <- tm.defines);
+
+loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes){
+    return moduleScopes[qualifiedModuleName] ? { throw "No module scope found for <qualifiedModuleName>"; };
+}
 datetime getLastModified(str qualifiedModuleName, PathConfig pcfg){
     qualifiedModuleName = unescape(qualifiedModuleName);
     if(lastModifiedModules[qualifiedModuleName]?){
@@ -99,14 +108,10 @@ bool addImport(str qualifiedModuleName, PathConfig pcfg, TBuilder tb){
     }
 }
 
-map[str, loc] getModuleScopes(TModel tm)
-    = (id: defined | <Key scope, str id, moduleId(), Key defined, DefInfo defInfo> <- tm.defines);
 
-loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes){
-    return moduleScopes[qualifiedModuleName] ? { throw "No module scope found for <qualifiedModuleName>"; };
-}
 
 void saveModules(str qualifiedModuleName, PathConfig pcfg, TModel tm){ 
+    
     qualifiedModuleName = unescape(qualifiedModuleName); 
     
     rel[str,str] import_graph = {};
@@ -155,6 +160,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
     //println("scopes: <size(tm.scopes)> ==\> <size(m1.scopes)>");
    
     m1.store = (key_bom : bom);
+    m1.paths = tm.paths;
     
     // Filter model for current module and replace functions in defType by their defined type
     defs = for(tup: <Key scope, str id, IdRole idRole, Key defined, DefInfo defInfo> <- tm.defines){
@@ -192,12 +198,10 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
                append tup;
            }
     
-       } else if(scope.path == mscope.path && idRole != variableId()) println("remove: <scope.path>: <tup>");
+       } //else if(scope.path == mscope.path && idRole != variableId()) println("remove: <scope.path>: <tup>");
     };
     println("defines: <size(tm.defines)> ==\> <size(defs)>");
     m1.defines = toSet(defs);
-   
-   
     
     println("write to <tplLoc>");
     writeBinaryValueFile(tplLoc, m1);

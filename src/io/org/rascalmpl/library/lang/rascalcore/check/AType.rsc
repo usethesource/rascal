@@ -362,8 +362,8 @@ bool asubtype(AType s, s) = true;
 
 default bool asubtype(AType s, AType t) = (s.label? || t.label?) ? asubtype(unset(s, "label") , unset(t, "label")) : s == t;
 
-bool asubtype(tvar(s), AType r) { println("asubtype(tvar(<s>), <r>)"); throw TypeUnavailable(); /*if(getType(s) == tvar(s)) throw TypeUnavailable();*/ res = asubtype(getType(s), r);  println("asubtype(tvar(<s>, <r>) ==\> <res>"); return res;} // { throw "asubtype not defined for <tvar(s)> and <r>"; }
-bool asubtype(AType l, tvar(s)) { println("asubtype(<l> tvar(<s>))"); throw TypeUnavailable(); } //asubtype(l, getType(s)); //{ throw "asubtype not defined for <l> and <tvar(s)>"; }= asubtype(l, getType(s)); //
+bool asubtype(tvar(s), AType r) { /*println("asubtype(tvar(<s>), <r>)");*/ throw TypeUnavailable(); }
+bool asubtype(AType l, tvar(s)) { /*println("asubtype(<l> tvar(<s>))");*/ throw TypeUnavailable(); }
 
 
 bool asubtype(overloadedAType(overloads), AType r) = any(<k, idr, tp> <- overloads, asubtype(tp, r));
@@ -502,8 +502,8 @@ The least-upperbound (lub) between two types.
 .Description
 This function documents and implements the lub operation in Rascal's type system. 
 }
-AType alub(tvar(s), AType r) {  println("alub(tvar(<s>), <r>)"); throw TypeUnavailable(); } // alub(getType(s), r); //{ throw "alub not defined for <tvar(s)> and <r>"; }
-AType alub(AType l, tvar(s)) { println("alub(<l>, tvar(<s>))"); throw TypeUnavailable(); } //= alub(l, getType(s)); //{ throw "alub not defined for <l> and <tvar(s)>"; }
+AType alub(tvar(s), AType r) { /*println("alub(tvar(<s>), <r>)");*/ throw TypeUnavailable(); } 
+AType alub(AType l, tvar(s)) { /*println("alub(<l>, tvar(<s>))");*/ throw TypeUnavailable(); }
 
 AType alub(AType s, s) = s;
 default AType alub(AType s, AType t) = (s.label? || t.label?) ? alub(unset(s, "label") , unset(t, "label")) : avalue();
@@ -547,13 +547,15 @@ AType alub(abag(AType s), abag(AType t)) = abag(alub(s, t));
 AType alub(aadt(str n, list[AType] _), anode(_)) = anode([]);
 AType alub(anode(_), aadt(str n, list[AType] _)) = anode([]);
 
-AType alub(aadt(str n, list[AType] lp), aadt(n, list[AType] rp)) = aadt(n, addParamLabels(alub(lp,rp),getParamLabels(lp))) when size(lp) == size(rp) && getParamLabels(lp) == getParamLabels(rp) && size(getParamLabels(lp)) > 0;
-AType alub(aadt(str n, list[AType] lp), aadt(n, list[AType] rp)) = aadt(n, alub(lp,rp)) when size(lp) == size(rp) && size(getParamLabels(lp)) == 0;
+AType alub(a1:aadt(str n, list[AType] lp), a2:aadt(n, list[AType] rp)) = aadt(n, addParamLabels(alub(lp,rp),getParamLabels(lp))) [hasSyntax=a1.hasSyntax || a2.hasSyntax]
+                                                                         when size(lp) == size(rp) && getParamLabels(lp) == getParamLabels(rp) && size(getParamLabels(lp)) > 0;
+AType alub(a1:aadt(str n, list[AType] lp), a2:aadt(n, list[AType] rp)) = aadt(n, alub(lp,rp)) [hasSyntax=a1.hasSyntax || a2.hasSyntax]
+                                                                         when size(lp) == size(rp) && size(getParamLabels(lp)) == 0;
 AType alub(aadt(str n, list[AType] lp), aadt(str m, list[AType] rp)) = anode([]) when n != m;
-AType alub(aadt(str ln, list[AType] lp), acons(AType b, _, _, _)) = alub(aadt(ln,lp),b);
+AType alub(a1: aadt(str ln, list[AType] lp), acons(AType b, _, _, _)) = alub(a1,b);
 
 AType alub(acons(AType la, _, list[NamedField] _,  list[Keyword] _), acons(AType ra, _, list[NamedField] _, list[Keyword] _)) = alub(la,ra);
-AType alub(acons(AType a,  _, list[NamedField] lp, list[Keyword] _), aadt(str n, list[AType] rp)) = alub(a,aadt(n,rp));
+AType alub(acons(AType a,  _, list[NamedField] lp, list[Keyword] _), a2:aadt(str n, list[AType] rp)) = alub(a,a2);
 AType alub(acons(AType _,  _, list[NamedField] _,  list[Keyword] _), anode(_)) = anode([]);
 
 AType alub(anode(list[NamedField] l), anode(list[NamedField] r)) = anode(l & r);

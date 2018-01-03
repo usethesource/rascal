@@ -28,6 +28,8 @@ extend lang::rascalcore::check::Statement;
 extend lang::rascalcore::check::Pattern;
 extend lang::rascalcore::check::Operators;
 
+import lang::rascalcore::check::Import;
+
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeUtils;
 
@@ -40,6 +42,9 @@ start syntax Modules
 Tree mkTree(int n) = [DecimalIntegerLiteral] "<for(int i <- [0 .. n]){>6<}>"; // Create a unique tree to identify predefined names
  
 void rascalPreCollectInitialization(Tree tree, TBuilder tb){
+
+    init_Import();
+    
     tb.enterScope(tree);
         //data type[&T] = type(Symbol symbol, map[Symbol,Production] definitions);
         
@@ -101,10 +106,11 @@ TModel rascalTModelsFromTree(Tree pt){
 
 TModel rascalTModelFromName(str mname, bool debug=false){
     startTime = cpuTime();
-    toBeSaved = {};
-    lastModifiedModules = ();
     pcfg = getDefaultPathConfig();
     
+    //<valid, tm> = getIfValid(mname, pcfg);
+    //if(valid) return tm;
+     
     try {
         pt = parseNamedModuleWithSpaces(mname, pcfg).top;
         tm = rascalTModel(pt, startTime, debug=debug);

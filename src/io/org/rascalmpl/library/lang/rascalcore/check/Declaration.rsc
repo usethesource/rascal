@@ -485,8 +485,8 @@ void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterm
         //println("define <ntName>, dataId(), <dt>");
         allConstructorDefines = {};
         for(p <- productions){
+           //println("\nprod2cons: <p> ==\>\n\t<prod2cons(p)>");
            for(<k, c> <- prod2cons(p)){
-               //println(c);
                tb.define(c.consName, constructorId(), k, defType(c));
                allConstructorDefines += <c.consName, k, defType(c)>;
             }
@@ -528,7 +528,8 @@ default rel[Key, AType] prod2cons(AProduction p){
     def = p.def;
     symbols = p.asymbols;
     if(def.label?){
-        fields = [ <t.label, t> | s <- symbols, isNonTerminalType(s), t := removeConditional(s) ];
+  
+        fields = [ <t.label, t> | s <- symbols, t := removeConditional(s) , isNonTerminalType(t)];
         return { <p.src, acons(unset(def, "label"), deescape(def.label), fields, [])> };
     }
     return {};

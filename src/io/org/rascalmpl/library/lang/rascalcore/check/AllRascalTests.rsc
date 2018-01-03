@@ -244,10 +244,10 @@ private list[str] files_with_tests =
 "lang::rascal::meta::ModuleInfoTests",
 "lang::rascal::syntax::tests::PreBootstrap",
 "lang::rascal::syntax::tests::SolvedIssues",
-"lang::rascal::types::tests::AbstractKindTests",
-"lang::rascal::types::tests::AbstractNameTests",
-"lang::rascal::types::tests::TypeInstantiationTests", 
-"lang::rascal::types::tests::UtilTests",
+"lang::rascal::tests::types::AbstractKindTests",
+"lang::rascal::tests::types::AbstractNameTests",
+"lang::rascal::tests::types::TypeInstantiationTests", 
+"lang::rascal::tests::types::UtilTests",
 // "lang::yaml::Model",                               // Error during reading (halts JVM version)
 "util::PriorityQueue",
 "util::UUID" 
@@ -368,7 +368,11 @@ tuple[TModel org, map[str,TModel] differences] sameTPL(str qualifiedModuleName, 
 }
 
 bool blacklisted(str qualifiedModuleName){
-    for(s <- {/*"lang::rascal::types", "experiments::Compiler", "lang::rascal::boot", "lang::rascal::tests::types" ,*/ "experiments::tutor3", "lang::java::patterns", "lang::sdf2"}){
+    for(s <- {//"lang::rascal::types", "experiments::Compiler", "lang::rascal::boot", "lang::rascal::tests::types" , "experiments::tutor3", "lang::java::patterns", "lang::sdf2", "lang::box", "Sudoku
+              "lang::java::flow::JavaToObjectFlow", "lang::java::patterns::JavaToMicroPatterns", "lang::sdf2::util::SDF2Grammar", "lang::sdf2::util::Importer",
+              "lang::rascal::tests::library::analysis::formalconcepts::FCATest"
+             }
+    ){
         if(contains(qualifiedModuleName, s)) return true;
     }
     return false;
@@ -406,7 +410,6 @@ void allFiles(PathConfig pcfg = pathConfig(
     iprintln(result);
     iprintln(crashed);
     println("<size(modulePaths)> files, <size(result)> with a problem, <size(crashed)> crashed, <nskipped> skipped");
-    println("\nWith errors: <sort(domain(result))>");
-    println("\nCrashed:");
-    iprintln(crashed);
+    println("\nWith errors:"); iprintln(sort(domain(result)));
+    println("\nCrashed:"); iprintln(crashed);
 }

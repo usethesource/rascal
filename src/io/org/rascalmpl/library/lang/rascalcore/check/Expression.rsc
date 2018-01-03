@@ -448,8 +448,10 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
     scope = tb.getScope();
     
     tb.calculate("call of function/constructor <fmt("<expression>")>", current, expression + actuals + kwactuals,
-        AType(){   
-            texp = getType(expression);
+        AType(){
+            if(any(x <- expression + actuals + kwactuals, !isFullyInstantiated(getType(x)))) throw TypeUnavailable();
+            
+            texp = expandUserTypes(getType(expression), scope);
             if(isStrType(texp)){
                 return computeNodeType(current, scope, actuals, keywordArguments);
             } 
@@ -904,12 +906,12 @@ void collect(current:(Expression)`<Expression expression> [ <{Expression ","}+ i
     }
     
     tb.calculate("subscription", current, expression + indexList,
-                  AType(){ return computeSubscriptionType(current, getType(expression), [getType(e) | e <- indexList]);  });
+                  AType(){ return computeSubscriptionType(current, getType(expression), [getType(e) | e <- indexList], indexList);  });
     collect(expression, indices, tb);
 }
 
-AType computeSubscriptionType(Tree current, AType t1, list[AType] tl){
-    if(!isFullyInstantiated(t1) && all(tp <- tl, isFullyInstantiated(tp))){
+AType computeSubscriptionType(Tree current, AType t1, list[AType] tl, list[Expression] indexList){
+    if(!isFullyInstantiated(t1) || any(tp <- tl, !isFullyInstantiated(tp))){
         throw TypeUnavailable();
     }
 
@@ -918,7 +920,7 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl){
         subscript_overloads = {};
         for(<key, role, tp> <- overloads){
             try {
-                subscript_overloads += <key, role, computeSubscriptionType(current, tp, tl)>;
+                subscript_overloads += <key, role, computeSubscriptionType(current, tp, tl, indexList)>;
             } catch checkFailed(set[Message] msgs): {
                 ; // do nothing and try next overload
             } catch e: {
@@ -988,13 +990,13 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl){
             reportError(current, "Expected only 1 subscript for a tuple expression, not <size(tl)>");
         } else if (!isIntType(tl[0])) {
             reportError(current, "Expected subscript of type int, not <fmt(tl[0])>");
-        //} else if ((Expression)`<DecimalIntegerLiteral dil>` := head(eslist)) {
-        //    tupleIndex = toInt("<dil>");
-        //    if (tupleIndex < 0 || tupleIndex >= size(getTupleFields(t1))) {
-        //        reportError(current, "Tuple index must be between 0 and <size(getTupleFields(t1))-1>");
-        //    } else {
-        //        return getTupleFields(t1)[tupleIndex];
-        //    }
+        } else if ((Expression)`<DecimalIntegerLiteral dil>` := head(indexList)) {
+            tupleIndex = toInt("<dil>");
+            if (tupleIndex < 0 || tupleIndex >= size(getTupleFields(t1))) {
+                reportError(current, "Tuple index must be between 0 and <size(getTupleFields(t1))-1>");
+            } else {
+                return getTupleFields(t1)[tupleIndex];
+            }
         } else {
             return lubList(getTupleFields(t1));
         }
@@ -1007,9 +1009,9 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl){
             return astr();
     } else if (isNonTerminalType(t1)) {
         if (size(tl) != 1)
-            reportError("Expected only 1 subscript for a nonterminal subscript expression, not <size(tl)>");
+            reportError(current, "Expected only 1 subscript for a nonterminal subscript expression, not <size(tl)>");
         else if (!isIntType(tl[0]))
-            reportError("Expected subscript of type int, not <fmt(tl[0])>");
+            reportError(current, "Expected subscript of type int, not <fmt(tl[0])>");
         else if (isNonTerminalIterType(t1))
             return getNonTerminalIterElement(t1);
         else
@@ -1026,17 +1028,33 @@ void collect(current: (Expression) `<Expression e> [ <OptionalExpression ofirst>
     if(olast is noExpression) tb.fact(olast, aint());
 
     tb.calculate("slice", current, [e, ofirst, olast],
-        AType(){ return computeSliceType(getType(e), getType(ofirst), aint(), getType(olast)); });
+        AType(){ return computeSliceType(current, getType(e), getType(ofirst), aint(), getType(olast)); });
     collect(e, ofirst, olast, tb);
 }
 
-AType computeSliceType(AType base, AType first, AType step, AType last){
+AType computeSliceType(Tree current, AType base, AType first, AType step, AType last){
+
+    if(!isFullyInstantiated(base) || !isFullyInstantiated(first) || !isFullyInstantiated(step) || !isFullyInstantiated(last)) throw TypeUnavailable();
+    
+     if(overloadedAType(rel[Key, IdRole, AType] overloads) := base){
+        slice_overloads = {};
+        for(<key, role, tp> <- overloads){
+            try {
+                slice_overloads += <key, role, computeSliceType(current, tp, first, step, last)>;
+            } catch checkFailed(set[Message] msgs): {
+                ; // do nothing and try next overload
+            } catch e:;  
+        }
+        if(isEmpty(slice_overloads)) reportError(current, "Slice cannot be computed for <fmt(base)>");
+        return overloadedAType(slice_overloads);
+    }
+    
     failures = {};
     if(!isIntType(first)) failures += "The first slice index must be of type `int`, found <fmt(first)>"; //TODO change to error
     if(!isIntType(step)) failures  += "The slice step must be of type `int`, found <fmt(step)>";
     if(!isIntType(last)) failures  += "The last slice index must be of type `int`, found <fmt(last)>";
     
-    if(!isEmpty(failures)) throw reportError(failures);
+    if(!isEmpty(failures)) throw reportErrors(current, failures);
     
     if (isListType(base) || isStrType(base) || isNonTerminalIterType(base)) {
         return base;
@@ -1044,7 +1062,7 @@ AType computeSliceType(AType base, AType first, AType step, AType last){
         return makeListType(avalue());
     }
     
-    reportError(failures + "Slices can only be used on (concrete) lists, strings, and nodes");
+    reportErrors(current, failures + "Slices can only be used on (concrete) lists, strings, and nodes, found <fmt(base)>");
 }
 
 // ---- sliceStep
@@ -1054,7 +1072,7 @@ void collect(current: (Expression) `<Expression e> [ <OptionalExpression ofirst>
     if(olast is noExpression) tb.fact(olast, aint());
 
     tb.calculate("slice step", current, [e, ofirst, second, olast],
-        AType(){ return computeSliceType(getType(e), getType(ofirst), getType(second), getType(olast)); });
+        AType(){ return computeSliceType(current, getType(e), getType(ofirst), getType(second), getType(olast)); });
     collect(e, ofirst, second, olast, tb);
 }
 
@@ -1101,6 +1119,7 @@ public map[AType,map[str,AType]] fieldMap =
 
 @doc{Compute the type of field fn on type t1. A checkFailed is thrown if the field is not defined on the given type.}
 public AType computeFieldType(Tree current, AType t1, str fieldName, Key scope) {
+    //println("computeFieldType: <current>, <t1>, <fieldName>");
     if(!isFullyInstantiated(t1)) throw TypeUnavailable();
     
     t1 = expandUserTypes(t1, scope);
@@ -1124,36 +1143,27 @@ public AType computeFieldType(Tree current, AType t1, str fieldName, Key scope) 
            
             declaredInfo = getDefinitions(adtName, scope, {dataId(), nonterminalId()});
             declaredType = getType(adtName, scope, {dataId(), nonterminalId()});
-            declaredTypeParams = getADTTypeParameters(declaredType);
             
-            if (size(declaredTypeParams) > 0) {
-                if (size(declaredTypeParams) != size(actualTypeParams)) {
-                    reportError(current, "Invalid ADT type, the number of type parameters is inconsistent");
-                } else {
-                    map[str, AType] bindings = ( getRascalTypeParamName(declaredTypeParams[idx]) : actualTypeParams[idx] | idx <- index(declaredTypeParams));
-                    if(!isEmpty(bindings)){
-                        try {
-                            fieldType = instantiateRascalTypeParams(fieldType, bindings);
-                        } catch invalidInstantiation(str msg): {
-                            reportError(current, "Failed to instantiate type parameters in field type <fmt(fieldType)>");
-                        } 
-                    }                      
-                }
-            } 
-             
-            fieldType = filterFieldType(fieldType, declaredInfo, scope);
-            
-            for(def <- declaredInfo){
-               if(fieldName in domain(def.defInfo.constructorFields) || fieldName in domain(def.defInfo.commonKeywordFields)){
-                    return fieldType;
-               }
-            }  
-            
-            if (declaredType.hasSyntax) {
-                return computeFieldType(current, aadt("Tree", []), fieldName, scope);
-            }                         
-            
-            reportError(current, "Field <fmt(fieldName)> does not exist on type <fmt(t1)>");
+            //if(overloadedAType(rel[Key, IdRole, AType] overloads) := fieldType){
+            //   
+            //   filteredOverloads = {};
+            //   for(<Key key, idr, AType tp> <- overloads /*, idr in {dataId(), constructorId()}*/){
+            //      println("computeFieldType: <current>, <declaredType>, <fieldName>, trying <idr>, <tp>");
+            //       try {
+            //            filteredOverloads += <key, idr, computeADTFieldType(current, declaredType, expandUserTypes(tp, scope), fieldName, actualTypeParams, declaredInfo, scope)>;
+            //        } catch checkFailed(set[Message] msgs): {
+            //           ; // do nothing and try next overload
+            //        } catch e:;// do nothing
+            //          catch TypeUnAvailable():; // do nothing
+            //   }
+            //   if(isEmpty(filteredOverloads)){
+            //      reportError(current, "Field <fmt(fieldName)> does not exist on type <fmt(t1)>");    
+            //   }
+            //   return overloadedAType(filteredOverloads);
+            //}
+      
+            return computeADTFieldType(current, declaredType, fieldType, fieldName, actualTypeParams, declaredInfo, scope);             
+                
         } catch TypeUnavailable(): { // TODO Remove try
             throw TypeUnavailable(); //reportError(current, "Cannot compute type of field <fmt(fieldName)>, user type <fmt(t1)> has not been declared or is out of scope"); 
         }
@@ -1224,15 +1234,44 @@ public AType computeFieldType(Tree current, AType t1, str fieldName, Key scope) 
     reportError(current, "Cannot access fields on type <fmt(t1)>");
 }
 
-AType filterFieldType(AType fieldType, set[Define] declaredInfo, Key scope){
+
+AType computeADTFieldType(Tree current, AType declaredType, AType fieldType, str fieldName, list[AType] actualTypeParams, set[Define] declaredInfo, Key scope){
+        //println("getADTTypeParameters: <declaredType>");
+        declaredTypeParams = getADTTypeParameters(declaredType);
+        //println("getADTTypeParameters: <declaredType> ==\> <declaredTypeParams>");
+                
+        if (size(declaredTypeParams) > 0) {
+            if (size(declaredTypeParams) != size(actualTypeParams)) {
+                reportError(current, "Invalid ADT type, the number of type parameters is inconsistent");
+            } else {
+                map[str, AType] bindings = ( getRascalTypeParamName(declaredTypeParams[idx]) : actualTypeParams[idx] | idx <- index(declaredTypeParams));
+                if(!isEmpty(bindings)){
+                    try {
+                        fieldType = instantiateRascalTypeParams(fieldType, bindings);
+                    } catch invalidInstantiation(str msg): {
+                        reportError(current, "Failed to instantiate type parameters in field type <fmt(fieldType)>");
+                    } 
+                }                      
+            }
+        } 
+        
+        fieldType = filterFieldType(fieldName, fieldType, declaredInfo, scope);
+        if(overloadedAType({}) !:= fieldType){
+           return expandUserTypes(fieldType, scope);
+        } else if(declaredType.hasSyntax) {
+           return computeFieldType(current, aadt("Tree", []), fieldName, scope);
+        }            
+        
+        reportError(current, "Field <fmt(fieldName)> does not exist on type <fmt(declaredType)>");
+}
+
+AType filterFieldType(str fieldName, AType fieldType, set[Define] declaredInfo, Key scope){
     if(overloadedAType(rel[Key, IdRole, AType] overloads) := fieldType){
        filteredOverloads = {};
        for(<Key key, fieldId(), AType tp> <- overloads){
-           for(Define def <- declaredInfo){
-               expandedTypes = { unset(expandUserTypes(ft, scope), "label") | <fn, ft> <- def.defInfo.constructorFields };
-               if(tp in expandedTypes){
-                  filteredOverloads += <key, fieldId(), tp>;
-               }
+           for(Define def <- declaredInfo){     
+               filteredOverloads += { <key, fieldId(), unset(expandUserTypes(ft, scope), "label")> | <fieldName, ft> <- def.defInfo.constructorFields, comparable(fieldType, tp)};
+               filteredOverloads += { <key, fieldId(), unset(expandUserTypes(ft, scope), "label")> | <fieldName, ft, de> <- def.defInfo.commonKeywordFields, comparable(fieldType, tp)};
            }
        }
        return {<key, fieldId(), tp>} := filteredOverloads ? tp : overloadedAType(filteredOverloads);
@@ -1240,6 +1279,7 @@ AType filterFieldType(AType fieldType, set[Define] declaredInfo, Key scope){
         return fieldType;
     } 
 }
+
 // ---- fieldUpdate
 
 void collect(current:(Expression) `<Expression expression> [ <Name field> = <Expression repl> ]`, TBuilder tb){
@@ -1266,6 +1306,8 @@ void collect(current:(Expression) `<Expression expression> \< <{Field ","}+ fiel
 
 AType computeFieldProjectionType(Expression current, AType base, list[lang::rascal::\syntax::Rascal::Field] fields){
 
+    if(!isFullyInstantiated(base)) throw TypeUnavailable();
+    
     if(overloadedAType(rel[Key, IdRole, AType] overloads) := base){
         projection_overloads = {};
         for(<key, role, tp> <- overloads){
@@ -1352,13 +1394,16 @@ void collect(current:(Expression) `<Expression e> [ @ <Name n> = <Expression er>
     tb.use(n, {annoId()});
     scope = tb.getScope();
     tb.calculate("set annotation", current, [e, n, er],
-        AType(){ t1 = expandUserTypes(getType(e), scope); tn = getType(n); t2 = expandUserTypes(getType(er), scope);
+        AType(){ t1 = expandUserTypes(getType(e), scope); tn = expandUserTypes(getType(n), scope); t2 = expandUserTypes(getType(er), scope);
                  return computeSetAnnotationType(current, t1, tn, t2);
                });
     collect(e, er, tb);
 }
 
 AType computeSetAnnotationType(Expression current, AType t1, AType tn, AType t2){
+
+    if(!isFullyInstantiated(t1) || !isFullyInstantiated(tn) || !isFullyInstantiated(t2)) throw TypeUnavailable();
+    
     if(overloadedAType(rel[Key, IdRole, AType] overloads) := t1){
         anno_overloads = {};
         for(<key, role, tp> <- overloads){
@@ -1405,6 +1450,8 @@ void collect(current:(Expression) `<Expression e>@<Name n>`, TBuilder tb) {
 }
 
 AType computeGetAnnotationType(Tree current, AType t1, AType tn){
+
+    if(!isFullyInstantiated(t1) || !isFullyInstantiated(tn)) throw TypeUnavailable();
 
     if(overloadedAType(rel[Key, IdRole, AType] overloads) := t1){
         anno_overloads = {};

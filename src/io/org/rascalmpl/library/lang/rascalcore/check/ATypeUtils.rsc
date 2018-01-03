@@ -97,8 +97,8 @@ str prettyPrintAType(alrel(AType ts)) = "lrel[<prettyPrintAType(ts)>]";
 str prettyPrintAType(afunc(AType ret, atypeList(list[AType] formals), lrel[str fieldName, AType fieldType, Expression defaultExp] kwFormals))
                 = "<prettyPrintAType(ret)>(<intercalate(",", [prettyPrintAType(f) | f <- formals])><isEmpty(kwFormals) ? "" : ", "><intercalate(",", ["<prettyPrintAType(ft)> <fn>=..." | <fn, ft, de> <- kwFormals])>)";
 
-str prettyPrintAType(auser(str s, [])) = s;
-str prettyPrintAType(auser(str s, ps)) ="<s>[<prettyPrintAType(ps)>]" when size(ps) > 0;
+str prettyPrintAType(auser(str s, [])) = "USER TYPE <s>";
+str prettyPrintAType(auser(str s, ps)) = "USER TYPE <s>[<prettyPrintAType(ps)>]" when size(ps) > 0;
 
 str prettyPrintAType(aalias(str aname, [], AType aliased)) = "alias <aname> = <prettyPrintAType(aliased)>";
 str prettyPrintAType(aalias(str aname, ps, AType aliased)) = "alias <aname>[<prettyPrintAType(ps)>] = <prettyPrintAType(aliased)>" when size(ps) > 0;
@@ -867,7 +867,7 @@ bool isEnumeratorType(AType t) =
 bool isNonTerminalType(aparameter(_,AType tvb)) = isNonTerminalType(tvb);
 //bool isNonTerminalType(AType::\start(AType ss)) = isNonTerminalType(ss); // TODO
 bool isNonTerminalType(AType::\conditional(AType ss,_)) = isNonTerminalType(ss);
-bool isNonTerminalType(t:aadt(_,_)) = t.hasSyntax;
+bool isNonTerminalType(t:aadt(adtName,_)) = t.hasSyntax || adtName == "Tree";
 //bool isNonTerminalType(AType::\sort(_)) = true;
 //bool isNonTerminalType(AType::\lex(_)) = true;
 //bool isNonTerminalType(AType::\layouts(_)) = true;
