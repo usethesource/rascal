@@ -2,6 +2,7 @@
 module experiments::Compiler::Examples::SampleFuns
 
 import List; 
+import Exception;
   
 data D = d1(int n) | d1(str s) | d2 (str s); // simple constructors
 
