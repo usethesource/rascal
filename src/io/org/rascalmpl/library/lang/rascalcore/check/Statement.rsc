@@ -31,8 +31,7 @@ void collect(current: (Statement) `assert <Expression expression> : <Expression 
      
 // ---- expression
 void collect(current: (Statement) `<Expression expression>;`, TBuilder tb){
-    tb.calculate("expression as statement", current, [expression], AType(){ 
-    return getType(expression); });
+    tb.calculate("expression as statement", current, [expression], AType(){ return getType(expression); });
     collect(expression, tb);
 }
 
@@ -467,6 +466,12 @@ void collect(current: (Catch) `catch <Pattern pattern>: <Statement body>`, TBuil
     tb.enterScope(current);
         beginPatternScope("catch", tb);
         collect(pattern, tb);
+        //tb.requireEager("catch pattern", pattern, [],
+        //   () { tpat = getType(pattern);
+        //        if(!isFullyInstantiated(tpat)){
+        //           unify(tpat, avalue()) || reportError(pattern, "Cannot bind pattern");
+        //        }
+        //      });
         endPatternScope(tb);
         collect(body, tb);
     tb.leaveScope(current);
@@ -524,9 +529,7 @@ AType computeAssignmentRhsType(Statement current, AType lhsType, "&=", AType rhs
     
 AType computeAssignmentRhsType(Statement current, AType lhsType, "?=", AType rhsType){
     return lub(lhsType, rhsType);  // <===
-    } 
-   
-// <<=
+    }
 
 default AType computeAssignmentRhsType(Statement current, AType lhsType, str operator, AType rhsType){
     throw "<operator> not supported";
@@ -755,8 +758,14 @@ AType computeFieldAssignableType(Statement current, AType receiverType, str fiel
         try {
             if ((getADTName(receiverType) == "Tree" || isNonTerminalType(receiverType)) && fieldName == "top") {
                 return receiverType;
-            }
-            fieldType = expandUserTypes(getType(fieldName, scope, {formalId(), fieldId()}), scope);
+            }            
+            fieldType = getType(fieldName, scope, {formalId(), fieldId()});
+            
+            try {
+                fieldType = expandUserTypes(fieldType, scope);
+            } catch TypeUnavailable():
+                reportError(current, "Cannot expand type of field <fmt(fieldType)>, missing import of field type?");
+                
             declaredInfo = getDefinitions(adtName, scope, {dataId(), nonterminalId()});
             declaredType = getType(adtName, scope, {dataId(), nonterminalId()});
             declaredTypeParams = getADTTypeParameters(declaredType);
@@ -844,12 +853,18 @@ set[str] getNames(Statement s) = {"<nm>" | /QualifiedName nm := s};
 AType() checkTupleElemAssignment(Statement current, list[QualifiedName] names, list[str] flatNames, set[str] namesInRhs, list[AType] taus, list[Assignable] elms, int i, str operator, Statement rhs, Key scope){
     return
         AType (){
+            if(getLoc(current).begin.line == 588){
+                println("At 588");
+            }
+            println("checkTupleElemAssignment: <current>");
             rhsType = getType(rhs);
+            println("checkTupleElemAssignment: rhsType: <rhsType>");
             if(!isTupleType(rhsType)) reportError(current, "Tuple type required, found <fmt(rhsType)>");
             rhsFields = getTupleFields(rhsType);
+            println("checkTupleElemAssignment: rhsFields <rhsFields>");
             if(size(names) != size(rhsFields)) reportError(statement, "Tuple type required of arity <size(names)>, found arity <size(rhsFields)>"); 
-            
-            if(isFullyInstantiated(taus[i])){
+            println("checkTupleElemAssignment: taus[i] : <taus[i]>, rhsFields[i]: <rhsFields[i]>");
+            if(isFullyInstantiated(taus[i]) && tvar(l) !:= taus[i]){
                recTypeI  = computeReceiverType(current, elms[i],  scope);
                rhsTypeI  = computeAssignmentRhsType(current, recTypeI, operator, rhsFields[i]);
                comparable(rhsTypeI, recTypeI) || reportError(names[i], "Value of type <fmt(rhsFields[i])> cannot be assigned to <fmt("<names[i]>")> of type <fmt(recTypeI)>");
@@ -859,14 +874,15 @@ AType() checkTupleElemAssignment(Statement current, list[QualifiedName] names, l
                   //}
              } else {
                  if(flatNames[i] in namesInRhs){
-                    unify(taus[i], typeof(names[i])) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
-                    //taus[i] = instantiate(taus[i]);
+                    unify(taus[i], getType(names[i])) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
                   } else {
-                  
                     unify(taus[i], rhsFields[i]) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
                  }
                  taus[i] = instantiate(taus[i]);
              }
+             if(getLoc(current).begin.line == 588){
+                println("At 588, returns <taus[i]>");
+            }
              return taus[i];
         };
    }

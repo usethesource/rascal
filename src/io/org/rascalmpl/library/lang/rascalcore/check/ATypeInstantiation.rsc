@@ -151,6 +151,7 @@ public Bindings matchRascalTypeParams(AType r, AType s, Bindings b, bool bindIde
 //}
 
 void invalidInstantiation(str pname, AType bound, AType actual){
+    x = 0;
     throw invalidInstantiation("Type parameter <fmt(pname)> should be less than <fmt(bound)>, but is bound to <fmt(actual)>");  
 }
 

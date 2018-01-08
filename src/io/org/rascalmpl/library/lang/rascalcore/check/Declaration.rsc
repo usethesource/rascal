@@ -99,7 +99,7 @@ Vis getVis((Visibility) ``)         = defaultVis();
 void() makeVarInitRequirement(Expression expr, AType initType, Key scope)
     = () { 
            expandedInitType = expandUserTypes(initType, scope);
-           subtype(getType(expr), expandedInitType) || reportError(expr, "Type of initialization should be subtype of <fmt(initType)>, found <fmt(expr)>");
+           subtype(getType(expr), expandedInitType) || reportError(expr, "Type of initialization should be subtype of <fmt(expandedInitType)>, found <fmt(expr)>");
          };
          
 void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type \type> <{Variable ","}+ variables> ;`, TBuilder tb){
@@ -174,10 +174,10 @@ void collect(FunctionDeclaration decl, TBuilder tb){
     
     if(ignoreCompiler(decl.tags)) { println("ignore: function <fname>"); return; }
     parentScope = tb.getScope();
-    ftypeStub = tb.newTypeVar(fname);
-    dt = defType(ftypeStub);
-    dt.vis=vis;  // TODO: Cannot be set directly, bug in interpreter?
-    tb.define(prettyPrintName(fname), functionId(), fname, dt);     // function is defined in outer scope, its type is filled in inner scope
+    //ftypeStub = tb.newTypeVar(fname);
+    //dt = defType(ftypeStub);
+    //dt.vis=vis;  // TODO: Cannot be set directly, bug in interpreter?
+    //tb.define(prettyPrintName(fname), functionId(), fname, dt);     // function is defined in outer scope, its type is filled in inner scope
     
     tb.enterScope(decl, lubScope=true);
         scope = tb.getScope();
@@ -185,23 +185,31 @@ void collect(FunctionDeclaration decl, TBuilder tb){
         retType = convertType(signature.\type, tb);
         <formals, kwTypeParams, kwFormals> = checkFunctionType(scope, retType, signature.parameters, isVarArgs, tb);
         
-        //expandedRetType = expandUserTypes(retType, scope);
-        //ft = afunc(expandedRetType, atypeList([expandUserTypes(getPatternType(f, avalue(), scope), scope) | f <- formals]), kwFormals);
-        //if(isVarArgs) ft.varArgs = true;
-        //dt = defType(ft);
-        //dt.vis=vis; 
-        //tb.defineInScope(parentScope, prettyPrintName(fname), functionId(), fname, dt); 
-        
-        tb.requireEager("definition of function type", signature.\type, [],
-            (){ 
-                expandedRetType = expandUserTypes(retType, scope);
-                ft = afunc(expandedRetType, atypeList([expandUserTypes(getPatternType(f, avalue(), scope), scope) | f <- formals]), kwFormals);
-                if(isVarArgs) ft.varArgs = true;
-                unify(ftypeStub, ft) || reportError(signature, "Cannot define function type");
+        dt = defType([], AType() {
+                 expandedRetType = expandUserTypes(retType, scope);
+                 ft = afunc(expandedRetType, atypeList([expandUserTypes(getPatternType(f, avalue(), scope), scope) | f <- formals]), kwFormals);
+                 if(isVarArgs) ft.varArgs = true;
+                 return ft;
              });
+        dt.vis=vis; 
+        tb.defineInScope(parentScope, prettyPrintName(fname), functionId(), fname, dt); 
+        
+        //tb.requireEager("definition of function type", signature.\type, [],
+        //    (){ 
+        //        expandedRetType = expandUserTypes(retType, scope);
+        //        ft = afunc(expandedRetType, atypeList([expandUserTypes(getPatternType(f, avalue(), scope), scope) | f <- formals]), kwFormals);
+        //        if(isVarArgs) ft.varArgs = true;
+        //        unify(ftypeStub, ft) || reportError(signature, "Cannot define function type");
+        //     });
         
         if(decl is expression || decl is conditional){
-            tb.requireEager("check on return type", decl.expression, [decl.expression], makeReturnRequirement(decl.expression, retType, formals, kwTypeParams, scope));
+            if(containsReturn(decl.expression)){
+                ; // We assume that the expression returns a value via a return (and that is checked for compatibility with return type);
+                  // We do in this case not check that the type of the expression as a whole is compatible with the return type.
+                  // TODO: cover the case that we leave the expression via a return AND via the value of the expression as a whole
+            } else {
+                tb.requireEager("check on return type", decl.expression, [decl.expression], makeReturnRequirement(decl.expression, retType, formals, kwTypeParams, scope));
+            }
             collect(decl.expression, tb);
         } 
         if(decl is conditional){
@@ -231,6 +239,8 @@ bool ignoreCompiler(Tags tags){
    }
    return false;
 }
+
+bool containsReturn(Tree t) = /(Statement) `return <Statement statement>` := t;
 
 list[Keyword] getKeywordFormals({KeywordFormal  "," }+ keywordFormalList, IdRole role, TBuilder tb){    
     return 
@@ -288,7 +298,7 @@ void() makeReturnRequirement(Tree expr, AType retType, list[Pattern] formals, se
               catch invalidMatch(str reason):
                     if(!subtype(texpr, expandedReturnType))
                         reportError(expr, reason);
-                        
+              
               try {
                  itexpr = texpr;
                  if(!isEmpty(bindings)){

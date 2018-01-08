@@ -405,7 +405,7 @@ void collect(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* argument
     if(namePat: (Pattern) `<QualifiedName name>` := expression){
         qname = convertName(name);
         if(isQualified(qname)){     
-           tb.useQualified([qname.qualifier, qname.name], name, {constructorId()}, {dataId(), nonterminalId()} );
+           tb.useQualified([qname.qualifier, qname.name], name, {constructorId()}, {dataId(), nonterminalId(), moduleId()} );
         } else {
             tb.useLub(name, {constructorId()});
         }
@@ -425,10 +425,10 @@ AType getPatternType(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* 
     //println("bindings: <bindings>");
     //clearBindings();    // <====
     subjectType = instantiate(subjectType);
+    subjectType = expandUserTypes(subjectType, scope);
     
     if(isStrType(texp)){
-        return computeNodeType(current, scope, pats, keywordArguments, subjectType=subjectType);
-        return anode(); // TODO force processing of arguments/keywords
+        return computeNodeType(current, scope, pats, keywordArguments, subjectType=subjectType, isExpression=false);
     }       
     if(overloadedAType(rel[Key, IdRole, AType] overloads) := texp){
        <filteredOverloads, identicalFields> = filterOverloadedConstructors(overloads, size(pats), subjectType);
@@ -515,7 +515,7 @@ void collect(current: (Pattern) `<Type tp> <Name name> : <Pattern pattern>`, TBu
 AType getPatternType(current: (Pattern) `<Type tp> <Name name> : <Pattern pattern>`, AType subjectType, Key scope){
     declaredType = getType(name);
     patType = getPatternType(pattern, subjectType, scope);
-    subtype(patType, declaredType) || reportError(current, "Incompatible type in assignment to variable `<name>`, expected <fmt(declaredType)>, found <patType>");
+    comparable(patType, declaredType) || reportError(current, "Incompatible type in assignment to variable `<name>`, expected <fmt(declaredType)>, found <patType>");
     return declaredType;
 }
 
@@ -551,7 +551,7 @@ void collect(current: (Pattern) `( <{Mapping[Pattern] ","}* mps> )`, TBuilder tb
     tb.pop(patternContainer);
 }
 
-AType getPatternTypec(current: (Pattern) `( <{Mapping[Pattern] ","}* mps> )`, AType subjectType, Key scope){
+AType getPatternType(current: (Pattern) `( <{Mapping[Pattern] ","}* mps> )`, AType subjectType, Key scope){
     return amap(avoid(),avoid()); // TODO
 }
 
@@ -586,4 +586,3 @@ AType getPatternType(current: (Pattern) `! <Pattern pattern>`, AType subjectType
     getPatternType(pattern, avalue(), scope);
     return avoid();
 }
-

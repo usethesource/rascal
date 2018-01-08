@@ -322,7 +322,7 @@ bool myIsSubType(AType t1, AType t2) = asubtype(t1, t2);
 //}
 
 AType myLUB(AType t1, AType t2) = alub(t1, t2);
-//{ println("myLUB: <t1>, <t2>"); return alub(t1, t2); }
+//{ res = alub(t1, t2); println("myLUB: <t1>, <t2> ==\> <res>"); return res;  }
 
 AType myATypeMin() = avoid();
 AType myATypeMax() = avalue();
@@ -400,6 +400,19 @@ bool asubtype(aadt(str _, list[AType] _, hasSyntax=true), AType::\auser("Tree", 
 
 bool asubtype(AType::\iter-seps(AType s, list[AType] seps), AType::\iter-star-seps(AType t, list[AType] seps2)) = asubtype(s,t) && asubtype(seps, seps2);
 bool asubtype(AType::\iter(AType s), AType::\iter-star(AType t)) = asubtype(s, t);
+
+bool asubtype(AType::\iter(AType s), aadt("Tree", [])) = true;
+bool asubtype(AType::\iter(AType s), anode(_)) = true;
+
+bool asubtype(AType::\iter-star(AType s), aadt("Tree", [])) = true;
+bool asubtype(AType::\iter-star(AType s), anode(_)) = true;
+
+bool asubtype(AType::\iter-seps(AType s, list[AType] seps), aadt("Tree", [])) = true;
+bool asubtype(AType::\iter-seps(AType s, list[AType] seps), anode(_)) = true;
+
+bool asubtype(AType::\iter-star-seps(AType s, list[AType] seps), aadt("Tree", [])) = true;
+bool asubtype(AType::\iter-star-seps(AType s, list[AType] seps), anode(_)) = true;
+
 // TODO: add subtype for elements under optional and alternative, but that would also require auto-wrapping/unwrapping in the run-time
 // bool subtype(AType s, \opt(AType t)) = subtype(s,t);
 // bool subtype(AType s, \alt({AType t, *_}) = true when subtype(s, t); // backtracks over the alternatives
@@ -408,9 +421,6 @@ bool asubtype(aadt(str n, list[AType] l), auser(n, list[AType] r)) = asubtype(l,
 
 bool asubtype(auser(str n, list[AType] l), aadt(n, list[AType] r)) = asubtype(l,r); //{throw "Illegal use of auser <n>"; } //= asubtype(l,r);
 bool asubtype(auser(str n, list[AType] l), auser(n, list[AType] r)) = asubtype(l,r); //{throw "Illegal use of auser <n>"; } //= asubtype(l,r);
-
-//bool asubtype(aalias(str _, list[AType] _, AType aliased), AType r) = asubtype(aliased, r);
-//bool asubtype(AType l, aalias(str _, list[AType] _, AType aliased)) = asubtype(l, aliased);
 
 bool asubtype(aint(), anum()) = true;
 bool asubtype(arat(), anum()) = true;
@@ -573,7 +583,7 @@ AType alub(areified(AType l), anode(_)) = anode([]);
 AType alub(afunc(AType lr, AType lp, list[Keyword] lkw), afunc(AType rr, AType rp, list[Keyword] rkw)) {
     lubReturn = alub(lr,rr);
     lubParams = alub(lp,rp);    // TODO was glb, check this
-    if (isTupleType(lubParams))
+    if (atypeList(_) := lubParams)
         return afunc(lubReturn, lubParams, lkw == rkw ? lkw : []);
     else
         return avalue();

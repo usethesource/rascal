@@ -72,6 +72,61 @@ AType binaryOp(str op, AType(Tree, AType, AType) computeType, Tree current, ATyp
     return computeType(current, t1, t2);
 }
 
+AType ternaryOp(str op, AType(Tree, AType, AType, AType) computeType, Tree current, AType t1, AType t2, AType t3){
+//println("binaryOp: <op>, <current>, <t1>, <t2>");
+    t1 = instantiate(t1);
+    t2 = instantiate(t2);
+    t3 = instantiate(t3);
+    if(!(isFullyInstantiated(t1) && isFullyInstantiated(t2) && isFullyInstantiated(t3))){
+       throw TypeUnavailable();
+    }
+    if(overloadedAType(rel[Key, IdRole, AType] overloads) := t1){
+        tern_overloads = {};
+        for(<key, idr, tp> <- overloads){
+            try {
+                tern_overloads += <key, idr, ternaryOp(op, computeType, current, tp, t2, t3)>;
+             } catch checkFailed(set[Message] msgs): {
+                ; // do nothing and try next overload
+             } catch e: {
+                ; // do nothing and try next overload
+             }
+        }
+        if(isEmpty(tern_overloads)) reportError(current, "<fmt(op)> cannot be applied to <fmt(t1)>, <fmt(t2)>, and <fmt(t3)>");
+        return overloadedAType(tern_overloads);
+    }
+    
+    if(overloadedAType(rel[Key, IdRole, AType] overloads) := t2){
+        tern_overloads = {};
+        for(<key, idr, tp> <- overloads){
+            try {
+                tern_overloads += < key, idr, ternaryOp(op, computeType, current, t1, tp, t3)>;
+             } catch checkFailed(set[Message] msgs): {
+                ; // do nothing and try next overload
+             } catch e: {
+                ; // do nothing and try next overload
+             }
+        }
+        if(isEmpty(tern_overloads)) reportError(current, "<fmt(op)> cannot be applied to <fmt(t1)>, <fmt(t2)>, and <fmt(t3)>");
+        return overloadedAType(tern_overloads);
+    }
+    
+    if(overloadedAType(rel[Key, IdRole, AType] overloads) := t3){
+        tern_overloads = {};
+        for(<key, idr, tp> <- overloads){
+            try {
+                tern_overloads += < key, idr, ternaryOp(op, computeType, current, t1, t2, tp)>;
+             } catch checkFailed(set[Message] msgs): {
+                ; // do nothing and try next overload
+             } catch e: {
+                ; // do nothing and try next overload
+             }
+        }
+        if(isEmpty(tern_overloads)) reportError(current, "<fmt(op)> cannot be applied to <fmt(t1)>, <fmt(t2)>, and <fmt(t3)>");
+        return overloadedAType(tern_overloads);
+    }
+    return computeType(current, t1, t2, t3);
+}
+
 @doc{Calculate the arith type for the numeric types, taking account of coercions.}
 public AType numericArithTypes(AType l, AType r) {
     if (isIntType(l) && isIntType(r)) return aint();
@@ -101,12 +156,12 @@ public AType numericArithTypes(AType l, AType r) {
 
 void collect(current: (Expression) `<Expression e> is <Name n>`, TBuilder tb){
     scope = tb.getScope();
-    tb.calculate("is", current, [e], AType () { return unaryOp("is", computeIsType, current, expandUserTypes(getType(e), scope));  });
+    tb.calculate("is", current, [e], AType () { return unaryOp("is", _computeIsType, current, expandUserTypes(getType(e), scope));  });
     collect(e, tb); 
 }
 
-AType computeIsType(Tree current, AType t1){
-    if(!isFullyInstantiated(t1)) throw TypeUnavailable();
+private AType _computeIsType(Tree current, AType t1){
+    //if(!isFullyInstantiated(t1)) throw TypeUnavailable();
 
     if(overloadedAType(rel[Key, IdRole, AType] overloads) := t1){
         for(<key, idrole, tp> <- overloads){
@@ -120,12 +175,12 @@ AType computeIsType(Tree current, AType t1){
 // ---- has
 
 void collect(current: (Expression) `<Expression e> has <Name n>`, TBuilder tb){
-    tb.calculate("has", current, [e], AType () { return unaryOp("has", computeHasType, current, getType(e)); });
+    tb.calculate("has", current, [e], AType () { return unaryOp("has", _computeHasType, current, getType(e)); });
     collect(e, tb); 
 } 
 
-AType computeHasType(Tree current, AType t1){
-    if(!isFullyInstantiated(t1)) throw TypeUnavailable();
+private AType _computeHasType(Tree current, AType t1){
+    //if(!isFullyInstantiated(t1)) throw TypeUnavailable();
 
     if(overloadedAType(rel[Key, IdRole, AType] overloads) := t1){
         for(<key, idrole, tp> <- overloads){
@@ -141,14 +196,14 @@ AType computeHasType(Tree current, AType t1){
  
 void collect(current: (Expression) `<Expression arg> +`, TBuilder tb){
     tb.calculate("transitive closure", current, [arg],
-        AType() { return unaryOp("transitive closure", computeTransClosureType, current, getType(arg)); });
+        AType() { return unaryOp("transitive closure", _computeTransClosureType, current, getType(arg)); });
     
     collect(arg, tb); 
 } 
 
-AType computeTransClosureType(Tree current, AType t1){
+private AType _computeTransClosureType(Tree current, AType t1){
 
-    if(!isFullyInstantiated(t1)) throw TypeUnavailable();
+    //if(!isFullyInstantiated(t1)) throw TypeUnavailable();
 
     // Special case: if we have list[void] or set[void], these become lrel[void,void] and rel[void,void]
     if (isListType(t1) && isVoidType(getListElementType(t1)))
@@ -174,7 +229,7 @@ AType computeTransClosureType(Tree current, AType t1){
 
 void collect(current: (Expression) `<Expression arg> *`, TBuilder tb){
     tb.calculate("reflexive transitive closure", current, [arg],
-        AType() { return unaryOp("reflexive transitive closure", computeTransClosureType, current, getType(arg)); });
+        AType() { return unaryOp("reflexive transitive closure", _computeTransClosureType, current, getType(arg)); });
     
     collect(arg, tb); 
 } 
@@ -219,12 +274,12 @@ AType computeNegative(Tree current, AType t1){
 
 void collect(current: (Expression) `* <Expression arg>`, TBuilder tb){
     tb.calculate("splice", current, [arg], 
-       AType(){ return unaryOp("splice", computeSpliceType, current, getType(arg)); });
+       AType(){ return unaryOp("splice", _computeSpliceType, current, getType(arg)); });
     collect(arg, tb); 
 }
 
-AType computeSpliceType(Tree current, AType t1){    
-    if(!isFullyInstantiated(t1)) throw TypeUnavailable();
+private AType _computeSpliceType(Tree current, AType t1){    
+    //if(!isFullyInstantiated(t1)) throw TypeUnavailable();
     
     if (isListType(t1)) return getListElementType(t1);
     if (isSetType(t1)) return getSetElementType(t1);
@@ -252,15 +307,15 @@ void collect(current: (Expression)`[ <Type t> ] <Expression e>`, TBuilder tb){
 
 void collect(current: (Expression) `<Expression lhs> o <Expression rhs>`, TBuilder tb){
     tb.calculate("composition", current, [lhs, rhs],  
-       AType(){ return binaryOp("composition", computeCompositionType, current, getType(lhs), getType(rhs)); 
+       AType(){ return binaryOp("composition", _computeCompositionType, current, getType(lhs), getType(rhs)); 
             //return computeCompositionType(current, getType(lhs), getType(rhs));
        });
     collect(lhs, rhs, tb); 
 }
 
-AType computeCompositionType(Tree current, AType t1, AType t2){  
+private AType _computeCompositionType(Tree current, AType t1, AType t2){  
 
-    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
+    //if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
 
     // Special handling for list[void] and set[void], these should be treated as lrel[void,void]
     // and rel[void,void], respectively
@@ -343,12 +398,15 @@ AType computeCompositionType(Tree current, AType t1, AType t2){
 
 void collect(current: (Expression) `<Expression lhs> * <Expression rhs>`, TBuilder tb){
     tb.calculate("product", current, [lhs, rhs],  
-       AType(){ return binaryOp("product", computeProductType, current, getType(lhs), getType(rhs)); });
+       AType(){ return computeProductType(current, getType(lhs), getType(rhs)); });
     collect(lhs, rhs, tb); 
 }
 
-AType computeProductType(Tree current, AType t1, AType t2){ 
-    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();  
+AType computeProductType(Tree current, AType t1, AType t2)
+    = binaryOp("product", _computeProductType, current, t1, t2);
+
+private AType _computeProductType(Tree current, AType t1, AType t2){ 
+    //if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();  
     
     if(isNumericType(t1) && isNumericType(t2)) return numericArithTypes(t1, t2);
     
@@ -368,13 +426,13 @@ AType computeProductType(Tree current, AType t1, AType t2){
 
 void collect(current: (Expression) `<Expression lhs> join <Expression rhs>`, TBuilder tb){
     tb.calculate("join", current, [lhs, rhs], 
-       AType(){ return binaryOp("join", computeJoinType, current, getType(lhs), getType(rhs)); });
+       AType(){ return binaryOp("join", _computeJoinType, current, getType(lhs), getType(rhs)); });
     collect(lhs, rhs, tb); 
 }
 
-AType computeJoinType(Tree current, AType t1, AType t2){ 
+private AType _computeJoinType(Tree current, AType t1, AType t2){ 
 
-    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable(); 
+    //if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable(); 
     
     if ((isRelType(t1) && isRelType(t2)) || (isListRelType(t1) && isListRelType(t2))) {
        bool isRel = isRelType(t1);
@@ -422,7 +480,7 @@ AType computeJoinType(Tree current, AType t1, AType t2){
 
 void collect(current: (Expression) `<Expression lhs> % <Expression rhs>`, TBuilder tb){
     tb.calculate("remainder", current, [lhs, rhs],
-        AType(){ return binaryOp("remainder", computeRemainderType, current, getType(lhs), getType(rhs));
+        AType(){ return binaryOp("remainder", _computeRemainderType, current, getType(lhs), getType(rhs));
                 //t1 = getType(lhs); t2 = getType(rhs);
                 // if(isIntType(t1) && isIntType(t2)) return lub(t1, t2);
                 // reportError(current, "Remainder not defined on <fmt(t1)> and <fmt(t2)>");
@@ -430,8 +488,8 @@ void collect(current: (Expression) `<Expression lhs> % <Expression rhs>`, TBuild
     collect(lhs, rhs, tb); 
 }
 
-AType computeRemainderType(Tree current, AType t1, AType t2){
-    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
+private AType _computeRemainderType(Tree current, AType t1, AType t2){
+    //if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
     
     if(isIntType(t1) && isIntType(t2)) return aint();
     reportError(current, "Remainder not defined on <fmt(t1)> and <fmt(t2)>");
@@ -441,12 +499,15 @@ AType computeRemainderType(Tree current, AType t1, AType t2){
 
 void collect(current: (Expression) `<Expression lhs> / <Expression rhs>`, TBuilder tb){
     tb.calculate("division", current, [lhs, rhs], 
-       AType(){ return binaryOp("division", computeDivisionType, current, getType(lhs), getType(rhs));  });
+       AType(){ return computeDivisionType(current, getType(lhs), getType(rhs));  });
     collect(lhs, rhs, tb); 
 }
 
-AType computeDivisionType(Tree current, AType t1, AType t2){
-    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
+AType computeDivisionType(Tree current, AType t1, AType t2)
+    = binaryOp("division", _computeDivisionType, current, t1, t2);
+
+private AType _computeDivisionType(Tree current, AType t1, AType t2){
+    //if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
     
     if(isNumericType(t1) && isNumericType(t2)) return numericArithTypes(t1, t2);
     reportError(current, "Division not defined on <fmt(t1)> and <fmt(t2)>");
@@ -456,13 +517,16 @@ AType computeDivisionType(Tree current, AType t1, AType t2){
 
 void collect(current: (Expression) `<Expression lhs> & <Expression rhs>`, TBuilder tb){
     tb.calculate("intersection", current, [lhs, rhs], 
-       AType() { return binaryOp("intersection", computeIntersectionType, current, getType(lhs), getType(rhs)); });
+       AType() { return computeIntersectionType(current, getType(lhs), getType(rhs)); });
     collect(lhs, rhs, tb);
 }
 
-AType computeIntersectionType(Tree current, AType t1, AType t2){  
+AType computeIntersectionType(Tree current, AType t1, AType t2)
+    = binaryOp("intersection", _computeIntersectionType, current, t1, t2);
+    
+private AType _computeIntersectionType(Tree current, AType t1, AType t2){  
 
-    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
+    //if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
     
     if ( ( isListRelType(t1) && isListRelType(t2) ) || 
          ( isListType(t1) && isListType(t2) ) || 
@@ -497,13 +561,16 @@ void collect(current: (Expression) `<Expression lhs> + <Expression rhs>`, TBuild
     collect(lhs, rhs, tb); 
 }
 
-default AType computeAdditionType(Tree current, AType t1, AType t2) {
+AType computeAdditionType(Tree current, AType t1, AType t2) 
+    = binaryOp("addition", _computeAdditionType, current, t1, t2);
 
-    t1 = instantiate(t1);
-    t2 = instantiate(t2);
-    if(!(isFullyInstantiated(t1) && isFullyInstantiated(t2))){
-       throw TypeUnavailable();
-    }   
+private AType _computeAdditionType(Tree current, AType t1, AType t2) {
+
+    //t1 = instantiate(t1);
+    //t2 = instantiate(t2);
+    //if(!(isFullyInstantiated(t1) && isFullyInstantiated(t2))){
+    //   throw TypeUnavailable();
+    //}   
     
     if(isNumericType(t1) && isNumericType(t2)) return numericArithTypes(t1, t2);
     
@@ -585,12 +652,15 @@ default AType computeAdditionType(Tree current, AType t1, AType t2) {
 
 void collect(current: (Expression) `<Expression lhs> - <Expression rhs>`, TBuilder tb){
     tb.calculate("subtraction", current, [lhs, rhs], 
-       AType() { return binaryOp("subtraction", computeSubtractionType, current, getType(lhs), getType(rhs)); });
+       AType() { return computeSubtractionType(current, getType(lhs), getType(rhs)); });
     collect(lhs, rhs, tb); 
 }
 
-AType computeSubtractionType(Tree current, AType t1, AType t2) { 
-    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
+AType computeSubtractionType(Tree current, AType t1, AType t2)
+    = binaryOp("subtraction", _computeSubtractionType, current, t1, t2);
+
+private AType _computeSubtractionType(Tree current, AType t1, AType t2) { 
+    //if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
     
     if(isNumericType(t1) && isNumericType(t2)){
         return numericArithTypes(t1, t2);
@@ -625,12 +695,12 @@ AType computeSubtractionType(Tree current, AType t1, AType t2) {
 
 void collect(current: (Expression) `<Expression lhs> \<\< <Expression rhs>`, TBuilder tb){
     tb.calculate("append after", current, [lhs, rhs],
-        AType(){ return binaryOp("append after", computeAppendAfterType, current, getType(lhs), getType(rhs)); });
+        AType(){ return binaryOp("append after", _computeAppendAfterType, current, getType(lhs), getType(rhs)); });
     collect(lhs, rhs, tb); 
 }
 
-AType computeAppendAfterType(Tree current, AType t1, AType t2) { 
-    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
+private AType _computeAppendAfterType(Tree current, AType t1, AType t2) { 
+    //if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
    
     if (isListType(t1)) {
        return makeListType(lub(getListElementType(t1),t2));
@@ -642,12 +712,12 @@ AType computeAppendAfterType(Tree current, AType t1, AType t2) {
 
 void collect(current: (Expression) `<Expression lhs> \>\> <Expression rhs>`, TBuilder tb){
     tb.calculate("insert before", current, [lhs, rhs],
-       AType(){ return binaryOp("insert before", computeInsertBeforeType, current, getType(lhs), getType(rhs)); });
+       AType(){ return binaryOp("insert before", _computeInsertBeforeType, current, getType(lhs), getType(rhs)); });
     collect(lhs, rhs, tb); 
 }
 
-AType computeInsertBeforeType(Tree current, AType t1, AType t2) { 
-    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
+private AType _computeInsertBeforeType(Tree current, AType t1, AType t2) { 
+    //if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
     
     if (isListType(t2)) {
         return makeListType(lub(getListElementType(t2),t1));
@@ -659,12 +729,12 @@ AType computeInsertBeforeType(Tree current, AType t1, AType t2) {
 
 void collect(current: (Expression) `<Expression lhs> mod <Expression rhs>`, TBuilder tb){
     tb.calculate("modulo", current, [lhs, rhs],
-       AType(){ return binaryOp("modulo", computeModuloType, current, getType(lhs), getType(rhs)); });
+       AType(){ return binaryOp("modulo", _computeModuloType, current, getType(lhs), getType(rhs)); });
     collect(lhs, rhs, tb); 
 }
 
-AType computeModuloType(Tree current, AType t1, AType t2) { 
-    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
+private AType _computeModuloType(Tree current, AType t1, AType t2) { 
+    //if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
     
     if (isIntType(t1) && isIntType(t2)) {
         return aint();
@@ -676,13 +746,13 @@ AType computeModuloType(Tree current, AType t1, AType t2) {
 
 void collect(current: (Expression) `<Expression lhs> notin <Expression rhs>`, TBuilder tb){
     tb.calculate("notin", current, [lhs, rhs], 
-       AType () { return binaryOp("notin", computeInType, current, getType(lhs), getType(rhs)); });
+       AType () { return binaryOp("notin", _computeInType, current, getType(lhs), getType(rhs)); });
     collect(lhs, rhs, tb); 
 }
 
-AType computeInType(Tree current, AType t1, AType t2){
+private AType _computeInType(Tree current, AType t1, AType t2){
 
-    if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
+    //if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
     
     if (isRelType(t2)) {
         et = getRelElementType(t2);
@@ -713,7 +783,7 @@ AType computeInType(Tree current, AType t1, AType t2){
 
 void collect(current: (Expression) `<Expression lhs> in <Expression rhs>`, TBuilder tb){
     tb.calculate("in", current, [lhs, rhs], 
-       AType() { return binaryOp("in", computeInType, current, getType(lhs), getType(rhs)); });
+       AType() { return binaryOp("in", _computeInType, current, getType(lhs), getType(rhs)); });
     collect(lhs, rhs, tb); 
 }
 
@@ -739,12 +809,12 @@ void collect(current: (Expression) `<Expression lhs> != <Expression rhs>`, TBuil
 
 void checkComparisonOp(str op, Expression current, TBuilder tb){
     tb.calculateEager("comparison <fmt(op)>", current, [current.lhs, current.rhs],
-       AType (){ return binaryOp(op, computeComparisonType, current, getType(current.lhs), getType(current.rhs)); });
+       AType (){ return binaryOp(op, _computeComparisonType, current, getType(current.lhs), getType(current.rhs)); });
     collect([current.lhs, current.rhs], tb);
 }
 
-AType computeComparisonType(Tree current, AType t1, AType t2){
-    if(t1.label?) t1 = unset(t1, "label");
+private AType _computeComparisonType(Tree current, AType t1, AType t2){
+    if(t1.label?) t1 = unset(t1, "label");      // TODO: do this for all operators?
     if(t2.label?) t2 = unset(t2, "label");
     if(comparable(t1, t2) || (isNumericType(t1) && isNumericType(t2)))
        return abool();
@@ -837,9 +907,15 @@ void collect(current: (Expression) `<Pattern pat> \<- <Expression expression>`, 
                 //clearBindings(); // <===
              }  else {
                     fact(pat, patType);
-             }     
-             comparable(patType, elmType) || reportError(pat, "Pattern of type <fmt(patType)> cannot be used to enumerate over <fmt(exprType)>");
-             return abool();
+             }
+             if(overloadedAType(rel[Key, IdRole, AType] overloads) := elmType){
+                for(<key, role, tp> <- overloads, role != fieldId()){
+                    if(comparable(patType, tp)) return abool();
+                }
+                reportError(pat, "Pattern of type <fmt(patType)> cannot be used to enumerate over <fmt(exprType)>");
+            } 
+            comparable(patType, elmType) || reportError(pat, "Pattern of type <fmt(patType)> cannot be used to enumerate over <fmt(exprType)>");
+            return abool();
            });
     collect(pat, expression, tb);
 }
@@ -853,6 +929,18 @@ AType computeEnumeratorElementType(Expression current, AType etype) {
      if(!isFullyInstantiated(etype)) throw TypeUnavailable();
      
      etype = instantiate(etype);
+     
+     if(overloadedAType(rel[Key, IdRole, AType] overloads) := etype){
+        filtered_overloads = {};
+        for(<key, role, tp> <- overloads){
+            try {
+                filtered_overloads += <key, role, computeEnumeratorElementType(current, tp)>;
+            } catch CheckFailed(_): /* ignore, try next */;
+              catch e: ;/* ignore */
+        }
+        if(!isEmpty(filtered_overloads)) return overloadedAType(filtered_overloads);
+        reportError(current, "Type <fmt(etype)> is not enumerable");
+      }
     
     if (isSetType(etype)) {
         return getSetElementType(etype);

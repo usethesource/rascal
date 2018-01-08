@@ -129,6 +129,7 @@ Accept isAcceptableSimple(TModel tm, Key def, Use use){
 }
 
 Accept isAcceptableQualified(TModel tm, Key def, Use use){
+    //println("isAcceptableQualified: <def>, <use>");
     if(defType(AType atype) := tm.definitions[def].defInfo){
        
         defPath = def.path;
@@ -140,8 +141,12 @@ Accept isAcceptableQualified(TModel tm, Key def, Use use){
         }
         
          // Qualifier is a ADT name?
-        if(acons(ret:aadt(adtName, list[AType] parameters), str consName, list[NamedField] fields, list[Keyword] kwFields) := atype && use.ids[0] == adtName){
-           return acceptBinding();
+        //if(acons(ret:aadt(adtName, list[AType] parameters), str consName, list[NamedField] fields, list[Keyword] kwFields) := atype, use.ids[0] == adtName){
+        //    return acceptBinding();
+        //} 
+        
+        if(acons(ret:aadt(adtName, list[AType] parameters), str consName, list[NamedField] fields, list[Keyword] kwFields) := atype){
+           return  use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
         } 
         
         // Is there another acceptable qualifier via an extend?
