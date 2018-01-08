@@ -47,7 +47,6 @@ the associativity groups and the ! restriction operator.
 public DoNotNest doNotNest(Grammar g) {
   g = references(g); 
   result = {};
-  
   for (s <- g.rules) {
     // note how the analysis is still _per non-terminal_
     // TODO: support relations between mutually recursive non-terminals
@@ -159,6 +158,14 @@ Extracted extract(Production a:associativity(_, _, set[Production] alts), Produc
 Extracted extract(Production high, Production a:associativity(_, _, set[Production] alts))
   = {*extract(high, low) | low <- alts}
   + extract(a);  
+
+Extracted extract(Production p:priority(Symbol _, list[Production] alts), Production low)
+  = extract(p)
+  + {*extract(high, low) | high <- alts};   
+
+Extracted extract(Production high, Production p:priority(Symbol _, list[Production] alts))
+  = extract(p)
+  + {*extract(high, low) | low <- alts};   
 
     
 @doc{
