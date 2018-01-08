@@ -28,7 +28,7 @@ Grammar references(Grammar g) {
     
    g = visit (g) {
       case priority(s, [*pre, others(_), *post]) => priority(s, [*pre, *post])
-      case choice(s, {*pre, others(_)}) => priority(s, pre)
+      case choice(s, {*pre, others(_)}) => choice(s, pre)
       case associativity(s, a, {*pre, others(_)}) => associativity(s, a, pre)
    } 
   
