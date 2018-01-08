@@ -384,6 +384,15 @@ Production associativity(Symbol rhs, Associativity a, {associativity(rhs, Associ
 Production associativity(Symbol s, Associativity as, {*Production a, priority(Symbol t, list[Production] b)}) 
   = associativity(s, as, {*a, *b}); 
 
+// deprecated; remove after bootstrap
+Production associativity(Symbol rhs, Associativity a, set[Production] rest)
+  = associativity(rhs, a, withAssoc + withNewAssocs)
+  when  withoutAssoc := {p | Production p:prod(_,_,_) <- rest, !(\assoc(_) <- p.attributes)},
+        withoutAssoc != {},
+        withAssoc := rest - withoutAssoc,
+        withNewAssocs := {p[attributes = p.attributes + {\assoc(a)}] | Production p <- withoutAssoc}
+        ;
+        
 @doc{
 .Synopsis
 Annotate a parse tree node with a source location.
