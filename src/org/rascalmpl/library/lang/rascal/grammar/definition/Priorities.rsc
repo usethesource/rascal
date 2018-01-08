@@ -97,22 +97,22 @@ public DoNotNest doNotNest(Grammar g) {
         // left with right recursive 
         {<f,0,c> | <f:prod(Symbol ss, [Symbol lr, *_], _), 
                     c:prod(Symbol t, [*_, Symbol rr], _)> <- (prios + rights + nons)
-                 , match(ss, lr), match(t, rr), match(ss, t)} 
+                 , same(ss, lr), same(t, rr), same(ss, t)} 
                    
         // right with left recursive            
         + {<f,size(pre),c> | <f:prod(Symbol ss, [pre*, Symbol rr], _), 
                               c:prod(Symbol t, [Symbol lr,   *_], _)> <- (prios + lefts + nons)
-                           , match(ss, rr), match(t, lr), match(ss, t)}
+                           , same(ss, rr), same(t, lr), same(ss, t)}
         ; 
         
      // and we warn about recursive productions which have been left ambiguous:
     allProds  = {p | /p:prod(_,_,_) := g.rules[s]};
-    ambiguous = {<p, q>  | p:prod(Symbol ss, [Symbol lr, *_], _) <- allProds, match(s, lr),
+    ambiguous = {<p, q>  | p:prod(Symbol ss, [Symbol lr, *_], _) <- allProds, same(s, lr),
                            q:prod(Symbol t, [*_, Symbol rr], _) <- allProds,
-                            match(t, rr), match(ss, t)};
-    ambiguous += {<p, q> | p:prod(Symbol ss, [pre*, Symbol rr], _) <- allProds, match(s, rr), 
+                            same(t, rr), same(ss, t)};
+    ambiguous += {<p, q> | p:prod(Symbol ss, [pre*, Symbol rr], _) <- allProds, same(s, rr), 
                            q:prod(Symbol t, [Symbol lr,   *_], _) <- allProds,
-                           match(t, lr), match(ss, t), <q, p> notin ambiguous}
+                           same(t, lr), same(ss, t), <q, p> notin ambiguous}
               ;
               
     ambiguous -= (prios + prios<1,0>); // somehow the pairs are ordered
@@ -129,8 +129,7 @@ public DoNotNest doNotNest(Grammar g) {
   return result + {*except(p, g) | /Production p <- g, p is prod || p is regular};
 }
 
-Extracted extract(prod(_, _, _)) = {};
-Extracted extract(regular(_)) = {};
+default Extracted extract(Production _) = {}; 
 
 Extracted extract(choice(Symbol s, set[Production] alts)) 
   = {*extract(a) | a <- alts};
@@ -160,6 +159,7 @@ Extracted extract(Production a:associativity(_, _, set[Production] alts), Produc
 Extracted extract(Production high, Production a:associativity(_, _, set[Production] alts))
   = {*extract(high, low) | low <- alts}
   + extract(a);  
+
     
 @doc{
 This one-liner searches a given production for "except restrictions". 
@@ -206,4 +206,4 @@ public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
 
 
 
-private bool match(Symbol x, Symbol ref) = striprec(x) == striprec(ref);
+private bool same(Symbol x, Symbol ref) = striprec(x) == striprec(ref);
