@@ -22,8 +22,8 @@ set[Attr] mods2attrs(ProdModifier* mods) = {x | ProdModifier m <- mods, just(x) 
 Maybe[Attr] mod2attr(ProdModifier m) {
   switch (m) { 
     /*deprecated TODO: remove after bootstrap */
-    case ass:\associativity(Assoc _)              : 
-      if (just(Associativity lra) := mod2assoc(ass)) { 
+    case \associativity(Assoc _)              : 
+      if (just(Associativity lra) := mod2assoc(m)) { 
         return just(\assoc(lra)); 
       } else { 
         return nothing();
