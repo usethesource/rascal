@@ -19,6 +19,7 @@ import java.lang.invoke.ConstantCallSite;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -103,13 +104,22 @@ public class RVMonJVM extends RVMCore {
                 throw (Thrown) returnValue;
             }
             return returnValue;
-        } catch(Throwable e){
-            if(e instanceof Thrown){
-                throw (Thrown) e;
-            } 
-            else {
-                throw new RuntimeException(e);
-            }
+        }
+        catch (RuntimeException e) {
+            // all unchecked exceptions are passed on
+            throw e;
+        }
+        catch (InvocationTargetException e) {
+             Throwable targetException = e.getTargetException();
+             if (targetException instanceof RuntimeException) {
+                 throw (RuntimeException) targetException;
+             }
+             
+             throw new RuntimeException(targetException);
+        }
+        catch(Throwable e){
+            // the other (checked) exceptions are wrapped 
+            throw new RuntimeException(e);
         }
     }
 
