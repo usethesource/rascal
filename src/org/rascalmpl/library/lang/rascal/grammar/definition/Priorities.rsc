@@ -74,6 +74,7 @@ public DoNotNest doNotNest(Grammar g) {
     prios  = prios+; 
    
     // here we test for some accidental associativity contradictions, remove them and warn about the removal
+    // TODO extract checking into separate function
     for (<f, c> <- (lefts & rights)) {
       if (f == c)
         println("warning, not syntax-safe: <prod2rascal(f)> is both left and right associative.");
@@ -82,6 +83,7 @@ public DoNotNest doNotNest(Grammar g) {
     }
     
     // here we test for accidental priority contradictions, remove them and warn about the removal.
+    // TODO extract checking into separate function
     for (<f, c> <- (prios & prios<1,0>)) {
       if (f == c)
         println("warning, not syntax-safe: <prod2rascal(f)> \> <prod2rascal(c)>, has a priority with itself."); 
@@ -117,6 +119,7 @@ public DoNotNest doNotNest(Grammar g) {
     ambiguous -= (prios + prios<1,0>); // somehow the pairs are ordered
     ambiguous -= (groups + groups<1,0>); // somehow the pairs are associative
                   
+    // TODO extract checking into separate function
     for (<p,q> <- ambiguous) {
          if (p == q) 
            println("warning, ambiguity predicted: <prod2rascal(p)> lacks left or right associativity");
