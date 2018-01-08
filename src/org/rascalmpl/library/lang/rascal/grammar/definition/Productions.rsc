@@ -95,14 +95,7 @@ private Production prod2prod(Symbol nt, Prod p) {
   } 
 }
 
-// deprecated; remove after bootstrap
-Production associativity(Symbol rhs, Associativity a, set[Production] rest)
-  = associativity(rhs, a, withAssoc + withNewAssocs)
-  when  withoutAssoc := {p | Production p:prod(_,_,_) <- rest, !(\assoc(_) <- p.attributes)},
-        withoutAssoc != {},
-        withAssoc := rest - withoutAssoc,
-        withNewAssocs := {p[attributes = p.attributes + {\assoc(a)}] | Production p <- withoutAssoc}
-        ;
+
 
 private Production associativity(Symbol nt, nothing(), Production p) = p;
 private default Production associativity(Symbol nt, just(Associativity a), Production p) = associativity(nt, a, {p});
