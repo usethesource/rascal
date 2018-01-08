@@ -8,11 +8,12 @@ module lang::rascal::grammar::definition::References
 
 extend Grammar;
 extend ParseTree;
+import lang::rascal::grammar::definition::Symbols;
 
 Grammar references(Grammar g) = visit (g) {
   case others(Symbol s)              => g.rules[s] 
     when s in g.rules
     
   case reference(Symbol s, str name) => p 
-    when s in g.rules, /Production p:prod(label(name, s), _, _) := g.rules[s]
+    when s in g.rules, /Production p:prod(label(name, t), _, _) := g.rules[s], striprec(s) == striprec(t)
 };
