@@ -762,7 +762,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             list[Symbol] args = getConstructorArgumentTypes(a);
             if (size(epsList) == size(args)) {
 				if (typeContainsTypeVars(a)) {
-				Symbol instantiated; KeywordParamMap instantiatedKP; bool b; Configuration c;// TODO: type was added for new (experimental) type checker
+				Symbol instantiated; KeywordParamMap instantiatedKP; bool b;// TODO: type was added for new (experimental) type checker
     				< instantiated, instantiatedKP, b, c > = instantiateConstructorTypeArgs(c, a, kpm);
     				if (!b) {
     					failureReasons += "Could not instantiate type variables in type <prettyPrintType(a)> with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
@@ -850,7 +850,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         set[Symbol] alts     = isFunctionType(t1) ? {t1} : ( (isConstructorType(t1) || isProductionType(t1)) ? {  } : getNonDefaultOverloadOptions(t1) );
         set[Symbol] defaults = isFunctionType(t1) ? {  } : ( (isConstructorType(t1) || isProductionType(t1)) ? {t1} : getDefaultOverloadOptions(t1) );
         
-        Configuration c;		// TODO: type was added for new (experimental) type checker
+        //Configuration c;		// TODO: type was added for new (experimental) type checker
         
         rel[Symbol,KeywordParamMap] nonDefaultFunctionMatchesWithKP;	// TODO: type was added for new (experimental) type checker
         set[str] nonDefaultFunctionFailureReasons;	// TODO: type was added for new (experimental) type checker
