@@ -40,7 +40,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<lucence-version>6.1.0</lucence-version>
 		<exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
-		<rascal.boot.version>latest</rascal.boot.version>
+		<rascal.boot.version>unstable</rascal.boot.version>
 		<rascal.boot>--download</rascal.boot>
 		<rascal.courses>--skipCourses</rascal.courses>
 	</properties>
