@@ -19,17 +19,17 @@ Grammar references(Grammar g) {
            , ss in g.rules
            , /Production p:prod(label(name, t), _, _) := g.rules[ss]
            , ss == striprec(t)
-    };
+   };
   
    g = visit (g) {
       case others(Symbol s)              => g.rules[s] 
         when striprec(s) in g.rules
-    };
+   };
     
    g = visit (g) {
-      case priority(s, [*pre, others(_), *post]) => priority(s, [*pre, *post])
-      case choice(s, {*pre, others(_)}) => choice(s, pre)
-      case associativity(s, a, {*pre, others(_)}) => associativity(s, a, pre)
+      case priority(s, l) => priority(s, [e | e <-l, !(e is others)])
+      case choice(s, alts) => choice(s, {e | e <- alts, !(e is others)})
+      case associativity(s, a, alts) => associativity(s, a, {e | e <- alts, !(e is others)})
    } 
   
   return g;
