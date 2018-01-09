@@ -80,7 +80,7 @@ private Graph[int] makeGraph(map[int, list[Instruction]]  blocks, set[str] excep
 			 graph += {<i, labels[cl]> | cl <- caseLabels};
 		} else if(getName(current[-1]) notin {"RETURN0", "RETURN1", "CORETURN0", "CORETURN1","EXHAUST", "FAILRETURN", "THROW"}){
 			  if(i + 1 in blockNumbers){
-			  	if(LABEL(name) := blocks[i + 1][0]){
+			  	if(LABEL(str name) := blocks[i + 1][0]){	// TODO: type was added for new type checker
 			  		if(name notin exceptionTargets){
 			  			graph += {<i, i + 1>};
 			  		}
