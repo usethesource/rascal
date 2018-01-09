@@ -501,6 +501,7 @@ MuExp translateQualifiedNamePat(QualifiedName name)
      
 MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`, Symbol subjectType){
    trType = translateType(tp);
+   str fuid; int pos;           // TODO: type was added for new type checker
    if(subtype(subjectType, trType)){
 	   if("<name>" == "_"){
 	      return muApply(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR"), []);
@@ -581,6 +582,7 @@ MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>`, bool last, Symbo
 
 MuExp translatePatAsSetElem(p:(Pattern) `<Type tp> <Name name>`, bool last, Symbol subjectType) {
    trType = translateType(tp);
+   str fuid; int pos;           // TODO: type was added for new type checker
    if(subtype(subjectType, trType)){
 	   if("<name>" == "_"){
 	      return muApply(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR_IN_SET"), []);
@@ -596,6 +598,7 @@ MuExp translatePatAsSetElem(p:(Pattern) `<Type tp> <Name name>`, bool last, Symb
 }  
 
 MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>*`, bool last, Symbol subjectType) {
+    str fuid; int pos;           // TODO: type was added for new type checker
    if("<name>" == "_"){
       return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>ANONYMOUS_MULTIVAR_IN_SET"), []);
    }
@@ -605,6 +608,7 @@ MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>*`, bool last, Symb
 
 MuExp translatePatAsSetElem(p:(Pattern) `*<Type tp> <Name name>`, bool last, Symbol subjectType) {
    trType = translateType(tp);
+   str fuid; int pos;           // TODO: type was added for new type checker
    if(subtype(subjectType, trType)){
 	   if("<name>" == "_"){
 	      return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>ANONYMOUS_MULTIVAR_IN_SET"), []);
@@ -678,14 +682,14 @@ private str getName(Pattern pat, int k){
 MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`, Symbol subjectType) {
    literals = [];
    compiledPats = [];
-   lpats = [pat | pat <- pats]; // TODO: unnnecessary
-    elmType = Symbol::\value();
-    if(Symbol::\set(tp) := subjectType && tp != Symbol::\void()){
-    	elmType = tp;
-    }
+   list[Pattern] lpats = [pat | pat <- pats]; // TODO: unnnecessary
+   elmType = Symbol::\value();
+   if(Symbol::\set(tp) := subjectType && tp != Symbol::\void()){
+      elmType = tp;
+   }
    
    /* remove patterns with duplicate names */
-   uniquePats = [];
+   list[Pattern] uniquePats = [];
    outer: for(i <- index(lpats)){
       pat = lpats[i];
       str name = getName(pat, i);
@@ -791,6 +795,7 @@ MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>`, Lookahead looka
 
 MuExp translatePatAsListElem(p:(Pattern) `<Type tp> <Name name>`, Lookahead lookahead, Symbol subjectType) {
    trType = translateType(tp);
+   str fuid; int pos;           // TODO: this keeps type checker happy, why?
    if(subtype(subjectType, trType)){
 	   if("<name>" == "_"){
 	       return muApply(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR_IN_LIST"), []);
@@ -820,6 +825,7 @@ MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>*`, Lookahead look
 
 MuExp translatePatAsListElem(p:(Pattern) `*<Type tp> <Name name>`, Lookahead lookahead, Symbol subjectType) {
    trType = translateType(tp);
+   str fuid; int pos;           // TODO: this keeps type checker happy, why?
    if(subtype(subjectType, trType)){
 	   if("<name>" == "_"){
 	       return muApply(mkCallToLibFun("Library","MATCH_<isLast(lookahead)>ANONYMOUS_MULTIVAR_IN_LIST"), [muCon(0), muCon(1000000), muCon(lookahead.nElem)]);
@@ -938,6 +944,7 @@ MuExp translatePat(p:(Pattern) `! <Pattern pattern>`, Symbol subjectType) =
 
 MuExp translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`, Symbol subjectType) {
     trType = translateType(tp);
+    str fuid; int pos;           // TODO: this keeps type checker happy, why?
     if(subtype(subjectType, trType)){
        <fuid, pos> = getVariableScope("<name>", name@\loc);
     	return muApply(mkCallToLibFun("Library","MATCH_VAR_BECOMES"), [muVarRef("<name>", fuid, pos), translatePat(pattern, subjectType)]);
