@@ -18,6 +18,7 @@ import Set;
 import Relation;
 import List;
 import IO;
+import Exception;
 
 // delete
 test bool delete1(&K k) = isEmpty(delete((),k));
