@@ -339,7 +339,7 @@ tuple[bool, str] convertLib(loc L){
                   cp = parse(#TagString,c);
                   t.contents = cp;
                   insert t;
-                } catch value e: {	// TODO: type was added for new type checker
+                } catch value e: {	// TODO: type was added for new (experimental) type checker
                   println("Could not parse: <c>");
                   throw e;
                 }

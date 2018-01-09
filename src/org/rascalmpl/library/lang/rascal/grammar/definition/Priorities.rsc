@@ -24,7 +24,7 @@ public alias DoNotNest = rel[Production father, int position, Production child];
 
 public DoNotNest doNotNest(Grammar g) {
   DoNotNest result = {};
-  Priorities ordering = {};	// TODO: type was added for new type checker
+  Priorities ordering = {};	// TODO: type was added for new (experimental) type checker
   
   for (s <- g.rules) {
     lefties = {s}; // leftRecursive(g, s);
