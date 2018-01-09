@@ -290,6 +290,7 @@ public CheckResult checkExp(Expression exp:(Expression)`( <Expression ei> | <Exp
     // NOTE: "it" is also not in scope here.
     // TODO: The scope actually starts at er and goes to the end of the
     // reducer. Modify the loc to account for this.
+    Configuration cRed;	// TODO: type was added for new (experimental) type checker
     cRed = enterBooleanScope(c,exp@\loc);
     list[Symbol] ts = [];
     for (eg <- egs) { < cRed, t2 > = checkExp(eg,cRed); ts += t2; }
@@ -301,7 +302,7 @@ public CheckResult checkExp(Expression exp:(Expression)`( <Expression ei> | <Exp
     Symbol erType = t1;
     if (!isFailType(t1)) {
         cRed = addLocalVariable(cRed, RSimpleName("it"), true, exp@\loc, erType, allowedConflicts={RSimpleName("it")});
-        Configuration cRed;	// TODO: type was added for new (experimental) type checker
+        
         Symbol t3;			// TODO: type was added for new (experimental) type checker
         < cRed, t3 > = checkExp(er, cRed);
         if (!isFailType(t3)) {
