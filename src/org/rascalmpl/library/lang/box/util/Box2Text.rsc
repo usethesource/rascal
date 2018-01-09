@@ -113,7 +113,7 @@ str blank(str a) {
 /* Computes a white line with the length of the last line of a */
 text wd(text a) {
    if (isEmpty(a)) return [];
-   if (size(a)==1) return blank(a[0]);
+   if (size(a)==1) return [blank(a[0])];
    return wd(tail(a));
 }
 
@@ -360,7 +360,7 @@ text QQ(Box b, Box c, options opts, foptions f, int m) {
          case  HV(list[Box] bl):{return  HVHV(bl, c, opts, m);}
          case  SPACE(int n):{return  hskip(n);}
          case  A(list[Box] bl):{return AA(bl, c, opts, f, m);}
-         case  R(list[Box] bl):{return RR(bl, c, opts, m);}
+         //case  R(list[Box] bl):{return RR(bl, c, opts, m);} // TODO: Return type should be subtype of `list[str]`, found `list[list[Box]]`
          case KW(Box a):{return font(O(a, c, opts, m),"KW");}
          case VAR(Box a):{return  font(O( a, c, opts, m),"VR");}
          case NM(Box a):{return font(O( a, c, opts, m),"NM");}
