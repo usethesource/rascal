@@ -351,7 +351,7 @@ void statistics(loc root = |std:///|,
     ninstructions = 0;
     locals = ();
   
-    list[Message] messages = []; // TODO: type was added for new type checker
+    list[Message] messages = []; // TODO: type was added for new (experimental) type checker
     missing = {};
     nsuccess = 0;
     
