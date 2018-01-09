@@ -51,6 +51,7 @@ public class ParserGenerator {
   private Function createHoleFunction;
   private static final String packageName = "org.rascalmpl.java.parser.object";
   private static final boolean debug = false;
+  private static final boolean profile = false;
   private static final boolean useCompiledParserGenerator = true;
 
   public ParserGenerator(RascalExecutionContext rex) throws IOException {
@@ -63,7 +64,7 @@ public class ParserGenerator {
             RascalExecutionContextBuilder.normalContext(rex.getPathConfig(), System.out, System.err)
             .forModule("$parsergenerator$")
             .jvm(true)                   // options for complete repl
-            .profile(true)
+            .profile(profile)
             .build();
         rvmParserGenerator = RVMCore.readFromFileAndInitialize(rex.getParserGenerator(), rex2);
       }
@@ -189,7 +190,9 @@ public class ParserGenerator {
         IString classString;
         if(useCompiledParserGenerator){
           classString = (IString) rvmParserGenerator.executeRVMFunction(newGenerateFunction, new IValue[]{ vf.string(packageName), vf.string(normName), grammar }, new HashMap<String, IValue>());
-          rvmParserGenerator.getFrameObserver().report();
+          if (profile) {
+              rvmParserGenerator.getFrameObserver().report();
+          }
         } else {
           classString = (IString) evaluator.call(rex.getMonitor(), "newGenerate", vf.string(packageName), vf.string(normName), grammar);
         }
