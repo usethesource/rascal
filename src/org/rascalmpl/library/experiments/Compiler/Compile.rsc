@@ -331,30 +331,28 @@ tuple[Configuration, RVMModule] compile1Incremental(str qualifiedModuleName, boo
     int comp_time;
     
     moduleLoc = getModuleLocation(qualifiedModuleName, pcfg);
-    try {
-        if(verbose) println("rascal2rvm: Parsing and incremental checking <moduleLoc>");
-        start_checking = cpuTime();
-        
-        M = parseModule(moduleLoc);
-        // TODO: the rewritten module -- after calling removeMain -- will contain
-        // locations from Compile.rsc; Figure out whether that is ok or not.
-        //println("Original module at <moduleLoc>");
-        //iprintln(M);
-        
-        if(!reuseConfig || previousConfig == noPreviousConfig){
-            lang::rascal::\syntax::Rascal::Module M1 = removeMain(M);
-            previousConfig = checkModule(M1, moduleLoc, newConfiguration(pcfg), verbose=verbose);
-            previousConfig.stack = [0]; // make sure we are in the module scope
-        } else {
-          previousConfig.dirtyModules = {};
-        }
-        mainDecl = getMain(M);
-        config  = checkDeclaration(mainDecl, true, previousConfig);
-       
-        check_time = (cpuTime() - start_checking)/1000000;
-    } catch e: {
-        throw e;
+   
+    if(verbose) println("rascal2rvm: Parsing and incremental checking <moduleLoc>");
+    start_checking = cpuTime();
+    
+    M = parseModule(moduleLoc);
+    // TODO: the rewritten module -- after calling removeMain -- will contain
+    // locations from Compile.rsc; Figure out whether that is ok or not.
+    //println("Original module at <moduleLoc>");
+    //iprintln(M);
+    
+    if(!reuseConfig || previousConfig == noPreviousConfig){
+        lang::rascal::\syntax::Rascal::Module M1 = removeMain(M);
+        previousConfig = checkModule(M1, moduleLoc, newConfiguration(pcfg), verbose=verbose);
+        previousConfig.stack = [0]; // make sure we are in the module scope
+    } else {
+      previousConfig.dirtyModules = {};
     }
+    mainDecl = getMain(M);
+    config  = checkDeclaration(mainDecl, true, previousConfig);
+   
+    check_time = (cpuTime() - start_checking)/1000000;
+    
     errors = [ e | e:error(_,_) <- config.messages];
     warnings = [ w | w:warning(_,_) <- config.messages ];
    
