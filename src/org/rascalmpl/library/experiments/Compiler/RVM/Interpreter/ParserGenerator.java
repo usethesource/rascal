@@ -63,6 +63,7 @@ public class ParserGenerator {
             RascalExecutionContextBuilder.normalContext(rex.getPathConfig(), System.out, System.err)
             .forModule("$parsergenerator$")
             .jvm(true)                   // options for complete repl
+            .profile(true)
             .build();
         rvmParserGenerator = RVMCore.readFromFileAndInitialize(rex.getParserGenerator(), rex2);
       }
@@ -188,6 +189,7 @@ public class ParserGenerator {
         IString classString;
         if(useCompiledParserGenerator){
           classString = (IString) rvmParserGenerator.executeRVMFunction(newGenerateFunction, new IValue[]{ vf.string(packageName), vf.string(normName), grammar }, new HashMap<String, IValue>());
+          rvmParserGenerator.getFrameObserver().report();
         } else {
           classString = (IString) evaluator.call(rex.getMonitor(), "newGenerate", vf.string(packageName), vf.string(normName), grammar);
         }
