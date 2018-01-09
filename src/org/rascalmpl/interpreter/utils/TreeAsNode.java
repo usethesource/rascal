@@ -39,6 +39,11 @@ public class TreeAsNode implements INode {
   public boolean isEqual(IValue other) {
     throw new UnsupportedOperationException();
   }
+  
+  @Override
+  public boolean match(IValue other) {
+    throw new UnsupportedOperationException();
+  }
 
   @Override
   public IValue get(int i) throws IndexOutOfBoundsException {

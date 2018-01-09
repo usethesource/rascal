@@ -243,6 +243,10 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public static final Type Function_Closure = tf.constructor(uptr, Function, "closure", Function, "definition", tf.mapType(str, tf.valueType()), "environment");
 	public static final Type Function_Composition = tf.constructor(uptr, Function, "composition", Function, "lhs", Function, "rhs");
 	
+	/* grammars */
+	public static final Type Grammar = tf.abstractDataType(uptr,  "Grammar");
+	public static final Type Grammar_Default = tf.constructor(uptr,  Grammar, "grammar", tf.setType(Symbol), "starts", tf.mapType(Symbol, "sort", Production, "def"), "rules");
+    
 	@Deprecated
 	/** Will be replaced by keyword parameter "origin" */
 	public static final String Location = "loc";
@@ -406,7 +410,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	
 	@Override
 	public ITree character(int ch) {
-		if (ch >= 0 && ch <= Byte.MAX_VALUE) {
+		if (ch >= 0 && ch < Byte.MAX_VALUE) {
 			return character((byte) ch);
 		}
 		
@@ -418,6 +422,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		return byteChars[ch];
 	}
 
+	@Override
+	public IConstructor grammar(IMap rules) {
+	    return constructor(Grammar_Default, setWriter().done(), rules);
+	}
+	 
 	@Override
 	public ITree appl(Map<String,IValue> annos, IConstructor prod, IList args) {
 		return (ITree) appl(prod, args).asAnnotatable().setAnnotations(annos);
@@ -632,7 +641,12 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 			
 			return false;
 		}
-
+		
+		@Override
+		public boolean match(IValue other) {
+		    return isEqual(other);
+		}
+		
 		@Override
 		public boolean isAnnotatable() {
 			return false;
@@ -811,6 +825,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 		
 		@Override
+        public boolean match(IValue other) {
+            return isEqual(other);
+        }
+		
+		@Override
 		public boolean equals(Object obj) {
 			if (!(obj instanceof IValue)) {
 				return false;
@@ -951,6 +970,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 			
 			return false;
 		}
+		
+		@Override
+        public boolean match(IValue other) {
+            return isEqual(other);
+        }
 		
 		@Override
 		public boolean equals(Object obj) {
@@ -1150,6 +1174,16 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 			
 			return false;
 		}
+		
+		@Override
+        public boolean match(IValue other) {
+		    if (other instanceof Amb) {
+                ITree cons = (ITree) other;
+                return cons.getAlternatives().match(alternatives);
+            }
+            
+            return false;
+        }
 		
 		@Override
 		public boolean equals(Object obj) {
@@ -1846,6 +1880,8 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	
 	private static abstract class AbstractAppl implements ITree, IExternalValue {
 		protected final IConstructor production;
+		protected final boolean isMatchIgnorable;
+        
 
 		@Override
 		public IAnnotatable<? extends ITree> asAnnotatable() {
@@ -1859,6 +1895,10 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		
 		protected AbstractAppl(IConstructor production) {
 			this.production = production;
+			this.isMatchIgnorable
+	          = ProductionAdapter.isLayout(production)
+	            || ProductionAdapter.isCILiteral(production)
+	            || ProductionAdapter.isLiteral(production);
 		}
 		
 		@Override
@@ -1910,6 +1950,24 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 			
 			return false;
 		}
+		
+		@Override
+        public boolean match(IValue other) {
+		    if (isMatchIgnorable) {
+		        return true;
+		    }
+		    
+		    
+            if (other instanceof IConstructor) {
+                IConstructor cons = (IConstructor) other;
+                
+                return cons.getConstructorType() == getConstructorType()
+                        && cons.get(0).isEqual(get(0))
+                        && cons.get(1).match(get(1));
+            }
+            
+            return false;
+        }
 		
 		@Override
 		public boolean equals(Object obj) {
@@ -2107,6 +2165,24 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 			
 			return false;
 		}
+		
+		@Override
+        public boolean match(IValue other) {
+            if (other instanceof IList) {
+                IList o = (IList) other;
+                if (o.length() == length()) {
+                    for (int i = 0; i < length(); i++) {
+                        if (!o.get(i).match(get(i))) {
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                }
+            }
+            
+            return false;
+        }
 
 		@Override
 		public boolean equals(Object obj) {
@@ -2725,5 +2801,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 	}
 
+   
 	// please put additional methods above the nested classes
 }

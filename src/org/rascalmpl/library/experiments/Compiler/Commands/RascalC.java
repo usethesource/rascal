@@ -12,6 +12,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Ap
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.shell.RascalShell;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.IConstructor;
@@ -34,6 +35,8 @@ public class RascalC {
      * @throws URISyntaxException 
      */
     public static void main(String[] args)  {
+        System.err.println("Rascal compiler version: " + RascalShell.getVersionNumber());
+        
         try {
             IValueFactory vf = ValueFactoryFactory.getValueFactory();
             CommandOptions cmdOpts = new CommandOptions("rascalc");
@@ -171,55 +174,62 @@ public class RascalC {
     }
 
     public static boolean handleMessages(IList programs, PathConfig pcfg) {
-    	boolean failed = false;
+        boolean failed = false;
 
-    	for(IValue iprogram : programs){
-    		IConstructor program = (IConstructor) iprogram;
-    		if (program.has("main_module")) {
-    			program = (IConstructor) program.get("main_module");
-    		}
-
-    		if (!program.has("messages")) {
-    			throw new InternalCompilerError("unexpected output of compiler, has no messages field");
-    		}
-
-    		ISet messages = (ISet) program.get("messages");
-
-    		int maxLine = 0;
-    		int maxColumn = 0;
-    		
-    		for (IValue val : messages) {
-                ISourceLocation loc = (ISourceLocation) ((IConstructor) val).get("at");
-                maxLine = Math.max(loc.getBeginLine(), maxLine);
-                maxColumn = Math.max(loc.getBeginColumn(), maxColumn);
+        for(IValue iprogram : programs){
+            IConstructor program = (IConstructor) iprogram;
+            if (program.has("main_module")) {
+                program = (IConstructor) program.get("main_module");
             }
-    		
-    		
-    		int lineWidth = (int) Math.log10(maxLine + 1) + 1;
-    		int colWidth = (int) Math.log10(maxColumn + 1) + 1;
-    		
-    		for (IValue val : messages) {
-    			IConstructor msg = (IConstructor) val;
-    			if (msg.getName().equals("error")) {
-    				failed = true;
-    			}
 
-    			ISourceLocation loc = (ISourceLocation) msg.get("at");
-    			int col = loc.getBeginColumn();
-    			int line = loc.getBeginLine();
-    			
-                System.err.println(msg.getName() + "@" + abbreviate(loc, pcfg) 
-                    + ":" 
-                    + String.format("%0" + lineWidth + "d", line)
-                    + ":"
-                    + String.format("%0" + colWidth + "d", col)
-                    + ": "
-                    + ((IString) msg.get("msg")).getValue()
-                    );
-    		}
-    	}
+            if (!program.has("messages")) {
+                throw new InternalCompilerError("unexpected output of compiler, has no messages field");
+            }
 
-    	return !failed;
+            ISet messages = (ISet) program.get("messages");
+
+            failed |= handleMessages(pcfg, messages);
+        }
+        
+        return failed;
+    }
+    	
+    	public static boolean handleMessages(PathConfig pcfg, ISet messages) {
+    	    boolean failed = false;
+    	    int maxLine = 0;
+    	    int maxColumn = 0;
+
+    	    for (IValue val : messages) {
+    	        ISourceLocation loc = (ISourceLocation) ((IConstructor) val).get("at");
+    	        maxLine = Math.max(loc.getBeginLine(), maxLine);
+    	        maxColumn = Math.max(loc.getBeginColumn(), maxColumn);
+    	    }
+
+
+    	    int lineWidth = (int) Math.log10(maxLine + 1) + 1;
+    	    int colWidth = (int) Math.log10(maxColumn + 1) + 1;
+
+    	    for (IValue val : messages) {
+    	        IConstructor msg = (IConstructor) val;
+    	        if (msg.getName().equals("error")) {
+    	            failed = true;
+    	        }
+
+    	        ISourceLocation loc = (ISourceLocation) msg.get("at");
+    	        int col = loc.getBeginColumn();
+    	        int line = loc.getBeginLine();
+
+    	        System.err.println(msg.getName() + "@" + abbreviate(loc, pcfg) 
+    	        + ":" 
+    	        + String.format("%0" + lineWidth + "d", line)
+    	        + ":"
+    	        + String.format("%0" + colWidth + "d", col)
+    	        + ": "
+    	        + ((IString) msg.get("msg")).getValue()
+    	            );
+    	    }
+
+    	    return !failed;
     }
 
     private static String abbreviate(ISourceLocation loc, PathConfig pcfg) {

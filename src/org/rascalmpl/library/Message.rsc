@@ -50,5 +50,6 @@ They can be interpreted by IDE's to display type errors and warnings, etc.
 }
 data Message = 
        error(str msg, loc at)
+     | error(str msg)  
      | warning(str msg, loc at)
      | info(str msg, loc at);

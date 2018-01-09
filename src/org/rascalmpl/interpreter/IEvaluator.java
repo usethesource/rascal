@@ -37,6 +37,7 @@ import org.rascalmpl.parser.ParserGenerator;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.uptr.ITree;
@@ -68,9 +69,9 @@ public interface IEvaluator<T> extends IEvaluatorContext {
 	/*
 	 * Indentations. Methods solely used in {@link StringTemplateConverter}.
 	 */
-	public void indent(String n);	
+	public void indent(IString n);	
 	public void unindent();
-	public String getCurrentIndent();
+	public IString getCurrentIndent();
 	
 	/*
 	 * Module stuff.

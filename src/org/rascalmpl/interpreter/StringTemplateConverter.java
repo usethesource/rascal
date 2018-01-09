@@ -113,14 +113,18 @@ public class StringTemplateConverter {
 					appendToString(v, sb);
 					v = vf.string(sb.toString());
 				}
-				java.lang.String fill = __eval.getCurrentIndent();
+				
+				// TODO: this is expensive, replace by a lazy IString.indent(IString i)?
+				IString fill = __eval.getCurrentIndent();
 				IString content = ((IString)v);
 				StringBuilder sb = new StringBuilder();
-				for (int i = 0; i < content.length(); i++) {
-					int ch = content.charAt(i);
+				
+				// this iterates over the entire content of the interpolated string to find out
+				// where the newlines are:
+				for (int ch : content) {
 					sb.appendCodePoint(ch);
 					if (ch == '\n') {
-						sb.append(fill);
+						sb.append(fill.getValue());
 					}
 				}
 				v = vf.string(sb.toString());
@@ -130,13 +134,14 @@ public class StringTemplateConverter {
 			
 			private void appendToString(IValue value, StringBuilder b) {
 				if (value.getType().isSubtypeOf(RascalValueFactory.Tree)) {
+				    // TODO: could this be replaced by a lazy IString::ITree.asString?
 					b.append(org.rascalmpl.values.uptr.TreeAdapter.yield((IConstructor) value));
 				}
 				else if (value.getType().isSubtypeOf(RascalValueFactory.Type)) {
 					b.append(SymbolAdapter.toString((IConstructor) ((IConstructor) value).get("symbol"), false));
 				}
 				else if (value.getType().isString()) {
-					b.append(((IString) value).getValue());
+					b.append((IString) value);
 				} 
 				else {
 					b.append(value.toString());
@@ -165,8 +170,7 @@ public class StringTemplateConverter {
 				StringBuffer buf = new StringBuffer();
 				
 				StringBuilder sb = new StringBuilder(s.length());
-				for (int i = 0; i < s.length(); i++) {
-					int ch = s.charAt(i);
+				for (int ch : s) {
 					if (atBeginning && (ch == ' ' || ch == '\t')) {
 						buf.appendCodePoint(ch);
 						continue;
@@ -224,7 +228,7 @@ public class StringTemplateConverter {
 		
 		private abstract static class IndentingStringFragmentAppend extends ConstAppend {
 			private static final Pattern INDENT = Pattern.compile("(?<![\\\\])'([ \t]*)([^']*)$");
-			private String indent;
+			private IString indent;
 			
 			public IndentingStringFragmentAppend(ISourceLocation __param1, IConstructor tree, DataTarget __param2, String arg) {
 				super(__param1, tree, __param2, arg);
@@ -236,12 +240,12 @@ public class StringTemplateConverter {
 				return super.initString(arg);
 			}
 
-			private String computeIndent(IString arg) {
+			private IString computeIndent(IString arg) {
 				Matcher m = INDENT.matcher(arg.getValue());
 				if (m.find()) {
-					return m.group(1) + replaceEverythingBySpace(m.group(2));
+					return VF.string(m.group(1) + replaceEverythingBySpace(m.group(2)));
 				}
-				return "";
+				return VF.string("");
 			}
 			
 			private String replaceEverythingBySpace(String input) {
@@ -260,7 +264,7 @@ public class StringTemplateConverter {
 //				return NONSPACE.matcher(input).replaceAll(" ");
 			}
 
-			protected String getIndent() {
+			protected IString getIndent() {
 				return indent;
 			}
 			
