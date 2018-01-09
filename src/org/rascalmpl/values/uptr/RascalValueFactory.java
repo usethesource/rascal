@@ -1875,6 +1875,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
         public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
             return (ITree) v.visitTreeAppl(this);
         }
+
+        @Override
+        public boolean match(IValue other) {
+            return isEqual(other);
+        }
 	    
 	}
 	
