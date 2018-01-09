@@ -57,6 +57,18 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 		return ResultFactory.bool(false, ctx);
 	}
 	
+	@SuppressWarnings("unchecked")
+    @Override
+	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
+	    ITree t = (ITree) getValue();
+	    if (TreeAdapter.isList(t)) {
+	        return (Result<U>) new ListResult(getTypeFactory().listType(RascalValueFactory.Tree), TreeAdapter.getListASTArgs(t), ctx).subscript(subscripts);
+	    }
+	    else {
+	        return (Result<U>) new ListResult(getTypeFactory().listType(RascalValueFactory.Tree), TreeAdapter.getASTArgs(t), ctx).subscript(subscripts);
+	    }
+	}
+	
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 		ITree tree = (ITree) getValue();
@@ -279,12 +291,10 @@ public class ConcreteSyntaxResult extends ConstructorResult {
         return (ITree) (leftCons.mayHaveKeywordParameters() && !leftCons.asWithKeywordParameters().getParameters().isEmpty() ? leftCons.asWithKeywordParameters().unsetAll() : leftCons);
     }
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	protected <U extends IValue> Result<U> addString(StringResult that) {
-		// Note the reverse concat.
-		return (Result<U>) new ConcatStringResult(getType(), that, 
-				new StringResult(that.getType(),ctx.getValueFactory().string(TreeAdapter.yield(getValue())), ctx), ctx);
+        // Note the reverse concat.
+	    return makeResult(that.getType(), that.getValue().concat(ctx.getValueFactory().string(TreeAdapter.yield(getValue()))), ctx);
 	}
 
 	@Override

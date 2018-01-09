@@ -9,7 +9,7 @@
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl}
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Paul Klint - Paul.Klint@cwi.nl (CWI)}
-
+@bootstrapParser
 module util::Reflective
 
 import Exception;
@@ -343,23 +343,11 @@ public java int getFingerprintNode(node nd);
 java void throwNullPointerException();
 
 @doc{Return a list of all Rascal reserved identifiers (a.k.a. keywords)}
-set[str] getRascalReservedIdentifiers() = {
-    "alias", "all", "anno", "any", "append", "assert", "assoc",  
-    "bag", "bool", "bracket", "break", 
-    "case", "catch", "continue", 
-    "data", "datetime", "default", "dynamic",  
-    "else", "extend",  
-    "fail", "false", "filter", "finally", "for",  
-    "if", "import", "in", "insert", "int", "it",  
-    "join",  
-    "keyword", 
-    "layout", "lexical", "list", "loc", "lrel", 
-    "map", "mod","module",  
-    "node", "non-assoc", "notin", "num",  
-    "o", "one",  
-    "private", "public",  
-    "rat", "real", "rel", "return",  
-    "set", "solve", "start", "str", "switch", "syntax", 
-    "tag", "test", "throw", "throws", "true", "try", "tuple", "type",  
-    "value", "visit", "void",  
-    "while"}; 
+set[str] getRascalReservedIdentifiers() = { n | /lit(n) := #RascalKeywords.definitions[keywords("RascalKeywords")]};
+    
+@javaClass{org.rascalmpl.library.util.Reflective}
+java str getRascalVersion();   
+
+ @javaClass{org.rascalmpl.library.util.Reflective}
+ @reflect{Uses RVMCore to find function names}
+ java list[str] clearMemos(str moduleName);

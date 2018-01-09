@@ -138,6 +138,19 @@ public class URIUtil {
 		}
 	}
 	
+	/**
+     * Non throwing variant of <a>create</a>, in case of scenarios where input can be trusted.
+     */
+    public static URI assumeCorrect(String scheme, String authority, String path, String query) {
+        try {
+            return create(scheme, authority, path, query, null);
+        } catch (URISyntaxException e) {
+            IllegalArgumentException y = new IllegalArgumentException();
+            y.initCause(e);
+            throw y;
+        }
+    }
+	
 	public static ISourceLocation correctLocation(String scheme, String authority, String path) {
 		try {
 			return createLocation(scheme, authority, path);
@@ -278,19 +291,18 @@ public class URIUtil {
 	}
 	
 	public static ISourceLocation getParentLocation(ISourceLocation loc) {
-		File file = new File(loc.getPath());
-		File parent = file.getParentFile();
-		
-		if (parent != null && !parent.getName().isEmpty()) {
-			try {
-				return vf.sourceLocation(loc.getScheme(), getCorrectAuthority(loc), parent.getPath(), loc.hasQuery() ? loc.getQuery() : null, loc.hasFragment() ? loc.getFragment() : null);
-			} catch (URISyntaxException e) {
-				assert false;
-				return loc;
-			}
-		}
-		
-		return loc;
+	    String currentPath = loc.getPath();
+	    assert currentPath.startsWith("/");
+	    if (currentPath.equals("/")) {
+	        return loc;
+	    }
+	    try {
+	        int pathSep = currentPath.lastIndexOf('/');
+            return changePath(loc, currentPath.substring(0, pathSep));
+        }
+        catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
 	}
 	
 	public static ISourceLocation getChildLocation(ISourceLocation loc, String child) {

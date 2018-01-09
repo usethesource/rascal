@@ -34,6 +34,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ToplevelType;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
@@ -45,6 +46,7 @@ import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.repl.LimitedWriter;
+import org.rascalmpl.shell.RascalShell;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.IBool;
@@ -78,6 +80,10 @@ public class Reflective {
 		super();
 		this.values = values;
 		prelude = new Prelude(values);
+	}
+	
+	public IString getRascalVersion() {
+	    return values.string(RascalShell.getVersionNumber());
 	}
 	
 	public IString getLineSeparator() {
@@ -575,5 +581,9 @@ public class Reflective {
 
 	public void throwNullPointerException() {
         throw new NullPointerException();
+    }
+	
+	public IValue clearMemos(IString moduleName, IEvaluatorContext ctx) {
+        throw new UnsupportedOperationException("clearMemos not available in interpreter context");
     }
 }

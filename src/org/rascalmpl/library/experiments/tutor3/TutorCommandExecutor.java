@@ -36,13 +36,7 @@ public class TutorCommandExecutor {
 		shellStringWriter = new StringWriter();
 		shellPrintWriter = new PrintWriter(shellStringWriter);
 		executor = new CommandExecutor(pcfg, shellPrintWriter, shellPrintWriter, ideServices, null);
-	
-		try {
-			executor.setDebugObserver(new DebugREPLFrameObserver(null, System.in, System.out, true, true, null, null, ideServices));
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		executor.setDebugObserver(new DebugREPLFrameObserver(null, System.in, System.out, true, true, null, null, ideServices));
 	}
 	
 	void flush(){

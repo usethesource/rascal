@@ -94,9 +94,11 @@ import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.parser.uptr.action.NoActionExecutor;
 import org.rascalmpl.parser.uptr.action.RascalFunctionActionExecutor;
-import org.rascalmpl.repl.RascalInterpreterREPL;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.SymbolAdapter;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
@@ -105,14 +107,13 @@ import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrigger, IRascalRuntimeInspection {
 	
@@ -176,23 +177,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 
 	private final List<IRascalSuspendTriggerListener> suspendTriggerListeners;	 // TODO: can this be shared?
 	
-	private Stack<Accumulator> accumulators = new Stack<Accumulator>(); // not sharable
-	private final Stack<String> indentStack = new Stack<String>(); // not sharable
+	private Stack<Accumulator> accumulators = new Stack<>(); // not sharable
+	private final Stack<IString> indentStack = new Stack<>(); // not sharable
 	private final RascalSearchPath rascalPathResolver; // sharable if frozen
 
 	private final URIResolverRegistry resolverRegistry; // sharable
 
 	private final Map<IConstructorDeclared,Object> constructorDeclaredListeners; // TODO: can this be shared?
  	private static final Object dummy = new Object();	
-    private RascalInterpreterREPL repl = null;
-	
-	public void setREPL(RascalInterpreterREPL repl) {
-	    this.repl = repl;
-	}
-	@Override
-	public RascalInterpreterREPL getREPL() {
-	    return repl;
-	}
 	
 	public Evaluator(IValueFactory f, PrintWriter stderr, PrintWriter stdout, ModuleEnvironment scope, GlobalEnvironment heap) {
 		this(f, stderr, stdout, scope, heap, new ArrayList<ClassLoader>(Collections.singleton(Evaluator.class.getClassLoader())), new RascalSearchPath());
@@ -424,8 +416,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		return rascalPathResolver;
 	}
 	
-	@Override	
-	public void indent(String n) {
+	@Override
+	public void indent(IString n) {
 		indentStack.push(n);
 	}
 	
@@ -435,7 +427,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 	
 	@Override	
-	public String getCurrentIndent() {
+	public IString getCurrentIndent() {
 		return indentStack.peek();
 	}
 
@@ -676,8 +668,9 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	
 	@Override	
-	public ITree parseObject(IConstructor startSort, IMap robust, ISourceLocation location, char[] input,  boolean allowAmbiguity) {
-		IGTD<IConstructor, ITree, ISourceLocation> parser = getObjectParser(location);
+	public ITree parseObject(IConstructor grammar, IMap robust, ISourceLocation location, char[] input,  boolean allowAmbiguity) {
+	    IConstructor startSort = (IConstructor) grammar.get("symbol");
+		IGTD<IConstructor, ITree, ISourceLocation> parser = getObjectParser((IMap) grammar.get("definitions"));
 		String name = "";
 		if (SymbolAdapter.isStartSort(startSort)) {
 			name = "start__";
@@ -765,14 +758,14 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		}
 	}
 	
-	private IGTD<IConstructor, ITree, ISourceLocation> getObjectParser(ISourceLocation loc){
-		return org.rascalmpl.semantics.dynamic.Import.getParser(this, (ModuleEnvironment) getCurrentEnvt().getRoot(), loc, false);
+	private IGTD<IConstructor, ITree, ISourceLocation> getObjectParser(IMap grammar){
+		return org.rascalmpl.semantics.dynamic.Import.getParser(this, (ModuleEnvironment) getCurrentEnvt().getRoot(), grammar, false);
 	}
 
 	@Override
 	public IConstructor getGrammar(Environment env) {
 		ModuleEnvironment root = (ModuleEnvironment) env.getRoot();
-		return getParserGenerator().getGrammar(monitor, root.getName(), root.getSyntaxDefinition());
+		return getParserGenerator().getGrammarFromModules(monitor, root.getName(), root.getSyntaxDefinition());
 	}
 	
 	public IValue diagnoseAmbiguity(IRascalMonitor monitor, IConstructor parseTree) {
@@ -1020,7 +1013,6 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		__setInterrupt(false);
     IActionExecutor<ITree> actionExecutor =  new NoActionExecutor();
     ITree tree =  new RascalParser().parse(Parser.START_COMMAND, location.getURI(), command.toCharArray(), actionExecutor, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(false));
-
 		if (!noBacktickOutsideStringConstant(command)) {
 		  tree = org.rascalmpl.semantics.dynamic.Import.parseFragments(this, tree, location, getCurrentModuleEnvironment());
 		}

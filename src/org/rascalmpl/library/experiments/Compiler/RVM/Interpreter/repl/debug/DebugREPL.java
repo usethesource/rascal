@@ -1,24 +1,20 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
+import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
-import org.rascalmpl.library.util.PathConfig;
-import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
+import org.rascalmpl.repl.ILanguageProtocol;
 
 import io.usethesource.vallang.IValue;
-import jline.Terminal;
 
 /*
  * Shopping list of ideas for the Rascal debugger.
@@ -34,7 +30,7 @@ import jline.Terminal;
  * 
  */
 
-public class DebugREPL extends BaseREPL{
+public class DebugREPL implements ILanguageProtocol {
 
 	private PrintWriter stdout;
 	private PrintWriter stderr;
@@ -46,8 +42,7 @@ public class DebugREPL extends BaseREPL{
 
 	private final BreakPointManager breakPointManager;
 
-	public DebugREPL(PathConfig pcfg, RVMCore rvm2, Frame frame, BreakPointManager breakPointManager, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, File file, Terminal terminal) throws IOException, URISyntaxException{
-		super(pcfg, stdin, stdout, prettyPrompt, allowColors, new File(file.getAbsolutePath() + "-debug"), terminal, null);
+	public DebugREPL(RVMCore rvm2, Frame frame, BreakPointManager breakPointManager) throws IOException, URISyntaxException{
 		this.rvm = rvm2;
 		this.currentFrame = frame;
 		this.startFrame = frame;
@@ -58,13 +53,13 @@ public class DebugREPL extends BaseREPL{
 	}
 	
 	@Override
-	protected void initialize(PathConfig pcfg, Writer stdout, Writer stderr, IDEServices ideServices) {
-		 this.stdout = new PrintWriter(stdout, true);
-         this.stderr = new PrintWriter(stderr, true);
+	public void initialize(Writer stdout, Writer stderr) {
+		 this.stdout = new PrintWriter(stdout);
+         this.stderr = new PrintWriter(stderr);
 	}
 
 	@Override
-	protected String getPrompt() {
+	public String getPrompt() {
 		return currentPrompt;
 	}
 	
@@ -73,14 +68,14 @@ public class DebugREPL extends BaseREPL{
 	}
 
 	@Override
-	protected void handleInput(String line) throws InterruptedException {
+	public void handleInput(String line, Map<String,String> output, Map<String,String> metadata) throws InterruptedException {
 		setPrompt();
-		
+		StringWriter out = new StringWriter();
 		String[] words = line.split(" ");
 		switch(words[0]){
 		
 		case "h": case "help":
-			printHelp(); 
+			printHelp(out); 
 			break;
 			
 		case "d": case "down":
@@ -89,7 +84,7 @@ public class DebugREPL extends BaseREPL{
 			} else {
 				 this.stderr.println("Cannot go down");
 			}
-			printStack();
+			printStack(out);
 			break;
 			
 		case "u": case "up":
@@ -103,7 +98,7 @@ public class DebugREPL extends BaseREPL{
 			} else {
 				this.stderr.println("Cannot go up");
 			}
-			printStack();
+			printStack(out);
 			break;
 			
 		case "l": case "listing":
@@ -111,11 +106,11 @@ public class DebugREPL extends BaseREPL{
 			break;
 			
 		case "w": case "where":
-			printStack();
+			printStack(out);
 			break;
 			
 		case "v": case "vars":
-			currentFrame.printVars(stdout);
+			currentFrame.printVars(out);
 			break;
 			
 		case "s": case "step":
@@ -135,7 +130,7 @@ public class DebugREPL extends BaseREPL{
 			
 		case "": 
 			if(previousCommand != null){
-				handleInput(previousCommand);
+				handleInput(previousCommand, output, metadata);
 			}
 			break;
 			
@@ -194,7 +189,7 @@ public class DebugREPL extends BaseREPL{
 		default:
 			IValue v = EvalExpr.eval(words[0], rvm, currentFrame);
 			if(v != null){
-				stdout.println(v);
+				out.write(v.toString());
 			} else {
 			    stderr.println("'" + line + "' not recognized (or variable has undefined value)");
 			}
@@ -203,9 +198,11 @@ public class DebugREPL extends BaseREPL{
 		if(!line.isEmpty()){
 			previousCommand = line;
 		}
+		
+		output.put("text/plain", out.toString());
 	}
 	
-	private void printHelp(){
+	private void printHelp(StringWriter out){
 		String[] lines = {
 			"h(elp)           This help text",
 			"u(p)             Move up to newer call frame",
@@ -235,55 +232,65 @@ public class DebugREPL extends BaseREPL{
 			"disable <bpnos>  Disable breakpoints <bpnos> (empty list disables all)"
 		};
 		for(String line : lines){
-			stdout.println(line);
+			out.write(line + "\n");
 		}
 	}
 	
-	private void printStack(){
+	private void printStack(StringWriter out){
 		for(Frame f = currentFrame; 
 		    (f != null && !f.src.getPath().equals(CommandExecutor.consoleInputPath)); 
 		    f = f.previousCallFrame) {
-			stdout.println("\t" + f.toString() /*+ "\t" + f.src*/);
-			stdout.flush();
+			out.write("\t" + f.toString() + "\n");
 		}
 	}
 
 	@Override
-	protected void handleReset() throws InterruptedException {
+	public void handleReset(Map<String,String> output, Map<String,String> metadata) throws InterruptedException {
 		// TODO Auto-generated method stub
 	}
 
 	@Override
-	protected boolean supportsCompletion() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	protected boolean printSpaceAfterFullCompletion() {
+	public boolean supportsCompletion() {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	protected CompletionResult completeFragment(String line, int cursor) {
+	public boolean printSpaceAfterFullCompletion() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public CompletionResult completeFragment(String line, int cursor) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	protected void cancelRunningCommandRequested() {
+	public void cancelRunningCommandRequested() {
 	    stop();
 	}
 
 	@Override
-	protected void terminateRequested() {
+	public void terminateRequested() {
 	    stop();
 	}
 
 	@Override
-	protected void stackTraceRequested() {
+	public void stackTraceRequested() {
 		// TODO Auto-generated method stub
 	}
+
+    @Override
+    public void stop() {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public boolean isStatementComplete(String command) {
+        // TODO Auto-generated method stub
+        return true;
+    }
 
 }

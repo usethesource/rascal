@@ -1,16 +1,15 @@
 package org.rascalmpl.repl;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -24,23 +23,20 @@ import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedExcepti
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
-import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.TreeAdapter;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
-import jline.Terminal;
-
-public abstract class BaseRascalREPL extends BaseREPL {
+public abstract class BaseRascalREPL implements ILanguageProtocol {
     protected enum State {
         FRESH,
         CONTINUATION,
@@ -58,30 +54,29 @@ public abstract class BaseRascalREPL extends BaseREPL {
     private final static int CHAR_LIMIT = LINE_LIMIT * 20;
     protected String currentPrompt = ReadEvalPrintDialogMessages.PROMPT;
     private StringBuffer currentCommand;
-    private final StandardTextWriter indentedPrettyPrinter;
-    private final StandardTextWriter singleLinePrettyPrinter;
+    protected final StandardTextWriter indentedPrettyPrinter;
+    private final boolean htmlOutput;
     private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 
-    public BaseRascalREPL(PathConfig pcfg, InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors,File persistentHistory, Terminal terminal, IDEServices ideServices)
-                    throws IOException, URISyntaxException {
-        super(pcfg, stdin, stdout, prettyPrompt, allowColors, persistentHistory, terminal, ideServices);
-        if (terminal.isAnsiSupported() && allowColors) {
+
+    public BaseRascalREPL(boolean prettyPrompt, boolean allowColors, boolean htmlOutput) throws IOException, URISyntaxException {
+        this.htmlOutput = htmlOutput;
+        
+        if (allowColors) {
             indentedPrettyPrinter = new ReplTextWriter(true);
-            singleLinePrettyPrinter = new ReplTextWriter(false);
         }
         else {
             indentedPrettyPrinter = new StandardTextWriter(true);
-            singleLinePrettyPrinter = new StandardTextWriter(false);
         }
     }
-
+    
     @Override
-    protected String getPrompt() {
+    public String getPrompt() {
         return currentPrompt;
     }
 
     @Override
-    protected void handleInput(String line) throws InterruptedException {
+    public void handleInput(String line, Map<String, String> output, Map<String, String> metadata)  throws InterruptedException {
         assert line != null;
 
         try {
@@ -96,7 +91,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
             if (currentCommand == null) {
                 // we are still at a new command so let's see if the line is a full command
                 if (isStatementComplete(line)) {
-                    printResult(evalStatement(line, line));
+                    printResult(evalStatement(line, line), output, metadata);
                 }
                 else {
                     currentCommand = new StringBuffer(line);
@@ -109,7 +104,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
                 currentCommand.append('\n');
                 currentCommand.append(line);
                 if (isStatementComplete(currentCommand.toString())) {
-                    printResult(evalStatement(currentCommand.toString(), line));
+                    printResult(evalStatement(currentCommand.toString(), line), output, metadata);
                     currentPrompt = ReadEvalPrintDialogMessages.PROMPT;
                     currentCommand = null;
                     currentState = State.FRESH;
@@ -126,51 +121,100 @@ public abstract class BaseRascalREPL extends BaseREPL {
     }
 
     @Override
-    protected void handleReset() throws InterruptedException {
-        handleInput("");
+    public void handleReset(Map<String,String> output, Map<String,String> metadata) throws InterruptedException {
+        handleInput("", output, metadata);
     }
 
-    private void printResult(IRascalResult result) throws IOException {
-        if (result == null) {
-            return;
-        }
-        PrintWriter out = getOutputWriter();
-        IValue value = result.getValue();
-        if (value == null) {
-            out.println("ok");
-            out.flush();
-            return;
-        }
-        Type type = result.getType();
 
-        if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree) && !type.isBottom()) {
-            out.print(type.toString());
-            out.print(": ");
-            // we unparse the tree
-            out.print("(" + type.toString() +") `");
-            TreeAdapter.yield((IConstructor)result.getValue(), true, out);
-            out.print("`");
+    @FunctionalInterface
+    public interface IOConsumer<T> {
+        void accept(T t) throws IOException;
+    }
+
+    private static interface OutputWriter {
+        void writeOutput(Type tp , IOConsumer<StringWriter> contentsWriter) throws IOException;
+        void finishOutput();
+    }
+    
+    protected void printResult(IRascalResult result, Map<String,String> output, Map<String, String> metadata) throws IOException {
+        String mimeType = "text/" + (htmlOutput ? "html" : "plain");
+        if (result == null || result.getValue() == null) {
+            output.put(mimeType, "ok\n");
+            return;
+        }
+       
+        final StringWriter out = new StringWriter();
+
+        OutputWriter writer;
+        
+        if (htmlOutput) {
+            writer = new OutputWriter() {
+                @Override
+                public void writeOutput(Type tp, IOConsumer<StringWriter> contentsWriter) throws IOException {
+                    out.write("<pre title=\"" + tp.toString() + "\">");
+                    contentsWriter.accept(out);
+                    out.write("</pre>");
+                }
+                @Override
+                public void finishOutput() {
+                }
+            };
         }
         else {
-            out.print(type.toString());
-            out.print(": ");
-            // limit both the lines and the characters
-            try (Writer wrt = new LimitedWriter(new LimitedLineWriter(out, LINE_LIMIT), CHAR_LIMIT)) {
-                indentedPrettyPrinter.write(value, wrt);
-            }
-            catch (IOLimitReachedException e) {
-                // ignore since this is what we wanted
-            }
+            writer = new OutputWriter() {
+                @Override
+                public void writeOutput(Type tp, IOConsumer<StringWriter> contentsWriter) throws IOException {
+                    out.write(tp.toString());
+                    out.write(": ");
+                    contentsWriter.accept(out);
+                }
+                
+                @Override
+                public void finishOutput() {
+                    out.write('\n');
+                }
+            };
         }
-        out.println();
-        out.flush();
+
+        writeOutput(result, writer);
+
+        if (out.getBuffer().length() == 0) {
+            output.put(mimeType, "ok\n");
+        }
+        else {
+            output.put(mimeType, out.toString());
+        }
+    }            
+        
+    private void writeOutput(IRascalResult result, OutputWriter target) throws IOException {
+        IValue value = result.getValue();
+        Type type = result.getType();
+        
+        if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree) && !type.isBottom()) {
+            target.writeOutput(type, (StringWriter w) -> {
+                w.write("(" + type.toString() +") `");
+                TreeAdapter.yield((IConstructor)result.getValue(), true, w);
+                w.write("`");
+            });
+        }
+        else {
+            target.writeOutput(type, (StringWriter w) -> {
+                // limit both the lines and the characters
+                try (Writer wrt = new LimitedWriter(new LimitedLineWriter(w, LINE_LIMIT), CHAR_LIMIT)) {
+                    indentedPrettyPrinter.write(value, wrt);
+                }
+                catch (IOLimitReachedException e) {
+                    // ignore since this is what we wanted
+                }
+            });
+        }
+        target.finishOutput();
     }
 
     protected abstract PrintWriter getErrorWriter();
     protected abstract PrintWriter getOutputWriter();
 
-    protected abstract boolean isStatementComplete(String command);
-    protected abstract IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException;
+    public abstract IRascalResult evalStatement(String statement, String lastLine) throws InterruptedException;
 
     /**
      * provide which :set flags  (:set profiling true for example)
@@ -185,7 +229,7 @@ public abstract class BaseRascalREPL extends BaseREPL {
     }
 
     @Override
-    protected CompletionResult completeFragment(String line, int cursor) {
+    public CompletionResult completeFragment(String line, int cursor) {
         if (currentState == State.FRESH) {
             String trimmedLine = line.trim();
             if (isREPLCommand(trimmedLine)) {
@@ -317,12 +361,12 @@ public abstract class BaseRascalREPL extends BaseREPL {
 
 
     @Override
-    protected boolean supportsCompletion() {
+    public boolean supportsCompletion() {
         return true;
     }
 
     @Override
-    protected boolean printSpaceAfterFullCompletion() {
+    public boolean printSpaceAfterFullCompletion() {
         return false;
     }
 

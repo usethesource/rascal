@@ -460,23 +460,28 @@ public class BreakPointManager {
 		try {
 			String[] lines;
 			ISourceLocation srcFile = vf.sourceLocation(breakpointSrc.getScheme(), "", breakpointSrc.getPath());
-			if(breakpointSrc.getPath().endsWith(".rsc")){
-				//A Rascal source file, parse and highlight
-				ITree parseTree = getParsedModule(srcFile);
-				StringWriter sw = new StringWriter();
-				TreeAdapter.unparseWithFocus(parseTree, sw, breakpointSrc);
-				lines = sw.toString().split("\n");
-			} else {
-				// Something else (muRascal), no highlighting
-				lines = getResourceContent(srcFile).toString().split("\n");
+			
+			if (URIResolverRegistry.getInstance().exists(srcFile)) {
+			    if(breakpointSrc.getPath().endsWith(".rsc")){
+			        //A Rascal source file, parse and highlight
+			        ITree parseTree = getParsedModule(srcFile);
+			        StringWriter sw = new StringWriter();
+			        TreeAdapter.unparseWithFocus(parseTree, sw, breakpointSrc);
+			        lines = sw.toString().split("\n");
+			    } else {
+			        // Something else (muRascal), no highlighting
+			        lines = getResourceContent(srcFile).toString().split("\n");
+			    }
+			    
+			    for(int lino = windowBegin; lino <= windowEnd; lino++){
+	                stdout.println(FAINT_ON + String.format("%4d", lino) + FAINT_OFF + listingIndent + lines[lino - 1]);
+	            }
+			} 
+			else {
+			    stdout.println("Source file does not exist: " + breakpointSrc);
 			}
-
-			for(int lino = windowBegin; lino <= windowEnd; lino++){
-				stdout.println(FAINT_ON + String.format("%4d", lino) + FAINT_OFF + listingIndent + lines[lino - 1]);
-			}
-
 		} catch (URISyntaxException e){
-			stdout.println("Cannot create URI for source file");
+			stdout.println("Cannot create URI for source file: " + breakpointSrc);
 		} catch (IOException e) {
 			stdout.println("Cannot read source file");
 		}

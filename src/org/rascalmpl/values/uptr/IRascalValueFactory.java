@@ -41,6 +41,8 @@ public interface IRascalValueFactory extends IValueFactory {
 	ITree character(byte ch);
 	
 	ITree quote(INode quoted);
+
+	IConstructor grammar(IMap rules);
 	
 	static IRascalValueFactory getInstance() {
 		return RascalValueFactory.getInstance();

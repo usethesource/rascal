@@ -13,6 +13,7 @@ package org.rascalmpl.test.infrastructure;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -111,8 +112,6 @@ public class RascalJUnitCompiledTestRunner extends Runner {
         catch (IOException e) {
             assert false; // this project should exist
         }
-        
-        System.err.println(pcfg);
     }
 
     private void initializeKernel() {
@@ -179,7 +178,6 @@ public class RascalJUnitCompiledTestRunner extends Runner {
     @Override
     public int testCount(){
         getDescription();
-        System.err.println("testCount: " + totalTests);
         return totalTests;
     }
 
@@ -225,6 +223,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
             return desc;
         }
 
+        
         Description desc = Description.createSuiteDescription(prefix);
         this.desc = desc;
 
@@ -250,12 +249,30 @@ public class RascalJUnitCompiledTestRunner extends Runner {
                         kernel.kw_compileAndLink().enableAsserts(true).reloc(vf.sourceLocation("noreloc", "", "")));
 
                     if (!RascalC.handleMessages(programs, pcfg)) {
-                        return Description.createSuiteDescription("failed to construct: " + qualifiedName);
+                        Description modDesc = Description.createTestDescription(getClass(), qualifiedName, new CompilationFailed() {
+                            @Override
+                            public Class<? extends Annotation> annotationType() {
+                                return getClass();
+                            }
+                        });
+                        desc.addChild(modDesc);
+                        return desc;
                     }
                 }
 
                 RVMExecutable executable = RVMExecutable.read(binary);
 
+                if (!RascalC.handleMessages(pcfg, executable.getErrors())) {
+                    Description modDesc = Description.createTestDescription(getClass(), qualifiedName, new CompilationFailed() {
+                        @Override
+                        public Class<? extends Annotation> annotationType() {
+                            return getClass();
+                        }
+                    });
+                    desc.addChild(modDesc);
+                    return desc;
+                }
+                
                 if(executable.getTests().size() > 0){
                     Description modDesc = Description.createSuiteDescription(qualifiedName);
                     desc.addChild(modDesc);
@@ -290,12 +307,18 @@ public class RascalJUnitCompiledTestRunner extends Runner {
         if (desc == null) {
             desc = getDescription();
         }
+       
         notifier.fireTestRunStarted(desc);
 
         for (Description mod : desc.getChildren()) {
             RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(pcfg).build();
             ISourceLocation binary = null;
             RVMCore rvmCore = null;
+            
+            if (mod.getAnnotations().stream().anyMatch(t -> t instanceof CompilationFailed)) {
+                notifier.fireTestFailure(new Failure(desc, new IllegalArgumentException(mod.getDisplayName() + " had compilation errors")));
+                continue;
+            }
             
             try {
                 binary = Rascal.findBinary(pcfg.getBin(), mod.getDisplayName());

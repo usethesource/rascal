@@ -165,6 +165,10 @@ public class Bootstrap {
             info("YOU ARE NOT SUPPOSED TO BOOTSTRAP OFF AN UNSTABLE VERSION! ***ONLY FOR DEBUGGING PURPOSES***");
         }
         
+        if (versionToUse.equals("latest")) {
+            info("YOU ARE BOOTSTRAPPING OFF THE LATEST RELEASE");
+        }
+        
         Path sourceFolder = new File(args[arg++]).toPath();
         if (!Files.exists(sourceFolder.resolve("org/rascalmpl/library/Prelude.rsc"))) {
         	throw new RuntimeException("source folder " + sourceFolder + " should point to source folder of standard library containing Prelude and the compiler");
@@ -233,7 +237,7 @@ public class Bootstrap {
                 
                 String[] rvm    = new String[] { 
                         getDeployedVersion(tmpDir, versionToUse).toAbsolutePath().toString(), // this is the released jar
-                        targetFolder + ":" + /*deps*/ classpath /* this is the pre-compiled target folder with the new RVM implementation */  
+                        targetFolder + File.pathSeparator + /*deps*/ classpath /* this is the pre-compiled target folder with the new RVM implementation */  
                 };
                 
                 
@@ -253,11 +257,10 @@ public class Bootstrap {
                 time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[1], "|noreloc:///|", targetFolder));
                 
                 // Identify jars that contain new names and should be included in the classpath
-                String renamedJars = System.getProperty("user.home") 
-                    + "/.m2/repository/io/usethesource/vallang/0.7.0-SNAPSHOT/vallang-0.7.0-SNAPSHOT.jar";
+                String renamedJars = "";// System.getProperty("user.home") + "/.m2/repository/io/usethesource/vallang/0.7.0-SNAPSHOT/vallang-0.7.0-SNAPSHOT.jar";
                 if(!renamedJars.isEmpty()){
-                    rvm[0] += ":" + renamedJars;
-                    rvm[1] += ":" + renamedJars;
+                    rvm[0] += File.pathSeparator + renamedJars;
+                    rvm[1] += File.pathSeparator + renamedJars;
                 }
                 
                 time("Phase 2", () -> compilePhase(tmpDir, 2, librarySource, rvm[0], kernel[1], rvm[1], "|std:///|", targetFolder));
@@ -398,19 +401,19 @@ public class Bootstrap {
      * Either download or get the jar of the deployed version of Rascal from a previously downloaded instance.
      */
     private static Path getDeployedVersion(Path tmp, String version) throws IOException {
-		Path cached = cachedDeployedVersion(tmp, version);
-		
-		if (!cached.toFile().exists() || "unstable".equals(version)) {
-		    if (cached.toFile().exists()) {
-		        cached.toFile().delete();
-		    }
-    		URI deployedVersion = deployedVersion(version);
-    		info("downloading " + deployedVersion);
-			Files.copy(deployedVersion.toURL().openStream(), cached);
-    	}
-		
-		info("deployed version ready: " + cached);
-		return cached;
+        Path cached = cachedDeployedVersion(tmp, version);
+
+        if (!cached.toFile().exists() || "unstable".equals(version)) {
+            if (cached.toFile().exists()) {
+                cached.toFile().delete();
+            }
+            URI deployedVersion = deployedVersion(version);
+            info("downloading " + deployedVersion);
+            Files.copy(deployedVersion.toURL().openStream(), cached);
+        }
+
+        info("deployed version ready: " + cached);
+        return cached;
     }
 
     private static Path cachedDeployedVersion(Path tmpFolder, String version) {
@@ -421,12 +424,19 @@ public class Bootstrap {
 	    if ("unstable".equals(version)) {
 	        return unstableVersion();
 	    }
+	    else if ("latest".equals(version)) {
+	        return latestReleasedVersion();
+	    }
 
 	    return URIUtil.assumeCorrect("https", "update.rascal-mpl.org", "/console/rascal-" + version + ".jar");
 	}
 	
 	private static URI unstableVersion() {
         return URIUtil.assumeCorrect("https", "update.rascal-mpl.org", "/console/rascal-shell-unstable.jar");
+    }
+	
+	private static URI latestReleasedVersion() {
+        return URIUtil.assumeCorrect("http", "nexus.usethesource.io", "/service/local/artifact/maven/content", "g=org.rascalmpl&a=rascal&r=releases&v=LATEST");
     }
 	
 	private static String phaseFolderString(int phase, Path tmp) {
@@ -497,7 +507,7 @@ public class Bootstrap {
     }
     
     private static int bootstrapRascalParser(String classPath, String srcPath, String bootPath, Path phaseResult) throws IOException, InterruptedException {
-        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "org.rascalmpl.library.experiments.Compiler.Commands.BootstrapRascalParser"};
+        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.BootstrapRascalParser"};
         String[] paths = new String[] {"--src", srcPath, "--bin", phaseResult.toAbsolutePath().toString(), "--boot", bootPath };
         return runChildProcess(concat(javaCmd, paths));
     }
@@ -548,7 +558,7 @@ public class Bootstrap {
     private static void runTests(int phase, String classPath, String boot, String sourcePath, Path phaseResult, String[] testModules) throws IOException, InterruptedException, BootstrapMessage {
         progress("Running tests with the results of " + phase);
         if (phase == 1) return;
-        String[] javaCmd = new String[] {"java", "-ea", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests" };
+        String[] javaCmd = new String[] {"java", "-ea", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests" };
         String[] paths = new String [] { "--bin", phaseResult.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
         String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[0];
 
@@ -558,7 +568,7 @@ public class Bootstrap {
     }
     
     private static int runJavaCompiler(String classPath, String targetFolder, String... arguments) throws IOException, InterruptedException {
-        String[] javaCmd = new String[] {"javac", "-cp", classPath, "-d", targetFolder };
+        String[] javaCmd = new String[] {"javac", "-cp", classPath, "-encoding", "UTF-8", "-d", targetFolder };
         return runChildProcess(concat(javaCmd, arguments));
     }
 
@@ -571,12 +581,12 @@ public class Bootstrap {
          *     suspend=n - starts up and does not wait for attaching a debugger
          *     suspend=y - waits until a debugger is attached before to proceed
          */
-        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", /*"-Xdebug -Xrunjdwp:transport=dt_socket,address=8001,server=y,suspend=n",*/ "org.rascalmpl.library.experiments.Compiler.Commands.RascalC" };
+        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", /*"-Xdebug -Xrunjdwp:transport=dt_socket,address=8001,server=y,suspend=n",*/ "org.rascalmpl.library.experiments.Compiler.Commands.RascalC" };
         return runChildProcess(concat(javaCmd, arguments));
     }
 
     private static int runMuLibraryCompiler(String classPath, String... arguments) throws IOException, InterruptedException {
-        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "org.rascalmpl.library.experiments.Compiler.Commands.CompileMuLibrary" };
+        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.CompileMuLibrary" };
     	return runChildProcess(concat(javaCmd, arguments));
     }
     

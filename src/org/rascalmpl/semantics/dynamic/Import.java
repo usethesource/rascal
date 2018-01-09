@@ -332,6 +332,7 @@ public abstract class Import {
     } catch (Throwable e) {
       heap.removeModule(env);
       eval.getEvaluator().warning("Could not load " + name, x);
+      e.printStackTrace();
       throw new ModuleImport(name, e.getMessage(), x);
     } 
 
@@ -522,13 +523,13 @@ public abstract class Import {
   }
   
   @SuppressWarnings("unchecked")
-  public static IGTD<IConstructor, ITree, ISourceLocation> getParser(IEvaluator<Result<IValue>> eval, ModuleEnvironment currentModule, ISourceLocation loc, boolean force) {
+  public static IGTD<IConstructor, ITree, ISourceLocation> getParser(IEvaluator<Result<IValue>> eval, ModuleEnvironment currentModule, IMap grammar, boolean force) {
     if (currentModule.getBootstrap()) {
       return new RascalParser();
     }
     
-    if (currentModule.hasCachedParser()) {
-      String className = currentModule.getCachedParser();
+    if (currentModule.hasCachedParser(grammar)) {
+      String className = currentModule.getCachedParser(grammar);
       Class<?> clazz;
       for (ClassLoader cl: eval.getClassLoaders()) {
         try {
@@ -546,14 +547,15 @@ public abstract class Import {
     }
 
     ParserGenerator pg = eval.getParserGenerator();
-    IMap definitions = currentModule.getSyntaxDefinition();
+    IMap definitions = grammar;
     
     Class<IGTD<IConstructor, ITree, ISourceLocation>> parser = eval.getHeap().getObjectParser(currentModule.getName(), definitions);
 
     if (parser == null || force) {
-      String parserName = currentModule.getName();
-      parser = pg.getNewParser(eval, loc, parserName, definitions);
-      eval.getHeap().storeObjectParser(parserName, definitions, parser);
+        // TODO: this hashCode is not good enough!
+      String parserName = currentModule.getName() + "_" + Math.abs(grammar.hashCode());
+      parser = pg.getNewParser(eval, eval.getCurrentAST().getLocation(), parserName, definitions);
+      eval.getHeap().storeObjectParser(currentModule.getName(), definitions, parser);
     }
 
     try {
@@ -571,8 +573,6 @@ public abstract class Import {
     IConstructor symTree = TreeAdapter.getArg(tree, "symbol");
     ITree lit = TreeAdapter.getArg(tree, "parts");
     
-    
-    
     String name = eval.getParserGenerator().getParserMethodName(symTree);
     Type type = env.lookupAbstractDataType(name);
     if (type != null) { //found an ADT with the right name, checking for parse function
@@ -589,7 +589,9 @@ public abstract class Import {
             return ((IRascalValueFactory) eval.getValueFactory()).quote((INode) ret);
         }
     }
-    IGTD<IConstructor, ITree, ISourceLocation> parser = env.getBootstrap() ? new RascalParser() : getParser(eval, env, TreeAdapter.getLocation(tree), false);
+    IMap syntaxDefinition = env.getSyntaxDefinition();
+    IMap grammar = (IMap) eval.getParserGenerator().getGrammarFromModules(eval.getMonitor(),env.getName(), syntaxDefinition).get("rules");
+    IGTD<IConstructor, ITree, ISourceLocation> parser = env.getBootstrap() ? new RascalParser() : getParser(eval, env, grammar, false);
     
     try {
       Map<String, ITree> antiquotes = new HashMap<>();
