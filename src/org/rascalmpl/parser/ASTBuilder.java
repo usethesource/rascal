@@ -502,7 +502,9 @@ public class ASTBuilder {
                 IRational irational = (IRational) value;
                 RationalLiteral.Lexical rationalLexical =
                     new RationalLiteral.Lexical(loc, null, irational.getStringRepresentation());
-                return new Literal.Rational(loc, (ITree) value, rationalLexical);
+                org.rascalmpl.semantics.dynamic.Literal.Rational literal = new org.rascalmpl.semantics.dynamic.Literal.Rational(loc, null, rationalLexical); 
+                org.rascalmpl.semantics.dynamic.Expression.Literal exLit = new org.rascalmpl.semantics.dynamic.Expression.Literal(loc, null, literal);
+                return exLit;
             }
             if (value instanceof IReal) {
                 IReal ireal = (IReal) value;
