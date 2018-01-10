@@ -44,7 +44,6 @@ import org.rascalmpl.parser.gtd.util.PointerKeyedHashMap;
 import org.rascalmpl.semantics.dynamic.Expression.CallOrTree;
 import org.rascalmpl.semantics.dynamic.Expression.Set;
 import org.rascalmpl.semantics.dynamic.Expression.TypedVariable;
-import org.rascalmpl.semantics.dynamic.IntegerLiteral;
 import org.rascalmpl.semantics.dynamic.Literal;
 import org.rascalmpl.semantics.dynamic.LocationLiteral;
 import org.rascalmpl.semantics.dynamic.Name;
