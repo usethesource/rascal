@@ -521,8 +521,10 @@ public class ASTBuilder {
                 new ProtocolChars.Lexical(loc, null, "|" + location.getScheme()));
             PathPart.NonInterpolated pathPart = new PathPart.NonInterpolated(location, null,
                 new PathChars.Lexical(loc, null, location.getAuthority() + location.getPath()));
-            return new Literal.Location(loc, (ITree) value,
+            Literal.Location locLit =  new Literal.Location(loc, (ITree) value,
                 new LocationLiteral.Default(loc, null, protocolPart, pathPart));
+            org.rascalmpl.semantics.dynamic.Expression.Literal sourceLiteral = new org.rascalmpl.semantics.dynamic.Expression.Literal(location, null, locLit);
+            return sourceLiteral;
         }
 
         if (value instanceof IString) {
