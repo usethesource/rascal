@@ -7,6 +7,7 @@ import String;
 import lang::rascal::grammar::ParserGenerator;
 import lang::rascal::grammar::Lookahead;
 import util::Benchmark;
+import util::Reflective;
 
 public Grammar C = grammar({sort("TranslationUnit")},
 
@@ -60,7 +61,7 @@ sort("StructDeclarator"): choice(sort("StructDeclarator"),{prod(sort("StructDecl
 )
 );
 
-loc CParserLoc = |compressed+std:///lang/rascal/grammar/tests/generated_parsers/CParser.java.gz|;
+loc CParserLoc = getModuleLocation("lang::rascal::grammar::tests::PicoGrammar").parent + "generated_parsers/CParser.java.gz";
 
 str generateCParser() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "CParser", C);
 
