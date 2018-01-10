@@ -493,7 +493,10 @@ public class ASTBuilder {
                 IInteger iinteger = (IInteger) value;
                 DecimalIntegerLiteral decimalLexical =
                     new DecimalIntegerLiteral.Lexical(loc, null, iinteger.getStringRepresentation());
-                return new IntegerLiteral.DecimalIntegerLiteral(loc, (ITree) value, decimalLexical);
+                org.rascalmpl.semantics.dynamic.IntegerLiteral.DecimalIntegerLiteral integerLiteral = new org.rascalmpl.semantics.dynamic.IntegerLiteral.DecimalIntegerLiteral(loc, (ITree) value, decimalLexical);
+                org.rascalmpl.semantics.dynamic.Literal.Integer literal = new org.rascalmpl.semantics.dynamic.Literal.Integer(loc, null, integerLiteral);
+                org.rascalmpl.semantics.dynamic.Expression.Literal exLit = new org.rascalmpl.semantics.dynamic.Expression.Literal(loc, null, literal);
+                return exLit;
             }
             if (value instanceof IRational) {
                 IRational irational = (IRational) value;
