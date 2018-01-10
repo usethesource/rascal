@@ -232,7 +232,8 @@ public class RVMonJVM extends RVMCore {
      */
     @Override
     public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] posArgs, Map<String,IValue> kwArgs) {
-
+        increaseActivationDepth();
+        
         rex.setFullModuleName(moduleName);
 
         Function main_function = functionStore[functionMap.get(uid_main)];
@@ -262,6 +263,7 @@ public class RVMonJVM extends RVMCore {
 
           }
         }
+        decreaseActivationDepth();
         return narrow(o);
     }
     
