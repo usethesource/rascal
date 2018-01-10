@@ -190,19 +190,17 @@ public class ASTBuilder {
 			return buildLexicalNode((org.rascalmpl.values.uptr.ITree) ((IList) ((org.rascalmpl.values.uptr.ITree) arg).get("args")).get(0));
 		}
 
+		if (isExternalEmbedding(tree)) {
+		    return liftExternal(tree);
+		}
+		
 		if (sortName(tree).equals("Pattern")) {
-		    if (isExternalEmbedding(tree)) {
-		        return liftExternal(tree, true);
-		    }
 			if (isInternalEmbedding(tree)) {
 				return liftInternal(tree, true);
 			}
 		}
 
 		if (sortName(tree).equals("Expression")) {
-		    if (isExternalEmbedding(tree)) {
-		        return liftExternal(tree, false);
-            }
 		    if (isInternalEmbedding(tree)) {
 				return liftInternal(tree, false);
 			}
@@ -470,17 +468,14 @@ public class ASTBuilder {
 		return false;
 	}
 	
-    private Expression liftExternal(ITree tree, boolean match) {
+    private Expression liftExternal(ITree tree) {
         ITree quote = (ITree) TreeAdapter.getArgs(tree).get(0);
         if (!TreeAdapter.isQuote(quote))
             throw new IllegalArgumentException("Trying to liftExternal a non-Quote");
-        return liftExternalRec((IConstructor) quote.get("quoted"), match, getPatternLayout(tree));
+        return liftExternalRec((IConstructor) quote.get("quoted"));
     }
 
-    private Expression liftExternalRec(IValue value, boolean lexicalParent, String layoutOfParent) {
-        if (layoutOfParent == null)
-            throw new ImplementationError("layout is null");
-
+    private Expression liftExternalRec(IValue value) {
         ISourceLocation loc = ValueFactoryFactory.getValueFactory().sourceLocation("unknown:///");
 
         if (value instanceof IBool) {
@@ -556,7 +551,7 @@ public class ASTBuilder {
         if (value instanceof ISet) {
             List<Expression> elements = new ArrayList<>();
             for (IValue element : (ISet) value) {
-                elements.add((Expression) liftExternalRec(element, lexicalParent, layoutOfParent));
+                elements.add((Expression) liftExternalRec(element));
             }
             return new Set(loc, (ITree) value, elements);
         }
@@ -564,7 +559,7 @@ public class ASTBuilder {
         if (value instanceof IList) {
             List<Expression> elements = new ArrayList<>();
             for (IValue element : (IList) value) {
-                elements.add((Expression) liftExternalRec(element, lexicalParent, layoutOfParent));
+                elements.add((Expression) liftExternalRec(element));
             }
             return new org.rascalmpl.semantics.dynamic.Expression.List(loc, null, elements);
         }
@@ -573,9 +568,8 @@ public class ASTBuilder {
             IMap map = (IMap) value;
             List<Mapping_Expression> elements = new ArrayList<>();
             for (IValue key : map) {
-                elements
-                    .add(new Mapping_Expression.Default(loc, null, liftExternalRec(key, lexicalParent, layoutOfParent),
-                        liftExternalRec(map.get(key), lexicalParent, layoutOfParent)));
+                elements.add(
+                    new Mapping_Expression.Default(loc, null, liftExternalRec(key), liftExternalRec(map.get(key))));
             }
             return new org.rascalmpl.semantics.dynamic.Expression.Map(loc, null, elements);
         }
@@ -594,7 +588,7 @@ public class ASTBuilder {
 
             List<Expression> args = new ArrayList<>();
             for (int i = 0; i < type.getArity(); i++) {
-                args.add((Expression) liftExternalRec(constructor.get(i), lexicalParent, layoutOfParent));
+                args.add((Expression) liftExternalRec(constructor.get(i)));
             }
 
             return new CallOrTree(loc, constructor, qualifiedNameExpression, args,
