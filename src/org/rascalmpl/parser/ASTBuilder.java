@@ -564,26 +564,20 @@ public class ASTBuilder {
         }
 
         if (value instanceof IList) {
-            IList list = (IList) value;
-
             List<Expression> elements = new ArrayList<>();
-            for (int i = 0; i < list.length(); i++) {
-                elements.add((Expression) liftExternalRec(list.get(i), lexicalParent, layoutOfParent));
+            for (IValue element : (IList) value) {
+                elements.add((Expression) liftExternalRec(element, lexicalParent, layoutOfParent));
             }
-
             return new org.rascalmpl.semantics.dynamic.Expression.List(loc, null, elements);
         }
 
         if (value instanceof IMap) {
             IMap map = (IMap) value;
-
             List<Mapping_Expression> elements = new ArrayList<>();
-            Iterator<Entry<IValue, IValue>> iterator = map.entryIterator();
-            while (iterator.hasNext()) {
-                Entry<IValue, IValue> entry = iterator.next();
-                elements.add(new Mapping_Expression.Default(loc, null,
-                    liftExternalRec(entry.getKey(), lexicalParent, layoutOfParent),
-                    liftExternalRec(entry.getValue(), lexicalParent, layoutOfParent)));
+            for (IValue key : map) {
+                elements
+                    .add(new Mapping_Expression.Default(loc, null, liftExternalRec(key, lexicalParent, layoutOfParent),
+                        liftExternalRec(map.get(key), lexicalParent, layoutOfParent)));
             }
             return new org.rascalmpl.semantics.dynamic.Expression.Map(loc, null, elements);
         }
