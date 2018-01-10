@@ -482,8 +482,10 @@ public class ASTBuilder {
 
         if (value instanceof IBool) {
             BooleanLiteral.Lexical booleanLiteral =
-                new BooleanLiteral.Lexical(loc, (ITree) value, ((IBool) value).getValue() ? "true" : "false");
-            return new Literal.Boolean(loc, (ITree) value, booleanLiteral);
+                new BooleanLiteral.Lexical(loc, null, ((IBool) value).getValue() ? "true" : "false");
+            Literal.Boolean boolLit = new Literal.Boolean(loc, null, booleanLiteral);
+            org.rascalmpl.semantics.dynamic.Expression.Literal bool = new org.rascalmpl.semantics.dynamic.Expression.Literal(loc,null,boolLit);
+            return bool;
         }
 
         if (value instanceof INumber) {
