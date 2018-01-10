@@ -468,13 +468,13 @@ public class ASTBuilder {
 		return false;
 	}
 	
-    private AbstractAST liftExternal(org.rascalmpl.values.uptr.ITree tree, boolean match) {
+    private Expression liftExternal(org.rascalmpl.values.uptr.ITree tree, boolean match) {
         ITree quote = (ITree) TreeAdapter.getArgs(tree).get(0);
         assert TreeAdapter.isQuote(quote);
         return liftExternalRec((IConstructor) quote.get("quoted"), match, getPatternLayout(tree));
     }
 
-    private AbstractAST liftExternalRec(IValue value, boolean lexicalParent, String layoutOfParent) {
+    private Expression liftExternalRec(IValue value, boolean lexicalParent, String layoutOfParent) {
         if (layoutOfParent == null)
             throw new ImplementationError("layout is null");
 
