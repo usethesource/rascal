@@ -8,6 +8,7 @@ import List;
 import lang::rascal::grammar::ParserGenerator;
 import lang::rascal::grammar::Lookahead;
 import util::Benchmark;
+import util::Reflective;
 
 public Grammar Pico = grammar({sort("Program")},
 
@@ -30,7 +31,8 @@ sort("Declaration"): choice(sort("Declaration"),{prod(label("decl",sort("Declara
 
 );
 
-loc PicoParserLoc = |compressed+std:///lang/rascal/grammar/tests/generated_parsers/PicoParser.java.gz|;
+
+loc PicoParserLoc = getModuleLocation("lang::rascal::grammar::tests::PicoGrammar").parent + "generated_parsers/PicoParser.java.gz";
 
 str generatePicoParser() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "PicoParser", Pico);
 
