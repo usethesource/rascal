@@ -232,39 +232,43 @@ public class RVMonJVM extends RVMCore {
      */
     @Override
     public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] posArgs, Map<String,IValue> kwArgs) {
-        increaseActivationDepth();
         
-        rex.setFullModuleName(moduleName);
+        try {
+            increaseActivationDepth();
 
-        Function main_function = functionStore[functionMap.get(uid_main)];
+            rex.setFullModuleName(moduleName);
 
-        if (main_function == null) {
-            throw new RuntimeException("PANIC: No function " + uid_main + " found");
-        }
-        
-        //Thrown oldthrown = thrown;    //<===
-        
-        executeRVMProgram(main_function, posArgs, kwArgs);
-        
-        //thrown = oldthrown;
-        
-        Object o = returnValue;
-        if (o != null){
-          if(o instanceof Thrown) {
-            //TODO: frameObserver.exception(cf, (Thrown) thrown);
-            throw (Thrown) o;
-          }
-          if(o instanceof IValue){
-            IValue v = (IValue) o;
-            Type tp = v.getType();
-            if(tp.isAbstractData() && tp.getName().equals("RuntimeException")){
-              throw Thrown.getInstance(v, null, null);
+            Function main_function = functionStore[functionMap.get(uid_main)];
+
+            if (main_function == null) {
+                throw new RuntimeException("PANIC: No function " + uid_main + " found");
             }
 
-          }
+            //Thrown oldthrown = thrown;    //<===
+
+            executeRVMProgram(main_function, posArgs, kwArgs);
+
+            //thrown = oldthrown;
+
+            Object o = returnValue;
+            if (o != null){
+                if(o instanceof Thrown) {
+                    //TODO: frameObserver.exception(cf, (Thrown) thrown);
+                    throw (Thrown) o;
+                }
+                if(o instanceof IValue){
+                    IValue v = (IValue) o;
+                    Type tp = v.getType();
+                    if(tp.isAbstractData() && tp.getName().equals("RuntimeException")){
+                        throw Thrown.getInstance(v, null, null);
+                    }
+
+                }
+            }
+            return narrow(o);
+        } finally {
+            decreaseActivationDepth();
         }
-        decreaseActivationDepth();
-        return narrow(o);
     }
     
     private Object executeRVMProgram(Function func, final IValue[] args, Map<String, IValue> kwArgs) {
