@@ -508,8 +508,10 @@ public class ASTBuilder {
             }
             if (value instanceof IReal) {
                 IReal ireal = (IReal) value;
-                RealLiteral.Lexical realLexical = new RealLiteral.Lexical(loc, null, ireal.getStringRepresentation());
-                return new Literal.Real(loc, (ITree) value, realLexical);
+                RealLiteral realLexical = new RealLiteral.Lexical(loc, null, ireal.getStringRepresentation());
+                org.rascalmpl.semantics.dynamic.Literal.Real literal = new org.rascalmpl.semantics.dynamic.Literal.Real(loc, null, realLexical);
+                org.rascalmpl.semantics.dynamic.Expression.Literal exLit = new org.rascalmpl.semantics.dynamic.Expression.Literal(loc, null, literal);
+                return exLit;
             }
         }
 
