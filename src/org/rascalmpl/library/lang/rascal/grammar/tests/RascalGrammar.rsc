@@ -199,8 +199,8 @@ test bool cntEmptyList2()   = size([x | /x:[] := Rascal]) == 26;
 test bool cntList1()        {cnt = 0; visit(Rascal){ case [*value s]: cnt += 1; }; return cnt == 837; }
 test bool cntList2()        = size([x | /x:[*value s] := Rascal]) == 837;
 
-test bool cntEmptySet1()    {cnt = 0; visit(Rascal){ case {}: cnt += 1; }; return cnt == 439; }
-test bool cntEmptySet2()    = size([x | /x:{} := Rascal]) == 439;
+test bool cntEmptySet1()    {cnt = 0; visit(Rascal){ case {}: cnt += 1; }; return cnt == 451; }
+test bool cntEmptySet2()    = size([x | /x:{} := Rascal]) == 451;
 
 test bool cntSet1()         {cnt = 0; visit(Rascal){ case {*value s}: cnt += 1; }; return cnt == 766; }
 test bool cntSet2()         = size([x | /x:{*value s} := Rascal]) == 766;
