@@ -44,6 +44,7 @@ import org.rascalmpl.parser.gtd.util.PointerKeyedHashMap;
 import org.rascalmpl.semantics.dynamic.Expression.CallOrTree;
 import org.rascalmpl.semantics.dynamic.Expression.Set;
 import org.rascalmpl.semantics.dynamic.Expression.TypedVariable;
+import org.rascalmpl.semantics.dynamic.IntegerLiteral;
 import org.rascalmpl.semantics.dynamic.Literal;
 import org.rascalmpl.semantics.dynamic.LocationLiteral;
 import org.rascalmpl.semantics.dynamic.Name;
@@ -436,7 +437,7 @@ public class ASTBuilder {
 		return new ImplementationError("Unexpected error in AST construction: " + e, e);
 	}
 	
-	private boolean isExternalEmbedding(org.rascalmpl.values.uptr.ITree tree) {
+	private boolean isExternalEmbedding(ITree tree) {
 	    String name = TreeAdapter.getConstructorName(tree);
         assert name != null;
 
@@ -467,9 +468,10 @@ public class ASTBuilder {
 		return false;
 	}
 	
-    private Expression liftExternal(org.rascalmpl.values.uptr.ITree tree, boolean match) {
+    private Expression liftExternal(ITree tree, boolean match) {
         ITree quote = (ITree) TreeAdapter.getArgs(tree).get(0);
-        assert TreeAdapter.isQuote(quote);
+        if (!TreeAdapter.isQuote(quote))
+            throw new IllegalArgumentException("Trying to liftExternal a non-Quote");
         return liftExternalRec((IConstructor) quote.get("quoted"), match, getPatternLayout(tree));
     }
 
@@ -480,11 +482,10 @@ public class ASTBuilder {
         ISourceLocation loc = ValueFactoryFactory.getValueFactory().sourceLocation("unknown:///");
 
         if (value instanceof IBool) {
-            BooleanLiteral.Lexical booleanLiteral =
+            BooleanLiteral.Lexical booleanLexical =
                 new BooleanLiteral.Lexical(loc, null, ((IBool) value).getValue() ? "true" : "false");
-            Literal.Boolean boolLit = new Literal.Boolean(loc, null, booleanLiteral);
-            org.rascalmpl.semantics.dynamic.Expression.Literal bool = new org.rascalmpl.semantics.dynamic.Expression.Literal(loc,null,boolLit);
-            return bool;
+            Literal.Boolean boolLiteral = new Literal.Boolean(loc, null, booleanLexical);
+            return new org.rascalmpl.semantics.dynamic.Expression.Literal(loc, null, boolLiteral);
         }
 
         if (value instanceof INumber) {
@@ -492,25 +493,23 @@ public class ASTBuilder {
                 IInteger iinteger = (IInteger) value;
                 DecimalIntegerLiteral decimalLexical =
                     new DecimalIntegerLiteral.Lexical(loc, null, iinteger.getStringRepresentation());
-                org.rascalmpl.semantics.dynamic.IntegerLiteral.DecimalIntegerLiteral integerLiteral = new org.rascalmpl.semantics.dynamic.IntegerLiteral.DecimalIntegerLiteral(loc, (ITree) value, decimalLexical);
-                org.rascalmpl.semantics.dynamic.Literal.Integer literal = new org.rascalmpl.semantics.dynamic.Literal.Integer(loc, null, integerLiteral);
-                org.rascalmpl.semantics.dynamic.Expression.Literal exLit = new org.rascalmpl.semantics.dynamic.Expression.Literal(loc, null, literal);
-                return exLit;
+                IntegerLiteral.DecimalIntegerLiteral integerLiteral =
+                    new IntegerLiteral.DecimalIntegerLiteral(loc, (ITree) value, decimalLexical);
+                Literal.Integer literal = new Literal.Integer(loc, null, integerLiteral);
+                return new org.rascalmpl.semantics.dynamic.Expression.Literal(loc, null, literal);
             }
             if (value instanceof IRational) {
                 IRational irational = (IRational) value;
                 RationalLiteral.Lexical rationalLexical =
                     new RationalLiteral.Lexical(loc, null, irational.getStringRepresentation());
-                org.rascalmpl.semantics.dynamic.Literal.Rational literal = new org.rascalmpl.semantics.dynamic.Literal.Rational(loc, null, rationalLexical); 
-                org.rascalmpl.semantics.dynamic.Expression.Literal exLit = new org.rascalmpl.semantics.dynamic.Expression.Literal(loc, null, literal);
-                return exLit;
+                Literal.Rational literal = new Literal.Rational(loc, null, rationalLexical);
+                return new org.rascalmpl.semantics.dynamic.Expression.Literal(loc, null, literal);
             }
             if (value instanceof IReal) {
                 IReal ireal = (IReal) value;
                 RealLiteral realLexical = new RealLiteral.Lexical(loc, null, ireal.getStringRepresentation());
-                org.rascalmpl.semantics.dynamic.Literal.Real literal = new org.rascalmpl.semantics.dynamic.Literal.Real(loc, null, realLexical);
-                org.rascalmpl.semantics.dynamic.Expression.Literal exLit = new org.rascalmpl.semantics.dynamic.Expression.Literal(loc, null, literal);
-                return exLit;
+                Literal.Real literal = new Literal.Real(loc, null, realLexical);
+                return new org.rascalmpl.semantics.dynamic.Expression.Literal(loc, null, literal);
             }
         }
 
@@ -520,20 +519,17 @@ public class ASTBuilder {
                 new ProtocolChars.Lexical(loc, null, "|" + location.getScheme()));
             PathPart.NonInterpolated pathPart = new PathPart.NonInterpolated(location, null,
                 new PathChars.Lexical(loc, null, location.getAuthority() + location.getPath()));
-            Literal.Location locLit =  new Literal.Location(loc, (ITree) value,
+            Literal.Location literal = new Literal.Location(loc, (ITree) value,
                 new LocationLiteral.Default(loc, null, protocolPart, pathPart));
-            org.rascalmpl.semantics.dynamic.Expression.Literal sourceLiteral = new org.rascalmpl.semantics.dynamic.Expression.Literal(location, null, locLit);
-            return sourceLiteral;
+            return new org.rascalmpl.semantics.dynamic.Expression.Literal(location, null, literal);
         }
 
         if (value instanceof IString) {
             IString string = (IString) value;
             StringConstant.Lexical constant = new Lexical(loc, null, "\"" + string.getValue() + "\"");
             NonInterpolated nonInterpolated = new StringLiteral.NonInterpolated(loc, null, constant);
-            Literal.String stringLiteral = new Literal.String(loc, null, nonInterpolated);
-            org.rascalmpl.semantics.dynamic.Expression.Literal literalExpression =
-                new org.rascalmpl.semantics.dynamic.Expression.Literal(loc, null, stringLiteral);
-            return literalExpression;
+            Literal.String literal = new Literal.String(loc, null, nonInterpolated);
+            return new org.rascalmpl.semantics.dynamic.Expression.Literal(loc, null, literal);
         }
 
         if (value instanceof ITree) {
