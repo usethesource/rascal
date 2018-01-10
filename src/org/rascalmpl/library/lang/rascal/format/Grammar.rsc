@@ -148,7 +148,7 @@ public str prod2rascal(Production p) {
         return "...";
  
     case prod(label(str n,Symbol rhs),list[Symbol] lhs,set[Attr] as) :
-        return "<for (a <- as) {><attr2mod(a)><}> <reserved(n)>: <for(s <- lhs){><symbol2rascal(s)> <}>";
+        return "<for (a <- as) {> <attr2mod(a)><}><reserved(n)>: <for(s <- lhs){><symbol2rascal(s)> <}>";
  
     case prod(Symbol rhs,list[Symbol] lhs,{}) :
       	return "<for(s <- lhs){><symbol2rascal(s)> <}>";
@@ -184,7 +184,7 @@ test bool AttrsAndCons() = prod2rascal(
                
 test bool CC() = prod2rascal(
 	 prod(label("whitespace",sort("LAYOUT")),[\char-class([range(9,9), range(10,10),range(13,13),range(32,32)])],{})) ==
-	 " whitespace: [\\t \\n \\a0D \\ ] ";
+	 "whitespace: [\\t \\n \\a0D \\ ] ";
 
 test bool Prio() = prod2rascal(
 	priority(sort("EXP"),[prod(sort("EXP"),[sort("EXP"),lit("||"),sort("EXP")],{}),
