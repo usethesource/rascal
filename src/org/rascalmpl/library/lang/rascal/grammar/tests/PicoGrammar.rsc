@@ -80,8 +80,8 @@ test bool cntEmptyList2()   = size([x | /x:[] := Pico]) == 2;
 test bool cntList1()        {cnt = 0; visit(Pico){ case [*value s]: cnt += 1; }; return cnt == 40; }
 test bool cntList2()        = size([x | /x:[*value s] := Pico]) == 40;
 
-test bool cntEmptySet1()    {cnt = 0; visit(Pico){ case {}: cnt += 1; }; return cnt == 19; }
-test bool cntEmptySet2()    = size([x | /x:{} := Pico]) == 19;
+test bool cntEmptySet1()    {cnt = 0; visit(Pico){ case {}: cnt += 1; }; return cnt == 20; }
+test bool cntEmptySet2()    = size([x | /x:{} := Pico]) == 20;
 
 test bool cntSet1()         {cnt = 0; visit(Pico){ case {*value s}: cnt += 1; }; return cnt == 45; }
 test bool cntSet2()         = size([x | /x:{*value s} := Pico]) == 45;
