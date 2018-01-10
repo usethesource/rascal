@@ -21,7 +21,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.BooleanLiteral;
@@ -30,6 +32,7 @@ import org.rascalmpl.ast.Commands;
 import org.rascalmpl.ast.DecimalIntegerLiteral;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.KeywordArguments_Expression;
+import org.rascalmpl.ast.Mapping_Expression;
 import org.rascalmpl.ast.Module;
 import org.rascalmpl.ast.RationalLiteral;
 import org.rascalmpl.ast.RealLiteral;
@@ -68,6 +71,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.IRational;
 import io.usethesource.vallang.IReal;
@@ -568,6 +572,20 @@ public class ASTBuilder {
             }
 
             return new org.rascalmpl.semantics.dynamic.Expression.List(loc, null, elements);
+        }
+
+        if (value instanceof IMap) {
+            IMap map = (IMap) value;
+
+            List<Mapping_Expression> elements = new ArrayList<>();
+            Iterator<Entry<IValue, IValue>> iterator = map.entryIterator();
+            while (iterator.hasNext()) {
+                Entry<IValue, IValue> entry = iterator.next();
+                elements.add(new Mapping_Expression.Default(loc, null,
+                    liftExternalRec(entry.getKey(), lexicalParent, layoutOfParent),
+                    liftExternalRec(entry.getValue(), lexicalParent, layoutOfParent)));
+            }
+            return new org.rascalmpl.semantics.dynamic.Expression.Map(loc, null, elements);
         }
 
         if (value instanceof IConstructor) {
