@@ -8,6 +8,7 @@ import List;
 import lang::rascal::grammar::ParserGenerator;
 import lang::rascal::grammar::Lookahead;
 import util::Benchmark;
+import util::Reflective;
 
 public Grammar Rascal = grammar({sort("Module")},
 (
@@ -151,7 +152,7 @@ lex("URLChars"): choice(lex("URLChars"),{prod(lex("URLChars"),[\iter-star(\char-
 
 str generateRascalParser() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "RascalParser", Rascal);
 
-loc RascalParserLoc = |compressed+std:///lang/rascal/grammar/tests/generated_parsers/RascalParser.java.gz|;
+loc RascalParserLoc = getModuleLocation("lang::rascal::grammar::tests::PicoGrammar").parent + "generated_parsers/RascalParser.java.gz";
 
 void generateAndWriteRascalParser(){
 	writeFile(RascalParserLoc, generateRascalParser());
