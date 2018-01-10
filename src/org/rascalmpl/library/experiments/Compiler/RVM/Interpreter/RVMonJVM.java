@@ -50,7 +50,7 @@ public class RVMonJVM extends RVMCore {
      * The following instance variables are only used by executeProgram
      */
     public Frame root; // Root frame of a program
-    Thrown thrown;
+//    Thrown thrown;
 
     // TODO : ccf, cccf and activeCoroutines needed to allow exception handling in coroutines. :(
     
@@ -117,7 +117,7 @@ public class RVMonJVM extends RVMCore {
              
              throw new RuntimeException(targetException);
         }
-        catch(Throwable e){
+        catch (Throwable e){
             // the other (checked) exceptions are wrapped 
             throw new RuntimeException(e);
         }
@@ -130,7 +130,7 @@ public class RVMonJVM extends RVMCore {
     @Override
     public IValue executeRVMFunction(FunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs) {
 
-        Thrown oldthrown = thrown;
+//        Thrown oldthrown = thrown;
 
         Frame root = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
         root.sp = func.function.getNlocals();
@@ -151,7 +151,7 @@ public class RVMonJVM extends RVMCore {
                 throw new RuntimeException(e);
             }
         }
-        thrown = oldthrown;
+//        thrown = oldthrown;
 
         if (returnValue instanceof Thrown) {
             frameObserver.exception(root, (Thrown) returnValue);
@@ -453,18 +453,19 @@ public class RVMonJVM extends RVMCore {
         try {
             newsp = callJavaMethod(clazz, method, parameterTypes, keywordTypes, reflect, stack, sp);
         } catch (Throw e) {
-            thrown = Thrown.getInstance(e.getException(), e.getLocation(), cf);
-            throw thrown;
+//            thrown = Thrown.getInstance(e.getException(), e.getLocation(), cf);
+            throw Thrown.getInstance(e.getException(), e.getLocation(), cf);
         } catch (Thrown e) {
-            thrown = e;
-            throw thrown;
+//            thrown = e;
+            throw e;
         } catch (ParseError e){
             throw e;
-        } catch (Exception e) {
-            throw new InternalCompilerError("Exception in CALLJAVA: " + clazz.getName() + "." + method.getName() + "; message: " + e.getMessage() + e.getCause(), cf, e);
+        } catch (RuntimeException e) { // rethrow unchecked exceptions
+            throw e;
         } catch (Throwable e) {
-            throw new InternalCompilerError("Throwable in CALLJAVA: " + clazz.getName() + "." + method.getName() + "; message: " + e.getMessage() + e.getCause(), cf, e);
+            throw new RuntimeException(e); // wrap checked exceptions 
         }
+        
         return newsp;
     }
 
