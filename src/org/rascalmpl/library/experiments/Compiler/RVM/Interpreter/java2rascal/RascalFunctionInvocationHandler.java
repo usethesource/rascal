@@ -75,14 +75,19 @@ public class RascalFunctionInvocationHandler implements InvocationHandler {
         core.setFrameObserver((IFrameObserver) args[0]); 
         return null;
     }
-    Class<?> returnType = method.getReturnType();
-    if(returnType.isAnnotationPresent(RascalKeywordParameters.class)){
-      return returnType.cast(Proxy.newProxyInstance(RVMCore.class.getClassLoader(), new Class<?> [] { returnType }, new Java2RascalKWProxy.ProxyInvocationHandler(core.vf, returnType)));
+    try {
+        core.increaseActivationDepth();
+        Class<?> returnType = method.getReturnType();
+        if(returnType.isAnnotationPresent(RascalKeywordParameters.class)){
+            return returnType.cast(Proxy.newProxyInstance(RVMCore.class.getClassLoader(), new Class<?> [] { returnType }, new Java2RascalKWProxy.ProxyInvocationHandler(core.vf, returnType)));
+        }
+        OverloadedFunction f = getOverloadedFunction(method, args);
+        boolean hka = hasKeywordParams(args);
+        Map<String,IValue> kwArgs = hka ? getKWArgs(args[args.length - 1]) : emptyKWParams;
+        return  Marshall.unmarshall(core.executeRVMFunction(f, marshallArgs(args, hka), kwArgs), method.getReturnType());
+    } finally {
+        core.decreaseActivationDepth();
     }
-    OverloadedFunction f = getOverloadedFunction(method, args);
-    boolean hka = hasKeywordParams(args);
-    Map<String,IValue> kwArgs = hka ? getKWArgs(args[args.length - 1]) : emptyKWParams;
-    return Marshall.unmarshall(core.executeRVMFunction(f, marshallArgs(args, hka), kwArgs), method.getReturnType());
   }
 
   private IValue[] marshallArgs(Object[] args, boolean skipKeywordArguments) {

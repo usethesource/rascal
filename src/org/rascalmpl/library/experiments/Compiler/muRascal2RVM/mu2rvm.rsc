@@ -751,6 +751,8 @@ INS tr(muBlock(list[MuExp] exps), Dest d, CDest c) = trblock(exps, d, c);
 
 INS tr(MuExp exp, CDest c) = tr(exp, stack(), c);
 
+default INS tr(MuExp e, Dest d, CDest c) { throw "Unsupported MuExp <e>"; }
+
 // Literals and type constants
 
 INS tr(muBool(bool b), Dest d, CDest c) = plug(con(b), d); //LOADBOOL(b) + plug(accu(), d);
