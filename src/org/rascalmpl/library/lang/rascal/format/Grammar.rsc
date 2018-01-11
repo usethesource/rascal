@@ -115,7 +115,7 @@ str layoutname(Symbol s) {
 private str alt2r(Symbol def, Production p, str sep = "=") = "<symbol2rascal((p.def is label) ? p.def.symbol : p.def)> <sep> <prod2rascal(p)>";
 public str alt2rascal(Production p:prod(def,_,_)) = alt2r(def, p);
 public str alt2rascal(Production p:priority(def,_)) = alt2r(def, p, sep = "\>");
-public str alt2rascal(Production p:\associativity(def,a,_)) = alt2r(def, p, sep = "= <attr2mod(\assoc(a))>");
+public str alt2rascal(Production p:\associativity(def,a,_)) = alt2r(def, p, sep = "= <associativity(a)>");
 
 public str alt2rascal(Production p:regular(_)) = symbol2rascal(p.def);
 public default str alt2rascal(Production p) { throw "forgot <p>"; }
@@ -138,7 +138,7 @@ public str prod2rascal(Production p) {
                '\> <prod2rascal(pr)><}>"; 
     case associativity(s, a, alts) : {  
     		<fst, rest> = takeOneFrom(alts);
-    		return "<attr2mod(\assoc(a))> 
+    		return "<associativity(a)> 
     		       '  ( <prod2rascal(fst)><for (pr <- rest) {>
     		       '  | <prod2rascal(pr)><}>
     		       '  )";
@@ -148,7 +148,7 @@ public str prod2rascal(Production p) {
         return "...";
  
     case prod(label(str n,Symbol rhs),list[Symbol] lhs,set[Attr] as) :
-        return "<for (a <- as) {><attr2mod(a)><}> <reserved(n)>: <for(s <- lhs){><symbol2rascal(s)> <}>";
+        return "<for (a <- as) {> <attr2mod(a)><}><reserved(n)>: <for(s <- lhs){><symbol2rascal(s)> <}>";
  
     case prod(Symbol rhs,list[Symbol] lhs,{}) :
       	return "<for(s <- lhs){><symbol2rascal(s)> <}>";
@@ -163,6 +163,11 @@ public str prod2rascal(Production p) {
   }
 }
 
+str associativity(\left()) = "left";
+str associativity(\right()) = "right";
+str associativity(\assoc()) = "assoc";
+str associativity(\non-assoc()) = "non-assoc";
+
 private set[str] rascalKeywords = { "value" , "loc" , "node" , "num" , "type" , "bag" , "int" , "rat" , "rel" , "real" , "tuple" , "str" , "bool" , "void" , "datetime" , "set" , "map" , "list" , "int" ,"break" ,"continue" ,"rat" ,"true" ,"bag" ,"num" ,"node" ,"finally" ,"private" ,"real" ,"list" ,"fail" ,"filter" ,"if" ,"tag" ,"extend" ,"append" ,"rel" ,"void" ,"non-assoc" ,"assoc" ,"test" ,"anno" ,"layout" ,"data" ,"join" ,"it" ,"bracket" ,"in" ,"import" ,"false" ,"all" ,"dynamic" ,"solve" ,"type" ,"try" ,"catch" ,"notin" ,"else" ,"insert" ,"switch" ,"return" ,"case" ,"while" ,"str" ,"throws" ,"visit" ,"tuple" ,"for" ,"assert" ,"loc" ,"default" ,"map" ,"alias" ,"any" ,"module" ,"mod" ,"bool" ,"public" ,"one" ,"throw" ,"set" ,"start" ,"datetime" ,"value" };
 
 public str reserved(str name) {
@@ -174,12 +179,12 @@ test bool noAttrs() = prod2rascal(prod(sort("ID-TYPE"), [sort("PICO-ID"),lit(":"
 
 test bool AttrsAndCons() = prod2rascal(
      prod(label("decl",sort("ID-TYPE")), [sort("PICO-ID"), lit(":"), sort("TYPE")],
-              {\assoc(left())})) ==
-               "left decl: PICO-ID \":\" TYPE ";
+              {})) ==
+               "decl: PICO-ID \":\" TYPE ";
                
 test bool CC() = prod2rascal(
 	 prod(label("whitespace",sort("LAYOUT")),[\char-class([range(9,9), range(10,10),range(13,13),range(32,32)])],{})) ==
-	 " whitespace: [\\t \\n \\a0D \\ ] ";
+	 "whitespace: [\\t \\n \\a0D \\ ] ";
 
 test bool Prio() = prod2rascal(
 	priority(sort("EXP"),[prod(sort("EXP"),[sort("EXP"),lit("||"),sort("EXP")],{}),
@@ -189,10 +194,6 @@ test bool Prio() = prod2rascal(
 
 public str attr2mod(Attr a) {
   switch(a) {
-    case \assoc(\left()): return "left";
-    case \assoc(\right()): return "right";
-    case \assoc(\non-assoc()): return "non-assoc";
-    case \assoc(\assoc()): return "assoc";
     case \bracket(): return "bracket";
     case \tag(str x(str y)) : return "@<x>=\"<escape(y)>\"";
     case \tag(str x()) : return "@<x>";
