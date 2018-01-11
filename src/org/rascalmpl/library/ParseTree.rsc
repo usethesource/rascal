@@ -238,10 +238,7 @@ An `Attr` (attribute) documents additional semantics of a production rule. Neith
 brackets are processed by the parser generator. Rather downstream processors are
 activated by these. Associativity is a parser generator feature though. 
 }
-data Attr 
-     = \assoc(Associativity \assoc)
-     | \bracket()
-     ;
+data Attr = \bracket() | /*deprecated*/ \assoc(Associativity \assoc);
 
 @doc{
 .Synopsis
@@ -378,15 +375,16 @@ Normalization of associativity.
 * Nested (equal) associativity is flattened.
 * Priority under an associativity group defaults to choice.
 }
-public Production associativity(Symbol s, Associativity as, {*Production a, choice(Symbol t, set[Production] b)}) 
+Production associativity(Symbol s, Associativity as, {*Production a, choice(Symbol t, set[Production] b)}) 
   = associativity(s, as, a+b); 
             
-public Production associativity(Symbol rhs, Associativity a, {associativity(rhs, Associativity b, set[Production] alts), *Production rest})  
-  = associativity(rhs, a, rest + alts) ;
+Production associativity(Symbol rhs, Associativity a, {associativity(rhs, Associativity b, set[Production] alts), *Production rest})  
+  = associativity(rhs, a, rest + alts); // the nested associativity, even if contradictory, is lost
 
-//Production associativity(Symbol rhs, Associativity a, {prod(Symbol r2, list[Symbol] lhs, set[Attr] as), *Production rest}) 
-//  = \associativity(rhs, a, {rest + {prod(r2, lhs, as + {\assoc(a)})}) when !(\assoc(_) <- as);
+Production associativity(Symbol s, Associativity as, {*Production a, priority(Symbol t, list[Production] b)}) 
+  = associativity(s, as, {*a, *b}); 
 
+// deprecated; remove after bootstrap
 Production associativity(Symbol rhs, Associativity a, set[Production] rest)
   = associativity(rhs, a, withAssoc + withNewAssocs)
   when  withoutAssoc := {p | Production p:prod(_,_,_) <- rest, !(\assoc(_) <- p.attributes)},
@@ -394,10 +392,7 @@ Production associativity(Symbol rhs, Associativity a, set[Production] rest)
         withAssoc := rest - withoutAssoc,
         withNewAssocs := {p[attributes = p.attributes + {\assoc(a)}] | Production p <- withoutAssoc}
         ;
-
-public Production associativity(Symbol s, Associativity as, {*Production a, priority(Symbol t, list[Production] b)}) 
-  = associativity(s, as, a + { e | e <- b}); 
-             
+        
 @doc{
 .Synopsis
 Annotate a parse tree node with a source location.

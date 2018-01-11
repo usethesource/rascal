@@ -37,6 +37,7 @@ import org.rascalmpl.interpreter.TypeDeclarationEvaluator;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
+import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
@@ -529,8 +530,8 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				try {
 					res = function.call(types, actuals, kwActuals);
 				}
-				catch (MatchFailed e) {
-				  throw new ArgumentMismatch(function, types, this);
+				catch (Failure | MatchFailed e) {
+				    throw RuntimeExceptionFactory.failed(eval.getCurrentAST().getLocation(), eval.getValueFactory().list(actuals), eval.getCurrentAST(), eval.getStackTrace());
 				}
 				return res;
 			}

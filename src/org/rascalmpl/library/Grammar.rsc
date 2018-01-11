@@ -41,6 +41,7 @@ data GrammarDefinition
 
 anno loc Production@\loc;
  
+ 
 public Grammar grammar(set[Symbol] starts, set[Production] prods) {
   rules = ();
 
