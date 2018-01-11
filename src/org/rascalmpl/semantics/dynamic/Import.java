@@ -584,11 +584,16 @@ public abstract class Import {
         if (functions.size() > 0) { //found a function from string to ADT, assuming concrete syntax of abstract grammar
             SortedMap<Integer,Integer> corrections = new TreeMap<>();
             String input = replaceAntiQuotesByHoles2(eval, env, lit, antiquotes, corrections);
-            Result<IValue> result = functions.get(0).call(new Type[] {TypeFactory.getInstance().stringType()}, new IValue[] {eval.getValueFactory().string(input)}, null);
-            IValue ret = replaceHolesByAntiQuotes2(eval, (IConstructor) result.getValue(), antiquotes, corrections);
-            return ((IRascalValueFactory) eval.getValueFactory()).quote((INode) ret);
+            try {
+                Result<IValue> result = functions.get(0).call(new Type[] {TypeFactory.getInstance().stringType()}, new IValue[] {eval.getValueFactory().string(input)}, null);
+                IValue ret = replaceHolesByAntiQuotes2(eval, (IConstructor) result.getValue(), antiquotes, corrections);
+                return ((IRascalValueFactory) eval.getValueFactory()).quote((INode) ret);
+            } catch (Throwable t) {
+                //Parser failed
+            }
         }
     }
+    
     IMap syntaxDefinition = env.getSyntaxDefinition();
     IMap grammar = (IMap) eval.getParserGenerator().getGrammarFromModules(eval.getMonitor(),env.getName(), syntaxDefinition).get("rules");
     IGTD<IConstructor, ITree, ISourceLocation> parser = env.getBootstrap() ? new RascalParser() : getParser(eval, env, grammar, false);
