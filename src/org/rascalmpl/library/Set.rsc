@@ -530,3 +530,9 @@ public java list[&T] sort(set[&T] l, bool (&T a, &T b) less) ;
 Flatten a set of sets into a single set.  
 }
 public set[&T] union(set[set[&T]] sets) = {*s | s <- sets};
+
+@doc{
+.Synopsis
+Compute the Jaccard similarity between two sets.
+}
+real jaccard(set[value] x, set[value] y) = (1. * size(x & y)) / size(x + y);

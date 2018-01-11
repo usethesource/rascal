@@ -24,6 +24,7 @@ import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
@@ -53,6 +54,7 @@ public class RuntimeExceptionFactory {
 	public static final Type EmptyList = TF.constructor(TS,Exception,"EmptyList");
 	public static final Type EmptySet = TF.constructor(TS,Exception,"EmptySet");
 	public static final Type EmptyMap = TF.constructor(TS,Exception,"EmptyMap");
+	public static final Type Failed = TF.constructor(TS, Exception, "Failed", TF.sourceLocationType(), "caller", TF.listType(TF.valueType()), "arguments");
 	public static final Type NoSuchElement = TF.constructor(TS,Exception,"NoSuchElement",TF.valueType(), "v");
 	public static final Type UnavailableInformation = TF.constructor(TS,Exception, "UnavailableInformation");
 	public static final Type IllegalArgument = TF.constructor(TS,Exception,"IllegalArgument",TF.valueType(), "v", TF.stringType(), "message");
@@ -104,6 +106,10 @@ public class RuntimeExceptionFactory {
 	  return new Throw(VF.constructor(Ambiguity, loc, type, string), ast, trace);
 	}
 	
+	public static Throw failed(ISourceLocation loc, IList arguments, AbstractAST ast, StackTrace trace) {
+	    return new Throw(VF.constructor(Failed, loc, arguments), ast, trace);
+	}
+	            
 	public static Throw arithmeticException(String msg, AbstractAST ast, StackTrace trace) {
 		return new Throw(VF.constructor(ArithmeticException, VF.string(msg)), ast, trace);
 	}

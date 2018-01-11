@@ -16,7 +16,7 @@ private MuExp tcc("size", [muCon(str s)]) = muCon(size(s));
 private MuExp tcc("size", [muCon(list[value] lst)]) = muCon(size(lst));
 private MuExp tcc("isEmpty", [muCon(list[value] lst)]) = muCon(isEmpty(lst));
  
-// Set
+// Set 
 private MuExp tcc("size", [muCon(set[value] st)]) = muCon(size(st));
 private MuExp tcc("isEmpty", [muCon(set[value] st)]) = muCon(isEmpty(st));
 
@@ -85,7 +85,6 @@ private MuExp tcc("reference", [muCon(Symbol def), muCon(str cons)]) = muCon(ref
 // Attr
 private MuExp tcc("tag", [muCon(value tagVal)]) = muCon(\tag(tagVal));
 
-private MuExp tcc("assoc", [muCon(Associativity a)]) = muCon(\assoc(a));
 private MuExp tcc("bracket", []) = muCon(\bracket());
 
 // Associativity
