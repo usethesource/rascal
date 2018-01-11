@@ -8,17 +8,17 @@
 @contributor{Anya Helene Bagge - anya@ii.uib.no (Univ. Bergen)}
 module util::tasks::Manager
 
-alias Task = bool (Transaction tr, type[&T] key, &N name);
+alias Task[&T,&N] = bool (Transaction tr, type[&T] key, &N name);
 @reflect{Needs access to context in order to reify types when calling producer.}
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
-public java void registerProducer(Task producer, set[value] keys);
+public java void registerProducer(Task[&T,&N] producer, set[value] keys);
 
 //public void registerProducer(&T (Transaction tr, type[&T] key, &N name) producer, set[value] keys) {
 //	registerProducer(bool(Transaction t,type[&T] k, value n){v = producer(t,k,n); setFact(t,k,n,v);});
 //}
 
 @javaClass{org.rascalmpl.library.util.tasks.Manager}
-public java void unregisterProducer(Task producer);
+public java void unregisterProducer(Task[&T,&N] producer);
 
 @doc{Lock the producer registry ‚Äì use this before adding/removing a
 	set of related producers. Remember to enclose the critical section in

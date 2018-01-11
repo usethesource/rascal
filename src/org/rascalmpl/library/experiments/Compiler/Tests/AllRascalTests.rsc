@@ -132,7 +132,7 @@ private list[str] libraryTests = [
 "StringTests",
 "TypeTests",
 "ValueIOTests",
-"analysis::formalconcepts::FCATest",
+//"analysis::formalconcepts::FCATest",
 "analysis::graphs::GraphTests",
 "analysis::statistics::DescriptiveTests",
 "analysis::statistics::RangeUtils",

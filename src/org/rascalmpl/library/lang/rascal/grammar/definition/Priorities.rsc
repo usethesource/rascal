@@ -46,7 +46,8 @@ the associativity groups and the ! restriction operator.
 }
 public DoNotNest doNotNest(Grammar g) {
   g = references(g); 
-  result = {};
+  DoNotNest result = {}; // TODO type temporarily needed for new experimental type checker
+  
   for (s <- g.rules) {
     // note how the analysis is still _per non-terminal_
     // TODO: support relations between mutually recursive non-terminals

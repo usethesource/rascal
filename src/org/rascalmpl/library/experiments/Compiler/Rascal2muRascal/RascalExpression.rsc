@@ -1640,7 +1640,7 @@ private MuExp translateSubscript(Expression e:(Expression) `<Expression exp> [ <
     if(ot notin {"map", "rel", "lrel"}) {
        op += "_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
     } else 
-    if(ot == "lrel" && size(subscripts) == 1 && getOuterType(list_of_subscripts[0]) == "int"){
+    if(ot == "lrel" && nsubscripts == 1 && getOuterType(list_of_subscripts[0]) == "int"){
     	op = "list_subscript_int";
     }
     if(op == "rel_subscript"){
