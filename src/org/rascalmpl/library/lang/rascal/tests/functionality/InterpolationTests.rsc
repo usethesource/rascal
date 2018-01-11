@@ -1,7 +1,5 @@
 module lang::rascal::tests::functionality::InterpolationTests
 
-import util::Reflective;
-
 test bool interpolateWhile()  { x = 10; return "<while (x > 0) {> <{x -= 1; x; }> <}>" == " 9  8  7  6  5  4  3  2  1  0 "; }
     
 test bool interpolateDoWhile() { x = 10; return "<do {> <{x -= 1; x; }> <} while (x > 0)>" == " 9  8  7  6  5  4  3  2  1  0 "; }
@@ -110,7 +108,7 @@ test bool interpolationWithNewline() {
    
    str d = "AAA
            'BBB";
-   str ls = getLineSeparator();
+   str ls = /\r\n/ := d ? "\r\n" : "\n";
    return declInfo2Doc(d) == "----"+ls+"AAA"+ls+"BBB"+ls+"++++";
 }
 
