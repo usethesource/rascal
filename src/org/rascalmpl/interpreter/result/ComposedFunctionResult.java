@@ -26,6 +26,8 @@ import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.ArgumentMismatch;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
@@ -230,24 +232,19 @@ public class ComposedFunctionResult extends Result<IValue> implements IExternalV
 				
 		@Override
 		public Result<IValue> call(Type[] argTypes, IValue[] argValues, Map<String, IValue> keyArgValues) {
-			try {
-				try {
-					return getRight().call(argTypes, argValues, keyArgValues);
-				} catch(MatchFailed e) {
-					// try another one
-				} catch(Failure e) {
-					// try another one
-				}
-		 		return getLeft().call(argTypes, argValues, keyArgValues);
-			} 
-			catch (MatchFailed e) {
-				List<AbstractFunction> candidates = Arrays.<AbstractFunction>asList((AbstractFunction) getLeft(), (AbstractFunction) getRight());
-        throw new ArgumentMismatch("+ composition", candidates, argTypes, ctx.getCurrentAST());
-			} 
-			catch(Failure f2) {
-				throw new Failure("Both functions in the '+' composition have failed:\n " 
-									+ getLeft().toString() + ",\n" + getRight().toString());
-			}
+		    try {
+		        try {
+		            return getRight().call(argTypes, argValues, keyArgValues);
+		        } catch(MatchFailed e) {
+		            // try another one
+		        } catch(Failure e) {
+		            // try another one
+		        }
+		        return getLeft().call(argTypes, argValues, keyArgValues);
+		    } 
+		    catch(Failure f2) {
+		        throw new MatchFailed();
+		    }
 		}
 		
 		@Override

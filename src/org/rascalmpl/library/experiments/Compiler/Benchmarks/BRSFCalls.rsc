@@ -50,8 +50,8 @@ public rel[str,str] trans(rel[str,str] CALL){
 }
 
 public set[str] reachFromTop1(rel[str,str] CALL){
-    set[str] top = top(CALL);
-	return top + range(domainR(CALL+, top));
+    set[str] t = top(CALL);
+	return t + range(domainR(CALL+, t));
 }
 
 public set[str] reachFromTop2(rel[str,str] CALL){
