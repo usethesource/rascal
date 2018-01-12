@@ -1,3 +1,2 @@
 Source: src/org/rascalmpl/library, src/org/rascalmpl/tutor
 Courses: src/org/rascalmpl/courses
-
