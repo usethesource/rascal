@@ -1,6 +1,8 @@
 package org.rascalmpl.library.experiments.tutor3;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
@@ -12,10 +14,12 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CompiledR
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.RascalShellExecutionException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug.DebugREPLFrameObserver;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
+import jline.Terminal;
 
 public class TutorCommandExecutor {
 	ISourceLocation screenInputLocation;
@@ -25,6 +29,81 @@ public class TutorCommandExecutor {
 	PrintWriter err;
 	String consoleInputPath = "/ConsoleInput.rsc";
 
+	private static class TutorTerminalEmulator implements Terminal {
+        @Override
+        public void init() throws Exception {
+            
+        }
+
+        @Override
+        public void restore() throws Exception {
+        }
+
+        @Override
+        public void reset() throws Exception {
+        }
+
+        @Override
+        public boolean isSupported() {
+            return true;
+        }
+
+        @Override
+        public int getWidth() {
+            return 72;
+        }
+
+        @Override
+        public int getHeight() {
+            return 100;
+        }
+
+        @Override
+        public boolean isAnsiSupported() {
+            return false;
+        }
+
+        @Override
+        public OutputStream wrapOutIfNeeded(OutputStream out) {
+            return out;
+        }
+
+        @Override
+        public InputStream wrapInIfNeeded(InputStream in) throws IOException {
+            return in;
+        }
+
+        @Override
+        public boolean hasWeirdWrap() {
+            return false;
+        }
+
+        @Override
+        public boolean isEchoEnabled() {
+            return false;
+        }
+
+        @Override
+        public void setEchoEnabled(boolean enabled) {
+            
+        }
+
+        @Override
+        public void disableInterruptCharacter() {
+            
+        }
+
+        @Override
+        public void enableInterruptCharacter() {
+            
+        }
+
+        @Override
+        public String getOutputEncoding() {
+            return "UTF8";
+        }
+	}
+	
 	public TutorCommandExecutor(PathConfig pcfg, PrintWriter err, IDEServices ideServices) throws IOException, NoSuchRascalFunction, URISyntaxException{
 		try {
 			IValueFactory vf = ValueFactoryFactory.getValueFactory();
@@ -36,7 +115,7 @@ public class TutorCommandExecutor {
 		shellStringWriter = new StringWriter();
 		shellPrintWriter = new PrintWriter(shellStringWriter);
 		executor = new CommandExecutor(pcfg, shellPrintWriter, shellPrintWriter, ideServices, null);
-		executor.setDebugObserver(new DebugREPLFrameObserver(null, System.in, System.out, true, true, null, null, ideServices));
+		executor.setDebugObserver(new DebugREPLFrameObserver(null, System.in, System.out, true, true, null, new TutorTerminalEmulator(), ideServices));
 	}
 	
 	void flush(){
