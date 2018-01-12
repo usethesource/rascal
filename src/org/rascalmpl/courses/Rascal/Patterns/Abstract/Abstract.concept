@@ -1,7 +1,8 @@
 # Abstract Patterns
 
 .Synopsis
-Abstract patterns.
+
+Abstract patterns are a notation for pattern matching. Using patterns any value can be checked for a certain shape, and if it matches local variables can be bound to parts of the value.
 
 .Syntax
 
@@ -18,7 +19,7 @@ Abstract patterns.
 | Tuple                | `< _Pat~1~_, _Pat~2~_, ..., _Pat~n~_ >`                                        
 | Node                 | `_Name_ ( _Pat~1~_, _Pat~2~_, ..., _Pat~n~_ )`                                 
 | Descendant           | `/ _Pat_`                                                                   
-| Labelled             | `_Var_ : _Pat_`                                                             
+| Labelled             | `_Var_ : _Pat_`                                                              
 | TypedLabelled        | `_Type_ _Var_ : _Pat_`                                                      
 | TypeConstrained      |  `[_Type_] _Pat_`                                                           
 |====
