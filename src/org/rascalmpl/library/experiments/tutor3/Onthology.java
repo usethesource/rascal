@@ -69,7 +69,6 @@ public class Onthology {
     private IQuestionCompiler questionCompiler;
     private String courseName;
 
-    private IndexWriter iwriter;
     private Path courseSrcPath;
     private Path courseDestPath;
     private Path libSrcPath;
@@ -286,7 +285,7 @@ public class Onthology {
 
                 iwriter.addDocument(makeLuceneDocument(remoteConceptName.toString(), remoteConcept.getIndex(), remoteConcept.getSynopsis(), remoteConcept.getText()));
                 for(IValue d : declarationInfoList){
-                    addDeclarationInfo(remoteConceptName, (IConstructor)d);
+                    addDeclarationInfo(remoteConceptName, (IConstructor)d, iwriter);
                 }
             } else if(Files.exists(makeQuestionsFilePath(aDir))){
                 Path questionsName = makeConceptName(aDir);
@@ -359,7 +358,7 @@ public class Onthology {
         return luceneDoc;
     }
 
-    private void addDeclarationInfo(Path remoteConceptName, IConstructor d) throws IOException{
+    private void addDeclarationInfo(Path remoteConceptName, IConstructor d, IndexWriter iwriter) throws IOException{
         String consName = d.getName();
         String moduleName = remoteConceptName.toString();
 
