@@ -3,6 +3,7 @@ package org.rascalmpl.library.experiments.tutor3;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -30,6 +31,7 @@ import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.FSDirectory;
+import org.joda.time.DateTime;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
@@ -138,7 +140,7 @@ public class Onthology {
         }
     }
 
-    private void buildCourseMap() throws IOException {
+    public void buildCourseMap() throws IOException {
         Analyzer multiFieldAnalyzer = multiFieldAnalyzer();
         IndexWriterConfig config = new IndexWriterConfig(multiFieldAnalyzer);
         config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
@@ -252,7 +254,7 @@ public class Onthology {
                     }
                 }
 
-                Concept concept = new Concept(conceptName, readFile(makeConceptFilePath(aDir).toString()), destPath, libSrcPath);
+                Concept concept = getConceptFromFile(aDir, conceptName);
                 conceptMap.put(conceptName, concept);
                 iwriter.addDocument(makeLuceneDocument(conceptName.toString(), concept.getIndex(), concept.getSynopsis(), concept.getText()));
             } else if(Files.exists(makeRemoteFilePath(aDir))){
@@ -262,6 +264,7 @@ public class Onthology {
                  * - add to index
                  */
                 ISourceLocation remoteLoc = readLocFromFile(makeRemoteFilePath(aDir).toString());
+                long timestamp = URIResolverRegistry.getInstance().lastModified(remoteLoc);
                 System.err.println("remoteLoc: " + remoteLoc);
                 if (!URIResolverRegistry.getInstance().exists(remoteLoc)) {
                     System.err.println("WARNING: remote loc does not exist!" + remoteLoc);
@@ -277,7 +280,7 @@ public class Onthology {
                 IList declarationInfoList = (IList) extracted.get(1);
                 //System.err.println(remoteConceptText.getValue());
                 String toc = makeToc(remoteConceptName, declarationInfoList);
-                Concept remoteConcept = new Concept(remoteConceptName, remoteConceptText.getValue(), destPath, libSrcPath);
+                Concept remoteConcept = new Concept(remoteConceptName, remoteConceptText.getValue(), destPath, libSrcPath, timestamp);
                 remoteConcept.setRemote(toc);
                 conceptMap.put(remoteConceptName, remoteConcept);
 
@@ -298,13 +301,19 @@ public class Onthology {
                     questionCompiler = Java2Rascal.Builder.bridge(vf, pcfg, IQuestionCompiler.class).build();
                 }
                 String qtext = questionCompiler.compileQuestions(vf.string(questionsName.toString()), pcfg.asConstructor(questionCompiler) /*pcfg.getSrcs(), pcfg.getLibs(), pcfg.getcourses(), pcfg.getBin(), pcfg.getBoot()*/).getValue();
-                Concept questionsConcept = new Concept(questionsName, qtext, destPath, libSrcPath);
+                long fakeTimeStamp = DateTime.now().toInstant().getMillis();
+                Concept questionsConcept = new Concept(questionsName, qtext, destPath, libSrcPath, fakeTimeStamp /*TODO*/);
                 questionsConcept.setQuestions();
 
                 conceptMap.put(questionsName, questionsConcept);
             }
             return FileVisitResult.CONTINUE;
         }
+    }
+    
+    public Concept getConceptFromFile(Path aDir, Path conceptName) throws IOException {
+        String file = makeConceptFilePath(aDir).toString();
+        return new Concept(conceptName, readFile(file), destPath, libSrcPath, new File(file).lastModified());
     }
 
     private String makeToc(Path remoteConceptName, IList declarationInfoList){
