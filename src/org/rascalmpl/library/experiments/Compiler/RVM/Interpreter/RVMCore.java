@@ -100,6 +100,7 @@ public abstract class RVMCore {
 
 	// Management of active coroutines
 	protected final Stack<Coroutine> activeCoroutines = new Stack<>();
+	
 	protected Frame ccf = null; // The start frame of the current active coroutine (coroutine's main function)	
 	protected Frame cccf = null; // The candidate coroutine's start frame; used by the guard semantics
 	protected final RascalExecutionContext rex;
@@ -108,6 +109,22 @@ public abstract class RVMCore {
 	
 	protected final Map<Class<?>, Object> instanceCache;
 	protected final Map<String, Class<?>> classCache;
+	
+	// Maintain an activation depth in order to do some cleanup on exit.
+	// Rationale: An RVMCore may be accesses frequently from outside and we do not want to leave behind irrelevant garbage
+	
+	private int activationDepth = 0;
+	
+	public void increaseActivationDepth() {
+	    activationDepth += 1;
+	}
+	
+	public void decreaseActivationDepth() {
+	    activationDepth -= 1;
+	    if(activationDepth == 0) {
+	        activeCoroutines.clear();
+	    }
+	}
 	
 	public static RVMCore readFromFileAndInitialize(ISourceLocation rvmBinaryLocation, RascalExecutionContext rex) throws IOException{
 		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);

@@ -519,7 +519,19 @@ public class CommandOptions {
 				printUsageAndExit(e.getMessage());
 			}
 		} else {
-			return URIUtil.correctLocation(new File(loc).isAbsolute() ? "file" : "cwd", "", loc);
+            try {
+                File file = new File(loc);
+                if (file.isAbsolute()) {
+                    return URIUtil.createFileLocation(file.getAbsolutePath());
+                }
+                else {
+                    return URIUtil.correctLocation("cmd", "", loc);
+                }
+            }
+            catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+
 		}
 		return null;
 	}

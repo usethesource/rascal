@@ -1,5 +1,6 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.util.Map;
@@ -180,11 +181,16 @@ public class RascalExecutionContext implements IRascalMonitor {
             ISourceLocation loc = (ISourceLocation) elem;
             
             if (b.length() != 0) {
-                b.append(":");
+                b.append(File.pathSeparatorChar);
             }
            
             assert loc.getScheme().equals("file");
-            b.append(loc.getPath());
+            String path = loc.getPath();
+            if (path.startsWith("/") && path.contains(":\\")) {
+                // a windows path should drop the leading /
+                path = path.substring(1);
+            }
+            b.append(path);
         }
         
         return b.toString();
