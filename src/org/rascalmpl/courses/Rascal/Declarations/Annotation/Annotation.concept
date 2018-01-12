@@ -1,7 +1,8 @@
 # Annotation Declaration
 
 .Synopsis
-Declare an annotation type for nodes.
+
+Declare an annotation type for nodes. This feature is deprecated; please use <<Keyword Fields>> instead.
 
 .Index
 anno @
