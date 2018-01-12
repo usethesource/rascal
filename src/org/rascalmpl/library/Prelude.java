@@ -2214,21 +2214,6 @@ public class Prelude {
 		}
 	}
 	
-	public IString saveParser(ISourceLocation outFile, IValue reified, IEvaluatorContext ctx) {
-		
-		IGTD<IConstructor, ITree, ISourceLocation> parser = org.rascalmpl.semantics.dynamic.Import.getParser(ctx.getEvaluator(), (ModuleEnvironment) ctx.getCurrentEnvt().getRoot(), (IMap) ((IConstructor) reified).get("definitions"), false);
-		@SuppressWarnings("unchecked")
-        Class<IGTD<IConstructor, ITree, ISourceLocation>> parserClass = (Class<IGTD<IConstructor, ITree, ISourceLocation>>) parser.getClass();
-		
-		
-		try(OutputStream outStream = URIResolverRegistry.getInstance().getOutputStream(outFile, false)) {
-			ctx.getEvaluator().getParserGenerator().saveToJar(parserClass, outStream);
-		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string("Unable to save to output file '" + outFile + "'"), null, null);
-		}
-		return ctx.getValueFactory().string(parserClass.getName());
-
-	}
 	public IString unparse(IConstructor tree) {
 		return values.string(TreeAdapter.yield(tree));
 	}

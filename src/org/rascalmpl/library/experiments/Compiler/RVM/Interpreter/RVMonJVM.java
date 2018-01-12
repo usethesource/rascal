@@ -19,6 +19,7 @@ import java.lang.invoke.ConstantCallSite;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,6 +33,7 @@ import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
@@ -48,7 +50,7 @@ public class RVMonJVM extends RVMCore {
      * The following instance variables are only used by executeProgram
      */
     public Frame root; // Root frame of a program
-    Thrown thrown;
+//    Thrown thrown;
 
     // TODO : ccf, cccf and activeCoroutines needed to allow exception handling in coroutines. :(
     
@@ -102,13 +104,22 @@ public class RVMonJVM extends RVMCore {
                 throw (Thrown) returnValue;
             }
             return returnValue;
-        } catch(Throwable e){
-            if(e instanceof Thrown){
-                throw (Thrown) e;
-            } 
-            else {
-                throw new RuntimeException(e);
-            }
+        }
+        catch (RuntimeException e) {
+            // all unchecked exceptions are passed on
+            throw e;
+        }
+        catch (InvocationTargetException e) {
+             Throwable targetException = e.getTargetException();
+             if (targetException instanceof RuntimeException) {
+                 throw (RuntimeException) targetException;
+             }
+             
+             throw new RuntimeException(targetException);
+        }
+        catch (Throwable e){
+            // the other (checked) exceptions are wrapped 
+            throw new RuntimeException(e);
         }
     }
 
@@ -119,7 +130,7 @@ public class RVMonJVM extends RVMCore {
     @Override
     public IValue executeRVMFunction(FunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs) {
 
-        Thrown oldthrown = thrown;
+//        Thrown oldthrown = thrown;
 
         Frame root = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
         root.sp = func.function.getNlocals();
@@ -140,7 +151,7 @@ public class RVMonJVM extends RVMCore {
                 throw new RuntimeException(e);
             }
         }
-        thrown = oldthrown;
+//        thrown = oldthrown;
 
         if (returnValue instanceof Thrown) {
             frameObserver.exception(root, (Thrown) returnValue);
@@ -232,37 +243,43 @@ public class RVMonJVM extends RVMCore {
      */
     @Override
     public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] posArgs, Map<String,IValue> kwArgs) {
+        
+        try {
+            increaseActivationDepth();
 
-        rex.setFullModuleName(moduleName);
+            rex.setFullModuleName(moduleName);
 
-        Function main_function = functionStore[functionMap.get(uid_main)];
+            Function main_function = functionStore[functionMap.get(uid_main)];
 
-        if (main_function == null) {
-            throw new RuntimeException("PANIC: No function " + uid_main + " found");
-        }
-        
-        //Thrown oldthrown = thrown;    //<===
-        
-        executeRVMProgram(main_function, posArgs, kwArgs);
-        
-        //thrown = oldthrown;
-        
-        Object o = returnValue;
-        if (o != null){
-          if(o instanceof Thrown) {
-            //TODO: frameObserver.exception(cf, (Thrown) thrown);
-            throw (Thrown) o;
-          }
-          if(o instanceof IValue){
-            IValue v = (IValue) o;
-            Type tp = v.getType();
-            if(tp.isAbstractData() && tp.getName().equals("RuntimeException")){
-              throw Thrown.getInstance(v, null, null);
+            if (main_function == null) {
+                throw new RuntimeException("PANIC: No function " + uid_main + " found");
             }
 
-          }
+            //Thrown oldthrown = thrown;    //<===
+
+            executeRVMProgram(main_function, posArgs, kwArgs);
+
+            //thrown = oldthrown;
+
+            Object o = returnValue;
+            if (o != null){
+                if(o instanceof Thrown) {
+                    //TODO: frameObserver.exception(cf, (Thrown) thrown);
+                    throw (Thrown) o;
+                }
+                if(o instanceof IValue){
+                    IValue v = (IValue) o;
+                    Type tp = v.getType();
+                    if(tp.isAbstractData() && tp.getName().equals("RuntimeException")){
+                        throw Thrown.getInstance(v, null, null);
+                    }
+
+                }
+            }
+            return narrow(o);
+        } finally {
+            decreaseActivationDepth();
         }
-        return narrow(o);
     }
     
     private Object executeRVMProgram(Function func, final IValue[] args, Map<String, IValue> kwArgs) {
@@ -442,18 +459,19 @@ public class RVMonJVM extends RVMCore {
         try {
             newsp = callJavaMethod(clazz, method, parameterTypes, keywordTypes, reflect, stack, sp);
         } catch (Throw e) {
-            thrown = Thrown.getInstance(e.getException(), e.getLocation(), cf);
-            throw thrown;
+//            thrown = Thrown.getInstance(e.getException(), e.getLocation(), cf);
+            throw Thrown.getInstance(e.getException(), e.getLocation(), cf);
         } catch (Thrown e) {
-            thrown = e;
-            throw thrown;
+//            thrown = e;
+            throw e;
         } catch (ParseError e){
             throw e;
-        } catch (Exception e) {
-            throw new InternalCompilerError("Exception in CALLJAVA: " + clazz.getName() + "." + method.getName() + "; message: " + e.getMessage() + e.getCause(), cf, e);
+        } catch (RuntimeException e) { // rethrow unchecked exceptions
+            throw e;
         } catch (Throwable e) {
-            throw new InternalCompilerError("Throwable in CALLJAVA: " + clazz.getName() + "." + method.getName() + "; message: " + e.getMessage() + e.getCause(), cf, e);
+            throw new RuntimeException(e); // wrap checked exceptions 
         }
+        
         return newsp;
     }
 
@@ -834,7 +852,20 @@ public class RVMonJVM extends RVMCore {
             //frameObserver.leave(frame, returnValue);
             return returnValue;
         }
-        throw new RuntimeException("No matching definition found for function or constructor " + of.name);
+        
+        IListWriter w = vf.listWriter();
+        int base = sp - arity;
+        for (int i = 0; i < arity; i++) {
+            Object arg = stack[base + i];
+            
+            if (arg instanceof IValue) {
+                w.append((IValue) arg);
+            }
+        }
+        
+        Thrown exc = RascalRuntimeException.failed(cf.src, w.done(), cf);
+        System.err.println(exc.getValue());
+        throw exc;
     }
 
 //  public Object jvmOCALL_OLD(final Object[] stack, int sp, final Frame cf, final int ofun, final int arity) {

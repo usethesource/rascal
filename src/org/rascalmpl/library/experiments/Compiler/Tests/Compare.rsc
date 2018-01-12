@@ -4,10 +4,13 @@ import IO;
 import ValueIO;
 import String;
 import Set;
+import List;
 import util::Reflective;
 import util::FileSystem;
 import experiments::Compiler::RVM::AST;
 import lang::rascal::types::CheckerConfig;
+import Message;
+import lang::rascal::types::AbstractName;
 
 
 set[loc] serialized = {};
