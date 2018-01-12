@@ -34,8 +34,8 @@ import io.usethesource.vallang.ISourceLocation;
 
 public class HelpManager {
 	
-	private ISourceLocation coursesDir;
-	private PathConfig pcfg;
+	private final ISourceLocation coursesDir;
+	private final PathConfig pcfg;
 	private final int maxSearch = 25;
 	private final PrintWriter stdout;
 	private final PrintWriter stderr;
@@ -43,10 +43,22 @@ public class HelpManager {
 	
 	private final int BASE_PORT = 8750;
 	private final int ATTEMPTS = 100;
-	private int port = BASE_PORT;
+	private final int port;
 	
     private final HelpServer helpServer;
     private final IDEServices ideServices;
+
+    public HelpManager(ISourceLocation compiledCourses, PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices) throws IOException {
+        this.pcfg = pcfg;
+        this.stdout = stdout;
+        this.stderr = stderr;
+        this.ideServices = ideServices;
+
+        coursesDir = compiledCourses;
+
+        helpServer = startServer(stderr);
+        port = helpServer.getPort();
+    }
 
     public HelpManager(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices) throws IOException {
       this.pcfg = pcfg;
@@ -57,10 +69,11 @@ public class HelpManager {
       coursesDir = URIUtil.correctLocation("boot", "", "/courses");
 
       helpServer = startServer(stderr);
+      port = helpServer.getPort();
     }
 
     private HelpServer startServer(PrintWriter stderr) throws IOException {
-        for(port = BASE_PORT; port < BASE_PORT+ATTEMPTS; port++){
+        for(int port = BASE_PORT; port < BASE_PORT+ATTEMPTS; port++){
               try {
                   HelpServer helpServer = new HelpServer(port, this, coursesDir);
                   indexSearcher = makeIndexSearcher();

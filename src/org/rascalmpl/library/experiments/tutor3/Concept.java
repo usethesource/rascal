@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.tutor3;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -19,8 +20,10 @@ public class Concept {
 	private String index;
 	private Path libSrcPath;
 	private String toc;
+    private long timestamp;
 
-	public Concept(Path name, String text, Path destPath, Path libSrcPath){
+	public Concept(Path name, String text, Path destPath, Path libSrcPath, long timestamp){
+	    this.timestamp = timestamp;
 		this.name = name;
 		this.text = text;
 		this.destPath = destPath;
@@ -160,7 +163,13 @@ public class Concept {
       return sw.toString();
     }
     
-	public void preprocess(Onthology onthology, TutorCommandExecutor executor) throws IOException{
+	public void preprocess(Onthology onthology, TutorCommandExecutor executor) throws IOException {
+	    File adocOut = new File(getADocFileName());
+	    
+	    if (adocOut.exists() && adocOut.lastModified() > timestamp) {
+	        return; // we don't have to do the work if the source hasn't changed.
+	    }
+	    
 		BufferedReader reader = new BufferedReader(new StringReader(text));
 
 		StringWriter preprocessOut = new StringWriter();
