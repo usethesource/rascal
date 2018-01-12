@@ -152,7 +152,9 @@ lex("URLChars"): choice(lex("URLChars"),{prod(lex("URLChars"),[\iter-star(\char-
 
 str generateRascalParser() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "RascalParser", Rascal);
 
-loc RascalParserLoc = getModuleLocation("lang::rascal::grammar::tests::PicoGrammar").parent + "generated_parsers/RascalParser.java.gz";
+loc makeCompressed(loc l) = l[scheme = "compressed+<l.scheme>"];
+
+loc RascalParserLoc = makeCompressed(getModuleLocation("lang::rascal::grammar::tests::PicoGrammar").parent + "generated_parsers/RascalParser.java.gz");
 
 void generateAndWriteRascalParser(){
 	writeFile(RascalParserLoc, generateRascalParser());
