@@ -156,9 +156,8 @@ public class Concept {
 	   
     private String makeRed(String result){
       StringWriter sw = new StringWriter(result.length()+5);
-      result.split("\n");
       for(String s :  result.split("\n")){
-        sw.append("[red]##").append(s).append("##\n");
+        sw.append("[error]#").append(s).append("#\n");
       }
       return sw.toString();
     }
@@ -274,7 +273,10 @@ public class Concept {
 						  if(!mayHaveErrors){
 						    executor.error("* __" + name + "__:");
 						    executor.error("While executing '" + complete(line) + "': " + e.getMessage());
+						    executor.err.println("While compiling " + name + " this exception was thrown:");
+						    e.printStackTrace(executor.err);
 						  }
+						  
 						  preprocessOut.append(e.getMessage() != null ? makeRed(e.getMessage())
 						                                              : makeRed(e.toString())
 						                      );

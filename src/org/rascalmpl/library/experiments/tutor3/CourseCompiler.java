@@ -32,12 +32,13 @@ import org.rascalmpl.library.experiments.Compiler.Commands.CommandOptions;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * A course is organized as a collection of Concepts organized as a tree (maintained as an Onthology)
@@ -145,33 +146,25 @@ public class CourseCompiler {
 	}
 	
     public static void compileCourse(Asciidoctor dr, Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
-		try {
-		    copyStandardFilesPerCourse(srcPath, courseName, destPath);
-		    
-		    Onthology o = new Onthology(srcPath, courseName, destPath, libSrcPath, pcfg, executor);
-	        
-	        o.buildCourseMap();
-	        o.buildConcepts();
-	        
-			runAsciiDoctor(dr, srcPath, courseName, destPath, executor.err);
-		} catch (IOException e) {
-			System.err.println("Cannot run asciidoctor: " + e.getMessage());
-		}
+        copyStandardFilesPerCourse(srcPath, courseName, destPath);
+
+        Onthology o = new Onthology(srcPath, courseName, destPath, libSrcPath, pcfg, executor);
+
+        o.buildCourseMap();
+        o.buildConcepts();
+
+        runAsciiDoctor(dr, srcPath, courseName, destPath, executor.err);
 	}
     
     public static void compileCourseCommand(String classpath, Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
-        try {
-            copyStandardFilesPerCourse(srcPath, courseName, destPath);
-            
-            Onthology o = new Onthology(srcPath, courseName, destPath, libSrcPath, pcfg, executor);
-            
-            o.buildCourseMap();
-            o.buildConcepts();
-            
-            runAsciiDoctorCommand(classpath, srcPath, courseName, destPath, executor.err);
-        } catch (IOException e) {
-            System.err.println("Cannot run asciidoctor: " + e.getMessage());
-        }
+        copyStandardFilesPerCourse(srcPath, courseName, destPath);
+
+        Onthology o = new Onthology(srcPath, courseName, destPath, libSrcPath, pcfg, executor);
+
+        o.buildCourseMap();
+        o.buildConcepts();
+
+        runAsciiDoctorCommand(classpath, srcPath, courseName, destPath, executor.err);
     }
 	
 	private static void copyStandardFilesPerCourse(Path srcPath, String courseName, Path destPath) throws IOException {
