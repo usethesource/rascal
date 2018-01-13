@@ -10,12 +10,12 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.ID
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CompiledRascalREPL;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.RascalShellExecutionException;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug.DebugREPLFrameObserver;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class TutorCommandExecutor {
 	ISourceLocation screenInputLocation;
@@ -36,7 +36,6 @@ public class TutorCommandExecutor {
 		shellStringWriter = new StringWriter();
 		shellPrintWriter = new PrintWriter(shellStringWriter);
 		executor = new CommandExecutor(pcfg, shellPrintWriter, shellPrintWriter, ideServices, null);
-		executor.setDebugObserver(new DebugREPLFrameObserver(null, System.in, System.out, true, true, null, null, ideServices));
 	}
 	
 	void flush(){
