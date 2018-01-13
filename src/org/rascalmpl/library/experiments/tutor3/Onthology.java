@@ -264,7 +264,7 @@ public class Onthology {
                  */
                 ISourceLocation remoteLoc = readLocFromFile(makeRemoteFilePath(aDir).toString());
                 long timestamp = URIResolverRegistry.getInstance().lastModified(remoteLoc);
-                System.err.println("remoteLoc: " + remoteLoc);
+
                 if (!URIResolverRegistry.getInstance().exists(remoteLoc)) {
                     System.err.println("WARNING: remote loc does not exist!" + remoteLoc);
                 }
@@ -277,7 +277,6 @@ public class Onthology {
                 ITuple extracted = rascalExtraction.extractDoc(vf.string(parentName), remoteLoc);
                 IString remoteConceptText = (IString) extracted.get(0);
                 IList declarationInfoList = (IList) extracted.get(1);
-                //System.err.println(remoteConceptText.getValue());
                 String toc = makeToc(remoteConceptName, declarationInfoList);
                 Concept remoteConcept = new Concept(remoteConceptName, remoteConceptText.getValue(), destPath, libSrcPath, timestamp);
                 remoteConcept.setRemote(toc);
@@ -448,15 +447,12 @@ public class Onthology {
             && subConceptName.startsWith(conceptName) 
             && (newLevel - start <= depth)
             ){
-            //System.out.println("genListItemForSubConcept1: " + conceptName +", " + subConceptName + ", " + start + ", " + depth);
             result.append(bullets(newLevel)).append("<<").append(subConcept.getAnchor()).append(",").append(subConcept.getTitle()).append(">>");
             if(withSynopsis){
                 result.append(": ").append(subConcept.getSynopsis());
             }
             result.append("\n");
-        } else {
-            //System.out.println("genListItemForSubConcept2: " + conceptName +", " + subConceptName + ", " + start + ", " + depth);
-        }
+        } 
     }
 
     /**
