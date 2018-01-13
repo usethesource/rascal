@@ -472,8 +472,7 @@ grammar(
           {})})
   ));
   
-loc makeCompressed(loc l) = l[scheme= "compressed+<l.scheme>"];
-loc ParserBaseLoc =  makeCompressed(getModuleLocation("lang::rascal::grammar::tests::PicoGrammar").parent + "generated_parsers");
+loc ParserBaseLoc = |compressed+file:///Users/paulklint/git/rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/|;
 
 void generateParsers() {
     writeFile(ParserBaseLoc + "GEMPTYParser.java.gz", newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "GEMPTYParser", GEMPTY));
