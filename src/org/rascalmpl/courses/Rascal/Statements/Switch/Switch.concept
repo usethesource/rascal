@@ -1,7 +1,10 @@
 # Switch
 
 .Synopsis
-Switch statement.
+
+The switch statement is a control flow statement
+where the next block is selected by pattern matching
+against a number of `case` patterns. 
 
 .Index
 switch case default
@@ -24,6 +27,7 @@ default: ...
 .Details
 
 .Description
+
 A switch statement is similar to a switch statement in C or Java.
 The value of the expression _Exp_ is the subject term that will be matched by the successive 
 <<Pattern With Action>>s in the switch statement. The switch statement provides only matching at the top level of 
