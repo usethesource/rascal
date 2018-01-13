@@ -32,9 +32,7 @@ sort("Declaration"): choice(sort("Declaration"),{prod(label("decl",sort("Declara
 );
 
 
-loc makeCompressed(loc l) = l[scheme = "compressed+<l.scheme>"];
-
-loc PicoParserLoc = makeCompressed(getModuleLocation("lang::rascal::grammar::tests::PicoGrammar").parent + "generated_parsers/PicoParser.java.gz");
+loc PicoParserLoc = getModuleLocation("lang::rascal::grammar::tests::PicoGrammar").parent + "generated_parsers/PicoParser.java.gz";
 
 str generatePicoParser() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "PicoParser", Pico);
 
