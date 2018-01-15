@@ -7,6 +7,7 @@ import java.net.URISyntaxException;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CompiledRascalREPL;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.RascalShellExecutionException;
@@ -35,7 +36,7 @@ public class TutorCommandExecutor {
 		this.err = err;
 		shellStringWriter = new StringWriter();
 		shellPrintWriter = new PrintWriter(shellStringWriter);
-		executor = new CommandExecutor(pcfg, shellPrintWriter, shellPrintWriter, ideServices, null);
+		executor = new CommandExecutor(pcfg, shellPrintWriter, shellPrintWriter, ideServices, null, new IFrameObserver() { /*defaults*/ });
 	}
 	
 	void flush(){
