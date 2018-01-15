@@ -163,7 +163,7 @@ public class BreakPointManager {
 		shouldQuit = true;
 	}
 	
-	boolean shouldContinue(){
+	public boolean shouldContinue(){
 		return !shouldQuit;
 	}
 	
