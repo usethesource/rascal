@@ -21,7 +21,7 @@ import analysis::typepal::TypePal;
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeInstantiation;
 
-import lang::rascalcore::check::Scope;
+import lang::rascalcore::check::TypePalConfig;
 import lang::rascalcore::check::ATypeExceptions;
 
 import lang::rascal::\syntax::Rascal;
@@ -53,7 +53,7 @@ AType expandUserTypes(AType t, Key scope){
 
 @memo
 AType expandUserTypes1(AType t, Key scope){
-    //println("expandUserTypes: <t>");
+    //println("expandUserTypes1: <t>");
     return visit(t){
         case u: auser(str uname, ps): {
                 //println("expandUserTypes: <u>");  // TODO: handle non-empty qualifier
@@ -66,7 +66,7 @@ AType expandUserTypes1(AType t, Key scope){
                    expanded.parameters = ps;
                    insert expanded; //aadt(uname, ps);
                 } else {
-                   params = toList(collectUnlabelledRascalTypeParams(expanded));  // TODO order issue?
+                   params = toList(collectAndUnlabelRascalTypeParams(expanded));  // TODO order issue?
                    nparams = size(params);
                    if(size(ps) != size(params)) reportError(scope, "Expected <fmt(nparams, "type parameter")> for <fmt(expanded)>, found <size(ps)>");
                    if(nparams > 0){
@@ -86,6 +86,22 @@ AType expandUserTypes1(AType t, Key scope){
                }
             }
     }
+}
+
+list[str] getUndefinedADTs(AType t, Key scope){
+    res = [];
+    visit(t){
+        case u: auser(str uname, ps): {
+                try {
+                 println("trying type of <u>");
+                 tp = getType(uname, scope, {dataId(), aliasId(), nonterminalId()});
+                 println("tp = <tp>");
+                } catch TypeUnavailable(): {
+                    res += fmt(u);
+                }
+      }
+      }
+      return res;         
 }
 
 // ---- print atypes ----------------------------------------------------------
@@ -772,7 +788,7 @@ public set[AType] collectRascalTypeParams(AType t) {
 }
 
 @doc{Get all the type parameters inside a given type.}
-public set[AType] collectUnlabelledRascalTypeParams(AType t) {
+public set[AType] collectAndUnlabelRascalTypeParams(AType t) {
    return { unset(rt, "label") | / AType rt : aparameter(_,_) := t }; // TODO: "label" is unset to enable subset check later, reconsider
 }
 

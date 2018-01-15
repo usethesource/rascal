@@ -12,7 +12,7 @@ test Lst4 [[ module A value zz = [1,2] := [1, 1.5]; ]]
 test Lst5 [[ module A value zz = [1,2.5] := [1, 2]; ]]
 test Lst6 [[ module A value zz = [1] := ["a"]; ]] expect {"Pattern should be comparable with `list[str]`, found `list[int]`"}
 test Lst7 [[ module A value zz = [x] := ["a"]; ]]
-test Lst8 [[ module A value zz = m && x == "a"; ]] expect { "Undefined variable, function, formal, field or constructor `m`" }
+test Lst8 [[ module A value zz = m && x == "a"; ]] expect { "Undefined variable, function, field or constructor `m`" }
 test Lst9 [[ module A value zz = { x = 1; [x] := ["a"] && x == "a";}; ]] expect { "Pattern should be comparable with `str`, found `int`" }
 test Lst10 [[ module A value zz = { x = "a"; [x] := ["a"] && x == "a";}; ]] 
 
@@ -42,16 +42,16 @@ test Var2 [[ module A value zz = int x := 1 && x == 1; ]]
 test Var3 [[ module A value zz = int x := 1 && x == "a"; ]] expect { "Comparison not defined on `int` and `str`" }
 
 test If1 [[ module A value zz = { if(int x := 1) x + 1; }; ]]
-test If2 [[ module A value zz = { if(int x := 1) x + 1; else x + 2; }; ]] expect { "Undefined variable, function, formal, field or constructor `x`" }
+test If2 [[ module A value zz = { if(int x := 1) x + 1; else x + 2; }; ]] expect { "Undefined variable, function, field or constructor `x`" }
 test If3 [[ module A value zz = { if(int x := 1 && x == 1 ) x + 1; }; ]]
 test If4 [[ module A value zz = { if(int x := 1 && int x := 2 && x == 1 ) x + 1; }; ]]
 @@ expect { "Double declaration of `x`" }
 
 test If5 [[ module A value zz = { if(int x := 1 && int y := 2 && x == 1 ) x + y; }; ]]
-test If5 [[ module A value zz = { if(int x := 1 && int y := 2 && x == 1 ) x + y; else y;}; ]] expect { "Undefined variable, function, formal, field or constructor `y`" }
+test If5 [[ module A value zz = { if(int x := 1 && int y := 2 && x == 1 ) x + y; else y;}; ]] expect { "Undefined variable, function, field or constructor `y`" }
 
 test IfU1 [[ module A value zz = { if(x := 1) x + 1; }; ]]
-test IfU2 [[ module A value zz = { if(x := 1) x + 1; else x + 2;}; ]] expect { "Undefined variable, function, formal, field or constructor `x`" }
+test IfU2 [[ module A value zz = { if(x := 1) x + 1; else x + 2;}; ]] expect { "Undefined variable, function, field or constructor `x`" }
 test IfU3 [[ module A value zz = { if(x := 1 && x == 1 ) x + 1; }; ]]
 
 test ADT1 [[ module A data D = d1(int n); value zz = { if(d1(x) := d1(10)) x + 1; }; ]]

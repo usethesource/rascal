@@ -45,7 +45,8 @@ data AType (str label = "")
      | aparameter(str pname, AType bound) 
      | areified(AType atype)
      ;
-
+     
+@memo
 AType overloadedAType(rel[Key, IdRole, AType] overloads){
     topIf:
     if(all(<Key k, IdRole idr, AType t> <- overloads, aadt(adtName, params, hasSyntax=hs) := t)){
@@ -314,18 +315,18 @@ data ACondition
 
 // ---- end ParseTree
 
-bool myIsSubType(AType t1, AType t2) = asubtype(t1, t2);
+//bool myIsSubType(AType t1, AType t2) = asubtype(t1, t2);
 //{ 
 //    res = asubtype(t1, t2); 
 //    println("asubtype(<t1>, <t2>) ==\> <res>"); 
 //    return res;
 //}
 
-AType myLUB(AType t1, AType t2) = alub(t1, t2);
+//AType myLUB(AType t1, AType t2) = alub(t1, t2);
 //{ res = alub(t1, t2); println("myLUB: <t1>, <t2> ==\> <res>"); return res;  }
 
-AType myATypeMin() = avoid();
-AType myATypeMax() = avalue();
+//AType myATypeMin() = avoid();
+//AType myATypeMax() = avalue();
 
 public set[AType] numericTypes = { aint(), areal(), arat(), anum() };
 
@@ -524,7 +525,7 @@ AType alub(avoid(), AType t) = t;
 AType alub(AType s, avoid()) = s;
 AType alub(aint(), anum()) = anum();
 AType alub(aint(), areal()) = anum();   // why not areal();
-AType alub(aint(), arat()) = anum;      // why not arat();
+AType alub(aint(), arat()) = anum();      // why not arat();
 AType alub(arat(), anum()) = anum();
 AType alub(arat(), areal()) = anum();
 AType alub(arat(), aint()) = anum();    // why not arat();
@@ -540,15 +541,15 @@ AType alub(aset(AType s), aset(AType t)) = aset(alub(s, t));
 AType alub(aset(AType s), arel(atypeList(list[AType] ts))) = aset(alub(s,atuple(atypeList(ts))));  
 AType alub(arel(atypeList(list[AType] ts)), aset(AType s)) = aset(alub(s,atuple(atypeList(ts))));
 
-AType alub(r1: arel(atypeList(list[AType] l)), r2:arel(atypeList(list[AType] r)))  = size(l) == size(r) ? arel(atypeList(alub(l, r))) : aset(avalue());
+AType alub(r1: arel(atypeList(list[AType] l)), r2:arel(atypeList(list[AType] r)))  = size(l) == size(r) ? arel(atypeList(alubList(l, r))) : aset(avalue());
 
 AType alub(alist(AType s), alist(AType t)) = alist(alub(s, t));  
 AType alub(alist(AType s), alrel(atypeList(list[AType] ts))) = alist(alub(s,atuple(atypeList(ts))));  
 AType alub(alrel(atypeList(list[AType] ts)), alist(AType s)) = alist(alub(s,atuple(atypeList(ts))));
 
-AType alub(lr1: alrel(atypeList(list[AType] l)), lr2:alrel(atypeList(list[AType] r)))  = size(l) == size(r) ? alrel(atypeList(alub(l, r))) : alist(avalue());
+AType alub(lr1: alrel(atypeList(list[AType] l)), lr2:alrel(atypeList(list[AType] r)))  = size(l) == size(r) ? alrel(atypeList(alubList(l, r))) : alist(avalue());
 
-AType alub(t1: atuple(atypeList(list[AType] l)), t2:atuple(atypeList(list[AType] r))) = size(l) == size(r) ? atuple(atypeList(alub(l, r))) : atuple(avalue());
+AType alub(t1: atuple(atypeList(list[AType] l)), t2:atuple(atypeList(list[AType] r))) = size(l) == size(r) ? atuple(atypeList(alubList(l, r))) : atuple(avalue());
 
 AType alub(m1: amap(ld, lr), m2: amap(rd, rr)) = amap(alub(ld, rd), alub(lr, rr));
 
@@ -557,12 +558,20 @@ AType alub(abag(AType s), abag(AType t)) = abag(alub(s, t));
 AType alub(aadt(str n, list[AType] _), anode(_)) = anode([]);
 AType alub(anode(_), aadt(str n, list[AType] _)) = anode([]);
 
-AType alub(a1:aadt(str n, list[AType] lp), a2:aadt(n, list[AType] rp)) = aadt(n, addParamLabels(alub(lp,rp),getParamLabels(lp))) [hasSyntax=a1.hasSyntax || a2.hasSyntax]
+AType alub(a1:aadt(str n, list[AType] lp), a2:aadt(n, list[AType] rp)) = addADTKeywords(a1, a2, aadt(n, addParamLabels(alub(lp,rp),getParamLabels(lp))))
                                                                          when size(lp) == size(rp) && getParamLabels(lp) == getParamLabels(rp) && size(getParamLabels(lp)) > 0;
-AType alub(a1:aadt(str n, list[AType] lp), a2:aadt(n, list[AType] rp)) = aadt(n, alub(lp,rp)) [hasSyntax=a1.hasSyntax || a2.hasSyntax]
+                                                                         
+AType alub(a1:aadt(str n, list[AType] lp), a2:aadt(n, list[AType] rp)) = addADTKeywords(a1, a2, aadt(n, alubList(lp,rp)))
                                                                          when size(lp) == size(rp) && size(getParamLabels(lp)) == 0;
+                                                                         
 AType alub(aadt(str n, list[AType] lp), aadt(str m, list[AType] rp)) = anode([]) when n != m;
 AType alub(a1: aadt(str ln, list[AType] lp), acons(AType b, _, _, _)) = alub(a1,b);
+
+AType addADTKeywords(AType a1, AType a2, AType adt){
+  if(a1.hasSyntax || a2.hasSyntax) adt = adt[hasSyntax=true];
+  if(a1.label? && a1.label == a2.label) adt = adt[label=a1.label];
+  return adt;
+}
 
 AType alub(acons(AType la, _, list[NamedField] _,  list[Keyword] _), acons(AType ra, _, list[NamedField] _, list[Keyword] _)) = alub(la,ra);
 AType alub(acons(AType a,  _, list[NamedField] lp, list[Keyword] _), a2:aadt(str n, list[AType] rp)) = alub(a,a2);
@@ -589,8 +598,8 @@ AType alub(afunc(AType lr, AType lp, list[Keyword] lkw), afunc(AType rr, AType r
         return avalue();
 }
 
-public list[AType] alub(list[AType] l, list[AType] r) = [alub(l[idx],r[idx]) | idx <- index(l)] when size(l) == size(r); 
-default list[AType] alub(list[AType] l, list[AType] r) = [avalue()]; 
+public list[AType] alubList(list[AType] l, list[AType] r) = [alub(l[idx],r[idx]) | idx <- index(l)] when size(l) == size(r); 
+default list[AType] alubList(list[AType] l, list[AType] r) = [avalue()]; 
 
 private list[str] getParamLabels(list[AType] l) = [ s | li <- l, aparameter(s,_) := li ];
 private list[AType] addParamLabels(list[AType] l, list[str] s) = [ aparameter(s[idx],l[idx]) | idx <- index(l) ] when size(l) == size(s);

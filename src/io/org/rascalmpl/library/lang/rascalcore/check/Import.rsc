@@ -6,7 +6,7 @@ import Map;
 import util::Reflective;
 extend analysis::typepal::TypePal;
 import lang::rascalcore::check::AType;
-import lang::rascalcore::check::Scope;
+import lang::rascalcore::check::TypePalConfig;
 
 
 import lang::rascalcore::check::ATypeUtils;
@@ -19,6 +19,7 @@ public str key_bom = "bill_of_materials";
 public str key_current_module = "current_module";
 public str key_import_graph = "import_graph";
 public str key_extend_graph = "extend_graph";
+public str key_processed_modules = "processed_modules";
 
 AType subsitute(AType atype, map[loc, AType] facts){
     return 
@@ -32,6 +33,7 @@ private set[str] toBeSaved = {};
 
 void init_Import(){
     toBeSaved = {};
+    lastModifiedModules = ();
 }
 
 map[str, loc] getModuleScopes(TModel tm)
@@ -40,6 +42,7 @@ map[str, loc] getModuleScopes(TModel tm)
 loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes){
     return moduleScopes[qualifiedModuleName] ? { throw "No module scope found for <qualifiedModuleName>"; };
 }
+
 datetime getLastModified(str qualifiedModuleName, PathConfig pcfg){
     qualifiedModuleName = unescape(qualifiedModuleName);
     if(lastModifiedModules[qualifiedModuleName]?){
@@ -149,7 +152,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
     //println("filtered: <filteredModuleScopes>");
     TModel m1 = tmodel();
     
-    m1.facts = (key : tm.facts[key] | key <- tm.facts, !startsWith(key.scheme, "typevar"), key in filteredModuleScopes);
+    m1.facts = (key : tm.facts[key] | key <- tm.facts, key in filteredModuleScopes);
     println("facts: <size(tm.facts)>  ==\> <size(m1.facts)>");
  
     m1.messages = [msg | msg <- tm.messages, msg.at.path == mscope.path];
@@ -164,7 +167,9 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
     
     // Filter model for current module and replace functions in defType by their defined type
     defs = for(tup: <Key scope, str id, IdRole idRole, Key defined, DefInfo defInfo> <- tm.defines){
-           if(scope == |global-scope:///| && defined.path in filteredModuleScopePaths || scope in filteredModuleScopes || (scope.path == mscope.path && idRole in {dataId(), constructorId(), functionId(), fieldId()})){
+           if(scope == |global-scope:///| && defined.path in filteredModuleScopePaths || 
+              scope in filteredModuleScopes || 
+              (scope.path == mscope.path && idRole in {dataId(), constructorId(), functionId(), fieldId()})){
              if(id == "type" && idRole == constructorId()){  
                 continue; // exclude builtin constructor for "type"
              } else {
@@ -203,6 +208,11 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
     println("defines: <size(tm.defines)> ==\> <size(defs)>");
     m1.defines = toSet(defs);
     
+    //calcs = (key : tm.calculators[key] | Key key <- tm.calculators, key.path == mscope.path, bprintln("<key>: <tm.calculators[key]>"));
+    //
+    //reqs  = {r | r <- tm.openReqs, r.src.path == mscope.path, bprintln(r)};
+    //
+    //println("left: <size(calcs)> calculators, <size(reqs)> requirements");
     println("write to <tplLoc>");
     writeBinaryValueFile(tplLoc, m1);
     return m1;

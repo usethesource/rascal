@@ -33,6 +33,8 @@ import lang::rascalcore::check::Import;
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeUtils;
 
+extend lang::rascalcore::check::TypePalConfig;
+
 import Relation;
 import util::Reflective;
 
@@ -108,11 +110,13 @@ TModel rascalTModelFromName(str mname, bool debug=false){
     startTime = cpuTime();
     pcfg = getDefaultPathConfig();
     
-    //<valid, tm> = getIfValid(mname, pcfg);
-    //if(valid) return tm;
+    <valid, tm> = getIfValid(mname, pcfg);
+    if(valid) return tm;
      
     try {
-        pt = parseNamedModuleWithSpaces(mname, pcfg).top;
+        mloc = getModuleLocation(mname, pcfg);
+        mloc.query = "ts=<lastModified(mloc)>";                         
+        pt = parseModuleWithSpaces(mloc).top;
         tm = rascalTModel(pt, startTime, debug=debug);
         saveModules(mname, pcfg, tm); 
         return tm;
@@ -127,7 +131,7 @@ TModel rascalTModelFromName(str mname, bool debug=false){
 
 TModel rascalTModel(Tree pt, int startTime, bool debug=false, bool inline=false){
     afterParseTime = cpuTime();
-    tb = newTBuilder(pt);
+    tb = newTBuilder(pt, config=rascalTypePalConfig());
     tb.push(patternContainer, "toplevel");
     // When inline, all modules are in a single file; don't read imports from file
     if(!inline) tb.push("pathconfig", getDefaultPathConfig()); 
@@ -136,9 +140,8 @@ TModel rascalTModel(Tree pt, int startTime, bool debug=false, bool inline=false)
    
     tm = tb.build();
     afterExtractTime = cpuTime();   
-    tm = resolvePath(tm, lookupFun=lookupWide);
     tm = rascalPreValidation(tm);
-    tm = validate(tm, lookupFun=lookupWide, debug=debug);
+    tm = validate(tm, debug=debug);
     tm = rascalPostValidation(tm);
     //iprintln(tm.definitions);
     afterValidateTime = cpuTime();

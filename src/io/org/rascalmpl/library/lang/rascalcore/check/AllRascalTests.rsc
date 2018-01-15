@@ -387,7 +387,7 @@ void allFiles(PathConfig pcfg = pathConfig(
                ])){
     modulePaths = find(|std:///|, bool(loc l) { return endsWith(l.path, ".rsc"); });
     println("<size(modulePaths)> files");
-    result = ();
+    problems = ();
     crashed = ();
     nskipped = 0;
     ncount = 0;
@@ -399,18 +399,23 @@ void allFiles(PathConfig pcfg = pathConfig(
            nskipped += 1;
            continue;
         }
-        println("\>\>\> <ncount>: CHECKING <qualifiedModuleName> (N:<size(modulePaths)>/E:<size(result)>/C:<size(crashed)>/S:<nskipped>)");
+        println("\>\>\> <ncount>: CHECKING <qualifiedModuleName> (N:<size(modulePaths)>/E:<size(problems)>/C:<size(crashed)>/S:<nskipped>)");
         try {
             msgs = validateModules(qualifiedModuleName);
             iprintln(msgs);
-            if(!isEmpty(msgs)) result[qualifiedModuleName] = msgs;
+            if(!isEmpty(msgs)) {
+                mpath = replaceAll(qualifiedModuleName, "::", "/");
+                if(any(msg <- msgs, contains(msg.at.path, mpath))){
+                    problems[qualifiedModuleName] = msgs;
+                }
+            }
         } catch e: {
             crashed[qualifiedModuleName] = e;
         }
     }
-    iprintln(result);
+    iprintln(problems);
     iprintln(crashed);
-    println("<size(modulePaths)> files, <size(result)> with a problem, <size(crashed)> crashed, <nskipped> skipped");
-    println("\nWith errors:"); iprintln(sort(domain(result)));
+    println("<size(modulePaths)> files, <size(problems)> with a problem, <size(crashed)> crashed, <nskipped> skipped");
+    println("\nWith errors:"); iprintln(sort(domain(problems)));
     println("\nCrashed:"); iprintln(crashed);
 }

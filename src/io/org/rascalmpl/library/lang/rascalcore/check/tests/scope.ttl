@@ -49,7 +49,7 @@ test S8 [[ module A
            value f(){
                 x = y; 
             }
-]] expect { "Undefined variable, function, formal, field or constructor `y`" }
+]] expect { "Undefined variable, function, field or constructor `y`" }
 
 test I1 [[ module A
            value f(){
@@ -72,7 +72,7 @@ test I3 [[ module A
                 if(true){ x = 1; }
                 x + 1; 
             }
-]] expect { "Undefined variable, function, formal, field or constructor `x`" }
+]] expect { "Undefined variable, function, field or constructor `x`" }
 
 test I4 [[ module A
            value f(){
@@ -101,7 +101,7 @@ test B2 [[ module A
                 if(x := 1){ x = x + 1; }
                 x + 2;
             }
-]] expect { "Undefined variable, function, formal, field or constructor `x`" }
+]] expect { "Undefined variable, function, field or constructor `x`" }
 
 test B3 [[ module A
            value f(){
@@ -120,7 +120,7 @@ test B5 [[ module A
                 [x | x <- {1,2,3}, x > 0];
                 x + 1;
             }
-]] expect { "Undefined variable, function, formal, field or constructor `x`" }
+]] expect { "Undefined variable, function, field or constructor `x`" }
 
 test B6 [[ module A
            value f(){
@@ -152,7 +152,7 @@ test N2 [[ module A
                 if(true){ x = 10; x = x + 1; }
                 if(true){ y = "a"; y = x + "b"; } 
             }
-]] expect { "Undefined variable, function, formal, field or constructor `x`" }
+]] expect { "Undefined variable, function, field or constructor `x`" }
 
 test N3 [[ module A
            value f(){
@@ -160,7 +160,7 @@ test N3 [[ module A
                 if(true){ y = "a"; y = y + "b"; } 
                 x + 1;
             }
-]] expect { "Undefined variable, function, formal, field or constructor `x`" }
+]] expect { "Undefined variable, function, field or constructor `x`" }
 
 test N4 [[ module A
            value f(){

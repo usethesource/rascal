@@ -5,7 +5,7 @@ extend analysis::typepal::TypePal;
 import lang::rascal::\syntax::Rascal;
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeUtils;
-import lang::rascalcore::check::Scope;
+import lang::rascalcore::check::TypePalConfig;
 import lang::rascalcore::check::ConvertType;
 
 import lang::rascalcore::check::Expression;
@@ -163,7 +163,7 @@ void collect(current: (Pattern) `<QualifiedName name>`,  TBuilder tb){
           tb.fact(current, avalue());
           if(isQualified(qname)) tb.reportError(name, "Qualifier not allowed");
           //println("qualifiedName: <name>, parameter defLub, <getLoc(current)>");
-          tb.define(qname.name, formalId(), name, defLub([], AType() { return avalue(); }));
+          tb.define(qname.name, variableId() /*formalId()*/, name, defLub([], AType() { return avalue(); }));
        } else {
           tau = tb.newTypeVar(name);
           tb.fact(name, tau); //<====
@@ -190,7 +190,7 @@ void collectAsVarArg(current: (Pattern) `<QualifiedName name>`,  TBuilder tb){
           tb.fact(current, alist(avalue()));
           if(isQualified(qname)) tb.reportError(name, "Qualifier not allowed");
           //println("qualifiedName: <name>, parameter defLub, <getLoc(current)>");
-          tb.define(qname.name, formalId(), name, defLub([], AType() { return avalue(); }));
+          tb.define(qname.name, variableId() /*formalId()*/, name, defLub([], AType() { return avalue(); }));
        } else {
           tau = tb.newTypeVar(name);
           tb.fact(name, tau);     //<====
@@ -296,7 +296,7 @@ void collectSplicePattern(Pattern current, Pattern argument,  TBuilder tb){
               tb.fact(current, avalue());
               if(isQualified(qname)) tb.reportError(argName, "Qualifier not allowed");
               //println("qualifiedName: <name>, parameter defLub, <getLoc(current)>");
-              tb.define(qname.name, formalId(), argName, defLub([], AType() { return avalue(); }));
+              tb.define(qname.name, variableId()/*formalId()*/, argName, defLub([], AType() { return avalue(); }));
            } else {
               tau = tb.newTypeVar(current); // <== argName;
               tb.fact(current, tau);    // <===

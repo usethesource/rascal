@@ -8,7 +8,7 @@ import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::ATypeInstantiation;
 
 extend lang::rascalcore::check::AType;
-extend lang::rascalcore::check::Scope;
+extend lang::rascalcore::check::TypePalConfig;
 
 import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascalcore::grammar::definition::Productions;
@@ -27,6 +27,8 @@ void collect(current: (Module) `<Header header> <Body body>`, TBuilder tb){
     //if(ignoreCompiler(header.tags)) {println("*** ignore module <mname>"); return; }
     //println("*** collect module <mname>, <getLoc(current)>");
     tb.define(mname, moduleId(), current, defType(amodule(mname)));
+    tb.push(key_processed_modules, mname);
+     
     tb.push(key_current_module, mname);
     tb.enterScope(current);
         collectParts(current, tb);
@@ -52,6 +54,10 @@ void getImports(TBuilder tb){
     
     if([PathConfig pcfg] := pcfgVal){ 
         allReadyImported = {};
+        if(list[str] processed := tb.getStack(key_processed_modules)){
+            allReadyImported = toSet(processed);
+        }
+       
         tb.push(key_expanding_imports, true);
         solve(allReadyImported){
             if(list[str] importedModules := tb.getStack(key_imported)){
@@ -59,9 +65,11 @@ void getImports(TBuilder tb){
                     allReadyImported += mname;
                     reuse = addImport(mname, pcfg, tb);
                     if(!reuse){
-                        println("*** importing <mname> from <getModuleLocation(mname, pcfg)>");
                         try {
-                            pt = parseNamedModuleWithSpaces(mname, pcfg).top;
+                            mloc = getModuleLocation(mname, pcfg);
+                            mloc.query = "ts=<lastModified(mloc)>";
+                            println("*** importing <mname> from <mloc>");
+                            pt = parseModuleWithSpaces(mloc).top;
                             collect(pt, tb);
                         } catch e: {
                             tb.reportError(|global-scope:///|, "Error during import of <fmt(mname)>: <e>");
@@ -174,11 +182,7 @@ void collect(FunctionDeclaration decl, TBuilder tb){
     
     if(ignoreCompiler(decl.tags)) { println("ignore: function <fname>"); return; }
     parentScope = tb.getScope();
-    //ftypeStub = tb.newTypeVar(fname);
-    //dt = defType(ftypeStub);
-    //dt.vis=vis;  // TODO: Cannot be set directly, bug in interpreter?
-    //tb.define(prettyPrintName(fname), functionId(), fname, dt);     // function is defined in outer scope, its type is filled in inner scope
-    
+       
     tb.enterScope(decl, lubScope=true);
         scope = tb.getScope();
         tb.setScopeInfo(scope, functionScope(), false);
@@ -193,14 +197,6 @@ void collect(FunctionDeclaration decl, TBuilder tb){
              });
         dt.vis=vis; 
         tb.defineInScope(parentScope, prettyPrintName(fname), functionId(), fname, dt); 
-        
-        //tb.requireEager("definition of function type", signature.\type, [],
-        //    (){ 
-        //        expandedRetType = expandUserTypes(retType, scope);
-        //        ft = afunc(expandedRetType, atypeList([expandUserTypes(getPatternType(f, avalue(), scope), scope) | f <- formals]), kwFormals);
-        //        if(isVarArgs) ft.varArgs = true;
-        //        unify(ftypeStub, ft) || reportError(signature, "Cannot define function type");
-        //     });
         
         if(decl is expression || decl is conditional){
             if(containsReturn(decl.expression)){
@@ -266,14 +262,14 @@ tuple[list[Pattern] formals, set[AType] kwTypeParams, list[Keyword] kwFormals] c
     
     kwFormals = params.keywordFormals is \default ? getKeywordFormals(params.keywordFormals.keywordFormalList, variableId(), tb) : [];
     
-    kwTypeParams = {*collectUnlabelledRascalTypeParams(kwf.fieldType) | kwf <- kwFormals};
+    kwTypeParams = {*collectAndUnlabelRascalTypeParams(kwf.fieldType) | kwf <- kwFormals};
     tb.setScopeInfo(scope, functionScope(), returnInfo(retType, formals, kwTypeParams));
     
     tb.requireEager("bound type parameters", params, [], //formals,
         () { 
              expandedRetType = expandUserTypes(retType, scope);
-             typeParamsInFunctionParams = {*collectUnlabelledRascalTypeParams(getPatternType(f, avalue(), scope)) | f <- formals} + kwTypeParams;
-             typeParamsInReturn = collectUnlabelledRascalTypeParams(expandedRetType);
+             typeParamsInFunctionParams = {*collectAndUnlabelRascalTypeParams(getPatternType(f, avalue(), scope)) | f <- formals} + kwTypeParams;
+             typeParamsInReturn = collectAndUnlabelRascalTypeParams(expandedRetType);
              if(!(typeParamsInReturn <= typeParamsInFunctionParams)){
                 unbound = typeParamsInReturn - typeParamsInFunctionParams;
                 reportError(params, "Unbound: <fmt(size(unbound), "type parameter")> <fmt(unbound)> in return type");
@@ -285,8 +281,8 @@ tuple[list[Pattern] formals, set[AType] kwTypeParams, list[Keyword] kwFormals] c
 void() makeReturnRequirement(Tree expr, AType retType, list[Pattern] formals, set[AType] kwTypeParams, Key scope)
        = () { 
               expandedReturnType = expandUserTypes(retType, scope);
-              typeVarsInParams = {*collectUnlabelledRascalTypeParams(getPatternType(f, avalue(), scope)) | f <- formals} + kwTypeParams;
-              typeVarsInReturn = collectUnlabelledRascalTypeParams(expandedReturnType);
+              typeVarsInParams = {*collectAndUnlabelRascalTypeParams(getPatternType(f, avalue(), scope)) | f <- formals} + kwTypeParams;
+              typeVarsInReturn = collectAndUnlabelRascalTypeParams(expandedReturnType);
               if(!(typeVarsInReturn <= typeVarsInParams)){
                 unbound = typeVarsInReturn - typeVarsInParams;
                 reportError(expr, "Unbound: <fmt(size(unbound), "type parameter")> <fmt(unbound)> in return type");
@@ -404,7 +400,7 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBu
                     tb.define(fieldName, fieldId(), ta, defType(fieldType));
                     allConsFields += <fieldName, fieldType>;
                 }
-                allFieldTypeVars += collectUnlabelledRascalTypeParams(fieldType);
+                allFieldTypeVars += collectAndUnlabelRascalTypeParams(fieldType);
                 append <fieldName, fieldType>;
             }
     
@@ -412,7 +408,7 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBu
        if(v.keywordArguments is \default){
           kwFields += getKeywordFormals(v.keywordArguments.keywordFormalList, fieldId(), tb);
           for(<kwn, kwt, kwd> <- kwFields){
-              allFieldTypeVars += collectUnlabelledRascalTypeParams(kwt);
+              allFieldTypeVars += collectAndUnlabelRascalTypeParams(kwt);
               allConsFields += <kwn, kwt>;
           }
        }

@@ -4,7 +4,7 @@ extend analysis::typepal::TypePal;
 
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
-import lang::rascalcore::check::Scope;
+import lang::rascalcore::check::TypePalConfig;
 import lang::rascalcore::check::ATypeInstantiation;
 
 import lang::rascal::\syntax::Rascal;
@@ -426,7 +426,17 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
         AType(){
             if(any(x <- expression + actuals + kwactuals, !isFullyInstantiated(getType(x)))) throw TypeUnavailable();
             
-            texp = expandUserTypes(getType(expression), scope);
+            texp = getType(expression);
+            try {
+                texp = expandUserTypes(texp, scope);
+            } catch TypeUnavailable(): {
+                missing = getUndefinedADTs(texp, scope);
+                if(size(missing) > 0){
+                    reportError(current, "Missing import, <intercalateAnd(getUndefinedADTs(texp, scope))> not available here but used in type of <fmt("<expression>")>: <fmt(expression)>");
+                } else {
+                    reportError(current, "Cannot expand all types in type of <fmt("<expression>")>: <fmt(expression)>");
+                }
+            }
             if(isStrType(texp)){
                 return computeNodeType(current, scope, actuals, keywordArguments);
             } 
@@ -562,9 +572,6 @@ AType checkArgsAndComputeReturnType(Expression current, Key scope, AType retType
 }
 
 AType computeReturnType(Expression current, Key scope, AType retType, list[AType] formalTypes, list[Expression] actuals, list[AType] actualTypes, list[Keyword] kwFormals, keywordArguments, list[bool] identicalFormals){
-    if(getLoc(current).begin.line == 799){
-        println("At 799");
-    }
     index_formals = index(formalTypes);
     Bindings bindings = ();
     for(int i <- index_formals){
@@ -600,7 +607,7 @@ AType computeReturnType(Expression current, Key scope, AType retType, list[AType
     checkKwArgs(kwFormals, keywordArguments, bindings, scope, isExpression=true);
     
     // Artificially bind unbound type parameters in the return type
-    for(rparam <- collectUnlabelledRascalTypeParams(retType)){
+    for(rparam <- collectAndUnlabelRascalTypeParams(retType)){
         pname = rparam.pname;
         if(!bindings[pname]?) bindings[pname] = rparam;
     }
@@ -762,7 +769,15 @@ void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, K
               continue next_arg;
            } 
         }
-        reportError(kwa, "Undefined keyword argument <fmt(kwName)><isEmpty(kwFormals) ? "" : "; available keyword parameters: <fmt(kwFormals<1>)>">");
+        availableKws = intercalateOr(["`<prettyPrintAType(ft)> <fn>`" | <str fn, AType ft, Expression de> <- kwFormals]);
+        switch(size(kwFormals)){
+        case 0: availableKws ="; no other keyword parameters available";
+        case 1: availableKws = "; available keyword parameter: <availableKws>";
+        default:
+            availableKws = "; available keyword parameters: <availableKws>";
+        }
+        
+        reportError(kwa, "Undefined keyword argument <fmt(kwName)><availableKws>");
     }
  } 
  
@@ -866,7 +881,7 @@ void collect(current: (Expression) `<QualifiedName name>`, TBuilder tb){
        tb.useQualified([qname.qualifier, qname.name], name, {variableId(), functionId(), constructorId()}, {dataId(), nonterminalId(), moduleId()} );
     } else {
        if(qname.name != "_"){
-          tb.useLub(name, {variableId(), formalId(), fieldId(), functionId(), constructorId()});
+          tb.useLub(name, {variableId(), /*formalId(),*/ fieldId(), functionId(), constructorId()});
        } else {
           tb.fact(current, avalue());
        }
@@ -1122,7 +1137,7 @@ public AType computeFieldType(Tree current, AType t1, str fieldName, Key scope) 
             }
             //fieldType = expandUserTypes(getType(fieldName, scope, {formalId(), fieldId()}), scope);
             
-            fieldType = getType(fieldName, scope, {formalId(), fieldId()});
+            fieldType = getType(fieldName, scope, {/*formalId(),*/ fieldId()});
             
             try {
                 fieldType = expandUserTypes(fieldType, scope);

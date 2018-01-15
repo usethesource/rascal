@@ -4,7 +4,7 @@ extend analysis::typepal::TypePal;
 
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
-import lang::rascalcore::check::Scope;
+import lang::rascalcore::check::TypePalConfig;
 import lang::rascalcore::check::ATypeInstantiation;
 
 import lang::rascal::\syntax::Rascal;

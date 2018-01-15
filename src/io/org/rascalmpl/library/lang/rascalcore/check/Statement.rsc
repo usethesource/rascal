@@ -6,7 +6,7 @@ extend lang::rascalcore::check::AType;
 import lang::rascal::\syntax::Rascal;
 extend lang::rascalcore::check::ConvertType;
 
-import lang::rascalcore::check::Scope;
+import lang::rascalcore::check::TypePalConfig;
 import lang::rascalcore::check::ATypeExceptions;
 
 // Rascal statements
@@ -759,7 +759,7 @@ AType computeFieldAssignableType(Statement current, AType receiverType, str fiel
             if ((getADTName(receiverType) == "Tree" || isNonTerminalType(receiverType)) && fieldName == "top") {
                 return receiverType;
             }            
-            fieldType = getType(fieldName, scope, {formalId(), fieldId()});
+            fieldType = getType(fieldName, scope, {/*formalId(),*/ fieldId()});
             
             try {
                 fieldType = expandUserTypes(fieldType, scope);
@@ -853,17 +853,14 @@ set[str] getNames(Statement s) = {"<nm>" | /QualifiedName nm := s};
 AType() checkTupleElemAssignment(Statement current, list[QualifiedName] names, list[str] flatNames, set[str] namesInRhs, list[AType] taus, list[Assignable] elms, int i, str operator, Statement rhs, Key scope){
     return
         AType (){
-            if(getLoc(current).begin.line == 588){
-                println("At 588");
-            }
-            println("checkTupleElemAssignment: <current>");
+            //println("checkTupleElemAssignment: <current>");
             rhsType = getType(rhs);
-            println("checkTupleElemAssignment: rhsType: <rhsType>");
+            //println("checkTupleElemAssignment: rhsType: <rhsType>");
             if(!isTupleType(rhsType)) reportError(current, "Tuple type required, found <fmt(rhsType)>");
             rhsFields = getTupleFields(rhsType);
-            println("checkTupleElemAssignment: rhsFields <rhsFields>");
+            //println("checkTupleElemAssignment: rhsFields <rhsFields>");
             if(size(names) != size(rhsFields)) reportError(statement, "Tuple type required of arity <size(names)>, found arity <size(rhsFields)>"); 
-            println("checkTupleElemAssignment: taus[i] : <taus[i]>, rhsFields[i]: <rhsFields[i]>");
+            //println("checkTupleElemAssignment: taus[i] : <taus[i]>, rhsFields[i]: <rhsFields[i]>");
             if(isFullyInstantiated(taus[i]) && tvar(l) !:= taus[i]){
                recTypeI  = computeReceiverType(current, elms[i],  scope);
                rhsTypeI  = computeAssignmentRhsType(current, recTypeI, operator, rhsFields[i]);
@@ -880,9 +877,6 @@ AType() checkTupleElemAssignment(Statement current, list[QualifiedName] names, l
                  }
                  taus[i] = instantiate(taus[i]);
              }
-             if(getLoc(current).begin.line == 588){
-                println("At 588, returns <taus[i]>");
-            }
              return taus[i];
         };
    }
@@ -986,7 +980,7 @@ void collect(current:(Statement) `throw <Statement statement>`, TBuilder tb){
 
 void collect(current: (Statement) `<Type tp> <{Variable ","}+ variables>;`, TBuilder tb){
     declaredType = convertType(tp, tb);
-    declaredTypeParams = collectUnlabelledRascalTypeParams(declaredType);
+    declaredTypeParams = collectAndUnlabelRascalTypeParams(declaredType);
     scope = tb.getScope();
     AType tau = declaredType;
     if(isEmpty(declaredTypeParams)){
@@ -1005,7 +999,7 @@ void collect(current: (Statement) `<Type tp> <{Variable ","}+ variables>;`, TBui
                tb.calculate("declaration of variable `<v.name>`", v, [v.initial],   
                    AType (){ 
                        initialType = getType(v.initial); 
-                       initialTypeParams = collectUnlabelledRascalTypeParams(initialType);
+                       initialTypeParams = collectAndUnlabelRascalTypeParams(initialType);
                        declaredType = expandUserTypes(declaredType, scope);
                        if(!isEmpty(initialTypeParams)){
                           try {
@@ -1025,7 +1019,7 @@ void collect(current: (Statement) `<Type tp> <{Variable ","}+ variables>;`, TBui
                tb.calculate("declaration of variable `<v.name>`, declared with parametrized type", v.name, [v.initial],
                    AType () { 
                        initialType = getType(v.initial); 
-                       initialTypeParams = collectUnlabelledRascalTypeParams(initialType);
+                       initialTypeParams = collectAndUnlabelRascalTypeParams(initialType);
                        try {
                          declaredType = expandUserTypes(declaredType, scope);
                          Bindings bindings = matchRascalTypeParams(declaredType, initialType, (), bindIdenticalVars=true);

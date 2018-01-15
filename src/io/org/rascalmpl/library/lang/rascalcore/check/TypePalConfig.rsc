@@ -1,15 +1,17 @@
-module lang::rascalcore::check::Scope
+module lang::rascalcore::check::TypePalConfig
 
 extend analysis::typepal::TypePal;
 extend analysis::typepal::TestFramework;
+import analysis::typepal::ScopeGraph;
+
+import analysis::typepal::TypePalConfig;
 
 import lang::rascalcore::check::AType;
 
 data IdRole
     = moduleId()
     | functionId()
-    | variableId()
-    | formalId()
+ //   | variableId()
     | labelId()
     | constructorId()
     | fieldId()
@@ -86,7 +88,7 @@ bool myMayOverload(set[Key] defs, map[Key, Define] defines){
 }
 
 // Name resolution filters
-
+@memo
 Accept isAcceptableSimple(TModel tm, Key def, Use use){
     //println("isAcceptableSimple: <use.id> def=<def>, use=<use>");
  
@@ -186,3 +188,19 @@ Accept isAcceptablePath(TModel tm, Key defScope, Key def, Use use, PathRole path
     //println("isAcceptablePath =\> <res>");
     return res;
 }
+
+TypePalConfig rascalTypePalConfig()
+    = tconfig(
+        getMinAType                   = AType (){ return avoid(); },
+        getMaxAType                   = AType (){ return avalue(); },
+        isSubType                     = lang::rascalcore::check::AType::asubtype,
+        getLub                        = lang::rascalcore::check::AType::alub,
+        
+        lookup                        = analysis::typepal::ScopeGraph::lookupWide,
+       
+        isAcceptableSimple            = isAcceptableSimple,
+        isAcceptableQualified         = isAcceptableQualified,
+        isAcceptablePath              = isAcceptablePath,
+        
+        mayOverload                   = myMayOverload
+    );

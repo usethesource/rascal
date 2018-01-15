@@ -36,7 +36,7 @@ test F7 [[ module rascal::F7
 test F8 [[ module rascal::F8
     int f(int n, int k = 0) { return n; }
     void main(){ int x = g(1, kkk="a"); }
-]] expect { "Undefined variable, function, formal, field or constructor `g`" }
+]] expect { "Undefined variable, function, field or constructor `g`" }
 
 test O1 [[ module rascal::O1
     int f(int n, int k = 0) { return n; }
