@@ -445,13 +445,13 @@ public class CommandExecutor {
 	}
 	
 	private boolean undeclareVar(String name){
-		return !(variables.remove(name) == null && moduleVariables.remove("ConsoleInput:" + name) == null);
+		return !(variables.remove(name) == null && moduleVariables.remove(vf.string("ConsoleInput:" + name)) == null);
 	}
 	
 	private void updateModuleVariables(Map<IValue,IValue> newModuleVariables){
 		for(IValue ivar : moduleVariables.keySet()){
 			String name = ((IString) ivar).getValue();
-			IValue newVal = newModuleVariables.get("ConsoleInput:" + name);
+			IValue newVal = newModuleVariables.get(vf.string("ConsoleInput:" + name));
 			if(newVal != null){
 				moduleVariables.put(ivar,  newVal);
 			}
@@ -916,6 +916,7 @@ public class CommandExecutor {
 			
 		case "clean":
 		    cleanProject();
+		    break;
 		
 		case "break":
 			debugObserver.getBreakPointManager().breakDirective(words);

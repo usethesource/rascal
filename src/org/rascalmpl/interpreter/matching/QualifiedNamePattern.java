@@ -77,8 +77,8 @@ public class QualifiedNamePattern extends AbstractMatchingResult implements IVar
 			return declaredType;
 		}
 		
-		if(patternVars != null && patternVars.containsKey(name)){
-			Type ot = patternVars.get(name).getType();
+		if(patternVars != null && patternVars.containsKey(getName())){
+			Type ot = patternVars.get(getName()).getType();
 			if(ot.compareTo(declaredType) < 0)
 					declaredType = ot;
 		}

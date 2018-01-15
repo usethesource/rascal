@@ -123,7 +123,8 @@ public class Bootstrap {
     }
     
     @FunctionalInterface
-    public interface ThrowingSupplier<T> extends Supplier<T> {
+    @SuppressWarnings("FunctionalInterfaceMethodChanged")
+    private interface ThrowingSupplier<T> extends Supplier<T> {
         @Override
         default T get() {
             try {

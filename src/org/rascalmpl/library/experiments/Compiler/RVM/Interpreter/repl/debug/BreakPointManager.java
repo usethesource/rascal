@@ -1,9 +1,11 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug;
 
+import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Reader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -470,7 +472,7 @@ public class BreakPointManager {
 			        lines = sw.toString().split("\n");
 			    } else {
 			        // Something else (muRascal), no highlighting
-			        lines = getResourceContent(srcFile).toString().split("\n");
+			        lines = getResourceContentLines(srcFile);
 			    }
 			    
 			    for(int lino = windowBegin; lino <= windowEnd; lino++){
@@ -513,21 +515,20 @@ public class BreakPointManager {
 	}
 	
 	private char[] getResourceContent(ISourceLocation location) throws IOException{
-		char[] data;
-		Reader textStream = null;
-		
-		URIResolverRegistry resolverRegistry = URIResolverRegistry.getInstance();
-		try {
-			textStream = resolverRegistry.getCharacterReader(location);
-			data = InputConverter.toChar(textStream);
+        try (Reader stream = URIResolverRegistry.getInstance().getCharacterReader(location)) {
+			return InputConverter.toChar(stream);
 		}
-		finally{
-			if(textStream != null){
-				textStream.close();
-			}
+	}
+	
+	private String[] getResourceContentLines(ISourceLocation location) throws IOException {
+	    List<String> result = new ArrayList<>();
+        try (BufferedReader stream = new BufferedReader(URIResolverRegistry.getInstance().getCharacterReader(location))) {
+            String line;
+            while ((line = stream.readLine()) != null) {
+                result.add(line);
+            }
+            return result.toArray(new String[result.size()]);
 		}
-		
-		return data;
 	}
 
 }
