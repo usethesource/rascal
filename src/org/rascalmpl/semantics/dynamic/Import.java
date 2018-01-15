@@ -590,6 +590,7 @@ public abstract class Import {
                 return ((IRascalValueFactory) eval.getValueFactory()).quote((INode) ret);
             } catch (Throwable t) {
                 //Parser failed
+                eval.getMonitor().warning("Error in external parser", eval.getCurrentAST().getLocation());
             }
         }
     }
