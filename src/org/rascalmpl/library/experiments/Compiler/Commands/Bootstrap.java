@@ -143,7 +143,7 @@ public class Bootstrap {
         initializeShutdownhook();
 
         if (args.length < 5) {
-        	System.err.println("Usage: Bootstrap <classpath> <versionToBootstrapOff> <versionToBootstrapTo> <sourceFolder> <targetFolder> <b[--verbose] [--clean] (you provided " + args.length + " arguments instead)");
+        	System.err.println("Usage: Bootstrap <classpath> <versionToBootstrapOff> <versionToBootstrapTo> <sourceFolder> <targetFolder> [--verbose] [--clean] [--basic] [--download] [--validating] (you provided " + args.length + " arguments instead)");
         	System.exit(1);
         	return;
         }
@@ -166,7 +166,7 @@ public class Bootstrap {
         	throw new RuntimeException("source folder " + sourceFolder + " should point to source folder of standard library containing Prelude and the compiler");
         }
         
-        System.out.println("sourceFolder: " + sourceFolder);
+        info("sourceFolder: " + sourceFolder);
         
         String librarySource = sourceFolder.resolve("org/rascalmpl/library").toAbsolutePath().toString();
         
@@ -206,7 +206,7 @@ public class Bootstrap {
         Path tmpDir = initializeTemporaryFolder(tmpFolder, cleanTempDir, versionToUse);
         
         if (existsDeployedVersion(versionToBuild)) {
-            System.out.println("INFO: Got the kernel version to compile: " + versionToBuild + " already from existing deployed build.");
+            info("Got the kernel version to compile: " + versionToBuild + " already from existing deployed build.");
         }
         
         // We bootstrap in several stages, in each step generating a new Kernel file using an existing version:
@@ -262,11 +262,11 @@ public class Bootstrap {
                   try {
                     time("Validation", () -> {
                       long nfiles = compareGeneratedRVMCode(Paths.get(kernel[2]), Paths.get(kernel[3]));
-                      System.out.println("VALIDATION: All " + nfiles + " *.rvm files in Phase 2 and Phase 3 are identical");
+                      progress("VALIDATION: All " + nfiles + " *.rvm files in Phase 2 and Phase 3 are identical");
                     });
                   }
                   catch (Exception e) {
-                    System.out.println("Comparison between Phase 2 and Phase 3 failed: " + e.getMessage());
+                    error("Comparison between Phase 2 and Phase 3 failed: " + e.getMessage());
                     System.exit(1);
                   }
                 }
