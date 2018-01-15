@@ -8,6 +8,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
@@ -67,7 +68,7 @@ public class HelpServer extends NanoHTTPD {
 	      String[] words = ("help " + URLDecoder.decode(parms.get("searchFor"), "UTF-8")).split(" ");
 	      return newFixedLengthResponse(Status.OK, "text/html", helpManager.giveHelp(words));
 	    } catch (UnsupportedEncodingException e) {
-	      return newFixedLengthResponse(Status.OK, "text/plain", e.getStackTrace().toString());
+	      return newFixedLengthResponse(Status.OK, "text/plain", Arrays.toString(e.getStackTrace()));
 	    }
 	  }
 	  if(uri.startsWith("/ValidateCodeQuestion")){

@@ -722,7 +722,8 @@ public class RVMInterpreter extends RVMCore {
 					sp = -sp;
 					accu = stack[--sp];
 					op = Opcode.OP_RETURN1;
-					
+
+					// fall through
 				case Opcode.OP_RETURN1:
 					// Overloading specific
 					if(c_ofun_call != null && cf.previousCallFrame == c_ofun_call.cf) {

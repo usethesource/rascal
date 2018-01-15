@@ -116,8 +116,6 @@ import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.io.binary.stream.IValueInputStream;
 import io.usethesource.vallang.io.binary.stream.IValueOutputStream;
 import io.usethesource.vallang.io.binary.stream.IValueOutputStream.CompressionRate;
-import io.usethesource.vallang.io.old.BinaryValueReader;
-import io.usethesource.vallang.io.old.BinaryValueWriter;
 import io.usethesource.vallang.random.RandomValueGenerator;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -3434,7 +3432,7 @@ public class Prelude {
 		Type start = tr.valueToType((IConstructor) type, store);
 		
 		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(loc)) {
-			IValue val = new BinaryValueReader().read(values, store, start, in);
+			IValue val = new io.usethesource.vallang.io.old.BinaryValueReader().read(values, store, start, in);
 			if(val.getType().isSubtypeOf(start)){
 				return val;
 			} else {
@@ -3542,7 +3540,7 @@ public class Prelude {
     public void writeBinaryValueFileOld(ISourceLocation loc, IValue value, IBool compression){
     	if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
 		try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(loc, false)) {
-			new BinaryValueWriter().write(value, out, compression.getValue());
+			new io.usethesource.vallang.io.old.BinaryValueWriter().write(value, out, compression.getValue());
 		}
 		catch (IOException ioex){
 			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);

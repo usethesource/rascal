@@ -8934,6 +8934,7 @@ public enum RascalPrimitive {
 
 			case "ls":
 			    rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.noSuchField("Cannot update the children of a location", currentFrame));
+			    break;
 
 			case "extension":
 				String ext = newStringValue;

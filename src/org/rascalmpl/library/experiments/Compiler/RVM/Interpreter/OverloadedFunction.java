@@ -181,8 +181,8 @@ public class OverloadedFunction {
         }
 	}
 	
-	void printArray(){
-		System.out.print("[ ");for(int i : functions) System.out.print(i + " "); System.out.println("]");
+	void printArray(int[] array){
+		System.out.print("[ ");for(int i : array) System.out.print(i + " "); System.out.println("]");
 	}
 	
 	boolean compareIntArrays(int[] a, int[] b){
@@ -224,13 +224,13 @@ public class OverloadedFunction {
 	
 	public boolean comparable(OverloadedFunction other){
 		if(!compareIntArrays(functions, other.functions)){
-			System.out.println("functions differ: " + functions + " vs " + other.functions);
-			printArray();	System.out.print(" vs "); printArray();
+			System.out.println("functions differ: " + System.identityHashCode(functions) + " vs " + System.identityHashCode(other.functions));
+			printArray(functions);	System.out.print(" vs "); printArray(other.functions);
 			return false;
 		}
 		if(!compareIntArrays(constructors, other.constructors)){
-			System.out.println("constructors differ: " + constructors + " vs " + other.constructors);
-			printArray();	System.out.print(" vs "); printArray();
+			System.out.println("constructors differ: " + System.identityHashCode(constructors) + " vs " + System.identityHashCode(other.constructors));
+			printArray(constructors);	System.out.print(" vs "); printArray(other.constructors);
 			return false;
 		}
 		if(!funIn.equals(other.funIn)){

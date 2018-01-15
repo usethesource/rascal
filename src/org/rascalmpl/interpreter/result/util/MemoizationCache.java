@@ -19,6 +19,7 @@ public class MemoizationCache<TResult> {
 	private static final int PRIME4 = 668265263;
 	private static final int PRIME5 = 0x165667b1;
 	
+    @SuppressWarnings("ConstantOverflow")
 	private static int calculateHash(IValue[] params, Map<String, IValue> keyArgs) {
 		//xxHash
 		int h;
