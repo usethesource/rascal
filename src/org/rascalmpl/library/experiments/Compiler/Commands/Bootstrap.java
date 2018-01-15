@@ -470,7 +470,7 @@ public class Bootstrap {
           time("- generate and compile RascalParser", () -> generateAndCompileRascalParser(phase, classPath, sourcePath, bootPath, phaseResult, targetFolder));
       }
 
-      if (phase > 2) {
+      if (phase >= 2) {
           // phase 1 tests often fail for no other reason than an incompatibility.
           time("- compile simple tests",           () -> compileTests    (phase, classPath, phaseResult.toAbsolutePath().toString(), sourcePath, testResults, testModules));
           time("- run simple tests",               () -> runTests        (phase, testClassPath, phaseResult.toAbsolutePath().toString(), sourcePath, testResults, testModules));
