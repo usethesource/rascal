@@ -1,4 +1,4 @@
-# ParseTrees
+# Parse Tree
 
 .Synopsis
 An algebraic data-type for parse trees; produced by all parsers generated from syntax definitions.
