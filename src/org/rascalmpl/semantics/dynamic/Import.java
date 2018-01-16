@@ -574,11 +574,17 @@ public abstract class Import {
     ITree lit = TreeAdapter.getArg(tree, "parts");
     
     String name = eval.getParserGenerator().getParserMethodName(symTree);
-    Type type = env.lookupAbstractDataType(name);
-    if (type != null) { //found an ADT with the right name, checking for parse function
+    Type abstractDataType = env.lookupAbstractDataType(name);
+    Type concreteSyntaxType = env.lookupConcreteSyntaxType(name);
+    
+    if (abstractDataType != null && concreteSyntaxType != null) {
+        throw new RuntimeException("Abstract data type and concrete syntax type called \"" + name + "\" in scope, bailing out");
+    }
+    
+    if (abstractDataType != null) { //found an ADT with the right name, checking for parse function
         Map<IValue, ITree> antiquotes = new HashMap<>();
         List<AbstractFunction> functions = new ArrayList<>();
-        env.getAllFunctions(type, functions);
+        env.getAllFunctions(abstractDataType, functions);
         functions = functions.stream().filter(it -> it.hasTag("concreteSyntax") && it.getArity() == 1
           && it.getFunctionType().getArgumentTypes().getFieldType(0).equals(TypeFactory.getInstance().stringType())).collect(Collectors.toList());
         if (functions.size() > 0) { //found a function from string to ADT, assuming concrete syntax of abstract grammar
