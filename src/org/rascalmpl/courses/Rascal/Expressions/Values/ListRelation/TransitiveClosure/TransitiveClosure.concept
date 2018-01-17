@@ -43,20 +43,6 @@ then the transitive closure R+ can be defined as
 ----
 [<1,2>, <2,3>, <3,4>]+;
 ----
-We can also simply (but not necessarily efficiently) define transitive closure ourselves:
-[source,rascal-shell,continue]
-----
-lrel[int,int] tclosure(lrel[int,int] R) {
-   tc = R;
-   while(true){
-      tc1 = tc;
-      tc += tc o R;
-      if(tc1 == tc)
-         return tc;
-   }
-}
-tclosure([<1,2>, <2,3>, <3,4>]);
-----
 
 .Benefits
 
