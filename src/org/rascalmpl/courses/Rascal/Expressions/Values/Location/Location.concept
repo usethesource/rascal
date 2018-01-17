@@ -118,11 +118,12 @@ Note that this is equivalent to using the `home` scheme:
 |home://pico.trm|(0,1,<2,3>,<4,5>)
 ----
 
-Accessing a file `src/HelloWorld.java` in a project with the name `example-project` in the currently running Eclipse is done as follows:
-[source,rascal-shell]
-----
-|project://example-project/src/HelloWorld.java|
-----
+//FIXME: This throws exceptions
+//Accessing a file `src/HelloWorld.java` in a project with the name `example-project` in the currently running Eclipse is done as follows:
+//[source,rascal-shell]
+//----
+//|project://example-project/src/HelloWorld.java|
+//----
 
 
 You could read a webpage:
@@ -139,11 +140,13 @@ x = |tmp://myTempDirectory|;
 x += "myTempFile.txt";
 ----
 
-Check the contents of a folder:
-[source,rascal-shell]
-----
-|project://example-project/src|.ls
-----
+//FIXME: this throws exceptions
+//Check the contents of a folder:
+//[source,rascal-shell]
+//----
+//|project://example-project/src|.ls
+//----
+
 .Benefits
 
 .Pitfalls
