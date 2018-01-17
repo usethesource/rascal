@@ -48,7 +48,7 @@ swap("abc", 3);
 Observe that the type parameters that are used in the return type should be defined in the declarations of the formal parameter of the function.
 
 An <<Alias>> declaration may also be parameterized. So we can generalize graphs as follows:
-[source,rascal-shell]
+[source,rascal]
 ----
 alias Graph[&Node] = rel[&Node, &Node];
 Graph[int] GI = {<1,2>, <3,4>, <4,1>};
