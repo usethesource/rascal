@@ -45,8 +45,13 @@ the associativity groups and the ! restriction operator.
 * the non-assoc groups and ! are notably not 'syntax-safe', they remove sentences from non-terminals.
 }
 public DoNotNest doNotNest(Grammar g) {
+<<<<<<< Upstream, based on branch 'master' of git@github.com:usethesource/rascal.git
   g = references(g); 
   DoNotNest result = {}; // TODO type temporarily needed for new experimental type checker
+=======
+  DoNotNest result = {};
+  ordering = {};
+>>>>>>> 4df78cf Undone adding type
   
   for (s <- g.rules) {
     // note how the analysis is still _per non-terminal_
