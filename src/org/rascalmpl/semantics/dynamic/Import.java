@@ -581,6 +581,10 @@ public abstract class Import {
         throw new RuntimeException("Abstract data type and concrete syntax type called \"" + name + "\" in scope, bailing out");
     }
     
+    if (abstractDataType == null && concreteSyntaxType == null) {
+        throw new ParseError("No valid type in concrete syntax fragment", uri.getURI(), 0, 0, 0, 0, 0, 0);
+    }
+    
     if (abstractDataType != null) { //found an ADT with the right name, checking for parse function
         Map<IValue, ITree> antiquotes = new HashMap<>();
         List<AbstractFunction> functions = new ArrayList<>();
@@ -597,6 +601,7 @@ public abstract class Import {
             } catch (Throwable t) {
                 //Parser failed
                 eval.getMonitor().warning("Error in external parser", eval.getCurrentAST().getLocation());
+                //TODO: throw exception here; there can't a non-terminal of the same name
             }
         }
     }
