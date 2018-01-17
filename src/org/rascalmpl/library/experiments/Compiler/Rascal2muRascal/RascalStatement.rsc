@@ -589,6 +589,8 @@ MuExp translateCatches(str varname, str varfuid, list[Catch] catches, bool hasDe
       enterBacktrackingScope(ifname);
       list[MuExp] conds = [];
       list[MuExp] then = [];
+      str fuid;// TODO: type was added for new (experimental) type checker
+      int pos;// TODO: type was added for new (experimental) type checker
       if(c.pattern is literal) {
           conds = [ muCallMuPrim("equal", [ muTmp(asUnwrappedThrown(varname),varfuid), translate(c.pattern.literal) ]) ];
           then = [ trBody ];
