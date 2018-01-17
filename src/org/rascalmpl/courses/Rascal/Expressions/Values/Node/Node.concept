@@ -33,8 +33,6 @@ Values of type `node` represent untyped trees and are constructed as follows:
 * zero or more expressions of type `value` are the node\'s children.
 * optionally, unordered named fields can be added as well.
 
-Nodes can have <<Declarations-Annotation>>s.
-
 The following are provided for nodes:
 loctoc::[1]
 
@@ -52,10 +50,10 @@ A nested node structure:
 ----
 A node with named fields:
 [source,rascal-shell,continue]
----
-"my_node2"(1,2,size=2,age=24)
----
- 
+----
+"my_node2"(1,2,size=2,age=24);
+----
+
 .Benefits
 
 * nodes are untyped and can be used to quickly import untyped data into Rascal
