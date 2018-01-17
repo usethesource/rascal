@@ -139,7 +139,7 @@ tuple[int, lrel[str from, str to, Symbol \type, str target, int fromSP]] validat
 		return <1, exceptions>;	// Allow a single constant to be pushed in _init and _testsuite functions
 	}
 
-	blocks = makeBlocks(instructions);
+	map[int, list[Instruction]] blocks = makeBlocks(instructions);// TODO: type was added for new (experimental) type checker
 	label2block = (lbl : blk | blk <- blocks, LABEL(lbl) := blocks[blk][0]);
 
 	targets = toSet(exceptions.target);
