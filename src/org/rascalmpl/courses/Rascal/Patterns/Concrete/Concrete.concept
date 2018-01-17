@@ -52,7 +52,7 @@ syntax Num = [0-9]+;
 syntax Exp = left Exp "*" Exp > Exp "+" Exp |  Id | Num;
 layout WS = [\ \n\r\t]*;
 visit (parse(#Exp, "x + x") {
-   case (Exp) `<Id a> + <Id a>` => (Exp) `2 * <Id a>`
+   case (Exp) `<Id a> + <Id b>` => (Exp) `2 * <Id a>` when a == b
 }
 ----
 Some observations about this example:
