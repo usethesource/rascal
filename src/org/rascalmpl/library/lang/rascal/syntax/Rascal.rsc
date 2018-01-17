@@ -35,17 +35,20 @@ lexical Concrete
   = typed: "(" LAYOUTLIST l1 Sym symbol LAYOUTLIST l2 ")" LAYOUTLIST l3 "`" ConcretePart* parts "`";
 
 lexical ConcretePart
-  = @category="MetaSkipped" text   : ![`\<\>\\\n]+ !>> ![`\<\>\\\n]
+  = @category="MetaSkipped" text   : ![`\<\>$\\\n]+ !>> ![`\<\>$\\\n]
   | newline: "\n" [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* "\'"
   | @category="MetaVariable" hole : ConcreteHole hole
   | @category="MetaSkipped" lt: "\\\<"
   | @category="MetaSkipped" gt: "\\\>"
   | @category="MetaSkipped" bq: "\\`"
   | @category="MetaSkipped" bs: "\\\\"
+  | @category="MetaSkipped" dollar: "\\$"
   ;
   
 syntax ConcreteHole 
   = \one: "\<" Sym symbol Name name "\>"
+  | \qualifiedName: "$" >> [A-Z a-z _] QualifiedName name
+  | \typedVariable: "$(" Type typ Name name ")"
   ;
   
 start syntax Module
