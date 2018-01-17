@@ -55,7 +55,7 @@ lrel[int,int] tclosure(lrel[int,int] R) {
          return tc;
    }
 }
-//tclosure([<1,2>, <2,3>, <3,4>]);
+tclosure([<1,2>, <2,3>, <3,4>]);
 ----
 
 .Benefits
