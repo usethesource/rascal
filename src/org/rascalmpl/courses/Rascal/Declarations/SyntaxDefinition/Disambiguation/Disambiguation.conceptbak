@@ -14,7 +14,7 @@ There are several ways of defining <<Disambiguation>> in Rascal.
 .Details
 
 .Description
-There are generally three ways of removing ambiguity from parse forests that are produced by parsers generated from <<Syntax Definition>>s.
+There are generally three ways of removing ambiguity from parse forests that are produced by parsers generated from <<SyntaxDefinition>>s.
 
 *  The first way is to add disambiguation declarations to the <<Syntax Definition>>. You can choose from:
    **  <<Priority Declaration>>s, which can be used to define the relative priority in expression languages
