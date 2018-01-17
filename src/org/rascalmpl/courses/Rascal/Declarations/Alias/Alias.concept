@@ -27,18 +27,18 @@ Both types are thus structurally equivalent.
 ----
 ----
 Introduce two aliases `ModuleId` and `Frequency` for the type str.
-[source,rascal-shell,continue]
+[source,rascal,continue]
 ----
 alias ModuleId = str;
 alias Frequency = int;
 ----
 Another example is an alias definition for a graph containing integer nodes:
-[source,rascal-shell,continue]
+[source,rascal,continue]
 ----
 alias IntGraph = rel[int,int];
 ----
 Note that the Rascal Standard Library provides a graph data type that is defined as follows:
-[source,rascal-shell,continue]
+[source,rascal,continue]
 ----
 alias Graph[&T] = rel[&T, &T];
 ----
