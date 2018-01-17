@@ -112,7 +112,7 @@ The other symbols either _generate_ for you parts of the construction of a gramm
 The _generative symbols_ are referred to as the _regular symbols_. These are like named non-terminals, except that they are defined implicitly and interpreted by the parser generator to produce a parser that can recognize a symbol optionally, iteratively, alternatively, sequentially, etc. You also need to know this about the regular symbols:
 
 *  In <<Parse Trees>> you will find special nodes for the regular expression symbols that hide _how_ these were recognized. 
-*  <<Patterns>> using <<ConcreteSyntax>> have special semantics for the regular symbols (list matching, separator handling, ignoring layout, etc.).
+*  <<Patterns>> using <<Concrete Syntax>> have special semantics for the regular symbols (list matching, separator handling, ignoring layout, etc.).
 *  Regular symbols are not allowed in _keyword_ <<Syntax Definition>>s
 *  Depending on their occurrence in a _lexical_, _syntax_ or _layout_ <<Syntax Definition>> 
    the semantics of regular symbols changes. In the _syntax_ context, layout non-terminals will be woven 
