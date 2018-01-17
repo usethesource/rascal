@@ -8,6 +8,7 @@ import List;
 import String;
 import Type;
 import Map;
+import Message;
 
 import experiments::Compiler::muRascal::MuBoolExp;
 import experiments::Compiler::Rascal2muRascal::TypeUtils;
@@ -125,8 +126,8 @@ MuFunction preprocess(experiments::Compiler::muRascal::AST::Function f, str modN
            }
        }
    }
-   
-   scopeIn = (!isEmpty(f.funNames)) ? getUID(modName,f.funNames) : ""; // if not a function scope, then the root one
+  // TODO: type was added for new (experimental) type checker
+  str scopeIn = (!isEmpty(f.funNames)) ? getUID(modName,f.funNames) : ""; // if not a function scope, then the root one
    // Generate a very generic function type
    ftype = Symbol::func(Symbol::\value(),[ Symbol::\value() | i <- [0..size(f.formals)] ], []);
    argNames = ["<arg>" | arg <- f.formals];
