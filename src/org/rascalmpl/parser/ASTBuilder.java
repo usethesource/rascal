@@ -32,6 +32,12 @@ import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.parser.gtd.util.PointerKeyedHashMap;
 import org.rascalmpl.semantics.dynamic.Tree;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -39,10 +45,6 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 /**
  * Uses reflection to construct an AST hierarchy from a 
@@ -335,12 +337,27 @@ public class ASTBuilder {
 	private Expression liftHole(org.rascalmpl.values.uptr.ITree tree) {
 		assert tree.asAnnotatable().hasAnnotation("holeType");
 		IConstructor type = (IConstructor) tree.asAnnotatable().getAnnotation("holeType");
-		tree = (org.rascalmpl.values.uptr.ITree) TreeAdapter.getArgs(tree).get(0);
-		IList args = TreeAdapter.getArgs(tree);
-		IConstructor nameTree = (IConstructor) args.get(4);
-		ISourceLocation src = TreeAdapter.getLocation(tree);
-		Expression result = new Tree.MetaVariable(src, tree, type, TreeAdapter.yield(nameTree));
-		return result;
+		ITree subTree = (org.rascalmpl.values.uptr.ITree) TreeAdapter.getArgs(tree).get(0);
+		String constructorName = TreeAdapter.getConstructorName(subTree);
+		if (constructorName.equals("qualifiedName")) {
+		    IList args = TreeAdapter.getArgs(subTree);
+		    IConstructor qualifiedNameTree = (IConstructor) args.get(2);
+		    ISourceLocation src = TreeAdapter.getLocation(subTree);
+		    Expression result = new Tree.MetaVariable(src, subTree, type, TreeAdapter.yield(qualifiedNameTree));
+		    return result;
+		}
+		if (constructorName.equals("typedVariable")) {
+		    //TODO
+		}
+		if (constructorName.equals("one")) {
+		    //TODO
+    		IList args = TreeAdapter.getArgs(subTree);
+    		IConstructor nameTree = (IConstructor) args.get(4);
+    		ISourceLocation src = TreeAdapter.getLocation(subTree);
+    		Expression result = new Tree.MetaVariable(src, subTree, type, TreeAdapter.yield(nameTree));
+    		return result;
+		}
+		throw new ImplementationError("Unknown ConcreteHole constructor: " + constructorName, TreeAdapter.getLocation(tree));
 	}
 
 	private String getLayoutName(IConstructor production) {
