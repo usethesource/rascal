@@ -1,12 +1,13 @@
 package org.rascalmpl.repl;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
 import org.fusesource.jansi.Ansi.Color;
+import org.rascalmpl.interpreter.utils.LimitedResultWriter;
+
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.io.StandardTextWriter;
@@ -14,6 +15,7 @@ import io.usethesource.vallang.io.StandardTextWriter;
 public class ReplTextWriter extends StandardTextWriter {
 
     private static final String RESET = Ansi.ansi().reset().toString();
+    private static final String RESET_RED = Ansi.ansi().reset().fg(Color.RED).toString();
     private static final String SOURCE_LOCATION_PREFIX = Ansi.ansi().reset().fg(Color.BLUE).a(Attribute.UNDERLINE).toString();
     public ReplTextWriter() {
         super(true);
@@ -42,6 +44,9 @@ public class ReplTextWriter extends StandardTextWriter {
             groupingBuffer = null;
         }
         
+        public boolean writingToErrorStream() {
+            return original instanceof LimitedResultWriter;
+        }
 
         @Override
         public void write(String str, int off, int len) throws IOException {
@@ -103,7 +108,7 @@ public class ReplTextWriter extends StandardTextWriter {
                 try {
                     groupingWriter.write(SOURCE_LOCATION_PREFIX);
                     IValue result = super.visitSourceLocation(o);
-                    groupingWriter.write(RESET);
+                    groupingWriter.write(groupingWriter.writingToErrorStream() ? RESET_RED : RESET);
                     return result;
                 }
                 finally {
