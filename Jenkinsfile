@@ -4,7 +4,7 @@ node {
       checkout scm
     }
     
-    withMaven(maven: 'M3', options: [artifactsPublisher(disabled: true)] ) {
+    withMaven(maven: 'M3', jdk: 'jdk-oracle-8', options: [artifactsPublisher(disabled: true), junitPublisher(disabled: false)] ) {
         stage('Build') {
           sh "mvn -Drascal.courses=--buildCourses -Drascal.boot=--validating clean test"
           sh "curl https://codecov.io/bash | bash -s - -K -X gcov -t e8b4481a-d178-4148-a4ff-502906390512"
@@ -19,10 +19,6 @@ node {
             sh "mvn -DskipTests deploy"
           }
         }
-    }
-    
-    stage('Archive') {
-      step([$class: 'JUnitResultArchiver', testResults: '**/target/surefire-reports/TEST-*.xml'])
     }
     
     if (currentBuild.previousBuild.result == "FAILURE") { 
