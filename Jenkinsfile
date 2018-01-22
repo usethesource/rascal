@@ -1,4 +1,6 @@
 node {
+  env.JAVA_HOME="${tool 'jdk-oracle-8'}"
+  env.PATH="${env.JAVA_HOME}/bin:${mvnHome}/bin:${env.PATH}"
   try {
     stage('Clone'){
       checkout scm
