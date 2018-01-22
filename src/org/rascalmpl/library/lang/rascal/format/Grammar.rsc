@@ -190,7 +190,7 @@ public str attr2mod(Attr a) {
     case \bracket(): return "bracket";
     case \tag(str x(str y)) : return "@<x>=\"<escape(y)>\"";
     case \tag(str x()) : return "@<x>";
-    case \assoc(Associativity a) : return associativity(a);
+    case \assoc(Associativity as) : return associativity(as);
     default : return "@Unsupported(\"<escape("<a>")>\")";
   }
 }
