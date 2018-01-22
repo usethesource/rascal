@@ -1,0 +1,26 @@
+# Vis
+
+.Synopsis
+Functions for creating visualisations.
+
+.Syntax
+
+.Types
+
+.Function
+
+.Details
+
+.Description
+The Rascal visualisation libraries provide a compositional visualisation framework and
+consists of:
+
+*  The library [Figure] that defines the basic visualisation infrastructure.
+*  The library [$Vis/Render] that defines the rendering of figures to a screen or file.
+
+.Examples
+
+.Benefits
+
+.Pitfalls
+
