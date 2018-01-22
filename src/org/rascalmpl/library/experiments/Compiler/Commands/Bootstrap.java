@@ -3,6 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.Commands;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -394,18 +395,34 @@ public class Bootstrap {
      */
     private static Path getDeployedVersion(Path tmp, String version) throws IOException {
         Path cached = cachedDeployedVersion(tmp, version);
-
-        if (!cached.toFile().exists() || "unstable".equals(version)) {
+        URI deployedVersion = deployedVersion(version);
+        
+        if (isOutdated(cached, deployedVersion)) {
             if (cached.toFile().exists()) {
                 cached.toFile().delete();
             }
-            URI deployedVersion = deployedVersion(version);
+            
             info("downloading " + deployedVersion);
             Files.copy(deployedVersion.toURL().openStream(), cached);
         }
 
         info("deployed version ready: " + cached);
         return cached;
+    }
+    
+    private static boolean isOutdated(Path onDisk, URI onServer) {
+        if (!onDisk.toFile().exists()) {
+            return true;
+        }
+        
+        try {
+            return Files.getLastModifiedTime(onDisk).toMillis() < onServer.toURL().openConnection().getLastModified();
+        }
+        catch (IOException e) {
+            // probably a time out
+            info("Could not check validity of cached bootstrap jar: " + onDisk);
+            return false;
+        }
     }
 
     private static Path cachedDeployedVersion(Path tmpFolder, String version) {
