@@ -370,8 +370,8 @@ tuple[TModel org, map[str,TModel] differences] sameTPL(str qualifiedModuleName, 
 bool blacklisted(str qualifiedModuleName){
     for(s <- {//"lang::rascal::types", "experiments::Compiler", "lang::rascal::boot", "lang::rascal::tests::types" , "experiments::tutor3", "lang::java::patterns", "lang::sdf2", "lang::box", "Sudoku
               "lang::java::flow::JavaToObjectFlow", "lang::java::patterns::JavaToMicroPatterns", "lang::sdf2::util::SDF2Grammar", "lang::sdf2::util::Importer",
-              "lang::rascal::tests::library::analysis::formalconcepts::FCATest", "experiments::tutor3::LegacyExamManager", "experiments::Compiler::Benchmarks::JavaMetrics",
-              "experiments::Compiler::Benchmarks::SudokuEq", "lang::rascal::checker::TTL::TTLGen"
+              "lang::rascal::tests::library::analysis::formalconcepts::FCATest", "experiments::tutor3::LegacyExamManager", "lang::rascalcore::compile::Benchmarks::JavaMetrics",
+              "lang::rascalcore::compile::Benchmarks::SudokuEq", "lang::rascal::checker::TTL::TTLGen"
              }
     ){
         if(contains(qualifiedModuleName, s)) return true;

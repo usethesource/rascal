@@ -33,7 +33,7 @@ data AType (str label = "")
      | amap(AType keyType, AType valType)
      | arel(AType elemType)  
      | alrel(AType elemType)
-     | afunc(AType ret, AType formals, list[Keyword] kwFormals, bool varArgs=false)
+     | afunc(AType ret, AType formals, list[Keyword] kwFormals, bool varArgs=false, str deprecationMessage="")
      | auser(str uname, list[AType] parameters) 
      | aalias(str aname, list[AType] parameters, AType aliased)
      | aanno(str aname, AType onType, AType annoType)
@@ -41,7 +41,7 @@ data AType (str label = "")
      | aadt(str adtName, list[AType] parameters, bool hasSyntax = false)
      | acons(AType adt, str consName, list[NamedField] fields, list[Keyword] kwFields)
      
-     | amodule(str mname)
+     | amodule(str mname, str deprecationMessage="")
      | aparameter(str pname, AType bound) 
      | areified(AType atype)
      ;
@@ -266,6 +266,10 @@ data AType // <1>
 //     | \parameterized-lex(str sname, list[AType] parameters)  // <7>
 //     ; 
 
+//AType \start(AType symbol) = 
+//AType sort(str name) = aadt(name, [], hasSyntax=true);
+//AType \lex(str sname) = aadt(name, [], hasSyntax=true, 
+
 // These are the terminal symbols.
 data AType 
      = \lit(str string)   // <8>
@@ -314,19 +318,6 @@ data ACondition
      ;
 
 // ---- end ParseTree
-
-//bool myIsSubType(AType t1, AType t2) = asubtype(t1, t2);
-//{ 
-//    res = asubtype(t1, t2); 
-//    println("asubtype(<t1>, <t2>) ==\> <res>"); 
-//    return res;
-//}
-
-//AType myLUB(AType t1, AType t2) = alub(t1, t2);
-//{ res = alub(t1, t2); println("myLUB: <t1>, <t2> ==\> <res>"); return res;  }
-
-//AType myATypeMin() = avoid();
-//AType myATypeMax() = avalue();
 
 public set[AType] numericTypes = { aint(), areal(), arat(), anum() };
 
@@ -558,7 +549,7 @@ AType alub(abag(AType s), abag(AType t)) = abag(alub(s, t));
 AType alub(aadt(str n, list[AType] _), anode(_)) = anode([]);
 AType alub(anode(_), aadt(str n, list[AType] _)) = anode([]);
 
-AType alub(a1:aadt(str n, list[AType] lp), a2:aadt(n, list[AType] rp)) = addADTKeywords(a1, a2, aadt(n, addParamLabels(alub(lp,rp),getParamLabels(lp))))
+AType alub(a1:aadt(str n, list[AType] lp), a2:aadt(n, list[AType] rp)) = addADTKeywords(a1, a2, aadt(n, addParamLabels(alubList(lp,rp),getParamLabels(lp))))
                                                                          when size(lp) == size(rp) && getParamLabels(lp) == getParamLabels(rp) && size(getParamLabels(lp)) > 0;
                                                                          
 AType alub(a1:aadt(str n, list[AType] lp), a2:aadt(n, list[AType] rp)) = addADTKeywords(a1, a2, aadt(n, alubList(lp,rp)))

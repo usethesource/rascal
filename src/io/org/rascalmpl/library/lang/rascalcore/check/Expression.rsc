@@ -9,6 +9,8 @@ import lang::rascalcore::check::ATypeInstantiation;
 
 import lang::rascal::\syntax::Rascal;
 import ListRelation;
+import Map;
+import Node;
 
 // ---- Rascal literals
 void collect(Literal l:(Literal)`<IntegerLiteral il>`, TBuilder tb){
@@ -451,7 +453,8 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                     equal(getType(actuals[3]), atuple(atypeList([aint(),aint()]))) || reportError(actuals[3], "End should be of type `tuple[int,int]`, found <fmt(actuals[3])>"); 
                 }
                 return aloc();
-            }    
+            }
+             
             if(overloadedAType(rel[Key, IdRole, AType] overloads) := texp){
               <filteredOverloads, identicalFormals> = filterOverloads(overloads, size(actuals));
               if({<key, idr, tp>} := filteredOverloads){
@@ -464,6 +467,9 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 for(ovl: <key, idr, tp> <- overloads){                       
                     if(ft:afunc(AType ret, atypeList(list[AType] formals), list[Keyword] kwFormals) := tp){
                        try {
+                            //if(tp.deprecationMessage?){
+                            //    reportWarning(expression, "Deprecated function <fmt(tp)><isEmpty(tp.deprecationMessage) ? "" : ": " + tp.deprecationMessage>");
+                            //}
                             validReturnTypeOverloads += <key, dataId(), checkArgsAndComputeReturnType(current, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals)>;
                             validOverloads += ovl;
                        } catch checkFailed(set[Message] msgs):
@@ -489,8 +495,11 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                  else return overloadedAType(validReturnTypeOverloads);
                }
             }
-          
+            
             if(ft:afunc(AType ret, atypeList(list[AType] formals), list[Keyword] kwFormals) := texp){
+               //if(texp.deprecationMessage?){
+               //     reportWarning(expression, "Deprecated function <fmt(texp)><isEmpty(texp.deprecationMessage) ? "": ": " + texp.deprecationMessage>");
+               //}
                 return checkArgsAndComputeReturnType(current, scope, ret, formals, kwFormals, ft.varArgs, actuals, keywordArguments, [true | int i <- index(formals)]);
             }
             if(acons(ret:aadt(adtName, list[AType] parameters), str consName, list[NamedField] fields, list[Keyword] kwFields) := texp){
@@ -667,45 +676,6 @@ AType computeADTType(Tree current, str adtName, Key scope, AType retType, list[A
     }
     
     return computeADTReturnType(current, adtName, scope, retType, formalTypes, actuals, actualTypes, kwFormals, keywordArguments, identicalFormals, dontCare, isExpression);
-    //println("actualType: <actualType>");
-  
-    Bindings bindings = ();
-    for(int i <- index_formals, !dontCare[i]){
-        try   bindings = matchRascalTypeParams(formals[i], actualTypes[i], bindings, bindIdenticalVars=true);
-        catch invalidMatch(str reason): 
-              reportError(actuals[i], reason);   
-    }
-    iformals = formals;
-    if(!isEmpty(bindings)){
-        try   iformals = [instantiateRascalTypeParams(formals[i], bindings) | int i <- index_formals];
-        catch invalidInstantiation(str msg):
-              reportError(current, msg);
-    }
-    for(int i <- index_formals, !dontCare[i]){
-        ai = actualTypes[i];
-       //println("<i>: <ai>");
-        if(!isFullyInstantiated(ai) && isExpression){
-            if(identicalFormals[i]){
-               unify(ai, iformals[i]) || reportError(current, "Cannot unify <fmt(ai)> with <fmt(iformals[i])>");
-               ai = instantiate(ai);
-               //println("instantiated <actuals[i]>: <ai>");
-            } else
-                continue;
-        }
-        //println("comparable?: <ai>, <iformals[i]>");
-        comparable(ai, iformals[i]) ||
-            reportError(actuals[i], "Argument <actuals[i]> should have type <fmt(formals[i])>, found <fmt(ai)>");
-    }
-    adtType = expandUserTypes(getType(adtName, scope, {dataId(), nonterminalId()}), scope);
-    checkKwArgs(kwFormals + getCommonKeywords(adtType, scope), keywordArguments, bindings, scope, isExpression=isExpression);
-   
-    if(!isEmpty(bindings)){
-        try    return instantiateRascalTypeParams(expandUserTypes(getType(adtName, scope, {dataId(), nonterminalId()}), scope), bindings);
-        catch invalidInstantiation(str msg):
-               reportError(current, msg);
-    }
-   
-    return adtType;
 }
 
 AType computeADTReturnType(Tree current, str adtName, Key scope, AType retType, list[AType] formalTypes, actuals, list[AType] actualTypes, list[Keyword] kwFormals, keywordArguments, list[bool] identicalFormals, list[bool] dontCare, bool isExpression){
@@ -1146,26 +1116,6 @@ public AType computeFieldType(Tree current, AType t1, str fieldName, Key scope) 
            
             declaredInfo = getDefinitions(adtName, scope, {dataId(), nonterminalId()});
             declaredType = getType(adtName, scope, {dataId(), nonterminalId()});
-            
-            // begin experimental
-            //if(overloadedAType(rel[Key, IdRole, AType] overloads) := fieldType){
-            //   
-            //   filteredOverloads = {};
-            //   for(<Key key, idr, AType tp> <- overloads /*, idr in {dataId(), constructorId()}*/){
-            //      //println("computeFieldType: <current>, <declaredType>, <fieldName>, trying <idr>, <tp>");
-            //       try {
-            //            filteredOverloads += <key, idr, computeADTFieldType(current, declaredType, expandUserTypes(tp, scope), fieldName, actualTypeParams, declaredInfo, scope)>;
-            //        } catch checkFailed(set[Message] msgs): {
-            //           ; // do nothing and try next overload
-            //        } catch e:;// do nothing
-            //          catch TypeUnAvailable():; // do nothing
-            //   }
-            //   if(isEmpty(filteredOverloads)){
-            //      reportError(current, "Field <fmt(fieldName)> does not exist on type <fmt(t1)>");    
-            //   }
-            //   return overloadedAType(filteredOverloads);
-            //}
-            // end experimental
       
             return computeADTFieldType(current, declaredType, fieldType, fieldName, actualTypeParams, declaredInfo, scope);             
                 

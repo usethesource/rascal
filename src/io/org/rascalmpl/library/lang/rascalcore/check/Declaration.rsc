@@ -26,7 +26,13 @@ void collect(current: (Module) `<Header header> <Body body>`, TBuilder tb){
     mname = prettyPrintName(header.name);
     //if(ignoreCompiler(header.tags)) {println("*** ignore module <mname>"); return; }
     //println("*** collect module <mname>, <getLoc(current)>");
-    tb.define(mname, moduleId(), current, defType(amodule(mname)));
+    <deprecated, deprecationMessage> = getDeprecated(header.tags);
+     
+    tmod = deprecated ? amodule(mname, deprecationMessage=deprecationMessage) : amodule(mname);
+    if(deprecated){
+        tb.reportWarning(current, "Deprecated module <mname><isEmpty(deprecationMessage) ? "" : ": " + deprecationMessage>");
+    }
+    tb.define(mname, moduleId(), current, defType(tmod));
     tb.push(key_processed_modules, mname);
      
     tb.push(key_current_module, mname);
@@ -176,6 +182,8 @@ void collect(FunctionDeclaration decl, TBuilder tb){
     if(vis == defaultVis()){
         vis = publicVis();
     }
+    
+    <deprecated, deprecationMessage> = getDeprecated(decl.tags);
     signature = decl.signature;
     isVarArgs = signature.parameters is varArgs;
     fname = signature.name;
@@ -193,6 +201,9 @@ void collect(FunctionDeclaration decl, TBuilder tb){
                  expandedRetType = expandUserTypes(retType, scope);
                  ft = afunc(expandedRetType, atypeList([expandUserTypes(getPatternType(f, avalue(), scope), scope) | f <- formals]), kwFormals);
                  if(isVarArgs) ft.varArgs = true;
+                 if(deprecated) {
+                    ft.deprecationMessage = deprecationMessage;
+                 }
                  return ft;
              });
         dt.vis=vis; 
@@ -234,6 +245,14 @@ bool ignoreCompiler(Tags tags){
      if("<tg.name>" in {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"}) return true;
    }
    return false;
+}
+
+tuple[bool, str] getDeprecated(Tags tags){
+    for(tg <- tags.tags){
+     if("<tg.name>" in {"deprecated", "Deprecated"}) 
+         return <true, tg has contents ? "<tg.contents.contents>" : "">;
+   }
+   return <false, "">;
 }
 
 bool containsReturn(Tree t) = /(Statement) `return <Statement statement>` := t;

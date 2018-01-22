@@ -34,7 +34,7 @@ public bool match(AType checked, AType referenced) {
   return referenced == checked;
 } 
 
-public AType delabel(AType s) = visit(s) { case label(_,t) => t };
+public AType delabel(AType s) = visit(s) { case t => unset(t, "label") when t.label? };
 
 public AType sym2AType(Sym sym) {
   switch (sym) {
@@ -116,7 +116,7 @@ public AType \conditional(\conditional(AType s, set[ACondition] cs1), set[ACondi
 
 public AType \conditional(AType s, set[ACondition] cs) {
   // if there is a nested conditional, lift the nested conditions toplevel and make the nested AType unconditional.
-  if (c <- cs, c has symbol, c.symbol is conditional) {
+  if (c <- cs, c has symbol, c.atype is conditional) {
      return \conditional(s, {c[symbol=c.symbol.symbol], *c.symbol.conditions, *(cs - {c})}); //SPLICING
   }
   else fail;

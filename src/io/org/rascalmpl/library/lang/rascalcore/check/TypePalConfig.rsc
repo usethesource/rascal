@@ -7,11 +7,13 @@ import analysis::typepal::ScopeGraph;
 import analysis::typepal::TypePalConfig;
 
 import lang::rascalcore::check::AType;
+import List;
+import Set;
+import String;
 
 data IdRole
     = moduleId()
     | functionId()
- //   | variableId()
     | labelId()
     | constructorId()
     | fieldId()

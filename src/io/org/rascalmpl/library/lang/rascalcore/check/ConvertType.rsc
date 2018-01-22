@@ -27,23 +27,19 @@ import lang::rascalcore::grammar::definition::Symbols;
  
 @doc{Convert qualified names into an abstract representation.}
 public QName convertName(QualifiedName qn) {
-    if ((QualifiedName)`<{Name "::"}+ nl>` := qn) { 
-        nameParts = [ (startsWith("<n>","\\") ? substring("<n>",1) : "<n>") | n <- nl ];
-        if (size(nameParts) > 1) {
-            return qualName(intercalate("::", nameParts[..-1]), nameParts[-1]);
-        } else {
-            return qualName("", nameParts[0]);
-        } 
+    parts = split("::", "<qn>");
+    if(size(parts) == 1){
+        part = parts[0];
+        return qualName("", part[0] == "\\" ? part[1..] : part);
     }
-    throw "Unexpected syntax for qualified name: <qn>";
+    unescapedParts = [part[0] == "\\" ? part[1..] : part | part <- parts];
+    return qualName(intercalate("::", unescapedParts[..-1]), unescapedParts[-1]);
 }
 
 @doc{Convert names into an abstract representation.}
 public QName convertName(Name n) {
-    if (startsWith("<n>","\\"))
-        return qualName("", substring("<n>",1));
-    else
-        return qualName("","<n>");
+    part = "<n>";
+    return qualName("", part[0] == "\\" ? part[1..] : part);
 }
 
 public str prettyPrintName(QualifiedName qn){

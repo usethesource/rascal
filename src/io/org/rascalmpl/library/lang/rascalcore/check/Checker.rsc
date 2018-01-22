@@ -91,7 +91,7 @@ TModel rascalPostValidation(TModel m){
 
 public PathConfig getDefaultPathConfig() = pathConfig(   
         srcs = [|project://rascal-core/src/io/org/rascalmpl/library/|,
-                |project://TypePal/src|,
+                |project://typepal/src|,
                 |project://rascal/src/org/rascalmpl/library|
                ]);
                

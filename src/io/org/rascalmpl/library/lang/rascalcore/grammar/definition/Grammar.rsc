@@ -53,7 +53,7 @@ public AGrammar grammar(set[AType] starts, set[AProduction] prods) {
 } 
            
 AGrammar grammar(type[&T <: Tree] sym)
-    = agrammar({sym.symbol}, sym.definitions);
+    = grammar({sym.symbol}, sym.definitions);
 
   
 @doc{

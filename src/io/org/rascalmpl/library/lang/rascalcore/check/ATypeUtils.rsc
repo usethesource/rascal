@@ -15,6 +15,7 @@ import List;
 import Set;
 import String;
 import Node;
+import IO;
 extend ParseTree;
 
 import analysis::typepal::TypePal;
@@ -709,6 +710,17 @@ default bool isConstructorType(AType _) = false;
 public AType getConstructorResultType(AType ct) {
     if (acons(a,_,_,_) := unwrapType(ct)) return a;
     throw "Cannot get constructor ADT type from non-constructor type <prettyPrintAType(ct)>";
+}
+
+@doc{Get a list of the argument types in a constructor.}
+public list[AType] getConstructorArgumentTypes(AType ct) {
+    if (acons(_,_,list[NamedField] cts,_) := unwrapType(ct)) return cts<1>;
+    throw "Cannot get constructor arguments from non-constructor type <prettyPrintAType(ct)>";
+}
+
+@doc{Get a tuple with the argument types as the fields.}
+public AType getConstructorArgumentTypesAsTuple(AType ct) {
+    return atuple(atypeList(getConstructorArgumentTypes(ct)));
 }
 
 @doc{

@@ -6,11 +6,12 @@ import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::TypePalConfig;
 import lang::rascalcore::check::ATypeInstantiation;
+import lang::rascalcore::check::Pattern;
 
 import lang::rascal::\syntax::Rascal;
+import Set;
 
 AType unaryOp(str op, AType(Tree, AType) computeType, Tree current, AType t1){
-//println("unaryOp: <op>");
     t1 = instantiate(t1);
     if(!isFullyInstantiated(t1)){
        throw TypeUnavailable();
@@ -34,7 +35,6 @@ AType unaryOp(str op, AType(Tree, AType) computeType, Tree current, AType t1){
 }
 
 AType binaryOp(str op, AType(Tree, AType, AType) computeType, Tree current, AType t1, AType t2){
-//println("binaryOp: <op>, <current>, <t1>, <t2>");
     t1 = instantiate(t1);
     t2 = instantiate(t2);
     if(!(isFullyInstantiated(t1) && isFullyInstantiated(t2))){
@@ -73,7 +73,6 @@ AType binaryOp(str op, AType(Tree, AType, AType) computeType, Tree current, ATyp
 }
 
 AType ternaryOp(str op, AType(Tree, AType, AType, AType) computeType, Tree current, AType t1, AType t2, AType t3){
-//println("binaryOp: <op>, <current>, <t1>, <t2>");
     t1 = instantiate(t1);
     t2 = instantiate(t2);
     t3 = instantiate(t3);
@@ -161,8 +160,6 @@ void collect(current: (Expression) `<Expression e> is <Name n>`, TBuilder tb){
 }
 
 private AType _computeIsType(Tree current, AType t1){
-    //if(!isFullyInstantiated(t1)) throw TypeUnavailable();
-
     if(overloadedAType(rel[Key, IdRole, AType] overloads) := t1){
         for(<key, idrole, tp> <- overloads){
            try return computeIsType(current, tp);
@@ -180,8 +177,6 @@ void collect(current: (Expression) `<Expression e> has <Name n>`, TBuilder tb){
 } 
 
 private AType _computeHasType(Tree current, AType t1){
-    //if(!isFullyInstantiated(t1)) throw TypeUnavailable();
-
     if(overloadedAType(rel[Key, IdRole, AType] overloads) := t1){
         for(<key, idrole, tp> <- overloads){
            try return computeHasType(current, tp);
@@ -202,9 +197,6 @@ void collect(current: (Expression) `<Expression arg> +`, TBuilder tb){
 } 
 
 private AType _computeTransClosureType(Tree current, AType t1){
-
-    //if(!isFullyInstantiated(t1)) throw TypeUnavailable();
-
     // Special case: if we have list[void] or set[void], these become lrel[void,void] and rel[void,void]
     if (isListType(t1) && isVoidType(getListElementType(t1)))
         return makeListRelType([makeVoidType(),makeVoidType()]);
@@ -279,8 +271,6 @@ void collect(current: (Expression) `* <Expression arg>`, TBuilder tb){
 }
 
 private AType _computeSpliceType(Tree current, AType t1){    
-    //if(!isFullyInstantiated(t1)) throw TypeUnavailable();
-    
     if (isListType(t1)) return getListElementType(t1);
     if (isSetType(t1)) return getSetElementType(t1);
     if (isBagType(t1)) return getBagElementType(t1);
@@ -307,15 +297,11 @@ void collect(current: (Expression)`[ <Type t> ] <Expression e>`, TBuilder tb){
 
 void collect(current: (Expression) `<Expression lhs> o <Expression rhs>`, TBuilder tb){
     tb.calculate("composition", current, [lhs, rhs],  
-       AType(){ return binaryOp("composition", _computeCompositionType, current, getType(lhs), getType(rhs)); 
-            //return computeCompositionType(current, getType(lhs), getType(rhs));
-       });
+       AType(){ return binaryOp("composition", _computeCompositionType, current, getType(lhs), getType(rhs)); });
     collect(lhs, rhs, tb); 
 }
 
 private AType _computeCompositionType(Tree current, AType t1, AType t2){  
-
-    //if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
 
     // Special handling for list[void] and set[void], these should be treated as lrel[void,void]
     // and rel[void,void], respectively
@@ -323,7 +309,6 @@ private AType _computeCompositionType(Tree current, AType t1, AType t2){
     if (isListType(t2) && isVoidType(getListElementType(t2))) t2 = makeListRelType(makeVoidType(),makeVoidType());
     if (isSetType(t1) && isVoidType(getSetElementType(t1))) t1 = makeRelType(makeVoidType(),makeVoidType());
     if (isSetType(t2) && isVoidType(getSetElementType(t2))) t2 = makeRelType(makeVoidType(),makeVoidType());
-    
     
     if (isMapType(t1) && isMapType(t2)) {
         if (subtype(getMapRangeType(t1),getMapDomainType(t2))) {
@@ -336,13 +321,13 @@ private AType _computeCompositionType(Tree current, AType t1, AType t2){
     if (isRelType(t1) && isRelType(t2)) {
         list[AType] lflds = getRelFields(t1);
         list[AType] rflds = getRelFields(t2);
-        set[AType] failures = { };
+        set[Message] failures = { };
         if (size(lflds) != 0 && size(lflds) != 2)
-            failures += error(e1, "Relation <fmt(t1)> should have arity of 0 or 2"); 
+            failures += error(current, "Relation <fmt(t1)> should have arity of 0 or 2"); 
         if (size(rflds) != 0 && size(rflds) != 2)
-            failures += error(e2, "Relation <fmt(t2)> should have arity of 0 or 2");
+            failures += error(current, "Relation <fmt(t2)> should have arity of 0 or 2");
         if (!comparable(lflds[1],rflds[0]))
-            failures += error(exp, "Range of relation <fmt(t1)> must be comparable to domain of relation <fmt(t1)>");
+            failures += error(current, "Range of relation <fmt(t1)> must be comparable to domain of relation <fmt(t1)>");
         if (size(failures) > 0) return reportErrors(failures);
         if (size(lflds) == 0 || size(rflds) == 0)
             return arel(atypeList([]));
@@ -354,11 +339,11 @@ private AType _computeCompositionType(Tree current, AType t1, AType t2){
     if (isListRelType(t1) && isListRelType(t2)) {
         list[AType] lflds = getListRelFields(t1);
         list[AType] rflds = getListRelFields(t2);
-        set[AType] failures = { };
+        set[Message] failures = { };
         if (size(lflds) != 0 && size(lflds) != 2)
-            failures += error(e1, "List relation <fmt(t1)> should have arity of 0 or 2"); 
+            failures += error(current, "List relation <fmt(t1)> should have arity of 0 or 2"); 
         if (size(rflds) != 0 && size(rflds) != 2)
-            failures += error(e2, "List relation <fmt(t2)> should have arity of 0 or 2");
+            failures += error(current, "List relation <fmt(t2)> should have arity of 0 or 2");
         if (!comparable(lflds[1],rflds[0]))
             failures += error(exp, "Range of list relation <fmt(t1)> must be comparable to domain of list relation <fmt(t1)>");
         if (size(failures) > 0) return reportErrors(failures);
@@ -406,8 +391,6 @@ AType computeProductType(Tree current, AType t1, AType t2)
     = binaryOp("product", _computeProductType, current, t1, t2);
 
 private AType _computeProductType(Tree current, AType t1, AType t2){ 
-    //if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();  
-    
     if(isNumericType(t1) && isNumericType(t2)) return numericArithTypes(t1, t2);
     
     if (isListType(t1) && isListType(t2))
@@ -431,9 +414,6 @@ void collect(current: (Expression) `<Expression lhs> join <Expression rhs>`, TBu
 }
 
 private AType _computeJoinType(Tree current, AType t1, AType t2){ 
-
-    //if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable(); 
-    
     if ((isRelType(t1) && isRelType(t2)) || (isListRelType(t1) && isListRelType(t2))) {
        bool isRel = isRelType(t1);
         list[AType] lflds = isRel ? getRelFields(t1) : getListRelFields(t1);
@@ -489,8 +469,6 @@ void collect(current: (Expression) `<Expression lhs> % <Expression rhs>`, TBuild
 }
 
 private AType _computeRemainderType(Tree current, AType t1, AType t2){
-    //if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
-    
     if(isIntType(t1) && isIntType(t2)) return aint();
     reportError(current, "Remainder not defined on <fmt(t1)> and <fmt(t2)>");
 }
@@ -507,8 +485,6 @@ AType computeDivisionType(Tree current, AType t1, AType t2)
     = binaryOp("division", _computeDivisionType, current, t1, t2);
 
 private AType _computeDivisionType(Tree current, AType t1, AType t2){
-    //if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
-    
     if(isNumericType(t1) && isNumericType(t2)) return numericArithTypes(t1, t2);
     reportError(current, "Division not defined on <fmt(t1)> and <fmt(t2)>");
 }
@@ -525,9 +501,6 @@ AType computeIntersectionType(Tree current, AType t1, AType t2)
     = binaryOp("intersection", _computeIntersectionType, current, t1, t2);
     
 private AType _computeIntersectionType(Tree current, AType t1, AType t2){  
-
-    //if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
-    
     if ( ( isListRelType(t1) && isListRelType(t2) ) || 
          ( isListType(t1) && isListType(t2) ) || 
          ( isRelType(t1) && isRelType(t2) ) || 
@@ -565,13 +538,6 @@ AType computeAdditionType(Tree current, AType t1, AType t2)
     = binaryOp("addition", _computeAdditionType, current, t1, t2);
 
 private AType _computeAdditionType(Tree current, AType t1, AType t2) {
-
-    //t1 = instantiate(t1);
-    //t2 = instantiate(t2);
-    //if(!(isFullyInstantiated(t1) && isFullyInstantiated(t2))){
-    //   throw TypeUnavailable();
-    //}   
-    
     if(isNumericType(t1) && isNumericType(t2)) return numericArithTypes(t1, t2);
     
     if (isStrType(t1) && isStrType(t2))
@@ -660,8 +626,6 @@ AType computeSubtractionType(Tree current, AType t1, AType t2)
     = binaryOp("subtraction", _computeSubtractionType, current, t1, t2);
 
 private AType _computeSubtractionType(Tree current, AType t1, AType t2) { 
-    //if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
-    
     if(isNumericType(t1) && isNumericType(t2)){
         return numericArithTypes(t1, t2);
     }
@@ -700,8 +664,6 @@ void collect(current: (Expression) `<Expression lhs> \<\< <Expression rhs>`, TBu
 }
 
 private AType _computeAppendAfterType(Tree current, AType t1, AType t2) { 
-    //if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
-   
     if (isListType(t1)) {
        return makeListType(lub(getListElementType(t1),t2));
     }
@@ -717,8 +679,6 @@ void collect(current: (Expression) `<Expression lhs> \>\> <Expression rhs>`, TBu
 }
 
 private AType _computeInsertBeforeType(Tree current, AType t1, AType t2) { 
-    //if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
-    
     if (isListType(t2)) {
         return makeListType(lub(getListElementType(t2),t1));
     }
@@ -734,8 +694,6 @@ void collect(current: (Expression) `<Expression lhs> mod <Expression rhs>`, TBui
 }
 
 private AType _computeModuloType(Tree current, AType t1, AType t2) { 
-    //if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
-    
     if (isIntType(t1) && isIntType(t2)) {
         return aint();
     }
@@ -751,9 +709,6 @@ void collect(current: (Expression) `<Expression lhs> notin <Expression rhs>`, TB
 }
 
 private AType _computeInType(Tree current, AType t1, AType t2){
-
-    //if(!isFullyInstantiated(t1) || !isFullyInstantiated(t2)) throw TypeUnavailable();
-    
     if (isRelType(t2)) {
         et = getRelElementType(t2);
         if (comparable(t1,et)) return abool();
