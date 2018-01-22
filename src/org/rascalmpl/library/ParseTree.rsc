@@ -210,8 +210,7 @@ construct ordered and un-ordered compositions, and associativity groups.
 
 <5> `priority` means ordered choice, where alternatives are tried from left to right;
 <6> `assoc`  means all alternatives are acceptable, but nested on the declared side;
-<7> `others` means '...', which is substituted for a choice among the other definitions;
-<8> `reference` means a reference to another production rule which should be substituted there,
+<7> `reference` means a reference to another production rule which should be substituted there,
     for extending priority chains and such.
 } 
 data Production 
@@ -224,8 +223,7 @@ data Production
 data Production 
      = \priority(Symbol def, list[Production] choices) // <5>
      | \associativity(Symbol def, Associativity \assoc, set[Production] alternatives) // <6>
-     | \others(Symbol def) // <7>
-     | \reference(Symbol def, str cons) // <8>
+     | \reference(Symbol def, str cons) // <7>
      ;
 
 @doc{
