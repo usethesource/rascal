@@ -144,9 +144,6 @@ public str prod2rascal(Production p) {
     		       '  )";
  		}
 
-    case others(sym):
-        return "...";
- 
     case prod(label(str n,Symbol rhs),list[Symbol] lhs,set[Attr] as) :
         return "<for (a <- as) {> <attr2mod(a)><}><reserved(n)>: <for(s <- lhs){><symbol2rascal(s)> <}>";
  

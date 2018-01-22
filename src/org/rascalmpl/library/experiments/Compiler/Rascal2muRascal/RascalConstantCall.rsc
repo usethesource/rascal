@@ -79,7 +79,6 @@ private MuExp tcc("skipped", []) = muCon(skipped());
 
 private MuExp tcc("priority", [muCon(Symbol def), muCon(list[Production] choices)]) = muCon(\priority(def, choices));
 private MuExp tcc("associativity", [muCon(Symbol def), muCon(Associativity \assoc), muCon(set[Production] alternatives)]) = muCon(\associativity(def, \assoc, alternatives));
-private MuExp tcc("others", [muCon(Symbol def)]) = muCon(others(def));
 private MuExp tcc("reference", [muCon(Symbol def), muCon(str cons)]) = muCon(reference(def, cons));
 
 // Attr

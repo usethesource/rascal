@@ -89,7 +89,6 @@ private Production prod2prod(Symbol nt, Prod p) {
       return associativity(nt, \non-assoc(), {prod2prod(nt, q)});
     case associativityGroup(\associative(), Prod q) :      
       return associativity(nt, Associativity::\left(), {prod2prod(nt, q)});
-    case others(): return \others(nt);
     case reference(Name n): return \reference(nt, unescape("<n>"));
     default: throw "prod2prod, missed a case <p>"; 
   } 
