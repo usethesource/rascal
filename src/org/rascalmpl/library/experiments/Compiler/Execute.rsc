@@ -567,13 +567,11 @@ RVMProgram compileAndMergeProgramIncremental(str qualifiedModuleName, bool reuse
    //pcfg = pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin);
    if(!reuseConfig){
       mergedImportLoc = getMergedImportsWriteLoc(qualifiedModuleName, pcfg);
-      println("TEMPORARY DEBUG MESSAGE: mergedImportLoc = <mergedImportLoc>");
       try {
          remove(mergedImportLoc);
          //println("Removed: <mergedImportLoc>");
-      } catch e: {
-          println("TEMPORARY DEBUG MESSAGE: Could not remove: <mergedImportLoc>"); // ignore possible exception
-      }
+      } catch e:
+          ;//println("Could not remove: <mergedImportLoc>"); // ignore possible exception
    }
    mainModule = compileIncremental(qualifiedModuleName, reuseConfig, pcfg, verbose=verbose, enableAsserts=true, optimize=optimize); 
    merged = mergeImports(mainModule, pcfg, verbose=verbose, jvm=jvm);
