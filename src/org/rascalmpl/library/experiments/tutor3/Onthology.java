@@ -73,7 +73,7 @@ public class Onthology {
     private Path courseDestPath;
     private Path libSrcPath;
     private PathConfig pcfg;
-    private TutorCommandExecutor executor;
+    private final TutorCommandExecutor executor;
     private FSDirectory directory;
 
     public static Analyzer multiFieldAnalyzer(){

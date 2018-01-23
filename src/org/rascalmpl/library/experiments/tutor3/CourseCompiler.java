@@ -157,6 +157,7 @@ public class CourseCompiler {
 	}
     
     public static void compileCourseCommand(String classpath, Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
+        assert executor != null;
         copyStandardFilesPerCourse(srcPath, courseName, destPath);
 
         Onthology o = new Onthology(srcPath, courseName, destPath, libSrcPath, pcfg, executor);
