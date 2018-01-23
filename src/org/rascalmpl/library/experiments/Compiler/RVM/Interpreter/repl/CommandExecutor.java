@@ -63,9 +63,9 @@ public class CommandExecutor {
 	private final static int LINE_LIMIT = 75;
 	private final static int CHAR_LIMIT = LINE_LIMIT * 20;
 	
-	private PathConfig pcfg;
-	private PrintWriter stdout;
-	private PrintWriter stderr;
+	private final PathConfig pcfg;
+	private final PrintWriter stdout;
+	private final PrintWriter stderr;
 	private final IValueFactory vf;
 	private String consoleInputName = "ConsoleInput";
 	public static String consoleInputPath = "/ConsoleInput.rsc";
@@ -324,7 +324,7 @@ public class CommandExecutor {
       }
 	}
 	
-	private IValue executeModule(String main, boolean onlyMainChanged) throws RascalShellExecutionException {
+	private synchronized IValue executeModule(String main, boolean onlyMainChanged) throws RascalShellExecutionException {
 		StringWriter w = new StringWriter();
 		
 		w.append("module ConsoleInput\n");
