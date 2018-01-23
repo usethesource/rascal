@@ -163,6 +163,7 @@ public class Concept {
     }
     
 	public void preprocess(Onthology onthology, TutorCommandExecutor executor) throws IOException {
+	    assert onthology != null && executor != null;
 	    File adocOut = new File(getADocFileName());
 	    
 	    if (adocOut.exists() && adocOut.lastModified() > timestamp) {
