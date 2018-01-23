@@ -15,8 +15,10 @@ package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Evaluator;							// TODO: remove import: YES
@@ -26,8 +28,10 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;				// TODO: remove impor
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;	// remove import: NO
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.JavaBridge;					// remove import: NO
+import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.gtd.IGTD;
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
@@ -57,7 +61,7 @@ public class ParserGenerator {
   public ParserGenerator(RascalExecutionContext rex) throws IOException {
     this.vf = rex.getValueFactory();
     this.tf = TypeFactory.getInstance();
-    this.bridge = new JavaBridge(Collections.emptyList(), rex.getValueFactory(), rex.getConfiguration());
+    this.bridge = new JavaBridge(new ArrayList<ClassLoader>(Collections.singleton(RascalParser.class.getClassLoader())), rex.getValueFactory(), rex.getConfiguration());
 
       if(useCompiledParserGenerator && rvmParserGenerator == null) {
         RascalExecutionContext rex2 = 
