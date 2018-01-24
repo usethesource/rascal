@@ -283,7 +283,6 @@ public class RVMonJVM extends RVMCore {
     }
     
     private Object executeRVMProgram(Function func, final IValue[] args, Map<String, IValue> kwArgs) {
-        
         root = new Frame(func.scopeId, null, func.maxstack, func);
 
         root.stack[0] = vf.list(args); // pass the program argument to
@@ -291,6 +290,7 @@ public class RVMonJVM extends RVMCore {
         root.sp = func.getNlocals();
 
         try {
+           increaseActivationDepth();
             return func.handle.invoke(this, root);
         } catch (Throwable e) {
             if(e instanceof Thrown){
@@ -298,6 +298,8 @@ public class RVMonJVM extends RVMCore {
             } else {
                 throw new RuntimeException(e);
             }
+        } finally {
+           decreaseActivationDepth(); 
         }
     }
     

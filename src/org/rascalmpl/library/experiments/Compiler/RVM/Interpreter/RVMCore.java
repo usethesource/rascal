@@ -109,11 +109,11 @@ public abstract class RVMCore {
 	
 	private int activationDepth = 0;
 	
-	public synchronized void increaseActivationDepth() {
+	protected synchronized void increaseActivationDepth() {
 	    activationDepth += 1;
 	}
 	
-	public synchronized void decreaseActivationDepth() {
+	protected synchronized void decreaseActivationDepth() {
 	    activationDepth -= 1;
 	    if(activationDepth == 0) {
 	        activeCoroutines.clear();
@@ -463,7 +463,7 @@ public abstract class RVMCore {
 	 * @param kwArgs	Keyword arguments
 	 * @return
 	 */
-	public Object executeRVMFunction(String uid_func, IValue[] posArgs, Map<String,IValue> kwArgs){
+	/*package*/ Object executeRVMFunction(String uid_func, IValue[] posArgs, Map<String,IValue> kwArgs){
 		// Assumption here is that the function called is not a nested one and does not use global variables
 		Function func = functionStore[functionMap.get(uid_func)];
 		return executeRVMFunction(func, posArgs, kwArgs);
@@ -477,30 +477,48 @@ public abstract class RVMCore {
 	 * @return		   Result of function execution
 	 */
 	public synchronized IValue executeRVMFunction(OverloadedFunction func, IValue[] posArgs, Map<String, IValue> kwArgs){
-	    func.fids2objects(functionStore, constructorStore);
-		if(func.getFunctions().length > 0){
-				Function firstFunc = func.functionsAsFunction[0]; 
-				Frame root = new Frame(func.scopeIn, null, null, func.getArity()+2, firstFunc);
-				OverloadedFunctionInstance ofi = OverloadedFunctionInstance.computeOverloadedFunctionInstance(func.functionsAsFunction, func.constructorsAsType, root, func.scopeIn, this);
-				return executeRVMFunction(ofi, posArgs, kwArgs);
-		} else {
-			Type cons = func.constructorsAsType[0];
-			return vf.constructor(cons, posArgs, kwArgs);
-		}
+	    try {
+	        increaseActivationDepth();
+	        func.fids2objects(functionStore, constructorStore);
+	        if(func.getFunctions().length > 0){
+	            Function firstFunc = func.functionsAsFunction[0]; 
+	            Frame root = new Frame(func.scopeIn, null, null, func.getArity()+2, firstFunc);
+	            OverloadedFunctionInstance ofi = OverloadedFunctionInstance.computeOverloadedFunctionInstance(func.functionsAsFunction, func.constructorsAsType, root, func.scopeIn, this);
+	            return executeRVMFunction(ofi, posArgs, kwArgs);
+	        } else {
+	            Type cons = func.constructorsAsType[0];
+	            return vf.constructor(cons, posArgs, kwArgs);
+	        }
+	    }
+	    finally {
+	        decreaseActivationDepth();
+	    }
 	}
 	
 	public synchronized IList executeTests(ITestResultListener testResultListener, RascalExecutionContext rex){
-	  IListWriter w = vf.listWriter();
-	  for(Function f : functionStore){
-	    if(f.isTest){
-	      w.append(f.executeTest(testResultListener, getTypeStore(), rex));
+	    try {
+	        increaseActivationDepth();
+	        IListWriter w = vf.listWriter();
+	        for(Function f : functionStore){
+	            if(f.isTest){
+	                w.append(f.executeTest(testResultListener, getTypeStore(), rex));
+	            }
+	        }
+	        return w.done();
+	    } 
+	    finally {
+	        decreaseActivationDepth();
 	    }
-	  }
-	  return w.done();
 	}
 	
 	public synchronized Object safeExecuteRVMFunction(Function func, IValue[] posArgs, Map<String,IValue> kwArgs) {
-        return executeRVMFunction(func, posArgs, kwArgs);
+	    try {
+	        increaseActivationDepth();
+	        return executeRVMFunction(func, posArgs, kwArgs);
+	    }
+	    finally {
+	        decreaseActivationDepth();
+	    }
     }
 	
     public synchronized IValue safeExecuteRVMFunction(FunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs) {
