@@ -83,7 +83,7 @@ public class RVMonJVM extends RVMCore {
      * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function, io.usethesource.vallang.IValue[], java.util.Map)
      */
     @Override
-    public Object executeRVMFunction(Function func, IValue[] posArgs, Map<String,IValue> kwArgs){
+    /*package*/ Object executeRVMFunction(Function func, IValue[] posArgs, Map<String,IValue> kwArgs){
         // Assumption here is that the function called is not a nested one
         // and does not use global variables
         Frame root = new Frame(func.scopeId, null, func.maxstack, func);
@@ -128,7 +128,7 @@ public class RVMonJVM extends RVMCore {
      * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FunctionInstance, io.usethesource.vallang.IValue[])
      */
     @Override
-    public IValue executeRVMFunction(FunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs) {
+    /*package*/ IValue executeRVMFunction(FunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs) {
 
 //        Thrown oldthrown = thrown;
 
@@ -174,7 +174,7 @@ public class RVMonJVM extends RVMCore {
      * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunctionInstance, io.usethesource.vallang.IValue[])
      */
     @Override
-    public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs){        
+    /*package*/ IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs){        
         Function firstFunc = func.getFunctions()[0]; // TODO: null?
         int arity = posArgs.length + 1;
         int scopeId = func.env == null ? 0 : func.env.scopeId;
@@ -242,7 +242,7 @@ public class RVMonJVM extends RVMCore {
      * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMProgram(java.lang.String, java.lang.String, io.usethesource.vallang.IValue[], java.util.HashMap)
      */
     @Override
-    public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] posArgs, Map<String,IValue> kwArgs) {
+    /*package*/ IValue executeRVMProgram(String moduleName, String uid_main, IValue[] posArgs, Map<String,IValue> kwArgs) {
         
         try {
             increaseActivationDepth();
