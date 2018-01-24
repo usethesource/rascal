@@ -62,16 +62,29 @@ public class RVMonJVM extends RVMCore {
     static protected final IString PANIC        = ValueFactoryFactory.getValueFactory().string("$panic$");
     
     protected Object returnValue = null;        // Actual return value of functions
+    private final String generatedClassName;
     
     //EXPERIMENTAL
     private static final ThreadLocal<HashMap<String,RVMonJVM>> currentRVMonJVM = ThreadLocal.withInitial(HashMap::new);
     private static final ThreadLocal<HashMap<String,Function[]>> functionStores = ThreadLocal.withInitial(HashMap::new);
+    
+    @Override
+    protected void initializeGlobals() {
+        super.initializeGlobals();
+        currentRVMonJVM.get().put(generatedClassName, this);
+        functionStores.get().put(generatedClassName, functionStore);
+    }
+    
+    @Override
+    protected void clearGlobals() {
+        super.clearGlobals();
+        currentRVMonJVM.get().remove(generatedClassName);
+        functionStores.get().remove(generatedClassName);
+    }
 
     public RVMonJVM(RVMExecutable rvmExec, RascalExecutionContext rex) {
         super(rvmExec, rex);
-        String generatedClassName = rvmExec.getGeneratedClassQualifiedName();
-        currentRVMonJVM.get().put(generatedClassName, this);
-        functionStores.get().put(generatedClassName, functionStore);
+        generatedClassName = rvmExec.getGeneratedClassQualifiedName();
     }
     
     /************************************************************************************/
