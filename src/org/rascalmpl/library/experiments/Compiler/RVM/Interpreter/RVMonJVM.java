@@ -64,14 +64,14 @@ public class RVMonJVM extends RVMCore {
     protected Object returnValue = null;        // Actual return value of functions
     
     //EXPERIMENTAL
-    static HashMap<String,RVMonJVM> currentRVMonJVM = new HashMap<>();
-    static HashMap<String,Function[]> functionStores = new HashMap<>();
+    private static final ThreadLocal<HashMap<String,RVMonJVM>> currentRVMonJVM = ThreadLocal.withInitial(HashMap::new);
+    private static final ThreadLocal<HashMap<String,Function[]>> functionStores = ThreadLocal.withInitial(HashMap::new);
 
     public RVMonJVM(RVMExecutable rvmExec, RascalExecutionContext rex) {
         super(rvmExec, rex);
         String generatedClassName = rvmExec.getGeneratedClassQualifiedName();
-        currentRVMonJVM.put(generatedClassName, this);
-        functionStores.put(generatedClassName, functionStore);
+        currentRVMonJVM.get().put(generatedClassName, this);
+        functionStores.get().put(generatedClassName, functionStore);
     }
     
     /************************************************************************************/
@@ -401,7 +401,7 @@ public class RVMonJVM extends RVMCore {
     public static CallSite bootstrapGetFrameAndCall(MethodHandles.Lookup caller, String name, MethodType type, Object className, Object funId, Object arity) throws NoSuchMethodException, IllegalAccessException, ClassNotFoundException {
         MethodHandles.Lookup lookup = caller;
         String generatedClassName = (String) className;
-        Function func = functionStores.get(generatedClassName)[(Integer) funId];
+        Function func = functionStores.get().get(generatedClassName)[(Integer) funId];
         MethodType getFrameType = MethodType.methodType(Frame.class, Function.class, Frame.class, int.class, int.class);
 
         MethodHandle getFrame = lookup.findVirtual(Frame.class, "getFrame", getFrameType);
@@ -409,7 +409,7 @@ public class RVMonJVM extends RVMCore {
         MethodHandle getFrame2 = MethodHandles.insertArguments(getFrame1, 2, (Integer) arity);
          
         MethodHandle funToCall = func.handle;
-        MethodHandle funToCall1 = MethodHandles.insertArguments(funToCall, 0, currentRVMonJVM.get(generatedClassName));
+        MethodHandle funToCall1 = MethodHandles.insertArguments(funToCall, 0, currentRVMonJVM.get().get(generatedClassName));
         MethodHandle combined = filterReturnValue(getFrame2, funToCall1);
         
         return new ConstantCallSite(combined.asType(type));
