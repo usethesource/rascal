@@ -47,7 +47,7 @@ lexical ConcretePart
   
 syntax ConcreteHole 
   = \one: "\<" Sym symbol Name name "\>"
-  | \qualifiedName: "$" >> [A-Z a-z _] QualifiedName name
+  | \qualifiedName: "$" >> [A-Z a-z _] QualifiedName qualifiedName
   | \typedVariable: "$(" Type typ Name name ")"
   ;
   
