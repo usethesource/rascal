@@ -109,15 +109,30 @@ public abstract class RVMCore {
 	
 	private int activationDepth = 0;
 	
+	protected void initializeGlobals() { 
+	    ccf = null;
+	    cccf = null;
+	}
+
+	protected void clearGlobals() { 
+	    activeCoroutines.clear();
+	    ccf = null;
+	    cccf = null;
+	}
+	
 	protected synchronized void increaseActivationDepth() {
+	    if (activationDepth == 0) {
+	        initializeGlobals();
+	    }
 	    activationDepth += 1;
 	}
 	
 	protected synchronized void decreaseActivationDepth() {
 	    activationDepth -= 1;
 	    if(activationDepth == 0) {
-	        activeCoroutines.clear();
+	        clearGlobals();
 	    }
+	    assert activationDepth >= 0;
 	}
 	
 	public static RVMCore readFromFileAndInitialize(ISourceLocation rvmBinaryLocation, RascalExecutionContext rex) throws IOException{
