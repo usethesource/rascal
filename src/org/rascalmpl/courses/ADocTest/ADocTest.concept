@@ -13,6 +13,15 @@ Test Case
 
 .Details
  
+[source,rascal-shell]
+----
+1 + 1
+----
+
+[source,rascal-shell]
+----
+5 * 5
+----
 
 .Description
 
