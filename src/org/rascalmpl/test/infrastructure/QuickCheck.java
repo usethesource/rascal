@@ -81,7 +81,7 @@ public class QuickCheck {
 
         IValue[] values = new IValue[formals.getArity()];
         // first we try to break the function
-        RandomValueGenerator generator = new RandomValueGenerator(vf, random, maxDepth, maxWidth);
+        RandomValueGenerator generator = new RandomValueGenerator(vf, random, maxDepth, maxWidth, !ignoreAnnotations);
         for (int i = 0; i < tries; i++) {
             for (int n = 0; n < values.length; n++) {
                 values[n] = generator.generate(types[n], store, tpbindings);
@@ -99,7 +99,7 @@ public class QuickCheck {
                 IValue[] smallerValues = new IValue[formals.getArity()];
                 for (int depth = 1; depth < maxDepth && !smallerFound; depth++) {
                     for (int width = 1; width < maxWidth && !smallerFound; width++) {
-                        RandomValueGenerator gen = new RandomValueGenerator(vf, random, depth, width);
+                        RandomValueGenerator gen = new RandomValueGenerator(vf, random, depth, width, !ignoreAnnotations);
                         for (int j = 0; j < tries && !smallerFound; j++) {
                             for (int n = 0; n < values.length; n++) {
                                 smallerValues[n] = gen.generate(types[n], store, tpbindings);
