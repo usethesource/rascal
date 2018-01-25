@@ -3583,7 +3583,7 @@ public class Prelude {
 	public IValue randomValue(IValue type, IInteger seed, IInteger depth, IInteger width){
 	    TypeStore store = new TypeStore(RascalValueFactory.getStore());
 	    Type start = tr.valueToType((IConstructor) type, store);
-	    return new RandomValueGenerator(values, new Random(seed.intValue()), depth.intValue(), width.intValue())
+	    return new RandomValueGenerator(values, new Random(seed.intValue()), depth.intValue(), width.intValue(), true)
 	        .generate(start, store, Collections.emptyMap());	    
 	}
 
