@@ -113,6 +113,7 @@ public class ConcurrentSoftReferenceObjectPool<T> {
     private void returnObject(TimestampedSoftReference<T> obj) {
         availableObjects.addFirst(obj);
         queueSize.incrementAndGet();
+        returnSignal.release();
     }
 
 
