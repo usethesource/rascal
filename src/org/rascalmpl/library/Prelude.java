@@ -137,7 +137,7 @@ public class Prelude {
 	}
 
     private IValue createRandomValue(Type t, int depth, int width) {
-        return new RandomValueGenerator(values, random, depth, width)
+        return new RandomValueGenerator(values, random, depth, width, true)
             .generate(t, new TypeStore(), Collections.emptyMap());
     }
 
