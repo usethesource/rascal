@@ -340,7 +340,6 @@ public class ASTBuilder {
 		ITree subTree = (org.rascalmpl.values.uptr.ITree) TreeAdapter.getArgs(tree).get(0);
 		String constructorName = TreeAdapter.getConstructorName(subTree);
 		if (constructorName.equals("one")) {
-		    //TODO
 		    IList args = TreeAdapter.getArgs(subTree);
 		    IConstructor nameTree = (IConstructor) args.get(4);
 		    ISourceLocation src = TreeAdapter.getLocation(subTree);
@@ -355,7 +354,11 @@ public class ASTBuilder {
 		    return result;
 		}
 		if (constructorName.equals("typedVariable")) {
-		    //TODO
+		    IList args = TreeAdapter.getArgs(subTree);
+		    IConstructor nameTree = (IConstructor) args.get(4);
+		    ISourceLocation src = TreeAdapter.getLocation(subTree);
+            Expression result = new Tree.MetaVariable(src, subTree, type, TreeAdapter.yield(nameTree));
+            return result;
 		}
 		throw new ImplementationError("Unknown ConcreteHole constructor: " + constructorName, TreeAdapter.getLocation(tree));
 	}
