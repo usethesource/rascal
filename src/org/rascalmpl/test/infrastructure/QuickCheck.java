@@ -36,6 +36,7 @@ public class QuickCheck {
     public static final String MAXDEPTH = "maxDepth";
     public static final String MAXWIDTH = "maxWidth";
     public static final String EXPECT_TAG = "expected";
+    public static final String IGNORE_ANNOTATIONS_TAG = "ignoreAnnotations";
 
     
     public static final TestResult SUCCESS = new TestResult(true, null);
@@ -62,7 +63,7 @@ public class QuickCheck {
         this.vf = vf;
     }
 
-    public TestResult test(String functionName, Type formals, String expectedException, BiFunction<Type[], IValue[], TestResult> executeTest, TypeStore store, int tries, int maxDepth, int maxWidth) {
+    public TestResult test(String functionName, Type formals, String expectedException, BiFunction<Type[], IValue[], TestResult> executeTest, TypeStore store, int tries, int maxDepth, int maxWidth, boolean ignoreAnnotations) {
         if (formals.getArity() == 0) {
             tries = 1; // no randomization needed
         }
