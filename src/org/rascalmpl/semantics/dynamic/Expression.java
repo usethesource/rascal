@@ -71,7 +71,6 @@ import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.RascalFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
-import org.rascalmpl.interpreter.staticErrors.ArgumentMismatch;
 import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
@@ -93,6 +92,7 @@ import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.util.IsEqualsAdapter;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -1587,14 +1587,15 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.notifyAboutSuspension(this);			
 
 			java.util.List<Mapping_Expression> mappings = this.getMappings();
-			java.util.Map<IValue, IValue> result = new HashMap<IValue, IValue>();
+			java.util.Map<IsEqualsAdapter, IValue> seen = new HashMap<>();
 			Type keyType = TF.voidType();
 			Type valueType = TF.voidType();
+			IMapWriter w = __eval.__getVf().mapWriter();
 
 			for (Mapping_Expression mapping : mappings) {
 				Result<IValue> keyResult = mapping.getFrom().interpret(__eval);
 				Result<IValue> valueResult = mapping.getTo().interpret(__eval);
-
+				
 				if (keyResult.getType().isBottom()) {
 					throw new NonVoidTypeRequired(mapping.getFrom());
 				}
@@ -1602,26 +1603,27 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				if (valueResult.getType().isBottom()) {
 					throw new NonVoidTypeRequired(mapping.getTo());
 				}
+				
+				IsEqualsAdapter key = new IsEqualsAdapter(keyResult.getValue());
 
 				keyType = keyType.lub(keyResult.getType());
 				valueType = valueType.lub(valueResult.getType());
 
-				IValue keyValue = result.get(keyResult.getValue());
+				IValue keyValue = seen.get(key);
+				
 				if (keyValue != null) {
 					throw org.rascalmpl.interpreter.utils.RuntimeExceptionFactory
-							.MultipleKey(keyResult.getValue(), mapping.getFrom(), __eval
+							.MultipleKey(keyResult.getValue(), keyValue, valueResult.getValue(), mapping.getFrom(), __eval
 									.getStackTrace());
 				}
-
-				result.put(keyResult.getValue(), valueResult.getValue());
+				
+				seen.put(key, valueResult.getValue());
+				w.put(key.getValue(), valueResult.getValue());
 			}
 
 			Type type = TF.mapType(keyType, valueType);
-			IMapWriter w = __eval.__getVf().mapWriter();
-			w.putAll(result);
-
-			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
-					type, w.done(), __eval);
+			
+			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(type, w.done(), __eval);
 
 		}
 

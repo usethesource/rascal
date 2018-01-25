@@ -97,7 +97,7 @@ test bool invertUnique6(map[&K,&V] M)
 	try	{ 
 		map[&V,&K] RM = invertUnique(M);
 		return range(M) == domain(RM);
-	} catch MultipleKey(_): return true;
+	} catch MultipleKey(_,_,_): return true;
 	
 }
 test bool invertUnique7(map[&K,&V] M)
@@ -105,7 +105,7 @@ test bool invertUnique7(map[&K,&V] M)
 	try	{
 		map[&V,&K] RM = invertUnique(M);
 		return range(RM) == domain(M);
-	} catch MultipleKey(_): return true;
+	} catch MultipleKey(_,_,_): return true;
 }
 test bool invertUnique8(set[int] D, set[int] R)
 {
