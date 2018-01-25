@@ -87,15 +87,12 @@ data RuntimeException =
      | JavaException(str class, str message)
      | JavaException(str class, str message, RuntimeException cause)
      | ModuleNotFound(str name)                 // Deprecated
+     | MultipleKey(value key, value first, value second)
      | NoMainFunction()
      | NoSuchAnnotation(str label)
      | NoSuchField(str name)
      | NoSuchKey(value key)
-    
-   
      | NotImplemented(str message)
-    
-     | MultipleKey(value key)
      | ParseError(loc location)
      // add versions of ParseError
      | PathNotFound(loc l)          // Deprecated
