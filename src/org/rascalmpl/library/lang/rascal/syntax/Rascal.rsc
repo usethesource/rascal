@@ -833,7 +833,6 @@ lexical Char
 syntax Prod
 	= reference: ":" Name referenced
 	| labeled: ProdModifier* modifiers Name name ":" Sym* syms 
-	| others: "..." 
 	| unlabeled: ProdModifier* modifiers Sym* syms
 	| @Foldable associativityGroup: Assoc associativity "(" Prod group ")" 
 	// | TODO add bracket rule for easy readability

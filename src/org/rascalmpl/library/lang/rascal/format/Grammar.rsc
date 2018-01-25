@@ -123,15 +123,11 @@ public default str alt2rascal(Production p) { throw "forgot <p>"; }
 
 public str prod2rascal(Production p) {
   switch (p) {
-    case choice(s, alts) : 
-        if (alts != {}) {
+    case choice(s, alts) : {
         	<fst, rest> = takeOneFrom(alts);
 			return "<prod2rascal(fst)><for (pr:prod(_,_,_) <- rest) {>
 			       '| <prod2rascal(pr)><}><for (pr <- rest, prod(_,_,_) !:= pr) {>
 			       '| <prod2rascal(pr)><}>";
-		}
-		else {  
-		  return "...";
 		}
     case priority(s, alts) :
         return "<prod2rascal(head(alts))><for (pr <- tail(alts)) {>
@@ -144,9 +140,6 @@ public str prod2rascal(Production p) {
     		       '  )";
  		}
 
-    case others(sym):
-        return "...";
- 
     case prod(label(str n,Symbol rhs),list[Symbol] lhs,set[Attr] as) :
         return "<for (a <- as) {> <attr2mod(a)><}><reserved(n)>: <for(s <- lhs){><symbol2rascal(s)> <}>";
  
@@ -197,6 +190,7 @@ public str attr2mod(Attr a) {
     case \bracket(): return "bracket";
     case \tag(str x(str y)) : return "@<x>=\"<escape(y)>\"";
     case \tag(str x()) : return "@<x>";
+    case \assoc(Associativity as) : return associativity(as);
     default : return "@Unsupported(\"<escape("<a>")>\")";
   }
 }

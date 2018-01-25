@@ -62,16 +62,29 @@ public class RVMonJVM extends RVMCore {
     static protected final IString PANIC        = ValueFactoryFactory.getValueFactory().string("$panic$");
     
     protected Object returnValue = null;        // Actual return value of functions
+    private final String generatedClassName;
     
     //EXPERIMENTAL
-    static HashMap<String,RVMonJVM> currentRVMonJVM = new HashMap<>();
-    static HashMap<String,Function[]> functionStores = new HashMap<>();
+    private static final ThreadLocal<HashMap<String,RVMonJVM>> currentRVMonJVM = ThreadLocal.withInitial(HashMap::new);
+    private static final ThreadLocal<HashMap<String,Function[]>> functionStores = ThreadLocal.withInitial(HashMap::new);
+    
+    @Override
+    protected void initializeGlobals() {
+        super.initializeGlobals();
+        currentRVMonJVM.get().put(generatedClassName, this);
+        functionStores.get().put(generatedClassName, functionStore);
+    }
+    
+    @Override
+    protected void clearGlobals() {
+        super.clearGlobals();
+        currentRVMonJVM.get().remove(generatedClassName);
+        functionStores.get().remove(generatedClassName);
+    }
 
     public RVMonJVM(RVMExecutable rvmExec, RascalExecutionContext rex) {
         super(rvmExec, rex);
-        String generatedClassName = rvmExec.getGeneratedClassQualifiedName();
-        currentRVMonJVM.put(generatedClassName, this);
-        functionStores.put(generatedClassName, functionStore);
+        generatedClassName = rvmExec.getGeneratedClassQualifiedName();
     }
     
     /************************************************************************************/
@@ -83,43 +96,49 @@ public class RVMonJVM extends RVMCore {
      * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function, io.usethesource.vallang.IValue[], java.util.Map)
      */
     @Override
-    public Object executeRVMFunction(Function func, IValue[] posArgs, Map<String,IValue> kwArgs){
-        // Assumption here is that the function called is not a nested one
-        // and does not use global variables
-        Frame root = new Frame(func.scopeId, null, func.maxstack, func);
-        Frame cf = root;
-        
-        // Pass the program arguments to main
-        for(int i = 0; i < posArgs.length; i++){
-            cf.stack[i] = posArgs[i]; 
-        }
-        cf.stack[func.nformals-1] =  kwArgs; // new HashMap<String, IValue>();
-        cf.sp = func.getNlocals();
-        //cf.stack[func.nformals] = kwArgs == null ? new HashMap<String, IValue>() : kwArgs;
-        
+    /*package*/ Object executeRVMFunction(Function func, IValue[] posArgs, Map<String,IValue> kwArgs){
         try {
-            func.handle.invoke(this,cf);
-            if(returnValue instanceof Thrown){
-                frameObserver.exception(cf, (Thrown) returnValue);
-                throw (Thrown) returnValue;
+            increaseActivationDepth();
+            // Assumption here is that the function called is not a nested one
+            // and does not use global variables
+            Frame root = new Frame(func.scopeId, null, func.maxstack, func);
+            Frame cf = root;
+
+            // Pass the program arguments to main
+            for(int i = 0; i < posArgs.length; i++){
+                cf.stack[i] = posArgs[i]; 
             }
-            return returnValue;
+            cf.stack[func.nformals-1] =  kwArgs; // new HashMap<String, IValue>();
+            cf.sp = func.getNlocals();
+            //cf.stack[func.nformals] = kwArgs == null ? new HashMap<String, IValue>() : kwArgs;
+
+            try {
+                func.handle.invoke(this,cf);
+                if(returnValue instanceof Thrown){
+                    frameObserver.exception(cf, (Thrown) returnValue);
+                    throw (Thrown) returnValue;
+                }
+                return returnValue;
+            }
+            catch (RuntimeException e) {
+                // all unchecked exceptions are passed on
+                throw e;
+            }
+            catch (InvocationTargetException e) {
+                Throwable targetException = e.getTargetException();
+                if (targetException instanceof RuntimeException) {
+                    throw (RuntimeException) targetException;
+                }
+
+                throw new RuntimeException(targetException);
+            }
+            catch (Throwable e){
+                // the other (checked) exceptions are wrapped 
+                throw new RuntimeException(e);
+            }
         }
-        catch (RuntimeException e) {
-            // all unchecked exceptions are passed on
-            throw e;
-        }
-        catch (InvocationTargetException e) {
-             Throwable targetException = e.getTargetException();
-             if (targetException instanceof RuntimeException) {
-                 throw (RuntimeException) targetException;
-             }
-             
-             throw new RuntimeException(targetException);
-        }
-        catch (Throwable e){
-            // the other (checked) exceptions are wrapped 
-            throw new RuntimeException(e);
+        finally {
+            decreaseActivationDepth();
         }
     }
 
@@ -128,45 +147,51 @@ public class RVMonJVM extends RVMCore {
      * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.FunctionInstance, io.usethesource.vallang.IValue[])
      */
     @Override
-    public IValue executeRVMFunction(FunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs) {
-
-//        Thrown oldthrown = thrown;
-
-        Frame root = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
-        root.sp = func.function.getNlocals();
-
-        // Pass the program arguments to main
-        for (int i = 0; i < posArgs.length; i++) {
-            root.stack[i] = posArgs[i];
-        }
-        root.stack[posArgs.length] = kwArgs;
-
+    /*package*/ IValue executeRVMFunction(FunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs) {
         try {
-            func.function.handle.invoke(this, root);
-        } catch (Throwable e) {
-            if(e instanceof Thrown){
-                throw (Thrown) e;
-            } 
-            else {
-                throw new RuntimeException(e);
-            }
-        }
-//        thrown = oldthrown;
+            increaseActivationDepth();
 
-        if (returnValue instanceof Thrown) {
-            frameObserver.exception(root, (Thrown) returnValue);
-            throw (Thrown) returnValue;
+            //        Thrown oldthrown = thrown;
+
+            Frame root = new Frame(func.function.scopeId, null, func.env, func.function.maxstack, func.function);
+            root.sp = func.function.getNlocals();
+
+            // Pass the program arguments to main
+            for (int i = 0; i < posArgs.length; i++) {
+                root.stack[i] = posArgs[i];
+            }
+            root.stack[posArgs.length] = kwArgs;
+
+            try {
+                func.function.handle.invoke(this, root);
+            } catch (Throwable e) {
+                if(e instanceof Thrown){
+                    throw (Thrown) e;
+                } 
+                else {
+                    throw new RuntimeException(e);
+                }
+            }
+            //        thrown = oldthrown;
+
+            if (returnValue instanceof Thrown) {
+                frameObserver.exception(root, (Thrown) returnValue);
+                throw (Thrown) returnValue;
+            }
+            if(returnValue instanceof IValue){
+                IValue v = (IValue) returnValue;
+                Type tp = v.getType();
+                if(tp.isAbstractData() && tp.getName().equals("RuntimeException")){
+                    Thrown th = Thrown.getInstance(v, null, null);
+                    frameObserver.exception(root, th);
+                    throw th;
+                }
+            }
+            return narrow(returnValue);
         }
-        if(returnValue instanceof IValue){
-          IValue v = (IValue) returnValue;
-          Type tp = v.getType();
-          if(tp.isAbstractData() && tp.getName().equals("RuntimeException")){
-            Thrown th = Thrown.getInstance(v, null, null);
-            frameObserver.exception(root, th);
-            throw th;
-          }
+        finally {
+            decreaseActivationDepth();
         }
-        return narrow(returnValue);
     }
     
     /* (non-Javadoc)
@@ -174,44 +199,50 @@ public class RVMonJVM extends RVMCore {
      * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMFunction(org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunctionInstance, io.usethesource.vallang.IValue[])
      */
     @Override
-    public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs){        
-        Function firstFunc = func.getFunctions()[0]; // TODO: null?
-        int arity = posArgs.length + 1;
-        int scopeId = func.env == null ? 0 : func.env.scopeId;
-        Frame root = new Frame(scopeId, null, func.env, arity+2, firstFunc);
+    /*package*/ IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs){        
+        try {
+            increaseActivationDepth();
+            Function firstFunc = func.getFunctions()[0]; // TODO: null?
+            int arity = posArgs.length + 1;
+            int scopeId = func.env == null ? 0 : func.env.scopeId;
+            Frame root = new Frame(scopeId, null, func.env, arity+2, firstFunc);
 
-        // Pass the program arguments to func
-        for(int i = 0; i < posArgs.length; i++) {
-            root.stack[i] = posArgs[i]; 
-        }
-        root.stack[arity - 1] = kwArgs;
-        root.sp = arity;
-        root.previousCallFrame = null;
-
-        OverloadedFunctionInstanceCall ofunCall = new OverloadedFunctionInstanceCall(root, func.getFunctions(), func.getConstructors(), func.env, null, arity, rex);
-
-        Frame frame = ofunCall.nextFrame();
-        while (frame != null) {
-            
-            Object result;
-            try {
-                result = frame.function.handle.invoke(this, frame);
+            // Pass the program arguments to func
+            for(int i = 0; i < posArgs.length; i++) {
+                root.stack[i] = posArgs[i]; 
             }
-            catch (Throwable e) {
-                if(e instanceof Thrown){
-                    throw (Thrown) e;
-                } else {
-                    throw new RuntimeException(e);
+            root.stack[arity - 1] = kwArgs;
+            root.sp = arity;
+            root.previousCallFrame = null;
+
+            OverloadedFunctionInstanceCall ofunCall = new OverloadedFunctionInstanceCall(root, func.getFunctions(), func.getConstructors(), func.env, null, arity, rex);
+
+            Frame frame = ofunCall.nextFrame();
+            while (frame != null) {
+
+                Object result;
+                try {
+                    result = frame.function.handle.invoke(this, frame);
                 }
+                catch (Throwable e) {
+                    if(e instanceof Thrown){
+                        throw (Thrown) e;
+                    } else {
+                        throw new RuntimeException(e);
+                    }
+                }
+                if (result == NONE) {
+                    return narrow(returnValue); // Alternative matched.
+                }
+                frame = ofunCall.nextFrame();
             }
-            if (result == NONE) {
-                return narrow(returnValue); // Alternative matched.
-            }
-            frame = ofunCall.nextFrame();
-        }
-        Type constructor = ofunCall.nextConstructor();
+            Type constructor = ofunCall.nextConstructor();
 
-        return vf.constructor(constructor, ofunCall.getConstructorArguments(constructor.getArity()));
+            return vf.constructor(constructor, ofunCall.getConstructorArguments(constructor.getArity()));
+        }
+        finally {
+            decreaseActivationDepth();
+        }
     }
     
     /* (non-Javadoc)
@@ -220,21 +251,27 @@ public class RVMonJVM extends RVMCore {
      */
     @Override
     public IValue executeRVMFunctionInVisit(Frame root){
-        root.sp = root.function.getNlocals();   // TODO: should be done at frame creation.
         try {
-            root.function.handle.invoke(this, root);
-        } catch (Throwable e) {
-            if(e instanceof Thrown){
-                throw (Thrown) e;
-            } else {
-                throw new RuntimeException(e);
+            increaseActivationDepth();
+            root.sp = root.function.getNlocals();   // TODO: should be done at frame creation.
+            try {
+                root.function.handle.invoke(this, root);
+            } catch (Throwable e) {
+                if(e instanceof Thrown){
+                    throw (Thrown) e;
+                } else {
+                    throw new RuntimeException(e);
+                }
             }
+            if(returnValue instanceof Thrown){
+                frameObserver.exception(root, (Thrown) returnValue);
+                throw (Thrown) returnValue;
+            }
+            return (IValue) returnValue;
         }
-        if(returnValue instanceof Thrown){
-            frameObserver.exception(root, (Thrown) returnValue);
-            throw (Thrown) returnValue;
+        finally {
+            decreaseActivationDepth();
         }
-        return (IValue) returnValue;
     }
     
     /* (non-Javadoc)
@@ -242,7 +279,7 @@ public class RVMonJVM extends RVMCore {
      * @see org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore#executeRVMProgram(java.lang.String, java.lang.String, io.usethesource.vallang.IValue[], java.util.HashMap)
      */
     @Override
-    public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] posArgs, Map<String,IValue> kwArgs) {
+    /*package*/ IValue executeRVMProgram(String moduleName, String uid_main, IValue[] posArgs, Map<String,IValue> kwArgs) {
         
         try {
             increaseActivationDepth();
@@ -283,7 +320,6 @@ public class RVMonJVM extends RVMCore {
     }
     
     private Object executeRVMProgram(Function func, final IValue[] args, Map<String, IValue> kwArgs) {
-        
         root = new Frame(func.scopeId, null, func.maxstack, func);
 
         root.stack[0] = vf.list(args); // pass the program argument to
@@ -291,6 +327,7 @@ public class RVMonJVM extends RVMCore {
         root.sp = func.getNlocals();
 
         try {
+           increaseActivationDepth();
             return func.handle.invoke(this, root);
         } catch (Throwable e) {
             if(e instanceof Thrown){
@@ -298,6 +335,8 @@ public class RVMonJVM extends RVMCore {
             } else {
                 throw new RuntimeException(e);
             }
+        } finally {
+           decreaseActivationDepth(); 
         }
     }
     
@@ -399,7 +438,7 @@ public class RVMonJVM extends RVMCore {
     public static CallSite bootstrapGetFrameAndCall(MethodHandles.Lookup caller, String name, MethodType type, Object className, Object funId, Object arity) throws NoSuchMethodException, IllegalAccessException, ClassNotFoundException {
         MethodHandles.Lookup lookup = caller;
         String generatedClassName = (String) className;
-        Function func = functionStores.get(generatedClassName)[(Integer) funId];
+        Function func = functionStores.get().get(generatedClassName)[(Integer) funId];
         MethodType getFrameType = MethodType.methodType(Frame.class, Function.class, Frame.class, int.class, int.class);
 
         MethodHandle getFrame = lookup.findVirtual(Frame.class, "getFrame", getFrameType);
@@ -407,7 +446,7 @@ public class RVMonJVM extends RVMCore {
         MethodHandle getFrame2 = MethodHandles.insertArguments(getFrame1, 2, (Integer) arity);
          
         MethodHandle funToCall = func.handle;
-        MethodHandle funToCall1 = MethodHandles.insertArguments(funToCall, 0, currentRVMonJVM.get(generatedClassName));
+        MethodHandle funToCall1 = MethodHandles.insertArguments(funToCall, 0, currentRVMonJVM.get().get(generatedClassName));
         MethodHandle combined = filterReturnValue(getFrame2, funToCall1);
         
         return new ConstantCallSite(combined.asType(type));
