@@ -69,6 +69,7 @@ public class ObjectPoolTest {
         waitToStartRunning.await();
         finishedRunning.await();
         assertTrue(result.get());
+        assertTrue(target.healthCheck());
     }
 
     @Test
@@ -79,6 +80,7 @@ public class ObjectPoolTest {
         Thread.sleep(10);
         target.useAndReturn((t) -> { leakInternal.add(t); return t.tryRun(); } );
         assertNotSame(leakInternal.get(0), leakInternal.get(1));
+        assertTrue(target.healthCheck());
     }
 
     @Test
@@ -96,6 +98,7 @@ public class ObjectPoolTest {
         }
         
         assertEquals(2, remaining);
+        assertTrue(target.healthCheck());
     }
 
     private <T> Set<T> collectInternalObjects(ConcurrentSoftReferenceObjectPool<T> target, int collect) throws InterruptedException, BrokenBarrierException {

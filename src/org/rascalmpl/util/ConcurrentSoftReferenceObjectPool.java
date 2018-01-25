@@ -54,7 +54,7 @@ public class ConcurrentSoftReferenceObjectPool<T> {
      * @param timeout access timeout after which objects are cleared (LRU alike property)
      * @param timeoutUnit the unit of the  timeout parameter.
      * @param keepAlive how many objects should always be kept in the pool. These objects will not respect clearing caused by the timeout parameter.
-     * @param initializeObject a function that generates a new object for this pool.
+     * @param initializeObject a function that generates a new object for this pool. <strong> Make sure this code is thread-safe! It can be called from different threads, in parallel </strong>
      */
 	public ConcurrentSoftReferenceObjectPool(long timeout, TimeUnit timeoutUnit, int keepAlive, Supplier<T> initializeObject) {
 	    if (timeout <= 0) {
@@ -90,24 +90,14 @@ public class ConcurrentSoftReferenceObjectPool<T> {
 	    }
 	}
 	
-	/**
-	 * Take a Object out of this Object Pool, you have to take care to offer it back. <strong>In most cases you want to use {@link #useAndReturn} </strong>
-	 */
-	public T take() {
-	    TimestampedSoftReference<T> obj;
-	    while ((obj = checkoutObject()) != null) {
-	        if (obj.get() != null) {
-	            return obj.get();
+	public boolean healthCheck() {
+	    for (int i = 0; i < 10; i++) {
+	        // it could be that we are just in the middle of an off by one window, so loop a few times to make sure that's not the case
+	        if (this.queueSize.get() == this.availableObjects.size()) {
+	            return true;
 	        }
 	    }
-	    throw new RuntimeException("Should be unreachable code, we should always get a new reference");
-	}
-	
-	/**
-	 * Offer a Object back to this Object Pool. <strong>In most cases you want to use {@link #useAndReturn} </strong>
-	 */
-	public void offer(T obj) {
-	    returnObject(new TimestampedSoftReference<>(Objects.requireNonNull(obj), cleanedReferences));
+	    return false;
 	}
 
     private void returnObject(TimestampedSoftReference<T> obj) {
