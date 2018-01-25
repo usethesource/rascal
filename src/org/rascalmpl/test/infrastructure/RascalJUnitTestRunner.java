@@ -46,7 +46,9 @@ public class RascalJUnitTestRunner extends Runner {
 	private static PrintWriter stderr;
 	private static PrintWriter stdout;
 	private Description desc;
-	private String prefix;
+	
+	private final String prefix;
+	private final String scheme;
 
 	static {
 		heap = new GlobalEnvironment();
@@ -60,25 +62,33 @@ public class RascalJUnitTestRunner extends Runner {
 	}  
 	
 	public RascalJUnitTestRunner(Class<?> clazz) {
-		this(clazz.getAnnotation(RascalJUnitTestPrefix.class).value());
+        this(clazz.getAnnotation(RascalJUnitTestPrefix.class).value(), 
+             clazz.isAnnotationPresent(RascalJUnitTestScheme.class) ? clazz.getAnnotation(RascalJUnitTestScheme.class).value() : "std");
+
+        if (clazz.isAnnotationPresent(RascalJUnitTestScheme.class)) {
+            evaluator.addRascalSearchPath(URIUtil.rootLocation(scheme));
+        }
+
 		try {
-      Object instance = clazz.newInstance();
-      if (instance instanceof IRascalJUnitTestSetup) {
-        ((IRascalJUnitTestSetup) instance).setup(evaluator);
-      }
-      else {
-        evaluator.addRascalSearchPath(URIUtil.rootLocation("tmp"));
-      }
-    } catch (InstantiationException e) {
-      throw new ImplementationError("could not setup tests for: " + clazz.getCanonicalName(), e);
-    } catch (IllegalAccessException e) {
-      throw new ImplementationError("could not setup tests for: " + clazz.getCanonicalName(), e);
-    }
+		    Object instance = clazz.newInstance();
+
+          if (instance instanceof IRascalJUnitTestSetup) {
+            ((IRascalJUnitTestSetup) instance).setup(evaluator);
+          }
+          else {
+            evaluator.addRascalSearchPath(URIUtil.rootLocation("tmp"));
+          }
+		} catch (InstantiationException e) {
+          throw new ImplementationError("could not setup tests for: " + clazz.getCanonicalName(), e);
+        } catch (IllegalAccessException e) {
+          throw new ImplementationError("could not setup tests for: " + clazz.getCanonicalName(), e);
+        }
 	}
 	
-	public RascalJUnitTestRunner(String prefix) {
+	public RascalJUnitTestRunner(String prefix, String scheme) {
 	  // remove all the escapes (for example in 'lang::rascal::\syntax')
 		this.prefix = prefix;
+		this.scheme = scheme;
 	}
 	
 	public static String computeTestName(String name, ISourceLocation loc) {
@@ -118,7 +128,7 @@ public class RascalJUnitTestRunner extends Runner {
 		this.desc = desc;
 		
 		try {
-			List<String> modules = getRecursiveModuleList(evaluator.getValueFactory().sourceLocation("std", "", "/" + prefix.replaceAll("::", "/")));
+			List<String> modules = getRecursiveModuleList(evaluator.getValueFactory().sourceLocation(scheme, "", "/" + prefix.replaceAll("::", "/")));
 			Collections.shuffle(modules); // make sure the import order is different, not just the reported modules
 			
 			for (String module : modules) {
