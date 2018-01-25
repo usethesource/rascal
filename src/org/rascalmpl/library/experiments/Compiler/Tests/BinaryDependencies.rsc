@@ -368,7 +368,7 @@ test bool binaryDependencyNoTransitiveRecompile() {
      
    // recompile A, even with "recompile=true"
    pcfgA = pathConfig(srcs=[top + "a", |std:///|], bin=top + "BinA", libs=[top + "BinA", top + "BinB"]);
-   compileAndLink("A", pcfgA, jvm=true, recompile=true); 
+   compileAndLink("A", pcfgA, jvm=true); 
    
    // see what comes out
    second = execute("A", pcfgA, recompile=true);

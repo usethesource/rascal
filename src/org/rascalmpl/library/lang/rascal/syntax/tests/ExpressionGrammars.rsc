@@ -33,7 +33,7 @@ syntax Exp = left( add: Exp "+" Exp | minmin: Exp "--" Exp);
 
 // "modular" extensions in the priority relation
 syntax Exp = :mul > left Exp "/" Exp > :add;
-syntax Exp = ... > Exp "." Exp;
+syntax Exp = :add > Exp "." Exp;
 
 syntax F = left "-" F | "f" | right F "+";
 syntax G = left (G "+" G | "-" G | "^" G) | "g" | right (G "-" G | G "+");

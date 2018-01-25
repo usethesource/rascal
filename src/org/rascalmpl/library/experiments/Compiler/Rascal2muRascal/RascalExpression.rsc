@@ -1146,18 +1146,18 @@ private MuExp translateVisitCases(str fuid, Symbol subjectType, bool useConcrete
 }
 
 private tuple[set[Symbol] types, set[str] constructors] getTypesAndConstructorsInVisit(list[Case] cases){
-	reachableTypes = {};
+	reachableTypes1 = {};// TODO: renamed for new (experimental) type checker
 	reachableConstructors = {};
 	for(c <- cases){
 		if(c is patternWithAction){
 			tc = getTypesAndConstructors(c.patternWithAction.pattern);
 			reachableConstructors += tc.constructors;
-			reachableTypes += tc.types;
+			reachableTypes1 += tc.types;
 		} else {
 			return <{Symbol::\value()}, {}>;		// A default cases is present: everything can match
 		}
 	}
-	return <reachableTypes, reachableConstructors>;
+	return <reachableTypes1, reachableConstructors>;
 }
 
 public bool hasConcretePatternsOnly(list[Case] cases){
