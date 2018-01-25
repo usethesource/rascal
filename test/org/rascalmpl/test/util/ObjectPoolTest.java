@@ -14,6 +14,7 @@ package org.rascalmpl.test.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -39,6 +41,7 @@ public class ObjectPoolTest {
     @Test
     public void testObjectsAreOnlyReleasedOnce() throws InterruptedException, BrokenBarrierException {
         ConcurrentSoftReferenceObjectPool<TestConcurrentAccess> target = createExamplePool(100, 3);
+        final AtomicBoolean result = new AtomicBoolean(true);
         
         int numberOfThreads = 20;
         int numberOfTries = 2000;
@@ -49,9 +52,14 @@ public class ObjectPoolTest {
                 try {
                     waitToStartRunning.await();
                     for (int j = 0; j < numberOfTries; j++) {
-                        Assert.assertTrue(target.useAndReturn(t -> t.tryRun()));
+                        if (!target.useAndReturn(t -> t.tryRun())) {
+                            result.set(false);
+                        }
                     }
                     finishedRunning.await();
+                }
+                catch (RuntimeException e) {
+                    result.set(false);
                 }
                 catch (InterruptedException | BrokenBarrierException e) {
                     e.printStackTrace();
@@ -60,6 +68,7 @@ public class ObjectPoolTest {
         }
         waitToStartRunning.await();
         finishedRunning.await();
+        assertTrue(result.get());
     }
 
     @Test
