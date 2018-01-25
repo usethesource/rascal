@@ -134,7 +134,7 @@ public class ObjectPoolTest {
     
 
     private ConcurrentSoftReferenceObjectPool<TestConcurrentAccess> createExamplePool(int milliSecondTimeouts, int keepAround) {
-        ConcurrentSoftReferenceObjectPool<TestConcurrentAccess> target = new ConcurrentSoftReferenceObjectPool<>(milliSecondTimeouts, TimeUnit.MILLISECONDS, keepAround, () -> 
+        return new ConcurrentSoftReferenceObjectPool<>(milliSecondTimeouts, TimeUnit.MILLISECONDS, keepAround, () -> 
             new TestConcurrentAccess() {
                 private final Random random = new Random();
                 private volatile Thread currentThread;
@@ -158,7 +158,6 @@ public class ObjectPoolTest {
                 }
             }
         );
-        return target;
     }
 
 }
