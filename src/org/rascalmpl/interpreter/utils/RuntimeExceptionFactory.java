@@ -68,7 +68,7 @@ public class RuntimeExceptionFactory {
 	public static final Type PermissionDenied = TF.constructor(TS,Exception,"PermissionDenied",TF.stringType(), "message");
 	public static final Type AnonymousPermissionDenied = TF.constructor(TS,Exception,"PermissionDenied");
 	public static final Type ModuleNotFound = TF.constructor(TS, Exception, "ModuleNotFound", TF.stringType(), "name");
-	public static final Type MultipleKey = TF.constructor(TS, Exception, "MultipleKey", TF.valueType(), "key");
+	public static final Type MultipleKey = TF.constructor(TS, Exception, "MultipleKey", TF.valueType(), "key", TF.valueType(), "first", TF.valueType(), "second");
 	public static final Type NoSuchKey = TF.constructor(TS, Exception, "NoSuchKey", TF.valueType(), "key");
 	public static final Type NoSuchAnnotation = TF.constructor(TS, Exception, "NoSuchAnnotation", TF.stringType(), "label");
 	public static final Type NoSuchField = TF.constructor(TS, Exception, "NoSuchField", TF.stringType(), "label");
@@ -317,8 +317,8 @@ public class RuntimeExceptionFactory {
 		return new Throw(VF.constructor(MalFormedURI, VF.string(uri)), x, trace);
 	}
 	
-	public static Throw MultipleKey(IValue v, AbstractAST ast, StackTrace trace) {
-		return new Throw(VF.constructor(MultipleKey, v), ast, trace);
+	public static Throw MultipleKey(IValue v, IValue first, IValue second, AbstractAST ast, StackTrace trace) {
+		return new Throw(VF.constructor(MultipleKey, v, first, second), ast, trace);
 	}
 	
 	public static Throw nameMismatch(String expected, String got, AbstractAST ast, StackTrace trace) {
