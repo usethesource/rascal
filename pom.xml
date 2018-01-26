@@ -164,7 +164,7 @@
                             <goal>exec</goal>
                         </goals>
                     </execution>      
-                    <execution> <!--  compile the courses -->
+                    <!-- <execution>  compile the courses
                         <configuration>
                             <executable>java</executable>
                             <classpathScope>compile</classpathScope>
@@ -176,17 +176,17 @@
                                 <classpath />
                                 <argument>-Dfile.encoding=UTF-8</argument>
                                 <argument>org.rascalmpl.library.experiments.tutor3.CourseCompiler</argument>
-                                <argument>--bin</argument>
+                                <argument>- -bin</argument>
                                 <argument>${project.build.directory}/classes/boot</argument>
-                                <argument>--src</argument>
+                                <argument>- -src</argument>
                                 <argument>${project.basedir}/src/org/rascalmpl/library</argument>
-                                <argument>--boot</argument>
+                                <argument>- -boot</argument>
                                 <argument>${project.build.directory}/classes/boot</argument>
-                                <argument>--lib</argument>
+                                <argument>- -lib</argument>
                                 <argument>${project.build.directory}/classes/std</argument>
-                                <argument>--course</argument>
+                                <argument>- -course</argument>
                                 <argument>${project.basedir}/src/org/rascalmpl/courses</argument>
-                                <argument>--all</argument>
+                                <argument>- -all</argument>
                                 <argument>${rascal.courses}</argument>
                             </arguments>
                         </configuration>
@@ -195,7 +195,7 @@
                         <goals>
                             <goal>exec</goal>
                         </goals>
-                    </execution>
+                    </execution> -->
 				</executions>
 			</plugin>
 			<plugin>

@@ -24,7 +24,7 @@ extend lang::rascal::ide::Outline;
 
 // this is for the documentation compiler and help server
 extend util::Webserver;
-extend experiments::tutor3::QuestionCompiler;
+//extend experiments::tutor3::QuestionCompiler;
 extend experiments::Compiler::RascalExtraction::RascalExtraction;
 extend experiments::Compiler::RascalExtraction::ExtractDoc;
 extend experiments::Compiler::RascalExtraction::ExtractInfo;
