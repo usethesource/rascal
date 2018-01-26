@@ -316,7 +316,7 @@ lexical CaseInsensitiveStringConstant
 	= @category="Constant" "\'" StringCharacter* chars "\'" ;
 
 lexical Backslash
-	= [\\] !>> [/ \< \> \\] ;
+	= [\\] !>> [/ \< \> $ \\] ;
 
 syntax Label
 	= \default: Name name ":" 
@@ -326,7 +326,7 @@ lexical MidProtocolChars
 	= "\>" URLChars "\<" ;
 
 lexical NamedBackslash
-	= [\\] !>> [\< \> \\] ;
+	= [\\] !>> [\< \> $ \\] ;
 
 syntax Field
 	= index: IntegerLiteral fieldIndex 
@@ -394,9 +394,9 @@ syntax DataTarget
 	| labeled: Name label ":" ;
 
 lexical StringCharacter
-	= "\\" [\" \' \< \> \\ b f n r t] 
+	= "\\" [\" \' \< \> $ \\ b f n r t] 
 	| UnicodeEscape 
-	| ![\" \' \< \> \\]
+	| ![\" \' \< \> $ \\]
 	| [\n][\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* [\'] // margin 
 	;
 
@@ -778,9 +778,9 @@ lexical PreProtocolChars
 
 lexical NamedRegExp
 	= "\<" Name "\>" 
-	| [\\] [/ \< \> \\] 
+	| [\\] [/ \< \> $ \\] 
 	| NamedBackslash 
-	| ![/ \< \> \\] ;
+	| ![/ \< \> $ \\] ;
 
 syntax ProdModifier
 	= associativity: Assoc associativity 
@@ -825,8 +825,8 @@ syntax BasicType
 	;
 
 lexical Char
-	= @category="Constant" "\\" [\  \" \' \- \< \> \[ \\ \] b f n r t] 
-	| @category="Constant" ![\  \" \' \- \< \> \[ \\ \]] 
+	= @category="Constant" "\\" [\  \" \' \- \< \> $ \[ \\ \] b f n r t] 
+	| @category="Constant" ![\  \" \' \- \< \> $ \[ \\ \]] 
 	| @category="Constant" UnicodeEscape 
     ; 
     
