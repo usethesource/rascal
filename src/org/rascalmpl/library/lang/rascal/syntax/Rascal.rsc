@@ -396,7 +396,7 @@ syntax DataTarget
 lexical StringCharacter
 	= "\\" [\" \' \< \> $ \\ b f n r t] 
 	| UnicodeEscape 
-	| ![\" \' \< \> $ \\]
+	| ![\" \' \< \> \\] //TODO: add $
 	| [\n][\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* [\'] // margin 
 	;
 
@@ -778,9 +778,9 @@ lexical PreProtocolChars
 
 lexical NamedRegExp
 	= "\<" Name "\>" 
-	| [\\] [/ \< \> $ \\] 
+	| [\\] [/ \< \> \\] //TODO: add $ 
 	| NamedBackslash 
-	| ![/ \< \> $ \\] ;
+	| ![/ \< \> \\] ; //TODO: add $
 
 syntax ProdModifier
 	= associativity: Assoc associativity 
@@ -826,7 +826,7 @@ syntax BasicType
 
 lexical Char
 	= @category="Constant" "\\" [\  \" \' \- \< \> $ \[ \\ \] b f n r t] 
-	| @category="Constant" ![\  \" \' \- \< \> $ \[ \\ \]] 
+	| @category="Constant" ![\  \" \' \- \< \> \[ \\ \]] //TODO: add $ 
 	| @category="Constant" UnicodeEscape 
     ; 
     
