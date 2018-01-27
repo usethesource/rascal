@@ -501,7 +501,6 @@ MuExp translateQualifiedNamePat(QualifiedName name)
      
 MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`, Symbol subjectType){
    trType = translateType(tp);
-   str fuid; int pos;           // TODO: type was added for new (experimental) type checker
    if(subtype(subjectType, trType)){
 	   if("<name>" == "_"){
 	      return muApply(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR"), []);
@@ -582,7 +581,6 @@ MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>`, bool last, Symbo
 
 MuExp translatePatAsSetElem(p:(Pattern) `<Type tp> <Name name>`, bool last, Symbol subjectType) {
    trType = translateType(tp);
-   str fuid; int pos;           // TODO: type was added for new (experimental) type checker
    if(subtype(subjectType, trType)){
 	   if("<name>" == "_"){
 	      return muApply(mkCallToLibFun("Library","MATCH_ANONYMOUS_VAR_IN_SET"), []);
@@ -598,7 +596,6 @@ MuExp translatePatAsSetElem(p:(Pattern) `<Type tp> <Name name>`, bool last, Symb
 }  
 
 MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>*`, bool last, Symbol subjectType) {
-    str fuid; int pos;           // TODO: type was added for new (experimental) type checker
    if("<name>" == "_"){
       return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>ANONYMOUS_MULTIVAR_IN_SET"), []);
    }
@@ -608,7 +605,6 @@ MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>*`, bool last, Symb
 
 MuExp translatePatAsSetElem(p:(Pattern) `*<Type tp> <Name name>`, bool last, Symbol subjectType) {
    trType = translateType(tp);
-   str fuid; int pos;           // TODO: type was added for new (experimental) type checker
    if(subtype(subjectType, trType)){
 	   if("<name>" == "_"){
 	      return muApply(mkCallToLibFun("Library","MATCH_<isLast(last)>ANONYMOUS_MULTIVAR_IN_SET"), []);
