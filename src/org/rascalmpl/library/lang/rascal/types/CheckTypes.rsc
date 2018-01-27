@@ -141,7 +141,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Type t> <Parameters ps>
     // Add an empty closure -- this ensures that the parameters, processed
     // when building the function type, are created in the closure environment
     // instead of in the surrounding environment.  
-    Configuration cFun; // TODO: type was added for new (experimental) type checker
+    
     < cFun, rt > = convertAndExpandType(t,c);
     Symbol funType = Symbol::\func(rt,[],[]);
     cFun = addClosure(cFun, funType, ( ), exp@\loc);
@@ -149,7 +149,6 @@ public CheckResult checkExp(Expression exp:(Expression)`<Type t> <Parameters ps>
     // Calculate the parameter types. This returns the parameters as a tuple. As
     // a side effect, names defined in the parameters are added to the environment.
     
-    Symbol ptTuple;// TODO: type was added for new (experimental) type checker
     < cFun, ptTuple > = checkParameters(ps, cFun);
     list[Symbol] parameterTypes = getTupleFields(ptTuple);
 
@@ -290,7 +289,7 @@ public CheckResult checkExp(Expression exp:(Expression)`( <Expression ei> | <Exp
     // NOTE: "it" is also not in scope here.
     // TODO: The scope actually starts at er and goes to the end of the
     // reducer. Modify the loc to account for this.
-    Configuration cRed;	// TODO: type was added for new (experimental) type checker
+
     cRed = enterBooleanScope(c,exp@\loc);
     list[Symbol] ts = [];
     for (eg <- egs) { < cRed, t2 > = checkExp(eg,cRed); ts += t2; }
@@ -303,7 +302,6 @@ public CheckResult checkExp(Expression exp:(Expression)`( <Expression ei> | <Exp
     if (!isFailType(t1)) {
         cRed = addLocalVariable(cRed, RSimpleName("it"), true, exp@\loc, erType, allowedConflicts={RSimpleName("it")});
         
-        Symbol t3;			// TODO: type was added for new (experimental) type checker
         < cRed, t3 > = checkExp(er, cRed);
         if (!isFailType(t3)) {
             if (!equivalent(erType,t3) && equivalent(lub(erType,t3),t3)) {
@@ -364,7 +362,7 @@ public CheckResult checkExp(Expression exp:(Expression)`type ( <Expression es> ,
 @doc{Check the types of Rascal expressions: Concete Syntax Fragments (TODO)}
 public CheckResult checkExp(Expression exp: (Expression) `<Concrete concrete>`, Configuration c) {
   set[Symbol] failures = { };
-  Symbol rt;	// TODO: type was added for new (experimental) type checker
+
   for (hole(\one(Sym s, Name n)) <- concrete.parts) {
     <c, rt> = convertAndExpandSymbol(s, c);
     if(isFailType(rt)) { 
@@ -763,7 +761,9 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
             list[Symbol] args = getConstructorArgumentTypes(a);
             if (size(epsList) == size(args)) {
 				if (typeContainsTypeVars(a)) {
-				Symbol instantiated; KeywordParamMap instantiatedKP; bool b;// TODO: type was added for new (experimental) type checker
+				//Symbol instantiated;            // TODO: type was added for new (experimental) type checker
+				KeywordParamMap instantiatedKP; // TODO: type was added for new (experimental) type checker
+				//bool b;                         // TODO: type was added for new (experimental) type checker
     				< instantiated, instantiatedKP, b, c > = instantiateConstructorTypeArgs(c, a, kpm);
     				if (!b) {
     					failureReasons += "Could not instantiate type variables in type <prettyPrintType(a)> with argument types (<intercalate(",",[prettyPrintType(tli)|tli<-tl])>)";
@@ -850,23 +850,12 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
     if (isFunctionType(t1) || isConstructorType(t1) || isOverloadedType(t1) || isProductionType(t1)) {
         set[Symbol] alts     = isFunctionType(t1) ? {t1} : ( (isConstructorType(t1) || isProductionType(t1)) ? {  } : getNonDefaultOverloadOptions(t1) );
         set[Symbol] defaults = isFunctionType(t1) ? {  } : ( (isConstructorType(t1) || isProductionType(t1)) ? {t1} : getDefaultOverloadOptions(t1) );
-        
-        //Configuration c;		// TODO: type was added for new (experimental) type checker
-        
-        rel[Symbol,KeywordParamMap] nonDefaultFunctionMatchesWithKP;	// TODO: type was added for new (experimental) type checker
-        set[str] nonDefaultFunctionFailureReasons;	// TODO: type was added for new (experimental) type checker
+       
         < c, nonDefaultFunctionMatchesWithKP, nonDefaultFunctionFailureReasons > = matchFunctionAlts(c, alts);
-        
-        rel[Symbol,KeywordParamMap] defaultFunctionMatchesWithKP;	// TODO: type was added for new (experimental) type checker
-        set[str]  defaultFunctionFailureReasons;	// TODO: type was added for new (experimental) type checker
         < c, defaultFunctionMatchesWithKP, defaultFunctionFailureReasons > = matchFunctionAlts(c, defaults);
-        
-        rel[Symbol,KeywordParamMap] constructorMatchesWithKP;	// TODO: type was added for new (experimental) type checker
-        set[str] constructorFailureReasons;	// TODO: type was added for new (experimental) type checker
+       
         < c, constructorMatchesWithKP, constructorFailureReasons > = matchConstructorAlts(c, defaults);
         
-        set[Symbol] productionMatches;		// TODO: type was added for new (experimental) type checker
-        set[str] productionFailureReasons;	// TODO: type was added for new (experimental) type checker
         < c, productionMatches, productionFailureReasons > = matchProductionAlts(c, defaults);
 
 		// TODO: To make this work for type hints with type vars we need to instantiate the vars; until we do that,
@@ -875,7 +864,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 			nonDefaultFunctionMatchesWithKP = { < a, kpm > | < a, kpm > <- nonDefaultFunctionMatchesWithKP, typeContainsTypeVars(a) || subtype(getFunctionReturnType(a),exp@typeHint) };
 			defaultFunctionMatchesWithKP = { < a, kpm > | < a, kpm > <- defaultFunctionMatchesWithKP, typeContainsTypeVars(a) || subtype(getFunctionReturnType(a),exp@typeHint) };
 			constructorMatchesWithKP = { < a, kpm > | < a, kpm > <- constructorMatchesWithKP, typeContainsTypeVars(a) || subtype(getConstructorResultType(a),exp@typeHint) };
-			productionMatches = { a | Symbol a <- productionMatches, typeContainsTypeVars(a) || subtype(getProductionSortType(a),exp@typeHint) };	// TODO: type was added for new (experimental) type checker
+			productionMatches = { a | a <- productionMatches, typeContainsTypeVars(a) || subtype(getProductionSortType(a),exp@typeHint) };
 		}
         
 		set[Symbol] nonDefaultFunctionMatches = nonDefaultFunctionMatchesWithKP<0>;
@@ -936,7 +925,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 		} 
 		
 		if (size(constructorMatches) == 1) {
-            Symbol rt = getFirstFrom(constructorMatches);	// TODO: type was added for new (experimental) type checker
+            rt = getFirstFrom(constructorMatches);
             if (typeContainsTypeVars(rt)) {
                 // If the constructor is parametric, we need to calculate the actual types of the
                 // parameters and make sure they fall within the proper bounds.
@@ -951,7 +940,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         }
 
 		if (size(productionMatches) == 1) {
-            Symbol rt = getFirstFrom(productionMatches);	// TODO: type was added for new (experimental) type checker
+            rt = getFirstFrom(productionMatches);	
             if (typeContainsTypeVars(rt)) {
                 // If the production is parametric, we need to calculate the actual types of the
                 // parameters and getProductionArgumentTypes sure they fall within the proper bounds.
@@ -982,7 +971,6 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
         } else {
         	if (size(finalNonDefaultMatches) == 1) {
         		finalMatch = getFirstFrom(finalNonDefaultMatches);
-        		    Symbol rt;	// TODO: type was added for new (experimental) type checker
 				< c, rtp > = markLocationType(c,e@\loc,finalMatch);
         		if (isFunctionType(finalMatch)) {
         			actuallyUsed = { ui | ui <- usedItems, c.store[ui] is function, comparable(c.store[ui].rtype,finalMatch) };
@@ -4410,7 +4398,7 @@ public BindResult bind(PatternTree pt, Symbol rt, Configuration c, map[str,Symbo
         
 		// TODO: Do we also need a case here for a type parameter?
         case asTypeNode(nt, cp) : {
-        	cpNew = cp;
+        	PatternTree cpNew = cp;// TODO: type was added for new (experimental) type checker;
         	
         	// TODO: Improve the message from here, it isn't very useful right now
         	if (isNonTerminalType(nt)) {
@@ -4522,7 +4510,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> <Visit v>`, 
     } else {
         cVisit.labelStack = labelStackItem(RSimpleName(""), visitLabel(), Symbol::\void()) + cVisit.labelStack;
     }
-    Configuration cVisited; Symbol vt;	// TODO: type was added for new (experimental) type checker
+    
     < cVisited, vt > = checkVisit(v,cVisit);
 
     // See if the visit changed the type of any vars declared outside of the visit.
@@ -4586,7 +4574,6 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> while ( <{Ex
             failures += makeFailType("Unexpected type <prettyPrintType(t1)>, expected type bool", cond@\loc);
     }
 
-    // Check the body of the loop               
     cWhileBody = enterBlock(cWhileBool, bdy@\loc);
     < cWhileBody, t2 > = checkStmt(bdy, cWhileBody);
     
@@ -4651,8 +4638,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> do <Statemen
     }
 
     // Check the body of the loop               
-    Configuration cDoWhileBody = enterBlock(cDoWhile, bdy@\loc);	// TODO: type was added for new (experimental) type checker
-    Symbol t2;													// TODO: type was added for new (experimental) type checker
+    cDoWhileBody = enterBlock(cDoWhile, bdy@\loc);
     < cDoWhileBody, t2 > = checkStmt(bdy, cDoWhileBody);
 
     // See if the loop changed the type of any vars declared outside of the loop.
@@ -4736,7 +4722,7 @@ public CheckResult checkStmt(Statement stmt:(Statement)`<Label lbl> for ( <{Expr
     }
 
     // Check the body of the loop       
-    Configuration cForBody = enterBlock(cForBool, bdy@\loc);    // TODO: type was added for new (experimental) type checker  
+    cForBody = enterBlock(cForBool, bdy@\loc);  
     < cForBody, t2 > = checkStmt(bdy, cForBody);
     
     // See if the loop changed the type of any vars declared outside of the loop.
