@@ -156,8 +156,6 @@ str preprocessClick(int questionId, TokenOrCmdList q){
         if(appl(_,list[Tree] args) := tocList) {
             qt = "";
             ex = "";
-            str qt1;    // TODO: type was added for new (experimental) type checker
-            str ex1;    // TODO: type was added for new (experimental) type checker
             if(tocList is parens){
                qt += "(<args[1]>"; ex += "(<args[1]>";
                <qt1, ex1> = handle(tocList.tocList);
