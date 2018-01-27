@@ -29,13 +29,13 @@ Maybe[Attr] mod2attr(ProdModifier m) {
         return nothing();
       }
     case \bracket()                             : return just(Attr::\bracket());
-    case \tag(\default(Name n, TagString s))    : return just(\tag("<n>"("<s>")));
-    case \tag(\empty(Name n))                   : return just(\tag("<n>"())); 
+    case \tag(\default(Name n, TagString s))    : return just(Attr::\tag("<n>"("<s>")));
+    case \tag(\empty(Name n))                   : return just(Attr::\tag("<n>"())); 
     case \tag(\expression(Name n, literal(string(nonInterpolated(StringConstant l)))))  
-                                                : return just(\tag("<n>"("<unescapeLiteral(l)>")));
+                                                : return just(Attr::\tag("<n>"("<unescapeLiteral(l)>")));
     case \tag(\expression(Name n, literal(Literal l)))
-                                                : return just(\tag("<n>"("<unescapeLiteral("<l>")>")));
-    case \tag(\expression(Name n, Expression e)): return just(\tag("<n>"( readTextValueString("<e>"))));                                       
+                                                : return just(Attr::\tag("<n>"("<unescapeLiteral("<l>")>")));
+    case \tag(\expression(Name n, Expression e)): return just(Attr::\tag("<n>"( readTextValueString("<e>"))));                                       
     default                                     : return nothing(); 
   }
 }
