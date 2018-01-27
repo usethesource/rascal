@@ -870,7 +870,7 @@ public Configuration addConstructor(Configuration c, RName n, loc l, Symbol rt, 
 			c.store[c.fcvEnv[n]] = overload(items + constructorItemId, overloaded(itemTypes,defaults + rt));
 		} else if (c.store[c.fcvEnv[n]] is constructor || c.store[c.fcvEnv[n]] is function || c.store[c.fcvEnv[n]] is production) {
 			nonDefaults = {};
-			set[Symbol] defaults = { rt };	// TODO: type was added for new (experimental) type checker
+			set[Symbol] defaults = { rt };	// TODO: type was added for new (experimental) type checker; otherwise clashes with previous declaration
 			if(isConstructorType(c.store[c.fcvEnv[n]].rtype) || isProductionType(c.store[c.fcvEnv[n]].rtype)) {
 				defaults += c.store[c.fcvEnv[n]].rtype; 
 			} else {
@@ -951,7 +951,7 @@ public Configuration addImportedConstructor(Configuration c, RName n, int itemId
 			c.store[c.fcvEnv[n]] = overload(items + constructorItemId, overloaded(itemTypes,defaults + c.store[constructorItemId].rtype));
 		} else if (c.store[c.fcvEnv[n]] is constructor || c.store[c.fcvEnv[n]] is function || c.store[c.fcvEnv[n]] is production) {
 			nonDefaults = {};
-			set[Symbol] defaults = { c.store[constructorItemId].rtype };/// TODO: type was added for new (experimental) type checker
+			set[Symbol] defaults = { c.store[constructorItemId].rtype };/// TODO: type was added for new (experimental) type checker; otherwise clashes with previous declaration
 			if(isConstructorType(c.store[c.fcvEnv[n]].rtype) || isProductionType(c.store[c.fcvEnv[n]].rtype)) {
 				defaults += c.store[c.fcvEnv[n]].rtype; 
 			} else {
@@ -1045,7 +1045,7 @@ public Configuration addProduction(Configuration c, RName n, loc l, Production p
 			c.store[c.fcvEnv[n]] = overload(items + productionItemId, overloaded(itemTypes,defaults + rtype));
 		} else if (c.store[c.fcvEnv[n]] is production || c.store[c.fcvEnv[n]] is function || c.store[c.fcvEnv[n]] is constructor) {
 			nonDefaults = {};
-			set[Symbol] defaults = { rtype };// TODO: type was added for new (experimental) type checker
+			set[Symbol] defaults = { rtype };// TODO: type was added for new (experimental) type checker; otherwise clashes with previous declaration
 			if(isProductionType(c.store[c.fcvEnv[n]].rtype) || isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
 				defaults += c.store[c.fcvEnv[n]].rtype; 
 			} else {
@@ -1313,8 +1313,8 @@ public Configuration addFunction(Configuration c, RName n, Symbol rt, KeywordPar
 	    	// Case 3: The name is not overloaded yet, but this will make it overloaded. So, create the
 	    	// overloading entry. We also then point the current name to this overload item, which will
 	    	// then point (using the overload set) to the item currently referenced by the name.
-	        set[Symbol] itemTypes = {};// TODO: type was added for new (experimental) type checker
-	        set[Symbol] defaults = {};// TODO: type was added for new (experimental) type checker
+	        set[Symbol] itemTypes = {};// TODO: type was added for new (experimental) type checker; otherwise clashes with previous declaration
+	        set[Symbol] defaults = {};// TODO: type was added for new (experimental) type checker; otherwise clashes with previous declaration
 	        if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
 	        	defaults += c.store[c.fcvEnv[n]].rtype;
 	        } else if (isProductionType(c.store[c.fcvEnv[n]].rtype)) {
@@ -1376,8 +1376,8 @@ public Configuration addImportedFunction(Configuration c, RName n, int itemId, b
 	        }
 	        c.store[c.fcvEnv[n]] = overload(items + functionId, overloaded(itemTypes,defaults));
 	    } else if (c.store[c.fcvEnv[n]] is function || c.store[c.fcvEnv[n]] is constructor || c.store[c.fcvEnv[n]] is production) {
-	        set[Symbol] itemTypes = {};// TODO: type was added for new (experimental) type checker
-	        set[Symbol] defaults = {};// TODO: type was added for new (experimental) type checker
+	        set[Symbol] itemTypes = {};// TODO: type was added for new (experimental) type checker; otherwise clashes with previous declaration
+	        set[Symbol] defaults = {};// TODO: type was added for new (experimental) type checker; otherwise clashes with previous declaration
 	        if(isConstructorType(c.store[c.fcvEnv[n]].rtype)) {
 	        	defaults += c.store[c.fcvEnv[n]].rtype;
 	        } else if (isProductionType(c.store[c.fcvEnv[n]].rtype)) {
@@ -1495,7 +1495,7 @@ public bool hasDefaultModifier(set[Modifier] modifiers) = defaultModifier() in m
 private bool ignoreDeclaration(Tags tags){
     map[str,str] getTags(Tags tags){
        m = ();
-       for(Tag tg <- tags.tags){// TODO: type was added for new (experimental) type checker
+       for(tg <- tags.tags){
          str name = "<tg.name>";
          if(tg is \default){
             cont = "<tg.contents>"[1 .. -1];
