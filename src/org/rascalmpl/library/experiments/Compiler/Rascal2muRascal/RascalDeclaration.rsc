@@ -35,7 +35,7 @@ void translate(t: (Toplevel) `<Declaration decl>`) = translate(decl);
 // -- variable declaration ------------------------------------------
 
 void translate(d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <{Variable ","}+ variables> ;`) {
-	str module_name = getModuleName(); // TODO: type was added for new (experimental) type checker
+	module_name = getModuleName();
     ftype = Symbol::func(Symbol::\value(),[Symbol::\list(Symbol::\value())], []);
     enterFunctionScope(getFUID(module_name,"#<module_name>_init",ftype,0));
    	for(var <- variables){
