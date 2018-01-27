@@ -10,11 +10,12 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module lang::rascalcore::grammar::Lookahead
   
-import Grammar;
+import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::grammar::definition::Regular;
 import lang::rascalcore::grammar::definition::Characters;
 import lang::rascalcore::grammar::definition::Productions;
-import ParseTree;
+import lang::rascalcore::check::AType;
+import Node;
 import List;
 import Set; 
 import IO;
@@ -22,9 +23,9 @@ import Map;
 import Exception;
 
 // This production wrapper encodes what the lookahead set is for the productions it wraps
-public data Production = lookahead(Symbol def, set[Symbol] classes, Production production);
-public data Symbol = eoi();     // end-of-input marker
-private data Grammar = simple(set[Symbol] starts, set[Production] productions);
+public data AProduction = lookahead(AType def, set[AType] classes, AProduction production);
+public data AType = eoi();     // end-of-input marker
+private data AGrammar = simple(set[AType] starts, set[AProduction] productions);
 
 @doc{
   This function wraps productions with their single character lookahead sets for 
@@ -32,13 +33,13 @@ private data Grammar = simple(set[Symbol] starts, set[Production] productions);
   
   'extra' contains extra lookahead symbols per symbol
 }
-public Grammar computeLookaheads(Grammar G, rel[Symbol,Symbol] extra) {
+public AGrammar computeLookaheads(AGrammar G, rel[AType,AType] extra) {
   G2 = expandRegularSymbols(removeLabels(G));
-  <fst, fol> = firstAndFollow(simple(G2.starts, {p | /Production p:prod(_,_,_) := G2}));
+  <fst, fol> = firstAndFollow(simple(G2.starts, {p | /AProduction p:prod(_,_,_) := G2}));
     
   return visit(G) {
-    case Production p:prod(Symbol rhs,[],  _) => lookahead(rhs, fol[rhs], p)
-    case Production p:prod(Symbol rhs,list[Symbol] lhs,  _) : {
+    case AProduction p:prod(AType rhs,[],  _) => lookahead(rhs, fol[rhs], p)
+    case AProduction p:prod(AType rhs,list[AType] lhs,  _) : {
       lhs = removeLabels(lhs);
       
 	  classes = first(lhs, fst);
@@ -58,7 +59,7 @@ public Grammar computeLookaheads(Grammar G, rel[Symbol,Symbol] extra) {
   This function evaluates lookahead sets to obtain an optimal production selection automaton
   As a side-effect it also needs to replace priority ordering and associativity by the simple choice operator!  
 }
-public Grammar compileLookaheads(Grammar G) {
+public AGrammar compileLookaheads(AGrammar G) {
   // first we remove first and assoc groups for simplicity's sake
   G = visit (G) {
     case lookahead(rhs, {}, a) => choice(rhs, {})
@@ -76,15 +77,15 @@ public Grammar compileLookaheads(Grammar G) {
 // but this gives a not yet explained validation error for the
 // function ids in the corresponding overloaded function
 
-list[CharRange] order(list[CharRange] x) {
+list[ACharRange] order(list[ACharRange] x) {
     return sort([ e | e <- x, e != \empty-range()], lessThan);
 }
   
-public Production optimizeLookaheads(Symbol rhs, set[Production] alts) {
-  list[CharRange] l = [];
+public AProduction optimizeLookaheads(AType rhs, set[AProduction] alts) {
+  list[ACharRange] l = [];
   
   // first we identify which unique ranges there are for all the different productions
-  for (lookahead(_,set[Symbol] classes, Production p) <- alts) { 
+  for (lookahead(_,set[AType] classes, AProduction p) <- alts) { 
     for (\char-class(rs) <- classes, r <- rs) {
       // find the first range that is not smaller than the pivot
       if ([pre*, post*] := l, all(z <- post, !lessThan(z,r)) || post == []) {
@@ -109,10 +110,10 @@ public Production optimizeLookaheads(Symbol rhs, set[Production] alts) {
   }
  
   // second part; map productions into the ranges
-  map[CharRange range,set[Production] prods] m = ();
-  set[Production] init = {};
-  for (lookahead(_,set[Symbol] classes, Production p) <- alts, \char-class(rs) <- classes) {
-    for (CharRange r <- l) {
+  map[ACharRange range,set[AProduction] prods] m = ();
+  set[AProduction] init = {};
+  for (lookahead(_,set[AType] classes, AProduction p) <- alts, \char-class(rs) <- classes) {
+    for (ACharRange r <- l) {
       if (intersection([r],rs) != []) {
         m[r]?init += {p};
       }
@@ -120,8 +121,8 @@ public Production optimizeLookaheads(Symbol rhs, set[Production] alts) {
   }
 
   // third part, group by ranges that predict the same set of productions  
-  map[set[Production] prod, set[CharRange] range] mInv = ();
-  set[CharRange] init2 = {};
+  map[set[AProduction] prod, set[ACharRange] range] mInv = ();
+  set[ACharRange] init2 = {};
   for (<r,s> <- m<range,prods>) {
     mInv[s]?init2 += {r}; 
   }
@@ -132,7 +133,7 @@ public Production optimizeLookaheads(Symbol rhs, set[Production] alts) {
                   +  ((endOfInputClasses != {}) ? {lookahead(rhs, {eoi()}, choice(rhs, endOfInputClasses))} : {}));
 }
 
-public Production optimizeLookaheadsOld(Symbol rhs, set[Production] alts) {
+public AProduction optimizeLookaheadsOld(AType rhs, set[AProduction] alts) {
   solve (alts) {
     for (a:lookahead(_,c1,p1) <- alts, b:lookahead(_,c2,p2) <- alts, a != b) {
       if (c1 == c2) {
@@ -159,14 +160,14 @@ public Production optimizeLookaheadsOld(Symbol rhs, set[Production] alts) {
   return choice(rhs, alts);
 }
 
-public set[Symbol] intersect(set[Symbol] u1, set[Symbol] u2) {
+public set[AType] intersect(set[AType] u1, set[AType] u2) {
   if ({\char-class(r1), _*} := u1, {\char-class(r2), _*} := u2) {
     return {\char-class(intersection(r1,r2))} + (u1 & u2);
   }
   return u1 & u2;
 }
 
-public set[Symbol] diff(set[Symbol] u1, set[Symbol] u2) {
+public set[AType] diff(set[AType] u1, set[AType] u2) {
   if ({\char-class(r1), s1*} := u1, {\char-class(r2), s2*} := u2) {
     return {\char-class(difference(r1,r2))} + (s1 - s2);
   }
@@ -176,48 +177,48 @@ public set[Symbol] diff(set[Symbol] u1, set[Symbol] u2) {
 
 // Utilities on Symbols
 
-private Grammar removeLabels(Grammar G) {
+private AGrammar removeLabels(AGrammar G) {
   return visit(G) {
     case prod(rhs, lhs, a) => prod(removeLabel(rhs), removeLabels(lhs), a)
   }
 }
 
-private Symbol removeLabel(Symbol s) {
-  return (label(_,s2) := s) ? s2 : s;
+private AType removeLabel(AType s) {
+  return s.label? ? unset(s, "label") : s;
 }
 
-private list[Symbol] removeLabels(list[Symbol] syms) {
+private list[AType] removeLabels(list[AType] syms) {
   return [removeLabel(s) | s <- syms ];
 }
 
-private set[Symbol] usedSymbols(Grammar G){
-   return { s |  Production p:prod(_,_,_) <- G.productions, /Symbol s <- p.symbols };
+private set[AType] usedSymbols(AGrammar G){
+   return { s |  AProduction p:prod(_,_,_) <- G.productions, /AType s <- p.symbols };
 }
 
-private set[Symbol] definedSymbols(Grammar G) {
-   return { p.def |  Production p <- G.productions};
+private set[AType] definedSymbols(AGrammar G) {
+   return { p.def |  AProduction p <- G.productions};
 }
 
-private set[Symbol] allSymbols(Grammar G){
+private set[AType] allSymbols(AGrammar G){
    return definedSymbols(G) + usedSymbols(G);
 }
 
-private set[Symbol] terminalSymbols(Grammar G){
+private set[AType] terminalSymbols(AGrammar G){
    return { S | S:\char-class(_) <- usedSymbols(G)};
 }
 
-private bool isTerminalSymbol(Symbol s){
+private bool isTerminalSymbol(AType s){
   return \char-class(_) := s;
 }
 
 // ---------------- Compute first set -------------------------------
 
-alias SymbolUse = map[Symbol, set[Symbol]] ;
+alias SymbolUse = map[AType, set[AType]] ;
 
-public set[Symbol] first(list[Symbol] symbols, SymbolUse FIRST){
-  set[Symbol] result = {};
+public set[AType] first(list[AType] symbols, SymbolUse FIRST){
+  set[AType] result = {};
 	
-  for (Symbol S <- symbols) {
+  for (AType S <- symbols) {
     f = FIRST[S];
     if (empty() notin f) {
       return result - empty() + f;
@@ -230,11 +231,11 @@ public set[Symbol] first(list[Symbol] symbols, SymbolUse FIRST){
 
 // First set of a grammar
 
-public SymbolUse first(Grammar G) {
+public SymbolUse first(AGrammar G) {
   defSymbols = definedSymbols(G);
 
-  SymbolUse FIRST = (trm : {trm} | Symbol trm <- terminalSymbols(G)) 
-                  + (S : {}      | Symbol S   <- defSymbols);
+  SymbolUse FIRST = (trm : {trm} | AType trm <- terminalSymbols(G)) 
+                  + (S : {}      | AType S   <- defSymbols);
 	        
   def2lhs = {<S , lhs> | S <- defSymbols, prod(S, lhs, _) <- G.productions};
   
@@ -248,12 +249,12 @@ public SymbolUse first(Grammar G) {
 }
 
 
-public SymbolUse follow(Grammar G,  SymbolUse FIRST){
+public SymbolUse follow(AGrammar G,  SymbolUse FIRST){
    defSymbols = definedSymbols(G);
    
-   rel[Symbol, Symbol] F = {<S, eoi()> | Symbol S <- G.starts};
+   rel[AType, AType] F = {<S, eoi()> | AType S <- G.starts};
    
-   for (Production p <- G.productions, [_*, current, symbols*] := p.symbols) {
+   for (AProduction p <- G.productions, [_*, current, symbols*] := p.symbols) {
        if (current in defSymbols) {
           flw =  first(symbols, FIRST);
           if (empty() in flw || isEmpty(symbols)) {
@@ -265,22 +266,22 @@ public SymbolUse follow(Grammar G,  SymbolUse FIRST){
    }
   
    F = F*;
-   FOLLOW = (defSym : F[defSym] - defSymbols | Symbol defSym <- defSymbols + G.starts);
+   FOLLOW = (defSym : F[defSym] - defSymbols | AType defSym <- defSymbols + G.starts);
    return FOLLOW;
 }
 
-public tuple[SymbolUse, SymbolUse] firstAndFollow(Grammar G){
+public tuple[SymbolUse, SymbolUse] firstAndFollow(AGrammar G){
     fst = first(G);
     return <mergeCC(fst), mergeCC(follow(G,fst))>;
 }
   
 private SymbolUse mergeCC(SymbolUse su) {
-  for (Symbol s <- su)
+  for (AType s <- su)
     su[s] = mergeCC(su[s]); 
   return su;
 }
 
-private set[Symbol] mergeCC(set[Symbol] su) {
+private set[AType] mergeCC(set[AType] su) {
   result = {};
   if (empty() in su) 
     result += empty();

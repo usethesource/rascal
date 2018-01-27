@@ -15,7 +15,6 @@
 module lang::rascalcore::grammar::definition::Characters
 
 import lang::rascal::\syntax::Rascal;
-//import ParseTree;
 import lang::rascalcore::check::AType;
 import String;
 import lang::rascalcore::grammar::definition::Grammar;

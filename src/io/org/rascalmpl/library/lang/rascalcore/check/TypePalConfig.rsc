@@ -145,11 +145,11 @@ Accept isAcceptableQualified(TModel tm, Key def, Use use){
         }
         
          // Qualifier is a ADT name?
-        //if(acons(ret:aadt(adtName, list[AType] parameters), str consName, list[NamedField] fields, list[Keyword] kwFields) := atype, use.ids[0] == adtName){
+        //if(acons(ret:aadt(adtName, list[AType] parameters, _), str consName, list[NamedField] fields, list[Keyword] kwFields) := atype, use.ids[0] == adtName){
         //    return acceptBinding();
         //} 
         
-        if(acons(ret:aadt(adtName, list[AType] parameters), str consName, list[NamedField] fields, list[Keyword] kwFields) := atype){
+        if(acons(ret:aadt(adtName, list[AType] parameters, _), str consName, list[NamedField] fields, list[Keyword] kwFields) := atype){
            return  use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
         } 
         
@@ -191,7 +191,11 @@ Accept isAcceptablePath(TModel tm, Key defScope, Key def, Use use, PathRole path
     return res;
 }
 
-TypePalConfig rascalTypePalConfig()
+data TypePalConfig(
+    bool classicReifier = false
+);
+
+TypePalConfig rascalTypePalConfig(bool classicReifier = false)
     = tconfig(
         getMinAType                   = AType (){ return avoid(); },
         getMaxAType                   = AType (){ return avalue(); },
@@ -204,5 +208,8 @@ TypePalConfig rascalTypePalConfig()
         isAcceptableQualified         = isAcceptableQualified,
         isAcceptablePath              = isAcceptablePath,
         
-        mayOverload                   = myMayOverload
+        mayOverload                   = myMayOverload,
+        
+        classicReifier                = classicReifier
+        
     );

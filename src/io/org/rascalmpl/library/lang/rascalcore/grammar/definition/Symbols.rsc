@@ -14,42 +14,43 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::AType;
 import String;
 import IO;
+import Node;
 
 
 default AType striprec(AType s_ori) = visit(s_ori) { 
-	case label(str _, AType s) => strip(s)
+	//case label(str _, AType s) => strip(s)
 	case conditional(AType s, set[ACondition] _) => strip(s)
 };
-//default AType striprec(AType s) = visit(s) { case AType t => strip(t) };
-AType strip(label(str _, AType s)) = strip(s);
+////default AType striprec(AType s) = visit(s) { case AType t => strip(t) };
+//AType strip(label(str _, AType s)) = strip(s);
 AType strip(conditional(AType s, set[ACondition] _)) = strip(s);
 default AType strip(AType s) = s;
 
 public bool match(AType checked, AType referenced) {
   while (checked is conditional || checked is label)
-    checked = checked.AType;
+    checked = checked.symbol;
   while (referenced is conditional || referenced is label)
-    referenced = referenced.AType;
+    referenced = referenced.symbol;
     
   return referenced == checked;
 } 
 
-public AType delabel(AType s) = visit(s) { case t => unset(t, "label") when t.label? };
+public AType delabel(AType s) = visit(s) { case AType t => unset(t, "label") when t.label? };
 
 public AType sym2AType(Sym sym) {
   switch (sym) {
     case lang::rascal::\syntax::Rascal::nonterminal(Nonterminal n) : 
-      return AType::aadt("<n>", [], hasSyntax=true);
+      return AType::aadt("<n>", [], contextFreeSyntax());
       //return AType::\sort("<n>");
     case \start(Nonterminal n) : 
-       return AType::aadt("<n>", [], hasSyntax=true);   // TODO leave start somewhere
+       return AType::aadt("<n>", [], startSyntax());
       //return AType::\start(\sort("<n>"));
     case literal(StringConstant l): 
       return AType::lit(unescape(l));
     case caseInsensitiveLiteral(CaseInsensitiveStringConstant l): 
       return AType::cilit(unescape(l));
     case \parametrized(Nonterminal n, {Sym ","}+ syms) : 
-        return AType::aadt("<n>",separgs2ATypes(syms), hasSyntax=true); 
+        return AType::aadt("<n>",separgs2ATypes(syms), contextFreeSyntax()); 
       //return AType::\parameterized-sort("<n>",separgs2ATypes(syms)); 
     case labeled(Sym s, NonterminalLabel n) : 
       return sym2AType(s)[label="<n>"];
@@ -58,7 +59,7 @@ public AType sym2AType(Sym sym) {
     case characterClass(Class cc): 
       return cc2ranges(cc);
     case parameter(Nonterminal n) : 
-      return AType::\aparameter("<n>", aadt("Tree", []));
+      return AType::\aparameter("<n>", aadt("Tree", [], contextFreeSyntax()));
     case empty() : 
       return AType::\empty();
     case alternative(Sym first, {Sym "|"}+ alts) : 
@@ -116,8 +117,8 @@ public AType \conditional(\conditional(AType s, set[ACondition] cs1), set[ACondi
 
 public AType \conditional(AType s, set[ACondition] cs) {
   // if there is a nested conditional, lift the nested conditions toplevel and make the nested AType unconditional.
-  if (c <- cs, c has symbol, c.atype is conditional) {
-     return \conditional(s, {c[symbol=c.symbol.symbol], *c.symbol.conditions, *(cs - {c})}); //SPLICING
+  if (c <- cs, c has atype, c.atype is conditional) {
+     return \conditional(s, {c[atype=c.atype.symbol], *c.atype.conditions, *(cs - {c})}); //SPLICING
   }
   else fail;
 }             

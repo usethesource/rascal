@@ -3,6 +3,7 @@ module lang::rascalcore::check::Declaration
 extend analysis::typepal::TypePal;
 
 import lang::rascal::\syntax::Rascal;
+import lang::rascalcore::check::ATypeExceptions;
 import lang::rascalcore::check::ConvertType;
 import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::ATypeInstantiation;
@@ -17,6 +18,12 @@ import lang::rascalcore::check::Import;
 import lang::rascalcore::check::Pattern;
 
 import util::Reflective;
+import Node;
+import String;
+import IO;
+import Set;
+import Map;
+import String;
 
 // ---- Rascal declarations
 
@@ -77,8 +84,8 @@ void getImports(TBuilder tb){
                             println("*** importing <mname> from <mloc>");
                             pt = parseModuleWithSpaces(mloc).top;
                             collect(pt, tb);
-                        } catch e: {
-                            tb.reportError(|global-scope:///|, "Error during import of <fmt(mname)>: <e>");
+                        } catch value e: {
+                            tb.reportErrors({error("Error during import of <fmt(mname)>: <e>", |global-scope:///|)});
                         }
                     }
                 }
@@ -139,7 +146,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type \
             });
         if(var is initialized){
             //if(!(var.initial is closure)) 
-            tb.enterScope(var, lubScope=true);
+            tb.enterLubScope(var);
                 tb.require("variable initialization", var.initial, [], makeVarInitRequirement(var.initial, varType, tb.getScope()));
                 collect(var.initial, tb); 
             //if(!(var.initial is closure)) 
@@ -191,7 +198,7 @@ void collect(FunctionDeclaration decl, TBuilder tb){
     if(ignoreCompiler(decl.tags)) { println("ignore: function <fname>"); return; }
     parentScope = tb.getScope();
        
-    tb.enterScope(decl, lubScope=true);
+    tb.enterLubScope(decl);
         scope = tb.getScope();
         tb.setScopeInfo(scope, functionScope(), false);
         retType = convertType(signature.\type, tb);
@@ -199,7 +206,7 @@ void collect(FunctionDeclaration decl, TBuilder tb){
         
         dt = defType([], AType() {
                  expandedRetType = expandUserTypes(retType, scope);
-                 ft = afunc(expandedRetType, atypeList([expandUserTypes(getPatternType(f, avalue(), scope), scope) | f <- formals]), kwFormals);
+                 ft = afunc(expandedRetType, atypeList([expandUserTypes(unset(getPatternType(f, avalue(), scope), "label"), scope) | f <- formals]), kwFormals);
                  if(isVarArgs) ft.varArgs = true;
                  if(deprecated) {
                     ft.deprecationMessage = deprecationMessage;
@@ -404,7 +411,7 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBu
     if(commonKeywordParameters is present){
         commonKwFields = getKeywordFormals(commonKeywordParameters.keywordFormalList, fieldId(), tb);
     }
-    adtType = aadt(adtName, dataTypeVarsAsList);
+    adtType = aadt(adtName, dataTypeVarsAsList, dataSyntax());
     
     allConsFields = {};
     allConstructorDefines = {};
@@ -460,36 +467,36 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBu
 void collect(current: (SyntaxDefinition) `<Visibility vis> layout <Sym defined> = <Prod production>;`, TBuilder tb){
     //println("LAYOUT: <current>");
     nonterminalType = sym2AType(defined);
-    declareSyntax(current, getVis(vis), defined, nonterminalType, production, {\layout()}, tb);
+    declareSyntax(current, getVis(vis), defined, nonterminalType, production, layoutSyntax(), tb);
     collect(production, tb);
 } 
 
 void collect (current: (SyntaxDefinition) `lexical <Sym defined> = <Prod production>;`, TBuilder tb){
     //println("LEXICAL: <current>");
     nonterminalType = sym2AType(defined);
-    declareSyntax(current, publicVis(), defined, nonterminalType, production, {\lexical()}, tb);
+    declareSyntax(current, publicVis(), defined, nonterminalType, production, lexicalSyntax(), tb);
     collect(production, tb);
 }
 
 void collect (current: (SyntaxDefinition) `keyword <Sym defined> = <Prod production>;`, TBuilder tb){
    //println("KEYWORD: <current>");
     nonterminalType = sym2AType(defined);
-    declareSyntax(current, publicVis(), defined, nonterminalType, production, {\keyword()}, tb);
+    declareSyntax(current, publicVis(), defined, nonterminalType, production, keywordSyntax(), tb);
     collect(production, tb);
 } 
 
 void collect (current: (SyntaxDefinition) `<Start strt> syntax <Sym defined> = <Prod production>;`, TBuilder tb){
     //println("SYNTAX: <current>");
     nonterminalType = sym2AType(defined);
-    skind = { nonterminal() };
-    if(strt is present) skind += {\start()};
-    declareSyntax(current, publicVis(), defined, nonterminalType, production, skind, tb);
+    syntaxRole = strt is present ? startSyntax() : contextFreeSyntax();
+
+    declareSyntax(current, publicVis(), defined, nonterminalType, production, syntaxRole, tb);
     collect(production, tb);
 }
 
-void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterminalType, Prod production, set[SyntaxKind] syntaxKind, TBuilder tb){
+void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterminalType, Prod production, SyntaxRole syntaxRole, TBuilder tb){
     //println("declareSyntax: <defined>, <nonterminalType>");
-    AProduction pr = prod2prod(nonterminalType, production, syntaxKind);
+    AProduction pr = prod2prod(nonterminalType, production, syntaxRole);
     //println("pr: <pr>");
     if(isADTType(nonterminalType)){
         ntName = nonterminalType.adtName;
@@ -528,7 +535,7 @@ void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterm
     }
 }
 
-rel[str,loc,AType] getFields(choice(dt, set[AProduction] alts)) = { *getFields(a) | a <- alts};
+rel[str,loc,AType] getFields(choice(AType dt, set[AProduction] alts)) = { *getFields(a) | a <- alts};
 
 rel[str,loc,AType] getFields(\priority(AType def, list[AProduction] choices))
     = { *getFields(c) | c <- choices };
@@ -560,7 +567,7 @@ default rel[Key, AType] prod2cons(AProduction p){
     return {};
 }
 
-rel[Key, AType] prod2cons(choice(dt, set[AProduction] alts)) = { *prod2cons(a) | a <- alts};
+rel[Key, AType] prod2cons(choice(AType dt, set[AProduction] alts)) = { *prod2cons(a) | a <- alts};
 
 rel[Key, AType] prod2cons(\priority(AType def, list[AProduction] choices))
     = { *prod2cons(c) | c <- choices };

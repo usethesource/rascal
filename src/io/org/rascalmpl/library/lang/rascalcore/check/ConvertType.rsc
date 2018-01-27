@@ -253,7 +253,7 @@ public AType convertFunctionType(FunctionType ft, TBuilder tb) {
             } else if (size(distinctLabels) > 0 && size(distinctLabels) != size(labelsList)) {
                  tb.reportError(ft, "Non-well-formed type, labels must be distinct");
                 return afunc(tp, atypeList([unset(tp, "label") | tp <- l]), []);
-            } else if (size(labels) > 0) {
+            } else if (size(l) > 0) {
                 tb.reportWarning(ft, "Field name ignored, field names must be provided for all fields or for none");
                 return afunc(tp, atypeList([unset(tp, "label") | tp <- l]), []);
             }
@@ -264,11 +264,15 @@ public AType convertFunctionType(FunctionType ft, TBuilder tb) {
 @doc{Convert Rascal user types into their abstract representation.}
 public AType convertUserType(UserType ut, TBuilder tb) {
     switch(ut) {
-        case (UserType) `<QualifiedName n>` : return auser(convertName(n).name,[]);
+        case (UserType) `<QualifiedName n>` : { 
+                //tb.use(n, {aliasId(), dataId()}); 
+                return auser(convertName(n).name,[]); 
+            }
         case (UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]` : {
-            paramTypes = [convertType(ti, tb) | ti <- ts ];
-            return auser(convertName(n).name, paramTypes);
-        }
+                //tb.use(n, {aliasId(), dataId()}); 
+                paramTypes = [convertType(ti, tb) | ti <- ts ];
+                return auser(convertName(n).name, paramTypes);
+            }
     }
 }
 

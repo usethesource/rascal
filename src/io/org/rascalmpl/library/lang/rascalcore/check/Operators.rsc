@@ -7,9 +7,12 @@ import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::TypePalConfig;
 import lang::rascalcore::check::ATypeInstantiation;
 import lang::rascalcore::check::Pattern;
+import lang::rascalcore::check::Statement;
+import lang::rascalcore::check::ConvertType;
 
 import lang::rascal::\syntax::Rascal;
 import Set;
+import Node;
 
 AType unaryOp(str op, AType(Tree, AType) computeType, Tree current, AType t1){
     t1 = instantiate(t1);
@@ -148,7 +151,7 @@ public AType numericArithTypes(AType l, AType r) {
     if (isNumType(l) && isRealType(r)) return anum();
     if (isNumType(l) && isNumType(r)) return anum();
 
-    throw "Only callable for numeric types, given <prettyPrintType(l)> and <prettyPrintType(r)>";
+    throw "Only callable for numeric types, given <fmt(l)> and <fmt(r)>";
 }
 
 // ---- is
@@ -159,11 +162,11 @@ void collect(current: (Expression) `<Expression e> is <Name n>`, TBuilder tb){
     collect(e, tb); 
 }
 
-private AType _computeIsType(Tree current, AType t1){
+private AType _computeIsType(Tree current, AType t1){               // TODO: check that name exists
     if(overloadedAType(rel[Key, IdRole, AType] overloads) := t1){
         for(<key, idrole, tp> <- overloads){
-           try return computeIsType(current, tp);
-           catch CheckFailed(_): /* ignore, try next */;
+           try return _computeIsType(current, tp);
+           catch checkFailed(_): /* ignore, try next */;
         }
     } else if(isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) return abool();
     reportError(current, "Invalid type: expected node, ADT, or concrete syntax types, found <fmt(t1)>");
@@ -179,8 +182,8 @@ void collect(current: (Expression) `<Expression e> has <Name n>`, TBuilder tb){
 private AType _computeHasType(Tree current, AType t1){
     if(overloadedAType(rel[Key, IdRole, AType] overloads) := t1){
         for(<key, idrole, tp> <- overloads){
-           try return computeHasType(current, tp);
-           catch CheckFailed(_): /* ignore, try next */;
+           try return _computeHasType(current, tp);
+           catch checkFailed(_): /* ignore, try next */;
         }
     } else if (isRelType(t1) || isListRelType(t1) || isTupleType(t1) || isADTType(t1) || isNonTerminalType(t1) || isNodeType(t1)) return abool();
     
@@ -328,7 +331,9 @@ private AType _computeCompositionType(Tree current, AType t1, AType t2){
             failures += error(current, "Relation <fmt(t2)> should have arity of 0 or 2");
         if (!comparable(lflds[1],rflds[0]))
             failures += error(current, "Range of relation <fmt(t1)> must be comparable to domain of relation <fmt(t1)>");
-        if (size(failures) > 0) return reportErrors(failures);
+        if (size(failures) > 0) {
+            reportErrors(failures);
+        }
         if (size(lflds) == 0 || size(rflds) == 0)
             return arel(atypeList([]));
         else {
@@ -345,8 +350,10 @@ private AType _computeCompositionType(Tree current, AType t1, AType t2){
         if (size(rflds) != 0 && size(rflds) != 2)
             failures += error(current, "List relation <fmt(t2)> should have arity of 0 or 2");
         if (!comparable(lflds[1],rflds[0]))
-            failures += error(exp, "Range of list relation <fmt(t1)> must be comparable to domain of list relation <fmt(t1)>");
-        if (size(failures) > 0) return reportErrors(failures);
+            failures += error(current, "Range of list relation <fmt(t1)> must be comparable to domain of list relation <fmt(t1)>");
+        if (size(failures) > 0) {
+            reportErrors(failures);
+        }
         if (size(lflds) == 0 || size(rflds) == 0)
             return alrel(atypeList([]));
         else {
@@ -448,7 +455,7 @@ private AType _computeJoinType(Tree current, AType t1, AType t2){
         return alrel( atypeList(getListElementType(t1) +getListRelFields(t2)) );
     
     if (isListType(t1) && isListType(t2))
-        return alrel( atypeList(getListElementType(t1), getListElementType(t2))) ;
+        return alrel( atypeList([getListElementType(t1), getListElementType(t2)])) ;
     
     if (isSetType(t1) && isSetType(t2))
         return arel( atypeList([getSetElementType(t1), getSetElementType(t2)]) );
@@ -890,7 +897,7 @@ AType computeEnumeratorElementType(Expression current, AType etype) {
         for(<key, role, tp> <- overloads){
             try {
                 filtered_overloads += <key, role, computeEnumeratorElementType(current, tp)>;
-            } catch CheckFailed(_): /* ignore, try next */;
+            } catch checkFailed(_): /* ignore, try next */;
               catch e: ;/* ignore */
         }
         if(!isEmpty(filtered_overloads)) return overloadedAType(filtered_overloads);

@@ -20,10 +20,10 @@ import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascalcore::grammar::Lookahead;
 // import lang::rascalcore::grammar::analyze::Recursion;
 
-public alias Priorities = rel[Production father, Production child];
-public alias DoNotNest = rel[Production father, int position, Production child];
+public alias Priorities = rel[AProduction father, AProduction child];
+public alias DoNotNest = rel[AProduction father, int position, AProduction child];
 
-public DoNotNest doNotNest(Grammar g) {
+public DoNotNest doNotNest(AGrammar g) {
   DoNotNest result = {};
   
   for (s <- g.rules) {
@@ -34,7 +34,7 @@ public DoNotNest doNotNest(Grammar g) {
     
     ordering = ordering+; // priority is transitive
    
-    for (<Production father, Production child> <- ordering) {
+    for (<AProduction father, AProduction child> <- ordering) {
       switch (father) {
         case prod(AType rhs,lhs:[AType l,_*,AType r],_) : {
           if (match(l,lefties) && match(r,righties)) {
@@ -66,7 +66,7 @@ public DoNotNest doNotNest(Grammar g) {
   }
   
   return result // TODO: in the future the except relation needs to be reported separately because it should not be indirect.
-       + {*except(p, g) | /Production p <- g, p is prod || p is regular}
+       + {*except(p, g) | /AProduction p <- g, p is prod || p is regular}
        ;
 }
 
@@ -75,16 +75,16 @@ This one-liner searches a given production for "except restrictions".
 For every position in the production that is restricted, and for every restriction it finds 
 at this position, it adds a 'do-not-nest' tuple to the result.
 }
-public DoNotNest except(Production p:prod(AType _, list[AType] lhs, set[Attr] _), Grammar g) 
-  = { <p, i, q>  | i <- index(lhs), conditional(s, excepts) := delabel(lhs[i]), isdef(g, s), except(c) <- excepts, /q:prod(label(c,s),_,_) := g.rules[s]};
+public DoNotNest except(AProduction p:prod(AType _, list[AType] lhs, SyntaxRole _), AGrammar g) 
+  = { <p, i, q>  | i <- index(lhs), conditional(s, excepts) := delabel(lhs[i]), isdef(g, s), except(c) <- excepts, /q:prod(s,_,_) := g.rules[s], s.label==c};
  
 
 //TODO: compiler issues when  g.rules[s]? is inlined
-bool isdef(Grammar g, AType s) = g.rules[s]?;
+bool isdef(AGrammar g, AType s) = g.rules[s]?;
 
 
-public DoNotNest except(Production p:regular(AType s), Grammar g) {
-  Maybe[Production] find(str c, AType t) = (/q:prod(label(c,t),_,_) := (g.rules[t]?choice(s,{}))) ? just(q) : nothing();
+public DoNotNest except(AProduction p:regular(AType s), AGrammar g) {
+  Maybe[AProduction] find(str c, AType t) = (/q:prod(t,_,_) := (g.rules[t]?choice(s,{})) && t.label==c) ? just(q) : nothing();
   
   switch (s) {
     case \opt(conditional(t,cs)) : 
@@ -114,21 +114,21 @@ public DoNotNest except(Production p:regular(AType s), Grammar g) {
 }
 
 
-public tuple[Priorities prio,DoNotNest ass] doNotNest(Production p, set[AType] lefties, set[AType] righties) {
+public tuple[Priorities prio,DoNotNest ass] doNotNest(AProduction p, set[AType] lefties, set[AType] righties) {
   switch (p) {
-    case prod(s, [t, *AType \o, u],{_*,\assoc(left())}) :
+    case prod(s, [t, *AType \o, u],_,attributes={_*,\assoc(left())}) :
       if (match(t, lefties), match(u,righties)) return <{},{<p, size(\o) + 1, p>}>;
-    case prod(s,[t, *AType \o, u],{_*,\assoc(\assoc())}) :
+    case prod(s,[t, *AType \o, u],_,attributes={_*,\assoc(\assoc())}) :
       if (match(t, lefties), match(u, righties)) return <{},{<p, size(\o) + 1, p>}>;
-    case prod(s,[t,_*,u],{_*,\assoc(\right())}) :
+    case prod(s,[t,_*,u],_,attributes={_*,\assoc(\right())}) :
       if (match(t, lefties), match(u, righties)) return <{},{<p, 0, p>}>; 
-    case prod(s,[t, *AType \o, u],{_*,\assoc(\non-assoc())}) :
+    case prod(s,[t, *AType \o, u],_,attributes={_*,\assoc(\non-assoc())}) :
       if (match(t, lefties) && match(u, righties)) return <{},{<p, 0, p>,<p,size(\o) + 1,p>}>;       
-    case prod(s,[t,_*],{_*,\assoc(\non-assoc())}) :
+    case prod(s,[t,_*],_,attributes={_*,\assoc(\non-assoc())}) :
       if (match(t, lefties)) return <{},{<p, 0, p>}>; 
-    case prod(s,[*AType \o, t],{_*,\assoc(\non-assoc())}) :
+    case prod(s,[*AType \o, t],_,attributes={_*,\assoc(\non-assoc())}) :
       if (match(t, righties)) return <{},{<p, size(\o), p>}>;
-    case choice(_, set[Production] alts) : {
+    case choice(_, set[AProduction] alts) : {
         Priorities pr = {}; DoNotNest as = {};
         for (a <- alts, <prA,asA> := doNotNest(a, lefties, righties)) {
           pr += prA;
@@ -138,31 +138,31 @@ public tuple[Priorities prio,DoNotNest ass] doNotNest(Production p, set[AType] l
       }
     case \lookahead(_,_,q) :
       return doNotNest(q, lefties, righties); 
-    case priority(_, list[Production] levels) : 
+    case priority(_, list[AProduction] levels) : 
       return priority(levels, lefties, righties);
-    case \associativity(_, Associativity a, set[Production] alts) : 
+    case \associativity(_, Associativity a, set[AProduction] alts) : 
       return associativity(a, alts, lefties, righties);
   }
   
   return <{},{}>;
 }
 
-tuple[Priorities,DoNotNest] associativity(Associativity a, set[Production] alts, set[AType] lefties, set[AType] righties) {
+tuple[Priorities,DoNotNest] associativity(Associativity a, set[AProduction] alts, set[AType] lefties, set[AType] righties) {
   result = {};
   
   // note that there are nested groups and that each member of a nested group needs to be paired
   // with all the members of the other nested group. This explains the use of the / deep match operator.
-  for ({Production pivot, *Production rest} := alts,  Production child:prod(_,_,_) := pivot) {
+  for ({AProduction pivot, *AProduction rest} := alts,  AProduction child:prod(_,_,_) := pivot) {
     switch (a) {
       case \left(): 
-        result += {<father, size(lhs) - 1, child> | /Production father:prod(AType rhs,lhs:[_*,AType r],_) <- rest, match(r,righties)};  
+        result += {<father, size(lhs) - 1, child> | /AProduction father:prod(AType rhs,lhs:[_*,AType r],_) <- rest, match(r,righties)};  
       case \assoc():
-        result += {<father, size(lhs) - 1, child> | /Production father:prod(AType rhs,lhs:[_*,AType r],_) <- rest, match(r,righties)};
+        result += {<father, size(lhs) - 1, child> | /AProduction father:prod(AType rhs,lhs:[_*,AType r],_) <- rest, match(r,righties)};
       case \right():
-        result += {<father, 0, child>             | /Production father:prod(AType rhs,lhs:[AType l,_*],_) <- rest, match(l,lefties)};
+        result += {<father, 0, child>             | /AProduction father:prod(AType rhs,lhs:[AType l,_*],_) <- rest, match(l,lefties)};
       case \non-assoc(): {
-        result += {<father, size(lhs) - 1, child> | /Production father:prod(AType rhs,lhs:[_*,AType r],_) <- rest, match(r,righties)}
-                + {<father, 0, child>             | /Production father:prod(AType rhs,lhs:[AType l,_*],_) <- rest, match(l,lefties)};
+        result += {<father, size(lhs) - 1, child> | /AProduction father:prod(AType rhs,lhs:[_*,AType r],_) <- rest, match(r,righties)}
+                + {<father, 0, child>             | /AProduction father:prod(AType rhs,lhs:[AType l,_*],_) <- rest, match(l,lefties)};
       }
     } 
   }
@@ -176,9 +176,9 @@ tuple[Priorities,DoNotNest] associativity(Associativity a, set[Production] alts,
   return <pr, result>;
 }
 
-public tuple[Priorities,DoNotNest] priority(list[Production] levels, set[AType] lefties, set[AType] righties) {
+public tuple[Priorities,DoNotNest] priority(list[AProduction] levels, set[AType] lefties, set[AType] righties) {
   // collect basic filter
-  ordering = { <father,child> | [pre*,Production father, Production child, post*] := levels };
+  ordering = { <father,child> | [pre*,AProduction father, AProduction child, post*] := levels };
 
   // flatten nested structure to obtain direct relations
   todo = ordering;
@@ -186,13 +186,13 @@ public tuple[Priorities,DoNotNest] priority(list[Production] levels, set[AType] 
   while (todo != {}) {
     <prio,todo> = takeOneFrom(todo);
     switch (prio) {
-      case <choice(_,set[Production] alts),Production child> :
+      case <choice(_,set[AProduction] alts),AProduction child> :
         todo += alts * {child};
-      case <Production father, choice(_,set[Production] alts)> :
+      case <AProduction father, choice(_,set[AProduction] alts)> :
         todo += {father} * alts;
-      case <associativity(_,_,set[Production] alts),Production child> :
+      case <associativity(_,_,set[AProduction] alts),AProduction child> :
         todo += alts * {child};
-      case <Production father, associativity(_,_,set[Production] alts)> :
+      case <AProduction father, associativity(_,_,set[AProduction] alts)> :
         todo += {father} * alts;
       default:
         ordering += prio;

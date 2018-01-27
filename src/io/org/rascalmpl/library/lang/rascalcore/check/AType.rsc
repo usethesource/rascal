@@ -1,6 +1,7 @@
 module lang::rascalcore::check::AType
 
 import Node;
+import Set;
 import Relation;
 import String;
 extend analysis::typepal::AType;
@@ -38,7 +39,7 @@ data AType (str label = "")
      | aalias(str aname, list[AType] parameters, AType aliased)
      | aanno(str aname, AType onType, AType annoType)
      
-     | aadt(str adtName, list[AType] parameters, bool hasSyntax = false)
+     | aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)
      | acons(AType adt, str consName, list[NamedField] fields, list[Keyword] kwFields)
      
      | amodule(str mname, str deprecationMessage="")
@@ -49,23 +50,23 @@ data AType (str label = "")
 @memo
 AType overloadedAType(rel[Key, IdRole, AType] overloads){
     topIf:
-    if(all(<Key k, IdRole idr, AType t> <- overloads, aadt(adtName, params, hasSyntax=hs) := t)){
+    if(all(<Key k, IdRole idr, AType t> <- overloads, aadt(adtName, params, syntaxRole) := t)){
       str adtName = "";
       list[AType] adtParams = [];
-      hasSyntax = false;
-      for(<Key k, IdRole idr, AType t> <- overloads, aadt(adtName1, params1, hasSyntax=hs1) := t){
+      syntaxRoles = {};
+      for(<Key k, IdRole idr, AType t> <- overloads, aadt(adtName1, params1, syntaxRole1) := t){
         if(!isEmpty(adtName) && adtName != adtName1) fail overloadedAType; // overloading of different ADTs.
         adtName = adtName1;
-        adtParams = params1;
-        hasSyntax = hasSyntax || hs1;
+        adtParams = params1;    // TODO take care of different parameter names
+        syntaxRoles += syntaxRole1;
       }
-      return hasSyntax ? aadt(adtName, adtParams, hasSyntax=true)
-                       : aadt(adtName, adtParams);
+      syntaxRole = overloadSyntaxRole(syntaxRoles);
+      if(syntaxRole == illegalSyntax()) fail overloadedAType;
+      
+      return aadt(adtName, adtParams, syntaxRole);
     } else {
         otypes = overloads<2>;
         if({AType tp} := otypes) return tp;
-        //otypes = { tp | tp <- otypes, !(amodule(_) := tp /*|| aalias(_,_,_) := tp*/) };
-        //if({AType tp} := otypes) return tp;
     }
     fail;
 }
@@ -129,14 +130,26 @@ Annotate a parse tree node with a source location.
 }
 anno loc Tree@\loc;
 
-data SyntaxKind
-    = nonterminal()
-    | \lexical()
-    | \keyword()
-    | \layout()
-    | \start()
+data SyntaxRole
+    = dataSyntax()
+    | contextFreeSyntax()
+    | lexicalSyntax()
+    | keywordSyntax()
+    | layoutSyntax()
+    | startSyntax()
+    | illegalSyntax()
     ;
     
+SyntaxRole overloadSyntaxRole(set[SyntaxRole] syntaxRoles) {
+    if(size(syntaxRoles) == 1) return getFirstFrom(syntaxRoles);
+    if(syntaxRoles <= {dataSyntax(), contextFreeSyntax(), startSyntax()}){
+       return startSyntax() in syntaxRoles ? startSyntax() : contextFreeSyntax();
+    }
+    return illegalSyntax();
+}
+
+bool isConcreteSyntaxRole(SyntaxRole sr) = sr in {lexicalSyntax(), contextFreeSyntax(), startSyntax()};
+
 @doc{
 .Synopsis
 Production in ParseTrees 
@@ -163,7 +176,7 @@ construct ordered and un-ordered compositions, and associativity groups.
     for extending priority chains and such.
 } 
 data AProduction 
-     = prod(AType def, list[AType] asymbols, set[Attr] attributes={}, set[SyntaxKind] syntaxKind = {}, loc src=|unknown:///|) // <1>
+     = prod(AType def, list[AType] asymbols, SyntaxRole syntaxRole, set[Attr] attributes={},  loc src=|unknown:///|) // <1>
      | regular(AType def) // <2>
      | error(AProduction prod, int dot) // <3>
      | skipped() // <4>
@@ -265,10 +278,6 @@ data AType // <1>
 //       \parameterized-sort(str sname, list[AType] parameters) // <6>
 //     | \parameterized-lex(str sname, list[AType] parameters)  // <7>
 //     ; 
-
-//AType \start(AType symbol) = 
-//AType sort(str name) = aadt(name, [], hasSyntax=true);
-//AType \lex(str sname) = aadt(name, [], hasSyntax=true, 
 
 // These are the terminal symbols.
 data AType 
@@ -385,33 +394,33 @@ bool asubtype(AType a, x:acons(AType b, _, list[NamedField] _, list[Keyword] _))
 }
 bool asubtype(acons(AType a, str name, list[NamedField] ap, list[Keyword] _), acons(a,name,list[NamedField] bp, list[Keyword] _)) = asubtype(ap,bp);
 
-bool asubtype(aadt(str _, list[AType] _), anode(_)) = true;
-bool asubtype(aadt(str n, list[AType] l), aadt(n, list[AType] r)) = asubtype(l, r);
-bool asubtype(aadt(_, _, hasSyntax=true), aadt("Tree", _)) = true;
-bool asubtype(aadt(str _, list[AType] _, hasSyntax=true), AType::\auser("Tree", _))  = true;
+bool asubtype(aadt(str _, list[AType] _, _), anode(_)) = true;
+bool asubtype(aadt(str n, list[AType] l, _), aadt(n, list[AType] r, _)) = asubtype(l, r);
+bool asubtype(aadt(_, _, sr), aadt("Tree", _, _)) = true when isConcreteSyntaxRole(sr);
+bool asubtype(aadt(str _, list[AType] _, sr), AType::\auser("Tree", _))  = true when isConcreteSyntaxRole(sr);
 
 bool asubtype(AType::\iter-seps(AType s, list[AType] seps), AType::\iter-star-seps(AType t, list[AType] seps2)) = asubtype(s,t) && asubtype(seps, seps2);
 bool asubtype(AType::\iter(AType s), AType::\iter-star(AType t)) = asubtype(s, t);
 
-bool asubtype(AType::\iter(AType s), aadt("Tree", [])) = true;
+bool asubtype(AType::\iter(AType s), aadt("Tree", [], _)) = true;
 bool asubtype(AType::\iter(AType s), anode(_)) = true;
 
-bool asubtype(AType::\iter-star(AType s), aadt("Tree", [])) = true;
+bool asubtype(AType::\iter-star(AType s), aadt("Tree", [], _)) = true;
 bool asubtype(AType::\iter-star(AType s), anode(_)) = true;
 
-bool asubtype(AType::\iter-seps(AType s, list[AType] seps), aadt("Tree", [])) = true;
+bool asubtype(AType::\iter-seps(AType s, list[AType] seps), aadt("Tree", [], _)) = true;
 bool asubtype(AType::\iter-seps(AType s, list[AType] seps), anode(_)) = true;
 
-bool asubtype(AType::\iter-star-seps(AType s, list[AType] seps), aadt("Tree", [])) = true;
+bool asubtype(AType::\iter-star-seps(AType s, list[AType] seps), aadt("Tree", [], _)) = true;
 bool asubtype(AType::\iter-star-seps(AType s, list[AType] seps), anode(_)) = true;
 
 // TODO: add subtype for elements under optional and alternative, but that would also require auto-wrapping/unwrapping in the run-time
 // bool subtype(AType s, \opt(AType t)) = subtype(s,t);
 // bool subtype(AType s, \alt({AType t, *_}) = true when subtype(s, t); // backtracks over the alternatives
 
-bool asubtype(aadt(str n, list[AType] l), auser(n, list[AType] r)) = asubtype(l,r); //{throw "Illegal use of auser <n>"; } //= asubtype(l,r);
+bool asubtype(aadt(str n, list[AType] l, _), auser(n, list[AType] r)) = asubtype(l,r); //{throw "Illegal use of auser <n>"; } //= asubtype(l,r);
 
-bool asubtype(auser(str n, list[AType] l), aadt(n, list[AType] r)) = asubtype(l,r); //{throw "Illegal use of auser <n>"; } //= asubtype(l,r);
+bool asubtype(auser(str n, list[AType] l), aadt(n, list[AType] r, _)) = asubtype(l,r); //{throw "Illegal use of auser <n>"; } //= asubtype(l,r);
 bool asubtype(auser(str n, list[AType] l), auser(n, list[AType] r)) = asubtype(l,r); //{throw "Illegal use of auser <n>"; } //= asubtype(l,r);
 
 bool asubtype(aint(), anum()) = true;
@@ -546,26 +555,28 @@ AType alub(m1: amap(ld, lr), m2: amap(rd, rr)) = amap(alub(ld, rd), alub(lr, rr)
 
 AType alub(abag(AType s), abag(AType t)) = abag(alub(s, t));
 
-AType alub(aadt(str n, list[AType] _), anode(_)) = anode([]);
-AType alub(anode(_), aadt(str n, list[AType] _)) = anode([]);
+AType alub(aadt(str n, list[AType] _, SyntaxRole_), anode(_))  = anode([]);
+AType alub(anode(_), aadt(str n, list[AType] _, SyntaxRole _)) = anode([]);
 
-AType alub(a1:aadt(str n, list[AType] lp), a2:aadt(n, list[AType] rp)) = addADTKeywords(a1, a2, aadt(n, addParamLabels(alubList(lp,rp),getParamLabels(lp))))
-                                                                         when size(lp) == size(rp) && getParamLabels(lp) == getParamLabels(rp) && size(getParamLabels(lp)) > 0;
+AType alub(a1:aadt(str n, list[AType] lp, SyntaxRole lsr), a2:aadt(n, list[AType] rp, SyntaxRole rsr)) 
+                                                = addADTLabel(a1, a2, aadt(n, addParamLabels(alubList(lp,rp),getParamLabels(lp)), sr))
+                                                  when size(lp) == size(rp) && getParamLabels(lp) == getParamLabels(rp) && size(getParamLabels(lp)) > 0 &&
+                                                       sr := overloadSyntaxRole({lsr, rsr}) && sr != illegalSyntax();
                                                                          
-AType alub(a1:aadt(str n, list[AType] lp), a2:aadt(n, list[AType] rp)) = addADTKeywords(a1, a2, aadt(n, alubList(lp,rp)))
-                                                                         when size(lp) == size(rp) && size(getParamLabels(lp)) == 0;
+AType alub(a1:aadt(str n, list[AType] lp, SyntaxRole lsr), a2:aadt(n, list[AType] rp, SyntaxRole rsr)) 
+                                                = addADTLabel(a1, a2, aadt(n, alubList(lp,rp), sr))
+                                                  when size(lp) == size(rp) && size(getParamLabels(lp)) == 0 && sr := overloadSyntaxRole({lsr, rsr}) && sr != illegalSyntax();
                                                                          
-AType alub(aadt(str n, list[AType] lp), aadt(str m, list[AType] rp)) = anode([]) when n != m;
-AType alub(a1: aadt(str ln, list[AType] lp), acons(AType b, _, _, _)) = alub(a1,b);
+AType alub(aadt(str n, list[AType] lp, SyntaxRole _), aadt(str m, list[AType] rp,SyntaxRole _)) = anode([]) when n != m;
+AType alub(a1: aadt(str ln, list[AType] lp,SyntaxRole  _), acons(AType b, _, _, _)) = alub(a1,b);
 
-AType addADTKeywords(AType a1, AType a2, AType adt){
-  if(a1.hasSyntax || a2.hasSyntax) adt = adt[hasSyntax=true];
+AType addADTLabel(AType a1, AType a2, AType adt){
   if(a1.label? && a1.label == a2.label) adt = adt[label=a1.label];
   return adt;
 }
 
 AType alub(acons(AType la, _, list[NamedField] _,  list[Keyword] _), acons(AType ra, _, list[NamedField] _, list[Keyword] _)) = alub(la,ra);
-AType alub(acons(AType a,  _, list[NamedField] lp, list[Keyword] _), a2:aadt(str n, list[AType] rp)) = alub(a,a2);
+AType alub(acons(AType a,  _, list[NamedField] lp, list[Keyword] _), a2:aadt(str n, list[AType] rp, SyntaxRole _)) = alub(a,a2);
 AType alub(acons(AType _,  _, list[NamedField] _,  list[Keyword] _), anode(_)) = anode([]);
 
 AType alub(anode(list[NamedField] l), anode(list[NamedField] r)) = anode(l & r);

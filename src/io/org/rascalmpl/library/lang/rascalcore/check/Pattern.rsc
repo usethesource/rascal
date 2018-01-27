@@ -9,6 +9,8 @@ import lang::rascalcore::check::TypePalConfig;
 import lang::rascalcore::check::ConvertType;
 
 import lang::rascalcore::check::Expression;
+import Set;
+import IO;
 
 public str patternContainer = "patternContainer";
 public str patternNames     = "patternNames";
@@ -34,25 +36,25 @@ default AType getPatternType(Pattern p, AType subjectType, Key scope){
     return getType(p);
 }
 
-void collect(Pattern current:(Literal)`<IntegerLiteral il>`, TBuilder tb){
-    tb.fact(current, aint());
-}
-
-void collect(Pattern current:(Literal)`<RealLiteral rl>`, TBuilder tb){
-    tb.fact(current, areal());
-}
-
-void collect(Pattern current:(Literal)`<BooleanLiteral bl>`, TBuilder tb){
-    tb.fact(current, abool());
- }
-
-void collect(Pattern current:(Literal)`<DateTimeLiteral dtl>`, TBuilder tb){
-    tb.fact(current, adatetime());
-}
-
-void collect(Pattern current:(Literal)`<RationalLiteral rl>`, TBuilder tb){
-    tb.fact(current, arat());
-}
+//void collect(Pattern current:(Literal)`<IntegerLiteral il>`, TBuilder tb){
+//    tb.fact(current, aint());
+//}
+//
+//void collect(Pattern current:(Literal)`<RealLiteral rl>`, TBuilder tb){
+//    tb.fact(current, areal());
+//}
+//
+//void collect(Pattern current:(Literal)`<BooleanLiteral bl>`, TBuilder tb){
+//    tb.fact(current, abool());
+// }
+//
+//void collect(Pattern current:(Literal)`<DateTimeLiteral dtl>`, TBuilder tb){
+//    tb.fact(current, adatetime());
+//}
+//
+//void collect(Pattern current:(Literal)`<RationalLiteral rl>`, TBuilder tb){
+//    tb.fact(current, arat());
+//}
 
 void collect(current: (RegExpLiteral)`/<RegExp* regexps>/<RegExpModifier modifier>`,TBuilder tb) {
     tb.fact(current, astr());
@@ -70,15 +72,15 @@ void collect(current: (RegExp)`\<<Name name>:<NamedRegExp* regexps>\>`, TBuilder
     collectLexicalParts(current, tb);
 }
 
-void collect(Pattern current:(Literal)`<StringLiteral sl>`, TBuilder tb){
-    tb.fact(current, astr());
-    collectParts(current, tb);
-}
+//void collect(Pattern current:(Literal)`<StringLiteral sl>`, TBuilder tb){
+//    tb.fact(current, astr());
+//    collectParts(current, tb);
+//}
 
-void collect(Pattern current:(Literal)`<LocationLiteral ll>`, TBuilder tb){
-    tb.fact(current, aloc());
-    collectParts(current, tb);
-}
+//void collect(Pattern current:(Literal)`<LocationLiteral ll>`, TBuilder tb){
+//    tb.fact(current, aloc());
+//    collectParts(current, tb);
+//}
 
 // ---- set pattern
 
@@ -117,13 +119,12 @@ AType getPatternType(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, AType 
 void collect(current: (Pattern) `<Type tp> <Name name>`, TBuilder tb){
     declaredType = convertType(tp, tb);
     scope = tb.getScope();
-       tb.calculate("typed variable pattern", current, [], 
-        AType(){ 
-            return expandUserTypes(declaredType, scope); });
+    tb.calculate("typed variable pattern", current, [], AType(){ 
+        return expandUserTypes(declaredType, scope)[label="<name>"]; });
     uname = unescape("<name>");
     if(uname != "_"){
        tb.push(patternNames, uname);
-       tb.define(uname, variableId(), name, defType([], AType(){ return expandUserTypes(declaredType, scope); }));
+       tb.define(uname, variableId(), name, defType([], AType(){ return expandUserTypes(declaredType, scope)[label="<name>"]; }));
     }
 }
 
@@ -141,10 +142,10 @@ void collectAsVarArg(current: (Pattern) `<Type tp> <Name name>`, TBuilder tb){
                });
        } else {
           tb.push(patternNames, uname);
-          tb.define(uname, variableId(), name, defType([], AType(){ return expandUserTypes(declaredType, scope); }));
+          tb.define(uname, variableId(), name, defType([], AType(){ return expandUserTypes(declaredType, scope)[label="<name>"]; }));
        }
     }
-    tb.calculate("typed variable pattern", current, [], AType(){ return expandUserTypes(declaredType, scope); });
+    tb.calculate("typed variable pattern", current, [], AType(){ return expandUserTypes(declaredType, scope)[label="<name>"]; });
 }
 
 // ---- qualifiedName pattern: QualifiedName
@@ -380,7 +381,12 @@ AType getPatternType(current: (Pattern) `\< <{Pattern ","}* elements1> \>`, ATyp
     if(isTupleType(subjectType)){
         elmTypes = getTupleFieldTypes(subjectType);
         if(size(pats) == size(elmTypes)){
-           return atuple(atypeList([getPatternType(pats[i], elmTypes[i], scope) | int i <- index(pats)]));
+           if(tupleHasFieldNames(subjectType)){
+             res = atuple(atypeList([getPatternType(pats[i], elmTypes[i], scope)[label= elmTypes[i].label] | int i <- index(pats)]));
+             return res;
+           } else {
+             return atuple(atypeList([getPatternType(pats[i], elmTypes[i], scope) | int i <- index(pats)]));
+           }
         } else {
             reportError(current, "Expected tuple pattern with <fmt(size(elmTypes))> elements, found <size(pats)>");
         }
@@ -440,7 +446,7 @@ AType getPatternType(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* 
          validOverloads = {};
          next_cons:
          for(ovl: <key, idr, tp> <- overloads){
-            if(acons(adtType:aadt(adtName, list[AType] parameters), str consName, list[NamedField] fields, list[Keyword] kwFields) := tp){
+            if(acons(adtType:aadt(adtName, list[AType] parameters, _), str consName, list[NamedField] fields, list[Keyword] kwFields) := tp){
                try {
                      validReturnTypeOverloads += <key, dataId(), computeADTType(current, adtName, scope, adtType, fields<1>, kwFields, pats, keywordArguments, identicalFields)>;
                      validOverloads += ovl;
@@ -457,7 +463,7 @@ AType getPatternType(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* 
       }
     }
 
-    if(acons(adtType:aadt(adtName, list[AType] parameters), str consName, list[NamedField] fields, list[Keyword] kwFields) := texp){
+    if(acons(adtType:aadt(adtName, list[AType] parameters, _), str consName, list[NamedField] fields, list[Keyword] kwFields) := texp){
        return computeADTType(current, adtName, scope, adtType, fields<1>, kwFields, pats, keywordArguments, [true | int i <- index(fields)]);
     }
     reportError(current, "No pattern constructor found for <"<expression>"> of expected type <fmt(subjectType)>");
@@ -469,7 +475,7 @@ tuple[rel[Key, IdRole, AType], list[bool]] filterOverloadedConstructors(rel[Key,
     identicalFields = [true | int i <- [0 .. arity]];
     
     for(ovl:<key, idr, tp> <- overloads){                       
-        if(acons(ret:aadt(adtName, list[AType] parameters), str consName, list[NamedField] fields, list[Keyword] kwFields) := tp, comparable(ret, subjectType)){
+        if(acons(ret:aadt(adtName, list[AType] parameters, _), str consName, list[NamedField] fields, list[Keyword] kwFields) := tp, comparable(ret, subjectType)){
            if(size(fields) == arity){
               filteredOverloads += ovl;
               if(isEmpty(prevFields)){

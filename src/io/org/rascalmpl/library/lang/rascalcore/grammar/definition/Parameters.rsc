@@ -17,13 +17,15 @@ import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::check::AType;
 import List;
 import Set;
+import Node;
 
 public AGrammar expandParameterizedSymbols(AGrammar g) {
   return grammar(g.starts, expand({g.rules[nt] | nt <- g.rules}));
 } 
 
 private AType delabel(AType l) {
-  return (label(x,m) := l) ? m : l;
+  //return (label(x,m) := l) ? m : l;
+  return l.label? ? unset(l, "label") : l;
 }
 
 set[AProduction] expand(set[AProduction] prods) {
@@ -48,7 +50,7 @@ set[AProduction] expand(set[AProduction] prods) {
        instantiated += {u};
        substs = (formals[i]:actuals[i] | int i <- index(actuals) & index(formals));
        instances = {*instances, visit (def) {
-         case AType par:\parameter(_,_) => substs[par]?par
+         case AType par:\aparameter(_,_) => substs[par]?par
        }}; 
     }
   

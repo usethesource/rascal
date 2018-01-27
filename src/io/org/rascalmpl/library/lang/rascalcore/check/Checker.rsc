@@ -35,6 +35,7 @@ extend lang::rascalcore::check::ATypeUtils;
 
 extend lang::rascalcore::check::TypePalConfig;
 
+import Set;
 import Relation;
 import util::Reflective;
 
@@ -44,19 +45,29 @@ start syntax Modules
 Tree mkTree(int n) = [DecimalIntegerLiteral] "<for(int i <- [0 .. n]){>6<}>"; // Create a unique tree to identify predefined names
  
 void rascalPreCollectInitialization(Tree tree, TBuilder tb){
-
     init_Import();
     
     tb.enterScope(tree);
-        //data type[&T] = type(Symbol symbol, map[Symbol,Production] definitions);
         
-        typeType = aadt("Type", [aparameter("T", avalue())]);
-        SymbolType = aadt("Symbol", []);
-        ProductionType = aadt("Production", []);
-        symbolField = <"symbol", SymbolType>;
-        definitionsField = < "definitions", amap(SymbolType, ProductionType)>;
-        tb.define("type", constructorId(), mkTree(2), defType(acons(typeType, "type", [symbolField, definitionsField], [])));
-        // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
+        if(tb.getConfig().classicReifier){
+            //data type[&T] = type(Symbol symbol, map[Symbol,Production] definitions);
+            typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
+            SymbolType = aadt("Symbol", [], dataSyntax());
+            ProductionType = aadt("Production", [], dataSyntax());
+            symbolField = <"symbol", SymbolType>;
+            definitionsField = < "definitions", amap(SymbolType, ProductionType)>;
+            tb.define("type", constructorId(), mkTree(2), defType(acons(typeType, "type", [symbolField, definitionsField], [])));
+            // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
+        } else {
+            //data type[&T] = type(AType symbol, map[AType,AProduction] definitions);
+            typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
+            SymbolType = aadt("AType", [], dataSyntax());
+            AProductionType = aadt("AProduction", [], dataSyntax());
+            atypeField = <"symbol", SymbolType>;
+            definitionsField = < "definitions", amap(SymbolType, AProductionType)>;
+            tb.define("type", constructorId(), mkTree(2), defType(acons(typeType, "type", [atypeField, definitionsField], [])));
+            // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
+        }
     tb.leaveScope(tree);
 }
 
@@ -75,7 +86,7 @@ TModel rascalPreValidation(TModel m){
 // Enhance TModel after validation
 TModel rascalPostValidation(TModel m){
     // Check that all user defined types are defined with the same number of type parameters
-    userDefs = {<userName, size(params), def> | <def, di> <- m.defines[_,_,{dataId(), aliasId()}], di has atype, (aadt(str userName, params) := di.atype || aalias(str userName, params, _) := di.atype)};
+    userDefs = {<userName, size(params), def> | <def, di> <- m.defines[_,_,{dataId(), aliasId()}], di has atype, (aadt(str userName, params, _) := di.atype || aalias(str userName, params, _) := di.atype)};
     for(userName <- userDefs<0>){
         nparams = userDefs[userName]<0>;
         if(size(nparams) != 1){
@@ -92,7 +103,8 @@ TModel rascalPostValidation(TModel m){
 public PathConfig getDefaultPathConfig() = pathConfig(   
         srcs = [|project://rascal-core/src/io/org/rascalmpl/library/|,
                 |project://typepal/src|,
-                |project://rascal/src/org/rascalmpl/library|
+                |project://rascal/src/org/rascalmpl/library|,
+                |project://typepal-examples/src|
                ]);
                
 TModel rascalTModelsFromStr(str text){
@@ -110,8 +122,12 @@ TModel rascalTModelFromName(str mname, bool debug=false){
     startTime = cpuTime();
     pcfg = getDefaultPathConfig();
     
-    <valid, tm> = getIfValid(mname, pcfg);
-    if(valid) return tm;
+    /***** turn this off during development of type checker *****/
+    
+    //<valid, tm> = getIfValid(mname, pcfg);
+    //if(valid) return tm;
+    
+    /***********************************************************/
      
     try {
         mloc = getModuleLocation(mname, pcfg);
@@ -131,7 +147,7 @@ TModel rascalTModelFromName(str mname, bool debug=false){
 
 TModel rascalTModel(Tree pt, int startTime, bool debug=false, bool inline=false){
     afterParseTime = cpuTime();
-    tb = newTBuilder(pt, config=rascalTypePalConfig());
+    tb = newTBuilder(pt, config=rascalTypePalConfig(classicReifier=true));
     tb.push(patternContainer, "toplevel");
     // When inline, all modules are in a single file; don't read imports from file
     if(!inline) tb.push("pathconfig", getDefaultPathConfig()); 

@@ -9,7 +9,6 @@ module lang::rascalcore::grammar::definition::Attributes
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::grammar::definition::Literals;
-//import ParseTree;
 import lang::rascalcore::check::AType;
 import IO;
 import ValueIO;

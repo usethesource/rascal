@@ -67,43 +67,43 @@ import util::Maybe;
 //    }
 //} 
    
-public AProduction prod2prod(AType nt, Prod p, set[SyntaxKind] syntaxKind) {
+public AProduction prod2prod(AType nt, Prod p, SyntaxRole syntaxRole) {
   src = p@\loc;
   switch(p) {
     case labeled(ProdModifier* ms, Name n, Sym* args) : 
       if ([Sym x] := args.args, x is empty) {
         m2a = mods2attrs(ms);
-        return isEmpty(m2a) ? prod(nt[label="<n>"], [], src=src, syntaxKind=syntaxKind) 
-                            : prod(nt[label="<n>"], [], attributes=m2a, src=src, syntaxKind=syntaxKind);
+        return isEmpty(m2a) ? prod(nt[label="<n>"], [], syntaxRole, src=src) 
+                            : prod(nt[label="<n>"], [], syntaxRole, attributes=m2a, src=src);
       }
       else {
         m2a = mods2attrs(ms);
-        return isEmpty(m2a) ? prod(nt[label=unescape("<n>")],args2ATypes(args), src=src, syntaxKind=syntaxKind) 
-                            : prod(nt[label=unescape("<n>")],args2ATypes(args),attributes=m2a, src=src, syntaxKind=syntaxKind);
+        return isEmpty(m2a) ? prod(nt[label=unescape("<n>")],args2ATypes(args), syntaxRole, src=src) 
+                            : prod(nt[label=unescape("<n>")],args2ATypes(args), syntaxRole, attributes=m2a, src=src);
       }
     case unlabeled(ProdModifier* ms, Sym* args) :
       if ([Sym x] := args.args, x is empty) {
         m2a = mods2attrs(ms);
-        return isEmpty(m2a) ? prod(nt, [], src=src, syntaxKind=syntaxKind) 
-                            : prod(nt, [], attributes=m2a, src=src, syntaxKind=syntaxKind);
+        return isEmpty(m2a) ? prod(nt, [], syntaxRole, src=src) 
+                            : prod(nt, [], syntaxRole, attributes=m2a, src=src);
       }
       else {
         m2a = mods2attrs(ms);
-        return isEmpty(m2a) ? prod(nt, args2ATypes(args), src=src, syntaxKind=syntaxKind) 
-                            : prod(nt, args2ATypes(args), attributes=m2a, src=src, syntaxKind=syntaxKind);
+        return isEmpty(m2a) ? prod(nt, args2ATypes(args), syntaxRole, src=src) 
+                            : prod(nt, args2ATypes(args), syntaxRole, attributes=m2a, src=src);
       }     
     case \all(Prod l, Prod r) :
-      return choice(nt,{prod2prod(nt, l, syntaxKind), prod2prod(nt, r, syntaxKind)});
+      return choice(nt,{prod2prod(nt, l, syntaxRole), prod2prod(nt, r, syntaxRole)});
     case \first(Prod l, Prod r) : 
-      return priority(nt,[prod2prod(nt, l, syntaxKind), prod2prod(nt, r, syntaxKind)]);
+      return priority(nt,[prod2prod(nt, l, syntaxRole), prod2prod(nt, r, syntaxRole)]);
     case associativityGroup(\left(), Prod q) :
-      return associativity(nt, Associativity::\left(), {prod2prod(nt, q, syntaxKind)});
+      return associativity(nt, Associativity::\left(), {prod2prod(nt, q, syntaxRole)});
     case associativityGroup(\right(), Prod q) :
-      return associativity(nt, Associativity::\right(), {prod2prod(nt, q, syntaxKind)});
+      return associativity(nt, Associativity::\right(), {prod2prod(nt, q, syntaxRole)});
     case associativityGroup(\nonAssociative(), Prod q) :      
-      return associativity(nt, \non-assoc(), {prod2prod(nt, q, syntaxKind)});
+      return associativity(nt, \non-assoc(), {prod2prod(nt, q, syntaxRole)});
     case associativityGroup(\associative(), Prod q) :      
-      return associativity(nt, Associativity::\left(), {prod2prod(nt, q, syntaxKind)});
+      return associativity(nt, Associativity::\left(), {prod2prod(nt, q, syntaxRole)});
     case others(): return \others(nt);
     case reference(Name n): return \reference(nt, "<n>");
     default: throw "prod2prod, missed a case <p>";

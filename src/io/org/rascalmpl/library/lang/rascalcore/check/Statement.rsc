@@ -1,13 +1,24 @@
 module lang::rascalcore::check::Statement
 
 extend analysis::typepal::TypePal;
-extend lang::rascalcore::check::AType;
+
+import lang::rascalcore::check::AType;
+import lang::rascalcore::check::ATypeExceptions;
+import lang::rascalcore::check::ATypeUtils;
+import lang::rascalcore::check::ATypeInstantiation;
 
 import lang::rascal::\syntax::Rascal;
 extend lang::rascalcore::check::ConvertType;
+import lang::rascalcore::check::Pattern;
+import lang::rascalcore::check::Expression;
+import lang::rascalcore::check::Operators;
 
 import lang::rascalcore::check::TypePalConfig;
-import lang::rascalcore::check::ATypeExceptions;
+
+import Set;
+import List;
+import Map;
+import String;
 
 // Rascal statements
 
@@ -415,7 +426,7 @@ void collect(current: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bou
     for(v <- variables){
         qname = convertName(v);
         if(isQualified(qname)){
-            tb.use_qual([qname.qualifier, qname.name], name, {variableId()}, {moduleId()} );
+            tb.useQualified([qname.qualifier, qname.name], name, {variableId()}, {moduleId()} );
         } else {
             tb.use(v, {variableId()});
         }
@@ -538,7 +549,7 @@ default AType computeAssignmentRhsType(Statement current, AType lhsType, str ope
 void checkAssignment(Statement current, (Assignable) `<QualifiedName name>`, str operator,  Statement statement, TBuilder tb){
     qname = convertName(name);
     if(isQualified(qname)){
-        tb.use_qual([qname.qualifier, qname.name], name, {variableId()}, {moduleId()});
+        tb.useQualified([qname.qualifier, qname.name], name, {variableId()}, {moduleId()});
     } else {
         if(operator == "="){
            //tb.calculate("name of assignable", name, [statement], AType(){ return getType(statement); });
@@ -558,36 +569,36 @@ void checkAssignment(Statement current, (Assignable) `<QualifiedName name>`, str
                  });  
 }
 
-AType computeReceiverType(Statement current, (Assignable) `<QualifiedName name>`, Key scope){
+AType computeReceiverType(Statement current, (Assignable) `<QualifiedName name>`, Key scope, TBuilder tb){
     return getType(name); //expandUserTypes(getType(name), scope);
 }
 
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, Key scope){
-    return computeSubscriptionType(current, computeReceiverType(current, receiver, scope), [ getType(subscript) ], [ subscript ]);
+AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, Key scope, TBuilder tb){
+    return computeSubscriptionType(current, computeReceiverType(current, receiver, scope, tb), [ getType(subscript) ], [ subscript ]);
 }
     
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, Key scope){
-    return computeSliceType(current, computeReceiverType(current, receiver, scope), getType(optFirst), aint(), getType(optLast));
+AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, Key scope, TBuilder tb){
+    return computeSliceType(current, computeReceiverType(current, receiver, scope, tb), getType(optFirst), aint(), getType(optLast));
 }
 
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`, Key scope){
-    return computeSliceType(current, computeReceiverType(current, receiver, scope), getType(optFirst), getType(second), getType(optLast));
+AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`, Key scope, TBuilder tb){
+    return computeSliceType(current, computeReceiverType(current, receiver, scope, tb), getType(optFirst), getType(second), getType(optLast));
 }
 
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> . <Name field>`, Key scope)
-    = computeFieldType(current, computeReceiverType(current, receiver, scope), "<field>", scope);
+AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> . <Name field>`, Key scope, TBuilder tb)
+    = computeFieldType(current, computeReceiverType(current, receiver, scope, tb), "<field>", scope, tb);
     
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> @ <Name n>`, Key scope){
+AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> @ <Name n>`, Key scope, TBuilder tb){
     annoNameType = expandUserTypes(getType(unescape("<n>"), scope, {annoId()}), scope);
-    return computeGetAnnotationType(current, computeReceiverType(current, receiver, scope), annoNameType);
+    return computeGetAnnotationType(current, computeReceiverType(current, receiver, scope, tb), annoNameType);
 }
 
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, Key scope){
-    return computeReceiverType(current, receiver);
+AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, Key scope, TBuilder tb){
+    return computeReceiverType(current, receiver, scope, tb);
 }
 
-AType computeReceiverType(Statement current, (Assignable) `\< <{Assignable ","}+ elements> \>`, Key scope){
-    return atuple(atypeList([computeReceiverType(current, element, scope) | element <- elements]));
+AType computeReceiverType(Statement current, (Assignable) `\< <{Assignable ","}+ elements> \>`, Key scope, TBuilder tb){
+    return atuple(atypeList([computeReceiverType(current, element, scope, tb) | element <- elements]));
 }
 
 void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, str operator, Statement rhs, TBuilder tb){
@@ -599,7 +610,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <E
    
    tb.calculate("assignable with subscript", current, [subscript, rhs], 
        AType (){ 
-           res = computeSubscriptAssignableType(current, computeReceiverType(current, receiver, scope),  subscript, operator, getType(rhs));
+           res = computeSubscriptAssignableType(current, computeReceiverType(current, receiver, scope, tb),  subscript, operator, getType(rhs));
            unify(tau, res) || reportError(current, "Cannot bind type variable for <fmt("<names[0]>")>");
            return res;
          });
@@ -657,7 +668,7 @@ AType computeSubscriptAssignableType(Statement current, AType receiverType, Expr
         relFields = getRelFields(receiverType);
         if (!comparable(subscriptType, relFields[0]))
             reportError(current, "Expected subscript of type <fmt(relFields[0])>, not <fmt(subscriptType)>");
-        return arel([relFields[0],computeAssignmentRhsType(current, relFields[1], operator, rhs)]);
+        return arel(atypeList([relFields[0],computeAssignmentRhsType(current, relFields[1], operator, rhs)]));
     } else {
         throw "Cannot assign value of type <fmt(rhs)> to assignable of type <fmt(receiverType)>";
     }
@@ -674,7 +685,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <O
    
    tb.calculate("assignable with slice", current, [optFirst, optLast, rhs], 
       AType (){ 
-           res = computeSliceAssignableType(current, computeReceiverType(current, receiver, scope),  getType(optFirst), aint(), getType(optLast), operator, getType(rhs));
+           res = computeSliceAssignableType(current, computeReceiverType(current, receiver, scope, tb),  getType(optFirst), aint(), getType(optLast), operator, getType(rhs));
            unify(tau, res) || reportError(current, "Cannot bind type variable for <fmt("<names[0]>")>");
            return res;
          });
@@ -690,7 +701,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <O
    
    tb.calculate("assignable with slice", current, [optFirst, second, optLast, rhs], 
       AType (){ 
-           res = computeSliceAssignableType(current, computeReceiverType(current, receiver, scope),  getType(optFirst), getType(second), getType(optLast), operator, getType(rhs));
+           res = computeSliceAssignableType(current, computeReceiverType(current, receiver, scope, tb),  getType(optFirst), getType(second), getType(optLast), operator, getType(rhs));
            unify(tau, res) || reportError(current, "Cannot bind type variable for <fmt("<names[0]>")>");
            return res;
          });
@@ -731,7 +742,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> . <N
    
    tb.calculate("assignable with field", current, [rhs], 
       AType (){ 
-           res = computeFieldAssignableType(current, computeReceiverType(current, receiver, scope),  unescape("<field>"), operator, getType(rhs), scope);
+           res = computeFieldAssignableType(current, computeReceiverType(current, receiver, scope, tb),  unescape("<field>"), operator, getType(rhs), scope);
            unify(tau, res) || reportError(current, "Cannot bind type variable for <fmt("<names[0]>")>");
            return res;
          });
@@ -754,7 +765,7 @@ AType computeFieldAssignableType(Statement current, AType receiverType, str fiel
         }
         if(isEmpty(fld_overloads)) reportError(current, "Field <fmt(fieldName)> on <fmt(receiverType)> cannot be resolved");
         return overloadedAType(fld_overloads);
-   } else if (aadt(adtName, list[AType] actualTypeParams) := receiverType){
+   } else if (aadt(adtName, list[AType] actualTypeParams, _) := receiverType){
         try {
             if ((getADTName(receiverType) == "Tree" || isNonTerminalType(receiverType)) && fieldName == "top") {
                 return receiverType;
@@ -792,7 +803,7 @@ AType computeFieldAssignableType(Statement current, AType receiverType, str fiel
                 return receiverType;
             }                           
             if (isNonTerminalType(declaredType)){
-                 return computeFieldAssignableType(current, aadt("Tree", []), fieldName, operator, rhs, scope);
+                 return computeFieldAssignableType(current, aadt("Tree", [], contextFreeSyntax()), fieldName, operator, rhs, scope);
             }
             reportError(current, "Field <fmt(fieldName)> does not exist on type <fmt(receiverType)>");
         } catch TypeUnavailable(): {
@@ -800,15 +811,19 @@ AType computeFieldAssignableType(Statement current, AType receiverType, str fiel
             //reportError(current, "Cannot compute type of field <fmt(fieldName)>, user type <fmt(receiverType)> has not been declared or is out of scope"); 
         }
     } else if (isTupleType(receiverType)) {
-        tupleFields = getTupleFields(receiverType);
-        idx = indexOf(getTupleFieldNames(receiverType), fieldName);
-        if(idx >= 0){
-            updatedFieldType = computeAssignmentRhsType(current, tupleFields[idx], operator, rhs)[label=fieldName];
-            subtype(updatedFieldType, tupleFields[idx]) || reportError(current, "Field <fmt(fieldName)> requires <fmt(tupleFields[idx])>, found <fmt(updatedFieldType)>");
-            tupleFields[idx] = updatedFieldType;
-            return atuple(atypeList(tupleFields));
-        } else
+        if(tupleHasFieldNames(receiverType)){
+            tupleFields = getTupleFields(receiverType);
+            idx = indexOf(getTupleFieldNames(receiverType), fieldName);
+            if(idx >= 0){
+                updatedFieldType = computeAssignmentRhsType(current, tupleFields[idx], operator, rhs)[label=fieldName];
+                subtype(updatedFieldType, tupleFields[idx]) || reportError(current, "Field <fmt(fieldName)> requires <fmt(tupleFields[idx])>, found <fmt(updatedFieldType)>");
+                tupleFields[idx] = updatedFieldType;
+                return atuple(atypeList(tupleFields));
+            } else
+                reportError(current, "Field <fmt(fieldName)> does not exist on type <fmt(receiverType)>");
+        } else {
             reportError(current, "Field <fmt(fieldName)> does not exist on type <fmt(receiverType)>");
+        }
     } else if (isNodeType(receiverType)) {
         computeAssignmentRhsType(current, avalue(), operator, rhs);
         return receiverType; //anode([]);
@@ -831,7 +846,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> ? <E
    
    tb.calculate("assignable with default expression", current, [defaultExpression, rhs], 
       AType (){ 
-           res = computeDefaultAssignableType(current, computeReceiverType(current, receiver, scope), getType(defaultExpression), operator, getType(rhs), scope);
+           res = computeDefaultAssignableType(current, computeReceiverType(current, receiver, scope, tb), getType(defaultExpression), operator, getType(rhs), scope);
            return res;
          });
 }
@@ -844,13 +859,18 @@ AType computeDefaultAssignableType(Statement current, AType receiverType, AType 
     return receiverType;
 }
 
-AType() makeDef(list[AType] taus, int i) = AType() { 
-    return taus[i]; 
-};
-
 set[str] getNames(Statement s) = {"<nm>" | /QualifiedName nm := s};
 
-AType() checkTupleElemAssignment(Statement current, list[QualifiedName] names, list[str] flatNames, set[str] namesInRhs, list[AType] taus, list[Assignable] elms, int i, str operator, Statement rhs, Key scope){
+
+
+void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable ","}+ elements> \>`, str operator, Statement rhs, TBuilder tb){
+
+    // Note we will use a list `taus` of type variables that is accessible in `makeDef` and `checkTupleElemAssignment` in order to make
+    // new bindings to `taus` (e.g. changed list elements) visible inside those functions
+
+    AType() makeDef(int i) = AType() { return taus[i]; };
+    
+    AType() checkTupleElemAssignment(Statement current, list[QualifiedName] names, list[str] flatNames, set[str] namesInRhs, list[Assignable] elms, int i, str operator, Statement rhs, Key scope, TBuilder tb){
     return
         AType (){
             //println("checkTupleElemAssignment: <current>");
@@ -859,10 +879,12 @@ AType() checkTupleElemAssignment(Statement current, list[QualifiedName] names, l
             if(!isTupleType(rhsType)) reportError(current, "Tuple type required, found <fmt(rhsType)>");
             rhsFields = getTupleFields(rhsType);
             //println("checkTupleElemAssignment: rhsFields <rhsFields>");
+            //println("#name: <size(names)>, #rhsFields: <size(rhsFields)>");
             if(size(names) != size(rhsFields)) reportError(statement, "Tuple type required of arity <size(names)>, found arity <size(rhsFields)>"); 
-            //println("checkTupleElemAssignment: taus[i] : <taus[i]>, rhsFields[i]: <rhsFields[i]>");
+            //println("checkTupleElemAssignment: taus[<i>] : <taus[i]>, rhsFields[<i>]: <rhsFields[i]>");
             if(isFullyInstantiated(taus[i]) && tvar(l) !:= taus[i]){
-               recTypeI  = computeReceiverType(current, elms[i],  scope);
+               //println("checkTupleElemAssignment: fullyInstantiated");
+               recTypeI  = computeReceiverType(current, elms[i],  scope, tb);
                rhsTypeI  = computeAssignmentRhsType(current, recTypeI, operator, rhsFields[i]);
                comparable(rhsTypeI, recTypeI) || reportError(names[i], "Value of type <fmt(rhsFields[i])> cannot be assigned to <fmt("<names[i]>")> of type <fmt(recTypeI)>");
                   //if(flatNames[i] in namesInRhs){
@@ -870,29 +892,30 @@ AType() checkTupleElemAssignment(Statement current, list[QualifiedName] names, l
                     unify(taus[i], rhsTypeI) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
                   //}
              } else {
+                  //println("checkTupleElemAssignment: !fullyInstantiated");
                  if(flatNames[i] in namesInRhs){
                     unify(taus[i], getType(names[i])) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
                   } else {
                     unify(taus[i], rhsFields[i]) || reportError(current, "Cannot bind variable <fmt("<names[i]>")>");
                  }
+                 //println("Assigning to taus[<i>]: <instantiate(taus[i])>");
                  taus[i] = instantiate(taus[i]);
              }
              return taus[i];
         };
    }
 
-void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable ","}+ elements> \>`, str operator, Statement rhs, TBuilder tb){
    names = getReceiver(receiver, tb);
    flatNames = ["<nm>" | nm <- names];
    elms = [elm | elm <- elements];
    namesInRhs = getNames(rhs);
    taus = [tb.newTypeVar(nm) | nm <- names];
-   for(int i <- index(names), flatNames[i] notin namesInRhs){tb.define(unescape("<names[i]>"), variableId(), names[i], defLub([rhs], makeDef(taus, i)));}
+   for(int i <- index(names), flatNames[i] notin namesInRhs){tb.define(unescape("<names[i]>"), variableId(), names[i], defLub([rhs], makeDef(i)));}
   
    scope = tb.getScope();
    
    for(int i <- index(names)){
-     tb.calculate("assignable <i> of tuple", names[i], [rhs], checkTupleElemAssignment(current, names, flatNames, namesInRhs, taus, elms, i, operator, rhs, scope));
+     tb.calculate("assignable <i> of tuple", names[i], [rhs], checkTupleElemAssignment(current, names, flatNames, namesInRhs, elms, i, operator, rhs, scope, tb));
    }
    tb.calculate("assignable tuple", current, [rhs], AType() { 
     return getType(rhs); /*return atuple(atypeList([ getType(tau) | tau <- taus])); */});
@@ -906,7 +929,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> @ <N
    
    tb.calculate("assignable with annotation", current, [n, rhs], 
       AType (){ 
-           rt = computeReceiverType(current, receiver, scope);
+           rt = computeReceiverType(current, receiver, scope, tb);
            return computeAnnoAssignableType(current, rt,  unescape("<n>"), operator, getType(rhs), scope);
          });
 }

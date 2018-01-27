@@ -1,8 +1,11 @@
 module lang::rascalcore::check::Import
 
 import ValueIO;
+import IO;
 import List;
 import Map;
+import Set;
+import Exception;
 import util::Reflective;
 extend analysis::typepal::TypePal;
 import lang::rascalcore::check::AType;
@@ -21,12 +24,12 @@ public str key_import_graph = "import_graph";
 public str key_extend_graph = "extend_graph";
 public str key_processed_modules = "processed_modules";
 
-AType subsitute(AType atype, map[loc, AType] facts){
-    return 
-        visit(atype){
-            case tv: tvar(loc src) => substitute(facts[src], facts)
-        };
-}
+//AType subsitute(AType atype, map[loc, AType] facts){
+//    return 
+//        visit(atype){
+//            case tv: tvar(loc src) => substitute(facts[src], facts)
+//        };
+//}
 
 private map[str, datetime] lastModifiedModules = ();
 private set[str] toBeSaved = {};
@@ -40,7 +43,11 @@ map[str, loc] getModuleScopes(TModel tm)
     = (id: defined | <Key scope, str id, moduleId(), Key defined, DefInfo defInfo> <- tm.defines);
 
 loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes){
-    return moduleScopes[qualifiedModuleName] ? { throw "No module scope found for <qualifiedModuleName>"; };
+    try {
+        return moduleScopes[qualifiedModuleName];
+    } catch NoSuchKey(_): {
+        throw "No module scope found for <qualifiedModuleName>";
+    }
 }
 
 datetime getLastModified(str qualifiedModuleName, PathConfig pcfg){

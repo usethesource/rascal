@@ -175,9 +175,8 @@ AType instantiateRascalTypeParams(aparameter(str s, AType t), Bindings bindings)
     = invalidInstantiation(s,t,bindings[s]) when s in bindings && !asubtype(bindings[s],t);
 AType instantiateRascalTypeParams(AType pt:aparameter(str s, AType t), Bindings bindings) 
     = pt when s notin bindings;
-AType instantiateRascalTypeParams(a: aadt(str s, list[AType] ps), Bindings bindings) 
-    = a.hasSyntax? ? aadt(s,[instantiateRascalTypeParams(p,bindings) | p <- ps],hasSyntax=a.hasSyntax)
-                   : aadt(s,[instantiateRascalTypeParams(p,bindings) | p <- ps]);
+AType instantiateRascalTypeParams(a: aadt(str s, list[AType] ps, SyntaxRole sr), Bindings bindings) 
+    = aadt(s, [instantiateRascalTypeParams(p,bindings) | p <- ps], sr);
 AType instantiateRascalTypeParams(acons(AType a, str name, list[NamedField] fields, list[Keyword] kwFields), Bindings bindings) = 
     acons(instantiateRascalTypeParams(a,bindings), name, [<fn, instantiateRascalTypeParams(ft,bindings)> | <fn, ft> <- fields], [<fn, instantiateRascalTypeParams(ft,bindings), de> | <fn, ft, de> <- kwFields]);
 AType instantiateRascalTypeParams(aalias(str s, list[AType] ps, AType at), Bindings bindings)
