@@ -126,8 +126,7 @@ MuFunction preprocess(experiments::Compiler::muRascal::AST::Function f, str modN
            }
        }
    }
-  // TODO: type was added for new (experimental) type checker
-  str scopeIn = (!isEmpty(f.funNames)) ? getUID(modName,f.funNames) : ""; // if not a function scope, then the root one
+   scopeIn = (!isEmpty(f.funNames)) ? getUID(modName,f.funNames) : ""; // if not a function scope, then the root one
    // Generate a very generic function type
    ftype = Symbol::func(Symbol::\value(),[ Symbol::\value() | i <- [0..size(f.formals)] ], []);
    argNames = ["<arg>" | arg <- f.formals];
