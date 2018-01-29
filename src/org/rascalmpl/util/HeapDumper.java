@@ -12,6 +12,7 @@
  */ 
 package org.rascalmpl.util;
 
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 
 import javax.management.MBeanServer;
@@ -48,13 +49,7 @@ public class HeapDumper {
         return InstanceKeeper.hotspotMBean;
     }
     
-    public static void dumpHeap(String fileName, boolean live) {
-        try {
-            getBean().dumpHeap(fileName, live);
-        } catch (RuntimeException re) {
-            throw re;
-        } catch (Exception exp) {
-            throw new RuntimeException(exp);
-        }
+    public static void dumpHeap(String fileName, boolean live) throws IOException {
+        getBean().dumpHeap(fileName, live);
     }
 }
