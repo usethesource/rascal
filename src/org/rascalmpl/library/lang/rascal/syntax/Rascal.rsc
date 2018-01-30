@@ -35,20 +35,20 @@ lexical Concrete
   = typed: "(" LAYOUTLIST l1 Sym symbol LAYOUTLIST l2 ")" LAYOUTLIST l3 "`" ConcretePart* parts "`";
 
 lexical ConcretePart
-  = @category="MetaSkipped" text   : ![`\<\>\\\n]+ !>> ![`\<\>\\\n] //TODO: add $
+  = @category="MetaSkipped" text   : ![`\<\>$\\\n]+ !>> ![`\<\>$\\\n] //TODO: add $
   | newline: "\n" [\ \t \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000]* "\'"
   | @category="MetaVariable" hole : ConcreteHole hole
   | @category="MetaSkipped" lt: "\\\<"
   | @category="MetaSkipped" gt: "\\\>"
   | @category="MetaSkipped" bq: "\\`"
   | @category="MetaSkipped" bs: "\\\\"
-  //| @category="MetaSkipped" dollar: "\\$"
+  | @category="MetaSkipped" dollar: "\\$"
   ;
   
 syntax ConcreteHole 
   = \one: "\<" Sym symbol Name name "\>"
-  //| \qualifiedName: "$" >> [A-Z a-z _] QualifiedName qualifiedName
-  //| \typedVariable: "$(" Type typ Name name ")"
+  | \qualifiedName: "$" >> [A-Z a-z _] QualifiedName qualifiedName
+  | \typedVariable: "$(" Type typ Name name ")"
   ;
   
 start syntax Module
@@ -316,7 +316,7 @@ lexical CaseInsensitiveStringConstant
 	= @category="Constant" "\'" StringCharacter* chars "\'" ;
 
 lexical Backslash
-	= [\\] !>> [/ \< \> $ \\] ;
+	= [\\] !>> [/ \< \> \\] ; //TODO: add $
 
 syntax Label
 	= \default: Name name ":" 
@@ -326,7 +326,7 @@ lexical MidProtocolChars
 	= "\>" URLChars "\<" ;
 
 lexical NamedBackslash
-	= [\\] !>> [\< \> $ \\] ;
+	= [\\] !>> [\< \> \\] ; //TODO: add $
 
 syntax Field
 	= index: IntegerLiteral fieldIndex 
@@ -442,9 +442,9 @@ syntax KeywordArguments[&T]
 syntax KeywordArgument[&T] = \default: Name name "=" &T expression ;
 
 lexical RegExp
-	= ![/ \< \> \\] 
+	= ![/ \< \> \\] //TODO: $? 
 	| "\<" Name "\>" 
-	| [\\] [/ \< \> \\] 
+	| [\\] [/ \< \> \\] //TODO: $?
 	| "\<" Name ":" NamedRegExp* "\>" 
 	| Backslash 
 	// | @category="MetaVariable" [\<]  Expression expression [\>] TODO: find out why this production existed 
@@ -778,7 +778,7 @@ lexical PreProtocolChars
 
 lexical NamedRegExp
 	= "\<" Name "\>" 
-	| [\\] [/ \< \> \\] //TODO: add $ 
+	| [\\] [/ \< \> \\] //TODO: add $
 	| NamedBackslash 
 	| ![/ \< \> \\] ; //TODO: add $
 
