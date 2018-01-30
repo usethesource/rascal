@@ -1,4 +1,4 @@
- @license{
+@license{
   Copyright (c) 2009-2015 CWI
   All rights reserved. This program and the accompanying materials
   are made available under the terms of the Eclipse Public License v1.0
@@ -571,8 +571,17 @@ syntax StringLiteral
 	| interpolated: PreStringChars pre Expression expression StringTail tail 
 	| nonInterpolated: StringConstant constant ;
 
+lexical MultilineCommentContent
+    =  (![*/] | [*] !>> [/] | [/] !>> [*])
+    | MultilineComment
+    ;
+
+lexical MultilineComment
+    = @category="Comment" "/*" MultilineCommentContent* "*/"
+    ;
+    
 lexical Comment
-	= @category="Comment" "/*" (![*] | [*] !>> [/])* "*/" 
+	= MultilineComment
 	| @category="Comment" "//" ![\n]* !>> [\ \t\r \u00A0 \u1680 \u2000-\u200A \u202F \u205F \u3000] $ // the restriction helps with parsing speed
 	;
 	
