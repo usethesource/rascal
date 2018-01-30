@@ -73,7 +73,7 @@ AType overloadedAType(rel[Key, IdRole, AType] overloads){
 
 data AProduction
      = \choice(AType def, set[AProduction] alternatives)
-     | \composition(AProduction lhs, AProduction rhs)
+//     | \composition(AProduction lhs, AProduction rhs)
      ;
  
 @doc{
@@ -118,7 +118,7 @@ public AProduction choice(AType s, set[AProduction] choices){
 // ---- Parse Tree
 
 data Tree 
-     = appl(AProduction aprod, list[Tree] args) // <1>
+     = appl(AProduction aprod, list[Tree] args, loc src=|unknown:///|) // <1>
      | cycle(AType asymbol, int cycleLength)  // <2>
      | amb(set[Tree] alternatives) // <3> 
      | char(int character) // <4>
@@ -128,7 +128,7 @@ data Tree
 .Synopsis
 Annotate a parse tree node with a source location.
 }
-anno loc Tree@\loc;
+anno loc Tree@\loc; // TODO: weg
 
 data SyntaxRole
     = dataSyntax()
@@ -136,19 +136,22 @@ data SyntaxRole
     | lexicalSyntax()
     | keywordSyntax()
     | layoutSyntax()
-    | startSyntax()
+   // | startSyntax()
     | illegalSyntax()
     ;
     
 SyntaxRole overloadSyntaxRole(set[SyntaxRole] syntaxRoles) {
     if(size(syntaxRoles) == 1) return getFirstFrom(syntaxRoles);
-    if(syntaxRoles <= {dataSyntax(), contextFreeSyntax(), startSyntax()}){
-       return startSyntax() in syntaxRoles ? startSyntax() : contextFreeSyntax();
-    }
+    //if(syntaxRoles <= {dataSyntax(), contextFreeSyntax()}){
+    //   return startSyntax() in syntaxRoles ? startSyntax() : contextFreeSyntax();
+    //}
     return illegalSyntax();
 }
 
-bool isConcreteSyntaxRole(SyntaxRole sr) = sr in {lexicalSyntax(), contextFreeSyntax(), startSyntax()};
+bool isConcreteSyntaxRole(SyntaxRole sr) = sr in {lexicalSyntax(), contextFreeSyntax()};
+
+bool isLayoutSyntax(aadt(name, parameters, layoutSyntax())) = true;
+default bool isLayoutSyntax(AType t) = false;
 
 @doc{
 .Synopsis
@@ -176,7 +179,7 @@ construct ordered and un-ordered compositions, and associativity groups.
     for extending priority chains and such.
 } 
 data AProduction 
-     = prod(AType def, list[AType] asymbols, SyntaxRole syntaxRole, set[Attr] attributes={},  loc src=|unknown:///|) // <1>
+     = prod(AType def, list[AType] asymbols, set[Attr] attributes={}, loc src=|unknown:///|) // <1>
      | regular(AType def) // <2>
      | error(AProduction prod, int dot) // <3>
      | skipped() // <4>
@@ -265,8 +268,8 @@ e.g., `int`, `list`, and `rel`. Here we extend it with the symbols that may occu
 
 
 
-data AType // <1>
-     = \start(AType symbol);
+//data AType // <1>
+//     = \start(AType symbol);
 
 // These symbols are the named non-terminals.
 //data AType 
@@ -278,6 +281,18 @@ data AType // <1>
 //       \parameterized-sort(str sname, list[AType] parameters) // <6>
 //     | \parameterized-lex(str sname, list[AType] parameters)  // <7>
 //     ; 
+
+// For convenience in transition period
+//AType \start(AType symbol)  = symbol[syntaxRole=startSyntax()];
+AType \sort(str sname)      = aadt(sname, [], contextFreeSyntax());
+AType \lex(str sname)       = aadt(sname, [], lexicalSyntax());
+AType \layouts(str sname)   = aadt(sname, [], layoutSyntax());
+AType \keywords(str sname)  = aadt(sname, [], keywordSyntax());
+AType \parameterized-sort(str sname, list[AType] parameters) 
+                            = aadt(sname, parameters, contextFreeSyntax());
+AType \parameterized-lex(str sname, list[AType] parameters) 
+                            = aadt(sname, parameters, lexicalSyntax());
+
 
 // These are the terminal symbols.
 data AType 
@@ -296,12 +311,11 @@ data AType
      | \iter-star-seps(AType symbol, list[AType] separators) // <16>
      | \alt(set[AType] alternatives) // <17>
      | \seq(list[AType] symbols)     // <18>
+     | \start(AType symbol)
      ;
   
 data AType // <19>
      = \conditional(AType symbol, set[ACondition] conditions);
-
-
 
 @doc{
 .Synopsis
@@ -398,6 +412,10 @@ bool asubtype(aadt(str _, list[AType] _, _), anode(_)) = true;
 bool asubtype(aadt(str n, list[AType] l, _), aadt(n, list[AType] r, _)) = asubtype(l, r);
 bool asubtype(aadt(_, _, sr), aadt("Tree", _, _)) = true when isConcreteSyntaxRole(sr);
 bool asubtype(aadt(str _, list[AType] _, sr), AType::\auser("Tree", _))  = true when isConcreteSyntaxRole(sr);
+
+bool asubtype(\start(AType a), AType b) = asubtype(a, b);
+bool asubtype(AType a, \start(AType b)) = asubtype(a, b);
+
 
 bool asubtype(AType::\iter-seps(AType s, list[AType] seps), AType::\iter-star-seps(AType t, list[AType] seps2)) = asubtype(s,t) && asubtype(seps, seps2);
 bool asubtype(AType::\iter(AType s), AType::\iter-star(AType t)) = asubtype(s, t);

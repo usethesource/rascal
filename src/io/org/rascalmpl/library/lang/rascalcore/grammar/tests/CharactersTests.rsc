@@ -1,7 +1,7 @@
 module lang::rascalcore::grammar::tests::CharactersTests
 
 import lang::rascalcore::grammar::definition::Characters;
-import ParseTree;
+import lang::rascalcore::check::AType;
 
 test bool testFlip() = \new-char-class([range(2,2), range(1,1)]) == \char-class([range(1,2)]);
 test bool testMerge() = \new-char-class([range(3,4), range(2,2), range(1,1)]) == \char-class([range(1,4)]);

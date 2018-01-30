@@ -184,7 +184,7 @@ AType instantiateRascalTypeParams(aalias(str s, list[AType] ps, AType at), Bindi
 AType instantiateRascalTypeParams(afunc(AType rt, AType formals, list[Keyword] kwFormals, varArgs=va), Bindings bindings) = 
     afunc(instantiateRascalTypeParams(rt,bindings),instantiateRascalTypeParams(formals,bindings), [<fn, instantiateRascalTypeParams(ft,bindings), de> | <fn, ft, de> <- kwFormals], varArgs=va);
 AType instantiateRascalTypeParams(areified(AType t), Bindings bindings) = areified(instantiateRascalTypeParams(t,bindings));
-//AType instantiateRascalTypeParams(\start(AType s), Bindings bindings) = \start(instantiateRascalTypeParams(s,bindings));
+AType instantiateRascalTypeParams(\start(AType s), Bindings bindings) = \start(instantiateRascalTypeParams(s,bindings));
 AType instantiateRascalTypeParams(\iter(AType s), Bindings bindings) = \iter(instantiateRascalTypeParams(s,bindings));
 AType instantiateRascalTypeParams(\iter-star(AType s), Bindings bindings) = \iter-star(instantiateRascalTypeParams(s,bindings));
 AType instantiateRascalTypeParams(\iter-seps(AType s, list[AType] seps), Bindings bindings) = \iter-seps(instantiateRascalTypeParams(s,bindings),seps);

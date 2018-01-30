@@ -1,26 +1,27 @@
 module lang::rascalcore::grammar::tests::TestGrammars
 
-import Grammar;
+import lang::rascalcore::grammar::definition::Grammar;
+import lang::rascalcore::check::AType;
 
-public Grammar GEMPTY = grammar({sort("S")}, ());
+public AGrammar GEMPTY = grammar({sort("S")}, ());
 
-private Production pr(Symbol rhs, list[Symbol] lhs) {
-  return prod(rhs,lhs,{});
+private AProduction pr(AType rhs, list[AType] lhs/*, SyntaxRole syntaxRole*/) {
+  return prod(rhs,lhs/*,syntaxRole*/);
 }
 
-public Grammar G0 = grammar({sort("S")}, (
-    sort("S"): choice(sort("S"), { pr(sort("S"), [ lit("0") ]) }),
-    lit("0"): choice(lit("0"), { pr(lit("0"),[\char-class([range(48,48)])]) })
+public AGrammar G0 = grammar({sort("S")}, (
+    sort("S"): choice(sort("S"), { pr(sort("S"), [ lit("0") ]/*, lexicalSyntax()*/) }),
+    lit("0"): choice(lit("0"), { pr(lit("0"),[\char-class([range(48,48)])]/*, lexicalSyntax()*/) })
 ));
 
-public map[Symbol sort, Production def] Lit1 = (
+public map[AType sort, AProduction def] Lit1 = (
   lit("*"): choice(lit("*"), { pr(lit("*"),[\char-class([range(42,42)])]) }),
   lit("+"): choice(lit("+"), { pr(lit("+"),[\char-class([range(43,43)])]) }),
   lit("0"): choice(lit("0"), { pr(lit("0"),[\char-class([range(48,48)])]) }),
   lit("1"): choice(lit("1"), { pr(lit("1"),[\char-class([range(49,49)])]) })
 );
 
-public Grammar GEXP = grammar({sort("E")}, (
+public AGrammar GEXP = grammar({sort("E")}, (
     sort("E"): choice(sort("E"), { pr(sort("E"), [sort("E"), lit("*"), sort("B")]),
                                    pr(sort("E"), [sort("E"), lit("+"), sort("B")]),
                                    pr(sort("E"), [sort("B")])
@@ -30,7 +31,7 @@ public Grammar GEXP = grammar({sort("E")}, (
                                  })
 ) + Lit1);
 
-public Grammar GEXPPRIO = grammar( {sort("E")},
+public AGrammar GEXPPRIO = grammar( {sort("E")},
 (
     sort("E"):  choice(sort("E"), { pr(sort("E"),  [sort("T"), sort("E1")])}),
     sort("E1"): choice(sort("E1"),{ pr(sort("E1"), [lit("+"), sort("T"), sort("E1")]),

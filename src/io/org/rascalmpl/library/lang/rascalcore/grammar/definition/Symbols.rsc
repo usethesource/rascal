@@ -18,13 +18,13 @@ import Node;
 
 
 default AType striprec(AType s_ori) = visit(s_ori) { 
-	//case label(str _, AType s) => strip(s)
+	case AType s => strip(s) when s.label?
 	case conditional(AType s, set[ACondition] _) => strip(s)
 };
 ////default AType striprec(AType s) = visit(s) { case AType t => strip(t) };
-//AType strip(label(str _, AType s)) = strip(s);
+
 AType strip(conditional(AType s, set[ACondition] _)) = strip(s);
-default AType strip(AType s) = s;
+default AType strip(AType s) = s.label? ? unset(s, "label") : s;
 
 public bool match(AType checked, AType referenced) {
   while (checked is conditional || checked is label)
@@ -43,12 +43,12 @@ public AType sym2AType(Sym sym) {
       return AType::aadt("<n>", [], contextFreeSyntax());
       //return AType::\sort("<n>");
     case \start(Nonterminal n) : 
-       return AType::aadt("<n>", [], startSyntax());
+       return \start(AType::aadt("<n>", [], contextFreeSyntax()));
       //return AType::\start(\sort("<n>"));
     case literal(StringConstant l): 
-      return AType::lit(unescape(l));
+      return AType::lit(unescapeLiteral(l));
     case caseInsensitiveLiteral(CaseInsensitiveStringConstant l): 
-      return AType::cilit(unescape(l));
+      return AType::cilit(unescapeLiteral(l));
     case \parametrized(Nonterminal n, {Sym ","}+ syms) : 
         return AType::aadt("<n>",separgs2ATypes(syms), contextFreeSyntax()); 
       //return AType::\parameterized-sort("<n>",separgs2ATypes(syms)); 

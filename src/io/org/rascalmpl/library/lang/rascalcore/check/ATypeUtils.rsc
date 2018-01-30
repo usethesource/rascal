@@ -159,12 +159,14 @@ str prettyPrintAType(list[AType] atypes) = intercalate(", ", [prettyPrintAType(t
 str prettyPrintAType(Keyword kw) = "<prettyPrintAType(kw.fieldType) <kw.fieldName> = <kw.defaultExp>";
 
 // non-terminal symbols
-str prettyPrintAType(\prod(AType s, list[AType] fs, SyntaxRole _)) = "<prettyPrintAType(s)> : (<intercalate(", ", [ prettyPrintAType(f) | f <- fs ])>)"; //TODO others
+str prettyPrintAType(\prod(AType s, list[AType] fs/*, SyntaxRole _*/)) = "<prettyPrintAType(s)> : (<intercalate(", ", [ prettyPrintAType(f) | f <- fs ])>)"; //TODO others
 
 // terminal symbols
 str prettyPrintAType(AType::\lit(str string)) = string;
 str prettyPrintAType(AType::\cilit(str string)) = string;
 str prettyPrintAType(\char-class(list[ACharRange] ranges)) = "[<intercalate(" ", [ "<r.begin>-<r.end>" | r <- ranges ])>]";
+
+str prettyPrintAType(\start(AType symbol)) = "start[<prettyPrintAType(symbol)>]";
 
 // regular symbols
 str prettyPrintAType(AType::\empty()) = "()";
@@ -841,6 +843,7 @@ bool isEnumeratorType(AType t) =
 bool isNonTerminalType(aparameter(_,AType tvb)) = isNonTerminalType(tvb);
 bool isNonTerminalType(AType::\conditional(AType ss,_)) = isNonTerminalType(ss);
 bool isNonTerminalType(t:aadt(adtName,_,SyntaxRole sr)) = isConcreteSyntaxRole(sr) || adtName == "Tree";
+bool isNonTerminalType(AType::\start(AType ss)) = isNonTerminalType(ss);
 bool isNonTerminalType(AType::\iter(_)) = true;
 bool isNonTerminalType(AType::\iter-star(_)) = true;
 bool isNonTerminalType(AType::\iter-seps(_,_)) = true;
@@ -879,15 +882,15 @@ public default AType getNonTerminalOptType(AType ot) {
 }
 
 // TODO
-bool isStartNonTerminalType(aparameter(_,AType tvb)) = isNonTerminalType(tvb);
-bool isStartNonTerminalType(AType::\start(_)) = true;
-public default bool isStartNonTerminalType(AType _) = false;    
-
-public AType getStartNonTerminalType(aparameter(_,AType tvb)) = getStartNonTerminalType(tvb);
-public AType getStartNonTerminalType(AType::\start(AType s)) = s;
-public default AType getStartNonTerminalType(AType s) {
-    throw rascalCheckerInternalError("<fmt(s)> is not a start non-terminal type");
-}
+//bool isStartNonTerminalType(aparameter(_,AType tvb)) = isNonTerminalType(tvb);
+//bool isStartNonTerminalType(AType::\start(_)) = true;
+//public default bool isStartNonTerminalType(AType _) = false;    
+//
+//public AType getStartNonTerminalType(aparameter(_,AType tvb)) = getStartNonTerminalType(tvb);
+//public AType getStartNonTerminalType(AType::\start(AType s)) = s;
+//public default AType getStartNonTerminalType(AType s) {
+//    throw rascalCheckerInternalError("<fmt(s)> is not a start non-terminal type");
+//}
 
 public AType removeConditional(cnd:conditional(AType s, set[ACondition] _)) = cnd.label? ? s[label=cnd.label] : s;
 public default AType removeConditional(AType s) = s;

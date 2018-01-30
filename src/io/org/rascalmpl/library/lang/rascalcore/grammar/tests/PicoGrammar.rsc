@@ -1,13 +1,14 @@
-module lang::rascalcore::grammar::tests::PicoGrammar
+module lang::rascal::grammar::tests::PicoGrammar
 
 import IO;
 import Grammar;
 import ParseTree;
 import String;
 import List;
-import lang::rascalcore::grammar::ParserGenerator;
-import lang::rascalcore::grammar::Lookahead;
+import lang::rascal::grammar::ParserGenerator;
+import lang::rascal::grammar::Lookahead;
 import util::Benchmark;
+import util::Reflective;
 
 public Grammar Pico = grammar({sort("Program")},
 
@@ -22,7 +23,7 @@ lex("Natural"): choice(lex("Natural"),{prod(lex("Natural"),[iter(\char-class([ra
 sort("Program"): choice(sort("Program"),{prod(label("program",sort("Program")),[lit("begin"),layouts("Layout"),label("decls",sort("Declarations")),layouts("Layout"),label("body",\iter-star-seps(sort("Statement"),[layouts("Layout"),lit(";"),layouts("Layout")])),layouts("Layout"),lit("end")],{})}),
 sort("Declarations"): choice(sort("Declarations"),{prod(sort("Declarations"),[lit("declare"),layouts("Layout"),label("decls",\iter-star-seps(sort("Declaration"),[layouts("Layout"),lit(","),layouts("Layout")])),layouts("Layout"),lit(";")],{})}),
 lex("String"): choice(lex("String"),{prod(lex("String"),[lit("\""),\iter-star(\char-class([range(1,33),range(35,16777215)])),lit("\"")],{})}),
-sort("Expression"): choice(sort("Expression"),{priority(sort("Expression"),[choice(sort("Expression"),{prod(label("strCon",sort("Expression")),[label("string",lex("String"))],{}),prod(label("id",sort("Expression")),[label("name",lex("Id"))],{}),prod(label("natCon",sort("Expression")),[label("natcon",lex("Natural"))],{}),prod(sort("Expression"),[lit("("),layouts("Layout"),label("e",sort("Expression")),layouts("Layout"),lit(")")],{\bracket()})}),prod(label("conc",sort("Expression")),[label("lhs",sort("Expression")),layouts("Layout"),lit("||"),layouts("Layout"),label("rhs",sort("Expression"))],{\assoc(left())}),associativity(sort("Expression"),left(),{prod(label("add",sort("Expression")),[label("lhs",sort("Expression")),layouts("Layout"),lit("+"),layouts("Layout"),label("rhs",sort("Expression"))],{\assoc(left())}),prod(label("sub",sort("Expression")),[label("lhs",sort("Expression")),layouts("Layout"),lit("-"),layouts("Layout"),label("rhs",sort("Expression"))],{\assoc(\left())})})])}),
+sort("Expression"): choice(sort("Expression"),{priority(sort("Expression"),[choice(sort("Expression"),{prod(label("strCon",sort("Expression")),[label("string",lex("String"))],{}),prod(label("id",sort("Expression")),[label("name",lex("Id"))],{}),prod(label("natCon",sort("Expression")),[label("natcon",lex("Natural"))],{}),prod(sort("Expression"),[lit("("),layouts("Layout"),label("e",sort("Expression")),layouts("Layout"),lit(")")],{\bracket()})}),prod(label("conc",sort("Expression")),[label("lhs",sort("Expression")),layouts("Layout"),lit("||"),layouts("Layout"),label("rhs",sort("Expression"))],{}),associativity(sort("Expression"),left(),{prod(label("add",sort("Expression")),[label("lhs",sort("Expression")),layouts("Layout"),lit("+"),layouts("Layout"),label("rhs",sort("Expression"))],{}),prod(label("sub",sort("Expression")),[label("lhs",sort("Expression")),layouts("Layout"),lit("-"),layouts("Layout"),label("rhs",sort("Expression"))],{\assoc(\left())})})])}),
 layouts("$default$"): choice(layouts("$default$"),{prod(layouts("$default$"),[],{})}),
 sort("Type"): choice(sort("Type"),{prod(label("natural",sort("Type")),[lit("natural")],{}),prod(label("string",sort("Type")),[lit("string")],{})}),
 sort("Declaration"): choice(sort("Declaration"),{prod(label("decl",sort("Declaration")),[label("id",lex("Id")),layouts("Layout"),lit(":"),layouts("Layout"),label("tp",sort("Type"))],{})})
@@ -30,7 +31,8 @@ sort("Declaration"): choice(sort("Declaration"),{prod(label("decl",sort("Declara
 
 );
 
-loc PicoParserLoc = |compressed+std:///lang/rascal/grammar/tests/generated_parsers/PicoParser.java.gz|;
+
+loc PicoParserLoc = getModuleLocation("lang::rascal::grammar::tests::PicoGrammar").parent + "generated_parsers/PicoParser.java.gz";
 
 str generatePicoParser() = newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "PicoParser", Pico);
 
@@ -78,8 +80,8 @@ test bool cntEmptyList2()   = size([x | /x:[] := Pico]) == 2;
 test bool cntList1()        {cnt = 0; visit(Pico){ case [*value s]: cnt += 1; }; return cnt == 40; }
 test bool cntList2()        = size([x | /x:[*value s] := Pico]) == 40;
 
-test bool cntEmptySet1()    {cnt = 0; visit(Pico){ case {}: cnt += 1; }; return cnt == 19; }
-test bool cntEmptySet2()    = size([x | /x:{} := Pico]) == 19;
+test bool cntEmptySet1()    {cnt = 0; visit(Pico){ case {}: cnt += 1; }; return cnt == 20; }
+test bool cntEmptySet2()    = size([x | /x:{} := Pico]) == 20;
 
 test bool cntSet1()         {cnt = 0; visit(Pico){ case {*value s}: cnt += 1; }; return cnt == 45; }
 test bool cntSet2()         = size([x | /x:{*value s} := Pico]) == 45;

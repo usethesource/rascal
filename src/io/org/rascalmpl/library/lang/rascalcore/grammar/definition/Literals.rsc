@@ -19,8 +19,8 @@ public AGrammar literals(AGrammar g) {
   return compose(g, grammar({}, {literal(s) | /lit(s) <- g} + {ciliteral(s) | /cilit(s) <- g}));
 }
 
-public AProduction literal(str s) = prod(lit(s),str2syms(s), contextFreeSyntax());
-public AProduction ciliteral(str s) = prod(cilit(s), cistr2syms(s), contextFreeSyntax());
+public AProduction literal(str s) = prod(lit(s),str2syms(s)/*, lexicalSyntax()*/);
+public AProduction ciliteral(str s) = prod(cilit(s), cistr2syms(s)/*, lexicalSyntax()*/);
 
 public list[AType] str2syms(str x) {
   if (x == "") return [];
@@ -38,9 +38,9 @@ list[AType] cistr2syms(str x) {
   } 
 }
 
-public str unescape(CaseInsensitiveStringConstant s) = "<for (StringCharacter ch <- s.chars) {><character(ch)><}>";
+public str unescapeLiteral(CaseInsensitiveStringConstant s) = "<for (StringCharacter ch <- s.chars) {><character(ch)><}>";
 
-public str unescape(StringConstant s) = "<for (StringCharacter ch <- s.chars) {><character(ch)><}>";
+public str unescapeLiteral(StringConstant s) = "<for (StringCharacter ch <- s.chars) {><character(ch)><}>";
 
 public str character(StringCharacter c) {
   switch (c) {
@@ -61,7 +61,7 @@ public str character(StringCharacter c) {
   }
 }
 
-public str unescape(str s) {
+public str unescapeLiteral(str s) {
   return visit (s) {
     case /\\b/ => "\b"
     case /\\f/ => "\f"

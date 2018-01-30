@@ -488,7 +488,7 @@ void collect (current: (SyntaxDefinition) `keyword <Sym defined> = <Prod product
 void collect (current: (SyntaxDefinition) `<Start strt> syntax <Sym defined> = <Prod production>;`, TBuilder tb){
     //println("SYNTAX: <current>");
     nonterminalType = sym2AType(defined);
-    syntaxRole = strt is present ? startSyntax() : contextFreeSyntax();
+    syntaxRole = /*strt is present ? startSyntax() : */contextFreeSyntax();
 
     declareSyntax(current, publicVis(), defined, nonterminalType, production, syntaxRole, tb);
     collect(production, tb);
@@ -496,7 +496,7 @@ void collect (current: (SyntaxDefinition) `<Start strt> syntax <Sym defined> = <
 
 void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterminalType, Prod production, SyntaxRole syntaxRole, TBuilder tb){
     //println("declareSyntax: <defined>, <nonterminalType>");
-    AProduction pr = prod2prod(nonterminalType, production, syntaxRole);
+    AProduction pr = prod2prod(nonterminalType, production/*, syntaxRole*/);
     //println("pr: <pr>");
     if(isADTType(nonterminalType)){
         ntName = nonterminalType.adtName;

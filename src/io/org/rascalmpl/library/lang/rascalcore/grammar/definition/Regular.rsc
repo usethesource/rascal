@@ -11,7 +11,6 @@ module lang::rascalcore::grammar::definition::Regular
 import lang::rascalcore::grammar::definition::Modules;
 import lang::rascalcore::grammar::definition::Productions;
 import lang::rascalcore::grammar::definition::Grammar;
-//import ParseTree;
 import lang::rascalcore::check::AType;
 import Set;
 import IO;
@@ -19,7 +18,7 @@ import IO;
 public AGrammar expandRegularSymbols(AGrammar G) {
   for (AType def <- G.rules) {
     if (choice(def, {regular(def)}) := G.rules[def]) { 
-      Production init = choice(def,{});
+      AProduction init = choice(def,{});
       
       for (p <- expand(def)) {
         G.rules[p.def] = choice(p.def, {p, G.rules[p.def]?\init});
@@ -32,22 +31,22 @@ public AGrammar expandRegularSymbols(AGrammar G) {
 public set[AProduction] expand(AType s) {
   switch (s) {
     case \opt(t) : 
-      return {choice(s,{prod(label("absent",s),[],{}),prod(label("present",s),[t],{})})};
+      return {choice(s, {prod(s[label="absent"], []),prod(s[label="present"], [t])})};
     case \iter(t) : 
-      return {choice(s,{prod(label("single",s),[t],{}),prod(label("multiple",s),[t,s],{})})};
+      return {choice(s, {prod(s[label="single"], [t]), prod(s[label="multiple"], [t,s])})};
     case \iter-star(t) : 
-      return {choice(s,{prod(label("empty",s),[],{}),prod(label("nonEmpty",s),[\iter(t)],{})})} + expand(\iter(t));
+      return {choice(s, {prod(s[label="empty"], []), prod(s[label="nonEmpty"], [\iter(t)])})} + expand(\iter(t));
     case \iter-seps(t,list[AType] seps) : 
-      return {choice(s, {prod(label("single",s),[t],{}),prod(label("multiple",s),[t,*seps,s],{})})};
+      return {choice(s, {prod(s[label="single"], [t]), prod(s[label="multiple"], [t, *seps, s])})};
     case \iter-star-seps(t, list[AType] seps) : 
-      return {choice(s,{prod(label("empty",s),[],{}),prod(label("nonEmpty",s),[\iter-seps(t,seps)],{})})} 
+      return {choice(s,{prod(s[label="empty"], []), prod(s[label="nonEmpty"], [\iter-seps(t,seps)])})} 
              + expand(\iter-seps(t,seps));
     case \alt(set[AType] alts) :
-      return {choice(s, {prod(s,[a],{}) | a <- alts})};
+      return {choice(s, {prod(s,[a]) | a <- alts})};
     case \seq(list[AType] elems) :
-      return {prod(s,elems, {})};
+      return {prod(s, elems)};
     case \empty() :
-      return {prod(s,[],{})};
+      return {prod(s, [])};
    }   
 
    throw "expand, missed a case <s>";                   
@@ -60,7 +59,7 @@ public AGrammar makeRegularStubs(AGrammar g) {
 }
 
 public set[AProduction] makeRegularStubs(set[AProduction] prods) {
-  return {regular(reg) | /AProduction p:prod(_,_,_) <- prods, sym <- p.symbols, reg <- getRegular(sym) };
+  return {regular(reg) | /AProduction p:prod(_,_) <- prods, sym <- p.asymbols, reg <- getRegular(sym) };
 }
 
 private set[AType] getRegular(AType s) = { t | /AType t := s, isRegular(t) }; 

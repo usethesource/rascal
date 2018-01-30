@@ -1,6 +1,6 @@
 module lang::rascalcore::grammar::tests::LayoutTests
 
-import Grammar;
+import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::grammar::definition::Layout;
 
 import lang::rascalcore::grammar::tests::TestGrammars;
@@ -65,39 +65,33 @@ test bool intermix6() =
       lit("+"),
       {prod(
           lit("+"),
-          [\char-class([range(43,43)])],
-          {})}),
+          [\char-class([range(43,43)])])}),
     lit("*"):choice(
       lit("*"),
       {prod(
           lit("*"),
-          [\char-class([range(42,42)])],
-          {})}),
+          [\char-class([range(42,42)])])}),
     sort("B"):choice(
       sort("B"),
       {
         prod(
           sort("B"),
-          [lit("0")],
-          {}),
+          [lit("0")]),
         prod(
           sort("B"),
-          [lit("1")],  
-                    {})
+          [lit("1")])
       }),
     lit("0"):choice(
       lit("0"),
       {prod(
           lit("0"),
-          [\char-class([range(48,48)])],
-          {})}),
+          [\char-class([range(48,48)])])}),
     sort("E"):choice(
       sort("E"),
       {
         prod(
           sort("E"),
-          [sort("B")],
-          {}),
+          [sort("B")]),
         prod(
           sort("E"),
           [
@@ -106,8 +100,7 @@ test bool intermix6() =
             lit("+"),
             layouts("$default$"),
             sort("B")
-          ],
-          {}),
+          ]),
         prod( 
           sort("E"),
           [
@@ -116,15 +109,13 @@ test bool intermix6() =
             lit("*"),
             layouts("$default$"),
             sort("B")
-          ],
-          {})
+          ])
       }),
     lit("1"):choice(
       lit("1"),
       {prod(
           lit("1"),
-          [\char-class([range(49,49)])],
-          {})})
+          [\char-class([range(49,49)])])})
   ));
-value main() =
-    layouts(GEXPPRIO, layouts("$default$"), {});
+//value main() =
+//    layouts(GEXPPRIO, layouts("$default$"), {});

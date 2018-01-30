@@ -12,6 +12,7 @@ import lang::rascalcore::grammar::definition::Literals;
 import lang::rascalcore::check::AType;
 import IO;
 import ValueIO;
+import util::Maybe;
 
 @doc{adds an attribute to all productions it can find}
 public AProduction attribute(AProduction p, Attr a) = p[attributes=p.attributes+{a}];
@@ -29,11 +30,19 @@ public Attr mod2attr(ProdModifier m) {
     case \tag(\default(Name n, TagString s))    : return \tag("<n>"("<s>"));
     case \tag(\empty(Name n))                   : return \tag("<n>"()); 
     case \tag(\expression(Name n, literal(string(nonInterpolated(StringConstant l)))))  
-                                                : return \tag("<n>"("<unescape(l)>"));
+                                                : return \tag("<n>"("<unescapeLiteral(l)>"));
     case \tag(\expression(Name n, literal(Literal l)))
-                                                : return \tag("<n>"("<unescape("<l>")>"));
+                                                : return \tag("<n>"("<unescapeLiteral("<l>")>"));
     case \tag(\expression(Name n, Expression e))     
                                                 : return \tag("<n>"( readTextValueString("<e>")));                                       
     default: { rprintln(m); throw "mod2attr, missed a case <m>"; }
   }
 }
+
+Maybe[Associativity] mods2assoc(ProdModifier* mods) = (nothing() | just(x) | ProdModifier m <- mods, just(x) := mod2assoc(m));
+
+Maybe[Associativity] mod2assoc(\associativity(\left()))           = just(Associativity::\left());
+Maybe[Associativity] mod2assoc(\associativity(\right()))          = just(Associativity::\right());
+Maybe[Associativity] mod2assoc(\associativity(\associative()))    = just(Associativity::\left());
+Maybe[Associativity] mod2assoc(\associativity(\nonAssociative())) = just(Associativity::\non-assoc());
+default Maybe[Associativity] mod2assoc(ProdModifier _)            = nothing();

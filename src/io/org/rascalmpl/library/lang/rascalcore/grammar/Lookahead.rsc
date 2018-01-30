@@ -34,12 +34,12 @@ private data AGrammar = simple(set[AType] starts, set[AProduction] productions);
   'extra' contains extra lookahead symbols per symbol
 }
 public AGrammar computeLookaheads(AGrammar G, rel[AType,AType] extra) {
-  G2 = expandRegularSymbols(removeLabels(G));
-  <fst, fol> = firstAndFollow(simple(G2.starts, {p | /AProduction p:prod(_,_,_) := G2}));
+  AGrammar G2 = expandRegularSymbols(removeLabels(G));
+  <fst, fol> = firstAndFollow(simple(G2.starts, {p | /AProduction p:prod(_,_/*,_*/) := G2}));
     
   return visit(G) {
-    case AProduction p:prod(AType rhs,[],  _) => lookahead(rhs, fol[rhs], p)
-    case AProduction p:prod(AType rhs,list[AType] lhs,  _) : {
+    case AProduction p:prod(AType rhs,[]/*,  _*/) => lookahead(rhs, fol[rhs], p)
+    case AProduction p:prod(AType rhs,list[AType] lhs/*,  _*/) : {
       lhs = removeLabels(lhs);
       
 	  classes = first(lhs, fst);
@@ -179,7 +179,7 @@ public set[AType] diff(set[AType] u1, set[AType] u2) {
 
 private AGrammar removeLabels(AGrammar G) {
   return visit(G) {
-    case prod(rhs, lhs, a) => prod(removeLabel(rhs), removeLabels(lhs), a)
+    case prod(rhs, lhs/*, a*/) => prod(removeLabel(rhs), removeLabels(lhs)/*, a*/)
   }
 }
 
@@ -192,7 +192,7 @@ private list[AType] removeLabels(list[AType] syms) {
 }
 
 private set[AType] usedSymbols(AGrammar G){
-   return { s |  AProduction p:prod(_,_,_) <- G.productions, /AType s <- p.symbols };
+   return { s |  AProduction p:prod(_,_/*,_*/) <- G.productions, /AType s <- p.asymbols };
 }
 
 private set[AType] definedSymbols(AGrammar G) {
@@ -237,7 +237,7 @@ public SymbolUse first(AGrammar G) {
   SymbolUse FIRST = (trm : {trm} | AType trm <- terminalSymbols(G)) 
                   + (S : {}      | AType S   <- defSymbols);
 	        
-  def2lhs = {<S , lhs> | S <- defSymbols, prod(S, lhs, _) <- G.productions};
+  def2lhs = {<S , lhs> | S <- defSymbols, prod(S, lhs/*, _*/) <- G.productions};
   
   solve (FIRST) {
     for (<S, lhs> <- def2lhs) {
@@ -254,7 +254,7 @@ public SymbolUse follow(AGrammar G,  SymbolUse FIRST){
    
    rel[AType, AType] F = {<S, eoi()> | AType S <- G.starts};
    
-   for (AProduction p <- G.productions, [_*, current, symbols*] := p.symbols) {
+   for (AProduction p <- G.productions, [_*, current, symbols*] := p.asymbols) {
        if (current in defSymbols) {
           flw =  first(symbols, FIRST);
           if (empty() in flw || isEmpty(symbols)) {

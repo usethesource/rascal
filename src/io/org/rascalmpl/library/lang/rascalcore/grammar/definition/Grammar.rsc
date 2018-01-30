@@ -60,7 +60,7 @@ AGrammar grammar(type[&T <: Tree] sym)
 .Synopsis
 An item is an index into the symbol list of a production rule.
 }  
-data Item = item(AProduction aproduction, int index);
+data Item = item(AProduction production, int index);
 
 @doc{
 .Synopsis

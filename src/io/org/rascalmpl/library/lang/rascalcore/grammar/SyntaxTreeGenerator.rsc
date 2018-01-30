@@ -8,10 +8,10 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl - CWI}
 @contributor{Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI}
-module lang::rascalcore::grammar::SyntaxTreeGenerator
+module lang::rascal::grammar::SyntaxTreeGenerator
 
 import Grammar;
-import lang::rascalcore::grammar::definition::Parameters;
+import lang::rascal::grammar::definition::Parameters;
 import ParseTree;
 
 import IO;

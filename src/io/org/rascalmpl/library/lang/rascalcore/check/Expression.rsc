@@ -1226,12 +1226,13 @@ public AType computeFieldType(Tree current, AType t1, str fieldName, Key scope, 
          }
     } else if (aadt(adtName, list[AType] actualTypeParams,_) := t1){
         try {
+            // TODO consider start case?
             if ((getADTName(t1) == "Tree" || isNonTerminalType(t1)) && fieldName == "top") {
                 return t1;
             }
             //fieldType = expandUserTypes(getType(fieldName, scope, {formalId(), fieldId()}), scope);
             
-            fieldType = getType(fieldName, scope, {/*formalId(),*/ fieldId()});
+            fieldType = getType(fieldName, scope, {fieldId()});
             
             try {
                 fieldType = expandUserTypes(fieldType, scope);
@@ -1247,6 +1248,7 @@ public AType computeFieldType(Tree current, AType t1, str fieldName, Key scope, 
             throw TypeUnavailable(); //reportError(current, "Cannot compute type of field <fmt(fieldName)>, user type <fmt(t1)> has not been declared or is out of scope"); 
         }
     } else if (isNonTerminalType(t1)){
+        // TODO consider start case?
        return computeFieldType(current, aadt("Tree", [], contextFreeSyntax()), fieldName, scope, tb);
     } else if (isTupleType(t1)) {
         if(tupleHasFieldNames(t1)){

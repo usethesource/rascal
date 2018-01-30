@@ -15,24 +15,24 @@ import lang::rascalcore::check::AType;
 import List;
 import IO;
 
-@doc{intermixes the actively visible layout definition in each module into the relevant syntax definitions}
-AGrammarDefinition \layouts(AGrammarDefinition def) {
-  deps = extends(def) + imports(def);
-  for (str name <- def.modules) {
-    def.modules[name].grammar 
-      = layouts(def.modules[name].grammar, 
-                activeLayout(name, deps[name], def), 
-                allLayouts(deps[name] + {name}, def)
-               );
-  }
-  return def;
-}
+//@doc{intermixes the actively visible layout definition in each module into the relevant syntax definitions}
+//AGrammarDefinition \layouts(AGrammarDefinition def) {
+//  deps = extends(def) + imports(def);
+//  for (str name <- def.modules) {
+//    def.modules[name].grammar 
+//      = layouts(def.modules[name].grammar, 
+//                activeLayout(name, deps[name], def), 
+//                allLayouts(deps[name] + {name}, def)
+//               );
+//  }
+//  return def;
+//}
 
-@doc{collects for a set of modules the names of all layout sorts and returns them as sorts for later processing} 
-set[AType] allLayouts(set[str] defs, AGrammarDefinition def) 
-  = {sort(l) | m <- defs, /prod(layouts(str l),_,_) := def.modules[m]} 
-  + {sort(l) | m <- defs, /prod(label(_,layouts(str l)),_,_) := def.modules[m]} 
-  ;
+//@doc{collects for a set of modules the names of all layout sorts and returns them as sorts for later processing} 
+//set[AType] allLayouts(set[str] defs, AGrammarDefinition def) 
+//  = {sort(l) | m <- defs, /prod(layouts(str l),_,_) := def.modules[m]} 
+//  + {sort(l) | m <- defs, /prod(label(_,layouts(str l)),_,_) := def.modules[m]} 
+//  ;
 
 // TODO: The following two functions were defined local to activeLayout
 // but this gives an not yet explained validation error  for the
@@ -40,36 +40,39 @@ set[AType] allLayouts(set[str] defs, AGrammarDefinition def)
 bool isManual(set[Attr] as) = (\tag("manual"()) in as);
 bool isDefault(AType s) = (s == layouts("$default$"));
    
-@doc{computes which layout definitions are visible in a certain given module.
-     if a module contains a layout definition, this overrides any imported layout definition
-     if a module does not contain a layout definition, it will collect the definitions from all imports (not recursively),
-     and also collect the definitions from all extends (recursively).
-     the static checker should check whether multiple visible layout definitions are active, because this function
-     will just produce an arbitrary one if there are multiple definitions
-}
-AType activeLayout(str name, set[str] deps, AGrammarDefinition def) {
-
-  
-  if (/prod(l:layouts(_),_,as) := def.modules[name], !isDefault(l), !isManual(as)) 
-    return l;
-  else if (/prod(label(_,l:layouts(_)),_,as) := def.modules[name], !isDefault(l), !isManual(as)) 
-    return l;  
-  else if (i <- deps, /prod(l:layouts(_),_,as) := def.modules[i], !isDefault(l), !isManual(as)) 
-    return l;
-   else if (i <- deps, /prod(label(_,l:layouts(_)),_,as) := def.modules[i], !isDefault(l), !isManual(as)) 
-    return l;  
-  else 
-    return layouts("$default$"); 
-}  
+//@doc{computes which layout definitions are visible in a certain given module.
+//     if a module contains a layout definition, this overrides any imported layout definition
+//     if a module does not contain a layout definition, it will collect the definitions from all imports (not recursively),
+//     and also collect the definitions from all extends (recursively).
+//     the static checker should check whether multiple visible layout definitions are active, because this function
+//     will just produce an arbitrary one if there are multiple definitions
+//}
+//AType activeLayout(str name, set[str] deps, AGrammarDefinition def) {
+//
+//  
+//  if (/prod(l:layouts(_),_,as) := def.modules[name], !isDefault(l), !isManual(as)) 
+//    return l;
+//  else if (/prod(label(_,l:layouts(_)),_,as) := def.modules[name], !isDefault(l), !isManual(as)) 
+//    return l;  
+//  else if (i <- deps, /prod(l:layouts(_),_,as) := def.modules[i], !isDefault(l), !isManual(as)) 
+//    return l;
+//   else if (i <- deps, /prod(label(_,l:layouts(_)),_,as) := def.modules[i], !isDefault(l), !isManual(as)) 
+//    return l;  
+//  else 
+//    return layouts("$default$"); 
+//}  
 
 @doc{intersperses layout symbols in all non-lexical productions}
 public AGrammar \layouts(AGrammar g, AType l, set[AType] others) {
   return top-down-break visit (g) {
-    case prod(\start(y),[AType x],as) => prod(\start(y),[l, x, l],  as)
-    case prod(sort(s),list[AType] lhs,as) => prod(sort(s),intermix(lhs, l, others),as)
-    case prod(\parameterized-sort(s,n),list[AType] lhs,as) => prod(\parameterized-sort(s,n),intermix(lhs, l, others),as)
-    case prod(label(t,sort(s)),list[AType] lhs,as) => prod(label(t,sort(s)),intermix(lhs, l, others),as)
-    case prod(label(t,\parameterized-sort(s,n)),list[AType] lhs,as) => prod(label(t,\parameterized-sort(s,n)),intermix(lhs, l, others),as) 
+    //case prod(\start(y),[AType x],as) => prod(\start(y),[l, x, l],  as)
+    case p: prod(aadt(s, list[AType] parameters, startSyntax()), [AType x]) => p[asymbols=[l, x, l]]
+    case p: prod(aadt(s, list[AType] parameters, contextFreeSyntax()), list[AType] lhs) => p[asymbols=intermix(lhs, l, others)]
+    
+    //case prod(sort(s),list[AType] lhs,as) => prod(sort(s),intermix(lhs, l, others),as)
+    //case prod(\parameterized-sort(s,n),list[AType] lhs,as) => prod(\parameterized-sort(s,n),intermix(lhs, l, others),as)
+    //case prod(label(t,sort(s)),list[AType] lhs,as) => prod(label(t,sort(s)),intermix(lhs, l, others),as)
+    //case prod(label(t,\parameterized-sort(s,n)),list[AType] lhs,as) => prod(label(t,\parameterized-sort(s,n)),intermix(lhs, l, others),as) 
   }
 } 
 

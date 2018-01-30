@@ -15,8 +15,8 @@ module lang::rascalcore::grammar::ConcreteSyntax
 import ValueIO;
 import List;
 import IO;
-import ParseTree;
-import Grammar;
+import lang::rascalcore::check::AType;
+import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::grammar::definition::Productions;
 import lang::rascalcore::grammar::definition::Literals;
@@ -24,7 +24,7 @@ import lang::rascalcore::grammar::definition::Regular;
 import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascalcore::format::Escape;
 
-public Grammar addHoles(Grammar object) = compose(object, grammar({}, holes(object)));
+public AGrammar addHoles(AGrammar object) = compose(object, grammar({}, holes(object)));
 
 @doc{
   For every non-terminal in the grammar we create a rule that can recognize its hole syntax. Each hole
@@ -41,15 +41,15 @@ public Grammar addHoles(Grammar object) = compose(object, grammar({}, holes(obje
   which nonterminal names are lexical and which are not. Since nonterminal names are unique between lex and normal nonterminals
   we make sure that the literal that is generated is first normalized to remove all lex names.   
 }
-public set[Production] holes(Grammar object) {
+public set[AProduction] holes(AGrammar object) {
   // syntax N = @holeType=<N> [-1] "N" ":" [0-9]+ [-1];
   return  { regular(iter(\char-class([range(48,57)]))), 
-            prod(label("$MetaHole",getTargetSymbol(nont)),
+            prod(getTargetSymbol(nont)[label="$MetaHole"],
                  [ \char-class([range(0,0)]),
                    lit("<denormalize(nont)>"),lit(":"),iter(\char-class([range(48,57)])),
                    \char-class([range(0,0)])
-                 ],{\tag("holeType"(nont))})  
-          | Symbol nont <- object.rules, quotable(nont)
+                 ],attributes={\tag("holeType"(nont))})  
+          | AType nont <- object.rules, quotable(nont)
           };
 }
 
@@ -58,7 +58,7 @@ public set[Production] holes(Grammar object) {
   holes function in this module.
 }
 public str createHole(ConcretePart hole, int idx) = createHole(hole.hole, idx);
-public str createHole(ConcreteHole hole, int idx) = "\u0000<denormalize(sym2symbol(hole.symbol))>:<idx>\u0000";
+public str createHole(ConcreteHole hole, int idx) = "\u0000<denormalize(sym2AType(hole.symbol))>:<idx>\u0000";
 
 
 @doc{
@@ -66,17 +66,18 @@ public str createHole(ConcreteHole hole, int idx) = "\u0000<denormalize(sym2symb
   The same goes for the introduction of layout non-terminals in lists. We do not know which non-terminal is introduced,
   so we remove this here to create a canonical 'source-level' type.
 }
-private Symbol denormalize(Symbol s) = visit (s) { 
-  case \lex(n) => \sort(n)
-  case \iter-seps(u,[layouts(_),t,layouts(_)]) => \iter-seps(u,[t])
-  case \iter-star-seps(u,[layouts(_),t,layouts(_)]) => \iter-star-seps(u,[t])
-  case \iter-seps(u,[layouts(_)]) => \iter(u)
-  case \iter-star-seps(u,[layouts(_)]) => \iter-star(u)
+private AType denormalize(AType s) = visit (s) { 
+  //case \lex(n) => \sort(n)
+  case a: aadt(_, _, lexicalSyntax()) => a[syntaxRole=contextFreeSyntax()]
+  case \iter-seps(u,[l1, t, l2]) => \iter-seps(u,[t]) when isLayoutSyntax(l1), isLayoutSyntax(l2)
+  case \iter-star-seps(u,[l1,t,l2]) => \iter-star-seps(u,[t]) when isLayoutSyntax(l1), isLayoutSyntax(l2)
+  case \iter-seps(u,[l]) => \iter(u) when isLayoutSyntax(l)
+  case \iter-star-seps(u,[l]) => \iter-star(u) when isLayoutSyntax(l)
   // TODO: add rule for seq
 };
 
 @doc{This is needed such that list variables can be repeatedly used as elements of the same list}
-private Symbol getTargetSymbol(Symbol sym) {
+private AType getTargetSymbol(AType sym) {
   switch(sym) {
     case \iter(s) : return s;
     case \iter-star(s) : return s;  
@@ -88,14 +89,16 @@ private Symbol getTargetSymbol(Symbol sym) {
 }
 
 @doc{This decides for which part of the grammar we can write anti-quotes}
-private bool quotable(Symbol x) { 
+private bool quotable(AType x) { 
     return \lit(_) !:= x 
        && \empty() !:= x
        && \cilit(_) !:= x 
        && \char-class(_) !:= x 
-       && \layouts(_) !:= x
-       && \keywords(_) !:= x
+       && (aadt(_,list[AType] parameters, SyntaxRole sr) := x && (sr notin { layoutSyntax(), keywordSyntax()} || !isEmpty(parameters) ))
+       //&& \layouts(_) !:= x
+       //&& \keywords(_) !:= x
        && \start(_) !:= x
-       && \parameterized-sort(_,[\parameter(_,_),*_]) !:= x
-       && \parameterized-lex(_,[\parameter(_,_),*_]) !:= x;
+       //&& \parameterized-sort(_,[\parameter(_,_),*_]) !:= x
+       //&& \parameterized-lex(_,[\parameter(_,_),*_]) !:= x
+       ;
 }

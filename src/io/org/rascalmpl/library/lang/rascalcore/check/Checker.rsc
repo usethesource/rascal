@@ -124,8 +124,8 @@ TModel rascalTModelFromName(str mname, bool debug=false){
     
     /***** turn this off during development of type checker *****/
     
-    //<valid, tm> = getIfValid(mname, pcfg);
-    //if(valid) return tm;
+    <valid, tm> = getIfValid(mname, pcfg);
+    if(valid) return tm;
     
     /***********************************************************/
      

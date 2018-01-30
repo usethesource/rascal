@@ -1,10 +1,10 @@
 module lang::rascalcore::grammar::tests::LookaheadTests
 
-import Grammar;
+import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::grammar::definition::Regular;
 import lang::rascalcore::grammar::definition::Characters;
 import lang::rascalcore::grammar::definition::Productions;
-import ParseTree;
+import lang::rascalcore::check::AType;
 import List;
 import Set;
 import IO;
@@ -14,24 +14,24 @@ extend  lang::rascalcore::grammar::Lookahead;
 
 // -------- Examples and tests -------------------
 
-public Grammar G0 = simple({sort("S")}, {});
+public AGrammar G0 = simple({sort("S")}, {});
 
 test bool testEmpty() = first(G0) == ();
 
 test bool testEmpty() = firstAndFollow(G0) == <(), (sort("S"):{eoi()})>;
 
-private Production pr(Symbol rhs, list[Symbol] lhs) {
-  return prod(rhs,lhs,{});
+private AProduction pr(AType rhs, list[AType] lhs) {
+  return prod(rhs,lhs);
 }
 
-public Grammar Lit1 = simple({}, {
+public AGrammar Lit1 = simple({}, {
   pr(lit("*"),[\char-class([range(42,42)])]),
     pr(lit("+"),[\char-class([range(43,43)])]),
     pr(lit("0"),[\char-class([range(48,48)])]),
     pr(lit("1"),[\char-class([range(49,49)])])
 });
 
-public Grammar G1 = simple({sort("E")},
+public AGrammar G1 = simple({sort("E")},
 {
     pr(sort("E"), [sort("E"), lit("*"), sort("B")]),
     pr(sort("E"), [sort("E"), lit("+"), sort("B")]),
@@ -58,7 +58,7 @@ test bool first1() = SymbolUse F := first(G1)
      && F[sort("B")] == {\char-class([range(49,49)]),\char-class([range(48,48)])}
      ;
                        
-public Grammar G2 = simple({sort("E")},
+public AGrammar G2 = simple({sort("E")},
 {
     pr(sort("E"), [sort("E"), lit("*"), sort("B")]),
     pr(sort("E"), [sort("E"), lit("+"), sort("B")]),
@@ -72,7 +72,7 @@ test bool first2() = SymbolUse F := first(G2)
      && F[sort("B")] == {\char-class([range(48,48)]),\char-class([range(49,49)])}
      ;
 
-public Grammar G3 = simple( {sort("E")},
+public AGrammar G3 = simple( {sort("E")},
 {
     pr(sort("E"),  [sort("T"), sort("E1")]),
     pr(sort("E1"), [lit("+"), sort("T"), sort("E1")]),
@@ -110,7 +110,7 @@ test bool tFol33() = Fol3()[sort("T")] == {\char-class([range(43,43)]),\char-cla
 test bool tFol34() = Fol3()[sort("T1")] == {\char-class([range(43,43)]),\char-class([range(41,41)]),eoi()};
 test bool tFol35() = Fol3()[sort("F")] == {\char-class([range(43,43)]),\char-class([range(42,42)]),\char-class([range(41,41)]),eoi()};
        
-public Grammar Session = simple({sort("Session")},
+public AGrammar Session = simple({sort("Session")},
 {
     pr(sort("Session"), [sort("Facts"), sort("Question")]),
     pr(sort("Session"), [lit("("), sort("Session"), lit(")"), sort("Session")]),
