@@ -197,7 +197,7 @@ private str prettyPrintCond(ACondition::\except(str label)) = "!<label>";
 @doc{Unwraps parameters and conditionals from a type.}
 AType unwrapType(p: aparameter(_,tvb)) = p.label? ? unwrapType(tvb)[label=p.label] : unwrapType(tvb);
 AType unwrapType(\conditional(AType sym,  set[ACondition] _)) = unwrapType(sym);
-public default AType unwrapType(AType t) = t;
+default AType unwrapType(AType t) = t;
 
 bool allLabelled(list[AType] tls) = size(tls) == size([tp | tp <- tls, !isEmpty(tp.label)]);
 
@@ -363,7 +363,7 @@ AType makeSetType(AType elementType) {
 }
 
 @doc{Get the element type of a set.}
-public AType getSetElementType(AType t) {
+AType getSetElementType(AType t) {
     if (aset(et) := unwrapType(t)) return et;
     if (arel(ets) := unwrapType(t)) return atuple(ets);
     throw rascalCheckerInternalError("Error: Cannot get set element type from type <fmt(t)>");
@@ -381,7 +381,7 @@ bool isRelType(aset(AType tp)) = true when isTupleType(tp);
 default bool isRelType(AType _) = false;
 
 @doc{Ensure that sets of tuples are treated as relations.}
-public AType aset(AType t) = arel(atypeList(getTupleFields(t))) when isTupleType(t);
+AType aset(AType t) = arel(atypeList(getTupleFields(t))) when isTupleType(t);
 
 @doc{Create a new rel type, given the element types of the fields. Check any given labels for consistency.}
 AType makeRelType(AType elementTypes...) {
@@ -396,7 +396,7 @@ AType makeRelType(AType elementTypes...) {
 AType makeRelTypeFromTuple(AType t) = arel(atypeList(getTupleFields(t)));
 
 @doc{Get the type of the relation fields as a tuple.}
-public AType getRelElementType(AType t) {
+AType getRelElementType(AType t) {
     if (arel(ets) := unwrapType(t)) return atuple(ets);
     if (aset(tup) := unwrapType(t)) return tup;
     throw rascalCheckerInternalError("Cannot get relation element type from type <fmt(t)>");
@@ -409,7 +409,7 @@ bool relHasFieldNames(AType t) {
 }
 
 @doc{Get the field names of the rel fields.}
-public list[str] getRelFieldNames(AType t) {
+list[str] getRelFieldNames(AType t) {
     if (arel(atypeList(tls)) := unwrapType(t)){
         return [tp.label | tp <- tls];
     }
@@ -417,7 +417,7 @@ public list[str] getRelFieldNames(AType t) {
 }
 
 @doc{Get the fields of a relation.}
-public list[AType] getRelFields(AType t) {
+list[AType] getRelFields(AType t) {
     if (arel(atypeList(tls)) := unwrapType(t)) return tls;
     if (aset(atuple(atypeList(tls))) := unwrapType(t)) return tls;
     throw rascalCheckerInternalError("getRelFields given non-Relation type <fmt(t)>");
@@ -435,7 +435,7 @@ bool isListRelType(alist(AType tp)) = true when isTupleType(tp);
 default bool isListRelType(AType _) = false;
 
 @doc{Ensure that lists of tuples are treated as list relations.}
-public AType alist(AType t) = alrel(atypeList(getTupleFields(t))) when isTupleType(t);
+AType alist(AType t) = alrel(atypeList(getTupleFields(t))) when isTupleType(t);
 
 @doc{Create a new list rel type, given the element types of the fields. Check any given labels for consistency.}
 AType makeListRelType(AType elementTypes...) {
@@ -450,14 +450,14 @@ AType makeListRelType(AType elementTypes...) {
 AType makeListRelTypeFromTuple(AType t) = alrel(atypeList(getTupleFields(t)));
 
 @doc{Get the type of the list relation fields as a tuple.}
-public AType getListRelElementType(AType t) {
+AType getListRelElementType(AType t) {
     if (alrel(ets) := unwrapType(t)) return atuple(ets);
     if (alist(tup) := unwrapType(t)) return tup;
     throw rascalCheckerInternalError("Cannot get list relation element type from type <fmt(t)>");
 }
 
 @doc{Get the field names of the list rel fields.}
-public list[str] getListRelFieldNames(AType t) {
+list[str] getListRelFieldNames(AType t) {
     if (alrel(atypeList(tls)) := unwrapType(t)){
         return [tp.label | tp <- tls];
     }
@@ -465,7 +465,7 @@ public list[str] getListRelFieldNames(AType t) {
 }
 
 @doc{Get the fields of a list relation.}
-public list[AType] getListRelFields(AType t) {
+list[AType] getListRelFields(AType t) {
     if (alrel(atypeList(tls)) := unwrapType(t)) return tls;
     if (alist(atuple(atypeList(tls))) := unwrapType(t)) return tls;
     throw rascalCheckerInternalError("getListRelFields given non-List-Relation type <fmt(t)>");
@@ -502,7 +502,7 @@ bool tupleHasField(AType t, int fn) {
 }
 
 @doc{Get the type of the tuple field with the given name.}
-public AType getTupleFieldType(AType t, str fn) {
+AType getTupleFieldType(AType t, str fn) {
     if (atuple(atypeList(tas)) := unwrapType(t)) {
         for(tp <- tas){
             if(tp.label == fn) return tp;
@@ -513,7 +513,7 @@ public AType getTupleFieldType(AType t, str fn) {
 }
 
 @doc{Get the type of the tuple field at the given offset.}
-public AType getTupleFieldType(AType t, int fn) {
+AType getTupleFieldType(AType t, int fn) {
     if (atuple(atypeList(tas)) := t) {
         if (0 <= fn && fn < size(tas)) return unwrapType(tas[fn]);
         throw rascalCheckerInternalError("Tuple <fmt(t)> does not have field <fn>");
@@ -522,20 +522,20 @@ public AType getTupleFieldType(AType t, int fn) {
 }
 
 @doc{Get the types of the tuple fields, with labels removed}
-public list[AType] getTupleFieldTypes(AType t) {
+list[AType] getTupleFieldTypes(AType t) {
     if (atuple(atypeList(tas)) := t)
         return tas;
     throw rascalCheckerInternalError("Cannot get tuple field types from type <fmt(t)>"); 
 }
 
 @doc{Get the fields of a tuple as a list.}
-public list[AType] getTupleFields(AType t) {
+list[AType] getTupleFields(AType t) {
     if (atuple(atypeList(tas)) := unwrapType(t)) return tas;
     throw rascalCheckerInternalError("Cannot get tuple fields from type <fmt(t)>"); 
 }
 
 @doc{Get the number of fields in a tuple.}
-public int getTupleFieldCount(AType t) = size(getTupleFields(t));
+int getTupleFieldCount(AType t) = size(getTupleFields(t));
 
 @doc{Does this tuple have field names?}
 bool tupleHasFieldNames(AType t) {
@@ -544,7 +544,7 @@ bool tupleHasFieldNames(AType t) {
 }
 
 @doc{Get the names of the tuple fields.}
-public list[str] getTupleFieldNames(AType t) {
+list[str] getTupleFieldNames(AType t) {
     if (atuple(atypeList(tls)) := unwrapType(t)) {
         if (allLabelled(tls)) {
             return [tp.label | tp <- tls];
@@ -578,7 +578,7 @@ AType makeListType(AType elementType) {
 } 
 
 @doc{Get the element type of a list.}
-public AType getListElementType(AType t) {
+AType getListElementType(AType t) {
     if (alist(et) := unwrapType(t)) return et;
     if (alrel(ets) := unwrapType(t)) return atuple(ets);    
     throw rascalCheckerInternalError("Cannot get list element type from type <fmt(t)>");
@@ -606,7 +606,7 @@ AType makeMapType(AType domain, AType range) {
 }
 
 @doc{Get the domain and range of the map as a tuple.}
-public AType getMapFieldsAsTuple(AType t) {
+AType getMapFieldsAsTuple(AType t) {
     if (amap(dt,rt) := unwrapType(t)) return atuple(atypeList([dt,rt]));
     throw rascalCheckerInternalError("getMapFieldsAsTuple called with unexpected type <fmt(t)>");
 }       
@@ -618,19 +618,19 @@ bool mapHasField(AType t, str fn) = tupleHasField(getMapFieldsAsTuple(t),fn);
 bool mapHasField(AType t, int fn) = tupleHasField(getMapFieldsAsTuple(t),fn);
 
 @doc{Return the type of a field defined on a map (by name).}
-public AType getMapFieldType(AType t, str fn) = getTupleFieldType(getMapFieldsAsTuple(t),fn);
+AType getMapFieldType(AType t, str fn) = getTupleFieldType(getMapFieldsAsTuple(t),fn);
 
 @doc{Return the type of a field defined on a map (by index).}
-public AType getMapFieldType(AType t, int fn) = getTupleFieldType(getMapFieldsAsTuple(t),fn);
+AType getMapFieldType(AType t, int fn) = getTupleFieldType(getMapFieldsAsTuple(t),fn);
 
 @doc{Get the fields in a map as a list of fields.}
-public list[AType] getMapFields(AType t) = getTupleFields(getMapFieldsAsTuple(t));
+list[AType] getMapFields(AType t) = getTupleFields(getMapFieldsAsTuple(t));
 
 @doc{Check to see if the map has field names.}
 bool mapHasFieldNames(AType t) = tupleHasFieldNames(getMapFieldsAsTuple(t));
 
 @doc{Get the field names from the map fields.}
-public list[str] getMapFieldNames(AType t) {
+list[str] getMapFieldNames(AType t) {
     if ([dm, rng] := getMapFields(t)) {
         return [ dm.label, rng.label ];
     }
@@ -641,10 +641,10 @@ public list[str] getMapFieldNames(AType t) {
 str getMapFieldName(AType t, int idx) = getMapFieldNames(t)[idx];
 
 @doc{Get the domain type of the map.}    
-public AType getMapDomainType(AType t) = unwrapType(getMapFields(t)[0]);
+AType getMapDomainType(AType t) = unwrapType(getMapFields(t)[0]);
 
 @doc{Get the range type of the map.}
-public AType getMapRangeType(AType t) = unwrapType(getMapFields(t)[1]);
+AType getMapRangeType(AType t) = unwrapType(getMapFields(t)[1]);
 
 // ---- bag
 
@@ -661,7 +661,7 @@ AType makeBagType(AType elementType) = abag(elementType);
 
 
 @doc{Get the element type of a bag.}
-public AType getBagElementType(AType t) {
+AType getBagElementType(AType t) {
     if (abag(et) := unwrapType(t)) return et;
     throw rascalCheckerInternalError("Cannot get set element type from type <fmt(t)>");
 }
@@ -690,7 +690,7 @@ str getADTName(AType t) {
 }
 
 @doc{Get the type parameters of an ADT.}
-public list[AType] getADTTypeParameters(AType t) {
+list[AType] getADTTypeParameters(AType t) {
     if (aadt(n,ps,_) := unwrapType(t)) return ps;
     if (acons(a,_,_,_) := unwrapType(t)) return getADTTypeParameters(a);
     if (areified(_) := unwrapType(t)) return [];
@@ -710,19 +710,19 @@ bool isConstructorType(acons(AType _, str _, _, _)) = true;
 default bool isConstructorType(AType _) = false;
 
 @doc{Get the ADT type of the constructor.}
-public AType getConstructorResultType(AType ct) {
+AType getConstructorResultType(AType ct) {
     if (acons(a,_,_,_) := unwrapType(ct)) return a;
     throw rascalCheckerInternalError("Cannot get constructor ADT type from non-constructor type <fmt(ct)>");
 }
 
 @doc{Get a list of the argument types in a constructor.}
-public list[AType] getConstructorArgumentTypes(AType ct) {
+list[AType] getConstructorArgumentTypes(AType ct) {
     if (acons(_,_,list[NamedField] cts,_) := unwrapType(ct)) return cts<1>;
     throw rascalCheckerInternalError("Cannot get constructor arguments from non-constructor type <fmt(ct)>");
 }
 
 @doc{Get a tuple with the argument types as the fields.}
-public AType getConstructorArgumentTypesAsTuple(AType ct) {
+AType getConstructorArgumentTypesAsTuple(AType ct) {
     return atuple(atypeList(getConstructorArgumentTypes(ct)));
 }
 
@@ -735,19 +735,19 @@ bool isFunctionType(afunc(_,_,_)) = true;
 default bool isFunctionType(AType _) = false;
 
 @doc{Get a list of arguments for the function.}
-public list[AType] getFunctionArgumentTypes(AType ft) {
+list[AType] getFunctionArgumentTypes(AType ft) {
     if (afunc(_, atypeList(ats), _) := unwrapType(ft)) return ats;
     throw rascalCheckerInternalError("Cannot get function arguments from non-function type <fmt(ft)>");
 }
 
 @doc{Get the arguments for a function in the form of a tuple.}
-public AType getFunctionArgumentTypesAsTuple(AType ft) {
+AType getFunctionArgumentTypesAsTuple(AType ft) {
     if (afunc(_, ats, _) := unwrapType(ft)) return atuple(ats);
     throw rascalCheckerInternalError("Cannot get function arguments from non-function type <fmt(ft)>");
 }
 
 @doc{Get the return type for a function.}
-public AType getFunctionReturnType(AType ft) {
+AType getFunctionReturnType(AType ft) {
     if (afunc(rt, _, _) := unwrapType(ft)) return rt;
     throw rascalCheckerInternalError("Cannot get function return type from non-function type <fmt(ft)>");
 }
@@ -764,7 +764,7 @@ default bool isReifiedType(AType _) = false;
 AType makeReifiedType(AType mainType) = areified(mainType);
 
 @doc{Get the type that has been reified and stored in the reified type.}
-public AType getReifiedType(AType t) {
+AType getReifiedType(AType t) {
     if (areified(rt) := unwrapType(t)) return rt;
     throw rascalCheckerInternalError("getReifiedType given unexpected type: <fmt(t)>");
 }
@@ -789,25 +789,25 @@ str getRascalTypeParamName(AType t) {
 }
 
 @doc{Get the bound of a type parameter.}
-public AType getRascalTypeParamBound(AType t) {
+AType getRascalTypeParamBound(AType t) {
     if (aparameter(_,tvb) := t) return tvb;
     throw rascalCheckerInternalError("getRascalTypeParamBound given unexpected type: <fmt(t)>");
 }
 
 @doc{Get all the type parameters inside a given type.}
-public set[AType] collectRascalTypeParams(AType t) {
+set[AType] collectRascalTypeParams(AType t) {
     
     return { rt | / AType rt : aparameter(_,_) := t };
     //return { unset(rt, "label") | / AType rt : aparameter(_,_) := t }; // TODO: "label" is unset to enable subset check later, reconsider
 }
 
 @doc{Get all the type parameters inside a given type.}
-public set[AType] collectAndUnlabelRascalTypeParams(AType t) {
+set[AType] collectAndUnlabelRascalTypeParams(AType t) {
    return { unset(rt, "label") | / AType rt : aparameter(_,_) := t }; // TODO: "label" is unset to enable subset check later, reconsider
 }
 
 @doc{Provide an initial type map from the type parameters in the type to void.}
-public map[str,AType] initializeRascalTypeParamMap(AType t) {
+map[str,AType] initializeRascalTypeParamMap(AType t) {
     set[AType] rt = collectRascalTypeParams(t);
     return ( getRascalTypeParamName(tv) : makeVoidType() | tv <- rt );
 }
@@ -816,7 +816,7 @@ public map[str,AType] initializeRascalTypeParamMap(AType t) {
 bool typeContainsRascalTypeParams(AType t) = size(collectRascalTypeParams(t)) > 0;
 
 @doc{Return the names of all type variables in the given type.}
-public set[str] typeParamNames(AType t) {
+set[str] typeParamNames(AType t) {
     return { tvn | aparameter(tvn,_) <- collectRascalTypeParams(t) };
 }
 
@@ -853,44 +853,44 @@ bool isNonTerminalType(AType::\opt(_)) = true;
 bool isNonTerminalType(AType::\alt(_)) = true;
 bool isNonTerminalType(AType::\seq(_)) = true;
 
-public default bool isNonTerminalType(AType _) = false;    
+default bool isNonTerminalType(AType _) = false;    
 
 bool isNonTerminalIterType(aparameter(_,AType tvb)) = isNonTerminalIterType(tvb);
 bool isNonTerminalIterType(AType::\iter(_)) = true;
 bool isNonTerminalIterType(AType::\iter-star(_)) = true;
 bool isNonTerminalIterType(AType::\iter-seps(_,_)) = true;
 bool isNonTerminalIterType(AType::\iter-star-seps(_,_)) = true;
-public default bool isNonTerminalIterType(AType _) = false;    
+default bool isNonTerminalIterType(AType _) = false;    
 
-public AType getNonTerminalIterElement(aparameter(_,AType tvb)) = getNonTerminalIterElement(tvb);
-public AType getNonTerminalIterElement(AType::\iter(AType i)) = i;
-public AType getNonTerminalIterElement(AType::\iter-star(AType i)) = i;
-public AType getNonTerminalIterElement(AType::\iter-seps(AType i,_)) = i;
-public AType getNonTerminalIterElement(AType::\iter-star-seps(AType i,_)) = i;
-public default AType getNonTerminalIterElement(AType i) {
+AType getNonTerminalIterElement(aparameter(_,AType tvb)) = getNonTerminalIterElement(tvb);
+AType getNonTerminalIterElement(AType::\iter(AType i)) = i;
+AType getNonTerminalIterElement(AType::\iter-star(AType i)) = i;
+AType getNonTerminalIterElement(AType::\iter-seps(AType i,_)) = i;
+AType getNonTerminalIterElement(AType::\iter-star-seps(AType i,_)) = i;
+default AType getNonTerminalIterElement(AType i) {
     throw rascalCheckerInternalError("<fmt(i)> is not an iterable non-terminal type");
 }   
 
 bool isNonTerminalOptType(aparameter(_,AType tvb)) = isNonTerminalOptType(tvb);
 bool isNonTerminalOptType(AType::\opt(AType ot)) = true;
-public default bool isNonTerminalOptType(AType _) = false;
+default bool isNonTerminalOptType(AType _) = false;
 
-public AType getNonTerminalOptType(aparameter(_,AType tvb)) = getNonTerminalOptType(tvb);
-public AType getNonTerminalOptType(AType::\opt(AType ot)) = ot;
-public default AType getNonTerminalOptType(AType ot) {
+AType getNonTerminalOptType(aparameter(_,AType tvb)) = getNonTerminalOptType(tvb);
+AType getNonTerminalOptType(AType::\opt(AType ot)) = ot;
+default AType getNonTerminalOptType(AType ot) {
     throw rascalCheckerInternalError("<fmt(ot)> is not an optional non-terminal type");
 }
 
 // TODO
-//bool isStartNonTerminalType(aparameter(_,AType tvb)) = isNonTerminalType(tvb);
-//bool isStartNonTerminalType(AType::\start(_)) = true;
-//public default bool isStartNonTerminalType(AType _) = false;    
-//
-//public AType getStartNonTerminalType(aparameter(_,AType tvb)) = getStartNonTerminalType(tvb);
-//public AType getStartNonTerminalType(AType::\start(AType s)) = s;
-//public default AType getStartNonTerminalType(AType s) {
-//    throw rascalCheckerInternalError("<fmt(s)> is not a start non-terminal type");
-//}
+bool isStartNonTerminalType(aparameter(_,AType tvb)) = isNonTerminalType(tvb);
+bool isStartNonTerminalType(AType::\start(_)) = true;
+default bool isStartNonTerminalType(AType _) = false;    
 
-public AType removeConditional(cnd:conditional(AType s, set[ACondition] _)) = cnd.label? ? s[label=cnd.label] : s;
-public default AType removeConditional(AType s) = s;
+AType getStartNonTerminalType(aparameter(_,AType tvb)) = getStartNonTerminalType(tvb);
+AType getStartNonTerminalType(AType::\start(AType s)) = s;
+default AType getStartNonTerminalType(AType s) {
+    throw rascalCheckerInternalError("<fmt(s)> is not a start non-terminal type");
+}
+
+AType removeConditional(cnd:conditional(AType s, set[ACondition] _)) = cnd.label? ? s[label=cnd.label] : s;
+default AType removeConditional(AType s) = s;
