@@ -289,7 +289,7 @@ tuple[list[value] crashes, list[Message] msgs] runTests(list[str] names, str bas
 value main(bool jvm=true) = allRascalTests();
   
 set[Message] allRascalTests(PathConfig pcfg= pathConfig(   
-        srcs = [|project://rascal-core/src/io/org/rascalmpl/library/|,
+        srcs = [|project://rascal-core/src/org/rascalmpl/library/|,
                 |project://TypePal/src|,
                 |project://rascal/src/org/rascalmpl/library|
                ])){ //loc bin=|home:///bin-tests-intp|, loc boot=|boot:///|, bool jvm=true){
@@ -326,7 +326,7 @@ set[Message] allRascalTests(PathConfig pcfg= pathConfig(
 }
 
 tuple[TModel org, map[str,TModel] differences] sameTPL(str qualifiedModuleName, PathConfig pcfg= pathConfig(   
-        srcs = [|project://rascal-core/src/io/org/rascalmpl/library/|,
+        srcs = [|project://rascal-core/src/org/rascalmpl/library/|,
                 |project://TypePal/src|,
                 |project://rascal/src/org/rascalmpl/library|
                ])){
@@ -380,7 +380,7 @@ bool blacklisted(str qualifiedModuleName){
 }
 
 void allFiles(PathConfig pcfg = pathConfig(   
-        srcs = [|project://rascal-core/src/io/org/rascalmpl/library/|,
+        srcs = [|project://rascal-core/src/org/rascalmpl/library/|,
                 |project://TypePal/src|,
                 |project://rascal/src/org/rascalmpl/library|,
                 |std:///|
