@@ -90,13 +90,13 @@ void getImports(TBuilder tb){
                     }
                 }
             } else {
-                throw "Inconsistent value for \"imported\": <tb.getStack("imported")>";
+                throw rascalCheckerInternalError("Inconsistent value for \"imported\": <tb.getStack("imported")>");
             }
         }
     } else if(isEmpty(pcfgVal)){
         return;
     } else {
-        throw "Inconsistent value for \"pathconfig\": <tb.getStack("pathconfig")>";
+        throw rascalCheckerInternalError("Inconsistent value for \"pathconfig\": <tb.getStack("pathconfig")>");
     }
 }
 
@@ -355,10 +355,10 @@ void collect(current: (Statement) `return <Statement statement>`, TBuilder tb){
            collect(statement, tb);
            return;
         } else {
-            throw "Inconsistent info from function scope: <scopeInfo>";
+            throw rascalCheckerInternalError(current, "Inconsistent info from function scope: <scopeInfo>");
         }
     }
-    throw "No surrounding function scope found";
+    throw rascalCheckerInternalError(current, "No surrounding function scope found");
 }
 
 // ---- alias declaration

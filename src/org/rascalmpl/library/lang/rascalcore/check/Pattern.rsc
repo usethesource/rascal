@@ -205,7 +205,7 @@ void collectAsVarArg(current: (Pattern) `<QualifiedName name>`,  TBuilder tb){
 }
 
 default void collectAsVarArgs(Pattern current,  TBuilder tb){
-    throw "<current> not supported in varargs";
+    throw rascalCheckerInternalError(current, "<current> not supported in varargs");
 }
 
 AType getPatternType(current: (Pattern) `<QualifiedName name>`, AType subjectType, Key scope){
@@ -313,10 +313,10 @@ void collectSplicePattern(Pattern current, Pattern argument,  TBuilder tb){
            tb.fact(current, avoid());
         }
     } else {
-        throw "Not implemented <current>";
-        println("current: <current>");
-        println("argument: <argument>");
-        tp = collectSplicePattern(argument, argument, tb);
+        throw rascalCheckerInternalError(current, "Not implemented");
+        //println("current: <current>");
+        //println("argument: <argument>");
+        //tp = collectSplicePattern(argument, argument, tb);
     }
 }
 
@@ -355,7 +355,7 @@ AType getSplicePatternType(Pattern current, Pattern argument,  AType subjectType
         } else
            return subjectType;
     } else {
-        throw "Not implemented: <current>";
+        throw rascalCheckerInternalError(current, "Not implemented");
     }
 }
 

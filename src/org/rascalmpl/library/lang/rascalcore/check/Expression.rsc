@@ -667,7 +667,7 @@ AType computeADTType(Tree current, str adtName, Key scope, AType retType, list[A
                 isExpression = false;
             }
         default:
-            throw "Illegal argument `actuals`";
+            throw rascalCheckerInternalError(current, "Illegal argument `actuals`");
     }
     
     for(int i <- index_formals){
@@ -800,7 +800,7 @@ void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, K
         }
      } 
     default: 
-      throw "checkKwArgs: illegal keywordArguments";
+      throw rascalCheckerInternalError(current, "checkKwArgs: illegal keywordArguments");
     }
  } 
  
@@ -833,7 +833,7 @@ void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, K
                 reportError(current, "Node pattern does not match <fmt(subjectType)>");
             }
         default:
-            throw "Illegal argument `actuals`";
+            throw rascalCheckerInternalError(current, "Illegal argument `actuals`");
     }
 }
 
@@ -877,7 +877,7 @@ AType computeNodeTypeWithKwArgs(Tree current, keywordArguments, list[NamedField]
         }
         
         default:
-             throw "computeNodeTypeWithKwArgs: illegal keywordArguments";
+             throw rascalCheckerInternalError(keywordArguments, "computeNodeTypeWithKwArgs: illegal keywordArguments");
     }
 }
 
@@ -904,7 +904,7 @@ list[NamedField] computeKwArgs(keywordArguments, Key scope, bool isExpression=tr
         }
         
         default:
-             throw "computeKwArgs: illegal keywordArguments";
+             throw rascalCheckerInternalError(keywordArguments, "computeKwArgs: illegal keywordArguments");
     }
 }
  
@@ -1424,7 +1424,7 @@ AType computeFieldProjectionType(Expression current, AType base, list[lang::rasc
                 if (maintainFieldNames) fieldNames += fnAsString;
             }
         } else {
-            throw "Unhandled field case: <f>";
+            throw keywordArguments(current, "Unhandled field case: <f>");
         }
     }
     
