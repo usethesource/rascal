@@ -151,7 +151,7 @@ public AType numericArithTypes(AType l, AType r) {
     if (isNumType(l) && isRealType(r)) return anum();
     if (isNumType(l) && isNumType(r)) return anum();
 
-    throw "Only callable for numeric types, given <fmt(l)> and <fmt(r)>";
+    throw rascalCheckerInternalError("Only callable for numeric types, given <fmt(l)> and <fmt(r)>");
 }
 
 // ---- is

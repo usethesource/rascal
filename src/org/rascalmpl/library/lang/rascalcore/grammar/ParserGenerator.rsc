@@ -199,7 +199,7 @@ public str newGenerate(str package, str name, AGrammar gr) {
            '    
            '  // Production declarations
            '	<for (p <- (uniqueProductions)) {>
-           '  private static final IConstructor <value2id(p)> = (IConstructor) _read(\"<esc("<p>")>\", RascalValueFactory.Production);<}>
+           '  private static final IConstructor <value2id(p)> = (IConstructor)   d(\"<esc("<p>")>\", RascalValueFactory.Production);<}>
            '    
            '  // Item declarations
            '	<for (AType s <- (newItems<0>), isNonterminal(s)) {

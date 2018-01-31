@@ -168,7 +168,7 @@ void collect(current: (Statement) `insert <Expression expr>;`, TBuilder tb){
           collect(expr, tb);
           return;
       } else {
-        throw "Inconsistent info from replacement scope: <info>";
+        throw rascalCheckerInternalError(at, "Inconsistent info from replacement scope: <info>");
       }
     }
     tb.reportError(current, "Insert found outside replacement context");
@@ -226,12 +226,13 @@ void computeLoopType(str loopKind, str loopName1, Statement current, TBuilder tb
               }
               return;
            } else {
-             throw "Inconsistent info from loop scope: <scopeInfo>";
+           
+             throw rascalCheckerInternalError(current, "Inconsistent info from loop scope: <scopeInfo>");
            }
         }
     }
     
-    throw "Info for loop scope not found"; 
+    throw rascalCheckerInternalError(current, "Info for loop scope not found"); 
 }
 
 // ---- do
@@ -295,7 +296,7 @@ void collect(current: (Statement) `append <DataTarget dataTarget> <Statement sta
                 return;
              }
         } else {
-            throw "Inconsistent info from loop scope: <scopeInfo>";
+            throw rascalCheckerInternalError(current, "Inconsistent info from loop scope: <scopeInfo>");
         }
     }
     tb.reportError(current, "Append outside a while/do/for statement");
@@ -318,7 +319,7 @@ void collect(current:(Statement) `break <Target target>;`, TBuilder tb){
                 return;
              }
         } else {
-            throw "Inconsistent info from loop scope: <scopeInfo>";
+            throw rascalCheckerInternalError(current, "Inconsistent info from loop scope: <scopeInfo>");
         }
     }
     tb.reportError(current, "Break outside a while/do/for statement");
@@ -341,7 +342,7 @@ void collect(current:(Statement) `continue <Target target>;`, TBuilder tb){
                  return;
              }
         } else {
-            throw "Inconsistent info from loop scope: <scopeInfo>";
+            throw rascalCheckerInternalError(current, "Inconsistent info from loop scope: <scopeInfo>");
         }
     }
     tb.reportError(current, "Continue outside a while/do/for statement");
@@ -543,7 +544,7 @@ AType computeAssignmentRhsType(Statement current, AType lhsType, "?=", AType rhs
     }
 
 default AType computeAssignmentRhsType(Statement current, AType lhsType, str operator, AType rhsType){
-    throw "<operator> not supported";
+    throw rascalCheckerInternalError(current, "<operator> not supported");
 }
 
 void checkAssignment(Statement current, (Assignable) `<QualifiedName name>`, str operator,  Statement statement, TBuilder tb){
@@ -670,7 +671,7 @@ AType computeSubscriptAssignableType(Statement current, AType receiverType, Expr
             reportError(current, "Expected subscript of type <fmt(relFields[0])>, not <fmt(subscriptType)>");
         return arel(atypeList([relFields[0],computeAssignmentRhsType(current, relFields[1], operator, rhs)]));
     } else {
-        throw "Cannot assign value of type <fmt(rhs)> to assignable of type <fmt(receiverType)>";
+        reportError(current, "Cannot assign value of type <fmt(rhs)> to assignable of type <fmt(receiverType)>");
     }
 }
 
@@ -727,11 +728,11 @@ AType computeSliceAssignableType(Statement current, AType receiverType, AType fi
         if(!subtype(rhs, astr())) reportError(current, "Expected `str` in slice assignment, found <fmt(rhs)>");
         return receiverType;
     } else if(isNonTerminalIterType(receiverType)) {
-        throw "Not yet implemented"; // TODO
+        throw rascalCheckerInternalError(current, "Not yet implemented"); // TODO
     } else if (isNodeType(receiverType)) {
         return makeListType(avalue());
     }
-    throw "Cannot assign value of type <fmt(rhs)> to assignable of type <fmt(receiverType)>";
+        reportError(current, "Cannot assign value of type <fmt(rhs)> to assignable of type <fmt(receiverType)>");
 }
 
 void checkAssignment(Statement current, (Assignable) `<Assignable receiver> . <Name field>`, str operator, Statement rhs, TBuilder tb){
@@ -827,6 +828,8 @@ AType computeFieldAssignableType(Statement current, AType receiverType, str fiel
     } else if (isNodeType(receiverType)) {
         computeAssignmentRhsType(current, avalue(), operator, rhs);
         return receiverType; //anode([]);
+    } else if(isStartNonTerminalType(receiverType)){
+        return computeFieldAssignableType(current, getStartNonTerminalType(receiverType), fieldName, operator, rhs, scope);
     } else if(isLocType(receiverType) || isDateTimeType(receiverType)){
         if(fieldName in fieldMap[receiverType]){
             return receiverType;
@@ -835,7 +838,7 @@ AType computeFieldAssignableType(Statement current, AType receiverType, str fiel
     } else if(isReifiedType(receiverType) || isRelType(receiverType) || isListRelType(receiverType) || isMapType(receiverType)){
         reportError(current, "Cannot assign to any field of <fmt(receiverType)>");
     } 
-    throw "Cannot assign value of type <fmt(rhs)> to assignable of type <fmt(receiverType)>";
+        reportError(current, "Cannot assign value of type <fmt(rhs)> to assignable of type <fmt(receiverType)>");
 }
 
 void checkAssignment(Statement current, (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, str operator, Statement rhs, TBuilder tb){
@@ -985,7 +988,7 @@ list[QualifiedName] getReceiver((Assignable) `<Assignable receiver> @ <Name n>`,
 list[QualifiedName] getReceiver((Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, TBuilder tb) =  getReceiver(receiver, tb);
 list[QualifiedName] getReceiver((Assignable) `\< <{Assignable ","}+ elements> \>`, TBuilder tb) = [*getReceiver(element, tb) | Assignable element <- elements];
 
-default list[QualifiedName] getReceiver(Assignable asg, TBuilder tb) { throw "Unsupported assignable <asg>"; }
+default list[QualifiedName] getReceiver(Assignable asg, TBuilder tb) { throw rascalCheckerInternalError(getLoc(asg), "Unsupported assignable <asg>"); }
 
 // ---- return, defined in Declarations, close to function declarations
 
