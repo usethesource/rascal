@@ -101,7 +101,7 @@ TModel rascalPostValidation(TModel m){
 // ----  Examples & Tests --------------------------------
 
 public PathConfig getDefaultPathConfig() = pathConfig(   
-        srcs = [|project://rascal-core/src/org/rascalmpl/library/|,
+        srcs = [|project://rascal-core/src/org/rascalmpl/core/library/|,
                 |project://typepal/src|,
                 |project://rascal/src/org/rascalmpl/library|,
                 |project://typepal-examples/src|
@@ -177,7 +177,7 @@ list[Message] validateModules(str mname, bool debug=false) {
 
 void testModules(str names...) {
     if(isEmpty(names)) names = allTests;
-    runTests([|project://rascal-core/src/org/rascalmpl/library/lang/rascalcore/check/tests/<name>.ttl| | str name <- names], #Modules, rascalTModelsFromTree, verbose=true);
+    runTests([|project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/check/tests/<name>.ttl| | str name <- names], #Modules, rascalTModelsFromTree, verbose=true);
 }
 
 list[str] allTests = ["adt", "alias", "assignment", "datadecl", "exp", "fields", "fundecl", 

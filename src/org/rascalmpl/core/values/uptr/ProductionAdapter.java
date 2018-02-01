@@ -13,9 +13,8 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.values.uptr;
+package org.rascalmpl.core.values.uptr;
 
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -23,7 +22,9 @@ import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
-import org.rascalmpl.values.ValueFactoryFactory;
+
+import org.rascalmpl.core.library.lang.rascalcore.error.ImplementationError;
+import org.rascalmpl.core.values.ValueFactoryFactory;
 
 public class ProductionAdapter {
 	

@@ -10,7 +10,7 @@
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Paul Klint - Paul.Klint@cwi.nl 
 *******************************************************************************/
-package org.rascalmpl.values.uptr;
+package org.rascalmpl.core.values.uptr;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,9 +20,9 @@ import java.util.Random;
 import java.util.function.Supplier;
 
 import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
-import org.rascalmpl.interpreter.TypeReifier;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
-import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.core.types.TypeReifier;
+import org.rascalmpl.core.types.RascalTypeFactory;
+import org.rascalmpl.core.parser.gtd.util.ArrayList;
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
@@ -51,7 +51,7 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
-import org.rascalmpl.values.uptr.visitors.TreeVisitor;
+import org.rascalmpl.core.values.uptr.visitors.TreeVisitor;
 
 /**
  * The RascalValueFactory extends a given IValueFactory with the Rascal-specific builtin

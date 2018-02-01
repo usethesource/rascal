@@ -1,4 +1,4 @@
-package org.rascalmpl.library.lang.rascalcore.grammar.tests.generated_parsers;
+package org.rascalmpl.core.library.lang.rascalcore.grammar.tests.generated_parsers;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -10,18 +10,18 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.io.StandardTextReader;
-import org.rascalmpl.parser.gtd.stack.*;
-import org.rascalmpl.parser.gtd.stack.filter.*;
-import org.rascalmpl.parser.gtd.stack.filter.follow.*;
-import org.rascalmpl.parser.gtd.stack.filter.match.*;
-import org.rascalmpl.parser.gtd.stack.filter.precede.*;
-import org.rascalmpl.parser.gtd.preprocessing.ExpectBuilder;
-import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
-import org.rascalmpl.parser.gtd.util.IntegerList;
-import org.rascalmpl.parser.gtd.util.IntegerMap;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.core.parser.gtd.stack.*;
+import org.rascalmpl.core.parser.gtd.stack.filter.*;
+import org.rascalmpl.core.parser.gtd.stack.filter.follow.*;
+import org.rascalmpl.core.parser.gtd.stack.filter.match.*;
+import org.rascalmpl.core.parser.gtd.stack.filter.precede.*;
+import org.rascalmpl.core.parser.gtd.preprocessing.ExpectBuilder;
+import org.rascalmpl.core.parser.gtd.util.IntegerKeyedHashMap;
+import org.rascalmpl.core.parser.gtd.util.IntegerList;
+import org.rascalmpl.core.parser.gtd.util.IntegerMap;
+import org.rascalmpl.core.values.ValueFactoryFactory;
+import org.rascalmpl.core.values.uptr.RascalValueFactory;
+import org.rascalmpl.core.values.uptr.ITree;
 
 @SuppressWarnings("all")
 public class GEXPParser extends org.rascalmpl.parser.gtd.SGTDBF<IConstructor, ITree, ISourceLocation> {
