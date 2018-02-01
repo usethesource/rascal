@@ -496,7 +496,7 @@ void collect (current: (SyntaxDefinition) `<Start strt> syntax <Sym defined> = <
 
 void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterminalType, Prod production, SyntaxRole syntaxRole, TBuilder tb){
     //println("declareSyntax: <defined>, <nonterminalType>");
-    AProduction pr = prod2prod(nonterminalType, production/*, syntaxRole*/);
+    AProduction pr = prod2prod(nonterminalType, production);
     //println("pr: <pr>");
     if(isADTType(nonterminalType)){
         ntName = nonterminalType.adtName;
