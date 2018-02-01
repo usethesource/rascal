@@ -380,7 +380,7 @@ bool blacklisted(str qualifiedModuleName){
 }
 
 void allFiles(PathConfig pcfg = pathConfig(   
-        srcs = [|project://rascal-core/src/org/rascalmpl/library/|,
+        srcs = [|project://rascal-core/src/org/rascalmpl/core/library/|,
                 |project://TypePal/src|,
                 |project://rascal/src/org/rascalmpl/library|,
                 |std:///|

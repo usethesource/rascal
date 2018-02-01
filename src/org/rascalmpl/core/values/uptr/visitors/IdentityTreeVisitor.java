@@ -9,9 +9,9 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.values.uptr.visitors;
+package org.rascalmpl.core.values.uptr.visitors;
 
-import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.core.values.uptr.ITree;
 
 public abstract class IdentityTreeVisitor<E extends Throwable> extends TreeVisitor<E> {
 

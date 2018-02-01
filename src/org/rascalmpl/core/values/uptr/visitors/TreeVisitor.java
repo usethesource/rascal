@@ -11,15 +11,16 @@
  *   * Paul Klint - Paul.Klint@cwi.nl - CWI
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.values.uptr.visitors;
+package org.rascalmpl.core.values.uptr.visitors;
 
-import org.rascalmpl.interpreter.asserts.ImplementationError;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.visitors.IdentityVisitor;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.RascalValueFactory;
+
+import org.rascalmpl.core.library.lang.rascalcore.error.ImplementationError;
+import org.rascalmpl.core.values.uptr.ITree;
+import org.rascalmpl.core.values.uptr.RascalValueFactory;
 
 public abstract class TreeVisitor<E extends Throwable> extends IdentityVisitor<E> {
 	

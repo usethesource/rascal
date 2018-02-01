@@ -8,11 +8,11 @@
  * Contributors:
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.values.uptr;
+package org.rascalmpl.core.values.uptr;
 
 import java.util.Map;
 
-import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.core.parser.gtd.util.ArrayList;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IMap;

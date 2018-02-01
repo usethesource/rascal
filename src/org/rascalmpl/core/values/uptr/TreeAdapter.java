@@ -14,7 +14,7 @@
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.values.uptr;
+package org.rascalmpl.core.values.uptr;
 
 import java.io.CharArrayWriter;
 import java.io.IOException;
@@ -26,9 +26,9 @@ import java.util.Map;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
 import org.fusesource.jansi.Ansi.Color;
-import org.rascalmpl.interpreter.asserts.ImplementationError;
-import org.rascalmpl.interpreter.utils.LimitedResultWriter;
-import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
+
+import org.rascalmpl.core.utils.LimitedResultWriter;
+import org.rascalmpl.core.utils.LimitedResultWriter.IOLimitReachedException;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
@@ -37,8 +37,10 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.visitors.TreeVisitor;
+
+import org.rascalmpl.core.library.lang.rascalcore.error.ImplementationError;
+import org.rascalmpl.core.values.ValueFactoryFactory;
+import org.rascalmpl.core.values.uptr.visitors.TreeVisitor;
 
 public class TreeAdapter {
 	public static final String NORMAL = "Normal";

@@ -1,10 +1,10 @@
-package org.rascalmpl.values.uptr;
+package org.rascalmpl.core.values.uptr;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISet;
-import org.rascalmpl.values.uptr.visitors.TreeVisitor;
+import org.rascalmpl.core.values.uptr.visitors.TreeVisitor;
 
 public interface ITree extends IConstructor {
 	default boolean isAppl() {

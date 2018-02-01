@@ -13,10 +13,10 @@
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.values;
+package org.rascalmpl.core.values;
 
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
+import org.rascalmpl.core.values.uptr.IRascalValueFactory;
 
 public class ValueFactoryFactory{
 	public static IValueFactory getValueFactory(){
