@@ -585,11 +585,14 @@ public class SetPattern extends AbstractMatchingResult {
 		if(debug)System.err.println("\nStart assigning Vars for " + this + ":= " + subject);
 
 		if (patternSize == 1 && (isSetVar(0) || availableSetElements.size() == 1)) {
-		  if (varPat[0].hasNext() && varPat[0].next()) {
-        return true;
-      }
-		  
-		  return false;
+		    // it has matched, but should not produce more continuations
+            hasNext = false;
+            
+		    if (varPat[0].hasNext() && varPat[0].next()) {
+		        return true;
+		    }
+
+		    return false;
 		}
 		
 		main: 
