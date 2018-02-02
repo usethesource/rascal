@@ -73,18 +73,27 @@ public class HelpManager {
     }
 
     private HelpServer startServer(PrintWriter stderr) throws IOException {
+        HelpServer helpServer = null;
+
         for(int port = BASE_PORT; port < BASE_PORT+ATTEMPTS; port++){
-              try {
-                  HelpServer helpServer = new HelpServer(port, this, coursesDir);
-                  indexSearcher = makeIndexSearcher();
-                  stderr.println("HelpManager: using port " + port);
-                  return helpServer;
-              } catch (IOException e) {
-                  // this is expected if the port is taken
-              }
-          }
-          
-          throw new IOException("Could not find port to run help server on");
+            try {
+                helpServer = new HelpServer(port, this, coursesDir);
+                // success!
+                break;
+            } catch (IOException e) {
+                // failure is expected if the port is taken
+                continue;
+            }
+        }
+
+        if (helpServer == null) {
+            throw new IOException("Could not find port to run help server on");
+        }
+
+        indexSearcher = makeIndexSearcher();
+
+        stderr.println("HelpManager: using port " + port);
+        return helpServer;
     }
     
     public void stopServer() {
