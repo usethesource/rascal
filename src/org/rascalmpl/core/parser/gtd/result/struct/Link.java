@@ -9,10 +9,10 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.result.struct;
+package org.rascalmpl.core.parser.gtd.result.struct;
 
-import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.core.parser.gtd.result.AbstractNode;
+import org.rascalmpl.core.parser.gtd.util.ArrayList;
 
 /**
  * A structure that links a result node to a set of prefixes.

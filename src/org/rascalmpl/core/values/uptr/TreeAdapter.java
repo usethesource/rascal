@@ -26,7 +26,7 @@ import java.util.Map;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Attribute;
 import org.fusesource.jansi.Ansi.Color;
-
+import org.rascalmpl.core.errors.ImplementationError;
 import org.rascalmpl.core.utils.LimitedResultWriter;
 import org.rascalmpl.core.utils.LimitedResultWriter.IOLimitReachedException;
 import io.usethesource.vallang.IConstructor;
@@ -38,7 +38,6 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 
-import org.rascalmpl.core.library.lang.rascalcore.error.ImplementationError;
 import org.rascalmpl.core.values.ValueFactoryFactory;
 import org.rascalmpl.core.values.uptr.visitors.TreeVisitor;
 

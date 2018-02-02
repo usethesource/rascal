@@ -9,7 +9,7 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.util;
+package org.rascalmpl.core.parser.gtd.util;
 
 public class IntegerList{
 	private final static int DEFAULT_SIZE = 8;

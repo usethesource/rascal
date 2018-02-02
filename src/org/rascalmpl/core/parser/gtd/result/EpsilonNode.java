@@ -9,7 +9,7 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.result;
+package org.rascalmpl.core.parser.gtd.result;
 
 /**
  * A epsilon result node.

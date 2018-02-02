@@ -9,7 +9,7 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.result;
+package org.rascalmpl.core.parser.gtd.result;
 
 /**
  * Result tree node that represents a skipped portion of the input sentence.

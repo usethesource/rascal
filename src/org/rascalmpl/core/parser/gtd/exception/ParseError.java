@@ -9,15 +9,15 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.exception;
+package org.rascalmpl.core.parser.gtd.exception;
 
 import java.net.URI;
 
-import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
-import org.rascalmpl.parser.gtd.util.ArrayList;
-import org.rascalmpl.parser.gtd.util.DoubleStack;
-import org.rascalmpl.parser.gtd.util.Stack;
+import org.rascalmpl.core.parser.gtd.result.AbstractNode;
+import org.rascalmpl.core.parser.gtd.stack.AbstractStackNode;
+import org.rascalmpl.core.parser.gtd.util.ArrayList;
+import org.rascalmpl.core.parser.gtd.util.DoubleStack;
+import org.rascalmpl.core.parser.gtd.util.Stack;
 
 public class ParseError extends RuntimeException{
 	private static final long serialVersionUID = 3755880608516802997L;

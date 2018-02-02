@@ -62,7 +62,8 @@ import static org.rascalmpl.core.values.uptr.RascalValueFactory.Symbol_Tuple;
 import static org.rascalmpl.core.values.uptr.RascalValueFactory.Symbol_Value;
 import static org.rascalmpl.core.values.uptr.RascalValueFactory.Symbol_Void;
 
-import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.core.errors.ImplementationError;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;

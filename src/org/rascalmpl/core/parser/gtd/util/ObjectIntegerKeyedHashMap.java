@@ -9,7 +9,7 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.util;
+package org.rascalmpl.core.parser.gtd.util;
 
 import java.util.Iterator;
 

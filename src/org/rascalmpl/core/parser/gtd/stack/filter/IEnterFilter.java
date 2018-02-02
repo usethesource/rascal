@@ -9,9 +9,9 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.stack.filter;
+package org.rascalmpl.core.parser.gtd.stack.filter;
 
-import org.rascalmpl.parser.gtd.location.PositionStore;
+import org.rascalmpl.core.parser.gtd.location.PositionStore;
 
 /**
  * A filter that is executed during expansion.

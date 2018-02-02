@@ -10,11 +10,11 @@
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
  *   * Anya Helene Bagge - anya@ii.uib.no
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.stack;
+package org.rascalmpl.core.parser.gtd.stack;
 
-import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
-import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
+import org.rascalmpl.core.parser.gtd.result.AbstractNode;
+import org.rascalmpl.core.parser.gtd.stack.filter.ICompletionFilter;
+import org.rascalmpl.core.parser.gtd.stack.filter.IEnterFilter;
 
 /**
  * Indicates that the stack node is matchable.

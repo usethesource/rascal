@@ -1,10 +1,10 @@
-package org.rascalmpl.library.lang.rascalcore.grammar.tests.generated_parsers;
+package org.rascalmpl.core.library.lang.rascalcore.grammar.tests.generated_parsers;
 
-import org.rascalmpl.parser.gtd.recovery.IRecoverer;
-import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
-import org.rascalmpl.parser.uptr.UPTRNodeFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.core.parser.gtd.recovery.IRecoverer;
+import org.rascalmpl.core.parser.gtd.result.out.DefaultNodeFlattener;
+import org.rascalmpl.core.parser.uptr.UPTRNodeFactory;
+import org.rascalmpl.core.values.ValueFactoryFactory;
+import org.rascalmpl.core.values.uptr.ITree;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
@@ -17,7 +17,7 @@ public class RunGEXP {
 		 GEXPParser parser = new GEXPParser();
 		 
 		 char[] input;
-		 ISourceLocation location = VF.sourceLocation("/Users/paulklint/git/rascal-core/src/org/rascalmpl/library/lang/rascalcore/grammar/tests/generated_parsers/file.exp");
+		 ISourceLocation location = VF.sourceLocation("/Users/paulklint/git/rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/grammar/tests/generated_parsers/file.exp");
 		 input = "1+0".toCharArray();
 		 ITree tree = parser.parse(
 				    "E", 

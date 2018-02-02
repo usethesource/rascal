@@ -11,12 +11,12 @@
  *   * Anya Helene Bagge - anya@ii.uib.no
  *   * Jurgen Vinju - Jurgen.Vinju@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.stack.edge;
+package org.rascalmpl.core.parser.gtd.stack.edge;
 
-import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
-import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
-import org.rascalmpl.parser.gtd.util.IntegerMap;
-import org.rascalmpl.parser.gtd.util.IntegerObjectList;
+import org.rascalmpl.core.parser.gtd.result.AbstractContainerNode;
+import org.rascalmpl.core.parser.gtd.stack.AbstractStackNode;
+import org.rascalmpl.core.parser.gtd.util.IntegerMap;
+import org.rascalmpl.core.parser.gtd.util.IntegerObjectList;
 
 @SuppressWarnings({"unchecked", "cast"})
 public class EdgesSet<P>{

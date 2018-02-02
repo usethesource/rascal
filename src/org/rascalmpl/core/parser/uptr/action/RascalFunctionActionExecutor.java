@@ -8,7 +8,7 @@
  * Contributors:
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
  */
-package org.rascalmpl.parser.uptr.action;
+package org.rascalmpl.core.parser.uptr.action;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
@@ -27,9 +27,9 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.core.values.uptr.ITree;
+import org.rascalmpl.core.values.uptr.SymbolAdapter;
+import org.rascalmpl.core.values.uptr.TreeAdapter;
 
 /**
  * This is the way of executing actions for Rascal syntax definitions. Each function

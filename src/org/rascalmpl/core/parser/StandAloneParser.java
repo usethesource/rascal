@@ -1,4 +1,4 @@
-package org.rascalmpl.parser;
+package org.rascalmpl.core.parser;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -71,12 +71,12 @@ public class StandAloneParser {
 						fatal("Start symbol required", "--start STARTSYMBOL");
 
 
-					Class<?> INodeFlattener = loader.loadClass("org.rascalmpl.parser.gtd.result.out.INodeFlattener");
-					Class<?> INodeConstructorFactory = loader.loadClass("org.rascalmpl.parser.gtd.result.out.INodeConstructorFactory");
-					Class<?> DefaultNodeFlattener = loader.loadClass("org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener");
-					Class<?> UPTRNodeFactory = loader.loadClass("org.rascalmpl.parser.uptr.UPTRNodeFactory");
-					Class<?> ParseError = loader.loadClass("org.rascalmpl.parser.gtd.exception.ParseError");
-					Class<?> UndeclaredNonTerminalException = loader.loadClass("org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException");
+					Class<?> INodeFlattener = loader.loadClass("org.rascalmpl.core.parser.gtd.result.out.INodeFlattener");
+					Class<?> INodeConstructorFactory = loader.loadClass("org.rascalmpl.core.parser.gtd.result.out.INodeConstructorFactory");
+					Class<?> DefaultNodeFlattener = loader.loadClass("org.rascalmpl.core.parser.gtd.result.out.DefaultNodeFlattener");
+					Class<?> UPTRNodeFactory = loader.loadClass("org.rascalmpl.core.parser.uptr.UPTRNodeFactory");
+					Class<?> ParseError = loader.loadClass("org.rascalmpl.core.parser.gtd.exception.ParseError");
+					Class<?> UndeclaredNonTerminalException = loader.loadClass("org.rascalmpl.core.parser.gtd.exception.UndeclaredNonTerminalException");
 					
 					
 					Method method = clazz.getMethod("parse", String.class, URI.class, char[].class, INodeFlattener, INodeConstructorFactory);

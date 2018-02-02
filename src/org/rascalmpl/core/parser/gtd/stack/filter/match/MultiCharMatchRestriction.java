@@ -9,10 +9,10 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.stack.filter.match;
+package org.rascalmpl.core.parser.gtd.stack.filter.match;
 
-import org.rascalmpl.parser.gtd.location.PositionStore;
-import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
+import org.rascalmpl.core.parser.gtd.location.PositionStore;
+import org.rascalmpl.core.parser.gtd.stack.filter.ICompletionFilter;
 
 /**
  * A filter that restricts the indicated part of the input string from matching

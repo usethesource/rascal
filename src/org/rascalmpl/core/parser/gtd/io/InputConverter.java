@@ -9,15 +9,15 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.io;
+package org.rascalmpl.core.parser.gtd.io;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.nio.charset.Charset;
 
-import org.rascalmpl.parser.gtd.util.ArrayList;
-import org.rascalmpl.unicode.UnicodeInputStreamReader;
+import org.rascalmpl.core.parser.gtd.util.ArrayList;
+import org.rascalmpl.core.unicode.UnicodeInputStreamReader;
 
 public class InputConverter{
 	private final static int STREAM_READ_SEGMENT_SIZE = 8192;

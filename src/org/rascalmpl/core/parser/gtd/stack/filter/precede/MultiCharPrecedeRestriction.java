@@ -9,10 +9,10 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.stack.filter.precede;
+package org.rascalmpl.core.parser.gtd.stack.filter.precede;
 
-import org.rascalmpl.parser.gtd.location.PositionStore;
-import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
+import org.rascalmpl.core.parser.gtd.location.PositionStore;
+import org.rascalmpl.core.parser.gtd.stack.filter.IEnterFilter;
 
 /**
  * A filter that prevents the indicated substring from being preceded by any of

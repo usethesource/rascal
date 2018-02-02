@@ -9,13 +9,13 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.debug;
+package org.rascalmpl.core.parser.gtd.debug;
 
-import org.rascalmpl.parser.gtd.location.PositionStore;
-import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.result.struct.Link;
-import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
-import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
+import org.rascalmpl.core.parser.gtd.location.PositionStore;
+import org.rascalmpl.core.parser.gtd.result.AbstractNode;
+import org.rascalmpl.core.parser.gtd.result.struct.Link;
+import org.rascalmpl.core.parser.gtd.stack.AbstractStackNode;
+import org.rascalmpl.core.parser.gtd.stack.edge.EdgesSet;
 
 public interface IDebugListener<P>{
 	void shifting(int offset, int[] input, PositionStore positionStore);

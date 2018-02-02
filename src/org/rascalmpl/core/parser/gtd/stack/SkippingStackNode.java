@@ -9,10 +9,10 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.stack;
+package org.rascalmpl.core.parser.gtd.stack;
 
-import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.result.SkippedNode;
+import org.rascalmpl.core.parser.gtd.result.AbstractNode;
+import org.rascalmpl.core.parser.gtd.result.SkippedNode;
 
 public final class SkippingStackNode<P> extends AbstractMatchableStackNode<P>{
 	private final SkippedNode result;

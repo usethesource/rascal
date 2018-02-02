@@ -9,12 +9,12 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.stack;
+package org.rascalmpl.core.parser.gtd.stack;
 
-import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.result.CharNode;
-import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
-import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
+import org.rascalmpl.core.parser.gtd.result.AbstractNode;
+import org.rascalmpl.core.parser.gtd.result.CharNode;
+import org.rascalmpl.core.parser.gtd.stack.filter.ICompletionFilter;
+import org.rascalmpl.core.parser.gtd.stack.filter.IEnterFilter;
 
 public final class CharStackNode<P> extends AbstractMatchableStackNode<P>{
 	private final int[][] ranges;

@@ -9,7 +9,7 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.util;
+package org.rascalmpl.core.parser.gtd.util;
 
 public class IntegerMap{
 	private final static int DEFAULT_BIT_SIZE = 2;

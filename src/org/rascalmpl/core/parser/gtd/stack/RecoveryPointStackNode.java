@@ -9,9 +9,9 @@
 
  *   * Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.stack;
+package org.rascalmpl.core.parser.gtd.stack;
 
-import org.rascalmpl.parser.gtd.result.AbstractNode;
+import org.rascalmpl.core.parser.gtd.result.AbstractNode;
 
 @SuppressWarnings({"unchecked", "cast"})
 public class RecoveryPointStackNode<P> extends AbstractStackNode<P>{

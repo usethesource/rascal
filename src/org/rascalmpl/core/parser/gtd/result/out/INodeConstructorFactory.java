@@ -9,12 +9,12 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.result.out;
+package org.rascalmpl.core.parser.gtd.result.out;
 
 import java.net.URI;
 
-import org.rascalmpl.parser.gtd.location.PositionStore;
-import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.core.parser.gtd.location.PositionStore;
+import org.rascalmpl.core.parser.gtd.util.ArrayList;
 
 public interface INodeConstructorFactory<T, P> {
 	

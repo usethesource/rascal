@@ -9,9 +9,9 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.result.out;
+package org.rascalmpl.core.parser.gtd.result.out;
 
-import org.rascalmpl.parser.gtd.result.SkippedNode;
+import org.rascalmpl.core.parser.gtd.result.SkippedNode;
 
 /**
  * A converter for result nodes that contain skipped characters for error recovery

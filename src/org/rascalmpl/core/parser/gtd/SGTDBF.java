@@ -8,43 +8,43 @@
  * Contributors:
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd;
+package org.rascalmpl.core.parser.gtd;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URI;
 
-import org.rascalmpl.parser.gtd.debug.IDebugListener;
-import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.parser.gtd.exception.UndeclaredNonTerminalException;
-import org.rascalmpl.parser.gtd.location.PositionStore;
-import org.rascalmpl.parser.gtd.recovery.IRecoverer;
-import org.rascalmpl.parser.gtd.result.AbstractContainerNode;
-import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.result.ExpandableContainerNode;
-import org.rascalmpl.parser.gtd.result.RecoveredNode;
-import org.rascalmpl.parser.gtd.result.SortContainerNode;
-import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.parser.gtd.result.action.VoidActionExecutor;
-import org.rascalmpl.parser.gtd.result.out.FilteringTracker;
-import org.rascalmpl.parser.gtd.result.out.INodeConstructorFactory;
-import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
-import org.rascalmpl.parser.gtd.result.struct.Link;
-import org.rascalmpl.parser.gtd.stack.AbstractExpandableStackNode;
-import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
-import org.rascalmpl.parser.gtd.stack.EpsilonStackNode;
-import org.rascalmpl.parser.gtd.stack.NonTerminalStackNode;
-import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
-import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
-import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
-import org.rascalmpl.parser.gtd.util.ArrayList;
-import org.rascalmpl.parser.gtd.util.DoubleArrayList;
-import org.rascalmpl.parser.gtd.util.DoubleStack;
-import org.rascalmpl.parser.gtd.util.HashMap;
-import org.rascalmpl.parser.gtd.util.IntegerKeyedDoubleValueHashMap;
-import org.rascalmpl.parser.gtd.util.IntegerList;
-import org.rascalmpl.parser.gtd.util.IntegerObjectList;
-import org.rascalmpl.parser.gtd.util.Stack;
+import org.rascalmpl.core.parser.gtd.debug.IDebugListener;
+import org.rascalmpl.core.parser.gtd.exception.ParseError;
+import org.rascalmpl.core.parser.gtd.exception.UndeclaredNonTerminalException;
+import org.rascalmpl.core.parser.gtd.location.PositionStore;
+import org.rascalmpl.core.parser.gtd.recovery.IRecoverer;
+import org.rascalmpl.core.parser.gtd.result.AbstractContainerNode;
+import org.rascalmpl.core.parser.gtd.result.AbstractNode;
+import org.rascalmpl.core.parser.gtd.result.ExpandableContainerNode;
+import org.rascalmpl.core.parser.gtd.result.RecoveredNode;
+import org.rascalmpl.core.parser.gtd.result.SortContainerNode;
+import org.rascalmpl.core.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.core.parser.gtd.result.action.VoidActionExecutor;
+import org.rascalmpl.core.parser.gtd.result.out.FilteringTracker;
+import org.rascalmpl.core.parser.gtd.result.out.INodeConstructorFactory;
+import org.rascalmpl.core.parser.gtd.result.out.INodeFlattener;
+import org.rascalmpl.core.parser.gtd.result.struct.Link;
+import org.rascalmpl.core.parser.gtd.stack.AbstractExpandableStackNode;
+import org.rascalmpl.core.parser.gtd.stack.AbstractStackNode;
+import org.rascalmpl.core.parser.gtd.stack.EpsilonStackNode;
+import org.rascalmpl.core.parser.gtd.stack.NonTerminalStackNode;
+import org.rascalmpl.core.parser.gtd.stack.edge.EdgesSet;
+import org.rascalmpl.core.parser.gtd.stack.filter.ICompletionFilter;
+import org.rascalmpl.core.parser.gtd.stack.filter.IEnterFilter;
+import org.rascalmpl.core.parser.gtd.util.ArrayList;
+import org.rascalmpl.core.parser.gtd.util.DoubleArrayList;
+import org.rascalmpl.core.parser.gtd.util.DoubleStack;
+import org.rascalmpl.core.parser.gtd.util.HashMap;
+import org.rascalmpl.core.parser.gtd.util.IntegerKeyedDoubleValueHashMap;
+import org.rascalmpl.core.parser.gtd.util.IntegerList;
+import org.rascalmpl.core.parser.gtd.util.IntegerObjectList;
+import org.rascalmpl.core.parser.gtd.util.Stack;
 
 /**
  * This is the core of the parser; it drives the parse process.

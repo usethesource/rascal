@@ -9,12 +9,12 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.result;
+package org.rascalmpl.core.parser.gtd.result;
 
 import java.net.URI;
 
-import org.rascalmpl.parser.gtd.result.struct.Link;
-import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.core.parser.gtd.result.struct.Link;
+import org.rascalmpl.core.parser.gtd.util.ArrayList;
 
 /**
  * All nodes in the resulting tree that can contain other nodes are a subtype
