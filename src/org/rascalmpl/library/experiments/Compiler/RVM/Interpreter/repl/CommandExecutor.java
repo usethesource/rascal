@@ -840,6 +840,7 @@ public class CommandExecutor {
 		    try {
 		        if(helpManager == null){
 		            helpManager = new HelpManager(pcfg, stdout, stderr, ideServices);
+		            helpManager.refreshIndex();
 		        }
 
 		        helpManager.handleHelp(words);
