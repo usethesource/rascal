@@ -22,6 +22,7 @@ import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
@@ -90,10 +91,12 @@ public class HelpManager {
             throw new IOException("Could not find port to run help server on");
         }
 
-        indexSearcher = makeIndexSearcher();
-
         stderr.println("HelpManager: using port " + port);
         return helpServer;
+    }
+    
+    public void refreshIndex() throws IOException {
+        indexSearcher = makeIndexSearcher();
     }
     
     public void stopServer() {
@@ -249,9 +252,9 @@ public class HelpManager {
 			}
 
 			if(words[0].equals("help")){
-				return reportHelp(words, indexSearcher.search(query, maxSearch).scoreDocs);
+				return reportHelp(words, search(query).scoreDocs);
 			} else {
-				return reportApropos(indexSearcher.search(query, maxSearch).scoreDocs);
+				return reportApropos(search(query).scoreDocs);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -259,6 +262,15 @@ public class HelpManager {
 		}
 		return "";
 	}
+
+    private TopDocs search(Query query) throws IOException {
+        if (indexSearcher != null) {
+            return indexSearcher.search(query, maxSearch);
+        }
+        else {
+            return new TopDocs(0, new ScoreDoc[0], 0.0f);
+        }
+    }
 		
 	String getField(Document hitDoc, String field){
 		String s = hitDoc.get(field);
@@ -312,15 +324,18 @@ public class HelpManager {
 			w.append("</h1>\n");
 			w.append("<ul>\n");
 			for (int i = 0; i < Math.min(hits.length, maxSearch); i++) {
-				Document hitDoc = indexSearcher.doc(hits[i].doc);
-				w.append("<div class=\"search-ulist\">\n");
-				w.append("<li> ");
-				String name = hitDoc.get("name");
-				appendHyperlink(w, name);
-				w.append(": <em>").append(escapeHtml(getField(hitDoc, "synopsis"))).append("</em>");
-				String signature = getField(hitDoc, "signature");
-				if(!signature.isEmpty()){
-					w.append("<br>").append("<code>").append(escapeHtml(signature)).append("</code>");
+				Document hitDoc = findDocument(hits[i].doc);
+				
+				if (hitDoc != null) {
+				    w.append("<div class=\"search-ulist\">\n");
+				    w.append("<li> ");
+				    String name = hitDoc.get("name");
+				    appendHyperlink(w, name);
+				    w.append(": <em>").append(escapeHtml(getField(hitDoc, "synopsis"))).append("</em>");
+				    String signature = getField(hitDoc, "signature");
+				    if(!signature.isEmpty()){
+				        w.append("<br>").append("<code>").append(escapeHtml(signature)).append("</code>");
+				    }
 				}
 			}
 			w.append("</ul>\n");
@@ -330,18 +345,25 @@ public class HelpManager {
 		}
 	}
 	
+	private Document findDocument(int needle) throws IOException {
+	    return indexSearcher != null ? indexSearcher.doc(needle) : null;
+	}
+	
 	String reportApropos(ScoreDoc[] hits) throws IOException{
 		StringWriter w = new StringWriter();
 		for (int i = 0; i < Math.min(hits.length, maxSearch); i++) {
-			Document hitDoc = indexSearcher.doc(hits[i].doc);
-			String name = hitDoc.get("name");
-			String signature = getField(hitDoc, "signature");
-			String synopsis = getField(hitDoc, "synopsis");
-			w.append(name).append(":\n\t").append(synopsis);
-			if(!signature.isEmpty()){
-				w.append("\n\t").append(signature);
+			Document hitDoc = findDocument(hits[i].doc);
+			
+			if (hitDoc != null) {
+			    String name = hitDoc.get("name");
+			    String signature = getField(hitDoc, "signature");
+			    String synopsis = getField(hitDoc, "synopsis");
+			    w.append(name).append(":\n\t").append(synopsis);
+			    if(!signature.isEmpty()){
+			        w.append("\n\t").append(signature);
+			    }
+			    w.append("\n");
 			}
-			w.append("\n");
 		}
 		return w.toString();
 	}
