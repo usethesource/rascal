@@ -1,5 +1,7 @@
 version: "{branch} {build}"
 
+shallow_clone: true
+
 # make sure to force windows newlines in the files
 # this is to make sure certain tests behave as expected
 init:  
