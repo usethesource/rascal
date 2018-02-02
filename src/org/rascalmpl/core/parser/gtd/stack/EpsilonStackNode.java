@@ -9,12 +9,12 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.stack;
+package org.rascalmpl.core.parser.gtd.stack;
 
-import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.result.EpsilonNode;
-import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
-import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
+import org.rascalmpl.core.parser.gtd.result.AbstractNode;
+import org.rascalmpl.core.parser.gtd.result.EpsilonNode;
+import org.rascalmpl.core.parser.gtd.stack.filter.ICompletionFilter;
+import org.rascalmpl.core.parser.gtd.stack.filter.IEnterFilter;
 
 public final class EpsilonStackNode<P> extends AbstractMatchableStackNode<P>{
 	public final static EpsilonNode EPSILON_RESULT = new EpsilonNode();

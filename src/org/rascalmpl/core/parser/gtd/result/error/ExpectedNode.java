@@ -9,12 +9,12 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.result.error;
+package org.rascalmpl.core.parser.gtd.result.error;
 
 import java.net.URI;
 
-import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.result.CharNode;
+import org.rascalmpl.core.parser.gtd.result.AbstractNode;
+import org.rascalmpl.core.parser.gtd.result.CharNode;
 
 /**
  * A expected result node.

@@ -9,7 +9,7 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.result.error;
+package org.rascalmpl.core.parser.gtd.result.error;
 
 /**
  * A helper class for error parse result builders. It provides access to

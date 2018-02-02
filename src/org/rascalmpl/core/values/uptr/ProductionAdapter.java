@@ -23,7 +23,7 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 
-import org.rascalmpl.core.library.lang.rascalcore.error.ImplementationError;
+import org.rascalmpl.core.errors.ImplementationError;
 import org.rascalmpl.core.values.ValueFactoryFactory;
 
 public class ProductionAdapter {

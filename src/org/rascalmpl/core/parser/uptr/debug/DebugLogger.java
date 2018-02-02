@@ -1,16 +1,16 @@
-package org.rascalmpl.parser.uptr.debug;
+package org.rascalmpl.core.parser.uptr.debug;
 
 import java.io.PrintWriter;
 
-import org.rascalmpl.parser.gtd.debug.IDebugListener;
-import org.rascalmpl.parser.gtd.location.PositionStore;
-import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.result.struct.Link;
-import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
-import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
-import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.core.parser.gtd.debug.IDebugListener;
+import org.rascalmpl.core.parser.gtd.location.PositionStore;
+import org.rascalmpl.core.parser.gtd.result.AbstractNode;
+import org.rascalmpl.core.parser.gtd.result.struct.Link;
+import org.rascalmpl.core.parser.gtd.stack.AbstractStackNode;
+import org.rascalmpl.core.parser.gtd.stack.edge.EdgesSet;
+import org.rascalmpl.core.parser.gtd.util.ArrayList;
 import io.usethesource.vallang.IConstructor;
-import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.core.values.uptr.ProductionAdapter;
 
 public class DebugLogger implements IDebugListener<IConstructor>{
 	private final PrintWriter out;

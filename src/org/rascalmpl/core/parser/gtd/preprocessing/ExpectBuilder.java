@@ -9,15 +9,15 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.preprocessing;
+package org.rascalmpl.core.parser.gtd.preprocessing;
 
 import java.util.Iterator;
 
-import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
-import org.rascalmpl.parser.gtd.util.DoubleArrayList;
-import org.rascalmpl.parser.gtd.util.IntegerMap;
-import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
-import org.rascalmpl.parser.gtd.util.SortedIntegerObjectList;
+import org.rascalmpl.core.parser.gtd.stack.AbstractStackNode;
+import org.rascalmpl.core.parser.gtd.util.DoubleArrayList;
+import org.rascalmpl.core.parser.gtd.util.IntegerMap;
+import org.rascalmpl.core.parser.gtd.util.ObjectIntegerKeyedHashMap;
+import org.rascalmpl.core.parser.gtd.util.SortedIntegerObjectList;
 
 /**
  * A preprocessor for building expect matrixes.

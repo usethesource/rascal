@@ -9,7 +9,7 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.util;
+package org.rascalmpl.core.parser.gtd.util;
 
 public class BitSet{
 	public final static int OFF = 0;

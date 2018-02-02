@@ -9,22 +9,22 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.result.out;
+package org.rascalmpl.core.parser.gtd.result.out;
 
 import java.net.URI;
 
-import org.rascalmpl.parser.gtd.location.PositionStore;
-import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.result.SortContainerNode;
-import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.parser.gtd.result.out.INodeFlattener.CycleMark;
-import org.rascalmpl.parser.gtd.result.struct.Link;
-import org.rascalmpl.parser.gtd.util.ArrayList;
-import org.rascalmpl.parser.gtd.util.ForwardLink;
-import org.rascalmpl.parser.gtd.util.IndexedStack;
-import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
-import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashMap;
-import org.rascalmpl.parser.gtd.util.ObjectIntegerKeyedHashSet;
+import org.rascalmpl.core.parser.gtd.location.PositionStore;
+import org.rascalmpl.core.parser.gtd.result.AbstractNode;
+import org.rascalmpl.core.parser.gtd.result.SortContainerNode;
+import org.rascalmpl.core.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.core.parser.gtd.result.out.INodeFlattener.CycleMark;
+import org.rascalmpl.core.parser.gtd.result.struct.Link;
+import org.rascalmpl.core.parser.gtd.util.ArrayList;
+import org.rascalmpl.core.parser.gtd.util.ForwardLink;
+import org.rascalmpl.core.parser.gtd.util.IndexedStack;
+import org.rascalmpl.core.parser.gtd.util.IntegerKeyedHashMap;
+import org.rascalmpl.core.parser.gtd.util.ObjectIntegerKeyedHashMap;
+import org.rascalmpl.core.parser.gtd.util.ObjectIntegerKeyedHashSet;
 
 /**
  * A converter for sort container result nodes.

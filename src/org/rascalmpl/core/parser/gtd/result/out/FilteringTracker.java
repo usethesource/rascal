@@ -9,7 +9,7 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.result.out;
+package org.rascalmpl.core.parser.gtd.result.out;
 
 /**
  * This class can be used to keep track of post-parse filtering errors. These

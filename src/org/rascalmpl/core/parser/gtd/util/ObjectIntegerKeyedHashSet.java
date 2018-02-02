@@ -9,7 +9,7 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.util;
+package org.rascalmpl.core.parser.gtd.util;
 
 @SuppressWarnings("unchecked")
 public class ObjectIntegerKeyedHashSet<E>{
@@ -47,7 +47,7 @@ public class ObjectIntegerKeyedHashSet<E>{
 		int oldSize = oldEntries.length;
 		for(int i = oldSize - 1; i >= 0; --i){
 			Entry<E> e = oldEntries[i];
-			if(e != null){
+			if(e != null){ 
 				Entry<E> lastCurrentEntry = currentEntryRoot;
 				Entry<E> lastShiftedEntry = shiftedEntryRoot;
 				int lastPosition = -1;

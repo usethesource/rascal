@@ -9,10 +9,10 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.stack.filter.follow;
+package org.rascalmpl.core.parser.gtd.stack.filter.follow;
 
-import org.rascalmpl.parser.gtd.location.PositionStore;
-import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
+import org.rascalmpl.core.parser.gtd.location.PositionStore;
+import org.rascalmpl.core.parser.gtd.stack.filter.ICompletionFilter;
 
 /**
  * A filter that prevents the indicated substring from being followed by any of

@@ -9,7 +9,7 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.result.action;
+package org.rascalmpl.core.parser.gtd.result.action;
 
 
 /**

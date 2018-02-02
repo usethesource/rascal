@@ -9,17 +9,17 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.stack;
+package org.rascalmpl.core.parser.gtd.stack;
 
-import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.result.struct.Link;
-import org.rascalmpl.parser.gtd.stack.edge.EdgesSet;
-import org.rascalmpl.parser.gtd.stack.filter.ICompletionFilter;
-import org.rascalmpl.parser.gtd.stack.filter.IEnterFilter;
-import org.rascalmpl.parser.gtd.util.ArrayList;
-import org.rascalmpl.parser.gtd.util.BitSet;
-import org.rascalmpl.parser.gtd.util.IntegerList;
-import org.rascalmpl.parser.gtd.util.IntegerObjectList;
+import org.rascalmpl.core.parser.gtd.result.AbstractNode;
+import org.rascalmpl.core.parser.gtd.result.struct.Link;
+import org.rascalmpl.core.parser.gtd.stack.edge.EdgesSet;
+import org.rascalmpl.core.parser.gtd.stack.filter.ICompletionFilter;
+import org.rascalmpl.core.parser.gtd.stack.filter.IEnterFilter;
+import org.rascalmpl.core.parser.gtd.util.ArrayList;
+import org.rascalmpl.core.parser.gtd.util.BitSet;
+import org.rascalmpl.core.parser.gtd.util.IntegerList;
+import org.rascalmpl.core.parser.gtd.util.IntegerObjectList;
 
 @SuppressWarnings({"unchecked", "cast"})
 public abstract class AbstractStackNode<P>{

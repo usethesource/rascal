@@ -9,9 +9,9 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.result.out;
+package org.rascalmpl.core.parser.gtd.result.out;
 
-import org.rascalmpl.parser.gtd.result.CharNode;
+import org.rascalmpl.core.parser.gtd.result.CharNode;
 
 /**
  * A converter for character result nodes.

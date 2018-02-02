@@ -9,10 +9,10 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.result.out;
+package org.rascalmpl.core.parser.gtd.result.out;
 
-import org.rascalmpl.parser.gtd.result.LiteralNode;
-import org.rascalmpl.parser.gtd.util.PointerKeyedHashMap;
+import org.rascalmpl.core.parser.gtd.result.LiteralNode;
+import org.rascalmpl.core.parser.gtd.util.PointerKeyedHashMap;
 
 /**
  * A converter for literal result nodes.

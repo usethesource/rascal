@@ -9,18 +9,18 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.result.out;
+package org.rascalmpl.core.parser.gtd.result.out;
 
-import org.rascalmpl.parser.gtd.location.PositionStore;
-import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.result.CharNode;
-import org.rascalmpl.parser.gtd.result.ExpandableContainerNode;
-import org.rascalmpl.parser.gtd.result.LiteralNode;
-import org.rascalmpl.parser.gtd.result.RecoveredNode;
-import org.rascalmpl.parser.gtd.result.SkippedNode;
-import org.rascalmpl.parser.gtd.result.SortContainerNode;
-import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.parser.gtd.util.IndexedStack;
+import org.rascalmpl.core.parser.gtd.location.PositionStore;
+import org.rascalmpl.core.parser.gtd.result.AbstractNode;
+import org.rascalmpl.core.parser.gtd.result.CharNode;
+import org.rascalmpl.core.parser.gtd.result.ExpandableContainerNode;
+import org.rascalmpl.core.parser.gtd.result.LiteralNode;
+import org.rascalmpl.core.parser.gtd.result.RecoveredNode;
+import org.rascalmpl.core.parser.gtd.result.SkippedNode;
+import org.rascalmpl.core.parser.gtd.result.SortContainerNode;
+import org.rascalmpl.core.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.core.parser.gtd.util.IndexedStack;
 
 /**
  * Converter for parse trees that produces trees in UPTR format.

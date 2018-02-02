@@ -11,7 +11,7 @@
  *   * Anya Helene Bagge - anya@ii.uib.no (Univ. Bergen)
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser;
+package org.rascalmpl.core.parser;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -30,7 +30,8 @@ import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Profiler;
-import org.rascalmpl.parser.gtd.IGTD;
+
+import org.rascalmpl.core.parser.gtd.IGTD;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
@@ -38,9 +39,9 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
-import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.core.values.ValueFactoryFactory;
+import org.rascalmpl.core.values.uptr.IRascalValueFactory;
+import org.rascalmpl.core.values.uptr.ITree;
 
 public class ParserGenerator {
 	private final Evaluator evaluator;

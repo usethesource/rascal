@@ -9,13 +9,13 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.recovery;
+package org.rascalmpl.core.parser.gtd.recovery;
 
-import org.rascalmpl.parser.gtd.result.AbstractNode;
-import org.rascalmpl.parser.gtd.stack.AbstractStackNode;
-import org.rascalmpl.parser.gtd.util.DoubleArrayList;
-import org.rascalmpl.parser.gtd.util.DoubleStack;
-import org.rascalmpl.parser.gtd.util.Stack;
+import org.rascalmpl.core.parser.gtd.result.AbstractNode;
+import org.rascalmpl.core.parser.gtd.stack.AbstractStackNode;
+import org.rascalmpl.core.parser.gtd.util.DoubleArrayList;
+import org.rascalmpl.core.parser.gtd.util.DoubleStack;
+import org.rascalmpl.core.parser.gtd.util.Stack;
 
 public interface IRecoverer<P>{
 	DoubleArrayList<AbstractStackNode<P>, AbstractNode> reviveStacks(int[] input,

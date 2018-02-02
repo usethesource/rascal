@@ -1,7 +1,7 @@
-package org.rascalmpl.parser.uptr.action;
+package org.rascalmpl.core.parser.uptr.action;
 
-import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.core.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.core.values.uptr.ITree;
 
 public class NoActionExecutor implements IActionExecutor<ITree> {
 

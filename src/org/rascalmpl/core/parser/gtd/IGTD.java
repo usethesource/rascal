@@ -9,15 +9,15 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd;
+package org.rascalmpl.core.parser.gtd;
 
 import java.net.URI;
 
-import org.rascalmpl.parser.gtd.debug.IDebugListener;
-import org.rascalmpl.parser.gtd.recovery.IRecoverer;
-import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import org.rascalmpl.parser.gtd.result.out.INodeConstructorFactory;
-import org.rascalmpl.parser.gtd.result.out.INodeFlattener;
+import org.rascalmpl.core.parser.gtd.debug.IDebugListener;
+import org.rascalmpl.core.parser.gtd.recovery.IRecoverer;
+import org.rascalmpl.core.parser.gtd.result.action.IActionExecutor;
+import org.rascalmpl.core.parser.gtd.result.out.INodeConstructorFactory;
+import org.rascalmpl.core.parser.gtd.result.out.INodeFlattener;
 
 /**
  * Parser interface.

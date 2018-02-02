@@ -9,7 +9,7 @@
 
  *   * Arnold Lankamp - Arnold.Lankamp@cwi.nl
 *******************************************************************************/
-package org.rascalmpl.parser.gtd.exception;
+package org.rascalmpl.core.parser.gtd.exception;
 
 public class UndeclaredNonTerminalException extends RuntimeException{
 	private static final long serialVersionUID = 1584464650068099643L;

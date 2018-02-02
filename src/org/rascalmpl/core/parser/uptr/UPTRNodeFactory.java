@@ -1,21 +1,21 @@
-package org.rascalmpl.parser.uptr;
+package org.rascalmpl.core.parser.uptr;
 
 import java.net.URI;
 
-import org.rascalmpl.interpreter.asserts.Ambiguous;
-import org.rascalmpl.parser.gtd.location.PositionStore;
-import org.rascalmpl.parser.gtd.result.out.INodeConstructorFactory;
-import org.rascalmpl.parser.gtd.util.ArrayList;
+import org.rascalmpl.core.errors.Ambiguous;
+import org.rascalmpl.core.parser.gtd.location.PositionStore;
+import org.rascalmpl.core.parser.gtd.result.out.INodeConstructorFactory;
+import org.rascalmpl.core.parser.gtd.util.ArrayList;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.core.values.ValueFactoryFactory;
+import org.rascalmpl.core.values.uptr.ITree;
+import org.rascalmpl.core.values.uptr.ProductionAdapter;
+import org.rascalmpl.core.values.uptr.RascalValueFactory;
+import org.rascalmpl.core.values.uptr.TreeAdapter;
 
 public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLocation>{
 	private final static RascalValueFactory VF = (RascalValueFactory) ValueFactoryFactory.getValueFactory();

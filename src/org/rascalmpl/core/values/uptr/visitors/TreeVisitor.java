@@ -18,7 +18,7 @@ import io.usethesource.vallang.INode;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.visitors.IdentityVisitor;
 
-import org.rascalmpl.core.library.lang.rascalcore.error.ImplementationError;
+import org.rascalmpl.core.errors.ImplementationError;
 import org.rascalmpl.core.values.uptr.ITree;
 import org.rascalmpl.core.values.uptr.RascalValueFactory;
 
