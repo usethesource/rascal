@@ -667,7 +667,7 @@ AType computeADTType(Tree current, str adtName, Key scope, AType retType, list[A
                 isExpression = false;
             }
         default:
-            throw rascalCheckerInternalError(current, "Illegal argument `actuals`");
+            throw rascalCheckerInternalError(getLoc(current), "Illegal argument `actuals`");
     }
     
     for(int i <- index_formals){
@@ -800,7 +800,7 @@ void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, K
         }
      } 
     default: 
-      throw rascalCheckerInternalError(current, "checkKwArgs: illegal keywordArguments");
+      throw rascalCheckerInternalError("checkKwArgs: illegal keywordArguments");
     }
  } 
  
@@ -833,7 +833,7 @@ void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, K
                 reportError(current, "Node pattern does not match <fmt(subjectType)>");
             }
         default:
-            throw rascalCheckerInternalError(current, "Illegal argument `actuals`");
+            throw rascalCheckerInternalError(getLoc(current), "Illegal argument `actuals`");
     }
 }
 
@@ -877,7 +877,7 @@ AType computeNodeTypeWithKwArgs(Tree current, keywordArguments, list[NamedField]
         }
         
         default:
-             throw rascalCheckerInternalError(keywordArguments, "computeNodeTypeWithKwArgs: illegal keywordArguments");
+             throw rascalCheckerInternalError(getLoc(keywordArguments), "computeNodeTypeWithKwArgs: illegal keywordArguments");
     }
 }
 
@@ -904,7 +904,7 @@ list[NamedField] computeKwArgs(keywordArguments, Key scope, bool isExpression=tr
         }
         
         default:
-             throw rascalCheckerInternalError(keywordArguments, "computeKwArgs: illegal keywordArguments");
+             throw rascalCheckerInternalError(getLoc(keywordArguments), "computeKwArgs: illegal keywordArguments");
     }
 }
  
@@ -1224,6 +1224,8 @@ public AType computeFieldType(Tree current, AType t1, str fieldName, Key scope, 
                reportError(current, "Field <fmt(fieldName)> does not exist on type `type`  (non-classic reifier) ");
             }
          }
+    } else if(isStartNonTerminalType(t1)){
+       return computeFieldType(current, getStartNonTerminalType(t1), fieldName, scope, tb);
     } else if (aadt(adtName, list[AType] actualTypeParams,_) := t1){
         try {
             if ((getADTName(t1) == "Tree" || isNonTerminalType(t1)) && fieldName == "top") {
@@ -1240,14 +1242,16 @@ public AType computeFieldType(Tree current, AType t1, str fieldName, Key scope, 
            
             declaredInfo = getDefinitions(adtName, scope, {dataId(), nonterminalId()});
             declaredType = getType(adtName, scope, {dataId(), nonterminalId()});
+            if(isStartNonTerminalType(declaredType)){
+                declaredType = getStartNonTerminalType(declaredType);
+            }
       
             return computeADTFieldType(current, declaredType, fieldType, fieldName, actualTypeParams, declaredInfo, scope, tb);             
                 
         } catch TypeUnavailable(): { // TODO Remove try
             throw TypeUnavailable(); //reportError(current, "Cannot compute type of field <fmt(fieldName)>, user type <fmt(t1)> has not been declared or is out of scope"); 
         }
-     } else if(isStartNonTerminalType(t1)){
-       return computeFieldType(current, getStartNonTerminalType(t1), fieldName, scope, tb);
+     
     } else if (isNonTerminalType(t1)){
        return computeFieldType(current, aadt("Tree", [], contextFreeSyntax()), fieldName, scope, tb);
     } else if (isTupleType(t1)) {
@@ -1424,7 +1428,7 @@ AType computeFieldProjectionType(Expression current, AType base, list[lang::rasc
                 if (maintainFieldNames) fieldNames += fnAsString;
             }
         } else {
-            throw keywordArguments(current, "Unhandled field case: <f>");
+            throw rascalCheckerInternalError("computeFieldProjectionType; Unhandled field case: <f>");
         }
     }
     

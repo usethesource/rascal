@@ -73,7 +73,6 @@ AType overloadedAType(rel[Key, IdRole, AType] overloads){
 
 data AProduction
      = \choice(AType def, set[AProduction] alternatives)
-//     | \composition(AProduction lhs, AProduction rhs)
      ;
  
 @doc{

@@ -355,10 +355,10 @@ void collect(current: (Statement) `return <Statement statement>`, TBuilder tb){
            collect(statement, tb);
            return;
         } else {
-            throw rascalCheckerInternalError(current, "Inconsistent info from function scope: <scopeInfo>");
+            throw rascalCheckerInternalError(getLoc(current), "Inconsistent info from function scope: <scopeInfo>");
         }
     }
-    throw rascalCheckerInternalError(current, "No surrounding function scope found");
+    throw rascalCheckerInternalError(getLoc(current), "No surrounding function scope found");
 }
 
 // ---- alias declaration
@@ -413,8 +413,8 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBu
     }
     adtType = aadt(adtName, dataTypeVarsAsList, dataSyntax());
     
-    allConsFields = {};
-    allConstructorDefines = {};
+    rel[str, AType] allConsFields = {};
+    rel[str, Name, DefInfo] allConstructorDefines = {};
     for(Variant v <- variants){
         consName = prettyPrintName(v.name);
         allFieldTypeVars = {};
@@ -450,6 +450,8 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBu
     }
     dt = defType(adtType);
     dt.constructorFields=allConsFields;
+    constructors = {di.atype | DefInfo di <- allConstructorDefines<2>};
+    if(!isEmpty(constructors)) dt.constructors = constructors;
     if(!isEmpty(commonKwFields)) dt.commonKeywordFields = commonKwFields;
     tb.define(adtName, dataId(), current, dt);
     
@@ -488,7 +490,9 @@ void collect (current: (SyntaxDefinition) `keyword <Sym defined> = <Prod product
 void collect (current: (SyntaxDefinition) `<Start strt> syntax <Sym defined> = <Prod production>;`, TBuilder tb){
     //println("SYNTAX: <current>");
     nonterminalType = sym2AType(defined);
-    syntaxRole = /*strt is present ? startSyntax() : */contextFreeSyntax();
+    if(strt is present) nonterminalType = \start(nonterminalType);
+    
+    syntaxRole = contextFreeSyntax();
 
     declareSyntax(current, publicVis(), defined, nonterminalType, production, syntaxRole, tb);
     collect(production, tb);
@@ -498,8 +502,13 @@ void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterm
     //println("declareSyntax: <defined>, <nonterminalType>");
     AProduction pr = prod2prod(nonterminalType, production);
     //println("pr: <pr>");
-    if(isADTType(nonterminalType)){
-        ntName = nonterminalType.adtName;
+    baseNonterminalType = nonterminalType;
+    if(isStartNonTerminalType(nonterminalType)){
+        baseNonterminalType = getStartNonTerminalType(nonterminalType);
+    }
+    
+    if(isADTType(baseNonterminalType)){
+        ntName = baseNonterminalType.adtName;
         dt = defType(nonterminalType);
         dt.vis = vis;
         productions = choice(definedType, set[AProduction] prods) := pr ? prods : {pr};
