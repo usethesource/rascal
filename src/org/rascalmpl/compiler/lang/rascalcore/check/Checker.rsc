@@ -35,6 +35,8 @@ extend lang::rascalcore::check::ATypeUtils;
 
 extend lang::rascalcore::check::TypePalConfig;
 
+extend lang::rascalcore::check::Reify;
+
 import Set;
 import Relation;
 import util::Reflective;
@@ -159,7 +161,7 @@ TModel rascalTModel(Tree pt, int startTime, bool debug=false, bool inline=false)
     tm = rascalPreValidation(tm);
     tm = validate(tm, debug=debug);
     tm = rascalPostValidation(tm);
-    //iprintln(tm.definitions);
+    //iprintln(getGrammar(getLoc(pt), tm));
     afterValidateTime = cpuTime();
     
     if(!inline){

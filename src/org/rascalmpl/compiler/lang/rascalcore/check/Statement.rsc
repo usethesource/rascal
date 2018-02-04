@@ -227,12 +227,12 @@ void computeLoopType(str loopKind, str loopName1, Statement current, TBuilder tb
               return;
            } else {
            
-             throw rascalCheckerInternalError(current, "Inconsistent info from loop scope: <scopeInfo>");
+             throw rascalCheckerInternalError(getLoc(current), "Inconsistent info from loop scope: <scopeInfo>");
            }
         }
     }
     
-    throw rascalCheckerInternalError(current, "Info for loop scope not found"); 
+    throw rascalCheckerInternalError(getLoc(current), "Info for loop scope not found"); 
 }
 
 // ---- do
@@ -296,7 +296,7 @@ void collect(current: (Statement) `append <DataTarget dataTarget> <Statement sta
                 return;
              }
         } else {
-            throw rascalCheckerInternalError(current, "Inconsistent info from loop scope: <scopeInfo>");
+            throw rascalCheckerInternalError(getLoc(current), "Inconsistent info from loop scope: <scopeInfo>");
         }
     }
     tb.reportError(current, "Append outside a while/do/for statement");
@@ -319,7 +319,7 @@ void collect(current:(Statement) `break <Target target>;`, TBuilder tb){
                 return;
              }
         } else {
-            throw rascalCheckerInternalError(current, "Inconsistent info from loop scope: <scopeInfo>");
+            throw rascalCheckerInternalError(getLoc(current), "Inconsistent info from loop scope: <scopeInfo>");
         }
     }
     tb.reportError(current, "Break outside a while/do/for statement");
@@ -342,7 +342,7 @@ void collect(current:(Statement) `continue <Target target>;`, TBuilder tb){
                  return;
              }
         } else {
-            throw rascalCheckerInternalError(current, "Inconsistent info from loop scope: <scopeInfo>");
+            throw rascalCheckerInternalError(getLoc(current), "Inconsistent info from loop scope: <scopeInfo>");
         }
     }
     tb.reportError(current, "Continue outside a while/do/for statement");
@@ -544,7 +544,7 @@ AType computeAssignmentRhsType(Statement current, AType lhsType, "?=", AType rhs
     }
 
 default AType computeAssignmentRhsType(Statement current, AType lhsType, str operator, AType rhsType){
-    throw rascalCheckerInternalError(current, "<operator> not supported");
+    throw rascalCheckerInternalError(getLoc(current), "<operator> not supported");
 }
 
 void checkAssignment(Statement current, (Assignable) `<QualifiedName name>`, str operator,  Statement statement, TBuilder tb){
@@ -728,7 +728,7 @@ AType computeSliceAssignableType(Statement current, AType receiverType, AType fi
         if(!subtype(rhs, astr())) reportError(current, "Expected `str` in slice assignment, found <fmt(rhs)>");
         return receiverType;
     } else if(isNonTerminalIterType(receiverType)) {
-        throw rascalCheckerInternalError(current, "Not yet implemented"); // TODO
+        throw rascalCheckerInternalError(getLoc(current), "Not yet implemented"); // TODO
     } else if (isNodeType(receiverType)) {
         return makeListType(avalue());
     }
@@ -766,6 +766,8 @@ AType computeFieldAssignableType(Statement current, AType receiverType, str fiel
         }
         if(isEmpty(fld_overloads)) reportError(current, "Field <fmt(fieldName)> on <fmt(receiverType)> cannot be resolved");
         return overloadedAType(fld_overloads);
+   } else if(isStartNonTerminalType(receiverType)){
+        return computeFieldAssignableType(current, getStartNonTerminalType(receiverType), fieldName, operator, rhs, scope);
    } else if (aadt(adtName, list[AType] actualTypeParams, _) := receiverType){
         try {
             if ((getADTName(receiverType) == "Tree" || isNonTerminalType(receiverType)) && fieldName == "top") {
@@ -828,8 +830,7 @@ AType computeFieldAssignableType(Statement current, AType receiverType, str fiel
     } else if (isNodeType(receiverType)) {
         computeAssignmentRhsType(current, avalue(), operator, rhs);
         return receiverType; //anode([]);
-    } else if(isStartNonTerminalType(receiverType)){
-        return computeFieldAssignableType(current, getStartNonTerminalType(receiverType), fieldName, operator, rhs, scope);
+    
     } else if(isLocType(receiverType) || isDateTimeType(receiverType)){
         if(fieldName in fieldMap[receiverType]){
             return receiverType;

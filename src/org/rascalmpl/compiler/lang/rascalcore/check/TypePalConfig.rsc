@@ -57,6 +57,7 @@ data DefInfo(Vis vis = publicVis());
 // Productions and Constructor fields; common Keyword fields
 data DefInfo(set[AProduction] productions = {}, 
              set[NamedField] constructorFields = {},
+             set[AType] constructors = {},
              list[Keyword] commonKeywordFields = []
              );
 
