@@ -123,6 +123,7 @@ private bool compareM3s(M3 a, M3 b) {
 	aKeys = getKeywordParameters(a);
 	bKeys = getKeywordParameters(b);
 	for (ak <- aKeys) {
+	
 		if (!(ak in bKeys)) {
 			throw "<ak>  missing in reference";
 		}
@@ -134,19 +135,26 @@ private bool compareM3s(M3 a, M3 b) {
 				iprintln(aks - bks);
 			}
 			else if (list[Message] akl := aKeys[ak] && list[Message] bkl := bKeys[ak]) {
+				// In case of different size tell the difference.
 				if (size(akl) != size(bkl)) {
-					throw "Different sized lists";
+					println("Missing messages in relation to original relation: ");
+					iprintln(akl - bkl);
+					println("Additional messages in relation to original relation: ");
+					iprintln(bkl - akl);
 				}
-				akl = sort(akl, compareMessages);
-				bkl = sort(bkl, compareMessages);
-				if (akl == bkl) {
-					//No worries, just sorting!;
-					continue;
-				}
-				for (i <- [0..size(akl)]) {
-					if (akl[i] != bkl[i]) {
-						println("<i> differs");
-						iprintln([(akl[i]), (bkl[i])]);
+				//Otherwise, check if all values remain the same.
+				else {
+					akl = sort(akl, compareMessages);
+					bkl = sort(bkl, compareMessages);
+					if (akl == bkl) {
+						//No worries, just sorting!;
+						continue;
+					}
+					for (i <- [0..size(akl)]) {
+						if (akl[i] != bkl[i]) {
+							println("<i> differs");
+							iprintln([(akl[i]), (bkl[i])]);
+						}
 					}
 				}
 			}
