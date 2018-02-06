@@ -142,7 +142,7 @@ public class Onthology {
     public void buildCourseMap() throws IOException {
         Analyzer multiFieldAnalyzer = multiFieldAnalyzer();
         IndexWriterConfig config = new IndexWriterConfig(multiFieldAnalyzer);
-        config.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
+        config.setOpenMode(IndexWriterConfig.OpenMode.CREATE_OR_APPEND);
 
         try (IndexWriter iwriter = new IndexWriter(directory, config)) {
             FileVisitor<Path> fileProcessor = new CollectConcepts(iwriter, conceptMap);
