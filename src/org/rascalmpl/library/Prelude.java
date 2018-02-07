@@ -3448,8 +3448,14 @@ public class Prelude {
 		try (Reader in = URIResolverRegistry.getInstance().getCharacterReader(loc, StandardCharsets.UTF_8)) {
 			return new StandardTextReader().read(values, store, start, in);
 		}
+		catch (FactTypeUseException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+        } 
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		}
+		catch (Exception e) {
+		    throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 	}
 	
@@ -3466,6 +3472,9 @@ public class Prelude {
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
+		catch (Exception e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+        }
 	}
 
     public void writeBinaryValueFile(ISourceLocation loc, IValue value, IBool compression){
