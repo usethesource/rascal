@@ -392,13 +392,12 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
                 }
             }
             String[] filesInPath = reg.listEntries(directory);
-            URI directoryURI = directory.getURI();
             Set<String> result = new TreeSet<>(); // sort it up
             for (String currentFile : filesInPath) {
                 if (currentFile.startsWith(fileName)) {
-                    URI currentDir = URIUtil.getChildURI(directoryURI, currentFile);
-                    boolean isDirectory = reg.isDirectory(VF.sourceLocation(currentDir));
-                    result.add(currentDir.toString() + (isDirectory ? "/" : "|"));
+                    ISourceLocation currentDir = URIUtil.getChildLocation(directory, currentFile);
+                    boolean isDirectory = reg.isDirectory(currentDir);
+                    result.add(currentDir.getURI().toString() + (isDirectory ? "/" : "|"));
                 }
             }
             if (result.size() > 0) {
