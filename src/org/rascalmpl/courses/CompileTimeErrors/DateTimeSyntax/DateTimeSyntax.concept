@@ -30,11 +30,11 @@ Certain errors, like a wrong day number (here: 40) lead to a parse error:
 ----
 $2013-07-40T09:15:23.123+03:00$;
 ----
-Others, like a wrong month number (here: 15) lead to a DateTimeSyntax error:
-[source,rascal-shell,continue,error]
-----
-$2010-15-15T09:15:23.123+03:00$;
-----
+Others, like a wrong month number (here: 15) lead to a DateTimeSyntax error
+//[source,rascal-shell,continue,error]
+//----
+//$2010-15-15T09:15:23.123+03:00$;
+//----
 
 
 .Benefits
