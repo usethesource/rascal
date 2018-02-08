@@ -113,17 +113,17 @@ public class RVMJVM extends RVMCore {
 	/************************************************************************************/
 
 	@Override
-	public Object executeRVMFunction(Function func, IValue[] posArgs, Map<String, IValue> kwArgs) {
+	/*package*/ Object executeRVMFunction(Function func, IValue[] posArgs, Map<String, IValue> kwArgs) {
 		return generatedClassInstance.executeRVMFunction(func, posArgs, kwArgs);
 	}
 
 	@Override
-	public IValue executeRVMFunction(FunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs) {
+	/*package*/ IValue executeRVMFunction(FunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs) {
 		return generatedClassInstance.executeRVMFunction(func, posArgs, kwArgs);
 	}
 
 	@Override
-	public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs) {
+	/*package*/ IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs) {
 		return generatedClassInstance.executeRVMFunction(func, posArgs, kwArgs);
 	}
 
@@ -133,7 +133,7 @@ public class RVMJVM extends RVMCore {
 	}
 
 	@Override
-	public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] posArgs, Map<String, IValue> kwArgs) {
+	/*package*/ IValue executeRVMProgram(String moduleName, String uid_main, IValue[] posArgs, Map<String, IValue> kwArgs) {
 		return generatedClassInstance.executeRVMProgram(moduleName, uid_main, posArgs, kwArgs);
 	}
 }

@@ -18,13 +18,12 @@ import org.rascalmpl.repl.BaseREPL;
 import jline.Terminal;
 
 public class DebugREPLFrameObserver implements IFrameObserver {
-
-	private final PathConfig pcfg;
+    protected final PathConfig pcfg;
 	private final InputStream stdin;
 	private final OutputStream stdout;
 	private final File historyFile;
 	private final Terminal terminal;
-	private final BreakPointManager breakPointManager;
+	protected final BreakPointManager breakPointManager;
 	
 	private RVMCore rvm;
 	

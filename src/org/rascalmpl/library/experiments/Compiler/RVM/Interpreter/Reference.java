@@ -76,6 +76,6 @@ public class Reference implements IReference {
     @Override
     public String toString(){
         return stack == null ? "ref["  + varName + " => " + moduleVariables.get(varName) + "]"
-                             : "ref[@" + stack.hashCode() + ":" + pos + " => " + stack[pos] + "]";
+                             : "ref[@" + System.identityHashCode(stack) + ":" + pos + " => " + stack[pos] + "]";
     } 
 }

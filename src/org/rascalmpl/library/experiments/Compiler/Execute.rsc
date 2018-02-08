@@ -513,7 +513,7 @@ RVMProgram compileAndLink(str qualifiedModuleName, list[loc] srcs, list[loc] lib
 @deprecated
 list[RVMProgram] compileAndLink(list[str] qualifiedModuleNames, list[loc] srcs, list[loc] libs, loc boot, loc bin,
                           bool enableAsserts=false, bool jvm=true, bool verbose = false){
-    pcfg = pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin);
+    PathConfig pcfg = pathConfig(srcs=srcs, libs=libs, boot=boot, bin=bin); // TODO: type was added for new (experimental) type checker
     return [ compileAndLink(qualifiedModuleName, pcfg, jvm=jvm, verbose=verbose, enableAsserts=enableAsserts) | qualifiedModuleName <- qualifiedModuleNames ];        
 } 
 

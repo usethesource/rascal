@@ -136,10 +136,10 @@ private bool hasManualTag(Production p) =
 public map[Symbol,Production] getGrammar() = cachedGrammar;
 
 private map[Symbol,Production] getGrammar1() {
-    set[Symbol] layoutDefs = layoutDefs(grammar);
+    set[Symbol] theLayoutDefs = layoutDefs(grammar);
     
 	map[Symbol,Production] definitions =   
-		( nonterminal : \layouts(grammar[nonterminal], layoutDefs) | nonterminal <- grammar) 
+		( nonterminal : \layouts(grammar[nonterminal], theLayoutDefs) | nonterminal <- grammar) 
 		+ 
 		( Symbol::\start(nonterminal) : \layouts(Production::choice(Symbol::\start(nonterminal), { Production::prod(Symbol::\start(nonterminal), [ Symbol::\label("top", nonterminal) ],{}) }),{}) 
 		| nonterminal <- starts );
@@ -680,12 +680,12 @@ private map[Symbol,Production] reify1(Symbol symbol, map[Symbol,Production] defi
 private map[Symbol,Production] reify1(Symbol symbol, map[Symbol,Production] definitions) 
 	= { 
 	    set[Symbol] defs = typeRel[name];
-	    set[Symbol] layoutDefs = layoutDefs(definitions);
+	    set[Symbol] theLayoutDefs = layoutDefs(definitions);
 		//assert !(Symbol::\adt(name,_) := nonterminal);
 		for(Symbol nonterminal <- defs){
             if(Symbol::\adt(name,_) !:= nonterminal){
 		       if(!definitions[nonterminal]?) {
-			      definitions[nonterminal] = \layouts(grammar[nonterminal], layoutDefs); // inserts an active layout
+			      definitions[nonterminal] = \layouts(grammar[nonterminal], theLayoutDefs); // inserts an active layout
 			      if(nonterminal in starts) {
 				     definitions[Symbol::\start(nonterminal)] = \layouts(Production::choice(Symbol::\start(nonterminal),
 															    { Production::prod(Symbol::\start(nonterminal), [ Symbol::\label("top", nonterminal) ],{}) }),{});

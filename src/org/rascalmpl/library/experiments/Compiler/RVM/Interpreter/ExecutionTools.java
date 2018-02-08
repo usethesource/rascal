@@ -9,6 +9,7 @@ import java.util.Map;
 import org.rascalmpl.interpreter.DefaultTestResultListener;
 import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -17,11 +18,10 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class ExecutionTools {
 
-	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	
 	public static RascalExecutionContext makeRex(
 	                PathConfig pcfg,

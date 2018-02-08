@@ -108,19 +108,10 @@ public class StringResult extends ElementResult<IString> {
 		return result.greaterThanOrEqualString(this);
 	}
 	
-	//////////////////////
-//	
-//	@Override
-//	protected <U extends IValue> Result<U> addString(StringResult s) {
-//		// Note the reverse concat.
-//		return makeResult(type, s.getValue().concat(getValue()), ctx);
-//	}	
-	
-	@SuppressWarnings("unchecked")
 	@Override
 	protected <U extends IValue> Result<U> addString(StringResult s) {
-		// Note the reverse concat.
-		return (Result<U>) new ConcatStringResult(getType(), s, this, ctx); 
+	    // note the reversal
+	    return makeResult(getType(), s.getValue().concat(getValue()), ctx);
 	}	
 	
 	@Override

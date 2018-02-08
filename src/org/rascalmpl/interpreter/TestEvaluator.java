@@ -102,7 +102,8 @@ public class TestEvaluator {
                 String expected = null;
                 if(test.hasTag(QuickCheck.EXPECT_TAG)){
                     expected = ((IString) test.getTag(QuickCheck.EXPECT_TAG)).getValue();
-                }
+                } 
+                boolean ignoreAnnotations = test.hasTag(QuickCheck.IGNORE_ANNOTATIONS_TAG);
 
                 TestResult result = qc.test(test.getEnv().getName() + "::" + test.getName(), test.getFormals(), expected, (Type[] actuals, IValue[] args) -> {
                     try {
@@ -117,7 +118,7 @@ public class TestEvaluator {
                     catch (Throwable e) {
                         return new TestResult(false, e);
                     }
-                }, env.getRoot().getStore(), tries, maxDepth, maxWidth);
+                }, env.getRoot().getStore(), tries, maxDepth, maxWidth, ignoreAnnotations);
                 
                 eval.getStdOut().flush();
                 eval.getStdErr().flush();

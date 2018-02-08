@@ -291,19 +291,18 @@ public class URIUtil {
 	}
 	
 	public static ISourceLocation getParentLocation(ISourceLocation loc) {
-		File file = new File(loc.getPath());
-		File parent = file.getParentFile();
-		
-		if (parent != null && !parent.getName().isEmpty()) {
-			try {
-				return vf.sourceLocation(loc.getScheme(), getCorrectAuthority(loc), parent.getPath(), loc.hasQuery() ? loc.getQuery() : null, loc.hasFragment() ? loc.getFragment() : null);
-			} catch (URISyntaxException e) {
-				assert false;
-				return loc;
-			}
-		}
-		
-		return loc;
+	    String currentPath = loc.getPath();
+	    assert currentPath.startsWith("/");
+	    if (currentPath.equals("/")) {
+	        return loc;
+	    }
+	    try {
+	        int pathSep = currentPath.lastIndexOf('/');
+            return changePath(loc, currentPath.substring(0, pathSep));
+        }
+        catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
 	}
 	
 	public static ISourceLocation getChildLocation(ISourceLocation loc, String child) {
@@ -324,18 +323,6 @@ public class URIUtil {
 		}
 	}
 	
-	public static URI getChildURI(URI uri, String child) {
-		File file = new File(uri.getPath());
-		File childFile = new File(file, child);
-		
-		try {
-			return changePath(uri, childFile.getAbsolutePath());
-		} catch (URISyntaxException e) {
-			// can not happen
-		}
-		
-		return null; // there is no child?;
-	}
 	public static String getURIName(URI uri) {
 		File file = new File(uri.getPath());
 		return file.getName();

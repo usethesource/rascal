@@ -27,8 +27,8 @@ It is also generated when the function declaration _does_ have a body.
 
 Remedy: Contact the Rascal developers:
 
-*  Ask a question at [Rascal Ask site](http://ask.rascal-mpl.org/questions/).
-*  Read the currently open issues at the Rascal's [issue tracker](https://github.com/cwi-swat/rascal/issues?state=open). If your problem has not yet been reported by someone else, please report it here.
+*  Ask a question on StackOverflow using the http://stackoverflow.com/questions/tagged/rascal[Rascal Stackoverflow Tag].
+*  Read the currently open issues at the Rascal's https://github.com/usethesource/rascal/issues?state=open[Issue Tracker on Github]. If your problem has not yet been reported by someone else, please report it here.
 
 
 If you are an expert developer and have implemented your own extension in Java, please check your own extension code first.

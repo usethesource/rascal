@@ -100,6 +100,7 @@ data Compression
 	//| Z() // read-only
 	| xz()
 	| bzip2()
+	| zstd()
 	//| lzma() //read-only
 	;
 
@@ -108,7 +109,8 @@ map[Compression, str] comprExtension
 		gzip() : "gz",
 		//Z() : "Z",
 		xz() : "xz",
-		bzip2() : "bz2"//,
+		bzip2() : "bz2",//,
+		zstd(): "zst"
 		//lzma() : "lzma"	
 	);
 

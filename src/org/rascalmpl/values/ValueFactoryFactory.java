@@ -19,11 +19,7 @@ import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 
 public class ValueFactoryFactory{
-	private static class InstanceHolder {
-		private final static IRascalValueFactory valueFactory = IRascalValueFactory.getInstance();
-	}
-	
 	public static IValueFactory getValueFactory(){
-		return InstanceHolder.valueFactory;
+		return IRascalValueFactory.getInstance();
 	}
 }

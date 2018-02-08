@@ -128,7 +128,7 @@ public class FunctionInstance implements ICallableCompiledValue, IExternalValue 
 
 	@Override
 	public IValue call(IRascalMonitor monitor, Type[] argTypes, IValue[] posArgs, Map<String, IValue> kwArgs) {
-		return rvm.executeRVMFunction(this, posArgs, kwArgs);
+		return rvm.safeExecuteRVMFunction(this, posArgs, kwArgs);
 	}
 
 	@Override

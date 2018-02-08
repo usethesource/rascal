@@ -41,7 +41,7 @@ public map[&T, int] distribution(rel[&U event, &T bucket] input) {
 
 public map[&T <: num, int] distribution(rel[&U event, &T <: num bucket] input, &T <: num bucketSize) {
   map[&T <: num,int] result = ();
-  for (<&U event, &T bucket> <- input) {
+  for (<&U event, &T <: num bucket> <- input) {
     result[round(bucket, bucketSize)]?0 += 1;
   }
   return result;

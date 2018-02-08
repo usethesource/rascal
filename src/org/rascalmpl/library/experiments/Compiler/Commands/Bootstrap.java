@@ -3,6 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.Commands;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -123,15 +124,7 @@ public class Bootstrap {
     }
     
     @FunctionalInterface
-    public interface ThrowingSupplier<T> extends Supplier<T> {
-        @Override
-        default T get() {
-            try {
-                return throwingGet();
-            } catch (final Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
+    private interface ThrowingSupplier<T> {
         T throwingGet() throws Exception;
     }
     
@@ -151,7 +144,7 @@ public class Bootstrap {
         initializeShutdownhook();
 
         if (args.length < 5) {
-        	System.err.println("Usage: Bootstrap <classpath> <versionToBootstrapOff> <versionToBootstrapTo> <sourceFolder> <targetFolder> <b[--verbose] [--clean] (you provided " + args.length + " arguments instead)");
+        	System.err.println("Usage: Bootstrap <classpath> <versionToBootstrapOff> <versionToBootstrapTo> <sourceFolder> <targetFolder> [--verbose] [--clean] [--basic] [--download] [--validating] (you provided " + args.length + " arguments instead)");
         	System.exit(1);
         	return;
         }
@@ -174,7 +167,7 @@ public class Bootstrap {
         	throw new RuntimeException("source folder " + sourceFolder + " should point to source folder of standard library containing Prelude and the compiler");
         }
         
-        System.out.println("sourceFolder: " + sourceFolder);
+        info("sourceFolder: " + sourceFolder);
         
         String librarySource = sourceFolder.resolve("org/rascalmpl/library").toAbsolutePath().toString();
         
@@ -214,7 +207,7 @@ public class Bootstrap {
         Path tmpDir = initializeTemporaryFolder(tmpFolder, cleanTempDir, versionToUse);
         
         if (existsDeployedVersion(versionToBuild)) {
-            System.out.println("INFO: Got the kernel version to compile: " + versionToBuild + " already from existing deployed build.");
+            info("Got the kernel version to compile: " + versionToBuild + " already from existing deployed build.");
         }
         
         // We bootstrap in several stages, in each step generating a new Kernel file using an existing version:
@@ -237,7 +230,7 @@ public class Bootstrap {
                 
                 String[] rvm    = new String[] { 
                         getDeployedVersion(tmpDir, versionToUse).toAbsolutePath().toString(), // this is the released jar
-                        targetFolder + ":" + /*deps*/ classpath /* this is the pre-compiled target folder with the new RVM implementation */  
+                        targetFolder + File.pathSeparator + /*deps*/ classpath /* this is the pre-compiled target folder with the new RVM implementation */  
                 };
                 
                 
@@ -257,11 +250,10 @@ public class Bootstrap {
                 time("Phase 1", () -> compilePhase(tmpDir, 1, librarySource, rvm[0], kernel[0], rvm[1], "|noreloc:///|", targetFolder));
                 
                 // Identify jars that contain new names and should be included in the classpath
-                String renamedJars = System.getProperty("user.home") 
-                    + "/.m2/repository/io/usethesource/vallang/0.7.0-SNAPSHOT/vallang-0.7.0-SNAPSHOT.jar";
+                String renamedJars = "";// System.getProperty("user.home") + "/.m2/repository/io/usethesource/vallang/0.7.0-SNAPSHOT/vallang-0.7.0-SNAPSHOT.jar";
                 if(!renamedJars.isEmpty()){
-                    rvm[0] += ":" + renamedJars;
-                    rvm[1] += ":" + renamedJars;
+                    rvm[0] += File.pathSeparator + renamedJars;
+                    rvm[1] += File.pathSeparator + renamedJars;
                 }
                 
                 time("Phase 2", () -> compilePhase(tmpDir, 2, librarySource, rvm[0], kernel[1], rvm[1], "|std:///|", targetFolder));
@@ -271,11 +263,11 @@ public class Bootstrap {
                   try {
                     time("Validation", () -> {
                       long nfiles = compareGeneratedRVMCode(Paths.get(kernel[2]), Paths.get(kernel[3]));
-                      System.out.println("VALIDATION: All " + nfiles + " *.rvm files in Phase 2 and Phase 3 are identical");
+                      progress("VALIDATION: All " + nfiles + " *.rvm files in Phase 2 and Phase 3 are identical");
                     });
                   }
                   catch (Exception e) {
-                    System.out.println("Comparison between Phase 2 and Phase 3 failed: " + e.getMessage());
+                    error("Comparison between Phase 2 and Phase 3 failed: " + e.getMessage());
                     System.exit(1);
                   }
                 }
@@ -403,18 +395,34 @@ public class Bootstrap {
      */
     private static Path getDeployedVersion(Path tmp, String version) throws IOException {
         Path cached = cachedDeployedVersion(tmp, version);
-
-        if (!cached.toFile().exists() || "unstable".equals(version)) {
+        URI deployedVersion = deployedVersion(version);
+        
+        if (isOutdated(cached, deployedVersion)) {
             if (cached.toFile().exists()) {
                 cached.toFile().delete();
             }
-            URI deployedVersion = deployedVersion(version);
+            
             info("downloading " + deployedVersion);
             Files.copy(deployedVersion.toURL().openStream(), cached);
         }
 
         info("deployed version ready: " + cached);
         return cached;
+    }
+    
+    private static boolean isOutdated(Path onDisk, URI onServer) {
+        if (!onDisk.toFile().exists()) {
+            return true;
+        }
+        
+        try {
+            return Files.getLastModifiedTime(onDisk).toMillis() < onServer.toURL().openConnection().getLastModified();
+        }
+        catch (IOException e) {
+            // probably a time out
+            info("Could not check validity of cached bootstrap jar: " + onDisk);
+            return false;
+        }
     }
 
     private static Path cachedDeployedVersion(Path tmpFolder, String version) {
@@ -479,7 +487,7 @@ public class Bootstrap {
           time("- generate and compile RascalParser", () -> generateAndCompileRascalParser(phase, classPath, sourcePath, bootPath, phaseResult, targetFolder));
       }
 
-      if (phase > 2) {
+      if (phase >= 2) {
           // phase 1 tests often fail for no other reason than an incompatibility.
           time("- compile simple tests",           () -> compileTests    (phase, classPath, phaseResult.toAbsolutePath().toString(), sourcePath, testResults, testModules));
           time("- run simple tests",               () -> runTests        (phase, testClassPath, phaseResult.toAbsolutePath().toString(), sourcePath, testResults, testModules));

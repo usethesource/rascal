@@ -347,6 +347,8 @@ div.unbreakable{page-break-inside:avoid}
 .purple-background{background-color:#7d007d}
 .red{color:#bf0000}
 .red-background{background-color:#fa0000}
+.error{color:#bf0000}
+.error-background{background-color:#fa0000}
 .silver{color:#909090}
 .silver-background{background-color:#bcbcbc}
 .teal{color:#006060}

@@ -22,7 +22,7 @@ test bool parseDSfromFile() = parse(#DS, |testdata:///DS.trm|) == (DS)`d d d`;
 
 test bool singleA() = (A) `a` := (A) `a`;
 
-test bool DS() = (DS)`d d` := (DS)`d d`;
+test bool DSmatch() = (DS)`d d` := (DS)`d d`;
 
 test bool DvarsTypedInsert2() = (DS)`<D+ Xs>` := (DS)`d`;
 
