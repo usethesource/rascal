@@ -75,7 +75,7 @@ private bool compareM3s(loc reference, str projectName, loc sourceZip, M3 (loc) 
 @ignoreCompiler{M3 not yet supported}
 public test bool junitM3RemainedTheSame() 
     = compareM3s(|testdata:///m3/junit4-m3s.bin|, "junit4", |testdata:///m3/junit4-project-source.zip|, getJunitM3); 
- 
+
 @ignoreCompiler{M3 not yet supported}
 public test bool snakesM3RemainedTheSame() 
     = compareM3s(|testdata:///m3/snakes-and-ladders-m3s.bin|, "snakes-and-ladders", |testdata:///m3/snakes-and-ladders-project-source.zip|, getSnakesM3); 
@@ -137,9 +137,9 @@ private bool compareM3s(M3 a, M3 b) {
 			else if (list[Message] akl := aKeys[ak] && list[Message] bkl := bKeys[ak]) {
 				// In case of different size tell the difference.
 				if (size(akl) != size(bkl)) {
-					println("Missing messages in relation to original relation: ");
+					println("Missing messages with regards to original relation: ");
 					iprintln(akl - bkl);
-					println("Additional messages in relation to original relation: ");
+					println("Additional messages with regards to original relation: ");
 					iprintln(bkl - akl);
 				}
 				//Otherwise, check if all values remain the same.
