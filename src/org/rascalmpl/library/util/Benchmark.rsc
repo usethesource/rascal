@@ -27,6 +27,18 @@ import IO;
 
 @doc{
 .Synopsis
+Write a JVM heap dump to a file. 
+
+.Description
+
+* The file parameter has to be of the `file` scheme.
+* The live parameter restricts the dump to only live objects.
+}
+@javaClass{org.rascalmpl.library.util.Benchmark}
+java void heapDump(loc file, bool live=true);
+
+@doc{
+.Synopsis
 CPU time in nanoseconds (10^-9^ sec).
 
 .Details

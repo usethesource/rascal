@@ -1,6 +1,7 @@
 module experiments::Compiler::Tests::Expressions
 
 extend  experiments::Compiler::Tests::TestUtils;
+import Exception;
 
 // Booleans, see separate files Booleans.rsc
 

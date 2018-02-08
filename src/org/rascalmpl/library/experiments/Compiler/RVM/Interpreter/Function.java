@@ -341,7 +341,8 @@ public class Function {
             return vf.tuple(src,  vf.integer(2), vf.string(""));
         }
         
-        IValue iexpected =  tags.get(vf.string("expected"));
+        IValue iexpected =  tags.get(vf.string(QuickCheck.EXPECT_TAG));
+        boolean ignoreAnnotations = tags.containsKey(vf.string(QuickCheck.IGNORE_ANNOTATIONS_TAG));
         String expected = iexpected == null ? null : ((IString) iexpected).getValue();
 
         int maxDepth = getDepth();
@@ -360,7 +361,7 @@ public class Function {
             } catch (Throwable e){
                 return new TestResult(false, e);
             }
-        }, typeStore, tries, maxDepth, maxWidth);
+        }, typeStore, tries, maxDepth, maxWidth, ignoreAnnotations);
 
         if (!result.succeeded()) {
             StringWriter sw = new StringWriter();

@@ -1,7 +1,8 @@
 # Annotation Declaration
 
 .Synopsis
-Declare an annotation type for nodes.
+
+Declare an annotation type for nodes. This feature is deprecated; please use <<Keyword Fields>> instead.
 
 .Index
 anno @
@@ -40,33 +41,11 @@ The following constructs are provided for handling annotations:
 *  `_Var_ @ _Anno_ = _Val_`: is an assignment statement that sets the value of annotation _Anno_ of the value of variable _Var_ to _Val_.
 
 .Examples
-Here is a declaration of an annotation that attaches location information to certain syntactic constructs of 
-programs (e.g., `EXPRESSION`) with name `posinfo`:
 
-[source,rascal]
-----
-anno loc EXPRESSION @ posinfo;
-----
-
-One can also add such location information to all syntax trees:
-
-[source,rascal]
-----
-anno loc Tree @ posinfo;
-----
-
-Given a graph datatype, one can define an annotation with name `LayoutStrategy` that defines which 
-graph layout algorithm to apply to a particular graph, e.g.,
-[source,rascal-shell]
-----
-data Graph = vertex(str name, int x, int y) | edge(str from, str to);
-data LayoutStrategy = dot() | tree() | force() | hierarchy() | fisheye();
-anno LayoutStrategy Graph @ strategy;
-G = vertex("root", 0, 0);
-G @ strategy = fisheye();
-----
+Examples have been removed since this feature is deprecated. 
 
 .Benefits
 
 .Pitfalls
 
+* Annotations are cumbersome since they change the structure of <<Values>> without changing the semantics of the identity of a value. This is why they are deprecated.

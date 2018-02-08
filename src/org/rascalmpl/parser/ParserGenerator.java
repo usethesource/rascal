@@ -245,17 +245,6 @@ public class ParserGenerator {
 		}
 	}
 
-  /**
-   * Save a generated parser class to a jar file
-   * 
-   * @param parserClass The parser class
-   * @param outStream An output stream
-   * @throws IOException on IO error
-   */
-  public void saveToJar(Class<IGTD<IConstructor, ITree, ISourceLocation>> parserClass, OutputStream outStream) throws IOException {
-	  bridge.saveToJar("", parserClass, StandAloneParser.class, outStream, false);
-  }
-
   public String createHole(IConstructor part, int size) {
     return ((IString) evaluator.call("createHole", part, vf.integer(size))).getValue();
   }

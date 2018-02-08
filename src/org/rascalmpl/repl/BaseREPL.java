@@ -82,7 +82,7 @@ public class BaseREPL {
         }
         reader.setExpandEvents(false);
 
-        prettyPrompt = prettyPrompt && terminal.isAnsiSupported();
+        prettyPrompt = prettyPrompt && terminal != null && terminal.isAnsiSupported();
         this.prettyPrompt = prettyPrompt;
         this.allowColors = allowColors;
         if (prettyPrompt && allowColors) {

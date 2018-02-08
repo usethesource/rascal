@@ -36,6 +36,7 @@ public class QuickCheck {
     public static final String MAXDEPTH = "maxDepth";
     public static final String MAXWIDTH = "maxWidth";
     public static final String EXPECT_TAG = "expected";
+    public static final String IGNORE_ANNOTATIONS_TAG = "ignoreAnnotations";
 
     
     public static final TestResult SUCCESS = new TestResult(true, null);
@@ -62,7 +63,7 @@ public class QuickCheck {
         this.vf = vf;
     }
 
-    public TestResult test(String functionName, Type formals, String expectedException, BiFunction<Type[], IValue[], TestResult> executeTest, TypeStore store, int tries, int maxDepth, int maxWidth) {
+    public TestResult test(String functionName, Type formals, String expectedException, BiFunction<Type[], IValue[], TestResult> executeTest, TypeStore store, int tries, int maxDepth, int maxWidth, boolean ignoreAnnotations) {
         if (formals.getArity() == 0) {
             tries = 1; // no randomization needed
         }
@@ -80,7 +81,7 @@ public class QuickCheck {
 
         IValue[] values = new IValue[formals.getArity()];
         // first we try to break the function
-        RandomValueGenerator generator = new RandomValueGenerator(vf, random, maxDepth, maxWidth);
+        RandomValueGenerator generator = new RandomValueGenerator(vf, random, maxDepth, maxWidth, !ignoreAnnotations);
         for (int i = 0; i < tries; i++) {
             for (int n = 0; n < values.length; n++) {
                 values[n] = generator.generate(types[n], store, tpbindings);
@@ -98,7 +99,7 @@ public class QuickCheck {
                 IValue[] smallerValues = new IValue[formals.getArity()];
                 for (int depth = 1; depth < maxDepth && !smallerFound; depth++) {
                     for (int width = 1; width < maxWidth && !smallerFound; width++) {
-                        RandomValueGenerator gen = new RandomValueGenerator(vf, random, depth, width);
+                        RandomValueGenerator gen = new RandomValueGenerator(vf, random, depth, width, !ignoreAnnotations);
                         for (int j = 0; j < tries && !smallerFound; j++) {
                             for (int n = 0; n < values.length; n++) {
                                 smallerValues[n] = gen.generate(types[n], store, tpbindings);

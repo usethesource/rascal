@@ -35,8 +35,7 @@ public class CompiledREPLRunner extends BaseREPL  implements ShellRunner {
             
             @Override
             protected CommandExecutor constructCommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices) throws IOException, NoSuchRascalFunction, URISyntaxException {
-                CommandExecutor exec = new CommandExecutor(pcfg, stdout, stderr, ideServices, this);
-                exec.setDebugObserver(observer);     
+                CommandExecutor exec = new CommandExecutor(pcfg, stdout, stderr, ideServices, this, observer);
                 setMeasureCommandTime(true);
                 return exec;
             }

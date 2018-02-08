@@ -96,6 +96,7 @@ public class FineGrainedStrongFact<V> extends AbstractFact<V> {
 					dep.registerListener(this);
 			}
 			break;
+		default: break;
 		}
 	}
 

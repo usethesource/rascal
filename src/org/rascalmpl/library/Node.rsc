@@ -49,6 +49,7 @@ delAnnotation(F, "size");
 }
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{To print warning}
+@deprecated{Annotations are deprecated. Please use keyword fields.}
 public java &T <: node delAnnotation(&T <: node x, str label);
 
 @doc{
@@ -65,6 +66,7 @@ delAnnotations(F);
 }
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{To print warning}
+@deprecated{Annotations are deprecated. Please use keyword fields.}
 public java &T <: node  delAnnotations(&T <: node x);
 
 @doc{
@@ -80,39 +82,19 @@ F = setAnnotations("f"(10, G), ("color" : "red", "size" : "large"));
 delAnnotationsRec(F);
 ----
 }
+@deprecated{Annotations are deprecated. Please use keyword fields.}
 public &T delAnnotationsRec(&T v) = visit(v) { 
      case m: node n => delAnnotations(m) 
   };
 
 @doc{
 .Synopsis
-Retrieve the annotations of a node value as a map.
 
-.Examples
+Retrieve the annotations of a node value as a map. Annotations are deprecated.
 
-[source,rascal-shell]
-----
-import Node;
-----
-Declare two string-valued annotation on nodes, named color, respectively, size:
-[source,rascal-shell,continue]
-----
-anno str node@color;
-anno str node@size;
-----
-Create a node with two annotations:
-[source,rascal-shell,continue]
-----
-F = setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
-----
-and retrieve those annotations:
-[source,rascal-shell,continue]
-----
-getAnnotations(F);
-F@color;
-----
 }
 @javaClass{org.rascalmpl.library.Prelude}
+@deprecated{Annotations are deprecated. Please use keyword fields.}
 public java map[str,value] getAnnotations(node x);
 
 @doc{
@@ -209,6 +191,7 @@ you store a value with a label that has an incomparable annotation type
 declared.
 }
 @javaClass{org.rascalmpl.library.Prelude}
+@deprecated{Annotations are deprecated. Please use keyword fields.}
 public java &T <: node setAnnotations(&T <: node x, map[str, value] annotations);
 
 @doc{

@@ -23,7 +23,7 @@ public class Accumulator {
 
 	private String label = null;
 	private IListWriter writer = null;
-	private StringBuilder builder = null;
+	private IString template = null;
 	private IValueFactory factory;
 	
 	public Accumulator(IValueFactory factory, String label) {
@@ -51,16 +51,15 @@ public class Accumulator {
 
 	// For string templates.
 	public void appendString(IString s) {
-		if (builder == null) {
-			builder = new StringBuilder(); 
+		if (template == null) {
+			template = factory.string(""); 
 		}
-		builder.append(s.getValue());
+		template = template.concat(s);
 	}
-
 	
 	public IList done() {
-		if (builder != null) {
-			return factory.list(factory.string(builder.toString()));
+		if (template != null) {
+			return factory.list(template);
 		}
 		if (writer == null) {
 			return factory.list();

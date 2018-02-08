@@ -59,10 +59,10 @@ set[loc] ifNesting(set[Declaration] decls, int limit){
     visit(decls){
         case m: \method(_, _, _, _, Statement impl):
                 if(countIfNesting(impl) > limit)
-                    results += m@src;
+                    results += m.src;
         case c: \constructor(_, _,_, Statement impl):
                 if(countIfNesting(impl) > limit)
-                    results += c@src;
+                    results += c.src;
     }
     return results;
 }

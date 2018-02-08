@@ -5,12 +5,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -31,7 +25,7 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help.HelpManager;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug.DebugREPLFrameObserver;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.library.util.PathConfig;
@@ -66,9 +60,8 @@ import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 
 public class CommandExecutor {
-	
-	 private final static int LINE_LIMIT = 75;
-	 private final static int CHAR_LIMIT = LINE_LIMIT * 20;
+	private final static int LINE_LIMIT = 75;
+	private final static int CHAR_LIMIT = LINE_LIMIT * 20;
 	
 	private PathConfig pcfg;
 	private PrintWriter stdout;
@@ -85,7 +78,7 @@ public class CommandExecutor {
 	
 	boolean semiColonAdded = false;
 	
-	private DebugREPLFrameObserver debugObserver;
+	private final IFrameObserver debugObserver;
 	
 	private IDEServices ideServices;
 	protected final CompiledRascalREPL repl;
@@ -133,7 +126,7 @@ public class CommandExecutor {
     
     private boolean repl_verbose;
  	
-	public CommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices, CompiledRascalREPL repl) throws IOException, NoSuchRascalFunction, URISyntaxException {
+	public CommandExecutor(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices, CompiledRascalREPL repl, IFrameObserver observer) throws IOException, NoSuchRascalFunction, URISyntaxException {
 		
 		vf = ValueFactoryFactory.getValueFactory();
 		prelude = new Prelude(vf);
@@ -146,6 +139,7 @@ public class CommandExecutor {
 		this.stderr = stderr; 
 		this.ideServices = ideServices;
 		this.repl = repl;
+		this.debugObserver = observer;
 		
 		consoleInputLocation = vf.sourceLocation("test-modules", "", consoleInputName + ".rsc");
 		// options for the kernel
@@ -228,13 +222,6 @@ public class CommandExecutor {
 	  kernel.shutdown();
 	}
 	
-	public void setDebugObserver(DebugREPLFrameObserver observer){
-		this.debugObserver = observer;
-		if(kernel_debug){
-		    kernel.setFrameObserver(observer);
-		}
-	}
-  
 	private boolean noErrors(RVMExecutable exec){
 		return exec.getErrors().size() == 0;
 	}
@@ -242,16 +229,6 @@ public class CommandExecutor {
 	private String capitalize(String s){
 	  return s.substring(0,1).toUpperCase() + s.substring(1);
 	}
-	
-//	private boolean anyFilesChanged(){
-//	  for(Path p : ideServices.fileChanges()){
-//	    if(p.getFileName().toString().endsWith(".rsc")){
-//	      stderr.println("File changed: " + p);
-//	      return true;
-//	    }
-//	  }
-//	  return false;
-//	}
 	
 	private String getErrors(String modString, RVMExecutable exec){
       ISet errors = exec.getErrors();
@@ -468,13 +445,13 @@ public class CommandExecutor {
 	}
 	
 	private boolean undeclareVar(String name){
-		return !(variables.remove(name) == null && moduleVariables.remove("ConsoleInput:" + name) == null);
+		return !(variables.remove(name) == null && moduleVariables.remove(vf.string("ConsoleInput:" + name)) == null);
 	}
 	
 	private void updateModuleVariables(Map<IValue,IValue> newModuleVariables){
 		for(IValue ivar : moduleVariables.keySet()){
 			String name = ((IString) ivar).getValue();
-			IValue newVal = newModuleVariables.get("ConsoleInput:" + name);
+			IValue newVal = newModuleVariables.get(vf.string("ConsoleInput:" + name));
 			if(newVal != null){
 				moduleVariables.put(ivar,  newVal);
 			}
@@ -863,6 +840,7 @@ public class CommandExecutor {
 		    try {
 		        if(helpManager == null){
 		            helpManager = new HelpManager(pcfg, stdout, stderr, ideServices);
+		            helpManager.refreshIndex();
 		        }
 
 		        helpManager.handleHelp(words);
@@ -939,6 +917,7 @@ public class CommandExecutor {
 			
 		case "clean":
 		    cleanProject();
+		    break;
 		
 		case "break":
 			debugObserver.getBreakPointManager().breakDirective(words);

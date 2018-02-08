@@ -75,7 +75,7 @@ private bool compareM3s(loc reference, str projectName, loc sourceZip, M3 (loc) 
 @ignoreCompiler{M3 not yet supported}
 public test bool junitM3RemainedTheSame() 
     = compareM3s(|testdata:///m3/junit4-m3s.bin|, "junit4", |testdata:///m3/junit4-project-source.zip|, getJunitM3); 
- 
+
 @ignoreCompiler{M3 not yet supported}
 public test bool snakesM3RemainedTheSame() 
     = compareM3s(|testdata:///m3/snakes-and-ladders-m3s.bin|, "snakes-and-ladders", |testdata:///m3/snakes-and-ladders-project-source.zip|, getSnakesM3); 
@@ -123,6 +123,7 @@ private bool compareM3s(M3 a, M3 b) {
 	aKeys = getKeywordParameters(a);
 	bKeys = getKeywordParameters(b);
 	for (ak <- aKeys) {
+	
 		if (!(ak in bKeys)) {
 			throw "<ak>  missing in reference";
 		}
@@ -134,19 +135,26 @@ private bool compareM3s(M3 a, M3 b) {
 				iprintln(aks - bks);
 			}
 			else if (list[Message] akl := aKeys[ak] && list[Message] bkl := bKeys[ak]) {
+				// In case of different size tell the difference.
 				if (size(akl) != size(bkl)) {
-					throw "Different sized lists";
+					println("Missing messages with regards to original relation: ");
+					iprintln(akl - bkl);
+					println("Additional messages with regards to original relation: ");
+					iprintln(bkl - akl);
 				}
-				akl = sort(akl, compareMessages);
-				bkl = sort(bkl, compareMessages);
-				if (akl == bkl) {
-					//No worries, just sorting!;
-					continue;
-				}
-				for (i <- [0..size(akl)]) {
-					if (akl[i] != bkl[i]) {
-						println("<i> differs");
-						iprintln([(akl[i]), (bkl[i])]);
+				//Otherwise, check if all values remain the same.
+				else {
+					akl = sort(akl, compareMessages);
+					bkl = sort(bkl, compareMessages);
+					if (akl == bkl) {
+						//No worries, just sorting!;
+						continue;
+					}
+					for (i <- [0..size(akl)]) {
+						if (akl[i] != bkl[i]) {
+							println("<i> differs");
+							iprintln([(akl[i]), (bkl[i])]);
+						}
 					}
 				}
 			}

@@ -167,18 +167,18 @@ f(2);
 In combination with an <<Algebraic Data Type>>, which defines `default` functions implicitly for every alternative, 
 we can define canonicalization functions. The same holds for <<Syntax Definition>>s, see <<Action>>s.
 
-This definition implies a default function for t(), f() and neg(B):
-[source,rascal-shell,continue]
-----
-data B = t() | f() | neg(B);
-----
-the following definition will remove any nested neg before it is even constructed:
-[source,rascal-shell,continue]
-----
-B neg(neg(B b)) = b;
-neg(t());
-neg(neg(f()));
-----
+//This definition implies a default function for t(), f() and neg(B):
+//[source,rascal-shell,continue]
+//----
+//data B = t() | f() | neg(B);
+//----
+//the following definition will remove any nested neg before it is even constructed:
+//[source,rascal-shell,continue]
+//----
+//B neg(neg(B b)) = b;
+//neg(t());
+//neg(neg(f()));
+//----
 
 .Benefits
 

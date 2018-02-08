@@ -168,7 +168,7 @@ public class PathConfig {
         List<ISourceLocation> result = new ArrayList<>();
         String javaClasspath = System.getProperty("java.class.path");
         if (javaClasspath != null) {
-            for (String path : javaClasspath.split(":")) {
+            for (String path : javaClasspath.split(File.pathSeparator)) {
                 result.add(vf.sourceLocation(new File(path).getAbsolutePath()));
             }
         }
@@ -183,7 +183,7 @@ public class PathConfig {
         String classPath = System.getProperty("java.class.path");
         
         if (classPath != null) {
-            for (String path : classPath.split(":")) {
+            for (String path : classPath.split(File.pathSeparator)) {
                 result.add(vf.sourceLocation(new File(path).getAbsolutePath()));
             }
         }

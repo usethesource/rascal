@@ -148,28 +148,30 @@ Normalize the choice between alternative productions.
 .Description
 Nested choice is flattened.
 }
-public Production choice(Symbol s, set[Production] choices){
-	if(!any(choice(Symbol t, set[Production] b)  <- choices)){
-	   fail;
+public Production choice(Symbol s, set[Production] choices) {
+    if (!any(choice(Symbol t, set[Production] b)  <- choices)) {
+        fail choice;
 	} else {   
 	    // TODO: this does not work in interpreter and typechecker crashes on it (both related to the splicing)
 	    //return choice(s, { *(choice(Symbol t, set[Production] b) := ch ? b : {ch}) | ch <- choices });
 	    changed = false;
 	    new_choices = {};
-	    for(ch <- choices){
-	    	if(choice(Symbol t, set[Production] b) := ch){
-	    		changed = true;
-	    		new_choices += b;
-	    	} else {
-	    		new_choices += ch;
-	    	}
+        for (ch <- choices) {
+            if (choice(Symbol t, set[Production] b) := ch) {
+	    		    changed = true;
+	    		    new_choices += b;
+	    	    } else {
+	    		    new_choices += ch;
+	    	    }
 	    }
-	    if(changed){
-	    	return choice(s, new_choices);
-	    } else {
-	    	fail;
+	
+	    if (changed) {
+	       	return choice(s, new_choices);
 	    }
-   }
+	    else {
+            fail choice;
+	    }
+    }
 }
 
 //TODO:COMPILER

@@ -37,9 +37,9 @@ list[Symbol] cistr2syms(str x) {
   } 
 }
 
-public str unescape(CaseInsensitiveStringConstant s) = "<for (StringCharacter ch <- s.chars) {><character(ch)><}>";
+public str unescapeLiteral(CaseInsensitiveStringConstant s) = "<for (StringCharacter ch <- s.chars) {><character(ch)><}>";
 
-public str unescape(StringConstant s) = "<for (StringCharacter ch <- s.chars) {><character(ch)><}>";
+public str unescapeLiteral(StringConstant s) = "<for (StringCharacter ch <- s.chars) {><character(ch)><}>";
 
 public str character(StringCharacter c) {
   switch (c) {
@@ -60,7 +60,7 @@ public str character(StringCharacter c) {
   }
 }
 
-public str unescape(str s) {
+public str unescapeLiteral(str s) {
   return visit (s) {
     case /\\b/ => "\b"
     case /\\f/ => "\f"

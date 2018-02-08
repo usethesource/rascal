@@ -1,7 +1,8 @@
 # Annotation
 
 .Synopsis
-Assign to annotation.
+
+Assign to an annotation. This feature is deprecated.
 
 .Index
 @ =
@@ -24,17 +25,8 @@ _V_' is assigned to _Assignable_.
 See <<Declarations-Annotation>>.
 
 .Examples
-[source,rascal-shell]
-----
-data FREQ = wf(str word, int freq);
-W = wf("rascal", 1000);
-anno str FREQ@color;
-W@color = "red";
-W@color;
-----
 
-NOTE: It is advisable to omit whitespace around the `@` operator,
-otherwise the Rascal parser gets confused.
+Examples have been removed since this feature is deprecated.
 
 .Benefits
 

@@ -89,7 +89,10 @@ node outline(Module m) {
      case SyntaxDefinition def : {
        f = "<def.defined>";
        c = grammars[f]?e;
-       c += ["<p>"()[@label="<p.syms>"][@\loc=p@\loc] | /Prod p := def.production, p is labeled || p is unlabeled];
+       c += ["<p>"()[@label="<prefix><p.syms>"][@\loc=p@\loc] 
+                    | /Prod p := def.production, p is labeled || p is unlabeled,
+                      str prefix := (p is labeled ? "<p.name>: " : "")
+                    ];
        grammars[f] = c;
      }    
    }

@@ -508,7 +508,8 @@ test bool exceptionHandlingNotHandled(){
 	}
 	
 	try {
-		return main();
+		main();
+		return false;
 	} 
 	catch str s: {
 		return s == "Try to catch: start, then 1, then 2, then 8, then 9!";
