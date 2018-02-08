@@ -227,11 +227,21 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     protected boolean isREPLCommand(String line){
     	return line.startsWith(":");
     }
+    
+    
+    private static String prefixTrim(String input) {
+        int sLength = input.length();
+        int offset = 0;
+        while (offset < sLength && input.charAt(offset) == ' ') {
+            offset++;
+        }
+        return input.substring(offset);
+    }
 
     @Override
     public CompletionResult completeFragment(String line, int cursor) {
         if (currentState == State.FRESH) {
-            String trimmedLine = line.trim();
+            String trimmedLine = prefixTrim(line);
             if (isREPLCommand(trimmedLine)) {
                 return completeREPLCommand(line, cursor);
             }
@@ -411,6 +421,14 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     }
 
     public CompletionResult completeModule(String line, int cursor) {
+        if (line.trim().equals("import")) {
+            // special case of an import without any partial module name
+            Collection<String> suggestions = completeModule("", "");
+            if (suggestions != null && ! suggestions.isEmpty()) {
+                return new CompletionResult(line.length(), escapeKeywords(suggestions));
+            }
+            return null;
+        }
         OffsetLengthTerm identifier = StringUtils.findRascalIdentifierAtOffset(line, line.length());
         if (identifier != null) {
             String[] qualified = StringUtils.splitQualifiedName(unescapeKeywords(identifier.term));
