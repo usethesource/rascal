@@ -47,11 +47,12 @@ Examples (in a context where an appropriate concrete syntax has been defined):
 *  Quoted syntax pattern with two pattern variable declarations:
 [source,rascal-shell]
 ----
+import ParseTree;
 syntax Id = [a-z]+;
 syntax Num = [0-9]+;
 syntax Exp = left Exp "*" Exp > Exp "+" Exp |  Id | Num;
 layout WS = [\ \n\r\t]*;
-visit (parse(#Exp, "x + x") {
+visit (parse(#Exp, "x + x")) {
    case (Exp) `<Id a> + <Id b>` => (Exp) `2 * <Id a>` when a == b
 }
 ----
