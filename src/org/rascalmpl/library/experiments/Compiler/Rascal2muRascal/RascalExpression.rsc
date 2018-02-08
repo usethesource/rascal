@@ -536,8 +536,13 @@ private MuExp translatePathTail((PathTail) `<PostPathChars post>`) = muCon("<pos
 
 // -- all other literals  --------------------------------------------
 
-default MuExp translate((Literal) `<Literal s>`) = 
-    muCon(readTextValueString("<s>"));
+default MuExp translate((Literal) `<Literal s>`) {
+    try {
+        return muCon(readTextValueString("<s>"));
+    } catch e: {
+        throw CompileTimeError(error("<e>", s@\loc));
+    }
+}
 
 
 /*********************************************************************/
