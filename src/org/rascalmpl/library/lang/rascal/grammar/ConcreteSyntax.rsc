@@ -59,7 +59,9 @@ public set[Production] holes(Grammar object) {
 }
 public str createHole(ConcretePart hole, int idx) = createHole(hole.hole, idx);
 public str createHole(ConcreteHole hole, int idx) = "\u0000<denormalize(sym2symbol(hole.symbol))>:<idx>\u0000";
+//TODO: check for typedVariable production after Rascal grammar update
 
+public str createQualifiedNameHole(Symbol \type, int idx) = "\u0000<denormalize(\type)>:<idx>\u0000";
 
 @doc{
   In Rascal programs with type literals, it's hard to see easily if it is a lex or sort, so we "denormalize" here.

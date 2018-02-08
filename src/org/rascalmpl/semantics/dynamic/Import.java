@@ -49,6 +49,7 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredModuleProvider;
+import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.utils.Modules;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -749,11 +750,24 @@ public abstract class Import {
     return b.toString().toCharArray();
   }
 
-  private static String createHole(IEvaluator<Result<IValue>> ctx, ITree part, Map<String, ITree> antiquotes) {
-    String ph = ctx.getParserGenerator().createHole(part, antiquotes.size());
-    antiquotes.put(ph, part);
-    return ph;
-  }
+    private static String createHole(IEvaluator<Result<IValue>> ctx, ITree part, Map<String, ITree> antiquotes) {
+        String ph;
+        if ("qualifiedName".equals(TreeAdapter.getConstructorName(TreeAdapter.getArg(part, "hole")))) {
+            // TODO: make more robust
+            Result<IValue> result = ctx.getCurrentEnvt().getSimpleVariable(TreeAdapter.yield(part).substring(1));
+            if (null == result) {
+                throw new RuntimeException();// TODO: throw sensible recoverable exception
+            }
+            NonTerminalType nonTerminalType = (NonTerminalType) result.getType();
+            IConstructor holeType = nonTerminalType.getSymbol();
+            ph = ctx.getParserGenerator().createQualifiedNameHole(holeType, antiquotes.size());
+        }
+        else {
+            ph = ctx.getParserGenerator().createHole(part, antiquotes.size());
+        }
+        antiquotes.put(ph, part);
+        return ph;
+    }
 
   private static ITree replaceHolesByAntiQuotes(final IEvaluator<Result<IValue>> eval, ITree fragment, 
   		final Map<String, ITree> antiquotes, final SortedMap<Integer,Integer> corrections) {
