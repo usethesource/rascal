@@ -14,11 +14,10 @@ import lang::rascal::grammar::definition::Characters;
 import lang::rascal::grammar::definition::Symbols;
 import lang::rascal::grammar::definition::Attributes;
 import lang::rascal::grammar::definition::Names;
-
-import Grammar;
+extend Grammar;
 import List; 
 import String;    
-import ParseTree;
+extend ParseTree;   
 import IO;  
 import util::Math;
 import util::Maybe;
@@ -66,17 +65,17 @@ private Production prod2prod(Symbol nt, Prod p) {
   switch(p) {
     case labeled(ProdModifier* ms, Name n, Sym* args) : 
       if ([Sym x] := args.args, x is empty) {
-        return prod(label("<n>",nt), [], mods2attrs(ms));
+        return associativity(nt, \mods2assoc(ms), prod(label(unescape("<n>"),nt), [], mods2attrs(ms)));
       }
       else {
-        return prod(label(unescape("<n>"),nt),args2symbols(args),mods2attrs(ms));
+        return associativity(nt, \mods2assoc(ms), prod(label(unescape("<n>"),nt), args2symbols(args), mods2attrs(ms)));
       }
     case unlabeled(ProdModifier* ms, Sym* args) :
       if ([Sym x] := args.args, x is empty) {
-        return prod(nt, [], mods2attrs(ms));
+        return associativity(nt, mods2assoc(ms), prod(nt, [], mods2attrs(ms)));
       }
       else {
-        return prod(nt,args2symbols(args),mods2attrs(ms));
+        return associativity(nt, mods2assoc(ms), prod(nt,args2symbols(args),mods2attrs(ms)));
       }     
     case \all(Prod l, Prod r) :
       return choice(nt,{prod2prod(nt, l), prod2prod(nt, r)});
@@ -90,20 +89,12 @@ private Production prod2prod(Symbol nt, Prod p) {
       return associativity(nt, \non-assoc(), {prod2prod(nt, q)});
     case associativityGroup(\associative(), Prod q) :      
       return associativity(nt, Associativity::\left(), {prod2prod(nt, q)});
-    case others(): return \others(nt);
-    case reference(Name n): return \reference(nt, "<n>");
-    default: throw "prod2prod, missed a case <p>";
+    case reference(Name n): return \reference(nt, unescape("<n>"));
+    default: throw "prod2prod, missed a case <p>"; 
   } 
 }
 
-@doc{"..." in a choice is a no-op}   
-public Production choice(Symbol s, {*Production a, others(Symbol t)}) {
-  if (a == {})
-    return others(t);
-  else
-    return choice(s, a);
-}
 
-@doc{This implements the semantics of "..." under a priority group}
-public Production choice(Symbol s, {*Production a, priority(Symbol t, [*Production b, others(Symbol u), *Production c])}) 
-  = priority(s, b + [choice(s, a)] + c);
+
+private Production associativity(Symbol nt, nothing(), Production p) = p;
+private default Production associativity(Symbol nt, just(Associativity a), Production p) = associativity(nt, a, {p});

@@ -35,7 +35,9 @@ public class RascalManifest {
     public static final String DEFAULT_MAIN_MODULE = "Plugin";
     public static final String DEFAULT_MAIN_FUNCTION = "main";
     public static final String DEFAULT_SRC = "src";
+    public static final String DEFAULT_COURSES = "courses";
     protected static final String SOURCE = "Source";
+    protected static final String COURSES = "Courses";
     protected static final String META_INF = "META-INF";
     public static final String META_INF_RASCAL_MF = META_INF + "/RASCAL.MF";
     protected static final String MAIN_MODULE = "Main-Module";
@@ -50,6 +52,7 @@ public class RascalManifest {
         mainAttributes.put(new Attributes.Name(SOURCE), DEFAULT_SRC);
         mainAttributes.put(new Attributes.Name(MAIN_MODULE), DEFAULT_MAIN_MODULE);
         mainAttributes.put(new Attributes.Name(MAIN_FUNCTION), DEFAULT_MAIN_FUNCTION);
+        mainAttributes.put(new Attributes.Name(COURSES), DEFAULT_COURSES);
         return manifest;
     }
 
@@ -106,10 +109,31 @@ public class RascalManifest {
     /**
      * @return the name of the main function of a deployment unit, or 'null' if none is configured.
      */
+    public List<String> getCoursesFolder(File jarFile) {
+        return getManifestCourses(manifest(jarFile));
+    }
+
+    /**
+     * @return the name of the main function of a deployment unit, or 'null' if none is configured.
+     */
+    public List<String> getCourses(Class<?> clazz) {
+        return getManifestCourses(manifest(clazz));
+    }
+
+
+    /**
+     * @return the name of the main function of a deployment unit, or 'null' if none is configured.
+     */
+    public List<String> getCoursesFolder(JarInputStream jarStream) {
+        return getManifestCourses(manifest(jarStream));
+    }
+
+    /**
+     * @return the name of the main function of a deployment unit, or 'null' if none is configured.
+     */
     public String getMainFunction(File jarFile) {
         return getManifestMainFunction(manifest(jarFile));
     }
-
     /**
      * @return a list of bundle names this jar depends on, or 'null' if none is configured.
      */
@@ -189,6 +213,13 @@ public class RascalManifest {
         return getManifestAttribute(project, MAIN_FUNCTION, null);
     }
 
+    /**
+     * @return the name of the main function of a deployment unit, or 'null' if none is configured.
+     */
+    public List<String> getManifestCourses(InputStream project) {
+        return getManifestAttributeList(project, COURSES, null);
+    }
+    
     /**
      * @return a list of bundle names this jar depends on, or 'null' if none is configured.
      */

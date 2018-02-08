@@ -11,18 +11,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 import java.util.regex.Matcher;
-
-import java.lang.invoke.ConstantCallSite;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import static java.lang.invoke.MethodHandle.*;
-import static java.lang.invoke.MethodHandles.*;
 
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -43,6 +36,8 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Trave
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.FIXEDPOINT;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.PROGRESS;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.traverse.Traverse.REBUILD;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
@@ -65,7 +60,6 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public abstract class RVMCore {
 	public final IValueFactory vf;
@@ -100,6 +94,7 @@ public abstract class RVMCore {
 
 	// Management of active coroutines
 	protected final Stack<Coroutine> activeCoroutines = new Stack<>();
+	
 	protected Frame ccf = null; // The start frame of the current active coroutine (coroutine's main function)	
 	protected Frame cccf = null; // The candidate coroutine's start frame; used by the guard semantics
 	protected final RascalExecutionContext rex;
@@ -108,6 +103,37 @@ public abstract class RVMCore {
 	
 	protected final Map<Class<?>, Object> instanceCache;
 	protected final Map<String, Class<?>> classCache;
+	
+	// Maintain an activation depth in order to do some cleanup on exit.
+	// Rationale: An RVMCore may be accesses frequently from outside and we do not want to leave behind irrelevant garbage
+	
+	private int activationDepth = 0;
+	
+	protected void initializeGlobals() { 
+	    ccf = null;
+	    cccf = null;
+	}
+
+	protected void clearGlobals() { 
+	    activeCoroutines.clear();
+	    ccf = null;
+	    cccf = null;
+	}
+	
+	protected synchronized void increaseActivationDepth() {
+	    if (activationDepth == 0) {
+	        initializeGlobals();
+	    }
+	    activationDepth += 1;
+	}
+	
+	protected synchronized void decreaseActivationDepth() {
+	    activationDepth -= 1;
+	    if(activationDepth == 0) {
+	        clearGlobals();
+	    }
+	    assert activationDepth >= 0;
+	}
 	
 	public static RVMCore readFromFileAndInitialize(ISourceLocation rvmBinaryLocation, RascalExecutionContext rex) throws IOException{
 		RVMExecutable rvmExecutable = RVMExecutable.read(rvmBinaryLocation);
@@ -243,7 +269,7 @@ public abstract class RVMCore {
 		return frameObserver;
 	}
 	
-	public void setFrameObserver(IFrameObserver observer){
+	public synchronized void setFrameObserver(IFrameObserver observer){
 	    frameObserver = observer;
 	    rex.setFrameObserver(observer);
 	}
@@ -452,7 +478,7 @@ public abstract class RVMCore {
 	 * @param kwArgs	Keyword arguments
 	 * @return
 	 */
-	public Object executeRVMFunction(String uid_func, IValue[] posArgs, Map<String,IValue> kwArgs){
+	/*package*/ Object executeRVMFunction(String uid_func, IValue[] posArgs, Map<String,IValue> kwArgs){
 		// Assumption here is that the function called is not a nested one and does not use global variables
 		Function func = functionStore[functionMap.get(uid_func)];
 		return executeRVMFunction(func, posArgs, kwArgs);
@@ -465,33 +491,59 @@ public abstract class RVMCore {
 	 * @param kwArgs   Keyword arguments
 	 * @return		   Result of function execution
 	 */
-	public IValue executeRVMFunction(OverloadedFunction func, IValue[] posArgs, Map<String, IValue> kwArgs){
-	    func.fids2objects(functionStore, constructorStore);
-		if(func.getFunctions().length > 0){
-				Function firstFunc = func.functionsAsFunction[0]; 
-				Frame root = new Frame(func.scopeIn, null, null, func.getArity()+2, firstFunc);
-				OverloadedFunctionInstance ofi = OverloadedFunctionInstance.computeOverloadedFunctionInstance(func.functionsAsFunction, func.constructorsAsType, root, func.scopeIn, this);
-				return executeRVMFunction(ofi, posArgs, kwArgs);
-		} else {
-			Type cons = func.constructorsAsType[0];
-			return vf.constructor(cons, posArgs, kwArgs);
-		}
+	public synchronized IValue executeRVMFunction(OverloadedFunction func, IValue[] posArgs, Map<String, IValue> kwArgs){
+	    try {
+	        increaseActivationDepth();
+	        func.fids2objects(functionStore, constructorStore);
+	        if(func.getFunctions().length > 0){
+	            Function firstFunc = func.functionsAsFunction[0]; 
+	            Frame root = new Frame(func.scopeIn, null, null, func.getArity()+2, firstFunc);
+	            OverloadedFunctionInstance ofi = OverloadedFunctionInstance.computeOverloadedFunctionInstance(func.functionsAsFunction, func.constructorsAsType, root, func.scopeIn, this);
+	            return executeRVMFunction(ofi, posArgs, kwArgs);
+	        } else {
+	            Type cons = func.constructorsAsType[0];
+	            return vf.constructor(cons, posArgs, kwArgs);
+	        }
+	    }
+	    finally {
+	        decreaseActivationDepth();
+	    }
 	}
 	
-	public IList executeTests(ITestResultListener testResultListener, RascalExecutionContext rex){
-	  IListWriter w = vf.listWriter();
-	  for(Function f : functionStore){
-	    if(f.isTest){
-	      w.append(f.executeTest(testResultListener, getTypeStore(), rex));
+	public synchronized IList executeTests(ITestResultListener testResultListener, RascalExecutionContext rex){
+	    try {
+	        increaseActivationDepth();
+	        IListWriter w = vf.listWriter();
+	        for(Function f : functionStore){
+	            if(f.isTest){
+	                w.append(f.executeTest(testResultListener, getTypeStore(), rex));
+	            }
+	        }
+	        return w.done();
+	    } 
+	    finally {
+	        decreaseActivationDepth();
 	    }
-	  }
-	  return w.done();
 	}
+	
+	public synchronized Object safeExecuteRVMFunction(Function func, IValue[] posArgs, Map<String,IValue> kwArgs) {
+	    try {
+	        increaseActivationDepth();
+	        return executeRVMFunction(func, posArgs, kwArgs);
+	    }
+	    finally {
+	        decreaseActivationDepth();
+	    }
+    }
+	
+    public synchronized IValue safeExecuteRVMFunction(FunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs) {
+        return executeRVMFunction(func, posArgs, kwArgs);
+    }
 	
 	/************************************************************************************/
 	/*		Abstract methods to execute RVMFunctions and RVMPrograms					*/
 	/************************************************************************************/
-		
+	
 	/**
 	 * Execute a single, not-overloaded, function
 	 * 
@@ -500,7 +552,7 @@ public abstract class RVMCore {
 	 * @param kwArgs	Keyword arguments
 	 * @return			Result of function execution
 	 */
-	abstract public Object executeRVMFunction(Function func, IValue[] posArgs, Map<String,IValue> kwArgs);
+	abstract /*package*/  Object executeRVMFunction(Function func, IValue[] posArgs, Map<String,IValue> kwArgs);
 	
 	/**
 	 * Execute a FunctionInstance
@@ -509,7 +561,7 @@ public abstract class RVMCore {
 	 * @param kwArgs    Keyword arguments
 	 * @return			Result of function execution
 	 */
-	abstract public IValue executeRVMFunction(FunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs);
+	abstract /*package*/  IValue executeRVMFunction(FunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs);
 	
 	/**
 	 * Execute an OverloadedFunctionInstance
@@ -518,7 +570,7 @@ public abstract class RVMCore {
 	 * @param kwArgs   Keyword arguments
 	 * @return		   Result of function execution
 	 */
-	abstract public IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs);
+	abstract /*package*/  IValue executeRVMFunction(OverloadedFunctionInstance func, IValue[] posArgs, Map<String, IValue> kwArgs);
 
 	/**
 	 * Execute a function during a visit
@@ -535,7 +587,7 @@ public abstract class RVMCore {
 	 * @param kwArgs		Keyword arguments
 	 * @return				Result of executing main function
 	 */
-	abstract public IValue executeRVMProgram(String moduleName, String uid_main, IValue[] posArgs, Map<String,IValue> kwArgs);
+	abstract /*package*/ IValue executeRVMProgram(String moduleName, String uid_main, IValue[] posArgs, Map<String,IValue> kwArgs);
 	
 	/**
 	 * Narrow an Object as occurring on the RVM runtime stack to an IValue that can be returned.

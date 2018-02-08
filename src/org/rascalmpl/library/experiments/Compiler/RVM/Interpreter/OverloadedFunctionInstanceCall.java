@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.rascalmpl.values.uptr.IRascalValueFactory;
+
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
@@ -133,7 +135,8 @@ public class OverloadedFunctionInstanceCall {
 					}
 					sb.append("\n");
 				}
-				rex.getFrameObserver().exception(cf, RascalRuntimeException.incompletelyDefinedFunction(sb.toString(), cf));
+				
+				rex.getFrameObserver().exception(cf, RascalRuntimeException.failed(cf.src, IRascalValueFactory.getInstance().list(getConstructorArguments(arity)), cf));
 				return null;
 			}
 			assert getConstructors().length >= 1;

@@ -54,7 +54,7 @@ public class PreludeCompiled extends Prelude {
 		
 		try{
 			if(arg.getType().isString()){
-				currentOutStream.print(((IString) arg).getValue().toString());
+			    ((IString) arg).write(currentOutStream);
 			}
 			else if(arg.getType().isSubtypeOf(RascalValueFactory.Tree)){
 				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
@@ -66,6 +66,9 @@ public class PreludeCompiled extends Prelude {
 				currentOutStream.print(arg.toString());
 			}
 		}
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+        }
 		finally {
 			currentOutStream.flush();
 		}
@@ -138,7 +141,7 @@ public class PreludeCompiled extends Prelude {
 		
 		try{
 			if(arg.getType().isString()){
-				currentOutStream.print(((IString) arg).getValue());
+			    ((IString) arg).write(currentOutStream);
 			}
 			else if(arg.getType().isSubtypeOf(RascalValueFactory.Tree)){
 				currentOutStream.print(TreeAdapter.yield((IConstructor) arg));
@@ -151,6 +154,9 @@ public class PreludeCompiled extends Prelude {
 			}
 			currentOutStream.println();
 		}
+		catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+        }
 		finally {
 			currentOutStream.flush();
 		}

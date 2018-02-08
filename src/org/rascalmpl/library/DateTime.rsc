@@ -542,7 +542,7 @@ import DateTime;
 B = now();
 E = incrementDays(B, 2);
 I = createInterval(B, E);
-//dateRangeByDay(I);
+dateRangeByDay(I);
 ----
 }
 public list[datetime] dateRangeByDay(interval i) {

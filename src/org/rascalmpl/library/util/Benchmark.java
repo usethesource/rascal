@@ -12,7 +12,15 @@
 *******************************************************************************/
 package org.rascalmpl.library.util;
 
+import java.io.IOException;
+
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.utils.Timing;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.util.HeapDumper;
+
+import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
@@ -25,6 +33,21 @@ public class Benchmark {
 		this.values = values;
 	}
 
+	public void heapDump(ISourceLocation loc, IBool live) {
+	    try {
+	        loc = URIResolverRegistry.getInstance().logicalToPhysical(loc);
+	        
+	        if (!"file".equals(loc.getScheme())) {
+	            throw RuntimeExceptionFactory.illegalArgument(loc, null, null);
+	        }
+	        
+	        HeapDumper.dumpHeap(loc.getPath(), live.getValue());
+	    }
+	    catch (IOException e) {
+	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+	    }
+	}
+	
 	public IValue userTime()
 	// @doc{userTime -- User time spent by this thread in nanoseconds.}
 	{
