@@ -571,13 +571,19 @@ syntax StringLiteral
 	| interpolated: PreStringChars pre Expression expression StringTail tail 
 	| nonInterpolated: StringConstant constant ;
 
-lexical MultilineCommentContent
-    =  (![*/] | [*] !>> [/] | [/] !>> [*])
+lexical MultilineCommentContentElement 
+    = ![*/]+ !>> ![*/]
+    | [*] !>> [/]
+    | [/] !>> [*]
     | MultilineComment
     ;
 
+lexical MultilineCommentContent
+    = MultilineCommentContentElement MultilineCommentContent?
+    ;
+
 lexical MultilineComment
-    = @category="Comment" "/*" MultilineCommentContent* "*/"
+    = @category="Comment" "/*" MultilineCommentContent? "*/"
     ;
     
 lexical Comment
