@@ -738,6 +738,10 @@ public abstract class Import {
       	corrections.put(++offset, ++shift);
       	b.append('\\');
       }
+      else if (cons.equals("dollar")) {
+          corrections.put(++offset, ++shift);
+          b.append('$');
+      }
       else if (cons.equals("hole")) {
         String hole = createHole(eval, part, antiquotes);
         shift += partLen - hole.length();
