@@ -265,11 +265,9 @@ public AType convertFunctionType(FunctionType ft, TBuilder tb) {
 public AType convertUserType(UserType ut, TBuilder tb) {
     switch(ut) {
         case (UserType) `<QualifiedName n>` : { 
-                //tb.use(n, {aliasId(), dataId()}); 
                 return auser(convertName(n).name,[]); 
             }
         case (UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]` : {
-                //tb.use(n, {aliasId(), dataId()}); 
                 paramTypes = [convertType(ti, tb) | ti <- ts ];
                 return auser(convertName(n).name, paramTypes);
             }

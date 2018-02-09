@@ -59,7 +59,7 @@ AType expandUserTypes1(AType t, Key scope){
     return visit(t){
         case u: auser(str uname, ps): {
                 //println("expandUserTypes: <u>");  // TODO: handle non-empty qualifier
-                expanded = expandUserTypes(getType(uname, scope, {dataId(), aliasId(), nonterminalId()}), scope);
+                expanded = expandUserTypes(getType(uname, scope, dataOrSyntaxIds), scope);
                 if(u.label?) expanded.label = u.label;
                 //if(u.hasSyntax?) expanded.hasSyntax = u.hasSyntax;
                 //println("expanded: <expanded>");
@@ -96,7 +96,7 @@ list[str] getUndefinedADTs(AType t, Key scope){
         case u: auser(str uname, ps): {
                 try {
                  println("trying type of <u>");
-                 tp = getType(uname, scope, {dataId(), aliasId(), nonterminalId()});
+                 tp = getType(uname, scope, dataOrSyntaxIds);
                  println("tp = <tp>");
                 } catch TypeUnavailable(): {
                     res += fmt(u);
@@ -837,6 +837,30 @@ bool isEnumeratorType(AType t) =
     isSetType(t) || isListType(t) || isMapType(t) || isADTType(t) || isTupleType(t) || isNodeType(t) ||
     isNonTerminalIterType(t) || isNonTerminalOptType(t);
 
+// ---- literal
+@doc{Synopsis: Determine if the given type is a literal.}
+bool isLiteralType(aparameter(_,AType tvb)) = isLiteralType(tvb);
+bool isLiteralType(lit(_)) = true;
+bool isLiteralType(cilit(_)) = true;
+default bool isLiteralType(AType _) = false;
+
+// ---- layout
+@doc{Synopsis: Determine if the given type is a layout type.}
+bool isLayoutType(aparameter(_,AType tvb)) = isLayoutType(tvb);
+
+bool isLayoutType(AType::\conditional(AType ss,_)) = isLayoutType(ss);
+bool isLayoutType(t:aadt(adtName,_,SyntaxRole sr)) = sr == layoutSyntax();
+bool isLayoutType(AType::\start(AType ss)) = isLayoutType(ss);
+bool isLayoutType(AType::\iter(AType s)) = isLayoutType(s);
+bool isLayoutType(AType::\iter-star(AType s)) = isLayoutType(s);
+bool isLayoutType(AType::\iter-seps(AType s,_)) = isLayoutType(s);
+bool isLayoutType(AType::\iter-star-seps(AType s,_)) = isLayoutType(s);
+
+bool isLayoutType(AType::\opt(AType s)) = isLayoutType(s);
+bool isLayoutType(AType::\alt(set[AType] alts)) = any(a <- alts, isLayoutType(a));
+bool isLayoutType(AType::\seq(list[AType] symbols)) = all(s <- symbols, isLayoutType(s));
+default bool isLayoutType(AType _) = false;
+
 // ---- nonterminal
 
 @doc{Synopsis: Determine if the given type is a nonterminal.}
@@ -894,3 +918,15 @@ default AType getStartNonTerminalType(AType s) {
 
 AType removeConditional(cnd:conditional(AType s, set[ACondition] _)) = cnd.label? ? s[label=cnd.label] : s;
 default AType removeConditional(AType s) = s;
+
+// ---- fields
+AType getField(Tree current, acons(AType adt, str consName, list[NamedField] fields, list[Keyword] kwFields), str fieldName, Key scope){
+
+}
+
+AType getField(Tree current, AType t, str fieldName, Key scope){
+
+}
+default AType getField(Tree current, AType t, str fieldName, Key scope){
+    throw throw checkFailed({error("Field <fmt(fieldName)> does not exist on type <fmt(t)>", getLoc(current))});
+}

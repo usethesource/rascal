@@ -22,6 +22,9 @@ import ListRelation;
 import Set;
 import Map;
 import Node;
+import ValueIO;
+import IO;
+import Exception;
 
 // ---- Rascal literals
 void collect(Literal l:(Literal)`<IntegerLiteral il>`, TBuilder tb){
@@ -38,6 +41,11 @@ void collect(Literal l:(Literal)`<BooleanLiteral bl>`, TBuilder tb){
 
 void collect(Literal l:(Literal)`<DateTimeLiteral dtl>`, TBuilder tb){
     tb.fact(l, adatetime());
+    try {
+        readTextValueString("<dtl>");   // ensure that the datetime literal is valid
+    } catch IO(msg): {
+        tb.reportError(l, "Malformed datetime literal <fmt("<dtl>")>");
+    }
 }
 
 void collect(Literal l:(Literal)`<RationalLiteral rl>`, TBuilder tb){
@@ -66,6 +74,11 @@ void collect(Literal l:(Literal)`<RationalLiteral rl>`, TBuilder tb){
 // ---- string literals and templates
 void collect(current:(Literal)`<StringLiteral sl>`, TBuilder tb){
     tb.fact(current, astr());
+    //try {
+    //    readTextValueString("<sl>");   // ensure that the string literal is valid (e.g. only valid Unicode characters?)
+    //} catch IO(msg): {
+    //    tb.reportError(sl, "Malformed string literal <fmt("<sl>")>");
+    //}
     collect(sl, tb);
 }
 
@@ -146,8 +159,9 @@ void collect(Literal l:(Literal)`<LocationLiteral ll>`, TBuilder tb){
 // ---- Concrete literals
 
 void collect(Concrete concrete, TBuilder tb){
-//println("Concrete: <concrete>");
-    tb.fact(concrete, sym2AType(concrete.symbol));
+    scope = tb.getScope();
+    concreteType = sym2AType(concrete.symbol);
+    tb.calculate("concrete literal", concrete, [], AType() { return expandUserTypes(concreteType, scope); });
     collectLexical(concrete.parts, tb);
 }
 
@@ -723,11 +737,11 @@ AType computeADTReturnType(Tree current, str adtName, Key scope, AType retType, 
         comparable(ai, iformals[i]) ||
             reportError(current, "Argument <i> should have type <fmt(formalTypes[i])>, found <fmt(ai)>");
     }
-    adtType = expandUserTypes(getType(adtName, scope, {dataId(), nonterminalId()}), scope);
+    adtType = expandUserTypes(getType(adtName, scope, dataOrSyntaxIds), scope);
     checkKwArgs(kwFormals + getCommonKeywords(adtType, scope), keywordArguments, bindings, scope, isExpression=isExpression);
    
     if(!isEmpty(bindings)){
-        try    return instantiateRascalTypeParams(expandUserTypes(getType(adtName, scope, {dataId(), nonterminalId()}), scope), bindings);
+        try    return instantiateRascalTypeParams(expandUserTypes(getType(adtName, scope, dataOrSyntaxIds), scope), bindings);
         catch invalidInstantiation(str msg):
                reportError(current, msg);
     }
@@ -817,8 +831,8 @@ void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, K
                 actualType = [ dontCare[i] ? avalue() : expandUserTypes(getPatternType(patList[i], avalue(), scope), scope) | i <- index(patList) ];
                 
                 if(adtType:aadt(adtName, list[AType] parameters,_) := subjectType){
-                   declaredInfo = getDefinitions(adtName, scope, {dataId(), nonterminalId()});
-                   declaredType = getType(adtName, scope, {dataId(), nonterminalId()});
+                   declaredInfo = getDefinitions(adtName, scope, dataOrSyntaxIds);
+                   declaredType = getType(adtName, scope, dataOrSyntaxIds);
                    checkKwArgs(getCommonKeywords(adtType, scope), keywordArguments, (), scope, isExpression=isExpression);
                    return subjectType;
                 } else if(acons(adtType:aadt(adtName, list[AType] parameters, _), str consName, list[NamedField] fields, list[Keyword] kwFields) := subjectType){
@@ -908,7 +922,7 @@ list[NamedField] computeKwArgs(keywordArguments, Key scope, bool isExpression=tr
     }
 }
  
-list[Keyword] getCommonKeywords(aadt(str adtName, list[AType] parameters, _), loc scope) = [ *d.defInfo.commonKeywordFields | d <- getDefinitions(adtName, scope, {dataId(), nonterminalId()}) ];
+list[Keyword] getCommonKeywords(aadt(str adtName, list[AType] parameters, _), loc scope) = [ *d.defInfo.commonKeywordFields | d <- getDefinitions(adtName, scope, dataOrSyntaxIds) ];
 list[Keyword] getCommonKeywords(overloadedAType(rel[Key, IdRole, AType] overloads), loc scope) = [ *getCommonKeywords(adt, scope) | <def, idr, adt> <- overloads ];
 default list[Keyword] getCommonKeywords(AType atype, loc scope) = [];
 
@@ -946,7 +960,7 @@ void collect(current: (Expression) `( <{Mapping[Expression] ","}* mappings>)`, T
 void collect(current: (Expression) `<QualifiedName name>`, TBuilder tb){
     qname = convertName(name);
     if(isQualified(qname)){     
-       tb.useQualified([qname.qualifier, qname.name], name, {variableId(), functionId(), constructorId()}, {dataId(), nonterminalId(), moduleId()} );
+       tb.useQualified([qname.qualifier, qname.name], name, {variableId(), functionId(), constructorId()}, dataOrSyntaxIds + {moduleId()} );
     } else {
        if(qname.name != "_"){
           tb.useLub(name, {variableId(), fieldId(), functionId(), constructorId()});
@@ -1183,7 +1197,7 @@ public map[AType,map[str,AType]] fieldMap =
 
 @doc{Compute the type of field fn on type t1. A checkFailed is thrown if the field is not defined on the given type.}
 public AType computeFieldType(Tree current, AType t1, str fieldName, Key scope, TBuilder tb) {
-   //println("computeFieldType: <current>, <t1>, <fieldName>");
+    //println("computeFieldType: <current>, <t1>, <fieldName>");
     if(!isFullyInstantiated(t1)) throw TypeUnavailable();
     
     t1 = expandUserTypes(t1, scope);
@@ -1231,7 +1245,6 @@ public AType computeFieldType(Tree current, AType t1, str fieldName, Key scope, 
             if ((getADTName(t1) == "Tree" || isNonTerminalType(t1)) && fieldName == "top") {
                 return t1;
             }
-            //fieldType = expandUserTypes(getType(fieldName, scope, {formalId(), fieldId()}), scope);
             
             fieldType = getType(fieldName, scope, {fieldId()});
             
@@ -1240,8 +1253,8 @@ public AType computeFieldType(Tree current, AType t1, str fieldName, Key scope, 
             } catch TypeUnavailable():
                 reportError(current, "Cannot expand type of field <fmt(fieldType)>, missing import of field type?");
            
-            declaredInfo = getDefinitions(adtName, scope, {dataId(), nonterminalId()});
-            declaredType = getType(adtName, scope, {dataId(), nonterminalId()});
+            declaredInfo = getDefinitions(adtName, scope, dataOrSyntaxIds);
+            declaredType = getType(adtName, scope, dataOrSyntaxIds);
             if(isStartNonTerminalType(declaredType)){
                 declaredType = getStartNonTerminalType(declaredType);
             }
@@ -1334,6 +1347,9 @@ AType computeADTFieldType(Tree current, AType declaredType, AType fieldType, str
 }
 
 AType filterFieldType(str fieldName, AType fieldType, set[Define] declaredInfo, Key scope){
+    //println("filterFieldType: <fieldName>");
+    //iprintln(fieldType);
+    //iprintln(declaredInfo);
     if(overloadedAType(rel[Key, IdRole, AType] overloads) := fieldType){
        filteredOverloads = {};
        for(<Key key, fieldId(), AType tp> <- overloads){

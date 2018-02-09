@@ -12,6 +12,9 @@ module lang::rascalcore::grammar::definition::Productions
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 
+extend analysis::typepal::TypePal;
+import lang::rascalcore::check::TypePalConfig;
+
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::grammar::definition::Characters;
 import lang::rascalcore::grammar::definition::Symbols;

@@ -40,18 +40,15 @@ public AType delabel(AType s) = visit(s) { case AType t => unset(t, "label") whe
 public AType sym2AType(Sym sym) {
   switch (sym) {
     case lang::rascal::\syntax::Rascal::nonterminal(Nonterminal n) : 
-      return AType::aadt("<n>", [], contextFreeSyntax());
-      //return AType::\sort("<n>");
+      return AType::auser("<n>", []);               // Nonterminals are represented by `auser` and are later replaced by `aadt` when their SyntaxRole is known
     case \start(Nonterminal n) : 
-       return \start(AType::aadt("<n>", [], contextFreeSyntax()));
-      //return AType::\start(\sort("<n>"));
+        return \start(AType::auser("<n>", []));
     case literal(StringConstant l): 
       return AType::lit(unescapeLiteral(l));
     case caseInsensitiveLiteral(CaseInsensitiveStringConstant l): 
       return AType::cilit(unescapeLiteral(l));
     case \parametrized(Nonterminal n, {Sym ","}+ syms) : 
-        return AType::aadt("<n>",separgs2ATypes(syms), contextFreeSyntax()); 
-      //return AType::\parameterized-sort("<n>",separgs2ATypes(syms)); 
+        return AType::auser("<n>",separgs2ATypes(syms)); 
     case labeled(Sym s, NonterminalLabel n) : 
       return sym2AType(s)[label="<n>"];
     case optional(Sym s)  : 
@@ -94,6 +91,19 @@ public AType sym2AType(Sym sym) {
       return conditional(sym2AType(s), {\except("<n>")});
     default: 
       throw "sym2AType, missed a case <sym>";
+  }
+}
+
+public AType defsym2AType(Sym sym, SyntaxRole sr) {
+    switch(sym){
+    case lang::rascal::\syntax::Rascal::nonterminal(Nonterminal n) : 
+      return AType::aadt("<n>", [], sr);
+   
+    case \parametrized(Nonterminal n, {Sym ","}+ syms) : 
+        return AType::aadt("<n>",separgs2ATypes(syms), sr); 
+    
+    default: 
+      throw "defsym2AType, missed a case <sym>";
   }
 }
 

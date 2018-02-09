@@ -1,7 +1,17 @@
 module lang::rascalcore::check::Test1
 
-start syntax D = "dddd" | "eee";
+//import lang::rascal::\syntax::Rascal;
 
-data D = d1(int n) | d2(str s);
+lexical Name = [a-z]+;
 
-value main() = #D;
+syntax Tag
+    = @Folded @category="Comment" expression: "@" Name name "=" Expression expression !>> "@";
+
+syntax Expression = "e" expression;
+
+void getTags(){
+  Tag tg;
+ 
+  tg.expression;
+ 
+}

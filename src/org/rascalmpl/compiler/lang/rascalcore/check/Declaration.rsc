@@ -120,7 +120,8 @@ Vis getVis((Visibility) ``)         = defaultVis();
 void() makeVarInitRequirement(Expression expr, AType initType, Key scope)
     = () { 
            expandedInitType = expandUserTypes(initType, scope);
-           subtype(getType(expr), expandedInitType) || reportError(expr, "Type of initialization should be subtype of <fmt(expandedInitType)>, found <fmt(expr)>");
+           expandedExprType = expandUserTypes(getType(expr), scope);
+           subtype(expandedExprType, expandedInitType) || reportError(expr, "Type of initialization should be subtype of <fmt(expandedInitType)>, found <fmt(expandedExprType)>");
          };
          
 void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type \type> <{Variable ","}+ variables> ;`, TBuilder tb){
@@ -468,37 +469,35 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBu
 
 void collect(current: (SyntaxDefinition) `<Visibility vis> layout <Sym defined> = <Prod production>;`, TBuilder tb){
     //println("LAYOUT: <current>");
-    nonterminalType = sym2AType(defined);
-    declareSyntax(current, getVis(vis), defined, nonterminalType, production, layoutSyntax(), tb);
+    nonterminalType = defsym2AType(defined, layoutSyntax());
+    declareSyntax(current, getVis(vis), defined, nonterminalType, production, layoutId(), tb);
     collect(production, tb);
 } 
 
 void collect (current: (SyntaxDefinition) `lexical <Sym defined> = <Prod production>;`, TBuilder tb){
     //println("LEXICAL: <current>");
-    nonterminalType = sym2AType(defined);
-    declareSyntax(current, publicVis(), defined, nonterminalType, production, lexicalSyntax(), tb);
+    nonterminalType = defsym2AType(defined, lexicalSyntax());
+    declareSyntax(current, publicVis(), defined, nonterminalType, production, lexicalId(), tb);
     collect(production, tb);
 }
 
 void collect (current: (SyntaxDefinition) `keyword <Sym defined> = <Prod production>;`, TBuilder tb){
    //println("KEYWORD: <current>");
-    nonterminalType = sym2AType(defined);
-    declareSyntax(current, publicVis(), defined, nonterminalType, production, keywordSyntax(), tb);
+    nonterminalType = defsym2AType(defined, keywordSyntax());
+    declareSyntax(current, publicVis(), defined, nonterminalType, production,keywordId(), tb);
     collect(production, tb);
 } 
 
 void collect (current: (SyntaxDefinition) `<Start strt> syntax <Sym defined> = <Prod production>;`, TBuilder tb){
     //println("SYNTAX: <current>");
-    nonterminalType = sym2AType(defined);
+    nonterminalType = defsym2AType(defined, contextFreeSyntax());
     if(strt is present) nonterminalType = \start(nonterminalType);
-    
-    syntaxRole = contextFreeSyntax();
 
-    declareSyntax(current, publicVis(), defined, nonterminalType, production, syntaxRole, tb);
+    declareSyntax(current, publicVis(), defined, nonterminalType, production, nonterminalId(), tb);
     collect(production, tb);
 }
 
-void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterminalType, Prod production, SyntaxRole syntaxRole, TBuilder tb){
+void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterminalType, Prod production, IdRole idRole, TBuilder tb){
     //println("declareSyntax: <defined>, <nonterminalType>");
     AProduction pr = prod2prod(nonterminalType, production);
     //println("pr: <pr>");
@@ -516,13 +515,14 @@ void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterm
       
         //  Declare all named fields that occur in the productions
         constructorFields = { *getFields(p) | AProduction p <- productions };
+        //println("constructorFields: <constructorFields>");
         for(<str nm, loc def, AType tp> <- constructorFields){
             tb.define(nm, fieldId(), def, defType(tp));
         }
   
         if(!isEmpty(constructorFields))  dt.constructorFields = constructorFields<0,2>;
                                             
-        tb.define(ntName, dataId(), current, dt);
+        tb.define(ntName, idRole, current, dt);
         //println("define <ntName>, dataId(), <dt>");
         allConstructorDefines = {};
         for(p <- productions){
@@ -552,11 +552,11 @@ rel[str,loc,AType] getFields(\priority(AType def, list[AProduction] choices))
 rel[str,loc,AType] getFields(\associativity(AType def, Associativity \assoc, set[AProduction] alternatives))
     = { *getFields(a) | a <- alternatives};
     
-default rel[str,loc,AType] getFields(AProduction p)
-    = {<t.label, p.src[query = "label=<t.label>"], t> | s <- p.asymbols, isNonTerminalType(s), t := removeConditional(s), t.label?};
+default rel[str,loc,AType] getFields(AProduction p) // TODO add no no label case
+    = {<t.label, p.src[query = "label=<t.label>"], t> | s <- p.asymbols, t := removeConditional(s), (isNonTerminalType(t) || auser(_,_) := t),  t.label?};
 
 void collect(current: (Sym) `<Nonterminal nonterminal>`, TBuilder tb){
-    tb.use(nonterminal, {dataId()});
+    tb.use(nonterminal, syntaxIds);
     collect(nonterminal, tb);
 }
 
@@ -565,13 +565,41 @@ void collect(current: (Sym) `<Sym symbol> <NonterminalLabel label>`, TBuilder tb
     collect(symbol, label, tb);
 }
 
+bool isIterSym((Sym) `<Sym symbol>+`) = true;
+bool isIterSym((Sym) `<Sym symbol>*`) = true;
+bool isIterSym((Sym) `{ <Sym symbol> <Sym sep> }+`) = true;
+bool isIterSym((Sym) `{ <Sym symbol> <Sym sep> }*`) = true;
+default bool isIterSym(Sym sym) = false;
+
+
+void collect(current: (Sym) `<Sym symbol>+`, TBuilder tb){
+    if(isIterSym(symbol)) tb.reportWarning(current, "Nested iteration");
+    collect(symbol, tb);
+}
+
+void collect(current: (Sym) `<Sym symbol>*`, TBuilder tb){
+    if(isIterSym(symbol)) tb.reportWarning(current, "Nested iteration");
+    collect(symbol, tb);
+}
+
+void collect(current: (Sym) `{ <Sym symbol> <Sym sep> }+`, TBuilder tb){
+    if(isIterSym(symbol)) tb.reportWarning(current, "Nested iteration");
+    collect(symbol, tb);
+}
+
+void collect(current: (Sym) `{ <Sym symbol> <Sym sep> }*`, TBuilder tb){
+    if(isIterSym(symbol)) tb.reportWarning(current, "Nested iteration");
+    collect(symbol, tb);
+}
+
 default rel[Key, AType] prod2cons(AProduction p){
     def = p.def;
     symbols = p.asymbols;
     if(def.label?){
-  
-        fields = [ <t.label, t> | s <- symbols, t := removeConditional(s) , isNonTerminalType(t)];
-        return { <p.src, acons(unset(def, "label"), deescape(def.label), fields, [])> };
+        defLabel = def.label;
+        fields = [ <t.label, t> | s <- symbols, t := removeConditional(s), (isNonTerminalType(t) || auser(nm, _) := t), t.label?];
+        def = \start(sdef) := def ? sdef : unset(def, "label");
+        return { <p.src, acons(def, deescape(defLabel), fields, [])> };
     }
     return {};
 }

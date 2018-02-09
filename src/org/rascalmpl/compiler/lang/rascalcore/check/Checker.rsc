@@ -126,8 +126,8 @@ TModel rascalTModelFromName(str mname, bool debug=false){
     
     /***** turn this off during development of type checker *****/
     
-    //<valid, tm> = getIfValid(mname, pcfg);
-    //if(valid) return tm;
+    <valid, tm> = getIfValid(mname, pcfg);
+    if(valid) return tm;
     
     /***********************************************************/
      
@@ -161,7 +161,10 @@ TModel rascalTModel(Tree pt, int startTime, bool debug=false, bool inline=false)
     tm = rascalPreValidation(tm);
     tm = validate(tm, debug=debug);
     tm = rascalPostValidation(tm);
-    //iprintln(getGrammar(getLoc(pt), tm));
+    //if(isEmpty(tm.messages)){
+    //   <msgs, g> = getGrammar(getLoc(pt), tm);
+    //   tm.messages += msgs;
+    //}
     afterValidateTime = cpuTime();
     
     if(!inline){
@@ -183,4 +186,4 @@ void testModules(str names...) {
 }
 
 list[str] allTests = ["adt", "alias", "assignment", "datadecl", "exp", "fields", "fundecl", 
-                     "imports", "operators", "pat", "scope", "stats", "syntax"];
+                     "imports", "operators", "pat", "scope", "stats", "syntax1", "syntax2"];

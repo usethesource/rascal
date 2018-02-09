@@ -135,7 +135,6 @@ data SyntaxRole
     | lexicalSyntax()
     | keywordSyntax()
     | layoutSyntax()
-   // | startSyntax()
     | illegalSyntax()
     ;
     
@@ -147,7 +146,7 @@ SyntaxRole overloadSyntaxRole(set[SyntaxRole] syntaxRoles) {
     return illegalSyntax();
 }
 
-bool isConcreteSyntaxRole(SyntaxRole sr) = sr in {lexicalSyntax(), contextFreeSyntax()};
+bool isConcreteSyntaxRole(SyntaxRole sr) = sr in {lexicalSyntax(), contextFreeSyntax(), layoutSyntax(), keywordSyntax()};
 
 bool isLayoutSyntax(aadt(name, parameters, layoutSyntax())) = true;
 default bool isLayoutSyntax(AType t) = false;
