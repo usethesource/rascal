@@ -826,8 +826,11 @@ void computeMatchPattern(Expression current, Pattern pat, str operator, Expressi
     scope = tb.getScope();
     tb.calculateEager("match", current, [expression],
         AType () {
-            subjectType = getType(expression);
-            patType = getPatternType(pat, subjectType, scope);
+            subjectType = expandUserTypes(getType(expression), scope);
+            //if(isStartNonTerminalType(subjectType)){
+            //    subjectType = getStartNonTerminalType(subjectType);
+            //}
+            patType = expandUserTypes(getPatternType(pat, subjectType, scope), scope);
             instantiate(subjectType);
             if(!isFullyInstantiated(patType) || !isFullyInstantiated(subjectType)){
                 unify(patType, subjectType) || reportError(pat, "Type of pattern could not be computed");

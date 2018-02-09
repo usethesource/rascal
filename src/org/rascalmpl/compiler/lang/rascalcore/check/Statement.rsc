@@ -780,8 +780,8 @@ AType computeFieldAssignableType(Statement current, AType receiverType, str fiel
             } catch TypeUnavailable():
                 reportError(current, "Cannot expand type of field <fmt(fieldType)>, missing import of field type?");
                 
-            declaredInfo = getDefinitions(adtName, scope, {dataId(), nonterminalId()});
-            declaredType = getType(adtName, scope, {dataId(), nonterminalId()});
+            declaredInfo = getDefinitions(adtName, scope, dataOrSyntaxIds);
+            declaredType = getType(adtName, scope, dataOrSyntaxIds);
             declaredTypeParams = getADTTypeParameters(declaredType);
             
             if (size(declaredTypeParams) > 0) {

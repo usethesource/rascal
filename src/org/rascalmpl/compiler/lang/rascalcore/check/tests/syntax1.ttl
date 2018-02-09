@@ -14,7 +14,7 @@ test S6 [[ module A
            lexical INT = [0-9]+; 
            syntax EXP = intcon: Int intcon 
                       | add: EXP lhs "+" EXP rhs ; 
-]] expect { "Undefined data `Int`" }
+]] expect { "Undefined lexical, alias, layout, keyword or nonterminal `Int`" }
 
 test S7 [[ module A 
            lexical INT = [0-9]+; 

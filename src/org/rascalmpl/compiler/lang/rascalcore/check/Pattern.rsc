@@ -412,7 +412,7 @@ void collect(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* argument
     if(namePat: (Pattern) `<QualifiedName name>` := expression){
         qname = convertName(name);
         if(isQualified(qname)){     
-           tb.useQualified([qname.qualifier, qname.name], name, {constructorId()}, {dataId(), nonterminalId(), moduleId()} );
+           tb.useQualified([qname.qualifier, qname.name], name, {constructorId()}, dataOrSyntaxIds + {moduleId()} );
         } else {
             tb.useLub(name, {constructorId()});
         }
@@ -428,11 +428,14 @@ AType getPatternType(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* 
    // println("getPatternType: <current>");
     pats = [ p | Pattern p <- arguments ];
     
-    texp = getPatternType(expression, subjectType, scope);
+    texp = expandUserTypes(getPatternType(expression, subjectType, scope), scope);
     //println("bindings: <bindings>");
     //clearBindings();    // <====
     subjectType = instantiate(subjectType);
     subjectType = expandUserTypes(subjectType, scope);
+    //if(isStartNonTerminalType(subjectType)){
+    //    subjectType = getStartNonTerminalType(subjectType);
+    //}
     
     if(isStrType(texp)){
         return computeNodeType(current, scope, pats, keywordArguments, subjectType=subjectType, isExpression=false);
@@ -449,7 +452,7 @@ AType getPatternType(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* 
          for(ovl: <key, idr, tp> <- overloads){
             if(acons(adtType:aadt(adtName, list[AType] parameters, _), str consName, list[NamedField] fields, list[Keyword] kwFields) := tp){
                try {
-                     validReturnTypeOverloads += <key, dataId(), computeADTType(current, adtName, scope, adtType, fields<1>, kwFields, pats, keywordArguments, identicalFields)>;
+                     validReturnTypeOverloads += <key, idr, computeADTType(current, adtName, scope, adtType, fields<1>, kwFields, pats, keywordArguments, identicalFields)>;
                      validOverloads += ovl;
                     } catch checkFailed(set[Message] msgs):
                             continue next_cons;

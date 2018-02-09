@@ -22,7 +22,13 @@ data IdRole
     | annoId()
     | nonterminalId()
     | lexicalId()
+    | layoutId()
+    | keywordId()
     ;
+
+public set[IdRole] syntaxIds = {aliasId(), nonterminalId(), lexicalId(), layoutId(), keywordId()};
+public set[IdRole] dataOrSyntaxIds = {dataId()} + syntaxIds;
+public set[IdRole] dataIds = {aliasId(), dataId()}; 
 
 data PathRole
     = importPath()
@@ -75,18 +81,53 @@ void storeAllowUseBeforeDef(Tree container, Tree allowedPart, TBuilder tb){
     tb.push(key_allow_use_before_def, <getLoc(container), getLoc(allowedPart)>);
 }
 
+bool noOther(list[IdRole] forbidden, list[IdRole] roles)
+    = isEmpty(forbidden & roles);
+    
 // Define the name overloading that is allowed
 bool myMayOverload(set[Key] defs, map[Key, Define] defines){
-    //println("myMayOverload: <defs>");
-    idRoles = {defines[def].idRole | def <- defs};
-    //println("idRoles: <idRoles>");
-    res =    idRoles <= {functionId(), constructorId(), fieldId(), dataId(), annoId(), moduleId(), aliasId(), variableId()}
-           || idRoles <= {dataId(), moduleId(), nonterminalId()} 
-           || idRoles <= {fieldId()}
-           || idRoles <= {annoId()}
-           ;
+    bool seenVAR = false;
+    bool seenNT  = false;
+    bool seenLEX = false;
+    bool seenLAY = false;
+    bool seenKEY = false;
     
-   // println("myMayOverload ==\> <res>");
+    for(def <- defs){
+        switch(defines[def].idRole){
+        case variableId(): 
+            { if(seenVar) return false;  seenVAR = true;}
+        case nonterminalId():
+            { if(seenLEX || seenLAY || seenKEY) return false; seenNT = true; }
+        case lexicalId():
+            { if(seenNT || seenLAY || seenKEY) return false;  seenLEX= true; }
+        case layoutId():
+            { if(seenNT || seenLEX || seenKEY) return false;  seenLAY = true; }
+        case keywordId():
+            { if(seenNT || seenLAY || seenLEX) return false;  seenKEY = true; }
+        }
+    }
+    
+    return true;
+    
+    idRoles = [defines[def].idRole | def <- defs];
+   
+    res = (  !([variableId(), variableId()] < idRoles)
+          && nonterminalId() in idRoles   ==> noOther([lexicalId(), layoutId(), keywordId()], idRoles)
+          && lexicalId()     in idRoles   ==> noOther([nonterminalId(), layoutId(), keywordId()], idRoles)
+          && layoutId()      in idRoles   ==> noOther([nonterminalId(), lexicalId(), keywordId()], idRoles)
+          && keywordId()     in idRoles   ==> noOther([nonterminalId(), lexicalId(), layoutId()], idRoles)
+          );
+           
+    //res =    idRoles <= {functionId(), constructorId(), fieldId(), dataId(), annoId(), moduleId(), aliasId(), variableId()}
+    //       || idRoles <= {dataId(), moduleId(), nonterminalId()} 
+    //       || idRoles <= {dataId(), moduleId(), lexicalId()} 
+    //       || idRoles <= {dataId(), moduleId(), layoutId()} 
+    //       || idRoles <= {dataId(), moduleId(), keywordId()} 
+    //       || idRoles <= {fieldId()}
+    //       || idRoles <= {annoId()}
+    //       ;
+    
+    if(!res) { println("myMayOverload <idRoles> ==\> <res>"); }
     return res;
 }
 

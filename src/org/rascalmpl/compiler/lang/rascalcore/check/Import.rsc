@@ -172,11 +172,13 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
     m1.store = (key_bom : bom);
     m1.paths = tm.paths;
     
+    roles = dataOrSyntaxIds + {constructorId(), functionId(), fieldId()};
     // Filter model for current module and replace functions in defType by their defined type
+    
     defs = for(tup: <Key scope, str id, IdRole idRole, Key defined, DefInfo defInfo> <- tm.defines){
            if(scope == |global-scope:///| && defined.path in filteredModuleScopePaths || 
               scope in filteredModuleScopes || 
-              (scope.path == mscope.path && idRole in {dataId(), constructorId(), functionId(), fieldId()})){
+              (scope.path == mscope.path && idRole in roles)){
              if(id == "type" && idRole == constructorId()){  
                 continue; // exclude builtin constructor for "type"
              } else {
