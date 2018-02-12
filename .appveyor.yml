@@ -1,4 +1,7 @@
 version: "{branch} {build}"
+branches:
+  only:
+    - master
 
 shallow_clone: true
 
