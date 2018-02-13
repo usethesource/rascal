@@ -10,8 +10,8 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::ATypeExceptions;
 
 //alias Key         = loc;
-alias Keyword     = tuple[str fieldName, AType fieldType, Expression defaultExp];
-alias NamedField  = tuple[str fieldName, AType fieldType] ;
+alias Keyword     = tuple[/*str fieldName,*/ AType fieldType, Expression defaultExp];
+//alias NamedField  = tuple[str fieldName, AType fieldType] ;
 
 data QName        = qualName(str qualifier, str name);
    
@@ -22,7 +22,7 @@ data AType (str label = "")
      | arat()
      | astr()
      | anum()
-     | anode(list[NamedField] fields)
+     | anode(list[AType/*NamedField*/] fields)
      | avoid()
      | avalue()
      | aloc()
@@ -40,7 +40,7 @@ data AType (str label = "")
      | aanno(str aname, AType onType, AType annoType)
      
      | aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)
-     | acons(AType adt, str consName, list[NamedField] fields, list[Keyword] kwFields)
+     | acons(AType adt, /*str consName,*/ list[AType/*NamedField*/] fields, list[Keyword] kwFields)
      
      | amodule(str mname, str deprecationMessage="")
      | aparameter(str pname, AType bound) 
@@ -394,17 +394,17 @@ bool asubtype(AType _, avalue()) = true;
 
 bool asubtype(avoid(), AType _) = true;
 
-bool asubtype(x:acons(AType a, _, list[NamedField] _, list[Keyword] _), AType b){
+bool asubtype(x:acons(AType a, /*_,*/ list[AType/*NamedField*/] _, list[Keyword] _), AType b){
     res = asubtype(a, b);
     //println("asubtype(acons(<a>,_,_,_), <b>) ==\> <res>");
     return res;
 }
-bool asubtype(AType a, x:acons(AType b, _, list[NamedField] _, list[Keyword] _)){
+bool asubtype(AType a, x:acons(AType b, /*_,*/ list[AType/*NamedField*/] _, list[Keyword] _)){
     res = asubtype(a, b);
     //println("asubtype(<a>, acons(<b>,_,_,_) ==\> <res>");
     return res;
 }
-bool asubtype(acons(AType a, str name, list[NamedField] ap, list[Keyword] _), acons(a,name,list[NamedField] bp, list[Keyword] _)) = asubtype(ap,bp);
+bool asubtype(acons(AType a, /*str name,*/ list[AType/*NamedField*/] ap, list[Keyword] _), acons(a,/*name,*/list[AType/*NamedField*/] bp, list[Keyword] _)) = asubtype(ap,bp);
 
 bool asubtype(aadt(str _, list[AType] _, _), anode(_)) = true;
 bool asubtype(aadt(str n, list[AType] l, _), aadt(n, list[AType] r, _)) = asubtype(l, r);
@@ -472,7 +472,7 @@ bool asubtype(AType l, aparameter(str _, AType bound)) = asubtype(l, bound);
 bool asubtype(areified(AType s), areified(AType t)) = asubtype(s,t);
 bool asubtype(areified(AType s), anode(_)) = true;
 
-bool asubtype(anode(list[NamedField] l), anode(list[NamedField] r)) = l <= r;
+bool asubtype(anode(list[AType/*NamedField*/] l), anode(list[AType/*NamedField*/] r)) = l <= r;
 
 // Utilities
 
@@ -481,8 +481,8 @@ bool asubtype(atypeList(list[AType] l), atypeList(list[AType] r)) = asubtype(l, 
 bool asubtype(list[AType] l, list[AType] r) = all(i <- index(l), asubtype(l[i], r[i])) when size(l) == size(r) && size(l) > 0;
 default bool asubtype(list[AType] l, list[AType] r) = size(l) == 0 && size(r) == 0;
 
-bool asubtype(list[NamedField] l, list[NamedField] r) = all(i <- index(l), asubtype(l[i].fieldType, r[i].fieldType)) when size(l) == size(r) && size(l) > 0;
-default bool asubtype(list[NamedField] l, list[NamedField] r) = size(l) == 0 && size(r) == 0;
+bool asubtype(list[AType/*NamedField*/] l, list[AType/*NamedField*/] r) = all(i <- index(l), asubtype(l[i]/*.fieldType*/, r[i]/*.fieldType*/)) when size(l) == size(r) && size(l) > 0;
+default bool asubtype(list[AType/*NamedField*/] l, list[AType/*NamedField*/] r) = size(l) == 0 && size(r) == 0;
 
 @doc{
 .Synopsis
@@ -584,18 +584,18 @@ AType alub(a1:aadt(str n, list[AType] lp, SyntaxRole lsr), a2:aadt(n, list[AType
                                                   when size(lp) == size(rp) && size(getParamLabels(lp)) == 0 && sr := overloadSyntaxRole({lsr, rsr}) && sr != illegalSyntax();
                                                                          
 AType alub(aadt(str n, list[AType] lp, SyntaxRole _), aadt(str m, list[AType] rp,SyntaxRole _)) = anode([]) when n != m;
-AType alub(a1: aadt(str ln, list[AType] lp,SyntaxRole  _), acons(AType b, _, _, _)) = alub(a1,b);
+AType alub(a1: aadt(str ln, list[AType] lp,SyntaxRole  _), acons(AType b,/* _,*/ _, _)) = alub(a1,b);
 
 AType addADTLabel(AType a1, AType a2, AType adt){
   if(a1.label? && a1.label == a2.label) adt = adt[label=a1.label];
   return adt;
 }
 
-AType alub(acons(AType la, _, list[NamedField] _,  list[Keyword] _), acons(AType ra, _, list[NamedField] _, list[Keyword] _)) = alub(la,ra);
-AType alub(acons(AType a,  _, list[NamedField] lp, list[Keyword] _), a2:aadt(str n, list[AType] rp, SyntaxRole _)) = alub(a,a2);
-AType alub(acons(AType _,  _, list[NamedField] _,  list[Keyword] _), anode(_)) = anode([]);
+AType alub(acons(AType la, /*_,*/ list[AType/*NamedField*/] _,  list[Keyword] _), acons(AType ra,/* _,*/ list[AType/*NamedField*/] _, list[Keyword] _)) = alub(la,ra);
+AType alub(acons(AType a,  /*_,*/ list[AType/*NamedField*/] lp, list[Keyword] _), a2:aadt(str n, list[AType] rp, SyntaxRole _)) = alub(a,a2);
+AType alub(acons(AType _,  /*_,*/ list[AType/*NamedField*/] _,  list[Keyword] _), anode(_)) = anode([]);
 
-AType alub(anode(list[NamedField] l), anode(list[NamedField] r)) = anode(l & r);
+AType alub(anode(list[AType/*NamedField*/] l), anode(list[AType/*NamedField*/] r)) = anode(l & r);
 
 bool keepParams(aparameter(str s1, AType bound1), aparameter(str s2, AType bound2)) = s1 == s2 && equivalent(bound1,bound2);
 

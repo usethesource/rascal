@@ -62,7 +62,7 @@ data DefInfo(Vis vis = publicVis());
 
 // Productions and Constructor fields; common Keyword fields
 data DefInfo(set[AProduction] productions = {}, 
-             set[NamedField] constructorFields = {},
+             set[AType/*NamedField*/] constructorFields = {},
              set[AType] constructors = {},
              list[Keyword] commonKeywordFields = []
              );
@@ -81,9 +81,6 @@ void storeAllowUseBeforeDef(Tree container, Tree allowedPart, TBuilder tb){
     tb.push(key_allow_use_before_def, <getLoc(container), getLoc(allowedPart)>);
 }
 
-bool noOther(list[IdRole] forbidden, list[IdRole] roles)
-    = isEmpty(forbidden & roles);
-    
 // Define the name overloading that is allowed
 bool myMayOverload(set[Key] defs, map[Key, Define] defines){
     bool seenVAR = false;
@@ -93,42 +90,23 @@ bool myMayOverload(set[Key] defs, map[Key, Define] defines){
     bool seenKEY = false;
     
     for(def <- defs){
+        // Forbid:
+        // - overloading of variables
+        // - overloading of incompatible syntax definitions
         switch(defines[def].idRole){
         case variableId(): 
-            { if(seenVar) return false;  seenVAR = true;}
+            { if(seenVAR) return false;  seenVAR = true;}
         case nonterminalId():
-            { if(seenLEX || seenLAY || seenKEY) return false; seenNT = true; }
+            { if(seenLEX || seenLAY || seenKEY){  return false; } seenNT = true; }
         case lexicalId():
-            { if(seenNT || seenLAY || seenKEY) return false;  seenLEX= true; }
+            { if(seenNT || seenLAY || seenKEY) {  return false; }  seenLEX= true; }
         case layoutId():
-            { if(seenNT || seenLEX || seenKEY) return false;  seenLAY = true; }
+            { if(seenNT || seenLEX || seenKEY) {  return false; }  seenLAY = true; }
         case keywordId():
-            { if(seenNT || seenLAY || seenLEX) return false;  seenKEY = true; }
+            { if(seenNT || seenLAY || seenLEX) {  return false; }  seenKEY = true; }
         }
     }
-    
     return true;
-    
-    idRoles = [defines[def].idRole | def <- defs];
-   
-    res = (  !([variableId(), variableId()] < idRoles)
-          && nonterminalId() in idRoles   ==> noOther([lexicalId(), layoutId(), keywordId()], idRoles)
-          && lexicalId()     in idRoles   ==> noOther([nonterminalId(), layoutId(), keywordId()], idRoles)
-          && layoutId()      in idRoles   ==> noOther([nonterminalId(), lexicalId(), keywordId()], idRoles)
-          && keywordId()     in idRoles   ==> noOther([nonterminalId(), lexicalId(), layoutId()], idRoles)
-          );
-           
-    //res =    idRoles <= {functionId(), constructorId(), fieldId(), dataId(), annoId(), moduleId(), aliasId(), variableId()}
-    //       || idRoles <= {dataId(), moduleId(), nonterminalId()} 
-    //       || idRoles <= {dataId(), moduleId(), lexicalId()} 
-    //       || idRoles <= {dataId(), moduleId(), layoutId()} 
-    //       || idRoles <= {dataId(), moduleId(), keywordId()} 
-    //       || idRoles <= {fieldId()}
-    //       || idRoles <= {annoId()}
-    //       ;
-    
-    if(!res) { println("myMayOverload <idRoles> ==\> <res>"); }
-    return res;
 }
 
 // Name resolution filters
@@ -187,11 +165,11 @@ Accept isAcceptableQualified(TModel tm, Key def, Use use){
         }
         
          // Qualifier is a ADT name?
-        //if(acons(ret:aadt(adtName, list[AType] parameters, _), str consName, list[NamedField] fields, list[Keyword] kwFields) := atype, use.ids[0] == adtName){
+        //if(acons(ret:aadt(adtName, list[AType] parameters, _), str consName, list[AType/*NamedField*/] fields, list[Keyword] kwFields) := atype, use.ids[0] == adtName){
         //    return acceptBinding();
         //} 
         
-        if(acons(ret:aadt(adtName, list[AType] parameters, _), str consName, list[NamedField] fields, list[Keyword] kwFields) := atype){
+        if(acons(ret:aadt(adtName, list[AType] parameters, _), /*str consName,*/ list[AType/*NamedField*/] fields, list[Keyword] kwFields) := atype){
            return  use.ids[0] == adtName ? acceptBinding() : ignoreContinue();
         } 
         

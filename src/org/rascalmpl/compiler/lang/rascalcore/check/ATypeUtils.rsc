@@ -115,7 +115,7 @@ str prettyPrintAType(areal()) = "real";
 str prettyPrintAType(arat()) = "rat";
 str prettyPrintAType(astr()) = "str";
 str prettyPrintAType(anum()) = "num";
-str prettyPrintAType(anode( lrel[str fieldName, AType fieldType] fields)) = "node(<isEmpty(fields) ? "" : intercalate(", ", ["<prettyPrintAType(ft)> <fn>" | <fn, ft> <- fields])>)";
+str prettyPrintAType(anode( list[/*str fieldName,*/ AType fieldType] fields)) = "node(<isEmpty(fields) ? "" : intercalate(", ", ["<prettyPrintAType(ft)> <ft.label>" | ft <- fields])>)";
 str prettyPrintAType(avoid()) = "void";
 str prettyPrintAType(avalue()) = "value";
 str prettyPrintAType(aloc()) = "loc";
@@ -127,8 +127,8 @@ str prettyPrintAType(amap(AType d, AType r)) = "map[<prettyPrintAType(d)>, <pret
 str prettyPrintAType(arel(AType ts)) = "rel[<prettyPrintAType(ts)>]";
 str prettyPrintAType(alrel(AType ts)) = "lrel[<prettyPrintAType(ts)>]";
 
-str prettyPrintAType(afunc(AType ret, atypeList(list[AType] formals), lrel[str fieldName, AType fieldType, Expression defaultExp] kwFormals))
-                = "<prettyPrintAType(ret)>(<intercalate(",", [prettyPrintAType(f) | f <- formals])><isEmpty(kwFormals) ? "" : ", "><intercalate(",", ["<prettyPrintAType(ft)> <fn>=..." | <fn, ft, de> <- kwFormals])>)";
+str prettyPrintAType(afunc(AType ret, atypeList(list[AType] formals), lrel[/*str fieldName,*/ AType fieldType, Expression defaultExp] kwFormals))
+                = "<prettyPrintAType(ret)>(<intercalate(",", [prettyPrintAType(f) | f <- formals])><isEmpty(kwFormals) ? "" : ", "><intercalate(",", ["<prettyPrintAType(ft)> <ft.label>=..." | <ft, de> <- kwFormals])>)";
 
 str prettyPrintAType(auser(str s, [])) = "USER TYPE <s>";
 str prettyPrintAType(auser(str s, ps)) = "USER TYPE <s>[<prettyPrintAType(ps)>]" when size(ps) > 0;
@@ -141,10 +141,10 @@ str prettyPrintAType(aanno(str aname, AType onType, AType annoType)) = "anno <pr
 str prettyPrintAType(aadt(str s, [], SyntaxRole _)) = s;
 str prettyPrintAType(aadt(str s, ps, SyntaxRole _)) = "<s>[<prettyPrintAType(ps)>]" when size(ps) > 0;
 
-str prettyPrintAType(acons(AType adt, str consName, 
-                 lrel[str fieldName, AType fieldType] fields, 
-                 lrel[str fieldName, AType fieldType, Expression defaultExp] kwFields))
-                 = "<prettyPrintAType(adt)>::<consName>(<intercalate(", ", ["<prettyPrintAType(ft)> <fn>" | <fn, ft> <- fields])><isEmpty(kwFields) ? "" : ", "><intercalate(",", ["<prettyPrintAType(ft)> <fn>=..." | <fn, ft, de> <- kwFields])>)";
+str prettyPrintAType(t: acons(AType adt, /*str consName,*/ 
+                list[/*str fieldName,*/ AType fieldType] fields,
+                lrel[/*str fieldName,*/ AType fieldType, Expression defaultExp] kwFields))
+                 = "<prettyPrintAType(adt)>::<t.label>(<intercalate(", ", ["<prettyPrintAType(ft)> <ft.label>" | ft <- fields])><isEmpty(kwFields) ? "" : ", "><intercalate(",", ["<prettyPrintAType(ft)> <ft.label>=..." | <ft, de> <- kwFields])>)";
 
 str prettyPrintAType(amodule(str mname)) = "module <mname>";         
 str prettyPrintAType(aparameter(str pn, AType t)) = t == avalue() ? "&<pn>" : "&<pn> \<: <prettyPrintAType(t)>";
@@ -152,11 +152,11 @@ str prettyPrintAType(areified(AType t)) = "type[<prettyPrintAType(t)>]";
 
 // utilities
 str prettyPrintAType(overloadedAType(rel[Key, IdRole, AType] overloads))
-                = intercalateOr([fmt(prettyPrintAType(t)) | <k, idr, t> <- overloads]);
+                = intercalateOr([fmt(prettyPrintAType(t1)) | t1 <- {t | <k, idr, t> <- overloads} ]);
 
 str prettyPrintAType(list[AType] atypes) = intercalate(", ", [prettyPrintAType(t) | t <- atypes]);
 
-str prettyPrintAType(Keyword kw) = "<prettyPrintAType(kw.fieldType) <kw.fieldName> = <kw.defaultExp>";
+str prettyPrintAType(Keyword kw) = "<prettyPrintAType(kw.fieldType) <kw.fieldType.label/*fieldName*/> = <kw.defaultExp>";
 
 // non-terminal symbols
 str prettyPrintAType(\prod(AType s, list[AType] fs/*, SyntaxRole _*/)) = "<prettyPrintAType(s)> : (<intercalate(", ", [ prettyPrintAType(f) | f <- fs ])>)"; //TODO others
@@ -684,7 +684,7 @@ AType makeADTType(str n) = aadt(n,[], dataSyntax());
 @doc{Get the name of the ADT.}
 str getADTName(AType t) {
     if (aadt(n,_,_) := unwrapType(t)) return n;
-    if (acons(a,_,_,_) := unwrapType(t)) return getADTName(a);
+    if (acons(a,/*_,*/_,_) := unwrapType(t)) return getADTName(a);
     if (areified(_) := unwrapType(t)) return "type";
     throw rascalCheckerInternalError("getADTName, invalid type given: <fmt(t)>");
 }
@@ -692,7 +692,7 @@ str getADTName(AType t) {
 @doc{Get the type parameters of an ADT.}
 list[AType] getADTTypeParameters(AType t) {
     if (aadt(n,ps,_) := unwrapType(t)) return ps;
-    if (acons(a,_,_,_) := unwrapType(t)) return getADTTypeParameters(a);
+    if (acons(a,/*_,*/_,_) := unwrapType(t)) return getADTTypeParameters(a);
     if (areified(_) := unwrapType(t)) return [];
     throw rascalCheckerInternalError("getADTTypeParameters given non-ADT type <fmt(t)>");
 }
@@ -706,18 +706,18 @@ bool adtHasTypeParameters(AType t) = size(getADTTypeParameters(t)) > 0;
 Determine if the given type is a constructor.
 }
 bool isConstructorType(aparameter(_,AType tvb)) = isConstructorType(tvb);
-bool isConstructorType(acons(AType _, str _, _, _)) = true;
+bool isConstructorType(acons(AType _, /*str _,*/ _, _)) = true;
 default bool isConstructorType(AType _) = false;
 
 @doc{Get the ADT type of the constructor.}
 AType getConstructorResultType(AType ct) {
-    if (acons(a,_,_,_) := unwrapType(ct)) return a;
+    if (acons(a,/*_,*/_,_) := unwrapType(ct)) return a;
     throw rascalCheckerInternalError("Cannot get constructor ADT type from non-constructor type <fmt(ct)>");
 }
 
 @doc{Get a list of the argument types in a constructor.}
 list[AType] getConstructorArgumentTypes(AType ct) {
-    if (acons(_,_,list[NamedField] cts,_) := unwrapType(ct)) return cts<1>;
+    if (acons(_,/*_,*/list[AType/*NamedField*/] cts,_) := unwrapType(ct)) return cts/*<1>*/;
     throw rascalCheckerInternalError("Cannot get constructor arguments from non-constructor type <fmt(ct)>");
 }
 
@@ -920,7 +920,7 @@ AType removeConditional(cnd:conditional(AType s, set[ACondition] _)) = cnd.label
 default AType removeConditional(AType s) = s;
 
 // ---- fields
-AType getField(Tree current, acons(AType adt, str consName, list[NamedField] fields, list[Keyword] kwFields), str fieldName, Key scope){
+AType getField(Tree current, acons(AType adt, /*str consName,*/ list[AType/*NamedField*/] fields, list[Keyword] kwFields), str fieldName, Key scope){
 
 }
 
