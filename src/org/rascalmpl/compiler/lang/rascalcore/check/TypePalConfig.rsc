@@ -60,6 +60,8 @@ data Modifier
 // Visibility information
 data DefInfo(Vis vis = publicVis());
 
+data DefInfo(map[str,str] tags = ());
+
 // Productions and Constructor fields; common Keyword fields
 data DefInfo(set[AProduction] productions = {}, 
              set[AType/*NamedField*/] constructorFields = {},
