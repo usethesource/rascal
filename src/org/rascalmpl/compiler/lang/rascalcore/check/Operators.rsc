@@ -875,7 +875,7 @@ void collect(current: (Expression) `<Pattern pat> \<- <Expression expression>`, 
                     fact(pat, patType);
              }
              if(overloadedAType(rel[Key, IdRole, AType] overloads) := elmType){
-                for(<key, role, tp> <- overloads, role != fieldId()){
+                for(<key, role, tp> <- overloads/*, role != fieldId()*/){
                     if(comparable(patType, tp)) return abool();
                 }
                 reportError(pat, "Pattern of type <fmt(patType)> cannot be used to enumerate over <fmt(exprType)>");

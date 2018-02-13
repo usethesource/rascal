@@ -504,9 +504,9 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                  }
                  next_cons:
                  for(ovl: <key, idr, tp> <- overloads){
-                    if(acons(ret:aadt(adtName, list[AType] parameters, _), str consName, list[NamedField] fields, list[Keyword] kwFields) := tp){
+                    if(acons(ret:aadt(adtName, list[AType] parameters, _), /*str consName,*/ list[AType/*NamedField*/] fields, list[Keyword] kwFields) := tp){
                        try {
-                            validReturnTypeOverloads += <key, dataId(), computeADTType(current, adtName, scope, ret, fields<1>, kwFields, actuals, keywordArguments, identicalFormals)>;
+                            validReturnTypeOverloads += <key, dataId(), computeADTType(current, adtName, scope, ret, fields/*<1>*/, kwFields, actuals, keywordArguments, identicalFormals)>;
                             validOverloads += ovl;
                        } catch checkFailed(set[Message] msgs):
                              continue next_cons;
@@ -528,8 +528,8 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                //}
                 return checkArgsAndComputeReturnType(current, scope, ret, formals, kwFormals, ft.varArgs, actuals, keywordArguments, [true | int i <- index(formals)]);
             }
-            if(acons(ret:aadt(adtName, list[AType] parameters,_), str consName, list[NamedField] fields, list[Keyword] kwFields) := texp){
-               return computeADTType(current, adtName, scope, ret, fields<1>, kwFields, actuals, keywordArguments, [true | int i <- index(fields)]);
+            if(acons(ret:aadt(adtName, list[AType] parameters,_), /*str consName,*/ list[AType/*NamedField*/] fields, list[Keyword] kwFields) := texp){
+               return computeADTType(current, adtName, scope, ret, fields/*<1>*/, kwFields, actuals, keywordArguments, [true | int i <- index(fields)]);
             }
             reportError(current, "<fmt("<expression>")> is defined as <fmt(expression)> and cannot be applied to argument(s) <fmt(actuals)>");
         });
@@ -551,13 +551,13 @@ tuple[rel[Key, IdRole, AType], list[bool]] filterOverloads(rel[Key, IdRole, ATyp
               }
            }
         } else
-        if(acons(aadt(adtName, list[AType] parameters,_), str consName, list[NamedField] fields, list[Keyword] kwFields) := tp){
+        if(acons(aadt(adtName, list[AType] parameters,_), /*str consName,*/ list[AType/*NamedField*/] fields, list[Keyword] kwFields) := tp){
            if(size(fields) == arity){
               filteredOverloads += ovl;
               if(isEmpty(prevFormals)){
-                 prevFormals = fields<1>;
+                 prevFormals = fields; //<1>;
               } else {
-                 for(int i <- index(fields)) identicalFormals[i] = identicalFormals[i] && (comparable(prevFormals[i], fields[i].fieldType));
+                 for(int i <- index(fields)) identicalFormals[i] = identicalFormals[i] && (comparable(prevFormals[i], fields[i]/*.fieldType*/));
               }
             }
         }
@@ -758,7 +758,8 @@ void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, K
         for(kwa <- keywordArgumentsExp.keywordArgumentList){ 
             kwName = "<kwa.name>";
             
-            for(<fn, ft, de> <- kwFormals){
+            for(</*fn,*/ ft, de> <- kwFormals){
+               fn = ft.label;
                if(kwName == fn){
                   ift = expandUserTypes(ft, scope);
                   if(!isEmpty(bindings)){
@@ -771,7 +772,7 @@ void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, K
                   continue next_arg;
                } 
             }
-            availableKws = intercalateOr(["`<prettyPrintAType(ft)> <fn>`" | <str fn, AType ft, Expression de> <- kwFormals]);
+            availableKws = intercalateOr(["`<prettyPrintAType(ft)> <ft.label>`" | </*str fn,*/ AType ft, Expression de> <- kwFormals]);
             switch(size(kwFormals)){
             case 0: availableKws ="; no other keyword parameters available";
             case 1: availableKws = "; available keyword parameter: <availableKws>";
@@ -789,7 +790,8 @@ void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, K
         for(kwa <- keywordArgumentsPat.keywordArgumentList){ 
             kwName = "<kwa.name>";
             
-            for(<fn, ft, de> <- kwFormals){
+            for(</*fn,*/ ft, de> <- kwFormals){
+               fn = ft.label;
                if(kwName == fn){
                   ift = expandUserTypes(ft, scope);
                   if(!isEmpty(bindings)){
@@ -802,7 +804,7 @@ void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, K
                   continue next_arg;
                } 
             }
-            availableKws = intercalateOr(["`<prettyPrintAType(ft)> <fn>`" | <str fn, AType ft, Expression de> <- kwFormals]);
+            availableKws = intercalateOr(["`<prettyPrintAType(ft)> <ft.label>`" | </*str fn,*/ AType ft, Expression de> <- kwFormals]);
             switch(size(kwFormals)){
             case 0: availableKws ="; no other keyword parameters available";
             case 1: availableKws = "; available keyword parameter: <availableKws>";
@@ -835,11 +837,11 @@ void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, K
                    declaredType = getType(adtName, scope, dataOrSyntaxIds);
                    checkKwArgs(getCommonKeywords(adtType, scope), keywordArguments, (), scope, isExpression=isExpression);
                    return subjectType;
-                } else if(acons(adtType:aadt(adtName, list[AType] parameters, _), str consName, list[NamedField] fields, list[Keyword] kwFields) := subjectType){
+                } else if(acons(adtType:aadt(adtName, list[AType] parameters, _), /*str consName,*/ list[AType/*NamedField*/] fields, list[Keyword] kwFields) := subjectType){
                    kwFormals = kwFields;
                    checkKwArgs(kwFormals + getCommonKeywords(adtType, scope), keywordArguments, (), scope, isExpression=isExpression);
                    return anode([]);
-                } else if(anode(list[NamedField] fields) := subjectType){
+                } else if(anode(list[AType/*NamedField*/] fields) := subjectType){
                     return computeNodeTypeWithKwArgs(current, keywordArguments, fields, scope);
                 } else if(avalue() := subjectType){
                     return anode([]);
@@ -851,20 +853,21 @@ void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, K
     }
 }
 
-AType computeNodeTypeWithKwArgs(Tree current, keywordArguments, list[NamedField] fields, Key scope){
+AType computeNodeTypeWithKwArgs(Tree current, keywordArguments, list[AType/*NamedField*/] fields, Key scope){
     switch(keywordArguments){
         case (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`: {
                if(keywordArgumentsExp is none) return anode([]);
                                
                nodeFieldTypes = [];
                nextKW:
-                   for(<fn, ft> <- fields){
+                   for(ft /*<fn, ft>*/ <- fields){
+                       fn = ft.label;
                        for(kwa <- keywordArgumentsExp.keywordArgumentList){ 
                            kwName = "<kwa.name>";
                            if(kwName == fn){
                               kwType = getPatternType(kwa.expression,ft, scope);
                               unify(ft, kwType) || reportError(current, "Cannot determine type of field <fmt(fn)>");
-                              nodeFieldTypes += <fn, ft>;
+                              nodeFieldTypes += ft; //<fn, ft>;
                               continue nextKW;
                            }
                        }    
@@ -876,7 +879,8 @@ AType computeNodeTypeWithKwArgs(Tree current, keywordArguments, list[NamedField]
                                
                nodeFieldTypes = [];
                nextKW:
-                   for(<fn, ft> <- fields){
+                   for(ft /*<fn, ft>*/ <- fields){
+                       fn = ft.label;
                        for(kwa <- keywordArgumentsPat.keywordArgumentList){ 
                            kwName = "<kwa.name>";
                            if(kwName == fn){
@@ -895,7 +899,7 @@ AType computeNodeTypeWithKwArgs(Tree current, keywordArguments, list[NamedField]
     }
 }
 
-list[NamedField] computeKwArgs(keywordArguments, Key scope, bool isExpression=true){
+list[AType/*NamedField*/] computeKwArgs(keywordArguments, Key scope, bool isExpression=true){
     switch(keywordArguments){
         case (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`: {
             if(keywordArgumentsExp is none) return [];
@@ -903,7 +907,7 @@ list[NamedField] computeKwArgs(keywordArguments, Key scope, bool isExpression=tr
             return for(kwa <- keywordArgumentsExp.keywordArgumentList){ 
                 kwName = "<kwa.name>";
                 kwType = isExpression ? getType(kwa.expression) : getPatternType(kwa.expression, avalue(), scope);
-                append <kwName, kwType>;
+                append kwType[label=kwName]; //<kwName, kwType>;
             }
         }
         
@@ -913,7 +917,7 @@ list[NamedField] computeKwArgs(keywordArguments, Key scope, bool isExpression=tr
             return for(kwa <- keywordArgumentsPat.keywordArgumentList){ 
                 kwName = "<kwa.name>";
                 kwType = isExpression ? getType(kwa.expression) : getPatternType(kwa.expression, avalue(), scope);
-                append <kwName, kwType>;
+                append kwType[label=kwName]; //<kwName, kwType>;
             }
         }
         
@@ -1354,8 +1358,8 @@ AType filterFieldType(str fieldName, AType fieldType, set[Define] declaredInfo, 
        filteredOverloads = {};
        for(<Key key, fieldId(), AType tp> <- overloads){
            for(Define def <- declaredInfo){     
-               filteredOverloads += { <key, fieldId(), unset(expandUserTypes(ft, scope), "label")> | <fieldName, ft> <- def.defInfo.constructorFields, comparable(fieldType, tp)};
-               filteredOverloads += { <key, fieldId(), unset(expandUserTypes(ft, scope), "label")> | <fieldName, ft, de> <- def.defInfo.commonKeywordFields, comparable(fieldType, tp)};
+               filteredOverloads += { <key, fieldId(), unset(expandUserTypes(ft, scope), "label")> | ft /*<fieldName, ft>*/ <- def.defInfo.constructorFields, ft.label == fieldName, comparable(fieldType, tp)};
+               filteredOverloads += { <key, fieldId(), unset(expandUserTypes(ft, scope), "label")> | </*fieldName,*/ ft, de> <- def.defInfo.commonKeywordFields, ft.label == fieldName, comparable(fieldType, tp)};
            }
        }
        return ({<Key key, fieldId(), AType tp>} := filteredOverloads) ? tp : overloadedAType(filteredOverloads);

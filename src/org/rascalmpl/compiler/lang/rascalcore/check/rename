@@ -1,0 +1,1 @@
+find . -type f -name \*.rsc -exec sed -i.bak 's|::rascalcore::check::|::rascalcore::checkstable::|g' {} +

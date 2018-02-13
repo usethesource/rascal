@@ -386,7 +386,12 @@ void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditio
         beginPatternScope("conditions", tb);
         collect(condList, tb);
         endPatternScope(tb);
-        collect(thenPart, elsePart, tb);
+        tb.enterScope(thenPart);
+            collect(thenPart, tb);
+        tb.leaveScope(thenPart);
+        tb.enterScope(elsePart);
+            collect(elsePart, tb);
+        tb.leaveScope(elsePart);
     tb.leaveScope(conditions); 
 }
 

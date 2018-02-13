@@ -450,9 +450,9 @@ AType getPatternType(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* 
          validOverloads = {};
          next_cons:
          for(ovl: <key, idr, tp> <- overloads){
-            if(acons(adtType:aadt(adtName, list[AType] parameters, _), str consName, list[NamedField] fields, list[Keyword] kwFields) := tp){
+            if(acons(adtType:aadt(adtName, list[AType] parameters, _), /*str consName,*/ list[AType/*NamedField*/] fields, list[Keyword] kwFields) := tp){
                try {
-                     validReturnTypeOverloads += <key, idr, computeADTType(current, adtName, scope, adtType, fields<1>, kwFields, pats, keywordArguments, identicalFields)>;
+                     validReturnTypeOverloads += <key, idr, computeADTType(current, adtName, scope, adtType, fields/*<1>*/, kwFields, pats, keywordArguments, identicalFields)>;
                      validOverloads += ovl;
                     } catch checkFailed(set[Message] msgs):
                             continue next_cons;
@@ -467,8 +467,8 @@ AType getPatternType(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* 
       }
     }
 
-    if(acons(adtType:aadt(adtName, list[AType] parameters, _), str consName, list[NamedField] fields, list[Keyword] kwFields) := texp){
-       return computeADTType(current, adtName, scope, adtType, fields<1>, kwFields, pats, keywordArguments, [true | int i <- index(fields)]);
+    if(acons(adtType:aadt(adtName, list[AType] parameters, _), /*str consName,*/ list[AType/*NamedField*/] fields, list[Keyword] kwFields) := texp){
+       return computeADTType(current, adtName, scope, adtType, fields/*<1>*/, kwFields, pats, keywordArguments, [true | int i <- index(fields)]);
     }
     reportError(current, "No pattern constructor found for <"<expression>"> of expected type <fmt(subjectType)>");
 }
@@ -479,13 +479,13 @@ tuple[rel[Key, IdRole, AType], list[bool]] filterOverloadedConstructors(rel[Key,
     identicalFields = [true | int i <- [0 .. arity]];
     
     for(ovl:<key, idr, tp> <- overloads){                       
-        if(acons(ret:aadt(adtName, list[AType] parameters, _), str consName, list[NamedField] fields, list[Keyword] kwFields) := tp, comparable(ret, subjectType)){
+        if(acons(ret:aadt(adtName, list[AType] parameters, _), /*str consName,*/ list[AType/*NamedField*/] fields, list[Keyword] kwFields) := tp, comparable(ret, subjectType)){
            if(size(fields) == arity){
               filteredOverloads += ovl;
               if(isEmpty(prevFields)){
-                 prevFields = fields<1>;
+                 prevFields = fields/*<1>*/;
               } else {
-                 for(int i <- index(fields)) identicalFields[i] = identicalFields[i] && (comparable(prevFields[i], fields[i].fieldType));
+                 for(int i <- index(fields)) identicalFields[i] = identicalFields[i] && (comparable(prevFields[i], fields[i]/*.fieldType*/));
               }
             }
         }

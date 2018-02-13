@@ -268,11 +268,11 @@ bool containsReturn(Tree t) = /(Statement) `return <Statement statement>` := t;
 list[Keyword] getKeywordFormals({KeywordFormal  "," }+ keywordFormalList, IdRole role, TBuilder tb){    
     return 
         for(KeywordFormal kwf <- keywordFormalList){
-            fieldType = convertType(kwf.\type, tb);
             fieldName = prettyPrintName(kwf.name);
+            fieldType = convertType(kwf.\type, tb)[label=fieldName];
             defaultExp = kwf.expression;
             tb.define(fieldName, role, kwf.name, defType(fieldType));
-            append <fieldName, fieldType, defaultExp>;
+            append </*fieldName, */fieldType, defaultExp>;
         }
 }
 
@@ -414,29 +414,30 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBu
     }
     adtType = aadt(adtName, dataTypeVarsAsList, dataSyntax());
     
-    rel[str, AType] allConsFields = {};
+    set[AType] /*rel[str, AType]*/ allConsFields = {};
     rel[str, Name, DefInfo] allConstructorDefines = {};
     for(Variant v <- variants){
         consName = prettyPrintName(v.name);
         allFieldTypeVars = {};
         fields = 
             for(TypeArg ta <- v.arguments){
-                fieldType = convertType(ta.\type, tb);
                 fieldName = ta has name ? prettyPrintName(ta.name) : "";
+                fieldType = convertType(ta.\type, tb)[label=fieldName];
+                
                 if(!isEmpty(fieldName)){
                     tb.define(fieldName, fieldId(), ta, defType(fieldType));
-                    allConsFields += <fieldName, fieldType>;
+                    allConsFields += fieldType; //<fieldName, fieldType>;
                 }
                 allFieldTypeVars += collectAndUnlabelRascalTypeParams(fieldType);
-                append <fieldName, fieldType>;
+                append fieldType; //<fieldName, fieldType>;
             }
     
        kwFields = [];
        if(v.keywordArguments is \default){
           kwFields += getKeywordFormals(v.keywordArguments.keywordFormalList, fieldId(), tb);
-          for(<kwn, kwt, kwd> <- kwFields){
+          for(</*kwn,*/ kwt, kwd> <- kwFields){
               allFieldTypeVars += collectAndUnlabelRascalTypeParams(kwt);
-              allConsFields += <kwn, kwt>;
+              allConsFields += kwt; //<kwn, kwt>;
           }
        }
        // TODO: is this check necessary?
@@ -444,7 +445,7 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBu
        //if(!(dataTypeVars <= allFieldTypeVars)){
        //   tb.reportWarning(v, "Unbound type parameter <fmt(dataTypeVars - allFieldTypeVars)>");
        //}
-       consType = acons(adtType, consName, fields, kwFields);
+       consType = acons(adtType, /*consName,*/ fields, kwFields, label=consName);
        //println(consType);
        tb.define(consName, constructorId(), v.name, defType(consType));
        allConstructorDefines += <consName, v.name, defType(consType)>;
@@ -468,7 +469,7 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBu
 // ---- syntax definition
 
 void collect(current: (SyntaxDefinition) `<Visibility vis> layout <Sym defined> = <Prod production>;`, TBuilder tb){
-    //println("LAYOUT: <current>");
+    println("LAYOUT: <current>");
     nonterminalType = defsym2AType(defined, layoutSyntax());
     declareSyntax(current, getVis(vis), defined, nonterminalType, production, layoutId(), tb);
     collect(production, tb);
@@ -520,7 +521,7 @@ void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterm
             tb.define(nm, fieldId(), def, defType(tp));
         }
   
-        if(!isEmpty(constructorFields))  dt.constructorFields = constructorFields<0,2>;
+        if(!isEmpty(constructorFields))  dt.constructorFields = constructorFields<2>; //<0,2>;
                                             
         tb.define(ntName, idRole, current, dt);
         //println("define <ntName>, dataId(), <dt>");
@@ -528,8 +529,8 @@ void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterm
         for(p <- productions){
            //println("\nprod2cons: <p> ==\>\n\t<prod2cons(p)>");
            for(<k, c> <- prod2cons(p)){
-               tb.define(c.consName, constructorId(), k, defType(c));
-               allConstructorDefines += <c.consName, k, defType(c)>;
+               tb.define(c.label/*consName*/, constructorId(), k, defType(c));
+               allConstructorDefines += <c.label/*consName*/, k, defType(c)>;
             }
         }
         // Additionaly declare all constructors inside the scope of the ADT to make them reachable via fully qualified names
@@ -597,9 +598,10 @@ default rel[Key, AType] prod2cons(AProduction p){
     symbols = p.asymbols;
     if(def.label?){
         defLabel = def.label;
-        fields = [ <t.label, t> | s <- symbols, t := removeConditional(s), (isNonTerminalType(t) || auser(nm, _) := t), t.label?];
+        fields = [ t | s <- symbols, t := removeConditional(s), (isNonTerminalType(t) || auser(nm, _) := t), t.label?];
+        //fields = [ <t.label, t> | s <- symbols, t := removeConditional(s), (isNonTerminalType(t) || auser(nm, _) := t), t.label?];
         def = \start(sdef) := def ? sdef : unset(def, "label");
-        return { <p.src, acons(def, deescape(defLabel), fields, [])> };
+        return { <p.src, acons(def, /*deescape(defLabel),*/ fields, [], label=deescape(defLabel))> };
     }
     return {};
 }

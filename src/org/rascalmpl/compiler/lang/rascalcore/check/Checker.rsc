@@ -35,7 +35,8 @@ extend lang::rascalcore::check::ATypeUtils;
 
 extend lang::rascalcore::check::TypePalConfig;
 
-extend lang::rascalcore::check::Reify;
+extend lang::rascalcore::check::ADTSummary;
+import lang::rascalcore::grammar::ParserGenerator;
 
 import Set;
 import Relation;
@@ -43,6 +44,9 @@ import util::Reflective;
 
 start syntax Modules
     = Module+ modules;
+    
+str parserPackage = "org.rascalmpl.core.library.rascalcore.grammar.tests.generated_parsers";
+//str parserPackage = "org.rascalmpl.core.java.parser.object";
 
 Tree mkTree(int n) = [DecimalIntegerLiteral] "<for(int i <- [0 .. n]){>6<}>"; // Create a unique tree to identify predefined names
  
@@ -56,18 +60,18 @@ void rascalPreCollectInitialization(Tree tree, TBuilder tb){
             typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
             SymbolType = aadt("Symbol", [], dataSyntax());
             ProductionType = aadt("Production", [], dataSyntax());
-            symbolField = <"symbol", SymbolType>;
-            definitionsField = < "definitions", amap(SymbolType, ProductionType)>;
-            tb.define("type", constructorId(), mkTree(2), defType(acons(typeType, "type", [symbolField, definitionsField], [])));
+            symbolField = SymbolType[label="symbol"]; //<"symbol", SymbolType>;
+            definitionsField = amap(SymbolType, ProductionType)[label="definitions"]; //< "definitions", amap(SymbolType, ProductionType)>;
+            tb.define("type", constructorId(), mkTree(2), defType(acons(typeType, /*"type",*/ [symbolField, definitionsField], [], label="type")));
             // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
         } else {
             //data type[&T] = type(AType symbol, map[AType,AProduction] definitions);
             typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
             SymbolType = aadt("AType", [], dataSyntax());
             AProductionType = aadt("AProduction", [], dataSyntax());
-            atypeField = <"symbol", SymbolType>;
-            definitionsField = < "definitions", amap(SymbolType, AProductionType)>;
-            tb.define("type", constructorId(), mkTree(2), defType(acons(typeType, "type", [atypeField, definitionsField], [])));
+            atypeField = SymbolType[label="symbol"]; //<"symbol", SymbolType>;
+            definitionsField = amap(SymbolType, AProductionType)[label="definitions"]; //< "definitions", amap(SymbolType, AProductionType)>;
+            tb.define("type", constructorId(), mkTree(2), defType(acons(typeType, /*"type",*/ [atypeField, definitionsField], [], label="type")));
             // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
         }
     tb.leaveScope(tree);
@@ -126,8 +130,8 @@ TModel rascalTModelFromName(str mname, bool debug=false){
     
     /***** turn this off during development of type checker *****/
     
-    <valid, tm> = getIfValid(mname, pcfg);
-    if(valid) return tm;
+    //<valid, tm> = getIfValid(mname, pcfg);
+    //if(valid) return tm;
     
     /***********************************************************/
      
@@ -136,6 +140,17 @@ TModel rascalTModelFromName(str mname, bool debug=false){
         mloc.query = "ts=<lastModified(mloc)>";                         
         pt = parseModuleWithSpaces(mloc).top;
         tm = rascalTModel(pt, startTime, debug=debug);
+        if(isEmpty(tm.messages)){
+            <msgs, adtSummaries> = getADTSummaries(getLoc(pt), tm);
+            tm.messages += msgs;
+            g = getGrammar(adtSummaries);
+            iprintln(g);
+            pname = parserName(mname);
+            <msgs, parserClass> = newGenerate(parserPackage, pname, g); 
+            tm.messages += msgs;
+            msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/rascalcore/grammar/tests/generated_parsers|);
+            tm.messages += msgs;
+        }
         saveModules(mname, pcfg, tm); 
         return tm;
     } catch ParseError(loc src): {
@@ -161,10 +176,7 @@ TModel rascalTModel(Tree pt, int startTime, bool debug=false, bool inline=false)
     tm = rascalPreValidation(tm);
     tm = validate(tm, debug=debug);
     tm = rascalPostValidation(tm);
-    //if(isEmpty(tm.messages)){
-    //   <msgs, g> = getGrammar(getLoc(pt), tm);
-    //   tm.messages += msgs;
-    //}
+    
     afterValidateTime = cpuTime();
     
     if(!inline){
