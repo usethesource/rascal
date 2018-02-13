@@ -191,6 +191,9 @@ void collect(FunctionDeclaration decl, TBuilder tb){
         vis = publicVis();
     }
     
+    tagsMap = getTags(decl.tags);
+    println("TAGS MAP: <tagsMap>");
+    
     <deprecated, deprecationMessage> = getDeprecated(decl.tags);
     signature = decl.signature;
     isVarArgs = signature.parameters is varArgs;
@@ -214,7 +217,11 @@ void collect(FunctionDeclaration decl, TBuilder tb){
                  }
                  return ft;
              });
-        dt.vis=vis; 
+        dt.vis=vis;
+        if(!isEmpty(tagsMap)) dt.tags = tagsMap;
+        
+        println("DT = <dt>");
+         
         tb.defineInScope(parentScope, prettyPrintName(fname), functionId(), fname, dt); 
         
         if(decl is expression || decl is conditional){
@@ -262,6 +269,9 @@ tuple[bool, str] getDeprecated(Tags tags){
    }
    return <false, "">;
 }
+
+map[str,str] getTags(Tags tags)
+    =  ("<tg.name>" : tg has contents ? "<tg.contents.contents>" : "" | tg <- tags.tags);
 
 bool containsReturn(Tree t) = /(Statement) `return <Statement statement>` := t;
 

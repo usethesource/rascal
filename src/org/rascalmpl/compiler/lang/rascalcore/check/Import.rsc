@@ -158,8 +158,10 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
     filteredModuleScopes = {getModuleScope(m, moduleScopes) | str m <- (qualifiedModuleName + imports)} + extendedModuleScopes /*+ |global-scope:///|*/;
     //println("filtered: <filteredModuleScopes>");
     TModel m1 = tmodel();
+    println("TM FACTS:");
+    iprintln(tm.facts);
     
-    m1.facts = (key : tm.facts[key] | key <- tm.facts, key in filteredModuleScopes);
+    m1.facts = tm.facts; //(key : tm.facts[key] | key <- tm.facts, any(fms <- filteredModuleScopes, containedIn(key, fms)));
     println("facts: <size(tm.facts)>  ==\> <size(m1.facts)>");
  
     m1.messages = [msg | msg <- tm.messages, msg.at.path == mscope.path];
@@ -171,8 +173,9 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
    
     m1.store = (key_bom : bom);
     m1.paths = tm.paths;
+    m1.uses = [u | u <- tm.uses, containedIn(u.occ, mscope) ];
     
-    roles = dataOrSyntaxIds + {constructorId(), functionId(), fieldId()};
+    roles = dataOrSyntaxIds + {constructorId(), functionId(), fieldId(), variableId()};
     // Filter model for current module and replace functions in defType by their defined type
     
     defs = for(tup: <Key scope, str id, IdRole idRole, Key defined, DefInfo defInfo> <- tm.defines){
@@ -186,6 +189,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
                    try {                   
                        dt = defType(tm.facts[defined]);
                        if(defInfo.vis?) dt.vis = defInfo.vis;
+                       if(defInfo.tags?) dt.tags = defInfo.tags;
                        if(defInfo.constructorFields?) dt.constructorFields = defInfo.constructorFields;
                        if(defInfo.productions?) dt.productions = defInfo.productions;
                        tup.defInfo = dt;
