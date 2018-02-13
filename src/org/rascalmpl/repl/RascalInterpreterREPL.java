@@ -49,7 +49,12 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
         super(true, true, false);
         originalOutput = null;
     }
-
+    
+    public RascalInterpreterREPL(boolean htmlOutput) throws IOException, URISyntaxException{
+        super(true, true, htmlOutput);
+        originalOutput = null;
+    }
+    
     public void setMeasureCommandTime(boolean measureCommandTime) {
         this.measureCommandTime = measureCommandTime;
     }
