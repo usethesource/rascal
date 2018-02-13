@@ -158,10 +158,9 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
     filteredModuleScopes = {getModuleScope(m, moduleScopes) | str m <- (qualifiedModuleName + imports)} + extendedModuleScopes /*+ |global-scope:///|*/;
     //println("filtered: <filteredModuleScopes>");
     TModel m1 = tmodel();
-    println("TM FACTS:");
-    iprintln(tm.facts);
     
-    m1.facts = tm.facts; //(key : tm.facts[key] | key <- tm.facts, any(fms <- filteredModuleScopes, containedIn(key, fms)));
+    m1.facts = (key : tm.facts[key] | key <- tm.facts, key in filteredModuleScopes);
+    //m1.facts = (key : tm.facts[key] | key <- tm.facts, any(fms <- filteredModuleScopes, containedIn(key, fms)));
     println("facts: <size(tm.facts)>  ==\> <size(m1.facts)>");
  
     m1.messages = [msg | msg <- tm.messages, msg.at.path == mscope.path];
