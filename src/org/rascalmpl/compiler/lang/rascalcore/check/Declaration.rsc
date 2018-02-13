@@ -31,9 +31,13 @@ void collect(current: (Module) `<Header header> <Body body>`, TBuilder tb){
   
     if(current has top) current = current.top;
     mname = prettyPrintName(header.name);
-    //if(ignoreCompiler(header.tags)) {println("*** ignore module <mname>"); return; }
+    
+    tagsMap = getTags(header.tags);
+    
+    //if(ignoreCompiler(tagsMap)) {println("*** ignore module <mname>"); return; }
     //println("*** collect module <mname>, <getLoc(current)>");
-    <deprecated, deprecationMessage> = getDeprecated(header.tags);
+    <deprecated, deprecationMessage> = getDeprecated(tagsMap);
+    
      
     tmod = deprecated ? amodule(mname, deprecationMessage=deprecationMessage) : amodule(mname);
     if(deprecated){
@@ -125,7 +129,9 @@ void() makeVarInitRequirement(Expression expr, AType initType, Key scope)
          };
          
 void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type \type> <{Variable ","}+ variables> ;`, TBuilder tb){
-    if(ignoreCompiler(tags)) { println("*** ignore <current>"); return; }
+
+    tagsMap = getTags(tags);
+    if(ignoreCompiler(tagsMap)) { println("*** ignore <current>"); return; }
      
     vis = getVis(current.visibility);
     if(vis == defaultVis()){
@@ -138,6 +144,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type \
         dt = defType([], AType(){ 
             return expandUserTypes(varType, scope); });
         dt.vis = vis;
+        if(!isEmpty(tagsMap)) dt.tags = tagsMap;
         tb.define(prettyPrintName(var.name), variableId(), var.name, dt);
         
         tb. require("variable type is defined", current.\type, [],
@@ -160,8 +167,8 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type \
 // ---- annotation
 
 void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <Type annoType> <Type onType> @ <Name name> ;`, TBuilder tb){
-    
-    if(ignoreCompiler(tags)) { println("*** ignore: <current>"); return; }
+    tagsMap = getTags(tags);
+    if(ignoreCompiler(tagsMap)) { println("*** ignore: <current>"); return; }
     
     vis = getVis(current.visibility);
     if(vis == defaultVis()){
@@ -174,6 +181,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
     scope = tb.getScope();
     dt = defType([], AType() { return aanno(qname.name, expandUserTypes(ot, scope), expandUserTypes(at, scope)); });
     dt.vis=vis;
+    if(!isEmpty(tagsMap)) dt.tags = tagsMap;
     tb.define(qname.name, annoId(), name, dt);
     //collect(current, tb); 
 }
@@ -192,14 +200,13 @@ void collect(FunctionDeclaration decl, TBuilder tb){
     }
     
     tagsMap = getTags(decl.tags);
-    println("TAGS MAP: <tagsMap>");
     
-    <deprecated, deprecationMessage> = getDeprecated(decl.tags);
+    <deprecated, deprecationMessage> = getDeprecated(tagsMap);
     signature = decl.signature;
     isVarArgs = signature.parameters is varArgs;
     fname = signature.name;
     
-    if(ignoreCompiler(decl.tags)) { println("ignore: function <fname>"); return; }
+    if(ignoreCompiler(tagsMap)) { println("ignore: function <fname>"); return; }
     parentScope = tb.getScope();
        
     tb.enterLubScope(decl);
@@ -219,8 +226,6 @@ void collect(FunctionDeclaration decl, TBuilder tb){
              });
         dt.vis=vis;
         if(!isEmpty(tagsMap)) dt.tags = tagsMap;
-        
-        println("DT = <dt>");
          
         tb.defineInScope(parentScope, prettyPrintName(fname), functionId(), fname, dt); 
         
@@ -255,23 +260,19 @@ void collect(FunctionDeclaration decl, TBuilder tb){
     tb.leaveScope(decl);
 }
 
-bool ignoreCompiler(Tags tags){
-   for(tg <- tags.tags){
-     if("<tg.name>" in {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"}) return true;
-   }
-   return false;
-}
+map[str,str] getTags(Tags tags)
+    =  ("<tg.name>" : tg has contents ? "<tg.contents.contents>" : "" | tg <- tags.tags);
 
-tuple[bool, str] getDeprecated(Tags tags){
-    for(tg <- tags.tags){
-     if("<tg.name>" in {"deprecated", "Deprecated"}) 
-         return <true, tg has contents ? "<tg.contents.contents>" : "">;
+bool ignoreCompiler(map[str,str] tagsMap)
+    = !isEmpty(domain(tagsMap) &  {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
+
+tuple[bool, str] getDeprecated(map[str,str] tagsMap){
+    for(depr <- {"deprecated", "Deprecated"}){
+        if(tagsMap[depr]?)
+            return <true, tagsMap[depr]>;
    }
    return <false, "">;
 }
-
-map[str,str] getTags(Tags tags)
-    =  ("<tg.name>" : tg has contents ? "<tg.contents.contents>" : "" | tg <- tags.tags);
 
 bool containsReturn(Tree t) = /(Statement) `return <Statement statement>` := t;
 
@@ -375,7 +376,8 @@ void collect(current: (Statement) `return <Statement statement>`, TBuilder tb){
 // ---- alias declaration
 
 void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias <UserType userType> = <Type base>;`, TBuilder tb){
-    if(ignoreCompiler(tags)) { println("*** ignore: <current>"); return; }
+    tagsMap = getTags(tags);
+    if(ignoreCompiler(tagsMap)) { println("*** ignore: <current>"); return; }
     
     aliasName = prettyPrintName(userType.name);
     aliasedType = convertType(base, tb);
@@ -410,7 +412,8 @@ void collect (current: (Declaration) `<Tags tags> <Visibility visibility> data <
     = dataDeclaration(tags, current, [v | v <- variants], tb);
 
 void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBuilder tb){
-    if(ignoreCompiler(tags)) { println("*** ignore: <current>"); return; }
+    tagsMap = getTags(tags);
+    if(ignoreCompiler(tagsMap)) { println("*** ignore: <current>"); return; }
     userType = current.user;
     commonKeywordParameters = current.commonKeywordParameters;
     adtName = prettyPrintName(userType.name);
@@ -465,6 +468,7 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBu
     constructors = {di.atype | DefInfo di <- allConstructorDefines<2>};
     if(!isEmpty(constructors)) dt.constructors = constructors;
     if(!isEmpty(commonKwFields)) dt.commonKeywordFields = commonKwFields;
+    if(!isEmpty(tagsMap)) dt.tags = tagsMap;
     tb.define(adtName, dataId(), current, dt);
     
     // Additionaly declare all constructors inside the scope of the ADT to make them reachable via fully qualified names
@@ -479,7 +483,7 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBu
 // ---- syntax definition
 
 void collect(current: (SyntaxDefinition) `<Visibility vis> layout <Sym defined> = <Prod production>;`, TBuilder tb){
-    println("LAYOUT: <current>");
+    //println("LAYOUT: <current>");
     nonterminalType = defsym2AType(defined, layoutSyntax());
     declareSyntax(current, getVis(vis), defined, nonterminalType, production, layoutId(), tb);
     collect(production, tb);
@@ -581,7 +585,6 @@ bool isIterSym((Sym) `<Sym symbol>*`) = true;
 bool isIterSym((Sym) `{ <Sym symbol> <Sym sep> }+`) = true;
 bool isIterSym((Sym) `{ <Sym symbol> <Sym sep> }*`) = true;
 default bool isIterSym(Sym sym) = false;
-
 
 void collect(current: (Sym) `<Sym symbol>+`, TBuilder tb){
     if(isIterSym(symbol)) tb.reportWarning(current, "Nested iteration");
