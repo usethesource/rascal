@@ -8,12 +8,8 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 module lang::rascalcore::grammar::definition::Layout
 
-import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::grammar::definition::Grammar;
-//import ParseTree;
 import lang::rascalcore::check::AType;
-import List;
-import IO;
 
 //@doc{intermixes the actively visible layout definition in each module into the relevant syntax definitions}
 //AGrammarDefinition \layouts(AGrammarDefinition def) {
@@ -63,16 +59,11 @@ bool isDefault(AType s) = (s == layouts("$default$"));
 //}  
 
 @doc{intersperses layout symbols in all non-lexical productions}
-public AGrammar \layouts(AGrammar g, AType l, set[AType] others) {
+public AGrammar layouts(AGrammar g, AType l, set[AType] others) {
+  
   return top-down-break visit (g) {
-    //case prod(\start(y),[AType x],as) => prod(\start(y),[l, x, l],  as)
-    case p: prod(aadt(s, list[AType] parameters, startSyntax()), [AType x]) => p[asymbols=[l, x, l]]
+    case p: prod(\start(aadt(s, list[AType] parameters, contextFreeSyntax())), list[AType] lhs) => p[asymbols=[l, *intermix(lhs, l, others), l]]
     case p: prod(aadt(s, list[AType] parameters, contextFreeSyntax()), list[AType] lhs) => p[asymbols=intermix(lhs, l, others)]
-    
-    //case prod(sort(s),list[AType] lhs,as) => prod(sort(s),intermix(lhs, l, others),as)
-    //case prod(\parameterized-sort(s,n),list[AType] lhs,as) => prod(\parameterized-sort(s,n),intermix(lhs, l, others),as)
-    //case prod(label(t,sort(s)),list[AType] lhs,as) => prod(label(t,sort(s)),intermix(lhs, l, others),as)
-    //case prod(label(t,\parameterized-sort(s,n)),list[AType] lhs,as) => prod(label(t,\parameterized-sort(s,n)),intermix(lhs, l, others),as) 
   }
 } 
 

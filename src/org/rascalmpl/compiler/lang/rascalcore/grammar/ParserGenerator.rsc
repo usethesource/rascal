@@ -33,6 +33,7 @@ import Map;
 import Node;
 import IO;
 import Exception;
+import Message;
   
 // TODO: replace this complex data structure with several simple ones
 alias Items = map[AType,map[Item item, tuple[str new, int itemId] new]];
@@ -43,7 +44,7 @@ public str getParserMethodName(Sym sym) = getParserMethodName(sym2AType(sym));
 str getParserMethodName(conditional(AType s, _)) = getParserMethodName(s);
 default str getParserMethodName(AType s) = value2id(s);
 
-public str newGenerate(str package, str name, AGrammar gr) {	
+public tuple[list[Message], str] newGenerate(str package, str name, AGrammar gr) {	
     startJob("Generating parser <package>.<name>");
     int uniqueItem = 1; // -1 and -2 are reserved by the SGTDBF implementation
     int newItem() { uniqueItem += 1; return uniqueItem; };
@@ -75,7 +76,8 @@ public str newGenerate(str package, str name, AGrammar gr) {
     newItems = generateNewItems(gr);
     
     event("computing priority and associativity filter");
-    rel[int parent, int child] dontNest = computeDontNests(newItems, beforeUniqueGr, gr);
+    rel[int parent, int child] dontNest = {};
+    <msgs, dontNest> = computeDontNests(newItems, beforeUniqueGr, gr);
     // this creates groups of children that forbidden below certain parents
     rel[set[int] children, set[int] parents] dontNestGroups = 
       {<c,g[c]> | rel[set[int] children, int parent] g := {<dontNest[p],p> | p <- dontNest.parent}, c <- g.children};
@@ -100,26 +102,26 @@ public str newGenerate(str package, str name, AGrammar gr) {
            'import io.usethesource.vallang.IValueFactory;
            'import io.usethesource.vallang.exceptions.FactTypeUseException;
            'import io.usethesource.vallang.io.StandardTextReader;
-           'import org.rascalmpl.parser.gtd.stack.*;
-           'import org.rascalmpl.parser.gtd.stack.filter.*;
-           'import org.rascalmpl.parser.gtd.stack.filter.follow.*;
-           'import org.rascalmpl.parser.gtd.stack.filter.match.*;
-           'import org.rascalmpl.parser.gtd.stack.filter.precede.*;
-           'import org.rascalmpl.parser.gtd.preprocessing.ExpectBuilder;
-           'import org.rascalmpl.parser.gtd.util.IntegerKeyedHashMap;
-           'import org.rascalmpl.parser.gtd.util.IntegerList;
-           'import org.rascalmpl.parser.gtd.util.IntegerMap;
-           'import org.rascalmpl.values.ValueFactoryFactory;
-           'import org.rascalmpl.values.uptr.RascalValueFactory;
-           'import org.rascalmpl.values.uptr.ITree;
+           'import org.rascalmpl.core.parser.gtd.stack.*;
+           'import org.rascalmpl.core.parser.gtd.stack.filter.*;
+           'import org.rascalmpl.core.parser.gtd.stack.filter.follow.*;
+           'import org.rascalmpl.core.parser.gtd.stack.filter.match.*;
+           'import org.rascalmpl.core.parser.gtd.stack.filter.precede.*;
+           'import org.rascalmpl.core.parser.gtd.preprocessing.ExpectBuilder;
+           'import org.rascalmpl.core.parser.gtd.util.IntegerKeyedHashMap;
+           'import org.rascalmpl.core.parser.gtd.util.IntegerList;
+           'import org.rascalmpl.core.parser.gtd.util.IntegerMap;
+           'import org.rascalmpl.core.values.ValueFactoryFactory;
+           'import org.rascalmpl.core.values.uptr.RascalValueFactory;
+           'import org.rascalmpl.core.values.uptr.ITree;
            '
            '@SuppressWarnings(\"all\")
-           'public class <name> extends org.rascalmpl.parser.gtd.SGTDBF\<IConstructor, ITree, ISourceLocation\> {
+           'public class <name> extends org.rascalmpl.core.parser.gtd.SGTDBF\<IConstructor, ITree, ISourceLocation\> {
            '  protected final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
            '
            '  protected static IValue _read(java.lang.String s, io.usethesource.vallang.type.Type type) {
            '    try {
-           '      return new StandardTextReader().read(VF, org.rascalmpl.values.uptr.RascalValueFactory.uptr, type, new StringReader(s));
+           '      return new StandardTextReader().read(VF, org.rascalmpl.core.values.uptr.RascalValueFactory.uptr, type, new StringReader(s));
            '    }
            '    catch (FactTypeUseException e) {
            '      throw new RuntimeException(\"unexpected exception in generated parser\", e);  
@@ -199,7 +201,7 @@ public str newGenerate(str package, str name, AGrammar gr) {
            '    
            '  // Production declarations
            '	<for (p <- (uniqueProductions)) {>
-           '  private static final IConstructor <value2id(p)> = (IConstructor)   d(\"<esc("<p>")>\", RascalValueFactory.Production);<}>
+           '  private static final IConstructor <value2id(p)> = (IConstructor) _read(\"<esc("<p>")>\", RascalValueFactory.Production);<}>
            '    
            '  // Item declarations
            '	<for (AType s <- (newItems<0>), isNonterminal(s)) {
@@ -240,10 +242,10 @@ public str newGenerate(str package, str name, AGrammar gr) {
            '  <generateParseMethod(newItems, gr.rules[nont])><}>
            '}";
    endJob(true);
-   return src;
+   return <msgs, src>;
 }  
 
-rel[int,int] computeDontNests(Items items, AGrammar grammar, AGrammar uniqueGrammar) {
+tuple[list[Message], rel[int,int]] computeDontNests(Items items, AGrammar grammar, AGrammar uniqueGrammar) {
   // first we compute a map from productions to their last items (which identify each production)
   prodItems = (p1 : items[getType(rhs)][item(p1, size(lhs)-1)].itemId | /AProduction p:prod(AType rhs,list[AType] lhs) := grammar, p1:= unsetRec(p));
   
@@ -251,11 +253,13 @@ rel[int,int] computeDontNests(Items items, AGrammar grammar, AGrammar uniqueGram
   // or except filter. They can be the fathers though. 
   
   // now we get the "don't nest" relation, which is defined by associativity and priority declarations, and excepts
-  dnn = doNotNest(grammar);
+  <msgs, dnn> = doNotNest(grammar);
   
   // finally we produce a relation between item id for use in the internals of the parser
-  return {<items[getType(father.def)][item(father,pos)].itemId, prodItems[child]> | <father,pos,child> <- dnn, father is prod}
-       + {<getItemId(t, pos, child), prodItems[child]> | <regular(s),pos,child> <- dnn, defined <- uniqueGrammar.rules, /AType t := uniqueGrammar, t == s};
+  return < msgs,
+           {<items[getType(father.def)][item(father,pos)].itemId, prodItems[child]> | <father,pos,child> <- dnn, father is prod}
+          + {<getItemId(t, pos, child), prodItems[child]> | <regular(s),pos,child> <- dnn, defined <- uniqueGrammar.rules, /AType t := uniqueGrammar, t == s}
+         >;
 }
 
 int getItemId(AType s, int pos, prod(AType u,list[AType] _)) {
@@ -582,5 +586,19 @@ default str v2i(value v) {
         case int i         : return i < 0 ? "min_<-i>" : "<i>";
         case str s         : return ("" | it + "_<charAt(s,i)>" | i <- [0..size(s)]);
         default            : return uu(v);
+    }
+}
+
+str parserName(str mname) = replaceAll(replaceAll(mname, "\\\\", "_"), "::", "_");
+
+list[Message] saveParser(str pname, str parserClass, loc where){
+    try {
+        dest = where +"/<pname>.java";
+        println("Write parser for <pname> tp <dest>");
+        writeFile(dest, parserClass);
+        println("done");
+        return [];
+    } catch e: {
+        return [error("<e>", |unknown:///|)];
     }
 }

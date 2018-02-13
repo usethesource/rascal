@@ -16,30 +16,30 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::grammar::definition::Grammar;
 //import Set;
 
-@memo
-@doc{Converts internal module representation of Rascal interpreter to single grammar definition}
-public AGrammar modules2grammar(str main, map[str name, tuple[set[str] imports, set[str] extends, set[SyntaxDefinition] defs] \mod] mods) {
-  //// note that we ignore extends here because they're resolved by the interpreter at the moment by 
-  //// cloning definitions into the module that extends.
-  //def = \definition(main, (m:\module(m, 
-  //                                  mods[m].imports, 
-  //                                  mods[m].extends, 
-  //                                  syntax2grammar(mods[m].defs)
-  //                                  ) 
-  //                        | m <- mods));
-  //return resolve(fuse(layouts(def)));
-}
+//@memo
+//@doc{Converts internal module representation of Rascal interpreter to single grammar definition}
+//public AGrammar modules2grammar(str main, map[str name, tuple[set[str] imports, set[str] extends, set[SyntaxDefinition] defs] \mod] mods) {
+//  //// note that we ignore extends here because they're resolved by the interpreter at the moment by 
+//  //// cloning definitions into the module that extends.
+//  //def = \definition(main, (m:\module(m, 
+//  //                                  mods[m].imports, 
+//  //                                  mods[m].extends, 
+//  //                                  syntax2grammar(mods[m].defs)
+//  //                                  ) 
+//  //                        | m <- mods));
+//  //return resolve(fuse(layouts(def)));
+//}
 
-@memo
-@doc{Converts concrete syntax definitions and fuses them into one single grammar definition}     
-public AGrammar modules2grammar(str main, set[Module] modules) {
-  //return resolve(fuse(layouts(modules2definition(main, modules))));
-}
+//@memo
+//@doc{Converts concrete syntax definitions and fuses them into one single grammar definition}     
+//public AGrammar modules2grammar(str main, set[Module] modules) {
+//  //return resolve(fuse(layouts(modules2definition(main, modules))));
+//}
 
-@doc{Converts concrete syntax definitions to abstract grammar definitions}
-public AGrammarDefinition modules2definition(str main, set[Module] modules) {
-  //return \definition(main, (\mod.name:\mod | m <- modules, \mod := module2grammar(m)));
-}
+//@doc{Converts concrete syntax definitions to abstract grammar definitions}
+//public AGrammarDefinition modules2definition(str main, set[Module] modules) {
+//  //return \definition(main, (\mod.name:\mod | m <- modules, \mod := module2grammar(m)));
+//}
 
 @doc{
   Combines a set of modules into one big AGrammar, projecting only the rules that
