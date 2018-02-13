@@ -14,6 +14,7 @@ import List;
 import IO;
 import util::Maybe;
 import Node;
+import Message;
  
 import lang::rascalcore::grammar::definition::Productions;
 import lang::rascalcore::grammar::definition::Symbols;
@@ -44,9 +45,10 @@ the associativity groups and the ! restriction operator.
   the disambiguation by priority and associativity remains 'syntax-safe'
 * the non-assoc groups and ! are notably not 'syntax-safe', they remove sentences from non-terminals.
 }
-public DoNotNest doNotNest(AGrammar g) {
+public tuple[list[Message],DoNotNest] doNotNest(AGrammar g) {
   g = references(g); 
   result = {};
+  msgs = [];
   
   for (s <- g.rules) {
     // note how the analysis is still _per non-terminal_
@@ -78,18 +80,18 @@ public DoNotNest doNotNest(AGrammar g) {
     // TODO extract checking into separate function
     for (<f, c> <- (lefts & rights)) {
       if (f == c)
-        println("warning, not syntax-safe: <prod2rascal(f)> is both left and right associative.");
+        msgs += warning("Not syntax-safe: <prod2rascal(f)> is both left and right associative.", f.src);
       else 
-        println("warning, not syntax-safe: <prod2rascal(f)> and <prod2rascal(c)> are both left and right associative to eachother.");
+        msgs += warning("Not syntax-safe: <prod2rascal(f)> and <prod2rascal(c)> are both left and right associative to eachother.", f.src);
     }
     
     // here we test for accidental priority contradictions, remove them and warn about the removal.
     // TODO extract checking into separate function
     for (<f, c> <- (prios & prios<1,0>)) {
       if (f == c)
-        println("warning, not syntax-safe: <prod2rascal(f)> \> <prod2rascal(c)>, has a priority with itself."); 
+        msgs += warning("Not syntax-safe: <prod2rascal(f)> \> <prod2rascal(c)>, has a priority with itself.", f.src); 
       else 
-        println("warning, not syntax-safe: <prod2rascal(f)> {\<,\>} <prod2rascal(c)>, reflexive priority."); 
+        msgs += warning("Not syntax-safe: <prod2rascal(f)> {\<,\>} <prod2rascal(c)>, reflexive priority.", f.src); 
     }
      
     // and now we generated the filters, but only if 
@@ -123,13 +125,13 @@ public DoNotNest doNotNest(AGrammar g) {
     // TODO extract checking into separate function
     for (<p,q> <- ambiguous) {
          if (p == q) 
-           println("warning, ambiguity predicted: <prod2rascal(p)> lacks left or right associativity");
+           msgs += warning("Ambiguity predicted: <prod2rascal(p)> lacks left or right associativity", p.src);
          else   
-           println("warning, ambiguity predicted: <prod2rascal(p)> and <prod2rascal(q)> lack left or right associativity or priority (\>)");    
+           msgs += warning("Ambiguity predicted: <prod2rascal(p)> and <prod2rascal(q)> lack left or right associativity or priority (\>)", p.src);    
     }
   }
     
-  return result + {*except(p, g) | /AProduction p <- g, p is prod || p is regular};
+  return < msgs, result + {*except(p, g) | /AProduction p <- g, p is prod || p is regular} >;
 }
 
 default Extracted extract(AProduction _) = {}; 

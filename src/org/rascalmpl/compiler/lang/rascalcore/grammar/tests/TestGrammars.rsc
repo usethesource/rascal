@@ -5,13 +5,13 @@ import lang::rascalcore::check::AType;
 
 public AGrammar GEMPTY = grammar({sort("S")}, ());
 
-private AProduction pr(AType rhs, list[AType] lhs/*, SyntaxRole syntaxRole*/) {
-  return prod(rhs,lhs/*,syntaxRole*/);
+private AProduction pr(AType rhs, list[AType] lhs) {
+  return prod(rhs,lhs);
 }
 
 public AGrammar G0 = grammar({sort("S")}, (
-    sort("S"): choice(sort("S"), { pr(sort("S"), [ lit("0") ]/*, lexicalSyntax()*/) }),
-    lit("0"): choice(lit("0"), { pr(lit("0"),[\char-class([range(48,48)])]/*, lexicalSyntax()*/) })
+    sort("S"): choice(sort("S"), { pr(sort("S"), [ lit("0") ]) }),
+    lit("0"): choice(lit("0"), { pr(lit("0"),[\char-class([range(48,48)])]) })
 ));
 
 public map[AType sort, AProduction def] Lit1 = (

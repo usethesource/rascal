@@ -26,14 +26,14 @@ default AType striprec(AType s_ori) = visit(s_ori) {
 AType strip(conditional(AType s, set[ACondition] _)) = strip(s);
 default AType strip(AType s) = s.label? ? unset(s, "label") : s;
 
-public bool match(AType checked, AType referenced) {
-  while (checked is conditional || checked is label)
-    checked = checked.symbol;
-  while (referenced is conditional || referenced is label)
-    referenced = referenced.symbol;
-    
-  return referenced == checked;
-} 
+//public bool match(AType checked, AType referenced) {
+//  while (checked is conditional || checked is label)
+//    checked = checked.symbol;
+//  while (referenced is conditional || referenced is label)
+//    referenced = referenced.symbol;
+//    
+//  return referenced == checked;
+//} 
 
 public AType delabel(AType s) = visit(s) { case AType t => unset(t, "label") when t.label? };
 

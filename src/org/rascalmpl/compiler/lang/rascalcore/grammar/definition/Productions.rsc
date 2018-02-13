@@ -28,6 +28,7 @@ import String;
 import IO;  
 import util::Math;
 import util::Maybe;
+import Message;
 
 
 // conversion functions
@@ -115,3 +116,64 @@ public AProduction prod2prod(AType nt, Prod p) {
 
 private AProduction associativity(AType nt, nothing(), AProduction p) = p;
 private default AProduction associativity(AType nt, just(Associativity a), AProduction p) = associativity(nt, a, {p});
+
+
+list[Message] validateProduction(p: prod(AType def, list[AType] asymbols)){
+    if(isStartNonTerminalType(def)){
+        def = getStartNonTerminalType(def);
+    }
+    
+    msgs = [];
+    visit(p){
+        case \delete(t):
+            if(t.syntaxRole != keywordSyntax()) { 
+                msgs += [ error("Exclude `\\` requires keywords as right argument, found <fmt(t)>", p.src) ]; 
+            }
+        case \seq(list[AType] symbols):
+            forbidConsecutiveLayout(symbols, p.src);
+            
+        case \iter-seps(AType symbol, list[AType] separators):
+            msgs += validateSeparators(separators, p.src); 
+
+        case \iter-star-seps(AType symbol, list[AType] separators):
+            msgs += validateSeparators(separators, p.src); 
+    }
+   
+    if(!isEmpty(asymbols)){
+        if(def.syntaxRole == keywordSyntax()){
+            msgs += 
+                for(t <- asymbols){
+                    if(lit(_) !:= t){
+                       append error("In keyword declaration only literals are allowed, found <fmt(t)>", p.src);
+                    }
+                }
+        
+        } else {
+            msgs += requireNonLayout(asymbols[0], p.src, "at begin of production") + 
+                    requireNonLayout(asymbols[-1], p.src, "at end of production");
+            msgs += forbidConsecutiveLayout(asymbols, p.src);
+        }
+    }
+    return msgs;
+}
+
+list[Message] validateProduction(AProduction p)
+    = [];
+
+list[Message] requireNonLayout(AType u, loc src, str msg)
+    = isLayoutType(u) ? [ error("Layout type <fmt(u)> not allowed <msg>", src) ] : [];
+
+list[Message] validateSeparators(list[AType] separators, loc src){
+    msgs = [];
+    if(all(sep <- separators, isLayoutType(sep))) msgs += [ error("At least one element of separators should be layout", src) ]; 
+    msgs += forbidConsecutiveLayout(separators, src);
+    return msgs;
+}
+
+list[Message] forbidConsecutiveLayout(list[AType] symbols, loc src){
+    msgs = [];
+    if([*_,t1, t2,*_] := symbols, isLayoutType(t1), isLayoutType(t2)){
+       msgs += [error("Consecutive layout types <fmt(t1)> and <fmt(t2)> not allowed", src)];
+    }
+    return msgs;
+}

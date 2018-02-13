@@ -27,6 +27,7 @@ import String;
 import ValueIO;
 import analysis::graphs::Graph;
 import Relation;
+import Node;
 
 //public void definition2disk(loc prefix, AGrammarDefinition def) {
 //  for (m <- def.modules) {
@@ -127,50 +128,52 @@ import Relation;
 //
 //
 public str prod2rascal(AProduction p) {
-//  switch (p) {
-//    case choice(s, alts) : {
-//        	<fst, rest> = takeOneFrom(alts);
-//			return "<prod2rascal(fst)><for (pr:prod(_,_,_) <- rest) {>
-//			       '| <prod2rascal(pr)><}><for (pr <- rest, prod(_,_,_) !:= pr) {>
-//			       '| <prod2rascal(pr)><}>";
-//		}
-//    case priority(s, alts) :
-//        return "<prod2rascal(head(alts))><for (pr <- tail(alts)) {>
-//               '\> <prod2rascal(pr)><}>"; 
-//    case associativity(s, a, alts) : {  
-//    		<fst, rest> = takeOneFrom(alts);
-//    		return "<associativity(a)> 
-//    		       '  ( <prod2rascal(fst)><for (pr <- rest) {>
-//    		       '  | <prod2rascal(pr)><}>
-//    		       '  )";
-// 		}
-//
-//    case prod(label(str n,AType rhs),list[AType] lhs,set[Attr] as) :
-//        return "<for (a <- as) {> <attr2mod(a)><}><reserved(n)>: <for(s <- lhs){><symbol2rascal(s)> <}>";
-// 
-//    case prod(AType rhs,list[AType] lhs,{}) :
-//      	return "<for(s <- lhs){><symbol2rascal(s)> <}>";
-// 
-//    case prod(AType rhs,list[AType] lhs,set[Attr] as) :
-//      	return "<for (a <- as) {><attr2mod(a)><}> <for(s <- lhs){><symbol2rascal(s)> <}>";
-// 
-//    case regular(_) :
-//    	    return "";
-//    
-//    default: throw "missed a case <p>";
-//  }
+  switch (p) {
+    case choice(s, alts) : {
+        	<fst, rest> = takeOneFrom(alts);
+			return "<prod2rascal(fst)><for (pr:prod(_,_) <- rest) {>
+			       '| <prod2rascal(pr)><}><for (pr <- rest, prod(_,_) !:= pr) {>
+			       '| <prod2rascal(pr)><}>";
+		}
+    case priority(s, alts) :
+        return "<prod2rascal(head(alts))><for (pr <- tail(alts)) {>
+               '\> <prod2rascal(pr)><}>"; 
+    case associativity(s, a, alts) : {  
+    		<fst, rest> = takeOneFrom(alts);
+    		return "<associativity(a)> 
+    		       '  ( <prod2rascal(fst)><for (pr <- rest) {>
+    		       '  | <prod2rascal(pr)><}>
+    		       '  )";
+ 		}
+
+    case p:prod(AType rhs, list[AType] lhs) : {
+        attrs = "";
+        if(p.attributes?) attrs = isEmpty(p.attributes) ? "" :"<for (a <- p.attributes) {> <attr2mod(a)><}>";
+        elms = "<for(s <- lhs){><symbol2rascal(s)> <}>";
+        if(rhs.label?){
+            return "<attrs><reserved(rhs.label)>: <elms>";
+        } else {
+            return "<attrs> <elms>";
+        }
+    }
+ 
+    case regular(_) :
+    	    return "";
+    
+    default: throw "missed a case <p>";
+  }
 }
-//
-//str associativity(\left()) = "left";
-//str associativity(\right()) = "right";
-//str associativity(\assoc()) = "assoc";
-//str associativity(\non-assoc()) = "non-assoc";
-//
-//private set[str] rascalKeywords = { "value" , "loc" , "node" , "num" , "type" , "bag" , "int" , "rat" , "rel" , "real" , "tuple" , "str" , "bool" , "void" , "datetime" , "set" , "map" , "list" , "int" ,"break" ,"continue" ,"rat" ,"true" ,"bag" ,"num" ,"node" ,"finally" ,"private" ,"real" ,"list" ,"fail" ,"filter" ,"if" ,"tag" ,"extend" ,"append" ,"rel" ,"void" ,"non-assoc" ,"assoc" ,"test" ,"anno" ,"layout" ,"data" ,"join" ,"it" ,"bracket" ,"in" ,"import" ,"false" ,"all" ,"dynamic" ,"solve" ,"type" ,"try" ,"catch" ,"notin" ,"else" ,"insert" ,"switch" ,"return" ,"case" ,"while" ,"str" ,"throws" ,"visit" ,"tuple" ,"for" ,"assert" ,"loc" ,"default" ,"map" ,"alias" ,"any" ,"module" ,"mod" ,"bool" ,"public" ,"one" ,"throw" ,"set" ,"start" ,"datetime" ,"value" };
-//
-//public str reserved(str name) {
-//  return name in rascalKeywords ? "\\<name>" : name;   
-//}
+
+str associativity(\left()) = "left";
+str associativity(\right()) = "right";
+str associativity(\assoc()) = "assoc";
+str associativity(\non-assoc()) = "non-assoc";
+
+private set[str] rascalKeywords = { "value" , "loc" , "node" , "num" , "type" , "bag" , "int" , "rat" , "rel" , "real" , "tuple" , "str" , "bool" , "void" , "datetime" , "set" , "map" , "list" , "int" ,"break" ,"continue" ,"rat" ,"true" ,"bag" ,"num" ,"node" ,"finally" ,"private" ,"real" ,"list" ,"fail" ,"filter" ,"if" ,"tag" ,"extend" ,"append" ,"rel" ,"void" ,"non-assoc" ,"assoc" ,"test" ,"anno" ,"layout" ,"data" ,"join" ,"it" ,"bracket" ,"in" ,"import" ,"false" ,"all" ,"dynamic" ,"solve" ,"type" ,"try" ,"catch" ,"notin" ,"else" ,"insert" ,"switch" ,"return" ,"case" ,"while" ,"str" ,"throws" ,"visit" ,"tuple" ,"for" ,"assert" ,"loc" ,"default" ,"map" ,"alias" ,"any" ,"module" ,"mod" ,"bool" ,"public" ,"one" ,"throw" ,"set" ,"start" ,"datetime" ,"value" };
+
+public str reserved(str name) {
+  return name in rascalKeywords ? "\\<name>" : name;   
+}
 //
 //test bool noAttrs() = prod2rascal(prod(sort("ID-TYPE"), [sort("PICO-ID"),lit(":"),sort("TYPE")],{}))
 //     == "PICO-ID \":\" TYPE ";
@@ -190,143 +193,139 @@ public str prod2rascal(AProduction p) {
 //	                   prod(sort("EXP"),[sort("EXP"),lit("+"),sort("EXP")],{})])) ==
 //	"EXP \"||\" EXP \n\> EXP \"-\" EXP \n\> EXP \"+\" EXP ";	
 //
-//public str attr2mod(Attr a) {
-//  switch(a) {
-//    case \bracket(): return "bracket";
-//    case \tag(str x(str y)) : return "@<x>=\"<escape(y)>\"";
-//    case \tag(str x()) : return "@<x>";
-//    case \assoc(Associativity as) : return associativity(as);
-//    default : return "@Unsupported(\"<escape("<a>")>\")";
-//  }
-//}
-//
-//public str symbol2rascal(AType sym) {
-//  switch (sym) {
-//    case label(str l, x) :
-//    	return "<symbol2rascal(x)> <l>";  
-//    case sort(x) :
-//    	return x;
-//    // Type incorrect, PK
-//    //case \parameter(x) :
-//    //    return "&" + replaceAll(x, "-", "_");
-//    case lit(x) :
-//    	return "\"<escape(x)>\"";
-//    case cilit(x) :
-//    	return "\'<escape(x)>\'";
-//    case \lex(x):
-//    	return x;
-//    case \keywords(x):
-//        return x;
-//    case \parameterized-sort(str name, list[AType] parameters):
-//        return "<name>[<params2rascal(parameters)>]";
-//    case \parameterized-lex(str name, list[AType] parameters):
-//        return "<name>[<params2rascal(parameters)>]";
-//    case \char-class(x) : 
-//       if (\char-class(y) := complement(sym)) {
-//         str norm = cc2rascal(x);
-//         str comp = cc2rascal(y);
-//         return size(norm) > size(comp) ? "!<comp>" : norm;
-//       } 
-//       else throw "weird result of character class complement";
-//    case \seq(syms):
-//        return "( <for(s <- syms){> <symbol2rascal(s)> <}> )";
-//    case opt(x) : 
-//    	return "<symbol2rascal(x)>?";
-//    case iter(x) : 
-//    	return "<symbol2rascal(x)>+";
-//    case \iter-star(x) : 
-//    	return "<symbol2rascal(x)>*";
-//    case \iter-seps(x,seps) :
-//        return iterseps2rascal(x, seps, "+");
-//    case \iter-star-seps(x,seps) : 
-//    	return iterseps2rascal(x, seps, "*");
-//    case alt(set[AType] alts): {
-//        <f,as> = takeOneFrom(alts);
-//        return "(" + (symbol2rascal(f) | "<it> | <symbol2rascal(a)>" | a <- as) + ")";
-//    }
-//     case seq(list[AType] ss): {
-//        <f,as> = takeOneFrom(ss);
-//        return "(" + (symbol2rascal(f) | "<it> <symbol2rascal(a)>" | a <- as) + ")";
-//    }
-//    case \layouts(str x): 
-//    	return "";
-//    case \start(x):
-//    	return symbol2rascal(x);
-//    // Following are type-incorrect, PK.
-//    //case intersection(lhs, rhs):
-//    //    return "<symbol2rascal(lhs)> && <symbol2rascal(rhs)>";
-//    //case union(lhs, rhs):
-//    // 	return "<symbol2rascal(lhs)> || <symbol2rascal(rhs)>";
-//    //case difference(Class lhs, Class rhs):
-//    // 	return "<symbol2rascal(lhs)> -  <symbol2rascal(rhs)>";
-//    //case complement(Class lhs):
-//    // 	return "!<symbol2rascal(lhs)>";
-//    case conditional(AType s, {Condition c, Condition d, *Condition r}):
-//        return symbol2rascal(conditional(conditional(s, {c}), {d, *r})); 
-//    case conditional(s, {delete(t)}) :
-//        return "<symbol2rascal(s)> \\ <symbol2rascal(t)>"; 
-//    case conditional(s, {follow(t)}) :
-//        return "<symbol2rascal(s)> \>\> <symbol2rascal(t)>";
-//    case conditional(s, {\not-follow(t)}) :
-//        return "<symbol2rascal(s)> !\>\> <symbol2rascal(t)>";
-//    case conditional(s, {precede(t)}) :
-//        return "<symbol2rascal(s)> \<\< <symbol2rascal(s)> ";
-//    case conditional(s, {\not-precede(t)}) :
-//        return "<symbol2rascal(s)> !\<\< <symbol2rascal(s)> ";    
-//    case conditional(s, {\at-column(int i)}) :
-//        return "<symbol2rascal(s)>@<i>";
-//    case conditional(s, {\begin-of-line()}) :
-//        return "^<symbol2rascal(s)>";
-//    case conditional(s, {\end-of-line()}) :
-//        return "<symbol2rascal(s)>$";
-//    case conditional(s, {\except(str x)}) :
-//        return "<symbol2rascal(s)>!<x>";
-//    case conditional(s, {}): {
-//        println("WARNING: empty conditional <sym>");
-//        return symbol2rascal(s);
-//    }
-//    case empty(): 
-//        return "()"; 
-//  }
-//
-//  throw "symbol2rascal: missing case <sym>";
-//}
-//
-//public str iterseps2rascal(AType sym, list[AType] seps, str iter){
-//  separators = "<for(sp <- seps){><symbol2rascal(sp)><}>";
-//  if (separators != "")
-//     return "{<symbol2rascal(sym)> <separators>}<iter>";
-//  else
-//    return "<symbol2rascal(sym)><separators><iter>";
-//}
-//
-//public str params2rascal(list[AType] params){
-//  len = size(params);
-//  if(len == 0)
-//  	return "";
-//  if(len == 1)
-//  	return symbol2rascal(params[0]);
-//  sep = "";
-//  res = "";
-//  for(AType p <- params){
-//      res += sep + symbol2rascal(p);
-//      sep = ", ";
-//  }
-//  return res;	
-//}
-//
-//public str cc2rascal(list[ACharRange] ranges) {
-//  if (ranges == []) return "[]"; 
-//  return "[<range2rascal(head(ranges))><for (r <- tail(ranges)){> <range2rascal(r)><}>]";
-//}
-//
-//public str range2rascal(ACharRange r) {
-//  switch (r) {
-//    case range(c,c) : return makeCharClassChar(c);
-//    case range(c,d) : return "<makeCharClassChar(c)>-<makeCharClassChar(d)>";
-//    //TODO:
-//    //case \empty-range():
-//    //                  return "";
-//    default: throw "range2rascal: missing case <r>";
-//  }
-//}
+public str attr2mod(Attr a) {
+  switch(a) {
+    case \bracket(): return "bracket";
+    case \tag(str x(str y)) : return "@<x>=\"<escape(y)>\"";
+    case \tag(str x()) : return "@<x>";
+    case \assoc(Associativity as) : return associativity(as);
+    default : return "@Unsupported(\"<escape("<a>")>\")";
+  }
+}
+
+public str symbol2rascal(AType sym) {
+    if(!isEmpty(sym.label)){
+       return "<symbol2rascal(unset(sym, "label"))> <sym.label>"; 
+    } 
+  switch (sym) {
+    
+    case aadt(x, list[AType] parameters, SyntaxRole sr) : {
+        if(sr == layoutSyntax()) return "";
+        return isEmpty(parameters) ? x : "<x>[<params2rascal(parameters)>]";
+    }
+    // Type incorrect, PK
+    //case \parameter(x) :
+    //    return "&" + replaceAll(x, "-", "_");
+    case lit(x) :
+    	return "\"<escape(x)>\"";
+    case cilit(x) :
+    	return "\'<escape(x)>\'";
+   
+    case \char-class(x) : 
+       if (\char-class(y) := complement(sym)) {
+         str norm = cc2rascal(x);
+         str comp = cc2rascal(y);
+         return size(norm) > size(comp) ? "!<comp>" : norm;
+       } 
+       else throw "weird result of character class complement";
+    case \seq(syms):
+        return "( <for(s <- syms){> <symbol2rascal(s)> <}> )";
+    case opt(x) : 
+    	return "<symbol2rascal(x)>?";
+    case iter(x) : 
+    	return "<symbol2rascal(x)>+";
+    case \iter-star(x) : 
+    	return "<symbol2rascal(x)>*";
+    case \iter-seps(x,seps) :
+        return iterseps2rascal(x, seps, "+");
+    case \iter-star-seps(x,seps) : 
+    	return iterseps2rascal(x, seps, "*");
+    case alt(set[AType] alts): {
+        <f,as> = takeOneFrom(alts);
+        return "(" + (symbol2rascal(f) | "<it> | <symbol2rascal(a)>" | a <- as) + ")";
+    }
+     case seq(list[AType] ss): {
+        <f,as> = takeOneFrom(ss);
+        return "(" + (symbol2rascal(f) | "<it> <symbol2rascal(a)>" | a <- as) + ")";
+    }
+   
+    case \start(x):
+    	return symbol2rascal(x);
+    // Following are type-incorrect, PK.
+    //case intersection(lhs, rhs):
+    //    return "<symbol2rascal(lhs)> && <symbol2rascal(rhs)>";
+    //case union(lhs, rhs):
+    // 	return "<symbol2rascal(lhs)> || <symbol2rascal(rhs)>";
+    //case difference(Class lhs, Class rhs):
+    // 	return "<symbol2rascal(lhs)> -  <symbol2rascal(rhs)>";
+    //case complement(Class lhs):
+    // 	return "!<symbol2rascal(lhs)>";
+    case conditional(AType s, {ACondition c, ACondition d, *ACondition r}):
+        return symbol2rascal(conditional(conditional(s, {c}), {d, *r})); 
+    case conditional(s, {delete(t)}) :
+        return "<symbol2rascal(s)> \\ <symbol2rascal(t)>"; 
+    case conditional(s, {follow(t)}) :
+        return "<symbol2rascal(s)> \>\> <symbol2rascal(t)>";
+    case conditional(s, {\not-follow(t)}) :
+        return "<symbol2rascal(s)> !\>\> <symbol2rascal(t)>";
+    case conditional(s, {precede(t)}) :
+        return "<symbol2rascal(s)> \<\< <symbol2rascal(s)> ";
+    case conditional(s, {\not-precede(t)}) :
+        return "<symbol2rascal(s)> !\<\< <symbol2rascal(s)> ";    
+    case conditional(s, {\at-column(int i)}) :
+        return "<symbol2rascal(s)>@<i>";
+    case conditional(s, {\begin-of-line()}) :
+        return "^<symbol2rascal(s)>";
+    case conditional(s, {\end-of-line()}) :
+        return "<symbol2rascal(s)>$";
+    case conditional(s, {\except(str x)}) :
+        return "<symbol2rascal(s)>!<x>";
+    case conditional(s, {}): {
+        println("WARNING: empty conditional <sym>");
+        return symbol2rascal(s);
+    }
+    case empty(): 
+        return "()"; 
+  }
+
+  throw "symbol2rascal: missing case <sym>";
+}
+
+public str iterseps2rascal(AType sym, list[AType] seps, str iter){
+  separators = "<for(sp <- seps){><symbol2rascal(sp)><}>";
+  if (separators != "")
+     return "{<symbol2rascal(sym)> <separators>}<iter>";
+  else
+    return "<symbol2rascal(sym)><separators><iter>";
+}
+
+public str params2rascal(list[AType] params){
+  len = size(params);
+  if(len == 0)
+  	return "";
+  if(len == 1)
+  	return symbol2rascal(params[0]);
+  sep = "";
+  res = "";
+  for(AType p <- params){
+      res += sep + symbol2rascal(p);
+      sep = ", ";
+  }
+  return res;	
+}
+
+public str cc2rascal(list[ACharRange] ranges) {
+  if (ranges == []) return "[]"; 
+  return "[<range2rascal(head(ranges))><for (r <- tail(ranges)){> <range2rascal(r)><}>]";
+}
+
+public str range2rascal(ACharRange r) {
+  switch (r) {
+    case range(c,c) : return makeCharClassChar(c);
+    case range(c,d) : return "<makeCharClassChar(c)>-<makeCharClassChar(d)>";
+    //TODO:
+    //case \empty-range():
+    //                  return "";
+    default: throw "range2rascal: missing case <r>";
+  }
+}

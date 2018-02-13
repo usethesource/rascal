@@ -33,14 +33,6 @@ stored in a map for efficient access.
 data AGrammar 
   = \grammar(set[AType] starts, map[AType sort, AProduction def] rules)
   ;
-
-data AGrammarModule
-  = \module(str name, set[str] imports, set[str] extends, AGrammar grammar);
- 
-data AGrammarDefinition
-  = \definition(str main, map[str name, AGrammarModule \mod] modules);
-
-anno loc AProduction@\loc;
  
 public AGrammar grammar(set[AType] starts, set[AProduction] prods) {
   rules = ();
@@ -109,13 +101,5 @@ public AGrammar compose(AGrammar g1, AGrammar g2) {
 //    case c:choice(_, {p, *r, AProduction x:associativity(_,_,/p)}) => c[alternatives = {x, *r}]
 //  };
 //}    
-
-public rel[str, str] extends(AGrammarDefinition def) {
-  return {<m,e> | m <- def.modules, \module(_, _, exts , _) := def.modules[m], e <- exts}+;
-}
-
-public rel[str,str] imports(AGrammarDefinition def) {
-  return {<m,i> | m <- def.modules, \module(_, imps, _ , _) := def.modules[m], i <- imps};
-}
 
 
