@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -151,9 +152,14 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
             writer = new OutputWriter() {
                 @Override
                 public void writeOutput(Type tp, IOConsumer<StringWriter> contentsWriter) throws IOException {
+                    out.write("<div id=\"salix-"+ genSalixId() +" \">");
                     out.write("<pre title=\"" + tp.toString() + "\">");
                     contentsWriter.accept(out);
                     out.write("</pre>");
+                    out.write("</div>");
+                }
+                private String genSalixId() {
+                    return UUID.randomUUID().toString();
                 }
                 @Override
                 public void finishOutput() {
