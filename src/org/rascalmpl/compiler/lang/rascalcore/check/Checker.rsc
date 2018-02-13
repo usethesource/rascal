@@ -116,22 +116,19 @@ public PathConfig getDefaultPathConfig() = pathConfig(
 TModel rascalTModelsFromStr(str text){
     startTime = cpuTime();
     pt = parse(#start[Modules], text).top;
-    return rascalTModel(pt, startTime, inline=true);
+    return rascalTModel(pt, inline=true);
 }
 
 TModel rascalTModelsFromTree(Tree pt){
     startTime = cpuTime();
-    return rascalTModel(pt, startTime, inline=true);
+    return rascalTModel(pt, inline=true);
 }
 
-TModel rascalTModelFromName(str mname, bool debug=false){
-    startTime = cpuTime();
-    pcfg = getDefaultPathConfig();
-    
+TModel rascalTModelFromName(str mname, PathConfig pcfg, bool debug=false){
     /***** turn this off during development of type checker *****/
     
-    <valid, tm> = getIfValid(mname, pcfg);
-    if(valid) return tm;
+    //<valid, tm> = getIfValid(mname, pcfg);
+    //if(valid) return tm;
     
     /***********************************************************/
      
@@ -139,17 +136,17 @@ TModel rascalTModelFromName(str mname, bool debug=false){
         mloc = getModuleLocation(mname, pcfg);
         mloc.query = "ts=<lastModified(mloc)>";                         
         pt = parseModuleWithSpaces(mloc).top;
-        tm = rascalTModel(pt, startTime, debug=debug);
+        tm = rascalTModel(pt, debug=debug);
         if(isEmpty(tm.messages)){
-            <msgs, adtSummaries> = getADTSummaries(getLoc(pt), tm);
-            tm.messages += msgs;
-            g = getGrammar(adtSummaries);
-            iprintln(g);
-            pname = parserName(mname);
-            <msgs, parserClass> = newGenerate(parserPackage, pname, g); 
-            tm.messages += msgs;
-            msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/rascalcore/grammar/tests/generated_parsers|);
-            tm.messages += msgs;
+            ;//<msgs, adtSummaries> = getADTSummaries(getLoc(pt), tm);
+            //tm.messages += msgs;
+            //g = getGrammar(adtSummaries);
+            //iprintln(g);
+            //pname = parserName(mname);
+            //<msgs, parserClass> = newGenerate(parserPackage, pname, g); 
+            //tm.messages += msgs;
+            //msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/rascalcore/grammar/tests/generated_parsers|);
+            //tm.messages += msgs;
         }
         saveModules(mname, pcfg, tm); 
         return tm;
@@ -162,8 +159,8 @@ TModel rascalTModelFromName(str mname, bool debug=false){
     }    
 }
 
-TModel rascalTModel(Tree pt, int startTime, bool debug=false, bool inline=false){
-    afterParseTime = cpuTime();
+TModel rascalTModel(Tree pt, bool debug=false, bool inline=false){
+    startTime = cpuTime();
     tb = newTBuilder(pt, config=rascalTypePalConfig(classicReifier=true));
     tb.push(patternContainer, "toplevel");
     // When inline, all modules are in a single file; don't read imports from file
@@ -180,8 +177,7 @@ TModel rascalTModel(Tree pt, int startTime, bool debug=false, bool inline=false)
     afterValidateTime = cpuTime();
     
     if(!inline){
-        println("parse:    <(afterParseTime - startTime)/1000000> ms
-                'extract:  <(afterExtractTime - afterParseTime)/1000000> ms
+        println("extract:  <(afterExtractTime - startTime)/1000000> ms
                 'validate: <(afterValidateTime - afterExtractTime)/1000000> ms
                 'total:    <(afterValidateTime - startTime)/1000000> ms");
     }
@@ -189,7 +185,7 @@ TModel rascalTModel(Tree pt, int startTime, bool debug=false, bool inline=false)
 }
 
 list[Message] validateModules(str mname, bool debug=false) {
-    return rascalTModelFromName(mname, debug=debug).messages;
+    return rascalTModelFromName(mname, getDefaultPathConfig(), debug=debug).messages;
 }
 
 void testModules(str names...) {
