@@ -106,9 +106,32 @@ test bool setAnnotations1() = setAnnotations(leaf(3), ()) == leaf(3);
 test bool setAnnotations2() = setAnnotations(leaf(3), ("pos": 1, "label":"a"))@pos == 1;
 test bool setAnnotations3() = setAnnotations(leaf(3), ("pos": 1, "label":"a"))@label == "a";
 
-// unset TODO
+// unset
 
-// unsetRec TODO
+public node FG = "f"(1, "g"(2, kwg1="a", kwg2=10, com=15), kwf1=true, kwf2="z", com=15);
+
+test bool unsetKW1() = unset(FG) == "f"(1, "g"(2, kwg1="a", kwg2=10, com=15));
+
+test bool unsetSelKW1() = unset(FG, "kwf1") == "f"(1, "g"(2, kwg1="a", kwg2=10, com=15), kwf2="z", com=15);
+
+test bool unsetSelKW2() = unset(FG, {}) == FG;
+test bool unsetSelKW3() = unset(FG, {"kwf1", "kwf2"}) == "f"(1, "g"(2, kwg1="a", kwg2=10, com=15), com=15);
+test bool unsetSelKW4() = unset(FG, {"kwf1"}) == "f"(1, "g"(2, kwg1="a", kwg2=10, com=15), kwf2="z", com=15);
+test bool unsetSelKW5() = unset(FG, {"kwf2"}) == "f"(1, "g"(2, kwg1="a", kwg2=10, com=15),  kwf1=true, com=15);
+test bool unsetSelKW6() = unset(FG, {"com"}) == "f"(1, "g"(2, kwg1="a", kwg2=10, com=15),  kwf1=true, kwf2="z");
+
+
+// unsetRec
+
+test bool unsetRecKW1() = unsetRec(FG) == "f"(1, "g"(2));
+
+test bool unsetRecSelKW1() = unsetRec(FG, "kwf1") == "f"(1, "g"(2, kwg1="a", kwg2=10, com=15), kwf2="z", com=15);
+test bool unsetRecSelKW2() = unsetRec(FG, {}) == FG;
+test bool unseRecSelKW3() = unsetRec(FG, {"kwf1", "kwf2"}) == "f"(1, "g"(2, kwg1="a", kwg2=10, com=15), com=15);
+test bool unseRecSelKW4() = unsetRec(FG, {"kwf1"}) == "f"(1, "g"(2, kwg1="a", kwg2=10, com=15), kwf2="z", com=15);
+test bool unsetRecSelKW5() = unsetRec(FG, {"kwf2"}) == "f"(1, "g"(2, kwg1="a", kwg2=10, com=15),  kwf1=true, com=15);
+test bool unsetRecSelKW6() = unsetRec(FG, {"com"}) == "f"(1, "g"(2, kwg1="a", kwg2=10),  kwf1=true, kwf2="z");
+test bool unsetRecSelKW7() = unsetRec(FG, {"kwg1", "com"}) == "f"(1, "g"(2, kwg2=10),  kwf1=true, kwf2="z");
 
 
 // kw args
