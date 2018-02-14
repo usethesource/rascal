@@ -30,48 +30,50 @@ data ModuleSummary =
 private map[loc from, str tp] getLocationTypes(TModel tm)
     = (key : prettyPrintAType(tm.facts[key]) | key <- tm.facts);
     
+ModuleSummary makeSummary(TModel tm, str qualifiedModuleName) {
+    // Extract @doc tags
+    map[loc def, str synopsis] synopses = ();
+    map[loc def, loc docloc] docLocs = ();
+    for(def <- tm.defines){
+        tags = def.defInfo.tags;
+
+        if(tags["doc"]?){
+            //println("<def>: <def.defInfo.tags>");
+            docContent = tags["doc"] ? "";
+            if(!isEmpty(docContent)){
+                synopsis = getSynopsis(docContent);
+                if(!isEmpty(synopsis)){
+                    synopses[def.defined] = synopsis;
+                }
+            }
+            docloc = replaceAll(qualifiedModuleName, "::", "/") + "#" + def.id;
+            docLocs[def.defined] = |courses:///<docloc>|;
+        }
+    }
+    // Synthesize the summary  
+    return moduleSummary()
+        [locationTypes=getLocationTypes(tm)]
+        [useDef=getUseDef(tm)]
+        [vocabulary=getVocabulary(tm)]
+        [synopses=synopses]
+        [docLocs=docLocs];
+}    
+    
 @doc{
 .Synopsis
 Make a ModuleSummary.
 }
 ModuleSummary makeSummary(str qualifiedModuleName, PathConfig pcfg){
-    ms = moduleSummary();
-   
     if(<true, tplLoc> := getDerivedReadLoc(qualifiedModuleName, "tpl", pcfg)){
         try {
-            TModel tm = readBinaryValueFile(#TModel, tplLoc);
-      
-            // Extract @doc tags
-            map[loc def, str synopsis] synopses = ();
-            map[loc def, loc docloc] docLocs = ();
-            for(def <- tm.defines){
-                tags = def.defInfo.tags;
-        
-                if(tags["doc"]?){
-                    println("<def>: <def.defInfo.tags>");
-                    docContent = tags["doc"] ? "";
-                    if(!isEmpty(docContent)){
-                        synopsis = getSynopsis(docContent);
-                        if(!isEmpty(synopsis)){
-                            synopses[def.defined] = synopsis;
-                        }
-                    }
-                    docloc = replaceAll(qualifiedModuleName, "::", "/") + "#" + def.id;
-                    docLocs[def.defined] = |courses:///<docloc>|;
-                }
-            }
-            // Synthesize the summary  
-            ms = moduleSummary()
-                [locationTypes=getLocationTypes(tm)]
-                [useDef=getUseDef(tm)]
-                [vocabulary=getVocabulary(tm)]
-                [synopses=synopses]
-                [docLocs=docLocs];
-      } catch IO(str msg): {
-        /* ignore read failure */;
-      }
-   }
-   return ms;           
+            return makeSummary(readBinaryValueFile(#TModel, tplLoc), qualifiedModuleName);
+        } catch IO(_): {
+            return moduleSummary();
+        }
+    }
+    else {
+        return moduleSummary();
+    }
 }
 
 @doc{
