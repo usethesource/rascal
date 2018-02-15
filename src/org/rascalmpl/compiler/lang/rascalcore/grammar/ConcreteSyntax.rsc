@@ -91,14 +91,10 @@ private AType getTargetSymbol(AType sym) {
 @doc{This decides for which part of the grammar we can write anti-quotes}
 private bool quotable(AType x) { 
     return \lit(_) !:= x 
-       && \empty() !:= x
-       && \cilit(_) !:= x 
-       && \char-class(_) !:= x 
-       && (aadt(_,list[AType] parameters, SyntaxRole sr) := x && (sr notin { layoutSyntax(), keywordSyntax()} || !isEmpty(parameters) ))
-       //&& \layouts(_) !:= x
-       //&& \keywords(_) !:= x
-       && \start(_) !:= x
-       //&& \parameterized-sort(_,[\parameter(_,_),*_]) !:= x
-       //&& \parameterized-lex(_,[\parameter(_,_),*_]) !:= x
-       ;
+        && \empty() !:= x
+        && \cilit(_) !:= x 
+        && \char-class(_) !:= x 
+        && (aadt(_,list[AType] parameters, SyntaxRole sr) := x && (sr != contextFreeSyntax() || !isEmpty(parameters) ))
+        && \start(_) !:= x
+        ;
 }

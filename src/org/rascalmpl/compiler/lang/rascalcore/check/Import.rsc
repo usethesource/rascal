@@ -118,10 +118,7 @@ bool addImport(str qualifiedModuleName, PathConfig pcfg, TBuilder tb){
     }
 }
 
-
-
-void saveModules(str qualifiedModuleName, PathConfig pcfg, TModel tm){ 
-    
+void saveModules(str qualifiedModuleName, PathConfig pcfg, TModel tm){     
     qualifiedModuleName = unescape(qualifiedModuleName); 
     
     rel[str,str] import_graph = {};
@@ -172,9 +169,9 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
    
     m1.store = (key_bom : bom);
     m1.paths = tm.paths;
-    m1.uses = [u | u <- tm.uses, containedIn(u.occ, mscope) ];
+    //m1.uses = [u | u <- tm.uses, containedIn(u.occ, mscope) ];
     
-    roles = dataOrSyntaxIds + {constructorId(), functionId(), fieldId(), variableId()};
+    roles = dataOrSyntaxIds + {constructorId(), functionId(), fieldId()/*, variableId()*/};
     // Filter model for current module and replace functions in defType by their defined type
     
     defs = for(tup: <Key scope, str id, IdRole idRole, Key defined, DefInfo defInfo> <- tm.defines){

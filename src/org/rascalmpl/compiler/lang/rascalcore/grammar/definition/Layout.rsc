@@ -10,6 +10,8 @@ module lang::rascalcore::grammar::definition::Layout
 
 import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::check::AType;
+import lang::rascalcore::check::ATypeUtils;
+import IO;
 
 //@doc{intermixes the actively visible layout definition in each module into the relevant syntax definitions}
 //AGrammarDefinition \layouts(AGrammarDefinition def) {
@@ -71,7 +73,7 @@ list[AType] intermix(list[AType] syms, AType l, set[AType] others) {
   if (syms == []) 
     return syms;
     
-  syms = [ sym is layouts ? sym : regulars(sym, l, others) | sym <- syms ];
+  syms = [ isLayoutType(sym) ? sym : regulars(sym, l, others) | sym <- syms ];
   others += {l};
   
   // Note that if a user manually put a layouts symbol, then this code makes sure not to override it and
@@ -80,6 +82,7 @@ list[AType] intermix(list[AType] syms, AType l, set[AType] others) {
       syms = [*pre, sym1, l, sym2, *pst];
   }
   
+  println("intermix(<syms>, <l>, <others>) ==\> <syms>");
   return syms;
 }
 
