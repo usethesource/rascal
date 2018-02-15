@@ -63,6 +63,8 @@ void collect(current: (Import) `import <ImportedModule m> ;`, TBuilder tb){ // T
     tb.push(key_import_graph, <tb.top(key_current_module), "<m.name>">);
 }
 
+loc timestamp(loc l) = l[fragment="<lastModified(l)>"];
+
 void getImports(TBuilder tb){
     // Do not expand imports, while we are already doing that
     if(!isEmpty(tb.getStack(key_expanding_imports)))   return;
@@ -83,8 +85,8 @@ void getImports(TBuilder tb){
                     reuse = addImport(mname, pcfg, tb);
                     if(!reuse){
                         try {
-                            mloc = getModuleLocation(mname, pcfg);
-                            mloc.query = "ts=<lastModified(mloc)>";
+                            mloc = timestamp(getModuleLocation(mname, pcfg));
+                            mloc.fragment = "<lastModified(mloc)>";
                             println("*** importing <mname> from <mloc>");
                             pt = parseModuleWithSpaces(mloc).top;
                             collect(pt, tb);

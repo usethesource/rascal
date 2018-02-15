@@ -37,12 +37,12 @@ tuple[list[Message], set[ADTSummary]] getADTSummaries(Key scope, TModel tm){
                     
             };
      set[AType] usedADTs = toSet(usedADTs0);      
-    //usedADTs = {unset(t, "label") | k <- tm.facts, containedIn(k, scope), /AType t:aadt(str name, parameters, sr) := expandUserTypes(tm.facts[k], scope)/*, name != "Type"*/};
-    //usedADTs = {unset(t, "label") | k <- tm.facts, k < scope, /AType t:aadt(str name, parameters, sr) := tm.facts[k]/*, name != "Type"*/};
+    
+    usedADTs = {unset(t, "label") | k <- tm.facts, k < scope, /AType t:aadt(str name, parameters, sr) := tm.facts[k]};
     name2ADT = (a.adtName : a | a <- usedADTs );
     
-    //println("usedADTs=<usedADTs>");
-    //println("name2ADT=<name2ADT>");
+    println("usedADTs=<usedADTs>");
+    println("name2ADT=<name2ADT>");
     map[str, ADTSummary] name2summ = ();
     msgs = [];
     allStarts = {};
@@ -90,19 +90,14 @@ tuple[list[Message], set[ADTSummary]] getADTSummaries(Key scope, TModel tm){
          } catch TypeUnavailable(): println("<u.adtName> unavailable") ;
            catch AmbiguousDefinition(foundDefs): println("Ambiguous definition for <u.adtName>: <foundDefs>");
     }
-    //iprintln(name2summ);
-    //println("messages:"); iprintln(msgs);
-    summaries = range(name2summ);
-    //g = getGrammar(summaries);
-    //iprintln(g);
-    //println(newGenerate("package", "name", g)); 
-    return <msgs, summaries>;
+    return <msgs, range(name2summ)>;
 }
 
 AGrammar getGrammar(set[ADTSummary] adtSummaries){
     allStarts = {};
     allLayouts = {};
     definitions = ();
+    //set[Production] prods = {prod(Symbol::empty(),[],{}), prod(layouts("$default$"),[],{})};
     for(s <- adtSummaries){
         if(s.syntaxRole != dataSyntax()){
             a = aadt(s.adtName, s.parameters, s.syntaxRole);
@@ -117,8 +112,12 @@ AGrammar getGrammar(set[ADTSummary] adtSummaries){
     //println("allLayouts: <allLayouts>");
     //iprintln(definitions);
     g = grammar(allStarts, definitions);
+    
     if(isEmpty(allLayouts)){
-        g = layouts(g, aadt("$default$", [], layoutSyntax()), {});
+        defaultLayout = aadt("$default$", [], layoutSyntax());
+        definitions += (defaultLayout : prod(defaultLayout, []));
+        g = grammar(allStarts, definitions);
+        g = layouts(g, defaultLayout, {});
     } else if(size(allLayouts) == 1){
         g = layouts(g, getOneFrom(allLayouts), {});
     } else {

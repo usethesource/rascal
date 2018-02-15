@@ -16,11 +16,17 @@ import String;
 import IO;
 
 public AGrammar literals(AGrammar g) {
-  return compose(g, grammar({}, {literal(s) | /lit(s) <- g} + {ciliteral(s) | /cilit(s) <- g}));
+    st = {};
+    visit(g){ case lit(str s): st += s; };
+    println(st);
+    lts0 = {l | /l:lit(str s) <- g};
+    lts1 = {literal(s) | /lit(s) <- g};
+    lts2 = {ciliteral(s) | /cilit(s) <- g};
+  return compose(g, grammar({}, lts1 + lts2));
 }
 
-public AProduction literal(str s) = prod(lit(s),str2syms(s)/*, lexicalSyntax()*/);
-public AProduction ciliteral(str s) = prod(cilit(s), cistr2syms(s)/*, lexicalSyntax()*/);
+public AProduction literal(str s) = prod(lit(s),str2syms(s));
+public AProduction ciliteral(str s) = prod(cilit(s), cistr2syms(s));
 
 public list[AType] str2syms(str x) {
   if (x == "") return [];

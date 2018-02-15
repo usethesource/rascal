@@ -25,6 +25,7 @@ import util::Monitor;
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::grammar::ConcreteSyntax;
 import lang::rascalcore::check::AType;
+import lang::rascalcore::check::ATypeUtils;
 import String;
 import List;
 import Node;
@@ -48,7 +49,7 @@ public tuple[list[Message], str] newGenerate(str package, str name, AGrammar gr)
     startJob("Generating parser <package>.<name>");
     int uniqueItem = 1; // -1 and -2 are reserved by the SGTDBF implementation
     int newItem() { uniqueItem += 1; return uniqueItem; };
-  
+    
     event("expanding parameterized symbols");
     gr = expandParameterizedSymbols(gr);
     
@@ -57,9 +58,14 @@ public tuple[list[Message], str] newGenerate(str package, str name, AGrammar gr)
     
     event("generating syntax for holes");
     gr = addHoles(gr);
- 
+    
+   
     event("generating literals");
     gr = literals(gr);
+    
+    println("GR.RULES HERE:");
+    for(s <- gr.rules) println("<s>: <gr.rules[s]>\n"); 
+ 
     
     event("establishing production set");
     uniqueProductions = {p | /AProduction p := gr, prod(_,_) := p || regular(_) := p};
@@ -69,8 +75,11 @@ public tuple[list[Message], str] newGenerate(str package, str name, AGrammar gr)
       visit (p) { 
         case AType s => s[id=newItem()] 
       };
-    beforeUniqueGr = gr;   
+    beforeUniqueGr = gr;  
+    
+    
     gr.rules = (s : rewrite(gr.rules[s]) | s <- gr.rules);
+    
         
     event("generating item allocations");
     newItems = generateNewItems(gr);
@@ -121,6 +130,7 @@ public tuple[list[Message], str] newGenerate(str package, str name, AGrammar gr)
            '
            '  protected static IValue _read(java.lang.String s, io.usethesource.vallang.type.Type type) {
            '    try {
+           '      System.err.println(s);
            '      return new StandardTextReader().read(VF, org.rascalmpl.core.values.uptr.RascalValueFactory.uptr, type, new StringReader(s));
            '    }
            '    catch (FactTypeUseException e) {
@@ -201,7 +211,7 @@ public tuple[list[Message], str] newGenerate(str package, str name, AGrammar gr)
            '    
            '  // Production declarations
            '	<for (p <- (uniqueProductions)) {>
-           '  private static final IConstructor <value2id(p)> = (IConstructor) _read(\"<esc("<p>")>\", RascalValueFactory.Production);<}>
+           '  private static final IConstructor <value2id(p)> = (IConstructor) _read(\"<esc("<prettyAsClassic(p)>")>\", RascalValueFactory.Production);<}>
            '    
            '  // Item declarations
            '	<for (AType s <- (newItems<0>), isNonterminal(s)) {
@@ -247,7 +257,7 @@ public tuple[list[Message], str] newGenerate(str package, str name, AGrammar gr)
 
 tuple[list[Message], rel[int,int]] computeDontNests(Items items, AGrammar grammar, AGrammar uniqueGrammar) {
   // first we compute a map from productions to their last items (which identify each production)
-  prodItems = (p1 : items[getType(rhs)][item(p1, size(lhs)-1)].itemId | /AProduction p:prod(AType rhs,list[AType] lhs) := grammar, p1:= unsetRec(p));
+  prodItems = (p1 : items[getType(rhs)][item(p1, size(lhs)-1)].itemId | /AProduction p:prod(AType rhs,list[AType] lhs) := grammar, p1:= unsetRec(p, {"id"}));
   
   // Note that we do not need identifiers for "regular" productions, because these can not be the forbidden child in a priority, assoc
   // or except filter. They can be the fathers though. 
@@ -282,7 +292,7 @@ int getItemId(AType s, int pos, prod(AType u,list[AType] _)) {
 
 AType getType(AProduction p) = getType(p.def);
 AType getType(conditional(AType s, set[ACondition] cs)) = getType(s);
-default AType getType(AType s) = unsetRec(s);
+default AType getType(AType s) = unsetRec(s, {"id"});
 
 
 @doc{This function generates Java code to allocate a new item for each position in the grammar.
@@ -291,7 +301,7 @@ constants to improve run-time efficiency of the generated parser}
 map[AType,map[Item,tuple[str new, int itemId]]] generateNewItems(AGrammar g) {
   map[AType,map[Item,tuple[str new, int itemId]]] items = ();
   map[Item,tuple[str new, int itemId]] fresh = ();
-  AProduction cl(AProduction p) = unsetRec(p);
+  AProduction cl(AProduction p) = unsetRec(p, {"id"});
   
   visit (g) {
     case AProduction p:prod(AType s,[]) : 
@@ -302,10 +312,11 @@ map[AType,map[Item,tuple[str new, int itemId]]] generateNewItems(AGrammar g) {
       }  
     }
     case AProduction p:regular(AType s) : {
-      while (s is conditional || s is label)
+      while (s is conditional/* || s is label*/){
         s = s.symbol;
-      us = unsetRec(s);
-      p = unsetRec(p);
+      }
+      us = unsetRec(s, {"id"});
+      p = unsetRec(p, {"id"});
 
       switch(s) {
         case \iter(AType elem) : 
@@ -340,7 +351,7 @@ map[AType,map[Item,tuple[str new, int itemId]]] generateNewItems(AGrammar g) {
       }
     }
   }
-  
+  iprintln(domain(items));
   return items;
 }
 
@@ -360,6 +371,7 @@ bool isNonterminal(AType s) {
 }
 
 public str generateParseMethod(Items items, AProduction p) {
+    println("generateParseMethod: <p>");
   return "public AbstractStackNode\<IConstructor\>[] <sym2name(p.def)>() {
          '  return <sym2name(p.def)>.EXPECTS;
          '}";
@@ -561,7 +573,9 @@ public str escId(str s){
 }
 
 public str sym2name(AType s){
-     return aadt(x, args, contextFreeSyntax()) := s ? "<x>" :  value2id(s);
+     res = aadt(x, args, contextFreeSyntax()) := s ? "<x>" :  value2id(s);
+     println("sym2name: <s> ==\> <res>");
+     return res;
 }
 
 @Memo
@@ -569,14 +583,14 @@ public str value2id(value v) {
   return v2i(v);
 }
 
-str uu(value s) = escape(toBase64("<node nd := s ? unsetRec(nd) : s>"),("=":"00","+":"11","/":"22"));
+str uu(value s) = escape(toBase64("<node nd := s ? unsetRec(nd, "id") : s>"),("=":"00","+":"11","/":"22"));
 
 default str v2i(value v) {
     switch (v) {
+        case AType u : if(u.label? && !isEmpty(u.label)) return escId(u.label) + "_" + v2i(unset(u, "label"));else fail;
         case \start(AType s) : return "start__<v2i(s)>";
         case s:aadt(nm, list[AType] args, syntaxRole) :   return isEmpty(args) ? "<nm>"  : "<nm>_<uu(args)>";
-        case AType u : if(u.label?) return escId(u.label) + "_" + v2i(u);else fail;
-        
+      
         case item(p:prod(AType u,_), int i) : return "<v2i(u)>.<v2i(p)>_<v2i(i)>";
    
         //case layouts(str x) : return "layouts_<escId(x)>";
@@ -589,7 +603,7 @@ default str v2i(value v) {
     }
 }
 
-str parserName(str mname) = replaceAll(replaceAll(mname, "\\\\", "_"), "::", "_");
+str parserName(str mname) = replaceAll(replaceAll(mname, "\\\\", "_"), "::", "_") + "Parser";
 
 list[Message] saveParser(str pname, str parserClass, loc where){
     try {
@@ -601,4 +615,16 @@ list[Message] saveParser(str pname, str parserClass, loc where){
     } catch e: {
         return [error("<e>", |unknown:///|)];
     }
+}
+
+str prettyAsClassic(AProduction p){
+    res = atype2symbol(p);
+     println("prettyAsClassic: <p> ==\> <res>");
+     return res;
+    //println("prettyAsClassic: <p>");
+    //if(p.def is aadt){
+    //    return "prod(<atype2symbol(p.def)>,[<intercalate(",", [atype2symbol(t) | t <- p.asymbols])>],<p.attributes>)";
+    //} else {
+    //    return "<p>";
+    //}
 }
