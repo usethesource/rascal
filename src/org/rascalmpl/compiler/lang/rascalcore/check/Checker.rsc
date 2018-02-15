@@ -41,6 +41,7 @@ import lang::rascalcore::grammar::ParserGenerator;
 import Set;
 import Relation;
 import util::Reflective;
+import util::FileSystem;
 
 start syntax Modules
     = Module+ modules;
@@ -125,16 +126,24 @@ TModel rascalTModelsFromTree(Tree pt){
 }
 
 TModel rascalTModelFromName(str mname, PathConfig pcfg, bool debug=false){
-    /***** turn this off during development of type checker *****/
-    
-    //<valid, tm> = getIfValid(mname, pcfg);
-    //if(valid) return tm;
-    
-    /***********************************************************/
-     
     try {
         mloc = getModuleLocation(mname, pcfg);
-        mloc.query = "ts=<lastModified(mloc)>";                         
+        return rascalTModelFromLoc(mloc, pcfg, debug=debug);
+    } catch value e: {
+        return tmodel()[messages = [ error("During validation: <e>", |global-scope:///|) ]];
+    }
+}
+
+TModel rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool debug=false){     
+    try {
+        mname = getModuleName(mloc, pcfg);
+        
+        /***** turn this off during development of type checker *****/
+        <valid, tm> = getIfValid(mname, pcfg);
+        if(valid) return tm;
+        /***********************************************************/
+        
+        mloc = timestamp(mloc);                        
         pt = parseModuleWithSpaces(mloc).top;
         tm = rascalTModel(pt, debug=debug);
         if(isEmpty(tm.messages)){
@@ -183,6 +192,31 @@ TModel rascalTModel(Tree pt, bool debug=false, bool inline=false){
     }
     return tm;
 }
+
+data ModuleMessages = moduleMessages(loc src, set[Message] messages);
+
+ModuleMessages check(str mname, PathConfig pcfg){
+    tm = rascalTModelFromName(mname, pcfg);
+    return moduleMessages(file, toSet(tm.messages));
+}
+
+ModuleMessages check(loc file, PathConfig pcfg){
+    tm = rascalTModelFromLoc(file, pcfg);
+    return moduleMessages(file, toSet(tm.messages));
+}
+
+list[ModuleMessages] check(list[str] mnames, PathConfig pcfg){
+    return [ check(mname, pcfg) | mname <- mnames ];
+}
+
+list[ModuleMessages] check(list[loc] files, PathConfig pcfg){
+    return [ check(file, pcfg) | file <- files ];
+}
+
+list[ModuleMessages] checkAll(loc root, PathConfig pcfg){
+     return [ check(moduleLoc, pcfg) | moduleLoc <- find(root, "rsc") ]; 
+}
+
 
 list[Message] validateModules(str mname, bool debug=false) {
     return rascalTModelFromName(mname, getDefaultPathConfig(), debug=debug).messages;
