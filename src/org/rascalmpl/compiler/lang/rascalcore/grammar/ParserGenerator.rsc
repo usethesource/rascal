@@ -56,14 +56,19 @@ public tuple[list[Message], str] newGenerate(str package, str name, AGrammar gr)
     event("generating stubs for regular");
     gr = makeRegularStubs(gr);
     
+    println("GR.RULES BEFORE ADDHOLES:");
+    for(s <- gr.rules) println("<s>: <gr.rules[s]>\n"); 
+    
     event("generating syntax for holes");
     gr = addHoles(gr);
     
+    println("GR.RULES BEFORE LITERALS:");
+    for(s <- gr.rules) println("<s>: <gr.rules[s]>\n"); 
    
     event("generating literals");
     gr = literals(gr);
     
-    println("GR.RULES HERE:");
+    println("GR.RULES AFTER LITERALS:");
     for(s <- gr.rules) println("<s>: <gr.rules[s]>\n"); 
  
     

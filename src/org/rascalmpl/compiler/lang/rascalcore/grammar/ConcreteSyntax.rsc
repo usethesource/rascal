@@ -16,6 +16,7 @@ import ValueIO;
 import List;
 import IO;
 import lang::rascalcore::check::AType;
+import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::grammar::definition::Productions;
@@ -46,9 +47,9 @@ public set[AProduction] holes(AGrammar object) {
   return  { regular(iter(\char-class([range(48,57)]))), 
             prod(getTargetSymbol(nont)[label="$MetaHole"],
                  [ \char-class([range(0,0)]),
-                   lit("<denormalize(nont)>"),lit(":"),iter(\char-class([range(48,57)])),
+                   lit(denormalize(nont)),lit(":"),iter(\char-class([range(48,57)])),
                    \char-class([range(0,0)])
-                 ],attributes={\tag("holeType"(nont))})  
+                 ],attributes={\tag("holeType"(atype2symbol(nont)))})  
           | AType nont <- object.rules, quotable(nont)
           };
 }
@@ -66,15 +67,14 @@ public str createHole(ConcreteHole hole, int idx) = "\u0000<denormalize(sym2ATyp
   The same goes for the introduction of layout non-terminals in lists. We do not know which non-terminal is introduced,
   so we remove this here to create a canonical 'source-level' type.
 }
-private AType denormalize(AType s) = visit (s) { 
-  //case \lex(n) => \sort(n)
+private str denormalize(AType s) = atype2symbol(visit (s) { 
   case a: aadt(_, _, lexicalSyntax()) => a[syntaxRole=contextFreeSyntax()]
   case \iter-seps(u,[l1, t, l2]) => \iter-seps(u,[t]) when isLayoutSyntax(l1), isLayoutSyntax(l2)
   case \iter-star-seps(u,[l1,t,l2]) => \iter-star-seps(u,[t]) when isLayoutSyntax(l1), isLayoutSyntax(l2)
   case \iter-seps(u,[l]) => \iter(u) when isLayoutSyntax(l)
   case \iter-star-seps(u,[l]) => \iter-star(u) when isLayoutSyntax(l)
   // TODO: add rule for seq
-};
+});
 
 @doc{This is needed such that list variables can be repeatedly used as elements of the same list}
 private AType getTargetSymbol(AType sym) {
