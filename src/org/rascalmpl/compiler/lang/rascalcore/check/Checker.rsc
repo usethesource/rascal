@@ -147,8 +147,8 @@ TModel rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool debug=false){
         pt = parseModuleWithSpaces(mloc).top;
         tm = rascalTModel(pt, debug=debug);
         if(isEmpty(tm.messages)){
-            ;//<msgs, adtSummaries> = getADTSummaries(getLoc(pt), tm);
-            //tm.messages += msgs;
+            <msgs, adtSummaries> = getADTSummaries(getLoc(pt), tm);
+            tm.messages += msgs;
             //g = getGrammar(adtSummaries);
             //iprintln(g);
             //pname = parserName(mname);
