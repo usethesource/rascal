@@ -194,16 +194,16 @@ TModel rascalTModel(Tree pt, bool debug=false, bool inline=false){
 }
 
 // name of the production has to mirror the Kernel compile result
-data ModuleMessages = program(loc src, set[Message] messages, TModel tm);
+data ModuleMessages = program(loc src, set[Message] messages);
 
 ModuleMessages check(str mname, PathConfig pcfg){
     tm = rascalTModelFromName(mname, pcfg);
-    return program(file, toSet(tm.messages), tm);
+    return program(file, toSet(tm.messages));
 }
 
 ModuleMessages check(loc file, PathConfig pcfg){
     tm = rascalTModelFromLoc(file, pcfg);
-    return program(file, toSet(tm.messages), tm);
+    return program(file, toSet(tm.messages));
 }
 
 list[ModuleMessages] check(list[str] mnames, PathConfig pcfg){
