@@ -17,6 +17,7 @@ import IO;
 
 public AGrammar literals(AGrammar g) {
     st = {};
+    println(g);
     visit(g){ case lit(str s): st += s; };
     println(st);
     lts0 = {l | /l:lit(str s) <- g};
