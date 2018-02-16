@@ -145,7 +145,7 @@ TModel rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool debug=false){
         
         mloc = timestamp(mloc);                        
         pt = parseModuleWithSpaces(mloc).top;
-        tm = rascalTModel(pt, debug=debug);
+        tm = rascalTModel(pt, pcfg = pcfg, debug=debug);
         if(isEmpty(tm.messages)){
             <msgs, adtSummaries> = getADTSummaries(getLoc(pt), tm);
             tm.messages += msgs;
@@ -168,12 +168,12 @@ TModel rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool debug=false){
     }    
 }
 
-TModel rascalTModel(Tree pt, bool debug=false, bool inline=false){
+TModel rascalTModel(Tree pt, PathConfig pcfg = getDefaultPathConfig(), bool debug=false, bool inline=false){
     startTime = cpuTime();
     tb = newTBuilder(pt, config=rascalTypePalConfig(classicReifier=true));
     tb.push(patternContainer, "toplevel");
     // When inline, all modules are in a single file; don't read imports from file
-    if(!inline) tb.push("pathconfig", getDefaultPathConfig()); 
+    if(!inline) tb.push("pathconfig", pcfg); 
     rascalPreCollectInitialization(pt, tb);
     collect(pt, tb);
    
