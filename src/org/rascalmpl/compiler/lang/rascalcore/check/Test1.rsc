@@ -1,5 +1,5 @@
 module lang::rascalcore::check::Test1
 
-//layout L = " "*;
+layout L = " "*;
 
 syntax E = "a" | {E ","}+;
