@@ -51,12 +51,15 @@ ModuleSummary makeSummary(TModel tm, str qualifiedModuleName) {
         }
     }
     // Synthesize the summary  
-    return moduleSummary()
+    result = moduleSummary()
         [locationTypes=getLocationTypes(tm)]
         [useDef=getUseDef(tm)]
         [vocabulary=getVocabulary(tm)]
         [synopses=synopses]
         [docLocs=docLocs];
+    return visit(result) {
+        case loc l => l[fragment=""] // clean the timestamps of the locs
+    };
 }    
     
 @doc{
