@@ -50,9 +50,9 @@ loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes){
     }
 }
 
-datetime getLastModified(str qualifiedModuleName, PathConfig pcfg){
+datetime getLastModified(str qualifiedModuleName, PathConfig pcfg, bool fresh = false){
     qualifiedModuleName = unescape(qualifiedModuleName);
-    if(lastModifiedModules[qualifiedModuleName]?){
+    if(!fresh && lastModifiedModules[qualifiedModuleName]?){
         return lastModifiedModules[qualifiedModuleName];
     }
     mloc = getModuleLocation(qualifiedModuleName, pcfg);
@@ -64,7 +64,7 @@ datetime getLastModified(str qualifiedModuleName, PathConfig pcfg){
 TModel emptyModel = tmodel();
 
 tuple[bool, TModel] getIfValid(str qualifiedModuleName, PathConfig pcfg){
-    lastModSrc = getLastModified(qualifiedModuleName, pcfg);
+    lastModSrc = getLastModified(qualifiedModuleName, pcfg, fresh = true);
     tplLoc = getDerivedWriteLoc(qualifiedModuleName, "tpl", pcfg);
     lastModTpl = lastModified(tplLoc);
     if(lastModSrc > lastModTpl) return <false, emptyModel>;
