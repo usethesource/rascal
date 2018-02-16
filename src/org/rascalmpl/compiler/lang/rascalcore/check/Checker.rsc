@@ -139,23 +139,23 @@ TModel rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool debug=false){
         mname = getModuleName(mloc, pcfg);
         
         /***** turn this off during development of type checker *****/
-        //<valid, tm> = getIfValid(mname, pcfg);
-        //if(valid) return tm;
+        <valid, tm> = getIfValid(mname, pcfg);
+        if(valid) return tm;
         /***********************************************************/
         
         mloc = timestamp(mloc);                        
         pt = parseModuleWithSpaces(mloc).top;
         tm = rascalTModel(pt, pcfg = pcfg, debug=debug);
         if(isEmpty(tm.messages)){
-            <msgs, adtSummaries> = getADTSummaries(getLoc(pt), tm);
-            tm.messages += msgs;
-            g = getGrammar(adtSummaries);
-            iprintln(g);
-            pname = parserName(mname);
-            <msgs, parserClass> = newGenerate(parserPackage, pname, g); 
-            tm.messages += msgs;
-            msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/rascalcore/grammar/tests/generated_parsers|);
-            tm.messages += msgs;
+            ;//<msgs, adtSummaries> = getADTSummaries(getLoc(pt), tm);
+            //tm.messages += msgs;
+            //g = getGrammar(adtSummaries);
+            //iprintln(g);
+            //pname = parserName(mname);
+            //<msgs, parserClass> = newGenerate(parserPackage, pname, g); 
+            //tm.messages += msgs;
+            //msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/rascalcore/grammar/tests/generated_parsers|);
+            //tm.messages += msgs;
         }
         saveModules(mname, pcfg, tm); 
         return tm;
