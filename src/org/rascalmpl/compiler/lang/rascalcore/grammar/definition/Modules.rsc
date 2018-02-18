@@ -41,68 +41,68 @@ import lang::rascalcore::grammar::definition::Grammar;
 //  //return \definition(main, (\mod.name:\mod | m <- modules, \mod := module2grammar(m)));
 //}
 
-@doc{
-  Combines a set of modules into one big AGrammar, projecting only the rules that
-  are visible locally, or via import and extend.
-}
-public AGrammar fuse(AGrammarDefinition def) {
-  //result = grammar({},());
-  //todo = {def.main};
-  //done = {};
-  //
-  //while (todo != {}) {
-  //  <nm,todo> = takeOneFrom(todo);
-  //  \mod = def.modules[nm];
-  //  done += nm; 
-  //  result = (compose(result, \mod.grammar) | compose(it, def.modules[i].grammar) | i <- \mod.imports + \mod.extends);
-  //  todo += (\mod.extends - done);
-  //}
-  //
-  //return result;
-}
+//@doc{
+//  Combines a set of modules into one big AGrammar, projecting only the rules that
+//  are visible locally, or via import and extend.
+//}
+//public AGrammar fuse(AGrammarDefinition def) {
+//  //result = grammar({},());
+//  //todo = {def.main};
+//  //done = {};
+//  //
+//  //while (todo != {}) {
+//  //  <nm,todo> = takeOneFrom(todo);
+//  //  \mod = def.modules[nm];
+//  //  done += nm; 
+//  //  result = (compose(result, \mod.grammar) | compose(it, def.modules[i].grammar) | i <- \mod.imports + \mod.extends);
+//  //  todo += (\mod.extends - done);
+//  //}
+//  //
+//  //return result;
+//}
  
 
 
-public AGrammarModule module2grammar(Module \mod) {
-  //<nm, imps, exts> = getModuleMetaInf(\mod);
-  //return \module(nm, imps, exts, syntax2grammar(collect(\mod)));
-} 
+//public AGrammarModule module2grammar(Module \mod) {
+//  //<nm, imps, exts> = getModuleMetaInf(\mod);
+//  //return \module(nm, imps, exts, syntax2grammar(collect(\mod)));
+//} 
 
-public tuple[str, set[str], set[str]] getModuleMetaInf(Module \mod) {
-  //// TODO: implement module type parameters
-  //// Tags tags "module" QualifiedName name ModuleParameters params Import* imports
-  //switch (\mod) {
-  //  case \default(parameters(_, QualifiedName name, _, Import* is),_) :
-  //  return <deslash("<name>"), { "<i>" | \default(\default(QualifiedName i)) <- is } 
-  //                  , { "<i>" | \extend(\default(QualifiedName i)) <- is }>;
-  //  case \default(\default(_, QualifiedName name, Import* is), _) : 
-  //  return <deslash("<name>"), { "<i>" |  \default(\default(QualifiedName i)) <- is } 
-  //                  , { "<i>" | \extend(\default(QualifiedName i)) <- is }>; 
-  //}
-  //
-  //throw "unexpected module syntax <\mod>";
-} 
+//public tuple[str, set[str], set[str]] getModuleMetaInf(Module \mod) {
+//  //// TODO: implement module type parameters
+//  //// Tags tags "module" QualifiedName name ModuleParameters params Import* imports
+//  //switch (\mod) {
+//  //  case \default(parameters(_, QualifiedName name, _, Import* is),_) :
+//  //  return <deslash("<name>"), { "<i>" | \default(\default(QualifiedName i)) <- is } 
+//  //                  , { "<i>" | \extend(\default(QualifiedName i)) <- is }>;
+//  //  case \default(\default(_, QualifiedName name, Import* is), _) : 
+//  //  return <deslash("<name>"), { "<i>" |  \default(\default(QualifiedName i)) <- is } 
+//  //                  , { "<i>" | \extend(\default(QualifiedName i)) <- is }>; 
+//  //}
+//  //
+//  //throw "unexpected module syntax <\mod>";
+//} 
 
-public set[SyntaxDefinition] getModuleSyntaxDefinitions(Module \mod) {
-// collect(\mod);
-}
+//public set[SyntaxDefinition] getModuleSyntaxDefinitions(Module \mod) {
+//// collect(\mod);
+//}
  
-str deslash(str input) {
-  //return visit(input) {
-  //  case /\\/ => ""
-  //}
-}
+//str deslash(str input) {
+//  //return visit(input) {
+//  //  case /\\/ => ""
+//  //}
+//}
 
-public AGrammar imports2grammar(set[Import] imports) {
-  //return syntax2grammar({ s | \syntax(SyntaxDefinition s) <- imports});
-}
+//public AGrammar imports2grammar(set[Import] imports) {
+//  //return syntax2grammar({ s | \syntax(SyntaxDefinition s) <- imports});
+//}
  
-private set[SyntaxDefinition] collect(Module \mod) {
-  //set[SyntaxDefinition] result = {};
-  //
-  //top-down-break visit (\mod) {
-  //  case SyntaxDefinition s : result += s; 
-  //  case Body b => b
-  //}
-  //return result;
-}  
+//private set[SyntaxDefinition] collect(Module \mod) {
+//  //set[SyntaxDefinition] result = {};
+//  //
+//  //top-down-break visit (\mod) {
+//  //  case SyntaxDefinition s : result += s; 
+//  //  case Body b => b
+//  //}
+//  //return result;
+//}  

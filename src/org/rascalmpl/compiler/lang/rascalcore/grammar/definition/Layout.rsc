@@ -13,24 +13,6 @@ import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 import IO;
 
-//@doc{intermixes the actively visible layout definition in each module into the relevant syntax definitions}
-//AGrammarDefinition \layouts(AGrammarDefinition def) {
-//  deps = extends(def) + imports(def);
-//  for (str name <- def.modules) {
-//    def.modules[name].grammar 
-//      = layouts(def.modules[name].grammar, 
-//                activeLayout(name, deps[name], def), 
-//                allLayouts(deps[name] + {name}, def)
-//               );
-//  }
-//  return def;
-//}
-
-//@doc{collects for a set of modules the names of all layout sorts and returns them as sorts for later processing} 
-//set[AType] allLayouts(set[str] defs, AGrammarDefinition def) 
-//  = {sort(l) | m <- defs, /prod(layouts(str l),_,_) := def.modules[m]} 
-//  + {sort(l) | m <- defs, /prod(label(_,layouts(str l)),_,_) := def.modules[m]} 
-//  ;
 
 // TODO: The following two functions were defined local to activeLayout
 // but this gives an not yet explained validation error  for the
@@ -64,7 +46,7 @@ bool isDefault(AType s) = (s == layouts("$default$"));
 public AGrammar layouts(AGrammar g, AType l, set[AType] others) {
   
   return top-down-break visit (g) {
-    case p: prod(\start(aadt(s, list[AType] parameters, contextFreeSyntax())), list[AType] lhs) => p[asymbols=[l, *intermix(lhs, l, others), l]]
+    case p: prod(\start(a: aadt(s, list[AType] parameters, contextFreeSyntax())), [x]) => p[asymbols=[l, x, l]]
     case p: prod(aadt(s, list[AType] parameters, contextFreeSyntax()), list[AType] lhs) => p[asymbols=intermix(lhs, l, others)]
   }
 } 
@@ -82,7 +64,6 @@ list[AType] intermix(list[AType] syms, AType l, set[AType] others) {
       syms = [*pre, sym1, l, sym2, *pst];
   }
   
-  println("intermix(<syms>, <l>, <others>) ==\> <syms>");
   return syms;
 }
 

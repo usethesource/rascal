@@ -56,22 +56,12 @@ public tuple[list[Message], str] newGenerate(str package, str name, AGrammar gr)
     event("generating stubs for regular");
     gr = makeRegularStubs(gr);
     
-    println("GR.RULES BEFORE ADDHOLES:");
-    for(s <- gr.rules) println("<s>: <gr.rules[s]>\n"); 
+    //event("generating syntax for holes");
+    //gr = addHoles(gr);
     
-    event("generating syntax for holes");
-    gr = addHoles(gr);
-    
-    println("GR.RULES BEFORE LITERALS:");
-    for(s <- gr.rules) println("<s>: <gr.rules[s]>\n"); 
-   
     event("generating literals");
     gr = literals(gr);
-    
-    println("GR.RULES AFTER LITERALS:");
-    for(s <- gr.rules) println("<s>: <gr.rules[s]>\n"); 
  
-    
     event("establishing production set");
     uniqueProductions = {p | /AProduction p := gr, prod(_,_) := p || regular(_) := p};
  
@@ -85,6 +75,7 @@ public tuple[list[Message], str] newGenerate(str package, str name, AGrammar gr)
     
     gr.rules = (s : rewrite(gr.rules[s]) | s <- gr.rules);
     
+    iprintln("SORTS: <gr.rules.sort>");
         
     event("generating item allocations");
     newItems = generateNewItems(gr);
@@ -356,7 +347,6 @@ map[AType,map[Item,tuple[str new, int itemId]]] generateNewItems(AGrammar g) {
       }
     }
   }
-  iprintln(domain(items));
   return items;
 }
 
@@ -371,12 +361,13 @@ str split(str x) {
 
 @doc{this function selects all symbols for which a parse method should be generated}
 bool isNonterminal(AType s) {
-   return aadt(_,parameters, sr) := s && sr in { contextFreeSyntax(), lexicalSyntax(), keywordSyntax(), layoutSyntax() }
-          || \start(_) := s;
+   return (aadt(_,parameters, sr) := s && sr in { contextFreeSyntax(), lexicalSyntax(), keywordSyntax(), layoutSyntax() })
+          || \start(_) := s
+          ;
 }
 
 public str generateParseMethod(Items items, AProduction p) {
-    println("generateParseMethod: <p>");
+  println("generateParseMethod: <p>, ");
   return "public AbstractStackNode\<IConstructor\>[] <sym2name(p.def)>() {
          '  return <sym2name(p.def)>.EXPECTS;
          '}";
@@ -449,8 +440,8 @@ public str ciliterals2ints(list[AType] chars){
 }
 
 public tuple[str new, int itemId] sym2newitem(AGrammar grammar, AType sym, int dot){
-    if (sym is \label)  // ignore labels 
-      sym = sym.symbol;
+    if (sym.label?)  // ignore labels 
+      sym = unset(sym, "symbol");
       
     itemId = sym.id;
     assert itemId != 0;
@@ -476,8 +467,8 @@ public tuple[str new, int itemId] sym2newitem(AGrammar grammar, AType sym, int d
       enters += ["new AtStartOfLineRequirement()" | \begin-of-line() <- conds];
       
       sym = sym.symbol;
-      if (sym is label)
-        sym = sym.symbol; 
+      if (sym.label?)  // ignore labels 
+        sym = unset(sym, "symbol");
     }
     
     filters = "";
@@ -578,9 +569,10 @@ public str escId(str s){
 }
 
 public str sym2name(AType s){
-     res = aadt(x, args, contextFreeSyntax()) := s ? "<x>" :  value2id(s);
-     println("sym2name: <s> ==\> <res>");
-     return res;
+    return value2id(unset(s, "label"));
+     //res = aadt(x, args, contextFreeSyntax()) := s ? "<x>" :  value2id(s);
+     //println("sym2name: <s> ==\> <res>");
+     //return res;
 }
 
 @Memo
@@ -590,11 +582,18 @@ public str value2id(value v) {
 
 str uu(value s) = escape(toBase64("<node nd := s ? unsetRec(nd, "id") : s>"),("=":"00","+":"11","/":"22"));
 
+str srole(contextFreeSyntax()) = "";
+str srole(lexicalSyntax()) = "lexical_";
+str srole(layoutSyntax()) = "layouts_";
+str srole(keywordSyntax()) = "keywords_";
+
+
 default str v2i(value v) {
     switch (v) {
         case AType u : if(u.label? && !isEmpty(u.label)) return escId(u.label) + "_" + v2i(unset(u, "label"));else fail;
         case \start(AType s) : return "start__<v2i(s)>";
-        case s:aadt(nm, list[AType] args, syntaxRole) :   return isEmpty(args) ? "<nm>"  : "<nm>_<uu(args)>";
+        case s:aadt(nm, list[AType] args, syntaxRole) :  
+            return syntaxRole == layoutSyntax() ? "layouts_<escId(nm)>" : srole(syntaxRole) + (isEmpty(args) ? "<nm>"  : "<nm>_<uu(args)>");
       
         case item(p:prod(AType u,_), int i) : return "<v2i(u)>.<v2i(p)>_<v2i(i)>";
    
@@ -622,14 +621,5 @@ list[Message] saveParser(str pname, str parserClass, loc where){
     }
 }
 
-str prettyAsClassic(AProduction p){
-    res = atype2symbol(p);
-     println("prettyAsClassic: <p> ==\> <res>");
-     return res;
-    //println("prettyAsClassic: <p>");
-    //if(p.def is aadt){
-    //    return "prod(<atype2symbol(p.def)>,[<intercalate(",", [atype2symbol(t) | t <- p.asymbols])>],<p.attributes>)";
-    //} else {
-    //    return "<p>";
-    //}
-}
+str prettyAsClassic(AProduction p)
+    = atype2symbol(p);

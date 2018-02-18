@@ -44,12 +44,12 @@ public AGrammar addHoles(AGrammar object) = compose(object, grammar({}, holes(ob
 }
 public set[AProduction] holes(AGrammar object) {
   // syntax N = @holeType=<N> [-1] "N" ":" [0-9]+ [-1];
-  return  { regular(iter(\char-class([range(48,57)]))), 
-            prod(getTargetSymbol(nont)[label="$MetaHole"],
+  return  { AProduction::regular(iter(\char-class([range(48,57)]))), 
+            prod(getTargetSymbol(nont)/*[label="$MetaHole"]*/,
                  [ \char-class([range(0,0)]),
                    lit(denormalize(nont)),lit(":"),iter(\char-class([range(48,57)])),
                    \char-class([range(0,0)])
-                 ],attributes={\tag("holeType"(atype2symbol(nont)))})  
+                 ],attributes={\tag("holeType"(prettyPrintAType(nont)))})  
           | AType nont <- object.rules, quotable(nont)
           };
 }
@@ -67,12 +67,13 @@ public str createHole(ConcreteHole hole, int idx) = "\u0000<denormalize(sym2ATyp
   The same goes for the introduction of layout non-terminals in lists. We do not know which non-terminal is introduced,
   so we remove this here to create a canonical 'source-level' type.
 }
-private str denormalize(AType s) = atype2symbol(visit (s) { 
+private str denormalize(AType s) = prettyPrintAType(visit (s) { 
   case a: aadt(_, _, lexicalSyntax()) => a[syntaxRole=contextFreeSyntax()]
-  case \iter-seps(u,[l1, t, l2]) => \iter-seps(u,[t]) when isLayoutSyntax(l1), isLayoutSyntax(l2)
-  case \iter-star-seps(u,[l1,t,l2]) => \iter-star-seps(u,[t]) when isLayoutSyntax(l1), isLayoutSyntax(l2)
-  case \iter-seps(u,[l]) => \iter(u) when isLayoutSyntax(l)
-  case \iter-star-seps(u,[l]) => \iter-star(u) when isLayoutSyntax(l)
+  case a: aadt(_, _, layoutSyntax()) => a[syntaxRole=contextFreeSyntax()]
+  case AType::\iter-seps(u, [l1, t, l2]) => \iter-seps(u,[t]) when isLayoutSyntax(l1), isLayoutSyntax(l2)
+  case AType::\iter-star-seps(u,[l1,t,l2]) => \iter-star-seps(u,[t]) when isLayoutSyntax(l1), isLayoutSyntax(l2)
+  case AType::\iter-seps(u, [l]) => \iter(u) when isLayoutSyntax(l)
+  case AType::\iter-star-seps(AType u, [l]) => \iter-star(u) when isLayoutSyntax(l)
   // TODO: add rule for seq
 });
 
@@ -90,11 +91,14 @@ private AType getTargetSymbol(AType sym) {
 
 @doc{This decides for which part of the grammar we can write anti-quotes}
 private bool quotable(AType x) { 
-    return \lit(_) !:= x 
-        && \empty() !:= x
-        && \cilit(_) !:= x 
-        && \char-class(_) !:= x 
-        && (aadt(_,list[AType] parameters, SyntaxRole sr) := x && (sr != contextFreeSyntax() || !isEmpty(parameters) ))
-        && \start(_) !:= x
-        ;
+    //res = \lit(_) !:= x 
+    //    && \empty() !:= x
+    //    && \cilit(_) !:= x 
+    //    && \char-class(_) !:= x 
+    //    && (aadt(_,list[AType] parameters, SyntaxRole sr) := x && (sr != contextFreeSyntax() || !isEmpty(parameters)))
+    //    && \start(_) !:= x
+    //    ;
+    res = aadt(_, [], SyntaxRole sr) := x && sr in {lexicalSyntax(), contextFreeSyntax()};
+    println("quotable(<x>) ==\> <res>");
+    return res;
 }
