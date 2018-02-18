@@ -27,6 +27,7 @@ import lang::rascalcore::check::TypePalConfig;
 import lang::rascalcore::check::ATypeExceptions;
 
 import lang::rascal::\syntax::Rascal;
+import lang::rascalcore::format::Escape;
 
 str unescape(str s) = replaceAll(s, "\\", "");
 
@@ -224,7 +225,7 @@ str atype2symbol(aanno(str aname, AType onType, AType annoType)) = "\\anno(\"<an
 
 str atype2symbol(aadt(str s, [], contextFreeSyntax()))  = "\\sort(\"<s>\")";
 str atype2symbol(aadt(str s, [], lexicalSyntax()))      = "\\lex(\"<s>\")";
-str atype2symbol(aadt(str s, [], keywordsSyntax()))     = "\\keywords(\"<s>\")";
+str atype2symbol(aadt(str s, [], keywordSyntax()))     = "\\keywords(\"<s>\")";
 str atype2symbol(aadt(str s, [], layoutSyntax()))       = "\\layouts(\"<s>\")";
 
 str atype2symbol(aadt(str s, ps, contextFreeSyntax)) = "\\parameterized-sort(\"<s>\", [<atype2symbol(ps)>])" when size(ps) > 0;
@@ -251,7 +252,7 @@ str atype2symbol(Keyword kw) = "<atype2symbol(kw.fieldType) <kw.fieldType.label/
 str atype2symbol(\prod(AType s, list[AType] fs, attributes=ats)) = "prod(<atype2symbol(s)>, [<intercalate(", ", [ atype2symbol(f) | f <- fs ])>], <ats>)"; //TODO others
 
 // terminal symbols
-str atype2symbol(AType::\lit(str string)) = "\\lit(\"<string>\")";
+str atype2symbol(AType::\lit(str string)) = "\\lit(\"<escape(string)>\")";
 str atype2symbol(AType::\cilit(str string)) = "\\cilit(\"<string>\")";
 str atype2symbol(\char-class(list[ACharRange] ranges)) = "\\char-class([<intercalate(",", [ "range(<r.begin>,<r.end>)" | r <- ranges ])>])";
 

@@ -487,45 +487,42 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBu
 void collect(current: (SyntaxDefinition) `<Visibility vis> layout <Sym defined> = <Prod production>;`, TBuilder tb){
     //println("LAYOUT: <current>");
     nonterminalType = defsym2AType(defined, layoutSyntax());
-    declareSyntax(current, getVis(vis), defined, nonterminalType, production, layoutId(), tb);
+    declareSyntax(current, getVis(vis), defined, nonterminalType, false, production, layoutId(), tb);
     collect(production, tb);
 } 
 
 void collect (current: (SyntaxDefinition) `lexical <Sym defined> = <Prod production>;`, TBuilder tb){
     //println("LEXICAL: <current>");
     nonterminalType = defsym2AType(defined, lexicalSyntax());
-    declareSyntax(current, publicVis(), defined, nonterminalType, production, lexicalId(), tb);
+    declareSyntax(current, publicVis(), defined, nonterminalType, false, production, lexicalId(), tb);
     collect(production, tb);
 }
 
 void collect (current: (SyntaxDefinition) `keyword <Sym defined> = <Prod production>;`, TBuilder tb){
    //println("KEYWORD: <current>");
     nonterminalType = defsym2AType(defined, keywordSyntax());
-    declareSyntax(current, publicVis(), defined, nonterminalType, production,keywordId(), tb);
+    declareSyntax(current, publicVis(), defined, nonterminalType, false, production, keywordId(), tb);
     collect(production, tb);
 } 
 
 void collect (current: (SyntaxDefinition) `<Start strt> syntax <Sym defined> = <Prod production>;`, TBuilder tb){
     //println("SYNTAX: <current>");
     nonterminalType = defsym2AType(defined, contextFreeSyntax());
-    if(strt is present) nonterminalType = \start(nonterminalType);
+    isStart = strt is present;
 
-    declareSyntax(current, publicVis(), defined, nonterminalType, production, nonterminalId(), tb);
+    declareSyntax(current, publicVis(), defined, nonterminalType, isStart, production, nonterminalId(), tb);
     collect(production, tb);
 }
 
-void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterminalType, Prod production, IdRole idRole, TBuilder tb){
+void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterminalType, bool isStart, Prod production, IdRole idRole, TBuilder tb){
     //println("declareSyntax: <defined>, <nonterminalType>");
     AProduction pr = prod2prod(nonterminalType, production);
     //println("pr: <pr>");
-    baseNonterminalType = nonterminalType;
-    if(isStartNonTerminalType(nonterminalType)){
-        baseNonterminalType = getStartNonTerminalType(nonterminalType);
-    }
     
-    if(isADTType(baseNonterminalType)){
-        ntName = baseNonterminalType.adtName;
+    if(isADTType(nonterminalType)){
+        ntName = nonterminalType.adtName;
         dt = defType(nonterminalType);
+        if(isStart) dt.isStart = true;
         dt.vis = vis;
         productions = choice(definedType, set[AProduction] prods) := pr ? prods : {pr};
         dt.productions = productions;

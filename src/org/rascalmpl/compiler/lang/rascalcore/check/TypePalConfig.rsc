@@ -64,6 +64,7 @@ data DefInfo(map[str,str] tags = ());
 
 // Productions and Constructor fields; common Keyword fields
 data DefInfo(set[AProduction] productions = {}, 
+             bool isStart = false,
              set[AType/*NamedField*/] constructorFields = {},
              set[AType] constructors = {},
              list[Keyword] commonKeywordFields = []

@@ -23,51 +23,17 @@ import lang::rascalcore::grammar::definition::Names;
 extend lang::rascalcore::grammar::definition::Grammar;
 import List; 
 import Set;
-import String;    
-//extend ParseTree;   
+import String;      
 import IO;  
 import util::Math;
 import util::Maybe;
 import Message;
 
 
-// conversion functions
-
-//public AGrammar syntax2grammar(set[SyntaxDefinition] defs) {
-//  set[Production] prods = {prod(Symbol::empty(),[],{}), prod(layouts("$default$"),[],{})};
-//  set[Symbol] starts = {};
-//  
-//  for (sd <- defs) {
-//    <ps,st> = rule2prod(sd);
-//    prods += ps;
-//    if (st is just)
-//      starts += st.val;
-//  }
-//  
-//  return grammar(starts, prods);
-//}
-//
-//public tuple[set[Production] prods, Maybe[Symbol] \start] rule2prod(SyntaxDefinition sd) {  
-//    switch (sd) {
-//      case \layout(_, nonterminal(Nonterminal n), Prod p) : 
-//        return <{prod2prod(\layouts("<n>"), p)},nothing()>;
-//      case \language(present() /*start*/, nonterminal(Nonterminal n), Prod p) : 
-//        return < {prod(\start(sort("<n>")),[label("top", sort("<n>"))],{})
-//                ,prod2prod(sort("<n>"), p)}
-//               ,just(\start(sort("<n>")))>;
-//      case \language(absent(), parametrized(Nonterminal l, {Sym ","}+ syms), Prod p) : 
-//        return <{prod2prod(\parameterized-sort("<l>",separgs2symbols(syms)), p)}, nothing()>;
-//      case \language(absent(), nonterminal(Nonterminal n), Prod p) : 
-//        return <{prod2prod(\sort("<n>"), p)},nothing()>;
-//      case \lexical(parametrized(Nonterminal l, {Sym ","}+ syms), Prod p) : 
-//        return <{prod2prod(\parameterized-lex("<l>",separgs2symbols(syms)), p)}, nothing()>;
-//      case \lexical(nonterminal(Nonterminal n), Prod p) : 
-//        return <{prod2prod(\lex("<n>"), p)}, nothing()>;
-//      case \keyword(nonterminal(Nonterminal n), Prod p) : 
-//        return <{prod2prod(keywords("<n>"), p)}, nothing()>;
-//      default: { iprintln(sd); throw "unsupported kind of syntax definition? <sd> at <sd@\loc>"; }
-//    }
-//} 
+@doc{
+.Synopsis
+Convert a concrete production (i.e., the parse tree of a production) into an abstract production
+}
    
 public AProduction prod2prod(AType nt, Prod p) {
   src = p@\loc;
@@ -118,6 +84,10 @@ private AProduction associativity(AType nt, nothing(), AProduction p) = p;
 private default AProduction associativity(AType nt, just(Associativity a), AProduction p) = associativity(nt, a, {p});
 
 
+@doc{
+.Synopsis
+Validate (i.e., type check) a production.
+}
 list[Message] validateProduction(p: prod(AType def, list[AType] asymbols)){
     if(isStartNonTerminalType(def)){
         def = getStartNonTerminalType(def);

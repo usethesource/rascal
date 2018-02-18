@@ -1,5 +1,24 @@
 module lang::rascalcore::check::Test1
 
-layout L = " "*;
+//lexical Id  = [a-z][a-z0-9]*;// !>> [a-z0-9];
+//lexical Natural = [0-9]+ ;
+//lexical String = "\"" ![\"]*  "\"";
 
-syntax E = "a" | {E ","}+;
+//layout Layout = WhitespaceAndComment* !>> [\ \t\n\r%];
+
+//lexical WhitespaceAndComment 
+//   = [\ \t\n\r]
+//   | @category="Comment" ws2: "%" ![%]+ "%"
+//   | @category="Comment" ws3: "%%" ![\n]* $
+//   ;
+     
+syntax Expression 
+   =// id: Id name
+//   | strCon: String string
+    natCon: "123" natcon
+   | bracket "(" Expression e ")"
+   //> left conc: Expression lhs "||" Expression rhs
+   //> left ( add: Expression lhs "+" Expression rhs
+   //       | sub: Expression lhs "-" Expression rhs
+   //       )
+  ;

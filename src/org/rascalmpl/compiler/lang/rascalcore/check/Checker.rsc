@@ -12,6 +12,19 @@ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
 }
 module lang::rascalcore::check::Checker
 
+/*
+ * TODO:
+ * - Check that given module name corresponds with path in file system.
+ * - Integration with parser generator
+ * - Reified types
+ *
+ * Potential additions:
+ * - Unused imports/extends
+ * - Unused private functions
+ * - Non-void functions have a return along every control path
+ * - Unreachable code
+ */
+ 
 import IO;
 import ValueIO;
 import String;
@@ -197,8 +210,13 @@ TModel rascalTModel(Tree pt, PathConfig pcfg = getDefaultPathConfig(), bool debu
 data ModuleMessages = program(loc src, set[Message] messages);
 
 ModuleMessages check(str mname, PathConfig pcfg){
-    tm = rascalTModelFromName(mname, pcfg);
-    return program(file, toSet(tm.messages));
+    try {
+         tm = rascalTModelFromName(mname, pcfg);
+         mloc = getModuleLocation(mname, pcfg);
+        return program(mloc, toSet(tm.messages));
+    } catch value e: {
+        return program(|global-scope:///|, {error("During validation: <e>", |global-scope:///|)});
+    }
 }
 
 ModuleMessages check(loc file, PathConfig pcfg){

@@ -16,14 +16,8 @@ import String;
 import IO;
 
 public AGrammar literals(AGrammar g) {
-    st = {};
-    println(g);
-    visit(g){ case lit(str s): st += s; };
-    println(st);
-    lts0 = {l | /l:lit(str s) <- g};
-    lts1 = {literal(s) | /lit(s) <- g};
-    lts2 = {ciliteral(s) | /cilit(s) <- g};
-  return compose(g, grammar({}, lts1 + lts2));
+    lts = {literal(s) | /lit(s) <- g} + {ciliteral(s) | /cilit(s) <- g};
+  return compose(g, grammar({}, lts));
 }
 
 public AProduction literal(str s) = prod(lit(s),str2syms(s));
