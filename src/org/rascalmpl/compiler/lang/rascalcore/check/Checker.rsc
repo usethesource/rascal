@@ -15,8 +15,8 @@ module lang::rascalcore::check::Checker
 /*
  * TODO:
  * - Check that given module name corresponds with path in file system.
- * - Integration with parser generator
- * - Reified types
+ * - Integrate with parser generator
+ * - Support for reified types
  *
  * Potential additions:
  * - Unused imports/extends
@@ -139,11 +139,12 @@ TModel rascalTModelsFromTree(Tree pt){
 }
 
 TModel rascalTModelFromName(str mname, PathConfig pcfg, bool debug=false){
+    mloc = |file:///|;
     try {
         mloc = getModuleLocation(mname, pcfg);
         return rascalTModelFromLoc(mloc, pcfg, debug=debug);
     } catch value e: {
-        return tmodel()[messages = [ error("During validation: <e>", |global-scope:///|) ]];
+        return tmodel()[messages = [ error("During validation: <e>", mloc) ]];
     }
 }
 
@@ -177,7 +178,7 @@ TModel rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool debug=false){
     } catch Message msg: {
      return tmodel()[messages = [ error("During validation: <msg>", msg.src) ]];
     } catch value e: {
-        return tmodel()[messages = [ error("During validation: <e>", |global-scope:///|) ]];
+        return tmodel()[messages = [ error("During validation: <e>", mloc) ]];
     }    
 }
 
@@ -210,12 +211,13 @@ TModel rascalTModel(Tree pt, PathConfig pcfg = getDefaultPathConfig(), bool debu
 data ModuleMessages = program(loc src, set[Message] messages);
 
 ModuleMessages check(str mname, PathConfig pcfg){
+    mloc = |file:///|;
     try {
          tm = rascalTModelFromName(mname, pcfg);
          mloc = getModuleLocation(mname, pcfg);
         return program(mloc, toSet(tm.messages));
     } catch value e: {
-        return program(|global-scope:///|, {error("During validation: <e>", |global-scope:///|)});
+        return program(mloc, {error("During validation: <e>", mloc)});
     }
 }
 
