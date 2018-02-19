@@ -31,6 +31,7 @@ void collect(current: (Module) `<Header header> <Body body>`, TBuilder tb){
   
     if(current has top) current = current.top;
     mname = prettyPrintName(header.name);
+    checkModuleName(getLoc(current), header.name, tb);
     
     tagsMap = getTags(header.tags);
     
@@ -53,6 +54,25 @@ void collect(current: (Module) `<Header header> <Body body>`, TBuilder tb){
     tb.leaveScope(current);
     tb.pop(key_current_module);
     getImports(tb);
+}
+
+void checkModuleName(loc mloc, QualifiedName qualifiedModuleName, TBuilder tb){
+    pcfgVal = tb.getStack("pathconfig");
+    if([PathConfig pcfg] := pcfgVal){ 
+        mname = prettyPrintName(qualifiedModuleName);
+        try {   
+            mloc1 = getModuleLocation(mname, pcfg);
+            if(mloc.scheme != mloc1.scheme || mloc.authority != mloc1.authority || mloc.path != mloc1.path){
+                tb.reportError(qualifiedModuleName, "Module name <fmt(mname)> is incompatible with its file location");
+            }
+        } catch value e: {
+            tb.reportError(qualifiedModuleName, "Module name <fmt(mname)> is not consistent with its file location");
+        }
+    } else if(isEmpty(pcfgVal)){
+        return;
+    } else {
+        throw rascalCheckerInternalError("Inconsistent value for \"pathconfig\": <tb.getStack("pathconfig")>");
+    }
 }
 
 // ---- import
@@ -91,7 +111,7 @@ void getImports(TBuilder tb){
                             pt = parseModuleWithSpaces(mloc).top;
                             collect(pt, tb);
                         } catch value e: {
-                            tb.reportErrors({error("Error during import of <fmt(mname)>: <e>", |file:///|)});
+                            tb.reportErrors({error("Error during import of <fmt(mname)>: <e>", |file:///|(0,0,<0,0>,<0,0>))});
                         }
                     }
                 }

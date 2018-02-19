@@ -140,90 +140,93 @@ void saveModules(str qualifiedModuleName, PathConfig pcfg, TModel tm){
 
 TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, map[str,loc] moduleScopes, PathConfig pcfg, TModel tm){
     //println("saveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>");
-    
-    mscope = getModuleScope(qualifiedModuleName, moduleScopes);
-    tplLoc = getDerivedWriteLoc(qualifiedModuleName, "tpl", pcfg);
-    
-    bom = (m : getLastModified(m, pcfg) | m <- imports + extends);
-    bom[qualifiedModuleName] = getLastModified(qualifiedModuleName, pcfg);
-    
-    println("=== BOM <qualifiedModuleName>"); 
-    for(m <- bom) println("<bom[m]>: <m>");
-    println("=== BOM END"); 
-    
-    extendedModuleScopes = {getModuleScope(m, moduleScopes) | str m <- extends};
-    filteredModuleScopes = {getModuleScope(m, moduleScopes) | str m <- (qualifiedModuleName + imports)} + extendedModuleScopes /*+ |global-scope:///|*/;
-    //println("filtered: <filteredModuleScopes>");
-    TModel m1 = tmodel();
-    
-    m1.facts = (key : tm.facts[key] | key <- tm.facts, key in filteredModuleScopes);
-    //m1.facts = (key : tm.facts[key] | key <- tm.facts, any(fms <- filteredModuleScopes, containedIn(key, fms)));
-    println("facts: <size(tm.facts)>  ==\> <size(m1.facts)>");
- 
-    m1.messages = [msg | msg <- tm.messages, msg.at.path == mscope.path];
-    
-    filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
-    //println("filteredModuleScopePaths: <filteredModuleScopePaths>");
-    m1.scopes = (inner : tm.scopes[inner] | loc inner <- tm.scopes, inner.path in filteredModuleScopePaths);
-    //println("scopes: <size(tm.scopes)> ==\> <size(m1.scopes)>");
-   
-    m1.store = (key_bom : bom);
-    m1.paths = tm.paths;
-    //m1.uses = [u | u <- tm.uses, containedIn(u.occ, mscope) ];
-    
-    roles = dataOrSyntaxIds + {constructorId(), functionId(), fieldId()/*, variableId()*/};
-    // Filter model for current module and replace functions in defType by their defined type
-    
-    defs = for(tup: <Key scope, str id, IdRole idRole, Key defined, DefInfo defInfo> <- tm.defines){
-           if(scope == |global-scope:///| && defined.path in filteredModuleScopePaths || 
-              scope in filteredModuleScopes || 
-              (scope.path == mscope.path && idRole in roles)){
-             if(id == "type" && idRole == constructorId()){  
-                continue; // exclude builtin constructor for "type"
-             } else {
-                 if((defInfo has getAType || defInfo has getATypes)){
-                   try {                   
-                       dt = defType(tm.facts[defined]);
-                       if(defInfo.vis?) dt.vis = defInfo.vis;
-                       if(defInfo.tags?) dt.tags = defInfo.tags;
-                       if(defInfo.constructorFields?) dt.constructorFields = defInfo.constructorFields;
-                       if(defInfo.productions?) dt.productions = defInfo.productions;
-                       tup.defInfo = dt;
-                       //println("Changed <defInfo> ==\> <dt>");
-                   } catch NoSuchKey(k): {
-                    //println("ignore: <tup>");
-                    continue;
+    try {
+        mscope = getModuleScope(qualifiedModuleName, moduleScopes);
+        tplLoc = getDerivedWriteLoc(qualifiedModuleName, "tpl", pcfg);
+        
+        bom = (m : getLastModified(m, pcfg) | m <- imports + extends);
+        bom[qualifiedModuleName] = getLastModified(qualifiedModuleName, pcfg);
+        
+        println("=== BOM <qualifiedModuleName>"); 
+        for(m <- bom) println("<bom[m]>: <m>");
+        println("=== BOM END"); 
+        
+        extendedModuleScopes = {getModuleScope(m, moduleScopes) | str m <- extends};
+        filteredModuleScopes = {getModuleScope(m, moduleScopes) | str m <- (qualifiedModuleName + imports)} + extendedModuleScopes /*+ |global-scope:///|*/;
+        //println("filtered: <filteredModuleScopes>");
+        TModel m1 = tmodel();
+        
+        m1.facts = (key : tm.facts[key] | key <- tm.facts, key in filteredModuleScopes);
+        //m1.facts = (key : tm.facts[key] | key <- tm.facts, any(fms <- filteredModuleScopes, containedIn(key, fms)));
+        println("facts: <size(tm.facts)>  ==\> <size(m1.facts)>");
+     
+        m1.messages = [msg | msg <- tm.messages, msg.at.path == mscope.path];
+        
+        filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
+        //println("filteredModuleScopePaths: <filteredModuleScopePaths>");
+        m1.scopes = (inner : tm.scopes[inner] | loc inner <- tm.scopes, inner.path in filteredModuleScopePaths);
+        //println("scopes: <size(tm.scopes)> ==\> <size(m1.scopes)>");
+       
+        m1.store = (key_bom : bom);
+        m1.paths = tm.paths;
+        //m1.uses = [u | u <- tm.uses, containedIn(u.occ, mscope) ];
+        
+        roles = dataOrSyntaxIds + {constructorId(), functionId(), fieldId()/*, variableId()*/};
+        // Filter model for current module and replace functions in defType by their defined type
+        
+        defs = for(tup: <Key scope, str id, IdRole idRole, Key defined, DefInfo defInfo> <- tm.defines){
+               if(scope == |global-scope:///| && defined.path in filteredModuleScopePaths || 
+                  scope in filteredModuleScopes || 
+                  (scope.path == mscope.path && idRole in roles)){
+                 if(id == "type" && idRole == constructorId()){  
+                    continue; // exclude builtin constructor for "type"
+                 } else {
+                     if((defInfo has getAType || defInfo has getATypes)){
+                       try {                   
+                           dt = defType(tm.facts[defined]);
+                           if(defInfo.vis?) dt.vis = defInfo.vis;
+                           if(defInfo.tags?) dt.tags = defInfo.tags;
+                           if(defInfo.constructorFields?) dt.constructorFields = defInfo.constructorFields;
+                           if(defInfo.productions?) dt.productions = defInfo.productions;
+                           tup.defInfo = dt;
+                           //println("Changed <defInfo> ==\> <dt>");
+                       } catch NoSuchKey(k): {
+                        //println("ignore: <tup>");
+                        continue;
+                       }
+                   } else if(defInfo has atype){
+                      if(tvar(l) := defInfo.atype) {
+                         try {
+                            tup.defInfo.atype = tm.facts[l];
+                         } catch NoSuchKey(v):{
+                            println("*** <v> is undefined");
+                            tup.defInfo.atype = avalue();
+                         }
+                       }
                    }
-               } else if(defInfo has atype){
-                  if(tvar(l) := defInfo.atype) {
-                     try {
-                        tup.defInfo.atype = tm.facts[l];
-                     } catch NoSuchKey(v):{
-                        println("*** <v> is undefined");
-                        tup.defInfo.atype = avalue();
-                     }
+               
+                   if(scope in extendedModuleScopes){
+                    tup.scope = mscope;
                    }
+                     
+                   append tup;
                }
-           
-               if(scope in extendedModuleScopes){
-                tup.scope = mscope;
-               }
-                 
-               append tup;
-           }
-    
-       } //else if(scope.path == mscope.path && idRole != variableId()) println("remove: <scope.path>: <tup>");
-    };
-    println("defines: <size(tm.defines)> ==\> <size(defs)>");
-    m1.defines = toSet(defs);
-    
-    //calcs = (key : tm.calculators[key] | Key key <- tm.calculators, key.path == mscope.path, bprintln("<key>: <tm.calculators[key]>"));
-    //
-    //reqs  = {r | r <- tm.openReqs, r.src.path == mscope.path, bprintln(r)};
-    //
-    //println("left: <size(calcs)> calculators, <size(reqs)> requirements");
-    println("write to <tplLoc>");
-    writeBinaryValueFile(tplLoc, m1);
-    return m1;
+        
+           } //else if(scope.path == mscope.path && idRole != variableId()) println("remove: <scope.path>: <tup>");
+        };
+        println("defines: <size(tm.defines)> ==\> <size(defs)>");
+        m1.defines = toSet(defs);
+        
+        //calcs = (key : tm.calculators[key] | Key key <- tm.calculators, key.path == mscope.path, bprintln("<key>: <tm.calculators[key]>"));
+        //
+        //reqs  = {r | r <- tm.openReqs, r.src.path == mscope.path, bprintln(r)};
+        //
+        //println("left: <size(calcs)> calculators, <size(reqs)> requirements");
+        println("write to <tplLoc>");
+        writeBinaryValueFile(tplLoc, m1);
+        return m1;
+    } catch value e: {
+        return tmodel()[messages=[error("Could not save .tpl file for <fmt(qualifiedModuleName)>: <fmt(e)>", |file:///|)]];
+    }
 }
 
