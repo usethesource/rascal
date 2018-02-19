@@ -148,14 +148,23 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
 
         OutputWriter writer;
         
+        
+        
+        
+        
         if (htmlOutput) {
             writer = new OutputWriter() {
                 @Override
                 public void writeOutput(Type tp, IOConsumer<StringWriter> contentsWriter) throws IOException {
-                    out.write("<div id=\"salix-"+ genSalixId() +" \">");
+                    String id = genSalixId();
+                    out.write("<div id=\""+ id +"\">");
                     out.write("<pre title=\"Type: " + tp.toString() + "\">");
                     contentsWriter.accept(out);
                     out.write("</pre>");
+                    out.write("<script>");
+                    out.write("var salix_<id> = new Salix(\"" + id + "\", 'http://....');");
+                    out.write("salix.start();");
+                    out.write("</script>");
                     out.write("</div>");
                 }
                 private String genSalixId() {
