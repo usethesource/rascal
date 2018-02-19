@@ -13,10 +13,12 @@ module lang::rascalcore::check::Test1
 //   ;
      
 syntax Expression 
-   =// id: Id name
+   =  "123" 
+   | "def"
+   // id: Id name
 //   | strCon: String string
-    natCon: "123" natcon
-   | bracket "(" Expression e ")"
+    //natConQQQ: Natural natcon
+   //| bracket "(" Expression e ")"
    //> left conc: Expression lhs "||" Expression rhs
    //> left ( add: Expression lhs "+" Expression rhs
    //       | sub: Expression lhs "-" Expression rhs
