@@ -19,10 +19,11 @@ data Response
   | jsonResponse(Status status, map[str,str] header, value val, bool implicitConstructors = true,  bool implicitNodes = true, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'")
   ;
   
-Response response(str content)                    = response(ok(), "text/html", (), content);
-Response response(Status status, str explanation) = response(status, "text/plain", (), explanation);
-Response response(loc f)                          = fileResponse(f, mimeTypes[f.extension]?"text/plain", ());
-default  Response response(value val)             = jsonResponse(ok(), (), val);
+Response response(str content)                     = response(ok(), "text/html", (), content);
+Response response(Status status, str explanation)  = response(status, "text/plain", (), explanation);
+Response response(loc f)                           = fileResponse(f, mimeTypes[f.extension]?"text/plain", ());
+Response response(value val, map[str, str] header) = jsonResponse(ok(), header, val);
+default  Response response(value val)              = jsonResponse(ok(), (), val);
   
 data Status 
   = ok() 
