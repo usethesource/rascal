@@ -57,12 +57,15 @@ public class TermREPL {
         private final IEvaluatorContext ctx;
         private final ICallableValue completor;
         private final IValueFactory vf;
+        private final ICallableValue salix;
 
         public TheREPL(IValueFactory vf, IConstructor repl, IEvaluatorContext ctx) throws IOException, URISyntaxException {
             this.ctx = ctx;
             this.vf = vf;
             this.handler = (ICallableValue)repl.get("handler");
             this.completor = (ICallableValue)repl.get("completor");
+            this.salix= (ICallableValue)repl.get("salix");
+            // TODO: Think about where is used the salix instance and how to used among with the new definition of CommandResult
             stdout = ctx.getStdOut();
             assert stdout != null;
         }
