@@ -71,11 +71,8 @@ public tuple[list[Message], str] newGenerate(str package, str name, AGrammar gr)
         case AType s => s[id=newItem()] 
       };
     beforeUniqueGr = gr;  
-    
-    
+        
     gr.rules = (s : rewrite(gr.rules[s]) | s <- gr.rules);
-    
-    iprintln("SORTS: <gr.rules.sort>");
         
     event("generating item allocations");
     newItems = generateNewItems(gr);
@@ -441,7 +438,7 @@ public str ciliterals2ints(list[AType] chars){
 
 public tuple[str new, int itemId] sym2newitem(AGrammar grammar, AType sym, int dot){
     if (sym.label?)  // ignore labels 
-      sym = unset(sym, "symbol");
+      sym = unset(sym, "label");
       
     itemId = sym.id;
     assert itemId != 0;
@@ -468,7 +465,7 @@ public tuple[str new, int itemId] sym2newitem(AGrammar grammar, AType sym, int d
       
       sym = sym.symbol;
       if (sym.label?)  // ignore labels 
-        sym = unset(sym, "symbol");
+        sym = unset(sym, "label");
     }
     
     filters = "";
