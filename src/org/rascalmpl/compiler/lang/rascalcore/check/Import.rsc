@@ -226,7 +226,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         writeBinaryValueFile(tplLoc, m1);
         return m1;
     } catch value e: {
-        return tmodel()[messages=[error("Could not save .tpl file for <fmt(qualifiedModuleName)>: <fmt(e)>", |unknown:///|)]];
+        return tmodel()[messages=[error("Could not save .tpl file for <fmt(qualifiedModuleName)>: <fmt(e)>", |unknown:///|(0,0,<0,0>,<0,0>))]];
     }
 }
 
