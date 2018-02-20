@@ -171,7 +171,7 @@ loc getModuleLocation(str qualifiedModuleName,  PathConfig pcfg, str extension =
             return fileLoc;
         }
     }
-    throw "Module <qualifiedModuleName> not found";
+    throw "Module <qualifiedModuleName> not found, <pcfg>";
 }
 
 @reflect{Need to get the configuration from the evaluation context}
