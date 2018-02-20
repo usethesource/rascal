@@ -196,20 +196,54 @@ public java &T <: node setAnnotations(&T <: node x, map[str, value] annotations)
 
 @doc{
 .Synopsis
-Set a specific parameter back to default on a node.
+Reset a specific keyword parameter back to their default on a node.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java &T <: node unset(&T <: node x, str label);
+public java &T <: node unset(&T <: node x, str keywordParameter);
+
 
 @doc{
 .Synopsis
-Set all keyword parameters back to default.
+Reset a set of keyword parameters back to their default on a node.
+}
+public &T <: node unset(&T <: node x, set[str] keywordParameters){
+    for(keywordParameter <- keywordParameters){
+        x = unset(x, keywordParameter);
+    }
+    return x;
+}
+
+
+@doc{
+.Synopsis
+Reset all keyword parameters back to their default.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T <: node unset(&T <: node x);
 
+
+@doc{
+.Synopsis
+Recursively reset all keyword parameters of the node and its children back to their default.
+}
 public &T <: node unsetRec(&T <: node x) = visit(x) { 
   case node n => unset(n) 
+};
+
+@doc{
+.Synopsis
+Recursively reset a specific keyword parameter of the node and its children back to its default.
+}
+public &T <: node unsetRec(&T <: node x, str keywordParameter) = visit(x) { 
+  case node n => unset(n, keywordParameter)
+};
+
+@doc{
+.Synopsis
+Recursively reset a selected set of keyword parameters of the node and its children back to their default.
+}
+public &T <: node unsetRec(&T <: node x, set[str] keywordParameters) = visit(x) { 
+  case node n: { for(keywordParameter <- keywordParameters) n = unset(n, keywordParameter); insert n; }
 };
 
 

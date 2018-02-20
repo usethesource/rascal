@@ -186,7 +186,7 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
     }
    
     for(loc dir <- pcfg.srcs){
-        if(startsWith(modulePath, dir.path) && moduleLoc.scheme == dir.scheme){
+        if(startsWith(modulePath, dir.path) && moduleLoc.scheme == dir.scheme && moduleLoc.authority == dir.authority){
            moduleName = replaceFirst(modulePath, dir.path, "");
            moduleName = replaceLast(moduleName, ".rsc", "");
            if(moduleName[0] == "/"){
@@ -198,7 +198,7 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
     }
     
      for(loc dir <- pcfg.libs){
-        if(startsWith(modulePath, dir.path) && moduleLoc.scheme == dir.scheme){
+        if(startsWith(modulePath, dir.path) && moduleLoc.scheme == dir.scheme && moduleLoc.authority == dir.authority){
            moduleName = replaceFirst(modulePath, dir.path, "");
            moduleName = replaceLast(moduleName, ".tc", "");
            if(moduleName[0] == "/"){
