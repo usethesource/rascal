@@ -578,7 +578,7 @@ public abstract class Import {
     Type concreteSyntaxType = env.lookupConcreteSyntaxType(name);
     
     if (abstractDataType != null && concreteSyntaxType != null) {
-        throw new RuntimeException("Abstract data type and concrete syntax type called \"" + name + "\" in scope, bailing out");
+        throw new ParseError("Abstract data type and concrete syntax type called \"" + name + "\" in scope, bailing out", uri.getURI(), 0, 0, 0, 0, 0, 0);
     }
     
     if (abstractDataType == null && concreteSyntaxType == null) {
