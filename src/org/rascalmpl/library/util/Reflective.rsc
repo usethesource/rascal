@@ -200,7 +200,8 @@ str getModuleName(loc moduleLoc,  PathConfig pcfg){
      for(loc dir <- pcfg.libs){
         if(startsWith(modulePath, dir.path) && moduleLoc.scheme == dir.scheme && moduleLoc.authority == dir.authority){
            moduleName = replaceFirst(modulePath, dir.path, "");
-           moduleName = replaceLast(moduleName, ".tc", "");
+           moduleName = replaceLast(moduleName, ".tc", "");     // for old typechecker
+           moduleName = replaceLast(moduleName, ".tpl", "");    // for new typechecker
            if(moduleName[0] == "/"){
               moduleName = moduleName[1..];
            }
