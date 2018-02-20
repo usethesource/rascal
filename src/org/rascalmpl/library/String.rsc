@@ -678,7 +678,7 @@ Substitute substrings in a string based on a substitution map from location to s
 [source,rascal-shell]
 ----
 import String;
-substitute("abc", (|stdin://|(1,1): "d"))
+substitute("abc", (|stdin:///|(1,1): "d"))
 ----
 }
 str substitute(str src, map[loc,str] s) { 
