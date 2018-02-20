@@ -113,7 +113,7 @@ bool addImport(str qualifiedModuleName, PathConfig pcfg, TBuilder tb){
                println("=== BOM");
                for(str m <- bom){ println("<bom[m]>: <m> (lm: <getLastModified(m, pcfg)>)"); }
                println("=== BOM");
-               for(str m <- bom){
+               for(str m <- bom, m != qualifiedModuleName){
                    if(bom[m] < getLastModified(m, pcfg)) {
                         toBeSaved += qualifiedModuleName;
                         println("--- <m> is no longer valid, toBeSaved: <toBeSaved>");
