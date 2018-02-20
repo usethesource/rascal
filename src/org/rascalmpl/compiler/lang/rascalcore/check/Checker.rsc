@@ -139,7 +139,7 @@ TModel rascalTModelsFromTree(Tree pt){
 }
 
 TModel rascalTModelFromName(str mname, PathConfig pcfg, bool debug=false){
-    mloc = |unknown:///|;
+    mloc = |unknown:///|(0,0,<0,0>,<0,0>);
     try {
         mloc = getModuleLocation(mname, pcfg);
         return rascalTModelFromLoc(mloc, pcfg, debug=debug);
@@ -212,7 +212,7 @@ data ModuleMessages = program(loc src, set[Message] messages);
 
 ModuleMessages check(str mname, PathConfig pcfg){
     println("=== check: <mname>"); iprintln(pcfg);
-    mloc = |unknown:///|;
+    mloc = |unknown:///|(0,0,<0,0>,<0,0>);
     try {
          tm = rascalTModelFromName(mname, pcfg);
          mloc = getModuleLocation(mname, pcfg);

@@ -614,7 +614,7 @@ list[Message] saveParser(str pname, str parserClass, loc where){
         println("done");
         return [];
     } catch e: {
-        return [error("<e>", |unknown:///|)];
+        return [error("<e>", |unknown:///|(0,0,<0,0>,<0,0>))];
     }
 }
 
