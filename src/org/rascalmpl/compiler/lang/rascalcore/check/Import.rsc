@@ -110,6 +110,9 @@ bool addImport(str qualifiedModuleName, PathConfig pcfg, TBuilder tb){
             println("addImport: <qualifiedModuleName> from <tplLoc>");
             tm = readBinaryValueFile(#TModel, tplLoc);
             if(tm.store[key_bom]? && map[str,datetime] bom := tm.store[key_bom]){
+               println("=== BOM");
+               for(str m <- bom){ println("bom[m]: <m> (lm: <getLastModified(m, pcfg)>)"); }
+               println("=== BOM");
                for(str m <- bom){
                    if(bom[m] < getLastModified(m, pcfg)) {
                         toBeSaved += qualifiedModuleName;
