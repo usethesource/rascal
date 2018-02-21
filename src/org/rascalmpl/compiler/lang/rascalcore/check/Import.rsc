@@ -122,7 +122,8 @@ bool addImport(str qualifiedModuleName, Tree importStatement, PathConfig pcfg, T
                             println("--- <m> is no longer valid, toBeSaved: <toBeSaved>");
                             return false;
                         } catch value e: {
-                           tb.reportWarning(importStatement, "Reusing outdated type information for <m> (source not accessible)");
+                           if(m != qualifiedModuleName)
+                              tb.reportWarning(importStatement, "Reusing outdated type information for <m> (source not accessible)");
                         }
                    }
                }
