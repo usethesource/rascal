@@ -75,12 +75,20 @@ datetime getLastModified(str qualifiedModuleName, PathConfig pcfg, bool fresh = 
 TModel emptyModel = tmodel();
 
 tuple[bool, TModel] getIfValid(str qualifiedModuleName, PathConfig pcfg){
-    lastModSrc = getLastModified(qualifiedModuleName, pcfg, fresh = true);
-    
     <existsTpl, tplLoc> = getDerivedReadLoc(qualifiedModuleName, "tpl", pcfg);
     if(!existsTpl) return <false, emptyModel>;
-    
     lastModTpl = lastModified(tplLoc);
+    
+    existsSrc = false;
+    lastModSrc = lastModTpl;
+    try {
+        mloc = getModuleLocation(m, pcfg);
+        existsSrc = true;
+        lastModSrc = getLastModified(qualifiedModuleName, pcfg, fresh = true);
+    } catch value e:{
+    ;
+    }
+
     if(lastModSrc > lastModTpl) return <false, emptyModel>;
     
     try {
@@ -88,8 +96,13 @@ tuple[bool, TModel] getIfValid(str qualifiedModuleName, PathConfig pcfg){
         if(tm.store[key_bom]? && map[str,datetime] bom := tm.store[key_bom]){
            for(str m <- bom){
                if(bom[m] < getLastModified(m, pcfg)) {
-                  println("<m> out of date: <bom[m]> vs <getLastModified(m, pcfg)>");
-                  return <false, emptyModel>;
+                  if(existsSrc){
+                     println("<m> out of date: <bom[m]> vs <getLastModified(m, pcfg)>");
+                     return <false, emptyModel>;
+                  } else {
+                   if(m != qualifiedModuleName)
+                        println("reusing outdated <m> (source not accessible)");
+                  }
                }
            }
         }
