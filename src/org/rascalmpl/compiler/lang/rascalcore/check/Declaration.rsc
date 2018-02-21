@@ -131,7 +131,7 @@ void getImports(TBuilder tb){
 
 void collect(current: (Import) `extend <ImportedModule m> ;`, TBuilder tb){    
     tb.useViaPath(m, {moduleId()}, extendPath());
-    tb.push(key_imported, unescape("<m.name>"));
+    tb.push(key_imported, <unescape("<m.name>"), current>);
     tb.push(key_extended, unescape("<m.name>"));
     tb.push(key_extend_graph, <tb.top(key_current_module), "<m.name>">);
 }
