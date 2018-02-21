@@ -112,7 +112,7 @@ void getImports(TBuilder tb){
                             pt = parseModuleWithSpaces(mloc).top;
                             collect(pt, tb);
                         } catch value e: {
-                            tb.reportErrors(importStatement, "Error during import of <fmt(mname)>: <e>");
+                            tb.reportError(importStatement, "Error during import of <fmt(mname)>: <e>");
                         }
                     }
                 }
