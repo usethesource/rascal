@@ -4,6 +4,7 @@ module lang::rascalcore::check::AllRascalTests
 import IO;
 import List;
 import Set;
+import Map;
 import DateTime;
 extend lang::rascalcore::check::Checker;
 import String;
@@ -12,6 +13,7 @@ import ParseTree;
 import util::Reflective;
 
 import util::FileSystem;
+import ValueIO;
 
 // Percentage of succeeded tests, see spreadsheet TestOverview.ods
 
@@ -280,7 +282,7 @@ tuple[list[value] crashes, list[Message] msgs] runTests(list[str] names, str bas
           msgs = validateModules(prog);
           iprintln(msgs);
           all_test_msgs += msgs;
-      } catch e:
+      } catch value e:
         crashes += e;
   }
   return <crashes, all_test_msgs>;

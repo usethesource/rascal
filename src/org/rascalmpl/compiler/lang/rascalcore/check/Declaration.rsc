@@ -106,8 +106,7 @@ void getImports(TBuilder tb){
                     reuse = addImport(mname, importStatement, pcfg, tb);
                     if(!reuse){
                         try {
-                            mloc = timestamp(getModuleLocation(mname, pcfg));
-                            mloc.fragment = "<lastModified(mloc)>";
+                            mloc = timestamp(getModuleLocation(mname, pcfg));                       
                             println("*** importing <mname> from <mloc>");
                             pt = parseModuleWithSpaces(mloc).top;
                             collect(pt, tb);
