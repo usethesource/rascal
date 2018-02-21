@@ -97,8 +97,10 @@ tuple[bool, TModel] getIfValid(str qualifiedModuleName, PathConfig pcfg){
            for(str m <- bom){
                if(bom[m] < getLastModified(m, pcfg)) {
                   if(existsSrc){
-                     println("<m> out of date: <bom[m]> vs <getLastModified(m, pcfg)>");
-                     return <false, emptyModel>;
+                     if(m != qualifiedModuleName){
+                        println("<m> out of date: in BOM <bom[m]> vs current <getLastModified(m, pcfg)>");
+                        return <false, emptyModel>;
+                     }
                   } else {
                    if(m != qualifiedModuleName)
                         println("reusing outdated <m> (source not accessible)");
