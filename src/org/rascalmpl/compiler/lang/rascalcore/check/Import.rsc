@@ -100,7 +100,7 @@ tuple[bool, TModel] getIfValid(str qualifiedModuleName, PathConfig pcfg){
     }
 }
 
-bool addImport(str qualifiedModuleName, PathConfig pcfg, TBuilder tb){
+bool addImport(str qualifiedModuleName, Tree importStatement, PathConfig pcfg, TBuilder tb){
     qualifiedModuleName = unescape(qualifiedModuleName);
 
     //return false;
@@ -113,11 +113,17 @@ bool addImport(str qualifiedModuleName, PathConfig pcfg, TBuilder tb){
                println("=== BOM");
                for(str m <- bom){ println("<bom[m]>: <m> (lm: <getLastModified(m, pcfg)>)"); }
                println("=== BOM");
-               for(str m <- bom, m != qualifiedModuleName){
+     
+               for(str m <- bom){
                    if(bom[m] < getLastModified(m, pcfg)) {
-                        toBeSaved += qualifiedModuleName;
-                        println("--- <m> is no longer valid, toBeSaved: <toBeSaved>");
-                        return false;
+                        try {
+                            mloc = getModuleLocation(m, pcfg);
+                            toBeSaved += qualifiedModuleName;
+                            println("--- <m> is no longer valid, toBeSaved: <toBeSaved>");
+                            return false;
+                        } catch value e: {
+                           tb.reportWarning(importStatement, "Reusing outdated type information for <m> (source not accessible)");
+                        }
                    }
                }
             }

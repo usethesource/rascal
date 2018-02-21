@@ -79,7 +79,7 @@ void checkModuleName(loc mloc, QualifiedName qualifiedModuleName, TBuilder tb){
 
 void collect(current: (Import) `import <ImportedModule m> ;`, TBuilder tb){ // TODO: warn about direct self-import
     tb.useViaPath(m, {moduleId()}, importPath());
-    tb.push(key_imported, unescape("<m.name>"));
+    tb.push(key_imported, <unescape("<m.name>"), current>);
     tb.push(key_import_graph, <tb.top(key_current_module), "<m.name>">);
 }
 
@@ -92,17 +92,18 @@ void getImports(TBuilder tb){
     pcfgVal = tb.getStack("pathconfig");
     
     if([PathConfig pcfg] := pcfgVal){ 
-        allReadyImported = {};
+        allreadyImported = {};
         if(list[str] processed := tb.getStack(key_processed_modules)){
-            allReadyImported = toSet(processed);
+            allreadyImported = toSet(processed);
         }
        
         tb.push(key_expanding_imports, true);
-        solve(allReadyImported){
-            if(list[str] importedModules := tb.getStack(key_imported)){
-                for(mname <- toSet(importedModules) - allReadyImported){
-                    allReadyImported += mname;
-                    reuse = addImport(mname, pcfg, tb);
+        solve(allreadyImported){
+            if(lrel[str,Tree] importedModules := tb.getStack(key_imported)){
+                for(<mname, importStatement> <- importedModules){
+                    if(mname in allreadyImported) continue;
+                    allreadyImported += mname;
+                    reuse = addImport(mname, importStatement, pcfg, tb);
                     if(!reuse){
                         try {
                             mloc = timestamp(getModuleLocation(mname, pcfg));
@@ -111,7 +112,7 @@ void getImports(TBuilder tb){
                             pt = parseModuleWithSpaces(mloc).top;
                             collect(pt, tb);
                         } catch value e: {
-                            tb.reportErrors({error("Error during import of <fmt(mname)>: <e>", |unknown:///|(0,0,<0,0>,<0,0>))});
+                            tb.reportErrors(importStatement, "Error during import of <fmt(mname)>: <e>");
                         }
                     }
                 }
