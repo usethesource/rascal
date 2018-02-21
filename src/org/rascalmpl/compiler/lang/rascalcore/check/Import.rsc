@@ -111,7 +111,7 @@ bool addImport(str qualifiedModuleName, Tree importStatement, PathConfig pcfg, T
             tm = readBinaryValueFile(#TModel, tplLoc);
             if(tm.store[key_bom]? && map[str,datetime] bom := tm.store[key_bom]){
                println("=== BOM");
-               for(str m <- bom){ println("<bom[m]>: <m> (lm: <getLastModified(m, pcfg)>)"); }
+               for(str m <- bom){ println("<bom[m]>: <m> (ts=<getLastModified(m, pcfg)>)"); }
                println("=== BOM");
      
                for(str m <- bom){
@@ -128,7 +128,7 @@ bool addImport(str qualifiedModuleName, Tree importStatement, PathConfig pcfg, T
                    }
                }
             }
-            println("*** importing <qualifiedModuleName> from <tplLoc>");
+            println("*** importing <qualifiedModuleName> from <tplLoc> (ts=<lastModified(tplLoc)>)");
             //iprintln(tm);
             tb.addTModel(tm);
             if(list[str] imps := tm.store[key_imported] ? []){
@@ -249,8 +249,9 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         //reqs  = {r | r <- tm.openReqs, r.src.path == mscope.path, bprintln(r)};
         //
         //println("left: <size(calcs)> calculators, <size(reqs)> requirements");
-        println("write to <tplLoc>");
+        
         writeBinaryValueFile(tplLoc, m1);
+        println("written to <tplLoc> (ts=<lastModified(tplLoc)>)");
         return m1;
     } catch value e: {
         return tmodel()[messages=[error("Could not save .tpl file for <fmt(qualifiedModuleName)>: <fmt(e)>", |unknown:///|(0,0,<0,0>,<0,0>))]];
