@@ -133,7 +133,7 @@ bool addImport(str qualifiedModuleName, Tree importStatement, PathConfig pcfg, T
                             return false;
                         } catch value e: {
                            if(m != qualifiedModuleName)
-                              tb.reportWarning(importStatement, "Reusing outdated type information for <m> (source not accessible)");
+                              tb.reportWarning(importStatement, "Reusing outdated type information for <m> (source not accessible): source ts in BOM: <bom[m]>, last modified tpl <getLastModified(m, pcfg)>");
                         }
                    }
                }
