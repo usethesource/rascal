@@ -154,7 +154,10 @@ TModel rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool debug=false){
         
         /***** turn this off during development of type checker *****/
         <valid, tm> = getIfValid(mname, pcfg);
-        if(valid) return tm;
+        if(valid) {
+            println("*** reusing up-to-date TModel of <mname>");
+            return tm;
+        }
         /***********************************************************/
         
         mloc = timestamp(mloc);                        
@@ -214,8 +217,8 @@ ModuleMessages check(str mname, PathConfig pcfg){
     println("=== check: <mname>"); iprintln(pcfg);
     mloc = |unknown:///|(0,0,<0,0>,<0,0>);
     try {
-         tm = rascalTModelFromName(mname, pcfg);
-         mloc = getModuleLocation(mname, pcfg);
+        tm = rascalTModelFromName(mname, pcfg);
+        mloc = getModuleLocation(mname, pcfg);
         return program(mloc, toSet(tm.messages));
     } catch value e: {
         return program(mloc, {error("During validation: <e>", mloc)});
