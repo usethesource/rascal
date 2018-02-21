@@ -132,8 +132,9 @@ bool addImport(str qualifiedModuleName, Tree importStatement, PathConfig pcfg, T
                             println("--- <m> is no longer valid, toBeSaved: <toBeSaved>");
                             return false;
                         } catch value e: {
-                           if(m != qualifiedModuleName)
-                              tb.reportWarning(importStatement, "Reusing outdated type information for <m> (source not accessible): source ts in BOM: <bom[m]>, last modified tpl <getLastModified(m, pcfg)>");
+                            println("Reusing existing type information for <m> (source not accessible): source ts in BOM: <bom[m]>, last modified tpl <getLastModified(m, pcfg)>");
+                           //if(m != qualifiedModuleName)
+                           //   tb.reportWarning(importStatement, "Reusing outdated type information for <m> (source not accessible): source ts in BOM: <bom[m]>, last modified tpl <getLastModified(m, pcfg)>");
                         }
                    }
                }
@@ -146,7 +147,7 @@ bool addImport(str qualifiedModuleName, Tree importStatement, PathConfig pcfg, T
             }
             return true;
         } catch IO(str msg): {
-            // tb.reportWarning()
+            tb.reportWarning(importStatement, "During import of <fmt(qualifiedModuleName)>: <fmt(msg)>");
             return false;
         }
     } else {
