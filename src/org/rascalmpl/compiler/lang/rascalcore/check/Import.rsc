@@ -66,7 +66,7 @@ datetime getLastModified(str qualifiedModuleName, PathConfig pcfg, bool fresh = 
         if(<true, tplLoc> := TPLReadLoc(qualifiedModuleName, pcfg)){
            lm = lastModified(tplLoc);
            lastModifiedModules[qualifiedModuleName] = lm;
-            return lm;
+           return lm;
         }
         throw "No source or tpl loc found for <qualifiedModuleName>";
     }
