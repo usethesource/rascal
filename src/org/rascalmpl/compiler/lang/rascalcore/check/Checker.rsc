@@ -214,7 +214,8 @@ TModel rascalTModel(Tree pt, PathConfig pcfg = getDefaultPathConfig(), bool debu
 data ModuleMessages = program(loc src, set[Message] messages);
 
 ModuleMessages check(str mname, PathConfig pcfg){
-    println("=== check: <mname>"); iprintln(pcfg);
+    pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
+    println("=== check: <mname>"); iprintln(pcfg1);
     mloc = |unknown:///|(0,0,<0,0>,<0,0>);
     try {
         tm = rascalTModelFromName(mname, pcfg);
@@ -226,7 +227,9 @@ ModuleMessages check(str mname, PathConfig pcfg){
 }
 
 ModuleMessages check(loc file, PathConfig pcfg){
-    println("=== check: <file>"); iprintln(pcfg);
+    pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
+   
+    println("=== check: <file>"); iprintln(pcfg1);
     tm = rascalTModelFromLoc(file, pcfg);
     return program(file, toSet(tm.messages));
 }
