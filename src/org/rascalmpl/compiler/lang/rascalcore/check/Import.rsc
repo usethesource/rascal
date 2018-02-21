@@ -82,7 +82,7 @@ tuple[bool, TModel] getIfValid(str qualifiedModuleName, PathConfig pcfg){
     existsSrc = false;
     lastModSrc = lastModTpl;
     try {
-        mloc = getModuleLocation(m, pcfg);
+        mloc = getModuleLocation(qualifiedModuleName, pcfg);
         existsSrc = true;
         lastModSrc = getLastModified(qualifiedModuleName, pcfg, fresh = true);
     } catch value e:{
