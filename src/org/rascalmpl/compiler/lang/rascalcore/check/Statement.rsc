@@ -14,7 +14,7 @@ import lang::rascalcore::check::Expression;
 import lang::rascalcore::check::Operators;
 
 import lang::rascalcore::check::TypePalConfig;
-
+ 
 import Set;
 import List;
 import Map;

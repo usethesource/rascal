@@ -1,7 +1,7 @@
 module lang::rascalcore::check::Operators
 
 extend analysis::typepal::TypePal;
-
+ 
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::ATypeExceptions;

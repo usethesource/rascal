@@ -1,5 +1,5 @@
 module lang::rascalcore::check::Declaration
-
+ 
 extend analysis::typepal::TypePal;
 
 import lang::rascal::\syntax::Rascal;

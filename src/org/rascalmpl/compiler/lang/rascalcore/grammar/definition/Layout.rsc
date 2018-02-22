@@ -17,8 +17,8 @@ import IO;
 // TODO: The following two functions were defined local to activeLayout
 // but this gives an not yet explained validation error  for the
 // function ids in the corresponding overloaded function
-bool isManual(set[Attr] as) = (\tag("manual"()) in as);
-bool isDefault(AType s) = (s == layouts("$default$"));
+//bool isManual(set[Attr] as) = (\tag("manual"()) in as);
+//bool isDefault(AType s) = (s == layouts("$default$"));
    
 //@doc{computes which layout definitions are visible in a certain given module.
 //     if a module contains a layout definition, this overrides any imported layout definition

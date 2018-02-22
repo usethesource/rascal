@@ -8,7 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Tijs van der Storm - Tijs.van.der.Storm@cwi.nl - CWI}
 @contributor{Michael Steindorfer - Michael.Steindorfer@cwi.nl - CWI}
-module lang::rascal::grammar::SyntaxTreeGenerator
+module lang::rascalcore::grammar::SyntaxTreeGenerator
 
 import Grammar;
 import lang::rascal::grammar::definition::Parameters;

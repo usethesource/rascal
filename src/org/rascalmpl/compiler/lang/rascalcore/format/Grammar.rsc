@@ -18,7 +18,6 @@ import lang::rascalcore::check::AType;
 import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::grammar::definition::Characters;
 import lang::rascalcore::grammar::definition::Literals;
-import analysis::grammars::Dependency2;
 import lang::rascalcore::format::Escape;
 import IO;
 import Set;
@@ -29,104 +28,6 @@ import analysis::graphs::Graph;
 import Relation;
 import Node;
 
-//public void definition2disk(loc prefix, AGrammarDefinition def) {
-//  for (m <- def.modules) {
-//    writeFile((prefix + "/" + visit(m) { case /::/ => "/" })[extension = ".rsc"], module2rascal(def.modules[m]));
-//  }
-//}
-//
-//public str definition2rascal(AGrammarDefinition def) {
-//  return ("" | it + "\n\n<module2rascal(def.modules[m])>" | m <- def.modules);
-//}
-//
-//public str module2rascal(AGrammarModule m) {
-//  return "module <m.name> 
-//         '<for (i <- m.imports) {>import <i>;
-//         '<}>
-//         '<for (i <- m.extends) {>extend <i>;
-//         '<}>
-//         '<grammar2rascal(m.grammar)>";
-//}
-//
-//public str grammar2rascal(AGrammar g, str name) {
-//  return "module <name> <grammar2rascal(g)>";
-//}
-//
-//public str grammar2rascal(AGrammar g) {
-//  g = cleanIdentifiers(g);
-//  deps = symbolDependencies(g);
-//  ordered = order(deps);
-//  unordered = [ e | e <- (g.rules<0> - carrier(deps))];
-//  //return "<grammar2rascal(g, ordered)>
-//  //       '<grammar2rascal(g, unordered)>";
-//  return grammar2rascal(g, []); 
-//}
-//
-//private AGrammar cleanIdentifiers(AGrammar g) {
-//  return visit (g) {
-//    case a: aadt(/<pre:.*>-<post:.*>/, list[AType] parameters, SyntaxRole syntaxRole): {
-//        a = a[name=replaceAll(s.name, "-", "_")];
-//        if(/<pre1:.*>-<post1:.*>/ := s.label) a.label = "\\<a.label>";
-//        insert a;
-//    }
-//    //case s:sort(/<pre:.*>-<post:.*>/) => sort(replaceAll(s.name, "-", "_"))
-//    //case s:layouts(/<pre:.*>-<post:.*>/) => layouts(replaceAll(s.name, "-", "_"))
-//    //case s:lex(/<pre:.*>-<post:.*>/) => lex(replaceAll(s.name, "-", "_"))
-//    //case s:keywords(/<pre:.*>-<post:.*>/) => keywords(replaceAll(s.name, "-", "_"))
-//    //case label(/<pre:.*>-<post:.*>/, s) => label("\\<pre>-<post>", s)
-//  }
-//} 
-
-//public str grammar2rascal(AGrammar g, list[AType] nonterminals) {
-//  return "<for (nont <- g.rules) {>
-//         '<topProd2rascal(g.rules[nont])>
-//         '<}>";
-//}
-//
-//bool same(AProduction p, AProduction q) {
-//  return p.def == q.def;
-//}
-//
-//public str topProd2rascal(AProduction p) {
-//  if (regular(_) := p || p.def == empty() || p.def == \layouts("$default$")) return "";
-// 
-//  if (choice(nt, {q:priority(_,_), *r}) := p, r != {}) {
-//    return "<topProd2rascal(choice(nt, r))>
-//           '
-//           '<topProd2rascal(q)>";
-//  }
-// 
-//  kind = "syntax";
-//  if (/layouts(n) := p.def)
-//    kind = "layout <n>";
-//  else if (/lex(_) := p.def || /\parameterized-lex(_,_) := p.def)
-//    kind = "lexical";
-//  else if (/keywords(_) := p.def)
-//    kind = "keyword";  
-//   
-//  if (\start(_) := p.def)
-//    kind = "start " + kind;
-//    
-//  return "<kind> <symbol2rascal(p.def)> =
-//         '  <prod2rascal(p)>
-//         '  ;";
-//}
-//
-//str layoutname(AType s) {
-//  if (\layouts(str name) := s)
-//    return name;
-//  throw "unexpected <s>";
-//}
-//
-//private str alt2r(AType def, AProduction p, str sep = "=") = "<symbol2rascal((p.def is label) ? p.def.symbol : p.def)> <sep> <prod2rascal(p)>";
-//public str alt2rascal(AProduction p:prod(def,_,_)) = alt2r(def, p);
-//public str alt2rascal(AProduction p:priority(def,_)) = alt2r(def, p, sep = "\>");
-//public str alt2rascal(AProduction p:\associativity(def,a,_)) = alt2r(def, p, sep = "= <associativity(a)>");
-//
-//public str alt2rascal(AProduction p:regular(_)) = symbol2rascal(p.def);
-//public default str alt2rascal(AProduction p) { throw "forgot <p>"; }
-//
-//
 public str prod2rascal(AProduction p) {
   switch (p) {
     case choice(s, alts) : {
