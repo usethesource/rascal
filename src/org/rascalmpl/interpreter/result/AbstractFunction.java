@@ -609,7 +609,7 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	                env.declareVariable(kwType, kwparam);
 	                Expression def = getKeywordParameterDefaults().get(kwparam);
 	                Result<IValue> kwResult = def.interpret(eval);
-	                env.storeVariable(kwparam, kwResult);
+	                env.storeVariable(kwparam, ResultFactory.makeResult(kwType, kwResult.getValue(), ctx));
 	                env.storeVariable(isSetName, ResultFactory.makeResult(TF.boolType(), getValueFactory().bool(false), ctx));
 	            }
 	        }
