@@ -54,9 +54,9 @@ tuple[bool,loc] TPLReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerive
 
 datetime getLastModified(str qualifiedModuleName, PathConfig pcfg, bool fresh = false){
     qualifiedModuleName = unescape(qualifiedModuleName);
-    if(!fresh && lastModifiedModules[qualifiedModuleName]?){
-        return lastModifiedModules[qualifiedModuleName];
-    }
+    //if(!fresh && lastModifiedModules[qualifiedModuleName]?){
+    //    return lastModifiedModules[qualifiedModuleName];
+    //}
     try {
         mloc = getModuleLocation(qualifiedModuleName, pcfg);
         lm = lastModified(mloc);
