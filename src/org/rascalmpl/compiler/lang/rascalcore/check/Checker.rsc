@@ -31,7 +31,7 @@ import String;
 import util::Benchmark;
 
 import lang::rascal::\syntax::Rascal;
-
+  
 extend analysis::typepal::TypePal;
 extend analysis::typepal::TestFramework;
 

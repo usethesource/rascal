@@ -1,5 +1,5 @@
 
-module lang::rascalcore::check::Testzz
+module lang::rascalcore::check::Test2
 
 import ValueIO;
 

@@ -11,13 +11,13 @@
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Paul Klint - Paul Klint@cwi.nl (CWI)}
 module lang::rascalcore::check::ATypeInstantiation
-
+ 
 import Set;
 import IO;
 import Node;
 extend analysis::typepal::TypePal;
 import lang::rascalcore::check::ATypeExceptions;
-
+ 
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 import analysis::typepal::ExtractTModel;

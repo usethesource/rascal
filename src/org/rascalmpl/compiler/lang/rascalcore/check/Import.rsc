@@ -75,8 +75,10 @@ datetime getLastModified(str qualifiedModuleName, PathConfig pcfg, bool fresh = 
 TModel emptyModel = tmodel();
 
 tuple[bool, TModel] getIfValid(str qualifiedModuleName, PathConfig pcfg){
+    println("getIfValid: <qualifiedModuleName>");
+    
     <existsTpl, tplLoc> = getDerivedReadLoc(qualifiedModuleName, "tpl", pcfg);
-    if(!existsTpl) return <false, emptyModel>;
+    if(!existsTpl) { println("getIfValid, !existsTpl: false"); return <false, emptyModel>;}
     lastModTpl = lastModified(tplLoc);
     
     existsSrc = false;
@@ -89,16 +91,20 @@ tuple[bool, TModel] getIfValid(str qualifiedModuleName, PathConfig pcfg){
     ;
     }
 
-    if(lastModSrc > lastModTpl) return <false, emptyModel>;
+    if(lastModSrc > lastModTpl) { println("getIfValid, lastModSrc \> lastModTpl: false"); return <false, emptyModel>; }
     
     try {
         tm = readBinaryValueFile(#TModel, tplLoc);
         if(tm.store[key_bom]? && map[str,datetime] bom := tm.store[key_bom]){
+           println("\<\<\< BOM");
+           for(str m <- bom){ println("<bom[m]> : <m>"); }
+           println("\>\>\> BOM");
            for(str m <- bom){
                if(bom[m] < getLastModified(m, pcfg)) {
                   if(existsSrc){
                      if(m != qualifiedModuleName){
                         println("<m> out of date: in BOM <bom[m]> vs current <getLastModified(m, pcfg)>");
+                        println("getIfValid: false");
                         return <false, emptyModel>;
                      }
                   } else {
@@ -108,9 +114,11 @@ tuple[bool, TModel] getIfValid(str qualifiedModuleName, PathConfig pcfg){
                }
            }
         }
+        println("getIfValid: true");
         return <true, tm>;
     } catch IO(str msg): {
         // tb.reportWarning()
+        println("getIfValid, IO exception: false");
         return <false, emptyModel>;
     }
 }

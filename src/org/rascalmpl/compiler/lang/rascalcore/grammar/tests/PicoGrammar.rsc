@@ -1,4 +1,4 @@
-module lang::rascal::grammar::tests::PicoGrammar
+module lang::rascalcore::grammar::tests::PicoGrammar
 
 import IO;
 import Grammar;

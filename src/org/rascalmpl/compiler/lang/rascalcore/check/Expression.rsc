@@ -1,5 +1,5 @@
 module lang::rascalcore::check::Expression
-
+ 
 extend analysis::typepal::TypePal;
 extend analysis::typepal::ExtractTModel;
 

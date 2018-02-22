@@ -4,7 +4,7 @@ import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::grammar::definition::Layout;
 
 import lang::rascalcore::grammar::tests::TestGrammars;
-
+ 
 test bool intermix1() = 
     intermix([lit("a")], layouts("$default$"), {}) ==  [lit("a")];
 

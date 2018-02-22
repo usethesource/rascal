@@ -1,5 +1,5 @@
 @bootstrapParser
-module lang::rascal::grammar::Bootstrap
+module lang::rascalcore::grammar::Bootstrap
 
 import lang::rascal::\syntax::Rascal; 
 import ParseTree;

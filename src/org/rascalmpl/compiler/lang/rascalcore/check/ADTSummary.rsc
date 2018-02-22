@@ -5,7 +5,7 @@ extend lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::grammar::definition::Layout;
 import lang::rascalcore::grammar::definition::Productions;
-
+  
 extend analysis::typepal::TypePal;
 extend lang::rascalcore::check::TypePalConfig;
 
