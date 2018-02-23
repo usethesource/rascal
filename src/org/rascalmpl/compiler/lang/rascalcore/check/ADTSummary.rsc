@@ -61,7 +61,7 @@ tuple[list[Message], set[ADTSummary]] getADTSummaries(Key scope, TModel tm){
                 msgs += validateProduction(p);
             }  
   
-            uIsStart = any(def <- defs, def.defInfo.isStart);
+            uIsStart = any(def <- defs, def.defInfo.isStart );
             
             if(name2summ[u.adtName]?){
                 ADTSummary summ = name2summ[u.adtName];
