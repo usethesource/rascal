@@ -24,19 +24,11 @@ public str key_import_graph = "import_graph";
 public str key_extend_graph = "extend_graph";
 public str key_processed_modules = "processed_modules";
 
-//AType subsitute(AType atype, map[loc, AType] facts){
-//    return 
-//        visit(atype){
-//            case tv: tvar(loc src) => substitute(facts[src], facts)
-//        };
-//}
 
-private map[str, datetime] lastModifiedModules = ();
 private set[str] toBeSaved = {};
 
 void init_Import(){
     toBeSaved = {};
-    lastModifiedModules = ();
 }
 
 map[str, loc] getModuleScopes(TModel tm)
@@ -52,21 +44,14 @@ loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes){
 
 tuple[bool,loc] TPLReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "tpl", pcfg);
 
-datetime getLastModified(str qualifiedModuleName, PathConfig pcfg, bool fresh = false){
+datetime getLastModified(str qualifiedModuleName, PathConfig pcfg){
     qualifiedModuleName = unescape(qualifiedModuleName);
-    //if(!fresh && lastModifiedModules[qualifiedModuleName]?){
-    //    return lastModifiedModules[qualifiedModuleName];
-    //}
     try {
         mloc = getModuleLocation(qualifiedModuleName, pcfg);
-        lm = lastModified(mloc);
-        lastModifiedModules[qualifiedModuleName] = lm;
-        return lm;
+        return lastModified(mloc);
     } catch value e: {
         if(<true, tplLoc> := TPLReadLoc(qualifiedModuleName, pcfg)){
-           lm = lastModified(tplLoc);
-           lastModifiedModules[qualifiedModuleName] = lm;
-           return lm;
+           return lastModified(tplLoc);
         }
         throw "No source or tpl loc found for <qualifiedModuleName>";
     }
@@ -86,7 +71,7 @@ tuple[bool, TModel] getIfValid(str qualifiedModuleName, PathConfig pcfg){
     try {
         mloc = getModuleLocation(qualifiedModuleName, pcfg);
         existsSrc = true;
-        lastModSrc = getLastModified(qualifiedModuleName, pcfg, fresh = true);
+        lastModSrc = getLastModified(qualifiedModuleName, pcfg);
     } catch value e:{
     ;
     }
@@ -96,15 +81,12 @@ tuple[bool, TModel] getIfValid(str qualifiedModuleName, PathConfig pcfg){
     try {
         tm = readBinaryValueFile(#TModel, tplLoc);
         if(tm.store[key_bom]? && map[str,datetime] bom := tm.store[key_bom]){
-           println("\<\<\< BOM");
-           for(str m <- bom){ println("<bom[m]> : <m>"); }
-           println("\>\>\> BOM");
+       
            for(str m <- bom){
                if(bom[m] < getLastModified(m, pcfg)) {
                   if(existsSrc){
                      if(m != qualifiedModuleName){
                         println("<m> out of date: in BOM <bom[m]> vs current <getLastModified(m, pcfg)>");
-                        println("getIfValid: false");
                         return <false, emptyModel>;
                      }
                   } else {
@@ -114,11 +96,9 @@ tuple[bool, TModel] getIfValid(str qualifiedModuleName, PathConfig pcfg){
                }
            }
         }
-        println("getIfValid: true");
         return <true, tm>;
     } catch IO(str msg): {
         // tb.reportWarning()
-        println("getIfValid, IO exception: false");
         return <false, emptyModel>;
     }
 }
