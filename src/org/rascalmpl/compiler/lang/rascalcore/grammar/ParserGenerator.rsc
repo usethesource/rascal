@@ -49,15 +49,18 @@ public tuple[list[Message], str] newGenerate(str package, str name, AGrammar gr)
     startJob("Generating parser <package>.<name>");
     int uniqueItem = 1; // -1 and -2 are reserved by the SGTDBF implementation
     int newItem() { uniqueItem += 1; return uniqueItem; };
-    
+   
     event("expanding parameterized symbols");
     gr = expandParameterizedSymbols(gr);
     
     event("generating stubs for regular");
     gr = makeRegularStubs(gr);
     
-    //event("generating syntax for holes");
-    //gr = addHoles(gr);
+    event("generating syntax for holes");
+    gr = addHoles(gr);
+    
+    event("expanding parameterized symbols");
+    gr = expandParameterizedSymbols(gr);
     
     event("generating literals");
     gr = literals(gr);
@@ -207,11 +210,14 @@ public tuple[list[Message], str] newGenerate(str package, str name, AGrammar gr)
            '  private static final IConstructor <value2id(p)> = (IConstructor) _read(\"<esc("<prettyAsClassic(p)>")>\", RascalValueFactory.Production);<}>
            '    
            '  // Item declarations
-           '	<for (AType s <- (newItems<0>), isNonterminal(s)) {
+           '	<for (AType s <- (newItems<0>), isNonTerminalType(s)) {
+               s = unset(s, "label");
 	           items = newItems[s];
+	          
 	           map[AProduction prods, list[Item] items] alts = ();
 	           for(Item item <- items) {
-		         AProduction prod = item.production;
+		         AProduction prod = unsetRec(item.production, {"label", "src"});
+		    
 		         if (prod in alts) {
 			       alts[prod] = alts[prod] + item;
 		         } else {
@@ -241,7 +247,7 @@ public tuple[list[Message], str] newGenerate(str package, str name, AGrammar gr)
            '  }<}>
            '	
            '  // Parse methods    
-           '  <for (AType nont <- (gr.rules.sort), isNonterminal(nont)) { >
+           '  <for (AType nont <- (gr.rules.sort), isNonTerminalType(nont)) { >
            '  <generateParseMethod(newItems, gr.rules[nont])><}>
            '}";
    endJob(true);
@@ -285,7 +291,7 @@ int getItemId(AType s, int pos, prod(AType u,list[AType] _)) {
 
 AType getType(AProduction p) = getType(p.def);
 AType getType(conditional(AType s, set[ACondition] cs)) = getType(s);
-default AType getType(AType s) = unsetRec(s, {"id"});
+default AType getType(AType s) = unsetRec(s, {"id", "label"});
 
 
 @doc{This function generates Java code to allocate a new item for each position in the grammar.
@@ -364,7 +370,7 @@ bool isNonterminal(AType s) {
 }
 
 public str generateParseMethod(Items items, AProduction p) {
-  println("generateParseMethod: <p>, ");
+  //println("generateParseMethod: <p>, <sym2name(p.def)>");
   return "public AbstractStackNode\<IConstructor\>[] <sym2name(p.def)>() {
          '  return <sym2name(p.def)>.EXPECTS;
          '}";
@@ -494,8 +500,8 @@ public tuple[str new, int itemId] sym2newitem(AGrammar grammar, AType sym, int d
         case aadt(n, [], layoutSyntax()):           // formerly: layouts
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
          
-        //case \parameter(n, b) :
-        //    throw "All parameters should have been instantiated by now: <sym>";
+        case \aparameter(n, b) :
+            throw "All parameters should have been instantiated by now: <sym>";
         
         case \start(s) : 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
@@ -566,10 +572,10 @@ public str escId(str s){
 }
 
 public str sym2name(AType s){
-    return value2id(unset(s, "label"));
-     //res = aadt(x, args, contextFreeSyntax()) := s ? "<x>" :  value2id(s);
+    //return value2id(unset(s, "label"));
+     res = aadt(x, [], contextFreeSyntax()) := s ? "<x>" :  value2id(unset(s, "label"));
      //println("sym2name: <s> ==\> <res>");
-     //return res;
+     return res;
 }
 
 @Memo
@@ -577,29 +583,35 @@ public str value2id(value v) {
   return v2i(v);
 }
 
-str uu(value s) = escape(toBase64("<node nd := s ? unsetRec(nd, "id") : s>"),("=":"00","+":"11","/":"22"));
+str uu(value s) = escape(toBase64("<node nd := s ? unsetRec(nd) : ((list[node] lnd := s) ? [unsetRec(nd) | nd <- lnd] : s)>"),("=":"00","+":"11","/":"22"));
 
-str srole(contextFreeSyntax()) = "";
-str srole(lexicalSyntax()) = "lexical_";
-str srole(layoutSyntax()) = "layouts_";
-str srole(keywordSyntax()) = "keywords_";
+str srolePrefix(contextFreeSyntax()) = "";
+str srolePrefix(lexicalSyntax()) = "lexical_";
+str srolePrefix(layoutSyntax()) = "layouts_";
+str srolePrefix(keywordSyntax()) = "";
 
-
-default str v2i(value v) {
+str v2i(value v){
+    res = xxv2i(v);
+    //println("v2i(<v> ==\> <res>");
+    return res;
+}
+default str xxv2i(value v) {
     switch (v) {
-        case AType u : if(u.label? && !isEmpty(u.label)) return escId(u.label) + "_" + v2i(unset(u, "label"));else fail;
-        case \start(AType s) : return "start__<v2i(s)>";
+        case AType u : if(u.label? && !isEmpty(u.label)) return escId(u.label) + "_" + xxv2i(unset(u, "label"));else fail;
+        case \start(AType s) : return "start__<xxv2i(s)>";
+        case s:aadt(nm, list[AType] args, layoutSyntax()) :  
+            return "layouts_<escId(nm)>";
         case s:aadt(nm, list[AType] args, syntaxRole) :  
-            return syntaxRole == layoutSyntax() ? "layouts_<escId(nm)>" : srole(syntaxRole) + (isEmpty(args) ? "<nm>"  : "<nm>_<uu(args)>");
+            return srolePrefix(syntaxRole) + (isEmpty(args) ? "<nm>"  : "<nm>_<uu(args)>");
       
-        case item(p:prod(AType u,_), int i) : return "<v2i(u)>.<v2i(p)>_<v2i(i)>";
+        case item(p:prod(AType u,_), int i) : return "<xxv2i(u)>.<xxv2i(p)>_<xxv2i(i)>";
    
-        //case layouts(str x) : return "layouts_<escId(x)>";
-        case conditional(AType s,_) : return v2i(s);
+        case conditional(AType s,_) : return xxv2i(s);
         case cilit(/<s:^[A-Za-z0-9\-\_]+$>/)  : return "cilit_<escId(s)>";
         case lit(/<s:^[A-Za-z0-9\-\_]+$>/) : return "lit_<escId(s)>"; 
         case int i         : return i < 0 ? "min_<-i>" : "<i>";
         case str s         : return ("" | it + "_<charAt(s,i)>" | i <- [0..size(s)]);
+        
         default            : return uu(v);
     }
 }

@@ -264,10 +264,10 @@ str atype2symbol(\opt(AType symbol)) = "\\opt(<atype2symbol(symbol)>)";
 str atype2symbol(\iter(AType symbol)) = "\\iter(<atype2symbol(symbol)>)";
 str atype2symbol(\iter-star(AType symbol)) = "\\iter-star(<atype2symbol(symbol)>)";
 str atype2symbol(\iter-seps(AType symbol, list[AType] separators)) = "\\iter-seps(<atype2symbol(symbol)>, [<intercalate(",", [ atype2symbol(sep) | sep <- separators ])>])";
-str atype2symbol(\iter-star-seps(AType symbol, list[AType] separators)) = "\\iter-star-seps(<atype2symbol(symbol)>, <intercalate(",", [ atype2symbol(sep) | sep <- separators ])>])";
-str atype2symbol(\alt(set[AType] alternatives)) = "\\alt(\\set([<intercalate(", ", [ atype2symbol(a) | a <- alternatives ])>]))" when size(alternatives) > 1;
+str atype2symbol(\iter-star-seps(AType symbol, list[AType] separators)) = "\\iter-star-seps(<atype2symbol(symbol)>, [<intercalate(",", [ atype2symbol(sep) | sep <- separators ])>])";
+str atype2symbol(\alt(set[AType] alternatives)) = "\\alt({<intercalate(", ", [ atype2symbol(a) | a <- alternatives ])>})" when size(alternatives) > 1;
 str atype2symbol(\seq(list[AType] sequence)) = "\\seq([<intercalate(",", [ atype2symbol(a) | a <- sequence ])>])" when size(sequence) > 1;
-str atype2symbol(\conditional(AType symbol, set[ACondition] conditions)) = "\\conditional(<atype2symbol(symbol)>, \\set([<intercalate(",", [ acond2cond(cond) | cond <- conditions ])>]) )";
+str atype2symbol(\conditional(AType symbol, set[ACondition] conditions)) = "\\conditional(<atype2symbol(symbol)>, {<intercalate(",", [ acond2cond(cond) | cond <- conditions ])>} )";
 default str atype2symbol(AType s)  { throw "<s>"; } //"<type(s,())>";
 
 private str acond2cond(ACondition::\follow(AType symbol)) = "\\follow(<atype2symbol(symbol)>)";
@@ -898,6 +898,11 @@ set[AType] collectAndUnlabelRascalTypeParams(AType t) {
    return { unset(rt, "label") | / AType rt : aparameter(_,_) := t }; // TODO: "label" is unset to enable subset check later, reconsider
 }
 
+@doc{Get all the type parameters inside a given set of productions.}
+set[AType] collectAndUnlabelRascalTypeParams(set[AProduction] prods) {
+   return { unset(rt, "label") | / AType rt : aparameter(_,_) := prods }; // TODO: "label" is unset to enable subset check later, reconsider
+}
+
 @doc{Provide an initial type map from the type parameters in the type to void.}
 map[str,AType] initializeRascalTypeParamMap(AType t) {
     set[AType] rt = collectRascalTypeParams(t);
@@ -960,16 +965,18 @@ bool isNonTerminalType(aparameter(_,AType tvb)) = isNonTerminalType(tvb);
 bool isNonTerminalType(AType::\conditional(AType ss,_)) = isNonTerminalType(ss);
 bool isNonTerminalType(t:aadt(adtName,_,SyntaxRole sr)) = isConcreteSyntaxRole(sr) || adtName == "Tree";
 bool isNonTerminalType(AType::\start(AType ss)) = isNonTerminalType(ss);
-bool isNonTerminalType(AType::\iter(_)) = true;
-bool isNonTerminalType(AType::\iter-star(_)) = true;
-bool isNonTerminalType(AType::\iter-seps(_,_)) = true;
-bool isNonTerminalType(AType::\iter-star-seps(_,_)) = true;
-bool isNonTerminalType(AType::\empty()) = true;
-bool isNonTerminalType(AType::\opt(_)) = true;
-bool isNonTerminalType(AType::\alt(_)) = true;
-bool isNonTerminalType(AType::\seq(_)) = true;
+//bool isNonTerminalType(AType::\iter(_)) = true;
+//bool isNonTerminalType(AType::\iter-star(_)) = true;
+//bool isNonTerminalType(AType::\iter-seps(_,_)) = true;
+//bool isNonTerminalType(AType::\iter-star-seps(_,_)) = true;
+//bool isNonTerminalType(AType::\empty()) = true;
+//bool isNonTerminalType(AType::\opt(_)) = true;
+//bool isNonTerminalType(AType::\alt(_)) = true;
+//bool isNonTerminalType(AType::\seq(_)) = true;
 
-default bool isNonTerminalType(AType _) = false;    
+default bool isNonTerminalType(AType _) = false;   
+
+bool isNonParameterizedNonTerminalType(AType t) = isNonTerminalType(t) && (t has parameters ==> isEmpty(t.parameters));
 
 bool isNonTerminalIterType(aparameter(_,AType tvb)) = isNonTerminalIterType(tvb);
 bool isNonTerminalIterType(AType::\iter(_)) = true;
