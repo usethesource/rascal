@@ -23,9 +23,12 @@ data REPL
          CommandResult (str line) handler,
          Completion(str line, int cursor) completor)
   | repl( 
+  		 str prompt,
          CommandResult (str line) handler,
-         Completion(str line, int cursor) completor
-         )
+         Completion(str line, int cursor) completor)
+  | repl( 
+         CommandResult (str line) handler,
+         Completion(str line, int cursor) completor)         
   ;
 
 
