@@ -32,7 +32,7 @@ public set[ACondition] expandKeywords(AGrammar g, set[ACondition] conds) {
       if (cond has symbol, aadt(name,_,keywordSyntax()) := cond.symbol) {
         if (name notin names) {
         	names += {name};
-        	todo += {cond[symbol=s] | choice(_, set[AProduction] alts) := g.rules[cond.symbol], prod(_,[s]/*,_*/) <- alts};
+        	todo += {cond[symbol=s] | choice(_, set[AProduction] alts) := g.rules[cond.symbol], prod(_,[s]) <- alts};
       	}  
       } else {
         done += cond;
@@ -44,5 +44,7 @@ public set[ACondition] expandKeywords(AGrammar g, set[ACondition] conds) {
 }
 
 public set[AProduction] getKeywords(AGrammar g) {
-  return {g.rules[s] | s:aadt(_,_,keywordSyntax()) <- g.rules}; 
+  res= {g.rules[s] | s:aadt(_,_,keywordSyntax()) <- g.rules}; 
+  println("getKeywords: <res>");
+  return res;
 }

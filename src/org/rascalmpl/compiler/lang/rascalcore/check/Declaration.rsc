@@ -470,7 +470,7 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBu
        kwFields = [];
        if(v.keywordArguments is \default){
           kwFields += getKeywordFormals(v.keywordArguments.keywordFormalList, fieldId(), tb);
-          for(</*kwn,*/ kwt, kwd> <- kwFields){
+          for(<kwt, kwd> <- kwFields){
               allFieldTypeVars += collectAndUnlabelRascalTypeParams(kwt);
               allConsFields += kwt; //<kwn, kwt>;
           }
@@ -537,15 +537,24 @@ void collect (current: (SyntaxDefinition) `<Start strt> syntax <Sym defined> = <
 void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterminalType, bool isStart, Prod production, IdRole idRole, TBuilder tb){
     //println("declareSyntax: <defined>, <nonterminalType>");
     AProduction pr = prod2prod(nonterminalType, production);
-    //println("pr: <pr>");
+    //println("declareSyntax pr: <pr>");
     
     if(isADTType(nonterminalType)){
         ntName = nonterminalType.adtName;
+       
         dt = defType(nonterminalType);
         if(isStart) dt.isStart = true;
         dt.vis = vis;
         productions = choice(definedType, set[AProduction] prods) := pr ? prods : {pr};
+        
+        typeVars = toSet(nonterminalType.parameters);
+         
+        allTypeVars = collectAndUnlabelRascalTypeParams(productions);
+         if(!(typeVars >= allTypeVars)){
+          tb.reportWarning(v, "Unbound type parameter <fmt(allTypeVars - typeVars)>");
+       }
         dt.productions = productions;
+        iprintln(productions);
       
         //  Declare all named fields that occur in the productions
         constructorFields = { *getFields(p) | AProduction p <- productions };

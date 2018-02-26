@@ -7,8 +7,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-import org.rascalmpl.core.library.rascalcore.grammar.tests.generated_parsers.lang_rascalcore_check_Test1Parser;
-import org.rascalmpl.core.parser.gtd.recovery.IRecoverer;
 import org.rascalmpl.core.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.core.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.core.values.ValueFactoryFactory;
@@ -41,11 +39,11 @@ public class RunTest1 {
 
 		char[] inputChars = sw.toString().toCharArray();
 		ITree tree = parser.parse(
-				"Expression", 
+				"Module", 
 				path.toUri(), 
-				inputChars, 
+				inputChars,
 				new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), 
-				new UPTRNodeFactory(false), (IRecoverer<IConstructor>) null
+				new UPTRNodeFactory(false)
 				);
 
 		System.err.println(tree);

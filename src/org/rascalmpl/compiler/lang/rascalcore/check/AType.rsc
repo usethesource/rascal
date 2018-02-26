@@ -91,6 +91,7 @@ Normalize the choice between alternative productions.
 Nested choice is flattened.
 }
 public AProduction choice(AType s, set[AProduction] choices){
+    //if(size(choices) == 1) return getFirstFrom(choices);
     if(!any(choice(AType t, set[AProduction] b)  <- choices)){
        fail;
     } else {   
