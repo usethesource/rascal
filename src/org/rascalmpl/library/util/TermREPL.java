@@ -7,15 +7,14 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.CompletionResult;
 import org.rascalmpl.repl.ILanguageProtocol;
-
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
@@ -41,8 +40,11 @@ public class TermREPL {
     public void startREPL(IConstructor repl, IEvaluatorContext ctx) {
         try {
             lang = new TheREPL(vf, repl, ctx);
-            // TODO: this used to get a repl from the IEvaluatorContext but that was wrong. Need to fix later. 
-            new BaseREPL(lang, null, System.in, System.out, true, true, ((ISourceLocation)repl.get("history")), TerminalFactory.get(), null).run();
+            // TODO: this used to get a repl from the IEvaluatorContext but that was wrong. Need to fix later.
+            ISourceLocation history = repl.has("history") ? (ISourceLocation) repl.get("history") : null;
+            
+            ctx.getStdErr();
+            new BaseREPL(lang, null, System.in, System.out, true, true, history , TerminalFactory.get(), null).run();
         } catch (IOException | URISyntaxException e) {
             e.printStackTrace(ctx.getStdErr());
         }
@@ -57,15 +59,18 @@ public class TermREPL {
         private final IEvaluatorContext ctx;
         private final ICallableValue completor;
         private final IValueFactory vf;
-        private final ICallableValue salix;
+        private ICallableValue visualization;
 
         public TheREPL(IValueFactory vf, IConstructor repl, IEvaluatorContext ctx) throws IOException, URISyntaxException {
             this.ctx = ctx;
             this.vf = vf;
             this.handler = (ICallableValue)repl.get("handler");
             this.completor = (ICallableValue)repl.get("completor");
-            this.salix= (ICallableValue)repl.get("salix");
-            // TODO: Think about where is used the salix instance and how to used among with the new definition of CommandResult
+            if(repl.has("visualization"))
+                this.visualization = (ICallableValue)repl.get("visualization");
+            if(repl.has("prompt"))
+                this.currentPrompt = ((IString)repl.get("prompt")).getValue();
+
             stdout = ctx.getStdOut();
             assert stdout != null;
         }
@@ -113,17 +118,39 @@ public class TermREPL {
 
         @Override
         public void handleInput(String line, Map<String,String> output, Map<String,String> metadata) throws InterruptedException {
-            ITuple result = (ITuple)call(handler, new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
-            String str = ((IString)result.get(0)).getValue();
-            // TODO: change the signature of the handler
-            if(!str.equals(""))
-                output.put("text/html", str);
-
-            IList messages = (IList) result.get(1);
-            for (IValue v: messages) {
-                IConstructor msg = (IConstructor) v;
-                if(msg.getName().equals("error"))
-                    stderr.write( ((IString) msg.get("msg")).getValue());
+            
+            if (line.trim().length() == 0) {
+                // cancel command
+                // TODO: after doing calling this, the repl gets an unusual behavior, needs to be fixed
+                this.stderr.println(ReadEvalPrintDialogMessages.CANCELLED);
+                currentPrompt = ReadEvalPrintDialogMessages.PROMPT;
+                return;
+            } 
+            else{
+                IConstructor result = (IConstructor)call(handler, new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
+                if(result.get("result") != null){
+                    String str = ((IString)result.get("result")).getValue();
+                    // TODO: change the signature of the handler
+                    if(!str.equals(""))
+                        output.put("text/plain", str);//text/html
+                }
+                else{
+                    // Salix result
+                    ICallableValue salixApp = (ICallableValue) result.get("app");
+                    System.out.println("SalixApp: " + salixApp);
+                    System.out.println("SalixApp type: "+ salixApp.getType());
+//                    call(visualization, new Type[]{tf.valueType()}, new IValue[]{salixApp});
+                    //salixApp.app
+               
+                }
+                if(result.has("messages")){
+                    IList messages = (IList) result.get("messages");
+                    for (IValue v: messages) {
+                        IConstructor msg = (IConstructor) v;
+                        if(msg.getName().equals("error"))
+                            stderr.write( ((IString) msg.get("msg")).getValue());
+                    }
+                }
             }
         }
 
