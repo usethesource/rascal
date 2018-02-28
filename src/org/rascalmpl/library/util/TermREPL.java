@@ -7,6 +7,8 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.StackTrace;
@@ -59,18 +61,28 @@ public class TermREPL {
         private final IEvaluatorContext ctx;
         private final ICallableValue completor;
         private final IValueFactory vf;
-        private ICallableValue visualization;
+        
+        private ITuple visualization;
+        private ICallableValue consumerFunction;
+        private ISourceLocation http;
+        
+        private int scopeId;
 
         public TheREPL(IValueFactory vf, IConstructor repl, IEvaluatorContext ctx) throws IOException, URISyntaxException {
             this.ctx = ctx;
             this.vf = vf;
             this.handler = (ICallableValue)repl.get("handler");
             this.completor = (ICallableValue)repl.get("completor");
-            if(repl.has("visualization"))
-                this.visualization = (ICallableValue)repl.get("visualization");
+            
             if(repl.has("prompt"))
                 this.currentPrompt = ((IString)repl.get("prompt")).getValue();
-
+            if(repl.asWithKeywordParameters().hasParameter("visualization")){
+                this.visualization = (ITuple) repl.asWithKeywordParameters().getParameter("visualization");
+                consumerFunction = (ICallableValue) this.visualization.get(0);
+                http = (ISourceLocation) this.visualization.get(2);
+                this.scopeId = 0;
+            }
+            
             stdout = ctx.getStdOut();
             assert stdout != null;
         }
@@ -128,21 +140,22 @@ public class TermREPL {
             } 
             else{
                 IConstructor result = (IConstructor)call(handler, new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
-                if(result.get("result") != null){
+                if(result.has("result") && result.get("result") != null){
                     String str = ((IString)result.get("result")).getValue();
                     // TODO: change the signature of the handler
                     if(!str.equals(""))
                         output.put("text/plain", str);//text/html
                 }
                 else{
-                    // Salix result
-                    ICallableValue salixApp = (ICallableValue) result.get("app");
-                    System.out.println("SalixApp: " + salixApp);
-                    System.out.println("SalixApp type: "+ salixApp.getType());
-//                    call(visualization, new Type[]{tf.valueType()}, new IValue[]{salixApp});
-                    //salixApp.app
-               
+                    // Handle a Salix result
+                    ICallableValue salixApp = (ICallableValue) result.get("salixApp");
+                    String scope = "salixApp" + scopeId;
+                    call(this.consumerFunction, new Type[]{tf.valueType(), tf.stringType()}, new IValue[]{salixApp, vf.string(scope)});
+                    String out = "<script> \n var "+ scope +" = new Salix('"+ scope +"', '" + http.getURI().toString() +"'); \n "+ scope +".start(); \n </script> \n <div id=\""+scope+"\"> \n </div>";
+                    output.put("text/html", out);
+                    this.scopeId++;
                 }
+                // FIXME: Fix it, CommandResult is no longer a tuple 
                 if(result.has("messages")){
                     IList messages = (IList) result.get("messages");
                     for (IValue v: messages) {
