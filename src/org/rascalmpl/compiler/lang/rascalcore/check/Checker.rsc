@@ -247,6 +247,7 @@ ModuleMessages check(str mname, PathConfig pcfg){
 }
 
 ModuleMessages check(loc file, PathConfig pcfg){
+    pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
     println("=== check: <file>"); iprintln(pcfg1);
     <prof, tm> = rascalTModelFromLoc(file, pcfg);
     report(prof);
