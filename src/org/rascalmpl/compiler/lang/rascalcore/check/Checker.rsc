@@ -153,27 +153,17 @@ TModel rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool debug=false){
         mname = getModuleName(mloc, pcfg);
         
         /***** turn this off during development of type checker *****/
-        <valid, tm> = getIfValid(mname, pcfg);
-        if(valid) {
-            println("*** reusing up-to-date TModel of <mname>");
-            return tm;
-        }
+        //<valid, tm> = getIfValid(mname, pcfg);
+        //if(valid) {
+        //    println("*** reusing up-to-date TModel of <mname>");
+        //    return tm;
+        //}
         /***********************************************************/
         
         mloc = timestamp(mloc);                        
         pt = parseModuleWithSpaces(mloc).top;
         tm = rascalTModel(pt, pcfg = pcfg, debug=debug);
-        if(isEmpty(tm.messages)){
-            <msgs, adtSummaries> = getADTSummaries(getLoc(pt), tm);
-            tm.messages += msgs;
-            g = getGrammar(adtSummaries);
-            //iprintln(g);
-            pname = parserName(mname);
-            <msgs, parserClass> = newGenerate(parserPackage, pname, g); 
-            tm.messages += msgs;
-            msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/grammar/tests/generated_parsers|);
-            tm.messages += msgs;
-        }
+  
         saveModules(mname, pcfg, tm); 
         return tm;
     } catch ParseError(loc src): {
@@ -207,6 +197,22 @@ TModel rascalTModel(Tree pt, PathConfig pcfg = getDefaultPathConfig(), bool debu
                 'validate: <(afterValidateTime - afterExtractTime)/1000000> ms
                 'total:    <(afterValidateTime - startTime)/1000000> ms");
     }
+    if(isEmpty(tm.messages)){
+            <msgs, adtSummaries> = getADTSummaries(getLoc(pt), tm);
+            tm.messages += msgs;
+            g = getGrammar(adtSummaries);
+            //iprintln(g);
+            pname = "DefaultParser";
+            if(Module m := pt) { 
+                mname = "<m.header.name>";
+                pname = parserName(mname);
+            }
+ 
+            <msgs, parserClass> = newGenerate(parserPackage, pname, g); 
+            tm.messages += msgs;
+            msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/grammar/tests/generated_parsers|);
+            tm.messages += msgs;
+   }
     return tm;
 }
 

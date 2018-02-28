@@ -32,16 +32,16 @@ default bool isParameterizedUse(AType t) = false;
 
 
 set[AProduction] expand(set[AProduction] prods) {
-    println("expand:");
-    iprintln(prods);
+    //println("expand:");
+    //iprintln(prods);
     prods = {unsetRec(p) | p <- prods};
   // First we collect all the parametrized definitions
   defs = { p | p <- prods, isParameterizedDef(p.def)};
   defAlts = {*alts | choice(a, alts) <- defs};
   result = { choice(a, diff) | choice(a, alts) <- prods, diff := alts-defAlts, !isEmpty(diff), !isParameterizedDef(a) };
-  println("prods: <size(prods)>, defs: <size(defs)>, result: <size(result)>");
-  println("defs: <defs>");
-  println("result: <result>");
+  //println("prods: <size(prods)>, defs: <size(defs)>, result: <size(result)>");
+  //println("defs: <defs>");
+  //println("result: <result>");
   
   // Then we collect all the uses of parameterized sorts in the other productions
   uses = { s | /AType s <- result, isParameterizedUse(s) };
@@ -68,7 +68,7 @@ set[AProduction] expand(set[AProduction] prods) {
     uses = { s | /AType s <- instances, isParameterizedUse(s), s notin instantiated};
     result += instances;
   }
-  println("After expand:");
-  iprintln(result);
+  //println("After expand:");
+  //iprintln(result);
   return result;
 }

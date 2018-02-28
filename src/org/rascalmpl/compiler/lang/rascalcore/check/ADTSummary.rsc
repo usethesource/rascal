@@ -28,33 +28,45 @@ data ADTSummary =
                bool isStart = false, 
                set[AProduction] productions = {});
 
-list[&T <: node ] unsetRec(list[&T] args) = [unsetRec(a) | a <- args];   
+list[&T <: node ] unsetRec(list[&T] args) = [unsetRec(a) | a <- args]; 
+
+// A copy of getDefinitions but with extra TModel argument
+// TODO: reconsider this
+set[Define] getDefinitions(str id, Key scope, set[IdRole] idRoles, TModel tm){
+    try {
+        foundDefs = lookupFun(tm, use(id, anonymousOccurrence, scope, idRoles));
+        if({def} := foundDefs){
+           return {tm.definitions[def]};
+        } else {
+          if(mayOverloadFun(foundDefs, tm.definitions)){
+            return {tm.definitions[def] | def <- foundDefs};
+          } else {
+               throw AmbiguousDefinition(foundDefs);
+          }
+        }
+     } catch NoSuchKey(k):
+            throw TypeUnavailable();
+       catch NoKey(): {
+            println("getDefinitions: <id> in scope <scope> ==\> TypeUnavailable2");
+            throw TypeUnavailable();
+       }
+}  
         
-tuple[list[Message], set[ADTSummary]] getADTSummaries(Key scope, TModel tm){   
+tuple[list[Message], set[ADTSummary]] getADTSummaries(Key scope, TModel tm){  
+    tm.definitions = visit(tm.definitions) { case AType t: auser(str name, list[AType] parameters) : { try { insert expandUserTypes(t, scope); } catch TypeUnavailable(): { println("Not expanded: <t>"); } } };
+    usedADTs = {unset(t, "label") | k <- tm.facts, containedIn(k, scope), /AType t:aadt(str name, list[AType] parameters, sr) := tm.facts[k]};
     
-    usedADTs =  {unset(expandUserTypes(t, scope), "label") | def <- tm.definitions, containedIn(def, scope), /AType t:auser(str name, parameters) := tm.definitions[def] }
-              + {unset(t, "label") | k <- tm.facts, containedIn(k, scope), /AType t:aadt(str name, parameters, sr) := tm.facts[k]};
-   
-    //println("usedADTs: <usedADTs>");
-    name2ADT = (<a.adtName, unsetRec(a.parameters)> : a | a <- usedADTs );
+   //println("usedADTs: <usedADTs>");
     
     map[tuple[str, list[AType]], ADTSummary] name2summ = ();
     msgs = [];
     allStarts = {};
     for(u <- usedADTs){
         try {
-            defs = getDefinitions(u.adtName, scope, dataOrSyntaxIds);
-            uConstructors = {*def.defInfo.constructors | def <- defs};
-            //println("uConstructors: <uConstructors>");
-            uConstructors = visit(uConstructors) { case uu:auser(nm,params,label=l) => name2ADT[<nm,unsetRec(params)>][label=l] };      
-            
-            uCommonKeywordFields = {*def.defInfo.commonKeywordFields | def <- defs};
-            uCommonKeywordFields = visit(uCommonKeywordFields) { case uu:auser(nm,params,label=l) => name2ADT[<nm,unsetRec(params)>][label=l] };
-            
+            defs = getDefinitions(u.adtName, scope, dataOrSyntaxIds, tm);
+            uConstructors = {*def.defInfo.constructors | def <- defs};           
+            uCommonKeywordFields = {*def.defInfo.commonKeywordFields | def <- defs};  
             uProductions = {*def.defInfo.productions | def <- defs};
-            //println("before uProductions: <uProductions>");
-            uProductions = visit(uProductions) { case uu:auser(nm,params,label=l) => name2ADT[<nm,unsetRec(params)>][label=l] };
-            //println("after uProductions: <uProductions>");
 
             for(p <- uProductions){
                 msgs += validateProduction(p);
@@ -63,7 +75,7 @@ tuple[list[Message], set[ADTSummary]] getADTSummaries(Key scope, TModel tm){
             uIsStart = any(def <- defs, def.defInfo.isStart );
             
             if(name2summ[<u.adtName, u.parameters>]?){
-                ADTSummary summ = name2summ[u.adtName];
+                ADTSummary summ = name2summ[<u.adtName, u.parameters>];
                 summ.productions=uProductions;
                 summ.constructors=uConstructors;
                 summ.commonKeywordFields = uCommonKeywordFields;
