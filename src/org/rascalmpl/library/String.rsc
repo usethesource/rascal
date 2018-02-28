@@ -113,7 +113,7 @@ public java bool contains(str input, str find);
 .Synopsis
 Replace escaped characters by the escaped character itself (using Rascal escape conventions).
 }
-str deescape(str s)  {  // copied from RascalExpression, belongs in library
+str deescape(str s)  {
     res = visit(s) { 
         case /^\\<c: [\" \' \< \> \\]>/ => c
         case /^\\t/ => "\t"
