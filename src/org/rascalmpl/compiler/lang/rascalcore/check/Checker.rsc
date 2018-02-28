@@ -126,7 +126,13 @@ public PathConfig getDefaultPathConfig() = pathConfig(
                 |project://rascal/src/org/rascalmpl/library|,
                 |project://typepal-examples/src|
                ]);
-               
+
+data ProfileData = profile(int parse = 0, int extract = 0, int validate = 0, int save = 0);
+ 
+void report(ProfileData pd){
+    println("<pd.parse? ? "parse: <pd.parse> ms;" : ""> <pd.extract? ? "extract: <pd.extract> ms;" : ""> <pd.validate? ? "validate: <pd.validate> ms;" : ""> <pd.save? ? "save: <pd.save> ms;" : ""> total: <pd.parse + pd.extract + pd.validate + pd.save> ms");
+}
+                              
 TModel rascalTModelsFromStr(str text){
     startTime = cpuTime();
     pt = parse(#start[Modules], text).top;
@@ -148,7 +154,7 @@ TModel rascalTModelFromName(str mname, PathConfig pcfg, bool debug=false){
     }
 }
 
-TModel rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool debug=false){     
+tuple[ProfileData, TModel] rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool debug=false){     
     try {
         mname = getModuleName(mloc, pcfg);
         
@@ -160,22 +166,26 @@ TModel rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool debug=false){
         //}
         /***********************************************************/
         
-        mloc = timestamp(mloc);                        
+        mloc = timestamp(mloc);     
+        startTime = cpuTime();                   
         pt = parseModuleWithSpaces(mloc).top;
-        tm = rascalTModel(pt, pcfg = pcfg, debug=debug);
-  
+        parseTime = (cpuTime() - startTime)/1000000;
+        <prof, tm> = rascalTModel(pt, pcfg = pcfg, debug=debug);
+        prof.parse = parseTime;
+        startTime = cpuTime(); 
         saveModules(mname, pcfg, tm); 
-        return tm;
+        prof.save = (cpuTime() - startTime)/1000000;
+        return <prof, tm>;
     } catch ParseError(loc src): {
-        return tmodel()[messages = [ error("Parse error", src)  ]];
+        return <profile(), tmodel()[messages = [ error("Parse error", src)  ]]>;
     } catch Message msg: {
-     return tmodel()[messages = [ error("During validation: <msg>", msg.src) ]];
+     return <profile(), tmodel()[messages = [ error("During validation: <msg>", msg.src) ]]>;
     } catch value e: {
-        return tmodel()[messages = [ error("During validation: <e>", mloc) ]];
+        return <profile(), tmodel()[messages = [ error("During validation: <e>", mloc) ]]>;
     }    
 }
 
-TModel rascalTModel(Tree pt, PathConfig pcfg = getDefaultPathConfig(), bool debug=false, bool inline=false){
+tuple[ProfileData, TModel] rascalTModel(Tree pt, PathConfig pcfg = getDefaultPathConfig(), bool debug=false, bool inline=false){
     startTime = cpuTime();
     tb = newTBuilder(pt, config=rascalTypePalConfig(classicReifier=true));
     tb.push(patternContainer, "toplevel");
@@ -192,10 +202,11 @@ TModel rascalTModel(Tree pt, PathConfig pcfg = getDefaultPathConfig(), bool debu
     
     afterValidateTime = cpuTime();
     
+    ProfileData prof = profile();
+    
     if(!inline){
-        println("extract:  <(afterExtractTime - startTime)/1000000> ms
-                'validate: <(afterValidateTime - afterExtractTime)/1000000> ms
-                'total:    <(afterValidateTime - startTime)/1000000> ms");
+        prof.extract = (afterExtractTime - startTime)/1000000;
+        prof.validate = (afterValidateTime - afterExtractTime)/1000000;
     }
     if(isEmpty(tm.messages)){
             <msgs, adtSummaries> = getADTSummaries(getLoc(pt), tm);
@@ -213,7 +224,7 @@ TModel rascalTModel(Tree pt, PathConfig pcfg = getDefaultPathConfig(), bool debu
             msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/grammar/tests/generated_parsers|);
             tm.messages += msgs;
    }
-    return tm;
+    return <prof, tm>;
 }
 
 // name of the production has to mirror the Kernel compile result
@@ -233,10 +244,9 @@ ModuleMessages check(str mname, PathConfig pcfg){
 }
 
 ModuleMessages check(loc file, PathConfig pcfg){
-    pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
-   
     println("=== check: <file>"); iprintln(pcfg1);
-    tm = rascalTModelFromLoc(file, pcfg);
+    <prof, tm> = rascalTModelFromLoc(file, pcfg);
+    report(prof);
     return program(file, toSet(tm.messages));
 }
 
@@ -245,7 +255,20 @@ list[ModuleMessages] check(list[str] mnames, PathConfig pcfg){
 }
 
 list[ModuleMessages] check(list[loc] files, PathConfig pcfg){
-    return [ check(file, pcfg) | file <- files ];
+    pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
+    println("=== check: <files>"); iprintln(pcfg1);
+    p = e = v = s = 0;
+    mms = [];
+    for(file <- files){
+        <pd, tm> = rascalTModelFromLoc(file, pcfg);
+        println("<file>:");
+        report(pd);
+        mms += program(file, toSet(tm.messages));
+        p += pd.parse; e += pd.extract; v += pd.validate; s += pd.save;
+    }
+    println("TOTAL");
+    report(profile(parse=p, extract=e, validate=v,save=s));
+    return mms;
 }
 
 list[ModuleMessages] checkAll(loc root, PathConfig pcfg){
