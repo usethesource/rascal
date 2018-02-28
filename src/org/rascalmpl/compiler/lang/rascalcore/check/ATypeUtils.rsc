@@ -965,14 +965,14 @@ bool isNonTerminalType(aparameter(_,AType tvb)) = isNonTerminalType(tvb);
 bool isNonTerminalType(AType::\conditional(AType ss,_)) = isNonTerminalType(ss);
 bool isNonTerminalType(t:aadt(adtName,_,SyntaxRole sr)) = isConcreteSyntaxRole(sr) || adtName == "Tree";
 bool isNonTerminalType(AType::\start(AType ss)) = isNonTerminalType(ss);
-//bool isNonTerminalType(AType::\iter(_)) = true;
-//bool isNonTerminalType(AType::\iter-star(_)) = true;
-//bool isNonTerminalType(AType::\iter-seps(_,_)) = true;
-//bool isNonTerminalType(AType::\iter-star-seps(_,_)) = true;
-//bool isNonTerminalType(AType::\empty()) = true;
-//bool isNonTerminalType(AType::\opt(_)) = true;
-//bool isNonTerminalType(AType::\alt(_)) = true;
-//bool isNonTerminalType(AType::\seq(_)) = true;
+bool isNonTerminalType(AType::\iter(_)) = true;
+bool isNonTerminalType(AType::\iter-star(_)) = true;
+bool isNonTerminalType(AType::\iter-seps(_,_)) = true;
+bool isNonTerminalType(AType::\iter-star-seps(_,_)) = true;
+bool isNonTerminalType(AType::\empty()) = true;
+bool isNonTerminalType(AType::\opt(_)) = true;
+bool isNonTerminalType(AType::\alt(_)) = true;
+bool isNonTerminalType(AType::\seq(_)) = true;
 
 default bool isNonTerminalType(AType _) = false;   
 

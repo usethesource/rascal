@@ -140,11 +140,9 @@ data SyntaxRole
     ;
     
 SyntaxRole overloadSyntaxRole(set[SyntaxRole] syntaxRoles) {
-    if(size(syntaxRoles) == 1) return getFirstFrom(syntaxRoles);
-    //if(syntaxRoles <= {dataSyntax(), contextFreeSyntax()}){
-    //   return startSyntax() in syntaxRoles ? startSyntax() : contextFreeSyntax();
-    //}
-    return illegalSyntax();
+   if({SyntaxRole sr} := syntaxRoles) return sr;
+   if({SyntaxRole sr, dataSyntax()} := syntaxRoles) return sr; 
+   return illegalSyntax();
 }
 
 bool isConcreteSyntaxRole(SyntaxRole sr) = sr in {lexicalSyntax(), contextFreeSyntax(), layoutSyntax(), keywordSyntax()};

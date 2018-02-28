@@ -621,7 +621,7 @@ str parserName(str mname) = replaceAll(replaceAll(mname, "\\\\", "_"), "::", "_"
 list[Message] saveParser(str pname, str parserClass, loc where){
     try {
         dest = where +"/<pname>.java";
-        println("Write parser for <pname> tp <dest>");
+        println("Write parser for <pname> to <dest>");
         writeFile(dest, parserClass);
         println("done");
         return [];

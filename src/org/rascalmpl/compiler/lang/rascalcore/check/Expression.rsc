@@ -886,7 +886,7 @@ AType computeNodeTypeWithKwArgs(Tree current, keywordArguments, list[AType/*Name
                            if(kwName == fn){
                               kwType = getPatternType(kwa.expression,ft, scope);
                               unify(ft, kwType) || reportError(current, "Cannot determine type of field <fmt(fn)>");
-                              nodeFieldTypes += <fn, ft>;
+                              nodeFieldTypes += ft;
                               continue nextKW;
                            }
                        }    

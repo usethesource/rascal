@@ -60,10 +60,13 @@ datetime getLastModified(str qualifiedModuleName, PathConfig pcfg){
 TModel emptyModel = tmodel();
 
 tuple[bool, TModel] getIfValid(str qualifiedModuleName, PathConfig pcfg){
-    println("getIfValid: <qualifiedModuleName>");
+    //println("getIfValid: <qualifiedModuleName>");
     
     <existsTpl, tplLoc> = getDerivedReadLoc(qualifiedModuleName, "tpl", pcfg);
-    if(!existsTpl) { println("getIfValid, !existsTpl: false"); return <false, emptyModel>;}
+    if(!existsTpl) { 
+        //println("getIfValid, !existsTpl: false");
+        return <false, emptyModel>;
+    }
     lastModTpl = lastModified(tplLoc);
     
     existsSrc = false;
@@ -76,7 +79,10 @@ tuple[bool, TModel] getIfValid(str qualifiedModuleName, PathConfig pcfg){
     ;
     }
 
-    if(lastModSrc > lastModTpl) { println("getIfValid, lastModSrc \> lastModTpl: false"); return <false, emptyModel>; }
+    if(lastModSrc > lastModTpl) {
+        //println("getIfValid, lastModSrc \> lastModTpl: false"); 
+        return <false, emptyModel>;
+    }
     
     try {
         tm = readBinaryValueFile(#TModel, tplLoc);

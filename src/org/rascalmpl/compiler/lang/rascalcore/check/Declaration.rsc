@@ -554,7 +554,7 @@ void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterm
           tb.reportWarning(v, "Unbound type parameter <fmt(allTypeVars - typeVars)>");
        }
         dt.productions = productions;
-        iprintln(productions);
+        //iprintln(productions);
       
         //  Declare all named fields that occur in the productions
         constructorFields = { *getFields(p) | AProduction p <- productions };
