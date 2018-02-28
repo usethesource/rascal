@@ -127,10 +127,12 @@ public PathConfig getDefaultPathConfig() = pathConfig(
                 |project://typepal-examples/src|
                ]);
 
-data ProfileData = profile(int parse = 0, int extract = 0, int validate = 0, int save = 0);
+data ProfileData = profile(loc file = |unknown:///|, int parse = 0, int extract = 0, int validate = 0, int save = 0);
  
 void report(ProfileData pd){
-    println("<pd.parse? ? "parse: <pd.parse> ms;" : ""> <pd.extract? ? "extract: <pd.extract> ms;" : ""> <pd.validate? ? "validate: <pd.validate> ms;" : ""> <pd.save? ? "save: <pd.save> ms;" : ""> total: <pd.parse + pd.extract + pd.validate + pd.save> ms");
+    text = "<pd.parse? ? "parse: <pd.parse> ms;" : ""> <pd.extract? ? "extract: <pd.extract> ms;" : ""> <pd.validate? ? "validate: <pd.validate> ms;" : ""> <pd.save? ? "save: <pd.save> ms;" : ""> total: <pd.parse + pd.extract + pd.validate + pd.save> ms";
+    if(pd.file != |unknown:///|) text += " (<pd.file>)";
+    println(text);
 }
                               
 TModel rascalTModelsFromStr(str text){
@@ -171,6 +173,7 @@ tuple[ProfileData, TModel] rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool d
         pt = parseModuleWithSpaces(mloc).top;
         parseTime = (cpuTime() - startTime)/1000000;
         <prof, tm> = rascalTModel(pt, pcfg = pcfg, debug=debug);
+        prof.file = mloc;
         prof.parse = parseTime;
         startTime = cpuTime(); 
         saveModules(mname, pcfg, tm); 
@@ -202,7 +205,7 @@ tuple[ProfileData, TModel] rascalTModel(Tree pt, PathConfig pcfg = getDefaultPat
     
     afterValidateTime = cpuTime();
     
-    ProfileData prof = profile();
+    ProfileData prof = profile(file=getLoc(pt));
     
     if(!inline){
         prof.extract = (afterExtractTime - startTime)/1000000;
@@ -259,13 +262,16 @@ list[ModuleMessages] check(list[loc] files, PathConfig pcfg){
     println("=== check: <files>"); iprintln(pcfg1);
     p = e = v = s = 0;
     mms = [];
+    pds = [];
     for(file <- files){
         <pd, tm> = rascalTModelFromLoc(file, pcfg);
-        println("<file>:");
         report(pd);
+        pds += pd;
         mms += program(file, toSet(tm.messages));
         p += pd.parse; e += pd.extract; v += pd.validate; s += pd.save;
     }
+    println("SUMMARY");
+    for(pd <- pds) report(pd);
     println("TOTAL");
     report(profile(parse=p, extract=e, validate=v,save=s));
     return mms;
