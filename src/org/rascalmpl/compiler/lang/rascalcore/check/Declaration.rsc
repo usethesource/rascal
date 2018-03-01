@@ -636,22 +636,6 @@ void collect(current: (Sym) `{ <Sym symbol> <Sym sep> }*`, TBuilder tb){
     collect(symbol, tb);
 }
 
-@doc{
-.Synopsis
-Replace escaped characters by the escaped character itself (using Rascal escape conventions).
-}
-str deescape(str s)  {
-    res = visit(s) { 
-        case /^\\<c: [\" \' \< \> \\]>/ => c
-        case /^\\t/ => "\t"
-        case /^\\n/ => "\n"
-        case /^\\u<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
-        case /^\\U<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
-        case /^\\a<hex:[0-7][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
-        }; 
-    return res;
-}
-
 default rel[Key, AType] prod2cons(AProduction p){
     def = p.def;
     symbols = p.asymbols;
