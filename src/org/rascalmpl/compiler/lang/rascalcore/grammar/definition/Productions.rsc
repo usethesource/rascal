@@ -89,6 +89,7 @@ private default AProduction associativity(AType nt, just(Associativity a), AProd
 Validate (i.e., type check) a production.
 }
 list[Message] validateProduction(p: prod(AType def, list[AType] asymbols)){
+   println("validateProduction: <p>");
     if(isStartNonTerminalType(def)){
         def = getStartNonTerminalType(def);
     }
