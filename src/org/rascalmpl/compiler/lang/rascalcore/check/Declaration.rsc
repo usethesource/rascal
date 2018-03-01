@@ -656,3 +656,5 @@ rel[Key, AType] prod2cons(\priority(AType def, list[AProduction] choices))
     
 rel[Key, AType] prod2cons(\associativity(AType def, Associativity \assoc, set[AProduction] alternatives))
     = { *prod2cons(a) | a <- alternatives};
+    
+rel[Key, AType] prod2cons(\reference(AType def, str cons)) = {}; // TODO: implement

@@ -162,13 +162,13 @@ tuple[ProfileData, TModel] rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool d
         mname = getModuleName(mloc, pcfg);
         
         /***** turn this off during development of type checker *****/
-        <valid, tm> = getIfValid(mname, pcfg);
-        if(valid) {
-            println("*** reusing up-to-date TModel of <mname>");
-            vtime = (cpuTime() - startTime)/1000000;
-            prof = profile(file=mloc,validate=vtime);
-            return <prof, tm>;
-        }
+        //<valid, tm> = getIfValid(mname, pcfg);
+        //if(valid) {
+        //    println("*** reusing up-to-date TModel of <mname>");
+        //    vtime = (cpuTime() - startTime)/1000000;
+        //    prof = profile(file=mloc,validate=vtime);
+        //    return <prof, tm>;
+        //}
         /***********************************************************/
         
         mloc = timestamp(mloc);     
@@ -199,7 +199,7 @@ tuple[ProfileData, TModel] rascalTModel(Tree pt, PathConfig pcfg = getDefaultPat
     if(!inline) tb.push("pathconfig", pcfg); 
     rascalPreCollectInitialization(pt, tb);
     collect(pt, tb);
-   
+ 
     tm = tb.build();
     afterExtractTime = cpuTime();   
     tm = rascalPreValidation(tm);
