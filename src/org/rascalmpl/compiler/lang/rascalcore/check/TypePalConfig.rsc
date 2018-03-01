@@ -1,5 +1,5 @@
 module lang::rascalcore::check::TypePalConfig
-
+ 
 extend analysis::typepal::TypePal;
 extend analysis::typepal::TestFramework;
 import analysis::typepal::ScopeGraph;

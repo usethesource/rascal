@@ -99,6 +99,6 @@ private bool quotable(AType x) {
     //    && \start(_) !:= x
     //    ;
     res = aadt(_, [], SyntaxRole sr) := x && sr in {lexicalSyntax(), contextFreeSyntax()};
-    println("quotable(<x>) ==\> <res>");
+    //println("quotable(<x>) ==\> <res>");
     return res;
 }

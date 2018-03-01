@@ -493,6 +493,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 for(ovl: <key, idr, tp> <- overloads){                       
                     if(ft:afunc(AType ret, atypeList(list[AType] formals), list[Keyword] kwFormals) := tp){
                        try {
+                            // TODO: turn this on after revieew of all @deprecated uses in library
                             //if(tp.deprecationMessage?){
                             //    reportWarning(expression, "Deprecated function <fmt(tp)><isEmpty(tp.deprecationMessage) ? "" : ": " + tp.deprecationMessage>");
                             //}
@@ -568,6 +569,8 @@ tuple[rel[Key, IdRole, AType], list[bool]] filterOverloads(rel[Key, IdRole, ATyp
 // TODO: in order to reuse the function below `keywordArguments` is passed as where `eywordArguments[&T] keywordArguments` would make more sense.
 // The interpreter does not handle this well, so revisit this later
 
+// TODO: maybe check that all upperbounds of type parameters are identical?
+
 AType checkArgsAndComputeReturnType(Expression current, Key scope, AType retType, list[AType] formals, list[Keyword] kwFormals, bool isVarArgs, list[Expression] actuals, keywordArguments, list[bool] identicalFormals){
     nactuals = size(actuals); nformals = size(formals);
    
@@ -610,6 +613,7 @@ AType checkArgsAndComputeReturnType(Expression current, Key scope, AType retType
 }
 
 AType computeReturnType(Expression current, Key scope, AType retType, list[AType] formalTypes, list[Expression] actuals, list[AType] actualTypes, list[Keyword] kwFormals, keywordArguments, list[bool] identicalFormals){
+    //println("computeReturnType: retType=<retType>, formalTypes=<formalTypes>, actualTypes=<actualTypes>");
     index_formals = index(formalTypes);
     Bindings bindings = ();
     for(int i <- index_formals){
@@ -1343,7 +1347,7 @@ AType computeADTFieldType(Tree current, AType declaredType, AType fieldType, str
         fieldType = filterFieldType(fieldName, fieldType, declaredInfo, scope);
         if(overloadedAType({}) !:= fieldType){
            return expandUserTypes(fieldType, scope);
-        } else if(isConcreteSyntaxRole(declaredType.syntaxRole)) {
+        } else if(declaredType has syntaxRole && isConcreteSyntaxRole(declaredType.syntaxRole)) {// TODO: remove has check?
            return computeFieldType(current, aadt("Tree", [], contextFreeSyntax()), fieldName, scope, tb);
         }            
         

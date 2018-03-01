@@ -594,7 +594,9 @@ rel[str,loc,AType] getFields(\priority(AType def, list[AProduction] choices))
     
 rel[str,loc,AType] getFields(\associativity(AType def, Associativity \assoc, set[AProduction] alternatives))
     = { *getFields(a) | a <- alternatives};
-    
+
+rel[str,loc,AType] getFields(\reference(AType def, str cons)) = {};
+
 default rel[str,loc,AType] getFields(AProduction p) // TODO add no no label case
     = {<t.label, p.src[query = "label=<t.label>"], t> | s <- p.asymbols, t := removeConditional(s), (isNonTerminalType(t) || auser(_,_) := t),  t.label?};
 
@@ -632,6 +634,22 @@ void collect(current: (Sym) `{ <Sym symbol> <Sym sep> }+`, TBuilder tb){
 void collect(current: (Sym) `{ <Sym symbol> <Sym sep> }*`, TBuilder tb){
     if(isIterSym(symbol)) tb.reportWarning(current, "Nested iteration");
     collect(symbol, tb);
+}
+
+@doc{
+.Synopsis
+Replace escaped characters by the escaped character itself (using Rascal escape conventions).
+}
+str deescape(str s)  {
+    res = visit(s) { 
+        case /^\\<c: [\" \' \< \> \\]>/ => c
+        case /^\\t/ => "\t"
+        case /^\\n/ => "\n"
+        case /^\\u<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
+        case /^\\U<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
+        case /^\\a<hex:[0-7][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
+        }; 
+    return res;
 }
 
 default rel[Key, AType] prod2cons(AProduction p){

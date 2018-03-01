@@ -583,7 +583,7 @@ public str value2id(value v) {
   return v2i(v);
 }
 
-str uu(value s) = escape(toBase64("<node nd := s ? unsetRec(nd) : ((list[node] lnd := s) ? [unsetRec(nd) | nd <- lnd] : s)>"),("=":"00","+":"11","/":"22"));
+str uu(value s) = escape(toBase64("<node nd := s ? unsetRec(nd) : ((list[node] lnd := s) ? [unsetRec(nd) | node nd <- lnd] : s)>"),("=":"00","+":"11","/":"22"));
 
 str srolePrefix(contextFreeSyntax()) = "";
 str srolePrefix(lexicalSyntax()) = "lexical_";

@@ -96,7 +96,7 @@ list[Message] validateProduction(p: prod(AType def, list[AType] asymbols)){
     msgs = [];
     visit(p){
         case \delete(t):
-            if(t.syntaxRole != keywordSyntax()) { 
+            if(lit(_) !:= t  && (t has syntaxRole && t.syntaxRole != keywordSyntax())) { 
                 msgs += [ error("Exclude `\\` requires keywords as right argument, found <fmt(t)>", p.src) ]; 
             }
         case \seq(list[AType] symbols):

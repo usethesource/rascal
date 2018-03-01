@@ -6,14 +6,14 @@
   http://www.eclipse.org/legal/epl-v10.html
 }
 module lang::rascalcore::grammar::definition::Attributes
-
+ 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::grammar::definition::Literals;
 import lang::rascalcore::check::AType;
 import IO;
 import ValueIO;
 import util::Maybe;
-
+ 
 @doc{adds an attribute to all productions it can find}
 public AProduction attribute(AProduction p, Attr a) = p[attributes=p.attributes+{a}];
 
