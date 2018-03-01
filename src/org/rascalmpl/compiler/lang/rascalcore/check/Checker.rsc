@@ -227,8 +227,8 @@ tuple[ProfileData, TModel] rascalTModel(Tree pt, PathConfig pcfg = getDefaultPat
  
             <msgs, parserClass> = newGenerate(parserPackage, pname, g); 
             tm.messages += msgs;
-            msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/grammar/tests/generated_parsers|);
-            tm.messages += msgs;
+            //msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/grammar/tests/generated_parsers|);
+            //tm.messages += msgs;
    }
     return <prof, tm>;
 }
