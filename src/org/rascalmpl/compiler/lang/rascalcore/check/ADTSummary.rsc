@@ -18,6 +18,7 @@ import Message;
 import IO;
 import Set;
 import Map;
+import Exception;
 
 data ADTSummary = 
     adtSummary(str adtName, 
@@ -28,7 +29,7 @@ data ADTSummary =
                bool isStart = false, 
                set[AProduction] productions = {});
 
-list[&T <: node ] unsetRec(list[&T] args) = [unsetRec(a) | a <- args]; 
+list[&T <: node ] unsetRec(list[&T <: node] args) = [unsetRec(a) | a <- args]; 
 
 // A copy of getDefinitions but with extra TModel argument
 // TODO: reconsider this
@@ -52,8 +53,10 @@ set[Define] getDefinitions(str id, Key scope, set[IdRole] idRoles, TModel tm){
        }
 }  
         
-tuple[list[Message], set[ADTSummary]] getADTSummaries(Key scope, TModel tm){  
-    tm.definitions = visit(tm.definitions) { case AType t: auser(str name, list[AType] parameters) : { try { insert expandUserTypes(t, scope); } catch TypeUnavailable(): { println("Not expanded: <t>"); } } };
+tuple[list[Message], set[ADTSummary]] getADTSummaries(Key scope, TModel tm){ 
+    tm.definitions = ( key : visit(tm.definitions[key]) { case AType t: auser(str name, list[AType] parameters) : { try { insert expandUserTypes(t, def.scope); } catch TypeUnavailable(): { println("Not expanded: <t>"); } } }
+                     | key <- tm.definitions, def := tm.definitions[key]); 
+    //tm.definitions = visit(tm.definitions) { case AType t: auser(str name, list[AType] parameters) : { try { insert expandUserTypes(t, scope); } catch TypeUnavailable(): { println("Not expanded: <t>"); } } };
     usedADTs = {unset(t, "label") | k <- tm.facts, containedIn(k, scope), /AType t:aadt(str name, list[AType] parameters, sr) := tm.facts[k]};
     
    //println("usedADTs: <usedADTs>");
@@ -71,7 +74,7 @@ tuple[list[Message], set[ADTSummary]] getADTSummaries(Key scope, TModel tm){
             for(p <- uProductions){
                 msgs += validateProduction(p);
             }  
-  
+
             uIsStart = any(def <- defs, def.defInfo.isStart );
             
             if(name2summ[<u.adtName, u.parameters>]?){
@@ -86,6 +89,7 @@ tuple[list[Message], set[ADTSummary]] getADTSummaries(Key scope, TModel tm){
                 ADTSummary summ = adtSummary(u.adtName, u.parameters, productions=uProductions, constructors=uConstructors, commonKeywordFields=uCommonKeywordFields);
                 if(uIsStart) summ.isStart = true;
                 if(u.syntaxRole != dataSyntax()) summ.syntaxRole = u.syntaxRole;
+               
                 name2summ[<u.adtName,u.parameters>] = summ;
             }
          } catch TypeUnavailable(): println("<u.adtName> unavailable") ;
@@ -95,11 +99,14 @@ tuple[list[Message], set[ADTSummary]] getADTSummaries(Key scope, TModel tm){
 }
 
 AGrammar getGrammar(set[ADTSummary] adtSummaries){
+
+
     allStarts = {};
     allLayouts = {};
     definitions = ();
     //PM. maybe also generate prod(Symbol::empty(),[],{})
     for(s <- adtSummaries){
+        assert s has syntaxRole: "ADTSummary3";
         if(s.syntaxRole != dataSyntax()){
             a = aadt(s.adtName, s.parameters, s.syntaxRole);
             definitions[a] = choice(a, s.productions);

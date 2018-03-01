@@ -69,25 +69,25 @@ void rascalPreCollectInitialization(Tree tree, TBuilder tb){
     
     tb.enterScope(tree);
         
-        //if(tb.getConfig().classicReifier){
-        //    //data type[&T] = type(Symbol symbol, map[Symbol,Production] definitions);
-        //    typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
-        //    SymbolType = aadt("Symbol", [], dataSyntax());
-        //    ProductionType = aadt("Production", [], dataSyntax());
-        //    symbolField = SymbolType[label="symbol"]; //<"symbol", SymbolType>;
-        //    definitionsField = amap(SymbolType, ProductionType)[label="definitions"]; //< "definitions", amap(SymbolType, ProductionType)>;
-        //    tb.define("type", constructorId(), mkTree(2), defType(acons(typeType, /*"type",*/ [symbolField, definitionsField], [], label="type")));
-        //    // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
-        //} else {
-        //    //data type[&T] = type(AType symbol, map[AType,AProduction] definitions);
-        //    typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
-        //    SymbolType = aadt("AType", [], dataSyntax());
-        //    AProductionType = aadt("AProduction", [], dataSyntax());
-        //    atypeField = SymbolType[label="symbol"]; //<"symbol", SymbolType>;
-        //    definitionsField = amap(SymbolType, AProductionType)[label="definitions"]; //< "definitions", amap(SymbolType, AProductionType)>;
-        //    tb.define("type", constructorId(), mkTree(2), defType(acons(typeType, /*"type",*/ [atypeField, definitionsField], [], label="type")));
-        //    // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
-        //}
+        if(tb.getConfig().classicReifier){
+            //data type[&T] = type(Symbol symbol, map[Symbol,Production] definitions);
+            typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
+            SymbolType = aadt("Symbol", [], dataSyntax());
+            ProductionType = aadt("Production", [], dataSyntax());
+            symbolField = SymbolType[label="symbol"]; //<"symbol", SymbolType>;
+            definitionsField = amap(SymbolType, ProductionType)[label="definitions"]; //< "definitions", amap(SymbolType, ProductionType)>;
+            tb.define("type", constructorId(), mkTree(2), defType(acons(typeType, /*"type",*/ [symbolField, definitionsField], [], label="type")));
+            // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
+        } else {
+            //data type[&T] = type(AType symbol, map[AType,AProduction] definitions);
+            typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
+            SymbolType = aadt("AType", [], dataSyntax());
+            AProductionType = aadt("AProduction", [], dataSyntax());
+            atypeField = SymbolType[label="symbol"]; //<"symbol", SymbolType>;
+            definitionsField = amap(SymbolType, AProductionType)[label="definitions"]; //< "definitions", amap(SymbolType, AProductionType)>;
+            tb.define("type", constructorId(), mkTree(2), defType(acons(typeType, /*"type",*/ [atypeField, definitionsField], [], label="type")));
+            // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
+        }
     tb.leaveScope(tree);
 }
 
@@ -138,19 +138,19 @@ void report(ProfileData pd){
 TModel rascalTModelsFromStr(str text){
     startTime = cpuTime();
     pt = parse(#start[Modules], text).top;
-    return rascalTModel(pt, inline=true);
+    return rascalTModel(pt, inline=true)[1];
 }
 
 TModel rascalTModelsFromTree(Tree pt){
     startTime = cpuTime();
-    return rascalTModel(pt, inline=true);
+    return rascalTModel(pt, inline=true)[1];
 }
 
 TModel rascalTModelFromName(str mname, PathConfig pcfg, bool debug=false){
     mloc = |unknown:///|(0,0,<0,0>,<0,0>);
     try {
         mloc = getModuleLocation(mname, pcfg);
-        return rascalTModelFromLoc(mloc, pcfg, debug=debug);
+        return rascalTModelFromLoc(mloc, pcfg, debug=debug)[1];
     } catch value e: {
         return tmodel()[messages = [ error("During validation: <e>", mloc) ]];
     }
@@ -158,23 +158,26 @@ TModel rascalTModelFromName(str mname, PathConfig pcfg, bool debug=false){
 
 tuple[ProfileData, TModel] rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool debug=false){     
     try {
+        startTime = cpuTime();   
         mname = getModuleName(mloc, pcfg);
         
         /***** turn this off during development of type checker *****/
-        //<valid, tm> = getIfValid(mname, pcfg);
-        //if(valid) {
-        //    println("*** reusing up-to-date TModel of <mname>");
-        //    return tm;
-        //}
+        <valid, tm> = getIfValid(mname, pcfg);
+        if(valid) {
+            println("*** reusing up-to-date TModel of <mname>");
+            vtime = (cpuTime() - startTime)/1000000;
+            prof = profile(file=mloc,validate=vtime);
+            return <prof, tm>;
+        }
         /***********************************************************/
         
         mloc = timestamp(mloc);     
-        startTime = cpuTime();                   
+                       
         pt = parseModuleWithSpaces(mloc).top;
-        parseTime = (cpuTime() - startTime)/1000000;
+        pTime = (cpuTime() - startTime)/1000000;
         <prof, tm> = rascalTModel(pt, pcfg = pcfg, debug=debug);
         prof.file = mloc;
-        prof.parse = parseTime;
+        prof.parse = pTime;
         startTime = cpuTime(); 
         saveModules(mname, pcfg, tm); 
         prof.save = (cpuTime() - startTime)/1000000;

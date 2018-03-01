@@ -15,60 +15,60 @@ import lang::rascalcore::grammar::tests::TestGrammars;
 
 // -------- Examples and tests -------------------
 
-
-public AGrammar GEMPTY = grammar({sort("S")}, ());
-
-private AProduction pr(AType rhs, list[AType] lhs) {
-  return prod(rhs,lhs);
-}
-
-public AGrammar G0 = grammar({sort("S")}, (
-    sort("S"): choice(sort("S"), { pr(sort("S"), [ lit("0") ]) }),
-    lit("0"): choice(lit("0"), { pr(lit("0"),[\char-class([range(48,48)])]) })
-));
-
-public map[AType sort, AProduction def] Lit1 = (
-  lit("*"): choice(lit("*"), { pr(lit("*"),[\char-class([range(42,42)])]) }),
-  lit("+"): choice(lit("+"), { pr(lit("+"),[\char-class([range(43,43)])]) }),
-  lit("0"): choice(lit("0"), { pr(lit("0"),[\char-class([range(48,48)])]) }),
-  lit("1"): choice(lit("1"), { pr(lit("1"),[\char-class([range(49,49)])]) })
-);
-
-public AGrammar GEXP = grammar({sort("E")}, (
-    sort("E"): choice(sort("E"), { pr(sort("E"), [sort("E"), lit("*"), sort("B")]),
-                                   pr(sort("E"), [sort("E"), lit("+"), sort("B")]),
-                                   pr(sort("E"), [sort("B")])
-                                 }),
-    sort("B"): choice(sort("B"), { pr(sort("B"), [lit("0")]),
-                                  pr(sort("B"), [lit("1")])
-                                 })
-) + Lit1);
-
-public AGrammar GEXPPRIO = grammar( {sort("E")},
-(
-    sort("E"):  choice(sort("E"), { pr(sort("E"),  [sort("T"), sort("E1")])}),
-    sort("E1"): choice(sort("E1"),{ pr(sort("E1"), [lit("+"), sort("T"), sort("E1")]),
-                                    pr(sort("E1"), [])
-                                  }),
-    
-    
-    sort("T"):  choice(sort("T"), { pr(sort("T"),  [sort("F"), sort("T1")]) }),
-   
-    sort("T1"): choice(sort("T1"),{ pr(sort("F"), [lit("*"), sort("F"), sort("T1")]),
-                                   pr(sort("T1"), []) }),
-                                    
-    sort("F"): choice(sort("F"),  { pr(sort("F"),  [lit("("), sort("E"), lit(")")]),
-                                    pr(sort("F"),  [lit("id")])
-                                  }),
-    
-    lit("+"): choice(lit("+"), { pr(lit("+"),[\char-class([range(43,43)])]) }),
-    lit("*"): choice(lit("*"), { pr(lit("*"),[\char-class([range(42,42)])]) }),
-    
-    lit("("): choice(lit("("), { pr(lit("("), [\char-class([range(40,40)])]) }),
-    lit(")"): choice(lit(")"), { pr(lit(")"), [\char-class([range(41,41)])]) }),
-    
-    lit("id"): choice(lit("id"), { pr(lit("id"), [\char-class([range(105,105)]),\char-class([range(100,100)])]) })
-));
+//
+//public AGrammar GEMPTY = grammar({sort("S")}, ());
+//
+//private AProduction pr(AType rhs, list[AType] lhs) {
+//  return prod(rhs,lhs);
+//}
+//
+//public AGrammar G0 = grammar({sort("S")}, (
+//    sort("S"): choice(sort("S"), { pr(sort("S"), [ lit("0") ]) }),
+//    lit("0"): choice(lit("0"), { pr(lit("0"),[\char-class([range(48,48)])]) })
+//));
+//
+//public map[AType sort, AProduction def] Lit1 = (
+//  lit("*"): choice(lit("*"), { pr(lit("*"),[\char-class([range(42,42)])]) }),
+//  lit("+"): choice(lit("+"), { pr(lit("+"),[\char-class([range(43,43)])]) }),
+//  lit("0"): choice(lit("0"), { pr(lit("0"),[\char-class([range(48,48)])]) }),
+//  lit("1"): choice(lit("1"), { pr(lit("1"),[\char-class([range(49,49)])]) })
+//);
+//
+//public AGrammar GEXP = grammar({sort("E")}, (
+//    sort("E"): choice(sort("E"), { pr(sort("E"), [sort("E"), lit("*"), sort("B")]),
+//                                   pr(sort("E"), [sort("E"), lit("+"), sort("B")]),
+//                                   pr(sort("E"), [sort("B")])
+//                                 }),
+//    sort("B"): choice(sort("B"), { pr(sort("B"), [lit("0")]),
+//                                  pr(sort("B"), [lit("1")])
+//                                 })
+//) + Lit1);
+//
+//public AGrammar GEXPPRIO = grammar( {sort("E")},
+//(
+//    sort("E"):  choice(sort("E"), { pr(sort("E"),  [sort("T"), sort("E1")])}),
+//    sort("E1"): choice(sort("E1"),{ pr(sort("E1"), [lit("+"), sort("T"), sort("E1")]),
+//                                    pr(sort("E1"), [])
+//                                  }),
+//    
+//    
+//    sort("T"):  choice(sort("T"), { pr(sort("T"),  [sort("F"), sort("T1")]) }),
+//   
+//    sort("T1"): choice(sort("T1"),{ pr(sort("F"), [lit("*"), sort("F"), sort("T1")]),
+//                                   pr(sort("T1"), []) }),
+//                                    
+//    sort("F"): choice(sort("F"),  { pr(sort("F"),  [lit("("), sort("E"), lit(")")]),
+//                                    pr(sort("F"),  [lit("id")])
+//                                  }),
+//    
+//    lit("+"): choice(lit("+"), { pr(lit("+"),[\char-class([range(43,43)])]) }),
+//    lit("*"): choice(lit("*"), { pr(lit("*"),[\char-class([range(42,42)])]) }),
+//    
+//    lit("("): choice(lit("("), { pr(lit("("), [\char-class([range(40,40)])]) }),
+//    lit(")"): choice(lit(")"), { pr(lit(")"), [\char-class([range(41,41)])]) }),
+//    
+//    lit("id"): choice(lit("id"), { pr(lit("id"), [\char-class([range(105,105)]),\char-class([range(100,100)])]) })
+//));
 
 //test bool tstEsc1() = esc(sort("S")) == "sort(\\\"S\\\")";
 test bool tstEsc2() = esc(lit(":")) == "lit(\\\":\\\")";
@@ -148,7 +148,6 @@ test bool tstGenerateNewItemsG0() = generateNewItems(makeUnique(G0)) ==
         <"new LiteralStackNode\<IConstructor\>(7, 0, cHJvZChsaXQoIjAiKSxbXGNoYXItY2xhc3MoW3JhbmdlKDQ4LDQ4KV0pXSk00, new int[] {48}, null, null)",7>)
 );
 
-
 test bool tstGenerateNewItemsGEXP() = generateNewItems(makeUnique(GEXP)) == 
 (
   sort("E"):(
@@ -190,10 +189,10 @@ test bool tstGenerateNewItemsGEXP() = generateNewItems(makeUnique(GEXP)) ==
   )
 );
 
-test bool tstComputeDontNests1() = computeDontNests(generateNewItems(makeUnique(GEMPTY)), GEMPTY,makeUnique(GEMPTY)) == {};
-test bool tstComputeDontNests2() = computeDontNests(generateNewItems(makeUnique(G0)), G0, makeUnique(G0)) == {};
-test bool tstComputeDontNests3() = computeDontNests(generateNewItems(makeUnique(GEXP)), GEXP,makeUnique(GEXP)) == {};
-test bool tstComputeDontNests4() = computeDontNests(generateNewItems(makeUnique(GEXPPRIO)), GEXPPRIO, makeUnique(GEXPPRIO)) == {};
+test bool tstComputeDontNests1() = computeDontNests(generateNewItems(makeUnique(GEMPTY)), GEMPTY,makeUnique(GEMPTY)) == <[], {}>;
+test bool tstComputeDontNests2() = computeDontNests(generateNewItems(makeUnique(G0)), G0, makeUnique(G0)) == <[], {}>;
+test bool tstComputeDontNests3() = computeDontNests(generateNewItems(makeUnique(GEXP)), GEXP,makeUnique(GEXP)) == <[], {}>;
+test bool tstComputeDontNests4() = computeDontNests(generateNewItems(makeUnique(GEXPPRIO)), GEXPPRIO, makeUnique(GEXPPRIO)) == <[], {}>;
 
 test bool tstExpandParameterizedSymbols1() = expandParameterizedSymbols(G0) == 
 grammar(

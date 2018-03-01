@@ -4,15 +4,15 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::grammar::definition::Literals;
 import lang::rascalcore::check::AType;
 
-test bool tstLiteral1() = literal("") == prod(lit(""),[]/*lexicalSyntax()*/);
-test bool tstLiteral2() = literal("a") == prod(lit("a"),[\char-class([range(97,97)])]/*lexicalSyntax()*/);
+test bool tstLiteral1() = literal("") == prod(lit(""),[]);
+test bool tstLiteral2() = literal("a") == prod(lit("a"),[\char-class([range(97,97)])]);
 test bool tstLiteral3() = literal("ab") == 
-	prod(lit("ab"),[\char-class([range(97,97)]),\char-class([range(98,98)])]/*lexicalSyntax()*/);
+	prod(lit("ab"),[\char-class([range(97,97)]),\char-class([range(98,98)])]);
 	
-test bool tstCiLiteral1() = ciliteral("") == prod(cilit(""),[]/*lexicalSyntax()*/);
-test bool tstCiLiteral2() = ciliteral("a") == prod(cilit("a"),[\char-class([range(97,97)])]/*lexicalSyntax()*/);
+test bool tstCiLiteral1() = ciliteral("") == prod(cilit(""),[]);
+test bool tstCiLiteral2() = ciliteral("a") == prod(cilit("a"),[\char-class([range(97,97)])]);
 test bool tstCiLiteral3() = ciliteral("ab") == 
-	prod(cilit("ab"),[\char-class([range(97,97)]),\char-class([range(98,98)])]/*lexicalSyntax()*/);
+	prod(cilit("ab"),[\char-class([range(97,97)]),\char-class([range(98,98)])]);
 
 test bool tstStr2Syms1() = str2syms("") == [];
 test bool tstStr2Syms2() = str2syms("a") == [\char-class([range(97,97)])];
