@@ -55,8 +55,8 @@ set[Define] getDefinitions(str id, Key scope, set[IdRole] idRoles, TModel tm){
         
 tuple[list[Message], set[ADTSummary]] getADTSummaries(Key scope, TModel tm){ 
     println("getADTSummaries: <scope>, <size(tm.definitions)> definitions");
-    iprintln(tm.definitions);
-    tm.definitions = ( key : visit(tm.definitions[key]) { case AType t: auser(str name, list[AType] parameters) : { try { insert expandUserTypes(t, def.scope); } catch TypeUnavailable(): { println("Not expanded: <t>"); } } }
+    //iprintln(tm.definitions);
+    tm.definitions = ( key : visit(tm.definitions[key]) { case AType t: auser(str name, list[AType] parameters) : { try { insert expandUserTypes(t, def.scope); } catch TypeUnavailable(): { println("Not expanded: <t> in (<key>: <tm.definitions[key]>)"); } } }
                      | key <- tm.definitions, def := tm.definitions[key]); 
     //tm.definitions = visit(tm.definitions) { case AType t: auser(str name, list[AType] parameters) : { try { insert expandUserTypes(t, scope); } catch TypeUnavailable(): { println("Not expanded: <t>"); } } };
     usedADTs = {unset(t, "label") | k <- tm.facts, containedIn(k, scope), /AType t:aadt(str name, list[AType] parameters, sr) := tm.facts[k]};
