@@ -1,5 +1,5 @@
 module lang::rascalcore::check::ADTSummary
-
+  
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeUtils;
 
@@ -33,7 +33,7 @@ list[&T <: node ] unsetRec(list[&T <: node] args) = [unsetRec(a) | a <- args];
 
 // A copy of getDefinitions but with extra TModel argument
 // TODO: reconsider this
-set[Define] getDefinitions(str id, Key scope, set[IdRole] idRoles, TModel tm){
+set[Define] getDefinitions(str id, Key scope, set[IdRole] idRoles, TModel tm){  
     try {
         foundDefs = lookupFun(tm, use(id, anonymousOccurrence, scope, idRoles));
         if({def} := foundDefs){
@@ -42,6 +42,11 @@ set[Define] getDefinitions(str id, Key scope, set[IdRole] idRoles, TModel tm){
           if(mayOverloadFun(foundDefs, tm.definitions)){
             return {tm.definitions[def] | def <- foundDefs};
           } else {
+            // If only overloaded due to different time stamp, use most recent.
+            <ok, def> = findMostRecentDef(foundDefs);
+            if(ok){        
+                return {extractedTModel.definitions[def]};
+            }
                throw AmbiguousDefinition(foundDefs);
           }
         }
