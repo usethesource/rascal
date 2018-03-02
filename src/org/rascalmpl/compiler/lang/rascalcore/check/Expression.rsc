@@ -303,7 +303,7 @@ void collect(current: (Expression)`any ( <{Expression ","}+ generators> )`, TBui
     tb.enterScope(generators);
     beginPatternScope("any", tb);
         tb.require("any", current, gens,
-            () { for(gen <- gens) if(getType(gen) != abool()) reportError(gen, "Type of generator should be `bool`, found <fmt(getType(gen))>");
+            () { for(gen <- gens) if(!isBoolType(getType(gen))) reportError(gen, "Type of generator should be `bool`, found <fmt(getType(gen))>");
             });
         collect(generators, tb);
     endPatternScope(tb);
@@ -321,7 +321,7 @@ void collect(current: (Expression)`all ( <{Expression ","}+ generators> )`, TBui
     tb.enterScope(generators);
     beginPatternScope("all", tb);
         tb.require("all", current, gens,
-            () { for(gen <- gens) if(getType(gen) != abool()) reportError(gen, "Type of generator should be `bool`, found <fmt(getType(gen))>");
+            () { for(gen <- gens) if(!isBoolType(getType(gen))) reportError(gen, "Type of generator should be `bool`, found <fmt(getType(gen))>");
             });
         collect(generators, tb);
     endPatternScope(tb);
@@ -340,7 +340,7 @@ void collect(current: (Expression)`{ <{Expression ","}+ results> | <{Expression 
     tb.enterScope(current);
     beginPatternScope("set-comprehension", tb);
         tb.require("set comprehension", current, gens,
-            () { for(gen <- gens) if(getType(gen) != abool()) reportError(gen, "Type of generator should be `bool`, found <fmt(getType(gen))>");
+            () { for(gen <- gens) if(!isBoolType(getType(gen))) reportError(gen, "Type of generator should be `bool`, found <fmt(getType(gen))>");
             });
         tb.calculate("set comprehension results", current, res,
             AType(){
@@ -361,7 +361,7 @@ void collect(current: (Expression) `[ <{Expression ","}+ results> | <{Expression
     tb.enterScope(current);
     beginPatternScope("list-comprehension", tb);
         tb.require("list comprehension", current, gens,
-            () { for(gen <- gens) if(getType(gen) != abool()) reportError(gen, "Type of generator should be `bool`, found <fmt(getType(gen))>");
+            () { for(gen <- gens) if(!isBoolType(getType(gen))) reportError(gen, "Type of generator should be `bool`, found <fmt(getType(gen))>");
             });
         tb.calculate("list comprehension results", current, res,
             AType(){
@@ -382,7 +382,7 @@ void collect(current: (Expression) `(<Expression from> : <Expression to> | <{Exp
     tb.enterScope(current);
     beginPatternScope("map-comprehension", tb);
         tb.require("map comprehension", current, gens,
-            () { for(gen <- gens) if(getType(gen) != abool()) reportError(gen, "Type of generator should be `bool`, found <fmt(getType(gen))>");
+            () { for(gen <- gens) if(!isBoolType(getType(gen))) reportError(gen, "Type of generator should be `bool`, found <fmt(getType(gen))>");
             });
         tb.calculate("list comprehension results", current, [from, to],
             AType(){
@@ -404,7 +404,7 @@ void collect(current: (Expression) `( <Expression init> | <Expression result> | 
         //tau = tb.newTypeVar();
         tb.define("it", variableId(), init, defLub([init, result], AType() { return lub(getType(init), getType(result)); }));
         tb.require("reducer", current, gens,
-            () { for(gen <- gens) if(getType(gen) != abool()) reportError(gen, "Type of generator should be `bool`, found <fmt(getType(gen))>");
+            () { for(gen <- gens) if(!isBoolType(getType(gen))) reportError(gen, "Type of generator should be `bool`, found <fmt(getType(gen))>");
             });
         tb.calculate("reducer result", current, [result], AType () { return getType(result); });
         //tb.requireEager("reducer it", current, [init, result], (){ unify(tau, lub(getType(init), getType(result)), onError(current, "Can determine it")); });
