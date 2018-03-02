@@ -108,7 +108,6 @@ AGrammar getGrammar(set[ADTSummary] adtSummaries){
     definitions = ();
     //PM. maybe also generate prod(Symbol::empty(),[],{})
     for(s <- adtSummaries){
-        assert s has syntaxRole: "ADTSummary3";
         if(s.syntaxRole != dataSyntax()){
             a = aadt(s.adtName, s.parameters, s.syntaxRole);
             definitions[a] = choice(a, s.productions);
