@@ -19,8 +19,8 @@ import Set;
 import Relation;
 import  analysis::graphs::Graph;
 import Grammar;
-import lang::rascal::format::Grammar;
-import lang::rascal::format::Escape;
+import lang::rascalcore::format::Grammar;
+import lang::rascalcore::format::Escape;
 
 public list[Message] diagnose(Tree t) {
   return [*findCauses(x) | x <- {a | /Tree a:amb(_) := t}];
