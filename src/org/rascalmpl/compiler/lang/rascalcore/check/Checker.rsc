@@ -233,7 +233,7 @@ tuple[ProfileData, TModel] rascalTModel(Tree pt, PathConfig pcfg = getDefaultPat
 }
 
 // name of the production has to mirror the Kernel compile result
-data ModuleMessages = program(loc src, set[Message] messages1);
+data ModuleMessages = program(loc src, set[Message] messages);
 
 ModuleMessages check(str mname, PathConfig pcfg){
     pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
