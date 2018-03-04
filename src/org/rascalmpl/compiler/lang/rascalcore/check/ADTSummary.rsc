@@ -63,7 +63,7 @@ tuple[list[Message], set[ADTSummary]] getADTSummaries(Key scope, TModel tm){
     tm.definitions = ( key : visit(tm.definitions[key]) { case AType t: auser(str name, list[AType] parameters) : { try { insert expandUserTypes(t, def.scope); } catch TypeUnavailable(): { println("Not expanded: <t> in (<key>: <def>)"); } } }
                      | key <- tm.definitions, def := tm.definitions[key]); 
     //tm.definitions = visit(tm.definitions) { case AType t: auser(str name, list[AType] parameters) : { try { insert expandUserTypes(t, scope); } catch TypeUnavailable(): { println("Not expanded: <t>"); } } };
-    usedADTs = {unset(t, "label") | k <- tm.facts, containedIn(k, scope), /AType t:aadt(str name, list[AType] parameters, sr) := tm.facts[k]};
+    usedADTs = {unset(t, "label") | loc k <- tm.facts, containedIn(k, scope), /AType t:aadt(str name, list[AType] parameters, sr) := tm.facts[k]};
     
    //println("usedADTs: <usedADTs>");
     
