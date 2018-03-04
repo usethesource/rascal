@@ -98,7 +98,7 @@ node outline(Module m) {
    }
 
    map[node,list[node]] count(map[str,list[node]] m)
-     = ((m[k] ? "<k> (<size(m[k])>)"()[@\loc=(m[k][0])@\loc] : "<k> (<size(m[k])>)"()) : m[k] | k <- m);
+     = ((!isEmpty(m[k]) ? "<k> (<size(m[k])>)"()[@\loc=(m[k][0])@\loc] : "<k> (<size(m[k])>)"()) : m[k] | k <- m);
      
    return n(
       "Functions"(count(functions))[@label="Functions (<size(functions)>)"],
