@@ -200,7 +200,9 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         //println("scopes: <size(tm.scopes)> ==\> <size(m1.scopes)>");
        
         m1.store = (key_bom : bom);
-        m1.paths = {<from[fragment=""], role, to[fragment=""]> | <from, role, to> <- tm.paths};
+        m1.paths = tm.paths;
+        //m1.paths = {<from[fragment=""], role, to[fragment=""]> | <from, role, to> <- tm.paths};
+        
         //m1.uses = [u | u <- tm.uses, containedIn(u.occ, mscope) ];
         
         roles = dataOrSyntaxIds + {constructorId(), functionId(), fieldId()/*, variableId()*/};
@@ -240,8 +242,8 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
                    if(scope in extendedModuleScopes){
                     tup.scope = mscope;
                    }
-                   tup.scope.fragment="";
-                   tup.defined.fragment="";  
+                   //tup.scope.fragment="";
+                   //tup.defined.fragment="";  
                    append tup;
                }
         
@@ -249,15 +251,17 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         };
         println("defines: <size(tm.defines)> ==\> <size(defs)>");
         m1.defines = toSet(defs);
+        m1 = visit(m1) {case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""]; };
         
         //calcs = (key : tm.calculators[key] | Key key <- tm.calculators, key.path == mscope.path, bprintln("<key>: <tm.calculators[key]>"));
         //
         //reqs  = {r | r <- tm.openReqs, r.src.path == mscope.path, bprintln(r)};
         //
         //println("left: <size(calcs)> calculators, <size(reqs)> requirements");
-        
+        println("WRITING to <tplLoc> (ts=<lastModified(tplLoc)>)");
         writeBinaryValueFile(tplLoc, m1);
-        println("written to <tplLoc> (ts=<lastModified(tplLoc)>)");
+        println("WRITTEN to <tplLoc> (ts=<lastModified(tplLoc)>)");
+        iprintln(m1);
         return m1;
     } catch value e: {
         return tmodel()[messages=[error("Could not save .tpl file for <fmt(qualifiedModuleName)>: <fmt(e)>", |unknown:///|(0,0,<0,0>,<0,0>))]];
