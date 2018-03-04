@@ -6,6 +6,7 @@ import List;
 import Map;
 import Set;
 import Exception;
+import String;
 import util::Reflective;
 extend analysis::typepal::TypePal;
 import lang::rascalcore::check::AType;
