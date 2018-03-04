@@ -188,15 +188,16 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         //println("filtered: <filteredModuleScopes>");
         TModel m1 = tmodel();
         
-        m1.facts = (key[fragment=""] : tm.facts[key] | key <- tm.facts, key in filteredModuleScopes);
-        //m1.facts = (key : tm.facts[key] | key <- tm.facts, any(fms <- filteredModuleScopes, containedIn(key, fms)));
+        //m1.facts = (key[fragment=""] : tm.facts[key] | key <- tm.facts, key in filteredModuleScopes);
+        m1.facts = (key : tm.facts[key] | key <- tm.facts, any(fms <- filteredModuleScopes, containedIn(key, fms)));
         println("facts: <size(tm.facts)>  ==\> <size(m1.facts)>");
      
         m1.messages = [msg | msg <- tm.messages, msg.at.path == mscope.path];
         
         filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
         //println("filteredModuleScopePaths: <filteredModuleScopePaths>");
-        m1.scopes = (inner[fragment=""] : tm.scopes[inner][fragment=""] | loc inner <- tm.scopes, inner.path in filteredModuleScopePaths);
+        m1.scopes = (inner : tm.scopes[inner] | loc inner <- tm.scopes, inner.path in filteredModuleScopePaths);
+        //.scopes = (inner[fragment=""] : tm.scopes[inner][fragment=""] | loc inner <- tm.scopes, inner.path in filteredModuleScopePaths);
         //println("scopes: <size(tm.scopes)> ==\> <size(m1.scopes)>");
        
         m1.store = (key_bom : bom);
