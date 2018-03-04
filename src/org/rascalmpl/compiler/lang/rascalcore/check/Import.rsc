@@ -188,7 +188,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         //println("filtered: <filteredModuleScopes>");
         TModel m1 = tmodel();
         
-        m1.facts = (key : tm.facts[key] | key <- tm.facts, key in filteredModuleScopes);
+        m1.facts = (key[fragment=""] : tm.facts[key] | key <- tm.facts, key in filteredModuleScopes);
         //m1.facts = (key : tm.facts[key] | key <- tm.facts, any(fms <- filteredModuleScopes, containedIn(key, fms)));
         println("facts: <size(tm.facts)>  ==\> <size(m1.facts)>");
      
@@ -196,11 +196,11 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         
         filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
         //println("filteredModuleScopePaths: <filteredModuleScopePaths>");
-        m1.scopes = (inner : tm.scopes[inner] | loc inner <- tm.scopes, inner.path in filteredModuleScopePaths);
+        m1.scopes = (inner[fragment=""] : tm.scopes[inner][fragment=""] | loc inner <- tm.scopes, inner.path in filteredModuleScopePaths);
         //println("scopes: <size(tm.scopes)> ==\> <size(m1.scopes)>");
        
         m1.store = (key_bom : bom);
-        m1.paths = tm.paths;
+        m1.paths = {<from[fragment=""], role, to[fragment=""]> | <from, role, to> <- tm.paths};
         //m1.uses = [u | u <- tm.uses, containedIn(u.occ, mscope) ];
         
         roles = dataOrSyntaxIds + {constructorId(), functionId(), fieldId()/*, variableId()*/};
@@ -240,7 +240,8 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
                    if(scope in extendedModuleScopes){
                     tup.scope = mscope;
                    }
-                     
+                   tup.scope.fragment="";
+                   tup.defined.fragment="";  
                    append tup;
                }
         
