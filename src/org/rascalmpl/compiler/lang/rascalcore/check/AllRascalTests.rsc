@@ -411,7 +411,7 @@ void allFiles(PathConfig pcfg = pathConfig(
                     problems[qualifiedModuleName] = msgs;
                 }
             }
-        } catch e: {
+        } catch value e: {
             crashed[qualifiedModuleName] = e;
         }
     }
