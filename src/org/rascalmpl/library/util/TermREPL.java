@@ -7,8 +7,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.StackTrace;
@@ -151,9 +149,10 @@ public class TermREPL {
                     ICallableValue salixApp = (ICallableValue) result.get("salixApp");
                     String scope = "salixApp" + scopeId;
                     call(this.consumerFunction, new Type[]{tf.valueType(), tf.stringType()}, new IValue[]{salixApp, vf.string(scope)});
-                    String out = "<script> \n var "+ scope +" = new Salix('"+ scope +"', '" + http.getURI().toString() +"'); \n "+ scope +".start(); \n </script> \n <div id=\""+scope+"\"> \n </div>";
+                    String out = "<script> \n var "+ scope +" = new Salix('"+ scope +"', '" + http.getURI().toString() +"'); \n google.charts.load('current', {'packages':['corechart']}); google.charts.setOnLoadCallback(function () { registerCharts("+scope+");\n registerDagre("+scope+");\n registerTreeView("+ scope +"); \n"+ scope + ".start();});\n </script> \n <div id=\""+scope+"\"> \n </div>";
                     output.put("text/html", out);
                     this.scopeId++;
+                    
                 }
                 // FIXME: Fix it, CommandResult is no longer a tuple 
                 if(result.has("messages")){
