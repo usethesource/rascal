@@ -14,7 +14,7 @@ alias Completion
 //  ;
   
 data CommandResult(list[Message] messages = [])
-  = string(str result)
+  = textual(str result)
   ; 
  
   
