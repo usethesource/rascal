@@ -260,10 +260,10 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         //reqs  = {r | r <- tm.openReqs, r.src.path == mscope.path, bprintln(r)};
         //
         //println("left: <size(calcs)> calculators, <size(reqs)> requirements");
-        println("WRITING to <tplLoc> (ts=<lastModified(tplLoc)>)");
+        
         writeBinaryValueFile(tplLoc, m1);
         println("WRITTEN to <tplLoc> (ts=<lastModified(tplLoc)>)");
-        iprintln(m1);
+      
         return m1;
     } catch value e: {
         return tmodel()[messages=[error("Could not save .tpl file for <fmt(qualifiedModuleName)>: <fmt(e)>", |unknown:///|(0,0,<0,0>,<0,0>))]];

@@ -15,6 +15,7 @@ module lang::rascalcore::check::Checker
 /*
  * TODO:
  * - Integrate with parser generator
+ * - Fix reference in grammar rules (it seems that production label get lost somewhere and reference cannot be found)
  * - Support for reified types
  *
  * Potential additions:
@@ -214,20 +215,19 @@ tuple[ProfileData, TModel] rascalTModel(Tree pt, PathConfig pcfg = getDefaultPat
         prof.validate = (afterValidateTime - afterExtractTime)/1000000;
     }
     if(isEmpty(tm.messages)){
-            <msgs, adtSummaries> = getADTSummaries(getLoc(pt), tm);
-            tm.messages += msgs;
+            <tm, adtSummaries> = getADTSummaries(getLoc(pt), tm);
             g = getGrammar(adtSummaries);
-            //iprintln(g);
-            pname = "DefaultParser";
-            if(Module m := pt) { 
-                mname = "<m.header.name>";
-                pname = parserName(mname);
-            }
- 
-            <msgs, parserClass> = newGenerate(parserPackage, pname, g); 
-            tm.messages += msgs;
-            //msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/grammar/tests/generated_parsers|);
-            //tm.messages += msgs;
+            
+ //           pname = "DefaultParser";
+ //           if(Module m := pt) { 
+ //               mname = "<m.header.name>";
+ //               pname = parserName(mname);
+ //           }
+ //
+ //           <msgs, parserClass> = newGenerate(parserPackage, pname, g); 
+ //           tm.messages += msgs;
+ //           msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/grammar/tests/generated_parsers|);
+ //           tm.messages += msgs;
    }
     return <prof, tm>;
 }

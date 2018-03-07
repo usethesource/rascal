@@ -49,7 +49,7 @@ public tuple[list[Message], str] newGenerate(str package, str name, AGrammar gr)
     startJob("Generating parser <package>.<name>");
     int uniqueItem = 1; // -1 and -2 are reserved by the SGTDBF implementation
     int newItem() { uniqueItem += 1; return uniqueItem; };
-   
+
     event("expanding parameterized symbols");
     gr = expandParameterizedSymbols(gr);
     
@@ -74,7 +74,7 @@ public tuple[list[Message], str] newGenerate(str package, str name, AGrammar gr)
         case AType s => s[id=newItem()] 
       };
     beforeUniqueGr = gr;  
-        
+   
     gr.rules = (s : rewrite(gr.rules[s]) | s <- gr.rules);
         
     event("generating item allocations");
@@ -454,7 +454,6 @@ public tuple[str new, int itemId] sym2newitem(AGrammar grammar, AType sym, int d
     filters = "";
     
     if (conditional(def, conds) := sym) {
-      conds = expandKeywords(grammar, conds);
       exits += ["new CharFollowRequirement(new int[][]{<generateCharClassArrays(ranges)>})" | follow(\char-class(ranges)) <- conds];
       exits += ["new StringFollowRequirement(new int[] {<literals2ints(str2syms(s))>})" | follow(lit(s)) <- conds]; 
       exits += ["new CharFollowRestriction(new int[][]{<generateCharClassArrays(ranges)>})" | \not-follow(\char-class(ranges)) <- conds];

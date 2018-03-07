@@ -179,7 +179,7 @@ This one-liner searches a given production for "except restrictions".
 For every position in the production that is restricted, and for every restriction it finds 
 at this position, it adds a 'do-not-nest' tuple to the result.
 }
-public DoNotNest except(AProduction p:prod(AType _, list[AType] lhs/*, set[Attr] _*/), AGrammar g) 
+public DoNotNest except(AProduction p:prod(AType _, list[AType] lhs), AGrammar g) 
   = { <p, i, q>  | i <- index(lhs), conditional(s, excepts) := delabel(lhs[i]), isdef(g, s)
                  , except(c) <- excepts, /q:prod(s,_) := g.rules[s], s.label==c};
  

@@ -6,6 +6,7 @@ extend lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::grammar::definition::Layout;
 import lang::rascalcore::grammar::definition::Productions;
+import lang::rascalcore::grammar::definition::Keywords;
   
 extend analysis::typepal::TypePal;
 extend lang::rascalcore::check::TypePalConfig;
@@ -53,17 +54,20 @@ set[Define] getDefinitions(str id, Key scope, set[IdRole] idRoles, TModel tm){
      } catch NoSuchKey(k):
             throw TypeUnavailable();
        catch NoKey(): {
-            println("getDefinitions: <id> in scope <scope> ==\> TypeUnavailable2");
+            //println("getDefinitions: <id> in scope <scope> ==\> TypeUnavailable2");
             throw TypeUnavailable();
        }
 }  
         
-tuple[list[Message], set[ADTSummary]] getADTSummaries(Key scope, TModel tm){ 
-    println("getADTSummaries: <scope>, <size(tm.definitions)> definitions");
-    tm.definitions = ( key : visit(tm.definitions[key]) { case AType t: auser(str name, list[AType] parameters) : { try { insert expandUserTypes(t, def.scope); } catch TypeUnavailable(): { println("Not expanded: <t> in (<key>: <def>)"); } } }
-                     | key <- tm.definitions, def := tm.definitions[key]); 
-    //tm.definitions = visit(tm.definitions) { case AType t: auser(str name, list[AType] parameters) : { try { insert expandUserTypes(t, scope); } catch TypeUnavailable(): { println("Not expanded: <t>"); } } };
-    usedADTs = {unset(t, "label") | loc k <- tm.facts, containedIn(k, scope), /AType t:aadt(str name, list[AType] parameters, sr) := tm.facts[k]};
+tuple[TModel, set[ADTSummary]] getADTSummaries(Key scope, TModel tm){ 
+    //println("getADTSummaries: <scope>, <size(tm.definitions)> definitions");
+    //iprintln(tm, lineLimit=10000);
+      
+    tm.defines = { visit(def) { case AType t: auser(str name, list[AType] parameters) : { try { insert expandUserTypes(t, def.scope); } catch TypeUnavailable(): { println("Not expanded: <t> in <def>"); } } }
+                 | Define def <- tm.defines
+                 }; 
+    tm.definitions = ( def.defined : def | Define def <- tm.defines);                
+    usedADTs = {unset(t, "label") | loc k <- tm.facts, /*containedIn(k, scope),*/ /AType t:aadt(str name, list[AType] parameters, sr) := tm.facts[k]};
     
    //println("usedADTs: <usedADTs>");
     
@@ -79,7 +83,7 @@ tuple[list[Message], set[ADTSummary]] getADTSummaries(Key scope, TModel tm){
 
             for(p <- uProductions){
                 msgs += validateProduction(p);
-            }  
+            }
 
             uIsStart = any(def <- defs, def.defInfo.isStart );
             
@@ -101,22 +105,28 @@ tuple[list[Message], set[ADTSummary]] getADTSummaries(Key scope, TModel tm){
          } catch TypeUnavailable(): println("<u.adtName> unavailable") ;
            catch AmbiguousDefinition(foundDefs): println("Ambiguous definition for <u.adtName>: <foundDefs>");
     }
-    return <msgs, range(name2summ)>;
+    tm.messages += msgs;
+    return <tm, range(name2summ)>;
 }
 
+bool isManualLayout(AProduction p) = (\tag("manual"()) in p.attributes);
+
 AGrammar getGrammar(set[ADTSummary] adtSummaries){
-
-
     allStarts = {};
     allLayouts = {};
+    allManualLayouts = {};
     definitions = ();
-    //PM. maybe also generate prod(Symbol::empty(),[],{})
+    //PM. maybe also generate prod(Symbol::empty(),[],{}) 
     for(s <- adtSummaries){
         if(s.syntaxRole != dataSyntax()){
             a = aadt(s.adtName, s.parameters, s.syntaxRole);
             definitions[a] = choice(a, s.productions);
             if(s.syntaxRole == layoutSyntax()){
-                allLayouts = {*allLayouts, a};
+                if(any(p <- s.productions, isManualLayout(p))){
+                   allManualLayouts += a;
+                } else {
+                    allLayouts = {*allLayouts, a};
+                }
             }
            
             if(s.isStart){
@@ -134,11 +144,12 @@ AGrammar getGrammar(set[ADTSummary] adtSummaries){
         defaultLayout = aadt("$default$", [], layoutSyntax());
         definitions += (defaultLayout : choice(defaultLayout, {prod(defaultLayout, [])}));
         g = grammar(allStarts, definitions);
-        g = layouts(g, defaultLayout, {});
+        g = layouts(g, defaultLayout, allManualLayouts);
+   
     } else if(size(allLayouts) == 1){
-        g = layouts(g, getOneFrom(allLayouts), {});
+        g = layouts(g, getOneFrom(allLayouts), allManualLayouts);
     } else {
         throw "Cannot yet handle multiple layout: <allLayouts>";
     }
-    return g;
+    return expandKeywords(g);
 }

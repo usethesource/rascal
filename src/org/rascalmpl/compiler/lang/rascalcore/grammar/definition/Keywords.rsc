@@ -8,19 +8,23 @@
 module lang::rascalcore::grammar::definition::Keywords
 
 import lang::rascalcore::grammar::definition::Grammar;
-//import ParseTree;
 import lang::rascalcore::check::AType;
 import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascalcore::grammar::definition::Productions;
 import IO;
+import Node;
 
 public AGrammar expandKeywords(AGrammar g) {
-  return visit(g) {
+  //println("expandKeywords"); iprintln(g, lineLimit=10000);
+  g1 = visit(g) {
     case conditional(sym, conds) => conditional(sym, expandKeywords(g, conds)) 
   };
+  //g1.rules = (n : g1.rules[n] | n <- g1.rules, n has syntaxRole ? (n.syntaxRole != keywordSyntax()) : true);
+  //println("leave expandKeywords");
+  return g1;
 }
 
-public set[ACondition] expandKeywords(AGrammar g, set[ACondition] conds) {
+private set[ACondition] expandKeywords(AGrammar g, set[ACondition] conds) {
   names = {};
   done = {};
   todo = conds;
@@ -29,10 +33,11 @@ public set[ACondition] expandKeywords(AGrammar g, set[ACondition] conds) {
     for (cond <- todo, !(cond in done)) {
       todo -= {cond};
       
-      if (cond has symbol, aadt(name,_,keywordSyntax()) := cond.symbol) {
+      if (cond has atype, aadt(name,_,keywordSyntax()) := cond.atype) {
         if (name notin names) {
         	names += {name};
-        	todo += {cond[symbol=s] | choice(_, set[AProduction] alts) := g.rules[cond.symbol], prod(_,[s]) <- alts};
+        //	println("cond = <cond>");
+        	todo += {cond[atype=s] | choice(_, set[AProduction] alts) := g.rules[unset(cond.atype, "id")], prod(_,[s]) <- alts};
       	}  
       } else {
         done += cond;
@@ -41,10 +46,4 @@ public set[ACondition] expandKeywords(AGrammar g, set[ACondition] conds) {
   }
   
   return done;  
-}
-
-public set[AProduction] getKeywords(AGrammar g) {
-  res= {g.rules[s] | s:aadt(_,_,keywordSyntax()) <- g.rules}; 
-  println("getKeywords: <res>");
-  return res;
 }
