@@ -519,7 +519,7 @@ void collect (current: (SyntaxDefinition) `lexical <Sym defined> = <Prod product
 }
 
 void collect (current: (SyntaxDefinition) `keyword <Sym defined> = <Prod production>;`, TBuilder tb){
-   //println("KEYWORD: <current>");
+    //println("KEYWORD: <current>");
     nonterminalType = defsym2AType(defined, keywordSyntax());
     declareSyntax(current, publicVis(), defined, nonterminalType, false, production, keywordId(), tb);
     collect(production, tb);

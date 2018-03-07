@@ -89,7 +89,7 @@ private default AProduction associativity(AType nt, just(Associativity a), AProd
 Validate (i.e., type check) a production.
 }
 list[Message] validateProduction(p: prod(AType def, list[AType] asymbols)){
-   println("validateProduction: <p>");
+   //println("validateProduction: <p>");
     if(isStartNonTerminalType(def)){
         def = getStartNonTerminalType(def);
     }
@@ -112,12 +112,13 @@ list[Message] validateProduction(p: prod(AType def, list[AType] asymbols)){
    
     if(!isEmpty(asymbols)){
         if(def.syntaxRole == keywordSyntax()){
-            msgs += 
-                for(t <- asymbols){
-                    if(lit(_) !:= t){
-                       append error("In keyword declaration only literals are allowed, found <fmt(t)>", p.src);
-                    }
-                }
+            ;// TODO: to be determined
+            //msgs += 
+            //    for(t <- asymbols){
+            //        if(lit(_) !:= t){
+            //           append error("In keyword declaration only literals are allowed, found <fmt(t)>", p.src);
+            //        }
+            //    }
         
         } else {
             msgs += requireNonLayout(asymbols[0], p.src, "at begin of production") + 

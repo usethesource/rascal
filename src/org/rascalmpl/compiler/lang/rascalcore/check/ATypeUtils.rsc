@@ -31,6 +31,8 @@ import lang::rascalcore::format::Escape;
 
 str unescape(str s) = replaceAll(s, "\\", "");
 
+AType removeLabels(AType t) = unsetRec(t, "label");
+
 AType normalizeType(AType s){
    return
     visit(s){

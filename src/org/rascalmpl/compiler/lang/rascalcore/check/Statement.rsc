@@ -837,7 +837,7 @@ AType computeFieldAssignableType(Statement current, AType receiverType, str fiel
         return receiverType; //anode([]);
     
     } else if(isLocType(receiverType) || isDateTimeType(receiverType)){
-        if(fieldName in fieldMap[receiverType]){
+        if(fieldName in fieldMap[removeLabels(receiverType)]){
             return receiverType;
         }
         reportError(current, "No field <fmt(fieldName)> exists on <fmt(receiverType)>");    
