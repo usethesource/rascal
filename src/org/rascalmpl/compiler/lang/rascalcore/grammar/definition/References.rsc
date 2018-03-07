@@ -12,12 +12,12 @@ import Node;
 import lang::rascalcore::grammar::definition::Symbols;
 
 AGrammar references(AGrammar g) {
-iprintln(g);
+
   return visit (g) {
       case reference(AType s, str name): {
-        if( ss := striprec(s), bprintln(ss), bprintln(g.rules[ss])
-           , ss in g.rules, bprintln("YEAH"), bprintln(g.rules[ss])
-           , /AProduction p:prod(t, _) := g.rules[ss] && bprintln(t) && t.label==name
+        if( ss := striprec(s)  
+           , ss in g.rules
+           , /AProduction p:prod(t, _) := g.rules[ss] &&  t.label==name
            , ss == striprec(t))
            insert p;
         }
