@@ -142,7 +142,7 @@ public class TermREPL {
                     String str = ((IString)result.get("result")).getValue();
                     // TODO: change the signature of the handler
                     if(!str.equals(""))
-                        output.put("text/plain", str);//text/html
+                        output.put("text/html", str);
                 }
                 else{
                     // Handle a Salix result
