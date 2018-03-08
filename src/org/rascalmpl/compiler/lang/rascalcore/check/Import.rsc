@@ -164,6 +164,7 @@ void saveModules(str qualifiedModuleName, PathConfig pcfg, TModel tm){
         extend_graph = {<unescape(f), unescape(t)> | <f, t> <- toSet(exts)};
     }
 
+   // Replace all getAType functions by their value
     defs = for(tup: <Key scope, str id, IdRole idRole, Key defined, DefInfo defInfo> <- tm.defines){
          if(id == "type" && idRole == constructorId()){  
             continue; // exclude builtin constructor for "type"
