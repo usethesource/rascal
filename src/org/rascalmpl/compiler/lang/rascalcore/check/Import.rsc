@@ -163,6 +163,39 @@ void saveModules(str qualifiedModuleName, PathConfig pcfg, TModel tm){
     if(tm.store[key_extend_graph]? && lrel[str,str] exts := tm.store[key_extend_graph]){
         extend_graph = {<unescape(f), unescape(t)> | <f, t> <- toSet(exts)};
     }
+
+    defs = for(tup: <Key scope, str id, IdRole idRole, Key defined, DefInfo defInfo> <- tm.defines){
+         if(id == "type" && idRole == constructorId()){  
+            continue; // exclude builtin constructor for "type"
+         } else {
+             if((defInfo has getAType || defInfo has getATypes)){
+               try {                   
+                   dt = defType(tm.facts[defined]);
+                   if(defInfo.vis?) dt.vis = defInfo.vis;
+                   if(defInfo.tags?) dt.tags = defInfo.tags;
+                   if(defInfo.constructorFields?) dt.constructorFields = defInfo.constructorFields;
+                   if(defInfo.productions?) dt.productions = defInfo.productions;
+                   tup.defInfo = dt;
+                   //println("Changed <defInfo> ==\> <dt>");
+               } catch NoSuchKey(k): {
+                //println("ignore: <tup>");
+                continue;
+               }
+           } else if(defInfo has atype){
+              if(tvar(l) := defInfo.atype) {
+                 try {
+                    tup.defInfo.atype = tm.facts[l];
+                 } catch NoSuchKey(v):{
+                    println("*** <v> is undefined");
+                    tup.defInfo.atype = avalue();
+                 }
+               }
+           }
+           append tup;
+       }
+    }
+   
+    tm.defines = toSet(defs);
     moduleScopes = getModuleScopes(tm);
     
     for(m <- qualifiedModuleName + {unescape(tbs) | tbs <- toBeSaved}){
@@ -211,46 +244,19 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         // Filter model for current module and replace functions in defType by their defined type
         
         defs = for(tup: <Key scope, str id, IdRole idRole, Key defined, DefInfo defInfo> <- tm.defines){
-               if(scope == |global-scope:///| && defined.path in filteredModuleScopePaths || 
-                  scope in filteredModuleScopes || 
-                  (scope.path == mscope.path && idRole in roles)){
-                 if(id == "type" && idRole == constructorId()){  
-                    continue; // exclude builtin constructor for "type"
-                 } else {
-                     if((defInfo has getAType || defInfo has getATypes)){
-                       try {                   
-                           dt = defType(tm.facts[defined]);
-                           if(defInfo.vis?) dt.vis = defInfo.vis;
-                           if(defInfo.tags?) dt.tags = defInfo.tags;
-                           if(defInfo.constructorFields?) dt.constructorFields = defInfo.constructorFields;
-                           if(defInfo.productions?) dt.productions = defInfo.productions;
-                           tup.defInfo = dt;
-                           //println("Changed <defInfo> ==\> <dt>");
-                       } catch NoSuchKey(k): {
-                        //println("ignore: <tup>");
-                        continue;
-                       }
-                   } else if(defInfo has atype){
-                      if(tvar(l) := defInfo.atype) {
-                         try {
-                            tup.defInfo.atype = tm.facts[l];
-                         } catch NoSuchKey(v):{
-                            println("*** <v> is undefined");
-                            tup.defInfo.atype = avalue();
-                         }
-                       }
-                   }
-               
-                   if(scope in extendedModuleScopes){
-                    tup.scope = mscope;
-                   }
-                   //tup.scope.fragment="";
-                   //tup.defined.fragment="";  
-                   append tup;
-               }
+                   if(scope == |global-scope:///| && defined.path in filteredModuleScopePaths || 
+                      scope in filteredModuleScopes || 
+                      (scope.path == mscope.path && idRole in roles)){
+                          
+                      if(scope in extendedModuleScopes){
+                         tup.scope = mscope;
+                      }
+                      //tup.scope.fragment="";
+                      //tup.defined.fragment="";  
+                      append tup;
+                  }
+               };
         
-           } //else if(scope.path == mscope.path && idRole != variableId()) println("remove: <scope.path>: <tup>");
-        };
         println("defines: <size(tm.defines)> ==\> <size(defs)>");
         m1.defines = toSet(defs);
         m1 = visit(m1) {case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""]; };
