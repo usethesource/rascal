@@ -7,6 +7,8 @@ import analysis::typepal::ScopeGraph;
 import analysis::typepal::TypePalConfig;
 
 import lang::rascalcore::check::AType;
+import lang::rascalcore::check::ATypeUtils;
+
 import List;
 import Set;
 import String;
@@ -232,6 +234,7 @@ TypePalConfig rascalTypePalConfig(bool classicReifier = false)
         isAcceptablePath              = isAcceptablePath,
         
         mayOverload                   = myMayOverload,
+        expandPreAType                = lang::rascalcore::check::ATypeUtils::expandPreAType,
         
         classicReifier                = classicReifier
         
