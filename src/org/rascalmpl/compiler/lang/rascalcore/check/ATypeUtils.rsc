@@ -41,6 +41,14 @@ AType normalizeType(AType s){
    }
 }
 
+//AType expandUserTypes(AType t, Key scope){
+//    return t;
+//}
+
+AType expandPreAType(AType t, Key scope){
+    return expandUserTypes(t, scope);
+}
+
 @memo
 AType expandUserTypes(AType t, Key scope){
     if(overloadedAType(rel[Key, IdRole, AType] overloads) := t){

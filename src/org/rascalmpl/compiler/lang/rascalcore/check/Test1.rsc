@@ -1,3 +1,6 @@
 module lang::rascalcore::check::Test1
 
-import lang::rascal::\syntax::Rascal;
+int n = 0;
+data D = d(int n);
+
+value f(D d) = d.n;
