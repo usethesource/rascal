@@ -1166,9 +1166,10 @@ void collect(current: (Expression) `<Expression e> [ <OptionalExpression ofirst>
 void collect(current: (Expression) `<Expression expression> . <Name field>`, TBuilder tb){
     scope = tb.getScope();
     
-    tb.calculate("field access", current, [expression],
+    ppname = prettyPrintQName(convertName(field));
+    tb.calculate("field <fmt(ppname)>", current, [expression],
         AType(){ 
-            return computeFieldType(current, getType(expression), prettyPrintQName(convertName(field)), scope, tb); });
+            return computeFieldType(current, getType(expression), ppname, scope, tb); });
     collect(expression, tb);
 }
 
@@ -1377,8 +1378,9 @@ AType filterFieldType(str fieldName, AType fieldType, set[Define] declaredInfo, 
 void collect(current:(Expression) `<Expression expression> [ <Name field> = <Expression repl> ]`, TBuilder tb){
     scope = tb.getScope();
     //tb.use(field, {fieldId()});
-    tb.calculate("field update", current, [expression, repl],
-        AType(){ fieldType = computeFieldType(current, getType(expression), prettyPrintQName(convertName(field)), scope, tb);
+    ppname = prettyPrintQName(convertName(field));
+    tb.calculate("field update of <fmt(ppname)>", current, [expression, repl],
+        AType(){ fieldType = computeFieldType(current, getType(expression), ppname, scope, tb);
                  replType = getType(repl);
                  subtype(replType, fieldType) || reportError(current, "Cannot assign type <fmt(replType)> into field of type <fmt(fieldType)>");
                  return getType(expression);
