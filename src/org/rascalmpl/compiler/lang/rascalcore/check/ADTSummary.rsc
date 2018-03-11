@@ -148,8 +148,9 @@ AGrammar getGrammar(set[ADTSummary] adtSummaries){
    
     } else if(size(allLayouts) == 1){
         g = layouts(g, getOneFrom(allLayouts), allManualLayouts);
-    } else {
-        throw "Cannot yet handle multiple layout: <allLayouts>";
+    } else { //TODO: resolve multiple layout
+        println("$$$$$$ WARNING: Cannot yet handle multiple layout: <allLayouts>");
+        //throw "Cannot yet handle multiple layout: <allLayouts>";
     }
     return expandKeywords(g);
 }
