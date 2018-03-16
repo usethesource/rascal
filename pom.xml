@@ -173,7 +173,7 @@
                             <classpathScope>compile</classpathScope>
                             <workingDirectory>target/classes/</workingDirectory>
                             <arguments>
-                                <argument>-Xmx2G</argument>
+                                <argument>-Xmx${rascal.boot.memory}G</argument>
                                 <argument>-Dfile.encoding=UTF-8</argument>
                                 <argument>-cp</argument>
                                 <classpath />

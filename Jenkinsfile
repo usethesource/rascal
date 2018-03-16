@@ -12,7 +12,7 @@ node {
         }
 
         stage('Generate Tutor') {
-          sh "mvn -Drascal.courses=--buildCourses compile"
+          sh "mvn -Drascal.boot.memory=4 -Drascal.courses=--buildCourses compile"
         }
 
         stage('Run Tests') {
