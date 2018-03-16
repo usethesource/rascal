@@ -42,9 +42,9 @@
 		<exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
 		<rascal.boot.version>latest</rascal.boot.version>
 		<rascal.boot>--download</rascal.boot>
-		<rascal.boot.memory>2</rascal.courses>
+		<rascal.boot.memory>2</rascal.boot.memory>
 		<rascal.courses>--skipCourses</rascal.courses>
-        <rascal.test.memory>2</rascal.courses>
+        <rascal.test.memory>2</rascal.test.memory>
 	</properties>
 
 	<build>
