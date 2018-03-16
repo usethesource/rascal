@@ -100,7 +100,6 @@ public class TermREPL {
             ctx.interrupt();
         }
         
-        
         @Override
         public void stackTraceRequested() {
             StackTrace trace = ctx.getStackTrace();
@@ -141,8 +140,12 @@ public class TermREPL {
                 if(result.has("result") && result.get("result") != null){
                     String str = ((IString)result.get("result")).getValue();
                     // TODO: change the signature of the handler
-                    if(!str.equals(""))
-                        output.put("text/html", str);
+                    if(!str.equals("")){
+                        if(str.startsWith("Error:"))
+                            metadata.put("ERROR-LOG", "<div class = \"output_stderr\">" + str.substring("Error:".length(), str.length()) + "</div>");
+                        else
+                            output.put("text/html", "<div>" + str + "</div>");
+                    }
                 }
                 else{
                     // Handle a Salix result
@@ -154,9 +157,12 @@ public class TermREPL {
                     this.scopeId++;
                     
                 }
-                // FIXME: Fix it, CommandResult is no longer a tuple 
-                if(result.has("messages")){
-                    IList messages = (IList) result.get("messages");
+                // FIXME: Fix it, CommandResult is no longer a tuple
+//                IWithKeywordParameters<? extends IConstructor> rr = result.asWithKeywordParameters();
+//                IValue pp = rr.getParameter("messages");
+//                rr.hasParameter("messages");
+                if(result.asWithKeywordParameters().hasParameter("messages")){
+                    IList messages = (IList) result.asWithKeywordParameters().getParameter("messages");
                     for (IValue v: messages) {
                         IConstructor msg = (IConstructor) v;
                         if(msg.getName().equals("error"))
