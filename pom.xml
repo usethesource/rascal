@@ -44,6 +44,7 @@
 		<rascal.boot>--download</rascal.boot>
 		<rascal.boot.memory>2</rascal.courses>
 		<rascal.courses>--skipCourses</rascal.courses>
+        <rascal.test.memory>2</rascal.courses>
 	</properties>
 
 	<build>
@@ -217,7 +218,7 @@
 				<configuration>
 					<argLine>
 						-ea
-						-Xmx2g
+                        -Xmx${rascal.test.memory}G
 						-Xss128m
 						-Dfile.encoding=UTF-8
                         ${argLine}
