@@ -42,6 +42,7 @@
 		<exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
 		<rascal.boot.version>latest</rascal.boot.version>
 		<rascal.boot>--download</rascal.boot>
+		<rascal.boot.memory>2</rascal.courses>
 		<rascal.courses>--skipCourses</rascal.courses>
 	</properties>
 
@@ -124,6 +125,8 @@
 								<argument>${project.basedir}/src</argument>
 								<argument>${project.build.directory}/classes</argument>
 								<argument>${project.basedir}/bootstrap</argument>
+                                <argument>--maxMemory</argument>
+                                <argument>${rascal.boot.memory}</argument>
 								<argument>--clean</argument>
 								<argument>${rascal.boot}</argument>
 							</arguments>

@@ -8,7 +8,7 @@ node {
     
     withMaven(maven: 'M3', jdk: 'jdk-oracle-8', options: [artifactsPublisher(disabled: true), junitPublisher(disabled: false)] ) {
         stage('Compile & Bootstrap') {
-          sh "mvn -Drascal.boot=--validating clean compile"
+          sh "mvn -Drascal.boot=--validating -Drascal.boot.memory=4 clean compile"
         }
 
         stage('Generate Tutor') {
