@@ -317,7 +317,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
             ISourceLocation binary = null;
             RVMCore rvmCore = null;
             
-            if (mod.getAnnotations().stream().anyMatch(t -> t instanceof CompilationFailed)) {
+            if (mod.getAnnotation(CompilationFailed.class) != null) {
                 notifier.fireTestFailure(new Failure(desc, new IllegalArgumentException(mod.getDisplayName() + " had compilation errors")));
                 continue;
             }
