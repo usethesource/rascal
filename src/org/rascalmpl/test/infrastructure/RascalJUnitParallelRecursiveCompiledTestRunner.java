@@ -61,8 +61,9 @@ public class RascalJUnitParallelRecursiveCompiledTestRunner extends Runner {
     private final String rootName;
     private Description rootDesc = null;
 
-    private final Deque<Description> descriptions = new ConcurrentLinkedDeque<>();
     private final Deque<String> modules = new ConcurrentLinkedDeque<>();
+    private final Deque<Description> descriptionsGenerated = new ConcurrentLinkedDeque<>();
+    private final Deque<Description> workList = new ConcurrentLinkedDeque<>();
     private final Deque<Consumer<RunNotifier>> results = new ConcurrentLinkedDeque<>();
 
     private final Semaphore importsCompleted = new Semaphore(0);
@@ -95,16 +96,52 @@ public class RascalJUnitParallelRecursiveCompiledTestRunner extends Runner {
             fillModuleWorkList();
             long stop = System.nanoTime();
             reportTime("Iterating modules", start, stop);
-            startModuleTesters();
+            startModuleImporters();
 
             start = System.nanoTime();
             rootDesc = Description.createSuiteDescription(rootName);
             processIncomingModuleDescriptions(rootDesc);
             stop = System.nanoTime();
             reportTime("Importing/typececking modules, looking for tests", start, stop);
-            assert descriptions.isEmpty();
+            assert descriptionsGenerated.isEmpty();
         }
         return rootDesc;
+    }
+
+    @Override
+    public void run(RunNotifier notifier) {
+        assert rootDesc != null;
+        notifier.fireTestRunStarted(rootDesc);
+        long start = System.nanoTime();
+        runTests(notifier);
+        long stop = System.nanoTime();
+        reportTime("Testing modules", start, stop);
+        notifier.fireTestRunFinished(new Result());
+    }
+
+    private void runTests(RunNotifier notifier) {
+        startModuleTesters();
+        try {
+            waitForRunning.await();
+        }
+        catch (InterruptedException | BrokenBarrierException e1) {
+            throw new RuntimeException(e1);
+        }
+        int completed = 0;
+        while (completed < NUMBER_OF_WORKERS || !results.isEmpty()) {
+            try {
+                if (workersCompleted.tryAcquire(10, TimeUnit.MILLISECONDS)) {
+                    completed++;
+                }
+            }
+            catch (InterruptedException e) {
+            }
+            Consumer<RunNotifier> newResult;
+            while ((newResult = results.poll()) != null) {
+                newResult.accept(notifier);
+            }
+        }
+        assert results.isEmpty();
     }
 
     private static void reportTime(String job, long start, long stop) {
@@ -114,7 +151,8 @@ public class RascalJUnitParallelRecursiveCompiledTestRunner extends Runner {
 
     private void processIncomingModuleDescriptions(Description rootDesc) {
         int completed = 0;
-        while (completed < NUMBER_OF_WORKERS || !descriptions.isEmpty()) {
+        List<Description> received = new ArrayList<>();
+        while (completed < NUMBER_OF_WORKERS || !descriptionsGenerated.isEmpty()) {
             try {
                 if (importsCompleted.tryAcquire(10, TimeUnit.MILLISECONDS)) {
                     completed++;
@@ -124,15 +162,23 @@ public class RascalJUnitParallelRecursiveCompiledTestRunner extends Runner {
             }
             // consume stuff in the current queue
             Description newDescription;
-            while ((newDescription = descriptions.poll()) != null) {
+            while ((newDescription = descriptionsGenerated.poll()) != null) {
                 rootDesc.addChild(newDescription);
+                received.add(newDescription);
             }
         }
+        Collections.shuffle(received);
+        workList.addAll(received);
     }
 
+    private void startModuleImporters() {
+        for (int i = 0; i < NUMBER_OF_WORKERS; i++) {
+            new ModuleImporter("JUnit Rascal Compiled Importer" + (i + 1)).start();
+        }
+    }
     private void startModuleTesters() {
         for (int i = 0; i < NUMBER_OF_WORKERS; i++) {
-            new ModuleTester("JUnit Rascal Compiled Runner" + (i + 1)).start();
+            new ModuleTester("JUnit Rascal Compiled Runner " + (i + 1)).start();
         }
         
     }
@@ -158,11 +204,10 @@ public class RascalJUnitParallelRecursiveCompiledTestRunner extends Runner {
         }
     }
 
-    public class ModuleTester extends Thread {
+    public class ModuleImporter extends Thread {
         private IKernel kernel;
 
-        private final List<Description> testModules = new ArrayList<>();
-        public ModuleTester(String name) {
+        public ModuleImporter(String name) {
             super(name);
         }
         
@@ -170,9 +215,6 @@ public class RascalJUnitParallelRecursiveCompiledTestRunner extends Runner {
         public void run() {
             initializeKernel();
             processModules();
-            kernel = null; // no need for the kernel after compiling everything, save memory
-            System.gc();
-            runTests();
         }
 
         
@@ -185,8 +227,7 @@ public class RascalJUnitParallelRecursiveCompiledTestRunner extends Runner {
                     try {
                         Description modDesc = RascalJUnitCompiledTestRunner.createModuleDescription(resolver, qualifiedName, kernel, pcfg);
                         if (modDesc != null) {
-                            descriptions.add(modDesc);
-                            testModules.add(modDesc);
+                            descriptionsGenerated.add(modDesc);
                             if (modDesc.getAnnotation(CompilationFailed.class) == null) {
                                 testsPerModule.put(qualifiedName, modDesc.getChildren().size());
                             }
@@ -196,9 +237,6 @@ public class RascalJUnitParallelRecursiveCompiledTestRunner extends Runner {
                         System.err.println("Error creating module desc for " + qualifiedName);
                     }
                 }
-
-                // let's shuffle them
-                Collections.shuffle(testModules); 
             }
             catch (IOException e) {
                 throw new RuntimeException(e);
@@ -208,10 +246,38 @@ public class RascalJUnitParallelRecursiveCompiledTestRunner extends Runner {
             }
         }
 
-        private void runTests() {
+
+        private void initializeKernel() {
+            try {
+                // kernel loading is not thread safe, yet
+                synchronized (IKernel.class) {
+                    kernel = Java2Rascal.Builder.bridge(VF, new PathConfig(), IKernel.class)
+                        .trace(false)
+                        .profile(false)
+                        .verbose(false)
+                        .build();
+                }
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }  
+
+    }
+
+    private class ModuleTester extends Thread {
+
+        public ModuleTester(String name) {
+            super(name);
+        }
+        
+        @Override
+        public void run() {
             try {
                 waitForRunning.await();
-                for (Description mod: testModules) {
+
+                RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(pcfg).build();
+                Description mod;
+                while ((mod = workList.poll()) != null) {
                     long start = System.nanoTime();
                     // START HERE!
 
@@ -221,7 +287,6 @@ public class RascalJUnitParallelRecursiveCompiledTestRunner extends Runner {
                         continue;
                     }
 
-                    RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(pcfg).build();
                     ISourceLocation binary = null;
                     RVMCore rvmCore = null;
 
@@ -266,24 +331,7 @@ public class RascalJUnitParallelRecursiveCompiledTestRunner extends Runner {
                 workersCompleted.release();
             }
         }
-
-        private void initializeKernel() {
-            try {
-                // kernel loading is not thread safe, yet
-                synchronized (IKernel.class) {
-                    kernel = Java2Rascal.Builder.bridge(VF, new PathConfig(), IKernel.class)
-                        .trace(false)
-                        .profile(false)
-                        .verbose(false)
-                        .build();
-                }
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }  
-
     }
-
 
     @Override
     public int testCount(){
@@ -291,40 +339,6 @@ public class RascalJUnitParallelRecursiveCompiledTestRunner extends Runner {
         return testsPerModule.values().stream().mapToInt(i -> i).sum();
     }
 
-    @Override
-    public void run(RunNotifier notifier) {
-        assert rootDesc != null;
-        notifier.fireTestRunStarted(rootDesc);
-        long start = System.nanoTime();
-        runTests(notifier);
-        long stop = System.nanoTime();
-        reportTime("Testing modules", start, stop);
-        notifier.fireTestRunFinished(new Result());
-    }
-
-    private void runTests(RunNotifier notifier) {
-        try {
-            waitForRunning.await();
-        }
-        catch (InterruptedException | BrokenBarrierException e1) {
-            throw new RuntimeException(e1);
-        }
-        int completed = 0;
-        while (completed < NUMBER_OF_WORKERS || !results.isEmpty()) {
-            try {
-                if (workersCompleted.tryAcquire(10, TimeUnit.MILLISECONDS)) {
-                    completed++;
-                }
-            }
-            catch (InterruptedException e) {
-            }
-            Consumer<RunNotifier> newResult;
-            while ((newResult = results.poll()) != null) {
-                newResult.accept(notifier);
-            }
-        }
-        assert results.isEmpty();
-    }
 
 
     private final class Listener implements ITestResultListener {
