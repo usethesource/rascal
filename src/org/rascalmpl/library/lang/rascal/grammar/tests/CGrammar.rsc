@@ -5,7 +5,6 @@ import Grammar;
 import ParseTree;
 import String;
 import lang::rascal::grammar::ParserGenerator;
-import lang::rascal::grammar::Lookahead;
 import util::Benchmark;
 import util::Reflective;
 import ValueIO;
