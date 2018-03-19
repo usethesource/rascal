@@ -13,7 +13,6 @@ package org.rascalmpl.test.infrastructure;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +23,7 @@ import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.junit.runner.Description;
 import org.junit.runner.Result;
@@ -50,7 +50,7 @@ import io.usethesource.vallang.IValueFactory;
 
 public class RascalJUnitParallelRecursiveCompiledTestRunner extends Runner {
 
-    private static final int NUMBER_OF_WORKERS = Math.max(1, Math.min(4,Math.min(Runtime.getRuntime().availableProcessors() - 1,  (int)(Runtime.getRuntime().maxMemory()/ 1024*1024*450))));
+    private static final int NUMBER_OF_WORKERS = Math.max(1, Math.min(4, Math.min(Runtime.getRuntime().availableProcessors() - 1,  (int)(Runtime.getRuntime().maxMemory()/ 1024*1024*450))));
     private static final IValueFactory VF = IRascalValueFactory.getInstance();
 
     private final PathConfig pcfg;
@@ -61,9 +61,9 @@ public class RascalJUnitParallelRecursiveCompiledTestRunner extends Runner {
     private final String rootName;
     private Description rootDesc = null;
 
-    private final Deque<String> modules = new ConcurrentLinkedDeque<>();
+    private final Deque<List<String>> modulesWorkList = new ConcurrentLinkedDeque<>();
     private final Deque<Description> descriptionsGenerated = new ConcurrentLinkedDeque<>();
-    private final Deque<Description> workList = new ConcurrentLinkedDeque<>();
+    private final Deque<Description> descriptionWorkList = new ConcurrentLinkedDeque<>();
     private final Deque<Consumer<RunNotifier>> results = new ConcurrentLinkedDeque<>();
 
     private final Semaphore importsCompleted = new Semaphore(0);
@@ -151,7 +151,6 @@ public class RascalJUnitParallelRecursiveCompiledTestRunner extends Runner {
 
     private void processIncomingModuleDescriptions(Description rootDesc) {
         int completed = 0;
-        List<Description> received = new ArrayList<>();
         while (completed < NUMBER_OF_WORKERS || !descriptionsGenerated.isEmpty()) {
             try {
                 if (importsCompleted.tryAcquire(10, TimeUnit.MILLISECONDS)) {
@@ -164,11 +163,9 @@ public class RascalJUnitParallelRecursiveCompiledTestRunner extends Runner {
             Description newDescription;
             while ((newDescription = descriptionsGenerated.poll()) != null) {
                 rootDesc.addChild(newDescription);
-                received.add(newDescription);
+                descriptionWorkList.addFirst(newDescription); // the later we get a description, the earlier we want to execute it
             }
         }
-        Collections.shuffle(received);
-        workList.addAll(received);
     }
 
     private void startModuleImporters() {
@@ -184,10 +181,11 @@ public class RascalJUnitParallelRecursiveCompiledTestRunner extends Runner {
     }
 
     private void fillModuleWorkList() {
+        List<String> allModules = new ArrayList<>();
         for (String prefix: prefixes) {
             String prefixLoc = "/" + prefix.replaceAll("::", "/");
-            List<String> newModules = new ArrayList<>();
 
+            List<String> newModules = new ArrayList<>();
             for (IValue loc : pcfg.getSrcs()) {
                 try {
                     RascalJUnitCompiledTestRunner.getRecursiveModuleList(URIUtil.getChildLocation((ISourceLocation) loc,  prefixLoc), newModules);
@@ -195,13 +193,23 @@ public class RascalJUnitParallelRecursiveCompiledTestRunner extends Runner {
                 catch (IOException  e) {
                 }
             }
-            
-            Collections.shuffle(newModules); // make sure to spread out the work a bit, so that the workers are not always checking out the same directory
-            
             newModules.stream()
                 .map(m -> ((prefix.isEmpty() ? "" : prefix + "::") + m))
-                .forEach(m -> modules.add(m)); ;
+                .forEach(m -> allModules.add(m));
         }
+        
+        // group by module prefix to get better typechecking locality
+        allModules.stream()
+            .collect(Collectors.groupingBy(RascalJUnitParallelRecursiveCompiledTestRunner::getModulePrefix))
+            .forEach((k, v) -> modulesWorkList.push(v));
+    }
+    
+    private static String getModulePrefix(String mod) {
+        int offset = mod.lastIndexOf("::");
+        if (offset > 0) {
+            return mod.substring(0, offset);
+        }
+        return "";
     }
 
     public class ModuleImporter extends Thread {
@@ -222,19 +230,30 @@ public class RascalJUnitParallelRecursiveCompiledTestRunner extends Runner {
             try {
                 URIResolverRegistry resolver = URIResolverRegistry.getInstance();
 
-                String qualifiedName;
-                while ((qualifiedName = modules.poll()) != null) {
-                    try {
-                        Description modDesc = RascalJUnitCompiledTestRunner.createModuleDescription(resolver, qualifiedName, kernel, pcfg);
-                        if (modDesc != null) {
-                            descriptionsGenerated.add(modDesc);
-                            if (modDesc.getAnnotation(CompilationFailed.class) == null) {
-                                testsPerModule.put(qualifiedName, modDesc.getChildren().size());
+                List<String> moduleList;
+                while ((moduleList = modulesWorkList.poll()) != null) {
+                    for (String qualifiedName : moduleList) {
+                        try {
+                            setName("JUnit Rascal Compiled Importer: " + qualifiedName);
+                            long start = System.nanoTime();
+                            Description modDesc = RascalJUnitCompiledTestRunner.createModuleDescription(resolver, qualifiedName, kernel, pcfg);
+                            if (modDesc != null) {
+                                descriptionsGenerated.add(modDesc);
+                                if (modDesc.getAnnotation(CompilationFailed.class) == null) {
+                                    testsPerModule.put(qualifiedName, modDesc.getChildren().size());
+                                }
+                            }
+                            long stop = System.nanoTime();
+                            long duration = (stop - start) / 1000_000;
+                            if (duration > 10_000) {
+                                // longer that 10s
+                                System.err.println("Type checking module " + qualifiedName + " took: " + duration + "ms");
+                                System.err.flush();
                             }
                         }
-                    }
-                    catch (URISyntaxException e) {
-                        System.err.println("Error creating module desc for " + qualifiedName);
+                        catch (URISyntaxException e) {
+                            System.err.println("Error creating module desc for " + qualifiedName);
+                        }
                     }
                 }
             }
@@ -277,10 +296,11 @@ public class RascalJUnitParallelRecursiveCompiledTestRunner extends Runner {
 
                 RascalExecutionContext rex = RascalExecutionContextBuilder.normalContext(pcfg).build();
                 Description mod;
-                while ((mod = workList.poll()) != null) {
+                while ((mod = descriptionWorkList.poll()) != null) {
                     long start = System.nanoTime();
                     // START HERE!
 
+                    setName("JUnit Rascal Compiled Runner: " + mod.getDisplayName());
                     if (mod.getAnnotation(CompilationFailed.class) != null) {
                         Failure failed = new Failure(mod, new IllegalArgumentException(mod.getDisplayName() + " had compilation errors"));
                         results.push(notifier -> notifier.fireTestFailure(failed));
