@@ -1,7 +1,7 @@
 module lang::rascalcore::check::Expression
  
 extend analysis::typepal::TypePal;
-extend analysis::typepal::ExtractTModel;
+extend analysis::typepal::Collector;
 
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;

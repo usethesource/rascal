@@ -17,7 +17,7 @@ import IO;
 import Node;
 
 import analysis::typepal::AType;
-extend analysis::typepal::ExtractTModel;
+extend analysis::typepal::Collector;
 import lang::rascalcore::check::AType;
 
 import lang::rascalcore::check::ATypeUtils;
