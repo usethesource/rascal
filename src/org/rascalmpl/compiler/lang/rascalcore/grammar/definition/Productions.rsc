@@ -96,9 +96,9 @@ list[Message] validateProduction(p: prod(AType def, list[AType] asymbols)){
     
     msgs = [];
     visit(p){
-        case \delete(t):
+        case \delete(AType t):
             if(lit(_) !:= t  && (t has syntaxRole && t.syntaxRole != keywordSyntax())) { 
-                msgs += [ error("Exclude `\\` requires keywords as right argument, found <fmt(t)>", p.src) ]; 
+                msgs += [ error("Exclude `\\` requires keywords as right argument, found <prettyPrintAType(t)>", p.src) ]; 
             }
         case \seq(list[AType] symbols):
             forbidConsecutiveLayout(symbols, p.src);
@@ -133,7 +133,7 @@ list[Message] validateProduction(AProduction p)
     = [];
 
 list[Message] requireNonLayout(AType u, loc src, str msg)
-    = isLayoutType(u) ? [ error("Layout type <fmt(u)> not allowed <msg>", src) ] : [];
+    = isLayoutType(u) ? [ error("Layout type <prettyPrintAType(u)> not allowed <msg>", src) ] : [];
 
 list[Message] validateSeparators(list[AType] separators, loc src){
     msgs = [];
@@ -145,7 +145,7 @@ list[Message] validateSeparators(list[AType] separators, loc src){
 list[Message] forbidConsecutiveLayout(list[AType] symbols, loc src){
     msgs = [];
     if([*_,t1, t2,*_] := symbols, isLayoutType(t1), isLayoutType(t2)){
-       msgs += [error("Consecutive layout types <fmt(t1)> and <fmt(t2)> not allowed", src)];
+       msgs += [error("Consecutive layout types <prettyPrintAType(t1)> and <prettyPrintAType(t2)> not allowed", src)];
     }
     return msgs;
 }

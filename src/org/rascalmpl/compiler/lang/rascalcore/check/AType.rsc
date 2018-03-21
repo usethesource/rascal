@@ -48,13 +48,13 @@ data AType (str label = "")
      ;
      
 @memo
-AType overloadedAType(rel[Key, IdRole, AType] overloads){
+AType overloadedAType(rel[loc, IdRole, AType] overloads){
     topIf:
-    if(all(<Key k, IdRole idr, AType t> <- overloads, aadt(adtName, params, syntaxRole) := t)){
+    if(all(<loc k, IdRole idr, AType t> <- overloads, aadt(adtName, params, syntaxRole) := t)){
       str adtName = "";
       list[AType] adtParams = [];
       syntaxRoles = {};
-      for(<Key k, IdRole idr, AType t> <- overloads, aadt(adtName1, params1, syntaxRole1) := t){
+      for(<loc k, IdRole idr, AType t> <- overloads, aadt(adtName1, params1, syntaxRole1) := t){
         if(!isEmpty(adtName) && adtName != adtName1) fail overloadedAType; // overloading of different ADTs.
         adtName = adtName1;
         adtParams = params1;    // TODO take care of different parameter names

@@ -34,36 +34,36 @@ list[&T <: node ] unsetRec(list[&T <: node] args) = [unsetRec(a) | a <- args];
 
 // A copy of getDefinitions but with extra TModel argument
 // TODO: reconsider this
-set[Define] getDefinitions(str id, Key scope, set[IdRole] idRoles, TModel tm){  
-    try {
-        foundDefs = lookupFun(tm, use(id, anonymousOccurrence, scope, idRoles));
-        if({def} := foundDefs){
-           return {tm.definitions[def]};
-        } else {
-          if(mayOverloadFun(foundDefs, tm.definitions)){
-            return {tm.definitions[def] | def <- foundDefs};
-          } else {
-            // If only overloaded due to different time stamp, use most recent.
-            <ok, def> = findMostRecentDef(foundDefs);
-            if(ok){        
-                return {extractedTModel.definitions[def]};
-            }
-               throw AmbiguousDefinition(foundDefs);
-          }
-        }
-     } catch NoSuchKey(k):
-            throw TypeUnavailable();
-       catch NoKey(): {
-            //println("getDefinitions: <id> in scope <scope> ==\> TypeUnavailable2");
-            throw TypeUnavailable();
-       }
-}  
+//set[Define] getDefinitions(str id, loc scope, set[IdRole] idRoles, TModel tm){  
+//    try {
+//        foundDefs = lookupWide(tm, use(id, anonymousOccurrence, scope, idRoles));
+//        if({def} := foundDefs){
+//           return {tm.definitions[def]};
+//        } else {
+//          if(myMayOverloadFun(foundDefs, tm.definitions)){
+//            return {tm.definitions[def] | def <- foundDefs};
+//          } else {
+//            // If only overloaded due to different time stamp, use most recent.
+//            <ok, def> = findMostRecentDef(foundDefs);
+//            if(ok){        
+//                return {tm.definitions[def]};
+//            }
+//               throw AmbiguousDefinition(foundDefs);
+//          }
+//        }
+//     } catch NoSuchKey(k):
+//            throw TypeUnavailable();
+//       catch NoBinding(): {
+//            //println("getDefinitions: <id> in scope <scope> ==\> TypeUnavailable2");
+//            throw TypeUnavailable();
+//       }
+//}  
         
-tuple[TModel, set[ADTSummary]] getADTSummaries(Key scope, TModel tm){ 
+tuple[TModel, set[ADTSummary]] getADTSummaries(loc scope, TModel tm, Solver s){ 
     //println("getADTSummaries: <scope>, <size(tm.definitions)> definitions");
     //iprintln(tm, lineLimit=10000);
       
-    tm.defines = { visit(def) { case AType t: auser(str name, list[AType] parameters) : { try { insert expandUserTypes(t, def.scope); } catch TypeUnavailable(): { println("Not expanded: <t> in <def>"); } } }
+    tm.defines = { visit(def) { case AType t: auser(str name, list[AType] parameters) : { try { insert expandUserTypes(t, def.scope, s); } catch TypeUnavailable(): { println("Not expanded: <t> in <def>"); } } }
                  | Define def <- tm.defines
                  }; 
     tm.definitions = ( def.defined : def | Define def <- tm.defines);                
@@ -76,7 +76,7 @@ tuple[TModel, set[ADTSummary]] getADTSummaries(Key scope, TModel tm){
     allStarts = {};
     for(u <- usedADTs){
         try {
-            defs = getDefinitions(u.adtName, scope, dataOrSyntaxIds, tm);
+            defs = s.getDefinitions(u.adtName, scope, dataOrSyntaxIds);
             uConstructors = {*def.defInfo.constructors | def <- defs};           
             uCommonKeywordFields = {*def.defInfo.commonKeywordFields | def <- defs};  
             uProductions = {*def.defInfo.productions | def <- defs};
