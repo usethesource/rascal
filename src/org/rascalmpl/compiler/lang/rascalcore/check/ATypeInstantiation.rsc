@@ -20,7 +20,7 @@ import lang::rascalcore::check::ATypeExceptions;
  
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
-import analysis::typepal::ExtractTModel;
+extend analysis::typepal::ExtractTModel;
 
 public alias Bindings = map[str varName, AType varType];
 
@@ -55,7 +55,7 @@ public Bindings matchRascalTypeParams(AType r, AType s, Bindings b, bool bindIde
         if (varName in b) {
             lubbed = alub(s, b[varName]);
             if (!asubtype(lubbed, varBound))
-                throw invalidMatch("Type parameter <fmt(varName)> should be less than <fmt(varBound)>, but is bound to <fmt(lubbed)>");
+                throw invalidMatch("Type parameter `<varName>` should be less than <prettyPrintAType(varBound)>, but is bound to <prettyPrintAType(lubbed)>");
             b[varName] = lubbed;
         } else {
             b[varName] = s;
@@ -132,7 +132,7 @@ public Bindings matchRascalTypeParams(AType r, AType s, Bindings b, bool bindIde
         return b;
     }
     
-    throw invalidMatch("Types <fmt(r)> and <fmt(s)> do not match");
+    throw invalidMatch("Types <prettyPrintAType(r)> and <prettyPrintAType(s)> do not match");
 }
 
 @doc{Instantiate type parameters found inside the types.}
@@ -152,7 +152,7 @@ public Bindings matchRascalTypeParams(AType r, AType s, Bindings b, bool bindIde
 
 void invalidInstantiation(str pname, AType bound, AType actual){
     x = 0;
-    throw invalidInstantiation("Type parameter <fmt(pname)> should be less than <fmt(bound)>, but is bound to <fmt(actual)>");  
+    throw invalidInstantiation("Type parameter `<pname>` should be less than <prettyPrintAType(bound)>, but is bound to <prettyPrintAType(actual)>");  
 }
 
 AType instantiateRascalTypeParams(aset(AType et), Bindings bindings) 

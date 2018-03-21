@@ -11,7 +11,7 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::check::Checker
-     
+          
 /*
  * TODO:
  * - Integrate with parser generator
@@ -64,18 +64,18 @@ str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.ge
 
 Tree mkTree(int n) = [DecimalIntegerLiteral] "<for(int i <- [0 .. n]){>6<}>"; // Create a unique tree to identify predefined names
  
-void rascalPreCollectInitialization(Tree tree, TBuilder tb){
+void rascalPreCollectInitialization(Tree tree, Collector c){
     init_Import();
-    tb.enterScope(tree);
+    c.enterScope(tree);
         
-        if(tb.getConfig().classicReifier){
+        if(c.getConfig().classicReifier){
             //data type[&T] = type(Symbol symbol, map[Symbol,Production] definitions);
             typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
             SymbolType = aadt("Symbol", [], dataSyntax());
             ProductionType = aadt("Production", [], dataSyntax());
             symbolField = SymbolType[label="symbol"]; //<"symbol", SymbolType>;
             definitionsField = amap(SymbolType, ProductionType)[label="definitions"]; //< "definitions", amap(SymbolType, ProductionType)>;
-            tb.define("type", constructorId(), mkTree(2), defType(acons(typeType, /*"type",*/ [symbolField, definitionsField], [], label="type")));
+            c.define("type", constructorId(), mkTree(2), defType(acons(typeType, /*"type",*/ [symbolField, definitionsField], [], label="type")));
             // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
         } else {
             //data type[&T] = type(AType symbol, map[AType,AProduction] definitions);
@@ -84,19 +84,19 @@ void rascalPreCollectInitialization(Tree tree, TBuilder tb){
             AProductionType = aadt("AProduction", [], dataSyntax());
             atypeField = SymbolType[label="symbol"]; //<"symbol", SymbolType>;
             definitionsField = amap(SymbolType, AProductionType)[label="definitions"]; //< "definitions", amap(SymbolType, AProductionType)>;
-            tb.define("type", constructorId(), mkTree(2), defType(acons(typeType, /*"type",*/ [atypeField, definitionsField], [], label="type")));
+            c.define("type", constructorId(), mkTree(2), defType(acons(typeType, /*"type",*/ [atypeField, definitionsField], [], label="type")));
             // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
         }
-    tb.leaveScope(tree);
+    c.leaveScope(tree);
 }
 
 // Enhance TModel before validation
 TModel rascalPreValidation(TModel m){
     // add transitive edges for extend
-    extendPlus = {<from, to> | <Key from, extendPath(), Key to> <- m.paths}+;
+    extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- m.paths}+;
     extended = domain(extendPlus);
-    m.paths += { <from, extendPath(), to> | <Key from, Key to> <- extendPlus};
-    m.paths += { <c, importPath(), a> | < Key c, importPath(), Key b> <- m.paths,  <b , extendPath(), Key a> <- m.paths};
+    m.paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
+    m.paths += { <c, importPath(), a> | < loc c, importPath(), loc b> <- m.paths,  <b , extendPath(), loc a> <- m.paths};
     //println("rascalPreValidation");
     //iprintln(m.paths);
     return m;
@@ -110,7 +110,7 @@ TModel rascalPostValidation(TModel m){
         nparams = userDefs[userName]<0>;
         if(size(nparams) != 1){
             for(def <- userDefs[userName,_]){
-                m.messages += [ error("Type <fmt(userName)> defined with <fmt(nparams)> type parameters", def) ];
+                m.messages += [ error("Type `<userName>` defined with <nparams> type parameters", def) ];
             }
         }
     }
@@ -124,7 +124,8 @@ public PathConfig getDefaultPathConfig() = pathConfig(
                 |project://typepal/src|,
                 |project://rascal/src/org/rascalmpl/library|,
                 |project://typepal-examples/src|
-               ]);
+               ]
+               );
 
 data ProfileData = profile(loc file = |unknown:///|, int parse = 0, int extract = 0, int validate = 0, int save = 0);
  
@@ -145,7 +146,7 @@ TModel rascalTModelsFromTree(Tree pt){
     return rascalTModel(pt, inline=true)[1];
 }
 
-TModel rascalTModelFromName(str mname, PathConfig pcfg, bool debug=false){
+TModel rascalTModelFromName(str mname, PathConfig pcfg, bool debug=true){
     mloc = |unknown:///|(0,0,<0,0>,<0,0>);
     try {
         mloc = getModuleLocation(mname, pcfg);
@@ -161,13 +162,13 @@ tuple[ProfileData, TModel] rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool d
         mname = getModuleName(mloc, pcfg);
         
         /***** turn this off during development of type checker *****/
-        <valid, tm> = getIfValid(mname, pcfg);
-        if(valid) {
-            println("*** reusing up-to-date TModel of <mname>");
-            vtime = (cpuTime() - startTime)/1000000;
-            prof = profile(file=mloc,validate=vtime);
-            return <prof, tm>;
-        }
+        //<valid, tm> = getIfValid(mname, pcfg);
+        //if(valid) {
+        //    println("*** reusing up-to-date TModel of <mname>");
+        //    vtime = (cpuTime() - startTime)/1000000;
+        //    prof = profile(file=mloc,validate=vtime);
+        //    return <prof, tm>;
+        //
         /***********************************************************/
         
        // mloc = timestamp(mloc);     
@@ -184,7 +185,7 @@ tuple[ProfileData, TModel] rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool d
     } catch ParseError(loc src): {
         return <profile(), tmodel()[messages = [ error("Parse error", src)  ]]>;
     } catch Message msg: {
-     return <profile(), tmodel()[messages = [ error("During validation: <msg>", msg.src) ]]>;
+     return <profile(), tmodel()[messages = [ error("During validation: <msg>", msg.at) ]]>;
     } catch value e: {
         return <profile(), tmodel()[messages = [ error("During validation: <e>", mloc) ]]>;
     }    
@@ -192,17 +193,18 @@ tuple[ProfileData, TModel] rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool d
 
 tuple[ProfileData, TModel] rascalTModel(Tree pt, PathConfig pcfg = getDefaultPathConfig(), bool debug=false, bool inline=false){
     startTime = cpuTime();
-    tb = newTBuilder(pt, config=rascalTypePalConfig(classicReifier=true));
-    tb.push(patternContainer, "toplevel");
+    c = newCollector(pt, config=rascalTypePalConfig(classicReifier=true), debug=debug);
+    c.push(patternContainer, "toplevel");
     // When inline, all modules are in a single file; don't read imports from file
-    if(!inline) tb.push("pathconfig", pcfg); 
-    rascalPreCollectInitialization(pt, tb);
-    collect(pt, tb);
+    if(!inline) c.push("pathconfig", pcfg); 
+    rascalPreCollectInitialization(pt, c);
+    collect(pt, c);
  
-    tm = tb.build();
+    tm = c.run();
     afterExtractTime = cpuTime();   
     tm = rascalPreValidation(tm);
-    tm = validate(tm, debug=debug);
+    s = newSolver(tm);
+    tm = s.run();
     tm = rascalPostValidation(tm);
     
     afterValidateTime = cpuTime();
@@ -214,7 +216,7 @@ tuple[ProfileData, TModel] rascalTModel(Tree pt, PathConfig pcfg = getDefaultPat
         prof.validate = (afterValidateTime - afterExtractTime)/1000000;
     }
     if(isEmpty(tm.messages)){
-            <tm, adtSummaries> = getADTSummaries(getLoc(pt), tm);
+            <tm, adtSummaries> = getADTSummaries(getLoc(pt), tm, s);
             g = getGrammar(adtSummaries);
             
  //           pname = "DefaultParser";

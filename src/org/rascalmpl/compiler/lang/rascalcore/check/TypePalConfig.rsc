@@ -2,7 +2,8 @@ module lang::rascalcore::check::TypePalConfig
  
 extend analysis::typepal::TypePal;
 extend analysis::typepal::TestFramework;
-import analysis::typepal::ScopeGraph;
+extend analysis::typepal::ExtractTModel;
+extend analysis::typepal::ScopeGraph;
 
 import analysis::typepal::TypePalConfig;
 
@@ -75,19 +76,19 @@ data DefInfo(set[AProduction] productions = {},
 // Maintain excluded use in parts of a scope
 private str key_exclude_use = "exclude_use";
 
-void storeExcludeUse(Tree cond, Tree excludedPart, TBuilder tb){
-    tb.push(key_exclude_use, <getLoc(cond), getLoc(excludedPart)>);
+void storeExcludeUse(Tree cond, Tree excludedPart, Collector c){
+    c.push(key_exclude_use, <getLoc(cond), getLoc(excludedPart)>);
 }
 
 // Maintain allow before use: where variables may be used left (before) their definition
 private str key_allow_use_before_def = "allow_use_before_def";
 
-void storeAllowUseBeforeDef(Tree container, Tree allowedPart, TBuilder tb){
-    tb.push(key_allow_use_before_def, <getLoc(container), getLoc(allowedPart)>);
+void storeAllowUseBeforeDef(Tree container, Tree allowedPart, Collector c){
+    c.push(key_allow_use_before_def, <getLoc(container), getLoc(allowedPart)>);
 }
 
 // Define the name overloading that is allowed
-bool myMayOverload(set[Key] defs, map[Key, Define] defines){
+bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
     bool seenVAR = false;
     bool seenNT  = false;
     bool seenLEX = false;
@@ -116,22 +117,22 @@ bool myMayOverload(set[Key] defs, map[Key, Define] defines){
 
 // Name resolution filters
 @memo
-Accept isAcceptableSimple(TModel tm, Key def, Use use){
-    //println("isAcceptableSimple: <use.id> def=<def>, use=<use>");
+Accept rascalIsAcceptableSimple(TModel tm, loc def, Use use){
+    //println("rascalIsAcceptableSimple: <use.id> def=<def>, use=<use>");
  
     if(variableId() in use.idRoles){
        // enforce definition before use
        if(def.path == use.occ.path && /*def.path == use.scope.path &&*/ def < use.scope){
           if(use.occ.offset < def.offset){
              // allow when inside explicitly use before def parts
-             if(lrel[Key,Key] allowedParts := tm.store[key_allow_use_before_def] ? []){
-                 list[Key] parts = allowedParts[use.scope];
+             if(lrel[loc,loc] allowedParts := tm.store[key_allow_use_before_def] ? []){
+                 list[loc] parts = allowedParts[use.scope];
                  if(!isEmpty(parts)){
                     if(any(part <- parts, use.occ < part)){
                        return acceptBinding();
                     }
                   } else {
-                   //println("isAcceptableSimple =\> <ignoreContinue()>");
+                   //println("rascalIsAcceptableSimple =\> <ignoreContinue()>");
                    return ignoreContinue();
                  }
              } else {
@@ -139,12 +140,12 @@ Accept isAcceptableSimple(TModel tm, Key def, Use use){
              }
           }
           // restrict when in excluded parts of a scope
-          if(lrel[Key,Key] excludedParts := tm.store[key_exclude_use] ? []){
-              list[Key] parts = excludedParts[use.scope];
+          if(lrel[loc,loc] excludedParts := tm.store[key_exclude_use] ? []){
+              list[loc] parts = excludedParts[use.scope];
               //println("parts = <parts>, <any(part <- parts, use.occ < part)>");
               if(!isEmpty(parts)){
                  if(any(part <- parts, use.occ < part)){
-                    //println("isAcceptableSimple =\> <ignoreContinue()>");
+                    //println("rascalIsAcceptableSimple =\> <ignoreContinue()>");
                     return ignoreContinue();
                  }
               } 
@@ -153,12 +154,12 @@ Accept isAcceptableSimple(TModel tm, Key def, Use use){
           }
        }
     }
-    //println("isAcceptableSimple =\> < acceptBinding()>");
+    //println("rascalIsAcceptableSimple =\> < acceptBinding()>");
     return  acceptBinding();
 }
 
-Accept isAcceptableQualified(TModel tm, Key def, Use use){
-    //println("isAcceptableQualified: <def>, <use>");
+Accept rascalIsAcceptableQualified(TModel tm, loc def, Use use){
+   // println("rascalIsAcceptableQualified: <def>, <use>");
     if(defType(AType atype) := tm.definitions[def].defInfo){
        
         defPath = def.path;
@@ -180,7 +181,7 @@ Accept isAcceptableQualified(TModel tm, Key def, Use use){
         
         // Is there another acceptable qualifier via an extend?
         
-        extendedStarBy = {<to.path, from.path> | <Key from, extendPath(), Key to> <- tm.paths}*;
+        extendedStarBy = {<to.path, from.path> | <loc from, extendPath(), loc to> <- tm.paths}*;
  
         if(!isEmpty(extendedStarBy) && any(p <- extendedStarBy[defPath]?{}, endsWith(p, defPath))){
            return acceptBinding();
@@ -191,8 +192,8 @@ Accept isAcceptableQualified(TModel tm, Key def, Use use){
     return acceptBinding();
 }
 
-Accept isAcceptablePath(TModel tm, Key defScope, Key def, Use use, PathRole pathRole) {
-    //println("isAcceptablePath <use.id>, candidate <def>, <pathRole>, <use>");
+Accept rascalIsAcceptablePath(TModel tm, loc defScope, loc def, Use use, PathRole pathRole) {
+    //println("rascalIsAcceptablePath <use.id>, candidate <def>, <pathRole>, <use>");
     //iprintln(tm.definitions[def]);
     res = acceptBinding();
     vis = tm.definitions[def].defInfo.vis;
@@ -212,7 +213,7 @@ Accept isAcceptablePath(TModel tm, Key defScope, Key def, Use use, PathRole path
     if(pathRole == extendPath()){
         res = acceptBinding();
     }
-    //println("isAcceptablePath =\> <res>");
+    //println("rascalIsAcceptablePath =\> <res>");
     return res;
 }
 
@@ -222,20 +223,18 @@ data TypePalConfig(
 
 TypePalConfig rascalTypePalConfig(bool classicReifier = false)
     = tconfig(
-        getMinAType                   = AType (){ return avoid(); },
-        getMaxAType                   = AType (){ return avalue(); },
+        getMinAType                   = AType(){ return avoid(); },
+        getMaxAType                   = AType(){ return avalue(); },
         isSubType                     = lang::rascalcore::check::AType::asubtype,
         getLub                        = lang::rascalcore::check::AType::alub,
         
-        lookup                        = analysis::typepal::ScopeGraph::lookupWide,
+        lookup                        = lookupWide,
        
-        isAcceptableSimple            = isAcceptableSimple,
-        isAcceptableQualified         = isAcceptableQualified,
-        isAcceptablePath              = isAcceptablePath,
+        isAcceptableSimple            = rascalIsAcceptableSimple,
+        isAcceptableQualified         = rascalIsAcceptableQualified,
+        isAcceptablePath              = rascalIsAcceptablePath,
         
-        mayOverload                   = myMayOverload,
-        expandPreAType                = lang::rascalcore::check::ATypeUtils::expandPreAType,
-        
+        mayOverload                   = rascalMayOverload,       
         classicReifier                = classicReifier
         
     );

@@ -3,6 +3,7 @@ module lang::rascalcore::check::Declaration
 extend analysis::typepal::TypePal;
 
 import lang::rascal::\syntax::Rascal;
+
 import lang::rascalcore::check::ATypeExceptions;
 import lang::rascalcore::check::ConvertType;
 import lang::rascalcore::check::ATypeUtils;
@@ -27,11 +28,11 @@ import String;
 
 // ---- Rascal declarations
 
-void collect(current: (Module) `<Header header> <Body body>`, TBuilder tb){
+void collect(current: (Module) `<Header header> <Body body>`, Collector c){
   
     if(current has top) current = current.top;
     mname = prettyPrintName(header.name);
-    checkModuleName(getLoc(current), header.name, tb);
+    checkModuleName(getLoc(current), header.name, c);
     
     tagsMap = getTags(header.tags);
     
@@ -42,98 +43,98 @@ void collect(current: (Module) `<Header header> <Body body>`, TBuilder tb){
      
     tmod = deprecated ? amodule(mname, deprecationMessage=deprecationMessage) : amodule(mname);
     if(deprecated){
-        tb.reportWarning(current, "Deprecated module <mname><isEmpty(deprecationMessage) ? "" : ": " + deprecationMessage>");
+        c.report(warning(current, "Deprecated module %v%v", mname, isEmpty(deprecationMessage) ? "" : ": <deprecationMessage>"));
     }
-    tb.define(mname, moduleId(), current, defType(tmod));
-    tb.push(key_processed_modules, mname);
+    c.define(mname, moduleId(), current, defType(tmod));
+    c.push(key_processed_modules, mname);
      
-    tb.push(key_current_module, mname);
-    tb.enterScope(current);
-        collectParts(current, tb);
-        //collect(header, body, tb);
-    tb.leaveScope(current);
-    tb.pop(key_current_module);
-    getImports(tb);
+    c.push(key_current_module, mname);
+    c.enterScope(current);
+        collectParts(current, c);
+        //collect(header, body, c);
+    c.leaveScope(current);
+    c.pop(key_current_module);
+    getImports(c);
 }
 
-void checkModuleName(loc mloc, QualifiedName qualifiedModuleName, TBuilder tb){
-    pcfgVal = tb.getStack("pathconfig");
+void checkModuleName(loc mloc, QualifiedName qualifiedModuleName, Collector c){
+    pcfgVal = c.getStack("pathconfig");
     if([PathConfig pcfg] := pcfgVal){ 
         mname = prettyPrintName(qualifiedModuleName);
         try {   
             mloc1 = getModuleLocation(mname, pcfg);
             if(mloc.scheme != mloc1.scheme || mloc.authority != mloc1.authority || mloc.path != mloc1.path){
-                tb.reportError(qualifiedModuleName, "Module name <fmt(mname)> is incompatible with its file location");
+                c.report(error(qualifiedModuleName, "Module name %v is incompatible with its file location", mname));
             }
         } catch value e: {
-            tb.reportError(qualifiedModuleName, "Module name <fmt(mname)> is not consistent with its file location");
+            c.report(error(qualifiedModuleName, "Module name %v is not consistent with its file location", mname));
         }
     } else if(isEmpty(pcfgVal)){
         return;
     } else {
-        throw rascalCheckerInternalError("Inconsistent value for \"pathconfig\": <tb.getStack("pathconfig")>");
+        throw rascalCheckerInternalError("Inconsistent value for \"pathconfig\": <c.getStack("pathconfig")>");
     }
 }
 
 // ---- import
 
-void collect(current: (Import) `import <ImportedModule m> ;`, TBuilder tb){ // TODO: warn about direct self-import
-    tb.useViaPath(m, {moduleId()}, importPath());
-    tb.push(key_imported, <unescape("<m.name>"), current>);
-    tb.push(key_import_graph, <tb.top(key_current_module), "<m.name>">);
+void collect(current: (Import) `import <ImportedModule m> ;`, Collector c){ // TODO: warn about direct self-import
+    c.useViaPath(m, {moduleId()}, importPath());
+    c.push(key_imported, <unescape("<m.name>"), current>);
+    c.push(key_import_graph, <c.top(key_current_module), "<m.name>">);
 }
 
 //loc timestamp(loc l) = l[fragment="<lastModified(l)>"];
 
-void getImports(TBuilder tb){
+void getImports(Collector c){
     // Do not expand imports, while we are already doing that
-    if(!isEmpty(tb.getStack(key_expanding_imports)))   return;
+    if(!isEmpty(c.getStack(key_expanding_imports)))   return;
     
-    pcfgVal = tb.getStack("pathconfig");
+    pcfgVal = c.getStack("pathconfig");
     
     if([PathConfig pcfg] := pcfgVal){ 
         allreadyImported = {};
-        if(list[str] processed := tb.getStack(key_processed_modules)){
+        if(list[str] processed := c.getStack(key_processed_modules)){
             allreadyImported = toSet(processed);
         }
        
-        tb.push(key_expanding_imports, true);
+        c.push(key_expanding_imports, true);
         solve(allreadyImported){
-            if(lrel[str,Tree] importedModules := tb.getStack(key_imported)){
+            if(lrel[str,Tree] importedModules := c.getStack(key_imported)){
                 for(<mname, importStatement> <- importedModules){
                     if(mname in allreadyImported) continue;
                     allreadyImported += mname;
-                    reuse = addImport(mname, importStatement, pcfg, tb);
+                    reuse = addImport(mname, importStatement, pcfg, c);
                     if(!reuse){
                         try {
                             //mloc = timestamp(getModuleLocation(mname, pcfg)); 
                             mloc = getModuleLocation(mname, pcfg);                    
                             println("*** importing <mname> from <mloc>");
                             pt = parseModuleWithSpaces(mloc).top;
-                            collect(pt, tb);
+                            collect(pt, c);
                         } catch value e: {
-                            tb.reportError(importStatement, "Error during import of <fmt(mname)>: <e>");
+                            c.report(error(importStatement, "Error during import of %v: %v", mname, e));
                         }
                     }
                 }
             } else {
-                throw rascalCheckerInternalError("Inconsistent value for \"imported\": <tb.getStack("imported")>");
+                throw rascalCheckerInternalError("Inconsistent value for \"imported\": <c.getStack("imported")>");
             }
         }
     } else if(isEmpty(pcfgVal)){
         return;
     } else {
-        throw rascalCheckerInternalError("Inconsistent value for \"pathconfig\": <tb.getStack("pathconfig")>");
+        throw rascalCheckerInternalError("Inconsistent value for \"pathconfig\": <c.getStack("pathconfig")>");
     }
 }
 
 // ---- extend
 
-void collect(current: (Import) `extend <ImportedModule m> ;`, TBuilder tb){    
-    tb.useViaPath(m, {moduleId()}, extendPath());
-    tb.push(key_imported, <unescape("<m.name>"), current>);
-    tb.push(key_extended, unescape("<m.name>"));
-    tb.push(key_extend_graph, <tb.top(key_current_module), "<m.name>">);
+void collect(current: (Import) `extend <ImportedModule m> ;`, Collector c){    
+    c.useViaPath(m, {moduleId()}, extendPath());
+    c.push(key_imported, <unescape("<m.name>"), current>);
+    c.push(key_extended, unescape("<m.name>"));
+    c.push(key_extend_graph, <c.top(key_current_module), "<m.name>">);
 }
 
 // ---- variable declaration
@@ -144,14 +145,14 @@ Vis getVis((Visibility) ``)         = defaultVis();
 
 // Note: Rascal's closures are mutable, therefore we need an extra closure when creating
 // several requirements from the same function context. In this way the value of expr becomes fixed
-void() makeVarInitRequirement(Expression expr, AType initType, Key scope)
-    = () { 
-           expandedInitType = expandUserTypes(initType, scope);
-           expandedExprType = expandUserTypes(getType(expr), scope);
-           subtype(expandedExprType, expandedInitType) || reportError(expr, "Type of initialization should be subtype of <fmt(expandedInitType)>, found <fmt(expandedExprType)>");
+void(Solver s) makeVarInitRequirement(Expression expr, AType initType, loc scope)
+    = void(Solver s) { 
+           expandedInitType = expandUserTypes(initType, scope, s);
+           expandedExprType = expandUserTypes(s.getType(expr), scope, s);
+           s.requireSubtype(expandedExprType, expandedInitType, error(expr, "Type of initialization should be subtype of %t, found %t", expandedInitType, expandedExprType));
          };
          
-void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type \type> <{Variable ","}+ variables> ;`, TBuilder tb){
+void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type \type> <{Variable ","}+ variables> ;`, Collector c){
 
     tagsMap = getTags(tags);
     if(ignoreCompiler(tagsMap)) { println("*** ignore <current>"); return; }
@@ -160,36 +161,36 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type \
     if(vis == defaultVis()){
         vis = privateVis();
     }
-    varType = convertType(current.\type, tb);
-    scope = tb.getScope();
+    varType = convertType(current.\type, c);
+    scope = c.getScope();
     
     for(var <- variables){
-        dt = defType([], AType(){ 
-            return expandUserTypes(varType, scope); });
+        dt = defType([], AType(Solver s){ 
+            return expandUserTypes(varType, scope, s); });
         dt.vis = vis;
         if(!isEmpty(tagsMap)) dt.tags = tagsMap;
-        tb.define(prettyPrintName(var.name), variableId(), var.name, dt);
+        c.define(prettyPrintName(var.name), variableId(), var.name, dt);
         
-        tb. require("variable type is defined", current.\type, [],
-            (){ //try 
-                expandUserTypes(varType, scope);
-                //catch TypeUnavailable(): reportError(current.\type, "Undeclared type <fmt("<current.\type>")>");
+        c.require("variable type is defined", current.\type, [],
+            void (Solver s){ //try 
+                expandUserTypes(varType, scope, s);
+                //catch TypeUnavailable(): report(error(current.\type, "Undeclared type <fmt("<current.\type>")>");
             });
         if(var is initialized){
             //if(!(var.initial is closure)) 
-            tb.enterLubScope(var);
-                tb.require("variable initialization", var.initial, [], makeVarInitRequirement(var.initial, varType, tb.getScope()));
-                collect(var.initial, tb); 
+            c.enterLubScope(var);
+                c.require("variable initialization", var.initial, [], makeVarInitRequirement(var.initial, varType, c.getScope()));
+                collect(var.initial, c); 
             //if(!(var.initial is closure)) 
-            tb.leaveScope(var);
+            c.leaveScope(var);
         }
     }  
-    collect(tags, tb);  
+    collect(tags, c);  
 }
 
 // ---- annotation
 
-void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <Type annoType> <Type onType> @ <Name name> ;`, TBuilder tb){
+void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <Type annoType> <Type onType> @ <Name name> ;`, Collector c){
     tagsMap = getTags(tags);
     if(ignoreCompiler(tagsMap)) { println("*** ignore: <current>"); return; }
     
@@ -198,15 +199,15 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
         vis = publicVis();
     }
     
-    at = convertType(annoType, tb);
-    ot = convertType(onType, tb);
+    at = convertType(annoType, c);
+    ot = convertType(onType, c);
     qname = convertName(name);
-    scope = tb.getScope();
-    dt = defType([], AType() { return aanno(qname.name, expandUserTypes(ot, scope), expandUserTypes(at, scope)); });
+    scope = c.getScope();
+    dt = defType([], AType(Solver s) { return aanno(qname.name, expandUserTypes(ot, scope, s), expandUserTypes(at, scope, s)); });
     dt.vis=vis;
     if(!isEmpty(tagsMap)) dt.tags = tagsMap;
-    tb.define(qname.name, annoId(), name, dt);
-    //collect(current, tb); 
+    c.define(qname.name, annoId(), name, dt);
+    //collect(current, c); 
 }
  
 
@@ -214,7 +215,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
 
 data ReturnInfo = returnInfo(AType retType, list[Pattern] formals, set[AType] kwTypeParams);
 
-void collect(FunctionDeclaration decl, TBuilder tb){
+void collect(FunctionDeclaration decl, Collector c){
 //println("********** function declaration: <decl.signature.name>");
     
     vis = getVis(decl.visibility);
@@ -230,17 +231,17 @@ void collect(FunctionDeclaration decl, TBuilder tb){
     fname = signature.name;
     
     if(ignoreCompiler(tagsMap)) { println("ignore: function <fname>"); return; }
-    parentScope = tb.getScope();
+    parentScope = c.getScope();
        
-    tb.enterLubScope(decl);
-        scope = tb.getScope();
-        tb.setScopeInfo(scope, functionScope(), false);
-        retType = convertType(signature.\type, tb);
-        <formals, kwTypeParams, kwFormals> = checkFunctionType(scope, retType, signature.parameters, isVarArgs, tb);
+    c.enterLubScope(decl);
+        scope = c.getScope();
+        c.setScopeInfo(scope, functionScope(), false);
+        retType = convertType(signature.\type, c);
+        <formals, kwTypeParams, kwFormals> = checkFunctionType(scope, retType, signature.parameters, isVarArgs, c);
         
-        dt = defType([], AType() {
-                 expandedRetType = expandUserTypes(retType, scope);
-                 ft = afunc(expandedRetType, atypeList([expandUserTypes(unset(getPatternType(f, avalue(), scope), "label"), scope) | f <- formals]), kwFormals);
+        dt = defType([], AType(Solver s) {
+                 expandedRetType = expandUserTypes(retType, scope, s);
+                 ft = afunc(expandedRetType, atypeList([expandUserTypes(unset(getPatternType(f, avalue(), scope, s), "label"), scope, s) | f <- formals]), kwFormals);
                  if(isVarArgs) ft.varArgs = true;
                  if(deprecated) {
                     ft.deprecationMessage = deprecationMessage;
@@ -250,7 +251,7 @@ void collect(FunctionDeclaration decl, TBuilder tb){
         dt.vis=vis;
         if(!isEmpty(tagsMap)) dt.tags = tagsMap;
          
-        tb.defineInScope(parentScope, prettyPrintName(fname), functionId(), fname, dt); 
+        c.defineInScope(parentScope, prettyPrintName(fname), functionId(), fname, dt); 
         
         if(decl is expression || decl is conditional){
             if(containsReturn(decl.expression)){
@@ -258,29 +259,29 @@ void collect(FunctionDeclaration decl, TBuilder tb){
                   // We do in this case not check that the type of the expression as a whole is compatible with the return type.
                   // TODO: cover the case that we leave the expression via a return AND via the value of the expression as a whole
             } else {
-                tb.requireEager("check on return type", decl.expression, [decl.expression], makeReturnRequirement(decl.expression, retType, formals, kwTypeParams, scope));
+                c.requireEager("check on return type", decl.expression, [decl.expression], makeReturnRequirement(decl.expression, retType, formals, kwTypeParams, scope));
             }
-            collect(decl.expression, tb);
+            collect(decl.expression, c);
         } 
         if(decl is conditional){
-            conditions = [c | c <- decl.conditions];
-            storeAllowUseBeforeDef(decl, decl.expression, tb);
-            tb.requireEager("when conditions", decl.conditions, conditions,
-                (){
+            conditions = [cond | cond <- decl.conditions];
+            storeAllowUseBeforeDef(decl, decl.expression, c);
+            c.requireEager("when conditions", decl.conditions, conditions,
+                void (Solver s){
                 for(cond <- conditions){
-                    condType = getType(cond);
-                    if(!isFullyInstantiated(condType)){
-                        unify(condType, abool()) || reportError(cond, "Cannot unify condition with `bool`, found <fmt(cond)>");
-                        condType = instantiate(condType);
+                    condType = s.getType(cond);
+                    if(!s.isFullyInstantiated(condType)){
+                        s.requireUnify(condType, abool(), error(cond, "Cannot unify condition with `bool`, found %t", cond));
+                        condType = s.instantiate(condType);
                     }           
-                    subtype(getType(cond), abool()) || reportError(cond, "Condition should be `bool`, found <fmt(cond)>");
+                    s.requireSubtype(cond, abool(), error(cond, "Condition should be `bool`, found %t", cond));
                 }
             });
-            collect(decl.conditions, tb);
+            collect(decl.conditions, c);
         }
-        if(decl is \default) collect(decl.body, tb);
+        if(decl is \default) collect(decl.body, c);
         
-    tb.leaveScope(decl);
+    c.leaveScope(decl);
 }
 
 map[str,str] getTags(Tags tags)
@@ -299,76 +300,76 @@ tuple[bool, str] getDeprecated(map[str,str] tagsMap){
 
 bool containsReturn(Tree t) = /(Statement) `return <Statement statement>` := t;
 
-list[Keyword] getKeywordFormals({KeywordFormal  "," }+ keywordFormalList, IdRole role, TBuilder tb){    
+list[Keyword] getKeywordFormals({KeywordFormal  "," }+ keywordFormalList, IdRole role, Collector c){    
     return 
         for(KeywordFormal kwf <- keywordFormalList){
             fieldName = prettyPrintName(kwf.name);
-            fieldType = convertType(kwf.\type, tb)[label=fieldName];
+            fieldType = convertType(kwf.\type, c)[label=fieldName];
             defaultExp = kwf.expression;
-            tb.define(fieldName, role, kwf.name, defType(fieldType));
+            c.define(fieldName, role, kwf.name, defType(fieldType));
             append </*fieldName, */fieldType, defaultExp>;
         }
 }
 
-tuple[list[Pattern] formals, set[AType] kwTypeParams, list[Keyword] kwFormals] checkFunctionType(Key scope, AType retType, Parameters params, bool isVarArgs, TBuilder tb){
+tuple[list[Pattern] formals, set[AType] kwTypeParams, list[Keyword] kwFormals] checkFunctionType(loc scope, AType retType, Parameters params, bool isVarArgs, Collector c){
     formals = [pat | Pattern pat <- params.formals.formals];
-    beginPatternScope("parameter", tb);
+    beginPatternScope("parameter", c);
     if(isVarArgs){
-        collect(formals[0..-1], tb);
-        collectAsVarArg(formals[-1], tb);
+        collect(formals[0..-1], c);
+        collectAsVarArg(formals[-1], c);
     } else {
-        collect(formals, tb);
+        collect(formals, c);
     }
-    endPatternScope(tb);
+    endPatternScope(c);
     
-    kwFormals = params.keywordFormals is \default ? getKeywordFormals(params.keywordFormals.keywordFormalList, variableId(), tb) : [];
+    kwFormals = params.keywordFormals is \default ? getKeywordFormals(params.keywordFormals.keywordFormalList, variableId(), c) : [];
     
     kwTypeParams = {*collectAndUnlabelRascalTypeParams(kwf.fieldType) | kwf <- kwFormals};
-    tb.setScopeInfo(scope, functionScope(), returnInfo(retType, formals, kwTypeParams));
+    c.setScopeInfo(scope, functionScope(), returnInfo(retType, formals, kwTypeParams));
     
-    tb.requireEager("bound type parameters", params, [], //formals,
-        () { 
-             expandedRetType = expandUserTypes(retType, scope);
-             typeParamsInFunctionParams = {*collectAndUnlabelRascalTypeParams(getPatternType(f, avalue(), scope)) | f <- formals} + kwTypeParams;
+    c.requireEager("bound type parameters", params, [], //formals,
+        void (Solver s) { 
+             expandedRetType = expandUserTypes(retType, scope, s);
+             typeParamsInFunctionParams = {*collectAndUnlabelRascalTypeParams(getPatternType(f, avalue(), scope, s)) | f <- formals} + kwTypeParams;
              typeParamsInReturn = collectAndUnlabelRascalTypeParams(expandedRetType);
              if(!(typeParamsInReturn <= typeParamsInFunctionParams)){
                 unbound = typeParamsInReturn - typeParamsInFunctionParams;
-                reportError(params, "Unbound: <fmt(size(unbound), "type parameter")> <fmt(unbound)> in return type");
+                s.report(error(params, "Unbound: %v type parameter(s) %t in return type", size(unbound), unbound));
              }
         });
      return <formals, kwTypeParams, kwFormals>;
 }
 
-void() makeReturnRequirement(Tree expr, AType retType, list[Pattern] formals, set[AType] kwTypeParams, Key scope)
-       = () { 
-              expandedReturnType = expandUserTypes(retType, scope);
-              typeVarsInParams = {*collectAndUnlabelRascalTypeParams(getPatternType(f, avalue(), scope)) | f <- formals} + kwTypeParams;
+void(Solver) makeReturnRequirement(Tree expr, AType retType, list[Pattern] formals, set[AType] kwTypeParams, loc scope)
+       = void(Solver s) { 
+              expandedReturnType = expandUserTypes(retType, scope, s);
+              typeVarsInParams = {*collectAndUnlabelRascalTypeParams(getPatternType(f, avalue(), scope, s)) | f <- formals} + kwTypeParams;
               typeVarsInReturn = collectAndUnlabelRascalTypeParams(expandedReturnType);
               if(!(typeVarsInReturn <= typeVarsInParams)){
                 unbound = typeVarsInReturn - typeVarsInParams;
-                reportError(expr, "Unbound: <fmt(size(unbound), "type parameter")> <fmt(unbound)> in return type");
+                s.report(error(expr, "Unbound: %v type parameter(s) %t in return type", size(unbound), unbound));
               }
               
-              texpr = expandUserTypes(getType(expr), scope);
+              texpr = expandUserTypes(s.getType(expr), scope, s);
               Bindings bindings = ();
               try   bindings = matchRascalTypeParams(texpr, expandedReturnType, bindings, bindIdenticalVars=true);
               catch invalidMatch(str reason):
-                    if(!subtype(texpr, expandedReturnType))
-                        reportError(expr, reason);
+                    if(asubtype(texpr, expandedReturnType))
+                        s.report(error(expr, reason));
               
               try {
                  itexpr = texpr;
                  if(!isEmpty(bindings)){
                     itexpr = instantiateRascalTypeParams(texpr, bindings);
                  }
-                 if(isFullyInstantiated(itexpr)){
-                    subtype(itexpr, expandedReturnType) || reportError(expr, "Return type should be subtype of <fmt(expandedReturnType)>, found <fmt(itexpr)>");
+                 if(s.isFullyInstantiated(itexpr)){
+                    s.requireSubtype(itexpr, expandedReturnType, error(expr, "Return type should be subtype of %t, found %t", expandedReturnType, itexpr));
                  } else
-                 if(!unify(itexpr, expandedReturnType)){
-                    subtype(itexpr, expandedReturnType) || reportError(expr, "Return type should be subtype of <fmt(expandedReturnType)>, found <fmt(itexpr)>");
+                 if(!s.unify(itexpr, expandedReturnType)){
+                    s.requireSubtype(itexpr, expandedReturnType, error(expr, "Return type should be subtype of %t, found %t", expandedReturnType, itexpr));
                  }
                } catch invalidInstantiation(str msg): {
-                    reportError(expr, msg);
+                    s.report(error(expr, msg));
                }
             
             
@@ -376,18 +377,18 @@ void() makeReturnRequirement(Tree expr, AType retType, list[Pattern] formals, se
 
 // ---- return statement (closely interacts with function declaration)
 
-void collect(current: (Statement) `return <Statement statement>`, TBuilder tb){  
-    functionScopes = tb.getScopeInfo(functionScope());
+void collect(current: (Statement) `return <Statement statement>`, Collector c){  
+    functionScopes = c.getScopeInfo(functionScope());
     if(isEmpty(functionScopes)){
-        tb.reportError(current, "Return outside a function declaration");
-        collect(statement, tb);
+        c.report(error(current, "Return outside a function declaration"));
+        collect(statement, c);
         return;
     }
     for(<scope, scopeInfo> <- functionScopes){
         if(returnInfo(AType retType, list[Pattern] formals, set[AType] kwTypeParams) := scopeInfo){
-           tb.requireEager("check return type", current, [], makeReturnRequirement(statement, retType, formals, kwTypeParams, scope));
-           tb.calculate("return type", current, [statement], AType(){ return getType(statement); });
-           collect(statement, tb);
+           c.requireEager("check return type", current, [], makeReturnRequirement(statement, retType, formals, kwTypeParams, scope));
+           c.calculate("return type", current, [statement], AType (Solver s){ return s.getType(statement); });
+           collect(statement, c);
            return;
         } else {
             throw rascalCheckerInternalError(getLoc(current), "Inconsistent info from function scope: <scopeInfo>");
@@ -398,27 +399,27 @@ void collect(current: (Statement) `return <Statement statement>`, TBuilder tb){
 
 // ---- alias declaration
 
-void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias <UserType userType> = <Type base>;`, TBuilder tb){
+void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias <UserType userType> = <Type base>;`, Collector c){
     tagsMap = getTags(tags);
     if(ignoreCompiler(tagsMap)) { println("*** ignore: <current>"); return; }
     
     aliasName = prettyPrintName(userType.name);
-    aliasedType = convertType(base, tb);
-    aliasTypeVarsAsList = getTypeParameters(userType, tb);
-    scope = tb.getScope();
+    aliasedType = convertType(base, c);
+    aliasTypeVarsAsList = getTypeParameters(userType, c);
+    scope = c.getScope();
                      
     aliasType = aalias(aliasName, aliasTypeVarsAsList, aliasedType);
-    tb.define(aliasName, aliasId(), userType.name, defType([], AType() { return expandUserTypes(aliasedType, scope); }));
+    c.define(aliasName, aliasId(), userType.name, defType([], AType(Solver s) { return expandUserTypes(aliasedType, scope, s); }));
 } 
 
 
-list[AType] getTypeParameters(UserType userType, TBuilder tb){
+list[AType] getTypeParameters(UserType userType, Collector c){
     if(userType is parametric){
        return
             for(p <- userType.parameters){
-                ptype = convertType(p, tb);
+                ptype = convertType(p, c);
                 if(!isRascalTypeParam(ptype)){
-                  tb.reportError(p, "Only type parameter allowed, found <fmt(ptype)>");
+                  c.report(error(p, "Only type parameter allowed, found %t", ptype));
                 }
                 append unset(ptype, "label"); // TODO: Erase labels to enable later subset check
             }
@@ -428,25 +429,25 @@ list[AType] getTypeParameters(UserType userType, TBuilder tb){
 
 // ---- data declaration
 
-void collect (current: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters>;`, TBuilder tb)
-    = dataDeclaration(tags, current, [], tb);
+void collect (current: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters>;`, Collector c)
+    = dataDeclaration(tags, current, [], c);
 
-void collect (current: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ variants> ;`, TBuilder tb)
-    = dataDeclaration(tags, current, [v | v <- variants], tb);
+void collect (current: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ variants> ;`, Collector c)
+    = dataDeclaration(tags, current, [v | v <- variants], c);
 
-void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBuilder tb){
+void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Collector c){
     tagsMap = getTags(tags);
     if(ignoreCompiler(tagsMap)) { println("*** ignore: <current>"); return; }
     userType = current.user;
     commonKeywordParameters = current.commonKeywordParameters;
     adtName = prettyPrintName(userType.name);
     
-    dataTypeVarsAsList = getTypeParameters(userType, tb);
+    dataTypeVarsAsList = getTypeParameters(userType, c);
     dataTypeVars = toSet(dataTypeVarsAsList);
     
     commonKwFields = [];
     if(commonKeywordParameters is present){
-        commonKwFields = getKeywordFormals(commonKeywordParameters.keywordFormalList, fieldId(), tb);
+        commonKwFields = getKeywordFormals(commonKeywordParameters.keywordFormalList, fieldId(), c);
     }
     adtType = aadt(adtName, dataTypeVarsAsList, dataSyntax());
     
@@ -458,10 +459,10 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBu
         fields = 
             for(TypeArg ta <- v.arguments){
                 fieldName = ta has name ? prettyPrintName(ta.name) : "";
-                fieldType = convertType(ta.\type, tb)[label=fieldName];
+                fieldType = convertType(ta.\type, c)[label=fieldName];
                 
                 if(!isEmpty(fieldName)){
-                    tb.define(fieldName, fieldId(), ta, defType(fieldType));
+                    c.define(fieldName, fieldId(), ta, defType(fieldType));
                     allConsFields += fieldType; //<fieldName, fieldType>;
                 }
                 allFieldTypeVars += collectAndUnlabelRascalTypeParams(fieldType);
@@ -470,7 +471,7 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBu
     
        kwFields = [];
        if(v.keywordArguments is \default){
-          kwFields += getKeywordFormals(v.keywordArguments.keywordFormalList, fieldId(), tb);
+          kwFields += getKeywordFormals(v.keywordArguments.keywordFormalList, fieldId(), c);
           for(<kwt, kwd> <- kwFields){
               allFieldTypeVars += collectAndUnlabelRascalTypeParams(kwt);
               allConsFields += kwt; //<kwn, kwt>;
@@ -479,11 +480,11 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBu
        // TODO: is this check necessary?
        // TODO: take different bounds into account
        //if(!(dataTypeVars <= allFieldTypeVars)){
-       //   tb.reportWarning(v, "Unbound type parameter <fmt(dataTypeVars - allFieldTypeVars)>");
+       //   c.report(warning(v, "Unbound type parameter <fmt(dataTypeVars - allFieldTypeVars)>");
        //}
        consType = acons(adtType, /*consName,*/ fields, kwFields, label=consName);
        //println(consType);
-       tb.define(consName, constructorId(), v.name, defType(consType));
+       c.define(consName, constructorId(), v.name, defType(consType));
        allConstructorDefines += <consName, v.name, defType(consType)>;
     }
     dt = defType(adtType);
@@ -492,50 +493,50 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, TBu
     if(!isEmpty(constructors)) dt.constructors = constructors;
     if(!isEmpty(commonKwFields)) dt.commonKeywordFields = commonKwFields;
     if(!isEmpty(tagsMap)) dt.tags = tagsMap;
-    tb.define(adtName, dataId(), current, dt);
+    c.define(adtName, dataId(), current, dt);
     
     // Additionaly declare all constructors inside the scope of the ADT to make them reachable via fully qualified names
-    tb.enterScope(current);
+    c.enterScope(current);
     for(<consName, vname, defT> <- allConstructorDefines){
         //println("local defines in <current@\loc>: <consName>, constructorId(), <vname>, <defT>");
-        tb.define(consName, constructorId(), vname, defT);
+        c.define(consName, constructorId(), vname, defT);
     }
-    tb.leaveScope(current);
+    c.leaveScope(current);
 }
 
 // ---- syntax definition
 
-void collect(current: (SyntaxDefinition) `<Visibility vis> layout <Sym defined> = <Prod production>;`, TBuilder tb){
+void collect(current: (SyntaxDefinition) `<Visibility vis> layout <Sym defined> = <Prod production>;`, Collector c){
     //println("LAYOUT: <current>");
     nonterminalType = defsym2AType(defined, layoutSyntax());
-    declareSyntax(current, getVis(vis), defined, nonterminalType, false, production, layoutId(), tb);
-    collect(production, tb);
+    declareSyntax(current, getVis(vis), defined, nonterminalType, false, production, layoutId(), c);
+    collect(production, c);
 } 
 
-void collect (current: (SyntaxDefinition) `lexical <Sym defined> = <Prod production>;`, TBuilder tb){
+void collect (current: (SyntaxDefinition) `lexical <Sym defined> = <Prod production>;`, Collector c){
     //println("LEXICAL: <current>");
     nonterminalType = defsym2AType(defined, lexicalSyntax());
-    declareSyntax(current, publicVis(), defined, nonterminalType, false, production, lexicalId(), tb);
-    collect(production, tb);
+    declareSyntax(current, publicVis(), defined, nonterminalType, false, production, lexicalId(), c);
+    collect(production, c);
 }
 
-void collect (current: (SyntaxDefinition) `keyword <Sym defined> = <Prod production>;`, TBuilder tb){
+void collect (current: (SyntaxDefinition) `keyword <Sym defined> = <Prod production>;`, Collector c){
     //println("KEYWORD: <current>");
     nonterminalType = defsym2AType(defined, keywordSyntax());
-    declareSyntax(current, publicVis(), defined, nonterminalType, false, production, keywordId(), tb);
-    collect(production, tb);
+    declareSyntax(current, publicVis(), defined, nonterminalType, false, production, keywordId(), c);
+    collect(production, c);
 } 
 
-void collect (current: (SyntaxDefinition) `<Start strt> syntax <Sym defined> = <Prod production>;`, TBuilder tb){
+void collect (current: (SyntaxDefinition) `<Start strt> syntax <Sym defined> = <Prod production>;`, Collector c){
     //println("SYNTAX: <current>");
     nonterminalType = defsym2AType(defined, contextFreeSyntax());
     isStart = strt is present;
 
-    declareSyntax(current, publicVis(), defined, nonterminalType, isStart, production, nonterminalId(), tb);
-    collect(production, tb);
+    declareSyntax(current, publicVis(), defined, nonterminalType, isStart, production, nonterminalId(), c);
+    collect(production, c);
 }
 
-void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterminalType, bool isStart, Prod production, IdRole idRole, TBuilder tb){
+void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterminalType, bool isStart, Prod production, IdRole idRole, Collector c){
     //println("declareSyntax: <defined>, <nonterminalType>");
     AProduction pr = prod2prod(nonterminalType, production);
     //println("declareSyntax pr: <pr>");
@@ -552,7 +553,7 @@ void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterm
          
         allTypeVars = collectAndUnlabelRascalTypeParams(productions);
          if(!(typeVars >= allTypeVars)){
-          tb.reportWarning(v, "Unbound type parameter <fmt(allTypeVars - typeVars)>");
+          c.report(warning(v, "Unbound type parameter %v", allTypeVars - typeVars));
        }
         dt.productions = productions;
         //iprintln(productions);
@@ -561,30 +562,30 @@ void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterm
         constructorFields = { *getFields(p) | AProduction p <- productions };
         //println("constructorFields: <constructorFields>");
         for(<str nm, loc def, AType tp> <- constructorFields){
-            tb.define(nm, fieldId(), def, defType(tp));
+            c.define(nm, fieldId(), def, defType(tp));
         }
   
         if(!isEmpty(constructorFields))  dt.constructorFields = constructorFields<2>; //<0,2>;
                                             
-        tb.define(ntName, idRole, current, dt);
+        c.define(ntName, idRole, current, dt);
         //println("define <ntName>, dataId(), <dt>");
         allConstructorDefines = {};
         for(p <- productions){
            //println("\nprod2cons: <p> ==\>\n\t<prod2cons(p)>");
-           for(<k, c> <- prod2cons(p)){
-               tb.define(c.label/*consName*/, constructorId(), k, defType(c));
-               allConstructorDefines += <c.label/*consName*/, k, defType(c)>;
+           for(<k, cns> <- prod2cons(p)){
+               c.define(cns.label/*consName*/, constructorId(), k, defType(cns));
+               allConstructorDefines += <cns.label/*consName*/, k, defType(cns)>;
             }
         }
         // Additionaly declare all constructors inside the scope of the ADT to make them reachable via fully qualified names
-        tb.enterScope(current);
+        c.enterScope(current);
         for(<consName, vname, defT> <- allConstructorDefines){
             //println("local defines in <current>: <consName>, constructorId(), <vname>, <defT>");
-            tb.define(consName, constructorId(), vname, defT);
+            c.define(consName, constructorId(), vname, defT);
         }
-        tb.leaveScope(current);
+        c.leaveScope(current);
     } else {
-        tb.reportError(defined, "Lhs of syntax definition not supported");
+        c.report(error(defined, "Lhs of syntax definition not supported"));
     }
 }
 
@@ -601,14 +602,14 @@ rel[str,loc,AType] getFields(\reference(AType def, str cons)) = {};
 default rel[str,loc,AType] getFields(AProduction p) // TODO add no no label case
     = {<t.label, p.src[query = "label=<t.label>"], t> | s <- p.asymbols, t := removeConditional(s), (isNonTerminalType(t) || auser(_,_) := t),  t.label?};
 
-void collect(current: (Sym) `<Nonterminal nonterminal>`, TBuilder tb){
-    tb.use(nonterminal, syntaxIds);
-    collect(nonterminal, tb);
+void collect(current: (Sym) `<Nonterminal nonterminal>`, Collector c){
+    c.use(nonterminal, syntaxIds);
+    collect(nonterminal, c);
 }
 
-void collect(current: (Sym) `<Sym symbol> <NonterminalLabel label>`, TBuilder tb){
-    tb.define("<label>", fieldId(), label, defType(sym2AType(symbol)));
-    collect(symbol, label, tb);
+void collect(current: (Sym) `<Sym symbol> <NonterminalLabel label>`, Collector c){
+    c.define("<label>", fieldId(), label, defType(sym2AType(symbol)));
+    collect(symbol, label, c);
 }
 
 bool isIterSym((Sym) `<Sym symbol>+`) = true;
@@ -617,27 +618,27 @@ bool isIterSym((Sym) `{ <Sym symbol> <Sym sep> }+`) = true;
 bool isIterSym((Sym) `{ <Sym symbol> <Sym sep> }*`) = true;
 default bool isIterSym(Sym sym) = false;
 
-void collect(current: (Sym) `<Sym symbol>+`, TBuilder tb){
-    if(isIterSym(symbol)) tb.reportWarning(current, "Nested iteration");
-    collect(symbol, tb);
+void collect(current: (Sym) `<Sym symbol>+`, Collector c){
+    if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
+    collect(symbol, c);
 }
 
-void collect(current: (Sym) `<Sym symbol>*`, TBuilder tb){
-    if(isIterSym(symbol)) tb.reportWarning(current, "Nested iteration");
-    collect(symbol, tb);
+void collect(current: (Sym) `<Sym symbol>*`, Collector c){
+    if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
+    collect(symbol, c);
 }
 
-void collect(current: (Sym) `{ <Sym symbol> <Sym sep> }+`, TBuilder tb){
-    if(isIterSym(symbol)) tb.reportWarning(current, "Nested iteration");
-    collect(symbol, tb);
+void collect(current: (Sym) `{ <Sym symbol> <Sym sep> }+`, Collector c){
+    if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
+    collect(symbol, c);
 }
 
-void collect(current: (Sym) `{ <Sym symbol> <Sym sep> }*`, TBuilder tb){
-    if(isIterSym(symbol)) tb.reportWarning(current, "Nested iteration");
-    collect(symbol, tb);
+void collect(current: (Sym) `{ <Sym symbol> <Sym sep> }*`, Collector c){
+    if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
+    collect(symbol, c);
 }
 
-default rel[Key, AType] prod2cons(AProduction p){
+default rel[loc, AType] prod2cons(AProduction p){
     def = p.def;
     symbols = p.asymbols;
     if(def.label?){
@@ -650,12 +651,12 @@ default rel[Key, AType] prod2cons(AProduction p){
     return {};
 }
 
-rel[Key, AType] prod2cons(choice(AType dt, set[AProduction] alts)) = { *prod2cons(a) | a <- alts};
+rel[loc, AType] prod2cons(choice(AType dt, set[AProduction] alts)) = { *prod2cons(a) | a <- alts};
 
-rel[Key, AType] prod2cons(\priority(AType def, list[AProduction] choices))
+rel[loc, AType] prod2cons(\priority(AType def, list[AProduction] choices))
     = { *prod2cons(c) | c <- choices };
     
-rel[Key, AType] prod2cons(\associativity(AType def, Associativity \assoc, set[AProduction] alternatives))
+rel[loc, AType] prod2cons(\associativity(AType def, Associativity \assoc, set[AProduction] alternatives))
     = { *prod2cons(a) | a <- alternatives};
     
-rel[Key, AType] prod2cons(\reference(AType def, str cons)) = {}; // TODO: implement
+rel[loc, AType] prod2cons(\reference(AType def, str cons)) = {}; // TODO: implement

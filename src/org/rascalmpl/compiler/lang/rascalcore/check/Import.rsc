@@ -33,7 +33,7 @@ void init_Import(){
 }
 
 map[str, loc] getModuleScopes(TModel tm)
-    = (id: defined | <Key scope, str id, moduleId(), Key defined, DefInfo defInfo> <- tm.defines);
+    = (id: defined | <loc scope, str id, moduleId(), loc defined, DefInfo defInfo> <- tm.defines);
 
 loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes){
     try {
@@ -105,12 +105,12 @@ tuple[bool, TModel] getIfValid(str qualifiedModuleName, PathConfig pcfg){
         }
         return <true, tm>;
     } catch IO(str msg): {
-        // tb.reportWarning()
+        // c.reportWarning()
         return <false, emptyModel>;
     }
 }
 
-bool addImport(str qualifiedModuleName, Tree importStatement, PathConfig pcfg, TBuilder tb){
+bool addImport(str qualifiedModuleName, Tree importStatement, PathConfig pcfg, Collector c){
     qualifiedModuleName = unescape(qualifiedModuleName);
 
     //return false;
@@ -129,20 +129,20 @@ bool addImport(str qualifiedModuleName, Tree importStatement, PathConfig pcfg, T
                         } catch value e: {
                             println("Reusing existing type information for <m> (source not accessible): source ts in BOM: <bom[m]>, last modified tpl <getLastModified(m, pcfg)>");
                            //if(m != qualifiedModuleName)
-                           //   tb.reportWarning(importStatement, "Reusing outdated type information for <m> (source not accessible): source ts in BOM: <bom[m]>, last modified tpl <getLastModified(m, pcfg)>");
+                           //   c.reportWarning(importStatement, "Reusing outdated type information for <m> (source not accessible): source ts in BOM: <bom[m]>, last modified tpl <getLastModified(m, pcfg)>");
                         }
                    }
                }
             }
             println("*** importing <qualifiedModuleName> from <tplLoc> (ts=<lastModified(tplLoc)>)");
             //iprintln(tm);
-            tb.addTModel(tm);
+            c.addTModel(tm);
             if(list[str] imps := tm.store[key_imported] ? []){
-                for(imp <- toSet(imps)) tb.push(key_imported, imp);
+                for(imp <- toSet(imps)) c.push(key_imported, imp);
             }
             return true;
         } catch IO(str msg): {
-            tb.reportWarning(importStatement, "During import of <fmt(qualifiedModuleName)>: <fmt(msg)>");
+            c.report(warning(importStatement, "During import of %q: %v", qualifiedModuleName, msg));
             return false;
         }
     } else {
@@ -165,7 +165,7 @@ void saveModules(str qualifiedModuleName, PathConfig pcfg, TModel tm){
     }
 
    // Replace all getAType functions by their value
-    defs = for(tup: <Key scope, str id, IdRole idRole, Key defined, DefInfo defInfo> <- tm.defines){
+    defs = for(tup: <loc scope, str id, IdRole idRole, loc defined, DefInfo defInfo> <- tm.defines){
          if(id == "type" && idRole == constructorId()){  
             continue; // exclude builtin constructor for "type"
          } else {
@@ -199,7 +199,7 @@ void saveModules(str qualifiedModuleName, PathConfig pcfg, TModel tm){
     tm.defines = toSet(defs);
     moduleScopes = getModuleScopes(tm);
     
-    for(m <- qualifiedModuleName + {unescape(tbs) | tbs <- toBeSaved}){
+    for(m <- qualifiedModuleName + {unescape(cs) | cs <- toBeSaved}){
         tms = saveModule(m, import_graph[m] ? {}, (extend_graph+)[m] ? {}, moduleScopes, pcfg, tm);
         //if(m == "lang::rascal::syntax::Rascal") iprintln(tms, lineLimit=15000);
     }
@@ -244,7 +244,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         roles = dataOrSyntaxIds + {constructorId(), functionId(), fieldId()/*, variableId()*/};
         // Filter model for current module and replace functions in defType by their defined type
         
-        defs = for(tup: <Key scope, str id, IdRole idRole, Key defined, DefInfo defInfo> <- tm.defines){
+        defs = for(tup: <loc scope, str id, IdRole idRole, loc defined, DefInfo defInfo> <- tm.defines){
                    if(scope == |global-scope:///| && defined.path in filteredModuleScopePaths || 
                       scope in filteredModuleScopes || 
                       (scope.path == mscope.path && idRole in roles)){
@@ -262,7 +262,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         m1.defines = toSet(defs);
         m1 = visit(m1) {case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""]; };
         
-        //calcs = (key : tm.calculators[key] | Key key <- tm.calculators, key.path == mscope.path, bprintln("<key>: <tm.calculators[key]>"));
+        //calcs = (key : tm.calculators[key] | loc key <- tm.calculators, key.path == mscope.path, bprintln("<key>: <tm.calculators[key]>"));
         //
         //reqs  = {r | r <- tm.openReqs, r.src.path == mscope.path, bprintln(r)};
         //
@@ -270,10 +270,9 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         
         writeBinaryValueFile(tplLoc, m1);
         println("WRITTEN to <tplLoc> (ts=<lastModified(tplLoc)>)");
-      
         return m1;
     } catch value e: {
-        return tmodel()[messages=[error("Could not save .tpl file for <fmt(qualifiedModuleName)>: <fmt(e)>", |unknown:///|(0,0,<0,0>,<0,0>))]];
+        return tmodel()[messages=[error("Could not save .tpl file for `<qualifiedModuleName>`: <e>", |unknown:///|(0,0,<0,0>,<0,0>))]];
     }
 }
 
