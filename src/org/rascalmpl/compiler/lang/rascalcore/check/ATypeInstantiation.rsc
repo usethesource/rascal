@@ -20,7 +20,7 @@ import lang::rascalcore::check::ATypeExceptions;
  
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
-extend analysis::typepal::ExtractTModel;
+extend analysis::typepal::Collector;
 
 public alias Bindings = map[str varName, AType varType];
 

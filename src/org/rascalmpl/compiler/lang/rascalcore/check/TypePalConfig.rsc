@@ -2,7 +2,7 @@ module lang::rascalcore::check::TypePalConfig
  
 extend analysis::typepal::TypePal;
 extend analysis::typepal::TestFramework;
-extend analysis::typepal::ExtractTModel;
+extend analysis::typepal::Collector;
 extend analysis::typepal::ScopeGraph;
 
 import analysis::typepal::TypePalConfig;
