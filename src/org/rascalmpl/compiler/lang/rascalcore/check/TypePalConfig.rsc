@@ -6,6 +6,7 @@ extend analysis::typepal::Collector;
 extend analysis::typepal::ScopeGraph;
 
 import analysis::typepal::TypePalConfig;
+import analysis::typepal::Utils;
 
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
