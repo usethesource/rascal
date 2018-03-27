@@ -13,11 +13,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
@@ -29,11 +27,13 @@ import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
-
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 
@@ -139,36 +139,53 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     
     protected void printResult(IRascalResult result, Map<String,String> output, Map<String, String> metadata) throws IOException {
         String mimeType = "text/" + (htmlOutput ? "html" : "plain");
+
         if (result == null || result.getValue() == null) {
             output.put(mimeType, "ok\n");
             return;
         }
        
         final StringWriter out = new StringWriter();
-
         OutputWriter writer;
-        
-        
-        
-        
-        
         if (htmlOutput) {
+            try {
+                if(result.getType().isTuple() && result.getType().getName().equalsIgnoreCase("SalixMultiplexer")){
+                    ISourceLocation http = (ISourceLocation)((ITuple)result.getValue()).get(2);
+                    String ln = "serverSalixHttp1 = \""+ http.getURI() +"\";";
+                    evalStatement(ln, ln);
+                }
+            }
+            catch (IllegalOperationException|InterruptedException e) {
+                e.printStackTrace();
+            }
             writer = new OutputWriter() {
                 @Override
                 public void writeOutput(Type tp, IOConsumer<StringWriter> contentsWriter) throws IOException {
-                    String id = genSalixId();
-                    out.write("<div id=\""+ id +"\">");
-                    out.write("<pre title=\"Type: " + tp.toString() + "\">");
-                    contentsWriter.accept(out);
-                    out.write("</pre>");
-                    out.write("<script>");
-                    out.write("var salix_<id> = new Salix(\"" + id + "\", 'http://....');");
-                    out.write("salix.start();");
-                    out.write("</script>");
-                    out.write("</div>");
-                }
-                private String genSalixId() {
-                    return UUID.randomUUID().toString();
+                    
+                    try{
+                        if(tp.isString() && tp.getName().equals("VisOutput")){
+                            String scope = ((IString) result.getValue()).getValue();
+                            IRascalResult gg = evalStatement("serverSalixHttp1;", "serverSalixHttp1;");
+                            
+                            out.write("<script>");
+                            out.write("var "+ scope +" = new Salix('"+ scope +"', '" + ((IString) gg.getValue()).getValue() +"');");
+                            out.write("google.charts.load('current', {'packages':['corechart']});");
+                            out.write("google.charts.setOnLoadCallback(function () { registerCharts("+scope+");\n registerDagre("+scope+"); \n registerTreeView("+ scope +"); \n"+ scope + ".start();});");
+                            out.write("</script>");
+                            out.write("<div id=\""+ scope +"\">");
+                            out.write("</div>");
+                        }
+                        else{
+                            out.write("<div>");
+                            out.write("<pre title=\"Type: " + tp.toString() + "\">");
+                            contentsWriter.accept(out);
+                            out.write("</pre>");
+                            out.write("</div>");
+                        }
+                    }
+                    catch (Exception e) {
+                        e.printStackTrace();
+                    }
                 }
                 @Override
                 public void finishOutput() {
