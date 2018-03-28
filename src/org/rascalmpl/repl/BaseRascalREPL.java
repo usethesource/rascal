@@ -151,8 +151,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
             try {
                 if(result.getType().isTuple() && result.getType().getName().equalsIgnoreCase("SalixMultiplexer")){
                     ISourceLocation http = (ISourceLocation)((ITuple)result.getValue()).get(2);
-                    String ln = "serverSalixHttp1 = \""+ http.getURI() +"\";";
-                    evalStatement(ln, ln);
+                    evalStatement("serverSalixHttp1 = \""+ http.getURI() +"\";", null);
                 }
             }
             catch (IllegalOperationException|InterruptedException e) {
