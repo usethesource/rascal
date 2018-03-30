@@ -305,10 +305,10 @@ public class EclipseJavaCompiler {
 
         options.put(JavaCore.COMPILER_SOURCE, javaVersion.getValue());
         options.put(JavaCore.COMPILER_COMPLIANCE, javaVersion.getValue());
-        options.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, "enabled");
+        options.put(JavaCore.COMPILER_DOC_COMMENT_SUPPORT, JavaCore.ENABLED);
 
         parser.setCompilerOptions(options);
-
+        
         parser.setEnvironment(classPath, sourcePath, null, true);
         return parser;
     }

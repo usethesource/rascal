@@ -1,6 +1,7 @@
 module lang::rascal::grammar::tests::TestGrammars
 
 import Grammar;
+import ParseTree;
 
 public Grammar GEMPTY = grammar({sort("S")}, ());
 

@@ -1,14 +1,15 @@
 # Declarations Command
 
 .Synopsis
-Show all declarations in current RascalShell session.
+Show all declarations and imports in current RascalShell session.
 
 .Syntax
 `declarations`
 
 .Description
-All declarations entered during the current session are shown.
-Also see <<Undeclare Command>> to remove a declaration.
+All imports and declarations entered during the current session are shown.
+Also see <<Undeclare Command>> to remove a declaration or 
+<<Unimport Command>> to remove an import from the current session.
 
 .Examples
 

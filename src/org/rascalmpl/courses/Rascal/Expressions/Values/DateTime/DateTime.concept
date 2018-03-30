@@ -86,7 +86,7 @@ There are also link:/Libraries#Prelude-DateTime[library functions] available for
 Examples of `datetime` values are:
 [source,rascal-shell,continue]
 ----
-$2010-07-15$;
+$2010-07-15$
 $T07:15:23.123+0100$;
 ----
 Now introduce a `datetime` value and assign it to `DT`.

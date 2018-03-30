@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.tutor3;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -19,8 +20,10 @@ public class Concept {
 	private String index;
 	private Path libSrcPath;
 	private String toc;
+    private long timestamp;
 
-	public Concept(Path name, String text, Path destPath, Path libSrcPath){
+	public Concept(Path name, String text, Path destPath, Path libSrcPath, long timestamp){
+	    this.timestamp = timestamp;
 		this.name = name;
 		this.text = text;
 		this.destPath = destPath;
@@ -153,14 +156,20 @@ public class Concept {
 	   
     private String makeRed(String result){
       StringWriter sw = new StringWriter(result.length()+5);
-      result.split("\n");
       for(String s :  result.split("\n")){
-        sw.append("[red]##").append(s).append("##\n");
+        sw.append("[error]#").append(s).append("#\n");
       }
       return sw.toString();
     }
     
-	public void preprocess(Onthology onthology, TutorCommandExecutor executor) throws IOException{
+	public void preprocess(Onthology onthology, TutorCommandExecutor executor) throws IOException {
+	    assert onthology != null && executor != null;
+	    File adocOut = new File(getADocFileName());
+	    
+	    if (adocOut.exists() && adocOut.lastModified() > timestamp) {
+	        return; // we don't have to do the work if the source hasn't changed.
+	    }
+	    
 		BufferedReader reader = new BufferedReader(new StringReader(text));
 
 		StringWriter preprocessOut = new StringWriter();
@@ -265,7 +274,10 @@ public class Concept {
 						  if(!mayHaveErrors){
 						    executor.error("* __" + name + "__:");
 						    executor.error("While executing '" + complete(line) + "': " + e.getMessage());
+						    executor.err.println("While compiling " + name + " this exception was thrown:");
+						    e.printStackTrace(executor.err);
 						  }
+						  
 						  preprocessOut.append(e.getMessage() != null ? makeRed(e.getMessage())
 						                                              : makeRed(e.toString())
 						                      );

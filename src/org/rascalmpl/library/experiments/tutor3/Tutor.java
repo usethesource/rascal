@@ -26,6 +26,7 @@ public class Tutor {
 	  PrintWriter stderr = new PrintWriter(System.err);
 	  IDEServices ideServices = new BasicIDEServices(stderr);
 	  HelpManager hm = new HelpManager(pcfg, new PrintWriter(System.out), stderr, ideServices);
+	  hm.refreshIndex();
 	  
 	  ideServices.browse(new URI("http://localhost:" + hm.getPort() + "/TutorHome/index.html"));
 	  Thread.sleep(864000000);  // a hack a day keeps the doctor away (and the debugger close)

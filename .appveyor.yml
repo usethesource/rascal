@@ -1,4 +1,9 @@
 version: "{branch} {build}"
+branches:
+  only:
+    - master
+
+shallow_clone: true
 
 # make sure to force windows newlines in the files
 # this is to make sure certain tests behave as expected
@@ -19,7 +24,7 @@ install:
   - mvn -version
 
 build_script:
-  - mvn -Drascal.boot=--validating -Drascal.boot.version=unstable clean compile -DskipTests
+  - mvn -Drascal.boot=--basic clean compile -DskipTests
 
 test_script:
   - mvn test
