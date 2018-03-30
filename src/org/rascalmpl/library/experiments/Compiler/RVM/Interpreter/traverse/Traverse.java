@@ -59,6 +59,7 @@ public class Traverse {
 							return tr.traverse.once(subject, tr);
 						}
 					}
+					break;
 				case Breaking:
 					switch(fixedpoint){
 					case Yes:
@@ -79,6 +80,7 @@ public class Traverse {
 						}
 					}
 				}
+				break;
 			case TopDown:
 				switch(progress){
 				case Continuing:
@@ -100,6 +102,7 @@ public class Traverse {
 							return tr.traverse.once(subject, tr);
 						}
 					}
+					break;
 				case Breaking:
 					switch(fixedpoint){
 					case Yes:

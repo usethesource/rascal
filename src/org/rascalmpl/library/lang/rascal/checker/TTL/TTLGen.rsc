@@ -41,7 +41,7 @@ str addModulePrefix(Module m){
 // Generate tests for one TTL file
 void generate(loc src){
    println("generate: <src>");
-   spec = parse(#TTL, src);
+   TTL spec = parse(#TTL, src);
    map[Name, Declaration] decls = ();
    map[Name, Module] modules = ();
    str tests = "";

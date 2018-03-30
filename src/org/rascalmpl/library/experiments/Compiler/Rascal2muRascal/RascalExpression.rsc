@@ -536,8 +536,13 @@ private MuExp translatePathTail((PathTail) `<PostPathChars post>`) = muCon("<pos
 
 // -- all other literals  --------------------------------------------
 
-default MuExp translate((Literal) `<Literal s>`) = 
-    muCon(readTextValueString("<s>"));
+default MuExp translate((Literal) `<Literal s>`) {
+    try {
+        return muCon(readTextValueString("<s>"));
+    } catch e: {
+        throw CompileTimeError(error("<e>", s@\loc));
+    }
+}
 
 
 /*********************************************************************/
@@ -1146,18 +1151,18 @@ private MuExp translateVisitCases(str fuid, Symbol subjectType, bool useConcrete
 }
 
 private tuple[set[Symbol] types, set[str] constructors] getTypesAndConstructorsInVisit(list[Case] cases){
-	reachableTypes = {};
+	reachableTypes1 = {};// TODO: renamed for new (experimental) type checker
 	reachableConstructors = {};
 	for(c <- cases){
 		if(c is patternWithAction){
 			tc = getTypesAndConstructors(c.patternWithAction.pattern);
 			reachableConstructors += tc.constructors;
-			reachableTypes += tc.types;
+			reachableTypes1 += tc.types;
 		} else {
 			return <{Symbol::\value()}, {}>;		// A default cases is present: everything can match
 		}
 	}
-	return <reachableTypes, reachableConstructors>;
+	return <reachableTypes1, reachableConstructors>;
 }
 
 public bool hasConcretePatternsOnly(list[Case] cases){
@@ -1640,7 +1645,7 @@ private MuExp translateSubscript(Expression e:(Expression) `<Expression exp> [ <
     if(ot notin {"map", "rel", "lrel"}) {
        op += "_<intercalate("-", [getOuterType(s) | s <- subscripts])>";
     } else 
-    if(ot == "lrel" && size(subscripts) == 1 && getOuterType(list_of_subscripts[0]) == "int"){
+    if(ot == "lrel" && nsubscripts == 1 && getOuterType(list_of_subscripts[0]) == "int"){
     	op = "list_subscript_int";
     }
     if(op == "rel_subscript"){

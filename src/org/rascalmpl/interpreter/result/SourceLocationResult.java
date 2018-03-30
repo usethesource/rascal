@@ -138,13 +138,15 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		Integer tupleB = null;
 		
 		switch (Names.name(name)) {
-		case "host": 
+			// fall through
+		case "host":
 		case "user": 
 		case "port": 
 			if (!URIResolverRegistry.getInstance().supportsHost(value)) {
 				return makeResult(tf.boolType(), vf.bool(false), ctx);	
-			} 
+			}
 
+			// fall through
 		case "path":
 		case "scheme": 
 		case "authority":

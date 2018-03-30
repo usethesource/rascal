@@ -33,7 +33,7 @@ import io.usethesource.vallang.type.TypeFactory;
  */
 public class RVMLinker {
 
-	private IValueFactory vf;
+	private final IValueFactory vf;
 	private TypeFactory tf;
 	
 	// Functions

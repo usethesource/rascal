@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import io.usethesource.vallang.IInteger;
+import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
@@ -81,20 +82,22 @@ public class RascalRuntimeException {
 
 	public static final Type NotImplemented = TF.constructor(TS, Exception, "NotImplemented", TF.stringType(), "message");
 	
+	public static final Type Failed = TF.constructor(TS, Exception, "Failed", TF.sourceLocationType(), "caller", TF.listType(TF.valueType()), "arguments");
+	
 	public static Thrown ambiguity(ISourceLocation loc, IString type, IString string, Frame currentFrame) {
-	  return Thrown.getInstance(VF.constructor(Ambiguity, loc, type, string), currentFrame);
+	    return Thrown.getInstance(VF.constructor(Ambiguity, loc, type, string), currentFrame);
+	}
+	
+	public static Thrown failed(ISourceLocation loc, IList arguments, Frame currentFrame) {
+	    return Thrown.getInstance(VF.constructor(Failed, loc, arguments), currentFrame);
 	}
 	
 	public static Thrown arithmeticException(String msg, Frame currentFrame) {
 		return Thrown.getInstance(VF.constructor(ArithmeticException, VF.string(msg)), currentFrame);
 	}
 	
-//	public static Thrown assertionFailed(ISourceLocation loc, Frame currentFrame) {
-//		return Thrown.getInstance(VF.constructor(AssertionFailed), loc, currentFrame);
-//	}
-
 	public static Thrown assertionFailed(IString msg, ISourceLocation loc, Frame currentFrame) {
-    	return Thrown.getInstance(VF.constructor(LabeledAssertionFailed, msg), loc, currentFrame);
+	    return Thrown.getInstance(VF.constructor(LabeledAssertionFailed, msg), loc, currentFrame);
     }
 	
 	public static Thrown emptyList(Frame currentFrame) {

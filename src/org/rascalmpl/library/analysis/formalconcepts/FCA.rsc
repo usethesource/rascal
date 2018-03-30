@@ -160,7 +160,7 @@ set[&Attribute] newAdded1(ConceptLattice[&Object, &Attribute] q,  Concept[&Objec
      return c[1] - union({p[1]|Concept[&Object, &Attribute] p <-parents});
      }
  
-set[&Concept] newAdded0(ConceptLattice[&Object, &Attribute] q, Concept[&Object, &Attribute] c) {
+set[Concept[&Object, &Attribute]] newAdded0(ConceptLattice[&Object, &Attribute] q, Concept[&Object, &Attribute] c) {
      set[Concept[&Object, &Attribute]] parents = domain(rangeR(q, {c}));
      return c[0] - union({p[0]|Concept[&Object, &Attribute] p <-parents});
      }  

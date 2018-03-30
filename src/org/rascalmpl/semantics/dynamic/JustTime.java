@@ -44,7 +44,7 @@ public abstract class JustTime extends org.rascalmpl.ast.JustTime {
 		
 		private Result<IValue> createVisitedTime(IEvaluator<Result<IValue>> eval, String timePart, org.rascalmpl.ast.JustTime.Lexical x) {
 			try {
-				timePart.replaceAll(":","");
+				timePart = timePart.replaceAll(":","");
 
 				StandardTextReader parser = new StandardTextReader();
 				IValue result = parser.read(VF, new StringReader("$T" + timePart));

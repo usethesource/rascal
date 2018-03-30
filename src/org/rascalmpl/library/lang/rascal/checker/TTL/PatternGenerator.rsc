@@ -151,12 +151,12 @@ public rat arbPosRat(){
 public PV arbList(type[&T] et, int nvars, VarEnv env, bool allowVars){
    if(isVoidType(et.symbol))
       return <"[]", [], nvars, env>;
-   n = arbInt(0, 5);
+   n = arbInt(5);
    pelms = [];
    velms = [];
    listType = type(\list(et.symbol), ());
    while(size(pelms) < n){
-    	if(allowVars && arbInt(0,3) == 0){  // Introduce new variable;
+    	if(allowVars && arbInt(3) == 0){  // Introduce new variable;
 	        str var = "L<nvars>";
 	        value val;
 	        <pat, val, nvars, env> = generateValue(listType, nvars + 1, env, false);
@@ -179,14 +179,14 @@ public PV arbList(type[&T] et, int nvars, VarEnv env, bool allowVars){
 public PV arbSet(type[&T] et, int nvars, VarEnv env, bool allowVars){
    if(isVoidType(et.symbol))
       return <"{}", {}, nvars, env>;
-   n = arbInt(0, 5);
+   n = arbInt(5);
    pelms = [];
    velms = {};
    attempt = 0;
    setType = type(\set(et.symbol), ());
    while(size(pelms) < n && attempt < 100){
    	 attempt += 1;
-    	if(allowVars && arbInt(0,3) == 0){  // Introduce new variable;
+    	if(allowVars && arbInt(3) == 0){  // Introduce new variable;
 	        str var = "S<nvars>";
 	        value val;
 	        <pat, val, nvars, env> = generateValue(setType, nvars + 1, env, false);
@@ -214,7 +214,7 @@ public PV arbMap(type[&K] kt, type[&V] vt, int nvars, VarEnv env, bool allowVars
    if(isVoidType(kt.symbol) || isVoidType(vt.symbol))
       return <"()", (), nvars, env>;
    map[str,value] keys = ();
-   for(int i <- [0 .. arbInt(0, 5)]){ // ensures unique keys
+   for(int i <- [0 .. arbInt(5)]){ // ensures unique keys
        
        <pelm, velm, nvars1, env1> = generatePattern(kt, nvars, env, allowVars);
        if(!keys[pelm]?){

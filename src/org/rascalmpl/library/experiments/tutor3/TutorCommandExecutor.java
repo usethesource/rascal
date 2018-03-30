@@ -7,15 +7,16 @@ import java.net.URISyntaxException;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CompiledRascalREPL;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.RascalShellExecutionException;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug.DebugREPLFrameObserver;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class TutorCommandExecutor {
 	ISourceLocation screenInputLocation;
@@ -25,7 +26,7 @@ public class TutorCommandExecutor {
 	PrintWriter err;
 	String consoleInputPath = "/ConsoleInput.rsc";
 
-	TutorCommandExecutor(PathConfig pcfg, PrintWriter err, IDEServices ideServices) throws IOException, NoSuchRascalFunction, URISyntaxException{
+	public TutorCommandExecutor(PathConfig pcfg, PrintWriter err, IDEServices ideServices) throws IOException, NoSuchRascalFunction, URISyntaxException{
 		try {
 			IValueFactory vf = ValueFactoryFactory.getValueFactory();
 			screenInputLocation = vf.sourceLocation("home", "", consoleInputPath);
@@ -35,8 +36,7 @@ public class TutorCommandExecutor {
 		this.err = err;
 		shellStringWriter = new StringWriter();
 		shellPrintWriter = new PrintWriter(shellStringWriter);
-		executor = new CommandExecutor(pcfg, shellPrintWriter, shellPrintWriter, ideServices, null);
-		executor.setDebugObserver(new DebugREPLFrameObserver(null, System.in, System.out, true, true, null, null, ideServices));
+		executor = new CommandExecutor(pcfg, shellPrintWriter, shellPrintWriter, ideServices, null, new IFrameObserver() { /*defaults*/ });
 	}
 	
 	void flush(){
