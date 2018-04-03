@@ -298,6 +298,3 @@ private set[AType] mergeCC(set[AType] su) {
   
   return result;  
 }
-
-
- 	 

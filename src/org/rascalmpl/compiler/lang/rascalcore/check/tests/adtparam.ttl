@@ -1,0 +1,49 @@
+test ADTWithTypeParameter [[
+    module A
+    data D[&T] = d1(&T n);
+]]
+
+test UndefinedTypeParameter [[
+    module A
+    data D[&T] = d1(&U n);
+]] expect { "Type parameter(s) `T` not defined in constructor `d1`" }
+
+test UnboundTypeParameter [[
+    module A
+    data D[&T] = d1();
+]] expect { "Type parameter(s) `T` not defined in constructor `d1`" }
+
+test MissingTypeParameter [[
+    module A
+    data D[&T] = d1(&T n);
+    
+    int f(){ D x = d1(10); return x.n; }
+]] expect { "Expected 1 type parameter(s) for `D`" }
+
+
+test MultipleInstances [[
+    module A
+    data D[&T] = d1(&T n);
+    
+    int f() { D[int] x = d1(10); D[str] y = d1("abc"); int m = x.n; str s = y.n; }
+]]
+
+
+test ADTWithTypeParameterAndKW [[
+    module A
+    data D[&T] = d1(&T n, &T kw = n);
+]]
+
+test ADTWithTypeParameterAndKW [[
+    module A
+    data D[&T] = d1(&T n, &T kw = n);
+    
+    int f() { D[int] x = d1(10); int m = x.kw; }
+]]
+
+test ADTWithTypeParameterAndKWerror [[
+    module A
+    data D[&T] = d1(&T n, &T kw = n);
+    
+    int f() { D[int] x = d1(10); str m = x.kw; }
+]] expect { "Type of initialization should be subtype of `str`, found `int`" }

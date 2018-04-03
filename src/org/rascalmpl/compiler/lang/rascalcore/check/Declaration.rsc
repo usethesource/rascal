@@ -1,19 +1,21 @@
 module lang::rascalcore::check::Declaration
- 
+  
 extend analysis::typepal::TypePal;
+extend lang::rascalcore::check::AType;
+extend lang::rascalcore::check::TypePalConfig;
+extend lang::rascalcore::check::ConvertType;
+extend lang::rascalcore::check::Expression;
+
 
 import lang::rascal::\syntax::Rascal;
-
 import lang::rascalcore::check::ATypeExceptions;
-import lang::rascalcore::check::ConvertType;
+
 import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::ATypeInstantiation;
 
-extend lang::rascalcore::check::AType;
-extend lang::rascalcore::check::TypePalConfig;
-
 import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascalcore::grammar::definition::Productions;
+import lang::rascalcore::grammar::definition::Attributes;
 
 import lang::rascalcore::check::Import;
 import lang::rascalcore::check::Pattern;
@@ -25,8 +27,29 @@ import IO;
 import Set;
 import Map;
 import String;
+import util::Maybe;
 
-// ---- Rascal declarations
+// ---- Utilities -------------------------------------------------------------
+
+map[str,str] getTags(Tags tags)
+    =  ("<tg.name>" : tg has contents ? "<tg.contents.contents>" : "" | tg <- tags.tags);
+
+bool ignoreCompiler(map[str,str] tagsMap)
+    = !isEmpty(domain(tagsMap) &  {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
+
+tuple[bool, str] getDeprecated(map[str,str] tagsMap){
+    for(depr <- {"deprecated", "Deprecated"}){
+        if(tagsMap[depr]?)
+            return <true, tagsMap[depr]>;
+   }
+   return <false, "">;
+}
+
+Vis getVis((Visibility) `private`, Vis dv)  = privateVis();
+Vis getVis((Visibility) `public`, Vis dv)   = publicVis();
+Vis getVis((Visibility) ``, Vis dv)         = dv;
+
+// ---- Rascal declarations ---------------------------------------------------
 
 void collect(current: (Module) `<Header header> <Body body>`, Collector c){
   
@@ -37,10 +60,8 @@ void collect(current: (Module) `<Header header> <Body body>`, Collector c){
     tagsMap = getTags(header.tags);
     
     //if(ignoreCompiler(tagsMap)) {println("*** ignore module <mname>"); return; }
-    //println("*** collect module <mname>, <getLoc(current)>");
     <deprecated, deprecationMessage> = getDeprecated(tagsMap);
     
-     
     tmod = deprecated ? amodule(mname, deprecationMessage=deprecationMessage) : amodule(mname);
     if(deprecated){
         c.report(warning(current, "Deprecated module %v%v", mname, isEmpty(deprecationMessage) ? "" : ": <deprecationMessage>"));
@@ -76,7 +97,7 @@ void checkModuleName(loc mloc, QualifiedName qualifiedModuleName, Collector c){
     }
 }
 
-// ---- import
+// ---- import ----------------------------------------------------------------
 
 void collect(current: (Import) `import <ImportedModule m> ;`, Collector c){ // TODO: warn about direct self-import
     c.useViaPath(m, {moduleId()}, importPath());
@@ -127,8 +148,8 @@ void getImports(Collector c){
         throw rascalCheckerInternalError("Inconsistent value for \"pathconfig\": <c.getStack("pathconfig")>");
     }
 }
-
-// ---- extend
+ 
+// ---- extend ----------------------------------------------------------------
 
 void collect(current: (Import) `extend <ImportedModule m> ;`, Collector c){    
     c.useViaPath(m, {moduleId()}, extendPath());
@@ -137,118 +158,89 @@ void collect(current: (Import) `extend <ImportedModule m> ;`, Collector c){
     c.push(key_extend_graph, <c.top(key_current_module), "<m.name>">);
 }
 
-// ---- variable declaration
-
-Vis getVis((Visibility) `private`)  = privateVis();
-Vis getVis((Visibility) `public`)   = publicVis();
-Vis getVis((Visibility) ``)         = defaultVis();
+// ---- variable declaration --------------------------------------------------
 
 // Note: Rascal's closures are mutable, therefore we need an extra closure when creating
 // several requirements from the same function context. In this way the value of expr becomes fixed
-void(Solver s) makeVarInitRequirement(Expression expr, AType initType, loc scope)
-    = void(Solver s) { 
-           expandedInitType = expandUserTypes(initType, scope, s);
-           expandedExprType = expandUserTypes(s.getType(expr), scope, s);
-           s.requireSubtype(expandedExprType, expandedInitType, error(expr, "Type of initialization should be subtype of %t, found %t", expandedInitType, expandedExprType));
+void(Solver s) makeVarInitRequirement(Expression expr, Type varType)
+    = void(Solver s) {
+           s.requireSubtype(expr, varType, error(expr, "Type of initialization should be subtype of %t, found %t", varType, expr));
          };
          
-void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type \type> <{Variable ","}+ variables> ;`, Collector c){
-
+void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type varType> <{Variable ","}+ variables> ;`, Collector c){
     tagsMap = getTags(tags);
     if(ignoreCompiler(tagsMap)) { println("*** ignore <current>"); return; }
-     
-    vis = getVis(current.visibility);
-    if(vis == defaultVis()){
-        vis = privateVis();
-    }
-    varType = convertType(current.\type, c);
-    scope = c.getScope();
     
     for(var <- variables){
-        dt = defType([], AType(Solver s){ 
-            return expandUserTypes(varType, scope, s); });
-        dt.vis = vis;
+        dt = defGetType(varType);
+        dt.vis = getVis(current.visibility, privateVis());
         if(!isEmpty(tagsMap)) dt.tags = tagsMap;
         c.define(prettyPrintName(var.name), variableId(), var.name, dt);
         
-        c.require("variable type is defined", current.\type, [],
-            void (Solver s){ //try 
-                expandUserTypes(varType, scope, s);
-                //catch TypeUnavailable(): report(error(current.\type, "Undeclared type <fmt("<current.\type>")>");
-            });
         if(var is initialized){
-            //if(!(var.initial is closure)) 
             c.enterLubScope(var);
-                c.require("variable initialization", var.initial, [], makeVarInitRequirement(var.initial, varType, c.getScope()));
+                c.require("variable initialization", var.initial, [varType], makeVarInitRequirement(var.initial, varType));
                 collect(var.initial, c); 
-            //if(!(var.initial is closure)) 
             c.leaveScope(var);
         }
     }  
-    collect(tags, c);  
+    collect(tags, varType, c);  
 }
 
-// ---- annotation
+// ---- annotation ------------------------------------------------------------
 
 void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <Type annoType> <Type onType> @ <Name name> ;`, Collector c){
     tagsMap = getTags(tags);
     if(ignoreCompiler(tagsMap)) { println("*** ignore: <current>"); return; }
     
-    vis = getVis(current.visibility);
-    if(vis == defaultVis()){
-        vis = publicVis();
-    }
-    
-    at = convertType(annoType, c);
-    ot = convertType(onType, c);
     qname = convertName(name);
-    scope = c.getScope();
-    dt = defType([], AType(Solver s) { return aanno(qname.name, expandUserTypes(ot, scope, s), expandUserTypes(at, scope, s)); });
-    dt.vis=vis;
+    dt = defType([annoType, onType], AType(Solver s) { return aanno(qname.name, s.getType(onType), s.getType(annoType)); });
+    dt.vis = getVis(current.visibility, publicVis());
     if(!isEmpty(tagsMap)) dt.tags = tagsMap;
     c.define(qname.name, annoId(), name, dt);
-    //collect(current, c); 
+    collect(annoType, onType, c); 
+}
+
+// ---- keyword Formal --------------------------------------------------------
+
+void collect(current: (KeywordFormal) `<Type kwType> <Name name> = <Expression expression>`, Collector c){
+    c.define("<name>", variableId(), name, defGetType(kwType));
+    c.calculate("keyword formal", current, [kwType, expression],
+        AType(Solver s){
+            s.requireSubtype(expression, kwType, error(expression, "Initializing expression of type %t expected, found %t", kwType, expression));
+            return s.getType(kwType);
+        });
+    collect(kwType, expression, c);
 }
  
+// ---- function declaration --------------------------------------------------
 
-// ---- function declaration
-
-data ReturnInfo = returnInfo(AType retType, list[Pattern] formals, set[AType] kwTypeParams);
+data ReturnInfo = returnInfo(Type returnType);
 
 void collect(FunctionDeclaration decl, Collector c){
 //println("********** function declaration: <decl.signature.name>");
     
-    vis = getVis(decl.visibility);
-    if(vis == defaultVis()){
-        vis = publicVis();
-    }
-    
     tagsMap = getTags(decl.tags);
+    if(ignoreCompiler(tagsMap)) { println("ignore: function <fname>"); return; }
     
     <deprecated, deprecationMessage> = getDeprecated(tagsMap);
     signature = decl.signature;
-    isVarArgs = signature.parameters is varArgs;
     fname = signature.name;
-    
-    if(ignoreCompiler(tagsMap)) { println("ignore: function <fname>"); return; }
     parentScope = c.getScope();
        
     c.enterLubScope(decl);
         scope = c.getScope();
-        c.setScopeInfo(scope, functionScope(), false);
-        retType = convertType(signature.\type, c);
-        <formals, kwTypeParams, kwFormals> = checkFunctionType(scope, retType, signature.parameters, isVarArgs, c);
+        c.setScopeInfo(scope, functionScope(), returnInfo(signature.\type));
         
-        dt = defType([], AType(Solver s) {
-                 expandedRetType = expandUserTypes(retType, scope, s);
-                 ft = afunc(expandedRetType, atypeList([expandUserTypes(unset(getPatternType(f, avalue(), scope, s), "label"), scope, s) | f <- formals]), kwFormals);
-                 if(isVarArgs) ft.varArgs = true;
+        dt = defType([signature], AType(Solver s) {
+                 ft = s.getType(signature);
+                 if(signature.parameters is varArgs) ft.varArgs = true;
                  if(deprecated) {
                     ft.deprecationMessage = deprecationMessage;
                  }
                  return ft;
              });
-        dt.vis=vis;
+        dt.vis = getVis(decl.visibility, publicVis());
         if(!isEmpty(tagsMap)) dt.tags = tagsMap;
          
         c.defineInScope(parentScope, prettyPrintName(fname), functionId(), fname, dt); 
@@ -259,7 +251,7 @@ void collect(FunctionDeclaration decl, Collector c){
                   // We do in this case not check that the type of the expression as a whole is compatible with the return type.
                   // TODO: cover the case that we leave the expression via a return AND via the value of the expression as a whole
             } else {
-                c.requireEager("check on return type", decl.expression, [decl.expression], makeReturnRequirement(decl.expression, retType, formals, kwTypeParams, scope));
+                c.requireEager("check on return type", decl.expression, [decl.expression], makeReturnRequirement(decl.expression, signature.\type));
             }
             collect(decl.expression, c);
         } 
@@ -280,102 +272,110 @@ void collect(FunctionDeclaration decl, Collector c){
             collect(decl.conditions, c);
         }
         if(decl is \default) collect(decl.body, c);
-        
+        collect(decl.signature, c);
     c.leaveScope(decl);
-}
-
-map[str,str] getTags(Tags tags)
-    =  ("<tg.name>" : tg has contents ? "<tg.contents.contents>" : "" | tg <- tags.tags);
-
-bool ignoreCompiler(map[str,str] tagsMap)
-    = !isEmpty(domain(tagsMap) &  {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
-
-tuple[bool, str] getDeprecated(map[str,str] tagsMap){
-    for(depr <- {"deprecated", "Deprecated"}){
-        if(tagsMap[depr]?)
-            return <true, tagsMap[depr]>;
-   }
-   return <false, "">;
 }
 
 bool containsReturn(Tree t) = /(Statement) `return <Statement statement>` := t;
 
-list[Keyword] getKeywordFormals({KeywordFormal  "," }+ keywordFormalList, IdRole role, Collector c){    
-    return 
-        for(KeywordFormal kwf <- keywordFormalList){
-            fieldName = prettyPrintName(kwf.name);
-            fieldType = convertType(kwf.\type, c)[label=fieldName];
-            defaultExp = kwf.expression;
-            c.define(fieldName, role, kwf.name, defType(fieldType));
-            append </*fieldName, */fieldType, defaultExp>;
-        }
+AType computeFormals(list[Pattern] formals, loc scope, Solver s){
+    return atypeList([getPatternType(f, avalue(), scope, s) | f <- formals]); //unset ?
 }
 
-tuple[list[Pattern] formals, set[AType] kwTypeParams, list[Keyword] kwFormals] checkFunctionType(loc scope, AType retType, Parameters params, bool isVarArgs, Collector c){
-    formals = [pat | Pattern pat <- params.formals.formals];
+list[Keyword] computeKwFormals(list[KeywordFormal] kwFormals, Solver s){
+    return [<s.getType(kwf.\type)[label=prettyPrintName(kwf.name)], kwf.expression> | kwf <- kwFormals];
+}
+
+void collect(Signature signature, Collector c){
+    returnType  = signature.\type;
+    parameters  = signature.parameters;
+    formals     = getFormals(signature.parameters);
+    kwFormals   = getKwFormals(signature.parameters);
+  
+    for(tv <- getTypeVars(returnType)){
+        c.use(tv.name, {typeVarId()});
+    }
+   
+    scope = c.getScope();
+    c.calculate("signature", signature, [], //returnType + formals, 
+        AType(Solver s){
+            return afunc(s.getType(returnType), computeFormals(formals, scope, s), computeKwFormals(kwFormals, s));
+        });
+        
+    collect(returnType, parameters, c);
+    
+    //if(signature has exceptions){             // TODO: reconsider
+    //    collect(signature.exceptions, c);
+    //}
+}
+
+list[Pattern] getFormals(Parameters parameters)
+    = [pat | Pattern pat <- parameters.formals.formals];
+
+list[KeywordFormal] getKwFormals(Parameters parameters)
+    =  parameters.keywordFormals is \default ? [kwf | kwf <- parameters.keywordFormals.keywordFormalList] : [];
+
+set[TypeVar] getTypeVars(Tree t ){
+    return {tv | /TypeVar tv := t };
+}
+
+void collect(Parameters parameters, Collector c){
+    formals = getFormals(parameters);
+    kwFormals = getKwFormals(parameters);
+   
+    typeVarsInFunctionParams = [*getTypeVars(t) | t <- formals + kwFormals];
+    //println("typeVarsInFunctionParams: <size(typeVarsInFunctionParams)>");
+    seenTypeVars = {};
+    for(tv <- typeVarsInFunctionParams){
+        //println(tv);
+        tvname = "<tv.name>";
+        if(tvname in seenTypeVars){
+            c.use(tv.name, {typeVarId()});
+        } else {
+            seenTypeVars += tvname;
+            c.define(tvname, typeVarId(), tv.name, defGetType(tv));
+        }
+    }
+   
+    for(KeywordFormal kwf <- kwFormals){
+        fieldName = prettyPrintName(kwf.name);
+        kwfType = kwf.\type;
+        c.define(fieldName, variableId(), kwf.name, defType([kwfType], AType(Solver s) { return s.getType(kwfType)[label=fieldName]; }));
+    }
+    
     beginPatternScope("parameter", c);
-    if(isVarArgs){
+    if(parameters is varArgs){
         collect(formals[0..-1], c);
         collectAsVarArg(formals[-1], c);
     } else {
         collect(formals, c);
-    }
+    } 
+    collect(kwFormals, c);
     endPatternScope(c);
-    
-    kwFormals = params.keywordFormals is \default ? getKeywordFormals(params.keywordFormals.keywordFormalList, variableId(), c) : [];
-    
-    kwTypeParams = {*collectAndUnlabelRascalTypeParams(kwf.fieldType) | kwf <- kwFormals};
-    c.setScopeInfo(scope, functionScope(), returnInfo(retType, formals, kwTypeParams));
-    
-    c.requireEager("bound type parameters", params, [], //formals,
-        void (Solver s) { 
-             expandedRetType = expandUserTypes(retType, scope, s);
-             typeParamsInFunctionParams = {*collectAndUnlabelRascalTypeParams(getPatternType(f, avalue(), scope, s)) | f <- formals} + kwTypeParams;
-             typeParamsInReturn = collectAndUnlabelRascalTypeParams(expandedRetType);
-             if(!(typeParamsInReturn <= typeParamsInFunctionParams)){
-                unbound = typeParamsInReturn - typeParamsInFunctionParams;
-                s.report(error(params, "Unbound: %v type parameter(s) %t in return type", size(unbound), unbound));
-             }
-        });
-     return <formals, kwTypeParams, kwFormals>;
 }
 
-void(Solver) makeReturnRequirement(Tree expr, AType retType, list[Pattern] formals, set[AType] kwTypeParams, loc scope)
-       = void(Solver s) { 
-              expandedReturnType = expandUserTypes(retType, scope, s);
-              typeVarsInParams = {*collectAndUnlabelRascalTypeParams(getPatternType(f, avalue(), scope, s)) | f <- formals} + kwTypeParams;
-              typeVarsInReturn = collectAndUnlabelRascalTypeParams(expandedReturnType);
-              if(!(typeVarsInReturn <= typeVarsInParams)){
-                unbound = typeVarsInReturn - typeVarsInParams;
-                s.report(error(expr, "Unbound: %v type parameter(s) %t in return type", size(unbound), unbound));
-              }
-              
-              texpr = expandUserTypes(s.getType(expr), scope, s);
-              Bindings bindings = ();
-              try   bindings = matchRascalTypeParams(texpr, expandedReturnType, bindings, bindIdenticalVars=true);
-              catch invalidMatch(str reason):
-                    if(asubtype(texpr, expandedReturnType))
-                        s.report(error(expr, reason));
-              
-              try {
-                 itexpr = texpr;
-                 if(!isEmpty(bindings)){
-                    itexpr = instantiateRascalTypeParams(texpr, bindings);
-                 }
-                 if(s.isFullyInstantiated(itexpr)){
-                    s.requireSubtype(itexpr, expandedReturnType, error(expr, "Return type should be subtype of %t, found %t", expandedReturnType, itexpr));
-                 } else
-                 if(!s.unify(itexpr, expandedReturnType)){
-                    s.requireSubtype(itexpr, expandedReturnType, error(expr, "Return type should be subtype of %t, found %t", expandedReturnType, itexpr));
-                 }
-               } catch invalidInstantiation(str msg): {
-                    s.report(error(expr, msg));
-               }
-            
-            
-         };
+void(Solver) makeReturnRequirement(Tree expr, Type returnType)
+    = void(Solver s) { 
+        actualRetType = s.getType(returnType);
+          
+        exprType = s.getType(expr);
+        Bindings bindings = ();
+        try   bindings = matchRascalTypeParams(exprType, actualRetType, bindings, bindIdenticalVars=true);
+        catch invalidMatch(str reason):
+              if(asubtype(exprType, actualRetType))
+                s.report(error(expr, reason));
+          
+        iexprType = xxInstantiateRascalTypeParameters(exprType, bindings, s);
 
-// ---- return statement (closely interacts with function declaration)
+        if(s.isFullyInstantiated(iexprType)){
+            s.requireSubtype(iexprType, actualRetType, error(expr, "Return type should be subtype of %t, found %t", actualRetType, iexprType));
+        } else
+            if(!s.unify(iexprType, actualRetType)){
+                s.requireSubtype(iexprType, actualRetType, error(expr, "Return type should be subtype of %t, found %t", actualRetType, iexprType));
+        }   
+     };
+
+// ---- return statement (closely interacts with function declaration) --------
 
 void collect(current: (Statement) `return <Statement statement>`, Collector c){  
     functionScopes = c.getScopeInfo(functionScope());
@@ -385,8 +385,8 @@ void collect(current: (Statement) `return <Statement statement>`, Collector c){
         return;
     }
     for(<scope, scopeInfo> <- functionScopes){
-        if(returnInfo(AType retType, list[Pattern] formals, set[AType] kwTypeParams) := scopeInfo){
-           c.requireEager("check return type", current, [], makeReturnRequirement(statement, retType, formals, kwTypeParams, scope));
+        if(returnInfo(Type returnType) := scopeInfo){
+           c.requireEager("check return type", current, [returnType], makeReturnRequirement(statement, returnType));
            c.calculate("return type", current, [statement], AType (Solver s){ return s.getType(statement); });
            collect(statement, c);
            return;
@@ -397,245 +397,345 @@ void collect(current: (Statement) `return <Statement statement>`, Collector c){
     throw rascalCheckerInternalError(getLoc(current), "No surrounding function scope found");
 }
 
-// ---- alias declaration
+// ---- alias declaration -----------------------------------------------------
 
-void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias <UserType userType> = <Type base>;`, Collector c){
+void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias <QualifiedName name> = <Type base>;`, Collector c){
     tagsMap = getTags(tags);
     if(ignoreCompiler(tagsMap)) { println("*** ignore: <current>"); return; }
     
-    aliasName = prettyPrintName(userType.name);
-    aliasedType = convertType(base, c);
-    aliasTypeVarsAsList = getTypeParameters(userType, c);
-    scope = c.getScope();
-                     
-    aliasType = aalias(aliasName, aliasTypeVarsAsList, aliasedType);
-    c.define(aliasName, aliasId(), userType.name, defType([], AType(Solver s) { return expandUserTypes(aliasedType, scope, s); }));
+    aliasName = prettyPrintName(name);
+    c.define(aliasName, aliasId(), name, defGetType(base));
+    collect(base, c);
 } 
 
-
-list[AType] getTypeParameters(UserType userType, Collector c){
-    if(userType is parametric){
-       return
-            for(p <- userType.parameters){
-                ptype = convertType(p, c);
-                if(!isRascalTypeParam(ptype)){
-                  c.report(error(p, "Only type parameter allowed, found %t", ptype));
-                }
-                append unset(ptype, "label"); // TODO: Erase labels to enable later subset check
-            }
+void collect (current: (Declaration) `<Tags tags> <Visibility visibility> alias <QualifiedName name>[ <{Type ","}+ parameters> ] = <Type base>;`, Collector c){
+    tagsMap = getTags(tags);
+    if(ignoreCompiler(tagsMap)) { println("*** ignore: <current>"); return; }
+    
+    aliasName = prettyPrintName(name);
+       
+    typeVars  = for(tp <- parameters){
+        if(!(tp has typeVar)) c.report(error(tp, "Only type parameter allowed"));
+        append tp.typeVar;
     }
-    return [];
+    
+    for(tv <- typeVars){
+        c.define("<tv.name>", typeVarId(), tv.name, defGetType(tv));
+    }
+    
+    c.define(aliasName, aliasId(), name, defType(typeVars + base, AType(Solver s){ 
+        bindings = ();
+        params = for(int i <- index(typeVars)){
+            ptype = s.getType(typeVars[i]);
+            if(!isRascalTypeParam(ptype)){
+                  s.report(error(typeVars[i], "Only type parameter allowed, found %t", ptype));
+            }
+            append ptype; //unset(ptype, "label"); // TODO: Erase labels to enable later subset check
+        }
+        return aalias(aliasName, params, s.getType(base));
+    }));
+    collect(typeVars + base, c);
+} 
+
+list[TypeVar] getTypeParameters(UserType userType)
+    = userType is parametric ? [p.typeVar | p <- userType.parameters] : [];
+
+list[Sym] getTypeParameters(Sym sym)
+    =  [p |/Sym p := sym, p is parameter];
+
+list[KeywordFormal] getCommonKwFormals(Declaration decl)
+   = decl.commonKeywordParameters is present ?  [kwf | kwf <- decl.commonKeywordParameters.keywordFormalList] : [];
+
+// ---- data declaration ------------------------------------------------------
+bool inADTdeclaration(Collector c){
+    return <Tree adt, list[KeywordFormal] commonKwFormals, loc adtParentScope> := c.top(currentAdt);
 }
 
-// ---- data declaration
-
-void collect (current: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters>;`, Collector c)
-    = dataDeclaration(tags, current, [], c);
-
+void collect (current: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters>;`, Collector c){
+    return dataDeclaration(tags, current, [], c);
+}
 void collect (current: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ variants> ;`, Collector c)
     = dataDeclaration(tags, current, [v | v <- variants], c);
 
 void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Collector c){
     tagsMap = getTags(tags);
     if(ignoreCompiler(tagsMap)) { println("*** ignore: <current>"); return; }
+    
     userType = current.user;
-    commonKeywordParameters = current.commonKeywordParameters;
     adtName = prettyPrintName(userType.name);
+    commonKeywordParameters = getCommonKwFormals(current);
+    typeParameters = getTypeParameters(userType);
     
-    dataTypeVarsAsList = getTypeParameters(userType, c);
-    dataTypeVars = toSet(dataTypeVarsAsList);
+    dt = isEmpty(typeParameters) ? defType(aadt(adtName, [], dataSyntax()))
+                                 : defType(typeParameters, AType(Solver s) { return aadt(adtName, [ s.getType(tp) | tp <- typeParameters], dataSyntax()); });
     
-    commonKwFields = [];
-    if(commonKeywordParameters is present){
-        commonKwFields = getKeywordFormals(commonKeywordParameters.keywordFormalList, fieldId(), c);
-    }
-    adtType = aadt(adtName, dataTypeVarsAsList, dataSyntax());
-    
-    set[AType] /*rel[str, AType]*/ allConsFields = {};
-    rel[str, Name, DefInfo] allConstructorDefines = {};
-    for(Variant v <- variants){
-        consName = prettyPrintName(v.name);
-        allFieldTypeVars = {};
-        fields = 
-            for(TypeArg ta <- v.arguments){
-                fieldName = ta has name ? prettyPrintName(ta.name) : "";
-                fieldType = convertType(ta.\type, c)[label=fieldName];
-                
-                if(!isEmpty(fieldName)){
-                    c.define(fieldName, fieldId(), ta, defType(fieldType));
-                    allConsFields += fieldType; //<fieldName, fieldType>;
-                }
-                allFieldTypeVars += collectAndUnlabelRascalTypeParams(fieldType);
-                append fieldType; //<fieldName, fieldType>;
-            }
-    
-       kwFields = [];
-       if(v.keywordArguments is \default){
-          kwFields += getKeywordFormals(v.keywordArguments.keywordFormalList, fieldId(), c);
-          for(<kwt, kwd> <- kwFields){
-              allFieldTypeVars += collectAndUnlabelRascalTypeParams(kwt);
-              allConsFields += kwt; //<kwn, kwt>;
-          }
-       }
-       // TODO: is this check necessary?
-       // TODO: take different bounds into account
-       //if(!(dataTypeVars <= allFieldTypeVars)){
-       //   c.report(warning(v, "Unbound type parameter <fmt(dataTypeVars - allFieldTypeVars)>");
-       //}
-       consType = acons(adtType, /*consName,*/ fields, kwFields, label=consName);
-       //println(consType);
-       c.define(consName, constructorId(), v.name, defType(consType));
-       allConstructorDefines += <consName, v.name, defType(consType)>;
-    }
-    dt = defType(adtType);
-    dt.constructorFields=allConsFields;
-    constructors = {di.atype | DefInfo di <- allConstructorDefines<2>};
-    if(!isEmpty(constructors)) dt.constructors = constructors;
-    if(!isEmpty(commonKwFields)) dt.commonKeywordFields = commonKwFields;
-    if(!isEmpty(tagsMap)) dt.tags = tagsMap;
+    if(!isEmpty(commonKeywordParameters)) dt.commonKeywordFields = commonKeywordParameters;
     c.define(adtName, dataId(), current, dt);
-    
-    // Additionaly declare all constructors inside the scope of the ADT to make them reachable via fully qualified names
+       
+    adtParentScope = c.getScope();
     c.enterScope(current);
-    for(<consName, vname, defT> <- allConstructorDefines){
-        //println("local defines in <current@\loc>: <consName>, constructorId(), <vname>, <defT>");
-        c.define(consName, constructorId(), vname, defT);
-    }
+        for(tp <- typeParameters){
+            c.define("<tp.name>", typeVarId(), tp.name, defGetType(tp));
+        }
+        collect(typeParameters, c);
+        collect(current.commonKeywordParameters, c);
+   
+        // visit all the variants in the parent scope of the data declaration
+        c.push(currentAdt, <current, commonKeywordParameters, adtParentScope>);
+            collect(variants, c);
+        c.pop(currentAdt);
     c.leaveScope(current);
 }
 
-// ---- syntax definition
+void collect(current: (TypeArg) `<Type tp>`, Collector c){
+    c.sameType(current, tp);
+    collect(tp, c);
+}
+
+void collect(current: (TypeArg) `<Type tp> <Name name>`, Collector c){
+	c.calculate("TypeArg <name>", name, [tp], AType(Solver s){
+	   res = (s.getType(tp)[label="<name>"]);
+	   return res;
+     });
+	c.sameType(current, name);
+	collect(tp, c);
+}
+
+list[TypeArg] getFormals(Variant variant)
+    = [ta | TypeArg ta <- variant.arguments];
+
+list[KeywordFormal] getKwFormals(Variant variant)
+    =  variant.keywordArguments is \default ? [kwf | kwf <- variant.keywordArguments.keywordFormalList] : [];
+
+void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <KeywordFormals keywordArguments> )`, Collector c){
+    formals = getFormals(current);
+    kwFormals = getKwFormals(current);
+   
+    typeVarsInConstructorParams = {*getTypeVars(t) | t <- formals + kwFormals};
+    typeVarNamesInConstructor = {"<tv.name>" | tv <- typeVarsInConstructorParams};
+    
+    // Define all fields in the outer scope of the data declaration in order to be easily found there.
+    
+    for(ta <- formals){
+        if(ta is named){
+            fieldName = prettyPrintName(ta.name);
+            fieldType = ta.\type;
+            c.define(fieldName, fieldId(), ta.name, defType([fieldType], AType(Solver s) { return s.getType(fieldType)[label=fieldName]; }));
+        }
+    }
+    
+    for(KeywordFormal kwf <- kwFormals){
+        fieldName = prettyPrintName(kwf.name);
+        kwfType = kwf.\type;
+        c.define(fieldName, fieldId(), kwf.name, defType([kwfType], AType(Solver s) { return s.getType(kwfType)[label=fieldName]; }));    
+    }
+
+    scope = c.getScope();
+    if(<Tree adt, list[KeywordFormal] commonKwFormals, loc adtParentScope> := c.top(currentAdt)){
+        c.defineInScope(adtParentScope, "<name>", constructorId(), name, defType(adt + formals + kwFormals + commonKwFormals,
+            AType(Solver s){
+                adtType = s.getType(adt);
+                typeVarNamesInADT = {"<tv.pname>" | tv <- adtType.parameters};
+                if(!(typeVarNamesInADT <= typeVarNamesInConstructor)) s.report(warning(current, "Type parameter(s) %q not defined in constructor %q", typeVarNamesInADT - typeVarNamesInConstructor, "<name>"));
+                kwFormals2 = [<s.getType(kwf.\type)[label=prettyPrintName(kwf.name)], kwf.expression> | kwf <- kwFormals + commonKwFormals];
+                return acons(adtType, [unset(s.getType(f), "label") | f <- formals], kwFormals2);
+            }));
+        c.sameType(current, name);
+    } else {
+        throw "collect Variant: currentAdt not found";
+    }
+    // The standard rules would declare arguments and kwFormals as variableId();
+    for(arg <- arguments) { collect(arg.\type, c); c.sameType(arg, arg.\type); }
+    for(kwa <- kwFormals) { collect(kwa.\type, kwa.expression, c); c.sameType(kwa, kwa.\type); }
+} 
+
+// ---- syntax definition -----------------------------------------------------
 
 void collect(current: (SyntaxDefinition) `<Visibility vis> layout <Sym defined> = <Prod production>;`, Collector c){
-    //println("LAYOUT: <current>");
-    nonterminalType = defsym2AType(defined, layoutSyntax());
-    declareSyntax(current, getVis(vis), defined, nonterminalType, false, production, layoutId(), c);
-    collect(production, c);
+    declareSyntax(current, layoutSyntax(), layoutId(), c, vis=getVis(vis, publicVis()));
 } 
 
 void collect (current: (SyntaxDefinition) `lexical <Sym defined> = <Prod production>;`, Collector c){
-    //println("LEXICAL: <current>");
-    nonterminalType = defsym2AType(defined, lexicalSyntax());
-    declareSyntax(current, publicVis(), defined, nonterminalType, false, production, lexicalId(), c);
-    collect(production, c);
+    declareSyntax(current, lexicalSyntax(), lexicalId(), c);
 }
 
 void collect (current: (SyntaxDefinition) `keyword <Sym defined> = <Prod production>;`, Collector c){
-    //println("KEYWORD: <current>");
-    nonterminalType = defsym2AType(defined, keywordSyntax());
-    declareSyntax(current, publicVis(), defined, nonterminalType, false, production, keywordId(), c);
-    collect(production, c);
+    declareSyntax(current, keywordSyntax(), keywordId(), c);
 } 
 
 void collect (current: (SyntaxDefinition) `<Start strt> syntax <Sym defined> = <Prod production>;`, Collector c){
-    //println("SYNTAX: <current>");
-    nonterminalType = defsym2AType(defined, contextFreeSyntax());
-    isStart = strt is present;
-
-    declareSyntax(current, publicVis(), defined, nonterminalType, isStart, production, nonterminalId(), c);
-    collect(production, c);
+    declareSyntax(current, contextFreeSyntax(), nonterminalId(), c, isStart=strt is present);
 }
 
-void declareSyntax(SyntaxDefinition current, Vis vis, Sym defined, AType nonterminalType, bool isStart, Prod production, IdRole idRole, Collector c){
+void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRole, Collector c, bool isStart=false, Vis vis=publicVis()){
     //println("declareSyntax: <defined>, <nonterminalType>");
-    AProduction pr = prod2prod(nonterminalType, production);
-    //println("declareSyntax pr: <pr>");
-    
+    Sym defined = current.defined;
+    Prod production = current.production;
+    nonterminalType = defsym2AType(defined, syntaxRole);
+     
     if(isADTType(nonterminalType)){
-        ntName = nonterminalType.adtName;
+        adtName = nonterminalType.adtName;
        
-        dt = defType(nonterminalType);
-        if(isStart) dt.isStart = true;
-        dt.vis = vis;
-        productions = choice(definedType, set[AProduction] prods) := pr ? prods : {pr};
+        typeParameters = getTypeParameters(defined);
         
-        typeVars = toSet(nonterminalType.parameters);
-         
-        allTypeVars = collectAndUnlabelRascalTypeParams(productions);
-         if(!(typeVars >= allTypeVars)){
-          c.report(warning(v, "Unbound type parameter %v", allTypeVars - typeVars));
-       }
-        dt.productions = productions;
-        //iprintln(productions);
-      
-        //  Declare all named fields that occur in the productions
-        constructorFields = { *getFields(p) | AProduction p <- productions };
-        //println("constructorFields: <constructorFields>");
-        for(<str nm, loc def, AType tp> <- constructorFields){
-            c.define(nm, fieldId(), def, defType(tp));
-        }
-  
-        if(!isEmpty(constructorFields))  dt.constructorFields = constructorFields<2>; //<0,2>;
-                                            
-        c.define(ntName, idRole, current, dt);
-        //println("define <ntName>, dataId(), <dt>");
-        allConstructorDefines = {};
-        for(p <- productions){
-           //println("\nprod2cons: <p> ==\>\n\t<prod2cons(p)>");
-           for(<k, cns> <- prod2cons(p)){
-               c.define(cns.label/*consName*/, constructorId(), k, defType(cns));
-               allConstructorDefines += <cns.label/*consName*/, k, defType(cns)>;
-            }
-        }
-        // Additionaly declare all constructors inside the scope of the ADT to make them reachable via fully qualified names
+        dt = isEmpty(typeParameters) ? defType(nonterminalType)
+                                     : defType(nonterminalType[parameters=[aparameter("<tp.nonterminal>", avalue())| tp <- typeParameters ]]);
+        
+        if(isStart) dt.isStart = true;
+        dt.vis = vis;        
+        
+        // Define the syntax symbol itself and all labelled alternatives as constructors
+        c.define(adtName, idRole, current, dt);
+
+        adtParentScope = c.getScope();
         c.enterScope(current);
-        for(<consName, vname, defT> <- allConstructorDefines){
-            //println("local defines in <current>: <consName>, constructorId(), <vname>, <defT>");
-            c.define(consName, constructorId(), vname, defT);
-        }
+            for(tp <- typeParameters){
+                c.define("<tp.nonterminal>", typeVarId(), tp.nonterminal, defType(aparameter("<tp.nonterminal>", avalue())));
+            }
+            //collect(typeParameters, c);
+            
+            // visit all the productions in the parent scope of the syntax declaration
+            c.push(currentAdt, <current, [], adtParentScope>);
+                collect(production, c);
+            c.pop(currentAdt);
         c.leaveScope(current);
     } else {
         c.report(error(defined, "Lhs of syntax definition not supported"));
     }
 }
 
-rel[str,loc,AType] getFields(choice(AType dt, set[AProduction] alts)) = { *getFields(a) | a <- alts};
+// ---- Prod ------------------------------------------------------------------
 
-rel[str,loc,AType] getFields(\priority(AType def, list[AProduction] choices))
-    = { *getFields(c) | c <- choices };
+AProduction getProd(AType adtType, Tree tree, Solver s){
+    symType = s.getType(tree);
+    if(aprod(AProduction p) := symType) return p;
+    if(adtType.syntaxRole == keywordSyntax() &&  lit(_) !:= symType){
+        s.report(error(tree, "In keyword declaration only literals are allowed, found %t", symType));
+    }
     
-rel[str,loc,AType] getFields(\associativity(AType def, Associativity \assoc, set[AProduction] alternatives))
-    = { *getFields(a) | a <- alternatives};
-
-rel[str,loc,AType] getFields(\reference(AType def, str cons)) = {};
-
-default rel[str,loc,AType] getFields(AProduction p) // TODO add no no label case
-    = {<t.label, p.src[query = "label=<t.label>"], t> | s <- p.asymbols, t := removeConditional(s), (isNonTerminalType(t) || auser(_,_) := t),  t.label?};
-
-void collect(current: (Sym) `<Nonterminal nonterminal>`, Collector c){
-    c.use(nonterminal, syntaxIds);
-    collect(nonterminal, c);
+    return prod(adtType, [symType], src=getLoc(tree));
 }
 
-void collect(current: (Sym) `<Sym symbol> <NonterminalLabel label>`, Collector c){
-    c.define("<label>", fieldId(), label, defType(sym2AType(symbol)));
-    collect(symbol, label, c);
+void collect(current: (Prod) `: <Name referenced>`, Collector c){
+    throw "reference not yet implemented";
 }
 
-bool isIterSym((Sym) `<Sym symbol>+`) = true;
-bool isIterSym((Sym) `<Sym symbol>*`) = true;
-bool isIterSym((Sym) `{ <Sym symbol> <Sym sep> }+`) = true;
-bool isIterSym((Sym) `{ <Sym symbol> <Sym sep> }*`) = true;
-default bool isIterSym(Sym sym) = false;
-
-void collect(current: (Sym) `<Sym symbol>+`, Collector c){
-    if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
-    collect(symbol, c);
+AProduction computeProd(Tree current, AType adtType, ProdModifier* modifiers, list[Sym] symbols, Solver s){
+    args = [s.getType(sym) | sym <- symbols];   
+    m2a = mods2attrs(modifiers);
+    src=getLoc(current);
+    p = isEmpty(m2a) ? prod(adtType, args, src=src) : prod(adtType, args, attributes=m2a, src=src);
+    
+    forbidConsecutiveLayout(current, args, s);
+    if(!isEmpty(args)){
+        if(adtType.syntaxRole == keywordSyntax()){
+            for(t <- args){
+                if(lit(_) !:= t){
+                    s.report(warning(current, "In keyword declaration only literals are allowed, found %t", t));
+                }
+            }
+        } else {
+            requireNonLayout(current, args[0], "at begin of production", s);
+            requireNonLayout(current, args[-1], "at end of production", s);
+        }
+    }
+    return associativity(adtType, \mods2assoc(modifiers), p);
 }
 
-void collect(current: (Sym) `<Sym symbol>*`, Collector c){
-    if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
-    collect(symbol, c);
+void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms>`, Collector c){
+    symbols = [sym | sym <- syms];
+    
+    typeParametersInSymbols = {*getTypeParameters(sym) | sym <- symbols };
+    for(tv <- typeParametersInSymbols){
+        c.use(tv.nonterminal, {typeVarId()});
+    }
+    
+    if(<Tree adt, list[KeywordFormal] commonKwFormals, loc adtParentScope> := c.top(currentAdt)){
+        c.calculate("named production", current, adt + symbols,
+            AType(Solver s){
+                p = computeProd(current, s.getType(adt)[label=unescape("<name>")], modifiers, symbols, s);               
+                for(<k, cns> <- prod2cons(p)){
+                    s.defineInScope(adtParentScope, cns.label, constructorId(), k, defType(cns));
+                }
+                return aprod(p); 
+            });
+        collect(symbols, c);
+    } else {
+        throw "collect Named Prod: currentAdt not found";
+    }
 }
 
-void collect(current: (Sym) `{ <Sym symbol> <Sym sep> }+`, Collector c){
-    if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
-    collect(symbol, c);
+void collect(current: (Prod) `<ProdModifier* modifiers> <Sym* syms>`, Collector c){
+    symbols = [sym | sym <- syms];
+    typeParametersInSymbols = {*getTypeParameters(sym) | sym <- symbols };
+    for(tv <- typeParametersInSymbols){
+        c.use(tv.nonterminal, {typeVarId()});
+    }
+ 
+    if(<Tree adt, list[KeywordFormal] commonKwFormals, loc adtParentScope> := c.top(currentAdt)){
+        c.calculate("unnamed production", current, adt + symbols,
+            AType(Solver s){
+                return aprod(computeProd(current, s.getType(adt), modifiers, symbols, s));
+            });
+        collect(symbols, c);
+    } else {
+        throw "collect Named Prod: currentAdt not found";
+    }
 }
 
-void collect(current: (Sym) `{ <Sym symbol> <Sym sep> }*`, Collector c){
-    if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
-    collect(symbol, c);
+private AProduction associativity(AType nt, nothing(), AProduction p) = p;
+private default AProduction associativity(AType nt, just(Associativity a), AProduction p) = associativity(nt, a, {p});
+
+
+void collect(current: (Prod) `<Assoc ass> ( <Prod group> )`, Collector c){
+    asc = Associativity::\left();
+    switch("<ass>"){
+    case "assoc":       asc = Associativity::\left();
+    case "left":        asc = Associativity::\left();
+    case "non-assoc":   asc = Associativity::\left();
+    case "right":       asc = Associativity::\left();
+    }
+    
+    if(<Tree adt, list[KeywordFormal] commonKwFormals, loc adtParentScope> := c.top(currentAdt)){
+        c.calculate("assoc", current, [adt, group],
+            AType(Solver s){
+                adtType = s.getType(adt);
+                return aprod(associativity(adtType, asc, {getProd(adtType, group, s)}));
+            });
+        collect(group, c);
+    } else {
+        throw "collect Named Prod: currentAdt not found";
+    }
+}
+
+void collect(current: (Prod) `<Prod lhs> | <Prod rhs>`,  Collector c){
+    if(<Tree adt, list[KeywordFormal] commonKwFormals, loc adtParentScope> := c.top(currentAdt)){
+        c.calculate("alt production", current, [adt, lhs, rhs],
+            AType(Solver s){
+                adtType = s.getType(adt);
+                return aprod(choice(adtType, {getProd(adtType, lhs, s), getProd(adtType, rhs, s)}));
+            });
+        collect(lhs, rhs, c);
+    } else {
+        throw "collect alt: currentAdt not found";
+    }
+}
+ 
+void collect(current: (Prod) `<Prod lhs> \> <Prod rhs>`,  Collector c){
+    if(<Tree adt, list[KeywordFormal] commonKwFormals, loc adtParentScope> := c.top(currentAdt)){
+        c.calculate("first production", current, [adt, lhs, rhs],
+            AType(Solver s){
+                adtType = s.getType(adt);
+                return aprod(priority(adtType, [getProd(adtType, lhs, s), getProd(adtType, rhs, s)]));
+            });
+        collect(lhs, rhs, c);
+    } else {
+        throw "collect alt: currentAdt not found";
+    }
+}
+
+default void collect(Prod current, Collector c){
+    throw "collect Prod, missed case <current>";
 }
 
 default rel[loc, AType] prod2cons(AProduction p){
@@ -643,10 +743,11 @@ default rel[loc, AType] prod2cons(AProduction p){
     symbols = p.asymbols;
     if(def.label?){
         defLabel = def.label;
-        fields = [ t | s <- symbols, t := removeConditional(s), (isNonTerminalType(t) || auser(nm, _) := t), t.label?];
-        //fields = [ <t.label, t> | s <- symbols, t := removeConditional(s), (isNonTerminalType(t) || auser(nm, _) := t), t.label?];
+        fields = [ t | s <- symbols, t := removeConditional(s), isADTType(t), t.label?];
         def = \start(sdef) := def ? sdef : unset(def, "label");
-        return { <p.src, acons(def, /*deescape(defLabel),*/ fields, [], label=deescape(defLabel))> };
+        // add a "cons" fragment to the production's location to differentiate it from the
+        // type that will be associated with it.
+        return { <p.src[fragment="cons"], acons(def, fields, [], label=deescape(defLabel))> };
     }
     return {};
 }

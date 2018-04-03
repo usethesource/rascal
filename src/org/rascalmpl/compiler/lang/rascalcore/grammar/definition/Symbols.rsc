@@ -40,15 +40,15 @@ public AType delabel(AType s) = visit(s) { case AType t => unset(t, "label") whe
 public AType sym2AType(Sym sym) {
   switch (sym) {
     case lang::rascal::\syntax::Rascal::nonterminal(Nonterminal n) : 
-      return AType::auser("<n>", []);               // Nonterminals are represented by `auser` and are later replaced by `aadt` when their SyntaxRole is known
+      return AType::aadt("<n>", [], dataSyntax());
     case \start(Nonterminal n) : 
-        return \start(AType::auser("<n>", []));
+        return \start(AType::aadt("<n>", [], dataSyntax));
     case literal(StringConstant l): 
       return AType::lit(unescapeLiteral(l));
     case caseInsensitiveLiteral(CaseInsensitiveStringConstant l): 
       return AType::cilit(unescapeLiteral(l));
     case \parametrized(Nonterminal n, {Sym ","}+ syms) : 
-        return AType::auser("<n>",separgs2ATypes(syms)); 
+        return AType::aadt("<n>",separgs2ATypes(syms), dataSyntax()); 
     case labeled(Sym s, NonterminalLabel n) : 
       return sym2AType(s)[label="<n>"];
     case optional(Sym s)  : 

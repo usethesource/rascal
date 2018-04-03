@@ -183,7 +183,7 @@ test LayoutAsSepNotOk [[
         lexical Id = [a-z]+;
         syntax EXP = Id;
         syntax Block = "{" {EXP WS}* "}";
-]] expect { "At least one element of separators should be layout" }
+]] expect { "At least one element of separators should be non-layout" }
 
 test WarnNestedSS [[
     module A 

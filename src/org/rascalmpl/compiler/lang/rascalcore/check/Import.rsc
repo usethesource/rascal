@@ -25,7 +25,6 @@ public str key_import_graph = "import_graph";
 public str key_extend_graph = "extend_graph";
 public str key_processed_modules = "processed_modules";
 
-
 private set[str] toBeSaved = {};
 
 void init_Import(){
@@ -174,8 +173,6 @@ void saveModules(str qualifiedModuleName, PathConfig pcfg, TModel tm){
                    dt = defType(tm.facts[defined]);
                    if(defInfo.vis?) dt.vis = defInfo.vis;
                    if(defInfo.tags?) dt.tags = defInfo.tags;
-                   if(defInfo.constructorFields?) dt.constructorFields = defInfo.constructorFields;
-                   if(defInfo.productions?) dt.productions = defInfo.productions;
                    tup.defInfo = dt;
                    //println("Changed <defInfo> ==\> <dt>");
                } catch NoSuchKey(k): {

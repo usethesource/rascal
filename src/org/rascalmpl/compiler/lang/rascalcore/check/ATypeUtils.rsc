@@ -41,57 +41,57 @@ AType normalizeType(AType s){
    }
 }
 
-@memo
-AType expandUserTypes(AType t, loc scope, Solver s){
-    if(overloadedAType(rel[loc, IdRole, AType] overloads) := t){
-        filtered = {};
-        for(<key, idr, tp> <- overloads){   
-            try {
-                filtered += <key, idr, expandUserTypes1(tp, scope, s)>;  
-            } catch TypeUnavailable():; // Ignore types that are out of scope
-        }
-        if(!isEmpty(filtered)) return overloadedAType(filtered);
-        s.report(error(scope, "Type %t cannot be expanded in scope, missing imports?", t));
-    }
-    return expandUserTypes1(t, scope, s);
-}
-
-@memo
-AType expandUserTypes1(AType t, loc scope, Solver s){
-    //println("expandUserTypes1: <t>");
-    return visit(t){
-        case u: auser(str uname, ps): {
-                //println("expandUserTypes: <u>");  // TODO: handle non-empty qualifier
-                expanded = expandUserTypes(s.getTypeInScope(uname, scope, dataOrSyntaxIds), scope, s);
-                if(u.label?) expanded.label = u.label;
-                //if(u.hasSyntax?) expanded.hasSyntax = u.hasSyntax;
-                //println("expanded: <expanded>");
-                if(aadt(uname, ps2, SyntaxRole sr) := expanded) {
-                   if(size(ps) != size(ps2)) s.report(error(scope, "Expected %v type parameter(s) for %t, found %v", size(ps2), expanded, size(ps)));
-                   expanded.parameters = ps;
-                   insert expanded; //aadt(uname, ps);
-                } else {
-                   params = toList(collectAndUnlabelRascalTypeParams(expanded));  // TODO order issue?
-                   nparams = size(params);
-                   if(size(ps) != size(params)) s.report(error(scope, "Expected %v type parameter(s) for %t, found %v", nparams, expanded, size(ps)));
-                   if(nparams > 0){
-                      try {
-                         Bindings b = (params[i].pname : ps[i] | int i <- index(params));
-                         expanded = instantiateRascalTypeParams(expanded, b);
-                         if(u.label?) expanded.label = u.label;
-                         //if(u.hasSyntax?) expanded.hasSyntax = u.hasSyntax;
-                         insert expanded;
-                       } catch invalidMatch(str reason): 
-                                s.report(error(scope, reason));
-                         catch invalidInstantiation(str msg):
-                                s.report(error(scope, msg));
-                   } else {
-                     insert expanded;
-                   }
-               }
-            }
-    }
-}
+//@memo
+//AType expandUserTypes(AType t, loc scope, Solver s){
+//    if(overloadedAType(rel[loc, IdRole, AType] overloads) := t){
+//        filtered = {};
+//        for(<key, idr, tp> <- overloads){   
+//            try {
+//                filtered += <key, idr, expandUserTypes1(tp, scope, s)>;  
+//            } catch TypeUnavailable():; // Ignore types that are out of scope
+//        }
+//        if(!isEmpty(filtered)) return overloadedAType(filtered);
+//        s.report(error(scope, "Type %t cannot be expanded in scope, missing imports?", t));
+//    }
+//    return expandUserTypes1(t, scope, s);
+//}
+//
+//@memo
+//AType expandUserTypes1(AType t, loc scope, Solver s){
+//    //println("expandUserTypes1: <t>");
+//    return visit(t){
+//        case u: auser(str uname, ps): {
+//                //println("expandUserTypes: <u>");  // TODO: handle non-empty qualifier
+//                expanded = expandUserTypes(s.getTypeInScope(uname, scope, dataOrSyntaxIds), scope, s);
+//                if(u.label?) expanded.label = u.label;
+//                //if(u.hasSyntax?) expanded.hasSyntax = u.hasSyntax;
+//                //println("expanded: <expanded>");
+//                if(aadt(uname, ps2, SyntaxRole sr) := expanded) {
+//                   if(size(ps) != size(ps2)) s.report(error(scope, "Expected %v type parameter(s) for %t, found %v", size(ps2), expanded, size(ps)));
+//                   expanded.parameters = ps;
+//                   insert expanded; //aadt(uname, ps);
+//                } else {
+//                   params = toList(collectAndUnlabelRascalTypeParams(expanded));  // TODO order issue?
+//                   nparams = size(params);
+//                   if(size(ps) != size(params)) s.report(error(scope, "Expected %v type parameter(s) for %t, found %v", nparams, expanded, size(ps)));
+//                   if(nparams > 0){
+//                      try {
+//                         Bindings b = (params[i].pname : ps[i] | int i <- index(params));
+//                         expanded = instantiateRascalTypeParams(expanded, b);
+//                         if(u.label?) expanded.label = u.label;
+//                         //if(u.hasSyntax?) expanded.hasSyntax = u.hasSyntax;
+//                         insert expanded;
+//                       } catch invalidMatch(str reason): 
+//                                s.report(error(scope, reason));
+//                         catch invalidInstantiation(str msg):
+//                                s.report(error(scope, msg));
+//                   } else {
+//                     insert expanded;
+//                   }
+//               }
+//            }
+//    }
+//}
 
 list[str] getUndefinedADTs(AType t, loc scope, Solver s){
     res = [];
@@ -192,8 +192,6 @@ private str prettyPrintCond(ACondition::\at-column(int column)) = "@<column>";
 private str prettyPrintCond(ACondition::\begin-of-line()) = "^";
 private str prettyPrintCond(ACondition::\end-of-line()) = "$";
 private str prettyPrintCond(ACondition::\except(str label)) = "!<label>";
-
-
 
 @doc{Rascal abstract types to classic Symbols}
 str atype2symbol(aint()) = "\\int()";
@@ -975,8 +973,9 @@ bool isNonTerminalType(AType::\empty()) = true;
 bool isNonTerminalType(AType::\opt(_)) = true;
 bool isNonTerminalType(AType::\alt(_)) = true;
 bool isNonTerminalType(AType::\seq(_)) = true;
-
 default bool isNonTerminalType(AType _) = false;   
+
+bool isParameterizedNonTerminalType(AType t) = isNonTerminalType(t) && t has parameters;
 
 bool isNonParameterizedNonTerminalType(AType t) = isNonTerminalType(t) && (t has parameters ==> isEmpty(t.parameters));
 
@@ -1019,15 +1018,3 @@ default AType getStartNonTerminalType(AType s) {
 
 AType removeConditional(cnd:conditional(AType s, set[ACondition] _)) = cnd.label? ? s[label=cnd.label] : s;
 default AType removeConditional(AType s) = s;
-
-// ---- fields
-AType getField(Tree current, acons(AType adt, /*str consName,*/ list[AType/*NamedField*/] fields, list[Keyword] kwFields), str fieldName, loc scope){
-
-}
-
-AType getField(Tree current, AType t, str fieldName, loc scope){
-
-}
-default AType getField(Tree current, AType t, str fieldName, loc scope){
-    throw throw checkFailed({error("Field `<fieldName>` does not exist on type <prettyPrintAType(t)>", getLoc(current))});
-}

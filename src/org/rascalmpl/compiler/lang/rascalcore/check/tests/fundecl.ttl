@@ -6,17 +6,17 @@ test F1 [[ module rascal::F1
 test F2 [[ module rascal::F2
     int f(int n, int k = 0) { return n; }
     void main(){ int x = f(true); }
-]] expect { "Argument should have type `int`, found `bool`"}
+]] expect { "Argument 0 should have type `int`, found `bool`" }
 
 test F3 [[ module rascal::F3
     int f(int n, int k = 0) { return n; }
     void main(){ int x = f(); }
-]] expect { "Expected 1 argument, found 0"}
+]] expect { "Expected 1 argument(s), found 0"}
 
 test F4 [[ module rascal::F4
     int f(int n, int k = 0) { return n; }
     void main(){ int x = f(1, "a"); }
-]] expect { "Expected 1 argument, found 2" }
+]] expect { "Expected 1 argument(s), found 2" }
 
 test F5 [[ module rascal::F5
     int f(int n, int k = 0) { return n; }
@@ -119,19 +119,15 @@ expect { "Argument of || should be `bool`, found `value`" }
 
 test R8 [[ module rascal::R8
     value f(b) { n = b || true; return b; }
-]] 
-
-expect { "Argument of || should be `bool`, found `value`" }
+]] expect { "Argument of || should be `bool`, found `value`" }
 
 test R9 [[ module rascal::R9
     value f(b) { n = b || true; if(b) 10; return b; }
-]] 
-expect { "Argument of || should be `bool`, found `value`" }
+]] expect { "Condition should be `bool`, found `value`" }
 
 test R10 [[ module rascal::R10
     value f(b) { n = b || true; if(b) 10; return b; b && false; }
-]] 
-expect { "Argument of || should be `bool`, found `value`" }
+]] expect { "Condition should be `bool`, found `value`" }
 
 test Issue1051 [[
     module A

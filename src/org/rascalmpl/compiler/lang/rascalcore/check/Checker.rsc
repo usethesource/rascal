@@ -11,7 +11,7 @@ Redistribution and use in source and binary forms, with or without modification,
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 }
 module lang::rascalcore::check::Checker
-           
+              
 /*
  * TODO:
  * - Integrate with parser generator
@@ -33,9 +33,9 @@ import util::Benchmark;
 import lang::rascal::\syntax::Rascal;
    
 extend analysis::typepal::TypePal;
-extend analysis::typepal::TestFramework;
+//extend analysis::typepal::TestFramework;
 
-import analysis::typepal::Utils;
+//import analysis::typepal::Utils;
 
 extend lang::rascalcore::check::Declaration;
 extend lang::rascalcore::check::Expression;
@@ -104,21 +104,6 @@ TModel rascalPreValidation(TModel m){
     return m;
 }
 
-// Enhance TModel after validation
-TModel rascalPostValidation(TModel m){
-    // Check that all user defined types are defined with the same number of type parameters
-    userDefs = {<userName, size(params), def> | <def, di> <- m.defines[_,_,{dataId(), aliasId()}], di has atype, (aadt(str userName, params, _) := di.atype || aalias(str userName, params, _) := di.atype)};
-    for(userName <- userDefs<0>){
-        nparams = userDefs[userName]<0>;
-        if(size(nparams) != 1){
-            for(def <- userDefs[userName,_]){
-                m.messages += [ error("Type `<userName>` defined with <nparams> type parameters", def) ];
-            }
-        }
-    }
-    return m;
-}
-
 // ----  Examples & Tests --------------------------------
 
 public PathConfig getDefaultPathConfig() = pathConfig(   
@@ -164,13 +149,13 @@ tuple[ProfileData, TModel] rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool d
         mname = getModuleName(mloc, pcfg);
         
         /***** turn this off during development of type checker *****/
-        <valid, tm> = getIfValid(mname, pcfg);
-        if(valid) {
-            println("*** reusing up-to-date TModel of <mname>");
-            vtime = (cpuTime() - startTime)/1000000;
-            prof = profile(file=mloc,validate=vtime);
-            return <prof, tm>;
-        }
+        //<valid, tm> = getIfValid(mname, pcfg);
+        //if(valid) {
+        //    println("*** reusing up-to-date TModel of <mname>");
+        //    vtime = (cpuTime() - startTime)/1000000;
+        //    prof = profile(file=mloc,validate=vtime);
+        //    return <prof, tm>;
+        //}
         /***********************************************************/
         
        // mloc = timestamp(mloc);     
@@ -205,9 +190,9 @@ tuple[ProfileData, TModel] rascalTModel(Tree pt, PathConfig pcfg = getDefaultPat
     tm = c.run();
     afterExtractTime = cpuTime();   
     tm = rascalPreValidation(tm);
-    s = newSolver(tm);
+    s = newSolver(tm, debug=debug);
     tm = s.run();
-    tm = rascalPostValidation(tm);
+ //   tm = rascalPostValidation(tm);
     
     afterValidateTime = cpuTime();
     
@@ -218,8 +203,8 @@ tuple[ProfileData, TModel] rascalTModel(Tree pt, PathConfig pcfg = getDefaultPat
         prof.validate = (afterValidateTime - afterExtractTime)/1000000;
     }
     if(isEmpty(tm.messages)){
-            <tm, adtSummaries> = getADTSummaries(getLoc(pt), tm, s);
-            g = getGrammar(adtSummaries);
+             ;//<tm, adtSummaries> = getADTSummaries(getLoc(pt), tm, s);
+             g = getGrammar(getLoc(pt), s);
             
  //           pname = "DefaultParser";
  //           if(Module m := pt) { 
@@ -287,15 +272,14 @@ list[ModuleMessages] checkAll(loc root, PathConfig pcfg){
      return [ check(moduleLoc, pcfg) | moduleLoc <- find(root, "rsc") ]; 
 }
 
-
 list[Message] validateModules(str mname, bool debug=false) {
     return rascalTModelFromName(mname, getDefaultPathConfig(), debug=debug).messages;
 }
 
 void testModules(str names...) {
     if(isEmpty(names)) names = allTests;
-    runTests([|project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/check/tests/<name>.ttl| | str name <- names], #Modules, rascalTModelsFromTree, verbose=true);
+    runTests([|project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/check/tests/<name>.ttl| | str name <- names], #Modules, rascalTModelsFromTree, verbose=false);
 }
 
-list[str] allTests = ["adt", "alias", "assignment", "datadecl", "exp", "fields", "fundecl", 
-                     "imports", "operators", "pat", "scope", "stats", "syntax1", "syntax2"];
+list[str] allTests = ["adt", "adtparam", "alias", "assignment", "datadecl", "exp", "fields", "fundecl", 
+                     "imports", "operators", "pat", "scope", "splicepats", "stats", "syntax1", "syntax2"];

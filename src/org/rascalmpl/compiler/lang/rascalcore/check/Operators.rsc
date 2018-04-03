@@ -159,7 +159,7 @@ public AType numericArithTypes(AType l, AType r) {
 
 void collect(current: (Expression) `<Expression e> is <Name n>`, Collector c){
     scope = c.getScope();
-    c.calculate("is", current, [e], AType(Solver s) { return unaryOp("is", _computeIsType, current, expandUserTypes(s.getType(e), scope, s), s);  });
+    c.calculate("is", current, [e], AType(Solver s) { return unaryOp("is", _computeIsType, current, s.getType(e), s);  });
     collect(e, c); 
 }
 
@@ -286,15 +286,12 @@ private AType _computeSpliceType(Tree current, AType t1, Solver s){
 // ---- asType
 
 void collect(current: (Expression)`[ <Type t> ] <Expression e>`, Collector c){
-    scope = c.getScope();
-    reqType = convertType(t, c);
-    
-    c.calculate("asType", current, [e],
-        AType(Solver s) { eType = s.getType(e);
-                  if(!(asubtype(eType, astr()) || asubtype(eType, aloc()))) s.report(error(e, "Expected `str` or `loc`, instead found %t", e));
-                  return expandUserTypes(reqType, scope, s);
-                });
-    collect(e, c);
+    c.calculate("asType", current, [t, e],
+        AType(Solver s) { 
+            if(!(s.subtype(e, astr()) || s.subtype(e, aloc()))) s.report(error(e, "Expected `str` or `loc`, instead found %t", e));
+                return s.getType(t);
+        });
+    collect(t, e, c);
 }
 
 // ---- composition
@@ -824,11 +821,11 @@ void computeMatchPattern(Expression current, Pattern pat, str operator, Expressi
     scope = c.getScope();
     c.calculateEager("match", current, [expression],
         AType(Solver s) {
-            subjectType = expandUserTypes(s.getType(expression), scope, s);
+            subjectType = s.getType(expression);
             //if(isStartNonTerminalType(subjectType)){
             //    subjectType = getStartNonTerminalType(subjectType);
             //}
-            patType = expandUserTypes(getPatternType(pat, subjectType, scope, s), scope, s);
+            patType = getPatternType(pat, subjectType, scope, s);
             s.instantiate(subjectType);
             if(!s.isFullyInstantiated(patType) || !s.isFullyInstantiated(subjectType)){
                 s.requireUnify(patType, subjectType, error(pat, "Type of pattern could not be computed"));
@@ -855,10 +852,10 @@ void collect(current: (Expression) `<Pattern pat> \<- <Expression expression>`, 
     scope = c.getScope();
     c.calculateEager("enumeration", current, [expression],
        AType(Solver s) { 
-             exprType = expandUserTypes(s.getType(expression), scope, s);
+             exprType = s.getType(expression);
              elmType = avalue();
-             elmType = expandUserTypes(computeEnumeratorElementType(current, exprType, s), scope, s); 
-             patType = expandUserTypes(getPatternType(pat, elmType, scope, s), scope, s);   
+             elmType = computeEnumeratorElementType(current, exprType, s); 
+             patType = getPatternType(pat, elmType, scope, s);   
              
              if(!s.isFullyInstantiated(patType) || !s.isFullyInstantiated(elmType)){
                 s.requireUnify(patType, elmType, error(pat, "Type of pattern could not be computed"));
@@ -967,9 +964,9 @@ void collect(current: (Expression) `<Expression lhs> && <Expression rhs>`, Colle
    
     c.requireEager("and", current, [lhs, rhs],
         void (Solver s){ 
-            s.requireUnify(abool(), s.getType(lhs), error(lhs, "Argument of && should be `bool`, found %t", lhs));
+            s.requireUnify(abool(), lhs, error(lhs, "Argument of && should be `bool`, found %t", lhs));
             //clearBindings();
-            s.requireUnify(abool(), s.getType(rhs), error(rhs, "Argument of && should be `bool`, found %t", rhs));
+            s.requireUnify(abool(), rhs, error(rhs, "Argument of && should be `bool`, found %t", rhs));
             //clearBindings();
           });
     collect(lhs, rhs, c);
@@ -982,6 +979,7 @@ void collect(current: (Expression) `<Expression lhs> || <Expression rhs>`, Colle
       
     c.requireEager("or", current, [lhs, rhs],
         void (Solver s){ 
+            s.requireUnify(abool(), lhs, error(lhs, "Argument of || should be `bool`, found %t", lhs));
             s.requireUnify(abool(), rhs, error(rhs, "Argument of || should be `bool`, found %t", rhs));
           });
           

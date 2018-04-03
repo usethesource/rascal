@@ -31,6 +31,16 @@ void endPatternScope(Collector c){
     c.clearStack(patternNames);
 }
 
+bool inPatternScope(Collector c){
+    return !isEmpty(c.getStack(patternContainer));
+}
+
+// ---- bracketed pattern
+
+//AType getPatternType(current: (Pattern) `(<Pattern p>)`, AType subjectType, loc scope, Solver s){
+//    return getPatternType(p, subjectType, scope, Solver);
+//}
+
 // ---- literal patterns
 
 default AType getPatternType(Pattern p, AType subjectType, loc scope, Solver s){
@@ -118,35 +128,34 @@ AType getPatternType(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, AType 
 // ---- typed variable pattern
             
 void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
-    declaredType = convertType(tp, c);
-    scope = c.getScope();
-    c.calculate("typed variable pattern", current, [], AType(Solver s){ 
-        return expandUserTypes(declaredType, scope, s)[label="<name>"]; });
     uname = unescape("<name>");
+    c.calculate("typed variable pattern", current, [tp], AType(Solver s){  return s.getType(tp)[label=uname]; });
     if(uname != "_"){
        c.push(patternNames, uname);
-       c.define(uname, variableId(), name, defType([], AType(Solver s){ return expandUserTypes(declaredType, scope, s)[label="<name>"]; }));
+       c.define(uname, variableId(), name, defType([tp], AType(Solver s){ return s.getType(tp)[label=uname]; }));
     }
+    collect(tp, c);
 }
 
 void collectAsVarArg(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     uname = unescape("<name>");
-    declaredType = alist(convertType(tp, c));
-    scope = c.getScope();
     
     if(uname != "_"){
        if(uname in c.getStack(patternNames)){
           c.use(name, {variableId()});
-          c.require("typed variable pattern", current, [name], 
-             void (Solver s){ nameType = expandUserTypes(declaredType, scope, s);
-                 s.requireEqual(name, nameType, error(name, "Expected %t for %q, found %q", nameType, uname, name));
-               });
+          c.require("typed variable pattern", current, [tp, name], 
+            void (Solver s){
+                nameType = alist(s.getType(tp));
+                s.requireEqual(name, nameType, error(name, "Expected %t for %q, found %q", nameType, uname, name));
+            });
        } else {
           c.push(patternNames, uname);
-          c.define(uname, variableId(), name, defType([], AType(Solver s){ return expandUserTypes(declaredType, scope, s)[label="<name>"]; }));
+          c.define(uname, variableId(), name, defType([tp], AType(Solver s){ return alist(s.getType(tp))[label=uname]; }));
        }
     }
-    c.calculate("typed variable pattern", current, [], AType(Solver s){ return expandUserTypes(declaredType, scope, s)[label="<name>"]; });
+ 
+   c.sameType(current, name);
+   collect(tp, c);
 }
 
 // ---- qualifiedName pattern: QualifiedName
@@ -192,7 +201,7 @@ void collectAsVarArg(current: (Pattern) `<QualifiedName name>`,  Collector c){
           c.fact(current, alist(avalue()));
           if(isQualified(qname)) c.report(error(name, "Qualifier not allowed"));
           //println("qualifiedName: <name>, parameter defLub, <getLoc(current)>");
-          c.define(qname.name, variableId() /*formalId()*/, name, defLub([], AType(Solver s) { return avalue(); }));
+          c.define(qname.name, variableId(), name, defLub([], AType(Solver s) { return avalue(); }));
        } else {
           tau = c.newTypeVar(name);
           c.fact(name, tau);     //<====
@@ -205,14 +214,13 @@ void collectAsVarArg(current: (Pattern) `<QualifiedName name>`,  Collector c){
     }
 }
 
-default void collectAsVarArgs(Pattern current,  Collector c){
+default void collectAsVarArg(Pattern current,  Collector c){
     throw rascalCheckerInternalError(getLoc(current), "<current> not supported in varargs");
 }
 
 AType getPatternType(current: (Pattern) `<QualifiedName name>`, AType subjectType, loc scope, Solver s){
     qname = convertName(name);
     if(qname.name != "_"){
-       //nameType = expandUserTypes(getType(name), scope, s);
        nameType = s.getType(name);
        if(!s.isFullyInstantiated(nameType) || !s.isFullyInstantiated(subjectType)){
           s.requireUnify(nameType, subjectType, error(current, "Type of pattern could not be computed"));
@@ -267,22 +275,23 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
        tp = argument.\type;
        argName = argument.name;
        uname = unescape("<argName>");
-       declaredType = convertType(tp, c);
        
        if(uname != "_"){
           if(uname in c.getStack(patternNames)){
              c.use(argName, {variableId()});
-             c.require("typed variable in splice pattern", current, [argName], 
-                void (Solver s){ nameType =inSet ? aset(expandUserTypes(declaredType, scope, s)) : alist(expandUserTypes(declaredType, scope, s));
+             c.require("typed variable in splice pattern", current, [tp, argName], 
+                void (Solver s){ 
+                    nameType = inSet ? aset(s.getType(tp)) : alist(s.getType(tp));
                     s.requireEqual(argName, nameType, error(argName, "Expected %t for %q, found %q", nameType, uname, argName));
                });
           } else {
             c.push(patternNames, uname);
-            c.define(uname, variableId(), argName, defType([], 
-               AType(Solver s){ return inSet ? aset(expandUserTypes(declaredType, scope, s)) : alist(expandUserTypes(declaredType, scope, s)); }));
+            c.define(uname, variableId(), argName, defType([tp], 
+               AType(Solver s){ return inSet ? aset(s.getType(tp)) : alist(s.getType(tp)); }));
           }          
        }
-       c.calculate("typed variable in splice pattern", current, [], AType(Solver s){ return expandUserTypes(declaredType, scope, s); });
+       c.calculate("typed variable in splice pattern", current, [tp], AType(Solver s){ return s.getType(tp); });
+       collect(tp, c);
     } else if(argument is qualifiedName){
         argName = argument.qualifiedName;
         qname = convertName(argName);
@@ -298,7 +307,7 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
               c.fact(current, avalue());
               if(isQualified(qname)) c.report(error(argName, "Qualifier not allowed"));
               //println("qualifiedName: <name>, parameter defLub, <getLoc(current)>");
-              c.define(qname.name, variableId()/*formalId()*/, argName, defLub([], AType(Solver s) { return avalue(); }));
+              c.define(qname.name, variableId(), argName, defLub([], AType(Solver s) { return avalue(); }));
            } else {
               tau = c.newTypeVar(current); // <== argName;
               c.fact(current, tau);    // <===
@@ -428,11 +437,11 @@ AType getPatternType(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* 
    // println("getPatternType: <current>");
     pats = [ p | Pattern p <- arguments ];
     
-    texp = expandUserTypes(getPatternType(expression, subjectType, scope, s), scope, s);
+    texp = getPatternType(expression, subjectType, scope, s);
     //println("bindings: <bindings>");
     //clearBindings();    // <====
     subjectType = s.instantiate(subjectType);
-    subjectType = expandUserTypes(subjectType, scope, s);
+    
     //if(isStartNonTerminalType(subjectType)){
     //    subjectType = getStartNonTerminalType(subjectType);
     //}
@@ -514,12 +523,10 @@ AType getPatternType(current: (Pattern) `<Name name> : <Pattern pattern>`,  ATyp
 // ---- typed variable becomes
 
 void collect(current: (Pattern) `<Type tp> <Name name> : <Pattern pattern>`, Collector c){
-    declaredType = convertType(tp, c);
-    scope = c.getScope();
     uname = unescape("<name>");
     c.push(patternNames, uname);
-    c.define(uname, variableId(), name, defType([], AType(Solver s){ return expandUserTypes(declaredType, scope, s); }));
-    collect(pattern, c);
+    c.define(uname, variableId(), name, defType([tp], AType(Solver s){ return s.getType(tp); }));
+    collect(tp, pattern, c);
 }
 
 AType getPatternType(current: (Pattern) `<Type tp> <Name name> : <Pattern pattern>`, AType subjectType, loc scope, Solver s){
@@ -573,16 +580,14 @@ void collect(current: (Pattern) `type ( <Pattern s>, <Pattern d> )`, Collector c
 
 // ---- asType
 void collect(current: (Pattern) `[ <Type tp> ] <Pattern p>`, Collector c){
-    declaredType = convertType(tp, c);
-    scope = c.getScope();
-    c.calculate("pattern as type", current, [], AType(Solver s){ return expandUserTypes(declaredType, scope, s); });
+    c.calculate("pattern as type", current, [tp], AType(Solver s){ return s.getType(tp); });
     // TODO:
     //c.require("pattern as type", current, [p],
     //    void (Solver s){ expandedType =  expandUserTypes(declaredType, scope, s); ;
     //        subtype(getType(p), expandedType, onError(p, "Pattern should be subtype of <fmt(expandedType)>, found <fmt(getType(p))>"));
     //    });
     
-    collect(p, c);
+    collect(tp, p, c);
 }
 
 // ---- anti

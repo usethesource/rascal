@@ -10,7 +10,7 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::ATypeExceptions;
 
 //alias Key         = loc;
-alias Keyword     = tuple[/*str fieldName,*/ AType fieldType, Expression defaultExp];
+alias Keyword     = tuple[AType fieldType, Expression defaultExp];
 //alias NamedField  = tuple[str fieldName, AType fieldType] ;
 
 data QName        = qualName(str qualifier, str name);
@@ -22,7 +22,7 @@ data AType (str label = "")
      | arat()
      | astr()
      | anum()
-     | anode(list[AType/*NamedField*/] fields)
+     | anode(list[AType] fields)
      | avoid()
      | avalue()
      | aloc()
@@ -34,13 +34,15 @@ data AType (str label = "")
      | amap(AType keyType, AType valType)
      | arel(AType elemType)  
      | alrel(AType elemType)
-     | afunc(AType ret, AType formals, list[Keyword] kwFormals, bool varArgs=false, str deprecationMessage="")
+     | afunc(AType ret, AType formals, list[Keyword] kwFormals,  bool varArgs=false, str deprecationMessage="")
      | auser(str uname, list[AType] parameters) 
      | aalias(str aname, list[AType] parameters, AType aliased)
      | aanno(str aname, AType onType, AType annoType)
      
      | aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)
-     | acons(AType adt, /*str consName,*/ list[AType/*NamedField*/] fields, list[Keyword] kwFields)
+     //| aadtInstance(AType adt, list[AType] actuals)
+     | acons(AType adt, list[AType] fields, list[Keyword] kwFields)
+     | aprod(AProduction production)
      
      | amodule(str mname, str deprecationMessage="")
      | aparameter(str pname, AType bound) 
@@ -54,14 +56,18 @@ AType overloadedAType(rel[loc, IdRole, AType] overloads){
       str adtName = "";
       list[AType] adtParams = [];
       syntaxRoles = {};
+      nformals = -1;
       for(<loc k, IdRole idr, AType t> <- overloads, aadt(adtName1, params1, syntaxRole1) := t){
         if(!isEmpty(adtName) && adtName != adtName1) fail overloadedAType; // overloading of different ADTs.
+        if(nformals >= 0 && size(params1) != nformals) fail overloadedAType; else nformals = size(params1);  // different type parameter arities
+        
         adtName = adtName1;
         adtParams = params1;    // TODO take care of different parameter names
         syntaxRoles += syntaxRole1;
       }
       syntaxRole = overloadSyntaxRole(syntaxRoles);
       if(syntaxRole == illegalSyntax()) fail overloadedAType;
+ 
       
       return aadt(adtName, adtParams, syntaxRole);
     } else {

@@ -15,15 +15,25 @@ import List;
 import String;
 import IO;
 import Node;
+import Map;
 
-import analysis::typepal::AType;
+extend analysis::typepal::AType;
 extend analysis::typepal::Collector;
-import lang::rascalcore::check::AType;
+
+extend lang::rascalcore::check::AType;
+extend lang::rascalcore::check::TypePalConfig;
+import lang::rascalcore::check::ATypeExceptions;
 
 import lang::rascalcore::check::ATypeUtils;
+import lang::rascalcore::check::ATypeInstantiation;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::grammar::definition::Symbols;
+import lang::rascalcore::grammar::definition::Characters;
+import lang::rascalcore::grammar::definition::Literals;
+
+public str currentAdt = "currentAdt";  // used to mark data declarations
+public str typeContainer = "typeContainer";
  
 @doc{Convert qualified names into an abstract representation.}
 public QName convertName(QualifiedName qn) {
@@ -62,105 +72,106 @@ public bool isQualified(QName qn) = !isEmpty(qn.qualifier);
 
 str prettyPrintQName(QName qname) = isEmpty(qname.qualifier) ? qname.name : "<qname.qualifier>::<qname.name>";
 
+void collect(current: (Type) `( <Type tp> )`, Collector c){
+    c.sameType(current, tp);
+    collect(tp, c);
+}
+
+// ---- basic types -----------------------------------------------------------
+
 @doc{Convert from the concrete to the abstract representations of Rascal basic types.}
-public AType convertBasicType(BasicType t, Collector c) {
-    switch(t) {
-        case (BasicType)`bool` : return abool();
-        case (BasicType)`int` : return aint();
-        case (BasicType)`rat` : return arat();
-        case (BasicType)`real` : return areal();
-        case (BasicType)`num` : return anum();
-        case (BasicType)`str` : return astr();
-        case (BasicType)`value` : return avalue();
-        case (BasicType)`node` : return anode([]);
-        case (BasicType)`void` : return avoid();
-        case (BasicType)`loc` : return aloc();
-        case (BasicType)`datetime` : return adatetime();
 
-        case (BasicType)`list` : { c.report(error(t, "Non-well-formed type, type should have one type argument")); return alist(avoid());  }
-        case (BasicType)`set` : { c.report(error(t, "Non-well-formed type, type should have one type argument")); return aset(avoid()); }
-        case (BasicType)`bag` : { c.report(error(t, "Non-well-formed type, type should have one type argument")); return abag(avoid()); }
-        case (BasicType)`map` : { c.report(error(t, "Non-well-formed type, type should have two type arguments")); return amap(avoid(),avoid()); }
-        case (BasicType)`rel` : { c.report(error(t, "Non-well-formed type, type should have one or more type arguments")); return arel(atypeList([])); }
-        case (BasicType)`lrel` : { c.report(error(t, "Non-well-formed type, type should have one or more type arguments")); return alrel(atypeList([])); }
-        case (BasicType)`tuple` : { c.report(error(t, "Non-well-formed type, type should have one or more type arguments")); return atuple(atypeList([])); }
-        case (BasicType)`type` : { c.report(error(t, "Non-well-formed type, type should have one type argument")); return areified(avoid()); }
-    }
-}
+void collect(current: (BasicType)`bool`, Collector c){ c.fact(current, abool()); }
 
-@doc{Convert from the concrete to the abstract representations of Rascal type arguments.}
-public AType convertTypeArg(TypeArg ta, Collector c) {
-    switch(ta) {
-        case (TypeArg) `<Type t>` : return convertType(t, c);
-        case (TypeArg) `<Type t> <Name n>` :  return convertType(t, c)[label="<prettyPrintQName(convertName(n))>"];
-    }
-}
+void collect(current: (BasicType)`int`, Collector c){ c.fact(current, aint()); }
 
-@doc{Convert lists of type arguments.}
-public list[AType] convertTypeArgList({TypeArg ","}* tas, Collector c)
-    = [convertTypeArg(ta, c) | ta <- tas];
+void collect(current: (BasicType)`rat`, Collector c){ c.fact(current, arat()); }
+
+void collect(current: (BasicType)`real`, Collector c){ c.fact(current, areal()); }
+
+void collect(current: (BasicType)`num`, Collector c){ c.fact(current, anum()); }
+
+void collect(current: (BasicType)`str`, Collector c){ c.fact(current, astr()); }
+
+void collect(current: (BasicType)`value`, Collector c){ c.fact(current, avalue()); }
+
+void collect(current: (BasicType)`node`, Collector c){ c.fact(current, anode([])); }
+
+void collect(current: (BasicType)`void`, Collector c){ c.fact(current, avoid()); }
+
+void collect(current: (BasicType)`loc`, Collector c){ c.fact(current, aloc()); }
+
+void collect(current: (BasicType)`datetime`, Collector c){ c.fact(current, adatetime()); }
+
+void collect(BasicType bt, Collector c) { c.report(error(bt, "Illegal use of type `<bt>`")); }
+
+// ---- structured types ------------------------------------------------------
 
 @doc{Convert structured types, such as list<<int>>. Check here for certain syntactical 
 conditions, such as: all field names must be distinct in a given type; lists require 
 exactly one type argument; etc.}
-public AType convertStructuredType(StructuredType st, Collector c) {
-    switch(st) {
-        case (StructuredType) `list [ < {TypeArg ","}+ tas > ]` : {
-            l = convertTypeArgList(tas, c);
-            if (size(l) == 1) {
-                return makeListType(l[0]);        
-            } else {
-                c.report(error(st, "Non-well-formed type, type should have one type argument"));
-                return alist(avoid()); 
-            }
-        }
 
-        case (StructuredType) `set [ < {TypeArg ","}+ tas > ]` : {
-            l = convertTypeArgList(tas, c);
-            if (size(l) == 1) {
-                return makeSetType(l[0]);          
-            } else {
-                c.report(error(st, "Non-well-formed type, type should have one type argument"));
-                return aset(avoid()); 
-            }
-        }
+void collect(current:(StructuredType)`list [ < {TypeArg ","}+ tas > ]`, Collector c){
+    targs = [ta | ta <- tas];
+    if(size(targs) == 1){
+        c.calculate("list type", current, targs, AType(Solver s){ return makeListType(s.getType(targs[0])); });
+    } else {
+        c.report(error(current, "Type `list` should have one type argument"));
+    }
+    collect(tas, c);
+}
 
-        case (StructuredType) `bag [ < {TypeArg ","}+ tas > ]` : {
-            l = convertTypeArgList(tas, c);
-            if (size(l) == 1) {
-                return abag(l[0]);        
-            } else {
-                c.report(error(st, "Non-well-formed type, type should have one type argument"));
-                return abag(avoid()); 
-            }
-        }
+void collect(current:(StructuredType)`set [ < {TypeArg ","}+ tas > ]`, Collector c){
+    targs = [ta | ta <- tas];
+    if(size(targs) == 1){
+        c.calculate("set type", current, targs, AType(Solver s){ return makeSetType(s.getType(targs[0])); });
+    } else {
+        c.report(error(current, "Type `set` should have one type argument"));
+    }
+    collect(tas, c);
+}
 
-        case (StructuredType) `map [ < {TypeArg ","}+ tas > ]` : {
-            l = convertTypeArgList(tas, c);
-            if (size(l) == 2) {
-                dt = l[0]; rt = l[1];
+void collect(current:(StructuredType)`bag [ < {TypeArg ","}+ tas > ]`, Collector c){
+    targs = [ta | ta <- tas];
+    if(size(targs) == 1){
+        c.calculate("bag type", current, targs, AType(Solver s){ return makeBagType(s.getType(targs[0])); });
+    } else {
+        c.report(error(current, "Type `bag` should have one type argument"));
+    }
+}
+
+void collect(current:(StructuredType)`map [ < {TypeArg ","}+ tas > ]`, Collector c){
+    targs = [ta | ta <- tas];
+    if(size(targs) == 2){
+        c.calculate("map type", current, targs, 
+            AType(Solver s){
+                dt = s.getType(targs[0]); rt = s.getType(targs[1]);
                 if (!isEmpty(dt.label) && !isEmpty(rt.label) && dt.label != rt.label) { 
                     return makeMapType(dt, rt);
                 } else if (!isEmpty(dt.label) && !isEmpty(rt.label) && dt.label == rt.label) {
-                    c.report(error(st,"Non-well-formed type, labels must be distinct"));
+                    s.report(error(tas,"Non-well-formed map type, labels must be distinct"));
                     return makeMapType(unset(dt, "label"),unset(rt,"label"));
                 } else if (!isEmpty(dt.label) && isEmpty(rt.label)) {
-                    c.report(warning(st, "Field name `<dt.label>` ignored, field names must be provided for both fields or for none"));
+                    s.report(warning(tas, "Field name `<dt.label>` ignored, field names must be provided for both fields or for none"));
                     return makeMapType(unset(dt, "label"),rt);
                 } else if (isEmpty(dt.label) && !isEmpty(rt.label)) {
-                   c.report(warning(st, "Field name `<rt.label>` ignored, field names must be provided for both fields or for none"));
+                    s.report(warning(tas, "Field name `<rt.label>` ignored, field names must be provided for both fields or for none"));
                     return makeMapType(dt, unset(rt, "label"));
                 } else {
                     return makeMapType(dt,rt);
-                }            
-            } else {
-                c.report(error(st, "Non-well-formed map type, type should have two type argument"));
-                return makeMapType(avoid(),avoid()); 
-            }
-        }
+                }
+        });
+    } else {
+        c.report(error(current, "Type `map` should have two type arguments"));
+    }
+    collect(tas, c);
+}
 
-        case (StructuredType) `rel [ < {TypeArg ","}+ tas > ]` : {
-            l = convertTypeArgList(tas, c);
+void collect(current:(StructuredType)`rel [ < {TypeArg ","}+ tas > ]`, Collector c){
+    targs = [ta | ta <- tas];
+    c.calculate("rel type", current, targs, 
+        AType(Solver s){
+            l = [s.getType(ta) | ta <- targs];
             labelsList = [tp.label | tp <- l];
             nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
             distinctLabels = toSet(nonEmptyLabels);
@@ -169,129 +180,390 @@ public AType convertStructuredType(StructuredType st, Collector c) {
             } else if(size(distinctLabels) == 0) {
                 return makeRelType(l);
             } else if (size(distinctLabels) != size(nonEmptyLabels)) {
-                c.report(error(st, "Non-well-formed relation type, labels must be distinct"));
+                s.report(error(tas, "Non-well-formed relation type, labels must be distinct"));
                 return makeRelType([unset(tp, "label") | tp <- l]);
             } else if (size(distinctLabels) > 0) {
-                c.report(warning(st, "Field name ignored, field names must be provided for all fields or for none"));
+                s.report(warning(tas, "Field name ignored, field names must be provided for all fields or for none"));
                 return makeRelType([unset(tp, "label") | tp <- l]);
             }
-        }
-        
-        case (StructuredType) `lrel [ < {TypeArg ","}+ tas > ]` : {
-            l = convertTypeArgList(tas, c);
-            labelsList = [tp.label | tp <- l];
-            nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
-            distinctLabels = toSet(nonEmptyLabels);
-            if (size(l) == size(distinctLabels)){
-                return makeListRelType(l);
-            } else if(size(distinctLabels) == 0) {
-                return makeListRelType(l);
-            } else if (size(distinctLabels) != size(nonEmptyLabels)) {
-                c.report(error(st, "Non-well-formed list relation type, labels must be distinct"));
-                return makeListRelType([unset(tp, "label") | tp <- l]);
-            } else if (size(distinctLabels) > 0) {
-                c.report(warning(st, "Field name ignored, field names must be provided for all fields or for none"));
-                return makeListRelType([unset(tp, "label") | tp <- l]);
-            }
-        }
-        
-         case (StructuredType) `tuple [ < {TypeArg ","}+ tas > ]` : {
-            l = convertTypeArgList(tas, c);
-            labelsList = [tp.label | tp <- l];
-            nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
-            distinctLabels = toSet(nonEmptyLabels);
-            if (size(l) == size(distinctLabels)){
-                return makeTupleType(l);
-            } else if(size(distinctLabels) == 0) {
-                return makeTupleType(l);
-            } else if (size(distinctLabels) != size(nonEmptyLabels)) {
-                c.report(error(st, "Non-well-formed tuple type, labels must be distinct"));
-                return makeTupleType([unset(tp, "label") | tp <- l]);
-            } else if (size(distinctLabels) > 0) {
-                c.report(warning(st, "Field name ignored, field names must be provided for all fields or for none"));
-                return makeTupleType([unset(tp, "label") | tp <- l]);
-            }
-        }
+        });
+    collect(tas, c);
+}
 
-        case (StructuredType) `type [ < {TypeArg ","}+ tas > ]` : { // TODO
-            l = convertTypeArgList(tas, c);
-            if (size(l) == 1) {
+void collect(current:(StructuredType)`lrel [ < {TypeArg ","}+ tas > ]`, Collector c){
+    targs = [ta | ta <- tas];
+    c.calculate("lrel type", current, targs, 
+        AType(Solver s){
+            l = [s.getType(ta) | ta <- targs];
+            labelsList = [tp.label | tp <- l];
+            nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
+            distinctLabels = toSet(nonEmptyLabels);
+            if (size(l) == size(distinctLabels)){
+                return makeListRelType(l);
+            } else if(size(distinctLabels) == 0) {
+                return makeListRelType(l);
+            } else if (size(distinctLabels) != size(nonEmptyLabels)) {
+                s.report(error(tas, "Non-well-formed list relation type, labels must be distinct"));
+                return makeListRelType([unset(tp, "label") | tp <- l]);
+            } else if (size(distinctLabels) > 0) {
+                s.report(warning(tas, "Field name ignored, field names must be provided for all fields or for none"));
+                return makeListRelType([unset(tp, "label") | tp <- l]);
+            }
+        });
+    collect(tas, c);
+}
+
+void collect(current:(StructuredType)`tuple [ < {TypeArg ","}+ tas > ]`, Collector c){
+    targs = [ta | ta <- tas];
+    c.calculate("tuple type", current, targs, 
+        AType(Solver s){
+            l = [s.getType(ta) | ta <- targs];
+            labelsList = [tp.label | tp <- l];
+            nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
+            distinctLabels = toSet(nonEmptyLabels);
+            if (size(l) == size(distinctLabels)){
+                return makeTupleType(l);
+            } else if(size(distinctLabels) == 0) {
+                return makeTupleType(l);
+            } else if (size(distinctLabels) != size(nonEmptyLabels)) {
+                s.report(error(tas, "Non-well-formed tuple type, labels must be distinct"));
+                return makeTupleType([unset(tp, "label") | tp <- l]);
+            } else if (size(distinctLabels) > 0) {
+                s.report(warning(tas, "Field name ignored, field names must be provided for all fields or for none"));
+                return makeTupleType([unset(tp, "label") | tp <- l]);
+            }  
+        });
+    collect(tas, c);   
+} 
+
+void collect(current:(StructuredType)`type [ < {TypeArg ","}+ tas > ]`, Collector c){
+    targs = [ta | ta <- tas];
+    if(size(targs) == 1){
+        c.calculate("type type", current, targs, 
+            AType(Solver s){
+                l = [s.getType(ta) | ta <- targs];   
                 if (!isEmpty(l[0].label)) {
-                    c.report(warning(st, "Field name `<l[0].label>` ignored"));
+                    s.report(warning(tas, "Field name `<l[0].label>` ignored"));
                     return areified(l[0]);
                 } else {
                     return areified(l[0]);
-                }            
-            } else {
-                c.report(error(st, "Non-well-formed type, type should have one type argument"));
-                return areified(avoid()); 
-            }
-        }
-
-        case (StructuredType) `<BasicType bt> [ < {TypeArg ","}+ tas > ]` : {
-                c.report(error(st, "Type <bt> does not accept type parameters"));
-                return avoid();
-        }
+                } 
+             });    
+    } else {
+        c.report(error(current, "Non-well-formed type, type should have one type argument"));
     }
-}
+    
+    collect(tas, c);
+}      
+
+// ---- function type ---------------------------------------------------------
 
 @doc{Convert Rascal function types into their abstract representation.}
-public AType convertFunctionType(FunctionType ft, Collector c) {
-    if ((FunctionType) `<Type t> ( <{TypeArg ","}* tas> )` := ft) {
-        l = convertTypeArgList(tas, c);
-        tp = convertType(t, c);
-        if (size(l) == 0) {
-            return afunc(tp, atypeList([]), []);
-        } else {
-            labelsList = [tp.label | tp <- l];;
-            nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
-            distinctLabels = toSet(nonEmptyLabels);
-            if(size(distinctLabels) == 0)
-                return afunc(tp, atypeList(l), []);
-            if (size(l) == size(distinctLabels)) {
-                return afunc(tp, atypeList(l), []);
-            } else if (size(distinctLabels) > 0 && size(distinctLabels) != size(labelsList)) {
-                 c.report(error(ft, "Non-well-formed type, labels must be distinct"));
-                return afunc(tp, atypeList([unset(tp, "label") | tp <- l]), []);
-            } else if (size(l) > 0) {
-                c.report(warning(ft, "Field name ignored, field names must be provided for all fields or for none"));
-                return afunc(tp, atypeList([unset(tp, "label") | tp <- l]), []);
-            }
-        } 
+void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collector c) {
+    targs = [ta | ta <- tas];
+    
+    for(targ <- targs){
+        if(targ has name){
+            c.define("<targ.name>", variableId(), targ.name, defType([targ.\type], AType(Solver s) { return s.getType(targ.\type)[label="<targ.name>"]; }));
+            c.sameType(targ, targ.name);
+        }
+        collect(targ.\type, c);
     }
+    
+    c.calculate("function type", current, t + targs,
+        AType(Solver s){
+            l =  l = [s.getType(ta) | ta <- targs];
+            tp = s.getType(t);
+            if (size(l) == 0) {
+                return afunc(tp, atypeList([]), []);
+            } else {
+                labelsList = [tp.label | tp <- l];;
+                nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
+                distinctLabels = toSet(nonEmptyLabels);
+                if(size(distinctLabels) == 0)
+                    return afunc(tp, atypeList(l), []);
+                if (size(l) == size(distinctLabels)) {
+                    return afunc(tp, atypeList(l), []);
+                } else if (size(distinctLabels) > 0 && size(distinctLabels) != size(labelsList)) {
+                    s.report(error(current, "Non-well-formed type, labels must be distinct"));
+                    return afunc(tp, atypeList([unset(tp, "label") | tp <- l]), []);
+                } else if (size(l) > 0) {
+                    s.report(warning(current, "Field name ignored, field names must be provided for all fields or for none"));
+                    return afunc(tp, atypeList([unset(tp, "label") | tp <- l]), []);
+                }
+            }
+        }); 
+    collect(t, c);
 }
+
+// ---- user defined type -----------------------------------------------------
 
 @doc{Convert Rascal user types into their abstract representation.}
-public AType convertUserType(UserType ut, Collector c) {
-    switch(ut) {
-        case (UserType) `<QualifiedName n>` : { 
-                return auser(convertName(n).name,[]); 
+void collect(current:(UserType) `<QualifiedName n>`, Collector c){
+    c.use(n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()});
+    
+    c.calculate("parameterized type without parameters", current, [n],
+        AType(Solver s){
+            baseType = s.getType(n);
+            if(aadt(adtName, params, sr) := baseType){
+                nformals = size(baseType.parameters);
+                if(nformals > 0) s.report(error(n, "Expected %v type parameter(s) for %q, found 0", nformals, adtName));
+                return baseType;
+            } else if(aalias(aname, params, aliased) := baseType){
+                nformals = size(baseType.parameters);
+                if(nformals > 0) s.report(error(n, "Expected %v type parameter(s) for %q, found 0", nformals, aname));
+                neededTypeParams = collectRascalTypeParams(aliased);
+                if(!isEmpty(neededTypeParams))
+                    s.report(error(n, "Type variables in aliased type %t are unbound", aliased));
+                return aliased;
+            } else {
+                return baseType;
             }
-        case (UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]` : {
-                paramTypes = [convertType(ti, c) | ti <- ts ];
-                return auser(convertName(n).name, paramTypes);
+        });
+}
+
+void collect(current:(UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]`, Collector c){
+    c.use(n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()});
+    actuals = [t | t <- ts];
+    
+    c.calculate("parameterized type with parameters", current, n + actuals,
+        AType(Solver s){
+            nactuals = size(actuals);
+            baseType = s.getType(n);
+            if(aadt(adtName, params, sr) := baseType){
+                nformals = size(baseType.parameters);
+                if(nactuals != nformals) s.report(error(ts, "Expected %v type parameter(s) for %v, found %v", nformals, adtName, nactuals));
+                bindings = (params[i].pname : s.getType(actuals[i]) | i <- index(params));
+                return xxInstantiateRascalTypeParameters(baseType, bindings, s);
+            } else if(aalias(aname, params, aliased) := baseType){
+                nformals = size(baseType.parameters);
+                if(nactuals != nformals) s.report(error(ts, "Expected %v type parameter(s) for %v, found %v", nformals, aname, nactuals));
+                
+                bindings = (params[i].pname : s.getType(actuals[i]) | i <- index(params));
+                return xxInstantiateRascalTypeParameters(aliased, bindings, s);
             }
+            s.report(error(n, "Type %t cannot be parameterized, found %v parameter(s)", n, nactuals));
+        });
+    collect(ts, c);
+}
+
+// ---- Sym types -------------------------------------------------------------
+
+
+// named non-terminals
+void collect(current:(Sym) `<Nonterminal n>`, Collector c){
+    c.use(n, syntaxIds);
+    c.require("non-parameterized <n>", current, [n],
+        void(Solver s){
+            base = s.getType(n);
+            s.requireTrue(isParameterizedNonTerminalType(base), error(current, "Expected a non-terminal type, found %t", base));
+            nexpected = size(base.parameters);
+            s.requireTrue(nexpected == 0, error(current, "Expected %v type parameter(s) for %q, found 0", nexpected, base.adtName));
+        });
+    c.sameType(current, n);
+}
+
+void collect(current:(Sym) `& <Nonterminal n>`, Collector c){
+    c.use(n, {typeVarId()});
+    c.sameType(current, n);
+}
+
+void collect(current:(Sym) `<Nonterminal n>[ <{Sym ","}+ parameters> ]`, Collector c){
+    params = [p | p <- parameters];
+    c.use(n, syntaxIds);
+    c.calculate("parameterized <n>", current, n + params, 
+        AType(Solver s) { 
+            base = s.getType(n); 
+            s.requireTrue(isParameterizedNonTerminalType(base), error(current, "Expected a non-terminal type, found %t", base));
+            nexpected = size(base.parameters); nparams = size(params);
+            s.requireTrue(nexpected == nparams, error(current, "Expected %v type parameter(s) for %q, found %v", nexpected, base.adtName, nparams));
+            base.parameters = [s.getType(p) | p <- params]; 
+            return base;
+        });
+    collect(params, c);
+}
+
+void collect(current:(Sym) `start [ <Nonterminal n> ]`, Collector c){
+    c.calculate("start <n>", current, [n], AType(Solver s) { return \start(s.getType(n)); });
+    collect(n, c);
+}
+
+void collect(current:(Sym) `<Sym symbol> <NonterminalLabel n>`, Collector c){
+    un = unescape("<n>");
+    c.define(un, fieldId(), n, defType([symbol], AType(Solver s){ return s.getType(symbol)[label=un]; }));
+    c.sameType(current, n);
+    collect(symbol, c);
+}
+
+// literals
+
+void collect(current:(Sym) `<Class cc>`, Collector c){
+    c.fact(current, cc2ranges(cc));
+}
+
+void collect(current:(Sym) `<StringConstant l>`, Collector c){
+    c.fact(current, AType::lit(unescapeLiteral(l)));
+}
+
+void collect(current:(Sym) `<CaseInsensitiveStringConstant l>`, Collector c){
+    c.fact(current, AType::cilit(unescapeLiteral(l)));
+}
+
+// regular expressions
+
+bool isIterSym((Sym) `<Sym symbol>+`) = true;
+bool isIterSym((Sym) `<Sym symbol>*`) = true;
+bool isIterSym((Sym) `{ <Sym symbol> <Sym sep> }+`) = true;
+bool isIterSym((Sym) `{ <Sym symbol> <Sym sep> }*`) = true;
+default bool isIterSym(Sym sym) = false;
+
+
+void collect(current:(Sym) `<Sym symbol>+`, Collector c){
+    if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
+    c.calculate("iter", current, [symbol], AType(Solver s) { return \iter(s.getType(symbol)); });
+    collect(symbol, c);
+}
+
+void collect(current:(Sym) `<Sym symbol>*`, Collector c){
+    if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
+    c.calculate("iterStar", current, [symbol], AType(Solver s) { return \iter-star(s.getType(symbol)); });
+    collect(symbol, c);
+}
+
+void collect(current:(Sym) `{ <Sym symbol> <Sym sep> }+`, Collector c){
+    if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
+     c.calculate("iterSep", current, [symbol, sep], 
+        AType(Solver s) { 
+            seps = [s.getType(sep)];
+            validateSeparators(current, seps, s);
+            return \iter-seps(s.getType(symbol), seps); 
+        });
+    collect(symbol, sep, c);
+}
+
+void collect(current:(Sym) `{ <Sym symbol> <Sym sep> }*`, Collector c){
+    if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
+    c.calculate("iterStarSep", current, [symbol, sep], 
+        AType(Solver s) { 
+            seps = [s.getType(sep)];
+            validateSeparators(current, seps, s);
+            return \iter-star-seps(s.getType(symbol), seps); 
+        });
+    collect(symbol, sep, c);
+}
+
+void validateSeparators(Tree current, list[AType] separators, Solver s){
+    if(all(sep <- separators, isLayoutType(sep)))
+        s.report(error(current, "At least one element of separators should be non-layout"));
+    forbidConsecutiveLayout(current, separators, s);
+}
+
+void forbidConsecutiveLayout(Tree current, list[AType] symbols, Solver s){
+    if([*_,t1, t2,*_] := symbols, isLayoutType(t1), isLayoutType(t2)){
+       s.report(error(current, "Consecutive layout types %t and %t not allowed", t1, t2));
     }
 }
 
-public AType convertSymbol(Sym sym, Collector c) = sym2AType(sym); 
+void requireNonLayout(Tree current, AType u, str msg, Solver s){
+    if(isLayoutType(u)) s.report(error(current, "Layout type %t not allowed %v", u, msg));
+}
 
-//@doc{Get the raw Name component from a user type.}
-//public Name getUserTypeRawName(UserType ut, Collector c) {
-//    switch(ut) {
-//        case (UserType) `<QualifiedName n>` : return getLastName(n);
-//        case (UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]` : return getLastName(n);
-//    }
-//}
+void collect(current:(Sym) `<Sym symbol>?`, Collector c){
+    c.calculate("optional", current, [symbol], AType(Solver s) { return \opt(s.getType(symbol)); });
+    collect(symbol, c);
+}
+
+void collect(current:(Sym) `( <Sym first> | <{Sym "|"}+ alternatives> )`, Collector c){
+    alts = first + [alt | alt <- alternatives];
+    c.calculate("alternative", current, alts, AType(Solver s) { return \alt({s.getType(alt) | alt <- alts}); });
+    collect(alts, c);
+}
+
+void collect(current:(Sym) `( <Sym first> <Sym+ sequence> )`, Collector c){
+    seqs = first + [seq | seq <- sequence];
+    c.calculate("sequence", current, seqs, 
+        AType(Solver s) { 
+            symbols = [s.getType(seq) | seq <- seqs];
+            forbidConsecutiveLayout(current, symbols, s);
+            return \seq(symbols); 
+        });
+    collect(seqs, c);
+}
+
+void collect(current:(Sym) `()`, Collector c){
+    c.fact(current, \empty());
+}
+
+// conditionals
+
+void collect(current:(Sym) `<Sym symbol> @ <IntegerLiteral column>`, Collector c){
+    c.calculate("column", current, [symbol], AType(Solver s) { return conditional(s.getType(symbol), {\at-column(toInt("<column>")) }); });
+    collect(symbol, c);
+}
+
+void collect(current:(Sym) `<Sym symbol> $`, Collector c){
+    c.calculate("end-of-line", current, [symbol], AType(Solver s) { return conditional(s.getType(symbol), {\end-of-line() }); });
+    collect(symbol, c);
+}
+
+void collect(current:(Sym) `^ <Sym symbol>`, Collector c){
+    c.calculate("begin-of-line", current, [symbol], AType(Solver s) { return conditional(s.getType(symbol), {\begin-of-line() }); });
+    collect(symbol, c);
+}
+
+void collect(current:(Sym) `<Sym symbol> ! <NonterminalLabel n>`, Collector c){
+    c.calculate("except", current, [symbol], AType(Solver s) { return conditional(s.getType(symbol), {\except("<n>") }); });
+    collect(symbol, c);
+}
+
+void collect(current:(Sym) `<Sym symbol>  \>\> <Sym match>`, Collector c){
+   c.calculate("follow", current, [symbol, match], AType(Solver s) { return conditional(s.getType(symbol), {\follow(s.getType(match)) }); });
+   collect(symbol, match, c);
+}
+
+void collect(current:(Sym) `<Sym symbol>  !\>\> <Sym match>`, Collector c){
+   c.calculate("follow", current, [symbol, match], AType(Solver s) { return conditional(s.getType(symbol), {\not-follow(s.getType(match)) }); });
+   collect(symbol, match, c);
+}
+
+void collect(current:(Sym) `<Sym match>  \<\< <Sym symbol>`, Collector c){
+   c.calculate("precede", current, [match, symbol], AType(Solver s) { return conditional(s.getType(symbol), {\precede(s.getType(match)) }); });
+   collect(match, symbol, c);
+}
+
+void collect(current:(Sym) `<Sym match>  !\<\< <Sym symbol>`, Collector c){
+   c.calculate("notPrecede", current, [match, symbol], AType(Solver s) { return conditional(s.getType(symbol), {\not-precede(s.getType(match)) }); });
+   collect(match, symbol, c);
+}
+
+void collect(current:(Sym) `<Sym symbol> \\ <Sym match>`, Collector c){
+   c.calculate("unequal", current, [symbol, match], 
+        AType(Solver s) { 
+            t = s.getType(match);
+            if(lit(_) !:= t && (t has syntaxRole && t.syntaxRole != keywordSyntax())){
+                s.report(error(match, "Exclude `\\` requires keywords as right argument, found %t", match));
+            }
+            return conditional(s.getType(symbol), {\delete(s.getType(match)) });
+        });
+   collect(symbol, match, c);
+}
+
+void collect(Sym current, Collector c){
+    throw "collect Sym, missed case <current>";
+}
 
 @doc{Convert Rascal type variables into their abstract representation.}
-public AType convertTypeVar(TypeVar tv, Collector c) {
-    switch(tv) {
-        case (TypeVar) `& <Name n>` : return aparameter("<prettyPrintQName(convertName(n))>",avalue());
-        case (TypeVar) `& <Name n> \<: <Type tp>` : {
-            return aparameter("<n>",convertType(tp, c));
-        }
-    }
+
+void collect(current:(TypeVar) `& <Name n>`, Collector c){
+    c.fact(n, aparameter("<prettyPrintQName(convertName(n))>",avalue()));
+    c.sameType(current, n);
+}
+
+void collect(current: (TypeVar) `& <Name n> \<: <Type tp>`, Collector c){
+    c.calculate("type parameter with bound", n, [tp], AType(Solver s){ return  aparameter("<n>", s.getType(tp)); });
+    c.sameType(current, n);
+        
+    collect(tp, c);
 }
 
 @doc{Convert Rascal data type selectors into an abstract representation.}
@@ -299,21 +571,6 @@ public AType convertTypeVar(TypeVar tv, Collector c) {
 public AType convertDataTypeSelector(DataTypeSelector dts, Collector c) {
     switch(dts) {
         case (DataTypeSelector) `<QualifiedName n1> . <Name n2>` : throw "Not implemented";
-    }
-}
-
-@doc{Main driver routine for converting Rascal types into abstract type representations.}
-public AType convertType(Type t, Collector c) {
-    switch(t) {
-        case (Type) `<BasicType bt>` : return convertBasicType(bt, c);
-        case (Type) `<StructuredType st>` : return convertStructuredType(st, c);
-        case (Type) `<FunctionType ft>` : return convertFunctionType(ft, c);
-        case (Type) `<TypeVar tv>` : return convertTypeVar(tv, c);
-        case (Type) `<UserType ut>` : return convertUserType(ut, c);
-        case (Type) `<DataTypeSelector dts>` : return convertDataTypeSelector(dts, c);
-        case (Type) `<Sym sym>` : return convertSymbol(sym, c);
-        case (Type) `( <Type tp> )` : return convertType(tp, c);
-        default : { throw "Error in convertType, unexpected type syntax: <t>"; }
     }
 }
 

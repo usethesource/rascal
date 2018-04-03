@@ -13,7 +13,7 @@ test S3 [[ module A
            value f(){
                 str x = 10; 
             }
-]] expect { "Incompatible type `int` in initialization of `x`, expected `str`" }
+]] expect { "Type of initialization should be subtype of `str`, found `int`" }
 
 test S4 [[ module A
            value f(){
