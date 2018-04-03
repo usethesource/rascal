@@ -18,7 +18,7 @@ test MF5 [[ module A map[str key, int] x; ]]
 expect { "Field name `key` ignored, field names must be provided for both fields or for none" }
 
 test MF6 [[ module A map[str key, int key] x; ]]
-expect { "Non-well-formed type, labels must be distinct" }
+expect { "Non-well-formed map type, labels must be distinct" }
 
 test RF1 [[ module A rel[str a, int b, real r] x; set[str] y = x.a; ]]
 

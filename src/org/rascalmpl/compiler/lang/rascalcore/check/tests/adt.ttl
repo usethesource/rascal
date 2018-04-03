@@ -139,6 +139,6 @@ test C5 [[  module A
             module C import B;
             data D(bool B = false) = d3(bool f, str t = "a");
             
-            D Y1 = d2("z");     D Y2 = d2("z", m=1);    D Y3 = d2("z", m=1, S="z",B=true);
-            D Z1 = d3(true);   D Z2 = d3(true, t ="z");D Z3 = d3(true, t ="z", S="z",B=true);
+            D Y1 = d2("z");     D Y2 = d2("z", m=1);    D Y3 = d2("z", m=1, S="z");
+            D Z1 = d3(true);   D Z2 = d3(true, t ="z");D Z3 = d3(true, t ="z", B=true);
 ]]

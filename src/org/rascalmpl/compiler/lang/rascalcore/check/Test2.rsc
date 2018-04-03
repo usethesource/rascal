@@ -1,7 +1,6 @@
 module lang::rascalcore::check::Test2
 
-import lang::rascalcore::check::Test1;   
-
-set[str] PartOf = {};
-
-value ComponentCalls = PartOf;
+    
+void groupRangeByDomain(rel[int dom, int ran] input) {
+  input.dom;
+}

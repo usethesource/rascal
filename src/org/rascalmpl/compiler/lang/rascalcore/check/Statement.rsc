@@ -12,6 +12,7 @@ extend lang::rascalcore::check::ConvertType;
 import lang::rascalcore::check::Pattern;
 import lang::rascalcore::check::Expression;
 import lang::rascalcore::check::Operators;
+import lang::rascalcore::check::Declaration;
 
 import lang::rascalcore::check::TypePalConfig;
  
@@ -22,7 +23,7 @@ import String;
 
 // Rascal statements
 
-// ---- assert
+// ---- assert ----------------------------------------------------------------
 
 void collect(current: (Statement) `assert <Expression expression>;`, Collector c){
     c.fact(current, abool());
@@ -41,13 +42,14 @@ void collect(current: (Statement) `assert <Expression expression> : <Expression 
    collect(expression, message, c);
 } 
      
-// ---- expression
+// ---- expression ------------------------------------------------------------
+
 void collect(current: (Statement) `<Expression expression>;`, Collector c){
     c.calculate("expression as statement", current, [expression], AType(Solver s){ return s.getType(expression); });
     collect(expression, c);
 }
 
-// ---- visit and insert
+// ---- visit and insert ------------------------------------------------------
 
 data VisitOrSwitchInfo = visitOrSwitchInfo(Expression expression, bool isVisit);
 
@@ -179,7 +181,7 @@ void collect(current: (Statement) `insert <Expression expr>;`, Collector c){
 
 data LoopInfo = loopInfo(str name, list[Tree] appends);
 
-// --- while
+// ---- while -----------------------------------------------------------------
 
 void collect(current: (Statement) `<Label label> while( <{Expression ","}+ conditions> ) <Statement body>`,  Collector c){
     c.enterScope(conditions);   // body may refer to variables defined in conditions
@@ -236,7 +238,7 @@ void computeLoopType(str loopKind, str loopName1, Statement current, Collector c
     throw rascalCheckerInternalError(getLoc(current), "Info for loop scope not found"); 
 }
 
-// ---- do
+// ---- do --------------------------------------------------------------------
 
 void collect(current: (Statement) `<Label label> do <Statement body> while ( <Expression condition> ) ;`, Collector c){
     c.enterScope(current);   // condition may refer to variables defined in body
@@ -256,7 +258,7 @@ void collect(current: (Statement) `<Label label> do <Statement body> while ( <Ex
     c.leaveScope(current); 
 }
 
-//---- for
+// ---- for -------------------------------------------------------------------
 
 void collect(current: (Statement) `<Label label> for( <{Expression ","}+ conditions> ) <Statement body>`,  Collector c){
     c.enterScope(current);   // body may refer to variables defined in conditions
@@ -279,7 +281,7 @@ void collect(current: (Statement) `<Label label> for( <{Expression ","}+ conditi
     c.leaveScope(current);  
 }
 
-// ---- append
+// ---- append ----------------------------------------------------------------
 
 void collect(current: (Statement) `append <DataTarget dataTarget> <Statement statement>`, Collector c){
     loopName = "";
@@ -303,7 +305,7 @@ void collect(current: (Statement) `append <DataTarget dataTarget> <Statement sta
     c.report(error(current, "Append outside a while/do/for statement"));
 }
 
-// ---- break
+// ---- break -----------------------------------------------------------------
 
 void collect(current:(Statement) `break <Target target>;`, Collector c){
     c.fact(current, avoid());
@@ -326,7 +328,7 @@ void collect(current:(Statement) `break <Target target>;`, Collector c){
     c.report(error(current, "Break outside a while/do/for statement"));
 }
 
-// ---- continue
+// ---- continue --------------------------------------------------------------
 
 void collect(current:(Statement) `continue <Target target>;`, Collector c){
     c.fact(current, avoid());
@@ -349,7 +351,7 @@ void collect(current:(Statement) `continue <Target target>;`, Collector c){
     c.report(error(current, "Continue outside a while/do/for statement"));
 }
 
-// ---- if
+// ---- if --------------------------------------------------------------------
 
 void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditions> ) <Statement thenPart>`,  Collector c){
     c.enterScope(conditions); // thenPart may refer to variables defined in conditions
@@ -368,7 +370,7 @@ void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditio
     c.leaveScope(conditions);   
 }
 
-// --- if then else
+// --- if then else -----------------------------------------------------------
 
 void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditions> ) <Statement thenPart> else <Statement elsePart>`,  Collector c){
     c.enterScope(conditions);   // thenPart may refer to variables defined in conditions; elsePart may not
@@ -396,7 +398,7 @@ void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditio
     c.leaveScope(conditions); 
 }
 
-// ---- switch
+// ---- switch ----------------------------------------------------------------
 
 void collect(current: (Statement) `<Label label> switch ( <Expression e> ) { <Case+ cases> }`, Collector c){
     c.enterScope(current);
@@ -412,7 +414,8 @@ void collect(current: (Statement) `<Label label> switch ( <Expression e> ) { <Ca
 
 data SwitchInfo = switchInfo(Expression e);
 
-// ---- fail
+// ---- fail ------------------------------------------------------------------
+
 void collect(current: (Statement)`fail <Target target>;`, Collector c){
     loopName = "";
     if(target is labeled){
@@ -422,12 +425,12 @@ void collect(current: (Statement)`fail <Target target>;`, Collector c){
     c.fact(current, avoid());
 }
 
-// ---- filter
+// ---- filter ----------------------------------------------------------------
 
 void collect(current: (Statement) `filter;`, Collector c){
     c.fact(current, avoid());
 }
-// ---- solve
+// ---- solve -----------------------------------------------------------------
 
 void collect(current: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bound bound> ) <Statement body>`, Collector c){
     for(v <- variables){
@@ -455,9 +458,9 @@ void collect(Bound current, Collector c){
     }
 }
 
-// ---- try, try finally, catch
+// ---- try, try finally, catch -----------------------------------------------
 
-// ---- try
+// ---- try -------------------------------------------------------------------
  
  void collect(current: (Statement) `try <Statement body> <Catch+ handlers>`, Collector c){
     lhandlers = [ h | h <- handlers ];
@@ -465,7 +468,7 @@ void collect(Bound current, Collector c){
     collect(body, handlers, c);
  }
  
-// ---- try finally
+// ---- try finally -----------------------------------------------------------
 
 void collect(current: (Statement) `try <Statement body> <Catch+ handlers> finally <Statement finallyBody>`, Collector c){
     lhandlers = [h | h <- handlers];
@@ -473,7 +476,7 @@ void collect(current: (Statement) `try <Statement body> <Catch+ handlers> finall
     collect(body, handlers, finallyBody, c);
 }
 
-// ---- catch
+// ---- catch -----------------------------------------------------------------
 
 void collect(current: (Catch) `catch: <Statement body>`, Collector c){
     c.fact(current, avoid());
@@ -496,7 +499,7 @@ void collect(current: (Catch) `catch <Pattern pattern>: <Statement body>`, Colle
     c.leaveScope(current);
 }
 
-// ---- non-empty block
+// ---- non-empty block -------------------------------------------------------
 
 void collect(current: (Statement) `<Label label> { <Statement+ statements> }`, Collector c){
     if(label is \default){
@@ -507,13 +510,13 @@ void collect(current: (Statement) `<Label label> { <Statement+ statements> }`, C
     collect(stats, c);
 }
 
-// ---- empty block
+// ---- empty block -----------------------------------------------------------
 
 void collect(current: (Statement) `;`, Collector c){
     c.fact(current, avoid());
 }
 
-// ---- assignment
+// ---- assignment ------------------------------------------------------------
 
 void collect(current: (Statement) `<Assignable assignable> <Assignment operator> <Statement statement>`, Collector c){
     checkAssignment(current, assignable, "<operator>", statement, c);
@@ -571,41 +574,41 @@ void checkAssignment(Statement current, (Assignable) `<QualifiedName name>`, str
         AType(Solver s) { nameType = s.getType(name);
          		   asgType = computeAssignmentRhsType(current, nameType, operator, s.getType(statement), s);
                    if(operator == "=") 
-                      s.requireComparable(asgType, nameType, error(current, "Incompatible type %t in assignment to %t variable %q`", asgType, nameType, name)); 
+                      s.requireComparable(asgType, nameType, error(current, "Incompatible type %t in assignment to %t variable %q", asgType, nameType, "<name>")); 
                    return asgType;   
                  });  
 }
 
-AType computeReceiverType(Statement current, (Assignable) `<QualifiedName name>`, loc scope, Collector c, Solver s){
-    return s.getType(name); //expandUserTypes(getType(name), scope, s);
+AType computeReceiverType(Statement current, (Assignable) `<QualifiedName name>`, loc scope, Solver s){
+    return s.getType(name);
 }
 
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, loc scope, Collector c, Solver s){
-    return computeSubscriptionType(current, computeReceiverType(current, receiver, scope, c, s), [ s.getType(subscript) ], [ subscript ], s);
+AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, loc scope, Solver s){
+    return computeSubscriptionType(current, computeReceiverType(current, receiver, scope,s), [ s.getType(subscript) ], [ subscript ], s);
 }
     
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, loc scope, Collector c, Solver s){
-    return computeSliceType(current, computeReceiverType(current, receiver, scope, c, s), s.getType(optFirst), aint(), s.getType(optLast), s);
+AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, loc scope, Solver s){
+    return computeSliceType(current, computeReceiverType(current, receiver, scope, s), s.getType(optFirst), aint(), s.getType(optLast), s);
 }
 
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`, loc scope, Collector c, Solver s){
-    return computeSliceType(current, computeReceiverType(current, receiver, scope, c, s), s.getType(optFirst),s.getType(second), s.getType(optLast), s);
+AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`, loc scope, Solver s){
+    return computeSliceType(current, computeReceiverType(current, receiver, scope, s), s.getType(optFirst),s.getType(second), s.getType(optLast), s);
 }
 
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> . <Name field>`, loc scope, Collector c, Solver s)
-    = computeFieldType(current, computeReceiverType(current, receiver, scope, c, s), "<field>", scope, c, s);
+AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> . <Name field>`, loc scope, Solver s)
+    = computeFieldType(current, computeReceiverType(current, receiver, scope, s), field, scope, s);
     
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> @ <Name n>`, loc scope, Collector c, Solver s){
-    annoNameType = expandUserTypes(s.getTypeInScope(unescape("<n>"), scope, {annoId()}), scope, s);
-    return computeGetAnnotationType(current, computeReceiverType(current, receiver, scope, c, s), annoNameType, s);
+AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> @ <Name n>`, loc scope, Solver s){
+    annoNameType = s.getTypeInScope(unescape("<n>"), scope, {annoId()});
+    return computeGetAnnotationType(current, computeReceiverType(current, receiver, scope, s), annoNameType, s);
 }
 
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, loc scope, Collector c, Solver s){
-    return computeReceiverType(current, receiver, scope, c, s);
+AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, loc scope, Solver s){
+    return computeReceiverType(current, receiver, scope, s);
 }
 
-AType computeReceiverType(Statement current, (Assignable) `\< <{Assignable ","}+ elements> \>`, loc scope, Collector c, Solver s){
-    return atuple(atypeList([computeReceiverType(current, element, scope, c, s) | element <- elements]));
+AType computeReceiverType(Statement current, (Assignable) `\< <{Assignable ","}+ elements> \>`, loc scope, Solver s){
+    return atuple(atypeList([computeReceiverType(current, element, scope, s) | element <- elements]));
 }
 
 void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, str operator, Statement rhs, Collector c){
@@ -617,7 +620,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <E
    
    c.calculate("assignable with subscript", current, [subscript, rhs], 
        AType(Solver s){ 
-           res = computeSubscriptAssignableType(current, computeReceiverType(current, receiver, scope, c, s),  subscript, operator, s.getType(rhs), s);
+           res = computeSubscriptAssignableType(current, computeReceiverType(current, receiver, scope, s),  subscript, operator, s.getType(rhs), s);
            s.requireUnify(tau, res, error(current, "Cannot bind type variable for %q", names[0]));
            return res;
          });
@@ -692,7 +695,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <O
    
    c.calculate("assignable with slice", current, [optFirst, optLast, rhs], 
       AType(Solver s){ 
-           res = computeSliceAssignableType(current, computeReceiverType(current, receiver, scope, c, s),  s.getType(optFirst), aint(), s.getType(optLast), operator, s.getType(rhs), s);
+           res = computeSliceAssignableType(current, computeReceiverType(current, receiver, scope, s),  s.getType(optFirst), aint(), s.getType(optLast), operator, s.getType(rhs), s);
            s.requireUnify(tau, res, error(current, "Cannot bind type variable for %q", names[0]));
            return res;
          });
@@ -708,7 +711,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <O
    
    c.calculate("assignable with slice", current, [optFirst, second, optLast, rhs], 
       AType(Solver s){ 
-           res = computeSliceAssignableType(current, computeReceiverType(current, receiver, scope, c, s),  s.getType(optFirst), s.getType(second), s.getType(optLast), operator, s.getType(rhs), s);
+           res = computeSliceAssignableType(current, computeReceiverType(current, receiver, scope, s),  s.getType(optFirst), s.getType(second), s.getType(optLast), operator, s.getType(rhs), s);
            s.requireUnify(tau, res, error(current, "Cannot bind type variable for %q", names[0]));
            return res;
          });
@@ -749,23 +752,21 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> . <N
    
    c.calculate("assignable with field", current, [rhs], 
       AType(Solver s){ 
-           res = computeFieldAssignableType(current, computeReceiverType(current, receiver, scope, c, s),  unescape("<field>"), operator, s.getType(rhs), scope, s);
+           res = computeFieldAssignableType(current, computeReceiverType(current, receiver, scope, s),  field, operator, s.getType(rhs), scope, s);
            s.requireUnify(tau, res, error(current, "Cannot bind type variable for %q", names[0]));
            return res;
          });
 }
 
-AType computeFieldAssignableType(Statement current, AType receiverType, str fieldName, str operator, AType rhs, loc scope, Solver s){
-   
+AType computeFieldAssignableType(Statement current, AType receiverType, Tree field, str operator, AType rhs, loc scope, Solver s){
+   fieldName = "<field>";
    if(!s.isFullyInstantiated(receiverType) || !s.isFullyInstantiated(rhs)) throw TypeUnavailable();
     
-   if(auser(adtName, list[AType] actualTypeParams) := receiverType){
-      return computeFieldAssignableType(current, expandUserTypes(receiverType, scope, s), fieldName, operator, rhs, scope, s);
-   } else if(overloadedAType(rel[loc, IdRole, AType] overloads) := receiverType){
+   if(overloadedAType(rel[loc, IdRole, AType] overloads) := receiverType){
         fld_overloads = {};
         for(<key, idr, tp> <- overloads){ 
             try {
-               fld_overloads += <key, idr, computeFieldAssignableType(current, tp, fieldName, operator, rhs, scope, s)>;
+               fld_overloads += <key, idr, computeFieldAssignableType(current, tp, field, operator, rhs, scope, s)>;
            } catch checkFailed(set[Message] msgs): {
                 ; // do nothing and try next overload
            } catch e: ; // do nothing
@@ -773,52 +774,31 @@ AType computeFieldAssignableType(Statement current, AType receiverType, str fiel
         if(isEmpty(fld_overloads)) s.report(error(current, "Field %q on %t cannot be resolved", fieldName, receiverType));
         return overloadedAType(fld_overloads);
    } else if(isStartNonTerminalType(receiverType)){
-        return computeFieldAssignableType(current, getStartNonTerminalType(receiverType), fieldName, operator, rhs, scope, s);
+        return computeFieldAssignableType(current, getStartNonTerminalType(receiverType), field, operator, rhs, scope, s);
    } else if (aadt(adtName, list[AType] actualTypeParams, _) := receiverType){
-        try {
-            if ((getADTName(receiverType) == "Tree" || isNonTerminalType(receiverType)) && fieldName == "top") {
-                return receiverType;
-            }            
-            fieldType = s.getTypeInScope(fieldName, scope, {/*formalId(),*/ fieldId()});
-            
+        if ((getADTName(receiverType) == "Tree" || isNonTerminalType(receiverType)) && fieldName == "top") {
+            return receiverType;
+        }   
+        fld_overloads = {};
+        for(containerDef <- s.getDefinitions(adtName, scope, {dataId(), aliasId()})){    
             try {
-                fieldType = expandUserTypes(fieldType, scope, s);
-            } catch TypeUnavailable():
-                s.report(error(current, "Cannot expand type of field %t, missing import of field type?", fieldType));
-                
-            declaredInfo = s.getDefinitions(adtName, scope, dataOrSyntaxIds);
-            declaredType = s.getTypeInScope(adtName, scope, dataOrSyntaxIds);
-            declaredTypeParams = getADTTypeParameters(declaredType);
-            
-            if (size(declaredTypeParams) > 0) {
-                if (size(declaredTypeParams) != size(actualTypeParams)) {
-                    s.report(error(current, "Invalid ADT type, the number of type parameters is inconsistent"));
-                } else {
-                    map[str, AType] bindings = ( getRascalTypeParamName(declaredTypeParams[idx]) : actualTypeParams[idx] | idx <- index(declaredTypeParams));
-                    try {
-                        fieldType = instantiateRascalTypeParams(fieldType, bindings);
-                    } catch invalidInstantiation(str msg): {
-                        s.report(error(current, "Failed to instantiate type parameters in field type %t", fieldType));
-                    }                       
-                }
-            }
-            
-            fieldType = filterFieldType(fieldName, fieldType, declaredInfo, scope, s); 
-            
-            if(overloadedAType({}) !:= fieldType){
-                updatedFieldType = computeAssignmentRhsType(current, fieldType, operator, rhs, s);
-                s.requireSubtype(updatedFieldType, fieldType, error(current, "Field %q requires %t, found %t", fieldName, fieldType, updatedFieldType));     
-            
-                return receiverType;
-            }                           
-            if (isNonTerminalType(declaredType)){
-                 return computeFieldAssignableType(current, aadt("Tree", [], contextFreeSyntax()), fieldName, operator, rhs, scope, s);
-            }
-            s.report(error(current, "Field %q does not exist on type %t", fieldName, receiverType));
-        } catch TypeUnavailable(): {
-            throw TypeUnavailable();
-            //reportError(current, "Cannot compute type of field <fmt(fieldName)>, user type <fmt(receiverType)> has not been declared or is out of scope"); 
+                selectorType = s.getTypeInScope("<field>", containerDef.defined, {fieldId()});
+                //fld_overloads += <containerDef.defined, containerDef.idRole, selectorType>;
+                fld_overloads += <containerDef.defined, containerDef.idRole, rascalInstantiateTypeParameters(field, s.getType(containerDef.defInfo), receiverType, selectorType, s)>;
+             } catch TypeUnavailable():; /* ignore */
         }
+        fieldType = overloadedAType(fld_overloads);
+        if(!isEmpty(fld_overloads)){
+            updatedFieldType = computeAssignmentRhsType(current, fieldType, operator, rhs, s);
+            s.requireSubtype(updatedFieldType, fieldType, error(current, "Field %q requires %t, found %t", fieldName, fieldType, updatedFieldType));
+            return receiverType;
+        } 
+        
+        if (isNonTerminalType(receiverType)){
+             return computeFieldAssignableType(current, aadt("Tree", [], contextFreeSyntax()), field, operator, rhs, scope, s);
+        }                          
+       
+        s.report(error(current, "Field %q does not exist on type %t", fieldName, receiverType));
     } else if (isTupleType(receiverType)) {
         if(tupleHasFieldNames(receiverType)){
             tupleFields = getTupleFields(receiverType);
@@ -856,7 +836,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> ? <E
    
    c.calculate("assignable with default expression", current, [defaultExpression, rhs], 
       AType(Solver s){ 
-           res = computeDefaultAssignableType(current, computeReceiverType(current, receiver, scope, c, s), s.getType(defaultExpression), operator, s.getType(rhs), scope, s);
+           res = computeDefaultAssignableType(current, computeReceiverType(current, receiver, scope, s), s.getType(defaultExpression), operator, s.getType(rhs), scope, s);
            return res;
          });
 }
@@ -870,8 +850,6 @@ AType computeDefaultAssignableType(Statement current, AType receiverType, AType 
 }
 
 set[str] getNames(Statement s) = {"<nm>" | /QualifiedName nm := s};
-
-
 
 void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable ","}+ elements> \>`, str operator, Statement rhs, Collector c){
 
@@ -894,7 +872,7 @@ void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable 
             //println("checkTupleElemAssignment: taus[<i>] : <taus[i]>, rhsFields[<i>]: <rhsFields[i]>");
             if(s.isFullyInstantiated(taus[i]) && tvar(l) !:= taus[i]){
                //println("checkTupleElemAssignment: fullyInstantiated");
-               recTypeI  = computeReceiverType(current, elms[i],  scope, c, s);
+               recTypeI  = computeReceiverType(current, elms[i],  scope, s);
                rhsTypeI  = computeAssignmentRhsType(current, recTypeI, operator, rhsFields[i], s);
                s.requireComparable(rhsTypeI, recTypeI, error(names[i], "Value of type %t cannot be assigned to %q of type %t", rhsFields[i],names[i], recTypeI));
                   //if(flatNames[i] in namesInRhs){
@@ -939,7 +917,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> @ <N
    
    c.calculate("assignable with annotation", current, [n, rhs], 
       AType(Solver s){ 
-           rt = computeReceiverType(current, receiver, scope, c, s);
+           rt = computeReceiverType(current, receiver, scope, s);
            return computeAnnoAssignableType(current, rt,  unescape("<n>"), operator, s.getType(rhs), scope, s);
          });
 }
@@ -961,7 +939,7 @@ AType computeAnnoAssignableType(Statement current, AType receiverType, str annoN
         if(isEmpty(anno_overloads)) s.report(error(current, "Annotation on %t cannot be resolved", receiverType));
         return overloadedAType(anno_overloads);
     }
-    annoNameType = expandUserTypes(s.getTypeInScope(annoName, scope, {annoId()}), scope, s);
+    annoNameType = s.getTypeInScope(annoName, scope, {annoId()});
     //println("annoNameType: <annoNameType>");
     
     if (isNodeType(receiverType) || isADTType(receiverType) || isNonTerminalType(receiverType)) {
@@ -997,82 +975,30 @@ list[QualifiedName] getReceiver((Assignable) `\< <{Assignable ","}+ elements> \>
 
 default list[QualifiedName] getReceiver(Assignable asg, Collector c) { throw rascalCheckerInternalError(getLoc(asg), "Unsupported assignable <asg>"); }
 
-// ---- return, defined in Declarations, close to function declarations
+// ---- return, defined in Declarations, close to function declarations -------
 
-// ---- throw
+// ---- throw -----------------------------------------------------------------
 
 void collect(current:(Statement) `throw <Statement statement>`, Collector c){
-    //c.fact(current, avoid());
     c.calculate("throw", current, [statement], AType(Solver s) { return abool(); });
     collect(statement, c);
 }
 
-// ---- function declaration, see Declaration
+// ---- function declaration, see Declaration ---------------------------------
 
-// ---- local variable declaration
+// ---- local variable declaration --------------------------------------------
 
-void collect(current: (Statement) `<Type tp> <{Variable ","}+ variables>;`, Collector c){
-    declaredType = convertType(tp, c);
-    declaredTypeParams = collectAndUnlabelRascalTypeParams(declaredType);
-    scope = c.getScope();
-    AType tau = declaredType;
-    if(isEmpty(declaredTypeParams)){
-       c.calculate("variable declaration", current, [], AType(Solver s){ return expandUserTypes(declaredType, scope, s); });
-    } else {
-       if(size([v | v <- variables]) > 1){
-          c.report(error(current, "Parameterized declared type not allowed with multiple initializations"));
-       }
-       tau = c.newTypeVar(tp);
-    }
-    
-    for(v <- variables){
-        if(v is initialized){
-            if(isEmpty(declaredTypeParams)){ 
-               c.define("<v.name>", variableId(), v, defType([], AType(Solver s) { return expandUserTypes(tau, scope, s); })); 
-               c.calculate("declaration of variable `<v.name>`", v, [v.initial],   
-                   AType(Solver s){ 
-                       initialType = s.getType(v.initial); 
-                       initialTypeParams = collectAndUnlabelRascalTypeParams(initialType);
-                       declaredType = expandUserTypes(declaredType, scope, s);
-                       if(!isEmpty(initialTypeParams)){
-                          try {
-                            Bindings bindings = matchRascalTypeParams(initialType, declaredType, (), bindIdenticalVars=true);
-                            initialType = instantiateRascalTypeParams(initialType, bindings);
-                          } catch invalidMatch(str reason): {
-                                s.report(error(v, reason));
-                          } catch invalidInstantiation(str msg): {
-                                s.report(error(v, msg));
-                          }
-                       }
-                       s.requireComparable(initialType, declaredType, error(v, "Incompatible type %t in initialization of %q, expected %t", initialType, v.name, declaredType));
-                       return declaredType;                  
-                   });
-            } else {
-               c.define("<v.name>", variableId(), v, defType(tau)); 
-               c.calculate("declaration of variable `<v.name>`, declared with parametrized type", v.name, [v.initial],
-                   AType(Solver s) { 
-                       initialType = s.getType(v.initial); 
-                       initialTypeParams = collectAndUnlabelRascalTypeParams(initialType);
-                       try {
-                         declaredType = expandUserTypes(declaredType, scope, s);
-                         Bindings bindings = matchRascalTypeParams(declaredType, initialType, (), bindIdenticalVars=true);
-                         if(!isEmpty(bindings)){
-                            declaredType = instantiateRascalTypeParams(declaredType, bindings);
-                            initialType = instantiateRascalTypeParams(initialType, bindings);
-                          }
-                       } catch invalidMatch(str reason): {
-                            s.report(error(v, reason));
-                        } catch invalidInstantiation(str msg): {
-                            s.report(error(v, msg));
-                       }
-                       s.requireUnify(tau, declaredType, error(v, "Cannot bind tau to %", declaredType));   // bind tau to instantiated declaredType
-                       s.requireComparable(initialType, declaredType, error(v, "Incompatible type in initialization of %q, expected %t", v.name, initialType));
-                       return declaredType;
-                   }); 
-            } 
-        } else {
-          c.define("<v.name>", variableId(), v, defType([], AType(Solver s) { return expandUserTypes(tau, scope, s); }));
+void collect(current: (Statement) `<Type varType> <{Variable ","}+ variables>;`, Collector c){
+    for(var <- variables){
+        c.define(prettyPrintName(var.name), variableId(), var.name, defGetType(varType));
+        
+        if(var is initialized){
+            c.enterLubScope(var);
+                c.require("variable initialization", var.initial, [varType], makeVarInitRequirement(var.initial, varType));
+                collect(var.initial, c); 
+            c.leaveScope(var);
         }
-    }
-    collect(variables, c);
+    } 
+    c.sameType(current, varType);
+    collect(varType, c);  
 }

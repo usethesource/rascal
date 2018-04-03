@@ -1,19 +1,16 @@
 module lang::rascalcore::check::TypePalConfig
  
 extend analysis::typepal::TypePal;
-extend analysis::typepal::TestFramework;
-extend analysis::typepal::Collector;
-extend analysis::typepal::ScopeGraph;
-
-import analysis::typepal::TypePalConfig;
-import analysis::typepal::Utils;
 
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
+extend lang::rascalcore::check::Expression;
 
+import lang::rascal::\syntax::Rascal;
 import List;
 import Set;
 import String;
+import Map;
 
 data IdRole
     = moduleId()
@@ -28,6 +25,7 @@ data IdRole
     | lexicalId()
     | layoutId()
     | keywordId()
+    | typeVarId()
     ;
 
 public set[IdRole] syntaxIds = {aliasId(), nonterminalId(), lexicalId(), layoutId(), keywordId()};
@@ -67,11 +65,11 @@ data DefInfo(Vis vis = publicVis());
 data DefInfo(map[str,str] tags = ());
 
 // Productions and Constructor fields; common Keyword fields
-data DefInfo(set[AProduction] productions = {}, 
+data DefInfo(//set[AProduction] productions = {}, 
              bool isStart = false,
-             set[AType/*NamedField*/] constructorFields = {},
-             set[AType] constructors = {},
-             list[Keyword] commonKeywordFields = []
+             //set[AType] constructorFields = {},
+             //set[AType] constructors = {},
+             list[KeywordFormal] commonKeywordFields = []
              );
 
 // Maintain excluded use in parts of a scope
@@ -218,6 +216,52 @@ Accept rascalIsAcceptablePath(TModel tm, loc defScope, loc def, Use use, PathRol
     return res;
 }
 
+alias Bindings = map[str varName, AType varType];
+
+AType rascalInstantiateTypeParameters(Tree selector,
+                                      def:aadt(str adtName1, list[AType] formals, SyntaxRole syntaxRole1),
+                                      ins:aadt(str adtName2, list[AType] actuals, SyntaxRole syntaxRole2),
+                                      AType act,
+                                      Solver s){ 
+    if(adtName1 != adtName2) throw TypePalUsage("rascalInstantiateTypeParameters: <adtName1> versus <adtName2>");
+    if(size(formals) != size(actuals)) s.report(error(selector, "Expected %v type parameters for %q, found %v", size(formals), adtName1, size(actuals)));
+    bindings = (formals[i].pname : actuals [i] | int i <- index(formals));
+    return xxInstantiateRascalTypeParameters(act, bindings, s);
+    //return visit(act) { case aparameter(str pname, AType bound):
+    //                        if(asubtype(bindings[pname], bound)) insert bindings[pname]; else s.report(error(selector, "Type parameter %q should be less than %t, found %t", pname, bound, bindings[pname]));
+    //                  };
+}
+
+default AType rascalInstantiateTypeParameters(Tree selector, AType formalType, AType actualType, AType toBeInstantiated, Solver s)
+    = toBeInstantiated;
+    
+    
+AType xxInstantiateRascalTypeParameters(AType t, Bindings bindings, Solver s){
+    if(isEmpty(bindings))
+        return t;
+    else
+        return visit(t) { case aparameter(str pname, AType bound):
+                                if(asubtype(bindings[pname], bound))
+                                    insert bindings[pname]; 
+                                else 
+                                    s.report(error(selector, "Type parameter %q should be less than %t, found %t", pname, bound, bindings[pname]));
+                        };
+}
+
+default AType rascalInstantiateTypeParameters(Tree selector, AType def, AType ins, AType act, Solver s) = act;
+
+tuple[bool isNamedType, str typeName, set[IdRole] idRoles] rascalGetTypeNameAndRole(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)){
+    return <true, adtName, {dataId(), nonterminalId(), lexicalId(), layoutId(), keywordId()}>;
+}
+
+default tuple[bool isNamedType, str typeName, set[IdRole] idRoles] rascalGetTypeNameAndRole(AType t){
+    return <false, "", {}>;
+}
+
+AType rascalGetTypeInNamelessType(AType containerType, Tree selector, loc scope, Solver s){
+    return computeFieldType(containerType, selector, scope, s);
+}
+
 data TypePalConfig(
     bool classicReifier = false
 );
@@ -236,6 +280,9 @@ TypePalConfig rascalTypePalConfig(bool classicReifier = false)
         isAcceptablePath              = rascalIsAcceptablePath,
         
         mayOverload                   = rascalMayOverload,       
-        classicReifier                = classicReifier
-        
+        classicReifier                = classicReifier,
+      
+        getTypeNameAndRole            = rascalGetTypeNameAndRole,
+        getTypeInNamelessType         = rascalGetTypeInNamelessType,
+        instantiateTypeParameters     = rascalInstantiateTypeParameters
     );
