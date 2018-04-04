@@ -15,11 +15,14 @@
 package org.rascalmpl.interpreter.env;
 
 import java.net.URI;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 import org.rascalmpl.ast.AbstractAST;
@@ -214,19 +217,19 @@ public class GlobalEnvironment {
 	
 	public Set<String> getExtendingModules(String mod) {
 		Set<String> result = new HashSet<>();
-		List<String> todo = new LinkedList<>();
+		Deque<String> todo = new ArrayDeque<>();
 		todo.add(mod);
 		
 		while (!todo.isEmpty()) {
-			String next = todo.remove(0);
+			String next = todo.remove();
 			
 			for (ModuleEnvironment env : moduleEnvironment.values()) {
 				if (env.getExtends().contains(next)) {
 					String extending = env.getName();
 					
-					if (!todo.contains(extending) /*cuts infinite extend loops*/) {
+					if (!todo.contains(extending) && !result.contains(extending) /*cuts infinite extend loops*/) {
 						// add transitive depending modules
-						todo.add(0, extending); 
+					    todo.addFirst(extending);
 						result.add(extending);
 					}
 				}
