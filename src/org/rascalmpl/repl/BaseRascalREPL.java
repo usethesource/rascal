@@ -162,7 +162,8 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
                 public void writeOutput(Type tp, IOConsumer<StringWriter> contentsWriter) throws IOException {
                     
                     try{
-                        if(tp.isString() && tp.getName().equals("VisOutput")){
+                        // TODO: Not sure about this, but it works in most cases 
+                        if(tp.isAliased() && tp.isString() && tp.getName().equals("VisOutput")){
                             String scope = ((IString) result.getValue()).getValue();
                             IRascalResult gg = evalStatement("serverSalixHttp1;", "serverSalixHttp1;");
                             
@@ -182,7 +183,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
                             out.write("</div>");
                         }
                     }
-                    catch (Exception e) {
+                    catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 }
