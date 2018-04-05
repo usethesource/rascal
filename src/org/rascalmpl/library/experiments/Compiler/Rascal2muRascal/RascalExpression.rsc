@@ -374,18 +374,6 @@ private list[MuExp] translateMidChars(MidStringChars mid) {
   smid = removeMargins("<mid>"[1..-1]);
   return "<mid>" == "" ? [] : [ muCallPrim3("template_add", [ muCon(deescape(smid)) ], mid@\loc) ];	//?
 }
-
-str deescape(str s)  { 
-    res = visit(s) { 
-        case /^\\<c: [\" \' \< \> \\]>/ => c
-        case /^\\t/ => "\t"
-        case /^\\n/ => "\n"
-        case /^\\u<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
-        case /^\\U<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
-        case /^\\a<hex:[0-7][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
-        }; 
-    return res;
-}
                      
 /* Recap of relevant rules from Rascal grammar:
 
