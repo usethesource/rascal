@@ -140,11 +140,13 @@ public class Bootstrap {
         System.err.println("---------------------");
     }
     
+    private static String maxMemory = "-Xmx2G"; // can be overriden by flag --maxMemory 3
+    
     public static void main(String[] args) throws Exception {
         initializeShutdownhook();
 
         if (args.length < 5) {
-        	System.err.println("Usage: Bootstrap <classpath> <versionToBootstrapOff> <versionToBootstrapTo> <sourceFolder> <targetFolder> [--verbose] [--clean] [--basic] [--download] [--validating] (you provided " + args.length + " arguments instead)");
+        	System.err.println("Usage: Bootstrap <classpath> <versionToBootstrapOff> <versionToBootstrapTo> <sourceFolder> <targetFolder> [--verbose] [--clean] [--basic] [--download] [--validating] [--maxMemory GBs] (you provided " + args.length + " arguments instead)");
         	System.exit(1);
         	return;
         }
@@ -194,6 +196,7 @@ public class Bootstrap {
                 case "--basic" : basicOption = true; break;
                 case "--download" : basicOption = false; break;
                 case "--validating" : validatingOption = true; break;
+                case "--maxMemory": maxMemory = "-Xmx"+args[++arg] + "G"; break;
                 default: 
                     System.err.println(args[arg] + " is not a supported argument.");
                     System.exit(1);
@@ -516,7 +519,7 @@ public class Bootstrap {
     }
     
     private static int bootstrapRascalParser(String classPath, String srcPath, String bootPath, Path phaseResult) throws IOException, InterruptedException {
-        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.BootstrapRascalParser"};
+        String[] javaCmd = new String[] {"java", "-cp", classPath, maxMemory, "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.BootstrapRascalParser"};
         String[] paths = new String[] {"--src", srcPath, "--bin", phaseResult.toAbsolutePath().toString(), "--boot", bootPath };
         return runChildProcess(concat(javaCmd, paths));
     }
@@ -567,7 +570,7 @@ public class Bootstrap {
     private static void runTests(int phase, String classPath, String boot, String sourcePath, Path phaseResult, String[] testModules) throws IOException, InterruptedException, BootstrapMessage {
         progress("Running tests with the results of " + phase);
         if (phase == 1) return;
-        String[] javaCmd = new String[] {"java", "-ea", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests" };
+        String[] javaCmd = new String[] {"java", "-ea", "-cp", classPath, maxMemory, "-Dfile.encoding=UTF-8", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.RascalTests" };
         String[] paths = new String [] { "--bin", phaseResult.toAbsolutePath().toString(), "--src", sourcePath, "--boot", boot };
         String[] otherArgs = VERBOSE? new String[] {"--verbose"} : new String[0];
 
@@ -590,12 +593,12 @@ public class Bootstrap {
          *     suspend=n - starts up and does not wait for attaching a debugger
          *     suspend=y - waits until a debugger is attached before to proceed
          */
-        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", /*"-Xdebug -Xrunjdwp:transport=dt_socket,address=8001,server=y,suspend=n",*/ "org.rascalmpl.library.experiments.Compiler.Commands.RascalC" };
+        String[] javaCmd = new String[] {"java", "-cp", classPath, maxMemory, "-Dfile.encoding=UTF-8", /*"-Xdebug -Xrunjdwp:transport=dt_socket,address=8001,server=y,suspend=n",*/ "org.rascalmpl.library.experiments.Compiler.Commands.RascalC" };
         return runChildProcess(concat(javaCmd, arguments));
     }
 
     private static int runMuLibraryCompiler(String classPath, String... arguments) throws IOException, InterruptedException {
-        String[] javaCmd = new String[] {"java", "-cp", classPath, "-Xmx2G", "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.CompileMuLibrary" };
+        String[] javaCmd = new String[] {"java", "-cp", classPath, maxMemory, "-Dfile.encoding=UTF-8", "org.rascalmpl.library.experiments.Compiler.Commands.CompileMuLibrary" };
     	return runChildProcess(concat(javaCmd, arguments));
     }
     

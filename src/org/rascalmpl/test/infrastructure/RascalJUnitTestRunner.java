@@ -36,8 +36,9 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import io.usethesource.vallang.ISourceLocation;
 import org.rascalmpl.values.ValueFactoryFactory;
+
+import io.usethesource.vallang.ISourceLocation;
 
 public class RascalJUnitTestRunner extends Runner {
 	private static Evaluator evaluator;
@@ -121,7 +122,6 @@ public class RascalJUnitTestRunner extends Runner {
 		return result;
 		
 	}
-	
 	@Override
 	public Description getDescription() {		
 		Description desc = Description.createSuiteDescription(prefix);

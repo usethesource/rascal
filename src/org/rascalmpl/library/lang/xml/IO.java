@@ -17,6 +17,7 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
@@ -40,9 +41,9 @@ public class IO {
         this.vf = vf;
     }
     
-    public INode readXML(ISourceLocation loc, IBool trim) {
+    public INode readXML(ISourceLocation loc, IBool trim, IBool fullyQualify) {
         try (Reader content = URIResolverRegistry.getInstance().getCharacterReader(loc)) {
-            return toNode(content, trim.getValue());
+            return toNode(content, trim.getValue(), fullyQualify.getValue());
         }
         catch (IOException e) {
             throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
@@ -50,16 +51,16 @@ public class IO {
     }
 
 
-    public INode readXML(IString content, IBool trim) {
+    public INode readXML(IString content, IBool trim, IBool fullyQualify) {
         try (Reader contentReader = new StringReader(content.getValue())) {
-            return toNode(contentReader, trim.getValue());
+            return toNode(contentReader, trim.getValue(), fullyQualify.getValue());
         }
         catch (IOException e) {
             throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
         }
     }
 
-    private INode toNode(Reader characterReader, boolean trim) throws IOException {
+    private INode toNode(Reader characterReader, boolean trim, boolean fullyQualify) throws IOException {
         try {
             XMLReader reader = XMLReaders.NONVALIDATING.createXMLReader();
             // XML reader reads the DTD to findout what it is reading at the moment.
@@ -73,7 +74,7 @@ public class IO {
                     return new InputSource(new ByteArrayInputStream(new byte[] {}));
                 }
             });
-            reader.setContentHandler(new ParseToRascalNode(trim));
+            reader.setContentHandler(new ParseToRascalNode(trim, fullyQualify));
             addExtraContentHandlers(reader);
             reader.parse(new InputSource(characterReader));
             return ((ParseToRascalNode)reader.getContentHandler()).getResult();
@@ -96,13 +97,16 @@ public class IO {
 
     private final class ParseToRascalNode implements ContentHandler {
         private final Stack<List<IValue>> stack = new Stack<>();
+        private IMapWriter seenNamespaces = null; 
 		private final Stack<Map<String,IValue>> attributes = new Stack<>();
         private final boolean trim;
+        private final boolean fullyQualify;
 		
         private INode result = null;
 
-        public ParseToRascalNode(boolean trim) {
+        public ParseToRascalNode(boolean trim, boolean fullyQualify) {
             this.trim = trim;
+            this.fullyQualify = fullyQualify;
         }
 
         public INode getResult() {
@@ -120,21 +124,29 @@ public class IO {
             result = (INode) stack.pop().get(0);
         }
 
-
+        private final Map<String, IValue> emptyMap = new HashMap<>(0);
         @Override
         public void startElement(String uri, String localName, String qName, Attributes atts) throws SAXException {
             stack.push(new ArrayList<>());
-            attributes.push(new HashMap<>(atts.getLength()));
-            for (int a = 0; a < atts.getLength(); a++) {
-                attributes.peek().put(atts.getLocalName(a), vf.string(atts.getValue(a)));
+            Map<String, IValue> newAttrs = emptyMap;
+            if (atts.getLength() > 0 || seenNamespaces != null) {
+                newAttrs = new HashMap<>(atts.getLength());
+                for (int a = 0; a < atts.getLength(); a++) {
+                    newAttrs.put(fullyQualify ? atts.getQName(a) : atts.getLocalName(a), vf.string(atts.getValue(a)));
+                }
+                if (seenNamespaces != null) {
+                    newAttrs.put("xmlns", seenNamespaces.done());
+                    seenNamespaces = null;
+                }
             }
+            attributes.push(newAttrs);
         }
 
         @Override
         public void endElement(String uri, String localName, String qName) throws SAXException {
             IListWriter children = vf.listWriter();
             children.appendAll(stack.pop());
-            stack.peek().add(vf.node(localName, new IValue[]{ children.done() }, attributes.pop()));
+            stack.peek().add(vf.node( fullyQualify ? qName : localName, new IValue[]{ children.done() }, attributes.pop()));
         }
 
         @Override
@@ -152,6 +164,12 @@ public class IO {
 
         @Override
         public void startPrefixMapping(String prefix, String uri) throws SAXException {
+            if (fullyQualify) {
+                if (seenNamespaces == null) {
+                    seenNamespaces = vf.mapWriter();
+                }
+                seenNamespaces.put(vf.string(prefix), vf.string(uri));
+            }
         }
 
         @Override
