@@ -42,7 +42,9 @@
 		<exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
 		<rascal.boot.version>latest</rascal.boot.version>
 		<rascal.boot>--download</rascal.boot>
+		<rascal.boot.memory>2</rascal.boot.memory>
 		<rascal.courses>--skipCourses</rascal.courses>
+        <rascal.test.memory>2</rascal.test.memory>
 	</properties>
 
 	<build>
@@ -124,6 +126,8 @@
 								<argument>${project.basedir}/src</argument>
 								<argument>${project.build.directory}/classes</argument>
 								<argument>${project.basedir}/bootstrap</argument>
+                                <argument>--maxMemory</argument>
+                                <argument>${rascal.boot.memory}</argument>
 								<argument>--clean</argument>
 								<argument>${rascal.boot}</argument>
 							</arguments>
@@ -170,7 +174,7 @@
                             <classpathScope>compile</classpathScope>
                             <workingDirectory>target/classes/</workingDirectory>
                             <arguments>
-                                <argument>-Xmx2G</argument>
+                                <argument>-Xmx${rascal.boot.memory}G</argument>
                                 <argument>-Dfile.encoding=UTF-8</argument>
                                 <argument>-cp</argument>
                                 <classpath />
@@ -214,7 +218,7 @@
 				<configuration>
 					<argLine>
 						-ea
-						-Xmx2g
+                        -Xmx${rascal.test.memory}G
 						-Xss128m
 						-Dfile.encoding=UTF-8
                         ${argLine}
@@ -347,7 +351,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.11</version>
+			<version>4.12</version>
 		</dependency>
 		<dependency>
 			<groupId>io.usethesource</groupId>
