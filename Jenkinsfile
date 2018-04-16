@@ -7,8 +7,16 @@ node {
     }
     
     withMaven(maven: 'M3', jdk: 'jdk-oracle-8', options: [artifactsPublisher(disabled: true), junitPublisher(disabled: false)] ) {
-        stage('Build') {
-          sh "mvn -Drascal.courses=--buildCourses -Drascal.boot=--validating clean test"
+        stage('Compile & Bootstrap') {
+          sh "mvn -Drascal.boot=--validating -Drascal.boot.memory=4 clean compile"
+        }
+
+        stage('Generate Tutor') {
+          sh "mvn -Drascal.courses=--buildCourses -Drascal.boot.memory=4  compile"
+        }
+
+        stage('Run Tests') {
+          sh "mvn -Drascal.test.memory=4 test"
           sh "curl https://codecov.io/bash | bash -s - -K -X gcov -t e8b4481a-d178-4148-a4ff-502906390512"
         }
         
