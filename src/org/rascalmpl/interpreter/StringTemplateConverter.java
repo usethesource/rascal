@@ -117,7 +117,18 @@ public class StringTemplateConverter {
 				// TODO: this is expensive, replace by a lazy IString.indent(IString i)?
 				IString fill = __eval.getCurrentIndent();
 				IString content = ((IString)v);
-				target.appendString(content.indent(fill));
+				StringBuilder sb = new StringBuilder();
+				
+				// this iterates over the entire content of the interpolated string to find out
+				// where the newlines are:
+				for (int ch : content) {
+					sb.appendCodePoint(ch);
+					if (ch == '\n') {
+						sb.append(fill.getValue());
+					}
+				}
+				v = vf.string(sb.toString());
+				target.appendString((IString) v);
 				return result;
 			}
 			
