@@ -238,7 +238,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         
         //m1.uses = [u | u <- tm.uses, containedIn(u.occ, mscope) ];
         
-        roles = dataOrSyntaxIds + {constructorId(), functionId(), fieldId()/*, variableId()*/};
+        roles = dataOrSyntaxIds + {constructorId(), functionId(), fieldId(), annoId() /*, variableId()*/};
         // Filter model for current module and replace functions in defType by their defined type
         
         defs = for(tup: <loc scope, str id, IdRole idRole, loc defined, DefInfo defInfo> <- tm.defines){

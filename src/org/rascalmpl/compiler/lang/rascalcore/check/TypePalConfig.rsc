@@ -5,6 +5,7 @@ extend analysis::typepal::TypePal;
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::Expression;
+import lang::rascalcore::check::Checker;
 
 import lang::rascal::\syntax::Rascal;
 import List;
@@ -64,12 +65,8 @@ data DefInfo(Vis vis = publicVis());
 
 data DefInfo(map[str,str] tags = ());
 
-// Productions and Constructor fields; common Keyword fields
-data DefInfo(//set[AProduction] productions = {}, 
-             bool isStart = false,
-             //set[AType] constructorFields = {},
-             //set[AType] constructors = {},
-             list[KeywordFormal] commonKeywordFields = []
+// Common Keyword fields for ADTs
+data DefInfo(list[KeywordFormal] commonKeywordFields = []
              );
 
 // Maintain excluded use in parts of a scope
@@ -85,6 +82,8 @@ private str key_allow_use_before_def = "allow_use_before_def";
 void storeAllowUseBeforeDef(Tree container, Tree allowedPart, Collector c){
     c.push(key_allow_use_before_def, <getLoc(container), getLoc(allowedPart)>);
 }
+
+str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.generated_parsers";
 
 // Define the name overloading that is allowed
 bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
@@ -250,12 +249,25 @@ AType xxInstantiateRascalTypeParameters(AType t, Bindings bindings, Solver s){
 
 default AType rascalInstantiateTypeParameters(Tree selector, AType def, AType ins, AType act, Solver s) = act;
 
+tuple[bool isNamedType, str typeName, set[IdRole] idRoles] rascalGetTypeNameAndRole(aprod(AProduction p)){
+    return <true, p.def.adtName, {dataId(), nonterminalId(), lexicalId(), layoutId(), keywordId()}>;
+}
+
 tuple[bool isNamedType, str typeName, set[IdRole] idRoles] rascalGetTypeNameAndRole(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)){
     return <true, adtName, {dataId(), nonterminalId(), lexicalId(), layoutId(), keywordId()}>;
 }
 
 default tuple[bool isNamedType, str typeName, set[IdRole] idRoles] rascalGetTypeNameAndRole(AType t){
     return <false, "", {}>;
+}
+
+AType rascalGetTypeInTypeFromDefine(Define containerDef, str selectorName, set[IdRole] idRolesSel, Solver s){
+    for(kwf <- containerDef.defInfo.commonKeywordFields){
+        if(prettyPrintName(kwf.name) == selectorName){
+            return s.getType(kwf.\type);
+        }
+    }
+    throw NoBinding();
 }
 
 AType rascalGetTypeInNamelessType(AType containerType, Tree selector, loc scope, Solver s){
@@ -283,6 +295,10 @@ TypePalConfig rascalTypePalConfig(bool classicReifier = false)
         classicReifier                = classicReifier,
       
         getTypeNameAndRole            = rascalGetTypeNameAndRole,
+        getTypeInTypeFromDefine       = rascalGetTypeInTypeFromDefine,
         getTypeInNamelessType         = rascalGetTypeInNamelessType,
-        instantiateTypeParameters     = rascalInstantiateTypeParameters
+        instantiateTypeParameters     = rascalInstantiateTypeParameters,
+        
+        preSolver                     = rascalPreSolver,
+        postSolver                    = rascalPostSolver
     );

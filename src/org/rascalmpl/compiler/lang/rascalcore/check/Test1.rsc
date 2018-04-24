@@ -1,14 +1,12 @@
 module lang::rascalcore::check::Test1 
- lexical INT = [0-9]+;
- 
- lexical STR = "\"" ![\"]* "\"";
- 
- syntax EXP[&T]
-            = con: &T con 
-            | right( mul: EXP[&T] lhs "*" EXP[&T] rhs
-            > 
-                add: EXP[&T] lhs "+" EXP[&T] rhs !>> [0-9]
-            )
-            ;
-           EXP[INT] exp1;
-           EXP[INT] exp2 = add(exp1, exp1);
+
+//bool isEmpty(list[&T] xxx) = false;
+
+test bool dtstIntersection(list[&T] lst) {
+
+    bool check = true;
+    for([*l1, *l2] := lst) {
+        lhs1 = lst & l1;
+    }
+    return check;
+}

@@ -25,7 +25,7 @@ AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, ATyp
         for(<key, idr, tp> <- overloads){
             try {
                 bin_overloads += <key, idr, unaryOp(op, computeType, current, tp, s)>;
-             } catch checkFailed(set[Message] msgs): {
+             } catch checkFailed(list[FailMessage] fms): {
                 ; // do nothing and try next overload
              } catch e: {
                 ; // do nothing and try next overload
@@ -49,7 +49,7 @@ AType binaryOp(str op, AType(Tree, AType, AType, Solver) computeType, Tree curre
         for(<key, idr, tp> <- overloads){
             try {
                 bin_overloads += <key, idr, binaryOp(op, computeType, current, tp, t2, s)>;
-             } catch checkFailed(set[Message] msgs): {
+             } catch checkFailed(list[FailMessage] fms): {
                 ; // do nothing and try next overload
              } catch e: {
                 ; // do nothing and try next overload
@@ -64,7 +64,7 @@ AType binaryOp(str op, AType(Tree, AType, AType, Solver) computeType, Tree curre
         for(<key, idr, tp> <- overloads){
             try {
                 bin_overloads += < key, idr, binaryOp(op, computeType, current, t1, tp, s)>;
-             } catch checkFailed(set[Message] msgs): {
+             } catch checkFailed(list[FailMessage] fms): {
                 ; // do nothing and try next overload
              } catch e: {
                 ; // do nothing and try next overload
@@ -88,7 +88,7 @@ AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tr
         for(<key, idr, tp> <- overloads){
             try {
                 tern_overloads += <key, idr, ternaryOp(op, computeType, current, tp, t2, t3, s)>;
-             } catch checkFailed(set[Message] msgs): {
+             } catch checkFailed(list[FailMessage] fms): {
                 ; // do nothing and try next overload
              } catch e: {
                 ; // do nothing and try next overload
@@ -103,7 +103,7 @@ AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tr
         for(<key, idr, tp> <- overloads){
             try {
                 tern_overloads += < key, idr, ternaryOp(op, computeType, current, t1, tp, t3, s)>;
-             } catch checkFailed(set[Message] msgs): {
+             } catch checkFailed(list[FailMessage] fms): {
                 ; // do nothing and try next overload
              } catch e: {
                 ; // do nothing and try next overload
@@ -118,7 +118,7 @@ AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tr
         for(<key, idr, tp> <- overloads){
             try {
                 tern_overloads += < key, idr, ternaryOp(op, computeType, current, t1, t2, tp, s)>;
-             } catch checkFailed(set[Message] msgs): {
+             } catch checkFailed(list[FailMessage] fms): {
                 ; // do nothing and try next overload
              } catch e: {
                 ; // do nothing and try next overload
@@ -289,7 +289,7 @@ void collect(current: (Expression)`[ <Type t> ] <Expression e>`, Collector c){
     c.calculate("asType", current, [t, e],
         AType(Solver s) { 
             if(!(s.subtype(e, astr()) || s.subtype(e, aloc()))) s.report(error(e, "Expected `str` or `loc`, instead found %t", e));
-                return s.getType(t);
+            return s.getType(t);
         });
     collect(t, e, c);
 }
@@ -322,7 +322,7 @@ private AType _computeCompositionType(Tree current, AType t1, AType t2, Solver s
     if (isRelType(t1) && isRelType(t2)) {
         list[AType] lflds = getRelFields(t1);
         list[AType] rflds = getRelFields(t2);
-        failures = { };
+        failures = [];
         if (size(lflds) != 0 && size(lflds) != 2)
             failures += error(current, "Relation %t should have arity of 0 or 2", t1); 
         if (size(rflds) != 0 && size(rflds) != 2)
@@ -342,7 +342,7 @@ private AType _computeCompositionType(Tree current, AType t1, AType t2, Solver s
     if (isListRelType(t1) && isListRelType(t2)) {
         list[AType] lflds = getListRelFields(t1);
         list[AType] rflds = getListRelFields(t2);
-        set[FailMessage] failures = { };
+        list[FailMessage] failures = [];
         if (size(lflds) != 0 && size(lflds) != 2)
             failures += error(current, "List relation %t should have arity of 0 or 2", t1); 
         if (size(rflds) != 0 && size(rflds) != 2)
@@ -822,9 +822,9 @@ void computeMatchPattern(Expression current, Pattern pat, str operator, Expressi
     c.calculateEager("match", current, [expression],
         AType(Solver s) {
             subjectType = s.getType(expression);
-            //if(isStartNonTerminalType(subjectType)){
-            //    subjectType = getStartNonTerminalType(subjectType);
-            //}
+            if(isStartNonTerminalType(subjectType)){
+                subjectType = getStartNonTerminalType(subjectType);
+            }
             patType = getPatternType(pat, subjectType, scope, s);
             s.instantiate(subjectType);
             if(!s.isFullyInstantiated(patType) || !s.isFullyInstantiated(subjectType)){
@@ -919,7 +919,7 @@ AType computeEnumeratorElementType(Expression current, AType etype, Solver s) {
         for(<key, role, tp> <- overloads, isEnumeratorType(tp)){
             try {
                 return computeEnumeratorElementType(current, tp, s);
-            } catch checkFailed(set[Message] msgs): {
+            } catch checkFailed(list[FailMessage] fms): {
                 ; // do nothing and try next overload
             }
         }

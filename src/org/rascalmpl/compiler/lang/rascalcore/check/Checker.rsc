@@ -52,6 +52,10 @@ extend lang::rascalcore::check::TypePalConfig;
 
 extend lang::rascalcore::check::ADTSummary;
 import lang::rascalcore::grammar::ParserGenerator;
+import lang::rascalcore::grammar::definition::Symbols;
+import lang::rascalcore::grammar::definition::Characters;
+import lang::rascalcore::grammar::definition::Literals;
+
 
 import Set;
 import Relation;
@@ -61,7 +65,7 @@ import util::FileSystem;
 start syntax Modules
     = Module+ modules;
     
-str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.generated_parsers";
+//str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.generated_parsers";
 //str parserPackage = "org.rascalmpl.core.java.parser.object";
 
 Tree mkTree(int n) = [DecimalIntegerLiteral] "<for(int i <- [0 .. n]){>6<}>"; // Create a unique tree to identify predefined names
@@ -92,8 +96,8 @@ void rascalPreCollectInitialization(Tree tree, Collector c){
     c.leaveScope(tree);
 }
 
-// Enhance TModel before validation
-TModel rascalPreValidation(TModel m){
+// Enhance TModel before running Solver
+TModel rascalPreSolver(Tree pt, TModel m){
     // add transitive edges for extend
     extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- m.paths}+;
     extended = domain(extendPlus);
@@ -102,6 +106,26 @@ TModel rascalPreValidation(TModel m){
     //println("rascalPreValidation");
     //iprintln(m.paths);
     return m;
+}
+
+void rascalPostSolver(Tree pt, Solver s){
+    //messages = s.getTModel().messages;
+   // if(isEmpty(messages)){
+             ;//<tm, adtSummaries> = getADTSummaries(getLoc(pt), tm, s);
+             //g = getGrammar(getLoc(pt), s);
+            
+ //           pname = "DefaultParser";
+ //           if(Module m := pt) { 
+ //               mname = "<m.header.name>";
+ //               pname = parserName(mname);
+ //           }
+ //
+ //           <msgs, parserClass> = newGenerate(parserPackage, pname, g); 
+ //           tm.messages += msgs;
+ //           msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/grammar/tests/generated_parsers|);
+ //           tm.messages += msgs;
+  // }
+
 }
 
 // ----  Examples & Tests --------------------------------
@@ -114,10 +138,10 @@ public PathConfig getDefaultPathConfig() = pathConfig(
                ]
                );
 
-data ProfileData = profile(loc file = |unknown:///|, int parse = 0, int extract = 0, int validate = 0, int save = 0);
+data ProfileData = profile(loc file = |unknown:///|, int parser = 0, int collector = 0, int solver = 0, int save = 0);
  
 void report(ProfileData pd){
-    text = "<pd.parse? ? "parse: <pd.parse> ms;" : ""> <pd.extract? ? "extract: <pd.extract> ms;" : ""> <pd.validate? ? "validate: <pd.validate> ms;" : ""> <pd.save? ? "save: <pd.save> ms;" : ""> total: <pd.parse + pd.extract + pd.validate + pd.save> ms";
+    text = "<pd.parser? ? "parser: <pd.parser> ms;" : ""> <pd.collector? ? "collector: <pd.collector> ms;" : ""> <pd.solver? ? "solver: <pd.solver> ms;" : ""> <pd.save? ? "save: <pd.save> ms;" : ""> total: <pd.parser + pd.collector + pd.solver + pd.save> ms";
     if(pd.file != |unknown:///|) text += " (<pd.file>)";
     println(text);
 }
@@ -153,7 +177,7 @@ tuple[ProfileData, TModel] rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool d
         //if(valid) {
         //    println("*** reusing up-to-date TModel of <mname>");
         //    vtime = (cpuTime() - startTime)/1000000;
-        //    prof = profile(file=mloc,validate=vtime);
+        //    prof = profile(file=mloc,solver=vtime);
         //    return <prof, tm>;
         //}
         /***********************************************************/
@@ -164,7 +188,7 @@ tuple[ProfileData, TModel] rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool d
         pTime = (cpuTime() - startTime)/1000000;
         <prof, tm> = rascalTModel(pt, pcfg = pcfg, debug=debug);
         prof.file = mloc;
-        prof.parse = pTime;
+        prof.parser = pTime;
         startTime = cpuTime(); 
         saveModules(mname, pcfg, tm); 
         prof.save = (cpuTime() - startTime)/1000000;
@@ -189,8 +213,8 @@ tuple[ProfileData, TModel] rascalTModel(Tree pt, PathConfig pcfg = getDefaultPat
  
     tm = c.run();
     afterExtractTime = cpuTime();   
-    tm = rascalPreValidation(tm);
-    s = newSolver(tm, debug=debug);
+    tm = rascalPreSolver(pt, tm);
+    s = newSolver(pt, tm, debug=debug);
     tm = s.run();
  //   tm = rascalPostValidation(tm);
     
@@ -199,24 +223,10 @@ tuple[ProfileData, TModel] rascalTModel(Tree pt, PathConfig pcfg = getDefaultPat
     ProfileData prof = profile(file=getLoc(pt));
     
     if(!inline){
-        prof.extract = (afterExtractTime - startTime)/1000000;
-        prof.validate = (afterValidateTime - afterExtractTime)/1000000;
+        prof.collector = (afterExtractTime - startTime)/1000000;
+        prof.solver = (afterValidateTime - afterExtractTime)/1000000;
     }
-    if(isEmpty(tm.messages)){
-             ;//<tm, adtSummaries> = getADTSummaries(getLoc(pt), tm, s);
-             g = getGrammar(getLoc(pt), s);
-            
- //           pname = "DefaultParser";
- //           if(Module m := pt) { 
- //               mname = "<m.header.name>";
- //               pname = parserName(mname);
- //           }
- //
- //           <msgs, parserClass> = newGenerate(parserPackage, pname, g); 
- //           tm.messages += msgs;
- //           msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/grammar/tests/generated_parsers|);
- //           tm.messages += msgs;
-   }
+   
     return <prof, tm>;
 }
 
@@ -259,12 +269,12 @@ list[ModuleMessages] check(list[loc] files, PathConfig pcfg){
         report(pd);
         pds += pd;
         mms += program(file, toSet(tm.messages));
-        p += pd.parse; e += pd.extract; v += pd.validate; s += pd.save;
+        p += pd.parser; e += pd.collector; v += pd.solver; s += pd.save;
     }
     println("SUMMARY");
     for(pd <- pds) report(pd);
     println("TOTAL");
-    report(profile(parse=p, extract=e, validate=v,save=s));
+    report(profile(parser=p, collector=e, solver=v,save=s));
     return mms;
 }
 
@@ -282,4 +292,4 @@ void testModules(str names...) {
 }
 
 list[str] allTests = ["adt", "adtparam", "alias", "assignment", "datadecl", "exp", "fields", "fundecl", 
-                     "imports", "operators", "pat", "scope", "splicepats", "stats", "syntax1", "syntax2"];
+                     "imports", "operators", "pat", "scope", "splicepats", "stats"/*,"syntax1", "syntax2", "syntax3"*/];

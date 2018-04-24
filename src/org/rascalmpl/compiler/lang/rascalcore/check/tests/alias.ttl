@@ -7,7 +7,7 @@ test OkAlias1 [[
 test UnknownAlias [[ 
            module A 
            INT z = 13; 
-]] expect { "Invalid variable initialization;" }
+]] expect { "Undefined  `INT`" }
 
 test IllegalParameter [[ module A 
            alias INT = int; 
@@ -22,7 +22,7 @@ test OkParameter [[ module A
 test WrongTypeParameter [[ module A 
            alias LIST[&T] = list[&T]; 
            LIST[str] z = [1,2]; 
-]] expect { "Type of initialization should be subtype of `list[str]`, found `list[int]`" }
+]] expect { "Initialization of `z` should be subtype of `list[str]`, found `list[int]`" }
 
 test OkIndirectAlias1 [[ 
            module A

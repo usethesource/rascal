@@ -1,6 +1,7 @@
 module lang::rascalcore::check::Pattern
 
 extend analysis::typepal::TypePal;
+import analysis::typepal::FailMessage;
 
 import lang::rascal::\syntax::Rascal;
 extend lang::rascalcore::check::AType;
@@ -10,6 +11,7 @@ import lang::rascalcore::check::TypePalConfig;
 import lang::rascalcore::check::ConvertType;
 
 import lang::rascalcore::check::Expression;
+import String;
 import Set;
 import IO;
 
@@ -122,7 +124,8 @@ void collect(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, Collector c){
 
 AType getPatternType(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, AType subjectType, loc scope, Solver s){
     elmType = isListType(subjectType) ? getListElementType(subjectType) : avalue();
-    return alist(s.lubList([getPatternType(p, elmType, scope, s) | p <- elements0]));
+    res = alist(s.lubList([getPatternType(p, elmType, scope, s) | p <- elements0]));
+    return res;
 }
 
 // ---- typed variable pattern
@@ -154,33 +157,33 @@ void collectAsVarArg(current: (Pattern) `<Type tp> <Name name>`, Collector c){
        }
     }
  
-   c.sameType(current, name);
+   c.fact(current, name);
    collect(tp, c);
 }
 
 // ---- qualifiedName pattern: QualifiedName
 
 void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
-    qname = convertName(name);
-    if(qname.name != "_"){
-       if(qname.name in c.getStack(patternNames)){
+    <qualifier, base> = splitQualifiedName(name);
+    if(base != "_"){
+       if(base in c.getStack(patternNames)){
           //println("qualifiedName: <name>, useLub, <getLoc(current)>");
           c.useLub(name, {variableId()});
           return;
        }
-       c.push(patternNames, qname.name);
+       c.push(patternNames, base);
 
        if("parameter" := c.top(patternContainer)){
           c.fact(current, avalue());
-          if(isQualified(qname)) c.report(error(name, "Qualifier not allowed"));
+          if(!isEmpty(qualifier)) c.report(error(name, "Qualifier not allowed"));
           //println("qualifiedName: <name>, parameter defLub, <getLoc(current)>");
-          c.define(qname.name, variableId() /*formalId()*/, name, defLub([], AType(Solver s) { return avalue(); }));
+          c.define(base, variableId(), name, defLub([], AType(Solver s) { return avalue(); }));
        } else {
           tau = c.newTypeVar(name);
           c.fact(name, tau); //<====
-          if(isQualified(qname)) c.report(error(name, "Qualifier not allowed"));
+          if(!isEmpty(qualifier)) c.report(error(name, "Qualifier not allowed"));
           //println("qualifiedName: <name>, defLub, <tau>, <getLoc(current)>");
-          c.define(qname.name, variableId(), name, defLub([], AType(Solver s) { return s.getType(tau); }));
+          c.define(base, variableId(), name, defLub([], AType(Solver s) { return s.getType(tau); }));
        }
     } else {
        c.fact(name, avalue());
@@ -188,26 +191,26 @@ void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
 }
 
 void collectAsVarArg(current: (Pattern) `<QualifiedName name>`,  Collector c){
-    qname = convertName(name);
-    if(qname.name != "_"){
-       if(qname.name in c.getStack(patternNames)){
+    <qualifier, base> = splitQualifiedName(name);
+    if(base != "_"){
+       if(base in c.getStack(patternNames)){
           //println("qualifiedName: <name>, useLub, <getLoc(current)>");
           c.useLub(name, {variableId()});
           return;
        }
-       c.push(patternNames, qname.name);
+       c.push(patternNames, base);
 
        if("parameter" := c.top(patternContainer)){
           c.fact(current, alist(avalue()));
-          if(isQualified(qname)) c.report(error(name, "Qualifier not allowed"));
+          if(!isEmpty(qualifier)) c.report(error(name, "Qualifier not allowed"));
           //println("qualifiedName: <name>, parameter defLub, <getLoc(current)>");
-          c.define(qname.name, variableId(), name, defLub([], AType(Solver s) { return avalue(); }));
+          c.define(base, variableId(), name, defLub([], AType(Solver s) { return avalue(); }));
        } else {
           tau = c.newTypeVar(name);
           c.fact(name, tau);     //<====
-          if(isQualified(qname)) c.report(error(name, "Qualifier not allowed"));
+          if(!isEmpty(qualifier)) c.report(error(name, "Qualifier not allowed"));
           //println("qualifiedName: <name>, defLub, <tau>, <getLoc(current)>");
-          c.define(qname.name, variableId(), name, defLub([], AType(Solver s) { return s.getType(tau); }));
+          c.define(base, variableId(), name, defLub([], AType(Solver s) { return s.getType(tau); }));
        }
     } else {
        c.fact(name, alist(avalue()));
@@ -219,8 +222,8 @@ default void collectAsVarArg(Pattern current,  Collector c){
 }
 
 AType getPatternType(current: (Pattern) `<QualifiedName name>`, AType subjectType, loc scope, Solver s){
-    qname = convertName(name);
-    if(qname.name != "_"){
+    base = prettyPrintBaseName(name);
+    if(base != "_"){
        nameType = s.getType(name);
        if(!s.isFullyInstantiated(nameType) || !s.isFullyInstantiated(subjectType)){
           s.requireUnify(nameType, subjectType, error(current, "Type of pattern could not be computed"));
@@ -294,25 +297,25 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
        collect(tp, c);
     } else if(argument is qualifiedName){
         argName = argument.qualifiedName;
-        qname = convertName(argName);
-        if(qname.name != "_"){
-           if(qname.name in c.getStack(patternNames)){
+        <qualifier, base> = splitQualifiedName(argName);
+        if(base != "_"){
+           if(base in c.getStack(patternNames)){
               //println("qualifiedName: <name>, useLub, <getLoc(current)>");
               c.useLub(argName, {variableId()});
               return;
            }
-           c.push(patternNames, qname.name);
+           c.push(patternNames, base);
     
            if("parameter" := c.top(patternContainer)){
               c.fact(current, avalue());
-              if(isQualified(qname)) c.report(error(argName, "Qualifier not allowed"));
+              if(!isEmpty(qualifier)) c.report(error(argName, "Qualifier not allowed"));
               //println("qualifiedName: <name>, parameter defLub, <getLoc(current)>");
-              c.define(qname.name, variableId(), argName, defLub([], AType(Solver s) { return avalue(); }));
+              c.define(base, variableId(), argName, defLub([], AType(Solver s) { return avalue(); }));
            } else {
               tau = c.newTypeVar(current); // <== argName;
               c.fact(current, tau);    // <===
-              if(isQualified(qname)) c.report(error(argName, "Qualifier not allowed"));
-              c.define(qname.name, variableId(), argName, 
+              if(!isEmpty(qualifier)) c.report(error(argName, "Qualifier not allowed"));
+              c.define(base, variableId(), argName, 
                         defLub([], AType(Solver s) { 
                         return inSet ? makeSetType(tau) : makeListType(tau);}));
               //c.define(qname.name, variableId(), argName, 
@@ -343,8 +346,8 @@ AType getSplicePatternType(Pattern current, Pattern argument,  AType subjectType
        }
     } if(argument is qualifiedName){
          argName = argument.qualifiedName;
-         qname = convertName(argName);
-         if(qname.name != "_"){
+         base = prettyPrintBaseName(argName);
+         if(base != "_"){
            //nameType = expandUserTypes(getType(name), scope, s;
            nameElementType = subjectType;
            try {
@@ -369,7 +372,7 @@ AType getSplicePatternType(Pattern current, Pattern argument,  AType subjectType
     }
 }
 
-// ---- splicePlus pattern: +Pattern
+// ---- splicePlus pattern: +Pattern ------------------------------------------
 
 void collect(current: (Pattern) `+<Pattern argument>`, Collector c){
     collectSplicePattern(current, argument, c);
@@ -378,7 +381,7 @@ void collect(current: (Pattern) `+<Pattern argument>`, Collector c){
 AType getPatternType(current: (Pattern) `+<Pattern argument>`, AType subjectType, loc scope, Solver s)
     = getSplicePatternType(current, argument, subjectType, scope, s);
 
-// ---- tuple pattern
+// ---- tuple pattern ---------------------------------------------------------
 
 void collect(current: (Pattern) `\< <{Pattern ","}+ elements1> \>`, Collector c){
     c.push(patternContainer, "tuple");
@@ -414,16 +417,16 @@ AType getPatternType(current: (KeywordArgument[Pattern]) `<Name name> = <Pattern
     return getPatternType(expression, subjectType, scope, s);
 }
 
-// ---- call or tree pattern
+// ---- call or tree pattern --------------------------------------------------
 
 void collect(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, Collector c){
     c.push(patternContainer, "constructor");
     if(namePat: (Pattern) `<QualifiedName name>` := expression){
-        qname = convertName(name);
-        if(isQualified(qname)){     
-           c.useQualified([qname.qualifier, qname.name], name, {constructorId()}, dataOrSyntaxIds + {moduleId()} );
+        <qualifier, base> = splitQualifiedName(name);
+        if(!isEmpty(qualifier)){     
+           c.useQualified([qualifier, base], name, {constructorId()}, dataOrSyntaxIds + {moduleId()} );
         } else {
-            c.useLub(name, {constructorId()});
+            c.use(name, {constructorId()});  // <==
         }
     } else {
       collect(expression, c);
@@ -434,7 +437,7 @@ void collect(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* argument
 }
 
 AType getPatternType(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, AType subjectType, loc scope, Solver s){
-   // println("getPatternType: <current>");
+   //println("getPatternType: <current>");
     pats = [ p | Pattern p <- arguments ];
     
     texp = getPatternType(expression, subjectType, scope, s);
@@ -442,9 +445,9 @@ AType getPatternType(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* 
     //clearBindings();    // <====
     subjectType = s.instantiate(subjectType);
     
-    //if(isStartNonTerminalType(subjectType)){
-    //    subjectType = getStartNonTerminalType(subjectType);
-    //}
+    if(isStartNonTerminalType(subjectType)){
+        subjectType = getStartNonTerminalType(subjectType);
+    }
     
     if(isStrType(texp)){
         return computeNodeType(current, scope, pats, keywordArguments, s, subjectType=subjectType, isExpression=false);
@@ -459,11 +462,11 @@ AType getPatternType(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* 
          validOverloads = {};
          next_cons:
          for(ovl: <key, idr, tp> <- overloads){
-            if(acons(adtType:aadt(adtName, list[AType] parameters, _), /*str consName,*/ list[AType/*NamedField*/] fields, list[Keyword] kwFields) := tp){
+            if(acons(adtType:aadt(adtName, list[AType] parameters, _), list[AType] fields, list[Keyword] kwFields) := tp){
                try {
-                     validReturnTypeOverloads += <key, idr, computeADTType(current, adtName, scope, adtType, fields/*<1>*/, kwFields, pats, keywordArguments, identicalFields, s)>;
+                     validReturnTypeOverloads += <key, idr, computeADTType(current, adtName, scope, adtType, fields, kwFields, pats, keywordArguments, identicalFields, s)>;
                      validOverloads += ovl;
-                    } catch checkFailed(set[Message] msgs):
+                    } catch checkFailed(list[FailMessage] fms):
                             continue next_cons;
              }
         }
@@ -476,8 +479,8 @@ AType getPatternType(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* 
       }
     }
 
-    if(acons(adtType:aadt(adtName, list[AType] parameters, _), /*str consName,*/ list[AType/*NamedField*/] fields, list[Keyword] kwFields) := texp){
-       return computeADTType(current, adtName, scope, adtType, fields/*<1>*/, kwFields, pats, keywordArguments, [true | int i <- index(fields)], s);
+    if(acons(adtType:aadt(adtName, list[AType] parameters, _), list[AType] fields, list[Keyword] kwFields) := texp){
+       return computeADTType(current, adtName, scope, adtType, fields, kwFields, pats, keywordArguments, [true | int i <- index(fields)], s);
     }
     s.report(error(current, "No pattern constructor found for %q of expected type %t", expression, subjectType));
 }
@@ -526,6 +529,7 @@ void collect(current: (Pattern) `<Type tp> <Name name> : <Pattern pattern>`, Col
     uname = unescape("<name>");
     c.push(patternNames, uname);
     c.define(uname, variableId(), name, defType([tp], AType(Solver s){ return s.getType(tp); }));
+    c.fact(current, tp);
     collect(tp, pattern, c);
 }
 

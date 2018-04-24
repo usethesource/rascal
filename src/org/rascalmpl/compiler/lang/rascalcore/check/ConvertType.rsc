@@ -17,11 +17,15 @@ import IO;
 import Node;
 import Map;
 
-extend analysis::typepal::AType;
-extend analysis::typepal::Collector;
+//extend analysis::typepal::AType;
+//extend analysis::typepal::Collector;
+extend analysis::typepal::TypePal;
+
+//import analysis::typepal::FailMessage;
 
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::TypePalConfig;
+
 import lang::rascalcore::check::ATypeExceptions;
 
 import lang::rascalcore::check::ATypeUtils;
@@ -32,48 +36,43 @@ import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascalcore::grammar::definition::Characters;
 import lang::rascalcore::grammar::definition::Literals;
 
-public str currentAdt = "currentAdt";  // used to mark data declarations
+public str currentAdt = "currentAdt";       // used to mark data declarations
+public str inAlternative = "inAlternative"; // used to mark top-level alternative in syntax declaration
 public str typeContainer = "typeContainer";
- 
-@doc{Convert qualified names into an abstract representation.}
-public QName convertName(QualifiedName qn) {
-    parts = split("::", "<qn>");
-    if(size(parts) == 1){
-        part = parts[0];
-        return qualName("", part[0] == "\\" ? part[1..] : part);
-    }
-    unescapedParts = [part[0] == "\\" ? part[1..] : part | part <- parts];
-    return qualName(intercalate("::", unescapedParts[..-1]), unescapedParts[-1]);
-}
-
-@doc{Convert names into an abstract representation.}
-public QName convertName(Name n) {
-    part = "<n>";
-    return qualName("", part[0] == "\\" ? part[1..] : part);
-}
 
 public str prettyPrintName(QualifiedName qn){
     if ((QualifiedName)`<{Name "::"}+ nl>` := qn) { 
-        nameParts = [ (startsWith("<n>","\\") ? substring("<n>",1) : "<n>") | n <- nl ];
-        return intercalate("::", nameParts); 
+       return replaceAll("<qn>", "\\", "");
     }
     throw "Unexpected syntax for qualified name: <qn>";
 }
 
 public str prettyPrintName(Name nm){ 
-    return startsWith("<nm>","\\") ? substring("<nm>",1) : "<nm>";
+    return replaceFirst("<nm>", "\\", "");
 }
 
-//@doc{Get the last part of a qualified name.}
-//public Name getLastName(QualifiedName qn) 
-//    = convertName(qn).name;
+public str prettyPrintBaseName(QualifiedName qn){
+    if ((QualifiedName)`<{Name "::"}+ nl>` := qn) { 
+        nameParts = [ n | n <- nl ];
+        return replaceFirst("<nameParts[-1]>", "\\", "");
+    }
+    throw "Unexpected syntax for qualified name: <qn>";
+}
 
-public bool isQualified(QName qn) = !isEmpty(qn.qualifier);
+public str prettyPrintBaseName(Name nm){ 
+    return replaceFirst("<nm>", "\\", "");
+}
 
-str prettyPrintQName(QName qname) = isEmpty(qname.qualifier) ? qname.name : "<qname.qualifier>::<qname.name>";
+public tuple[str qualifier, str base] splitQualifiedName(QualifiedName qn){
+    if ((QualifiedName)`<{Name "::"}+ nl>` := qn) { 
+        nameParts = [ replaceFirst("<n>", "\\", "") | n <- nl ];
+        return size(nameParts) > 1 ? <intercalate("::", nameParts[0 .. -1]), nameParts[-1]> : <"", nameParts[0]>;
+    }
+    throw "Unexpected syntax for qualified name: <qn>";
+}
 
 void collect(current: (Type) `( <Type tp> )`, Collector c){
-    c.sameType(current, tp);
+    c.fact(current, tp);
     collect(tp, c);
 }
 
@@ -114,7 +113,8 @@ exactly one type argument; etc.}
 void collect(current:(StructuredType)`list [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
     if(size(targs) == 1){
-        c.calculate("list type", current, targs, AType(Solver s){ return makeListType(s.getType(targs[0])); });
+        c.calculate("list type", current, targs, AType(Solver s){ 
+            return makeListType(s.getType(targs[0])); });
     } else {
         c.report(error(current, "Type `list` should have one type argument"));
     }
@@ -265,7 +265,7 @@ void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collec
     for(targ <- targs){
         if(targ has name){
             c.define("<targ.name>", variableId(), targ.name, defType([targ.\type], AType(Solver s) { return s.getType(targ.\type)[label="<targ.name>"]; }));
-            c.sameType(targ, targ.name);
+            c.fact(targ, targ.name);
         }
         collect(targ.\type, c);
     }
@@ -300,9 +300,14 @@ void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collec
 
 @doc{Convert Rascal user types into their abstract representation.}
 void collect(current:(UserType) `<QualifiedName n>`, Collector c){
-    c.use(n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()});
+    <qualifier, base> = splitQualifiedName(n);
+    if(isEmpty(qualifier)){
+        c.use(n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()});
+    } else {
+        c.useQualified([qualifier, base], n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()}, dataOrSyntaxIds + {moduleId()});
+    }
     
-    c.calculate("parameterized type without parameters", current, [n],
+    c.calculate("type without parameters", current, [n],
         AType(Solver s){
             baseType = s.getType(n);
             if(aadt(adtName, params, sr) := baseType){
@@ -323,7 +328,12 @@ void collect(current:(UserType) `<QualifiedName n>`, Collector c){
 }
 
 void collect(current:(UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]`, Collector c){
-    c.use(n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()});
+    <qualifier, base> = splitQualifiedName(n);
+    if(isEmpty(qualifier)){
+        c.use(n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()});
+    } else {
+        c.useQualified([qualifier, base], n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()}, dataOrSyntaxIds + {moduleId()});
+    }
     actuals = [t | t <- ts];
     
     c.calculate("parameterized type with parameters", current, n + actuals,
@@ -350,22 +360,31 @@ void collect(current:(UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]`, Collect
 // ---- Sym types -------------------------------------------------------------
 
 
+AType getSyntaxType(AType t, Solver s) = stripStart(t);
+
+AType getSyntaxType(Tree tree, Solver s) = stripStart(s.getType(tree));
+
+private AType stripStart(AType nt) = isStartNonTerminalType(nt) ? getStartNonTerminalType(nt) : nt;
+
+private AType stripStart(aprod(AProduction production)) = production.def;
+
+
 // named non-terminals
 void collect(current:(Sym) `<Nonterminal n>`, Collector c){
     c.use(n, syntaxIds);
     c.require("non-parameterized <n>", current, [n],
         void(Solver s){
-            base = s.getType(n);
-            s.requireTrue(isParameterizedNonTerminalType(base), error(current, "Expected a non-terminal type, found %t", base));
+            base = getSyntaxType(n, s);
+            s.requireTrue(isNonTerminalType(base), error(current, "Expected a non-terminal type, found %t", base));
             nexpected = size(base.parameters);
             s.requireTrue(nexpected == 0, error(current, "Expected %v type parameter(s) for %q, found 0", nexpected, base.adtName));
         });
-    c.sameType(current, n);
+    //c.fact(current, n);
 }
 
 void collect(current:(Sym) `& <Nonterminal n>`, Collector c){
     c.use(n, {typeVarId()});
-    c.sameType(current, n);
+    c.fact(current, n);
 }
 
 void collect(current:(Sym) `<Nonterminal n>[ <{Sym ","}+ parameters> ]`, Collector c){
@@ -373,7 +392,7 @@ void collect(current:(Sym) `<Nonterminal n>[ <{Sym ","}+ parameters> ]`, Collect
     c.use(n, syntaxIds);
     c.calculate("parameterized <n>", current, n + params, 
         AType(Solver s) { 
-            base = s.getType(n); 
+            base = getSyntaxType(n, s); 
             s.requireTrue(isParameterizedNonTerminalType(base), error(current, "Expected a non-terminal type, found %t", base));
             nexpected = size(base.parameters); nparams = size(params);
             s.requireTrue(nexpected == nparams, error(current, "Expected %v type parameter(s) for %q, found %v", nexpected, base.adtName, nparams));
@@ -384,14 +403,22 @@ void collect(current:(Sym) `<Nonterminal n>[ <{Sym ","}+ parameters> ]`, Collect
 }
 
 void collect(current:(Sym) `start [ <Nonterminal n> ]`, Collector c){
-    c.calculate("start <n>", current, [n], AType(Solver s) { return \start(s.getType(n)); });
+    c.use(n, syntaxIds);
+    c.calculate("start <n>", current, [n],
+        AType(Solver s){
+            adtType = getSyntaxType(n, s);
+            s.requireTrue(isNonTerminalType(adtType), error(current, "Expected a non-terminal type, found %t", adtType));
+            return \start(adtType);
+        });
     collect(n, c);
 }
 
 void collect(current:(Sym) `<Sym symbol> <NonterminalLabel n>`, Collector c){
     un = unescape("<n>");
-    c.define(un, fieldId(), n, defType([symbol], AType(Solver s){ return s.getType(symbol)[label=un]; }));
-    c.sameType(current, n);
+    // TODO require symbol is nonterminal
+    c.define(un, fieldId(), n, defType([symbol], AType(Solver s){ 
+        return getSyntaxType(symbol, s)[label=un]; }));
+    c.fact(current, n);
     collect(symbol, c);
 }
 
@@ -420,13 +447,14 @@ default bool isIterSym(Sym sym) = false;
 
 void collect(current:(Sym) `<Sym symbol>+`, Collector c){
     if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
-    c.calculate("iter", current, [symbol], AType(Solver s) { return \iter(s.getType(symbol)); });
+    c.calculate("iter", current, [symbol], AType(Solver s) { 
+        return \iter(getSyntaxType(symbol, s)); });
     collect(symbol, c);
 }
 
 void collect(current:(Sym) `<Sym symbol>*`, Collector c){
     if(isIterSym(symbol)) c.report(warning(current, "Nested iteration"));
-    c.calculate("iterStar", current, [symbol], AType(Solver s) { return \iter-star(s.getType(symbol)); });
+    c.calculate("iterStar", current, [symbol], AType(Solver s) { return \iter-star(getSyntaxType(symbol, s)); });
     collect(symbol, c);
 }
 
@@ -436,7 +464,7 @@ void collect(current:(Sym) `{ <Sym symbol> <Sym sep> }+`, Collector c){
         AType(Solver s) { 
             seps = [s.getType(sep)];
             validateSeparators(current, seps, s);
-            return \iter-seps(s.getType(symbol), seps); 
+            return \iter-seps(getSyntaxType(symbol, s), seps); 
         });
     collect(symbol, sep, c);
 }
@@ -447,7 +475,7 @@ void collect(current:(Sym) `{ <Sym symbol> <Sym sep> }*`, Collector c){
         AType(Solver s) { 
             seps = [s.getType(sep)];
             validateSeparators(current, seps, s);
-            return \iter-star-seps(s.getType(symbol), seps); 
+            return \iter-star-seps(getSyntaxType(symbol, s), seps); 
         });
     collect(symbol, sep, c);
 }
@@ -512,7 +540,8 @@ void collect(current:(Sym) `^ <Sym symbol>`, Collector c){
 }
 
 void collect(current:(Sym) `<Sym symbol> ! <NonterminalLabel n>`, Collector c){
-    c.calculate("except", current, [symbol], AType(Solver s) { return conditional(s.getType(symbol), {\except("<n>") }); });
+    un = unescape("<n>");
+    c.calculate("except", current, [symbol], AType(Solver s) { return conditional(s.getType(symbol), {\except(un) }); });
     collect(symbol, c);
 }
 
@@ -555,14 +584,11 @@ void collect(Sym current, Collector c){
 @doc{Convert Rascal type variables into their abstract representation.}
 
 void collect(current:(TypeVar) `& <Name n>`, Collector c){
-    c.fact(n, aparameter("<prettyPrintQName(convertName(n))>",avalue()));
-    c.sameType(current, n);
+    c.fact(current, aparameter(prettyPrintName(n),avalue()));
 }
 
 void collect(current: (TypeVar) `& <Name n> \<: <Type tp>`, Collector c){
-    c.calculate("type parameter with bound", n, [tp], AType(Solver s){ return  aparameter("<n>", s.getType(tp)); });
-    c.sameType(current, n);
-        
+    c.calculate("type parameter with bound", current, [tp], AType(Solver s){ return  aparameter(prettyPrintName(n), s.getType(tp)); }); 
     collect(tp, c);
 }
 

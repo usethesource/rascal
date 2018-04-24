@@ -1,6 +1,7 @@
 module lang::rascalcore::check::Statement
 
 extend analysis::typepal::TypePal;
+import analysis::typepal::FailMessage;
 
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeExceptions;
@@ -27,25 +28,21 @@ import String;
 
 void collect(current: (Statement) `assert <Expression expression>;`, Collector c){
     c.fact(current, abool());
-    c.require("assert statement", current, [expression],
-        void (Solver s) { s.requireSubtype(expression, abool(), error(expression, "Assertion should be `bool`, found %t", expression)); });
+    c.requireSubtype(expression, abool(), error(expression, "Assertion should be `bool`, found %t", expression));
     collect(expression, c);
 } 
 
 void collect(current: (Statement) `assert <Expression expression> : <Expression message> ;`, Collector c){
    c.fact(current, abool());
-   c.require("assert statement with message", current, [expression, message],
-       void (Solver s) {
-            s.requireSubtype(expression, abool(), error(expression, "Assertion should be `bool`, found %t", expression));
-            s.requireSubtype(message, astr(), error(message, "Assertion message should be `str`, found %t", message));
-       });
+   c.requireSubtype(expression, abool(), error(expression, "Assertion should be `bool`, found %t", expression));
+   c.requireSubtype(message, astr(), error(message, "Assertion message should be `str`, found %t", message));
    collect(expression, message, c);
 } 
      
 // ---- expression ------------------------------------------------------------
 
 void collect(current: (Statement) `<Expression expression>;`, Collector c){
-    c.calculate("expression as statement", current, [expression], AType(Solver s){ return s.getType(expression); });
+    c.fact(current, expression);
     collect(expression, c);
 }
 
@@ -60,7 +57,7 @@ void collect(current: (Statement) `<Label label> <Visit vst>`, Collector c){
         if(label is \default){
             c.define("<label.name>", labelId(), label.name, noDefInfo());
         }
-        c.calculate("visit statement", vst, [vst.subject], AType(Solver s){ return s.getType(vst.subject); });
+        c.fact(current, vst.subject);
         collect(vst, c);
     c.leaveScope(current);
 }
@@ -187,15 +184,15 @@ void collect(current: (Statement) `<Label label> while( <{Expression ","}+ condi
     c.enterScope(conditions);   // body may refer to variables defined in conditions
         loopName = "";
         if(label is \default){
-            loopName = unescape("<label.name>");
-            c.define(loopName, labelId(), label.name, noDefInfo());
+            loopName = prettyPrintName(label.name);
+            c.define(loopName, labelId(), label.name, defType(avoid()));
         }
         c.setScopeInfo(c.getScope(), loopScope(), loopInfo(loopName, [])); // record appends in body, initially []
         condList = [cond | Expression cond <- conditions];
         
         c.requireEager("while statement", current, condList + [body], void (Solver s){ checkConditions(condList, s); });
         beginPatternScope("conditions", c);
-        collect(condList, c);
+            collect(condList, c);
         endPatternScope(c);
         collect(body, c);
         computeLoopType("while statement", loopName, current, c);
@@ -244,8 +241,8 @@ void collect(current: (Statement) `<Label label> do <Statement body> while ( <Ex
     c.enterScope(current);   // condition may refer to variables defined in body
         loopName = "";
         if(label is \default){
-            loopName = unescape("<label.name>");
-            c.define(loopName, labelId(), label.name, noDefInfo());
+            loopName = prettyPrintName(label.name);
+            c.define(loopName, labelId(), label.name, defType(avoid()));
         }
         c.setScopeInfo(c.getScope(), loopScope(), loopInfo(loopName, [])); // appends in body
         c.requireEager("do statement", current, [body, condition], void (Solver s){ checkConditions([condition], s); });
@@ -264,8 +261,8 @@ void collect(current: (Statement) `<Label label> for( <{Expression ","}+ conditi
     c.enterScope(current);   // body may refer to variables defined in conditions
         loopName = "";
         if(label is \default){
-            loopName = unescape("<label.name>");
-            c.define(loopName, labelId(), label.name, noDefInfo());
+            loopName = prettyPrintName(label.name);
+            c.define(loopName, labelId(), label.name, defType(avoid()));
         }
         c.setScopeInfo(c.getScope(), loopScope(), loopInfo(loopName, [])); // appends in body
         condList = [cond | Expression cond <- conditions];
@@ -286,7 +283,7 @@ void collect(current: (Statement) `<Label label> for( <{Expression ","}+ conditi
 void collect(current: (Statement) `append <DataTarget dataTarget> <Statement statement>`, Collector c){
     loopName = "";
     if(dataTarget is labeled){
-        loopName = "<dataTarget.label>";
+        loopName = prettyPrintName(dataTarget.label);
         c.use(dataTarget.label, {labelId()});
     }
    
@@ -294,7 +291,8 @@ void collect(current: (Statement) `append <DataTarget dataTarget> <Statement sta
         if(loopInfo(loopName1, list[Statement] appends) := scopeInfo){
             if(loopName == "" || loopName == loopName1){
                 c.setScopeInfo(scope, loopScope(), loopInfo(loopName1, appends + [current]));
-                c.calculate("append type", current, [statement], AType(Solver s){ return s.getType(statement); });
+                //c.calculate("append type", current, [statement], AType(Solver s){ return s.getType(statement); });
+                c.fact(current, statement);
                 collect(statement, c);
                 return;
              }
@@ -311,7 +309,7 @@ void collect(current:(Statement) `break <Target target>;`, Collector c){
     c.fact(current, avoid());
     loopName = "";
     if(target is labeled){
-        loopName = "<target.name>";
+        loopName = prettyPrintName(target.name);
         c.use(target.name, {labelId()});
     }
  
@@ -334,7 +332,7 @@ void collect(current:(Statement) `continue <Target target>;`, Collector c){
     c.fact(current, avoid());
     loopName = "";
     if(target is labeled){
-        loopName = "<target.name>";
+        loopName = prettyPrintName(target.name);
         c.use(target.name, {labelId()});
     }
     
@@ -375,7 +373,7 @@ void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditio
 void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditions> ) <Statement thenPart> else <Statement elsePart>`,  Collector c){
     c.enterScope(conditions);   // thenPart may refer to variables defined in conditions; elsePart may not
         if(label is \default){
-            c.define("<label.name>", labelId(), label.name, noDefInfo());
+            c.define(prettyPrintName(label.name), labelId(), label.name, noDefInfo());
         }
         condList = [cond | cond <- conditions];
         storeExcludeUse(conditions, elsePart, c); // variable occurrences in elsePart may not refer to variables defined in conditions
@@ -403,7 +401,7 @@ void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditio
 void collect(current: (Statement) `<Label label> switch ( <Expression e> ) { <Case+ cases> }`, Collector c){
     c.enterScope(current);
         if(label is \default){
-            c.define("<label.name>", labelId(), label.name, noDefInfo());
+            c.define(prettyPrintName(label.name), labelId(), label.name, noDefInfo());
         }
         scope = c.getScope();
         c.setScopeInfo(scope, visitOrSwitchScope(), visitOrSwitchInfo(e, false));
@@ -419,7 +417,7 @@ data SwitchInfo = switchInfo(Expression e);
 void collect(current: (Statement)`fail <Target target>;`, Collector c){
     loopName = "";
     if(target is labeled){
-        loopName = "<target.name>";
+        loopName = prettyPrintName(target.name);
         c.use(target.name, {labelId(), functionId()});
     }
     c.fact(current, avoid());
@@ -434,9 +432,9 @@ void collect(current: (Statement) `filter;`, Collector c){
 
 void collect(current: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bound bound> ) <Statement body>`, Collector c){
     for(v <- variables){
-        qname = convertName(v);
-        if(isQualified(qname)){
-            c.useQualified([qname.qualifier, qname.name], name, {variableId()}, {moduleId()} );
+        <qualifier, base> = splitQualifiedName(v);
+        if(!isEmpty(qualifier)){
+            c.useQualified([qualifier, base], name, {variableId()}, {moduleId()} );
         } else {
             c.use(v, {variableId()});
         }
@@ -447,11 +445,8 @@ void collect(current: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bou
 
 void collect(Bound current, Collector c){
     if(current is \default){
-        c.calculate("bound", current, [current.expression],
-            AType(Solver s){ 
-                s.requireSubtype(current.expression, aint(), error(current.expression, "Bound should have type `int`, found %t", current.expression)); 
-                return aint();
-            });
+        c.requireSubtype(current.expression, aint(), error(current.expression, "Bound should have type `int`, found %t", current.expression)); 
+        c.fact(current, aint());
         collect(current.expression, c);
     } else {
         c.fact(current, avoid());
@@ -558,13 +553,13 @@ default AType computeAssignmentRhsType(Statement current, AType lhsType, str ope
 }
 
 void checkAssignment(Statement current, (Assignable) `<QualifiedName name>`, str operator,  Statement statement, Collector c){
-    qname = convertName(name);
-    if(isQualified(qname)){
-        c.useQualified([qname.qualifier, qname.name], name, {variableId()}, {moduleId()});
+    <qualifier, base> = splitQualifiedName(name);
+    if(!isEmpty(qualifier)){
+        c.useQualified([qualifier, base], name, {variableId()}, {moduleId()});
     } else {
         if(operator == "="){
            //c.calculate("name of assignable", name, [statement], AType(Solver s){ return getType(statement); });
-           c.define("<name>", variableId(), name, defLub([statement], 
+           c.define(base, variableId(), name, defLub([statement], 
             AType(Solver s){ return s.getType(statement); }));
         } else {
            c.useLub(name, {variableId()});
@@ -595,8 +590,10 @@ AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver>
     return computeSliceType(current, computeReceiverType(current, receiver, scope, s), s.getType(optFirst),s.getType(second), s.getType(optLast), s);
 }
 
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> . <Name field>`, loc scope, Solver s)
-    = computeFieldType(current, computeReceiverType(current, receiver, scope, s), field, scope, s);
+AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> . <Name field>`, loc scope, Solver s){
+    res = computeFieldType(current, computeReceiverType(current, receiver, scope, s), field, scope, s);
+    return res;
+ }
     
 AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> @ <Name n>`, loc scope, Solver s){
     annoNameType = s.getTypeInScope(unescape("<n>"), scope, {annoId()});
@@ -612,16 +609,15 @@ AType computeReceiverType(Statement current, (Assignable) `\< <{Assignable ","}+
 }
 
 void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, str operator, Statement rhs, Collector c){
+
    names = getReceiver(receiver, c);
    
-   tau = c.newTypeVar(names[0]);
-   c.define("<names[0]>", variableId(), names[0], defLub([], AType(Solver s){ return s.getType(tau); }));
+   c.use(names[0], {variableId()});
    scope = c.getScope();
    
    c.calculate("assignable with subscript", current, [subscript, rhs], 
        AType(Solver s){ 
            res = computeSubscriptAssignableType(current, computeReceiverType(current, receiver, scope, s),  subscript, operator, s.getType(rhs), s);
-           s.requireUnify(tau, res, error(current, "Cannot bind type variable for %q", names[0]));
            return res;
          });
 }
@@ -635,7 +631,7 @@ AType computeSubscriptAssignableType(Statement current, AType receiverType, Expr
         for(<key, idr, tp> <- overloads){ 
             try {
                sub_overloads += <key, idr, computeSubscriptAssignableType(current, tp, subscript, operator, rhs, s)>;
-           } catch checkFailed(set[Message] msgs): {
+           } catch checkFailed(list[FailMessage] fms): {
                 ; // do nothing and try next overload
            } catch e: ; // do nothing
         }
@@ -673,7 +669,7 @@ AType computeSubscriptAssignableType(Statement current, AType receiverType, Expr
     } else if (isMapType(receiverType)) {
         if (!comparable(subscriptType, getMapDomainType(receiverType)))
             s.report(error(current, "Expected subscript of type %t, not %t", getMapDomainType(receiverType), subscriptType));
-        return amap(alub(subscriptType, getMapDomainType(receiverType)), computeAssignmentRhsType(current, getMapRangeType(receiverType), operator, rhs, s));
+         return amap(alub(subscriptType, getMapDomainType(receiverType)), computeAssignmentRhsType(current, getMapRangeType(receiverType), operator, rhs, s));
     } else if (isRelType(receiverType)) {
         relFields = getRelFields(receiverType);
         if (!comparable(subscriptType, relFields[0]))
@@ -689,14 +685,14 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <O
    if(optFirst is noExpression) c.fact(optFirst, aint());
    if(optLast is noExpression) c.fact(optLast, aint());
    
-   tau = c.newTypeVar(names[0]);
-   c.define("<names[0]>", variableId(), names[0], defLub([], AType(Solver s){ return s.getType(tau); }));
+   c.use(names[0], {variableId()});
+   
    scope = c.getScope();
    
    c.calculate("assignable with slice", current, [optFirst, optLast, rhs], 
       AType(Solver s){ 
            res = computeSliceAssignableType(current, computeReceiverType(current, receiver, scope, s),  s.getType(optFirst), aint(), s.getType(optLast), operator, s.getType(rhs), s);
-           s.requireUnify(tau, res, error(current, "Cannot bind type variable for %q", names[0]));
+           //s.requireUnify(tau, res, error(current, "Cannot bind type variable for %q", names[0]));
            return res;
          });
 }
@@ -705,14 +701,14 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <O
    names = getReceiver(receiver, c);
    if(optFirst is noExpression) c.fact(optFirst, aint());
    if(optLast is noExpression) c.fact(optLast, aint());
-   tau = c.newTypeVar(names[0]);
-   c.define("<names[0]>", variableId(), names[0], defLub([], AType(Solver s){ return s.getType(tau); }));
+
+   c.use(names[0], {variableId()});
    scope = c.getScope();
    
    c.calculate("assignable with slice", current, [optFirst, second, optLast, rhs], 
       AType(Solver s){ 
            res = computeSliceAssignableType(current, computeReceiverType(current, receiver, scope, s),  s.getType(optFirst), s.getType(second), s.getType(optLast), operator, s.getType(rhs), s);
-           s.requireUnify(tau, res, error(current, "Cannot bind type variable for %q", names[0]));
+           //s.requireUnify(tau, res, error(current, "Cannot bind type variable for %q", names[0]));
            return res;
          });
 }
@@ -720,7 +716,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <O
 AType computeSliceAssignableType(Statement current, AType receiverType, AType first, AType step, AType last, str operator, AType rhs, Solver s){
     if(!s.isFullyInstantiated(receiverType) || !s.isFullyInstantiated(first) || !s.isFullyInstantiated(step) || !s.isFullyInstantiated(last) || !s.isFullyInstantiated(rhs)) throw TypeUnavailable();
 
-    failures = {};
+    failures = [];
     if(!isIntType(first)) failures += error(current, "The first slice index must be of type `int`, found %t", first);
     if(!isIntType(step)) failures  += error(current, "The slice step must be of type `int`, found %t", step);
     if(!isIntType(last)) failures  += error(current, "The last slice index must be of type `int`, found %t", last);
@@ -746,20 +742,19 @@ AType computeSliceAssignableType(Statement current, AType receiverType, AType fi
 
 void checkAssignment(Statement current, (Assignable) `<Assignable receiver> . <Name field>`, str operator, Statement rhs, Collector c){
    names = getReceiver(receiver, c);
-   tau = c.newTypeVar(names[0]);
-   c.define("<names[0]>", variableId(), names[0], defLub([], AType(Solver s){ return s.getType(tau); }));
+   c.use(names[0], {variableId()});
    scope = c.getScope();
    
    c.calculate("assignable with field", current, [rhs], 
       AType(Solver s){ 
            res = computeFieldAssignableType(current, computeReceiverType(current, receiver, scope, s),  field, operator, s.getType(rhs), scope, s);
-           s.requireUnify(tau, res, error(current, "Cannot bind type variable for %q", names[0]));
+           //s.requireUnify(tau, res, error(current, "Cannot bind type variable for %q", names[0]));
            return res;
          });
 }
 
 AType computeFieldAssignableType(Statement current, AType receiverType, Tree field, str operator, AType rhs, loc scope, Solver s){
-   fieldName = "<field>";
+   fieldName = unescape("<field>");
    if(!s.isFullyInstantiated(receiverType) || !s.isFullyInstantiated(rhs)) throw TypeUnavailable();
     
    if(overloadedAType(rel[loc, IdRole, AType] overloads) := receiverType){
@@ -767,7 +762,7 @@ AType computeFieldAssignableType(Statement current, AType receiverType, Tree fie
         for(<key, idr, tp> <- overloads){ 
             try {
                fld_overloads += <key, idr, computeFieldAssignableType(current, tp, field, operator, rhs, scope, s)>;
-           } catch checkFailed(set[Message] msgs): {
+           } catch checkFailed(list[FailMessage] fms): {
                 ; // do nothing and try next overload
            } catch e: ; // do nothing
         }
@@ -780,12 +775,20 @@ AType computeFieldAssignableType(Statement current, AType receiverType, Tree fie
             return receiverType;
         }   
         fld_overloads = {};
+        str selectorName = unescape("<field>");
         for(containerDef <- s.getDefinitions(adtName, scope, {dataId(), aliasId()})){    
             try {
-                selectorType = s.getTypeInScope("<field>", containerDef.defined, {fieldId()});
+                selectorType = s.getTypeInScope(fieldName, containerDef.defined, {fieldId()});
                 //fld_overloads += <containerDef.defined, containerDef.idRole, selectorType>;
                 fld_overloads += <containerDef.defined, containerDef.idRole, rascalInstantiateTypeParameters(field, s.getType(containerDef.defInfo), receiverType, selectorType, s)>;
              } catch TypeUnavailable():; /* ignore */
+               catch NoBinding():{
+                    try {
+                        selectorType = rascalGetTypeInTypeFromDefine(containerDef, fieldName, {fieldId()}, s);
+                        fld_overloads += <containerDef.defined, containerDef.idRole, rascalInstantiateTypeParameters(field, s.getType(containerDef.defInfo), receiverType, selectorType, s)>;
+                    } catch NoBinding():; /* ignore */
+                    catch TypeUnavailable():; /* ignore */
+               }
         }
         fieldType = overloadedAType(fld_overloads);
         if(!isEmpty(fld_overloads)){
@@ -830,8 +833,7 @@ AType computeFieldAssignableType(Statement current, AType receiverType, Tree fie
 
 void checkAssignment(Statement current, (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, str operator, Statement rhs, Collector c){
    names = getReceiver(receiver, c);
-   tau = c.newTypeVar(names[0]);
-   c.define("<names[0]>", variableId(), names[0], defLub([], AType(Solver s){ return s.getType(tau); }));
+   c.use(names[0], {variableId()});
    scope = c.getScope();
    
    c.calculate("assignable with default expression", current, [defaultExpression, rhs], 
@@ -899,6 +901,8 @@ void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable 
    namesInRhs = getNames(rhs);
    taus = [c.newTypeVar(nm) | nm <- names];
    for(int i <- index(names), flatNames[i] notin namesInRhs){c.define("<names[i]>", variableId(), names[i], defLub([rhs], makeDef(i)));}
+   
+   for(name <- names) c.use(name, {variableId()});
   
    scope = c.getScope();
    
@@ -932,7 +936,7 @@ AType computeAnnoAssignableType(Statement current, AType receiverType, str annoN
         for(<key, idr, tp> <- overloads){ 
             try {
                anno_overloads += <key, idr, computeAnnoAssignableType(current, tp, annoName, operator, rhs, scope, s)>;
-           } catch checkFailed(set[Message] msgs): {
+           } catch checkFailed(list[FailMessage] fms): {
                 ; // do nothing and try next overload
            } catch e: ; // do nothing
         }
@@ -990,15 +994,17 @@ void collect(current:(Statement) `throw <Statement statement>`, Collector c){
 
 void collect(current: (Statement) `<Type varType> <{Variable ","}+ variables>;`, Collector c){
     for(var <- variables){
-        c.define(prettyPrintName(var.name), variableId(), var.name, defGetType(varType));
+        c.define(prettyPrintName(var.name), variableId(), var.name, defType(varType));
         
         if(var is initialized){
             c.enterLubScope(var);
-                c.require("variable initialization", var.initial, [varType], makeVarInitRequirement(var.initial, varType));
+                initial = var.initial;
+                c.requireSubtype(initial, var.name, error(initial, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, initial));
+                //c.require("variable initialization", var.initial, [varType], makeVarInitRequirement(var.initial, varType));
                 collect(var.initial, c); 
             c.leaveScope(var);
         }
     } 
-    c.sameType(current, varType);
+    c.fact(current, varType);
     collect(varType, c);  
 }

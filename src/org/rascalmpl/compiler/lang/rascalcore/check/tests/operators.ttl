@@ -46,7 +46,7 @@ expect { "Product not defined on `list[int]` and `int`" }
 test JOINR1 [[ module A  rel[int,int,int,int] r = {<1,10>} join {<2,20>}; ]]
 
 test JOINR2 [[ module A  rel[int,int] r = {<1,10>} join {<2,20>}; ]]
-expect { "Type of initialization should be subtype of `rel[int, int]`, found `rel[int, int, int, int]`" }
+expect { "Initialization of `r` should be subtype of `rel[int, int]`, found `rel[int, int, int, int]`" }
 
 test JOINR3 [[ module A  rel[int a, int b,int c, str d] r = {<1,10>} join {<2,"a">}; set[str] s = r.d;]]
 
@@ -56,7 +56,7 @@ expect { "Field name ignored, field names must be provided for all fields or for
 test JOINLR1 [[ module A  lrel[int,int,int,int] r = [<1,10>] join [<2,20>]; ]]
 
 test JOINLR2 [[ module A  lrel[int,int] r = [<1,10>] join [<2,20>]; ]]
-expect { "Type of initialization should be subtype of `lrel[int, int]`, found `lrel[int, int, int, int]`" }
+expect { "Initialization of `r` should be subtype of `lrel[int, int]`, found `lrel[int, int, int, int]`" }
 
 test JOINLR3 [[ module A  lrel[int a, int b,int c, str d] r = [<1,10>] join [<2,"a">]; list[str] s = r.d;]]
 
