@@ -1235,13 +1235,13 @@ public class Prelude {
 				outStream = reg.getOutputStream(sloc, append);
 			}
 			
-			try (OutputStreamWriter out = new UnicodeOutputStreamWriter(outStream, charset.getValue(), append)) {
+			try (UnicodeOutputStreamWriter out = new UnicodeOutputStreamWriter(outStream, charset.getValue(), append)) {
 				if (prefix != null) {
 					copy(prefix, out);
 				}
 				for(IValue elem : V){
 					if (elem.getType().isString()) {
-						((IString) elem).write(out);
+					    ((IString) elem).write(out);
 					}
 					else if (elem.getType().isSubtypeOf(RascalValueFactory.Tree)) {
 					  TreeAdapter.yield((IConstructor) elem, out);
