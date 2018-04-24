@@ -6,12 +6,13 @@ test ADTWithTypeParameter [[
 test UndefinedTypeParameter [[
     module A
     data D[&T] = d1(&U n);
-]] expect { "Type parameter(s) `T` not defined in constructor `d1`" }
+]]  expect { "xxx" }
+
 
 test UnboundTypeParameter [[
     module A
     data D[&T] = d1();
-]] expect { "Type parameter(s) `T` not defined in constructor `d1`" }
+]]
 
 test MissingTypeParameter [[
     module A
@@ -46,4 +47,4 @@ test ADTWithTypeParameterAndKWerror [[
     data D[&T] = d1(&T n, &T kw = n);
     
     int f() { D[int] x = d1(10); str m = x.kw; }
-]] expect { "Type of initialization should be subtype of `str`, found `int`" }
+]] expect { "Initialization of `m` should be subtype of `str`, found `int`" }

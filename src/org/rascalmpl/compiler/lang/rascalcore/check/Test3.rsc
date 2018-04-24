@@ -1,3 +1,7 @@
 module lang::rascalcore::check::Test3
 
-void main(){ tuple[str s, int n] x = <"a", 1>; x.n = 3; }
+void f(){
+
+    if(2 > 1) "a" * 2; else 1 / "a" ;
+
+}

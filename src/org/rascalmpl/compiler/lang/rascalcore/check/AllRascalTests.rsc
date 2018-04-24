@@ -19,7 +19,7 @@ import ValueIO;
 
 
 private list[str] basicTests = [
-    "Booleans",
+    //"Booleans",
     "Equality",
     "Functions",
     "Integers",
@@ -302,18 +302,18 @@ set[Message] allRascalTests(PathConfig pcfg= pathConfig(
   tuple[list[value] crashes, list[Message] msgs] res;
   //pcfg = pathConfig(srcs=[|std:///|], bin=bin, boot=boot, libs=[bin]);
   
-  res = runTests(basicTests, "lang::rascal::tests::basic");
-  all_crashes += res.crashes; all_msgs += res.msgs;
+  //res = runTests(basicTests, "lang::rascal::tests::basic");
+  //all_crashes += res.crashes; all_msgs += res.msgs;
   res = runTests(functionalityTests, "lang::rascal::tests::functionality");
   all_crashes += res.crashes; all_msgs += res.msgs;
-  res = runTests(libraryTests, "lang::rascal::tests::library");
-  all_crashes += res.crashes; all_msgs += res.msgs;
-  res = runTests(importTests, "lang::rascal::tests::imports");
-  all_crashes += res.crashes; all_msgs += res.msgs;
-  res = runTests(extendTests, "lang::rascal::tests::extends"); 
-  all_crashes += res.crashes; all_msgs += res.msgs;
-  res = runTests(files_with_tests, "");
-  all_crashes += res.crashes; all_msgs += res.msgs;
+  //res = runTests(libraryTests, "lang::rascal::tests::library");
+  //all_crashes += res.crashes; all_msgs += res.msgs;
+  //res = runTests(importTests, "lang::rascal::tests::imports");
+  //all_crashes += res.crashes; all_msgs += res.msgs;
+  //res = runTests(extendTests, "lang::rascal::tests::extends"); 
+  //all_crashes += res.crashes; all_msgs += res.msgs;
+  //res = runTests(files_with_tests, "");
+  //all_crashes += res.crashes; all_msgs += res.msgs;
   
   //res = runTests(typeTests, "lang::rascal::tests::types", pcfg);
   //all_crashes += res.crashes; all_msgs += res.msgs;

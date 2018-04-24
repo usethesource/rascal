@@ -125,13 +125,13 @@ test LitInKeywordOk [[
 test CiLitInKeywordNotOk [[ 
     module A 
         keyword Keywords = "if" | "then"| 'else';
-]] expect { "In keyword declaration only literals are allowed, found `else`" }
+]] expect { "Only literals allowed in keyword declaration, found `else` via `Keywords`" }
 
 test LexInKeywordNotOk [[ 
     module A 
         lexical Dig = [0-9]+;
         keyword Keywords = "if" | "then"| "else" | Dig;
-]] expect { "In keyword declaration only literals are allowed, found `Dig`" }
+]] expect { "In keyword declaration only literals are allowed, found `Dig` via `Keywords`" }
 
 test ExcludeKeywordOk [[ 
     module A 
@@ -152,7 +152,25 @@ test ExcludeNonKeywordNotOk [[
 test RegexpInKeywordNotOk [[ 
     module A 
         keyword Keywords = "if" | "then"| [a-z]+;
-]] expect { "In keyword declaration only literals are allowed, found `[97-122]+`" }
+]] expect { "Only literals allowed in keyword declaration, found `[97-122]+` via `Keywords`" }
+
+test NonterminalInKeywordOk [[
+    module A
+        keyword K = "a" | B;
+        syntax B = "b" | "bb" | "bbb";
+]]
+
+test RecursiveNonterminalInKeywordOk [[
+    module A
+        keyword K = "a" | B;
+        syntax B = "b" | "bb" | "bbb"| K;
+]]
+
+test NonterminalInKeywordNotOk [[
+    module A
+        keyword K = "a" | B;
+        syntax B = "b" | "bb" | [a-z];
+]] expect { "Only literals allowed in keyword declaration, found `[97-122]` via `B` and `K`" }
 
 test CharClassesLitsOk [[
     module A 

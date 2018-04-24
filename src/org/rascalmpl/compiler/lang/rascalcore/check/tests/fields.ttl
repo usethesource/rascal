@@ -7,7 +7,7 @@ test SF1 [[ module A set[int n] l = {}; ]]
 test MF1 [[ module A map[str key, int val] x; set[str] y = x.key; ]]
 
 test MF2 [[ module A map[str key, int val] x; set[int] y = x.key; ]]
-expect { "Type of initialization should be subtype of `set[int]`, found `set[str]`" }
+expect { "Initialization of `y` should be subtype of `set[int]`, found `set[str]`" }
 
 test MF3 [[ module A map[str key, int val] x; set[int] y = x.val; ]]
 

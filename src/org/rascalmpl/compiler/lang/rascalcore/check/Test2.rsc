@@ -1,6 +1,9 @@
-module lang::rascalcore::check::Test2
+module lang::rascalcore::check::Test2 
 
-    
-void groupRangeByDomain(rel[int dom, int ran] input) {
-  input.dom;
+data Figure (str fillColor = "white")  =  emptyFigure()
+  ;
+  
+void keywordTest7() {
+    f = emptyFigure();
+    f.fillColor = "red";
 }

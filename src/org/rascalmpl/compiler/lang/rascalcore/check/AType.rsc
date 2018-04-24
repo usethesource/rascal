@@ -9,11 +9,9 @@ import lang::rascalcore::check::ATypeUtils;
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::ATypeExceptions;
 
-//alias Key         = loc;
 alias Keyword     = tuple[AType fieldType, Expression defaultExp];
-//alias NamedField  = tuple[str fieldName, AType fieldType] ;
 
-data QName        = qualName(str qualifier, str name);
+//data QName        = qualName(str qualifier, str name);
    
 data AType (str label = "")
     =  aint()
@@ -35,12 +33,10 @@ data AType (str label = "")
      | arel(AType elemType)  
      | alrel(AType elemType)
      | afunc(AType ret, AType formals, list[Keyword] kwFormals,  bool varArgs=false, str deprecationMessage="")
-     | auser(str uname, list[AType] parameters) 
      | aalias(str aname, list[AType] parameters, AType aliased)
      | aanno(str aname, AType onType, AType annoType)
      
      | aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)
-     //| aadtInstance(AType adt, list[AType] actuals)
      | acons(AType adt, list[AType] fields, list[Keyword] kwFields)
      | aprod(AProduction production)
      
@@ -269,22 +265,6 @@ e.g., `int`, `list`, and `rel`. Here we extend it with the symbols that may occu
 
 }
 
-
-
-//data AType // <1>
-//     = \start(AType symbol);
-
-// These symbols are the named non-terminals.
-//data AType 
-//     = 
-//     \sort(str sname) // <2> 
-//     | \lex(str sname)  // <3>
-//     | \layouts(str sname)  // <4>
-//     | \keywords(str sname) // <5>
-//       \parameterized-sort(str sname, list[AType] parameters) // <6>
-//     | \parameterized-lex(str sname, list[AType] parameters)  // <7>
-//     ; 
-
 // For convenience in transition period
 //AType \start(AType symbol)  = symbol[syntaxRole=startSyntax()];
 AType \sort(str sname)      = aadt(sname, [], contextFreeSyntax());
@@ -295,7 +275,6 @@ AType \parameterized-sort(str sname, list[AType] parameters)
                             = aadt(sname, parameters, contextFreeSyntax());
 AType \parameterized-lex(str sname, list[AType] parameters) 
                             = aadt(sname, parameters, lexicalSyntax());
-
 
 // These are the terminal symbols.
 data AType 
@@ -416,7 +395,7 @@ bool asubtype(acons(AType a, /*str name,*/ list[AType/*NamedField*/] ap, list[Ke
 bool asubtype(aadt(str _, list[AType] _, _), anode(_)) = true;
 bool asubtype(aadt(str n, list[AType] l, _), aadt(n, list[AType] r, _)) = asubtype(l, r);
 bool asubtype(aadt(_, _, sr), aadt("Tree", _, _)) = true when isConcreteSyntaxRole(sr);
-bool asubtype(aadt(str _, list[AType] _, sr), AType::\auser("Tree", _))  = true when isConcreteSyntaxRole(sr);
+//bool asubtype(aadt(str _, list[AType] _, sr), AType::\auser("Tree", _))  = true when isConcreteSyntaxRole(sr);
 
 bool asubtype(\start(AType a), AType b) = asubtype(a, b);
 bool asubtype(AType a, \start(AType b)) = asubtype(a, b);
@@ -441,10 +420,10 @@ bool asubtype(AType::\iter-star-seps(AType s, list[AType] seps), anode(_)) = tru
 // bool subtype(AType s, \opt(AType t)) = subtype(s,t);
 // bool subtype(AType s, \alt({AType t, *_}) = true when subtype(s, t); // backtracks over the alternatives
 
-bool asubtype(aadt(str n, list[AType] l, _), auser(n, list[AType] r)) = asubtype(l,r); //{throw "Illegal use of auser <n>"; } //= asubtype(l,r);
+//bool asubtype(aadt(str n, list[AType] l, _), auser(n, list[AType] r)) = asubtype(l,r); //{throw "Illegal use of auser <n>"; } //= asubtype(l,r);
 
-bool asubtype(auser(str n, list[AType] l), aadt(n, list[AType] r, _)) = asubtype(l,r); //{throw "Illegal use of auser <n>"; } //= asubtype(l,r);
-bool asubtype(auser(str n, list[AType] l), auser(n, list[AType] r)) = asubtype(l,r); //{throw "Illegal use of auser <n>"; } //= asubtype(l,r);
+//bool asubtype(auser(str n, list[AType] l), aadt(n, list[AType] r, _)) = asubtype(l,r); //{throw "Illegal use of auser <n>"; } //= asubtype(l,r);
+//bool asubtype(auser(str n, list[AType] l), auser(n, list[AType] r)) = asubtype(l,r); //{throw "Illegal use of auser <n>"; } //= asubtype(l,r);
 
 bool asubtype(aint(), anum()) = true;
 bool asubtype(arat(), anum()) = true;
@@ -591,18 +570,18 @@ AType alub(a1:aadt(str n, list[AType] lp, SyntaxRole lsr), a2:aadt(n, list[AType
                                                   when size(lp) == size(rp) && size(getParamLabels(lp)) == 0 && sr := overloadSyntaxRole({lsr, rsr}) && sr != illegalSyntax();
                                                                          
 AType alub(aadt(str n, list[AType] lp, SyntaxRole _), aadt(str m, list[AType] rp,SyntaxRole _)) = anode([]) when n != m;
-AType alub(a1: aadt(str ln, list[AType] lp,SyntaxRole  _), acons(AType b,/* _,*/ _, _)) = alub(a1,b);
+AType alub(a1: aadt(str ln, list[AType] lp,SyntaxRole  _), acons(AType b, _, _)) = alub(a1,b);
 
 AType addADTLabel(AType a1, AType a2, AType adt){
   if(a1.label? && a1.label == a2.label) adt = adt[label=a1.label];
   return adt;
 }
 
-AType alub(acons(AType la, /*_,*/ list[AType/*NamedField*/] _,  list[Keyword] _), acons(AType ra,/* _,*/ list[AType/*NamedField*/] _, list[Keyword] _)) = alub(la,ra);
-AType alub(acons(AType a,  /*_,*/ list[AType/*NamedField*/] lp, list[Keyword] _), a2:aadt(str n, list[AType] rp, SyntaxRole _)) = alub(a,a2);
-AType alub(acons(AType _,  /*_,*/ list[AType/*NamedField*/] _,  list[Keyword] _), anode(_)) = anode([]);
+AType alub(acons(AType la, list[AType] _,  list[Keyword] _), acons(AType ra, list[AType] _, list[Keyword] _)) = alub(la,ra);
+AType alub(acons(AType a,  list[AType] lp, list[Keyword] _), a2:aadt(str n, list[AType] rp, SyntaxRole _)) = alub(a,a2);
+AType alub(acons(AType _,  list[AType] _,  list[Keyword] _), anode(_)) = anode([]);
 
-AType alub(anode(list[AType/*NamedField*/] l), anode(list[AType/*NamedField*/] r)) = anode(l & r);
+AType alub(anode(list[AType] l), anode(list[AType] r)) = anode(l & r);
 
 bool keepParams(aparameter(str s1, AType bound1), aparameter(str s2, AType bound2)) = s1 == s2 && equivalent(bound1,bound2);
 

@@ -33,82 +33,6 @@ str unescape(str s) = replaceAll(s, "\\", "");
 
 AType removeLabels(AType t) = unsetRec(t, "label");
 
-AType normalizeType(AType s){
-   return
-    visit(s){
-        case alist(atuple(atypeList(list[AType] tls))) => AType::alrel(atypeList(tls))
-        case aset(atuple(atypeList(list[AType] tls)))  => AType::arel(atypeList(tls))
-   }
-}
-
-//@memo
-//AType expandUserTypes(AType t, loc scope, Solver s){
-//    if(overloadedAType(rel[loc, IdRole, AType] overloads) := t){
-//        filtered = {};
-//        for(<key, idr, tp> <- overloads){   
-//            try {
-//                filtered += <key, idr, expandUserTypes1(tp, scope, s)>;  
-//            } catch TypeUnavailable():; // Ignore types that are out of scope
-//        }
-//        if(!isEmpty(filtered)) return overloadedAType(filtered);
-//        s.report(error(scope, "Type %t cannot be expanded in scope, missing imports?", t));
-//    }
-//    return expandUserTypes1(t, scope, s);
-//}
-//
-//@memo
-//AType expandUserTypes1(AType t, loc scope, Solver s){
-//    //println("expandUserTypes1: <t>");
-//    return visit(t){
-//        case u: auser(str uname, ps): {
-//                //println("expandUserTypes: <u>");  // TODO: handle non-empty qualifier
-//                expanded = expandUserTypes(s.getTypeInScope(uname, scope, dataOrSyntaxIds), scope, s);
-//                if(u.label?) expanded.label = u.label;
-//                //if(u.hasSyntax?) expanded.hasSyntax = u.hasSyntax;
-//                //println("expanded: <expanded>");
-//                if(aadt(uname, ps2, SyntaxRole sr) := expanded) {
-//                   if(size(ps) != size(ps2)) s.report(error(scope, "Expected %v type parameter(s) for %t, found %v", size(ps2), expanded, size(ps)));
-//                   expanded.parameters = ps;
-//                   insert expanded; //aadt(uname, ps);
-//                } else {
-//                   params = toList(collectAndUnlabelRascalTypeParams(expanded));  // TODO order issue?
-//                   nparams = size(params);
-//                   if(size(ps) != size(params)) s.report(error(scope, "Expected %v type parameter(s) for %t, found %v", nparams, expanded, size(ps)));
-//                   if(nparams > 0){
-//                      try {
-//                         Bindings b = (params[i].pname : ps[i] | int i <- index(params));
-//                         expanded = instantiateRascalTypeParams(expanded, b);
-//                         if(u.label?) expanded.label = u.label;
-//                         //if(u.hasSyntax?) expanded.hasSyntax = u.hasSyntax;
-//                         insert expanded;
-//                       } catch invalidMatch(str reason): 
-//                                s.report(error(scope, reason));
-//                         catch invalidInstantiation(str msg):
-//                                s.report(error(scope, msg));
-//                   } else {
-//                     insert expanded;
-//                   }
-//               }
-//            }
-//    }
-//}
-
-list[str] getUndefinedADTs(AType t, loc scope, Solver s){
-    res = [];
-    visit(t){
-        case u: auser(str uname, ps): {
-                try {
-                 println("trying type of <u>");
-                 tp = s.getTypeInScope(uname, scope, dataOrSyntaxIds);
-                 println("tp = <tp>");
-                } catch TypeUnavailable(): {
-                    res += prettyPrintAType(u);
-                }
-      }
-      }
-      return res;         
-}
-
 // ---- print atypes ----------------------------------------------------------
 
 @doc{Pretty printer for Rascal abstract types.}
@@ -133,9 +57,6 @@ str prettyPrintAType(alrel(AType ts)) = "lrel[<prettyPrintAType(ts)>]";
 str prettyPrintAType(afunc(AType ret, atypeList(list[AType] formals), lrel[/*str fieldName,*/ AType fieldType, Expression defaultExp] kwFormals))
                 = "<prettyPrintAType(ret)>(<intercalate(",", [prettyPrintAType(f) | f <- formals])><isEmpty(kwFormals) ? "" : ", "><intercalate(",", ["<prettyPrintAType(ft)> <ft.label>=..." | <ft, de> <- kwFormals])>)";
 
-str prettyPrintAType(auser(str s, [])) = "USER TYPE <s>";
-str prettyPrintAType(auser(str s, ps)) = "USER TYPE <s>[<prettyPrintAType(ps)>]" when size(ps) > 0;
-
 str prettyPrintAType(aalias(str aname, [], AType aliased)) = "alias <aname> = <prettyPrintAType(aliased)>";
 str prettyPrintAType(aalias(str aname, ps, AType aliased)) = "alias <aname>[<prettyPrintAType(ps)>] = <prettyPrintAType(aliased)>" when size(ps) > 0;
 
@@ -145,9 +66,9 @@ str prettyPrintAType(aadt(str s, [], SyntaxRole _)) = s;
 str prettyPrintAType(aadt(str s, ps, SyntaxRole _)) = "<s>[<prettyPrintAType(ps)>]" when size(ps) > 0;
 
 str prettyPrintAType(t: acons(AType adt, /*str consName,*/ 
-                list[/*str fieldName,*/ AType fieldType] fields,
-                lrel[/*str fieldName,*/ AType fieldType, Expression defaultExp] kwFields))
-                 = "<prettyPrintAType(adt)>::<t.label>(<intercalate(", ", ["<prettyPrintAType(ft)> <ft.label>" | ft <- fields])><isEmpty(kwFields) ? "" : ", "><intercalate(",", ["<prettyPrintAType(ft)> <ft.label>=..." | <ft, de> <- kwFields])>)";
+                list[AType fieldType] fields,
+                lrel[AType fieldType, Expression defaultExp] kwFields))
+                 = "<prettyPrintAType(adt)>::<t.label>(<intercalate(", ", ["<prettyPrintAType(ft)><ft.label? ? " <ft.label>" : "">" | ft <- fields])><isEmpty(kwFields) ? "" : ", "><intercalate(",", ["<prettyPrintAType(ft)> <ft.label>=..." | <ft, de> <- kwFields])>)";
 
 str prettyPrintAType(amodule(str mname)) = "module <mname>";         
 str prettyPrintAType(aparameter(str pn, AType t)) = t == avalue() ? "&<pn>" : "&<pn> \<: <prettyPrintAType(t)>";
@@ -214,9 +135,6 @@ str atype2symbol(alrel(AType ts)) = "\\lrel(<atype2symbol(ts)>)";
 
 str atype2symbol(afunc(AType ret, atypeList(list[AType] formals), lrel[AType fieldType, Expression defaultExp] kwFormals))
                 = "<atype2symbol(ret)>(<intercalate(",", [atype2symbol(f) | f <- formals])>)";
-
-str atype2symbol(auser(str s, [])) = "adt(\"<s>\", [])";
-str atype2symbol(auser(str s, ps)) = "adt(\"<s>\",[<atype2symbol(ps)>])" when size(ps) > 0;
 
 str atype2symbol(aalias(str aname, [], AType aliased)) = "\\alias(\"<aname>\",[],<atype2symbol(aliased)>)";
 str atype2symbol(aalias(str aname, ps, AType aliased)) = "\\alias(\"<aname>\",[<atype2symbol(ps)>],<atype2symbol(aliased)>)" when size(ps) > 0;
@@ -776,7 +694,7 @@ AType makeADTType(str n) = aadt(n,[], dataSyntax());
 @doc{Get the name of the ADT.}
 str getADTName(AType t) {
     if (aadt(n,_,_) := unwrapType(t)) return n;
-    if (acons(a,/*_,*/_,_) := unwrapType(t)) return getADTName(a);
+    if (acons(a,_,_) := unwrapType(t)) return getADTName(a);
     if (areified(_) := unwrapType(t)) return "type";
     throw rascalCheckerInternalError("getADTName, invalid type given: <prettyPrintAType(t)>");
 }
@@ -784,7 +702,7 @@ str getADTName(AType t) {
 @doc{Get the type parameters of an ADT.}
 list[AType] getADTTypeParameters(AType t) {
     if (aadt(n,ps,_) := unwrapType(t)) return ps;
-    if (acons(a,/*_,*/_,_) := unwrapType(t)) return getADTTypeParameters(a);
+    if (acons(a,_,_) := unwrapType(t)) return getADTTypeParameters(a);
     if (areified(_) := unwrapType(t)) return [];
     throw rascalCheckerInternalError("getADTTypeParameters given non-ADT type <prettyPrintAType(t)>");
 }
@@ -1005,10 +923,9 @@ default AType getNonTerminalOptType(AType ot) {
     throw rascalCheckerInternalError("<prettyPrintAType(ot)> is not an optional non-terminal type");
 }
 
-// TODO
-bool isStartNonTerminalType(aparameter(_,AType tvb)) = isNonTerminalType(tvb);
+bool isStartNonTerminalType(aparameter(_,AType tvb)) = isStartNonTerminalType(tvb);
 bool isStartNonTerminalType(AType::\start(_)) = true;
-default bool isStartNonTerminalType(AType _) = false;    
+default bool isStartNonTerminalType(AType s) = false;    
 
 AType getStartNonTerminalType(aparameter(_,AType tvb)) = getStartNonTerminalType(tvb);
 AType getStartNonTerminalType(AType::\start(AType s)) = s;

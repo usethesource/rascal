@@ -160,8 +160,10 @@ void collect(Literal l:(Literal)`<LocationLiteral ll>`, Collector c){
 
 void collect(Concrete concrete, Collector c){
     concreteType = concrete.symbol;
-    c.calculate("concrete literal", concrete, [concreteType], AType(Solver s) { return s.getType(concreteType); });
-    collectLexical(concrete, c);
+    //c.calculate("concrete literal", concrete, [concreteType], AType(Solver s) { return s.getType(concreteType); });
+    c.fact(concrete, concrete.symbol);
+    collect(concrete.symbol, c);
+    collectLexical(concrete.parts, c);
 }
 
 void collect(current: (ConcreteHole) `\< <Sym symbol> <Name name> \>`, Collector c){
@@ -170,21 +172,23 @@ void collect(current: (ConcreteHole) `\< <Sym symbol> <Name name> \>`, Collector
     if(size(c.getStack(patternContainer)) == 1){    // An expression
         //println("ConcreteHole exp: <current>");
         c.use(name, {variableId()});
-        c.calculate("concrete hole", current, [varType], AType(Solver s) { return s.getType(varType); });
+        //c.calculate("concrete hole", current, [varType], AType(Solver s) { return s.getType(varType); });
     } else {                                        //A pattern
         //println("ConcreteHole pat: <current>");
-        uname = unescape("<name>");
+        uname = prettyPrintName(name);
         if(uname != "_"){
            if(uname in c.getStack(patternNames)){
               c.useLub(name, {variableId()});
            } else {
                c.push(patternNames, uname);
-               dt = defType([], AType(Solver s){ return s.getType(varType); });
-               c.define(uname, variableId(), name, dt); 
+               //dt = defType([], AType(Solver s){ return s.getType(varType); });
+               c.define(uname, variableId(), name, defType(symbol)); 
            }
         }
     }
-    c.calculateEager("concrete hole", current, [varType], AType(Solver s) { return s.getType(varType); });
+   // c.calculateEager("concrete hole", current, [varType], AType(Solver s) { return s.getType(varType); });
+    c.fact(current, symbol);
+    collect(symbol, c);
 }
 
 // Rascal expressions
@@ -200,7 +204,8 @@ void collect(current: (Expression) `{ <Statement+ statements> }`, Collector c){
 // ---- brackets
 
 void collect(current: (Expression) `( <Expression expression> )`, Collector c){
-    c.calculate("brackets", current, [expression],  AType(Solver s) { return s.getType(expression); } );
+   //c.calculate("brackets", current, [expression],  AType(Solver s) { return s.getType(expression); } );
+    c.fact(current, expression);
     collect(expression, c);
 }
 
@@ -216,7 +221,7 @@ void collect(current: (Expression) `<Type returnType> <Parameters parameters> { 
         stats = [stat | stat <- statements];
         
         c.calculate("type of closure", current, returnType + formals,
-            AType(Solver s){ return afunc(s.getType(returnType), computeFormals(formals, scope, s), computeKwFormals(kwFormals, s)); });
+            AType(Solver s){ return afunc(s.getType(returnType), atypeList([s.getType(f) | f <- formals]), computeKwFormals(kwFormals, s)); });
         collect(returnType + formals + kwFormals + stats, c);
     c.leaveScope(current);
 }
@@ -233,7 +238,7 @@ void collect(current: (Expression) `<Parameters parameters> { <Statement* statem
         stats = [stat | stat <- statements0];
         
         c.calculate("type of void closure", current, formals,
-            AType(Solver s){ return afunc(avoid(), computeFormals(formals, scope, s), computeKwFormals(kwFormals, s)); });
+            AType(Solver s){ return afunc(avoid(), atypeList([s.getType(f) | f <- formals]), computeKwFormals(kwFormals, s)); });
         collect(formals + kwFormals + stats, c);
     c.leaveScope(current);
 }
@@ -271,7 +276,7 @@ void collect(current: (Expression) `<Label label> <Visit vst>`, Collector c){
         scope = c.getScope();
         c.setScopeInfo(scope, visitOrSwitchScope(), visitOrSwitchInfo(vst.subject, true));
         if(label is \default){
-            c.define("<label.name>", labelId(), label.name, noDefInfo());
+            c.define(prettyPrintName(label.name), labelId(), label.name, noDefInfo());
         }
         c.calculate("visit", current, [vst.subject], AType(Solver s){ return s.getType(vst.subject); });
         collect(vst, c);
@@ -460,16 +465,6 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
             if(any(x <- expression + actuals + kwactuals, !s.isFullyInstantiated(s.getType(x)))) throw TypeUnavailable();
             
             texp = s.getType(expression);
-            //try {
-            //    texp = expandUserTypes(texp, scope, s);
-            //} catch TypeUnavailable(): {
-            //    missing = getUndefinedADTs(texp, scope, s);
-            //    if(size(missing) > 0){
-            //        s.report(error(current, "Missing import, %v not available here but used in type of %q: %t", getUndefinedADTs(texp, scope, s), expression, expression));
-            //    } else {
-            //        s.report(error(current, "Cannot expand all types in type of %q: %t", expression, expression));
-            //    }
-            //}
             if(isStrType(texp)){
                 return computeNodeType(current, scope, actuals, keywordArguments, s);
             } 
@@ -504,7 +499,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                             //}
                             validReturnTypeOverloads += <key, dataId(), checkArgsAndComputeReturnType(current, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
                             validOverloads += ovl;
-                       } catch checkFailed(set[Message] msgs):
+                       } catch checkFailed(list[FailMessage] fms):
                              continue next_fun;
                     }
                  }
@@ -514,7 +509,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                        try {
                             validReturnTypeOverloads += <key, dataId(), computeADTType(current, adtName, scope, ret, fields/*<1>*/, kwFields, actuals, keywordArguments, identicalFormals, s)>;
                             validOverloads += ovl;
-                       } catch checkFailed(set[Message] msgs):
+                       } catch checkFailed(list[FailMessage] fms):
                              continue next_cons;
                     }
                  }
@@ -523,7 +518,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                     // TODO check identicalFields to see whether this can make sense
                     // unique overload, fall through to non-overloaded case to potentially bind more type variables
                  } else if(isEmpty(validReturnTypeOverloads)) { 
-                        s.report(error(current, "%q is defined as %t and cannot be applied to argument(s) %v", expression, expression, actuals));}
+                        s.report(error(current, "%q is defined as %t and cannot be applied to argument(s) %v", "<expression>", expression, actuals));}
                  else return overloadedAType(validReturnTypeOverloads);
                }
             }
@@ -534,10 +529,10 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                //}
                 return checkArgsAndComputeReturnType(current, scope, ret, formals, kwFormals, ft.varArgs, actuals, keywordArguments, [true | int i <- index(formals)], s);
             }
-            if(acons(ret:aadt(adtName, list[AType] parameters,_), /*str consName,*/ list[AType/*NamedField*/] fields, list[Keyword] kwFields) := texp){
+            if(acons(ret:aadt(adtName, list[AType] parameters,_), list[AType] fields, list[Keyword] kwFields) := texp){
                return computeADTType(current, adtName, scope, ret, fields/*<1>*/, kwFields, actuals, keywordArguments, [true | int i <- index(fields)], s);
             }
-            s.report(error(current, "%q is defined as %t and cannot be applied to argument(s) %v", expression, expression, actuals));
+            s.report(error(current, "%q is defined as %t and cannot be applied to argument(s) %v", "<expression>", expression, actuals));
         });
       collect(expression, arguments, keywordArguments, c);
 }
@@ -557,7 +552,7 @@ tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRole, ATyp
               }
            }
         } else
-        if(acons(aadt(adtName, list[AType] parameters,_), /*str consName,*/ list[AType/*NamedField*/] fields, list[Keyword] kwFields) := tp){
+        if(acons(aadt(adtName, list[AType] parameters,_), list[AType] fields, list[Keyword] kwFields) := tp){
            if(size(fields) == arity){
               filteredOverloads += ovl;
               if(isEmpty(prevFormals)){
@@ -604,12 +599,12 @@ AType checkArgsAndComputeReturnType(Expression current, loc scope, AType retType
                     actualTypes[i] = tp;
                     returnTypeForOverloadedActuals += <key, idr, computeReturnType(current, scope, retType, formalTypes, actuals, actualTypes, kwFormals, keywordArguments, identicalFormals, s)>;
                     //println("succeeds: <ovl>");
-                } catch checkFailed(set[Message] msgs): {
+                } catch checkFailed(list[FailMessage] fms): {
                     //println("fails: <ovl>");
                     ; // continue with next overload
                 }
              }
-             if(isEmpty(returnTypeForOverloadedActuals)) { s.report(error(current, "Call with arguments %v cannot be resolved", actuals));}
+             if(isEmpty(returnTypeForOverloadedActuals)) { s.report(error(current, "Call with %v arguments cannot be resolved", size(actuals)));}
              else return overloadedAType(returnTypeForOverloadedActuals);
         }
     }
@@ -702,7 +697,7 @@ AType computeADTType(Tree current, str adtName, loc scope, AType retType, list[A
                     actualTypes[i] = tp;
                     returnTypeForOverloadedActuals += <key, idr, computeADTReturnType(current, adtName, scope, retType, formalTypes, actuals, actualTypes, kwFormals, keywordArguments, identicalFormals, dontCare, isExpression, s)>;
                     //println("succeeds: <ovl>");
-                } catch checkFailed(set[Message] msgs): {
+                } catch checkFailed(list[FailMessage] fms): {
                     //println("fails: <ovl>");
                     ; // continue with next overload
                 }
@@ -763,7 +758,7 @@ void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, l
      
         next_arg:
         for(kwa <- keywordArgumentsExp.keywordArgumentList){ 
-            kwName = "<kwa.name>";
+            kwName = prettyPrintName(kwa.name);
             
             for(<ft, de> <- kwFormals){
                fn = ft.label;
@@ -772,7 +767,7 @@ void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, l
                   if(!isEmpty(bindings)){
                       try   ift = instantiateRascalTypeParams(ft, bindings);
                       catch invalidInstantiation(str msg):
-                            report(error(kwa, msg));
+                            s.report(error(kwa, msg));
                   }
                   kwType = isExpression ? s.getType(kwa.expression) : getPatternType(kwa.expression, ift, scope, s);
                   s.requireComparable(kwType, ift, error(kwa, "Keyword argument %q has type %t, expected %t", kwName, kwType, ift));
@@ -795,7 +790,7 @@ void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, l
      
         next_arg:
         for(kwa <- keywordArgumentsPat.keywordArgumentList){ 
-            kwName = "<kwa.name>";
+            kwName = prettyPrintName(kwa.name);
             
             for(<ft, de> <- kwFormals){
                fn = ft.label;
@@ -804,7 +799,7 @@ void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, l
                   if(!isEmpty(bindings)){
                       try   ift = instantiateRascalTypeParams(ft, bindings);
                       catch invalidInstantiation(str msg):
-                            report(error(kwa, msg));
+                            s.report(error(kwa, msg));
                   }
                   kwType = isExpression ? s.getType(kwa.expression) : getPatternType(kwa.expression, ift, scope, s);
                 s.requireComparable(kwType, ift, error(kwa, "Keyword argument %q has type %t, expected %t", kwName, kwType, ift));
@@ -844,11 +839,11 @@ void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, l
                    declaredType = s.getTypeInScope(adtName, scope, dataOrSyntaxIds);
                    checkKwArgs(getCommonKeywords(adtType, scope, s), keywordArguments, (), scope, s, isExpression=isExpression);
                    return subjectType;
-                } else if(acons(adtType:aadt(adtName, list[AType] parameters, _), /*str consName,*/ list[AType/*NamedField*/] fields, list[Keyword] kwFields) := subjectType){
+                } else if(acons(adtType:aadt(adtName, list[AType] parameters, _), list[AType] fields, list[Keyword] kwFields) := subjectType){
                    kwFormals = kwFields;
                    checkKwArgs(kwFormals + getCommonKeywords(adtType, scope, s), keywordArguments, (), scope, s, isExpression=isExpression);
                    return anode([]);
-                } else if(anode(list[AType/*NamedField*/] fields) := subjectType){
+                } else if(anode(list[AType] fields) := subjectType){
                     return computeNodeTypeWithKwArgs(current, keywordArguments, fields, scope, s);
                 } else if(avalue() := subjectType){
                     return anode([]);
@@ -860,21 +855,21 @@ void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, l
     }
 }
 
-AType computeNodeTypeWithKwArgs(Tree current, keywordArguments, list[AType/*NamedField*/] fields, loc scope, Solver s){
+AType computeNodeTypeWithKwArgs(Tree current, keywordArguments, list[AType] fields, loc scope, Solver s){
     switch(keywordArguments){
         case (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`: {
                if(keywordArgumentsExp is none) return anode([]);
                                
                nodeFieldTypes = [];
                nextKW:
-                   for(ft /*<fn, ft>*/ <- fields){
+                   for(ft <- fields){
                        fn = ft.label;
                        for(kwa <- keywordArgumentsExp.keywordArgumentList){ 
-                           kwName = "<kwa.name>";
+                           kwName = prettyPrintName(kwa.name);
                            if(kwName == fn){
                               kwType = getPatternType(kwa.expression,ft, scope, s);
                              s.requireUnify(ft, kwType, error(current, "Cannot determine type of field %q", fn));
-                              nodeFieldTypes += ft; //<fn, ft>;
+                              nodeFieldTypes += ft;
                               continue nextKW;
                            }
                        }    
@@ -889,7 +884,7 @@ AType computeNodeTypeWithKwArgs(Tree current, keywordArguments, list[AType/*Name
                    for(ft /*<fn, ft>*/ <- fields){
                        fn = ft.label;
                        for(kwa <- keywordArgumentsPat.keywordArgumentList){ 
-                           kwName = "<kwa.name>";
+                           kwName = prettyPrintName(kwa.name);
                            if(kwName == fn){
                               kwType = getPatternType(kwa.expression,ft, scope, s);
                               s.requireUnify(ft, kwType, error(current, "Cannot determine type of field %q", fn));
@@ -906,15 +901,15 @@ AType computeNodeTypeWithKwArgs(Tree current, keywordArguments, list[AType/*Name
     }
 }
 
-list[AType/*NamedField*/] computeKwArgs(keywordArguments, loc scope, Solver s, bool isExpression=true){
+list[AType] computeKwArgs(keywordArguments, loc scope, Solver s, bool isExpression=true){
     switch(keywordArguments){
         case (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`: {
             if(keywordArgumentsExp is none) return [];
  
             return for(kwa <- keywordArgumentsExp.keywordArgumentList){ 
-                kwName = "<kwa.name>";
+                kwName = prettyPrintName(kwa.name);
                 kwType = isExpression ? s.getType(kwa.expression) : getPatternType(kwa.expression, avalue(), scope, s);
-                append kwType[label=kwName]; //<kwName, kwType>;
+                append kwType[label=kwName];
             }
         }
         
@@ -922,9 +917,9 @@ list[AType/*NamedField*/] computeKwArgs(keywordArguments, loc scope, Solver s, b
             if(keywordArgumentsPat is none) return [];
  
             return for(kwa <- keywordArgumentsPat.keywordArgumentList){ 
-                kwName = "<kwa.name>";
+                kwName = prettyPrintName(kwa.name);
                 kwType = isExpression ? s.getType(kwa.expression) : getPatternType(kwa.expression, avalue(), scope, s);
-                append kwType[label=kwName]; //<kwName, kwType>;
+                append kwType[label=kwName];
             }
         }
         
@@ -934,7 +929,7 @@ list[AType/*NamedField*/] computeKwArgs(keywordArguments, loc scope, Solver s, b
 }
  
 list[Keyword] getCommonKeywords(aadt(str adtName, list[AType] parameters, _), loc scope, Solver s) =
-     [ <s.getType(kwf.\type)[label="<kwf.name>"], kwf.expression> | d <- s.getDefinitions(adtName, scope, dataOrSyntaxIds), kwf <- d.defInfo.commonKeywordFields ];
+     [ <s.getType(kwf.\type)[label=prettyPrintName(kwf.name)], kwf.expression> | d <- s.getDefinitions(adtName, scope, dataOrSyntaxIds), kwf <- d.defInfo.commonKeywordFields ];
      
 list[Keyword] getCommonKeywords(overloadedAType(rel[loc, IdRole, AType] overloads), loc scope, Solver s) = [ *getCommonKeywords(adt, scope, s) | <def, idr, adt> <- overloads ];
 default list[Keyword] getCommonKeywords(AType atype, loc scope, Solver s) = [];
@@ -971,11 +966,11 @@ void collect(current: (Expression) `( <{Mapping[Expression] ","}* mappings>)`, C
 // ---- qualified name
  
 void collect(current: (Expression) `<QualifiedName name>`, Collector c){
-    qname = convertName(name);
-    if(isQualified(qname)){     
-       c.useQualified([qname.qualifier, qname.name], name, {variableId(), functionId(), constructorId()}, dataOrSyntaxIds + {moduleId()} );
+    <qualifier, base> = splitQualifiedName(name);
+    if(!isEmpty(qualifier)){     
+       c.useQualified([qualifier, base], name, {variableId(), functionId(), constructorId()}, dataOrSyntaxIds + {moduleId()} );
     } else {
-       if(qname.name != "_"){
+       if(base != "_"){
           if(inPatternScope(c)){
             c.use(name, {variableId(), fieldId(), functionId(), constructorId()});
           } else {
@@ -1015,7 +1010,7 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl, list[Expre
         for(<key, role, tp> <- overloads){
             try {
                 subscript_overloads += <key, role, computeSubscriptionType(current, tp, tl, indexList, s)>;
-            } catch checkFailed(set[Message] msgs): {
+            } catch checkFailed(list[FailMessage] fms): {
                 ; // do nothing and try next overload
             } catch e: {
                 ; // do nothing and try next overload
@@ -1038,9 +1033,9 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl, list[Expre
             s.report(error(current, "For a relation with arity %v you can have at most %v subscripts", size(getRelFields(t1)), size(getRelFields(t1))-1));
         else {
             relFields = getRelFields(t1);
-            failures = { error(indexList[idx], "At subscript %v, subscript type %t must be comparable to relation field type %t",  idx+1, tl[idx], relFields[idx])
+            failures = [ error(indexList[idx], "At subscript %v, subscript type %t must be comparable to relation field type %t",  idx+1, tl[idx], relFields[idx])
                        | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],makeSetType(relFields[idx]))) 
-                       };
+                       ];
             if (size(failures) > 0) {
                 s.reports(failures);
             } else if ((size(relFields) - size(tl)) == 1) {
@@ -1056,9 +1051,9 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl, list[Expre
             s.report(error(current, "For a list relation with arity %v you can have at most %v subscripts", size(getListRelFields(t1)), size(getListRelFields(t1))-1));
         else {
             relFields = getListRelFields(t1);
-            failures = { error(indexList[idx], "At subscript %v, subscript type %t must be comparable to relation field type %t", idx+1, tl[idx], relFields[idx]) 
+            failures = [ error(indexList[idx], "At subscript %v, subscript type %t must be comparable to relation field type %t", idx+1, tl[idx], relFields[idx]) 
                        | idx <- index(tl), ! (comparable(tl[idx],relFields[idx]) || comparable(tl[idx],makeSetType(relFields[idx]))) 
-                       };
+                       ];
             if (size(failures) > 0) {
                 s.reports(failures);
             } else if ((size(relFields) - size(tl)) == 1) {
@@ -1139,7 +1134,7 @@ AType computeSliceType(Tree current, AType base, AType first, AType step, AType 
         for(<key, role, tp> <- overloads){
             try {
                 slice_overloads += <key, role, computeSliceType(current, tp, first, step, last, s)>;
-            } catch checkFailed(set[Message] msgs): {
+            } catch checkFailed(list[FailMessage] fms): {
                 ; // do nothing and try next overload
             } catch e:;  
         }
@@ -1147,7 +1142,7 @@ AType computeSliceType(Tree current, AType base, AType first, AType step, AType 
         return overloadedAType(slice_overloads);
     }
     
-    failures = {};
+    failures = [];
     if(!isIntType(first)) failures += error(current, "The first slice index must be of type `int`, found %t", first);
     if(!isIntType(step)) failures  += error(current, "The slice step must be of type `int`, found %t", step);
     if(!isIntType(last)) failures  += error(current, "The last slice index must be of type `int`, found %t", last);
@@ -1177,15 +1172,8 @@ void collect(current: (Expression) `<Expression e> [ <OptionalExpression ofirst>
 // ---- fieldAccess
 
 void collect(current: (Expression) `<Expression expression> . <Name field>`, Collector c){
-
     c.useViaType(expression, field, {fieldId()});
-    c.sameType(current, field);
-    //scope = c.getScope();
-    //
-    //ppname = prettyPrintQName(convertName(field));
-    //c.calculate("field `<ppname>`", current, [expression],
-    //    AType(Solver s){ 
-    //        return computeFieldType(current, s.getType(expression), ppname, scope, s); });
+    c.fact(current, field);
     collect(expression, c);
 }
 
@@ -1220,52 +1208,51 @@ public map[AType,map[str,AType]] fieldMap =
         )
     );
     
-public AType computeFieldType(Tree current, AType t1, Tree selector, loc scope, Solver s) {
-    fieldName = "<selector>";
-    if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
+public AType computeFieldType(Tree current, AType containerType, Tree selector, loc scope, Solver s) {
+    fieldName = unescape("<selector>");
+    if(overloadedAType(rel[loc, IdRole, AType] overloads) := containerType){
         field_overloads = {};
         for(<key, role, tp> <- overloads){
             try {
                 field_overloads += <key, role, computeFieldType(tp, selector, scope, s)>;
-            } catch checkFailed(set[Message] msgs): {
+            } catch checkFailed(list[FailMessage] fms): {
                 ; // do nothing and try next overload
             } catch e:;  
         }
-        if(isEmpty(field_overloads))  report(error(current, "Cannot access fields on type %t", t1));
+        if(isEmpty(field_overloads))  report(error(current, "Cannot access fields on type %t", containerType));
         return overloadedAType(field_overloads);
 
-    } else if(aadt(adtName, list[AType] actualTypeParams,_) := t1){
-        if ((getADTName(t1) == "Tree" || isNonTerminalType(t1)) && fieldName == "top") {
-            return t1;
+    } else if(aadt(adtName, list[AType] actualTypeParams,_) := containerType){
+        if ((getADTName(containerType) == "Tree" || isNonTerminalType(containerType)) && fieldName == "top") {
+            return containerType;
         }   
         fld_overloads = {};
         for(containerDef <- s.getDefinitions(adtName, scope, {dataId(), aliasId()})){    
             try {
-                selectorType = s.getTypeInScope("<selector>", containerDef.defined, {fieldId()});
+                selectorType = s.getTypeInScope(fieldName, containerDef.defined, {fieldId()});
                 //fld_overloads += <containerDef.defined, containerDef.idRole, selectorType>;
-                fld_overloads += <containerDef.defined, containerDef.idRole, rascalInstantiateTypeParameters(selector, s.getType(containerDef.defInfo), t1, selectorType, s)>;
+                fld_overloads += <containerDef.defined, containerDef.idRole, rascalInstantiateTypeParameters(selector, s.getType(containerDef.defInfo), containerType, selectorType, s)>;
              } catch TypeUnavailable():; /* ignore */
          }
          if(isEmpty(fld_overloads)){
-            s.report(error(selector, "Type of %q could not be computed for %t", selector, t1));
+            s.report(error(selector, "Type of %q could not be computed for %t", selector, containerType));
          } else {
             return overloadedAType(fld_overloads);
          }
     } else {
-        return computeFieldType(t1, selector, scope, s);
+        return computeFieldType(containerType, selector, scope, s);
     }
 }
     
-@doc{Compute the type of field fn on type t1. A checkFailed is thrown if the field is not defined on the given type.}
+@doc{Compute the type of field fn on type containerType. A checkFailed is thrown if the field is not defined on the given type.}
 public AType computeFieldType(AType containerType, Tree selector, loc scope, Solver s) {
     //println("computeFieldType: <containerType>, <selector>, <fieldName>");
    
-    t1 = containerType;
-    if(!s.isFullyInstantiated(t1)) throw TypeUnavailable();
-    fieldName = "<selector>";
+    if(!s.isFullyInstantiated(containerType)) throw TypeUnavailable();
+    fieldName = unescape("<selector>");
     current = selector;
     
-   if (isReifiedType(t1)) {
+   if (isReifiedType(containerType)) {
         if(s.getConfig().classicReifier){
             if (fieldName == "symbol") {
                 return s.getTypeInScope("Symbol", scope, {dataId()});
@@ -1290,225 +1277,67 @@ public AType computeFieldType(AType containerType, Tree selector, loc scope, Sol
                s.report(error(current, "Field %q does not exist on type `type`  (non-classic reifier)", fieldName));
             }
          }
-    } else if (isTupleType(t1)) {
-        if(tupleHasFieldNames(t1)){
-            idx = indexOf(getTupleFieldNames(t1), fieldName);
-            if(idx >= 0)
-                return getTupleFieldTypes(t1)[idx];
-            else
-                s.report(error(current, "Field %q does not exist on type %t", fieldName, t1));
-        } else {
-            s.report(error(current, "Field %q does not exist on type %t", fieldName, t1));
+    } else if(isStartNonTerminalType(containerType)){
+       return computeFieldType(current, getStartNonTerminalType(containerType), selector, scope, s);
+    } else if(isNonTerminalIterType(containerType)){
+        if(containerType.label == fieldName){
+            return makeListType(getNonTerminalIterElement(containerType));
         }
-    } else if (isLocType(t1)) {
+        println(containerType);
+    } else if (isTupleType(containerType)) {
+        if(tupleHasFieldNames(containerType)){
+            idx = indexOf(getTupleFieldNames(containerType), fieldName);
+            if(idx >= 0)
+                return getTupleFieldTypes(containerType)[idx];
+            else
+                s.report(error(current, "Field %q does not exist on type %t", fieldName, containerType));
+        } else {
+            s.report(error(current, "Field %q does not exist on type %t", fieldName, containerType));
+        }
+    } else if (isLocType(containerType)) {
         if (fieldName in fieldMap[aloc()])
             return fieldMap[aloc()][fieldName];
         else
-            s.report(error(current, "Field %q does not exist on type %t", fieldName, t1));
-    } else if (isDateTimeType(t1)) {
+            s.report(error(current, "Field %q does not exist on type %t", fieldName, containerType));
+    } else if (isDateTimeType(containerType)) {
         if (fieldName in fieldMap[adatetime()])
             return fieldMap[adatetime()][fieldName];
         else
-           s.report(error(current, "Field %q does not exist on type %t", fieldName, t1));
-    } else if (isRelType(t1)) {
-        idx = indexOf(getRelFieldNames(t1), fieldName);
+           s.report(error(current, "Field %q does not exist on type %t", fieldName, containerType));
+    } else if (isRelType(containerType)) {
+        idx = indexOf(getRelFieldNames(containerType), fieldName);
         if(idx >= 0){
-            return makeSetType(getRelFields(t1)[idx]); 
+            return makeSetType(getRelFields(containerType)[idx]); 
         }
         else
-           s.report(error(current, "Field %q does not exist on type %t", fieldName, t1));
-    } else if (isListRelType(t1)) {
-        idx = indexOf(getListRelFieldNames(t1), fieldName);
+           s.report(error(current, "Field %q does not exist on type %t", fieldName, containerType));
+    } else if (isListRelType(containerType)) {
+        idx = indexOf(getListRelFieldNames(containerType), fieldName);
         if(idx >= 0){
-            return makeListType(getListRelFields(t1)[idx]); 
+            return makeListType(getListRelFields(containerType)[idx]); 
         }
         else
-           s.report(error(current, "Field %q does not exist on type %t", fieldName, t1));
-    } else if (isMapType(t1)) {
-           idx = indexOf(getMapFieldNames(t1), fieldName);
+           s.report(error(current, "Field %q does not exist on type %t", fieldName, containerType));
+    } else if (isMapType(containerType)) {
+           idx = indexOf(getMapFieldNames(containerType), fieldName);
         if(idx >= 0){
-            return idx == 0 ? makeSetType(getMapDomainType(t1)) : makeSetType(getMapRangeType(t1));
+            return idx == 0 ? makeSetType(getMapDomainType(containerType)) : makeSetType(getMapRangeType(containerType));
         }
         else
-            s.report(error(current, "Field %q does not exist on type %t", fieldName, t1));
+            s.report(error(current, "Field %q does not exist on type %t", fieldName, containerType));
     
-    } else if (isNodeType(t1)) {
+    } else if (isNodeType(containerType)) {
         return avalue();
     } 
-    s.report(error(current, "Cannot access fields on type %t", t1));
+    s.report(error(current, "Cannot access fields on type %t", containerType));
 }
-
-//@doc{Compute the type of field fn on type t1. A checkFailed is thrown if the field is not defined on the given type.}
-//public AType computeFieldType(Tree current, AType t1, str fieldName, loc scope, Solver s) {
-//    println("computeFieldType: <current>, <t1>, <fieldName>");
-//    if(!s.isFullyInstantiated(t1)) throw TypeUnavailable();
-//    
-//    //t1 = expandUserTypes(t1, scope, s);
-//    if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
-//        field_overloads = {};
-//        for(<key, role, tp> <- overloads){
-//            try {
-//                field_overloads += <key, role, computeFieldType(current, tp, fieldName, scope, s)>;
-//            } catch checkFailed(set[Message] msgs): {
-//                ; // do nothing and try next overload
-//            } catch e:;  
-//        }
-//        if(isEmpty(field_overloads))  report(error(current, "Cannot access fields on type %t", t1));
-//        return overloadedAType(field_overloads);
-//        
-//     } else if (isReifiedType(t1)) {
-//        if(s.getConfig().classicReifier){
-//            if (fieldName == "symbol") {
-//                return s.getTypeInScope("Symbol", scope, {dataId()});
-//            } else if (fieldName == "definitions") {
-//               s.getTypeInScope("Symbol", scope, {dataId()});
-//                      
-//               s.getTypeInScope("Production", scope, {dataId()});
-//               return makeMapType(makeADTType("Symbol"), makeADTType("Production"));
-//                    
-//            } else {
-//               s.report(error(current, "Field %q does not exist on type `type` (classic reifier)", fieldName));
-//            }
-//         } else {
-//            if (fieldName == "symbol") {
-//                return s.getTypeInScope("AType", scope, {dataId()});
-//            } else if (fieldName == "definitions") {
-//               s.getTypeInScope("AType", scope, {dataId()});
-//               s.getTypeInScope("AProduction", scope, {dataId()});
-//               return makeMapType(makeADTType("AType"), makeADTType("AProduction"));
-//                    
-//            } else {
-//               s.report(error(current, "Field %q does not exist on type `type`  (non-classic reifier)", fieldName));
-//            }
-//         }
-//    } else if(isStartNonTerminalType(t1)){
-//       return computeFieldType(current, getStartNonTerminalType(t1), fieldName, scope, s);
-//    } else if (aadt(adtName, list[AType] actualTypeParams,_) := t1){
-//        try {
-//            if ((getADTName(t1) == "Tree" || isNonTerminalType(t1)) && fieldName == "top") {
-//                return t1;
-//            }
-//            //>>>>>>>>>>>>>>>>>>
-//            fieldType = s.getTypeInScope(fieldName, scope, {fieldId()});
-//            
-//            declaredInfo = s.getDefinitions(adtName, scope, dataOrSyntaxIds);
-//            declaredType = s.getTypeInScope(adtName, scope, dataOrSyntaxIds);
-//            if(isStartNonTerminalType(declaredType)){
-//                declaredType = getStartNonTerminalType(declaredType);
-//            }
-//      
-//            return computeADTFieldType(current, declaredType, fieldType, fieldName, actualTypeParams, declaredInfo, scope, s);             
-//                
-//        } catch TypeUnavailable(): { // TODO Remove try
-//            throw TypeUnavailable(); //report(error(current, "Cannot compute type of field <fmt(fieldName)>, user type <fmt(t1)> has not been declared or is out of scope"); 
-//        }
-//     
-//    } else if (isNonTerminalType(t1)){
-//       return computeFieldType(current, aadt("Tree", [], contextFreeSyntax()), fieldName, scope, s);
-//    } else if (isTupleType(t1)) {
-//        if(tupleHasFieldNames(t1)){
-//            idx = indexOf(getTupleFieldNames(t1), fieldName);
-//            if(idx >= 0)
-//                return getTupleFieldTypes(t1)[idx];
-//            else
-//                s.report(error(current, "Field %q does not exist on type %t", fieldName, t1));
-//        } else {
-//            s.report(error(current, "Field %q does not exist on type %t", fieldName, t1));
-//        }
-//    } else if (isLocType(t1)) {
-//        if (fieldName in fieldMap[aloc()])
-//            return fieldMap[aloc()][fieldName];
-//        else
-//            s.report(error(current, "Field %q does not exist on type %t", fieldName, t1));
-//    } else if (isDateTimeType(t1)) {
-//        if (fieldName in fieldMap[adatetime()])
-//            return fieldMap[adatetime()][fieldName];
-//        else
-//           s.report(error(current, "Field %q does not exist on type %t", fieldName, t1));
-//    } else if (isRelType(t1)) {
-//        idx = indexOf(getRelFieldNames(t1), fieldName);
-//        if(idx >= 0){
-//            return makeSetType(getRelFields(t1)[idx]); 
-//        }
-//        else
-//           s.report(error(current, "Field %q does not exist on type %t", fieldName, t1));
-//    } else if (isListRelType(t1)) {
-//        idx = indexOf(getListRelFieldNames(t1), fieldName);
-//        if(idx >= 0){
-//            return makeListType(getListRelFields(t1)[idx]); 
-//        }
-//        else
-//           s.report(error(current, "Field %q does not exist on type %t", fieldName, t1));
-//    } else if (isMapType(t1)) {
-//    	   idx = indexOf(getMapFieldNames(t1), fieldName);
-//        if(idx >= 0){
-//            return idx == 0 ? makeSetType(getMapDomainType(t1)) : makeSetType(getMapRangeType(t1));
-//        }
-//        else
-//            s.report(error(current, "Field %q does not exist on type %t", fieldName, t1));
-//    
-//    } else if (isNodeType(t1)) {
-//        return avalue();
-//    } 
-//    s.report(error(current, "Cannot access fields on type %t", t1));
-//}
-//
-//
-//AType computeADTFieldType(Tree current, AType declaredType, AType fieldType, str fieldName, list[AType] actualTypeParams, set[Define] declaredInfo, loc scope, Solver s){
-//        //println("getADTTypeParameters: <declaredType>");
-//        declaredTypeParams = getADTTypeParameters(declaredType);
-//        //println("getADTTypeParameters: <declaredType> ==\> <declaredTypeParams>");
-//                
-//        if (size(declaredTypeParams) > 0) {
-//            if (size(declaredTypeParams) != size(actualTypeParams)) {
-//                s.report(error(current, "Invalid ADT type, the number of type parameters is inconsistent"));
-//            } else {
-//                map[str, AType] bindings = ( getRascalTypeParamName(declaredTypeParams[idx]) : actualTypeParams[idx] | idx <- index(declaredTypeParams));
-//                if(!isEmpty(bindings)){
-//                    try {
-//                        fieldType = instantiateRascalTypeParams(fieldType, bindings);
-//                    } catch invalidInstantiation(str msg): {
-//                        report(error(current, "Failed to instantiate type parameters in field type %t", fieldType));
-//                    } 
-//                }                      
-//            }
-//        } 
-//        
-//        fieldType = filterFieldType(fieldName, fieldType, declaredInfo, scope, s);
-//        if(overloadedAType({}) !:= fieldType){
-//           return fieldType;
-//        } else if(declaredType has syntaxRole && isConcreteSyntaxRole(declaredType.syntaxRole)) {// TODO: remove has check?
-//           return computeFieldType(current, aadt("Tree", [], contextFreeSyntax()), fieldName, scope, s);
-//        }            
-//        
-//        s.report(error(current, "Field %q does not exist on type %t", fieldName, declaredType));
-//}
-//
-//AType filterFieldType(str fieldName, AType fieldType, set[Define] declaredInfo, loc scope, Solver s){
-//    //println("filterFieldType: <fieldName>");
-//    //iprintln(fieldType);
-//    //iprintln(declaredInfo);
-//    if(overloadedAType(rel[loc, IdRole, AType] overloads) := fieldType){
-//       filteredOverloads = {};
-//       for(<loc key, fieldId(), AType tp> <- overloads){
-//           for(Define def <- declaredInfo){     
-//               filteredOverloads += { <key, fieldId(), unset(expandUserTypes(ft, scope, s), "label")> | ft  <- def.defInfo.constructorFields, ft.label == fieldName, comparable(fieldType, tp)};
-//               filteredOverloads += { <key, fieldId(), unset(expandUserTypes(ft, scope, s), "label")> | <ft, de> <- def.defInfo.commonKeywordFields, ft.label == fieldName, comparable(fieldType, tp)};
-//           }
-//       }
-//       return ({<loc key, fieldId(), AType tp>} := filteredOverloads) ? tp : overloadedAType(filteredOverloads);
-//    } else {
-//        return fieldType;
-//    } 
-//}
 
 // ---- fieldUpdate
 
 void collect(current:(Expression) `<Expression expression> [ <Name field> = <Expression repl> ]`, Collector c){
     scope = c.getScope();
     //c.use(field, {fieldId()});
-    ppname = prettyPrintQName(convertName(field));
-    c.calculate("field update of `<ppname>`", current, [expression, repl],
+    c.calculate("field update of `<field>`", current, [expression, repl],
         AType(Solver s){ fieldType = computeFieldType(current, s.getType(expression), field, scope, s);
                  replType = s.getType(repl);
                  s.requireSubtype(replType, fieldType, error(current, "Cannot assign type %t into field of type %t", replType, fieldType));
@@ -1536,7 +1365,7 @@ AType computeFieldProjectionType(Expression current, AType base, list[lang::rasc
         for(<key, role, tp> <- overloads){
             try {
                 projection_overloads += <key, role, computeFieldProjectionType(current, tp, fields, s)>;
-            } catch checkFailed(set[Message] msgs): {
+            } catch checkFailed(list[FailMessage] fms): {
                 ; // do nothing and try next overload
             } catch e:;
         }
@@ -1560,7 +1389,7 @@ AType computeFieldProjectionType(Expression current, AType base, list[lang::rasc
     }
     
     // Find the field type and name for each index
-    set[FailMessage] failures = { };
+    list[FailMessage] failures = [];
     list[AType] subscripts = [ ];
     list[str] fieldNames = [ ];
     bool maintainFieldNames = tupleHasFieldNames(rt);
