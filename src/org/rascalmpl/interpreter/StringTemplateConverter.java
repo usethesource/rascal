@@ -38,17 +38,20 @@ import org.rascalmpl.ast.StringTemplate.For;
 import org.rascalmpl.ast.StringTemplate.IfThen;
 import org.rascalmpl.ast.StringTemplate.IfThenElse;
 import org.rascalmpl.ast.StringTemplate.While;
+import org.rascalmpl.interpreter.Accumulator;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.parser.ASTBuilder;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.SymbolAdapter;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
   
 public class StringTemplateConverter {
 	private static int labelCounter = 0;
@@ -117,18 +120,8 @@ public class StringTemplateConverter {
 				// TODO: this is expensive, replace by a lazy IString.indent(IString i)?
 				IString fill = __eval.getCurrentIndent();
 				IString content = ((IString)v);
-				StringBuilder sb = new StringBuilder();
-				
-				// this iterates over the entire content of the interpolated string to find out
-				// where the newlines are:
-				for (int ch : content) {
-					sb.appendCodePoint(ch);
-					if (ch == '\n') {
-						sb.append(fill.getValue());
-					}
-				}
-				v = vf.string(sb.toString());
-				target.appendString((IString) v);
+				target.appendString(content.indent(fill, false));
+
 				return result;
 			}
 			
