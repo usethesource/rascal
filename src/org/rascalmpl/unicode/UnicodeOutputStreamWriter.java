@@ -18,31 +18,25 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 
 public class UnicodeOutputStreamWriter extends OutputStreamWriter {
-	private boolean firstWrite;
-	private ByteOrderMarker bom;
-	private OutputStream out;
 
-	public UnicodeOutputStreamWriter(OutputStream out, String charsetName)
-			throws UnsupportedEncodingException {
+	public UnicodeOutputStreamWriter(OutputStream out, String charsetName) throws IOException {
 		super(out, getCharset(charsetName));
-		bom = ByteOrderMarker.fromString(charsetName);
+		
+		ByteOrderMarker bom = ByteOrderMarker.fromString(charsetName);
 	 	if (bom != null && bom.shouldBom()) {
-			firstWrite = true;
-			this.out = out;
+	 	    writeBOM(bom, out);
 		}
-	 	else {
-	 		firstWrite = false;
-	 	}
 	}
 
-	public UnicodeOutputStreamWriter(OutputStream out, String charsetName, boolean append) throws UnsupportedEncodingException {
-		this(out, charsetName);
-		if (append) {
-			// no writing of bom in case of append
-			firstWrite = false;
-			this.out = null;
-		}
-		
+	public UnicodeOutputStreamWriter(OutputStream out, String charsetName, boolean append) throws IOException {
+	    super(out, getCharset(charsetName));
+	    
+	    if (!append) {
+	        ByteOrderMarker bom = ByteOrderMarker.fromString(charsetName);
+	        if (bom != null && bom.shouldBom()) {
+	            writeBOM(bom, out);
+	        } 
+	    }
 	}
 
 	private static Charset getCharset(String charsetName) throws UnsupportedEncodingException {
@@ -56,32 +50,9 @@ public class UnicodeOutputStreamWriter extends OutputStreamWriter {
 		throw new UnsupportedEncodingException("Charset " + charsetName + " is not supported");
 	}
 
-	private void assureBOM() throws IOException {
-		if (firstWrite) {
-			firstWrite = false;
-			for (int b: bom.getHeader()) {
-				this.out.write(b);
-			}
-			out = null; // remove duplicate reference
-		}
-	}
-	
-	@Override
-	public void write(char[] cbuf, int off, int len) throws IOException {
-		assureBOM();
-		super.write(cbuf, off, len);
-	}
-
-	
-	@Override
-	public void write(int c) throws IOException {
-		assureBOM();
-		super.write(c);
-	}
-	
-	@Override
-	public void write(String str, int off, int len) throws IOException {
-		assureBOM();
-		super.write(str, off, len);
+	void writeBOM(ByteOrderMarker bom, OutputStream out) throws IOException {
+	    for (int b: bom.getHeader()) {
+	        out.write(b);
+	    }
 	}
 }
