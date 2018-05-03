@@ -1,0 +1,18 @@
+# Configuration of TypePal
+  
+.Synopsis
+Configuration options for TypePal
+
+.Description
+
+TypePal provides configuration options for
+
+* _Name Resolution and Overloading_: configures how names are resolved and which overloading is allowed.
+* _Operations on Types_: configures how operations like subtype and least-upper-bound (lub) are defined.
+* _Retrieval of Types_: configures how named and structured types are handled.
+* _Extension Points_: configures operations before an after solving.
+* _Miscellaneous_: 
+
+Here is an overview:
+
+image::TypePalConfig.png[800,600,align="center"]
