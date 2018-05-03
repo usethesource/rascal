@@ -1,12 +1,12 @@
 # Build a TModel
 
 .Synopsis
-A `TBuilder` enables the incremental addition of facts, requirements and calculators to a `TModel`.
+A `Collector` enables the incremental addition of facts, requirements and calculators to a `TModel`.
 
 .Description
 
-A `TBuilder` is a statefull functional object that provides all the functions described below
-to access and change its internal state. The global services provided by a `TBuilder` are:
+A `Collector` is a statefull functional object that provides all the functions described below
+to access and change its internal state. The global services provided by a `Collector` are:
 
 * Register facts, requirements and calculators as collected from the source program.
 * Maintain a global (key,value) store to store global information relevant for the collection process. Typical examples are:
@@ -22,18 +22,18 @@ to access and change its internal state. The global services provided by a `TBui
     (a) they occur inside a loop statement; (b) which loop statement they should (dis)continue.
 * Reporting.
 
-The functions provided by a `TBuilder` and its lifecycle looks like this:
+The functions provided by a `Collector` and its lifecycle looks like this:
 
-image::TBuilder.png[500,500,align="center"]
+image::Collector.png[500,500,align="center"]
 
 
-The `TBuilder` is represented as a data type with a single constructor
+The `Collector` is represented as a data type with a single constructor
 that has fields that correspond to the functions provided by the builder.
-For instance, calling the `define` function on a `TBuilder` named `tb` amounts to: `tb.define(the-arguments-of-define)`.
+For instance, calling the `define` function on a `Collector` named `c` amounts to: `c.define(the-arguments-of-define)`.
 
 Two dozen functions are available that fall into the following categories:
 
-* _Create, Collect & Build_: create `TBuilder`, collect information from source program, and build the `TModel`.
+* _Create, Collect & Build_: create `Collector`, collect information from source program, and build the `TModel`.
 * _Define & Use_: define and use identifiers in various ways.
 * _Facts, Requirements & Calculators_: establish facts, define requirements and calculators.
 * _Inference_: create new type variables for type inference.
@@ -45,39 +45,34 @@ Two dozen functions are available that fall into the following categories:
 The builder functions are applied repeatedly until all
 information has been collected from the source program.
 
-Finally, `build` creates the desired `TModel` that will be used for validation.
+Finally, `run` creates the desired `TModel` that will be used for validation.
       
 == Create, Collect & Build
-A `TBuilder` is created using the function `newTBuilder`. By way of `build` it is converted into a `TModel`.
+A `Collector` is created using the function `newCollector`. By way of `build` it is converted into a `TModel`.
 [source,rascal]
 ----
-TBuilder newTBuilder();    
+Collector newCollector();    
 TModel build();
 ----
 Given a parse tree `pt` of the program to be checked, a typical scenario is:
 [source,rascal]
 ----
-tb = newTBuilder();
-collect(pt, tb);
-model = tb.build();
+c = newCollector();
+collect(pt, c);
+model = c.run();
 ... continue with validation ...
 ----
 NOTE: The `collect` function has to be supplied by the author of the type checker and looks like this:
 [source,rascal]
 ----
-void collect(LanguageConstruct lc, TBuilder tb){ ... }
+void collect(LanguageConstruct lc, Collector c){ ... }
 ----
 where:
 
 * `lc` is a syntactic type from the language under consideration.
-* `tb` is a `TBuilder`.
+* `c` is a `Collector`.
 
-NOTE: Each collect function is responsible for visiting its subtrees. This achieved by the following mandatory call
-at the end of each `collect` function:
-[source,rascal]
-----
-collectParts(lc, tb);
-----
+NOTE: Each collect function is responsible for visiting its subtrees.
         
 == Define & Use
 
