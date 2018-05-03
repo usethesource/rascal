@@ -186,7 +186,7 @@ bool isdef(Grammar g, Symbol s) = g.rules[s]?;
 
 
 public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
-  Maybe[Production] find(str c, Symbol t) = (/q:prod(label(c,t),_,_) := (g.rules[t]?choice(s,{}))) ? just(q) : nothing();
+  Maybe[Production] find(str c, Symbol t) = (/Production q:prod(label(c,t),_,_) := (g.rules[t]?choice(s,{}))) ? just(q) : nothing();
   
   switch (s) {
     case \opt(conditional(t,cs)) : 
