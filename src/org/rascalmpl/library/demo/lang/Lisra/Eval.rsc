@@ -62,7 +62,7 @@ default Result eval(List([ *Lval exps ]), Env e) { // <9>
 
                                                             
 // Apply an Lval to a list of arguments and return a Result
-Result apply(Closure(Result(list[Lval] args, Env env) fn), args, Env e) { // <10>
+Result apply(Closure(Result(list[Lval] args, Env env) fn), list[Lval] args, Env e) { // <10>
   return <fn(args, e).val, e>;
 }
 
