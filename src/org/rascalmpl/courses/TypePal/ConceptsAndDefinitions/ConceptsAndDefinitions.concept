@@ -13,7 +13,8 @@ each name as a string. _Qualified names_ are also supported and are represented 
 == Tree
 
 The Rascal data type `Tree` (REF) is used to represent all parse trees that can be generated for any syntax described in Rascal.
-`Tree` is also a super type of any syntactic construct that may occur in a parse tree. In TypePal we use `Tree` to uniquely 
+`Tree` is also a super type of any syntactic construct that may occur in a parse tree. In TypePal we interchangeably use `Tree` and the source area
+(a source location) from it has been derived to uniquely 
 identify program parts, definitions, uses and scopes.
 
 == Scope
@@ -23,7 +24,13 @@ redefines that same identifier. In that case, the inner definition applies insid
 Scopes are represented by the subtree of the parse tree that corresponds to their textual extent.
 Examples of scopes are a module or function scope.
 
-
+== Scope Graph
+The scope graph is one of the the oldest method to describe the scope of names in a program.
+We use a version of scope graphs as described by Kastens & Waite, Name analysis for modern languages: a general solution, SP&E, 2017.
+This model uses text ranges in the source text (happily represented by Rascal's `loc` data type) to identify 
+and define all aspects of names. 
+A scope graph provides lookup operations on names that takes both syntactic nesting and semantic linking (via paths) into account,
+as well as the specific roles of identifiers and paths (described below).
 
 == Path
 TypePal is based on scope graphs that are not only based on syntactic containment of scopes but can also express semantic 
@@ -42,14 +49,6 @@ data PathLabel
     ;
 ----
 Paths are, amongst others, used in the resolution of qualified names.
-
-== Scope Graph
-The scope graph is one of the the oldest method to describe the scope of names in a program.
-We use a version of scope graphs as described by Kastens & Waite, Name analysis for modern languages: a general solution, SP&E, 2017.
-This model uses text ranges in the source text (happily represented by Rascal's `loc` data type) to identify 
-and define all aspects of names. 
-A scope graph provides lookup operations on names that takes both syntactic nesting and semantic linking (via paths) into account,
-as well as the specific roles of identifiers and paths (described below).
 
 == Name Resolution
 Name resolution is based on the principle: __syntactic resolution first, semantic resolution second__.

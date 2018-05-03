@@ -1,11 +1,11 @@
 # Validate a TModel
 
 .Synopsis
-The functions available during validation
+The functions available during constraint solving
 
 .Description
-Recall that requirements and calculators use function parameters of the respective types `void() predicates` and
-`AType() calculator`. Although this are ordinary Rascal functions it is useful to summarize the TypePal-specific
+Recall that requirements and calculators use function parameters of the respective types `void(Solver s) predicates` and
+`AType(Solver s) calculator`. Although this are ordinary Rascal functions it is useful to summarize the TypePal-specific
 functions that can be used inside these functions:
 
 
