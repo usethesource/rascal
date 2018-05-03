@@ -1,11 +1,11 @@
-# Build a TModel
+# Collect constraints for a TModel
 
 .Synopsis
 A `Collector` enables the incremental addition of facts, requirements and calculators to a `TModel`.
 
 .Description
 
-A `Collector` is a statefull functional object that provides all the functions described below
+A `Collector` is a statefull object that provides all the functions described below
 to access and change its internal state. The global services provided by a `Collector` are:
 
 * Register facts, requirements and calculators as collected from the source program.
@@ -22,7 +22,7 @@ to access and change its internal state. The global services provided by a `Coll
     (a) they occur inside a loop statement; (b) which loop statement they should (dis)continue.
 * Reporting.
 
-The functions provided by a `Collector` and its lifecycle looks like this:
+The functions provided by a `Collector` are summarized below:
 
 image::Collector.png[500,500,align="center"]
 
@@ -33,22 +33,24 @@ For instance, calling the `define` function on a `Collector` named `c` amounts t
 
 Two dozen functions are available that fall into the following categories:
 
-* _Create, Collect & Build_: create `Collector`, collect information from source program, and build the `TModel`.
+* _Create: create `Collector`, collect information from source program, and build the `TModel`.
 * _Define & Use_: define and use identifiers in various ways.
-* _Facts, Requirements & Calculators_: establish facts, define requirements and calculators.
+* _Calculate. Require & Facts_: define requirements and calculators and establish facts.
 * _Inference_: create new type variables for type inference.
 * _Scoping_: enter and leave a scope, ask for current scope.
 * _Scope Info_: add information to the current scope or retrieve that information.
 * _Global Info_: add global information or retrieve that information.
+* _Nested Info_: maintain nested information during collection.
 * _Reporting_: report errors and warnings.
+* _Composition_: add another TModel to the current one.
 
 The builder functions are applied repeatedly until all
 information has been collected from the source program.
 
-Finally, `run` creates the desired `TModel` that will be used for validation.
+Finally, `run` creates the desired `TModel` that will be used by the Solver.
       
-== Create, Collect & Build
-A `Collector` is created using the function `newCollector`. By way of `build` it is converted into a `TModel`.
+== Create
+A `Collector` is created using the function `newCollector`. By way of `run` it is converted into a `TModel`.
 [source,rascal]
 ----
 Collector newCollector();    
@@ -60,7 +62,7 @@ Given a parse tree `pt` of the program to be checked, a typical scenario is:
 c = newCollector();
 collect(pt, c);
 model = c.run();
-... continue with validation ...
+... continue with Solver ...
 ----
 NOTE: The `collect` function has to be supplied by the author of the type checker and looks like this:
 [source,rascal]
