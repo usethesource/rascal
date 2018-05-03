@@ -23,9 +23,9 @@ This whole process starts with a syntax for the language we want to analyze (let
 The _L_ syntax is used to parse the _L_ program we want to type check. The result is a parse tree.
 
 Collecting facts, requirements and calculators from the resulting parse tree is based on the builder pattern:
-first a new `TBuilder` (an `TModel` builder) is created and that enables the author of the type checker
+first a new `Collector` is created and that enables the author of the type checker
 to add facts and requirements to the `TModel` depending on the specific input program.
-Collection uses the parse tree, the `TBuilder`, and user-supplied declarations for the types in _L_ 
+Collection uses the parse tree, the `Collector`, and user-supplied declarations for the types in _L_ 
 (user-defined extensions of TypePal's built-in `AType` data type)
 as well as rules for collecting facts, requirements and calculators (user-defined `collect` functions). This collection process is strictly _local_ and based
 on the nested structure of the parse tree and the result is an initial `TModel`.
@@ -35,7 +35,7 @@ such _non-local_, _semantic paths_ are resolved in a separate path resolution ph
 
 After path resolution, an `TModel` is available that can be validated.
 
-The validation phase can be further specialized by providing additional declarations for:
+The Solver phase can be further specialized by providing in the TypePal configuration additional declarations for:
 
 * When the language _L_ uses subtyping:
 
@@ -50,7 +50,7 @@ The validation phase can be further specialized by providing additional declarat
     ** `isAcceptableQualified`: accepts or rejects a proposed definition for the use of a qualified name in a particular role.
     ** `isAcceptablePath`: accepts or rejects an proposed access path between use and definition.
 
-The result of validation is an enriched `TModel` that contains, amongst others, messages regarding violated requirements
+The result of the Solver is an enriched `TModel` that contains, amongst others, messages regarding violated requirements
 or types that could not be computed.
 It can also be used to generate other usefull information about the program such as a use-def relation and
 the used vocabulary (used for name completion).
