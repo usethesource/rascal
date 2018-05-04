@@ -24,12 +24,13 @@ to access and change its internal state. The global services provided by a `Coll
 
 The functions provided by a `Collector` are summarized below:
 
-image::Collector.png[500,500,align="center"]
+image::Collector.png[800,600,align="center"]
 
 
-The `Collector` is represented as a data type with a single constructor
-that has fields that correspond to the functions provided by the builder.
-For instance, calling the `define` function on a `Collector` named `c` amounts to: `c.define(the-arguments-of-define)`.
+Technically, `Collector` is a datatype with a single constructur and with a number of functions as fields,
+For instance, given a  `Collector` named `c`, calling the `define` function amounts to: `c.define(the-arguments-of-define)`.
+All Collector functions are prefixed with `/* Collector field */` to emphasize that they
+are a field of the Collector datatype.
 
 Two dozen functions are available that fall into the following categories:
 
@@ -39,22 +40,22 @@ Two dozen functions are available that fall into the following categories:
 * _Inference_: create new type variables for type inference.
 * _Scoping_: enter and leave a scope, ask for current scope.
 * _Scope Info_: add information to the current scope or retrieve that information.
-* _Global Info_: add global information or retrieve that information.
-* _Nested Info_: maintain nested information during collection.
-* _Reporting_: report errors and warnings.
+* _Global Info_: add global information or retrieve that information; this is available during collection and solving.
+* _Nested Info_: maintain nested information during collection; this is only available during collection.
+* _Reporting_: report errors, warnings and info messages.
 * _Composition_: add another TModel to the current one.
 
 The builder functions are applied repeatedly until all
 information has been collected from the source program.
 
 Finally, `run` creates the desired `TModel` that will be used by the Solver.
-      
+
 == Create
 A `Collector` is created using the function `newCollector`. By way of `run` it is converted into a `TModel`.
 [source,rascal]
-----
-Collector newCollector();    
-TModel run();
+---- 
+Collector newCollector(Tree pt, TypePalConfig config = tconfig(), bool debug = true);   
+/* Collector field */ TModel () run;
 ----
 Given a parse tree `pt` of the program to be checked, a typical scenario is:
 [source,rascal]
@@ -83,7 +84,7 @@ NOTE: Each collect function is responsible for visiting its subtrees.
 The function `define` is used to add in the _current_ scope the definition of a name to the TModel:
 [source,rascal]
 ----
-void define(str id, IdRole idRole, Tree def, DefInfo info);
+/* Collector field */  void (str id, IdRole idRole, Tree def, DefInfo info) define;
 ----
 where:
 
@@ -97,7 +98,7 @@ There are four functions to describe the occurrence of a name in a parse tree as
 The most elementary use of a name is described by:
 [source,rascal]
 ----
-void use(Tree occ, set[IdRole] idRoles) use,
+/* Collector field */ void (Tree occ, set[IdRole] idRoles) use,
 ----
 The parse tree `occ` is a use to be resolved in the current scope in one of the given roles `idRoles`.
 The use of a variable in an expression is typically modelled with this use function.
@@ -106,7 +107,7 @@ The use of a variable in an expression is typically modelled with this use funct
 The next version of use, represents a use that refers to another tree using a specific path label:
 [source,rascal]
 ----
-void useViaPath(Tree occ, set[IdRole] idRoles, PathRole pathRole);
+/* Collector field */ void (Tree occ, set[IdRole] idRoles, PathRole pathRole) useViaPath;
 ----
 
 === Use a qualified name
@@ -115,7 +116,7 @@ Next we consider the use of qualified names, i.e., a list of identifiers that wi
 We will call these identifiers (except the last one) qualifiers and the last one the qualified identifier.
 [source,rascal]
 ----
-void useQualified(list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles);  
+/* Collector field */ void (list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles) useQualified;  
 ----
 
 Here `ids` is the qualified name, `occ` is the actual occurrence, and there are two sets of roles:
@@ -124,7 +125,13 @@ Here `ids` is the qualified name, `occ` is the actual occurrence, and there are 
 === Use a qualified name via a path
 [source,rascal]
 ----
-void useQualifiedViaPath(list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles, PathRole pathRole);   
+/* Collector field */ void (list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles, PathRole pathRole) useQualifiedViaPath;   
+----  
+
+=== Use a name via a nother type
+[source,rascal]
+----
+/* Collector field */ void (Tree container, Tree selector, set[IdRole] idRolesSel) useViaType
 ----  
 
 == Require, Calculate & Facts
@@ -133,74 +140,82 @@ void useQualifiedViaPath(list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRol
 A fact is known type information for a program fragment and is defined using:
 [source,rascal]
 ----
-void fact(Tree src, AType tp);
+/* Collector field */ void (Tree target, value src) fact;
 ----
+`src` can be either an `AType` or ` `Tree`. In the latter case its type is retrieved using `getType`.
 
 === Define a requirement
 [source,rascal]
 ----
-void require(str name, Tree src, list[value] dependencies, void() preds) require;
-void requireEager(str name, Tree src, list[value] dependencies, void() preds);
-----      
+/* Collector field */ void (str name, Tree src, list[value] dependencies, void() preds) require;
+/* Collector field */ void (str name, Tree src, list[value] dependencies, void() preds) requireEager;
+----
+
+[source,rascal]
+----
+/* Collector field */ void (value l, value r, FailMessage fmsg) requireEqual;
+/* Collector field */ void (value l, value r, FailMessage fmsg) requireComparable;
+/* Collector field */ void (value l, value r, FailMessage fmsg) requireSubtype;
+/* Collector field */ void (value l, value r, FailMessage fmsg) requireUnify;   
 
 === Define a calculator
 [source,rascal]
 ----      
-void calculate(str name, Tree src, list[value] dependencies, AType() calculator);
-void calculateEager(str name, Tree src, list[value] dependencies, AType() calculator);
+/* Collector field */ void (str name, Tree src, list[value] dependencies, AType() calculator) calculate;
+/* Collector field */ void (str name, Tree src, list[value] dependencies, AType() calculator) calculateEager;
 ----
 
 == Inference
 [source,rascal]
 ----   
-AType newTypeVar();
+/* Collector field */ AType (value src) newTypeVar;
 ----
 
 == Scoping
 [source,rascal]
 ----      
-void enterScope(Tree inner);
-void leaveScope(Tree inner);
-loc () getScope,
+/* Collector field */ void (Tree inner) enterScope;
+/* Collector field */ void (Tree inner) leaveScope;
+/* Collector field */ loc () getScope,
 ----
 
 == Scope Info
 [source,rascal]
 ----    
-void setScopeInfo(Key scope, ScopeRole scopeRole, value info);
-lrel[Key scope, value scopeInfo]  getScopeInfo(ScopeRole scopeRole);
+/* Collector field */ void (Key scope, ScopeRole scopeRole, value info) setScopeInfo;
+/* Collector field */ lrel[Key scope, value scopeInfo]  (ScopeRole scopeRole) getScopeInfo;
 ----
 
 == Global Info
 [source,rascal]
 ----    
-void store(str key, value val);
-set[value] getStored(str key);
+/* Collector field */ void (str key, value val) store;
+/* Collector field */ set[value] (str key) getStored;
 ----
 
 == Nested Info
 [source,rascal]
 ----    
-push
-pop
-top
-getStack
-clearStack
+/* Collector field */ void (str key, value val) push
+/* Collector field */ value (str key) pop,
+/* Collector field */ value (str key) top,
+/* Collector field */ list[value] (str key) getStack,
+/* Collector field */ void (str key) clearStack,
 ----
 
 == Composition
 [source,rascal]
 ----    
-void addTModel(TModel tm);
+/* Collector field */ void (TModel tm) addTModel;
 ----
 
 == Reporting
 [source,rascal]
 ----
-void reportError(Tree src, str msg);
-void reportWarning(Tree src, str msg);
-void reportInfo(Tree src, str msg);
+/* Collector field */ void (FailMessage fmsg) report;
+/* Collector field */ void (list[FailMessage] fmgs) reports;
 ----
 
+See <<Reporting>> for a description of `FailMessage`.
  
        
