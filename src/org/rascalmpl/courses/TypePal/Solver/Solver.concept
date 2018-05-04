@@ -1,4 +1,4 @@
-# Solver: solve constraints
+# Solver
 
 .Synopsis
 A Solver tries to solve the constraints in a TModel; unsolved constraints produce error messages
@@ -10,6 +10,11 @@ functions that can be used inside these functions:
 
 
 image::Solver.png[800,600,align="center"]
+
+The result of the Solver is an enriched `TModel` that contains, amongst others, messages regarding violated requirements
+or types that could not be computed.
+It can also be used to generate other usefull information about the program such as a use-def relation and
+the used vocabulary (used for name completion).
 
 == getType
 The workhorse of TypePal is the function `getType` that determines the type of given tree or source location.

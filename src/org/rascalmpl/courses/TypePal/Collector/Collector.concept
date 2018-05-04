@@ -1,7 +1,7 @@
-# Collector: collect constraints from source code
+# Collector
 
 .Synopsis
-A `Collector` enables the incremental addition of facts, requirements and calculators to a `TModel`.
+A `Collector` collects constraints from source code and produces an initial `TModel`.
 
 .Description
 
@@ -33,7 +33,7 @@ For instance, calling the `define` function on a `Collector` named `c` amounts t
 
 Two dozen functions are available that fall into the following categories:
 
-* _Create_: create `Collector`, collect information from source program, and build a `TModel`.
+* _Create_: create `Collector`, collect information from source program, and build initial `TModel`.
 * _Define & Use_: define and use identifiers in various ways.
 * _Calculate. Require & Facts_: define requirements and calculators and establish facts.
 * _Inference_: create new type variables for type inference.
