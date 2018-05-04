@@ -1,7 +1,7 @@
-# Validate a TModel
+# Solver: solve constraints
 
 .Synopsis
-The functions available during constraint solving
+A Solver tries to solve the constraints in a TModel; unsolved constraints produce error messages
 
 .Description
 Recall that requirements and calculators use function parameters of the respective types `void(Solver s) predicates` and
@@ -9,7 +9,7 @@ Recall that requirements and calculators use function parameters of the respecti
 functions that can be used inside these functions:
 
 
-image::RequireAndCalculate.png[200,200,align="center"]
+image::Solver.png[800,600,align="center"]
 
 == getType
 The workhorse of TypePal is the function `getType` that determines the type of given tree or source location.
