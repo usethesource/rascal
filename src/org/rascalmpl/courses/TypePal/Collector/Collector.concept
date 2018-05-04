@@ -142,7 +142,7 @@ A fact is known type information for a program fragment and is defined using:
 ----
 /* Collector field */ void (Tree target, value src) fact;
 ----
-`src` can be either an `AType` or ` `Tree`. In the latter case its type is retrieved using `getType`.
+`src` can be either an `AType` or `Tree`. In the latter case its type is retrieved using `getType`.
 
 === Define a requirement
 [source,rascal]
@@ -156,7 +156,8 @@ A fact is known type information for a program fragment and is defined using:
 /* Collector field */ void (value l, value r, FailMessage fmsg) requireEqual;
 /* Collector field */ void (value l, value r, FailMessage fmsg) requireComparable;
 /* Collector field */ void (value l, value r, FailMessage fmsg) requireSubtype;
-/* Collector field */ void (value l, value r, FailMessage fmsg) requireUnify;   
+/* Collector field */ void (value l, value r, FailMessage fmsg) requireUnify; 
+----  
 
 === Define a calculator
 [source,rascal]

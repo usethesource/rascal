@@ -139,7 +139,7 @@ data AType
 The typechecker author has to provide a function to convert `AType`s to string (it is used create readable error messages):
 [source,rascal]
 ----
-str AType2String(AType atype);
+str prettyPrintAType(AType atype);
 ----
 
 == DefInfo
