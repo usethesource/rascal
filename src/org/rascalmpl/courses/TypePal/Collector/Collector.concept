@@ -1,4 +1,4 @@
-# Collect constraints for a TModel
+# Collector: collect constraints from source code
 
 .Synopsis
 A `Collector` enables the incremental addition of facts, requirements and calculators to a `TModel`.
@@ -33,7 +33,7 @@ For instance, calling the `define` function on a `Collector` named `c` amounts t
 
 Two dozen functions are available that fall into the following categories:
 
-* _Create: create `Collector`, collect information from source program, and build the `TModel`.
+* _Create_: create `Collector`, collect information from source program, and build a `TModel`.
 * _Define & Use_: define and use identifiers in various ways.
 * _Calculate. Require & Facts_: define requirements and calculators and establish facts.
 * _Inference_: create new type variables for type inference.
@@ -54,7 +54,7 @@ A `Collector` is created using the function `newCollector`. By way of `run` it i
 [source,rascal]
 ----
 Collector newCollector();    
-TModel build();
+TModel run();
 ----
 Given a parse tree `pt` of the program to be checked, a typical scenario is:
 [source,rascal]
@@ -127,7 +127,7 @@ Here `ids` is the qualified name, `occ` is the actual occurrence, and there are 
 void useQualifiedViaPath(list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles, PathRole pathRole);   
 ----  
 
-== Facts, Requirements & Calculators
+== Require, Calculate & Facts
 
 === Define a fact
 A fact is known type information for a program fragment and is defined using:
@@ -178,8 +178,23 @@ void store(str key, value val);
 set[value] getStored(str key);
 ----
 
+== Nested Info
+[source,rascal]
+----    
+push
+pop
+top
+getStack
+clearStack
+----
 
-== Error reporting
+== Composition
+[source,rascal]
+----    
+void addTModel(TModel tm);
+----
+
+== Reporting
 [source,rascal]
 ----
 void reportError(Tree src, str msg);
