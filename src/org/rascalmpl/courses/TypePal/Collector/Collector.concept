@@ -128,7 +128,7 @@ Here `ids` is the qualified name, `occ` is the actual occurrence, and there are 
 /* Collector field */ void (list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles, PathRole pathRole) useQualifiedViaPath;   
 ----  
 
-=== Use a name via a nother type
+=== Use a name via another type
 [source,rascal]
 ----
 /* Collector field */ void (Tree container, Tree selector, set[IdRole] idRolesSel) useViaType
@@ -145,12 +145,17 @@ A fact is known type information for a program fragment and is defined using:
 `src` can be either an `AType` or `Tree`. In the latter case its type is retrieved using `getType`.
 
 === Define a requirement
+A requirement is a predicate regarding the type or properties of a source tree fragment `src`.
+A requirement has a name (for reporting purposes) and a list of dependencies whose types have to be known before this
+requirement can be computed.
 [source,rascal]
 ----
 /* Collector field */ void (str name, Tree src, list[value] dependencies, void() preds) require;
 /* Collector field */ void (str name, Tree src, list[value] dependencies, void() preds) requireEager;
 ----
 
+More specific requiremens can be expressed for checking that two subtrees or types are equal or comparable, can ne unified,
+or that the one is a subtype of the other:
 [source,rascal]
 ----
 /* Collector field */ void (value l, value r, FailMessage fmsg) requireEqual;
@@ -158,8 +163,11 @@ A fact is known type information for a program fragment and is defined using:
 /* Collector field */ void (value l, value r, FailMessage fmsg) requireSubtype;
 /* Collector field */ void (value l, value r, FailMessage fmsg) requireUnify; 
 ----  
+The arguments `l` and `r` should either be an AType or a subtree whose type can be determined using `getType`.
 
 === Define a calculator
+A calculator computes the type of a subtree `src` by way of an AType-returning function `calculator`.
+A list of dependenciesis given whose types have to be known before this calculator can be computed.
 [source,rascal]
 ----      
 /* Collector field */ void (str name, Tree src, list[value] dependencies, AType() calculator) calculate;
