@@ -11,28 +11,33 @@ TypePal provides configuration options for
 * _Operations on Types_: configures how operations like subtype and least-upper-bound (lub) are defined.
 * _Retrieval of Types_: configures how named and structured types are handled.
 * _Extension Points_: configures operations before an after solving.
-* _Miscellaneous_: 
+* _Miscellaneous_: utility functions that can be configured.
 
 Here is an overview:
 
 image::TypePalConfig.png[800,800,align="center"]
 
-The Solver phase can be further specialized by providing in the TypePal configuration additional declarations for:
+The TypePal configuration can provide additional declarations for:
 
-* When the language _L_ uses subtyping:
+* _Name Resolution & Overloading_:
+  ** `isAcceptableSimple`: accepts or rejects a proposed definition for the use of a simple name in a particular role. Typical concerns are:
+     *** enforce definition before use;
+     *** check access rights, e.g. visibility.
+  ** `isAcceptableQualified`: accepts or rejects a proposed definition for the use of a qualified name in a particular role.
+  ** `isAcceptablePath`: accepts or rejects an proposed access path between use and definition.
+  ** `mayOverload`: determines whether two names are allowed to be overloaded.
 
-  ** Functions to check subtype (`myIsSubType`) and least upperbound (`myLUB`) of two types.
-  ** Functions that given the smallest (`myATypeMin`) and largest (`myATypeMax`) element of the type lattice.
+* _Operations on Types_:
+  ** Functions to check subtype (`isSubType`) and least upperbound (`getLub`) of two types.
+  ** Functions that given the smallest (`getMinAType`) and largest (`getMaxAType`) element of the type lattice.
+  ** The function `instantiateTypeParameters` defines language-specific instantiation of type parameters.
+  
+* _Retrieval of Types_:
+
+* _Miscellaneous_:
+  ** A function _unescapeName_ to define language-specific escape rules for names.
+
+* _Extension Points_:
     
-* Functions to filter the results of name resolution:
-    ** `myMayOverload`: determines whether two names are allowed to be overloaded.
-    ** `isAcceptableSimple`: accepts or rejects a proposed definition for the use of a simple name in a particular role. Typical concerns are:
-       *** enforce definition before use;
-       *** check access rights, e.g. visibility.
-    ** `isAcceptableQualified`: accepts or rejects a proposed definition for the use of a qualified name in a particular role.
-    ** `isAcceptablePath`: accepts or rejects an proposed access path between use and definition.
-
-The result of the Solver is an enriched `TModel` that contains, amongst others, messages regarding violated requirements
-or types that could not be computed.
-It can also be used to generate other usefull information about the program such as a use-def relation and
-the used vocabulary (used for name completion).
+  ** A function `preSolver` that can enrich or transform the TModel before the Solver is applied to it.
+  ** A function `postSolver` that can enrich or transform the TModel after constraint solving is complete.
