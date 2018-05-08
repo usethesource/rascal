@@ -50,6 +50,15 @@ test bool contains2() = contains("abc", "c");
 test bool contains3() = !contains("abc", "x");
 test bool contains4() = !contains("abc", "xyzpqr");
 test bool contains5() = contains("abracadabra", "bra");
+
+// deescape
+
+test bool deescape1() = deescape("\\\"") == "\"";
+test bool deescape2() = deescape("\\n") == "\n";
+test bool deescape3() = deescape("\\uAA11") == "\uAA11";
+test bool deescape4() = deescape("\\U012345") == "\U012345";
+test bool deescape5() = deescape("\\a0F") == "\a0f";
+
   		
 // endsWith
 

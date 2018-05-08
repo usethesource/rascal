@@ -111,6 +111,22 @@ public java bool contains(str input, str find);
 
 @doc{
 .Synopsis
+Replace escaped characters by the escaped character itself (using Rascal escape conventions).
+}
+str deescape(str s)  {
+    res = visit(s) { 
+        case /^\\<c: [\" \' \< \> \\]>/ => c
+        case /^\\t/ => "\t"
+        case /^\\n/ => "\n"
+        case /^\\u<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
+        case /^\\U<hex:[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
+        case /^\\a<hex:[0-7][0-9a-fA-F]>/ => stringChar(toInt("0x<hex>"))
+        }; 
+    return res;
+}
+
+@doc{
+.Synopsis
 Check whether a string ends with a given substring.
 
 .Description

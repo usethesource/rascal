@@ -209,25 +209,27 @@ public class RascalC {
     	    int lineWidth = (int) Math.log10(maxLine + 1) + 1;
     	    int colWidth = (int) Math.log10(maxColumn + 1) + 1;
 
-    	    for (IValue val : messages) {
-    	        IConstructor msg = (IConstructor) val;
-    	        if (msg.getName().equals("error")) {
-    	            failed = true;
-    	        }
+    	    synchronized (System.err) {
+                for (IValue val : messages) {
+                    IConstructor msg = (IConstructor) val;
+                    if (msg.getName().equals("error")) {
+                        failed = true;
+                    }
 
-    	        ISourceLocation loc = (ISourceLocation) msg.get("at");
-    	        int col = loc.getBeginColumn();
-    	        int line = loc.getBeginLine();
+                    ISourceLocation loc = (ISourceLocation) msg.get("at");
+                    int col = loc.getBeginColumn();
+                    int line = loc.getBeginLine();
 
-    	        System.err.println(msg.getName() + "@" + abbreviate(loc, pcfg) 
-    	        + ":" 
-    	        + String.format("%0" + lineWidth + "d", line)
-    	        + ":"
-    	        + String.format("%0" + colWidth + "d", col)
-    	        + ": "
-    	        + ((IString) msg.get("msg")).getValue()
-    	            );
-    	    }
+                    System.err.println(msg.getName() + "@" + abbreviate(loc, pcfg) 
+                    + ":" 
+                    + String.format("%0" + lineWidth + "d", line)
+                    + ":"
+                    + String.format("%0" + colWidth + "d", col)
+                    + ": "
+                    + ((IString) msg.get("msg")).getValue()
+                        );
+                }
+            }
 
     	    return !failed;
     }
