@@ -98,7 +98,7 @@ node outline(Module m) {
    }
 
    map[node,list[node]] count(map[str,list[node]] m)
-     = ("<k> (<size(m[k])>)"()[@\loc=(m[k][0])@\loc] : m[k] | k <- m);
+     = ((!isEmpty(m[k]) ? "<k> (<size(m[k])>)"()[@\loc=(m[k][0])@\loc] : "<k> (<size(m[k])>)"()) : m[k] | k <- m);
      
    return n(
       "Functions"(count(functions))[@label="Functions (<size(functions)>)"],
@@ -106,7 +106,7 @@ node outline(Module m) {
       "Variables"(variables)[@label="Variables (<size(variables)>)"],
       "Aliases"(aliases)[@label="Aliases (<size(aliases)>)"],
       "Data"(count(adts))[@label="Data (<size(adts)>)"],
-      "Annotations"(annotations)[@label="Annotations <size(annotations)>"],
+      "Annotations"(annotations)[@label="Annotations (<size(annotations)>)"],
       "Tags"(tags)[@label="Tags (<size(tags)>)"],
       "Imports"(imports)[@label="Imports (<size(imports)>)"],
       "Syntax"(count(grammars))[@label="Syntax (<size(grammars)>)"]
