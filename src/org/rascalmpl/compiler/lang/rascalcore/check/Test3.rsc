@@ -1,7 +1,10 @@
 module lang::rascalcore::check::Test3
 
-void f(){
+public int ModVar42 = 42;
+public list[int] ModVarList_41_42_43 = [41, 42, 43];
+//public set[int] ModVarSet_41_42_43 = {41, 42, 43};
 
-    if(2 > 1) "a" * 2; else 1 / "a" ;
+test bool matchListModuleVar4() = [ModVar42,*ModVarList_41_42_43] := [ModVar42, *ModVarList_41_42_43];
 
-}
+//test bool matchSetModuleVar2() = {*ModVarSet_41_42_43} := ModVarSet_41_42_43;
+//test bool matchSetModuleVar3() = {ModVar44, *ModVarSet_41_42_43} := {ModVar44, *ModVarSet_41_42_43};

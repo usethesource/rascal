@@ -1,3 +1,4 @@
+@bootstrapParser
 module lang::rascalcore::check::Operators
 
 extend analysis::typepal::TypePal;
@@ -16,20 +17,18 @@ import Set;
 import Node;
 
 AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, AType t1, Solver s){
-    t1 = s.instantiate(t1);
-    if(!s.isFullyInstantiated(t1)){
-       throw TypeUnavailable();
-    }
+    //t1 = s.instantiate(t1);
+    //if(!s.isFullyInstantiated(t1)){
+    //   throw TypeUnavailable();
+    //}
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
         bin_overloads = {};
         for(<key, idr, tp> <- overloads){
             try {
                 bin_overloads += <key, idr, unaryOp(op, computeType, current, tp, s)>;
-             } catch checkFailed(list[FailMessage] fms): {
-                ; // do nothing and try next overload
-             } catch e: {
-                ; // do nothing and try next overload
-             }
+             } catch checkFailed(list[FailMessage] fms): /* continue with next overload */;
+               catch NoBinding(): /* continue with next overload */;
+               catch e:  /* continue with next overload */;
         }
         if(isEmpty(bin_overloads)) s.report(error(current, "%q cannot be applied to %t", op, t1));
         return overloadedAType(bin_overloads);
@@ -39,21 +38,19 @@ AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, ATyp
 }
 
 AType binaryOp(str op, AType(Tree, AType, AType, Solver) computeType, Tree current, AType t1, AType t2, Solver s){
-    t1 = s.instantiate(t1);
-    t2 = s.instantiate(t2);
-    if(!(s.isFullyInstantiated(t1) && s.isFullyInstantiated(t2))){
-       throw TypeUnavailable();
-    }
+    //t1 = s.instantiate(t1);
+    //t2 = s.instantiate(t2);
+    //if(!(s.isFullyInstantiated(t1) && s.isFullyInstantiated(t2))){
+    //   throw TypeUnavailable();
+    //}
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
         bin_overloads = {};
         for(<key, idr, tp> <- overloads){
             try {
                 bin_overloads += <key, idr, binaryOp(op, computeType, current, tp, t2, s)>;
-             } catch checkFailed(list[FailMessage] fms): {
-                ; // do nothing and try next overload
-             } catch e: {
-                ; // do nothing and try next overload
-             }
+             } catch checkFailed(list[FailMessage] fms): /* continue with next overload */;
+               catch NoBinding(): /* continue with next overload */;
+               catch e: /* continue with next overload */;
         }
         if(isEmpty(bin_overloads)) s.report(error(current, "%q cannot be applied to %t and %t", op, t1, t2));
         return overloadedAType(bin_overloads);
@@ -64,11 +61,9 @@ AType binaryOp(str op, AType(Tree, AType, AType, Solver) computeType, Tree curre
         for(<key, idr, tp> <- overloads){
             try {
                 bin_overloads += < key, idr, binaryOp(op, computeType, current, t1, tp, s)>;
-             } catch checkFailed(list[FailMessage] fms): {
-                ; // do nothing and try next overload
-             } catch e: {
-                ; // do nothing and try next overload
-             }
+             } catch checkFailed(list[FailMessage] fms):/* continue with next overload */;
+               catch NoBinding(): /* continue with next overload */;
+               catch e: /* continue with next overload */;
         }
         if(isEmpty(bin_overloads)) s.report(error(current, "%q cannot be applied to %t and %t", op, t1, t2));
         return overloadedAType(bin_overloads);
@@ -77,22 +72,20 @@ AType binaryOp(str op, AType(Tree, AType, AType, Solver) computeType, Tree curre
 }
 
 AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tree current, AType t1, AType t2, AType t3, Solver s){
-    t1 = s.instantiate(t1);
-    t2 = s.instantiate(t2);
-    t3 = s.instantiate(t3);
-    if(!(s.isFullyInstantiated(t1) && s.isFullyInstantiated(t2) && s.isFullyInstantiated(t3))){
-       throw TypeUnavailable();
-    }
+    //t1 = s.instantiate(t1);
+    //t2 = s.instantiate(t2);
+    //t3 = s.instantiate(t3);
+    //if(!(s.isFullyInstantiated(t1) && s.isFullyInstantiated(t2) && s.isFullyInstantiated(t3))){
+    //   throw TypeUnavailable();
+    //}
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
         tern_overloads = {};
         for(<key, idr, tp> <- overloads){
             try {
                 tern_overloads += <key, idr, ternaryOp(op, computeType, current, tp, t2, t3, s)>;
-             } catch checkFailed(list[FailMessage] fms): {
-                ; // do nothing and try next overload
-             } catch e: {
-                ; // do nothing and try next overload
-             }
+             } catch checkFailed(list[FailMessage] fms): /* continue with next overload */;
+               catch NoBinding(): /* continue with next overload */;
+               catch e: /* continue with next overload */;
         }
         if(isEmpty(tern_overloads)) s.report(error(current, "%q cannot be applied to %t, %t, and %t", op, t1, t2, t3));
         return overloadedAType(tern_overloads);
@@ -103,11 +96,9 @@ AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tr
         for(<key, idr, tp> <- overloads){
             try {
                 tern_overloads += < key, idr, ternaryOp(op, computeType, current, t1, tp, t3, s)>;
-             } catch checkFailed(list[FailMessage] fms): {
-                ; // do nothing and try next overload
-             } catch e: {
-                ; // do nothing and try next overload
-             }
+             } catch checkFailed(list[FailMessage] fms):/* continue with next overload */;
+               catch NoBinding(): /* continue with next overload */;
+               catch e:/* continue with next overload */;
         }
         if(isEmpty(tern_overloads)) s.report(error(current, "%q cannot be applied to %t, %t, and %t", op, t1, t2, t3));
         return overloadedAType(tern_overloads);
@@ -118,11 +109,9 @@ AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tr
         for(<key, idr, tp> <- overloads){
             try {
                 tern_overloads += < key, idr, ternaryOp(op, computeType, current, t1, t2, tp, s)>;
-             } catch checkFailed(list[FailMessage] fms): {
-                ; // do nothing and try next overload
-             } catch e: {
-                ; // do nothing and try next overload
-             }
+             } catch checkFailed(list[FailMessage] fms): /* continue with next overload */;
+               catch NoBinding(): /* continue with next overload */;
+               catch e: /* continue with next overload */;
         }
         if(isEmpty(tern_overloads)) s.report(error(current, "%q cannot be applied to %t, %t, and %t", op, t1, t2, t3));
         return overloadedAType(tern_overloads);
@@ -168,6 +157,7 @@ private AType _computeIsType(Tree current, AType t1, Solver s){               //
         for(<key, idrole, tp> <- overloads){
            try return _computeIsType(current, tp, s);
            catch checkFailed(_): /* ignore, try next */;
+           catch NoBinding(): /* ignore, try next */;
         }
     } else if(isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) return abool();
     s.report(error(current, "Invalid type: expected node, ADT, or concrete syntax types, found %t", t1));
@@ -185,6 +175,7 @@ private AType _computeHasType(Tree current, AType t1, Solver s){
         for(<key, idrole, tp> <- overloads){
            try return _computeHasType(current, tp, s);
            catch checkFailed(_): /* ignore, try next */;
+           catch NoBinding(): /* ignore, try next */;
         }
     } else if (isRelType(t1) || isListRelType(t1) || isTupleType(t1) || isADTType(t1) || isNonTerminalType(t1) || isNodeType(t1)) return abool();
     
@@ -246,7 +237,7 @@ void collect(current: (Expression) `! <Expression arg>`, Collector c){
 }
 
 AType computeNegation(Tree current, AType t1, Solver s){
-    if(!s.isFullyInstantiated(t1)) throw TypeUnavailable();
+    //if(!s.isFullyInstantiated(t1)) throw TypeUnavailable();
     
     if(isBoolType(t1)) return abool();
     s.report(error(current, "Negation not defined on %t", t1));
@@ -261,7 +252,7 @@ void collect(current: (Expression) `- <Expression arg>`, Collector c){
 }
 
 AType computeNegative(Tree current, AType t1, Solver s){
-    if(!s.isFullyInstantiated(t1)) throw TypeUnavailable();
+    //if(!s.isFullyInstantiated(t1)) throw TypeUnavailable();
     
     if(isNumericType(t1)) return t1;
     s.report(error(current, "Negative not defined on %t", t1));
@@ -835,7 +826,7 @@ void computeMatchPattern(Expression current, Pattern pat, str operator, Expressi
                 isubjectType = s.instantiate(subjectType);
                 //if(tvar(src) := subjectType) fact(src, isubjectType);
                 subjectType = isubjectType;
-                s.keepBindings(getLoc(pat)); // <===
+                //s.keepBindings(getLoc(pat)); // <===
             }
             s.requireComparable(patType, subjectType, error(current, "Pattern should be comparable with %t, found %t", subjectType, patType));
             return abool();
@@ -897,7 +888,8 @@ AType computeEnumeratorElementType(Expression current, AType etype, Solver s) {
             try {
                 filtered_overloads += <key, role, computeEnumeratorElementType(current, tp, s)>;
             } catch checkFailed(_): /* ignore, try next */;
-              catch e: ;/* ignore */
+              catch NoBinding(): /* ignore, try next */;
+              catch e: /* ignore, try next */;
         }
         if(!isEmpty(filtered_overloads)) return overloadedAType(filtered_overloads);
         s.report(error(current, "Type %t is not enumerable", etype));
@@ -919,9 +911,8 @@ AType computeEnumeratorElementType(Expression current, AType etype, Solver s) {
         for(<key, role, tp> <- overloads, isEnumeratorType(tp)){
             try {
                 return computeEnumeratorElementType(current, tp, s);
-            } catch checkFailed(list[FailMessage] fms): {
-                ; // do nothing and try next overload
-            }
+            } catch checkFailed(list[FailMessage] fms): /* do nothing and try next overload*/;
+              catch NoBinding():  /* do nothing and try next overload*/;
         }
     } 
     s.report(error(current, "Type %t is not enumerable", etype));

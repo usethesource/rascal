@@ -683,6 +683,7 @@ Determine if the given type is an Abstract Data Type (ADT).
 bool isADTType(aparameter(_,AType tvb)) = isADTType(tvb);
 bool isADTType(aadt(_,_,_)) = true;
 bool isADTType(areified(_)) = true;
+bool isADTType(\start(s)) = isADTType(s);
 default bool isADTType(AType _) = false;
 
 @doc{Create a new parameterized ADT type with the given type parameters}
@@ -695,6 +696,7 @@ AType makeADTType(str n) = aadt(n,[], dataSyntax());
 str getADTName(AType t) {
     if (aadt(n,_,_) := unwrapType(t)) return n;
     if (acons(a,_,_) := unwrapType(t)) return getADTName(a);
+    if (\start(ss) := unwrapType(t)) return getADTName(ss);
     if (areified(_) := unwrapType(t)) return "type";
     throw rascalCheckerInternalError("getADTName, invalid type given: <prettyPrintAType(t)>");
 }
@@ -703,6 +705,7 @@ str getADTName(AType t) {
 list[AType] getADTTypeParameters(AType t) {
     if (aadt(n,ps,_) := unwrapType(t)) return ps;
     if (acons(a,_,_) := unwrapType(t)) return getADTTypeParameters(a);
+    if (\start(ss) := unwrapType(t)) return getADTTypeParameters(ss);
     if (areified(_) := unwrapType(t)) return [];
     throw rascalCheckerInternalError("getADTTypeParameters given non-ADT type <prettyPrintAType(t)>");
 }

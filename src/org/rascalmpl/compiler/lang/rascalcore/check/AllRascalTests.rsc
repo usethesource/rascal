@@ -302,19 +302,19 @@ set[Message] allRascalTests(PathConfig pcfg= pathConfig(
   tuple[list[value] crashes, list[Message] msgs] res;
   //pcfg = pathConfig(srcs=[|std:///|], bin=bin, boot=boot, libs=[bin]);
   
-  //res = runTests(basicTests, "lang::rascal::tests::basic");
-  //all_crashes += res.crashes; all_msgs += res.msgs;
+  res = runTests(basicTests, "lang::rascal::tests::basic");
+  all_crashes += res.crashes; all_msgs += res.msgs;
   res = runTests(functionalityTests, "lang::rascal::tests::functionality");
   all_crashes += res.crashes; all_msgs += res.msgs;
-  //res = runTests(libraryTests, "lang::rascal::tests::library");
-  //all_crashes += res.crashes; all_msgs += res.msgs;
-  //res = runTests(importTests, "lang::rascal::tests::imports");
-  //all_crashes += res.crashes; all_msgs += res.msgs;
-  //res = runTests(extendTests, "lang::rascal::tests::extends"); 
-  //all_crashes += res.crashes; all_msgs += res.msgs;
-  //res = runTests(files_with_tests, "");
-  //all_crashes += res.crashes; all_msgs += res.msgs;
-  
+  res = runTests(libraryTests, "lang::rascal::tests::library");
+  all_crashes += res.crashes; all_msgs += res.msgs;
+  res = runTests(importTests, "lang::rascal::tests::imports");
+  all_crashes += res.crashes; all_msgs += res.msgs;
+  res = runTests(extendTests, "lang::rascal::tests::extends"); 
+  all_crashes += res.crashes; all_msgs += res.msgs;
+  res = runTests(files_with_tests, "");
+  all_crashes += res.crashes; all_msgs += res.msgs;
+  //
   //res = runTests(typeTests, "lang::rascal::tests::types", pcfg);
   //all_crashes += res.crashes; all_msgs += res.msgs;
    
@@ -374,9 +374,18 @@ bool blacklisted(str qualifiedModuleName){
               "lang::java::flow::JavaToObjectFlow", "lang::java::patterns::JavaToMicroPatterns", "lang::sdf2::util::SDF2Grammar", "lang::sdf2::util::Importer",
               "lang::rascal::tests::library::analysis::formalconcepts::FCATest", "experiments::tutor3::LegacyExamManager", "lang::rascalcore::compile::Benchmarks::JavaMetrics",
               "lang::rascalcore::compile::Benchmarks::SudokuEq", "experiments::Compiler::Benchmarks::SudokuEq", "lang::rascal::checker::TTL::TTLGen"
+              //"experiments", "tests", "types", "boot", "Compiler"
              }
     ){
         if(contains(qualifiedModuleName, s)) return true;
+    }
+    return false;
+}
+
+bool whitelisted(str qualifiedModuleName){
+    return true;
+    for(s <- {"demo"}){
+       if(contains(qualifiedModuleName, s)) return true;
     }
     return false;
 }
@@ -400,6 +409,10 @@ void allFiles(PathConfig pcfg = pathConfig(
            println("\>\>\> <ncount>: SKIPPING <qualifiedModuleName>");
            nskipped += 1;
            continue;
+        }
+        if(!whitelisted(qualifiedModuleName)){
+            nskipped += 1;
+            continue;
         }
         println("\>\>\> <ncount>: CHECKING <qualifiedModuleName> (N:<size(modulePaths)>/E:<size(problems)>/C:<size(crashed)>/S:<nskipped>)");
         try {

@@ -1,3 +1,4 @@
+@bootstrapParser
 module lang::rascalcore::check::Pattern
 
 extend analysis::typepal::TypePal;
@@ -71,7 +72,7 @@ default AType getPatternType(Pattern p, AType subjectType, loc scope, Solver s){
 
 void collect(current: (RegExpLiteral)`/<RegExp* regexps>/<RegExpModifier modifier>`,Collector c) {
     c.fact(current, astr());
-    collectLexicalParts(current, c);
+    collect(regexps, modifier, c);
 }
 
 void collect(current:(RegExp)`\<<Name name>\>`, Collector c) {
@@ -82,7 +83,7 @@ void collect(current:(RegExp)`\<<Name name>\>`, Collector c) {
 void collect(current: (RegExp)`\<<Name name>:<NamedRegExp* regexps>\>`, Collector c) {
     c.define("<name>", variableId(), name, defType(astr()));
     c.fact(current, astr());
-    collectLexicalParts(current, c);
+    collect(name, regexps, c);
 }
 
 //void collect(Pattern current:(Literal)`<StringLiteral sl>`, Collector c){
@@ -108,7 +109,9 @@ void collect(current: (Pattern) `{ <{Pattern ","}* elements0> }`, Collector c){
 
 AType getPatternType(current: (Pattern) `{ <{Pattern ","}* elements0> }`, AType subjectType, loc scope, Solver s){
     elmType = isSetType(subjectType) ? getSetElementType(subjectType) : avalue();
-    return aset(s.lubList([getPatternType(p, elmType, scope,s) | p <- elements0]));
+    setType = aset(s.lubList([getPatternType(p, elmType, scope,s) | p <- elements0]));
+    s.fact(current, setType);
+    return setType;
 }
 
 // ---- list pattern
@@ -125,6 +128,7 @@ void collect(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, Collector c){
 AType getPatternType(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, AType subjectType, loc scope, Solver s){
     elmType = isListType(subjectType) ? getListElementType(subjectType) : avalue();
     res = alist(s.lubList([getPatternType(p, elmType, scope, s) | p <- elements0]));
+    s.fact(current, res);
     return res;
 }
 
@@ -137,7 +141,9 @@ void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
        c.push(patternNames, uname);
        c.define(uname, variableId(), name, defType([tp], AType(Solver s){ return s.getType(tp)[label=uname]; }));
     }
-    collect(tp, c);
+    c.enterScope(current);
+        collect(tp, c);
+    c.leaveScope(current);
 }
 
 void collectAsVarArg(current: (Pattern) `<Type tp> <Name name>`, Collector c){
@@ -158,7 +164,9 @@ void collectAsVarArg(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     }
  
    c.fact(current, name);
-   collect(tp, c);
+   c.enterScope(current);
+        collect(tp, c);
+   c.leaveScope(current);
 }
 
 // ---- qualifiedName pattern: QualifiedName
@@ -257,8 +265,9 @@ bool inSetPattern(Pattern current, Collector c){
         case "list": return false;
         case "set":  return true;
         default:
-            c.report(error(current, "Splice operator not allowed inside a %t pattern", container));
+            c.report(error(current, "Splice operator not allowed inside a %v pattern", container));
     }
+    return false;
 }
 
 // ---- splice pattern: *Pattern
@@ -340,31 +349,50 @@ AType getSplicePatternType(Pattern current, Pattern argument,  AType subjectType
           return subjectType;
        } else {
           inameType = s.getType(argument.name);
-          if(isListType(inameType)) return getListElementType(inameType);
-          if(isSetType(inameType)) return getSetElementType(inameType);
+          s.fact(argument, inameType);
+          if(isListType(inameType)) {
+                elmType = getListElementType(inameType);
+                s.fact(current, elmType);
+                return elmType;
+          }
+          if(isSetType(inameType)){
+                elmType =  getSetElementType(inameType);
+                s.fact(current, elmType);
+                return elmType;
+          }
           s.report(error(current, "Cannot get element type for %t", inameType)); 
        }
     } if(argument is qualifiedName){
          argName = argument.qualifiedName;
          base = prettyPrintBaseName(argName);
          if(base != "_"){
-           //nameType = expandUserTypes(getType(name), scope, s;
-           nameElementType = subjectType;
-           try {
-           	   nameElementType = s.getType(current);
-               if(!s.isFullyInstantiated(nameElementType) || !s.isFullyInstantiated(subjectType)){
-                  s.requireUnify(nameElementType, subjectType, error(current, "Type of pattern could not be computed"));
-                  nameElementType = s.instantiate(nameElementType);
-                 // fact(argName, nameType);
-                  subjectType = s.instantiate(subjectType);
+           elmType = subjectType;
+           //try {
+               inameType = s.getType(argument.qualifiedName);
+           	   elmType = avoid();
+           	   if(isListType(inameType)){
+           	        elmType = getListElementType(inameType);
+           	   } else if(isSetType(inameType)){
+           	        elmType = getSetElementType(inameType);
+           	   } else {
+           	    s.report(error(argument, "List or set type expected, found %t", inameType));
+           	   }
+                 
+               if(!s.isFullyInstantiated(elmType) || !s.isFullyInstantiated(subjectType)){
+                  s.requireUnify(elmType, subjectType, error(current, "Type of pattern could not be computed"));
+                  elmType = s.instantiate(elmType);
+                  //s.fact(argName, nameElementType);//<<
+                  s.fact(current, elmType); // <<
+                  subjectType = s.instantiate(elmType);
                }
-           } catch TypeUnavailable(): {
-                nameElementType = subjectType;
-                //fact(name, nameType);
-           }
+           //} catch TypeUnavailable(): {
+           //     nameElementType = subjectType;
+           //    //s.fact(argName, nameElementType); //<<
+           //    s.fact(current, nameElementType); //<<
+           //}
            //nameElementType = isListType(nameType) ? getListElementType(nameType) : getSetElementType(nameType);
-           s.requireComparable(nameElementType, subjectType, error(current, "Pattern should be comparable with %t, found %t", subjectType, nameElementType));
-           return nameElementType;
+           s.requireComparable(elmType, subjectType, error(current, "Pattern should be comparable with %t, found %t", subjectType, elmType));
+           return elmType;
         } else
            return subjectType;
     } else {
@@ -385,7 +413,7 @@ AType getPatternType(current: (Pattern) `+<Pattern argument>`, AType subjectType
 
 void collect(current: (Pattern) `\< <{Pattern ","}+ elements1> \>`, Collector c){
     c.push(patternContainer, "tuple");
-    collectParts(current, c);
+    collect(elements1, c);
     c.pop(patternContainer);
 }
 
@@ -467,6 +495,8 @@ AType getPatternType(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* 
                      validReturnTypeOverloads += <key, idr, computeADTType(current, adtName, scope, adtType, fields, kwFields, pats, keywordArguments, identicalFields, s)>;
                      validOverloads += ovl;
                     } catch checkFailed(list[FailMessage] fms):
+                            continue next_cons;
+                      catch NoBinding():
                             continue next_cons;
              }
         }
@@ -579,7 +609,7 @@ AType getPatternType(current: (Pattern) `( <{Mapping[Pattern] ","}* mps> )`, ATy
 //TODO: reifiedType
 
 void collect(current: (Pattern) `type ( <Pattern s>, <Pattern d> )`, Collector c){
-    collectParts(current, c);
+    collect(s, d, c);
 }
 
 // ---- asType

@@ -8,6 +8,7 @@
 
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Paul Klint - Paul.Klint@cwi.nl (CWI)}
+@bootstrapParser
 module lang::rascalcore::check::ConvertType
 
 import Set;
@@ -17,12 +18,7 @@ import IO;
 import Node;
 import Map;
 
-//extend analysis::typepal::AType;
-//extend analysis::typepal::Collector;
 extend analysis::typepal::TypePal;
-
-//import analysis::typepal::FailMessage;
-
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::TypePalConfig;
 
@@ -102,7 +98,7 @@ void collect(current: (BasicType)`loc`, Collector c){ c.fact(current, aloc()); }
 
 void collect(current: (BasicType)`datetime`, Collector c){ c.fact(current, adatetime()); }
 
-void collect(BasicType bt, Collector c) { c.report(error(bt, "Illegal use of type `<bt>`")); }
+default void collect(BasicType bt, Collector c) { c.report(error(bt, "Illegal use of type `<bt>`")); }
 
 // ---- structured types ------------------------------------------------------
 
@@ -258,13 +254,16 @@ void collect(current:(StructuredType)`type [ < {TypeArg ","}+ tas > ]`, Collecto
 
 // ---- function type ---------------------------------------------------------
 
+AType(Solver s) makeGetTypeArg(TypeArg targ)
+    = AType(Solver s) { return s.getType(targ.\type)[label="<targ.name>"]; };
+
 @doc{Convert Rascal function types into their abstract representation.}
 void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collector c) {
     targs = [ta | ta <- tas];
     
     for(targ <- targs){
         if(targ has name){
-            c.define("<targ.name>", variableId(), targ.name, defType([targ.\type], AType(Solver s) { return s.getType(targ.\type)[label="<targ.name>"]; }));
+            c.define("<targ.name>", variableId(), targ.name, defType([targ.\type], makeGetTypeArg(targ)));
             c.fact(targ, targ.name);
         }
         collect(targ.\type, c);
@@ -376,8 +375,8 @@ void collect(current:(Sym) `<Nonterminal n>`, Collector c){
         void(Solver s){
             base = getSyntaxType(n, s);
             s.requireTrue(isNonTerminalType(base), error(current, "Expected a non-terminal type, found %t", base));
-            nexpected = size(base.parameters);
-            s.requireTrue(nexpected == 0, error(current, "Expected %v type parameter(s) for %q, found 0", nexpected, base.adtName));
+            nexpected = size(getADTTypeParameters(base));
+            s.requireTrue(nexpected == 0, error(current, "Expected %v type parameter(s) for %q, found 0", nexpected, getADTName(base)));
         });
     //c.fact(current, n);
 }
@@ -394,9 +393,9 @@ void collect(current:(Sym) `<Nonterminal n>[ <{Sym ","}+ parameters> ]`, Collect
         AType(Solver s) { 
             base = getSyntaxType(n, s); 
             s.requireTrue(isParameterizedNonTerminalType(base), error(current, "Expected a non-terminal type, found %t", base));
-            nexpected = size(base.parameters); nparams = size(params);
-            s.requireTrue(nexpected == nparams, error(current, "Expected %v type parameter(s) for %q, found %v", nexpected, base.adtName, nparams));
-            base.parameters = [s.getType(p) | p <- params]; 
+            nexpected = size(getADTTypeParameters(base)); nparams = size(params);
+            s.requireTrue(nexpected == nparams, error(current, "Expected %v type parameter(s) for %q, found %v", nexpected, getADTName(base), nparams));
+            base.parameters = [s.getType(p) | p <- params]; // TODO: what to do when base == start(...)?
             return base;
         });
     collect(params, c);
