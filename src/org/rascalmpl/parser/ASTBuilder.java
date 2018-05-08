@@ -44,6 +44,7 @@ import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.parser.gtd.util.PointerKeyedHashMap;
 import org.rascalmpl.semantics.dynamic.Expression.CallOrTree;
 import org.rascalmpl.semantics.dynamic.Expression.Set;
+import org.rascalmpl.semantics.dynamic.Expression.Splice;
 import org.rascalmpl.semantics.dynamic.Expression.TypedVariable;
 import org.rascalmpl.semantics.dynamic.IntegerLiteral;
 import org.rascalmpl.semantics.dynamic.Literal;
@@ -441,9 +442,7 @@ public class ASTBuilder {
 	    String name = TreeAdapter.getConstructorName(tree);
         assert name != null;
 
-        if (name.equals("concrete") && ((ITree) TreeAdapter.getArgs(tree).get(0)).isQuote())
-            return true;
-        return false;
+        return name.equals("concrete") && ((ITree) TreeAdapter.getArgs(tree).get(0)).isQuote();
 	}
 
 	private boolean isInternalEmbedding(org.rascalmpl.values.uptr.ITree tree) {
@@ -537,6 +536,11 @@ public class ASTBuilder {
                 String variableType = TreeAdapter.yield((ITree) subArgs.get(2));
                 String variableName = TreeAdapter.yield((ITree) subArgs.get(4));
 
+                boolean isSplice = false;
+                if (variableType.endsWith("*")){
+                    isSplice = true;
+                    variableType = variableType.substring(0, variableType.length()-1);
+                }
                 Name.Lexical typeNameLexical = new Name.Lexical(loc, null, variableType);
                 Default def = new Default(loc, null, Arrays.asList(typeNameLexical));
                 UserType.Name userType_Name = new UserType.Name(loc, null, def);
@@ -544,6 +548,9 @@ public class ASTBuilder {
                 Name.Lexical nameLexical = new Name.Lexical(loc, null, variableName);
 
                 TypedVariable typedVariable = new TypedVariable(loc, tree, user, nameLexical);
+                if (isSplice) {
+                    return new Splice(loc, null, typedVariable);
+                }
                 return typedVariable;
             }
         }
