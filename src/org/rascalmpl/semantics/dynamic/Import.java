@@ -90,6 +90,7 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.exceptions.UndeclaredAbstractDataTypeException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IdentityVisitor;
@@ -861,9 +862,14 @@ public abstract class Import {
         Map<IValue, ITree> antiquotes) {
         final Type stringType = TypeFactory.getInstance().stringType();
 
-        String literalHole = TreeAdapter.yield(part);
-        String typ = literalHole.substring(1, literalHole.indexOf(" "));
-        Type type = env.getAbstractDataType(typ);
+        ITree subTree = (ITree) TreeAdapter.getArgs(part).get(0);
+        subTree = (ITree) TreeAdapter.getArgs(subTree).get(2);
+        subTree = (ITree) TreeAdapter.getArgs(subTree).get(0);
+        Type type = env.getAbstractDataType(TreeAdapter.yield(subTree));
+        if (type == null) {
+            throw new UndeclaredAbstractDataTypeException(type);
+        }
+        
 
         List<AbstractFunction> functions = new ArrayList<>();
         env.getAllFunctions(TypeFactory.getInstance().tupleType(stringType, type), functions);
