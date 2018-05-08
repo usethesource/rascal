@@ -47,7 +47,7 @@ image::{concept}/a1.png[alt="a1"]
 
 Note that:
 
-*  We place the Figure that is produced by `viscoloredTree` in a `space` for the sole purpose that add extra proerties to it.
+*  We place the Figure that is produced by `viscoloredTree` in a `space` for the sole purpose that add extra properties to it.
 *  We use `std(size(30))` and ` std(gap(30))` to achieve that these properties are set for all subfigures.
 
 
