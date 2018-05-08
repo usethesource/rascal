@@ -29,6 +29,7 @@ import org.rascalmpl.ast.Command;
 import org.rascalmpl.ast.Commands;
 import org.rascalmpl.ast.DecimalIntegerLiteral;
 import org.rascalmpl.ast.Expression;
+import org.rascalmpl.ast.Expression.SplicePlus;
 import org.rascalmpl.ast.KeywordArguments_Expression;
 import org.rascalmpl.ast.Mapping_Expression;
 import org.rascalmpl.ast.Module;
@@ -537,9 +538,13 @@ public class ASTBuilder {
                 String variableName = TreeAdapter.yield((ITree) subArgs.get(4));
 
                 boolean isSplice = false;
+                boolean isSplicePlus = false;
                 if (variableType.endsWith("*")){
                     isSplice = true;
-                    variableType = variableType.substring(0, variableType.length()-1);
+                    variableType = variableType.substring(0, variableType.length() - 1);
+                } else if (variableType.endsWith("+")){
+                    isSplicePlus = true;
+                    variableType = variableType.substring(0, variableType.length() - 1);
                 }
                 Name.Lexical typeNameLexical = new Name.Lexical(loc, null, variableType);
                 Default def = new Default(loc, null, Arrays.asList(typeNameLexical));
@@ -550,6 +555,9 @@ public class ASTBuilder {
                 TypedVariable typedVariable = new TypedVariable(loc, tree, user, nameLexical);
                 if (isSplice) {
                     return new Splice(loc, null, typedVariable);
+                }
+                if (isSplicePlus) {
+                    return new SplicePlus(loc, null, typedVariable);
                 }
                 return typedVariable;
             }
