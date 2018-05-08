@@ -28,8 +28,18 @@ public alias Bindings = map[str varName, AType varType];
 // TODO: Add support for overloaded types if they can make it to here (this is
 // usually invoked on specific types that are inside overloads)
 public Bindings matchRascalTypeParams(AType r, AType s, Bindings b, bool bindIdenticalVars=false) {
+    //println("matchRascalTypeParams: <r>, <s>");
     if(tvar(l1) := r || tvar(l2) := s) throw TypeUnavailable();
     if (!typeContainsRascalTypeParams(r)) return b;
+    if(overloadedAType(rel[loc, IdRole, AType] overloads) := r){
+        lb = lubList(toList(overloads<2>));
+        return matchRascalTypeParams(lb, s, b, bindIdenticalVars);
+    }
+    if(overloadedAType(rel[loc, IdRole, AType] overloads) := s){
+        lb = lubList(toList(overloads<2>));
+        return matchRascalTypeParams(r, lb, b, bindIdenticalVars);
+    }
+    
     return matchRascalTypeParams(r,s,b,bindIdenticalVars);
 }
 

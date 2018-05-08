@@ -1,3 +1,4 @@
+@bootstrapParser
 module lang::rascalcore::check::Statement
 
 extend analysis::typepal::TypePal;
@@ -55,7 +56,7 @@ void collect(current: (Statement) `<Label label> <Visit vst>`, Collector c){
         scope = c.getScope();
         c.setScopeInfo(scope, visitOrSwitchScope(), visitOrSwitchInfo(vst.subject, true));
         if(label is \default){
-            c.define("<label.name>", labelId(), label.name, noDefInfo());
+            c.define("<label.name>", labelId(), label.name, defType(avoid()));
         }
         c.fact(current, vst.subject);
         collect(vst, c);
@@ -316,7 +317,7 @@ void collect(current:(Statement) `break <Target target>;`, Collector c){
     for(<scope, scopeInfo> <- c.getScopeInfo(loopScope())){
         if(loopInfo(loopName1, list[Statement] appends) := scopeInfo){
             if(loopName == "" || loopName == loopName1){
-                collectParts(current, c); //<===
+                collect(target, c);
                 return;
              }
         } else {
@@ -339,7 +340,7 @@ void collect(current:(Statement) `continue <Target target>;`, Collector c){
     for(<scope, scopeInfo> <- c.getScopeInfo(loopScope())){
         if(loopInfo(loopName1, list[Statement] appends) := scopeInfo){
             if(loopName == "" || loopName == loopName1){
-                 collectParts(current, c);
+                 collect(target, c);
                  return;
              }
         } else {
@@ -354,7 +355,7 @@ void collect(current:(Statement) `continue <Target target>;`, Collector c){
 void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditions> ) <Statement thenPart>`,  Collector c){
     c.enterScope(conditions); // thenPart may refer to variables defined in conditions
         if(label is \default){
-            c.define("<label.name>", labelId(), label.name, noDefInfo());
+            c.define("<label.name>", labelId(), label.name, defType(avoid()));
         }
         condList = [cond | Expression cond <- conditions];
         c.fact(current, avalue());
@@ -373,7 +374,7 @@ void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditio
 void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditions> ) <Statement thenPart> else <Statement elsePart>`,  Collector c){
     c.enterScope(conditions);   // thenPart may refer to variables defined in conditions; elsePart may not
         if(label is \default){
-            c.define(prettyPrintName(label.name), labelId(), label.name, noDefInfo());
+            c.define(prettyPrintName(label.name), labelId(), label.name, defType(avoid()));
         }
         condList = [cond | cond <- conditions];
         storeExcludeUse(conditions, elsePart, c); // variable occurrences in elsePart may not refer to variables defined in conditions
@@ -401,7 +402,7 @@ void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditio
 void collect(current: (Statement) `<Label label> switch ( <Expression e> ) { <Case+ cases> }`, Collector c){
     c.enterScope(current);
         if(label is \default){
-            c.define(prettyPrintName(label.name), labelId(), label.name, noDefInfo());
+            c.define(prettyPrintName(label.name), labelId(), label.name, defType(avoid()));
         }
         scope = c.getScope();
         c.setScopeInfo(scope, visitOrSwitchScope(), visitOrSwitchInfo(e, false));
@@ -498,7 +499,7 @@ void collect(current: (Catch) `catch <Pattern pattern>: <Statement body>`, Colle
 
 void collect(current: (Statement) `<Label label> { <Statement+ statements> }`, Collector c){
     if(label is \default){
-       c.define("<label.name>", labelId(), label.name, noDefInfo());
+       c.define("<label.name>", labelId(), label.name, defType(avoid()));
     }
     stats = [ s | Statement s <- statements ];
     c.calculate("non-empty block statement", current, [stats[-1]],  AType(Solver s) { return s.getType(stats[-1]); } );
@@ -591,7 +592,7 @@ AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver>
 }
 
 AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> . <Name field>`, loc scope, Solver s){
-    res = computeFieldType(current, computeReceiverType(current, receiver, scope, s), field, scope, s);
+    res = computeFieldTypeWithOverloadingAndADT(computeReceiverType(current, receiver, scope, s), field, scope, s);
     return res;
  }
     
@@ -631,9 +632,9 @@ AType computeSubscriptAssignableType(Statement current, AType receiverType, Expr
         for(<key, idr, tp> <- overloads){ 
             try {
                sub_overloads += <key, idr, computeSubscriptAssignableType(current, tp, subscript, operator, rhs, s)>;
-           } catch checkFailed(list[FailMessage] fms): {
-                ; // do nothing and try next overload
-           } catch e: ; // do nothing
+           } catch checkFailed(list[FailMessage] fms): /* do nothing and try next overload */;
+             catch NoBinding(): /* do nothing and try next overload */;
+             catch e: /* do nothing and try next overload */;
         }
         if(isEmpty(sub_overloads)) s.report(error(current, "Field %q on %t cannot be resolved", fieldName, receiverType));
         return overloadedAType(sub_overloads);
@@ -762,9 +763,9 @@ AType computeFieldAssignableType(Statement current, AType receiverType, Tree fie
         for(<key, idr, tp> <- overloads){ 
             try {
                fld_overloads += <key, idr, computeFieldAssignableType(current, tp, field, operator, rhs, scope, s)>;
-           } catch checkFailed(list[FailMessage] fms): {
-                ; // do nothing and try next overload
-           } catch e: ; // do nothing
+           } catch checkFailed(list[FailMessage] fms): /* do nothing and try next overload */;
+             catch NoBinding(): /* do nothing and try next overload */;
+             catch e: /* do nothing and try next overload */;
         }
         if(isEmpty(fld_overloads)) s.report(error(current, "Field %q on %t cannot be resolved", fieldName, receiverType));
         return overloadedAType(fld_overloads);
@@ -776,18 +777,18 @@ AType computeFieldAssignableType(Statement current, AType receiverType, Tree fie
         }   
         fld_overloads = {};
         str selectorName = unescape("<field>");
-        for(containerDef <- s.getDefinitions(adtName, scope, {dataId(), aliasId()})){    
+        for(containerDef <- s.getDefinitions(adtName, scope, dataOrSyntaxIds)){    
             try {
                 selectorType = s.getTypeInScope(fieldName, containerDef.defined, {fieldId()});
                 //fld_overloads += <containerDef.defined, containerDef.idRole, selectorType>;
                 fld_overloads += <containerDef.defined, containerDef.idRole, rascalInstantiateTypeParameters(field, s.getType(containerDef.defInfo), receiverType, selectorType, s)>;
-             } catch TypeUnavailable():; /* ignore */
+             } //catch TypeUnavailable():; /* ignore */
                catch NoBinding():{
                     try {
                         selectorType = rascalGetTypeInTypeFromDefine(containerDef, fieldName, {fieldId()}, s);
                         fld_overloads += <containerDef.defined, containerDef.idRole, rascalInstantiateTypeParameters(field, s.getType(containerDef.defInfo), receiverType, selectorType, s)>;
                     } catch NoBinding():; /* ignore */
-                    catch TypeUnavailable():; /* ignore */
+                      //catch TypeUnavailable():; /* ignore */
                }
         }
         fieldType = overloadedAType(fld_overloads);
@@ -879,17 +880,17 @@ void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable 
                s.requireComparable(rhsTypeI, recTypeI, error(names[i], "Value of type %t cannot be assigned to %q of type %t", rhsFields[i],names[i], recTypeI));
                   //if(flatNames[i] in namesInRhs){
                     //taus[i] = s.getType(names[i]);
-                    s.requireUnify(taus[i], rhsTypeI, error(current, "Cannot bind variable %q", names[i]));
+                    //s.requireUnify(taus[i], rhsTypeI, error(current, "Cannot bind variable %q", "<names[i]>"));
                   //}
              } else {
                   //println("checkTupleElemAssignment: !fullyInstantiated");
                  if(flatNames[i] in namesInRhs){
-                    s.requireUnify(taus[i], names[i], error(current, "Cannot bind variable %q", names[i]));
+                    s.requireUnify(taus[i], names[i], error(current, "Cannot bind variable %q","<names[i]>"));
                   } else {
-                    s.requireUnify(taus[i], rhsFields[i], error(current, "Cannot bind variable %q", names[i]));
+                    s.requireUnify(taus[i], rhsFields[i], error(current, "Cannot bind variable %q", "<names[i]>"));
                  }
                  //println("Assigning to taus[<i>]: <instantiate(taus[i])>");
-                 taus[i] = s.instantiate(taus[i]);
+                 taus[i] =  s.instantiate(taus[i]);
              }
              return taus[i];
         };
@@ -936,9 +937,9 @@ AType computeAnnoAssignableType(Statement current, AType receiverType, str annoN
         for(<key, idr, tp> <- overloads){ 
             try {
                anno_overloads += <key, idr, computeAnnoAssignableType(current, tp, annoName, operator, rhs, scope, s)>;
-           } catch checkFailed(list[FailMessage] fms): {
-                ; // do nothing and try next overload
-           } catch e: ; // do nothing
+           } catch checkFailed(list[FailMessage] fms): /* do nothing and try next overload */;
+             catch NoBinding(): /* do nothing and try next overload */;
+             catch e: /* do nothing and try next overload */;
         }
         if(isEmpty(anno_overloads)) s.report(error(current, "Annotation on %t cannot be resolved", receiverType));
         return overloadedAType(anno_overloads);
@@ -999,9 +1000,8 @@ void collect(current: (Statement) `<Type varType> <{Variable ","}+ variables>;`,
         if(var is initialized){
             c.enterLubScope(var);
                 initial = var.initial;
-                c.requireSubtype(initial, var.name, error(initial, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, initial));
-                //c.require("variable initialization", var.initial, [varType], makeVarInitRequirement(var.initial, varType));
-                collect(var.initial, c); 
+                c.require("initialization of `<var.name>`", initial, [initial, varType], makeVarInitRequirement(var));
+                collect(initial, c); 
             c.leaveScope(var);
         }
     } 

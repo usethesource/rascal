@@ -10,6 +10,7 @@ Redistribution and use in source and binary forms, with or without modification,
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 }
+@bootstrapParser
 module lang::rascalcore::check::Checker
               
 /*
@@ -33,9 +34,6 @@ import util::Benchmark;
 import lang::rascal::\syntax::Rascal;
    
 extend analysis::typepal::TypePal;
-//extend analysis::typepal::TestFramework;
-
-//import analysis::typepal::Utils;
 
 extend lang::rascalcore::check::Declaration;
 extend lang::rascalcore::check::Expression;
@@ -61,6 +59,7 @@ import Set;
 import Relation;
 import util::Reflective;
 import util::FileSystem;
+import analysis::graphs::Graph;
 
 start syntax Modules
     = Module+ modules;
@@ -71,7 +70,7 @@ start syntax Modules
 Tree mkTree(int n) = [DecimalIntegerLiteral] "<for(int i <- [0 .. n]){>6<}>"; // Create a unique tree to identify predefined names
  
 void rascalPreCollectInitialization(Tree tree, Collector c){
-    init_Import();
+    //init_Import();
     c.enterScope(tree);
         
         if(c.getConfig().classicReifier){
@@ -100,7 +99,6 @@ void rascalPreCollectInitialization(Tree tree, Collector c){
 TModel rascalPreSolver(Tree pt, TModel m){
     // add transitive edges for extend
     extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- m.paths}+;
-    extended = domain(extendPlus);
     m.paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
     m.paths += { <c, importPath(), a> | < loc c, importPath(), loc b> <- m.paths,  <b , extendPath(), loc a> <- m.paths};
     //println("rascalPreValidation");
@@ -116,8 +114,8 @@ void rascalPostSolver(Tree pt, Solver s){
             
  //           pname = "DefaultParser";
  //           if(Module m := pt) { 
- //               mname = "<m.header.name>";
- //               pname = parserName(mname);
+ //               moduleName = "<m.header.name>";
+ //               pname = parserName(moduleName);
  //           }
  //
  //           <msgs, parserClass> = newGenerate(parserPackage, pname, g); 
@@ -138,61 +136,101 @@ public PathConfig getDefaultPathConfig() = pathConfig(
                ]
                );
 
-data ProfileData = profile(loc file = |unknown:///|, int parser = 0, int collector = 0, int solver = 0, int save = 0);
+data ProfileData = profile(loc file = |unknown:///|, int collector = 0, int solver = 0, int save = 0);
  
 void report(ProfileData pd){
-    text = "<pd.parser? ? "parser: <pd.parser> ms;" : ""> <pd.collector? ? "collector: <pd.collector> ms;" : ""> <pd.solver? ? "solver: <pd.solver> ms;" : ""> <pd.save? ? "save: <pd.save> ms;" : ""> total: <pd.parser + pd.collector + pd.solver + pd.save> ms";
+    text = "<pd.collector? ? "collector: <pd.collector> ms;" : ""> <pd.solver? ? "solver: <pd.solver> ms;" : ""> <pd.save? ? "save: <pd.save> ms;" : ""> total: <pd.collector + pd.solver + pd.save> ms";
     if(pd.file != |unknown:///|) text += " (<pd.file>)";
     println(text);
 }
                               
 TModel rascalTModelsFromStr(str text){
-    startTime = cpuTime();
     pt = parse(#start[Modules], text).top;
-    return rascalTModel(pt, inline=true)[1];
+    return rascalTModel(pt, newImportState(), inline=true)[1];
 }
 
 TModel rascalTModelsFromTree(Tree pt){
-    startTime = cpuTime();
-    return rascalTModel(pt, inline=true)[1];
+    return rascalTModel(pt, newImportState(), inline=true)[1];
 }
 
-TModel rascalTModelFromName(str mname, PathConfig pcfg, bool debug=true){
+TModel rascalTModelFromName(str moduleName, PathConfig pcfg, bool debug=true){
     mloc = |unknown:///|(0,0,<0,0>,<0,0>);
     try {
-        mloc = getModuleLocation(mname, pcfg);
+        mloc = getModuleLocation(moduleName, pcfg);
         return rascalTModelFromLoc(mloc, pcfg, debug=debug)[1];
     } catch value e: {
         return tmodel()[messages = [ error("During validation: <e>", mloc) ]];
     }
 }
 
+int M = 1000000;
+
 tuple[ProfileData, TModel] rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool debug=false){     
     try {
-        startTime = cpuTime();   
-        mname = getModuleName(mloc, pcfg);
+        beginTime = cpuTime();   
+        moduleName = getModuleName(mloc, pcfg);
         
         /***** turn this off during development of type checker *****/
-        //<valid, tm> = getIfValid(mname, pcfg);
-        //if(valid) {
-        //    println("*** reusing up-to-date TModel of <mname>");
-        //    vtime = (cpuTime() - startTime)/1000000;
-        //    prof = profile(file=mloc,solver=vtime);
-        //    return <prof, tm>;
-        //}
+        <valid, tm> = getIfValid(moduleName, pcfg);
+        if(valid) {
+            println("*** reusing up-to-date TModel of <moduleName>");
+            stime = (cpuTime() - beginTime)/1000000;
+            prof = profile(file=mloc,solver=stime);
+            report(prof);
+            return <prof, tm>;
+        }
         /***********************************************************/
         
-       // mloc = timestamp(mloc);     
-                       
-        pt = parseModuleWithSpaces(mloc).top;
-        pTime = (cpuTime() - startTime)/1000000;
-        <prof, tm> = rascalTModel(pt, pcfg = pcfg, debug=debug);
-        prof.file = mloc;
-        prof.parser = pTime;
-        startTime = cpuTime(); 
-        saveModules(mname, pcfg, tm); 
-        prof.save = (cpuTime() - startTime)/1000000;
-        return <prof, tm>;
+        before = cpuTime();
+        istate = getImportAndExtendGraph(moduleName, pcfg);
+        graphTime = cpuTime() - before;
+       
+        profs = ();
+        ordered = reverse(order(istate.contains));
+        println("ordered modules: <ordered>");
+        for(str m <- ordered){
+            if(!istate.tmodels[m]?){
+                pt = istate.modules[m];
+                <prof, tm> = rascalTModel(pt, istate, pcfg = pcfg, debug=debug);
+                profs[m] = prof;
+                istate = saveModuleAndImports(m, pcfg, tm, istate); 
+            }
+        }
+       
+        if(istate.tmodels[moduleName]?){
+            tcollector = 0; tsolver = 0; tsave = 0;
+            for(m <- profs){
+                p = profs[m];
+                tcollector += p.collector;
+                tsolver += p.solver;
+                tsave += p.save;
+                report(p);
+            }
+            println("<moduleName>, import graph <graphTime/M> ms");
+            println("<moduleName> <tcollector+tsolver> ms [ collector: <tcollector> ms; solver: <tsolver> ms; save: <tsave> ms ]");
+            println("<moduleName>, measured total time: <(cpuTime() - beginTime)/M> ms");
+            return <profile(), istate.tmodels[moduleName]>;
+       }
+        pt = istate.modules[moduleName];
+       
+        <prof, tm> = rascalTModel(pt, istate, pcfg = pcfg, debug=debug);
+        before = cpuTime(); 
+        istate = saveModuleAndImports(moduleName, pcfg, tm, istate); 
+        prof.save = (cpuTime() - before)/M;
+        profs[moduleName] = prof;
+        tcollector = 0; tsolver = 0; tsave = 0;
+        for(m <- profs){
+            p = profs[m];
+            tcollector += p.collector;
+            tsolver += p.solver;
+            tsave += p.save;
+            report(p);
+        }
+        println("<moduleName>, import graph <graphTime/M> ms");
+        println("<moduleName> <tcollector+tsolver> ms [ collector: <tcollector> ms; solver: <tsolver> ms; save: <tsave> ms ]");
+        println("<moduleName>, measured total time: <(cpuTime() - beginTime)/M> ms");
+      
+        return <prof, istate.tmodels[moduleName]>;
     } catch ParseError(loc src): {
         return <profile(), tmodel()[messages = [ error("Parse error", src)  ]]>;
     } catch Message msg: {
@@ -202,44 +240,62 @@ tuple[ProfileData, TModel] rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool d
     }    
 }
 
-tuple[ProfileData, TModel] rascalTModel(Tree pt, PathConfig pcfg = getDefaultPathConfig(), bool debug=false, bool inline=false){
-    startTime = cpuTime();
-    c = newCollector(pt, config=rascalTypePalConfig(classicReifier=true), debug=debug);
+tuple[ProfileData, TModel] rascalTModel(Tree pt, ImportState istate, PathConfig pcfg = getDefaultPathConfig(), bool debug=false, bool inline=false){
+    moduleName = "";
+    if(start[Module] md := pt) unescape("<md.top.header.name>");
+    if(Module md := pt) moduleName = unescape("<md.header.name>");
+    if(start[Modules] mds := pt){
+        moduleName = intercalate("/", [ unescape("<md.header.name>") | md <- mds.top.modules ]);
+    }
+    if(Modules mds := pt){
+           moduleName = intercalate("/", [ unescape("<md.header.name>") | md <- mds.modules ]);
+     }
+    println("\<\<\< checking <moduleName>");
+    c = newCollector(moduleName, pt, config=rascalTypePalConfig(classicReifier=true), debug=debug);
     c.push(patternContainer, "toplevel");
     // When inline, all modules are in a single file; don't read imports from file
     if(!inline) c.push("pathconfig", pcfg); 
     rascalPreCollectInitialization(pt, c);
+    for(imp <- istate.contains[moduleName]){
+        if(istate.tmodels[imp]?){
+            println("+++ adding TModel <imp>");
+            c.addTModel(istate.tmodels[imp]);
+        } else {
+            collect(istate.modules[imp], c);
+            println("+++collecting   <imp>");
+        }
+    }
+    startTime = cpuTime();
     collect(pt, c);
- 
     tm = c.run();
-    afterExtractTime = cpuTime();   
+    collectTime = cpuTime() - startTime; 
+    startTime = cpuTime(); 
     tm = rascalPreSolver(pt, tm);
     s = newSolver(pt, tm, debug=debug);
     tm = s.run();
- //   tm = rascalPostValidation(tm);
     
-    afterValidateTime = cpuTime();
+    solveTime = cpuTime() - startTime;
     
     ProfileData prof = profile(file=getLoc(pt));
     
     if(!inline){
-        prof.collector = (afterExtractTime - startTime)/1000000;
-        prof.solver = (afterValidateTime - afterExtractTime)/1000000;
+        prof.collector = collectTime/1000000;
+        prof.solver = solveTime/1000000;
     }
-   
+    println("\>\>\> checking <moduleName> complete");
     return <prof, tm>;
 }
 
 // name of the production has to mirror the Kernel compile result
 data ModuleMessages = program(loc src, set[Message] messages);
 
-ModuleMessages check(str mname, PathConfig pcfg){
+ModuleMessages check(str moduleName, PathConfig pcfg){
     pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
-    println("=== check: <mname>"); iprintln(pcfg1);
+    println("=== check: <moduleName>"); iprintln(pcfg1);
     mloc = |unknown:///|(0,0,<0,0>,<0,0>);
     try {
-        tm = rascalTModelFromName(mname, pcfg);
-        mloc = getModuleLocation(mname, pcfg);
+        tm = rascalTModelFromName(moduleName, pcfg);
+        mloc = getModuleLocation(moduleName, pcfg);
         return program(mloc, toSet(tm.messages));
     } catch value e: {
         return program(mloc, {error("During validation: <e>", mloc)});
@@ -254,14 +310,14 @@ ModuleMessages check(loc file, PathConfig pcfg){
     return program(file, toSet(tm.messages));
 }
 
-list[ModuleMessages] check(list[str] mnames, PathConfig pcfg){
-    return [ check(mname, pcfg) | mname <- mnames ];
+list[ModuleMessages] check(list[str] moduleNames, PathConfig pcfg){
+    return [ check(moduleName, pcfg) | moduleName <- moduleNames ];
 }
 
 list[ModuleMessages] check(list[loc] files, PathConfig pcfg){
     pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
     println("=== check: <files>"); iprintln(pcfg1);
-    p = e = v = s = 0;
+    e = v = s = 0;
     mms = [];
     pds = [];
     for(file <- files){
@@ -269,12 +325,12 @@ list[ModuleMessages] check(list[loc] files, PathConfig pcfg){
         report(pd);
         pds += pd;
         mms += program(file, toSet(tm.messages));
-        p += pd.parser; e += pd.collector; v += pd.solver; s += pd.save;
+        e += pd.collector; v += pd.solver; s += pd.save;
     }
     println("SUMMARY");
     for(pd <- pds) report(pd);
     println("TOTAL");
-    report(profile(parser=p, collector=e, solver=v,save=s));
+    report(profile(collector=e, solver=v,save=s));
     return mms;
 }
 
@@ -282,8 +338,8 @@ list[ModuleMessages] checkAll(loc root, PathConfig pcfg){
      return [ check(moduleLoc, pcfg) | moduleLoc <- find(root, "rsc") ]; 
 }
 
-list[Message] validateModules(str mname, bool debug=false) {
-    return rascalTModelFromName(mname, getDefaultPathConfig(), debug=debug).messages;
+list[Message] validateModules(str moduleName, bool debug=false) {
+    return rascalTModelFromName(moduleName, getDefaultPathConfig(), debug=debug).messages;
 }
 
 void testModules(str names...) {

@@ -1,3 +1,4 @@
+@bootstrapParser
 module lang::rascalcore::check::TypePalConfig
  
 extend analysis::typepal::TypePal;
@@ -239,9 +240,10 @@ AType xxInstantiateRascalTypeParameters(AType t, Bindings bindings, Solver s){
     if(isEmpty(bindings))
         return t;
     else
-        return visit(t) { case aparameter(str pname, AType bound):
-                                if(asubtype(bindings[pname], bound))
-                                    insert bindings[pname]; 
+        return visit(t) { case param:aparameter(str pname, AType bound):
+                                if(asubtype(bindings[pname], bound)){
+                                    insert param.label? ? bindings[pname][label=param.label] :  bindings[pname];
+                               }
                                 else 
                                     s.report(error(selector, "Type parameter %q should be less than %t, found %t", pname, bound, bindings[pname]));
                         };
@@ -250,7 +252,7 @@ AType xxInstantiateRascalTypeParameters(AType t, Bindings bindings, Solver s){
 default AType rascalInstantiateTypeParameters(Tree selector, AType def, AType ins, AType act, Solver s) = act;
 
 tuple[bool isNamedType, str typeName, set[IdRole] idRoles] rascalGetTypeNameAndRole(aprod(AProduction p)){
-    return <true, p.def.adtName, {dataId(), nonterminalId(), lexicalId(), layoutId(), keywordId()}>;
+    return <true, getADTName(p.def), {dataId(), nonterminalId(), lexicalId(), layoutId(), keywordId()}>;
 }
 
 tuple[bool isNamedType, str typeName, set[IdRole] idRoles] rascalGetTypeNameAndRole(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)){
