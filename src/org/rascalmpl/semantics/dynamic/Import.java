@@ -579,11 +579,13 @@ public abstract class Import {
     Type concreteSyntaxType = env.lookupConcreteSyntaxType(name);
     
     if (abstractDataType != null && concreteSyntaxType != null) {
-        throw new ParseError("Abstract data type and concrete syntax type called \"" + name + "\" in scope, bailing out", uri.getURI(), 0, 0, 0, 0, 0, 0);
+        eval.getMonitor().warning("Abstract data type and concrete syntax type called \"" + name + "\" in scope", uri);
+        return (ITree) tree.asAnnotatable().setAnnotation("Abstract data type and concrete syntax type called \"" + name + "\" in scope", uri);
     }
     
     if (abstractDataType == null && concreteSyntaxType == null) {
-        throw new ParseError("No valid type in concrete syntax fragment", uri.getURI(), 0, 0, 0, 0, 0, 0);
+        eval.getMonitor().warning("No valid type in concrete syntax fragment", uri);
+        return (ITree) tree.asAnnotatable().setAnnotation("No valid type in concrete syntax fragment", uri);
     }
     
     if (abstractDataType != null) { //found an ADT with the right name, checking for parse function
@@ -592,18 +594,22 @@ public abstract class Import {
         env.getAllFunctions(abstractDataType, functions);
         functions = functions.stream().filter(it -> it.hasTag("concreteSyntax") && it.getArity() == 1
           && it.getFunctionType().getArgumentTypes().getFieldType(0).equals(TypeFactory.getInstance().stringType())).collect(Collectors.toList());
-        if (functions.size() > 0) { //found a function from string to ADT, assuming concrete syntax of abstract grammar
+        if (functions.size() == 0) {
+            eval.getMonitor().warning("Could not find context function for " + name, eval.getCurrentAST().getLocation());
+            return (ITree) tree.asAnnotatable().setAnnotation("Could not find context function for " + name, eval.getCurrentAST().getLocation());
+        }
+        try {
             SortedMap<Integer,Integer> corrections = new TreeMap<>();
             String input = replaceAntiQuotesByHoles2(eval, env, lit, antiquotes, corrections);
-            try {
-                Result<IValue> result = functions.get(0).call(new Type[] {TypeFactory.getInstance().stringType()}, new IValue[] {eval.getValueFactory().string(input)}, null);
-                IValue ret = replaceHolesByAntiQuotes2(eval, (IConstructor) result.getValue(), antiquotes, corrections);
-                return ((IRascalValueFactory) eval.getValueFactory()).quote((INode) ret);
-            } catch (Throwable t) {
-                //Parser failed
-                eval.getMonitor().warning("Error in external parser", eval.getCurrentAST().getLocation());
-                //TODO: throw exception here; there can't a non-terminal of the same name
-            }
+            Result<IValue> result = functions.get(0).call(new Type[] {TypeFactory.getInstance().stringType()}, new IValue[] {eval.getValueFactory().string(input)}, null);
+            IValue ret = replaceHolesByAntiQuotes2(eval, (IConstructor) result.getValue(), antiquotes, corrections);
+            return ((IRascalValueFactory) eval.getValueFactory()).quote((INode) ret);
+        } catch (ParseError e) {
+            eval.getMonitor().warning("Could not create hole", eval.getCurrentAST().getLocation());
+            return (ITree) tree.asAnnotatable().setAnnotation("Could not create hole", eval.getCurrentAST().getLocation());
+        } catch (Throwable t) {
+            eval.getMonitor().warning("Error in external parser", eval.getCurrentAST().getLocation());
+            return (ITree) tree.asAnnotatable().setAnnotation("Error in External parser", eval.getCurrentAST().getLocation());
         }
     }
     
@@ -867,10 +873,10 @@ public abstract class Import {
         subTree = (ITree) TreeAdapter.getArgs(subTree).get(0);
         Type type = env.getAbstractDataType(TreeAdapter.yield(subTree));
         if (type == null) {
-            throw new UndeclaredAbstractDataTypeException(type);
+            ISourceLocation loc = TreeAdapter.getLocation(part);
+            throwParseError("Unknown hole type " + TreeAdapter.yield(subTree), loc);
         }
         
-
         List<AbstractFunction> functions = new ArrayList<>();
         env.getAllFunctions(TypeFactory.getInstance().tupleType(stringType, type), functions);
 
@@ -878,15 +884,19 @@ public abstract class Import {
             .filter(it -> it.hasTag("concreteHole") && it.getArity() == 1
                 && it.getFunctionType().getArgumentTypes().getFieldType(0).equals(stringType))
             .collect(Collectors.toList());
-        if (functions.size() > 0) {
-            Result<IValue> result = functions.get(0).call(new Type[] {stringType},
-                new IValue[] {ctx.getValueFactory().string(antiquotes.size() + "")}, null);
-            ITuple holeInfo = (ITuple) result.getValue();
-
-            antiquotes.put(holeInfo.get(1), part);
-            return ((IString) holeInfo.get(0)).getValue();
+        if (functions.size() == 0) {
+            ISourceLocation loc = TreeAdapter.getLocation(part);
+            throwParseError("Hole function missing" + TreeAdapter.yield(subTree), loc);
         }
-        throw new RuntimeException("FIXME");
+        Result<IValue> result = functions.get(0).call(new Type[] {stringType}, new IValue[] {ctx.getValueFactory().string(antiquotes.size() + "")}, null);
+        ITuple holeInfo = (ITuple) result.getValue();
+        
+        antiquotes.put(holeInfo.get(1), part);
+        return ((IString) holeInfo.get(0)).getValue();
+    }
+    
+    private static void throwParseError(String message, ISourceLocation loc) {
+        throw new ParseError(message, loc.top().getURI(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getEndColumn());
     }
 
   private static String createHole(IEvaluator<Result<IValue>> ctx, ITree part, Map<String, ITree> antiquotes) {
