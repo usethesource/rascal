@@ -803,7 +803,6 @@ public abstract class Import {
         Map<IValue, ITree> antiquotes, SortedMap<Integer, Integer> corrections) {
         IList parts = TreeAdapter.getArgs(lit);
         StringBuilder b = new StringBuilder();
-        StringBuilder original = new StringBuilder();
 
         ISourceLocation loc = TreeAdapter.getLocation(lit);
         int offset = 0; // where we are in the parse tree
@@ -823,33 +822,27 @@ public abstract class Import {
             if (cons.equals("text")) {
                 offset += partLen;
                 b.append(TreeAdapter.yield(part));
-                original.append(TreeAdapter.yield(part));
             }
             else if (cons.equals("newline")) {
                 shift += partLen - 1;
                 corrections.put(++offset, shift);
                 b.append('\n');
-                original.append(TreeAdapter.yield(part));
             }
             else if (cons.equals("lt")) {
                 corrections.put(++offset, ++shift);
                 b.append('<');
-                original.append(TreeAdapter.yield(part));
             }
             else if (cons.equals("gt")) {
                 corrections.put(++offset, ++shift);
                 b.append('>');
-                original.append(TreeAdapter.yield(part));
             }
             else if (cons.equals("bq")) {
                 corrections.put(++offset, ++shift);
                 b.append('`');
-                original.append(TreeAdapter.yield(part));
             }
             else if (cons.equals("bs")) {
                 corrections.put(++offset, ++shift);
                 b.append('\\');
-                original.append(TreeAdapter.yield(part));
             }
             else if (cons.equals("hole")) {
                 String hole = createHole2(eval, env, part, antiquotes);
@@ -857,7 +850,6 @@ public abstract class Import {
                 offset += hole.length();
                 corrections.put(offset, shift);
                 b.append(hole);
-                original.append(TreeAdapter.yield(part));
             }
         }
         return b.toString();
