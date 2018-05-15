@@ -2128,7 +2128,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			if (variable == null || variable.getValue() == null) {
 				variable = __eval.getCurrentEnvt().getVariable(name);
 				__eval.warning("deprecated feature: run-time check on variable initialization", getLocation());
-				return org.rascalmpl.interpreter.result.ResultFactory.bool(variable.getValue() != null, __eval);
+				return org.rascalmpl.interpreter.result.ResultFactory.bool(variable != null && variable.getValue() != null, __eval);
 				
 				// TODO: replace above by this
 				// it was not a keyword parameter
