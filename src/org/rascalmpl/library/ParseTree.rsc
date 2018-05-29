@@ -659,6 +659,14 @@ anno set[loc] Tree@links;
 
 @doc{
 .Synopsis
+Annotate the top of the tree with hyperlinks between entities in the tree (or other trees)
+
+This is similar to link and links annotations, except that you can put it as one set at the top of the tree.
+}
+anno rel[loc,loc] Tree@hyperlinks;
+
+@doc{
+.Synopsis
 Tree search result type for <<treeAt>>.
 }
 public data TreeSearchResult[&T<:Tree] = treeFound(&T tree) | treeNotFound();
