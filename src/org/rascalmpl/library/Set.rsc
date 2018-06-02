@@ -526,6 +526,24 @@ public list[&T] sort(set[&T] s) =
 public java list[&T] sort(set[&T] l, bool (&T a, &T b) less) ;
 
 @doc{
+.Synopsis Produce the smallest `k` elements of a set as sorted by the `less` function
+
+.Description
+
+This function is fast if `k` is relatively small, say 10 out of a 1000 elements.
+It operates in O(n*k) time where n is the size of the set.
+ 
+If `k` is a larger value, say `k > 10`, then it's perhaps better to just sort the entire set 
+using the asympotically faster (n*log^2(n)) sort function and take the first `k` elements of the resulting list.
+
+If `k` is a negative number, `top` will return the largest `abs(k)` elements of the set instead of the smallest.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+public java list[&T] top(int k, set[&T] l, bool (&T a, &T b) less) ;
+
+public list[&T] top(int k, set[&T] l) = top(k, l, bool (&T a, &T b) { return a < b; });
+
+@doc{
 .Synopsis
 Flatten a set of sets into a single set.  
 }

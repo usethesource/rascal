@@ -1532,6 +1532,42 @@ public class Prelude {
 		return writer.done();
 	}
 	
+	public IList top(IInteger k, ISet l, IValue cmpv) {
+        final LinkedList<IValue> result = new LinkedList<>();
+        final Less less = new Less((ICallableValue) cmpv);
+        final int K = k.intValue();
+        final int absK = Math.abs(K);
+        
+        if (K == 0) {
+            return values.list();
+        }
+        
+        for (IValue n : l) {
+            if (result.isEmpty()) {
+                result.add(n);
+            } else {
+                int i = 0;
+                
+                for (IValue m : result) {
+                    if (K > 0 ? less.less(n, m) : less.less(m, n))  {
+                        result.add(i, n);
+
+                        if (result.size() > absK) {
+                            result.remove(absK);
+                        }
+                        break;
+                    }
+
+                    i++;
+                }
+            }
+        }
+        
+        IListWriter w = values.listWriter();
+        w.appendAll(result);
+        return w.done();
+    }
+	
 	private IList makeUpTill(int from,int len){
 		IListWriter writer = values.listWriter();
 		for(int i = from ; i < len; i++){
