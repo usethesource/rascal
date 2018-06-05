@@ -29,6 +29,7 @@ import java.util.Set;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.Name;
+import org.rascalmpl.ast.Name.Lexical;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.AbstractFunction;
@@ -636,6 +637,18 @@ public class ModuleEnvironment extends Environment {
 		typeStore.declareAnnotation(onType, label, valueType);
 	}
 	
+	private boolean keywordFormalExists(List<KeywordFormal> haystack, KeywordFormal needle) {
+	    String label = ((Name.Lexical) needle.getName()).getString();
+	    
+	    for (KeywordFormal candidate : haystack) {
+	        if (((Name.Lexical) candidate.getName()).getString().equals(label)) {
+	            return true;
+	        }
+	    }
+	    
+	    return false;
+	}
+	
 	@Override
 	public void declareGenericKeywordParameters(Type adt, Type kwTypes, List<KeywordFormal> formals) {
 		List<KeywordFormal> list = generalKeywordParameters.get(adt);
@@ -644,8 +657,14 @@ public class ModuleEnvironment extends Environment {
 			generalKeywordParameters.put(adt, list);
 		}
 
-		// TODO: check for duplicates and throw exceptions somewhere
-		list.addAll(formals);
+		// due to the `extend` feature we might redeclare many formals, so this loop is to avoid duplicate declaration.
+		// it is important to retain the declaration order, due to the way default expressions can depend on previously declared formals.
+		// this is why the list is a list and not a possibly faster set. 
+		for (KeywordFormal f : formals) {
+		    if (!keywordFormalExists(list, f)) {
+		        list.add(f);
+		    }
+		}
 		
 		for (String label : kwTypes.getFieldNames()) {
 			typeStore.declareKeywordParameter(adt, label, kwTypes.getFieldType(label));
