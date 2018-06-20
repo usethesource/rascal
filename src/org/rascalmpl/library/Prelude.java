@@ -2156,6 +2156,11 @@ public class Prelude {
 		return parse(start, values.mapWriter().done(), input, allowAmbiguity, ctx);
 	}
 	
+	// New method for bootstrapping purposes
+	public IValue parse(IValue start, ISourceLocation input, IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
+        return parse(start, input, allowAmbiguity, ctx);
+    }
+	
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public IValue parse(IValue start, IMap robust, ISourceLocation input, IBool allowAmbiguity, IEvaluatorContext ctx) {
 		Type reified = start.getType();
@@ -2177,10 +2182,20 @@ public class Prelude {
 		}
 	}
 	
+	// New method for bootstrapping purposes
+    public IValue parse(IValue start, IMap robust, ISourceLocation input, IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
+        return parse(start, robust, input, allowAmbiguity, ctx);
+    }
+    
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public IValue parse(IValue start, IString input, IBool allowAmbiguity, IEvaluatorContext ctx) {
 		return parse(start, values.mapWriter().done(), input, allowAmbiguity, ctx);
 	}
+	
+	// New method for bootstrapping purposes
+    public IValue parse(IValue start, IString input, IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
+        return parse(start, input, allowAmbiguity, ctx);
+    }
 	
 	public IValue parse(IValue start, IMap robust, IString input,  IBool allowAmbiguity, IEvaluatorContext ctx) {
 		try {
@@ -2201,9 +2216,17 @@ public class Prelude {
 		}
 	}
 	
+	public IValue parse(IValue start, IMap robust, IString input, IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
+	   return parse(start, robust, input, allowAmbiguity, ctx);     
+	}
+	
 	public IValue parse(IValue start, IString input, ISourceLocation loc,  IBool allowAmbiguity, IEvaluatorContext ctx) {
 		return parse(start, values.mapWriter().done(), input, loc, allowAmbiguity,  ctx);
 	}
+	
+	public IValue parse(IValue start, IString input, ISourceLocation loc,  IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
+	    return parse(start, input, loc, allowAmbiguity, ctx);
+    }
 	
 	public IValue parse(IValue start, IMap robust, IString input, ISourceLocation loc,  IBool allowAmbiguity, IEvaluatorContext ctx) {
 		Type reified = start.getType();
@@ -2222,6 +2245,10 @@ public class Prelude {
 		catch (UndeclaredNonTerminalException e){
 			throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
 		}
+	}
+	
+	public IValue parse(IValue start, IMap robust, IString input, ISourceLocation loc,  IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
+	    return parse(start, robust, input, loc, allowAmbiguity, ctx);
 	}
 	
 	public IString unparse(IConstructor tree) {
