@@ -54,11 +54,9 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 public class RascalFunctionActionExecutor implements IActionExecutor<ITree> {
 	private final static TypeFactory TF = TypeFactory.getInstance();
 	private final IEvaluatorContext ctx;
-	private final boolean isPure;
 
-	public RascalFunctionActionExecutor(IEvaluatorContext ctx, boolean isPure) {
+	public RascalFunctionActionExecutor(IEvaluatorContext ctx) {
 		this.ctx = ctx;
-		this.isPure = isPure;
 	}
 	
 	public void completed(Object environment, boolean filtered) {
@@ -234,7 +232,7 @@ public class RascalFunctionActionExecutor implements IActionExecutor<ITree> {
 	}
 
 	public boolean isImpure(Object rhs) {
-		return !isPure;
+		return true;
 	}
 
 }
