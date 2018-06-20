@@ -668,7 +668,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	
 	
 	@Override	
-	public ITree parseObject(IConstructor grammar, IMap robust, ISourceLocation location, char[] input,  boolean allowAmbiguity, boolean hasSideEffects) {
+	public ITree parseObject(IConstructor grammar, IMap robust, ISourceLocation location, char[] input,  boolean allowAmbiguity) {
 	    IConstructor startSort = (IConstructor) grammar.get("symbol");
 		IGTD<IConstructor, ITree, ISourceLocation> parser = getObjectParser((IMap) grammar.get("definitions"));
 		String name = "";
@@ -686,7 +686,7 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 		initializeRecovery(robust, lookaheads, robustProds);
 		
 		__setInterrupt(false);
-		IActionExecutor<ITree> exec = new RascalFunctionActionExecutor(this, !hasSideEffects);
+		IActionExecutor<ITree> exec = new RascalFunctionActionExecutor(this);
 		 
 		return (ITree) parser.parse(name, location.getURI(), input, exec, new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), new UPTRNodeFactory(allowAmbiguity), (IRecoverer<IConstructor>) null);
 	}
@@ -722,12 +722,12 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 
 	@Override
-	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, ISourceLocation location,  boolean allowAmbiguity, boolean hasSideEffects){
+	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, ISourceLocation location,  boolean allowAmbiguity){
 		IRascalMonitor old = setMonitor(monitor);
 		
 		try {
 			char[] input = getResourceContent(location);
-			return parseObject(startSort, robust, location, input, allowAmbiguity, hasSideEffects);
+			return parseObject(startSort, robust, location, input, allowAmbiguity);
 		}
 		catch(IOException ioex){
 			throw RuntimeExceptionFactory.io(vf.string(ioex.getMessage()), getCurrentAST(), getStackTrace());
@@ -738,10 +738,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 	
 	@Override
-	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, String input, boolean allowAmbiguity, boolean hasSideEffects) {
+	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, String input, boolean allowAmbiguity) {
 		IRascalMonitor old = setMonitor(monitor);
 		try {
-			return parseObject(startSort, robust, URIUtil.invalidLocation(), input.toCharArray(), allowAmbiguity, hasSideEffects);
+			return parseObject(startSort, robust, URIUtil.invalidLocation(), input.toCharArray(), allowAmbiguity);
 		}
 		finally {
 			setMonitor(old);
@@ -749,10 +749,10 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 	
 	@Override
-	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, String input, ISourceLocation loc,  boolean allowAmbiguity, boolean hasSideEffects) {
+	public IConstructor parseObject(IRascalMonitor monitor, IConstructor startSort, IMap robust, String input, ISourceLocation loc,  boolean allowAmbiguity) {
 		IRascalMonitor old = setMonitor(monitor);
 		try{
-			return parseObject(startSort, robust, loc, input.toCharArray(), allowAmbiguity, hasSideEffects);
+			return parseObject(startSort, robust, loc, input.toCharArray(), allowAmbiguity);
 		}finally{
 			setMonitor(old);
 		}

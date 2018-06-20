@@ -229,6 +229,7 @@ public class Webserver {
           addHeaders(response, header);
           return response;
         } catch (IOException e) {
+          e.printStackTrace(ctx.getStdErr());
           return newFixedLengthResponse(Status.NOT_FOUND, "text/plain", l + " not found.\n" + e);
         } 
       }
