@@ -2151,23 +2151,28 @@ public class Prelude {
 	
 	protected final TypeReifier tr;
 
-	// REFLECT -- copy in {@link PreludeCompiled}
 	public IValue parse(IValue start, ISourceLocation input, IBool allowAmbiguity, IEvaluatorContext ctx) {
-		return parse(start, values.mapWriter().done(), input, allowAmbiguity, ctx);
+	    // TODO remove this legacy method
+	    return parse(start, input, allowAmbiguity, values.bool(false), ctx);
+	}
+	    
+	// REFLECT -- copy in {@link PreludeCompiled}
+	public IValue parse(IValue start, ISourceLocation input, IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
+		return parse(start, values.mapWriter().done(), input, allowAmbiguity, hasSideEffects, ctx);
 	}
 	
-	// New method for bootstrapping purposes
-	public IValue parse(IValue start, ISourceLocation input, IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
-        return parse(start, input, allowAmbiguity, ctx);
-    }
+	public IValue parse(IValue start, IMap robust, ISourceLocation input, IBool allowAmbiguity, IEvaluatorContext ctx) {
+	    // TODO remove this legacy method
+        return parse(start, robust, input, allowAmbiguity, values.bool(false), ctx);
+	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public IValue parse(IValue start, IMap robust, ISourceLocation input, IBool allowAmbiguity, IEvaluatorContext ctx) {
+	public IValue parse(IValue start, IMap robust, ISourceLocation input, IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
 		Type reified = start.getType();
 		IConstructor grammar = checkPreconditions(start, reified);
 		
 		try {
-			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, robust, input, allowAmbiguity.getValue());
+			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, robust, input, allowAmbiguity.getValue(), hasSideEffects.getValue());
 		}
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
@@ -2182,26 +2187,16 @@ public class Prelude {
 		}
 	}
 	
-	// New method for bootstrapping purposes
-    public IValue parse(IValue start, IMap robust, ISourceLocation input, IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
-        return parse(start, robust, input, allowAmbiguity, ctx);
-    }
-    
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public IValue parse(IValue start, IString input, IBool allowAmbiguity, IEvaluatorContext ctx) {
-		return parse(start, values.mapWriter().done(), input, allowAmbiguity, ctx);
+	public IValue parse(IValue start, IString input, IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
+		return parse(start, values.mapWriter().done(), input, allowAmbiguity, hasSideEffects, ctx);
 	}
 	
-	// New method for bootstrapping purposes
-    public IValue parse(IValue start, IString input, IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
-        return parse(start, input, allowAmbiguity, ctx);
-    }
-	
-	public IValue parse(IValue start, IMap robust, IString input,  IBool allowAmbiguity, IEvaluatorContext ctx) {
+	public IValue parse(IValue start, IMap robust, IString input,  IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
 		try {
 			Type reified = start.getType();
 			IConstructor grammar = checkPreconditions(start, reified);
-			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, robust, input.getValue(), allowAmbiguity.getValue());
+			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, robust, input.getValue(), allowAmbiguity.getValue(), hasSideEffects.getValue());
 		}
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
@@ -2216,23 +2211,15 @@ public class Prelude {
 		}
 	}
 	
-	public IValue parse(IValue start, IMap robust, IString input, IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
-	   return parse(start, robust, input, allowAmbiguity, ctx);     
-	}
-	
-	public IValue parse(IValue start, IString input, ISourceLocation loc,  IBool allowAmbiguity, IEvaluatorContext ctx) {
-		return parse(start, values.mapWriter().done(), input, loc, allowAmbiguity,  ctx);
-	}
-	
 	public IValue parse(IValue start, IString input, ISourceLocation loc,  IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
-	    return parse(start, input, loc, allowAmbiguity, ctx);
-    }
+		return parse(start, values.mapWriter().done(), input, loc, allowAmbiguity,  hasSideEffects, ctx);
+	}
 	
-	public IValue parse(IValue start, IMap robust, IString input, ISourceLocation loc,  IBool allowAmbiguity, IEvaluatorContext ctx) {
+	public IValue parse(IValue start, IMap robust, IString input, ISourceLocation loc,  IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		try {
-			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue(), loc, allowAmbiguity.getValue());
+			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue(), loc, allowAmbiguity.getValue(), hasSideEffects.getValue());
 		}
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn());
@@ -2245,10 +2232,6 @@ public class Prelude {
 		catch (UndeclaredNonTerminalException e){
 			throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
 		}
-	}
-	
-	public IValue parse(IValue start, IMap robust, IString input, ISourceLocation loc,  IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
-	    return parse(start, robust, input, loc, allowAmbiguity, ctx);
 	}
 	
 	public IString unparse(IConstructor tree) {
