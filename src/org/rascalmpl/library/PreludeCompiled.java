@@ -306,10 +306,18 @@ public class PreludeCompiled extends Prelude {
 	public IValue parse(IValue start, ISourceLocation input, IBool allowAmbiguity, RascalExecutionContext rex) {
 		return rex.getParsingTools().parse(super.values.string(rex.getFullModuleName()), start, input, allowAmbiguity.getValue(), null, rex);
 	}
+	
+	public IValue parse(IValue start, ISourceLocation input, IBool allowAmbiguity, IBool hasSideEffects, RascalExecutionContext rex) {
+	    return parse(start, input, allowAmbiguity, rex);
+	}
 
 	// public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin);
 	public IValue parse(IValue start, IString input, IBool allowAmbiguity, RascalExecutionContext rex) {
 		return rex.getParsingTools().parse(super.values.string(rex.getFullModuleName()), start, input, allowAmbiguity.getValue(), null, rex);
+	}
+	
+	public IValue parse(IValue start, IString input, IBool allowAmbiguity, IBool hasSideEffects, RascalExecutionContext rex) {
+	    return parse(start, input, allowAmbiguity, rex);
 	}
 	
 	private TypeStore typeStore = new TypeStore();
