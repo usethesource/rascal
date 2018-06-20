@@ -2151,9 +2151,19 @@ public class Prelude {
 	
 	protected final TypeReifier tr;
 
+	public IValue parse(IValue start, ISourceLocation input, IBool allowAmbiguity, IEvaluatorContext ctx) {
+	    // TODO remove this legacy method
+	    return parse(start, input, allowAmbiguity, values.bool(false), ctx);
+	}
+	    
 	// REFLECT -- copy in {@link PreludeCompiled}
 	public IValue parse(IValue start, ISourceLocation input, IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
 		return parse(start, values.mapWriter().done(), input, allowAmbiguity, hasSideEffects, ctx);
+	}
+	
+	public IValue parse(IValue start, IMap robust, ISourceLocation input, IBool allowAmbiguity, IEvaluatorContext ctx) {
+	    // TODO remove this legacy method
+        return parse(start, robust, input, allowAmbiguity, values.bool(false), ctx);
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
