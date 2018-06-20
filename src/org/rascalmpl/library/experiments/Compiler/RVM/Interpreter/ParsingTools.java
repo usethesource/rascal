@@ -210,7 +210,7 @@ public class ParsingTools {
 		    name, 
 		    location.getURI(), 
 		    input, 
-		    new RascalFunctionActionExecutor(rex), 
+		    new RascalFunctionActionExecutor(rex, false), 
 		    new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), 
 		    new UPTRNodeFactory(allowAmbiguity), (IRecoverer<IConstructor>) null
 		    );
