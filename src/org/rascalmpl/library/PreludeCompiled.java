@@ -8,11 +8,18 @@ import java.util.Iterator;
 import java.util.Set;
 
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
+import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ICallableCompiledValue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.repl.LimitedLineWriter;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.uptr.visitors.TreeVisitor;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -31,12 +38,6 @@ import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
-import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
 /*
  * This class overrides methods from Prelude that need to be handled differenty in compiled code.
@@ -302,23 +303,25 @@ public class PreludeCompiled extends Prelude {
 	}
 	// end of sorting functions
 	
-	// public java &T<:Tree parse(type[&T<:Tree] begin, str input);
 	public IValue parse(IValue start, ISourceLocation input, IBool allowAmbiguity, RascalExecutionContext rex) {
-		return rex.getParsingTools().parse(super.values.string(rex.getFullModuleName()), start, input, allowAmbiguity.getValue(), null, rex);
-	}
+        // TODO remove this legacy method
+        return parse(start, input, allowAmbiguity, values.bool(false), rex);
+    }
 	
+	// public java &T<:Tree parse(type[&T<:Tree] begin, str input);
 	public IValue parse(IValue start, ISourceLocation input, IBool allowAmbiguity, IBool hasSideEffects, RascalExecutionContext rex) {
-	    return parse(start, input, allowAmbiguity, rex);
+		return rex.getParsingTools().parse(super.values.string(rex.getFullModuleName()), start, input, allowAmbiguity.getValue(), hasSideEffects.getValue(), null, rex);
 	}
 
 	// public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin);
-	public IValue parse(IValue start, IString input, IBool allowAmbiguity, RascalExecutionContext rex) {
-		return rex.getParsingTools().parse(super.values.string(rex.getFullModuleName()), start, input, allowAmbiguity.getValue(), null, rex);
+	public IValue parse(IValue start, IString input, IBool allowAmbiguity, IBool hasSideEffects, RascalExecutionContext rex) {
+		return rex.getParsingTools().parse(super.values.string(rex.getFullModuleName()), start, input, allowAmbiguity.getValue(), hasSideEffects.getValue(), null, rex);
 	}
 	
-	public IValue parse(IValue start, IString input, IBool allowAmbiguity, IBool hasSideEffects, RascalExecutionContext rex) {
-	    return parse(start, input, allowAmbiguity, rex);
-	}
+	public IValue parse(IValue start, IString input, IBool allowAmbiguity, RascalExecutionContext rex) {
+	    // TODO remove this legacy method
+        return parse(start, input, allowAmbiguity, values.bool(false), rex);
+    }
 	
 	private TypeStore typeStore = new TypeStore();
 	
