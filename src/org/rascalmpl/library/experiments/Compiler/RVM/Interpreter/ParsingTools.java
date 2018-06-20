@@ -20,16 +20,6 @@ import org.rascalmpl.parser.gtd.result.out.DefaultNodeFlattener;
 import org.rascalmpl.parser.uptr.UPTRNodeFactory;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.ProductionAdapter;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.SymbolAdapter;
-import org.rascalmpl.values.uptr.TreeAdapter;
-import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
-
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -43,6 +33,15 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.uptr.visitors.IdentityTreeVisitor;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 public class ParsingTools {
 	private final IValueFactory vf;
@@ -82,8 +81,8 @@ public class ParsingTools {
 	 * @param rex 			RascalExecutionContext
 	 * @return ParseTree or Exception
 	 */
-	public IValue parse(IString moduleName, IValue start, IString input, boolean allowAmbiguity, boolean hasSideEffects, Frame currentFrame, RascalExecutionContext rex) {
-		return parse(moduleName, start, vf.mapWriter().done(), URIUtil.invalidLocation(), input.getValue().toCharArray(), allowAmbiguity, hasSideEffects, currentFrame, rex);
+	public IValue parse(IString moduleName, IValue start, IString input, boolean allowAmbiguity, Frame currentFrame, RascalExecutionContext rex) {
+		return parse(moduleName, start, vf.mapWriter().done(), URIUtil.invalidLocation(), input.getValue().toCharArray(), allowAmbiguity, currentFrame, rex);
 	}
 	
 	/**
@@ -95,8 +94,8 @@ public class ParsingTools {
 	 * @param rex 			RascalExecutionContext
 	 * @return ParseTree or Exception
 	 */
-	public IValue parse(IString moduleName, IValue start, IString input, ISourceLocation location, boolean allowAmbiguity, boolean hasSideEffects, Frame currentFrame, RascalExecutionContext rex) {
-		return parse(moduleName, start, vf.mapWriter().done(), location, input.getValue().toCharArray(), allowAmbiguity, hasSideEffects, currentFrame, rex);
+	public IValue parse(IString moduleName, IValue start, IString input, ISourceLocation location, boolean allowAmbiguity, Frame currentFrame, RascalExecutionContext rex) {
+		return parse(moduleName, start, vf.mapWriter().done(), location, input.getValue().toCharArray(), allowAmbiguity, currentFrame, rex);
 	}
 	
 	/**
@@ -108,10 +107,10 @@ public class ParsingTools {
 	 * @param input			To be parsed as location
 	 * @return ParseTree or Exception
 	 */
-	public IValue parse(IString moduleName, IValue start, ISourceLocation location, boolean allowAmbiguity, boolean hasSideEffects, Frame currentFrame, RascalExecutionContext rex) {
+	public IValue parse(IString moduleName, IValue start, ISourceLocation location, boolean allowAmbiguity, Frame currentFrame, RascalExecutionContext rex) {
 		try {
 			char[] input = getResourceContent(location);
-			return parse(moduleName, start,  vf.mapWriter().done(), location, input, allowAmbiguity, hasSideEffects, currentFrame, rex);
+			return parse(moduleName, start,  vf.mapWriter().done(), location, input, allowAmbiguity, currentFrame, rex);
 		}
 		catch(IOException ioex){
 			throw RascalRuntimeException.io(vf.string(ioex.getMessage()), currentFrame);
@@ -129,13 +128,13 @@ public class ParsingTools {
 	 * @param rex 			RascalExecutionContext
 	 * @return
 	 */
-	public IValue parse(IString moduleName, IValue start, IMap robust, ISourceLocation location, char[] input, boolean allowAmbiguity, boolean hasSideEffects, Frame currentFrame, RascalExecutionContext rex) {
+	public IValue parse(IString moduleName, IValue start, IMap robust, ISourceLocation location, char[] input, boolean allowAmbiguity, Frame currentFrame, RascalExecutionContext rex) {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified, currentFrame);
 		
 		IMap syntax = (IMap) ((IConstructor) start).get(1);
 		try {
-			return parseObject(moduleName, startSort, robust, location, input, syntax, allowAmbiguity, hasSideEffects, rex);
+			return parseObject(moduleName, startSort, robust, location, input, syntax, allowAmbiguity, rex);
 		}
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = vf.sourceLocation(vf.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
@@ -194,7 +193,7 @@ public class ParsingTools {
 	 * @return				ParseTree or Exception
 	 * @throws IOException 
 	 */
-	public ITree parseObject(IString moduleName, IConstructor startSort, IMap robust, ISourceLocation location, char[] input, IMap syntax, boolean allowAmbiguity, boolean hasSideEffects, RascalExecutionContext rex) throws IOException{
+	public ITree parseObject(IString moduleName, IConstructor startSort, IMap robust, ISourceLocation location, char[] input, IMap syntax, boolean allowAmbiguity, RascalExecutionContext rex) throws IOException{
 		IGTD<IConstructor, ITree, ISourceLocation> parser = getObjectParser(moduleName, startSort, location, syntax, rex);
 		
 		String name = ""; moduleName.getValue();
@@ -211,7 +210,7 @@ public class ParsingTools {
 		    name, 
 		    location.getURI(), 
 		    input, 
-		    new RascalFunctionActionExecutor(rex, true), 
+		    new RascalFunctionActionExecutor(rex), 
 		    new DefaultNodeFlattener<IConstructor, ITree, ISourceLocation>(), 
 		    new UPTRNodeFactory(allowAmbiguity), (IRecoverer<IConstructor>) null
 		    );
