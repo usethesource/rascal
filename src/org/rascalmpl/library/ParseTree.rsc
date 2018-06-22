@@ -453,6 +453,27 @@ public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool all
 @reflect{Uses information about syntax definitions at call site}
 public java &T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false, bool hasSideEffects=false);
 
+
+@doc{
+.Synopsis parse the input but instead of returning the entire tree, return the trees for the first ambiguous substring.
+
+.Description
+
+This function is similar to the [[parse]] function in its functionality. However, in case of serious ambiguity parse
+could be very slow. This function is much faster, because it does not try to construct an entire forest and thus avoids
+the cost of constructing nested ambiguity clusters. 
+
+If the input sentence is not ambiguous after all, simply the entire tree is returned.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{Uses information about syntax definitions at call site}
+public java Tree firstAmbiguity(type[&T<:Tree] begin, str input);
+
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{Uses information about syntax definitions at call site}
+public java Tree firstAmbiguity(type[&T<:Tree] begin, loc input);
+
+
 @doc{
 .Synopsis
 Yield the string of characters that form the leafs of the given parse tree.

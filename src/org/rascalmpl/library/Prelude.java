@@ -2188,6 +2188,45 @@ public class Prelude {
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
+    public IValue firstAmbiguity(IValue start, IString input, IEvaluatorContext ctx) {
+        Type reified = start.getType();
+        IConstructor grammar = checkPreconditions(start, reified);
+        
+        try {
+            return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, values.mapWriter().done(), input.getValue(), false, false);
+        }
+        catch (ParseError pe) {
+            ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
+            throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
+        }
+        catch (Ambiguous e) {
+            return e.getTree();
+        }
+        catch (UndeclaredNonTerminalException e){
+            throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
+        }
+    }
+    
+    public IValue firstAmbiguity(IValue start, ISourceLocation input, IEvaluatorContext ctx) {
+        Type reified = start.getType();
+        IConstructor grammar = checkPreconditions(start, reified);
+        
+        try {
+            return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, values.mapWriter().done(), input, false, false);
+        }
+        catch (ParseError pe) {
+            ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
+            throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
+        }
+        catch (Ambiguous e) {
+            return e.getTree();
+        }
+        catch (UndeclaredNonTerminalException e){
+            throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
+        }
+    }
+	
+	// REFLECT -- copy in {@link PreludeCompiled}
 	public IValue parse(IValue start, IString input, IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
 		return parse(start, values.mapWriter().done(), input, allowAmbiguity, hasSideEffects, ctx);
 	}
