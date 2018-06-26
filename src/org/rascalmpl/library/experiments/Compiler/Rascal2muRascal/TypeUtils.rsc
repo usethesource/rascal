@@ -292,7 +292,7 @@ void extractScopes(Configuration c){
    
    consLocationTypes = (l : t | l <- config.locationTypes, t:cons(_,_,_) := config.locationTypes[l]); 
 
-   for(uid <- sort(toList(domain(config.store)))){
+   for(/*int*/ uid <- sort(toList(domain(config.store)))){
       item = config.store[uid];
       //println("<uid>: <item>");
       if(containsInvalidSymbols(item)) { println("*** Suspicious store[<uid>}: <item>"); }
@@ -490,7 +490,7 @@ void extractScopes(Configuration c){
     		mvar_pos = <fuid_module_init, i + 1>;
             uid2addr[topdecls[i]] = mvar_pos;
             // Associate this module variable's address with all its uses
-            for(u <- config.uses[topdecls[i]] ? {}){
+            for(/*loc*/ u <- config.uses[topdecls[i]] ? {}){
                 uid2addr[getLoc2uid(u)] = mvar_pos;
             }
             // Assign local positions to variables occurring in module variable initializations
@@ -566,7 +566,7 @@ void extractScopes(Configuration c){
         	non_kwp_pos = <fuid_str, i + nformals + 1>;
         	uid2addr[decls_non_kwp[i]] = non_kwp_pos;
         	// Associate this non-keyword variable's address with all its uses
-        	for(u <- config.uses[decls_non_kwp[i]] ? {}){
+        	for(/*loc*/ u <- config.uses[decls_non_kwp[i]] ? {}){
                 uid2addr[getLoc2uid(u)] = non_kwp_pos;
             }
         }
@@ -1407,7 +1407,7 @@ private Symbol translateType1(t: (UserType) `<QualifiedName name>[<{Type ","}+ p
 	if(isAlias(val)) {
 		// instantiate type parameters
 		aparameters = [p | p <- parameters]; // should be unnecessary
-		boundParams = [ translateType1(p) | p <- aparameters];
+		boundParams = [ translateType1(p) | Type p <- aparameters];
 		
 		assert size(aparameters) == size(val.rtype.parameters);
 		
