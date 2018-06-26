@@ -113,7 +113,7 @@ tuple[set[set[&T]], list[&T]]  stronglyConnectedComponentsAndTopSort(Graph[&T] g
                 <w, stack> = pop(stack);
                 onStack -= {w};
                 scc += {w};
-                topsort = w + topsort;
+                topsort = [w] + topsort;
             } while (w != v);
             components += {scc};
         }
