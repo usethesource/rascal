@@ -27,8 +27,10 @@ module analysis::graphs::Graph
 
 import Exception;
 import Set;
+import List;
 import Relation;
-import IO;      
+import IO; 
+import util::Math;    
    
 alias Graph[&T] = rel[&T from, &T to];
 
@@ -43,18 +45,87 @@ import  analysis::graphs::Graph;
 order({<3,4>, <1,2>, <2,4>, <1,3>});
 ----
 }
-public list[&T] order(Graph[&T] g) {
-  result = [];
-  b = bottom(g);
-  solve (g) {
-    t = top(g);
-    if(isEmpty(t)){ // a cycle remains and cannot be ordered
-       return result + toList(carrier(g)) + [e | e <- b];
+list[&T] order(Graph[&T] g){
+    <components, topsort> = stronglyConnectedComponentsAndTopSort(g);
+    return topsort;
+}
+
+@doc{
+.Synopsis
+Compute strongly connected components in a graph.
+
+.Examples
+[source,rascal-shell]
+----
+import  analysis::graphs::Graph;
+stronglyConnectedComponents({<1, 2>, <2, 3>, <3, 2>, <2, 4>, <4, 2>, <3, 5>, <5, 3>, <4, 5>, <5, 3>});
+----
+}
+set[set[&T]] stronglyConnectedComponents(Graph[&T] g){
+    <components, topsort> = stronglyConnectedComponentsAndTopSort(g);
+    return components;
+}
+
+/*
+ * Tarjan's algorithm for computing strongly connected components in a graph
+ * Returns 
+ * - a set of strongly connected components (sets of vertices)
+ * - the topological sort of vertices even for cyclic graphs)
+ * See https://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm
+ */
+tuple[set[set[&T]], list[&T]]  stronglyConnectedComponentsAndTopSort(Graph[&T] g){
+    int index = 0;              // depth-first search node number counter
+    map[&T, int] low = ();      // smallest index of any node known to be reachable from v
+    map[&T, int] indexOf = ();  // maps nodes to their index
+    set[&T] onStack = {};       // set of nodes on current stack
+    list[&T] stack = [];        // node stack contains nodes of SCC under construction
+    
+    components = {};            // set of SCCs to be constructed
+    topsort = [];
+    
+    void strongConnect(&T v){
+        // Set the depth index for v to the smallest unused index
+        indexOf[v] = index;
+        low[v] = index;
+        index += 1;
+        stack = push(v, stack);
+        onStack += v;
+        
+        // Consider successors of v
+        for(&T w <- successors(g, v)){
+            if(!indexOf[w]?){
+              // Successor w has not yet been visited; recurse on it
+              strongConnect(w);
+              low[v] = min(low[v], low[w]);
+            } else if(w in onStack){
+                // Successor w is in stack S and hence in the current SCC
+                // If w is not on stack, then (v, w) is a cross-edge in the DFS tree and must be ignored
+               low[v] = min(low[v], indexOf[w]);
+            }
+         }
+         
+        // If v is a root node, pop the stack and generate an SCC
+        if(low[v] == indexOf[v]){
+            // Start a new strongly connected component
+            scc = {};
+            &T w = v;
+            do {
+                <w, stack> = pop(stack);
+                onStack -= w;
+                scc += w;
+                topsort = w + topsort;
+            } while (w != v);
+            components += {scc};
+        }
     }
-    result = result + [e | e <- t];
-    g = { <from,to> | <from,to> <- g, from notin t};
-  }
-  return result + [e | e <- b];
+    
+    for(v <- carrier(g)){
+        if(!indexOf[v]?){
+            strongConnect(v);
+        }
+    }
+    
+    return <components, topsort>;
 }
 
 @doc{
