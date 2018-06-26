@@ -89,7 +89,7 @@ tuple[set[set[&T]], list[&T]]  stronglyConnectedComponentsAndTopSort(Graph[&T] g
         low[v] = index;
         index += 1;
         stack = push(v, stack);
-        onStack += v;
+        onStack += {v};
         
         // Consider successors of v
         for(&T w <- successors(g, v)){
@@ -111,8 +111,8 @@ tuple[set[set[&T]], list[&T]]  stronglyConnectedComponentsAndTopSort(Graph[&T] g
             &T w = v;
             do {
                 <w, stack> = pop(stack);
-                onStack -= w;
-                scc += w;
+                onStack -= {w};
+                scc += {w};
                 topsort = w + topsort;
             } while (w != v);
             components += {scc};
