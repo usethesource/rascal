@@ -1,11 +1,13 @@
 module lang::rascalcore::check::Test1 
 
-syntax A = small_a: "a";
-  
-syntax Expression
-    =  A!small_a from ":" A to 
+import ParseTree;
+
+syntax Commands
+    = \commandlist: EvalCommand+ commands
     ;
 
-A g(Expression e) {
-    return e.from;
+syntax EvalCommand = "e";
+
+value commands2patch(Commands pt) {
+    return pt.args[0].args;
 }
