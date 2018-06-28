@@ -1,17 +1,20 @@
-@bootstrapParser
+//
 module lang::rascalcore::check::Pattern
 
 extend analysis::typepal::TypePal;
+
+extend lang::rascalcore::check::AType;
+extend lang::rascalcore::check::ConvertType;
+extend lang::rascalcore::check::Expression;
+
 import analysis::typepal::FailMessage;
 
-import lang::rascal::\syntax::Rascal;
-extend lang::rascalcore::check::AType;
-extend lang::rascalcore::check::ATypeUtils;
+import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::ATypeExceptions;
 import lang::rascalcore::check::TypePalConfig;
-import lang::rascalcore::check::ConvertType;
 
-import lang::rascalcore::check::Expression;
+import lang::rascal::\syntax::Rascal;
+
 import String;
 import Set;
 import IO;
@@ -70,21 +73,46 @@ default AType getPatternType(Pattern p, AType subjectType, loc scope, Solver s){
 //    c.fact(current, arat());
 //}
 
+void collect(current: (Literal)`<RegExpLiteral regExpLiteral>`, Collector c){
+    c.fact(current, regExpLiteral);
+    collect(regExpLiteral, c);
+    
+}
+
 void collect(current: (RegExpLiteral)`/<RegExp* regexps>/<RegExpModifier modifier>`,Collector c) {
     c.fact(current, astr());
     collect(regexps, modifier, c);
 }
 
-void collect(current:(RegExp)`\<<Name name>\>`, Collector c) {
-    c.use(name, {variableId()});
-    c.fact(current, astr());
+void collect(RegExp regExp, Collector c){
+    if( (RegExp)`\<<Name name>\>` := regExp){
+        c.use(name, {variableId()});
+    } else if ((RegExp)`\<<Name name>:<NamedRegExp* regexps>\>` := regExp){
+        c.define("<name>", variableId(), name, defType(astr()));
+        collect(name, regexps, c);
+    }
+    c.fact(regExp, astr());
+    // ignore other RegExp cases
 }
 
-void collect(current: (RegExp)`\<<Name name>:<NamedRegExp* regexps>\>`, Collector c) {
-    c.define("<name>", variableId(), name, defType(astr()));
-    c.fact(current, astr());
-    collect(name, regexps, c);
+void collect(NamedRegExp namedRegExp, Collector c){
+   // don't collect further down
 }
+
+//void collect(current: (RegExp)`\<<Name name>\>`, Collector c) {
+//    c.use(name, {variableId()});
+//    c.fact(current, astr());
+//}
+//
+//void collect(current: (RegExp)`\<<Name name>:<NamedRegExp* regexps>\>`, Collector c) {
+//    c.define("<name>", variableId(), name, defType(astr()));
+//    c.fact(current, astr());
+//    collect(name, regexps, c);
+//}
+
+//void collect(Regexp regExp, Collector c){
+//    // ignore other RegExp cases
+//}
 
 //void collect(Pattern current:(Literal)`<StringLiteral sl>`, Collector c){
 //    c.fact(current, astr());
@@ -385,7 +413,7 @@ AType getSplicePatternType(Pattern current, Pattern argument,  AType subjectType
                   s.fact(current, elmType); // <<
                   subjectType = s.instantiate(elmType);
                }
-           //} catch TypeUnavailable(): {
+           //} catch TypeUnavailable(_): {
            //     nameElementType = subjectType;
            //    //s.fact(argName, nameElementType); //<<
            //    s.fact(current, nameElementType); //<<

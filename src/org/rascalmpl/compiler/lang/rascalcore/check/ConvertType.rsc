@@ -8,7 +8,6 @@
 
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Paul Klint - Paul.Klint@cwi.nl (CWI)}
-@bootstrapParser
 module lang::rascalcore::check::ConvertType
 
 import Set;
@@ -19,13 +18,13 @@ import Node;
 import Map;
 
 extend analysis::typepal::TypePal;
+
 extend lang::rascalcore::check::AType;
-extend lang::rascalcore::check::TypePalConfig;
 
 import lang::rascalcore::check::ATypeExceptions;
-
 import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::ATypeInstantiation;
+import lang::rascalcore::check::TypePalConfig;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::grammar::definition::Symbols;
@@ -72,9 +71,18 @@ void collect(current: (Type) `( <Type tp> )`, Collector c){
     collect(tp, c);
 }
 
+//void collect(current: (TypeVar) `& <Name name>`, Collector c){
+//x = 1;
+//}
+//
+//void collect(current: (TypeVar) `& <Name name> \<:<Type bound>`, Collector c){
+//    collect(bound, c);
+//}
+
 // ---- basic types -----------------------------------------------------------
 
 @doc{Convert from the concrete to the abstract representations of Rascal basic types.}
+
 
 void collect(current: (BasicType)`bool`, Collector c){ c.fact(current, abool()); }
 
@@ -84,7 +92,8 @@ void collect(current: (BasicType)`rat`, Collector c){ c.fact(current, arat()); }
 
 void collect(current: (BasicType)`real`, Collector c){ c.fact(current, areal()); }
 
-void collect(current: (BasicType)`num`, Collector c){ c.fact(current, anum()); }
+void collect(current: (BasicType)`num`, Collector c){ 
+    c.fact(current, anum()); }
 
 void collect(current: (BasicType)`str`, Collector c){ c.fact(current, astr()); }
 
@@ -100,13 +109,36 @@ void collect(current: (BasicType)`datetime`, Collector c){ c.fact(current, adate
 
 default void collect(BasicType bt, Collector c) { c.report(error(bt, "Illegal use of type `<bt>`")); }
 
+// ---- TypeArgs -------------------------------------------------------------
+
+void collect(current: (TypeArg) `<Type tp>`, Collector c){
+    c.fact(current, tp);
+    collect(tp, c);
+}
+
+void collect(current: (TypeArg) `<Type tp> <Name name>`, Collector c){
+    c.calculate("TypeArg <name>", name, [tp], AType(Solver s){
+       res = (s.getType(tp)[label=unescape("<name>")]);
+       return res;
+     });
+    c.fact(current, name);
+    collect(tp, c);
+}
 // ---- structured types ------------------------------------------------------
 
 @doc{Convert structured types, such as list<<int>>. Check here for certain syntactical 
 conditions, such as: all field names must be distinct in a given type; lists require 
 exactly one type argument; etc.}
 
-void collect(current:(StructuredType)`list [ < {TypeArg ","}+ tas > ]`, Collector c){
+public list[&T] dup(list[&T] lst) {
+  done = {};
+  return for (e <- lst, e notin done) {
+    done = done + {e};
+    append e;
+  }
+}
+
+void collect(current:(Type)`list [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
     if(size(targs) == 1){
         c.calculate("list type", current, targs, AType(Solver s){ 
@@ -117,7 +149,7 @@ void collect(current:(StructuredType)`list [ < {TypeArg ","}+ tas > ]`, Collecto
     collect(tas, c);
 }
 
-void collect(current:(StructuredType)`set [ < {TypeArg ","}+ tas > ]`, Collector c){
+void collect(current:(Type)`set [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
     if(size(targs) == 1){
         c.calculate("set type", current, targs, AType(Solver s){ return makeSetType(s.getType(targs[0])); });
@@ -127,7 +159,7 @@ void collect(current:(StructuredType)`set [ < {TypeArg ","}+ tas > ]`, Collector
     collect(tas, c);
 }
 
-void collect(current:(StructuredType)`bag [ < {TypeArg ","}+ tas > ]`, Collector c){
+void collect(current:(Type)`bag [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
     if(size(targs) == 1){
         c.calculate("bag type", current, targs, AType(Solver s){ return makeBagType(s.getType(targs[0])); });
@@ -136,7 +168,7 @@ void collect(current:(StructuredType)`bag [ < {TypeArg ","}+ tas > ]`, Collector
     }
 }
 
-void collect(current:(StructuredType)`map [ < {TypeArg ","}+ tas > ]`, Collector c){
+void collect(current:(Type)`map [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
     if(size(targs) == 2){
         c.calculate("map type", current, targs, 
@@ -163,7 +195,7 @@ void collect(current:(StructuredType)`map [ < {TypeArg ","}+ tas > ]`, Collector
     collect(tas, c);
 }
 
-void collect(current:(StructuredType)`rel [ < {TypeArg ","}+ tas > ]`, Collector c){
+void collect(current:(Type)`rel [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
     c.calculate("rel type", current, targs, 
         AType(Solver s){
@@ -186,7 +218,7 @@ void collect(current:(StructuredType)`rel [ < {TypeArg ","}+ tas > ]`, Collector
     collect(tas, c);
 }
 
-void collect(current:(StructuredType)`lrel [ < {TypeArg ","}+ tas > ]`, Collector c){
+void collect(current:(Type)`lrel [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
     c.calculate("lrel type", current, targs, 
         AType(Solver s){
@@ -209,7 +241,7 @@ void collect(current:(StructuredType)`lrel [ < {TypeArg ","}+ tas > ]`, Collecto
     collect(tas, c);
 }
 
-void collect(current:(StructuredType)`tuple [ < {TypeArg ","}+ tas > ]`, Collector c){
+void collect(current:(Type)`tuple [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
     c.calculate("tuple type", current, targs, 
         AType(Solver s){
@@ -232,7 +264,7 @@ void collect(current:(StructuredType)`tuple [ < {TypeArg ","}+ tas > ]`, Collect
     collect(tas, c);   
 } 
 
-void collect(current:(StructuredType)`type [ < {TypeArg ","}+ tas > ]`, Collector c){
+void collect(current:(Type)`type [ < {TypeArg ","}+ tas > ]`, Collector c){
     targs = [ta | ta <- tas];
     if(size(targs) == 1){
         c.calculate("type type", current, targs, 
@@ -518,49 +550,49 @@ void collect(current:(Sym) `( <Sym first> <Sym+ sequence> )`, Collector c){
 }
 
 void collect(current:(Sym) `()`, Collector c){
-    c.fact(current, \empty());
+    c.fact(current, AType::empty());
 }
 
 // conditionals
 
 void collect(current:(Sym) `<Sym symbol> @ <IntegerLiteral column>`, Collector c){
-    c.calculate("column", current, [symbol], AType(Solver s) { return conditional(s.getType(symbol), {\at-column(toInt("<column>")) }); });
+    c.calculate("column", current, [symbol], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\at-column(toInt("<column>")) }); });
     collect(symbol, c);
 }
 
 void collect(current:(Sym) `<Sym symbol> $`, Collector c){
-    c.calculate("end-of-line", current, [symbol], AType(Solver s) { return conditional(s.getType(symbol), {\end-of-line() }); });
+    c.calculate("end-of-line", current, [symbol], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\end-of-line() }); });
     collect(symbol, c);
 }
 
 void collect(current:(Sym) `^ <Sym symbol>`, Collector c){
-    c.calculate("begin-of-line", current, [symbol], AType(Solver s) { return conditional(s.getType(symbol), {\begin-of-line() }); });
+    c.calculate("begin-of-line", current, [symbol], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\begin-of-line() }); });
     collect(symbol, c);
 }
 
 void collect(current:(Sym) `<Sym symbol> ! <NonterminalLabel n>`, Collector c){
     un = unescape("<n>");
-    c.calculate("except", current, [symbol], AType(Solver s) { return conditional(s.getType(symbol), {\except(un) }); });
+    c.calculate("except", current, [symbol], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\except(un) }); });
     collect(symbol, c);
 }
 
 void collect(current:(Sym) `<Sym symbol>  \>\> <Sym match>`, Collector c){
-   c.calculate("follow", current, [symbol, match], AType(Solver s) { return conditional(s.getType(symbol), {\follow(s.getType(match)) }); });
+   c.calculate("follow", current, [symbol, match], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\follow(s.getType(match)) }); });
    collect(symbol, match, c);
 }
 
 void collect(current:(Sym) `<Sym symbol>  !\>\> <Sym match>`, Collector c){
-   c.calculate("follow", current, [symbol, match], AType(Solver s) { return conditional(s.getType(symbol), {\not-follow(s.getType(match)) }); });
+   c.calculate("follow", current, [symbol, match], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\not-follow(s.getType(match)) }); });
    collect(symbol, match, c);
 }
 
 void collect(current:(Sym) `<Sym match>  \<\< <Sym symbol>`, Collector c){
-   c.calculate("precede", current, [match, symbol], AType(Solver s) { return conditional(s.getType(symbol), {\precede(s.getType(match)) }); });
+   c.calculate("precede", current, [match, symbol], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\precede(s.getType(match)) }); });
    collect(match, symbol, c);
 }
 
 void collect(current:(Sym) `<Sym match>  !\<\< <Sym symbol>`, Collector c){
-   c.calculate("notPrecede", current, [match, symbol], AType(Solver s) { return conditional(s.getType(symbol), {\not-precede(s.getType(match)) }); });
+   c.calculate("notPrecede", current, [match, symbol], AType(Solver s) { return AType::conditional(s.getType(symbol), {ACondition::\not-precede(s.getType(match)) }); });
    collect(match, symbol, c);
 }
 
@@ -571,7 +603,7 @@ void collect(current:(Sym) `<Sym symbol> \\ <Sym match>`, Collector c){
             if(lit(_) !:= t && (t has syntaxRole && t.syntaxRole != keywordSyntax())){
                 s.report(error(match, "Exclude `\\` requires keywords as right argument, found %t", match));
             }
-            return conditional(s.getType(symbol), {\delete(s.getType(match)) });
+            return AType::conditional(s.getType(symbol), {ACondition::\delete(s.getType(match)) });
         });
    collect(symbol, match, c);
 }

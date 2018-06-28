@@ -3,16 +3,26 @@ test ADTWithTypeParameter [[
     data D[&T] = d1(&T n);
 ]]
 
-test UndefinedTypeParameter [[
+test UnusedTypeParameter [[
     module A
     data D[&T] = d1(&U n);
-]]  expect { "xxx" }
-
+]]
 
 test UnboundTypeParameter [[
     module A
     data D[&T] = d1();
 ]]
+
+test UndefinedBound1 [[
+    module A
+    data D[&T] = d1(&U <: &S n);
+]] expect {  "Undefined typeVar `S`" }
+
+test UndefinedBound2 [[
+    module A
+    data D[&T] = d1(&U <: &S v = 1);
+]] expect {  "Undefined typeVar `S`" }
+
 
 test MissingTypeParameter [[
     module A

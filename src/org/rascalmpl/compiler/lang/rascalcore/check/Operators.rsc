@@ -1,26 +1,25 @@
-@bootstrapParser
+//
 module lang::rascalcore::check::Operators
 
 extend analysis::typepal::TypePal;
  
-import lang::rascalcore::check::AType;
-import lang::rascalcore::check::ATypeUtils;
+extend lang::rascalcore::check::AType;
+
+extend lang::rascalcore::check::ConvertType;
+extend lang::rascalcore::check::Expression;
+extend lang::rascalcore::check::Pattern;
+extend lang::rascalcore::check::Statement;
+
 import lang::rascalcore::check::ATypeExceptions;
-import lang::rascalcore::check::TypePalConfig;
 import lang::rascalcore::check::ATypeInstantiation;
-import lang::rascalcore::check::Pattern;
-import lang::rascalcore::check::Statement;
-import lang::rascalcore::check::ConvertType;
+import lang::rascalcore::check::ATypeUtils;
+import lang::rascalcore::check::TypePalConfig;
 
 import lang::rascal::\syntax::Rascal;
 import Set;
 import Node;
 
 AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, AType t1, Solver s){
-    //t1 = s.instantiate(t1);
-    //if(!s.isFullyInstantiated(t1)){
-    //   throw TypeUnavailable();
-    //}
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
         bin_overloads = {};
         for(<key, idr, tp> <- overloads){
@@ -28,7 +27,7 @@ AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, ATyp
                 bin_overloads += <key, idr, unaryOp(op, computeType, current, tp, s)>;
              } catch checkFailed(list[FailMessage] fms): /* continue with next overload */;
                catch NoBinding(): /* continue with next overload */;
-               catch e:  /* continue with next overload */;
+//>>           catch e:  /* continue with next overload */;
         }
         if(isEmpty(bin_overloads)) s.report(error(current, "%q cannot be applied to %t", op, t1));
         return overloadedAType(bin_overloads);
@@ -38,19 +37,14 @@ AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, ATyp
 }
 
 AType binaryOp(str op, AType(Tree, AType, AType, Solver) computeType, Tree current, AType t1, AType t2, Solver s){
-    //t1 = s.instantiate(t1);
-    //t2 = s.instantiate(t2);
-    //if(!(s.isFullyInstantiated(t1) && s.isFullyInstantiated(t2))){
-    //   throw TypeUnavailable();
-    //}
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
         bin_overloads = {};
         for(<key, idr, tp> <- overloads){
             try {
                 bin_overloads += <key, idr, binaryOp(op, computeType, current, tp, t2, s)>;
-             } catch checkFailed(list[FailMessage] fms): /* continue with next overload */;
-               catch NoBinding(): /* continue with next overload */;
-               catch e: /* continue with next overload */;
+            } catch checkFailed(list[FailMessage] fms): /* continue with next overload */;
+              catch NoBinding(): /* continue with next overload */;
+//>>          catch e: /* continue with next overload */;
         }
         if(isEmpty(bin_overloads)) s.report(error(current, "%q cannot be applied to %t and %t", op, t1, t2));
         return overloadedAType(bin_overloads);
@@ -63,7 +57,7 @@ AType binaryOp(str op, AType(Tree, AType, AType, Solver) computeType, Tree curre
                 bin_overloads += < key, idr, binaryOp(op, computeType, current, t1, tp, s)>;
              } catch checkFailed(list[FailMessage] fms):/* continue with next overload */;
                catch NoBinding(): /* continue with next overload */;
-               catch e: /* continue with next overload */;
+//>>           catch e: /* continue with next overload */;
         }
         if(isEmpty(bin_overloads)) s.report(error(current, "%q cannot be applied to %t and %t", op, t1, t2));
         return overloadedAType(bin_overloads);
@@ -72,12 +66,6 @@ AType binaryOp(str op, AType(Tree, AType, AType, Solver) computeType, Tree curre
 }
 
 AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tree current, AType t1, AType t2, AType t3, Solver s){
-    //t1 = s.instantiate(t1);
-    //t2 = s.instantiate(t2);
-    //t3 = s.instantiate(t3);
-    //if(!(s.isFullyInstantiated(t1) && s.isFullyInstantiated(t2) && s.isFullyInstantiated(t3))){
-    //   throw TypeUnavailable();
-    //}
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
         tern_overloads = {};
         for(<key, idr, tp> <- overloads){
@@ -98,7 +86,7 @@ AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tr
                 tern_overloads += < key, idr, ternaryOp(op, computeType, current, t1, tp, t3, s)>;
              } catch checkFailed(list[FailMessage] fms):/* continue with next overload */;
                catch NoBinding(): /* continue with next overload */;
-               catch e:/* continue with next overload */;
+ //>>          catch e:/* continue with next overload */;
         }
         if(isEmpty(tern_overloads)) s.report(error(current, "%q cannot be applied to %t, %t, and %t", op, t1, t2, t3));
         return overloadedAType(tern_overloads);
@@ -111,7 +99,7 @@ AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tr
                 tern_overloads += < key, idr, ternaryOp(op, computeType, current, t1, t2, tp, s)>;
              } catch checkFailed(list[FailMessage] fms): /* continue with next overload */;
                catch NoBinding(): /* continue with next overload */;
-               catch e: /* continue with next overload */;
+ //>>          catch e: /* continue with next overload */;
         }
         if(isEmpty(tern_overloads)) s.report(error(current, "%q cannot be applied to %t, %t, and %t", op, t1, t2, t3));
         return overloadedAType(tern_overloads);
@@ -236,9 +224,7 @@ void collect(current: (Expression) `! <Expression arg>`, Collector c){
     collect(arg, c); 
 }
 
-AType computeNegation(Tree current, AType t1, Solver s){
-    //if(!s.isFullyInstantiated(t1)) throw TypeUnavailable();
-    
+AType computeNegation(Tree current, AType t1, Solver s){    
     if(isBoolType(t1)) return abool();
     s.report(error(current, "Negation not defined on %t", t1));
 }
@@ -251,9 +237,7 @@ void collect(current: (Expression) `- <Expression arg>`, Collector c){
     collect(arg, c); 
 }
 
-AType computeNegative(Tree current, AType t1, Solver s){
-    //if(!s.isFullyInstantiated(t1)) throw TypeUnavailable();
-    
+AType computeNegative(Tree current, AType t1, Solver s){    
     if(isNumericType(t1)) return t1;
     s.report(error(current, "Negative not defined on %t", t1));
 }
@@ -757,8 +741,9 @@ void collect(current: (Expression) `<Expression lhs> != <Expression rhs>`, Colle
     = checkComparisonOp("!=", current, c);
 
 void checkComparisonOp(str op, Expression current, Collector c){
-    c.calculateEager("comparison `<op>`", current, [current.lhs, current.rhs],
-       AType(Solver s){ return binaryOp(op, _computeComparisonType, current, s.getType(current.lhs), s.getType(current.rhs), s); });
+    c.require("comparison `<op>`", current, [current.lhs, current.rhs],
+       void(Solver s){ binaryOp(op, _computeComparisonType, current, s.getType(current.lhs), s.getType(current.rhs), s); });
+    c.fact(current, abool());
     collect([current.lhs, current.rhs], c);
 }
 
@@ -878,7 +863,7 @@ AType computeEnumeratorElementType(Expression current, AType etype, Solver s) {
     // TODO: For nodes, ADTs, and tuples, would it be better to use the lub of all the possible types?
 
 //println("computeEnumeratorElementType: <etype>");
-     if(!s.isFullyInstantiated(etype)) throw TypeUnavailable();
+     if(!s.isFullyInstantiated(etype)) throw TypeUnavailable(etype);
      
      etype = s.instantiate(etype);
      
@@ -889,7 +874,7 @@ AType computeEnumeratorElementType(Expression current, AType etype, Solver s) {
                 filtered_overloads += <key, role, computeEnumeratorElementType(current, tp, s)>;
             } catch checkFailed(_): /* ignore, try next */;
               catch NoBinding(): /* ignore, try next */;
-              catch e: /* ignore, try next */;
+  //>>        catch e: /* ignore, try next */;
         }
         if(!isEmpty(filtered_overloads)) return overloadedAType(filtered_overloads);
         s.report(error(current, "Type %t is not enumerable", etype));
@@ -1005,7 +990,7 @@ void collect(current: (Expression) `<Expression condition> ? <Expression thenExp
         
         c.calculate("if expression", current, [condition, thenExp, elseExp],
             AType(Solver s){
-                s.requireUnify(abool(), condition, error(condition, "Condition should be `bool`, found %t", condition));
+                s.requireComparable(abool(), condition, error(condition, "Condition should be `bool`, found %t", condition));
                 //clearBindings();
                 //checkConditions([condition]);
                 return s.lub(thenExp, elseExp);

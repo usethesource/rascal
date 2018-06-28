@@ -1,3 +1,11 @@
 module lang::rascalcore::check::Test1 
 
-test bool interpolation3() = /.<x:bc>/ := "abc" && x == "bc";
+syntax A = small_a: "a";
+  
+syntax Expression
+    =  A!small_a from ":" A to 
+    ;
+
+A g(Expression e) {
+    return e.from;
+}
