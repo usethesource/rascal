@@ -633,7 +633,7 @@ void collect (current: (SyntaxDefinition) `<Start strt> syntax <Sym defined> = <
 }
 
 void declareSyntax(SyntaxDefinition current, SyntaxRole syntaxRole, IdRole idRole, Collector c, bool isStart=false, Vis vis=publicVis()){
-    println("declareSyntax: <current>");
+    //println("declareSyntax: <current>");
     Sym defined = current.defined;
     Prod production = current.production;
     nonterminalType = defsym2AType(defined, syntaxRole);
@@ -711,7 +711,7 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Name name> : <Sym* syms
             });
             
         // Define the constructor (using a location annotated with "cons" to differentiate from the above)
-        c.   InScope(adtParentScope, "<name>", constructorId(), getLoc(current)[fragment="cons"], defType([current], 
+        c.defineInScope(adtParentScope, "<name>", constructorId(), getLoc(current)[fragment="cons"], defType([current], 
             AType(Solver s){
                 ptype = s.getType(current);
                 if(aprod(AProduction cprod) := ptype){

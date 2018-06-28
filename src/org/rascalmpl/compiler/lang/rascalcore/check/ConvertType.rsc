@@ -391,9 +391,9 @@ void collect(current:(UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]`, Collect
 // ---- Sym types -------------------------------------------------------------
 
 
-AType getSyntaxType(AType t, Solver s) = stripStart(t);
+AType getSyntaxType(AType t, Solver s) = stripStart(removeConditional(t));
 
-AType getSyntaxType(Tree tree, Solver s) = stripStart(s.getType(tree));
+AType getSyntaxType(Tree tree, Solver s) = stripStart(removeConditional(s.getType(tree)));
 
 private AType stripStart(AType nt) = isStartNonTerminalType(nt) ? getStartNonTerminalType(nt) : nt;
 
