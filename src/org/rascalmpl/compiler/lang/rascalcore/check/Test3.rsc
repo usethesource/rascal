@@ -1,10 +1,25 @@
 module lang::rascalcore::check::Test3
+  
+data Symbol      // <3>
+     = \set(Symbol symbol)
+     | \rel(list[Symbol] symbols)
+     | \lrel(list[Symbol] symbols)
+     | \tuple(list[Symbol] symbols)
+     | \list(Symbol symbol)
+     | \map(Symbol from, Symbol to)
+     | \bag(Symbol symbol)
+     | \adt(str name, list[Symbol] parameters)
+     | \cons(Symbol \adt, str name, list[Symbol] parameters)
+     | \alias(str name, list[Symbol] parameters, Symbol aliased)
+     | \func(Symbol ret, list[Symbol] parameters, list[Symbol] kwTypes)
+     | \func(Symbol ret, list[Symbol] parameters) // deprecated
+     | \overloaded(set[Symbol] alternatives)
+     | \var-func(Symbol ret, list[Symbol] parameters, Symbol varArg)
+     | \reified(Symbol symbol)
+     ;
 
-public int ModVar42 = 42;
-public list[int] ModVarList_41_42_43 = [41, 42, 43];
-//public set[int] ModVarSet_41_42_43 = {41, 42, 43};
-
-test bool matchListModuleVar4() = [ModVar42,*ModVarList_41_42_43] := [ModVar42, *ModVarList_41_42_43];
-
-//test bool matchSetModuleVar2() = {*ModVarSet_41_42_43} := ModVarSet_41_42_43;
-//test bool matchSetModuleVar3() = {ModVar44, *ModVarSet_41_42_43} := {ModVar44, *ModVarSet_41_42_43};
+Symbol main(){
+    Symbol ftype;
+    selected = ftype;
+    return selected.ret;
+}

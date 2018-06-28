@@ -205,3 +205,17 @@ test EXT2 [[ module A
              import C;
              D ddd = d1(10);          
 ]]
+
+test WrongExtend1 [[
+            module A
+            extend B;
+            extend F;
+            
+            module B
+            extend C;
+            
+            module C import D;
+            
+            module D
+            extend F;
+]] expect { "Undefined module `F`" }

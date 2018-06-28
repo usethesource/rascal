@@ -1,12 +1,13 @@
-@bootstrapParser
+
 module lang::rascalcore::check::TypePalConfig
  
 extend analysis::typepal::TypePal;
 
 import lang::rascalcore::check::AType;
-import lang::rascalcore::check::ATypeUtils;
+extend lang::rascalcore::check::Checker;
 extend lang::rascalcore::check::Expression;
-import lang::rascalcore::check::Checker;
+
+import lang::rascalcore::check::ATypeUtils;
 
 import lang::rascal::\syntax::Rascal;
 import List;
@@ -259,11 +260,17 @@ tuple[bool isNamedType, str typeName, set[IdRole] idRoles] rascalGetTypeNameAndR
     return <true, adtName, {dataId(), nonterminalId(), lexicalId(), layoutId(), keywordId()}>;
 }
 
+tuple[bool isNamedType, str typeName, set[IdRole] idRoles] rascalGetTypeNameAndRole(acons(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), _, _)){
+    return <true, adtName, {dataId(), nonterminalId(), lexicalId(), layoutId(), keywordId()}>;
+}
+
 default tuple[bool isNamedType, str typeName, set[IdRole] idRoles] rascalGetTypeNameAndRole(AType t){
     return <false, "", {}>;
 }
 
 AType rascalGetTypeInTypeFromDefine(Define containerDef, str selectorName, set[IdRole] idRolesSel, Solver s){
+    //println("rascalGetTypeInTypeFromDefine: <containerDef>, <selectorName>");
+    //println("commonKeywordFields: <containerDef.defInfo.commonKeywordFields>");
     for(kwf <- containerDef.defInfo.commonKeywordFields){
         if(prettyPrintName(kwf.name) == selectorName){
             return s.getType(kwf.\type);

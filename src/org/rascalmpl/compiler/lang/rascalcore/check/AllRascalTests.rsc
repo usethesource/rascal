@@ -314,9 +314,9 @@ set[Message] allRascalTests(PathConfig pcfg= pathConfig(
   all_crashes += res.crashes; all_msgs += res.msgs;
   res = runTests(files_with_tests, "");
   all_crashes += res.crashes; all_msgs += res.msgs;
-  //
-  //res = runTests(typeTests, "lang::rascal::tests::types", pcfg);
-  //all_crashes += res.crashes; all_msgs += res.msgs;
+  
+  res = runTests(typeTests, "lang::rascal::tests::types");
+  all_crashes += res.crashes; all_msgs += res.msgs;
    
    set_all_msgs = toSet(all_msgs);
    
@@ -374,7 +374,7 @@ bool blacklisted(str qualifiedModuleName){
               "lang::java::flow::JavaToObjectFlow", "lang::java::patterns::JavaToMicroPatterns", "lang::sdf2::util::SDF2Grammar", "lang::sdf2::util::Importer",
               "lang::rascal::tests::library::analysis::formalconcepts::FCATest", "experiments::tutor3::LegacyExamManager", "lang::rascalcore::compile::Benchmarks::JavaMetrics",
               "lang::rascalcore::compile::Benchmarks::SudokuEq", "experiments::Compiler::Benchmarks::SudokuEq", "lang::rascal::checker::TTL::TTLGen"
-              //"experiments", "tests", "types", "boot", "Compiler"
+              // "experiments", "tests", "types", "boot", "Compiler"
              }
     ){
         if(contains(qualifiedModuleName, s)) return true;

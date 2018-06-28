@@ -10,7 +10,7 @@ Redistribution and use in source and binary forms, with or without modification,
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 }
-@bootstrapParser
+
 module lang::rascalcore::check::Checker
               
 /*
@@ -29,31 +29,29 @@ module lang::rascalcore::check::Checker
 import IO;
 import ValueIO;
 import String;
+import Map;
 import util::Benchmark;
 
 import lang::rascal::\syntax::Rascal;
    
 extend analysis::typepal::TypePal;
 
+extend lang::rascalcore::check::ADTSummary;
+extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::Declaration;
 extend lang::rascalcore::check::Expression;
-extend lang::rascalcore::check::Statement;
-extend lang::rascalcore::check::Pattern;
+extend lang::rascalcore::check::Import;
 extend lang::rascalcore::check::Operators;
+extend lang::rascalcore::check::Pattern;
+extend lang::rascalcore::check::Statement;
 
-import lang::rascalcore::check::Import;
+import lang::rascalcore::check::ATypeUtils;
+import lang::rascalcore::check::TypePalConfig;
 
-extend lang::rascalcore::check::AType;
-extend lang::rascalcore::check::ATypeUtils;
-
-extend lang::rascalcore::check::TypePalConfig;
-
-extend lang::rascalcore::check::ADTSummary;
 import lang::rascalcore::grammar::ParserGenerator;
 import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascalcore::grammar::definition::Characters;
 import lang::rascalcore::grammar::definition::Literals;
-
 
 import Set;
 import Relation;
@@ -69,34 +67,43 @@ start syntax Modules
 
 Tree mkTree(int n) = [DecimalIntegerLiteral] "<for(int i <- [0 .. n]){>6<}>"; // Create a unique tree to identify predefined names
  
-void rascalPreCollectInitialization(Tree tree, Collector c){
-    //init_Import();
-    c.enterScope(tree);
-        
-        if(c.getConfig().classicReifier){
-            //data type[&T] = type(Symbol symbol, map[Symbol,Production] definitions);
-            typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
-            SymbolType = aadt("Symbol", [], dataSyntax());
-            ProductionType = aadt("Production", [], dataSyntax());
-            symbolField = SymbolType[label="symbol"]; //<"symbol", SymbolType>;
-            definitionsField = amap(SymbolType, ProductionType)[label="definitions"]; //< "definitions", amap(SymbolType, ProductionType)>;
-            c.define("type", constructorId(), mkTree(2), defType(acons(typeType, /*"type",*/ [symbolField, definitionsField], [], label="type")));
-            // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
-        } else {
-            //data type[&T] = type(AType symbol, map[AType,AProduction] definitions);
-            typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
-            SymbolType = aadt("AType", [], dataSyntax());
-            AProductionType = aadt("AProduction", [], dataSyntax());
-            atypeField = SymbolType[label="symbol"]; //<"symbol", SymbolType>;
-            definitionsField = amap(SymbolType, AProductionType)[label="definitions"]; //< "definitions", amap(SymbolType, AProductionType)>;
-            c.define("type", constructorId(), mkTree(2), defType(acons(typeType, /*"type",*/ [atypeField, definitionsField], [], label="type")));
-            // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
-        }
-    c.leaveScope(tree);
+void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
+    for(tree <- range(namedTrees)){
+        c.enterScope(tree);      
+            // Tree type, field "top"
+            TreeType = aadt("Tree", [], dataSyntax());
+            treeScope = mkTree(1);
+            c.define("Tree", dataId(), treeScope, defType(TreeType));
+            c.enterScope(treeScope);
+                c.define("top", fieldId(), mkTree(2), defType(TreeType));
+            c.leaveScope(treeScope);
+               
+            // Reified type
+            if(c.getConfig().classicReifier){
+                //data type[&T] = type(Symbol symbol, map[Symbol,Production] definitions);
+                typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
+                SymbolType = aadt("Symbol", [], dataSyntax());
+                ProductionType = aadt("Production", [], dataSyntax());
+                symbolField = SymbolType[label="symbol"]; //<"symbol", SymbolType>;
+                definitionsField = amap(SymbolType, ProductionType)[label="definitions"]; //< "definitions", amap(SymbolType, ProductionType)>;
+                c.define("type", constructorId(), mkTree(3), defType(acons(typeType, /*"type",*/ [symbolField, definitionsField], [], label="type")));
+                // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
+            } else {
+                //data type[&T] = type(AType symbol, map[AType,AProduction] definitions);
+                typeType = aadt("Type", [aparameter("T", avalue())], dataSyntax());
+                SymbolType = aadt("AType", [], dataSyntax());
+                AProductionType = aadt("AProduction", [], dataSyntax());
+                atypeField = SymbolType[label="symbol"]; //<"symbol", SymbolType>;
+                definitionsField = amap(SymbolType, AProductionType)[label="definitions"]; //< "definitions", amap(SymbolType, AProductionType)>;
+                c.define("type", constructorId(), mkTree(3), defType(acons(typeType, /*"type",*/ [atypeField, definitionsField], [], label="type")));
+                // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
+            }
+        c.leaveScope(tree);
+    }
 }
 
 // Enhance TModel before running Solver
-TModel rascalPreSolver(Tree pt, TModel m){
+TModel rascalPreSolver(map[str,Tree] namedTrees, TModel m){
     // add transitive edges for extend
     extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- m.paths}+;
     m.paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
@@ -106,7 +113,7 @@ TModel rascalPreSolver(Tree pt, TModel m){
     return m;
 }
 
-void rascalPostSolver(Tree pt, Solver s){
+void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
     //messages = s.getTModel().messages;
    // if(isEmpty(messages)){
              ;//<tm, adtSummaries> = getADTSummaries(getLoc(pt), tm, s);
@@ -128,36 +135,40 @@ void rascalPostSolver(Tree pt, Solver s){
 
 // ----  Examples & Tests --------------------------------
 
-public PathConfig getDefaultPathConfig() = pathConfig(   
+public PathConfig getDefaultPathConfig() {
+    return pathConfig(   
         srcs = [|project://rascal-core/src/org/rascalmpl/core/library/|,
                 |project://typepal/src|,
                 |project://rascal/src/org/rascalmpl/library|,
                 |project://typepal-examples/src|
                ]
                );
+}
 
-data ProfileData = profile(loc file = |unknown:///|, int collector = 0, int solver = 0, int save = 0);
+data ProfileData = profile(str file = "unknown", int collector = 0, int solver = 0, int save = 0);
  
 void report(ProfileData pd){
     text = "<pd.collector? ? "collector: <pd.collector> ms;" : ""> <pd.solver? ? "solver: <pd.solver> ms;" : ""> <pd.save? ? "save: <pd.save> ms;" : ""> total: <pd.collector + pd.solver + pd.save> ms";
-    if(pd.file != |unknown:///|) text += " (<pd.file>)";
+    if(pd.file != "unknown") text += " (<pd.file>)";
     println(text);
 }
-                              
-TModel rascalTModelsFromStr(str text){
-    pt = parse(#start[Modules], text).top;
-    return rascalTModel(pt, newImportState(), inline=true)[1];
+
+TModel rascalTModelForTestModules(Tree pt, bool debug=false){
+    ms = getInlineImportAndExtendGraph(pt, getDefaultPathConfig());
+   
+    if(start[Modules] mds := pt){
+        return rascalTModelComponent( (unescape("<md.header.name>") : md | md <- mds.top.modules ), ms, inline=true);
+    } else if(Modules mds := pt){
+        return rascalTModelComponent( (unescape("<md.header.name>") : md | md <- mds.modules ), ms, inline=true)[1];
+    } else
+        throw "Cannot handle Modules";
 }
 
-TModel rascalTModelsFromTree(Tree pt){
-    return rascalTModel(pt, newImportState(), inline=true)[1];
-}
-
-TModel rascalTModelFromName(str moduleName, PathConfig pcfg, bool debug=true){
+TModel rascalTModelForName(str moduleName, PathConfig pcfg, bool debug=true){
     mloc = |unknown:///|(0,0,<0,0>,<0,0>);
     try {
         mloc = getModuleLocation(moduleName, pcfg);
-        return rascalTModelFromLoc(mloc, pcfg, debug=debug)[1];
+        return rascalTModelForLoc(mloc, pcfg, debug=debug)[1];
     } catch value e: {
         return tmodel()[messages = [ error("During validation: <e>", mloc) ]];
     }
@@ -165,59 +176,87 @@ TModel rascalTModelFromName(str moduleName, PathConfig pcfg, bool debug=true){
 
 int M = 1000000;
 
-tuple[ProfileData, TModel] rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool debug=false){     
+tuple[ProfileData, TModel] rascalTModelForLoc(loc mloc, PathConfig pcfg, bool debug=false, bool verbose = false){     
+    bool forceCompilationTopModule = false; /***** set to true during development of type checker *****/
     try {
         beginTime = cpuTime();   
-        moduleName = getModuleName(mloc, pcfg);
+        topModuleName = getModuleName(mloc, pcfg);
         
-        /***** turn this off during development of type checker *****/
-        <valid, tm> = getIfValid(moduleName, pcfg);
-        if(valid) {
-            println("*** reusing up-to-date TModel of <moduleName>");
-            stime = (cpuTime() - beginTime)/1000000;
-            prof = profile(file=mloc,solver=stime);
-            report(prof);
-            return <prof, tm>;
+        if(!forceCompilationTopModule){
+            <valid, tm> = getIfValid(topModuleName, pcfg);
+            if(valid) {
+                stime = (cpuTime() - beginTime)/1000000;
+                prof = profile(file=topModuleName,solver=stime);
+                if(verbose){
+                    println("*** reusing up-to-date TModel of <topModuleName>");
+                    report(prof);
+                }
+                return <prof, tm>;
+            }
         }
-        /***********************************************************/
         
         before = cpuTime();
-        istate = getImportAndExtendGraph(moduleName, pcfg);
+        ms = getImportAndExtendGraph(topModuleName, pcfg);
+        if(forceCompilationTopModule){
+            ms.valid -= {topModuleName};
+            ms.tmodels = delete(ms.tmodels, topModuleName);
+        }
         graphTime = cpuTime() - before;
        
-        profs = ();
-        ordered = reverse(order(istate.contains));
-        println("ordered modules: <ordered>");
-        for(str m <- ordered){
-            if(!istate.tmodels[m]?){
-                pt = istate.modules[m];
-                <prof, tm> = rascalTModel(pt, istate, pcfg = pcfg, debug=debug);
-                profs[m] = prof;
-                istate = saveModuleAndImports(m, pcfg, tm, istate); 
+        map[str, ProfileData] profs = ();
+        imports_and_extends = ms.strPaths<0,2>;
+        
+        <components, sorted> = stronglyConnectedComponentsAndTopSort(imports_and_extends);
+        module2component = (m : c | c <- components, m <- c);
+        
+        ordered = [];
+        
+        if(isEmpty(sorted)){
+            ordered = [topModuleName];
+            module2component[topModuleName] = {topModuleName};
+        } else {
+            ordered = reverse(sorted);
+        }
+        
+        //println("imports_and_extends"); iprintln(imports_and_extends);
+        //println("ordered modules: <ordered>");
+        //println("valid: <ms.valid>");
+        //println("cycles: <{c | c <- components, size(c) > 1}>");
+        map[str, loc] moduleScopes = ();
+        mi = 0;
+        nmodules = size(ordered);
+        while(mi < nmodules){
+            component = module2component[ordered[mi]];
+            for(m <- component){
+                mi += 1;
+                if(!ms.tmodels[m]?){
+                    if(m in ms.valid){
+                        <found, tplLoc> = getDerivedReadLoc(m, "tpl", pcfg);
+                        if(found){   
+                            println("*** reading <m> from <tplLoc>");       
+                            ms.tmodels[m] = readBinaryValueFile(#TModel, tplLoc);
+                        }
+                    } else {
+                        mloc = getModuleLocation(m, pcfg);            
+                        println("*** parsing <m> from <mloc>");
+                        pt = parseModuleWithSpaces(mloc).top;
+                        ms.modules[m] = pt;
+                    }
+                }
+            }
+            if(!all(m <- component, ms.tmodels[m]?, m in ms.valid)){
+                <prof, tm> = rascalTModelComponent((m: ms.modules[m] |  m <- component), ms, pcfg = pcfg, debug=debug);
+                profs[intercalate("/", toList(component))] = prof;
+                moduleScopes += getModuleScopes(tm);
+                for(m <- component){
+                    imports =  { imp | <m, importPath(), imp> <- ms.strPaths };
+                    extends = { ext | <m, extendPath(), ext > <- ms.strPaths };
+                    ms.tmodels[m] = saveModule(m, imports, extends, moduleScopes, pcfg, tm);
+                    ms.modules = delete(ms.modules, m);
+                }
             }
         }
        
-        if(istate.tmodels[moduleName]?){
-            tcollector = 0; tsolver = 0; tsave = 0;
-            for(m <- profs){
-                p = profs[m];
-                tcollector += p.collector;
-                tsolver += p.solver;
-                tsave += p.save;
-                report(p);
-            }
-            println("<moduleName>, import graph <graphTime/M> ms");
-            println("<moduleName> <tcollector+tsolver> ms [ collector: <tcollector> ms; solver: <tsolver> ms; save: <tsave> ms ]");
-            println("<moduleName>, measured total time: <(cpuTime() - beginTime)/M> ms");
-            return <profile(), istate.tmodels[moduleName]>;
-       }
-        pt = istate.modules[moduleName];
-       
-        <prof, tm> = rascalTModel(pt, istate, pcfg = pcfg, debug=debug);
-        before = cpuTime(); 
-        istate = saveModuleAndImports(moduleName, pcfg, tm, istate); 
-        prof.save = (cpuTime() - before)/M;
-        profs[moduleName] = prof;
         tcollector = 0; tsolver = 0; tsave = 0;
         for(m <- profs){
             p = profs[m];
@@ -226,11 +265,12 @@ tuple[ProfileData, TModel] rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool d
             tsave += p.save;
             report(p);
         }
-        println("<moduleName>, import graph <graphTime/M> ms");
-        println("<moduleName> <tcollector+tsolver> ms [ collector: <tcollector> ms; solver: <tsolver> ms; save: <tsave> ms ]");
-        println("<moduleName>, measured total time: <(cpuTime() - beginTime)/M> ms");
+        
+        println("<topModuleName>, import graph <graphTime/M> ms");
+        println("<topModuleName> <tcollector+tsolver> ms [ collector: <tcollector> ms; solver: <tsolver> ms; save: <tsave> ms ]");
+        println("<topModuleName>, measured total time: <(cpuTime() - beginTime)/M> ms");
       
-        return <prof, istate.tmodels[moduleName]>;
+        return <profile(), ms.tmodels[topModuleName]>;
     } catch ParseError(loc src): {
         return <profile(), tmodel()[messages = [ error("Parse error", src)  ]]>;
     } catch Message msg: {
@@ -240,49 +280,61 @@ tuple[ProfileData, TModel] rascalTModelFromLoc(loc mloc, PathConfig pcfg, bool d
     }    
 }
 
-tuple[ProfileData, TModel] rascalTModel(Tree pt, ImportState istate, PathConfig pcfg = getDefaultPathConfig(), bool debug=false, bool inline=false){
-    moduleName = "";
-    if(start[Module] md := pt) unescape("<md.top.header.name>");
-    if(Module md := pt) moduleName = unescape("<md.header.name>");
-    if(start[Modules] mds := pt){
-        moduleName = intercalate("/", [ unescape("<md.header.name>") | md <- mds.top.modules ]);
-    }
-    if(Modules mds := pt){
-           moduleName = intercalate("/", [ unescape("<md.header.name>") | md <- mds.modules ]);
-     }
-    println("\<\<\< checking <moduleName>");
-    c = newCollector(moduleName, pt, config=rascalTypePalConfig(classicReifier=true), debug=debug);
-    c.push(patternContainer, "toplevel");
-    // When inline, all modules are in a single file; don't read imports from file
-    if(!inline) c.push("pathconfig", pcfg); 
-    rascalPreCollectInitialization(pt, c);
-    for(imp <- istate.contains[moduleName]){
-        if(istate.tmodels[imp]?){
-            println("+++ adding TModel <imp>");
-            c.addTModel(istate.tmodels[imp]);
+void loadImportsAndExtends(str moduleName, ModuleStructure ms, Collector c, set[str] seen){
+    if(moduleName in seen) return;
+    
+    rel[str,str] contains = ms.strPaths<0,2>;
+    //println("<moduleName>: contains: <contains>");
+    for(imp <- contains[moduleName]){
+        if(ms.tmodels[imp]?){
+            //println("+++ adding TModel <imp>");
+            c.addTModel(ms.tmodels[imp]);
         } else {
-            collect(istate.modules[imp], c);
-            println("+++collecting   <imp>");
+            seen += imp;
+            loadImportsAndExtends(imp, ms, c, seen);
+            collect(ms.modules[imp], c);
+            //println("+++ collecting  <imp>");
         }
     }
+}
+
+tuple[ProfileData, TModel] rascalTModelComponent(map[str, Tree] namedTrees, ModuleStructure ms, PathConfig pcfg = getDefaultPathConfig(), bool debug=false, bool verbose=false, bool inline=false){
+    modelName = intercalate(" + ", toList(domain(namedTrees)));
+    
+    //if(verbose) 
+        //println("\<\<\< checking <modelName>");
+    c = newCollector(modelName, namedTrees, config=rascalTypePalConfig(classicReifier=true), debug=debug, verbose=verbose);
+    c.push(patternContainer, "toplevel");
+    
+    rascalPreCollectInitialization(namedTrees, c);
     startTime = cpuTime();
-    collect(pt, c);
+     
+    for(nm <- namedTrees){
+        loadImportsAndExtends(nm, ms, c, {});
+    }
+    startTime = cpuTime();
+    for(nm <- namedTrees){
+        collect(namedTrees[nm], c);
+    }
     tm = c.run();
     collectTime = cpuTime() - startTime; 
     startTime = cpuTime(); 
-    tm = rascalPreSolver(pt, tm);
-    s = newSolver(pt, tm, debug=debug);
+    
+    tm.paths =  ms.paths;
+ //   tm = rascalPreSolver(pt, tm);
+    
+    s = newSolver(namedTrees, tm);
     tm = s.run();
     
     solveTime = cpuTime() - startTime;
     
-    ProfileData prof = profile(file=getLoc(pt));
+    ProfileData prof = profile(file=modelName);
     
     if(!inline){
         prof.collector = collectTime/1000000;
         prof.solver = solveTime/1000000;
     }
-    println("\>\>\> checking <moduleName> complete");
+    //if(verbose) println("\>\>\> checking <modelName> complete");
     return <prof, tm>;
 }
 
@@ -294,7 +346,7 @@ ModuleMessages check(str moduleName, PathConfig pcfg){
     println("=== check: <moduleName>"); iprintln(pcfg1);
     mloc = |unknown:///|(0,0,<0,0>,<0,0>);
     try {
-        tm = rascalTModelFromName(moduleName, pcfg);
+        tm = rascalTModelForName(moduleName, pcfg);
         mloc = getModuleLocation(moduleName, pcfg);
         return program(mloc, toSet(tm.messages));
     } catch value e: {
@@ -305,7 +357,7 @@ ModuleMessages check(str moduleName, PathConfig pcfg){
 ModuleMessages check(loc file, PathConfig pcfg){
     pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
     println("=== check: <file>"); iprintln(pcfg1);
-    <prof, tm> = rascalTModelFromLoc(file, pcfg);
+    <prof, tm> = rascalTModelForLoc(file, pcfg);
     report(prof);
     return program(file, toSet(tm.messages));
 }
@@ -321,7 +373,7 @@ list[ModuleMessages] check(list[loc] files, PathConfig pcfg){
     mms = [];
     pds = [];
     for(file <- files){
-        <pd, tm> = rascalTModelFromLoc(file, pcfg);
+        <pd, tm> = rascalTModelForLoc(file, pcfg);
         report(pd);
         pds += pd;
         mms += program(file, toSet(tm.messages));
@@ -339,12 +391,12 @@ list[ModuleMessages] checkAll(loc root, PathConfig pcfg){
 }
 
 list[Message] validateModules(str moduleName, bool debug=false) {
-    return rascalTModelFromName(moduleName, getDefaultPathConfig(), debug=debug).messages;
+    return rascalTModelForName(moduleName, getDefaultPathConfig(), debug=debug).messages;
 }
 
 void testModules(str names...) {
     if(isEmpty(names)) names = allTests;
-    runTests([|project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/check/tests/<name>.ttl| | str name <- names], #Modules, rascalTModelsFromTree, verbose=false);
+    runTests([|project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/check/tests/<name>.ttl| | str name <- names], #Modules, rascalTModelForTestModules, verbose=false);
 }
 
 list[str] allTests = ["adt", "adtparam", "alias", "assignment", "datadecl", "exp", "fields", "fundecl", 
