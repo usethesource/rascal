@@ -201,9 +201,6 @@ public str symbol2rascal(Symbol sym) {
     	return "<symbol2rascal(x)> <l>";  
     case sort(x) :
     	return x;
-    // Type incorrect, PK
-    //case \parameter(x) :
-    //    return "&" + replaceAll(x, "-", "_");
     case lit(x) :
     	return "\"<escape(x)>\"";
     case cilit(x) :
@@ -216,6 +213,8 @@ public str symbol2rascal(Symbol sym) {
         return "<name>[<params2rascal(parameters)>]";
     case \parameterized-lex(str name, list[Symbol] parameters):
         return "<name>[<params2rascal(parameters)>]";
+    case parameter(str t, _):
+        return "&<t>";
     case \char-class(x) : 
        if (\char-class(y) := complement(sym)) {
          str norm = cc2rascal(x);
