@@ -20,6 +20,7 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.ResultFactory;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -89,6 +90,10 @@ public class Webserver {
         catch (Throw rascalException) {
           ctx.getStdErr().println(rascalException.getMessage());
           return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, rascalException.getMessage());
+        }
+        catch (StaticError error) {
+            ctx.getStdErr().println(error.getMessage());
+            return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, error.getMessage());
         }
         catch (Throwable unexpected) {
           ctx.getStdErr().println(unexpected.getMessage());
