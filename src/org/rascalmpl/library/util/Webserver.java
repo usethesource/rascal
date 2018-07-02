@@ -92,7 +92,7 @@ public class Webserver {
           return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, rascalException.getMessage());
         }
         catch (StaticError error) {
-            ctx.getStdErr().println(error.getMessage());
+            ctx.getStdErr().println(error.getLocation() + ": " + error.getMessage());
             return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, error.getMessage());
         }
         catch (Throwable unexpected) {
