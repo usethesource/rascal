@@ -8509,10 +8509,10 @@ public enum RascalPrimitive {
 			IValue source = (IValue) stack[sp - 1]; 
 			if(source.getType().isString()){
 				IString s = (IString) source;
-				stack[sp - 3] = rex.getParsingTools().parse(module_name, type, s, currentFrame.src, true, currentFrame, rex);
+				stack[sp - 3] = rex.getParsingTools().parse(module_name, type, s, currentFrame.src, true, false, currentFrame, rex);
 			} else {
 				ISourceLocation s = (ISourceLocation) source;
-				stack[sp - 3] = rex.getParsingTools().parse(module_name, type, s, true, currentFrame, rex);
+				stack[sp - 3] = rex.getParsingTools().parse(module_name, type, s, true, false, currentFrame, rex);
 			}
 			return sp - 2;
 		}

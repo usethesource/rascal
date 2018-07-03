@@ -82,14 +82,14 @@ public class RascalRuntimeException {
 
 	public static final Type NotImplemented = TF.constructor(TS, Exception, "NotImplemented", TF.stringType(), "message");
 	
-	public static final Type Failed = TF.constructor(TS, Exception, "Failed", TF.sourceLocationType(), "caller", TF.listType(TF.valueType()), "arguments");
+	public static final Type CallFailed = TF.constructor(TS, Exception, "CallFailed", TF.sourceLocationType(), "caller", TF.listType(TF.valueType()), "arguments");
 	
 	public static Thrown ambiguity(ISourceLocation loc, IString type, IString string, Frame currentFrame) {
 	    return Thrown.getInstance(VF.constructor(Ambiguity, loc, type, string), currentFrame);
 	}
 	
-	public static Thrown failed(ISourceLocation loc, IList arguments, Frame currentFrame) {
-	    return Thrown.getInstance(VF.constructor(Failed, loc, arguments), currentFrame);
+	public static Thrown callFailed(ISourceLocation loc, IList arguments, Frame currentFrame) {
+	    return Thrown.getInstance(VF.constructor(CallFailed, loc, arguments), currentFrame);
 	}
 	
 	public static Thrown arithmeticException(String msg, Frame currentFrame) {

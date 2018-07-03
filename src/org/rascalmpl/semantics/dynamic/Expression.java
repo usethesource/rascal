@@ -531,7 +531,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 					res = function.call(types, actuals, kwActuals);
 				}
 				catch (Failure | MatchFailed e) {
-				    throw RuntimeExceptionFactory.failed(eval.getCurrentAST().getLocation(), eval.getValueFactory().list(actuals), eval.getCurrentAST(), eval.getStackTrace());
+				    throw RuntimeExceptionFactory.callFailed(eval.getCurrentAST().getLocation(), eval.getValueFactory().list(actuals), eval.getCurrentAST(), eval.getStackTrace());
 				}
 				return res;
 			}
@@ -1091,11 +1091,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 				if (result.getType().isString()) {
 					tree = __eval.parseObject(value, VF.mapWriter().done(),
 						this.getLocation(),
-						((IString) result.getValue()).getValue().toCharArray(), true);
+						((IString) result.getValue()).getValue().toCharArray(), true, false);
 				}
 				else if (result.getType().isSourceLocation()) {
 					tree = __eval.parseObject(__eval, value, VF.mapWriter().done(),
-							((ISourceLocation) result.getValue()), true);
+							((ISourceLocation) result.getValue()), true, false);
 				}
 				
 				assert tree != null; // because we checked earlier
@@ -2128,7 +2128,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			if (variable == null || variable.getValue() == null) {
 				variable = __eval.getCurrentEnvt().getVariable(name);
 				__eval.warning("deprecated feature: run-time check on variable initialization", getLocation());
-				return org.rascalmpl.interpreter.result.ResultFactory.bool(variable.getValue() != null, __eval);
+				return org.rascalmpl.interpreter.result.ResultFactory.bool(variable != null && variable.getValue() != null, __eval);
 				
 				// TODO: replace above by this
 				// it was not a keyword parameter
