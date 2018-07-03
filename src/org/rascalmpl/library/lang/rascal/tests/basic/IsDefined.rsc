@@ -375,6 +375,13 @@ test bool ifDefADTFieldOtherwise8() = "def" == (d3(20, s = "def").s ? "xyz");
 test bool ifDefADTFieldOtherwise9() = 20 == (d3(20, s = "abc").n ? 13);
 test bool ifDefADTFieldOtherwise10() = "abc" == (d3(20, s = "abc").s ? "xyz");
 
+@ignoreCompiler{Undefined variables are identified at type check time}
+test bool undefinedVariable() = !undefined?;
+test bool definedVariable() {
+  int defined = 42;
+  return defined?;
+}
+
 // Potential generic rules to check:
 // e has f => e.f is well defined
 // !(e has f) => e.f. gives error

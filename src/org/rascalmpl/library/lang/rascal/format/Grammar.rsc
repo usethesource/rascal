@@ -141,13 +141,13 @@ public str prod2rascal(Production p) {
  		}
 
     case prod(label(str n,Symbol rhs),list[Symbol] lhs,set[Attr] as) :
-        return "<for (a <- as) {> <attr2mod(a)><}><reserved(n)>: <for(s <- lhs){><symbol2rascal(s)> <}>";
+        return "<for (a <- as) {><attr2mod(a)> <}><reserved(n)>: <for(s <- lhs){><symbol2rascal(s)> <}>";
  
     case prod(Symbol rhs,list[Symbol] lhs,{}) :
       	return "<for(s <- lhs){><symbol2rascal(s)> <}>";
  
-    case prod(Symbol rhs,list[Symbol] lhs,set[Attr] as) :
-      	return "<for (a <- as) {><attr2mod(a)><}> <for(s <- lhs){><symbol2rascal(s)> <}>";
+    case prod(Symbol rhs,list[Symbol] lhs, set[Attr] as) :
+      	return "<for (a <- as) {><attr2mod(a)> <}><for(s <- lhs){><symbol2rascal(s)> <}>";
  
     case regular(_) :
     	    return "";
@@ -201,9 +201,6 @@ public str symbol2rascal(Symbol sym) {
     	return "<symbol2rascal(x)> <l>";  
     case sort(x) :
     	return x;
-    // Type incorrect, PK
-    //case \parameter(x) :
-    //    return "&" + replaceAll(x, "-", "_");
     case lit(x) :
     	return "\"<escape(x)>\"";
     case cilit(x) :
@@ -216,6 +213,8 @@ public str symbol2rascal(Symbol sym) {
         return "<name>[<params2rascal(parameters)>]";
     case \parameterized-lex(str name, list[Symbol] parameters):
         return "<name>[<params2rascal(parameters)>]";
+    case parameter(str t, _):
+        return "&<t>";
     case \char-class(x) : 
        if (\char-class(y) := complement(sym)) {
          str norm = cc2rascal(x);
@@ -265,9 +264,9 @@ public str symbol2rascal(Symbol sym) {
     case conditional(s, {\not-follow(t)}) :
         return "<symbol2rascal(s)> !\>\> <symbol2rascal(t)>";
     case conditional(s, {precede(t)}) :
-        return "<symbol2rascal(s)> \<\< <symbol2rascal(s)> ";
+        return "<symbol2rascal(t)> \<\< <symbol2rascal(s)> ";
     case conditional(s, {\not-precede(t)}) :
-        return "<symbol2rascal(s)> !\<\< <symbol2rascal(s)> ";    
+        return "<symbol2rascal(t)> !\<\< <symbol2rascal(s)> ";    
     case conditional(s, {\at-column(int i)}) :
         return "<symbol2rascal(s)>@<i>";
     case conditional(s, {\begin-of-line()}) :
