@@ -136,7 +136,7 @@ public class OverloadedFunctionInstanceCall {
 					sb.append("\n");
 				}
 				
-				rex.getFrameObserver().exception(cf, RascalRuntimeException.failed(cf.src, IRascalValueFactory.getInstance().list(getConstructorArguments(arity)), cf));
+				rex.getFrameObserver().exception(cf, RascalRuntimeException.callFailed(cf.src, IRascalValueFactory.getInstance().list(getConstructorArguments(arity)), cf));
 				return null;
 			}
 			assert getConstructors().length >= 1;

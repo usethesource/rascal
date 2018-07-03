@@ -170,6 +170,12 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
                 return false;
             }
         }
+        catch (Throwable e) {
+            getErrorWriter().println("Unexpected failure during parsing of current command: ");
+            getErrorWriter().println(e.getMessage());
+            e.printStackTrace(getErrorWriter());
+            return false;
+        }
         return true;
     }
 

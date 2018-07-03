@@ -44,8 +44,6 @@ public abstract class JustDate extends org.rascalmpl.ast.JustDate {
 		
 		private Result<IValue> createVisitedDate(IEvaluator<Result<IValue>> eval, String datePart, org.rascalmpl.ast.JustDate.Lexical x) {
 			try {
-				datePart = datePart.replaceAll("-", "");
-
 				StandardTextReader parser = new StandardTextReader();
 				IValue result = parser.read(VF, new StringReader("$" + datePart));
 				return makeResult(TF.dateTimeType(), result, eval);
