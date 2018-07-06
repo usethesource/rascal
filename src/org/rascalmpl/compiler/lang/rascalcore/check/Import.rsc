@@ -78,11 +78,11 @@ ModuleStructure complete(ModuleStructure ms, PathConfig pcfg){
     return ms;
 }
 
-ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg){
-    return complete(getImportAndExtendGraph(qualifiedModuleName, pcfg, {}, newModuleStructure()), pcfg);
+ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, bool showImports){
+    return complete(getImportAndExtendGraph(qualifiedModuleName, pcfg, {}, newModuleStructure(), showImports), pcfg);
 }
 
-ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, set[str] visited, ModuleStructure ms){
+ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, set[str] visited, ModuleStructure ms, bool showImports){
     qualifiedModuleName = unescape(qualifiedModuleName);
    
     //println("getImportAndExtendGraph: <qualifiedModuleName>, <domain(ms.modules)>, <domain(ms.tmodels)>");
@@ -93,9 +93,10 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
     if(found){
         try {
             allImportsAndExtendsValid = true;
-            localImportsAndExtends = {};
+            rel[str, PathRole] localImportsAndExtends = {};
             tm = readBinaryValueFile(#TModel, tplLoc);
             if(tm.store[key_bom]? && rel[str,datetime,PathRole] bom := tm.store[key_bom]){
+               //println("BOM:"); iprintln(bom);
                for(<str m, lastModified, pathRole> <- bom){
                    if(m != qualifiedModuleName){
                         localImportsAndExtends += <m, pathRole>;
@@ -105,18 +106,20 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
                         println("--- <m> is no longer valid");
                    }
                }
+            } else {
+                println("NO BOM!!!");
             }
             if(allImportsAndExtendsValid){
-                println("*** importing <qualifiedModuleName> from <tplLoc> (ts=<lastModified(tplLoc)>)");
+                if(showImports) println("*** importing <qualifiedModuleName> from <tplLoc> (ts=<lastModified(tplLoc)>)");
           
                 ms.valid += {qualifiedModuleName};
                 ms.tmodels[qualifiedModuleName] = tm;
                 ms.moduleLocs += tm.moduleLocs;
                 ms.paths += tm.paths;
-                ms.strPaths += {<qualifiedModuleName, pathRole, imp> | <imp, pathRole> <- localImportsAndExtends };
+                ms.strPaths += {<qualifiedModuleName, pathRole, imp> | <str imp, PathRole pathRole> <- localImportsAndExtends };
                 visited += qualifiedModuleName;
                 for(imp <- localImportsAndExtends<0>, imp notin visited){
-                    ms = getImportAndExtendGraph(imp, pcfg, visited, ms);
+                    ms = getImportAndExtendGraph(imp, pcfg, visited, ms, showImports);
                 }
                 //println("allImportsAndExtendsValid, return:");
                 //printModuleStructure(ms);
@@ -133,7 +136,7 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
             pt = ms.modules[qualifiedModuleName];
         } else {
             mloc = getModuleLocation(qualifiedModuleName, pcfg);                    
-            println("*** parsing <qualifiedModuleName> from <mloc>");
+            if(showImports) println("*** parsing <qualifiedModuleName> from <mloc>");
             pt = parseModuleWithSpaces(mloc).top;
             ms.modules[qualifiedModuleName] = pt;
             ms.moduleLocs[qualifiedModuleName] = getLoc(pt);
@@ -142,7 +145,7 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
         ms.strPaths += imports_and_extends;
         visited += qualifiedModuleName;
         for(imp <- imports_and_extends<2>){
-            ms = getImportAndExtendGraph(imp, pcfg, visited, ms);
+            ms = getImportAndExtendGraph(imp, pcfg, visited, ms, showImports);
       }
     } catch value e: {
         //c.report(error(importStatement, "Error during import of %v: %v", mname, e));
@@ -201,7 +204,7 @@ tuple[bool, TModel] getIfValid(str qualifiedModuleName, PathConfig pcfg){
     
     try {
         tm = readBinaryValueFile(#TModel, tplLoc);
-        if(tm.store[key_bom]? && map[str,datetime] bom := tm.store[key_bom]){
+        if(tm.store[key_bom]? && rel[str, datetime, PathRole] bom := tm.store[key_bom]){
        
            for(<str m, lastModified, pathRole> <- bom){
                if(lastModified < getLastModified(m, pcfg)) {
@@ -237,57 +240,6 @@ loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes){
     }
 }
 
-//ModuleStructure saveModuleAndImports(str qualifiedModuleName, PathConfig pcfg, TModel tm, ModuleStructure ms){     
-//    qualifiedModuleName = unescape(qualifiedModuleName); 
-//    
-//    rel[str,str] import_graph = {<from, to> | <str from, importPath(), str to> <- ms.strPaths };
-//    rel[str,str] extend_graph = {<from, to> | <str from, extendPath(), str to> <- ms.strPaths };
-//    
-//    // Replace all getAType functions by their value
-//    defs = for(tup: <loc scope, str id, IdRole idRole, loc defined, DefInfo defInfo> <- tm.defines){
-//         if(id == "type" && idRole == constructorId()){  
-//            continue; // exclude builtin constructor for "type"
-//         } else {
-//             if((defInfo has getAType || defInfo has getATypes)){
-//               try {                   
-//                   dt = defType(tm.facts[defined]);
-//                   if(defInfo.vis?) dt.vis = defInfo.vis;
-//                   if(defInfo.tags?) dt.tags = defInfo.tags;
-//                   tup.defInfo = dt;
-//                   //println("Changed <defInfo> ==\> <dt>");
-//               } catch NoSuchKey(k): {
-//                //println("ignore: <tup>");
-//                continue;
-//               }
-//           } else if(defInfo has atype){
-//              if(tvar(l) := defInfo.atype) {
-//                 try {
-//                    tup.defInfo.atype = tm.facts[l];
-//                 } catch NoSuchKey(v):{
-//                    println("*** <v> is undefined");
-//                    tup.defInfo.atype = avalue();
-//                 }
-//               }
-//           }
-//           append tup;
-//       }
-//    }
-//   
-//    tm.defines = toSet(defs);
-//    moduleScopes = getModuleScopes(tm);
-//    println("module scopes:");
-//    iprintln(moduleScopes);
-//    
-//    toBeSaved = {imp  | imp <- import_graph[qualifiedModuleName], !ms.tmodels[imp]? };
-//    
-//    for(m <- qualifiedModuleName + toBeSaved){
-//        tms = saveModule(m, import_graph[m] ? {}, (extend_graph+)[m] ? {}, moduleScopes, pcfg, tm);
-//        ms.tmodels[m] = tms;
-//    }
-//    ms.modules = domainX(ms.modules, {qualifiedModuleName} + toBeSaved);
-//    return ms;
-//}
-
 TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, map[str,loc] moduleScopes, PathConfig pcfg, TModel tm){
     //println("saveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>");
     try {
@@ -314,7 +266,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         m1.moduleLocs = (qualifiedModuleName : mscope);
         
         m1.facts = (key : tm.facts[key] | key <- tm.facts, any(fms <- filteredModuleScopes, containedIn(key, fms)));
-        println("facts: <size(tm.facts)>  ==\> <size(m1.facts)>");
+        if(tm.config.showImports) println("facts: <size(tm.facts)>  ==\> <size(m1.facts)>");
      
         m1.messages = [msg | msg <- tm.messages, msg.at.path == mscope.path];
         
@@ -350,21 +302,22 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
                         //println("ignore: <tup>");
                         continue;
                        }
-                    } else if(defInfo has atype){
-                      if(tvar(l) := defInfo.atype) {
-                         try {
-                            tup.defInfo.atype = tm.facts[l];
-                         } catch NoSuchKey(v):{
-                            println("*** <v> is undefined");
-                            tup.defInfo.atype = avalue();
-                         }
-                       }
-                    }
+                    } 
+                    //else if(defInfo has atype){
+                    //  if(tvar(l) := defInfo.atype) {
+                    //     try {
+                    //        tup.defInfo.atype = tm.facts[l];
+                    //     } catch NoSuchKey(v):{
+                    //        println("*** <v> is undefined");
+                    //        tup.defInfo.atype = avalue();
+                    //     }
+                    //   }
+                    //}
                     append tup;
                   }
                };
         
-        println("defines: <size(tm.defines)> ==\> <size(defs)>");
+        if(tm.config.showImports) println("defines: <size(tm.defines)> ==\> <size(defs)>");
         m1.defines = toSet(defs);
         m1 = visit(m1) {case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""]; };
         
@@ -375,7 +328,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         //println("left: <size(calcs)> calculators, <size(reqs)> requirements");
         
         writeBinaryValueFile(tplLoc, m1);
-        println("WRITTEN to <tplLoc> (ts=<lastModified(tplLoc)>)");
+        if(tm.config.showImports) println("WRITTEN to <tplLoc> (ts=<lastModified(tplLoc)>)");
         return m1;
     } catch value e: {
         return tmodel()[messages=[error("Could not save .tpl file for `<qualifiedModuleName>`: <e>", |unknown:///|(0,0,<0,0>,<0,0>))]];

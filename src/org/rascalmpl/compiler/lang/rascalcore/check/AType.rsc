@@ -1,6 +1,7 @@
 module lang::rascalcore::check::AType
 
 import Node;
+import List;
 import Set;
 import Relation;
 import String;

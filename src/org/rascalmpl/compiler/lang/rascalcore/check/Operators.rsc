@@ -582,7 +582,7 @@ private AType _computeAdditionType(Tree current, AType t1, AType t2, Solver s) {
         }
     } else if(overloadedAType(rel[loc, IdRole, AType] overloads1)  := t1){
         if(isFunctionType(t2))
-           return overloadedAType(overloads + <cloc, functionId(), t2>);
+           return overloadedAType(overloads1 + <cloc, functionId(), t2>);
         else if(overloadedAType(rel[loc, IdRole, AType] overloads2) := t2){
             return overloadedAType(overloads1 + overloads2);
         }

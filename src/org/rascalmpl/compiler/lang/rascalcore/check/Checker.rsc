@@ -29,8 +29,10 @@ module lang::rascalcore::check::Checker
 import IO;
 import ValueIO;
 import String;
+import List;
 import Map;
 import util::Benchmark;
+import Message;
 
 import lang::rascal::\syntax::Rascal;
    
@@ -155,28 +157,31 @@ void report(ProfileData pd){
 
 TModel rascalTModelForTestModules(Tree pt, bool debug=false){
     ms = getInlineImportAndExtendGraph(pt, getDefaultPathConfig());
-   
+   TypePalConfig config=rascalTypePalConfig(classicReifier=true);
+   if(debug){
+        config = config[showSolverIterations = true][showImports = true];
+   }
     if(start[Modules] mds := pt){
-        return rascalTModelComponent( (unescape("<md.header.name>") : md | md <- mds.top.modules ), ms, inline=true);
+        return rascalTModelComponent( (unescape("<md.header.name>") : md | md <- mds.top.modules ), ms, config=config, inline=true)[1];
     } else if(Modules mds := pt){
-        return rascalTModelComponent( (unescape("<md.header.name>") : md | md <- mds.modules ), ms, inline=true)[1];
+        return rascalTModelComponent( (unescape("<md.header.name>") : md | md <- mds.modules ), ms, config=config, inline=true)[1];
     } else
         throw "Cannot handle Modules";
 }
 
-TModel rascalTModelForName(str moduleName, PathConfig pcfg, bool debug=true){
+map[str,TModel] rascalTModelForName(str moduleName, PathConfig pcfg, TypePalConfig config){
     mloc = |unknown:///|(0,0,<0,0>,<0,0>);
     try {
         mloc = getModuleLocation(moduleName, pcfg);
-        return rascalTModelForLoc(mloc, pcfg, debug=debug)[1];
+        return rascalTModelForLoc(mloc, pcfg, config);
     } catch value e: {
-        return tmodel()[messages = [ error("During validation: <e>", mloc) ]];
+        return (moduleName : tmodel()[messages = [ error("During validation: <e>", mloc) ]]);
     }
 }
 
 int M = 1000000;
 
-tuple[ProfileData, TModel] rascalTModelForLoc(loc mloc, PathConfig pcfg, bool debug=false, bool verbose = false){     
+map[str,TModel] rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config){     
     bool forceCompilationTopModule = false; /***** set to true during development of type checker *****/
     try {
         beginTime = cpuTime();   
@@ -187,16 +192,16 @@ tuple[ProfileData, TModel] rascalTModelForLoc(loc mloc, PathConfig pcfg, bool de
             if(valid) {
                 stime = (cpuTime() - beginTime)/1000000;
                 prof = profile(file=topModuleName,solver=stime);
-                if(verbose){
+                if(config.showTimes){
                     println("*** reusing up-to-date TModel of <topModuleName>");
                     report(prof);
                 }
-                return <prof, tm>;
+                return (topModuleName : tm);
             }
         }
         
         before = cpuTime();
-        ms = getImportAndExtendGraph(topModuleName, pcfg);
+        ms = getImportAndExtendGraph(topModuleName, pcfg, config.showImports);
         if(forceCompilationTopModule){
             ms.valid -= {topModuleName};
             ms.tmodels = delete(ms.tmodels, topModuleName);
@@ -207,9 +212,9 @@ tuple[ProfileData, TModel] rascalTModelForLoc(loc mloc, PathConfig pcfg, bool de
         imports_and_extends = ms.strPaths<0,2>;
         
         <components, sorted> = stronglyConnectedComponentsAndTopSort(imports_and_extends);
-        module2component = (m : c | c <- components, m <- c);
+        map[str, set[str]] module2component = (m : c | c <- components, m <- c);
         
-        ordered = [];
+        list[str] ordered = [];
         
         if(isEmpty(sorted)){
             ordered = [topModuleName];
@@ -222,6 +227,7 @@ tuple[ProfileData, TModel] rascalTModelForLoc(loc mloc, PathConfig pcfg, bool de
         //println("ordered modules: <ordered>");
         //println("valid: <ms.valid>");
         //println("cycles: <{c | c <- components, size(c) > 1}>");
+        
         map[str, loc] moduleScopes = ();
         mi = 0;
         nmodules = size(ordered);
@@ -233,19 +239,20 @@ tuple[ProfileData, TModel] rascalTModelForLoc(loc mloc, PathConfig pcfg, bool de
                     if(m in ms.valid){
                         <found, tplLoc> = getDerivedReadLoc(m, "tpl", pcfg);
                         if(found){   
-                            println("*** reading <m> from <tplLoc>");       
+                            if(config.verbose) println("*** reading <m> from <tplLoc>");       
                             ms.tmodels[m] = readBinaryValueFile(#TModel, tplLoc);
                         }
-                    } else {
+                    } else if(!ms.modules[m]?){
                         mloc = getModuleLocation(m, pcfg);            
-                        println("*** parsing <m> from <mloc>");
+                        if(config.verbose) println("*** parsing <m> from <mloc>");
                         pt = parseModuleWithSpaces(mloc).top;
                         ms.modules[m] = pt;
                     }
                 }
             }
             if(!all(m <- component, ms.tmodels[m]?, m in ms.valid)){
-                <prof, tm> = rascalTModelComponent((m: ms.modules[m] |  m <- component), ms, pcfg = pcfg, debug=debug);
+                ms.tmodels = domainX(ms.tmodels, component);
+                <prof, tm> = rascalTModelComponent((m: ms.modules[m] |  m <- component), ms, pcfg = pcfg, config=config);
                 profs[intercalate("/", toList(component))] = prof;
                 moduleScopes += getModuleScopes(tm);
                 for(m <- component){
@@ -256,62 +263,66 @@ tuple[ProfileData, TModel] rascalTModelForLoc(loc mloc, PathConfig pcfg, bool de
                 }
             }
         }
-       
-        tcollector = 0; tsolver = 0; tsave = 0;
-        for(m <- profs){
-            p = profs[m];
-            tcollector += p.collector;
-            tsolver += p.solver;
-            tsave += p.save;
-            report(p);
+ 
+        if(config.showTimes){
+            tcollector = 0; tsolver = 0; tsave = 0;
+            for(m <- profs){
+                p = profs[m];
+                tcollector += p.collector;
+                tsolver += p.solver;
+                tsave += p.save;
+                report(p);
+            }
+            
+            println("<topModuleName>, import graph <graphTime/M> ms");
+            println("<topModuleName> <tcollector+tsolver> ms [ collector: <tcollector> ms; solver: <tsolver> ms; save: <tsave> ms ]");
+            println("<topModuleName>, measured total time: <(cpuTime() - beginTime)/M> ms");
         }
-        
-        println("<topModuleName>, import graph <graphTime/M> ms");
-        println("<topModuleName> <tcollector+tsolver> ms [ collector: <tcollector> ms; solver: <tsolver> ms; save: <tsave> ms ]");
-        println("<topModuleName>, measured total time: <(cpuTime() - beginTime)/M> ms");
       
-        return <profile(), ms.tmodels[topModuleName]>;
+        return ms.tmodels;
     } catch ParseError(loc src): {
-        return <profile(), tmodel()[messages = [ error("Parse error", src)  ]]>;
+        return ("<mloc>" : tmodel()[messages = [ error("Parse error", src)  ]]);
     } catch Message msg: {
-     return <profile(), tmodel()[messages = [ error("During validation: <msg>", msg.at) ]]>;
+     return  ("<mloc>" : tmodel()[messages = [ error("During validation: <msg>", msg.at) ]]);
     } catch value e: {
-        return <profile(), tmodel()[messages = [ error("During validation: <e>", mloc) ]]>;
+        return ("<mloc>" : tmodel()[messages = [ error("During validation: <e>", mloc) ]]);
     }    
 }
 
-void loadImportsAndExtends(str moduleName, ModuleStructure ms, Collector c, set[str] seen){
-    if(moduleName in seen) return;
+set[str] loadImportsAndExtends(str moduleName, ModuleStructure ms, Collector c, set[str] added){
+    println("loadImportsAndExtends for <moduleName>");
     
     rel[str,str] contains = ms.strPaths<0,2>;
-    //println("<moduleName>: contains: <contains>");
     for(imp <- contains[moduleName]){
-        if(ms.tmodels[imp]?){
-            //println("+++ adding TModel <imp>");
-            c.addTModel(ms.tmodels[imp]);
-        } else {
-            seen += imp;
-            loadImportsAndExtends(imp, ms, c, seen);
-            collect(ms.modules[imp], c);
-            //println("+++ collecting  <imp>");
+        if(imp notin added){
+            if(ms.tmodels[imp]?){
+                added += imp;
+                println("+++ adding <imp>");
+                c.addTModel(ms.tmodels[imp]);
+            }
         }
     }
+    return added;
 }
 
-tuple[ProfileData, TModel] rascalTModelComponent(map[str, Tree] namedTrees, ModuleStructure ms, PathConfig pcfg = getDefaultPathConfig(), bool debug=false, bool verbose=false, bool inline=false){
+tuple[ProfileData, TModel] rascalTModelComponent(map[str, Tree] namedTrees, ModuleStructure ms, 
+                                                 PathConfig pcfg = getDefaultPathConfig(), 
+                                                 TypePalConfig config=rascalTypePalConfig(classicReifier=true), bool inline=false){
     modelName = intercalate(" + ", toList(domain(namedTrees)));
     
     //if(verbose) 
-        //println("\<\<\< checking <modelName>");
-    c = newCollector(modelName, namedTrees, config=rascalTypePalConfig(classicReifier=true), debug=debug, verbose=verbose);
+        println("\<\<\< checking <modelName>");
+    c = newCollector(modelName, namedTrees, config=config);
     c.push(patternContainer, "toplevel");
     
     rascalPreCollectInitialization(namedTrees, c);
     startTime = cpuTime();
-     
+    
+    added = {};
     for(nm <- namedTrees){
-        loadImportsAndExtends(nm, ms, c, {});
+        added += loadImportsAndExtends(nm, ms, c, added);
     }
+    println("<modelName>: added before collect <added>");
     startTime = cpuTime();
     for(nm <- namedTrees){
         collect(namedTrees[nm], c);
@@ -341,57 +352,62 @@ tuple[ProfileData, TModel] rascalTModelComponent(map[str, Tree] namedTrees, Modu
 // name of the production has to mirror the Kernel compile result
 data ModuleMessages = program(loc src, set[Message] messages);
 
-ModuleMessages check(str moduleName, PathConfig pcfg){
-    pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
-    println("=== check: <moduleName>"); iprintln(pcfg1);
-    mloc = |unknown:///|(0,0,<0,0>,<0,0>);
+list[ModuleMessages] check(str moduleName, PathConfig pcfg){        // changed from ModuleMessages to list[ModuleMessages]
     try {
-        tm = rascalTModelForName(moduleName, pcfg);
-        mloc = getModuleLocation(moduleName, pcfg);
-        return program(mloc, toSet(tm.messages));
+        return check(getModuleLocation(moduleName, pcfg), pcfg);
     } catch value e: {
-        return program(mloc, {error("During validation: <e>", mloc)});
+        return [ program(|unkown:///|, {error("During validation: <e>", |unkown:///|)}) ];
     }
 }
 
-ModuleMessages check(loc file, PathConfig pcfg){
+list[ModuleMessages] check(loc file, PathConfig pcfg){          // changed from ModuleMessages to list[ModuleMessages]
     pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
     println("=== check: <file>"); iprintln(pcfg1);
-    <prof, tm> = rascalTModelForLoc(file, pcfg);
-    report(prof);
-    return program(file, toSet(tm.messages));
+    module2tmodel = rascalTModelForLoc(file, pcfg, rascalTypePalConfig(classicReifier=true));
+    return [ program(getModuleLocation(m, pcfg), toSet(module2tmodel[m].messages)) | m <- module2tmodel ];
 }
 
 list[ModuleMessages] check(list[str] moduleNames, PathConfig pcfg){
-    return [ check(moduleName, pcfg) | moduleName <- moduleNames ];
+    return [ *check(moduleName, pcfg) | moduleName <- moduleNames ];
 }
 
 list[ModuleMessages] check(list[loc] files, PathConfig pcfg){
-    pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
-    println("=== check: <files>"); iprintln(pcfg1);
-    e = v = s = 0;
-    mms = [];
-    pds = [];
-    for(file <- files){
-        <pd, tm> = rascalTModelForLoc(file, pcfg);
-        report(pd);
-        pds += pd;
-        mms += program(file, toSet(tm.messages));
-        e += pd.collector; v += pd.solver; s += pd.save;
-    }
-    println("SUMMARY");
-    for(pd <- pds) report(pd);
-    println("TOTAL");
-    report(profile(collector=e, solver=v,save=s));
-    return mms;
+    return [ *check(fileName, pcfg) | fileName <- files ];
 }
 
 list[ModuleMessages] checkAll(loc root, PathConfig pcfg){
-     return [ check(moduleLoc, pcfg) | moduleLoc <- find(root, "rsc") ]; 
+     return [ *check(moduleLoc, pcfg) | moduleLoc <- find(root, "rsc") ]; 
 }
 
-list[Message] validateModules(str moduleName, bool debug=false) {
-    return rascalTModelForName(moduleName, getDefaultPathConfig(), debug=debug).messages;
+map[str, list[Message]] checkModule(str moduleName,  
+                              bool verbose                       = false,
+                              bool debug                         = false,
+                              bool showTimes                     = false,
+                              bool showSolverIterations          = false,
+                              bool showSolverSteps               = false,
+                              bool showAttempts               = false,
+                              bool showTModel                    = false,
+                              bool showImports                   = false,
+                              bool validateConstraints           = true) {
+                              
+    if(verbose) {
+        showSolverIterations = showImports = true;
+    }
+    if(debug){
+        showSolverIterations = showSolverSteps = showTModel = showImports = true;
+    }
+    config = rascalTypePalConfig(classicReifier=true);
+    config.verbose = verbose;
+    config.showTimes = showTimes;
+    config.showSolverIterations = showSolverIterations;
+    config.showSolverSteps = showSolverSteps;
+    config.showAttempts = showAttempts;
+    config.showTModel = showTModel;
+    config.showImports = showImports;
+    config.validateConstraints = validateConstraints;
+    
+    mname2tm = rascalTModelForName(moduleName, getDefaultPathConfig(), config);
+    return (mname : mname2tm[mname].messages | mname <- mname2tm, !isEmpty(mname2tm[mname].messages));
 }
 
 void testModules(str names...) {
