@@ -272,16 +272,16 @@ private list[str] reachability_tests = [
 private lrel[str,str] crashes = [];
 private lrel[str,str] partial_results = [];
 
-tuple[list[value] crashes, list[Message] msgs] runTests(list[str] names, str base){
- list[Message] all_test_msgs = [];
+tuple[list[value] crashes, set[map[str,list[Message]] msgs] msgsPerModule] runTests(list[str] names, str base){
+ all_test_msgs = {};
  list[value] crashes = [];
  for(tst <- names){
       try {
           prog = base == "" ? tst : (base + "::" + tst);
           println("TYPECHECKING <prog>");
-          msgs = validateModules(prog);
-          iprintln(msgs);
-          all_test_msgs += msgs;
+          mname2msgs = checkModule(prog);
+          iprintln(mname2msgs);
+          all_test_msgs += mname2msgs;
       } catch value e:
         crashes += e;
   }
@@ -290,41 +290,39 @@ tuple[list[value] crashes, list[Message] msgs] runTests(list[str] names, str bas
   
 value main(bool jvm=true) = allRascalTests();
   
-set[Message] allRascalTests(PathConfig pcfg= pathConfig(   
+set[map[str, list[Message]]] allRascalTests(PathConfig pcfg= pathConfig(   
         srcs = [|project://rascal-core/src/org/rascalmpl/library/|,
                 |project://TypePal/src|,
                 |project://rascal/src/org/rascalmpl/library|
                ])){ //loc bin=|home:///bin-tests-intp|, loc boot=|boot:///|, bool jvm=true){
 
   println("Using <pcfg>");
-  list[Message] all_msgs = [];
+  set[map[str, list[Message]]] all_msgs = {};
   list[value] all_crashes = [];
   tuple[list[value] crashes, list[Message] msgs] res;
   //pcfg = pathConfig(srcs=[|std:///|], bin=bin, boot=boot, libs=[bin]);
   
   res = runTests(basicTests, "lang::rascal::tests::basic");
-  all_crashes += res.crashes; all_msgs += res.msgs;
+  all_crashes += res.crashes; all_msgs += res.msgsPerModule;
   res = runTests(functionalityTests, "lang::rascal::tests::functionality");
-  all_crashes += res.crashes; all_msgs += res.msgs;
+  all_crashes += res.crashes; all_msgs += res.msgsPerModule;
   res = runTests(libraryTests, "lang::rascal::tests::library");
-  all_crashes += res.crashes; all_msgs += res.msgs;
+  all_crashes += res.crashes; all_msgs += res.msgsPerModule;
   res = runTests(importTests, "lang::rascal::tests::imports");
-  all_crashes += res.crashes; all_msgs += res.msgs;
+  all_crashes += res.crashes; all_msgs += res.msgsPerModule;
   res = runTests(extendTests, "lang::rascal::tests::extends"); 
-  all_crashes += res.crashes; all_msgs += res.msgs;
+  all_crashes += res.crashes; all_msgs += res.msgsPerModule;
   res = runTests(files_with_tests, "");
-  all_crashes += res.crashes; all_msgs += res.msgs;
+  all_crashes += res.crashes; all_msgs += res.msgsPerModule;
   
   res = runTests(typeTests, "lang::rascal::tests::types");
-  all_crashes += res.crashes; all_msgs += res.msgs;
+  all_crashes += res.crashes; all_msgs += res.msgsPerModule;
    
-   set_all_msgs = toSet(all_msgs);
-   
-   for(msg <- set_all_msgs)
+   for(msg <- all_msgs)
       println(msg);
    for(v <- all_crashes)
       println(v);
-   return set_all_msgs;
+   return all_msgs;
 }
 
 tuple[TModel org, map[str,TModel] differences] sameTPL(str qualifiedModuleName, PathConfig pcfg= pathConfig(   
@@ -333,7 +331,7 @@ tuple[TModel org, map[str,TModel] differences] sameTPL(str qualifiedModuleName, 
                 |project://rascal/src/org/rascalmpl/library|
                ])){
     
-    msgs = validateModules(qualifiedModuleName);
+    msgs = checkModule(qualifiedModuleName);
     iprintln(msgs);       
     mTplLoc = getDerivedWriteLoc(qualifiedModuleName, "tpl", pcfg);
     mOrgModel = readBinaryValueFile(#TModel, mTplLoc);
@@ -351,7 +349,7 @@ tuple[TModel org, map[str,TModel] differences] sameTPL(str qualifiedModuleName, 
       try {
           prog = base == "" ? tst : (base + "::" + tst);
           println("TYPECHECKING <prog>");
-          msgs = validateModules(prog);
+          msgs = checkModule(prog);
           iprintln(msgs);
           if(exists(mTplLoc)){
               mNewModel = readBinaryValueFile(#TModel, mTplLoc);
@@ -416,14 +414,15 @@ void allFiles(PathConfig pcfg = pathConfig(
         }
         println("\>\>\> <ncount>: CHECKING <qualifiedModuleName> (N:<size(modulePaths)>/E:<size(problems)>/C:<size(crashed)>/S:<nskipped>)");
         try {
-            msgs = validateModules(qualifiedModuleName);
-            iprintln(msgs);
-            if(!isEmpty(msgs)) {
-                mpath = replaceAll(qualifiedModuleName, "::", "/");
-                if(any(msg <- msgs, contains(msg.at.path, mpath))){
-                    problems[qualifiedModuleName] = msgs;
-                }
-            }
+            modulesAndmsgs = checkModule(qualifiedModuleName);
+            if(modulesAndmsgs[qualifiedModuleName]?) iprintln(modulesAndmsgs);
+            problems += modulesAndmsgs;
+            //if(modulesAndmsgs[qualifiedModuleName]?) {
+            //    mpath = replaceAll(qualifiedModuleName, "::", "/");
+            //    if(any(msg <- msgs, contains(msg.at.path, mpath))){
+            //        problems[qualifiedModuleName] = msgs;
+            //    }
+            //}
         } catch value e: {
             crashed[qualifiedModuleName] = e;
         }

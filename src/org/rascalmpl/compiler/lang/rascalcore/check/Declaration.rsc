@@ -128,7 +128,7 @@ void(Solver) makeVarInitRequirement(Variable var)
             varType = s.getType(var.name);
             try   bindings = matchRascalTypeParams(initialType, varType, bindings, bindIdenticalVars=true);
             catch invalidMatch(str reason):
-                  s.report(error(initial, reason));
+                  s.report(error(var.initial, reason));
             
             initialType = xxInstantiateRascalTypeParameters(initialType, bindings, s);  
             if(s.isFullyInstantiated(initialType)){
@@ -545,9 +545,6 @@ AType(Solver) makeFieldType(str fieldName, Tree fieldType)
     = AType(Solver s) { return s.getType(fieldType)[label=fieldName]; };
 
 void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <KeywordFormals keywordArguments> )`, Collector c){
-    if("<name>" == "config"){
-        println("config");
-    }
     formals = getFormals(current);
     kwFormals = getKwFormals(current);
        
@@ -573,8 +570,8 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
         c.enterScope(current);
             // Generate use/defs for type parameters occurring in the constructor signature
             
-            declaredTVs = {};
-            usedTVNames = {};
+            set[TypeVar] declaredTVs = {};
+            set[Name] usedTVNames = {};
             for(t <- formals + kwFormals){
                 <d, u> = getDeclaredAndUsedTypeVars(t);
                 declaredTVs += d;

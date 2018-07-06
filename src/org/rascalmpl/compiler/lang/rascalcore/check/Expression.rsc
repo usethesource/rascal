@@ -465,7 +465,7 @@ void collect(current: (Expression) `( <Expression init> | <Expression result> | 
         //tau = c.newTypeVar();
         c.define("it", variableId(), init, defLub([init, result], AType(Solver s) { return s.lub(init, result); }));
         c.require("reducer", current, gens,
-            void (Solver s) { for(gen <- gens) if(!isBoolType(s.getType(gen))) report(error(gen, "Type of generator should be `bool`, found %t", gen));
+            void (Solver s) { for(gen <- gens) if(!isBoolType(s.getType(gen))) s.report(error(gen, "Type of generator should be `bool`, found %t", gen));
             });
         //c.calculate("reducer result", current, [result], AType(Solver s) { return s.getType(result); });
         
@@ -515,7 +515,10 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
     
     c.calculate("call of function/constructor `<expression>`", current, expression + actuals + kwactuals,
         AType(Solver s){
-            if(any(x <- expression + actuals + kwactuals, tp := s.getType(x), !s.isFullyInstantiated(tp))) throw TypeUnavailable(tp);
+            for(x <- expression + actuals + kwactuals){
+                 tp = s.getType(x);
+                 if(!s.isFullyInstantiated(tp)) throw TypeUnavailable(tp);
+            }
             
             texp = s.getType(expression);
             if(isStrType(texp)){
@@ -523,7 +526,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
             } 
             if(isLocType(texp)){
                 nactuals = size(actuals);
-                if(!(nactuals == 2 || nactuals == 4)) report(error(current, "Source locations requires 2 or 4 arguments, found %v", nactuals));
+                if(!(nactuals == 2 || nactuals == 4)) s.report(error(current, "Source locations requires 2 or 4 arguments, found %v", nactuals));
                 s.requireEqual(actuals[0], aint(), error(actuals[0], "Offset should be of type `int`, found %t", actuals[0]));
                 s.requireEqual(actuals[1], aint(), error(actuals[1], "Length should be of type `int`, found %t", actuals[1]));
 
@@ -601,12 +604,13 @@ tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRole, ATyp
     
     for(ovl:<key, idr, tp> <- overloads){                       
         if(ft:afunc(AType ret, formalTypes: atypeList(list[AType] formals), list[Keyword] kwFormals) := tp){
-           if(ft.varArgs ? (arity >= size(formals)) : (arity == size(formals))) {
+           if(ft.varArgs ? (arity >= size(formals) - 1) : (arity == size(formals))) {
               filteredOverloads += ovl;
               if(isEmpty(prevFormals)){
                  prevFormals = formals;
               } else {
-                 for(int i <- index(formals)) identicalFormals[i] = identicalFormals[i] && (comparable(prevFormals[i], formals[i]));
+                 relevantFormals = [0 .. size(formals) - (ft.varArgs ? 1 : 0)];
+                 for(int i <- relevantFormals) identicalFormals[i] = identicalFormals[i] && (comparable(prevFormals[i], formals[i]));
               }
            }
         } else
@@ -712,7 +716,7 @@ AType computeReturnType(Expression current, loc scope, AType retType, list[AType
        return retType;
     try   return instantiateRascalTypeParams(retType, bindings);
     catch invalidInstantiation(str msg):
-          report(error(current, msg));
+          s.report(error(current, msg));
 }
 
 AType computeADTType(Tree current, str adtName, loc scope, AType retType, list[AType] formals, list[Keyword] kwFormals, actuals, keywordArguments, list[bool] identicalFormals, Solver s){                     
@@ -770,13 +774,13 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, AType retType, 
     for(int i <- index_formals, !dontCare[i]){
         try   bindings = matchRascalTypeParams(formalTypes[i], actualTypes[i], bindings, bindIdenticalVars=true);
         catch invalidMatch(str reason): 
-              report(error(current, reason));   
+              s.report(error(current, reason));   
     }
     iformals = formalTypes;
     if(!isEmpty(bindings)){
         try   iformals = [instantiateRascalTypeParams(formalTypes[i], bindings) | int i <- index_formals];
         catch invalidInstantiation(str msg):
-              report(error(current, msg));
+              s.report(error(current, msg));
     }
     for(int i <- index_formals, !dontCare[i]){
         ai = actualTypes[i];
@@ -841,7 +845,7 @@ void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, l
                   continue next_arg;
                } 
             }
-            availableKws = intercalateOr(["`<prettyPrintAType(ft)> <ft.label>`" | </*str fn,*/ AType ft, Expression de> <- kwFormals]);
+            availableKws = intercalateOr(["`<prettyPrintAType(ft)> <ft.label>`" | < AType ft, Expression de> <- kwFormals]);
             switch(size(kwFormals)){
             case 0: availableKws ="; no other keyword parameters available";
             case 1: availableKws = "; available keyword parameter: <availableKws>";
@@ -1480,7 +1484,7 @@ AType computeFieldProjectionType(Expression current, AType base, list[lang::rasc
               catch NoBinding(): /* continue with next overload */;
 //>>>         catch e: /* continue with next overload */;
         }
-        if(isEmpty(projection_overloads))  report(error(current, "Illegal projection %t", base));
+        if(isEmpty(projection_overloads))  s.report(error(current, "Illegal projection %t", base));
         return overloadedAType(projection_overloads);
     }
     

@@ -1,8 +1,9 @@
 module lang::rascalcore::check::Test2 
 
-void main(){
-    int inc(int n) = n + 1;
+import ParseTree;
+import lang::rascal::\syntax::Rascal;
+//import experiments::Compiler::muRascal::AST; 
 
-    int(int n) finc = inc;
-    int n = 0;
-}
+loc getValues(Assignable a: (Assignable) `<Assignable receiver>@<Name annotation>`) = 
+   a@\loc;
+    

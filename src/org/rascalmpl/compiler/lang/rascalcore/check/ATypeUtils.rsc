@@ -683,7 +683,7 @@ Determine if the given type is an Abstract Data Type (ADT).
 bool isADTType(aparameter(_,AType tvb)) = isADTType(tvb);
 bool isADTType(aadt(_,_,_)) = true;
 bool isADTType(areified(_)) = true;
-bool isADTType(\start(s)) = isADTType(s);
+bool isADTType(\start(AType s)) = isADTType(s);
 default bool isADTType(AType _) = false;
 
 @doc{Create a new parameterized ADT type with the given type parameters}

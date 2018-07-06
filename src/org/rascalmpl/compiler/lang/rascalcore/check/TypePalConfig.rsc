@@ -224,10 +224,16 @@ AType rascalInstantiateTypeParameters(Tree selector,
                                       ins:aadt(str adtName2, list[AType] actuals, SyntaxRole syntaxRole2),
                                       AType act,
                                       Solver s){ 
-    if(adtName1 != adtName2) throw TypePalUsage("rascalInstantiateTypeParameters: <adtName1> versus <adtName2>");
-    if(size(formals) != size(actuals)) s.report(error(selector, "Expected %v type parameters for %q, found %v", size(formals), adtName1, size(actuals)));
-    bindings = (formals[i].pname : actuals [i] | int i <- index(formals));
-    return xxInstantiateRascalTypeParameters(act, bindings, s);
+    nformals = size(formals);
+    nactuals = size(actuals);
+    if(nformals != nactuals) s.report(error(selector, "Expected %v type parameters for %q, found %v", nformals, adtName1, nactuals));
+    if(nformals > 0){
+        if(adtName1 != adtName2) throw TypePalUsage("rascalInstantiateTypeParameters: <adtName1> versus <adtName2>");
+        bindings = (formals[i].pname : actuals [i] | int i <- index(formals));
+        return xxInstantiateRascalTypeParameters(act, bindings, s);
+    } else {
+        return act;
+    }
     //return visit(act) { case aparameter(str pname, AType bound):
     //                        if(asubtype(bindings[pname], bound)) insert bindings[pname]; else s.report(error(selector, "Type parameter %q should be less than %t, found %t", pname, bound, bindings[pname]));
     //                  };
@@ -252,20 +258,20 @@ AType xxInstantiateRascalTypeParameters(AType t, Bindings bindings, Solver s){
 
 default AType rascalInstantiateTypeParameters(Tree selector, AType def, AType ins, AType act, Solver s) = act;
 
-tuple[bool isNamedType, str typeName, set[IdRole] idRoles] rascalGetTypeNameAndRole(aprod(AProduction p)){
-    return <true, getADTName(p.def), {dataId(), nonterminalId(), lexicalId(), layoutId(), keywordId()}>;
+tuple[list[str] typeNames, set[IdRole] idRoles] rascalGetTypeNamesAndRole(aprod(AProduction p)){
+    return <[getADTName(p.def), "Tree"], {dataId(), nonterminalId(), lexicalId(), layoutId(), keywordId()}>;
 }
 
-tuple[bool isNamedType, str typeName, set[IdRole] idRoles] rascalGetTypeNameAndRole(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)){
-    return <true, adtName, {dataId(), nonterminalId(), lexicalId(), layoutId(), keywordId()}>;
+tuple[list[str] typeNames, set[IdRole] idRoles] rascalGetTypeNamesAndRole(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)){
+    return <isConcreteSyntaxRole(syntaxRole) ? [adtName, "Tree"] : [adtName], {dataId(), nonterminalId(), lexicalId(), layoutId(), keywordId()}>;
 }
 
-tuple[bool isNamedType, str typeName, set[IdRole] idRoles] rascalGetTypeNameAndRole(acons(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), _, _)){
-    return <true, adtName, {dataId(), nonterminalId(), lexicalId(), layoutId(), keywordId()}>;
+tuple[list[str] typeNames, set[IdRole] idRoles] rascalGetTypeNamesAndRole(acons(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), _, _)){
+    return <[adtName], {dataId(), nonterminalId(), lexicalId(), layoutId(), keywordId()}>;
 }
 
-default tuple[bool isNamedType, str typeName, set[IdRole] idRoles] rascalGetTypeNameAndRole(AType t){
-    return <false, "", {}>;
+default tuple[list[str] typeNames, set[IdRole] idRoles] rascalGetTypeNamesAndRole(AType t){
+    return <[], {}>;
 }
 
 AType rascalGetTypeInTypeFromDefine(Define containerDef, str selectorName, set[IdRole] idRolesSel, Solver s){
@@ -284,11 +290,19 @@ AType rascalGetTypeInNamelessType(AType containerType, Tree selector, loc scope,
 }
 
 data TypePalConfig(
+    bool showImports = false,
     bool classicReifier = false
 );
 
 TypePalConfig rascalTypePalConfig(bool classicReifier = false)
     = tconfig(
+        showTimes                     = false,
+        showSolverIterations          = false,
+        showSolverSteps               = false,
+        showAttempts                  = false,
+        showImports                   = false,
+        validateConstraints           = true,
+        
         getMinAType                   = AType(){ return avoid(); },
         getMaxAType                   = AType(){ return avalue(); },
         isSubType                     = lang::rascalcore::check::AType::asubtype,
@@ -303,7 +317,7 @@ TypePalConfig rascalTypePalConfig(bool classicReifier = false)
         mayOverload                   = rascalMayOverload,       
         classicReifier                = classicReifier,
       
-        getTypeNameAndRole            = rascalGetTypeNameAndRole,
+        getTypeNamesAndRole           = rascalGetTypeNamesAndRole,
         getTypeInTypeFromDefine       = rascalGetTypeInTypeFromDefine,
         getTypeInNamelessType         = rascalGetTypeInNamelessType,
         instantiateTypeParameters     = rascalInstantiateTypeParameters,
