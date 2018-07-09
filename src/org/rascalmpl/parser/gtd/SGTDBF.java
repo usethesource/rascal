@@ -1192,9 +1192,9 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	    int line = positionStore.findLine(errorLocation);
 	    int column = positionStore.getColumn(errorLocation, line);
 	    if (location == input.length) {
-	      throw new ParseError("Parse error", inputURI, errorLocation, 0, line, line, column, column, (Stack<AbstractStackNode<?>>) (Stack<?>) unexpandableNodes, (Stack<AbstractStackNode<?>>) (Stack<?>) unmatchableLeafNodes, (DoubleStack<ArrayList<AbstractStackNode<?>>, AbstractStackNode<?>>) (DoubleStack<?, ?>) unmatchableMidProductionNodes, (DoubleStack<AbstractStackNode<?>, AbstractNode>) (DoubleStack<?, ?>) filteredNodes);
+	      throw new ParseError("Parse error", inputURI, errorLocation, 0, line + 1, line + 1, column, column, (Stack<AbstractStackNode<?>>) (Stack<?>) unexpandableNodes, (Stack<AbstractStackNode<?>>) (Stack<?>) unmatchableLeafNodes, (DoubleStack<ArrayList<AbstractStackNode<?>>, AbstractStackNode<?>>) (DoubleStack<?, ?>) unmatchableMidProductionNodes, (DoubleStack<AbstractStackNode<?>, AbstractNode>) (DoubleStack<?, ?>) filteredNodes);
 	    }
-	    throw new ParseError("Parse error", inputURI, errorLocation, 1, line, line, column, column + 1, (Stack<AbstractStackNode<?>>) (Stack<?>) unexpandableNodes, (Stack<AbstractStackNode<?>>) (Stack<?>) unmatchableLeafNodes, (DoubleStack<ArrayList<AbstractStackNode<?>>, AbstractStackNode<?>>) (DoubleStack<?, ?>) unmatchableMidProductionNodes, (DoubleStack<AbstractStackNode<?>, AbstractNode>) (DoubleStack<?, ?>) filteredNodes);
+	    throw new ParseError("Parse error", inputURI, errorLocation, 1, line + 1, line + 1, column, column + 1, (Stack<AbstractStackNode<?>>) (Stack<?>) unexpandableNodes, (Stack<AbstractStackNode<?>>) (Stack<?>) unmatchableLeafNodes, (DoubleStack<ArrayList<AbstractStackNode<?>>, AbstractStackNode<?>>) (DoubleStack<?, ?>) unmatchableMidProductionNodes, (DoubleStack<AbstractStackNode<?>, AbstractNode>) (DoubleStack<?, ?>) filteredNodes);
 	  }
 	  finally {
 	    checkTime("Error handling");
@@ -1310,7 +1310,7 @@ public abstract class SGTDBF<P, T, S> implements IGTD<P, T, S>{
 	    int beginColumn = positionStore.getColumn(offset, beginLine);
 	    int endLine = positionStore.findLine(endOffset);
 	    int endColumn = positionStore.getColumn(endOffset, endLine);
-	    throw new ParseError("All results were filtered", inputURI, offset, length, beginLine, endLine, beginColumn, endColumn);
+	    throw new ParseError("All results were filtered", inputURI, offset, length, beginLine + 1, endLine + 1, beginColumn, endColumn);
 	  }
 	  finally {
 	    checkTime("Unbinarizing, post-parse filtering, and mapping to UPTR");
