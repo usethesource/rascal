@@ -513,7 +513,7 @@ void collect(current:(Sym) `{ <Sym symbol> <Sym sep> }*`, Collector c){
 
 void validateSeparators(Tree current, list[AType] separators, Solver s){
     if(all(sep <- separators, isLayoutType(sep)))
-        s.report(error(current, "At least one element of separators should be non-layout"));
+        s.report(warning(current, "At least one element of separators should be non-layout")); // TODO make error
     forbidConsecutiveLayout(current, separators, s);
 }
 

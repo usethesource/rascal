@@ -281,7 +281,7 @@ int getItemId(AType s, int pos, prod(AType u,list[AType] _)) {
     case \iter-star-seps(t,ss) : if (pos > 0) return ss[pos-1].id; else fail;
     case \seq(ss) : return ss[pos].id;
     // note the use of the label l from the third function parameter:
-    case \alt(aa) : if (a:conditional(_,{_*,except(l)}) <- aa, l == u.label) return a.id; 
+    case \alt(aa) : if (AType a:conditional(_,{_*,except(l)}) <- aa, l == u.label) return a.id; 
     default: return s.id; // this should never happen, but let's make this robust
   }  
 }
@@ -616,12 +616,11 @@ default str xxv2i(value v) {
 
 str parserName(str mname) = replaceAll(replaceAll(mname, "\\\\", "_"), "::", "_") + "Parser";
 
-list[Message] saveParser(str pname, str parserClass, loc where){
+list[Message] saveParser(str pname, str parserClass, loc where, bool verbose){
     try {
         dest = where +"/<pname>.java";
-        println("Write parser for <pname> to <dest>");
+        if(verbose) println("Write parser for <pname> to <dest>");
         writeFile(dest, parserClass);
-        println("done");
         return [];
     } catch e: {
         return [error("<e>", |unknown:///|(0,0,<0,0>,<0,0>))];
