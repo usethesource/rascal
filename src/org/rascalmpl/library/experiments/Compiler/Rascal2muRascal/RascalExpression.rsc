@@ -668,7 +668,7 @@ private default bool isConcreteListVar(Tree t) = false;
 // -- block expression ----------------------------------------------
 
 MuExp translate(e:(Expression) `{ <Statement+ statements> }`) = 
-    muBlock([translate(stat) | stat <- statements]);
+    muBlock([translate(stat) | Statement stat <- statements]);
 
 // -- parenthesized expression --------------------------------------
 
@@ -1232,7 +1232,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    
    MuExp receiver = translate(expression);
    //println("receiver: <receiver>");
-   list[MuExp] args = [ translate(a) | a <- arguments ];
+   list[MuExp] args = [ translate(a) | Expression a <- arguments ];
    
    if(getOuterType(expression) == "str"){
    		return muCallPrim3("node_create", [receiver, *args, *kwargs], e@\loc);
@@ -1443,11 +1443,11 @@ private MuExp translateKeywordArguments((KeywordArguments[Expression]) `<Keyword
 
 // -- any expression ------------------------------------------------
 
-MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) = makeSingleValuedBoolExp("ALL",[ translate(g) | g <- generators ], e@\loc);
+MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) = makeSingleValuedBoolExp("ALL",[ translate(g) | Expression g <- generators ], e@\loc);
 
 // -- all expression ------------------------------------------------
 
-MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) = makeBoolExp("RASCAL_ALL",[ translate(g) | g <- generators ], e@\loc);
+MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) = makeBoolExp("RASCAL_ALL",[ translate(g) | Expression g <- generators ], e@\loc);
 
 // -- comprehension expression --------------------------------------
 
@@ -1478,7 +1478,7 @@ private MuExp translateComprehension(c: (Comprehension) `[ <{Expression ","}+ re
     [ <tmp, fuid> ],
     [ ],
     [ muAssignTmp(tmp, fuid, listwriter_open_code),
-      muWhile(loopname, makeMultiValuedBoolExp("ALL",[ translate(g) | g <- generators ], c@\loc), translateComprehensionContribution("list", tmp, fuid, [r | r <- results])),
+      muWhile(loopname, makeMultiValuedBoolExp("ALL",[ translate(g) | Expression g <- generators ], c@\loc), translateComprehensionContribution("list", tmp, fuid, [r | r <- results])),
       muCallPrim3("listwriter_close", [muTmp(tmp,fuid)], c@\loc) 
     ]);
 }
@@ -1497,7 +1497,7 @@ private MuExp translateComprehension(c: (Comprehension) `{ <{Expression ","}+ re
     [ <tmp, fuid> ],
     [ ],
     [ muAssignTmp(tmp, fuid, setwriter_open_code),
-      muWhile(loopname, makeMultiValuedBoolExp("ALL",[ translate(g) | g <- generators ], c@\loc), translateComprehensionContribution("set", tmp, fuid, [r | r <- results])),
+      muWhile(loopname, makeMultiValuedBoolExp("ALL",[ translate(g) | Expression g <- generators ], c@\loc), translateComprehensionContribution("set", tmp, fuid, [r | r <- results])),
       muCallPrim3("setwriter_close", [muTmp(tmp,fuid)], c@\loc) 
     ]);
 }
@@ -1560,7 +1560,7 @@ private MuExp translateSetOrList(Expression e, {Expression ","}* es, str kind){
       //if(size(es) == 0 || all(elm <- es, isConstant(elm))){
       //   return kind == "list" ? muCon([getConstantValue(elm) | elm <- es]) : muCon({getConstantValue(elm) | elm <- es});
       //} else 
-        return muCallPrim3("<kind>_create", [ translate(elem) | elem <- es ], e@\loc);
+        return muCallPrim3("<kind>_create", [ translate(elem) | Expression elem <- es ], e@\loc);
     }
 }
 
@@ -1579,7 +1579,7 @@ MuExp translate (e:(Expression) `\< <{Expression ","}+ elements> \>`) {
     //if(isConstant(e)){
     //  return muCon(readTextValueString("<e>"));
     //} else
-        return muCallPrim3("tuple_create", [ translate(elem) | elem <- elements ], e@\loc);
+        return muCallPrim3("tuple_create", [ translate(elem) | Expression elem <- elements ], e@\loc);
 }
 
 // -- map expression ------------------------------------------------
@@ -1658,16 +1658,16 @@ private MuExp translateSubscript(Expression e:(Expression) `<Expression exp> [ <
                                 + (subsKind == [0] ? "_noset" : "_set"));
       
       //println("<generalCase>, <subsKind> <op>");
-      return muCallPrim3(op, translate(exp) + (generalCase ? [muCon(subsKind)] : []) + ["<s>" == "_" ? muCon("_") : translate(s) | s <- subscripts], e@\loc);
+      return muCallPrim3(op, translate(exp) + (generalCase ? [muCon(subsKind)] : []) + ["<s>" == "_" ? muCon("_") : translate(s) | Expression s <- subscripts], e@\loc);
     }
     
     opCode = muCallPrim3(op, translate(exp) + ["<s>" == "_" ? muCon("_") : translate(s) | s <- subscripts], e@\loc);
     
     if(isDefined){
     	op = "is_defined_<op>";
-    	return muCallMuPrim("subscript_array_int", [ muCallPrim3(op, translate(exp) + ["<s>" == "_" ? muCon("_") : translate(s) | s <- subscripts], e@\loc), muCon(0)]);
+    	return muCallMuPrim("subscript_array_int", [ muCallPrim3(op, translate(exp) + ["<s>" == "_" ? muCon("_") : translate(s) | Expression s <- subscripts], e@\loc), muCon(0)]);
     }
-    return muCallPrim3(op, translate(exp) + ["<s>" == "_" ? muCon("_") : translate(s) | s <- subscripts], e@\loc);
+    return muCallPrim3(op, translate(exp) + ["<s>" == "_" ? muCon("_") : translate(s) | Expression s <- subscripts], e@\loc);
 }
 
 private MuExp translateSubscriptIsDefinedElse(Expression lhs:(Expression) `<Expression exp> [ <{Expression ","}+ subscripts> ]`, Expression rhs){
@@ -1685,7 +1685,7 @@ private MuExp translateSubscriptIsDefinedElse(Expression lhs:(Expression) `<Expr
                   [ <varname, fuid > ],
                   [ ],
                   [
-    		       muAssignTmp(varname, fuid, muCallPrim3("is_defined_<op>", translate(exp) + ["<s>" == "_" ? muCon("_") : translate(s) | s <- subscripts], lhs@\loc)),
+    		       muAssignTmp(varname, fuid, muCallPrim3("is_defined_<op>", translate(exp) + ["<s>" == "_" ? muCon("_") : translate(s) | Expression s <- subscripts], lhs@\loc)),
     			   muIfelse(nextLabel(), 
     						muCallMuPrim("subscript_array_int",  [muTmp(varname,fuid), muCon(0)]),
     						[muCallMuPrim("subscript_array_int", [muTmp(varname,fuid), muCon(1)])],
