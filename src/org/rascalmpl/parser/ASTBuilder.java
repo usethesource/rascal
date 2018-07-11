@@ -491,7 +491,7 @@ public class ASTBuilder {
                 DecimalIntegerLiteral decimalLexical =
                     new DecimalIntegerLiteral.Lexical(loc, null, iinteger.getStringRepresentation());
                 IntegerLiteral.DecimalIntegerLiteral integerLiteral =
-                    new IntegerLiteral.DecimalIntegerLiteral(loc, (ITree) value, decimalLexical);
+                    new IntegerLiteral.DecimalIntegerLiteral(loc, null, decimalLexical);
                 Literal.Integer literal = new Literal.Integer(loc, null, integerLiteral);
                 return new org.rascalmpl.semantics.dynamic.Expression.Literal(loc, null, literal);
             }
