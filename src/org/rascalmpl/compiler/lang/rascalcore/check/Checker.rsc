@@ -340,11 +340,13 @@ map[str,TModel] rascalTModelForName(str moduleName, PathConfig pcfg, TypePalConf
 // name of the production has to mirror the Kernel compile result
 data ModuleMessages = program(loc src, set[Message] messages);
 
-list[ModuleMessages] check(str moduleName, PathConfig pcfg){        // changed from ModuleMessages to list[ModuleMessages]
+ModuleMessages check(str moduleName, PathConfig pcfg){        // TODO change from ModuleMessages to list[ModuleMessages]
     try {
-        return check(getModuleLocation(moduleName, pcfg), pcfg);
+        mloc = getModuleLocation(moduleName, pcfg);
+        mms = check(mloc, pcfg);
+        return mms[mloc] ? program(mloc, {});
     } catch value e: {
-        return [ program(|unkown:///|, {error("During validation: <e>", |unkown:///|)}) ];
+        return program(|unkown:///|, {error("During validation: <e>", |unkown:///|)});
     }
 }
 
