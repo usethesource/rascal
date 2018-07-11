@@ -539,10 +539,10 @@ public class ASTBuilder {
 
                 boolean isSplice = false;
                 boolean isSplicePlus = false;
-                if (variableType.endsWith("*")){
+                if (variableType.endsWith("*")) {
                     isSplice = true;
                     variableType = variableType.substring(0, variableType.length() - 1);
-                } else if (variableType.endsWith("+")){
+                } else if (variableType.endsWith("+")) {
                     isSplicePlus = true;
                     variableType = variableType.substring(0, variableType.length() - 1);
                 }
