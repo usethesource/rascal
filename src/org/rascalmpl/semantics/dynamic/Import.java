@@ -861,6 +861,8 @@ public abstract class Import {
     }
 
   
+    private static final String CONCRETE_HOLE_TAG = "concreteHole";
+    
     private static String createHole2(IEvaluator<Result<IValue>> ctx, ModuleEnvironment env, ITree part,
         Map<IValue, ITree> antiquotes) {
         final Type stringType = TypeFactory.getInstance().stringType();
@@ -875,15 +877,18 @@ public abstract class Import {
         }
         
         List<AbstractFunction> functions = new ArrayList<>();
-        env.getAllFunctions(TypeFactory.getInstance().tupleType(stringType, type), functions);
+        env.getFunctionsByAnnotation(CONCRETE_HOLE_TAG, functions);
 
         functions = functions.stream()
-            .filter(it -> it.hasTag("concreteHole") && it.getArity() == 1
-                && it.getFunctionType().getArgumentTypes().getFieldType(0).equals(stringType))
+            .filter(it-> ((IString) it.getTag(CONCRETE_HOLE_TAG)).getValue().equals(type.getName()))
             .collect(Collectors.toList());
         if (functions.size() == 0) {
             ISourceLocation loc = TreeAdapter.getLocation(part);
             throwParseError("Hole function missing" + TreeAdapter.yield(subTree), loc);
+        }
+        if (functions.size() > 1) {
+            ISourceLocation loc = TreeAdapter.getLocation(part);
+            throwParseError("Multiple hole functions defined" + TreeAdapter.yield(subTree), loc);
         }
         Result<IValue> result = functions.get(0).call(new Type[] {stringType}, new IValue[] {ctx.getValueFactory().string(antiquotes.size() + "")}, null);
         ITuple holeInfo = (ITuple) result.getValue();
