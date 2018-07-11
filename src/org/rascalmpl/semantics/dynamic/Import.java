@@ -909,7 +909,7 @@ public abstract class Import {
     
     private static AbstractFunction getTaggedFunctionFromEnvironment(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, String tag, String nonterminalName) {
         List<AbstractFunction> functions = new ArrayList<>();
-        env.getFunctionsByAnnotation(tag, functions);
+        env.getFunctionsByTag(tag, functions);
         functions = functions.stream().filter(it-> ((IString) it.getTag(tag)).getValue().equals(nonterminalName)).collect(Collectors.toList());
         if (functions.size() == 0) {
             throwParseError("Could not find " + tag + " function for " + nonterminalName, eval.getCurrentAST().getLocation());
