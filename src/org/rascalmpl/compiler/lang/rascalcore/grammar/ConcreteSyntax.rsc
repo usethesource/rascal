@@ -44,11 +44,11 @@ public AGrammar addHoles(AGrammar object) = compose(object, grammar({}, holes(ob
 }
 public set[AProduction] holes(AGrammar object) {
   // syntax N = @holeType=<N> [-1] "N" ":" [0-9]+ [-1];
-  return  { AProduction::regular(iter(\char-class([range(48,57)]))), 
-            prod(getTargetSymbol(nont)/*[label="$MetaHole"]*/,
-                 [ \char-class([range(0,0)]),
-                   lit(denormalize(nont)),lit(":"),iter(\char-class([range(48,57)])),
-                   \char-class([range(0,0)])
+  return  { AProduction::regular(iter(\char-class([ACharRange::range(48,57)]))),
+            AProduction::prod(getTargetSymbol(nont)/*[label="$MetaHole"]*/,
+                 [\char-class([ACharRange::range(0,0)]),
+                  AType::lit(denormalize(nont)),AType::lit(":"),iter(\char-class([ACharRange::range(48,57)])),
+                  \char-class([ACharRange::range(0,0)])
                  ],attributes={\tag("holeType"(prettyPrintAType(nont)))})  
           | AType nont <- object.rules, quotable(nont)
           };

@@ -1,4 +1,4 @@
-module lang::rascalcore::check::ADTSummary
+module lang::rascalcore::check::GetGrammar
    
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeUtils;
@@ -25,14 +25,14 @@ bool isManualLayout(AProduction p) = (p has attributes && \tag("manual"()) in p.
 
 AGrammar getGrammar(loc scope, Solver s){
     facts = s.getFacts();
-    usedADTs = {unset(t, "label") | loc k <- facts, /*containedIn(k, scope),*/ /AType t:aadt(str name, list[AType] parameters, sr) := facts[k], sr != dataSyntax()};
+    usedADTs = {unset(t, "label") | loc k <- facts, /AType t:aadt(str name, list[AType] parameters, sr) := facts[k], sr != dataSyntax()};
     
     allStarts = {};
     allLayouts = {};
     allManualLayouts = {};
     definitions = ();
     //PM. maybe also generate prod(Symbol::empty(),[],{}) 
-    for(adtType <- usedADTs){
+    for(AType adtType <- usedADTs){
         //println("getGrammar: <adtType>");
         productions = {p | <id, aprod(p)> <- s.getAllDefinedInType(adtType, scope, dataOrSyntaxIds)};
         definitions[adtType] = choice(adtType, productions);

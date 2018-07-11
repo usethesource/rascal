@@ -522,7 +522,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
             
             texp = s.getType(expression);
             if(isStrType(texp)){
-                return computeNodeType(current, scope, actuals, keywordArguments, s);
+                return computeExpressionNodeType(current, scope, actuals, keywordArguments, s);
             } 
             if(isLocType(texp)){
                 nactuals = size(actuals);
@@ -705,7 +705,7 @@ AType computeReturnType(Expression current, loc scope, AType retType, list[AType
         s.requireComparable(ai, iformalTypes[i], error(i < size(actuals)  ? actuals[i] : current, "Argument %v should have type %t, found %t", i, iformalTypes[i], ai));       
     }
     
-    checkKwArgs(kwFormals, keywordArguments, bindings, scope, s, isExpression=true);
+    checkExpressionKwArgs(kwFormals, keywordArguments, bindings, scope, s);
     
     //// Artificially bind unbound type parameters in the return type
     //for(rparam <- collectAndUnlabelRascalTypeParams(retType)){
@@ -798,7 +798,15 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, AType retType, 
         s.requireComparable(ai, iformals[i], error(current, "Argument %v should have type %t, found %t", i, formalTypes[i], ai));
     }
     adtType = s.getTypeInScopeFromName(adtName, scope, dataOrSyntaxIds);
-    checkKwArgs(kwFormals + getCommonKeywords(adtType, scope, s), keywordArguments, bindings, scope, s, isExpression=isExpression);
+    
+    switch(keywordArguments){
+    case (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`:
+        checkExpressionKwArgs(kwFormals + getCommonKeywords(adtType, scope, s), keywordArgumentsExp, bindings, scope, s);
+    case (KeywordArguments[Pattern]) `<KeywordArguments[Pattern] keywordArgumentsPat>`:
+        checkPatternKwArgs(kwFormals + getCommonKeywords(adtType, scope, s), keywordArguments, bindings, scope, s);
+    default:
+        throw rascalCheckerInternalError("computeADTReturnType: illegal keywordArguments: <keywordArguments>");
+    }
     
     list[AType] parameters = [];
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := adtType){
@@ -822,181 +830,157 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, AType retType, 
     return adtType;
 }
 
-void checkKwArgs(list[Keyword] kwFormals, keywordArguments, Bindings bindings, loc scope, Solver s, bool isExpression=true){
-    switch(keywordArguments){
-    case (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`: {
-        if(keywordArgumentsExp is none) return;
-     
-        next_arg:
-        for(kwa <- keywordArgumentsExp.keywordArgumentList){ 
-            kwName = prettyPrintName(kwa.name);
-            
-            for(<ft, de> <- kwFormals){
-               fn = ft.label;
-               if(kwName == fn){
-                  ift = ft;
-                  if(!isEmpty(bindings)){
-                      try   ift = instantiateRascalTypeParams(ft, bindings);
-                      catch invalidInstantiation(str msg):
-                            s.report(error(kwa, msg));
-                  }
-                  kwType = isExpression ? s.getType(kwa.expression) : getPatternType(kwa.expression, ift, scope, s);
-                  s.requireComparable(kwType, ift, error(kwa, "Keyword argument %q has type %t, expected %t", kwName, kwType, ift));
-                  continue next_arg;
-               } 
-            }
-            availableKws = intercalateOr(["`<prettyPrintAType(ft)> <ft.label>`" | < AType ft, Expression de> <- kwFormals]);
-            switch(size(kwFormals)){
-            case 0: availableKws ="; no other keyword parameters available";
-            case 1: availableKws = "; available keyword parameter: <availableKws>";
-            default:
-                availableKws = "; available keyword parameters: <availableKws>";
-            }
-            
-           s.report(error(kwa, "Undefined keyword argument %q%v", kwName, availableKws));
-        }
-        }
-     case (KeywordArguments[Pattern]) `<KeywordArguments[Pattern] keywordArgumentsPat>`: {
-        if(keywordArgumentsPat is none) return;
-     
-        next_arg:
-        for(kwa <- keywordArgumentsPat.keywordArgumentList){ 
-            kwName = prettyPrintName(kwa.name);
-            
-            for(<ft, de> <- kwFormals){
-               fn = ft.label;
-               if(kwName == fn){
-                  ift = ft;
-                  if(!isEmpty(bindings)){
-                      try   ift = instantiateRascalTypeParams(ft, bindings);
-                      catch invalidInstantiation(str msg):
-                            s.report(error(kwa, msg));
-                  }
-                  kwType = isExpression ? s.getType(kwa.expression) : getPatternType(kwa.expression, ift, scope, s);
-                s.requireComparable(kwType, ift, error(kwa, "Keyword argument %q has type %t, expected %t", kwName, kwType, ift));
-                  continue next_arg;
-               } 
-            }
-            availableKws = intercalateOr(["`<prettyPrintAType(ft)> <ft.label>`" | </*str fn,*/ AType ft, Expression de> <- kwFormals]);
-            switch(size(kwFormals)){
-            case 0: availableKws ="; no other keyword parameters available";
-            case 1: availableKws = "; available keyword parameter: <availableKws>";
-            default:
-                availableKws = "; available keyword parameters: <availableKws>";
-            }
-            
-            s.report(error(kwa, "Undefined keyword argument %q%v", kwName, availableKws));
-        }
-     } 
-    default: 
-      throw rascalCheckerInternalError("checkKwArgs: illegal keywordArguments");
-    }
- } 
+void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`, Bindings bindings, loc scope, Solver s){
+    if(keywordArgumentsExp is none) return;
  
- AType computeNodeType(Tree current, loc scope, actuals, keywordArguments, Solver s, AType subjectType=avalue(), bool isExpression = true){                     
-    nactuals = size(actuals);
-
-    switch(actuals){
-        case list[Expression] expList: {
-                actualType = [ s.getType(expList[i]) | i <- index(expList) ];
-                return anode(computeKwArgs(keywordArguments, scope, s, isExpression=isExpression));
-            }
-        case list[Pattern] patList: {
-                dontCare = [ "<patList[i]>" == "_" | i <- index(patList) ];
-                actualType = [ dontCare[i] ? avalue() : getPatternType(patList[i], avalue(), scope, s) | i <- index(patList) ];
-                
-                if(adtType:aadt(adtName, list[AType] parameters,_) := subjectType){
-                   declaredInfo = s.getDefinitions(adtName, scope, dataOrSyntaxIds);
-                   declaredType = s.getTypeInScopeFromName(adtName, scope, dataOrSyntaxIds);
-                   checkKwArgs(getCommonKeywords(adtType, scope, s), keywordArguments, (), scope, s, isExpression=isExpression);
-                   return subjectType;
-                } else if(acons(adtType:aadt(adtName, list[AType] parameters, _), list[AType] fields, list[Keyword] kwFields) := subjectType){
-                   kwFormals = kwFields;
-                   checkKwArgs(kwFormals + getCommonKeywords(adtType, scope, s), keywordArguments, (), scope, s, isExpression=isExpression);
-                   return anode([]);
-                } else if(anode(list[AType] fields) := subjectType){
-                    return computeNodeTypeWithKwArgs(current, keywordArguments, fields, scope, s);
-                } else if(avalue() := subjectType){
-                    return anode([]);
-                }
-                s.report(error(current, "Node pattern does not match %t", subjectType));
-            }
+    next_arg:
+    for(kwa <- keywordArgumentsExp.keywordArgumentList){ 
+        kwName = prettyPrintName(kwa.name);
+        
+        for(<ft, de> <- kwFormals){
+           fn = ft.label;
+           if(kwName == fn){
+              ift = ft;
+              if(!isEmpty(bindings)){
+                  try   ift = instantiateRascalTypeParams(ft, bindings);
+                  catch invalidInstantiation(str msg):
+                        s.report(error(kwa, msg));
+              }
+              kwType = s.getType(kwa.expression);
+              s.requireComparable(kwType, ift, error(kwa, "Keyword argument %q has type %t, expected %t", kwName, kwType, ift));
+              continue next_arg;
+           } 
+        }
+        availableKws = intercalateOr(["`<prettyPrintAType(ft)> <ft.label>`" | < AType ft, Expression de> <- kwFormals]);
+        switch(size(kwFormals)){
+        case 0: availableKws ="; no other keyword parameters available";
+        case 1: availableKws = "; available keyword parameter: <availableKws>";
         default:
-            throw rascalCheckerInternalError(getLoc(current), "Illegal argument `actuals`");
+            availableKws = "; available keyword parameters: <availableKws>";
+        }
+        
+       s.report(error(kwa, "Undefined keyword argument %q%v", kwName, availableKws));
+    }
+} 
+ 
+ void checkPatternKwArgs(list[Keyword] kwFormals, (KeywordArguments[Pattern]) `<KeywordArguments[Pattern] keywordArgumentsPat>`, Bindings bindings, loc scope, Solver s){
+    if(keywordArgumentsPat is none) return;
+ 
+    next_arg:
+    for(kwa <- keywordArgumentsPat.keywordArgumentList){ 
+        kwName = prettyPrintName(kwa.name);
+        
+        for(<ft, de> <- kwFormals){
+           fn = ft.label;
+           if(kwName == fn){
+              ift = ft;
+              if(!isEmpty(bindings)){
+                  try   ift = instantiateRascalTypeParams(ft, bindings);
+                  catch invalidInstantiation(str msg):
+                        s.report(error(kwa, msg));
+              }
+              kwType = getPatternType(kwa.expression, ift, scope, s);
+            s.requireComparable(kwType, ift, error(kwa, "Keyword argument %q has type %t, expected %t", kwName, kwType, ift));
+              continue next_arg;
+           } 
+        }
+        availableKws = intercalateOr(["`<prettyPrintAType(ft)> <ft.label>`" | </*str fn,*/ AType ft, Expression de> <- kwFormals]);
+        switch(size(kwFormals)){
+        case 0: availableKws ="; no other keyword parameters available";
+        case 1: availableKws = "; available keyword parameter: <availableKws>";
+        default:
+            availableKws = "; available keyword parameters: <availableKws>";
+        }
+        
+        s.report(error(kwa, "Undefined keyword argument %q%v", kwName, availableKws));
     }
 }
-
-AType computeNodeTypeWithKwArgs(Tree current, keywordArguments, list[AType] fields, loc scope, Solver s){
-    switch(keywordArguments){
-        case (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`: {
-               if(keywordArgumentsExp is none) return anode([]);
-                               
-               nodeFieldTypes = [];
-               nextKW:
-                   for(ft <- fields){
-                       fn = ft.label;
-                       for(kwa <- keywordArgumentsExp.keywordArgumentList){ 
-                           kwName = prettyPrintName(kwa.name);
-                           if(kwName == fn){
-                              kwType = getPatternType(kwa.expression,ft, scope, s);
-                             s.requireUnify(ft, kwType, error(current, "Cannot determine type of field %q", fn));
-                              nodeFieldTypes += ft;
-                              continue nextKW;
-                           }
-                       }    
-                   }
-               return anode(nodeFieldTypes); 
-        }
-        case (KeywordArguments[Pattern]) `<KeywordArguments[Pattern] keywordArgumentsPat>`: {
-               if(keywordArgumentsPat is none) return anode([]);
-                               
-               nodeFieldTypes = [];
-               nextKW:
-                   for(ft /*<fn, ft>*/ <- fields){
-                       fn = ft.label;
-                       for(kwa <- keywordArgumentsPat.keywordArgumentList){ 
-                           kwName = prettyPrintName(kwa.name);
-                           if(kwName == fn){
-                              kwType = getPatternType(kwa.expression,ft, scope, s);
-                              s.requireUnify(ft, kwType, error(current, "Cannot determine type of field %q", fn));
-                              nodeFieldTypes += ft;
-                              continue nextKW;
-                           }
-                       }    
-                   }
-               return anode(nodeFieldTypes); 
-        }
-        
-        default:
-             throw rascalCheckerInternalError(getLoc(keywordArguments), "computeNodeTypeWithKwArgs: illegal keywordArguments");
-    }
+ 
+ AType computeExpressionNodeType(Tree current, loc scope, list[Expression]  actuals, (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`, Solver s, AType subjectType=avalue()){                     
+    actualType = [ s.getType(actuals[i]) | i <- index(actuals) ];
+    return anode(computeExpressionKwArgs(keywordArgumentsExp, scope, s));
 }
 
-list[AType] computeKwArgs(keywordArguments, loc scope, Solver s, bool isExpression=true){
-    switch(keywordArguments){
-        case (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`: {
-            if(keywordArgumentsExp is none) return [];
- 
-            return for(kwa <- keywordArgumentsExp.keywordArgumentList){ 
-                kwName = prettyPrintName(kwa.name);
-                kwType = isExpression ? s.getType(kwa.expression) : getPatternType(kwa.expression, avalue(), scope, s);
-                append kwType[label=kwName];
-            }
-        }
-        
-        case (KeywordArguments[Pattern]) `<KeywordArguments[Pattern] keywordArgumentsPat>`: {
-            if(keywordArgumentsPat is none) return [];
- 
-            return for(kwa <- keywordArgumentsPat.keywordArgumentList){ 
-                kwName = prettyPrintName(kwa.name);
-                kwType = isExpression ? s.getType(kwa.expression) : getPatternType(kwa.expression, avalue(), scope, s);
-                append kwType[label=kwName];
-            }
-        }
-        
-        default:
-             throw rascalCheckerInternalError(getLoc(keywordArguments), "computeKwArgs: illegal keywordArguments");
+AType computePatternNodeType(Tree current, loc scope, list[Pattern] patList, (KeywordArguments[Pattern]) `<KeywordArguments[Pattern] keywordArgumentsPat>`, Solver s, AType subjectType){                     
+    dontCare = [ "<patList[i]>" == "_" | i <- index(patList) ];
+    actualType = [ dontCare[i] ? avalue() : getPatternType(patList[i], avalue(), scope, s) | i <- index(patList) ];
+    
+    if(adtType:aadt(adtName, list[AType] parameters,_) := subjectType){
+       declaredInfo = s.getDefinitions(adtName, scope, dataOrSyntaxIds);
+       declaredType = s.getTypeInScopeFromName(adtName, scope, dataOrSyntaxIds);
+       checkPatternKwArgs(getCommonKeywords(adtType, scope, s), keywordArgumentsPat, (), scope, s);
+       return subjectType;
+    } else if(acons(adtType:aadt(adtName, list[AType] parameters, _), list[AType] fields, list[Keyword] kwFields) := subjectType){
+       kwFormals = kwFields;
+       checkPatternKwArgs(kwFormals + getCommonKeywords(adtType, scope, s), keywordArgumentsPat, (), scope, s);
+       return anode([]);
+    } else if(anode(list[AType] fields) := subjectType){
+        return computePatternNodeTypeWithKwArgs(current, keywordArgumentsPat, fields, scope, s);
+    } else if(avalue() := subjectType){
+        return anode([]);
     }
+    s.report(error(current, "Node pattern does not match %t", subjectType));
+}
+
+AType computeExpressionNodeTypeWithKwArgs(Tree current, (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`, list[AType] fields, loc scope, Solver s){
+    if(keywordArgumentsExp is none) return anode([]);
+                       
+    nodeFieldTypes = [];
+    nextKW:
+       for(ft <- fields){
+           fn = ft.label;
+           for(kwa <- keywordArgumentsExp.keywordArgumentList){ 
+               kwName = prettyPrintName(kwa.name);
+               if(kwName == fn){
+                  kwType = s.getType(kwa.expression); //getPatternType(kwa.expression,ft, scope, s);
+                  s.requireUnify(ft, kwType, error(current, "Cannot determine type of field %q", fn));
+                  nodeFieldTypes += ft;
+                  continue nextKW;
+               }
+           }    
+       }
+       return anode(nodeFieldTypes); 
+}
+
+AType computePatternNodeTypeWithKwArgs(Tree current, (KeywordArguments[Pattern]) `<KeywordArguments[Pattern] keywordArgumentsPat>`, list[AType] fields, loc scope, Solver s){
+    if(keywordArgumentsPat is none) return anode([]);
+                       
+    nodeFieldTypes = [];
+    nextKW:
+       for(ft <- fields){
+           fn = ft.label;
+           for(kwa <- keywordArgumentsPat.keywordArgumentList){ 
+               kwName = prettyPrintName(kwa.name);
+               if(kwName == fn){
+                  kwType = getPatternType(kwa.expression,ft, scope, s);
+                  s.requireUnify(ft, kwType, error(current, "Cannot determine type of field %q", fn));
+                  nodeFieldTypes += ft;
+                  continue nextKW;
+               }
+           }    
+       }
+       return anode(nodeFieldTypes); 
+ }
+
+
+list[AType] computeExpressionKwArgs((KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`, loc scope, Solver s){
+    if(keywordArgumentsExp is none) return [];
+ 
+    return for(kwa <- keywordArgumentsExp.keywordArgumentList){ 
+                kwName = prettyPrintName(kwa.name);
+                kwType = s.getType(kwa.expression);
+                append kwType[label=kwName];
+            }  
+}
+
+list[AType] computePatternKwArgs((KeywordArguments[Pattern]) `<KeywordArguments[Pattern] keywordArgumentsPat>`, loc scope, Solver s){
+    if(keywordArgumentsPat is none) return [];
+ 
+    return for(kwa <- keywordArgumentsPat.keywordArgumentList){ 
+                kwName = prettyPrintName(kwa.name);
+                kwType = getPatternType(kwa.expression, avalue(), scope, s);
+                append kwType[label=kwName];
+            }
 }
  
 list[Keyword] getCommonKeywords(aadt(str adtName, list[AType] parameters, _), loc scope, Solver s) =

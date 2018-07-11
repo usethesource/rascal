@@ -177,56 +177,6 @@ rel[str, PathRole, str] getModulePathsAsStr(Module m){
 
 TModel emptyModel = tmodel();
 
-tuple[bool, TModel] getIfValid(str qualifiedModuleName, PathConfig pcfg){
-    //println("getIfValid: <qualifiedModuleName>");
-    
-    <existsTpl, tplLoc> = getDerivedReadLoc(qualifiedModuleName, "tpl", pcfg);
-    if(!existsTpl) { 
-        //println("getIfValid, !existsTpl: false");
-        return <false, emptyModel>;
-    }
-    lastModTpl = lastModified(tplLoc);
-    
-    existsSrc = false;
-    lastModSrc = lastModTpl;
-    try {
-        mloc = getModuleLocation(qualifiedModuleName, pcfg);
-        existsSrc = true;
-        lastModSrc = getLastModified(qualifiedModuleName, pcfg);
-    } catch value e:{
-    ;
-    }
-
-    if(lastModSrc > lastModTpl) {
-        //println("getIfValid, lastModSrc \> lastModTpl: false"); 
-        return <false, emptyModel>;
-    }
-    
-    try {
-        tm = readBinaryValueFile(#TModel, tplLoc);
-        if(tm.store[key_bom]? && rel[str, datetime, PathRole] bom := tm.store[key_bom]){
-       
-           for(<str m, lastModified, pathRole> <- bom){
-               if(lastModified < getLastModified(m, pcfg)) {
-                  if(existsSrc){
-                     if(m != qualifiedModuleName){
-                        println("<m> out of date: in BOM <bom[m]> vs current <getLastModified(m, pcfg)>");
-                        return <false, emptyModel>;
-                     }
-                  } else {
-                   if(m != qualifiedModuleName)
-                        println("reusing outdated <m> (source not accessible)");
-                  }
-               }
-           }
-        }
-        return <true, tm>;
-    } catch IO(str msg): {
-        // c.reportWarning()
-        return <false, emptyModel>;
-    }
-}
-
 // ---- Save modules ----------------------------------------------------------
 
 map[str, loc] getModuleScopes(TModel tm)

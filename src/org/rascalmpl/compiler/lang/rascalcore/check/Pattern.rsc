@@ -506,7 +506,7 @@ AType getPatternType(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* 
     }
     
     if(isStrType(texp)){
-        return computeNodeType(current, scope, pats, keywordArguments, s, subjectType=subjectType, isExpression=false);
+        return computePatternNodeType(current, scope, pats, keywordArguments, s, subjectType);
     }       
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := texp){
        <filteredOverloads, identicalFields> = filterOverloadedConstructors(overloads, size(pats), subjectType);
