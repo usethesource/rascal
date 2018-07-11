@@ -914,7 +914,7 @@ public abstract class Import {
             @Override
             public IValue visitConstructor(IConstructor o) throws ImplementationError {
                 for (IValue key : antiquotes.keySet()) {
-                    if (o.isEqual(key)) {
+                    if (o.match(key)) {
                         return antiquotes.get(key);
                     }
                 }
