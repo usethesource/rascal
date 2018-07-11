@@ -629,7 +629,7 @@ public CheckResult checkExp(Expression exp:(Expression)`<Expression e> ( <{Expre
 	tuple[Configuration c, rel[Symbol,KeywordParamMap] matches, set[str] failures] matchFunctionAlts(Configuration c, set[Symbol] alts) {
         rel[Symbol,KeywordParamMap] matches = { };
         set[str] failureReasons = { };
-        for (a <- alts, isFunctionType(a), KeywordParamMap kpm <- ( (!isEmpty(functionKP[a])) ? functionKP[a] : { ( ) })) {
+        for (Symbol a <- alts, isFunctionType(a), KeywordParamMap kpm <- ( (!isEmpty(functionKP[a])) ? functionKP[a] : { ( ) })) {
             list[Symbol] args = getFunctionArgumentTypes(a);
             // NOTE: We cannot assume the annotation is set, since we only set it when we add a
             // function (and have the info available); we don't have the information when we only
@@ -5503,6 +5503,7 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`\< <{Assignable
 public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>@<Name an>`, bool top, Configuration c) {
     // First, build the tree for the receiver and convert the annotation name into something
     // we can use below.
+    AssignableTree atree;
     < c, atree > = buildAssignableTree(ar, false, c);
     aname = convertName(an);
 
@@ -5549,6 +5550,7 @@ public ATResult buildAssignableTree(Assignable assn:(Assignable)`<Assignable ar>
 @doc{Check the type of Rascal assignments: IfDefined (DONE)}
 public CheckResult checkAssignment(Assignment assn:(Assignment)`?=`, Assignable a, Symbol st, loc l, Configuration c) {
     cbak = c;
+    AssignableTree atree;
     < c, atree > = buildAssignableTree(a, true, c);
     if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
 
@@ -5571,6 +5573,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`?=`, Assignable 
 @doc{Check the type of Rascal assignments: Division (DONE)}
 public CheckResult checkAssignment(Assignment assn:(Assignment)`/=`, Assignable a, Symbol st, loc l, Configuration c) {
     cbak = c;
+    AssignableTree atree;
     < c, atree > = buildAssignableTree(a, true, c);
     if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
 
@@ -5602,6 +5605,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`/=`, Assignable 
 @doc{Check the type of Rascal assignments: Product (DONE)}
 public CheckResult checkAssignment(Assignment assn:(Assignment)`*=`, Assignable a, Symbol st, loc l, Configuration c) {
     cbak = c;
+    AssignableTree atree;
     < c, atree > = buildAssignableTree(a, true, c);
     if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
 
@@ -5633,6 +5637,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`*=`, Assignable 
 @doc{Check the type of Rascal assignments: Intersection (DONE)}
 public CheckResult checkAssignment(Assignment assn:(Assignment)`&=`, Assignable a, Symbol st, loc l, Configuration c) {
     cbak = c;
+    AssignableTree atree;
     < c, atree > = buildAssignableTree(a, true, c);
     if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
 
@@ -5664,6 +5669,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`&=`, Assignable 
 @doc{Check the type of Rascal assignments: Subtraction (DONE)}
 public CheckResult checkAssignment(Assignment assn:(Assignment)`-=`, Assignable a, Symbol st, loc l, Configuration c) {
     cbak = c;
+    AssignableTree atree;
     < c, atree > = buildAssignableTree(a, true, c);
     if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
 
@@ -5695,6 +5701,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`-=`, Assignable 
 @doc{Check the type of Rascal assignments: Default (DONE)}
 public CheckResult checkAssignment(Assignment assn:(Assignment)`=`, Assignable a, Symbol st, loc l, Configuration c) {
     cbak = c;
+    AssignableTree atree;
     < c, atree > = buildAssignableTree(a, true, c);
     if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
 
@@ -5717,6 +5724,7 @@ public CheckResult checkAssignment(Assignment assn:(Assignment)`=`, Assignable a
 @doc{Check the type of Rascal assignments: Addition (DONE)}
 public CheckResult checkAssignment(Assignment assn:(Assignment)`+=`, Assignable a, Symbol st, loc l, Configuration c) {
     cbak = c;
+    AssignableTree atree;
     < c, atree > = buildAssignableTree(a, true, c);
     if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
 
@@ -5755,6 +5763,7 @@ Symbol computeAppendType(Symbol t1, Symbol t2, loc l) {
 public CheckResult checkAssignment(Assignment assn:(Assignment)`\<\<=`, Assignable a, Symbol st, Configuration c) {
 	// TODO: This isn't implemented yet, so we need to verify this is actually the correct type.
     cbak = c;
+    AssignableTree atree;
     < c, atree > = buildAssignableTree(a, true, c);
     if (isFailType(atree@atype)) return markLocationFailed(cbak, a@\loc, atree@atype);
 

@@ -1,6 +1,6 @@
 @bootstrapParser
 module experiments::Compiler::Rascal2muRascal::RascalPattern
-
+ 
 import IO;
 import ValueIO;
 import Node;
@@ -353,7 +353,7 @@ MuExp translateConcreteListPattern(list[Tree] pats, bool isLex){
  }
  optionalLayoutPat = muApply(mkCallToLibFun("Library","MATCH_OPTIONAL_LAYOUT_IN_LIST"), []);
  return muApply(mkCallToLibFun("Library","MATCH_LIST"), [muCallMuPrim("make_array", 
-         [ (i % 2 == 0) ? translatePatAsConcreteListElem(pats[i], lookahead[i], isLex) : optionalLayoutPat | i <- index(pats) ])]);
+         [ (i % 2 == 0) ? translatePatAsConcreteListElem(pats[i], lookahead[i], isLex) : optionalLayoutPat | int i <- index(pats) ])]);
 }
 
 // Is a symbol an iterator type?
@@ -476,7 +476,7 @@ list[Lookahead] computeConcreteLookahead(list[Tree] pats){
     //println("computeConcreteLookahead: <for(p <- pats){><p><}>");
     nElem = 0;
     nMultiVar = 0;
-    rprops = for(p <- reverse([p | p <- pats])){
+    rprops = for(Tree p <- reverse([p | Tree p <- pats])){
                  append <nElem, nMultiVar>;
                  if(isConcreteMultiVar(p)) {nMultiVar += 1; nElem += nIter(p); } else {nElem += 1;}
              };
@@ -531,7 +531,7 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
    noKwParams = nKwArgs == 0 ? "_NO_KEYWORD_PARAMS" : "";
    concreteMatch = isConcretePattern(p) && isNonTerminalType(subjectType) ? "_CONCRETE" : "";
    
-   argCode = [ translatePat(pat, Symbol::\value()) | pat <- arguments ];
+   argCode = [ translatePat(pat, Symbol::\value()) | Pattern pat <- arguments ];
    if(nKwArgs > 0){
       argCode += translatePatKWArguments(keywordArguments); //TODO: compute type per argument
    }
@@ -686,11 +686,11 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`, Symbol subjectType)
    
    /* remove patterns with duplicate names */
    list[Pattern] uniquePats = [];
-   outer: for(i <- index(lpats)){
+   outer: for(int i <- index(lpats)){
       pat = lpats[i];
       str name = getName(pat, i);
       if(name != "_"){
-	      for(j <- [0 .. i]){
+	      for(int j <- [0 .. i]){
 	          if(getName(lpats[j], j) == name){
 	             continue outer;
 	          }
@@ -736,7 +736,7 @@ MuExp translatePat(p:(Pattern) `\<<{Pattern ","}* pats>\>`, Symbol subjectType) 
        lpats = [pat | pat <- pats];   //TODO: should be unnnecessary
        translatedPats = [ translatePat(lpats[i], elmTypes[i]) | int i <- index(lpats) ];
     } else {
-    	translatedPats = [ translatePat(pat, Symbol::\value()) | pat <- pats ];
+    	translatedPats = [ translatePat(pat, Symbol::\value()) | Pattern pat <- pats ];
     }
     return muApply(mkCallToLibFun("Library","MATCH_TUPLE"), [muCallMuPrim("make_array", translatedPats)]);
 }
@@ -750,7 +750,7 @@ MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`, Symbol subjectType) {
     if(Symbol::\list(tp) := subjectType && tp != Symbol::\void()){
     	elmType = tp;
     }
-    return muApply(mkCallToLibFun("Library","MATCH_LIST"), [muCallMuPrim("make_array", [ translatePatAsListElem(lpats[i], lookahead[i], elmType) | i <- index(lpats) ])]);
+    return muApply(mkCallToLibFun("Library","MATCH_LIST"), [muCallMuPrim("make_array", [ translatePatAsListElem(lpats[i], lookahead[i], elmType) | int i <- index(lpats) ])]);
 }
 
 bool isMultiVar(p:(Pattern) `<QualifiedName name>*`) = true;
@@ -772,7 +772,7 @@ alias Lookahead = tuple[int nElem, int nMultiVar];
 list[Lookahead] computeLookahead((Pattern) `[<{Pattern ","}* pats>]`){
     nElem = 0;
     nMultiVar = 0;
-    rprops = for(p <- reverse([p | p <- pats])){
+    rprops = for(Pattern p <- reverse([p | Pattern p <- pats])){
                  append <nElem, nMultiVar>;
                  if(isMultiVar(p)) nMultiVar += 1; else nElem += 1;
              };
@@ -956,15 +956,15 @@ default MuExp translatePat(Pattern p, Symbol subjectType) { iprintln(p); throw "
 /**********************************************************************/
 /*                 Constant Patterns                                  */
 /**********************************************************************/
-
+ 
 value translatePatternAsConstant(p:(Pattern) `<Literal lit>`) = getLiteralValue(lit) when isConstant(lit);
 
 value translatePatternAsConstant(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`) =
-  makeNode("<expression>", [ translatePatternAsConstant(pat) | pat <- arguments ] + translatePatKWArguments(keywordArguments));
+  makeNode("<expression>", [ translatePatternAsConstant(pat) | Pattern pat <- arguments ] + translatePatKWArguments(keywordArguments));
 
-value translatePatternAsConstant(p:(Pattern) `{<{Pattern ","}* pats>}`) = { translatePatternAsConstant(pat) | pat <- pats };
+value translatePatternAsConstant(p:(Pattern) `{<{Pattern ","}* pats>}`) = { translatePatternAsConstant(pat) | Pattern pat <- pats };
 
-value translatePatternAsConstant(p:(Pattern) `[<{Pattern ","}* pats>]`) = [ translatePatternAsConstant(pat) | pat <- pats ];
+value translatePatternAsConstant(p:(Pattern) `[<{Pattern ","}* pats>]`) = [ translatePatternAsConstant(pat) | Pattern pat <- pats ];
 
 //value translatePatternAsConstant(p:(Pattern) `\<<{Pattern ","}* pats>\>`) {
 //  lpats = [ pat | pat <- pats]; // TODO

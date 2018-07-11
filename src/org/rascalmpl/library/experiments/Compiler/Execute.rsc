@@ -439,7 +439,7 @@ TestResults rascalTestsRaw(list[str] qualifiedModuleNames, PathConfig pcfg,
         }
    }
    
-   for(qualifiedModuleName <- expandedModuleNames){
+   for(str qualifiedModuleName <- expandedModuleNames){
        try {
        if(!recompile && <true, compressed> := RVMExecutableReadLoc(qualifiedModuleName, pcfg)){
            if(verbose) println("Using <compressed>");
@@ -450,7 +450,7 @@ TestResults rascalTestsRaw(list[str] qualifiedModuleNames, PathConfig pcfg,
               //executables_available = false;
            }
            try {
-              mainModule = compile(qualifiedModuleName, pcfg, verbose=verbose,enableAsserts=true);
+              RVMModule mainModule = compile(qualifiedModuleName, pcfg, verbose=verbose,enableAsserts=true);
               errors = [ e | e:error(_,_) <- mainModule.messages];
               if(size(errors) > 0){
                  v = [ <at, 0, msg> | error(msg, at) <- errors ];
