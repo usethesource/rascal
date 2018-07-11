@@ -590,21 +590,11 @@ public abstract class Import {
     
     if (abstractDataType != null) { //found an ADT with the right name, checking for parse function
         Map<IValue, ITree> antiquotes = new HashMap<>();
-        List<AbstractFunction> functions = new ArrayList<>();
-        env.getFunctionsByAnnotation(CONCRETE_SYNTAX_TAG, functions);
-        functions = functions.stream().filter(it-> ((IString) it.getTag(CONCRETE_SYNTAX_TAG)).getValue().equals(abstractDataType.getName())).collect(Collectors.toList());
-        if (functions.size() == 0) {
-            eval.getMonitor().warning("Could not find parse function for " + name, eval.getCurrentAST().getLocation());
-            return (ITree) tree.asAnnotatable().setAnnotation("Could not find context function for " + name, eval.getCurrentAST().getLocation());
-        }
-        if (functions.size() > 1) {
-            eval.getMonitor().warning("Multiple parse functions for " + name, eval.getCurrentAST().getLocation());
-            return (ITree) tree.asAnnotatable().setAnnotation("Multiple parse functions for " + name, eval.getCurrentAST().getLocation());
-        }
+        AbstractFunction parseFunction = getConcreteSyntaxParseFunction(eval, env, abstractDataType.getName());
         try {
             SortedMap<Integer,Integer> corrections = new TreeMap<>();
             String input = replaceAntiQuotesByHoles2(eval, env, lit, antiquotes, corrections);
-            Result<IValue> result = functions.get(0).call(new Type[] {TypeFactory.getInstance().stringType()}, new IValue[] {eval.getValueFactory().string(input)}, null);
+            Result<IValue> result = parseFunction.call(new Type[] {TypeFactory.getInstance().stringType()}, new IValue[] {eval.getValueFactory().string(input)}, null);
             IValue ret = replaceHolesByAntiQuotes2(eval, (IConstructor) result.getValue(), antiquotes, corrections);
             return ((IRascalValueFactory) eval.getValueFactory()).quote((INode) ret);
         } catch (ParseError e) {
@@ -871,25 +861,16 @@ public abstract class Import {
             throwParseError("Unknown hole type " + TreeAdapter.yield(subTree), loc);
         }
         
-        List<AbstractFunction> functions = new ArrayList<>();
-        env.getFunctionsByAnnotation(CONCRETE_HOLE_TAG, functions);
-
-        functions = functions.stream()
-            .filter(it-> ((IString) it.getTag(CONCRETE_HOLE_TAG)).getValue().equals(type.getName()))
-            .collect(Collectors.toList());
-        if (functions.size() == 0) {
-            ISourceLocation loc = TreeAdapter.getLocation(part);
-            throwParseError("Hole function missing" + TreeAdapter.yield(subTree), loc);
-        }
-        if (functions.size() > 1) {
-            ISourceLocation loc = TreeAdapter.getLocation(part);
-            throwParseError("Multiple hole functions defined" + TreeAdapter.yield(subTree), loc);
-        }
-        Result<IValue> result = functions.get(0).call(new Type[] {stringType}, new IValue[] {ctx.getValueFactory().string(antiquotes.size() + "")}, null);
-        ITuple holeInfo = (ITuple) result.getValue();
+        AbstractFunction parseFunction = getConcreteSyntaxParseFunction(ctx, env, type.getName());
+        AbstractFunction holeFunction = getConcreteSyntaxHoleFunction(ctx, env, type.getName());
         
-        antiquotes.put(holeInfo.get(1), part);
-        return ((IString) holeInfo.get(0)).getValue();
+        Result<IValue> replacementResult = holeFunction.call(new Type[] {TypeFactory.getInstance().integerType()}, new IValue[] {ctx.getValueFactory().integer(antiquotes.size())}, null);
+        IString holeReplacement = (IString) replacementResult.getValue();
+        
+        Result<IValue> result = parseFunction.call(new Type[] {TypeFactory.getInstance().stringType()}, new IValue[] {ctx.getValueFactory().string(holeReplacement.getValue())}, null);
+        
+        antiquotes.put(result.getValue(), part);
+        return (holeReplacement.getValue());
     }
     
     private static void throwParseError(String message, ISourceLocation loc) {
