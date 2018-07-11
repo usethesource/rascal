@@ -570,6 +570,8 @@ public abstract class Import {
     }
   }
   
+  private static final String CONCRETE_SYNTAX_TAG = "concreteSyntax";
+  
   private static ITree parseFragment(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, ITree tree, ISourceLocation uri) {
     IConstructor symTree = TreeAdapter.getArg(tree, "symbol");
     ITree lit = TreeAdapter.getArg(tree, "parts");
@@ -591,12 +593,15 @@ public abstract class Import {
     if (abstractDataType != null) { //found an ADT with the right name, checking for parse function
         Map<IValue, ITree> antiquotes = new HashMap<>();
         List<AbstractFunction> functions = new ArrayList<>();
-        env.getAllFunctions(abstractDataType, functions);
-        functions = functions.stream().filter(it -> it.hasTag("concreteSyntax") && it.getArity() == 1
-          && it.getFunctionType().getArgumentTypes().getFieldType(0).equals(TypeFactory.getInstance().stringType())).collect(Collectors.toList());
+        env.getFunctionsByAnnotation(CONCRETE_SYNTAX_TAG, functions);
+        functions = functions.stream().filter(it-> ((IString) it.getTag(CONCRETE_SYNTAX_TAG)).getValue().equals(abstractDataType.getName())).collect(Collectors.toList());
         if (functions.size() == 0) {
-            eval.getMonitor().warning("Could not find context function for " + name, eval.getCurrentAST().getLocation());
+            eval.getMonitor().warning("Could not find parse function for " + name, eval.getCurrentAST().getLocation());
             return (ITree) tree.asAnnotatable().setAnnotation("Could not find context function for " + name, eval.getCurrentAST().getLocation());
+        }
+        if (functions.size() > 1) {
+            eval.getMonitor().warning("Multiple parse functions for " + name, eval.getCurrentAST().getLocation());
+            return (ITree) tree.asAnnotatable().setAnnotation("Multiple parse functions for " + name, eval.getCurrentAST().getLocation());
         }
         try {
             SortedMap<Integer,Integer> corrections = new TreeMap<>();
