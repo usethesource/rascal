@@ -313,19 +313,19 @@ public class Environment implements IRascalFrame {
 	    }
 	}
 	
-	public void getFunctionsByAnnotation(String annotation, List<AbstractFunction> collection) {
+	public void getFunctionsByTag(String tag, List<AbstractFunction> collection) {
 	    if (functionEnvironment != null) {
 	        List<AbstractFunction> locals = functionEnvironment.values().stream().collect(ArrayList::new, ArrayList::addAll, ArrayList::addAll);
 	        if (locals != null) {
 	            for (AbstractFunction func : locals) {
-	                if (func.hasTag(annotation)) {
+	                if (func.hasTag(tag)) {
 	                    collection.add(func);
 	                }
 	            }
 	        }
 	    }
 	    if (parent != null) {
-	        parent.getFunctionsByAnnotation(annotation, collection);
+	        parent.getFunctionsByTag(tag, collection);
 	    }
 	}
 	

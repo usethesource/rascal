@@ -534,14 +534,14 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public void getFunctionsByAnnotation(String annotation, List<AbstractFunction> collection) {
-	    super.getFunctionsByAnnotation(annotation, collection);
+	public void getFunctionsByTag(String tag, List<AbstractFunction> collection) {
+	    super.getFunctionsByTag(tag, collection);
 	    
 	    for (String moduleName : getImports()) {
 	        ModuleEnvironment mod = getImport(moduleName);
 	        
 	        if (mod != null) {
-	            mod.getFunctionsByAnnotation(annotation, collection);
+	            mod.getFunctionsByTag(tag, collection);
 	        }
 	    }
 	}
