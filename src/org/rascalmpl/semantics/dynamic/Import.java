@@ -570,8 +570,6 @@ public abstract class Import {
     }
   }
   
-  private static final String CONCRETE_SYNTAX_TAG = "concreteSyntax";
-  
   private static ITree parseFragment(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, ITree tree, ISourceLocation uri) {
     IConstructor symTree = TreeAdapter.getArg(tree, "symbol");
     ITree lit = TreeAdapter.getArg(tree, "parts");
@@ -860,9 +858,6 @@ public abstract class Import {
         return b.toString();
     }
 
-  
-    private static final String CONCRETE_HOLE_TAG = "concreteHole";
-    
     private static String createHole2(IEvaluator<Result<IValue>> ctx, ModuleEnvironment env, ITree part,
         Map<IValue, ITree> antiquotes) {
         final Type stringType = TypeFactory.getInstance().stringType();
@@ -899,6 +894,30 @@ public abstract class Import {
     
     private static void throwParseError(String message, ISourceLocation loc) {
         throw new ParseError(message, loc.top().getURI(), loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getEndColumn());
+    }
+    
+    private static final String CONCRETE_SYNTAX_TAG = "concreteSyntax";
+    private static final String CONCRETE_HOLE_TAG = "concreteHole";
+    
+    private static AbstractFunction getConcreteSyntaxParseFunction(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, String nonterminalName) {
+        return getTaggedFunctionFromEnvironment(eval, env, CONCRETE_SYNTAX_TAG, nonterminalName);
+    }
+    
+    private static AbstractFunction getConcreteSyntaxHoleFunction(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, String nonterminalName) {
+        return getTaggedFunctionFromEnvironment(eval, env, CONCRETE_HOLE_TAG, nonterminalName);
+    }
+    
+    private static AbstractFunction getTaggedFunctionFromEnvironment(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, String tag, String nonterminalName) {
+        List<AbstractFunction> functions = new ArrayList<>();
+        env.getFunctionsByAnnotation(tag, functions);
+        functions = functions.stream().filter(it-> ((IString) it.getTag(tag)).getValue().equals(nonterminalName)).collect(Collectors.toList());
+        if (functions.size() == 0) {
+            throwParseError("Could not find " + tag + " function for " + nonterminalName, eval.getCurrentAST().getLocation());
+        }
+        if (functions.size() > 1) {
+            throwParseError("Multiple " + tag + " functions for " + nonterminalName, eval.getCurrentAST().getLocation());
+        }
+        return functions.get(0);
     }
 
   private static String createHole(IEvaluator<Result<IValue>> ctx, ITree part, Map<String, ITree> antiquotes) {
