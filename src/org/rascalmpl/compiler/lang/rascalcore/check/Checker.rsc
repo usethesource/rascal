@@ -342,27 +342,29 @@ data ModuleMessages = program(loc src, set[Message] messages);
 
 ModuleMessages check(str moduleName, PathConfig pcfg){        // TODO change from ModuleMessages to list[ModuleMessages]
     try {
-        mloc = getModuleLocation(moduleName, pcfg);
-        mms = check(mloc, pcfg);
-        return mms[mloc] ? program(mloc, {});
+        moduleLoc = getModuleLocation(moduleName, pcfg);
+        return check(moduleLoc, pcfg);
     } catch value e: {
         return program(|unkown:///|, {error("During validation: <e>", |unkown:///|)});
     }
 }
 
-ModuleMessages check(loc file, PathConfig pcfg){          // TODO: change from ModuleMessages to list[ModuleMessages]
+ModuleMessages check(loc moduleLoc, PathConfig pcfg){          // TODO: change from ModuleMessages to list[ModuleMessages]
     pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
-    println("=== check: <file>"); iprintln(pcfg1);
-    module2tmodel = rascalTModelForLoc(file, pcfg, rascalTypePalConfig(classicReifier=true));
-    return [ program(getModuleLocation(m, pcfg), toSet(module2tmodel[m].messages)) | m <- module2tmodel ];
+    println("=== check: <moduleLoc>"); iprintln(pcfg1);
+    module2tmodel = rascalTModelForLoc(moduleLoc, pcfg, rascalTypePalConfig(classicReifier=true));
+    moduleName = getModuleName(moduleLoc, pcfg);
+    tm = module2tmodel[moduleName];
+    return program(moduleLoc, toSet(tm.messages));
+    //return [ program(getModuleLocation(m, pcfg), toSet(module2tmodel[m].messages)) | m <- module2tmodel ];
 }
 
 list[ModuleMessages] check(list[str] moduleNames, PathConfig pcfg){
     return [ *check(moduleName, pcfg) | moduleName <- moduleNames ];
 }
 
-list[ModuleMessages] check(list[loc] files, PathConfig pcfg){
-    return [ *check(fileName, pcfg) | fileName <- files ];
+list[ModuleMessages] check(list[loc] moduleLocs, PathConfig pcfg){
+    return [ *check(moduleLoc, pcfg) | moduleLoc <- moduleLocs ];
 }
 
 list[ModuleMessages] checkAll(loc root, PathConfig pcfg){
