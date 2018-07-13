@@ -130,7 +130,7 @@ void(Solver) makeVarInitRequirement(Variable var)
             catch invalidMatch(str reason):
                   s.report(error(var.initial, reason));
             
-            initialType = xxInstantiateRascalTypeParameters(initialType, bindings, s);  
+            initialType = xxInstantiateRascalTypeParameters(var, initialType, bindings, s);  
             if(s.isFullyInstantiated(initialType)){
                 s.requireSubtype(initialType, varType, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, initialType));
             } else if(!s.unify(initialType, varType)){
@@ -399,7 +399,7 @@ void(Solver) makeReturnRequirement(Tree expr, Type returnType)
         catch invalidMatch(str reason):
               s.report(error(expr, reason));
           
-        iexprType = xxInstantiateRascalTypeParameters(exprType, bindings, s);
+        iexprType = xxInstantiateRascalTypeParameters(expr, exprType, bindings, s);
 
         if(s.isFullyInstantiated(iexprType)){
             s.requireSubtype(iexprType, actualRetType, error(expr, "Return type should be subtype of %t, found %t", actualRetType, iexprType));
