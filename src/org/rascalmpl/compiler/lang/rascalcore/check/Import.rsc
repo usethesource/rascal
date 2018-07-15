@@ -107,7 +107,15 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
                    }
                }
             } else {
-                println("NO BOM!!!");
+                throw "No bill-of-materials found in <tplLoc>";
+            }
+            if(!allImportsAndExtendsValid){
+                try {
+                    mloc = getModuleLocation(qualifiedModuleName, pcfg);
+                } catch value e:{
+                    allImportsAndExtendsValid = true;
+                    println("--- reusing outdated <qualifiedModuleName> (source not accessible)");
+                }
             }
             if(allImportsAndExtendsValid){
                 if(showImports) println("*** importing <qualifiedModuleName> from <tplLoc> (ts=<lastModified(tplLoc)>)");
