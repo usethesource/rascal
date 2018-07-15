@@ -10,7 +10,7 @@ Redistribution and use in source and binary forms, with or without modification,
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 }
-
+@bootstrapParser
 module lang::rascalcore::check::Checker
               
 /*
@@ -65,8 +65,8 @@ import util::Reflective;
 import util::FileSystem;
 import analysis::graphs::Graph;
 
-start syntax Modules
-    = Module+ modules;
+//start syntax Modules
+//    = Module+ modules;
     
 //str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.generated_parsers";
 //str parserPackage = "org.rascalmpl.core.java.parser.object";
@@ -404,26 +404,26 @@ map[str, list[Message]] checkModule(str moduleName,
     return (mname : mname2tm[mname].messages | mname <- mname2tm, !isEmpty(mname2tm[mname].messages));
 }
 
-// ---- Testing ---------------------------------------------------------------
-
-TModel rascalTModelForTestModules(Tree pt, bool debug=false){
-    ms = getInlineImportAndExtendGraph(pt, getDefaultPathConfig());
-   TypePalConfig config=rascalTypePalConfig(classicReifier=true);
-   if(debug){
-        config = config[showSolverIterations = true][showImports = true];
-   }
-    if(start[Modules] mds := pt){
-        return rascalTModelComponent( (unescape("<md.header.name>") : md | md <- mds.top.modules ), ms, config=config, inline=true)[1];
-    } else if(Modules mds := pt){
-        return rascalTModelComponent( (unescape("<md.header.name>") : md | md <- mds.modules ), ms, config=config, inline=true)[1];
-    } else
-        throw "Cannot handle Modules";
-}
-
-void testModules(str names...) {
-    if(isEmpty(names)) names = allTests;
-    runTests([|project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/check/tests/<name>.ttl| | str name <- names], #Modules, rascalTModelForTestModules, verbose=false);
-}
-
-list[str] allTests = ["adt", "adtparam", "alias", "assignment", "datadecl", "exp", "fields", "fundecl", 
-                     "imports", "operators", "pat", "scope", "splicepats", "stats"/*,"syntax1", "syntax2", "syntax3"*/];
+//// ---- Testing ---------------------------------------------------------------
+//
+//TModel rascalTModelForTestModules(Tree pt, bool debug=false){
+//    ms = getInlineImportAndExtendGraph(pt, getDefaultPathConfig());
+//   TypePalConfig config=rascalTypePalConfig(classicReifier=true);
+//   if(debug){
+//        config = config[showSolverIterations = true][showImports = true];
+//   }
+//    if(start[Modules] mds := pt){
+//        return rascalTModelComponent( (unescape("<md.header.name>") : md | md <- mds.top.modules ), ms, config=config, inline=true)[1];
+//    } else if(Modules mds := pt){
+//        return rascalTModelComponent( (unescape("<md.header.name>") : md | md <- mds.modules ), ms, config=config, inline=true)[1];
+//    } else
+//        throw "Cannot handle Modules";
+//}
+//
+//void testModules(str names...) {
+//    if(isEmpty(names)) names = allTests;
+//    runTests([|project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/check/tests/<name>.ttl| | str name <- names], #Modules, rascalTModelForTestModules, verbose=false);
+//}
+//
+//list[str] allTests = ["adt", "adtparam", "alias", "assignment", "datadecl", "exp", "fields", "fundecl", 
+//                     "imports", "operators", "pat", "scope", "splicepats", "stats"/*,"syntax1", "syntax2", "syntax3"*/];

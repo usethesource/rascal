@@ -1,4 +1,4 @@
-//
+@bootstrapParser
 module lang::rascalcore::check::Import
 
 

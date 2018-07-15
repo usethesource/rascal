@@ -8,6 +8,7 @@
 
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Paul Klint - Paul.Klint@cwi.nl (CWI)}
+@bootstrapParser
 module lang::rascalcore::check::ConvertType
 
 import Set;
