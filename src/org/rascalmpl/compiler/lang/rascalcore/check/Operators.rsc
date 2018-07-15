@@ -1,4 +1,4 @@
-//
+@bootstrapParser
 module lang::rascalcore::check::Operators
 
 extend analysis::typepal::TypePal;

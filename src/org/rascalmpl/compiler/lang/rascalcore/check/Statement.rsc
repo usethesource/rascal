@@ -1,4 +1,4 @@
-//
+@bootstrapParser
 module lang::rascalcore::check::Statement
 
 extend analysis::typepal::TypePal;
