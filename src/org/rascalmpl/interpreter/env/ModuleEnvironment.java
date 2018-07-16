@@ -540,8 +540,8 @@ public class ModuleEnvironment extends Environment {
 	    for (String moduleName : getImports()) {
 	        ModuleEnvironment mod = getImport(moduleName);
 	        
-	        if (mod != null) {
-	            mod.getFunctionsByTag(tag, collection);
+	        if (mod != null){
+	            mod.getLocalFunctionsByTag(tag, collection);
 	        }
 	    }
 	}
@@ -573,7 +573,18 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 
-	
+	private void getLocalFunctionsByTag(String tag, List<AbstractFunction> collection) {
+	    if (functionEnvironment != null) {
+            List<AbstractFunction> locals = functionEnvironment.values().stream().collect(ArrayList::new, ArrayList::addAll, ArrayList::addAll);
+            if (locals != null) {
+                for (AbstractFunction func : locals) {
+                    if (func.hasTag(tag)) {
+                        collection.add(func);
+                    }
+                }
+            }
+        }
+	}
 	
 	private Result<IValue> getLocalPublicVariable(String name) {
 		Result<IValue> var = null;
