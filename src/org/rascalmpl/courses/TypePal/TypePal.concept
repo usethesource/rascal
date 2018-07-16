@@ -4,7 +4,7 @@
 TypePal is a framework for name analysis, type checking and type inference
 
 .Usage
-
+  
 .Details
 ConceptsAndDefinitions Architecture Reporting Collector Solver Configuration
 
@@ -21,8 +21,7 @@ questions:
 * How to give precise error messages (and avoid spurious messages)?
 * How to extract information that is useful for later compiler stages or the IDE for, 
   e.g., code generation, use-def information or name completion?
-
-TypePal is a declarative framework that operates on a model of the analysed program consisting of 
+  is a declarative framework that operates on a model of the analysed program consisting of 
 
 * _facts_ about source code fragments with known type (e.g., an integer literal is of type integer);
 * _requirements_ that are imposed on a source code fragment by the type system being used; 
