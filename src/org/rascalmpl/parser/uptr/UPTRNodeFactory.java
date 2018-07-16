@@ -1,6 +1,8 @@
 package org.rascalmpl.parser.uptr;
 
 import java.net.URI;
+import java.util.IdentityHashMap;
+import java.util.Map;
 
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.parser.gtd.location.PositionStore;
@@ -103,10 +105,14 @@ public class UPTRNodeFactory implements INodeConstructorFactory<ITree, ISourceLo
 		return VF.appl(VF.constructor(RascalValueFactory.Production_Skipped), listWriter.done());
 	}
 	
+	// converting URIs to ISourceLocation is expensive (performance and memory wise)
+	// so we keep a cache of the URI root
+	private final Map<URI, ISourceLocation> uriLookup = new IdentityHashMap<>(4);
+	
 	public ISourceLocation createPositionInformation(URI input, int offset, int endOffset, PositionStore positionStore){
 		int beginLine = positionStore.findLine(offset);
 		int endLine = positionStore.findLine(endOffset);
-		return VF.sourceLocation(input, offset, endOffset - offset, beginLine + 1, endLine + 1, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine));
+		return VF.sourceLocation(uriLookup.computeIfAbsent(input, VF::sourceLocation), offset, endOffset - offset, beginLine + 1, endLine + 1, positionStore.getColumn(offset, beginLine), positionStore.getColumn(endOffset, endLine));
 	}
 	
 	public ITree addPositionInformation(ITree node, ISourceLocation location){
