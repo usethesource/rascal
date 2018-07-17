@@ -644,6 +644,10 @@ public class SymbolAdapter {
 	 * Computes symbol equality modulo lex/sort/layout/keyword distinction and modulo labels and conditions
 	 */
 	public static boolean isEqual(IConstructor l, IConstructor r) {
+		if (l == r) {
+		    return true;
+		}
+
 		while (isLabel(l)) {
 			l = getLabeledSymbol(l);
 		}
@@ -658,6 +662,10 @@ public class SymbolAdapter {
 		
 		while (isConditional(r)) {
 			r = getSymbol(r);
+		}
+		
+		if (l == r) {
+		    return true;
 		}
 		
 		if (isLayouts(l) && isLayouts(r)) {
