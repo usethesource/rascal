@@ -705,6 +705,9 @@ public class SymbolAdapter {
 		if ((isLiteral(l) && isLiteral(r)) || (isCILiteral(l) && isCILiteral(r)) || (isCharClass(l) && isCharClass(r))) {
 			return l.isEqual(r);
 		}
+		if (isStartSort(l) && isStartSort(r)) {
+		    return isEqual(getStart(l), getStart(r));
+		}
 		
 		return false;
 	}
