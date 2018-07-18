@@ -34,10 +34,11 @@ datetime getLastModified(str qualifiedModuleName, PathConfig pcfg){
         mloc = getModuleLocation(qualifiedModuleName, pcfg);
         return lastModified(mloc);
     } catch value e: {
-        if(<true, tplLoc> := TPLReadLoc(qualifiedModuleName, pcfg)){
-           return lastModified(tplLoc);
-        }
-        throw "No source or tpl loc found for <qualifiedModuleName>";
+        return $2000-01-01T00:00:00.000+00:00$;
+        //if(<true, tplLoc> := TPLReadLoc(qualifiedModuleName, pcfg)){
+        //   return lastModified(tplLoc);
+        //}
+        //throw "No source or tpl loc found for <qualifiedModuleName>";
     }
 }
 
