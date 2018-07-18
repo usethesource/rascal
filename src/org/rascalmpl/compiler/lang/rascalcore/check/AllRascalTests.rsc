@@ -272,7 +272,9 @@ private list[str] reachability_tests = [
 private lrel[str,str] crashes = [];
 private lrel[str,str] partial_results = [];
 
-tuple[list[value] crashes, set[map[str,list[Message]] msgs] msgsPerModule] runTests(list[str] names, str base){
+alias TestResults = tuple[list[value] crashes, set[map[str,list[Message]] msgs] msgsPerModule];
+
+TestResults runTests(list[str] names, str base){
  all_test_msgs = {};
  list[value] crashes = [];
  for(tst <- names){
@@ -299,7 +301,7 @@ set[map[str, list[Message]]] allRascalTests(PathConfig pcfg= pathConfig(
   println("Using <pcfg>");
   set[map[str, list[Message]]] all_msgs = {};
   list[value] all_crashes = [];
-  tuple[list[value] crashes, list[Message] msgs] res;
+  TestResults res;
   //pcfg = pathConfig(srcs=[|std:///|], bin=bin, boot=boot, libs=[bin]);
   
   res = runTests(basicTests, "lang::rascal::tests::basic");
