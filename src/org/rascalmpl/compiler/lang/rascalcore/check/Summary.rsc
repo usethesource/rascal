@@ -1,3 +1,4 @@
+@bootstrapParser
 module lang::rascalcore::check::Summary
 
 import util::Reflective;
