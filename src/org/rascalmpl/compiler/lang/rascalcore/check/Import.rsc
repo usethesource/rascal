@@ -103,7 +103,7 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
                    }
                    if(lastModified < getLastModified(m, pcfg)) {
                         allImportsAndExtendsValid = false;
-                        println("--- <m> is no longer valid");
+                        println("--- <m> is no longer valid (<m> was last modified <getLastModified(m, pcfg)>, but we need <lastModified>)");
                    }
                }
             } else {
