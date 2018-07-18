@@ -134,7 +134,8 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
                 }
                 <msgs, parserClass> = newGenerate(parserPackage, pname, g); 
                 s.addMessages(msgs);
-                msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/grammar/tests/generated_parsers|, s.getConfig().verbose);
+                //TODO: generates too long file names
+                //msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/grammar/tests/generated_parsers|, s.getConfig().verbose);
             s.addMessages(msgs);
             }
         }
