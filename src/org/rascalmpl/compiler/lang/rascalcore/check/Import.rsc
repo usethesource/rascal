@@ -97,13 +97,13 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
             tm = readBinaryValueFile(#TModel, tplLoc);
             if(tm.store[key_bom]? && rel[str,datetime,PathRole] bom := tm.store[key_bom]){
                //println("BOM:"); iprintln(bom);
-               for(<str m, lastModified, pathRole> <- bom){
+               for(<str m, timestampInBom, pathRole> <- bom){
                    if(m != qualifiedModuleName){
                         localImportsAndExtends += <m, pathRole>;
                    }
-                   if(lastModified < getLastModified(m, pcfg)) {
+                   if(getLastModified(m, pcfg) > timestampInBom) {
                         allImportsAndExtendsValid = false;
-                        println("--- <m> is no longer valid (<m> was last modified <getLastModified(m, pcfg)>, but we need <lastModified>)");
+                        println("--- <m> is no longer valid (latest <getLastModified(m, pcfg)>, previous check used <timestampInBom>)");
                    }
                }
             } else {
