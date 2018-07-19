@@ -351,7 +351,7 @@ ModuleMessages check(str moduleName, PathConfig pcfg){        // TODO change fro
 ModuleMessages check(loc moduleLoc, PathConfig pcfg){          // TODO: change from ModuleMessages to list[ModuleMessages]
     pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
     println("=== check: <moduleLoc>"); iprintln(pcfg1);
-    module2tmodel = rascalTModelForLoc(moduleLoc, pcfg, rascalTypePalConfig(classicReifier=true));
+    module2tmodel = rascalTModelForLoc(moduleLoc, pcfg, rascalTypePalConfig(classicReifier=true,verbose=true));
     moduleName = getModuleName(moduleLoc, pcfg);
     tm = module2tmodel[moduleName];
     return program(moduleLoc, toSet(tm.messages));
@@ -402,27 +402,3 @@ map[str, list[Message]] checkModule(str moduleName,
     mname2tm = rascalTModelForName(moduleName, getDefaultPathConfig(), config);
     return (mname : mname2tm[mname].messages | mname <- mname2tm, !isEmpty(mname2tm[mname].messages));
 }
-
-//// ---- Testing ---------------------------------------------------------------
-//
-//TModel rascalTModelForTestModules(Tree pt, bool debug=false){
-//    ms = getInlineImportAndExtendGraph(pt, getDefaultPathConfig());
-//   TypePalConfig config=rascalTypePalConfig(classicReifier=true);
-//   if(debug){
-//        config = config[showSolverIterations = true][showImports = true];
-//   }
-//    if(start[Modules] mds := pt){
-//        return rascalTModelComponent( (unescape("<md.header.name>") : md | md <- mds.top.modules ), ms, config=config, inline=true)[1];
-//    } else if(Modules mds := pt){
-//        return rascalTModelComponent( (unescape("<md.header.name>") : md | md <- mds.modules ), ms, config=config, inline=true)[1];
-//    } else
-//        throw "Cannot handle Modules";
-//}
-//
-//void testModules(str names...) {
-//    if(isEmpty(names)) names = allTests;
-//    runTests([|project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/check/tests/<name>.ttl| | str name <- names], #Modules, rascalTModelForTestModules, verbose=false);
-//}
-//
-//list[str] allTests = ["adt", "adtparam", "alias", "assignment", "datadecl", "exp", "fields", "fundecl", 
-//                     "imports", "operators", "pat", "scope", "splicepats", "stats"/*,"syntax1", "syntax2", "syntax3"*/];
