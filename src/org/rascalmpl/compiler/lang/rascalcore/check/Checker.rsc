@@ -351,7 +351,7 @@ ModuleMessages check(str moduleName, PathConfig pcfg){        // TODO change fro
 ModuleMessages check(loc moduleLoc, PathConfig pcfg){          // TODO: change from ModuleMessages to list[ModuleMessages]
     pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
     println("=== check: <moduleLoc>"); iprintln(pcfg1);
-    module2tmodel = rascalTModelForLoc(moduleLoc, pcfg, rascalTypePalConfig(classicReifier=true,verbose=true));
+    module2tmodel = rascalTModelForLoc(moduleLoc, pcfg, rascalTypePalConfig(classicReifier=true,showImports=true,showSolverIterations=true));
     moduleName = getModuleName(moduleLoc, pcfg);
     tm = module2tmodel[moduleName];
     return program(moduleLoc, toSet(tm.messages));
