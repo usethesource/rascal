@@ -10,6 +10,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Paul Klint - Paul Klint@cwi.nl (CWI)}
+@bootstrapParser
 module lang::rascalcore::check::ATypeInstantiation
  
 import Set;
