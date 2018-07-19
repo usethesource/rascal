@@ -15,8 +15,6 @@ module lang::rascalcore::check::Checker
               
 /*
  * TODO:
- * - Integrate with parser generator
- * - Rechecking of circular structures crashes sometimes
  * - Fix reference in grammar rules (it seems that production label get lost somewhere and reference cannot be found)
  * - Support for reified types
  *

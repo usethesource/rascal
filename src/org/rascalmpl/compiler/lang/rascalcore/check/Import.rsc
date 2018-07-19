@@ -47,7 +47,8 @@ alias ModuleStructure = tuple[rel[str, PathRole, str] strPaths,
                               map[str,TModel] tmodels, 
                               map[str,loc] moduleLocs, 
                               map[str,Module] modules,
-                              set[str] valid
+                              set[str] valid,
+                              set[str] invalid
                               ];
 void printModuleStructure(ModuleStructure ms){
     println("strPaths:"); iprintln(ms.strPaths);
@@ -58,7 +59,7 @@ void printModuleStructure(ModuleStructure ms){
     println("valid: <ms.valid>");
 }
 
-ModuleStructure newModuleStructure() = <{}, {}, (), (), (), {}>;
+ModuleStructure newModuleStructure() = <{}, {}, (), (), (), {}, {}>;
 
 str getModuleName(loc mloc, map[loc,str] moduleStrs, PathConfig pcfg){
     return moduleStrs[mloc]? ? moduleStrs[mloc] : getModuleName(mloc, pcfg);
@@ -104,7 +105,10 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
                    }
                    if(getLastModified(m, pcfg) > timestampInBom) {
                         allImportsAndExtendsValid = false;
-                        println("--- <m> is no longer valid (latest <getLastModified(m, pcfg)>, previous check used <timestampInBom>)");
+                        if(m notin ms.invalid){
+                            println("--- <m> is no longer valid (latest <getLastModified(m, pcfg)>, previous check used <timestampInBom>)");
+                            ms.invalid = ms.invalid + {m};
+                        }
                    }
                }
             } else {
