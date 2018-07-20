@@ -1,11 +1,15 @@
 package org.rascalmpl.library.experiments.Compiler.Commands;
 
+import static org.rascalmpl.values.uptr.RascalValueFactory.TYPE_STORE_SUPPLIER;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.FileSystem;
@@ -19,6 +23,8 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,19 +32,17 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.rascalmpl.library.util.Reflective;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.binary.stream.IValueInputStream;
-import org.rascalmpl.values.ValueFactoryFactory;
-
-import static org.rascalmpl.values.uptr.RascalValueFactory.TYPE_STORE_SUPPLIER;
 
 /**
  * This program is intended to be executed directly from maven; it downloads a previous version of Rascal from a hard-wired location and uses 
@@ -392,6 +396,7 @@ public class Bootstrap {
 			return false;
 		} 
 	}
+
     
     /**
      * Either download or get the jar of the deployed version of Rascal from a previously downloaded instance.
@@ -404,15 +409,36 @@ public class Bootstrap {
             if (cached.toFile().exists()) {
                 cached.toFile().delete();
             }
-            
-            info("downloading " + deployedVersion);
+            String checksum = getChecksum(deployedVersion);
+            info("downloading " + deployedVersion + " (" + checksum + ")");
             Files.copy(deployedVersion.toURL().openStream(), cached);
+            if (!sha256sum(cached).equals(checksum)) {
+                cached.toFile().delete();
+                error("Download failed, checksum mismatch (got: " + sha256sum(cached) + ")");
+                throw new RuntimeException("Failed download");
+            }
         }
 
         info("deployed version ready: " + cached);
         return cached;
     }
     
+    private static String sha256sum(Path cached) {
+        try {
+            MessageDigest hasher = MessageDigest.getInstance("SHA-256");
+            byte[] hash = hasher.digest(Files.readAllBytes(cached));
+
+            StringBuffer result = new StringBuffer(hash.length * 2);
+            for (int i = 0; i < hash.length; i++) {
+                result.append(Integer.toString((hash[i] & 0xff) + 0x100, 16).substring(1));
+            }
+            return result.toString();
+        }
+        catch (NoSuchAlgorithmException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private static boolean isOutdated(Path onDisk, URI onServer) {
         if (!onDisk.toFile().exists()) {
             return true;
@@ -442,13 +468,34 @@ public class Bootstrap {
 
 	    return URIUtil.assumeCorrect("https", "update.rascal-mpl.org", "/console/rascal-" + version + ".jar");
 	}
+
+    private static String getChecksum(URI jar) {
+        try {
+            URL checksum = URIUtil.changePath(jar, jar.getPath().replaceAll("\\.jar$", ".sha256")).toURL();
+            try (InputStreamReader reader = new InputStreamReader(checksum.openStream())) {
+                char[] sum = new char[64];
+                int read = 0;
+                while (read < sum.length) {
+                    read += reader.read(sum, read, sum.length - read); 
+                }
+                return new String(sum);
+                
+            }
+            catch (IOException e) {
+                throw new RuntimeException("Cannot retrieve checksum for: " + jar, e);
+            }
+        }
+        catch (URISyntaxException | MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
 	
 	private static URI unstableVersion() {
         return URIUtil.assumeCorrect("https", "update.rascal-mpl.org", "/console/rascal-shell-unstable.jar");
     }
 	
 	private static URI latestReleasedVersion() {
-        return URIUtil.assumeCorrect("http", "nexus.usethesource.io", "/service/local/artifact/maven/content", "g=org.rascalmpl&a=rascal&r=releases&v=LATEST");
+	    return URIUtil.assumeCorrect("https", "update.rascal-mpl.org", "/console/rascal-shell-release.jar");
     }
 	
 	private static String phaseFolderString(int phase, Path tmp) {
