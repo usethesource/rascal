@@ -3,6 +3,7 @@ package org.rascalmpl.library.experiments.Compiler.Commands;
 import static org.rascalmpl.values.uptr.RascalValueFactory.TYPE_STORE_SUPPLIER;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -423,10 +424,17 @@ public class Bootstrap {
         return cached;
     }
     
-    private static String sha256sum(Path cached) {
+    private static String sha256sum(Path file) {
         try {
             MessageDigest hasher = MessageDigest.getInstance("SHA-256");
-            byte[] hash = hasher.digest(Files.readAllBytes(cached));
+            try (InputStream in = new FileInputStream(file.toFile())) {
+                byte[] buffer = new byte[16*1024];
+                int read;
+                while ((read = in.read(buffer)) != -1) {
+                    hasher.update(buffer, 0, read);
+                }
+            }
+            byte[] hash = hasher.digest();
 
             StringBuffer result = new StringBuffer(hash.length * 2);
             for (int i = 0; i < hash.length; i++) {
