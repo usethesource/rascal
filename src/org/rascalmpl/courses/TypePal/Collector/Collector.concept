@@ -8,62 +8,76 @@ A `Collector` collects constraints from source code and produces an initial `TMo
 A `Collector` is a statefull object that provides all the functions described below
 to access and change its internal state. The global services provided by a `Collector` are:
 
-* Register facts, requirements and calculators as collected from the source program.
+* Register facts, calculators, and requirements as collected from the source program.
 * Maintain a global (key,value) store to store global information relevant for the collection process. Typical examples are:
   ** Configuration information.
   ** The files that have been imported.
-* Maintain scopes. Typically, scopes of functions and blocks.
+* Manage scopes.
 * Maintain a single value per scope. This enables decoupling the collection of information from separate but related language constructs.
   Typical examples are:
-  ** While collecting information from a function declaration: associate the required return type with a new function scope so 
+  ** While collecting information from a function declaration: 
+     create a new function scope and associate the required return type with it so 
      that return statements in the function body can check that
-    (a) they occur inside a function; (b) that the type of their returned value is compatible with the required return type.
-  ** While collecting information from an optionally labelled loop statement: associate the label with a new loop scope so that break/continue statements can check that:
-    (a) they occur inside a loop statement; (b) which loop statement they should (dis)continue.
+     (a) they occur inside a function; 
+     (b) that the type of their returned value is compatible with the required return type.
+  ** While collecting information from an optionally labelled loop statement: 
+     create a new loop scope and associate the label with it so that break/continue statements can check that:
+     (a) they occur inside a loop statement; 
+     (b) which loop statement they should (dis)continue.
 * Reporting.
 
 The functions provided by a `Collector` are summarized below:
 
 image::Collector.png[800,600,align="center"]
 
+Three dozen functions are available that fall into the following categories:
 
-Technically, `Collector` is a datatype with a single constructur and with a number of functions as fields,
+* _Lifecycle of Collector_: create a new `Collector`, use it to `collect` information from a source program, and produce a TModel.
+* _Configuration_: retrieve or modify configuration settings.
+* _Scoping_: enter or leave a scope, ask for current scope.
+* _Scope Info_: add information to the current scope or retrieve that information.
+* _Nested Info_: maintain nested information during collection; this is only available during collection.
+* _Composition_: add another TModel to the current one.
+* _Reporting_: report errors, warnings and info messages.
+* _Define & Use_: define and use identifiers in various ways.
+* _Inference_: create new type variables for type inference.
+* _Facts, Calculate & Require_: establish facts and define calculators and requirements.
+
+Technically, `Collector` is a datatype with a single constructur and a number of functions as fields,
 For instance, given a  `Collector` named `c`, calling the `define` function amounts to: `c.define(the-arguments-of-define)`.
 All Collector functions are prefixed with `/* Collector field */` to emphasize that they
 are a field of the Collector datatype.
 
-Two dozen functions are available that fall into the following categories:
-
-* _Create_: create `Collector`, collect information from source program, and build initial `TModel`.
-* _Define & Use_: define and use identifiers in various ways.
-* _Calculate. Require & Facts_: define requirements and calculators and establish facts.
-* _Inference_: create new type variables for type inference.
-* _Scoping_: enter and leave a scope, ask for current scope.
-* _Scope Info_: add information to the current scope or retrieve that information.
-* _Global Info_: add global information or retrieve that information; this is available during collection and solving.
-* _Nested Info_: maintain nested information during collection; this is only available during collection.
-* _Reporting_: report errors, warnings and info messages.
-* _Composition_: add another TModel to the current one.
-
-The builder functions are applied repeatedly until all
-information has been collected from the source program.
-
-Finally, `run` creates the desired `TModel` that will be used by the Solver.
-
-== Create
-A `Collector` is created using the function `newCollector`. By way of `run` it is converted into a `TModel`.
+== LifeCycle of Collector
+A new `Collector` is created using the function `newCollector`.
 [source,rascal]
 ---- 
-Collector newCollector(Tree pt, TypePalConfig config = tconfig(), bool debug = true);   
+Collector newCollector(str modelName, Tree pt, TypePalConfig config = tconfig());   
+----
+where
+
+* `modelName` is a name of the TModel to be created.
+* `pt` is the parse tree of the source program to be type checked.
+* `config` is a <<TypePal Configuration>>.
+
+Once a Collector has been created, the user-defined `collect` function is invoked
+with the current parse tree of a source program and the Collector as arguments.
+The `collect` function is applied recursively until all
+information has been collected from the source program.
+
+Finally, `run` creates the desired `TModel` that will be used by the <<Solver>>:
+[source,rascal]
+---- 
 /* Collector field */ TModel () run;
 ----
-Given a parse tree `pt` of the program to be checked, a typical scenario is:
+
+A typical scenario is (for a given a parse tree `pt` of the program to be checked): 
 [source,rascal]
 ----
-c = newCollector();
-collect(pt, c);
-model = c.run();
-... continue with Solver ...
+c = newCollector("my_model", pt);   // create Collector
+collect(pt, c);                     // collect constraints
+model = c.run();                    // create initial TModel
+                                    // ... give this model to the Solver ...
 ----
 NOTE: The `collect` function has to be supplied by the author of the type checker and looks like this:
 [source,rascal]
@@ -75,26 +89,129 @@ where:
 * `lc` is a syntactic type from the language under consideration.
 * `c` is a `Collector`.
 
-NOTE: Each collect function is responsible for visiting its subtrees.
-        
+IMPORTANT: Each collect function is responsible for visiting its subtrees.
+
+== Configuration
+
+The <<TypePal Configuration>> can be retrieved or adjusted by the folliwng two functions:
+[source,rascal]
+----
+/* Collector field */ TypePalConfig () getConfig;
+/* Collector field */ void (TypePalConfig cfg) setConfig;
+----
+
+== Scoping
+
+Scope management amounts to entering a new scope, leave the current scope and retrieving the current scope:
+
+[source,rascal]
+----      
+/* Collector field */ void (Tree inner) enterScope;
+/* Collector field */ void (Tree outer) leaveScope;
+/* Collector field */ loc () getScope,
+----
+In order to check consistency, `leaveScope` has the outer scope to which it is supposed to return as argument.
+
+== Scope Info
+It is possible to associate auxiliary information with each scope.
+This enables the downward propagation of information during the topdown traversal of the source program by `collect`.
+Typical use cases are:
+
+* recording the return type of a function declaration and checking that all return statements in the body of that function have
+  a type that is compatible with the declared return type.
+* recording the label of a loop statement for the benefit of nested break or continue statements.
+
+Scopes are identified by their source location and `ScopeRole`: a user-defined data type that distinsguishes possible
+roles such as `functionScope()` or `labelScope()`.
+
+`setScopeInfo` sets the information for a scope:
+[source,rascal]
+----    
+/* Collector field */ void (loc scope, ScopeRole scopeRole, value info) setScopeInfo;
+----
+where
+
+* `scope` is the scope for which information is to be set.
+* `scopeRole` is the role of that scope.
+* `info` is the associated information. 
+
+`getScopeInfo` retrieves associated scope information:
+[source,rascal]
+----    
+/* Collector field */ lrel[loc scope, value scopeInfo]  (ScopeRole scopeRole) getScopeInfo;
+----
+where
+
+* `scopeRole` is the role of the scope we are looking for.
+
+`getScopeInfo` returns a list relation containing scope/scopeInfo pairs (ordered from innermost to outermost scope).
+
+== Nested Info
+An arbitrary number of push down stacks can be maintained during the topdown traversal of the source code that is being type checked.
+A use case is recording that a certain syntax type is encountered and make children aware of this, e.g. "we are inside a parameter list".
+
+Each stack has a string name (`key`) and is created on demand.
+
+[source,rascal]
+----    
+/* Collector field */ void (str key, value val) push
+/* Collector field */ value (str key) pop,
+/* Collector field */ value (str key) top,
+/* Collector field */ list[value] (str key) getStack,
+/* Collector field */ void (str key) clearStack,
+----
+`push`, `pop`, and `top` perform standard stack operations. `push` creates a stack when needed, while `top` and `pop` require
+the existence of the named stack. `getStack` returns all values in the named stack, while `clearStack` resets it to empty.
+
+== Composition
+
+TModels can be composed by adding the information from one TModel to the other. A use case is module compoisition.
+
+[source,rascal]
+----    
+/* Collector field */ void (TModel tm) addTModel;
+----
+
+`addTModel` adds the information in `tm` to the current Collector.
+
+== Reporting
+One or more reports can be added by `report` and `reports`:
+[source,rascal]
+----
+/* Collector field */ void (FailMessage fmsg) report;
+/* Collector field */ void (list[FailMessage] fmgs) reports;
+----
+
+See <<Reporting>> for a description of `FailMessage`.
+
+IMPORTANT: If one of the messages is `error` the execution of the current calculator or requirement is immediately terminated.
+     
 == Define & Use
+
+The following functions handle the definition of names and various forms of use.
 
 === Define a name
 
-The function `define` is used to add in the _current_ scope the definition of a name to the TModel:
+The function `define` adds the definition of a name in the _current_ scope:
 [source,rascal]
 ----
-/* Collector field */  void (str id, IdRole idRole, Tree def, DefInfo info) define;
+/* Collector field */  void (str id, IdRole idRole, value def, DefInfo info) define;
 ----
 where:
 
 * `id` is the textual appearance of the name.
 * `idRole` is the role played by the name.
 * `def` is the part of the parse tree that corresponds to the definition of the name.
-* `info` is information to be associated with this definition.
+* `info` is the definition information <<DefInfo>> to be associated with this definition.
+
+The function `defineInScope` adds the definition of a name in a _given_ scope:
+[source,rascal]
+----
+/* Collector field */  void (value scope, str id, IdRole idRole, value def, DefInfo info) defineInScope
+----
 
 === Use an unqualified name
-There are four functions to describe the occurrence of a name in a parse tree as a use.
+There are six functions to describe the occurrence of a name in a parse tree as a use.
 The most elementary use of a name is described by:
 [source,rascal]
 ----
@@ -113,14 +230,14 @@ The next version of use, represents a use that refers to another tree using a sp
 === Use a qualified name
 
 Next we consider the use of qualified names, i.e., a list of identifiers that will be resolved from left to right.
-We will call these identifiers (except the last one) qualifiers and the last one the qualified identifier.
+We will call these identifiers (except the last one) _qualifiers_ and the last one the _qualified identifier_.
 [source,rascal]
 ----
 /* Collector field */ void (list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles) useQualified;  
 ----
 
-Here `ids` is the qualified name, `occ` is the actual occurrence, and there are two sets of roles:
-`idRoles` are the possible roles for the qualified identifier iself and `qualifierRolesa are the possible roles for the qualifiers.
+Here `ids` is the list of strings that form the qualified name, `occ` is the actual occurrence, and there are two sets of roles:
+`idRoles` are the possible roles for the qualified identifier itself and `qualifierRoles are the possible roles for the qualifiers.
 
 === Use a qualified name via a path
 [source,rascal]
@@ -129,33 +246,62 @@ Here `ids` is the qualified name, `occ` is the actual occurrence, and there are 
 ----  
 
 === Use a name via another type
+Many languages support _named types_ and names that can be defined inside such a named type.
+Examples are field names in records or method names in classes. `useViaType` handles the use of names defined in a named type:
 [source,rascal]
 ----
 /* Collector field */ void (Tree container, Tree selector, set[IdRole] idRolesSel) useViaType
-----  
+----
 
-== Require, Calculate & Facts
+where
+
+* `container`: has a named type as type.
+* `selector`: is the name to be selected from that named type.
+* `idRolesSel`:  are the IdRoles allowed for the selector.
+
+NOTE: mention extension points
+
+NOTE: Add useLub
+
+
+== Inference
+ATypes may contain type variables and new type variables can be created using `newTypeVar`:
+
+[source,rascal]
+----   
+/* Collector field */ AType (value src) newTypeVar;
+----
+
+Type variables can be bound via unification.
+
+== Fact, Calculate & Require
 
 === Define a fact
-A fact is known type information for a program fragment and is defined using:
+The function `fact` registers known type information for a program fragment `src`:
 [source,rascal]
 ----
-/* Collector field */ void (Tree target, value src) fact;
+/* Collector field */ void (Tree src, value atype) fact;
 ----
-`src` can be either an `AType` or `Tree`. In the latter case its type is retrieved using `getType`.
+where `atype` can be either an `AType` or a `Tree`. In the latter case the type of that Tree is used when available.
 
 === Define a requirement
 A requirement is a predicate regarding the type or properties of a source tree fragment `src`.
-A requirement has a name (for reporting purposes) and a list of dependencies whose types have to be known before this
-requirement can be computed.
+There are two versions: for `require` all dependencies should be fully resolved and instantiated,
+while `requireEager` can also handle dependencies that still contain type variables.
 [source,rascal]
 ----
-/* Collector field */ void (str name, Tree src, list[value] dependencies, void() preds) require;
-/* Collector field */ void (str name, Tree src, list[value] dependencies, void() preds) requireEager;
+/* Collector field */ void (str name, Tree src, list[value] dependencies, void(Solver s) pred) require;
+/* Collector field */ void (str name, Tree src, list[value] dependencies, void(Solver s) pred) requireEager;
 ----
 
-More specific requiremens can be expressed for checking that two subtrees or types are equal or comparable, can ne unified,
-or that the one is a subtype of the other:
+where
+
+* `name` is the name of the requirement (for reporting purposes).
+* `dependencies` is a list of dependencies whose types have to be known before this requirement can be computed.
+* `pred` is a function that actually checks the requirement; when it is violated this will be reported via its Solver argument.
+
+More specific requiremens can be expressed for checking that two subtrees or types are equal, comparable, 
+that the one is a subtype of the other, or that they can be unified:
 [source,rascal]
 ----
 /* Collector field */ void (value l, value r, FailMessage fmsg) requireEqual;
@@ -163,68 +309,20 @@ or that the one is a subtype of the other:
 /* Collector field */ void (value l, value r, FailMessage fmsg) requireSubtype;
 /* Collector field */ void (value l, value r, FailMessage fmsg) requireUnify; 
 ----  
-The arguments `l` and `r` should either be an AType or a subtree whose type can be determined using `getType`.
+The arguments `l` and `r` should either be an AType or a subtree whose type is known.
 
 === Define a calculator
 A calculator computes the type of a subtree `src` by way of an AType-returning function `calculator`.
-A list of dependenciesis given whose types have to be known before this calculator can be computed.
+A list of dependencies is given whose types have to be known before this calculator can be computed.
+There are two versions: for `calculate` all dependencies should be fully resolved and instantiated,
+while `calculateEager` can also handle dependencies that still contain type variables.
 [source,rascal]
 ----      
-/* Collector field */ void (str name, Tree src, list[value] dependencies, AType() calculator) calculate;
-/* Collector field */ void (str name, Tree src, list[value] dependencies, AType() calculator) calculateEager;
+/* Collector field */ void (str name, Tree src, list[value] dependencies, AType(Solver s) calculator) calculate;
+/* Collector field */ void (str name, Tree src, list[value] dependencies, AType(Solver s) calculator) calculateEager;
 ----
 
-== Inference
-[source,rascal]
-----   
-/* Collector field */ AType (value src) newTypeVar;
-----
 
-== Scoping
-[source,rascal]
-----      
-/* Collector field */ void (Tree inner) enterScope;
-/* Collector field */ void (Tree inner) leaveScope;
-/* Collector field */ loc () getScope,
-----
 
-== Scope Info
-[source,rascal]
-----    
-/* Collector field */ void (Key scope, ScopeRole scopeRole, value info) setScopeInfo;
-/* Collector field */ lrel[Key scope, value scopeInfo]  (ScopeRole scopeRole) getScopeInfo;
-----
 
-== Global Info
-[source,rascal]
-----    
-/* Collector field */ void (str key, value val) store;
-/* Collector field */ set[value] (str key) getStored;
-----
 
-== Nested Info
-[source,rascal]
-----    
-/* Collector field */ void (str key, value val) push
-/* Collector field */ value (str key) pop,
-/* Collector field */ value (str key) top,
-/* Collector field */ list[value] (str key) getStack,
-/* Collector field */ void (str key) clearStack,
-----
-
-== Composition
-[source,rascal]
-----    
-/* Collector field */ void (TModel tm) addTModel;
-----
-
-== Reporting
-[source,rascal]
-----
-/* Collector field */ void (FailMessage fmsg) report;
-/* Collector field */ void (list[FailMessage] fmgs) reports;
-----
-
-See <<Reporting>> for a description of `FailMessage`.
- 
-       
