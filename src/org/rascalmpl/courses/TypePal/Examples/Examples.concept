@@ -1,0 +1,31 @@
+# Examples
+  
+.Synopsis
+Examples of type checkers
+
+.Description
+
+The source code of a selection of type checkers built with TypePal can be found at GitHub at the locations given below.
+
+[cols="1,4,6"]
+|===
+| *Example* | *Description* | *Illustrates TypePal features*
+
+| *_Pico_* see https://github.com/cwi-swat/typepal-examples/tree/master/src/lang/pico | Toy language with declared variables in single scope, assignment, if and while statement
+| fact, define, use, requireEqual, calculate
+
+
+| *_Fun_* see https://github.com/cwi-swat/typepal-examples/tree/master/src/lang/fun | Functional language with explicit types, function declarations and calls, let and if expressions 
+| fact, define, use, enterScope, leaveScope, requireEqual, calculate
+
+| *_ModFun_* see https://github.com/cwi-swat/typepal-examples/tree/master/src/lang/modfun | Fun extended with modules | language extension, PathRole, addPathToDef
+| *_Struct_* see https://github.com/cwi-swat/typepal-examples/tree/master/src/lang/struct |  Simple named records | useViaType, TypePalConfig, getTypeNamesAndRole
+| *_Aliases_* see https://github.com/cwi-swat/typepal-examples/tree/master/src/lang/aliases | Struct extended with type aliases | useViaType, TypePalConfig, getTypeNamesAndRole
+| *_StaticFields_* see https://github.com/cwi-swat/typepal-examples/tree/master/src/lang/static_fields | Struct extended with fields on non-record type | useViaType, TypePalConfig, getTypeNamesAndRole, getTypeInNamelessType 
+| *_StructWithParameters_* see https://github.com/cwi-swat/typepal-examples/tree/master/src/lang/struct_with_parameters| Struct with parameterized records | useViaType, TypePalConfig, getTypeNamesAndRole, getTypeInNamelessType, instantiateTypeParameters
+| *_SmallOO_* see https://github.com/cwi-swat/typepal-examples/tree/master/src/lang/smallOO | small OO languages without inheritance | useViaType, TypePalConfig, getTypeNamesAndRole
+| *_FWJava_* see https://github.com/cwi-swat/typepal-examples/tree/master/src/lang/fwjava |  FeatherWeight java | useViaType, addPathToDef, isSubType, TypePalConfig, getTypeNamesAndRole, mayOverload, preSolver, setScopeInfo, getScopeInfo
+| *_Pascal_* see https://github.com/cwi-swat/typepal-examples/tree/master/src/lang/pascal | The Pascal language | useViaType, addPathToType, PathRole, isSubType, TypePalConfig, preCollectInitialization getTypeNamesAndRole 
+| FunInf |   Functional languages with inferred types | _under development_
+
+|===
