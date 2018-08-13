@@ -180,7 +180,7 @@ in which the predicate occurs is re-evaluated at a later time.
 
 NOTE: This argument typing convention is used by all predicates discussed below.
 
-=== subtype and requireSubtype
+=== subtype and requireSubType
 The function `subtype` determines whether `l` is a subtype of `r`.
 Under the hood, the user-provided function `getSubType` is called, see <<TypePal Configuration>>.
 The function `requireSubtype` just returns when the outcome is true, otherwise the FailMessage is reported.
@@ -188,7 +188,7 @@ The function `requireSubtype` just returns when the outcome is true, otherwise t
 [source,rascal]
 ----
 /* Solver field */ bool (value l, value r) subtype
-/* Solver field */ void (value l, value r, FailMessage fmsg) requireSubtype
+/* Solver field */ void (value l, value r, FailMessage fmsg) requireSubType
 ----
 
 === comparable and requireCompare
@@ -243,7 +243,8 @@ Under the hood, the user-provided function `getLub` is called, see <<TypePal Con
 ----
 
 == Global Info
-=== getConfig[source,rascal]
+=== getConfig[
+source,rascal]
 ----
 /* Solver field */ TypePalConfig () getConfig
 ----

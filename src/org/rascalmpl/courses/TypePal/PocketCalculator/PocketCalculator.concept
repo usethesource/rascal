@@ -1,0 +1,135 @@
+# A simple pocket calculator language
+  
+.Synopsis
+Illustrate the basic facilities of TypePal
+
+.Description
+
+In order to get a basic feeling for the way TypePal can be used with develop *_Calc_*: a tiny
+language for a pocket calculator.
+
+The full source code of Calc can be found at https://github.com/cwi-swat/typepal-examples/tree/master/src/lang/calc.
+
+== Syntax of Calc
+
+[source,rascal]
+----
+module lang::calc::Calc
+
+extend lang::CommonLex;     //<1>
+
+start syntax Calc
+    = Decl+                 //<2>
+    ;
+
+syntax Decl
+    = "var" Id "=" Exp ";"  //<3>
+    ;
+   
+syntax Exp 
+   = Id                             //<4>
+   | Integer                        //<5>
+   | Boolean                        //<6>
+   | bracket "(" Exp ")"            //<7>
+   > left Exp "*" Exp               //<8>                               
+   > left Exp "+" Exp               //<9>
+   | "if" Exp "then" Exp "else" Exp //<10>
+   ;   
+
+keyword Reserved
+    = "var" | "if" | "then" | "else"
+    ;     
+----  
+
+<1> For brevity we use some common lexical definitions  in `lang::CommonLex`. They take, amongst others, care of whitespace, comments and
+    definitions for integer and Boolean constants (`Integer` and `Boolean`) as well as indentifiers (`Id`).
+<2> A Calc program consists of one or more declarations (`Decl`).
+<3> Each declaration introduces a new variable and binds it to the value of an expression.
+<4> An expression can be an identifier (that should have been introduced in a preceding declaration), or
+<5> an integer constant, or
+<6> a Boolean constant, or
+<7> be surrounded by parentheses, or
+<8> a multiplication (arguments should have the same type), or
+<9> an addition (arguments should have the same type), or
+<10> a conditional expression (the first expression should have type Boolean, the other two should have the same type).
+
+== Typechecking Calc
+[source,rascal]
+----
+module lang::calc::CalcChecker
+
+import lang::calc::Calc;                    // The Calc syntax
+extend analysis::typepal::TypePal;          // TypePal
+
+// ----  IdRoles, PathLabels and AType ---------------------------------------- 
+
+data AType   
+    = boolType()    
+    | intType()                                     
+    ;
+    
+str prettyAType(boolType()) = "bool";
+str prettyAType(intType()) = "int";
+
+// ---- collect constraints for Calc ------------------------------------------
+
+void collect(current: (Decl) `var <Id name> = <Exp exp> ;`, Collector c){
+    c.define("<name>", variableId(), name, defType(exp));
+    collect(exp, c);
+} 
+
+void collect(current: (Exp) `<Id name>`, Collector c){
+    c.use(name, {variableId()});
+}
+
+void collect(current: (Exp) `<Boolean boolean>`, Collector c){
+    c.fact(current, boolType());
+}
+
+void collect(current: (Exp) `<Integer integer>`, Collector c){
+    c.fact(current, intType());
+}
+
+void collect(current: (Exp) `( <Exp e> )`, Collector c){
+    c.fact(current, e);
+}
+
+void collect(current: (Exp) `<Exp e1> + <Exp e2>`, Collector c){
+     c.calculate("addition", current, [e1, e2],
+        AType (Solver s) { 
+            switch(<s.getType(e1), s.getType(e2)>){
+                case <intType(), intType()>: return intType();
+                case <boolType(), boolType()>: return boolType();
+                default:
+                    s.report(error(current, "`+` not defined for %t and %t", e1, e2));
+            }
+        });
+      collect(e1, e2, c);
+}
+
+void collect(current: (Exp) `<Exp e1> * <Exp e2>`, Collector c){
+     c.calculate("multiplication", current, [e1, e2],
+        AType (Solver s) { 
+            switch(<s.getType(e1), s.getType(e2)>){
+                case <intType(), intType()>: return intType();
+                case <boolType(), boolType()>: return boolType();
+                default:
+                    s.report(error(current, "`*` not defined for %t and %t", e1, e2));
+            }
+        });
+      collect(e1, e2, c);
+}
+
+void collect(current: (Exp) `if <Exp cond> then <Exp e1> else <Exp e2>`, Collector c){
+    c.calculate("if Exp", current, [cond, e1, e2],
+        AType(Solver s){
+            s.requireEqual(cond, boolType(),
+                           error(cond, "Condition should be Boolean, found %t", cond));
+            s.requireEqual(e1, e2, 
+                           error(current, "Equal types required, found %t and %t", e1, e2));
+        });
+    collect(cond, e1, e2, c);
+}
+----
+
+== Testing the Calc typechecker

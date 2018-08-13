@@ -12,32 +12,207 @@ TypePal provides configuration options for
 * _Retrieval of Types_: configures how named and structured types are handled.
 * _Extension Points_: configures operations before an after solving.
 * _Miscellaneous_: utility functions that can be configured.
+* _Verbosity_: configures the verbosity of TypePal.
 
 Here is an overview:
 
 image::TypePalConfig.png[600,600,align="center"]
 
-The TypePal configuration can provide additional declarations for:
+== Name Resolution & Overloading
 
-* _Name Resolution & Overloading_:
-  ** `isAcceptableSimple`: accepts or rejects a proposed definition for the use of a simple name in a particular role. Typical concerns are:
-     *** enforce definition before use;
-     *** check access rights, e.g. visibility.
-  ** `isAcceptableQualified`: accepts or rejects a proposed definition for the use of a qualified name in a particular role.
-  ** `isAcceptablePath`: accepts or rejects an proposed access path between use and definition.
-  ** `mayOverload`: determines whether two names are allowed to be overloaded.
+=== isAcceptableSimple
+[source,rascal]
+----
+/* Configuration field */ Accept (TModel tm, loc def, Use use) isAcceptableSimple
+----
 
-* _Operations on Types_:
-  ** Functions to check subtype (`isSubType`) and least upperbound (`getLub`) of two types.
-  ** Functions that given the smallest (`getMinAType`) and largest (`getMaxAType`) element of the type lattice.
+Here
+
+* `tm` is a given TModel
+* `def` is a proposed definition
+* `use` is the use 
+  (characterized by the `Use` data type that contains, name, occurrence, scope and identifier roles of the use)
+  for which the definition is proposed.
+
+`isAcceptableSimple` accepts or rejects a proposed definition for the use of a simple name in a particular role. 
+The returned `Accept` data type is defined as:
+[source,rascal]
+----
+data Accept 
+    = acceptBinding()
+    | ignoreContinue()
+    | ignoreSkipPath()
+    ;
+----
+
+Typical concerns addressed by `isAcceptableSimple` are:
+
+* enforce definition before use;
+* check access rights, e.g. visibility.
+
+=== isAcceptableQualified
+[source,rascal]
+----
+/* Configuration field */ Accept (TModel tm, loc def, Use use) isAcceptableQualified
+----
+Here
+
+* `tm` is a given TModel
+* `def` is a proposed definition
+* `use` is the use for which the definition is proposed.
+
+`isAcceptableQualified` accepts or rejects a proposed definition for the use of a qualified name in a particular role.
+  
+=== isAcceptablePath
+[source,rascal]
+----
+/* Configuration field */ 
+Accept (TModel tm, loc defScope, loc def, Use use, PathRole pathRole) isAcceptablePath
+----
+Here
+
+* `tm` is a given TModel;
+* `defScope` is the scope in which the proposed definition occurs;
+* `def` is a proposed definition;
+* `use` is the use for which the definition is proposed;
+* `pathRole` is the role of the semantic path.
+
+`isAcceptablePath` accepts or rejects a proposed access path between use and definition.
+
+=== mayOverload
+[source,rascal]
+----
+/* Configuration field */ bool (set[loc] defs, map[loc, Define] defines) mayOverload 
+----
+
+`mayOverload` determines whether a set of definitions (`defs`) are allowed to be overloaded,
+given their definitions (`defines`);
+
+== Operations on Types
+Various operations on types can be configured by way of user-defined functions.
+=== isSubType
+[source,rascal]
+----
+/* Configuration field */ bool (AType l, AType r) isSubType 
+----
+Function that checks whether `l` is a `subtype or `r`.
+
+=== getLub
+[source,rascal]
+----
+/* Configuration field */ AType (AType l, AType r) getLub
+----
+Function that computes the least upperbound of two types and `l` and `r`.
+
+=== getMinAType
+[source,rascal]
+----
+/* Configuration field */ AType() getMinAType 
+----
+Function that returns the _smallest_ type of the type lattice.
+
+=== getMaxAType
+[source,rascal]
+----
+/* Configuration field */ AType() getMaxAType
+----
+Function that returns the _largest_ type of the type lattice.
+
+=== instantiateTypeParameters
+[source,rascal]
+----
+/* Configuration field */ AType (Tree selector, AType def, AType ins, AType act, Solver s) instantiateTypeParameters
+----
   ** The function `instantiateTypeParameters` defines language-specific instantiation of type parameters.
   
-* _Retrieval of Types_:
+== Retrieval of Types
 
-* _Miscellaneous_:
-  ** A function _unescapeName_ to define language-specific escape rules for names.
+=== getTypeNamesAndRole
+[source,rascal]
+----
+/* Configuration field */  tuple[list[str] typeNames, set[IdRole] idRoles] (AType atype) getTypeNamesAndRole
+----
+=== getTypeInTypeFromDefine
+[source,rascal]
+----
+/* Configuration field */  AType (Define containerDef, str selectorName, set[IdRole] idRolesSel, Solver s) getTypeInTypeFromDefine
+----
+=== getTypeInNamelessType
+[source,rascal]
+----
+/* Configuration field */ AType(AType containerType, Tree selector, loc scope, Solver s) getTypeInNamelessType
+----
 
-* _Extension Points_:
+== Extension Points
     
-  ** A function `preSolver` that can enrich or transform the TModel before the Solver is applied to it.
-  ** A function `postSolver` that can enrich or transform the TModel after constraint solving is complete.
+=== preSolver
+[source,rascal]
+----
+/* Configuration field */ TModel(map[str,Tree] namedTrees, TModel tm) preSolver
+----
+A function `preSolver` that can enrich or transform the TModel before the Solver is applied to it.
+
+=== postSolver
+[source,rascal]
+----
+/* Configuration field */ void (map[str,Tree] namedTrees, Solver s) postSolver
+----
+A function `postSolver` that can enrich or transform the TModel after constraint solving is complete.
+
+
+== Miscellaneous
+
+=== unescapeName
+[source,rascal]
+----
+/* Configuration field */  str(str) unescapeName  
+----
+A function _unescapeName_ to define language-specific escape rules for names.
+By default, all backslahes are removed from names.
+
+=== validateConstraints
+[source,rascal]
+----
+/* Configuration field */ bool validateConstraints = true
+----
+When `validateConstraints` is true, the validity of all constraints is checked before solving starts.
+For all dependencies (in facts, calculators and requirements) a calculator needs to be present to solve that dependency.
+
+== Verbosity
+
+The verbosity of TypePal can be controlled with several configurations settings.
+
+=== showTimes
+[source,rascal]
+----
+/* Configuration field */ bool showTimes = false
+----
+When `showTimes` is true, the time of Collector and Solver phases is printed.
+
+=== showSolverSteps
+[source,rascal]
+----
+/* Configuration field */ bool showSolverSteps = false
+----
+When `showSolverSteps` is true, each steps of the Solver is printed.
+
+=== showSolverIterations
+[source,rascal]
+----
+/* Configuration field */ bool showSolverIterations = false
+----
+When `showSolverIterations` is true, information is printed about each iteration of the Solver.
+
+=== showAttempts
+[source,rascal]
+----
+/* Configuration field */ bool showAttempts = false
+----
+When `showAttempts` is true, the number of evaluation attempts per calculator or requirement is printed.
+
+=== showTModel
+[source,rascal]
+----
+/* Configuration field */ bool showTModel = false
+----
+When `showTModel` is true, the resulting TModel is printed when solving is complete.
