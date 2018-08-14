@@ -87,10 +87,8 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
-import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.exceptions.UndeclaredAbstractDataTypeException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IdentityVisitor;
@@ -598,7 +596,7 @@ public abstract class Import {
             IValue ret = replaceHolesByAntiQuotesExternal(eval, (IConstructor) result.getValue(), antiquotes, corrections);
             return ((IRascalValueFactory) eval.getValueFactory()).quote((INode) ret);
         } catch (ParseError e) {
-            eval.getMonitor().warning("Could not create hole", eval.getCurrentAST().getLocation());
+            eval.getMonitor().warning("Could not create hole for " + name, eval.getCurrentAST().getLocation());
             return (ITree) tree.asAnnotatable().setAnnotation("Could not create hole", eval.getCurrentAST().getLocation());
         } catch (Throwable t) {
             eval.getMonitor().warning("Error in external parser", eval.getCurrentAST().getLocation());
@@ -867,7 +865,7 @@ public abstract class Import {
         Result<IValue> result = parseFunction.call(new Type[] {TypeFactory.getInstance().stringType()}, new IValue[] {ctx.getValueFactory().string(holeReplacement.getValue())}, null);
         
         antiquotes.put(result.getValue(), part);
-        return (holeReplacement.getValue());
+        return holeReplacement.getValue();
     }
     
     private static void throwParseError(String message, ISourceLocation loc) {
