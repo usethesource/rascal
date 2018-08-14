@@ -593,9 +593,9 @@ public abstract class Import {
         AbstractFunction parseFunction = getConcreteSyntaxParseFunction(eval, env, abstractDataType.getName());
         try {
             SortedMap<Integer,Integer> corrections = new TreeMap<>();
-            String input = replaceAntiQuotesByHoles2(eval, env, lit, antiquotes, corrections);
+            String input = replaceAntiQuotesByHolesExternal(eval, env, lit, antiquotes, corrections);
             Result<IValue> result = parseFunction.call(new Type[] {TypeFactory.getInstance().stringType()}, new IValue[] {eval.getValueFactory().string(input)}, null);
-            IValue ret = replaceHolesByAntiQuotes2(eval, (IConstructor) result.getValue(), antiquotes, corrections);
+            IValue ret = replaceHolesByAntiQuotesExternal(eval, (IConstructor) result.getValue(), antiquotes, corrections);
             return ((IRascalValueFactory) eval.getValueFactory()).quote((INode) ret);
         } catch (ParseError e) {
             eval.getMonitor().warning("Could not create hole", eval.getCurrentAST().getLocation());
@@ -792,7 +792,7 @@ public abstract class Import {
     return b.toString().toCharArray();
   }
   
-    private static String replaceAntiQuotesByHoles2(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, ITree lit,
+    private static String replaceAntiQuotesByHolesExternal(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, ITree lit,
         Map<IValue, ITree> antiquotes, SortedMap<Integer, Integer> corrections) {
         IList parts = TreeAdapter.getArgs(lit);
         StringBuilder b = new StringBuilder();
@@ -838,7 +838,7 @@ public abstract class Import {
                 b.append('\\');
             }
             else if (cons.equals("hole")) {
-                String hole = createHole2(eval, env, part, antiquotes);
+                String hole = createExternalHole(eval, env, part, antiquotes);
                 shift += partLen - hole.length();
                 offset += hole.length();
                 corrections.put(offset, shift);
@@ -848,10 +848,7 @@ public abstract class Import {
         return b.toString();
     }
 
-    private static String createHole2(IEvaluator<Result<IValue>> ctx, ModuleEnvironment env, ITree part,
-        Map<IValue, ITree> antiquotes) {
-        final Type stringType = TypeFactory.getInstance().stringType();
-
+    private static String createExternalHole(IEvaluator<Result<IValue>> ctx, ModuleEnvironment env, ITree part, Map<IValue, ITree> antiquotes) {
         ITree subTree = (ITree) TreeAdapter.getArgs(part).get(0);
         subTree = (ITree) TreeAdapter.getArgs(subTree).get(2);
         subTree = (ITree) TreeAdapter.getArgs(subTree).get(0);
@@ -907,7 +904,7 @@ public abstract class Import {
     return ph;
   }
   
-    private static IValue replaceHolesByAntiQuotes2(final IEvaluator<Result<IValue>> eval, IConstructor constructor,
+    private static IValue replaceHolesByAntiQuotesExternal(final IEvaluator<Result<IValue>> eval, IConstructor constructor,
         final Map<IValue, ITree> antiquotes, final SortedMap<Integer, Integer> corrections) {
         return constructor.accept(new IdentityVisitor<ImplementationError>() {
             private final IValueFactory vf = eval.getValueFactory();
