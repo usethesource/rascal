@@ -583,7 +583,7 @@ public abstract class Import {
         return (ITree) tree.asAnnotatable().setAnnotation("Abstract data type and concrete syntax type called \"" + name + "\" in scope", uri);
     }
     
-    if (abstractDataType == null && concreteSyntaxType == null) {
+    if (abstractDataType == null && concreteSyntaxType == null && !"parametrized".equals(TreeAdapter.getConstructorName((ITree) symTree))) {
         eval.getMonitor().warning("No valid type in concrete syntax fragment", uri);
         return (ITree) tree.asAnnotatable().setAnnotation("No valid type in concrete syntax fragment", uri);
     }
