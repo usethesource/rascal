@@ -21,7 +21,6 @@ import java.io.OutputStreamWriter;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
@@ -910,9 +909,7 @@ public abstract class Import {
             @Override
             public IValue visitList(IList o) throws ImplementationError {
                 IListWriter ret = vf.listWriter();
-                for (IValue element : o) {
-                    ret.append(element.accept(this));
-                }
+                o.iterator().forEachRemaining(it -> ret.append(it.accept(this)));
                 return ret.done();
             }
 
@@ -925,17 +922,8 @@ public abstract class Import {
                 }
 
                 List<IValue> args = new ArrayList<>();
-                Iterator<IValue> it = o.iterator();
-                while (it.hasNext()) {
-                    args.add(it.next().accept(this));
-                }
-                IValue[] vals = new IValue[args.size()];
-                for (int i = 0; i < args.size(); i++) {
-                    vals[i] = args.get(i);
-                }
-                IConstructor ret =
-                    vf.constructor(o.getConstructorType(), vals, o.asWithKeywordParameters().getParameters());
-                return ret;
+                o.iterator().forEachRemaining(it -> args.add(it.accept(this)));
+                return vf.constructor(o.getConstructorType(), args.toArray(new IValue[0]), o.asWithKeywordParameters().getParameters());
             }
         });
     }

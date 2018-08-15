@@ -565,46 +565,35 @@ public class ASTBuilder {
 
         if (value instanceof ISet) {
             List<Expression> elements = new ArrayList<>();
-            for (IValue element : (ISet) value) {
-                elements.add((Expression) liftExternalRec(element));
-            }
+            ((ISet) value).iterator().forEachRemaining(it -> elements.add(liftExternalRec(it)));
             return new Set(loc, (ITree) value, elements);
         }
 
         if (value instanceof IList) {
             List<Expression> elements = new ArrayList<>();
-            for (IValue element : (IList) value) {
-                elements.add((Expression) liftExternalRec(element));
-            }
+            ((IList) value).iterator().forEachRemaining(it -> elements.add(liftExternalRec(it)));
             return new org.rascalmpl.semantics.dynamic.Expression.List(loc, null, elements);
         }
 
         if (value instanceof IMap) {
-            IMap map = (IMap) value;
             List<Mapping_Expression> elements = new ArrayList<>();
-            for (IValue key : map) {
-                elements.add(
-                    new Mapping_Expression.Default(loc, null, liftExternalRec(key), liftExternalRec(map.get(key))));
-            }
+            ((IMap) value).entryIterator().forEachRemaining(it -> elements.add(new Mapping_Expression.Default(loc, null,
+                liftExternalRec(it.getKey()), liftExternalRec(it.getValue()))));
             return new org.rascalmpl.semantics.dynamic.Expression.Map(loc, null, elements);
         }
 
         if (value instanceof IConstructor) {
             IConstructor constructor = (IConstructor) value;
             Type type = constructor.getConstructorType();
-
             String constructorName = type.getName();
 
             Name.Lexical constructorNameLexical = new Name.Lexical(loc, constructor, constructorName);
-
             QualifiedName.Default qualifiedName = new Default(loc, constructor, Arrays.asList(constructorNameLexical));
             org.rascalmpl.semantics.dynamic.Expression.QualifiedName qualifiedNameExpression =
                 new org.rascalmpl.semantics.dynamic.Expression.QualifiedName(loc, constructor, qualifiedName);
 
             List<Expression> args = new ArrayList<>();
-            for (int i = 0; i < type.getArity(); i++) {
-                args.add((Expression) liftExternalRec(constructor.get(i)));
-            }
+            constructor.iterator().forEachRemaining(it -> args.add(liftExternalRec(it)));
 
             return new CallOrTree(loc, constructor, qualifiedNameExpression, args,
                 new KeywordArguments_Expression.None(loc, constructor));
