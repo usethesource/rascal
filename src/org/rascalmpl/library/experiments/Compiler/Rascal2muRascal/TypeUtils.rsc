@@ -49,10 +49,10 @@ import experiments::Compiler::Rascal2muRascal::TmpAndLabel;
 
 // A set of global values to represent the extracted information
 
-private Configuration config;						// Config returned by the type checker
+private Configuration configuration;						// Config returned by the type checker
 
 alias UID = int;                                    // A UID is a unique identifier in the type checker configuration
-                                                    // with (integer) values in domain(config.store)
+                                                    // with (integer) values in domain(configuration.store)
 
 /*
  * We will use FUID (for Function UID) to create a readable string representation for 
@@ -255,7 +255,7 @@ int getScopeSize(str fuid) =
         }
       }
       
-      //assert size({ config.store[uid] | UID uid <- uids }) == 1: "getScopeSize";
+      //assert size({ configuration.store[uid] | UID uid <- uids }) == 1: "getScopeSize";
       nparams;
     }
     + size({ pos | int pos <- range(uid2addr)[fuid], pos != -1 })
@@ -270,7 +270,7 @@ bool containsInvalidSymbols(AbstractValue item) {
 // extractScopes: extract and convert type information from the Configuration delivered by the type checker.
 						    
 void extractScopes(Configuration c){
-	// Inspect all items in config.store and construct the sets
+	// Inspect all items in configuration.store and construct the sets
 	// - modules, modulesNames
 	// - functions, ofunctions
 	// - constructors
@@ -288,21 +288,21 @@ void extractScopes(Configuration c){
 	// - uid2type
 	// - uid2str
 
-   config = c;
+   configuration = c;
    
-   consLocationTypes = (l : t | l <- config.locationTypes, t:cons(_,_,_) := config.locationTypes[l]); 
+   consLocationTypes = (l : t | l <- configuration.locationTypes, t:cons(_,_,_) := configuration.locationTypes[l]); 
 
-   for(uid <- sort(toList(domain(config.store)))){
-      item = config.store[uid];
+   for(UID uid <- sort(toList(domain(configuration.store)))){
+      item = configuration.store[uid];
       //println("<uid>: <item>");
       if(containsInvalidSymbols(item)) { println("*** Suspicious store[<uid>}: <item>"); }
       switch(item){
-        case function(rname,rtype,keywordParams,_,inScope,_,_,_,src): { 
+        case function(rname, Symbol rtype,keywordParams,_,UID inScope,_,_,_,src): { 
          	 //println("<uid>: <item>, scope: <inScope>");
 	         functions += {uid};
 	         declares += {<inScope, uid>}; 
              loc2uid[src] = uid;
-             for(l <- config.uses[uid]) {
+             for(l <- configuration.uses[uid]) {
                  loc2uid[l] = uid;
              }
              //println("loc2uid: <src> : <loc2uid[src]>");
@@ -316,26 +316,26 @@ void extractScopes(Configuration c){
              // Fill in uid2type to enable more precise overloading resolution
              uid2type[uid] = rtype;
              // Check if the function is default
-             //println(config.store[uid]);
-             //println(config.functionModifiers[uid]);
-             if(defaultModifier() in config.functionModifiers[uid]) {
+             //println(configuration.store[uid]);
+             //println(configuration.functionModifiers[uid]);
+             if(defaultModifier() in configuration.functionModifiers[uid]) {
              	defaultFunctions += {uid};
              }
         }
         case overload(_,_): {
              //println("<uid>: <item>");
 		     ofunctions += {uid};
-		     for(l <- config.uses[uid]) {
+		     for(l <- configuration.uses[uid]) {
 		     	//println("loc2uid already defined=<loc2uid[l]?>,  add loc2uid[<l>] = <uid>");
 		     	loc2uid[l] = uid;
 		     } 
     	}
-        case variable(_,_,_,inScope,src):  { 
+        case variable(_,_,_,UID inScope,src):  { 
         	 //println("<uid>: <item>");
 			 variables += {uid};
 			 declares += {<inScope, uid>};
 			 loc2uid[src] = uid;
-             for(l <- config.uses[uid]) {
+             for(l <- configuration.uses[uid]) {
                  loc2uid[l] = uid;
              }
              //for(l <- loc2uid){
@@ -343,12 +343,12 @@ void extractScopes(Configuration c){
             	//	println("<l> : <loc2uid[l]>");
              //}	
         }
-        case constructor(rname,rtype,_,inScope,_,src): { 
+        case constructor(rname, Symbol rtype,_,UID inScope,_,src): { 
              //println("<uid>: <item>");
 			 constructors += {uid};
 			 declares += {<inScope, uid>};
 			 loc2uid[src] = uid;
-			 for(l <- config.uses[uid]) {
+			 for(l <- configuration.uses[uid]) {
 			     //println("add from use: <l>");
 			     loc2uid[l] = uid;
 			 }
@@ -372,13 +372,13 @@ void extractScopes(Configuration c){
             uid2name[uid] = getSimpleName(name);
             uid2type[uid] = rtype;
         }
-        case production(rname, rtype, inScope, _, p, src): {
+        case production(rname, Symbol rtype, UID inScope, _, p, src): {
              //println("<uid>: <item>");
              if(!isEmpty(getSimpleName(rname))) {
              	constructors += {uid};
              	declares += {<inScope, uid>};
              	loc2uid[src] = uid;
-             	for(l <- config.uses[uid]) {
+             	for(l <- configuration.uses[uid]) {
                   loc2uid[l] = uid;
              	}
              	// Fill in uid2name
@@ -387,7 +387,7 @@ void extractScopes(Configuration c){
              	uid2type[uid] = rtype;
              }
         }
-        case blockScope(inScope,src): { 
+        case blockScope(UID inScope,src): { 
              //println("<uid>: <item>");
 		     containment += {<inScope, uid>};
 			 loc2uid[src] = uid;
@@ -403,7 +403,7 @@ void extractScopes(Configuration c){
 			 }
 			 blockScopes[src] = uid;
         }
-        case booleanScope(inScope,src): { 
+        case booleanScope(UID inScope,src): { 
              //println("<uid>: <item>");
 		     containment += {<inScope, uid>}; 
 			 loc2uid[src] = uid;
@@ -418,7 +418,7 @@ void extractScopes(Configuration c){
 			 	outerScopes += uid;
 			 }
         }
-        case signatureScope(inScope,src): {
+        case signatureScope(UID inScope,src): {
              //println("<uid>: <item>");
              //was: containment += {<loc2uid[src], uid>};  //redirect to the actual declaration
              if(loc2uid[src]?){
@@ -438,9 +438,9 @@ void extractScopes(Configuration c){
                 outerScopes += uid;
              }
         }
-        case closure(rtype,keywordParams,inScope,src): {
+        case closure(Symbol rtype,keywordParams, UID inScope,src): {
              functions += {uid};
-             declares += {<inScope, uid>};
+             declares = declares + {<inScope, uid>};
 			 loc2uid[src] = uid;
 			 // Fill in uid2name
 			 if(closures[inScope]?) {
@@ -471,14 +471,14 @@ void extractScopes(Configuration c){
 	
 	//println("containedOrDeclaredInPlus: <containedOrDeclaredInPlus>");
 	
-	importedModuleScopes = range(config.modEnv);
+	importedModuleScopes = range(configuration.modEnv);
     
     for(muid <- modules){
         module_name = uid2name[muid];
         nmodule_var_init_locals = 0;
     	// First, fill in variables to get their positions right
     	// Sort variable declarations to ensure that formal parameters get first positions preserving their order 
-    	topdecls = sort([ uid | uid <- (declaresMap[muid] ? {}), variable(_,_,_,_,_) := config.store[uid] ]);
+    	topdecls = sort([ uid | uid <- (declaresMap[muid] ? {}), variable(_,_,_,_,_) := configuration.store[uid] ]);
     	
     	//println("topdecls:");
     	//for(td <- topdecls){ println(td); }
@@ -490,15 +490,15 @@ void extractScopes(Configuration c){
     		mvar_pos = <fuid_module_init, i + 1>;
             uid2addr[topdecls[i]] = mvar_pos;
             // Associate this module variable's address with all its uses
-            for(u <- config.uses[topdecls[i]] ? {}){
+            for(/*loc*/ u <- configuration.uses[topdecls[i]] ? {}){
                 uid2addr[getLoc2uid(u)] = mvar_pos;
             }
             // Assign local positions to variables occurring in module variable initializations
             for(os <- outerScopes){
-                //println("os = <os>, <config.store[os].at>, <config.store[topdecls[i]].at>, <config.store[os].at < config.store[topdecls[i]].at>");
+                //println("os = <os>, <configuration.store[os].at>, <configuration.store[topdecls[i]].at>, <configuration.store[os].at < configuration.store[topdecls[i]].at>");
                 
-            	if(config.store[os].at < config.store[topdecls[i]].at){
-            		decls_inner_vars = sort([ uid | UID uid <- (declaresMap[os] ? {}), variable(RName name,_,_,_,_) := config.store[uid] ]);
+            	if(configuration.store[os].at < configuration.store[topdecls[i]].at){
+            		decls_inner_vars = sort([ uid | UID uid <- (declaresMap[os] ? {}), variable(RName name,_,_,_,_) := configuration.store[uid] ]);
             		//println("decls_inner_vars: <decls_inner_vars>");
     			    for(int j <- index(decls_inner_vars)) {
         			    uid2addr[decls_inner_vars[j]] = <fuid_module_init, 2 + nmodule_var_init_locals>;
@@ -513,17 +513,17 @@ void extractScopes(Configuration c){
     	// Then, functions
     	
     	topdecls = [ uid | uid <- (declaresMap[muid] ? {}), 
-    	                      function(_,_,_,_,_,_,_,_,_) := config.store[uid] 
-    	                   || closure(_,_,_,_)          := config.store[uid] 
-    	                   || constructor(_,_,_,_,_,_)    := config.store[uid] 
-    	                   || ( production(rname,_,_,_,_,_) := config.store[uid] && !isEmpty(getSimpleName(rname)) ) 
-    	                   || variable(_,_,_,_,_)       := config.store[uid] 
+    	                      function(_,_,_,_,_,_,_,_,_) := configuration.store[uid] 
+    	                   || closure(_,_,_,_)          := configuration.store[uid] 
+    	                   || constructor(_,_,_,_,_,_)    := configuration.store[uid] 
+    	                   || ( production(rname,_,_,_,_,_) := configuration.store[uid] && !isEmpty(getSimpleName(rname)) ) 
+    	                   || variable(_,_,_,_,_)       := configuration.store[uid] 
     	           ];
     	for(i <- index(topdecls)) {
     		// functions and closures are identified by their qualified names, and they do not have a position in their scope
     		// only the qualified name of their enclosing module or function is significant 
     		
-    		mvname = (variable(rname,_,_,_,_) := config.store[topdecls[i]]) ? (":" + prettyPrintName(rname)) : "";
+    		mvname = (variable(rname,_,_,_,_) := configuration.store[topdecls[i]]) ? (":" + prettyPrintName(rname)) : "";
     		uid2addr[topdecls[i]] = <convert2fuid(muid) + mvname, -1>;
     		//println("add2 uid2addr[<topdecls[i]>] = <uid2addr[topdecls[i]]>");
     	}
@@ -541,7 +541,7 @@ void extractScopes(Configuration c){
 	//println("constructors: <constructors>");
 	//
 	//for(cns <- constructors){
-	//   println("constructor: <cns>, keyword parameters: <config.store[cns].keywordParams>");
+	//   println("constructor: <cns>, keyword parameters: <configuration.store[cns].keywordParams>");
 	//
 	//}
 	
@@ -552,12 +552,12 @@ void extractScopes(Configuration c){
         declaresInnerScopes = {*(declaresMap[iscope] ? {}) | iscope <- innerScopes};
         
         // First, fill in variables to get their positions right
-        keywordParams = config.store[fuid1].keywordParams;
+        keywordParams = configuration.store[fuid1].keywordParams;
         
         // Filter all the non-keyword variables within the function scope
         // ***Note: Filtering by name is possible only when shadowing of local variables is not permitted
         // Sort variable declarations to ensure that formal parameters get first positions preserving their order
-        decls_non_kwp = sort([ uid | UID uid <- declaresInnerScopes, variable(RName name,_,_,_,_) := config.store[uid], name notin keywordParams ]);
+        decls_non_kwp = sort([ uid | UID uid <- declaresInnerScopes, variable(RName name,_,_,_,_) := configuration.store[uid], name notin keywordParams ]);
         
         fuid_str = uid2str[fuid1];
         for(int i <- index(decls_non_kwp)) {
@@ -566,12 +566,12 @@ void extractScopes(Configuration c){
         	non_kwp_pos = <fuid_str, i + nformals + 1>;
         	uid2addr[decls_non_kwp[i]] = non_kwp_pos;
         	// Associate this non-keyword variable's address with all its uses
-        	for(u <- config.uses[decls_non_kwp[i]] ? {}){
+        	for(/*loc*/ u <- configuration.uses[decls_non_kwp[i]] ? {}){
                 uid2addr[getLoc2uid(u)] = non_kwp_pos;
             }
         }
         // Filter all the keyword variables (parameters) within the function scope
-        decls_kwp = sort([ uid | UID uid <- declaresInnerScopes, variable(RName name,_,_,_,_) := config.store[uid], name in keywordParams ]);
+        decls_kwp = sort([ uid | UID uid <- declaresInnerScopes, variable(RName name,_,_,_,_) := configuration.store[uid], name in keywordParams ]);
        
         for(int i <- index(decls_kwp)) {
             keywordParameters += decls_kwp[i];
@@ -579,14 +579,14 @@ void extractScopes(Configuration c){
             uid2addr[decls_kwp[i]] = kwp_pos;
             
             // Associate this keyword variable's address with all its uses
-            for(u <- config.uses[decls_kwp[i]] ? {}){
+            for(u <- configuration.uses[decls_kwp[i]] ? {}){
                 uid2addr[getLoc2uid(u)] = kwp_pos;
             }
         }
         // Then, functions
         decls = [ uid | uid <- declaresInnerScopes, 
-                        function(_,_,_,_,_,_,_,_,_) := config.store[uid] ||
-        				closure(_,_,_,_) := config.store[uid]
+                        function(_,_,_,_,_,_,_,_,_) := configuration.store[uid] ||
+        				closure(_,_,_,_) := configuration.store[uid]
         		];
         for(i <- index(decls)) {
             uid2addr[decls[i]] = <uid2str[fuid1], -1>;
@@ -597,13 +597,13 @@ void extractScopes(Configuration c){
         nformals = getFormals(fuid1); // ***Note: Includes keyword parameters as a single map parameter 
         // First, fill in variables to get their positions right
         //println("fuid1 = <fuid1>");
-        if(config.store[fuid1] has keywordParams){
-            keywordParams = config.store[fuid1].keywordParams;
+        if(configuration.store[fuid1] has keywordParams){
+            keywordParams = configuration.store[fuid1].keywordParams;
            
-            its_adt = config.store[fuid1].rtype.\adt;
+            its_adt = configuration.store[fuid1].rtype.\adt;
             uid_adt = datatypes[its_adt];
             //println("uid_adt = <uid_adt>");
-            dataKeywordParams = config.dataKeywordDefaults[uid_adt];
+            dataKeywordParams = configuration.dataKeywordDefaults[uid_adt];
             
             if(size(keywordParams) > 0 || size(dataKeywordParams) > 0){
                 //println("*** <keywordParams>");
@@ -619,7 +619,7 @@ void extractScopes(Configuration c){
                 // Filter all the non-keyword variables within the function scope
                 // ***Note: Filtering by name is possible only when shadowing of local variables is not permitted
                 // Sort variable declarations to ensure that formal parameters get first positions preserving their order
-                decls_non_kwp = sort([ uid | UID uid <- declaresInnerScopes, variable(RName name,_,_,_,_) := config.store[uid], name notin keywordParams ]);
+                decls_non_kwp = sort([ uid | UID uid <- declaresInnerScopes, variable(RName name,_,_,_,_) := configuration.store[uid], name notin keywordParams ]);
                 
                 fuid_str = getCompanionDefaultsForUID(fuid1);
                 //println("fuid_str = <fuid_str>, decls_non_kwp = <decls_non_kwp>, declared[innerSopes] = <declares[innerScopes]>");
@@ -633,18 +633,18 @@ void extractScopes(Configuration c){
                 //println("domain(dataKeywordParams): <domain(dataKeywordParams)>");
                 //println("declares[innerScopes]: <declares[innerScopes]>");
                 //println("keywordParams + domain(dataKeywordParams): <keywordParams + domain(dataKeywordParams)>");
-                decls_kwp = sort([ uid | UID uid <- declaresInnerScopes, variable(RName name,_,_,_,_) := config.store[uid], name in domain(keywordParams) + domain(dataKeywordParams) ]);
+                decls_kwp = sort([ uid | UID uid <- declaresInnerScopes, variable(RName name,_,_,_,_) := configuration.store[uid], name in domain(keywordParams) + domain(dataKeywordParams) ]);
                 //println("^^^ adding <decls_kwp>");
                 for(int i <- index(decls_kwp)) {
                     keywordParameters += decls_kwp[i];
                     uid2addr[decls_kwp[i]] = <fuid_str, -1>; // ***Note: keyword parameters do not have a position
                 }
-                for(int uidn <- config.store, variable(RName name,_,_,scopeIn,_) := config.store[uidn], name in domain(dataKeywordParams),
-                    (signatureScope(0, at) := config.store[scopeIn] || blockScope(0, at) := config.store[scopeIn]),
-                    at in config.store[uid_adt].ats
+                for(int uidn <- configuration.store, variable(RName name,_,_,scopeIn,_) := configuration.store[uidn], name in domain(dataKeywordParams),
+                    (signatureScope(0, at) := configuration.store[scopeIn] || blockScope(0, at) := configuration.store[scopeIn]),
+                    at in configuration.store[uid_adt].ats
                     ){
-                    //println("add: <name>, <uidn>, <config.uses[uidn]>");
-                    for(loc l <- config.uses[uidn]) {
+                    //println("add: <name>, <uidn>, <configuration.uses[uidn]>");
+                    for(loc l <- configuration.uses[uidn]) {
                         loc2uid[l] = uidn;
                     }
                     keywordParameters += {uidn};
@@ -657,16 +657,16 @@ void extractScopes(Configuration c){
     
     // Fill in uid2addr for overloaded functions;
     for(UID fuid2 <- ofunctions) {
-        set[UID] funs = config.store[fuid2].items;
-    	if(UID fuid3 <- funs, production(rname,_,_,_,_,_) := config.store[fuid3] && isEmpty(getSimpleName(rname)))
+        set[UID] funs = configuration.store[fuid2].items;
+    	if(UID fuid3 <- funs, production(rname,_,_,_,_,_) := configuration.store[fuid3] && isEmpty(getSimpleName(rname)))
     	    continue;
-    	 if(UID fuid4 <- funs,   annotation(_,_,_,_,_) := config.store[fuid4])
+    	 if(UID fuid4 <- funs,   annotation(_,_,_,_,_) := configuration.store[fuid4])
     	 continue; 
     	    
     	set[str] scopes = {};
     	str scopeIn = convert2fuid(0);
     	for(UID fuid5 <- funs, !(uid2type[fuid5] is failure)) {
-    		//println("<fuid5>: <config.store[fuid5]>");
+    		//println("<fuid5>: <configuration.store[fuid5]>");
     	    funScopeIn = uid2addr[fuid5].fuid;
     		if(funScopeIn notin moduleNames) {
     			scopes += funScopeIn;
@@ -684,13 +684,13 @@ void extractScopes(Configuration c){
 // Get all the (positional and keyword) fields for a given constructor
 
 set[str] getAllFields(UID cuid){
-    a_constructor = config.store[cuid];
+    a_constructor = configuration.store[cuid];
     //println("getAllFields(<cuid>): <a_constructor>");
     set[str] result = {};
     if(a_constructor is constructor){
         its_adt = a_constructor.rtype.\adt;
         uid_adt = datatypes[its_adt];
-        dataKeywordParams = config.dataKeywordDefaults[uid_adt];
+        dataKeywordParams = configuration.dataKeywordDefaults[uid_adt];
         result = { prettyPrintName(field) | field <- domain(dataKeywordParams)} +
                  { prettyPrintName(field) | field <- domain(a_constructor.keywordParams) } +
                  { fieldName | field <- a_constructor.rtype.parameters, label(fieldName, _) := field };
@@ -702,13 +702,13 @@ set[str] getAllFields(UID cuid){
 // Get all the keyword fields for a given constructor
 
 set[str] getAllKeywordFields(UID cuid){
-    a_constructor = config.store[cuid];
+    a_constructor = configuration.store[cuid];
     //println("getAllKeywordFields(<cuid>): <a_constructor>");
     set[str] result = {};
     if(a_constructor is constructor){
         its_adt = a_constructor.rtype.\adt;
         uid_adt = datatypes[its_adt];
-        dataKeywordParams = config.dataKeywordDefaults[uid_adt];
+        dataKeywordParams = configuration.dataKeywordDefaults[uid_adt];
         result = { prettyPrintName(field) | field <- domain(dataKeywordParams)} +
                  { prettyPrintName(field) | field <- domain(a_constructor.keywordParams) };
     }
@@ -719,13 +719,13 @@ set[str] getAllKeywordFields(UID cuid){
 // Get all the keyword fields and their types for a given constructor
 
 map[RName,Symbol] getAllKeywordFieldsAndTypes(UID cuid){
-    a_constructor = config.store[cuid];
+    a_constructor = configuration.store[cuid];
     //println("getAllKeywordFieldsAndTypes(<cuid>): <a_constructor>");
     map[RName,Symbol] result = ();
     if(a_constructor is constructor){
-        its_adt = config.store[cuid].rtype.\adt;
+        its_adt = configuration.store[cuid].rtype.\adt;
         uid_adt = datatypes[its_adt];
-        dt = config.store[uid_adt];
+        dt = configuration.store[uid_adt];
         result = dt.keywordParams + a_constructor.keywordParams;
     }
     //println("getAllKeywordFieldsAndTypes(<cuid>) =\> <result>");
@@ -735,14 +735,14 @@ map[RName,Symbol] getAllKeywordFieldsAndTypes(UID cuid){
 // For a given constructor, get all keyword defaults defined in the current module
 
 lrel[RName,value] getAllKeywordFieldDefaultsInModule(UID cuid, str modulePath){
-    a_constructor = config.store[cuid];
+    a_constructor = configuration.store[cuid];
     //println("getAllKeywordDefaultsInModule(<cuid>): <a_constructor>, <modulePath>");
     lrel[RName,value] result = [];
     if(a_constructor is constructor){
-        its_adt = config.store[cuid].rtype.\adt;
+        its_adt = configuration.store[cuid].rtype.\adt;
         uid_adt = datatypes[its_adt];
-        result = [ defExp | defExp <- config.dataKeywordDefaults[uid_adt], Expression e := defExp[1] /*, e@\loc.path == modulePath*/] +
-                 [ defExp | defExp <- config.dataKeywordDefaults[cuid], Expression e := defExp[1] /*, e@\loc.path == modulePath*/];
+        result = [ defExp | defExp <- configuration.dataKeywordDefaults[uid_adt], Expression e := defExp[1] /*, e@\loc.path == modulePath*/] +
+                 [ defExp | defExp <- configuration.dataKeywordDefaults[cuid], Expression e := defExp[1] /*, e@\loc.path == modulePath*/];
         result = sort(result, bool(tuple[RName,value] a, tuple[RName,value] b) { return Expression aExp := a[1] && Expression bExp := b[1] && aExp@\loc.offset < bExp@\loc.offset; });
     }
     //println("getAllKeywordDefaultsInModule(<cuid>, modulePath) =\> <result>");
@@ -763,8 +763,8 @@ void extractConstantDefaultExpressions(){
      
      // Pass 1: collect all positional fields for all constructors in constructorFields
      
-     for(cuid <- constructors){
-        a_constructor = config.store[cuid];
+     for(UID cuid <- constructors){
+        a_constructor = configuration.store[cuid];
        
         consName = prettyPrintName(a_constructor.name);
         if(a_constructor is constructor){
@@ -787,10 +787,10 @@ void extractConstantDefaultExpressions(){
  
      // Pass 2: collect all keyword fields and add them to constructorFields
     
-     for(tp <- config.dataKeywordDefaults){
+     for(tp <- configuration.dataKeywordDefaults){
         uid = tp[0];
         //println("uid = <uid>");
-        dt = config.store[uid];
+        dt = configuration.store[uid];
         //println("dt = <dt>");
         if(dt is datatype){             // Note: for now productions cannot have keyword fields
            the_adt = dt.rtype;
@@ -810,9 +810,9 @@ void extractConstantDefaultExpressions(){
      
      // Pass 3: collect all constant default expressions in constructorConstantDefaultExpressions
     
-     for(tp <- config.dataKeywordDefaults){
+     for(tp <- configuration.dataKeywordDefaults){
          uid = tp[0];
-         the_constructor = config.store[uid];   // either constructor or datatype
+         the_constructor = configuration.store[uid];   // either constructor or datatype
          //println("the_constructor: <the_constructor>");
          //println("the_constructor.rtype: <the_constructor.rtype>");
          if(!(the_constructor is datatype)){
@@ -875,10 +875,10 @@ default value getConstantValue(Expression e) {
 
 int declareGeneratedFunction(str name, str fuid, Symbol rtype, loc src){
 	//println("declareGeneratedFunction: <name>, <rtype>, <src>");
-    uid = config.nextLoc;
-    config.nextLoc = config.nextLoc + 1;
+    uid = configuration.nextLoc;
+    configuration.nextLoc = configuration.nextLoc + 1;
     // TODO: all are placed in scope 0, is that ok?
-    config.store[uid] = function(RSimpleName(name), rtype, (), false, 0, Unknown(), [], false, src);
+    configuration.store[uid] = function(RSimpleName(name), rtype, (), false, 0, Unknown(), [], false, src);
     functions += {uid};
     //declares += {<inScope, uid>}; TODO: do we need this?
      
@@ -903,15 +903,15 @@ int declareGeneratedFunction(str name, str fuid, Symbol rtype, loc src){
 // Get the type of an expression as Symbol
 Symbol getType(loc l) {
 //   println("getType(<l>)");
-    if(config.locationTypes[l]?){
-        //println("getType(<l>) = <config.locationTypes[l]>");
-    	return config.locationTypes[l];
+    if(configuration.locationTypes[l]?){
+        //println("getType(<l>) = <configuration.locationTypes[l]>");
+    	return configuration.locationTypes[l];
     }
     //////l = normalize(l);
- //   iprintln(config.locationTypes);
-    assert config.locationTypes[l]? : "getType for <l>";
-//	println("getType(<l>) = <config.locationTypes[l]>");
-	return config.locationTypes[l];
+ //   iprintln(configuration.locationTypes);
+    assert configuration.locationTypes[l]? : "getType for <l>";
+//	println("getType(<l>) = <configuration.locationTypes[l]>");
+	return configuration.locationTypes[l];
 }	
 
 // Get the type of an expression as string
@@ -941,7 +941,7 @@ str getOuterType(Tree e) {
  */
 Symbol getFunctionType(loc l) {  
    UID uid = getLoc2uid(l);
-   fun = config.store[uid];
+   fun = configuration.store[uid];
    if(function(_,Symbol rtype,_,_,_,_,_,_,_) := fun) {
        return rtype;
    } else {
@@ -951,7 +951,7 @@ Symbol getFunctionType(loc l) {
 
 Symbol getClosureType(loc l) {
    UID uid = getLoc2uid(l);
-   cls = config.store[uid];
+   cls = configuration.store[uid];
    if(closure(Symbol rtype,_,_,_) := cls) {
        return rtype;
    } else {
@@ -962,10 +962,10 @@ Symbol getClosureType(loc l) {
 AbstractValue getAbstractValueForQualifiedName(QualifiedName name){
 	rn = convertName(name);
 	// look up the name in the type environment
-	return config.store[config.typeEnv[rn]];
+	return configuration.store[configuration.typeEnv[rn]];
 }
 					
-KeywordParamMap getKeywords(loc location) = config.store[getLoc2uid(location)].keywordParams;
+KeywordParamMap getKeywords(loc location) = configuration.store[getLoc2uid(location)].keywordParams;
 
 map[str, map[str, value]] getConstantConstructorDefaultExpressions(loc location){
     tp = getType(location);
@@ -1050,7 +1050,7 @@ str qualifiedNameToPath(QualifiedName qname){
 
 str convert2fuid(UID uid) {
 	if(!uid2name[uid]?) {
-		throw "uid2str is not applicable for <uid>: <config.store[uid]>";
+		throw "uid2str is not applicable for <uid>: <configuration.store[uid]>";
 	}
 	str name = uid2name[uid];
 	
@@ -1058,11 +1058,11 @@ str convert2fuid(UID uid) {
 	if(containedIn[uid]?) {
 		name = convert2fuid(containedIn[uid]) + "/" + name;
 	} else if(declaredIn[uid]?) {
-	    val = config.store[uid];
+	    val = configuration.store[uid];
 	    if( (function(_,_,_,_,inScope, RName oldScope,_,_,src) := val || 
 	         constructor(_,_,_,inScope, RName oldScope,src) := val || 
 	         production(_,_,inScope, RName oldScope,_,src) := val),  
-	        \module(_, loc at) := config.store[inScope]) {
+	        \module(_, loc at) := configuration.store[inScope]) {
         	
            return "<prettyPrintName(oldScope)>/<name>";
         }
@@ -1079,7 +1079,7 @@ public MuExp getConstructor(str cons) {
    for(c <- constructors){
      //println("c = <c>, uid2name = <uid2name[c]>, uid2str = <convert2fuid(c)>");
      if(cons == getSimpleName(getConfiguration().store[c].name)){
-        //println("c = <c>, <config.store[c]>,  <uid2addr[c]>");
+        //println("c = <c>, <configuration.store[c]>,  <uid2addr[c]>");
         uid = c;
         break;
      }
@@ -1105,7 +1105,7 @@ public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc l) {
      //l1 = normalize(l);
      //containmentPlus = containment+;
      set[UID] decls = {};
-     //if(UID uid <- config.store, blockScope(int _, l) := config.store[uid]) {
+     //if(UID uid <- configuration.store, blockScope(int _, l) := configuration.store[uid]) {
      try {
          UID uid = blockScopes[l];
          set[UID] innerScopes = containmentPlus[uid];
@@ -1135,7 +1135,7 @@ public MuExp mkCallToLibFun(str modName, str fname)
 // - First non-default functions (inner scope first, most recent last), 
 // - then default functions (also most inner scope first, then most recent last).
 
-bool funFirst(int n, int m) = preferInnerScope(n,m); // || n < m; // n > m; //config.store[n].at.begin.line < config.store[m].at.begin.line;
+bool funFirst(int n, int m) = preferInnerScope(n,m); // || n < m; // n > m; //configuration.store[n].at.begin.line < configuration.store[m].at.begin.line;
 
 list[int] sortOverloadedFunctions(set[int] items){
 
@@ -1151,9 +1151,9 @@ bool preferInnerScope(int n, int m) {
        //println("preferInnerScope <key> =\> <funInnerScopes[key]> (cached)");
        return funInnerScopes[key];
     }
-    nContainer = config.store[n].containedIn;
+    nContainer = configuration.store[n].containedIn;
     nContainers = containedOrDeclaredInPlus[nContainer];
-    mContainer = config.store[m].containedIn;
+    mContainer = configuration.store[m].containedIn;
     mContainers = containedOrDeclaredInPlus[mContainer];
     
     bool res = false;
@@ -1176,8 +1176,8 @@ bool preferInnerScope(int n, int m) {
 
 
 public UID declaredScope(UID uid) {
-	if(config.store[uid]?){
-		res = config.store[uid].containedIn;
+	if(configuration.store[uid]?){
+		res = configuration.store[uid].containedIn;
 		//println("declaredScope[<uid>] = <res>");
 		return res;
 	}
@@ -1187,7 +1187,7 @@ public UID declaredScope(UID uid) {
 
 public list[UID] accessibleAlts(list[UID] uids, loc luse){
   //println("accessibleAlts: <uids>, <luse>");
-  inScope = config.usedIn[luse] ? 0; // All generated functions are placed in scope 0
+  inScope = configuration.usedIn[luse] ? 0; // All generated functions are placed in scope 0
   
   //println("inScope = <inScope>");
   key = <uids, inScope>;
@@ -1225,19 +1225,19 @@ MuExp mkVar(str name, loc l) {
   // Pass all the functions through the overloading resolution
   if(uid in functions || uid in constructors || uid in ofunctions) {
     // Get the function uids of an overloaded function
-    list[int] ofuids = (uid in functions || uid in constructors) ? [uid] : sortOverloadedFunctions(config.store[uid].items);
+    list[int] ofuids = (uid in functions || uid in constructors) ? [uid] : sortOverloadedFunctions(configuration.store[uid].items);
     //println("@@@ mkVar: <name>, <l>, ofuids = <ofuids>");
     //for(nnuid <- ofuids){
-    //	println("<nnuid>: <config.store[nnuid]>");
+    //	println("<nnuid>: <configuration.store[nnuid]>");
     //}
     // Generate a unique name for an overloaded function resolved for this specific use
-    //println("config.usedIn: <config.usedIn>");
+    //println("configuration.usedIn: <configuration.usedIn>");
     
-    str ofuid = (config.usedIn[l]? ? convert2fuid(config.usedIn[l]) : "") + "/use:<name>#<l.begin.line>-<l.offset>";
+    str ofuid = (configuration.usedIn[l]? ? convert2fuid(configuration.usedIn[l]) : "") + "/use:<name>#<l.begin.line>-<l.offset>";
  
-    //str ofuid = convert2fuid(config.usedIn[l]) + "/use:<name>#<l.begin.line>-<l.offset>";
+    //str ofuid = convert2fuid(configuration.usedIn[l]) + "/use:<name>#<l.begin.line>-<l.offset>";
  
-    addOverloadedFunctionAndResolver(ofuid, <name, config.store[uid].rtype, addr.fuid, ofuids>);
+    addOverloadedFunctionAndResolver(ofuid, <name, configuration.store[uid].rtype, addr.fuid, ofuids>);
     //println("return: <muOFun(ofuid)>");
   	return muOFun(ofuid);
   }
@@ -1358,11 +1358,11 @@ private Symbol translateType1(t: (StructuredType) `map[ <TypeArg arg1> , <TypeAr
 private Symbol translateType1(t: (StructuredType) `set [ <TypeArg arg> ]`)
 												= \set(translateType1(arg)); 
 private Symbol translateType1(t: (StructuredType) `rel [ <{TypeArg ","}+ args> ]`) 
-												= \rel([ translateType1(arg) | arg <- args]);
+												= \rel([ translateType1(arg) | TypeArg arg <- args]);
 private Symbol translateType1(t: (StructuredType) `lrel [ <{TypeArg ","}+ args> ]`) 
-												= \lrel([ translateType1(arg) | arg <- args]);
+												= \lrel([ translateType1(arg) | TypeArg arg <- args]);
 private Symbol translateType1(t: (StructuredType) `tuple [ <{TypeArg ","}+ args> ]`)
-												= \tuple([ translateType1(arg) | arg <- args]);
+												= \tuple([ translateType1(arg) | TypeArg arg <- args]);
 private Symbol translateType1(t: (StructuredType) `type [ < TypeArg arg> ]`)
 												= \reified(translateType1(arg));      
 
@@ -1389,7 +1389,7 @@ private Symbol translateType1(t : (TypeArg) `<Type tp> <Name name>`)
 												= \label(getSimpleName(convertName(name)), translateType1(tp));
 
 private Symbol translateType1(t: (FunctionType) `<Type tp> (<{TypeArg ","}* args>)`) 
-												= Symbol::\func(translateType1(tp), [ translateType1(arg) | arg <- args], []);
+												= Symbol::\func(translateType1(tp), [ translateType1(arg) | TypeArg arg <- args], []);
 									
 private Symbol translateType1(t: (UserType) `<QualifiedName name>`) {
 	// look up the name in the type environment
@@ -1407,7 +1407,7 @@ private Symbol translateType1(t: (UserType) `<QualifiedName name>[<{Type ","}+ p
 	if(isAlias(val)) {
 		// instantiate type parameters
 		aparameters = [p | p <- parameters]; // should be unnecessary
-		boundParams = [ translateType1(p) | p <- aparameters];
+		boundParams = [ translateType1(p) | Type p <- aparameters];
 		
 		assert size(aparameters) == size(val.rtype.parameters);
 		
@@ -1424,7 +1424,7 @@ private Symbol translateType1(t: (UserType) `<QualifiedName name>[<{Type ","}+ p
 		       };
 	}
 	if(isDataType(val) || isNonTerminalType(val)){
-	    val.rtype.parameters = [ translateType1(param) | param <- parameters];
+	    val.rtype.parameters = [ translateType1(param) | Type param <- parameters];
         return val.rtype;
 	}
 	throw "The name <name> is not resolved to a type: <val>.";

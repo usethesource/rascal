@@ -132,6 +132,7 @@ test bool tst_toMapUnique(set[int] D, set[int] R) {
 // Tests that check the correctness of the dynamic types of sets produced by the library functions; 
 // incorrect dynamic types make pattern matching fail;
 
+@ignoreAnnotations
 test bool dtstDifference(set[&T] s) {
 	if(isEmpty(s)) return true;
 	bool check = true;
@@ -144,6 +145,7 @@ test bool dtstDifference(set[&T] s) {
 	return check;
 }
 
+@ignoreAnnotations
 test bool dtstIntersection(set[&T] s) {
 	if(isEmpty(s)) return true;
 	set[set[&T]] subs = power(s);

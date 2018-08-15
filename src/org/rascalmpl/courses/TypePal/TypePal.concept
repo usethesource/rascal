@@ -1,12 +1,12 @@
 # TypePal: Name and Type Analysis Made Easy 
-
+      
 .Synopsis
 TypePal is a framework for name analysis, type checking and type inference
 
 .Usage
-
+  
 .Details
-ConceptsAndDefinitions Architecture Reporting Collector Solver Configuration
+PocketCalculator ConceptsAndDefinitions Architecture Reporting Collector Solver Configuration Examples
 
 .Description
 Many type checkers have already been written in Rascal with good results. However, type checkers for different languages have a lot in common and address similar
@@ -21,20 +21,22 @@ questions:
 * How to give precise error messages (and avoid spurious messages)?
 * How to extract information that is useful for later compiler stages or the IDE for, 
   e.g., code generation, use-def information or name completion?
-
+  
+  
 TypePal is a declarative framework that operates on a model of the analysed program consisting of 
 
-* _facts_ about source code fragments with known type (e.g., an integer literal is of type integer);
+* _facts_ about source code fragments with known type (e.g., an integer literal is of type integer).
+* _calculators_ that compute the type of a source code fragment and create new facts;  
+  this computation may also need the types of one or more other source code fragments,
+  e.g., compute the type of the addition operator based on the types of its operands.
 * _requirements_ that are imposed on a source code fragment by the type system being used; 
   a requirement may need the types of one or more other source code fragments, 
   e.g., if the expression on the right-hand side of an assignment has type integer,
-  then the type of the variable on the left-hand side should be compatible with the type integer;
-* _calculators_ that compute the type of a source code fragment;  
-  this computation may also need the types of one or more other source code fragments,
-  e.g., compute the type of the addition operator based on the types of its operands.
+  then the type of the variable on the left-hand side should be compatible with the type integer.
+
   
 We will call this model the _TModel_ (for "Type Model") of the program: facts describe elementary observations,
-requirements impose restrictions on the types of program fragments, and calculators compute new types.
+calculators compute new type facts, and requirements impose restrictions on the types of program fragments. 
 A requirement or calculator may detect a type violation and will then generate an error message. 
 When a requirement is satisfied or a calculator computes a new type, 
 this leads to the creation of new facts that may trigger the computation of other requirements and calculators.

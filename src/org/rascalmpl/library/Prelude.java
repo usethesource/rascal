@@ -1532,6 +1532,42 @@ public class Prelude {
 		return writer.done();
 	}
 	
+	public IList top(IInteger k, ISet l, IValue cmpv) {
+        final LinkedList<IValue> result = new LinkedList<>();
+        final Less less = new Less((ICallableValue) cmpv);
+        final int K = k.intValue();
+        final int absK = Math.abs(K);
+        
+        if (K == 0) {
+            return values.list();
+        }
+        
+        for (IValue n : l) {
+            if (result.isEmpty()) {
+                result.add(n);
+            } else {
+                int i = 0;
+                
+                for (IValue m : result) {
+                    if (K > 0 ? less.less(n, m) : less.less(m, n))  {
+                        result.add(i, n);
+
+                        if (result.size() > absK) {
+                            result.remove(absK);
+                        }
+                        break;
+                    }
+
+                    i++;
+                }
+            }
+        }
+        
+        IListWriter w = values.listWriter();
+        w.appendAll(result);
+        return w.done();
+    }
+	
 	private IList makeUpTill(int from,int len){
 		IListWriter writer = values.listWriter();
 		for(int i = from ; i < len; i++){
@@ -2115,21 +2151,31 @@ public class Prelude {
 	
 	protected final TypeReifier tr;
 
-	// REFLECT -- copy in {@link PreludeCompiled}
 	public IValue parse(IValue start, ISourceLocation input, IBool allowAmbiguity, IEvaluatorContext ctx) {
-		return parse(start, values.mapWriter().done(), input, allowAmbiguity, ctx);
+	    // TODO remove this legacy method
+	    return parse(start, input, allowAmbiguity, values.bool(false), ctx);
+	}
+	    
+	// REFLECT -- copy in {@link PreludeCompiled}
+	public IValue parse(IValue start, ISourceLocation input, IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
+		return parse(start, values.mapWriter().done(), input, allowAmbiguity, hasSideEffects, ctx);
+	}
+	
+	public IValue parse(IValue start, IMap robust, ISourceLocation input, IBool allowAmbiguity, IEvaluatorContext ctx) {
+	    // TODO remove this legacy method
+        return parse(start, robust, input, allowAmbiguity, values.bool(false), ctx);
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public IValue parse(IValue start, IMap robust, ISourceLocation input, IBool allowAmbiguity, IEvaluatorContext ctx) {
+	public IValue parse(IValue start, IMap robust, ISourceLocation input, IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
 		Type reified = start.getType();
 		IConstructor grammar = checkPreconditions(start, reified);
 		
 		try {
-			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, robust, input, allowAmbiguity.getValue());
+			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, robust, input, allowAmbiguity.getValue(), hasSideEffects.getValue());
 		}
 		catch (ParseError pe) {
-			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
+			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn());
 			throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		catch (Ambiguous e) {
@@ -2142,18 +2188,57 @@ public class Prelude {
 	}
 	
 	// REFLECT -- copy in {@link PreludeCompiled}
-	public IValue parse(IValue start, IString input, IBool allowAmbiguity, IEvaluatorContext ctx) {
-		return parse(start, values.mapWriter().done(), input, allowAmbiguity, ctx);
+    public IValue firstAmbiguity(IValue start, IString input, IEvaluatorContext ctx) {
+        Type reified = start.getType();
+        IConstructor grammar = checkPreconditions(start, reified);
+        
+        try {
+            return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, values.mapWriter().done(), input.getValue(), false, false);
+        }
+        catch (ParseError pe) {
+            ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
+            throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
+        }
+        catch (Ambiguous e) {
+            return e.getTree();
+        }
+        catch (UndeclaredNonTerminalException e){
+            throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
+        }
+    }
+    
+    public IValue firstAmbiguity(IValue start, ISourceLocation input, IEvaluatorContext ctx) {
+        Type reified = start.getType();
+        IConstructor grammar = checkPreconditions(start, reified);
+        
+        try {
+            return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, values.mapWriter().done(), input, false, false);
+        }
+        catch (ParseError pe) {
+            ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
+            throw RuntimeExceptionFactory.parseError(errorLoc, ctx.getCurrentAST(), ctx.getStackTrace());
+        }
+        catch (Ambiguous e) {
+            return e.getTree();
+        }
+        catch (UndeclaredNonTerminalException e){
+            throw new UndeclaredNonTerminal(e.getName(), e.getClassName(), ctx.getCurrentAST());
+        }
+    }
+	
+	// REFLECT -- copy in {@link PreludeCompiled}
+	public IValue parse(IValue start, IString input, IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
+		return parse(start, values.mapWriter().done(), input, allowAmbiguity, hasSideEffects, ctx);
 	}
 	
-	public IValue parse(IValue start, IMap robust, IString input,  IBool allowAmbiguity, IEvaluatorContext ctx) {
+	public IValue parse(IValue start, IMap robust, IString input,  IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
 		try {
 			Type reified = start.getType();
 			IConstructor grammar = checkPreconditions(start, reified);
-			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, robust, input.getValue(), allowAmbiguity.getValue());
+			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), grammar, robust, input.getValue(), allowAmbiguity.getValue(), hasSideEffects.getValue());
 		}
 		catch (ParseError pe) {
-			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
+			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn());
 			throw RuntimeExceptionFactory.parseError(errorLoc, null, null);
 		}
 		catch (Ambiguous e) {
@@ -2165,15 +2250,15 @@ public class Prelude {
 		}
 	}
 	
-	public IValue parse(IValue start, IString input, ISourceLocation loc,  IBool allowAmbiguity, IEvaluatorContext ctx) {
-		return parse(start, values.mapWriter().done(), input, loc, allowAmbiguity,  ctx);
+	public IValue parse(IValue start, IString input, ISourceLocation loc,  IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
+		return parse(start, values.mapWriter().done(), input, loc, allowAmbiguity,  hasSideEffects, ctx);
 	}
 	
-	public IValue parse(IValue start, IMap robust, IString input, ISourceLocation loc,  IBool allowAmbiguity, IEvaluatorContext ctx) {
+	public IValue parse(IValue start, IMap robust, IString input, ISourceLocation loc,  IBool allowAmbiguity, IBool hasSideEffects, IEvaluatorContext ctx) {
 		Type reified = start.getType();
 		IConstructor startSort = checkPreconditions(start, reified);
 		try {
-			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue(), loc, allowAmbiguity.getValue());
+			return ctx.getEvaluator().parseObject(ctx.getEvaluator().getMonitor(), startSort, robust, input.getValue(), loc, allowAmbiguity.getValue(), hasSideEffects.getValue());
 		}
 		catch (ParseError pe) {
 			ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn());

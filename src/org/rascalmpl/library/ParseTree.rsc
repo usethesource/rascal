@@ -407,6 +407,17 @@ Parse input text (from a string or a location) and return a parse tree.
 *  Parse a string and return a parse tree, `origin` defines the original location of the input.
 *  Parse the contents of resource input and return a parse tree.
 
+The parse either throws ParseError exceptions or returns parse trees of type `Tree`. See [[ParseTree]].
+
+The `allowAmbiguity` flag dictates the behavior of the parser in the case of ambiguity. When `allowAmbiguity=true` 
+the parser will construct ambiguity clusters (local sets of parse trees where the input string is ambiguous). If it is `false`
+the parser will throw an `Ambiguous` exception instead which is comparable to a ParseError exception. The latter option terminates faster.
+
+The `hasSideEffects` flag is normally set to false. When a [[SyntaxDefinition]] uses side-effects to filter ambiguity, this 
+option must be set to `true` to ensure correct behavior. Otherwise the parser employs optimizations which assume the parse tree construction
+algorithm is context-free. When filter functions associated with syntax definitions exist that use global variables, for example to store type definitions 
+in a symbol table , then this option must be set to `true`. 
+
 .Examples
 [source,rascal-shell,error]
 ----
@@ -432,15 +443,36 @@ catch ParseError(loc l): {
 }
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses information about syntax definitions at call site}
-public java &T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false);
+public java &T<:Tree parse(type[&T<:Tree] begin, str input, bool allowAmbiguity=false, bool hasSideEffects=false);
 
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses information about syntax definitions at call site}
-public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false);
+public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin, bool allowAmbiguity=false, bool hasSideEffects=false);
 
 @javaClass{org.rascalmpl.library.Prelude}
 @reflect{Uses information about syntax definitions at call site}
-public java &T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false);
+public java &T<:Tree parse(type[&T<:Tree] begin, loc input, bool allowAmbiguity=false, bool hasSideEffects=false);
+
+
+@doc{
+.Synopsis parse the input but instead of returning the entire tree, return the trees for the first ambiguous substring.
+
+.Description
+
+This function is similar to the [[parse]] function in its functionality. However, in case of serious ambiguity parse
+could be very slow. This function is much faster, because it does not try to construct an entire forest and thus avoids
+the cost of constructing nested ambiguity clusters. 
+
+If the input sentence is not ambiguous after all, simply the entire tree is returned.
+}
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{Uses information about syntax definitions at call site}
+public java Tree firstAmbiguity(type[&T<:Tree] begin, str input);
+
+@javaClass{org.rascalmpl.library.Prelude}
+@reflect{Uses information about syntax definitions at call site}
+public java Tree firstAmbiguity(type[&T<:Tree] begin, loc input);
+
 
 @doc{
 .Synopsis
@@ -656,6 +688,14 @@ anno loc Tree@link;
 Annotate a parse tree node with multiple targets for a reference.
 }
 anno set[loc] Tree@links;
+
+@doc{
+.Synopsis
+Annotate the top of the tree with hyperlinks between entities in the tree (or other trees)
+
+This is similar to link and links annotations, except that you can put it as one set at the top of the tree.
+}
+anno rel[loc,loc] Tree@hyperlinks;
 
 @doc{
 .Synopsis

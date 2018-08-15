@@ -13,24 +13,49 @@ each name as a string. _Qualified names_ are also supported and are represented 
 == Tree
 
 The Rascal data type `Tree` (REF) is used to represent all parse trees that can be generated for any syntax described in Rascal.
-`Tree` is also a super type of any syntactic construct that may occur in a parse tree. In TypePal we interchangeably use `Tree` and the source area
-(a source location) from it has been derived to uniquely 
+`Tree` is also a super type of any syntactic construct that may occur in a parse tree. 
+In TypePal we interchangeably use `Tree` and the source area (a source location) associated with it to uniquely 
 identify program parts, definitions, uses and scopes.
 
 == Scope
-A _scope_ is a region of a program that delimits where the definition of an identifier is applicable.
+A _scope_ is a region of a program that delimits where definitions of identifier are applicable.
 An identifier is defined in the scope where it is defined and in all nested subscopes, unless one of these subscopes
 redefines that same identifier. In that case, the inner definition applies inside that nested scope (and its subscopes).
-Scopes are represented by the subtree of the parse tree that corresponds to their textual extent.
-Examples of scopes are a module or function scope.
+Scopes are identified by the subtree of the parse tree that introduces them such as, for instance, a module, a function declaration or a block.
+Special rules may apply such as _define-before-use_ or _scopes-with-holes_.
 
 == Scope Graph
-The scope graph is one of the the oldest method to describe the scope of names in a program.
-We use a version of scope graphs as described by Kastens & Waite, Name analysis for modern languages: a general solution, SP&E, 2017.
+The scope graph is one of the the oldest methods to describe the scope of names in a program.
+We use a version of scope graphs as described by Kastens & Waite, _Name analysis for modern languages: a general solution_, SP&E, 2017.
 This model uses text ranges in the source text (happily represented by Rascal's `loc` data type) to identify 
 and define all aspects of names. 
-A scope graph provides lookup operations on names that takes both syntactic nesting and semantic linking (via paths) into account,
+A scope graph provides lookup operations on names that take both syntactic nesting and semantic linking (via _paths_) into account,
 as well as the specific roles of identifiers and paths (described below).
+
+== Identifier definition
+The _definition_ of an identifier is inside TypePal characterized by a `Define`:
+[source,rascal]
+----
+alias Define  = tuple[loc scope, str id, IdRole idRole, loc defined, DefInfo defInfo];
+----
+where
+
+* `scope` is the scope in which the definition occurs;
+* `id` is the text representation of the identifier;
+* `idRole` is the role in which the identifier is defined, see <<Identifier Role>>;
+* `defined` is source code area of the definition;
+* `defInfo` is any additional information associated with this definition, see <<DefInfo>>,
+
+== Identifier use
+The _use_ of an identifier is characterized by a `Use`:
+
+[source,rascal]
+----
+data Use
+    = use(str id, loc occ, loc scope, set[IdRole] idRoles)
+    | useq(list[str] ids, loc occ, loc scope, set[IdRole] idRoles, set[IdRole] qualifierRoles)
+    ;
+----
 
 == Path
 TypePal is based on scope graphs that are not only based on syntactic containment of scopes but can also express semantic 
@@ -39,6 +64,7 @@ While scopes are strictly determined by the hierarchical structure of a program 
 _paths_ provide an escape from this restriction and define a semantic connection between syntactic 
 entities that are not hierarchically related and may even be part of different syntax trees.
 Connections between syntactic entities are labelled path, with user-defined labels.
+Paths are represented by the Rascal datatype `PathLabel`.
 An example is the import of a module _M_ into another module _N_ that makes the entities in _M_ known inside _N_.
 Here is an example of a path label to mark an import path between two parse trees.
 
@@ -66,12 +92,13 @@ can be resolved to definitions _D1_ (syntactic resolution), _D2_ (semantic resol
 image::NameResolution.png[400,400,align="center"]
 
 IMPORTANT: Name resolution need not have a unique solution. 
-Therefore the author can extend TypePal by writing functions to 
+Therefore the author of a TypePal-based type checker can provide functions to 
 (a) filter valid solutions; (b) determine which identifiers may be overloaded.
 
 == Role
 
 Identifiers, scopes and path can play different _roles_ that determine how they will be handled.
+They are represented by various Rascal datatypes.
 
 === Identifier Role
 
@@ -124,10 +151,10 @@ TypePal provides the data type `AType` that has to be extended for the language 
 [source,rascal]
 ----
 data AType
-   = tvar(loc name)                                //<1>
-   | atypeList(list[AType] atypes)                 //<2>
-   | overloadedAType(rel[Key, AType] overloads)    //<3>
-   | lazyLub(list[AType] atypes)                   //<4>
+   = tvar(loc tname)                                    //<1>
+   | atypeList(list[AType] atypes)                      //<2>
+   | overloadedAType(rel[loc, IdRole, AType] overloads) //<3>
+   | lazyLub(list[AType] atypes)                        //<4>
    ;
 ----
 
@@ -136,7 +163,7 @@ data AType
 <3> `overloadedAType` represents overloaded types.
 <4>  `lazyLub` represents a lazily computed LUB of a list of types.
 
-The typechecker author has to provide a function to convert `AType`s to string (it is used create readable error messages):
+The typechecker author has to provide a function to convert `AType` to string (it is used create readable error messages):
 [source,rascal]
 ----
 str prettyPrintAType(AType atype);
@@ -150,13 +177,19 @@ TypePal provides the data type `DefInfo` for this purpose:
 [source,rascal]
 ----
 data DefInfo
-    = noDefInfo()                                       //<1>
-    | defInfo(AType atype)                              //<2>
-    | defInfo(list[Tree] dependsOn, AType() getAType)   //<3>
+    = noDefInfo()                                                                           //<1>
+    | defType(value contrib)                                                                //<2>
+    | defTypeCall(list[loc] dependsOn, AType(Solver s) getAType)                            //<3>
+    | defTypeLub(list[loc] dependsOn, list[loc] defines, list[AType(Solver s)] getATypes)   //<4>
     ;
 ----
-<1> No information associated with definition.
-<2> Explicitly given AType associated with definition.
-<3> Type of definition depends on the type of the entities given in `dependsOn`, when those are known, 
-    `getAType` can construct the type of this definition. `getAType` will only be called by TypePal during constraint solving.
+<1> No information associated with this definition.
+<2> Explicitly given AType contribution associated with this definition. `contrib` can either be an `AType`, or a `Tree`. 
+    In the latter case, the type of that tree is used for the current definition.
+<3> Type of this definition depends on the type of the entities given in `dependsOn`, when those are known, 
+    `getAType` can construct the type of this definition. 
+    `getAType` will only be called by TypePal during constraint solving.
+<4> Refine a set of definitions by taking their LUB.
+
+The <<Solver>> argument of `getAType` and `getATypes` is the current constraint solver being used.
 
