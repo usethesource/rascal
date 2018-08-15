@@ -902,7 +902,7 @@ public class RVMonJVM extends RVMCore {
             }
         }
         
-        Thrown exc = RascalRuntimeException.failed(cf.src, w.done(), cf);
+        Thrown exc = RascalRuntimeException.callFailed(cf.src, w.done(), cf);
         System.err.println(exc.getValue());
         throw exc;
     }

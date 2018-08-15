@@ -209,15 +209,16 @@ public class ConstructorFunction extends NamedFunction {
 	
 	@Override
 	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
+		Map<Type,Type> bindings = new HashMap<Type,Type>();
+		if (!constructorType.getFieldTypes().match(TF.tupleType(actualTypes), bindings)) {
+		    // This has to be checked first, so that the special casing knows that at least the types are correct
+			throw new MatchFailed();
+		}
 		// TODO: when characters get proper types we need to add them here.
 		if (constructorType == RascalValueFactory.Tree_Appl || constructorType == RascalValueFactory.Tree_Amb || constructorType == RascalValueFactory.Tree_Cycle) {
 			return new ConcreteConstructorFunction(ast, constructorType, eval, declarationEnvironment).call(actualTypes, actuals, keyArgValues);
 		}
 		
-		Map<Type,Type> bindings = new HashMap<Type,Type>();
-		if (!constructorType.getFieldTypes().match(TF.tupleType(actualTypes), bindings)) {
-			throw new MatchFailed();
-		}
 		Type formalTypeParameters = constructorType.getAbstractDataType().getTypeParameters();
 		Type instantiated = constructorType;
 
