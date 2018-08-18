@@ -31,14 +31,14 @@ import String;
 
 void collect(current: (Statement) `assert <Expression expression>;`, Collector c){
     c.fact(current, abool());
-    c.requireSubtype(expression, abool(), error(expression, "Assertion should be `bool`, found %t", expression));
+    c.requireSubType(expression, abool(), error(expression, "Assertion should be `bool`, found %t", expression));
     collect(expression, c);
 } 
 
 void collect(current: (Statement) `assert <Expression expression> : <Expression message> ;`, Collector c){
    c.fact(current, abool());
-   c.requireSubtype(expression, abool(), error(expression, "Assertion should be `bool`, found %t", expression));
-   c.requireSubtype(message, astr(), error(message, "Assertion message should be `str`, found %t", message));
+   c.requireSubType(expression, abool(), error(expression, "Assertion should be `bool`, found %t", expression));
+   c.requireSubType(message, astr(), error(message, "Assertion message should be `str`, found %t", message));
    collect(expression, message, c);
 } 
      
@@ -103,7 +103,7 @@ void collect(current: (PatternWithAction) `<Pattern pattern> =\> <Replacement re
                                      s.requireUnify(condType, abool(), error(cond, "Canot unify %t with `bool`", cond));
                                      condType = s.instantiate(condType);
                                   }
-                                  s.requireSubtype(cond, abool(), error(cond, "Condition should be `bool`, found %t", cond));
+                                  s.requireSubType(cond, abool(), error(cond, "Condition should be `bool`, found %t", cond));
                                }
                             });
                     }
@@ -117,7 +117,7 @@ void collect(current: (PatternWithAction) `<Pattern pattern> =\> <Replacement re
                               exprType = s.instantiate(exprType);
                               patType = s.instantiate(patType); 
                            }
-                           s.requireSubtype(exprType, patType, error(current, "A pattern of type %t cannot be replaced by %t", patType, exprType));
+                           s.requireSubType(exprType, patType, error(current, "A pattern of type %t cannot be replaced by %t", patType, exprType));
                          });
               
                     collect(pattern, replacement, c);
@@ -184,7 +184,7 @@ void collect(current: (Statement) `insert <Expression expr>;`, Collector c){
                      exprType = s.instantiate(exprType);
                      patType = s.instantiate(patType);
                   }
-                  s.requireSubtype(exprType, patType, error(expr, "Insert type should be subtype of %t, found %t", patType, exprType));
+                  s.requireSubType(exprType, patType, error(expr, "Insert type should be subtype of %t, found %t", patType, exprType));
              });
           c.fact(current, expr);
           collect(expr, c);
@@ -228,7 +228,7 @@ void checkConditions(list[Expression] condList, Solver s){
             s.requireUnify(abool(), tcond, error(cond, "Cannot unify %t with `bool`", cond));
             tcond = s.instantiate(tcond); 
         } 
-        s.requireSubtype(tcond, abool(), error(cond, "Condition should be `bool`, found %t", cond));
+        s.requireSubType(tcond, abool(), error(cond, "Condition should be `bool`, found %t", cond));
     }
 }
 
@@ -467,7 +467,7 @@ void collect(current: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bou
 
 void collect(Bound current, Collector c){
     if(current is \default){
-        c.requireSubtype(current.expression, aint(), error(current.expression, "Bound should have type `int`, found %t", current.expression)); 
+        c.requireSubType(current.expression, aint(), error(current.expression, "Bound should have type `int`, found %t", current.expression)); 
         c.fact(current, aint());
         collect(current.expression, c);
     } else {
@@ -792,7 +792,7 @@ AType computeSliceAssignableType(Statement current, AType receiverType, AType fi
            return receiverType;
         }  
     } else if(isStrType(receiverType)){ 
-        s.requireSubtype(rhs, astr(), error(current, "Expected `str` in slice assignment, found %t", rhs));
+        s.requireSubType(rhs, astr(), error(current, "Expected `str` in slice assignment, found %t", rhs));
         return receiverType;
     } else if(isNonTerminalIterType(receiverType)) {
         throw rascalCheckerInternalError(getLoc(current), "Not yet implemented"); // TODO
@@ -823,7 +823,7 @@ AType computeFieldAssignableType(Statement current, AType receiverType, Tree fie
     }
     fieldType = s.getTypeInType(receiverType, field, {fieldId()}, scope);
     updatedFieldType = computeAssignmentRhsType(current, fieldType, operator, rhs, s);
-    s.requireSubtype(updatedFieldType, fieldType, error(current, "Field %q requires %t, found %t", fieldName, fieldType, updatedFieldType));
+    s.requireSubType(updatedFieldType, fieldType, error(current, "Field %q requires %t, found %t", fieldName, fieldType, updatedFieldType));
     return updatedFieldType;
 }
 

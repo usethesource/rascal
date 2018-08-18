@@ -299,9 +299,9 @@ void collect(current: (Expression) `<Parameters parameters> { <Statement* statem
 void collect(current: (Expression) `[ <Expression first> , <Expression second> .. <Expression last> ]`, Collector c){
     c.calculate("step range", current, [first, second, last],
         AType(Solver s){ t1 = s.getType(first); t2 = s.getType(second); t3 = s.getType(last);
-                 s.requireSubtype(t1,anum(), error(first, "Invalid type: expected numeric type, found %t", t1));
-                 s.requireSubtype(t2,anum(), error(second, "Invalid type: expected numeric type, found %t", t2));
-                 s.requireSubtype(t3,anum(), error(last, "Invalid type: expected numeric type, found %t", t3));
+                 s.requireSubType(t1,anum(), error(first, "Invalid type: expected numeric type, found %t", t1));
+                 s.requireSubType(t2,anum(), error(second, "Invalid type: expected numeric type, found %t", t2));
+                 s.requireSubType(t3,anum(), error(last, "Invalid type: expected numeric type, found %t", t3));
                  return alist(s.lubList([t1, t2, t3]));
         
         });
@@ -313,8 +313,8 @@ void collect(current: (Expression) `[ <Expression first> , <Expression second> .
 void collect(current: (Expression) `[ <Expression first> .. <Expression last> ]`, Collector c){
     c.calculate("step range", current, [first, last],
         AType(Solver s){ t1 = s.getType(first); t2 = s.getType(last);
-                 s.requireSubtype(t1,anum(), error(first, "Invalid type: expected numeric type, found %t", t1));
-                 s.requireSubtype(t2,anum(), error(last, "Invalid type: expected numeric type, found %t", t2));
+                 s.requireSubType(t1,anum(), error(first, "Invalid type: expected numeric type, found %t", t1));
+                 s.requireSubType(t2,anum(), error(last, "Invalid type: expected numeric type, found %t", t2));
                  return alist(s.lub(t1, t2));
         });
     collect(first, last, c);    
@@ -348,8 +348,8 @@ void collect(current: (Expression) `type ( <Expression es> , <Expression ed> )`,
     c.fact(current, areified(avalue()));
     c.require("reified type", current, [es, ed],
         void (Solver s){ 
-            s.requireSubtype(es, aadt("Symbol",[], dataSyntax()), error(es, "Expected subtype of Symbol, instead found %t", es));
-            s.requireSubtype(ed, amap(aadt("Symbol",[],dataSyntax()),aadt("Production",[],dataSyntax())), 
+            s.requireSubType(es, aadt("Symbol",[], dataSyntax()), error(es, "Expected subtype of Symbol, instead found %t", es));
+            s.requireSubType(ed, amap(aadt("Symbol",[],dataSyntax()),aadt("Production",[],dataSyntax())), 
                 error(ed, "Expected subtype of map[Symbol,Production], instead found %t", ed));
           });
     collect(es, ed, c);
@@ -851,7 +851,7 @@ void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression
               continue next_arg;
            } 
         }
-        availableKws = intercalateOr(["`<prettyPrintAType(ft)> <ft.label>`" | < AType ft, Expression de> <- kwFormals]);
+        availableKws = intercalateOr(["`<prettyAType(ft)> <ft.label>`" | < AType ft, Expression de> <- kwFormals]);
         switch(size(kwFormals)){
         case 0: availableKws ="; no other keyword parameters available";
         case 1: availableKws = "; available keyword parameter: <availableKws>";
@@ -884,7 +884,7 @@ void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression
               continue next_arg;
            } 
         }
-        availableKws = intercalateOr(["`<prettyPrintAType(ft)> <ft.label>`" | </*str fn,*/ AType ft, Expression de> <- kwFormals]);
+        availableKws = intercalateOr(["`<prettyAType(ft)> <ft.label>`" | </*str fn,*/ AType ft, Expression de> <- kwFormals]);
         switch(size(kwFormals)){
         case 0: availableKws ="; no other keyword parameters available";
         case 1: availableKws = "; available keyword parameter: <availableKws>";
@@ -1430,7 +1430,7 @@ void collect(current:(Expression) `<Expression expression> [ <Name field> = <Exp
         AType(Solver s){ 
                  fieldType = computeFieldTypeWithADT(s.getType(expression), field, scope, s);
                  replType = s.getType(repl);
-                 s.requireSubtype(replType, fieldType, error(current, "Cannot assign type %t to field %q of type %t", replType, field, fieldType));
+                 s.requireSubType(replType, fieldType, error(current, "Cannot assign type %t to field %q of type %t", replType, field, fieldType));
                  return s.getType(expression);
         });
     collect(expression, repl, c);
@@ -1557,7 +1557,7 @@ AType computeSetAnnotationType(Tree current, AType t1, AType tn, AType t2, Solve
 private AType _computeSetAnnotationType(Tree current, AType t1, AType tn, AType t2, Solver s){
     if (isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) {
         if(aanno(_, onType, annoType) := tn){
-          s.requireSubtype(t2, annoType, error(current, "Cannot assign value of type %t to annotation of type %t", t2, annoType));
+          s.requireSubType(t2, annoType, error(current, "Cannot assign value of type %t to annotation of type %t", t2, annoType));
            return t1;
         } else
             s.report(error(current, "Invalid annotation type: %t", tn));

@@ -110,13 +110,13 @@ void collect(Toplevel toplevel, Collector c){
 // ---- import ----------------------------------------------------------------
 
 void collect(current: (Import) `import <ImportedModule m> ;`, Collector c){ // TODO: warn about direct self-import
-    c.useViaPath(m, {moduleId()}, importPath());
+    c.addPathToDef(m, {moduleId()}, importPath());
 }
  
 // ---- extend ----------------------------------------------------------------
 
 void collect(current: (Import) `extend <ImportedModule m> ;`, Collector c){    
-    c.useViaPath(m, {moduleId()}, extendPath());
+    c.addPathToDef(m, {moduleId()}, extendPath());
 }
 
 // ---- variable declaration --------------------------------------------------
@@ -132,9 +132,9 @@ void(Solver) makeVarInitRequirement(Variable var)
             
             initialType = xxInstantiateRascalTypeParameters(var, initialType, bindings, s);  
             if(s.isFullyInstantiated(initialType)){
-                s.requireSubtype(initialType, varType, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, initialType));
+                s.requireSubType(initialType, varType, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, initialType));
             } else if(!s.unify(initialType, varType)){
-                s.requireSubtype(initialType, varType, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, initialType));
+                s.requireSubType(initialType, varType, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, initialType));
             }
        };
 
@@ -191,7 +191,7 @@ void collect(current: (KeywordFormal) `<Type kwType> <Name name> = <Expression e
     c.define("<name>", variableId(), name, defType(kwType));
     c.calculate("keyword formal", current, [kwType, expression],
         AType(Solver s){
-            s.requireSubtype(expression, kwType, error(expression, "Initializing expression of type %t expected, found %t", kwType, expression));
+            s.requireSubType(expression, kwType, error(expression, "Initializing expression of type %t expected, found %t", kwType, expression));
             return s.getType(kwType);
         });
     c.enterScope(kwType);   // Wrap the type in a subscope to avoid name clashes caused by names introduced in function types
@@ -257,7 +257,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
                         s.requireUnify(condType, abool(), error(cond, "Cannot unify condition with `bool`, found %t", cond));
                         condType = s.instantiate(condType);
                     }           
-                    s.requireSubtype(cond, abool(), error(cond, "Condition should be `bool`, found %t", cond));
+                    s.requireSubType(cond, abool(), error(cond, "Condition should be `bool`, found %t", cond));
                 }
             });
             collect(decl.conditions, c);
@@ -402,10 +402,10 @@ void(Solver) makeReturnRequirement(Tree expr, Type returnType)
         iexprType = xxInstantiateRascalTypeParameters(expr, exprType, bindings, s);
 
         if(s.isFullyInstantiated(iexprType)){
-            s.requireSubtype(iexprType, actualRetType, error(expr, "Return type should be subtype of %t, found %t", actualRetType, iexprType));
+            s.requireSubType(iexprType, actualRetType, error(expr, "Return type should be subtype of %t, found %t", actualRetType, iexprType));
         } else
             if(!s.unify(iexprType, actualRetType)){
-                s.requireSubtype(iexprType, actualRetType, error(expr, "Return type should be subtype of %t, found %t", actualRetType, iexprType));
+                s.requireSubType(iexprType, actualRetType, error(expr, "Return type should be subtype of %t, found %t", actualRetType, iexprType));
         }   
      };
 
