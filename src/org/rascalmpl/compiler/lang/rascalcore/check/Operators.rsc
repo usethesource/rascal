@@ -347,7 +347,7 @@ private AType _computeCompositionType(Tree current, AType t1, AType t2, Solver s
         // and, that parameter must be of a type that a call with the return type of g would succeed
         linkingArg = linkingArgs[0];
         rightReturn = getFunctionReturnType(t2);
-        s.requireSubtype(rightReturn, linkingArg, error(current, "The return type of the right-hand function, %t, cannot be passed to the left-hand function, which expects type %t", rightReturn, linkingArg));          
+        s.requireSubType(rightReturn, linkingArg, error(current, "The return type of the right-hand function, %t, cannot be passed to the left-hand function, which expects type %t", rightReturn, linkingArg));          
         
         // If both of those pass, the result type is a function with the args of t2 and the return type of t1
         rt = afunc(compositeRet, compositeArgs,[]);

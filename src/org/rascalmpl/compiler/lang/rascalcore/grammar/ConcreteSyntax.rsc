@@ -49,7 +49,7 @@ public set[AProduction] holes(AGrammar object) {
                  [\char-class([ACharRange::range(0,0)]),
                   AType::lit(denormalize(nont)),AType::lit(":"),iter(\char-class([ACharRange::range(48,57)])),
                   \char-class([ACharRange::range(0,0)])
-                 ],attributes={\tag("holeType"(prettyPrintAType(nont)))})  
+                 ],attributes={\tag("holeType"(prettyAType(nont)))})  
           | AType nont <- object.rules, quotable(nont)
           };
 }
@@ -67,7 +67,7 @@ public str createHole(ConcreteHole hole, int idx) = "\u0000<denormalize(sym2ATyp
   The same goes for the introduction of layout non-terminals in lists. We do not know which non-terminal is introduced,
   so we remove this here to create a canonical 'source-level' type.
 }
-private str denormalize(AType s) = prettyPrintAType(visit (s) { 
+private str denormalize(AType s) = prettyAType(visit (s) { 
   case a: aadt(_, _, lexicalSyntax()) => a[syntaxRole=contextFreeSyntax()]
   case a: aadt(_, _, layoutSyntax()) => a[syntaxRole=contextFreeSyntax()]
   case AType::\iter-seps(u, [l1, t, l2]) => \iter-seps(u,[t]) when isLayoutSyntax(l1), isLayoutSyntax(l2)

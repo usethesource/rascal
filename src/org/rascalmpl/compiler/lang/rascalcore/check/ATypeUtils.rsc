@@ -37,78 +37,78 @@ AType removeLabels(AType t) = unsetRec(t, "label");
 // ---- print atypes ----------------------------------------------------------
 
 @doc{Pretty printer for Rascal abstract types.}
-str prettyPrintAType(aint()) = "int";
-str prettyPrintAType(abool()) = "bool";
-str prettyPrintAType(areal()) = "real";
-str prettyPrintAType(arat()) = "rat";
-str prettyPrintAType(astr()) = "str";
-str prettyPrintAType(anum()) = "num";
-str prettyPrintAType(anode(list[AType fieldType] fields)) = isEmpty(fields) ? "node" : "node(<intercalate(", ", ["<prettyPrintAType(ft)> <ft.label> = ..." | ft <- fields])>)";
-str prettyPrintAType(avoid()) = "void";
-str prettyPrintAType(avalue()) = "value";
-str prettyPrintAType(aloc()) = "loc";
-str prettyPrintAType(adatetime()) = "datetime";
-str prettyPrintAType(alist(AType t)) = "list[<prettyPrintAType(t)>]";
-str prettyPrintAType(aset(AType t)) = "set[<prettyPrintAType(t)>]";
-str prettyPrintAType(atuple(AType ts)) = "tuple[<prettyPrintAType(ts)>]";
-str prettyPrintAType(amap(AType d, AType r)) = "map[<prettyPrintAType(d)>, <prettyPrintAType(r)>]";
-str prettyPrintAType(arel(AType ts)) = "rel[<prettyPrintAType(ts)>]";
-str prettyPrintAType(alrel(AType ts)) = "lrel[<prettyPrintAType(ts)>]";
+str prettyAType(aint()) = "int";
+str prettyAType(abool()) = "bool";
+str prettyAType(areal()) = "real";
+str prettyAType(arat()) = "rat";
+str prettyAType(astr()) = "str";
+str prettyAType(anum()) = "num";
+str prettyAType(anode(list[AType fieldType] fields)) = isEmpty(fields) ? "node" : "node(<intercalate(", ", ["<prettyAType(ft)> <ft.label> = ..." | ft <- fields])>)";
+str prettyAType(avoid()) = "void";
+str prettyAType(avalue()) = "value";
+str prettyAType(aloc()) = "loc";
+str prettyAType(adatetime()) = "datetime";
+str prettyAType(alist(AType t)) = "list[<prettyAType(t)>]";
+str prettyAType(aset(AType t)) = "set[<prettyAType(t)>]";
+str prettyAType(atuple(AType ts)) = "tuple[<prettyAType(ts)>]";
+str prettyAType(amap(AType d, AType r)) = "map[<prettyAType(d)>, <prettyAType(r)>]";
+str prettyAType(arel(AType ts)) = "rel[<prettyAType(ts)>]";
+str prettyAType(alrel(AType ts)) = "lrel[<prettyAType(ts)>]";
 
-str prettyPrintAType(afunc(AType ret, atypeList(list[AType] formals), lrel[/*str fieldName,*/ AType fieldType, Expression defaultExp] kwFormals))
-                = "<prettyPrintAType(ret)>(<intercalate(",", [prettyPrintAType(f) | f <- formals])><isEmpty(kwFormals) ? "" : ", "><intercalate(",", ["<prettyPrintAType(ft)> <ft.label>=..." | <ft, de> <- kwFormals])>)";
+str prettyAType(afunc(AType ret, atypeList(list[AType] formals), lrel[/*str fieldName,*/ AType fieldType, Expression defaultExp] kwFormals))
+                = "<prettyAType(ret)>(<intercalate(",", [prettyAType(f) | f <- formals])><isEmpty(kwFormals) ? "" : ", "><intercalate(",", ["<prettyAType(ft)> <ft.label>=..." | <ft, de> <- kwFormals])>)";
 
-str prettyPrintAType(aalias(str aname, [], AType aliased)) = "alias <aname> = <prettyPrintAType(aliased)>";
-str prettyPrintAType(aalias(str aname, ps, AType aliased)) = "alias <aname>[<prettyPrintAType(ps)>] = <prettyPrintAType(aliased)>" when size(ps) > 0;
+str prettyAType(aalias(str aname, [], AType aliased)) = "alias <aname> = <prettyAType(aliased)>";
+str prettyAType(aalias(str aname, ps, AType aliased)) = "alias <aname>[<prettyAType(ps)>] = <prettyAType(aliased)>" when size(ps) > 0;
 
-str prettyPrintAType(aanno(str aname, AType onType, AType annoType)) = "anno <prettyPrintAType(annoType)> <prettyPrintAType(onType)>@<aname>";
+str prettyAType(aanno(str aname, AType onType, AType annoType)) = "anno <prettyAType(annoType)> <prettyAType(onType)>@<aname>";
 
-str prettyPrintAType(aadt(str s, [], SyntaxRole _)) = s;
-str prettyPrintAType(aadt(str s, ps, SyntaxRole _)) = "<s>[<prettyPrintAType(ps)>]" when size(ps) > 0;
+str prettyAType(aadt(str s, [], SyntaxRole _)) = s;
+str prettyAType(aadt(str s, ps, SyntaxRole _)) = "<s>[<prettyAType(ps)>]" when size(ps) > 0;
 
-str prettyPrintAType(t: acons(AType adt, /*str consName,*/ 
+str prettyAType(t: acons(AType adt, /*str consName,*/ 
                 list[AType fieldType] fields,
                 lrel[AType fieldType, Expression defaultExp] kwFields))
-                 = "<prettyPrintAType(adt)>::<t.label>(<intercalate(", ", ["<prettyPrintAType(ft)><ft.label? ? " <ft.label>" : "">" | ft <- fields])><isEmpty(kwFields) ? "" : ", "><intercalate(",", ["<prettyPrintAType(ft)> <ft.label>=..." | <ft, de> <- kwFields])>)";
+                 = "<prettyAType(adt)>::<t.label>(<intercalate(", ", ["<prettyAType(ft)><ft.label? ? " <ft.label>" : "">" | ft <- fields])><isEmpty(kwFields) ? "" : ", "><intercalate(",", ["<prettyAType(ft)> <ft.label>=..." | <ft, de> <- kwFields])>)";
 
-str prettyPrintAType(amodule(str mname)) = "module <mname>";         
-str prettyPrintAType(aparameter(str pn, AType t)) = t == avalue() ? "&<pn>" : "&<pn> \<: <prettyPrintAType(t)>";
-str prettyPrintAType(areified(AType t)) = "type[<prettyPrintAType(t)>]";
+str prettyAType(amodule(str mname)) = "module <mname>";         
+str prettyAType(aparameter(str pn, AType t)) = t == avalue() ? "&<pn>" : "&<pn> \<: <prettyAType(t)>";
+str prettyAType(areified(AType t)) = "type[<prettyAType(t)>]";
 
 // utilities
-str prettyPrintAType(overloadedAType(rel[loc, IdRole, AType] overloads))
-                = intercalateOr([prettyPrintAType(t1) | t1 <- {t | <k, idr, t> <- overloads} ]);
+str prettyAType(overloadedAType(rel[loc, IdRole, AType] overloads))
+                = intercalateOr([prettyAType(t1) | t1 <- {t | <k, idr, t> <- overloads} ]);
 
-str prettyPrintAType(list[AType] atypes) = intercalate(", ", [prettyPrintAType(t) | t <- atypes]);
+str prettyAType(list[AType] atypes) = intercalate(", ", [prettyAType(t) | t <- atypes]);
 
-str prettyPrintAType(Keyword kw) = "<prettyPrintAType(kw.fieldType) <kw.fieldType.label/*fieldName*/> = <kw.defaultExp>";
+str prettyAType(Keyword kw) = "<prettyAType(kw.fieldType) <kw.fieldType.label/*fieldName*/> = <kw.defaultExp>";
 
 // non-terminal symbols
-str prettyPrintAType(\prod(AType s, list[AType] fs/*, SyntaxRole _*/)) = "<prettyPrintAType(s)> : (<intercalate(", ", [ prettyPrintAType(f) | f <- fs ])>)"; //TODO others
+str prettyAType(\prod(AType s, list[AType] fs/*, SyntaxRole _*/)) = "<prettyAType(s)> : (<intercalate(", ", [ prettyAType(f) | f <- fs ])>)"; //TODO others
 
 // terminal symbols
-str prettyPrintAType(AType::\lit(str string)) = string;
-str prettyPrintAType(AType::\cilit(str string)) = string;
-str prettyPrintAType(\char-class(list[ACharRange] ranges)) = "[<intercalate(" ", [ "<r.begin>-<r.end>" | r <- ranges ])>]";
+str prettyAType(AType::\lit(str string)) = string;
+str prettyAType(AType::\cilit(str string)) = string;
+str prettyAType(\char-class(list[ACharRange] ranges)) = "[<intercalate(" ", [ "<r.begin>-<r.end>" | r <- ranges ])>]";
 
-str prettyPrintAType(\start(AType symbol)) = "start[<prettyPrintAType(symbol)>]";
+str prettyAType(\start(AType symbol)) = "start[<prettyAType(symbol)>]";
 
 // regular symbols
-str prettyPrintAType(AType::\empty()) = "()";
-str prettyPrintAType(\opt(AType symbol)) = "<prettyPrintAType(symbol)>?";
-str prettyPrintAType(\iter(AType symbol)) = "<prettyPrintAType(symbol)>+";
-str prettyPrintAType(\iter-star(AType symbol)) = "<prettyPrintAType(symbol)>*";
-str prettyPrintAType(\iter-seps(AType symbol, list[AType] separators)) = "{<prettyPrintAType(symbol)> <intercalate(" ", [ prettyPrintAType(sep) | sep <- separators ])>}+";
-str prettyPrintAType(\iter-star-seps(AType symbol, list[AType] separators)) = "{<prettyPrintAType(symbol)> <intercalate(" ", [ prettyPrintAType(sep) | sep <- separators ])>}*";
-str prettyPrintAType(\alt(set[AType] alternatives)) = "( <intercalate(" | ", [ prettyPrintAType(a) | a <- alternatives ])> )" when size(alternatives) > 1;
-str prettyPrintAType(\seq(list[AType] sequence)) = "( <intercalate(" ", [ prettyPrintAType(a) | a <- sequence ])> )" when size(sequence) > 1;
-str prettyPrintAType(\conditional(AType symbol, set[ACondition] conditions)) = "<prettyPrintAType(symbol)> { <intercalate(" ", [ prettyPrintCond(cond) | cond <- conditions ])> }";
-default str prettyPrintAType(AType s) = "<s>"; //"<type(s,())>";
+str prettyAType(AType::\empty()) = "()";
+str prettyAType(\opt(AType symbol)) = "<prettyAType(symbol)>?";
+str prettyAType(\iter(AType symbol)) = "<prettyAType(symbol)>+";
+str prettyAType(\iter-star(AType symbol)) = "<prettyAType(symbol)>*";
+str prettyAType(\iter-seps(AType symbol, list[AType] separators)) = "{<prettyAType(symbol)> <intercalate(" ", [ prettyAType(sep) | sep <- separators ])>}+";
+str prettyAType(\iter-star-seps(AType symbol, list[AType] separators)) = "{<prettyAType(symbol)> <intercalate(" ", [ prettyAType(sep) | sep <- separators ])>}*";
+str prettyAType(\alt(set[AType] alternatives)) = "( <intercalate(" | ", [ prettyAType(a) | a <- alternatives ])> )" when size(alternatives) > 1;
+str prettyAType(\seq(list[AType] sequence)) = "( <intercalate(" ", [ prettyAType(a) | a <- sequence ])> )" when size(sequence) > 1;
+str prettyAType(\conditional(AType symbol, set[ACondition] conditions)) = "<prettyAType(symbol)> { <intercalate(" ", [ prettyPrintCond(cond) | cond <- conditions ])> }";
+default str prettyAType(AType s) = "<s>"; //"<type(s,())>";
 
-private str prettyPrintCond(ACondition::\follow(AType symbol)) = "\>\> <prettyPrintAType(symbol)>";
-private str prettyPrintCond(ACondition::\not-follow(AType symbol)) = "!\>\> <prettyPrintAType(symbol)>";
-private str prettyPrintCond(ACondition::\precede(AType symbol)) = "<prettyPrintAType(symbol)> \<\<";
-private str prettyPrintCond(ACondition::\not-precede(AType symbol)) = "<prettyPrintAType(symbol)> !\<\<";
+private str prettyPrintCond(ACondition::\follow(AType symbol)) = "\>\> <prettyAType(symbol)>";
+private str prettyPrintCond(ACondition::\not-follow(AType symbol)) = "!\>\> <prettyAType(symbol)>";
+private str prettyPrintCond(ACondition::\precede(AType symbol)) = "<prettyAType(symbol)> \<\<";
+private str prettyPrintCond(ACondition::\not-precede(AType symbol)) = "<prettyAType(symbol)> !\<\<";
 private str prettyPrintCond(ACondition::\delete(AType symbol)) = "???";
 private str prettyPrintCond(ACondition::\at-column(int column)) = "@<column>";
 private str prettyPrintCond(ACondition::\begin-of-line()) = "^";
@@ -377,7 +377,7 @@ AType makeSetType(AType elementType) {
 AType getSetElementType(AType t) {
     if (aset(et) := unwrapType(t)) return et;
     if (arel(ets) := unwrapType(t)) return atuple(ets);
-    throw rascalCheckerInternalError("Error: Cannot get set element type from type <prettyPrintAType(t)>");
+    throw rascalCheckerInternalError("Error: Cannot get set element type from type <prettyAType(t)>");
 }
 
 // ---- rel
@@ -410,13 +410,13 @@ AType makeRelTypeFromTuple(AType t) = arel(atypeList(getTupleFields(t)));
 AType getRelElementType(AType t) {
     if (arel(ets) := unwrapType(t)) return atuple(ets);
     if (aset(tup) := unwrapType(t)) return tup;
-    throw rascalCheckerInternalError("Cannot get relation element type from type <prettyPrintAType(t)>");
+    throw rascalCheckerInternalError("Cannot get relation element type from type <prettyAType(t)>");
 }
 
 @doc{Get whether the rel has field names or not.}
 bool relHasFieldNames(AType t) {
     if (arel(atypeList(tls)) := unwrapType(t)) return size(tls) == size([tp | tp <- tls, !isEmpty(tp.label)]);
-    throw rascalCheckerInternalError("relHasFieldNames given non-Relation type <prettyPrintAType(t)>");
+    throw rascalCheckerInternalError("relHasFieldNames given non-Relation type <prettyAType(t)>");
 }
 
 @doc{Get the field names of the rel fields.}
@@ -424,14 +424,14 @@ list[str] getRelFieldNames(AType t) {
     if (arel(atypeList(tls)) := unwrapType(t)){
         return [tp.label | tp <- tls];
     }
-    throw rascalCheckerInternalError("getRelFieldNames given non-Relation type <prettyPrintAType(t)>");
+    throw rascalCheckerInternalError("getRelFieldNames given non-Relation type <prettyAType(t)>");
 }
 
 @doc{Get the fields of a relation.}
 list[AType] getRelFields(AType t) {
     if (arel(atypeList(tls)) := unwrapType(t)) return tls;
     if (aset(atuple(atypeList(tls))) := unwrapType(t)) return tls;
-    throw rascalCheckerInternalError("getRelFields given non-Relation type <prettyPrintAType(t)>");
+    throw rascalCheckerInternalError("getRelFields given non-Relation type <prettyAType(t)>");
 }
 
 // ---- lrel
@@ -464,7 +464,7 @@ AType makeListRelTypeFromTuple(AType t) = alrel(atypeList(getTupleFields(t)));
 AType getListRelElementType(AType t) {
     if (alrel(ets) := unwrapType(t)) return atuple(ets);
     if (alist(tup) := unwrapType(t)) return tup;
-    throw rascalCheckerInternalError("Cannot get list relation element type from type <prettyPrintAType(t)>");
+    throw rascalCheckerInternalError("Cannot get list relation element type from type <prettyAType(t)>");
 }
 
 @doc{Get the field names of the list rel fields.}
@@ -472,14 +472,14 @@ list[str] getListRelFieldNames(AType t) {
     if (alrel(atypeList(tls)) := unwrapType(t)){
         return [tp.label | tp <- tls];
     }
-    throw rascalCheckerInternalError("getListRelFieldNames given non-List-Relation type <prettyPrintAType(t)>");
+    throw rascalCheckerInternalError("getListRelFieldNames given non-List-Relation type <prettyAType(t)>");
 }
 
 @doc{Get the fields of a list relation.}
 list[AType] getListRelFields(AType t) {
     if (alrel(atypeList(tls)) := unwrapType(t)) return tls;
     if (alist(atuple(atypeList(tls))) := unwrapType(t)) return tls;
-    throw rascalCheckerInternalError("getListRelFields given non-List-Relation type <prettyPrintAType(t)>");
+    throw rascalCheckerInternalError("getListRelFields given non-List-Relation type <prettyAType(t)>");
 }
 
 // ---- tuple
@@ -518,31 +518,31 @@ AType getTupleFieldType(AType t, str fn) {
         for(tp <- tas){
             if(tp.label == fn) return tp;
         }
-        throw rascalCheckerInternalError("Tuple <prettyPrintAType(t)> does not have field <fn>");
+        throw rascalCheckerInternalError("Tuple <prettyAType(t)> does not have field <fn>");
     }
-    throw rascalCheckerInternalError("getTupleFieldType given unexpected type <prettyPrintAType(t)>");
+    throw rascalCheckerInternalError("getTupleFieldType given unexpected type <prettyAType(t)>");
 }
 
 @doc{Get the type of the tuple field at the given offset.}
 AType getTupleFieldType(AType t, int fn) {
     if (atuple(atypeList(tas)) := t) {
         if (0 <= fn && fn < size(tas)) return unwrapType(tas[fn]);
-        throw rascalCheckerInternalError("Tuple <prettyPrintAType(t)> does not have field <fn>");
+        throw rascalCheckerInternalError("Tuple <prettyAType(t)> does not have field <fn>");
     }
-    throw rascalCheckerInternalError("getTupleFieldType given unexpected type <prettyPrintAType(t)>");
+    throw rascalCheckerInternalError("getTupleFieldType given unexpected type <prettyAType(t)>");
 }
 
 @doc{Get the types of the tuple fields, with labels removed}
 list[AType] getTupleFieldTypes(AType t) {
     if (atuple(atypeList(tas)) := t)
         return tas;
-    throw rascalCheckerInternalError("Cannot get tuple field types from type <prettyPrintAType(t)>"); 
+    throw rascalCheckerInternalError("Cannot get tuple field types from type <prettyAType(t)>"); 
 }
 
 @doc{Get the fields of a tuple as a list.}
 list[AType] getTupleFields(AType t) {
     if (atuple(atypeList(tas)) := unwrapType(t)) return tas;
-    throw rascalCheckerInternalError("Cannot get tuple fields from type <prettyPrintAType(t)>"); 
+    throw rascalCheckerInternalError("Cannot get tuple fields from type <prettyAType(t)>"); 
 }
 
 @doc{Get the number of fields in a tuple.}
@@ -551,7 +551,7 @@ int getTupleFieldCount(AType t) = size(getTupleFields(t));
 @doc{Does this tuple have field names?}
 bool tupleHasFieldNames(AType t) {
     if (tup: atuple(atypeList(tas)) := unwrapType(t)) return size(tas) == size([tp | tp <- tas, !isEmpty(tp.label)]);
-    throw rascalCheckerInternalError("tupleHasFieldNames given non-Tuple type <prettyPrintAType(t)>");
+    throw rascalCheckerInternalError("tupleHasFieldNames given non-Tuple type <prettyAType(t)>");
 }
 
 @doc{Get the names of the tuple fields.}
@@ -560,9 +560,9 @@ list[str] getTupleFieldNames(AType t) {
         if (allLabelled(tls)) {
             return [tp.label | tp <- tls];
         }
-        throw rascalCheckerInternalError("getTupleFieldNames given tuple type without field names: <prettyPrintAType(t)>");        
+        throw rascalCheckerInternalError("getTupleFieldNames given tuple type without field names: <prettyAType(t)>");        
     }
-    throw rascalCheckerInternalError("getTupleFieldNames given non-Tuple type <prettyPrintAType(t)>");
+    throw rascalCheckerInternalError("getTupleFieldNames given non-Tuple type <prettyAType(t)>");
 }
 
 @doc{Get the name of the tuple field at the given offset.}
@@ -592,7 +592,7 @@ AType makeListType(AType elementType) {
 AType getListElementType(AType t) {
     if (alist(et) := unwrapType(t)) return et;
     if (alrel(ets) := unwrapType(t)) return atuple(ets);    
-    throw rascalCheckerInternalError("Cannot get list element type from type <prettyPrintAType(t)>");
+    throw rascalCheckerInternalError("Cannot get list element type from type <prettyAType(t)>");
 }  
 
 // ---- map
@@ -619,7 +619,7 @@ AType makeMapType(AType domain, AType range) {
 @doc{Get the domain and range of the map as a tuple.}
 AType getMapFieldsAsTuple(AType t) {
     if (amap(dt,rt) := unwrapType(t)) return atuple(atypeList([dt,rt]));
-    throw rascalCheckerInternalError("getMapFieldsAsTuple called with unexpected type <prettyPrintAType(t)>");
+    throw rascalCheckerInternalError("getMapFieldsAsTuple called with unexpected type <prettyAType(t)>");
 }       
 
 @doc{Check to see if a map defines a field (by name).}
@@ -645,7 +645,7 @@ list[str] getMapFieldNames(AType t) {
     if ([dm, rng] := getMapFields(t)) {
         return [ dm.label, rng.label ];
     }
-    throw rascalCheckerInternalError("getMapFieldNames given map type without field names: <prettyPrintAType(t)>");        
+    throw rascalCheckerInternalError("getMapFieldNames given map type without field names: <prettyAType(t)>");        
 }
 
 @doc{Get the field name for the field at a specific index.}
@@ -674,7 +674,7 @@ AType makeBagType(AType elementType) = abag(elementType);
 @doc{Get the element type of a bag.}
 AType getBagElementType(AType t) {
     if (abag(et) := unwrapType(t)) return et;
-    throw rascalCheckerInternalError("Cannot get set element type from type <prettyPrintAType(t)>");
+    throw rascalCheckerInternalError("Cannot get set element type from type <prettyAType(t)>");
 }
 
 @doc{
@@ -699,7 +699,7 @@ str getADTName(AType t) {
     if (acons(a,_,_) := unwrapType(t)) return getADTName(a);
     if (\start(ss) := unwrapType(t)) return getADTName(ss);
     if (areified(_) := unwrapType(t)) return "type";
-    throw rascalCheckerInternalError("getADTName, invalid type given: <prettyPrintAType(t)>");
+    throw rascalCheckerInternalError("getADTName, invalid type given: <prettyAType(t)>");
 }
 
 @doc{Get the type parameters of an ADT.}
@@ -708,7 +708,7 @@ list[AType] getADTTypeParameters(AType t) {
     if (acons(a,_,_) := unwrapType(t)) return getADTTypeParameters(a);
     if (\start(ss) := unwrapType(t)) return getADTTypeParameters(ss);
     if (areified(_) := unwrapType(t)) return [];
-    throw rascalCheckerInternalError("getADTTypeParameters given non-ADT type <prettyPrintAType(t)>");
+    throw rascalCheckerInternalError("getADTTypeParameters given non-ADT type <prettyAType(t)>");
 }
 
 @doc{Return whether the ADT has type parameters.}
@@ -726,13 +726,13 @@ default bool isConstructorType(AType _) = false;
 @doc{Get the ADT type of the constructor.}
 AType getConstructorResultType(AType ct) {
     if (acons(a,/*_,*/_,_) := unwrapType(ct)) return a;
-    throw rascalCheckerInternalError("Cannot get constructor ADT type from non-constructor type <prettyPrintAType(ct)>");
+    throw rascalCheckerInternalError("Cannot get constructor ADT type from non-constructor type <prettyAType(ct)>");
 }
 
 @doc{Get a list of the argument types in a constructor.}
 list[AType] getConstructorArgumentTypes(AType ct) {
     if (acons(_,/*_,*/list[AType/*NamedField*/] cts,_) := unwrapType(ct)) return cts/*<1>*/;
-    throw rascalCheckerInternalError("Cannot get constructor arguments from non-constructor type <prettyPrintAType(ct)>");
+    throw rascalCheckerInternalError("Cannot get constructor arguments from non-constructor type <prettyAType(ct)>");
 }
 
 @doc{Get a tuple with the argument types as the fields.}
@@ -751,19 +751,19 @@ default bool isFunctionType(AType _) = false;
 @doc{Get a list of arguments for the function.}
 list[AType] getFunctionArgumentTypes(AType ft) {
     if (afunc(_, atypeList(ats), _) := unwrapType(ft)) return ats;
-    throw rascalCheckerInternalError("Cannot get function arguments from non-function type <prettyPrintAType(ft)>");
+    throw rascalCheckerInternalError("Cannot get function arguments from non-function type <prettyAType(ft)>");
 }
 
 @doc{Get the arguments for a function in the form of a tuple.}
 AType getFunctionArgumentTypesAsTuple(AType ft) {
     if (afunc(_, ats, _) := unwrapType(ft)) return atuple(ats);
-    throw rascalCheckerInternalError("Cannot get function arguments from non-function type <prettyPrintAType(ft)>");
+    throw rascalCheckerInternalError("Cannot get function arguments from non-function type <prettyAType(ft)>");
 }
 
 @doc{Get the return type for a function.}
 AType getFunctionReturnType(AType ft) {
     if (afunc(rt, _, _) := unwrapType(ft)) return rt;
-    throw rascalCheckerInternalError("Cannot get function return type from non-function type <prettyPrintAType(ft)>");
+    throw rascalCheckerInternalError("Cannot get function return type from non-function type <prettyAType(ft)>");
 }
 
 @doc{
@@ -780,7 +780,7 @@ AType makeReifiedType(AType mainType) = areified(mainType);
 @doc{Get the type that has been reified and stored in the reified type.}
 AType getReifiedType(AType t) {
     if (areified(rt) := unwrapType(t)) return rt;
-    throw rascalCheckerInternalError("getReifiedType given unexpected type: <prettyPrintAType(t)>");
+    throw rascalCheckerInternalError("getReifiedType given unexpected type: <prettyAType(t)>");
 }
 
 @doc{
@@ -799,13 +799,13 @@ AType makeTypeVarWithBound(str varName, AType varBound) = aparameter(varName, va
 @doc{Get the name of a Rascal type parameter.}
 str getRascalTypeParamName(AType t) {
     if (aparameter(tvn,_) := t) return tvn;
-    throw rascalCheckerInternalError("getRascalTypeParamName given unexpected type: <prettyPrintAType(t)>");
+    throw rascalCheckerInternalError("getRascalTypeParamName given unexpected type: <prettyAType(t)>");
 }
 
 @doc{Get the bound of a type parameter.}
 AType getRascalTypeParamBound(AType t) {
     if (aparameter(_,tvb) := t) return tvb;
-    throw rascalCheckerInternalError("getRascalTypeParamBound given unexpected type: <prettyPrintAType(t)>");
+    throw rascalCheckerInternalError("getRascalTypeParamBound given unexpected type: <prettyAType(t)>");
 }
 
 @doc{Get all the type parameters inside a given type.}
@@ -914,7 +914,7 @@ AType getNonTerminalIterElement(AType::\iter-star(AType i)) = i;
 AType getNonTerminalIterElement(AType::\iter-seps(AType i,_)) = i;
 AType getNonTerminalIterElement(AType::\iter-star-seps(AType i,_)) = i;
 default AType getNonTerminalIterElement(AType i) {
-    throw rascalCheckerInternalError("<prettyPrintAType(i)> is not an iterable non-terminal type");
+    throw rascalCheckerInternalError("<prettyAType(i)> is not an iterable non-terminal type");
 }   
 
 bool isNonTerminalOptType(aparameter(_,AType tvb)) = isNonTerminalOptType(tvb);
@@ -924,7 +924,7 @@ default bool isNonTerminalOptType(AType _) = false;
 AType getNonTerminalOptType(aparameter(_,AType tvb)) = getNonTerminalOptType(tvb);
 AType getNonTerminalOptType(AType::\opt(AType ot)) = ot;
 default AType getNonTerminalOptType(AType ot) {
-    throw rascalCheckerInternalError("<prettyPrintAType(ot)> is not an optional non-terminal type");
+    throw rascalCheckerInternalError("<prettyAType(ot)> is not an optional non-terminal type");
 }
 
 bool isStartNonTerminalType(aparameter(_,AType tvb)) = isStartNonTerminalType(tvb);
@@ -934,7 +934,7 @@ default bool isStartNonTerminalType(AType s) = false;
 AType getStartNonTerminalType(aparameter(_,AType tvb)) = getStartNonTerminalType(tvb);
 AType getStartNonTerminalType(AType::\start(AType s)) = s;
 default AType getStartNonTerminalType(AType s) {
-    throw rascalCheckerInternalError("<prettyPrintAType(s)> is not a start non-terminal type");
+    throw rascalCheckerInternalError("<prettyAType(s)> is not a start non-terminal type");
 }
 
 AType removeConditional(cnd:conditional(AType s, set[ACondition] _)) = cnd.label? ? s[label=cnd.label] : s;
