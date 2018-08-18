@@ -19,7 +19,7 @@ Here,
 
 * `src` is a `Tree` or `loc` that is the subject of the report.
 * `msg` is an informative string to be printed. It may contain _insertion directives_.
-* `args` are zero more values to be inserted in the insertion directives in `msg`.
+* `args` are zero or more values to be inserted in the insertion directives in `msg`.
 
 The following insertion directives are supported:
 
