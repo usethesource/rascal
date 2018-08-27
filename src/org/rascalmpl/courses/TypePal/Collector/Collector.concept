@@ -377,11 +377,16 @@ void collect(current:(Expression)`<Expression lhs> . <Id fieldName>`, Collector 
 `useViaType` can be configured with <<getTypeNamesAndRole>> and <<getTypeInNamelessType>> that
 determine the precise mapping between a named or unnamed type and its fields.
 
-
 === UseLub
-
-NOTE: TODO
-
+In some languages (think Rascal) local type inference and subtyping are needed to determine the type
+of variables: when no explicit definition is present, the type of these variables is inferred from their use and
+the least-upper-bound (LUB) of all the uses of a variable is taken as its type. 
+`useLub` marks variable uses for which this regime has to be applied:
+[source,rascal]
+----   
+/* Collector field */ void (Tree occ, set[IdRole] idRoles) useLub
+----
+See the Rascal type checker for examples.
 
 == Inference
 ATypes may contain type variables and new type variables can be created using `newTypeVar`:
@@ -393,7 +398,31 @@ ATypes may contain type variables and new type variables can be created using `n
 
 Type variables can be bound via unification.
 
-NOTE: TODO
+Here is an example of a call expression taken from <<UntypedFun>>:
+
+[source,rascal]
+----
+void collect(current: (Expression) `<Expression exp1>(<Expression exp2>)`, Collector c) { 
+     tau1 = c.newTypeVar(exp1); 
+     tau2 = c.newTypeVar(exp2); 
+  
+     c.calculateEager("application", current, [exp1, exp2],
+        AType (Solver s) { 
+              s.requireUnify(functionType(tau1, tau2), exp1, error(exp1, "Function type expected, found %t", exp1));
+              s.requireUnify(tau1, exp2, error(exp2, "Incorrect type of actual parameter"));             
+              return tau2;
+            });
+      collect(exp1, exp2, c);
+}
+----
+`calculate` and `require` are only evaluated when all their dependencies are
+available and they are fully instantiated, i.e., *do not contain type variables*.
+
+`calculateEager` and `requireEager` are also only evaluated when all their dependencies
+are available *but those may contain type variables*.
+
+The bindings that are accumulated during `calculateEager` or `requireEager` 
+are effectuated upon successfull completion of that `calculateEager` or `requireEager`. 
 
 == Fact
 
@@ -432,6 +461,8 @@ while `calculateEager` can also handle dependencies that still contain type vari
 ----
 See <<A Calculator Language>> and <<Examples of Typecheckers>> for examples of calculator definitions.
 
+See <<Inference>> for details about type variables.
+
 == Require
 
 A requirement is a predicate regarding the type or properties of a source tree fragment `src`.
@@ -461,3 +492,4 @@ that the one is a subtype of the other, or that they can be unified:
 The arguments `l` and `r` should either be an AType or a subtree whose type is known.
 
 See <<A Calculator Language>> and <<Examples of Typecheckers>> for examples of requirement definitions.
+See <<Inference>> for details about type variables.
