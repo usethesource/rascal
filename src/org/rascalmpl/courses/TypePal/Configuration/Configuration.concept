@@ -155,11 +155,39 @@ Function that returns the _largest_ type of the type lattice.
 === instantiateTypeParameters
 [source,rascal]
 ----
-/* Configuration field */ AType (Tree selector, AType def, AType ins, AType act, Solver s) instantiateTypeParameters
+/* Configuration field */ AType (Tree current, AType def, AType ins, AType act, Solver s) instantiateTypeParameters
 ----
-  ** The function `instantiateTypeParameters` defines language-specific instantiation of type parameters.
-  
-NOTE: TODO
+
+The function `instantiateTypeParameters` defines instantiation of *language-specific* type parameters, where:
+
+* `current` is a source code fragment for which type `act` has already been determined, but any *language-specific* type parameters
+  in `act` may still need to be instantiated.
+* `def` is the parameterized type of `act`.
+* `ins` is an instantiated version of the type of `act` (i.e., with bound type parameters).
+* `act` is the actual type found for `current` that needs to be instantiated.
+
+`instantiateTypeParameters` will match `def` with `ins` and the resulting bindings will be used to instantiate `act`.
+The instantiated version of `act` is returned.
+
+In <<StructParameters>> parameterized structs (records) are defined. 
+The formal type of such a struct is ``structDef(str name, list[str] formals)``, 
+i.e., a struct has a name and a list of named formal type parameters.
+The actual type of a struct is ``structType(str name, list[AType] actuals)``, 
+i.e., a struct name followed by actual types for the parameters.
+
+The definition of `instantiateTypeParameters` for this example is as follows:
+
+[source,rascal]
+----
+AType structParametersInstantiateTypeParameters(Tree current, structDef(str name1, list[str] formals), structType(str name2, list[AType] actuals), AType t, Solver s){
+    if(size(formals) != size(actuals)) throw checkFailed([]);
+    bindings = (formals[i] : actuals [i] | int i <- index(formals));
+    
+    return visit(t) { case typeFormal(str x) => bindings[x] };
+}
+
+default AType structParametersInstantiateTypeParameters(Tree current, AType def, AType ins, AType act, Solver s) = act;
+----
 
 == Retrieval of Types
 
@@ -199,8 +227,12 @@ is that when the search for a name in `A` fails, the search is continued in `Tre
 ----
 /* Configuration field */  AType (Define containerDef, str selectorName, set[IdRole] idRolesSel, Solver s) getTypeInTypeFromDefine
 ----
+In some extreme cases (think Rascal) the type of a field selection cannot be determined by considering all the fields
+defined in a container type and as a last resort one needs to fall back to information that has been associated with the original definition
+of the container type. `getTypeInTypeFromDefine` is called as a last resort from `getTypeInType`.
 
-NOTE: TODO
+In the Rascal type checker common keyword parameters of data declarations are handled using `getTypeInTypeFromDefine`.
+
 
 === getTypeInNamelessType
 [source,rascal]

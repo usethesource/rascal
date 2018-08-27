@@ -9,15 +9,15 @@ The purpose of a Solver is to solve the constraints that have been gathered by t
 and to produce a TModel.
 The functions provided by a Solver are summarized below:
 
-image::Solver.png[800,600,align="center"]
+image::Solver.png[800,650,align="center"]
 
 Two dozen functions (some very similar to the ones provided for <<Collector>>) are available 
 that fall into the following categories:
 
 * _Lifecycle of Solver_: create a new Solver and use it to solve the constraints in a given TModel.
 * _Fact_: establish facts.
-* _Calculate_: define calculators.
-* _Require_: define requirements.
+* _Calculate_: calculate types.
+* _Require_: check requirements.
 * _Types_: retrieve the type of a program fragment in various ways, if that type is available.
 * _Inference_: create new type variables for type inference.
 * _Reporting_: report errors, warnings and info messages.
@@ -127,7 +127,7 @@ it calls the user-provided function `getSubType` twice, see <<TypePal Configurat
 ----
 The function `unify` determines whether the type of `l` can be unified with the type of `r`
 it calls the user-provided functions `getSubType` and `getLub`, see <<TypePal Configuration>>.
-The bindings that may result from unification are effectutated when the enclosing calculate succeeds.
+The bindings that may result from unification are effectuated when the enclosing calculate succeeds.
 
 === lub
 [source,rascal]
@@ -169,7 +169,7 @@ it calls the user-provided function `getSubType`twice, see <<TypePal Configurati
 ----
 The function `requireUnify just returns when the type of `l` can be unified with the type of `r`, otherwise the FailMessage is reported;
 it calls the user-provided functions `getSubType` and `getLub`, see <<TypePal Configuration>>.
-The bindings that may result from unification are effectutated when the enclosing require succeeds.
+The bindings that may result from unification are effectuated when the enclosing require succeeds.
 
 === requireTrue and requireFalse
 
@@ -282,13 +282,25 @@ Here:
 
 
 == Inference
-NOTE: TODO
+Type inference is supported by the introduction of type variables
+using `newTypeVar` in combination with unification primitives
+inside `calculateEager` <<Calculate>> and `requireEager` <<Require>>
+such as `requireUnify` and `unify`. The following functions support the computation
+with types possibly containing type variables.
 
 === instantiate
-NOTE: TODO
+[source,rascal]
+----
+/* Solver field */ AType (AType atype) instantiate
+----
+replaces all type variables occurring in `atype` by their binding (when present).
 
 === isFullyInstantiated
-NOTE: TODO
+[source,rascal]
+----
+/* Solver field */ bool (AType atype) isFullyInstantiated
+----
+checks whether `atype` contains any occurrences of type variables.
 
 == Reporting
 [source,rascal]

@@ -9,8 +9,15 @@ Examples of type checkers built with TypePal.
 TypePal is used in a new type checker for the Rascal meta-programming language and also in type checkers for half a dozen
 domain-specific languages created by http://swat.engineering in the domains finance, forensics and privacy.
 
-To get you started more quickly, we give below a list of complete TypePal-based type checkers ranging from very simple (intended to illustrate specific TypePal features) to type checkers for FeatherweightJava and the complete Pascal programming language.
+To get you started more quickly, we give below a list of complete TypePal-based type checkers ranging from very simple (intended only to illustrate specific TypePal features) to type checkers for FeatherweightJava and the complete Pascal programming language.
 For each example we give a description, the most distinctive TypePal features that are used, and its source at GitHub.
+Each example has the same structure:
+
+* `Syntax.rsc` the syntax of the example language.
+* `Checker.rsc` the type checker for the language.
+* `Test.rsc` functions to call the type checker and test framework.
+* `tests.ttl` test cases for the type checker.
+* `examples` (optionally) a directory with example.
 
 == Calc
 
@@ -78,15 +85,15 @@ For each example we give a description, the most distinctive TypePal features th
 |===
 | *What*        | <<Struct>> extended with fields on non-record type
 | *Illustrates* | useViaType, TypePalConfig, getTypeNamesAndRole, getTypeInNamelessType 
-| *Source*      | https://github.com/cwi-swat/typepal-examples/tree/master/src/lang/static_fields
+| *Source*      | https://github.com/cwi-swat/typepal-examples/tree/master/src/lang/staticFields
 |===
 
-== StructWithParameters
+== StructParameters
 [cols="1,8"]
 |===
 | *What*        | <<Struct>> with parameterized records
 | *Illustrates* | useViaType, TypePalConfig, getTypeNamesAndRole, getTypeInNamelessType, instantiateTypeParameters
-| *Source*      | https://github.com/cwi-swat/typepal-examples/tree/master/src/lang/struct_with_parameters
+| *Source*      | https://github.com/cwi-swat/typepal-examples/tree/master/src/lang/structParameters
 |===
 
 == SmallOO
@@ -111,4 +118,12 @@ For each example we give a description, the most distinctive TypePal features th
 | *What*        | The Pascal language (Second Edition, 1978)
 | *Illustrates* |  useViaType, addPathToType, PathRole, isSubType, TypePalConfig, preCollectInitialization getTypeNamesAndRole 
 | *Source*      | https://github.com/cwi-swat/typepal-examples/tree/master/src/lang/pascal
+|===
+
+== UntypedFun
+[cols="1,8"]
+|===
+| *What*        | Functional language with implicit (inferred) types, function declarations and calls, let and if expressions
+| *Illustrates* | fact, define, use, enterScope, leaveScope, requireEqual, calculate, getType, report, newTypeVar, calculateEager, requireUnify, unify
+| *Source*      | https://github.com/cwi-swat/typepal-examples/tree/master/src/lang/untypedFun
 |===
