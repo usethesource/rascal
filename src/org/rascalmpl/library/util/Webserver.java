@@ -27,6 +27,12 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.lang.json.io.JsonValueReader;
 import org.rascalmpl.library.lang.json.io.JsonValueWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
+
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
+
+import fi.iki.elonen.NanoHTTPD;
+import fi.iki.elonen.NanoHTTPD.Response.Status;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
@@ -40,12 +46,6 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
-
-import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.NanoHTTPD.Response.Status;
 
 public class Webserver {
   private final IValueFactory vf;
@@ -65,7 +65,7 @@ public class Webserver {
     this.servers = new HashMap<>();
   }
 
-  public void serve(ISourceLocation url, final IValue callback, final IEvaluatorContext ctx) {
+  public void serve(ISourceLocation url, final IValue callback, IBool asDeamon, final IEvaluatorContext ctx) {
     URI uri = url.getURI();
     initMethodAndStatusValues(ctx);
 
@@ -291,7 +291,7 @@ public class Webserver {
     };
    
     try {
-      server.start();
+      server.start(NanoHTTPD.SOCKET_READ_TIMEOUT, asDeamon.getValue());
       servers.put(url, server);
     } catch (IOException e) {
       throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
