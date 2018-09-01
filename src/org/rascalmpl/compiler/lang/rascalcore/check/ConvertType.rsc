@@ -307,21 +307,21 @@ void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collec
             l =  l = [s.getType(ta) | ta <- targs];
             tp = s.getType(t);
             if (size(l) == 0) {
-                return afunc(tp, atypeList([]), []);
+                return afunc(tp, [], []);
             } else {
                 labelsList = [tp.label | tp <- l];;
                 nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
                 distinctLabels = toSet(nonEmptyLabels);
                 if(size(distinctLabels) == 0)
-                    return afunc(tp, atypeList(l), []);
+                    return afunc(tp, l, []);
                 if (size(l) == size(distinctLabels)) {
-                    return afunc(tp, atypeList(l), []);
+                    return afunc(tp, l, []);
                 } else if (size(distinctLabels) > 0 && size(distinctLabels) != size(labelsList)) {
                     s.report(error(current, "Non-well-formed type, labels must be distinct"));
-                    return afunc(tp, atypeList([unset(tp, "label") | tp <- l]), []);
+                    return afunc(tp, [unset(tp, "label") | tp <- l], []);
                 } else if (size(l) > 0) {
                     s.report(warning(current, "Field name ignored, field names must be provided for all fields or for none"));
-                    return afunc(tp, atypeList([unset(tp, "label") | tp <- l]), []);
+                    return afunc(tp, [unset(tp, "label") | tp <- l], []);
                 }
             }
         }); 

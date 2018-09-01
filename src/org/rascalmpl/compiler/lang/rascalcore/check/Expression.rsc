@@ -272,7 +272,7 @@ void collect(current: (Expression) `<Type returnType> <Parameters parameters> { 
         stats = [stat | stat <- statements];
         
         c.calculate("type of closure", current, returnType + formals,
-            AType(Solver s){ return afunc(s.getType(returnType), atypeList([s.getType(f) | f <- formals]), computeKwFormals(kwFormals, s)); });
+            AType(Solver s){ return afunc(s.getType(returnType), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s)); });
         collect(returnType + formals + kwFormals + stats, c);
     c.leaveScope(current);
 }
@@ -289,7 +289,7 @@ void collect(current: (Expression) `<Parameters parameters> { <Statement* statem
         stats = [stat | stat <- statements0];
         
         c.calculate("type of void closure", current, formals,
-            AType(Solver s){ return afunc(avoid(), atypeList([s.getType(f) | f <- formals]), computeKwFormals(kwFormals, s)); });
+            AType(Solver s){ return afunc(avoid(), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s)); });
         collect(formals + kwFormals + stats, c);
     c.leaveScope(current);
 }
@@ -547,7 +547,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 validOverloads = {};
                 next_fun:
                 for(ovl: <key, idr, tp> <- overloads){                       
-                    if(ft:afunc(AType ret, atypeList(list[AType] formals), list[Keyword] kwFormals) := tp){
+                    if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := tp){
                        try {
                             // TODO: turn this on after revieew of all @deprecated uses in library
                             //if(tp.deprecationMessage?){
@@ -583,7 +583,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                }
             }
             
-            if(ft:afunc(AType ret, atypeList(list[AType] formals), list[Keyword] kwFormals) := texp){
+            if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := texp){
                //if(texp.deprecationMessage?){
                //     report(warning(expression, "Deprecated function <fmt(texp)><isEmpty(texp.deprecationMessage) ? "": ": " + texp.deprecationMessage>");
                //}
@@ -603,7 +603,7 @@ tuple[rel[loc, IdRole, AType], list[bool]] filterOverloads(rel[loc, IdRole, ATyp
     identicalFormals = [true | int i <- [0 .. arity]];
     
     for(ovl:<key, idr, tp> <- overloads){                       
-        if(ft:afunc(AType ret, formalTypes: atypeList(list[AType] formals), list[Keyword] kwFormals) := tp){
+        if(ft:afunc(AType ret, formalTypes: list[AType] formals, list[Keyword] kwFormals) := tp){
            if(ft.varArgs ? (arity >= size(formals) - 1) : (arity == size(formals))) {
               filteredOverloads += ovl;
               if(isEmpty(prevFormals)){

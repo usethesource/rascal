@@ -1,9 +1,12 @@
 module lang::rascalcore::check::Test2 
+data AType
+    = formType(str name) 
+    | labelType() 
+    | booleanType() 
+    | integerType() 
+    | stringType() 
+    | moneyType() 
+    ;
 
-import ParseTree;
-import lang::rascal::\syntax::Rascal;
-//import experiments::Compiler::muRascal::AST; 
-
-loc getValues(Assignable a: (Assignable) `<Assignable receiver>@<Name annotation>`) = 
-   a@\loc;
     
+AType f() = true ? moneyType() : integerType();

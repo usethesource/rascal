@@ -34,7 +34,7 @@ data AType (str label = "")
      | amap(AType keyType, AType valType)
      | arel(AType elemType)  
      | alrel(AType elemType)
-     | afunc(AType ret, AType formals, list[Keyword] kwFormals,  bool varArgs=false, str deprecationMessage="")
+     | afunc(AType ret, list[AType] formals, list[Keyword] kwFormals,  bool varArgs=false, str deprecationMessage="")
      | aalias(str aname, list[AType] parameters, AType aliased)
      | aanno(str aname, AType onType, AType annoType)
      
@@ -452,7 +452,7 @@ bool asubtype(abag(AType s), abag(AType t)) = asubtype(s, t);
 bool asubtype(amap(AType from1, AType to1), amap(AType from2, AType to2)) 
     { return  asubtype(from1, from2) && asubtype(to1, to2);}
 
-bool asubtype(afunc(AType r1, AType p1, list[Keyword] _), afunc(AType r2, AType p2, list[Keyword] _)) = asubtype(r1, r2) && asubtype(p2, p1); // note the contra-variance of the argument types
+bool asubtype(afunc(AType r1, list[AType] p1, list[Keyword] _), afunc(AType r2, list[AType] p2, list[Keyword] _)) = asubtype(r1, r2) && asubtype(p2, p1); // note the contra-variance of the argument types
 
 bool asubtype(aparameter(str _, AType bound), AType r) = asubtype(bound, r);
 bool asubtype(AType l, aparameter(str _, AType bound)) = asubtype(l, bound);
@@ -595,7 +595,7 @@ AType alub(AType l, aparameter(str _, AType bound)) = alub(l, bound) when aparam
 AType alub(areified(AType l), areified(AType r)) = areified(alub(l,r));
 AType alub(areified(AType l), anode(_)) = anode([]);
 
-AType alub(afunc(AType lr, AType lp, list[Keyword] lkw), afunc(AType rr, AType rp, list[Keyword] rkw)) {
+AType alub(afunc(AType lr, list[AType] lp, list[Keyword] lkw), afunc(AType rr, list[AType] rp, list[Keyword] rkw)) {
     lubReturn = alub(lr,rr);
     lubParams = alub(lp,rp);    // TODO was glb, check this
     if (atypeList(_) := lubParams)
