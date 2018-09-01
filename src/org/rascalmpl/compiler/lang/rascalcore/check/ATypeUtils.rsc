@@ -55,7 +55,7 @@ str prettyAType(amap(AType d, AType r)) = "map[<prettyAType(d)>, <prettyAType(r)
 str prettyAType(arel(AType ts)) = "rel[<prettyAType(ts)>]";
 str prettyAType(alrel(AType ts)) = "lrel[<prettyAType(ts)>]";
 
-str prettyAType(afunc(AType ret, atypeList(list[AType] formals), lrel[/*str fieldName,*/ AType fieldType, Expression defaultExp] kwFormals))
+str prettyAType(afunc(AType ret, list[AType] formals, lrel[AType fieldType, Expression defaultExp] kwFormals))
                 = "<prettyAType(ret)>(<intercalate(",", [prettyAType(f) | f <- formals])><isEmpty(kwFormals) ? "" : ", "><intercalate(",", ["<prettyAType(ft)> <ft.label>=..." | <ft, de> <- kwFormals])>)";
 
 str prettyAType(aalias(str aname, [], AType aliased)) = "alias <aname> = <prettyAType(aliased)>";
@@ -134,7 +134,7 @@ str atype2symbol(amap(AType d, AType r)) = "\\map(<atype2symbol(d)>, <atype2symb
 str atype2symbol(arel(AType ts)) = "\\rel(<atype2symbol(ts)>)";
 str atype2symbol(alrel(AType ts)) = "\\lrel(<atype2symbol(ts)>)";
 
-str atype2symbol(afunc(AType ret, atypeList(list[AType] formals), lrel[AType fieldType, Expression defaultExp] kwFormals))
+str atype2symbol(afunc(AType ret, list[AType] formals, lrel[AType fieldType, Expression defaultExp] kwFormals))
                 = "<atype2symbol(ret)>(<intercalate(",", [atype2symbol(f) | f <- formals])>)";
 
 str atype2symbol(aalias(str aname, [], AType aliased)) = "\\alias(\"<aname>\",[],<atype2symbol(aliased)>)";
@@ -750,13 +750,13 @@ default bool isFunctionType(AType _) = false;
 
 @doc{Get a list of arguments for the function.}
 list[AType] getFunctionArgumentTypes(AType ft) {
-    if (afunc(_, atypeList(ats), _) := unwrapType(ft)) return ats;
+    if (afunc(_, ats, _) := unwrapType(ft)) return ats;
     throw rascalCheckerInternalError("Cannot get function arguments from non-function type <prettyAType(ft)>");
 }
 
 @doc{Get the arguments for a function in the form of a tuple.}
 AType getFunctionArgumentTypesAsTuple(AType ft) {
-    if (afunc(_, ats, _) := unwrapType(ft)) return atuple(ats);
+    if (afunc(_, ats, _) := unwrapType(ft)) return atuple(atypeList(ats));
     throw rascalCheckerInternalError("Cannot get function arguments from non-function type <prettyAType(ft)>");
 }
 

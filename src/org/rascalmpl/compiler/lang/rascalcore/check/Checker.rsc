@@ -165,9 +165,11 @@ void report(ProfileData pd){
 
 int M = 1000000;
 
+alias CheckerResult = tuple[map[str,TModel] tmodels, map[str,loc] moduleLocs, map[str,Module] modules];
+
 // rascalTModelForLoc is the basic work horse
 
-map[str,TModel] rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config){     
+CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config){     
     bool forceCompilationTopModule = false; /***** set to true during development of type checker *****/
     try {
         beginTime = cpuTime();   
@@ -254,13 +256,13 @@ map[str,TModel] rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig conf
             println("<topModuleName>, measured total time: <(cpuTime() - beginTime)/M> ms");
         }
       
-        return ms.tmodels;
+        return <ms.tmodels, ms.moduleLocs, ms.modules>;
     } catch ParseError(loc src): {
-        return ("<mloc>" : tmodel()[messages = [ error("Parse error", src)  ]]);
+        return <("<mloc>" : tmodel()[messages = [ error("Parse error", src)  ]]), (), ()>;
     } catch Message msg: {
-     return  ("<mloc>" : tmodel()[messages = [ error("During validation: <msg>", msg.at) ]]);
+     return  <("<mloc>" : tmodel()[messages = [ error("During validation: <msg>", msg.at) ]]), (), ()>;
     } catch value e: {
-        return ("<mloc>" : tmodel()[messages = [ error("During validation: <e>", mloc) ]]);
+        return <("<mloc>" : tmodel()[messages = [ error("During validation: <e>", mloc) ]]), (), ()>;
     }    
 }
 
@@ -324,13 +326,13 @@ tuple[ProfileData, TModel] rascalTModelComponent(map[str, Tree] namedTrees, Modu
 
 // ---- rascalTModelForName a checker version that works on module names
 
-map[str,TModel] rascalTModelForName(str moduleName, PathConfig pcfg, TypePalConfig config){
+CheckerResult rascalTModelForName(str moduleName, PathConfig pcfg, TypePalConfig config){
     mloc = |unknown:///|(0,0,<0,0>,<0,0>);
     try {
         mloc = getModuleLocation(moduleName, pcfg);
         return rascalTModelForLoc(mloc, pcfg, config);
     } catch value e: {
-        return (moduleName : tmodel()[messages = [ error("During validation: <e>", mloc) ]]);
+        return <(moduleName : tmodel()[messages = [ error("During type checking: <e>", mloc) ]]), (), ()>;
     }
 }
 
@@ -344,18 +346,18 @@ ModuleMessages check(str moduleName, PathConfig pcfg){        // TODO change fro
         moduleLoc = getModuleLocation(moduleName, pcfg);
         return check(moduleLoc, pcfg);
     } catch value e: {
-        return program(|unkown:///|, {error("During validation: <e>", |unkown:///|)});
+        return program(|unkown:///|, {error("During type checking: <e>", |unkown:///|)});
     }
 }
 
 ModuleMessages check(loc moduleLoc, PathConfig pcfg){          // TODO: change from ModuleMessages to list[ModuleMessages]
     pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
     println("=== check: <moduleLoc>"); iprintln(pcfg1);
-    module2tmodel = rascalTModelForLoc(moduleLoc, pcfg, rascalTypePalConfig(classicReifier=true,showImports=true,showSolverIterations=true));
+    <tmodels, moduleLocs, modules> = rascalTModelForLoc(moduleLoc, pcfg, rascalTypePalConfig(classicReifier=true,showImports=true,showSolverIterations=true));
     moduleName = getModuleName(moduleLoc, pcfg);
-    tm = module2tmodel[moduleName];
+    tm = tmodels[moduleName];
     return program(moduleLoc, toSet(tm.messages));
-    //return [ program(getModuleLocation(m, pcfg), toSet(module2tmodel[m].messages)) | m <- module2tmodel ];
+    //return [ program(getModuleLocation(m, pcfg), toSet(tmodels[m].messages)) | m <- tmodels ];
 }
 
 list[ModuleMessages] check(list[str] moduleNames, PathConfig pcfg){
@@ -398,7 +400,6 @@ map[str, list[Message]] checkModule(str moduleName,
     config.showTModel = showTModel;
     config.showImports = showImports;
     config.validateConstraints = validateConstraints;
-    
-    mname2tm = rascalTModelForName(moduleName, getDefaultPathConfig(), config);
-    return (mname : mname2tm[mname].messages | mname <- mname2tm, !isEmpty(mname2tm[mname].messages));
+    <tmodels, moduleLocs, modules> = rascalTModelForName(moduleName, getDefaultPathConfig(), config);
+    return (mname : tmodels[mname].messages | mname <- tmodels, !isEmpty(tmodels[mname].messages));
 }

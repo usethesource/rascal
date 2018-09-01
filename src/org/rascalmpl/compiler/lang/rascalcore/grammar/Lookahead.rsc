@@ -69,7 +69,7 @@ public AGrammar compileLookaheads(AGrammar G) {
 
   // now we optimize the lookaheads  
   return visit(G) {
-    case choice(rhs, alts) => optimizeLookaheads(rhs, alts)
+    case choice(AType rhs, alts) => optimizeLookaheads(rhs, alts)
   }
 }
 

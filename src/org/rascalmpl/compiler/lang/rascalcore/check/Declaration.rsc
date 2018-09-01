@@ -285,8 +285,8 @@ void collect(Signature signature, Collector c){
     c.calculate("signature", signature, [returnType, parameters],// + kwFormals<0>,
         AType(Solver s){
             tformals = s.getType(parameters);
-            if(atypeList(elems) !:= tformals) tformals = atypeList([tformals]);
-            res = afunc(s.getType(returnType), tformals, computeKwFormals(kwFormals, s));
+            formalsList = atypeList(elems) := tformals ? elems : [tformals];
+            res = afunc(s.getType(returnType), formalsList, computeKwFormals(kwFormals, s));
             //println("signature <signature> ==\> <res>");
             return res;
         });

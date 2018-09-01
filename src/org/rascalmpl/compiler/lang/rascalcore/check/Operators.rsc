@@ -335,7 +335,7 @@ private AType _computeCompositionType(Tree current, AType t1, AType t2, Solver s
     }
     
     if (isFunctionType(t1) && isFunctionType(t2)) {
-        compositeArgs = atypeList(getFunctionArgumentTypes(t2));
+        compositeArgs = getFunctionArgumentTypes(t2);
         compositeRet = getFunctionReturnType(t1);
         linkingArgs = getFunctionArgumentTypes(t1);
         

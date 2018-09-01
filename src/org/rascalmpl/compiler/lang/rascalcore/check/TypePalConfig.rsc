@@ -294,7 +294,7 @@ data TypePalConfig(
     bool classicReifier = false
 );
 
-TypePalConfig rascalTypePalConfig(bool classicReifier = false)
+TypePalConfig rascalTypePalConfig(bool classicReifier = false,  bool showImports = false)
     = tconfig(
         showTimes                     = false,
         showSolverIterations          = false,
