@@ -11,14 +11,26 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Queue;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
+import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.KeywordFormal;
+import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.AbstractFunction;
 import org.rascalmpl.interpreter.result.ICallableValue;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.types.FunctionType;
@@ -64,7 +76,10 @@ public class Webserver {
     this.vf = vf;
     this.servers = new HashMap<>();
   }
-
+  
+  
+  
+  
   public void serve(ISourceLocation url, final IValue callback, IBool asDeamon, final IEvaluatorContext ctx) {
     URI uri = url.getURI();
     initMethodAndStatusValues(ctx);
@@ -72,7 +87,17 @@ public class Webserver {
     int port = uri.getPort() != -1 ? uri.getPort() : 80;
     String host = uri.getHost() != null ? uri.getHost() : "localhost";
     host = host.equals("localhost") ? "127.0.0.1" : host; // NanoHttp tries to resolve localhost, which isn't what we want!
-    final ICallableValue callee = (ICallableValue) callback; 
+    
+    BlockingQueue<Runnable> mainThreadExecutor;
+    final Function<IValue, CompletableFuture<IValue>> executor;
+    if (asDeamon.getValue()) {
+        mainThreadExecutor = null;
+        executor = buildRegularExecutor((ICallableValue) callback);
+    }
+    else {
+        mainThreadExecutor = new ArrayBlockingQueue<>(1024, true);
+        executor = asyncExecutor((ICallableValue) callback, mainThreadExecutor);
+    }
     
     NanoHTTPD server = new NanoHTTPD(host, port) {
       
@@ -81,25 +106,38 @@ public class Webserver {
           Map<String, String> files) {
         try {
           IConstructor request = makeRequest(uri, method, headers, parms, files);
-          
-          synchronized (callee.getEval()) {
-            callee.getEval().__setInterrupt(false);
-            return translateResponse(method, callee.call(new Type[] {requestType}, new IValue[] { request }, null).getValue());  
-          }
+          CompletableFuture<IValue> rascalResponse = executor.apply(request);
+          return translateResponse(method, rascalResponse.get());
         }
-        catch (Throw rascalException) {
-          ctx.getStdErr().println(rascalException.getMessage());
-          return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, rascalException.getMessage());
+        catch (CancellationException e) {
+            stop();
+            return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Shutting down!");
         }
-        catch (StaticError error) {
-            ctx.getStdErr().println(error.getLocation() + ": " + error.getMessage());
-            return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, error.getMessage());
+        catch (ExecutionException e) {
+            Throwable actualException = e.getCause();
+            if (actualException instanceof Throw) {
+              Throw rascalException = (Throw) actualException;
+              ctx.getStdErr().println(rascalException.getMessage());
+              return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, rascalException.getMessage());
+            }
+            else if (actualException instanceof StaticError) {
+                StaticError error = (StaticError) actualException;
+                ctx.getStdErr().println(error.getLocation() + ": " + error.getMessage());
+                return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, error.getMessage());
+            }
+            else {
+                return handleGeneralThrowable(ctx, actualException);
+            }
         }
-        catch (Throwable unexpected) {
-          ctx.getStdErr().println(unexpected.getMessage());
-          unexpected.printStackTrace(ctx.getStdErr());
-          return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, unexpected.getMessage());
+        catch (Throwable t) {
+            return handleGeneralThrowable(ctx, t);
         }
+      }
+
+      private Response handleGeneralThrowable(final IEvaluatorContext ctx, Throwable actualException) {
+          ctx.getStdErr().println(actualException.getMessage());
+          actualException.printStackTrace(ctx.getStdErr());
+          return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, actualException.getMessage());
       }
 
       private IConstructor makeRequest(String path, Method method, Map<String, String> headers,
@@ -293,12 +331,33 @@ public class Webserver {
     try {
       server.start(NanoHTTPD.SOCKET_READ_TIMEOUT, asDeamon.getValue());
       servers.put(url, server);
+      if (!asDeamon.getValue()) {
+          ctx.getStdOut().println("Starting http server in non-daemon mode, hit ctrl-c to stop it");
+          ctx.getStdOut().flush();
+          while(!ctx.isInterrupted()) {
+              try {
+                  Runnable job;
+                  if ((job = mainThreadExecutor.poll(10, TimeUnit.MILLISECONDS)) != null) {
+                      job.run();
+                  }
+              }
+              catch (InterruptedException e) {
+                  break;
+              }
+          }
+          server.stop();
+          servers.remove(server);
+      }
     } catch (IOException e) {
       throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
     }
   }
   
-  public void shutdown(ISourceLocation server) {
+
+
+
+
+public void shutdown(ISourceLocation server) {
     NanoHTTPD nano = servers.get(server);
     if (nano != null) {
       //if (nano.isAlive()) {
@@ -319,6 +378,60 @@ public class Webserver {
       }
     }
   }
+  
+  private Function<IValue, CompletableFuture<IValue>> buildRegularExecutor(ICallableValue target) {
+      return (request) -> {
+          CompletableFuture<IValue> result = new CompletableFuture<>();
+          executeCallback(target, result, request, true);
+          return result;
+      };
+  }
+
+  private Function<IValue, CompletableFuture<IValue>> asyncExecutor(ICallableValue callback, BlockingQueue<Runnable> mainThreadExecutor) {
+      return (request) -> {
+          CompletableFuture<IValue> result = new CompletableFuture<>();
+          try {
+              mainThreadExecutor.put(() -> executeCallback(callback, result, request, false));
+          }
+          catch (InterruptedException e) {
+              result.cancel(true);
+          }
+          return result;
+      };
+  }
+  
+  private void executeCallback(ICallableValue callback, CompletableFuture<IValue> target, IValue request, boolean asDaemon) {
+      IEvaluator<Result<IValue>> eval = callback.getEval();
+      synchronized (callback) {
+          boolean oldInterupt = eval.isInterrupted();
+          try {
+              if (asDaemon) {
+                  eval.__setInterrupt(false);
+              }
+              else if (oldInterupt) {
+                  target.cancel(true); // cancel signals interupted evaluator
+                  return;
+              }
+              Result<IValue> result = callback.call(new Type[] {requestType}, new IValue[] { request }, null);
+              if (result != null && result.getValue() != null) {
+                  target.complete(result.getValue());
+              }
+              else {
+                  throw new Throw(vf.string("void result of function"),  (AbstractAST)null, eval.getStackTrace());
+              }
+          }
+          catch (Throwable t) {
+              target.completeExceptionally(t);
+          }
+          finally {
+              if (asDaemon) {
+                  eval.__setInterrupt(oldInterupt);
+              }
+          }
+      }
+  }
+
+  
 
   private void initMethodAndStatusValues(final IEvaluatorContext ctx) {
     if (statusValues.isEmpty() || requestType == null) {
