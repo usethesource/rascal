@@ -54,7 +54,7 @@ public Grammar fuse(GrammarDefinition def) {
     <nm,todo> = takeOneFrom(todo);
     \mod = def.modules[nm];
     done += nm; 
-    result = (compose(result, \mod.grammar) | compose(it, def.modules[i].grammar) | i <- \mod.imports + \mod.extends);
+    result = (compose(result, \mod.grammar) | compose(it, def.modules[i].grammar) | i <- \mod.imports + \mod.extends, def.modules[i]?);
     todo += (\mod.extends - done);
   }
   
