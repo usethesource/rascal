@@ -242,8 +242,9 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         //m1.paths = domainR(tm.paths, {mscope});
         
         //m1.uses = [u | u <- tm.uses, containedIn(u.occ, mscope) ];
+        m1.useDef = { <u, d> | <u, d> <- tm.useDef, containedIn(u, mscope) };
         
-        roles = dataOrSyntaxIds + {constructorId(), functionId(), fieldId(), annoId() /*, variableId()*/};
+        roles = dataOrSyntaxIds + {constructorId(), functionId(), fieldId(), annoId(), variableId()};
         // Filter model for current module and replace functions in defType by their defined type
         
         defs = for(tup: <loc scope, str id, IdRole idRole, loc defined, DefInfo defInfo> <- tm.defines){
@@ -258,6 +259,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
                        try {                   
                            dt = defType(tm.facts[defined]);
                            if(defInfo.vis?) dt.vis = defInfo.vis;
+                            if(defInfo.nestedParameters?) dt.nestedParameters = defInfo.nestedParameters;
                            if(defInfo.tags?) dt.tags = defInfo.tags;
                            tup.defInfo = dt;
                            //println("Changed <defInfo> ==\> <dt>");
