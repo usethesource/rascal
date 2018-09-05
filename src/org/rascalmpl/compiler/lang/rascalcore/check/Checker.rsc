@@ -163,7 +163,7 @@ void report(ProfileData pd){
 }
 
 
-int M = 1000000;
+private int M = 1000000;
 
 alias CheckerResult = tuple[map[str,TModel] tmodels, map[str,loc] moduleLocs, map[str,Module] modules];
 
@@ -353,7 +353,7 @@ ModuleMessages check(str moduleName, PathConfig pcfg){        // TODO change fro
 ModuleMessages check(loc moduleLoc, PathConfig pcfg){          // TODO: change from ModuleMessages to list[ModuleMessages]
     pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
     println("=== check: <moduleLoc>"); iprintln(pcfg1);
-    <tmodels, moduleLocs, modules> = rascalTModelForLoc(moduleLoc, pcfg, rascalTypePalConfig(classicReifier=true,showImports=true,showSolverIterations=true));
+    <tmodels, moduleLocs, modules> = rascalTModelForLoc(moduleLoc, pcfg, rascalTypePalConfig(classicReifier=true,showImports=true));
     moduleName = getModuleName(moduleLoc, pcfg);
     tm = tmodels[moduleName];
     return program(moduleLoc, toSet(tm.messages));

@@ -25,10 +25,13 @@ import util::Reflective;
 import Node;
 import String;
 import IO;
+import List;
 import Set;
 import Map;
 import String;
 import util::Maybe;
+
+public str nestedParameterList     = "nestedParameterList"; // stack name to collect function parameters (including parameters nested in patterns)
 
 // ---- Utilities -------------------------------------------------------------
 
@@ -52,7 +55,7 @@ Vis getVis((Visibility) ``, Vis dv)         = dv;
 
 // ---- Rascal declarations ---------------------------------------------------
 
-void collect(current: (Module) `<Header header> <Body body>`, Collector c){
+void collect(Module current: (Module) `<Header header> <Body body>`, Collector c){
   
     if(current has top) current = current.top;
     mname = prettyPrintName(header.name);
@@ -222,6 +225,8 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
     c.enterLubScope(decl);
         scope = c.getScope();
         c.setScopeInfo(scope, functionScope(), returnInfo(signature.\type));
+        collect(decl.signature, c);
+        nestedParams = c.pop(nestedParameterList); // pushed by collect of Parameters
         
         dt = defType([signature], AType(Solver s) {
                  ft = s.getType(signature);
@@ -233,8 +238,9 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
              });
         dt.vis = getVis(decl.visibility, publicVis());
         if(!isEmpty(tagsMap)) dt.tags = tagsMap;
+        if(lrel[str,loc] np := nestedParams && !isEmpty(np)) dt.nestedParameters = np;
          
-        c.defineInScope(parentScope, prettyPrintName(fname), functionId(), fname, dt); 
+        c.defineInScope(parentScope, prettyPrintName(fname), functionId(), current /*fname*/, dt); 
         
         if(decl is expression || decl is conditional){
             if(containsReturn(decl.expression)){
@@ -263,7 +269,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
             collect(decl.conditions, c);
         }
         if(decl is \default) collect(decl.body, c);
-        collect(decl.signature, c);
+        
     c.leaveScope(decl);
 }
 
@@ -291,7 +297,7 @@ void collect(Signature signature, Collector c){
             return res;
         });
         
-    collect(returnType, parameters, c);
+     collect(returnType, parameters, c);
     
     //if(signature has exceptions){             // TODO: reconsider
     //    collect(signature.exceptions, c);
@@ -375,6 +381,7 @@ void collect(Parameters parameters, Collector c){
                 }); 
        }
        collect(kwFormals, c);
+       c.push(nestedParameterList, reverse(c.getStack(patternNames)));
     endPatternScope(c);
 }
 

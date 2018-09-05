@@ -37,6 +37,11 @@ void endPatternScope(Collector c){
     c.clearStack(patternNames);
 }
 
+bool inPatternNames(str name, Collector c){
+    for(lrel[str,loc] pnames :=  c.getStack(patternNames), <str n, loc l> <-pnames) if(n == name) return true;
+    return false;
+}
+
 bool inPatternScope(Collector c){
     return !isEmpty(c.getStack(patternContainer));
 }
@@ -166,7 +171,7 @@ void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     uname = unescape("<name>");
     c.calculate("typed variable pattern", current, [tp], AType(Solver s){  return s.getType(tp)[label=uname]; });
     if(uname != "_"){
-       c.push(patternNames, uname);
+       c.push(patternNames, <uname, getLoc(name)>);
        c.define(uname, variableId(), name, defType([tp], AType(Solver s){ return s.getType(tp)[label=uname]; }));
     }
     c.enterScope(current);
@@ -178,7 +183,7 @@ void collectAsVarArg(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     uname = unescape("<name>");
     
     if(uname != "_"){
-       if(uname in c.getStack(patternNames)){
+       if(inPatternNames(uname, c)){
           c.use(name, {variableId()});
           c.require("typed variable pattern", current, [tp, name], 
             void (Solver s){
@@ -186,7 +191,7 @@ void collectAsVarArg(current: (Pattern) `<Type tp> <Name name>`, Collector c){
                 s.requireEqual(name, nameType, error(name, "Expected %t for %q, found %q", nameType, uname, name));
             });
        } else {
-          c.push(patternNames, uname);
+          c.push(patternNames, <uname, getLoc(name)>);
           c.define(uname, variableId(), name, defType([tp], AType(Solver s){ return alist(s.getType(tp))[label=uname]; }));
        }
     }
@@ -202,12 +207,12 @@ void collectAsVarArg(current: (Pattern) `<Type tp> <Name name>`, Collector c){
 void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
     <qualifier, base> = splitQualifiedName(name);
     if(base != "_"){
-       if(base in c.getStack(patternNames)){
+       if(inPatternNames(base, c)){
           //println("qualifiedName: <name>, useLub, <getLoc(current)>");
           c.useLub(name, {variableId()});
           return;
        }
-       c.push(patternNames, base);
+       c.push(patternNames, <base, getLoc(current)>);
 
        if("parameter" := c.top(patternContainer)){
           c.fact(current, avalue());
@@ -229,12 +234,12 @@ void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
 void collectAsVarArg(current: (Pattern) `<QualifiedName name>`,  Collector c){
     <qualifier, base> = splitQualifiedName(name);
     if(base != "_"){
-       if(base in c.getStack(patternNames)){
+       if(inPatternNames(base, c)){
           //println("qualifiedName: <name>, useLub, <getLoc(current)>");
           c.useLub(name, {variableId()});
           return;
        }
-       c.push(patternNames, base);
+       c.push(patternNames, <base, getLoc(current)>);
 
        if("parameter" := c.top(patternContainer)){
           c.fact(current, alist(avalue()));
@@ -317,7 +322,7 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
        uname = unescape("<argName>");
        
        if(uname != "_"){
-          if(uname in c.getStack(patternNames)){
+          if(inPatternNames(uname, c)){
              c.use(argName, {variableId()});
              c.require("typed variable in splice pattern", current, [tp, argName], 
                 void (Solver s){ 
@@ -325,7 +330,7 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
                     s.requireEqual(argName, nameType, error(argName, "Expected %t for %q, found %q", nameType, uname, argName));
                });
           } else {
-            c.push(patternNames, uname);
+            c.push(patternNames, <uname, getLoc(argName)>);
             c.define(uname, variableId(), argName, defType([tp], 
                AType(Solver s){ return inSet ? aset(s.getType(tp)) : alist(s.getType(tp)); }));
           }          
@@ -336,12 +341,12 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
         argName = argument.qualifiedName;
         <qualifier, base> = splitQualifiedName(argName);
         if(base != "_"){
-           if(base in c.getStack(patternNames)){
+           if(inPatternNames(base, c)){
               //println("qualifiedName: <name>, useLub, <getLoc(current)>");
               c.useLub(argName, {variableId()});
               return;
            }
-           c.push(patternNames, base);
+           c.push(patternNames, <base, getLoc(argument)>);
     
            if("parameter" := c.top(patternContainer)){
               c.fact(current, avalue());
@@ -567,10 +572,10 @@ tuple[rel[loc, IdRole, AType], list[bool]] filterOverloadedConstructors(rel[loc,
 
 void collect(current: (Pattern) `<Name name> : <Pattern pattern>`, Collector c){
     uname = unescape("<name>");
-    if(uname in c.getStack(patternNames)){
+    if(inPatternNames(uname, c)){
         c.useLub(name, {variableId()});
     } else {
-        c.push(patternNames, uname);
+        c.push(patternNames, <uname, getLoc(name)>);
         scope = c.getScope();
         c.define(uname, variableId(), name, defLub([pattern], AType(Solver s) { return getPatternType(pattern, avalue(), scope, s); }));
     }
@@ -585,7 +590,7 @@ AType getPatternType(current: (Pattern) `<Name name> : <Pattern pattern>`,  ATyp
 
 void collect(current: (Pattern) `<Type tp> <Name name> : <Pattern pattern>`, Collector c){
     uname = unescape("<name>");
-    c.push(patternNames, uname);
+    c.push(patternNames, <uname, name>);
     c.define(uname, variableId(), name, defType([tp], AType(Solver s){ return s.getType(tp); }));
     c.fact(current, tp);
     collect(tp, pattern, c);

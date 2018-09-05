@@ -597,9 +597,9 @@ AType alub(areified(AType l), anode(_)) = anode([]);
 
 AType alub(afunc(AType lr, list[AType] lp, list[Keyword] lkw), afunc(AType rr, list[AType] rp, list[Keyword] rkw)) {
     lubReturn = alub(lr,rr);
-    lubParams = alub(lp,rp);    // TODO was glb, check this
-    if (atypeList(_) := lubParams)
-        return afunc(lubReturn, lubParams, lkw == rkw ? lkw : []);
+    lubParams = alub(atypeList(lp),atypeList(rp));    // TODO was glb, check this
+    if (atypeList(args) := lubParams)
+        return afunc(lubReturn, args, lkw == rkw ? lkw : []);
     else
         return avalue();
 }

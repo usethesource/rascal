@@ -65,6 +65,10 @@ data Modifier
 // Visibility information
 data DefInfo(Vis vis = publicVis());
 
+// Formal parameter list of function (included ones nested in patterns)
+
+data DefInfo(lrel[str name, loc def] nestedParameters = []);
+
 data DefInfo(map[str,str] tags = ());
 
 // Common Keyword fields for ADTs
