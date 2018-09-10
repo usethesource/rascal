@@ -32,12 +32,12 @@ render(logo());
 ----
 will produce:
 
-image::{concept}/logo1.png[alt="Rascal logo"]
+image:logo1.png[alt="Rascal logo"]
 
 or as a screenshot:
 
 
-image::{concept}/Screenshot1.png[alt="Screen shot"]
+image:Screenshot1.png[alt="Screen shot"]
 
 
 

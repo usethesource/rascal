@@ -21,7 +21,7 @@ Here is an ellipse with minimum size 200x300 that occupies 80% of the available 
 render(e);
 ----
 
-image::{concept}/e1.png[alt="e1"]
+image:e1.png[alt="e1"]
 
 (we add the shrink to leave some space for thick lines and shadows below).
 
@@ -32,7 +32,7 @@ Change the style of its border using link:/Libraries#Properties-lineStyle[lineSt
 render(e);
 ----
 
-image::{concept}/e2.png[alt="e2"]
+image:e2.png[alt="e2"]
 
 
 Change the thickness of its border using link:/Libraries#Properties-lineWidth[lineWidth]:
@@ -42,7 +42,7 @@ Change the thickness of its border using link:/Libraries#Properties-lineWidth[li
 render(e);
 ----
 
-image::{concept}/e3.png[alt="e3"]
+image:e3.png[alt="e3"]
 
 
 Change the color of its border using link:/Libraries#Properties-lineColor[lineColor]:
@@ -52,7 +52,7 @@ Change the color of its border using link:/Libraries#Properties-lineColor[lineCo
 render(e);
 ----
 
-image::{concept}/e4.png[alt="e4"]
+image:e4.png[alt="e4"]
 
 
 Change the color of its area using link:/Libraries#Properties-fillColor[fillColor]:
@@ -62,7 +62,7 @@ Change the color of its area using link:/Libraries#Properties-fillColor[fillColo
 render(e);
 ----
 
-image::{concept}/e5.png[alt="e5"]
+image:e5.png[alt="e5"]
 
 
 Add a shadow using link:/Libraries#Properties-shadow[shadow]:
@@ -72,7 +72,7 @@ Add a shadow using link:/Libraries#Properties-shadow[shadow]:
 render(e);
 ----
 
-image::{concept}/e6.png[alt="e6"]
+image:e6.png[alt="e6"]
 
 
 Add the color of the shadow using link:/Libraries#Properties-shadowColor[shadowColor]:
@@ -82,7 +82,7 @@ Add the color of the shadow using link:/Libraries#Properties-shadowColor[shadowC
 render(e);
 ----
 
-image::{concept}/e7.png[alt="e7"]
+image:e7.png[alt="e7"]
 
 
 Finally, enjoy the grande finale:
@@ -92,7 +92,7 @@ Finally, enjoy the grande finale:
 render(e);
 ----
 
-image::{concept}/e8.png[alt="e8"]
+image:e8.png[alt="e8"]
 
 
 
