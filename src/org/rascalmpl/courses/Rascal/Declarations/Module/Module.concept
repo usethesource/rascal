@@ -40,7 +40,7 @@ which corresponds to a path relative to the root of the current workspace.
 
 The constituents of a module are shown in the figure below.
 
-image::{concept}/module-parts.png[style="float: right;" width="500px" ,alt="Module Parts"]
+image:module-parts.png[style="float: right;" width="500px" ,alt="Module Parts"]
 
 
 An <<Import>> declares other modules that are used by the current module.
