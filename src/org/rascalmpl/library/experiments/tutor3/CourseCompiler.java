@@ -197,7 +197,7 @@ public class CourseCompiler {
 		
 		ArrayList<String> files  = new ArrayList<>();
 		files.add("tutor-prelude.js");
-		files.add("search.html");
+		files.add("search-results.html");
 		files.add("favicon.ico");
 		files.add("css/style.css");
 		files.add("docinfo.html");
