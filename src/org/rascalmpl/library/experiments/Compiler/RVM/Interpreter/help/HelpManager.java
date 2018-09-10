@@ -1,15 +1,25 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
@@ -31,6 +41,10 @@ import org.rascalmpl.library.experiments.tutor3.Onthology;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+
+import com.google.gson.Gson;
+import com.google.gson.stream.JsonWriter;
+
 import io.usethesource.vallang.ISourceLocation;
 
 public class HelpManager {
@@ -185,8 +199,11 @@ public class HelpManager {
 		w.append("\">").append(conceptName).append("</a>");
 	}
 	
-	private String escapeForQuery(String s){
-		return s.toLowerCase().replaceAll("([+\\-!(){}\\[\\]\\^\"~*?:\\\\/]|(&&)|(\\|\\|))","\\\\$1");
+	
+	private static final Pattern BAD_QUERY_CHARS = Pattern.compile("([+\\-!(){}\\[\\]\\^\"~*?:\\\\/]|(&&)|(\\|\\|))");
+
+	private static String escapeForQuery(String s){
+	    return BAD_QUERY_CHARS.matcher(s.toLowerCase()).replaceAll("\\\\$1");
 	}
 	
 	private String escapeHtml(String s){
@@ -195,13 +212,8 @@ public class HelpManager {
 	}
 	
 	private URI makeSearchURI(String[] words) throws URISyntaxException, UnsupportedEncodingException{
-		StringWriter w = new StringWriter();
-		for(int i = 1; i < words.length; i++){
-			w.append(words[i]);
-			if(i < words.length - 1) w.append(" ");
-		}
-		String encoded = URLEncoder.encode(w.toString(), "UTF-8");
-		return URIUtil.create("http", "localhost:" + getPort(), "/Search", "searchFor=" + encoded, "");
+		String encoded = URLEncoder.encode(Arrays.stream(words).skip(1).collect(Collectors.joining()), "UTF-8");
+		return URIUtil.create("http", "localhost:" + getPort(), "/search.html", "searchFor=" + encoded, "");
 	}
 	
 	public void handleHelp(String[] words){
@@ -216,141 +228,93 @@ public class HelpManager {
 				e.printStackTrace();
 			}
 		} else {
-			stdout.println(giveHelp(words));
+		    printHelp(words, stdout);
 		}
 	}
 	
-	public String giveHelp(String[] words){
+	private ScoreDoc[] search(String[] words) {
+		try {
+            if (indexSearcher != null) {
+                Analyzer multiFieldAnalyzer = Onthology.multiFieldAnalyzer();
+                String query = Arrays.stream(words).map(HelpManager::escapeForQuery).collect(Collectors.joining(" "));
+                QueryParser parser  = new MultiFieldQueryParser(new String[] {"index", "synopsis", "doc"}, multiFieldAnalyzer);
+                return indexSearcher.search(parser.parse(query), maxSearch).scoreDocs;
+            }
+            return new ScoreDoc[0];
+		} catch (ParseException | IOException e) {
+		    stderr.println("Cannot parse/search query: " + Arrays.toString(words) + ", " + e.getMessage());
+            return new ScoreDoc[0];
+		}
+	}
+	
+	public void printHelp(String[] words, PrintWriter target){
 		//TODO Add here for example credits, copyright, license
 		
 		if(words.length <= 1){
-			IntroHelp.print(stdout);
-			return "";
-		}
-		
-		if(!indexAvailable()){
-			return "";
+			IntroHelp.print(target);
+			return;
 		}
 
-		Analyzer multiFieldAnalyzer = Onthology.multiFieldAnalyzer();
+		if(!indexAvailable()){
+		    target.println();
+			return;
+		}
 		
 		try {
-			String searchFields[] = {"index", "synopsis", "doc"};
-			
-			QueryParser parser  = new MultiFieldQueryParser(searchFields, multiFieldAnalyzer);
-			
-			StringBuilder sb = new StringBuilder();
-			for(int i = 1; i < words.length; i++){
-				sb.append(" ").append(escapeForQuery(words[i]));
-			}
-			Query query;
-			try {
-				query = parser.parse(sb.toString());
-			} catch (ParseException e) {
-				stderr.println("Cannot parse query: " + sb + ", " + e.getMessage());
-				return "";
-			}
-
-			if(words[0].equals("help")){
-				return reportHelp(words, search(query).scoreDocs);
-			} else {
-				return reportApropos(search(query).scoreDocs);
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return "";
+            reportApropos(search(words), target);
+        }
+        catch (IOException e) {
+		    target.println("Search failed with: " + e.getMessage());
+        }
 	}
 
-    private TopDocs search(Query query) throws IOException {
-        if (indexSearcher != null) {
-            return indexSearcher.search(query, maxSearch);
+    public InputStream jsonHelp(String[] words) {
+        ByteArrayOutputStream target = new ByteArrayOutputStream();
+        try (JsonWriter w = new JsonWriter(new OutputStreamWriter(target, StandardCharsets.UTF_8))) {
+            w.beginObject();
+            w.name("results");
+            w.beginArray();
+            for (ScoreDoc r : search(words)) {
+                appendJsonResult(findDocument(r.doc), w);
+            }
+            w.endArray();
+            w.endObject();
         }
-        else {
-            return new TopDocs(0, new ScoreDoc[0], 0.0f);
+        catch (IOException e) {
         }
+        return new ByteArrayInputStream(target.toByteArray());
     }
 		
-	String getField(Document hitDoc, String field){
+	private void appendJsonResult(Document hitDoc, JsonWriter w) throws IOException {
+	    if (hitDoc != null) {
+	        w.beginObject();
+	        String name = hitDoc.get("name");
+	        w.name("name");
+	        w.value(name);
+	        w.name("url");
+	        w.value(makeURL(name));
+	        w.name("text");
+	        w.value(getField(hitDoc, "synopsis"));
+	        String signature = getField(hitDoc, "signature");
+	        if(!signature.isEmpty()){
+	            w.name("code");
+	            w.value(signature);
+	        }
+	        w.endObject();
+	    }
+    }
+
+    private String getField(Document hitDoc, String field){
 		String s = hitDoc.get(field);
-		return (s == null || s.isEmpty()) ? "" : s;
+		return s == null ? "" : s;
 	}
 	
-	void genPrelude(StringWriter w){
-		w.append("<head>\n");
-		w.append("<title>Rascal Help</title>");
-		w.append("<link rel=\"stylesheet\" href=\"css/style.css\"/>");
-		w.append("<link rel=\"stylesheet\" href=\"css/font-awesome.min.css\"/>");
-		w.append("<link rel=\"icon\" href=\"/favicon.ico\" type=\"image/x-icon\"/>");
-		w.append("</head>\n");
-		w.append("<body class=\"book toc2 toc-left\">");
-		
-		w.append(Concept.getHomeLink());
-		w.append(Concept.getSearchForm());
-		
-		w.append("<div id=\"toc\" class=\"toc2\">");
-		w.append("</div>");
-	}
-	
-	void genSearchTerms(String[] words, StringWriter w){
-		w.append("<i>");
-		for(int i = 1; i < words.length; i++){
-			w.append(words[i]).append(" ");
-		}
-		w.append("</i>\n");
-	}
-	
-	String reportHelp(String[] words, ScoreDoc[] hits) throws IOException{
-		int nhits = hits.length;
-		
-		StringWriter w = new StringWriter();
-		if(nhits == 0){
-			stdout.println("No info found");
-			genPrelude(w);
-			w.append("<h1 class=\"search-sect0\">No help found for: ");
-			genSearchTerms(words, w);
-			w.append("</h1>\n");
-			w.append("<div class=\"search-ulist\">\n");
-			w.append("<ul><li>Perhaps try <i>help</i>, <i>further reading</i> or <i>introduction</i> as search terms</li>");
-			w.append("</ul>\n");
-			w.append("</div>");
-			w.append("</body>\n");
-			return w.toString();
-		} else {
-			genPrelude(w);
-			w.append("<h1 class=\"search-sect0\">Help for: ");
-			genSearchTerms(words, w);
-			w.append("</h1>\n");
-			w.append("<ul>\n");
-			for (int i = 0; i < Math.min(hits.length, maxSearch); i++) {
-				Document hitDoc = findDocument(hits[i].doc);
-				
-				if (hitDoc != null) {
-				    w.append("<div class=\"search-ulist\">\n");
-				    w.append("<li> ");
-				    String name = hitDoc.get("name");
-				    appendHyperlink(w, name);
-				    w.append(": <em>").append(escapeHtml(getField(hitDoc, "synopsis"))).append("</em>");
-				    String signature = getField(hitDoc, "signature");
-				    if(!signature.isEmpty()){
-				        w.append("<br>").append("<code>").append(escapeHtml(signature)).append("</code>");
-				    }
-				}
-			}
-			w.append("</ul>\n");
-			w.append("</div>");
-			w.append("</body>\n");
-			return w.toString();
-		}
-	}
-	
+
 	private Document findDocument(int needle) throws IOException {
 	    return indexSearcher != null ? indexSearcher.doc(needle) : null;
 	}
 	
-	String reportApropos(ScoreDoc[] hits) throws IOException{
-		StringWriter w = new StringWriter();
+	private void reportApropos(ScoreDoc[] hits, PrintWriter target) throws IOException{
 		for (int i = 0; i < Math.min(hits.length, maxSearch); i++) {
 			Document hitDoc = findDocument(hits[i].doc);
 			
@@ -358,18 +322,18 @@ public class HelpManager {
 			    String name = hitDoc.get("name");
 			    String signature = getField(hitDoc, "signature");
 			    String synopsis = getField(hitDoc, "synopsis");
-			    w.append(name).append(":\n\t").append(synopsis);
+			    target.append(name).append(":\n\t").append(synopsis);
 			    if(!signature.isEmpty()){
-			        w.append("\n\t").append(signature);
+			        target.append("\n\t").append(signature);
 			    }
-			    w.append("\n");
+			    target.append("\n");
 			}
 		}
-		return w.toString();
 	}
 
   public int getPort() {
     return port;
   }
+
 
 }
