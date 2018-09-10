@@ -23,15 +23,16 @@
                 termsTarget.innerText = terms;
 
                 var request = new XMLHttpRequest();
-                request.open('GET', 'search?q=' + terms, true);
+                request.open('GET', 'search?searchFor=' + terms, true);
 
                 request.onload = function () {
                     if (request.status >= 200 && request.status < 400) {
                         // Success!
                         target.innerHTML = '';
                         var data = JSON.parse(request.responseText);
-                        if (!data.result || data.results.length == 0) {
+                        if (!data.results || data.results.length == 0) {
                             target.innerHTML =  '<li>Perhaps try <i>help</i>, <i>further reading</i> or <i>introduction</i> as search terms</li>';
+                            return;
                         }
                         for (const r of data.results) {
                             const li = document.createElement("li");
@@ -41,7 +42,7 @@
                             li.appendChild(a);
                             li.appendChild(document.createTextNode(": "));
                             const em = document.createElement("em");
-                            em.innerHTML = r.synopsis;
+                            em.innerHTML = r.text;
                             li.appendChild(em);
                             if (r.code) {
                                 const code = document.createElement("code");
