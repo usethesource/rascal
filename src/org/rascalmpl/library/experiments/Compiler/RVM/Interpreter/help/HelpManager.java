@@ -213,7 +213,7 @@ public class HelpManager {
 	
 	private URI makeSearchURI(String[] words) throws URISyntaxException, UnsupportedEncodingException{
 		String encoded = URLEncoder.encode(Arrays.stream(words).skip(1).collect(Collectors.joining()), "UTF-8");
-		return URIUtil.create("http", "localhost:" + getPort(), "/search.html", "searchFor=" + encoded, "");
+		return URIUtil.create("http", "localhost:" + getPort(), "/search-results.html", "searchFor=" + encoded, "");
 	}
 	
 	public void handleHelp(String[] words){
