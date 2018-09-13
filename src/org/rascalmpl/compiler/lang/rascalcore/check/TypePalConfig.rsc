@@ -76,6 +76,9 @@ data DefInfo(bool isKeywordFormal = false);
 
 data DefInfo(map[str,str] tags = ());
 
+// Function modifiers
+data DefInfo(list[str] modifiers = []);
+
 // Common Keyword fields for ADTs
 data DefInfo(list[KeywordFormal] commonKeywordFields = []);
 
@@ -299,6 +302,40 @@ AType rascalGetTypeInNamelessType(AType containerType, Tree selector, loc scope,
 
 bool rascalIsInferrable(IdRole idRole) = idRole in {variableId(), formalId(), keywordFormalId()};
 
+loc findContainingFunction(loc def, map[loc,Define] definitions, map[loc,loc] scope){
+    sc = definitions[def].scope;
+    while(definitions[sc]? ? definitions[sc].idRole != functionId() : true){
+        sc = definitions[sc].scope;
+    }
+    return sc;
+}
+
+bool rascalReportUnused(loc def, map[loc,Define] definitions, map[loc,loc] scopes){
+    define = definitions[def];
+    try {
+        switch(define.idRole){
+            case moduleId():        return false;
+            case dataId():          return false;
+            case functionId():      return define.defInfo.vis == privateVis();
+            case constructorId():   return false;
+            case fieldId():         return false;
+            case keywordFieldId():  return false;
+            case formalId():        return define.id != "_" && "java" notin definitions[findContainingFunction(def, definitions, scopes)].defInfo.modifiers;
+            case keywordFormalId(): return "java" notin definitions[findContainingFunction(def, definitions, scopes)].defInfo.modifiers;
+            case typeVarId():       return false;
+            case variableId():      return define.id notin {"_", "it"};
+            case annoId():          return false;
+            case aliasId():         return false;
+            case lexicalId():       return false;
+            case nonTerminalId():   return false;
+            case layoutId():        return false;
+            case keywordId():       return false;
+        }
+    } catch NoSuchKey(_): return false;
+    
+    return true;
+}
+ 
 data TypePalConfig(
     bool showImports = false,
     bool classicReifier = false
@@ -333,5 +370,6 @@ TypePalConfig rascalTypePalConfig(bool classicReifier = false,  bool showImports
         instantiateTypeParameters     = rascalInstantiateTypeParameters,
         
         preSolver                     = rascalPreSolver,
-        postSolver                    = rascalPostSolver
+        postSolver                    = rascalPostSolver,
+        reportUnused                  = rascalReportUnused
     );

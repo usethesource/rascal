@@ -231,6 +231,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         dt = defType([signature], AType(Solver s) {
                  ft = s.getType(signature);
                  if(signature.parameters is varArgs) ft.varArgs = true;
+                 
                  if(deprecated) {
                     ft.deprecationMessage = deprecationMessage;
                  }
@@ -238,6 +239,8 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
              });
         dt.vis = getVis(decl.visibility, publicVis());
         if(!isEmpty(tagsMap)) dt.tags = tagsMap;
+        modifiers = ["<m>" | m <- signature.modifiers.modifiers];
+        if(!isEmpty(modifiers)) dt.modifiers = modifiers;
         if(lrel[str,loc] np := nestedParams && !isEmpty(np)) dt.nestedParameters = np;
          
         c.defineInScope(parentScope, prettyPrintName(fname), functionId(), current /*fname*/, dt); 
