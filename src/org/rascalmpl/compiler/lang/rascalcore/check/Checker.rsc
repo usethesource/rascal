@@ -163,7 +163,7 @@ void report(ProfileData pd){
 }
 
 
-private int M = 1000000;
+
 
 alias CheckerResult = tuple[map[str,TModel] tmodels, map[str,loc] moduleLocs, map[str,Module] modules];
 
@@ -251,9 +251,11 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
                 report(p);
             }
             
-            println("<topModuleName>, import graph <graphTime/M> ms");
+            int toMilli(int time_in_ns) = time_in_ns/1000000;
+            
+            println("<topModuleName>, import graph <toMilli(graphTime)> ms");
             println("<topModuleName> <tcollector+tsolver> ms [ collector: <tcollector> ms; solver: <tsolver> ms; save: <tsave> ms ]");
-            println("<topModuleName>, measured total time: <(cpuTime() - beginTime)/M> ms");
+            println("<topModuleName>, measured total time: <toMilli(cpuTime() - beginTime)> ms");
         }
       
         return <ms.tmodels, ms.moduleLocs, ms.modules>;

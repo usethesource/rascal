@@ -223,17 +223,17 @@ void collect(current: (ConcreteHole) `\< <Sym symbol> <Name name> \>`, Collector
     if(size(c.getStack(patternContainer)) == 1){    // An expression
         //println("ConcreteHole exp: <current>");
         //c.use(name, {variableId()});
-        c.define(uname, variableId(), name, defLub([symbol], AType(Solver s) { return s.getType(symbol); }));
+        c.define(uname, formalOrVarId(c)/*variableId(*/, name, defLub([symbol], AType(Solver s) { return s.getType(symbol); }));
         //c.calculate("concrete hole", current, [varType], AType(Solver s) { return s.getType(varType); });
     } else {                                        //A pattern
         //println("ConcreteHole pat: <current>");
       
         if(uname != "_"){
            if(uname in c.getStack(patternNames)){
-              c.useLub(name, {variableId()});
+              c.useLub(name, {formalOrVarId(c)/*variableId(), formalId()*/});
            } else {
                c.push(patternNames, uname);
-               c.define(uname, variableId(), name, defLub([symbol], AType(Solver s) { return s.getType(symbol); }));
+               c.define(uname, formalOrVarId(c)/*variableId()*/, name, defLub([symbol], AType(Solver s) { return s.getType(symbol); }));
            }
         }
     }
@@ -579,7 +579,11 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                     // unique overload, fall through to non-overloaded case to potentially bind more type variables
                  } else if(isEmpty(validReturnTypeOverloads)) { 
                         s.report(error(current, "%q is defined as %t and cannot be applied to argument(s) %v", "<expression>", expression, actuals));}
-                 else return overloadedAType(validReturnTypeOverloads);
+                 else {
+                    stexp = overloadedAType(validOverloads);
+                    if(texp != stexp) s.specializedFact(expression, stexp);
+                    return overloadedAType(validReturnTypeOverloads);
+                 }
                }
             }
             
@@ -1045,9 +1049,9 @@ void collect(current: (QualifiedName) `<QualifiedName name>`, Collector c){
     } else {
        if(base != "_"){
           if(inPatternScope(c)){
-            c.use(name, {variableId(), fieldId(), functionId(), constructorId()});
+            c.use(name, {variableId(), formalId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
           } else {
-            c.useLub(name, {variableId(), fieldId(), functionId(), constructorId()});
+            c.useLub(name, {variableId(), formalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
           }
        } else {
           c.fact(current, avalue());
@@ -1255,7 +1259,7 @@ void collect(current: (Expression) `<Expression e> [ <OptionalExpression ofirst>
 // ---- fieldAccess
 
 void collect(current: (Expression) `<Expression expression> . <Name field>`, Collector c){
-    c.useViaType(expression, field, {fieldId()});
+    c.useViaType(expression, field, {fieldId(), keywordFieldId()});
     c.fact(current, field);
     collect(expression, c);
 }
@@ -1297,7 +1301,7 @@ public AType computeFieldTypeWithADT(AType containerType, Tree field, loc scope,
     if(isNonTerminalType(containerType) && fieldName == "top"){
         return containerType;
     }
-    return s.getTypeInType(containerType, field, {fieldId()}, scope);
+    return s.getTypeInType(containerType, field, {fieldId(), keywordFieldId()}, scope);
 //    fieldName = unescape("<field>");
 //    if(overloadedAType(rel[loc, IdRole, AType] overloads) := containerType){
 //        field_overloads = {};
@@ -1425,7 +1429,7 @@ public AType computeFieldType(AType containerType, Tree field, loc scope, Solver
 
 void collect(current:(Expression) `<Expression expression> [ <Name field> = <Expression repl> ]`, Collector c){
     scope = c.getScope();
-    //c.use(field, {fieldId()});
+    //c.use(field, {fieldId(), keywordFieldId()});
     c.calculate("field update of `<field>`", current, [expression, repl],
         AType(Solver s){ 
                  fieldType = computeFieldTypeWithADT(s.getType(expression), field, scope, s);

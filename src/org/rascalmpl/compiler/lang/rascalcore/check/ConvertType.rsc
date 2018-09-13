@@ -296,7 +296,7 @@ void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collec
     
     for(targ <- targs){
         if(targ has name){
-            c.define("<targ.name>", variableId(), targ.name, defType([targ.\type], makeGetTypeArg(targ)));
+            c.define("<targ.name>", formalId()/*variableId()*/, targ.name, defType([targ.\type], makeGetTypeArg(targ)));
             c.fact(targ, targ.name);
         }
         collect(targ.\type, c);
