@@ -18,9 +18,12 @@ import Map;
 data IdRole
     = moduleId()
     | functionId()
+    | formalId()
+    | keywordFormalId()
+    | fieldId()
+    | keywordFieldId()
     | labelId()
     | constructorId()
-    | fieldId()
     | dataId()
     | aliasId()
     | annoId()
@@ -66,14 +69,15 @@ data Modifier
 data DefInfo(Vis vis = publicVis());
 
 // Formal parameter list of function (included ones nested in patterns)
-
 data DefInfo(lrel[str name, loc def] nestedParameters = []);
+
+// Keyword parameters are explicitly marked
+data DefInfo(bool isKeywordFormal = false);
 
 data DefInfo(map[str,str] tags = ());
 
 // Common Keyword fields for ADTs
-data DefInfo(list[KeywordFormal] commonKeywordFields = []
-             );
+data DefInfo(list[KeywordFormal] commonKeywordFields = []);
 
 // Maintain excluded use in parts of a scope
 private str key_exclude_use = "exclude_use";
@@ -124,7 +128,7 @@ bool rascalMayOverload(set[loc] defs, map[loc, Define] defines){
 Accept rascalIsAcceptableSimple(TModel tm, loc def, Use use){
     //println("rascalIsAcceptableSimple: <use.id> def=<def>, use=<use>");
  
-    if(variableId() in use.idRoles){
+    if(variableId() in use.idRoles || formalId() in use.idRoles || keywordFormalId() in use.idRoles){
        // enforce definition before use
        if(def.path == use.occ.path && /*def.path == use.scope.path &&*/ def < use.scope){
           if(use.occ.offset < def.offset){
@@ -293,6 +297,8 @@ AType rascalGetTypeInNamelessType(AType containerType, Tree selector, loc scope,
     return computeFieldType(containerType, selector, scope, s);
 }
 
+bool rascalIsInferrable(IdRole idRole) = idRole in {variableId(), formalId(), keywordFormalId()};
+
 data TypePalConfig(
     bool showImports = false,
     bool classicReifier = false
@@ -313,7 +319,7 @@ TypePalConfig rascalTypePalConfig(bool classicReifier = false,  bool showImports
         getLub                        = lang::rascalcore::check::AType::alub,
         
         lookup                        = lookupWide,
-       
+        isInferrable                  = rascalIsInferrable,
         isAcceptableSimple            = rascalIsAcceptableSimple,
         isAcceptableQualified         = rascalIsAcceptableQualified,
         isAcceptablePath              = rascalIsAcceptablePath,

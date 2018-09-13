@@ -191,7 +191,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
 // ---- keyword Formal --------------------------------------------------------
 
 void collect(current: (KeywordFormal) `<Type kwType> <Name name> = <Expression expression>`, Collector c){
-    c.define("<name>", variableId(), name, defType(kwType));
+    c.define("<name>", keywordFormalId() /*variableId()*/, name, defType(kwType));
     c.calculate("keyword formal", current, [kwType, expression],
         AType(Solver s){
             s.requireSubType(expression, kwType, error(expression, "Initializing expression of type %t expected, found %t", kwType, expression));
@@ -355,7 +355,9 @@ void collect(Parameters parameters, Collector c){
     for(KeywordFormal kwf <- kwFormals){
         fieldName = prettyPrintName(kwf.name);
         kwfType = kwf.\type;
-        c.define(fieldName, variableId(), kwf.name, defType([kwfType], makeFieldType(fieldName, kwfType)));
+        dt = defType([kwfType], makeFieldType(fieldName, kwfType));
+        dt.isKeywordFormal = true;
+        c.define(fieldName, keywordFormalId()/*variableId()*/, kwf.name, dt);
     }
     
     beginPatternScope("parameter", c);
@@ -561,14 +563,17 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
         if(ta is named){
             fieldName = prettyPrintName(ta.name);
             fieldType = ta.\type;
-            c.define(fieldName, fieldId(), ta.name, defType([fieldType], makeFieldType(fieldName, fieldType)));
+            dt = defType([fieldType], makeFieldType(fieldName, fieldType));
+            c.define(fieldName, fieldId(), ta.name, dt);
         }
     }
     
     for(KeywordFormal kwf <- kwFormals){
         fieldName = prettyPrintName(kwf.name);
         kwfType = kwf.\type;
-        c.define(fieldName, fieldId(), kwf.name, defType([kwfType], makeFieldType(fieldName, kwfType)));    
+        dt = defType([kwfType], makeFieldType(fieldName, kwfType));
+        dt.isKeywordFormal = true;
+        c.define(fieldName, keywordFieldId()/*fieldId()*/, kwf.name, dt);    
     }
 
     scope = c.getScope();
@@ -615,7 +620,6 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
     } else {
         throw "collect Variant: currentAdt not found";
     }
-   
 } 
 
 // ---- syntax definition -----------------------------------------------------

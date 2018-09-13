@@ -456,9 +456,9 @@ void collect(current: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bou
     for(v <- variables){
         <qualifier, base> = splitQualifiedName(v);
         if(!isEmpty(qualifier)){
-            c.useQualified([qualifier, base], name, {variableId()}, {moduleId()} );
+            c.useQualified([qualifier, base], name, {variableId(), formalId(), keywordFormalId()}, {moduleId()} );
         } else {
-            c.use(v, {variableId()});
+            c.use(v, {variableId(), formalId(), keywordFormalId()});
         }
     }
     c.fact(current, avoid());
@@ -620,11 +620,9 @@ void checkAssignment(Statement current, (Assignable) `<QualifiedName name>`, str
         c.useQualified([qualifier, base], name, {variableId()}, {moduleId()});
     } else {
         if(operator == "="){
-           //c.calculate("name of assignable", name, [statement], AType(Solver s){ return getType(statement); });
-           c.define(base, variableId(), name, defLub([statement], 
-            AType(Solver s){ return s.getType(statement); }));
+           c.define(base, variableId(), name, defLub([statement], AType(Solver s){ return s.getType(statement); }));
         } else {
-           c.useLub(name, {variableId()});
+           c.useLub(name, {variableId(), formalId(), keywordFormalId()});
         }
     }
     c.calculate("assignment to `<name>`", current, [name, statement],    // TODO: add name to dependencies?
@@ -666,7 +664,7 @@ AType computeReceiverType(Statement current, (Assignable) `\< <{Assignable ","}+
 void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, str operator, Statement rhs, Collector c){
    names = getReceiver(receiver, c);
    
-   c.use(names[0], {variableId()});
+   c.use(names[0], {variableId(), formalId(), keywordFormalId()});
    scope = c.getScope();
    
    c.calculate("assignable with subscript", current, [subscript, rhs], 
@@ -741,7 +739,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <O
    if(optFirst is noExpression) c.fact(optFirst, aint());
    if(optLast is noExpression) c.fact(optLast, aint());
    
-   c.use(names[0], {variableId()});
+   c.use(names[0], {variableId(), formalId(), keywordFormalId()});
    
    scope = c.getScope();
    
@@ -759,7 +757,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <O
    if(optFirst is noExpression) c.fact(optFirst, aint());
    if(optLast is noExpression) c.fact(optLast, aint());
 
-   c.use(names[0], {variableId()});
+   c.use(names[0], {variableId(), formalId(), keywordFormalId()});
    scope = c.getScope();
    
    c.calculate("assignable with slice", current, [optFirst, second, optLast, rhs], 
@@ -804,7 +802,7 @@ AType computeSliceAssignableType(Statement current, AType receiverType, AType fi
 
 void checkAssignment(Statement current, (Assignable) `<Assignable receiver> . <Name field>`, str operator, Statement rhs, Collector c){
    names = getReceiver(receiver, c);
-   c.use(names[0], {variableId()});
+   c.use(names[0], {variableId(), formalId(), keywordFormalId()});
    scope = c.getScope();
    
    c.calculate("assignable with field", current, [rhs], 
@@ -821,7 +819,7 @@ AType computeFieldAssignableType(Statement current, AType receiverType, Tree fie
     if(isNonTerminalType(receiverType) && fieldName == "top"){
         return receiverType;
     }
-    fieldType = s.getTypeInType(receiverType, field, {fieldId()}, scope);
+    fieldType = s.getTypeInType(receiverType, field, {fieldId(), keywordFieldId()}, scope);
     updatedFieldType = computeAssignmentRhsType(current, fieldType, operator, rhs, s);
     s.requireSubType(updatedFieldType, fieldType, error(current, "Field %q requires %t, found %t", fieldName, fieldType, updatedFieldType));
     return updatedFieldType;
@@ -829,7 +827,7 @@ AType computeFieldAssignableType(Statement current, AType receiverType, Tree fie
 
 void checkAssignment(Statement current, (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, str operator, Statement rhs, Collector c){
    names = getReceiver(receiver, c);
-   c.use(names[0], {variableId()});
+   c.use(names[0], {variableId(), formalId(), keywordFormalId()});
    scope = c.getScope();
    
    c.calculate("assignable with default expression", current, [defaultExpression, rhs], 
@@ -899,7 +897,7 @@ void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable 
    taus = [c.newTypeVar(nm) | nm <- names];
    for(int i <- index(names), flatNames[i] notin namesInRhs){c.define("<names[i]>", variableId(), names[i], defLub([rhs], makeDef(i)));}
    
-   for(name <- names) c.use(name, {variableId()});
+   for(name <- names) c.use(name, {variableId(), formalId(), keywordFormalId()});
   
    scope = c.getScope();
    
@@ -915,7 +913,7 @@ void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable 
 void checkAssignment(Statement current, (Assignable) `<Assignable receiver> @ <Name n>`, str operator, Statement rhs, Collector c){
    c.use(n, {annoId()});
    names = getReceiver(receiver, c);
-   c.useLub(names[0], {variableId()});
+   c.useLub(names[0], {variableId(), formalId(), keywordFormalId()});
    scope = c.getScope();
    
    c.calculate("assignable with annotation", current, [n, rhs], 
@@ -967,7 +965,7 @@ AType computeAnnoAssignableType(Statement current, AType receiverType, Name anno
 
 
 list[QualifiedName] getReceiver((Assignable) `<QualifiedName name>`, Collector c){
-    c.use(name,{variableId()});
+    c.use(name, {variableId(), formalId(), keywordFormalId()});
     return [name];
 }
 list[QualifiedName] getReceiver((Assignable) `<Assignable receiver> [ <Expression subscript> ]`, Collector c) = getReceiver(receiver, c);
