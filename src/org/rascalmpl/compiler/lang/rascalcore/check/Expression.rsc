@@ -517,7 +517,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
         AType(Solver s){
             for(x <- expression + actuals + kwactuals){
                  tp = s.getType(x);
-                 if(!s.isFullyInstantiated(tp)) throw TypeUnavailable(tp);
+                 if(!s.isFullyInstantiated(tp)) throw TypeUnavailable();
             }
             
             texp = s.getType(expression);
@@ -1085,9 +1085,9 @@ void collect(current:(Expression)`<Expression expression> [ <{Expression ","}+ i
 }
 
 AType computeSubscriptionType(Tree current, AType t1, list[AType] tl, list[Expression] indexList, Solver s){
-    if(!s.isFullyInstantiated(t1)) throw TypeUnavailable(t1);
+    if(!s.isFullyInstantiated(t1)) throw TypeUnavailable();
     for(tp <- tl){
-        if(!s.isFullyInstantiated(tp)) throw TypeUnavailable(tp);
+        if(!s.isFullyInstantiated(tp)) throw TypeUnavailable();
     }
 
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
@@ -1211,10 +1211,10 @@ void collect(current: (Expression) `<Expression e> [ <OptionalExpression ofirst>
 
 AType computeSliceType(Tree current, AType base, AType first, AType step, AType last, Solver s){
 
-    if(!s.isFullyInstantiated(base)) throw TypeUnavailable(base);
-    if(!s.isFullyInstantiated(first)) throw TypeUnavailable(first); 
-    if(!s.isFullyInstantiated(step)) throw TypeUnavailable(step);
-    if(!s.isFullyInstantiated(last)) throw TypeUnavailable(last);
+    if(!s.isFullyInstantiated(base)) throw TypeUnavailable();
+    if(!s.isFullyInstantiated(first)) throw TypeUnavailable(); 
+    if(!s.isFullyInstantiated(step)) throw TypeUnavailable();
+    if(!s.isFullyInstantiated(last)) throw TypeUnavailable();
     
      if(overloadedAType(rel[loc, IdRole, AType] overloads) := base){
         slice_overloads = {};
@@ -1342,7 +1342,7 @@ public AType computeFieldTypeWithADT(AType containerType, Tree field, loc scope,
 public AType computeFieldType(AType containerType, Tree field, loc scope, Solver s) {
     //println("computeFieldType: <containerType>, <field>");
    
-    if(!s.isFullyInstantiated(containerType)) throw TypeUnavailable(containerType);
+    if(!s.isFullyInstantiated(containerType)) throw TypeUnavailable();
     fieldName = unescape("<field>");
     
    if (isReifiedType(containerType)) {
@@ -1461,7 +1461,7 @@ void collect(current:(Field) `<Name fieldName>`, Collector c){
 
 AType computeFieldProjectionType(Expression current, AType base, list[lang::rascal::\syntax::Rascal::Field] fields, Solver s){
 
-    if(!s.isFullyInstantiated(base)) throw TypeUnavailable(base);
+    if(!s.isFullyInstantiated(base)) throw TypeUnavailable();
     
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := base){
         projection_overloads = {};

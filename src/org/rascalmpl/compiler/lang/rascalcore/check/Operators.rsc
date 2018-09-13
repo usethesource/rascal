@@ -863,7 +863,7 @@ AType computeEnumeratorElementType(Expression current, AType etype, Solver s) {
     // TODO: For nodes, ADTs, and tuples, would it be better to use the lub of all the possible types?
 
 //println("computeEnumeratorElementType: <etype>");
-     if(!s.isFullyInstantiated(etype)) throw TypeUnavailable(etype);
+     if(!s.isFullyInstantiated(etype)) throw TypeUnavailable();
      
      etype = s.instantiate(etype);
      

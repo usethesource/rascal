@@ -361,8 +361,8 @@ bool asubtype(AType s, s) = true;
 
 default bool asubtype(AType s, AType t) = (s.label? || t.label?) ? asubtype(unset(s, "label") , unset(t, "label")) : s == t;
 
-bool asubtype(tvar(s), AType r) { /*println("asubtype(tvar(<s>), <r>)");*/ throw TypeUnavailable(s); }
-bool asubtype(AType l, tvar(s)) { /*println("asubtype(<l> tvar(<s>))");*/ throw TypeUnavailable(s); }
+bool asubtype(tvar(s), AType r) { /*println("asubtype(tvar(<s>), <r>)");*/ throw TypeUnavailable(); }
+bool asubtype(AType l, tvar(s)) { /*println("asubtype(<l> tvar(<s>))");*/ throw TypeUnavailable(); }
 
 
 bool asubtype(overloadedAType(overloads), AType r) = any(<k, idr, tp> <- overloads, asubtype(tp, r));
@@ -517,8 +517,8 @@ The least-upperbound (lub) between two types.
 .Description
 This function documents and implements the lub operation in Rascal's type system. 
 }
-AType alub(tvar(s), AType r) { /*println("alub(tvar(<s>), <r>)");*/ throw TypeUnavailable(s); } 
-AType alub(AType l, tvar(s)) { /*println("alub(<l>, tvar(<s>))");*/ throw TypeUnavailable(s); }
+AType alub(tvar(s), AType r) { /*println("alub(tvar(<s>), <r>)");*/ throw TypeUnavailable(); } 
+AType alub(AType l, tvar(s)) { /*println("alub(<l>, tvar(<s>))");*/ throw TypeUnavailable(); }
 
 AType alub(AType s, s) = s;
 default AType alub(AType s, AType t) = (s.label? || t.label?) ? alub(unset(s, "label") , unset(t, "label")) : avalue();

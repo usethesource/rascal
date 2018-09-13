@@ -422,7 +422,7 @@ AType getSplicePatternType(Pattern current, Pattern argument,  AType subjectType
                   s.fact(current, elmType); // <<
                   subjectType = s.instantiate(elmType);
                }
-           //} catch TypeUnavailable(_): {
+           //} catch TypeUnavailable(): {
            //     nameElementType = subjectType;
            //    //s.fact(argName, nameElementType); //<<
            //    s.fact(current, nameElementType); //<<
