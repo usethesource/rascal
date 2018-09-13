@@ -677,8 +677,8 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <E
 
 AType computeSubscriptAssignableType(Statement current, AType receiverType, Expression subscript, str operator, AType rhs, Solver s){
 
-   if(!s.isFullyInstantiated(receiverType)) throw TypeUnavailable(receiverType);
-   if(!s.isFullyInstantiated(rhs)) throw TypeUnavailable(rhs);
+   if(!s.isFullyInstantiated(receiverType)) throw TypeUnavailable();
+   if(!s.isFullyInstantiated(rhs)) throw TypeUnavailable();
    
    if(overloadedAType(rel[loc, IdRole, AType] overloads) := receiverType){
         sub_overloads = {};
@@ -770,11 +770,11 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <O
 }
 
 AType computeSliceAssignableType(Statement current, AType receiverType, AType first, AType step, AType last, str operator, AType rhs, Solver s){
-    if(!s.isFullyInstantiated(receiverType)) throw TypeUnavailable(receiverType);
-    if(!s.isFullyInstantiated(first)) throw TypeUnavailable(first);
-    if(!s.isFullyInstantiated(step)) throw TypeUnavailable(step);
-    if(!s.isFullyInstantiated(last)) throw TypeUnavailable(last);
-    if(!s.isFullyInstantiated(rhs)) throw TypeUnavailable(rhs);
+    if(!s.isFullyInstantiated(receiverType)) throw TypeUnavailable();
+    if(!s.isFullyInstantiated(first)) throw TypeUnavailable();
+    if(!s.isFullyInstantiated(step)) throw TypeUnavailable();
+    if(!s.isFullyInstantiated(last)) throw TypeUnavailable();
+    if(!s.isFullyInstantiated(rhs)) throw TypeUnavailable();
 
     failures = [];
     if(!isIntType(first)) failures += error(current, "The first slice index must be of type `int`, found %t", first);
@@ -927,8 +927,8 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> @ <N
 AType computeAnnoAssignableType(Statement current, AType receiverType, Name annoName, str operator, AType rhs, loc scope, Solver s){
 //println("computeAnnoAssignableType: <receiverType>, <annoName>, <operator>, <rhs>");
    
-    if(!s.isFullyInstantiated(receiverType)) throw TypeUnavailable(receiverType);
-    if(!s.isFullyInstantiated(rhs)) throw TypeUnavailable(rhs);
+    if(!s.isFullyInstantiated(receiverType)) throw TypeUnavailable();
+    if(!s.isFullyInstantiated(rhs)) throw TypeUnavailable();
     
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := receiverType){
         anno_overloads = {};
