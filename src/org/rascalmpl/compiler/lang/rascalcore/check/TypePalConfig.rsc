@@ -20,6 +20,7 @@ data IdRole
     | functionId()
     | formalId()
     | keywordFormalId()
+    | patternFormalId()
     | fieldId()
     | keywordFieldId()
     | labelId()
@@ -34,9 +35,10 @@ data IdRole
     | typeVarId()
     ;
 
-public set[IdRole] syntaxIds = {aliasId(), nonterminalId(), lexicalId(), layoutId(), keywordId()};
-public set[IdRole] dataOrSyntaxIds = {dataId()} + syntaxIds;
-public set[IdRole] dataIds = {aliasId(), dataId()}; 
+public set[IdRole] syntaxRoles = {aliasId(), nonterminalId(), lexicalId(), layoutId(), keywordId()};
+public set[IdRole] dataOrSyntaxRoles = {dataId()} + syntaxRoles;
+public set[IdRole] dataRoles = {aliasId(), dataId()}; 
+public set[IdRole] anyVariableRoles = {variableId(), formalId(), keywordFormalId(), patternFormalId()};
 
 data PathRole
     = importPath()
@@ -300,7 +302,7 @@ AType rascalGetTypeInNamelessType(AType containerType, Tree selector, loc scope,
     return computeFieldType(containerType, selector, scope, s);
 }
 
-bool rascalIsInferrable(IdRole idRole) = idRole in {variableId(), formalId(), keywordFormalId()};
+bool rascalIsInferrable(IdRole idRole) = idRole in anyVariableRoles;
 
 loc findContainingFunction(loc def, map[loc,Define] definitions, map[loc,loc] scope){
     sc = definitions[def].scope;
@@ -310,7 +312,9 @@ loc findContainingFunction(loc def, map[loc,Define] definitions, map[loc,loc] sc
     return sc;
 }
 
-bool rascalReportUnused(loc def, map[loc,Define] definitions, map[loc,loc] scopes){
+bool rascalReportUnused(loc def, map[loc,Define] definitions, map[loc,loc] scopes, TypePalConfig config){
+    if(!config.showUnused) return false;
+    
     define = definitions[def];
     try {
         switch(define.idRole){
@@ -320,14 +324,15 @@ bool rascalReportUnused(loc def, map[loc,Define] definitions, map[loc,loc] scope
             case constructorId():   return false;
             case fieldId():         return false;
             case keywordFieldId():  return false;
-            case formalId():        return define.id != "_" && "java" notin definitions[findContainingFunction(def, definitions, scopes)].defInfo.modifiers;
-            case keywordFormalId(): return "java" notin definitions[findContainingFunction(def, definitions, scopes)].defInfo.modifiers;
+            case formalId():        return config.showUnusedVariables && define.id != "_" && "java" notin definitions[findContainingFunction(def, definitions, scopes)].defInfo.modifiers;
+            case patternFormalId(): return config.showUnusedPatternFormals && define.id != "_";
+            case keywordFormalId(): return config.showUnusedVariables && "java" notin definitions[findContainingFunction(def, definitions, scopes)].defInfo.modifiers;
             case typeVarId():       return false;
-            case variableId():      return define.id notin {"_", "it"};
+            case variableId():      return config.showUnusedVariables && define.id notin {"_", "it"};
             case annoId():          return false;
             case aliasId():         return false;
             case lexicalId():       return false;
-            case nonTerminalId():   return false;
+            case nonterminalId():   return false;
             case layoutId():        return false;
             case keywordId():       return false;
         }
@@ -337,8 +342,11 @@ bool rascalReportUnused(loc def, map[loc,Define] definitions, map[loc,loc] scope
 }
  
 data TypePalConfig(
-    bool showImports = false,
-    bool classicReifier = false
+    bool showImports                = false,
+    bool classicReifier             = false,
+    bool showUnused                 = true,
+    bool showUnusedVariables        = true,
+    bool showUnusedPatternFormals   = false
 );
 
 TypePalConfig rascalTypePalConfig(bool classicReifier = false,  bool showImports = false)
@@ -347,8 +355,12 @@ TypePalConfig rascalTypePalConfig(bool classicReifier = false,  bool showImports
         showSolverIterations          = false,
         showSolverSteps               = false,
         showAttempts                  = false,
-        showImports                   = false,
+        showImports                   = showImports,
         validateConstraints           = true,
+        
+        showUnused                    = true,
+        showUnusedVariables           = true,
+        showUnusedPatternFormals      = false,
         
         getMinAType                   = AType(){ return avoid(); },
         getMaxAType                   = AType(){ return avalue(); },

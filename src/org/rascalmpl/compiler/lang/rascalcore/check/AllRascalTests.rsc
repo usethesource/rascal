@@ -281,7 +281,7 @@ TestResults runTests(list[str] names, str base){
       try {
           prog = base == "" ? tst : (base + "::" + tst);
           println("TYPECHECKING <prog>");
-          mname2msgs = checkModule(prog);
+          mname2msgs = filterErrors(checkModule(prog));
           iprintln(mname2msgs);
           all_test_msgs += mname2msgs;
       } catch value e:
@@ -390,6 +390,13 @@ bool whitelisted(str qualifiedModuleName){
     return false;
 }
 
+list[Message] filterErrors(list[Message] msgs){
+    return [msg | msg <- msgs, error(_,_) := msg];
+}
+map[str, list[Message]] filterErrors(map[str, list[Message]] modsAndMsgs){
+    return (mname : msgs | mname <- modsAndMsgs, msgs := filterErrors(modsAndMsgs[mname]), !isEmpty(msgs));
+}
+
 void allFiles(PathConfig pcfg = pathConfig(   
         srcs = [|project://rascal-core/src/org/rascalmpl/core/library/|,
                 |project://TypePal/src|,
@@ -416,7 +423,7 @@ void allFiles(PathConfig pcfg = pathConfig(
         }
         println("\>\>\> <ncount>: CHECKING <qualifiedModuleName> (N:<size(modulePaths)>/E:<size(problems)>/C:<size(crashed)>/S:<nskipped>)");
         try {
-            modulesAndmsgs = checkModule(qualifiedModuleName);
+            modulesAndmsgs = filterErrors(checkModule(qualifiedModuleName));
             if(modulesAndmsgs[qualifiedModuleName]?) iprintln(modulesAndmsgs);
             problems += modulesAndmsgs;
             //if(modulesAndmsgs[qualifiedModuleName]?) {

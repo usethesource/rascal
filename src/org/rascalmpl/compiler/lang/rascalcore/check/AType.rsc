@@ -53,7 +53,7 @@ AType overloadedAType(rel[loc, IdRole, AType] overloads){
     if(all(<loc k, IdRole idr, AType t> <- overloads, aadt(adtName, params, syntaxRole) := t)){
       str adtName = "";
       list[AType] adtParams = [];
-      syntaxRoles = {};
+      synRoles = {};
       nformals = -1;
       for(<loc k, IdRole idr, AType t> <- overloads, aadt(adtName1, params1, syntaxRole1) := t){
         if(!isEmpty(adtName) && adtName != adtName1) fail overloadedAType; // overloading of different ADTs.
@@ -61,9 +61,9 @@ AType overloadedAType(rel[loc, IdRole, AType] overloads){
         
         adtName = adtName1;
         adtParams = params1;    // TODO take care of different parameter names
-        syntaxRoles += syntaxRole1;
+        synRoles += syntaxRole1;
       }
-      syntaxRole = overloadSyntaxRole(syntaxRoles);
+      syntaxRole = overloadSyntaxRole(synRoles);
       if(syntaxRole == illegalSyntax()) fail overloadedAType;
  
       
