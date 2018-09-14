@@ -86,12 +86,12 @@ void collect(current:(Literal)`<StringLiteral sl>`, Collector c){
 
 void collect(current: (StringLiteral) `<PreStringChars pre><StringTemplate template><StringTail tail>`, Collector c){
     c.fact(current, astr());
-    collect(template, c);
+    collect(template, tail, c);
 } 
 
 void collect(current: (StringLiteral) `<PreStringChars pre><Expression expression><StringTail tail>`, Collector c){
     c.fact(current, astr());
-    collect(expression, c);
+    collect(expression, tail, c);
 }
 
 void collect(current: (StringConstant) `"<StringCharacter* chars>"`, Collector c){
@@ -108,6 +108,13 @@ void collect(current: (StringMiddle) `<MidStringChars mi><Expression expression>
 
 void collect(current: (MidStringChars) `\><StringCharacter* chars>\<`, Collector c){
 
+}
+void collect(current: (StringTail) `<MidStringChars mid> <Expression expression> <StringTail tail>`, Collector c){
+    collect(expression, tail, c);
+}
+
+void collect(current: (StringTail) `<MidStringChars mid> <StringTemplate template> <StringTail tail>`, Collector c){
+    collect(template, tail, c);
 }
 
 void collect(current: (StringTemplate) `if(<{Expression ","}+ conditions>){ <Statement* preStats> <StringMiddle body> <Statement* postStats> }`, Collector c){
