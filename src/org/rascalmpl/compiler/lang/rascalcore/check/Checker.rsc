@@ -382,9 +382,12 @@ map[str, list[Message]] checkModule(str moduleName,
                               bool showTimes                     = false,
                               bool showSolverIterations          = false,
                               bool showSolverSteps               = false,
-                              bool showAttempts               = false,
+                              bool showAttempts                  = false,
                               bool showTModel                    = false,
                               bool showImports                   = false,
+                              bool showUnused                    = true,
+                              bool showUnusedVariables           = true,
+                              bool showUnusedPatternFormals      = false,
                               bool validateConstraints           = true) {
                               
     if(verbose) {
@@ -401,6 +404,11 @@ map[str, list[Message]] checkModule(str moduleName,
     config.showAttempts = showAttempts;
     config.showTModel = showTModel;
     config.showImports = showImports;
+    
+    config.showUnused = showUnused;
+    config.showUnusedVariables = showUnusedVariables;
+    config.showUnusedPatternFormals = showUnusedPatternFormals;
+    
     config.validateConstraints = validateConstraints;
     <tmodels, moduleLocs, modules> = rascalTModelForName(moduleName, getDefaultPathConfig(), config);
     return (mname : tmodels[mname].messages | mname <- tmodels, !isEmpty(tmodels[mname].messages));

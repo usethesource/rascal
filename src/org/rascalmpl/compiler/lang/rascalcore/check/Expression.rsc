@@ -223,17 +223,17 @@ void collect(current: (ConcreteHole) `\< <Sym symbol> <Name name> \>`, Collector
     if(size(c.getStack(patternContainer)) == 1){    // An expression
         //println("ConcreteHole exp: <current>");
         //c.use(name, {variableId()});
-        c.define(uname, formalOrVarId(c)/*variableId(*/, name, defLub([symbol], AType(Solver s) { return s.getType(symbol); }));
+        c.define(uname, formalOrPatternFormal(c), name, defLub([symbol], AType(Solver s) { return s.getType(symbol); }));
         //c.calculate("concrete hole", current, [varType], AType(Solver s) { return s.getType(varType); });
     } else {                                        //A pattern
         //println("ConcreteHole pat: <current>");
       
         if(uname != "_"){
            if(uname in c.getStack(patternNames)){
-              c.useLub(name, {formalOrVarId(c)/*variableId(), formalId()*/});
+              c.useLub(name, {formalOrPatternFormal(c)});
            } else {
                c.push(patternNames, uname);
-               c.define(uname, formalOrVarId(c)/*variableId()*/, name, defLub([symbol], AType(Solver s) { return s.getType(symbol); }));
+               c.define(uname, formalOrPatternFormal(c), name, defLub([symbol], AType(Solver s) { return s.getType(symbol); }));
            }
         }
     }
@@ -801,7 +801,7 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, AType retType, 
         //actuals_i = (list[Expression] actualsExp := actuals) ? actualsExp[i] : ((list[Pattern] actualsPat := actuals) ? actualsPat[i] : current);
         s.requireComparable(ai, iformals[i], error(current, "Argument %v should have type %t, found %t", i, formalTypes[i], ai));
     }
-    adtType = s.getTypeInScopeFromName(adtName, scope, dataOrSyntaxIds);
+    adtType = s.getTypeInScopeFromName(adtName, scope, dataOrSyntaxRoles);
     
     switch(keywordArguments){
     case (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`:
@@ -826,7 +826,7 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, AType retType, 
         if(!bindings[p.pname]?) bindings[p.pname] = avoid();
     }
     if(!isEmpty(bindings)){
-        try    return instantiateRascalTypeParams(s.getTypeInScopeFromName(adtName, scope, dataOrSyntaxIds), bindings);
+        try    return instantiateRascalTypeParams(s.getTypeInScopeFromName(adtName, scope, dataOrSyntaxRoles), bindings);
         catch invalidInstantiation(str msg):
                s.report(error(current, msg));
     }
@@ -910,8 +910,8 @@ AType computePatternNodeType(Tree current, loc scope, list[Pattern] patList, (Ke
     actualType = [ dontCare[i] ? avalue() : getPatternType(patList[i], avalue(), scope, s) | i <- index(patList) ];
     
     if(adtType:aadt(adtName, list[AType] parameters,_) := subjectType){
-       declaredInfo = s.getDefinitions(adtName, scope, dataOrSyntaxIds);
-       declaredType = s.getTypeInScopeFromName(adtName, scope, dataOrSyntaxIds);
+       declaredInfo = s.getDefinitions(adtName, scope, dataOrSyntaxRoles);
+       declaredType = s.getTypeInScopeFromName(adtName, scope, dataOrSyntaxRoles);
        checkPatternKwArgs(getCommonKeywords(adtType, scope, s), keywordArgumentsPat, (), scope, s);
        return subjectType;
     } else if(acons(adtType:aadt(adtName, list[AType] parameters, _), list[AType] fields, list[Keyword] kwFields) := subjectType){
@@ -988,7 +988,7 @@ list[AType] computePatternKwArgs((KeywordArguments[Pattern]) `<KeywordArguments[
 }
  
 list[Keyword] getCommonKeywords(aadt(str adtName, list[AType] parameters, _), loc scope, Solver s) =
-     [ <s.getType(kwf.\type)[label=prettyPrintName(kwf.name)], kwf.expression> | d <- s.getDefinitions(adtName, scope, dataOrSyntaxIds), kwf <- d.defInfo.commonKeywordFields ];
+     [ <s.getType(kwf.\type)[label=prettyPrintName(kwf.name)], kwf.expression> | d <- s.getDefinitions(adtName, scope, dataOrSyntaxRoles), kwf <- d.defInfo.commonKeywordFields ];
      
 list[Keyword] getCommonKeywords(overloadedAType(rel[loc, IdRole, AType] overloads), loc scope, Solver s) = [ *getCommonKeywords(adt, scope, s) | <def, idr, adt> <- overloads ];
 default list[Keyword] getCommonKeywords(AType atype, loc scope, Solver s) = [];
@@ -1045,13 +1045,13 @@ void collect(current: (Expression) `( <{Mapping[Expression] ","}* mappings>)`, C
 void collect(current: (QualifiedName) `<QualifiedName name>`, Collector c){
     <qualifier, base> = splitQualifiedName(name);
     if(!isEmpty(qualifier)){     
-       c.useQualified([qualifier, base], name, {variableId(), functionId(), constructorId()}, dataOrSyntaxIds + {moduleId()} );
+       c.useQualified([qualifier, base], name, {variableId(), functionId(), constructorId()}, dataOrSyntaxRoles + {moduleId()} );
     } else {
        if(base != "_"){
           if(inPatternScope(c)){
-            c.use(name, {variableId(), formalId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
+            c.use(name, {variableId(), formalId(), patternFormalId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
           } else {
-            c.useLub(name, {variableId(), formalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
+            c.useLub(name, {variableId(), formalId(), patternFormalId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
           }
        } else {
           c.fact(current, avalue());

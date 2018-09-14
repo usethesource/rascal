@@ -191,7 +191,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> anno <T
 // ---- keyword Formal --------------------------------------------------------
 
 void collect(current: (KeywordFormal) `<Type kwType> <Name name> = <Expression expression>`, Collector c){
-    c.define("<name>", keywordFormalId() /*variableId()*/, name, defType(kwType));
+    c.define("<name>", keywordFormalId(), name, defType(kwType));
     c.calculate("keyword formal", current, [kwType, expression],
         AType(Solver s){
             s.requireSubType(expression, kwType, error(expression, "Initializing expression of type %t expected, found %t", kwType, expression));
@@ -360,7 +360,7 @@ void collect(Parameters parameters, Collector c){
         kwfType = kwf.\type;
         dt = defType([kwfType], makeFieldType(fieldName, kwfType));
         dt.isKeywordFormal = true;
-        c.define(fieldName, keywordFormalId()/*variableId()*/, kwf.name, dt);
+        c.define(fieldName, keywordFormalId(), kwf.name, dt);
     }
     
     beginPatternScope("parameter", c);

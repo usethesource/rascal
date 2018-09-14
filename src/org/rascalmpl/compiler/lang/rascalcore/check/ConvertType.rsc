@@ -336,7 +336,7 @@ void collect(current:(UserType) `<QualifiedName n>`, Collector c){
     if(isEmpty(qualifier)){
         c.use(n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()});
     } else {
-        c.useQualified([qualifier, base], n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()}, dataOrSyntaxIds + {moduleId()});
+        c.useQualified([qualifier, base], n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()}, dataOrSyntaxRoles + {moduleId()});
     }
     
     c.calculate("type without parameters", current, [n],
@@ -364,7 +364,7 @@ void collect(current:(UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]`, Collect
     if(isEmpty(qualifier)){
         c.use(n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()});
     } else {
-        c.useQualified([qualifier, base], n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()}, dataOrSyntaxIds + {moduleId()});
+        c.useQualified([qualifier, base], n, {dataId(), aliasId(), lexicalId(), nonterminalId(), keywordId(), layoutId()}, dataOrSyntaxRoles + {moduleId()});
     }
     actuals = [t | t <- ts];
     
@@ -403,7 +403,7 @@ private AType stripStart(aprod(AProduction production)) = production.def;
 
 // named non-terminals
 void collect(current:(Sym) `<Nonterminal n>`, Collector c){
-    c.use(n, syntaxIds);
+    c.use(n, syntaxRoles);
     c.require("non-parameterized <n>", current, [n],
         void(Solver s){
             base = getSyntaxType(n, s);
@@ -421,7 +421,7 @@ void collect(current:(Sym) `& <Nonterminal n>`, Collector c){
 
 void collect(current:(Sym) `<Nonterminal n>[ <{Sym ","}+ parameters> ]`, Collector c){
     params = [p | p <- parameters];
-    c.use(n, syntaxIds);
+    c.use(n, syntaxRoles);
     c.calculate("parameterized <n>", current, n + params, 
         AType(Solver s) { 
             base = getSyntaxType(n, s); 
@@ -435,7 +435,7 @@ void collect(current:(Sym) `<Nonterminal n>[ <{Sym ","}+ parameters> ]`, Collect
 }
 
 void collect(current:(Sym) `start [ <Nonterminal n> ]`, Collector c){
-    c.use(n, syntaxIds);
+    c.use(n, syntaxRoles);
     c.calculate("start <n>", current, [n],
         AType(Solver s){
             adtType = getSyntaxType(n, s);

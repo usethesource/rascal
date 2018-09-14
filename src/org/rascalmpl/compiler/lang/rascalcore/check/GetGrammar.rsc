@@ -36,7 +36,7 @@ AGrammar getGrammar(loc scope, Solver s){
     //PM. maybe also generate prod(Symbol::empty(),[],{}) 
     for(AType adtType <- usedADTs){
         //println("getGrammar: <adtType>");
-        productions = {p | <id, aprod(p)> <- s.getAllDefinedInType(adtType, scope, dataOrSyntaxIds)};
+        productions = {p | <id, aprod(p)> <- s.getAllDefinedInType(adtType, scope, dataOrSyntaxRoles)};
         definitions[adtType] = choice(adtType, productions);
         if(adtType.syntaxRole == layoutSyntax()){
             if(any(p <- productions, isManualLayout(p))){
@@ -86,12 +86,12 @@ AGrammar getGrammar(loc scope, Solver s){
             } else if(isADTType(sym)){
                 // also good, provided we have not already seen this same nonterminal (recursion guard)
                 if(sym notin seenNTs){
-                    checkKeyword(sym, {p2 | <id, aprod(p2)> <- s.getAllDefinedInType(sym, scope, dataOrSyntaxIds)}, scope, seenNTs + sym, s);
+                    checkKeyword(sym, {p2 | <id, aprod(p2)> <- s.getAllDefinedInType(sym, scope, dataOrSyntaxRoles)}, scope, seenNTs + sym, s);
                 }
             } else if(aprod(prod(aadt(_,[],_),[sym2])) := sym && isADTType(sym2)){
                 // also good, provided we have not already seen this same nonterminal (recursion guard)
                 if(sym2 notin seenNTs){
-                    checkKeyword(sym, {p2 | <id, aprod(p2)> <- s.getAllDefinedInType(sym, scope, dataOrSyntaxIds)}, scope, seenNTs + sym2, s);
+                    checkKeyword(sym, {p2 | <id, aprod(p2)> <- s.getAllDefinedInType(sym, scope, dataOrSyntaxRoles)}, scope, seenNTs + sym2, s);
                 }
             } else {
                 s.report(warning(p.src, "Only literals allowed in keyword declaration, found %t via %q", sym, seenNTs));
