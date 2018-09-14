@@ -312,6 +312,14 @@ loc findContainingFunction(loc def, map[loc,Define] definitions, map[loc,loc] sc
     return sc;
 }
 
+loc findContainer(loc def, map[loc,Define] definitions, map[loc,loc] scope){
+    sc = definitions[def].scope;
+    while(definitions[sc]? ? definitions[sc].idRole notin {functionId(), moduleId(), dataId()} : true){
+        sc = definitions[sc].scope;
+    }
+    return sc;
+}
+
 bool rascalReportUnused(loc def, map[loc,Define] definitions, map[loc,loc] scopes, TypePalConfig config){
     if(!config.showUnused) return false;
     
@@ -320,15 +328,23 @@ bool rascalReportUnused(loc def, map[loc,Define] definitions, map[loc,loc] scope
         switch(define.idRole){
             case moduleId():        return false;
             case dataId():          return false;
-            case functionId():      return define.defInfo.vis == privateVis() || definitions[define.scope].idRole == functionId() ||
-                                            "java" notin definitions[findContainingFunction(def, definitions, scopes)].defInfo.modifiers;
+            case functionId():      { if(define.defInfo.vis == privateVis()) return true;
+                                      container = definitions[findContainer(def, definitions, scopes)];
+                                      return container.idRole == functionId() && "java" notin container.defInfo.modifiers;
+                                    }
             case constructorId():   return false;
             case fieldId():         return false;
             case keywordFieldId():  return false;
-            case formalId():        return config.showUnusedVariables && 
-                                           define.id != "_";          
+            case formalId():        { if(!config.showUnusedVariables || define.id == "_") return false;
+                                      container = definitions[findContainer(def, definitions, scopes)];
+                                      return container.idRole == functionId() && "java" notin container.defInfo.modifiers;
+                                    } 
+            case keywordFormalId(): { if(!config.showUnusedVariables || define.id == "_") return false;
+                                      container = definitions[findContainer(def, definitions, scopes)];
+                                      return container.idRole == functionId() && "java" notin container.defInfo.modifiers;
+                                    } 
+                                        
             case patternFormalId(): return config.showUnusedPatternFormals && define.id != "_";
-            case keywordFormalId(): return config.showUnusedVariables && "java" notin definitions[findContainingFunction(def, definitions, scopes)].defInfo.modifiers;
             case typeVarId():       return false;
             case variableId():      return config.showUnusedVariables && define.id notin {"_", "it"};
             case annoId():          return false;

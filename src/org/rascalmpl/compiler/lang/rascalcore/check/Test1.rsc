@@ -1,6 +1,5 @@
 module lang::rascalcore::check::Test1 
 
-int f(){
-    int g() = 3;
-    return 4;   
-    }
+data D = d(int(str s) x); 
+ 
+int function(int n, bool b= true); 
