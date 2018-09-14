@@ -320,11 +320,13 @@ bool rascalReportUnused(loc def, map[loc,Define] definitions, map[loc,loc] scope
         switch(define.idRole){
             case moduleId():        return false;
             case dataId():          return false;
-            case functionId():      return define.defInfo.vis == privateVis();
+            case functionId():      return define.defInfo.vis == privateVis() || definitions[define.scope].idRole == functionId() ||
+                                            "java" notin definitions[findContainingFunction(def, definitions, scopes)].defInfo.modifiers;
             case constructorId():   return false;
             case fieldId():         return false;
             case keywordFieldId():  return false;
-            case formalId():        return config.showUnusedVariables && define.id != "_" && "java" notin definitions[findContainingFunction(def, definitions, scopes)].defInfo.modifiers;
+            case formalId():        return config.showUnusedVariables && 
+                                           define.id != "_";          
             case patternFormalId(): return config.showUnusedPatternFormals && define.id != "_";
             case keywordFormalId(): return config.showUnusedVariables && "java" notin definitions[findContainingFunction(def, definitions, scopes)].defInfo.modifiers;
             case typeVarId():       return false;
