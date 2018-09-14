@@ -1049,9 +1049,9 @@ void collect(current: (QualifiedName) `<QualifiedName name>`, Collector c){
     } else {
        if(base != "_"){
           if(inPatternScope(c)){
-            c.use(name, {variableId(), formalId(), patternFormalId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
+            c.use(name, {variableId(), formalId(), nestedFormalId(), patternFormalId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
           } else {
-            c.useLub(name, {variableId(), formalId(), patternFormalId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
+            c.useLub(name, {variableId(), formalId(), nestedFormalId(), patternFormalId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
           }
        } else {
           c.fact(current, avalue());

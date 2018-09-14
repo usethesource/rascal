@@ -20,6 +20,7 @@ data IdRole
     | functionId()
     | formalId()
     | keywordFormalId()
+    | nestedFormalId()
     | patternFormalId()
     | fieldId()
     | keywordFieldId()
@@ -38,7 +39,7 @@ data IdRole
 public set[IdRole] syntaxRoles = {aliasId(), nonterminalId(), lexicalId(), layoutId(), keywordId()};
 public set[IdRole] dataOrSyntaxRoles = {dataId()} + syntaxRoles;
 public set[IdRole] dataRoles = {aliasId(), dataId()}; 
-public set[IdRole] anyVariableRoles = {variableId(), formalId(), keywordFormalId(), patternFormalId()};
+public set[IdRole] anyVariableRoles = {variableId(), formalId(), nestedFormalId(), keywordFormalId(), patternFormalId()};
 
 data PathRole
     = importPath()
@@ -304,17 +305,9 @@ AType rascalGetTypeInNamelessType(AType containerType, Tree selector, loc scope,
 
 bool rascalIsInferrable(IdRole idRole) = idRole in anyVariableRoles;
 
-loc findContainingFunction(loc def, map[loc,Define] definitions, map[loc,loc] scope){
-    sc = definitions[def].scope;
-    while(definitions[sc]? ? definitions[sc].idRole != functionId() : true){
-        sc = definitions[sc].scope;
-    }
-    return sc;
-}
-
 loc findContainer(loc def, map[loc,Define] definitions, map[loc,loc] scope){
     sc = definitions[def].scope;
-    while(definitions[sc]? ? definitions[sc].idRole notin {functionId(), moduleId(), dataId()} : true){
+    while(definitions[sc]? ? definitions[sc].idRole notin {functionId(), moduleId(), dataId(), constructorId()} : true){
         sc = definitions[sc].scope;
     }
     return sc;
@@ -339,6 +332,7 @@ bool rascalReportUnused(loc def, map[loc,Define] definitions, map[loc,loc] scope
                                       container = definitions[findContainer(def, definitions, scopes)];
                                       return container.idRole == functionId() && "java" notin container.defInfo.modifiers;
                                     } 
+            case nestedFormalId():  return false;
             case keywordFormalId(): { if(!config.showUnusedVariables || define.id == "_") return false;
                                       container = definitions[findContainer(def, definitions, scopes)];
                                       return container.idRole == functionId() && "java" notin container.defInfo.modifiers;
