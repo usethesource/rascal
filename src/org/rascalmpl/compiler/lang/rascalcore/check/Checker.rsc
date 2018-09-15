@@ -20,7 +20,6 @@ module lang::rascalcore::check::Checker
  *
  * Potential additions/improvements
  * - Unused imports/extends
- * - Unused private functions
  * - Non-void functions have a return along every control path
  * - Unreachable code
  * - Warn for closures inside loops
@@ -62,9 +61,6 @@ import Relation;
 import util::Reflective;
 import util::FileSystem;
 import analysis::graphs::Graph;
-
-//start syntax Modules
-//    = Module+ modules;
     
 //str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.generated_parsers";
 //str parserPackage = "org.rascalmpl.core.java.parser.object";
@@ -112,14 +108,10 @@ TModel rascalPreSolver(map[str,Tree] namedTrees, TModel m){
     extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- m.paths}+;
     m.paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
     m.paths += { <c, importPath(), a> | < loc c, importPath(), loc b> <- m.paths,  <b , extendPath(), loc a> <- m.paths};
-    //println("rascalPreValidation");
-    //iprintln(m.paths);
     return m;
 }
 
 void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
-    //tm = s.getTModel();
-    //messages = tm.messages;
     if(!s.reportedErrors()){
         for(mname <- namedTrees){
             pt = namedTrees[mname];
@@ -162,9 +154,6 @@ void report(ProfileData pd){
     println(text);
 }
 
-
-
-
 alias CheckerResult = tuple[map[str,TModel] tmodels, map[str,loc] moduleLocs, map[str,Module] modules];
 
 // rascalTModelForLoc is the basic work horse
@@ -181,6 +170,7 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
             ms.valid -= {topModuleName};
             ms.tmodels = delete(ms.tmodels, topModuleName);
         }
+        
         graphTime = cpuTime() - before;
        
         map[str, ProfileData] profs = ();
@@ -198,12 +188,8 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
             ordered = reverse(sorted);
         }
         
-        //println("imports_and_extends"); iprintln(imports_and_extends);
-        //println("ordered modules: <ordered>");
-        //println("valid: <ms.valid>");
-        //println("cycles: <{c | c <- components, size(c) > 1}>");
-        
         map[str, loc] moduleScopes = ();
+        map[str,str] path2module = (ms.moduleLocs[mname].path : mname | mname <- ms.moduleLocs);
         mi = 0;
         nmodules = size(ordered);
         while(mi < nmodules){
@@ -235,6 +221,16 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
                 for(m <- component){
                     imports =  { imp | <m, importPath(), imp> <- ms.strPaths };
                     extends = { ext | <m, extendPath(), ext > <- ms.strPaths };
+                    // Look for unused imports or exports
+                    usedModules = {path2module[l.path] | loc l <- range(tm.useDef), tm.definitions[l].idRole != moduleId(), path2module[l.path]?};
+                    msgs = [];
+                    for(imod <- ms.modules[m].header.imports, imod has \module){
+                        iname = unescape("<imod.\module.name>");
+                        if(iname notin usedModules){ 
+                           msgs += warning("Unused <imod is \default ? "import" : "extend"> of `<iname>`", imod@\loc);
+                        }
+                    }
+                    tm.messages += msgs;
                     ms.tmodels[m] = saveModule(m, imports, extends, moduleScopes, pcfg, tm);
                     ms.modules = delete(ms.modules, m);
                 }
@@ -269,19 +265,30 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
 }
 
 set[str] loadImportsAndExtends(str moduleName, ModuleStructure ms, Collector c, set[str] added){
-    //println("loadImportsAndExtends for <moduleName>");
-    
     rel[str,str] contains = ms.strPaths<0,2>;
     for(imp <- contains[moduleName]){
         if(imp notin added){
             if(ms.tmodels[imp]?){
                 added += imp;
-                //println("+++ adding <imp>");
                 c.addTModel(ms.tmodels[imp]);
             }
         }
     }
     return added;
+}
+
+CheckerResult findUnusedImportsAndExtends(map[str,TModel] tmodels, map[str,loc] moduleLocs, map[str,Module] modules){
+ println("PARSE TREES FOR 2: <domain(ms.modules)>");
+    for(moduleName <- modules){
+        imports = [im | /im:(Import) `import <ImportedModule m> ;` := modules[moduleName]];
+        extends = [ex | /ex:(Import) `extend <ImportedModule m> ;` := modules[moduleName]];
+        tm = tmodels[moduleName];
+        used = {l.path | loc l <- range(tm.useDef)};
+        println("<moduleName>: <used>");
+    
+    }
+   
+    return <tmodels, moduleLocs, modules>;
 }
 
 tuple[ProfileData, TModel] rascalTModelComponent(map[str, Tree] namedTrees, ModuleStructure ms, 
@@ -310,7 +317,6 @@ tuple[ProfileData, TModel] rascalTModelComponent(map[str, Tree] namedTrees, Modu
     startTime = cpuTime(); 
     
     tm.paths =  ms.paths;
- //   tm = rascalPreSolver(pt, tm);
     
     s = newSolver(namedTrees, tm);
     tm = s.run();
