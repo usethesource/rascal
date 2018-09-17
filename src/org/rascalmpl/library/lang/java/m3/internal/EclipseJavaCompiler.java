@@ -77,9 +77,15 @@ public class EclipseJavaCompiler {
         return createM3FromJarClass(jarLoc, getM3Store(eval));
     }
     
+    public IValue createM3FromSingleClass(ISourceLocation classLoc, IString className, IEvaluatorContext eval) {
+        JarConverter converter = new JarConverter(getM3Store(eval), new HashMap<>());
+        converter.convertSingleClassFile(classLoc);
+        return converter.getModel(false);
+    }
+    
     protected IValue createM3FromJarClass(ISourceLocation jarLoc, LimitedTypeStore store) {
         JarConverter converter = new JarConverter(store, new HashMap<>());
-        converter.convert(jarLoc);
+        converter.convertJar(jarLoc);
         return converter.getModel(false);
     }
     
@@ -89,7 +95,7 @@ public class EclipseJavaCompiler {
     
     protected IValue createM3FromJarFile(ISourceLocation jarLoc, LimitedTypeStore store) {
         JarConverter converter = new JarConverter(store, new HashMap<>());
-        converter.convert(jarLoc);
+        converter.convertJar(jarLoc);
         return converter.getModel(false);
     }
     
@@ -296,6 +302,7 @@ public class EclipseJavaCompiler {
     }
     
     protected ASTParser constructASTParser(boolean resolveBindings, boolean errorRecovery, IString javaVersion, String[] sourcePath, String[] classPath) {
+        @SuppressWarnings("deprecation")
         ASTParser parser = ASTParser.newParser(AST.JLS4);
         parser.setResolveBindings(resolveBindings);
         parser.setBindingsRecovery(true);
