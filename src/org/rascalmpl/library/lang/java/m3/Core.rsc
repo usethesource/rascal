@@ -89,6 +89,10 @@ public java M3 createM3FromJarClass(loc jarClass);
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
+public java M3 createM3FromSingleClass(loc jarClass, str className);
+
+@javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
+@reflect
 public java M3 createM3FromJarFile(loc jarLoc);
 
 @doc{
