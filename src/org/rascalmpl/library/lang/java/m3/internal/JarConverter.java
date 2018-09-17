@@ -127,8 +127,7 @@ public class JarConverter extends M3Converter {
      * @param jarLoc - the source location is delivered with a 
      * jar scheme
      */
-    @SuppressWarnings("unchecked")
-    public void convert(ISourceLocation jarLoc) {
+    public void convertJar(ISourceLocation jarLoc) {
         try {          
             loc = cleanJarLoc(jarLoc);
             registry = URIResolverRegistry.getInstance();
@@ -137,6 +136,24 @@ public class JarConverter extends M3Converter {
             initializePrimitiveTypes();
             
             createM3(loc);
+        }
+        catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void convertSingleClassFile(ISourceLocation classFile, String className) {
+        try {          
+            loc = classFile;
+            registry = URIResolverRegistry.getInstance();
+
+            initializeModifiers();
+            initializePrimitiveTypes();
+            
+            createSingleClassM3(loc, className);
         }
         catch (URISyntaxException e) {
             e.printStackTrace();
@@ -228,13 +245,23 @@ public class JarConverter extends M3Converter {
         jarStream.close();
         is.close();
     }
+    
+    private void createSingleClassM3(ISourceLocation uri, String className) 
+        throws IOException, URISyntaxException {
+        String compUnit = className;
+        ClassReader cr = getClassReader(className);
+
+        setCompilationUnitRelations(compUnit);
+        setPackagesRelations(compUnit);
+        setClassRelations(cr, compUnit);
+    } 
 
     /**
      * Generates compilation unit relations given a compilation unit relative
      * path. Considered relations: containment, declarations, and names.
      */
     private void setCompilationUnitRelations(String compUnitRelative) throws URISyntaxException {
-        IString compUnitName = values.string(compUnitRelative);
+//        IString compUnitName = values.string(compUnitRelative);
         ISourceLocation packageLogical = getParentPackageLogicalLoc(compUnitRelative);
         ISourceLocation compUnitLogical = values.sourceLocation(COMP_UNIT_SCHEME, "", compUnitRelative);
 
@@ -279,6 +306,7 @@ public class JarConverter extends M3Converter {
      * Considered relations: containment, declarations, names, extends,
      * implements, modifiers, and annotations.    
      */
+    @SuppressWarnings("unchecked")
     private void setClassRelations(ClassReader cr, String compUnitRelative) throws IOException, URISyntaxException {
         //TODO: change when JarInputStream problem is solved.
         //ClassReader cr = getClassReader(compUnitRelative);
@@ -339,6 +367,7 @@ public class JarConverter extends M3Converter {
      * source location. Considered relations: containment, declarations, 
      * names, modifiers, annotations, and typeDependency.
      */
+    @SuppressWarnings("unchecked")
     private void setFieldRelations(ClassNode cn, ISourceLocation classLogical) throws URISyntaxException {
         if(cn.fields != null) {
             for(int i = 0; i < cn.fields.size(); i++) {
@@ -368,6 +397,7 @@ public class JarConverter extends M3Converter {
      * Considered relations: containment, declarations, names, modifiers, 
      * annotations, typeDependency, and methodOverrides.
      */
+    @SuppressWarnings("unchecked")
     private void setMethodRelations(ClassNode cn, ISourceLocation classLogical) throws URISyntaxException, IOException {
         if(cn.methods != null) {
             for(int i = 0; i < cn.methods.size(); i++) {
@@ -466,6 +496,7 @@ public class JarConverter extends M3Converter {
      */
     private void setInstructionRelations(MethodNode mn, ISourceLocation methodLogical) throws URISyntaxException {
         if(mn.instructions != null) {
+            @SuppressWarnings("unchecked")
             ListIterator<AbstractInsnNode> iterator = mn.instructions.iterator();
 
             while(iterator.hasNext()) {
