@@ -16,7 +16,7 @@ module lang::rascalcore::check::ATypeInstantiation
 import Set;
 import IO;
 import Node;
-extend analysis::typepal::TypePal;
+//extend analysis::typepal::TypePal;
 import lang::rascalcore::check::ATypeExceptions;
  
 import lang::rascalcore::check::AType;

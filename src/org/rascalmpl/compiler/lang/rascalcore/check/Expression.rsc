@@ -19,7 +19,7 @@ import lang::rascalcore::grammar::definition::Symbols;
 
 import lang::rascal::\syntax::Rascal;
 import String;
-import ListRelation;
+//import ListRelation;
 import Set;
 import Map;
 import Node;
@@ -1310,40 +1310,6 @@ public AType computeFieldTypeWithADT(AType containerType, Tree field, loc scope,
         return containerType;
     }
     return s.getTypeInType(containerType, field, {fieldId(), keywordFieldId()}, scope);
-//    fieldName = unescape("<field>");
-//    if(overloadedAType(rel[loc, IdRole, AType] overloads) := containerType){
-//        field_overloads = {};
-//        for(<key, role, tp> <- overloads){
-//            try {
-//                field_overloads += <key, role, computeFieldType(tp, field, scope, s)>;
-//            } catch checkFailed(list[FailMessage] fms): /* continue with next overload */;
-//              catch NoBinding(): /* continue with next overload */;
-////>>>         catch e: /* continue with next overload */;
-//        }
-//        if(isEmpty(field_overloads))  report(error(field, "Cannot access field %v on type %t", fieldName, containerType));
-//        return overloadedAType(field_overloads);
-//
-//    } else if(aadt(adtName, list[AType] actualTypeParams,_) := containerType){
-//        if ((getADTName(containerType) == "Tree" || isNonTerminalType(containerType)) && fieldName == "top") {
-//            return containerType;
-//        }
-//        try { 
-//            return s.getTypeInType(containerType, field, {fieldId()}, scope);
-//        } catch e: checkFailed(list[FailMessage] fms):
-//            if(isNonTerminalType(containerType)){
-//                return s.getTypeInType(aadt("Tree", [], dataSyntax()), field, {fieldId()}, scope);
-//            } else
-//                throw e;
-//                
-//          catch NoBinding(): {
-//            if(isNonTerminalType(containerType)){
-//                return s.getTypeInType(aadt("Tree", [], dataSyntax()), field, {fieldId()}, scope);
-//            } else
-//                throw NoBinding();
-//        }
-//    } else {
-//        return computeFieldType(containerType, field, scope, s);
-//    }
 }
     
 @doc{Compute the type of field fn on type containerType. A checkFailed is thrown if the field is not defined on the given type.}
@@ -1384,7 +1350,6 @@ public AType computeFieldType(AType containerType, Tree field, loc scope, Solver
         if(containerType.label == fieldName){
             return makeListType(getNonTerminalIterElement(containerType));
         }
-        //println(containerType);
     } else if (isTupleType(containerType)) {
         if(tupleHasFieldNames(containerType)){
             idx = indexOf(getTupleFieldNames(containerType), fieldName);

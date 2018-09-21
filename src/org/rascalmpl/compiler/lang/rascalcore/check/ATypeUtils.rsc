@@ -19,7 +19,7 @@ import Node;
 import IO;
 extend ParseTree;
 
-extend analysis::typepal::TypePal;
+//extend analysis::typepal::TypePal;
 extend lang::rascalcore::check::AType;
 
 import lang::rascalcore::check::ATypeInstantiation;

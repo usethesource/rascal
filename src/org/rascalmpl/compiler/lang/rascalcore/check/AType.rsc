@@ -49,7 +49,6 @@ data AType (str label = "")
      
 @memo
 AType overloadedAType(rel[loc, IdRole, AType] overloads){
-    topIf:
     if(all(<loc k, IdRole idr, AType t> <- overloads, aadt(adtName, params, syntaxRole) := t)){
       str adtName = "";
       list[AType] adtParams = [];

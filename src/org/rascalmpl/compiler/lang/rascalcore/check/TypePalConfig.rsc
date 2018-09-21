@@ -317,39 +317,44 @@ loc findContainer(loc def, map[loc,Define] definitions, map[loc,loc] scope){
 }
 
 bool rascalReportUnused(loc def, map[loc,Define] definitions, map[loc,loc] scopes, TypePalConfig config){
+
+    bool reportFormal(Define define){
+       if(!config.warnUnusedFormals || define.id == "_") return false;
+       container = definitions[findContainer(def, definitions, scopes)];
+       return container.idRole == functionId() && "java" notin container.defInfo.modifiers;
+    }
+    
     if(!config.warnUnused) return false;
     
     define = definitions[def];
     try {
         switch(define.idRole){
-            case moduleId():        return false;
-            case dataId():          return false;
-            case functionId():      { if(define.defInfo.vis == privateVis()) return true;
-                                      container = definitions[findContainer(def, definitions, scopes)];
-                                      return container.idRole == functionId() && "java" notin container.defInfo.modifiers;
-                                    }
-            case constructorId():   return false;
-            case fieldId():         return false;
-            case keywordFieldId():  return false;
-            case formalId():        { if(!config.warnUnusedVariables || define.id == "_") return false;
-                                      container = definitions[findContainer(def, definitions, scopes)];
-                                      return container.idRole == functionId() && "java" notin container.defInfo.modifiers;
-                                    } 
-            case nestedFormalId():  return false;
-            case keywordFormalId(): { if(!config.warnUnusedVariables || define.id == "_") return false;
-                                      container = definitions[findContainer(def, definitions, scopes)];
-                                      return container.idRole == functionId() && "java" notin container.defInfo.modifiers;
-                                    } 
+            case moduleId():            return false;
+            case dataId():              return false;
+            case functionId():          { if(define.defInfo.vis == privateVis()) return true;
+                                          container = definitions[findContainer(def, definitions, scopes)];
+                                          return container.idRole == functionId() && "java" notin container.defInfo.modifiers;
+                                        }
+            case constructorId():       return false;
+            case fieldId():             return false;
+            case keywordFieldId():      return false;
+            case formalId():            return reportFormal(define); 
+            case nestedFormalId():      return reportFormal(define); 
+            case keywordFormalId():     return reportFormal(define); 
                                         
-            case patternVariableId(): return config.warnUnusedPatternFormals && define.id != "_";
-            case typeVarId():       return false;
-            case variableId():      return config.warnUnusedVariables && define.id notin {"_", "it"};
-            case annoId():          return false;
-            case aliasId():         return false;
-            case lexicalId():       return false;
-            case nonterminalId():   return false;
-            case layoutId():        return false;
-            case keywordId():       return false;
+            case patternVariableId():   return config.warnUnusedPatternFormals && define.id != "_";
+            case typeVarId():           return false;
+            case variableId():          { if(!config.warnUnusedVariables) return false;
+                                          container = definitions[findContainer(def, definitions, scopes)];
+                                          if(container.idRole == moduleId() && define.defInfo.vis == publicVis()) return false;
+                                          return define.id notin {"_", "it"};
+                                        }
+            case annoId():              return false;
+            case aliasId():             return false;
+            case lexicalId():           return false;
+            case nonterminalId():       return false;
+            case layoutId():            return false;
+            case keywordId():           return false;
         }
     } catch NoSuchKey(_): return false;
     
@@ -360,6 +365,7 @@ data TypePalConfig(
     bool logImports                 = false,
     bool classicReifier             = false,
     bool warnUnused                 = true,
+    bool warnUnusedFormals           = true,
     bool warnUnusedVariables        = true,
     bool warnUnusedPatternFormals   = false,
     bool warnDeprecated             = false
@@ -375,6 +381,7 @@ TypePalConfig rascalTypePalConfig(bool classicReifier = false,  bool logImports 
         validateConstraints           = true,
         
         warnUnused                    = true,
+        warnUnusedFormals             = true,
         warnUnusedVariables           = true,
         warnUnusedPatternFormals      = false,
         warnDeprecated                = false,
