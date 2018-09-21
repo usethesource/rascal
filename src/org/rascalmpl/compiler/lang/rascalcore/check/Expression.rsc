@@ -772,7 +772,7 @@ AType computeADTType(Tree current, str adtName, loc scope, AType retType, list[A
                 } catch checkFailed(list[FailMessage] fms): /* continue with next overload */;
                   catch NoBinding(): /* continue with next overload */;
              }
-             if(isEmpty(returnTypeForOverloadedActuals)) { s.report(error(current, "Constructor with arguments %v cannot be resolved", actuals));}
+             if(isEmpty(returnTypeForOverloadedActuals)) { s.report(error(current, "Constructor for %q with arguments %v cannot be resolved", adtName, actuals));}
              else return overloadedAType(returnTypeForOverloadedActuals);
         }
     }
