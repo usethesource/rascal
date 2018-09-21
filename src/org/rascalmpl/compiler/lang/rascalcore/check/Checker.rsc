@@ -15,11 +15,12 @@ module lang::rascalcore::check::Checker
               
 /*
  * TODO:
+ * - Unused modules not detected correctly
+ * - varargs not handled correctly in all cases
  * - Fix reference in grammar rules (it seems that production label get lost somewhere and reference cannot be found)
  * - Support for reified types
  *
  * Potential additions/improvements
- * - Unused imports/extends
  * - Non-void functions have a return along every control path
  * - Unreachable code
  * - Warn for closures inside loops
@@ -165,7 +166,7 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
         topModuleName = getModuleName(mloc, pcfg);
         
         before = cpuTime();
-        ms = getImportAndExtendGraph(topModuleName, pcfg, config.showImports);
+        ms = getImportAndExtendGraph(topModuleName, pcfg, config.logImports);
         if(forceCompilationTopModule){
             ms.valid -= {topModuleName};
             ms.tmodels = delete(ms.tmodels, topModuleName);
@@ -215,29 +216,31 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
             }
             if(!all(m <- component, ms.tmodels[m]?, m in ms.valid)){
                 ms.tmodels = domainX(ms.tmodels, component);
-                <prof, tm> = rascalTModelComponent((m: ms.modules[m] |  m <- component), ms, pcfg = pcfg, config=config);
+                <prof, tm> = rascalTModelComponent((m: ms.modules[m] |  m <- component), ms, config=config);
                 profs[intercalate("/", toList(component))] = prof;
                 moduleScopes += getModuleScopes(tm);
                 for(m <- component){
                     imports =  { imp | <m, importPath(), imp> <- ms.strPaths };
                     extends = { ext | <m, extendPath(), ext > <- ms.strPaths };
-                    // Look for unused imports or exports
-                    usedModules = {path2module[l.path] | loc l <- range(tm.useDef), tm.definitions[l].idRole != moduleId(), path2module[l.path]?};
-                    msgs = [];
-                    for(imod <- ms.modules[m].header.imports, imod has \module){
-                        iname = unescape("<imod.\module.name>");
-                        if(iname notin usedModules){ 
-                           msgs += warning("Unused <imod is \default ? "import" : "extend"> of `<iname>`", imod@\loc);
+                    if(config.warnUnused){
+                        // Look for unused imports or exports
+                        usedModules = {path2module[l.path] | loc l <- range(tm.useDef), tm.definitions[l].idRole != moduleId(), path2module[l.path]?};
+                        msgs = [];
+                        for(imod <- ms.modules[m].header.imports, imod has \module){
+                            iname = unescape("<imod.\module.name>");
+                            if(iname notin usedModules){ 
+                               msgs += warning("Unused <imod is \default ? "import" : "extend"> of `<iname>`", imod@\loc);
+                            }
                         }
+                        tm.messages += msgs;
                     }
-                    tm.messages += msgs;
                     ms.tmodels[m] = saveModule(m, imports, extends, moduleScopes, pcfg, tm);
                     ms.modules = delete(ms.modules, m);
                 }
             }
         }
  
-        if(config.showTimes){
+        if(config.logTime){
             tcollector = 0; tsolver = 0; tsave = 0;
             for(m <- profs){
                 p = profs[m];
@@ -278,7 +281,6 @@ set[str] loadImportsAndExtends(str moduleName, ModuleStructure ms, Collector c, 
 }
 
 CheckerResult findUnusedImportsAndExtends(map[str,TModel] tmodels, map[str,loc] moduleLocs, map[str,Module] modules){
- println("PARSE TREES FOR 2: <domain(ms.modules)>");
     for(moduleName <- modules){
         imports = [im | /im:(Import) `import <ImportedModule m> ;` := modules[moduleName]];
         extends = [ex | /ex:(Import) `extend <ImportedModule m> ;` := modules[moduleName]];
@@ -292,7 +294,6 @@ CheckerResult findUnusedImportsAndExtends(map[str,TModel] tmodels, map[str,loc] 
 }
 
 tuple[ProfileData, TModel] rascalTModelComponent(map[str, Tree] namedTrees, ModuleStructure ms, 
-                                                 PathConfig pcfg = getDefaultPathConfig(), 
                                                  TypePalConfig config=rascalTypePalConfig(classicReifier=true), bool inline=false){
     modelName = intercalate(" + ", toList(domain(namedTrees)));
     
@@ -361,7 +362,7 @@ ModuleMessages check(str moduleName, PathConfig pcfg){        // TODO change fro
 ModuleMessages check(loc moduleLoc, PathConfig pcfg){          // TODO: change from ModuleMessages to list[ModuleMessages]
     pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
     println("=== check: <moduleLoc>"); iprintln(pcfg1);
-    <tmodels, moduleLocs, modules> = rascalTModelForLoc(moduleLoc, pcfg, rascalTypePalConfig(classicReifier=true,showImports=true));
+    <tmodels, moduleLocs, modules> = rascalTModelForLoc(moduleLoc, pcfg, rascalTypePalConfig(classicReifier=true,logImports=true));
     moduleName = getModuleName(moduleLoc, pcfg);
     tm = tmodels[moduleName];
     return program(moduleLoc, toSet(tm.messages));
@@ -383,37 +384,40 @@ list[ModuleMessages] checkAll(loc root, PathConfig pcfg){
 // ---- Convenience check function during development -------------------------
 
 map[str, list[Message]] checkModule(str moduleName,  
-                              bool verbose                       = false,
-                              bool debug                         = false,
-                              bool showTimes                     = false,
-                              bool showSolverIterations          = false,
-                              bool showSolverSteps               = false,
-                              bool showAttempts                  = false,
-                              bool showTModel                    = false,
-                              bool showImports                   = false,
-                              bool showUnused                    = true,
-                              bool showUnusedVariables           = true,
-                              bool showUnusedPatternFormals      = false,
-                              bool validateConstraints           = true) {
+                              bool verbose                  = false,
+                              bool debug                    = false,
+                              bool logTime                 = false,
+                              bool logSolverIterations      = false,
+                              bool logSolverSteps           = false,
+                              bool logAttempts              = false,
+                              bool logTModel                = false,
+                              bool logImports               = false,
+                              
+                              bool warnUnused               = true,
+                              bool warnUnusedVariables      = true,
+                              bool warnUnusedPatternFormals = false,
+                              bool warnDeprecated           = false,
+                              bool validateConstraints      = true) {
                               
     if(verbose) {
-        showSolverIterations = showImports = true;
+        logSolverIterations = logImports = true;
     }
     if(debug){
-        showSolverIterations = showSolverSteps = showTModel = showImports = true;
+        logSolverIterations = logSolverSteps = logTModel = logImports = true;
     }
     config = rascalTypePalConfig(classicReifier=true);
     config.verbose = verbose;
-    config.showTimes = showTimes;
-    config.showSolverIterations = showSolverIterations;
-    config.showSolverSteps = showSolverSteps;
-    config.showAttempts = showAttempts;
-    config.showTModel = showTModel;
-    config.showImports = showImports;
+    config.logTime = logTime;
+    config.logSolverIterations = logSolverIterations;
+    config.logSolverSteps = logSolverSteps;
+    config.logAttempts = logAttempts;
+    config.logTModel = logTModel;
+    config.logImports = logImports;
     
-    config.showUnused = showUnused;
-    config.showUnusedVariables = showUnusedVariables;
-    config.showUnusedPatternFormals = showUnusedPatternFormals;
+    config.warnUnused = warnUnused;
+    config.warnUnusedVariables = warnUnusedVariables;
+    config.warnUnusedPatternFormals = warnUnusedPatternFormals;
+    config.warnDeprecated = warnDeprecated;
     
     config.validateConstraints = validateConstraints;
     <tmodels, moduleLocs, modules> = rascalTModelForName(moduleName, getDefaultPathConfig(), config);

@@ -1,8 +1,3 @@
 module lang::rascalcore::check::Test1 
-
-import String;
-import Map; 
- 
-str s = toUpperCase("abc");              
-
- 
+    
+data D (int c1 = 0) = d1();

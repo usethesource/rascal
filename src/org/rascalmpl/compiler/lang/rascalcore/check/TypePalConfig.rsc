@@ -21,7 +21,7 @@ data IdRole
     | formalId()
     | keywordFormalId()
     | nestedFormalId()
-    | patternFormalId()
+    | patternVariableId()
     | fieldId()
     | keywordFieldId()
     | labelId()
@@ -39,7 +39,10 @@ data IdRole
 public set[IdRole] syntaxRoles = {aliasId(), nonterminalId(), lexicalId(), layoutId(), keywordId()};
 public set[IdRole] dataOrSyntaxRoles = {dataId()} + syntaxRoles;
 public set[IdRole] dataRoles = {aliasId(), dataId()}; 
-public set[IdRole] anyVariableRoles = {variableId(), formalId(), nestedFormalId(), keywordFormalId(), patternFormalId()};
+public set[IdRole] outerFormalRoles = {formalId(), keywordFormalId()};
+public set[IdRole] positionalFormalRoles = {formalId(), nestedFormalId()};
+public set[IdRole] anyFormalRoles = outerFormalRoles + {nestedFormalId()};
+public set[IdRole] anyVariableRoles = anyFormalRoles + {variableId(), patternVariableId()};
 
 data PathRole
     = importPath()
@@ -71,11 +74,11 @@ data Modifier
 // Visibility information
 data DefInfo(Vis vis = publicVis());
 
-// Formal parameter list of function (included ones nested in patterns)
-data DefInfo(lrel[str name, loc def] nestedParameters = []);
-
-// Keyword parameters are explicitly marked
-data DefInfo(bool isKeywordFormal = false);
+//// Formal parameter list of function (included ones nested in patterns)
+//data DefInfo(lrel[str name, loc def] nestedParameters = []);
+//
+//// Keyword parameters are explicitly marked
+//data DefInfo(bool isKeywordFormal = false);
 
 data DefInfo(map[str,str] tags = ());
 
@@ -314,7 +317,7 @@ loc findContainer(loc def, map[loc,Define] definitions, map[loc,loc] scope){
 }
 
 bool rascalReportUnused(loc def, map[loc,Define] definitions, map[loc,loc] scopes, TypePalConfig config){
-    if(!config.showUnused) return false;
+    if(!config.warnUnused) return false;
     
     define = definitions[def];
     try {
@@ -328,19 +331,19 @@ bool rascalReportUnused(loc def, map[loc,Define] definitions, map[loc,loc] scope
             case constructorId():   return false;
             case fieldId():         return false;
             case keywordFieldId():  return false;
-            case formalId():        { if(!config.showUnusedVariables || define.id == "_") return false;
+            case formalId():        { if(!config.warnUnusedVariables || define.id == "_") return false;
                                       container = definitions[findContainer(def, definitions, scopes)];
                                       return container.idRole == functionId() && "java" notin container.defInfo.modifiers;
                                     } 
             case nestedFormalId():  return false;
-            case keywordFormalId(): { if(!config.showUnusedVariables || define.id == "_") return false;
+            case keywordFormalId(): { if(!config.warnUnusedVariables || define.id == "_") return false;
                                       container = definitions[findContainer(def, definitions, scopes)];
                                       return container.idRole == functionId() && "java" notin container.defInfo.modifiers;
                                     } 
                                         
-            case patternFormalId(): return config.showUnusedPatternFormals && define.id != "_";
+            case patternVariableId(): return config.warnUnusedPatternFormals && define.id != "_";
             case typeVarId():       return false;
-            case variableId():      return config.showUnusedVariables && define.id notin {"_", "it"};
+            case variableId():      return config.warnUnusedVariables && define.id notin {"_", "it"};
             case annoId():          return false;
             case aliasId():         return false;
             case lexicalId():       return false;
@@ -354,25 +357,27 @@ bool rascalReportUnused(loc def, map[loc,Define] definitions, map[loc,loc] scope
 }
  
 data TypePalConfig(
-    bool showImports                = false,
+    bool logImports                 = false,
     bool classicReifier             = false,
-    bool showUnused                 = true,
-    bool showUnusedVariables        = true,
-    bool showUnusedPatternFormals   = false
+    bool warnUnused                 = true,
+    bool warnUnusedVariables        = true,
+    bool warnUnusedPatternFormals   = false,
+    bool warnDeprecated             = false
 );
 
-TypePalConfig rascalTypePalConfig(bool classicReifier = false,  bool showImports = false)
+TypePalConfig rascalTypePalConfig(bool classicReifier = false,  bool logImports = false)
     = tconfig(
-        showTimes                     = false,
-        showSolverIterations          = false,
-        showSolverSteps               = false,
-        showAttempts                  = false,
-        showImports                   = showImports,
+        logTime                       = false,
+        logSolverIterations           = false,
+        logSolverSteps                = false,
+        logAttempts                   = false,
+        logImports                    = logImports,
         validateConstraints           = true,
         
-        showUnused                    = true,
-        showUnusedVariables           = true,
-        showUnusedPatternFormals      = false,
+        warnUnused                    = true,
+        warnUnusedVariables           = true,
+        warnUnusedPatternFormals      = false,
+        warnDeprecated                = false,
         
         getMinAType                   = AType(){ return avoid(); },
         getMaxAType                   = AType(){ return avalue(); },

@@ -47,7 +47,7 @@ bool inPatternScope(Collector c){
 }
 
 IdRole formalOrPatternFormal(Collector c){
-    return isTopLevelParameter(c) ? formalId() :  ("parameter" in c.getStack(patternContainer) ? nestedFormalId() : patternFormalId());
+    return isTopLevelParameter(c) ? formalId() :  ("parameter" in c.getStack(patternContainer) ? nestedFormalId() : patternVariableId());
 }
 
 bool isTopLevelParameter(Collector c){
@@ -204,7 +204,7 @@ void collectAsVarArg(current: (Pattern) `<Type tp> <Name name>`, Collector c){
        }
     }
  
-   c.fact(current, name);
+   c.fact(current, tp);
    c.enterScope(current);
         collect(tp, c);
    c.leaveScope(current);
@@ -217,7 +217,7 @@ void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
     if(base != "_"){
        if(inPatternNames(base, c)){
           //println("qualifiedName: <name>, useLub, <getLoc(current)>");
-          c.useLub(name, {formalId(), nestedFormalId(), patternFormalId()});
+          c.useLub(name, {formalId(), nestedFormalId(), patternVariableId()});
           return;
        }
        c.push(patternNames, <base, getLoc(current)>);

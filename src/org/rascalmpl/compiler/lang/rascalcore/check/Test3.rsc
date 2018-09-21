@@ -1,12 +1,6 @@
 module lang::rascalcore::check::Test3
            
-data Message = 
-       error(str msg, loc at)
-       ;
+import lang::rascalcore::check::Test1;
+import lang::rascalcore::check::Test2;
 
-str error(value src, str msg, value args...) = "abc";
-
-
-value main(){
-    error("val", "msg", "a");
-}
+value main() { D d; }
