@@ -80,11 +80,11 @@ ModuleStructure complete(ModuleStructure ms, PathConfig pcfg){
     return ms;
 }
 
-ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, bool showImports){
-    return complete(getImportAndExtendGraph(qualifiedModuleName, pcfg, {}, newModuleStructure(), showImports), pcfg);
+ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, bool logImports){
+    return complete(getImportAndExtendGraph(qualifiedModuleName, pcfg, {}, newModuleStructure(), logImports), pcfg);
 }
 
-ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, set[str] visited, ModuleStructure ms, bool showImports){
+ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, set[str] visited, ModuleStructure ms, bool logImports){
     qualifiedModuleName = unescape(qualifiedModuleName);
    
     //println("getImportAndExtendGraph: <qualifiedModuleName>, <domain(ms.modules)>, <domain(ms.tmodels)>");
@@ -123,7 +123,7 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
                 }
             }
             if(allImportsAndExtendsValid){
-                if(showImports) println("*** importing <qualifiedModuleName> from <tplLoc> (ts=<lastModified(tplLoc)>)");
+                if(logImports) println("*** importing <qualifiedModuleName> from <tplLoc> (ts=<lastModified(tplLoc)>)");
           
                 ms.valid += {qualifiedModuleName};
                 ms.tmodels[qualifiedModuleName] = tm;
@@ -132,7 +132,7 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
                 ms.strPaths += {<qualifiedModuleName, pathRole, imp> | <str imp, PathRole pathRole> <- localImportsAndExtends };
                 visited += qualifiedModuleName;
                 for(imp <- localImportsAndExtends<0>, imp notin visited){
-                    ms = getImportAndExtendGraph(imp, pcfg, visited, ms, showImports);
+                    ms = getImportAndExtendGraph(imp, pcfg, visited, ms, logImports);
                 }
                 //println("allImportsAndExtendsValid, return:");
                 //printModuleStructure(ms);
@@ -149,7 +149,7 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
             pt = ms.modules[qualifiedModuleName];
         } else {
             mloc = getModuleLocation(qualifiedModuleName, pcfg);                    
-            if(showImports) println("*** parsing <qualifiedModuleName> from <mloc>");
+            if(logImports) println("*** parsing <qualifiedModuleName> from <mloc>");
             pt = parseModuleWithSpaces(mloc).top;
             ms.modules[qualifiedModuleName] = pt;
             ms.moduleLocs[qualifiedModuleName] = getLoc(pt);
@@ -158,7 +158,7 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
         ms.strPaths += imports_and_extends;
         visited += qualifiedModuleName;
         for(imp <- imports_and_extends<2>){
-            ms = getImportAndExtendGraph(imp, pcfg, visited, ms, showImports);
+            ms = getImportAndExtendGraph(imp, pcfg, visited, ms, logImports);
       }
     } catch value e: {
         //c.report(error(importStatement, "Error during import of %v: %v", mname, e));
@@ -229,7 +229,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         m1.moduleLocs = (qualifiedModuleName : mscope);
         
         m1.facts = (key : tm.facts[key] | key <- tm.facts, any(fms <- filteredModuleScopes, containedIn(key, fms)));
-        if(tm.config.showImports) println("facts: <size(tm.facts)>  ==\> <size(m1.facts)>");
+        if(tm.config.logImports) println("facts: <size(tm.facts)>  ==\> <size(m1.facts)>");
         
         m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, any(fms <- filteredModuleScopes, containedIn(key, fms)));
      
@@ -261,7 +261,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
                        try {                   
                            dt = defType(tm.facts[defined]);
                            if(defInfo.vis?) dt.vis = defInfo.vis;
-                            if(defInfo.nestedParameters?) dt.nestedParameters = defInfo.nestedParameters;
+                           //if(defInfo.nestedParameters?) dt.nestedParameters = defInfo.nestedParameters;
                            if(defInfo.tags?) dt.tags = defInfo.tags;
                            tup.defInfo = dt;
                            //println("Changed <defInfo> ==\> <dt>");
@@ -284,7 +284,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
                   }
                };
         
-        if(tm.config.showImports) println("defines: <size(tm.defines)> ==\> <size(defs)>");
+        if(tm.config.logImports) println("defines: <size(tm.defines)> ==\> <size(defs)>");
         m1.defines = toSet(defs);
         m1 = visit(m1) {case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""]; };
         
@@ -295,7 +295,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         //println("left: <size(calcs)> calculators, <size(reqs)> requirements");
         
         writeBinaryValueFile(tplLoc, m1);
-        if(tm.config.showImports) println("WRITTEN to <tplLoc> (ts=<lastModified(tplLoc)>)");
+        if(tm.config.logImports) println("WRITTEN to <tplLoc> (ts=<lastModified(tplLoc)>)");
         return m1;
     } catch value e: {
         return tmodel()[messages=[error("Could not save .tpl file for `<qualifiedModuleName>`: <e>", |unknown:///|(0,0,<0,0>,<0,0>))]];

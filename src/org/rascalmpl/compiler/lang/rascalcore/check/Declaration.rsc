@@ -31,7 +31,7 @@ import Map;
 import String;
 import util::Maybe;
 
-public str nestedParameterList     = "nestedParameterList"; // stack name to collect function parameters (including parameters nested in patterns)
+//public str nestedParameterList     = "nestedParameterList"; // stack name to collect function parameters (including parameters nested in patterns)
 
 // ---- Utilities -------------------------------------------------------------
 
@@ -226,11 +226,17 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         scope = c.getScope();
         c.setScopeInfo(scope, functionScope(), returnInfo(signature.\type));
         collect(decl.signature, c);
-        nestedParams = c.pop(nestedParameterList); // pushed by collect of Parameters
+       //nestedParams = c.pop(nestedParameterList); // pushed by collect of Parameters
         
         dt = defType([signature], AType(Solver s) {
                  ft = s.getType(signature);
-                 if(signature.parameters is varArgs) ft.varArgs = true;
+                 if(signature.parameters is varArgs) {
+                    ft.varArgs = true;
+                    nformals = size(ft.formals);
+                    if(nformals > 0){
+                        ft.formals[nformals-1] = alist(ft.formals[-1]);
+                    }
+                 }
                  
                  if(deprecated) {
                     ft.deprecationMessage = deprecationMessage;
@@ -241,7 +247,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         if(!isEmpty(tagsMap)) dt.tags = tagsMap;
         modifiers = ["<m>" | m <- signature.modifiers.modifiers];
         if(!isEmpty(modifiers)) dt.modifiers = modifiers;
-        if(lrel[str,loc] np := nestedParams && !isEmpty(np)) dt.nestedParameters = np;
+        //if(lrel[str,loc] np := nestedParams && !isEmpty(np)) dt.nestedParameters = np;
          
         c.defineInScope(parentScope, prettyPrintName(fname), functionId(), current /*fname*/, dt); 
         
@@ -359,7 +365,7 @@ void collect(Parameters parameters, Collector c){
         fieldName = prettyPrintName(kwf.name);
         kwfType = kwf.\type;
         dt = defType([kwfType], makeFieldType(fieldName, kwfType));
-        dt.isKeywordFormal = true;
+        //dt.isKeywordFormal = true;
         c.define(fieldName, keywordFormalId(), kwf.name, dt);
     }
     
@@ -386,7 +392,7 @@ void collect(Parameters parameters, Collector c){
                 }); 
        }
        collect(kwFormals, c);
-       c.push(nestedParameterList, reverse(c.getStack(patternNames)));
+       //c.push(nestedParameterList, reverse(c.getStack(patternNames)));
     endPatternScope(c);
 }
 
@@ -575,7 +581,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
         fieldName = prettyPrintName(kwf.name);
         kwfType = kwf.\type;
         dt = defType([kwfType], makeFieldType(fieldName, kwfType));
-        dt.isKeywordFormal = true;
+        //dt.isKeywordFormal = true;
         c.define(fieldName, keywordFieldId()/*fieldId()*/, kwf.name, dt);    
     }
 

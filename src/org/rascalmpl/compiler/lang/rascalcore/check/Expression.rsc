@@ -556,10 +556,10 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 for(ovl: <key, idr, tp> <- overloads){                       
                     if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := tp){
                        try {
-                            // TODO: turn this on after revieew of all @deprecated uses in library
-                            //if(tp.deprecationMessage?){
-                            //    report(warning(expression, "Deprecated function <fmt(tp)><isEmpty(tp.deprecationMessage) ? "" : ": " + tp.deprecationMessage>");
-                            //}
+                            // TODO: turn this on after review of all @deprecated uses in the Rascal library library
+                            if(tp.deprecationMessage? && c.getConfig().warnDeprecated){
+                                s.report(warning(expression, "Deprecated function%v", isEmpty(tp.deprecationMessage) ? "" : ": " + tp.deprecationMessage));
+                            }
                             validReturnTypeOverloads += <key, dataId(), checkArgsAndComputeReturnType(current, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
                             validOverloads += ovl;
                        } catch checkFailed(list[FailMessage] fms):
@@ -582,6 +582,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                  }
                  if({<key, idr, tp>} := validOverloads){
                     texp = tp;  
+                    s.specializedFact(expression, tp);
                     // TODO check identicalFields to see whether this can make sense
                     // unique overload, fall through to non-overloaded case to potentially bind more type variables
                  } else if(isEmpty(validReturnTypeOverloads)) { 
@@ -595,9 +596,9 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
             }
             
             if(ft:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := texp){
-               //if(texp.deprecationMessage?){
-               //     report(warning(expression, "Deprecated function <fmt(texp)><isEmpty(texp.deprecationMessage) ? "": ": " + texp.deprecationMessage>");
-               //}
+               if(texp.deprecationMessage? && c.getConfig().warnDeprecated){
+                    s.report(warning(expression, "Deprecated function%v", isEmpty(texp.deprecationMessage) ? "": ": " + texp.deprecationMessage));
+               }
                 return checkArgsAndComputeReturnType(current, scope, ret, formals, kwFormals, ft.varArgs, actuals, keywordArguments, [true | int i <- index(formals)], s);
             }
             if(acons(ret:aadt(adtName, list[AType] parameters,_), list[AType] fields, list[Keyword] kwFields) := texp){
@@ -660,7 +661,7 @@ AType checkArgsAndComputeReturnType(Expression current, loc scope, AType retType
     
     index_formals = index(formals);
     
-    list[AType] formalTypes =  formals; // [ expandUserTypes(formals[i], scope, s) | i <- index_formals ];
+    list[AType] formalTypes =  formals;
     
     for(int i <- index_formals){
         if(overloadedAType(rel[loc, IdRole, AType] overloads) := actualTypes[i]){   // TODO only handles a single overloaded actual
@@ -1056,9 +1057,9 @@ void collect(current: (QualifiedName) `<QualifiedName name>`, Collector c){
     } else {
        if(base != "_"){
           if(inPatternScope(c)){
-            c.use(name, {variableId(), formalId(), nestedFormalId(), patternFormalId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
+            c.use(name, {variableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
           } else {
-            c.useLub(name, {variableId(), formalId(), nestedFormalId(), patternFormalId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
+            c.useLub(name, {variableId(), formalId(), nestedFormalId(), patternVariableId(), keywordFormalId(), fieldId(), keywordFieldId(), functionId(), constructorId()});
           }
        } else {
           c.fact(current, avalue());
