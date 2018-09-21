@@ -37,7 +37,7 @@ import Message;
 
 import lang::rascal::\syntax::Rascal;
    
-extend analysis::typepal::TypePal;
+//extend analysis::typepal::TypePal;
 
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::Declaration;
@@ -383,21 +383,26 @@ list[ModuleMessages] checkAll(loc root, PathConfig pcfg){
 
 // ---- Convenience check function during development -------------------------
 
-map[str, list[Message]] checkModule(str moduleName,  
-                              bool verbose                  = false,
-                              bool debug                    = false,
-                              bool logTime                 = false,
-                              bool logSolverIterations      = false,
-                              bool logSolverSteps           = false,
-                              bool logAttempts              = false,
-                              bool logTModel                = false,
-                              bool logImports               = false,
-                              
-                              bool warnUnused               = true,
-                              bool warnUnusedVariables      = true,
-                              bool warnUnusedPatternFormals = false,
-                              bool warnDeprecated           = false,
-                              bool validateConstraints      = true) {
+map[str, list[Message]] checkModule(
+      str moduleName,                           // Rascal module to be type checked
+      
+      bool logTime                  = false,    // General TypePal option
+      bool logSolverIterations      = false,
+      bool logSolverSteps           = false,
+      bool logAttempts              = false,
+      bool logTModel                = false,
+      bool logImports               = false,
+      bool validateConstraints      = true,
+      
+      bool verbose                  = false, 
+      bool debug                    = false,
+      
+      bool warnUnused               = true,     // Rascal specific options
+      bool warnUnusedFormals        = true,
+      bool warnUnusedVariables      = true,
+      bool warnUnusedPatternFormals = false,
+      bool warnDeprecated           = false
+) {
                               
     if(verbose) {
         logSolverIterations = logImports = true;
@@ -413,13 +418,14 @@ map[str, list[Message]] checkModule(str moduleName,
     config.logAttempts = logAttempts;
     config.logTModel = logTModel;
     config.logImports = logImports;
+    config.validateConstraints = validateConstraints;
     
     config.warnUnused = warnUnused;
-    config.warnUnusedVariables = warnUnusedVariables;
-    config.warnUnusedPatternFormals = warnUnusedPatternFormals;
-    config.warnDeprecated = warnDeprecated;
+    config.warnUnusedFormals = warnUnused && warnUnusedFormals;
+    config.warnUnusedVariables = warnUnused && warnUnusedVariables;
+    config.warnUnusedPatternFormals = warnUnused &&  warnUnusedPatternFormals;
+    config.warnDeprecated = warnUnused && warnDeprecated;
     
-    config.validateConstraints = validateConstraints;
     <tmodels, moduleLocs, modules> = rascalTModelForName(moduleName, getDefaultPathConfig(), config);
     return (mname : tmodels[mname].messages | mname <- tmodels, !isEmpty(tmodels[mname].messages));
 }

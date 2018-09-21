@@ -1,7 +1,7 @@
 @bootstrapParser
 module lang::rascalcore::check::Pattern
 
-extend analysis::typepal::TypePal;
+//extend analysis::typepal::TypePal;
 
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ConvertType;

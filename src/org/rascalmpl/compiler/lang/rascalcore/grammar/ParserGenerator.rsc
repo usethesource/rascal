@@ -13,7 +13,7 @@ module lang::rascalcore::grammar::ParserGenerator
 import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::grammar::definition::Parameters;
 import lang::rascalcore::grammar::definition::Regular;
-import lang::rascalcore::grammar::definition::Productions;
+//import lang::rascalcore::grammar::definition::Productions;
 import lang::rascalcore::grammar::definition::Priorities;
 import lang::rascalcore::grammar::definition::Literals;
 import lang::rascalcore::grammar::definition::Symbols;
