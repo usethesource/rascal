@@ -560,7 +560,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                             if(tp.deprecationMessage? && c.getConfig().warnDeprecated){
                                 s.report(warning(expression, "Deprecated function%v", isEmpty(tp.deprecationMessage) ? "" : ": " + tp.deprecationMessage));
                             }
-                            validReturnTypeOverloads += <key, dataId(), checkArgsAndComputeReturnType(current, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
+                            validReturnTypeOverloads += <key, dataId(), checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
                             validOverloads += ovl;
                        } catch checkFailed(list[FailMessage] fms):
                              continue next_fun;
@@ -572,7 +572,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                  for(ovl: <key, idr, tp> <- overloads){
                     if(acons(ret:aadt(adtName, list[AType] parameters, _),  list[AType] fields, list[Keyword] kwFields) := tp){
                        try {
-                            validReturnTypeOverloads += <key, dataId(), computeADTType(current, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, identicalFormals, s)>;
+                            validReturnTypeOverloads += <key, dataId(), computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, identicalFormals, s)>;
                             validOverloads += ovl;
                        } catch checkFailed(list[FailMessage] fms):
                              continue next_cons;
@@ -599,10 +599,10 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                if(texp.deprecationMessage? && c.getConfig().warnDeprecated){
                     s.report(warning(expression, "Deprecated function%v", isEmpty(texp.deprecationMessage) ? "": ": " + texp.deprecationMessage));
                }
-                return checkArgsAndComputeReturnType(current, scope, ret, formals, kwFormals, ft.varArgs, actuals, keywordArguments, [true | int i <- index(formals)], s);
+                return checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs, actuals, keywordArguments, [true | int i <- index(formals)], s);
             }
             if(acons(ret:aadt(adtName, list[AType] parameters,_), list[AType] fields, list[Keyword] kwFields) := texp){
-               return computeADTType(current, adtName, scope, ret, fields/*<1>*/, kwFields, actuals, keywordArguments, [true | int i <- index(fields)], s);
+               return computeADTType(expression, adtName, scope, ret, fields/*<1>*/, kwFields, actuals, keywordArguments, [true | int i <- index(fields)], s);
             }
             s.report(error(current, "%q is defined as %t and cannot be applied to argument(s) %v", "<expression>", expression, actuals));
         });
