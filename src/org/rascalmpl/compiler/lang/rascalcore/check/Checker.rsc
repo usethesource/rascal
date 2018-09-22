@@ -16,11 +16,11 @@ module lang::rascalcore::check::Checker
 /*
  * TODO:
  * - Unused modules not detected correctly
- * - varargs not handled correctly in all cases
  * - Fix reference in grammar rules (it seems that production label get lost somewhere and reference cannot be found)
  * - Support for reified types
  *
  * Potential additions/improvements
+ * - Pattern variables that depend on earlier defined value.
  * - Non-void functions have a return along every control path
  * - Unreachable code
  * - Warn for closures inside loops
