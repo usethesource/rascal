@@ -398,9 +398,9 @@ map[str, list[Message]] checkModule(
       bool debug                    = false,
       
       bool warnUnused               = true,     // Rascal specific options
-      bool warnUnusedFormals        = true,
+      bool warnUnusedFormals        = false,
       bool warnUnusedVariables      = true,
-      bool warnUnusedPatternFormals = false,
+      bool warnUnusedPatternFormals = true,
       bool warnDeprecated           = false
 ) {
                               
