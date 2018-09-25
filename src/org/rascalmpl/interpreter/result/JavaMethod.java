@@ -263,11 +263,11 @@ public class JavaMethod extends NamedFunction {
 			throw RuntimeExceptionFactory.javaException(e.getTargetException(), getAst(), eval.getStackTrace());
 		}
 		catch (Throwable e) {
-		  if(ctx.getConfiguration().printErrors()){
-        e.printStackTrace();
-      }
-		  
-		  throw RuntimeExceptionFactory.javaException(e, getAst(), eval.getStackTrace());
+		    if(ctx.getConfiguration().printErrors()){
+		        e.printStackTrace();
+		    }
+
+		    throw RuntimeExceptionFactory.javaException(e, getAst(), eval.getStackTrace());
 		}
 	}
 }
