@@ -319,22 +319,24 @@ public class BaseREPL {
 
             }
         }
-        catch (IOException e) {
+        catch (InterruptedException e) {
+            // we are closing down, so do nothing, the finally clause will take care of it
+        }
+        catch (Throwable e) {
             try (PrintWriter err = new PrintWriter(stdErr, true)) {
-                err.println("REPL Failed: ");
+                err.println("Unexpected (uncaught) exception, closing the REPL: ");
                 if (!err.checkError()) {
+                    err.print(e.toString());
                     e.printStackTrace(err);
                 }
                 else {
+                    System.err.print(e.toString());
                     e.printStackTrace();
                 }
                 err.flush();
-                stdErr.flush();
             }
+            stdErr.flush();
             throw e;
-        }
-        catch (InterruptedException e) {
-            // we are closing down, so do nothing, the finally clause will take care of it
         }
         finally {
             reader.getOutput().flush();
