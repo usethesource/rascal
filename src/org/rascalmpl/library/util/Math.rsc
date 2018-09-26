@@ -472,6 +472,27 @@ round(3r2,1r4);
 public java int round(num d);
 public (&T <: num) round(&T <: num r, &T <: num nearest) = round(r / (nearest * 1.0)) * nearest;
 
+
+@doc{
+.Synopsis push real value into a float using coercion and return the value represented by that float as a real
+
+.Description
+
+fitFloat converts the unlimited precision real into a JVM float value.
+}
+@javaClass{org.rascalmpl.library.util.Math}
+public java real fitFloat(real r);
+
+@doc{
+.Synopsis push real value into a JVM double using coercion and return the value represented by that float as a real
+
+.Description
+
+fitDouble converts the unlimited precision real into a JVM double value.
+}
+@javaClass{org.rascalmpl.library.util.Math}
+public java real fitDouble(real r);
+
 @doc{
 .Synopsis
 Compute the ratio between two numbers as a percentage.
