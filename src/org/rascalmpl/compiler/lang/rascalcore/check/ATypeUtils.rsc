@@ -116,90 +116,92 @@ private str prettyPrintCond(ACondition::\end-of-line()) = "$";
 private str prettyPrintCond(ACondition::\except(str label)) = "!<label>";
 
 @doc{Rascal abstract types to classic Symbols}
-str atype2symbol(aint()) = "\\int()";
-str atype2symbol(abool()) = "\\bool()";
-str atype2symbol(areal()) = "\\real()";
-str atype2symbol(arat()) = "\\rat()";
-str atype2symbol(astr()) = "\\str()";
-str atype2symbol(anum()) = "\\num()";
-str atype2symbol(anode( list[AType fieldType] fields)) = "\\node()";
-str atype2symbol(avoid()) = "\\void()";
-str atype2symbol(avalue()) = "\\value()";
-str atype2symbol(aloc()) = "\\loc()";
-str atype2symbol(adatetime()) = "\\datetime()";
-str atype2symbol(alist(AType t)) = "\\list(<atype2symbol(t)>)";
-str atype2symbol(aset(AType t)) = "\\set(<atype2symbol(t)>)";
-str atype2symbol(atuple(AType ts)) = "\\tuple(<atype2symbol(ts)>)";
-str atype2symbol(amap(AType d, AType r)) = "\\map(<atype2symbol(d)>, <atype2symbol(r)>)";
-str atype2symbol(arel(AType ts)) = "\\rel(<atype2symbol(ts)>)";
-str atype2symbol(alrel(AType ts)) = "\\lrel(<atype2symbol(ts)>)";
+Symbol atype2symbol(aint()) = \int();
+Symbol atype2symbol(abool()) = \bool();
+Symbol atype2symbol(areal()) = \real();
+Symbol atype2symbol(arat()) = \rat();
+Symbol atype2symbol(astr()) = \str();
+Symbol atype2symbol(anum()) = \num();
+Symbol atype2symbol(anode( list[AType fieldType] fields)) = \node();
+Symbol atype2symbol(avoid()) = \void();
+Symbol atype2symbol(avalue()) = \value();
+Symbol atype2symbol(aloc()) = \loc();
+Symbol atype2symbol(adatetime()) = \datetime();
+Symbol atype2symbol(alist(AType t)) = \list(atype2symbol(t));
+Symbol atype2symbol(aset(AType t)) = \set(atype2symbol(t));
+Symbol atype2symbol(atuple(atypeList(list[AType] ts))) = \tuple([atype2symbol(t) | t <- ts]);
+Symbol atype2symbol(amap(AType d, AType r)) = \map(atype2symbol(d), atype2symbol(r));
+Symbol atype2symbol(arel(atypeList(list[AType] ts))) = \rel([atype2symbol(t) | t <- ts]);
+Symbol atype2symbol(alrel(atypeList(list[AType] ts))) = \lrel([atype2symbol(t) | t <- ts]);
 
-str atype2symbol(afunc(AType ret, list[AType] formals, lrel[AType fieldType, Expression defaultExp] kwFormals))
+// TODO complete conversion from str to Symbol
+
+Symbol atype2symbol(afunc(AType ret, list[AType] formals, lrel[AType fieldType, Expression defaultExp] kwFormals))
                 = "<atype2symbol(ret)>(<intercalate(",", [atype2symbol(f) | f <- formals])>)";
 
-str atype2symbol(aalias(str aname, [], AType aliased)) = "\\alias(\"<aname>\",[],<atype2symbol(aliased)>)";
-str atype2symbol(aalias(str aname, ps, AType aliased)) = "\\alias(\"<aname>\",[<atype2symbol(ps)>],<atype2symbol(aliased)>)" when size(ps) > 0;
+Symbol atype2symbol(aalias(str aname, [], AType aliased)) = \alias(aname,[],atype2symbol(aliased));
+Symbol atype2symbol(aalias(str aname, ps, AType aliased)) = \alias(aname,[atype2symbol(p) | p<-ps], atype2symbol(aliased)) when size(ps) > 0;
 
-str atype2symbol(aanno(str aname, AType onType, AType annoType)) = "\\anno(\"<aname>\",<atype2symbol(annoType)>,<atype2symbol(onType)>)";
+Symbol atype2symbol(aanno(str aname, AType onType, AType annoType)) = \anno(aname,atype2symbol(annoType), atype2symbol(onType));
 
-str atype2symbol(aadt(str s, [], contextFreeSyntax()))  = "\\sort(\"<s>\")";
-str atype2symbol(aadt(str s, [], lexicalSyntax()))      = "\\lex(\"<s>\")";
-str atype2symbol(aadt(str s, [], keywordSyntax()))     = "\\keywords(\"<s>\")";
-str atype2symbol(aadt(str s, [], layoutSyntax()))       = "\\layouts(\"<s>\")";
+Symbol atype2symbol(aadt(str s, [], contextFreeSyntax()))  = Symbol::\sort(s);
+Symbol atype2symbol(aadt(str s, [], lexicalSyntax()))      = Symbol::\lex(s);
+Symbol atype2symbol(aadt(str s, [], keywordSyntax()))      = Symbol::\keywords(s);
+Symbol atype2symbol(aadt(str s, [], layoutSyntax()))       = Symbol::\layouts(s);
 
-str atype2symbol(aadt(str s, ps, contextFreeSyntax)) = "\\parameterized-sort(\"<s>\", [<atype2symbol(ps)>])" when size(ps) > 0;
-str atype2symbol(aadt(str s, ps, lexicalSyntax())) = "\\parameterized-lex(\"<s>\", [<atype2symbol(ps)>])" when size(ps) > 0;
+Symbol atype2symbol(aadt(str s, ps, contextFreeSyntax)) = \parameterized-sort(s, [atype2symbol(p) | p <- ps]) when size(ps) > 0;
+Symbol atype2symbol(aadt(str s, ps, lexicalSyntax())) = \parameterized-lex(s, [atype2symbol(p) | p <- ps]) when size(ps) > 0;
 
-str atype2symbol(t: acons(AType adt,
+Symbol atype2symbol(t: acons(AType adt,
                 list[AType fieldType] fields,
                 lrel[AType fieldType, Expression defaultExp] kwFields))
                  = "<atype2symbol(adt)>::<t.label>(<intercalate(", ", ["<atype2symbol(ft)> <ft.label>" | ft <- fields])><isEmpty(kwFields) ? "" : ", "><intercalate(",", ["<atype2symbol(ft)> <ft.label>=..." | <ft, de> <- kwFields])>)";
 
-str atype2symbol(amodule(str mname)) = "\\module(\"<mname>\")";         
-str atype2symbol(aparameter(str pn, AType t)) = "\\parameter(\"<pn>\", <atype2symbol(t)>)";
-str atype2symbol(areified(AType t)) = "\\reified(<atype2symbol(t)>)";
+Symbol atype2symbol(amodule(str mname)) = "\\module(\"<mname>\")";         
+Symbol atype2symbol(aparameter(str pn, AType t)) = "\\parameter(\"<pn>\", <atype2symbol(t)>)";
+Symbol atype2symbol(areified(AType t)) = "\\reified(<atype2symbol(t)>)";
 
 // utilities
-str atype2symbol(overloadedAType(rel[loc, IdRole, AType] overloads))
+Symbol atype2symbol(overloadedAType(rel[loc, IdRole, AType] overloads))
                 = intercalateOr([atype2symbol(t1) | t1 <- {t | <k, idr, t> <- overloads} ]);
 
-str atype2symbol(list[AType] atypes) = intercalate(", ", [atype2symbol(t) | t <- atypes]);
+Symbol atype2symbol(list[AType] atypes) = intercalate(", ", [atype2symbol(t) | t <- atypes]);
 
-str atype2symbol(Keyword kw) = "<atype2symbol(kw.fieldType) <kw.fieldType.label/*fieldName*/> = <kw.defaultExp>";
+Symbol atype2symbol(Keyword kw) = "<atype2symbol(kw.fieldType) <kw.fieldType.label/*fieldName*/> = <kw.defaultExp>";
 
 // non-terminal symbols
-str atype2symbol(\prod(AType s, list[AType] fs, attributes=ats)) = "prod(<atype2symbol(s)>, [<intercalate(", ", [ atype2symbol(f) | f <- fs ])>], <ats>)"; //TODO others
+Symbol atype2symbol(\prod(AType s, list[AType] fs, attributes=ats)) = prod(atype2symbol(s), [ atype2symbol(f) | f <- fs ], ats); //TODO others
 
 // terminal symbols
-str atype2symbol(AType::\lit(str string)) = "\\lit(\"<escape(string)>\")";
-str atype2symbol(AType::\cilit(str string)) = "\\cilit(\"<string>\")";
-str atype2symbol(\char-class(list[ACharRange] ranges)) = "\\char-class([<intercalate(",", [ "range(<r.begin>,<r.end>)" | r <- ranges ])>])";
+Symbol atype2symbol(AType::\lit(str string)) = Symbol::\lit(string);
+Symbol atype2symbol(AType::\cilit(str string)) = Symbol::\cilit(string);
+Symbol atype2symbol(\char-class(list[ACharRange] ranges)) = Symbol::\char-class([range(<r.begin>,<r.end>) | r <- ranges ]);
 
-str atype2symbol(\start(AType symbol)) = "\\start(<atype2symbol(symbol)>)";
+Symbol atype2symbol(\start(AType symbol)) = "\\start(<atype2symbol(symbol)>)";
 
 // regular symbols
-str atype2symbol(AType::\empty()) = "\\empty()";
-str atype2symbol(\opt(AType symbol)) = "\\opt(<atype2symbol(symbol)>)";
-str atype2symbol(\iter(AType symbol)) = "\\iter(<atype2symbol(symbol)>)";
-str atype2symbol(\iter-star(AType symbol)) = "\\iter-star(<atype2symbol(symbol)>)";
-str atype2symbol(\iter-seps(AType symbol, list[AType] separators)) = "\\iter-seps(<atype2symbol(symbol)>, [<intercalate(",", [ atype2symbol(sep) | sep <- separators ])>])";
-str atype2symbol(\iter-star-seps(AType symbol, list[AType] separators)) = "\\iter-star-seps(<atype2symbol(symbol)>, [<intercalate(",", [ atype2symbol(sep) | sep <- separators ])>])";
-str atype2symbol(\alt(set[AType] alternatives)) = "\\alt({<intercalate(", ", [ atype2symbol(a) | a <- alternatives ])>})" when size(alternatives) > 1;
-str atype2symbol(\seq(list[AType] sequence)) = "\\seq([<intercalate(",", [ atype2symbol(a) | a <- sequence ])>])" when size(sequence) > 1;
-str atype2symbol(\conditional(AType symbol, set[ACondition] conditions)) = "\\conditional(<atype2symbol(symbol)>, {<intercalate(",", [ acond2cond(cond) | cond <- conditions ])>} )";
-default str atype2symbol(AType s)  { throw "<s>"; } //"<type(s,())>";
+Symbol atype2symbol(AType::\empty()) = Symbol::\empty();
+Symbol atype2symbol(\opt(AType symbol)) = Symbol::\opt(atype2symbol(symbol));
+Symbol atype2symbol(\iter(AType symbol)) = Symbol::\iter(atype2symbol(symbol));
+Symbol atype2symbol(\iter-star(AType symbol)) = Symbol::\iter-star(atype2symbol(symbol));
+Symbol atype2symbol(\iter-seps(AType symbol, list[AType] separators)) = "\\iter-seps(<atype2symbol(symbol)>, [<intercalate(",", [ atype2symbol(sep) | sep <- separators ])>])";
+Symbol atype2symbol(\iter-star-seps(AType symbol, list[AType] separators)) = "\\iter-star-seps(<atype2symbol(symbol)>, [<intercalate(",", [ atype2symbol(sep) | sep <- separators ])>])";
+Symbol atype2symbol(\alt(set[AType] alternatives)) = "\\alt({<intercalate(", ", [ atype2symbol(a) | a <- alternatives ])>})" when size(alternatives) > 1;
+Symbol atype2symbol(\seq(list[AType] sequence)) = "\\seq([<intercalate(",", [ atype2symbol(a) | a <- sequence ])>])" when size(sequence) > 1;
+Symbol atype2symbol(\conditional(AType symbol, set[ACondition] conditions)) = "\\conditional(<atype2symbol(symbol)>, {<intercalate(",", [ acond2cond(cond) | cond <- conditions ])>} )";
+default Symbol atype2symbol(AType s)  { throw "<s>"; } //"<type(s,())>";
 
-private str acond2cond(ACondition::\follow(AType symbol)) = "\\follow(<atype2symbol(symbol)>)";
-private str acond2cond(ACondition::\not-follow(AType symbol)) = "\\not-follow(<atype2symbol(symbol)>)";
-private str acond2cond(ACondition::\precede(AType symbol)) = "\\precede(<atype2symbol(symbol)>)";
-private str acond2cond(ACondition::\not-precede(AType symbol)) = "\\not-precede(<atype2symbol(symbol)>)";
-private str acond2cond(ACondition::\delete(AType symbol)) = "\\delete(<atype2symbol(symbol)>)";
-private str acond2cond(ACondition::\at-column(int column)) = "\\at-column(<column>)";
-private str acond2cond(ACondition::\begin-of-line()) = "\\begin-of-line()";
-private str acond2cond(ACondition::\end-of-line()) = "\\end-of-line()";
-private str acond2cond(ACondition::\except(str label)) = "\\except(\"<label>\")";
+private Symbol acond2cond(ACondition::\follow(AType symbol)) = \follow(atype2symbol(symbol));
+private Symbol acond2cond(ACondition::\not-follow(AType symbol)) = \not-follow(atype2symbol(symbol));
+private Symbol acond2cond(ACondition::\precede(AType symbol)) = \precede(atype2symbol(symbol));
+private Symbol acond2cond(ACondition::\not-precede(AType symbol)) = \not-precede(atype2symbol(symbol));
+private Symbol acond2cond(ACondition::\delete(AType symbol)) = \delete(atype2symbol(symbol));
+private Symbol acond2cond(ACondition::\at-column(int column)) = \at-column(column);
+private Symbol acond2cond(ACondition::\begin-of-line()) = \begin-of-line();
+private Symbol acond2cond(ACondition::\end-of-line()) = \end-of-line();
+private Symbol acond2cond(ACondition::\except(str label)) = \except(label);
 
-str atype2symbol(regular(AType def)) = "\\regular(<atype2symbol(def)>)";
+Symbol atype2symbol(regular(AType def)) = \regular(atype2symbol(def));
 
 // ---- Predicates, selectors and constructors --------------------------------
 

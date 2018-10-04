@@ -99,7 +99,7 @@ void collect(current: (RegExpLiteral)`/<RegExp* regexps>/<RegExpModifier modifie
 
 void collect(RegExp regExp, Collector c){
     if( (RegExp)`\<<Name name>\>` := regExp){
-        c.use(name, anyVariableRoles);
+        c.use(name, variableRoles);
     } else if ((RegExp)`\<<Name name>:<NamedRegExp* regexps>\>` := regExp){
         c.define("<name>", formalOrPatternFormal(c), name, defType(astr()));
         collect(name, regexps, c);
@@ -351,7 +351,7 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
         if(base != "_"){
            if(inPatternNames(base, c)){
               //println("qualifiedName: <name>, useLub, <getLoc(current)>");
-              c.useLub(argName, anyVariableRoles);
+              c.useLub(argName, variableRoles);
               return;
            }
            c.push(patternNames, <base, getLoc(argument)>);
@@ -581,7 +581,7 @@ tuple[rel[loc, IdRole, AType], list[bool]] filterOverloadedConstructors(rel[loc,
 void collect(current: (Pattern) `<Name name> : <Pattern pattern>`, Collector c){
     uname = unescape("<name>");
     if(inPatternNames(uname, c)){
-        c.useLub(name, anyVariableRoles);
+        c.useLub(name, variableRoles);
     } else {
         c.push(patternNames, <uname, getLoc(name)>);
         scope = c.getScope();
