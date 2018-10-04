@@ -203,7 +203,7 @@ data LoopInfo = loopInfo(str name, list[Tree] appends);
 // ---- while -----------------------------------------------------------------
 
 void collect(current: (Statement) `<Label label> while( <{Expression ","}+ conditions> ) <Statement body>`,  Collector c){
-    c.enterScope(conditions);   // body may refer to variables defined in conditions
+    c.enterScope(current);   // body may refer to variables defined in conditions
         loopName = "";
         if(label is \default){
             loopName = prettyPrintName(label.name);
@@ -218,7 +218,7 @@ void collect(current: (Statement) `<Label label> while( <{Expression ","}+ condi
         endPatternScope(c);
         collect(body, c);
         computeLoopType("while statement", loopName, current, c);
-    c.leaveScope(conditions);
+    c.leaveScope(current);
 }
 
 void checkConditions(list[Expression] condList, Solver s){
@@ -374,7 +374,7 @@ void collect(current:(Statement) `continue <Target target>;`, Collector c){
 // ---- if --------------------------------------------------------------------
 
 void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditions> ) <Statement thenPart>`,  Collector c){
-    c.enterScope(conditions); // thenPart may refer to variables defined in conditions
+    c.enterScope(current); // thenPart may refer to variables defined in conditions
         if(label is \default){
             c.define("<label.name>", labelId(), label.name, defType(avoid()));
         }
@@ -387,12 +387,13 @@ void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditio
         collect(condList, c);
         endPatternScope(c);
         collect(thenPart, c);
-    c.leaveScope(conditions);   
+    c.leaveScope(current);   
 }
 
 // --- if then else -----------------------------------------------------------
 
 void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditions> ) <Statement thenPart> else <Statement elsePart>`,  Collector c){
+    c.enterScope(current);
     c.enterScope(conditions);   // thenPart may refer to variables defined in conditions; elsePart may not
         if(label is \default){
             c.define(prettyPrintName(label.name), labelId(), label.name, defType(avoid()));
@@ -416,6 +417,7 @@ void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditio
             collect(elsePart, c);
         c.leaveScope(elsePart);
     c.leaveScope(conditions); 
+    c.leaveScope(current);
 }
 
 // ---- switch ----------------------------------------------------------------
@@ -456,9 +458,9 @@ void collect(current: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bou
     for(v <- variables){
         <qualifier, base> = splitQualifiedName(v);
         if(!isEmpty(qualifier)){
-            c.useQualified([qualifier, base], name, anyVariableRoles, {moduleId()} );
+            c.useQualified([qualifier, base], name, variableRoles, {moduleId()} );
         } else {
-            c.use(v, anyVariableRoles);
+            c.use(v, variableRoles);
         }
     }
     c.fact(current, avoid());
@@ -622,7 +624,7 @@ void checkAssignment(Statement current, (Assignable) `<QualifiedName name>`, str
         if(operator == "="){
            c.define(base, variableId(), name, defLub([statement], AType(Solver s){ return s.getType(statement); }));
         } else {
-           c.useLub(name, anyVariableRoles);
+           c.useLub(name, variableRoles);
         }
     }
     c.calculate("assignment to `<name>`", current, [name, statement],    // TODO: add name to dependencies?
@@ -664,7 +666,7 @@ AType computeReceiverType(Statement current, (Assignable) `\< <{Assignable ","}+
 void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, str operator, Statement rhs, Collector c){
    names = getReceiver(receiver, c);
    
-   c.use(names[0], anyVariableRoles);
+   c.use(names[0], variableRoles);
    scope = c.getScope();
    
    c.calculate("assignable with subscript", current, [subscript, rhs], 
@@ -739,7 +741,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <O
    if(optFirst is noExpression) c.fact(optFirst, aint());
    if(optLast is noExpression) c.fact(optLast, aint());
    
-   c.use(names[0], anyVariableRoles);
+   c.use(names[0], variableRoles);
    
    scope = c.getScope();
    
@@ -757,7 +759,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <O
    if(optFirst is noExpression) c.fact(optFirst, aint());
    if(optLast is noExpression) c.fact(optLast, aint());
 
-   c.use(names[0], anyVariableRoles);
+   c.use(names[0], variableRoles);
    scope = c.getScope();
    
    c.calculate("assignable with slice", current, [optFirst, second, optLast, rhs], 
@@ -802,7 +804,7 @@ AType computeSliceAssignableType(Statement current, AType receiverType, AType fi
 
 void checkAssignment(Statement current, (Assignable) `<Assignable receiver> . <Name field>`, str operator, Statement rhs, Collector c){
    names = getReceiver(receiver, c);
-   c.use(names[0], anyVariableRoles);
+   c.use(names[0], variableRoles);
    scope = c.getScope();
    
    c.calculate("assignable with field", current, [rhs], 
@@ -827,7 +829,7 @@ AType computeFieldAssignableType(Statement current, AType receiverType, Tree fie
 
 void checkAssignment(Statement current, (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, str operator, Statement rhs, Collector c){
    names = getReceiver(receiver, c);
-   c.use(names[0], anyVariableRoles);
+   c.use(names[0], variableRoles);
    scope = c.getScope();
    
    c.calculate("assignable with default expression", current, [defaultExpression, rhs], 
@@ -897,7 +899,7 @@ void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable 
    taus = [c.newTypeVar(nm) | nm <- names];
    for(int i <- index(names), flatNames[i] notin namesInRhs){c.define("<names[i]>", variableId(), names[i], defLub([rhs], makeDef(i)));}
    
-   for(name <- names) c.use(name, anyVariableRoles);
+   for(name <- names) c.use(name, variableRoles);
   
    scope = c.getScope();
    
@@ -913,7 +915,7 @@ void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable 
 void checkAssignment(Statement current, (Assignable) `<Assignable receiver> @ <Name n>`, str operator, Statement rhs, Collector c){
    c.use(n, {annoId()});
    names = getReceiver(receiver, c);
-   c.useLub(names[0], anyVariableRoles);
+   c.useLub(names[0], variableRoles);
    scope = c.getScope();
    
    c.calculate("assignable with annotation", current, [n, rhs], 
@@ -965,7 +967,7 @@ AType computeAnnoAssignableType(Statement current, AType receiverType, Name anno
 
 
 list[QualifiedName] getReceiver((Assignable) `<QualifiedName name>`, Collector c){
-    c.use(name, anyVariableRoles);
+    c.use(name, variableRoles);
     return [name];
 }
 list[QualifiedName] getReceiver((Assignable) `<Assignable receiver> [ <Expression subscript> ]`, Collector c) = getReceiver(receiver, c);

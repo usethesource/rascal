@@ -628,4 +628,4 @@ list[Message] saveParser(str pname, str parserClass, loc where, bool verbose){
 }
 
 str prettyAsClassic(AProduction p)
-    = atype2symbol(p);
+    = "<atype2symbol(p)>";

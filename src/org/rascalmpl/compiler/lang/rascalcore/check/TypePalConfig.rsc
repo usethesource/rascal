@@ -41,8 +41,9 @@ public set[IdRole] dataOrSyntaxRoles = {dataId()} + syntaxRoles;
 public set[IdRole] dataRoles = {aliasId(), dataId()}; 
 public set[IdRole] outerFormalRoles = {formalId(), keywordFormalId()};
 public set[IdRole] positionalFormalRoles = {formalId(), nestedFormalId()};
-public set[IdRole] anyFormalRoles = outerFormalRoles + {nestedFormalId()};
-public set[IdRole] anyVariableRoles = anyFormalRoles + {variableId(), patternVariableId()};
+public set[IdRole] formalRoles = outerFormalRoles + {nestedFormalId()};
+public set[IdRole] variableRoles = formalRoles + {variableId(), patternVariableId()};
+public set[IdRole] saveModuleRoles = dataOrSyntaxRoles + {constructorId(), functionId(), fieldId(), keywordFieldId(), annoId()} + variableRoles;
 
 data PathRole
     = importPath()
@@ -306,7 +307,7 @@ AType rascalGetTypeInNamelessType(AType containerType, Tree selector, loc scope,
     return computeFieldType(containerType, selector, scope, s);
 }
 
-bool rascalIsInferrable(IdRole idRole) = idRole in anyVariableRoles;
+bool rascalIsInferrable(IdRole idRole) = idRole in variableRoles;
 
 loc findContainer(loc def, map[loc,Define] definitions, map[loc,loc] scope){
     sc = definitions[def].scope;
