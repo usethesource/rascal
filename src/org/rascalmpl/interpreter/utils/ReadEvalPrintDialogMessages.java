@@ -177,8 +177,14 @@ public class ReadEvalPrintDialogMessages {
 			// This can/should never happen.
 		}
 		
-		printSourceLocation(out, e.getLocation(), prettyPrinter);
-		out.print(": ");
+		ISourceLocation loc = e.getLocation();
+		if (loc != null) {
+		    printSourceLocation(out, loc, prettyPrinter);
+	          out.print(": ");
+		}
+		else {
+		    out.print("unknown location: ");
+		}
 		out.println(lros.getBuffer().toString());
 		
 		StackTrace trace = e.getTrace();

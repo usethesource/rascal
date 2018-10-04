@@ -57,6 +57,24 @@ public class Math {
 		random.setSeed(seed.intValue());
 	}
 	
+	public IValue fitFloat(IReal r) {
+	    float x = r.floatValue();
+	    if (x == Float.NEGATIVE_INFINITY || x == Float.POSITIVE_INFINITY) {
+	        throw RuntimeExceptionFactory.arithmeticException("<r> is outside of float boundaries", null, null);
+	    }
+	    
+	    return values.real(x);
+	}
+	
+	public IValue fitDouble(IReal r) {
+        double x = r.doubleValue();
+        if (x == Double.NEGATIVE_INFINITY || x == Double.POSITIVE_INFINITY) {
+            throw RuntimeExceptionFactory.arithmeticException("<r> is outside of float boundaries", null, null);
+        }
+        
+        return values.real(x);
+    }
+	
 	public IValue cos(INumber x){
 		try {
 			return x.toReal(values.getPrecision()).cos(values.getPrecision());

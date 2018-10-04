@@ -472,6 +472,50 @@ round(3r2,1r4);
 public java int round(num d);
 public (&T <: num) round(&T <: num r, &T <: num nearest) = round(r / (nearest * 1.0)) * nearest;
 
+
+@doc{
+.Synopsis push real value into a float using coercion and return the value represented by that float as a real
+
+.Description
+
+The function fitFloat converts the unlimited precision real into a JVM float value.
+
+.Benefits
+
+* This function comes in handy in combination with random real test values which have to 
+go through coercion in a Java library, like so:
+ `bool test myTest(real r, real j) = fitFloat(r) + fitFloat(j) == fitFloat(r) + fitFloat(j);`
+ 
+.Pitfalls
+
+* If the real is smaller than the minimum float value or larger than the maximum float
+value, this function will throw an ArithmeticException.
+ 
+}
+@javaClass{org.rascalmpl.library.util.Math}
+public java real fitFloat(real r) throws ArithmeticException(str msg);
+
+@doc{
+.Synopsis push real value into a JVM double using coercion and return the value represented by that float as a real
+
+.Description
+
+The function fitDouble converts the unlimited precision real into a JVM double value.
+
+.Benefits
+
+* This function comes in handy in combination with random real test values which have to 
+go through coercion in a Java library, like so:
+ `bool test myTest(real r, real j) = fitDouble(r) + fitDouble(j) == fitDouble(r) + fitDouble(j);`
+ 
+.Pitfalls
+
+* If the real is smaller than the minimum double value or larger than the maximum double
+value, this function will throw an ArithmeticException.
+}
+@javaClass{org.rascalmpl.library.util.Math}
+public java real fitDouble(real r) throws ArithmeticException(str msg);
+
 @doc{
 .Synopsis
 Compute the ratio between two numbers as a percentage.
