@@ -1,0 +1,824 @@
+@bootstrapParser
+module lang::rascalcore::compile::Rascal2muRascal::TypeUtils
+
+import IO;
+import ValueIO;
+import Set;
+import Map;
+import Node;
+import Relation;
+import String;
+
+import lang::rascal::\syntax::Rascal;
+import lang::rascalcore::compile::muRascal::AST;
+
+import lang::rascal::grammar::definition::Symbols;
+
+import lang::rascalcore::check::Checker;
+import lang::rascalcore::check::TypePalConfig;
+import Type;
+
+import lang::rascalcore::check::AType;
+import lang::rascalcore::check::ATypeUtils;
+
+import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
+
+/*
+ * This module provides a bridge to the "TModel" delivered by the type checker
+
+ * It contains (type, scope, use, def) information collected by the type checker.
+ * This module consists of three parts:
+ * Part I:		Defines the function extractScopes that extracts information from a TModel
+ * 				and transforms it into a representation that is suited for the compiler.
+  *             Initializes the type reifier
+ * Part II: 	Defines other functions to access this type information.
+ * Part III:	Type-related code generation functions.
+ * 
+ * Some details:
+ * - We use the source lcoation of each entity as its unique identifier UID uid this uid
+ *   is connected to all information about this entity.
+ */
+ 
+/********************************************************************/
+/*     Part I: Extract and convert Type checker TModel              */
+/********************************************************************/
+
+// A set of global values to represent the extracted information
+// TODO: wrap this in a function
+
+alias UID = loc;                                    // A UID is a unique identifier determined by the source location of a construct
+
+/*
+ * We will use FUID (for Function UID) to create a readable string representation for 
+ * any enity of interest. Typically a FUID consists of:
+ * - the name of the entity
+ * - its type
+ * - optional modifiers (to indicate a specific use, case, etc)
+ *
+ * CUID, PUID, ... are variants of the above for constructors, productions, etc.
+ */
+
+alias FUID = str; 
+
+Scopes scopes = ();                                 // All scopes
+rel[UID,UID] td_reachable_scopes = {};              // Transitive closure of top down reachable scopes
+
+map[UID,UID] declaredIn = ();                       // Map from declared enity to its declaring function or module
+rel[UID,UID] declares = {};                         // Relation from declaring functionn or module to the entities declared in it.
+
+map[UID,AType] facts = ();                          // All facts derived by the type chcekr
+map[UID,AType] specializedFacts = ();               // Facts resulting from overloading resolutiom
+    
+rel[UID, UID] useDef = {};                          // Relation from uses to definitions
+rel[UID, UID] defUses = {};                         // Relation from defintion to all its uses
+
+map[UID, Define] definitions = ();                  // All definitions
+map[UID, Define]  getDefinitions() = definitions;
+                         
+map[UID,int]  position_in_container = ();           // Position of variable in containing function or module
+map[UID,set[Define]] vars_per_scope = ();           // The variables introduced per scope
+
+set[UID] functions = {};                            // Declared functions
+
+bool isFunction(UID uid) = uid in functions;
+
+set[UID] defaultFunctions = {};                     // Declared default functions
+
+bool isDefaultFunction(UID uid) = uid in defaultFunctions;
+
+set[UID] constructors = {};                         // Declared constructors
+
+bool isConstructor(UID uid) = uid in constructors;
+
+set[UID] getConstructors() = constructors;
+
+map[UID,int] functions_and_constructors_to_int  = ();
+
+public set[UID] variables = {};						// declared variables
+
+private map[str,int] module_var_init_locals = ();	// number of local variables in module variable initializations
+
+int getModuleVarInitLocals(str mname) {
+	//assert module_var_init_locals[mname]? : "getModuleVarInitLocals <mname>";
+	return module_var_init_locals[mname] ? 0;
+}
+public set[UID] keywordFormals = {};				// declared keyword parameters & common keyword fields declared on datatypes
+
+private map[tuple[UID,UID], bool] funInnerScopes = ();
+
+alias OFUN = tuple[str name, AType funType, str fuid, list[str] ofunctions, list[str] oconstructors];		// An overloaded function and all its possible resolutions
+
+private map[str,int] overloadingResolver = ();		// map function name to overloading resolver
+private map[AType,str] overloadedTypeResolver = (); // map overloaded function types to the name of their resolver
+private list[OFUN] overloadedFunctions = [];		// list of overloaded functions 
+
+str unescape(str name) = name[0] == "\\" ? name[1..] : name;
+
+void addOverloadedFunctionAndResolver(OFUN fundescr) = addOverloadedFunctionAndResolver(fundescr.fuid, fundescr);
+
+void addOverloadedFunctionAndResolver(str fuid1, OFUN fundescr){
+   
+	int n = indexOf(overloadedFunctions, fundescr);
+	if(n < 0){
+		n = size (overloadedFunctions);
+		overloadedFunctions += fundescr;
+	}
+	//println("addOverloadedFunctionAndResolver: <n>, <fuid1>, <fundescr>, <overloadingResolver[fuid1]? ? overloadingResolver[fuid1] : -1>");
+	assert !overloadingResolver[fuid1]? || overloadingResolver[fuid1] == n: "Cannot redefine overloadingResolver for <fuid1>, <overloadingResolver[fuid1]>, <fundescr>";
+	overloadingResolver[fuid1] = n;
+}
+
+list[OFUN] getOverloadedFunctions() = overloadedFunctions;
+
+map[str,int] getOverloadingResolver() = overloadingResolver;
+
+bool hasOverloadingResolver(FUID fuid) = overloadingResolver[fuid]?;
+
+OFUN getOverloadedFunction(FUID fuid) {
+	assert overloadingResolver[fuid]? : "No overloading resolver defined for <fuid>";
+	resolver = overloadingResolver[fuid];
+	//println("getOverloadedFunction(<fuid>) ==\> <overloadedFunctions[resolver]>");
+	return overloadedFunctions[resolver];
+}
+
+// Reset the above global variables, when compiling the next module.
+
+public void resetScopeExtraction() { 
+    
+    functions = {}; 
+    keywordFormals = {};
+    defaultFunctions = {};
+    module_var_init_locals = ();
+   
+    declares = {};
+    declaresMap = ();
+    
+    declaredIn = ();
+    
+    funInnerScopes = ();
+    
+    overloadingResolver = ();
+    overloadedFunctions = [];
+    
+    scopes = ();
+
+    facts = (); 
+    specializedFacts = ();
+    
+    useDef = {};
+    defUses = {};
+    definitions = ();
+    position_in_container = ();
+    vars_per_scope = ();
+    functions = {};
+    constructors = {};
+    functions_and_constructors_to_int  = ();
+}
+
+AType getDefType(UID d){
+    di = definitions[d].defInfo;
+    if(defType(AType atype) := di) return atype;
+    if(defType(loc l) := di) return facts[l];
+    throw "getDefType: <d>";
+}
+
+int getFormals(UID fuid) = size(facts[fuid]? ? facts[fuid].formals : getDefType(fuid).formals) + 1;  // '+ 1' accounts for keyword arguments
+
+str getScope(UID uid){
+    return convert2fuid(declaredIn[uid]);
+}
+    
+// Compute the scope size, excluding declared nested functions, closures and keyword parameters   
+// r2mu translation of functions introduces variables in place of formal parameter patterns and uses patterns to match these variables  
+int getScopeSize(UID uid){
+    vars = [];
+    if(definitions[uid]?){
+        def = definitions[uid];
+        assert def.idRole == functionId();
+        vars = [ v | v <- declares[uid], is_non_keyword_variable(definitions[v]) ];
+    } else {
+        locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[uid] }; //TODO declaredIn[sc] == fun
+        vars = [v | v <- locally_defined, is_non_keyword_variable(v)];
+    }
+       return size(vars) + 2; // '+ 2' accounts for keyword arguments and default values of keyword parameters  
+}
+ 
+bool is_formal(Define d) = d.idRole in formalRoles;
+bool is_positional_formal(Define d) = d.idRole in positionalFormalRoles;
+bool is_outer_formal(Define d) = d.idRole in outerFormalRoles;
+bool is_variable(Define d) = d.idRole in variableRoles;
+bool is_non_keyword_variable(Define d) = d.idRole in variableRoles - {keywordFormalId()};
+bool is_module_variable(Define d) = d.idRole == variableId();
+bool is_module_or_function(loc l) = definitions[l]? && definitions[l].idRole in {moduleId(), functionId()};
+bool is_module(Define d) = d.idRole in {moduleId()};
+
+bool is_declared_in_module(UID uid) = definitions[getFirstFrom(useDef[uid]).defined] == moduleId();
+
+loc findContainer(Define d){
+    println(d);
+    if(is_module(d)) return d.defined;
+    cscope = d.scope;
+    while(!is_module_or_function(cscope)) cscope = scopes[cscope];
+    return cscope;
+}
+    
+// extractScopes: extract and convert type information from the Configuration delivered by the type checker.
+void extractScopes(TModel tm){
+    iprintln(tm);
+    scopes = tm.scopes;
+
+    facts = tm.facts;
+    specializedfacts = tm.specializedFacts;
+    defines = tm.defines;
+    definitions = ( def.defined : def | Define def <- defines );
+    position_in_container = ();
+    vars_per_scope = ();
+    useDef = tm.useDef;
+    defUses = invert(useDef);
+    modules = {};
+    
+    for(def <- defines){
+        switch(def.idRole){
+            case functionId(): {
+                functions += def.defined;
+                if(def.defInfo has modifiers && "default" in def.defInfo.modifiers) defaultFunctions += def.defined;
+            }  
+        case constructorId(): 
+             constructors += def.defined;
+        case keywordFormalId():
+             keywordFormals += def.defined;
+        case moduleId():
+             modules += def.defined;
+        case variableId():
+             vars_per_scope[def.scope] = {def} + (vars_per_scope[def.scope] ? {});
+        case formalId():
+             vars_per_scope[def.scope] = {def} + (vars_per_scope[def.scope] ? {});
+        case nestedFormalId():
+             vars_per_scope[def.scope] = {def} + (vars_per_scope[def.scope] ? {});
+        case patternVariableId():
+             vars_per_scope[def.scope] = {def} + (vars_per_scope[def.scope] ? {});
+       }
+    }
+    
+    println("vars_per_scope"); iprintln(vars_per_scope);
+    
+    // Determine position of module variables
+    for(m <- modules){
+        module_vars = toList(vars_per_scope[m] ? {});
+        for(int i <- index(module_vars)){
+            position_in_container[module_vars[i].defined] = i;
+        }
+    }
+    
+    // Scopes goes inside out, compute an inverted version and take transitive closure
+    scopes_rel = toRel(scopes);
+    td_reachable_scopes = invert(scopes_rel)*;
+    declaredIn = (d.defined : findContainer(d) | d <- defines, d.id != "type");
+    declares = invert(toRel(declaredIn));
+    
+    println("declaredIn"); iprintln(declaredIn);
+    
+    // Determine position of variables inside functions
+    
+    for(fun <- functions){   
+        fundef = definitions[fun];
+        println("td_reachable_scopes[fundef.defined]: <td_reachable_scopes[fundef.defined]>");
+        println("vars_per_scope:"); iprintln(vars_per_scope);
+        locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined], bprintln("scp = <sc>") }; //TODO declaredIn[sc] == fun
+        vars = sort([v | v <- locally_defined, is_variable(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
+        formals = [v | v <- vars, is_formal(v)];
+        outer_formals = [v | v <- formals, is_outer_formal(v) ];
+        non_formals = [v | v <- vars, !is_formal(v)];
+    
+        /* frame organization: outer_formals, kw_map, kw_defaults, formals, variables */
+    
+        formal_base = size(formals) + 2; // ***Note: Includes keyword parameters as a single map parameter and kw_defaults
+        for(int i <- index(vars)){
+            vdefine = vars[i];
+            if(vdefine.idRole != keywordFormalId()){
+                // Note: we need to reserve positions for variables that will replace formal parameter patterns
+                // '+ 1' is needed to allocate the first local variable to store default values of keyword parameters
+                position_in_container[vdefine.defined] = formal_base + i;
+            }
+        }
+    }
+   
+   sorted_functions_and_constructors  = sort(functions+constructors);
+   functions_and_constructors_to_int = (sorted_functions_and_constructors[i]: i | int i <- index(sorted_functions_and_constructors));
+   functions_and_constructors_to_fuid =  (l : convert2fuid(l) | loc l <- sorted_functions_and_constructors);
+  
+  // create overloading resolvers ...
+  
+   noverloaded = 0;
+   
+   // ... for overloaded functions
+   for(loc l <- facts){
+    if(ovl:overloadedAType(rel[loc, IdRole, AType] overloads) := facts[l]){ // TODO specialized
+        fdefine = definitions[getFirstFrom(overloads)[0]];
+        fname = fdefine.id;
+        di = fdefine.defInfo;
+        ftype = unsetRec((defType(AType atype) := di) ? atype : avalue());
+        if(fdefine.idRole == functionId()) ftype[kwFormals=[]];
+        if(fdefine.idRole == constructorId()) ftype[kwFields=[]];
+        
+        ovl_non_defaults = [];
+        ovl_defaults = [];
+        ovl_constructors = [];
+        for(<loc def, IdRole idRole, AType tp> <- overloads, idRole in {constructorId(), functionId()}){
+            fuid = functions_and_constructors_to_fuid[def];
+            if(idRole == constructorId()) 
+                ovl_constructors += fuid;
+            else if(def in defaultFunctions) 
+                ovl_defaults += fuid; 
+            else 
+                ovl_non_defaults += fuid;
+        }
+        oname = "<fname>=<intercalate(" OR ",  ovl_non_defaults + ovl_defaults + ovl_constructors)>";
+        ofun = <name,  ftype, oname, ovl_non_defaults + ovl_defaults, ovl_constructors>; // TODO: sorting
+        overloadedFunctions += ofun;
+        overloadingResolver[oname] = noverloaded;
+        noverloaded += 1;
+        overloadedTypeResolver[unsetRec(ovl)] = oname;
+    }
+   }
+   
+   // ... or non-overloaded functions
+   
+   for(fun <- functions){
+        fdefine = definitions[fun];
+        fname = fdefine.id;
+        di = fdefine.defInfo;
+        ovl_non_defaults = [];
+        ovl_constructors = [];
+         fuid = functions_and_constructors_to_fuid[fun];
+        ftype = unsetRec((defType(AType atype) := di) ? atype : avalue());
+        
+        if(fdefine.idRole == functionId()) { ftype[kwFormals=[]]; ovl_non_defaults = [fuid]; }
+        if(fdefine.idRole == constructorId()) { ftype[kwFields=[]];ovl_constructors = [fuid]; }
+       
+        oname = "<fname>=<fuid>";
+        ofun = <fname,  ftype, oname, ovl_non_defaults, ovl_constructors>; // TODO: sorting
+        overloadedFunctions += ofun;
+        overloadingResolver[oname] = noverloaded;
+        noverloaded += 1;
+        overloadedTypeResolver[ftype] = oname;
+   }
+}
+
+// Identify constant expressions and compute their value
+
+value getConstantValue((Literal) `<BooleanLiteral b>`) = 
+    "<b>" == "true" ? true : false;
+
+// -- integer literal  -----------------------------------------------
+ 
+value getConstantValue((Literal) `<IntegerLiteral n>`) = 
+    toInt("<n>");
+
+// -- string literal  ------------------------------------------------
+    
+value getConstantValue((StringLiteral)`<StringConstant constant>`) =
+    readTextValueString("<constant>");
+
+value getConstantValue((Literal) `<LocationLiteral src>`) = 
+    readTextValueString("<src>");
+
+default value getConstantValue((Literal) `<Literal s>`) = 
+    readTextValueString("<s>");
+    
+default value getConstantValue(Expression e) {
+    throw "Not constant";
+}
+
+//int declareGeneratedFunction(str name, str fuid, Symbol rtype, loc src){
+//	//println("declareGeneratedFunction: <name>, <rtype>, <src>");
+//    uid = configuration.nextLoc;
+//    configuration.nextLoc = configuration.nextLoc + 1;
+//    // TODO: all are placed in scope 0, is that ok?
+//    configuration.store[uid] = function(RSimpleName(name), rtype, (), false, 0, Unknown(), [], false, src);
+//    functions += {uid};
+//    //declares += {<inScope, uid>}; TODO: do we need this?
+//     
+//    // Fill in uid2name
+//    uid2name[uid] = fuid;
+//    //////loc2uid[normalize(src)] = uid;
+//    loc2uid[src] = uid;
+//    // Fill in uid2type to enable more precise overloading resolution
+//    uid2type[uid] = rtype;
+//    if(!uid2str[uid]?){
+//    	uid2str[uid] = fuid;
+//    } else {
+//    	throw "declareGeneratedFunction: duplicate entry in uid2str for <uid>, <fuid>";
+//    }
+//    return uid;
+//}
+
+/********************************************************************/
+/*     Part II: Retrieve type information                           */
+/********************************************************************/
+
+// Get the type of an expression as Symbol
+private AType getType0(loc l) {
+//   println("getType(<l>)");
+    if(definitions[l]?){
+        return getDefType(l);
+    }
+    assert specializedFacts[l]? || facts[l]? : "getType for <l>";
+    if(specializedFacts[l]?){
+        return specializedFacts[l];
+    }
+    if(facts[l]?){
+    	return facts[l];
+    }
+}	
+AType getType(loc l) {
+    tp = getType0(l);
+    if(tvar(u) := tp) return getType(u);
+    return tp;
+}
+
+AType getType(Tree e) {
+    return getType(e@\loc);
+}
+
+// Get the type of an expression as string
+// str getType(Tree e) = "<getType(e@\loc)>";
+
+// Get the outermost type constructor of an expression as string
+str getOuterType(Tree e) { 
+    tp = getType(e@\loc);
+	if(aparameter(str _, AType bound) := tp) {
+		return "<getName(bound)>";
+	}
+	//if(label(_, Symbol sym) := tp){
+	//   return "<getName(sym)>";
+	//}
+	if(aadt(_, _, sr) := tp && isConcreteSyntaxRole(sr)){
+	   return "nonterminal";
+	}
+	return "<getName(tp)>";
+}
+
+/* 
+ * Get the type of a function.
+ * Getting a function type by name is problematic in case of nested functions,
+ * given that 'fcvEnv' does not contain nested functions;
+ * Additionally, it does not allow getting types of functions that are part of an overloaded function;
+ * Alternatively, the type of a function can be looked up by its @loc;   
+ */
+AType getFunctionType(loc l) {  
+   tp = getDefType(l);
+   if(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := tp) {
+       return tp;
+   } else {
+       throw "Looked up a function, but got: <tp> instead";
+   }
+}
+
+list[str] getNestedParameterNames(loc l){
+    fundef = definitions[l];
+    println("getNestedParameterNames: <l>");
+    locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined] }; //TODO declaredIn[sc] == fun
+    positionals = sort([v | v <- locally_defined, is_positional_formal(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
+    return [ vdef.id | vdef <- positionals ];
+    //return [definitions[v].id | v <- containment[l], is_positional_formal(v)];
+}
+
+AType getClosureType(UID uid) {
+   tp = getType(uid);
+   if(afunc(_,_,_) := tp){
+        return tp;
+   } else {
+       throw "Looked up a closure, but got: <tp> instead";
+   }
+}
+	
+alias KeywordParamMap = map[str kwName, AType kwType];
+				
+KeywordParamMap getKeywords(loc location){
+    tp = getDefType(location);
+    assert tp has kwFormals;
+    return (kwtp.label : unsetRec(kwtp) | kwtp <- tp.kwFormals<0>);
+}
+
+map[str, map[str, value]] getConstantConstructorDefaultExpressions(loc location){
+    tp = getType(location);
+    return constructorConstantDefaultExpressions[tp] ? ();
+}
+
+map[str, set[str]] getAllConstructorFields(loc location){
+    tp = getType(location);
+    //println("getAllConstructorFields: <tp>, <constructorFields[tp]>");
+    return constructorFields[tp] ? ();
+}
+
+tuple[str fuid, int pos] getVariableScope(str name, loc l) {
+  
+  println("getVariableScope: <name>, <l>, <declaredIn[l] ? "XXX">, <useDef[l] ? "YYY">)");
+  container = declaredIn[l] ? declaredIn[definitions[getFirstFrom(useDef[l])].defined];
+  cdef = definitions[container];
+  if(cdef.idRole == functionId()) return <convert2fuid(container), getPositionInScope(name, l)>;
+  if(cdef.idRole == moduleId()) return <cdef.id, getPositionInScope(name, l)>;
+}
+
+int getPositionInScope(str name, loc l){
+    println("getPositionInScope:<name>, <l>");
+    iprintln(position_in_container);
+    return (position_in_container[l] ? (-1));
+}
+
+// Create unique symbolic names for functions, constructors and productions
+
+str getFUID(str fname, AType tp) { 
+    res = "<fname>(<for(p<-tp.formals){><p>;<}>)";
+    //println("getFUID: <fname>, <\type> =\> <res>");
+    return res;
+}
+
+str getField(Symbol::label(l, t)) = "<t> <l>";
+default str getField(AType t) = "<t>";
+
+str getFUID(str fname, AType tp, int case_num) {
+  //println("getFUID: <fname>, <\type>");
+  return "<fname>(<for(p<-tp.formals?[]){><p>;<}>)#<case_num>";
+}
+  	
+str getFUID(str modName, str fname, AType tp, int case_num) = 
+	"<modName>/<fname>(<for(p<-tp.formals?[]){><p>;<}>)#<case_num>";
+
+// NOTE: was "<\type.\adt>::<cname>(<for(label(l,t)<-tparams){><t> <l>;<}>)"; but that did not cater for unlabeled fields
+//str getCUID(str cname, AType \type) = "<\type.\adt>::<cname>(<for(p<-\type.parameters?[]){><getField(p)>;<}>)";
+//str getCUID(str modName, str cname, AType \type) = "<modName>/<\type.\adt>::<cname>(<for(p <-\type.parameters?[]){><getField(p)>;<}>)";
+
+//str getPUID(str pname, AType \type) = "<\type.\sort>::<pname>(<for(p <-\type.parameters?[]){><getField(p)>;<}>)";
+//str getPUID(str modName, str pname, AType \type) = "<modName>/<\type.\sort>::<pname>(<for(p <-\type.parameters?[]){><getField(p)>;<}>)";
+
+
+@doc{Generates a unique scope id: non-empty 'funNames' list implies a nested function}
+/*
+ * NOTE: Given that the muRascal language does not support overloading, the dependency of function uids 
+ *       on the number of formal parameters has been removed 
+ */
+str getUID(str modName, lrel[str,int] funNames, str funName, int nformals) {
+	// Due to the current semantics of the implode
+	modName = replaceAll(modName, "::", "");
+	return "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>"; 
+}
+str getUID(str modName, [ *tuple[str,int] funNames, <str funName, int nformals> ]) 
+	= "<modName>/<for(<f,n> <- funNames){><f>(<n>)/<}><funName>";
+
+
+str getCompanionForUID(UID uid) = convert2fuid(uid) + "_companion";
+
+str getCompanionDefaultsForUID(UID uid) = convert2fuid(uid) + "_companion_defaults";
+
+str getCompanionDefaultsForADTandField(str ADTName, str fld) {
+    return "<ADTName>_<fld>_companion_default";
+}
+
+str qualifiedNameToPath(QualifiedName qname){
+    str path = replaceAll("<qname>", "::", "/");
+    return replaceAll(path, "\\","");
+}
+
+str convert2fuid(UID uid) {
+	if(uid == |global-scope:///|)
+	   return "global-scope";
+	tp = getType(uid);
+	str name = definitions[uid]? ? definitions[uid].id : "<tp>";
+
+    if(declaredIn[uid]?) {
+	   if(declaredIn[uid] != |global-scope:///| && declaredIn[uid] != uid) name = convert2fuid(declaredIn[uid]) + "$" + name + "_<uid.begin.line>_<uid.end.line>";
+    }
+	return name;
+}
+
+//public MuExp getConstructor(str cons) {
+//   cons = unescape(cons);
+//   uid = -1;
+//   for(c <- constructors){
+//     //println("c = <c>, uid2name = <uid2name[c]>, uid2str = <convert2fuid(c)>");
+//     if(cons == getSimpleName(definitions[c].id)){
+//        //println("c = <c>, <configuration.store[c]>,  <uid2addr[c]>");
+//        uid = c;
+//        break;
+//     }
+//   }
+//   if(uid < 0)
+//      throw("No definition for constructor: <cons>");
+//   return muConstr(convert2fuid(uid));
+//}
+
+//public bool isDataType(AbstractValue::datatype(_,_,_,_,_)) = true;
+//public default bool isDataType(AbstractValue _) = false;
+//
+//public bool isNonTerminalType(sorttype(_,_,_,_,_)) = true;
+//public default bool isNonTerminalType(AbstractValue _) = false;
+//
+//public bool isAlias(AbstractValue::\alias(_,_,_,_)) = true;
+//public default bool isAlias(AbstractValue a) = false;
+//
+public int getTupleFieldIndex(AType s, str fieldName) = 
+    indexOf(getTupleFieldNames(s), fieldName);
+
+public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc block) {
+    locally_defined = { v.defined | sc <- td_reachable_scopes[block], v <- (vars_per_scope[sc] ? {}) };
+    return { <convert2fuid(declaredIn[decl]), position_in_container[decl]> | UID decl <-locally_defined, position_in_container[decl]?};
+    
+     //set[UID] decls = {};
+     ////if(UID uid <- configuration.store, blockScope(int _, l) := configuration.store[uid]) {
+     //try {
+     //    UID uid = blockScopes[l];
+     //    set[UID] innerScopes = containmentPlus[uid];
+     //    for(UID inScope <- innerScopes) {
+     //        decls = decls + (declaresMap[inScope] ? {});
+     //    }
+     //    return { addr | UID decl <- decls, tuple[str fuid,int pos] addr := uid2addr[decl] };
+     //} catch:
+     //	throw "Block scope at <l> has not been found!";
+}
+
+/********************************************************************/
+/*     Part III: Type-related code generation functions             */
+/********************************************************************/
+
+@doc{Generate a MuExp that calls a library function given its name, module's name and number of formal parameters}
+/*
+ * NOTE: Given that the muRascal language does not support overloading, the dependency of function uids 
+ *       on the number of formal parameters has been removed 
+ */
+public MuExp mkCallToLibFun(str modName, str fname)
+	= muFun1("<modName>/<fname>");
+
+// Generate a MuExp to access a variable
+
+// Sort available overloading alternatives as follows (trying to maintain good compatibility with the interpreter):
+// - First non-default functions (inner scope first, most recent last), 
+// - then default functions (also most inner scope first, then most recent last).
+
+bool funFirst(UID n, UID m) = preferInnerScope(n,m); // || n < m; // n > m; //configuration.store[n].at.begin.line < configuration.store[m].at.begin.line;
+
+list[int] sortOverloadedFunctions(set[UID] items){
+
+	defaults = [i | i <- items, i in defaultFunctions];
+	res = sort(toList(items) - defaults, funFirst) + sort(defaults, funFirst);
+	//println("sortOverloadedFunctions: <items> =\> <res>");
+	return res;
+}
+
+bool preferInnerScope(int n, int m) {
+    return true;    // TODO: fix
+    key = <n, m>;
+    if(funInnerScopes[key]?){
+       //println("preferInnerScope <key> =\> <funInnerScopes[key]> (cached)");
+       return funInnerScopes[key];
+    }
+    nContainer = configuration.store[n].containedIn;
+    nContainers = containedOrDeclaredInPlus[nContainer];
+    mContainer = configuration.store[m].containedIn;
+    mContainers = containedOrDeclaredInPlus[mContainer];
+    
+    bool res = false;
+   
+    if(nContainers == {} && mContainers == {}) { // global global
+      	  res = n < m;
+     } else
+     if(nContainers == {} && mContainers != {}){ // global non-global
+          res = false; //nContainer notin mContainers;
+     } else
+     if(nContainers != {} && mContainers == {}) { // non-global global
+       res = true; //mContainer in nContainers;
+     } else {							  // non-global non-global 
+        res =  nContainer in mContainers || n < m;// && mContainer notin nContainers;
+     }
+	funInnerScopes[key] = res;
+	//println("preferInnerScope: <key> =\> <res>");
+	return res;
+}
+
+
+public UID declaredScope(UID uid) {
+    return declaredIn[uid];
+	//if(configuration.store[uid]?){
+	//	res = configuration.store[uid].containedIn;
+	//	//println("declaredScope[<uid>] = <res>");
+	//	return res;
+	//}
+	//println("declaredScope[<uid>] = 0 (generated)");
+	//return 0;
+}
+ 
+MuExp mkVar(str name, loc l) {
+  uid = getFirstFrom(useDef[l]); // TODO: what if more than one def?
+  def = definitions[uid];
+  
+  // Keyword parameters
+    if(def.idRole == keywordFormalId()) {
+     //if(contains(topFunctionScope(), "companion")){
+     //   // While compiling a companion function, force all references to keyword fields to be local
+     //   //println("return <topFunctionScope()>, <muLocKwp(name)>");
+     //   return muLocKwp(name);
+     //} else {
+       return muVarKwp(getScope(uid), name);
+    // }
+  }
+  
+   if(def.idRole in positionalFormalRoles){
+    return muLoc(name, getPositionInScope(name, uid));
+  }
+  
+  if(def.idRole in variableRoles){
+    return muVar(name, getScope(uid), getPositionInScope(name, uid));
+  }
+  
+  if(def.idRole == constructorId()){
+    return muConstr(convert2fuid(uid));
+  }
+  if(def.idRole == functionId()){ 
+    return muOFun(overloadedTypeResolver[unsetRec(getType(l))]);
+  }
+    throw "End of mkVar reached";
+}
+
+// Generate a MuExp to reference a variable
+
+MuExp mkVarRef(str name, loc l){
+  //////l = normalize(l);
+  <fuid, pos> = getVariableScope("<name>", l);
+  return muVarRef("<name>", fuid, pos);
+}
+
+// Generate a MuExp for an assignment
+
+MuExp mkAssign(str name, loc l, MuExp exp) {
+
+    uid = l in definitions ? l : getFirstFrom(useDef[l]); // TODO: what if more than one def?
+    def = definitions[uid];
+    if(def.idRole == keywordFormalId()) {
+        return muAssignKwp(name, getScope(uid),exp);
+    }
+    if(def.idRole in positionalFormalRoles){
+        return muAssignLoc(name, getPositionInScope(name, uid), exp);
+   }
+
+    if(def.idRole in variableRoles){
+        return muAssign(name, getScope(uid), getPositionInScope(name, uid), exp);
+    }
+
+  //<fuid, pos> = getVariableScope(name, uid);
+  //if(uid in keywordFormals) {
+  //    return muAssignKwp(fuid,name,exp);
+  //}
+  //return muAssign(name, fuid, pos, exp);
+}
+
+public list[MuFunction] lift(list[MuFunction] functions, str fromScope, str toScope, map[tuple[str,int],tuple[str,int]] mapping) {
+    return [ (func.scopeIn == fromScope || func.scopeIn == toScope) 
+	         ? { func.scopeIn = toScope; func.body = lift(func.body,fromScope,toScope,mapping); func; } 
+	         : func 
+	       | MuFunction func <- functions 
+	       ];
+}
+public MuExp lift(MuExp body, str fromScope, str toScope, map[tuple[str,int],tuple[str,int]] mapping) {
+
+    return visit(body) {
+	    case muAssign(str name,fromScope,int pos,MuExp exp)    => muAssign(name,toScope,newPos,exp) 
+	                                                              when <fromScope,pos> in mapping && <_,int newPos> := mapping[<fromScope,pos>]
+	    case muVar(str name,fromScope,int pos)                 => muVar(name,toScope,newPos)
+	                                                              when <fromScope,pos> in mapping && <_,int newPos> := mapping[<fromScope,pos>]
+	    case muVarRef(str name, fromScope,int pos)             => muVarRef(name,toScope,newPos)
+	                                                              when <fromScope,pos> in mapping && <_,int newPos> := mapping[<fromScope,pos>]
+        case muAssignVarDeref(str name,fromScope,int pos,MuExp exp) 
+        													   => muAssignVarDeref(name,toScope,newPos,exp)
+                                                                  when <fromScope,pos> in mapping && <_,int newPos> := mapping[<fromScope,pos>]
+	    case muFun2(str fuid,fromScope)                        => muFun2(fuid,toScope)
+	    case muCatch(str id,fromScope,AType \type,MuExp body2) => muCatch(id,toScope,\type,body2)
+	}
+}
+
+// TODO: the following functions belong in ParseTree, but that gives "No definition for \"ParseTree/size(list(parameter(\\\"T\\\",value()));)#0\" in functionMap")
+
+@doc{Determine the size of a concrete list}
+int size(appl(regular(\iter(Symbol symbol)), list[Tree] args)) = size(args);
+int size(appl(regular(\iter-star(Symbol symbol)), list[Tree] args)) = size(args);
+
+int size(appl(regular(\iter-seps(Symbol symbol, list[Symbol] separators)), list[Tree] args)) = size_with_seps(size(args), size(separators));
+int size(appl(regular(\iter-star-seps(Symbol symbol, list[Symbol] separators)), list[Tree] args)) = size_with_seps(size(args), size(separators));
+
+int size(appl(prod(Symbol symbol, list[Symbol] symbols), list[Tree] args)) = 
+	\label(str label, Symbol symbol1) := symbol && [Symbol itersym] := symbols
+	? size(appl(prod(symbol1, symbols), args))
+	: size(args[0]);
+
+default int size(Tree t) {
+    iprintln(t);
+    throw "Size of tree not defined for \"<t>\"";
+}
+
+private int size_with_seps(int len, int lenseps) = (len == 0) ? 0 : 1 + (len / (lenseps + 1));
+
+
+AType getElementType(alist(AType et)) = et;
+AType getElementType(aset(AType et)) = et;
+AType getElementType(abag(AType et)) = et;
+AType getElementType(AType t) = avalue();
