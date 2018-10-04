@@ -140,8 +140,8 @@ public class Concept {
 	
 	public static String getSearchForm(){
 		return
-		"<form class=\"search-form\" id=\"searchbox\" action=\"/Search\">\n" +
-		"<input class=\"search-input\" id=\"search\" name=\"searchFor\" type=\"search\" placeholder=\"Search ...\">\n" +
+		"<form class=\"search-form\" id=\"searchbox\" action=\"/search-results.html\" method=\"get\">\n" +
+		"<input class=\"search-input\" id=\"searchFor\" name=\"searchFor\" type=\"search\" placeholder=\"Search ...\">\n" +
 		"<input class=\"search-submit\" id=\"submit\" type=\"submit\" value=\"&#10140;\" onkeypress=\"if(event.keyCode==13) {javascript:form.submit();}\">\n" +
 		"</form>\n";
 	}

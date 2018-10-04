@@ -39,12 +39,16 @@ Three dozen functions are available that fall into the following categories:
 * _Nested Info_: maintain nested information during collection; this is only available during collection.
 * _Composition_: add another TModel to the current one.
 * _Reporting_: report errors, warnings and info messages.
-* _Define & Use_: define and use identifiers in various ways.
+* _Add Path_: add paths to the scope graph.
+* _Define_: define identifiers in various ways.
+* _Use_: use identifiers in various ways.
 * _Inference_: create new type variables for type inference.
-* _Facts, Calculate & Require_: establish facts and define calculators and requirements.
+* _Facts_: establish facts.
+* _Calculate_: define calculators.
+* _Require_: define requirements.
 
 Technically, `Collector` is a datatype with a single constructur and a number of functions as fields,
-For instance, given a  `Collector` named `c`, calling the `define` function amounts to: `c.define(the-arguments-of-define)`.
+For instance, given a  `Collector` named `c`, calling the `define` function amounts to: `c.define(_the-arguments-of-define_)`.
 All Collector functions are prefixed with `/* Collector field */` to emphasize that they
 are a field of the Collector datatype.
 
@@ -56,8 +60,8 @@ Collector newCollector(str modelName, Tree pt, TypePalConfig config = tconfig())
 ----
 where
 
-* `modelName` is a name of the TModel to be created.
-* `pt` is the parse tree of the source program to be type checked.
+* `modelName` is the name of the TModel to be created (used for logging);
+* `pt` is the parse tree of the source program to be type checked;
 * `config` is a <<TypePal Configuration>>.
 
 Once a Collector has been created, the user-defined `collect` function is invoked
@@ -76,10 +80,10 @@ A typical scenario is (for a given a parse tree `pt` of the program to be checke
 ----
 c = newCollector("my_model", pt);   // create Collector
 collect(pt, c);                     // collect constraints
-model = c.run();                    // create initial TModel
-                                    // ... give this model to the Solver ...
+model = c.run();                    // create initial TModel to be handled by the Solver
 ----
-NOTE: The `collect` function has to be supplied by the author of the type checker and looks like this:
+
+The `collect` function has to be supplied by the author of the type checker and looks like this:
 [source,rascal]
 ----
 void collect(LanguageConstruct lc, Collector c){ ... }
@@ -89,16 +93,17 @@ where:
 * `lc` is a syntactic type from the language under consideration.
 * `c` is a `Collector`.
 
-IMPORTANT: Each collect function is responsible for visiting its subtrees.
+IMPORTANT: Each `collect` function is responsible for collecting constraints from its subtrees. 
 
 == Configuration
 
-The <<TypePal Configuration>> can be retrieved or adjusted by the folliwng two functions:
+The <<TypePal Configuration>> can be retrieved or adjusted by the following two functions:
 [source,rascal]
 ----
 /* Collector field */ TypePalConfig () getConfig;
 /* Collector field */ void (TypePalConfig cfg) setConfig;
 ----
+The former returns the current TypePal configuration, the latter sets the current configuration to a new configuration.
 
 == Scoping
 
@@ -107,10 +112,24 @@ Scope management amounts to entering a new scope, leave the current scope and re
 [source,rascal]
 ----      
 /* Collector field */ void (Tree inner) enterScope;
-/* Collector field */ void (Tree outer) leaveScope;
+/* Collector field */ void (Tree inner) leaveScope;
 /* Collector field */ loc () getScope,
 ----
-In order to check consistency, `leaveScope` has the outer scope to which it is supposed to return as argument.
+In order to check consistency, `leaveScope` has the inner scope that it is supposed to be leaving as argument.
+
+Here is an example how the `let` expression in <<Fun>> handles subscopes:
+
+[source,rascal]
+----      
+void collect(current: (Expression) `let <Id name> : <Type tp> = <Expression exp1> in <Expression exp2> end`, Collector c) {  
+     c.enterScope(current);
+         c.define("<name>", variableId(), name, defType(tp));
+         c.calculate("let", current, [exp2], AType(Solver s) { return s.getType(exp2); } );
+         collect(tp, exp1, exp2, c);  
+     c.leaveScope(current);
+}
+----
+
 
 == Scope Info
 It is possible to associate auxiliary information with each scope.
@@ -145,6 +164,41 @@ where
 * `scopeRole` is the role of the scope we are looking for.
 
 `getScopeInfo` returns a list relation containing scope/scopeInfo pairs (ordered from innermost to outermost scope).
+
+Let's illustrate ScopeInfo with a stripped down version of how the Rascal type checker handles `while` and `break` statements:
+[source,rascal]
+---- 
+data LoopInfo = loopInfo(str name); //<1>
+
+void collect(current: (Statement) `<Label label> while( <{Expression ","}+ conditions> ) <Statement body>`,  Collector c){
+    c.enterScope(current); 
+        ...
+        loopName = "<label.name>";
+        c.setScopeInfo(c.getScope(), loopScope(), loopInfo(loopName)); //<2>
+        ...
+    c.leaveScope(current);
+}
+
+void collect(current:(Statement) `break <Target target>;`, Collector c){
+    ...
+    loopName = "<target.name>"
+    for(<scope, scopeInfo> <- c.getScopeInfo(loopScope())){ //<3>
+        if(loopInfo(loopName1) := scopeInfo){
+            if(loopName == "" || loopName == loopName1){
+                collect(target, c);
+                return;
+             }
+        } else {
+            throw rascalCheckerInternalError(getLoc(current), "Inconsistent info from loop scope: <scopeInfo>");
+        }
+    }
+    c.report(error(current, "Break outside a while/do/for statement"));
+}
+----
+<1> Introduces a data type to represent loop information.
+<2> When handling a while statement, the current scope is marked as `loopScope` and `loopInfo` is associated with it.
+<3> When handling a `break` statement, we get all available ScopeInfo for loopScopes (innermost first) and check the associated loopInfo.
+    
 
 == Nested Info
 An arbitrary number of push down stacks can be maintained during the topdown traversal of the source code that is being type checked.
@@ -186,11 +240,62 @@ See <<Reporting>> for a description of `FailMessage`.
 
 IMPORTANT: If one of the messages is `error` the execution of the current calculator or requirement is immediately terminated.
      
-== Define & Use
+== Add Path
 
-The following functions handle the definition of names and various forms of use.
+TypePal is based on nested scopes and path between scopes. The former represent textual nesting as present in block structure and function scopes.
+The latter represent non-local semantic links between program parts as present in import statements between modules or Pascal's with statement.
+The following functions add to the scope graph a path from the current scope to another scope.
 
-=== Define a name
+=== Add a path to a definition
+[source,rascal]
+----
+/* Collector field */ void (Tree occ, set[IdRole] idRoles, PathRole pathRole) addPathToDef;
+----
+
+`addPathToDef` is typically used to create an _import_ or _extend_ path between program parts.
+`occ` is an occurence of a name that should be defined elsewhere in one of the given roles.
+The effect is to add a `pathRole` path between the current scope and the definition.
+
+Here is an example taken from <<ModFun>>:
+[source,rascal]
+----
+void collect(current: (ImportDecl) `import <ModId mid> ;`, Collector c){
+     c.addPathToDef(mid, {moduleId()}, importPath());
+}
+----
+=== Add a path to a qualified definition
+[source,rascal]
+----
+/* Collector field */ void (list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles, PathRole pathRole) addPathToQualifiedDef;   
+----  
+Similar to `addPathToDef` for the occurrence of a qualified names rather than a simple name.
+
+=== Add a path to a type
+[source,rascal]
+----
+/* Collector field */ void (Tree occ, PathRole pathRole) addPathToType
+----
+`occ` is a parse tree with has a certain type.
+The effect is to add a `pathRole` path between the current scope and the definition of that type.
+
+A prime example is type checking of <<Pascal>>'s `with` statement which _opens_ the definition
+of a record type and makes all defined fields available in the body of the `with` statement.
+Here we create a `withPath` between the scope of the with statement and all definitions
+of the record types of the given record variables:
+
+[source,rascal]
+----
+void collect(current: (WithStatement) `with <{RecordVariable ","}+ recordVars> do <Statement withStat>`, Collector c){
+    c.enterScope(current);
+        for(rv <- recordVars){
+            c.addPathToType(rv, withPath());
+        }
+        collect(recordVars, withStat, c);
+    c.leaveScope(current);
+}
+----
+                       
+== Define
 
 The function `define` adds the definition of a name in the _current_ scope:
 [source,rascal]
@@ -210,8 +315,10 @@ The function `defineInScope` adds the definition of a name in a _given_ scope:
 /* Collector field */  void (value scope, str id, IdRole idRole, value def, DefInfo info) defineInScope
 ----
 
+== Use
+
 === Use an unqualified name
-There are six functions to describe the occurrence of a name in a parse tree as a use.
+There are three functions to describe the occurrence of a name in a parse tree as a use.
 The most elementary use of a name is described by:
 [source,rascal]
 ----
@@ -220,11 +327,12 @@ The most elementary use of a name is described by:
 The parse tree `occ` is a use to be resolved in the current scope in one of the given roles `idRoles`.
 The use of a variable in an expression is typically modelled with this use function.
 
-=== Use an unqualified name via a path
-The next version of use, represents a use that refers to another tree using a specific path label:
+Here is an example from <<Calc>>:
 [source,rascal]
 ----
-/* Collector field */ void (Tree occ, set[IdRole] idRoles, PathRole pathRole) useViaPath;
+void collect(current: (Exp) `<Id name>`, Collector c){
+    c.use(name, {variableId()});
+}
 ----
 
 === Use a qualified name
@@ -238,12 +346,6 @@ We will call these identifiers (except the last one) _qualifiers_ and the last o
 
 Here `ids` is the list of strings that form the qualified name, `occ` is the actual occurrence, and there are two sets of roles:
 `idRoles` are the possible roles for the qualified identifier itself and `qualifierRoles are the possible roles for the qualifiers.
-
-=== Use a qualified name via a path
-[source,rascal]
-----
-/* Collector field */ void (list[str] ids, Tree occ, set[IdRole] idRoles, set[IdRole] qualifierRoles, PathRole pathRole) useQualifiedViaPath;   
-----  
 
 === Use a name via another type
 Many languages support _named types_ and names that can be defined inside such a named type.
@@ -259,10 +361,32 @@ where
 * `selector`: is the name to be selected from that named type.
 * `idRolesSel`:  are the IdRoles allowed for the selector.
 
-NOTE: mention extension points
+Here is an example of field selection from a record in <<Struct>>:
 
-NOTE: Add useLub
+[source,rascal]
+----
+void collect(current:(Expression)`<Expression lhs> . <Id fieldName>`, Collector c) {
+    c.useViaType(lhs, fieldName, {fieldId()}); //<1>
+    c.fact(current, fieldName); //<2>
+    collect(lhs, c);
+}
+----
+<1> Determine the type of `lhs`, say _T_. Now look for a definition of `fieldName` (as `fieldId`) in the definition of _T_.
+<2> The type of the whole expressions becomes the type of `fieldId`.
 
+`useViaType` can be configured with <<getTypeNamesAndRole>> and <<getTypeInNamelessType>> that
+determine the precise mapping between a named or unnamed type and its fields.
+
+=== UseLub
+In some languages (think Rascal) local type inference and subtyping are needed to determine the type
+of variables: when no explicit definition is present, the type of these variables is inferred from their use and
+the least-upper-bound (LUB) of all the uses of a variable is taken as its type. 
+`useLub` marks variable uses for which this regime has to be applied:
+[source,rascal]
+----   
+/* Collector field */ void (Tree occ, set[IdRole] idRoles) useLub
+----
+See the Rascal type checker for examples.
 
 == Inference
 ATypes may contain type variables and new type variables can be created using `newTypeVar`:
@@ -274,9 +398,34 @@ ATypes may contain type variables and new type variables can be created using `n
 
 Type variables can be bound via unification.
 
-== Fact, Calculate & Require
+Here is an example of a call expression taken from <<UntypedFun>>:
 
-=== Define a fact
+[source,rascal]
+----
+void collect(current: (Expression) `<Expression exp1>(<Expression exp2>)`, Collector c) { 
+     tau1 = c.newTypeVar(exp1); 
+     tau2 = c.newTypeVar(exp2); 
+  
+     c.calculateEager("application", current, [exp1, exp2],
+        AType (Solver s) { 
+              s.requireUnify(functionType(tau1, tau2), exp1, error(exp1, "Function type expected, found %t", exp1));
+              s.requireUnify(tau1, exp2, error(exp2, "Incorrect type of actual parameter"));             
+              return tau2;
+            });
+      collect(exp1, exp2, c);
+}
+----
+`calculate` and `require` are only evaluated when all their dependencies are
+available and they are fully instantiated, i.e., *do not contain type variables*.
+
+`calculateEager` and `requireEager` are also only evaluated when all their dependencies
+are available *but those may contain type variables*.
+
+The bindings that are accumulated during `calculateEager` or `requireEager` 
+are effectuated upon successfull completion of that `calculateEager` or `requireEager`. 
+
+== Fact
+
 The function `fact` registers known type information for a program fragment `src`:
 [source,rascal]
 ----
@@ -284,7 +433,38 @@ The function `fact` registers known type information for a program fragment `src
 ----
 where `atype` can be either an `AType` or a `Tree`. In the latter case the type of that Tree is used when available.
 
-=== Define a requirement
+Here are two examples from <<Calc>>:
+[source,rascal]
+----  
+void collect(current: (Exp) `<Integer integer>`, Collector c){
+    c.fact(current, intType()); //<1>
+}
+
+void collect(current: (Exp) `( <Exp e> )`, Collector c){
+    c.fact(current, e);        //<2>
+    collect(e, c);
+}
+----
+<1> Registers the fact that the current expression has type `intType`.
+<2> Registers the fact that the current expression has the same type as the embedded expression `e`.
+
+
+== Calculate
+A calculator computes the type of a subtree `src` by way of an AType-returning function `calculator`.
+A list of dependencies is given whose types have to be known before this calculator can be computed.
+There are two versions: for `calculate` all dependencies should be fully resolved and instantiated,
+while `calculateEager` can also handle dependencies that still contain type variables.
+[source,rascal]
+----      
+/* Collector field */ void (str name, Tree src, list[value] dependencies, AType(Solver s) calculator) calculate;
+/* Collector field */ void (str name, Tree src, list[value] dependencies, AType(Solver s) calculator) calculateEager;
+----
+See <<A Calculator Language>> and <<Examples of Typecheckers>> for examples of calculator definitions.
+
+See <<Inference>> for details about type variables.
+
+== Require
+
 A requirement is a predicate regarding the type or properties of a source tree fragment `src`.
 There are two versions: for `require` all dependencies should be fully resolved and instantiated,
 while `requireEager` can also handle dependencies that still contain type variables.
@@ -306,23 +486,10 @@ that the one is a subtype of the other, or that they can be unified:
 ----
 /* Collector field */ void (value l, value r, FailMessage fmsg) requireEqual;
 /* Collector field */ void (value l, value r, FailMessage fmsg) requireComparable;
-/* Collector field */ void (value l, value r, FailMessage fmsg) requireSubtype;
+/* Collector field */ void (value l, value r, FailMessage fmsg) requireSubType;
 /* Collector field */ void (value l, value r, FailMessage fmsg) requireUnify; 
 ----  
 The arguments `l` and `r` should either be an AType or a subtree whose type is known.
 
-=== Define a calculator
-A calculator computes the type of a subtree `src` by way of an AType-returning function `calculator`.
-A list of dependencies is given whose types have to be known before this calculator can be computed.
-There are two versions: for `calculate` all dependencies should be fully resolved and instantiated,
-while `calculateEager` can also handle dependencies that still contain type variables.
-[source,rascal]
-----      
-/* Collector field */ void (str name, Tree src, list[value] dependencies, AType(Solver s) calculator) calculate;
-/* Collector field */ void (str name, Tree src, list[value] dependencies, AType(Solver s) calculator) calculateEager;
-----
-
-
-
-
-
+See <<A Calculator Language>> and <<Examples of Typecheckers>> for examples of requirement definitions.
+See <<Inference>> for details about type variables.
