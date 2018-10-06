@@ -167,6 +167,7 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
         
         before = cpuTime();
         ms = getImportAndExtendGraph(topModuleName, pcfg, config.logImports);
+        iprintln(ms.moduleLocs);
         if(forceCompilationTopModule){
             ms.valid -= {topModuleName};
             ms.tmodels = delete(ms.tmodels, topModuleName);
@@ -201,10 +202,13 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
                 mi += 1;
                 if(recheck){
                     if(!ms.modules[m]?){
-                        mloc = getModuleLocation(m, pcfg);            
+                        mloc = getModuleLocation(m, pcfg);  
+                        ms.moduleLocs[m] = mloc;  
+                        path2module[mloc.path] = m;        
                         if(config.verbose) println("*** parsing <m> from <mloc>");
                         pt = parseModuleWithSpaces(mloc).top;
                         ms.modules[m] = pt;
+                       
                     }
                 } else if(!ms.tmodels[m]?){
                     <found, tplLoc> = getDerivedReadLoc(m, "tpl", pcfg);
@@ -257,14 +261,17 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
             println("<topModuleName>, measured total time: <toMilli(cpuTime() - beginTime)> ms");
         }
       
+        iprintln(ms.moduleLocs);
+        
         return <ms.tmodels, ms.moduleLocs, ms.modules>;
     } catch ParseError(loc src): {
         return <("<mloc>" : tmodel()[messages = [ error("Parse error", src)  ]]), (), ()>;
     } catch Message msg: {
      return  <("<mloc>" : tmodel()[messages = [ error("During validation: <msg>", msg.at) ]]), (), ()>;
-    } catch value e: {
-        return <("<mloc>" : tmodel()[messages = [ error("During validation: <e>", mloc) ]]), (), ()>;
-    }    
+    } 
+    //catch value e: {
+    //    return <("<mloc>" : tmodel()[messages = [ error("During validation: <e>", mloc) ]]), (), ()>;
+    //}    
 }
 
 set[str] loadImportsAndExtends(str moduleName, ModuleStructure ms, Collector c, set[str] added){
@@ -337,12 +344,12 @@ tuple[ProfileData, TModel] rascalTModelComponent(map[str, Tree] namedTrees, Modu
 
 CheckerResult rascalTModelForName(str moduleName, PathConfig pcfg, TypePalConfig config){
     mloc = |unknown:///|(0,0,<0,0>,<0,0>);
-    try {
+    //try {
         mloc = getModuleLocation(moduleName, pcfg);
         return rascalTModelForLoc(mloc, pcfg, config);
-    } catch value e: {
-        return <(moduleName : tmodel()[messages = [ error("During type checking: <e>", mloc) ]]), (), ()>;
-    }
+    //} catch value e: {
+    //    return <(moduleName : tmodel()[messages = [ error("During type checking: <e>", mloc) ]]), (), ()>;
+    //}
 }
 
 // ---- checker functions for IDE
@@ -351,12 +358,12 @@ CheckerResult rascalTModelForName(str moduleName, PathConfig pcfg, TypePalConfig
 data ModuleMessages = program(loc src, set[Message] messages);
 
 ModuleMessages check(str moduleName, PathConfig pcfg){        // TODO change from ModuleMessages to list[ModuleMessages]
-    try {
+    //try {
         moduleLoc = getModuleLocation(moduleName, pcfg);
         return check(moduleLoc, pcfg);
-    } catch value e: {
-        return program(|unkown:///|, {error("During type checking: <e>", |unkown:///|)});
-    }
+    //} catch value e: {
+    //    return program(|unkown:///|, {error("During type checking: <e>", |unkown:///|)});
+    //}
 }
 
 ModuleMessages check(loc moduleLoc, PathConfig pcfg){          // TODO: change from ModuleMessages to list[ModuleMessages]
