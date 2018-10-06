@@ -130,6 +130,7 @@ void collect(current: (StringTemplate) `if(<{Expression ","}+ conditions>){ <Sta
 }
 
 void collect(current: (StringTemplate) `if( <{Expression ","}+ conditions> ){ <Statement* preStatsThen> <StringMiddle thenString> <Statement* postStatsThen> } else { <Statement* preStatsElse> <StringMiddle elseString> <Statement* postStatsElse> }`, Collector c){
+    //c.enterScope(current);
     c.enterScope(conditions);   // thenPart may refer to variables defined in conditions; elsePart may not
     
         condList = [cond | Expression cond <- conditions];
@@ -150,6 +151,7 @@ void collect(current: (StringTemplate) `if( <{Expression ","}+ conditions> ){ <S
         endPatternScope(c);
         collect(preStatsThen, thenString, postStatsThen, preStatsElse, elseString, postStatsElse, c);    
     c.leaveScope(conditions);
+    //c.leaveScope(current);
 } 
 
 void collect(current: (StringTemplate) `for( <{Expression ","}+ generators> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`, Collector c){

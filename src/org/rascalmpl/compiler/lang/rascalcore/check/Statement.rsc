@@ -203,7 +203,7 @@ data LoopInfo = loopInfo(str name, list[Tree] appends);
 // ---- while -----------------------------------------------------------------
 
 void collect(current: (Statement) `<Label label> while( <{Expression ","}+ conditions> ) <Statement body>`,  Collector c){
-    c.enterScope(current);   // body may refer to variables defined in conditions
+    c.enterScope(conditions);   // body may refer to variables defined in conditions
         loopName = "";
         if(label is \default){
             loopName = prettyPrintName(label.name);
@@ -218,7 +218,7 @@ void collect(current: (Statement) `<Label label> while( <{Expression ","}+ condi
         endPatternScope(c);
         collect(body, c);
         computeLoopType("while statement", loopName, current, c);
-    c.leaveScope(current);
+    c.leaveScope(conditions);
 }
 
 void checkConditions(list[Expression] condList, Solver s){
@@ -374,7 +374,7 @@ void collect(current:(Statement) `continue <Target target>;`, Collector c){
 // ---- if --------------------------------------------------------------------
 
 void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditions> ) <Statement thenPart>`,  Collector c){
-    c.enterScope(current); // thenPart may refer to variables defined in conditions
+    c.enterScope(conditions); // thenPart may refer to variables defined in conditions
         if(label is \default){
             c.define("<label.name>", labelId(), label.name, defType(avoid()));
         }
@@ -387,13 +387,13 @@ void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditio
         collect(condList, c);
         endPatternScope(c);
         collect(thenPart, c);
-    c.leaveScope(current);   
+    c.leaveScope(conditions);   
 }
 
 // --- if then else -----------------------------------------------------------
 
 void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditions> ) <Statement thenPart> else <Statement elsePart>`,  Collector c){
-    c.enterScope(current);
+    //c.enterScope(current);
     c.enterScope(conditions);   // thenPart may refer to variables defined in conditions; elsePart may not
         if(label is \default){
             c.define(prettyPrintName(label.name), labelId(), label.name, defType(avoid()));
@@ -417,7 +417,7 @@ void collect(current: (Statement) `<Label label> if( <{Expression ","}+ conditio
             collect(elsePart, c);
         c.leaveScope(elsePart);
     c.leaveScope(conditions); 
-    c.leaveScope(current);
+    //c.leaveScope(current);
 }
 
 // ---- switch ----------------------------------------------------------------
