@@ -82,8 +82,10 @@ public Grammar compose(Grammar g1, Grammar g2) {
   reduced_rules = ();
   for(s <- g1.rules){
   	  c = g1.rules[s];
-  	  c.alternatives -= { *choices | c has alternatives, priority(_, choices) <- c.alternatives } +
-  		                { *alts | c has alternatives, associativity(_, _, alts) <- c.alternatives};
+  	  if (c is choice) {
+  	    c.alternatives -= { *choices | priority(_, choices) <- c.alternatives } +
+  		                  { *alts | associativity(_, _, alts) <- c.alternatives};
+  	  }	                
   	  reduced_rules[s] = c;
   }
   
