@@ -215,10 +215,8 @@ public class MemoizationCache<TResult> {
 			Reference cleared = null;
 			do {
 				cleared = queue.poll();
-				if (cleared != null) {
-					if (cleared instanceof KeySoftReference<?>) {
-						toCleanup.add(new CacheKeyWrapper(((KeySoftReference<?>)cleared).key));
-					}
+				if (cleared != null && cleared instanceof KeySoftReference<?>) {
+					toCleanup.add(new CacheKeyWrapper(((KeySoftReference<?>)cleared).key));
 				}
 			}
 			while (cleared != null);
