@@ -82,13 +82,11 @@ public class ProductionAdapter {
 		IList children = getSymbols(tree);
 		IListWriter writer = ValueFactoryFactory.getValueFactory().listWriter();
 
-		for (int i = 0; i < children.length(); i++) {
+		for (int i = 0; i < children.length(); i+=2 /* to skip the layout */) {
 			IConstructor kid = (IConstructor) children.get(i);
 			if (!SymbolAdapter.isLiteral(kid) && !SymbolAdapter.isCILiteral(kid)) {
 				writer.append(kid);
 			}
-			// skip layout
-			i++;
 		}
 		
 		return writer.done();
