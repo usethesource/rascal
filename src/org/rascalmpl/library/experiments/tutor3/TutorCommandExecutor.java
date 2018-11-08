@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.URISyntaxException;
 import java.util.HashMap;
@@ -46,6 +47,12 @@ public class TutorCommandExecutor {
 	}
 	
 	void flush(){
+	    try {
+	        shellStringWriter.flush();
+	    }
+	    catch (IOException e) {
+	        // nothing
+	    }
 	}
 	
 	void resetOutput(){
@@ -64,26 +71,38 @@ public class TutorCommandExecutor {
 	        String out = output.get("text/plain");
 
 	        if (out != null) {
-	            return vf.string(out);
+	            return vf.string(result(out));
 	        }
 	        else {
-	            return vf.string("");
+	            return vf.string(result(""));
 	        }
 	    }
 	    catch (InterruptedException e) {
-	        e.printStackTrace();
-	        return vf.string("");
+	        e.printStackTrace(err);
+	        return vf.string(result(""));
 	    }
 	}
 	
-	String evalPrint(String line) throws IOException, RascalShellExecutionException{
-	  String result = ((IString) eval(line)).getValue();
-	  return shellStringWriter.toString("utf8") + "\n" + result;
+	private String result(String result) throws UnsupportedEncodingException {
+	    StringBuilder b = new StringBuilder();
+//	    String out = shellStringWriter.toString("utf8");
+//        if (out.length() > 0) {
+//	        b.append(out);
+//	        if (!out.endsWith("\n")) {
+//	          b.append("\n");
+//	        }
+//	    }
+        b.append(result);
+        return b.toString();
 	}
 	
-	String getMessages(){
+	String evalPrint(String line) throws IOException, RascalShellExecutionException{
+	    return result(((IString) eval(line)).getValue());
+	}
+	
+	String getMessages() throws UnsupportedEncodingException{
 		flush();
-		return shellStringWriter.toString();
+		return shellStringWriter.toString("utf8");
 	}
 	
 	void error(String msg){
