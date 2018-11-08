@@ -24,6 +24,7 @@ import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
@@ -43,6 +44,10 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
                     throws IOException, URISyntaxException {
         super(prettyPrompt, allowColors, htmlOutput);
         originalOutput = stdout;
+    }
+    
+    public void cleanEnvironment() {
+        eval.getCurrentModuleEnvironment().reset();
     }
     
     public RascalInterpreterREPL() throws IOException, URISyntaxException{

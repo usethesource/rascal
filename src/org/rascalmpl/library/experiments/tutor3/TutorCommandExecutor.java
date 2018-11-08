@@ -53,6 +53,7 @@ public class TutorCommandExecutor {
 	}
 	
 	void reset(){
+	    repl.cleanEnvironment();
 	}
 	
 	IValue eval(String line) throws RascalShellExecutionException, IOException{
@@ -76,7 +77,8 @@ public class TutorCommandExecutor {
 	}
 	
 	String evalPrint(String line) throws IOException, RascalShellExecutionException{
-	  return ((IString) eval(line)).getValue();
+	  String result = ((IString) eval(line)).getValue();
+	  return shellStringWriter.toString("utf8") + "\n" + result;
 	}
 	
 	String getMessages(){
