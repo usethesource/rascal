@@ -6,10 +6,12 @@ import static org.asciidoctor.AttributesBuilder.attributes;
 import static org.asciidoctor.OptionsBuilder.options;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URISyntaxException;
@@ -324,9 +326,8 @@ public class CourseCompiler {
 //		    return;
 		}
 		
-		StringWriter sw = new StringWriter();
-		PrintWriter err = new PrintWriter(sw);
-		TutorCommandExecutor executor = new TutorCommandExecutor(pcfg, err, new BasicIDEServices(err));
+		ByteArrayOutputStream err = new ByteArrayOutputStream();
+		TutorCommandExecutor executor = new TutorCommandExecutor(pcfg, err, new BasicIDEServices(new PrintWriter(new OutputStreamWriter(err))));
 		
 		if (cmdOpts.getCommandBoolOption("skipCourses")) {
 		    assert !cmdOpts.getCommandBoolOption("buildCourses");
@@ -352,7 +353,7 @@ public class CourseCompiler {
 		}
 		
 		err.flush();
-		writeFile(destPath + "/course-compilation-errors.txt", sw.toString());
+		writeFile(destPath + "/course-compilation-errors.txt", err.toString("utf8"));
 		
 		System.err.println("Removing intermediate files");
 		
