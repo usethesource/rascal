@@ -274,7 +274,7 @@ public class Concept {
 						  if(!mayHaveErrors){
 						    executor.error("* __" + name + "__:");
 						    executor.error("While executing '" + complete(line) + "': " + e.getMessage());
-						    executor.err.println("While compiling " + name + " this exception was thrown:");
+						    executor.error("While compiling " + name + " this exception was thrown:");
 						    e.printStackTrace(executor.err);
 						  }
 						  
