@@ -1,4 +1,5 @@
 /** 
+
  * Copyright (c) 2018, Davy Landman, SWAT.engineering
  * All rights reserved. 
  *  
@@ -123,7 +124,7 @@ public class ConcurrentSoftReferenceObjectPool<T> {
     /**
      * Cleanup the object pool, either because a soft reference was cleared, or because a access timeout occured.
      */
-    private final static class CleanupRunner<T> implements Runnable {
+    private static final class CleanupRunner<T> implements Runnable {
         /**
          * Copy of the actual pool to make sure 
          */
@@ -185,6 +186,7 @@ public class ConcurrentSoftReferenceObjectPool<T> {
                 }
             }
             catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
             }
         }
     }
