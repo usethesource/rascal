@@ -33,14 +33,27 @@ public class TutorCommandExecutor {
         shellStringWriter = new ByteArrayOutputStream();
         this.err = new PrintWriter(new OutputStreamWriter(err, "utf8"));
         
-	    repl = new RascalInterpreterREPL(null, shellStringWriter, false, false, false, null) {
-	        @Override
-	        protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
-	          return ShellEvaluatorFactory.getDefaultEvaluator(new PrintWriter(stdout), new PrintWriter(stderr));
-	        }
-	    };
+        repl = new RascalInterpreterREPL(null, shellStringWriter, false, false, false, null) {
+            private PrintWriter stdout;
+            private PrintWriter stderr;
+
+            @Override
+            protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
+                this.stdout = new PrintWriter(stdout, true);
+                this.stderr = new PrintWriter(stderr, true);
+                return ShellEvaluatorFactory.getDefaultEvaluator(this.stdout, this.stderr);
+            }
+
+            @Override
+            public void handleInput(String line, Map<String, String> output, Map<String, String> metadata)
+                throws InterruptedException {
+                super.handleInput(line, output, metadata);
+                stdout.flush();
+                stderr.flush();
+            }
+        };
 	    
-	    repl.initialize(new OutputStreamWriter(shellStringWriter), this.err);
+	    repl.initialize(new OutputStreamWriter(shellStringWriter, "utf8"), this.err);
 	    repl.setMeasureCommandTime(false);
 	    
 	    vf = IRascalValueFactory.getInstance();
@@ -48,7 +61,7 @@ public class TutorCommandExecutor {
 	
 	void flush(){
 	    try {
-	        shellStringWriter.flush();
+	        repl.getOutput().flush();
 	    }
 	    catch (IOException e) {
 	        // nothing
@@ -56,7 +69,7 @@ public class TutorCommandExecutor {
 	}
 	
 	void resetOutput(){
-		shellStringWriter = new ByteArrayOutputStream();
+		shellStringWriter.reset();
 	}
 	
 	void reset(){
@@ -71,33 +84,20 @@ public class TutorCommandExecutor {
 	        String out = output.get("text/plain");
 
 	        if (out != null) {
-	            return vf.string(result(out));
+	            return vf.string(out);
 	        }
 	        else {
-	            return vf.string(result(""));
+	            return vf.string("");
 	        }
 	    }
 	    catch (InterruptedException e) {
 	        e.printStackTrace(err);
-	        return vf.string(result(""));
+	        return vf.string("");
 	    }
 	}
 	
-	private String result(String result) throws UnsupportedEncodingException {
-	    StringBuilder b = new StringBuilder();
-//	    String out = shellStringWriter.toString("utf8");
-//        if (out.length() > 0) {
-//	        b.append(out);
-//	        if (!out.endsWith("\n")) {
-//	          b.append("\n");
-//	        }
-//	    }
-        b.append(result);
-        return b.toString();
-	}
-	
 	String evalPrint(String line) throws IOException, RascalShellExecutionException{
-	    return result(((IString) eval(line)).getValue());
+	    return ((IString) eval(line)).getValue();
 	}
 	
 	String getMessages() throws UnsupportedEncodingException{
