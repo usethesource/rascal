@@ -120,7 +120,6 @@ public class CourseCompiler {
 
 	        while ((line = input.readLine()) != null)
 	        {
-	            System.err.println(line);
 	            err.println(line);
 	        }
 
