@@ -17,6 +17,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -232,13 +234,24 @@ public class HelpManager {
 		}
 	}
 	
+    private static final String[] fields = new String[] {"index", "synopsis", "doc"};
+    private static final Map<String, Float> boosts;
+    static {
+        boosts = new HashMap<>();
+        boosts.put("index", 2f);
+        boosts.put("synopsis", 2f);
+    }
+
+
+    private static MultiFieldQueryParser buildQueryParser(Analyzer analyzer) {
+        return new MultiFieldQueryParser(fields, analyzer, boosts);
+    }
+	
 	private ScoreDoc[] search(String[] words) {
 		try {
             if (indexSearcher != null) {
-                Analyzer multiFieldAnalyzer = Onthology.multiFieldAnalyzer();
                 String query = Arrays.stream(words).map(HelpManager::escapeForQuery).collect(Collectors.joining(" "));
-                QueryParser parser  = new MultiFieldQueryParser(new String[] {"index", "synopsis", "doc"}, multiFieldAnalyzer);
-                return indexSearcher.search(parser.parse(query), maxSearch).scoreDocs;
+                return indexSearcher.search(buildQueryParser(Onthology.multiFieldAnalyzer()).parse(query), maxSearch).scoreDocs;
             }
             return new ScoreDoc[0];
 		} catch (ParseException | IOException e) {
