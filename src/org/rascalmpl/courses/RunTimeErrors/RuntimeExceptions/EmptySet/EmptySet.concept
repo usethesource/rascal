@@ -43,7 +43,10 @@ and `IO`:
 ----
 import Exception;
 import IO;
-try println(getOneFrom(S)); catch EmptySet(): println("Cannot apply getOneFrom to empty set");
+try 
+  println(getOneFrom(S)); 
+catch EmptySet(): 
+  println("Cannot apply getOneFrom to empty set");
 ----
 
 .Benefits
