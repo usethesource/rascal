@@ -705,7 +705,7 @@ public enum RascalPrimitive {
 				case SET:
 					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError(getCompilerErrorMessage(lhsType, rhsType), rex.getStdErr(), currentFrame);
 				}
 			case NUM:
 				switch (rhsType) {
@@ -722,7 +722,7 @@ public enum RascalPrimitive {
 				case SET:
 					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError(getCompilerErrorMessage(lhsType, rhsType), rex.getStdErr(), currentFrame);
 				}
 			case REAL:
 				switch (rhsType) {
@@ -739,7 +739,7 @@ public enum RascalPrimitive {
 				case SET:
 					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError(getCompilerErrorMessage(lhsType, rhsType), rex.getStdErr(), currentFrame);
 				}
 			case RAT:
 				switch (rhsType) {
@@ -756,7 +756,7 @@ public enum RascalPrimitive {
 				case SET:
 					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError(getCompilerErrorMessage(lhsType, rhsType), rex.getStdErr(), currentFrame);
 				}
 			case SET:
 				return set_add_elm.execute2(lhs, rhs, currentFrame, rex);
@@ -769,7 +769,7 @@ public enum RascalPrimitive {
 				case STR:
 					return loc_add_str.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError(getCompilerErrorMessage(lhsType, rhsType), rex.getStdErr(), currentFrame);
 				}
 			case LREL:
 				switch (rhsType) {
@@ -778,14 +778,14 @@ public enum RascalPrimitive {
 				case LREL:
 					return lrel_add_lrel.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError(getCompilerErrorMessage(lhsType, rhsType), rex.getStdErr(), currentFrame);
 				}
 			case MAP:
 				switch (rhsType) {
 				case MAP:
 					return map_add_map.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError(getCompilerErrorMessage(lhsType, rhsType), rex.getStdErr(), currentFrame);
 				}
 			case REL:
 				switch (rhsType) {
@@ -794,21 +794,21 @@ public enum RascalPrimitive {
 				case REL:
 					return rel_add_rel.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError(getCompilerErrorMessage(lhsType, rhsType), rex.getStdErr(), currentFrame);
 				}
 			case STR:
 				switch (rhsType) {
 				case STR:
 					return str_add_str.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError(getCompilerErrorMessage(lhsType, rhsType), rex.getStdErr(), currentFrame);
 				}
 			case TUPLE:
 				switch (rhsType) {
 				case TUPLE:
 					return tuple_add_tuple.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError(getCompilerErrorMessage(lhsType, rhsType), rex.getStdErr(), currentFrame);
 				}
 			default:
 				switch (rhsType) {
@@ -817,10 +817,14 @@ public enum RascalPrimitive {
 				case LIST:
 					return elm_add_list.execute2(lhs, rhs, currentFrame, rex);
 				default:
-					throw new InternalCompilerError("RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType, rex.getStdErr(), currentFrame);
+					throw new InternalCompilerError(getCompilerErrorMessage(lhsType, rhsType), rex.getStdErr(), currentFrame);
 				}
 			}
 		}
+
+        private String getCompilerErrorMessage(ToplevelType lhsType, ToplevelType rhsType) {
+            return "RascalPrimitive add: Illegal type combination: " + lhsType + " and " + rhsType;
+        }
 	},
 
 	/**
@@ -2286,7 +2290,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IInteger) arg_2).divide((IInteger) arg_1);
 			} catch(ArithmeticException e) {
-			  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException(DIVISION_BY_ZERO_ERROR_MESSAGE, currentFrame));
 			}
 		}
 	},
@@ -2302,7 +2306,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IInteger) arg_2).divide((INumber) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException(DIVISION_BY_ZERO_ERROR_MESSAGE, currentFrame));
 			}
 		}
 	},
@@ -2318,7 +2322,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IInteger) arg_2).divide((IRational) arg_1);
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException(DIVISION_BY_ZERO_ERROR_MESSAGE, currentFrame));
 			}
 		}
 	},
@@ -2334,7 +2338,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IInteger) arg_2).divide((IReal) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException(DIVISION_BY_ZERO_ERROR_MESSAGE, currentFrame));
 			}
 		}
 	},
@@ -2350,7 +2354,7 @@ public enum RascalPrimitive {
 			try {
 				return ((INumber) arg_2).divide((IInteger) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException(DIVISION_BY_ZERO_ERROR_MESSAGE, currentFrame));
 			}
 		}
 	},
@@ -2366,7 +2370,7 @@ public enum RascalPrimitive {
 			try {
 				return ((INumber) arg_2).divide((INumber) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException(DIVISION_BY_ZERO_ERROR_MESSAGE, currentFrame));
 			}
 		}
 	},
@@ -2382,7 +2386,7 @@ public enum RascalPrimitive {
 			try {
 				return ((INumber) arg_2).divide((IRational) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException(DIVISION_BY_ZERO_ERROR_MESSAGE, currentFrame));
 			}
 		}
 	},
@@ -2398,7 +2402,7 @@ public enum RascalPrimitive {
 			try {
 				return ((INumber) arg_2).divide((IReal) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException(DIVISION_BY_ZERO_ERROR_MESSAGE, currentFrame));
 			}
 		}
 	},
@@ -2414,7 +2418,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IRational) arg_2).divide((IInteger) arg_1);
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException(DIVISION_BY_ZERO_ERROR_MESSAGE, currentFrame));
 			}
 		}
 	},
@@ -2430,7 +2434,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IRational) arg_2).divide((INumber) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException(DIVISION_BY_ZERO_ERROR_MESSAGE, currentFrame));
 			}
 		}
 	},
@@ -2446,7 +2450,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IRational) arg_2).divide((IRational) arg_1);
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException(DIVISION_BY_ZERO_ERROR_MESSAGE, currentFrame));
 			}
 		}
 	},
@@ -2462,7 +2466,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IRational) arg_2).divide((IReal) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException(DIVISION_BY_ZERO_ERROR_MESSAGE, currentFrame));
 			}
 		}
 	},
@@ -2478,7 +2482,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IReal) arg_2).divide((INumber) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException(DIVISION_BY_ZERO_ERROR_MESSAGE, currentFrame));
 			}
 		}
 	},
@@ -2494,7 +2498,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IReal) arg_2).divide((IInteger) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException(DIVISION_BY_ZERO_ERROR_MESSAGE, currentFrame));
 			}
 		}
 	},
@@ -2510,7 +2514,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IReal) arg_2).divide((IReal) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			    return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException(DIVISION_BY_ZERO_ERROR_MESSAGE, currentFrame));
 			}
 		}
 	},
@@ -2526,7 +2530,7 @@ public enum RascalPrimitive {
 			try {
 				return ((IReal) arg_2).divide((IRational) arg_1, vf.getPrecision());
 			} catch(ArithmeticException e) {
-			  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException("divide by zero", currentFrame));
+			  return rex.getFrameObserver().exception(currentFrame, RascalRuntimeException.arithmeticException(DIVISION_BY_ZERO_ERROR_MESSAGE, currentFrame));
 			}
 		}
 	},
@@ -8627,7 +8631,9 @@ public enum RascalPrimitive {
 	/*								End of enumeration														*/
 	/********************************************************************************************************/
 
-	/**
+	private static final String DIVISION_BY_ZERO_ERROR_MESSAGE = "divide by zero";
+
+    /**
 	 * Abstract declaration for the execute0 method in a RascalPrimitive:
 	 * @param currentFrame	the stackFram of the function that calls this primitive
 	 * @param rex			the current RascalExecutionContext
