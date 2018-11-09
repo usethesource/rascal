@@ -158,8 +158,8 @@ public class Concept {
       return sw.toString();
     }
     
-	public void preprocess(Onthology onthology, TutorCommandExecutor executor) throws IOException {
-	    assert onthology != null && executor != null;
+	public void preprocess(Onthology onthology, TutorCommandExecutor repl) throws IOException {
+	    assert onthology != null && repl != null;
 	    File adocOut = new File(getADocFileName());
 	    
 	    if (adocOut.exists() && adocOut.lastModified() > timestamp) {
@@ -221,10 +221,10 @@ public class Concept {
 						}
 					}
 					if(!isContinue){
-						executor.reset();
+						repl.reset();
 					}
 
-					executor.resetOutput();
+					repl.resetOutput();
 					preprocessOut.append("[source,rascal-shell");
 					if(mayHaveErrors){
 						preprocessOut.append("-error");
@@ -235,65 +235,30 @@ public class Concept {
 					}
 					preprocessOut.append("]\n").append("----\n");
 					
-					boolean moreShellInput = true;
-					while( moreShellInput && (line = reader.readLine()) != null ) {
-						if(line.equals("```") || line.equals("----")){
+					while ((line = reader.readLine()) != null ) {
+						if (line.equals("```") || line.equals("----")){
 							break;
 						}
-						if(isFigure){
-							if(line.startsWith("render(")){
-								preprocessOut.append(executor.getPrompt()).append(line).append("\n");
-								line = makeRenderSave(line, height, width, file);
-							}
-						} else {
-							preprocessOut.append(executor.getPrompt()).append(line).append("\n");
-							String continuationLine = "";
-							while(!executor.isStatementComplete(line)){
-								 if((continuationLine = reader.readLine()) != null){ 
-								     if(continuationLine.equals("```") || continuationLine.equals("----")){
-								    	 moreShellInput = false;
-								    	 break;
-								     }
-									 preprocessOut.append(executor.getPrompt()).append(continuationLine).append("\n");
-								 } else {
-									 break;
-								 }
-								 line += "\n" + continuationLine;
-							}
-							line += "\n";
-						}
-						String resultOutput = "";
-						boolean errorFree = true;
-						try {
-						    resultOutput = executor.evalPrint(line);
-						} catch (Throwable e){
-						  if(!mayHaveErrors){
-						    executor.error("* __" + name + "__:");
-						    executor.error("While executing '" + complete(line) + "': " + e.getMessage());
-						    executor.error("While compiling " + name + " this exception was thrown:");
-						    executor.log(e);
-						  }
-						  
-						  preprocessOut.append(e.getMessage() != null ? makeRed(e.getMessage())
-						                                              : makeRed(e.toString())
-						                      );
-						  errorFree = false;
-						}
-
-						String messages = executor.getMessages();
-						executor.resetOutput();
 						
-						if(messages.isEmpty()){
-						  preprocessOut.append(resultOutput.startsWith("Error") ? makeRed(resultOutput) : resultOutput);
+						preprocessOut.append(repl.getPrompt()).append(line).append("\n");
+					
+						String resultOutput = repl.evalPrint(line);
+						String messages = repl.getMessages();
+						repl.resetOutput();
+						
+						boolean errorFree = true;
+
+						if (messages.isEmpty()){
+						    preprocessOut.append(resultOutput.startsWith("Error") ? makeRed(resultOutput) : resultOutput);
 						} else {
-						  preprocessOut.append(messages.startsWith("Error") ? makeRed(messages) : messages);
-						  preprocessOut.append(resultOutput);
-						  errorFree = messages.startsWith("Error");
+						    preprocessOut.append(messages.startsWith("Error") ? makeRed(messages) : messages);
+						    preprocessOut.append(resultOutput);
+						    errorFree = messages.startsWith("Error");
 						}
 
-						if(!mayHaveErrors && !errorFree){ //(messages.contains("[error]") || messages.contains("Exception")) ){
-							executor.error("* " + name + ":");
-							executor.error(messages.trim());
+						if (!mayHaveErrors && !errorFree) { //(messages.contains("[error]") || messages.contains("Exception")) ){
+						    repl.error("* " + name + ":");
+						    repl.error(messages.trim());
 						}
 					}
 					preprocessOut.append("----\n");
