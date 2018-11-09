@@ -11,7 +11,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.net.URISyntaxException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
@@ -30,7 +29,6 @@ import org.asciidoctor.Placement;
 import org.asciidoctor.SafeMode;
 import org.rascalmpl.library.experiments.Compiler.Commands.CommandOptions;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -122,7 +120,6 @@ public class CourseCompiler {
 
 	        while ((line = input.readLine()) != null)
 	        {
-	            System.err.println(line);
 	            err.println(line);
 	        }
 
@@ -153,7 +150,7 @@ public class CourseCompiler {
         o.buildCourseMap();
         o.buildConcepts();
 
-        runAsciiDoctor(dr, srcPath, courseName, destPath, executor.err);
+        runAsciiDoctor(dr, srcPath, courseName, destPath, new PrintWriter(System.err));
 	}
     
     public static void compileCourseCommand(String classpath, Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
@@ -165,7 +162,7 @@ public class CourseCompiler {
         o.buildCourseMap();
         o.buildConcepts();
 
-        runAsciiDoctorCommand(classpath, srcPath, courseName, destPath, executor.err);
+        runAsciiDoctorCommand(classpath, srcPath, courseName, destPath, new PrintWriter(System.err));
     }
 	
 	private static void copyStandardFilesPerCourse(Path srcPath, String courseName, Path destPath) throws IOException {
@@ -324,9 +321,7 @@ public class CourseCompiler {
 //		    return;
 		}
 		
-		StringWriter sw = new StringWriter();
-		PrintWriter err = new PrintWriter(sw);
-		TutorCommandExecutor executor = new TutorCommandExecutor(pcfg, err, new BasicIDEServices(err));
+		TutorCommandExecutor executor = new TutorCommandExecutor(pcfg);
 		
 		if (cmdOpts.getCommandBoolOption("skipCourses")) {
 		    assert !cmdOpts.getCommandBoolOption("buildCourses");
@@ -350,9 +345,6 @@ public class CourseCompiler {
 				compileCourse(coursesSrcPath, ((IString)iCourseName).getValue(), destPath, libSrcPath, pcfg, executor);
 			}
 		}
-		
-		err.flush();
-		writeFile(destPath + "/course-compilation-errors.txt", sw.toString());
 		
 		System.err.println("Removing intermediate files");
 		
