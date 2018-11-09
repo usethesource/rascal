@@ -150,10 +150,6 @@ public class Concept {
 	  return "<a href=\"/TutorHome/index.html\"><img id=\"home\" src=\"/images/rascal-tutor-small.png\", alt=\"RascalTutor\" width=\"64\" height=\"64\"></a>";
 	}
 	
-	private final String prompt = "rascal>"; //  "+++<span class=\"prompt\" data-value=\"rascal>\"></span>::after+++";
-	private final String continuation = ">>>>>>>"; //"<i class=\"continuation\">::before</i>";
-	
-	   
     private String makeRed(String result){
       StringWriter sw = new StringWriter(result.length()+5);
       for(String s :  result.split("\n")){
@@ -246,11 +242,11 @@ public class Concept {
 						}
 						if(isFigure){
 							if(line.startsWith("render(")){
-								preprocessOut.append(prompt).append(line).append("\n");
+								preprocessOut.append(executor.getPrompt()).append(line).append("\n");
 								line = makeRenderSave(line, height, width, file);
 							}
 						} else {
-							preprocessOut.append(prompt).append(line).append("\n");
+							preprocessOut.append(executor.getPrompt()).append(line).append("\n");
 							String continuationLine = "";
 							while(!executor.isStatementComplete(line)){
 								 if((continuationLine = reader.readLine()) != null){ 
@@ -258,7 +254,7 @@ public class Concept {
 								    	 moreShellInput = false;
 								    	 break;
 								     }
-									 preprocessOut.append(continuation).append(continuationLine).append("\n");
+									 preprocessOut.append(executor.getPrompt()).append(continuationLine).append("\n");
 								 } else {
 									 break;
 								 }
@@ -275,7 +271,7 @@ public class Concept {
 						    executor.error("* __" + name + "__:");
 						    executor.error("While executing '" + complete(line) + "': " + e.getMessage());
 						    executor.error("While compiling " + name + " this exception was thrown:");
-						    e.printStackTrace(executor.err);
+						    executor.log(e);
 						  }
 						  
 						  preprocessOut.append(e.getMessage() != null ? makeRed(e.getMessage())
