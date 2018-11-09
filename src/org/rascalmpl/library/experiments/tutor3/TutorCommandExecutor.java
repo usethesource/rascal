@@ -34,27 +34,14 @@ public class TutorCommandExecutor {
         this.err = new PrintWriter(new OutputStreamWriter(err, "utf8"));
         
         repl = new RascalInterpreterREPL(null, shellStringWriter, false, false, false, null) {
-            private PrintWriter stdout;
-            private PrintWriter stderr;
-
             @Override
             protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
-                this.stdout = new PrintWriter(stdout, true);
-                this.stderr = new PrintWriter(stderr, true);
-                return ShellEvaluatorFactory.getDefaultEvaluator(this.stdout, this.stderr);
-            }
-
-            @Override
-            public void handleInput(String line, Map<String, String> output, Map<String, String> metadata)
-                throws InterruptedException {
-                super.handleInput(line, output, metadata);
-                stdout.flush();
-                stderr.flush();
+                return ShellEvaluatorFactory.getDefaultEvaluator(new PrintWriter(stdout), new PrintWriter(stderr));
             }
         };
 	    
 	    repl.initialize(new OutputStreamWriter(shellStringWriter, "utf8"), this.err);
-	    repl.setMeasureCommandTime(false);
+	    repl.setMeasureCommandTime(false); 
 	    
 	    vf = IRascalValueFactory.getInstance();
 	}
