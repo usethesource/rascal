@@ -340,11 +340,9 @@ public class Onthology {
         luceneDoc.add(nameField);
 
         Field indexField = new Field("index", index + " " + name.replaceAll("/", " ").toLowerCase(), TextField.TYPE_NOT_STORED);
-        indexField.setBoost(2f);
         luceneDoc.add(indexField);
 
         Field synopsisField = new Field("synopsis", synopsis, TextField.TYPE_STORED);
-        synopsisField.setBoost(2f);
         luceneDoc.add(synopsisField);
 
         Field docField = new Field("doc", doc, TextField.TYPE_NOT_STORED);
