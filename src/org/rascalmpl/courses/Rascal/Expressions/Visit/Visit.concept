@@ -24,17 +24,19 @@ default: ...
 .Details
 
 .Description
-Visiting the nodes in a tree is a very common task in the link:/EASY[EASY] domain. 
-In many cases (but certainly not all) the tree is a syntax tree of some source code file 
+
+Visiting, recursively traversing, the nodes in a deeply nested data-structure is a very common task in the link:/EASY[EASY] domain. 
+In many cases (but certainly not all) this data-structure is a syntax tree of some source code file 
 and the nodes correspond to expressions or statements. 
+
+The visit expression/statement allows to focus on the points of interest in the data-structure while automating the search over the other parts for the programmer.
+
 Computing metrics or refactoring are examples of tasks that require a tree visit. 
-In object-oriented programming, the _visitor pattern_ is in common use for this,
-see http://en.wikipedia.org/wiki/Visitor_pattern[Visitor Pattern].
 There are three frequently occurring scenarios:
 
-*  Accumulator: traverse the tree and collect information.
+*  Accumulator: traverse the tree and collect information (fold).
 
-*  Transformer: traverse the tree and transform it into another tree.
+*  Transformer: traverse the tree and transform it into another tree (map).
 
 *  Accumulating Transformer: traverse the tree, collect information and also transform the tree.
 
