@@ -12,7 +12,6 @@ import java.util.Map;
 
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.RascalShellExecutionException;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.repl.RascalInterpreterREPL;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
@@ -70,7 +69,7 @@ public class TutorCommandExecutor {
 	    return repl.getPrompt();
 	}
 	
-	IValue eval(String line) throws RascalShellExecutionException, IOException{
+	IValue eval(String line) {
 	    Map<String,String> output = new HashMap<>();
 
 	    try {
@@ -87,9 +86,12 @@ public class TutorCommandExecutor {
 	    catch (InterruptedException e) {
 	        return vf.string("");
 	    }
+	    catch (Throwable e) {
+	        return vf.string(e.getMessage());
+	    }
 	}
 	
-	String evalPrint(String line) throws IOException, RascalShellExecutionException{
+	String evalPrint(String line) throws IOException {
 	    return ((IString) eval(line)).getValue();
 	}
 	
