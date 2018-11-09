@@ -1,24 +1,18 @@
 # Rascal Shell
 
 .Synopsis
-The interactive RascalShell
+The interactive Rascal commandline shell
 
 .Details
 REPL
 
 .Description
 
-The RascalShell is an interactive console -- or if you prefer a Command Line Interface (CLI) or
+The Rascal shell is an interactive console -- or if you prefer a Command Line Interface (CLI) or
 Read Eval Print Loop (REPL) -- for entering and executing 
 Rascal _expressions_, _statements_ and _declarations_.
 
-[WARNING]
-====
-This course has been updated for the compiler-bases RascalShell and
-is not fully compatible with the interpreter-based RascalShell.
-====
-
-In addition, several _RascalShell commands_  and features 
-are available to support the user:
+Next to Rascal language expressions, the shell features a number of specific commands available
+only in the shell:
 
 loctoc::[1]
