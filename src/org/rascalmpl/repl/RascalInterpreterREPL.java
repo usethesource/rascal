@@ -165,7 +165,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
             int lastLine = commandLines.length;
             int lastColumn = commandLines[lastLine - 1].length();
 
-            if (pe.getEndLine() + 1 == lastLine && lastColumn <= pe.getEndColumn()) { 
+            if (pe.getEndLine() == lastLine && lastColumn <= pe.getEndColumn()) { 
                 return false;
             }
         }
