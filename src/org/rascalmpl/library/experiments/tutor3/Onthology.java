@@ -35,7 +35,6 @@ import org.joda.time.DateTime;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
-import org.rascalmpl.library.experiments.Compiler.RascalExtraction.IRascalExtraction;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -65,7 +64,7 @@ public class Onthology {
 
     Map<Path,Concept> conceptMap;
     private IValueFactory vf;
-    private IRascalExtraction rascalExtraction;
+    private ModuleDocExtractor rascalExtraction = new ModuleDocExtractor();
     private IQuestionCompiler questionCompiler;
     private String courseName;
 
@@ -270,10 +269,6 @@ public class Onthology {
                 }
                 String parentName = aDir.getName(aDir.getNameCount()-2).toString();
                 Path remoteConceptName = makeConceptName(aDir);
-                if(rascalExtraction == null){
-                    // Lazily load the RascalExtraction tool
-                    rascalExtraction = Java2Rascal.Builder.bridge(vf, pcfg, IRascalExtraction.class).build();
-                }
                 ITuple extracted = rascalExtraction.extractDoc(vf.string(parentName), remoteLoc);
                 IString remoteConceptText = (IString) extracted.get(0);
                 IList declarationInfoList = (IList) extracted.get(1);
