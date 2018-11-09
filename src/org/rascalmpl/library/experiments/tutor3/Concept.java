@@ -282,19 +282,15 @@ public class Concept {
 
 						String messages = executor.getMessages();
 						executor.resetOutput();
+						
 						if(messages.isEmpty()){
 						  preprocessOut.append(resultOutput.startsWith("Error") ? makeRed(resultOutput) : resultOutput);
 						} else {
 						  preprocessOut.append(messages.startsWith("Error") ? makeRed(messages) : messages);
-						  errorFree = false;
+						  preprocessOut.append(resultOutput);
+						  errorFree = messages.startsWith("Error");
 						}
-//						if(!isFigure){
-//							if(result == null){
-//								preprocessOut.append("ok\n");
-//							} else{
-//									preprocessOut.append(result.getType().toString()).append(": ").append(result.toString()).append("\n");
-//							}
-//						}
+
 						if(!mayHaveErrors && !errorFree){ //(messages.contains("[error]") || messages.contains("Exception")) ){
 							executor.error("* " + name + ":");
 							executor.error(messages.trim());
