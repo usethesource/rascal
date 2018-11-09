@@ -8,7 +8,7 @@ The Rascal Read Eval Print Loop (REPL)
 
 The Rascal shell is an interactive console to experiment with Rascal code. You can write
 your own expressions, statements and declarations right there. Or, you can import library
-modules and try out their functionality...
+modules and try out their functionality.
 
 .Examples
 
@@ -22,7 +22,7 @@ Or a more complex list comprehension:
 ----
 [ n * n | int n <- [0..10] ]
 ----
-Or importing a file and using a function declared in it:
+Or importing a module and using a function declared in it:
 [source,rascal-shell]
 ----
 import List;

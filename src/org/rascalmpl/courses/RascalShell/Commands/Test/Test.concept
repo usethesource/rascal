@@ -4,18 +4,15 @@
 Run tests.
 
 .Syntax
-* `test`
-* `test _Modules_`
+* `:test`
 
 .Description
 
-Run Rascal tests.
-
-In the first form, the tests in all currently imported modules are executed.
-
-In the second form, the tests in the given list of _Modules_ are executed.
+Run Rascal tests. The tests in all currently imported modules are executed and the results are reported
+in the terminal.
 
 .Examples
+
 Execute the tests in an imported module:
 
 [source,rascal-shell]
