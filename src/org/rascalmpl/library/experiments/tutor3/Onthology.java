@@ -131,10 +131,10 @@ public class Onthology {
                 concept.preprocess(this, executor);
             }
             else {
-                executor.error("missing concept for " + conceptName);
+                System.err.println("missing concept for " + conceptName);
             }
         } catch (IOException e) {
-            executor.error(e.getMessage());
+            e.printStackTrace(System.err);
         }
     }
 

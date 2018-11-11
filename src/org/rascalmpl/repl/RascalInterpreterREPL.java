@@ -70,12 +70,12 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     protected abstract Evaluator constructEvaluator(Writer stdout, Writer stderr);
 
     @Override
-    protected PrintWriter getErrorWriter() {
+    public PrintWriter getErrorWriter() {
         return eval.getStdErr();
     }
 
     @Override
-    protected PrintWriter getOutputWriter() {
+    public PrintWriter getOutputWriter() {
         return eval.getStdOut();
     }
 

@@ -320,7 +320,7 @@ public class CourseCompiler {
 //		    System.err.println("Bailing out because target files are already present...");
 //		    return;
 		}
-		
+		 
 		TutorCommandExecutor executor = new TutorCommandExecutor(pcfg);
 		
 		if (cmdOpts.getCommandBoolOption("skipCourses")) {

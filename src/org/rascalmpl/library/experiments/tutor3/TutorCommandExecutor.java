@@ -26,12 +26,10 @@ public class TutorCommandExecutor {
     private final IValueFactory vf;
 	private final ByteArrayOutputStream shellStandardOutput;
 	private final ByteArrayOutputStream shellErrorOutput;
-	private final PrintWriter err;
 
 	public TutorCommandExecutor(PathConfig pcfg) throws IOException, NoSuchRascalFunction, URISyntaxException{
         shellStandardOutput = new ByteArrayOutputStream();
         shellErrorOutput = new ByteArrayOutputStream();
-        err = new PrintWriter(new OutputStreamWriter(shellErrorOutput));
         
         repl = new RascalInterpreterREPL(null, shellStandardOutput, false, false, false, null) {
             @Override
@@ -46,23 +44,26 @@ public class TutorCommandExecutor {
 	    vf = IRascalValueFactory.getInstance();
 	}
 	
-	void flush(){
-	    try {
-	        repl.getOutput().flush();
-	    }
-	    catch (IOException e) {
-	        // nothing
-	    }
+	private void flushOutput(){
+	    repl.getOutputWriter().flush();
 	}
 	
-	void resetOutput(){
+	private void flushErrors(){
+	    repl.getErrorWriter().flush();
+    }
+	
+	private void resetOutput(){
 		shellStandardOutput.reset();
-		err.flush();
-		shellErrorOutput.reset();
 	}
 	
-	void reset(){
+	private void resetErrors(){
+        shellErrorOutput.reset();
+    }
+	
+	void reset() {
 	    repl.cleanEnvironment();
+	    resetOutput();
+	    resetErrors();
 	}
 	
 	String getPrompt() {
@@ -91,32 +92,37 @@ public class TutorCommandExecutor {
 	    }
 	}
 	
-	String evalPrint(String line) throws IOException {
+	public String evalPrint(String line) throws IOException {
 	    return ((IString) eval(line)).getValue();
 	}
 	
-	String getMessages() throws UnsupportedEncodingException{
-		flush();
-		String errors = shellErrorOutput.toString("utf8");
-		String output = shellStandardOutput.toString("utf8");
-		
-		if (!errors.trim().isEmpty()) {
-		    return errors + "\n" + output;
-		}
-		else {
-		    return output;
-		}
+
+    public boolean isStatementComplete(String line){
+        return repl.isStatementComplete(line);
+    }
+	
+	public String getPrintedOutput() throws UnsupportedEncodingException{
+	    try {
+	        flushOutput();
+	        String result = shellStandardOutput.toString("utf8");
+	        resetOutput();
+	        return result;
+	    }
+	    catch (UnsupportedEncodingException e) {
+	        return "";
+	    }
 	}
 	
-	void error(String msg){
-		err.println(msg);
+	public String getErrorOutput() {
+	    try {
+	        flushErrors();
+	        String result = shellErrorOutput.toString("utf8");
+	        resetErrors();
+	        return result;
+	    }
+        catch (UnsupportedEncodingException e) {
+            return "";
+        }
 	}
 	
-	void log(Throwable e) {
-	    e.printStackTrace(err);
-	}
-	
-	boolean isStatementComplete(String line){
-		return repl.isStatementComplete(line);
-	}
 }
