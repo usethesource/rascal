@@ -103,10 +103,6 @@ public class Concept {
 		return "include::" + baseName + "/" + baseName + ".adoc" + "[" + baseName + "]\n";
 	}
 	
-	private String complete(String line){
-		return line + (line.endsWith(";") ? "\n" : ";\n");
-	}
-	
 	String getAttr(String line, String attr, String defaultVal){
 		Pattern p = Pattern.compile(attr + "=([^,\\]])");
 		Matcher m = p.matcher(line); 
@@ -224,7 +220,6 @@ public class Concept {
 						repl.reset();
 					}
 
-					repl.resetOutput();
 					preprocessOut.append("[source,rascal-shell");
 					if(mayHaveErrors){
 						preprocessOut.append("-error");
@@ -243,24 +238,24 @@ public class Concept {
 						preprocessOut.append(repl.getPrompt()).append(line).append("\n");
 					
 						String resultOutput = repl.evalPrint(line);
-						String messages = repl.getMessages();
-						repl.resetOutput();
+						String errorOutput = repl.getErrorOutput();
+						String printedOutput = repl.getPrintedOutput();
 						
-						boolean errorFree = true;
-
-						if (messages.isEmpty()){
-						    preprocessOut.append(resultOutput.startsWith("Error") ? makeRed(resultOutput) : resultOutput);
-						} else {
-						    preprocessOut.append(messages.startsWith("Error") ? makeRed(messages) : messages);
-						    preprocessOut.append(resultOutput);
-						    errorFree = messages.startsWith("Error");
+						if (!printedOutput.isEmpty()){
+						    preprocessOut.append(printedOutput);
+						} 
+						
+						if (!errorOutput.isEmpty()) {
+						    // TODO: if !mayHaveErrors register this with the ontology, to 
+						    // create a summary of all errors
+						    preprocessOut.append(mayHaveErrors ? makeRed(errorOutput) : errorOutput);
 						}
-
-						if (!mayHaveErrors && !errorFree) { //(messages.contains("[error]") || messages.contains("Exception")) ){
-						    repl.error("* " + name + ":");
-						    repl.error(messages.trim());
+						
+						if (!resultOutput.isEmpty()) {
+						    preprocessOut.append(resultOutput);
 						}
 					}
+					
 					preprocessOut.append("----\n");
 				} else if(line.startsWith("```") || line.startsWith("[source")) {
 				  preprocessOut.append(line).append("\n");
