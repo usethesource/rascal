@@ -31,7 +31,6 @@ import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-import jline.Terminal;
 
 public abstract class CompiledRascalREPL extends BaseRascalREPL {
 
@@ -74,12 +73,12 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   }
   
   @Override
-  protected PrintWriter getErrorWriter() {
+  public PrintWriter getErrorWriter() {
     return executor.getStdErr();
   }
   
   @Override
-  protected PrintWriter getOutputWriter() {
+  public PrintWriter getOutputWriter() {
     return executor.getStdOut();
   }
 
