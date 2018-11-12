@@ -56,11 +56,13 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     private StringBuffer currentCommand;
     protected final StandardTextWriter indentedPrettyPrinter;
     private final boolean htmlOutput;
+    private final boolean allowColors;
     private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
 
 
     public BaseRascalREPL(boolean prettyPrompt, boolean allowColors, boolean htmlOutput) throws IOException, URISyntaxException {
         this.htmlOutput = htmlOutput;
+        this.allowColors = allowColors;
         
         if (allowColors) {
             indentedPrettyPrinter = new ReplTextWriter(true);
@@ -193,7 +195,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         if (type.isAbstractData() && type.isStrictSubtypeOf(RascalValueFactory.Tree) && !type.isBottom()) {
             target.writeOutput(type, (StringWriter w) -> {
                 w.write("(" + type.toString() +") `");
-                TreeAdapter.yield((IConstructor)result.getValue(), true, w);
+                TreeAdapter.yield((IConstructor)result.getValue(), allowColors, w);
                 w.write("`");
             });
         }
