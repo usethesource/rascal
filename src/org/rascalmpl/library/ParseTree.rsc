@@ -208,7 +208,7 @@ construct ordered and un-ordered compositions, and associativity groups.
 
 <4> A `skipped` represents skipped input during error recovery.
 
-<5> `priority` means ordered choice, where alternatives are tried from left to right;
+<5> `priority` means operator precedence, where the order of the list indicates the binding strength of each rule;
 <6> `assoc`  means all alternatives are acceptable, but nested on the declared side;
 <7> `reference` means a reference to another production rule which should be substituted there,
     for extending priority chains and such.
