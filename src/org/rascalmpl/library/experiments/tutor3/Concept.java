@@ -220,19 +220,23 @@ public class Concept {
 						repl.reset();
 					}
 
-					preprocessOut.append("[source,rascal-shell");
-					if(mayHaveErrors){
-						preprocessOut.append("-error");
-					}
-					if(mayHaveErrors){
-					  // To enable [red] macro in generated output
-					  preprocessOut.append(",subs=\"verbatim,quotes\"");
-					}
-					preprocessOut.append("]\n").append("----\n");
+					startREPL(preprocessOut, mayHaveErrors);
 					
-					while ((line = reader.readLine()) != null ) {
+					OUTER:while ((line = reader.readLine()) != null ) {
 						if (line.equals("```") || line.equals("----")){
 							break;
+						}
+						
+						if (line.trim().startsWith("//")) {
+						    endREPL(preprocessOut);
+						    preprocessOut.append(line.trim().substring(2) + "\n");
+						    while ((line = reader.readLine()) != null && line.trim().startsWith("//")) {
+						        preprocessOut.append(line.trim().substring(2) + "\n");
+						        if (line.equals("```") || line.equals("----")) {
+						            break OUTER;
+						        }
+						    }
+						    startREPL(preprocessOut, mayHaveErrors);
 						}
 						
 						preprocessOut.append(repl.getPrompt()).append(line).append("\n");
@@ -256,7 +260,7 @@ public class Concept {
 						}
 					}
 					
-					preprocessOut.append("----\n");
+					endREPL(preprocessOut);
 				} else if(line.startsWith("```") || line.startsWith("[source")) {
 				  preprocessOut.append(line).append("\n");
 				  boolean inCode = false;
@@ -312,5 +316,21 @@ public class Concept {
 		}
 		CourseCompiler.writeFile(getADocFileName(), preprocessOut.toString());
 	}
+
+    private void endREPL(StringWriter preprocessOut) {
+        preprocessOut.append("----\n");
+    }
+
+    private void startREPL(StringWriter preprocessOut, boolean mayHaveErrors) {
+        preprocessOut.append("[source,rascal-shell");
+        if(mayHaveErrors){
+        	preprocessOut.append("-error");
+        }
+        if(mayHaveErrors){
+          // To enable [red] macro in generated output
+          preprocessOut.append(",subs=\"verbatim,quotes\"");
+        }
+        preprocessOut.append("]\n").append("----\n");
+    }
 
 }
