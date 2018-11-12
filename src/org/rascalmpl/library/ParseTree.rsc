@@ -82,10 +82,7 @@ Each such a non-terminal type has `Tree` as its immediate super-type.
 ----
 import ParseTree;
 syntax A = "a";
-----
-will make the following succeed:
-[source,rascal-shell-continue]
-----
+// will make the following succeed:
 parse(#A,"a") == 
 appl(
   prod(
@@ -109,11 +106,7 @@ The following definition
 import ParseTree;
 lexical B= myB:"b";
 lexical C = myC:"c" B bLabel;
-----
-Will make the following succeed:
-
-[source,rascal-shell-continue]
-----
+// Will make the following succeed:
 parse(#C,"cb") == 
 appl(
   prod(
