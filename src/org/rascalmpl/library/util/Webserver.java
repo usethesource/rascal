@@ -400,7 +400,7 @@ public void shutdown(ISourceLocation server) {
   
   private void executeCallback(ICallableValue callback, CompletableFuture<IValue> target, IValue request, boolean asDaemon) {
       IEvaluator<Result<IValue>> eval = callback.getEval();
-      synchronized (callback) {
+      synchronized (eval) {
           boolean oldInterupt = eval.isInterrupted();
           try {
               if (asDaemon) {
