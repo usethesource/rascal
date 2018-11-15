@@ -48,19 +48,21 @@ public class REPLRunner extends BaseREPL  implements ShellRunner {
         }
 
         @Override
-        public void handleInput(String line, Map<String, String> output, Map<String, String> metadata)
+        public void handleInput(String line, Map<String, InputStream> output, Map<String, String> metadata)
             throws InterruptedException {
             super.handleInput(line, output, metadata);
             
             if (Desktop.isDesktopSupported()) {
-                String html = output.get("text/html");
-                
-                if (html != null) {
+                for (String mimetype : output.keySet()) {
+                    if (!mimetype.contains("html") && !mimetype.startsWith("image/")) {
+                        continue;
+                    }
+
                     try {
                         Desktop.getDesktop().browse(URIUtil.assumeCorrect(metadata.get("url")));
                     }
                     catch (IOException e) {
-                        getErrorWriter().println("failed to display HTML content: " + e.getMessage());
+                        getErrorWriter().println("failed to display content: " + e.getMessage());
                     }
                 }
             }
