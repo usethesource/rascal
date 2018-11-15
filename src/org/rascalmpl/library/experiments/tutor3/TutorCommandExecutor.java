@@ -75,8 +75,8 @@ public class TutorCommandExecutor {
 
 	    try {
 	        repl.handleInput(line, output, new HashMap<>());
+	   
 	        String out = output.get("text/plain");
-
 	        if (out != null) {
 	            return vf.string(out);
 	        }
@@ -85,10 +85,10 @@ public class TutorCommandExecutor {
 	        }
 	    }
 	    catch (InterruptedException e) {
-	        return vf.string("");
+	        return vf.string("[error]#eval was interrupted: " + e.getMessage() + "#");
 	    }
 	    catch (Throwable e) {
-	        return vf.string(e.getMessage());
+	        return vf.string("[error]#" + e.getMessage() + "#");
 	    }
 	}
 	
