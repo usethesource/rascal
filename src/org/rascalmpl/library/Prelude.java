@@ -61,8 +61,6 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.apache.commons.lang.CharSetUtils;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
@@ -1062,7 +1060,7 @@ public class Prelude {
 	public IString readFile(ISourceLocation sloc){
 		if(trackIO) System.err.println("readFile: " + sloc);
 		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc);){
-			return consumeInputStream(reader);
+			return values.string(consumeInputStream(reader));
 		} 
 		catch(FileNotFoundException e){
 			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
@@ -1075,7 +1073,7 @@ public class Prelude {
 	public IString readFileEnc(ISourceLocation sloc, IString charset){
 		if(trackIO) System.err.println("readFileEnc: " + sloc);
 		try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(sloc, charset.getValue())){
-			return consumeInputStream(reader);
+			return values.string(consumeInputStream(reader));
 		} 
 		catch (FileNotFoundException e) {
 			throw RuntimeExceptionFactory.pathNotFound(sloc, null, null);
@@ -1085,14 +1083,14 @@ public class Prelude {
 		}
 	}
 
-	private IString consumeInputStream(Reader in) throws IOException {
+	public static String consumeInputStream(Reader in) throws IOException {
 		StringBuilder res = new StringBuilder();
 		char[] chunk = new char[FILE_BUFFER_SIZE];
 		int read;
 		while ((read = in.read(chunk, 0, chunk.length)) != -1) {
 		    res.append(chunk, 0, read);
 		}
-		return values.string(res.toString());
+		return res.toString();
 	}
 	
 	public IValue md5HashFile(ISourceLocation sloc){

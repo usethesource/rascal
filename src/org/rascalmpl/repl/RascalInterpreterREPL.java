@@ -13,9 +13,11 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.rascalmpl.interpreter.Configuration;
@@ -24,6 +26,7 @@ import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
+import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
@@ -32,6 +35,7 @@ import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.Type;
 
 public abstract class RascalInterpreterREPL extends BaseRascalREPL {
 
@@ -54,6 +58,20 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
         originalOutput = null;
     }
 
+    @Override
+    protected Function<IValue, IValue> liftProviderFunction(IValue callback) {
+        ICallableValue func = (ICallableValue) callback;
+        
+        return (t) -> {
+          synchronized(eval) {
+              return func.call(
+                  new Type[] { REPLContentServer.requestType },
+                  new IValue[] { t },
+                  Collections.emptyMap()).getValue();
+          }
+        };
+    }
+    
     public void setMeasureCommandTime(boolean measureCommandTime) {
         this.measureCommandTime = measureCommandTime;
     }
