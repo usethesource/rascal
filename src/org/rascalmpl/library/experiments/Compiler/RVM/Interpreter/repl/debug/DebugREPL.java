@@ -1,10 +1,13 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.debug;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
@@ -68,7 +71,7 @@ public class DebugREPL implements ILanguageProtocol {
 	}
 
 	@Override
-	public void handleInput(String line, Map<String,String> output, Map<String,String> metadata) throws InterruptedException {
+	public void handleInput(String line, Map<String, InputStream> output, Map<String,String> metadata) throws InterruptedException {
 		setPrompt();
 		StringWriter out = new StringWriter();
 		String[] words = line.split(" ");
@@ -199,9 +202,13 @@ public class DebugREPL implements ILanguageProtocol {
 			previousCommand = line;
 		}
 		
-		output.put("text/plain", out.toString());
+		output.put("text/plain", stringStream(out.toString()));
 	}
 	
+	 private InputStream stringStream(String x) {
+	        return new ByteArrayInputStream(x.getBytes(StandardCharsets.UTF_8));
+	    }
+	 
 	private void printHelp(StringWriter out){
 		String[] lines = {
 			"h(elp)           This help text",
@@ -245,7 +252,7 @@ public class DebugREPL implements ILanguageProtocol {
 	}
 
 	@Override
-	public void handleReset(Map<String,String> output, Map<String,String> metadata) throws InterruptedException {
+	public void handleReset(Map<String, InputStream> output, Map<String,String> metadata) throws InterruptedException {
 		// TODO Auto-generated method stub
 	}
 
