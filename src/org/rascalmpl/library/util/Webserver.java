@@ -344,7 +344,7 @@ public class Webserver {
               }
           }
           server.stop();
-          servers.remove(server);
+          servers.remove(url);
       }
     } catch (IOException e) {
       throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
