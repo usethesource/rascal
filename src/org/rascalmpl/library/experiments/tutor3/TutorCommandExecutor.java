@@ -80,6 +80,12 @@ public class TutorCommandExecutor {
 	        if (out != null) {
 	            return vf.string(out);
 	        }
+	        
+	        out = output.get("text/html");
+	        if (out != null) {
+	            // let the html code pass through the asciidoctor file unscathed:
+	            return vf.string("\n++++\n" + out + "\n++++\n");
+	        }
 	        else {
 	            return vf.string("");
 	        }
