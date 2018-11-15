@@ -119,6 +119,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	public static final Type Symbols = tf.listType(Symbol);
 	public static final Type CharRanges = tf.listType(CharRange);
 	public static final Type Alternatives = tf.setType(Tree);
+	
+	/* Content is a wrapper for strings that represent svg, html, png, etc, for
+	 * use in interative visual REPL sessions with Rascal
+	 */
+	public static final Type Content = tf.abstractDataType(uptr, "Content");
 
 	/* The next three declarations and the static block are order dependend */
 	public static final Type TypeParam = tf.parameterType("T");
