@@ -323,13 +323,10 @@ public class Concept {
 
     private void startREPL(StringWriter preprocessOut, boolean mayHaveErrors) {
         preprocessOut.append("[source,rascal-shell");
-        if(mayHaveErrors){
+        if (mayHaveErrors) {
         	preprocessOut.append("-error");
         }
-        if(mayHaveErrors){
-          // To enable [red] macro in generated output
-          preprocessOut.append(",subs=\"verbatim,quotes\"");
-        }
+        preprocessOut.append(",subs=\"verbatim,quotes,+macros\"");
         preprocessOut.append("]\n").append("----\n");
     }
 
