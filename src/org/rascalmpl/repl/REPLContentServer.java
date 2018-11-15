@@ -35,7 +35,7 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
-public class ContentServer extends NanoHTTPD {
+public class REPLContentServer extends NanoHTTPD {
     private final IValueFactory vf;
     private final Cache<String, Function<IValue, IValue>> contentProviders 
       = Caffeine.newBuilder()
@@ -48,18 +48,18 @@ public class ContentServer extends NanoHTTPD {
     private Type head;
     private Type delete;
 
-    private ContentServer(IValueFactory vf, int port) {
+    private REPLContentServer(IValueFactory vf, int port) {
         super(port);
         this.vf = vf;
         initMethodAndStatusValues();
     }
 
-    public static ContentServer startContentServer(IValueFactory vf) throws IOException {
-        ContentServer server = null;
+    public static REPLContentServer startContentServer(IValueFactory vf) throws IOException {
+        REPLContentServer server = null;
 
         for(int port = 9050; port < 9050+125; port++){
             try {
-                server = new ContentServer(vf, port);
+                server = new REPLContentServer(vf, port);
                 server.start();
                 // success
                 break;
