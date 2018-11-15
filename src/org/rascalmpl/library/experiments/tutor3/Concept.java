@@ -98,6 +98,10 @@ public class Concept {
 		return destPath.toString() + "/" + name + ("/" + getConceptBaseName()) + ".adoc";
 	}
 	
+	private String getADocFileFolder(){
+        return destPath.toString() + "/" + name;
+    }
+	
 	public String genInclude(){
 		String baseName = getConceptBaseName();
 		return "include::" + baseName + "/" + baseName + ".adoc" + "[" + baseName + "]\n";
@@ -241,7 +245,7 @@ public class Concept {
 						
 						preprocessOut.append(repl.getPrompt()).append(line).append("\n");
 					
-						String resultOutput = repl.eval(line);
+						String resultOutput = repl.eval(line, getADocFileFolder());
 						String errorOutput = repl.getErrorOutput();
 						String printedOutput = repl.getPrintedOutput();
 						
