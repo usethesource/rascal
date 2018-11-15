@@ -1,8 +1,6 @@
 package org.rascalmpl.repl;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
@@ -19,8 +17,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
@@ -35,13 +31,13 @@ import org.rascalmpl.values.uptr.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 
 public abstract class BaseRascalREPL implements ILanguageProtocol {
+    
     protected enum State {
         FRESH,
         CONTINUATION,
@@ -63,7 +59,6 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     private final boolean htmlOutput;
     private final boolean allowColors;
     private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
-
 
     public BaseRascalREPL(boolean prettyPrompt, boolean allowColors, boolean htmlOutput) throws IOException, URISyntaxException {
         this.htmlOutput = htmlOutput;
@@ -124,14 +119,12 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
             getErrorWriter().println("Internal error: ambiguous command: " + TreeAdapter.yield(e.getTree()));
             return;
         }
-        
     }
 
     @Override
     public void handleReset(Map<String,String> output, Map<String,String> metadata) throws InterruptedException {
         handleInput("", output, metadata);
     }
-
 
     @FunctionalInterface
     public interface IOConsumer<T> {
@@ -153,11 +146,10 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         }
         
         // or we have output wrapped in a content wrapper:
-        if (result.getType().isSubtypeOf(RascalValueFactory.Content)) {
-            passContentDirectly((IConstructor) result.getValue(), output, metadata);
-            output.put(mimeType, "ok\n");
-            return;
-        }
+//        if (result.getType().isSubtypeOf(RascalValueFactory.Content)) {
+//            output.put(mimeType, "ok\n");
+//            return;
+//        }
        
         // otherwise we have simple output to print on the REPL in either text/html or text/plain format:
         final StringWriter out = new StringWriter();
@@ -206,100 +198,6 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         }
     }            
         
-    private void passContentDirectly(IConstructor value, Map<String, String> output, Map<String, String> metadata) {
-        IValue arg = value.get(0);
-        String outputString;
-        String mimetype;
-        
-        switch (value.getName()) {
-            case "html":
-            case "plain":
-                outputString = getDirectContent(arg);
-                mimetype = "text/" + value.getName();
-                break;
-            case "png":
-                outputString = getImageContentHtml((ISourceLocation) arg);
-                mimetype = "text/html";
-                break;
-            default:
-                throw new IllegalArgumentException("content should be html, plain or png");
-        }
-       
-        output.put(mimetype, outputString);
-    }
-
-    private String getImageContentHtml(ISourceLocation arg) {
-        StringBuilder result = new StringBuilder();
-        result.append("<img src=\"");
-        
-        switch (arg.getAuthority()) {
-            case "file":
-            case "http":
-            case "https":
-                result.append(arg.getURI());
-                break;
-            case "cwd":
-                // use a relative path
-                result.append(arg.getURI().getPath().substring(1));
-                break;
-            default:
-                // otherwise we encode the file into the URL, such that project schemes
-                // and other Rascal schemes seamlessly work. Note that there are browser
-                // limits on the size of these things:
-                try (
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    InputStream stream = URIResolverRegistry.getInstance().getInputStream((ISourceLocation) arg)
-                    ) {
-                    int read = -1;
-                    byte[] buffer = new byte[512];
-
-                    while ((read = stream.read(buffer, 0, 512)) != -1) {
-                        out.write(buffer, 0, read);
-                    }
-
-                    result.append("data:image/png;base64," 
-                         + DatatypeConverter.printBase64Binary(out.toByteArray()));
-                }
-                catch (IOException e) {
-                    return "<p>failed to construct image data: " + e.getMessage() + "</p>";
-                }
-        }
-        
-        result.append("\">");
-        return result.toString();
-    }
-
-    private String getDirectContent(IValue arg) {
-        if (arg.getType().isSourceLocation()) {
-            return getContentOfSourceLocation(arg);
-        }
-        else if (arg.getType().isString()) {
-            return ((IString) arg).getValue();
-        }
-        else {
-            throw new IllegalArgumentException("html content should be a string or a source location");
-        }
-    }
-
-    private String getContentOfSourceLocation(IValue arg) {
-        try (
-            StringWriter w = new StringWriter();
-            Reader stream = URIResolverRegistry.getInstance().getCharacterReader((ISourceLocation) arg)
-            ) {
-            int read = -1;
-            char[] buffer = new char[512];
-            
-            while ((read = stream.read(buffer, 0, 512)) != -1) {
-                w.write(buffer, 0, read);
-            }
-            
-            return w.toString();
-        }
-        catch (IOException e) {
-           return e.getMessage();
-        }
-    }
-
     private void writeOutput(IRascalResult result, OutputWriter target) throws IOException {
         IValue value = result.getValue();
         Type type = result.getType();
