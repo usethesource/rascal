@@ -1,6 +1,7 @@
 package org.rascalmpl.repl;
 
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
@@ -19,12 +20,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.compress.utils.Charsets;
 import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.ReadEvalPrintDialogMessages;
 import org.rascalmpl.interpreter.utils.StringUtils;
 import org.rascalmpl.interpreter.utils.StringUtils.OffsetLengthTerm;
+import org.rascalmpl.library.Prelude;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -64,7 +67,7 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     private final boolean htmlOutput;
     private final boolean allowColors;
     private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
-    private final REPLContentServer contentServer = REPLContentServer.startContentServer(VF);
+    protected final REPLContentServer contentServer = REPLContentServer.startContentServer();
     
     public BaseRascalREPL(boolean prettyPrompt, boolean allowColors, boolean htmlOutput) throws IOException, URISyntaxException {
         this.htmlOutput = htmlOutput;
@@ -162,8 +165,11 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
             
             // now we need some HTML to show
             Response response = contentServer.serve("/" + id, Method.GET, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
-            output.put(response.getMimeType(), response.getData());
-            output.put(mimeType, "ok\n");
+            if (response.getMimeType().equals("text/html")) {
+                metadata.put("url", "http://localhost:" + contentServer.getListeningPort() + "/" + id);
+                output.put(response.getMimeType(), Prelude.consumeInputStream(new InputStreamReader(response.getData(), Charsets.UTF_8)));
+                output.put("text/plain", "ok\n");
+            }
             return;
         }
        

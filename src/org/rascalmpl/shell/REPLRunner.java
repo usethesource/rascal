@@ -7,9 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Base64;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.Evaluator;
@@ -44,18 +42,8 @@ public class REPLRunner extends BaseREPL  implements ShellRunner {
 
   private static ILanguageProtocol makeInterpreter(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, boolean htmlOutput, File persistentHistory, Terminal terminal) throws IOException, URISyntaxException {
     RascalInterpreterREPL repl = new RascalInterpreterREPL(stdin, stdout, prettyPrompt, allowColors, htmlOutput, getHistoryFile()) {
-        private OnePageServer server;
-        
         @Override
         protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
-            try {
-                server = OnePageServer.getInstance();
-                
-            }
-            catch (IOException e ) {
-                // no problem
-            }
-                    
             return ShellEvaluatorFactory.getDefaultEvaluator(new PrintWriter(stdout), new PrintWriter(stderr));
         }
 
@@ -67,10 +55,9 @@ public class REPLRunner extends BaseREPL  implements ShellRunner {
             if (Desktop.isDesktopSupported()) {
                 String html = output.get("text/html");
                 
-                if (server != null && html != null) {
+                if (html != null) {
                     try {
-                        server.setHTML(html);
-                        Desktop.getDesktop().browse(URIUtil.assumeCorrect("http", "localhost:" + server.getListeningPort(), "/"));
+                        Desktop.getDesktop().browse(URIUtil.assumeCorrect(metadata.get("url")));
                     }
                     catch (IOException e) {
                         getErrorWriter().println("failed to display HTML content: " + e.getMessage());
