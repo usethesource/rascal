@@ -11,13 +11,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
@@ -346,7 +344,7 @@ public class Webserver {
               }
           }
           server.stop();
-          servers.remove(server);
+          servers.remove(url);
       }
     } catch (IOException e) {
       throw RuntimeExceptionFactory.io(vf.string(e.getMessage()), null, null);
