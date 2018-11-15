@@ -8,11 +8,13 @@ import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -29,8 +31,11 @@ import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
+import fi.iki.elonen.NanoHTTPD.Method;
+import fi.iki.elonen.NanoHTTPD.Response;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.StandardTextWriter;
@@ -59,7 +64,8 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     private final boolean htmlOutput;
     private final boolean allowColors;
     private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
-
+    private final REPLContentServer contentServer = REPLContentServer.startContentServer(VF);
+    
     public BaseRascalREPL(boolean prettyPrompt, boolean allowColors, boolean htmlOutput) throws IOException, URISyntaxException {
         this.htmlOutput = htmlOutput;
         this.allowColors = allowColors;
@@ -146,10 +152,20 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         }
         
         // or we have output wrapped in a content wrapper:
-//        if (result.getType().isSubtypeOf(RascalValueFactory.Content)) {
-//            output.put(mimeType, "ok\n");
-//            return;
-//        }
+        if (result.getType().isSubtypeOf(RascalValueFactory.Content)) {
+            IConstructor provider = (IConstructor) result.getValue();
+            String id = ((IString) provider.get("id")).getValue();
+            Function<IValue, IValue> target = liftProviderFunction(provider.get("callback"));
+            
+            // this installs the provider such that subsequent requests are handled.
+            contentServer.registerContentProvider(id, target);
+            
+            // now we need some HTML to show
+            Response response = contentServer.serve("/" + id, Method.GET, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+            output.put(response.getMimeType(), response.getData());
+            output.put(mimeType, "ok\n");
+            return;
+        }
        
         // otherwise we have simple output to print on the REPL in either text/html or text/plain format:
         final StringWriter out = new StringWriter();
@@ -198,6 +214,8 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         }
     }            
         
+    abstract protected Function<IValue, IValue> liftProviderFunction(IValue callback);
+
     private void writeOutput(IRascalResult result, OutputWriter target) throws IOException {
         IValue value = result.getValue();
         Type type = result.getType();
