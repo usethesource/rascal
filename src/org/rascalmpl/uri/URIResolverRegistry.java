@@ -477,6 +477,10 @@ public class URIResolverRegistry {
 		
 		ISourceLocation[] list = new ISourceLocation[entries.length];
 		int i = 0;
+		
+		// children of logical URI's don't work, better to be safe here:
+		uri = logicalToPhysical(uri);
+		
 		for (String entry : entries) {
 			list[i++] = URIUtil.getChildLocation(uri, entry);
 		}
