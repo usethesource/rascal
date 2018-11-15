@@ -17,6 +17,7 @@ package org.rascalmpl.library;
 
 import static org.rascalmpl.values.uptr.RascalValueFactory.TYPE_STORE_SUPPLIER;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -43,6 +44,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.Comparator;
@@ -58,6 +60,8 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
+
+import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.lang.CharSetUtils;
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -1380,6 +1384,33 @@ public class Prelude {
 
 		return w.done();
 	}
+	
+    public IString uuencode(ISourceLocation sloc) {
+        int BUFFER_SIZE = 3 * 512;
+        Base64.Encoder encoder = Base64.getEncoder();
+        
+        try  (BufferedInputStream in = new BufferedInputStream(URIResolverRegistry.getInstance().getInputStream(sloc), BUFFER_SIZE); ) {
+            StringBuilder result = new StringBuilder();
+            byte[] chunk = new byte[BUFFER_SIZE];
+            int len = 0;
+            
+            // read multiples of 3 until not possible anymore
+            while ( (len = in.read(chunk)) == BUFFER_SIZE ) {
+                 result.append( encoder.encodeToString(chunk) );
+            }
+            
+            // read final chunk which is not a multiple of 3
+            if ( len > 0 ) {
+                 chunk = Arrays.copyOf(chunk,len);
+                 result.append( encoder.encodeToString(chunk) );
+            }
+            
+            return values.string(result.toString());
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+        }
+    }
 	
 	public IString createLink(IString title, IString target) {
 		return values.string("\uE007["+title.getValue().replaceAll("\\]", "_")+"]("+target.getValue()+")");
