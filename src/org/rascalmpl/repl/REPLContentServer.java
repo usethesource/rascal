@@ -14,6 +14,7 @@ import java.util.function.Function;
 
 import org.rascalmpl.library.lang.json.io.JsonValueWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
@@ -36,30 +37,22 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 public class REPLContentServer extends NanoHTTPD {
-    private final IValueFactory vf;
+    private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
     private final Cache<String, Function<IValue, IValue>> contentProviders 
       = Caffeine.newBuilder()
         .maximumSize(128)
         .expireAfterAccess(30, TimeUnit.MINUTES).build();
     
-    private final Map<IConstructor,Status> statusValues = new HashMap<>();
-    private Type requestType;
-    private Type get;
-    private Type head;
-    private Type delete;
-
-    private REPLContentServer(IValueFactory vf, int port) {
+    private REPLContentServer(int port) {
         super(port);
-        this.vf = vf;
-        initMethodAndStatusValues();
     }
 
-    public static REPLContentServer startContentServer(IValueFactory vf) throws IOException {
+    public static REPLContentServer startContentServer() throws IOException {
         REPLContentServer server = null;
 
         for(int port = 9050; port < 9050+125; port++){
             try {
-                server = new REPLContentServer(vf, port);
+                server = new REPLContentServer(port);
                 server.start();
                 // success
                 break;
@@ -96,7 +89,7 @@ public class REPLContentServer extends NanoHTTPD {
                 }
             }
 
-            return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, "no content provider found for " + uri);
+            return newFixedLengthResponse(Status.NOT_FOUND, MIME_PLAINTEXT, "no content provider found for " + uri);
         }
         catch (CancellationException e) {
             stop();
@@ -126,8 +119,10 @@ public class REPLContentServer extends NanoHTTPD {
             case GET:
                 return vf.constructor(get, new IValue[]{vf.string(path)}, kws);
             case PUT:
+                // TODO: PUT 
                 //                return vf.constructor(put, new IValue[]{vf.string(path), getContent(files, "content")}, kws);
             case POST:
+                // TODO POST
                 //                return vf.constructor(post, new IValue[]{vf.string(path), getContent(files, "postData")}, kws);
             default:
                 throw new IOException("Unhandled request " + method);
@@ -149,7 +144,7 @@ public class REPLContentServer extends NanoHTTPD {
         }
     }
 
-    private Response translateJsonResponse(Method method, IConstructor cons) {
+    private static Response translateJsonResponse(Method method, IConstructor cons) {
         IMap header = (IMap) cons.get("header");
         IValue data = cons.get("val");
         Status status = translateStatus((IConstructor) cons.get("status"));
@@ -185,7 +180,7 @@ public class REPLContentServer extends NanoHTTPD {
         }
     }
 
-    private Response translateFileResponse(Method method, IConstructor cons) {
+    private static Response translateFileResponse(Method method, IConstructor cons) {
         ISourceLocation l = (ISourceLocation) cons.get("file");
         IString mimeType = (IString) cons.get("mimeType");
         IMap header = (IMap) cons.get("header");
@@ -200,7 +195,7 @@ public class REPLContentServer extends NanoHTTPD {
         } 
     }
 
-    private Response translateTextResponse(Method method, IConstructor cons) {
+    private static Response translateTextResponse(Method method, IConstructor cons) {
         IString mimeType = (IString) cons.get("mimeType");
         IMap header = (IMap) cons.get("header");
         IString data = (IString) cons.get("content");
@@ -226,7 +221,7 @@ public class REPLContentServer extends NanoHTTPD {
         return response;
     }
 
-    private void addHeaders(Response response, IMap header) {
+    private static void addHeaders(Response response, IMap header) {
         // TODO add first class support for cache control on the Rascal side. For
         // now we prevent any form of client-side caching with this.. hopefully.
         response.addHeader("Cache-Control", "no-cache, no-store, must-revalidate");
@@ -238,7 +233,7 @@ public class REPLContentServer extends NanoHTTPD {
         }
     }
 
-    private Status translateStatus(IConstructor cons) {
+    private static Status translateStatus(IConstructor cons) {
         return statusValues.get(cons);
     }
 
@@ -254,33 +249,38 @@ public class REPLContentServer extends NanoHTTPD {
         contentProviders.put(id, target);
     }
 
-    private void initMethodAndStatusValues() {
-        if (statusValues.isEmpty() || requestType == null) {
-            TypeFactory tf = TypeFactory.getInstance();
-            TypeStore store = new TypeStore();
-            Type statusType = tf.abstractDataType(store, "Status");
+    // these are statics for quick access of and creation of typed Rascal values:
+    private final static Map<IConstructor,Status> statusValues = new HashMap<>();
+    public  final static Type requestType;
+    private final static Type get;
+    private final static Type head;
+    private final static Type delete;
+    
+    static {
+        TypeFactory tf = TypeFactory.getInstance();
+        TypeStore store = new TypeStore();
+        Type statusType = tf.abstractDataType(store, "Status");
 
-            statusValues.put(vf.constructor(tf.constructor(store, statusType, "ok")), Status.OK);
-            statusValues.put(vf.constructor(tf.constructor(store, statusType, "created")), Status.CREATED);
-            statusValues.put(vf.constructor(tf.constructor(store, statusType, "accepted")), Status.ACCEPTED);
-            statusValues.put(vf.constructor(tf.constructor(store, statusType, "noContent")), Status.NO_CONTENT);
-            statusValues.put(vf.constructor(tf.constructor(store, statusType, "partialContent")), Status.PARTIAL_CONTENT);
-            statusValues.put(vf.constructor(tf.constructor(store, statusType, "redirect")), Status.REDIRECT);
-            statusValues.put(vf.constructor(tf.constructor(store, statusType, "notModified")), Status.NOT_MODIFIED);
-            statusValues.put(vf.constructor(tf.constructor(store, statusType, "badRequest")), Status.BAD_REQUEST);
-            statusValues.put(vf.constructor(tf.constructor(store, statusType, "unauthorized")), Status.UNAUTHORIZED);
-            statusValues.put(vf.constructor(tf.constructor(store, statusType, "forbidden")), Status.FORBIDDEN);
-            statusValues.put(vf.constructor(tf.constructor(store, statusType, "notFound")), Status.NOT_FOUND);
-            statusValues.put(vf.constructor(tf.constructor(store, statusType, "rangeNotSatisfiable")), Status.RANGE_NOT_SATISFIABLE);
-            statusValues.put(vf.constructor(tf.constructor(store, statusType, "internalError")), Status.INTERNAL_ERROR);
+        statusValues.put(vf.constructor(tf.constructor(store, statusType, "ok")), Status.OK);
+        statusValues.put(vf.constructor(tf.constructor(store, statusType, "created")), Status.CREATED);
+        statusValues.put(vf.constructor(tf.constructor(store, statusType, "accepted")), Status.ACCEPTED);
+        statusValues.put(vf.constructor(tf.constructor(store, statusType, "noContent")), Status.NO_CONTENT);
+        statusValues.put(vf.constructor(tf.constructor(store, statusType, "partialContent")), Status.PARTIAL_CONTENT);
+        statusValues.put(vf.constructor(tf.constructor(store, statusType, "redirect")), Status.REDIRECT);
+        statusValues.put(vf.constructor(tf.constructor(store, statusType, "notModified")), Status.NOT_MODIFIED);
+        statusValues.put(vf.constructor(tf.constructor(store, statusType, "badRequest")), Status.BAD_REQUEST);
+        statusValues.put(vf.constructor(tf.constructor(store, statusType, "unauthorized")), Status.UNAUTHORIZED);
+        statusValues.put(vf.constructor(tf.constructor(store, statusType, "forbidden")), Status.FORBIDDEN);
+        statusValues.put(vf.constructor(tf.constructor(store, statusType, "notFound")), Status.NOT_FOUND);
+        statusValues.put(vf.constructor(tf.constructor(store, statusType, "rangeNotSatisfiable")), Status.RANGE_NOT_SATISFIABLE);
+        statusValues.put(vf.constructor(tf.constructor(store, statusType, "internalError")), Status.INTERNAL_ERROR);
 
-            requestType = tf.abstractDataType(store, "Request");
+        requestType = tf.abstractDataType(store, "Request");
 
-            get = tf.constructor(store, requestType, "get", tf.stringType(), "path");
-            delete = tf.constructor(store, requestType, "delete",  tf.stringType(), "path");
-            head = tf.constructor(store, requestType, "head",  tf.stringType(), "path");
-            
-            // TODO: add GET and POST!
-        }
+        get = tf.constructor(store, requestType, "get", tf.stringType(), "path");
+        delete = tf.constructor(store, requestType, "delete",  tf.stringType(), "path");
+        head = tf.constructor(store, requestType, "head",  tf.stringType(), "path");
+
+        // TODO: add GET and POST!
     }
 }
