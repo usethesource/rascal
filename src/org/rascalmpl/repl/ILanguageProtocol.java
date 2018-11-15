@@ -12,7 +12,10 @@
  */ 
 package org.rascalmpl.repl;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 
@@ -30,7 +33,6 @@ public interface ILanguageProtocol {
      * @return The string representing the prompt.
      */
     String getPrompt();
-    // TODO: This isn't used with the notebooks
 
     /**
      * After a newline is pressed, the current line is handed to this method.
@@ -39,13 +41,13 @@ public interface ILanguageProtocol {
      * @param metadata is a map to encode a plain object with meta-data encoded as strings
      * @throws InterruptedException throw this exception to stop the REPL (instead of calling .stop())
      */
-    void handleInput(String line, Map<String,String> output, Map<String,String> metadata) throws InterruptedException;
+    void handleInput(String line, Map<String, InputStream> output, Map<String,String> metadata) throws InterruptedException;
     
     /**
      * If a line is canceled with ctrl-C this method is called too handle the reset in the child-class.
      * @throws InterruptedException throw this exception to stop the REPL (instead of calling .stop())
      */
-    void handleReset(Map<String,String> output, Map<String,String> metadata) throws InterruptedException;
+    void handleReset(Map<String, InputStream> output, Map<String,String> metadata) throws InterruptedException;
 
     /**
      * Test if completion of statement in the current line is supported
@@ -94,4 +96,7 @@ public interface ILanguageProtocol {
      * Tell the language to stop without waiting for it to stop
      */
     void stop();
+    
+
+   
 }

@@ -48,19 +48,6 @@ Content file(str id, loc src) = content(id, Response (Request _) {
    return response(src);
 });
 
-Content png(str id, loc src) = image(id, "png", src);
-Content jpeg(str id, loc src) = image(id, "jpeg", src);
-Content gif(str id, loc src) = image(id, "gif", src); 
-
-Content image(str id, str \type, loc src) = content(id, Response (Request _) {
-   if (src.scheme in {"https", "http", "file"}) {
-     return response(src);
-   }
-   else {
-     return response("\<img src=\"data:image/<\type>;base64,<uuencode(src)>\"\>");
-   }
-});
-
 alias Body = value (type[value] expected);
 
 data Request (map[str, str] headers = (), map[str, str] parameters = (), map[str,str] uploads = ())

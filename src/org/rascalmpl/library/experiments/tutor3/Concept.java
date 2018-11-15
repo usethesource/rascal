@@ -241,7 +241,7 @@ public class Concept {
 						
 						preprocessOut.append(repl.getPrompt()).append(line).append("\n");
 					
-						String resultOutput = repl.evalPrint(line);
+						String resultOutput = repl.eval(line);
 						String errorOutput = repl.getErrorOutput();
 						String printedOutput = repl.getPrintedOutput();
 						

@@ -2,6 +2,8 @@ package org.rascalmpl.library.experiments.tutor3;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -11,19 +13,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.repl.RascalInterpreterREPL;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
-
-import io.usethesource.vallang.IString;
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IValueFactory;
 
 public class TutorCommandExecutor {
     private final RascalInterpreterREPL repl;
-    private final IValueFactory vf;
 	private final ByteArrayOutputStream shellStandardOutput;
 	private final ByteArrayOutputStream shellErrorOutput;
 
@@ -40,8 +37,6 @@ public class TutorCommandExecutor {
 	    
 	    repl.initialize(new OutputStreamWriter(shellStandardOutput, "utf8"), new OutputStreamWriter(shellErrorOutput, "utf8"));
 	    repl.setMeasureCommandTime(false); 
-	    
-	    vf = IRascalValueFactory.getInstance();
 	}
 	
 	private void flushOutput(){
@@ -70,39 +65,35 @@ public class TutorCommandExecutor {
 	    return repl.getPrompt();
 	}
 	
-	IValue eval(String line) {
-	    Map<String,String> output = new HashMap<>();
+	String eval(String line) {
+	    Map<String, InputStream> output = new HashMap<>();
 
 	    try {
 	        repl.handleInput(line, output, new HashMap<>());
 	   
-	        String out = output.get("text/plain");
+	        InputStream out = output.get("text/plain");
 	        if (out != null) {
-	            return vf.string(out);
+	            return Prelude.consumeInputStream(new InputStreamReader(out));
 	        }
 	        
 	        out = output.get("text/html");
 	        if (out != null) {
 	            // let the html code pass through the asciidoctor file unscathed:
-	            return vf.string("\n++++\n" + out + "\n++++\n");
+	            return "\n++++\n" 
+	                + Prelude.consumeInputStream(new InputStreamReader(out)) 
+	                + "\n++++\n";
 	        }
-	        else {
-	            return vf.string("");
-	        }
+	        
+	        return "";
 	    }
 	    catch (InterruptedException e) {
-	        return vf.string("[error]#eval was interrupted: " + e.getMessage() + "#");
+	        return "[error]#eval was interrupted: " + e.getMessage() + "#";
 	    }
 	    catch (Throwable e) {
-	        return vf.string("[error]#" + e.getMessage() + "#");
+	        return "[error]#" + e.getMessage() + "#";
 	    }
 	}
 	
-	public String evalPrint(String line) throws IOException {
-	    return ((IString) eval(line)).getValue();
-	}
-	
-
     public boolean isStatementComplete(String line){
         return repl.isStatementComplete(line);
     }
