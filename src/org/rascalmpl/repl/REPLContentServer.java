@@ -134,7 +134,7 @@ public class REPLContentServer extends NanoHTTPD {
         }
     }
 
-    private Response translateResponse(Method method, IValue value) throws IOException {
+    public static Response translateResponse(Method method, IValue value) throws IOException {
         IConstructor cons = (IConstructor) value;
 
         switch (cons.getName()) {
