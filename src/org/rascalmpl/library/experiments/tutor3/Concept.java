@@ -149,7 +149,7 @@ public class Concept {
     private String makeRed(String result){
       StringWriter sw = new StringWriter(result.length()+5);
       for(String s :  result.split("\n")){
-        sw.append("[error]#").append(s).append("#\n");
+        sw.append("[error]#").append(s.replaceAll("#", "+#+")).append("#\n");
       }
       return sw.toString();
     }
