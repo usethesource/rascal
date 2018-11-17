@@ -6,12 +6,7 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
 
-public class Traverse {
-	public enum DIRECTION  {BottomUp, TopDown}	// Parameters for traversing trees
-	public enum FIXEDPOINT {Yes, No}
-	public enum PROGRESS   {Continuing, Breaking}
-	public enum REBUILD    {Yes, No};
-	
+public class Traverse {	
 	private final IValueFactory vf;
 
 	public Traverse(IValueFactory vf) {
