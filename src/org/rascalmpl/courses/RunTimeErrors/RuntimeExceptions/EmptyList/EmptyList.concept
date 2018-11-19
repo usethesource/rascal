@@ -49,7 +49,10 @@ and `IO`:
 ----
 import Exception;
 import IO;
-try println(head(L)); catch EmptyList(): println("Cannot take head of empty list");
+try 
+  println(head(L)); 
+catch EmptyList(): 
+  println("Cannot take head of empty list");
 ----
 
 .Benefits
