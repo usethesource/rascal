@@ -346,8 +346,6 @@ public class CourseCompiler {
 			}
 		}
 		
-		System.err.println("Removing intermediate files");
-		
 		FileVisitor<Path> fileProcessor = new RemoveAdocs();
 		try {
 			Files.walkFileTree(destPath, fileProcessor);
