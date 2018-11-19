@@ -54,7 +54,7 @@ for all ambiguous interpretations and inspect the resulting data-structure:
 [source,rascal-shell]
 ----
 syntax A = "a";
-syntax E = A | "(" E ")" | left E "+" E;
+syntax E = A | "(" E ")" | E "+" E;
 import ParseTree;
 t = parse(#E, "a+a+a", allowAmbiguity=true);
 ----
