@@ -51,7 +51,10 @@ We can also catch the ParseError but first import the Rascal modules `Exception`
 ----
 import Exception;
 import IO;
-try parse(#As, "aaaabaaa"); catch ParseError(e): println("Your input cannot be parsed: <e>");
+try 
+  parse(#As, "aaaabaaa"); 
+catch ParseError(e): 
+  println("Your input cannot be parsed: <e>");
 ----
 
 

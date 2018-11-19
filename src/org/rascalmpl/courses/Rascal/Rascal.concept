@@ -1,7 +1,7 @@
 # Rascal Language Reference
 
 .Synopsis
-Description of the Rascal meta-programming language 
+Reference manual for the Rascal meta-programming language. 
 
 .Syntax
 
@@ -14,11 +14,11 @@ Declarations Patterns Expressions Statements
 
 .Description
 
-We describe all features of the Rascal language in detail:
+Here we describe _all_ features of the Rascal language in detail, for reference purposes.
 
 loctoc::[1]
 
-You can find more information related to Rascal here:
+You can find more (accessible) information related to Rascal here:
 
 *  link:/WhyRascal[Why Rascal]: gives the motivation for the Rascal language and describes various usage scenarios.
 *  link:/GettingStarted[Getting Started] describes how to download, install and start Rascal.
