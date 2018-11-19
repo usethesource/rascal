@@ -47,7 +47,10 @@ and `IO`:
 ----
 import Exception;
 import IO;
-try L[5]; catch IndexOutOfBounds(msg): println("The message is: <msg>");
+try 
+  L[5]; 
+catch IndexOutOfBounds(msg):
+  println("The message is: <msg>");
 ----
 
 
