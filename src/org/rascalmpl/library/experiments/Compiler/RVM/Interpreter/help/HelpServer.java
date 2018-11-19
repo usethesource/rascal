@@ -49,7 +49,6 @@ public class HelpServer extends NanoHTTPD {
 	public HelpServer(int port, HelpManager helpManager, ISourceLocation root) throws IOException {
 		super(port);
 		this.port = port;
-		start();
 		this.helpManager = helpManager;
 		this.root = root;
 	}

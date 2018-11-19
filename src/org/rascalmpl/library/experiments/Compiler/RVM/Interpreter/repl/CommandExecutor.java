@@ -839,7 +839,7 @@ public class CommandExecutor {
 		case "help": case "apropos":
 		    try {
 		        if(helpManager == null){
-		            helpManager = new HelpManager(pcfg, stdout, stderr, ideServices);
+		            helpManager = new HelpManager(pcfg, stdout, stderr, ideServices, true);
 		            helpManager.refreshIndex();
 		        }
 
