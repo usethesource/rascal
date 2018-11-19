@@ -1,7 +1,7 @@
 # Empty Map
 
 .Synopsis
-Illegal operation on an empty set.
+Illegal operation on an empty map.
 
 .Syntax
 
@@ -16,7 +16,7 @@ Illegal operation on an empty set.
 .Description
 Rascal provides many operations and functions on maps, see link:/Rascal#Values-Map[map values]
 and link:/Libraries#Prelude-Map[map functions].
-This error is generated when a function or operations cannot handle the empty map.
+This error is generated when a function or operations cannot handle the empty map case.
 
 Remedies: 
 
@@ -43,7 +43,10 @@ and `IO`:
 ----
 import Exception;
 import IO;
-try println(getOneFrom(M)); catch EmptyMap(): println("Cannot use getOneFrom on empty map");
+try 
+  println(getOneFrom(M)); 
+catch EmptyMap(): 
+  println("Cannot use getOneFrom on empty map");
 ----
 
 .Benefits
