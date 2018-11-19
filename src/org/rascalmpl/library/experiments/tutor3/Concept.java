@@ -150,12 +150,12 @@ public class Concept {
 	  return "<a href=\"/TutorHome/index.html\"><img id=\"home\" src=\"/images/rascal-tutor-small.png\", alt=\"RascalTutor\" width=\"64\" height=\"64\"></a>";
 	}
 	
-    private String makeRed(String result){
-      StringWriter sw = new StringWriter(result.length()+5);
-      for(String s :  result.split("\n")){
-        sw.append("[error]#").append(s).append("#\n");
-      }
-      return sw.toString();
+    private String makeRed(String result) {
+        // this is tricky since # syntax is parsed using a line-by-line tokenizer.
+        // there are many many many corner cases where this might go wrong.
+        // the nbsp is there to normalize these case a bit, such that # is never directly
+        // after a \r or \n character to break the asciidoctor parser.
+        return "[error]#" + result + "&nbsp;#\n";
     }
     
 	public void preprocess(Onthology onthology, TutorCommandExecutor repl) throws IOException {
@@ -225,6 +225,7 @@ public class Concept {
 					}
 
 					startREPL(preprocessOut, mayHaveErrors);
+					boolean printWarning = false;
 					
 					OUTER:while ((line = reader.readLine()) != null ) {
 						if (line.equals("```") || line.equals("----")){
@@ -243,19 +244,20 @@ public class Concept {
 						    startREPL(preprocessOut, mayHaveErrors);
 						}
 						
-						preprocessOut.append(repl.getPrompt()).append(line).append("\n");
+						preprocessOut.append(repl.getPrompt()).append(escapeForADOC(line)).append("\n");
 					
-						String resultOutput = repl.eval(line, getADocFileFolder());
-						String errorOutput = repl.getErrorOutput();
-						String printedOutput = repl.getPrintedOutput();
+						String resultOutput = escapeForADOC(repl.eval(line, getADocFileFolder()));
+						String errorOutput = escapeForADOC(repl.getErrorOutput());
+						String printedOutput = escapeForADOC(repl.getPrintedOutput());
 						
 						if (!printedOutput.isEmpty()){
 						    preprocessOut.append(printedOutput);
 						} 
 						
 						if (!errorOutput.isEmpty()) {
-						    // TODO: if !mayHaveErrors register this with the ontology, to 
-						    // create a summary of all errors
+						    if (!mayHaveErrors) {
+						        printWarning = true;
+						    }
 						    preprocessOut.append(mayHaveErrors ? makeRed(errorOutput) : errorOutput);
 						}
 						
@@ -265,6 +267,12 @@ public class Concept {
 					}
 					
 					endREPL(preprocessOut);
+					
+					if (printWarning) {
+					    // note that the trailing space after the second # is important for the ADOC parser.
+					    preprocessOut.append("[error]#WARNING: unexpected errors in the above SHELL example. Documentation author please fix!# ");
+					}
+					
 				} else if(line.startsWith("```") || line.startsWith("[source")) {
 				  preprocessOut.append(line).append("\n");
 				  boolean inCode = false;
@@ -321,16 +329,45 @@ public class Concept {
 		CourseCompiler.writeFile(getADocFileName(), preprocessOut.toString());
 	}
 
+    private String escapeForADOC(String s) {
+        StringBuilder out = new StringBuilder(Math.max(16, s.length()));
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c > 127) {
+                out.append("&#");
+                out.append((int) c);
+                out.append(';');
+            } 
+            else {
+                switch (c) {
+                    case '"':
+                    case '<':
+                    case '>':
+                    case '&':
+                    case '*':
+                    case '#':
+                    case '`': 
+                    case '+':
+                        out.append("&#");
+                        out.append((int) c);
+                        out.append(';');
+                        break;
+                    default:
+                        out.append(c);
+                }
+            }
+        }
+        
+        return out.toString(); 
+    }
+
     private void endREPL(StringWriter preprocessOut) {
         preprocessOut.append("----\n");
     }
 
     private void startREPL(StringWriter preprocessOut, boolean mayHaveErrors) {
         preprocessOut.append("[source,rascal-shell");
-        if (mayHaveErrors) {
-        	preprocessOut.append("-error");
-        }
-        preprocessOut.append(",subs=\"verbatim,quotes,+macros\"");
+        preprocessOut.append(",subs=\"normal\"");
         preprocessOut.append("]\n").append("----\n");
     }
 
