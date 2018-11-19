@@ -1,6 +1,7 @@
 package org.rascalmpl.library.experiments.tutor3;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
@@ -17,6 +18,8 @@ import org.rascalmpl.repl.RascalInterpreterREPL;
 import org.rascalmpl.shell.ShellEvaluatorFactory;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -34,15 +37,38 @@ public class TutorCommandExecutor {
         repl = new RascalInterpreterREPL(null, shellStandardOutput, false, false, false, null) {
             @Override
             protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
-                return ShellEvaluatorFactory.getDefaultEvaluator(new PrintWriter(stdout), new PrintWriter(stderr));
+                Evaluator eval = ShellEvaluatorFactory.getDefaultEvaluator(new PrintWriter(stdout), new PrintWriter(stderr));
+                eval.getConfiguration().setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
+                return eval;
             }
         };
-	    
-	    repl.initialize(new OutputStreamWriter(shellStandardOutput, "utf8"), new OutputStreamWriter(shellErrorOutput, "utf8"));
-	    repl.setMeasureCommandTime(false); 
-	    
-	    vf = IRascalValueFactory.getInstance();
-	}
+        
+        repl.initialize(new OutputStreamWriter(shellStandardOutput, "utf8"), new OutputStreamWriter(shellErrorOutput, "utf8"));
+        repl.setMeasureCommandTime(false); 
+        vf = IRascalValueFactory.getInstance();
+    }
+    
+    private String javaCompilerPathAsString(IList javaCompilerPath) {
+        StringBuilder b = new StringBuilder();
+        
+        for (IValue elem : javaCompilerPath) {
+            ISourceLocation loc = (ISourceLocation) elem;
+            
+            if (b.length() != 0) {
+                b.append(File.pathSeparatorChar);
+            }
+           
+            assert loc.getScheme().equals("file");
+            String path = loc.getPath();
+            if (path.startsWith("/") && path.contains(":\\")) {
+                // a windows path should drop the leading /
+                path = path.substring(1);
+            }
+            b.append(path);
+        }
+        
+        return b.toString();
+    }
 	
 	private void flushOutput(){
 	    repl.getOutputWriter().flush();
