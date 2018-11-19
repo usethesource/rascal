@@ -174,9 +174,6 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
             writer = new OutputWriter() {
                 @Override
                 public void writeOutput(Type tp, IOConsumer<StringWriter> contentsWriter) throws IOException {
-                    if (tp == RascalValueFactory.Content) {
-                        
-                    }
                     out.write("<pre title=\"" + tp.toString() + "\">");
                     contentsWriter.accept(out);
                     out.write("</pre>");
