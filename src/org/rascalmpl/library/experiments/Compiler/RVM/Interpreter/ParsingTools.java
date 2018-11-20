@@ -138,7 +138,7 @@ public class ParsingTools {
 			return parseObject(moduleName, startSort, robust, location, input, syntax, allowAmbiguity, hasSideEffects, rex);
 		}
 		catch (ParseError pe) {
-			ISourceLocation errorLoc = vf.sourceLocation(vf.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
+			ISourceLocation errorLoc = vf.sourceLocation(vf.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine(), pe.getEndLine(), pe.getBeginColumn(), pe.getEndColumn());
 			throw RascalRuntimeException.parseError(errorLoc, currentFrame);
 		}
 		catch (Ambiguous e) {
