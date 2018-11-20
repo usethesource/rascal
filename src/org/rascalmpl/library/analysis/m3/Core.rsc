@@ -78,40 +78,49 @@ private value compose(list[&T] l1, list[&T] l2) = l1 + l2;
 private value compose(map[&T, &U] m1, map[&T, &U] m2) = m1 + m2;
 private value compose(value v1, value v2) { throw "can\'t compose non-collections or values of different types"; }
 
+private value diff(set[&T] s1, set[&T] s2) = s1 - s2; // works on rel as well
+private value diff(list[&T] l1, list[&T] l2) = l1 - l2;
+private value diff(map[&T, &U] m1, map[&T, &U] m2) = m1 - m2;
+private value diff(value v1, value v2) { throw "can\'t differentiate non-collections or values of different types"; }
+
 @doc{
 	Generic function to compose the annotations of a set of M3s.
 }
 @memo
-M3 composeM3(loc id, set[M3] models)
-{
-	set[str] allAnnoNames = { *domain(getKeywordParameters(m)) | m <- models };
+M3 composeM3(loc id, set[M3] models) = modifyM3(id, toList(models), compose);
 
-	map[str, value] allAnnos = ();
-
-	for (m <- models)
-	{
-		annos = getKeywordParameters(m);
-
-		for (name <- allAnnoNames, name in annos)
-		{
-			if (allAnnos[name]?)
-			{
-				try
-				{
-					allAnnos[name] = compose(allAnnos[name], annos[name]);
-				}
-				catch e:
-				; // ignore
-			}
-			else
-			{
-				allAnnos[name] = annos[name];
-			}
-		}
-	}
-
-	return setKeywordParameters(m3(id), allAnnos);
+@doc{
+	Generic function to apply a difference over the annotations of a list of M3s.
+	The substraction is applied according to the order of the models in the list.
 }
+@memo
+M3 diffM3(loc id, list[M3] models) = modifyM3(id, models, diff);
+
+@memo
+M3 modifyM3(loc id, list[M3] models, value (&T,&T) fun) { 
+    set[str] allAnnoNames = { *domain(getKeywordParameters(m)) | m <- models };
+    map[str, value] allAnnos = ();
+    
+    for(m <- models) {
+        annos = getKeywordParameters(m);
+        
+        for(name <- allAnnoNames, name in annos) {
+        
+            if(allAnnos[name]?) {
+                try {
+                    allAnnos[name] = fun(allAnnos[name], annos[name]);
+                }
+                catch e:
+                ; // ignore
+            }
+            else {
+                allAnnos[name] = annos[name];
+            }
+        }
+    }
+    return setKeywordParameters(m3(id), allAnnos);
+}
+
 
 bool isEmpty(M3 model) = model.id.scheme == "unknown";
 

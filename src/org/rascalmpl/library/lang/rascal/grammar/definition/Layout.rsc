@@ -29,8 +29,8 @@ GrammarDefinition \layouts(GrammarDefinition def) {
 
 @doc{collects for a set of modules the names of all layout sorts and returns them as sorts for later processing} 
 set[Symbol] allLayouts(set[str] defs, GrammarDefinition def) 
-  = {sort(l) | m <- defs, /prod(layouts(str l),_,_) := def.modules[m]} 
-  + {sort(l) | m <- defs, /prod(label(_,layouts(str l)),_,_) := def.modules[m]} 
+  = {sort(l) | m <- defs, def.modules[m]?, /prod(layouts(str l),_,_) := def.modules[m]} 
+  + {sort(l) | m <- defs, def.modules[m]?, /prod(label(_,layouts(str l)),_,_) := def.modules[m]} 
   ;
 
 // TODO: The following two functions were defined local to activeLayout

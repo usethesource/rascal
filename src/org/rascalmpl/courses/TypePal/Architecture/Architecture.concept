@@ -7,16 +7,17 @@ Architectural overview of TypePal
 
 Type checking using TypePal proceeds in the following stages:
 
-* _Parse_ the program to be analyzed using its syntax definition, the result is a a parse tree;
-* _Collect_ constraints (facts, requirements and calculators) from the parsed program and build an initial `TModel` 
-  using these collected constraints; this also involves resolving
-  the semantic links between program parts as introduced by, e.g., import statements;
-* _Solve_ the constraints, the result is a validated and further enriched `TModel`.
+* _Parse_ the program to be analyzed using its syntax definition, the result is a parse tree;
+* _Collect_ constraints (facts, calculators, and requirements) from the parsed program and build an initial `TModel` 
+  using these collected constraints;
+* _Solve_ the constraints, the result is a validated and further enriched `TModel`. 
+  This amounts to executing calculators and requirements when the types on which they depend become available. 
+  This also involves resolving the semantic links between program parts as introduced by, e.g., import statements.
 
 This approach is very flexible, since each of the stages can be called separately, enabeling a pipeline with 
 user-defined model transformations inbetween.
 
-image::Architecture.png[800,800,align="center"]
+image::Architecture.png[900,900,align="center"]
 
 This whole process starts with a syntax for the language we want to analyze (let's call that language _L_ for now). 
 The _L_ syntax is used to parse the _L_ program we want to type check. The result is a parse tree.
@@ -28,10 +29,7 @@ The Collector calls user-defined `collect` functions for each language construct
 This collection process is strictly _local_ and based
 on the nested structure of the parse tree and the result is an initial `TModel`.
 
-In order to add non-local information that crosscuts the tree structure (e.g., an import statement that uses another module),
-_non-local_, _semantic paths_ are also resolved at the end of the collection phase.
-
 After the Collector phase, a `TModel` is available whose constraints can be solved (or not).
 This is done by creating a new <<Solver>> (using `newSolver`) and running it on the given `TModel`.
 
-TypePal can configured using a <<TypePal Configuration>>.
+TypePal can be configured using a <<TypePal Configuration>>.

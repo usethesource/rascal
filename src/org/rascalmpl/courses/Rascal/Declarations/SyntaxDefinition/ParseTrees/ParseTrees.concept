@@ -37,13 +37,6 @@ You can analyze and manipulate parse trees in three ways:
 
 The type of a parse tree is the symbol that it's production produces, i.e. `appl(prod(sort("A"),[],{}),[])` has type `A`. Ambiguity nodes 
 Each such a non-terminal type has `Tree` as its immediate super-type.
-
-
-[source,rascal]
-----
-include::{LibDir}ParseTree.rsc[]
-----
-
                 
 .Examples
 
@@ -52,7 +45,17 @@ include::{LibDir}ParseTree.rsc[]
 // the following definition
 syntax A = "a";
 // would make the following [Test] succeed:
-test a() = parse(#A,"a") == appl(prod(sort("A"),[lit("a")],{}),[appl(prod(lit("a"),[\char-class([range(97,97)]),[char(97)])]);
+test a() = parse(#A,"a") ==  
+appl(prod(
+    sort("A"), 
+    [lit("a")], 
+    {}),
+  [appl(
+      prod(
+        lit("a"),
+        [\char-class([range(97,97)])],
+        {}),
+      [char(97)])]);
 // you see that the defined non-terminal A ends up as the production for the outermost node. As the only child is the tree for recognizing the literal a, which is defined to be a single a from the character-class [ a ].
 ----
 

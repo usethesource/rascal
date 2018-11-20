@@ -35,7 +35,6 @@ import org.joda.time.DateTime;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
-import org.rascalmpl.library.experiments.Compiler.RascalExtraction.IRascalExtraction;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -65,7 +64,7 @@ public class Onthology {
 
     Map<Path,Concept> conceptMap;
     private IValueFactory vf;
-    private IRascalExtraction rascalExtraction;
+    private ModuleDocExtractor rascalExtraction = new ModuleDocExtractor();
     private IQuestionCompiler questionCompiler;
     private String courseName;
 
@@ -132,10 +131,10 @@ public class Onthology {
                 concept.preprocess(this, executor);
             }
             else {
-                executor.error("missing concept for " + conceptName);
+                System.err.println("missing concept for " + conceptName);
             }
         } catch (IOException e) {
-            executor.error(e.getMessage());
+            e.printStackTrace(System.err);
         }
     }
 
@@ -270,10 +269,6 @@ public class Onthology {
                 }
                 String parentName = aDir.getName(aDir.getNameCount()-2).toString();
                 Path remoteConceptName = makeConceptName(aDir);
-                if(rascalExtraction == null){
-                    // Lazily load the RascalExtraction tool
-                    rascalExtraction = Java2Rascal.Builder.bridge(vf, pcfg, IRascalExtraction.class).build();
-                }
                 ITuple extracted = rascalExtraction.extractDoc(vf.string(parentName), remoteLoc);
                 IString remoteConceptText = (IString) extracted.get(0);
                 IList declarationInfoList = (IList) extracted.get(1);
@@ -345,11 +340,9 @@ public class Onthology {
         luceneDoc.add(nameField);
 
         Field indexField = new Field("index", index + " " + name.replaceAll("/", " ").toLowerCase(), TextField.TYPE_NOT_STORED);
-        indexField.setBoost(2f);
         luceneDoc.add(indexField);
 
         Field synopsisField = new Field("synopsis", synopsis, TextField.TYPE_STORED);
-        synopsisField.setBoost(2f);
         luceneDoc.add(synopsisField);
 
         Field docField = new Field("doc", doc, TextField.TYPE_NOT_STORED);

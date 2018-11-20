@@ -42,7 +42,10 @@ We can catch this `IO` error. First import the Rascal exceptions (which are also
 [source,rascal-shell,continue,error]
 ----
 import Exception;
-try readFileLines(|myScheme:///example.rsc|); catch IO(msg): println("This did not work: <msg>");
+try 
+  readFileLines(|myScheme:///example.rsc|); 
+catch IO(msg): 
+  println("This did not work: <msg>");
 ----
 
 .Benefits

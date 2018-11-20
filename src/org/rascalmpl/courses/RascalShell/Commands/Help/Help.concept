@@ -1,18 +1,14 @@
 # Help Command
 
 .Synopsis
-Get help and search Rascal documentation, results shown in a browser.
+Get a reminder of the shell commands.
 
 .Syntax
-* `help`
-* `help _Topics_`
+* `:help`  
 
 .Description
 
-Rascal provides a help system as described in link:/GettingHelp[Getting Help].
-
-In the first form, the list of RascalShell commands is printed.
-
-In the second form, the search results for _Topics_ are shown in a browser window.
-
-Use <<Apropos Command>>, to get help results shown in the console.
+[source,rascal-shell]
+----
+:help
+----

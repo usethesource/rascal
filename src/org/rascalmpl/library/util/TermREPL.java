@@ -1,9 +1,12 @@
 package org.rascalmpl.library.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -126,7 +129,7 @@ public class TermREPL {
         }
 
         @Override
-        public void handleInput(String line, Map<String,String> output, Map<String,String> metadata) throws InterruptedException {
+        public void handleInput(String line, Map<String, InputStream> output, Map<String,String> metadata) throws InterruptedException {
             
             if (line.trim().length() == 0) {
                 // cancel command
@@ -136,6 +139,8 @@ public class TermREPL {
                 return;
             } 
             else{
+                // TODO: this could also be handled via the Content data-type, which should work 
+                // also for Salix apps...
                 IConstructor result = (IConstructor)call(handler, new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
                 if(result.has("result") && result.get("result") != null){
                     String str = ((IString)result.get("result")).getValue();
@@ -144,7 +149,7 @@ public class TermREPL {
                         if(str.startsWith("Error:"))
                             metadata.put("ERROR-LOG", "<div class = \"output_stderr\">" + str.substring("Error:".length(), str.length()) + "</div>");
                         else
-                            output.put("text/html", "<div>" + str + "</div>");
+                            output.put("text/html", stringStream("<div>" + str + "</div>"));
                     }
                 }
                 else{
@@ -153,7 +158,7 @@ public class TermREPL {
                     String scope = "salixApp" + scopeId;
                     call(this.consumerFunction, new Type[]{tf.valueType(), tf.stringType()}, new IValue[]{salixApp, vf.string(scope)});
                     String out = "<script> \n var "+ scope +" = new Salix('"+ scope +"', '" + http.getURI().toString() +"'); \n google.charts.load('current', {'packages':['corechart']}); google.charts.setOnLoadCallback(function () { registerCharts("+scope+");\n registerDagre("+scope+");\n registerTreeView("+ scope +"); \n"+ scope + ".start();});\n </script> \n <div id=\""+scope+"\"> \n </div>";
-                    output.put("text/html", out);
+                    output.put("text/html", stringStream(out));
                     this.scopeId++;
                     
                 }
@@ -172,6 +177,10 @@ public class TermREPL {
             }
         }
 
+        private InputStream stringStream(String x) {
+            return new ByteArrayInputStream(x.getBytes(StandardCharsets.UTF_8));
+        }
+        
         @Override
         public boolean supportsCompletion() {
             return true;
@@ -220,7 +229,7 @@ public class TermREPL {
         }
         
         @Override
-        public void handleReset(Map<String,String> output, Map<String,String> metadata) throws InterruptedException {
+        public void handleReset(Map<String, InputStream> output, Map<String, String> metadata) throws InterruptedException {
             // TODO: add a rascal callback for this?
             handleInput("", output, metadata);
         }

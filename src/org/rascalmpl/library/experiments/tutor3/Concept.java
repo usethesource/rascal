@@ -98,13 +98,13 @@ public class Concept {
 		return destPath.toString() + "/" + name + ("/" + getConceptBaseName()) + ".adoc";
 	}
 	
+	private String getADocFileFolder(){
+        return destPath.toString() + "/" + name;
+    }
+	
 	public String genInclude(){
 		String baseName = getConceptBaseName();
 		return "include::" + baseName + "/" + baseName + ".adoc" + "[" + baseName + "]\n";
-	}
-	
-	private String complete(String line){
-		return line + (line.endsWith(";") ? "\n" : ";\n");
 	}
 	
 	String getAttr(String line, String attr, String defaultVal){
@@ -140,8 +140,8 @@ public class Concept {
 	
 	public static String getSearchForm(){
 		return
-		"<form class=\"search-form\" id=\"searchbox\" action=\"/Search\">\n" +
-		"<input class=\"search-input\" id=\"search\" name=\"searchFor\" type=\"search\" placeholder=\"Search ...\">\n" +
+		"<form class=\"search-form\" id=\"searchbox\" action=\"/search-results.html\" method=\"get\">\n" +
+		"<input class=\"search-input\" id=\"searchFor\" name=\"searchFor\" type=\"search\" placeholder=\"Search ...\">\n" +
 		"<input class=\"search-submit\" id=\"submit\" type=\"submit\" value=\"&#10140;\" onkeypress=\"if(event.keyCode==13) {javascript:form.submit();}\">\n" +
 		"</form>\n";
 	}
@@ -150,20 +150,16 @@ public class Concept {
 	  return "<a href=\"/TutorHome/index.html\"><img id=\"home\" src=\"/images/rascal-tutor-small.png\", alt=\"RascalTutor\" width=\"64\" height=\"64\"></a>";
 	}
 	
-	private final String prompt = "rascal>"; //  "+++<span class=\"prompt\" data-value=\"rascal>\"></span>::after+++";
-	private final String continuation = ">>>>>>>"; //"<i class=\"continuation\">::before</i>";
-	
-	   
-    private String makeRed(String result){
-      StringWriter sw = new StringWriter(result.length()+5);
-      for(String s :  result.split("\n")){
-        sw.append("[error]#").append(s).append("#\n");
-      }
-      return sw.toString();
+    private String makeRed(String result) {
+        // this is tricky since # syntax is parsed using a line-by-line tokenizer.
+        // there are many many many corner cases where this might go wrong.
+        // the nbsp is there to normalize these case a bit, such that # is never directly
+        // after a \r or \n character to break the asciidoctor parser.
+        return "[error]#" + result + "&nbsp;#\n";
     }
     
-	public void preprocess(Onthology onthology, TutorCommandExecutor executor) throws IOException {
-	    assert onthology != null && executor != null;
+	public void preprocess(Onthology onthology, TutorCommandExecutor repl) throws IOException {
+	    assert onthology != null && repl != null;
 	    File adocOut = new File(getADocFileName());
 	    
 	    if (adocOut.exists() && adocOut.lastModified() > timestamp) {
@@ -225,86 +221,58 @@ public class Concept {
 						}
 					}
 					if(!isContinue){
-						executor.reset();
+						repl.reset();
 					}
 
-					executor.resetOutput();
-					preprocessOut.append("[source,rascal-shell");
-					if(mayHaveErrors){
-						preprocessOut.append("-error");
-					}
-					if(mayHaveErrors){
-					  // To enable [red] macro in generated output
-					  preprocessOut.append(",subs=\"verbatim,quotes\"");
-					}
-					preprocessOut.append("]\n").append("----\n");
+					startREPL(preprocessOut, mayHaveErrors);
+					boolean printWarning = false;
 					
-					boolean moreShellInput = true;
-					while( moreShellInput && (line = reader.readLine()) != null ) {
-						if(line.equals("```") || line.equals("----")){
+					OUTER:while ((line = reader.readLine()) != null ) {
+						if (line.equals("```") || line.equals("----")){
 							break;
 						}
-						if(isFigure){
-							if(line.startsWith("render(")){
-								preprocessOut.append(prompt).append(line).append("\n");
-								line = makeRenderSave(line, height, width, file);
-							}
-						} else {
-							preprocessOut.append(prompt).append(line).append("\n");
-							String continuationLine = "";
-							while(!executor.isStatementComplete(line)){
-								 if((continuationLine = reader.readLine()) != null){ 
-								     if(continuationLine.equals("```") || continuationLine.equals("----")){
-								    	 moreShellInput = false;
-								    	 break;
-								     }
-									 preprocessOut.append(continuation).append(continuationLine).append("\n");
-								 } else {
-									 break;
-								 }
-								 line += "\n" + continuationLine;
-							}
-							line += "\n";
+						
+						if (line.trim().startsWith("//")) {
+						    endREPL(preprocessOut);
+						    preprocessOut.append(line.trim().substring(2).trim() + "\n");
+						    while ((line = reader.readLine()) != null && line.trim().startsWith("//")) {
+						        preprocessOut.append(line.trim().substring(2).trim() + "\n");
+						        if (line.equals("```") || line.equals("----")) {
+						            break OUTER;
+						        }
+						    }
+						    startREPL(preprocessOut, mayHaveErrors);
 						}
-						String resultOutput = "";
-						boolean errorFree = true;
-						try {
-						    resultOutput = executor.evalPrint(line);
-						} catch (Throwable e){
-						  if(!mayHaveErrors){
-						    executor.error("* __" + name + "__:");
-						    executor.error("While executing '" + complete(line) + "': " + e.getMessage());
-						    executor.err.println("While compiling " + name + " this exception was thrown:");
-						    e.printStackTrace(executor.err);
-						  }
-						  
-						  preprocessOut.append(e.getMessage() != null ? makeRed(e.getMessage())
-						                                              : makeRed(e.toString())
-						                      );
-						  errorFree = false;
+						
+						preprocessOut.append(repl.getPrompt()).append(escapeForADOC(line)).append("\n");
+					
+						String resultOutput = escapeForADOC(repl.eval(line, getADocFileFolder()));
+						String errorOutput = escapeForADOC(repl.getErrorOutput());
+						String printedOutput = escapeForADOC(repl.getPrintedOutput());
+						
+						if (!printedOutput.isEmpty()){
+						    preprocessOut.append(printedOutput);
+						} 
+						
+						if (!errorOutput.isEmpty()) {
+						    if (!mayHaveErrors) {
+						        printWarning = true;
+						    }
+						    preprocessOut.append(mayHaveErrors ? makeRed(errorOutput) : errorOutput);
 						}
-
-						String messages = executor.getMessages();
-						executor.resetOutput();
-						if(messages.isEmpty()){
-						  preprocessOut.append(resultOutput.startsWith("Error") ? makeRed(resultOutput) : resultOutput);
-						} else {
-						  preprocessOut.append(messages.startsWith("Error") ? makeRed(messages) : messages);
-						  errorFree = false;
-						}
-//						if(!isFigure){
-//							if(result == null){
-//								preprocessOut.append("ok\n");
-//							} else{
-//									preprocessOut.append(result.getType().toString()).append(": ").append(result.toString()).append("\n");
-//							}
-//						}
-						if(!mayHaveErrors && !errorFree){ //(messages.contains("[error]") || messages.contains("Exception")) ){
-							executor.error("* " + name + ":");
-							executor.error(messages.trim());
+						
+						if (!resultOutput.isEmpty()) {
+						    preprocessOut.append(resultOutput);
 						}
 					}
-					preprocessOut.append("----\n");
+					
+					endREPL(preprocessOut);
+					
+					if (printWarning) {
+					    // note that the trailing space after the second # is important for the ADOC parser.
+					    preprocessOut.append("[error]#WARNING: unexpected errors in the above SHELL example. Documentation author please fix!# ");
+					}
+					
 				} else if(line.startsWith("```") || line.startsWith("[source")) {
 				  preprocessOut.append(line).append("\n");
 				  boolean inCode = false;
@@ -360,5 +328,47 @@ public class Concept {
 		}
 		CourseCompiler.writeFile(getADocFileName(), preprocessOut.toString());
 	}
+
+    private String escapeForADOC(String s) {
+        StringBuilder out = new StringBuilder(Math.max(16, s.length()));
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (c > 127) {
+                out.append("&#");
+                out.append((int) c);
+                out.append(';');
+            } 
+            else {
+                switch (c) {
+                    case '"':
+                    case '<':
+                    case '>':
+                    case '&':
+                    case '*':
+                    case '#':
+                    case '`': 
+                    case '+':
+                        out.append("&#");
+                        out.append((int) c);
+                        out.append(';');
+                        break;
+                    default:
+                        out.append(c);
+                }
+            }
+        }
+        
+        return out.toString(); 
+    }
+
+    private void endREPL(StringWriter preprocessOut) {
+        preprocessOut.append("----\n");
+    }
+
+    private void startREPL(StringWriter preprocessOut, boolean mayHaveErrors) {
+        preprocessOut.append("[source,rascal-shell");
+        preprocessOut.append(",subs=\"normal\"");
+        preprocessOut.append("]\n").append("----\n");
+    }
 
 }

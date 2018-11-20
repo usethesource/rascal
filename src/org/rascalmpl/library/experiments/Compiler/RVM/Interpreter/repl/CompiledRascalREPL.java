@@ -11,15 +11,18 @@ import java.io.Writer;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.rascalmpl.interpreter.control_exceptions.QuitException;
 import org.rascalmpl.interpreter.result.IRascalResult;
 import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.Timing;
+import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ICallableCompiledValue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
@@ -27,11 +30,11 @@ import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.BaseRascalREPL;
 import org.rascalmpl.repl.CompletionResult;
+import org.rascalmpl.repl.REPLContentServer;
 import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-import jline.Terminal;
 
 public abstract class CompiledRascalREPL extends BaseRascalREPL {
 
@@ -62,6 +65,18 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   }
   
   @Override
+  protected Function<IValue, IValue> liftProviderFunction(IValue callback) {
+      ICallableCompiledValue func = (ICallableCompiledValue) callback;
+      
+      return (t) -> 
+          func.call(
+              new Type [] { REPLContentServer.requestType }, 
+              new IValue[] { t }, 
+              Collections.emptyMap());
+  }
+  
+  
+  @Override
   protected boolean isREPLCommand(String line){
       if(line.length() > 0){
           int idx = line.indexOf(" ");
@@ -74,12 +89,12 @@ public abstract class CompiledRascalREPL extends BaseRascalREPL {
   }
   
   @Override
-  protected PrintWriter getErrorWriter() {
+  public PrintWriter getErrorWriter() {
     return executor.getStdErr();
   }
   
   @Override
-  protected PrintWriter getOutputWriter() {
+  public PrintWriter getOutputWriter() {
     return executor.getStdOut();
   }
 

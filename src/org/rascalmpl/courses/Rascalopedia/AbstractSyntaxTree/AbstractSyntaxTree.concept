@@ -29,7 +29,7 @@ the parse tree (left) and abstract syntax tree (right) may look as follows:
 
 
 
-image::{concept}/parse-ast.png[alt="parse-ast"]
+image:parse-ast.png[alt="parse-ast"]
 
 
 Note that the parse tree on the left did not preserve the spaces in the original text but there

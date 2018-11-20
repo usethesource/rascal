@@ -15,8 +15,16 @@ Static type checking.
 image::type-lattice.png[width=400,title="Type Lattice"]
 
 .Description
-Rascal is based on static typing, this means that as many errors and inconsistencies as possible are spotted before the program is executed. 
-The types are ordered in a so-called _type lattice_ shown in the figure above.
+
+Rascal has a static and a dynamic type system, which interact with eachother. The static type system is used by a type checker (not yet released) to predict errors and give warnings where possibly slipups have been made. The dynamic type system ensures well-formedness of data structures and plays an important role while pattern matching, since many algorithms dispatch on the types of values.
+
+Rascal's static type system does not ensure that all functions will go right:
+   * functions may throw exceptions.
+   * functions may not be defined for the specific pattern which occur on the call site.
+
+However, the static type system will produce an error when a function will certainly throw an exception, or when it is certainly not defined for a certain case. Also it catches some logical tautologies and contradictions which would lead to dead code.
+
+The Rascal types are ordered in a so-called _type lattice_ shown in the figure above.
 
 The arrows describe a _subtype-of_ relation between types. The type `void` is the _smallest_ type and 
 is included in all other types and the type `value` is the _largest_ type that includes all other types. 

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FilterWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
@@ -18,6 +19,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.Ansi.Color;
+import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.util.PathConfig;
@@ -156,16 +158,16 @@ public class BaseREPL {
      * @throws InterruptedException throw this exception to stop the REPL (instead of calling .stop())
      */
     protected void handleInput(String line) throws InterruptedException {
-        Map<String,String> output = new HashMap<>();
+        Map<String, InputStream> output = new HashMap<>();
         
         language.handleInput(line, output, new HashMap<>());
         
         // TODO: maybe we can do this cleaner, but this works for now
-        String out = output.get("text/plain");
+        InputStream out = output.get("text/plain");
         
         if (out != null) {
             try {
-                reader.print(out);
+                reader.print(Prelude.consumeInputStream(new InputStreamReader(out)));
                 reader.flush();
             }
             catch (IOException e) {
@@ -177,7 +179,7 @@ public class BaseREPL {
      * If a line is canceled with ctrl-C this method is called too handle the reset in the child-class.
      * @throws InterruptedException throw this exception to stop the REPL (instead of calling .stop())
      */
-    protected void handleReset(Map<String,String> output, Map<String,String> metadata) throws InterruptedException {
+    protected void handleReset(Map<String, InputStream> output, Map<String, String> metadata) throws InterruptedException {
         language.handleReset(output, metadata);
     }
 
@@ -319,22 +321,24 @@ public class BaseREPL {
 
             }
         }
-        catch (IOException e) {
+        catch (InterruptedException e) {
+            // we are closing down, so do nothing, the finally clause will take care of it
+        }
+        catch (Throwable e) {
             try (PrintWriter err = new PrintWriter(stdErr, true)) {
-                err.println("REPL Failed: ");
+                err.println("Unexpected (uncaught) exception, closing the REPL: ");
                 if (!err.checkError()) {
+                    err.print(e.toString());
                     e.printStackTrace(err);
                 }
                 else {
+                    System.err.print(e.toString());
                     e.printStackTrace();
                 }
                 err.flush();
-                stdErr.flush();
             }
+            stdErr.flush();
             throw e;
-        }
-        catch (InterruptedException e) {
-            // we are closing down, so do nothing, the finally clause will take care of it
         }
         finally {
             reader.getOutput().flush();
@@ -343,7 +347,7 @@ public class BaseREPL {
                 ShutdownHooks.remove(historyFlusher);
                 history.flush();
             }
-            reader.shutdown();
+            reader.close();
         }
     }
 
@@ -376,7 +380,7 @@ public class BaseREPL {
     public void stop() {
         language.stop();
         keepRunning = false;
-        reader.shutdown();
+        reader.close();
     }
     
     public Terminal getTerminal() {

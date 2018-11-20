@@ -259,7 +259,7 @@ private str convertRestLine(str line){
         if(imOpts != ""){
            imOpts += ",";
         }
-        insert "\nimage::{concept}/<file>[<imOpts>alt=\"<alt>\"]\n";
+        insert "\nimage:<file>[<imOpts>alt=\"<alt>\"]\n";
     }
     
    };
