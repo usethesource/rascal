@@ -5,7 +5,7 @@ Illegal operation on an empty map.
 
 .Syntax
 
-.Types
+.Types 
 `data RuntimeException = EmptyMap();`
        
 .Usage
