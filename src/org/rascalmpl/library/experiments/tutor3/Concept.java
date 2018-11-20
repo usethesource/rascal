@@ -230,7 +230,7 @@ public class Concept {
 						
 						if (line.trim().startsWith("//")) {
 						    endREPL(preprocessOut);
-						    preprocessOut.append(line.trim().substring(2) + "\n");
+						    preprocessOut.append(line.trim().substring(2).trim() + "\n");
 						    while ((line = reader.readLine()) != null && line.trim().startsWith("//")) {
 						        preprocessOut.append(line.trim().substring(2).trim() + "\n");
 						        if (line.equals("```") || line.equals("----")) {
