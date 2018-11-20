@@ -1,13 +1,14 @@
 # Patterns
 
 .Synopsis
-
-Patterns are a notation for pattern matching used to detect if a value has a certain shape, and then bind variables to parts
-of the matched value. 
+Patterns are a notation for pattern matching used to detect if a value has a certain shape, 
+and then to bind variables to parts of the matched value. 
 
 .Syntax
 
-At least or each of the <<Values>>, there is a corresponding pattern match operator, and then some more:
+For most of the <<Values>>, there is a corresponding pattern matching operator. Then there are
+some "higher-order" matching operators which make complex patterns out of simpler ones. 
+This is the complete list:
  
 |====
 | Pattern              | Syntax                                                                      

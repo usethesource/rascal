@@ -53,6 +53,8 @@ public M3 composeJavaM3(loc id, set[M3] models) {
   return m;
 }
 
+public M3 diffJavaM3(loc id, list[M3] models) = diffM3(id, models);
+
 public M3 link(M3 projectModel, set[M3] libraryModels) {
   projectModel.declarations = { <name[authority=projectModel.id.authority], src> | <name, src> <- projectModel.declarations };
   for (libraryModel <- libraryModels) {
@@ -86,6 +88,10 @@ public java M3 createM3FromString(loc fileName, str contents, bool errorRecovery
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect
 public java M3 createM3FromJarClass(loc jarClass);
+
+@javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
+@reflect
+public java M3 createM3FromSingleClass(loc jarClass, str className);
 
 @javaClass{org.rascalmpl.library.lang.java.m3.internal.EclipseJavaCompiler}
 @reflect

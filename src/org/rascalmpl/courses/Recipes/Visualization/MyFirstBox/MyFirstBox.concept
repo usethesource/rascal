@@ -25,12 +25,12 @@ render(b);
 ----
 and it will look like this:
 
-image::{concept}/b1.png[alt="Box 1"]
+image:b1.png[alt="Box 1"]
  or rather, it will look like this:
 
 
 
-image::{concept}/Screenshot1.png[alt="Screenshot 1"]
+image:Screenshot1.png[alt="Screenshot 1"]
 
 
 Wow, the box fills the whole window! So lets give our box a link:/Libraries#Properties-size[size]:
