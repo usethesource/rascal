@@ -1,5 +1,6 @@
 package org.rascalmpl.shell;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -7,28 +8,29 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
+import java.util.Map;
 
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.repl.BaseREPL;
 import org.rascalmpl.repl.ILanguageProtocol;
 import org.rascalmpl.repl.RascalInterpreterREPL;
+import org.rascalmpl.uri.URIUtil;
 
 import jline.Terminal;
 
 public class REPLRunner extends BaseREPL  implements ShellRunner {
-
-  private static File getHistoryFile() throws IOException {
-    File home = new File(System.getProperty("user.home"));
-    File rascal = new File(home, ".rascal");
-    if (!rascal.exists()) {
-      rascal.mkdirs();
+    private static File getHistoryFile() throws IOException {
+        File home = new File(System.getProperty("user.home"));
+        File rascal = new File(home, ".rascal");
+        if (!rascal.exists()) {
+            rascal.mkdirs();
+        }
+        File historyFile = new File(rascal, ".repl-history-rascal-terminal");
+        if (!historyFile.exists()) {
+            historyFile.createNewFile();
+        }
+        return historyFile;
     }
-    File historyFile = new File(rascal, ".repl-history-rascal-terminal");
-    if (!historyFile.exists()) {
-      historyFile.createNewFile();
-    }
-    return historyFile;
-  }
 
   public REPLRunner(InputStream stdin, OutputStream stdout, Terminal term)  throws IOException, URISyntaxException{
     super(makeInterpreter(stdin, stdout, true, term.isAnsiSupported(), false, getHistoryFile(), term), null, stdin, stdout, true, term.isAnsiSupported(), getHistoryFile(), term, null);
@@ -42,7 +44,28 @@ public class REPLRunner extends BaseREPL  implements ShellRunner {
     RascalInterpreterREPL repl = new RascalInterpreterREPL(stdin, stdout, prettyPrompt, allowColors, htmlOutput, getHistoryFile()) {
         @Override
         protected Evaluator constructEvaluator(Writer stdout, Writer stderr) {
-          return ShellEvaluatorFactory.getDefaultEvaluator(new PrintWriter(stdout), new PrintWriter(stderr));
+            return ShellEvaluatorFactory.getDefaultEvaluator(new PrintWriter(stdout), new PrintWriter(stderr));
+        }
+
+        @Override
+        public void handleInput(String line, Map<String, InputStream> output, Map<String, String> metadata)
+            throws InterruptedException {
+            super.handleInput(line, output, metadata);
+            
+            if (Desktop.isDesktopSupported()) {
+                for (String mimetype : output.keySet()) {
+                    if (!mimetype.contains("html") && !mimetype.startsWith("image/")) {
+                        continue;
+                    }
+
+                    try {
+                        Desktop.getDesktop().browse(URIUtil.assumeCorrect(metadata.get("url")));
+                    }
+                    catch (IOException e) {
+                        getErrorWriter().println("failed to display content: " + e.getMessage());
+                    }
+                }
+            }
         }
     };
     
@@ -51,11 +74,10 @@ public class REPLRunner extends BaseREPL  implements ShellRunner {
     return repl;
   }
 
-
-
   @Override
   public void run(String[] args) throws IOException {
     // there are no args for now
     run();
   }
+
 }
