@@ -1,18 +1,23 @@
 package org.rascalmpl.repl;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -29,14 +34,18 @@ import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
+import fi.iki.elonen.NanoHTTPD.Method;
+import fi.iki.elonen.NanoHTTPD.Response;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 
 public abstract class BaseRascalREPL implements ILanguageProtocol {
+    
     protected enum State {
         FRESH,
         CONTINUATION,
@@ -58,8 +67,8 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     private final boolean htmlOutput;
     private final boolean allowColors;
     private final static IValueFactory VF = ValueFactoryFactory.getValueFactory();
-
-
+    protected final REPLContentServer contentServer = REPLContentServer.startContentServer();
+    
     public BaseRascalREPL(boolean prettyPrompt, boolean allowColors, boolean htmlOutput) throws IOException, URISyntaxException {
         this.htmlOutput = htmlOutput;
         this.allowColors = allowColors;
@@ -76,9 +85,14 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
     public String getPrompt() {
         return currentPrompt;
     }
+    
+    private InputStream stringStream(String x) {
+        return new ByteArrayInputStream(x.getBytes(StandardCharsets.UTF_8));
+    }
+    
 
     @Override
-    public void handleInput(String line, Map<String, String> output, Map<String, String> metadata)  throws InterruptedException {
+    public void handleInput(String line, Map<String, InputStream> output, Map<String, String> metadata) throws InterruptedException {
         assert line != null;
 
         try {
@@ -119,14 +133,12 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
             getErrorWriter().println("Internal error: ambiguous command: " + TreeAdapter.yield(e.getTree()));
             return;
         }
-        
     }
 
     @Override
-    public void handleReset(Map<String,String> output, Map<String,String> metadata) throws InterruptedException {
+    public void handleReset(Map<String,InputStream> output, Map<String,String> metadata) throws InterruptedException {
         handleInput("", output, metadata);
     }
-
 
     @FunctionalInterface
     public interface IOConsumer<T> {
@@ -138,13 +150,22 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         void finishOutput();
     }
     
-    protected void printResult(IRascalResult result, Map<String,String> output, Map<String, String> metadata) throws IOException {
+    protected void printResult(IRascalResult result, Map<String, InputStream> output, Map<String, String> metadata) throws IOException {
         String mimeType = "text/" + (htmlOutput ? "html" : "plain");
+        
+        // either we have no output at all:
         if (result == null || result.getValue() == null) {
-            output.put(mimeType, "ok\n");
+            output.put(mimeType, stringStream("ok\n"));
+            return;
+        }
+        
+        // or we have output wrapped in a content wrapper:
+        if (result.getType().isSubtypeOf(RascalValueFactory.Content)) {
+            serveContent(result, output, metadata);
             return;
         }
        
+        // otherwise we have simple output to print on the REPL in either text/html or text/plain format:
         final StringWriter out = new StringWriter();
 
         OutputWriter writer;
@@ -177,17 +198,35 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
                 }
             };
         }
-
+       
         writeOutput(result, writer);
 
         if (out.getBuffer().length() == 0) {
-            output.put(mimeType, "ok\n");
+            output.put(mimeType, stringStream("ok\n"));
         }
         else {
-            output.put(mimeType, out.toString());
+            output.put(mimeType, stringStream(out.toString()));
         }
+    }
+
+    private void serveContent(IRascalResult result, Map<String, InputStream> output, Map<String, String> metadata)
+        throws IOException {
+        IConstructor provider = (IConstructor) result.getValue();
+        String id = ((IString) provider.get("id")).getValue();
+        Function<IValue, IValue> target = liftProviderFunction(provider.get("callback"));
+        
+        // this installs the provider such that subsequent requests are handled.
+        contentServer.registerContentProvider(id, target);
+        
+        // now we need some HTML to show
+        Response response = contentServer.serve("/" + id, Method.GET, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+        metadata.put("url", "http://localhost:" + contentServer.getListeningPort() + "/" + id);
+        output.put(response.getMimeType(), response.getData());
+        output.put("text/plain", stringStream("ok\n"));
     }            
         
+    abstract protected Function<IValue, IValue> liftProviderFunction(IValue callback);
+
     private void writeOutput(IRascalResult result, OutputWriter target) throws IOException {
         IValue value = result.getValue();
         Type type = result.getType();

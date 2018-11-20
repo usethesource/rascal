@@ -571,6 +571,11 @@ Also see <<readFileLinesEnc>>.
 public java str readFileEnc(loc file, str charset)
 throws PathNotFound(loc file), IO(str msg);
 
+@javaClass{org.rascalmpl.library.Prelude}
+public java str uuencode(loc file)
+throws PathNotFound(loc file), IO(str msg);
+
+
 @doc{
 .Synopsis
 Read the contents of a file and return it as a list of bytes.
