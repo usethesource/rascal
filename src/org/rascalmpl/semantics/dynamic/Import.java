@@ -590,7 +590,7 @@ public abstract class Import {
         AbstractFunction parseFunction = getConcreteSyntaxParseFunction(eval, env, abstractDataType.getName());
         try {
             SortedMap<Integer,Integer> corrections = new TreeMap<>();
-            String input = replaceAntiQuotesByHolesExternal(eval, env, lit, antiquotes, corrections);
+            String input = replaceAntiQuotesByHoles(eval, env, lit, antiquotes, corrections, true);
             Result<IValue> result = parseFunction.call(new Type[] {TypeFactory.getInstance().stringType()}, new IValue[] {eval.getValueFactory().string(input)}, null);
             IValue ret = replaceHolesByAntiQuotesExternal(eval, (IConstructor) result.getValue(), antiquotes, corrections);
             return ((IRascalValueFactory) eval.getValueFactory()).quote((INode) ret);
@@ -614,14 +614,14 @@ public abstract class Import {
       UPTRNodeFactory nodeFactory = new UPTRNodeFactory(false);
     
       SortedMap<Integer,Integer> corrections = new TreeMap<>();
-      char[] input = replaceAntiQuotesByHoles(eval, lit, antiquotes, corrections);
+      String input = replaceAntiQuotesByHoles(eval, env, lit, antiquotes, corrections, false);
       
-      ITree fragment = (ITree) parser.parse(parserMethodName, uri.getURI(), input, converter, nodeFactory);
+      ITree fragment = (ITree) parser.parse(parserMethodName, uri.getURI(), input.toCharArray(), converter, nodeFactory);
       
       // Adjust locations before replacing the holes back to the original anti-quotes,
       // since these anti-quotes already have the right location (!).
       fragment = (ITree) fragment.accept(new AdjustLocations(corrections, eval.getValueFactory()));
-      fragment = replaceHolesByAntiQuotes(eval, fragment, antiquotes, corrections);
+      fragment = replaceHolesByAntiQuotesInternal(eval, fragment, antiquotes, corrections);
       
       
       IConstructor prod = TreeAdapter.getProduction(tree);
@@ -732,8 +732,8 @@ public abstract class Import {
     }
   }
   
-  private static char[] replaceAntiQuotesByHoles(IEvaluator<Result<IValue>> eval, 
-  		ITree lit, Map<String, ITree> antiquotes, SortedMap<Integer, Integer> corrections ) {
+  private static String replaceAntiQuotesByHoles(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, ITree lit,
+      Map antiquotes, SortedMap<Integer, Integer> corrections, boolean isExternal) {
     IList parts = TreeAdapter.getArgs(lit);
     StringBuilder b = new StringBuilder();
     
@@ -778,7 +778,7 @@ public abstract class Import {
       	b.append('\\');
       }
       else if (cons.equals("hole")) {
-        String hole = createHole(eval, part, antiquotes);
+        String hole = isExternal ? createExternalHole(eval, env, part, antiquotes) : createInternalHole(eval, part, antiquotes);
         shift += partLen - hole.length();
 				offset += hole.length();
 				corrections.put(offset, shift);
@@ -786,65 +786,9 @@ public abstract class Import {
       }
     }
     
-    return b.toString().toCharArray();
+    return b.toString();
   }
   
-    private static String replaceAntiQuotesByHolesExternal(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, ITree lit,
-        Map<IValue, ITree> antiquotes, SortedMap<Integer, Integer> corrections) {
-        IList parts = TreeAdapter.getArgs(lit);
-        StringBuilder b = new StringBuilder();
-
-        ISourceLocation loc = TreeAdapter.getLocation(lit);
-        int offset = 0; // where we are in the parse tree
-
-        // 012345
-        // (Exp)`a \> b` parses as "a > b"
-        // this means the loc of > must be shifted right (e.g. + 1)
-        // (so we *add* to shift when something bigger becomes smaller)
-        int shift = loc.getOffset(); // where we need to be in the location
-        corrections.put(offset, shift);
-
-        for (IValue elem : parts) {
-            ITree part = (ITree) elem;
-            String cons = TreeAdapter.getConstructorName(part);
-
-            int partLen = TreeAdapter.getLocation(part).getLength();
-            if (cons.equals("text")) {
-                offset += partLen;
-                b.append(TreeAdapter.yield(part));
-            }
-            else if (cons.equals("newline")) {
-                shift += partLen - 1;
-                corrections.put(++offset, shift);
-                b.append('\n');
-            }
-            else if (cons.equals("lt")) {
-                corrections.put(++offset, ++shift);
-                b.append('<');
-            }
-            else if (cons.equals("gt")) {
-                corrections.put(++offset, ++shift);
-                b.append('>');
-            }
-            else if (cons.equals("bq")) {
-                corrections.put(++offset, ++shift);
-                b.append('`');
-            }
-            else if (cons.equals("bs")) {
-                corrections.put(++offset, ++shift);
-                b.append('\\');
-            }
-            else if (cons.equals("hole")) {
-                String hole = createExternalHole(eval, env, part, antiquotes);
-                shift += partLen - hole.length();
-                offset += hole.length();
-                corrections.put(offset, shift);
-                b.append(hole);
-            }
-        }
-        return b.toString();
-    }
-
     private static String createExternalHole(IEvaluator<Result<IValue>> ctx, ModuleEnvironment env, ITree part, Map<IValue, ITree> antiquotes) {
         ITree subTree = (ITree) TreeAdapter.getArgs(part).get(0);
         subTree = (ITree) TreeAdapter.getArgs(subTree).get(2);
@@ -895,7 +839,7 @@ public abstract class Import {
         return functions.get(0);
     }
 
-  private static String createHole(IEvaluator<Result<IValue>> ctx, ITree part, Map<String, ITree> antiquotes) {
+  private static String createInternalHole(IEvaluator<Result<IValue>> ctx, ITree part, Map<String, ITree> antiquotes) {
     String ph = ctx.getParserGenerator().createHole(part, antiquotes.size());
     antiquotes.put(ph, part);
     return ph;
@@ -928,7 +872,7 @@ public abstract class Import {
         });
     }
 
-  private static ITree replaceHolesByAntiQuotes(final IEvaluator<Result<IValue>> eval, ITree fragment, 
+  private static ITree replaceHolesByAntiQuotesInternal(final IEvaluator<Result<IValue>> eval, ITree fragment, 
   		final Map<String, ITree> antiquotes, final SortedMap<Integer,Integer> corrections) {
       return (ITree) fragment.accept(new IdentityTreeVisitor<ImplementationError>() {
         private final IValueFactory vf = eval.getValueFactory();
