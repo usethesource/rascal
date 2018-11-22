@@ -273,6 +273,7 @@ public class Concept {
             preprocessOut.append(repl.getPrompt()).append(escapeForADOC(line)).append("\n");
         
             String resultOutput = escapeForADOC(repl.eval(line, getADocFileFolder()));
+            String htmlOutput = repl.getHTMLOutput();
             String errorOutput = escapeForADOC(repl.getErrorOutput());
             String printedOutput = escapeForADOC(repl.getPrintedOutput());
             
@@ -285,6 +286,15 @@ public class Concept {
                     printWarning = true;
                 }
                 preprocessOut.append(mayHaveErrors ? makeRed(errorOutput) : errorOutput);
+            }
+            
+            if (!htmlOutput.isEmpty()) {
+                endREPL(preprocessOut);
+                preprocessOut.append("[example]\n====");
+                preprocessOut.append("\n++++\n");
+                preprocessOut.append(htmlOutput);
+                preprocessOut.append("\n++++\n====\n");
+                startREPL(preprocessOut, mayHaveErrors);
             }
             
             if (!resultOutput.isEmpty()) {
@@ -328,17 +338,17 @@ public class Concept {
     private void preprocessCodeBlock(BufferedReader reader, StringWriter preprocessOut, String line)
         throws IOException {
         preprocessOut.append(line).append("\n");
-          boolean inCode = false;
-          while((line = reader.readLine()) != null ) {
+        boolean inCode = false;
+        while((line = reader.readLine()) != null ) {
             preprocessOut.append(line).append("\n");
             if(line.equals("```") || line.equals("----")){
-              if(inCode){
-                break;
-              } else {
-                inCode = true;
-              }
+                if(inCode){
+                    break;
+                } else {
+                    inCode = true;
+                }
             }
-          }
+        }
     }
 
     private void generateSubTableOfContents(Onthology onthology, StringWriter preprocessOut, String line,
@@ -368,6 +378,7 @@ public class Concept {
             } 
             else {
                 switch (c) {
+                    case '\\':
                     case '"':
                     case '<':
                     case '>':

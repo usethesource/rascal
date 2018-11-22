@@ -6,6 +6,12 @@ See examples below.
 
 # Examples
 
+[source,rascal-shell]
+----
+import Content;
+html("hello", "this is some \<strong\>HTML\</strong\> output")
+----
+
 * _emphasis_
 * __bold__
 * [Rascal Web site](http:///rascal-mpl.org)
