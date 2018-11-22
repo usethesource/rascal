@@ -199,9 +199,8 @@ public class TutorCommandExecutor {
     
     public String getHTMLOutput() {
         try {
-            flushErrors();
             String result = shellHTMLOutput.toString("utf8");
-            resetErrors();
+            resetHTML();
             return result;
         }
         catch (UnsupportedEncodingException e) {
