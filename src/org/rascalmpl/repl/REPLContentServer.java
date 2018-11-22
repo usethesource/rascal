@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
@@ -100,8 +102,16 @@ public class REPLContentServer extends NanoHTTPD {
         }
     }
 
-    private Response handleGeneralThrowable(Throwable actualException) {
-        return newFixedLengthResponse(Status.NOT_FOUND, MIME_HTML, actualException.getMessage());
+    private Response handleGeneralThrowable(Throwable e) {
+        StringWriter str = new StringWriter(); 
+        PrintWriter print = new PrintWriter(str);
+        
+        print.append("Exception while serving content:</br>");
+        print.append("<pre>");
+        e.printStackTrace(print);
+        print.append("</pre>");
+        print.flush();
+        return newFixedLengthResponse(Status.NOT_FOUND, MIME_HTML, str.toString());
     }
 
     private IConstructor makeRequest(String path, Method method, Map<String, String> headers,
