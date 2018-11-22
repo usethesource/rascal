@@ -49,7 +49,7 @@ public class TutorCommandExecutor {
             }
         };
 
-        repl.initialize(new OutputStreamWriter(shellStandardOutput, "utf8"), new OutputStreamWriter(shellErrorOutput, "utf8"));
+        repl.initialize(new OutputStreamWriter(shellStandardOutput, "utf8"), new OutputStreamWriter(shellErrorOutput, StandardCharsets.UTF_8.name()));
         repl.setMeasureCommandTime(false); 
     }
 
@@ -176,7 +176,7 @@ public class TutorCommandExecutor {
     public String getPrintedOutput() throws UnsupportedEncodingException{
         try {
             flushOutput();
-            String result = shellStandardOutput.toString("utf8");
+            String result = shellStandardOutput.toString(StandardCharsets.UTF_8.name());
             resetOutput();
             return result;
         }
@@ -188,7 +188,7 @@ public class TutorCommandExecutor {
     public String getErrorOutput() {
         try {
             flushErrors();
-            String result = shellErrorOutput.toString("utf8");
+            String result = shellErrorOutput.toString(StandardCharsets.UTF_8.name());
             resetErrors();
             return result;
         }
@@ -199,7 +199,7 @@ public class TutorCommandExecutor {
     
     public String getHTMLOutput() {
         try {
-            String result = shellHTMLOutput.toString("utf8");
+            String result = shellHTMLOutput.toString(StandardCharsets.UTF_8.name());
             resetHTML();
             return result;
         }
