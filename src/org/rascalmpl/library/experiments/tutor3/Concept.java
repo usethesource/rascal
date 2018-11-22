@@ -290,8 +290,7 @@ public class Concept {
             
             if (!htmlOutput.isEmpty()) {
                 endREPL(preprocessOut);
-                preprocessOut.append("[example]\n====");
-                preprocessOut.append("\n++++\n");
+                preprocessOut.append("[example]\n====\n++++\n");
                 preprocessOut.append(htmlOutput);
                 preprocessOut.append("\n++++\n====\n");
                 startREPL(preprocessOut, mayHaveErrors);
