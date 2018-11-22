@@ -222,7 +222,6 @@ public abstract class BaseRascalREPL implements ILanguageProtocol {
         Response response = contentServer.serve("/" + id, Method.GET, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
         metadata.put("url", "http://localhost:" + contentServer.getListeningPort() + "/" + id);
         output.put(response.getMimeType(), response.getData());
-        output.put("text/plain", stringStream("ok\n"));
     }            
         
     abstract protected Function<IValue, IValue> liftProviderFunction(IValue callback);
