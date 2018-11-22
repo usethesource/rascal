@@ -10,11 +10,11 @@ See examples below.
 ----
 import Content;
 html("hello", "this is some \<strong\>HTML\</strong\> output")
-file("image", |home:///git/rascal-eclipse-ide/rascal-eclipse/icons/rascal3D_2-groot.png|)
+file("image", |https://www.rascal-mpl.org/assets/ico/favicon.png|)
 ----
 
 * _emphasis_
-* __bold__
+* *bold*
 * http:///rascal-mpl.org[Rascal Web site]
 * <<CallAnalysis>> 
 * Table:
