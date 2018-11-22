@@ -89,11 +89,11 @@ public class REPLContentServer extends NanoHTTPD {
                 }
             }
 
-            return newFixedLengthResponse(Status.NOT_FOUND, MIME_PLAINTEXT, "no content provider found for " + uri);
+            return newFixedLengthResponse(Status.NOT_FOUND, MIME_HTML, "no content provider found for " + uri);
         }
         catch (CancellationException e) {
             stop();
-            return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, "Shutting down!");
+            return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_HTML, "Shutting down!");
         }
         catch (Throwable t) {
             return handleGeneralThrowable(t);
@@ -101,7 +101,7 @@ public class REPLContentServer extends NanoHTTPD {
     }
 
     private Response handleGeneralThrowable(Throwable actualException) {
-        return newFixedLengthResponse(Status.INTERNAL_ERROR, MIME_PLAINTEXT, actualException.getMessage());
+        return newFixedLengthResponse(Status.NOT_FOUND, MIME_HTML, actualException.getMessage());
     }
 
     private IConstructor makeRequest(String path, Method method, Map<String, String> headers,

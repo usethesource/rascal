@@ -158,7 +158,7 @@ public class TutorCommandExecutor {
 
     private String dumpMimetypeFile(String imagePath, InputStream input, String mimeType)
         throws IOException, FileNotFoundException {
-        String imageFile = imagePath + "/" + UUID.randomUUID() + "." + mimeType.split("/")[1];
+        File imageFile = new File(imagePath + "/" + UUID.randomUUID() + "." + mimeType.split("/")[1]);
         try (OutputStream file = new FileOutputStream(imageFile)) {
             byte[] buf = new byte[512];
             int read = -1;
@@ -166,7 +166,7 @@ public class TutorCommandExecutor {
                 file.write(buf, 0, read);
             }
         }
-        return imageFile;
+        return imageFile.getName();
     }
 
     public boolean isStatementComplete(String line){
