@@ -8,7 +8,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
-import java.io.Writer;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
@@ -17,7 +16,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.regex.Matcher;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -28,23 +28,19 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiReader;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
-import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
-import org.rascalmpl.library.experiments.tutor3.Concept;
 import org.rascalmpl.library.experiments.tutor3.Onthology;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
-import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 
+import fi.iki.elonen.NanoHTTPD;
 import io.usethesource.vallang.ISourceLocation;
 
 public class HelpManager {
@@ -63,7 +59,7 @@ public class HelpManager {
     private final HelpServer helpServer;
     private final IDEServices ideServices;
 
-    public HelpManager(ISourceLocation compiledCourses, PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices) throws IOException {
+    public HelpManager(ISourceLocation compiledCourses, PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices, boolean asDaemon) throws IOException {
         this.pcfg = pcfg;
         this.stdout = stdout;
         this.stderr = stderr;
@@ -71,11 +67,11 @@ public class HelpManager {
 
         coursesDir = compiledCourses;
 
-        helpServer = startServer(stderr);
+        helpServer = startServer(stderr, asDaemon);
         port = helpServer.getPort();
     }
 
-    public HelpManager(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices) throws IOException {
+    public HelpManager(PathConfig pcfg, PrintWriter stdout, PrintWriter stderr, IDEServices ideServices, boolean asDaemon) throws IOException {
       this.pcfg = pcfg;
       this.stdout = stdout;
       this.stderr = stderr;
@@ -83,16 +79,17 @@ public class HelpManager {
      
       coursesDir = URIUtil.correctLocation("boot", "", "/courses");
 
-      helpServer = startServer(stderr);
+      helpServer = startServer(stderr, asDaemon);
       port = helpServer.getPort();
     }
 
-    private HelpServer startServer(PrintWriter stderr) throws IOException {
+    private HelpServer startServer(PrintWriter stderr, boolean asDaemon) throws IOException {
         HelpServer helpServer = null;
 
         for(int port = BASE_PORT; port < BASE_PORT+ATTEMPTS; port++){
             try {
                 helpServer = new HelpServer(port, this, coursesDir);
+                helpServer.start(NanoHTTPD.SOCKET_READ_TIMEOUT, asDaemon);
                 // success!
                 break;
             } catch (IOException e) {
@@ -206,11 +203,6 @@ public class HelpManager {
 	    return BAD_QUERY_CHARS.matcher(s.toLowerCase()).replaceAll("\\\\$1");
 	}
 	
-	private String escapeHtml(String s){
-		// TODO: switch to StringEscapeUtils when compiled inside Eclipse
-		return s;
-	}
-	
 	private URI makeSearchURI(String[] words) throws URISyntaxException, UnsupportedEncodingException{
 		String encoded = URLEncoder.encode(Arrays.stream(words).skip(1).collect(Collectors.joining()), "UTF-8");
 		return URIUtil.create("http", "localhost:" + getPort(), "/search-results.html", "searchFor=" + encoded, "");
@@ -232,13 +224,24 @@ public class HelpManager {
 		}
 	}
 	
+    private static final String[] fields = new String[] {"index", "synopsis", "doc"};
+    private static final Map<String, Float> boosts;
+    static {
+        boosts = new HashMap<>();
+        boosts.put("index", 2f);
+        boosts.put("synopsis", 2f);
+    }
+
+
+    private static MultiFieldQueryParser buildQueryParser(Analyzer analyzer) {
+        return new MultiFieldQueryParser(fields, analyzer, boosts);
+    }
+	
 	private ScoreDoc[] search(String[] words) {
 		try {
             if (indexSearcher != null) {
-                Analyzer multiFieldAnalyzer = Onthology.multiFieldAnalyzer();
                 String query = Arrays.stream(words).map(HelpManager::escapeForQuery).collect(Collectors.joining(" "));
-                QueryParser parser  = new MultiFieldQueryParser(new String[] {"index", "synopsis", "doc"}, multiFieldAnalyzer);
-                return indexSearcher.search(parser.parse(query), maxSearch).scoreDocs;
+                return indexSearcher.search(buildQueryParser(Onthology.multiFieldAnalyzer()).parse(query), maxSearch).scoreDocs;
             }
             return new ScoreDoc[0];
 		} catch (ParseException | IOException e) {
