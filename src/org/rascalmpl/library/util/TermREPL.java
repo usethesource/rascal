@@ -1,9 +1,12 @@
 package org.rascalmpl.library.util;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -109,12 +112,12 @@ public class TermREPL {
         }
 
         @Override
-        public void handleInput(String line, Map<String,String> output, Map<String,String> metadata) throws InterruptedException {
+        public void handleInput(String line, Map<String, InputStream> output, Map<String,String> metadata) throws InterruptedException {
             ITuple result = (ITuple)call(handler, new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
             String str = ((IString)result.get(0)).getValue();
             // TODO: change the signature of the handler
             if(!str.equals(""))
-                output.put("text/html", str);
+                output.put("text/html", stringStream(str));
 
             IList messages = (IList) result.get(1);
             for (IValue v: messages) {
@@ -124,6 +127,10 @@ public class TermREPL {
             }
         }
 
+        private InputStream stringStream(String x) {
+            return new ByteArrayInputStream(x.getBytes(StandardCharsets.UTF_8));
+        }
+        
         @Override
         public boolean supportsCompletion() {
             return true;
@@ -172,7 +179,7 @@ public class TermREPL {
         }
         
         @Override
-        public void handleReset(Map<String,String> output, Map<String,String> metadata) throws InterruptedException {
+        public void handleReset(Map<String, InputStream> output, Map<String, String> metadata) throws InterruptedException {
             // TODO: add a rascal callback for this?
             handleInput("", output, metadata);
         }
