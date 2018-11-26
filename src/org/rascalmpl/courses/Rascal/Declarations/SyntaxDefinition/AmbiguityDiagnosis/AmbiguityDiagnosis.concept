@@ -20,7 +20,7 @@ Please read <<Disambiguation>> first.
 .Examples
 [source,rascal]
 ----
-import Ambiguity;
+import analysis::grammars::Ambiguity;
 diagnose(t); // for any t of which you know it contains an ambiguity
 ----
 

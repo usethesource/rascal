@@ -346,13 +346,13 @@ public class CourseCompiler {
 			}
 		}
 		
-		FileVisitor<Path> fileProcessor = new RemoveAdocs();
-		try {
-			Files.walkFileTree(destPath, fileProcessor);
-		} catch (IOException e) {
-		    // TODO: handle file issue (one file failed) with proper error handling mechanism.
-		    System.err.println(e.getMessage());
-		}
+//		FileVisitor<Path> fileProcessor = new RemoveAdocs();
+//		try {
+//			Files.walkFileTree(destPath, fileProcessor);
+//		} catch (IOException e) {
+//		    // TODO: handle file issue (one file failed) with proper error handling mechanism.
+//		    System.err.println(e.getMessage());
+//		}
 
 		long duration = System.nanoTime() - startTime;
 		System.err.println(String.format("Course compilation done after %,d ms\n", TimeUnit.NANOSECONDS.toMillis(duration)));
