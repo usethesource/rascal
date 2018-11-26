@@ -144,7 +144,8 @@ public class CourseCompiler {
 	}
 	
     public static void compileCourse(Asciidoctor dr, Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
-        copyStandardFilesPerCourse(srcPath, courseName, destPath);
+        ISourceLocation absLoc = URIUtil.correctLocation("file", "", destPath.toFile().getAbsolutePath());
+        copyStandardFilesPerCourse(courseName, absLoc);
 
         Onthology o = new Onthology(srcPath, courseName, destPath, libSrcPath, pcfg, executor);
 
@@ -156,7 +157,8 @@ public class CourseCompiler {
     
     public static void compileCourseCommand(String classpath, Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
         assert executor != null;
-        copyStandardFilesPerCourse(srcPath, courseName, destPath);
+        ISourceLocation absLoc = URIUtil.correctLocation("file", "", destPath.toFile().getAbsolutePath());
+        copyStandardFilesPerCourse(courseName, absLoc);
 
         Onthology o = new Onthology(srcPath, courseName, destPath, libSrcPath, pcfg, executor);
 
@@ -166,22 +168,27 @@ public class CourseCompiler {
         runAsciiDoctorCommand(classpath, srcPath, courseName, destPath, new PrintWriter(System.err));
     }
 	
-	private static void copyStandardFilesPerCourse(Path srcPath, String courseName, Path destPath) throws IOException {
+	private static void copyStandardFilesPerCourse(String courseName, ISourceLocation destPath) throws IOException {
 		ArrayList<String> files  = new ArrayList<>();
+		URIResolverRegistry reg = URIResolverRegistry.getInstance();
 		
 		files.add("docinfo.html");
-		Path coursePath = destPath.resolve(courseName);
-		if(!Files.exists(coursePath)){
-			Files.createDirectories(coursePath);
+		ISourceLocation coursePath = URIUtil.getChildLocation(destPath, courseName);
+		
+		if(!reg.exists(coursePath)){
+			reg.mkDirectory(coursePath);
 		}
+		
+		ISourceLocation srcPath = URIUtil.correctLocation("courses", "", "");
+		
 		for(String file : files){
-			Path src = srcPath.resolve(file);
-			Path dest = coursePath.resolve(file);
-			Path parent = dest.getParent();
-			if(!Files.exists(parent)){
-				Files.createDirectories(parent);
+			ISourceLocation src = URIUtil.getChildLocation(srcPath, file);
+			ISourceLocation dest = URIUtil.getChildLocation(coursePath, file);
+			ISourceLocation parent = URIUtil.getParentLocation(dest);
+			if(!reg.exists(parent)){
+				reg.mkDirectory(parent);
 			}
-			Files.copy(src, dest, REPLACE_EXISTING);
+			reg.copy(src, dest);
 		}
 	}
 	
