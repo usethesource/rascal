@@ -138,21 +138,23 @@ public class TermREPL {
                 currentPrompt = ReadEvalPrintDialogMessages.PROMPT;
                 return;
             } 
-            else{
+            else {
                 // TODO: this could also be handled via the Content data-type, which should work 
                 // also for Salix apps...
                 IConstructor result = (IConstructor)call(handler, new Type[] { tf.stringType() }, new IValue[] { vf.string(line) });
-                if(result.has("result") && result.get("result") != null){
+                if(result.has("result") && result.get("result") != null) {
                     String str = ((IString)result.get("result")).getValue();
                     // TODO: change the signature of the handler
-                    if(!str.equals("")){
-                        if(str.startsWith("Error:"))
+                    if(!str.equals("")) {
+                        if(str.startsWith("Error:")) {
                             metadata.put("ERROR-LOG", "<div class = \"output_stderr\">" + str.substring("Error:".length(), str.length()) + "</div>");
-                        else
+                        }
+                        else {
                             output.put("text/html", stringStream("<div>" + str + "</div>"));
+                        }
                     }
                 }
-                else{
+                else {
                     // Handle a Salix result
                     ICallableValue salixApp = (ICallableValue) result.get("salixApp");
                     String scope = "salixApp" + scopeId;
@@ -163,15 +165,16 @@ public class TermREPL {
                     
                 }
                 // FIXME: Fix it, CommandResult is no longer a tuple
-//                IWithKeywordParameters<? extends IConstructor> rr = result.asWithKeywordParameters();
-//                IValue pp = rr.getParameter("messages");
-//                rr.hasParameter("messages");
-                if(result.asWithKeywordParameters().hasParameter("messages")){
+                // IWithKeywordParameters<? extends IConstructor> rr = result.asWithKeywordParameters();
+                // IValue pp = rr.getParameter("messages");
+                // rr.hasParameter("messages");
+                if(result.asWithKeywordParameters().hasParameter("messages")) {
                     IList messages = (IList) result.asWithKeywordParameters().getParameter("messages");
                     for (IValue v: messages) {
                         IConstructor msg = (IConstructor) v;
-                        if(msg.getName().equals("error"))
+                        if(msg.getName().equals("error")) {
                             stderr.write( ((IString) msg.get("msg")).getValue());
+                        }
                     }
                 }
             }
