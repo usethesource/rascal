@@ -39,9 +39,10 @@ import java.util.regex.Pattern;
 import org.rascalmpl.unicode.UnicodeInputStreamReader;
 import org.rascalmpl.unicode.UnicodeOffsetLengthReader;
 import org.rascalmpl.uri.classloaders.IClassloaderLocationResolver;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class URIResolverRegistry {
 	private static final String RESOLVERS_CONFIG = "org/rascalmpl/uri/resolvers.config";
@@ -466,6 +467,18 @@ public class URIResolverRegistry {
 			throw new UnsupportedSchemeException(uri.getScheme());
 		}
 		return resolver.list(uri);
+	}
+	
+	public void copy(ISourceLocation source, ISourceLocation target) throws IOException {
+	    try (InputStream from = URIResolverRegistry.getInstance().getInputStream(source)) {
+	        try (OutputStream to = URIResolverRegistry.getInstance().getOutputStream(target, false)) {
+	            final byte[] buffer = new byte[512];
+	            int read;
+	            while ((read = from.read(buffer, 0, buffer.length)) != -1) {
+	                to.write(buffer, 0, read);
+	            }
+	        }
+	    }
 	}
 	
 	public ISourceLocation[] list(ISourceLocation uri) throws IOException {
