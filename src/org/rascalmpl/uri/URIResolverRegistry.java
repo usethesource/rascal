@@ -45,6 +45,7 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
 
 public class URIResolverRegistry {
+    private static final int FILE_BUFFER_SIZE = 8 * 1024;
 	private static final String RESOLVERS_CONFIG = "org/rascalmpl/uri/resolvers.config";
     private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private final Map<String,ISourceLocationInput> inputResolvers = new HashMap<>();
@@ -472,7 +473,7 @@ public class URIResolverRegistry {
 	public void copy(ISourceLocation source, ISourceLocation target) throws IOException {
 	    try (InputStream from = URIResolverRegistry.getInstance().getInputStream(source)) {
 	        try (OutputStream to = URIResolverRegistry.getInstance().getOutputStream(target, false)) {
-	            final byte[] buffer = new byte[512];
+	            final byte[] buffer = new byte[FILE_BUFFER_SIZE];
 	            int read;
 	            while ((read = from.read(buffer, 0, buffer.length)) != -1) {
 	                to.write(buffer, 0, read);
