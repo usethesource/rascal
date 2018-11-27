@@ -595,6 +595,12 @@ public class ASTBuilder {
                 liftExternalRec(it.getKey()), liftExternalRec(it.getValue()))));
             return new org.rascalmpl.semantics.dynamic.Expression.Map(loc, null, elements);
         }
+        
+        if (value instanceof ITuple) {
+            List<Expression> elements = new ArrayList<>();
+            ((ITuple) value).iterator().forEachRemaining(it -> elements.add(liftExternalRec(it)));
+            return new Tuple(loc, null, elements);
+        }
 
         if (value instanceof IConstructor) {
             IConstructor constructor = (IConstructor) value;
