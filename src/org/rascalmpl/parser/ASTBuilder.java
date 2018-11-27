@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.BooleanLiteral;
@@ -31,9 +32,11 @@ import org.rascalmpl.ast.Commands;
 import org.rascalmpl.ast.DecimalIntegerLiteral;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.ast.Expression.SplicePlus;
+import org.rascalmpl.ast.KeywordArgument_Expression;
 import org.rascalmpl.ast.KeywordArguments_Expression;
 import org.rascalmpl.ast.Mapping_Expression;
 import org.rascalmpl.ast.Module;
+import org.rascalmpl.ast.OptionalComma;
 import org.rascalmpl.ast.RationalLiteral;
 import org.rascalmpl.ast.RealLiteral;
 import org.rascalmpl.ast.Statement;
@@ -47,6 +50,7 @@ import org.rascalmpl.parser.gtd.util.PointerKeyedHashMap;
 import org.rascalmpl.semantics.dynamic.Expression.CallOrTree;
 import org.rascalmpl.semantics.dynamic.Expression.Set;
 import org.rascalmpl.semantics.dynamic.Expression.Splice;
+import org.rascalmpl.semantics.dynamic.Expression.Tuple;
 import org.rascalmpl.semantics.dynamic.Expression.TypedVariable;
 import org.rascalmpl.semantics.dynamic.IntegerLiteral;
 import org.rascalmpl.semantics.dynamic.Literal;
@@ -61,6 +65,7 @@ import org.rascalmpl.semantics.dynamic.QualifiedName.Default;
 import org.rascalmpl.semantics.dynamic.Tree;
 import org.rascalmpl.semantics.dynamic.Type.User;
 import org.rascalmpl.semantics.dynamic.UserType;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -79,7 +84,9 @@ import io.usethesource.vallang.IReal;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
 
@@ -478,7 +485,7 @@ public class ASTBuilder {
     }
 
     private Expression liftExternalRec(IValue value) {
-        ISourceLocation loc = ValueFactoryFactory.getValueFactory().sourceLocation("unknown:///");
+        ISourceLocation loc = URIUtil.rootLocation("unknown");
 
         if (value instanceof IBool) {
             BooleanLiteral.Lexical booleanLexical =
@@ -614,9 +621,22 @@ public class ASTBuilder {
 
             List<Expression> args = new ArrayList<>();
             constructor.iterator().forEachRemaining(it -> args.add(liftExternalRec(it)));
+            
+            KeywordArguments_Expression kwArgsExpression;
+            Map<String, IValue> kwparams = constructor.asWithKeywordParameters().getParameters();
+            if (kwparams.isEmpty()) {
+                kwArgsExpression = new KeywordArguments_Expression.None(loc, constructor);
+            } else {
+                List<KeywordArgument_Expression> keywordArgumentList = new ArrayList<>();
+                kwparams.forEach((key, val) -> {
+                    keywordArgumentList.add(new KeywordArgument_Expression.Default(loc, constructor, new Name.Lexical(loc, null, key),
+                        liftExternalRec(val)));
+                });
+                kwArgsExpression = new KeywordArguments_Expression.Default(loc, constructor,
+                    new OptionalComma.Lexical(loc, constructor, ","), keywordArgumentList);
+            }
 
-            return new CallOrTree(loc, constructor, qualifiedNameExpression, args,
-                new KeywordArguments_Expression.None(loc, constructor));
+            return new CallOrTree(loc, constructor, qualifiedNameExpression, args, kwArgsExpression);
         }
 
         throw new IllegalArgumentException(
