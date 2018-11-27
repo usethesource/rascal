@@ -593,8 +593,11 @@ public abstract class Import {
             SortedMap<Integer,Integer> corrections = new TreeMap<>();
             String input = replaceAntiQuotesByHoles(eval, env, lit, antiquotes, corrections, true);
             Result<IValue> result = parseFunction.call(new Type[] {TypeFactory.getInstance().stringType()}, new IValue[] {eval.getValueFactory().string(input)}, null);
-            IValue ret = replaceHolesByAntiQuotesExternal(eval, (IConstructor) result.getValue(), antiquotes, corrections);
-            return ((IRascalValueFactory) eval.getValueFactory()).quote((INode) ret);
+            INode ret = (INode) replaceHolesByAntiQuotesExternal(eval, (IConstructor) result.getValue(), antiquotes, corrections);
+            if (ret.mayHaveKeywordParameters() && env.getKeywordParameterTypes(((IConstructor) ret).getConstructorType()).keySet().contains("src")) {
+                ret = ret.asWithKeywordParameters().setParameter("src", TreeAdapter.getLocation(tree));
+            }
+            return ((IRascalValueFactory) eval.getValueFactory()).quote(ret);
         } catch (ParseError e) {
             eval.getMonitor().warning("Could not create hole for " + name, eval.getCurrentAST().getLocation());
             return (ITree) tree.asAnnotatable().setAnnotation("Could not create hole", eval.getCurrentAST().getLocation());
