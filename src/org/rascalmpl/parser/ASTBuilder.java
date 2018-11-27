@@ -514,13 +514,25 @@ public class ASTBuilder {
 
         if (value instanceof ISourceLocation) {
             ISourceLocation location = (ISourceLocation) value;
-            ProtocolPart.NonInterpolated protocolPart = new ProtocolPart.NonInterpolated(loc, (ITree) value,
-                new ProtocolChars.Lexical(loc, null, "|" + location.getScheme()));
+            ProtocolPart.NonInterpolated protocolPart = new ProtocolPart.NonInterpolated(loc, null,
+                new ProtocolChars.Lexical(loc, null, "|" + location.getScheme() + "://"));
             PathPart.NonInterpolated pathPart = new PathPart.NonInterpolated(location, null,
-                new PathChars.Lexical(loc, null, location.getAuthority() + location.getPath()));
-            Literal.Location literal = new Literal.Location(loc, (ITree) value,
+                new PathChars.Lexical(loc, null, location.getAuthority() + location.getPath() + "|"));
+            Literal.Location literal = new Literal.Location(loc, null,
                 new LocationLiteral.Default(loc, null, protocolPart, pathPart));
-            return new org.rascalmpl.semantics.dynamic.Expression.Literal(location, null, literal);
+            Expression.Literal locLiteral = new org.rascalmpl.semantics.dynamic.Expression.Literal(location, null, literal);
+            if (location.hasOffsetLength()) {
+                IValueFactory vf = ValueFactoryFactory.getValueFactory();
+                List<Expression> locArgs = new ArrayList<>();
+                locArgs.add(liftExternalRec(vf.integer(location.getOffset())));
+                locArgs.add(liftExternalRec(vf.integer(location.getLength())));
+                if (location.hasLineColumn()) {
+                    locArgs.add(liftExternalRec(vf.tuple(vf.integer(location.getBeginLine()), vf.integer(location.getBeginColumn()))));
+                    locArgs.add(liftExternalRec(vf.tuple(vf.integer(location.getEndLine()), vf.integer(location.getEndColumn())))); 
+                }
+                return new CallOrTree(loc, null, locLiteral, locArgs, new KeywordArguments_Expression.None(loc, null));
+            }
+            return locLiteral;
         }
 
         if (value instanceof IString) {
