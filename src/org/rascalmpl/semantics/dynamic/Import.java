@@ -594,7 +594,7 @@ public abstract class Import {
             String input = replaceAntiQuotesByHoles(eval, env, lit, antiquotes, corrections, true);
             Result<IValue> result = parseFunction.call(new Type[] {TypeFactory.getInstance().stringType()}, new IValue[] {eval.getValueFactory().string(input)}, null);
             INode ret = (INode) replaceHolesByAntiQuotesExternal(eval, (IConstructor) result.getValue(), antiquotes, corrections);
-            if (ret.mayHaveKeywordParameters() && env.getKeywordParameterTypes(((IConstructor) ret).getConstructorType()).keySet().contains("src")) {
+            if (ret.mayHaveKeywordParameters() && env.getKeywordParameterTypes(((IConstructor) ret).getConstructorType()).keySet().contains("src") && antiquotes.isEmpty()) {
                 ret = ret.asWithKeywordParameters().setParameter("src", TreeAdapter.getLocation(tree));
             }
             return ((IRascalValueFactory) eval.getValueFactory()).quote(ret);
