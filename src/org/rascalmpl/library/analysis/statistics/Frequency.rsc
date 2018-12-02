@@ -11,8 +11,13 @@ Frequency distributions.
 
 .Description
 
-The following functions are provided:
-loctoc::[1]
+Counting the frequency of events is usually the first step in statistical analysis of raw data.
+It involves choosing what are the events to count, how to group them in certain
+categories and then quickly counting the frequency of each occurring event. 
+
+This module helps by providing commonly used functions for the purpose of counting events.
+The output of these functions can be used to draw (cumulative) histograms, or they can
+directly be used for further statistical processing and visualisation. 
 }
 module analysis::statistics::Frequency
 
