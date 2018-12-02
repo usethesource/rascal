@@ -111,7 +111,6 @@ cumPct(D, 2);
 cumPct(D, 10);
 ----
 }
- 
 @javaClass{org.rascalmpl.library.analysis.statistics.Frequencies}
 public java num cumPct(list[value] values, num n);
 
@@ -135,7 +134,6 @@ pct(D, 10);
 ----
 
 }
-
 @javaClass{org.rascalmpl.library.analysis.statistics.Frequencies}
 public java num pct(list[value] values, num n);
 
