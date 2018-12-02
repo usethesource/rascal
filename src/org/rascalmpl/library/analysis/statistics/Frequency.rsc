@@ -83,7 +83,6 @@ Returns 0 if the value is not comparable to the values set.
 [source,rascal-shell]
 ----
 import analysis::statistics::Frequency;
-
 D = [1, 2, 1, 1, 3, 5];
 cumFreq(D, 1);
 cumFreq(D, 2);
