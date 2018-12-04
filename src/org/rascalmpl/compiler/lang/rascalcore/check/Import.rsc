@@ -22,6 +22,7 @@ import util::Reflective;
 import analysis::graphs::Graph;
 
 import lang::rascal::\syntax::Rascal;
+import lang::rascalcore::grammar::definition::Grammar;
 
 public str key_bom = "bill_of_materials";
 public str key_current_module = "current_module";
@@ -230,16 +231,20 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         
         m1.facts = (key : tm.facts[key] | key <- tm.facts, any(fms <- filteredModuleScopes, containedIn(key, fms)));
         if(tm.config.logImports) println("facts: <size(tm.facts)>  ==\> <size(m1.facts)>");
-        
+        //println("tm.specializedFacts:"); iprintln(tm.specializedFacts);
         m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, any(fms <- filteredModuleScopes, containedIn(key, fms)));
-     
+        //println("m1.specializedFacts:"); iprintln(m1.specializedFacts);
         m1.messages = [msg | msg <- tm.messages, msg.at.path == mscope.path];
+        
+        no_errors = isEmpty(m1.messages) || !any(msg <- m1.messages, error(_,_) := msg);
         
         filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
         
         m1.scopes = (inner : tm.scopes[inner] | loc inner <- tm.scopes, inner.path in filteredModuleScopePaths);
                
-        m1.store = (key_bom : bom);
+        m1.store = no_errors ? (key_bom : bom, "grammar" : tm.store["grammar"], "ADTs" : tm.store["ADTs"])
+                             : (key_bom : bom, "grammar" : grammar({}, ()), "ADTs" : {});
+        
         m1.paths = { tup | tuple[loc from, PathRole pathRole, loc to] tup <- m1.paths, tup.from == mscope };
         //m1.paths = domainR(tm.paths, {mscope});
         
@@ -287,6 +292,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         if(tm.config.logImports) println("defines: <size(tm.defines)> ==\> <size(defs)>");
         m1.defines = toSet(defs);
         m1 = visit(m1) {case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""]; };
+        m1.definitions = ( def.defined : def | Define def <- m1.defines);  // TODO this is derived info, can we derive it later?
         
         //calcs = (key : tm.calculators[key] | loc key <- tm.calculators, key.path == mscope.path, bprintln("<key>: <tm.calculators[key]>"));
         //
