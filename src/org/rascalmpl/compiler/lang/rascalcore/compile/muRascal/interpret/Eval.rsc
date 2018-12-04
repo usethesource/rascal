@@ -5,11 +5,22 @@ import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 import List;
 import Set;
+import String;
 import Map;
 import Node;
 import IO;
 import Type;
 import util::Reflective;
+
+import lang::rascalcore::compile::muRascal::interpret::RValue;
+import lang::rascalcore::compile::muRascal::interpret::Env;
+import lang::rascalcore::compile::muRascal::interpret::Writers;
+import lang::rascalcore::compile::muRascal::interpret::Iterators;
+import lang::rascalcore::compile::muRascal::interpret::Constructors;
+import lang::rascalcore::compile::muRascal::interpret::Primitives;
+import  lang::rascalcore::compile::muRascal::interpret::Visitors;
+
+import lang::rascalcore::compile::muRascal::interpret::JavaGen;
 
 data DoControl
      = doReturn(RValue v, Env env)
@@ -17,116 +28,19 @@ data DoControl
      | doBreak(str label, Env env)
      | doContinue(str label, Env env)
      | doFail(str label, Env env)
+     | doLeave(str label, RValue val, Env env)
+     | doSucceed(str label, Env env)
+     | doInsert(RValue val, Env env)
      ;
-    
-data RValue
-     = undefined()
-     | rvalue(value val)
-     | rtype(AType tp)
-     ;
- 
- RValue rvalue(rvalue(v)) = rvalue(v);
-         
-// ---- Environments and variables --------------------------------------------
-
-alias Frame  = tuple[str frameName, list[RValue] stack, map[str,RValue] temporaries];
-alias Env    = list[Frame];
-alias Result = tuple[RValue val, Env env];
 
 bool debug = false;
-
-// get/assign variables 
-
-RValue getVariable(str name, str fuid, int pos, Env env){
-    for(<str frameName, list[RValue] stack, map[str,RValue] temporaries> <- env){
-        if(fuid == frameName){
-            return stack[pos];
-        }
-    }
-    throw "getVariable: <name>";
-}
-
-Result assignVariable(str name, str fuid, int pos, RValue v, Env env){
-    for(int i <- index(env)){
-        <frameName, stack, temporaries> = env[i];
-        if(fuid == frameName){
-            stack[pos] = v;
-            res = <v, env[0 .. i] + <frameName, stack, temporaries> + env[i+1 ..]>;
-            return res;
-        }
-    }
-    throw "assignVariable: <name>";
-}
-
-// get/assign temporaries
-
-RValue getTmp(str name, str fuid, Env env){
-    for(<str frameName, list[RValue] stack, map[str,RValue] temporaries> <- env){
-        if(fuid == frameName){
-            return temporaries[name];
-        }
-    }
-    throw "getTmp: <name>";
-}
-
-Result assignTmp(str name, str fuid, RValue v, Env env){
-    for(int i <- index(env)){
-        <frameName, stack, temporaries> = env[i];
-        if(fuid == frameName){
-            temporaries[name] = v;
-            res = <v, env[0 .. i] + <frameName, stack, temporaries> + env[i+1 ..]>;
-            return res;
-        }
-    }
-    throw "assignTmp: <name>";
-}
-
-// get/Assign keyword parameters
-
-Result getKwp(str name, str fuid, Env env){
-    for(<str frameName, list[RValue] stack, map[str,RValue] temporaries> <- env){
-        if(fuid == frameName){
-            nargs = muFunctions[fuid].nlocals;
-            ikwactuals = nargs - 2;
-            ikwdefaults = nargs - 1;
-            if(rvalue(map[str, RValue] kwactuals) := stack[ikwactuals] &&
-               rvalue(map[str, tuple[AType, RValue]] kwdefaults) := stack[ikwdefaults]){
-               if(kwactuals[name]?) return <kwactuals[name], env>;
-               return <kwdefaults[name]<1>, env>;
-            } else {
-                throw "getKwp, wrong stack values: <stack>";
-            }
-        }
-    }
-    throw "getKwp: <name>, <fuid>";
-}
-
-Result assignKwp(str name, str fuid, RValue v, Env env){
-    for(int i <- index(env)){
-        <frameName, stack, temporaries> = env[i];
-        if(fuid == frameName){
-            nargs = muFunctions[fuid].nlocals;
-            ikwactuals = nargs - 2;
-            if(rvalue(map[str,RValue] mp) := stack[ikwactuals]){
-                mp[name] = v;
-                stack[ikwactuals] = rvalue(mp);
-                res = <v, env[0 .. i] + <frameName, stack, temporaries> + env[i+1 ..]>;
-                return res;
-            } else {
-                throw "assignKwp: illegal kwactuals: <stack>";
-            }
-        }
-    }
-    throw "assignVariable: <name>";
-}
-
-
 
 // ---- eval ------------------------------------------------------------------
 
 map[str, MuFunction] muFunctions = ();
 lrel[str name, AType funType, str scope, list[str] ofunctions, list[str] oconstructors] overloadedFunctions = [];
 
+// ---- muModule --------------------------------------------------------------
 
 RValue eval(MuModule m){
     muFunctions = (f.qname : f | f <- m.functions);
@@ -134,7 +48,7 @@ RValue eval(MuModule m){
     main_fun = "";
     for(f <- m.functions){
         if(f.uqname == "main") {
-            env = [];
+            env = environment((), []);
             <result, env> = call(f, [], env);
             return result;
         }
@@ -142,25 +56,252 @@ RValue eval(MuModule m){
     throw "No function `main` found";
 }
 
+map[str,str] resolved2overloaded = ();
+
+JCode trans(MuModule m){
+    muFunctions = (f.qname : f | f <- m.functions);
+    overloadedFunctions = m.overloaded_functions;
+    jg = makeJGenie();
+    <typestore, kwpDecls> = generateTypeStore(m.ADTs, m.constructors);
+    resolvers = "";
+    for(overload:<str name, AType funType, str oname, list[str] ofunctions, list[str] oconstructors> <- overloadedFunctions){
+        if(size(ofunctions) == 1 && size(oconstructors) == 0 || size(ofunctions) == 0 && size(oconstructors) == 1){
+            resolved2overloaded[oname] = oname;
+        } else {
+            resolved2overloaded[oname] = name;
+            resolvers += genResolver(overload, jg);
+        }
+    }
+  
+    className = split("::", m.name)[-1];
+    res =  "package <replaceAll(m.name, "::", ".")>;
+    
+           'import java.util.*;
+           'import io.usethesource.vallang.*;
+           'import io.usethesource.vallang.type.*;
+           'import shared.Maps;
+           'import shared.ValueFactoryFactory;
+           '
+           'class <className> {
+           '    static IValueFactory $VF = ValueFactoryFactory.getInstance();
+           '    <typestore>
+           '    <for(var <- m.module_variables){>
+           '    <trans(var, jg)><}>
+           '
+           '    <className>(){
+           '        <kwpDecls>
+           '        <for(exp <- m.initialization){>
+           '            <trans(exp, jg)>;
+           '        <}>
+           '    }
+           '    <resolvers>
+           '    <for(f <- m.functions){>
+           '    <trans(f, jg)>
+           '    <}>
+           '    <jg.getConstants()>
+           '}";
+      return removeEmptyLines(res);
+}
+
+str removeEmptyLines(str s){
+    return visit(s) { case /^\n[ ]*\n/ => "\n" };
+}
+
+tuple[str,str] generateTypeStore(set[AType] ADTs, set[AType] constructors){
+    adtDecls = "";
+    for(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) <- ADTs){
+        adtDecls += "static Type <adtName> = $TF.abstractDataType($TS, \"<adtName>\");\n";
+    }
+    consDecls = "";
+    kwpDecls = "";
+    for(c: acons(AType adt, list[AType] fields, list[Keyword] kwFields) <- constructors){
+        adt_cons = "<adt.adtName>_<c.label>";
+        fieldDecls = [ "<atype2typestore(fld)>, \"<fld.label>\"" | fld <- fields ];
+        consDecls += "static Type <adt_cons> = $TF.constructor($TS, <adt.adtName>, \"<c.label>\"<isEmpty(fieldDecls) ? "" : ", <intercalate(", ", fieldDecls)>">);\n";
+        for(kwField <- kwFields){
+            kwpDecls += "$TS.declareKeywordParameter(<adt_cons>,\"<kwField.fieldType.label>\", <atype2typestore(kwField.fieldType)>);\n";
+        }
+    }
+    return <"static TypeFactory $TF = TypeFactory.getInstance();
+            'static TypeStore $TS = new TypeStore();
+            '<adtDecls>
+            '<consDecls>
+            '",
+            kwpDecls>;
+}
+
+
+// ---- muModuleVar ----------------------------------------------------------
+
+JCode trans(MuModuleVar var, JGenie jg){
+       return "<atype2java(var.atype)> <var.name>;";
+}
+
+// ---- muFunction ------------------------------------------------------------
+
+bool constantDefaults(lrel[str name, AType atype, MuExp defaultExp] kwpDefaults){
+    return all(<str name, AType atype, MuExp defaultExp> <- kwpDefaults, muCon(_) := defaultExp);
+}
+
+JCode trans(MuFunction fun, JGenie jg){
+    ftype = fun.ftype;
+    qname = replaceAll(fun.qname, "::", "_");
+    uncheckedWarning = "";
+    if(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := ftype){
+        returnType = atype2java(ftype.ret);
+        argTypes = intercalate(", ", ["<atype2java(f)> <f.label>" | i <- index(ftype.formals), f := ftype.formals[i]]);
+        kwpActuals = "Map\<String,?\> $kwpActuals";
+        kwpDefaults = fun.kwpDefaults;
+        constantKwpDefaults = "";
+        nonConstantKwpDefaults = "";
+        mapCode = "Maps.builder()<for(<str key, AType tp, MuExp defaultExp> <- kwpDefaults){>.key(\"<key>\").value(<trans(defaultExp,jg)>)<}>.build();\n";
+        if(!isEmpty(kwFormals)){
+            uncheckedWarning = "@SuppressWarnings(\"unchecked\")";
+            argTypes = isEmpty(argTypes) ? kwpActuals : "<argTypes>, <kwpActuals>";
+            if(constantDefaults(kwpDefaults)){
+                kwpDefaultsName = "<qname>_$kwpDefaults";
+                jg.setKwpDefaults(kwpDefaultsName);
+                constantKwpDefaults = "final Map\<String,?\> <kwpDefaultsName> = <mapCode>";
+             } else {
+                jg.setKwpDefaults("$kwpDefaults");
+                nonConstantKwpDefaults =  "Map\<String,?\> $kwpDefaults = <mapCode>";
+             }   
+        }
+        return "<constantKwpDefaults>
+               '<uncheckedWarning>
+               '<returnType> <qname>(<argTypes>){
+               '      <nonConstantKwpDefaults>
+               '    <trans(fun.body, jg)>
+               '}";
+    } else
+    if(acons(AType adt, list[AType] fields, list[Keyword] kwFields) := ftype){
+        returnType = "IConstructor";
+        argTypes = intercalate(", ", ["<atype2java(f)> <f.label>" | f <- ftype.fields]);
+        kwpActuals = "Map\<String,?\> $kwpActuals";
+        kwpDefaults = fun.kwpDefaults;
+        constantKwpDefaults = "";
+        nonConstantKwpDefaults = "";
+        mapCode = "Maps.builder()<for(<str key, AType tp, MuExp defaultExp> <- kwpDefaults){>.key(\"<key>\").value(<trans(defaultExp,jg)>)<}>.build();\n";
+        if(!isEmpty(kwFields)){
+            uncheckedWarning = "@SuppressWarnings(\"unchecked\")";
+            argTypes = isEmpty(argTypes) ? kwpActuals : "<argTypes>, <kwpActuals>";
+            if(constantDefaults(kwpDefaults)){
+                kwpDefaultsName = "<qname>_$kwpDefaults";
+                jg.setKwpDefaults(kwpDefaultsName);
+                constantKwpDefaults = "final Map\<String,?\> <kwpDefaultsName> = <mapCode>";
+             } else {
+                jg.setKwpDefaults("$kwpDefaults");
+                nonConstantKwpDefaults =  "Map\<String,?\> $kwpDefaults = <mapCode>";
+             }   
+        }
+        return "<constantKwpDefaults>
+               '<uncheckedWarning>
+               '<returnType> <qname>(<argTypes>){
+               '     <nonConstantKwpDefaults>
+               '     <trans(fun.body, jg)>
+               '}";
+    } else
+        throw "trans MuFunction: <ftype>";
+}
+
+JCode makeCall(AType resolverFunType, str of, JGenie jg){
+    muFun = muFunctions[of];
+    funType = muFun.ftype;
+    kwpActuals = "Map\<String,?\> $kwpActuals";
+    if(any(int i <- index(funType.formals), funType.formals[i] != resolverFunType.formals[i])){
+        conds = [];
+        actuals = [];
+        for(int i <- index(resolverFunType.formals)){
+            if(unsetRec(funType.formals[i]) != resolverFunType.formals[i]){
+                conds += "<resolverFunType.formals[i].label>$<i> instanceof <atype2java(funType.formals[i])>";
+                actuals += "(<atype2java(funType.formals[i])>) <resolverFunType.formals[i].label>$<i>";
+            } else {
+                actuals += "<resolverFunType.formals[i].label>$<i>";
+            }
+        } 
+        if(!isEmpty(funType.kwFormals)){
+            actuals = isEmpty(actuals) ? [kwpActuals] : actuals + kwpActuals;
+        }
+        base_call = "res = <replaceAll(of, "::", "_")>(<intercalate(", ", actuals)>);
+                    'if(res != null) return res;
+                    '";
+        if(isEmpty(conds)){
+            return base_call;
+        } else {
+            return "if(<intercalate(" && ", conds)>){
+                   '    <base_call>
+                   '}
+                   '";
+        }
+    } else {
+        args = intercalate(", ", ["<f.label>$<i>" | i <- index(funType.formals), f := funType.formals[i]]);
+        return "res = <replaceAll(of, "::", "_")>(<args>);
+               'if(res != null) return res;
+               '";
+    }
+}
+
+JCode genResolver(tuple[str name, AType funType, str scope, list[str] ofunctions, list[str] oconstructors] overload, JGenie jg){
+   funType = overload.funType;
+   anyKwParams = any(ovl <- overload.ofunctions + overload.oconstructors, hasKeywordParameters(muFunctions[ovl].ftype));
+   returnType = atype2java(funType.ret);
+   argTypes = intercalate(", ", ["<atype2java(f)> <f.label>$<i>" | i <- index(funType.formals), f := funType.formals[i]]);
+   if(anyKwParams){
+        kwpActuals = "Map\<String,?\> $kwpActuals";
+        argTypes = isEmpty(argTypes) ? kwpActuals : "<argTypes>, <kwpActuals>";
+   }
+   signature = "<returnType> <replaceAll(overload.name, "::", "_")>(<argTypes>)";
+   calls = "<returnType> res = null;\n";
+   for(of <-overload.ofunctions){
+        calls += makeCall(funType, of, jg);
+   }
+   return "<signature>{
+          '    <calls>
+          '    throw new RuntimeException(\"Cannot resolve call to <overload.name>\");
+          '}
+          '";
+}
+
 Result call(MuFunction fun, list[RValue] actuals, Env env){
     stack = [undefined() | i <- [0..fun.nlocals+1]];
     for(int i <- index(actuals)) stack[i] = actuals[i];
     try {
         if(debug) println("call <fun.qname>, <stack>");
-        <result, env1> = eval(fun.body, <fun.qname, stack, ()> + env);
+        <result, env1> = eval(fun.body, environment(env.moduleVars, <fun.qname, stack, ()> + env.frames));
         return <result, tail(env)>;
     } catch doReturn(RValue v, Env env1):
-        return <v, tail(env1)>;
+        return <v, environment(env1.moduleVars, tail(env1.frames))>;
 }
 
+JCode call(MuFunction fun, list[str] actuals, JGenie jg){
+    return "<fun.qname>(<intercalate(", ", actuals)>);";
+}
+
+// Constants
+
+// ---- muBool ----------------------------------------------------------------
+
 Result eval(muBool(b), Env env)                                 // muRascal Boolean constant
-    = <rvalue(b), env>;        
+    = <rvalue(b), env>; 
+    
+JCode trans(muBool(b), JGenie jg) = "<b>"; 
+
+// ---- muInt -----------------------------------------------------------------      
                                       
 Result eval(muInt(int n), Env env)                              // muRascal integer constant
-    = <rvalue(n), env>;                                          
+    = <rvalue(n), env>; 
 
-Result eval(muCon(value v), Env env)                           // Rascal Constant: an arbitrary IRValue
-    = <rvalue(v), env>;                                          
+JCode trans(muInt(int n), JGenie jg) = "<n>";  
+
+// ---- muCon -----------------------------------------------------------------                                       
+
+Result eval(muCon(value v), Env env)                            // Rascal Constant: an arbitrary IValue
+    = <rvalue(v), env>; 
+    
+JCode trans(muCon(value v), JGenie jg) = jg.shareConstant(v);
+    
+Result eval(muTypeCon(AType tp), Env env)                       // Type constant
+    = <rtype(tp), env>;                                        
                     
           //| muFun1(str fuid)                                    // *muRascal* function constant: functions at the root
           //| muFun2(str fuid, str scopeIn)                       // *muRascal* function constant: nested functions and closures
@@ -171,39 +312,113 @@ Result eval(muCon(value v), Env env)                           // Rascal Constan
           
 // Variables
 
-Result eval(muLoc(str name, int pos), Env env)                   // Local variable, with position in current scope
-    =  <env[0].stack[pos], env>;                                
-   
-Result eval(muVar(str name, str fuid, int pos), Env env)        // Variable: retrieve its value
-    =   <getVariable(name, fuid, pos, env), env>;               
+//// ---- muModuleVar -----------------------------------------------------------
+//
+//Result eval(var:muModuleVar(str name, AType atype), Env env)    // Rascal Variable: retrieve its value
+//    = < getValue(var, env), env >; 
+//
+//JCode trans(var:muModuleVar(str name, AType atype), JGenie jg{
+//    return name;
+//}
 
-Result eval(muTmp(str name, str fuid) , Env env)             // Temporary variable introduced by front-end
-    = < getTmp(name, fuid, env), env>;
+// ---- muVar -----------------------------------------------------------------
 
-// Keyword parameters
+Result eval(var:muVar(str name, str fuid, int pos), Env env)    // Rascal Variable: retrieve its value
+    = < getValue(var, env), env >; 
 
-         // muLocKwp(str name)                                  // Local keyword parameter
-
-Result eval(muVarKwp(str fuid, str name), Env env){                        // Keyword parameter
-    return getKwp(name, fuid, env);
-} 
-
-Result eval(muAssignKwp(str name, str fuid, MuExp exp), Env env){
-    <v, env> = eval(exp, env);
-    return assignKwp(name, fuid, v, env);
+JCode trans(var:muVar(str name, str fuid, int pos), JGenie cs){
+   // if(cs.currentFunction() == fuid){
+        return name;
+    //} else {
+    //    throw "not supported";
+    //}
 }
 
-Result eval(muTypeCon(AType tp), Env env)                            // Type constant
-    = <rtype(tp), env>;
+// ---- muLoc -----------------------------------------------------------------
+
+Result eval(var:muLoc(str name, int pos), Env env)    // Rascal local Variable: retrieve its value
+    = < getValue(var, env), env >; 
+    
+JCode trans(var:muLoc(str name, int pos), JGenie jg)
+    = name;
+    
+// ---- muVarKwp --------------------------------------------------------------
+
+Result eval(var:muVarKwp(str fuid, str name, AType atype), Env env)          // Rascal Keyword parameter
+    = < getValue(var, env), env >;   
+
+JCode trans(var:muVarKwp(str fuid, str name, AType atype),  JGenie jg)
+    = getValue(var, jg);
+
+// ---- muTmp -----------------------------------------------------------------
+
+Result eval(var:muTmp(str name, str fuid) , Env env)            // Temporary variable introduced by front-end
+    = < getValue(var, env), env >;
+
+// ---- muTmpInt --------------------------------------------------------------
+    
+Result eval(var:muTmpInt(str name, str fuid) , Env env)         // Temporary int variable introduced by front-end
+    = < getValue(var, env), env >;
+
+// ---- muTmpWriter -----------------------------------------------------------
+
+Result eval(var:muTmpWriter(str name, str fuid) , Env env)      // Temporary writer variable introduced by front-end
+    = < getValue(var, env), env >;
+
+// ---- muAssign --------------------------------------------------------------
+    
+Result eval(muAssign(MuExp var, MuExp exp), Env env){           // Assignment to kind of variable
+    <v, env> = eval(exp, env);
+    return assignValue(var, v, env);
+}
+
+JCode trans(muAssign(MuExp var, MuExp exp), JGenie jg){
+    return assignValue(var, trans(exp, jg), jg);
+}
 
 
 // Call/Apply/return      
-    
-//          | muCall(MuExp fun, list[MuExp] largs)                 // Call a *muRascal function
-//          | muApply(MuExp fun, list[MuExp] largs)                // Partial *muRascal function application
-//          
 
-Result eval(muOCall3(MuExp fun, list[MuExp] largs, loc src), Env env){       // Call a declared *Rascal function
+Result eval(muCall(MuExp fun, list[MuExp] largs), Env env){       //  Call a *muRascal function
+    actuals = for(arg <- largs){
+                <v, env> = eval(arg, env);
+                append v;
+            }
+    if(muConstr(AType ctype) := fun){
+        return <rvalue(makeConstructor(ctype, actuals)), env>;
+    }
+    if(muConstrCompanion(str fname) := fun){
+        return call(muFunctions[fname], actuals, env);
+    }
+    if(muCon(str s) := fun){
+        if(rvalue(map[str,value] kwmap) := actuals[-1]){
+            return <rvalue(makeNode(s, [v | rvalue(v) <- actuals[0..-1]], keywordParameters = kwmap)), env>;
+        }
+        throw "mOCall3: kwmap, <actuals>";
+    }
+}
+
+JCode trans(muCall(MuExp fun, list[MuExp] largs), JGenie jg){
+    actuals = for(arg <- largs){
+                append trans(arg, jg);
+            }
+    if(muConstr(AType ctype) := fun){
+        return makeConstructor(ctype, actuals);
+    }
+    if(muConstrCompanion(str fname) := fun){
+        return call(muFunctions[fname], actuals, jg);
+    }
+    if(muCon(str s) := fun){
+        if(rvalue(map[str,value] kwmap) := actuals[-1]){
+            return <rvalue(makeNode(s, [v | rvalue(v) <- actuals[0..-1]], keywordParameters = kwmap)), env>;
+        }
+        throw "mOCall3: kwmap, <actuals>";
+    }
+}
+
+// ---- muOCall3 --------------------------------------------------------------
+
+Result eval(muOCall3(MuExp fun, AType ftype, list[MuExp] largs, loc src), Env env){       // Call a declared *Rascal function
     actuals = for(arg <- largs){
                 <v, env> = eval(arg, env);
                 append v;
@@ -222,28 +437,62 @@ Result eval(muOCall3(MuExp fun, list[MuExp] largs, loc src), Env env){       // 
         throw throw "No overloading alternatives found for <fname>";
     }
     if(muCon(str s) := fun){
-        if(rvalue(map[str,RValue] kwmap) := actuals[-1]){
-            return <rvalue(makeNode(s, [v | rvalue(v) <- actuals[0..-1]], keywordParameters = (k : v | k <- kwmap, rvalue(v) := kwmap[k]))), env>;
+        if(rvalue(map[str,value] kwmap) := actuals[-1]){
+            return <rvalue(makeNode(s, [v | rvalue(v) <- actuals[0..-1]], keywordParameters = kwmap)), env>;
         }
         throw "mOCall3: kwmap, <actuals>";
     }
 }
 
+JCode trans(muOCall3(MuExp fun, AType ftype, list[MuExp] largs, loc src), JGenie jg){
+    actuals = for(arg <- largs){
+                append trans(arg, jg);
+            }
+    if(muOFun(str fname) := fun){;
+        if(overloadedAType(overloads) := ftype){
+            return "<resolved2overloaded[fname]>(<intercalate(", ", actuals)>)";
+        } else {
+                return "<replaceAll(fname, "::", "_")>(<intercalate(", ", actuals)>)";
+        }
+    }
+    if(muCon(str s) := fun){
+        if(rvalue(map[str,value] kwmap) := actuals[-1]){
+            return <rvalue(makeNode(s, [v | rvalue(v) <- actuals[0..-1]], keywordParameters = kwmap)), env>;
+            return "$VF.node((<intercalate(", ", actuals[0..-1])>, keywordParameters=<actuals[-1]>)";
+        }
+        throw "mOCall3: kwmap, <actuals>";
+    }
+    throw "muOCall3: <fun>";
+}
 
 //          | muOCall4(MuExp fun, AType types,                    // Call a dynamic *Rascal function
 //                               list[MuExp] largs, loc src)
 
-  
+// ---- muCallPrim2 -----------------------------------------------------------
+
 Result eval(muCallPrim2(str name, loc src), Env env){                // Call a Rascal primitive function (with empty list of arguments)
     return evalPrim(name, env);
 }
- 
+
+JCode trans(muCallPrim2(str name, loc src), JGenie jg){
+    return transPrim(name, [], src, jg);
+}
+
+// ---- muCallPrim3 -----------------------------------------------------------
+
 Result eval(muCallPrim3(str name, list[MuExp] exps, loc src), Env env){     // Call a Rascal primitive function
     actuals = for(exp <- exps){
                 <result, env> = eval(exp, env);
                 append result;
             }
     return evalPrim(name, actuals, env);
+}
+
+JCode trans(muCallPrim3(str name, list[MuExp] exps, loc src), JGenie jg){
+    actuals = for(exp <- exps){
+                append trans(exp, jg);
+              }
+    return transPrim(name, actuals, jg);
 }
  
 Result eval(muCallMuPrim(str name, list[MuExp] exps) , Env env){           // Call a muRascal primitive function
@@ -261,26 +510,48 @@ Result eval(muCallMuPrim(str name, list[MuExp] exps) , Env env){           // Ca
 //                       int reflect,
 //                       list[MuExp] largs)                       // Call a Java method in given class
 
- 
+
+// ---- muReturn0 -------------------------------------------------------------
+
 Result eval(muReturn0(), Env env){                                 // Return from a function without value
     throw doReturn(undefined(), env);
 }
+
+JCode trans(muReturn0(), JGenie jg){
+    return "return;";
+}
     
+// ---- muReturn1 -------------------------------------------------------------
+
 Result eval(muReturn1(MuExp exp), Env env){                       // Return from a function with value
     <result, env1> = eval(exp, env);
     throw doReturn(result, env1);
 }
+
+JCode trans(muReturn1(MuExp exp), JGenie jg){
+    return "return <trans(exp, jg)>;";
+}
+
           
 //          | muFilterReturn()                                    // Return for filer statement
 
-Result eval(muKwpDefaults(lrel[str name, AType tp, MuExp defaultExp] kwpMap), Env env){
-   resMap = ();
-   for(<str name, AType tp, MuExp defaultExp> <- kwpMap){
-        <v, env> = eval(defaultExp, env);
-        resMap[name] = <tp, v>;
-   }
-   return <rvalue(resMap), env>;
-}
+// ---- muKwpDefaults ---------------------------------------------------------
+
+//Result eval(muKwpDefaults(lrel[str name, AType tp, MuExp defaultExp] kwpMap), Env env){
+//   resMap = ();
+//   for(<str name, AType tp, MuExp defaultExp> <- kwpMap){
+//        <v, env> = eval(defaultExp, env);
+//        resMap[name] = <tp, v>;
+//   }
+//   return <rvalue(resMap), env>;
+//}
+//
+//JCode trans(muKwpDefaults(lrel[str name, AType tp, MuExp defaultExp] kwpMap), JGenie jg){
+//    if(isEmpty(kwpMap)) return "Collections.emptyMap()";
+//    return "Map\<String,IValue\> $kwpDefaults = Maps.builder()<for(<str key, AType tp, MuExp defaultExp> <- kwpMap){>.key(\"<key>\").value(<trans(defaultExp,jg)>)<}>.build();\n";
+//}
+
+// ---- muKwpActuals ----------------------------------------------------------
 
 Result eval(muKwpActuals(lrel[str name, MuExp exp] kwpActuals), Env env){
     resMap = ();
@@ -290,35 +561,65 @@ Result eval(muKwpActuals(lrel[str name, MuExp exp] kwpActuals), Env env){
     }
     return <rvalue(resMap), env>;
 }
-      
-//          | muInsert(MuExp exp)                                 // Insert statement           
 
-// Assignment, If and While
-             
-// muAssignLoc(str name, int pos, MuExp exp)           // Assign a value to a local variable
 
-Result eval(muAssign(str name, str fuid, int pos, MuExp exp), Env env){    // Assign a value to a variable
-    <v, env> = eval(exp, env);
-    return assignVariable(name, fuid, pos, v, env);
+JCode trans(muKwpActuals(lrel[str name, AType atype, MuExp exp] kwpActuals), JGenie jg){
+    if(isEmpty(kwpActuals)) return "Collections.emptyMap()";
+    return "Maps.builder()<for(<str key,  MuExp exp> <- kwpActuals){>.key(\"<key>\").value((IValue)<trans(exp,jg)>)<}>.build()";
 }
 
-Result eval(muAssignTmp(str name, str fuid, MuExp exp) , Env env){         // Assign to temporary variable introduced by front-end         
+// ---- muKwpMap --------------------------------------------------------------
+
+Result eval(muKwpMap(MuExp actualKWs, lrel[str kwName, AType atype,  MuExp defaultExp] kwpDefaults), Env env){
+    <rvalue(vkwmap), env> = eval(actualKWs, env);
+    if(map[str,value] actualKwpMap := vkwmap){
+        compleleKwpMap = ();
+        for(int i <- index(kwpDefaults)){
+            <kwpField, kwpDefaultExp> = kwpDefaults[i];
+            if(actualKwpMap[kwpField]?){
+                compleleKwpMap[kwpField] = actualKwpMap[kwpField];
+            } else {
+                <rvalue(v), env> = eval(kwpDefaultExp, env);
+                compleleKwpMap[kwpField] = v;
+            }
+        }
+        return <rvalue(compleleKwpMap), env>;
+    }
+    throw "muKwpMap: wrong type for kwmap: <kwmap>";
+}
+
+JCode trans(muKwpMap(MuExp actualKWs, lrel[str kwName, AType atype, MuExp defaultExp] kwpDefaults), JGenie jg){
+    kwpDefaultsVar = jg.getKwpDefaults();
+    kwpActuals = trans(actualKWs, jg);
+   //if(isEmpty(actualKWs)) return kwpDefaults;
+    return "<kwpActuals>.isEmpty() ? (Map\<String,IValue\>)<kwpDefaultsVar> : Maps.builder()<for(<str key,  AType atype, MuExp exp> <- kwpDefaults){>.key(\"<key>\").value(<kwpActuals>.containsKey(\"<key>\") ? (IValue)<kwpActuals>.get(\"<key>\") : (IValue)<trans(exp,jg)>)<}>.build()";
+
+}
+
+Result eval(muInsert(MuExp exp), Env env){                      // Insert statement   
     <v, env> = eval(exp, env);
-    return assignTmp(name, fuid, v, env);
-}   
+    throw doInsert(v, env);
+}     
+
+// Assignment, If and While
                                                              
 Result eval(muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart), Env env){// If-then-else expression
     <b, env> = eval(cond, env);
     return rvalue(true) := b ? eval(thenPart, env) : eval(elsePart, env);
 }
 
+JCode trans(muIfelse(str btscope, MuExp cond, MuExp thenPart, MuExp elsePart), JGenie jg){
+    return "<trans(cond, jg)>.getValue() ? <trans(thenPart, jg)> : <trans(elsePart, jg)>";
+}
+
 Result eval(muIfelse(str flabel, MuExp cond, MuExp thenPart, MuExp elsePart), Env env){// If-then-else expression
+    if(debug) println("muIfElse, <flabel>, <cond>");
     <b, env> = eval(cond, env);
     if(rvalue(true) := b){
         try {
             return eval(thenPart, env);
         } catch doFail(str flabel1, Env env1): {
-            if(flabel1 == flabel){
+            if(flabel != "" && flabel1 == flabel){
                 return eval(elsePart, env1);
             } else {
                 throw doFail(flabel1, env1);
@@ -340,34 +641,94 @@ Result eval(mw: muWhile(str bclabel, MuExp cond, MuExp body), Env env){    // Wh
         try {
             <v, env> = eval(body, env);
             <b, env> = eval(cond, env);
-       } catch doBreak(bclabel): return <undefined(), env>;
-         catch doContinue(bclabel): return eval(mw, env);
+       } catch doBreak(bclabel, env1): return <undefined(), env1>;
+         catch doContinue(bclabel, env1): return eval(mw, env1);
     }
     return <undefined(), env>;
 }
 
-Result eval(mw: muForEach(str btscope, str varName, str fuid, MuExp iterable, MuExp body/*, MuExp thenPart, MuExp elsePart*/), Env env){    // for-each expression
+Result eval(mw: muForAny(str btscope, MuExp var, MuExp iterable, MuExp body), Env env){    // for-each expression
     <rvalue(iterable_val), env> = eval(iterable, env);
     the_iterator = makeIterator(iterable_val);
+    bresult = false;
     while(the_iterator.hasNext()){
+        //result = rvalue(true);
         v = the_iterator.getNext();
-        <v, env> = assignTmp(varName, fuid, v, env);
+        <v, env> = assignValue(var, v, env);
         try {
-            <v, env> = eval(body, env);
-       } catch doBreak(btscope, env1): return <undefined(), env1>;
-         catch doContinue(btscope, env1): return eval(mw, env1);
-         catch doFail(btscope, env1): ;
+            //<v, env> = eval(body, env);
+            <rvalue(vb), env> = eval(body, env);
+            if(bool b := vb) bresult = bresult || b;
+       } catch doBreak(btscope, env1): return <result, env1>;
+         catch doContinue(btscope, env1): ;
+         catch doFail(btscope, env1): {
+            if(debug) println("muForEach: doFail");
+            env = env1;
+         } catch doSucceed(btscope, env1): {
+            bresult = true;
+            env = env1;
+         }
     }
-    return <undefined(), env>;
+    return <bresult ? rvalue(true) : rvalue(false), env>;
+    //return <undefined(), env>;
 }
 
-Result eval(mw: muFor(str label, str varName, str fuid, MuExp fromExp, MuExp byExp, MuExp toExp, list[MuExp] body), Env env){    // for  expression
+Result eval(mw: muForAll(str btscope, MuExp var, MuExp iterable, MuExp body), Env env){    // for-each expression
+    <rvalue(iterable_val), env> = eval(iterable, env);
+    the_iterator = makeIterator(iterable_val);
+    bresult = true;
+    while(the_iterator.hasNext()){
+        //result = rvalue(true);
+        v = the_iterator.getNext();
+        <v, env> = assignValue(var, v, env);
+        println("forAll: <var> = <v>");
+        try {
+            //<v, env> = eval(body, env);
+            <rvalue(vb), env> = eval(body, env);
+            println("body: <vb> for <v>");
+            if(bool b := vb) bresult = bresult && b;
+       } catch doBreak(btscope, env1): return <result, env1>;
+         catch doContinue(btscope, env1): ;
+         catch doFail(btscope, env1): {
+            if(debug) println("muForAll: doFail");
+            bresult = false;
+            env = env1;
+         } catch doSucceed(btscope, env1): {
+            env = env1;
+         }
+    }
+    println("forALL: <bresult>");
+    return <bresult ? rvalue(true) : rvalue(false), env>;
+   // throw doLeave(btscope,  bresult ? rvalue(true) : rvalue(false), env);
+    //return <undefined(), env>;
+}
+
+Result eval(muEnter(btscope, MuExp exp), Env env){
+    if (debug) println("muEnter, <btscope>, <exp>");
+    try {
+        return eval(exp, env);
+    } catch doLeave(btscope, RValue r, Env env1): {
+        if (debug) println("muEnter: doLeave, <btscope>, <r>");
+        return <r, env1>;
+      } catch doFail(btscope, env1): {
+        if (debug) println("muEnter: doFail, <btscope>");
+        return <rvalue(false), env1>;
+      } catch doSucceed(btscope, env1):
+        return <rvalue(true), env1>;
+}
+
+Result eval(muLeave(btscope, MuExp exp),Env env){
+    <v, env> = eval(exp, env);
+    throw doLeave(btscope, v, env);
+}
+
+Result eval(mw: muFor(str label, MuExp var, MuExp fromExp, MuExp byExp, MuExp toExp, list[MuExp] body), Env env){    // for  expression
     <rvalue(from), env> = eval(fromExp, env);
     <rvalue(by), env> = eval(byExp, env);
     <rvalue(to), env> = eval(toExp, env);
     result = undefined();
     while(i < to){
-        <v, env> = assignTmp(varName, fuid, rvalue(i), env);
+        <v, env> = assignValue(var, rvalue(i), env);
         try {
             <result, env> = eval(body, env);
             i += by;
@@ -378,7 +739,7 @@ Result eval(mw: muFor(str label, str varName, str fuid, MuExp fromExp, MuExp byE
     return <result, env>;
 }
 
-Result eval(muForRange(str label, str varName, str fuid, MuExp first, MuExp second, MuExp last, MuExp exp), Env env){
+Result eval(muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp last, MuExp exp), Env env){
     <rvalue(vfirst), env> = eval(first, env);
     <rvalue(vsecond), env> = eval(second, env);
     <rvalue(vlast), env> = eval(last, env);
@@ -388,7 +749,7 @@ Result eval(muForRange(str label, str varName, str fuid, MuExp first, MuExp seco
             nsecond = nfirst < nlast ? nfirst + 1 : nfirst - 1;
         }
         for(x <- [nfirst, nsecond .. nlast]){
-            <v, env> = assignTmp(varName, fuid, rvalue(x), env);
+            <v, env> = assignValue(var, rvalue(x), env);
             try {
                 <result, env> = eval(exp, env);
             } catch doBreak(label): return <undefined(), env>;
@@ -400,30 +761,27 @@ Result eval(muForRange(str label, str varName, str fuid, MuExp first, MuExp seco
         throw "muForRange: <vfirst>, <vsecond>, <vlast>";
 }
          
-//          | muTypeSwitch(MuExp exp, list[MuTypeCase] type_cases, MuExp \default)        // switch over cases for specific type   
-
-Result eval(muSwitch(MuExp exp, bool useConcreteFingerprint, list[MuCase] cases, MuExp defaultExp), Env env){      // switch over cases for specific value
+Result eval(muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint), Env env){      // switch over cases for specific value
     <rvalue(swval), env> = eval(exp, env);
     fp = getFingerprint(swval, useConcreteFingerprint);
     for(muCase(int fingerprint, MuExp exp) <- cases){
-        println("fp = <fp>; case <fingerprint>, <exp>");
+        if (debug) println("fp = <fp>; case <fingerprint>, <exp>");
         if(fingerprint == fp){
-            println("found");
+            if (debug) println("found");
             return eval(exp, env);
         }
     }
     return eval(defaultExp, env);
 } 
 
+Result eval(muVisit(MuExp exp, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor), Env env){      // switch over cases for specific value
+    <rvalue(subject), env> = eval(exp, env);
+     return traverse(subject, cases, defaultExp, vdescriptor, env);
+} 
+
 Result eval(muEndCase(), Env env){                                        // Marks the exit point of a case
     throw "muEndCase cannot be executed";
 }
-
-data MuCatch = muCatch(str id, str fuid, AType \type, MuExp body);    
-
-data MuTypeCase = muTypeCase(str name, MuExp exp);
-data MuCase = muCase(int fingerprint, MuExp exp);     
-
 
 Result eval(muBreak(str label), Env env){                                  // Break statement
     throw doBreak(label, env);
@@ -433,25 +791,36 @@ Result eval(muContinue(str label), Env env){                              // Con
     throw doContinue(labe, env);
 }
 
+Result eval(muSucceed(str label), Env env){
+    throw doSucceed(label, env);
+}
+
 Result eval(muFail(str label), Env env){                                   // Fail statement
+    if (debug) println("muFail: <label>");
     throw doFail(label, env);
 }
+
+// ---- muFailReturn ----------------------------------------------------------
 
 Result eval(muFailReturn(), Env env){                                      // Failure from function body
     throw doFailReturn();
 }
+
+JCode trans(muFailReturn(),  JGenie jg)
+    = "return null";
           
-// Multi-expressions
+// Lists of expressions
          
 Result eval(muBlock(list[MuExp] exps), Env env)                   // A list of expressions, only last value remains
     = eval(exps, env);
     
+JCode trans(muBlock(list[MuExp] exps), JGenie jg){
+    return "<for(exp <- exps){> <trans(exp, jg)><}>";
+}
+    
 Result eval(muBlockWithTmps(lrel[str name, str fuid] tmps, lrel[str name, str fuid] tmpRefs, list[MuExp] exps), Env env) // A block with scoped temporary variables and temporaries used as reference
     = eval(exps, env); // TODO: implement fully
 
-//          | muMulti(MuExp exp)                                  // Expression that can produce multiple values
-//          | muOne1(MuExp exp)                                   // Expression that always produces only the first value
-//          
 //          // Exceptions
 //          
 //          | muThrow(MuExp exp, loc src)
@@ -460,8 +829,6 @@ Result eval(muBlockWithTmps(lrel[str name, str fuid] tmps, lrel[str name, str fu
 //          
 //          | muTry(MuExp exp, MuCatch \catch, MuExp \finally)
 //          
-//          | muVisit(bool direction, bool fixedpoint, bool progress, bool rebuild, MuExp descriptor, MuExp phi, MuExp subject, MuExp refHasMatch, MuExp refBeenChanged, MuExp refLeaveVisit, MuExp refBegin, MuExp refEnd)
-//    
 
 Result eval(list[MuExp] exps, env){ 
     result = undefined();
@@ -472,11 +839,29 @@ Result eval(list[MuExp] exps, env){
     return <result, env>;
 }
 
-//          
+//  
+
+// ---- muCheckArgTypeAndCopy -------------------------------------------------
+
+Result eval(muCheckArgTypeAndCopy(str name, int from, AType tp, int to), Env env){
+    arg = env.frames[0].stack[from];
+    if(getType(arg) != tp) return <rvalue(false), env>;
+    env.frames[0].stack[to] = arg;
+    return <rvalue(true), env>;
+} 
+
+JCode trans(muCheckArgTypeAndCopy(str name, int from, AType tp, int to), JGenie jg)
+    = "";
+    //= "<atype2java(tp)> <name>;
+    //  'if(<name>$<from>.getType().isSubtypeOf(<atype2typestore(tp)>)).getValue()){
+    //  '   <name> = <name>$<from>;
+    //  '} else {
+    //  '   return null;
+    //  '}";     
 
 Result eval(muEqual(MuExp exp1, MuExp exp2), Env env){
     <rvalue(v1), env> = eval(exp1, env);
-    <rvalue(v2), emv> = eval(exp2, env);
+    <rvalue(v2), env> = eval(exp2, env);
     return <v1 == v2 ? rvalue(true) : rvalue(false), env>;
  }
     
@@ -490,6 +875,12 @@ Result eval(muValueIsSubType(MuExp exp, AType tp), Env env){
     return <subtype(typeOf(v), atype2symbol(tp)) ? rvalue(true) : rvalue(false), env>;
 }
 
+Result eval(muValueIsSubTypeOfValue(MuExp exp1, MuExp exp2), Env env){
+    <rvalue(v1), env> = eval(exp1, env);
+    <rvalue(v2), env> = eval(exp2, env);
+    return <subtype(typeOf(v1), typeOf(v2)) ? rvalue(true) : rvalue(false), env>;
+}
+
 Result eval(muHasTypeAndArity(str typeName, int arity, MuExp exp), Env env){
     <rvalue(v), env> = eval(exp, env);
     if(getName(typeOf(v)) != typeName) return <rvalue(false), env>;
@@ -498,6 +889,10 @@ Result eval(muHasTypeAndArity(str typeName, int arity, MuExp exp), Env env){
 
 Result eval(muHasNameAndArity(str name, int arity, MuExp exp), Env env){
     <rvalue(v), env> = eval(exp, env);
+    if(constructor(AType ctype, list[value] fields, map[str,value] kwparams) := v){
+        if(ctype.label != name) return <rvalue(false), env>;
+        return <size(fields) == arity ? rvalue(true) : rvalue(false), env>;
+    }
     if(node nd := v){
         if(getName(nd) != name) return <rvalue(false), env>;
         return <getSize(nd) == arity ? rvalue(true) : rvalue(false), env>;
@@ -511,6 +906,7 @@ int getSize(value v){
         case list[&T] lst: n = size(lst);
         case set[&T] st: n = size(st);
         case map[&K,&V] mp: n = size(mp);
+        case constructor(AType ctype, list[value] fields, map[str,value] kwparams): n = size(fields);
         case node nd: n = arity(nd);
         case tuple[&A] tup: n = 1;
         case tuple[&A,&B] tup: n = 2;
@@ -538,7 +934,8 @@ Result eval(muSubscript(MuExp exp, MuExp idx), Env env){
     if(int n := vidx){
        switch(v){
             case list[&T] lst: return <rvalue(lst[n]), env>;
-            case node nd: return <rvalue(getChildren(nd)[n]), env>;
+            case constructor(AType ctype, list[value] fields, map[str,value] kwparams): return <rvalue(fields[n]), env>;
+            case node nd: return <rvalue(getChildren(nd)[n]), env>;       
             case tuple[&A] tup: return <rvalue(tup[n]), env>;
             case tuple[&A,&B] tup: return <rvalue(tup[n]), env>;
             case tuple[&A,&B,&C] tup: return <rvalue(tup[n]), env>;
@@ -555,16 +952,16 @@ Result eval(muSubscript(MuExp exp, MuExp idx), Env env){
     throw "muSubscript: non-integer index <vidx>";    
 }
 
-Result eval(muInc(str tmpName, str fuid, MuExp exp), Env env){
-    <v, env> = eval(exp, env);
-    vtmp = getValue(tmpName, fuid, env);
+Result eval(muIncVar(MuExp var, MuExp exp), Env env){
+    <rvalue(v), env> = eval(exp, env);
+    vtmp = getValue(var, env);
     if(rvalue(int n) := vtmp, int inc := v){
-        return assignTmp(tmpName, fuid, rvalue(n + inc), env);
+        return assignValue(var, rvalue(n + inc), env);
     }
     throw "muInc: <tmpName>, <vtmp>, <v>";
 }
 
-Result eval(muSub(MuExp exp1, MuExp exp2), Env env){
+Result eval(muSubInt(MuExp exp1, MuExp exp2), Env env){
     <rvalue(v1), env> = eval(exp1, env);
     <rvalue(v2), env> = eval(exp2, env);
     if(int n1 := v1, int n2 := v2){
@@ -573,7 +970,7 @@ Result eval(muSub(MuExp exp1, MuExp exp2), Env env){
     throw "muSub: <v1>, <v2>";
 }
 
-Result eval(muAdd(MuExp exp1, MuExp exp2), Env env){
+Result eval(muAddInt(MuExp exp1, MuExp exp2), Env env){
     <rvalue(v1), env> = eval(exp1, env);
     <rvalue(v2), env> = eval(exp2, env);
     if(int n1 := v1, int n2 := v2){
@@ -600,13 +997,14 @@ Result eval(muAnd(MuExp exp1, MuExp exp2), Env env){
     throw "muAnd: <v1>, <v2>";
 }
 
-Result eval(muSubList(MuExp exp1, MuExp exp2), Env env){
-    <rvalue(vlst), env> = eval(exp1, env);
-    <rvalue(vlen), env> = eval(exp2, env);
-    if(list[&T] lst := vlst, int len := vlen){
-        return <rvalue(lst[0 .. len+1]), env>;
+Result eval(muSubList(MuExp lst, MuExp from, MuExp len), Env env){
+    <rvalue(vlst), env> = eval(lst, env);
+    <rvalue(vfrom), env> = eval(from, env);
+    <rvalue(vlen), env> = eval(len, env);
+    if(list[&T] lst := vlst, int from := vfrom, int len := vlen){
+        return <rvalue(lst[from .. len+1]), env>;
     }
-    throw "muSubList: <vlist>, <vlen>";
+    throw "muSubList: <vlist>, <vfrom>, <vlen>";
 }
 
 Result eval(muPrintln(str s), Env env){
@@ -614,8 +1012,11 @@ Result eval(muPrintln(str s), Env env){
     return <undefined(), env>;
 }
 
-Result eval(muHasKeywordArg(MuExp exp, str kwname), Env env){
+Result eval(muHasKwp(MuExp exp, str kwname), Env env){
     <rvalue(v), env> = eval(exp, env);
+    if(constructor(AType ctype, list[value] fields, map[str,value] kwparams) := v){
+        return <kwparams[kwname]? ? rvalue(true) : rvalue(false) , env>;
+    } else
     if(node nd := v){
         if(map[str, RValue] kwmap := getChildren(nd)[-1]){
             return <kwmap[kwname]? ? rvalue(true) : rvalue(false) , env>;
@@ -624,215 +1025,38 @@ Result eval(muHasKeywordArg(MuExp exp, str kwname), Env env){
     return <rvalue(false), env>;
 }
 
-Result eval(muGetKeywordArg(MuExp exp, str kwname), Env env){
+Result eval(muGetKwp(MuExp exp, str kwname), Env env){
     <rvalue(v), env> = eval(exp, env);
+    if(constructor(AType ctype, list[value] fields, map[str,value] kwparams) := v){
+        return <kwparams[kwname], env>;
+    } else
     if(node nd := v){
-        if(map[str, RValue] kwmap := getChildren(nd)[-1]){
-            return <kwmap[kwname], env>;
+        if(map[str, value] kwmap := getChildren(nd)[-1]){
+            return <rvalue(kwmap[kwname]), env>;
         }
     }
+    throw "muGetKwpArg: <v>";
 }
 
-// MuPrimitives
-
-Result evalMuPrim("check_arg_type_and_copy", [rvalue(int from), rtype(AType tp), rvalue(int to)], Env env){
-    arg = env[0].stack[from];
-    if(getType(arg) != tp) return <rvalue(false), env>;
-    env[0].stack[to] = arg;
-    return <rvalue(true), env>;
+Result eval(muHasKwpWithValue(MuExp exp, str kwname, MuExp req), Env env){
+    <rvalue(v), env> = eval(exp, env);
+    if(constructor(AType ctype, list[value] fields, map[str,value] kwparams) := v){
+        if(kwparams[kwname]?){
+            <rvalue(vres), env> = eval(req, env);
+            return < kwparams[kwname] == vres ? rvalue(true) : rvalue(false), env >;
+        } else {
+            return <rvalue(false) , env>;
+        }
+    }
+    if(node nd := v){
+        if(map[str, value] kwmap := getChildren(nd)[-1]){
+           if(kwmap[kwname]?){
+                <rvalue(vres), env> = eval(req, env);
+                return < kwmap[kwname] == vres ? rvalue(true) : rvalue(false), env >;
+           } else {
+            return < rvalue(false) , env>;
+           }   
+        }
+    }
+    return <rvalue(false), env>;
 }
-
-AType getType(rvalue(v)) = getType(v);
-
-AType getType(int n) = aint();
-AType getType(list[&T] lst) = isEmpty(lst) ? alist(avoid()) : alist(getType(typeof(lst[0]))); // TODO
-
-// Rascal primitives
-
-Result evalPrim("aint_add_aint", [rvalue(int x), rvalue(int y)], Env env)           = <rvalue(x + y), env>;
-Result evalPrim("aint_product_aint", [rvalue(int x), rvalue(int y)], Env env)       = <rvalue(x * y), env>;
-Result evalPrim("aint_greater_aint", [rvalue(int x), rvalue(int y)], Env env)       = <rvalue(x > y), env>;
-Result evalPrim("aint_greaterequal_aint", [rvalue(int x), rvalue(int y)], Env env)  = <rvalue(x >= y), env>;
-Result evalPrim("aint_less_aint", [rvalue(int x), rvalue(int y)], Env env)          = <rvalue(x < y), env>;
-Result evalPrim("aint_lessequal_aint", [rvalue(int x), rvalue(int y)], Env env)     = <rvalue(x <= y), env>;
-Result evalPrim("equal", [rvalue(value x), rvalue(value y)], Env env)               = <rvalue(x == y), env>;
-
-Result evalPrim("list_create", list[RValue] elms, Env env)
-    = <rvalue([ v | rvalue(v) <- elms]), env>;
-    
-Result evalPrim("set_create", list[RValue] elms, Env env)
-    = <rvalue({ v | rvalue(v) <- elms}), env>;
-    
-Result evalPrim("tuple_create", [rvalue(v1)], Env env)
-    = <rvalue(<v1>), env>;
-    
-Result evalPrim("tuple_create", [rvalue(v1), rvalue(v2)], Env env)
-    = <rvalue(<v1, v2>), env>;
-    
-Result evalPrim("tuple_create", [rvalue(v1), rvalue(v2), rvalue(v3)], Env env)
-    = <rvalue(<v1, v2, v3>), env>;
-    
-Result evalPrim("tuple_create", [rvalue(v1), rvalue(v2), rvalue(v3), rvalue(v4)], Env env)
-    = <rvalue(<v1, v2, v3, v4>), env>;
-    
-Result evalPrim("tuple_create", [rvalue(v1), rvalue(v2), rvalue(v3), rvalue(v4), rvalue(v5)], Env env)
-    = <rvalue(<v1, v2, v3, v4, v5>), env>;
-
-Result evalPrim("tuple_create", [rvalue(v1), rvalue(v2), rvalue(v3), rvalue(v4), rvalue(v5), rvalue(v6)], Env env)
-    = <rvalue(<v1, v2, v3, v4, v5, v6>), env>;
-
-Result evalPrim("tuple_create", [rvalue(v1), rvalue(v2), rvalue(v3), rvalue(v4), rvalue(v5), rvalue(v6), rvalue(v7)], Env env)
-    = <rvalue(<v1, v2, v3, v4, v5, v6, v7>), env>;
-    
-Result evalPrim("tuple_create", [rvalue(v1), rvalue(v2), rvalue(v3), rvalue(v4), rvalue(v5), rvalue(v6), rvalue(v7), rvalue(v8)], Env env)
-    = <rvalue(<v1, v2, v3, v4, v5, v6, v7, v8>), env>;
-
-Result evalPrim("tuple_create", [rvalue(v1), rvalue(v2), rvalue(v3), rvalue(v4), rvalue(v5), rvalue(v6), rvalue(v7), rvalue(v8), rvalue(v9)], Env env)
-    = <rvalue(<v1, v2, v3, v4, v5, v6, v7, v8, v9>), env>;
-    
-Result evalPrim("tuple_create", [rvalue(v1), rvalue(v2), rvalue(v3), rvalue(v4), rvalue(v5), rvalue(v6), rvalue(v7), rvalue(v8), rvalue(v9), rvalue(v10)], Env env)
-    = <rvalue(<v1, v2, v3, v4, v5, v6, v7, v8, v, v10>), env>;   
-    
-Result evalPrim("node_create", [rvalue(str name), *RValue args, rvalue(map[str, RValue] kwmap)], Env env)
-    = makeNode(name, [v | rvalue(v) <- args], keywordParameters = (k : v | k <- kwmap, bprint(v), rvalue(v) := kwmap[k]));
-
-// ListWriter
-
-data Writer
-    = writer(
-        void (value v) add,
-        void (value v) splice,
-        RValue() close
-      );
-      
-Writer makeListWriter(){
-    list[value] lst = [];
-    void add(value v) { lst += [v]; }
-    void splice(value elms) { if(list[value] lelms:= elms) lst += lelms; else throw "ListWriter.splice: <elms>"; }
-    RValue close() = rvalue(lst);
-    
-    return writer(add, splice, close);
-}
-
-Result evalPrim("listwriter_open", [], Env env)
-    = <rvalue(makeListWriter()), env>;
-   
-Result evalPrim("listwriter_add", [rvalue(Writer w), rvalue(v)], Env env){
-    w.add(v);
-    return <rvalue(w), env>;
-}
-
-Result evalPrim("listwriter_splice",  [rvalue(Writer w), rvalue(v)], Env env){
-    w.splice(v);
-    return <rvalue(w), env>;
-}
-    
-Result evalPrim("listwriter_close",  [rvalue(Writer w)], Env env)
-    = <rvalue(w.close()), env>;
-
-// SetWriter
-
-Writer makeSetWriter(){
-    set[value] st = {};
-    void add(value v) { st += {v}; }
-    void splice(value elms) { if(set[value] selms := elms) st += elms; else throw "SetWriter.splice: <elms>"; }
-    RValue close() = rvalue(st);
-    
-    return writer(add, splice, close);
-}
-
-Result evalPrim("setwriter_open", [], Env env)
-    = <rvalue(makeSetWriter()), env>;
-   
-Result evalPrim("setwriter_add", [rvalue(Writer w), rvalue(v)], Env env){
-    w.add(v);
-    return <rvalue(w), env>;
-}
-
-Result evalPrim("setwriter_splice",  [rvalue(Writer w), rvalue(v)], Env env){
-    w.splice(v);
-    return <rvalue(w), env>;
-}
-    
-Result evalPrim("setwriter_close",  [rvalue(Writer w)], Env env)
-    = <rvalue(w.close()), env>;
-    
-// MapWriter
-
-Writer makeMapWriter(){
-    map[value, value] mp = ();
-    void add(value v) { if(<key, val> := v) mp[key] = val; else throw "MapWriter.add: <v>"; }
-    void splice(value elms) { if(set[value] selms := elms) st += elms; else throw "MapWriter.splice: <elms>"; }
-    RValue close() = rvalue(mp);
-    
-    return writer(add, splice, close);
-}
-
-Result evalPrim("mapwriter_open", [], Env env)
-    = <rvalue(makeMapWriter()), env>;
-   
-Result evalPrim("mapwriter_add", [rvalue(Writer w), rvalue(key), rvalue(val)], Env env){
-    w.add(<key,val>);
-    return <rvalue(w), env>;
-}
-
-Result evalPrim("mapwriter_splice",  [rvalue(Writer w), rvalue(v)], Env env){
-    w.splice(v);
-    return <rvalue(w), env>;
-}
-    
-Result evalPrim("mapwriter_close",  [rvalue(Writer w)], Env env)
-    = <rvalue(w.close()), env>;
-
-    
-// Iterators for all Rascal data types
-
-data Iterator
-    = iterator(
-        bool () hasNext,
-        RValue () getNext
-    );
-
-Iterator makeIterator(list[&T] elems){
-    int i = 0;
-    bool hasNext() = i < size(elems);
-    RValue getNext() { result = elems[i]; i += 1; return rvalue(result); }
-    
-    return iterator(hasNext, getNext);
-}
-
-Iterator makeIterator(set[&T] elems) 
-    = makeIterator(toList(elems));
-
-Iterator makeIterator(map[&K,&V] m) 
-    = makeIterator(toList(domain(m)));
-
-Iterator makeIterator(node nd) 
-    = makeIterator([x | x <- nd]);
-
-Iterator makeIterator(tuple[&A,&B] tup) 
-    = makeIterator([tup[0], tup[1]]);
-
-Iterator makeIterator(tuple[&A,&B,&C] tup)
-    = makeIterator([tup[0], tup[1], tup[2]]);
-
-Iterator makeIterator(tuple[&A,&B,&C,&D] tup)
-    = makeIterator([tup[0], tup[1], tup[2], tup[3]]);
-
-Iterator makeIterator(tuple[&A,&B,&C,&D,&E] tup)
-    = makeIterator([tup[0], tup[1], tup[2], tup[3], tup[4]]);
-
-Iterator makeIterator(tuple[&A,&B,&C,&D,&E,&F] tup)
-    = makeIterator([tup[0], tup[1], tup[2], tup[3], tup[4], tup[5]]);
-    
-Iterator makeIterator(tuple[&A,&B,&C,&D,&E,&F,&G] tup)
-    = makeIterator([tup[0], tup[1], tup[2], tup[3], tup[4], tup[5], tup[6]]);
-
-Iterator makeIterator(tuple[&A,&B,&C,&D,&E,&F,&G,&H] tup)
-    = makeIterator([tup[0], tup[1], tup[2], tup[3], tup[4], tup[5], tup[6], tup[7]]);
-
-Iterator makeIterator(tuple[&A,&B,&C,&D,&E,&F,&G,&H,&I] tup)
-    = makeIterator([tup[0], tup[1], tup[2], tup[3], tup[4], tup[5], tup[6], tup[7], tup[8]]);
-
-Iterator makeIterator(tuple[&A,&B,&C,&D,&E,&F,&G,&H,&I,&J] tup)
-    = makeIterator([tup[0], tup[1], tup[2], tup[3], tup[4], tup[5], tup[6], tup[7], tup[8], tup[9]]);

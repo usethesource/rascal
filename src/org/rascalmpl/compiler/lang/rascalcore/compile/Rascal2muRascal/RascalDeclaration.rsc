@@ -3,6 +3,7 @@ module lang::rascalcore::compile::Rascal2muRascal::RascalDeclaration
 
 import IO;
 import Map;
+import List;
 import Set;
 import String;
 import lang::rascal::\syntax::Rascal;
@@ -42,7 +43,7 @@ void translate(d: (Declaration) `<Tags tags> <Visibility visibility> <Type tp> <
     ftype = afunc(avalue(),[avalue()], []);
     enterFunctionScope(getFUID(module_name,"#<module_name>_init",ftype,0));
    	for(var <- variables){
-   		addVariableToModule(muVariable("<var.name>"));
+   		addVariableToModule(muModuleVar(getType(tp), "<var.name>"));
    		//variables_in_module += [];
    		if(var is initialized) 
    		addVariableInitializationToModule(mkAssign("<var.name>", var.name@\loc, translate(var.initial)));
@@ -58,7 +59,37 @@ void translate(d: (Declaration) `<Tags tags> <Visibility visibility> alias <User
 void translate(d: (Declaration) `<Tags tags> <Visibility visibility> tag <Kind kind> <Name name> on <{Type ","}+ types> ;`)  { throw("tag"); }
 
 void translate(d : (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters> ;`) { /* skip: translation has nothing to do here */ }
-void translate(d: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ variants> ;`) { /* skip: translation has nothing to do here */ }
+
+void translate(d: (Declaration) `<Tags tags> <Visibility visibility> data <UserType user> <CommonKeywordParameters commonKeywordParameters> = <{Variant "|"}+ variants> ;`) {
+    for(variant <- variants){
+       /*
+        * Create getters for each keyword field
+        */
+       uid = variant@\loc;
+       consType = getType(uid);
+       consName = consType.label;
+             
+       for(<kwtype, defaultExpr> <- consType.kwFields){
+            str kwFieldName = kwtype.label;
+            str fuid = getGetterForKwpField(uid, kwFieldName);
+            
+            str getterName = "$get_<consType.adt.adtName>_<consName>_<kwFieldName>";
+            getterType = afunc(kwtype, [consType], []);
+            consVar = muVar(consName, fuid, 0, consType);
+          
+            defExprCode = fixFieldReferences(translate(defaultExpr), consType, consVar, fuid);
+            body = muReturn1(muIfelse("", muIsKwpDefined(consVar, kwFieldName), muGetKwpFromConstructor(consVar, kwtype, kwFieldName), defExprCode));
+            addFunctionToModule(muFunction(fuid, getterName, getterType, [], [], "", 1, 1, false, true, true, [], |std:///|, [], (), body));               
+       }
+    }
+ }
+ 
+ MuExp fixFieldReferences(MuExp exp, AType consType, MuExp consVar, str fuid)
+    = visit(exp){
+        case muVar(str fieldName, _, -1, AType tp) => muFieldAccess("aadt", consType, consVar, fieldName)
+     };
+     
+
 
 void translate(d: (Declaration) `<FunctionDeclaration functionDeclaration>`) = translate(functionDeclaration);
 
@@ -101,6 +132,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
                                          false, 
                                          true,
                                          false,
+                                         [],
                                          fd@\loc, 
                                          tmods, 
                                          ttags,
@@ -121,26 +153,28 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
       bool isVarArgs = ftype.varArgs;
       
       //// Keyword parameters
-      list[MuExp] kwps = translateKeywordParameters(fd.signature.parameters, fuid, getFormals(funsrc), fd@\loc);
+      lrel[str name, AType atype, MuExp defaultExp]  kwps = translateKeywordParameters(fd.signature.parameters, fuid, getFormals(funsrc), fd@\loc);
       
       if(ttags["javaClass"]?){
          paramTypes = atuple(atypeList([param | param <- ftype.formals]));
-         params = [ muVar(argNames[i], fuid, i) | i <- [ 0 .. nformals] ];
+         params = [ muVar(argNames[i], fuid, i, ftype.formals[i]) | i <- [ 0 .. nformals] ];
+         keywordTypes = avoid();
          
-         if(kwfs is \default) {
-          	params +=  [ muVar("map_of_keyword_values",fuid,nformals), muVar("map_of_default_values",fuid,nformals+1)];
-         }
+         //TODO
+         //if(kwfs is \default) {
+         // 	params +=  [ muVar("map_of_keyword_values",fuid,nformals), muVar("map_of_default_values",fuid,nformals+1)];
+         //}
          if("<fd.signature.name>" == "typeOf"){		// Take note: special treatment of Types::typeOf
          	body = muCallPrim3("type2symbol", [ muCallPrim3("typeOf", params, fd@\loc), muCon(getGrammar()) ], fd@\loc);
          } else {
-            body = muCallJava("<fd.signature.name>", ttags["javaClass"], paramTypes, keywordTypes, ("reflect" in ttags) ? 1 : 0, params);
+            body = muCallJava("<fd.signature.name>", ttags["javaClass"], ftype, ("reflect" in ttags) ? 1 : 0, params, fuid);
          }
       }
      
       isPub = !fd.visibility is \private;
       isMemo = ttags["memo"]?; 
    
-      tbody = translateFunction("<fd.signature.name>", fd.signature.parameters.formals.formals, isVarArgs, kwps, body, isMemo, when_conditions);
+      tbody = translateFunction("<fd.signature.name>", fd.signature.parameters.formals.formals, isVarArgs, body, isMemo, when_conditions);
      
       formals = [formal | formal <- fd.signature.parameters.formals.formals];
       
@@ -153,10 +187,10 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
   
       //if(nformals > 0) println("formals[0] = <formals[0]>");
       
-      absfpArg = nformals > 0 ? fingerprint(formals[0], false) : 0;
+      //absfpArg = nformals > 0 ? fingerprint(formals[0], false) : 0;
       //println("absfpArg = <absfpArg>");
-      isConcreteArg = nformals > 0 ? isConcretePattern(formals[0]) : false;
-      concfpArg = nformals > 0 && isConcreteArg ? fingerprint(formals[0], true) : 0;
+      //isConcreteArg = nformals > 0 ? isConcretePattern(formals[0]) : false;
+      //concfpArg = nformals > 0 && isConcreteArg ? fingerprint(formals[0], true) : 0;
       //println("concfpArg = <concfpArg>");
      
      
@@ -164,23 +198,24 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
       
       //println("translateFunctionDeclaration: <fuid>, <addr.fuid>, <moduleNames>,  addr.fuid in moduleNames = <addr.fuid in moduleNames>");
       
-      addFunctionToModule(muFunction( fuid, 
+      addFunctionToModule(muFunction(fuid, 
       								 "<fd.signature.name>", 
       								 ftype,
       								 argNames,
-      								 //keywordTypes,
+      								 kwps,
       								 "", //(addr.fuid in moduleNames) ? "" : addr.fuid, 
       								 getFormals(funsrc), 
       								 getScopeSize(funsrc),
       								 isVarArgs, 
       								 isPub,
       								 simpleArgs,
+      								 getExternalRefs(tbody, fuid),
       								 fd@\loc, 
       								 tmods, 
       								 ttags,
-      								 isConcreteArg, 
-      								 absfpArg,
-      								 concfpArg,
+      								 //isConcreteArg, 
+      								 //absfpArg,
+      								 //concfpArg,
       								 tbody));
       
       leaveFunctionScope();
@@ -200,7 +235,7 @@ list[str] getParameterNames({Pattern ","}* formals){
      int arity = size(abs_formals);
      names =
      for(int i <- [0 .. arity]){
-         str argName = "arg<i>";
+         str argName = "$<i>";
          
          if((Pattern)`<Type pt> <Name pn>` := abs_formals[i]){
               argName = "<pn>";
@@ -216,32 +251,21 @@ list[str] getParameterNames({Pattern ","}* formals){
      return names; 
 }
 
+list[MuExp] getExternalRefs(MuExp exp, str fuid)
+    = toList({ v | /v:muVar(str name, str fuid2, int pos, AType atype) := exp, fuid2 != fuid });
+
 /********************************************************************/
 /*                  Translate keyword parameters                    */
 /********************************************************************/
 
-public list[MuExp] translateKeywordParameters(Parameters parameters, str fuid, int pos, loc l) {
+lrel[str name, AType atype, MuExp defaultExp] translateKeywordParameters(Parameters parameters, str fuid, int pos, loc l) {
   KeywordFormals kwfs = parameters.keywordFormals;
   kwmap = [];
   if(kwfs is \default) {
       keywordParamsMap = getKeywords(l);
       kwmap = [ <"<kwf.name>", keywordParamsMap["<kwf.name>"], translate(kwf.expression)> | KeywordFormal kwf <- kwfs.keywordFormalList ];
   }
-  
-  return [ muAssign("map_of_default_values", fuid, pos, muKwpDefaults(kwmap)) ];
-  
-  //if(kwfs is \default) {
-  //    keywordParamsMap = getKeywords(l);
-  //    kwps = [ muAssign("map_of_default_values", fuid, pos, muCallMuPrim("make_mmap_str_entry",[])) ];
-  //    for(KeywordFormal kwf <- kwfs.keywordFormalList) {
-  //        kwps += muCallMuPrim("mmap_str_entry_add_entry_type_ivalue", 
-  //                                [ muVar("map_of_default_values",fuid,pos), 
-  //                                  muCon("<kwf.name>"), 
-  //                                  muCallMuPrim("make_mentry_type_ivalue", [ muTypeCon(keywordParamsMap["<kwf.name>"]), 
-  //                                                                           translate(kwf.expression) ]) ]);
-  //    }
-  //}
- //return kwps;
+  return kwmap;
 }
 
 /********************************************************************/

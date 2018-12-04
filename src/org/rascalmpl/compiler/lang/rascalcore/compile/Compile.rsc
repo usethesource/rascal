@@ -25,17 +25,22 @@ import lang::rascalcore::compile::Rascal2muRascal::RascalModule;
 import lang::rascalcore::compile::Rascal2muRascal::TypeUtils;
 import lang::rascalcore::compile::muRascal2RVM::mu2rvm;
 
-extend lang::rascalcore::check::Checker;
-import lang::rascalcore::check::TypePalConfig;
 
-import lang::rascalcore::compile::muRascal::interpret::Eval;
+import lang::rascalcore::check::TypePalConfig;
+import lang::rascalcore::check::Checker;
+
+import lang::rascalcore::compile::muRascal2Java::CodeGen;
+
+alias RVMModule = value;
 
 public PathConfig getDefaultPathConfig() {
     return pathConfig(   
         srcs = [|project://rascal-core/src/org/rascalmpl/core/library/|,
                 |project://typepal/src|,
                 |project://rascal/src/org/rascalmpl/library|,
-                |project://typepal-examples/src|
+                |project://typepal-examples/src|,
+                |project://rascal-codegen-ideas/src|,
+                |test-modules:///|
                ]
                );
 }
@@ -88,6 +93,7 @@ bool validRVM(str qualifiedModuleName, PathConfig pcfg) {
 
 value /*tuple[TModel, RVMModule]*/ compile1(str qualifiedModuleName, PathConfig pcfg, loc reloc = |noreloc:///|, bool verbose = true, bool optimize=true, bool enableAsserts=false){
 
+    checkModule(qualifiedModuleName); // double work, why needed?
     <tmodels, moduleLocs, modules> = rascalTModelForName(qualifiedModuleName, pcfg, rascalTypePalConfig(classicReifier=true));
     
 	//Configuration config;
@@ -148,6 +154,7 @@ value /*tuple[TModel, RVMModule]*/ compile1(str qualifiedModuleName, PathConfig 
  //  	errors = [ e | e:error(_,_) <- config.messages];
  //  	warnings = [ w | w:warning(_,_) <- config.messages ];
     tm = tmodels[qualifiedModuleName];
+    println("tm:"); iprintln(tm);
     errors = [ e | e:error(_,_) <- tm.messages];
    	if(size(errors) > 0) {
    		rvmMod = errorRVMModule("<M.header.name>", toSet(tm.messages), moduleLoc);
@@ -165,8 +172,11 @@ value /*tuple[TModel, RVMModule]*/ compile1(str qualifiedModuleName, PathConfig 
         start_comp = cpuTime();
        	muMod = r2mu(M, tm, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
        	iprintln(muMod);
-       	eres = eval(muMod);
-       	println("\n#### EVAL =\> <eval(muMod)>\n");
+       //	eres = eval(muMod);
+       //
+       //	println("\n#### EVAL =\> <eval(muMod)>\n");
+        println(trans(muMod, tmodels, moduleLocs));
+       	return true;
        	return eres.val;
        	throw "STOPPED after eval";
     

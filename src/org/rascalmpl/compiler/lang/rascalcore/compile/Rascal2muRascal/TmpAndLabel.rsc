@@ -104,6 +104,9 @@ void leaveBacktrackingScope(){
 
 str getLabel(Label label) =
   (label is \default) ? "<label.name>" : nextTmp();
+
+str getLabel(Label label, str alt) =
+  (label is \default) ? "<label.name>" : nextLabel(alt);
   
 str asTmp(str name) = "TMP_<name>";
 str asUnwrappedThrown(str name) = name + "_unwrapped";

@@ -320,6 +320,7 @@ public tuple[set[AType], set[Production]] getReachableTypes(AType subjectType, s
 // Extract the reachable abstract types
 
 private  tuple[set[AType], set[Production]] getReachableAbstractTypes(AType subjectType, set[str] consNames, set[AType] patternTypes){
+    return <{}, {}>; // TODO
     desiredPatternTypes = { s | /AType s := patternTypes};
 	desiredSubjectTypes = { s | /AType s := subjectType};
 	desiredTypes = desiredSubjectTypes + desiredPatternTypes;

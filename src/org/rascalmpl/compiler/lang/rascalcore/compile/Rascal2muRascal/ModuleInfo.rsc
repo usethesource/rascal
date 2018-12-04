@@ -13,7 +13,7 @@ private str function_uid;							// uid of current function
 private list[str] imported_modules = [];			// modules imported by current module
 private list[str] extended_modules = [];			// modules extended by current module
 private list[MuFunction] functions_in_module = [];	// functions declared in current module
-private list[MuVariable] variables_in_module = [];	// variables declared in current module
+private list[MuModuleVar] variables_in_module = [];	// variables declared in current module
 private list[MuExp] variable_initializations = [];	// initialized variables declared in current module
 
 private set[str] overriddenLibs = {};				// Java libraries overriden for compiler
@@ -104,11 +104,11 @@ public void setFunctionsInModule(list[MuFunction] funs) {
    //for(f <- functions_in_module){	println("\t<f.qname>, \"<f.scopeIn>\""); }
 }
 
-public void addVariableToModule(MuVariable muVar){
+public void addVariableToModule(MuModuleVar muVar){
 	variables_in_module += [muVar];
 }
 
-public list[MuVariable] getVariablesInModule(){
+public list[MuModuleVar] getVariablesInModule(){
 	return variables_in_module;
 }
 
