@@ -42,7 +42,7 @@ import lang::rascal::\syntax::Rascal;
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::Declaration;
 extend lang::rascalcore::check::Expression;
-extend lang::rascalcore::check::GetGrammar;
+extend lang::rascalcore::check::ADTandGrammar;
 extend lang::rascalcore::check::Import;
 extend lang::rascalcore::check::Operators;
 extend lang::rascalcore::check::Pattern;
@@ -116,7 +116,7 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
     if(!s.reportedErrors()){
         for(mname <- namedTrees){
             pt = namedTrees[mname];
-            g = getGrammar(getLoc(pt), s);
+            g = addGrammar(getLoc(pt), s);
             if(!isEmpty(g.rules)){ 
                 pname = "DefaultParser";
                 if(Module m := pt) { 
@@ -129,6 +129,7 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
                 //msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/grammar/tests/generated_parsers|, s.getConfig().verbose);
             //s.addMessages(msgs);
             }
+            addADTs(s);
         }
    }
 }
@@ -140,7 +141,9 @@ public PathConfig getDefaultPathConfig() {
         srcs = [|project://rascal-core/src/org/rascalmpl/core/library/|,
                 |project://typepal/src|,
                 |project://rascal/src/org/rascalmpl/library|,
-                |project://typepal-examples/src|
+                |project://typepal-examples/src|,
+                |project://rascal-codegen-ideas/src|,
+                |test-modules:///|
                ]
                );
 }

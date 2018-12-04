@@ -34,7 +34,7 @@ data AType (str label = "")
      | amap(AType keyType, AType valType)
      | arel(AType elemType)  
      | alrel(AType elemType)
-     | afunc(AType ret, list[AType] formals, list[Keyword] kwFormals,  bool varArgs=false, str deprecationMessage="")
+     | afunc(AType ret, list[AType] formals, list[Keyword] kwFormals,  bool varArgs=false, str deprecationMessage="", bool isConcreteArg=false, int abstractFingerprint=0, int concreteFingerprint=0)
      | aalias(str aname, list[AType] parameters, AType aliased)
      | aanno(str aname, AType onType, AType annoType)
      
@@ -520,7 +520,10 @@ AType alub(tvar(s), AType r) { /*println("alub(tvar(<s>), <r>)");*/ throw TypeUn
 AType alub(AType l, tvar(s)) { /*println("alub(<l>, tvar(<s>))");*/ throw TypeUnavailable(); }
 
 AType alub(AType s, s) = s;
-default AType alub(AType s, AType t) = (s.label? || t.label?) ? alub(unset(s, "label") , unset(t, "label")) : avalue();
+default AType alub(AType s, AType t)
+    = (s.label? || t.label?) ? (s.label == t.label)  ? alub(unset(s, "label") , unset(t, "label"))[label=s.label]
+                                                     : alub(unset(s, "label"), unset(t, "label"))
+                             : avalue();
 
 AType alub(avalue(), AType t) = avalue();
 AType alub(AType s, avalue()) = avalue();
