@@ -51,11 +51,11 @@ int fingerprint1(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> 
     return res;
 }
 int fingerprint1(p:(Pattern) `{<{Pattern ","}* pats>}`, AType atype, bool useConcreteFingerprint) = getFingerprint("set", useConcreteFingerprint);
-int fingerprint1(p:(Pattern) `\<<{Pattern ","}* pats>\>`, AType atype, bool useConcreteFingerprint) = getFingerprint("tuple", size(pats), useConcreteFingerprint);
+int fingerprint1(p:(Pattern) `\<<{Pattern ","}* pats>\>`, AType atype, bool useConcreteFingerprint) = getFingerprint("tuple", size([pat | pat <- pats]), useConcreteFingerprint);
 int fingerprint1(p:(Pattern) `[<{Pattern ","}* pats>]`, AType atype, bool useConcreteFingerprint) = getFingerprint("list", useConcreteFingerprint);
-int fingerprint1(p:(Pattern) `<Name name> : <Pattern pattern>`, AType atype, bool useConcreteFingerprint) = fingerprint1(pattern, useConcreteFingerprint);
-int fingerprint1(p:(Pattern) `[ <Type tp> ] <Pattern argument>`, AType atype, bool useConcreteFingerprint) = fingerprint1(argument, useConcreteFingerprint);
-int fingerprint1(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`,  AType atype,bool useConcreteFingerprint) = fingerprint1(pattern, useConcreteFingerprint);
+int fingerprint1(p:(Pattern) `<Name name> : <Pattern pattern>`, AType atype, bool useConcreteFingerprint) = fingerprint1(pattern, atype, useConcreteFingerprint);
+int fingerprint1(p:(Pattern) `[ <Type tp> ] <Pattern argument>`, AType atype, bool useConcreteFingerprint) = fingerprint1(argument, atype, useConcreteFingerprint);
+int fingerprint1(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`,  AType atype, bool useConcreteFingerprint) = fingerprint1(pattern, atype, useConcreteFingerprint);
 default int fingerprint1(Pattern p, AType atype, bool useConcreteFingerprint) {
     //println("fingerprint <fingerprintDefault> (default), <getType(p@\loc)> for <p>");
     return fingerprintDefault;
