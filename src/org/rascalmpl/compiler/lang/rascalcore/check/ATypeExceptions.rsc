@@ -10,4 +10,5 @@ data RuntimeException
     | invalidInstantiation(str reason)
     | rascalCheckerInternalError(str reason)
     | rascalCheckerInternalError(loc at, str reason)
+    
     ;

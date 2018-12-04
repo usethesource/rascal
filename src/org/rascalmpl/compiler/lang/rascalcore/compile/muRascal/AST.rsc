@@ -8,7 +8,6 @@ import IO;
 
 import lang::rascalcore::check::AType;
 import lang::rascalcore::grammar::definition::Grammar;
-import lang::rascalcore::compile::muRascal::FlattenArgs;
 
 /*
  * Abstract syntax for muRascal.

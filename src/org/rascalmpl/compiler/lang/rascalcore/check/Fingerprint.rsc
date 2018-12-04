@@ -17,7 +17,7 @@ int fingerprint(Pattern p, AType atype, bool useConcreteFingerprint) {
 }
 
 int fingerprint1(p:(Pattern) `<Literal lit>`, AType atype, bool useConcreteFingerprint) =
-    getFingerprint(readTextValueString("<lit>"), atype, useConcreteFingerprint) when !(p.literal is regExp);
+    getFingerprint(readTextValueString("<lit>"), useConcreteFingerprint) when !(p.literal is regExp);
 
 int fingerprint1(p:(Pattern) `<Concrete concrete>`, AType atype, bool useConcreteFingerprint) {
     return 0;  //TODO: fix this
