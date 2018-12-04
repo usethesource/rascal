@@ -170,7 +170,6 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
         
         before = cpuTime();
         ms = getImportAndExtendGraph(topModuleName, pcfg, config.logImports);
-        iprintln(ms.moduleLocs);
         if(forceCompilationTopModule){
             ms.valid -= {topModuleName};
             ms.tmodels = delete(ms.tmodels, topModuleName);
@@ -263,9 +262,7 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
             println("<topModuleName> <tcollector+tsolver> ms [ collector: <tcollector> ms; solver: <tsolver> ms; save: <tsave> ms ]");
             println("<topModuleName>, measured total time: <toMilli(cpuTime() - beginTime)> ms");
         }
-      
-        iprintln(ms.moduleLocs);
-        
+              
         return <ms.tmodels, ms.moduleLocs, ms.modules>;
     } catch ParseError(loc src): {
         return <("<mloc>" : tmodel()[messages = [ error("Parse error", src)  ]]), (), ()>;
