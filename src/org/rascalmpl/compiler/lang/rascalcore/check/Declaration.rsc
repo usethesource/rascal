@@ -4,12 +4,14 @@ module lang::rascalcore::check::Declaration
 extend analysis::typepal::TypePal;
 
 extend lang::rascalcore::check::AType;
+extend lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::ConvertType;
 extend lang::rascalcore::check::Expression;
 extend lang::rascalcore::check::Import;
 extend lang::rascalcore::check::Pattern;
 extend lang::rascalcore::check::Statement;
 
+extend lang::rascalcore::check::Fingerprint;
 import lang::rascalcore::check::ATypeExceptions;
 import lang::rascalcore::check::ATypeInstantiation;
 import lang::rascalcore::check::ATypeUtils;
@@ -230,9 +232,9 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         
         dt = defType([signature], AType(Solver s) {
                  ft = s.getType(signature);
+                 nformals = size(ft.formals);
                  if(signature.parameters is varArgs) {
                     ft.varArgs = true;
-                    nformals = size(ft.formals);
                     if(nformals > 0){
                         ft.formals[nformals-1] = alist(ft.formals[-1]);
                     }
@@ -241,10 +243,20 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
                  if(deprecated) {
                     ft.deprecationMessage = deprecationMessage;
                  }
+                 
+                 if(nformals > 0){
+                    the_formals = getFormals(signature.parameters);
+                    ft.abstractFingerprint = fingerprint(the_formals[0], ft.formals[0], false);
+                    if(isConcretePattern(the_formals[0], ft.formals[0])){
+                        ft.isConcreteArg = true;
+                        ft.concreteFingerprint = fingerprint(the_formals[0], ft.formals[0], true);
+                    }
+                 }
                  return ft;
              });
         dt.vis = getVis(decl.visibility, publicVis());
         if(!isEmpty(tagsMap)) dt.tags = tagsMap;
+        
         modifiers = ["<m>" | m <- signature.modifiers.modifiers];
         if(!isEmpty(modifiers)) dt.modifiers = modifiers;
         //if(lrel[str,loc] np := nestedParams && !isEmpty(np)) dt.nestedParameters = np;
@@ -385,7 +397,12 @@ void collect(Parameters parameters, Collector c){
             //}
             c.calculate("formals", parameters, [],
                 AType(Solver s) { 
-                        res = atypeList([getPatternType(f, avalue(), scope, s) | f <- formals]);
+                        ftypes = for(f <- formals){
+                            ftype = getPatternType(f, avalue(), scope, s);
+                            s.fact(f, ftype);
+                            append ftype;
+                        }
+                        res = atypeList(ftypes); // atypeList([getPatternType(f, avalue(), scope, s) | f <- formals]);
                         //res = atypeList([unset(s.getType(f), "label") | f <- formals]); /* unset ? */ 
                        //println("parameters <parameters> at <getLoc(parameters.formals)> ==\> <res>");
                         return res;
@@ -618,7 +635,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
                 AType(Solver s){
                     adtType = s.getType(adt);
                     kwFormalTypes = [<s.getType(kwf.\type)[label=prettyPrintName(kwf.name)], kwf.expression> | kwf <- kwFormals + commonKwFormals];
-                    formalTypes = [/*unset(*/s.getType(f)/*, "label")*/ | f <- formals];
+                    formalTypes = [f is named ? s.getType(f)[label=prettyPrintName(f.name)] : s.getType(f) | f <- formals];
                     return acons(adtType, formalTypes, kwFormalTypes)[label=prettyPrintName(name)];
                 }));
             c.fact(current, name);

@@ -307,6 +307,20 @@ default bool isNodeType(AType _) = false;
 @doc{Create a new node type.}
 AType makeNodeType() = anode([]);
 
+// ---- hasKeywordParameters 
+
+bool hasKeywordParameters(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
+    = !isEmpty(kwFormals);
+    
+bool hasKeywordParameters(acons(AType adt, list[AType] fields, list[Keyword] kwFields))
+    = !isEmpty(kwFields);
+    
+bool hasKeywordParameters(overloadedAType(overloads))
+    = any(<loc k, IdRole idr, AType t> <- overloads, hasKeywordParameters(t));
+
+default bool hasKeywordParameters(AType t) = false;
+
+
 // ---- void
 
 @doc{
@@ -882,6 +896,11 @@ bool isLayoutType(AType::\alt(set[AType] alts)) = any(a <- alts, isLayoutType(a)
 bool isLayoutType(AType::\seq(list[AType] symbols)) = all(s <- symbols, isLayoutType(s));
 default bool isLayoutType(AType _) = false;
 
+// ---- isConcretePattern
+
+bool isConcretePattern(Pattern p, AType tp) {
+    return isNonTerminalType(tp) && !(p is callOrTree) /*&& Symbol::sort(_) := tp*/;
+} 
 // ---- nonterminal
 
 @doc{Synopsis: Determine if the given type is a nonterminal.}

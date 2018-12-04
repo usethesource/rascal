@@ -550,6 +550,7 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
               <filteredOverloads, identicalFormals> = filterOverloads(overloads, size(actuals));
               if({<key, idr, tp>} := filteredOverloads){
                 texp = tp;
+                s.specializedFact(expression, tp);
               } else {
                 overloads = filteredOverloads;
                 validReturnTypeOverloads = {};

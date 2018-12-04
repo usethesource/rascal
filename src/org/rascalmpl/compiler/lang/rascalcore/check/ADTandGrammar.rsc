@@ -1,6 +1,6 @@
 @bootstrapParser
 @bootstrapParser
-module lang::rascalcore::check::GetGrammar
+module lang::rascalcore::check::ADTandGrammar
    
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeUtils;
@@ -21,20 +21,26 @@ import Set;
 import Map;
 import Exception;
 
+set[AType] addADTs(Solver s){
+    facts = s.getFacts();
+    usedDataADTs = {unset(t, "label") | loc k <- facts, /AType t:aadt(str name, list[AType] parameters, sr) := facts[k], sr == dataSyntax()};
+    s.putStore("ADTs", usedDataADTs);
+    return usedDataADTs;
+}
+
 list[&T <: node ] unsetRec(list[&T <: node] args) = [unsetRec(a) | a <- args]; 
 
 bool isManualLayout(AProduction p) = (p has attributes && \tag("manual"()) in p.attributes);
 
-AGrammar getGrammar(loc scope, Solver s){
+AGrammar addGrammar(loc scope, Solver s){
     facts = s.getFacts();
-    usedADTs = {unset(t, "label") | loc k <- facts, /AType t:aadt(str name, list[AType] parameters, sr) := facts[k], sr != dataSyntax()};
-    
+    usedSyntaxADTs = {unset(t, "label") | loc k <- facts, /AType t:aadt(str name, list[AType] parameters, sr) := facts[k], sr != dataSyntax()};
     allStarts = {};
     allLayouts = {};
     allManualLayouts = {};
     definitions = ();
     //PM. maybe also generate prod(Symbol::empty(),[],{}) 
-    for(AType adtType <- usedADTs){
+    for(AType adtType <- usedSyntaxADTs){
         //println("getGrammar: <adtType>");
         productions = {p | <id, aprod(p)> <- s.getAllDefinedInType(adtType, scope, dataOrSyntaxRoles)};
         definitions[adtType] = choice(adtType, productions);
@@ -70,7 +76,9 @@ AGrammar getGrammar(loc scope, Solver s){
         println("$$$$$$ WARNING: Cannot yet handle multiple layout: <allLayouts>");
         //throw "Cannot yet handle multiple layout: <allLayouts>";
     }
-    return expandKeywords(g);
+    g = expandKeywords(g);
+    s.putStore("grammar", g);
+    return g;
 }
 // A keyword production may only contain:
 // - literals

@@ -463,7 +463,7 @@ void collect(current: (Statement) `solve ( <{QualifiedName ","}+ variables> <Bou
             c.use(v, variableRoles);
         }
     }
-    c.fact(current, avoid());
+    c.fact(current, body);
     collect(variables, bound, body, c);
 }
 
@@ -1001,7 +1001,7 @@ void collect(current: (Statement) `<Type varType> <{Variable ","}+ variables>;`,
     scope = c.getScope();
     c.enterScope(current); // wrap in extra scope to isolate variables declared in complex (function) types
         for(var <- variables){
-            c.defineInScope(scope, prettyPrintName(var.name), variableId(), var.name, defType(varType));
+            c.defineInScope(scope, prettyPrintName(var.name), variableId(), var.name, defType([varType], makeSyntaxType(varType)));
             
             if(var is initialized){
                 c.enterLubScope(var);

@@ -75,11 +75,7 @@ data Modifier
 // Visibility information
 data DefInfo(Vis vis = publicVis());
 
-//// Formal parameter list of function (included ones nested in patterns)
-//data DefInfo(lrel[str name, loc def] nestedParameters = []);
-//
-//// Keyword parameters are explicitly marked
-//data DefInfo(bool isKeywordFormal = false);
+//data DefInfo(int abstractFingerprint = 0, int concreteFingerPrint = 0, bool isConcreteArg = false);
 
 data DefInfo(map[str,str] tags = ());
 
@@ -366,7 +362,7 @@ data TypePalConfig(
     bool logImports                 = false,
     bool classicReifier             = false,
     bool warnUnused                 = true,
-    bool warnUnusedFormals           = true,
+    bool warnUnusedFormals          = true,
     bool warnUnusedVariables        = true,
     bool warnUnusedPatternFormals   = false,
     bool warnDeprecated             = false
