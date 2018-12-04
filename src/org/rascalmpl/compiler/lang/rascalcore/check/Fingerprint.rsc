@@ -20,10 +20,11 @@ int fingerprint1(p:(Pattern) `<Literal lit>`, AType atype, bool useConcreteFinge
     getFingerprint(readTextValueString("<lit>"), atype, useConcreteFingerprint) when !(p.literal is regExp);
 
 int fingerprint1(p:(Pattern) `<Concrete concrete>`, AType atype, bool useConcreteFingerprint) {
-    t = parseConcrete(concrete);
-    res = isConcreteHole(t) ? fingerprintDefault : getFingerprint(parseConcrete(concrete), atype, useConcreteFingerprint);
-    //println("fingerprint <res>, <useConcreteFingerprint>, <getType(p@\loc)> for <p>"); iprintln(parseConcrete(concrete));
-    return res;
+    return 0;  //TODO: fix this
+    //t = parseConcrete(concrete);
+    //res = isConcreteHole(t) ? fingerprintDefault : getFingerprint(parseConcrete(concrete), atype, useConcreteFingerprint);
+    ////println("fingerprint <res>, <useConcreteFingerprint>, <getType(p@\loc)> for <p>"); iprintln(parseConcrete(concrete));
+    //return res;
 }
 
 int fingerprint1(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, AType atype, bool useConcreteFingerprint) { 
