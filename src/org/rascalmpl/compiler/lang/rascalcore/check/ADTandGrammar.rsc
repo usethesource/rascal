@@ -33,52 +33,57 @@ list[&T <: node ] unsetRec(list[&T <: node] args) = [unsetRec(a) | a <- args];
 bool isManualLayout(AProduction p) = (p has attributes && \tag("manual"()) in p.attributes);
 
 AGrammar addGrammar(loc scope, Solver s){
-    facts = s.getFacts();
-    usedSyntaxADTs = {unset(t, "label") | loc k <- facts, /AType t:aadt(str name, list[AType] parameters, sr) := facts[k], sr != dataSyntax()};
-    allStarts = {};
-    allLayouts = {};
-    allManualLayouts = {};
-    definitions = ();
-    //PM. maybe also generate prod(Symbol::empty(),[],{}) 
-    for(AType adtType <- usedSyntaxADTs){
-        //println("getGrammar: <adtType>");
-        productions = {p | <id, aprod(p)> <- s.getAllDefinedInType(adtType, scope, dataOrSyntaxRoles)};
-        definitions[adtType] = choice(adtType, productions);
-        if(adtType.syntaxRole == layoutSyntax()){
-            if(any(p <- productions, isManualLayout(p))){
-               allManualLayouts += adtType;
-            } else {
-                allLayouts = {*allLayouts, adtType};
+    try {
+        facts = s.getFacts();
+        usedSyntaxADTs = {unset(t, "label") | loc k <- facts, /AType t:aadt(str name, list[AType] parameters, sr) := facts[k], sr != dataSyntax()};
+        allStarts = {};
+        allLayouts = {};
+        allManualLayouts = {};
+        definitions = ();
+        //PM. maybe also generate prod(Symbol::empty(),[],{}) 
+        for(AType adtType <- usedSyntaxADTs){
+            println("getGrammar: <adtType>");
+            productions = {p | <id, aprod(p)> <- s.getAllDefinedInType(adtType, scope, dataOrSyntaxRoles)};
+            definitions[adtType] = choice(adtType, productions);
+            if(adtType.syntaxRole == layoutSyntax()){
+                if(any(p <- productions, isManualLayout(p))){
+                   allManualLayouts += adtType;
+                } else {
+                    allLayouts = {*allLayouts, adtType};
+                }
+            } else if(adtType.syntaxRole == keywordSyntax()){
+                checkKeyword(adtType, productions, scope, {}, s);
             }
-        } else if(adtType.syntaxRole == keywordSyntax()){
-            checkKeyword(adtType, productions, scope, {}, s);
+           
+            //if(s.isStart){
+            //    allStarts += adtType; 
+            //    definitions[\start(a)] = choice(\start(adtType), { prod(\start(adtType), [adtType]) });
+            //}
         }
-       
-        //if(s.isStart){
-        //    allStarts += adtType; 
-        //    definitions[\start(a)] = choice(\start(adtType), { prod(\start(adtType), [adtType]) });
-        //}
-    }
-    //println("allStarts: <allStarts>");
-    //println("allLayouts: <allLayouts>");
-    //iprintln(definitions);
-    g = grammar(allStarts, definitions);
-    
-    if(isEmpty(allLayouts)){
-        defaultLayout = aadt("$default$", [], layoutSyntax());
-        definitions += (defaultLayout : choice(defaultLayout, {prod(defaultLayout, [])}));
+        //println("allStarts: <allStarts>");
+        //println("allLayouts: <allLayouts>");
+        //iprintln(definitions);
         g = grammar(allStarts, definitions);
-        g = layouts(g, defaultLayout, allManualLayouts);
-   
-    } else if(size(allLayouts) == 1){
-        g = layouts(g, getOneFrom(allLayouts), allManualLayouts);
-    } else { //TODO: resolve multiple layout
-        println("$$$$$$ WARNING: Cannot yet handle multiple layout: <allLayouts>");
-        //throw "Cannot yet handle multiple layout: <allLayouts>";
+        
+        if(isEmpty(allLayouts)){
+            defaultLayout = aadt("$default$", [], layoutSyntax());
+            definitions += (defaultLayout : choice(defaultLayout, {prod(defaultLayout, [])}));
+            g = grammar(allStarts, definitions);
+            g = layouts(g, defaultLayout, allManualLayouts);
+       
+        } else if(size(allLayouts) == 1){
+            g = layouts(g, getOneFrom(allLayouts), allManualLayouts);
+        } else { //TODO: resolve multiple layout
+            println("$$$$$$ WARNING: Cannot yet handle multiple layout: <allLayouts>");
+            //throw "Cannot yet handle multiple layout: <allLayouts>";
+        }
+        g = expandKeywords(g);
+        s.putStore("grammar", g);
+        return g;
+    } catch TypeUnavailable(): {
+        // protect against undefined entities in the grammar that have not yet been reported.
+        return grammar({}, ());
     }
-    g = expandKeywords(g);
-    s.putStore("grammar", g);
-    return g;
 }
 // A keyword production may only contain:
 // - literals
