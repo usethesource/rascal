@@ -711,7 +711,8 @@ AProduction getProd(AType adtType, Tree tree, Solver s){
 }
 
 void collect(current: (Prod) `: <Name referenced>`, Collector c){
-    throw "reference not yet implemented";
+    c.use(referenced);
+    c.fact(current, referenced);
 }
 
 AProduction computeProd(Tree current, AType adtType, ProdModifier* modifiers, list[Sym] symbols, Solver s){
