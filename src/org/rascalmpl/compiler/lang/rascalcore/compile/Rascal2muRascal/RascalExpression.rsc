@@ -15,7 +15,6 @@ import Exception;
 import lang::rascal::\syntax::Rascal;
 
 import lang::rascalcore::compile::muRascal::AST;
-import lang::rascalcore::compile::muRascal::MuBoolExp;
 
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
