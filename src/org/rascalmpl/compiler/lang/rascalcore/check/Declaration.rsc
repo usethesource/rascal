@@ -711,7 +711,7 @@ AProduction getProd(AType adtType, Tree tree, Solver s){
 }
 
 void collect(current: (Prod) `: <Name referenced>`, Collector c){
-    c.use(referenced);
+    c.use(referenced, {variableId()});
     c.fact(current, referenced);
 }
 
