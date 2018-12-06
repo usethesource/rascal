@@ -488,7 +488,8 @@ public abstract class Import {
          IConstructor pattern = getConcretePattern(tree);
          
          if (pattern != null) {
-           ITree parsedFragment = parseFragment(eval, env, (ITree) TreeAdapter.getArgs(tree).get(0), location);
+           boolean inPattern = TreeAdapter.getSortName(tree).equals("Pattern");
+           ITree parsedFragment = parseFragment(eval, env, (ITree) TreeAdapter.getArgs(tree).get(0), location, inPattern);
            return TreeAdapter.setArgs(tree, vf.list(parsedFragment));
          }
          else {
@@ -568,7 +569,7 @@ public abstract class Import {
     }
   }
   
-  private static ITree parseFragment(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, ITree tree, ISourceLocation uri) {
+  private static ITree parseFragment(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, ITree tree, ISourceLocation uri, boolean inPattern) {
     IConstructor symTree = TreeAdapter.getArg(tree, "symbol");
     ITree lit = TreeAdapter.getArg(tree, "parts");
     
