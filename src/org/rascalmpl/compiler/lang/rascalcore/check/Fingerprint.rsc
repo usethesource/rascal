@@ -33,9 +33,9 @@ int fingerprint1(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> 
     if(expression is qualifiedName && (QualifiedName)`<{Name "::"}+ nl>` := expression.qualifiedName){  
        s = "<[ n | n <- nl ][-1]>";
        if(useConcreteFingerprint){  // Abstract pattern during concrete match
-            pr = getLabeledProduction(s, atype);
-            res = getFingerprintNode(pr);
-            //println("fingerprint1: <pr>, <res>");
+            res = 0; // TODO Fix this
+            //pr = getLabeledProduction(s, atype);
+            //res = getFingerprintNode(pr);
        } else {                     // Abstract pattern druing abstract match
             if(isNonTerminalType(atype)){
             ;// an abstract pattern of a nonterminal type will use labels in a production
