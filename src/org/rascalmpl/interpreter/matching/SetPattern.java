@@ -211,18 +211,25 @@ public class SetPattern extends AbstractMatchingResult {
 			IMatchingResult child = patternChildren.get(i);
 			if(debug)System.err.println("child = " + child);
 			
-			if (child instanceof TypedMultiVariablePattern) {
-				TypedMultiVariablePattern tmvVar = (TypedMultiVariablePattern) child;
-				Type childType = child.getType(env, null);
+			 if (child instanceof TypedMultiVariablePattern) {
+		          TypedMultiVariablePattern tmv = (TypedMultiVariablePattern) child;
+		          
+		          // now we know what we are, a set multi variable!
+		          child = new DesignatedTypedMultiVariablePattern(ctx, (Expression) tmv.getAST(), tf.setType(tmv.getType(env,  null)), tmv.getName()); 
+		          
+		          // cache this information for the next round, we'll still be a list
+		          patternChildren.set(i, child);
+		      }
+			 
+			if (child instanceof DesignatedTypedMultiVariablePattern) {
+				DesignatedTypedMultiVariablePattern tmvVar = (DesignatedTypedMultiVariablePattern) child;
+				Type childType = tf.setType(child.getType(env, null));
 				String name = tmvVar.getName();
 				
 				if (!tmvVar.isAnonymous() && allVars.containsKey(name)) {
 					throw new RedeclaredVariable(name, getAST());
 				}
-				
-				if(childType.comparable(staticSubjectElementType)
-						|| (tmvVar.bindingInstance() && childType.comparable(staticSetSubjectType))) {
-					tmvVar.covertToSetType();
+				else if (childType.comparable(staticSetSubjectType)) {
 					if (!tmvVar.isAnonymous()) {
 						patVars.add(name);
 						allVars.put(name,  (IVarPattern)child);
