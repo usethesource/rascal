@@ -85,7 +85,7 @@ public class SetPattern extends AbstractMatchingResult {
 			Type childType = child.getType(env, patternVars);
 			patternVars = merge(patternVars, patternChildren.get(i).getVariables());
 			if(debug)System.err.println(" i = " + i + ": " + patternChildren.get(i) + ", type = " + childType);
-			boolean isMultiVar = child instanceof MultiVariablePattern || child instanceof TypedMultiVariablePattern;
+			boolean isMultiVar = child instanceof MultiVariablePattern || child instanceof DesignatedTypedMultiVariablePattern;
 			  
 			if(childType.isSet() && isMultiVar){
 				elemType = elemType.lub(childType.getElementType());
