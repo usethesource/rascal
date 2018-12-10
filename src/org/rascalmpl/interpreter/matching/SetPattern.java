@@ -471,12 +471,18 @@ public class SetPattern extends AbstractMatchingResult {
 	
 	private boolean unexploredAlternatives(){
 		assert currentVar == nVar;
-		for(int j = 0; j < nVar; j++){
-			if(isSetVar(j)){
-				if(varGen[j].hasNext())
+		for (int j = 0; j < nVar; j++) {
+			if (isSetVar(j)) {
+				if (varGen[j].hasNext()) {
 					return true;
-			} else if(isNested[j] && varPat[j].hasNext())
-				return true;
+				}
+			} 
+			else if (isNested[j] && varPat[j].hasNext()) {
+			    return true;
+			}
+			else if (varGen[j].hasNext()) {
+			    return true;
+			}
 		}
 		return false;
 	}
@@ -501,9 +507,10 @@ public class SetPattern extends AbstractMatchingResult {
 				if(isSetVar(i)){
 					varGen[i] = new SubSetGenerator(elements, ctx);
 				} else {
-					if(elements.size() == 0)
+					if(elements.size() == 0) {
 						return false;
-					varGen[i] = new SingleElementIterator(elements, ctx);
+					}
+					varGen[i] = elements.iterator();
 				}
 			} else {
 				// Variable has been set before, use its dynamic type to distinguish set variables.
@@ -532,9 +539,10 @@ public class SetPattern extends AbstractMatchingResult {
 			varGen[i] = new SubSetGenerator(elements, ctx);
 			return true;
 		}
-		if(elements.size() == 0)
+		if(elements.size() == 0) {
 			return false;
-		varGen[i] = new SingleElementIterator(elements, ctx);
+		}
+		varGen[i] = elements.iterator();
 		return true;
 	}
 	
