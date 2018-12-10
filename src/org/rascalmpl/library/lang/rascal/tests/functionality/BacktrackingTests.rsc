@@ -57,7 +57,7 @@ test bool testSet15() = {1, {*int S1, int N, *int S2}, 3} := {1, {1,2,3}, 3} && 
 test bool testSet16() = {1, {*int S1, int N, *int S2}, 3} := {1, {1,2,3}, 3} && N == 3;
  
 // checking for issue #1197  	
-test bool testSet17() = [ <a,b> | {int a, int b} := {1,2} ] == [<1,2>, <2,1>];
+test bool testSet17() = { <a,b> | {int a, int b} := {1,2} } == {<1,2>, <2,1>};
   	
 // and
   
