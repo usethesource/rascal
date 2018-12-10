@@ -339,7 +339,7 @@ public class ListPattern extends AbstractMatchingResult  {
       IMatchingResult child = patternChildren.get(i);
       Type childType = child.getType(env, patternVars);
       patternVars = merge(patternVars, patternChildren.get(i).getVariables());
-      boolean isMultiVar = child instanceof MultiVariablePattern || child instanceof TypedMultiVariablePattern;
+      boolean isMultiVar = child instanceof MultiVariablePattern || child instanceof DesignatedTypedMultiVariablePattern;
       
       if(childType.isList() && isMultiVar){
         elemType = elemType.lub(childType.getElementType());
