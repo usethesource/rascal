@@ -223,7 +223,7 @@ public class SetPattern extends AbstractMatchingResult {
 			 
 			if (child instanceof DesignatedTypedMultiVariablePattern) {
 				DesignatedTypedMultiVariablePattern tmvVar = (DesignatedTypedMultiVariablePattern) child;
-				Type childType = tf.setType(child.getType(env, null));
+				Type childType = child.getType(env, null);
 				String name = tmvVar.getName();
 				
 				if (!tmvVar.isAnonymous() && allVars.containsKey(name)) {
