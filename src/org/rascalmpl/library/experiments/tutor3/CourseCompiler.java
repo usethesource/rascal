@@ -13,7 +13,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
 import java.nio.file.FileVisitResult;
-import java.nio.file.FileVisitor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,6 +29,8 @@ import org.asciidoctor.SafeMode;
 import org.rascalmpl.library.experiments.Compiler.Commands.CommandOptions;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.uri.URIResolverRegistry;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IList;
@@ -143,7 +144,8 @@ public class CourseCompiler {
 	}
 	
     public static void compileCourse(Asciidoctor dr, Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
-        copyStandardFilesPerCourse(srcPath, courseName, destPath);
+        ISourceLocation absLoc = URIUtil.correctLocation("file", "", destPath.toFile().getAbsolutePath());
+        copyStandardFilesPerCourse(courseName, absLoc);
 
         Onthology o = new Onthology(srcPath, courseName, destPath, libSrcPath, pcfg, executor);
 
@@ -155,7 +157,8 @@ public class CourseCompiler {
     
     public static void compileCourseCommand(String classpath, Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException {
         assert executor != null;
-        copyStandardFilesPerCourse(srcPath, courseName, destPath);
+        ISourceLocation absLoc = URIUtil.correctLocation("file", "", destPath.toFile().getAbsolutePath());
+        copyStandardFilesPerCourse(courseName, absLoc);
 
         Onthology o = new Onthology(srcPath, courseName, destPath, libSrcPath, pcfg, executor);
 
@@ -165,32 +168,37 @@ public class CourseCompiler {
         runAsciiDoctorCommand(classpath, srcPath, courseName, destPath, new PrintWriter(System.err));
     }
 	
-	private static void copyStandardFilesPerCourse(Path srcPath, String courseName, Path destPath) throws IOException {
+	private static void copyStandardFilesPerCourse(String courseName, ISourceLocation destPath) throws IOException {
 		ArrayList<String> files  = new ArrayList<>();
+		URIResolverRegistry reg = URIResolverRegistry.getInstance();
 		
 		files.add("docinfo.html");
-		Path coursePath = destPath.resolve(courseName);
-		if(!Files.exists(coursePath)){
-			Files.createDirectories(coursePath);
+		ISourceLocation coursePath = URIUtil.getChildLocation(destPath, courseName);
+		
+		if(!reg.exists(coursePath)){
+			reg.mkDirectory(coursePath);
 		}
+		
+		ISourceLocation srcPath = URIUtil.correctLocation("courses", "", "");
+		
 		for(String file : files){
-			Path src = srcPath.resolve(file);
-			Path dest = coursePath.resolve(file);
-			Path parent = dest.getParent();
-			if(!Files.exists(parent)){
-				Files.createDirectories(parent);
+			ISourceLocation src = URIUtil.getChildLocation(srcPath, file);
+			ISourceLocation dest = URIUtil.getChildLocation(coursePath, file);
+			ISourceLocation parent = URIUtil.getParentLocation(dest);
+			if(!reg.exists(parent)){
+				reg.mkDirectory(parent);
 			}
-			Files.copy(src, dest, REPLACE_EXISTING);
+			reg.copy(src, dest);
 		}
 	}
 	
 	/**
 	 * @return true iff no files were copied because they are already in the destination path
 	 */
-	public static boolean copyStandardFiles(Path srcPath, Path destPath) throws IOException {
+	public static boolean copyStandardFiles(ISourceLocation destPath) throws IOException {
 		
 		System.err.println("Copying standard files");
-		System.err.println("srcPath: " + srcPath + ", destPath: " + destPath);
+		System.err.println("destPath: " + destPath);
 		
 		ArrayList<String> files  = new ArrayList<>();
 		files.add("tutor-prelude.js");
@@ -213,21 +221,25 @@ public class CourseCompiler {
 		}
 		files.add("tutor-overview.include");
 		
-		for(String file : files){
-			Path src = srcPath.resolve(file);
-			Path dest = destPath.resolve(file);
+		URIResolverRegistry reg = URIResolverRegistry.getInstance();
+		ISourceLocation boot = URIUtil.correctLocation("courses", "", "");
+		
+		for(String file : files) {
+		    ISourceLocation src = URIUtil.getChildLocation(boot, file);
+		    
+			ISourceLocation target = URIUtil.getChildLocation(destPath, file);
 			
-			if (Files.exists(dest)) {
+			if (reg.exists(target)) {
 			    // break early, it already exists
 			    return true;
 			}
 			
-			Path parent = dest.getParent();
-			if(!Files.exists(parent)){
-				Files.createDirectories(parent);
+			ISourceLocation parent = URIUtil.getParentLocation(target);
+			if(!reg.exists(parent)){
+				reg.mkDirectory(parent);
 			}
 			//System.out.println("cp " + src + " " + dest);
-			Files.copy(src, dest, REPLACE_EXISTING);
+			reg.copy(src, target);
 		}
 		
 		return false;
@@ -313,13 +325,9 @@ public class CourseCompiler {
 		Path libSrcPath = Paths.get(((ISourceLocation)pcfg.getSrcs().get(0)).getURI());
 		
 		Path destPath = Paths.get(((ISourceLocation)pcfg.getBin()).getURI()).resolve("courses");
+		ISourceLocation destLoc = URIUtil.getChildLocation(((ISourceLocation)pcfg.getBin()), "courses");
 		
-		if (
-		    copyStandardFiles(coursesSrcPath, destPath)
-		 ) {
-//		    System.err.println("Bailing out because target files are already present...");
-//		    return;
-		}
+		copyStandardFiles(destLoc);
 		 
 		TutorCommandExecutor executor = new TutorCommandExecutor(pcfg);
 		
