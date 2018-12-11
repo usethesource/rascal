@@ -85,7 +85,7 @@ public class SetPattern extends AbstractMatchingResult {
 			Type childType = child.getType(env, patternVars);
 			patternVars = merge(patternVars, patternChildren.get(i).getVariables());
 			if(debug)System.err.println(" i = " + i + ": " + patternChildren.get(i) + ", type = " + childType);
-			boolean isMultiVar = child instanceof MultiVariablePattern || child instanceof TypedMultiVariablePattern;
+			boolean isMultiVar = child instanceof MultiVariablePattern || child instanceof DesignatedTypedMultiVariablePattern;
 			  
 			if(childType.isSet() && isMultiVar){
 				elemType = elemType.lub(childType.getElementType());
@@ -211,18 +211,25 @@ public class SetPattern extends AbstractMatchingResult {
 			IMatchingResult child = patternChildren.get(i);
 			if(debug)System.err.println("child = " + child);
 			
-			if (child instanceof TypedMultiVariablePattern) {
-				TypedMultiVariablePattern tmvVar = (TypedMultiVariablePattern) child;
+			 if (child instanceof TypedMultiVariablePattern) {
+		          TypedMultiVariablePattern tmv = (TypedMultiVariablePattern) child;
+		          
+		          // now we know what we are, a set multi variable!
+		          child = new DesignatedTypedMultiVariablePattern(ctx, (Expression) tmv.getAST(), tf.setType(tmv.getType(env,  null)), tmv.getName()); 
+		          
+		          // cache this information for the next round, we'll still be a list
+		          patternChildren.set(i, child);
+		      }
+			 
+			if (child instanceof DesignatedTypedMultiVariablePattern) {
+				DesignatedTypedMultiVariablePattern tmvVar = (DesignatedTypedMultiVariablePattern) child;
 				Type childType = child.getType(env, null);
 				String name = tmvVar.getName();
 				
 				if (!tmvVar.isAnonymous() && allVars.containsKey(name)) {
 					throw new RedeclaredVariable(name, getAST());
 				}
-				
-				if(childType.comparable(staticSubjectElementType)
-						|| (tmvVar.bindingInstance() && childType.comparable(staticSetSubjectType))) {
-					tmvVar.covertToSetType();
+				else if (childType.comparable(staticSetSubjectType)) {
 					if (!tmvVar.isAnonymous()) {
 						patVars.add(name);
 						allVars.put(name,  (IVarPattern)child);
@@ -464,12 +471,18 @@ public class SetPattern extends AbstractMatchingResult {
 	
 	private boolean unexploredAlternatives(){
 		assert currentVar == nVar;
-		for(int j = 0; j < nVar; j++){
-			if(isSetVar(j)){
-				if(varGen[j].hasNext())
+		for (int j = 0; j < nVar; j++) {
+			if (isSetVar(j)) {
+				if (varGen[j].hasNext()) {
 					return true;
-			} else if(isNested[j] && varPat[j].hasNext())
-				return true;
+				}
+			} 
+			else if (isNested[j] && varPat[j].hasNext()) {
+			    return true;
+			}
+			else if (varGen[j].hasNext()) {
+			    return true;
+			}
 		}
 		return false;
 	}
@@ -494,9 +507,10 @@ public class SetPattern extends AbstractMatchingResult {
 				if(isSetVar(i)){
 					varGen[i] = new SubSetGenerator(elements, ctx);
 				} else {
-					if(elements.size() == 0)
+					if(elements.size() == 0) {
 						return false;
-					varGen[i] = new SingleElementIterator(elements, ctx);
+					}
+					varGen[i] = elements.iterator();
 				}
 			} else {
 				// Variable has been set before, use its dynamic type to distinguish set variables.
@@ -525,9 +539,10 @@ public class SetPattern extends AbstractMatchingResult {
 			varGen[i] = new SubSetGenerator(elements, ctx);
 			return true;
 		}
-		if(elements.size() == 0)
+		if(elements.size() == 0) {
 			return false;
-		varGen[i] = new SingleElementIterator(elements, ctx);
+		}
+		varGen[i] = elements.iterator();
 		return true;
 	}
 	
