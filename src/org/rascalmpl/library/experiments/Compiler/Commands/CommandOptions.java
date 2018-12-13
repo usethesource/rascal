@@ -525,7 +525,7 @@ public class CommandOptions {
                     return URIUtil.createFileLocation(file.getAbsolutePath());
                 }
                 else {
-                    return URIUtil.correctLocation("cmd", "", loc);
+                    return URIUtil.correctLocation("cwd", "", loc);
                 }
             }
             catch (URISyntaxException e) {
