@@ -21,6 +21,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import org.eclipse.jface.text.ISynchronizable;
 import org.rascalmpl.interpreter.TypeReifier.TypeStoreWithSyntax;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.Symbols;
@@ -33,6 +34,7 @@ import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
@@ -363,9 +365,31 @@ public class NonTerminalType extends RascalType {
 		  RascalType nt2 = (RascalType) RTF.nonTerminalType(SymbolAdapter.getSymbol(otherSym));
 		  return nt1.isSubtypeOfNonTerminal(nt2);
 	  }
-//	  else if (SymbolAdapter.isSequence(symbol) && SymbolAdapter.isSeq(otherSym)) {
-		  // TODO pairwise issubtype
-//	  }
+	  else if (SymbolAdapter.isCharClass(symbol) && SymbolAdapter.isCharClass(otherSym)) {
+	      // note that the ranges are normalized and ordered! see Characters.rsc
+	      // we check if all ranges can be included in at least one of the ranges of the other class:
+	      
+	      OUTER:for (IValue elem : SymbolAdapter.getRanges(symbol)) {
+	         IInteger from = (IInteger) ((IConstructor) elem).get("begin");
+	         IInteger to = (IInteger) ((IConstructor) elem).get("end");
+	         
+	         for (IValue otherElem : SymbolAdapter.getRanges(otherSym)) {
+	             IInteger otherFrom = (IInteger) ((IConstructor) otherElem).get("begin");
+	             IInteger otherTo = (IInteger) ((IConstructor) otherElem).get("end");
+	             
+	             if (from.greaterEqual(otherFrom).getValue() && to.lessEqual(otherTo).getValue()) {
+	                 // matched! continue with next range
+	                 continue OUTER;
+	             }
+	         }
+	         
+	         // no match found
+	         return false;
+	      }
+	      
+	      // all ranges checked
+	      return true;
+	  }
 
 	  if (SymbolAdapter.isParameter(otherSym)) {
 		  RascalType bound = (RascalType) RTF.nonTerminalType((IConstructor) otherSym.get("bound"));
