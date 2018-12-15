@@ -90,6 +90,22 @@ public class SymbolAdapter {
 		return sym.getConstructorType() == Symbol_Label;
 	}
 
+	public static int indexOfLabel(IList syms, String name) {
+	    for (int i = 0; i < syms.length(); i++) {
+            IConstructor sym = (IConstructor) syms.get(i);
+            
+            while (isConditional(sym)) {
+                sym = getSymbol(sym);
+            }
+            
+            if (isLabel(sym) && getLabel(sym).equals(name)) {
+                return i;
+            }
+        }
+	    
+	    return -1;
+	}
+	
 	public static boolean isSort(IConstructor tree) {
 		tree = delabel(tree);
 		return tree.getConstructorType() == Symbol_Sort;
