@@ -63,6 +63,8 @@ import static org.rascalmpl.values.uptr.RascalValueFactory.Symbol_Value;
 import static org.rascalmpl.values.uptr.RascalValueFactory.Symbol_Void;
 
 import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
@@ -70,7 +72,6 @@ import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class SymbolAdapter {
   private static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
@@ -820,4 +821,148 @@ public class SymbolAdapter {
 	public static IConstructor charClass(int ch) {
 		return VF.constructor(Symbol_CharClass, VF.list(VF.constructor(CharRange_Range, VF.integer(ch), VF.integer(ch))));
 	}
+
+    public static IConstructor unionCharClasses(IConstructor lhs, IConstructor rhs) {
+        if (lhs == rhs || lhs.isEqual(rhs)) {
+            return lhs;
+        }
+        return VF.constructor(RascalValueFactory.Symbol_CharClass, unionRanges(getRanges(lhs), getRanges(rhs)));
+    }
+    
+    public static IConstructor intersectCharClasses(IConstructor lhs, IConstructor rhs) {
+        if (lhs == rhs || lhs.isEqual(rhs)) {
+            return lhs;
+        }
+        return VF.constructor(RascalValueFactory.Symbol_CharClass, intersectRanges(getRanges(lhs), getRanges(rhs)));
+    }
+    
+    private static IList intersectRanges(IList l, IList r) {
+        if (l.isEmpty()) {
+            return l;
+        }
+        
+        if (r.isEmpty()) {
+            return r;
+        }
+        
+        IConstructor lhead = (IConstructor) l.get(0);
+        IList ltail = l.delete(0);
+        IConstructor rhead = (IConstructor) r.get(0);
+        IList rtail = r.delete(0);
+        
+        // left beyond right
+        // <-right-> --------
+        // --------- <-left->
+        if (rangeBegin(lhead) > rangeEnd(rhead)) {
+          return intersectRanges(l,rtail); 
+        }
+
+        // left before right
+        // <-left-> ----------
+        // -------- <-right->
+        if (rangeEnd(lhead) < rangeBegin(rhead)) { 
+          return intersectRanges(ltail,r);
+        }
+
+        // inclusion of left into right
+        // <--------right------->
+        // ---------<-left->-----
+        if (rangeBegin(lhead) >= rangeBegin(rhead) && rangeEnd(lhead) <= rangeEnd(rhead)) { 
+          return intersectRanges(ltail,r).insert(lhead); 
+        }
+
+        // inclusion of right into left
+        // -------<-right->------->
+        // <---------left--------->
+        if (rangeBegin(rhead) >= rangeBegin(lhead) && rangeEnd(rhead) <= rangeEnd(lhead)) { 
+          return intersectRanges(l,rtail).insert(rhead); 
+        }
+
+        // overlap on left side of right
+        // <--left-------->----------
+        // ---------<-----right----->
+        if (rangeEnd(lhead) < rangeEnd(rhead)) { 
+            return intersectRanges(ltail,r).insert(range(rangeBegin(rhead), rangeEnd(lhead)));
+        }
+          
+        // overlap on right side of right
+        // -------------<---left---->
+        // <----right------->--------
+        if (rangeBegin(lhead) > rangeBegin(rhead)) {
+          return intersectRanges(l,rtail).insert(range(rangeBegin(lhead), rangeEnd(rhead)));
+        }
+          
+        throw new IllegalArgumentException("did not expect to end up here! <l> - <r>");
+    }
+    
+    private static IList unionRanges(IList l, IList r) {
+        if (l.isEmpty()) {
+            return r;
+        }
+
+        if (r.isEmpty()) {
+            return l;
+        }
+
+        IConstructor lhead = (IConstructor) l.get(0);
+        IList ltail = l.delete(0);
+        IConstructor rhead = (IConstructor) r.get(0);
+        IList rtail = r.delete(0);
+
+        // left beyond right
+        // <-right-> --------
+        // --------- <-left->
+        if (rangeBegin(lhead) > rangeEnd(rhead) + 1) {
+            return unionRanges(l, rtail).insert(rhead); 
+        }
+
+        // left before right
+        // <-left-> ----------
+        // -------- <-right->
+        if (rangeEnd(lhead) + 1 < rangeBegin(rhead)) {
+            return unionRanges(ltail,r).insert(lhead);
+        }
+
+        // inclusion of left into right
+        // <--------right------->
+        // ---------<-left->-----
+        if (rangeBegin(lhead) >= rangeBegin(rhead) && rangeEnd(lhead) <= rangeEnd(rhead)) { 
+            return unionRanges(ltail,r); 
+        }
+
+        // inclusion of right into left
+        // -------<-right->------->
+        // <---------left--------->
+        if (rangeBegin(rhead) >= rangeBegin(lhead) && rangeEnd(rhead) <= rangeEnd(lhead)) { 
+            return unionRanges(l,rtail); 
+        }
+
+        // overlap on left side of right
+        // <--left-------->----------
+        // ---------<-----right----->
+        if (rangeEnd(lhead) < rangeEnd(rhead)) { 
+            return unionRanges(ltail.insert(range(rangeBegin(lhead), rangeEnd(rhead))), rtail);
+        }
+
+        // overlap on right side of right
+        // -------------<---left---->
+        // <----right------->--------
+        if (rangeBegin(lhead) > rangeBegin(rhead)) {
+            return unionRanges(ltail, rtail.insert(range(rangeBegin(rhead), rangeEnd(lhead))));
+        }
+
+        throw new IllegalArgumentException("did not expect to end up here! union(<l>,<r>)");
+    }
+    
+    private static IConstructor range(int begin, int end) {
+        return VF.constructor(CharRange_Range, VF.integer(begin), VF.integer(end));
+    }
+    
+    private static int rangeBegin(IConstructor range) {
+        return ((IInteger) range.get("begin")).intValue();
+    }
+    
+    private static int rangeEnd(IConstructor range) {
+        return ((IInteger) range.get("end")).intValue();
+    }
 }
