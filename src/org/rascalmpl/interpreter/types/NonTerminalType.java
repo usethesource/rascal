@@ -69,6 +69,9 @@ public class NonTerminalType extends RascalType {
 				this.symbol = IRascalValueFactory.getInstance().constructor(RascalValueFactory.Symbol_Empty);
 			}
 		}
+		else if (cons.getConstructorType() == RascalValueFactory.Tree_Char) {
+		    this.symbol = TreeAdapter.getType((ITree) cons);
+		}
 		else if (cons.getConstructorType() == RascalValueFactory.Tree_Cycle) {
 			this.symbol = TreeAdapter.getType((ITree) cons);
 		}
