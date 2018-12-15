@@ -417,28 +417,34 @@ public class NonTerminalType extends RascalType {
 		else if (SymbolAdapter.isIterPlusSeps(otherSym) && SymbolAdapter.isIterStarSeps(symbol)) {
 			return this;
 		}
+		else if (SymbolAdapter.isCharClass(symbol) && SymbolAdapter.isCharClass(otherSym)) {
+		    return RTF.nonTerminalType(SymbolAdapter.unionCharClasses(symbol, otherSym));
+		}
 
 		return SymbolAdapter.isEqual(otherSym, symbol) ? this : RascalValueFactory.Tree;
 	}
 
 	@Override
 	protected Type glbWithNonTerminal(RascalType other) {
-	  IConstructor otherSym = ((NonTerminalType)other).symbol;
-	  
-	if (SymbolAdapter.isIterPlus(symbol) && SymbolAdapter.isIterStar(otherSym)) {
-      return this;
-    }
-    else if (SymbolAdapter.isIterPlus(otherSym) && SymbolAdapter.isIterStar(symbol)) {
-      return other;
-    }
-    else if (SymbolAdapter.isIterPlusSeps(symbol) && SymbolAdapter.isIterStarSeps(otherSym)) {
-      return this;
-    }
-    else if (SymbolAdapter.isIterPlusSeps(otherSym) && SymbolAdapter.isIterStarSeps(symbol)) {
-      return other;
-    }
+	    IConstructor otherSym = ((NonTerminalType)other).symbol;
 
-    return SymbolAdapter.isEqual(otherSym, symbol) ? other : TF.voidType();
+	    if (SymbolAdapter.isIterPlus(symbol) && SymbolAdapter.isIterStar(otherSym)) {
+	        return this;
+	    }
+	    else if (SymbolAdapter.isIterPlus(otherSym) && SymbolAdapter.isIterStar(symbol)) {
+	        return other;
+	    }
+	    else if (SymbolAdapter.isIterPlusSeps(symbol) && SymbolAdapter.isIterStarSeps(otherSym)) {
+	        return this;
+	    }
+	    else if (SymbolAdapter.isIterPlusSeps(otherSym) && SymbolAdapter.isIterStarSeps(symbol)) {
+	        return other;
+	    }
+	    else if (SymbolAdapter.isCharClass(otherSym) && SymbolAdapter.isCharClass(symbol)) {
+	        return RTF.nonTerminalType(SymbolAdapter.intersectCharClasses(symbol, otherSym));
+	    }
+
+	    return SymbolAdapter.isEqual(otherSym, symbol) ? other : TF.voidType();
 	}
 	
 	@Override
