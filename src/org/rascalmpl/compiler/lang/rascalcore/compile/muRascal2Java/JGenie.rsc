@@ -2,6 +2,7 @@ module lang::rascalcore::compile::muRascal2Java::JGenie
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::AType;
+import lang::rascalcore::check::ATypeUtils;
 import List;
 import Set;
 import IO;
@@ -18,6 +19,7 @@ data JGenie
         AType (loc src) getType,
         str (loc src) getAccessor,
         str (loc src) getAccessorInResolver,
+        Define (loc src) getDefine,
         lrel[str,loc] (loc src) getExternalVars,
         void(str name) setKwpDefaults,
         str() getKwpDefaults,
@@ -89,6 +91,14 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                     }
                  }
              }
+        }
+    }
+    
+    Define _getDefine(loc src){
+        for(mname <- tmodels){
+                if(tmodels[mname].definitions[src]?){
+                    return tmodels[mname].definitions[src];
+                }
         }
     }
     
@@ -179,6 +189,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                 _getType,
                 _getAccessor,
                 _getAccessorInResolver,
+                _getDefine,
                 _getExternalVars,
                 _setKwpDefaults,
                 _getKwpDefaults,
@@ -254,15 +265,20 @@ str atype2descriptor(amap(AType d, AType r))  = "map";
 str atype2descriptor(arel(AType ts))          = "rel";
 str atype2descriptor(alrel(AType ts))         = "listrel";
 str atype2descriptor(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
-                                        = "<atype2descriptor(ret)>_<intercalate("_", [atype2descriptor(f) | f <- formals])>";
+                                              = "<atype2descriptor(ret)>_<intercalate("_", [atype2descriptor(f) | f <- formals])>";
 str atype2descriptor(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) = adtName;
-str atype2descriptor(t: acons(AType adt, /*str consName,*/ 
-                list[AType fieldType] fields,
-                lrel[AType fieldType, Expression defaultExp] kwFields))
-                 = "<adt.adtName>_<t.label>_<intercalate("_", [atype2descriptor(f) | f <- fields])>";
-str atype2descriptor(overloadedAType(rel[loc, IdRole, AType] overloads))
-    = atype2descriptor(lubList(toList(overloads<2>)));
-
+str atype2descriptor(t:acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields))
+                                              = "<adt.adtName><t.label? ? "_" + t.label : "">_<intercalate("_", [atype2descriptor(f) | f <- fields])>";
+str atype2descriptor(overloadedAType(rel[loc, IdRole, AType] overloads)){
+    resType = avoid();
+    formalsType = avoid();
+    for(<def, idrole, tp> <- overloads){
+        resType = alub(resType, getResult(tp));
+        formalsType = alub(formalsType, atypeList(getFormals(tp)));
+    }
+    ftype = afunc(resType, formalsType.atypes, []);
+    return atype2descriptor(ftype);
+}
 default str atype2descriptor(AType t) = "value";
 
 // ----

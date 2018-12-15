@@ -9,7 +9,7 @@ import String;
 import lang::rascal::\syntax::Rascal;
 import ParseTree;
 
-//import lang::rascalcore::compile::RVM::Interpreter::CompileTimeError;
+import lang::rascalcore::compile::CompileTimeError;
 
 import lang::rascalcore::compile::muRascal::AST;
 
@@ -131,7 +131,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
                                          0, 
                                          false, 
                                          true,
-                                         false,
+                                        // false,
                                          [],
                                          fd@\loc, 
                                          tmods, 
@@ -178,12 +178,8 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
      
       formals = [formal | formal <- fd.signature.parameters.formals.formals];
       
-      simpleArgs = true;
-      for(pat <- formals){
-        if(!(pat is typedVariable || pat is literal)){
-            simpleArgs = false;
-        }
-      }
+      //canFail = !(all(pat <- formals, pat is typedVariable) && isEmpty(when_conditions) && /muFailReturn() !:= tbody);
+  
   
       //if(nformals > 0) println("formals[0] = <formals[0]>");
       
@@ -208,7 +204,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
       								 getScopeSize(funsrc),
       								 isVarArgs, 
       								 isPub,
-      								 simpleArgs,
+      								 //canFail,
       								 getExternalRefs(tbody, fuid),
       								 fd@\loc, 
       								 tmods, 

@@ -782,6 +782,24 @@ AType getFunctionReturnType(AType ft) {
     throw rascalCheckerInternalError("Cannot get function return type from non-function type <prettyAType(ft)>");
 }
 
+int getArity(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)) = size(formals);
+int getArity(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = size(fields);
+default int getArity(AType t) {
+    throw rascalCheckerInternalError("Can only get arity from function or constructor type <prettyAType(t)>");
+}
+
+list[AType] getFormals(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)) = formals;
+list[AType] getFormals(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = fields;
+default list[AType] getFormals(AType t){
+    throw rascalCheckerInternalError("Can only get formals from function or constructor type <prettyAType(t)>");
+}
+
+AType getResult(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)) = ret;
+AType getResult(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = adt;
+AType getResult(AType t){
+    throw rascalCheckerInternalError("Can only get result type from function or constructor type <prettyAType(t)>");
+}
+
 @doc{
 .Synopsis
 Determine if the given type is a reified type.

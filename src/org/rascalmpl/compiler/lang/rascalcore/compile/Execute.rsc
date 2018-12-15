@@ -27,17 +27,6 @@ import util::Reflective;
 // NOTE: Be aware that old dotted names are mapped to new, slash-separated, names, e.g., ("org.rascalmpl.value":"io/usethesource/vallang")
 private map[str,str] classRenamings = ();
 
-private loc MuLibraryLoc(PathConfig pcfg) = getSearchPathLoc("experiments/Compiler/muRascal2RVM/MuLibrary.mu", pcfg);
-
-private str MuLibrary() = "lang::rascalcore::compile::muRascal2RVM::MuLibrary";
-
-tuple[bool, loc] getMuLibraryCompiledReadLoc(PathConfig pcfg) {
-    muLib = pcfg.boot + "experiments/Compiler/muRascal2RVM/MuLibrary.rvm";
-    return <exists(muLib), muLib>;
-}
-
-loc getMuLibraryCompiledWriteLoc(PathConfig pcfg) = getDerivedWriteLoc(MuLibrary(), "rvm", pcfg);
-
 alias Resolved = tuple[str name, Symbol funType, str scope, list[str] ofunctions, list[str] oconstructors];
 
 RVMModule getRVMImport(loc importedRVMLoc){

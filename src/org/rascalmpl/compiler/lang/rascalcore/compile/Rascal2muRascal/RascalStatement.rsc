@@ -445,7 +445,7 @@ tuple[list[MuCase], MuExp] translateSwitchCases(MuExp switchval, str fuid, bool 
 // -- fail statement -------------------------------------------------
 
 MuExp translate(s: (Statement) `fail <Target target> ;`) = 
-     inBacktrackingScope() ? muFail(target is empty ? currentBacktrackingScope() : "<target.name>")
+     inBacktrackingScope() && haveEnteredBacktrackingScope("<target.name>") ? muFail(target is empty ? currentBacktrackingScope() : "<target.name>")
                            : muFailReturn();
                           
 // -- break statement ------------------------------------------------
