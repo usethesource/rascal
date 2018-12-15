@@ -256,6 +256,8 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
              });
         dt.vis = getVis(decl.visibility, publicVis());
         if(!isEmpty(tagsMap)) dt.tags = tagsMap;
+        alwaysSucceeds = all(pat <- getFormals(signature.parameters), pat is typedVariable) && !(decl is conditional) && !(decl is \default && /(Statement) `fail <Target target>;` := decl.body);
+        if(!alwaysSucceeds) dt.canFail = true;
         
         modifiers = ["<m>" | m <- signature.modifiers.modifiers];
         if(!isEmpty(modifiers)) dt.modifiers = modifiers;

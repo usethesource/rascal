@@ -77,6 +77,8 @@ data DefInfo(Vis vis = publicVis());
 
 //data DefInfo(int abstractFingerprint = 0, int concreteFingerPrint = 0, bool isConcreteArg = false);
 
+data DefInfo(bool canFail = false);
+
 data DefInfo(map[str,str] tags = ());
 
 // Function modifiers

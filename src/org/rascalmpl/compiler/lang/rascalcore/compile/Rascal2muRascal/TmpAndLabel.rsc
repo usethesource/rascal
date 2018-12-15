@@ -98,6 +98,9 @@ str currentBacktrackingScope(){
   return top(backtrackingScopes);
 }
 
+bool haveEnteredBacktrackingScope(str name)
+    = name in backtrackingScopes;
+
 void leaveBacktrackingScope(){
   backtrackingScopes = tail(backtrackingScopes);
 }

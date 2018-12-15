@@ -266,7 +266,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
                        try {                   
                            dt = defType(tm.facts[defined]);
                            if(defInfo.vis?) dt.vis = defInfo.vis;
-                           //if(defInfo.nestedParameters?) dt.nestedParameters = defInfo.nestedParameters;
+                           if(defInfo.canFail?) dt.canFail = defInfo.canFail;
                            if(defInfo.tags?) dt.tags = defInfo.tags;
                            tup.defInfo = dt;
                            //println("Changed <defInfo> ==\> <dt>");

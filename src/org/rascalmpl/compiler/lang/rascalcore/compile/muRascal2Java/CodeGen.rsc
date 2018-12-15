@@ -15,12 +15,14 @@ import IO;
 import Type;
 import util::Reflective;
 
+import analysis::typepal::TypePal;
+
 import lang::rascalcore::check::TypePalConfig;
 
 import lang::rascalcore::compile::muRascal2Java::Writers;
-import lang::rascalcore::compile::muRascal2Java::Constructors;
+//import lang::rascalcore::compile::muRascal2Java::Constructors;
 import lang::rascalcore::compile::muRascal2Java::Primitives;
-import  lang::rascalcore::compile::muRascal2Java::Visitors;
+//import  lang::rascalcore::compile::muRascal2Java::Visitors;
 
 import lang::rascalcore::compile::muRascal2Java::JGenie;
 
@@ -29,11 +31,9 @@ bool debug = false;
 // ---- globals ---------------------------------------------------------------
 
 map[str, MuFunction] muFunctions = ();
-//lrel[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloadedFunctions = [];
 map[str,str] resolved2overloaded = ();
 
 // ---- utilities -------------------------------------------------------------
-
 
 str removeEmptyLines(str s){
     return visit(s) { case /^\n[ ]*\n/ => "\n" };
@@ -42,6 +42,9 @@ str removeEmptyLines(str s){
 str getBaseClass(str dottedName){
     n = findLast(dottedName, ".");
     return n >= 0 ? dottedName[n+1 ..] : dottedName;
+}
+str  qname2baseclassname(str qname){
+    return getBaseClass(replaceAll(qname, "::", "."));
 }
 
 str qname2classname(str qname){
@@ -56,17 +59,34 @@ str colon2ul(str s) = replaceAll(replaceAll(s, "::", "_"), "$", ".");
 
 str dcolon2dot(str s) = replaceAll(s, "::", ".");
 
+str module2class(str moduleName){
+    className = qname2classname(moduleName);
+    n = findLast(className, ".");
+    return n >= 0 ? className[n+1 ..] : className;
+}
+str module2package(str moduleName){
+    className = qname2classname(moduleName);
+    n = findLast(className, ".");
+    return n >= 0 ? className[0 .. n] : "";
+}
+
+str module2interface(str moduleName){
+    className = qname2classname(moduleName);
+    n = findLast(className, ".");
+    return n >= 0 ? "<className[0 .. n]>.$<className[n+1..]>" : "$<className>";
+}
+
 str escapeAsJavaString(str s){
   return replaceAll(s, "\n", "\\n");    //TODO make precise
 }
 
-str getFunctionAccessor(loc floc, JGenie jg){
-    moduleName = jg.getModuleName();
-    if(startsWith(fuid, moduleName)){
-        return fuid[size(moduleName)+1 ..];
-    }
-    return replaceAll(replaceAll(fuid, "::", "_"), "$", ".");
-}
+//str getFunctionAccessor(loc floc, JGenie jg){
+//    moduleName = jg.getModuleName();
+//    if(startsWith(fuid, moduleName)){
+//        return fuid[size(moduleName)+1 ..];
+//    }
+//    return replaceAll(replaceAll(fuid, "::", "_"), "$", ".");
+//}
 
 bool containedIn(loc inner, loc outer){
     return inner.path == outer.path && inner.offset >= outer.offset && inner.offset + inner.length <= outer.offset + outer.length;
@@ -74,24 +94,26 @@ bool containedIn(loc inner, loc outer){
 
 // ---- muModule --------------------------------------------------------------
 
-JCode trans(MuModule m, map[str,TModel] tmodels, map[str,loc] moduleLocs){
+tuple[JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,loc] moduleLocs){
     muFunctions = (f.qname : f | f <- m.functions);
-    //overloadedFunctions = m.overloaded_functions;
     resolved2overloaded = ();
     jg = makeJGenie(m.name, tmodels, moduleLocs);
     <typestore, kwpDecls> = generateTypeStoreAndKwpDecls(m.ADTs, m.constructors);
-    resolvers = genResolvers(m.overloaded_functions, jg);
+    <signatures, resolvers> = genResolvers(m.overloaded_functions, jg);
     
+    bool hasMainFunction = false;
     for(f <- m.functions){
+        if(contains(f.qname, "$main_")) hasMainFunction = true;
         jg.addExternalVars(f.externalVars);
     }
   
     className = split("::", m.name)[-1];
     
+    packageName = module2package(m.name);
+    interfaceName =module2interface(m.name);
+    
     module_variables = "<for(var <- m.module_variables){>
                        '<trans(var, jg)><}>";
-                       
-   
                        
     functions        = "<for(f <- m.functions){>
                        '<trans(f, jg)>
@@ -116,10 +138,10 @@ JCode trans(MuModule m, map[str,TModel] tmodels, map[str,loc] moduleLocs){
                         '<}>";
                                          
     module_imp_inits =  "<for(imp <- m.imports, imp notin m.extends){>
-                        '<qname2ul(imp)> = <qname2classname(imp)>.import<qname2classname(ext)>();
+                        '<qname2ul(imp)> = <qname2classname(imp)>.import<qname2baseclassname(imp)>();
                         '<}>";
     module_ext_inits =  "<for(ext <- m.extends){>
-                        '<qname2ul(ext)> = <qname2classname(ext)>.extend<qname2classname(ext)>(this);
+                        '<qname2ul(ext)> = <qname2classname(ext)>.extend<qname2baseclassname(ext)>(this);
                         '<}>";
     
     constructor_body = "<module_imp_inits>
@@ -127,7 +149,7 @@ JCode trans(MuModule m, map[str,TModel] tmodels, map[str,loc] moduleLocs){
                        '<kwpDecls>
                        '<for(exp <- m.initialization){><trans(exp, jg)><}>
                        ";                   
-    class_constructor= "private <className>($<className> me){
+    class_constructor= "private <className>(<interfaceName> me){
                        '    <constructor_body>
                        '    this.$me = me == null ? this : me;
                        '}
@@ -147,8 +169,14 @@ JCode trans(MuModule m, map[str,TModel] tmodels, map[str,loc] moduleLocs){
                         'public static final <className> extend<className>($<className> newMe) {
                         '   return new <className>(newMe);    
                         '}";
+    main_method       = "public static void main(String[] args) {
+                        '   <if(hasMainFunction){>System.out.println(new <className>().main());<}else{>
+                        '   throw new RuntimeException(\"No function `main` found in Rascal program\");
+                        '   <}>
+                        '
+                        '}";
     
-    res =  "package <dcolon2dot(m.name)>;
+    res =  "package <packageName>;
     
            'import java.util.*;
            'import io.usethesource.vallang.*;
@@ -160,9 +188,9 @@ JCode trans(MuModule m, map[str,TModel] tmodels, map[str,loc] moduleLocs){
            '<library_imports>
            '<module_imports>
            '
-           'class <className> extends org.rascalmpl.core.library.lang.rascalcore.compile.runtime.$RascalModule <module_extends> {
+           'public class <className> extends org.rascalmpl.core.library.lang.rascalcore.compile.runtime.$RascalModule <module_extends> implements <interfaceName> {
            '    final Traverse $TRAVERSE = new Traverse($VF);
-           '    private final $<className> $me;
+           '    private final <interfaceName> $me;
            '    <typestore>
            '    <library_inits>
            '    <imp_ext_decls>
@@ -172,16 +200,20 @@ JCode trans(MuModule m, map[str,TModel] tmodels, map[str,loc] moduleLocs){
            '    <jg.getConstants()>
            '    <resolvers>
            '    <functions>
+           '    <main_method>
            '}";
       jclass = removeEmptyLines(res);
       jinterface = 
-           "package <dcolon2dot(m.name)>;
+           "package <packageName>;
+           'import java.util.*;
+           'import io.usethesource.vallang.*;
+           'import io.usethesource.vallang.type.*;
            'public interface $<className> {
+           '    <signatures>
            '}\n";
       
-      return "<jinterface><jclass>";
+      return <jinterface, jclass>;
 }
-
 
 tuple[str,str] generateTypeStoreAndKwpDecls(set[AType] ADTs, set[AType] constructors){
     adtDecls = "";
@@ -193,7 +225,7 @@ tuple[str,str] generateTypeStoreAndKwpDecls(set[AType] ADTs, set[AType] construc
     kwpField2Cons = ();
     map[str, AType] kwpField2Type = ();
     for(c: acons(AType adt, list[AType] fields, list[Keyword] kwpFields) <- constructors){
-        adt_cons = "<adt.adtName>_<c.label>_<size(fields)>";
+        adt_cons = atype2descriptor(c); //"<adt.adtName>_<c.label>_<size(fields)>";
         fieldDecls = [ "<atype2typestore(fld)>, \"<fld.label>\"" | fld <- fields ];
         consDecls += "final Type <adt_cons> = $TF.constructor($TS, <adt.adtName>, \"<c.label>\"<isEmpty(fieldDecls) ? "" : ", <intercalate(", ", fieldDecls)>">);\n";
         for(kwpField <- kwpFields){
@@ -246,80 +278,117 @@ tuple[str,str] generateTypeStoreAndKwpDecls(set[AType] ADTs, set[AType] construc
 
 alias OF5 = tuple[str name, AType funType, str oname, list[loc] ofunctions, list[loc] oconstructors];
 alias OF4 = tuple[AType funType, str oname, list[loc] ofunctions, list[loc] oconstructors];
-bool larger(OF4 a, OF4 b){
-   return size(a.ofunctions) + size(a.oconstructors) >
+
+bool larger(OF5 a, OF5 b){
+   return a.name <= b.name &&
+          size(a.ofunctions) + size(a.oconstructors) >
           size(b.ofunctions) + size(b.oconstructors);
 }
 
-list[OF4] sortOverloads(list[OF4] ofs){
+list[OF5] sortOverloads(list[OF5] ofs){
     return sort(ofs, larger);
 }
 
-
-JCode genResolvers(list[OF5] overloadedFunctions, JGenie jg){
-    resolvers = "";
-    overloaded_versions = {};
-    fnames = toSet(overloadedFunctions<0>);
-    for(fname <- fnames){
-        overloads = sortOverloads(overloadedFunctions[fname]);
-        largest_overload = overloads[0];
-        if(!resolved2overloaded[largest_overload.oname]?){
-            overloaded_versions += <fname, unsetRec(largest_overload.funType)>;
-            resolved2overloaded[largest_overload.oname] = fname;
-            resolvers += genResolver(<fname> + largest_overload, jg);
-        }
-    }
-    //for(overload:<str name, AType funType, str oname, list[loc] ofunctions, list[loc] oconstructors> <- overloadedFunctions){
-    //    overloaded_versions += <name, unsetRec(funType)>;
-    //    if(!resolved2overloaded[oname]?){
-    //            resolved2overloaded[oname] = name;
-    //            resolvers += genResolver(overload, jg);
-    //    }
-    //}
-    for(name <- domain(overloaded_versions)){
-        resolvers += genGeneralResolver(name, overloaded_versions[name], jg);
-    }
-    return resolvers;
+list[OF5] filterMostAlts(set[OF5] overloadedFunctions){
+    sorted = sort(overloadedFunctions, larger);
+    int last = size(sorted) - 1;
+    filtered = [ *((i == last || sorted[i].name != sorted[i+1].name || sorted[i].funType != sorted[i+1].funType) ? [sorted[i]] : []) | int i <- index(sorted)];
+    return filtered;
 }
 
-JCode genGeneralResolver(str fname, set[AType] ftypes, JGenie jg){
-    arities = { size(ftype.formals) | ftype <- ftypes };
-    general_resolvers = "";
-    for(int i <- arities){
-        cases = "";
-        for(ftype <- ftypes, size(ftype.formals) == i){
-           cases += "if(<intercalate(" && ", [ "<atype2istype(tf)>($<j>)"  | j <- index(ftype.formals), tf := ftype.formals[j]])>){
-                    '   res = <fname>_<atype2descriptor(ftype)>(<intercalate(", ", [ "(<atype2java(tf)>)$<j>"  | j <- index(ftype.formals), tf := ftype.formals[j]])>);
-                    '   if(res != null) return res;
-                    '}\n";
+tuple[str signatures, str methods] genResolvers(list[OF5] overloadedFunctions, JGenie jg){
+    //overloadedFunctions = for(ovl <- overloadedFunctions) {  ovl.funType = unsetRec(ovl.funType); append ovl; }
+    println("genResolvers:"); iprintln(overloadedFunctions);
+    mostAlts = filterMostAlts(toSet(overloadedFunctions));
+    all_signatures = ""; 
+    all_resolvers = "";
+    // For every function name + type, choose the one with the most alternatives
+    fnames = toSet(mostAlts<0>);
+    for(overload <- mostAlts){
+        if(!resolved2overloaded[overload.oname]?){
+            //overloaded_versions += <fname, ftype, overload>;
+            println("add to resolved2overloaded: <overload.oname>, <overload.name>");
+            resolved2overloaded[overload.oname] = overload.name;
+            <signatures, resolvers> = genResolver(overload, jg);
+            all_signatures += signatures;
+            all_resolvers += resolvers;
         }
-        general_resolvers += "IValue <fname>(<intercalate(", ", ["IValue $<j>" | j <- [0..i] ])>){
-                             '  IValue res;
+    }
+  
+    for(str fname <- fnames){
+        <signatures, resolvers> = genGeneralResolver(fname, mostAlts[fname], jg);
+        all_signatures += signatures;
+        all_resolvers += resolvers;
+    }
+    return <all_signatures, all_resolvers>;
+}
+
+list[OF4] sortOverloads(list[OF4] overloads){
+    return sort(overloads, bool(OF4 a, OF4 b){ return a.funType != b.funType && asubtype(b.funType, a.funType); });
+}
+
+tuple[str signatures, str resolvers] genGeneralResolver(str fname, list[OF4] overloads, JGenie jg){
+    if(fname == "type") return <"","">;
+    println("genGeneralResolver:"); iprintln(overloads);
+    arities = { getArity(ovl.funType) | ovl <- overloads };
+    all_signatures = "";
+    all_resolvers = "";
+    for(int i <- arities, i > 0){
+        cases = "";
+        canFail = any(ovl <- overloads, ftype := ovl.funType, getArity(ftype) == i, any(of <- ovl.ofunctions, di := jg.getDefine(of).defInfo, di has canFail, di.canFail));
+   
+        for(ovl <- sortOverloads(overloads), ftype := unsetRec(ovl.funType), getArity(ftype) == i){
+           formalTypes = getFormals(ftype);
+           if(i > 0 && !all(formalType <- formalTypes, formalType == avalue())){
+               argTypes = "<intercalate(", ", [ "(<atype2java(tf)>)$<j>"  | j <- index(formalTypes), tf := formalTypes[j]])>";
+               if(hasKeywordParameters (ftype)) argTypes += ", $kwpActuals";
+               base_call = "<fname>_<atype2descriptor(ftype)>(<argTypes>)";
+               call_code = canFail ? "res = <base_call>;
+                                     'if(res != null) return res;\n"
+                                   : "return <base_call>;\n";
+               cases += "if(<intercalate(" && ", [ "$<j>.getType().<atype2istype(tf)>()"  | j <- index(formalTypes), tf := formalTypes[j]])>){
+                        '   <call_code>
+                        '}\n";
+           }
+        }
+        signature = "public IValue <fname>(<intercalate(", ", ["IValue $<j>" | j <- [0..i] ])>, Map\<String,?\> $kwpActuals)";
+        all_signatures += signature + ";\n";
+        all_resolvers += "<signature>{
+                             '  <if(canFail){>IValue res;<}>
                              '  <cases>
                              '  throw new RuntimeException(\"Cannot resolve call to `<fname>`\");
                              '}\n";
     }
-    return general_resolvers;
+    return <all_signatures, all_resolvers>;
 }
 
-JCode genResolver(tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overload, JGenie jg){
+tuple[str signatures, str resolvers] genResolver(tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overload, JGenie jg){
+   if(overload.name == "type") return <"","">;
    println("genResolver:"); iprintln(overload);
-   if(jg.isResolved(overload) || !jg.usesLocalFunctions(overload)) return "";
+   
+   funType = unsetRec(overload.funType);
+   formalTypes = getFormals(funType);
+   if(jg.isResolved(overload) || !jg.usesLocalFunctions(overload) || getArity(funType) == 0) return <"", "">;
+ 
+   if(getArity(funType) != 0 && all(formalType <-formalTypes, formalType == avalue())) return <"", "">;
    
    jg.addResolver(overload);
-   funType = overload.funType;
-   anyKwParams = any(ovl <- overload.ofunctions + overload.oconstructors, hasKeywordParameters(jg.getType(ovl) /*muFunctions[ovl].ftype*/));
+  
+   anyKwParams = any(ovl <- overload.ofunctions + overload.oconstructors, hasKeywordParameters(jg.getType(ovl)));
    
    concretePatterns = any(ovl <- overload.ofunctions /*+ overload.oconstructors*/, jg.getType(ovl).isConcreteArg);
-   returnType = atype2java(funType.ret);
-   argTypes = intercalate(", ", ["<atype2java(f)> $<i>" | i <- index(funType.formals), f := funType.formals[i]]);
+  
+   returnType = atype2java(getResult(funType));
+   argTypes = intercalate(", ", ["<atype2java(f)> $<i>" | i <- index(formalTypes), f := formalTypes[i]]);
    if(anyKwParams){
         kwpActuals = "Map\<String,?\> $kwpActuals";
         argTypes = isEmpty(argTypes) ? kwpActuals : "<argTypes>, <kwpActuals>";
    }
-   name_resolver = "<replaceAll(overload.name, "::", "_")>_<atype2descriptor(funType)>";
+   println(replaceAll(overload.name, "::", "_"));
+   println(atype2descriptor(overload.funType));
+   name_resolver = "<replaceAll(overload.name, "::", "_")>_<atype2descriptor(overload.funType)>";
    signature = "public <returnType> <name_resolver>(<argTypes>)";
-   calls = "<returnType> res = null;\n";
+   canFail = any(of <- overload.ofunctions, di := jg.getDefine(of).defInfo, di has canFail, di.canFail);
    cases = ();
    for(of <- overload.ofunctions){
         fp = jg.getType(of).abstractFingerprint;
@@ -330,55 +399,71 @@ JCode genResolver(tuple[str name, AType funType, str scope, list[loc] ofunctions
         }
    }
    
+   conses = "";
+   for(of <- overload.oconstructors){
+        conses += makeCall(funType, of, jg);
+   }
+     
    body = "";
    if(size(cases) == 1){
     for(c <- cases){
         body = cases[c];
         break;
     }
-   } else {
-    body = "switch(ToplevelType.getFingerprint($0, <concretePatterns>)){
-           '<for(caseLab <- cases){>
-           '         case <caseLab>: { 
-           '             <cases[caseLab]> 
-           '             break;
-           '         }
-           '    <}>
-           '}";
+   } else if(size(cases) > 1){
+        body = "switch(ToplevelType.getFingerprint($0, <concretePatterns>)){
+               '<for(caseLab <- cases){>
+               '         case <caseLab>: { 
+               '             <cases[caseLab]> 
+               '             <if(!startsWith(split("\n", cases[caseLab])[-1], "return")){> break;<}>
+               '         }
+               '    <}>
+               '}";
    }
    
-   return "<signature>{
-          '    <atype2java(funType.ret)> res;
+   return <signature + ";\n",
+          "<signature>{
+          '    <if(canFail){><atype2java(getResult(funType))> res;<}>
           '    <body>
-          '    throw new RuntimeException(\"Cannot resolve call to `<name_resolver>`\");
+          '    <conses>
+          '    <if(canFail && isEmpty(conses)){>throw new RuntimeException(\"Cannot resolve call to `<name_resolver>`\");<}>
           '}
-          '";
+          '">;
 }
 
 JCode makeCall(AType resolverFunType, loc of, JGenie jg){
     funType = jg.getType(of);
-    kwpActuals = "Map\<String,?\> $kwpActuals";
-    if(any(int i <- index(funType.formals), unsetRec(funType.formals[i]) != unsetRec(resolverFunType.formals[i]))){
+    kwpActuals = "$kwpActuals";
+    formalTypes = getFormals(funType);
+    resolverFormalTypes = getFormals(resolverFunType);
+    if(any(int i <- index(formalTypes), unsetRec(formalTypes[i]) != unsetRec(resolverFormalTypes[i]))){
         conds = [];
         actuals = [];
-        for(int i <- index(resolverFunType.formals)){
-            if(unsetRec(funType.formals[i]) != resolverFunType.formals[i]){
-                conds += "$<i> instanceof <atype2java(funType.formals[i])>";
-                actuals += "(<atype2java(funType.formals[i])>) $<i>";
-                
-                // conds += "<resolverFunType.formals[i].label>$<i> instanceof <atype2java(funType.formals[i])>";
-                //actuals += "(<atype2java(funType.formals[i])>) <resolverFunType.formals[i].label>$<i>";
+        for(int i <- index(resolverFormalTypes)){
+            if(unsetRec(formalTypes[i]) != resolverFormalTypes[i]){
+                conds +=  "$<i>.getType().<atype2istype(formalTypes[i])>()"; 
+                actuals += "(<atype2java(formalTypes[i])>) $<i>";
             } else {
                 actuals += "$<i>";
                  //actuals += "<resolverFunType.formals[i].label>$<i>";
             }
         } 
-        if(!isEmpty(funType.kwFormals)){
+        if(hasKeywordParameters(funType)){
             actuals = isEmpty(actuals) ? [kwpActuals] : actuals + kwpActuals;
         }
-        base_call = "res = <jg.getAccessorInResolver(of)>(<intercalate(", ", actuals)>);
-                    'if(res != null) return res;
-                    '";
+     
+        base_call = "";
+        
+        if(isConstructorType(funType)){
+            return "return <makeConstructorCall(funType, actuals, jg)>;";
+        } else {
+            call_code = "<jg.getAccessorInResolver(of)>(<intercalate(", ", actuals)>)";
+            di = jg.getDefine(of).defInfo;
+            base_call = di has canFail && di.canFail ? "res = <call_code>;
+                                                       'if(res != null) return res;
+                                                       '"
+                                                     : "return <call_code>;\n";
+        }
         if(isEmpty(conds)){
             return base_call;
         } else {
@@ -388,10 +473,34 @@ JCode makeCall(AType resolverFunType, loc of, JGenie jg){
                    '";
         }
     } else {
-        args = intercalate(", ", ["$<i>" | i <- index(funType.formals), f := funType.formals[i]]);
-        return "res = <jg.getAccessorInResolver(of)>(<args>);
-               'if(res != null) return res;
-               '";
+        actuals = ["$<i>" | i <- index(formalTypes), f := formalTypes[i]];
+        if(hasKeywordParameters(funType)){
+            actuals += kwpActuals;
+        }
+        if(isConstructorType(funType)){
+            return "return <makeConstructorCall(funType, actuals, jg)>;";
+            //if(isEmpty(funType.kwFields)){
+            //    return "$VF.constructor(<funType.adt.adtName>_<funType.label>, new IValue[]{<intercalate(", ", actuals)>})";
+            //} else {
+            //    return "$VF.constructor(<funType.adt.adtName>_<funType.label>, new IValue[]{<intercalate(", ", actuals[0..-1])>}, <actuals[-1]>)";
+            //}
+        
+        } else {
+            call_code = "<jg.getAccessorInResolver(of)>(<intercalate(", ", actuals)>)";
+            di = jg.getDefine(of).defInfo;
+            return di has canFail && di.canFail ? "res = <call_code>;
+                                                  'if(res != null) return res;
+                                                  '"
+                                                : "return <call_code>;\n";
+        }
+    }
+}
+
+JCode makeConstructorCall(AType funType, list[str] actuals, JGenie jg){
+    if(isEmpty(funType.kwFields)){
+        return "$VF.constructor(<atype2descriptor(funType)>, new IValue[]{<intercalate(", ", actuals)>})";
+    } else {
+        return "$VF.constructor(<atype2descriptor(funType)> new IValue[]{<intercalate(", ", actuals[0..-1])>}, <actuals[-1]>)";
     }
 }
 
@@ -411,6 +520,10 @@ JCode trans(MuFunction fun, JGenie jg){
     ftype = fun.ftype;
     qname = replaceAll(fun.qname, "::", "_");
     shortName = qname[findFirst(qname, "$")+1 .. ];
+    if(isEmpty(ftype.formals)){ // remove line range from name, since parameterless functions is unique.
+        shortName = shortName[0 .. findLast(shortName, "_")];
+        shortName = shortName[0 .. findLast(shortName, "_")];
+    }
     uncheckedWarning = "";
     if(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := ftype){
         returnType = atype2java(ftype.ret);
@@ -748,14 +861,10 @@ JCode trans(muAssign(muTmpWriter(str name, str fuid), MuExp exp), JGenie jg)
 // Call/Apply/return      
 
 JCode trans(muCall(MuExp fun, list[MuExp] largs), JGenie jg){
-    actuals = for(arg <- largs){
-                append trans(arg, jg);
-            }
+    actuals = [trans(arg, jg) | arg <- largs];
+         
     if(muConstr(AType ctype) := fun){
-        if(isEmpty(ctype.kwFields))
-            return "$VF.constructor(<ctype.adt.adtName>_<ctype.label>, new IValue[]{<intercalate(", ", actuals)>})";
-        return "$VF.constructor(<ctype.adt.adtName>_<ctype.label>, new IValue[]{<intercalate(", ", actuals[0..-1])>}, <actuals[-1]>)";
-        
+        return makeConstructorCall(ctype, actuals, jg);        
     }
     if(muConstrCompanion(str fname) := fun){
         return call(muFunctions[fname], actuals, jg);
@@ -764,7 +873,7 @@ JCode trans(muCall(MuExp fun, list[MuExp] largs), JGenie jg){
         if(rvalue(map[str,value] kwmap) := actuals[-1]){
             return <rvalue(makeNode(s, [v | rvalue(v) <- actuals[0..-1]], keywordParameters = kwmap)), env>;
         }
-        throw "mOCall3: kwmap, <actuals>";
+        throw "muCall: kwmap, <actuals>";
     }
     if(muVar(str name, str fuid, int pos, AType atype):= fun){
         return "<trans(fun, jg)>(<intercalate(", ", actuals)>)";
@@ -772,7 +881,6 @@ JCode trans(muCall(MuExp fun, list[MuExp] largs), JGenie jg){
     if(muFun1(loc uid) := fun){
        externalVars = jg.getExternalVars(uid);
        if(!isEmpty(externalVars)){
-            //ext_actuals = ["<v.name>_<v.pos>" | v <- f.externalVars];
             actuals += [ id | <id, d> <- externalVars ];
        }
        return "<jg.getAccessor(uid)>(<intercalate(", ", actuals)>)";
@@ -841,22 +949,13 @@ JCode trans(muFieldUpdate("aadt", AType atype, MuExp cons, str fieldName, MuExp 
 // ---- muCallPrim2 -----------------------------------------------------------
 
 JCode trans(muCallPrim2(str name, loc src), JGenie jg){
-    return transPrim(name, [], src, jg);
+    return transPrim(name, [], jg);
 }
 
 // ---- muCallPrim3 -----------------------------------------------------------
 
 JCode trans(muCallPrim3(str name, list[MuExp] exps, loc src), JGenie jg){
     actuals = transPrimArgs(name, exps, jg);
-    return transPrim(name, actuals, jg);
-}
- 
-// ---- muCallMuPrim ---------------------------------------------------------
-
-JCode trans(muCallMuPrim(str name, list[MuExp] exps), JGenie jg){
-    actuals = for(exp <- exps){
-                append trans(exp, jg);
-              }
     return transPrim(name, actuals, jg);
 }
 
@@ -1002,7 +1101,7 @@ JCode trans(muDoWhile(str label, MuExp body, MuExp cond), JGenie jg){
     return "<isEmpty(label) ? "" : "<label>:">
            '    do{
            '        <trans(body, jg)>
-           '    } while(<trans2NativeBool(cond, jg)>)\n";
+           '    } while(<trans2NativeBool(cond, jg)>);\n";
 }
 
 JCode trans(mw: muForAll(str btscope, MuExp var, MuExp iterable, MuExp body), JGenie jg){
@@ -1190,6 +1289,11 @@ JCode trans(muCheckArgTypeAndCopy(str name, int from, AType tp, int to), JGenie 
     //  '   return null;
     //  '}";     
 
+bool producesNativeBool(muCallPrim3(str name, list[MuExp] args, loc src)){
+    if(name in {"equal", "notequal"}) return true;
+    fail producesNativeBool;
+}
+
 bool producesNativeBool(MuExp exp)
     = getName(exp) in {"muTmpBool", "muEqual", "muEqualInt", "muNotNegative", "muIsKwpDefined", "muHasKwp", "muHasKwpWithValue", /*"muHasType",*/ "muHasTypeAndArity",
                   "muHasNameAndArity", "muValueIsSubType", "muValueIsSubTypeOfValue", "muGreaterEqInt", "muAnd", "muNot",
@@ -1200,7 +1304,7 @@ bool producesNativeInt(MuExp exp)
     
 
 str getIntegerFor(MuExp exp)
-    = producesNativeInteger(exp) ? "" : ".getValue()";
+    = producesNativeInt(exp) ? "" : ".getValue()";
     
     
 JCode trans2NativeBool(muCon(value b), JGenie jg)
@@ -1216,7 +1320,7 @@ default JCode trans2NativeInt(MuExp exp, JGenie jg)
     = "<trans(exp, jg)><producesNativeInt(exp) ? "" : ".getValue()">";
     
 JCode trans2IInteger(MuExp exp, JGenie jg)
-    = producesNativeInteger(exp) ? "$VF.integer(<trans(exp, jg)>)" : trans(exp, jg);
+    = producesNativeInt(exp) ? "$VF.integer(<trans(exp, jg)>)" : trans(exp, jg);
     
 JCode trans2IBool(MuExp exp, JGenie jg)
     = producesNativeBool(exp) ? "$VF.bool(<trans(exp, jg)>)" : trans(exp, jg);
@@ -1312,7 +1416,7 @@ JCode trans(muRegExpEnd(MuExp matcher), JGenie jg)
 JCode trans(muRegExpFind(MuExp matcher), JGenie jg)
     =  "<trans(matcher, jg)>.find()";
 
-JCode trans(muRegExpSetRegion(MuExp, matcher, int begin, int end), JGenie jg)
+JCode trans(muRegExpSetRegion(MuExp matcher, int begin, int end), JGenie jg)
     =  "<trans(matcher, jg)>.region(<begin>, <end>)";
 
 JCode trans(muRegExpGroup(MuExp matcher, int n), JGenie jg)

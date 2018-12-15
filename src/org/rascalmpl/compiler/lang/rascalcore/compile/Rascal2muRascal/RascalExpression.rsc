@@ -10,7 +10,7 @@ import Set;
 import ParseTree;
 import util::Reflective;
 import Exception;
-//import lang::rascalcore::compile::RVM::Interpreter::CompileTimeError;
+import lang::rascalcore::compile::CompileTimeError;
 
 import lang::rascal::\syntax::Rascal;
 
@@ -901,12 +901,6 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    
    	return muOCall3(receiver, ftype, hasKeywordParameters(ftype) ? args + [ kwargs ] : args, e@\loc);
    
-  
-   //// Push down additional information if the overloading resolution needs to be done at runtime
-   //return muOCall4(receiver, 
-   //				  isFunctionType(ftype) ? atuple(atypeList([ ftype ])) : atuple(atypeList([ t | AType t <- (getNonDefaultOverloadOptions(ftype) + getDefaultOverloadOptions(ftype)) ])), 
-   //				  args + [ kwargs ],
-   //				  e@\loc);
 }
 
 private MuExp translateKeywordArguments((KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArguments>`) {

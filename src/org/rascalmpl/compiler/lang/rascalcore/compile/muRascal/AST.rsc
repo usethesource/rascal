@@ -29,7 +29,6 @@ public data MuModule =
                        list[MuModuleVar] module_variables, 
                        list[MuExp] initialization,
                        int nlocals_in_initializations,
-                       map[str,int] resolver,
                        lrel[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] overloaded_functions,
                        AGrammar grammar,
                        rel[str,str] importGraph,
@@ -52,7 +51,6 @@ public data MuFunction =
                            int nlocals, 
                            bool isVarArgs,
                            bool isPublic,
-                           bool simpleArgs,
                            list[MuExp] externalVars,
                            loc src,
                            list[str] modifiers,
@@ -299,6 +297,10 @@ MuExp muReturn1(muContinue(str btscope))
 MuExp muReturn1(muFail(str btscope)){
    return  muContinue(btscope);// : muReturn1(muCon(false));
 }
+
+MuExp muReturn1(muFailReturn())
+    = muFailReturn();
+    
 // ---- muAssign --------------------------------------------------------------
 
 MuExp muAssign(MuExp var, muBlock([*MuExp exps, MuExp exp]))

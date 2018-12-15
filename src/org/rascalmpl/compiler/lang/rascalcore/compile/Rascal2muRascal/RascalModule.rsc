@@ -11,7 +11,7 @@ import util::Reflective;
 //import util::ValueUI;
 
 import ParseTree;
-//import lang::rascalcore::compile::RVM::Interpreter::CompileTimeError;
+import lang::rascalcore::compile::CompileTimeError;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::muRascal::AST;
@@ -76,8 +76,6 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmodel, PathConfig
    	  translateModule(M);
    	 
    	  modName = replaceAll("<M.header.name>","\\","");
-   	   
-   	  list[OFUN] overloaded_functions = getOverloadedFunctions();
                       
    	  return /*relocMuModule(*/
    	            muModule(modName,
@@ -91,8 +89,7 @@ MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmodel, PathConfig
    	  				  getVariablesInModule(), 
    	  				  getVariableInitializationsInModule(), 
    	  				  getModuleVarInitLocals(modName), 
-   	  				  getOverloadingResolver(),
-   	  				  overloaded_functions, 
+   	  				  getOverloadedFunctions(), 
    	  				  getGrammar(),
    	  				  {}, //{<prettyPrintName(rn1), prettyPrintName(rn2)> | <rn1, rn2> <- config.importGraph},
    	  				  M@\loc) /*,   

@@ -2,7 +2,7 @@ module lang::rascalcore::compile::muRascal2Java::Primitives
 
 import lang::rascalcore::check::AType;
 import lang::rascalcore::compile::muRascal2Java::RValue;
-import lang::rascalcore::compile::muRascal2Java::Env;
+//import lang::rascalcore::compile::muRascal2Java::Env;
 
 import lang::rascalcore::compile::muRascal2Java::JGenie;
 import lang::rascalcore::compile::muRascal::AST;
@@ -28,10 +28,11 @@ JCode transPrim("aint_greaterequal_aint", [str x, str y], JGenie jg)            
 JCode transPrim("aint_less_aint", [str x, str y], JGenie jg)                    = "<x>.less(<y>)";
 JCode transPrim("aint_lessequal_aint", [str x, str y], JGenie jg)               = "<x>.lessEqual(<y>)";
 
+JCode transPrim("negative_aint", [str x], JGenie jg)                            = "<x>.negate()";
 
 
-JCode transPrim("equal", [str x, str y], JGenie jg)                             = "<x>.equal(<y>)";
-JCode transPrim("notequal", [str x, str y], JGenie jg)                          = "!(<x>.equal(<y>))";
+JCode transPrim("equal", [str x, str y], JGenie jg)                             = "<x>.isEqual(<y>)";
+JCode transPrim("notequal", [str x, str y], JGenie jg)                          = "!(<x>.isEqual(<y>))";
 
 JCode transPrim("not_abool", [str x], JGenie jg)                                = "<x>.not()";
 
