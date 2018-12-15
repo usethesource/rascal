@@ -215,7 +215,7 @@ public class ConstructorFunction extends NamedFunction {
 			throw new MatchFailed();
 		}
 		// TODO: when characters get proper types we need to add them here.
-		if (constructorType == RascalValueFactory.Tree_Appl || constructorType == RascalValueFactory.Tree_Amb || constructorType == RascalValueFactory.Tree_Cycle) {
+		if (constructorType == RascalValueFactory.Tree_Appl || constructorType == RascalValueFactory.Tree_Amb || constructorType == RascalValueFactory.Tree_Cycle || constructorType == RascalValueFactory.Tree_Char) {
 			return new ConcreteConstructorFunction(ast, constructorType, eval, declarationEnvironment).call(actualTypes, actuals, keyArgValues);
 		}
 		
