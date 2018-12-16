@@ -3,8 +3,8 @@ module lang::rascalcore::compile::muRascal2Java::CodeGen
 import lang::rascal::\syntax::Rascal;
 
 import lang::rascalcore::compile::muRascal::AST;
-import lang::rascalcore::check::AType;
-import lang::rascalcore::check::ATypeUtils;
+extend lang::rascalcore::check::AType;
+extend lang::rascalcore::check::ATypeUtils;
 import List;
 import Set;
 import Relation;
@@ -15,14 +15,12 @@ import IO;
 import Type;
 import util::Reflective;
 
-import analysis::typepal::TypePal;
+extend analysis::typepal::TypePal;
 
-import lang::rascalcore::check::TypePalConfig;
+extend lang::rascalcore::check::TypePalConfig;
 
 import lang::rascalcore::compile::muRascal2Java::Writers;
-//import lang::rascalcore::compile::muRascal2Java::Constructors;
 import lang::rascalcore::compile::muRascal2Java::Primitives;
-//import  lang::rascalcore::compile::muRascal2Java::Visitors;
 
 import lang::rascalcore::compile::muRascal2Java::JGenie;
 
@@ -290,7 +288,7 @@ list[OF5] sortOverloads(list[OF5] ofs){
 }
 
 list[OF5] filterMostAlts(set[OF5] overloadedFunctions){
-    sorted = sort(overloadedFunctions, larger);
+    sorted = sortOverloads(overloadedFunctions);
     int last = size(sorted) - 1;
     filtered = [ *((i == last || sorted[i].name != sorted[i+1].name || sorted[i].funType != sorted[i+1].funType) ? [sorted[i]] : []) | int i <- index(sorted)];
     return filtered;
@@ -691,12 +689,6 @@ JCode trans(muOFun(str fuid), JGenie jg){
 JCode trans(var:muVar(str name, str fuid, int pos, AType atype), JGenie jg)
     = jg.isRefVar("<name>_<pos>") ? "<name>.value" : "<name>";
 
-// ---- muLoc -----------------------------------------------------------------
-    
-JCode trans(var:muLoc(str name, int pos), JGenie jg)
-    = name;
-    
-
 // ---- muTmp -----------------------------------------------------------------
 
 JCode trans(var: muTmp(str name, str fuid, AType atype), JGenie jg)
@@ -870,8 +862,8 @@ JCode trans(muCall(MuExp fun, list[MuExp] largs), JGenie jg){
         return call(muFunctions[fname], actuals, jg);
     }
     if(muCon(str s) := fun){
-        if(rvalue(map[str,value] kwmap) := actuals[-1]){
-            return <rvalue(makeNode(s, [v | rvalue(v) <- actuals[0..-1]], keywordParameters = kwmap)), env>;
+        if(map[str,value] kwmap := actuals[-1]){
+            return makeNode(s, actuals[0..-1], keywordParameters = kwmap);
         }
         throw "muCall: kwmap, <actuals>";
     }
@@ -1034,7 +1026,7 @@ JCode trans(var:muVarKwp(str name, str fuid, AType atype),  JGenie jg)
     = "(<atype2java(atype)>) ($kwpActuals.containsKey(\"<name>\") ? $kwpActuals.get(\"<name>\") : <jg.getKwpDefaults()>.get(\"<name>\"))";
 
 JCode trans(muAssign(muVarKwp(str name, str fuid, AType atype), MuExp exp), JGenie jg)
-    = "$kwpActuals.put(\"<name>\", <v>);\n";
+    = "$kwpActuals.put(\"<name>\", <trans(exp, jg)>);\n";
 
 JCode trans(muIsKwpDefined(MuExp exp, str kwpName), JGenie jg)
     = "<trans(exp, jg)>.asWithKeywordParameters().hasParameter(\"<kwpName>\")";

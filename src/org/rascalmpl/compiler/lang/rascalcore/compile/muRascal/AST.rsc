@@ -35,7 +35,7 @@ public data MuModule =
                        loc src)
             ;
             
-MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, (), messages, [], [], (), (), [], [], [], 0, (), [], (), {}, src);
+MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, (), messages, [], [], (), (), [], [], [], (), [], (), {}, src);
           
 // All information related to a function declaration. This can be a top-level
 // function, or a nested or anomyous function inside a top level function. 
@@ -348,8 +348,8 @@ MuExp muIfelse(muCon(false), MuExp thenPart, MuExp elsePart) = elsePart;
 //    =  muIfelse(btscope, cond, muEnter(btscope, thenPart), muEnter(btscope, elsePart));
 
 
-MuExp muEnter(str label, muForAll(label, str varName, str fuid, MuExp iterable, MuExp body))
-    = muForAll(label, varName, fuid, iterable, body);
+MuExp muEnter(str label, muForAll(label, MuExp var, MuExp iterable, MuExp body))
+    = muForAll(label, var, iterable, body);
     
 MuExp muForAll(str label, str varName, str fuid, MuExp iterable, MuExp body)
     = muForAll(label, varName, fuid, iterable, body1)
@@ -515,5 +515,5 @@ MuExp muCallPrim3("atuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4), 
 MuExp muCallPrim3("atuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7), muCon(v8), muCon(v9) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7, v8, v9>);
 MuExp muCallPrim3("atuple_create", [muCon(v1), muCon(v2), muCon(v3), muCon(v4), muCon(v5), muCon(v6), muCon(v7), muCon(v8), muCon(v9),  muCon(v10) ], loc src) = muCon(<v1, v2, v3, v4, v5, v6, v7, v8, v9, v10>);
 
-MuExp muCallPrim3("anode_create", [muCon(str name), *MuExp args, muCallMuPrim("make_mmap", [])], loc src) = muCon(makeNode(name, [a | muCon(a) <- args]))  
-      when allConstant(args);
+//MuExp muCallPrim3("anode_create", [muCon(str name), *MuExp args, muCallMuPrim("make_mmap", [])], loc src) = muCon(makeNode(name, [a | muCon(a) <- args]))  
+//      when allConstant(args);

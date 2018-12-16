@@ -10,7 +10,7 @@ import util::Reflective;
 import util::Benchmark;
 import util::FileSystem;
 import util::UUID;
-import Map;
+//import Map;
 import Set;
 import Relation;
 import Exception;
@@ -23,11 +23,11 @@ import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::compile::Rascal2muRascal::RascalModule;
 import lang::rascalcore::compile::Rascal2muRascal::TypeUtils;
 
+extend analysis::typepal::TypePal;
+extend  lang::rascalcore::check::TypePalConfig;
+import lang::rascalcore::check::Checker;
 
-extend lang::rascalcore::check::TypePalConfig;
-extend lang::rascalcore::check::Checker;
-
-import lang::rascalcore::compile::muRascal2Java::CodeGen;
+extend lang::rascalcore::compile::muRascal2Java::CodeGen;
 
 alias RVMModule = value;
 
@@ -45,7 +45,8 @@ public PathConfig getDefaultPathConfig() {
 
 loc generatedDir = |project://rascal-codegen-ideas/generated|;
 
-list[Message] compile1(str qualifiedModuleName, loc moduleLoc,  lang::rascal::\syntax::Rascal::Module M, TModel tm, PathConfig pcfg, loc reloc = |noreloc:///|, bool verbose = true, bool optimize=true, bool enableAsserts=false){
+list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] tmodels, map[str, loc] moduleLocs, PathConfig pcfg, loc reloc = |noreloc:///|, bool verbose = true, bool optimize=true, bool enableAsserts=false){
+    tm = tmodels[qualifiedModuleName];
     targetDir = generatedDir + module2package(qualifiedModuleName);
     className = module2class(qualifiedModuleName);
    
@@ -70,11 +71,10 @@ list[Message] compile1(str qualifiedModuleName, loc moduleLoc,  lang::rascal::\s
         writeFile(targetDir + "<className>.java", the_class);
         writeFile(targetDir + "$<className>.java", the_interface);
      
-      
-        return true;
+        return errors;
        
     } catch e: CompileTimeError(m): {
-        errors += errors(m, moduleLoc);   
+        errors += error(m, moduleLoc);   
         return <errors, tmodels>;
     }
 }
@@ -87,12 +87,12 @@ list[Message] compile(loc moduleLoc, PathConfig pcfg, loc reloc = |noreloc:///|,
 @doc{Compile a Rascal source module (given as qualifiedModuleName) to Java}
 list[Message] compile(str qualifiedModuleName, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = true, bool optimize=true, bool enableAsserts=false){
     start_check = cpuTime();   
-    <tmodels, moduleLocs, modules> = rascalTModelForName(qualifiedModuleName, pcfg, rascalTypePalConfig(classicReifier=true));
+    <tmodels, moduleLocs, modules> =  rascalTModelForName(qualifiedModuleName, pcfg, rascalTypePalConfig(classicReifier=true));
     check_time = (cpuTime() - start_check)/1000000;
     errors = [];
     start_comp = cpuTime();
     for(mname <- modules){
-       errors += compile1(mname, moduleLocs[mname], modules[mname], tmodels[mname], pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
+       errors += compile1(mname, modules[mname], tmodels, moduleLocs, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
     }
     
     comp_time = (cpuTime() - start_comp)/1000000;

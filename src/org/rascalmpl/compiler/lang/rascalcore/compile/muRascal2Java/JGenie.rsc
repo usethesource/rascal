@@ -1,15 +1,17 @@
 module lang::rascalcore::compile::muRascal2Java::JGenie
 
 import lang::rascal::\syntax::Rascal;
-import lang::rascalcore::check::AType;
-import lang::rascalcore::check::ATypeUtils;
+
 import List;
 import Set;
 import IO;
 import String;
 import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::compile::muRascal2Java::CodeGen;
-import lang::rascalcore::check::TypePalConfig;
+
+extend lang::rascalcore::check::AType;
+extend lang::rascalcore::check::ATypeUtils;
+extend lang::rascalcore::check::TypePalConfig;
 
 alias JCode = str;
 
