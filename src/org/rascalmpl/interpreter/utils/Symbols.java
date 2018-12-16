@@ -291,12 +291,12 @@ public class Symbols {
 	}
 	
 	private static IList ranges2Ranges(List<Range> ranges) {
-		IListWriter result = factory.listWriter(RascalValueFactory.CharRanges.getElementType());
+		IListWriter result = factory.listWriter();
 		
 		for (Range range : ranges) {
 			if (range.isCharacter()) {
 				IValue ch = char2int(range.getCharacter());
-				result.append(factory.constructor(RascalValueFactory.CharRange_Single, ch));
+				result.append(factory.constructor(RascalValueFactory.CharRange_Range, ch, ch));
 			}
 			else if (range.isFromTo()) {
 				IValue from = char2int(range.getStart());
