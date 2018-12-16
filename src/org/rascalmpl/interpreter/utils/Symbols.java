@@ -287,6 +287,13 @@ public class Symbols {
 		if (cc.isSimpleCharclass()) {
 			return factory.constructor(RascalValueFactory.Symbol_CharClass, ranges2Ranges(cc.getRanges()));
 		}
+		else if (cc.isComplement()) {
+		    // hardwired ![] here, should generalize to character class difference
+		    if (cc.getCharClass().isSimpleCharclass() && cc.getCharClass().getRanges().isEmpty()) {
+		        return factory.constructor(RascalValueFactory.Symbol_CharClass, 
+		            factory.list(factory.constructor(RascalValueFactory.CharRange_Range, factory.integer(1), factory.integer(0x10FFFF))));
+		    }
+		}
 		throw new NotYetImplemented(cc);
 	}
 	
