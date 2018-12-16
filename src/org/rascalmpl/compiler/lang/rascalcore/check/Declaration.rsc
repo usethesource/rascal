@@ -12,6 +12,7 @@ extend lang::rascalcore::check::Pattern;
 extend lang::rascalcore::check::Statement;
 
 extend lang::rascalcore::check::Fingerprint;
+
 import lang::rascalcore::check::ATypeExceptions;
 import lang::rascalcore::check::ATypeInstantiation;
 import lang::rascalcore::check::ATypeUtils;

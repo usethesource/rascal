@@ -241,9 +241,10 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         filteredModuleScopePaths = {ml.path |loc  ml <- filteredModuleScopes};
         
         m1.scopes = (inner : tm.scopes[inner] | loc inner <- tm.scopes, inner.path in filteredModuleScopePaths);
-               
-        m1.store = no_errors ? (key_bom : bom, "grammar" : tm.store["grammar"], "ADTs" : tm.store["ADTs"])
-                             : (key_bom : bom, "grammar" : grammar({}, ()), "ADTs" : {});
+        
+        m1.store = (key_bom : bom);
+        m1.store["grammar"] = tm.store["grammar"] ? grammar({}, ());
+        m1.store["ADTs"]    = tm.store["ADTs"] ? {};
         
         m1.paths = { tup | tuple[loc from, PathRole pathRole, loc to] tup <- m1.paths, tup.from == mscope };
         //m1.paths = domainR(tm.paths, {mscope});

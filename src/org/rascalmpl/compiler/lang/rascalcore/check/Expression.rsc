@@ -1276,7 +1276,7 @@ void collect(current: (Expression) `<Expression expression> . <Name field>`, Col
 }
 
 @doc{Field names and types for built-ins}
-public map[AType,map[str,AType]] fieldMap =
+private map[AType,map[str,AType]] fieldMap =
     ( aloc() :
         ( "scheme" : astr(), 
           "authority" : astr(), 

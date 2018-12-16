@@ -867,7 +867,7 @@ void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable 
             rhsFields = getTupleFields(rhsType);
             //println("checkTupleElemAssignment: rhsFields <rhsFields>");
             //println("#name: <size(names)>, #rhsFields: <size(rhsFields)>");
-            if(size(names) != size(rhsFields)) s.report(error(statement, "Tuple type required of arity %v, found arity %v", size(names), size(rhsFields))); 
+            if(size(names) != size(rhsFields)) s.report(error(current, "Tuple type required of arity %v, found arity %v", size(names), size(rhsFields))); 
             //println("checkTupleElemAssignment: taus[<i>] : <taus[i]>, rhsFields[<i>]: <rhsFields[i]>");
             if(s.isFullyInstantiated(taus[i]) && tvar(l) !:= taus[i]){
                //println("checkTupleElemAssignment: fullyInstantiated");

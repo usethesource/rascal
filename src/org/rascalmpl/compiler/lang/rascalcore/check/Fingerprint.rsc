@@ -5,6 +5,8 @@ extend analysis::typepal::TypePal;
 
 import lang::rascal::\syntax::Rascal;
 extend  lang::rascalcore::check::ATypeUtils;
+import util::Reflective;
+import ValueIO;
 
 // Compute the fingerprint of a pattern. Note this should be in sync with ToplevelType.getFingerprint.
 
