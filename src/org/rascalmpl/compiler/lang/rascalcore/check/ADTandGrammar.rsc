@@ -42,7 +42,7 @@ AGrammar addGrammar(loc scope, Solver s){
         definitions = ();
         //PM. maybe also generate prod(Symbol::empty(),[],{}) 
         for(AType adtType <- usedSyntaxADTs){
-            println("getGrammar: <adtType>");
+            //println("getGrammar: <adtType>");
             productions = {p | <id, aprod(p)> <- s.getAllDefinedInType(adtType, scope, dataOrSyntaxRoles)};
             definitions[adtType] = choice(adtType, productions);
             if(adtType.syntaxRole == layoutSyntax()){

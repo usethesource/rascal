@@ -120,7 +120,7 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
                     mloc = getModuleLocation(qualifiedModuleName, pcfg);
                 } catch value e:{
                     allImportsAndExtendsValid = true;
-                    println("--- reusing outdated <qualifiedModuleName> (source not accessible)");
+                    println("--- reusing tmodel of <qualifiedModuleName> (source not accessible)");
                 }
             }
             if(allImportsAndExtendsValid){
