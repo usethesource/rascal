@@ -37,7 +37,7 @@ import Message;
 
 import lang::rascal::\syntax::Rascal;
    
-//extend analysis::typepal::TypePal;
+extend analysis::typepal::TypePal;
 
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::Declaration;
@@ -48,8 +48,8 @@ extend lang::rascalcore::check::Operators;
 extend lang::rascalcore::check::Pattern;
 extend lang::rascalcore::check::Statement;
 
-import lang::rascalcore::check::ATypeUtils;
-import lang::rascalcore::check::TypePalConfig;
+extend lang::rascalcore::check::ATypeUtils;
+extend lang::rascalcore::check::TypePalConfig;
 
 import lang::rascalcore::grammar::ParserGenerator;
 import lang::rascalcore::grammar::definition::Symbols;

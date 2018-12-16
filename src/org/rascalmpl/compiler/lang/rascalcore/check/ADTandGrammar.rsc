@@ -10,7 +10,7 @@ import lang::rascalcore::grammar::definition::Layout;
 //import lang::rascalcore::grammar::definition::Productions;
 import lang::rascalcore::grammar::definition::Keywords;
   
-//extend analysis::typepal::TypePal;
+extend analysis::typepal::TypePal;
 extend lang::rascalcore::check::TypePalConfig;
 
 import lang::rascal::\syntax::Rascal;
