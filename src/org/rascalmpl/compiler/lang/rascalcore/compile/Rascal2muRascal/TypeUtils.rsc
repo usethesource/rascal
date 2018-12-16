@@ -12,6 +12,7 @@ import String;
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::muRascal::AST;
 
+import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascal::grammar::definition::Symbols;
 
 extend lang::rascalcore::check::Checker;

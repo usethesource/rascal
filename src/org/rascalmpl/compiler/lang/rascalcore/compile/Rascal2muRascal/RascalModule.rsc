@@ -8,7 +8,6 @@ import Set;
 import List;
 import Relation;
 import util::Reflective;
-//import util::ValueUI;
 
 import ParseTree;
 import lang::rascalcore::compile::CompileTimeError;
