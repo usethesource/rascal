@@ -11,6 +11,10 @@ test bool fieldsFromLexicals() = ["C", "C", "B", "F"] == [ "<w.head>" |  w <- t.
 test bool fieldsFromLexicals2() = ["amel", "ase", "ase", "eest"] == [ "<w.tail>" |  w <- t.words ]
   when Example t := [Example] "CamelCaseBaseFeest";  
 
+// even though the dynamic type would be list[[CCBF]] == list[[BCF]], the static type is list[[A-Z]]:
+test bool staticFieldProjectType() = list[[A-Z]] _ := [ w.head |  w <- t.words ]
+  when Example t := [Example] "CamelCaseBaseFeest";
+
 private bool check(type[&T] t, value x) = &T _ := x;
 
 test bool singleA() = check(#[A], char(65));
