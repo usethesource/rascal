@@ -937,10 +937,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
     return null; 
   }
 
-  public T visitProdOthers(Prod.Others x) { 
-    return null; 
-  }
-
   public T visitProdReference(Prod.Reference x) { 
     return null; 
   }
