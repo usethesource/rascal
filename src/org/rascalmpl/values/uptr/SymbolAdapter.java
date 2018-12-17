@@ -250,23 +250,13 @@ public class SymbolAdapter {
 			return "()";
 		}
 		if (isCharClass(symbol)) {
-		  IList ranges = getRanges(symbol);
-		  StringBuilder b = new StringBuilder();
-		  b.append("[");
-		  for (IValue range : ranges) {
-		    IInteger from = getRangeBegin(range);
-		    IInteger to = getRangeEnd(range);
-		    if  (from.equals(to)) {
-		      b.append(escapeChar(from.intValue()));
+		    IConstructor complement = complementCharClass(symbol);
+		    if (getRanges(complement).length() >= getRanges(symbol).length()) {
+		        return charClassToString(symbol);
 		    }
 		    else {
-		      b.append(escapeChar(from.intValue()));
-		      b.append("-");
-		      b.append(escapeChar(to.intValue()));
+		        return "!" + charClassToString(complement);
 		    }
-		  }
-		  b.append("]");
-		  return b.toString();
 		}
 		
 		
@@ -476,6 +466,26 @@ public class SymbolAdapter {
 		// TODO: add more to cover all different symbol constructors
 		return symbol.toString();
 	}
+
+    private static String charClassToString(IConstructor symbol) {
+        IList ranges = getRanges(symbol);
+		  StringBuilder b = new StringBuilder();
+		  b.append("[");
+		  for (IValue range : ranges) {
+		    IInteger from = getRangeBegin(range);
+		    IInteger to = getRangeEnd(range);
+		    if  (from.equals(to)) {
+		      b.append(escapeChar(from.intValue()));
+		    }
+		    else {
+		      b.append(escapeChar(from.intValue()));
+		      b.append("-");
+		      b.append(escapeChar(to.intValue()));
+		    }
+		  }
+		  b.append("]");
+		  return b.toString();
+    }
 
 	private static ISet getConditions(IConstructor symbol) {
     return (ISet) symbol.get("conditions");
@@ -826,14 +836,91 @@ public class SymbolAdapter {
         if (lhs == rhs || lhs.isEqual(rhs)) {
             return lhs;
         }
-        return VF.constructor(RascalValueFactory.Symbol_CharClass, unionRanges(getRanges(lhs), getRanges(rhs)));
+        return charclass(unionRanges(getRanges(lhs), getRanges(rhs)));
     }
     
+    public static IConstructor charclass(IList ranges) {
+        return VF.constructor(RascalValueFactory.Symbol_CharClass, ranges);
+    }
+    
+    public static IConstructor complementCharClass(IConstructor cc) {
+        IConstructor everything = charclass(VF.list(range(1, 0x10FFFF)));
+        
+        return SymbolAdapter.differencesCharClasses(everything, cc);
+    }
+    
+    public static IConstructor differencesCharClasses(IConstructor lhs, IConstructor rhs) {
+        if (lhs == rhs || lhs.isEqual(rhs)) {
+            return VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list());
+        }
+        
+        return charclass(differenceRanges(getRanges(lhs), getRanges(rhs)));
+    }
+    
+    private static IList newRange(int from, int to) {
+        return from > to ? VF.list() : VF.list(range(from, to));
+    }
+    
+    private static IList differenceRanges(IList l, IList r) {
+        if (l.isEmpty() || r.isEmpty()) {
+            return l;
+        }
+        
+        IConstructor lhead = (IConstructor) l.get(0);
+        IList ltail = l.delete(0);
+        IConstructor rhead = (IConstructor) r.get(0);
+        IList rtail = r.delete(0);
+
+        // left beyond right
+        // <-right-> --------
+        // --------- <-left->
+        if (rangeBegin(lhead) > rangeEnd(rhead)) {
+          return differenceRanges(l,rtail); 
+        }
+
+        // left before right
+        // <-left-> ----------
+        // -------- <-right->
+        if (rangeEnd(lhead) < rangeBegin(rhead)) {
+          return differenceRanges(ltail,r).insert(lhead);
+        }
+
+        // inclusion of left into right
+        // <--------right------->
+        // ---------<-left->-----
+        if (rangeBegin(lhead) >= rangeBegin(rhead) && rangeEnd(lhead) <= rangeEnd(rhead)) {
+          return differenceRanges(ltail,r); 
+        }
+
+        // inclusion of right into left
+        // -------<-right->------->
+        // <---------left--------->
+        if (rangeBegin(rhead) >= rangeBegin(lhead) && rangeEnd(rhead) <= rangeEnd(lhead)) {
+          return newRange(rangeBegin(lhead),rangeBegin(rhead)-1).concat( 
+              differenceRanges(newRange(rangeEnd(rhead)+1,rangeEnd(lhead)).concat(ltail), rtail));
+        }
+
+        // overlap on left side of right
+        // <--left-------->----------
+        // ---------<-----right----->
+        if (rangeEnd(lhead) < rangeEnd(rhead)) 
+          return newRange(rangeBegin(lhead),rangeBegin(rhead)-1).concat(differenceRanges(ltail,r)); 
+          
+        // overlap on right side of right
+        // -------------<---left---->
+        // <----right------->--------
+        if (rangeBegin(lhead) > rangeBegin(rhead)) {
+          return differenceRanges(newRange(rangeEnd(rhead)+1,rangeEnd(lhead)).concat(ltail), rtail);
+        }
+
+        throw new IllegalArgumentException("did not expect to end up here! <l> - <r>");
+    }
+
     public static IConstructor intersectCharClasses(IConstructor lhs, IConstructor rhs) {
         if (lhs == rhs || lhs.isEqual(rhs)) {
             return lhs;
         }
-        return VF.constructor(RascalValueFactory.Symbol_CharClass, intersectRanges(getRanges(lhs), getRanges(rhs)));
+        return charclass(intersectRanges(getRanges(lhs), getRanges(rhs)));
     }
     
     private static IList intersectRanges(IList l, IList r) {
@@ -893,6 +980,17 @@ public class SymbolAdapter {
         }
           
         throw new IllegalArgumentException("did not expect to end up here! <l> - <r>");
+    }
+    
+    public static IConstructor normalizeCharClassRanges(IConstructor cc) {
+        IList ranges = getRanges(cc);
+        IList result = VF.list();
+        
+        for (IValue range : ranges) {
+            result = unionRanges(result, VF.list(range));
+        }
+        
+        return charclass(result);
     }
     
     private static IList unionRanges(IList l, IList r) {
