@@ -748,7 +748,7 @@ syntax Class
 	> left difference: Class lhs "-" Class rhs 
 	> left intersection: Class lhs "&&" Class rhs 
 	> left union: Class lhs "||" Class rhs 
-	| bracket \bracket: "(" Class charclass ")" ;
+	| bracket \bracket: "(" Class charClass ")" ;
 
 lexical RegExpLiteral
 	= "/" RegExp* "/" RegExpModifier ;
