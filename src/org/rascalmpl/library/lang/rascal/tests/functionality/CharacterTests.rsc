@@ -3,6 +3,14 @@ module lang::rascal::tests::functionality::CharacterTests
 import ParseTree;
 import String;
 
+lexical Example = ([A-Z] head [a-z]* tail)+ words;
+
+test bool fieldsFromLexicals() = ["C", "C", "B", "F"] == [ "<w.head>" |  w <- t.words ]
+  when Example t := [Example] "CamelCaseBaseFeest";
+  
+test bool fieldsFromLexicals2() = ["amel", "ase", "ase", "eest"] == [ "<w.tail>" |  w <- t.words ]
+  when Example t := [Example] "CamelCaseBaseFeest";  
+
 private bool check(type[&T] t, value x) = &T _ := x;
 
 test bool singleA() = check(#[A], char(65));
