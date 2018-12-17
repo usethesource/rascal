@@ -105,7 +105,7 @@ syntax Sym
 	| \start: "start" "[" Nonterminal nonterminal "]"
 	| labeled: Sym symbol NonterminalLabel label
 // literals 
-	| characterClass: Class!bracket charClass 
+	| characterClass: Class charClass 
 	| literal: StringConstant string 
 	| caseInsensitiveLiteral: CaseInsensitiveStringConstant cistring
 // regular expressions
