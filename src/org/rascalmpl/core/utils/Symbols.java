@@ -351,7 +351,7 @@ public class Symbols {
         if (lhs == rhs || lhs.isEqual(rhs)) {
             return lhs;
         }
-        return charclass(unionRanges(getRanges(lhs), getRanges(rhs)));
+        return charclass(unionRanges(SymbolAdapter.getRanges(lhs), SymbolAdapter.getRanges(rhs)));
     }
     
     public static IConstructor charclass(IList ranges) {
@@ -369,7 +369,7 @@ public class Symbols {
             return factory.constructor(RascalValueFactory.Symbol_CharClass, factory.list());
         }
         
-        return charclass(differenceRanges(getRanges(lhs), getRanges(rhs)));
+        return charclass(differenceRanges(SymbolAdapter.getRanges(lhs), SymbolAdapter.getRanges(rhs)));
     }
     
     private static IList newRange(int from, int to) {
@@ -435,7 +435,7 @@ public class Symbols {
         if (lhs == rhs || lhs.isEqual(rhs)) {
             return lhs;
         }
-        return charclass(intersectRanges(getRanges(lhs), getRanges(rhs)));
+        return charclass(intersectRanges(SymbolAdapter.getRanges(lhs), SymbolAdapter.getRanges(rhs)));
     }
     
     private static IList intersectRanges(IList l, IList r) {
@@ -498,7 +498,7 @@ public class Symbols {
     }
     
     public static IConstructor normalizeCharClassRanges(IConstructor cc) {
-        IList ranges = getRanges(cc);
+        IList ranges = SymbolAdapter.getRanges(cc);
         IList result = factory.list();
         
         for (IValue range : ranges) {
