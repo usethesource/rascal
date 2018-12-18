@@ -8,7 +8,7 @@ import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
 public class $RascalModule {
-	protected final static IValueFactory $VF = ValueFactoryFactory.getValueFactory();
-	protected final static TypeFactory $TF = TypeFactory.getInstance();
-	protected final static TypeStore $TS = new TypeStore();
+	public final static IValueFactory $VF = ValueFactoryFactory.getValueFactory();
+	public final static TypeFactory $TF = TypeFactory.getInstance();
+	public final static TypeStore $TS = new TypeStore();
 }

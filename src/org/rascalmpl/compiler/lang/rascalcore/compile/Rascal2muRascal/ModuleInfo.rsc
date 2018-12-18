@@ -3,13 +3,11 @@ module lang::rascalcore::compile::Rascal2muRascal::ModuleInfo
 import List;
 import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
-import IO;
 
  // Global state maintained when translating a Rascal module
 
 private str module_name;							//  name of current module
 private map[str,str] module_tags;                   // tags of current module;
-private str function_uid;							// uid of current function
 private list[str] imported_modules = [];			// modules imported by current module
 private list[str] extended_modules = [];			// modules extended by current module
 private list[MuFunction] functions_in_module = [];	// functions declared in current module

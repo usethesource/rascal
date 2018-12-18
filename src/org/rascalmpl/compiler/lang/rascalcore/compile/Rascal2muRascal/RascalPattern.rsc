@@ -54,7 +54,7 @@ default MuExp translatePat(p:(Pattern) `<Literal lit>`, AType subjectType, MuExp
 
 MuExp translatePat(Literal lit, AType subjectType, MuExp subject, str btscope, MuExp trueCont, MuExp falseCont) = translateLitPat(lit, subjectType, subject, btscope, trueCont, falseCont);
 
-MuExp translateLitPat(Literal lit, AType subjectType, MuExp subject, str btscope, MuExp trueCont, MuExp falseCont) = muIfelse(muEqual(translate(lit), subject), trueCont, falseCont);
+MuExp translateLitPat(Literal lit, AType subjectType, MuExp subject, str btscope, MuExp trueCont, MuExp falseCont) = muIfExp(muEqual(translate(lit), subject), trueCont, falseCont);
 
 // -- regexp pattern -------------------------------------------------
 //TODO

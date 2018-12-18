@@ -78,8 +78,8 @@ void translate(d: (Declaration) `<Tags tags> <Visibility visibility> data <UserT
             consVar = muVar(consName, fuid, 0, consType);
           
             defExprCode = fixFieldReferences(translate(defaultExpr), consType, consVar, fuid);
-            body = muReturn1(muIfelse("", muIsKwpDefined(consVar, kwFieldName), muGetKwpFromConstructor(consVar, kwtype, kwFieldName), defExprCode));
-            addFunctionToModule(muFunction(fuid, getterName, getterType, [], [], "", 1, 1, false, true, true, [], |std:///|, [], (), body));               
+            body = muReturn1(muIfelse(muIsKwpDefined(consVar, kwFieldName), muGetKwpFromConstructor(consVar, kwtype, kwFieldName), defExprCode));
+            addFunctionToModule(muFunction(fuid, getterName, getterType, [], [], "", 1, 1, false, true, [], |std:///|, [], (), body));               
        }
     }
  }
@@ -125,7 +125,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
                                          "<fd.signature.name>", 
                                          avoid(),
                                          [],
-                                         //atuple(atypeList([])),
+                                         [],
                                          "", 
                                          0, 
                                          0, 
@@ -136,9 +136,6 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
                                          fd@\loc, 
                                          tmods, 
                                          ttags,
-                                         false, 
-                                         0,
-                                         0,
                                          muReturn1(muCon(false))));
           	return;
       }

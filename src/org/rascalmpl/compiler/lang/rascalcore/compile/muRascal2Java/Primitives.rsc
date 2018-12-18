@@ -1,6 +1,6 @@
 module lang::rascalcore::compile::muRascal2Java::Primitives
 
-import lang::rascalcore::check::AType;
+//import lang::rascalcore::check::AType;
 
 import lang::rascalcore::compile::muRascal2Java::JGenie;
 import lang::rascalcore::compile::muRascal::AST;
@@ -21,8 +21,10 @@ default list[str] transPrimArgs(str prim, list[MuExp] exps, JGenie jg)
 JCode transPrim("aint_add_aint", [str x, str y], JGenie jg)                     = "<x>.add(<y>)";
 JCode transPrim("aint_subtract_aint", [str x, str y], JGenie jg)                = "<x>.subtract(<y>)";
 JCode transPrim("aint_product_aint", [str x, str y], JGenie jg)                 = "<x>.multiply(<y>)";
+JCode transPrim("aint_divide_aint", [str x, str y], JGenie jg)                  = "<x>.divide(<y>)";
+JCode transPrim("aint_remainder_aint", [str x, str y], JGenie jg)               = "<x>.remainder(<y>)";
 JCode transPrim("aint_greater_aint", [str x, str y], JGenie jg)                 = "<x>.greater(<y>)";
-JCode transPrim("aint_greaterequal_aint", [str x, str y], JGenie jg)            = "<x>.greateEqual(<y>)";
+JCode transPrim("aint_greaterequal_aint", [str x, str y], JGenie jg)            = "<x>.greaterEqual(<y>)";
 JCode transPrim("aint_less_aint", [str x, str y], JGenie jg)                    = "<x>.less(<y>)";
 JCode transPrim("aint_lessequal_aint", [str x, str y], JGenie jg)               = "<x>.lessEqual(<y>)";
 

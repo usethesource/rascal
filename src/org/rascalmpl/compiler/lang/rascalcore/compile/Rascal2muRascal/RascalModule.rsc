@@ -16,7 +16,8 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::muRascal::AST;
 //import lang::rascalcore::compile::muRascal2RVM::Relocate;
 
-extend lang::rascalcore::check::Checker;
+//extend lang::rascalcore::check::Checker;
+extend analysis::typepal::TypePal;
 
 import lang::rascalcore::compile::Rascal2muRascal::ModuleInfo;
 import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;

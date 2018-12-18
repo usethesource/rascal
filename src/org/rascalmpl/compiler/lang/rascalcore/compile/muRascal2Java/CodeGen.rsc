@@ -3,8 +3,8 @@ module lang::rascalcore::compile::muRascal2Java::CodeGen
 import lang::rascal::\syntax::Rascal;
 
 import lang::rascalcore::compile::muRascal::AST;
-extend lang::rascalcore::check::AType;
-extend lang::rascalcore::check::ATypeUtils;
+//extend lang::rascalcore::check::AType;
+//extend lang::rascalcore::check::ATypeUtils;
 import List;
 import Set;
 import Relation;
@@ -15,9 +15,9 @@ import IO;
 import Type;
 import util::Reflective;
 
-extend analysis::typepal::TypePal;
+//extend analysis::typepal::TypePal;
 
-extend lang::rascalcore::check::TypePalConfig;
+//extend lang::rascalcore::check::TypePalConfig;
 
 import lang::rascalcore::compile::muRascal2Java::Writers;
 import lang::rascalcore::compile::muRascal2Java::Primitives;
@@ -78,21 +78,13 @@ str escapeAsJavaString(str s){
   return replaceAll(s, "\n", "\\n");    //TODO make precise
 }
 
-//str getFunctionAccessor(loc floc, JGenie jg){
-//    moduleName = jg.getModuleName();
-//    if(startsWith(fuid, moduleName)){
-//        return fuid[size(moduleName)+1 ..];
-//    }
-//    return replaceAll(replaceAll(fuid, "::", "_"), "$", ".");
-//}
-
 bool containedIn(loc inner, loc outer){
     return inner.path == outer.path && inner.offset >= outer.offset && inner.offset + inner.length <= outer.offset + outer.length;
 }
 
 // ---- muModule --------------------------------------------------------------
 
-tuple[JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,loc] moduleLocs){
+tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,loc] moduleLocs){
     muFunctions = (f.qname : f | f <- m.functions);
     resolved2overloaded = ();
     jg = makeJGenie(m.name, tmodels, moduleLocs);
@@ -108,55 +100,54 @@ tuple[JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,l
     className = split("::", m.name)[-1];
     
     packageName = module2package(m.name);
-    interfaceName =module2interface(m.name);
+    interfaceName = "$<className>"; //module2interface(m.name);
     
-    module_variables = "<for(var <- m.module_variables){>
-                       '<trans(var, jg)><}>";
+    module_variables  = "<for(var <- m.module_variables){>
+                        '<trans(var, jg)><}>";
                        
-    functions        = "<for(f <- m.functions){>
-                       '<trans(f, jg)>
-                       '<}>";
+    functions         = "<for(f <- m.functions){>
+                        '<trans(f, jg)>
+                        '<}>";
                        
     library_imports   = "<for(class <- jg.getImportedLibraries()){>
                         'import <class>;
-                       '<}>";
+                        '<}>";
                        
     library_inits     = "<for(class <- jg.getImportedLibraries()){>
-                        'final <getBaseClass(class)> $<getBaseClass(class)> = new <class>($VF);
+                         'final <getBaseClass(class)> $<getBaseClass(class)> = new <class>($VF);
+                         '<}>";
+                        
+    module_extends    = !isEmpty(m.extends) ? "implements " + intercalate(", ",[ dcolon2dot(ext) | ext <- m.extends]) : "";
+                        
+    module_imports    = "<for(imp <- toSet(m.imports + m.extends)){>
+                         'import <qname2classname(imp)>;
                         '<}>";
-                        
-    module_extends   =  !isEmpty(m.extends) ? "implements " + intercalate(", ",[ dcolon2dot(ext) | ext <- m.extends]) : "";
-                        
-    module_imports   = "<for(imp <- toSet(m.imports + m.extends)){>
-                        'import <qname2classname(imp)>;
-                       '<}>";
                        
-    imp_ext_decls    = "<for(imp <- toSet(m.imports + m.extends)){>
+    imp_ext_decls     = "<for(imp <- toSet(m.imports + m.extends)){>
                         'final <qname2classname(imp)> <qname2ul(imp)>;
                         '<}>";
                                          
-    module_imp_inits =  "<for(imp <- m.imports, imp notin m.extends){>
+    module_imp_inits  = "<for(imp <- m.imports, imp notin m.extends){>
                         '<qname2ul(imp)> = <qname2classname(imp)>.import<qname2baseclassname(imp)>();
                         '<}>";
-    module_ext_inits =  "<for(ext <- m.extends){>
+    module_ext_inits  = "<for(ext <- m.extends){>
                         '<qname2ul(ext)> = <qname2classname(ext)>.extend<qname2baseclassname(ext)>(this);
                         '<}>";
     
-    constructor_body = "<module_imp_inits>
-                       '<module_ext_inits>
-                       '<kwpDecls>
-                       '<for(exp <- m.initialization){><trans(exp, jg)><}>
-                       ";                   
-    class_constructor= "private <className>(<interfaceName> me){
-                       '    <constructor_body>
-                       '    this.$me = me == null ? this : me;
-                       '}
-                       'private <className>(){
-                       '    this(null);
-                       '}";
+    constructor_body  = "<module_imp_inits>
+                        '<module_ext_inits>
+                        '<kwpDecls>
+                        '<for(exp <- m.initialization){><trans(exp, jg)><}>
+                        ";                   
+    class_constructor = "private <className>(<interfaceName> me){
+                        '    <constructor_body>
+                        '    this.$me = me == null ? this : me;
+                        '}
+                        'private <className>(){
+                        '    this(null);
+                        '}";
                        
-   instances          = "
-                        'private static final class InstanceHolder {
+   instances          = "private static final class InstanceHolder {
                         '    public static <className> sInstance = new <className>();
                         '}
                         
@@ -169,63 +160,107 @@ tuple[JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,l
                         '}";
     main_method       = "public static void main(String[] args) {
                         '   <if(hasMainFunction){>System.out.println(new <className>().main());<}else{>
-                        '   throw new RuntimeException(\"No function `main` found in Rascal program\");
+                        '   throw new RuntimeException(\"No function `main` found in Rascal program `<m.name>`\");
                         '   <}>
                         '
                         '}";
     
-    res =  "package <packageName>;
-    
-           'import java.util.*;
-           'import io.usethesource.vallang.*;
-           'import io.usethesource.vallang.type.*;
-           'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.*;
-           'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.*;
-           'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse.*;
-           '
-           '<library_imports>
-           '<module_imports>
-           '
-           'public class <className> extends org.rascalmpl.core.library.lang.rascalcore.compile.runtime.$RascalModule <module_extends> implements <interfaceName> {
-           '    final Traverse $TRAVERSE = new Traverse($VF);
-           '    private final <interfaceName> $me;
-           '    <typestore>
-           '    <library_inits>
-           '    <imp_ext_decls>
-           '    <module_variables>
-           '    <class_constructor>
-           '    <instances>
-           '    <jg.getConstants()>
-           '    <resolvers>
-           '    <functions>
-           '    <main_method>
-           '}";
-      jclass = removeEmptyLines(res);
-      jinterface = 
-           "package <packageName>;
-           'import java.util.*;
-           'import io.usethesource.vallang.*;
-           'import io.usethesource.vallang.type.*;
-           'public interface $<className> {
-           '    <signatures>
-           '}\n";
+    the_class =         "package <packageName>;
+                        'import java.util.*;
+                        'import io.usethesource.vallang.*;
+                        'import io.usethesource.vallang.type.*;
+                        'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.*;
+                        'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.*;
+                        'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse.*;
+                        '
+                        '<library_imports>
+                        '<module_imports>
+                        '
+                        'public class <className> extends org.rascalmpl.core.library.lang.rascalcore.compile.runtime.$RascalModule <module_extends> implements <interfaceName> {
+                        '    static final Traverse $TRAVERSE = new Traverse($VF);
+                        '    private final <interfaceName> $me;
+                        '    <typestore>
+                        '    <library_inits>
+                        '    <imp_ext_decls>
+                        '    <module_variables>
+                        '    <class_constructor>
+                        '    <instances>
+                        '    <jg.getConstants()>
+                        '    <resolvers>
+                        '    <functions>
+                        '    <main_method>
+                        '}";
+      the_class = removeEmptyLines(the_class);
       
-      return <jinterface, jclass>;
+      the_interface =  "package <packageName>;
+                       'import java.util.*;
+                       'import io.usethesource.vallang.*;
+                       'import io.usethesource.vallang.type.*;
+                       'public interface $<className> {
+                       '    <signatures>
+                       '}\n";
+                       
+      the_test_class = generateTestClass(packageName, className, m.functions);
+      
+      return <the_interface, the_class, the_test_class>;
+}
+
+str generateTestClass(str packageName, str className, list[MuFunction] functions){
+    return "package <packageName>;
+           'import java.util.*;
+           'import java.util.stream.Stream;
+           'import io.usethesource.vallang.*;
+           'import io.usethesource.vallang.type.*;
+           '
+           'import static org.junit.Assert.assertTrue;
+           'import static org.junit.jupiter.api.DynamicTest.dynamicTest;
+           '
+           'import org.junit.jupiter.api.Test;
+           'import org.junit.jupiter.api.DynamicTest;
+           'import org.junit.jupiter.api.TestFactory;
+           'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.GenerateActuals;
+           '
+           'class <className>Test {
+           '    static final <className> MUT = <className>.importTesting();
+           '    static final TypeFactory $TF = TypeFactory.getInstance();
+           '    static final GenerateActuals generator = new GenerateActuals(5, 5, 10);
+           '    <for(f <- functions){>
+           '    <generateTestMethod(f)><}>
+           '}\n";
+}
+
+str generateTestMethod(MuFunction f){
+    if("test" notin f.modifiers) return "";
+    
+    fname = f.uqname;
+    formals = f.ftype.formals;
+    if(isEmpty(formals)){
+        return "@Test
+               'void <fname>(){
+               '   assertTrue(MUT.<fname>().getValue());
+               '}\n";
+    }
+    types = "new Type[] {<intercalate(", ", [atype2typestore(tp) | tp <- formals])>}";
+    actuals = intercalate(", ", ["args[<i>]" | i <- index(formals)]) + ", Collections.emptyMap()";
+    return "@TestFactory
+           'Stream\<DynamicTest\> <fname>(){
+           '    return generator.generateActuals(<types>).map((args) -\> dynamicTest(\"<fname>\", () -\> assertTrue(((IBool)MUT.<fname>(<actuals>)).getValue())));
+           '}\n";
 }
 
 tuple[str,str] generateTypeStoreAndKwpDecls(set[AType] ADTs, set[AType] constructors){
     adtDecls = "";
     for(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) <- ADTs){
-        adtDecls += "final Type <adtName> = $TF.abstractDataType($TS, \"<adtName>\");\n";
+        adtDecls += "static final Type <adtName> = $TF.abstractDataType($TS, \"<adtName>\");\n";
     }
     consDecls = "";
     kwpDecls = "";
-    kwpField2Cons = ();
+    map[str, set[AType]] kwpField2Cons = ();
     map[str, AType] kwpField2Type = ();
     for(c: acons(AType adt, list[AType] fields, list[Keyword] kwpFields) <- constructors){
         adt_cons = atype2descriptor(c); //"<adt.adtName>_<c.label>_<size(fields)>";
         fieldDecls = [ "<atype2typestore(fld)>, \"<fld.label>\"" | fld <- fields ];
-        consDecls += "final Type <adt_cons> = $TF.constructor($TS, <adt.adtName>, \"<c.label>\"<isEmpty(fieldDecls) ? "" : ", <intercalate(", ", fieldDecls)>">);\n";
+        consDecls += "static final Type <adt_cons> = $TF.constructor($TS, <adt.adtName>, \"<c.label>\"<isEmpty(fieldDecls) ? "" : ", <intercalate(", ", fieldDecls)>">);\n";
         for(kwpField <- kwpFields){
             kwpDecls += "$TS.declareKeywordParameter(<adt_cons>,\"<kwpField.fieldType.label>\", <atype2typestore(kwpField.fieldType)>);\n";
             fieldName = kwpField.fieldType.label;
@@ -244,7 +279,7 @@ tuple[str,str] generateTypeStoreAndKwpDecls(set[AType] ADTs, set[AType] construc
         consesWithField = kwpField2Cons[kwpFieldName];
        
         // find all ADTs that have this keyword field
-        relevantADTs = { c.adt.adtName | c <- consesWithField };
+        relevantADTs = { c.adt.adtName | AType c <- consesWithField };
        
         // ... and generate resolvers for th
         fieldType = avoid();
@@ -283,7 +318,7 @@ bool larger(OF5 a, OF5 b){
           size(b.ofunctions) + size(b.oconstructors);
 }
 
-list[OF5] sortOverloads(list[OF5] ofs){
+list[OF5] sortOverloads(set[OF5] ofs){
     return sort(ofs, larger);
 }
 
@@ -387,7 +422,7 @@ tuple[str signatures, str resolvers] genResolver(tuple[str name, AType funType, 
    name_resolver = "<replaceAll(overload.name, "::", "_")>_<atype2descriptor(overload.funType)>";
    signature = "public <returnType> <name_resolver>(<argTypes>)";
    canFail = any(of <- overload.ofunctions, di := jg.getDefine(of).defInfo, di has canFail, di.canFail);
-   cases = ();
+   map[int,str] cases = ();
    for(of <- overload.ofunctions){
         fp = jg.getType(of).abstractFingerprint;
         if(cases[fp]?){
@@ -515,6 +550,7 @@ bool constantDefaults(lrel[str name, AType atype, MuExp defaultExp] kwpDefaults)
 }
 
 JCode trans(MuFunction fun, JGenie jg){
+    iprintln(fun);
     ftype = fun.ftype;
     qname = replaceAll(fun.qname, "::", "_");
     shortName = qname[findFirst(qname, "$")+1 .. ];
@@ -987,6 +1023,9 @@ JCode trans2Void(MuExp exp, JGenie jg)
 JCode trans2Void(MuExp exp, JGenie jg)
    = "<trans(exp, jg)>;\n"
    when getName(exp) in {"muOCall3"};
+   
+JCode trans2Void(muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart), JGenie jg)
+   = "<trans2NativeBool(cond, jg)> ? <trans(thenPart, jg)> : <trans(elsePart, jg)>";
  
 default JCode trans2Void(MuExp exp, JGenie jg){
     return trans(exp, jg);
@@ -1063,7 +1102,9 @@ JCode trans(muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart), JGenie jg){
             '}\n";
 }
 
-
+JCode trans(muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart), JGenie jg)
+   = "(<trans2NativeBool(cond, jg)> ? <trans(thenPart, jg)> : <trans(elsePart, jg)>)";
+ 
 JCode trans(muIf(MuExp cond, MuExp thenPart), JGenie jg){
     return "if(<trans2NativeBool(cond, jg)>){
             '   <trans(thenPart, jg)>
