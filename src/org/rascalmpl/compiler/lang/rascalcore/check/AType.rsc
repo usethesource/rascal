@@ -10,6 +10,7 @@ extend analysis::typepal::AType;
 import lang::rascalcore::check::ATypeUtils;
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::ATypeExceptions;
+import lang::rascalcore::grammar::definition::Characters;
 
 alias Keyword     = tuple[AType fieldType, Expression defaultExp];
 
@@ -461,6 +462,10 @@ bool asubtype(areified(AType s), anode(_)) = true;
 
 bool asubtype(anode(list[AType/*NamedField*/] l), anode(list[AType/*NamedField*/] r)) = l <= r;
 
+// Character classes
+bool asubtype(l:\char-class(_), r:\char-class(_)) = (difference(r, l) == \char-class([]));
+bool asubtype(l:\char-class(_), aadt("Tree", _, _)) = true; // characters are Tree instances 
+
 // Utilities
 
 bool asubtype(atypeList(list[AType] l), atypeList(list[AType] r)) = asubtype(l, r);
@@ -596,6 +601,10 @@ AType alub(AType l, aparameter(str _, AType bound)) = alub(l, bound) when aparam
 
 AType alub(areified(AType l), areified(AType r)) = areified(alub(l,r));
 AType alub(areified(AType l), anode(_)) = anode([]);
+
+AType alub(l:\char-class(_), r:\char-class(_)) = union(l, r);
+AType alub(l:aadt("Tree", _, _), \char-class(_)) = l;
+AType alub(\char-class(_), r:aadt("Tree", _, _)) = r;
 
 AType alub(afunc(AType lr, list[AType] lp, list[Keyword] lkw), afunc(AType rr, list[AType] rp, list[Keyword] rkw)) {
     lubReturn = alub(lr,rr);
