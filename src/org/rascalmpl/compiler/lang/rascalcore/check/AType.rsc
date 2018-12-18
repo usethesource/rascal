@@ -605,6 +605,9 @@ AType alub(areified(AType l), anode(_)) = anode([]);
 AType alub(l:\char-class(_), r:\char-class(_)) = union(l, r);
 AType alub(l:aadt("Tree", _, _), \char-class(_)) = l;
 AType alub(\char-class(_), r:aadt("Tree", _, _)) = r;
+ 
+// TODO: missing lub of iter/iter-plus relation here.
+// TODO: missing lub of aadt("Tree", _, _) with all non-terminal types such as seq, opt, iter
 
 AType alub(afunc(AType lr, list[AType] lp, list[Keyword] lkw), afunc(AType rr, list[AType] rp, list[Keyword] rkw)) {
     lubReturn = alub(lr,rr);
