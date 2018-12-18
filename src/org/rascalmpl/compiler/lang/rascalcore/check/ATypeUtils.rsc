@@ -956,6 +956,7 @@ default AType getNonTerminalIterElement(AType i) {
     throw rascalCheckerInternalError("<prettyAType(i)> is not an iterable non-terminal type");
 }   
 
+// opt
 bool isNonTerminalOptType(aparameter(_,AType tvb)) = isNonTerminalOptType(tvb);
 bool isNonTerminalOptType(AType::\opt(AType ot)) = true;
 default bool isNonTerminalOptType(AType _) = false;
@@ -966,6 +967,29 @@ default AType getNonTerminalOptType(AType ot) {
     throw rascalCheckerInternalError("<prettyAType(ot)> is not an optional non-terminal type");
 }
 
+// alt
+bool isNonTerminalAltType(aparameter(_,AType tvb)) = isNonTerminalAltType(tvb);
+bool isNonTerminalAltType(AType:\alt(_)) = true;
+default bool isNonTerminalAltType(AType _) = false;
+
+set[AType] getNonTerminalAltTypes(aparameter(_,AType tvb)) = getNonTerminalAltTypes(tvb);
+set[AType] getNonTerminalAltTypes(alt(set[AType] atypes)) = atypes;
+default set[AType] getNonTerminalAltTypes(AType t){
+    throw rascalCheckerInternalError("<prettyAType(t)> is not a alt non-terminal type");
+}
+
+// seq
+bool isNonTerminalSeqType(aparameter(_,AType tvb)) = isNonTerminalSeqType(tvb);
+bool isNonTerminalSeqType(AType:\seq(_)) = true;
+default bool isNonTerminalSeqType(AType _) = false;
+
+list[AType] getNonTerminalSeqTypes(aparameter(_,AType tvb)) = getNonTerminalSeqTypes(tvb);
+list[AType] getNonTerminalSeqTypes(seq(list[AType] atypes)) = atypes;
+default list[AType] getNonTerminalSeqTypes(AType t){
+    throw rascalCheckerInternalError("<prettyAType(t)> is not a seq non-terminal type");
+}
+
+// start
 bool isStartNonTerminalType(aparameter(_,AType tvb)) = isStartNonTerminalType(tvb);
 bool isStartNonTerminalType(AType::\start(_)) = true;
 default bool isStartNonTerminalType(AType s) = false;    
