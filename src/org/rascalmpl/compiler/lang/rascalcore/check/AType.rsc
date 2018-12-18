@@ -418,14 +418,13 @@ bool asubtype(AType::\iter-seps(AType s, list[AType] seps), anode(_)) = true;
 bool asubtype(AType::\iter-star-seps(AType s, list[AType] seps), aadt("Tree", [], _)) = true;
 bool asubtype(AType::\iter-star-seps(AType s, list[AType] seps), anode(_)) = true;
 
+bool asubtype(AType::\lit(_), aadt("Tree", [], _)) = true;
+bool asubtype(AType::\cilit(_), aadt("Tree", [], _)) = true;
+bool asubtype(AType::\char-class(_), aadt("Tree", [], _)) = true;
+
 // TODO: add subtype for elements under optional and alternative, but that would also require auto-wrapping/unwrapping in the run-time
 // bool subtype(AType s, \opt(AType t)) = subtype(s,t);
 // bool subtype(AType s, \alt({AType t, *_}) = true when subtype(s, t); // backtracks over the alternatives
-
-//bool asubtype(aadt(str n, list[AType] l, _), auser(n, list[AType] r)) = asubtype(l,r); //{throw "Illegal use of auser <n>"; } //= asubtype(l,r);
-
-//bool asubtype(auser(str n, list[AType] l), aadt(n, list[AType] r, _)) = asubtype(l,r); //{throw "Illegal use of auser <n>"; } //= asubtype(l,r);
-//bool asubtype(auser(str n, list[AType] l), auser(n, list[AType] r)) = asubtype(l,r); //{throw "Illegal use of auser <n>"; } //= asubtype(l,r);
 
 bool asubtype(aint(), anum()) = true;
 bool asubtype(arat(), anum()) = true;

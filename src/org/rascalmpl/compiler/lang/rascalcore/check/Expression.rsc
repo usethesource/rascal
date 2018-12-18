@@ -1347,11 +1347,25 @@ public AType computeFieldType(AType containerType, Tree field, loc scope, Solver
                s.report(error(field, "Field %q does not exist on type `type`  (non-classic reifier)", fieldName));
             }
          }
-    } else if(isStartNonTerminalType(containerType)){
-       return computeFieldTypeWithADT(getStartNonTerminalType(containerType), field, scope, s);
-    } else if(isNonTerminalIterType(containerType)){
-        if(containerType.label == fieldName){
-            return makeListType(getNonTerminalIterElement(containerType));
+    } else if(isNonTerminalType(containerType)){
+        if(isStartNonTerminalType(containerType)){
+           return computeFieldTypeWithADT(getStartNonTerminalType(containerType), field, scope, s);
+        } else if(isNonTerminalIterType(containerType)){
+            if(containerType.label == fieldName){
+                return makeListType(getNonTerminalIterElement(containerType));
+            }
+        } else if(isNonTerminalSeqType(containerType)){
+            for(tp <- getNonTerminalSeqTypes(containerType)){
+                if(tp.label == fieldName){
+                    return tp;
+                }
+            }
+        } else if(isNonTerminalAltType(containerType)){
+            for(tp <- getNonTerminalAltTypes(containerType)){
+                if(tp.label == fieldName){
+                    return tp;
+                }
+            }
         }
     } else if (isTupleType(containerType)) {
         if(tupleHasFieldNames(containerType)){
