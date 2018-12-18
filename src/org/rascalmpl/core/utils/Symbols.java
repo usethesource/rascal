@@ -361,7 +361,7 @@ public class Symbols {
     public static IConstructor complementCharClass(IConstructor cc) {
         IConstructor everything = charclass(factory.list(range(1, 0x10FFFF)));
         
-        return SymbolAdapter.differencesCharClasses(everything, cc);
+        return differencesCharClasses(everything, cc);
     }
     
     public static IConstructor differencesCharClasses(IConstructor lhs, IConstructor rhs) {
