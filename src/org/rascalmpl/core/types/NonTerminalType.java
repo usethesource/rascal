@@ -21,18 +21,19 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import org.rascalmpl.core.errors.ImplementationError;
-import org.rascalmpl.core.types.TypeReifier.TypeStoreWithSyntax;
 import org.rascalmpl.core.utils.Symbols;
-import org.rascalmpl.core.values.ValueFactoryFactory;
-import org.rascalmpl.core.values.uptr.IRascalValueFactory;
-import org.rascalmpl.core.values.uptr.ITree;
-import org.rascalmpl.core.values.uptr.ProductionAdapter;
-import org.rascalmpl.core.values.uptr.RascalValueFactory;
-import org.rascalmpl.core.values.uptr.SymbolAdapter;
-import org.rascalmpl.core.values.uptr.TreeAdapter;
+import org.rascalmpl.interpreter.TypeReifier.TypeStoreWithSyntax;
+import org.rascalmpl.interpreter.asserts.ImplementationError;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
@@ -68,6 +69,9 @@ public class NonTerminalType extends RascalType {
 			else {
 				this.symbol = IRascalValueFactory.getInstance().constructor(RascalValueFactory.Symbol_Empty);
 			}
+		}
+		else if (cons.getConstructorType() == RascalValueFactory.Tree_Char) {
+		    this.symbol = TreeAdapter.getType((ITree) cons);
 		}
 		else if (cons.getConstructorType() == RascalValueFactory.Tree_Cycle) {
 			this.symbol = TreeAdapter.getType((ITree) cons);
@@ -360,9 +364,31 @@ public class NonTerminalType extends RascalType {
 		  RascalType nt2 = (RascalType) RTF.nonTerminalType(SymbolAdapter.getSymbol(otherSym));
 		  return nt1.isSubtypeOfNonTerminal(nt2);
 	  }
-//	  else if (SymbolAdapter.isSequence(symbol) && SymbolAdapter.isSeq(otherSym)) {
-		  // TODO pairwise issubtype
-//	  }
+	  else if (SymbolAdapter.isCharClass(symbol) && SymbolAdapter.isCharClass(otherSym)) {
+	      // note that the ranges are normalized and ordered! see Characters.rsc
+	      // we check if all ranges can be included in at least one of the ranges of the other class:
+	      
+	      OUTER:for (IValue elem : SymbolAdapter.getRanges(symbol)) {
+	         IInteger from = (IInteger) ((IConstructor) elem).get("begin");
+	         IInteger to = (IInteger) ((IConstructor) elem).get("end");
+	         
+	         for (IValue otherElem : SymbolAdapter.getRanges(otherSym)) {
+	             IInteger otherFrom = (IInteger) ((IConstructor) otherElem).get("begin");
+	             IInteger otherTo = (IInteger) ((IConstructor) otherElem).get("end");
+	             
+	             if (from.greaterEqual(otherFrom).getValue() && to.lessEqual(otherTo).getValue()) {
+	                 // matched! continue with next range
+	                 continue OUTER;
+	             }
+	         }
+	         
+	         // no match found
+	         return false;
+	      }
+	      
+	      // all ranges checked
+	      return true;
+	  }
 
 	  if (SymbolAdapter.isParameter(otherSym)) {
 		  RascalType bound = (RascalType) RTF.nonTerminalType((IConstructor) otherSym.get("bound"));
@@ -390,28 +416,34 @@ public class NonTerminalType extends RascalType {
 		else if (SymbolAdapter.isIterPlusSeps(otherSym) && SymbolAdapter.isIterStarSeps(symbol)) {
 			return this;
 		}
+		else if (SymbolAdapter.isCharClass(symbol) && SymbolAdapter.isCharClass(otherSym)) {
+		    return RTF.nonTerminalType(Symbols.unionCharClasses(symbol, otherSym));
+		}
 
 		return SymbolAdapter.isEqual(otherSym, symbol) ? this : RascalValueFactory.Tree;
 	}
 
 	@Override
 	protected Type glbWithNonTerminal(RascalType other) {
-	  IConstructor otherSym = ((NonTerminalType)other).symbol;
-	  
-	if (SymbolAdapter.isIterPlus(symbol) && SymbolAdapter.isIterStar(otherSym)) {
-      return this;
-    }
-    else if (SymbolAdapter.isIterPlus(otherSym) && SymbolAdapter.isIterStar(symbol)) {
-      return other;
-    }
-    else if (SymbolAdapter.isIterPlusSeps(symbol) && SymbolAdapter.isIterStarSeps(otherSym)) {
-      return this;
-    }
-    else if (SymbolAdapter.isIterPlusSeps(otherSym) && SymbolAdapter.isIterStarSeps(symbol)) {
-      return other;
-    }
+	    IConstructor otherSym = ((NonTerminalType)other).symbol;
 
-    return SymbolAdapter.isEqual(otherSym, symbol) ? other : TF.voidType();
+	    if (SymbolAdapter.isIterPlus(symbol) && SymbolAdapter.isIterStar(otherSym)) {
+	        return this;
+	    }
+	    else if (SymbolAdapter.isIterPlus(otherSym) && SymbolAdapter.isIterStar(symbol)) {
+	        return other;
+	    }
+	    else if (SymbolAdapter.isIterPlusSeps(symbol) && SymbolAdapter.isIterStarSeps(otherSym)) {
+	        return this;
+	    }
+	    else if (SymbolAdapter.isIterPlusSeps(otherSym) && SymbolAdapter.isIterStarSeps(symbol)) {
+	        return other;
+	    }
+	    else if (SymbolAdapter.isCharClass(otherSym) && SymbolAdapter.isCharClass(symbol)) {
+	        return RTF.nonTerminalType(Symbols.intersectCharClasses(symbol, otherSym));
+	    }
+
+	    return SymbolAdapter.isEqual(otherSym, symbol) ? other : TF.voidType();
 	}
 	
 	@Override
