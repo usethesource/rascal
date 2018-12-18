@@ -219,7 +219,13 @@ public class ReadEvalPrintDialogMessages {
 			// This can/should never happen.
 		}
 		
-		printSourceLocation(out, e.getLocation(), prettyPrinter);
+		if (e.getLocation() != null) {
+		    printSourceLocation(out, e.getLocation(), prettyPrinter);
+		}
+		else {
+		    out.print("|unknown://|");
+		    
+		}
 		out.print(": ");
 		out.println(lros.getBuffer().toString());
 		
