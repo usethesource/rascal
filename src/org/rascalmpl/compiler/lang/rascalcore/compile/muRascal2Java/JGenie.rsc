@@ -9,8 +9,8 @@ import String;
 import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::compile::muRascal2Java::CodeGen;
 
-extend lang::rascalcore::check::AType;
-extend lang::rascalcore::check::ATypeUtils;
+//extend lang::rascalcore::check::AType;
+//extend lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::TypePalConfig;
 
 alias JCode = str;
@@ -142,10 +142,10 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
     
     str _getConstants(){
         return "<for(v <- constants){>
-               'final <value2outertype(v)> <constants[v]> = <value2java(v)>;
+               'private static final <value2outertype(v)> <constants[v]> = <value2java(v)>;
                '<}>
                '<for(t <- types){>
-               'final Type <types[t]> = <atype2typestore(t)>;
+               'private static final Type <types[t]> = <atype2typestore(t)>;
                '<}>";
     }
     
@@ -411,8 +411,8 @@ str atype2typestore(alist(AType t)) = "$TF.listType(<atype2typestore(t)>)";
 str atype2typestore(aset(AType t)) = "$TF.setType(<atype2typestore(t)>)";
 str atype2typestore(atuple(AType ts)) = "$TF.tupleType(<atype2typestore(ts)>)";
 str atype2typestore(amap(AType d, AType r)) = "$TF.mapType(<atype2typestore(d)>,<atype2typestore(r)>)";
-str atype2typestore(arel(AType ts)) = "$TF.relationType(<atype2typestore(t)>)";
-str atype2typestore(alrel(AType ts)) = "$TF.listRelationType(<atype2typestore(t)>)";
+str atype2typestore(arel(AType t)) = "$TF.relationType(<atype2typestore(t)>)";
+str atype2typestore(alrel(AType t)) = "$TF.listRelationType(<atype2typestore(t)>)";
 str atype2typestore(acons(AType adt,
                 list[AType fieldType] fields,
                 lrel[AType fieldType, Expression defaultExp] kwFields))

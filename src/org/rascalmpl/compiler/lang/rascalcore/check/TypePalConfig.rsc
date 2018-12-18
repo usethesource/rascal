@@ -1,13 +1,17 @@
 @bootstrapParser
 module lang::rascalcore::check::TypePalConfig
  
-extend analysis::typepal::TypePal;
+//extend analysis::typepal::TypePal;
 
 import lang::rascalcore::check::AType;
-extend lang::rascalcore::check::Checker;
+//extend lang::rascalcore::check::Checker;
 extend lang::rascalcore::check::Expression;
 
 import lang::rascalcore::check::ATypeUtils;
+
+import lang::rascalcore::check::ADTandGrammar;
+import lang::rascalcore::grammar::ParserGenerator;
+import lang::rascalcore::grammar::definition::Grammar;
 
 import lang::rascal::\syntax::Rascal;
 import List;
@@ -358,6 +362,38 @@ bool rascalReportUnused(loc def, map[loc,Define] definitions, map[loc,loc] scope
     } catch NoSuchKey(_): return false;
     
     return true;
+}
+
+
+// Enhance TModel before running Solver
+TModel rascalPreSolver(map[str,Tree] namedTrees, TModel m){
+    // add transitive edges for extend
+    extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- m.paths}+;
+    m.paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
+    m.paths += { <c, importPath(), a> | < loc c, importPath(), loc b> <- m.paths,  <b , extendPath(), loc a> <- m.paths};
+    return m;
+}
+
+void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
+    if(!s.reportedErrors()){
+        for(mname <- namedTrees){
+            pt = namedTrees[mname];
+            g = addGrammar(getLoc(pt), s);
+            if(!isEmpty(g.rules)){ 
+                pname = "DefaultParser";
+                if(Module m := pt) { 
+                        moduleName = "<m.header.name>";
+                        pname = parserName(moduleName);
+                }
+                //<msgs, parserClass> = newGenerate(parserPackage, pname, g); 
+                //s.addMessages(msgs);
+                //TODO: generates too long file names
+                //msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/grammar/tests/generated_parsers|, s.getConfig().verbose);
+            //s.addMessages(msgs);
+            }
+            addADTs(s);
+        }
+   }
 }
  
 data TypePalConfig(

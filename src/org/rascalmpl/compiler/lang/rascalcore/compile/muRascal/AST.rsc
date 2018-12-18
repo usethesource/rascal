@@ -135,8 +135,8 @@ public data MuExp =
           
           | muIfEqualOrAssign(MuExp var, MuExp other, MuExp body)
                     														
-          | muIfelse(MuExp cond, MuExp thenPart,     // If-then-else expression
-          						 MuExp elsePart)
+          | muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart)// If-then-else statement
+          | muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart) // conditional expression
         
           | muIf(MuExp cond, MuExp thenPart)
           						 

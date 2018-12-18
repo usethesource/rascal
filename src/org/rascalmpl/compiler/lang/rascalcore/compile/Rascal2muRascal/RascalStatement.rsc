@@ -13,7 +13,7 @@ import util::Reflective;
 import lang::rascal::\syntax::Rascal;
 
 import lang::rascalcore::check::AType;
-import lang::rascalcore::check::ATypeUtils;
+//import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::Fingerprint;
 
 import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
@@ -47,20 +47,18 @@ MuExp translateStats(Statement* statements) = muBlock([ translate(stat) | stat <
 	
 MuExp translate(s: (Statement) `assert <Expression expression> ;`) {
     if(assertsEnabled()){
-       ifname = nextLabel();
-       return muIfelse(ifname, translate(expression), 
-                       [ muCon(true) ],
-    				   [ muCallPrim3("assert_fails", [muCon("")], s@\loc) ]);
+       return muIfelse(translate(expression), 
+                       muCon(true),
+    				   muCallPrim3("assert_fails", [muCon("")], s@\loc));
     }
     return muBool(true);
 }    
 
 MuExp translate(s: (Statement) `assert <Expression expression> : <Expression message>;`) {
     if(assertsEnabled()){
-       ifname = nextLabel();
-       return muIfelse(ifname, translate(expression), 
-                       [ muCon(true) ],
-    			       [ muCallPrim3("assert_fails", [translate(message)], s@\loc) ]);
+       return muIfelse(translate(expression), 
+                       muCon(true),
+    			       muCallPrim3("assert_fails", [translate(message)], s@\loc));
     }
     return muBool(true);
 }
@@ -424,7 +422,7 @@ tuple[list[MuCase], MuExp] translateSwitchCases(MuExp switchval, str fuid, bool 
   for(c <- reverse(cases)){
 	  if(c is patternWithAction){
 	    pwa = c.patternWithAction;
-	    key = fingerprint(pwa.pattern, useConcreteFingerprint);
+	    key = fingerprint(pwa.pattern, getType(pwa.pattern), useConcreteFingerprint);
 	    if(!isSpoiler(c.patternWithAction.pattern, key)){
 	       table = addPatternWithActionCode(switchval, fuid, useConcreteFingerprint, pwa, table, key, succeedCase);
 	    }
@@ -433,7 +431,7 @@ tuple[list[MuCase], MuExp] translateSwitchCases(MuExp switchval, str fuid, bool 
 	  }
    }
    default_table = (fingerprintDefault : default_code);
-   for(c <- reverse(cases), c is patternWithAction, isSpoiler(c.patternWithAction.pattern, fingerprint(c.patternWithAction.pattern, useConcreteFingerprint))){
+   for(c <- reverse(cases), c is patternWithAction, isSpoiler(c.patternWithAction.pattern, fingerprint(c.patternWithAction.pattern, getType(c.patternWithAction.pattern), useConcreteFingerprint))){
 	  default_table = addPatternWithActionCode(switchval, fuid, useConcreteFingerprint, c.patternWithAction, default_table, fingerprintDefault, succeedCase);
    }
    
@@ -444,9 +442,12 @@ tuple[list[MuCase], MuExp] translateSwitchCases(MuExp switchval, str fuid, bool 
 
 // -- fail statement -------------------------------------------------
 
-MuExp translate(s: (Statement) `fail <Target target> ;`) = 
-     inBacktrackingScope() && haveEnteredBacktrackingScope("<target.name>") ? muFail(target is empty ? currentBacktrackingScope() : "<target.name>")
-                           : muFailReturn();
+MuExp translate(s: (Statement) `fail <Target target> ;`) {
+    if(inBacktrackingScope()){
+        return target is empty ? muFail(currentBacktrackingScope())
+                                : haveEnteredBacktrackingScope("<target.name>") ? muFail("<target.name>") : muFailReturn();
+    }
+}
                           
 // -- break statement ------------------------------------------------
 
@@ -483,7 +484,7 @@ MuExp translateSolve(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <B
    return muValueBlock([ muVarInit(iterations, (bound is empty) ? muCon(1000000) : translate(bound.expression)),
     				     muRequire(muNotNegative(iterations), "Negative bound in solve", bound@\loc),
                          muVarInit(change, muCon(true)),
-                         muWhile(nextLabel("while"),
+                         muWhileDo(nextLabel("while"),
                             muAnd(change, muGreaterEqInt(iterations, muCon(0))), 
                             muBlock([ muAssign(change, muCon(false)),
                                       *[ muVarInit(muTmp(varTmps[i], fuid, getType(vars[i])), varCode[i]) | int i <- index(varCode) ],

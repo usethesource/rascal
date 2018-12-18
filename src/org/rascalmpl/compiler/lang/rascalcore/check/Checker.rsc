@@ -102,37 +102,37 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
         c.leaveScope(tree);
     }
 }
-
-// Enhance TModel before running Solver
-TModel rascalPreSolver(map[str,Tree] namedTrees, TModel m){
-    // add transitive edges for extend
-    extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- m.paths}+;
-    m.paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
-    m.paths += { <c, importPath(), a> | < loc c, importPath(), loc b> <- m.paths,  <b , extendPath(), loc a> <- m.paths};
-    return m;
-}
-
-void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
-    if(!s.reportedErrors()){
-        for(mname <- namedTrees){
-            pt = namedTrees[mname];
-            g = addGrammar(getLoc(pt), s);
-            if(!isEmpty(g.rules)){ 
-                pname = "DefaultParser";
-                if(Module m := pt) { 
-                        moduleName = "<m.header.name>";
-                        pname = parserName(moduleName);
-                }
-                //<msgs, parserClass> = newGenerate(parserPackage, pname, g); 
-                //s.addMessages(msgs);
-                //TODO: generates too long file names
-                //msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/grammar/tests/generated_parsers|, s.getConfig().verbose);
-            //s.addMessages(msgs);
-            }
-            addADTs(s);
-        }
-   }
-}
+//
+//// Enhance TModel before running Solver
+//TModel rascalPreSolver(map[str,Tree] namedTrees, TModel m){
+//    // add transitive edges for extend
+//    extendPlus = {<from, to> | <loc from, extendPath(), loc to> <- m.paths}+;
+//    m.paths += { <from, extendPath(), to> | <loc from, loc to> <- extendPlus};
+//    m.paths += { <c, importPath(), a> | < loc c, importPath(), loc b> <- m.paths,  <b , extendPath(), loc a> <- m.paths};
+//    return m;
+//}
+//
+//void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
+//    if(!s.reportedErrors()){
+//        for(mname <- namedTrees){
+//            pt = namedTrees[mname];
+//            g = addGrammar(getLoc(pt), s);
+//            if(!isEmpty(g.rules)){ 
+//                pname = "DefaultParser";
+//                if(Module m := pt) { 
+//                        moduleName = "<m.header.name>";
+//                        pname = parserName(moduleName);
+//                }
+//                //<msgs, parserClass> = newGenerate(parserPackage, pname, g); 
+//                //s.addMessages(msgs);
+//                //TODO: generates too long file names
+//                //msgs = saveParser(pname, parserClass, |project://rascal-core/src/org/rascalmpl/core/library/lang/rascalcore/grammar/tests/generated_parsers|, s.getConfig().verbose);
+//            //s.addMessages(msgs);
+//            }
+//            addADTs(s);
+//        }
+//   }
+//}
 
 // ----  Various check functions  ---------------------------------------------
 
@@ -241,7 +241,7 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
                         tm.messages += msgs;
                     }
                     ms.tmodels[m] = saveModule(m, imports, extends, moduleScopes, pcfg, tm);
-                    ms.modules = delete(ms.modules, m);
+                    //ms.modules = delete(ms.modules, m);
                 }
             }
         }

@@ -953,7 +953,7 @@ MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) {
 }
 
 MuExp translateBool (e:(Expression) `any ( <{Expression ","}+ generators> )`, str btscope, MuExp trueCont, MuExp falseCont)
-    = muIfelse(translate(e), trueCont, falseCont);
+    = muIfExp(translate(e), trueCont, falseCont);
 
 
 // -- all expression ------------------------------------------------
@@ -997,7 +997,7 @@ MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
 }
 
 MuExp translateBool (e:(Expression) `all ( <{Expression ","}+ generators> )`, str btscope, MuExp trueCont, MuExp falseCont)
-    = muIfelse(translate(e), trueCont, falseCont);
+    = muIfExp(translate(e), trueCont, falseCont);
 
 // -- comprehension expression --------------------------------------
 
@@ -1137,7 +1137,7 @@ MuExp translate(q:(QualifiedName) `<QualifiedName v>`) =
     mkVar("<v>", v@\loc);
 
 MuExp translateBool(q:(QualifiedName) `<QualifiedName v>`, str btscope, MuExp trueCont, MuExp falseCont) =
-    muIfelse(mkVar("<v>", v@\loc), trueCont, falseCont);
+    muIfExp(mkVar("<v>", v@\loc), trueCont, falseCont);
 
 // For the benefit of names in regular expressions
 
@@ -1217,7 +1217,7 @@ private MuExp translateSubscriptIsDefinedElse(Expression lhs:(Expression) `<Expr
     str fuid = topFunctionScope();
     str varname = asTmp(nextLabel());
     return muValueBlock([ muVarInit(muTmp(varname, fuid), muCallPrim3("is_defined_<op>", translate(exp) + ["<s>" == "_" ? muCon("_") : translate(s) | Expression s <- subscripts], lhs@\loc)),
-    			          muIfelse(muCallMuPrim("subscript_array_int",  [muTmp(varname,fuid), muCon(0)]),
+    			          muIfExp(muCallMuPrim("subscript_array_int",  [muTmp(varname,fuid), muCon(0)]),
     						       muCallMuPrim("subscript_array_int", [muTmp(varname,fuid), muCon(1)]),
     						       translate(rhs))
     			   ]);
@@ -1439,7 +1439,7 @@ MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`) {
 			str fuid = topFunctionScope();
     		str varname = asTmp(nextLabel());
     		return muValueBlock([ muVarInit(muTmp(varname, fuid), muCallPrim3("is_defined_annotation_get", [translate(expression), muCon(unescape("<name>"))], e@\loc)),
-    			                  muIfelse(muCallMuPrim("subscript_array_int",  [muTmp(varname,fuid), muCon(0)]),
+    			                  muIfExp(muCallMuPrim("subscript_array_int",  [muTmp(varname,fuid), muCon(0)]),
     						               muCallMuPrim("subscript_array_int", [muTmp(varname,fuid), muCon(1)]),
     						               translate(rhs))
     			  ]);
@@ -1449,7 +1449,7 @@ MuExp translate(e:(Expression) `<Expression lhs> ? <Expression rhs>`) {
     	   str fuid = topFunctionScope();
            str varname = asTmp(nextLabel());
     	   return muValueBlock([ muVarInit(muTmp(varname, fuid), muCallPrim3("is_defined_adt_field_access_get", [translate(expression), muCon(unescape("<field>"))], e@\loc)),
-                                 muIfelse(muCallMuPrim("subscript_array_int",  [muTmp(varname,fuid), muCon(0)]),
+                                 muIfExp(muCallMuPrim("subscript_array_int",  [muTmp(varname,fuid), muCon(0)]),
                                           muCallMuPrim("subscript_array_int", [muTmp(varname,fuid), muCon(1)]),
                                           translate(rhs))
                   ]);
@@ -1466,7 +1466,7 @@ public MuExp translateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS, loc src) {
     
     if(muCallPrim3("adt_field_access", args, lhs_src) := muLHS){    // field defined or keyword field set?
        return muValueBlock([ muVarInit(muTmp(varname, fuid), muCallPrim3("is_defined_adt_field_access_get", args[0..2], lhs_src)),
-                             muIfelse(muCallMuPrim("subscript_array_int",  [muTmp(varname,fuid), muCon(0)]),
+                             muIfExp(muCallMuPrim("subscript_array_int",  [muTmp(varname,fuid), muCon(0)]),
                                       muCallMuPrim("subscript_array_int", [muTmp(varname,fuid), muCon(1)]),
                                       muRHS)
               ]);             
@@ -1483,7 +1483,7 @@ public MuExp translateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS, loc src) {
 											  "NoSuchField"})
 								      ], src);
 	
-	catchBody = muIfelse(cond, muRHS, muThrow(muTmp(varname,fuid), src));
+	catchBody = muIfExp(cond, muRHS, muThrow(muTmp(varname,fuid), src));
 	return muTry(muLHS, muCatch(varname, fuid, aadt("RuntimeException",[], dataSyntax()), catchBody), 
 			  		   muBlock([]));
 }
@@ -1581,10 +1581,10 @@ MuExp translate(e:(Expression) `<Expression lhs> mod <Expression rhs>`) =
 // -- notin expression ----------------------------------------------
 
 MuExp translate(e:(Expression) `<Expression lhs> notin <Expression rhs>`) =
-    muIfelse(infix_elm_left("in", e), muCon(false), muCon(true));
+    muIfExp(infix_elm_left("in", e), muCon(false), muCon(true));
     
 MuExp translate(e:(Expression) `<Expression lhs> notin <Expression rhs>`, str btscope, MuExp trueCont, MuExp falseCont) =
-    muIfelse(infix_elm_left("in", e),  falseCont, trueCont);
+    muIfExp(infix_elm_left("in", e),  falseCont, trueCont);
 
 // -- in expression -------------------------------------------------
 
@@ -1592,7 +1592,7 @@ MuExp translate(e:(Expression) `<Expression lhs> in <Expression rhs>`) =
     infix_elm_left("in", e);
 
 MuExp translate(e:(Expression) `<Expression lhs> in <Expression rhs>`, str btscope, MuExp trueCont, MuExp falseCont) =
-    muIfelse(infix_elm_left("in", e),  trueCont, falseCont);
+    muIfExp(infix_elm_left("in", e),  trueCont, falseCont);
 
 // -- greater equal expression --------------------------------------
 
@@ -1600,7 +1600,7 @@ MuExp translate(e:(Expression) `<Expression lhs> \>= <Expression rhs>`) =
     infix("greaterequal", e);
  
  MuExp translateBool(e:(Expression) `<Expression lhs> \>= <Expression rhs>`, str btscope, MuExp trueCont, MuExp falseCont) = 
-    muIfelse(infix("greaterequal", e),  trueCont, falseCont);
+    muIfExp(infix("greaterequal", e),  trueCont, falseCont);
 
 // -- less equal expression -----------------------------------------
 
@@ -1608,7 +1608,7 @@ MuExp translate(e:(Expression) `<Expression lhs> \<= <Expression rhs>`) =
     infix("lessequal", e);
 
 MuExp translateBool(e:(Expression) `<Expression lhs> \<= <Expression rhs>`, str btscope, MuExp trueCont, MuExp falseCont) = 
-    muIfelse(infix("lessequal", e), trueCont, falseCont);
+    muIfExp(infix("lessequal", e), trueCont, falseCont);
 
 // -- less expression ----------------------------------------------
 
@@ -1616,7 +1616,7 @@ MuExp translate(e:(Expression) `<Expression lhs> \< <Expression rhs>`) =
     infix("less", e);
     
 MuExp translateBool(e:(Expression) `<Expression lhs> \< <Expression rhs>`, str btscope, MuExp trueCont, MuExp falseCont) = 
-    muIfelse(infix("less", e),  trueCont, falseCont);
+    muIfExp(infix("less", e),  trueCont, falseCont);
 
 // -- greater expression --------------------------------------------
 
@@ -1624,16 +1624,16 @@ MuExp translate(e:(Expression) `<Expression lhs> \> <Expression rhs>`) =
     infix("greater", e);
     
 MuExp translateBool(e:(Expression) `<Expression lhs> \> <Expression rhs>`, str btscope, MuExp trueCont, MuExp falseCont) = 
-    muIfelse(infix("greater", e),  trueCont, falseCont);
+    muIfExp(infix("greater", e),  trueCont, falseCont);
 
 // -- equal expression ----------------------------------------------
 
 MuExp translate(e:(Expression) `<Expression lhs> == <Expression rhs>`) = 
-    muIfelse(comparison("equal", e), muCon(true), muCon(false));
+    muIfExp(comparison("equal", e), muCon(true), muCon(false));
     //comparison("equal", e);
 
 MuExp translateBool(e:(Expression) `<Expression lhs> == <Expression rhs>`, str btscope, MuExp trueCont, MuExp falseCont) = 
-    muIfelse(comparison("equal", e), trueCont, falseCont);
+    muIfExp(comparison("equal", e), trueCont, falseCont);
 
 // -- not equal expression ------------------------------------------
 
@@ -1641,7 +1641,7 @@ MuExp translate(e:(Expression) `<Expression lhs> != <Expression rhs>`) =
     comparison("notequal", e);
 
 MuExp translateBool(e:(Expression) `<Expression lhs> != <Expression rhs>`, str btscope, MuExp trueCont, MuExp falseCont) = 
-    muIfelse(comparison("equal", e),  falseCont, trueCont);
+    muIfExp(comparison("equal", e),  falseCont, trueCont);
     
 // -- no match expression -------------------------------------------
 
@@ -1711,7 +1711,7 @@ MuExp translateBool(e:(Expression) `<Pattern pat> \<- <Expression exp>`, str bts
 
 MuExp translate(Expression e:(Expression) `<Expression lhs> && <Expression rhs>`) {
     if(backtrackFree(e)){
-        return muIfelse(translate(lhs), translate(rhs), muCon(false));
+        return muIfExp(translate(lhs), translate(rhs), muCon(false));
     }
     btscope = nextTmp("AND");
     enterBacktrackingScope(btscope);
@@ -1730,7 +1730,7 @@ MuExp translateBool(e: (Expression) `<Expression lhs> && <Expression rhs>`, str 
 
 MuExp translate(Expression e:(Expression) `<Expression lhs> || <Expression rhs>`) {
    if(backtrackFree(e)){
-        return muIfelse(translate(lhs), muCon(true), translate(rhs));
+        return muIfExp(translate(lhs), muCon(true), translate(rhs));
    }
    btscope = nextTmp("OR");
    enterBacktrackingScope(btscope);
@@ -1749,7 +1749,7 @@ MuExp translateBool(e: (Expression) `<Expression lhs> || <Expression rhs>`, str 
 
 MuExp translate(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`) {
     if(backtrackFree(e)){
-        return muIfelse(translate(lhs), translate(rhs), muCon(true));
+        return muIfExp(translate(lhs), translate(rhs), muCon(true));
     }
     btscope = nextTmp("IMPLIES");
     enterBacktrackingScope(btscope);
@@ -1772,7 +1772,7 @@ MuExp translateBool(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`, str
    
 MuExp translate(e:(Expression) `<Expression lhs> \<==\> <Expression rhs>`) {
     if(backtrackFree(e)){
-        return muIfelse(translate(lhs), translate(rhs), muCallPrim3("not_abool", [translate(rhs)], e@\loc));
+        return muIfExp(translate(lhs), translate(rhs), muCallPrim3("not_abool", [translate(rhs)], e@\loc));
     }
    btscopelhs = nextTmp("EQUIV_LHS");
    btscoperhs = nextTmp("EQUIV_RHS");

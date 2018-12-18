@@ -1,33 +1,22 @@
 @bootstrapParser
 module  lang::rascalcore::compile::Compile
- 
-import IO;
-//import ValueIO;
+
+
 import Message;
-import String;
-import ParseTree;
 import util::Reflective;
 import util::Benchmark;
-import util::FileSystem;
-import util::UUID;
-//import Map;
-import Set;
-import Relation;
-import Exception;
-import lang::rascalcore::compile::CompileTimeError;
+import IO;
+import Map;
 
 import lang::rascal::\syntax::Rascal;
 
-import lang::rascalcore::compile::muRascal::AST;
-
 import lang::rascalcore::compile::Rascal2muRascal::RascalModule;
-import lang::rascalcore::compile::Rascal2muRascal::TypeUtils;
-
-extend analysis::typepal::TypePal;
-extend  lang::rascalcore::check::TypePalConfig;
 import lang::rascalcore::check::Checker;
+import lang::rascalcore::compile::muRascal2Java::CodeGen;
+import lang::rascalcore::check::TypePalConfig;
 
-extend lang::rascalcore::compile::muRascal2Java::CodeGen;
+import lang::rascalcore::compile::CompileTimeError;
+
 
 alias RVMModule = value;
 
@@ -50,14 +39,14 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
     targetDir = generatedDir + module2package(qualifiedModuleName);
     className = module2class(qualifiedModuleName);
    
-    errors = [ e | e:error(_,_) <- tm.messages];
+    list[Message] errors = [ e | e:error(_,_) <- tm.messages];
     if(!isEmpty(errors)){
         return errors;
     }
     last_mod = lastModified(targetDir + "<className>.java");
     if(rel[str,datetime, PathRole] bom := tm.store[key_bom]){
         if(all(dt <- bom<1>, dt <= last_mod)){
-            return <errors, tmodels>;
+            return errors;
         }
     }
    	
@@ -66,16 +55,16 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
      
        	muMod = r2mu(M, tm, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
 
-        <package, className, the_interface, the_class> = muRascal2Java(muMod, tmodels, moduleLocs);
+        <the_interface, the_class, the_test_class> = muRascal2Java(muMod, tmodels, moduleLocs);
        
-        writeFile(targetDir + "<className>.java", the_class);
         writeFile(targetDir + "$<className>.java", the_interface);
+        writeFile(targetDir + "<className>.java", the_class);
+        writeFile(targetDir + "<className>Test.java", the_test_class);
      
         return errors;
        
-    } catch e: CompileTimeError(m): {
-        errors += error(m, moduleLoc);   
-        return <errors, tmodels>;
+    } catch e: CompileTimeError(Message m): {
+        return errors + [m];   
     }
 }
 
