@@ -21,6 +21,7 @@ extend ParseTree;
 
 //extend analysis::typepal::TypePal;
 extend lang::rascalcore::check::AType;
+import analysis::typepal::Messenger;
 
 import lang::rascalcore::check::ATypeInstantiation;
 
