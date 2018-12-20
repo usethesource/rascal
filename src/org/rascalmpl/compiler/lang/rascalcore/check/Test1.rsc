@@ -1,6 +1,6 @@
 module lang::rascalcore::check::Test1 
 import ParseTree;
-import String;    
+import String;     
 
 //lexical Example = ([A-Z] head [a-z]* tail)+ words;
 //

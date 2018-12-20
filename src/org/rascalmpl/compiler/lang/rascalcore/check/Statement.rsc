@@ -507,6 +507,8 @@ void collect(current: (Catch) `catch <Pattern pattern>: <Statement body>`, Colle
     c.enterScope(current);
         beginPatternScope("catch", c);
         collect(pattern, c);
+        c.require("pattern", pattern, [], void(Solver s){ getPatternType(pattern, avalue(), getLoc(current), s); });
+        
         //c.requireEager("catch pattern", pattern, [],
         //   () { tpat = getType(pattern);
         //        if(!isFullyInstantiated(tpat)){
