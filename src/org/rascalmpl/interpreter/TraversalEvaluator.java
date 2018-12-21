@@ -451,14 +451,34 @@ public class TraversalEvaluator {
 				IValue elem = list.get(i);
 				tr.changed = false;
 				tr.matched = false;
-				w.append(traverseOnce(elem, casesOrRules, direction, progress, fixedpoint, tr));
+				IValue newElem = traverseOnce(elem, casesOrRules, direction, progress, fixedpoint, tr);
+				
+				if (hasChanged) {
+				    // continue adding new elements to the new list
+				    w.append(newElem);
+				}
+				else { // nothing has changed yet...
+				    if (tr.changed) {
+				        // first time something changed. insert backlog into the writer
+				        for (int j = 0; j < i; j++) {
+				            w.append(list.get(j));
+				        }
+				        
+				        // append the new element
+				        w.append(newElem);
+				    }
+				    else {
+				        // do nothing with the new element yet.
+				    }
+				}
 				hasChanged |= tr.changed;
 				hasMatched |= tr.matched;
 			}
 			
 			tr.changed = hasChanged;
 			tr.matched = hasMatched;
-			return w.done();
+			
+			return tr.changed ? w.done() : list;
 		} else {
 			return subject;
 		}
