@@ -40,10 +40,6 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<lucence-version>7.5.0</lucence-version>
 		<exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
-		<rascal.boot.version>latest</rascal.boot.version>
-		<rascal.boot>--download</rascal.boot>
-		<rascal.boot.memory>2</rascal.boot.memory>
-		<rascal.courses>--skipCourses</rascal.courses>
         <rascal.test.memory>2</rascal.test.memory>
 	</properties>
 
@@ -105,104 +101,6 @@
 		  </plugin>
 		  
 			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<version>1.4.0</version>
-				<executions>
-					<execution> <!-- compile the compiler -->
-						<configuration>
-							<executable>java</executable>
-							<classpathScope>compile</classpathScope>
-							<workingDirectory>target/classes/</workingDirectory>
-							<arguments>
-								<argument>-Xmx256m</argument>
-                                <argument>-Dfile.encoding=UTF-8</argument>
-								<argument>-cp</argument>
-								<classpath />
-								<argument>org.rascalmpl.library.experiments.Compiler.Commands.Bootstrap</argument>
-								<classpath />
-								<argument>${rascal.boot.version}</argument>
-								<argument>${project.version}</argument>
-								<argument>${project.basedir}/src</argument>
-								<argument>${project.build.directory}/classes</argument>
-								<argument>${project.basedir}/bootstrap</argument>
-                                <argument>--maxMemory</argument>
-                                <argument>${rascal.boot.memory}</argument>
-								<argument>--clean</argument>
-								<argument>${rascal.boot}</argument>
-							</arguments>
-						</configuration>
-						<id>bootstrap</id>
-						<phase>compile</phase>
-						<goals>
-							<goal>exec</goal>
-						</goals>
-					</execution> 
-					<execution><!--  compile the standard library -->
-                        <configuration>
-                            <executable>java</executable>
-                            <classpathScope>compile</classpathScope>
-                            <workingDirectory>target/classes/</workingDirectory>
-                            <arguments>
-                                <argument>-Xmx1256m</argument>
-                                <argument>-Dfile.encoding=UTF-8</argument>
-                                <argument>-cp</argument>
-                                <classpath />
-                                <argument>org.rascalmpl.library.experiments.Compiler.Commands.RascalC</argument>
-                                <argument>--boot</argument>
-                                <argument>${project.build.directory}/classes/boot</argument>
-                                <argument>--bin</argument>
-                                <argument>${project.build.directory}/classes/std</argument>
-                                <argument>--lib</argument>
-                                <argument>${project.build.directory}/classes/std</argument>
-                                <argument>--src</argument>
-                                <argument>${project.basedir}/src/org/rascalmpl/library</argument>
-                                <argument>--reloc</argument>
-                                <argument>|stdlib:///|</argument>
-                                <argument>StandardLibrary</argument>
-                            </arguments>
-                        </configuration>
-                        <id>standardlibrary</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                    </execution>      
-                    <execution> <!--  compile the courses -->
-                        <configuration>
-                            <executable>java</executable>
-                            <classpathScope>compile</classpathScope>
-                            <workingDirectory>target/classes/</workingDirectory>
-                            <arguments>
-                                <argument>-Xmx${rascal.boot.memory}G</argument>
-                                <argument>-Dfile.encoding=UTF-8</argument>
-                                <argument>-cp</argument>
-                                <classpath />
-                                <argument>-Dfile.encoding=UTF-8</argument>
-                                <argument>org.rascalmpl.library.experiments.tutor3.CourseCompiler</argument>
-                                <argument>--bin</argument>
-                                <argument>${project.build.directory}/classes/boot</argument>
-                                <argument>--src</argument>
-                                <argument>${project.basedir}/src/org/rascalmpl/library</argument>
-                                <argument>--boot</argument>
-                                <argument>${project.build.directory}/classes/boot</argument>
-                                <argument>--lib</argument>
-                                <argument>${project.build.directory}/classes/std</argument>
-                                <argument>--course</argument>
-                                <argument>${project.basedir}/src/org/rascalmpl/courses</argument>
-                                <argument>--all</argument>
-                                <argument>${rascal.courses}</argument>
-                            </arguments>
-                        </configuration>
-                        <id>courses</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                    </execution>
-				</executions>
-			</plugin>
-			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>2.20</version>
@@ -226,7 +124,6 @@
 					<includes>
 						<include>**/org/rascalmpl/test/AllSuiteParallel.java</include>
                         <include>**/org/rascalmpl/test/value/AllTests.java</include>
-						<include>**/org/rascalmpl/test_compiled/MediumSuite.java</include>
 					</includes>
 				</configuration>
 			</plugin>
