@@ -611,6 +611,20 @@ public class TraversalEvaluator {
 			
 			INode n = null;
 			if (kwParams != null) {
+			    if (!hasChanged) {
+			        return node;
+			    }
+			    
+			    if (args == null) {
+			        // first time change
+			        args = new IValue[node.arity()];
+
+			        // add the backlog to the array
+			        for (int j = 0; j < node.arity(); j++) {
+			            args[j] = node.get(j);
+			        }
+			    }
+                
 				n = eval.getValueFactory().node(node.getName(), args, kwParams);
 			}
 			else {
