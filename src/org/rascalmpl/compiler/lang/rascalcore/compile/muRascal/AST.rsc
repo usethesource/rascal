@@ -230,6 +230,28 @@ data DescendantDescriptor
 data MuCatch = muCatch(MuExp thrown_as_exception, MuExp thrown, MuExp body);    
 
 data MuCase = muCase(int fingerprint, MuExp exp);
+
+// ==== Utilities =============================================================
+
+set[str] varExp = {"muModuleVar", "muVar", "muTmp", "muTmpInt", 
+                   "muTmpBool", "muTmpWriter", "muTmpMatcher", 
+                   "muTmpStrWriter", "muTmpTemplate", "muTmpException"};
+
+bool isVarOrTmp(MuExp exp)
+    = getName(exp) in varExp;
+    
+bool producesNativeBool(muCallPrim3(str name, list[MuExp] args, loc src)){
+    if(name in {"equal", "notequal"}) return true;
+    fail producesNativeBool;
+}
+
+bool producesNativeBool(MuExp exp)
+    = getName(exp) in {"muTmpBool", "muEqual", "muEqualInt", "muNotNegative", "muIsKwpDefined", "muHasKwp", "muHasKwpWithValue", /*"muHasType",*/ "muHasTypeAndArity",
+                  "muHasNameAndArity", "muValueIsSubType", "muValueIsSubTypeOfValue", "muGreaterEqInt", "muAnd", "muNot",
+                  "muRegExpFind" };
+                  
+bool producesNativeInt(MuExp exp)
+    = getName(exp) in {"muTmpInt", "muSize", "muAddInt", "muSubInt", "muRegExpBegin", "muRegExpEnd"};
      
 // ==== Simplification rules ==================================================
 
