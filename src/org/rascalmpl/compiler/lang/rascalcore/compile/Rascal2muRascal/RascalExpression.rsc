@@ -1777,8 +1777,8 @@ MuExp translate(e:(Expression) `<Expression lhs> \<==\> <Expression rhs>`) {
    btscopelhs = nextTmp("EQUIV_LHS");
    btscoperhs = nextTmp("EQUIV_RHS");
                                                
-   return forAll(translateBool(lhs, btscopelhs, forAll(muEnter(btscopelhs, translateBool(rhs, btscopelhs, muSucceed(btscopelhs), muFail(btscopelhs)))), 
-                                                forAll(muEnter(btscoperhs, translateBool(rhs, btscoperhs, muFail(btscoperhs),    muSucceed(btscoperhs))))));
+   return muForAll(translateBool(lhs, btscopelhs, muForAll(muEnter(btscopelhs, translateBool(rhs, btscopelhs, muSucceed(btscopelhs), muFail(btscopelhs)))), 
+                                                  muForAll(muEnter(btscoperhs, translateBool(rhs, btscoperhs, muFail(btscoperhs),    muSucceed(btscoperhs))))));
 
    //TODO leave/enter BTscope?
 }

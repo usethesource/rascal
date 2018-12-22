@@ -24,63 +24,14 @@ import lang::rascalcore::compile::muRascal2Java::Primitives;
 
 import lang::rascalcore::compile::muRascal2Java::JGenie;
 
+import lang::rascalcore::compile::util::Names;
+
 bool debug = false;
 
 // ---- globals ---------------------------------------------------------------
 
 map[str, MuFunction] muFunctions = ();
 map[str,str] resolved2overloaded = ();
-
-// ---- utilities -------------------------------------------------------------
-
-str removeEmptyLines(str s){
-    return visit(s) { case /^\n[ ]*\n/ => "\n" };
-}
-
-str getBaseClass(str dottedName){
-    n = findLast(dottedName, ".");
-    return n >= 0 ? dottedName[n+1 ..] : dottedName;
-}
-str  qname2baseclassname(str qname){
-    return getBaseClass(replaceAll(qname, "::", "."));
-}
-
-str qname2classname(str qname){
-    return replaceAll(qname, "::", ".");
-}
-
-str qname2ul(str qname){
-    return replaceAll(qname, "::", "_");
-}
-
-str colon2ul(str s) = replaceAll(replaceAll(s, "::", "_"), "$", ".");
-
-str dcolon2dot(str s) = replaceAll(s, "::", ".");
-
-str module2class(str moduleName){
-    className = qname2classname(moduleName);
-    n = findLast(className, ".");
-    return n >= 0 ? className[n+1 ..] : className;
-}
-str module2package(str moduleName){
-    className = qname2classname(moduleName);
-    n = findLast(className, ".");
-    return n >= 0 ? className[0 .. n] : "";
-}
-
-str module2interface(str moduleName){
-    className = qname2classname(moduleName);
-    n = findLast(className, ".");
-    return n >= 0 ? "<className[0 .. n]>.$<className[n+1..]>" : "$<className>";
-}
-
-str escapeAsJavaString(str s){
-  return replaceAll(s, "\n", "\\n");    //TODO make precise
-}
-
-bool containedIn(loc inner, loc outer){
-    return inner.path == outer.path && inner.offset >= outer.offset && inner.offset + inner.length <= outer.offset + outer.length;
-}
 
 // ---- muModule --------------------------------------------------------------
 
@@ -117,21 +68,21 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
                          'final <getBaseClass(class)> $<getBaseClass(class)> = new <class>($VF);
                          '<}>";
                         
-    module_extends    = !isEmpty(m.extends) ? "implements " + intercalate(", ",[ dcolon2dot(ext) | ext <- m.extends]) : "";
+    module_extends    = !isEmpty(m.extends) ? "implements " + intercalate(", ",[ module2class(ext) | ext <- m.extends]) : "";
                         
     module_imports    = "<for(imp <- toSet(m.imports + m.extends)){>
-                         'import <qname2classname(imp)>;
+                         'import <module2class(imp)>;
                         '<}>";
                        
     imp_ext_decls     = "<for(imp <- toSet(m.imports + m.extends)){>
-                        'final <qname2classname(imp)> <qname2ul(imp)>;
+                        'final <module2class(imp)> <module2ul(imp)>;
                         '<}>";
                                          
     module_imp_inits  = "<for(imp <- m.imports, imp notin m.extends){>
-                        '<qname2ul(imp)> = <qname2classname(imp)>.import<qname2baseclassname(imp)>();
+                        '<module2ul(imp)> = <module2class(imp)>.import<module2uqclass(imp)>();
                         '<}>";
     module_ext_inits  = "<for(ext <- m.extends){>
-                        '<qname2ul(ext)> = <qname2classname(ext)>.extend<qname2baseclassname(ext)>(this);
+                        '<module2ul(ext)> = <module2class(ext)>.extend<module2uqclass(ext)>(this);
                         '<}>";
     
     constructor_body  = "<module_imp_inits>
@@ -213,15 +164,16 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
            'import io.usethesource.vallang.type.*;
            '
            'import static org.junit.Assert.assertTrue;
+           'import static org.junit.Assert.fail;
            'import static org.junit.jupiter.api.DynamicTest.dynamicTest;
            '
            'import org.junit.jupiter.api.Test;
            'import org.junit.jupiter.api.DynamicTest;
            'import org.junit.jupiter.api.TestFactory;
-           'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.GenerateActuals;
+           'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.*;
            '
            'class <className>Test {
-           '    static final <className> MUT = <className>.importTesting();
+           '    static final <className> MUT = <className>.import<className>();
            '    static final TypeFactory $TF = TypeFactory.getInstance();
            '    static final GenerateActuals generator = new GenerateActuals(5, 5, 10);
            '    <for(f <- functions){>
@@ -234,11 +186,28 @@ str generateTestMethod(MuFunction f){
     
     fname = f.uqname;
     formals = f.ftype.formals;
+    expected = f.tags["expected"] ? "";
     if(isEmpty(formals)){
-        return "@Test
-               'void <fname>(){
-               '   assertTrue(MUT.<fname>().getValue());
-               '}\n";
+        if(isEmpty(expected)){
+            return "@Test
+                   'void <fname>(){
+                   '   assertTrue(MUT.<fname>().getValue());
+                   '}\n";
+        } else {
+            return "@Test
+                   'void <fname>(){
+                   '    try {
+                   '        MUT.<fname>();
+                   '    } catch (RascalException e) {
+                   '        if(((IConstructor) e.getValue()).getConstructorType() == RascalExceptionFactory.<expected>) {
+                   '            assertTrue(true);
+                   '            return;
+                   '         }
+                   '         fail(\"Expected `<expected>`, got: \" + e);
+                   '    }
+                   '    fail(\"Expected `<expected>`, but none thrown\");
+                   '}\n";
+        }
     }
     types = "new Type[] {<intercalate(", ", [atype2typestore(tp) | tp <- formals])>}";
     actuals = intercalate(", ", ["args[<i>]" | i <- index(formals)]) + ", Collections.emptyMap()";
@@ -714,6 +683,12 @@ JCode trans(muOFun(str fuid), JGenie jg){
           
 // Variables
 
+set[str] varInstructions = {"muModuleVar", "muVar", "muTmp", "muTmpInt", "muTmpBool", "muTmpWriter", "muTmpMatcher", "muTmpStrWriter", "muTmpTemplate", "muTmpException"};
+
+
+bool isVar(MuExp exp)
+    = getName(exp) in varInstructions;
+
 //// ---- muModuleVar -----------------------------------------------------------
 //
 //JCode trans(var:muModuleVar(str name, AType atype), JGenie jg{
@@ -760,6 +735,11 @@ JCode trans(var: muTmpStrWriter(str name, str fuid) , JGenie jg)
 JCode trans(var: muTmpTemplate(str name, str fuid) , JGenie jg)
     =  jg.isRefVar(name) ? "<name>.value" : "<name>";
     
+// ---- muTmpException -------------------------------------------------------
+
+JCode trans(var: muTmpException(str name, str fuid) , JGenie jg)
+    =  jg.isRefVar(name) ? "<name>.value" : "<name>.getValue()";
+
     
 // ---- muVarInit --------------------------------------------------------------
 
@@ -1302,14 +1282,38 @@ JCode trans(muValueBlock(list[MuExp] exps), JGenie jg){
            '<trans(muReturn1(exps[-1]), jg)>
            '}).compute()";
 }
-//          // Exceptions
-//          
-//          | muThrow(MuExp exp, loc src)
-//          
-//          // Exception handling try/catch
-//          
-//          | muTry(MuExp exp, MuCatch \catch, MuExp \finally)
-//          
+
+// Exceptions
+      
+JCode trans(muThrow(muTmpException(str name, str fuid), loc src), JGenie jg){
+    return "throw <name>;";
+}
+
+default JCode trans(muThrow(MuExp exp, loc src), JGenie jg){
+    return "throw new RascalException(<trans(exp, jg)>);";
+}
+
+JCode trans(muTry(MuExp exp, MuCatch \catch, MuExp \finally), JGenie jg){
+println(exp);
+println(\catch);
+println(\finally);
+finallyCode = trans(\finally, jg);
+    return "try {
+                <trans(exp, jg)>
+           '} <trans(\catch, jg)>
+           '<if(!isEmpty(finallyCode)){>finally { 
+           '    <finallyCode>} <}>
+           ";
+}  
+
+JCode trans(muCatch(MuExp thrown_as_exception, MuExp thrown, MuExp body), JGenie jg){
+    jtype = atype2java(thrown.atype);
+    return "catch (RascalException <thrown_as_exception.name>) {
+           '    IValue <thrown.name> = <thrown_as_exception.name>.getValue();
+           '   
+           '    <trans(body, jg)>
+           '}";
+}
 
 // ---- muCheckArgTypeAndCopy -------------------------------------------------
 
@@ -1374,10 +1378,10 @@ JCode trans(muEqualInt(MuExp exp1, MuExp exp2), JGenie jg)
 JCode trans(muNotNegative(MuExp exp), JGenie jg)
     = "<trans2NativeInt(exp, jg)> \>= 0";
 
-JCode trans(muValueIsSubType(MuExp exp, AType tp), JGenie jg)
-    = exp has atype && exp.atype == tp ? "true"
+JCode trans(muValueIsSubType(MuExp exp, AType tp), JGenie jg){
+    return !isVar(exp) && exp has atype && exp.atype == tp ? "true"
                       : "<trans(exp, jg)>.getType().isSubtypeOf(<jg.shareType(tp)>)";
-
+}
 JCode trans(muValueIsSubTypeOfValue(MuExp exp1, MuExp exp2), JGenie jg)
     ="<trans(exp1, jg)>.getType().isSubtypeOf(<trans(exp2, jg)>.getType())";
     
@@ -1394,7 +1398,8 @@ JCode trans(muHasTypeAndArity(AType atype, int arity, MuExp exp), JGenie jg){
 JCode trans(muHasNameAndArity(AType atype, str name, int arity, MuExp exp), JGenie jg){
     v = trans(exp, jg);
     if(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := atype){
-        return "<v>.getConstructorType() == <adtName>_<name>_<arity>";
+       //return "<v>.getConstructorType() == <adtName>_<name>_<arity>";
+       return "<v>.arity() == <arity> && <v>.getType() == <adtName>";
     } else {
         return "<v>.arity() == <arity> && <v>.getName().equals(\"<name>\")";
     }

@@ -35,7 +35,7 @@ public data MuModule =
                        loc src)
             ;
             
-MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, (), messages, [], [], (), (), [], [], [], (), [], (), {}, src);
+MuModule errorMuModule(str name, set[Message] messages, loc src) = muModule(name, (), messages, [], [], {}, {}, [], [], [], 0, [], grammar({}, ()), src);
           
 // All information related to a function declaration. This can be a top-level
 // function, or a nested or anomyous function inside a top level function. 
@@ -92,6 +92,7 @@ public data MuExp =
           | muTmpStrWriter(str name, str fuid)                  // Temporary string write
           | muTmpDescendantIterator(str name, str fuid)         // Temporary descendant iterator
           | muTmpTemplate(str name, str fuid)                   // Temporary string template
+          | muTmpException(str name, str fuid)                  // Temporary exception
        
           | muVarKwp(str name, str fuid, AType atype)           // Keyword parameter
           
@@ -226,7 +227,7 @@ data DescendantDescriptor
     = descendantDescriptor(bool useConcreteFingerprint /*reachable_syms, reachable_prods,*/  /*,getDefinitions()*/)
     ;
     
-data MuCatch = muCatch(str id, str fuid, AType \type, MuExp body);    
+data MuCatch = muCatch(MuExp thrown_as_exception, MuExp thrown, MuExp body);    
 
 data MuCase = muCase(int fingerprint, MuExp exp);
      
@@ -234,7 +235,7 @@ data MuCase = muCase(int fingerprint, MuExp exp);
 
 MuExp muBlock([MuExp exp]) = exp;
 
-MuExp muBlock([ *exps1, muBlock(*exps2), *exps3 ])
+MuExp muBlock([ *exps1, muBlock([*exps2]), *exps3 ])
     = muBlock([ *exps1, *exps2, *exps3 ]);
     
 MuExp muBlock([ *exps1, muReturn1(exp), *exps2 ])
@@ -279,7 +280,7 @@ MuExp muReturn1(muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp
 MuExp muReturn1(muForAll(str label, MuExp var, MuExp iterable, MuExp body))
     = muForAll(label, var, iterable, muReturn1(body));
 
-MuExp addReturnFalse(bl: muBlock(*exps, muReturn1(muCon(false)))) = bl;
+MuExp addReturnFalse(bl: muBlock([*exps, muReturn1(muCon(false))])) = bl;
 
 default MuExp addReturnFalse(MuExp exp) = muBlock([exp, muReturn1(muCon(false))]);
 
@@ -300,6 +301,16 @@ MuExp muReturn1(muFail(str btscope)){
 
 MuExp muReturn1(muFailReturn())
     = muFailReturn();
+    
+MuExp muReturn1(muTry(MuExp exp, MuCatch \catch, MuExp \finally))
+    = muTry(muReturn1(exp), \catch, \finally);
+    
+MuExp muReturn1(muThrow(MuExp exp, loc src))
+    = muThrow(exp, src);
+    
+// ---- muThrow ---------------------------------------------------------------
+
+
     
 // ---- muAssign --------------------------------------------------------------
 
@@ -443,7 +454,7 @@ MuExp muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcrete
 //muFieldUpdate(str kind, AType atype, MuExp exp1, str fieldName, MuExp exp2)
   
 
-MuExp muValueIsSubType(MuExp exp, AType tp) = muCon(true) when exp has atype && exp.atype == tp;
+//MuExp muValueIsSubType(MuExp exp, AType tp) = muCon(true) when exp has atype && exp.atype == tp;
 
 //============== constant folding rules =======================================
 // TODO:
