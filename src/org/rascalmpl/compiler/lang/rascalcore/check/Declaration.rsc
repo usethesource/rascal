@@ -58,7 +58,7 @@ tuple[bool, TagString] getExpected(Tags tags){
             return <true, tg.contents>;
         }
    }
-   return <false, [TagString]"None">;
+   return <false, [TagString]"{None}">;
 }
 
 Vis getVis((Visibility) `private`, Vis dv)  = privateVis();
