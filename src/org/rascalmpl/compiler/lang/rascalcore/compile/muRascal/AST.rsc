@@ -476,7 +476,7 @@ MuExp muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcrete
 //muFieldUpdate(str kind, AType atype, MuExp exp1, str fieldName, MuExp exp2)
   
 
-//MuExp muValueIsSubType(MuExp exp, AType tp) = muCon(true) when exp has atype && exp.atype == tp;
+MuExp muValueIsSubType(MuExp exp, AType tp) = muCon(true) when !isVarOrTmp(exp) && exp has atype && exp.atype == tp;
 
 //============== constant folding rules =======================================
 // TODO:
