@@ -683,12 +683,6 @@ JCode trans(muOFun(str fuid), JGenie jg){
           
 // Variables
 
-set[str] varInstructions = {"muModuleVar", "muVar", "muTmp", "muTmpInt", "muTmpBool", "muTmpWriter", "muTmpMatcher", "muTmpStrWriter", "muTmpTemplate", "muTmpException"};
-
-
-bool isVar(MuExp exp)
-    = getName(exp) in varInstructions;
-
 //// ---- muModuleVar -----------------------------------------------------------
 //
 //JCode trans(var:muModuleVar(str name, AType atype), JGenie jg{
@@ -1324,21 +1318,7 @@ JCode trans(muCheckArgTypeAndCopy(str name, int from, AType tp, int to), JGenie 
     //  '   <name> = <name>$<from>;
     //  '} else {
     //  '   return null;
-    //  '}";     
-
-bool producesNativeBool(muCallPrim3(str name, list[MuExp] args, loc src)){
-    if(name in {"equal", "notequal"}) return true;
-    fail producesNativeBool;
-}
-
-bool producesNativeBool(MuExp exp)
-    = getName(exp) in {"muTmpBool", "muEqual", "muEqualInt", "muNotNegative", "muIsKwpDefined", "muHasKwp", "muHasKwpWithValue", /*"muHasType",*/ "muHasTypeAndArity",
-                  "muHasNameAndArity", "muValueIsSubType", "muValueIsSubTypeOfValue", "muGreaterEqInt", "muAnd", "muNot",
-                  "muRegExpFind" };
-                  
-bool producesNativeInt(MuExp exp)
-    = getName(exp) in {"muTmpInt", "muSize", "muAddInt", "muSubInt", "muRegExpBegin", "muRegExpEnd"};
-    
+    //  '}";
 
 str getIntegerFor(MuExp exp)
     = producesNativeInt(exp) ? "" : ".getValue()";
@@ -1379,7 +1359,7 @@ JCode trans(muNotNegative(MuExp exp), JGenie jg)
     = "<trans2NativeInt(exp, jg)> \>= 0";
 
 JCode trans(muValueIsSubType(MuExp exp, AType tp), JGenie jg){
-    return !isVar(exp) && exp has atype && exp.atype == tp ? "true"
+    return !isVarOrTmp(exp) && exp has atype && exp.atype == tp ? "true"
                       : "<trans(exp, jg)>.getType().isSubtypeOf(<jg.shareType(tp)>)";
 }
 JCode trans(muValueIsSubTypeOfValue(MuExp exp1, MuExp exp2), JGenie jg)
