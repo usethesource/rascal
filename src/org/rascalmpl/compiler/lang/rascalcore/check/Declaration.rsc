@@ -52,6 +52,15 @@ tuple[bool, str] getDeprecated(map[str,str] tagsMap){
    return <false, "">;
 }
 
+tuple[bool, TagString] getExpected(Tags tags){
+    for(tg <- tags.tags){
+        if("<tg.name>" in {"expected", "Expected"}){
+            return <true, tg.contents>;
+        }
+   }
+   return <false, [TagString]"None">;
+}
+
 Vis getVis((Visibility) `private`, Vis dv)  = privateVis();
 Vis getVis((Visibility) `public`, Vis dv)   = publicVis();
 Vis getVis((Visibility) ``, Vis dv)         = dv;
@@ -216,13 +225,24 @@ data ReturnInfo = returnInfo(Type returnType);
 
 void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collector c){
 //println("********** function declaration: <decl.signature.name>");
-    
+    signature = decl.signature;
+    fname = signature.name;
+    modifiers = ["<m>" | m <- signature.modifiers.modifiers];
     tagsMap = getTags(decl.tags);
     if(ignoreCompiler(tagsMap)) { println("ignore: function <decl.signature.name>"); return; }
     
+    <expected, expectedTagString> = getExpected(decl.tags);
+    if(expected){
+        expectedName = expectedTagString.contents;
+        if("test" notin modifiers){
+            c.report(warning(signature, "Modifier `test` is missing"));
+        }
+        c.use(expectedName, {dataId(), constructorId()});
+        c.requireSubType(expectedName, aadt("RuntimeException", [], dataSyntax()), error(expectedName, "Expected `RuntimeException`, found %t", expectedName));
+    }
+    
     <deprecated, deprecationMessage> = getDeprecated(tagsMap);
-    signature = decl.signature;
-    fname = signature.name;
+   
     parentScope = c.getScope();
        
     c.enterLubScope(decl);
@@ -260,7 +280,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         alwaysSucceeds = all(pat <- getFormals(signature.parameters), pat is typedVariable) && !(decl is conditional) && !(decl is \default && /(Statement) `fail <Target target>;` := decl.body);
         if(!alwaysSucceeds) dt.canFail = true;
         
-        modifiers = ["<m>" | m <- signature.modifiers.modifiers];
+       
         if(!isEmpty(modifiers)) dt.modifiers = modifiers;
         //if(lrel[str,loc] np := nestedParams && !isEmpty(np)) dt.nestedParameters = np;
          
