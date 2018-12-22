@@ -500,9 +500,15 @@ MuExp translateSolve(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <B
 
 // -- try statement --------------------------------------------------
 
-MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers>`) {
+MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers>`)
+    = translateTry(body, [handler | handler <- handlers], [Statement]";");
+
+MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers> finally <Statement finallyBody>`)
+    = translateTry(body, [handler | handler <- handlers], finallyBody);
+
+MuExp translateTry(Statement body, list[Catch] handlers, Statement finallyBody){
     if(body is emptyStatement){
-    	return muCon(666);
+        return muCon(666);
     }
     list[Catch] defaultCases = [ handler | Catch handler <- handlers, handler is \default ];
     list[Catch] otherCases   = [ handler | Catch handler <- handlers, !(handler is \default) ];
@@ -512,77 +518,54 @@ MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers>`) {
     // this gives optimization of the handler search based on types
     lubOfPatterns = !isEmpty(defaultCases) ? avalue() : avoid();
     if(isEmpty(defaultCases)) {
-    	lubOfPatterns = ( lubOfPatterns | alub(it, getType(p@\loc)) | Pattern p <- patterns );
+        lubOfPatterns = ( lubOfPatterns | alub(it, getType(p@\loc)) | Pattern p <- patterns );
     }
-    // Introduce a temporary variable that is bound within a catch block to a thrown value
+    // Introduce temporary variables that are bound within a catch block to a thrown exception and to its contained value
     str fuid = topFunctionScope();
-    varname = asTmp(nextLabel());
-    bigCatch = muCatch(varname, fuid, lubOfPatterns, translateCatches(varname, fuid, [ handler | handler <- handlers ], !isEmpty(defaultCases)));
-    return muTry(translate(body), bigCatch, muBlock([]));
+    tmp = nextTmp("thrown");
+    thrown = muTmp(tmp, fuid, lubOfPatterns);
+    thrown_as_exception = muTmpException("<tmp>_as_exception", fuid);
+    bigCatch = muCatch(thrown_as_exception, thrown, translateCatches(thrown_as_exception, thrown, handlers));
+    return muTry(translate(body), bigCatch, translate(finallyBody));
 }
 
-MuExp translate(s: (Statement) `try <Statement body> <Catch+ handlers> finally <Statement finallyBody>`) {
-	// The stack of try-catch-finally block is managed to check whether there is a finally block 
-	// that must be executed before 'return', if any; 
-	// in this case, the return expression has to be first evaluated, stored in a temporary variable 
-	// and returned after the 'finally' block has been executed
-	if(body is emptyStatement){
-    	return muCon(666);
-    }
-	enterTryCatchFinally();
-	MuExp tryCatch = translate((Statement) `try <Statement body> <Catch+ handlers>`);
-	leaveTryCatchFinally();
-	MuExp finallyExp = translate(finallyBody);
-	// Introduce a temporary variable that is bound within a catch block to a thrown value
-	str fuid = topFunctionScope();
-	str varname = asTmp(nextLabel());
-	return 
-	   muBlock([ muTry(muTry(tryCatch.exps[0].exp, tryCatch.exps[0].\catch, muBlock([])), 
-				 muCatch(varname, fuid, avalue(), muBlock([finallyExp, muThrow(muTmp(varname,fuid), finallyBody@\loc)])), 
-				 finallyExp)
-		   ]);
-}
-
-MuExp translateCatches(str varname, str varfuid, list[Catch] catches, bool hasDefault) {
+MuExp translateCatches(MuExp thrown_as_exception, MuExp thrown, list[Catch] catches) {
   // Translate a list of catch blocks into one catch block
-  if(size(catches) == 0) {
-  	  // In case there is no default catch provided, re-throw the value from the catch block
-      return muThrow(muTmp(varname,varfuid), |unknown:///|);
-  }
-  
-  c = head(catches);
-  
-  trBody = c.body is emptyStatement ? muCon(666) : translate(c.body);
-  if(c is binding) {
-      ifname = nextLabel();
-      enterBacktrackingScope(ifname);
-      list[MuExp] conds = [];
-      list[MuExp] then = [];
-      if(c.pattern is literal) {
-          conds = [ muCallMuPrim("equal", [ muTmp(asUnwrappedThrown(varname),varfuid), translate(c.pattern.literal) ]) ];
-          then = [ trBody ];
-      } else if(c.pattern is typedVariable) {
-          conds = [ muCallMuPrim("check_arg_type", [ muTmp(asUnwrappedThrown(varname),varfuid), muTypeCon(translateType(c.pattern.\type)) ]) ];
-          <fuid,pos> = getVariableScope("<c.pattern.name>", c.pattern.name@\loc);
-          then = [ muAssign(muVar("<c.pattern.name>", fuid, pos), muTmp(asUnwrappedThrown(varname),varfuid)), trBody ];
-      } else if(c.pattern is qualifiedName){	// TODO: what if qualifiedName already has a value? Check it!
-      	  conds = [ muCon(true) ];
-      	  <fuid,pos> = getVariableScope("<c.pattern.qualifiedName>", c.pattern.qualifiedName@\loc);
-          then = [ muAssign(muVar("<c.pattern.qualifiedName>", fuid, pos), muTmp(asUnwrappedThrown(varname),varfuid)), trBody ]; 
-      } else {
-          conds = [ muMulti(muApply(translatePat(c.pattern, avalue()), [ muTmp(asUnwrappedThrown(varname),varfuid) ])) ];
-          then = [ trBody ];
-      }
-      // TODO
-      exp = muIfelse(ifname, makeBoolExp("ALL",conds, c@\loc), then, [translateCatches(varname, varfuid, tail(catches), hasDefault)]);
-      leaveBacktrackingScope();
-      return exp;
-  }
-  
-  // The default case will handle any thrown value
-  exp = trBody;
-  
-  return exp;
+ 
+  catch_code =
+      for(Catch c <- reverse(catches)){
+          trBody = c.body is emptyStatement ? muBlock([]) : translate(c.body);
+          exp = muBlock([]);
+          if(c is binding) {
+              ifname = nextLabel();
+              enterBacktrackingScope(ifname);
+              patType = getType(c.pattern);
+              if(c.pattern is literal) {
+                  exp = muIf(muEqual(thrown, translate(c.pattern.literal)), trBody);
+              } else if(c.pattern is typedVariable) {
+                  varType = translateType(c.pattern.\type);
+                  <fuid, pos> = getVariableScope("<c.pattern.name>", c.pattern.name@\loc);
+                  patVar = muVar("<c.pattern.name>", fuid, pos, varType);
+                  exp = muIf(muValueIsSubType(thrown, varType), 
+                                 muBlock([ muVarInit(patVar, thrown), trBody ]));
+                                
+              } else if(c.pattern is qualifiedName){	// TODO: what if qualifiedName already has a value? Check it!
+                  varType = getType(c.pattern);
+                  <fuid,pos> = getVariableScope("<c.pattern.qualifiedName>", c.pattern.qualifiedName@\loc);
+                  patVar = muVar("<c.pattern.qualifiedName>", fuid, pos, varType);
+                  exp = muBlock([muAssign(patVar, thrown), trBody]);
+              } else {
+                  exp = translatePat(c.pattern, patType, thrown, ifname, trBody, muBlock([]));
+              }
+              exp = muIf(muValueIsSubType(thrown, patType), exp);
+              leaveBacktrackingScope();
+          } else {
+            exp = muBlock([exp, trBody]);
+          }
+          append exp;
+       }
+   // In case there is no default catch provided, re-throw the value from the catch block
+   return muBlock(catch_code + muThrow(thrown_as_exception, |unknown:///|));
 }
 
 // -- labeled statement ----------------------------------------------

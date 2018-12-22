@@ -413,6 +413,7 @@ str atype2typestore(atuple(AType ts)) = "$TF.tupleType(<atype2typestore(ts)>)";
 str atype2typestore(amap(AType d, AType r)) = "$TF.mapType(<atype2typestore(d)>,<atype2typestore(r)>)";
 str atype2typestore(arel(AType t)) = "$TF.relationType(<atype2typestore(t)>)";
 str atype2typestore(alrel(AType t)) = "$TF.listRelationType(<atype2typestore(t)>)";
+str atype2typestore(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) = adtName;
 str atype2typestore(acons(AType adt,
                 list[AType fieldType] fields,
                 lrel[AType fieldType, Expression defaultExp] kwFields))

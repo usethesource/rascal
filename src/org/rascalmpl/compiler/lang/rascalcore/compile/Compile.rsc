@@ -6,7 +6,6 @@ import Message;
 import util::Reflective;
 import util::Benchmark;
 import IO;
-import Map;
 
 import lang::rascal::\syntax::Rascal;
 
@@ -16,6 +15,7 @@ import lang::rascalcore::compile::muRascal2Java::CodeGen;
 import lang::rascalcore::check::TypePalConfig;
 
 import lang::rascalcore::compile::CompileTimeError;
+import lang::rascalcore::compile::util::Names;
 
 
 alias RVMModule = value;
@@ -37,7 +37,7 @@ loc generatedDir = |project://rascal-codegen-ideas/generated|;
 list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] tmodels, map[str, loc] moduleLocs, PathConfig pcfg, loc reloc = |noreloc:///|, bool verbose = true, bool optimize=true, bool enableAsserts=false){
     tm = tmodels[qualifiedModuleName];
     targetDir = generatedDir + module2package(qualifiedModuleName);
-    className = module2class(qualifiedModuleName);
+    className = module2uqclass(qualifiedModuleName);
    
     list[Message] errors = [ e | e:error(_,_) <- tm.messages];
     if(!isEmpty(errors)){
