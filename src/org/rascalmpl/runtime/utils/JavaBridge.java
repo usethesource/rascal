@@ -411,7 +411,7 @@ public class JavaBridge {
 
 					return m;
 				}catch(SecurityException e){
-					throw RascalExceptionFactory.permissionDenied(vf.string(e.getMessage()), eval.getCurrentAST(), eval.getStackTrace());
+					throw RascalExceptionFactory.permissionDenied(vf.string(e.getMessage()));
 				}catch(NoSuchMethodException e){
 					throw new UndeclaredJavaMethod(e.getMessage(), func);
 				}
