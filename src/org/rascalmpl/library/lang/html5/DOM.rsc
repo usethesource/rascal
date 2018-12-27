@@ -433,7 +433,7 @@ public HTML5Node example
           li("foo", 3, img(href("someref"))))));
   
 str toString(HTML5Node x) {
-  attrs = {k | HTML5Attr k <- x.kids};
-  kids = x.kids - attrs;
+  attrs = { k | HTML5Attr k <- x.kids };
+  kids = [ k | HTML5Node k <- x.kids ];
   return nodeToString(x.name, attrs, kids); 
 }
