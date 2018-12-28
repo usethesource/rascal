@@ -42,6 +42,7 @@
 		<exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
         <rascal.test.memory>2</rascal.test.memory>
 	</properties>
+ 
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -84,6 +85,45 @@
 		</testResources>
 
 		<plugins>
+	<plugin>
+	<groupId>org.codehaus.mojo</groupId>
+	<artifactId>exec-maven-plugin</artifactId>
+	<version>1.4.0</version>
+	<executions>
+			<execution> <!--  compile the courses -->
+                        <configuration>
+                            <executable>java</executable>
+                            <classpathScope>compile</classpathScope>
+                            <workingDirectory>target/classes/</workingDirectory>
+                            <arguments>
+                                <argument>-Xmx1G</argument>
+                                <argument>-Dfile.encoding=UTF-8</argument>
+                                <argument>-cp</argument>
+                                <classpath />
+                                <argument>-Dfile.encoding=UTF-8</argument>
+                                <argument>org.rascalmpl.library.experiments.tutor3.CourseCompiler</argument>
+                                <argument>--bin</argument>
+                                <argument>${project.build.directory}/classes/boot</argument>
+                                <argument>--src</argument>
+                                <argument>${project.basedir}/src/org/rascalmpl/library</argument>
+                                <argument>--boot</argument>
+                                <argument>${project.build.directory}/classes/boot</argument>
+                                <argument>--lib</argument>
+                                <argument>${project.build.directory}/classes/std</argument>
+                                <argument>--course</argument>
+                                <argument>${project.basedir}/src/org/rascalmpl/courses</argument>
+                                <argument>--all</argument>
+                                <argument>${rascal.courses}</argument>
+                            </arguments>
+                        </configuration>
+                        <id>courses</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                    </execution>
+	</executions>
+	</plugin>
 		<plugin>
 		    <artifactId>maven-clean-plugin</artifactId>
 		    <version>3.0.0</version>
