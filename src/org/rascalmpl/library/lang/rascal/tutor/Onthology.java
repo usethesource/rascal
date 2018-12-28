@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.tutor3;
+package org.rascalmpl.library.lang.rascal.tutor;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
