@@ -198,15 +198,27 @@ public class TreeAdapter {
 	    return null;
 	}
 	
-	public static ITree getLabeledField(ITree tree, String field) {
+	public static class FieldResult {
+	    public IConstructor symbol;
+	    public ITree tree;
+	    
+	    public FieldResult(IConstructor symbol, ITree tree) {
+	        this.symbol = symbol;
+	        this.tree = tree;
+        }
+	}
+	
+	public static FieldResult getLabeledField(ITree tree, String field) {
 	    if (isAppl(tree)) {
             IConstructor prod = TreeAdapter.getProduction(tree);
             
             if (ProductionAdapter.isDefault(prod)) {
-                int index = SymbolAdapter.indexOfLabel(ProductionAdapter.getSymbols(prod), field);
+                IList syms = ProductionAdapter.getSymbols(prod);
+                int index = SymbolAdapter.indexOfLabel(syms, field);
                 
                 if (index != -1) {
-                    return (ITree) getArgs(tree).get(index);
+                    IConstructor sym = (IConstructor) syms.get(index);
+                    return new FieldResult(SymbolAdapter.delabel(sym), (ITree) getArgs(tree).get(index));
                 }
             }
             else if (ProductionAdapter.isRegular(prod)) {
@@ -220,7 +232,8 @@ public class TreeAdapter {
                         syms = SymbolAdapter.getSymbols(sym);
                         index = SymbolAdapter.indexOfLabel(syms, field);
                         if (index != -1) {
-                            return (ITree) args.get(index);
+                            sym = (IConstructor) syms.get(index);
+                            return new FieldResult(SymbolAdapter.delabel(sym), (ITree) args.get(index));
                         }
                         break;
                     case "opt":
@@ -229,16 +242,16 @@ public class TreeAdapter {
                         }
                         sym = SymbolAdapter.getSymbol(sym);
                         if (SymbolAdapter.isLabel(sym) && SymbolAdapter.getLabel(sym).equals(field)) {
-                            return (ITree) args.get(0);
+                            return new FieldResult(SymbolAdapter.delabel(sym), (ITree) args.get(0));
                         }
                         break;
                     case "alt":
                         syms = SymbolAdapter.getSymbols(sym);
                         index = SymbolAdapter.indexOfLabel(syms, field);
                         if (index != -1) {
-                            sym = (IConstructor) syms.get(index);
+                            sym = SymbolAdapter.delabel((IConstructor) syms.get(index));
                             if (SymbolAdapter.isEqual(getType((ITree) args.get(0)), sym)) {
-                                return (ITree) args.get(0);
+                                return new FieldResult(sym, (ITree) args.get(0));
                             }
                         }
                         break;
