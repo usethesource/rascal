@@ -225,6 +225,7 @@ public class Cases  {
 	private static class DefaultBlock extends CaseBlock {
 		private final Case theCase;
 		private final PatternWithAction pattern;
+		private IMatchingResult matcher; 
 		private final Replacement replacement;
 		private final List<Expression> conditions;
 		private final Expression insert;
@@ -246,20 +247,21 @@ public class Cases  {
 				return true;
 			}
 			
-			PatternWithAction rule = theCase.getPatternWithAction();
+			if (matcher == null) {
+			    matcher = pattern.getPattern().buildMatcher(eval);
+			}
 			
-			if (rule.hasStatement()) {
-				return Cases.matchAndEval(subject, rule.getPattern(), pattern.getStatement(), eval);
+			if (pattern.hasStatement()) {
+				return Cases.matchAndEval(subject, matcher, pattern.getStatement(), eval);
 			}
 			else {
-				return matchEvalAndReplace(subject, rule.getPattern(), conditions, insert, eval);
+				return matchEvalAndReplace(subject, matcher, conditions, insert, eval);
 			}
 		}
 		 
-	  public static boolean matchEvalAndReplace(Result<IValue> subject, Expression pat, List<Expression> conditions, Expression replacementExpr, IEvaluator<Result<IValue>> eval) {
+	  public static boolean matchEvalAndReplace(Result<IValue> subject, IMatchingResult mp, List<Expression> conditions, Expression replacementExpr, IEvaluator<Result<IValue>> eval) {
 	    Environment old = eval.getCurrentEnvt();
 	    try {
-	      IMatchingResult mp = pat.getMatcher(eval);
 	      mp.initMatch(subject);
 
 	      while (mp.hasNext()) {
@@ -394,13 +396,12 @@ public class Cases  {
 	}
 
 
-  public static boolean matchAndEval(Result<IValue> subject, Expression pat, Statement stat, IEvaluator<Result<IValue>> eval) {
+  public static boolean matchAndEval(Result<IValue> subject, IMatchingResult mp, Statement stat, IEvaluator<Result<IValue>> eval) {
     boolean debug = false;
     Environment old = eval.getCurrentEnvt();
     eval.pushEnv();
   
     try {
-      IMatchingResult mp = pat.getMatcher(eval);
       mp.initMatch(subject);
   
       while (mp.hasNext()) {
