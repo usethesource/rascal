@@ -22,6 +22,7 @@ import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
+import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.values.uptr.ITree;
@@ -29,6 +30,7 @@ import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter.FieldResult;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -72,10 +74,11 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 		ITree tree = (ITree) getValue();
 		
-		ITree field = TreeAdapter.getLabeledField(tree, name); 
+		FieldResult field = TreeAdapter.getLabeledField(tree, name); 
 		
 		if (field != null) {
-		    return makeResult(field.getType(), field, ctx);
+		    Type symbolType = RascalTypeFactory.getInstance().nonTerminalType(field.symbol);
+		    return makeResult(symbolType, field.tree, ctx);
 		}
 		
 		return new ConstructorResult(RascalValueFactory.Tree, tree, ctx).fieldAccess(name, store);
@@ -84,11 +87,13 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
 		ITree tree = (ITree) getValue();
-		ITree field = TreeAdapter.getLabeledField(tree, name);
+		FieldResult field = TreeAdapter.getLabeledField(tree, name);
 		
 		if (field != null) {
-		    if (!repl.getType().isSubtypeOf(field.getType())) {
-		        throw new UnexpectedType(field.getType(), repl.getType(), ctx.getCurrentAST()); 
+		    Type symbolType = RascalTypeFactory.getInstance().nonTerminalType(field.symbol);
+		    
+		    if (!repl.getType().isSubtypeOf(symbolType)) {
+		        throw new UnexpectedType(symbolType, repl.getType(), ctx.getCurrentAST()); 
 		    }
 		    
 		    ITree result = TreeAdapter.putLabeledField(tree, name, (ITree) repl.getValue());
