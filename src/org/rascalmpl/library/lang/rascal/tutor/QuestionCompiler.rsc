@@ -1,4 +1,4 @@
-module experiments::tutor3::QuestionCompiler
+module lang::rascal::tutor::QuestionCompiler
 
 import IO;
 import String;
@@ -6,17 +6,17 @@ import util::Math;
 import List;
 import Set;
 import String;
-import experiments::Compiler::Compile;
-import experiments::Compiler::Execute;
+//import experiments::Compiler::Compile;
+//import experiments::Compiler::Execute;
 import util::SystemAPI;
 import IO;
 import util::Reflective;
 import DateTime;
 import ParseTree;
 
-import experiments::tutor3::Questions;
-import experiments::tutor3::ParseQuestions;
-import experiments::tutor3::ValueGenerator;
+import lang::rascal::tutor::Questions;
+import lang::rascal::tutor::ParseQuestions;
+import lang::rascal::tutor::ValueGenerator;
  
 int countGenAndUse((Cmd) `<EvalCmd c>`){
     n = 0;
