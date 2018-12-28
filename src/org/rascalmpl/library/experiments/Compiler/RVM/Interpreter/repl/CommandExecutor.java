@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.rascalmpl.help.HelpManager;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
@@ -22,7 +23,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help.HelpManager;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
