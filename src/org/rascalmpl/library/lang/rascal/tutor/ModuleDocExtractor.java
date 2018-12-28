@@ -1,5 +1,5 @@
 /** 
- * Copyright (c) 2016, paulklint, Centrum Wiskunde & Informatica (CWI) 
+ * Copyright (c) 2018, Jurgen J. Vinju, Centrum Wiskunde & Informatica (NWOi - CWI) 
  * All rights reserved. 
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: 
@@ -10,25 +10,33 @@
  *  
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */ 
-package org.rascalmpl.library.experiments.tutor3;
+package org.rascalmpl.library.lang.rascal.tutor;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.RascalModule;
-import org.rascalmpl.library.lang.rascal.boot.IJava2Rascal;
-import io.usethesource.vallang.IConstructor;
+import java.io.PrintWriter;
+
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.env.GlobalEnvironment;
+import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
+
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValueFactory;
 
-@RascalModule("lang::rascal::boot::Kernel")
-public interface IQuestionCompiler extends IJava2Rascal {
-  
-  /**
-   * Compile a .questions file to .adoc
-   * @param qmodule Qualified name of questions module
-   * @param srcs    List of source directories
-   * @param libs    List of library directories
-   * @param courses List of course directories
-   * @param boot    Boot directory
-   * @param bin     Binary directory
-   * @return Generated code as string. As a side-effect a .adoc file will be generated.
-   */
-  public IString compileQuestions(IString qmodule, IConstructor pcfg);
+public class ModuleDocExtractor {
+    private final IValueFactory vf = IRascalValueFactory.getInstance();
+    private final GlobalEnvironment heap = new GlobalEnvironment();
+    private final ModuleEnvironment top = new ModuleEnvironment("***module extractor***", heap);
+    private final Evaluator eval = new Evaluator(vf, new PrintWriter(System.err), new PrintWriter(System.out), top, heap);
+
+    public ModuleDocExtractor() {
+        eval.addRascalSearchPath(URIUtil.rootLocation("std"));
+        eval.doImport(null, "experiments::Compiler::RascalExtraction::RascalExtraction");
+    }
+    
+    public ITuple extractDoc(IString parent, ISourceLocation moduleLoc) {
+        return (ITuple) eval.call("extractDoc", parent, moduleLoc);
+    }
 }

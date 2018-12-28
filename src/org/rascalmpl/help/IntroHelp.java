@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help;
+package org.rascalmpl.help;
 
 import java.io.PrintWriter;
 
