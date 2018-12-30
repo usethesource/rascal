@@ -665,7 +665,7 @@ AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver>
 AType computeReceiverType(Statement current, (Assignable) `\< <{Assignable ","}+ elements> \>`, loc scope, Solver s)
     = atuple(atypeList([computeReceiverType(current, element, scope, s) | element <- elements]));
 
-void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, str operator, Statement rhs, Collector c){
+void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, str operator, Statement rhs, Collector c){
    names = getReceiver(receiver, c);
    
    c.use(names[0], variableRoles);
@@ -673,10 +673,12 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <E
    
    c.calculate("assignable with subscript", current, [subscript, rhs], 
        AType(Solver s){ 
-           res = computeSubscriptAssignableType(current, computeReceiverType(current, receiver, scope, s),  subscript, operator, s.getType(rhs), s);
+           receiverType = computeReceiverType(current, receiver, scope, s);
+           res = computeSubscriptAssignableType(current, receiverType,  subscript, operator, s.getType(rhs), s);
+           s.fact(asg, s.getType(rhs));
            return res;
          });
-   //collect(receiver, subscript, c);
+   collect(receiver, subscript, c);
 }
 
 AType computeSubscriptAssignableType(Statement current, AType receiverType, Expression subscript, str operator, AType rhs, Solver s){

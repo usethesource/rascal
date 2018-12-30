@@ -55,6 +55,10 @@ public class RascalExceptionFactory {
 	public static final Type IllegalTypeArgument = TF.constructor(TS,Exception,"IllegalTypeArgument",TF.stringType(), "type", TF.stringType(), "message");
 
 	public static final Type AnonymousIllegalArgument = TF.constructor(TS,Exception,"IllegalArgument");
+	
+	public static final Type InvalidArgument = TF.constructor(TS,Exception,"InvalidArgument",TF.valueType(), "v", TF.stringType(), "message");
+	public static final Type AnonymousInvalidArgument = TF.constructor(TS,Exception,"InvalidArgument");
+	
 	public static final Type IO = TF.constructor(TS,Exception,"IO",TF.stringType(), "message");
 	public static final Type PathNotFound = TF.constructor(TS,Exception,"PathNotFound",TF.sourceLocationType(), "location");
 	
@@ -79,8 +83,6 @@ public class RascalExceptionFactory {
 	public static final Type Java = TF.constructor(TS, Exception, "Java", TF.stringType(), "class", TF.stringType(), "message");
 	public static final Type JavaWithCause = TF.constructor(TS, Exception, "Java", TF.stringType(), "class", TF.stringType(), "message", Exception, "cause");
   
-	public static final Type Subversion = TF.constructor(TS, Exception, "Subversion", TF.stringType(), "message");
-
 	public static final Type InvalidUseOfDate = TF.constructor(TS, Exception, "InvalidUseOfDate", TF.dateTimeType(), "msg");
 	public static final Type InvalidUseOfTime = TF.constructor(TS, Exception, "InvalidUseOfTime", TF.dateTimeType(), "msg");
 	public static final Type InvalidUseOfDateTime = TF.constructor(TS, Exception, "InvalidUseOfDateTime", TF.dateTimeType(), "msg");
@@ -138,6 +140,18 @@ public class RascalExceptionFactory {
 	
 	public static RascalException illegalArgument(IValue v, String message) {
 		return new RascalException(VF.constructor(IllegalArgument, v, VF.string(message)));	
+	}
+	
+	public static RascalException invalidArgument() {
+		return new RascalException(VF.constructor(AnonymousInvalidArgument));	
+	}
+	
+	public static RascalException invalidArgument(IValue v) {
+		return new RascalException(VF.constructor(InvalidArgument));	
+	}
+	
+	public static RascalException invalidrgument(IValue v, String message) {
+		return new RascalException(VF.constructor(InvalidArgument, v, VF.string(message)));	
 	}
 	
 	public static RascalException indexOutOfBounds(IInteger i) {
@@ -267,10 +281,6 @@ public class RascalExceptionFactory {
 		return new RascalException(VF.constructor(UnavailableInformation));	
 	}
 
-//	public static RascalException subversionException(String message) {
-//		return new RascalException(Subversion.make(VF, VF.string(message)));
-//	}
-	
 	public static RascalException schemeNotSupported(ISourceLocation file) {
 		return new RascalException(VF.constructor(SchemeNotSupported, file));
 	}

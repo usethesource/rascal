@@ -651,6 +651,7 @@ AType getClosureType(UID uid) {
 }
 
 tuple[AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType){
+    adtType = unsetRec(adtType);
     for(uid <- constructors){
         consType = getDefType(uid);
         iprintln(consType);
@@ -725,7 +726,7 @@ str convert2fuid(UID uid) {
 	if(uid == |global-scope:///|)
 	   return "global-scope";
 	tp = getType(uid);
-	str name = definitions[uid]? ? definitions[uid].id : "<tp>";
+	str name = definitions[uid]? ? definitions[uid].id : "XXX"; //"<tp>";
 
     if(declaredIn[uid]?) {
 	   if(declaredIn[uid] != |global-scope:///| && declaredIn[uid] != uid) name = convert2fuid(declaredIn[uid]) + "$" + name + "_<uid.begin.line>_<uid.end.line>";
@@ -852,7 +853,7 @@ MuExp mkAssign(str name, loc l, MuExp exp) {
         return muAssign(muVarKwp(name, getScope(uid), getType(l)), exp);
     }
     if(def.idRole in positionalFormalRoles){
-        return muAssignLoc(name, getPositionInScope(name, uid), exp);   // TODO
+        return muAssign(muVar(name, getScope(uid), getPositionInScope(name, uid), getType(l)), exp);   // TODO
    }
 
     if(def.idRole in variableRoles){

@@ -163,7 +163,7 @@ alias CheckerResult = tuple[map[str,TModel] tmodels, map[str,loc] moduleLocs, ma
 // rascalTModelForLoc is the basic work horse
 
 CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config){     
-    bool forceCompilationTopModule = false; /***** set to true during development of type checker *****/
+    bool forceCompilationTopModule = true; /***** set to true during development of type checker *****/
     try {
         beginTime = cpuTime();   
         topModuleName = getModuleName(mloc, pcfg);

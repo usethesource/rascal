@@ -19,7 +19,6 @@ import util::Reflective;
 
 //extend lang::rascalcore::check::TypePalConfig;
 
-import lang::rascalcore::compile::muRascal2Java::Writers;
 import lang::rascalcore::compile::muRascal2Java::Primitives;
 
 import lang::rascalcore::compile::muRascal2Java::JGenie;
@@ -31,12 +30,14 @@ bool debug = false;
 // ---- globals ---------------------------------------------------------------
 
 map[str, MuFunction] muFunctions = ();
+map[loc, MuFunction] muFunctionsByLoc = ();
 map[str,str] resolved2overloaded = ();
 
 // ---- muModule --------------------------------------------------------------
 
 tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, map[str,loc] moduleLocs){
     muFunctions = (f.qname : f | f <- m.functions);
+    muFunctionsByLoc = (f.src : f | f <- m.functions);
     resolved2overloaded = ();
     jg = makeJGenie(m.name, tmodels, moduleLocs);
     <typestore, kwpDecls> = generateTypeStoreAndKwpDecls(m.ADTs, m.constructors);
@@ -116,7 +117,7 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
                         '
                         '}";
     
-    the_class =         "package <packageName>;
+    the_class =         "<if(!isEmpty(packageName)){>package <packageName>;<}>
                         'import java.util.*;
                         'import io.usethesource.vallang.*;
                         'import io.usethesource.vallang.type.*;
@@ -143,10 +144,11 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
                         '}";
       the_class = removeEmptyLines(the_class);
       
-      the_interface =  "package <packageName>;
+      the_interface =  "<if(!isEmpty(packageName)){>package <packageName>;<}>
                        'import java.util.*;
                        'import io.usethesource.vallang.*;
                        'import io.usethesource.vallang.type.*;
+                       'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.*;
                        'public interface $<className> {
                        '    <signatures>
                        '}\n";
@@ -157,7 +159,7 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
 }
 
 str generateTestClass(str packageName, str className, list[MuFunction] functions){
-    return "package <packageName>;
+    return "<if(!isEmpty(packageName)){>package <packageName>;<}>
            'import java.util.*;
            'import java.util.stream.Stream;
            'import io.usethesource.vallang.*;
@@ -637,9 +639,10 @@ JCode trans(muCon(value v), JGenie jg) = jg.shareConstant(v);
                        
 JCode trans(muFun1(loc uid), JGenie jg){ // TODO
    
-    //fun = muFunctions[fuid];
-    //ftype = fun.ftype;
-    ftype = jg.getType(uid);
+    fun = muFunctionsByLoc[uid];
+    ftype = fun.ftype;
+    uid = fun.src;
+    //ftype = jg.getType(uid);
     externalVars = jg.getExternalVars(uid);
     nformals = size(ftype.formals);
     sep = nformals > 0 ? "," : "";
@@ -654,8 +657,8 @@ JCode trans(muFun1(loc uid), JGenie jg){ // TODO
            //ext_actuals = intercalate(", ", ["<v.name>_<v.pos>" | v <- fun.externalVars]);
            ext_formals = isEmpty(formals) ? ext_actuals : "<actuals>, <ext_actuals>";
     }
-    
-    return "<funInstance>((<formals>) -\> { return <jg.getAccessor(uid) >(<ext_formals>); })";
+    return "<funInstance>((<formals>) -\> { return <fun.qname>(<ext_formals>); })";
+    //return "<funInstance>((<formals>) -\> { return <jg.getAccessor(uid)>(<ext_formals>); })";
 }          
 
           //| muFun2(str fuid, str scopeIn)                       // *muRascal* function constant: nested functions and closures
@@ -709,9 +712,15 @@ JCode trans(var: muTmp(str name, str fuid, AType atype), JGenie jg)
  JCode trans(var: muTmpBool(str name, str fuid) , JGenie jg)
     =  jg.isRefVar(name) ? "<name>.value" : "<name>";
     
-// ---- muTmpWriter -----------------------------------------------------------
+// ---- muTmp...Writer -----------------------------------------------------------
 
-JCode trans(var: muTmpWriter(str name, str fuid) , JGenie jg)
+JCode trans(var: muTmpListWriter(str name, str fuid) , JGenie jg)
+    = jg.isRefVar(name) ? "<name>.value" : "<name>";
+
+JCode trans(var: muTmpSetWriter(str name, str fuid) , JGenie jg)
+    = jg.isRefVar(name) ? "<name>.value" : "<name>";
+
+JCode trans(var: muTmpMapWriter(str name, str fuid) , JGenie jg)
     = jg.isRefVar(name) ? "<name>.value" : "<name>";
     
 // ---- muTmpMatcher ----------------------------------------------------------
@@ -764,12 +773,15 @@ JCode trans(muVarInit(muTmpBool(str name, str fuid), MuExp exp), JGenie jg){
     return jg.isRefVar(name) ? "final BoolRef <name> = new BoolRef(<rhs>);\n"
                              : "boolean <name> = <rhs>;\n";
 }
-
-str writerKind(str name)
-    = startsWith(name, "list") ? "List" : (startsWith(name, "set") ? "Set" : "Map");
     
-JCode trans(muVarInit(muTmpWriter(str name, str fuid), MuExp exp), JGenie jg)
-    = "I<writerKind(name)>Writer <name> = <trans(exp, jg)>;\n";
+JCode trans(muVarInit(muTmpListWriter(str name, str fuid), MuExp exp), JGenie jg)
+    = "IListWriter <name> = <trans(exp, jg)>;\n";
+    
+JCode trans(muVarInit(muTmpSetWriter(str name, str fuid), MuExp exp), JGenie jg)
+    = "ISetWriter <name> = <trans(exp, jg)>;\n";
+    
+JCode trans(muVarInit(muTmpMapWriter(str name, str fuid), MuExp exp), JGenie jg)
+    = "IMapWriter <name> = <trans(exp, jg)>;\n";
 
 JCode trans(muVarInit(muTmpMatcher(str name, str fuid), MuExp exp), JGenie jg){
     rhs = trans(exp, jg);
@@ -817,8 +829,14 @@ JCode trans(muConInit(muTmpBool(str name, str fuid), MuExp exp), JGenie jg){
                              : "final bool <name> = <rhs>;\n";
 }
     
-JCode trans(muConInit(muTmpWriter(str name, str fuid), MuExp exp), JGenie jg)
-    = "final I<writerKind(name)>Writer <name> = <trans(exp, jg)>;\n";
+JCode trans(muConInit(muTmpListWriter(str name, str fuid), MuExp exp), JGenie jg)
+    = "final IListWriter <name> = <trans(exp, jg)>;\n";
+
+JCode trans(muConInit(muTmpSetWriter(str name, str fuid), MuExp exp), JGenie jg)
+    = "final ISetWriter <name> = <trans(exp, jg)>;\n";
+    
+JCode trans(muConInit(muTmpMapWriter(str name, str fuid), MuExp exp), JGenie jg)
+    = "final IMapWriter <name> = <trans(exp, jg)>;\n";
 
 str transWithCast(AType atype, con:muCon(c), JGenie jg) = trans(con, jg);
 
@@ -857,7 +875,13 @@ JCode trans(muAssign(muTmpInt(str name, str fuid), MuExp exp), JGenie jg){
 JCode trans(muAssign(muTmpBool(str name, str fuid), MuExp exp), JGenie jg)
     = "<name><jg.isRefVar(name) ? ".value" : ""> = <trans2NativeBool(exp, jg)>;\n";
     
-JCode trans(muAssign(muTmpWriter(str name, str fuid), MuExp exp), JGenie jg)
+JCode trans(muAssign(muTmpListWriter(str name, str fuid), MuExp exp), JGenie jg)
+    = "<name><jg.isRefVar(name) ? ".value" : ""> = <trans(exp, jg)>;\n";
+
+JCode trans(muAssign(muTmpSetWriter(str name, str fuid), MuExp exp), JGenie jg)
+    = "<name><jg.isRefVar(name) ? ".value" : ""> = <trans(exp, jg)>;\n";
+
+JCode trans(muAssign(muTmpMapWriter(str name, str fuid), MuExp exp), JGenie jg)
     = "<name><jg.isRefVar(name) ? ".value" : ""> = <trans(exp, jg)>;\n";
 
 // Call/Apply/return      
@@ -921,10 +945,16 @@ JCode trans(muOCall3(MuExp fun, AType ftype, list[MuExp] largs, loc src), JGenie
     throw "muOCall3: <fun>";
 }
 
-JCode trans(muKwpFieldAccess("aadt", AType consType, MuExp cons, str fieldName), JGenie jg)
+JCode trans(muKwpFieldAccess(AType resultType,  AType consType, MuExp cons, str fieldName), JGenie jg)
     = "$get_<consType.adt.adtName>_<fieldName>(<trans(cons, jg)>)";
 
-JCode trans(muFieldAccess("aadt", AType consType, MuExp cons, str fieldName), JGenie jg){
+JCode trans(muFieldAccess(AType resultType, aloc(), MuExp exp, str fieldName), JGenie jg)
+    = "((<atype2java(resultType)>) aloc_field_access(<trans(exp,jg)>, \"<fieldName>\"))";
+
+JCode trans(muFieldAccess(AType resultType, adatetime(), MuExp exp, str fieldName), JGenie jg)
+    = "((<atype2java(resultType)>) adatetime_field_access(<trans(exp,jg)>, \"fieldName\"))";
+
+default JCode trans(muFieldAccess(AType resultType, AType consType, MuExp cons, str fieldName), JGenie jg){
     base = trans(cons, jg);
     qFieldName = "\"<fieldName>\"";
     for(field <- consType.fields){
@@ -948,17 +978,17 @@ JCode trans(muFieldAccess("aadt", AType consType, MuExp cons, str fieldName), JG
 JCode trans(muFieldUpdate("aadt", AType atype, MuExp cons, str fieldName, MuExp repl), JGenie jg)
     = "<trans(cons, jg)>.set(\"<fieldName>\", <trans(repl, jg)>)";
     
-// ---- muCallPrim2 -----------------------------------------------------------
-
-JCode trans(muCallPrim2(str name, loc src), JGenie jg){
-    return transPrim(name, [], jg);
-}
+//// ---- muCallPrim2 -----------------------------------------------------------
+//
+//JCode trans(muCallPrim2(str name, loc src), JGenie jg){
+//    return transPrim(name, [], jg);
+//}
 
 // ---- muCallPrim3 -----------------------------------------------------------
 
-JCode trans(muCallPrim3(str name, list[MuExp] exps, loc src), JGenie jg){
-    actuals = transPrimArgs(name, exps, jg);
-    return transPrim(name, actuals, jg);
+JCode trans(muCallPrim3(str name, AType result, list[AType] details, list[MuExp] exps, loc src), JGenie jg){
+    actuals = transPrimArgs(name, result, details, exps, jg);
+    return transPrim(name, result, details, actuals, jg);
 }
 
 JCode trans(muCallJava(str name, str class, AType funType, int reflect, list[MuExp] largs, str enclosingFun), JGenie jg){
@@ -1006,8 +1036,16 @@ default JCode trans2Void(MuExp exp, JGenie jg){
 }   
 // ---- muReturn1 -------------------------------------------------------------
 
+JCode trans2IValue(MuExp exp, JGenie jg){
+    if(producesNativeBool(exp))
+        return trans2IBool(exp, jg);
+    if(producesNativeInt(exp))
+        return trans2IInteger(exp, jg);
+    return trans(exp, jg);
+}
+
 JCode trans(muReturn1(MuExp exp), JGenie jg){
-    return "return <trans(exp, jg)>;\n";
+    return "return <trans2IValue(exp, jg)>;\n";
 }
 
 JCode trans(muReturn1FromVisit(MuExp exp), JGenie jg)
@@ -1166,12 +1204,13 @@ JCode trans(muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp la
     if(muCon(int f) := first && muCon(int l) := last){
         dirKnown = true;
         dirUp = f < l;
-        dirContrib = "final boolean <dir> = <f < l>;";
-        testCode = dirUp ? "<transPrim("<base>_less_<base>", [trans(var,jg), lst], jg)>.getValue()"
-                         : "<transPrim("<base>_greater_<base>", [trans(var,jg), lst], jg)>.getValue()";
+        dirContrib = "final boolean <dir> = <f < l>;\n";
+        testCode = dirUp ? "<transPrim("less", abool(), [var.atype, var.atype], [trans(var,jg), lst], jg)>.getValue()"
+                         : "<transPrim("greater", abool(), [var.atype, var.atype], [trans(var,jg), lst], jg)>.getValue()";
     } else {
         dirContrib = "final boolean <dir> = <fst>.less(<lst>).getValue();\n";
-        testCode = "<dir> ? <transPrim("<base>_less_<base>", [trans(var,jg), lst], jg)>.getValue() : <transPrim("<base>_greater_<base>", [trans(var,jg), lst], jg)>.getValue()";
+        testCode = "<dir> ? <transPrim("less", abool(), [var.atype, var.atype], [trans(var,jg), lst], jg)>.getValue() 
+                          : <transPrim("greater",abool(), [var.atype, var.atype], [trans(var,jg), lst], jg)>.getValue()";
     }
     
     if(muCon(int f) := first && muCon(int s) := second){
@@ -1183,7 +1222,7 @@ JCode trans(muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp la
                deltaVal = "<dir> ? <trans(muCon(1), jg)> : <trans(muCon(-1), jg)>";
             }
         } else {
-            deltaContrib = "final <atype2java(var.atype)> <delta> = <trans(second, jg)>.subtract(<fst>)";
+            deltaContrib = "final <atype2java(var.atype)> <delta> = <trans(second, jg)>.subtract(<fst>);\n";
         }
     
     } else {
@@ -1194,7 +1233,7 @@ JCode trans(muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp la
     return 
     "<fstContrib><lstContrib><dirContrib><deltaContrib>
     '<isEmpty(label) ? "" : "<label>:">
-    'for(<atype2java(var.atype)> <var.name> = <fst>; <testCode>; <var.name> = <transPrim("<base>_add_<base>", [trans(var,jg), deltaVal], jg)>){
+    'for(<atype2java(var.atype)> <var.name> = <fst>; <testCode>; <var.name> = <transPrim("add", var.atype, [var.atype, var.atype], [trans(var,jg), deltaVal], jg)>){
     '    <trans(exp, jg)>
     '}
     '";
@@ -1324,14 +1363,14 @@ str getIntegerFor(MuExp exp)
     = producesNativeInt(exp) ? "" : ".getValue()";
     
     
-JCode trans2NativeBool(muCon(value b), JGenie jg)
-    = "<b>";
+//JCode trans2NativeBool(muCon(value b), JGenie jg)
+//    = "<b>";
     
 default JCode trans2NativeBool(MuExp exp, JGenie jg)
     = "<trans(exp, jg)><producesNativeBool(exp) ? "" : ".getValue()">";
     
-JCode trans2NativeInt(muCon(value n), JGenie jg)
-    = "<n>";
+//JCode trans2NativeInt(muCon(value n), JGenie jg)
+//    = "<n>";
     
 default JCode trans2NativeInt(MuExp exp, JGenie jg)
     = "<trans(exp, jg)><producesNativeInt(exp) ? "" : ".getValue()">";
@@ -1341,6 +1380,15 @@ JCode trans2IInteger(MuExp exp, JGenie jg)
     
 JCode trans2IBool(MuExp exp, JGenie jg)
     = producesNativeBool(exp) ? "$VF.bool(<trans(exp, jg)>)" : trans(exp, jg);
+    
+//JCode trans2NativeStr(muCon(str s), JGenie jg)
+//    = s;
+
+default JCode trans2NativeStr(MuExp exp, JGenie jg)
+    = "<trans(exp, jg)>.getValue()";
+
+JCode trans2IString(MuExp exp, JGenie jg)
+    = producesNativeStr(exp) ? "$VF.string(<trans(exp, jg)>)" : trans(exp, jg);
     
 // -----
 

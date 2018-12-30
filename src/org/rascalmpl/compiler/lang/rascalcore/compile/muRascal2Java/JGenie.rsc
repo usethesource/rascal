@@ -28,6 +28,7 @@ data JGenie
         str(AType atype) shareType,
         str(value con) shareConstant,
         str () getConstants,
+        bool (str con) isWildCard,
         void(set[str] vars) setRefVars,
         bool (str name) isRefVar,
         void(list[MuExp] evars) addExternalVars,
@@ -44,6 +45,7 @@ data JGenie
 JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLocs){
     str kwpDefaults = "$kwpDefaults";
     map[value,str] constants = ();
+    map[str,value] constant2value = ();
     map[AType,str] types = ();
     int nconstants = -1;
     int ntypes = -1;
@@ -78,6 +80,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                  }
              }
         }
+        throw "No accessor found for <src>";
     }
     
     str _getAccessorInResolver(loc src){
@@ -111,7 +114,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
             useDef = tm.useDef;
             println("useDef:"); iprintln(useDef);
             definitions = tm.definitions;
-            for(<u, d> <- useDef, def := definitions[d], def.idRole == variableId(), !containedIn(def.scope, src)){
+            for(<u, d> <- useDef, definitions[d]?, def := definitions[d], def.idRole == variableId(), !containedIn(def.scope, src)){
                 extVarDefs += <def.id, d>;
             }
         }
@@ -137,6 +140,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
         nconstants += 1;
         c = "$C<nconstants>";
         constants[v] = c;
+        constant2value[c] = v;
         return c;
     }
     
@@ -147,6 +151,13 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                '<for(t <- types){>
                'private static final Type <types[t]> = <atype2typestore(t)>;
                '<}>";
+    }
+    
+    bool _isWildCard(str con){
+        if(constant2value[con]?){
+            return constant2value[con] == "_";
+        }
+        return false;
     }
     
     void _setRefVars(set[str] vars){
@@ -198,6 +209,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                 _shareType,
                 _shareConstant,
                 _getConstants,
+                _isWildCard,
                 _setRefVars,
                 _isRefVar,
                 _addExternalVars,
@@ -228,8 +240,8 @@ str atype2java(alist(AType t))          = "IList";
 str atype2java(aset(AType t))           = "ISet";
 str atype2java(atuple(AType ts))        = "ITuple";
 str atype2java(amap(AType d, AType r))  = "IMap";
-str atype2java(arel(AType ts))          = "IRelation";
-str atype2java(alrel(AType ts))         = "IListRelation";
+str atype2java(arel(AType ts))          = "ISet";
+str atype2java(alrel(AType ts))         = "IList";
 
 str atype2java(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
                                         = "FunctionInstance0\<<atype2java(ret)>\>"
@@ -303,46 +315,47 @@ str atype2istype(amap(AType d, AType r))  = "isMap";
 str atype2istype(arel(AType ts))          = "isRelation";
 str atype2istype(alrel(AType ts))         = "isListRelation";
 str atype2istype(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
-                                        = "isExternalType";
+                                          = "isExternalType";
 str atype2istype(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) = "isAbstractData";
-str atype2istype(t: acons(AType adt, /*str consName,*/ 
-                list[AType fieldType] fields,
-                lrel[AType fieldType, Expression defaultExp] kwFields))
-                 = "isConstructor";
+str atype2istype(t: acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields))
+                                          = "isConstructor";
 str atype2istype(overloadedAType(rel[loc, IdRole, AType] overloads))
-    = "isOverloaded";
+                                          = "isOverloaded";
 
-default str atype2istype(AType t) = "isTop";
-
-
+default str atype2istype(AType t)         = "isTop";
 
 // ----
 
 str value2java(int n) = "$VF.integer(<n>)";
 str value2java(bool b) = "$VF.bool(<b>)";
 str value2java(real r) = "$VF.real(<r>)";
-str value2java(rat rt) = "$VF.rational(<rt>)";
+str value2java(rat rt) = "$VF.rational(\"<rt>\")";
 str value2java(str s) = "$VF.string(\"<s>\")";   // TODO escaping
 
 str value2java(anode(list[AType fieldType] fields)) = "INode";
 str value2java(aloc()) = "ISourceLocation";
-str value2java(datetime dt) = "$VF.date(<dt.year>, <dt.month>, <dt.day>)" when !(dt has minute);
-str value2java(datetime dt) = "$VF.dateTime(<dt.year>, <dt.month>, <dt.day>, <dt.hour>, <dt.second>. <dt.millisecond>)" when dt has minute;
+str value2java(datetime dt) {
+    if(dt.isDateTime)
+        return "$VF.datetime(<dt.year>, <dt.month>, <dt.day>, <dt.hour>, <dt.minute>, <dt.second>, <dt.millisecond>, <dt.timezoneOffsetHours>, <dt.timezoneOffsetMinutes>)";
+    if(dt.isDate)
+        return "$VF.date(<dt.year>, <dt.month>, <dt.day>)";
+    return "$VF.time(<dt.hour>, <dt.minute>, <dt.second>, <dt.millisecond>)";
+}
 
 str value2java(list[&T] lst) = "$VF.list(<intercalate(", ", [value2java(elem) | elem <- lst ])>)";
 str value2java(set[&T] st) ="$VF.set(<intercalate(", ", [value2java(elem) | elem <- st ])>)";
-str value2java(tuple[&A] tup) = "$VF.tuple(<tup[0]>)";
-str value2java(tuple[&A,&B] tup) = "$VF.tuple(<tup[0]>, <tup[1]>)";
+str value2java(tuple[&A] tup) = "$VF.tuple(<value2java(tup[0])>)";
+str value2java(tuple[&A,&B] tup) = "$VF.tuple(<value2java(tup[0])>, <value2java(tup[1])>)";
 
-str value2java(tuple[&A,&B,&C] tup) = "$VF.tuple(<tup[0]>, <tup[1]>, <tup[2]>)";
-str value2java(tuple[&A,&B,&C,&D] tup) = "$VF.tuple(<tup[0]>, <tup[1]>, <tup[2]>, <tup[3]>)";
-str value2java(tuple[&A,&B,&C,&D,&E] tup) = "$VF.tuple(<tup[0]>, <tup[1]>, <tup[2]>, <tup[3]>, <tup[4]>)";
-str value2java(tuple[&A,&B,&C,&D,&E,&F] tup) = "$VF.tuple(<tup[0]>, <tup[1]>, <tup[2]>, <tup[3]>, <tup[4]>, <tup[5]>)";
-str value2java(tuple[&A,&B,&C,&D,&E,&F,&G] tup) = "$VF.tuple(<tup[0]>, <tup[1]>, <tup[2]>, <tup[3]>, <tup[4]>, <tup[5]>, <tup[6]>)";
-str value2java(tuple[&A,&B,&C,&D,&E,&F,&G,&H] tup) = "$VF.tuple(<tup[0]>, <tup[1]>, <tup[2]>, <tup[3]>, <tup[4]>, <tup[5]>, <tup[6]>, <tup[7]>)";
-str value2java(tuple[&A,&B,&C,&D,&E,&F,&G,&H,&I] tup) = "$VF.tuple(<tup[0]>, <tup[1]>, <tup[2]>, <tup[3]>, <tup[4]>, <tup[5]>, <tup[6]>, <tup[7]>, <tup[8]>)";
-str value2java(tuple[&A,&B,&C,&D,&E,&F,&G,&H,&I,&J] tup) = "$VF.tuple(<tup[0]>, <tup[1]>, <tup[2]>, <tup[3]>, <tup[4]>, <tup[5]>, <tup[6]>, <tup[7]>, <tup[8]>, <tup[9]>)";
-str value2java(map[&K,&V] mp) = "$VF.map(<intercalate(", ", ["<value2java(k)>, <value2java(mp[k])>" | k <- mp ])>)";
+str value2java(tuple[&A,&B,&C] tup) = "$VF.tuple(<value2java(tup[0])>, <value2java(tup[1])>, <value2java(tup[2])>)";
+str value2java(tuple[&A,&B,&C,&D] tup) = "$VF.tuple(<value2java(tup[0])>, <value2java(tup[1])>, <value2java(tup[2])>, <value2java(tup[3])>)";
+str value2java(tuple[&A,&B,&C,&D,&E] tup) = "$VF.tuple(<value2java(tup[0])>, <value2java(tup[1])>, <value2java(tup[2])>, <value2java(tup[3])>, <value2java(tup[4])>)";
+str value2java(tuple[&A,&B,&C,&D,&E,&F] tup) = "$VF.tuple(<value2java(tup[0])>, <value2java(tup[1])>, <value2java(tup[2])>, <value2java(tup[3])>, <value2java(tup[4])>, <value2java(tup[5])>)";
+str value2java(tuple[&A,&B,&C,&D,&E,&F,&G] tup) = "$VF.tuple(<value2java(tup[0])>, <value2java(tup[1])>, <value2java(tup[2])>, <value2java(tup[3])>, <value2java(tup[4])>, <value2java(tup[5])>, <value2java(tup[6])>)";
+str value2java(tuple[&A,&B,&C,&D,&E,&F,&G,&H] tup) = "$VF.tuple(<value2java(tup[0])>, <value2java(tup[1])>, <value2java(tup[2])>, <value2java(tup[3])>, <value2java(tup[4])>, <value2java(tup[5])>, <value2java(tup[6])>, <value2java(tup[7])>)";
+str value2java(tuple[&A,&B,&C,&D,&E,&F,&G,&H,&I] tup) = "$VF.tuple(<value2java(tup[0])>, <value2java(tup[1])>, <value2java(tup[2])>, <value2java(tup[3])>, <value2java(tup[4])>, <value2java(tup[5])>, <value2java(tup[6])>, <value2java(tup[7])>, <value2java(tup[8])>)";
+str value2java(tuple[&A,&B,&C,&D,&E,&F,&G,&H,&I,&J] tup) = "$VF.tuple(<value2java(tup[0])>, <value2java(tup[1])>, <value2java(tup[2])>, <value2java(tup[3])>, <value2java(tup[4])>, <value2java(tup[5])>, <value2java(tup[6])>, <value2java(tup[7])>, <value2java(tup[8])>, <value2java(tup[9])>)";
+str value2java(map[&K,&V] mp) = "buildMap(<intercalate(", ", ["<value2java(k)>, <value2java(mp[k])>" | k <- mp ])>)";
 str value2java(arel(AType ts)) = "IRelation";
 str value2java(alrel(AType ts)) = "IListRelation";
 
@@ -353,7 +366,7 @@ str value2java(acons(AType adt,
                 lrel[AType fieldType, Expression defaultExp] kwFields))
                  = "IConstructor";
 
-default str value2java(avoid) = "IVoid";
+default str value2java(avoid()) = "IVoid";
 default str value2java(AType t) = "IValue";
 
 // ---- value2OuterType
@@ -369,6 +382,7 @@ str value2outertype(loc l) = "ISourceLocation";
 str value2outertype(datetime dt) = "IDateTime";
 str value2outertype(list[&T] lst) = "IList";
 str value2outertype(set[&T] st) = "ISet";
+str value2outertype(map[&K,&V] st) = "IMap";
 str value2outertype(atuple(AType ts)) = "ITuple";
 str value2outertype(tuple[&A] tup) = "ITuple";
 str value2outertype(tuple[&A,&B] tup) = "ITuple";
