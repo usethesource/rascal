@@ -86,6 +86,22 @@ public class SymbolAdapter {
 		}
 		return sym;
 	}
+	
+	public static IConstructor stripLabelsAndConditions(IConstructor sym) {
+	    boolean label = false, cond = false;
+	    
+	    while ((label = isLabel(sym)) || (cond = isConditional(sym))) {
+	        if (label) {
+	            sym = delabel(sym);
+	            continue;
+	        }
+	        if (cond) {
+	            sym = getSymbol(sym);
+	        }
+	    }
+	    
+	    return sym;
+	}
 
 	public static boolean isLabel(IConstructor sym) {
 		return sym.getConstructorType() == Symbol_Label;
