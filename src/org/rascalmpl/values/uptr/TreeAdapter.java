@@ -218,7 +218,11 @@ public class TreeAdapter {
                 
                 if (index != -1) {
                     IConstructor sym = (IConstructor) syms.get(index);
-                    return new FieldResult(SymbolAdapter.delabel(sym), (ITree) getArgs(tree).get(index));
+                    if (SymbolAdapter.isConditional(sym)) {
+                        sym = SymbolAdapter.getSymbol(sym);
+                    }
+                    sym = SymbolAdapter.delabel(sym);
+                    return new FieldResult(sym, (ITree) getArgs(tree).get(index));
                 }
             }
             else if (ProductionAdapter.isRegular(prod)) {
