@@ -218,11 +218,7 @@ public class TreeAdapter {
                 
                 if (index != -1) {
                     IConstructor sym = (IConstructor) syms.get(index);
-                    if (SymbolAdapter.isConditional(sym)) {
-                        sym = SymbolAdapter.getSymbol(sym);
-                    }
-                    sym = SymbolAdapter.delabel(sym);
-                    return new FieldResult(sym, (ITree) getArgs(tree).get(index));
+                    return new FieldResult(SymbolAdapter.stripLabelsAndConditions(sym), (ITree) getArgs(tree).get(index));
                 }
             }
             else if (ProductionAdapter.isRegular(prod)) {
@@ -237,7 +233,7 @@ public class TreeAdapter {
                         index = SymbolAdapter.indexOfLabel(syms, field);
                         if (index != -1) {
                             sym = (IConstructor) syms.get(index);
-                            return new FieldResult(SymbolAdapter.delabel(sym), (ITree) args.get(index));
+                            return new FieldResult(SymbolAdapter.stripLabelsAndConditions(sym), (ITree) args.get(index));
                         }
                         break;
                     case "opt":
@@ -246,14 +242,14 @@ public class TreeAdapter {
                         }
                         sym = SymbolAdapter.getSymbol(sym);
                         if (SymbolAdapter.isLabel(sym) && SymbolAdapter.getLabel(sym).equals(field)) {
-                            return new FieldResult(SymbolAdapter.delabel(sym), (ITree) args.get(0));
+                            return new FieldResult(SymbolAdapter.stripLabelsAndConditions(sym), (ITree) args.get(0));
                         }
                         break;
                     case "alt":
                         syms = SymbolAdapter.getSymbols(sym);
                         index = SymbolAdapter.indexOfLabel(syms, field);
                         if (index != -1) {
-                            sym = SymbolAdapter.delabel((IConstructor) syms.get(index));
+                            sym = SymbolAdapter.stripLabelsAndConditions((IConstructor) syms.get(index));
                             if (SymbolAdapter.isEqual(getType((ITree) args.get(0)), sym)) {
                                 return new FieldResult(sym, (ITree) args.get(0));
                             }
