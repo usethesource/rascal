@@ -86,7 +86,7 @@ void translate(d: (Declaration) `<Tags tags> <Visibility visibility> data <UserT
  
  MuExp fixFieldReferences(MuExp exp, AType consType, MuExp consVar, str fuid)
     = visit(exp){
-        case muVar(str fieldName, _, -1, AType tp) => muFieldAccess("aadt", consType, consVar, fieldName)
+        case muVar(str fieldName, _, -1, AType tp) => muFieldAccess(consType, consVar, fieldName)
      };
      
 
@@ -150,7 +150,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
       bool isVarArgs = ftype.varArgs;
       
       //// Keyword parameters
-      lrel[str name, AType atype, MuExp defaultExp]  kwps = translateKeywordParameters(fd.signature.parameters, fuid, getFormals(funsrc), fd@\loc);
+      lrel[str name, AType atype, MuExp defaultExp]  kwps = translateKeywordParameters(fd.signature.parameters/*, fuid, getFormals(funsrc), fd@\loc*/);
       
       if(ttags["javaClass"]?){
          paramTypes = atuple(atypeList([param | param <- ftype.formals]));
@@ -251,12 +251,12 @@ list[MuExp] getExternalRefs(MuExp exp, str fuid)
 /*                  Translate keyword parameters                    */
 /********************************************************************/
 
-lrel[str name, AType atype, MuExp defaultExp] translateKeywordParameters(Parameters parameters, str fuid, int pos, loc l) {
+lrel[str name, AType atype, MuExp defaultExp] translateKeywordParameters(Parameters parameters/*, str fuid, int pos, loc l*/) {
   KeywordFormals kwfs = parameters.keywordFormals;
   kwmap = [];
-  if(kwfs is \default) {
+  if(kwfs is \default && {KeywordFormal ","}+ keywordFormalList := parameters.keywordFormals.keywordFormalList){
       keywordParamsMap = getKeywords(l);
-      kwmap = [ <"<kwf.name>", keywordParamsMap["<kwf.name>"], translate(kwf.expression)> | KeywordFormal kwf <- kwfs.keywordFormalList ];
+      kwmap = [ <"<kwf.name>", keywordParamsMap["<kwf.name>"], translate(kwf.expression)> | KeywordFormal kwf <- keywordFormalList ];
   }
   return kwmap;
 }

@@ -351,8 +351,17 @@ void collect(Signature signature, Collector c){
 list[Pattern] getFormals(Parameters parameters)
     = [pat | Pattern pat <- parameters.formals.formals];
 
-list[KeywordFormal] getKwFormals(Parameters parameters)
-    =  parameters.keywordFormals is \default ? [kwf | kwf <- parameters.keywordFormals.keywordFormalList] : [];
+list[KeywordFormal] getKwFormals(Parameters parameters){
+    if(parameters.keywordFormals is \default) {
+        if({KeywordFormal ","}+ keywordFormalList := parameters.keywordFormals.keywordFormalList){
+            return [kwf | kwf <- keywordFormalList];
+        }
+    } else
+        return [];
+    // TODO: Bug in interpreter? parameters.keywordFormals.keywordFormalList cannot be enumerated probably due to
+    // surrounding condition
+    //return parameters.keywordFormals is \default ? [kwf | kwf <- parameters.keywordFormals.keywordFormalList] : [];
+}
 
 set[TypeVar] getTypeVars(Tree t){
     return {tv | /TypeVar tv := t };
@@ -596,8 +605,16 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
 list[TypeArg] getFormals(Variant variant)
     = [ta | TypeArg ta <- variant.arguments];
 
-list[KeywordFormal] getKwFormals(Variant variant)
-    =  variant.keywordArguments is \default ? [kwf | kwf <- variant.keywordArguments.keywordFormalList] : [];
+list[KeywordFormal] getKwFormals(Variant variant){
+    if(variant.keywordArguments is \default &&  [,\ (\t\n] << {KeywordFormal ","}+ keywordArgumentList := variant.keywordArguments.keywordFormalList){
+        return [kwf | kwf <- keywordArgumentList];
+    } else
+        return [];
+}
+
+// TODO: probable bug in interpreter
+//list[KeywordFormal] getKwFormals(Variant variant)
+//    =  variant.keywordArguments is \default ? [kwf | kwf <- variant.keywordArguments.keywordFormalList] : [];
     
 AType(Solver) makeFieldType(str fieldName, Tree fieldType)
     = AType(Solver s) { return s.getType(fieldType)[label=fieldName]; };
