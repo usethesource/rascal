@@ -30,7 +30,6 @@ import java.util.Set;
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.KeywordFormal;
 import org.rascalmpl.ast.Name;
-import org.rascalmpl.ast.Name.Lexical;
 import org.rascalmpl.ast.QualifiedName;
 import org.rascalmpl.interpreter.Evaluator;
 import org.rascalmpl.interpreter.result.AbstractFunction;
@@ -42,6 +41,9 @@ import org.rascalmpl.interpreter.types.NonTerminalType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
@@ -55,8 +57,6 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 /**
  * A module environment represents a module object (i.e. a running module).
@@ -89,15 +89,15 @@ public class ModuleEnvironment extends Environment {
 	public ModuleEnvironment(String name, GlobalEnvironment heap) {
 		super(ValueFactoryFactory.getValueFactory().sourceLocation(URIUtil.assumeCorrect("main", name, "")), name);
 		this.heap = heap;
-		this.importedModules = new HashSet<String>();
-		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
-		this.productions = new HashSet<IValue>();
-		this.generalKeywordParameters = new HashMap<Type,List<KeywordFormal>>();
+		this.importedModules = new HashSet<>();
+		this.concreteSyntaxTypes = new HashMap<>();
+		this.productions = new HashSet<>();
+		this.generalKeywordParameters = new HashMap<>();
 		this.typeStore = new TypeStore();
 		this.initialized = false;
 		this.syntaxDefined = false;
 		this.bootstrap = false;
-		this.resourceImporters = new HashMap<String, AbstractFunction>();
+		this.resourceImporters = new HashMap<>();
 		this.externalConcretePatterns = new HashMap<>();
 	}
 	
@@ -125,15 +125,15 @@ public class ModuleEnvironment extends Environment {
 	@Override
 	public void reset() {
 		super.reset();
-		this.importedModules = new HashSet<String>();
-		this.concreteSyntaxTypes = new HashMap<String, NonTerminalType>();
+		this.importedModules = new HashSet<>();
+		this.concreteSyntaxTypes = new HashMap<>();
 		this.cachedParser = new HashMap<>();
 		this.typeStore = new TypeStore();
-		this.productions = new HashSet<IValue>();
+		this.productions = new HashSet<>();
 		this.initialized = false;
 		this.syntaxDefined = false;
 		this.bootstrap = false;
-		this.extended = new HashSet<String>();
+		this.extended = new HashSet<>();
 		this.deprecated = null;
 		this.externalConcretePatterns = new HashMap<>();
 	}
@@ -146,14 +146,14 @@ public class ModuleEnvironment extends Environment {
       // so that types become available
 	  if (other.importedModules != null) {
 	    if (this.importedModules == null) {
-	      this.importedModules = new HashSet<String>();
+	      this.importedModules = new HashSet<>();
 	    }
 	    this.importedModules.addAll(other.importedModules);
 	  }
 	  
 	  if (other.concreteSyntaxTypes != null) {
 	    if (this.concreteSyntaxTypes == null) {
-	      this.concreteSyntaxTypes = new HashMap<String,NonTerminalType>();
+	      this.concreteSyntaxTypes = new HashMap<>();
 	    }
 	    this.concreteSyntaxTypes.putAll(other.concreteSyntaxTypes);
 	  }
@@ -167,7 +167,7 @@ public class ModuleEnvironment extends Environment {
 	  
 	  if (other.productions != null) {
 	    if (this.productions == null) {
-	      this.productions = new HashSet<IValue>();
+	      this.productions = new HashSet<>();
 	    }
 	    this.productions.addAll(other.productions);
 	  }
@@ -175,7 +175,7 @@ public class ModuleEnvironment extends Environment {
 
 	  if (other.extended != null) {
 	    if (this.extended == null) {
-	      this.extended = new HashSet<String>();
+	      this.extended = new HashSet<>();
 	    }
 	    this.extended.addAll(other.extended);
 	  }
@@ -260,8 +260,8 @@ public class ModuleEnvironment extends Environment {
 	 * See lang::rascal::grammar::definition::Modules.modules2grammar()
 	 */
 	public IMap getSyntaxDefinition() {
-		List<String> todo = new LinkedList<String>();
-		Set<String> done = new HashSet<String>();
+		List<String> todo = new LinkedList<>();
+		Set<String> done = new HashSet<>();
 		todo.add(getName());
 		
 		IValueFactory VF = ValueFactoryFactory.getValueFactory();
@@ -344,13 +344,13 @@ public class ModuleEnvironment extends Environment {
 	
 	public void addExtend(String name) {
 		if (extended == null) {
-			extended = new HashSet<String>();
+			extended = new HashSet<>();
 		}
 		extended.add(name);
 	}
 	
 	public List<AbstractFunction> getTests() {
-		List<AbstractFunction> result = new LinkedList<AbstractFunction>();
+		List<AbstractFunction> result = new LinkedList<>();
 		
 		if (functionEnvironment != null) {
 			for (List<AbstractFunction> f : functionEnvironment.values()) {
@@ -371,9 +371,9 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public Set<String> getImportsTransitive() {
-		List<String> todo = new LinkedList<String>();
-		Set<String> done = new HashSet<String>();
-		Set<String> result = new HashSet<String>();
+		List<String> todo = new LinkedList<>();
+		Set<String> done = new HashSet<>();
+		Set<String> result = new HashSet<>();
 		todo.add(this.getName());
 		GlobalEnvironment heap = getHeap();
 		
@@ -425,7 +425,7 @@ public class ModuleEnvironment extends Environment {
 		Type adt = getAbstractDataType(modulename);
 		
 		if (adt != null) {
-			List<AbstractFunction> result = new LinkedList<AbstractFunction>();
+			List<AbstractFunction> result = new LinkedList<>();
 			getAllFunctions(adt, cons, result);
 			
 			if (result.isEmpty()) {
@@ -691,7 +691,7 @@ public class ModuleEnvironment extends Environment {
 	public void declareGenericKeywordParameters(Type adt, Type kwTypes, List<KeywordFormal> formals) {
 		List<KeywordFormal> list = generalKeywordParameters.get(adt);
 		if (list == null) {
-			list = new LinkedList<KeywordFormal>();
+			list = new LinkedList<>();
 			generalKeywordParameters.put(adt, list);
 		}
 
@@ -1045,9 +1045,9 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public Set<String> getExtendsTransitive() {
-		List<String> todo = new LinkedList<String>();
-		Set<String> done = new HashSet<String>();
-		Set<String> result = new HashSet<String>();
+		List<String> todo = new LinkedList<>();
+		Set<String> done = new HashSet<>();
+		Set<String> result = new HashSet<>();
 		todo.add(this.getName());
 		GlobalEnvironment heap = getHeap();
 		
@@ -1101,7 +1101,7 @@ public class ModuleEnvironment extends Environment {
 	}
 
 	public void resetProductions() {
-		this.productions = new HashSet<IValue>(productions.size());
+		this.productions = new HashSet<>(productions.size());
 	}
 	
 	public void addExternalConcretePattern(ISourceLocation loc, INode pattern) {
