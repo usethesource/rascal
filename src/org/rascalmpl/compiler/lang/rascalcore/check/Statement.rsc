@@ -642,28 +642,47 @@ AType computeReceiverType(Statement current, (Assignable) `<QualifiedName name>`
     return s.getType(name);
 }
 
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, loc scope, Solver s)
-    = computeSubscriptionType(current, computeReceiverType(current, receiver, scope,s), [ s.getType(subscript) ], [ subscript ], s);
+AType computeReceiverType(Statement current, asg: (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, loc scope, Solver s){
+    receiverType = computeReceiverType(current, receiver, scope, s);
+    s.fact(receiver, receiverType);
+    subsType = computeSubscriptionType(current, receiverType, [ s.getType(subscript) ], [ subscript ], s);
+    s.fact(asg, subsType);
+    return subsType;
+}
     
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, loc scope, Solver s)
-    = computeSliceType(current, computeReceiverType(current, receiver, scope, s), s.getType(optFirst), aint(), s.getType(optLast), s);
+AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, loc scope, Solver s){
+    receiverType = computeReceiverType(current, receiver, scope, s);
+    s.fact(receiver, receiverType);
+    return computeSliceType(current, receiverType, s.getType(optFirst), aint(), s.getType(optLast), s);
+}
 
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`, loc scope, Solver s)
-    = computeSliceType(current, computeReceiverType(current, receiver, scope, s), s.getType(optFirst),s.getType(second), s.getType(optLast), s);
+AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`, loc scope, Solver s){
+    receiverType = computeReceiverType(current, receiver, scope, s);
+    s.fact(receiver, receiverType);
+    return computeSliceType(current, receiverType, s.getType(optFirst),s.getType(second), s.getType(optLast), s);
+}
 
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> . <Name field>`, loc scope, Solver s)
-    = computeFieldTypeWithADT(computeReceiverType(current, receiver, scope, s), field, scope, s);
+AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> . <Name field>`, loc scope, Solver s){
+    receiverType = computeReceiverType(current, receiver, scope, s);
+    s.fact(receiver, receiverType);
+    return computeFieldTypeWithADT(receiverType, field, scope, s);
+}
     
 AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> @ <Name n>`, loc scope, Solver s){
+    receiverType = computeReceiverType(current, receiver, scope, s);
+    s.fact(receiver, receiverType);
     annoNameType = s.getTypeInScope(n, scope, {annoId()});
-    return computeGetAnnotationType(current, computeReceiverType(current, receiver, scope, s), annoNameType, s);
+    return computeGetAnnotationType(current, receiverType, annoNameType, s);
 }
 
 AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, loc scope, Solver s)
     = computeReceiverType(current, receiver, scope, s);
 
-AType computeReceiverType(Statement current, (Assignable) `\< <{Assignable ","}+ elements> \>`, loc scope, Solver s)
-    = atuple(atypeList([computeReceiverType(current, element, scope, s) | element <- elements]));
+AType computeReceiverType(Statement current, (Assignable) `\< <{Assignable ","}+ elements> \>`, loc scope, Solver s){
+    receiverType = atuple(atypeList([computeReceiverType(current, element, scope, s) | element <- elements]));
+    s.fact(receiver, receiverType);
+    return receiverType;
+}
 
 void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, str operator, Statement rhs, Collector c){
    names = getReceiver(receiver, c);
@@ -740,7 +759,7 @@ AType computeSubscriptAssignableType(Statement current, AType receiverType, Expr
     }
 }
 
-void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, str operator, Statement rhs, Collector c){
+void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, str operator, Statement rhs, Collector c){
    names = getReceiver(receiver, c);
    if(optFirst is noExpression) c.fact(optFirst, aint());
    if(optLast is noExpression) c.fact(optLast, aint());
@@ -753,12 +772,13 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <O
       AType(Solver s){ 
            res = computeSliceAssignableType(current, computeReceiverType(current, receiver, scope, s),  s.getType(optFirst), aint(), s.getType(optLast), operator, s.getType(rhs), s);
            //s.requireUnify(tau, res, error(current, "Cannot bind type variable for %q", names[0]));
+           s.fact(asg, s.getType(rhs));
            return res;
          });
    //collect(receiver, optFirst, optLast, receiver);
 }
 
-void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`, str operator, Statement rhs, Collector c){
+void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`, str operator, Statement rhs, Collector c){
    names = getReceiver(receiver, c);
    if(optFirst is noExpression) c.fact(optFirst, aint());
    if(optLast is noExpression) c.fact(optLast, aint());
@@ -770,6 +790,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> [ <O
       AType(Solver s){ 
            res = computeSliceAssignableType(current, computeReceiverType(current, receiver, scope, s),  s.getType(optFirst), s.getType(second), s.getType(optLast), operator, s.getType(rhs), s);
            //s.requireUnify(tau, res, error(current, "Cannot bind type variable for %q", names[0]));
+           s.fact(asg, s.getType(rhs));
            return res;
          });
    // collect(receiver, optFirst, second, optLast, receiver);
@@ -806,7 +827,7 @@ AType computeSliceAssignableType(Statement current, AType receiverType, AType fi
         s.report(error(current, "Cannot assign value of type %t to assignable of type %t", rhs, receiverType));
 }
 
-void checkAssignment(Statement current, (Assignable) `<Assignable receiver> . <Name field>`, str operator, Statement rhs, Collector c){
+void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> . <Name field>`, str operator, Statement rhs, Collector c){
    names = getReceiver(receiver, c);
    c.use(names[0], variableRoles);
    scope = c.getScope();
@@ -815,6 +836,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> . <N
       AType(Solver s){ 
            res = computeFieldAssignableType(current, computeReceiverType(current, receiver, scope, s),  field, operator, s.getType(rhs), scope, s);
            //s.requireUnify(tau, res, error(current, "Cannot bind type variable for %q", names[0]));
+           s.fact(asg, s.getType(rhs));
            return res;
          });
    //collect(receiver, c);
@@ -831,7 +853,7 @@ AType computeFieldAssignableType(Statement current, AType receiverType, Tree fie
     return updatedFieldType;
 }
 
-void checkAssignment(Statement current, (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, str operator, Statement rhs, Collector c){
+void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, str operator, Statement rhs, Collector c){
    names = getReceiver(receiver, c);
    c.use(names[0], variableRoles);
    scope = c.getScope();
@@ -839,6 +861,7 @@ void checkAssignment(Statement current, (Assignable) `<Assignable receiver> ? <E
    c.calculate("assignable with default expression", current, [defaultExpression, rhs], 
       AType(Solver s){ 
            res = computeDefaultAssignableType(current, computeReceiverType(current, receiver, scope, s), s.getType(defaultExpression), operator, s.getType(rhs), scope, s);
+           s.fact(asg, s.getType(rhs));
            return res;
          });
    //collect(receiver, defaultExpression, c);
@@ -911,12 +934,13 @@ void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable 
      c.calculate("assignable <i> of tuple", names[i], [rhs], checkTupleElemAssignment(current, names, flatNames, namesInRhs, elms, i, operator, rhs, scope, c));
    }
    c.calculate("assignable tuple", current, [rhs], AType(Solver s) { 
+    s.fact(receiver, s.getType(rhs));
     return s.getType(rhs); /*return atuple(atypeList([ getType(tau) | tau <- taus])); */});
     
   //collect(elements, c);
 }
 
-void checkAssignment(Statement current, (Assignable) `<Assignable receiver> @ <Name n>`, str operator, Statement rhs, Collector c){
+void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> @ <Name n>`, str operator, Statement rhs, Collector c){
    c.use(n, {annoId()});
    names = getReceiver(receiver, c);
    c.useLub(names[0], variableRoles);

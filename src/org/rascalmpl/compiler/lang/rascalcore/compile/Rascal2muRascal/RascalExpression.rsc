@@ -1249,17 +1249,17 @@ MuExp translate (e:(Expression) `<Expression expression> [ <Name key> = <Express
     } else if(isMapType(tp)){
        tp = getMapFieldsAsTuple(tp);
     } else if(isADTType(tp)){
-        return muFieldUpdate("aadt", translate(expression), unescape("<key>"), translate(replacement));
+        return muFieldUpdate(tp, getType(expression), translate(expression), unescape("<key>"), translate(replacement));
     } else if(isLocType(tp)){
-     	return muFieldUpdate("aloc", translate(expression), unescape("<key>"), translate(replacement));
+     	return muFieldUpdate(tp, getType(expression), translate(expression), unescape("<key>"), translate(replacement));
     } else if(isNodeType(tp)){
-        return muFieldUpdate("anode", translate(expression), unescape("<key>"), translate(replacement));
+        return muFieldUpdate(tp, getType(expression), translate(expression), unescape("<key>"), translate(replacement));
     }
     if(tupleHasFieldNames(tp)){
     	  fieldNames = getTupleFieldNames(tp);
     }	
     //TODO
-    return muFieldUpdate("<getOuterType(expression)>", translate(expression), indexOf(fieldNames, unescape("<key>")), translate(replacement));
+    return muFieldUpdate(tp, getType(expression), translate(expression), indexOf(fieldNames, unescape("<key>")), translate(replacement));
 }
 
 // -- field project expression --------------------------------------
@@ -1432,7 +1432,7 @@ public MuExp translateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS, loc src) {
 	// Check if evaluation of the expression throws one of a few specific exceptions;
 	// do this by checking equality of the value constructor names
 	
-	cond = muCallPrim3("elm_in_set", [ muCallMuPrim("get_name", [ muTmp(asUnwrappedThrown(varname),fuid) ]),
+	cond = muCallPrim3("in", astr(), [aset(astr()), astr()],[ muCallMuPrim3("get_name", astr(), [avalue()], [ muTmp(asUnwrappedThrown(varname),fuid) ]),
 									   muCon({"UninitializedVariable",
 									          "NoSuchKey",
 									          "NoSuchAnnotation",
