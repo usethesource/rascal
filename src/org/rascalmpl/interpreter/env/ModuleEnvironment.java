@@ -45,7 +45,9 @@ import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
+import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
@@ -78,7 +80,8 @@ public class ModuleEnvironment extends Environment {
 	private Map<IMap,String> cachedParser = new HashMap<>();
 	private String deprecated;
 	protected Map<String, AbstractFunction> resourceImporters;
-	
+	private Map<ISourceLocation, INode> externalConcretePatterns;
+    
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 
 	public final static String SHELL_MODULE = "$shell$";
@@ -95,6 +98,7 @@ public class ModuleEnvironment extends Environment {
 		this.syntaxDefined = false;
 		this.bootstrap = false;
 		this.resourceImporters = new HashMap<String, AbstractFunction>();
+		this.externalConcretePatterns = new HashMap<>();
 	}
 	
 	/**
@@ -115,6 +119,7 @@ public class ModuleEnvironment extends Environment {
 		this.resourceImporters = env.resourceImporters;
 		this.cachedParser = env.cachedParser;
 		this.deprecated = env.deprecated;
+		this.externalConcretePatterns = env.externalConcretePatterns;
 	}
 
 	@Override
@@ -130,6 +135,7 @@ public class ModuleEnvironment extends Environment {
 		this.bootstrap = false;
 		this.extended = new HashSet<String>();
 		this.deprecated = null;
+		this.externalConcretePatterns = new HashMap<>();
 	}
 	
 	public void extend(ModuleEnvironment other) {
@@ -179,6 +185,13 @@ public class ModuleEnvironment extends Environment {
 			  this.generalKeywordParameters = new HashMap<>();
 		  }
 		  this.generalKeywordParameters.putAll(other.generalKeywordParameters);
+	  }
+	  
+	  if (other.externalConcretePatterns != null) {
+	      if (this.externalConcretePatterns == null) {
+	          this.externalConcretePatterns = new HashMap<>();
+	      }
+	      this.externalConcretePatterns.putAll(other.externalConcretePatterns);
 	  }
 	  
 	  extendTypeParams(other);
@@ -1090,4 +1103,13 @@ public class ModuleEnvironment extends Environment {
 	public void resetProductions() {
 		this.productions = new HashSet<IValue>(productions.size());
 	}
+	
+	public void addExternalConcretePattern(ISourceLocation loc, INode pattern) {
+	    externalConcretePatterns.put(loc, pattern);
+	}
+	
+	public Map<ISourceLocation, INode> getExternalConcretePatterns() {
+	    return Collections.unmodifiableMap(externalConcretePatterns);
+	}
+	
 }
