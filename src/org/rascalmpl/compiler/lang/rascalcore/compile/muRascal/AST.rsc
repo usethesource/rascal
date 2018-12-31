@@ -204,7 +204,7 @@ public data MuExp =
           | muFieldAccess(AType resultType, AType baseType, MuExp baseExp, str fieldName)
           | muKwpFieldAccess(AType resultType, AType consType, MuExp exp, str fieldName)
 
-          | muFieldUpdate(str kind, AType atype, MuExp exp1, str fieldName, MuExp exp2)
+          | muFieldUpdate(AType resultType, AType baseTtype, MuExp baseExp, value fieldIdentity, MuExp repl)
 
           | muRegExpCompile(MuExp regExp, MuExp subject)
           | muRegExpBegin(MuExp matcher)

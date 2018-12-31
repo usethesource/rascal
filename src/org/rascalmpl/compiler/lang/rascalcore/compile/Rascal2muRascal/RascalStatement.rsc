@@ -49,7 +49,7 @@ MuExp translate(s: (Statement) `assert <Expression expression> ;`) {
     if(assertsEnabled()){
        return muIfelse(translate(expression), 
                        muCon(true),
-    				   muCallPrim3("assert_fails", ["astr"], [muCon("")], s@\loc));
+    				   muCallPrim3("assert_fails", abool(), [astr()], [muCon("")], s@\loc));
     }
     return muBool(true);
 }    
@@ -58,7 +58,7 @@ MuExp translate(s: (Statement) `assert <Expression expression> : <Expression mes
     if(assertsEnabled()){
        return muIfelse(translate(expression), 
                        muCon(true),
-    			       muCallPrim3("assert_fails", ["astr"], [translate(message)], s@\loc));
+    			       muCallPrim3("assert_fails", abool(), [astr()], [translate(message)], s@\loc));
     }
     return muBool(true);
 }
@@ -158,7 +158,7 @@ MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expre
     code = muBlock([]);
     if(containsAppend(body)){
         writer = muTmpListWriter(nextTmp("writer"), fuid);        
-        code = muValueBlock([ muConInit(writer,muCallPrim3("open_list_writer", avoid(), [], [], s@\loc)), 
+        code = muValueBlock([ muConInit(writer,muCallPrim3("open_list_writer", avalue(), [], [], s@\loc)), 
                               loopBody,
                               muCallPrim3("close_list_writer", avalue(), [], [writer], s@\loc)
                             ]);
@@ -489,7 +489,7 @@ MuExp translateSolve(s: (Statement) `solve ( <{QualifiedName ","}+ variables> <B
                             muBlock([ muAssign(change, muCon(false)),
                                       *[ muVarInit(muTmp(varTmps[i], fuid, getType(vars[i])), varCode[i]) | int i <- index(varCode) ],
                                       muVarInit(result, translateLoopBody(body)),
-                                     *[ muIf(muCallPrim3("notequal", ["avalue", "avalue"], [muTmp(varTmps[i],fuid, getType(vars[i])), varCode[i]], bound@\loc), muAssign(change, muCon(true))) 
+                                     *[ muIf(muCallPrim3("notequal", abool(), [getType(vars[i]), getType(vars[i])], [muTmp(varTmps[i],fuid, getType(vars[i])), varCode[i]], bound@\loc), muAssign(change, muCon(true))) 
                  			          | int i <- index(varCode)    //TODO: prefer index(variables) here
                  			          ],
                                       muIncVar(iterations, muCon(-1)) 
@@ -622,9 +622,9 @@ MuExp assignTo(a: (Assignable) `<Assignable receiver> [ <OptionalExpression optF
      assignTo(receiver, "=", rhs_type, muCallPrim3("<getOuterType(receiver)>_slice_<getAssignOp(operator)>", getType(receiver), [getType(receiver)], [*getValues(receiver), translateOpt(optFirst), translate(second), translateOpt(optLast), rhs], a@\loc));
 
 MuExp assignTo(a: (Assignable) `<Assignable receiver> . <Name field>`, str operator,  AType rhs_type, MuExp rhs) =
-     getOuterType(receiver) == "tuple" 
-     ? assignTo(receiver,  "=", rhs_type, muCallPrim3("<getOuterType(receiver)>_update", [*getValues(receiver), muCon(getTupleFieldIndex(getType(receiver@\loc), "<field>")), applyOperator(operator, a, rhs_type, rhs)], a@\loc) )
-     : assignTo(receiver, "=", rhs_type, muFieldUpdate(getOuterType(receiver), getType(receiver), getValues(receiver)[0], "<field>", applyOperator(operator, a, rhs_type, rhs)) );
+     getOuterType(receiver) == "atuple" 
+     ? assignTo(receiver,  "=", rhs_type, muCallPrim3("update", rhs_type, [getType(receiver)], [*getValues(receiver), muCon(getTupleFieldIndex(getType(receiver@\loc), "<field>")), applyOperator(operator, a, rhs_type, rhs)], a@\loc) )
+     : assignTo(receiver, "=", rhs_type, muFieldUpdate(getType(a), getType(receiver), getValues(receiver)[0], "<field>", applyOperator(operator, a, rhs_type, rhs)) );
 
 MuExp assignTo(Assignable a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, str operator,  AType rhs_type, MuExp rhs) = 
     assignTo(receiver,  "=", rhs_type, applyOperator(operator, a, rhs_type, rhs));
@@ -680,10 +680,8 @@ list[MuExp] getValues(Assignable a: (Assignable) `<Assignable receiver> [ <Optio
      [ muCallPrim3("<getOuterType(receiver)>_slice", [ *getValues(receiver), translateOpt(optFirst),  translate(second), translateOpt(optLast) ], a@\loc) ];
 
 list[MuExp] getValues(Assignable a:(Assignable) `<Assignable receiver> . <Name field>`) { 
-    outerType = getOuterType(receiver);
-    cde = outerType == "adt" ? [ muCon(getConstantConstructorDefaultExpressions(receiver@\loc)) ] : [ ];
-   
-    return [ muCallPrim3("<outerType>_field_access", [ *getValues(receiver), muCon(unescape("<field>")), *cde], a@\loc) ];
+    <consType, isKwp> =  getConstructorInfo(getType(receiver), getType(field));
+    return [ muFieldAccess(getType(a), consType, getValues(receiver)[0], unescape("<field>")) ];
 }    
 
 list[MuExp] getValues(Assignable a: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`) = 

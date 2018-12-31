@@ -975,8 +975,11 @@ default JCode trans(muFieldAccess(AType resultType, AType consType, MuExp cons, 
     }
  }
 
-JCode trans(muFieldUpdate("aadt", AType atype, MuExp cons, str fieldName, MuExp repl), JGenie jg)
-    = "<trans(cons, jg)>.set(\"<fieldName>\", <trans(repl, jg)>)";
+JCode trans(muFieldUpdate(AType resultType, AType baseType, MuExp baseExp, str fieldName, MuExp repl), JGenie jg)
+    = "<trans(baseExp, jg)>.set(\"<fieldName>\", <trans(repl, jg)>)";
+    
+JCode trans(muFieldUpdate(AType resultType, AType baseType, MuExp baseExp, int fieldIndex, MuExp repl), JGenie jg)
+    = "atuple_update(<trans(baseExp, jg)>, <fieldIndex>,  <trans(repl, jg)>)" when isTupleType(resultType);
     
 //// ---- muCallPrim2 -----------------------------------------------------------
 //
