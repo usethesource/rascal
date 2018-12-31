@@ -680,7 +680,7 @@ AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver>
 
 AType computeReceiverType(Statement current, (Assignable) `\< <{Assignable ","}+ elements> \>`, loc scope, Solver s){
     receiverType = atuple(atypeList([computeReceiverType(current, element, scope, s) | element <- elements]));
-    s.fact(receiver, receiverType);
+    s.fact(current, receiverType);
     return receiverType;
 }
 

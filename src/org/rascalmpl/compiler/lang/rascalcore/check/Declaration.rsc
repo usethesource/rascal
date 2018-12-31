@@ -605,16 +605,16 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
 list[TypeArg] getFormals(Variant variant)
     = [ta | TypeArg ta <- variant.arguments];
 
-list[KeywordFormal] getKwFormals(Variant variant){
-    if(variant.keywordArguments is \default &&  [,\ (\t\n] << {KeywordFormal ","}+ keywordArgumentList := variant.keywordArguments.keywordFormalList){
-        return [kwf | kwf <- keywordArgumentList];
-    } else
-        return [];
-}
+//list[KeywordFormal] getKwFormals(Variant variant){
+//    if(variant.keywordArguments is \default &&  [,\ (\t\n] << {KeywordFormal ","}+ keywordArgumentList := variant.keywordArguments.keywordFormalList){
+//        return [kwf | kwf <- keywordArgumentList];
+//    } else
+//        return [];
+//}
 
 // TODO: probable bug in interpreter
-//list[KeywordFormal] getKwFormals(Variant variant)
-//    =  variant.keywordArguments is \default ? [kwf | kwf <- variant.keywordArguments.keywordFormalList] : [];
+list[KeywordFormal] getKwFormals(Variant variant)
+    =  variant.keywordArguments is \default ? [kwf | kwf <- variant.keywordArguments.keywordFormalList] : [];
     
 AType(Solver) makeFieldType(str fieldName, Tree fieldType)
     = AType(Solver s) { return s.getType(fieldType)[label=fieldName]; };
