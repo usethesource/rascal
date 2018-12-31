@@ -461,7 +461,7 @@ MuExp muKwpActuals(lrel[str kwpName, MuExp exp] kwpActuals)
       
 MuExp muKwpMap(lrel[str kwName, AType atype, MuExp defaultExp] defaults)
     = muValueBlock(auxVars + pre + muKwpMap([<dflt.kwName, dflt.atype, flatArgs[i]> | int i <- index(defaults), dflt := defaults[i]]))
-    when <true, auxVars, pre, flatArgs> := flattenArgs(defaults<1>);  
+    when <true, auxVars, pre, flatArgs> := flattenArgs(defaults<2>);  
     
 //muHasKwpWithValue?
 
@@ -533,7 +533,7 @@ MuExp muCallPrim3("add",astr(), [astr(), astr()], [muCallPrim3("add", astr(), [a
       muCallPrim3("add", astr(),[astr(), astr()], [e, muCon(s1 + s2)], src2);
 
 MuExp muCallPrim3("add", astr(), [astr(), astr()], [muCon(str s1), muCallPrim3("add", astr(), [astr(), astr()], [muCon(str s2), MuExp e], loc src1)], loc src2)  =
-      muCallPrim3("add", astr(), p[astr(), astr()], [muCon(s1 + s2), e], src2);
+      muCallPrim3("add", astr(), [astr(), astr()], [muCon(s1 + s2), e], src2);
 
 // Create composite datatypes
 

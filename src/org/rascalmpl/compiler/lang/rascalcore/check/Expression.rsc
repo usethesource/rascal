@@ -518,7 +518,8 @@ void collect(current: (Expression) `[ <{Expression ","}* elements0> ]`, Collecto
            
 void collect(current: (Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments[Expression] keywordArguments>)`, Collector c){
     actuals = [a | Expression a <- arguments];  
-    kwactuals = (keywordArguments is \default && [,\ (\t\n] << {KeywordArgument[Expression] ","}+ keywordArgumentList := keywordArguments.keywordArgumentList) ? [ kwa.expression | kwa <- keywordArgumentList] : [];
+    kwactuals = keywordArguments is \default ? [ kwa.expression | kwa <- keywordArguments.keywordArgumentList] : [];
+    //kwactuals = (keywordArguments is \default && [,\ (\t\n] << {KeywordArgument[Expression] ","}+ keywordArgumentList := keywordArguments.keywordArgumentList) ? [ kwa.expression | kwa <- keywordArgumentList] : [];
  
     scope = c.getScope();
     
@@ -848,9 +849,9 @@ AType computeADTReturnType(Tree current, str adtName, loc scope, AType retType, 
 void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`, Bindings bindings, loc scope, Solver s){
     if(keywordArgumentsExp is none) return;
  
-    if([,\ (\t\n] << {KeywordArgument[Expression] ","}+ keywordArgumentList := keywordArgumentsExp.keywordArgumentList){
+   // if([,\ (\t\n] << {KeywordArgument[Expression] ","}+ keywordArgumentList := keywordArgumentsExp.keywordArgumentList){
         next_arg:
-        for(kwa <- keywordArgumentList){ 
+        for(kwa <- keywordArgumentsExp.keywordArgumentList){ 
             kwName = prettyPrintName(kwa.name);
             
             for(<ft, de> <- kwFormals){
@@ -877,14 +878,14 @@ void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression
             
            s.report(error(kwa, "Undefined keyword argument %q%v", kwName, availableKws));
         }
-    }
+   // }
 } 
  
  void checkPatternKwArgs(list[Keyword] kwFormals, (KeywordArguments[Pattern]) `<KeywordArguments[Pattern] keywordArgumentsPat>`, Bindings bindings, loc scope, Solver s){
     if(keywordArgumentsPat is none) return;
-    if([,\ (\t\n] << {KeywordArgument[Pattern] ","}+ keywordArgumentList := keywordArgumentsPat.keywordArgumentList){
+    //if([,\ (\t\n] << {KeywordArgument[Pattern] ","}+ keywordArgumentList := keywordArgumentsPat.keywordArgumentList){
         next_arg:
-        for(kwa <- keywordArgumentList){ 
+        for(kwa <- keywordArgumentsPat.keywordArgumentList){ 
             kwName = prettyPrintName(kwa.name);
             
             for(<ft, de> <- kwFormals){
@@ -911,7 +912,7 @@ void checkExpressionKwArgs(list[Keyword] kwFormals, (KeywordArguments[Expression
             
             s.report(error(kwa, "Undefined keyword argument %q%v", kwName, availableKws));
         }
-    }
+   // }
 }
  
  AType computeExpressionNodeType(Tree current, loc scope, list[Expression]  actuals, (KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArgumentsExp>`, Solver s, AType subjectType=avalue()){                     
