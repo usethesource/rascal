@@ -598,6 +598,7 @@ public abstract class Import {
             if (ret.mayHaveKeywordParameters() && !inPattern && env.getKeywordParameterTypes(((IConstructor) ret).getConstructorType()).keySet().contains("src")) {
                 ret = ret.asWithKeywordParameters().setParameter("src", TreeAdapter.getLocation(lit));
             }
+            env.addExternalConcretePattern(TreeAdapter.getLocation(lit), ret);
             return ((IRascalValueFactory) eval.getValueFactory()).quote(ret);
         } catch (ParseError e) {
             eval.getMonitor().warning("Could not create hole for " + name, eval.getCurrentAST().getLocation());
