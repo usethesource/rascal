@@ -8,10 +8,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.RascalExceptionFactory;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.InternalCompilerError;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ToplevelType;
 import org.rascalmpl.uri.SourceLocationURICompare;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -1137,10 +1133,10 @@ public class $RascalModule {
 			return newdt;
 		}
 		catch (IllegalArgumentException e) {
-			throw RascalExceptionFactory.invalidArgument(repl, currentFrame, "Cannot update field " + field + ", this would generate an invalid datetime value"));
+			throw RascalExceptionFactory.invalidArgument(repl, "Cannot update field " + field + ", this would generate an invalid datetime value");
 		}
 		catch (InvalidDateTimeException e) {
-			rex.getFrameObserver().exception(currentFrame,  RascalRuntimeException.invalidArgument(dt, currentFrame, e.getMessage()));
+			throw RascalExceptionFactory.invalidArgument(dt, e.getMessage());
 		}
 	}
 
