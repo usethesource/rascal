@@ -264,7 +264,7 @@ public class RascalJUnitCompiledTestRunner extends Runner {
         if(!resolver.exists(binary) || resolver.lastModified(source) > resolver.lastModified(binary)){
             IList programs = kernel.compileAndLink(
                 VF.list(VF.string(qualifiedName)),
-                pcfg.asConstructor(kernel),
+                pcfg.asConstructor(),
                 kernel.kw_compileAndLink().enableAsserts(true).reloc(VF.sourceLocation("noreloc", "", "")));
 
             if (!RascalC.handleMessages(programs, pcfg)) {

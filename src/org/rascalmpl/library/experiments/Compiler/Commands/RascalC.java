@@ -110,18 +110,18 @@ public class RascalC {
             if (modules.length() == 1 && ((IString) modules.get(0)).getValue().startsWith("|")) {
                 // compiling a whole directory assumes no linking
                 String loc = ((IString) modules.get(0)).getValue();
-                IList programs = kernel.compileAll(vf.sourceLocation(URIUtil.createFromEncoded(loc.substring(1, loc.length() - 1))), pcfg.asConstructor(kernel),
+                IList programs = kernel.compileAll(vf.sourceLocation(URIUtil.createFromEncoded(loc.substring(1, loc.length() - 1))), pcfg.asConstructor(),
                     kernel.kw_compile().reloc(cmdOpts.getCommandLocOption("reloc")));
                 System.exit(handleMessages(programs, pcfg) ? 0 : 1);
             }
             
             if (cmdOpts.getCommandBoolOption("noLinking")) {
-                IList programs = kernel.compile(modules, pcfg.asConstructor(kernel),
+                IList programs = kernel.compile(modules, pcfg.asConstructor(),
                     kernel.kw_compile().reloc(cmdOpts.getCommandLocOption("reloc")));
                 System.exit(handleMessages(programs, pcfg) ? 0 : 1);
             } 
             else {
-                IList programs = kernel.compileAndLink(modules, pcfg.asConstructor(kernel),
+                IList programs = kernel.compileAndLink(modules, pcfg.asConstructor(),
                                                        kernel.kw_compileAndLink()
                                                              .reloc(cmdOpts.getCommandLocOption("reloc"))
                                                        );

@@ -277,7 +277,7 @@ public class CommandExecutor {
 	      return;
 	    }
 	  }
-	  IValue res = kernel.rascalTests(w.done(), pcfg.asConstructor(kernel),
+	  IValue res = kernel.rascalTests(w.done(), pcfg.asConstructor(),
 	                                  kernel.kw_rascalTests()
 	                                  .verbose(execute_verbose)
 	                                  .jvm(true)
@@ -288,7 +288,7 @@ public class CommandExecutor {
 	}
 	
 	public IConstructor executeTestsRaw(String mname){
-	  return kernel.rascalTestsRaw(vf.list(vf.string(mname)), pcfg.asConstructor(kernel),
+	  return kernel.rascalTestsRaw(vf.list(vf.string(mname)), pcfg.asConstructor(),
 	                               kernel.kw_rascalTests()
 	                               .verbose(execute_verbose)
 	                               .jvm(true)
@@ -338,7 +338,7 @@ public class CommandExecutor {
 			forceRecompilation = true;
 			IConstructor rvmProgram = kernel.compileAndMergeProgramIncremental(vf.string(consoleInputName), 
 																	reuseConfig, 
-																	pcfg.asConstructor(kernel),
+																	pcfg.asConstructor(),
 																	kernel.kw_compileAndMergeProgramIncremental()
 																	  .optimize(compile_optimize)
 																	  .verbose(compile_verbose)
