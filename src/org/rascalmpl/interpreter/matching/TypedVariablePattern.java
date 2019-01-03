@@ -92,8 +92,7 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 			
 			try {
 				// type checking code for formal parameters; the static type of the actual should be a sub-type of the type of the formal
-				Map<Type, Type> bindings = new HashMap<>();
-				bindings.putAll(ctx.getCurrentEnvt().getTypeBindings());
+				Map<Type, Type> bindings = new HashMap<>(ctx.getCurrentEnvt().getTypeBindings());
 				declaredType.match(subject.getType(), bindings);
 
 			   tmp = declaredType.instantiate(bindings);
@@ -120,6 +119,7 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 		if(debug)System.err.println("no match");
 		return false;
 	}
+
 	
 	@Override
 	public String toString(){
