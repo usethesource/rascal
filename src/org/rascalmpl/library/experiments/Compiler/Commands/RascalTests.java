@@ -61,7 +61,7 @@ public class RascalTests {
 		
 		try {
 		    IValue outcome =
-		                kernel.rascalTests(cmdOpts.getModules(), pcfg.asConstructor(kernel),
+		                kernel.rascalTests(cmdOpts.getModules(), pcfg.asConstructor(),
 		                                   kernel.kw_rascalTests()
 		                                         .recompile(cmdOpts.getCommandBoolOption("recompile"))
 		                                         .trace(cmdOpts.getCommandBoolOption("trace"))

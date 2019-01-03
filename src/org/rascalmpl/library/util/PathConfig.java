@@ -8,13 +8,14 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.utils.RascalManifest;
-import org.rascalmpl.library.lang.rascal.boot.IJava2Rascal;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -26,10 +27,19 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.StandardTextReader;
+import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 public class PathConfig {
 	
 	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
+	private final TypeFactory tf = TypeFactory.getInstance();
+	private final TypeStore store = new TypeStore();
+	
+	// WARNING: these definitions must reflect the definitions in util::Reflective.rsc
+	private final Type PathConfigType = tf.abstractDataType(store, "PathConfig"); 
+	private final Type pathConfigConstructor = tf.constructor(store, PathConfigType, "pathConfig");
 	
 	private final List<ISourceLocation> srcs;		// List of locations to search for source files
 	private final List<ISourceLocation> libs;     // List of (library) locations to search for derived files
@@ -639,18 +649,20 @@ public class PathConfig {
         }
     }
 	
-	public IConstructor asConstructor(IJava2Rascal j2r){
-	    return j2r.pathConfig(
-	        j2r.kw_pathConfig()
-	        .srcs(getSrcs())
-	        .libs(getLibs())
-	        .boot(getBoot())
-	        .bin(getBin())
-	        .courses(getCourses())
-	        .javaCompilerPath(getJavaCompilerPath())
-	        .classloaders(getClassloaders())
-	        );
-	  }
+	public IConstructor asConstructor() {
+	    Map<String, IValue> config = new HashMap<>();
+
+	    config.put("srcs", getSrcs());
+	    config.put("courses", getCourses());
+	    config.put("bin", getBin());
+	    config.put("boot", getBoot());
+	    config.put("repo", getRepo());
+	    config.put("libs", getLibs());
+	    config.put("javaCompilerPath", getJavaCompilerPath());
+	    config.put("classloaders", getClassloaders());
+
+	    return vf.constructor(pathConfigConstructor, new IValue[0], config);
+	}
 	
 	public String toString(){
 	  StringWriter w = new StringWriter();
