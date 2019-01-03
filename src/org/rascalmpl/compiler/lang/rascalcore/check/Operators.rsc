@@ -213,6 +213,9 @@ void collect(current: (Expression) `<Expression arg> *`, Collector c){
 
 void collect(current: (Expression) `<Expression arg> ?`, Collector c){
     c.fact(current, abool());
+    if(!(arg is subscript || arg is fieldAccess || arg is getAnnotation)){ // TODO maybe add call?
+        c.report(error(arg, "Only subscript, field access or get annotation allowed"));
+    }
     collect(arg, c); 
 }
 
