@@ -50,7 +50,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
  *
  */
 public class RascalJUnitParallelRecursiveTestRunner extends Runner {
-    private final int numberOfWorkers = Math.max(1, Math.min(4,Math.min(Runtime.getRuntime().availableProcessors() - 1,  (int)(Runtime.getRuntime().maxMemory()/ 1024*1024*300))));
+    private final int numberOfWorkers;
     private final Semaphore importsCompleted = new Semaphore(0);
     private final Semaphore waitForRunning = new Semaphore(0);
     private final Semaphore workersCompleted = new Semaphore(0);
@@ -66,7 +66,20 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
 
 
     public RascalJUnitParallelRecursiveTestRunner(Class<?> clazz) {
-        System.out.println("Running parallel test with " + numberOfWorkers + " runners");
+        int numberOfWorkers = Math.min(4, Runtime.getRuntime().availableProcessors() - 1);
+        System.out.println("Number of workers based on CPU: " + numberOfWorkers);
+        if (numberOfWorkers > 1) {
+            numberOfWorkers = Math.min(numberOfWorkers, (int)(Runtime.getRuntime().maxMemory()/ 1024*1024*300L));
+            System.out.println("Number of workers based on memory: " + numberOfWorkers + " (" + Runtime.getRuntime().maxMemory() / (1024*1024) + ")");
+        }
+
+        if (numberOfWorkers < 1) {
+            this.numberOfWorkers = 1;
+        }
+        else {
+            this.numberOfWorkers = numberOfWorkers;
+        }
+        System.out.println("Running parallel test with " + this.numberOfWorkers + " runners");
         System.out.flush();
         rootName = clazz.getName();
         this.prefixes = clazz.getAnnotation(RecursiveRascalParallelTest.class).value();
