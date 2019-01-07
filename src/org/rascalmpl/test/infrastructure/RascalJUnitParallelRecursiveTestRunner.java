@@ -69,7 +69,7 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
         int numberOfWorkers = Math.min(4, Runtime.getRuntime().availableProcessors() - 1);
         System.out.println("Number of workers based on CPU: " + numberOfWorkers);
         if (numberOfWorkers > 1) {
-            numberOfWorkers = Math.min(numberOfWorkers, (int)(Runtime.getRuntime().maxMemory()/ 1024*1024*300L));
+            numberOfWorkers = Math.min(numberOfWorkers, (int)(Runtime.getRuntime().maxMemory()/ (1024*1024*300L)));
             System.out.println("Number of workers based on memory: " + numberOfWorkers + " (" + Runtime.getRuntime().maxMemory() / (1024*1024) + ")");
         }
 
