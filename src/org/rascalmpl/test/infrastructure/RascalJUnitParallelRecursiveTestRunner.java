@@ -37,11 +37,10 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
-import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * Rascal modules can be tested separatly from each other. This runner includes all modules and nested modules and runs them spread over a workpool
@@ -209,8 +208,11 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
                     for (Description mod: testModules) {
                         Listener trl = new Listener(mod);
                         
-                        if (mod.getAnnotation(CompilationFailed.class) != null) {
-                            trl.report(false, mod.getDisplayName(), URIUtil.correctLocation("unknown", "", ""), "module " + mod.getDisplayName() + " has import/compilation problems", new IllegalArgumentException());
+                        if (mod.getAnnotations().stream().anyMatch(t -> t instanceof CompilationFailed)) {
+                            results.add(notifier -> {
+                                notifier.fireTestStarted(mod);
+                                notifier.fireTestFailure(new Failure(mod, new IllegalArgumentException(mod.getDisplayName() + " had import/compilation errors")));
+                            });
                             continue;
                         }
                         
@@ -259,15 +261,16 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
                         } 
                         
                         // register a failing module to make sure we report failure later on. 
-                        Description modDesc = Description.createTestDescription(getClass(), module, new CompilationFailed() {
+                        
+                        Description testDesc = Description.createTestDescription(getClass(), module, new CompilationFailed() {
                             @Override
                             public Class<? extends Annotation> annotationType() {
                                 return getClass();
                             }
                         });
 
-                        testModules.add(modDesc);
-                        descriptions.add(modDesc);
+                        testModules.add(testDesc);
+                        descriptions.add(testDesc);
 
                         continue;
                     }
@@ -352,7 +355,5 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
             Description desc = getDescription(test, loc);
             results.add(notifier -> notifier.fireTestIgnored(desc));
         }
-
-
     }
 }
