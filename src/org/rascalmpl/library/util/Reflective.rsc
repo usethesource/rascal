@@ -117,10 +117,10 @@ data JavaBundleManifest
       str \Bundle-Name = "",
       list[str] \Bundle-ClassPath = [],
       list[str] \Import-Package = [] 
-    );        
-            
+    );
+          
 loc metafile(loc l) = l + "META-INF/RASCAL.MF";
-
+ 
 @doc{
   Converts a PathConfig and replaces all references to roots of projects or bundles
   by the folders which are nested under these roots as configured in their respective
