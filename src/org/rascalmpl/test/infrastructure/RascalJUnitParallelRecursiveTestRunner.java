@@ -13,6 +13,7 @@ package org.rascalmpl.test.infrastructure;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.annotation.Annotation;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,6 +37,8 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.uri.URIUtil;
+
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -204,8 +207,15 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
             try {
                 if (waitForRunSignal()) {
                     for (Description mod: testModules) {
+                        Listener trl = new Listener(mod);
+                        
+                        if (mod.getAnnotation(CompilationFailed.class) != null) {
+                            trl.report(false, mod.getDisplayName(), URIUtil.correctLocation("unknown", "", ""), "module " + mod.getDisplayName() + " has import/compilation problems", new IllegalArgumentException());
+                            continue;
+                        }
+                        
                         long start = System.nanoTime();
-                        TestEvaluator runner = new TestEvaluator(evaluator, new Listener(mod));
+                        TestEvaluator runner = new TestEvaluator(evaluator, trl);
                         runner.test(mod.getDisplayName());
                         long stop = System.nanoTime();
                         long duration = (stop - start) / 1000_000;
@@ -246,6 +256,17 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
                             System.err.println("Could not import " + module + " for testing...");
                             System.err.println(e.getMessage());
                             e.printStackTrace(System.err);
+                            
+                            // register a failing module to make sure we report failure later on. 
+                            Description modDesc = Description.createTestDescription(RascalJUnitParallelRecursiveTestRunner.class, module, new CompilationFailed() {
+                                @Override
+                                public Class<? extends Annotation> annotationType() {
+                                    return getClass();
+                                }
+                            });
+                            
+                            testModules.add(modDesc);
+                            descriptions.add(modDesc);
                         }
                         continue;
                     }
