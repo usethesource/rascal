@@ -29,6 +29,9 @@ import org.fusesource.jansi.Ansi.Color;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.visitors.TreeVisitor;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
@@ -36,9 +39,6 @@ import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.visitors.TreeVisitor;
 
 public class TreeAdapter {
 	private static final String CHARACTER_TREE_ITEM = "character";
@@ -143,6 +143,131 @@ public class TreeAdapter {
 		return tree.getProduction();
 	}
 	
+	/**
+	 * This function assumes that getLabeledField does not return null for the same parameters!
+	 */
+	public static ITree putLabeledField(ITree tree, String field, ITree repl) {
+	    if (isAppl(tree)) {
+	        IConstructor prod = TreeAdapter.getProduction(tree);
+            
+            if (ProductionAdapter.isDefault(prod)) {
+                int index = SymbolAdapter.indexOfLabel(ProductionAdapter.getSymbols(prod), field);
+                IList args = getArgs(tree);
+                
+                if (index != -1) {
+                    return setArgs(tree, args.put(index, repl));
+                }
+            } 
+            else if (ProductionAdapter.isRegular(prod)) {
+                IConstructor sym = ProductionAdapter.getType(prod);
+                IList args = getArgs(tree);
+                IList syms;
+                int index;
+                
+                switch (sym.getName()) {
+                    case "seq":
+                        syms = SymbolAdapter.getSymbols(sym);
+                        index = SymbolAdapter.indexOfLabel(syms, field);
+                        if (index != -1) {
+                            return setArgs(tree, args.put(index,  repl));
+                        }
+                        break;
+                    case "opt":
+                        sym = SymbolAdapter.getSymbol(sym);
+                        if (SymbolAdapter.isLabel(sym) && SymbolAdapter.getLabel(sym).equals(field)) {
+                            if (args.length() == 0) {
+                                return setArgs(tree, args.append(repl));
+                            }
+                            else {
+                                return setArgs(tree, args.put(0, repl));
+                            }
+                        }
+                        break;
+                    case "alt":
+                        syms = SymbolAdapter.getSymbols(sym);
+                        index = SymbolAdapter.indexOfLabel(syms, field);
+                        if (index != -1) {
+                            sym = (IConstructor) syms.get(index);
+                            if (SymbolAdapter.isEqual(getType((ITree) args.get(0)), sym)) {
+                                return setArgs(tree, args.put(0, repl));
+                            }
+                        }
+                        break;
+                    default:
+                        return null;
+                }
+            }
+	    }
+	    
+	    return null;
+	}
+	
+	public static class FieldResult {
+	    public IConstructor symbol;
+	    public ITree tree;
+	    
+	    public FieldResult(IConstructor symbol, ITree tree) {
+	        this.symbol = symbol;
+	        this.tree = tree;
+        }
+	}
+	
+	public static FieldResult getLabeledField(ITree tree, String field) {
+	    if (isAppl(tree)) {
+            IConstructor prod = TreeAdapter.getProduction(tree);
+            
+            if (ProductionAdapter.isDefault(prod)) {
+                IList syms = ProductionAdapter.getSymbols(prod);
+                int index = SymbolAdapter.indexOfLabel(syms, field);
+                
+                if (index != -1) {
+                    IConstructor sym = (IConstructor) syms.get(index);
+                    return new FieldResult(SymbolAdapter.stripLabelsAndConditions(sym), (ITree) getArgs(tree).get(index));
+                }
+            }
+            else if (ProductionAdapter.isRegular(prod)) {
+                IConstructor sym = ProductionAdapter.getType(prod);
+                IList args = getArgs(tree);
+                IList syms;
+                int index;
+                
+                switch (sym.getName()) {
+                    case "seq":
+                        syms = SymbolAdapter.getSymbols(sym);
+                        index = SymbolAdapter.indexOfLabel(syms, field);
+                        if (index != -1) {
+                            sym = (IConstructor) syms.get(index);
+                            return new FieldResult(SymbolAdapter.stripLabelsAndConditions(sym), (ITree) args.get(index));
+                        }
+                        break;
+                    case "opt":
+                        if (args.length() == 0) {
+                            return null;
+                        }
+                        sym = SymbolAdapter.getSymbol(sym);
+                        if (SymbolAdapter.isLabel(sym) && SymbolAdapter.getLabel(sym).equals(field)) {
+                            return new FieldResult(SymbolAdapter.stripLabelsAndConditions(sym), (ITree) args.get(0));
+                        }
+                        break;
+                    case "alt":
+                        syms = SymbolAdapter.getSymbols(sym);
+                        index = SymbolAdapter.indexOfLabel(syms, field);
+                        if (index != -1) {
+                            sym = SymbolAdapter.stripLabelsAndConditions((IConstructor) syms.get(index));
+                            if (SymbolAdapter.isEqual(getType((ITree) args.get(0)), sym)) {
+                                return new FieldResult(sym, (ITree) args.get(0));
+                            }
+                        }
+                        break;
+                    default:
+                        return null;
+                }
+            }
+        }
+	    
+	    return null;
+	}
+	
 	public static IConstructor getType(ITree tree) {
 		if (isAppl(tree)) {
 			IConstructor sym = ProductionAdapter.getType(getProduction(tree));
@@ -155,6 +280,9 @@ public class TreeAdapter {
 		}
 		else if (isCycle(tree)) {
 			return (IConstructor) tree.get("symbol");
+		}
+		else if (isChar(tree)) {
+		    return SymbolAdapter.charClass(TreeAdapter.getCharacter(tree));
 		}
 		else if (isAmb(tree)) {
 			return getType((ITree) getAlternatives(tree).iterator().next());

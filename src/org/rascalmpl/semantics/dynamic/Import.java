@@ -523,7 +523,7 @@ public abstract class Import {
   }
   
   @SuppressWarnings("unchecked")
-  public static IGTD<IConstructor, ITree, ISourceLocation> getParser(IEvaluator<Result<IValue>> eval, ModuleEnvironment currentModule, IMap grammar, boolean force) {
+  public static IGTD<IConstructor, ITree, ISourceLocation> getParser(IEvaluator<Result<IValue>> eval, ModuleEnvironment currentModule, ISourceLocation caller, IMap grammar, boolean force) {
     if (currentModule.getBootstrap()) {
       return new RascalParser();
     }
@@ -554,7 +554,7 @@ public abstract class Import {
     if (parser == null || force) {
         // TODO: this hashCode is not good enough!
       String parserName = currentModule.getName() + "_" + Math.abs(grammar.hashCode());
-      parser = pg.getNewParser(eval, eval.getCurrentAST().getLocation(), parserName, definitions);
+      parser = pg.getNewParser(eval, caller, parserName, definitions);
       eval.getHeap().storeObjectParser(currentModule.getName(), definitions, parser);
     }
 
@@ -611,7 +611,7 @@ public abstract class Import {
     
     IMap syntaxDefinition = env.getSyntaxDefinition();
     IMap grammar = (IMap) eval.getParserGenerator().getGrammarFromModules(eval.getMonitor(),env.getName(), syntaxDefinition).get("rules");
-    IGTD<IConstructor, ITree, ISourceLocation> parser = env.getBootstrap() ? new RascalParser() : getParser(eval, env, grammar, false);
+    IGTD<IConstructor, ITree, ISourceLocation> parser = env.getBootstrap() ? new RascalParser() : getParser(eval, env, TreeAdapter.getLocation(lit), grammar, false);
     
     try {
       Map<String, ITree> antiquotes = new HashMap<>();

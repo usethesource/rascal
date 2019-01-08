@@ -951,7 +951,7 @@ public abstract class Statement extends org.rascalmpl.ast.Statement {
 						break;
 					}
  
-					if (Cases.matchAndEval(makeResult(eValue.getType(), eValue, eval), c.getPattern(), c.getBody(), eval)) {
+					if (Cases.matchAndEval(makeResult(eValue.getType(), eValue, eval), c.getPattern().buildMatcher(eval), c.getBody(), eval)) {
 						handled = true;
 						break;
 					}
