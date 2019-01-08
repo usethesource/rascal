@@ -256,18 +256,19 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
                             System.err.println("Could not import " + module + " for testing...");
                             System.err.println(e.getMessage());
                             e.printStackTrace(System.err);
-                            
-                            // register a failing module to make sure we report failure later on. 
-                            Description modDesc = Description.createTestDescription(RascalJUnitParallelRecursiveTestRunner.class, module, new CompilationFailed() {
-                                @Override
-                                public Class<? extends Annotation> annotationType() {
-                                    return getClass();
-                                }
-                            });
-                            
-                            testModules.add(modDesc);
-                            descriptions.add(modDesc);
-                        }
+                        } 
+                        
+                        // register a failing module to make sure we report failure later on. 
+                        Description modDesc = Description.createTestDescription(getClass(), module, new CompilationFailed() {
+                            @Override
+                            public Class<? extends Annotation> annotationType() {
+                                return getClass();
+                            }
+                        });
+
+                        testModules.add(modDesc);
+                        descriptions.add(modDesc);
+
                         continue;
                     }
 
