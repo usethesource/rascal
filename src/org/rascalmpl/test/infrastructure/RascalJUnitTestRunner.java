@@ -139,13 +139,17 @@ public class RascalJUnitTestRunner extends Runner {
 				}
 				catch (Throwable e) {
 				    System.err.println(e);
-				    Description modDesc = Description.createTestDescription(getClass(), module, new CompilationFailed() {
+				    Description modDesc = Description.createSuiteDescription(name);
+				    desc.addChild(modDesc);
+				    
+				    Description testDesc = Description.createTestDescription(getClass(), name + "compilation failed", new CompilationFailed() {
                         @Override
                         public Class<? extends Annotation> annotationType() {
                             return getClass();
                         }
                     });
-				    desc.addChild(modDesc);
+				    
+				    modDesc.addChild(testDesc);
 				    continue;
 				}
 				
@@ -180,8 +184,8 @@ public class RascalJUnitTestRunner extends Runner {
                 continue;
             }
 		    
-			TestEvaluator runner = new TestEvaluator(evaluator, new Listener(notifier, mod));
-			runner.test(mod.getDisplayName());
+			Listener listener = new Listener(notifier, mod);
+            TestEvaluator runner = new TestEvaluator(evaluator, listener);
 		}
 		
 		notifier.fireTestRunFinished(new Result());
