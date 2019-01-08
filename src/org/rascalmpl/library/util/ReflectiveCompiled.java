@@ -20,7 +20,6 @@ import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.PreludeCompiled;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
-import org.rascalmpl.library.lang.rascal.boot.IKernel;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
@@ -47,7 +46,7 @@ public class ReflectiveCompiled extends Reflective {
 	}
 	
     public IValue getCurrentPathConfig(RascalExecutionContext rex) {
-        return rex.getPathConfig().asConstructor(rex.getRVM().asInterface(IKernel.class));
+        return rex.getPathConfig().asConstructor();
     }
 
 	public IValue parseCommand(IString str, ISourceLocation loc,  RascalExecutionContext rex) {

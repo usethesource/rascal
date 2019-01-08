@@ -1,4 +1,4 @@
-module experiments::tutor3::Questions
+module lang::rascal::tutor::Questions
 
 import ParseTree;
 

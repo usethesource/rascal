@@ -24,7 +24,7 @@ install:
   - mvn -version
 
 build_script:
-  - mvn -Drascal.boot=--basic clean compile -DskipTests
+  - mvn clean compile -DskipTests
 
 test_script:
   - mvn test

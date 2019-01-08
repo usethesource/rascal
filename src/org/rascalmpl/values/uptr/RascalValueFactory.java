@@ -1891,6 +1891,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	private static abstract class AbstractAppl implements ITree, IExternalValue {
 		protected final IConstructor production;
 		protected final boolean isMatchIgnorable;
+		protected Type type = null;
         
 
 		@Override
@@ -2048,7 +2049,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		public Type getType() {
 			// it is important to give the whole tree here, to be able to check for non-empty lists which have a more concrete type
 			// than possibly empty lists!
-			return RascalTypeFactory.getInstance().nonTerminalType(this);
+		    if (type == null) {
+		        type = RascalTypeFactory.getInstance().nonTerminalType(this);
+		    }
+		    
+		    return type;
 		}
 
 		@Override
