@@ -2,7 +2,7 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse;
 
 import java.util.HashSet;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
+//import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -22,30 +22,30 @@ import org.rascalmpl.values.uptr.ITree;
  */
 
 public class DescendantDescriptor {
-	private final HashSet<Object> mSymbolSet;
-	private final boolean concreteMatch;
-	private final boolean containsNodeOrValueType;
+	private /*final*/ HashSet<Object> mSymbolSet;
+	private /*final*/ boolean concreteMatch;
+	private /*final*/ boolean containsNodeOrValueType;
 	
-	public DescendantDescriptor(ISet symbolset, ISet prodset, IMap definitions, IBool concreteMatch, RascalExecutionContext rex){
-		mSymbolSet = new HashSet<Object>(symbolset.size() + prodset.size());
-		this.concreteMatch = concreteMatch.getValue();
-		boolean nodeOrValue = true;
-		
-		for(IValue v : symbolset){
-			Type tp = rex.symbolToType((IConstructor) v, definitions);
-			mSymbolSet.add(tp);								// Add as TYPE to the set
-			if(tp == RascalPrimitive.nodeType || tp == RascalPrimitive.valueType){
-				nodeOrValue = true;
-			}
-		}
-		
-		for(IValue v : prodset){
-			IConstructor cons = (IConstructor) v;
-			mSymbolSet.add(cons);							// Add the production itself to the set
-		}
-
-		containsNodeOrValueType = nodeOrValue;
-	}
+//	public DescendantDescriptor(ISet symbolset, ISet prodset, IMap definitions, IBool concreteMatch, RascalExecutionContext rex){
+//		mSymbolSet = new HashSet<Object>(symbolset.size() + prodset.size());
+//		this.concreteMatch = concreteMatch.getValue();
+//		boolean nodeOrValue = true;
+//		
+//		for(IValue v : symbolset){
+//			Type tp = rex.symbolToType((IConstructor) v, definitions);
+//			mSymbolSet.add(tp);								// Add as TYPE to the set
+//			if(tp == RascalPrimitive.nodeType || tp == RascalPrimitive.valueType){
+//				nodeOrValue = true;
+//			}
+//		}
+//		
+//		for(IValue v : prodset){
+//			IConstructor cons = (IConstructor) v;
+//			mSymbolSet.add(cons);							// Add the production itself to the set
+//		}
+//
+//		containsNodeOrValueType = nodeOrValue;
+//	}
 	
 	public boolean isConcreteMatch(){
 		return concreteMatch;

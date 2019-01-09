@@ -86,11 +86,9 @@ void translate(d: (Declaration) `<Tags tags> <Visibility visibility> data <UserT
  
  MuExp fixFieldReferences(MuExp exp, AType consType, MuExp consVar, str fuid)
     = visit(exp){
-        case muVar(str fieldName, _, -1, AType tp) => muFieldAccess(consType, consVar, fieldName)
+        case muVar(str fieldName, _, -1, AType tp) => muGetField(consType, consVar, fieldName)
      };
-     
-
-
+    
 void translate(d: (Declaration) `<FunctionDeclaration functionDeclaration>`) = translate(functionDeclaration);
 
 // -- function declaration ------------------------------------------
@@ -154,7 +152,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
       
       if(ttags["javaClass"]?){
          paramTypes = atuple(atypeList([param | param <- ftype.formals]));
-         params = [ muVar(argNames[i], fuid, i, ftype.formals[i]) | i <- [ 0 .. nformals] ];
+         params = [ muVar(ftype.formals[i].label, fuid, i, ftype.formals[i]) | i <- [ 0 .. nformals] ];
          keywordTypes = avoid();
          
          //TODO
@@ -171,7 +169,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
       isPub = !fd.visibility is \private;
       isMemo = ttags["memo"]?; 
    
-      tbody = translateFunction("<fd.signature.name>", fd.signature.parameters.formals.formals, isVarArgs, body, isMemo, when_conditions);
+      tbody = translateFunction("<fd.signature.name>", fd.signature.parameters.formals.formals, ftype, body, isMemo, when_conditions);
      
       formals = [formal | formal <- fd.signature.parameters.formals.formals];
       
@@ -201,14 +199,10 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
       								 getScopeSize(funsrc),
       								 isVarArgs, 
       								 isPub,
-      								 //canFail,
       								 getExternalRefs(tbody, fuid),
       								 fd@\loc, 
       								 tmods, 
       								 ttags,
-      								 //isConcreteArg, 
-      								 //absfpArg,
-      								 //concfpArg,
       								 tbody));
       
       leaveFunctionScope();
@@ -246,16 +240,16 @@ list[str] getParameterNames({Pattern ","}* formals){
 
 list[MuExp] getExternalRefs(MuExp exp, str fuid)
     = toList({ v | /v:muVar(str name, str fuid2, int pos, AType atype) := exp, fuid2 != fuid });
-
+    
 /********************************************************************/
 /*                  Translate keyword parameters                    */
 /********************************************************************/
 
-lrel[str name, AType atype, MuExp defaultExp] translateKeywordParameters(Parameters parameters/*, str fuid, int pos, loc l*/) {
+lrel[str name, AType atype, MuExp defaultExp] translateKeywordParameters(Parameters parameters) {
   KeywordFormals kwfs = parameters.keywordFormals;
   kwmap = [];
   if(kwfs is \default && {KeywordFormal ","}+ keywordFormalList := parameters.keywordFormals.keywordFormalList){
-      keywordParamsMap = getKeywords(l);
+      keywordParamsMap = getKeywords(parameters);
       kwmap = [ <"<kwf.name>", keywordParamsMap["<kwf.name>"], translate(kwf.expression)> | KeywordFormal kwf <- keywordFormalList ];
   }
   return kwmap;

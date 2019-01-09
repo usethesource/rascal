@@ -1,6 +1,6 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
 
-public class SliceDescriptor{
+public final class SliceDescriptor{
 
 	final int first;
 	final int second;

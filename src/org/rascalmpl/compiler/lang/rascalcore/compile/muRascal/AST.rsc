@@ -64,50 +64,68 @@ public data MuModuleVar =
             muModuleVar(AType atype, str name)
           ;
 
+// Kind of temporary variables introduced by the compiler
+
+data NativeKind
+    = nativeInt()
+    | nativeBool()
+    | nativeListWriter()
+    | nativeSetWriter()
+    | nativeMapWriter()
+    | nativeMatcher()
+    | nativeStrWriter()
+    | nativeDescendantIterator()
+    | nativeTemplate()
+    | nativeException()
+    | nativeGuardedIValue()
+    ;
+    
+MuExp muTmpInt(str name, str fuid)                  = muTmpNative(name, fuid, nativeInt());
+MuExp muTmpBool(str name, str fuid)                 = muTmpNative(name, fuid, nativeBool());
+MuExp muTmpListWriter(str name, str fuid)           = muTmpNative(name, fuid, nativeListWriter());
+MuExp muTmpSetWriter(str name, str fuid)            = muTmpNative(name, fuid, nativeSetWriter());
+MuExp muTmpMapWriter(str name, str fuid)            = muTmpNative(name, fuid, nativeMapWriter());
+MuExp muTmpMatcher(str name, str fuid)              = muTmpNative(name, fuid, nativeMatcher());
+MuExp muTmpStrWriter(str name, str fuid)            = muTmpNative(name, fuid, nativeStrWriter());
+MuExp muTmpDescendantIterator(str name, str fuid)   = muTmpNative(name, fuid, nativeDescendantIterator());
+MuExp muTmpTemplate(str name, str fuid)             = muTmpNative(name, fuid, nativeTemplate());
+MuExp muTmpException(str name, str fuid)            = muTmpNative(name, fuid, nativeException());
+MuExp muTmpGuardedIValue(str name, str fuid)        = muTmpNative(name, fuid, nativeGuardedIValue());
+
+    
 // All executable Rascal code is tranlated to the following muExps.
           
 public data MuExp = 
-	     // Constants
-			muBool(bool b)										// muRascal Boolean constant
-		  | muInt(int n)										// muRascal integer constant
-          | muCon(value c)						                // Rascal Constant: an arbitrary IValue
+            muCon(value c)						                // Rascal Constant: an arbitrary IValue
           | muNoValue()                                         // Absent value in optional construct
           
-          | muFun1(loc uid /* str fuid*/)   			            // *muRascal* function constant: functions at the root
+          | muFun1(loc uid /* str fuid*/)   			        // *muRascal* function constant: functions at the root
            
           | muOFun(str fuid)                                    // *Rascal* function, i.e., overloaded function at the root
           
           | muConstr(AType ctype) 					        	// Constructor
           | muConstrCompanion(str fuid)                         // Companion function for constructor with keyword parameters
           
-          	// Variables
+          	// Variables and temporaries
           | muResetLocs(list[int] positions)					// Reset value of selected local variables to undefined (null)
           | muVar(str name, str fuid, int pos, AType atype)		// Variable: retrieve its value
           //| muLoc(str name, int pos)
-          | muTmp(str name, str fuid, AType atype)			    // Temporary variable introduced by front-end
-          | muTmpInt(str name, str fuid)                        // Temporary integer variable introduced by front-end
-          | muTmpBool(str name, str fuid)                       // Temporary boolean variable introduced by front-end
-          | muTmpListWriter(str name, str fuid)                 // Temporary list writer variable introduced by front-end
-          | muTmpSetWriter(str name, str fuid)                  // Temporary set writer variable introduced by front-end
-          | muTmpMapWriter(str name, str fuid)                  // Temporary map writer variable introduced by front-end
-          | muTmpMatcher(str name, str fuid)                    // Temporary regexp matcher
-          | muTmpStrWriter(str name, str fuid)                  // Temporary string writer
-          | muTmpDescendantIterator(str name, str fuid)         // Temporary descendant iterator
-          | muTmpTemplate(str name, str fuid)                   // Temporary string template
-          | muTmpException(str name, str fuid)                  // Temporary exception
-       
+          | muTmpIValue(str name, str fuid, AType atype)	    // Temporary variable introduced by compiler
+          | muTmpNative(str name, str fuid, NativeKind nkind)   // Temporary variable introduced by compiler
+             
           | muVarKwp(str name, str fuid, AType atype)           // Keyword parameter
           
-          // Call/Apply/return    		
+          // Call and return    		
           | muCall(MuExp fun, list[MuExp] args)                 // Call a *muRascal function
           
-          | muOCall3(MuExp fun, AType atype, list[MuExp] args, loc src)       // Call a declared *Rascal function 
+          | muOCall3(MuExp fun, AType atype, list[MuExp] args, loc src)       
+                                                                // Call a declared *Rascal function 
                                                                 // Compose fun1 o fun2, i.e., compute fun1(fun2(args))
-          | muCallPrim3(str name, AType result, list[AType] details, list[MuExp] exps, loc src)	 // Call a Rascal primitive function
+          | muCallPrim3(str name, AType result, list[AType] details, list[MuExp] exps, loc src)	 // Call a Rascal primitive
            
           | muCallJava(str name, str class, AType funType,
           			   int reflect,
-          			   list[MuExp] args, str enclosingFun)						// Call a Java method in given class
+          			   list[MuExp] args, str enclosingFun)		// Call a Java method in given class
  
           | muReturn0()											// Return from a function without value
           | muReturn1(MuExp exp)			                    // Return from a function with value
@@ -116,9 +134,12 @@ public data MuExp =
           | muReturn1FromVisit(MuExp exp)                       // Return from visit with value
           
           | muFilterReturn()									// Return for filter statement
-                             
-          | muKwpActuals(lrel[str kwpName, MuExp exp] kwpActuals)               // Build map of actual keyword parameters
-          | muKwpMap(lrel[str kwName, AType atype, MuExp defaultExp] defaults)  // 
+          | muFailReturn()                                      // Failure from function body
+               
+          // Keyword parameters              
+          | muKwpActuals(lrel[str kwpName, MuExp exp] kwpActuals)
+                                                                // Build map of actual keyword parameters
+          | muKwpMap(lrel[str kwName, AType atype, MuExp defaultExp] defaults)  
           
           | muIsKwpDefined(MuExp var, str kwpName)
           | muGetKwpFromConstructor(MuExp var, AType atype, str kwpName)
@@ -128,12 +149,23 @@ public data MuExp =
           
           | muInsert(MuExp exp)									// Insert statement
               
-          // Assignment, If and While
-              
+          // Get and assign values
           
           | muAssign(MuExp var, MuExp exp)                      // Assign a value to a variable
           | muVarInit(MuExp var, MuExp exp)                     // Assign a value to a variable
           | muConInit(MuExp var, MuExp exp)                     // Create a constant
+          
+          | muGetAnno(MuExp exp, AType resultType, str annoName)
+          | muGuardedGetAnno(MuExp exp, AType resultType, str annoName)
+          | muSetAnno(MuExp exp, AType resultType, str annoName, MuExp repl)
+          
+          | muGetField(AType resultType, AType baseType, MuExp baseExp, str fieldName)
+          | muGuardedGetField(AType resultType, AType baseType, MuExp baseExp, str fieldName)
+          | muKwpGetField(AType resultType, AType consType, MuExp exp, str fieldName)
+
+          | muSetField(AType resultType, AType baseTtype, MuExp baseExp, value fieldIdentity, MuExp repl)
+          
+          // conditionals and iterations
           
           | muIfEqualOrAssign(MuExp var, MuExp other, MuExp body)
                     														
@@ -142,70 +174,76 @@ public data MuExp =
         
           | muIf(MuExp cond, MuExp thenPart)
           						 
-          | muWhileDo(str label, MuExp cond, MuExp body)	         // While-Do expression with break/continue label
+          | muWhileDo(str label, MuExp cond, MuExp body)	    // While-Do expression with break/continue label
           | muDoWhile(str label, MuExp body, MuExp cond)
-          //| muForAny(str label, MuExp var, MuExp iterable, MuExp body)
+          | muBreak(str label)                                  // Break statement
+          | muContinue(str label)                               // Continue statement
+          
+        
           | muForAll(str label, MuExp var, MuExp iterable, MuExp body)
           | muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp last, MuExp exp)
           | muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp exp)
          
           // Backtracking
           
-          | muEnter(str btscope, MuExp exp)                     // Enter a backtracking scope
+          | muEnter(str btscope, MuExp exp)                   // Enter a backtracking scope
           | muSucceed(str btscope)
           | muFail(str label)                                 // Fail statement
           
+          //  Visit
           | muVisit(MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor)
           | muDescendantMatchIterator(MuExp subject, DescendantDescriptor ddescriptor)
+          | muSucceedVisitCase()                              // Marks a success exit point of a visit case
         
+          // Switch
           | muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint)		// switch over cases for specific value
           
-          | muFailCase()                                        // Marks the failure exit point of a switch or visit case
-          | muSucceedSwitchCase()                              // Marks a success exit point of a switch case
-       
-          | muSucceedVisitCase()                               // Marks a success exit point of a visit case
-      
-		  | muBreak(str label)									// Break statement
-		  | muContinue(str label)								// Continue statement
-		 
-		  | muFailReturn()										// Failure from function body
-                    
+          | muFailCase()                                      // Marks the failure exit point of a switch or visit case
+          | muSucceedSwitchCase()                             // Marks a success exit point of a switch case
+                 
            // Multi-expressions
-          | muBlock(list[MuExp] exps)                           // A list of expressions that does not deliver a value
-          | muValueBlock(list[MuExp] exps)  				    // A list of expressions, only last value remains
+          | muBlock(list[MuExp] exps)                         // A list of expressions that does not deliver a value
+          | muValueBlock(list[MuExp] exps)  				  // A list of expressions, only last value remains
                                                              
           // Exceptions
           
           | muThrow(MuExp exp, loc src)
-          
-          // Exception handling try/catch
-          
           | muTry(MuExp exp, MuCatch \catch, MuExp \finally)
-          | muRequire(MuExp exp, str msg, loc src)              // Abort is exp is false
+          
+          // Auxiliary operations used in generated code
+          
+          // Various tests
+          | muRequire(MuExp exp, str msg, loc src)              // Abort if exp is false
+          
           | muCheckArgTypeAndCopy(str name, int fromPos, AType atype, int toPos)
           | muEqual(MuExp exp1, MuExp exp2)
-          | muEqualInt(MuExp exp1, MuExp exp2)
-          | muSubscript(MuExp exp, MuExp idx)
+          | muEqualNativeInt(MuExp exp1, MuExp exp2)
+          
           //| muHasType(str typeName, MuExp exp)
           | muHasTypeAndArity(AType atype, int arity, MuExp exp)
           | muHasNameAndArity(AType atype, str name, int arity, MuExp exp)
           | muValueIsSubType(MuExp exp, AType tp)
           | muValueIsSubTypeOfValue(MuExp exp2, MuExp exp1)
-          | muIncVar(MuExp var, MuExp inc)
-          | muSubInt(MuExp exp1, MuExp exp2)
-          | muAddInt(MuExp exp1, MuExp exp2)
+          | muIsDefinedValue(MuExp exp)
+          | muGetDefinedValue(MuExp exp, AType tp)
+          | muHasField(MuExp exp, AType tp, str fieldName)
+          
+          | muSubscript(MuExp exp, MuExp idx)
+          
+          // Operations on native integers
+          | muIncNativeInt(MuExp var, MuExp inc)
+          | muSubNativeInt(MuExp exp1, MuExp exp2)
+          | muAddNativeInt(MuExp exp1, MuExp exp2)
           | muSize(MuExp exp, AType atype)
-          | muGreaterEqInt(MuExp exp1, MuExp exp2)
-          | muAnd(MuExp exp1, MuExp exp2)
-          | muNot(MuExp exp)
-          | muNotNegative(MuExp exp)
+          | muGreaterEqNativeInt(MuExp exp1, MuExp exp2)
+          
+          // Operations on native booleans
+          | muAndNativeBool(MuExp exp1, MuExp exp2)
+          | muNotNativeBool(MuExp exp)
+          | muNotNegativeNativeInt(MuExp exp)
           | muSubList(MuExp lst, MuExp from, MuExp len)
           
-          | muFieldAccess(AType resultType, AType baseType, MuExp baseExp, str fieldName)
-          | muKwpFieldAccess(AType resultType, AType consType, MuExp exp, str fieldName)
-
-          | muFieldUpdate(AType resultType, AType baseTtype, MuExp baseExp, value fieldIdentity, MuExp repl)
-
+          // Regular expressions
           | muRegExpCompile(MuExp regExp, MuExp subject)
           | muRegExpBegin(MuExp matcher)
           | muRegExpEnd(MuExp matcher)
@@ -213,6 +251,7 @@ public data MuExp =
           | muRegExpSetRegion(MuExp matcher, int begin, int end)
           | muRegExpGroup(MuExp matcher, int n)
           
+          // String templates
           | muTemplate(str initial)
           | muTemplateBeginIndent(MuExp template, str indent)
           | muTemplateEndIndent(MuExp template, str unindent)
@@ -234,36 +273,41 @@ data MuCase = muCase(int fingerprint, MuExp exp);
 
 // ==== Utilities =============================================================
 
-set[str] varExp = {"muModuleVar", "muVar", "muTmp", "muTmpInt", 
-                   "muTmpBool", "muTmpWriter", "muTmpMatcher", 
-                   "muTmpStrWriter", "muTmpTemplate", "muTmpException"};
+set[str] varExp = {"muModuleVar", "muVar", "muTmpIValue", "muTmpNative"};
 
 bool isVarOrTmp(MuExp exp)
     = getName(exp) in varExp;
     
 bool producesNativeBool(muCallPrim3(str name, AType result, list[AType] details, list[MuExp] args, loc src)){
-    if(name in {"equal", "notequal"}) return true;
+    if(name in {"equal", "notequal", "is"}) return true;
     fail producesNativeBool;
 }
 
-//bool producesNativeBool(muCon(bool b))
-//    = true;
-
+bool producesNativeBool(muTmpNative(_,_,nativeBool()))
+    = true;
+    
 default bool producesNativeBool(MuExp exp)
-    = getName(exp) in {"muTmpBool", "muEqual", "muEqualInt", "muNotNegative", "muIsKwpDefined", "muHasKwp", "muHasKwpWithValue", /*"muHasType",*/ "muHasTypeAndArity",
-                  "muHasNameAndArity", "muValueIsSubType", "muValueIsSubTypeOfValue", "muGreaterEqInt", "muAnd", "muNot",
-                  "muRegExpFind" };
+    = getName(exp) in {"muEqual", "muEqualNativeInt", "muNotNegativeNativeInt", "muIsKwpDefined", "muHasKwp", "muHasKwpWithValue", /*"muHasType",*/ "muHasTypeAndArity",
+                  "muHasNameAndArity", "muValueIsSubType", "muValueIsSubTypeOfValue", "muGreaterEqNativeInt", "muAndNativeBool", "muNotNativeBool",
+                  "muRegExpFind",  "muIsDefinedValue", "muHasField"};
 
-//bool producesNativeInt(muCon(int n))
-//    = true;
-                 
+bool producesNativeInt(muTmpNative(_,_,nativeInt()))
+    = true;
+                     
 default bool producesNativeInt(MuExp exp)
-    = getName(exp) in {"muTmpInt", "muSize", "muAddInt", "muSubInt", "muRegExpBegin", "muRegExpEnd"};
- 
- //bool producesNativeStr(muCon(str s))
- //   = true;
-        
+    = getName(exp) in {"muSize", "muAddNativeInt", "muSubNativeInt", "muRegExpBegin", "muRegExpEnd"};
+         
 // ==== Simplification rules ==================================================
+
+bool endsWithReturn(muReturn0()) = true;
+bool endsWithReturn(muReturn1(_)) = true;
+bool endsWithReturn(muFailReturn()) = true;
+bool endsWithReturn(muBlock([*exps1, exp2])) = true when endsWithReturn(exp2);
+bool endsWithReturn(muValueBlock([*exps1, exp2])) = true when endsWithReturn(exp2);
+bool endsWithReturn(muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart)) = true when endsWithReturn(thenPart), endsWithReturn(elsePart);
+default bool endsWithReturn(MuExp exp) = false;
+
+// ---- block -----------------------------------------------------------------
 
 MuExp muBlock([MuExp exp]) = exp;
 
@@ -281,12 +325,24 @@ MuExp muBlock([ *exps1, muInsert(exp), *exps2])
 MuExp muBlock([*MuExp pre, muValueBlock(list[MuExp] elems), *MuExp post])
     = muBlock([*pre, *elems, *post]);
     
+MuExp muBlock([*MuExp pre, MuExp exp, *MuExp post]){
+    if(!isEmpty(post) && endsWithReturn(exp)) return muBlock([*pre, exp]);
+    fail;
+}
+    
+// ---- muValueBlock ----------------------------------------------------------
+    
 MuExp muValueBlock([*MuExp pre, muBlock(list[MuExp] elems), *MuExp post, MuExp last])
     = muValueBlock([*pre, *elems, *post, last]);
     
 MuExp muValueBlock([*MuExp pre, muValueBlock(list[MuExp] elems), *MuExp post, MuExp last])
     = muValueBlock([*pre, *elems, *post, last]);
-
+    
+MuExp muValueBlock([*MuExp pre, MuExp exp, *MuExp post]){
+    if(!isEmpty(post) && endsWithReturn(exp)) return muValueBlock([*pre, exp]);
+    fail;
+} 
+    
 // ---- muReturn1 -------------------------------------------------------------
 
 MuExp muReturn1(muReturn1(MuExp exp)) = muReturn1(exp);
@@ -299,12 +355,21 @@ MuExp muReturn1(muValueBlock([*MuExp exps, MuExp exp]))
     
 MuExp muReturn1(muAssign(MuExp var, MuExp exp))
     = muBlock([muAssign(var, exp), muReturn1(var)]);
+    
+MuExp muReturn1(muVarInit(MuExp var, MuExp exp))
+    = muBlock([muVarInit(var, exp), muReturn1(var)]);
+    
+MuExp muReturn1(muConInit(MuExp var, MuExp exp))
+    = muBlock([muConInit(var, exp), muReturn1(var)]);
 
 MuExp muReturn1(muIfEqualOrAssign(MuExp var, MuExp other, MuExp body))
     = muReturn1(muEqual(var, other));
     
 MuExp muReturn1(muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart))
     = muIfelse(cond, muReturn1(thenPart), muReturn1(elsePart));
+    
+MuExp muReturn1(muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart))
+    = muIfelse(cond,muReturn1(thenPart), muReturn1(elsePart));
 
 MuExp muReturn1(muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp exp))
     = muForRangeInt(label, var, ifirst, istep, last, muReturn1(exp));
@@ -387,6 +452,9 @@ MuExp muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart) = thenPart when thenP
 MuExp muIfelse(muCon(true), MuExp thenPart, MuExp elsePart) = thenPart;
 MuExp muIfelse(muCon(false), MuExp thenPart, MuExp elsePart) = elsePart;
 
+MuExp muIfelse(muValueBlock([*MuExp exps, MuExp exp]), MuExp thenPart, MuExp elsePart)
+    = muBlock([*exps, muIfelse(exp, thenPart, elsePart)]);
+
 //MuExp muEnter(str btscope, muIfelse(str btscope2, MuExp cond, MuExp thenPart, MuExp elsePart))
 //    =  muIfelse(btscope, cond, muEnter(btscope, thenPart), muEnter(btscope, elsePart));
 
@@ -425,7 +493,7 @@ tuple[bool flattened, list[MuExp] auxVars, list[MuExp] pre, list[MuExp] post] fl
                 newArgs += elems[-1];
             } else if(me: muEnter(btscope, exp) := arg){
                 nauxVars += 1;
-                aux = muTmp("$aux<nauxVars>", "", abool());
+                aux = muTmpIValue("$aux<nauxVars>", "", abool());
                 auxVars += muVarInit(aux, muCon(false));
                 pre += muAssign(aux, me);
                 newArgs += aux;
@@ -447,8 +515,8 @@ MuExp muOCall3(MuExp fun, AType atype, list[MuExp] args, loc src)
     = muValueBlock(auxVars + pre + muOCall3(fun, atype, flatArgs, src))
 when <true, auxVars, pre, flatArgs> := flattenArgs(args);
 
-MuExp muCallPrim3(str op, list[str] details, list[MuExp] args, loc src)
-    = muValueBlock(auxVars + pre + muCallPrim3(op, details, flatArgs, src))
+MuExp muCallPrim3(str op, AType result, list[AType] details, list[MuExp] args, loc src)
+    = muValueBlock(auxVars + pre + muCallPrim3(op, result, details, flatArgs, src))
 when <true, auxVars, pre, flatArgs> := flattenArgs(args);
 
 MuExp muCallJava(str name, str class, AType parameterTypes, AType keywordTypes, int reflect, list[MuExp] args)
@@ -481,9 +549,9 @@ MuExp muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcrete
 
 //muThrow
 //muTry
-//muFieldAccess(str kind, AType consType, MuExp exp, str fieldName)
-//muKwpFieldAccess(str kind, AType consType, MuExp exp, str fieldName)
-//muFieldUpdate(str kind, AType atype, MuExp exp1, str fieldName, MuExp exp2)
+//muGetField(str kind, AType consType, MuExp exp, str fieldName)
+//muKwpGetField(str kind, AType consType, MuExp exp, str fieldName)
+//muSetField(str kind, AType atype, MuExp exp1, str fieldName, MuExp exp2)
   
 
 MuExp muValueIsSubType(MuExp exp, AType tp) = muCon(true) when !isVarOrTmp(exp) && exp has atype && exp.atype == tp;
@@ -537,16 +605,17 @@ MuExp muCallPrim3("add", astr(), [astr(), astr()], [muCon(str s1), muCallPrim3("
 
 // Create composite datatypes
 
-MuExp muCallPrim3("create_alist", AType r, [AType e], list[MuExp] args, loc src) = muCon([a | muCon(a) <- args]) 
+MuExp muCallPrim3("create_list", AType r, [AType lst, AType elm], list[MuExp] args, loc src) = muCon([a | muCon(a) <- args]) 
       when allConstant(args);
 
-MuExp muCallPrim3("create_aset", AType r, [AType e], list[MuExp] args, loc src) = muCon({a | muCon(a) <- args}) 
+MuExp muCallPrim3("create_set", AType r, [AType s, AType e], list[MuExp] args, loc src) = muCon({a | muCon(a) <- args}) 
       when allConstant(args);
  
 // TODO: do not generate constant in case of multiple keys     
-MuExp muCallPrim3("create", ["amap"], list[MuExp] args, loc src) = muCon((args[i].c : args[i+1].c | int i <- [0, 2 .. size(args)]))
+MuExp muCallPrim3("create_map", AType r, [AType k, AType v], list[MuExp] args, loc src) = muCon((args[i].c : args[i+1].c | int i <- [0, 2 .. size(args)]))
       when allConstant(args);
-      
+ 
+ // TODO chanto type args     
 MuExp muCallPrim3("create", ["atuple"], [muCon(v1)], loc src) = muCon(<v1>);
 MuExp muCallPrim3("create", ["atuple"], [muCon(v1), muCon(v2)], loc src) = muCon(<v1, v2>);
 MuExp muCallPrim3("create", ["atuple"], [muCon(v1), muCon(v2), muCon(v3)], loc src) = muCon(<v1, v2, v3>);

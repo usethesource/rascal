@@ -7,12 +7,17 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.RascalException;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.RascalExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ToplevelType;
 import org.rascalmpl.uri.SourceLocationURICompare;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.ProductionAdapter;
+import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -48,7 +53,7 @@ public class $RascalModule {
 
 	// ---- utility methods ---------------------------------------------------
 
-	public static IMap buildMap(IValue...values){
+	public static final IMap buildMap(final IValue...values){
 		IMapWriter w = $VF.mapWriter();
 		for(int i = 0; i < values.length; i += 2) {
 			w.put(values[i], values[i+1]);
@@ -56,13 +61,9 @@ public class $RascalModule {
 		return w.done();
 	}
 
-	private static  Integer getOptionalInt(IValue v){
-		return v instanceof IInteger ? ((IInteger) v).intValue() : null;
-	}
-
 	// ---- add ---------------------------------------------------------------
 
-	public static IValue add(IValue lhs, IValue rhs) {
+	public static final IValue add(final IValue lhs, final IValue rhs) {
 		ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
 		ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
 		switch (lhsType) {
@@ -195,7 +196,72 @@ public class $RascalModule {
 			}
 		}
 	}
-	public static ISourceLocation aloc_add_astr(ISourceLocation sloc, IString s) {
+	
+	public static final IInteger aint_add_aint(final IInteger lhs, final IInteger rhs) {
+		return lhs.add(rhs);
+	}
+	
+	public static final IReal aint_add_areal(final IInteger lhs, final IReal rhs) {
+		return lhs.add(rhs);
+	}
+	
+	public static final INumber aint_add_arat(final IInteger lhs, final IRational rhs) {
+		return lhs.add(rhs);
+	}
+	
+	public static final INumber aint_add_anum(final IInteger lhs, final INumber rhs) {
+		return lhs.add(rhs);
+	}
+	
+	public static final INumber areal_add_aint(final IReal lhs, final IInteger rhs) {
+		return lhs.add(rhs);
+	}
+	
+	public static final INumber areal_add_areal(final IReal lhs, final IReal rhs) {
+		return lhs.add(rhs);
+	}
+	
+	public static final INumber areal_add_areal(final IReal lhs, final IRational rhs) {
+		return lhs.add(rhs);
+	}
+	
+	public static final INumber areal_add_anum(final IReal lhs, final INumber rhs) {
+		return lhs.add(rhs);
+	}
+	
+	public static final INumber arat_add_aint(final IRational lhs, final IInteger rhs) {
+		return lhs.add(rhs);
+	}
+	
+	public static final INumber arat_add_areal(final IRational lhs, final IReal rhs) {
+		return lhs.add(rhs);
+	}
+	
+	public static final IRational arat_add_arat(final IRational lhs, final IRational rhs) {
+		return lhs.add(rhs);
+	}
+	
+	public static final INumber arat_add_anum(final IRational lhs, final INumber rhs) {
+		return lhs.add(rhs);
+	}
+	
+	public static final INumber anum_add_aint(final INumber lhs, final IInteger rhs) {
+		return lhs.add(rhs);
+	}
+	
+	public static final INumber anum_add_areal(final INumber lhs, final IReal rhs) {
+		return lhs.add(rhs);
+	}
+	
+	public static final INumber anum_add_arat(final INumber lhs, final IRational rhs) {
+		return lhs.add(rhs);
+	}
+	
+	public static final INumber anum_add_anum(final INumber lhs, final INumber rhs) {
+		return lhs.add(rhs);
+	}
+	
+	public static final ISourceLocation aloc_add_astr(final ISourceLocation sloc, final IString s) {
 		String path = sloc.hasPath() ? sloc.getPath() : "";
 		if(!path.endsWith("/")){
 			path = path + "/";
@@ -205,7 +271,7 @@ public class $RascalModule {
 	}
 
 
-	public static ITuple atuple_add_atuple(ITuple t1, ITuple t2) {
+	public static final ITuple atuple_add_atuple(final ITuple t1, final ITuple t2) {
 		int len1 = t1.arity();
 		int len2 = t2.arity();
 		IValue elems[] = new IValue[len1 + len2];
@@ -216,16 +282,43 @@ public class $RascalModule {
 		return $VF.tuple(elems);
 	}
 
+	// ---- annotation_get ----------------------------------------------------
+
+	public static final IValue  annotation_get(final IValue val, final String label) {
+		try {
+			IValue result = val.asAnnotatable().getAnnotation(label);
+
+			if(result == null) {
+				throw RascalExceptionFactory.noSuchAnnotation(label);
+			}
+			return result;
+		} catch (FactTypeUseException e) {
+			throw  RascalExceptionFactory.noSuchAnnotation(label);
+		}
+	}
+
+	public static final GuardedIValue guarded_annotation_get(final IValue val, final String label) {
+		try {
+			IValue result = val.asAnnotatable().getAnnotation(label);
+
+			if(result == null) {
+				return UNDEFINED;
+			}
+			return new GuardedIValue(result);
+		} catch (FactTypeUseException e) {
+			return UNDEFINED;
+		}
+	}
 
 	// ---- assert_fails ------------------------------------------------------
 
-	public static void assert_fails(IString message) {
+	public static final void assert_fails(final IString message) {
 		throw RascalExceptionFactory.assertionFailed(message);
 	}
 
 	// ---- create ------------------------------------------------------------
 
-	public static ISourceLocation create_aloc(IString uri) {
+	public static final ISourceLocation create_aloc(final IString uri) {
 		try {
 			return URIUtil.createFromURI(uri.getValue());
 		} 
@@ -239,9 +332,22 @@ public class $RascalModule {
 		}
 	}
 
+
+	/**
+	 * Create a loc with given offsets and length
+	 */
+	public static final ISourceLocation create_aloc_with_offset(final ISourceLocation loc, final IInteger offset, final IInteger length, final ITuple begin, final ITuple end) {
+		int beginLine = ((IInteger) begin.get(0)).intValue();
+		int beginCol = ((IInteger) begin.get(1)).intValue();
+
+		int endLine = ((IInteger) end.get(0)).intValue();
+		int endCol = ((IInteger)  end.get(1)).intValue();
+		return $VF.sourceLocation(loc, offset.intValue(), length.intValue(), beginLine, endLine, beginCol, endCol);
+	}
+
 	// ---- divide ------------------------------------------------------------
 
-	public static IValue divide(IValue lhs, IValue rhs) {
+	public static final IValue divide(final IValue lhs, final IValue rhs) {
 		ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
 		ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
 		switch (lhsType) {
@@ -302,7 +408,7 @@ public class $RascalModule {
 		}
 	}
 
-	public static IInteger aint_divide_aint(IInteger a, IInteger b) {
+	public static final IInteger aint_divide_aint(final IInteger a, final IInteger b) {
 		try {
 			return a.divide(b);
 		} catch(ArithmeticException e) {
@@ -310,7 +416,7 @@ public class $RascalModule {
 		}
 	}
 
-	public static INumber aint_divide_areal(IInteger a, IReal b) {
+	public static final INumber aint_divide_areal(final IInteger a, final IReal b) {
 		try {
 			return a.multiply($VF.real(1.0)).divide(b,  $VF.getPrecision());
 		} catch(ArithmeticException e) {
@@ -318,7 +424,7 @@ public class $RascalModule {
 		}
 	}
 
-	public static IRational aint_divide_arat(IInteger a, IRational b) {
+	public static final IRational aint_divide_arat(final IInteger a, final IRational b) {
 		try {
 			return a.toRational().divide(b);
 		} catch(ArithmeticException e) {
@@ -326,7 +432,7 @@ public class $RascalModule {
 		}
 	}
 
-	public static INumber aint_divide_anum(IInteger a, INumber b) {
+	public static final INumber aint_divide_anum(final IInteger a, final INumber b) {
 		try {
 			return a.multiply($VF.real(1.0)).divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
@@ -334,7 +440,7 @@ public class $RascalModule {
 		}
 	}
 
-	public static INumber areal_divide_aint(IReal a, IInteger b) {
+	public static final INumber areal_divide_aint(final IReal a, final IInteger b) {
 		try {
 			return a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
@@ -342,7 +448,7 @@ public class $RascalModule {
 		}
 	}
 
-	public static IReal areal_divide_areal(IReal a, IReal b) {
+	public static final IReal areal_divide_areal(final IReal a, final IReal b) {
 		try {
 			return a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
@@ -350,7 +456,7 @@ public class $RascalModule {
 		}
 	}
 
-	public static INumber areal_divide_arat(IReal a, IRational b) {
+	public static final INumber areal_divide_arat(IReal a, IRational b) {
 		try {
 			return a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
@@ -358,7 +464,7 @@ public class $RascalModule {
 		}
 	}
 
-	public static INumber areal_divide_anum(IReal a, INumber b) {
+	public static final INumber areal_divide_anum(final IReal a, final INumber b) {
 		try {
 			return a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
@@ -366,7 +472,7 @@ public class $RascalModule {
 		}
 	}
 
-	public static IRational arat_divide_aint(IRational a, IInteger b) {
+	public static final IRational arat_divide_aint(final IRational a, final IInteger b) {
 		try {
 			return a.divide(b);
 		} catch(ArithmeticException e) {
@@ -374,7 +480,7 @@ public class $RascalModule {
 		}
 	}
 
-	public static IReal arat_divide_areal(IRational a, IReal b) {
+	public static final IReal arat_divide_areal(final IRational a, final IReal b) {
 		try {
 			return a.multiply($VF.real(1.0)).divide(b,  $VF.getPrecision());
 		} catch(ArithmeticException e) {
@@ -382,7 +488,7 @@ public class $RascalModule {
 		}
 	}
 
-	public static IRational arat_divide_arat(IRational a, IRational b) {
+	public static final IRational arat_divide_arat(final IRational a, final IRational b) {
 		try {
 			return a.toRational().divide(b);
 		} catch(ArithmeticException e) {
@@ -390,7 +496,7 @@ public class $RascalModule {
 		}
 	}
 
-	public static INumber arat_divide_anum(IRational a, INumber b) {
+	public static final INumber arat_divide_anum(final IRational a, final INumber b) {
 		try {
 			return a.multiply($VF.real(1.0)).divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
@@ -398,7 +504,7 @@ public class $RascalModule {
 		}
 	}
 
-	public static INumber anum_divide_aint(INumber a, IInteger b) {
+	public static final INumber anum_divide_aint(final INumber a, final IInteger b) {
 		try {
 			return a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
@@ -406,14 +512,14 @@ public class $RascalModule {
 		}
 	}
 
-	public static INumber anum_divide_areal(INumber a, IReal b) {
+	public static final INumber anum_divide_areal(final INumber a, final IReal b) {
 		try {
 			return a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
 			throw RascalExceptionFactory.arithmeticException("divide by zero");
 		}
 	}
-	public static INumber anum_divide_arat(INumber a, IRational b) {
+	public static final INumber anum_divide_arat(final INumber a, final IRational b) {
 		try {
 			return a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
@@ -421,7 +527,7 @@ public class $RascalModule {
 		}
 	}
 
-	public static INumber anum_divide_anum(INumber a, INumber b) {
+	public static final INumber anum_divide_anum(final INumber a, final INumber b) {
 		try {
 			return a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
@@ -431,7 +537,7 @@ public class $RascalModule {
 
 	// ---- equal -------------------------------------------------------------
 
-	public static IBool equal(IValue left, IValue right) {
+	public static final IBool equal(final IValue left, final IValue right) {
 		if(left.getType().isNumber() && right.getType().isNumber()){
 			return ((INumber) left).equal((INumber) right);
 		} else if(left.getType().isNode() && right.getType().isNode()){
@@ -441,9 +547,9 @@ public class $RascalModule {
 		}
 	}
 
-	// ---- field_access ------------------------------------------------------
+	// ---- get_field ---------------------------------------------------------
 
-	public static IValue aloc_field_access(ISourceLocation sloc, String field) {
+	public static final IValue aloc_get_field(final ISourceLocation sloc, final String field) {
 		IValue v;
 		switch (field) {
 
@@ -541,7 +647,7 @@ public class $RascalModule {
 
 		case "params":
 			String query = sloc.hasQuery() ? sloc.getQuery() : "";
-			IMapWriter res = $VF.mapWriter($TF.stringType(), $TF.stringType());
+			IMapWriter res = $VF.mapWriter();
 
 			if (query.length() > 0) {
 				String[] params = query.split("&");
@@ -615,7 +721,16 @@ public class $RascalModule {
 		return v;
 	}
 
-	public IValue adatetime_field_access(final IDateTime dt, String field) {
+	public static final GuardedIValue guarded_aloc_get_field(final ISourceLocation sloc, final String field) {
+		try {
+			IValue result = aloc_get_field(sloc, field);
+			return new GuardedIValue(result);
+		} catch (RascalException e) {
+			return UNDEFINED;
+		}
+	}
+
+	public static final IValue adatetime_get_field(final IDateTime dt, final String field) {
 		IValue v;
 		try {
 			switch (field) {
@@ -713,11 +828,20 @@ public class $RascalModule {
 			throw RascalExceptionFactory.invalidArgument(dt);
 		}
 	}
+	
+	public static final GuardedIValue guarded_datetime_get_field(final IDateTime dt, final String field) {
+		try {
+			IValue result = adatetime_get_field(dt, field);
+			return new GuardedIValue(result);
+		} catch (RascalException e) {
+			return UNDEFINED;
+		}
+	}
 
 	// ---- field_project -----------------------------------------------------
 
 	@SuppressWarnings("deprecation")
-	public static IValue atuple_field_project(ITuple tup, IValue... fields) {
+	public static final IValue atuple_field_project(final ITuple tup, final IValue... fields) {
 		int n = fields.length;
 		IValue [] newFields = new IValue[n];
 		for(int i = 0; i < n; i++){
@@ -727,8 +851,16 @@ public class $RascalModule {
 		}
 		return (n - 1 > 1) ? $VF.tuple(newFields) : newFields[0];
 	}
+	
+	public static final GuardedIValue guarded_atuple_field_project(final ITuple tup, final IValue... fields) {
+		try {
+			return new GuardedIValue(atuple_field_project(tup, fields));
+		} catch (Exception e) {
+			return UNDEFINED;
+		}
+	}
 
-	public static ISet amap_field_project (IMap map, IValue... fields) {
+	public static final ISet amap_field_project (final IMap map, final IValue... fields) {
 		ISetWriter w = $VF.setWriter();
 		int indexArity = fields.length;
 		int intFields[] = new int[indexArity];
@@ -746,9 +878,16 @@ public class $RascalModule {
 		}
 		return w.done();
 	}
+	
+	public static final GuardedIValue guarded_amap_field_project(final IMap map, final IValue... fields) {
+		try {
+			return new GuardedIValue(amap_field_project(map, fields));
+		} catch (Exception e) {
+			return UNDEFINED;
+		}
+	}
 
-
-	public static ISet arel_field_project(ISet set, IValue... fields) {
+	public static final ISet arel_field_project(final ISet set, final IValue... fields) {
 		int indexArity = fields.length;
 		int intFields[] = new int[indexArity];
 		for(int i = 1; i < indexArity; i++){
@@ -757,8 +896,16 @@ public class $RascalModule {
 
 		return set.asRelation().project(intFields);
 	}
+	
+	public static final GuardedIValue guarded_arel_field_project(final ISet set, final IValue... fields) {
+		try {
+			return new GuardedIValue(arel_field_project(set, fields));
+		} catch (Exception e) {
+			return UNDEFINED;
+		}
+	}
 
-	public static IList alrel_field_project(IList lrel, IValue... fields) {
+	public static final IList alrel_field_project(final IList lrel, final IValue... fields) {
 		int indexArity = fields.length;
 		int intFields[] = new int[indexArity];
 		for(int i = 1; i < indexArity; i++){
@@ -774,6 +921,14 @@ public class $RascalModule {
 			w.append((indexArity > 1) ? $VF.tuple(elems) : elems[0]);
 		}
 		return w.done();
+	}
+	
+	public static final GuardedIValue guarded_alrel_field_project(final IList lrel, final IValue... fields) {
+		try {
+			return new GuardedIValue(alrel_field_project(lrel, fields));
+		} catch (Exception e) {
+			return UNDEFINED;
+		}
 	}
 
 	// ---- field_update ------------------------------------------------------
@@ -1041,7 +1196,7 @@ public class $RascalModule {
 		}
 	}
 
-	public static IDateTime adatetime_field_update(IDateTime dt, String field, IValue repl) {
+	public static final IDateTime adatetime_field_update(final IDateTime dt, final String field, final IValue repl) {
 		// Individual fields
 		int year = dt.getYear();
 		int month = dt.getMonthOfYear();
@@ -1139,11 +1294,75 @@ public class $RascalModule {
 			throw RascalExceptionFactory.invalidArgument(dt, e.getMessage());
 		}
 	}
+	
+	// ---- has ---------------------------------------------------------------
+	
+	/**
+	 * Runtime check whether a node has a named field
+	 * 
+	 */
+	public static final boolean anode_has_field(final INode nd, final String fieldName) {
+		if ((nd.mayHaveKeywordParameters() && nd.asWithKeywordParameters().getParameter(fieldName) != null)){
+			return true;
+		} else {
+			if(nd.isAnnotatable()){
+				return nd.asAnnotatable().getAnnotation(fieldName) != null;
+			} else {
+				return false;
+			}
+		}
+	}
+	
+	/**
+	 * Runtime check whether given constructor has a named field (positional or keyword).
+	*/
 
+	public static final boolean aadt_has_field(final IConstructor cons, final String fieldName) {
+
+		Type consType = cons.getConstructorType();
+
+		// Does fieldName exist as positional field?
+		if(consType.hasField(fieldName)){
+			return true;
+		}
+
+		// Check for keyword parameter
+		String[] fieldNames = consType.getFieldNames();
+		if(fieldNames == null){
+			fieldNames = new String[0];
+		}
+
+		IListWriter w = $VF.listWriter();
+		w.append($VF.string(cons.getName()));
+		for(String fname : fieldNames){
+			w.append($VF.string(fname));
+		}
+		
+		if($TS.hasKeywordParameter(consType, fieldName)) {
+			return true;
+		}
+
+		if(TreeAdapter.isTree(cons) && TreeAdapter.isAppl((ITree) cons)) {
+			IConstructor prod = ((ITree) cons).getProduction();
+
+			for(IValue elem : ProductionAdapter.getSymbols(prod)) {
+				IConstructor arg = (IConstructor) elem;
+				if (SymbolAdapter.isLabel(arg) && SymbolAdapter.getLabel(arg).equals(fieldName)) {
+					return true;			        }
+			}
+		}
+		if(cons.isAnnotatable()){
+			return cons.asAnnotatable().getAnnotation(fieldName) != null;
+		} else {
+			return false;
+		}
+	}
+	
+	// TODO nonterminal
 
 	// ---- intersect ---------------------------------------------------------
 
-	public static IValue intersect(IValue left, IValue right) {
+	public static final IValue intersect(final IValue left, final IValue right) {
 		Type leftType = left.getType();
 		Type rightType = right.getType();
 
@@ -1171,10 +1390,54 @@ public class $RascalModule {
 			throw new InternalCompilerError("intersect: illegal combination " + leftType + " and " + rightType);
 		}
 	}
+	
+	// ---- is -----------------------------------------------------------------
+	
+	public static final boolean is(final IValue val, final IString sname) {
+		Type tp = val.getType();
+		String name = sname.getValue();
+		if(tp.isAbstractData()){
+			if(tp.getName().equals("Tree")){
+				IConstructor cons = (IConstructor) val;
+				if(cons.getName().equals("appl")){
+					IConstructor prod = (IConstructor) cons.get(0);
+					IConstructor def = (IConstructor) prod.get(0);
+					if(def.getName().equals("label")){
+						return ((IString) def.get(0)).getValue().equals(name);
+					}
+				}
+			} else {
+				String consName = ((IConstructor)val).getConstructorType().getName();
+				if(consName.startsWith("\\")){
+					consName = consName.substring(1);
+				}
+				return consName.equals(name);
+			}
+		} else if(tp.isNode()){
+			String nodeName = ((INode) val).getName();
+			if(nodeName.startsWith("\\")){
+				nodeName = nodeName.substring(1);
+			}
+			return nodeName.equals(name);
+		} 
+		return false;
+	}
+
+	// ---- is_defined_value and get_defined_value -----------------------------
+
+	private static final GuardedIValue UNDEFINED = new GuardedIValue();
+
+	public static final boolean is_defined_value(final GuardedIValue val) {
+		return val.defined;
+	}
+
+	public static final IValue get_defined_value(final GuardedIValue val) {
+		return val.value;
+	}
 
 	// ---- join --------------------------------------------------------------
 
-	public static IList alist_join_alrel(IList left, IList right){
+	public static final IList alist_join_alrel(final IList left, final IList right){
 		if(left.length() == 0){
 			return left;
 		}
@@ -1200,7 +1463,7 @@ public class $RascalModule {
 		return w.done();
 	}
 
-	public static IList alrel_join_alrel(IList left, IList right){
+	public static final IList alrel_join_alrel(final IList left, final IList right){
 		if(left.length() == 0){
 			return left;
 		}
@@ -1231,7 +1494,7 @@ public class $RascalModule {
 		return w.done();
 	}
 
-	public static IList alrel_join_alist(IList left, IList right){
+	public static final IList alrel_join_alist(final IList left, final IList right){
 		if(left.length() == 0){
 			return left;
 		}
@@ -1257,7 +1520,7 @@ public class $RascalModule {
 		return w.done();
 	}
 
-	public static ISet aset_join_arel(ISet left, ISet right){
+	public static final ISet aset_join_arel(final ISet left, final ISet right){
 		if(left.size() == 0){
 			return left;
 		}
@@ -1283,7 +1546,7 @@ public class $RascalModule {
 		return w.done();
 	}
 
-	public static ISet arel_join_arel(ISet left, ISet right){
+	public static final ISet arel_join_arel(final ISet left, final ISet right){
 		if(left.size() == 0){
 			return left;
 		}
@@ -1314,7 +1577,7 @@ public class $RascalModule {
 		return w.done();
 	}
 
-	public static ISet arel_join_aset(ISet left, ISet right){
+	public static final ISet arel_join_aset(final ISet left, final ISet right){
 
 		if(left.size() == 0){
 			return left;
@@ -1343,7 +1606,7 @@ public class $RascalModule {
 
 	// ---- less --------------------------------------------------------------
 
-	public static IBool less(IValue left, IValue right){
+	public static final IBool less(final IValue left, final IValue right){
 
 		Type leftType = left.getType();
 		Type rightType = right.getType();
@@ -1387,19 +1650,19 @@ public class $RascalModule {
 		}
 	}
 
-	public static IBool abool_less_abool(IBool left, IBool right) {
+	public static final IBool abool_less_abool(final IBool left, final IBool right) {
 		return  $VF.bool(!left.getValue() && right.getValue());
 	}
 
-	public static IBool astr_less_astr(IString left, IString right) {
+	public static final IBool astr_less_astr(final IString left, final IString right) {
 		return $VF.bool(left.compare(right) == -1);
 	}
 
-	public static IBool adatetime_less_adatetime(IDateTime left, IDateTime right) {
+	public static final IBool adatetime_less_adatetime(final IDateTime left, final IDateTime right) {
 		return $VF.bool(left.compareTo(right) == -1);
 	}
 
-	public static IBool aloc_less_aloc(ISourceLocation left, ISourceLocation right) {
+	public static final IBool aloc_less_aloc(final ISourceLocation left, final ISourceLocation right) {
 		int compare = SourceLocationURICompare.compare(left, right);
 		if (compare < 0) {
 			return Rascal_TRUE;
@@ -1436,7 +1699,7 @@ public class $RascalModule {
 		return Rascal_FALSE;
 	}
 
-	public static IBool atuple_less_atuple(ITuple left, ITuple right) {
+	public static final IBool atuple_less_atuple(final ITuple left, final ITuple right) {
 		int leftArity = left.arity();
 		int rightArity = right.arity();
 
@@ -1455,7 +1718,7 @@ public class $RascalModule {
 		return $VF.bool(leftArity <= rightArity);
 	}
 
-	public static IBool anode_less_anode(INode left, INode right) {
+	public static final IBool anode_less_anode(final INode left, final INode right) {
 		int compare = left.getName().compareTo(right.getName());
 
 		if (compare <= -1) {
@@ -1527,7 +1790,7 @@ public class $RascalModule {
 		return $VF.bool((leftArity < rightArity) || ((IBool)result).getValue());
 	}
 
-	public static IBool alist_less_alist(IList left, IList right) {
+	public static final IBool alist_less_alist(final IList left, final IList right) {
 		if(left.length() > right.length()){
 			return Rascal_FALSE;
 		}
@@ -1543,17 +1806,17 @@ public class $RascalModule {
 		return $VF.bool(left.length() != right.length());
 	}
 
-	public static IBool aset_less_aset(ISet left, ISet right) {
+	public static final IBool aset_less_aset(final ISet left, final ISet right) {
 		return $VF.bool(!left.isEqual(right) && left.isSubsetOf(right));
 	}
 
-	public static IBool amap_less_amap(IMap left, IMap right) {
+	public static final IBool amap_less_amap(final IMap left, final IMap right) {
 		return $VF.bool(left.isSubMap(right) && !right.isSubMap(left));
 	}
 
 	// ---- lessequal ---------------------------------------------------------
 
-	public static IBool lessequal(IValue left, IValue right){
+	public static final IBool lessequal(final IValue left, final IValue right){
 
 		Type leftType = left.getType();
 		Type rightType = right.getType();
@@ -1597,24 +1860,24 @@ public class $RascalModule {
 		}
 	}
 
-	public static IBool abool_lessequal_abool(IBool left, IBool right) {
+	public static final IBool abool_lessequal_abool(final IBool left, final IBool right) {
 		boolean l = left.getValue();
 		boolean r = right.getValue();
 		return $VF.bool((!l && r) || (l == r));
 	}
 
-	public static IBool astr_lessequal_astr(IString left, IString right) {
+	public static final IBool astr_lessequal_astr(final IString left, final IString right) {
 		int c = right.compare(left);
 		return $VF.bool(c == -1 || c == 0);
 	}
 
-	public static IBool adatetime_lessequal_adatetime(IDateTime left, IDateTime right) {
+	public static final IBool adatetime_lessequal_adatetime(final IDateTime left, final IDateTime right) {
 		int c = left.compareTo(right);
 		return $VF.bool(c== -1 || c == 0);
 	}
 
 
-	public static IBool aloc_lessequal_aloc(ISourceLocation left, ISourceLocation right) {
+	public static final IBool aloc_lessequal_aloc(final ISourceLocation left, final ISourceLocation right) {
 		int compare = SourceLocationURICompare.compare(left, right);
 		if (compare < 0) {
 			return Rascal_TRUE;
@@ -1651,7 +1914,7 @@ public class $RascalModule {
 		return Rascal_FALSE;
 	}
 
-	public static IBool anode_lessequal_anode(INode left, INode right) {
+	public static final IBool anode_lessequal_anode(final INode left, final INode right) {
 		int compare = left.getName().compareTo(right.getName());
 
 		if (compare <= -1) {
@@ -1675,7 +1938,7 @@ public class $RascalModule {
 		return $VF.bool(leftArity <= rightArity);
 	}
 
-	public static IBool atuple_lessequal_atuple(ITuple left, ITuple right) {
+	public static final IBool atuple_lessequal_atuple(final ITuple left, final ITuple right) {
 		int leftArity = left.arity();
 		int rightArity = right.arity();
 
@@ -1688,7 +1951,7 @@ public class $RascalModule {
 		return $VF.bool(leftArity <= rightArity);
 	}
 
-	public static IBool alist_lessequal_alist(IList left, IList right) {
+	public static final IBool alist_lessequal_alist(final IList left, final IList right) {
 		if (left.length() == 0) {
 			return Rascal_TRUE;
 		}
@@ -1708,18 +1971,18 @@ public class $RascalModule {
 		return $VF.bool(left.length() <= right.length());
 	}
 
-	public static IBool aset_lessequal_aset(ISet left, ISet right) {
+	public static final IBool aset_lessequal_aset(final ISet left, final ISet right) {
 		return $VF.bool(left.size() == 0 || left.isEqual(right) || left.isSubsetOf(right));
 	}
 
-	public static IBool amap_lessequal_amap(IMap left, IMap right) {
+	public static final IBool amap_lessequal_amap(final IMap left, final IMap right) {
 		return $VF.bool(left.isSubMap(right));
 	}
 
 	// ---- product -----------------------------------------------------------
 
 
-	public static IValue product(IValue lhs, IValue rhs) {
+	public static final IValue product(final IValue lhs, final IValue rhs) {
 		ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
 		ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
 		switch (lhsType) {
@@ -1781,7 +2044,7 @@ public class $RascalModule {
 	}
 
 
-	public static IList alist_product_alist(IList left, IList right) {
+	public static final IList alist_product_alist(final IList left, final IList right) {
 		IListWriter w = $VF.listWriter();
 		for(IValue l : left){
 			for(IValue r : right){
@@ -1791,7 +2054,7 @@ public class $RascalModule {
 		return w.done();
 	}
 
-	public static ISet aset_product_aset(ISet left, ISet right) {
+	public static final ISet aset_product_aset(final ISet left, final ISet right) {
 		ISetWriter w = $VF.setWriter();
 		for(IValue l : left){
 			for(IValue r : right){
@@ -1803,7 +2066,7 @@ public class $RascalModule {
 
 	// ---- slice -------------------------------------------------------------
 
-	public static IString astr_slice(final IString str,  Integer first, Integer second, Integer end){
+	public static final IString astr_slice(final IString str,  final Integer first,final  Integer second,final Integer end){
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, str.length());
 		StringBuilder buffer = new StringBuilder();
 		int increment = sd.second - sd.first;
@@ -1822,7 +2085,7 @@ public class $RascalModule {
 		return $VF.string(buffer.toString());
 	}
 
-	public static IList anode_slice(final INode node,  Integer first, Integer second, Integer end){
+	public static final IList anode_slice(final INode node,  final Integer first, final Integer second, final Integer end){
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, node.arity());
 		IListWriter w = $VF.listWriter();
 		int increment = sd.second - sd.first;
@@ -1862,7 +2125,7 @@ public class $RascalModule {
 		return w.done();
 	}
 
-	public static IList $makeSlice(final INode node, Integer first, Integer second, Integer end){
+	public static final IList $makeSlice(final INode node, final Integer first, final Integer second,final Integer end){
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, node.arity());
 		IListWriter w = $VF.listWriter();
 		int increment = sd.second - sd.first;
@@ -1882,7 +2145,7 @@ public class $RascalModule {
 		return w.done();
 	}
 
-	private static SliceDescriptor makeSliceDescriptor(Integer first, Integer second, Integer end, int len) {
+	private static SliceDescriptor makeSliceDescriptor(final Integer first, final Integer second, final Integer end, final int len) {
 		int firstIndex = 0;
 		int secondIndex = 1;
 		int endIndex = len;
@@ -1925,42 +2188,42 @@ public class $RascalModule {
 		return new SliceDescriptor(firstIndex, secondIndex, endIndex);
 	}
 
-	public static IString astr_slice_replace(IString str, Integer first, Integer second, Integer end, IString repl) {
+	public static final IString astr_slice_replace(final IString str, final Integer first, final Integer second, final Integer end, final IString repl) {
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, str.length());
 		return  str.replace(sd.first, sd.second, sd.end, repl);
 	}
 
-	public static INode anode_slice_replace(INode node, Integer first, Integer second, Integer end, IList repl) {
+	public static final INode anode_slice_replace(final INode node, final Integer first, final Integer second, final Integer end, final IList repl) {
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, node.arity());
 		return  node.replace(sd.first, sd.second, sd.end, repl);
 	}
 
-	public static IList alist_slice_replace(IList lst, Integer first, Integer second, Integer end, IList repl) {
+	public static final IList alist_slice_replace(final IList lst, final Integer first, final Integer second, final Integer end, final IList repl) {
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, lst.length());
 		return  updateListSlice(lst, sd, SliceOperator.replace, repl);
 	}
 
-	public static IList alist_slice_add(IList lst, Integer first, Integer second, Integer end, IList repl) {
+	public static final IList alist_slice_add(final IList lst, final Integer first, final Integer second, final Integer end, final IList repl) {
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, lst.length());
 		return  updateListSlice(lst, sd, SliceOperator.add, repl);
 	}
 
-	public static IList alist_slice_subtract(IList lst, Integer first, Integer second, Integer end, IList repl) {
+	public static final IList alist_slice_subtract(final IList lst, final Integer first, final Integer second, final Integer end, final IList repl) {
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, lst.length());
 		return  updateListSlice(lst, sd, SliceOperator.subtract, repl);
 	}
 
-	public static IList alist_slice_product(IList lst, Integer first, Integer second, Integer end, IList repl) {
+	public static final IList alist_slice_product(final IList lst, final Integer first, final Integer second, final Integer end, final IList repl) {
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, lst.length());
 		return  updateListSlice(lst, sd, SliceOperator.product, repl);
 	}
 
-	public static IList alist_slice_divide(IList lst, Integer first, Integer second, Integer end, IList repl) {
+	public static final IList alist_slice_divide(final IList lst, final Integer first, final Integer second, final Integer end, final IList repl) {
 		SliceDescriptor sd = makeSliceDescriptor(first, second, end, lst.length());
 		return  updateListSlice(lst, sd, SliceOperator.divide, repl);
 	}
 
-	public static IList updateListSlice(final IList lst, final SliceDescriptor sd, final SliceOperator op, final IList repl){
+	public static final IList updateListSlice(final IList lst, final SliceDescriptor sd, final SliceOperator op, final IList repl){
 		IListWriter w = $VF.listWriter();
 		int increment = sd.second - sd.first;
 		int replIndex = 0;
@@ -2035,7 +2298,7 @@ public class $RascalModule {
 	 * 
 	 * IListWriter w, IListOrISet val  => w with val's elements spliced in
 	 */
-	public static IListWriter listwriter_splice(IListWriter writer, IValue val) {
+	public static final IListWriter listwriter_splice(final IListWriter writer, final IValue val) {
 		if(val instanceof IList){
 			IList lst = (IList) val;
 			for(IValue v : lst){
@@ -2058,7 +2321,7 @@ public class $RascalModule {
 	 * ISetWriter w, IListOrISet val => w with val's elements spliced in
 	 */
 
-	public static ISetWriter setwriter_splice(ISetWriter writer, IValue val) {
+	public static final ISetWriter setwriter_splice(final ISetWriter writer, final IValue val) {
 		if(val instanceof IList){
 			IList lst = (IList) val;
 			for(IValue v : lst){
@@ -2078,7 +2341,7 @@ public class $RascalModule {
 
 	// ---- subscript ---------------------------------------------------------
 
-	public static IString astr_subscript_int(IString str, int idx) {
+	public static final IString astr_subscript_int(final IString str, final int idx) {
 		try {
 			return (idx >= 0) ? str.substring(idx, idx+1)
 					: str.substring(str.length() + idx, str.length() + idx + 1);
@@ -2087,7 +2350,30 @@ public class $RascalModule {
 		}
 	}
 
-	public static IValue atuple_subscript_int(ITuple tup, int idx) {
+	public static final GuardedIValue guarded_astr_subscript_int(final IString str, final int idx){
+		try {
+			IString res = (idx >= 0) ? str.substring(idx, idx+1)
+					: str.substring(str.length() + idx, str.length() + idx + 1);
+			return new GuardedIValue(res);
+		} catch(IndexOutOfBoundsException e) {
+			return UNDEFINED;
+		}
+	}
+
+	public static final GuardedIValue guarded_list_subscript(final IList lst, final int idx) {
+		try {
+			return new GuardedIValue(lst.get((idx >= 0) ? idx : (lst.length() + idx)));
+		} catch(IndexOutOfBoundsException e) {
+			return UNDEFINED;
+		}
+	}
+
+	public static final GuardedIValue guarded_map_subscript(final IMap map, final IValue idx) {
+		IValue v = map.get(idx);
+		return v == null? UNDEFINED : new GuardedIValue();
+	}
+
+	public static final IValue atuple_subscript_int(final ITuple tup, final int idx) {
 		try {
 			return tup.get((idx >= 0) ? idx : tup.arity() + idx);
 		} catch(IndexOutOfBoundsException e) {
@@ -2095,7 +2381,16 @@ public class $RascalModule {
 		}
 	}
 
-	public static IValue anode_subscript_int(INode node, int idx) {
+	public static final GuardedIValue guarded_atuple_subscript_int(final ITuple tup, final int idx) {
+		try {
+			IValue res = tup.get((idx >= 0) ? idx : tup.arity() + idx);
+			return new GuardedIValue(res);
+		} catch(IndexOutOfBoundsException e) {
+			return UNDEFINED;
+		}
+	}
+
+	public static final IValue anode_subscript_int(final INode node, int idx) {
 		try {
 			if(idx < 0){
 				idx =  node.arity() + idx;
@@ -2106,7 +2401,19 @@ public class $RascalModule {
 		}
 	}
 
-	public static IValue aadt_subscript_int(IConstructor cons, int idx) {
+	public static final GuardedIValue guarded_anode_subscript_int(final INode node, int idx) {
+		try {
+			if(idx < 0){
+				idx =  node.arity() + idx;
+			}
+			IValue res = node.get(idx);  
+			return new GuardedIValue(res);
+		} catch(IndexOutOfBoundsException e) {
+			return UNDEFINED;
+		}
+	}
+
+	public static final IValue aadt_subscript_int(final IConstructor cons, final int idx) {
 		try {
 			return cons.get((idx >= 0) ? idx : (cons.arity() + idx));
 		} catch(IndexOutOfBoundsException e) {
@@ -2114,21 +2421,38 @@ public class $RascalModule {
 		}
 	}
 
+	public static final GuardedIValue guarded_aadt_subscript_int(final IConstructor cons, final int idx) {
+		try {
+			IValue res = cons.get((idx >= 0) ? idx : (cons.arity() + idx));
+			return new GuardedIValue(res);
+		} catch(IndexOutOfBoundsException e) {
+			return UNDEFINED;
+		}
+	}
+
 	/**
 	 * Subscript of a n-ary rel with a single subscript (no set and unequal to _)
 	 */
-	public static ISet arel_subscript1_noset(ISet rel, IValue idx) {
+	
+	public static final ISet arel_subscript1_noset(final ISet rel, final IValue idx) {
 		if(rel.isEmpty()){
 			return rel;
 		}
 		return rel.asRelation().index(idx);
 	}
-
+	
+	public static final GuardedIValue guarded_arel_subscript1_noset(final ISet rel, final IValue idx) {
+		try {
+			return  new GuardedIValue(arel_subscript1_noset(rel, idx));
+		} catch (Exception e) {
+			return UNDEFINED;
+		}
+	}
 
 	/**
 	 * Subscript of a binary rel with a single subscript (a set but unequal to _)
 	 */
-	public ISet arel2_subscript1_aset(ISet rel, ISet idx) {
+	public static final ISet arel2_subscript1_aset(final ISet rel, final ISet idx) {
 		if(rel.isEmpty()){
 			return rel;
 		}
@@ -2143,12 +2467,19 @@ public class $RascalModule {
 		}
 		return wset.done();
 	}
-
+	
+	public static final GuardedIValue guarded_arel2_subscript1_aset(final ISet rel, final ISet idx) {
+		try {
+			return  new GuardedIValue(arel2_subscript1_aset(rel, idx));
+		} catch (Exception e) {
+			return UNDEFINED;
+		}
+	}
 
 	/**
 	 * Subscript of an n-ary (n > 2) rel with a single subscript (a set and unequal to _)
 	 */
-	public ISet arel_subscript1_aset(ISet rel, ISet index) {
+	public static final ISet arel_subscript1_aset(final ISet rel, final ISet index) {
 		if(rel.isEmpty()){
 			return rel;
 		}
@@ -2169,13 +2500,21 @@ public class $RascalModule {
 		}
 		return wset.done();
 	}
+	
+	public static final GuardedIValue guarded_arel_subscript1_aset(final ISet rel, final ISet index) {
+		try {
+			return  new GuardedIValue(arel_subscript1_aset(rel, index));
+		} catch (Exception e) {
+			return UNDEFINED;
+		}
+	}
 
 	/**
 	 * Subscript of rel, general case
 	 * subsDesc is a subscript descriptor: an array with integers: 0: noset, 1: set, 2: wildcard
 	 */
 
-	public static ISet arel_subscript (ISet rel, IValue[] idx, int[] subsDesc) {
+	public static final ISet arel_subscript (final ISet rel, final IValue[] idx, final int[] subsDesc) {
 		if(rel.isEmpty()){
 			return rel;
 		}
@@ -2223,10 +2562,44 @@ public class $RascalModule {
 
 		return wset.done();
 	}
+	
+	public static final GuardedIValue guarded_arel_subscript (final ISet rel, final IValue[] idx, final int[] subsDesc) {
+		try {
+			return  new GuardedIValue(arel_subscript(rel, idx, subsDesc));
+		} catch (Exception e) {
+			return UNDEFINED;
+		}
+	}
+	
+	public static final IValue subject_subscript(final IList lst, final int idx) {
+		return lst.get(idx);
+	}
+	
+	public static final IValue subject_subscript(final ITuple tup, final int idx) {
+		return tup.get(idx);
+	}
+	
+	public static final IString subject_subscript(final IString str, final int idx) {
+		return str.substring(idx, 1);
+	}
+	
+	public static final IValue subject_subscript(final IValue subject, final int idx) {
+		if(subject.getType().isList()) {
+			return ((IList) subject).get(idx);
+		}
+		if(subject.getType().isTuple()) {
+			return ((ITuple) subject).get(idx);
+		}
+		if(subject.getType().isString()) {
+			return ((IString) subject).substring(idx, 1);
+		}
+		throw new RuntimeException("Unsupported subject subscript");
+		
+	}
 
 	// ---- subtract ----------------------------------------------------------
 
-	public static IValue subtract(IValue lhs, IValue rhs) {
+	public static final IValue subtract(final IValue lhs, final IValue rhs) {
 		ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
 		ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
 		switch (lhsType) {
@@ -2295,7 +2668,7 @@ public class $RascalModule {
 	 * 
 	 */
 
-	public static IList alist_update(IList lst, int n, IValue v) {
+	public static final IList alist_update(final IList lst, int n, final IValue v) {
 		if(n < 0){
 			n = lst.length() + n;
 		}
@@ -2311,7 +2684,7 @@ public class $RascalModule {
 	 * Update map element
 	 * 
 	 */
-	public static IMap amap_update(IMap map, IValue key, IValue v) {
+	public static final IMap amap_update(IMap map, IValue key, IValue v) {
 		return map.put(key, v);
 	}
 
@@ -2320,7 +2693,7 @@ public class $RascalModule {
 	 * 
 	 */
 
-	public static ITuple atuple_update(ITuple tup, int n, IValue v) {
+	public static final ITuple atuple_update(final ITuple tup, final int n, final IValue v) {
 		try {
 			return tup.set(n, v);
 		} catch (IndexOutOfBoundsException e){
@@ -2334,7 +2707,7 @@ public class $RascalModule {
 	 * 
 	 */
 
-	public static IConstructor aadt_update(IConstructor cons, IString field, IValue v) {
+	public static final IConstructor aadt_update(final IConstructor cons, final IString field, final IValue v) {
 		return cons.set(field.getValue(), v);
 	}
 }
@@ -2383,33 +2756,33 @@ enum SliceOperator {
 
 	public static final SliceOperator[] values = SliceOperator.values();
 
-	public static SliceOperator fromInteger(int n) {
+	public static final SliceOperator fromInteger(int n) {
 		return values[n];
 	}
 
 	public abstract IValue execute(final IValue left, final IValue right);
 
-	public static SliceOperator replace() {
+	public static final SliceOperator replace() {
 		return values[0];
 	}
 
-	public static SliceOperator add() {
+	public static final SliceOperator add() {
 		return values[1];
 	}
 
-	public static SliceOperator subtract() {
+	public static final SliceOperator subtract() {
 		return values[2];
 	}
 
-	public static SliceOperator product() {
+	public static final SliceOperator product() {
 		return values[3];
 	}
 
-	public static SliceOperator divide() {
+	public static final SliceOperator divide() {
 		return values[4];
 	}
 
-	public static SliceOperator intersect() {
+	public static final SliceOperator intersect() {
 		return values[5];
 	}
 

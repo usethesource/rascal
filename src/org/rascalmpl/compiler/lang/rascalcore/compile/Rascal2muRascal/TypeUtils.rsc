@@ -95,6 +95,7 @@ set[UID] defaultFunctions = {};                     // Declared default function
 bool isDefaultFunction(UID uid) = uid in defaultFunctions;
 
 set[UID] constructors = {};                         // Declared constructors
+map[AType, set[AType]] adt_constructors = ();       // Map from ADT to its constructors
 
 bool isConstructor(UID uid) = uid in constructors;
 
@@ -180,7 +181,11 @@ public void resetScopeExtraction() {
     vars_per_scope = ();
     functions = {};
     constructors = {};
-    //functions_and_constructors_to_int  = ();
+    adt_constructors = ();
+}
+
+bool isDefinition(UID d){
+    return definitions[d]?;
 }
 
 AType getDefType(UID d){
@@ -195,7 +200,6 @@ int getFormals(UID fuid) {
     tp = getDefType(fuid);
     kwmap = size(tp.kwFormals) > 0 ? 1 : 0;
     return size(tp.formals) + kwmap;
-    //size(facts[fuid]? ? facts[fuid].formals : getDefType(fuid).formals) + 1;  // '+ 1' accounts for keyword arguments
  }
 
 str getScope(UID uid){
@@ -226,10 +230,10 @@ bool is_module_variable(Define d) = d.idRole == variableId();
 bool is_module_or_function(loc l) = definitions[l]? && definitions[l].idRole in {moduleId(), functionId()};
 bool is_module(Define d) = d.idRole in {moduleId()};
 
-bool is_declared_in_module(UID uid) = definitions[getFirstFrom(useDef[uid]).defined] == moduleId();
+bool is_declared_in_module(UID uid) = definitions[getFirstFrom(useDef[uid])] == moduleId();
 
 loc findContainer(Define d){
-    println(d);
+    //println(d);
     if(is_module(d)) return d.defined;
     cscope = d.scope;
     while(!is_module_or_function(cscope)) cscope = scopes[cscope];
@@ -238,7 +242,7 @@ loc findContainer(Define d){
     
 // extractScopes: extract and convert type information from the Configuration delivered by the type checker.
 void extractScopes(TModel tm){
-    iprintln(tm);
+    //iprintln(tm);
     scopes = tm.scopes;
 
     facts = tm.facts;
@@ -265,8 +269,16 @@ void extractScopes(TModel tm){
                 functions += def.defined;
                 if(def.defInfo has modifiers && "default" in def.defInfo.modifiers) defaultFunctions += def.defined;
             }  
-            case constructorId():
+            case constructorId(): {
                  constructors += def.defined;
+                 consType = getDefType(def.defined);
+                 adtType = consType.adt;
+                 if(adt_constructors[adtType]?){
+                    adt_constructors[adtType] += consType;
+                 } else {
+                    adt_constructors[adtType] = {consType};
+                 }
+                 }
             case keywordFormalId():
                  keywordFormals += def.defined;
             case moduleId():
@@ -284,7 +296,7 @@ void extractScopes(TModel tm){
        }
     }
     
-    println("vars_per_scope"); iprintln(vars_per_scope);
+    //println("vars_per_scope"); iprintln(vars_per_scope);
     
     // Determine position of module variables
     for(m <- modules){
@@ -300,14 +312,14 @@ void extractScopes(TModel tm){
     declaredIn = (d.defined : findContainer(d) | d <- defines, d.id != "type");
     declares = invert(toRel(declaredIn));
     
-    println("declaredIn"); iprintln(declaredIn);
+    //println("declaredIn"); iprintln(declaredIn);
     
     // Determine position of variables inside functions
     
     for(fun <- functions){   
         fundef = definitions[fun];
-        println("td_reachable_scopes[fundef.defined]: <td_reachable_scopes[fundef.defined]>");
-        println("vars_per_scope:"); iprintln(vars_per_scope);
+        //println("td_reachable_scopes[fundef.defined]: <td_reachable_scopes[fundef.defined]>");
+        //println("vars_per_scope:"); iprintln(vars_per_scope);
         locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined], sc in functions ==> sc == fun};
         vars = sort([v | v <- locally_defined, is_variable(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
         formals = [v | v <- vars, is_formal(v)];
@@ -383,7 +395,7 @@ void extractScopes(TModel tm){
                     if(def.idRole == constructorId()){
                         ovl_constructors += def.defined;
                     } else if(def.idRole == functionId()){
-                        if(def in defaultFunctions) 
+                        if(def.defined in defaultFunctions) 
                             ovl_defaults += def.defined;
                         else 
                             ovl_non_defaults += def.defined;
@@ -563,7 +575,7 @@ list[str] abbreviate(list[loc] locs){
 }
 
 loc declareGeneratedFunction(str name, str fuid, AType rtype, loc src){
-	println("declareGeneratedFunction: <name>, <rtype>, <src>");
+	//println("declareGeneratedFunction: <name>, <rtype>, <src>");
     uid = src;
     functions += {uid};
    
@@ -576,7 +588,7 @@ loc declareGeneratedFunction(str name, str fuid, AType rtype, loc src){
 
 // Get the type of an expression as Symbol
 private AType getType0(loc l) {
-   println("getType(<l>)");
+   //println("getType(<l>)");
     if(definitions[l]?){
         return getDefType(l);
     }
@@ -634,7 +646,7 @@ AType getFunctionType(loc l) {
 
 list[str] getNestedParameterNames(loc l){
     fundef = definitions[l];
-    println("getNestedParameterNames: <l>");
+    //println("getNestedParameterNames: <l>");
     locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined] }; //TODO declaredIn[sc] == fun
     positionals = sort([v | v <- locally_defined, is_positional_formal(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
     return [ vdef.id | vdef <- positionals ];
@@ -654,13 +666,13 @@ tuple[AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType
     adtType = unsetRec(adtType);
     for(uid <- constructors){
         consType = getDefType(uid);
-        iprintln(consType);
-        if(consType.adt == adtType){
+        //iprintln(consType);
+        if(unsetRec(consType.adt) == adtType){
             if(fieldType in consType.fields){
                 return <consType,false>;
             } else {
                 for(<AType kwType, Expression defaultExp> <- consType.kwFields){
-                    if(unsetRec(kwType) == fieldType){
+                    if(kwType == fieldType){
                         return <consType, true>;
                     }
                  }
@@ -671,11 +683,10 @@ tuple[AType atype, bool isKwp] getConstructorInfo(AType adtType, AType fieldType
 }
 	
 alias KeywordParamMap = map[str kwName, AType kwType];
-				
-KeywordParamMap getKeywords(loc location){
-    tp = getDefType(location);
-    assert tp has kwFormals;
-    return (kwtp.label : unsetRec(kwtp) | kwtp <- tp.kwFormals<0>);
+	
+KeywordParamMap getKeywords(Parameters parameters){
+    KeywordFormals kwfs = parameters.keywordFormals;
+    return ("<kwf.name>" : kwtp | kwf <- kwfs.keywordFormalList, kwtp := getType(kwf));
 }
 
 map[str, map[str, value]] getConstantConstructorDefaultExpressions(loc location){
@@ -692,8 +703,8 @@ tuple[str fuid, int pos] getVariableScope(str name, loc l) {
 }
 
 int getPositionInScope(str name, loc l){
-    println("getPositionInScope:<name>, <l>");
-    iprintln(position_in_container);
+    //println("getPositionInScope:<name>, <l>");
+    //iprintln(position_in_container);
     uid = l in definitions ? l : getFirstFrom(useDef[l]); 
     return position_in_container[uid];
     //return (position_in_container[l] ? position_in_container[definitions[getFirstFrom(useDef[l])].defined]);
@@ -793,7 +804,7 @@ MuExp mkVar(str name, loc l) {
   defs = useDef[l];
   if(size(defs) > 1){
     assert all(d <- defs, definitions[d].idRole in {functionId(), constructorId()}) : "Only functions can have multiple definitions" ;
-   println("overloadedTypeResolver:"); iprintln(overloadedTypeResolver);
+   //println("overloadedTypeResolver:"); iprintln(overloadedTypeResolver);
     ftype = unsetRec(getType(l));
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := ftype){
         resType = avoid();
@@ -804,7 +815,7 @@ MuExp mkVar(str name, loc l) {
         }
         ftype = afunc(resType, formalsType.atypes, []);
     }
-    iprintln(overloadedTypeResolver);
+    //iprintln(overloadedTypeResolver);
     return muOFun(overloadedTypeResolver[<name,ftype>]);
   }
   uid = getFirstFrom(defs);
@@ -857,10 +868,10 @@ MuExp mkAssign(str name, loc l, MuExp exp) {
    }
 
     if(def.idRole in variableRoles){
-        println("mkAssign: <l>");
-        println("mkAssign, scope: <getScope(uid)>");
-        println("mkAssign: <def>");
-        println("mkAssign: isinit: <l == def.defined>");
+        //println("mkAssign: <l>");
+        //println("mkAssign, scope: <getScope(uid)>");
+        //println("mkAssign: <def>");
+        //println("mkAssign: isinit: <l == def.defined>");
         
         return l == def.defined ? muVarInit(muVar(name, getScope(uid), getPositionInScope(name, uid), getType(l)), exp)
                                 : muAssign(muVar(name, getScope(uid), getPositionInScope(name, uid), getType(l)), exp);
