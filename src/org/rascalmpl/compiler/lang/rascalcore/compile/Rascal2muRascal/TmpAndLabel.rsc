@@ -4,6 +4,7 @@ module lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel
 import List;
 import lang::rascalcore::check::AType;
 import lang::rascal::\syntax::Rascal;
+import lang::rascalcore::compile::muRascal::AST;
 
 /*
  * Management of temporaries and labels.
@@ -116,17 +117,17 @@ str asUnwrappedThrown(str name) = name + "_unwrapped";
 
 // Keep track of possibly nested "it" variables in reducers
 
-private lrel[str name,str fuid] itVariables = []; // *** state
+private list[MuExp] itVariables = []; // *** state
 
-void pushIt(str name, str fuid){
-  itVariables = <name,fuid> + itVariables;
+void pushIt(MuExp var){
+  itVariables = var + itVariables;
 }
 
 void popIt(){
   itVariables = tail(itVariables);
 }
 
-tuple[str name,str fuid] topIt() = top(itVariables);
+MuExp topIt() = top(itVariables);
 
 // Administration for possibly nested list/set writers related to splicing list/set elements
 

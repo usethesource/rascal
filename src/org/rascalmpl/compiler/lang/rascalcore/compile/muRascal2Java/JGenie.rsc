@@ -18,6 +18,7 @@ alias JCode = str;
 data JGenie
     = jgenie(
         str () getModuleName,
+        loc () getModuleLoc,
         AType (loc src) getType,
         str (loc src) getAccessor,
         str (loc src) getAccessorInResolver,
@@ -42,7 +43,7 @@ data JGenie
       )
     ;
     
-JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLocs){
+JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLocs, map[str, MuFunction] muFunctions){
     str kwpDefaults = "$kwpDefaults";
     map[value,str] constants = ();
     map[str,value] constant2value = ();
@@ -61,9 +62,20 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
    
     str _getModuleName()
         = currentModule.modelName;
+        
+    loc _getModuleLoc()
+        = currentModuleScope;
     
     AType _getType(loc src)
         = currentModule.facts[src];
+        
+    str getImportedModuleName(loc def){
+        for(mname <- moduleLocs){
+            if(containedIn(def, moduleLocs[mname])){
+                return replaceAll(mname, "::", "_");
+            }
+        }
+    }
         
     str _getAccessor(loc src){
         for(mname <- tmodels){
@@ -72,14 +84,19 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                 if(defType(AType tp) := def.defInfo){
                     baseName = "<def.id>_<def.defined.begin.line>_<def.defined.end.line>";
                     descriptor = atype2descriptor(tp);
-                    if(mname == moduleName){
-                        return "$me.<def.id>_<descriptor>";
+                    if(containedIn(def.defined, currentModuleScope)){
+                        return startsWith(def.id, "$CLOSURE") ? "<def.id>" : "$me.<def.id>_<descriptor>";
                     } else {
-                        return "<replaceAll(mname, "::", "_")>.<baseName>_<descriptor>";
+                        return startsWith(def.id, "$CLOSURE") ? def.id : "<getImportedModuleName(def.defined)>.<def.id>";
                     }
                  }
              }
         }
+        //for(str fname <- muFunctions){
+        //    if(muFunctions[fname].src == src){
+        //        return fname;
+        //    }
+        //}
         throw "No accessor found for <src>";
     }
     
@@ -112,9 +129,8 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
         for(mname <- tmodels){
             tm = tmodels[mname];
             useDef = tm.useDef;
-            println("useDef:"); iprintln(useDef);
             definitions = tm.definitions;
-            for(<u, d> <- useDef, definitions[d]?, def := definitions[d], def.idRole == variableId(), !containedIn(def.scope, src)){
+            for(<u, d> <- useDef, containedIn(u, src), definitions[d]?, def := definitions[d], def.idRole == variableId(), !containedIn(def.scope, src)){
                 extVarDefs += <def.id, d>;
             }
         }
@@ -199,6 +215,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
     
     return jgenie(
                 _getModuleName,
+                _getModuleLoc,
                 _getType,
                 _getAccessor,
                 _getAccessorInResolver,
@@ -272,17 +289,17 @@ str atype2descriptor(avoid())                 = "void";
 str atype2descriptor(avalue())                = "value";
 str atype2descriptor(aloc())                  = "loc";
 str atype2descriptor(adatetime())             = "datetime";
-str atype2descriptor(alist(AType t))          = "list";
-str atype2descriptor(aset(AType t))           = "set";
-str atype2descriptor(atuple(AType ts))        = "tuple";
-str atype2descriptor(amap(AType d, AType r))  = "map";
-str atype2descriptor(arel(AType ts))          = "rel";
-str atype2descriptor(alrel(AType ts))         = "listrel";
+str atype2descriptor(alist(AType t))          = "list_<atype2descriptor(t)>";
+str atype2descriptor(aset(AType t))           = "set_<atype2descriptor(t)>";
+str atype2descriptor(atuple(AType ts))        = "tuple_<atype2descriptor(ts)>";
+str atype2descriptor(amap(AType d, AType r))  = "map_<atype2descriptor(d)>_<atype2descriptor(r)>";
+str atype2descriptor(arel(AType ts))          = "rel_<atype2descriptor(ts)>";
+str atype2descriptor(alrel(AType ts))         = "listrel_<atype2descriptor(ts)>";
 str atype2descriptor(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
                                               = "<atype2descriptor(ret)>_<intercalate("_", [atype2descriptor(f) | f <- formals])>";
 str atype2descriptor(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) = adtName;
 str atype2descriptor(t:acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields))
-                                              = "<adt.adtName><t.label? ? "_" + t.label : "">_<intercalate("_", [atype2descriptor(f) | f <- fields])>";
+                                              = "$<adt.adtName><t.label? ? "_" + t.label : "">_<intercalate("_", [atype2descriptor(f) | f <- fields])>";
 str atype2descriptor(overloadedAType(rel[loc, IdRole, AType] overloads)){
     resType = avoid();
     formalsType = avoid();
@@ -293,6 +310,10 @@ str atype2descriptor(overloadedAType(rel[loc, IdRole, AType] overloads)){
     ftype = afunc(resType, formalsType.atypes, []);
     return atype2descriptor(ftype);
 }
+
+str atype2descriptor(atypeList(list[AType] ts)) = intercalate("_", [atype2descriptor(t) | t <- ts]);
+
+str atype2descriptor(aparameter(str pname, AType bound)) = "P<avalue() := bound ? "" : atype2descriptor(bound)>"; 
 default str atype2descriptor(AType t) = "value";
 
 // ----
@@ -324,13 +345,19 @@ str atype2istype(overloadedAType(rel[loc, IdRole, AType] overloads))
 
 default str atype2istype(AType t)         = "isTop";
 
+
+// ----
+
+str escapeForJ(str s)
+    = escape(s, ("\n": "\\n"));   // TODO cover all cases
+    
 // ----
 
 str value2java(int n) = "$VF.integer(<n>)";
 str value2java(bool b) = "$VF.bool(<b>)";
 str value2java(real r) = "$VF.real(<r>)";
 str value2java(rat rt) = "$VF.rational(\"<rt>\")";
-str value2java(str s) = "$VF.string(\"<s>\")";   // TODO escaping
+str value2java(str s) = "$VF.string(\"<escapeForJ(s)>\")";
 
 str value2java(anode(list[AType fieldType] fields)) = "INode";
 str value2java(aloc()) = "ISourceLocation";

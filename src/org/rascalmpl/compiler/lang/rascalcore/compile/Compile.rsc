@@ -1,14 +1,13 @@
 @bootstrapParser
 module  lang::rascalcore::compile::Compile
 
-
 import Message;
 import util::Reflective;
 import util::Benchmark;
 import IO;
 
 import lang::rascal::\syntax::Rascal;
-
+ 
 import lang::rascalcore::compile::Rascal2muRascal::RascalModule;
 import lang::rascalcore::check::Checker;
 import lang::rascalcore::compile::muRascal2Java::CodeGen;

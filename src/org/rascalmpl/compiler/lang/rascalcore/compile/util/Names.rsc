@@ -43,6 +43,7 @@ str escapeAsJavaString(str s){
   return replaceAll(s, "\n", "\\n");    //TODO make precise
 }
 
+// Is inner location textually contained in outer location?
 bool containedIn(loc inner, loc outer){
-    return inner.path == outer.path && inner.offset >= outer.offset && inner.offset + inner.length <= outer.offset + outer.length;
+    return inner.path == outer.path && (!outer.offset? || inner.offset >= outer.offset && inner.offset + inner.length <= outer.offset + outer.length);
 }
