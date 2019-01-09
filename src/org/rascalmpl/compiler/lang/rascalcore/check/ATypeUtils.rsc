@@ -215,6 +215,8 @@ default AType unwrapType(AType t) = t;
 
 bool allLabelled(list[AType] tls) = size(tls) == size([tp | tp <- tls, !isEmpty(tp.label)]);
 
+bool isArithType(AType t) = isIntType(t) || isRealType(t) || isRatType(t) || isNumType(t);
+
 // ---- int
 
 @doc{

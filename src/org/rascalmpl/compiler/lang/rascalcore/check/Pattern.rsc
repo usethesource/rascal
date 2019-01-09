@@ -227,17 +227,13 @@ void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
           return;
        }
        c.push(patternNames, <base, getLoc(current)>);
-
+       if(!isEmpty(qualifier)) c.report(error(name, "Qualifier not allowed"));
        if(isTopLevelParameter(c)){
-          c.fact(current, avalue());
-          if(!isEmpty(qualifier)) c.report(error(name, "Qualifier not allowed"));
-          //println("qualifiedName: <name>, parameter defLub, <getLoc(current)>");
+          c.fact(current, avalue());  
           c.define(base, formalId(), name, defLub([], AType(Solver s) { return avalue(); }));
        } else {
           tau = c.newTypeVar(name);
           c.fact(name, tau); //<====
-          if(!isEmpty(qualifier)) c.report(error(name, "Qualifier not allowed"));
-          //println("qualifiedName: <name>, defLub, <tau>, <getLoc(current)>");
           c.define(base, formalOrPatternFormal(c), name, defLub([], AType(Solver s) { return s.getType(tau); }));
        }
     } else {
@@ -254,16 +250,15 @@ void collectAsVarArg(current: (Pattern) `<QualifiedName name>`,  Collector c){
           return;
        }
        c.push(patternNames, <base, getLoc(current)>);
-
+       if(!isEmpty(qualifier)) c.report(error(name, "Qualifier not allowed"));
+       
        if(isTopLevelParameter(c)){
           c.fact(current, alist(avalue()));
-          if(!isEmpty(qualifier)) c.report(error(name, "Qualifier not allowed"));
           //println("qualifiedName: <name>, parameter defLub, <getLoc(current)>");
           c.define(base, formalId(), name, defLub([], AType(Solver s) { return avalue(); }));
        } else {
           tau = c.newTypeVar(name);
           c.fact(name, tau);     //<====
-          if(!isEmpty(qualifier)) c.report(error(name, "Qualifier not allowed"));
           //println("qualifiedName: <name>, defLub, <tau>, <getLoc(current)>");
           c.define(base, formalOrPatternFormal(c), name, defLub([], AType(Solver s) { return s.getType(tau); }));
        }
