@@ -211,11 +211,18 @@ void collect(current: (Expression) `<Expression arg> *`, Collector c){
 
 // ---- isDefined
 
+bool isValidIsDefinedArg(Expression arg) // TODO maybe add call?
+    = arg is subscript || arg is fieldAccess || arg is fieldProject || arg is getAnnotation || (arg is \bracket && isValidIsDefinedArg(arg.expression));
+
+void checkIsDefinedArg(Expression arg, Collector c){
+    if(!isValidIsDefinedArg(arg)){
+        c.report(error(arg, "Only subscript, field access, field project or get annotation allowed"));
+    }
+}
+
 void collect(current: (Expression) `<Expression arg> ?`, Collector c){
     c.fact(current, abool());
-    if(!(arg is subscript || arg is fieldAccess || arg is getAnnotation)){ // TODO maybe add call?
-        c.report(error(arg, "Only subscript, field access or get annotation allowed"));
-    }
+    checkIsDefinedArg(arg, c);
     collect(arg, c); 
 }
 
@@ -780,7 +787,8 @@ private AType _computeComparisonType(Tree current, AType t1, AType t2, Solver s)
     
 // ---- ifDefined
 
-void collect(current: (Expression) `<Expression e1> ? <Expression e2>`, Collector c) {    
+void collect(current: (Expression) `<Expression e1> ? <Expression e2>`, Collector c) { 
+    checkIsDefinedArg(e1, c);   
     c.calculate("if defined", current, [e1, e2], AType(Solver s){ return s.lub(s.getType(e1), s.getType(e2)); });
     collect(e1, e2, c);
 }

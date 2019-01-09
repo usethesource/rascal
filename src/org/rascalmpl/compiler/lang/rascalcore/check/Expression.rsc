@@ -271,7 +271,13 @@ void collect(current: (Expression) `( <Expression expression> )`, Collector c){
 
 // ---- closure
 
+str closureName(Expression closure){
+    l = getLoc(closure);
+    return "$CLOSURE<l.offset>";
+}
+
 void collect(current: (Expression) `<Type returnType> <Parameters parameters> { <Statement+ statements> }`, Collector c){
+    parentScope = c.getScope();
     c.enterLubScope(current);
         scope = c.getScope();
         c.setScopeInfo(scope, functionScope(), returnInfo(returnType));
@@ -282,6 +288,11 @@ void collect(current: (Expression) `<Type returnType> <Parameters parameters> { 
         
         c.calculate("type of closure", current, returnType + formals,
             AType(Solver s){ return afunc(s.getType(returnType), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s)); });
+            
+        dt = defType(returnType + formals, AType(Solver s){
+                return afunc(s.getType(returnType), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s)); 
+             });
+        c.defineInScope(parentScope, closureName(current), functionId(), current, dt); 
         collect(returnType + formals + kwFormals + stats, c);
     c.leaveScope(current);
 }
@@ -289,6 +300,7 @@ void collect(current: (Expression) `<Type returnType> <Parameters parameters> { 
 // ---- void closure
 
 void collect(current: (Expression) `<Parameters parameters> { <Statement* statements0> }`, Collector c){
+    parentScope = c.getScope(); 
     c.enterLubScope(current);
         scope = c.getScope();
         
@@ -299,6 +311,11 @@ void collect(current: (Expression) `<Parameters parameters> { <Statement* statem
         
         c.calculate("type of void closure", current, formals,
             AType(Solver s){ return afunc(avoid(), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s)); });
+        dt = defType(formals, AType(Solver s){
+                return afunc(avoid(), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s)); 
+             });
+        c.defineInScope(parentScope, closureName(current), functionId(), current, dt); 
+        c.use(current, {functionId()});
         collect(formals + kwFormals + stats, c);
     c.leaveScope(current);
 }

@@ -675,8 +675,11 @@ AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver>
     return computeGetAnnotationType(current, receiverType, annoNameType, s);
 }
 
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, loc scope, Solver s)
-    = computeReceiverType(current, receiver, scope, s);
+AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, loc scope, Solver s){
+   receiverType = computeReceiverType(current, receiver, scope, s);
+   s.fact(receiver, receiverType);
+   return receiverType;
+}
 
 AType computeReceiverType(Statement current, (Assignable) `\< <{Assignable ","}+ elements> \>`, loc scope, Solver s){
     receiverType = atuple(atypeList([computeReceiverType(current, element, scope, s) | element <- elements]));
@@ -949,6 +952,7 @@ void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver>
    c.calculate("assignable with annotation", current, [n, rhs], 
       AType(Solver s){ 
            rt = computeReceiverType(current, receiver, scope, s);
+           s.fact(asg, s.getType(rhs));
            return computeAnnoAssignableType(current, rt,  n, operator, s.getType(rhs), scope, s);
          });
    //collect(receiver, c);

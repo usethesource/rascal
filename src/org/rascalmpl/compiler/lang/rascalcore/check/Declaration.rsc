@@ -456,23 +456,25 @@ list[Keyword] computeKwFormals(list[KeywordFormal] kwFormals, Solver s){
     return [<s.getType(kwf.\type)[label=prettyPrintName(kwf.name)], kwf.expression> | kwf <- kwFormals];
 }
 
-void(Solver) makeReturnRequirement(Tree expr, Type returnType)
+void(Solver) makeReturnRequirement(Tree returnExpr, Type declaredReturnType)
     = void(Solver s) { 
-        actualRetType = s.getType(returnType);
+        actualDeclaredReturnType = s.getType(declaredReturnType);
           
-        exprType = s.getType(expr);
+        returnExprType = s.getType(returnExpr);
         Bindings bindings = ();
-        try   bindings = matchRascalTypeParams(exprType, actualRetType, bindings, bindIdenticalVars=true);
+        try   bindings = matchRascalTypeParams(returnExprType, actualDeclaredReturnType, bindings, bindIdenticalVars=true);
         catch invalidMatch(str reason):
-              s.report(error(expr, reason));
+              s.report(error(returnExpr, reason));
           
-        iexprType = xxInstantiateRascalTypeParameters(expr, exprType, bindings, s);
+        ireturnExprType = xxInstantiateRascalTypeParameters(returnExpr, returnExprType, bindings, s);
 
-        if(s.isFullyInstantiated(iexprType)){
-            s.requireSubType(iexprType, actualRetType, error(expr, "Return type should be subtype of %t, found %t", actualRetType, iexprType));
+        if(s.isFullyInstantiated(ireturnExprType)){
+            s.requireTrue(s.equal(ireturnExprType, avoid()) && s.equal(actualDeclaredReturnType, avoid()) ||
+                         !s.equal(ireturnExprType, avoid()) && s.subtype(ireturnExprType, actualDeclaredReturnType), error(returnExpr, "Return type %t expected, found %t", actualDeclaredReturnType, ireturnExprType));
         } else
-            if(!s.unify(iexprType, actualRetType)){
-                s.requireSubType(iexprType, actualRetType, error(expr, "Return type should be subtype of %t, found %t", actualRetType, iexprType));
+            if(!s.unify(ireturnExprType, actualDeclaredReturnType)){
+            s.requireTrue(s.equal(ireturnExprType, avoid()) && s.equal(actualDeclaredReturnType, avoid()) ||
+                         !s.equal(ireturnExprType, avoid()) && s.subtype(ireturnExprType, actualDeclaredReturnType), error(returnExpr, "Return type %t expected found %t", actualDeclaredReturnType, ireturnExprType));
         }   
      };
 
@@ -605,14 +607,6 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
 list[TypeArg] getFormals(Variant variant)
     = [ta | TypeArg ta <- variant.arguments];
 
-//list[KeywordFormal] getKwFormals(Variant variant){
-//    if(variant.keywordArguments is \default &&  [,\ (\t\n] << {KeywordFormal ","}+ keywordArgumentList := variant.keywordArguments.keywordFormalList){
-//        return [kwf | kwf <- keywordArgumentList];
-//    } else
-//        return [];
-//}
-
-// TODO: probable bug in interpreter
 list[KeywordFormal] getKwFormals(Variant variant)
     =  variant.keywordArguments is \default ? [kwf | kwf <- variant.keywordArguments.keywordFormalList] : [];
     
@@ -638,8 +632,7 @@ void collect(current:(Variant) `<Name name> ( <{TypeArg ","}* arguments> <Keywor
         fieldName = prettyPrintName(kwf.name);
         kwfType = kwf.\type;
         dt = defType([kwfType], makeFieldType(fieldName, kwfType));
-        //dt.isKeywordFormal = true;
-        c.define(fieldName, keywordFieldId()/*fieldId()*/, kwf.name, dt);    
+        c.define(fieldName, keywordFieldId(), kwf.name, dt);    
     }
 
     scope = c.getScope();

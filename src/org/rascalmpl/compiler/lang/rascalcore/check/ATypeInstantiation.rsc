@@ -164,8 +164,7 @@ public Bindings matchRascalTypeParams(AType r, AType s, Bindings b, bool bindIde
 //    }
 //}
 
-void invalidInstantiation(str pname, AType bound, AType actual){
-    x = 0;
+AType invalidInstantiation(str pname, AType bound, AType actual){
     throw invalidInstantiation("Type parameter `<pname>` should be less than `<prettyAType(bound)>`, but is bound to `<prettyAType(actual)>`");  
 }
 
