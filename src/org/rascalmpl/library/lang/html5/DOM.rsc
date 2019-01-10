@@ -434,6 +434,6 @@ public HTML5Node example
   
 str toString(HTML5Node x) {
   attrs = { k | HTML5Attr k <- x.kids };
-  kids = [ k | HTML5Node k <- x.kids ];
+  kids = [ k | value k <- x.kids, HTML5Attr _ !:= k ];
   return nodeToString(x.name, attrs, kids); 
 }
