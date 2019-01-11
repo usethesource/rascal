@@ -1,6 +1,7 @@
 module lang::rascal::tests::library::util::SemVerTests
 
 import util::SemVer;
+import Exception;
 
 test bool lessVersion1() = lessVersion("1.0.0", "2.0.0");
 test bool lessVersion2() = lessVersion("2.0.0", "2.1.0");
