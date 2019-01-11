@@ -24,7 +24,6 @@ module List
 
 import Exception;
 import Map;
-import IO;
 
 @doc{
 .Synopsis
@@ -431,7 +430,7 @@ Merge two lists of strings and use their length as ordering:
 import String;
 merge(["ape", "owl", "snale", "zebra", "elephant"], ["apple", "berry", "orange", "pineapple"], bool(str x, str y){ return size(x) <= size(y); });
 ----}
-
+  
 public list[&T] merge(list[&T] left, list[&T] right){
   res = while(!isEmpty(left) && !isEmpty(right)) {
     if(head(left) <= head(right)) {
@@ -494,8 +493,7 @@ public list[&T] mix(list[&T] l, list[&T] r){
 	sizeR = size(r);
 	minSize = sizeL < sizeR ? sizeL : sizeR;
 	return [elementAt(l,i),elementAt(r,i)| i <- [0 .. minSize]] + drop(sizeR,l) + drop(sizeL,r);
-}	
-
+}
 @doc{
 .Synopsis
 Compute all permutations of a list.
