@@ -90,7 +90,7 @@ Else the same method of deciding the character set is used as in <<readFile>>.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java void appendToFile(loc file, value V...)
-throws PathNotFound(loc file), IO(str msg);
+throws PathNotFound, IO;
 
 @doc{
 .Synopsis
@@ -108,7 +108,7 @@ Files are encoded using the charset provided.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java void appendToFileEnc(loc file, str charset, value V...)
-throws PathNotFound(loc file), IO(str msg);
+throws PathNotFound, IO;
 
 @doc{
 .Synopsis
@@ -372,7 +372,7 @@ Create a directory at location `file`.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java void mkDirectory(loc file)
-throws PathNotFound(loc file), IO(str msg);
+throws PathNotFound, IO;
 
 @doc{
 .Synopsis
@@ -557,7 +557,7 @@ the first 32 bytes of the file are not valid UTF-8.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str readFile(loc file)
-throws PathNotFound(loc file), IO(str msg);
+throws PathNotFound, IO;
 
 @doc{
 .Synopsis
@@ -569,11 +569,11 @@ Also see <<readFileLinesEnc>>.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java str readFileEnc(loc file, str charset)
-throws PathNotFound(loc file), IO(str msg);
+throws PathNotFound, IO;
 
 @javaClass{org.rascalmpl.library.Prelude}
 public java str uuencode(loc file)
-throws PathNotFound(loc file), IO(str msg);
+throws PathNotFound, I;
 
 
 @doc{
@@ -582,7 +582,7 @@ Read the contents of a file and return it as a list of bytes.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[int] readFileBytes(loc file)
-throws PathNotFound(loc file), IO(str msg);
+throws PathNotFound, IO;
 
 
 @doc{
@@ -605,7 +605,7 @@ Look at <<readFile>> to understand how this function chooses the character set. 
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[str] readFileLines(loc file)
-throws PathNotFound(loc file), IO(str msg);
+throws PathNotFound, IO;
 
 @doc{
 .Synopsis
@@ -617,11 +617,11 @@ Also see <<readFileLines>>.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java list[str] readFileLinesEnc(loc file, str charset)
-throws PathNotFound(loc file), IO(str msg);
+throws PathNotFound, IO;
 
 
 @javaClass{org.rascalmpl.library.Prelude}
-public java void remove(loc file) throws IO(str msg);
+public java void remove(loc file) throws IO;
 
 @doc{
 .Synopsis
@@ -639,7 +639,7 @@ Files are encoded in UTF-8, in case this is not desired, use <<writeFileEnc>>.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java void writeFile(loc file, value V...)
-throws PathNotFound(loc file), IO(str msg);
+throws PathNotFound, IO;
 
 @doc{
 .Synopsis
@@ -647,7 +647,7 @@ Write a list of bytes to a file.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java void writeFileBytes(loc file, list[int] bytes)
-throws PathNotFound(loc file), IO(str msg);
+throws PathNotFound, IO;
 
 @doc{
 .Synopsis
@@ -665,14 +665,14 @@ Files are encoded using the charset provided.
 }
 @javaClass{org.rascalmpl.library.Prelude}
 public java void writeFileEnc(loc file, str charset, value V...)
-throws PathNotFound(loc file), IO(str msg);
+throws PathNotFound, IO;
 
 @doc{
 .Synopsis
 Changes the last modification date of a file.
 }
 public void touch(loc file)
-throws PathNotFound(loc file), IO(str msg){
+throws PathNotFound, IO{
   appendToFile(file);
 }
 
@@ -686,7 +686,7 @@ MD5 hash the contents of a file location.
 
 @javaClass{org.rascalmpl.library.Prelude}
 public java str md5HashFile(loc file)
-throws PathNotFound(loc file), IO(str msg);
+throws PathNotFound, IO;
 
 @javaClass{org.rascalmpl.library.Prelude}
 public java str createLink(str title, str target);
@@ -694,7 +694,7 @@ public java str createLink(str title, str target);
 
 @javaClass{org.rascalmpl.library.Prelude}
 public java str toBase64(loc file)
-throws PathNotFound(loc file), IO(str msg);
+throws PathNotFound, IO;
 
 @javaClass{org.rascalmpl.library.Prelude}
 java bool copyFile(loc source, loc target);

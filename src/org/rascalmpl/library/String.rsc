@@ -72,7 +72,7 @@ stringChar(charAt("abc", 0));
 ----
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java int charAt(str s, int i) throws IndexOutOfBounds(str msg);
+public java int charAt(str s, int i) throws IndexOutOfBounds;
 
 @doc{
 .Synopsis
@@ -462,14 +462,14 @@ public java bool startsWith(str subject, str prefix);
 Convert a character code into a string. 
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java str stringChar(int char) throws IllegalArgument(int character);
+public java str stringChar(int char) throws IllegalArgument;
 
 @doc{
 .Synopsis
 Convert a list of character codes into a string.
 }
 @javaClass{org.rascalmpl.library.Prelude}
-public java str stringChars(list[int] chars) throws IllegalArgument(int character);
+public java str stringChars(list[int] chars) throws IllegalArgument;
 
 @doc{
 .Synopsis
