@@ -493,7 +493,7 @@ value, this function will throw an ArithmeticException.
  
 }
 @javaClass{org.rascalmpl.library.util.Math}
-public java real fitFloat(real r) throws ArithmeticException(str msg);
+public java real fitFloat(real r) throws ArithmeticException;
 
 @doc{
 .Synopsis push real value into a JVM double using coercion and return the value represented by that float as a real
@@ -514,7 +514,7 @@ go through coercion in a Java library, like so:
 value, this function will throw an ArithmeticException.
 }
 @javaClass{org.rascalmpl.library.util.Math}
-public java real fitDouble(real r) throws ArithmeticException(str msg);
+public java real fitDouble(real r) throws ArithmeticException;
 
 @doc{
 .Synopsis
