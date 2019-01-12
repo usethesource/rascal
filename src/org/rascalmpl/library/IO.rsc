@@ -573,7 +573,7 @@ throws PathNotFound, IO;
 
 @javaClass{org.rascalmpl.library.Prelude}
 public java str uuencode(loc file)
-throws PathNotFound, I;
+throws PathNotFound, IO;
 
 
 @doc{
