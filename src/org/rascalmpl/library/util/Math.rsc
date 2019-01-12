@@ -24,6 +24,7 @@ loctoc::[1]
 module util::Math
 
 import List;
+import Exception;
 
 @doc{
 .Synopsis
