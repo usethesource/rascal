@@ -1,5 +1,7 @@
 module lang::rascal::tests::functionality::RegExpTests
 
+import Exception;
+
 //	match 
 
 test bool match1() = /abc/ := "abc";

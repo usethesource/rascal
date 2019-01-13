@@ -4,6 +4,7 @@ import Node;
 import List;
 import util::Math;
 import IO;
+import Exception;
 
 // Operators
 

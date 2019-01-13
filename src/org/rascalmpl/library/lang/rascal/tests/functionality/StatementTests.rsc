@@ -13,6 +13,8 @@
  *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
 *******************************************************************************/
   
+import Exception;
+
 // testAssert
   
 test bool testAssert1() {return assert 3 > 2;}

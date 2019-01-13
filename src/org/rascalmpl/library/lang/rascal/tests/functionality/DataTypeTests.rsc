@@ -15,6 +15,8 @@ module lang::rascal::tests::functionality::DataTypeTests
      *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
     *******************************************************************************/
     
+import Exception;
+
 // bool
     	
 test bool testBool1() = true == true;

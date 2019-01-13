@@ -17,6 +17,7 @@ import ListRelation;
 import util::Math;
 import Type;
 import Node;
+import Exception;
 
 private map[&K,&V] emptyMap(type[map[&K,&V]] _) = ();
 private list[&T] emptyList(type[&T] _) = [];
