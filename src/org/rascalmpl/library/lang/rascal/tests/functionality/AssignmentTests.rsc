@@ -1,5 +1,7 @@
  module lang::rascal::tests::functionality::AssignmentTests
   
+import Exception;
+
 // testSimple
   
 test bool testSimple1() {bool b = true; return b == true;}

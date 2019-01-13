@@ -14,4 +14,4 @@ import Exception;
 @javaClass{org.rascalmpl.library.lang.jvm.run.RunClassFile}
 @reflect{Uses URI Resolver Registry}
 public java void runClassFile(loc path,loc dependencies...)
-throws PathNotFound(loc), IO(str msg);
+throws PathNotFound, IO;
