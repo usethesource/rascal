@@ -226,8 +226,8 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
                 profs[intercalate("/", toList(component))] = prof;
                 moduleScopes += getModuleScopes(tm);
                 for(m <- component){
-                    imports =  { imp | <m, importPath(), imp> <- ms.strPaths };
-                    extends = { ext | <m, extendPath(), ext > <- ms.strPaths };
+                    imports =  { imp | <m1, importPath(), imp> <- ms.strPaths, m1 == m };
+                    extends = { ext | <m1, extendPath(), ext > <- ms.strPaths, m1 == m };
                     if(config.warnUnused){
                         // Look for unused imports or exports
                         usedModules = {path2module[l.path] | loc l <- range(tm.useDef), tm.definitions[l].idRole != moduleId(), path2module[l.path]?};
@@ -405,7 +405,7 @@ map[str, list[Message]] checkModule(
       bool debug                    = false,
       
       bool warnUnused               = true,     // Rascal specific options
-      bool warnUnusedFormals        = false,
+      bool warnUnusedFormals        = true,
       bool warnUnusedVariables      = true,
       bool warnUnusedPatternFormals = true,
       bool warnDeprecated           = false

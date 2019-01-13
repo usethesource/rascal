@@ -331,8 +331,22 @@ void collect(Signature signature, Collector c){
     for(tv <- getTypeVars(returnType)){
         c.use(tv.name, {typeVarId()});
     }
+    
+    exceptions = [];
+    
+    if(signature is withThrows){
+         exceptions = [ except | except <- signature.exceptions ];
+         for(except <- exceptions){
+            if(except is user){
+                c.use(except, {constructorId()});
+            } else {
+                exceptions = [];
+                c.report(error(except, "User defined data type expected, found `<except>`"));
+            }
+        }
+    }
    
-    c.calculate("signature", signature, [returnType, parameters],// + kwFormals<0>,
+    c.calculate("signature", signature, [returnType, parameters, *exceptions],// + kwFormals<0>,
         AType(Solver s){
             tformals = s.getType(parameters);
             formalsList = atypeList(elems) := tformals ? elems : [tformals];
@@ -342,10 +356,6 @@ void collect(Signature signature, Collector c){
         });
         
      collect(returnType, parameters, c);
-    
-    //if(signature has exceptions){             // TODO: reconsider
-    //    collect(signature.exceptions, c);
-    //}
 }
 
 list[Pattern] getFormals(Parameters parameters)

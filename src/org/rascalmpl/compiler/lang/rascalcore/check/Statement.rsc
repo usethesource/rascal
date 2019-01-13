@@ -172,7 +172,8 @@ void collect(current: (Replacement) `<Expression replacementExpression> when <{E
     collect(replacementExpression, conditions, c);
 }
 
-void collect(current: (Statement) `insert <Expression expr>;`, Collector c){
+// TODO actually: "insert" DataTarget dataTarget Statement statement 
+void collect(current: (Statement) `insert <Statement expr>`, Collector c){
     replacementScopes = c.getScopeInfo(replacementScope());
     for(<scope, scopeInfo> <- replacementScopes){
       if(replacementInfo(Pattern pat) := scopeInfo){
@@ -1041,6 +1042,8 @@ void collect(current: (Statement) `<Type varType> <{Variable ","}+ variables>;`,
                     c.require("initialization of `<var.name>`", initial, [initial, varType], makeVarInitRequirement(var));
                     collect(initial, c); 
                 c.leaveScope(var);
+            } else {
+                c.report(warning(var, "Variable should be initialized"));
             }
         } 
         c.fact(current, varType);

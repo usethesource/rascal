@@ -5,7 +5,7 @@ module lang::rascalcore::check::TypePalConfig
 
 import lang::rascalcore::check::AType;
 //extend lang::rascalcore::check::Checker;
-extend lang::rascalcore::check::Expression;
+import lang::rascalcore::check::Expression;
 
 import lang::rascalcore::check::ATypeUtils;
 
@@ -47,6 +47,7 @@ public set[IdRole] outerFormalRoles = {formalId(), keywordFormalId()};
 public set[IdRole] positionalFormalRoles = {formalId(), nestedFormalId()};
 public set[IdRole] formalRoles = outerFormalRoles + {nestedFormalId()};
 public set[IdRole] variableRoles = formalRoles + {variableId(), patternVariableId()};
+public set[IdRole] inferrableRoles = formalRoles + {variableId(), patternVariableId()};
 public set[IdRole] saveModuleRoles = dataOrSyntaxRoles + {constructorId(), functionId(), fieldId(), keywordFieldId(), annoId()} + variableRoles;
 
 data PathRole
@@ -309,7 +310,7 @@ AType rascalGetTypeInNamelessType(AType containerType, Tree selector, loc scope,
     return computeFieldType(containerType, selector, scope, s);
 }
 
-bool rascalIsInferrable(IdRole idRole) = idRole in variableRoles;
+bool rascalIsInferrable(IdRole idRole) = idRole in inferrableRoles;
 
 loc findContainer(loc def, map[loc,Define] definitions, map[loc,loc] scope){
     sc = definitions[def].scope;
@@ -319,22 +320,42 @@ loc findContainer(loc def, map[loc,Define] definitions, map[loc,loc] scope){
     return sc;
 }
 
-bool rascalReportUnused(loc def, map[loc,Define] definitions, map[loc,loc] scopes, TypePalConfig config){
+bool isOverloadedFunction(loc fun, map[loc,Define] definitions, map[loc, AType] facts){
+    fundef = definitions[fun];
+    funid = fundef.id;
+    funtype = facts[fun];
+    for(loc l <- definitions, l != fun, def := definitions[l], def.id == funid, def.idRole == functionId()){
+        if(comparable(facts[l], funtype)) return true;
+    }
+    return false;
+}
 
+bool rascalReportUnused(loc def, TModel tm /*map[loc,Define] definitions, map[loc,loc] scopes, TypePalConfig config*/){
+
+    config = tm.config;
+    if(!config.warnUnused) return false;
+     
+    definitions = tm.definitions;
+    scopes = tm.scopes;
+    facts = tm.facts;
+    
     bool reportFormal(Define define){
        if(!config.warnUnusedFormals || define.id == "_") return false;
-       container = definitions[findContainer(def, definitions, scopes)];
-       return container.idRole == functionId() && "java" notin container.defInfo.modifiers;
+       container = tm.definitions[findContainer(def, definitions, scopes)];
+       if(container.idRole == functionId()){
+          if(isOverloadedFunction(container.defined, definitions, facts)) return false;
+          return  "java" notin container.defInfo.modifiers;
+       }
+       return false;
     }
-    
-    if(!config.warnUnused) return false;
     
     define = definitions[def];
     try {
         switch(define.idRole){
             case moduleId():            return false;
             case dataId():              return false;
-            case functionId():          { if(define.defInfo.vis == privateVis()) return true;
+            case functionId():          { if(startsWith(define.id, "$CLOSURE")) return false;
+                                          if(define.defInfo.vis == privateVis()) return true;
                                           container = definitions[findContainer(def, definitions, scopes)];
                                           return container.idRole == functionId() && "java" notin container.defInfo.modifiers;
                                         }
