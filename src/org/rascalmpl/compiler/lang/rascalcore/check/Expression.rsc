@@ -76,13 +76,10 @@ void collect(RationalLiteral current, Collector c){
 // ---- string literals and templates
 void collect(current:(Literal)`<StringLiteral sl>`, Collector c){
     c.fact(current, astr());
-    //try {
-    //    readTextValueString("<sl>");   // ensure that the string literal is valid (e.g. only valid Unicode characters?)
-    //} catch IO(msg): {
-    //    c.report(error(sl, "Malformed string literal <fmt("<sl>")>");
-    //}
     collect(sl, c);
 }
+
+void collect(StringCharacter current, Collector c){ }
 
 void collect(current: (StringLiteral) `<PreStringChars pre><StringTemplate template><StringTail tail>`, Collector c){
     c.fact(current, astr());
@@ -314,7 +311,7 @@ void collect(current: (Expression) `<Parameters parameters> { <Statement* statem
         dt = defType(formals, AType(Solver s){
                 return afunc(avoid(), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s)); 
              });
-        c.defineInScope(parentScope, closureName(current), functionId(), current, dt); 
+        c.defineInScope(parentScope,  closureName(current), functionId(), current, dt); 
         c.use(current, {functionId()});
         collect(formals + kwFormals + stats, c);
     c.leaveScope(current);
@@ -536,8 +533,7 @@ void collect(current: (Expression) `[ <{Expression ","}* elements0> ]`, Collecto
 void collect(current: (Expression) `<Expression expression> ( <{Expression ","}* arguments> <KeywordArguments[Expression] keywordArguments>)`, Collector c){
     actuals = [a | Expression a <- arguments];  
     kwactuals = keywordArguments is \default ? [ kwa.expression | kwa <- keywordArguments.keywordArgumentList] : [];
-    //kwactuals = (keywordArguments is \default && [,\ (\t\n] << {KeywordArgument[Expression] ","}+ keywordArgumentList := keywordArguments.keywordArgumentList) ? [ kwa.expression | kwa <- keywordArgumentList] : [];
- 
+  
     scope = c.getScope();
     
     c.calculate("call of function/constructor `<expression>`", current, expression + actuals + kwactuals,

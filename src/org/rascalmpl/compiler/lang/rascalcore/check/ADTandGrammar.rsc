@@ -1,5 +1,4 @@
 @bootstrapParser
-@bootstrapParser
 module lang::rascalcore::check::ADTandGrammar
    
 extend lang::rascalcore::check::AType;

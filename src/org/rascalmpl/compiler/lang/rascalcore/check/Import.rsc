@@ -262,30 +262,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
                           
                       if(scope in extendedModuleScopes){
                          tup.scope = mscope;
-                      }
-                       if((defInfo has getAType || defInfo has getATypes)){
-                       try {                   
-                           dt = defType(tm.facts[defined]);
-                           if(defInfo.vis?) dt.vis = defInfo.vis;
-                           if(defInfo.canFail?) dt.canFail = defInfo.canFail;
-                           if(defInfo.tags?) dt.tags = defInfo.tags;
-                           tup.defInfo = dt;
-                           //println("Changed <defInfo> ==\> <dt>");
-                       } catch NoSuchKey(k): {
-                        //println("ignore: <tup>");
-                        continue;
-                       }
-                    } 
-                    //else if(defInfo has atype){
-                    //  if(tvar(l) := defInfo.atype) {
-                    //     try {
-                    //        tup.defInfo.atype = tm.facts[l];
-                    //     } catch NoSuchKey(v):{
-                    //        println("*** <v> is undefined");
-                    //        tup.defInfo.atype = avalue();
-                    //     }
-                    //   }
-                    //}
+                      }                  
                     append tup;
                   }
                };

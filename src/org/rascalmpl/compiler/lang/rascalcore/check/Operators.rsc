@@ -212,7 +212,12 @@ void collect(current: (Expression) `<Expression arg> *`, Collector c){
 // ---- isDefined
 
 bool isValidIsDefinedArg(Expression arg) // TODO maybe add call?
-    = arg is subscript || arg is fieldAccess || arg is fieldProject || arg is getAnnotation || (arg is \bracket && isValidIsDefinedArg(arg.expression));
+    =   arg is subscript 
+    || arg is fieldAccess 
+    || arg is fieldProject 
+    || arg is getAnnotation
+    || arg is callOrTree
+    || (arg is \bracket && isValidIsDefinedArg(arg.expression));
 
 void checkIsDefinedArg(Expression arg, Collector c){
     if(!isValidIsDefinedArg(arg)){
