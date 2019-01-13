@@ -153,7 +153,7 @@ MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expre
     enterBacktrackingScope(ifname);
            
     loopBody = muWhileDo(doname, muCon(true), 
-                               muBlock([ visit(translateLoopBody(body)) { case muFail(doname) => muFail(ifname) }, 
+                               muBlock([ visit(translateLoopBody(body)) { case muFail(str doname1) => muFail(ifname) when doname1 == doname }, 
                                          translateCondsAsStat(ifname, [condition], muContinue(doname), muBreak(doname)) ]));
     code = muBlock([]);
     if(containsAppend(body)){
@@ -400,7 +400,7 @@ map[int, MuExp] addPatternWithActionCode(MuExp switchval, str fuid, bool useConc
        leaveBacktrackingScope(); 
 	 } else {
 	    ifname2 = nextLabel();
-	    replacement= muTmpIValue(nextTmp("replacement"), fuid, getType(pwa.replacement.replacementExpression));
+	    replacement = muTmpIValue(nextTmp("replacement"), fuid, getType(pwa.replacement.replacementExpression));
 	    replacementCode = translate(pwa.replacement.replacementExpression);
         list[Expression] conditions = [];
         if(pwa.replacement is conditional) {
@@ -408,14 +408,15 @@ map[int, MuExp] addPatternWithActionCode(MuExp switchval, str fuid, bool useConc
         }
         replcond = muValueIsSubTypeOfValue(replacement, switchval);
                                                       
-        table[key] = muBlock([ translateCondsAsStat(conditions, 
-                                      muBlock([ muVarInit(replacement, replacementCode),
-                                                  //   muInsert(replacement),
-                                                muIfelse( replcond, muInsert(replacement), muFailCase())
-                                              ]),
-                                      muFailCase()), 
-                                table[key] ? muBlock([]) /*muInsert(replacement)*/
-                                ]);                                      
+        table[key] = muBlock([ translateCondsAsStat(ifname2,
+                                                    conditions, 
+                                                    muBlock([ muVarInit(replacement, replacementCode),
+                                                              //   muInsert(replacement),
+                                                              muIfelse( replcond, muInsert(replacement), muFailCase())
+                                                            ]),
+                                                    muFailCase()), 
+                                                    table[key] ? muBlock([]) /*muInsert(replacement)*/
+                             ]);                                      
 	 }
 	     
 	 return table;
@@ -447,7 +448,6 @@ tuple[list[MuCase], MuExp] translateSwitchCases(MuExp switchval, str fuid, bool 
    //println("TABLE DOMAIN(<size(table)>): <domain(table)>");
    return < [ muCase(key, table[key]) | key <- table], default_table[fingerprintDefault] >;
 }
-
 
 // -- fail statement -------------------------------------------------
 
@@ -656,7 +656,7 @@ MuExp assignTo(Assignable a: (Assignable) `<Name name> ( <{Assignable ","}+ argu
     str fuid = topFunctionScope();
     elems = [ e | Assignable e <- arguments];  // hack since elements[i] yields a value result;
     nelems = size(arguments);// size_assignables
-    tmp = muTmpIValue(nextTmp(), fuid);
+    tmp = muTmpIValue(nextTmp(), fuid, rhs_type);
    
     return muBlock( muVarInit(tmp, applyOperator(operator, a, rhs_type, rhs)) + 
                     [ assignTo(elems[i], "=", rhs_type, muCallPrim3("subscript", ["aadt", "aint"], [tmp, muCon(i)], a@\loc) )
@@ -759,7 +759,7 @@ MuExp translate(s: (Statement) `append <DataTarget dataTarget> <Statement statem
    return muCallPrim3("add_list_writer", getType(s), [getType(s), getType(statement)], [muTmpIValue(target, fuid, getType(statement)), translate(statement)], s@\loc);
 }
 
-// -- function declaration statement ---------------------------------
+// -- local function declaration statement ---------------------------------
 
 MuExp translate(s: (Statement) `<FunctionDeclaration functionDeclaration>`) { 
     translate(functionDeclaration); return muBlock([]); 
@@ -786,146 +786,3 @@ default MuExp translate(Statement s){
 /*********************************************************************/
 /*                  End of Statements                                */
 /*********************************************************************/
-
-MuExp returnFromFunction(MuExp body, AType ftype, bool isMemo, loc src) {
-  if(ftype.ret == avoid()){
-    return body;
-  } else {
-      res = muReturn1(body);
-      if(isMemo){
-         res = visit(res){
-         	case muReturn1(e) => muReturn1(muCallPrim3("memoize", ftype.ret, [], [body], src))
-         }
-      }
-      return res;   
-  }
-}
-         
-MuExp functionBody(MuExp body, bool isMemo, loc src) =
-   isMemo ? muValueBlock([muCallPrim3("check_memo", [body], src), body])  // Directly mapped to the CHECKMEMO instruction that returns when args are in cache
-          : body;
-
-MuExp translateFormals(list[Pattern] formals, AType ftype, bool isMemo, int i, node body, list[Expression] when_conditions, loc src){
-   isVarArgs = ftype.varArgs;
-   if(isEmpty(formals)) {
-      if(isEmpty(when_conditions)){
-        return muBlock([ returnFromFunction(translateFunctionBody(body), ftype, isMemo, src) ]);
-    } else {
-        ifname = nextLabel();
-        enterBacktrackingScope(ifname);
-        conditions = [ translate(cond) | Expression cond <- when_conditions];
-        // TODO
-        mubody = muValueBlock([muIfelse(ifname,makeBoolExp("ALL",conditions, src), [ returnFromFunction(translateFunctionBody(body), ftype, isMemo, src) ], [ muFailReturn() ]) ]);
-        leaveBacktrackingScope();
-        return mubody;
-    }
-   }
-   pat = formals[0];
-   
-   if(pat is literal){
-     // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
-      ifname = nextLabel();
-      enterBacktrackingScope(ifname);
-      
-      patTest =  pat.literal is regExp ? muMulti(muApply(translatePat(pat, getType(pat@\loc)), [muVar("$<i>",topFunctionScope(),i) ]))
-                                       : muEqual(muVar("$<i>",topFunctionScope(),i, getType(formals[i])), translate(pat.literal));
-      
-      exp = muIfelse(patTest, translateFormals(tail(formals), ftype, isMemo, i + 1, body, when_conditions, src),
-                              muFailReturn()
-                  );
-      leaveBacktrackingScope();
-      return exp;
-   } else {
-      Name name = pat.name;
-      tp = pat.\type;
-      fuid = getVariableScope("<name>", name@\loc);
-      pos = getPositionInScope("<name>", name@\loc);
-      // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
-      ifname = nextLabel();
-      enterBacktrackingScope(ifname);
-     
-                                     
-      exp = muBlock([ muCheckArgTypeAndCopy("<name>", i, (isVarArgs && size(formals) == 1) ? alist(translateType(tp)) : translateType(tp), pos),
-                      translateFormals(tail(formals), ftype, isMemo, i + 1, body, when_conditions, src)
-                    ]);
-      leaveBacktrackingScope();
-      //println("translateFormals returns:");
-      //iprintln(exp);
-      return exp;
-    }
-}
-
-MuExp translateFunction(str fname, {Pattern ","}* formals, AType ftype, node body, bool isMemo, list[Expression] when_conditions){
-  bool simpleArgs = true;
-  for(pat <- formals){
-      if(!(pat is typedVariable || pat is literal))
-      simpleArgs = false;
-  }
-  if(simpleArgs) { //TODO: should be: all(pat <- formals, (pat is typedVariable || pat is literal))) {
-     return functionBody(muIfelse( muCon(true), muBlock([ translateFormals([formal | formal <- formals], ftype, isMemo, 0, /*kwps,*/ body, when_conditions, formals@\loc)]), muFailReturn()),
-                         isMemo, formals@\loc);
-  } else {
-     //list[MuExp] conditions = [];
-     //int i = 0;
-     // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
-     enterBacktrackingScope(fname);
-     // TODO: account for a variable number of arguments
-       formalsList = [f | f <- formals];
-       
-      conditions = (returnFromFunction(translateFunctionBody(body), ftype, isMemo, formals@\loc)
-                   | translatePat(formalsList[i], getType(formalsList[i]), muVar("$<i>",topFunctionScope(),i, avalue()), fname, it, muFailReturn()) 
-                   | i <- index(formalsList));
-      mubody = functionBody(conditions, isMemo, formals@\loc);
-      leaveBacktrackingScope();
-      return mubody;
-      
-     //for(Pattern pat <- formals) {
-     //    conditions += muMulti(muApply(translatePat(pat, avalue()), [ muVar("$<i>",topFunctionScope(),i) ]));
-     //    i += 1;
-     // };
-     // conditions += [ translate(cond) | cond <- when_conditions];
-// TODO
-      //mubody = functionBody(muBlock([ muIfelse(fname, makeBoolExp("ALL",conditions, formals@\loc), [ returnFromFunction(translateFunctionBody(body), isMemo, formals@\loc) ], [ muFailReturn() ])]),
-      //                      isMemo, formals@\loc);
-      //leaveBacktrackingScope();
-      //return mubody;
-  }
-}
-
-//MuExp translateFunctionBody(Expression exp) = translate(exp); // when bprintln("translateFunctionBody: <exp>");
-//MuExp translateFunctionBody(MuExp exp) = exp;
-//// TODO: check the interpreter subtyping
-//default MuExp translateFunctionBody(Statement* stats) = muBlock([ translate(stat) | stat <- stats ]);
-//default MuExp translateFunctionBody(Statement+ stats) = muBlock([ translate(stat) | stat <- stats ]);
-//
-//default MuExp translateFunctionBody(node nd) {  throw "Cannot handle function body <nd>"; }
-
-MuExp translateFunctionBody(node nd){
-    if(Expression exp := nd){
-    	//println("translateFunctionBody: Expression");
-    	return translate(exp);
-    }
-    if(MuExp exp := nd){
-    	//println("translateFunctionBody: MuExp");
-    	return exp;
-    }
-    if(Statement* stats := nd){
-    	//println("translateFunctionBody: Statement*");
-    	return muBlock([ translate(stat) | stat <- stats ]);
-    }
-    if(Statement+ stats := nd){
-    	//println("translateFunctionBody: Statement+");
-    	return muBlock([ translate(stat) | Statement stat <- stats ]);
-    }
-    println("translateFunctionBody: Cannot handle function body <nd>");
-    
-    throw "Cannot handle function body <nd>";
-    //switch(nd){
-    //    case Expression exp:    return translate(exp);
-    //    case MuExp exp:         return exp;
-    //    case Statement* stats:  return muBlock([ translate(stat) | stat <- stats ]);
-    //    case Statement+ stats:  return muBlock([ translate(stat) | stat <- stats ]);
-    //    default:
-    //        throw "Cannot handle function body <nd>";
-    //}
-}

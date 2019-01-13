@@ -265,6 +265,11 @@ JCode transPrim("lessequal", abool(), [AType a, AType b], [str x, str y], JGenie
 JCode transPrim("lessequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)     = "amap_lessequal_amap(<x>,<y>)"  when isMapType(a), isMapType(b);   
 JCode transPrim("lessequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)     = "lessequal(<x>,<y>)" when isValueType(a), isValueType(b);
 
+// ---- memoize ---------------------------------------------------------------
+
+JCode transPrim("check_memo", AType r, [], list[str] args, JGenie jg)                    = "check_memo(<intercalate(",", [ a | a <- args])>);";
+
+JCode transPrim("memoize", AType r, [], list[str] args, JGenie jg)                       = "memoize(<intercalate(",", [ a | a <- args])>);";
 
 // ---- modulo ----------------------------------------------------------------
 JCode transPrim("mod", aint(), [aint(), aint()], [str x, str y], JGenie jg)              = "<x>.mod(<y>)";

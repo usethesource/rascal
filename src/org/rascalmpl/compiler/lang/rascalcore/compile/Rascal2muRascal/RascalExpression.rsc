@@ -126,42 +126,42 @@ private  MuExp add(Expression e){
 }
 
 private MuExp translateAddFunction(Expression e){
-  //println("translateAddFunction: <e>");
-  lhsType = getType(e.lhs);
-  rhsType = getType(e.rhs);
-  
-  str2uid = invertUnique(uid2str);
-
-  MuExp lhsReceiver = translate(e.lhs);
-  OFUN lhsOf;
-  
-  if(hasOverloadingResolver(lhsReceiver.fuid)){
-    lhsOf = getOverloadedFunction(lhsReceiver.fuid);
-  } else {
-    uid = str2uid[lhsReceiver.fuid];
-    lhsOf = <lhsReceiver.fuid, lhsType, topFunctionScope(), [uid]>;
-    addOverloadedFunctionAndResolver(lhsReceiver.fuid, lhsOf);
-  }
- 
-  MuExp rhsReceiver = translate(e.rhs);
-  OFUN rhsOf;
-  
-  if( hasOverloadingResolver(rhsReceiver.fuid)){
-    rhsOf = getOverloadedFunction(rhsReceiver.fuid);
-  } else {
-    uid = str2uid[rhsReceiver.fuid];
-    rhsOf = <rhsReceiver.fuid, rhsType, topFunctionScope(), [uid]>;
-    addOverloadedFunctionAndResolver(rhsReceiver.fuid, rhsOf);
-  }
-  
-   str ofqname = "<lhsReceiver.fuid>_+_<rhsReceiver.fuid>#<e@\loc.offset>_<e@\loc.length>";  // name of addition
- 
-  OFUN compOf = <ofqname, lhsType, lhsOf[2], lhsOf[3] + rhsOf[3]>; // add all alternatives
-  
- 
- 
-  addOverloadedFunctionAndResolver(ofqname, compOf); 
-  return muOFun(ofqname);
+//  //println("translateAddFunction: <e>");
+//  lhsType = getType(e.lhs);
+//  rhsType = getType(e.rhs);
+//  
+//  str2uid = invertUnique(uid2str);
+//
+//  MuExp lhsReceiver = translate(e.lhs);
+//  OFUN lhsOf;
+//  
+//  if(hasOverloadingResolver(lhsReceiver.fuid)){
+//    lhsOf = getOverloadedFunction(lhsReceiver.fuid);
+//  } else {
+//    uid = str2uid[lhsReceiver.fuid];
+//    lhsOf = <lhsReceiver.fuid, lhsType, topFunctionScope(), [uid]>;
+//    addOverloadedFunctionAndResolver(lhsReceiver.fuid, lhsOf);
+//  }
+// 
+//  MuExp rhsReceiver = translate(e.rhs);
+//  OFUN rhsOf;
+//  
+//  if( hasOverloadingResolver(rhsReceiver.fuid)){
+//    rhsOf = getOverloadedFunction(rhsReceiver.fuid);
+//  } else {
+//    uid = str2uid[rhsReceiver.fuid];
+//    rhsOf = <rhsReceiver.fuid, rhsType, topFunctionScope(), [uid]>;
+//    addOverloadedFunctionAndResolver(rhsReceiver.fuid, rhsOf);
+//  }
+//  
+//   str ofqname = "<lhsReceiver.fuid>_+_<rhsReceiver.fuid>#<e@\loc.offset>_<e@\loc.length>";  // name of addition
+// 
+//  OFUN compOf = <ofqname, lhsType, lhsOf[2], lhsOf[3] + rhsOf[3]>; // add all alternatives
+//  
+// 
+// 
+//  addOverloadedFunctionAndResolver(ofqname, compOf); 
+//  return muOFun(ofqname);
 }
 
 MuExp comparison(str op, Expression e)
@@ -590,18 +590,18 @@ MuExp translateBool((Expression) `(<Expression expression>)`, str btscope, MuExp
 // -- closure expression --------------------------------------------
 
 MuExp translate (e:(Expression) `<Type \type> <Parameters parameters> { <Statement+ statements> }`) =
-    translateClosure(e, parameters, statements);
+    translateClosure(e, parameters, [stat | stat <- statements]);
 
 MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statements> }`) =
-    translateClosure(e, parameters, statements);
+    translateClosure(e, parameters, [stat | stat <- statements]);
 
 // Translate a closure   
  
- private MuExp translateClosure(Expression e, Parameters parameters, Tree cbody) {
+ private MuExp translateClosure(Expression e, Parameters parameters, list[Statement] cbody) {
  	uid = e@\loc;
 	fuid = convert2fuid(uid);
 	//surrounding_fuid = topFunctionScope();
-	//fuid = nextLabel("CLOSURE");
+	//fuid = nextLabel("  SURE");
 	
 	enterFunctionScope(fuid);
 	
@@ -613,7 +613,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
      lrel[str name, AType atype, MuExp defaultExp]  kwps = translateKeywordParameters(parameters);
     
     // TODO: we plan to introduce keyword patterns as formal parameters
-    MuExp body = translateFunction(fuid, parameters.formals.formals, ftype, cbody, false, []);
+    MuExp body = translateFunction(fuid, parameters.formals.formals, ftype, muBlock([translate(stat) | stat <- cbody]), false, []);
     
     addFunctionToModule(muFunction(fuid, 
                                    fuid, 
@@ -633,28 +633,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
   	
   	leaveFunctionScope();								  
   	return muFun1(uid); // TODO!
-	//return (addr.fuid == convert2fuid(0)) ? muFun1(fuid) : muFun2(fuid, addr.fuid); // closures are not overloaded
 }
-
-//private MuExp translateBoolClosure(Expression e){
-//    tuple[str fuid,int pos] addr = <topFunctionScope(),-1>;
-//	fuid = addr.fuid + "/non_gen_at_<e@\loc>()";
-//	
-//	enterFunctionScope(fuid);
-//	
-//    ftype = afunc(abool(),[],[]);
-//	nformals = 0;
-//	nlocals = 0;
-//	bool isVarArgs = false;
-//  	
-//    MuExp body = muReturn1(translate(e));
-//    addFunctionToModule(muFunction(fuid, "CLOSURE", ftype, [], atuple(atypeList([])), addr.fuid, nformals, nlocals, isVarArgs, false, true, getExternalRefs(body, fuid), e@\loc, [], (), body));
-//  	
-//  	leaveFunctionScope();								  
-//  	
-//	return muFun2(fuid, addr.fuid); // closures are not overloaded
-//
-//}
 
 // -- range expression ----------------------------------------------
 
@@ -709,11 +688,11 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 //TODO: add descendant info	
 	reachable_syms = { avalue() };
 	reachable_prods = {};
-	if(optimizing()){
-	   tc = getTypesAndConstructorsInVisit(cases);
-	   <reachable_syms, reachable_prods> = getReachableTypes(subjectType, tc.constructors, tc.types, useConcreteFingerprint);
+	//if(optimizing()){
+	  // tc = getTypesAndConstructorsInVisit(cases);
+	   //<reachable_syms, reachable_prods> = getReachableTypes(subjectType, tc.constructors, tc.types, useConcreteFingerprint);
 	   //println("reachableTypesInVisit: <reachable_syms>, <reachable_prods>");
-	}
+	//}
 	
 	ddescriptor = descendantDescriptor(useConcreteFingerprint/*, reachable_syms, reachable_prods, getDefinitions()*/);
 		
@@ -816,7 +795,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    list[MuExp] args = [ translate(a) | Expression a <- arguments ];
    
    if(getOuterType(expression) == "astr"){
-   		return muCallPrim3("create_node", getType(e), [ getType(arg) | arg <- args], [receiver, *args, *kwargs], e@\loc);
+   		return muCallPrim3("create_node", getType(e), [ getType(arg) | arg <- arguments], [receiver, *args, *kwargs], e@\loc);
    }
   
    if(getOuterType(expression) == "aloc"){

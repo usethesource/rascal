@@ -103,11 +103,11 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
                         '    public static <className> sInstance = new <className>();
                         '}
                         
-                        'public final <className> import<className>() {
+                        'public static final <className> import<className>() {
                         '   return InstanceHolder.sInstance;
                         '}
                         '
-                        'public final <className> extend<className>($<className> newMe) {
+                        'public static final <className> extend<className>($<className> newMe) {
                         '   return new <className>(newMe);    
                         '}";
     main_method       = "public static void main(String[] args) {
@@ -176,7 +176,7 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
            'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.*;
            '
            'class <className>Test {
-           '    static final <className> MUT = <className>.import<className>();
+           '    <className> MUT = <className>.import<className>();
            '    static final TypeFactory $TF = TypeFactory.getInstance();
            '    static final GenerateActuals generator = new GenerateActuals(5, 5, 10);
            '    <for(f <- functions){>
@@ -187,20 +187,21 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
 str generateTestMethod(MuFunction f){
     if("test" notin f.modifiers) return "";
     
-    fname = f.uqname;
+    fun_name = f.uqname;
+    test_name = "<fun_name>_<f.src.begin.line>_<f.src.end.line>";
     formals = f.ftype.formals;
     expected = f.tags["expected"] ? "";
     if(isEmpty(formals)){
         if(isEmpty(expected)){
             return "@Test
-                   'void <fname>(){
-                   '   assertTrue(MUT.<fname>().getValue());
+                   'void <test_name>(){
+                   '   assertTrue(MUT.<fun_name>().getValue());
                    '}\n";
         } else {
             return "@Test
-                   'void <fname>(){
+                   'void <test_name>(){
                    '    try {
-                   '        MUT.<fname>();
+                   '        MUT.<fun_name>();
                    '    } catch (RascalException e) {
                    '        if(((IConstructor) e.getValue()).getConstructorType() == RascalExceptionFactory.<expected>) {
                    '            assertTrue(true);
@@ -215,8 +216,8 @@ str generateTestMethod(MuFunction f){
     types = "new Type[] {<intercalate(", ", [atype2typestore(tp) | tp <- formals])>}";
     actuals = intercalate(", ", ["args[<i>]" | i <- index(formals)]) + ", Collections.emptyMap()";
     return "@TestFactory
-           'Stream\<DynamicTest\> <fname>(){
-           '    return generator.generateActuals(<types>).map((args) -\> dynamicTest(\"<fname>\", () -\> assertTrue(((IBool)MUT.<fname>(<actuals>)).getValue())));
+           'Stream\<DynamicTest\> <test_name>(){
+           '    return generator.generateActuals(<types>).map((args) -\> dynamicTest(\"<test_name>\", () -\> assertTrue(((IBool)MUT.<fun_name>(<actuals>)).getValue())));
            '}\n";
 }
 
@@ -468,7 +469,7 @@ JCode makeCall(AType resolverFunType, loc of, JGenie jg){
         } else {
             call_code = "<jg.getAccessorInResolver(of)>(<intercalate(", ", actuals)>)";
             di = jg.getDefine(of).defInfo;
-            returns_void = funType.res == avoid();
+            returns_void = funType.ret == avoid();
             
             base_call = di has canFail && di.canFail ? "res = <call_code>;
                                                        'if(res != null) return <returns_void ? "" : res>;
@@ -529,7 +530,7 @@ bool constantDefaults(lrel[str name, AType atype, MuExp defaultExp] kwpDefaults)
 }
 
 JCode trans(MuFunction fun, JGenie jg){
-    iprintln(fun);
+    //iprintln(fun);
     if(!containedIn(fun.src, jg.getModuleLoc()) )return "";
     ftype = fun.ftype;
     shortName = "";
@@ -544,10 +545,11 @@ JCode trans(MuFunction fun, JGenie jg){
     } else { 
         idx = findFirst(qname, "$");    // preserve $ as first characters (as oppsoed to separator with module name 
         shortName = idx > 0 ? qname[idx+1 .. ] : qname;
-    }
-    if(isEmpty(ftype.formals)){ // remove line range from name, since parameterless functions is unique.
-        shortName = shortName[0 .. findLast(shortName, "_")];
-        shortName = shortName[0 .. findLast(shortName, "_")];
+    
+        if(isEmpty(ftype.formals)){ // remove line range from name, since parameterless functions is unique.
+            shortName = shortName[0 .. findLast(shortName, "_")];
+            shortName = shortName[0 .. findLast(shortName, "_")];
+        }
     }
     uncheckedWarning = "";
     if(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := ftype){

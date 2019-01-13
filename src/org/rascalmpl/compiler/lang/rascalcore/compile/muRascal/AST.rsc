@@ -135,6 +135,9 @@ public data MuExp =
           
           | muFilterReturn()									// Return for filter statement
           | muFailReturn()                                      // Failure from function body
+          
+          | muCheckMemo(list[MuExp] args, map[str,value] kwargs)
+          | muMemoize(MuExp functionResult)
                
           // Keyword parameters              
           | muKwpActuals(lrel[str kwpName, MuExp exp] kwpActuals)
@@ -302,6 +305,7 @@ default bool producesNativeInt(MuExp exp)
 bool endsWithReturn(muReturn0()) = true;
 bool endsWithReturn(muReturn1(_)) = true;
 bool endsWithReturn(muFailReturn()) = true;
+bool endsWithReturn(muThrow(_,_)) = true;
 bool endsWithReturn(muBlock([*exps1, exp2])) = true when endsWithReturn(exp2);
 bool endsWithReturn(muValueBlock([*exps1, exp2])) = true when endsWithReturn(exp2);
 bool endsWithReturn(muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart)) = true when endsWithReturn(thenPart), endsWithReturn(elsePart);
