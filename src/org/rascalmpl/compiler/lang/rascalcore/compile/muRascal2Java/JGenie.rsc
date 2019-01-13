@@ -9,9 +9,10 @@ import String;
 import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::compile::muRascal2Java::CodeGen;
 
-//extend lang::rascalcore::check::AType;
-//extend lang::rascalcore::check::ATypeUtils;
+import lang::rascalcore::check::AType;
+import lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::TypePalConfig;
+extend analysis::typepal::TypePal;
 
 alias JCode = str;
 
@@ -130,7 +131,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
             tm = tmodels[mname];
             useDef = tm.useDef;
             definitions = tm.definitions;
-            for(<u, d> <- useDef, containedIn(u, src), definitions[d]?, def := definitions[d], def.idRole == variableId(), !containedIn(def.scope, src)){
+            for(<u, d> <- useDef, containedIn(u, src), definitions[d]?, Define def := definitions[d], def.idRole == variableId(), !containedIn(def.scope, src)){
                 extVarDefs += <def.id, d>;
             }
         }
@@ -274,6 +275,8 @@ str atype2java(t: acons(AType adt, /*str consName,*/
                 list[AType fieldType] fields,
                 lrel[AType fieldType, Expression defaultExp] kwFields))
                  = "IConstructor";
+                 
+str atype2java(aparameter(str pname, AType bound)) = atype2java(bound);
 
 default str atype2java(AType t) = "IValue";
 
@@ -342,7 +345,7 @@ str atype2istype(t: acons(AType adt, list[AType fieldType] fields, lrel[AType fi
                                           = "isConstructor";
 str atype2istype(overloadedAType(rel[loc, IdRole, AType] overloads))
                                           = "isOverloaded";
-
+str atype2istype(aparameter(str pname, AType bound)) = atype2istype(bound);
 default str atype2istype(AType t)         = "isTop";
 
 

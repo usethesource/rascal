@@ -94,22 +94,24 @@ void translate(d: (Declaration) `<FunctionDeclaration functionDeclaration>`) = t
 // -- function declaration ------------------------------------------
 
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> ;`)   {
-  translateFunctionDeclaration(fd, muBlock([]), []);
+  translateFunctionDeclaration(fd, [], []);
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> ;`){
-  translateFunctionDeclaration(fd, expression, []);
+  Statement stat = (Statement) `<Expression expression>;`;
+  translateFunctionDeclaration(fd, [stat], []);
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions>;`){
-  translateFunctionDeclaration(fd, expression, [exp | exp <- conditions]); 
+  Statement stat = (Statement) `<Expression expression>;`;
+  translateFunctionDeclaration(fd, [stat], [exp | exp <- conditions]); 
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
-  translateFunctionDeclaration(fd, body.statements, []);
+  translateFunctionDeclaration(fd, [stat | stat <- body.statements], []);
 }
 
-private void translateFunctionDeclaration(FunctionDeclaration fd, node body, list[Expression] when_conditions){
+private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement] body, list[Expression] when_conditions){
   //println("r2mu: Compiling \uE007[<fd.signature.name>](<fd@\loc>)");
   funsrc = fd@\loc;
   enterFunctionDeclaration(funsrc);
@@ -150,6 +152,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
       //// Keyword parameters
       lrel[str name, AType atype, MuExp defaultExp]  kwps = translateKeywordParameters(fd.signature.parameters/*, fuid, getFormals(funsrc), fd@\loc*/);
       
+      mubody = muBlock([]);
       if(ttags["javaClass"]?){
          paramTypes = atuple(atypeList([param | param <- ftype.formals]));
          params = [ muVar(ftype.formals[i].label, fuid, i, ftype.formals[i]) | i <- [ 0 .. nformals] ];
@@ -160,16 +163,18 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, node body, lis
          // 	params +=  [ muVar("map_of_keyword_values",fuid,nformals), muVar("map_of_default_values",fuid,nformals+1)];
          //}
          if("<fd.signature.name>" == "typeOf"){		// Take note: special treatment of Types::typeOf
-         	body = muCallPrim3("type2symbol", [ muCallPrim3("typeOf", params, fd@\loc), muCon(getGrammar()) ], fd@\loc);
+         	mubody = muCallPrim3("type2symbol", [ muCallPrim3("typeOf", params, fd@\loc), muCon(getGrammar()) ], fd@\loc);
          } else {
-            body = muCallJava("<fd.signature.name>", ttags["javaClass"], ftype, ("reflect" in ttags) ? 1 : 0, params, fuid);
+            mubody = muCallJava("<fd.signature.name>", ttags["javaClass"], ftype, ("reflect" in ttags) ? 1 : 0, params, fuid);
          }
+      } else {
+        mubody = muBlock([ translate(stat) | stat <- body ]);
       }
      
       isPub = !fd.visibility is \private;
       isMemo = ttags["memo"]?; 
-   
-      tbody = translateFunction("<fd.signature.name>", fd.signature.parameters.formals.formals, ftype, body, isMemo, when_conditions);
+      iprintln(body);
+      tbody = translateFunction("<fd.signature.name>", fd.signature.parameters.formals.formals, ftype, mubody, isMemo, when_conditions);
      
       formals = [formal | formal <- fd.signature.parameters.formals.formals];
       
@@ -254,6 +259,105 @@ lrel[str name, AType atype, MuExp defaultExp] translateKeywordParameters(Paramet
   }
   return kwmap;
 }
+
+/********************************************************************/
+/*                  Translate function body                         */
+/********************************************************************/
+
+MuExp returnFromFunction(MuExp body, AType ftype, bool isMemo, loc src) {
+  if(ftype.ret == avoid()){
+    return body;
+  } else {
+      res = muReturn1(body);
+      if(isMemo){
+         res = visit(res){
+            case muReturn1(e) => muReturn1(muCallPrim3("memoize", ftype.ret, [], [body], src))
+         }
+      }
+      return res;   
+  }
+}
+         
+MuExp functionBody(MuExp body, bool isMemo, loc src) =
+   isMemo ? muValueBlock([muCallPrim3("check_memo", avalue(), [], [body], src), body])  // Directly mapped to the CHECKMEMO instruction that returns when args are in cache
+          : body;
+
+MuExp translateFormals(list[Pattern] formals, AType ftype, bool isMemo, int i, MuExp body, list[Expression] when_conditions, loc src){
+   isVarArgs = ftype.varArgs;
+   if(isEmpty(formals)) {
+      if(isEmpty(when_conditions)){
+        return returnFromFunction(body, ftype, isMemo, src);
+      } else {
+        ifname = nextLabel();
+        enterBacktrackingScope(ifname);
+        mubody = translateConds(ifname, [cond | Expression cond <- when_conditions ],  returnFromFunction(body, ftype, isMemo, src),  muFailReturn());
+        leaveBacktrackingScope();
+        return mubody;
+      }
+   }
+   pat = formals[0];
+   
+   if(pat is literal){
+     // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
+      ifname = nextLabel();
+      enterBacktrackingScope(ifname);
+      
+      patTest =  pat.literal is regExp ? muMulti(muApply(translatePat(pat, getType(pat@\loc)), [muVar("$<i>",topFunctionScope(),i) ]))
+                                       : muEqual(muVar("$<i>",topFunctionScope(),i, getType(formals[i])), translate(pat.literal));
+      
+      exp = muIfelse(patTest, translateFormals(tail(formals), ftype, isMemo, i + 1, body, when_conditions, src),
+                              muFailReturn()
+                  );
+      leaveBacktrackingScope();
+      return exp;
+   } else {
+      Name name = pat.name;
+      tp = pat.\type;
+      fuid = getVariableScope("<name>", name@\loc);
+      pos = getPositionInScope("<name>", name@\loc);
+      // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
+      ifname = nextLabel();
+      enterBacktrackingScope(ifname);
+                          
+      exp = muBlock([ muCheckArgTypeAndCopy("<name>", i, (isVarArgs && size(formals) == 1) ? alist(translateType(tp)) : translateType(tp), pos),
+                      translateFormals(tail(formals), ftype, isMemo, i + 1, body, when_conditions, src)
+                    ]);
+      leaveBacktrackingScope();
+      return exp;
+    }
+}
+
+MuExp translateFunction(str fname, {Pattern ","}* formals, AType ftype, MuExp body, bool isMemo, list[Expression] when_conditions){
+  bool simpleArgs = true;
+  for(pat <- formals){
+      if(!(pat is typedVariable || pat is literal))
+        simpleArgs = false;
+  }
+  if(simpleArgs) { //TODO: should be: all(pat <- formals, (pat is typedVariable || pat is literal))) {
+     return functionBody(muIfelse( muCon(true), muBlock([ translateFormals([formal | formal <- formals], ftype, isMemo, 0, /*kwps,*/ body, when_conditions, formals@\loc)]), muFailReturn()),
+                         isMemo, formals@\loc);
+  } else {
+     // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
+     enterBacktrackingScope(fname);
+     // TODO: account for a variable number of arguments
+     formalsList = [f | f <- formals];
+     
+     str getParameterName(int i) {
+        tp = getType(formalsList[i]);
+        return tp.label? ? tp.label : "$<i>";
+     }
+      conditions = (returnFromFunction(body, ftype, isMemo, formals@\loc)
+                   | translatePat(formalsList[i], getType(formalsList[i]), muVar(getParameterName(i), topFunctionScope(), i, getType(formalsList[i])), fname, it, muFailReturn()) 
+                   | i <- index(formalsList));
+      mubody = functionBody(conditions, isMemo, formals@\loc);
+      leaveBacktrackingScope();
+      return mubody;
+  }
+}
+
+//MuExp translateFunctionBody(list[Statement] stats){
+//    return muBlock([ translate(stat) | stat <- stats ]);
+//}
 
 /********************************************************************/
 /*                  Translate tags in a function declaration        */

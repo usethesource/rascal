@@ -16,7 +16,7 @@ import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascal::grammar::definition::Symbols;
 
 //extend lang::rascalcore::check::Checker;
-import lang::rascalcore::check::TypePalConfig;
+extend lang::rascalcore::check::TypePalConfig;
 import Type;
 
 import lang::rascalcore::check::AType;
@@ -695,7 +695,8 @@ map[str, map[str, value]] getConstantConstructorDefaultExpressions(loc location)
 }
 
 tuple[str fuid, int pos] getVariableScope(str name, loc l) {
-  //println("getVariableScope: <name>, <l>, <declaredIn[l] ? "XXX">, <useDef[l] ? "YYY">)");
+iprintln(definitions);
+  println("getVariableScope: <name>, <l>, <definitions[l] ? "QQQ">, <declaredIn[l] ? "XXX">, <useDef[l] ? "YYY">)");
   container = declaredIn[l] ? declaredIn[definitions[getFirstFrom(useDef[l])].defined];
   cdef = definitions[container];
   if(cdef.idRole == functionId()) return <convert2fuid(container), getPositionInScope(name, l)>;
