@@ -286,6 +286,15 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
          
         c.defineInScope(parentScope, prettyPrintName(fname), functionId(), current /*fname*/, dt); 
         
+        //if(decl is \default){
+        //    stats = [ stat | stat <- decl.body.statements ];
+        //    if(isEmpty(stats)){
+        //        c.requireEqual(signature.\type, avoid(), error(decl.body, "Function with non-void return type cannot have empty body"));
+        //    } else {
+        //        c.require("non-empty body", stats[-1], [stats[-1]], makeLastStatementRequirement(stats[-1], signature.\type));
+        //    }
+        //}
+        
         if(decl is expression || decl is conditional){
             if(containsReturn(decl.expression)){
                 ; // We assume that the expression returns a value via a return (and that is checked for compatibility with return type);
@@ -484,9 +493,33 @@ void(Solver) makeReturnRequirement(Tree returnExpr, Type declaredReturnType)
         } else
             if(!s.unify(ireturnExprType, actualDeclaredReturnType)){
             s.requireTrue(s.equal(ireturnExprType, avoid()) && s.equal(actualDeclaredReturnType, avoid()) ||
-                         !s.equal(ireturnExprType, avoid()) && s.subtype(ireturnExprType, actualDeclaredReturnType), error(returnExpr, "Return type %t expected found %t", actualDeclaredReturnType, ireturnExprType));
+                         !s.equal(ireturnExprType, avoid()) && s.subtype(ireturnExprType, actualDeclaredReturnType), error(returnExpr, "Return type %t expected, found %t", actualDeclaredReturnType, ireturnExprType));
         }   
      };
+     
+     
+void(Solver) makeLastStatementRequirement(Tree returnExpr, Type declaredReturnType)
+    = void(Solver s) { 
+        actualDeclaredReturnType = s.getType(declaredReturnType);
+          
+        returnExprType = s.getType(returnExpr);
+        Bindings bindings = ();
+        try   bindings = matchRascalTypeParams(returnExprType, actualDeclaredReturnType, bindings, bindIdenticalVars=true);
+        catch invalidMatch(str reason):
+              s.report(error(returnExpr, reason));
+          
+        ireturnExprType = xxInstantiateRascalTypeParameters(returnExpr, returnExprType, bindings, s);
+
+        if(s.isFullyInstantiated(ireturnExprType)){
+            s.requireTrue(s.equal(actualDeclaredReturnType, avoid()) ||
+                         !s.equal(ireturnExprType, avoid()) && s.subtype(ireturnExprType, actualDeclaredReturnType), error(returnExpr, "Missing return statement"));
+        } else
+            if(!s.unify(ireturnExprType, actualDeclaredReturnType)){
+            s.requireTrue(s.equal(actualDeclaredReturnType, avoid()) ||
+                         !s.equal(ireturnExprType, avoid()) && s.subtype(ireturnExprType, actualDeclaredReturnType), error(returnExpr, "Missing return statement"));
+        }   
+     };
+
 
 // ---- return statement (closely interacts with function declaration) --------
 
