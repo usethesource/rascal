@@ -29,17 +29,17 @@ public str key_current_module = "current_module";
 
 tuple[bool,loc] TPLReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "tpl", pcfg);
 
-datetime getLastModified(str qualifiedModuleName, PathConfig pcfg){
+datetime getLastModified(str qualifiedModuleName, map[str, datetime] moduleLastModified, PathConfig pcfg){
     qualifiedModuleName = unescape(qualifiedModuleName);
     try {
-        mloc = getModuleLocation(qualifiedModuleName, pcfg);
-        return lastModified(mloc);
-    } catch value e: {
-        return $2000-01-01T00:00:00.000+00:00$;
-        //if(<true, tplLoc> := TPLReadLoc(qualifiedModuleName, pcfg)){
-        //   return lastModified(tplLoc);
-        //}
-        //throw "No source or tpl loc found for <qualifiedModuleName>";
+        return moduleLastModified[qualifiedModuleName];
+   } catch NoSuchKey(_): {
+        try {
+            mloc = getModuleLocation(qualifiedModuleName, pcfg);
+            return lastModified(mloc);
+        } catch value e: {
+            return $2000-01-01T00:00:00.000+00:00$;
+        }
     }
 }
 
@@ -47,6 +47,7 @@ alias ModuleStructure = tuple[rel[str, PathRole, str] strPaths,
                               rel[loc, PathRole, loc] paths, 
                               map[str,TModel] tmodels, 
                               map[str,loc] moduleLocs, 
+                              map[str,datetime] moduleLastModified,
                               map[str,Module] modules,
                               set[str] valid,
                               set[str] invalid
@@ -60,7 +61,7 @@ void printModuleStructure(ModuleStructure ms){
     println("valid: <ms.valid>");
 }
 
-ModuleStructure newModuleStructure() = <{}, {}, (), (), (), {}, {}>;
+ModuleStructure newModuleStructure() = <{}, {}, (), (), (), (), {}, {}>;
 
 str getModuleName(loc mloc, map[loc,str] moduleStrs, PathConfig pcfg){
     return moduleStrs[mloc]? ? moduleStrs[mloc] : getModuleName(mloc, pcfg);
@@ -104,10 +105,10 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
                    if(m != qualifiedModuleName){
                         localImportsAndExtends += <m, pathRole>;
                    }
-                   if(getLastModified(m, pcfg) > timestampInBom) {
+                   if(getLastModified(m, ms.moduleLastModified, pcfg) > timestampInBom) {
                         allImportsAndExtendsValid = false;
                         if(m notin ms.invalid){
-                            println("--- <m> is no longer valid (latest <getLastModified(m, pcfg)>, previous check used <timestampInBom>)");
+                            println("--- <m> is no longer valid (latest <getLastModified(m, ms.moduleLastModified, pcfg)>, previous check used <timestampInBom>)");
                             ms.invalid = ms.invalid + {m};
                         }
                    }
@@ -204,15 +205,15 @@ loc getModuleScope(str qualifiedModuleName, map[str, loc] moduleScopes){
     }
 }
 
-TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, map[str,loc] moduleScopes, PathConfig pcfg, TModel tm){
+TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, map[str,loc] moduleScopes, map[str,datetime] moduleLastModified, PathConfig pcfg, TModel tm){
     //println("saveModule: <qualifiedModuleName>, <imports>, <extends>, <moduleScopes>");
     try {
         mscope = getModuleScope(qualifiedModuleName, moduleScopes);
         tplLoc = getDerivedWriteLoc(qualifiedModuleName, "tpl", pcfg);
         
-        bom = { < m, getLastModified(m, pcfg), importPath() > | m <- imports }
-            + { < m, getLastModified(m, pcfg), extendPath() > | m <- extends }
-            + { <qualifiedModuleName, getLastModified(qualifiedModuleName, pcfg), importPath() > };
+        bom = { < m, getLastModified(m, moduleLastModified, pcfg), importPath() > | m <- imports }
+            + { < m, getLastModified(m, moduleLastModified, pcfg), extendPath() > | m <- extends }
+            + { <qualifiedModuleName, getLastModified(qualifiedModuleName, moduleLastModified, pcfg), importPath() > };
             
         //bom = (m : getLastModified(m, pcfg) | m <- imports + extends);
         //bom[qualifiedModuleName] = getLastModified(qualifiedModuleName, pcfg);
