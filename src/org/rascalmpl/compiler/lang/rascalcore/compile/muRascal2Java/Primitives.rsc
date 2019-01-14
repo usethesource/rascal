@@ -438,7 +438,7 @@ JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie 
 
 // ---- subset ----------------------------------------------------------------
 
-JCode transPrim("subset", AType r, [AType a, AType b], [str x, str y], JGenie jg)        = "<x>.subset(<y>)"        when isSetOrListLikeType(a), isSetOrListLikeType(b);
+JCode transPrim("subset", AType r, [AType a, AType b], [str x, str y], JGenie jg)        = "<x>.isSubsetOf(<y>)"        when isSetOrListLikeType(a), isSetOrListLikeType(b);
 
 // ---- subsets ---------------------------------------------------------------
 

@@ -13,9 +13,6 @@ import lang::rascalcore::compile::CompileTimeError;
 
 import lang::rascalcore::compile::muRascal::AST;
 
-//import lang::rascal::types::AbstractName;
-//import lang::rascal::types::CheckerConfig;		// to be sure
-
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 
@@ -178,22 +175,6 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
      
       formals = [formal | formal <- fd.signature.parameters.formals.formals];
       
-      //canFail = !(all(pat <- formals, pat is typedVariable) && isEmpty(when_conditions) && /muFailReturn() !:= tbody);
-  
-  
-      //if(nformals > 0) println("formals[0] = <formals[0]>");
-      
-      //absfpArg = nformals > 0 ? fingerprint(formals[0], false) : 0;
-      //println("absfpArg = <absfpArg>");
-      //isConcreteArg = nformals > 0 ? isConcretePattern(formals[0]) : false;
-      //concfpArg = nformals > 0 && isConcreteArg ? fingerprint(formals[0], true) : 0;
-      //println("concfpArg = <concfpArg>");
-     
-     
-      //println("translateFunctionDeclaration, fd = <fd>");
-      
-      //println("translateFunctionDeclaration: <fuid>, <addr.fuid>, <moduleNames>,  addr.fuid in moduleNames = <addr.fuid in moduleNames>");
-      
       addFunctionToModule(muFunction(fuid, 
       								 "<fd.signature.name>", 
       								 ftype,
@@ -222,25 +203,18 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
   //}
 }
 
+str getParameterName(list[Pattern] patterns, int i) = getParameterName(patterns[i], i);
+
+str getParameterName((Pattern) `<QualifiedName qname>`, int i) = "<qname>";
+str getParameterName((Pattern) `<QualifiedName qname> *`, int i) = "<qname>";
+str getParameterName((Pattern) `<Type tp> <Name name>`, int i) = "<name>";
+str getParameterName((Pattern) `<Name name> : <Pattern pattern>`, int i) = "<name>";
+str getParameterName((Pattern) `<Type tp> <Name name> : <Pattern pattern>`, int i) = "<name>";
+default str getParameterName(Pattern p, int i) = "$<i>";
+
 list[str] getParameterNames({Pattern ","}* formals){
      abs_formals = [f | f <- formals];
-     int arity = size(abs_formals);
-     names =
-     for(int i <- [0 .. arity]){
-         str argName = "$<i>";
-         
-         if((Pattern)`<Type pt> <Name pn>` := abs_formals[i]){
-              argName = "<pn>";
-         } else if((Pattern)`<Name pn>` := abs_formals[i]){
-              argName = "<pn>";
-         } else if((Pattern) `<Name name> : <Pattern pattern>` := abs_formals[i]){
-            argName = "<name>";
-         } else if((Pattern) `<Type tp> <Name name> : <Pattern pattern>` := abs_formals[i]){
-            argName = "<name>";
-         }
-         append argName; 
-     }
-     return names; 
+     return[ getParameterName(abs_formals, i) | i <- index(abs_formals) ];
 }
 
 list[MuExp] getExternalRefs(MuExp exp, str fuid)
@@ -281,7 +255,7 @@ MuExp returnFromFunction(MuExp body, AType ftype, bool isMemo, loc src) {
 MuExp functionBody(MuExp body, bool isMemo, loc src) =
    isMemo ? muValueBlock([muCallPrim3("check_memo", avalue(), [], [body], src), body])  // Directly mapped to the CHECKMEMO instruction that returns when args are in cache
           : body;
-
+     
 MuExp translateFormals(list[Pattern] formals, AType ftype, bool isMemo, int i, MuExp body, list[Expression] when_conditions, loc src){
    isVarArgs = ftype.varArgs;
    if(isEmpty(formals)) {
@@ -290,7 +264,7 @@ MuExp translateFormals(list[Pattern] formals, AType ftype, bool isMemo, int i, M
       } else {
         ifname = nextLabel();
         enterBacktrackingScope(ifname);
-        mubody = translateConds(ifname, [cond | Expression cond <- when_conditions ],  returnFromFunction(body, ftype, isMemo, src),  muFailReturn());
+        mubody = translateConds(ifname, [cond | Expression cond <- when_conditions ], returnFromFunction(body, ftype, isMemo, src),  muFailReturn());
         leaveBacktrackingScope();
         return mubody;
       }
@@ -303,7 +277,7 @@ MuExp translateFormals(list[Pattern] formals, AType ftype, bool isMemo, int i, M
       enterBacktrackingScope(ifname);
       
       patTest =  pat.literal is regExp ? muMulti(muApply(translatePat(pat, getType(pat@\loc)), [muVar("$<i>",topFunctionScope(),i) ]))
-                                       : muEqual(muVar("$<i>",topFunctionScope(),i, getType(formals[i])), translate(pat.literal));
+                                       : muEqual(muVar(getParameterName(formals, i), topFunctionScope(),i, getType(formals[i])), translate(pat.literal));
       
       exp = muIfelse(patTest, translateFormals(tail(formals), ftype, isMemo, i + 1, body, when_conditions, src),
                               muFailReturn()
@@ -341,23 +315,15 @@ MuExp translateFunction(str fname, {Pattern ","}* formals, AType ftype, MuExp bo
      enterBacktrackingScope(fname);
      // TODO: account for a variable number of arguments
      formalsList = [f | f <- formals];
-     
-     str getParameterName(int i) {
-        tp = getType(formalsList[i]);
-        return tp.label? ? tp.label : "$<i>";
-     }
-      conditions = (returnFromFunction(body, ftype, isMemo, formals@\loc)
-                   | translatePat(formalsList[i], getType(formalsList[i]), muVar(getParameterName(i), topFunctionScope(), i, getType(formalsList[i])), fname, it, muFailReturn()) 
-                   | i <- index(formalsList));
-      mubody = functionBody(conditions, isMemo, formals@\loc);
-      leaveBacktrackingScope();
-      return mubody;
+  
+     conditions = (returnFromFunction(body, ftype, isMemo, formals@\loc)
+                  | translatePat(formalsList[i], getType(formalsList[i]), muVar(getParameterName(formalsList, i), topFunctionScope(), i, getType(formalsList[i])), fname, it, muFailReturn()) 
+                  | i <- index(formalsList));
+     mubody = functionBody(conditions, isMemo, formals@\loc);
+     leaveBacktrackingScope();
+     return mubody;
   }
 }
-
-//MuExp translateFunctionBody(list[Statement] stats){
-//    return muBlock([ translate(stat) | stat <- stats ]);
-//}
 
 /********************************************************************/
 /*                  Translate tags in a function declaration        */
