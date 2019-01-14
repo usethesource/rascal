@@ -163,7 +163,7 @@ alias CheckerResult = tuple[map[str,TModel] tmodels, map[str,loc] moduleLocs, ma
 // rascalTModelForLoc is the basic work horse
 
 CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config){     
-    bool forceCompilationTopModule = true; /***** set to true during development of type checker *****/
+    bool forceCompilationTopModule = false; /***** set to true during development of type checker *****/
     try {
         beginTime = cpuTime();   
         topModuleName = getModuleName(mloc, pcfg);
@@ -208,6 +208,7 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
                         ms.moduleLocs[m] = mloc;  
                         path2module[mloc.path] = m;        
                         if(config.verbose) println("*** parsing <m> from <mloc>");
+                        ms.moduleLastModified[m] = lastModified(mloc);
                         pt = parseModuleWithSpaces(mloc).top;
                         ms.modules[m] = pt;
                        
@@ -215,7 +216,8 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
                 } else if(!ms.tmodels[m]?){
                     <found, tplLoc> = getDerivedReadLoc(m, "tpl", pcfg);
                     if(found){   
-                        if(config.verbose) println("*** reading <m> from <tplLoc>");       
+                        if(config.verbose) println("*** reading <m> from <tplLoc>");  
+                        ms.moduleLastModified[m] = lastModified(tplLoc);     
                         ms.tmodels[m] = readBinaryValueFile(#TModel, tplLoc);
                     }
                 }
@@ -240,7 +242,7 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
                         }
                         tm.messages += msgs;
                     }
-                    ms.tmodels[m] = saveModule(m, imports, extends, moduleScopes, pcfg, tm);
+                    ms.tmodels[m] = saveModule(m, imports, extends, moduleScopes, ms.moduleLastModified, pcfg, tm);
                     //ms.modules = delete(ms.modules, m);
                 }
             }
