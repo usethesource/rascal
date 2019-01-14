@@ -224,8 +224,6 @@ public class ConstructorFunction extends NamedFunction {
 		    }
 		}
 		
-		// the match worked, but now we have to go and bind some type parameters
-		
 		// if the match works, then we can go fill the information for the static type system:
 		Map<Type,Type> bindings = new HashMap<Type,Type>();
 		
