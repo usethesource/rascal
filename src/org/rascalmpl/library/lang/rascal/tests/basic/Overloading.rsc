@@ -39,6 +39,14 @@ test bool overloading2(){
 
 data D = d(str s) | d(int n) | d();
 
+@doc{triggers issue #1234}
+test bool constructorDynamicMatch() {
+  value x = 1;
+  
+  // Due to issue #1234, `d(x)` would throw a MatchFailed() here */
+  return d(int i) := d(x) && i == 1;
+}
+
 test bool overloading3(){
 
 	public D d(0) = d(-1);
