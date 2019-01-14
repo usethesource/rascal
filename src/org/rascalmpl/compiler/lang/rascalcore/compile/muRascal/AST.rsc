@@ -282,7 +282,7 @@ bool isVarOrTmp(MuExp exp)
     = getName(exp) in varExp;
     
 bool producesNativeBool(muCallPrim3(str name, AType result, list[AType] details, list[MuExp] args, loc src)){
-    if(name in {"equal", "notequal", "is"}) return true;
+    if(name in {"equal", "notequal", "is", "subset"}) return true;
     fail producesNativeBool;
 }
 

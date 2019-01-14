@@ -671,23 +671,23 @@ MuExp translateAnonymousMultiVar(bool last, AType elmType, MuExp subject, MuExp 
 MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>*`, bool last, AType elmType, MuExp subject, MuExp prevSubject, str btscope, MuExp trueCont, MuExp falseCont) {
     if(name == "_") fail;
     <fuid, pos> = getVariableScope("<name>", name@\loc);
-    return translateNamedMultiVar(muVar("<name>", fuid, pos, aset(elmType)), last, elmType, subject, prevSubject, btscope, trueCont, falseCont);
+    return translateNamedMultiVar(muVar("<name>", fuid, pos, aset(elmType)), last, elmType, subject, prevSubject, btscope, trueCont, falseCont, p@\loc);
 }
 
 MuExp translatePatAsSetElem(p:(Pattern) `*<Name name>`, bool last, AType elmType, MuExp subject, MuExp prevSubject, str btscope, MuExp trueCont, MuExp falseContt) {
     if(name == "_") fail;
     <fuid, pos> = getVariableScope("<name>", name@\loc);
-    return translateNamedMultiVar(muVar("<name>", fuid, pos, aset(elmType)), last, elmType, subject, prevSubject, btscope, trueCont, falseCont);
+    return translateNamedMultiVar(muVar("<name>", fuid, pos, aset(elmType)), last, elmType, subject, prevSubject, btscope, trueCont, falseCont, p@\loc);
 }
 
-MuExp translateNamedMultiVar(MuExp var, bool last, AType elmType, MuExp subject, MuExp prevSubject, str btscope, MuExp trueCont, MuExp falseContt) {
+MuExp translateNamedMultiVar(MuExp var, bool last, AType elmType, MuExp subject, MuExp prevSubject, str btscope, MuExp trueCont, MuExp falseCont, loc src) {
   str fuid = topFunctionScope();
   elem = muTmpIValue(nextTmp("elem"), fuid, aset(elmType));
-  my_btscope = nextTmp("<name>_MULTIVAR");
+  my_btscope = nextTmp("<var.name>_MULTIVAR");
   enterBacktrackingScope(my_btscope);
-  code = muForAll(my_btscope, elem, muCallPrim3("subsets", aset(elmType), [aset(elmType)], [prevSubject], p@\loc),
-                  muBlock([ *(isUsed(var, trueCont) ? [muAssign(var, elem)] : []),
-                            *(last ? [] : [muConInit(subject, muCallPrim3("subtract", aset(elmType), [aset(elmType), aset(elmType)], [prevSubject, var], p@\loc))]),
+  code = muForAll(my_btscope, elem, muCallPrim3("subsets", aset(elmType), [aset(elmType)], [prevSubject], src),
+                  muBlock([ *((!last || isUsed(var, trueCont)) ? [muVarInit(var, elem)] : []),
+                            *((last && !iUsed(var, trueCont)) ? [] : [muConInit(subject, muCallPrim3("subtract", aset(elmType), [aset(elmType), aset(elmType)], [prevSubject, var], src))]),
                             trueCont
                           ]));
    leaveBacktrackingScope();
@@ -731,8 +731,8 @@ MuExp translatePatAsSetElem(p:(Pattern) `*<Type tp> <Name name>`, bool last, ATy
 
    if(asubtype(elmType, trType)){
        code = muForAll(my_btscope, elem, muCallPrim3("subsets", aset(elmType), [aset(elmType)], [prevSubject], p@\loc),
-                       muBlock([ *(isUsed(var, trueCont) ? [muAssign(var, elem)] : []),
-                                 *(last ? [] : [muConInit(subject, muCallPrim3("subtract", aset(elmType), [aset(elmType), aset(elmType)], [prevSubject, var], p@\loc))]),
+                       muBlock([ *((!last || isUsed(var, trueCont)) ? [muVarInit(var, elem)] : []),
+                                 *((last && !isUsed(var, trueCont)) ? [] : [muConInit(subject, muCallPrim3("subtract", aset(elmType), [aset(elmType), aset(elmType)], [prevSubject, var], p@\loc))]),
                                  trueCont
                                ]));
    } else {
@@ -832,7 +832,7 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`, AType subjectType, 
    
    str fuid = topFunctionScope();
    subject = muTmpIValue(nextTmp("subject"), fuid, subjectType);
-   literals = muTmpIValue(nextTmp("literals"), fuid, elmType);
+   literals = muTmpIValue(nextTmp("literals"), fuid, subjectType);
    
    subjects = [ muTmpIValue(nextTmp("subject"), fuid, subjectType) |int i <- reverse(index(uniquePats)) ];
     
@@ -853,21 +853,26 @@ MuExp translateSetPat(p:(Pattern) `{<{Pattern ","}* pats>}`, AType subjectType, 
          setPatTrueCont= translatePatAsSetElem(pat, isLastPat, elmType, currentSubject, previousSubject, btscope, setPatTrueCont, falseCont);
       } else {
         setPatTrueCont = translatePatAsSetElem(pat, isLastPat, elmType, currentSubject, previousSubject, btscope, setPatTrueCont, falseCont);
-        //compiledPats +=  muApply(mkCallToLibFun("Library","MATCH_PAT_IN_SET"), [translatePat(pat, elmType)]);
-        // To enable constant elimination change to:
-        // compiledPats += translatePatAsSetElem(pat, false);
       }
    }
-   MuExp litCode = (all(Literal lit <- literalPats, isConstant(lit))) ? muCon({ getLiteralValue(lit) | Literal lit <- literalPats })
-   		           										              : muCallPrim3("create_set", aset(elmType), [aset(elmType), elmType], [ translate(lit) | Literal lit <- literalPats], p@\loc );
-  
-   code = [ muVarInit(subject, subjectExp),
-            muConInit(literals, litCode),
-            muIfelse(muCallPrim3("subset", aset(elmType), [aset(elmType), aset(elmType)], [literals, subject], p@\loc),
-                     muBlock([ *(leftMostVar < 0 ? [] : [muConInit(leftMostVar == 0 ? subject : subjects[leftMostVar-1], muCallPrim3("subtract", aset(elmType), [aset(elmType), aset(elmType)], [subject, literals], p@\loc))]),
+   
+   code = [];
+   
+   if(isEmpty(literalPats)){
+    code = [ muVarInit(subject, subjectExp),
+             setPatTrueCont
+           ];
+   } else {
+    MuExp litCode = (all(Literal lit <- literalPats, isConstant(lit))) ? muCon({ getLiteralValue(lit) | Literal lit <- literalPats })
+   		           										               : muCallPrim3("create_set", aset(elmType), [aset(elmType), elmType], [ translate(lit) | Literal lit <- literalPats], p@\loc );
+    code = [ muVarInit(subject, subjectExp),
+             muConInit(literals, litCode),
+             muIfelse(muCallPrim3("subset", aset(elmType), [aset(elmType), aset(elmType)], [literals, subject], p@\loc),
+                      muBlock([ *(leftMostVar < 0 ? [] : [muAssign(leftMostVar == 0 ? subject : subjects[leftMostVar-1], muCallPrim3("subtract", aset(elmType), [aset(elmType), aset(elmType)], [subject, literals], p@\loc))]),
                                 setPatTrueCont]),
                                 falseCont)
           ];
+   }
    return muBlock(code);
 }
 

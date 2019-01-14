@@ -530,7 +530,7 @@ bool constantDefaults(lrel[str name, AType atype, MuExp defaultExp] kwpDefaults)
 }
 
 JCode trans(MuFunction fun, JGenie jg){
-    //iprintln(fun);
+    iprintln(fun);
     if(!containedIn(fun.src, jg.getModuleLoc()) )return "";
     ftype = fun.ftype;
     shortName = "";
@@ -554,6 +554,7 @@ JCode trans(MuFunction fun, JGenie jg){
     uncheckedWarning = "";
     if(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := ftype){
         returnType = atype2java(ftype.ret);
+        argNames = fun.argNames;
         argTypes = intercalate(", ", ["<atype2java(f)> <f.label? ? "<f.label>" : "$<i>">" | i <- index(ftype.formals), f := ftype.formals[i]]);
         if(!isEmpty(fun.externalVars)){
             ext_actuals = intercalate(", ", ["ValueRef\<<atype2java(v.atype)>\> <v.name>" | v <- fun.externalVars]);
@@ -993,21 +994,24 @@ JCode trans2Void(MuExp exp, JGenie jg)
    = "<trans(exp, jg)>\n"
    when getName(exp) in {"muOCall3", "muCall", "muReturn0", "muReturn1"};
    
+JCode trans2Void(muBlock(list[MuExp] exps), JGenie jg)
+    = "<for(exp <- exps){><trans2Void(exp, jg)><}>";
+
 JCode trans2Void(muIfExp(MuExp cond, muBlock([]), MuExp elsePart), JGenie jg)
    = "if(!<trans2NativeBool(cond, jg)>){
-     '  <trans(elsePart, jg)>
+     '  <trans2Void(elsePart, jg)>
      '}\n";
  
  JCode trans2Void(muIfExp(MuExp cond, MuExp thenPart, muBlock([])), JGenie jg)
    = "if(<trans2NativeBool(cond, jg)>){
-     '  <trans(thenPart, jg)>
+     '  <trans2Void(thenPart, jg)>
      '}\n";
 
 default JCode trans2Void(muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart), JGenie jg)
    = "if(<trans2NativeBool(cond, jg)>){
-     '  <trans(thenPart, jg)>
+     '  <trans2Void(thenPart, jg)>
      '} else {
-     '  <trans(elsePart, jg)>
+     '  <trans2Void(elsePart, jg)>
      '}\n";
  
 default JCode trans2Void(MuExp exp, JGenie jg){
@@ -1091,20 +1095,20 @@ JCode trans(muInsert(MuExp exp), JGenie jg)
 
 JCode trans(muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart), JGenie jg){
     return "if(<trans2NativeBool(cond, jg)>){
-            '   <trans(thenPart, jg)>
+            '   <trans2Void(thenPart, jg)>
             '} else {
-            '   <trans(elsePart, jg)>
+            '   <trans2Void(elsePart, jg)>
             '}\n";
 }
 
 JCode trans(muIfExp(MuExp cond, muBlock([]), MuExp elsePart), JGenie jg)
    = "if(!<trans2NativeBool(cond, jg)>){
-     '  <trans(elsePart, jg)>
+     '  <trans2Void(elsePart, jg)>
      '}\n";
    
 JCode trans(muIfExp(MuExp cond, MuExp thenPart, muBlock([])), JGenie jg)
    = "if(<trans2NativeBool(cond, jg)>){
-     '  <trans(thenPart, jg)>
+     '  <trans2Void(thenPart, jg)>
      '}\n";
 
 default JCode trans(muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart), JGenie jg)
@@ -1112,7 +1116,7 @@ default JCode trans(muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart), JGenie 
  
 JCode trans(muIf(MuExp cond, MuExp thenPart), JGenie jg){
     return "if(<trans2NativeBool(cond, jg)>){
-            '   <trans(thenPart, jg)>
+            '   <trans2Void(thenPart, jg)>
             '}\n";
 }
 
@@ -1131,14 +1135,14 @@ JCode trans(muIfEqualOrAssign(MuExp var, MuExp other, MuExp body), JGenie jg){
 JCode trans(muWhileDo(str label, MuExp cond, MuExp body), JGenie jg){
     return "<isEmpty(label) ? "" : "<label>:">
            '    while(<trans2NativeBool(cond, jg)>){
-           '        <trans(body, jg)>
+           '        <trans2Void(body, jg)>
            '    }\n";
 }
 
 JCode trans(muDoWhile(str label, MuExp body, MuExp cond), JGenie jg){
     return "<isEmpty(label) ? "" : "<label>:">
            '    do{
-           '        <trans(body, jg)>
+           '        <tran2Void(body, jg)>
            '    } while(<trans2NativeBool(cond, jg)>);\n";
 }
 
@@ -1146,7 +1150,7 @@ JCode trans(mw: muForAll(str btscope, MuExp var, MuExp iterable, MuExp body), JG
     return
     "<isEmpty(btscope) ? "" : "<btscope>:">
     'for(IValue <var.name> : <trans(iterable, jg)>){
-    '    <trans(body, jg)>
+    '    <trans2Void(body, jg)>
     '}\n";
 }
 
@@ -1227,7 +1231,7 @@ JCode trans(muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp la
     "<fstContrib><lstContrib><dirContrib><deltaContrib>
     '<isEmpty(label) ? "" : "<label>:">
     'for(<atype2java(var.atype)> <var.name> = <fst>; <testCode>; <var.name> = <transPrim("add", var.atype, [var.atype, var.atype], [trans(var,jg), deltaVal], jg)>){
-    '    <trans(exp, jg)>
+    '    <trans2Void(exp, jg)>
     '}
     '";
 }
