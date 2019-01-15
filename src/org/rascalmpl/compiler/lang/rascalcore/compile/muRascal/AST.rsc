@@ -51,6 +51,7 @@ public data MuFunction =
                            int nlocals, 
                            bool isVarArgs,
                            bool isPublic,
+                           bool isMemo,
                            list[MuExp] externalVars,
                            loc src,
                            list[str] modifiers,
@@ -136,8 +137,8 @@ public data MuExp =
           | muFilterReturn()									// Return for filter statement
           | muFailReturn()                                      // Failure from function body
           
-          | muCheckMemo(list[MuExp] args, map[str,value] kwargs)
-          | muMemoize(MuExp functionResult)
+          | muCheckMemo(AType funType, list[MuExp] args/*, map[str,value] kwargs*/, MuExp body)
+          | muMemoReturn(AType funtype, list[MuExp] args, MuExp functionResult)
                
           // Keyword parameters              
           | muKwpActuals(lrel[str kwpName, MuExp exp] kwpActuals)
@@ -346,6 +347,12 @@ MuExp muValueBlock([*MuExp pre, MuExp exp, *MuExp post]){
     if(!isEmpty(post) && endsWithReturn(exp)) return muValueBlock([*pre, exp]);
     fail;
 } 
+
+MuExp muValueBlock([*MuExp pre, muReturn1(MuExp exp)])
+    = muBlock([*pre, muReturn1(exp)]);
+    
+ MuExp muValueBlock([ite: muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart)])
+    =  ite;
     
 // ---- muReturn1 -------------------------------------------------------------
 
@@ -415,6 +422,10 @@ MuExp muReturn1(muThrow(MuExp exp, loc src))
     
 // ---- muAssign --------------------------------------------------------------
 
+MuExp muAssign(MuExp var1, MuExp var2)
+    = muBlock([])
+      when var2 has name, var1.name == var2.name,var2 has fuid, var1.fuid == var2.fuid, var2 has pos, ar1.pos == var2.pos;
+
 MuExp muAssign(MuExp var, muBlock([*MuExp exps, MuExp exp]))
     = muBlock([*exps, muAssign(var, exp)]);
 
@@ -448,6 +459,9 @@ MuExp muConInit(MuExp var, muValueBlock([*MuExp exps, MuExp exp]))
 MuExp muVarInit(MuExp var, muValueBlock([*MuExp exps, MuExp exp]))
     = muBlock([*exps, muVarInit(var, exp)]);
 
+// ---- muIfExp ---------------------------------------------------------------
+MuExp muIfExp(MuExp cond, MuExp thenPart, muFailReturn())
+    = muIfelse(cond, thenPart, muFailReturn());
 
 // ---- muIfelse --------------------------------------------------------------
 

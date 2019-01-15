@@ -1983,26 +1983,6 @@ public class $RascalModule {
 	public static final IBool amap_lessequal_amap(final IMap left, final IMap right) {
 		return $VF.bool(left.isSubMap(right));
 	}
-	
-	/**
-	 * memoize result of executing a function for given parameter
-	 */
-
-//		public static final IValue memoize(final IValue result) {
-//			Function fun = currentFrame.function;
-//			int nformals = fun.nformals;
-//			IValue[] args = new IValue[nformals - 1];
-//			for(int i = 0; i < nformals - 1; i++){
-//				args[i] = (IValue) currentFrame.stack[i];
-//			}
-//			MemoizationCache<IValue> cache = fun.memoization == null ? null : fun.memoization.get();
-//			if(cache == null){
-//				cache = new MemoizationCache<>();
-//	            fun.memoization = new SoftReference<>(cache);
-//			}
-//			cache.storeResult(args, (Map<String,IValue>)currentFrame.stack[nformals - 1], result);
-//			return result;
-//		}
 
 	// ---- product -----------------------------------------------------------
 

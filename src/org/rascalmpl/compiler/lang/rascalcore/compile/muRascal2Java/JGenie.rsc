@@ -20,6 +20,8 @@ data JGenie
     = jgenie(
         str () getModuleName,
         loc () getModuleLoc,
+        void (str name) setFunctionName,
+        str () getFunctionName,
         AType (loc src) getType,
         str (loc src) getAccessor,
         str (loc src) getAccessorInResolver,
@@ -60,12 +62,20 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
     TModel currentModule = tmodels[moduleName];
     loc currentModuleScope = moduleLocs[moduleName];
     set[tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors]] resolvers = {};
+    str functionName = "$UNKNOWN";
    
     str _getModuleName()
         = currentModule.modelName;
         
     loc _getModuleLoc()
         = currentModuleScope;
+        
+    void _setFunctionName(str name){
+        functionName = name;
+    }
+    
+    str _getFunctionName()
+        = functionName;
     
     AType _getType(loc src)
         = currentModule.facts[src];
@@ -217,6 +227,8 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
     return jgenie(
                 _getModuleName,
                 _getModuleLoc,
+                _setFunctionName,
+                _getFunctionName,
                 _getType,
                 _getAccessor,
                 _getAccessorInResolver,

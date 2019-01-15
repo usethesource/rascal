@@ -625,6 +625,7 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
   								   getScopeSize(uid), 
   								   isVarArgs, 
   								   false,
+  								   false,
   								   getExternalRefs(body, fuid),  // << TODO
   								   e@\loc,
   								   [],
