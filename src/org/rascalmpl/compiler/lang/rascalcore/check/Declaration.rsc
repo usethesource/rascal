@@ -253,19 +253,16 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         
         dt = defType([signature], AType(Solver s) {
                  ft = s.getType(signature);
-                 nformals = size(ft.formals);
+                
                  if(signature.parameters is varArgs) {
                     ft.varArgs = true;
-                    if(nformals > 0){
-                        ft.formals[nformals-1] = alist(ft.formals[-1]);
-                    }
                  }
                  
                  if(deprecated) {
                     ft.deprecationMessage = deprecationMessage;
                  }
-                 
-                 if(nformals > 0){
+          
+                 if(size(ft.formals) > 0){
                     the_formals = getFormals(signature.parameters);
                     ft.abstractFingerprint = fingerprint(the_formals[0], ft.formals[0], false);
                     if(isConcretePattern(the_formals[0], ft.formals[0])){
@@ -279,7 +276,6 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         if(!isEmpty(tagsMap)) dt.tags = tagsMap;
         alwaysSucceeds = all(pat <- getFormals(signature.parameters), pat is typedVariable) && !(decl is conditional) && !(decl is \default && /(Statement) `fail <Target target>;` := decl.body);
         if(!alwaysSucceeds) dt.canFail = true;
-        
        
         if(!isEmpty(modifiers)) dt.modifiers = modifiers;
         //if(lrel[str,loc] np := nestedParams && !isEmpty(np)) dt.nestedParameters = np;
@@ -406,7 +402,6 @@ void collect(Parameters parameters, Collector c){
     kwFormals = getKwFormals(parameters);
    
     typeVarsInFunctionParams = [*getTypeVars(t) | t <- formals + kwFormals];
-    //println("typeVarsInFunctionParams: <size(typeVarsInFunctionParams)>");
     seenTypeVars = {};
     for(tv <- typeVarsInFunctionParams){
         if(tv is bounded){
@@ -414,7 +409,6 @@ void collect(Parameters parameters, Collector c){
                 c.use(tvbound.name, {typeVarId()});
             }
         }
-        //println(tv);
         tvname = "<tv.name>";
         if(tvname in seenTypeVars){
             c.use(tv.name, {typeVarId()});
@@ -443,20 +437,14 @@ void collect(Parameters parameters, Collector c){
             c.fact(parameters, atypeList([]));
        } else {
             scope = c.getScope();
-            //for(f <- formals){
-            //    c.calculate("formal `<f>`", f, [], AType(Solver s) { return getPatternType(f, avalue(), scope, s); });
-            //}
             c.calculate("formals", parameters, [],
                 AType(Solver s) { 
-                        ftypes = for(f <- formals){
-                            ftype = getPatternType(f, avalue(), scope, s);
-                            s.fact(f, ftype);
-                            append ftype;
-                        }
-                        res = atypeList(ftypes); // atypeList([getPatternType(f, avalue(), scope, s) | f <- formals]);
-                        //res = atypeList([unset(s.getType(f), "label") | f <- formals]); /* unset ? */ 
-                       //println("parameters <parameters> at <getLoc(parameters.formals)> ==\> <res>");
-                        return res;
+                    formalTypes = [ getPatternType(f, avalue(), scope, s) | f <- formals ];
+                    int last = size(formalTypes) -1;
+                    if(parameters is varArgs){
+                        formalTypes[last] = alist(unset(formalTypes[last], "label"), label=formalTypes[last].label);
+                    }
+                    return atypeList(formalTypes);
                 }); 
        }
        collect(kwFormals, c);
