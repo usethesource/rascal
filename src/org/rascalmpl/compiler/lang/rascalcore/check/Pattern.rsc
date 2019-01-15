@@ -193,6 +193,10 @@ void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     c.leaveScope(current);
 }
 
+AType getPatternType0(current:( Pattern) `<Type tp> <Name name>`, AType subjectType, loc scope, Solver s){
+    return s.getType(tp)[label=unescape("<name>")];
+}
+
 void collectAsVarArg(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     uname = unescape("<name>");
     
@@ -201,16 +205,18 @@ void collectAsVarArg(current: (Pattern) `<Type tp> <Name name>`, Collector c){
           c.use(name, {formalId()});
           c.require("typed variable pattern", current, [tp, name], 
             void (Solver s){
-                nameType = alist(s.getType(tp));
+                nameType = alist(s.getType(tp), label=uname);
                 s.requireEqual(name, nameType, error(name, "Expected %t for %q, found %q", nameType, uname, name));
             });
        } else {
           c.push(patternNames, <uname, getLoc(name)>);
-          c.define(uname, formalOrPatternFormal(c), name, defType([tp], AType(Solver s){ return alist(s.getType(tp))[label=uname]; }));
+          c.define(uname, formalOrPatternFormal(c), name, defType([tp], AType(Solver s){ 
+            res = alist(s.getType(tp))[label=uname];
+            return res;
+             }));
        }
     }
- 
-   c.fact(current, tp);
+   c.calculate("var arg", current, [tp], AType(Solver s) { return s.getType(tp)[label=uname]; });
    c.enterScope(current);
         collect(tp, c);
    c.leaveScope(current);
@@ -229,16 +235,16 @@ void collect(current: (Pattern) `<QualifiedName name>`,  Collector c){
        c.push(patternNames, <base, getLoc(current)>);
        if(!isEmpty(qualifier)) c.report(error(name, "Qualifier not allowed"));
        if(isTopLevelParameter(c)){
-          c.fact(current, avalue());  
-          c.define(base, formalId(), name, defLub([], AType(Solver s) { return avalue(); }));
+          c.fact(current, avalue(label=unescape("<name>")));  
+          c.define(base, formalId(), name, defLub([], AType(Solver s) { return avalue(label=unescape("<name>")); }));
        } else {
           if(c.isAlreadyDefined("<name>", name)) c.report(warning(name, "Pattern variable has been introduced before, add explicit declaration of its type"));
           tau = c.newTypeVar(name);
           c.fact(name, tau); //<====
-          c.define(base, formalOrPatternFormal(c), name, defLub([], AType(Solver s) { return s.getType(tau); }));
+          c.define(base, formalOrPatternFormal(c), name, defLub([], AType(Solver s) { return s.getType(tau)[label=unescape("<name>")]; }));
        }
     } else {
-       c.fact(name, avalue());
+       c.fact(name, avalue(label=unescape("<name>")));
     }
 }
 
@@ -262,10 +268,10 @@ void collectAsVarArg(current: (Pattern) `<QualifiedName name>`,  Collector c){
           tau = c.newTypeVar(name);
           c.fact(name, tau);     //<====
           //println("qualifiedName: <name>, defLub, <tau>, <getLoc(current)>");
-          c.define(base, formalOrPatternFormal(c), name, defLub([], AType(Solver s) { return s.getType(tau); }));
+          c.define(base, formalOrPatternFormal(c), name, defLub([], AType(Solver s) { return s.getType(tau)[label=unescape("<name>")]; }));
        }
     } else {
-       c.fact(name, alist(avalue()));
+       c.fact(name, alist(avalue(),label=unescape("<name>")));
     }
 }
 
@@ -286,9 +292,9 @@ AType getPatternType0(current: (Pattern) `<QualifiedName name>`, AType subjectTy
           //clearBindings();
        }
        s.requireComparable(nameType, subjectType, error(current, "Pattern should be comparable with %t, found %t", subjectType, nameType));
-       return nameType;
+       return nameType[label=unescape("<name>")];
     } else
-       return subjectType;
+       return subjectType[label=unescape("<name>")];
 }
 
 // ---- multiVariable pattern: QualifiedName*
@@ -594,7 +600,7 @@ void collect(current: (Pattern) `<Name name> : <Pattern pattern>`, Collector c){
 }
 
 AType getPatternType0(current: (Pattern) `<Name name> : <Pattern pattern>`,  AType subjectType, loc scope, Solver s){
-    return getPatternType(pattern, subjectType, scope, s);
+    return getPatternType(pattern, subjectType, scope, s)[label=unescape("<name>")];
 }
 
 // ---- typed variable becomes
@@ -611,7 +617,7 @@ AType getPatternType0(current: (Pattern) `<Type tp> <Name name> : <Pattern patte
     declaredType = s.getType(name);
     patType = getPatternType(pattern, subjectType, scope, s);
     s.requireComparable(patType, declaredType, error(current, "Incompatible type in assignment to variable %q, expected %t, found %t", name, declaredType, patType));
-    return declaredType;
+    return declaredType[label=unescape("<name>")];
 }
 
 // ---- descendant pattern
