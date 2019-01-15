@@ -125,6 +125,7 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
                         'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function.*;
                         'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse.*;
                         'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.*;
+                        'import org.rascalmpl.interpreter.result.util.MemoizationCache;
                         '
                         '<library_imports>
                         '<module_imports>
@@ -551,6 +552,7 @@ JCode trans(MuFunction fun, JGenie jg){
             shortName = shortName[0 .. findLast(shortName, "_")];
         }
     }
+    jg.setFunctionName(shortName);
     uncheckedWarning = "";
     if(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := ftype){
         returnType = atype2java(ftype.ret);
@@ -578,11 +580,12 @@ JCode trans(MuFunction fun, JGenie jg){
         }
         jg.setRefVars(getReferenceVars(fun));
         declaredLocalVars = ""; //getLocalVarDeclarations(fun, jg);
-        return isEmpty(kwFormals) ? "<visibility><returnType> <shortName>(<argTypes>){
+        memoCache = fun.isMemo ? "private final MemoizationCache\<IValue\> $memo_<shortName> = new MemoizationCache\<IValue\>();\n" : "";
+        return isEmpty(kwFormals) ? "<memoCache><visibility><returnType> <shortName>(<argTypes>){
                                     '    <declaredLocalVars>
                                     '    <trans(fun.body, jg)>
                                     '}"
-                                  : "<constantKwpDefaults>
+                                  : "<constantKwpDefaults><memoCache>
                                     '<visibility><returnType> <shortName>(<argTypes>){
                                     '    <nonConstantKwpDefaults>
                                     '    <declaredLocalVars>
@@ -1299,7 +1302,29 @@ JCode trans(muSucceedVisitCase(), JGenie jg)
 
 JCode trans(muFailReturn(),  JGenie jg)
     = "return null;";
-          
+    
+// ---- muCheckMemo -----------------------------------------------------------
+
+JCode trans(muCheckMemo(AType funType, list[MuExp] args/*, map[str,value] kwargs*/, MuExp body), JGenie jg){
+    cache = "$memo_<jg.getFunctionName()>";
+    kwpActuals = isEmpty(funType.kwFormals) ? "Collections.emptyMap()" : "$kwpActuals";
+    return "final IValue[] $actuals = new IValue[] {<intercalate(",", [trans(arg, jg) | arg <- args])>};
+           'IValue $memoVal = <cache>.getStoredResult($actuals, <kwpActuals>);
+           'if($memoVal != null) return (<atype2java(funType.ret)>) $memoVal;
+           '<trans(body, jg)>";
+}
+
+// ---- muMemoReturn ----------------------------------------------------------
+
+JCode trans(muMemoReturn(AType funType, list[MuExp] args, MuExp functionResult), JGenie jg){
+    cache = "$memo_<jg.getFunctionName()>";
+    kwpActuals = isEmpty(funType.kwFormals) ? "Collections.emptyMap()" : "$kwpActuals";
+    return "$memoVal = <trans(functionResult, jg)>;
+           '<cache>.storeResult($actuals, <kwpActuals>, $memoVal);
+           'return (<atype2java(funType.ret)>)$memoVal;";
+}
+           
+ 
 // Lists of expressions
 
 JCode trans(muBlock(list[MuExp] exps), JGenie jg){

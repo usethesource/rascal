@@ -602,7 +602,7 @@ private AType getType0(loc l) {
 }	
 AType getType(loc l) {
     tp = getType0(l);
-    if(tvar(u) := tp) return getType(u);
+    if(tvar(u) := tp, u != l) return getType(u);
     return tp;
 }
 
