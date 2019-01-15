@@ -1,5 +1,6 @@
 package org.rascalmpl.shell;
 
+import java.awt.AWTError;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
@@ -52,19 +53,23 @@ public class REPLRunner extends BaseREPL  implements ShellRunner {
             throws InterruptedException {
             super.handleInput(line, output, metadata);
             
-            if (Desktop.isDesktopSupported()) {
-                for (String mimetype : output.keySet()) {
-                    if (!mimetype.contains("html") && !mimetype.startsWith("image/")) {
-                        continue;
-                    }
+            try {
+                if (Desktop.isDesktopSupported()) {
+                    for (String mimetype : output.keySet()) {
+                        if (!mimetype.contains("html") && !mimetype.startsWith("image/")) {
+                            continue;
+                        }
 
-                    try {
-                        Desktop.getDesktop().browse(URIUtil.assumeCorrect(metadata.get("url")));
-                    }
-                    catch (IOException e) {
-                        getErrorWriter().println("failed to display content: " + e.getMessage());
+                        try {
+                            Desktop.getDesktop().browse(URIUtil.assumeCorrect(metadata.get("url")));
+                        }
+                        catch (IOException e) {
+                            getErrorWriter().println("failed to display content: " + e.getMessage());
+                        }
                     }
                 }
+            } catch(AWTError e) {
+                // ignore on headless machines
             }
         }
     };
