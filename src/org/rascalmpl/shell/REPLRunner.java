@@ -68,7 +68,7 @@ public class REPLRunner extends BaseREPL  implements ShellRunner {
                         }
                     }
                 }
-            } catch(AWTError e) {
+            } catch(Throwable e) {
                 // ignore on headless machines
             }
         }
