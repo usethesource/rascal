@@ -34,8 +34,6 @@ import Map;
 import String;
 import util::Maybe;
 
-//public str nestedParameterList     = "nestedParameterList"; // stack name to collect function parameters (including parameters nested in patterns)
-
 // ---- Utilities -------------------------------------------------------------
 
 map[str,str] getTags(Tags tags)
@@ -249,7 +247,6 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         scope = c.getScope();
         c.setScopeInfo(scope, functionScope(), returnInfo(signature.\type));
         collect(decl.signature, c);
-       //nestedParams = c.pop(nestedParameterList); // pushed by collect of Parameters
         
         dt = defType([signature], AType(Solver s) {
                  ft = s.getType(signature);
@@ -278,18 +275,14 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
         if(!alwaysSucceeds) dt.canFail = true;
        
         if(!isEmpty(modifiers)) dt.modifiers = modifiers;
-        //if(lrel[str,loc] np := nestedParams && !isEmpty(np)) dt.nestedParameters = np;
          
         c.defineInScope(parentScope, prettyPrintName(fname), functionId(), current /*fname*/, dt); 
         
-        //if(decl is \default){
-        //    stats = [ stat | stat <- decl.body.statements ];
-        //    if(isEmpty(stats)){
-        //        c.requireEqual(signature.\type, avoid(), error(decl.body, "Function with non-void return type cannot have empty body"));
-        //    } else {
-        //        c.require("non-empty body", stats[-1], [stats[-1]], makeLastStatementRequirement(stats[-1], signature.\type));
-        //    }
-        //}
+        if(decl is \default){
+            if(!returnsViaAllPath(decl.body, "<fname>", c) && "<signature.\type>" != "void"){
+                c.report(error(decl, "Missing return statement"));
+            }
+        }
         
         if(decl is expression || decl is conditional){
             if(containsReturn(decl.expression)){
@@ -448,7 +441,6 @@ void collect(Parameters parameters, Collector c){
                 }); 
        }
        collect(kwFormals, c);
-       //c.push(nestedParameterList, reverse(c.getStack(patternNames)));
     endPatternScope(c);
 }
 
@@ -484,30 +476,6 @@ void(Solver) makeReturnRequirement(Tree returnExpr, Type declaredReturnType)
                          !s.equal(ireturnExprType, avoid()) && s.subtype(ireturnExprType, actualDeclaredReturnType), error(returnExpr, "Return type %t expected, found %t", actualDeclaredReturnType, ireturnExprType));
         }   
      };
-     
-     
-void(Solver) makeLastStatementRequirement(Tree returnExpr, Type declaredReturnType)
-    = void(Solver s) { 
-        actualDeclaredReturnType = s.getType(declaredReturnType);
-          
-        returnExprType = s.getType(returnExpr);
-        Bindings bindings = ();
-        try   bindings = matchRascalTypeParams(returnExprType, actualDeclaredReturnType, bindings, bindIdenticalVars=true);
-        catch invalidMatch(str reason):
-              s.report(error(returnExpr, reason));
-          
-        ireturnExprType = xxInstantiateRascalTypeParameters(returnExpr, returnExprType, bindings, s);
-
-        if(s.isFullyInstantiated(ireturnExprType)){
-            s.requireTrue(s.equal(actualDeclaredReturnType, avoid()) ||
-                         !s.equal(ireturnExprType, avoid()) && s.subtype(ireturnExprType, actualDeclaredReturnType), error(returnExpr, "Missing return statement"));
-        } else
-            if(!s.unify(ireturnExprType, actualDeclaredReturnType)){
-            s.requireTrue(s.equal(actualDeclaredReturnType, avoid()) ||
-                         !s.equal(ireturnExprType, avoid()) && s.subtype(ireturnExprType, actualDeclaredReturnType), error(returnExpr, "Missing return statement"));
-        }   
-     };
-
 
 // ---- return statement (closely interacts with function declaration) --------
 
@@ -525,6 +493,102 @@ void collect(current: (Statement) `return <Statement statement>`, Collector c){
         }
     }
     throw rascalCheckerInternalError(getLoc(current), "No surrounding function scope found for return");
+}
+
+
+/********************************************************************/
+/*       Return path analysis                                       */
+/********************************************************************/
+
+bool returnsViaAllPath(FunctionBody fb, str fname, Collector c)
+    = returnsViaAllPath([ statement | statement <- fb.statements ], fname, c);
+   
+bool returnsViaAllPath((Statement) `<Label label> <Visit vis>`, str fname,  Collector c)
+    = any(cs <- vis.cases, cs is \default) && all(cs <- vis.cases, returnsViaAllPath(cs, fname, c));
+
+bool returnsViaAllPath((Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`, str fname,  Collector c)
+    = any(cs <- cases, cs is \default) && all(cs <- cases, returnsViaAllPath(cs, fname, c));
+
+bool returnsViaAllPath((Case) `case <PatternWithAction patternWithAction>`, str fname,  Collector c){
+    if(patternWithAction is arbitrary){
+        return returnsViaAllPath([patternWithAction.statement], fname, c);
+    }
+    return true;
+}
+
+bool returnsViaAllPath((Case) `default: <Statement statement>`, str fname,  Collector c)
+    = returnsViaAllPath(statement, fname, c);
+
+bool returnsViaAllPath((Statement) `try <Statement body> <Catch+ handlers>`, str fname,  Collector c)
+    =  returnsViaAllPath(body, fname, c) 
+    && returnsViaAllPath(body, fname, c) 
+    && all(h <- handlers, returnsViaAllPath(h.body, fname, c));
+    
+bool returnsViaAllPath((Statement) `try <Statement body> <Catch+ handlers> finally <Statement finallyBody>`, str fname,  Collector c)
+    =  returnsViaAllPath(body, fname, c) 
+    && returnsViaAllPath(body, fname, c) 
+    && all(h <- handlers, returnsViaAllPath(h.body, fname, c))
+    && returnsViaAllPath(finallyBody, fname, c);
+    
+
+bool returnsViaAllPath((Statement) `<Label label> while( <{Expression ","}+ conditions> ) <Statement body>`, str fname,  Collector c){
+    returnsViaAllPath(body, fname, c); 
+    return false;
+}
+
+bool returnsViaAllPath((Statement) `<Label label> do <Statement body> while ( <Expression condition> ) ;`, str fname,  Collector c){
+    returnsViaAllPath(body, fname, c);
+    return false;
+}
+
+bool returnsViaAllPath((Statement) `<Label label> for( <{Expression ","}+ generators> ) <Statement body>`, str fname,  Collector c){
+    returnsViaAllPath(body, fname, c);
+    return false;
+}
+
+bool returnsViaAllPath((Statement) `<Label label> if( <{Expression ","}+ conditions> ) <Statement thenStatement>`, str fname,  Collector c){
+    returnsViaAllPath(thenStatement, fname,  c);
+    return false;
+}
+bool returnsViaAllPath((Statement) `<Label label> if( <{Expression ","}+ conditions> ) <Statement thenStatement> else <Statement elseStatement>`, str fname,  Collector c)
+    = returnsViaAllPath(thenStatement, fname, c) && returnsViaAllPath(elseStatement, fname, c);
+ 
+bool returnsViaAllPath((Statement) `return <Statement statement>`, str fname,  Collector c) = true;
+bool returnsViaAllPath((Statement) `throw <Statement statement>`, str fname,  Collector c) = true;
+bool returnsViaAllPath((Statement) `fail <Target target>;`, str fname,  Collector c) = isEmpty("<target>") || "<target>" == fname;
+
+bool returnsViaAllPath((Statement) `<Label label> { <Statement+ statements> }`, str fname,  Collector c)
+    = returnsViaAllPath([ statement | statement <- statements ], fname, c);
+    
+bool returnsViaAllPath(list[Statement] statements, str fname,  Collector c){
+    int nstats = size(statements);
+    for(int i <- index(statements)){
+        statement = statements[i];
+        if(returnsViaAllPath(statement, fname, c)){
+            reportDeadCode(statements[i+1 ..], c);
+            return true;
+        } else if(i == nstats - 1){
+            return false;
+        }
+        if(leavesBlock(statement)){
+            reportDeadCode(statements[i+1 ..], c);
+            return false;
+        }
+    }
+    return false;
+}
+ 
+default bool returnsViaAllPath(Statement s, str fname, Collector c) = false;
+
+bool leavesBlock((Statement) `fail <Target target> ;`) = true;
+bool leavesBlock((Statement) `break <Target target> ;`) = true;
+bool leavesBlock((Statement) `continue <Target target> ;`) = true;
+default bool leavesBlock(Statement s) = false;
+
+void reportDeadCode(list[Statement] statements, Collector c){
+    for(stat <- statements){
+        if("<stat>" != ";") c.report(error(stat, "Dead code"));
+    }
 }
 
 // ---- alias declaration -----------------------------------------------------

@@ -31,7 +31,7 @@ import lang::rascalcore::compile::Rascal2muRascal::RascalStatement;
 /*                  Translate declarations in a module              */
 /********************************************************************/
 	
-void translate(t: (Toplevel) `<Declaration decl>`) = translate(decl);
+void translate((Toplevel) `<Declaration decl>`) = translate(decl);
 
 // -- variable declaration ------------------------------------------
 
@@ -74,16 +74,16 @@ void translate(d: (Declaration) `<Tags tags> <Visibility visibility> data <UserT
             getterType = afunc(kwtype, [consType], []);
             consVar = muVar(consName, fuid, 0, consType);
           
-            defExprCode = fixFieldReferences(translate(defaultExpr), consType, consVar, fuid);
+            defExprCode = fixFieldReferences(translate(defaultExpr), consType, consVar);
             body = muReturn1(muIfelse(muIsKwpDefined(consVar, kwFieldName), muGetKwpFromConstructor(consVar, kwtype, kwFieldName), defExprCode));
-            addFunctionToModule(muFunction(fuid, getterName, getterType, [], [], "", 1, 1, false, true, [], |std:///|, [], (), body));               
+            addFunctionToModule(muFunction(fuid, getterName, getterType, [], [], "", 1, 1, false, true, false, [], |std:///|, [], (), body));               
        }
     }
  }
  
- MuExp fixFieldReferences(MuExp exp, AType consType, MuExp consVar, str fuid)
+ MuExp fixFieldReferences(MuExp exp, AType consType, MuExp consVar)
     = visit(exp){
-        case muVar(str fieldName, _, -1, AType tp) => muGetField(consType, consVar, fieldName)
+        case muVar(str fieldName, _, -1, AType tp) => muGetField(consType, tp, consVar, fieldName)
      };
     
 void translate(d: (Declaration) `<FunctionDeclaration functionDeclaration>`) = translate(functionDeclaration);
@@ -239,7 +239,7 @@ lrel[str name, AType atype, MuExp defaultExp] translateKeywordParameters(Paramet
 /*                  Translate function body                         */
 /********************************************************************/
 
-MuExp returnFromFunction(MuExp body, AType ftype, list[MuExp] formalVars, bool isMemo, loc src) {
+MuExp returnFromFunction(MuExp body, AType ftype, list[MuExp] formalVars, bool isMemo) {
   if(ftype.ret == avoid()){
     return body;
   } else {
@@ -253,7 +253,7 @@ MuExp returnFromFunction(MuExp body, AType ftype, list[MuExp] formalVars, bool i
   }
 }
          
-MuExp functionBody(MuExp body, AType ftype, list[MuExp] formalVars, bool isMemo, loc src){
+MuExp functionBody(MuExp body, AType ftype, list[MuExp] formalVars, bool isMemo){
     if(isMemo){
         str fuid = topFunctionScope();
         result = muTmpIValue(nextTmp("result"), fuid, avalue());
@@ -324,10 +324,10 @@ MuExp translateFunction(str fname, {Pattern ","}* formals, AType ftype, MuExp bo
      formalsList = [f | f <- formals];
   
      formalVars = [muVar(getParameterName(formalsList, i), topFunctionScope(), i, getType(formalsList[i])) | i <- index(formalsList) ];
-     conditions = (returnFromFunction(body, ftype, formalVars, isMemo, formals@\loc)
+     conditions = (returnFromFunction(body, ftype, formalVars, isMemo)
                   | translatePat(formalsList[i], getType(formalsList[i]),formalVars[i], fname, it, muFailReturn(), subjectAssigned=true) 
                   | i <- index(formalsList));
-     mubody = functionBody(conditions, ftype, formalVars, isMemo, formals@\loc);
+     mubody = functionBody(conditions, ftype, formalVars, isMemo);
      leaveBacktrackingScope();
      return mubody;
   //}
@@ -381,7 +381,7 @@ public map[str,str] translateTags(Tags tags){
    return m;
 }
 
-private bool ignoreCompilerTest(map[str, str] tags) = !isEmpty(domain(tags) & {"ignoreCompiler", "IgnoreCompiler"});
+//private bool ignoreCompilerTest(map[str, str] tags) = !isEmpty(domain(tags) & {"ignoreCompiler", "IgnoreCompiler"});
 
 bool ignoreTest(map[str, str] tags) = !isEmpty(domain(tags) & {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
 
