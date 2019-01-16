@@ -349,10 +349,10 @@ last(["zebra", "elephant", "snake", "owl"]);
 tail([3, 1, 4, 5]);
 ----}
 public &T last(list[&T] lst) throws EmptyList {
-  if(lst == [] ) { throw EmptyList(); }
-  if([*p, l] := lst){
+  if([*_, l] := lst){
   	return l;
   }
+  throw EmptyList(); 
 }
 
 @doc{
