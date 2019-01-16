@@ -24,7 +24,6 @@ loctoc::[1]
 module String
 
 extend Exception;
-import Message;
 import List;
 
 @doc{
