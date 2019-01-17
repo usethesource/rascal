@@ -109,7 +109,7 @@ private MuExp translateComposeFunction(Expression e){
    
   leaveFunctionScope();
   body_code = muBlock(body_exps);
-  fun = muFunction(comp_fuid, comp_name, comp_ftype, ["a", "b"], [],  scopeId, nargs, 2, false, false, getExternalRefs(body_code, comp_fuid), \e@\loc, [], (), body_code);
+  fun = muFunction(comp_fuid, comp_name, comp_ftype, ["a", "b"], [],  scopeId, nargs, 2, false, false, false, getExternalRefs(body_code, comp_fuid), \e@\loc, [], (), body_code);
  
   loc uid = declareGeneratedFunction(comp_name, comp_fuid, comp_ftype, e@\loc);
   addFunctionToModule(fun);  
