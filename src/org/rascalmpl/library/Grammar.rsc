@@ -14,11 +14,7 @@ A simple but effective internal format for the representation of context-free gr
 }
 module Grammar
 
-import Exception;
-import Message;
 extend ParseTree;
-import Set;
-import IO;
 
 @doc{
 .Synopsis
@@ -71,7 +67,6 @@ Compose two grammars by adding the rules of g2 to the rules of g1.
 The start symbols of g1 will be the start symbols of the resulting grammar.
 }
 public Grammar compose(Grammar g1, Grammar g2) {
-  set[Production] empty = {};
   for (s <- g2.rules)
     if (g1.rules[s]?)
       g1.rules[s] = choice(s, {g1.rules[s], g2.rules[s]});
