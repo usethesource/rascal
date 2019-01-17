@@ -1,5 +1,7 @@
 module lang::rascal::tests::functionality::ConcreteSubscriptAndSliceTests
 
+import Exception;
+
 lexical X = [xyzXYZ];
 lexical XStar = X* xs;
 lexical XPlus = X+ xs1;
