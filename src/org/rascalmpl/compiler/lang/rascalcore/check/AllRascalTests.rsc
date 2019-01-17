@@ -290,7 +290,7 @@ TestResults runTests(list[str] names, str base){
   return <crashes, all_test_msgs>;
 }
   
-value main(bool jvm=true) = allRascalTests();
+value main() = allRascalTests();
   
 set[map[str, list[Message]]] allRascalTests(PathConfig pcfg= pathConfig(   
         srcs = [|project://rascal-core/src/org/rascalmpl/library/|,
@@ -301,10 +301,9 @@ set[map[str, list[Message]]] allRascalTests(PathConfig pcfg= pathConfig(
   println("Using <pcfg>");
   set[map[str, list[Message]]] all_msgs = {};
   list[value] all_crashes = [];
-  TestResults res;
   //pcfg = pathConfig(srcs=[|std:///|], bin=bin, boot=boot, libs=[bin]);
   
-  res = runTests(basicTests, "lang::rascal::tests::basic");
+  TestResults res = runTests(basicTests, "lang::rascal::tests::basic");
   all_crashes += res.crashes; all_msgs += res.msgsPerModule;
   res = runTests(functionalityTests, "lang::rascal::tests::functionality");
   all_crashes += res.crashes; all_msgs += res.msgsPerModule;
@@ -317,8 +316,8 @@ set[map[str, list[Message]]] allRascalTests(PathConfig pcfg= pathConfig(
   res = runTests(files_with_tests, "");
   all_crashes += res.crashes; all_msgs += res.msgsPerModule;
   
-  res = runTests(typeTests, "lang::rascal::tests::types");
-  all_crashes += res.crashes; all_msgs += res.msgsPerModule;
+  //res = runTests(typeTests, "lang::rascal::tests::types");
+  // all_crashes += res.crashes; all_msgs += res.msgsPerModule;
    
    for(msg <- all_msgs)
       println(msg);
