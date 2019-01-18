@@ -9,13 +9,9 @@ import IO;
 alias Completion
  = tuple[int offset, list[str] suggestions];
 
-//alias CommandResult
-//  = tuple[str result, list[Message] messages] 
-//  ;
-  
 data CommandResult(list[Message] messages = [])
-  = textual(str result)
-  ; 
+  = commandResult(str result)
+  ;  
  
   
 data REPL
