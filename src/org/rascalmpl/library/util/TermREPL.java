@@ -26,6 +26,7 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
+import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
@@ -45,8 +46,6 @@ public class TermREPL {
             lang = new TheREPL(vf, repl, ctx);
             // TODO: this used to get a repl from the IEvaluatorContext but that was wrong. Need to fix later.
             ISourceLocation history = repl.has("history") ? (ISourceLocation) repl.get("history") : null;
-            
-            ctx.getStdErr();
             new BaseREPL(lang, null, System.in, System.out, true, true, history , TerminalFactory.get(), null).run();
         } catch (IOException | URISyntaxException e) {
             e.printStackTrace(ctx.getStdErr());
@@ -164,12 +163,9 @@ public class TermREPL {
                     this.scopeId++;
                     
                 }
-                // FIXME: Fix it, CommandResult is no longer a tuple
-                // IWithKeywordParameters<? extends IConstructor> rr = result.asWithKeywordParameters();
-                // IValue pp = rr.getParameter("messages");
-                // rr.hasParameter("messages");
-                if(result.asWithKeywordParameters().hasParameter("messages")) {
-                    IList messages = (IList) result.asWithKeywordParameters().getParameter("messages");
+                IWithKeywordParameters<? extends IConstructor> commandResult = result.asWithKeywordParameters();
+                if(commandResult.hasParameter("messages")) {
+                    IList messages = (IList) commandResult.getParameter("messages");
                     for (IValue v: messages) {
                         IConstructor msg = (IConstructor) v;
                         if(msg.getName().equals("error")) {
