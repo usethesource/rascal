@@ -13,6 +13,7 @@ package org.rascalmpl.test.infrastructure;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.annotation.Annotation;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,9 +37,10 @@ import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.result.AbstractFunction;
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 /**
  * Rascal modules can be tested separatly from each other. This runner includes all modules and nested modules and runs them spread over a workpool
@@ -50,7 +52,7 @@ import org.rascalmpl.values.ValueFactoryFactory;
  *
  */
 public class RascalJUnitParallelRecursiveTestRunner extends Runner {
-    private final int numberOfWorkers = Math.max(1, Math.min(4,Math.min(Runtime.getRuntime().availableProcessors() - 1,  (int)(Runtime.getRuntime().maxMemory()/ 1024*1024*300))));
+    private final int numberOfWorkers;
     private final Semaphore importsCompleted = new Semaphore(0);
     private final Semaphore waitForRunning = new Semaphore(0);
     private final Semaphore workersCompleted = new Semaphore(0);
@@ -66,7 +68,20 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
 
 
     public RascalJUnitParallelRecursiveTestRunner(Class<?> clazz) {
-        System.out.println("Running parallel test with " + numberOfWorkers + " runners");
+        int numberOfWorkers = Math.min(4, Runtime.getRuntime().availableProcessors() - 1);
+        System.out.println("Number of workers based on CPU: " + numberOfWorkers);
+        if (numberOfWorkers > 1) {
+            numberOfWorkers = Math.min(numberOfWorkers, (int)(Runtime.getRuntime().maxMemory()/ (1024*1024*300L)));
+            System.out.println("Number of workers based on memory: " + numberOfWorkers + " (" + Runtime.getRuntime().maxMemory() / (1024*1024) + ")");
+        }
+
+        if (numberOfWorkers < 1) {
+            this.numberOfWorkers = 1;
+        }
+        else {
+            this.numberOfWorkers = numberOfWorkers;
+        }
+        System.out.println("Running parallel test with " + this.numberOfWorkers + " runners");
         System.out.flush();
         rootName = clazz.getName();
         this.prefixes = clazz.getAnnotation(RecursiveRascalParallelTest.class).value();
@@ -191,8 +206,18 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
             try {
                 if (waitForRunSignal()) {
                     for (Description mod: testModules) {
+                        Listener trl = new Listener(mod);
+                        
+                        if (mod.getAnnotations().stream().anyMatch(t -> t instanceof CompilationFailed)) {
+                            results.add(notifier -> {
+                                notifier.fireTestStarted(mod);
+                                notifier.fireTestFailure(new Failure(mod, new IllegalArgumentException(mod.getDisplayName() + " had import/compilation errors")));
+                            });
+                            continue;
+                        }
+                        
                         long start = System.nanoTime();
-                        TestEvaluator runner = new TestEvaluator(evaluator, new Listener(mod));
+                        TestEvaluator runner = new TestEvaluator(evaluator, trl);
                         runner.test(mod.getDisplayName());
                         long stop = System.nanoTime();
                         long duration = (stop - start) / 1000_000;
@@ -233,7 +258,20 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
                             System.err.println("Could not import " + module + " for testing...");
                             System.err.println(e.getMessage());
                             e.printStackTrace(System.err);
-                        }
+                        } 
+                        
+                        // register a failing module to make sure we report failure later on. 
+                        
+                        Description testDesc = Description.createTestDescription(getClass(), module, new CompilationFailed() {
+                            @Override
+                            public Class<? extends Annotation> annotationType() {
+                                return getClass();
+                            }
+                        });
+
+                        testModules.add(testDesc);
+                        descriptions.add(testDesc);
+
                         continue;
                     }
 
@@ -317,7 +355,5 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
             Description desc = getDescription(test, loc);
             results.add(notifier -> notifier.fireTestIgnored(desc));
         }
-
-
     }
 }

@@ -1,4 +1,4 @@
-module experiments::tutor3::Convert
+module lang::rascal::tutor::Convert
 
 import IO;
 import List;

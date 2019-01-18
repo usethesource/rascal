@@ -11,8 +11,13 @@ Frequency distributions.
 
 .Description
 
-The following functions are provided:
-loctoc::[1]
+Counting the frequency of events is usually the first step in statistical analysis of raw data.
+It involves choosing what are the events to count, how to group them in certain
+categories and then quickly counting the frequency of each occurring event. 
+
+This module helps by providing commonly used functions for the purpose of counting events.
+The output of these functions can be used to draw (cumulative) histograms, or they can
+directly be used for further statistical processing and visualisation. 
 }
 module analysis::statistics::Frequency
 
@@ -78,7 +83,6 @@ Returns 0 if the value is not comparable to the values set.
 [source,rascal-shell]
 ----
 import analysis::statistics::Frequency;
-
 D = [1, 2, 1, 1, 3, 5];
 cumFreq(D, 1);
 cumFreq(D, 2);
@@ -107,7 +111,6 @@ cumPct(D, 2);
 cumPct(D, 10);
 ----
 }
- 
 @javaClass{org.rascalmpl.library.analysis.statistics.Frequencies}
 public java num cumPct(list[value] values, num n);
 
@@ -131,7 +134,6 @@ pct(D, 10);
 ----
 
 }
-
 @javaClass{org.rascalmpl.library.analysis.statistics.Frequencies}
 public java num pct(list[value] values, num n);
 

@@ -587,11 +587,14 @@ public class Environment implements IRascalFrame {
 	
 	public Map<Type, Type> getTypeBindings() {
 		Environment env = this;
-		Map<Type, Type> result = new HashMap<Type,Type>();
+		Map<Type, Type> result = null;
 
 		while (env != null) {
 			if (env.typeParameters != null) {
 				for (Type key : env.typeParameters.keySet()) {
+				    if (result ==  null) {
+				        result = new HashMap<>();
+				    }
 					if (!result.containsKey(key)) {
 						result.put(key, env.typeParameters.get(key));
 					}
@@ -600,6 +603,9 @@ public class Environment implements IRascalFrame {
 			env = env.parent;
 		}
 
+		if (result == null) {
+		    return Collections.emptyMap();
+		}
 		return Collections.unmodifiableMap(result);
 	}
 

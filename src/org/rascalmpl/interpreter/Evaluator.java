@@ -759,7 +759,8 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
 	}
 	
 	private IGTD<IConstructor, ITree, ISourceLocation> getObjectParser(IMap grammar){
-		return org.rascalmpl.semantics.dynamic.Import.getParser(this, (ModuleEnvironment) getCurrentEnvt().getRoot(), grammar, false);
+		ModuleEnvironment mod = (ModuleEnvironment) getCurrentEnvt().getRoot();
+        return org.rascalmpl.semantics.dynamic.Import.getParser(this, mod, getCurrentAST().getLocation(), grammar, false);
 	}
 
 	@Override

@@ -44,6 +44,10 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.Cases.CaseBlock;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.TreeAdapter;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -58,9 +62,6 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 
 // TODO: this class is still too tightly coupled with evaluator
@@ -260,9 +261,10 @@ public class TraversalEvaluator {
 				return subject; // we dont traverse into the structure of literals and characters
 		}
 
-		IValue args[] = new IValue[cons.arity()];
+		IValue args[] = null;
 		
 		if (casesOrRules.hasAllConcretePatternCases() && cons.getType().isSubtypeOf(RascalValueFactory.Tree) && TreeAdapter.isAppl((ITree) cons)){
+		    args = new IValue[cons.arity()];
 			ITree tree = (ITree)cons;
 			
 			// Constructor is "appl": we are dealing with a syntax tree
@@ -280,12 +282,13 @@ public class TraversalEvaluator {
 			int len = list.length();
 
 			if (len > 0) {
-				IListWriter w = eval.getValueFactory().listWriter();
+				IListWriter w = null;
 				boolean hasChanged = false;
 				boolean hasMatched = false;
 				boolean isTop = TreeAdapter.isTop(tree);
 				
 				if (isTop) {
+				    w = eval.getValueFactory().listWriter();
 					w.append(list.get(0)); // copy layout before
 					tr.changed = false;
 					tr.matched = false;
@@ -300,18 +303,40 @@ public class TraversalEvaluator {
 						if (i % 2 == 0) { // Recursion to all non-layout elements
 							tr.changed = false;
 							tr.matched = false;
-							w.append(traverseOnce(elem, casesOrRules, direction, progress, fixedpoint, tr));
+							IValue newElem = traverseOnce(elem, casesOrRules, direction, progress, fixedpoint, tr);
+							
+							if (hasChanged) {
+							    assert w != null;
+							    w.append(newElem);
+							}
+							else {
+							    if (tr.changed) {
+							        // first time change
+							        w = eval.getValueFactory().listWriter();
+							        
+							        // insert backlog into list
+							        for (int j = 0; j < i; j++) {
+							            w.append(list.get(j));
+							        }
+							        
+							        w.append(newElem);
+							    }
+							    else {
+							        // for now do nothing with the unchanged element
+							    }
+							}
+                            
 							hasChanged |= tr.changed;
 							hasMatched |= tr.matched;
-						} else { // Just copy layout elements
-							w.append(list.get(i));
+						} else if (hasChanged) { // Just copy layout elements
+						   w.append(list.get(i));
 						}
 					}
 				}
 				
 				tr.changed = hasChanged;
 				tr.matched = hasMatched;
-				args[1] = w.done();
+				args[1] = hasChanged ? w.done() : list;
 			} else {
 				args[1] = list;
 			}
@@ -319,14 +344,39 @@ public class TraversalEvaluator {
 			// Constructor is not "appl", or at least one of the patterns is not a concrete pattern
 			boolean hasChanged = false;
 			boolean hasMatched = false;
+			
 			for (int i = 0; i < cons.arity(); i++){
 				IValue child = cons.get(i);
 				tr.matched = false;
 				tr.changed = false;
-				args[i] = traverseOnce(child, casesOrRules, direction, progress, fixedpoint, tr);
+				IValue newChild = traverseOnce(child, casesOrRules, direction, progress, fixedpoint, tr);
+				
+				if (hasChanged) {
+				    assert args != null;
+                    args[i] = newChild;
+				}
+				else {
+				    if (tr.changed) {
+				        // first change
+				        args = new IValue[cons.arity()];
+				        
+				        // insert backlog
+				        for (int j = 0; j < i; j++) {
+				            args[j] = cons.get(j);
+				        }
+				        
+				        args[i] = newChild;
+				    }
+				    else {
+				        // do nothing with the unchanged element for now
+				    }
+				}
+				
 				hasChanged |= tr.changed;
 				hasMatched |= tr.matched;
 			}
+			
+			
 			if (kwParams != null) {
 				IWithKeywordParameters<? extends INode> consKw = cons.asWithKeywordParameters();
 				for (String kwName : consKw.getParameterNames()) {
@@ -335,22 +385,31 @@ public class TraversalEvaluator {
 					tr.matched = false;
 					IValue newVal = traverseOnce(val, casesOrRules, direction, progress, fixedpoint, tr);
 					kwParams.put(kwName, newVal);
+					
+					if (!hasChanged && tr.changed) {
+					    // first change, insert backlog
+					    args = new IValue[cons.arity()];
+					    for (int j = 0; j < cons.arity(); j++) {
+					        args[j] = cons.get(j);
+					    }
+					}
+					
 					hasChanged |= tr.changed;
 					hasMatched |= tr.matched;
 				}
 			}
+			
 			tr.matched = hasMatched;
 			tr.changed = hasChanged;
-
-			
 		}
 
 		if (tr.changed) {
 		  IConstructor rcons;
 		  
 		  try {
-		    QualifiedName n = Names.toQualifiedName(cons.getType().getName(), cons.getName(), null);
-		    rcons = (IConstructor) eval.call(n, kwParams != null ? kwParams : Collections.<String,IValue>emptyMap(), args);
+		      assert args != null;
+		      QualifiedName n = Names.toQualifiedName(cons.getType().getName(), cons.getName(), null);
+		      rcons = (IConstructor) eval.call(n, kwParams != null ? kwParams : Collections.<String,IValue>emptyMap(), args);
 		  }
 		  catch (UndeclaredFunction | UndeclaredModule | ArgumentMismatch e) {
 		    // This may happen when visiting data constructors dynamically which are not 
@@ -442,8 +501,8 @@ public class TraversalEvaluator {
 			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr) {
 		IList list = (IList) subject;
 		int len = list.length();
-		if (len > 0){
-			IListWriter w = eval.getValueFactory().listWriter();
+		if (len > 0) {
+			IListWriter w = null;
 			boolean hasChanged = false;
 			boolean hasMatched = false;
 			
@@ -451,14 +510,36 @@ public class TraversalEvaluator {
 				IValue elem = list.get(i);
 				tr.changed = false;
 				tr.matched = false;
-				w.append(traverseOnce(elem, casesOrRules, direction, progress, fixedpoint, tr));
+				IValue newElem = traverseOnce(elem, casesOrRules, direction, progress, fixedpoint, tr);
+				
+				if (hasChanged) {
+				    // continue adding new elements to the new list
+				    assert w != null; // it's initialized the first time when tr.changed == true
+				    w.append(newElem);
+				}
+				else { // nothing has changed yet...
+				    if (tr.changed) {
+				        // first time something changed. insert backlog into the writer
+				        w = eval.getValueFactory().listWriter();
+				        for (int j = 0; j < i; j++) {
+				            w.append(list.get(j));
+				        }
+				        
+				        // append the new element
+				        w.append(newElem);
+				    }
+				    else {
+				        // do nothing with the new element because nothing has changed.
+				    }
+				}
 				hasChanged |= tr.changed;
 				hasMatched |= tr.matched;
 			}
 			
 			tr.changed = hasChanged;
 			tr.matched = hasMatched;
-			return w.done();
+			
+			return tr.changed ? w.done() : list;
 		} else {
 			return subject;
 		}
@@ -472,7 +553,7 @@ public class TraversalEvaluator {
 			result = subject;
 		} 
 		else {
-			IValue args[] = new IValue[node.arity()];
+			IValue args[] = null;
 			Map<String, IValue> kwParams = null;
 			if (node.mayHaveKeywordParameters() && node.asWithKeywordParameters().hasParameters()) {
 				kwParams = new HashMap<>();
@@ -484,10 +565,34 @@ public class TraversalEvaluator {
 				IValue child = node.get(i);
 				tr.changed = false;
 				tr.matched = false;
-				args[i] = traverseOnce(child, casesOrRules, direction, progress, fixedpoint, tr);
+				IValue newChild = traverseOnce(child, casesOrRules, direction, progress, fixedpoint, tr);
+				
+				if (hasChanged) {
+				    // continue adding new elements to the array
+				    assert args != null;
+				    args[i] = newChild;
+				}
+				else {
+				    if (tr.changed) {
+				        // first time change
+				        args = new IValue[node.arity()];
+				        
+				        // add the backlog to the array
+				        for (int j = 0; j < i; j++) {
+				            args[j] = node.get(j);
+				        }
+				        
+				        args[i] = newChild;
+				    }
+				    else {
+				        // nothing changed so do nothing yet with this child
+				    }
+				}
+				
 				hasChanged |= tr.changed;
 				hasMatched |= tr.matched;
 			}
+			
 			if (kwParams != null) {
 				IWithKeywordParameters<? extends INode> nodeKw = node.asWithKeywordParameters();
 				for (String kwName : nodeKw.getParameterNames()) {
@@ -506,18 +611,33 @@ public class TraversalEvaluator {
 			
 			INode n = null;
 			if (kwParams != null) {
+			    if (!hasChanged) {
+			        return node;
+			    }
+			    
+			    if (args == null) {
+			        // first time change
+			        args = new IValue[node.arity()];
+
+			        // add the backlog to the array
+			        for (int j = 0; j < node.arity(); j++) {
+			            args[j] = node.get(j);
+			        }
+			    }
+                
 				n = eval.getValueFactory().node(node.getName(), args, kwParams);
 			}
 			else {
-				n = eval.getValueFactory().node(node.getName(), args);
+				n = hasChanged ? eval.getValueFactory().node(node.getName(), args) : node;
 			
-				if (!node.mayHaveKeywordParameters() && node.asAnnotatable().hasAnnotations()) {
+				if (hasChanged && !node.mayHaveKeywordParameters() && node.asAnnotatable().hasAnnotations()) {
 					n = n.asAnnotatable().setAnnotations(node.asAnnotatable().getAnnotations());
 				}
 			}
 			
 			result = n;
 		}
+		
 		return result;
 	}
 

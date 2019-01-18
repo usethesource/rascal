@@ -32,6 +32,8 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.SymbolAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class Symbols {
 	private static IValueFactory factory = ValueFactoryFactory.getValueFactory();
@@ -283,20 +285,36 @@ public class Symbols {
 		return factory.constructor(RascalValueFactory.Symbol_Lit, factory.string(builder.toString()));
 	}
 
-	private static IValue charclass2Symbol(Class cc) {
+	private static IConstructor charclass2Symbol(Class cc) {
 		if (cc.isSimpleCharclass()) {
-			return factory.constructor(RascalValueFactory.Symbol_CharClass, ranges2Ranges(cc.getRanges()));
+			return SymbolAdapter.normalizeCharClassRanges(SymbolAdapter.charclass(ranges2Ranges(cc.getRanges())));
 		}
+		else if (cc.isComplement()) {
+		    return SymbolAdapter.complementCharClass(charclass2Symbol(cc.getCharClass()));
+		}
+		else if (cc.isUnion()) {
+		    return SymbolAdapter.unionCharClasses(charclass2Symbol(cc.getLhs()), charclass2Symbol(cc.getRhs()));
+		}
+		else if (cc.isIntersection()) {
+		    return SymbolAdapter.intersectCharClasses(charclass2Symbol(cc.getLhs()), charclass2Symbol(cc.getRhs()));
+		}
+		else if (cc.isDifference()) {
+		    return SymbolAdapter.differencesCharClasses(charclass2Symbol(cc.getLhs()), charclass2Symbol(cc.getRhs()));
+		}
+		else if (cc.isBracket()) {
+		    return charclass2Symbol(cc.getCharClass());
+		}
+		
 		throw new NotYetImplemented(cc);
 	}
 	
 	private static IList ranges2Ranges(List<Range> ranges) {
-		IListWriter result = factory.listWriter(RascalValueFactory.CharRanges.getElementType());
+		IListWriter result = factory.listWriter();
 		
 		for (Range range : ranges) {
 			if (range.isCharacter()) {
 				IValue ch = char2int(range.getCharacter());
-				result.append(factory.constructor(RascalValueFactory.CharRange_Single, ch));
+				result.append(factory.constructor(RascalValueFactory.CharRange_Range, ch, ch));
 			}
 			else if (range.isFromTo()) {
 				IValue from = char2int(range.getStart());

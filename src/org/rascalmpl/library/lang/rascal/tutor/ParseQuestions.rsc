@@ -1,6 +1,6 @@
-module experiments::tutor3::ParseQuestions
+module lang::rascal::tutor::ParseQuestions
 
-import experiments::tutor3::Questions;
+import lang::rascal::tutor::Questions;
 import ParseTree;
 
 public Questions parse(str src, loc l) = parse(#start[Questions], src, l).top;

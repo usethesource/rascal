@@ -1,4 +1,4 @@
-module experiments::tutor3::AsciiDoc
+module lang::rascal::tutor::AsciiDoc
 
 import ParseTree;
 syntax Document  = Header Preamble Body ;
