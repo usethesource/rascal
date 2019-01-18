@@ -527,26 +527,13 @@ public class IO {
     protected void writeCSV(IValue rel, ISourceLocation loc, IBool header, IString separator, IString encoding, Type paramType, Supplier<AbstractAST> currentAST, Supplier<StackTrace> stackTrace) {
         String sep = separator != null ? separator.getValue() : ",";
         Boolean head = header != null ? header.getValue() : true;
-        Writer out = null;
 
-        if(!paramType.isRelation() && !paramType.isListRelation()){
+        if(!paramType.isRelation() && !paramType.isListRelation() || !(rel instanceof IList || rel instanceof ISet)){
             throw RuntimeExceptionFactory.illegalTypeArgument("A relation type is required instead of " + paramType, currentAST.get(), stackTrace.get());
         }
 
-        try{
-            boolean isListRel = rel instanceof IList;
-            out = new UnicodeOutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), encoding.getValue(), false);
-            out = new BufferedWriter(out); // performance
-            ISet irel = null;
-            IList lrel = null;
-            if (isListRel) {
-                lrel = (IList)rel;
-            }
-            else {
-                irel = (ISet) rel;
-            }
-
-            int nfields = isListRel ? lrel.asRelation().arity() : irel.asRelation().arity();
+        try (Writer out = new BufferedWriter(new UnicodeOutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), encoding.getValue(), false))){
+            int nfields = rel instanceof IList ? ((IList)rel).asRelation().arity() : ((ISet)rel).asRelation().arity();
             if(head){
                 for(int i = 0; i < nfields; i++){
                     if(i > 0)
@@ -561,7 +548,7 @@ public class IO {
 
             Pattern escapingNeeded = Pattern.compile("[\\n\\r\"\\x" + Integer.toHexString(separator.charAt(0)) + "]");
 
-            for(IValue v : (isListRel ? lrel : irel)){
+            for(IValue v : (Iterable<IValue>)rel){
                 ITuple tup = (ITuple) v;
                 boolean firstTime = true;
                 for(IValue w : tup){
@@ -590,15 +577,6 @@ public class IO {
         }
         catch(IOException e){
             throw RuntimeExceptionFactory.io(values.string(e.getMessage()), currentAST.get(), stackTrace.get());
-        }finally{
-            if(out != null){
-                try{
-                    out.flush();
-                    out.close();
-                }catch(IOException ioex){
-                    throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()),  currentAST.get(), stackTrace.get());
-                }
-            }
         }
     }
 
