@@ -512,12 +512,10 @@ public class CommandOptions {
 			try (StringReader in = new StringReader(loc)) {
 				return (ISourceLocation) new StandardTextReader().read(vf, store, start, in);
 			} 
-			catch (FactTypeUseException e) {
+			catch (FactTypeUseException | IOException e) {
 				printUsageAndExit(e.getMessage());
+                throw new RuntimeException(e);
 			} 
-			catch (IOException e) {
-				printUsageAndExit(e.getMessage());
-			}
 		} else {
             try {
                 File file = new File(loc);
@@ -525,7 +523,7 @@ public class CommandOptions {
                     return URIUtil.createFileLocation(file.getAbsolutePath());
                 }
                 else {
-                    return URIUtil.correctLocation("cmd", "", loc);
+                    return URIUtil.correctLocation("cwd", "", loc);
                 }
             }
             catch (URISyntaxException e) {
@@ -533,7 +531,6 @@ public class CommandOptions {
             }
 
 		}
-		return null;
 	}
 
 	public ISourceLocation getDefaultStdLocation(){

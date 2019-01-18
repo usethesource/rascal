@@ -9,7 +9,7 @@
 @contributor{Paul Klint - Paul.Klint@cwi.nl - CWI}
 
 @bootstrapParser
-module experiments::tutor3::LegacyExamManager
+module lang::rascal::tutor::LegacyExamManager
 
 import String;
 import List;

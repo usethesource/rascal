@@ -44,12 +44,15 @@ public class TestEvaluator {
         this.testResultListener = testResultListener;
     }
 
-    public void test(String moduleName) {
+    public boolean test(String moduleName) {
         ModuleEnvironment topModule = eval.getHeap().getModule(moduleName);
 
         if (topModule != null) {
             runTests(topModule, topModule.getTests());
+            return true;
         }
+        
+        return false;
     }
 
     public void test() {

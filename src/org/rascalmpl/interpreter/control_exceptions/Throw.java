@@ -42,6 +42,9 @@ public final class Throw extends ControlException {
 	
 	
 	private static String toString(IValue value, int length){
+	    if (value == null) {
+	        return "no exception message";
+	    }
 		StandardTextWriter stw = new StandardTextWriter(true);
 		LimitedResultWriter lros = new LimitedResultWriter(length);
 		

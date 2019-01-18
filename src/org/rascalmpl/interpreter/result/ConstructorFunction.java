@@ -37,13 +37,14 @@ import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class ConstructorFunction extends NamedFunction {
 	protected final Type constructorType;
@@ -209,17 +210,48 @@ public class ConstructorFunction extends NamedFunction {
 	
 	@Override
 	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, Map<String, IValue> keyArgValues) {
-		Map<Type,Type> bindings = new HashMap<Type,Type>();
-		if (!constructorType.getFieldTypes().match(TF.tupleType(actualTypes), bindings)) {
-		    // This has to be checked first, so that the special casing knows that at least the types are correct
-			throw new MatchFailed();
+	    Type formalTypeParameters = constructorType.getAbstractDataType().getTypeParameters();
+	    Type fieldTypes = constructorType.getFieldTypes();
+
+		// first we match to see if the actual parameters can fit the constructor's parameter types:
+	    if (fieldTypes.getArity() != actuals.length) {
+	        throw new MatchFailed();
+	    }
+	    
+		for (int i = 0; i < actuals.length; i++) {
+		    if (!actuals[i].getType().isSubtypeOf(fieldTypes.getFieldType(i))) {
+		        throw new MatchFailed();
+		    }
 		}
+		
+		// if the match works, then we can go fill the information for the static type system:
+		Map<Type,Type> bindings = new HashMap<Type,Type>();
+		
+        if (!fieldTypes.match(TF.tupleType(actualTypes), bindings)) {
+		    // so now the static types don't match, but the dynamic types did match... 
+		    // then what should the bindings be for the type parameters?
+		    // they should bubble up to their upper bounds because we don't know 
+            // anything about them statically.
+		    bindings = new HashMap<Type,Type>();
+		    
+		    if (!formalTypeParameters.isBottom()) {
+	            for (Type field : formalTypeParameters) {
+	                Type bound = field.getBound();
+                    if (bound != null) {
+	                    bindings.put(field, bound);
+                    }
+                    else {
+                        bindings.put(field, TF.valueType());
+                    }
+	            }
+		    }
+		}
+		
 		// TODO: when characters get proper types we need to add them here.
-		if (constructorType == RascalValueFactory.Tree_Appl || constructorType == RascalValueFactory.Tree_Amb || constructorType == RascalValueFactory.Tree_Cycle) {
+		if (constructorType == RascalValueFactory.Tree_Appl || constructorType == RascalValueFactory.Tree_Amb || constructorType == RascalValueFactory.Tree_Cycle || constructorType == RascalValueFactory.Tree_Char) {
 			return new ConcreteConstructorFunction(ast, constructorType, eval, declarationEnvironment).call(actualTypes, actuals, keyArgValues);
 		}
 		
-		Type formalTypeParameters = constructorType.getAbstractDataType().getTypeParameters();
 		Type instantiated = constructorType;
 
 		if (!formalTypeParameters.isBottom()) {

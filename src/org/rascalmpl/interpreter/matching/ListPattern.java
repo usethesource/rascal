@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.rascalmpl.ast.AbstractAST;
+import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.env.Environment;
@@ -116,23 +117,6 @@ public class ListPattern extends AbstractMatchingResult  {
       System.err.println("List: initMatch: subject=" + subject);
     }
 
-    //    This is an experiment to add abstract list matching for concrete subjects
-    //    if (subject.getType().isSubtypeOf(Factory.Tree)) {
-    //      IConstructor tree = (IConstructor) subject.getValue();
-    //      if (TreeAdapter.isList(tree)) {
-    //        subject = ResultFactory.makeResult(Factory.Args, TreeAdapter.getArgs(tree), ctx);
-    //        IConstructor rhs = TreeAdapter.getType(tree);
-    //        
-    //        if (SymbolAdapter.isIterPlusSeps(rhs) || SymbolAdapter.isIterStarSeps(rhs)) {
-    //          this.delta = SymbolAdapter.getSeparators(rhs).length() + 1;
-    //        }
-    //      }
-    //      else {
-    //        hasNext = false;
-    //        return;
-    //      }
-    //    }
-
     super.initMatch(subject);
 
     if (!subject.getValue().getType().isList()) {
@@ -177,20 +161,30 @@ public class ListPattern extends AbstractMatchingResult  {
       Environment env = ctx.getCurrentEnvt();
 
       if (child instanceof TypedMultiVariablePattern) {
-        TypedMultiVariablePattern tmvVar = (TypedMultiVariablePattern) child;
-        Type tmvType = tmvVar.getType(env, null);
+          TypedMultiVariablePattern tmv = (TypedMultiVariablePattern) child;
+          
+          // now we know what we are, a list multi variable!
+          child = new DesignatedTypedMultiVariablePattern(ctx, (Expression) tmv.getAST(), tf.listType(tmv.getType(env,  null)), tmv.getName()); 
+          
+          // cache this information for the next round, we'll still be a list
+          patternChildren.set(i, child);
+      }
+      
+      if (child instanceof DesignatedTypedMultiVariablePattern) {
+         DesignatedTypedMultiVariablePattern tmvVar = (DesignatedTypedMultiVariablePattern) child;
+        Type tmvType = child.getType(env, null);
         String name = tmvVar.getName();
 
         varName[i] = name;
         isListVar[i] = true;
         listVarOccurrences[i] = 1;
+       
         ++nListVar;
 
-        if(!tmvVar.isAnonymous() && allVars.contains(name)) {
+        if (!tmvVar.isAnonymous() && allVars.contains(name)) {
           throw new RedeclaredVariable(name, getAST());
-        } else if(tmvType.comparable(listSubject.getType().getElementType()) 
-        		|| (tmvVar.bindingInstance() && tmvType.comparable(listSubject.getType()))) {
-          tmvVar.convertToListType();
+        } 
+        else if (tmvType.comparable(listSubject.getType())) {
           if (!tmvVar.isAnonymous()) {
             allVars.add(name);
           }
@@ -200,7 +194,7 @@ public class ListPattern extends AbstractMatchingResult  {
           return;
         }
       }
-      else if(child instanceof MultiVariablePattern){
+      else if (child instanceof MultiVariablePattern){
         MultiVariablePattern multiVar = (MultiVariablePattern) child;
         String name = multiVar.getName();
         varName[i] = name;
@@ -345,7 +339,7 @@ public class ListPattern extends AbstractMatchingResult  {
       IMatchingResult child = patternChildren.get(i);
       Type childType = child.getType(env, patternVars);
       patternVars = merge(patternVars, patternChildren.get(i).getVariables());
-      boolean isMultiVar = child instanceof MultiVariablePattern || child instanceof TypedMultiVariablePattern;
+      boolean isMultiVar = child instanceof MultiVariablePattern || child instanceof DesignatedTypedMultiVariablePattern;
       
       if(childType.isList() && isMultiVar){
         elemType = elemType.lub(childType.getElementType());

@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.rascalmpl.help.HelpManager;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ExecutionTools;
@@ -22,7 +23,6 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMExecutable;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContextBuilder;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.help.HelpManager;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
@@ -277,7 +277,7 @@ public class CommandExecutor {
 	      return;
 	    }
 	  }
-	  IValue res = kernel.rascalTests(w.done(), pcfg.asConstructor(kernel),
+	  IValue res = kernel.rascalTests(w.done(), pcfg.asConstructor(),
 	                                  kernel.kw_rascalTests()
 	                                  .verbose(execute_verbose)
 	                                  .jvm(true)
@@ -288,7 +288,7 @@ public class CommandExecutor {
 	}
 	
 	public IConstructor executeTestsRaw(String mname){
-	  return kernel.rascalTestsRaw(vf.list(vf.string(mname)), pcfg.asConstructor(kernel),
+	  return kernel.rascalTestsRaw(vf.list(vf.string(mname)), pcfg.asConstructor(),
 	                               kernel.kw_rascalTests()
 	                               .verbose(execute_verbose)
 	                               .jvm(true)
@@ -338,7 +338,7 @@ public class CommandExecutor {
 			forceRecompilation = true;
 			IConstructor rvmProgram = kernel.compileAndMergeProgramIncremental(vf.string(consoleInputName), 
 																	reuseConfig, 
-																	pcfg.asConstructor(kernel),
+																	pcfg.asConstructor(),
 																	kernel.kw_compileAndMergeProgramIncremental()
 																	  .optimize(compile_optimize)
 																	  .verbose(compile_verbose)

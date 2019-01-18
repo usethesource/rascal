@@ -4,6 +4,7 @@ import Node;
 import List;
 import util::Math;
 import IO;
+import Exception;
 
 // Operators
 
@@ -180,3 +181,28 @@ test bool tstNode2(str name, list[value] children) = arity(makeNode(name, childr
                                                                getName(makeNode(name, children)) == name &&
                                                                getChildren(makeNode(name, children)) == children;
                                                                
+data D = d(int i, int j = 0);
+node n0 = d(1, j = 2);
+node n1 = d(3);
+
+test bool testPositionalFieldOnNode() = n0.i == 1; //generate warning in static checker: "field access on node type may fail at run-time"
+test bool testKeywordParameterOnNode() = n0.j == 2;
+
+@expected{NoSuchField}
+test bool testUnsetKeywordParameterOnNode() {
+  n1.j;
+  fail;
+}
+@expected{NoSuchField}
+test bool testNonExistingFieldOnNode() {
+  n0.k;
+  fail;
+}
+
+test bool testNodeHasPositionalParameter() = n0 has i;
+test bool testNodeHasKeywordParameter() = n0 has j;
+test bool testNodeHasDefaultKeywordParameter() = !(n1 has j);
+test bool testNodeIsPositionalParameterDefined() = n0.i?;
+test bool testNodeIsKeywordParameterDefined() = n0.j?;
+test bool testNodeDefaultKeywordParameterIsNotDefined() = !n1.j?;
+

@@ -254,9 +254,10 @@ public class MemoizationCache<TResult> {
 	/**
 	 * This method assumes that the getStoredResult is first called to assure there was no result already there beforehand.
 	 */
-	public void storeResult(IValue[] params, Map<String, IValue> keyArgs, TResult result) {
+	public TResult storeResult(IValue[] params, Map<String, IValue> keyArgs, TResult result) {
 		cleanupCache();
 		CacheKey newKey = new CacheKey(params, keyArgs, queue);
 		cache.put(newKey, new KeySoftReference<TResult>(result, newKey, queue));
+		return result;
 	}
 }

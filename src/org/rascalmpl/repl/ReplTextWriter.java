@@ -47,10 +47,20 @@ public class ReplTextWriter extends StandardTextWriter {
         public boolean writingToErrorStream() {
             return original instanceof LimitedResultWriter;
         }
+        
+        @Override
+        public void write(int c) throws IOException {
+            if (isGrouping()) {
+                groupingBuffer.append((char)c);
+            }
+            else {
+                original.write(c);
+            }
+        }
 
         @Override
         public void write(String str, int off, int len) throws IOException {
-            if (groupingBuffer != null) {
+            if (isGrouping()) {
                 groupingBuffer.append(str, off, len);
             }
             else {
@@ -60,7 +70,7 @@ public class ReplTextWriter extends StandardTextWriter {
         
         @Override
         public void write(char[] cbuf, int off, int len) throws IOException {
-            if (groupingBuffer != null) {
+            if (isGrouping()) {
                 groupingBuffer.append(cbuf, off, len);
             }
             else {
@@ -70,7 +80,7 @@ public class ReplTextWriter extends StandardTextWriter {
 
         @Override
         public void flush() throws IOException {
-            if (groupingBuffer != null) {
+            if (!isGrouping()) {
                 original.flush();
             }
         }
@@ -83,16 +93,20 @@ public class ReplTextWriter extends StandardTextWriter {
 
 
         public void stopGrouping() throws IOException {
-            if (groupingBuffer != null) {
+            if (isGrouping()) {
                 original.write(groupingBuffer.toString());
                 groupingBuffer = null;
             }
         }
         
         public void startGrouping() throws IOException {
-            if (groupingBuffer == null) {
+            if (!isGrouping()) {
                 groupingBuffer = new StringBuilder(256);
             }
+        }
+
+        public boolean isGrouping() {
+            return groupingBuffer != null;
         }
         
     }
@@ -116,6 +130,8 @@ public class ReplTextWriter extends StandardTextWriter {
                 }
             }
         });
+        assert !groupingWriter.isGrouping();
+        groupingWriter.flush();
     }
 
 

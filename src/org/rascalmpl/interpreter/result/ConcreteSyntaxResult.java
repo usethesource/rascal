@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009-2017 CWI
+ * Copyright (c) 2009-2018 CWI, NWO-I CWI
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -30,6 +30,7 @@ import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
+import org.rascalmpl.values.uptr.TreeAdapter.FieldResult;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -73,35 +74,11 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 		ITree tree = (ITree) getValue();
 		
-		if (TreeAdapter.isAppl(tree)) {
-			int found = -1;
-			IConstructor foundType = null;
-			IConstructor prod = TreeAdapter.getProduction(tree);
-			
-			if (!ProductionAdapter.isRegular(prod)) {
-				IList syms = ProductionAdapter.getSymbols(prod);
-
-				// TODO: find deeper into optionals, checking the actual arguments for presence/absence of optional trees.
-				for (int i = 0; i < syms.length(); i++) {
-					IConstructor sym = (IConstructor) syms.get(i);
-					
-					while (SymbolAdapter.isConditional(sym)) {
-						sym = SymbolAdapter.getSymbol(sym);
-					}
-					if (SymbolAdapter.isLabel(sym)) {
-						if (SymbolAdapter.getLabel(sym).equals(name)) {
-							found = i;
-							foundType = SymbolAdapter.delabel(sym);
-						}
-					}
-				}
-
-				if (found != -1) {
-					Type nont = RascalTypeFactory.getInstance().nonTerminalType(foundType);
-					IValue child = TreeAdapter.getArgs(tree).get(found);
-					return makeResult(nont, child, ctx);
-				}
-			}
+		FieldResult field = TreeAdapter.getLabeledField(tree, name); 
+		
+		if (field != null) {
+		    Type symbolType = RascalTypeFactory.getInstance().nonTerminalType(field.symbol);
+		    return makeResult(symbolType, field.tree, ctx);
 		}
 		
 		return new ConstructorResult(RascalValueFactory.Tree, tree, ctx).fieldAccess(name, store);
@@ -110,37 +87,23 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store) {
 		ITree tree = (ITree) getValue();
+		FieldResult field = TreeAdapter.getLabeledField(tree, name);
+		
+		if (field != null) {
+		    Type symbolType = RascalTypeFactory.getInstance().nonTerminalType(field.symbol);
+		    
+		    if (!repl.getType().isSubtypeOf(symbolType)) {
+		        throw new UnexpectedType(symbolType, repl.getType(), ctx.getCurrentAST()); 
+		    }
+		    
+		    ITree result = TreeAdapter.putLabeledField(tree, name, (ITree) repl.getValue());
+		    
+		    if (result != null) {
+	            return makeResult(result.getType(), result, ctx);
+	        }
+		}
 		
 		if (TreeAdapter.isAppl(tree)) {
-			int found = -1;
-			IConstructor foundType = null;
-			IConstructor prod = TreeAdapter.getProduction(tree);
-			
-			if (ProductionAdapter.isDefault(prod)) {
-			    IList syms = ProductionAdapter.getSymbols(prod);
-
-			    // TODO: find deeper into optionals, alternatives and sequences checking the actual arguments for presence/absence of optional trees.
-			    for (int i = 0; i < syms.length(); i++) {
-			        IConstructor sym = (IConstructor) syms.get(i);
-			        if (SymbolAdapter.isLabel(sym)) {
-			            if (SymbolAdapter.getLabel(sym).equals(name)) {
-			                found = i;
-			                foundType = SymbolAdapter.delabel(sym);
-			                break;
-			            }
-			        }
-			    }
-			}
-			
-			if (found != -1) {
-				Type nont = RascalTypeFactory.getInstance().nonTerminalType(foundType);
-				if (repl.getType().isSubtypeOf(nont)) {
-					IList args = TreeAdapter.getArgs(tree).put(found, repl.getValue());
-					return makeResult(getType(), tree.set("args", args), ctx);
-				}
-				throw new UnexpectedType(nont, repl.getType(), ctx.getCurrentAST());
-			}
-			
 			if (RascalValueFactory.Tree_Appl.hasField(name)) {
 				Type fieldType = RascalValueFactory.Tree_Appl.getFieldType(name);
 				if (repl.getType().isSubtypeOf(fieldType)) {
@@ -162,7 +125,6 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 		}
 		
 		return super.fieldUpdate(name, repl, store);
-//		throw new UnsupportedOperation("field update", ctx.getCurrentAST());
 	}
 	
 	@Override
