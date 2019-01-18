@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.tutor3;
+package org.rascalmpl.library.lang.rascal.tutor;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -227,17 +227,6 @@ public class Onthology {
         }
 
         @Override  public FileVisitResult preVisitDirectory(Path aDir, BasicFileAttributes aAttrs) throws IOException {
-            String cpf = makeConceptFilePath(aDir).toString();
-            if(cpf.contains("/ValueUI") 
-                || cpf.contains("/vis/") 
-                || cpf.contains("/SyntaxHighlightingTemplates")
-                || cpf.contains("/ShellExec")
-                || cpf.contains("/Resources")
-
-                ){
-                return FileVisitResult.CONTINUE;
-            }
-
             if(Files.exists(makeConceptFilePath(aDir))){
                 /*
                  * An ordinary concept
@@ -293,7 +282,7 @@ public class Onthology {
                     // Lazily load the QuestionCompiler tool
                     questionCompiler = Java2Rascal.Builder.bridge(vf, pcfg, IQuestionCompiler.class).build();
                 }
-                String qtext = questionCompiler.compileQuestions(vf.string(questionsName.toString()), pcfg.asConstructor(questionCompiler) /*pcfg.getSrcs(), pcfg.getLibs(), pcfg.getcourses(), pcfg.getBin(), pcfg.getBoot()*/).getValue();
+                String qtext = questionCompiler.compileQuestions(vf.string(questionsName.toString()), pcfg.asConstructor() /*pcfg.getSrcs(), pcfg.getLibs(), pcfg.getcourses(), pcfg.getBin(), pcfg.getBoot()*/).getValue();
                 long fakeTimeStamp = DateTime.now().toInstant().getMillis();
                 Concept questionsConcept = new Concept(questionsName, qtext, destPath, libSrcPath, fakeTimeStamp /*TODO*/);
                 questionsConcept.setQuestions();

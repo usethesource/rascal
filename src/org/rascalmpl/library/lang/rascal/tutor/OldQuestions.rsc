@@ -1,4 +1,4 @@
-module experiments::tutor3::OldQuestions
+module lang::rascal::tutor::OldQuestions
 
 // Syntax of the Question language
 

@@ -8,8 +8,10 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.Writer;
 import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -166,14 +168,28 @@ public class BaseREPL {
         InputStream out = output.get("text/plain");
         
         if (out != null) {
-            try {
-                reader.print(Prelude.consumeInputStream(new InputStreamReader(out)));
-                reader.flush();
-            }
-            catch (IOException e) {
-            }
+            copyToReader(out, reader);
         }
     }
+    
+    private static void copyToReader(InputStream source, ConsoleReader target) {
+		try {
+            try (Reader reader = new InputStreamReader(source, StandardCharsets.UTF_8)) {
+                char[] chunk = new char[8*1024];
+                int read;
+                while ((read = reader.read(chunk, 0, chunk.length)) != -1) {
+                    target.print(new String(chunk, 0, read));
+                }
+            }
+            catch (IOException e) {
+                target.print("Error printing: " + e);
+            }
+            target.flush();
+        }
+        catch (IOException e) {
+        }
+    }
+    
 
     /**
      * If a line is canceled with ctrl-C this method is called too handle the reset in the child-class.

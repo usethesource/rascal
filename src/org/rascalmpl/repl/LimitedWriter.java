@@ -6,7 +6,7 @@ import java.io.Writer;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 
 public class LimitedWriter extends NonClosingFilterWriter {
-
+    private static final long FULL_WRITE_GRACE = 128;
     private final long limit;
     private long written;
 
@@ -18,48 +18,41 @@ public class LimitedWriter extends NonClosingFilterWriter {
 
     @Override
     public void write(int c) throws IOException {
-        if (written < limit) {
-            out.write(c);
-            written ++;
-            if (written == limit) {
-                out.write("...");
-                out.flush();
-            }
-        }
-        else {
-            throw new IOLimitReachedException();
-        }
+        checkAvailableSpace(1);
+        out.write(c);
+        updateWrittenChars(1);
     }
 
     @Override
     public void write(char[] cbuf, int off, int len) throws IOException {
-        if (written == limit) {
-            throw new IOLimitReachedException();
-        }
-        if (written + len >= limit) {
-            len = (int)(limit - written);
-        }
+        len = checkAvailableSpace(len);
         out.write(cbuf, off, len);
+        updateWrittenChars(len);
+    }
+
+
+    @Override
+    public void write(String str, int off, int len) throws IOException {
+        len = checkAvailableSpace(len);
+        out.write(str, off, len);
+        updateWrittenChars(len);
+    }
+
+    private void updateWrittenChars(int len) throws IOException {
         written += len;
-        if (written == limit) {
+        if (written >= limit) {
             out.write("...");
             out.flush();
         }
     }
 
-    @Override
-    public void write(String str, int off, int len) throws IOException {
-        if (written == limit) {
+    private int checkAvailableSpace(int len) {
+        if (written >= limit) {
             throw new IOLimitReachedException();
         }
-        if (written + len >= limit) {
-            len = (int)(limit - written);
+        if (written + len >= limit + FULL_WRITE_GRACE) {
+            return (int)((limit + FULL_WRITE_GRACE) - written);
         }
-        out.write(str, off, len);
-        written += len;
-        if (written == limit) {
-            out.write("...");
-            out.flush();
-        }
+        return len;
     }
 }

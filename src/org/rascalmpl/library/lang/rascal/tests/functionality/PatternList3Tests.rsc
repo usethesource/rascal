@@ -27,6 +27,11 @@ test bool matchList60() = ([DATA A2, f([A2, b(), *DATA SX1]), *SX1] := [a(), f([
 test bool matchList61() = ([DATA A3, f([A3, b(), *DATA SX2]), *SX2] !:= [d(), f([a(),b(),c()]), a()]);
 test bool matchList62() = ([DATA A4, f([A4, b(), *DATA SX3]), *SX3] !:= [c(), f([a(),b(),c()]), d()]);
   
+// issue #1228  
+test bool matchList63() = [*_,[int x, *int y]] := [[], [1, 1]];
+// issue #1228  
+test bool matchList64() = /[int x, *int y] := [[], [1, 1]];
+  
 //	matchListSet
   
 test bool matchListSet1() = [a(), b()] := [a(), b()];

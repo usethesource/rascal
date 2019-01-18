@@ -1,4 +1,4 @@
-module experiments::tutor3::ValueGenerator
+module lang::rascal::tutor::ValueGenerator
 
 import Boolean;
 import String;
@@ -7,7 +7,7 @@ import List;
 import Set;
 import String;
 import DateTime;
-import experiments::tutor3::Questions;
+import lang::rascal::tutor::Questions;
 import Type;
 
 lexical IntCon = [0-9]+ !>> [0-9];

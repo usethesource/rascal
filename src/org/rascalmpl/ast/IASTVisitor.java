@@ -477,8 +477,6 @@ public interface IASTVisitor<T> {
 
   public T visitProdLabeled(Prod.Labeled x);
 
-  public T visitProdOthers(Prod.Others x);
-
   public T visitProdReference(Prod.Reference x);
 
   public T visitProdUnlabeled(Prod.Unlabeled x);
