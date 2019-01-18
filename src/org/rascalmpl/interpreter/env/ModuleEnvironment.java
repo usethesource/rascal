@@ -456,7 +456,7 @@ public class ModuleEnvironment extends Environment {
 			super.storeVariable(name, value);
 		}
 		else {
-			for (String i : getImports()) {
+			for (String i : importedModules) {
 				ModuleEnvironment module = heap.getModule(i);
 				result = module.getLocalPublicVariable(name);
 
@@ -478,7 +478,7 @@ public class ModuleEnvironment extends Environment {
 			return var;
 		}
 		
-		for (String moduleName : getImports()) {
+		for (String moduleName : importedModules) {
 			ModuleEnvironment mod = getImport(moduleName);
 			
 			if (mod != null) { 
@@ -506,7 +506,7 @@ public class ModuleEnvironment extends Environment {
 			}
 		}
 
-		for (String moduleName : getImports()) {
+		for (String moduleName : importedModules) {
 			ModuleEnvironment mod = getImport(moduleName);
 			Result<IValue> r = null;
 			if (mod != null && mod.variableEnvironment != null) 
@@ -524,7 +524,7 @@ public class ModuleEnvironment extends Environment {
 	public void getAllFunctions(String name, List<AbstractFunction> collection) {
 		super.getAllFunctions(name, collection);
 		
-		for (String moduleName : getImports()) {
+		for (String moduleName : importedModules) {
 			ModuleEnvironment mod = getImport(moduleName);
 			
 			if (mod != null) {
@@ -537,7 +537,7 @@ public class ModuleEnvironment extends Environment {
 	public void getAllFunctions(Type returnType, String name, List<AbstractFunction> collection) {
 		super.getAllFunctions(returnType, name, collection);
 		
-		for (String moduleName : getImports()) {
+		for (String moduleName : importedModules) {
 			ModuleEnvironment mod = getImport(moduleName);
 			
 			if (mod != null) {
@@ -710,7 +710,7 @@ public class ModuleEnvironment extends Environment {
 			result.add(new GenericKeywordParameters(this, list, getStore().getKeywordParameters(adt)));
 		}
 		
-		for (String moduleName : getImports()) {
+		for (String moduleName : importedModules) {
 			ModuleEnvironment mod = getImport(moduleName);
 			
 			list = mod.generalKeywordParameters.get(adt);
@@ -845,7 +845,7 @@ public class ModuleEnvironment extends Environment {
 		Type type = concreteSyntaxTypes.get(name);
 		
 		if (type == null) {
-			for (String i : getImports()) {
+			for (String i : importedModules) {
 				ModuleEnvironment mod = getImport(i);
 				
 				if (mod == null) {
@@ -977,7 +977,7 @@ public class ModuleEnvironment extends Environment {
 			return env;
 		}
 		
-		for (String moduleName : getImports()) {
+		for (String moduleName : importedModules) {
 			ModuleEnvironment mod = getImport(moduleName);
 			if(mod == null)	{
 				throw new RuntimeException("getFlagsEnvironment");
