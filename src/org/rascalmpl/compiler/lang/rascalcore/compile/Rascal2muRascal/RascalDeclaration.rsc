@@ -262,75 +262,20 @@ MuExp functionBody(MuExp body, AType ftype, list[MuExp] formalVars, bool isMemo)
         return body;
     }
 }
-     
-//MuExp translateFormals(list[Pattern] formals, AType ftype, bool isMemo, int i, MuExp body, list[Expression] when_conditions, loc src){
-//   isVarArgs = ftype.varArgs;
-//   if(isEmpty(formals)) {
-//      if(isEmpty(when_conditions)){
-//        return returnFromFunction(body, ftype, isMemo, src);
-//      } else {
-//        ifname = nextLabel();
-//        enterBacktrackingScope(ifname);
-//        mubody = translateConds(ifname, [cond | Expression cond <- when_conditions ], returnFromFunction(body, ftype, isMemo, src),  muFailReturn());
-//        leaveBacktrackingScope();
-//        return mubody;
-//      }
-//   }
-//   pat = formals[0];
-//   
-//   if(pat is literal){
-//     // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
-//      ifname = nextLabel();
-//      enterBacktrackingScope(ifname);
-//      
-//      patTest =  pat.literal is regExp ? muMulti(muApply(translatePat(pat, getType(pat@\loc)), [muVar("$<i>",topFunctionScope(),i) ]))
-//                                       : muEqual(muVar(getParameterName(formals, i), topFunctionScope(),i, getType(formals[i])), translate(pat.literal));
-//      
-//      exp = muIfelse(patTest, translateFormals(tail(formals), ftype, isMemo, i + 1, body, when_conditions, src),
-//                              muFailReturn()
-//                  );
-//      leaveBacktrackingScope();
-//      return exp;
-//   } else {
-//      Name name = pat.name;
-//      tp = pat.\type;
-//      fuid = getVariableScope("<name>", name@\loc);
-//      pos = getPositionInScope("<name>", name@\loc);
-//      // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
-//      ifname = nextLabel();
-//      enterBacktrackingScope(ifname);
-//                          
-//      exp = muBlock([ muCheckArgTypeAndCopy("<name>", i, (isVarArgs && size(formals) == 1) ? alist(translateType(tp)) : translateType(tp), pos),
-//                      translateFormals(tail(formals), ftype, isMemo, i + 1, body, when_conditions, src)
-//                    ]);
-//      leaveBacktrackingScope();
-//      return exp;
-//    }
-//}
 
 MuExp translateFunction(str fname, {Pattern ","}* formals, AType ftype, MuExp body, bool isMemo, list[Expression] when_conditions){
-  //bool simpleArgs = true;
-  //for(pat <- formals){
-  //    if(!(pat is typedVariable || pat is literal))
-  //      simpleArgs = false;
-  //}
-  //if(simpleArgs) { //TODO: should be: all(pat <- formals, (pat is typedVariable || pat is literal))) {
-  //   return functionBody(muIfelse( muCon(true), muBlock([ translateFormals([formal | formal <- formals], ftype, isMemo, 0, /*kwps,*/ body, when_conditions, formals@\loc)]), muFailReturn()),
-  //                       isMemo, formals@\loc);
-  //} else {
      // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
      enterBacktrackingScope(fname);
-     // TODO: account for a variable number of arguments
      formalsList = [f | f <- formals];
   
      formalVars = [muVar(getParameterName(formalsList, i), topFunctionScope(), i, getType(formalsList[i])) | i <- index(formalsList) ];
-     conditions = (returnFromFunction(body, ftype, formalVars, isMemo)
-                  | translatePat(formalsList[i], getType(formalsList[i]),formalVars[i], fname, it, muFailReturn(), subjectAssigned=true) 
-                  | i <- index(formalsList));
-     mubody = functionBody(conditions, ftype, formalVars, isMemo);
+     when_body = returnFromFunction(translateConds(fname, when_conditions, body, muFailReturn(ftype)), ftype, formalVars, isMemo);
+     params_when_body = ( when_body
+                        | translatePat(formalsList[i], getType(formalsList[i]),formalVars[i], fname, it, muFailReturn(ftype), subjectAssigned=true) 
+                        | i <- index(formalsList));
+     funCode = functionBody(params_when_body, ftype, formalVars, isMemo);
      leaveBacktrackingScope();
-     return mubody;
-  //}
+     return funCode;
 }
 
 /********************************************************************/

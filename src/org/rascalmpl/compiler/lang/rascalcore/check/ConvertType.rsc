@@ -318,12 +318,11 @@ void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collec
                     return afunc(tp, l, []);
                 } else if (size(distinctLabels) > 0 && size(distinctLabels) != size(labelsList)) {
                     s.report(error(current, "Non-well-formed type, labels must be distinct"));
-                    return afunc(tp, [unset(tp, "label") | tp <- l], []);
                 } else if (size(l) > 0) {
                     s.report(warning(current, "Field name ignored, field names must be provided for all fields or for none"));
-                    return afunc(tp, [unset(tp, "label") | tp <- l], []);
                 }
             }
+            return tp;
         }); 
     collect(t, c);
 }
@@ -622,14 +621,6 @@ void collect(current:(TypeVar) `& <Name n>`, Collector c){
 void collect(current: (TypeVar) `& <Name n> \<: <Type tp>`, Collector c){
     c.calculate("type parameter with bound", current, [tp], AType(Solver s){ return  aparameter(prettyPrintName(n), s.getType(tp)); }); 
     collect(tp, c);
-}
-
-@doc{Convert Rascal data type selectors into an abstract representation.}
-@todo{Implement once this is in use.}
-public AType convertDataTypeSelector(DataTypeSelector dts, Collector c) {
-    switch(dts) {
-        case (DataTypeSelector) `<QualifiedName n1> . <Name n2>` : throw "Not implemented";
-    }
 }
 
 @doc{A parsing function, useful for generating test cases.}

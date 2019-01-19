@@ -7,7 +7,7 @@ import Set;
 import Relation;
 import String;
 extend analysis::typepal::AType;
-import lang::rascalcore::check::ATypeUtils;
+extend lang::rascalcore::check::ATypeUtils;
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::ATypeExceptions;
 import lang::rascalcore::grammar::definition::Characters;
