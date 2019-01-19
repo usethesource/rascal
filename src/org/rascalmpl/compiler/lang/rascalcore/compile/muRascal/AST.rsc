@@ -110,7 +110,6 @@ public data MuExp =
           	// Variables and temporaries
           | muResetLocs(list[int] positions)					// Reset value of selected local variables to undefined (null)
           | muVar(str name, str fuid, int pos, AType atype)		// Variable: retrieve its value
-          //| muLoc(str name, int pos)
           | muTmpIValue(str name, str fuid, AType atype)	    // Temporary variable introduced by compiler
           | muTmpNative(str name, str fuid, NativeKind nkind)   // Temporary variable introduced by compiler
              
@@ -135,7 +134,7 @@ public data MuExp =
           | muReturn1FromVisit(MuExp exp)                       // Return from visit with value
           
           | muFilterReturn()									// Return for filter statement
-          | muFailReturn()                                      // Failure from function body
+          | muFailReturn(AType funType)                         // Failure from function body
           
           | muCheckMemo(AType funType, list[MuExp] args/*, map[str,value] kwargs*/, MuExp body)
           | muMemoReturn(AType funtype, list[MuExp] args, MuExp functionResult)

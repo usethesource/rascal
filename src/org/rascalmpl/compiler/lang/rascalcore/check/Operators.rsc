@@ -149,6 +149,7 @@ private AType _computeIsType(Tree current, AType t1, Solver s){               //
         }
     } else if(isNodeType(t1) || isADTType(t1) || isNonTerminalType(t1)) return abool();
     s.report(error(current, "Invalid type: expected node, ADT, or concrete syntax types, found %t", t1));
+    return avalue();
 }
 
 // ---- has
@@ -168,6 +169,7 @@ private AType _computeHasType(Tree current, AType t1, Solver s){
     } else if (isRelType(t1) || isListRelType(t1) || isTupleType(t1) || isADTType(t1) || isNonTerminalType(t1) || isNodeType(t1)) return abool();
     
     s.report(error(current, "Invalid type: expected relation, tuple, node or ADT types, found %t", t1));
+    return avalue();
 }
 
 // ---- transitive closure
@@ -199,6 +201,7 @@ private AType _computeTransClosureType(Tree current, AType t1, Solver s){
     } else {
         s.report(error(current, "Invalid type: expected a binary relation, found %t", t1));
     }
+    return avalue();
 }
 // ---- reflexive transitive closure
 
@@ -242,6 +245,7 @@ void collect(current: (Expression) `! <Expression arg>`, Collector c){
 AType computeNegation(Tree current, AType t1, Solver s){    
     if(isBoolType(t1)) return abool();
     s.report(error(current, "Negation not defined on %t", t1));
+    return abool();
 }
 
 // ---- negative
@@ -255,6 +259,7 @@ void collect(current: (Expression) `- <Expression arg>`, Collector c){
 AType computeNegative(Tree current, AType t1, Solver s){    
     if(isNumericType(t1)) return t1;
     s.report(error(current, "Negative not defined on %t", t1));
+    return t1;
 }
 // ---- splice
 
@@ -370,6 +375,7 @@ private AType _computeCompositionType(Tree current, AType t1, AType t2, Solver s
     }
 
    s.report(error(current, "Composition not defined for %t and %t", t1, t2));
+   return avalue();
 }
 
 // ---- product
@@ -396,6 +402,7 @@ private AType _computeProductType(Tree current, AType t1, AType t2, Solver s){
         return arel(atypeList([getSetElementType(t1),getSetElementType(t2)]));
     
     s.report(error(current, "Product not defined on %t and %t", t1, t2));
+    return avalue();
 }
 
 // ---- join
@@ -447,6 +454,7 @@ private AType _computeJoinType(Tree current, AType t1, AType t2, Solver s){
         return arel( atypeList([getSetElementType(t1), getSetElementType(t2)]) );
     
     s.report(error(current, "Join not defined for %t and %t", t1, t2));
+    return avalue();
 } 
 
 // ---- remainder
@@ -462,8 +470,10 @@ void collect(current: (Expression) `<Expression lhs> % <Expression rhs>`, Collec
 }
 
 private AType _computeRemainderType(Tree current, AType t1, AType t2, Solver s){
-    if(isIntType(t1) && isIntType(t2)) return aint();
-    s.report(error(current, "Remainder not defined on %t and %t", t1, t2));
+    if(!(isIntType(t1) && isIntType(t2))){
+        s.report(error(current, "Remainder not defined on %t and %t", t1, t2));
+    }
+    return aint();
 }
 
 // ---- division
@@ -478,8 +488,10 @@ AType computeDivisionType(Tree current, AType t1, AType t2, Solver s)
     = binaryOp("division", _computeDivisionType, current, t1, t2, s);
 
 private AType _computeDivisionType(Tree current, AType t1, AType t2, Solver s){
-    if(isNumericType(t1) && isNumericType(t2)) return numericArithTypes(t1, t2);
-    s.report(error(current, "Division not defined on %t and %t", t1, t2));
+    if(!(isNumericType(t1) && isNumericType(t2))){
+        s.report(error(current, "Division not defined on %t and %t", t1, t2));
+    }
+     return numericArithTypes(t1, t2);
 }
 
 // ---- intersection
@@ -516,6 +528,7 @@ private AType _computeIntersectionType(Tree current, AType t1, AType t2, Solver 
         if (isMapType(t1)) return makeMapType(makeVoidType(),makeVoidType());
     }
     s.report(error(current, "Intersection not defined on %t and %t", t1, t2));
+    return avalue();
 }
 
 // ---- addition
@@ -604,6 +617,7 @@ private AType _computeAdditionType(Tree current, AType t1, AType t2, Solver s) {
     }
     
     s.report(error(current, "Addition not defined on %t and %t", t1, t2));
+    return avalue();
 }
 
 // ---- subtraction
@@ -646,6 +660,7 @@ private AType _computeSubtractionType(Tree current, AType t1, AType t2, Solver s
     }
     
     s.report(error(current, "Subtraction not defined on %t and %t", t1, t2));
+    return avalue();
 }
 
 // ---- appendAfter
@@ -661,6 +676,7 @@ private AType _computeAppendAfterType(Tree current, AType t1, AType t2, Solver s
        return makeListType(s.lub(getListElementType(t1),t2));
     }
     s.report(error(current, "Expected a list type, not type %t", t1));
+    return avalue();
 }
 
 // ---- insertBefore
@@ -676,6 +692,7 @@ private AType _computeInsertBeforeType(Tree current, AType t1, AType t2, Solver 
         return makeListType(s.lub(getListElementType(t2),t1));
     }
     s.report(error(current, "Expected a list type, not type %t", t2));
+    return avalue();
 }
 
 // ---- modulo
@@ -687,10 +704,10 @@ void collect(current: (Expression) `<Expression lhs> mod <Expression rhs>`, Coll
 }
 
 private AType _computeModuloType(Tree current, AType t1, AType t2, Solver s) { 
-    if (isIntType(t1) && isIntType(t2)) {
-        return aint();
+    if(!(isIntType(t1) && isIntType(t2)) ){
+        s.report(error(current, "Modulo not defined on %t and %t", t1, t2));
     }
-    s.report(error(current, "Modulo not defined on %t and %t", t1, t2));
+    return aint();
 }
 
 // ---- notin
@@ -725,6 +742,7 @@ private AType _computeInType(Tree current, AType t1, AType t2, Solver s){
     } else {
         s.report(error(current, "`in` or `notin` not defined for %t and %t", t1, t2));
     }
+    return avalue();
 }
 
 // ---- in
@@ -788,6 +806,7 @@ private AType _computeComparisonType(Tree current, AType t1, AType t2, Solver s)
         return abool();
     
     s.report(error(current, "Comparison not defined on %t and %t", t1, t2));
+    return abool();
 }
     
 // ---- ifDefined
@@ -917,6 +936,7 @@ AType computeEnumeratorElementType(Expression current, AType etype, Solver s) {
         }
     } 
     s.report(error(current, "Type %t is not enumerable", etype));
+    return avalue();
 }
 
 // TODO scoping rules in Boolean operators!

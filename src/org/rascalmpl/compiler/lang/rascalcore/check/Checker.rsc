@@ -209,16 +209,26 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
                         path2module[mloc.path] = m;        
                         if(config.verbose) println("*** parsing <m> from <mloc>");
                         ms.moduleLastModified[m] = lastModified(mloc);
-                        pt = parseModuleWithSpaces(mloc).top;
-                        ms.modules[m] = pt;
+                        try {
+                            Module pt = parseModuleWithSpaces(mloc).top;
+                            ms.modules[m] = pt;
+                        } catch Java("ParseError","Parse error"): {
+                            ms.tmodels[m] = tmodel()[messages = [ error("Parse error in module `<m>`", getModuleLocation(m, pcfg)) ]];
+                            ms.valid += {m};
+                        }
                        
                     }
                 } else if(!ms.tmodels[m]?){
                     <found, tplLoc> = getDerivedReadLoc(m, "tpl", pcfg);
                     if(found){   
-                        if(config.verbose) println("*** reading <m> from <tplLoc>");  
-                        ms.moduleLastModified[m] = lastModified(tplLoc);     
-                        ms.tmodels[m] = readBinaryValueFile(#TModel, tplLoc);
+                        try {
+                            if(config.verbose) println("*** reading <m> from <tplLoc>");  
+                            ms.moduleLastModified[m] = lastModified(tplLoc);     
+                            ms.tmodels[m] = readBinaryValueFile(#TModel, tplLoc);
+                        } catch IO(str msg): {
+                            ms.tmodels[m] = tmodel()[messages = [ error("Error while loading .tpl file for module `<m>`: <msg>", getModuleLocation(m, pcfg)) ]];
+                            ms.valid += {m};
+                        }
                     }
                 }
             }
@@ -237,7 +247,11 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
                         for(imod <- ms.modules[m].header.imports, imod has \module){
                             iname = unescape("<imod.\module.name>");
                             if(iname notin usedModules){ 
-                               msgs += warning("Unused <imod is \default ? "import" : "extend"> of `<iname>`", imod@\loc);
+                               if(imod is \default){
+                                 msgs += warning("Unused import of `<iname>`", imod@\loc);
+                               } else {
+                                 msgs += info("Extended module `<iname>` is unused in current module", imod@\loc);
+                               }
                             }
                         }
                         tm.messages += msgs;
@@ -269,7 +283,7 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
     } catch ParseError(loc src): {
         return <("<mloc>" : tmodel()[messages = [ error("Parse error", src)  ]]), (), ()>;
     } catch Message msg: {
-     return  <("<mloc>" : tmodel()[messages = [ error("During validation: <msg>", msg.at) ]]), (), ()>;
+     return  <("<mloc>" : tmodel()[messages = [ error("During type checking: <msg>", msg.at) ]]), (), ()>;
     } 
     //catch value e: {
     //    return <("<mloc>" : tmodel()[messages = [ error("During validation: <e>", mloc) ]]), (), ()>;

@@ -136,13 +136,10 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
                 for(imp <- localImportsAndExtends<0>, imp notin visited){
                     ms = getImportAndExtendGraph(imp, pcfg, visited, ms, logImports);
                 }
-                //println("allImportsAndExtendsValid, return:");
-                //printModuleStructure(ms);
                 return ms;
              }
         } catch IO(str msg): {
-            //c.report(warning(ModuleStructurement, "During import of %q: %v", qualifiedModuleName, msg));
-            println("IO Error during import of <qualifiedModuleName>: <msg>");
+            ms.tmodels[qualifiedModuleName] = tmodel()[messages = [ error("During import of module `<qualifiedModuleName>`: IO error <msg>", getModuleLocation(qualifiedModuleName, pcfg)) ]];
         }
     }
     try {
@@ -163,11 +160,8 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
             ms = getImportAndExtendGraph(imp, pcfg, visited, ms, logImports);
       }
     } catch value e: {
-        //c.report(error(importStatement, "Error during import of %v: %v", mname, e));
-        println("Error during import of <qualifiedModuleName>: <e>");
+        ms.tmodels[qualifiedModuleName] = tmodel()[messages = [ error("Parse error in module `<qualifiedModuleName>`", getModuleLocation(qualifiedModuleName, pcfg)) ]];
     }
-    //println("After reparse, return:");
-    //printModuleStructure(ms);
     return ms;
 }
 
@@ -189,6 +183,9 @@ rel[str, PathRole, str] getModulePathsAsStr(Module m){
     moduleName = unescape("<m.header.name>");
     return { <moduleName, imod is \default ? importPath() : extendPath(), unescape("<imod.\module.name>")> |  imod <- m.header.imports, imod has \module};
 }
+
+set[loc] getImportLocsOfModule(str qualifiedModuleName, set[Module] modules)
+    = { getLoc(imod) | m <- modules, imod <- m.header.imports, imod has \module, "<imod.\module>" == qualifiedModuleName };
 
 TModel emptyModel = tmodel();
 
