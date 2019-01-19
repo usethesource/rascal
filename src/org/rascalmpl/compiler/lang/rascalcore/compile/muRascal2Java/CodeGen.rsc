@@ -357,9 +357,18 @@ tuple[str signatures, str resolvers] genGeneralResolver(str fname, list[OF4] ove
                argTypes = "<intercalate(", ", [ "(<atype2java(tf)>)$<j>"  | j <- index(formalTypes), tf := formalTypes[j]])>";
                if(hasKeywordParameters (ftype)) argTypes += ", $kwpActuals";
                base_call = "<fname>_<atype2descriptor(ftype)>(<argTypes>)";
-               call_code = canFail ? "res = <base_call>;
-                                     'if(res != null) return <returns_void ? "" : "res">;\n"
-                                   : "return <returns_void ? "" : base_call>;\n";
+               
+               call_code = canFail ? ( returns_void ? "try { <base_call>; return;
+                                                      'catch (FailReturnFromVoidException e):{};\n"
+                                                       
+                                                    : "res = <base_call>;
+                                                      'if(res != null) return <returns_void ? "" : "res">;\n"
+                                     )
+                                   : ( returns_void ? "<base_call>; return;\n"
+                                                  
+                                                    : "return <base_call>;\n"
+                                     );
+                                   
                cases += "if(<intercalate(" && ", [ "$<j>.getType().<atype2istype(tf)>()"  | j <- index(formalTypes), tf := formalTypes[j]])>){
                         '   <call_code>
                         '}\n";
@@ -368,7 +377,7 @@ tuple[str signatures, str resolvers] genGeneralResolver(str fname, list[OF4] ove
         signature = "public <returns_void ? "void" : "IValue"> <fname>(<intercalate(", ", ["IValue $<j>" | j <- [0..i] ])>, java.util.Map\<String,IValue\> $kwpActuals)";
         all_signatures += signature + ";\n";
         all_resolvers += "<signature>{
-                             '  <if(canFail){>IValue res;<}>
+                             '  <if(canFail && !returns_void){>IValue res;<}>
                              '  <cases>
                              '  throw new RuntimeException(\"Cannot resolve call to `<fname>`\");
                              '}\n";
@@ -381,6 +390,7 @@ tuple[str signatures, str resolvers] genResolver(tuple[str name, AType funType, 
    //println("genResolver:"); iprintln(overload);
    
    funType = unsetRec(overload.funType);
+   returns_void = funType.ret == avoid();
    formalTypes = getFormals(funType);
    if(jg.isResolved(overload) || !jg.usesLocalFunctions(overload) || getArity(funType) == 0) return <"", "">;
  
@@ -435,7 +445,7 @@ tuple[str signatures, str resolvers] genResolver(tuple[str name, AType funType, 
    
    return <signature + ";\n",
           "<signature>{
-          '    <if(canFail){><atype2java(getResult(funType))> res;<}>
+          '    <if(canFail && !returns_void){><atype2java(getResult(funType))> res;<}>
           '    <body>
           '    <conses>
           '    <if(canFail && isEmpty(conses)){>throw new RuntimeException(\"Cannot resolve call to `<name_resolver>`\");<}>
@@ -447,6 +457,7 @@ JCode makeCall(AType resolverFunType, loc of, JGenie jg){
     funType = jg.getType(of);
     kwpActuals = "$kwpActuals";
     formalTypes = getFormals(funType);
+    returns_void = funType.ret == avoid();
     resolverFormalTypes = getFormals(resolverFunType);
     if(any(int i <- index(formalTypes), unsetRec(formalTypes[i]) != unsetRec(resolverFormalTypes[i]))){
         conds = [];
@@ -472,10 +483,14 @@ JCode makeCall(AType resolverFunType, loc of, JGenie jg){
             di = jg.getDefine(of).defInfo;
             returns_void = funType.ret == avoid();
             
-            base_call = di has canFail && di.canFail ? "res = <call_code>;
-                                                       'if(res != null) return <returns_void ? "" : res>;
-                                                       '"
-                                                     : "<returns_void ? "" : "return "><call_code>;\n";
+            base_call = di has canFail && di.canFail ? (returns_void ? "try { <call_code>; return; } catch (FailReturnFromVoidException e){}\n"
+                                                                     : "res = <call_code>;
+                                                                       'if(res != null) return <returns_void ? "" : res>;\n"
+                                                       )
+                                                       
+                                                     : ( returns_void ? "<call_code>; return;\n"
+                                                                      : "return <call_code>;\n"
+                                                       );
         }
         if(isEmpty(conds)){
             return base_call;
@@ -502,10 +517,13 @@ JCode makeCall(AType resolverFunType, loc of, JGenie jg){
             call_code = "<jg.getAccessorInResolver(of)>(<intercalate(", ", actuals)>)";
             di = jg.getDefine(of).defInfo;
             returns_void = funType.ret == avoid();
-            return di has canFail && di.canFail ? "res = <call_code>;
-                                                  'if(res != null) return <returns_void ? "" : "res">;
-                                                  '"
-                                                : "return <returns_void ? "" : call_code>;\n";
+            return (di has canFail && di.canFail) ? ( returns_void ? "try { <call_code>; return; } catch (FailReturnFromVoidException e){};\n"
+                                                                   : "res = <call_code>;
+                                                                     'if(res != null) return <returns_void ? "" : "res">;\n"
+                                                    )
+                                                  : ( returns_void ? "<call_code>; return;\n"
+                                                                   : "return <call_code>;\n"
+                                                    );
         }
     }
 }
@@ -523,6 +541,8 @@ JCode makeConstructorCall(AType funType, list[str] actuals, JGenie jg){
 JCode trans(MuModuleVar var, JGenie jg){
        return "<atype2java(var.atype)> <var.name>;";
 }
+
+
 
 // ---- muFunction ------------------------------------------------------------
 
@@ -557,7 +577,7 @@ JCode trans(MuFunction fun, JGenie jg){
     if(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals) := ftype){
         returnType = atype2java(ftype.ret);
         argNames = fun.argNames;
-        argTypes = intercalate(", ", ["<atype2java(f)> <f.label? ? "<f.label>" : "$<i>">" | i <- index(ftype.formals), f := ftype.formals[i]]);
+        argTypes = intercalate(", ", ["<atype2java(f)> <(f.label? && f.label[0] != "$") ? "<f.label>_<i>" : "$<i>">" | i <- index(ftype.formals), f := ftype.formals[i]]);
         if(!isEmpty(fun.externalVars)){
             ext_actuals = intercalate(", ", ["ValueRef\<<atype2java(v.atype)>\> <v.name>" | v <- fun.externalVars]);
             argTypes = isEmpty(formals) ? ext_actuals : "<argTypes>, <ext_actuals>";
@@ -706,17 +726,20 @@ JCode trans(muOFun(str fuid), JGenie jg){
 //}
 
 // ---- muVar -----------------------------------------------------------------
+
+str varName(muVar(str name, str fuid, int pos, AType atype))
+    = (name[0] != "$") ? "<name>_<pos>" : name;
         
 JCode trans(var:muVar(str name, str fuid, int pos, AType atype), JGenie jg)
-    = jg.isRefVar(name) ? "<name>.value" : "<name>";
+    = jg.isRefVar(name) ? "<varName(var)>.value" : varName(var);
 
 // ---- muTmpIValue -----------------------------------------------------------------
 
 JCode trans(var: muTmpIValue(str name, str fuid, AType atype), JGenie jg)
-    = jg.isRefVar(name) ? "<name>.value" : "<name>";
+    = jg.isRefVar(name) ? "<name>.value" : name;
     
 JCode trans(var: muTmpNative(str name, str fuid, NativeKind nkind), JGenie jg)
-    = jg.isRefVar(name) ? "<name>.value" : "<name>";
+    = jg.isRefVar(name) ? "<name>.value" : name;
     
 // ---- muVarInit --------------------------------------------------------------
 
@@ -726,8 +749,8 @@ str parens(str code)
  JCode trans(muVarInit(v: muVar(str name, str fuid, int pos, AType atype), MuExp exp), JGenie jg){
     jtype = atype2java(atype);
     return jg.isRefVar("<name>_<pos>") || jg.isExternalVar(v)
-                                       ? "final ValueRef\<<jtype>\> <name> = new ValueRef\<<jtype>\>(<trans(exp,jg)>);\n"
-                                       : "<jtype> <name> = (<jtype>)<parens(trans(exp, jg))>;\n";  
+                                       ? "final ValueRef\<<jtype>\> <name>_<pos> = new ValueRef\<<jtype>\>(<trans(exp,jg)>);\n"
+                                       : "<jtype> <name>_<pos> = (<jtype>)<parens(trans(exp, jg))>;\n";  
 }
 
 JCode trans(muVarInit(muTmpIValue(str name, str fuid, AType atype), MuExp exp), JGenie jg){
@@ -763,9 +786,9 @@ JCode trans(muVarInit(muTmpNative(str name, str fuid, NativeKind nkind), MuExp e
  JCode trans(muConInit(v:muVar(str name, str fuid, int pos, AType atype), MuExp exp), JGenie jg){
     jtype = atype2java(atype);
     if(jg.isExternalVar(v)){  
-        return "final ValueRef\<<jtype>\> <name> = new ValueRef\<<jtype>\>(<trans(exp,jg)>);\n";
+        return "final ValueRef\<<jtype>\> <name>_<pos> = new ValueRef\<<jtype>\>(<trans(exp,jg)>);\n";
     }
-    return "<jtype> <name> = <transWithCast(atype, exp, jg)>;\n";
+    return "<jtype> <name>_<pos> = <transWithCast(atype, exp, jg)>;\n";
 }
     
 JCode trans(muConInit(muTmpIValue(str name, str fuid, AType atype), MuExp exp), JGenie jg){
@@ -1300,8 +1323,9 @@ JCode trans(muSucceedVisitCase(), JGenie jg)
 
 // ---- muFailReturn ----------------------------------------------------------
 
-JCode trans(muFailReturn(),  JGenie jg)
-    = "return null;";
+JCode trans(muFailReturn(AType funType),  JGenie jg)
+    = funType.ret == avoid() ? "throw new FailReturnFromVoidException();"
+                             : "return null;";
     
 // ---- muCheckMemo -----------------------------------------------------------
 
