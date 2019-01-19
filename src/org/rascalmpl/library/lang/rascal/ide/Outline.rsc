@@ -31,7 +31,7 @@ node outline(Module m) {
    variables = []; 
    list[node] e = [];
    
-   visit (m) {
+   top-down-break visit (m) {
      case Header h : n = "<h.name>";
      case (Declaration) `<Tags ta> <Visibility vs> <Type t> <{Variable ","}+ vars>;`:
        variables   += [clean("<v.name> <t>")()[@\loc=v@\loc] | v <- vars]; 
