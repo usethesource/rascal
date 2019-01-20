@@ -250,7 +250,7 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
                                if(imod is \default){
                                  msgs += warning("Unused import of `<iname>`", imod@\loc);
                                } else {
-                                 msgs += info("Extended module `<iname>` is unused in current module", imod@\loc);
+                                 msgs += info("Extended module `<iname>` is unused in the current module", imod@\loc);
                                }
                             }
                         }
