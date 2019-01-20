@@ -563,6 +563,7 @@ AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Pattern ","}*
        return computeADTType(current, adtName, scope, adtType, fields, kwFields, pats, keywordArguments, [true | int i <- index(fields)], s);
     }
     s.report(error(current, "No pattern constructor found for %q of expected type %t", expression, subjectType));
+    return avalue();
 }
 
 tuple[rel[loc, IdRole, AType], list[bool]] filterOverloadedConstructors(rel[loc, IdRole, AType] overloads, int arity, AType subjectType){

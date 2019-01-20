@@ -284,6 +284,7 @@ int getItemId(AType s, int pos, prod(AType u,list[AType] _)) {
     case \alt(aa) : if (AType a:conditional(_,{_*,except(l)}) <- aa, l == u.label) return a.id; 
     default: return s.id; // this should never happen, but let's make this robust
   }  
+  return s.id;  // this should never happen, but guarantee a return value
 }
 
 
@@ -382,7 +383,7 @@ str generateClassConditional(set[AType] classes) {
            | \char-class(list[ACharRange] ranges) <- classes, r <- ranges);
   }
   else {
-    ranges = [r | \char-class(ranges) <- classes, r <- ranges];
+    ranges = [r | \char-class(ranges1) <- classes, r <- ranges1];
     
     return ("<generateRangeConditional(head(ranges))>"| it + " || <generateRangeConditional(r)> "
            | r <- tail(ranges));
@@ -503,12 +504,12 @@ public tuple[str new, int itemId] sym2newitem(AGrammar grammar, AType sym, int d
         
         case \start(s) : 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
-        case \lit(l) : 
-            if (/p:prod(lit(l,id=_),list[AType] chars) := grammar.rules[getType(sym)])
+        case \lit(str l1) : 
+            if (/p:prod(lit(str l2,id=_),list[AType] chars) := grammar.rules[getType(sym)], l1 == l2)
                 return <"new LiteralStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(p)>, new int[] {<literals2ints(chars)>}, <filters>)",itemId>;
             else throw "literal not found in grammar: <grammar>";
-        case \cilit(l) : 
-            if (/p:prod(cilit(l,id=_),list[AType] chars) := grammar.rules[getType(sym)])
+        case \cilit(str l1) : 
+            if (/p:prod(cilit(str l2,id=_),list[AType] chars) := grammar.rules[getType(sym)], l1 == l2)
                 return <"new CaseInsensitiveLiteralStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(p)>, new int[] {<literals2ints(chars)>}, <filters>)",itemId>;
             else throw "ci-literal not found in grammar: <grammar>";
         case \iter(s) : 

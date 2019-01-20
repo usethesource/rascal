@@ -9,7 +9,9 @@ import Relation;
 
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeUtils;
-extend lang::rascalcore::check::TypePalConfig;
+import lang::rascalcore::check::TypePalConfig;
+
+extend analysis::typepal::TypePal;
 
 @doc{
 .Synopsis

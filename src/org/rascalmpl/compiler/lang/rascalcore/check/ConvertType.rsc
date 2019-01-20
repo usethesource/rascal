@@ -305,24 +305,24 @@ void collect(current: (FunctionType) `<Type t> ( <{TypeArg ","}* tas> )`, Collec
     c.calculate("function type", current, t + targs,
         AType(Solver s){
             l =  l = [s.getType(ta) | ta <- targs];
-            tp = s.getType(t);
+            funType = s.getType(t);
             if (size(l) == 0) {
-                return afunc(tp, [], []);
+                return afunc(funType, [], []);
             } else {
                 labelsList = [tp.label | tp <- l];;
                 nonEmptyLabels = [ lbl | lbl <- labelsList, !isEmpty(lbl) ];
                 distinctLabels = toSet(nonEmptyLabels);
                 if(size(distinctLabels) == 0)
-                    return afunc(tp, l, []);
+                    return afunc(funType, l, []);
                 if (size(l) == size(distinctLabels)) {
-                    return afunc(tp, l, []);
+                    return afunc(funType, l, []);
                 } else if (size(distinctLabels) > 0 && size(distinctLabels) != size(labelsList)) {
                     s.report(error(current, "Non-well-formed type, labels must be distinct"));
                 } else if (size(l) > 0) {
                     s.report(warning(current, "Field name ignored, field names must be provided for all fields or for none"));
                 }
             }
-            return tp;
+            return funType;
         }); 
     collect(t, c);
 }
