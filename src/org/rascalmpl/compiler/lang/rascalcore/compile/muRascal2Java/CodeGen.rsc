@@ -358,7 +358,7 @@ tuple[str signatures, str resolvers] genGeneralResolver(str fname, list[OF4] ove
                if(hasKeywordParameters (ftype)) argTypes += ", $kwpActuals";
                base_call = "<fname>_<atype2descriptor(ftype)>(<argTypes>)";
                
-               call_code = canFail ? ( returns_void ? "try { <base_call>; return;
+               call_code = canFail ? ( returns_void ? "try { <base_call>; return; }
                                                       'catch (FailReturnFromVoidException e):{};\n"
                                                        
                                                     : "res = <base_call>;

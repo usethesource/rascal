@@ -50,7 +50,8 @@ alias ModuleStructure = tuple[rel[str, PathRole, str] strPaths,
                               map[str,datetime] moduleLastModified,
                               map[str,Module] modules,
                               set[str] valid,
-                              set[str] invalid
+                              set[str] invalid,
+                              map[str, list[Message]] messages
                               ];
 void printModuleStructure(ModuleStructure ms){
     println("strPaths:"); iprintln(ms.strPaths);
@@ -61,7 +62,7 @@ void printModuleStructure(ModuleStructure ms){
     println("valid: <ms.valid>");
 }
 
-ModuleStructure newModuleStructure() = <{}, {}, (), (), (), (), {}, {}>;
+ModuleStructure newModuleStructure() = <{}, {}, (), (), (), (), {}, {}, ()>;
 
 str getModuleName(loc mloc, map[loc,str] moduleStrs, PathConfig pcfg){
     return moduleStrs[mloc]? ? moduleStrs[mloc] : getModuleName(mloc, pcfg);
@@ -69,15 +70,27 @@ str getModuleName(loc mloc, map[loc,str] moduleStrs, PathConfig pcfg){
 
 // Complete an ModuleStructure by adding a contains relation that adds transitive edges for extend
 ModuleStructure complete(ModuleStructure ms, PathConfig pcfg){
-    //println("complete, paths:");
-    //iprintln(ms.paths);
+    moduleStrs = invertUnique(ms.moduleLocs);
     paths = ms.paths + { <ms.moduleLocs[a], r, ms.moduleLocs[b]> | <str a, PathRole r, str b> <- ms.strPaths, ms.moduleLocs[a]?, ms.moduleLocs[b]? };
     extendPlus = {<from, to> | <from, extendPath(), to> <- paths}+;
+  
     paths += { <from, extendPath(), to> | <from, to> <- extendPlus };
+    
+    pathsPlus = {<from, to> | <from, r, to> <- paths}+;
+    
+    cyclic = {mloc1, mloc2 | <mloc1, mloc2> <- pathsPlus, mloc1 != mloc2,
+                             <mloc1, importPath(), mloc2> in paths && <mloc2, extendPath(), mloc1> in paths
+                             || <mloc1, extendPath(), mloc2> in paths && <mloc2, importPath(), mloc1> in paths };
+    for(mloc <- cyclic){
+        mname = getModuleName(mloc, moduleStrs, pcfg);
+        set[str] cycle = { getModuleName(mloc2, moduleStrs, pcfg) |  <mloc1, mloc2> <- pathsPlus, mloc1 == mloc } +
+                         { getModuleName(mloc1, moduleStrs, pcfg) |  <mloc1, mloc2> <- pathsPlus, mloc2 == mloc };
+        ms.messages[mname] =  (ms.messages[mname] ? []) + error("Mixed import/extend cycle not allowed: {<intercalate(", ", toList(cycle))>}", mloc);
+    }
+    
     paths += { <c, importPath(), a> | < c, importPath(), b> <- paths,  <b , extendPath(), a> <- paths};
     ms.paths = paths;
-    moduleStrs = invertUnique(ms.moduleLocs);
-    //ms.strPaths = { < moduleStrs[from], r, moduleStrs[to] > | <loc from, PathRole r, loc to> <- paths, moduleStrs[from]?, moduleStrs[to]?};  
+   
     ms.strPaths = { < getModuleName(from, moduleStrs, pcfg), r, getModuleName(to, moduleStrs, pcfg) > | <loc from, PathRole r, loc to> <- paths};  
     return ms;
 }
@@ -228,7 +241,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
         m1.moduleLocs = (qualifiedModuleName : mscope);
         
         m1.facts = (key : tm.facts[key] | key <- tm.facts, any(fms <- filteredModuleScopes, containedIn(key, fms)));
-        if(tm.config.logImports) println("facts: <size(tm.facts)>  ==\> <size(m1.facts)>");
+        //if(tm.config.logImports) println("facts: <size(tm.facts)>  ==\> <size(m1.facts)>");
         //println("tm.specializedFacts:"); iprintln(tm.specializedFacts);
         m1.specializedFacts = (key : tm.specializedFacts[key] | key <- tm.specializedFacts, any(fms <- filteredModuleScopes, containedIn(key, fms)));
         //println("m1.specializedFacts:"); iprintln(m1.specializedFacts);
