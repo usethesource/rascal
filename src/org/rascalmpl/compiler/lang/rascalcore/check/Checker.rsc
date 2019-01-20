@@ -256,6 +256,9 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
                         }
                         tm.messages += msgs;
                     }
+                    if(ms.messages[m]?){
+                        tm.messages += ms.messages[m];
+                    }
                     ms.tmodels[m] = saveModule(m, imports, extends, moduleScopes, ms.moduleLastModified, pcfg, tm);
                     //ms.modules = delete(ms.modules, m);
                 }
