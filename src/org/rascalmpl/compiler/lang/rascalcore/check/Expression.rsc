@@ -13,7 +13,7 @@ extend lang::rascalcore::check::Statement;
 import lang::rascalcore::check::ATypeExceptions;
 import lang::rascalcore::check::ATypeInstantiation;
 import lang::rascalcore::check::ATypeUtils;
-import lang::rascalcore::check::TypePalConfig;
+extend lang::rascalcore::check::TypePalConfig;
 
 import lang::rascalcore::grammar::definition::Symbols;
 
@@ -274,6 +274,10 @@ str closureName(Expression closure){
 }
 
 void collect(current: (Expression) `<Type returnType> <Parameters parameters> { <Statement+ statements> }`, Collector c){
+    //if(!isEmpty(c.getScopeInfo(loopScope())) || inPatternScope(c)){
+    //    c.report(warning(current, "Function closure inside loop or backtracking scope, be aware of interactions with current function context"));
+    //}
+    
     parentScope = c.getScope();
     c.enterLubScope(current);
         scope = c.getScope();
@@ -297,7 +301,11 @@ void collect(current: (Expression) `<Type returnType> <Parameters parameters> { 
 // ---- void closure
 
 void collect(current: (Expression) `<Parameters parameters> { <Statement* statements0> }`, Collector c){
-    parentScope = c.getScope(); 
+    //if(!isEmpty(c.getScopeInfo(loopScope())) || inPatternScope(c)){
+    //    c.report(warning(current, "Function closure inside loop or backtracking scope, be aware of interactions with current function context"));
+    //}
+    
+    parentScope = c.getScope();
     c.enterLubScope(current);
         scope = c.getScope();
         
