@@ -360,12 +360,9 @@ list[KeywordFormal] getKwFormals(Parameters parameters){
         if({KeywordFormal ","}+ keywordFormalList := parameters.keywordFormals.keywordFormalList){
             return [kwf | kwf <- keywordFormalList];
         }
-    } else
-        return [];
-    // TODO: Bug in interpreter? parameters.keywordFormals.keywordFormalList cannot be enumerated probably due to
-    // surrounding condition
-    //return parameters.keywordFormals is \default ? [kwf | kwf <- parameters.keywordFormals.keywordFormalList] : [];
-}
+    }
+    return [];
+ }
 
 set[TypeVar] getTypeVars(Tree t){
     return {tv | /TypeVar tv := t };
@@ -500,10 +497,10 @@ bool returnsViaAllPath(FunctionBody fb, str fname, Collector c)
     = returnsViaAllPath([ statement | statement <- fb.statements ], fname, c);
    
 bool returnsViaAllPath((Statement) `<Label label> <Visit vis>`, str fname,  Collector c)
-    = any(cs <- vis.cases, cs is \default) && all(cs <- vis.cases, returnsViaAllPath(cs, fname, c));
+    = any(Case cs <- vis.cases, cs is \default) && all(Case cs <- vis.cases, returnsViaAllPath(cs, fname, c));
 
 bool returnsViaAllPath((Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`, str fname,  Collector c)
-    = any(cs <- cases, cs is \default) && all(cs <- cases, returnsViaAllPath(cs, fname, c));
+    = any(Case cs <- cases, cs is \default) && all(Case cs <- cases, returnsViaAllPath(cs, fname, c));
 
 bool returnsViaAllPath((Case) `case <PatternWithAction patternWithAction>`, str fname,  Collector c)
     = patternWithAction is arbitrary && returnsViaAllPath([patternWithAction.statement], fname, c);
@@ -513,12 +510,10 @@ bool returnsViaAllPath((Case) `default: <Statement statement>`, str fname,  Coll
 
 bool returnsViaAllPath((Statement) `try <Statement body> <Catch+ handlers>`, str fname,  Collector c)
     =  returnsViaAllPath(body, fname, c) 
-    && returnsViaAllPath(body, fname, c) 
     && all(h <- handlers, returnsViaAllPath(h.body, fname, c));
     
 bool returnsViaAllPath((Statement) `try <Statement body> <Catch+ handlers> finally <Statement finallyBody>`, str fname,  Collector c)
     =  returnsViaAllPath(body, fname, c) 
-    && returnsViaAllPath(body, fname, c) 
     && all(h <- handlers, returnsViaAllPath(h.body, fname, c))
     && returnsViaAllPath(finallyBody, fname, c);
     
