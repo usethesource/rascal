@@ -83,8 +83,8 @@ ModuleStructure complete(ModuleStructure ms, PathConfig pcfg){
                              || <mloc1, extendPath(), mloc2> in paths && <mloc2, importPath(), mloc1> in paths };
     for(mloc <- cyclic){
         mname = getModuleName(mloc, moduleStrs, pcfg);
-        set[str] cycle = { getModuleName(mloc2, moduleStrs, pcfg) |  <mloc1, mloc2> <- pathsPlus, mloc1 == mloc } +
-                         { getModuleName(mloc1, moduleStrs, pcfg) |  <mloc1, mloc2> <- pathsPlus, mloc2 == mloc };
+        set[str] cycle = { getModuleName(mloc2, moduleStrs, pcfg) |  <mloc1, mloc2> <- pathsPlus, mloc1 == mloc, mloc2 in cyclic } +
+                         { getModuleName(mloc1, moduleStrs, pcfg) |  <mloc1, mloc2> <- pathsPlus, mloc2 == mloc , mloc1 in cyclic };
         ms.messages[mname] =  (ms.messages[mname] ? []) + error("Mixed import/extend cycle not allowed: {<intercalate(", ", toList(cycle))>}", mloc);
     }
     
