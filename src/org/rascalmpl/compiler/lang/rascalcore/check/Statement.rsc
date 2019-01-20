@@ -761,6 +761,7 @@ AType computeSubscriptAssignableType(Statement current, AType receiverType, Expr
     } else {
         s.report(error(current, "Cannot assign value of type %t to assignable of type %t", rhs, receiverType));
     }
+    return avalue();
 }
 
 void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, str operator, Statement rhs, Collector c){
@@ -828,7 +829,8 @@ AType computeSliceAssignableType(Statement current, AType receiverType, AType fi
     } else if (isNodeType(receiverType)) {
         return makeListType(avalue());
     }
-        s.report(error(current, "Cannot assign value of type %t to assignable of type %t", rhs, receiverType));
+    s.report(error(current, "Cannot assign value of type %t to assignable of type %t", rhs, receiverType));
+    return avalue();
 }
 
 void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> . <Name field>`, str operator, Statement rhs, Collector c){
@@ -995,6 +997,7 @@ AType computeAnnoAssignableType(Statement current, AType receiverType, Name anno
             s.report(error(current, "Invalid annotation type: %t", annoNameType));
     } else
         s.report(error(current, "Invalid type: expected node, ADT, or concrete syntax types, found %t", receiverType));
+    return avalue();
 }
 
 

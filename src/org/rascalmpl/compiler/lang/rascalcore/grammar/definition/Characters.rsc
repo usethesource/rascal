@@ -23,7 +23,7 @@ import IO;
 
 data ACharRange = \empty-range();
 
-ACharRange \new-range(int from, int to) = from <= to ? range(from, to) : \empty-range();
+ACharRange \new-range(int from, int to) = from <= to ? ACharRange::range(from, to) : \empty-range();
  
 public AType \new-char-class(list[ACharRange] ranges) 
   = \char-class(([] | union(it, [r]) | r <- ranges));

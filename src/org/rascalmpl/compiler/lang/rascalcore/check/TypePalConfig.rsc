@@ -4,7 +4,6 @@ module lang::rascalcore::check::TypePalConfig
 //extend analysis::typepal::TypePal;
 
 import lang::rascalcore::check::AType;
-//extend lang::rascalcore::check::Checker;
 import lang::rascalcore::check::Expression;
 
 import lang::rascalcore::check::ATypeUtils;

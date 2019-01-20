@@ -49,7 +49,7 @@ extend lang::rascalcore::check::Pattern;
 extend lang::rascalcore::check::Statement;
 
 extend lang::rascalcore::check::ATypeUtils;
-extend lang::rascalcore::check::TypePalConfig;
+import lang::rascalcore::check::TypePalConfig;
 
 import lang::rascalcore::grammar::ParserGenerator;
 import lang::rascalcore::grammar::definition::Symbols;
