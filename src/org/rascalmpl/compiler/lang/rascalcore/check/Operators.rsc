@@ -214,17 +214,28 @@ void collect(current: (Expression) `<Expression arg> *`, Collector c){
 
 // ---- isDefined
 
-bool isValidIsDefinedArg(Expression arg) // TODO maybe add call?
-    =   arg is subscript 
+// syntactic check on argument
+bool isValidIsDefinedArg(Expression arg)
+    =  arg is subscript 
     || arg is fieldAccess 
     || arg is fieldProject 
     || arg is getAnnotation
     || arg is callOrTree
+    || arg is qualifiedName
     || (arg is \bracket && isValidIsDefinedArg(arg.expression));
 
 void checkIsDefinedArg(Expression arg, Collector c){
-    if(!isValidIsDefinedArg(arg)){
-        c.report(error(arg, "Only subscript, field access, field project or get annotation allowed"));
+    if(arg is qualifiedName){
+        scope = c.getScope();
+        c.require("is defined on keyword parameter", arg, [],
+            void(Solver s){
+                if(isEmpty(s.getDefinitions("<arg>", scope, {keywordFormalId()}))){
+                    s.report(error(arg,"Is defined operator `?` can only be applied to a keyword parameter"));
+                }
+            });
+    
+    } else if(!isValidIsDefinedArg(arg)){
+        c.report(error(arg, "Is defined operator `?` can only be applied to subscript, keyword parameter, field access, field project or get annotation"));
     }
 }
 
@@ -243,8 +254,9 @@ void collect(current: (Expression) `! <Expression arg>`, Collector c){
 }
 
 AType computeNegation(Tree current, AType t1, Solver s){    
-    if(isBoolType(t1)) return abool();
-    s.report(error(current, "Negation not defined on %t", t1));
+    if(!isBoolType(t1)){
+        s.report(error(current, "Negation not defined on %t", t1));
+    }
     return abool();
 }
 
@@ -257,8 +269,9 @@ void collect(current: (Expression) `- <Expression arg>`, Collector c){
 }
 
 AType computeNegative(Tree current, AType t1, Solver s){    
-    if(isNumericType(t1)) return t1;
-    s.report(error(current, "Negative not defined on %t", t1));
+    if(!isNumericType(t1)){
+        s.report(error(current, "Negative not defined on %t", t1));
+    }
     return t1;
 }
 // ---- splice
