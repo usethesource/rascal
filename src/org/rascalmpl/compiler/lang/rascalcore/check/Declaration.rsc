@@ -217,10 +217,6 @@ void collect(current: (KeywordFormal) `<Type kwType> <Name name> = <Expression e
 
 data ReturnInfo = returnInfo(Type returnType);
 
-//void collect(Statement current: (Declaration) `<FunctionDeclaration functionDeclaration>`, Collector c){
-//    collect(functionDeclaration, c);
-//}
-
 void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collector c){
 //println("********** function declaration: <decl.signature.name>");
     signature = decl.signature;
@@ -509,12 +505,8 @@ bool returnsViaAllPath((Statement) `<Label label> <Visit vis>`, str fname,  Coll
 bool returnsViaAllPath((Statement) `<Label label> switch ( <Expression expression> ) { <Case+ cases> }`, str fname,  Collector c)
     = any(cs <- cases, cs is \default) && all(cs <- cases, returnsViaAllPath(cs, fname, c));
 
-bool returnsViaAllPath((Case) `case <PatternWithAction patternWithAction>`, str fname,  Collector c){
-    if(patternWithAction is arbitrary){
-        return returnsViaAllPath([patternWithAction.statement], fname, c);
-    }
-    return true;
-}
+bool returnsViaAllPath((Case) `case <PatternWithAction patternWithAction>`, str fname,  Collector c)
+    = patternWithAction is arbitrary && returnsViaAllPath([patternWithAction.statement], fname, c);
 
 bool returnsViaAllPath((Case) `default: <Statement statement>`, str fname,  Collector c)
     = returnsViaAllPath(statement, fname, c);
