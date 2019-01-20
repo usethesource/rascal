@@ -20,10 +20,6 @@ module lang::rascalcore::check::Checker
  * - Support for reified types
  *
  * Potential additions/improvements
- * - Pattern variables that depend on earlier defined value.
- * - Non-void functions have a return along every control path
- * - Unreachable code
- * - Warn for closures inside loops
  * - Reduce rechecking by comparing old and new tpl file
  */
  
