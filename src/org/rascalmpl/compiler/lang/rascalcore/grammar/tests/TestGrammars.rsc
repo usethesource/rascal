@@ -1,6 +1,6 @@
 module lang::rascalcore::grammar::tests::TestGrammars
 
-import lang::rascalcore::grammar::definition::Grammar;
+//import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::check::AType;
 
 public AGrammar GEMPTY = grammar({sort("S")}, ());

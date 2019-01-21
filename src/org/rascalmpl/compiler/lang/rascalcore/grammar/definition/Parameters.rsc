@@ -12,7 +12,7 @@
 }
 module lang::rascalcore::grammar::definition::Parameters
 
-import lang::rascalcore::grammar::definition::Grammar;
+//import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 import List;

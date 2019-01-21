@@ -4,20 +4,18 @@ module lang::rascalcore::check::Pattern
 //extend analysis::typepal::TypePal;
 
 extend lang::rascalcore::check::AType;
+extend lang::rascalcore::check::ATypeUtils;
+extend lang::rascalcore::check::ATypeExceptions;
 extend lang::rascalcore::check::ConvertType;
 extend lang::rascalcore::check::Expression;
+extend lang::rascalcore::check::TypePalConfig;
 
 import analysis::typepal::FailMessage;
-
-import lang::rascalcore::check::ATypeUtils;
-import lang::rascalcore::check::ATypeExceptions;
-import lang::rascalcore::check::TypePalConfig;
-
 import lang::rascal::\syntax::Rascal;
 
-import String;
-import Set;
 import IO;
+import Set;
+import String;
 
 public str patternContainer = "patternContainer";
 public str patternNames     = "patternNames";

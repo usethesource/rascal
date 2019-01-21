@@ -1,17 +1,19 @@
 @bootstrapParser
 module lang::rascalcore::check::Summary
 
-import util::Reflective;
-import IO;
-import ValueIO;
-import String;
-import Relation;
-
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::TypePalConfig;
 
 extend analysis::typepal::TypePal;
+
+import util::Reflective;
+
+import IO;
+import Relation;
+import String;
+import ValueIO;
+
 
 @doc{
 .Synopsis

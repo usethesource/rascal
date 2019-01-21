@@ -13,15 +13,13 @@
 @bootstrapParser
 module lang::rascalcore::check::ATypeInstantiation
  
+extend lang::rascalcore::check::AType;
+extend lang::rascalcore::check::ATypeUtils;
+extend lang::rascalcore::check::ATypeExceptions;
+
 import Set;
 import IO;
 import Node;
-//extend analysis::typepal::TypePal;
-import lang::rascalcore::check::ATypeExceptions;
- 
-import lang::rascalcore::check::AType;
-import lang::rascalcore::check::ATypeUtils;
-//extend analysis::typepal::Collector;
 
 public alias Bindings = map[str varName, AType varType];
 

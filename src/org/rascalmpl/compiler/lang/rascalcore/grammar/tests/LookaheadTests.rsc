@@ -1,6 +1,6 @@
 module lang::rascalcore::grammar::tests::LookaheadTests
 
-import lang::rascalcore::grammar::definition::Grammar;
+//import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::grammar::definition::Regular;
 import lang::rascalcore::grammar::definition::Characters;
 import lang::rascalcore::grammar::definition::Productions;

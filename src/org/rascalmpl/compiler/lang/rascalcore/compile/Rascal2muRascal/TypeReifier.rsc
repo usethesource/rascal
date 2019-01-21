@@ -16,7 +16,7 @@ import lang::rascalcore::check::Checker;
 
 import lang::rascalcore::compile::Rascal2muRascal::TypeUtils;
 
-import lang::rascal::grammar::definition::ATypes;
+import lang::rascalcore::grammar::definition::Symbols;
 
 import ParseTree;
 import List;
@@ -158,12 +158,12 @@ private map[AType,Production] getGrammar1() {
 
 public map[AType,AProduction] getDefinitions() {
     return (); // TODO
-   	// Collect all symbols
-   	set[AType] symbols = types + domain(constructors) + carrier(productions) + domain(grammar);
-   	
-   	map[AType,Production] definitions  = (() | reify(symbol, it) | AType symbol <- symbols);
- 	
- 	return definitions;
+  // 	// Collect all symbols
+  // 	set[AType] symbols = types + domain(constructors) + carrier(productions) + domain(grammar);
+  // 	
+  // 	map[AType,Production] definitions  = (() | reify(symbol, it) | AType symbol <- symbols);
+ 	//
+ 	//return definitions;
 }
 
 public Production getLabeledProduction(str name, AType symbol){
@@ -321,53 +321,53 @@ public tuple[set[AType], set[Production]] getReachableTypes(AType subjectType, s
 
 private  tuple[set[AType], set[Production]] getReachableAbstractTypes(AType subjectType, set[str] consNames, set[AType] patternTypes){
     return <{}, {}>; // TODO
-    desiredPatternTypes = { s | /AType s := patternTypes};
-	desiredSubjectTypes = { s | /AType s := subjectType};
-	desiredTypes = desiredSubjectTypes + desiredPatternTypes;
-	
-	if(any(sym <- desiredTypes, sort(_) := sym || lex(_) := sym || subtype(sym, adt("Tree",[])))){
-		// We just give up when abstract and concrete symbols occur together
-		//println("descend_into (abstract) [1]: {value()}");
-	   return <{\value()}, {}>;
-	}
-	//println("desiredSubjectTypes = <desiredSubjectTypes>");
-	//println("desiredTypes = <desiredTypes>");
-	prunedReachableTypes = reachableTypes ;
-	if(\value() notin desiredSubjectTypes){
-	    // if specific subject types are given, the reachability relation can be further pruned
-		prunedReachableTypes = carrierR(reachableTypes,reachableTypes[desiredSubjectTypes]);
-		//println("removed from reachableTypes:[<size(reachableTypes - prunedReachableTypes)>]"); //for(x <- reachableTypes - prunedReachableTypes){println("\t<x>");}
-	}
-	
-	//println("prunedReachableTypes: [<size(prunedReachableTypes)>]"); //for(x <- prunedReachableTypes){println("\t<x>");}
-	descend_into = desiredTypes;
-	
-	// TODO <AType from ,AType to> <- ... makes the stack validator unhappy.
-	for(<AType from, AType to> <- prunedReachableTypes){
-		if(to in desiredTypes){		// TODO || here was the cause 
-			descend_into += {from, to};
-		} else if(any(AType t <- desiredTypes, subtype(t, to))){
-			descend_into += {from, to};
-		} else if(c:acons(AType \adtsym, list[AType] parameters) := from  && // TODO: check
-	                        (\adtsym in patternTypes || name in consNames)){
-	              descend_into += {from, to};   
-		} else if(c:acons(AType \adtsym, str name, list[AType] parameters) := to  && 
-	                        (\adtsym in patternTypes || name in consNames)){
-	              descend_into += {from, to};        
-	    }
-	    ;
-	}
-	
-	//if(\value() in descend_into){
-	//    println("replace by value, descend_into [<size(descend_into)>]:"); for(elm <- descend_into){println("\t<elm>");};
-	//	descend_into = {\value()};
+ //   desiredPatternTypes = { s | /AType s := patternTypes};
+	//desiredSubjectTypes = { s | /AType s := subjectType};
+	//desiredTypes = desiredSubjectTypes + desiredPatternTypes;
+	//
+	//if(any(sym <- desiredTypes, sort(_) := sym || lex(_) := sym || subtype(sym, adt("Tree",[])))){
+	//	// We just give up when abstract and concrete symbols occur together
+	//	//println("descend_into (abstract) [1]: {value()}");
+	//   return <{\value()}, {}>;
 	//}
-	tuples = { atuple(atypeList(symbols)) | sym <- descend_into, \rel(symbols) := sym || \lrel(symbols) := sym };
-	descend_into += tuples;
-	descend_into = {sym | sym <- descend_into, label(_,_) !:= sym };
-	//println("descend_into (abstract) [<size(descend_into)>]:"); //for(elm <- descend_into){println("\t<elm>");};
-	
-	return <descend_into, {}>;
+	////println("desiredSubjectTypes = <desiredSubjectTypes>");
+	////println("desiredTypes = <desiredTypes>");
+	//prunedReachableTypes = reachableTypes ;
+	//if(\value() notin desiredSubjectTypes){
+	//    // if specific subject types are given, the reachability relation can be further pruned
+	//	prunedReachableTypes = carrierR(reachableTypes,reachableTypes[desiredSubjectTypes]);
+	//	//println("removed from reachableTypes:[<size(reachableTypes - prunedReachableTypes)>]"); //for(x <- reachableTypes - prunedReachableTypes){println("\t<x>");}
+	//}
+	//
+	////println("prunedReachableTypes: [<size(prunedReachableTypes)>]"); //for(x <- prunedReachableTypes){println("\t<x>");}
+	//descend_into = desiredTypes;
+	//
+	//// TODO <AType from ,AType to> <- ... makes the stack validator unhappy.
+	//for(<AType from, AType to> <- prunedReachableTypes){
+	//	if(to in desiredTypes){		// TODO || here was the cause 
+	//		descend_into += {from, to};
+	//	} else if(any(AType t <- desiredTypes, subtype(t, to))){
+	//		descend_into += {from, to};
+	//	} else if(c:acons(AType \adtsym, list[AType] parameters) := from  && // TODO: check
+	//                        (\adtsym in patternTypes || name in consNames)){
+	//              descend_into += {from, to};   
+	//	} else if(c:acons(AType \adtsym, str name, list[AType] parameters) := to  && 
+	//                        (\adtsym in patternTypes || name in consNames)){
+	//              descend_into += {from, to};        
+	//    }
+	//    ;
+	//}
+	//
+	////if(\value() in descend_into){
+	////    println("replace by value, descend_into [<size(descend_into)>]:"); for(elm <- descend_into){println("\t<elm>");};
+	////	descend_into = {\value()};
+	////}
+	//tuples = { atuple(atypeList(symbols)) | sym <- descend_into, \rel(symbols) := sym || \lrel(symbols) := sym };
+	//descend_into += tuples;
+	//descend_into = {sym | sym <- descend_into, label(_,_) !:= sym };
+	////println("descend_into (abstract) [<size(descend_into)>]:"); //for(elm <- descend_into){println("\t<elm>");};
+	//
+	//return <descend_into, {}>;
 }
 
 // Extract the reachable concrete types

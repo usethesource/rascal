@@ -20,7 +20,7 @@ import lang::rascalcore::grammar::definition::Characters;
 import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascalcore::grammar::definition::Attributes;
 import lang::rascalcore::grammar::definition::Names;
-extend lang::rascalcore::grammar::definition::Grammar;
+//extend lang::rascalcore::grammar::definition::Grammar;
 import List; 
 import Set;
 import String;      

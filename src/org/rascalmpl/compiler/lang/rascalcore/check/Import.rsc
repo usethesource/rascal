@@ -2,27 +2,25 @@
 module lang::rascalcore::check::Import
 
 
-extend analysis::typepal::TypePal;
-
 extend lang::rascalcore::check::AType;
+extend lang::rascalcore::check::ATypeUtils;
+extend lang::rascalcore::check::ATypeInstantiation;
 extend lang::rascalcore::check::Checker;
+extend lang::rascalcore::check::TypePalConfig;
 
-import lang::rascalcore::check::ATypeUtils;
-import lang::rascalcore::check::ATypeInstantiation;
-import lang::rascalcore::check::TypePalConfig;
+import lang::rascal::\syntax::Rascal;
+//extend lang::rascalcore::grammar::definition::Grammar;
 
-import ValueIO;
+import Exception;
 import IO;
 import List;
 import Map;
 import Set;
-import Exception;
 import String;
-import util::Reflective;
-import analysis::graphs::Graph;
+import ValueIO;
 
-import lang::rascal::\syntax::Rascal;
-import lang::rascalcore::grammar::definition::Grammar;
+import analysis::graphs::Graph;
+import util::Reflective;
 
 public str key_bom = "bill_of_materials";
 public str key_current_module = "current_module";

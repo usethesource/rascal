@@ -126,6 +126,7 @@ private  MuExp add(Expression e){
 }
 
 private MuExp translateAddFunction(Expression e){
+    return muBlock([]); // TODO
 //  //println("translateAddFunction: <e>");
 //  lhsType = getType(e.lhs);
 //  rhsType = getType(e.rhs);
@@ -493,6 +494,7 @@ MuExp translate(e:(Expression) `<Concrete concrete>`) {
 
 
 public Tree parseConcrete(e: appl(Production cprod, list[Tree] cargs)){
+    return cargs[0]; // TODO
 	//fragType = getType(e);
  //   //println("translateConcrete, fragType = <fragType>");
  //   reifiedFragType = symbolToValue(fragType);
@@ -520,6 +522,7 @@ public MuExp translateConcrete(e: appl(Production cprod, list[Tree] cargs)){
 private default MuExp translateConcrete(lang::rascal::\syntax::Rascal::Concrete c) = muCon(c);
 
 private MuExp translateConcreteParsed(Tree e, loc src){
+    return muBlock([]); // TODO
    //if(t:appl(Production prod, list[Tree] args) := e){
    //    my_src = e@\loc ? src;
    //    //iprintln("translateConcreteParsed:"); iprintln(e);
@@ -781,6 +784,7 @@ private MuExp translateReducer(Expression e){ //Expression init, Expression resu
 // -- reified type expression ---------------------------------------
 //TODO
 MuExp translate (e:(Expression) `type ( <Expression symbol> , <Expression definitions >)`) {
+    return muBlock([]); // TODO
 	//
  //   return muCallPrim3("reifiedType_create", [translate(symbol), translate(definitions)], e@\loc);
  //   

@@ -1,23 +1,20 @@
 @bootstrapParser
 module lang::rascalcore::check::Operators
-
-extend analysis::typepal::TypePal;
  
 extend lang::rascalcore::check::AType;
-
+extend lang::rascalcore::check::ATypeExceptions;
+extend lang::rascalcore::check::ATypeInstantiation;
+extend lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::ConvertType;
 extend lang::rascalcore::check::Expression;
 extend lang::rascalcore::check::Pattern;
 extend lang::rascalcore::check::Statement;
-
-import lang::rascalcore::check::ATypeExceptions;
-import lang::rascalcore::check::ATypeInstantiation;
-import lang::rascalcore::check::ATypeUtils;
-import lang::rascalcore::check::TypePalConfig;
+extend lang::rascalcore::check::TypePalConfig;
 
 import lang::rascal::\syntax::Rascal;
-import Set;
+
 import Node;
+import Set;
 
 AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, AType t1, Solver s){
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){

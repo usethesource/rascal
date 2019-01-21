@@ -2,7 +2,7 @@
 module lang::rascalcore::compile::Rascal2muRascal::TypeUtils
 
 import IO;
-import ValueIO;
+//import ValueIO;
 import Set;
 import Map;
 import Node;
@@ -12,8 +12,8 @@ import String;
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::muRascal::AST;
 
-import lang::rascalcore::grammar::definition::Grammar;
-import lang::rascal::grammar::definition::Symbols;
+//import lang::rascalcore::grammar::definition::Grammar;
+//import lang::rascal::grammar::definition::Symbols;
 
 //extend lang::rascalcore::check::Checker;
 extend lang::rascalcore::check::TypePalConfig;
@@ -22,7 +22,7 @@ import Type;
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 
-import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
+//import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
 
 /*
  * This module provides a bridge to the "TModel" delivered by the type checker
@@ -599,6 +599,7 @@ private AType getType0(loc l) {
     if(facts[l]?){
     	return facts[l];
     }
+    throw "getType0 cannot find type for <l>";
 }	
 AType getType(loc l) {
     tp = getType0(l);
@@ -701,6 +702,7 @@ iprintln(definitions);
   cdef = definitions[container];
   if(cdef.idRole == functionId()) return <convert2fuid(container), getPositionInScope(name, l)>;
   if(cdef.idRole == moduleId()) return <cdef.id, getPositionInScope(name, l)>;
+  throw "getVariableScope fails for <name>, <l>";
 }
 
 int getPositionInScope(str name, loc l){
@@ -877,6 +879,7 @@ MuExp mkAssign(str name, loc l, MuExp exp) {
         return l == def.defined ? muVarInit(muVar(name, getScope(uid), getPositionInScope(name, uid), getType(l)), exp)
                                 : muAssign(muVar(name, getScope(uid), getPositionInScope(name, uid), getType(l)), exp);
     }
+    throw "mkAssign fails for <name>, <l>, <exp>";
 }
 
 // TODO: the following functions belong in ParseTree, but that gives "No definition for \"ParseTree/size(list(parameter(\\\"T\\\",value()));)#0\" in functionMap")

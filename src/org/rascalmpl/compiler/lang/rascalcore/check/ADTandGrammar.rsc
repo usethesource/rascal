@@ -3,22 +3,18 @@ module lang::rascalcore::check::ADTandGrammar
    
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeUtils;
+extend lang::rascalcore::check::TypePalConfig;
 
-import lang::rascalcore::grammar::definition::Grammar;
+//extend lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::grammar::definition::Layout;
-//import lang::rascalcore::grammar::definition::Productions;
 import lang::rascalcore::grammar::definition::Keywords;
   
-extend analysis::typepal::TypePal;
-import lang::rascalcore::check::TypePalConfig;
-
 import lang::rascal::\syntax::Rascal;
-import Node;
-
-import IO;
-import Set;
-import Map;
 import Exception;
+import IO;
+import Map;
+import Node;
+import Set;
 
 set[AType] addADTs(Solver s){
     facts = s.getFacts();

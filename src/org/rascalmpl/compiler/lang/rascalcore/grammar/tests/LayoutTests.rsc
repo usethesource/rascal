@@ -1,6 +1,6 @@
 module lang::rascalcore::grammar::tests::LayoutTests
 
-import lang::rascalcore::grammar::definition::Grammar;
+//import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::grammar::definition::Layout;
 
 import lang::rascalcore::grammar::tests::TestGrammars;

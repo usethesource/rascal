@@ -1,9 +1,10 @@
 @bootstrapParser
 module lang::rascalcore::check::ATypeExceptions
 
+//extend lang::rascalcore::check::AType;
+
 import Exception;
 import Message;
-import lang::rascalcore::check::AType;
 
 data RuntimeException
     = invalidMatch(str reason)

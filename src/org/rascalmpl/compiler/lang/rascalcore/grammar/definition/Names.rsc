@@ -8,7 +8,7 @@
 module lang::rascalcore::grammar::definition::Names
 
 import lang::rascalcore::check::AType;
-import lang::rascalcore::grammar::definition::Grammar;
+//import lang::rascalcore::grammar::definition::Grammar;
 
 
 public str unescape(str name) {

@@ -12,24 +12,22 @@
 @bootstrapParser
 module lang::rascalcore::check::ATypeUtils
 
-import List;
-import Set;
-import String;
-import Node;
-import IO;
+extend lang::rascalcore::check::AType;
+extend lang::rascalcore::check::ATypeExceptions;
+extend lang::rascalcore::check::ATypeInstantiation;
+extend lang::rascalcore::check::TypePalConfig;
+
 extend ParseTree;
 
-//extend analysis::typepal::TypePal;
-extend lang::rascalcore::check::AType;
 import analysis::typepal::Messenger;
-
-import lang::rascalcore::check::ATypeInstantiation;
-
-import lang::rascalcore::check::TypePalConfig;
-import lang::rascalcore::check::ATypeExceptions;
-
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::format::Escape;
+
+import IO;
+import List;
+import Node;
+import Set;
+import String;
 
 str unescape(str s) = replaceAll(s, "\\", "");
 

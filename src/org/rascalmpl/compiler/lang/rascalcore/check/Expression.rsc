@@ -4,28 +4,25 @@ module lang::rascalcore::check::Expression
 extend analysis::typepal::TypePal;
 
 extend lang::rascalcore::check::AType;
+extend lang::rascalcore::check::ATypeExceptions;
+extend lang::rascalcore::check::ATypeInstantiation;
+extend lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::ConvertType;
 extend lang::rascalcore::check::Declaration;
 extend lang::rascalcore::check::Operators;
 extend lang::rascalcore::check::Pattern;
 extend lang::rascalcore::check::Statement;
-
-import lang::rascalcore::check::ATypeExceptions;
-import lang::rascalcore::check::ATypeInstantiation;
-import lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::TypePalConfig;
 
 import lang::rascalcore::grammar::definition::Symbols;
-
 import lang::rascal::\syntax::Rascal;
-import String;
-//import ListRelation;
-import Set;
+
+import IO;
 import Map;
 import Node;
+import Set;
+import String;
 import ValueIO;
-import IO;
-//import Exception;
 
 // ---- Rascal literals
 

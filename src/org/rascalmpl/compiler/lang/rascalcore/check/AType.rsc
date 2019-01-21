@@ -1,16 +1,18 @@
 @bootstrapParser
 module lang::rascalcore::check::AType
 
-import Node;
-import List;
-import Set;
-import Relation;
-import String;
 extend analysis::typepal::AType;
 extend lang::rascalcore::check::ATypeUtils;
+
 import lang::rascal::\syntax::Rascal;
-import lang::rascalcore::check::ATypeExceptions;
+extend lang::rascalcore::check::ATypeExceptions;
 import lang::rascalcore::grammar::definition::Characters;
+
+import List;
+import Node;
+import Relation;
+import Set;
+import String;
 
 alias Keyword     = tuple[AType fieldType, Expression defaultExp];
 
@@ -326,7 +328,71 @@ data ACondition
 
 // ---- end ParseTree
 
-public set[AType] numericTypes = { aint(), areal(), arat(), anum() };
+// ---- Grammar 
+
+
+@doc{
+.Synopsis
+The Grammar datatype
+
+.Description
+Grammar is the internal representation (AST) of syntax definitions used in Rascal.
+A grammar is a set of productions and set of start symbols. The productions are 
+stored in a map for efficient access.
+}
+data AGrammar 
+  = \grammar(set[AType] starts, map[AType sort, AProduction def] rules)
+  ;
+ 
+public AGrammar grammar(set[AType] starts, set[AProduction] prods) {
+  rules = ();
+
+  for (p <- prods) {
+    t = (p.def is label) ? p.def.symbol : p.def;
+    rules[t] = t in rules ? choice(t, {p, *rules[t]}) : choice(t, {p});
+  } 
+  return grammar(starts, rules);
+} 
+           
+AGrammar grammar(type[&T <: Tree] sym)
+    = grammar({sym.symbol}, sym.definitions);
+
+  
+@doc{
+.Synopsis
+An item is an index into the symbol list of a production rule.
+}  
+data Item = item(AProduction production, int index);
+
+@doc{
+.Synopsis
+Compose two grammars.
+
+.Description
+Compose two grammars by adding the rules of g2 to the rules of g1.
+The start symbols of g1 will be the start symbols of the resulting grammar.
+}
+public AGrammar compose(AGrammar g1, AGrammar g2) {
+  for (s <- g2.rules)
+    if (g1.rules[s]?)
+      g1.rules[s] = choice(s, {g1.rules[s], g2.rules[s]});
+    else
+      g1.rules[s] = g2.rules[s];
+  g1.starts += g2.starts;
+
+  reduced_rules = ();
+  for(s <- g1.rules){
+      c = g1.rules[s];
+      c.alternatives -= { *choices | priority(_, choices) <- c.alternatives } +
+                        { *alts | associativity(_, _, alts) <- c.alternatives};
+      reduced_rules[s] = c;
+  }
+  
+  return grammar(g1.starts, reduced_rules);
+}    
+
+
+//public set[AType] numericTypes = { aint(), areal(), arat(), anum() };
 
 public bool comparableOrNum(AType l, AType r) {
     leftAsNum = visit(l) {
