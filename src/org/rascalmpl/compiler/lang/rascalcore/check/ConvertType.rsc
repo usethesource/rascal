@@ -11,26 +11,23 @@
 @bootstrapParser
 module lang::rascalcore::check::ConvertType
 
-import Set;
-import List;
-import String;
-import IO;
-import Node;
-import Map;
-
-extend analysis::typepal::TypePal;
-
 extend lang::rascalcore::check::AType;
-
-import lang::rascalcore::check::ATypeExceptions;
-import lang::rascalcore::check::ATypeUtils;
-import lang::rascalcore::check::ATypeInstantiation;
-import lang::rascalcore::check::TypePalConfig;
+extend lang::rascalcore::check::ATypeExceptions;
+extend lang::rascalcore::check::ATypeUtils;
+extend lang::rascalcore::check::ATypeInstantiation;
+extend lang::rascalcore::check::TypePalConfig;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascalcore::grammar::definition::Characters;
 import lang::rascalcore::grammar::definition::Literals;
+
+import IO;
+import List;
+import Map;
+import Node;
+import Set;
+import String;
 
 public str currentAdt = "currentAdt";       // used to mark data declarations
 public str inAlternative = "inAlternative"; // used to mark top-level alternative in syntax declaration

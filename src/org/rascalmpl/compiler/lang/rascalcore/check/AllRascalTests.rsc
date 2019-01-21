@@ -383,10 +383,10 @@ bool blacklisted(str qualifiedModuleName){
 
 bool whitelisted(str qualifiedModuleName){
     return true;
-    for(s <- {"demo"}){
-       if(contains(qualifiedModuleName, s)) return true;
-    }
-    return false;
+    //for(s <- {"demo"}){
+    //   if(contains(qualifiedModuleName, s)) return true;
+    //}
+    //return false;
 }
 
 list[Message] filterErrors(list[Message] msgs){

@@ -7,7 +7,7 @@ import ParseTree;
 import IO;
 
 import lang::rascalcore::check::AType;
-import lang::rascalcore::grammar::definition::Grammar;
+//import lang::rascalcore::grammar::definition::Grammar;
 
 /*
  * Abstract syntax for muRascal.

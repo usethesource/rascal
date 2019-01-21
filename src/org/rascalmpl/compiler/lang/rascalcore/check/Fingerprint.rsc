@@ -1,10 +1,12 @@
 @bootstrapParser
 module lang::rascalcore::check::Fingerprint
 
-extend analysis::typepal::TypePal;
+//extend analysis::typepal::TypePal;
+
+extend lang::rascalcore::check::ATypeUtils;
 
 import lang::rascal::\syntax::Rascal;
-extend  lang::rascalcore::check::ATypeUtils;
+
 import util::Reflective;
 import ValueIO;
 

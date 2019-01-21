@@ -8,7 +8,7 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 module lang::rascalcore::grammar::definition::Layout
 
-import lang::rascalcore::grammar::definition::Grammar;
+//import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
 import IO;

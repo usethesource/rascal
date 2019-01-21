@@ -17,7 +17,7 @@ module lang::rascalcore::grammar::definition::Characters
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::AType;
 import String;
-import lang::rascalcore::grammar::definition::Grammar;
+//import lang::rascalcore::grammar::definition::Grammar;
 import List;
 import IO;
 

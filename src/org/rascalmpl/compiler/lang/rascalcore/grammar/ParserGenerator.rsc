@@ -10,7 +10,10 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module lang::rascalcore::grammar::ParserGenerator
 
-import lang::rascalcore::grammar::definition::Grammar;
+extend lang::rascalcore::check::AType;
+extend lang::rascalcore::check::ATypeUtils;
+
+//import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::grammar::definition::Parameters;
 import lang::rascalcore::grammar::definition::Regular;
 //import lang::rascalcore::grammar::definition::Productions;
@@ -23,8 +26,7 @@ import lang::rascalcore::grammar::Lookahead;
 import util::Monitor;
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::grammar::ConcreteSyntax;
-import lang::rascalcore::check::AType;
-import lang::rascalcore::check::ATypeUtils;
+
 import String;
 import List;
 import Node;

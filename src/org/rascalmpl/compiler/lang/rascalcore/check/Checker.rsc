@@ -32,8 +32,6 @@ import util::Benchmark;
 import Message;
 
 import lang::rascal::\syntax::Rascal;
-   
-extend analysis::typepal::TypePal;
 
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::Declaration;
@@ -45,13 +43,13 @@ extend lang::rascalcore::check::Pattern;
 extend lang::rascalcore::check::Statement;
 
 extend lang::rascalcore::check::ATypeUtils;
-import lang::rascalcore::check::TypePalConfig;
+extend lang::rascalcore::check::TypePalConfig;
 
-import lang::rascalcore::grammar::ParserGenerator;
+extend lang::rascalcore::grammar::ParserGenerator;
 import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascalcore::grammar::definition::Characters;
 import lang::rascalcore::grammar::definition::Literals;
-import lang::rascalcore::grammar::definition::Grammar;
+//extend lang::rascalcore::grammar::definition::Grammar;
 
 import Set;
 import Relation;

@@ -1,23 +1,21 @@
 @bootstrapParser
 module lang::rascalcore::check::TypePalConfig
  
-//extend analysis::typepal::TypePal;
+extend lang::rascalcore::check::ADTandGrammar;
+extend lang::rascalcore::check::AType;
+extend lang::rascalcore::check::ATypeUtils;
+extend lang::rascalcore::check::Expression;
 
-import lang::rascalcore::check::AType;
-//extend lang::rascalcore::check::Checker;
-import lang::rascalcore::check::Expression;
 
-import lang::rascalcore::check::ATypeUtils;
-
-import lang::rascalcore::check::ADTandGrammar;
-import lang::rascalcore::grammar::ParserGenerator;
-import lang::rascalcore::grammar::definition::Grammar;
+extend lang::rascalcore::grammar::ParserGenerator;
+//extend lang::rascalcore::grammar::definition::Grammar;
 
 import lang::rascal::\syntax::Rascal;
+
 import List;
+import Map;
 import Set;
 import String;
-import Map;
 
 data IdRole
     = moduleId()
@@ -442,8 +440,8 @@ TypePalConfig rascalTypePalConfig(bool classicReifier = false,  bool logImports 
         
         getMinAType                   = AType(){ return avoid(); },
         getMaxAType                   = AType(){ return avalue(); },
-        isSubType                     = lang::rascalcore::check::AType::asubtype,
-        getLub                        = lang::rascalcore::check::AType::alub,
+        isSubType                     = /*lang::rascalcore::check::AType::*/asubtype,
+        getLub                        = /*lang::rascalcore::check::AType::*/alub,
         
         lookup                        = lookupWide,
         isInferrable                  = rascalIsInferrable,

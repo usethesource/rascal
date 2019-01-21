@@ -1,38 +1,32 @@
 @bootstrapParser
 module lang::rascalcore::check::Declaration
-  
-extend analysis::typepal::TypePal;
 
 extend lang::rascalcore::check::AType;
+extend lang::rascalcore::check::ATypeExceptions;
+extend lang::rascalcore::check::ATypeInstantiation;
 extend lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::ConvertType;
 extend lang::rascalcore::check::Expression;
+extend lang::rascalcore::check::Fingerprint;
 extend lang::rascalcore::check::Import;
 extend lang::rascalcore::check::Pattern;
 extend lang::rascalcore::check::Statement;
-
-extend lang::rascalcore::check::Fingerprint;
-
-import lang::rascalcore::check::ATypeExceptions;
-import lang::rascalcore::check::ATypeInstantiation;
-import lang::rascalcore::check::ATypeUtils;
-import lang::rascalcore::check::TypePalConfig;
+extend lang::rascalcore::check::TypePalConfig;
 
 import lang::rascal::\syntax::Rascal;
 
 import lang::rascalcore::grammar::definition::Symbols;
-import lang::rascalcore::grammar::definition::Productions;
 import lang::rascalcore::grammar::definition::Attributes;
 
-import util::Reflective;
-import Node;
-import String;
 import IO;
 import List;
-import Set;
 import Map;
+import Node;
+import Set;
 import String;
+
 import util::Maybe;
+import util::Reflective;
 
 // ---- Utilities -------------------------------------------------------------
 
@@ -330,7 +324,7 @@ void collect(Signature signature, Collector c){
     
     if(signature is withThrows){
          exceptions = [ except | except <- signature.exceptions ];
-         for(except <- exceptions){
+         for(Type except <- exceptions){
             if(except is user){
                 c.use(except, {constructorId()});
             } else {

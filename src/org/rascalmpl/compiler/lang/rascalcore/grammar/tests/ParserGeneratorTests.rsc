@@ -1,17 +1,18 @@
 module lang::rascalcore::grammar::tests::ParserGeneratorTests
  
 import lang::rascalcore::grammar::ParserGenerator;
-import lang::rascalcore::grammar::definition::Grammar;
+//import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::grammar::definition::Parameters;
 import lang::rascalcore::grammar::definition::Literals;
 import IO;
 import String;
 import List;
 import Set;
-import lang::rascalcore::check::AType;
 import util::Reflective;
 
 import lang::rascalcore::grammar::tests::TestGrammars;
+
+data AType;
 
 // -------- Examples and tests -------------------
 

@@ -8,7 +8,9 @@
 module lang::rascalcore::grammar::definition::Priorities
 
 //extend ParseTree;
-import lang::rascalcore::grammar::definition::Grammar;
+//import lang::rascalcore::grammar::definition::Grammar;
+import lang::rascalcore::check::AType;
+
 import Set;
 import List;
 import IO;
@@ -20,6 +22,8 @@ import lang::rascalcore::grammar::definition::Productions;
 import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascalcore::grammar::definition::References;
 import lang::rascalcore::format::Grammar;
+
+
 
 data Associativity = prio();
 

@@ -1,28 +1,25 @@
 @bootstrapParser
 module lang::rascalcore::check::Statement
 
-extend analysis::typepal::TypePal;
+//extend analysis::typepal::TypePal;
 
 extend lang::rascalcore::check::AType;
+extend lang::rascalcore::check::ATypeExceptions;
+extend lang::rascalcore::check::ATypeUtils;
+extend lang::rascalcore::check::ATypeInstantiation;
 extend lang::rascalcore::check::ConvertType;
 extend lang::rascalcore::check::Declaration;
 extend lang::rascalcore::check::Expression;
 extend lang::rascalcore::check::Operators;
 extend lang::rascalcore::check::Pattern;
+extend lang::rascalcore::check::TypePalConfig;
 
 import analysis::typepal::FailMessage;
-
-import lang::rascalcore::check::ATypeExceptions;
-import lang::rascalcore::check::ATypeUtils;
-import lang::rascalcore::check::ATypeInstantiation;
-
 import lang::rascal::\syntax::Rascal;
 
-import lang::rascalcore::check::TypePalConfig;
- 
-import Set;
 import List;
 import Map;
+import Set;
 import String;
 
 // Rascal statements
