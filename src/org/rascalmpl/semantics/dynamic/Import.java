@@ -312,16 +312,16 @@ public abstract class Import {
     }
     catch (SyntaxError e) {
     	heap.removeModule(env);
-        eval.getEvaluator().warning("Could not load " + name, x);
+        eval.getEvaluator().warning("Could not load " + name + " due to: " + e.getMessage(), x);
         throw e;
     }
     catch (StaticError | Throw  e) {
       heap.removeModule(env);
-      eval.getEvaluator().warning("Could not load " + name, x);
+      eval.getEvaluator().warning("Could not load " + name + " due to: " + e.getMessage(), x);
       throw e;
     } catch (Throwable e) {
       heap.removeModule(env);
-      eval.getEvaluator().warning("Could not load " + name, x);
+      eval.getEvaluator().warning("Could not load " + name  + " due to: " + e.getMessage(), x);
       e.printStackTrace();
       throw new ModuleImport(name, e.getMessage(), x);
     } 
