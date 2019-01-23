@@ -1,17 +1,20 @@
 @bootstrapParser
-module lang::rascalcore::check::Declaration
+module lang::rascalcore::check::CollectDeclaration
 
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeExceptions;
 extend lang::rascalcore::check::ATypeInstantiation;
 extend lang::rascalcore::check::ATypeUtils;
-extend lang::rascalcore::check::ConvertType;
-extend lang::rascalcore::check::Expression;
+extend lang::rascalcore::check::CollectType;
 extend lang::rascalcore::check::Fingerprint;
-extend lang::rascalcore::check::Import;
-extend lang::rascalcore::check::Pattern;
-extend lang::rascalcore::check::Statement;
-extend lang::rascalcore::check::TypePalConfig;
+
+import lang::rascalcore::check::BasicRascalConfig;
+
+import lang::rascalcore::check::NameUtils;
+import lang::rascalcore::check::ComputeType;
+import lang::rascalcore::check::ScopeInfo;
+import lang::rascalcore::check::SyntaxGetters;
+import lang::rascalcore::check::CollectVarArgs;
 
 import lang::rascal::\syntax::Rascal;
 
@@ -127,26 +130,6 @@ void collect(current: (Import) `extend <ImportedModule m> ;`, Collector c){
 }
 
 // ---- variable declaration --------------------------------------------------
-
-void(Solver) makeVarInitRequirement(Variable var)
-    = void(Solver s){
-            Bindings bindings = ();
-            initialType = s.getType(var.initial);
-            varType = s.getType(var.name);
-            try   bindings = matchRascalTypeParams(initialType, varType, bindings, bindIdenticalVars=true);
-            catch invalidMatch(str reason):
-                  s.report(error(var.initial, reason));
-            
-            initialType = xxInstantiateRascalTypeParameters(var, initialType, bindings, s);  
-            if(s.isFullyInstantiated(initialType)){
-                s.requireSubType(initialType, varType, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, initialType));
-            } else if(!s.unify(initialType, varType)){
-                s.requireSubType(initialType, varType, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, initialType));
-            }
-       };
-
-AType(Solver) makeSyntaxType(Tree varType)
-    = AType(Solver s) { return getSyntaxType(varType, s); };
     
 void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type varType> <{Variable ","}+ variables> ;`, Collector c){
     tagsMap = getTags(tags);
@@ -155,7 +138,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type v
     c.enterScope(current); // wrap in extra scope to isolate variables declared in complex (function) types
         for(var <- variables){
             c.enterLubScope(var);
-            dt = defType([varType], makeSyntaxType(varType));
+            dt = defType([varType], makeGetSyntaxType(varType));
             dt.vis = getVis(current.visibility, privateVis());
             if(!isEmpty(tagsMap)) dt.tags = tagsMap;
             c.defineInScope(scope, prettyPrintName(var.name), variableId(), var.name, dt);
@@ -208,8 +191,6 @@ void collect(current: (KeywordFormal) `<Type kwType> <Name name> = <Expression e
 }
  
 // ---- function declaration --------------------------------------------------
-
-data ReturnInfo = returnInfo(Type returnType);
 
 void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collector c){
 //println("********** function declaration: <decl.signature.name>");
@@ -346,18 +327,6 @@ void collect(Signature signature, Collector c){
      collect(returnType, parameters, c);
 }
 
-list[Pattern] getFormals(Parameters parameters)
-    = [pat | Pattern pat <- parameters.formals.formals];
-
-list[KeywordFormal] getKwFormals(Parameters parameters){
-    if(parameters.keywordFormals is \default) {
-        if({KeywordFormal ","}+ keywordFormalList := parameters.keywordFormals.keywordFormalList){
-            return [kwf | kwf <- keywordFormalList];
-        }
-    }
-    return [];
- }
-
 set[TypeVar] getTypeVars(Tree t){
     return {tv | /TypeVar tv := t };
 }
@@ -431,17 +400,6 @@ void collect(Parameters parameters, Collector c){
     endPatternScope(c);
 }
 
-//void collect(KeywordArguments[&T] keywordArguments, Collector c){
-//    if(keywordArguments has keywordArgumentList) collect(keywordArguments.keywordArgumentList, c);
-//}  
-//void collect(current: (KeywordArguments[&T]) `<OptionalComma optionalComma><{KeywordArgument[&T] ","}+ keywordArgumentList>`, Collector c){
-//    collect(keywordArgumentList, c);
-//}
-
-list[Keyword] computeKwFormals(list[KeywordFormal] kwFormals, Solver s){
-    return [<s.getType(kwf.\type)[label=prettyPrintName(kwf.name)], kwf.expression> | kwf <- kwFormals];
-}
-
 void(Solver) makeReturnRequirement(Tree returnExpr, Type declaredReturnType)
     = void(Solver s) { 
         actualDeclaredReturnType = s.getType(declaredReturnType);
@@ -481,7 +439,6 @@ void collect(current: (Statement) `return <Statement statement>`, Collector c){
     }
     throw rascalCheckerInternalError(getLoc(current), "No surrounding function scope found for return");
 }
-
 
 /********************************************************************/
 /*       Return path analysis                                       */
@@ -665,26 +622,6 @@ void dataDeclaration(Tags tags, Declaration current, list[Variant] variants, Col
         c.pop(currentAdt);
     c.leaveScope(current);
 }
-
-//void collect(current: (TypeArg) `<Type tp>`, Collector c){
-//    c.fact(current, tp);
-//    collect(tp, c);
-//}
-//
-//void collect(current: (TypeArg) `<Type tp> <Name name>`, Collector c){
-//	c.calculate("TypeArg <name>", name, [tp], AType(Solver s){
-//	   res = (s.getType(tp)[label=unescape("<name>")]);
-//	   return res;
-//     });
-//	c.fact(current, name);
-//	collect(tp, c);
-//}
-
-list[TypeArg] getFormals(Variant variant)
-    = [ta | TypeArg ta <- variant.arguments];
-
-list[KeywordFormal] getKwFormals(Variant variant)
-    =  variant.keywordArguments is \default ? [kwf | kwf <- variant.keywordArguments.keywordFormalList] : [];
     
 AType(Solver) makeFieldType(str fieldName, Tree fieldType)
     = AType(Solver s) { return s.getType(fieldType)[label=fieldName]; };
@@ -824,6 +761,10 @@ void collect(current: (Prod) `: <Name referenced>`, Collector c){
     c.fact(current, referenced);
 }
 
+void requireNonLayout(Tree current, AType u, str msg, Solver s){
+    if(isLayoutType(u)) s.report(error(current, "Layout type %t not allowed %v", u, msg));
+}
+
 AProduction computeProd(Tree current, AType adtType, ProdModifier* modifiers, list[Sym] symbols, Solver s){
     args = [s.getType(sym) | sym <- symbols];   
     m2a = mods2attrs(modifiers);
@@ -891,7 +832,6 @@ void collect(current: (Prod) `<ProdModifier* modifiers> <Sym* syms>`, Collector 
 
 private AProduction associativity(AType nt, nothing(), AProduction p) = p;
 private default AProduction associativity(AType nt, just(Associativity a), AProduction p) = associativity(nt, a, {p});
-
 
 void collect(current: (Prod) `<Assoc ass> ( <Prod group> )`, Collector c){
     asc = Associativity::\left();

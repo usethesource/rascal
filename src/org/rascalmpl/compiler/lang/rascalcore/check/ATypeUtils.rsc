@@ -15,7 +15,7 @@ module lang::rascalcore::check::ATypeUtils
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeExceptions;
 extend lang::rascalcore::check::ATypeInstantiation;
-extend lang::rascalcore::check::TypePalConfig;
+import lang::rascalcore::check::BasicRascalConfig;
 
 extend ParseTree;
 
@@ -1000,6 +1000,14 @@ AType getStartNonTerminalType(AType::\start(AType s)) = s;
 default AType getStartNonTerminalType(AType s) {
     throw rascalCheckerInternalError("<prettyAType(s)> is not a start non-terminal type");
 }
+
+AType getSyntaxType(AType t, Solver s) = stripStart(removeConditional(t));
+
+AType getSyntaxType(Tree tree, Solver s) = stripStart(removeConditional(s.getType(tree)));
+
+private AType stripStart(AType nt) = isStartNonTerminalType(nt) ? getStartNonTerminalType(nt) : nt;
+
+private AType stripStart(aprod(AProduction production)) = production.def;
 
 AType removeConditional(cnd:conditional(AType s, set[ACondition] _)) = cnd.label? ? s[label=cnd.label] : s;
 default AType removeConditional(AType s) = s;

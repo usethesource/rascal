@@ -17,7 +17,7 @@ import util::Reflective;
 
 //extend analysis::typepal::TypePal;
 
-//extend lang::rascalcore::check::TypePalConfig;
+//extend lang::rascalcore::check::RascalConfig;
 
 import lang::rascalcore::compile::muRascal2Java::Primitives;
 

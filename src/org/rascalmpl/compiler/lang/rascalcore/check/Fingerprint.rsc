@@ -1,8 +1,6 @@
 @bootstrapParser
 module lang::rascalcore::check::Fingerprint
 
-//extend analysis::typepal::TypePal;
-
 extend lang::rascalcore::check::ATypeUtils;
 
 import lang::rascal::\syntax::Rascal;
@@ -20,10 +18,10 @@ int fingerprint(Pattern p, AType atype, bool useConcreteFingerprint) {
     return fp;
 }
 
-int fingerprint1(p:(Pattern) `<Literal lit>`, AType atype, bool useConcreteFingerprint) =
+private int fingerprint1(p:(Pattern) `<Literal lit>`, AType atype, bool useConcreteFingerprint) =
     getFingerprint(readTextValueString("<lit>"), useConcreteFingerprint) when !(p.literal is regExp);
 
-int fingerprint1(p:(Pattern) `<Concrete concrete>`, AType atype, bool useConcreteFingerprint) {
+private int fingerprint1(p:(Pattern) `<Concrete concrete>`, AType atype, bool useConcreteFingerprint) {
     return 0;  //TODO: fix this
     //t = parseConcrete(concrete);
     //res = isConcreteHole(t) ? fingerprintDefault : getFingerprint(parseConcrete(concrete), atype, useConcreteFingerprint);
@@ -31,7 +29,7 @@ int fingerprint1(p:(Pattern) `<Concrete concrete>`, AType atype, bool useConcret
     //return res;
 }
 
-int fingerprint1(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, AType atype, bool useConcreteFingerprint) { 
+private int fingerprint1(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, AType atype, bool useConcreteFingerprint) { 
     args = [a | a <- arguments];    // TODO: work around!
     res = fingerprintDefault;
     if(expression is qualifiedName && (QualifiedName)`<{Name "::"}+ nl>` := expression.qualifiedName){  
@@ -54,13 +52,13 @@ int fingerprint1(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> 
     //println("fingerprint <res>, <useConcreteFingerprint>, <getType(p@\loc)> for <p>");
     return res;
 }
-int fingerprint1(p:(Pattern) `{<{Pattern ","}* pats>}`, AType atype, bool useConcreteFingerprint) = getFingerprint("set", useConcreteFingerprint);
-int fingerprint1(p:(Pattern) `\<<{Pattern ","}* pats>\>`, AType atype, bool useConcreteFingerprint) = getFingerprint("tuple", size([pat | pat <- pats]), useConcreteFingerprint);
-int fingerprint1(p:(Pattern) `[<{Pattern ","}* pats>]`, AType atype, bool useConcreteFingerprint) = getFingerprint("list", useConcreteFingerprint);
-int fingerprint1(p:(Pattern) `<Name name> : <Pattern pattern>`, AType atype, bool useConcreteFingerprint) = fingerprint1(pattern, atype, useConcreteFingerprint);
-int fingerprint1(p:(Pattern) `[ <Type tp> ] <Pattern argument>`, AType atype, bool useConcreteFingerprint) = fingerprint1(argument, atype, useConcreteFingerprint);
-int fingerprint1(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`,  AType atype, bool useConcreteFingerprint) = fingerprint1(pattern, atype, useConcreteFingerprint);
-default int fingerprint1(Pattern p, AType atype, bool useConcreteFingerprint) {
+private int fingerprint1(p:(Pattern) `{<{Pattern ","}* pats>}`, AType atype, bool useConcreteFingerprint) = getFingerprint("set", useConcreteFingerprint);
+private int fingerprint1(p:(Pattern) `\<<{Pattern ","}* pats>\>`, AType atype, bool useConcreteFingerprint) = getFingerprint("tuple", size([pat | pat <- pats]), useConcreteFingerprint);
+private int fingerprint1(p:(Pattern) `[<{Pattern ","}* pats>]`, AType atype, bool useConcreteFingerprint) = getFingerprint("list", useConcreteFingerprint);
+private int fingerprint1(p:(Pattern) `<Name name> : <Pattern pattern>`, AType atype, bool useConcreteFingerprint) = fingerprint1(pattern, atype, useConcreteFingerprint);
+private int fingerprint1(p:(Pattern) `[ <Type tp> ] <Pattern argument>`, AType atype, bool useConcreteFingerprint) = fingerprint1(argument, atype, useConcreteFingerprint);
+private int fingerprint1(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`,  AType atype, bool useConcreteFingerprint) = fingerprint1(pattern, atype, useConcreteFingerprint);
+private default int fingerprint1(Pattern p, AType atype, bool useConcreteFingerprint) {
     //println("fingerprint <fingerprintDefault> (default), <getType(p@\loc)> for <p>");
     return fingerprintDefault;
 }   
