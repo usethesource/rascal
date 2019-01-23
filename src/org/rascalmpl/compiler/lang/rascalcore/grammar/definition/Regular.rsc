@@ -8,7 +8,6 @@
 @contributor{Jurgen J. Vinju - Jurgen.Vinju@cwi.nl - CWI}
 module lang::rascalcore::grammar::definition::Regular
 
-import lang::rascalcore::grammar::definition::Productions;
 import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::check::AType;
 import Set;

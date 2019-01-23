@@ -12,11 +12,14 @@
 @contributor{Paul Klint - Paul Klint@cwi.nl (CWI)}
 @bootstrapParser
 module lang::rascalcore::check::ATypeInstantiation
+
+extend analysis::typepal::TypePal;
  
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::ATypeExceptions;
 
+import Map;
 import Set;
 import IO;
 import Node;
@@ -217,4 +220,17 @@ AType instantiateRascalTypeParams(atypeList(list[AType] l), Bindings bindings)
 default AType instantiateRascalTypeParams(value t, Bindings bindings){
     println("instantiateRascalTypeParams undefined for: <t>");
     throw "instantiateRascalTypeParams undefined for: <t>";
+}
+
+AType xxInstantiateRascalTypeParameters(Tree selector, AType t, Bindings bindings, Solver s){
+    if(isEmpty(bindings))
+        return t;
+    else
+        return visit(t) { case param:aparameter(str pname, AType bound):
+                                if(asubtype(bindings[pname], bound)){
+                                    insert param.label? ? bindings[pname][label=param.label] :  bindings[pname];
+                               }
+                                else 
+                                    s.report(error(selector, "Type parameter %q should be less than %t, found %t", pname, bound, bindings[pname]));
+                        };
 }

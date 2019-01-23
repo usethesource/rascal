@@ -18,7 +18,6 @@ import util::Maybe;
 import Node;
 import Message;
  
-import lang::rascalcore::grammar::definition::Productions;
 import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascalcore::grammar::definition::References;
 import lang::rascalcore::format::Grammar;

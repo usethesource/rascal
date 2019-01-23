@@ -21,6 +21,7 @@ import String;
 import List;
 import IO;
 
+data AType;
 data ACharRange = \empty-range();
 
 ACharRange \new-range(int from, int to) = from <= to ? ACharRange::range(from, to) : \empty-range();

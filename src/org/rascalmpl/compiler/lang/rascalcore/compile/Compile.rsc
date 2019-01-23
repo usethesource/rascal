@@ -11,7 +11,7 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::Rascal2muRascal::RascalModule;
 extend lang::rascalcore::check::Checker;
 import lang::rascalcore::compile::muRascal2Java::CodeGen;
-extend lang::rascalcore::check::TypePalConfig;
+import lang::rascalcore::check::BasicRascalConfig;
 
 import lang::rascalcore::compile::CompileTimeError;
 import lang::rascalcore::compile::util::Names;
@@ -53,7 +53,8 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
        	muMod = r2mu(M, tm, pcfg, reloc=reloc, verbose=verbose, optimize=optimize, enableAsserts=enableAsserts);
 
         <the_interface, the_class, the_test_class> = muRascal2Java(muMod, tmodels, moduleLocs);
-       
+        
+        //targetDir = replaceAll(targetDir, ".", "/");
         writeFile(targetDir + "$<className>.java", the_interface);
         writeFile(targetDir + "<className>.java", the_class);
         writeFile(targetDir + "<className>Test.java", the_test_class);

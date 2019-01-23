@@ -1,94 +1,24 @@
 @bootstrapParser
-module lang::rascalcore::check::Pattern
+module lang::rascalcore::check::CollectPattern
 
-//extend analysis::typepal::TypePal;
+extend analysis::typepal::TypePal;
 
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::ATypeExceptions;
-extend lang::rascalcore::check::ConvertType;
-extend lang::rascalcore::check::Expression;
-extend lang::rascalcore::check::TypePalConfig;
+
+import lang::rascalcore::check::BasicRascalConfig;
+import lang::rascalcore::check::CollectVarArgs;
 
 import analysis::typepal::FailMessage;
 import lang::rascal::\syntax::Rascal;
+import lang::rascalcore::check::NameUtils;
+import lang::rascalcore::check::ComputeType;
+import lang::rascalcore::check::ScopeInfo;
 
 import IO;
 import Set;
 import String;
-
-public str patternContainer = "patternContainer";
-public str patternNames     = "patternNames";
-
-// Some utilities on patterns
-
-set[str] getAllNames(Pattern p)
-    = { "<name>" | /(Pattern) `<Type tp> <Name name>` := p } + { "<name>" | /QualifiedName name := p } - {"_"};
-    
-void beginPatternScope(str name, Collector c){
-    c.clearStack(patternNames);
-    c.push(patternContainer, name);
-}
-
-void endPatternScope(Collector c){
-    c.pop(patternContainer);
-    c.clearStack(patternNames);
-}
-
-bool inPatternNames(str name, Collector c){
-    for(lrel[str,loc] pnames :=  c.getStack(patternNames), <str n, loc l> <-pnames) if(n == name) return true;
-    return false;
-}
-
-bool inPatternScope(Collector c){
-    return !isEmpty(c.getStack(patternContainer));
-}
-
-IdRole formalOrPatternFormal(Collector c){
-    return isTopLevelParameter(c) ? formalId() :  ("parameter" in c.getStack(patternContainer) ? nestedFormalId() : patternVariableId());
-}
-
-bool isTopLevelParameter(Collector c){
-	return "parameter" := c.top(patternContainer);
-}
-
-AType getPatternType(Pattern p, AType subjectType, loc scope, Solver s){
-    tp = getPatternType0(p, subjectType, scope, s);
-    s.fact(p, tp);
-    return tp;
-}
-
-// ---- bracketed pattern
-
-//AType getPatternType0(current: (Pattern) `(<Pattern p>)`, AType subjectType, loc scope, Solver s){
-//    return getPatternType(p, subjectType, scope, Solver);
-//}
-
-// ---- literal patterns
-
-default AType getPatternType0(Pattern p, AType subjectType, loc scope, Solver s){
-    return s.getType(p);
-}
-
-//void collect(Pattern current:(Literal)`<IntegerLiteral il>`, Collector c){
-//    c.fact(current, aint());
-//}
-//
-//void collect(Pattern current:(Literal)`<RealLiteral rl>`, Collector c){
-//    c.fact(current, areal());
-//}
-//
-//void collect(Pattern current:(Literal)`<BooleanLiteral bl>`, Collector c){
-//    c.fact(current, abool());
-// }
-//
-//void collect(Pattern current:(Literal)`<DateTimeLiteral dtl>`, Collector c){
-//    c.fact(current, adatetime());
-//}
-//
-//void collect(Pattern current:(Literal)`<RationalLiteral rl>`, Collector c){
-//    c.fact(current, arat());
-//}
 
 void collect(current: (Literal)`<RegExpLiteral regExpLiteral>`, Collector c){
     c.fact(current, regExpLiteral);
@@ -116,31 +46,6 @@ void collect(NamedRegExp namedRegExp, Collector c){
    // don't collect further down
 }
 
-//void collect(current: (RegExp)`\<<Name name>\>`, Collector c) {
-//    c.use(name, {variableId()});
-//    c.fact(current, astr());
-//}
-//
-//void collect(current: (RegExp)`\<<Name name>:<NamedRegExp* regexps>\>`, Collector c) {
-//    c.define("<name>", variableId(), name, defType(astr()));
-//    c.fact(current, astr());
-//    collect(name, regexps, c);
-//}
-
-//void collect(Regexp regExp, Collector c){
-//    // ignore other RegExp cases
-//}
-
-//void collect(Pattern current:(Literal)`<StringLiteral sl>`, Collector c){
-//    c.fact(current, astr());
-//    collectParts(current, c);
-//}
-
-//void collect(Pattern current:(Literal)`<LocationLiteral ll>`, Collector c){
-//    c.fact(current, aloc());
-//    collectParts(current, c);
-//}
-
 // ---- set pattern
 
 void collect(current: (Pattern) `{ <{Pattern ","}* elements0> }`, Collector c){
@@ -152,13 +57,6 @@ void collect(current: (Pattern) `{ <{Pattern ","}* elements0> }`, Collector c){
     c.pop(patternContainer);
 }
 
-AType getPatternType0(current: (Pattern) `{ <{Pattern ","}* elements0> }`, AType subjectType, loc scope, Solver s){
-    elmType = isSetType(subjectType) ? getSetElementType(subjectType) : avalue();
-    setType = aset(s.lubList([getPatternType(p, elmType, scope,s) | p <- elements0]));
-    s.fact(current, setType);
-    return setType;
-}
-
 // ---- list pattern
 
 void collect(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, Collector c){
@@ -168,13 +66,6 @@ void collect(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, Collector c){
     c.push(patternContainer, "list");
     collect(elements0, c);
     c.pop(patternContainer);
-}
-
-AType getPatternType0(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, AType subjectType, loc scope, Solver s){
-    elmType = isListType(subjectType) ? getListElementType(subjectType) : avalue();
-    res = alist(s.lubList([getPatternType(p, elmType, scope, s) | p <- elements0]));
-    s.fact(current, res);
-    return res;
 }
 
 // ---- typed variable pattern
@@ -189,10 +80,6 @@ void collect(current: (Pattern) `<Type tp> <Name name>`, Collector c){
     c.enterScope(current);
         collect(tp, c);
     c.leaveScope(current);
-}
-
-AType getPatternType0(current:( Pattern) `<Type tp> <Name name>`, AType subjectType, loc scope, Solver s){
-    return s.getType(tp)[label=unescape("<name>")];
 }
 
 void collectAsVarArg(current: (Pattern) `<Type tp> <Name name>`, Collector c){
@@ -277,34 +164,11 @@ default void collectAsVarArg(Pattern current,  Collector c){
     throw rascalCheckerInternalError(getLoc(current), "<current> not supported in varargs");
 }
 
-AType getPatternType0(current: (Pattern) `<QualifiedName name>`, AType subjectType, loc scope, Solver s){
-    base = prettyPrintBaseName(name);
-    if(base != "_"){
-       nameType = s.getType(name);
-       if(!s.isFullyInstantiated(nameType) || !s.isFullyInstantiated(subjectType)){
-          s.requireUnify(nameType, subjectType, error(current, "Type of pattern could not be computed"));
-          s.fact(name, nameType); // <====
-          nameType = s.instantiate(nameType);
-          s.fact(name, nameType);
-          subjectType = s.instantiate(subjectType);
-          //clearBindings();
-       }
-       s.requireComparable(nameType, subjectType, error(current, "Pattern should be comparable with %t, found %t", subjectType, nameType));
-       return nameType[label=unescape("<name>")];
-    } else
-       return subjectType[label=unescape("<name>")];
-}
-
 // ---- multiVariable pattern: QualifiedName*
 
 void collect(current: (Pattern) `<QualifiedName name>*`,  Collector c){
     Pattern pat = (Pattern) `<QualifiedName name>`;
     collectSplicePattern(current, pat, c);
-}
-
-AType getPatternType0(current: (Pattern) `<QualifiedName name>*`,  AType subjectType, loc scope, Solver s){
-    Pattern pat = (Pattern) `<QualifiedName name>`;
-    return getSplicePatternType(current, pat, subjectType, scope, s);
 }
 
 bool inSetPattern(Pattern current, Collector c){
@@ -322,10 +186,6 @@ bool inSetPattern(Pattern current, Collector c){
 
 void collect(current: (Pattern) `* <Pattern argument>`, Collector c){
     collectSplicePattern(current, argument, c);
-}
-
-AType getPatternType0(current: (Pattern) `* <Pattern argument>`, AType subjectType, loc scope, Solver s){
-    return  getSplicePatternType(current, argument, subjectType, scope, s);
 }
     
 void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
@@ -390,72 +250,14 @@ void collectSplicePattern(Pattern current, Pattern argument,  Collector c){
     }
 }
 
-AType getSplicePatternType(Pattern current, Pattern argument,  AType subjectType, loc scope, Solver s){
-    if(argument is typedVariable){
-       uname = unescape("<argument.name>");
-       if(uname == "_"){
-          return subjectType;
-       } else {
-          inameType = s.getType(argument.name);
-          s.fact(argument, inameType);
-          if(isListType(inameType)) {
-                elmType = getListElementType(inameType);
-                s.fact(current, elmType);
-                return elmType;
-          }
-          if(isSetType(inameType)){
-                elmType =  getSetElementType(inameType);
-                s.fact(current, elmType);
-                return elmType;
-          }
-          s.report(error(current, "Cannot get element type for %t", inameType)); 
-       }
-    } if(argument is qualifiedName){
-         argName = argument.qualifiedName;
-         base = prettyPrintBaseName(argName);
-         if(base != "_"){
-           elmType = subjectType;
-           //try {
-               inameType = s.getType(argument.qualifiedName);
-           	   elmType = avoid();
-           	   if(isListType(inameType)){
-           	        elmType = getListElementType(inameType);
-           	   } else if(isSetType(inameType)){
-           	        elmType = getSetElementType(inameType);
-           	   } else {
-           	    s.report(error(argument, "List or set type expected, found %t", inameType));
-           	   }
-                 
-               if(!s.isFullyInstantiated(elmType) || !s.isFullyInstantiated(subjectType)){
-                  s.requireUnify(elmType, subjectType, error(current, "Type of pattern could not be computed"));
-                  elmType = s.instantiate(elmType);
-                  //s.fact(argName, nameElementType);//<<
-                  s.fact(current, elmType); // <<
-                  subjectType = s.instantiate(elmType);
-               }
-           //} catch TypeUnavailable(): {
-           //     nameElementType = subjectType;
-           //    //s.fact(argName, nameElementType); //<<
-           //    s.fact(current, nameElementType); //<<
-           //}
-           //nameElementType = isListType(nameType) ? getListElementType(nameType) : getSetElementType(nameType);
-           s.requireComparable(elmType, subjectType, error(current, "Pattern should be comparable with %t, found %t", subjectType, elmType));
-           return elmType;
-        } else
-           return subjectType;
-    } else {
-        throw rascalCheckerInternalError(getLoc(current), "Not implemented");
-    }
-}
-
 // ---- splicePlus pattern: +Pattern ------------------------------------------
 
 void collect(current: (Pattern) `+<Pattern argument>`, Collector c){
     collectSplicePattern(current, argument, c);
 }
 
-AType getPatternType0(current: (Pattern) `+<Pattern argument>`, AType subjectType, loc scope, Solver s)
-    = getSplicePatternType(current, argument, subjectType, scope, s);
+//AType getPatternType0(current: (Pattern) `+<Pattern argument>`, AType subjectType, loc scope, Solver s)
+//    = getSplicePatternType(current, argument, subjectType, scope, s);
 
 // ---- tuple pattern ---------------------------------------------------------
 
@@ -463,24 +265,6 @@ void collect(current: (Pattern) `\< <{Pattern ","}+ elements1> \>`, Collector c)
     c.push(patternContainer, "tuple");
     collect(elements1, c);
     c.pop(patternContainer);
-}
-
-AType getPatternType0(current: (Pattern) `\< <{Pattern ","}* elements1> \>`, AType subjectType, loc scope, Solver s){
-    pats = [ p | Pattern p <- elements1 ];
-    if(isTupleType(subjectType)){
-        elmTypes = getTupleFieldTypes(subjectType);
-        if(size(pats) == size(elmTypes)){
-           if(tupleHasFieldNames(subjectType)){
-             res = atuple(atypeList([getPatternType(pats[i], elmTypes[i], scope, s)[label= elmTypes[i].label] | int i <- index(pats)]));
-             return res;
-           } else {
-             return atuple(atypeList([getPatternType(pats[i], elmTypes[i], scope, s) | int i <- index(pats)]));
-           }
-        } else {
-            s.report(error(current, "Expected tuple pattern with %v elements, found %v",size(elmTypes), size(pats)));
-        }
-    }
-    return atuple(atypeList([getPatternType(pats[i], avalue(), scope, s) | int i <- index(pats)]));
 }
 
 void collect(current: (KeywordArgument[Pattern]) `<Name name> = <Pattern expression>`,  Collector c){
@@ -510,58 +294,6 @@ void collect(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* argument
     collect(arguments, c);
     collect(keywordArguments, c);
     c.pop(patternContainer);
-}
-
-AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, AType subjectType, loc scope, Solver s){
-   //println("getPatternType: <current>");
-    pats = [ p | Pattern p <- arguments ];
-    
-    texp = getPatternType(expression, subjectType, scope, s);
-    //println("bindings: <bindings>");
-    //clearBindings();    // <====
-    subjectType = s.instantiate(subjectType);
-    
-    if(isStartNonTerminalType(subjectType)){
-        subjectType = getStartNonTerminalType(subjectType);
-    }
-    
-    if(isStrType(texp)){
-        return computePatternNodeType(current, scope, pats, keywordArguments, s, subjectType);
-    }       
-    if(overloadedAType(rel[loc, IdRole, AType] overloads) := texp){
-       <filteredOverloads, identicalFields> = filterOverloadedConstructors(overloads, size(pats), subjectType);
-       if({<key, idr, tp>} := filteredOverloads){
-          texp = tp;
-       } else {
-         overloads = filteredOverloads;
-         validReturnTypeOverloads = {};
-         validOverloads = {};
-         next_cons:
-         for(ovl: <key, idr, tp> <- overloads){
-            if(acons(adtType:aadt(adtName, list[AType] parameters, _), list[AType] fields, list[Keyword] kwFields) := tp){
-               try {
-                     validReturnTypeOverloads += <key, idr, computeADTType(current, adtName, scope, adtType, fields, kwFields, pats, keywordArguments, identicalFields, s)>;
-                     validOverloads += ovl;
-                    } catch checkFailed(list[FailMessage] fms):
-                            continue next_cons;
-                      catch NoBinding():
-                            continue next_cons;
-             }
-        }
-        if({<key, idr, tp>} := validOverloads){
-           texp = tp; 
-            // TODO check identicalFields to see whether this can make sense
-           // unique overload, fall through to non-overloaded case to potentially bind more type variables
-        } else if(isEmpty(validReturnTypeOverloads)) s.report(error(current, "No pattern constructor found for %q of expected type %t", expression, subjectType));
-        else return overloadedAType(validReturnTypeOverloads);
-      }
-    }
-
-    if(acons(adtType:aadt(adtName, list[AType] parameters, _), list[AType] fields, list[Keyword] kwFields) := texp){
-       return computeADTType(current, adtName, scope, adtType, fields, kwFields, pats, keywordArguments, [true | int i <- index(fields)], s);
-    }
-    s.report(error(current, "No pattern constructor found for %q of expected type %t", expression, subjectType));
-    return avalue();
 }
 
 tuple[rel[loc, IdRole, AType], list[bool]] filterOverloadedConstructors(rel[loc, IdRole, AType] overloads, int arity, AType subjectType){
@@ -598,10 +330,6 @@ void collect(current: (Pattern) `<Name name> : <Pattern pattern>`, Collector c){
     collect(pattern, c);
 }
 
-AType getPatternType0(current: (Pattern) `<Name name> : <Pattern pattern>`,  AType subjectType, loc scope, Solver s){
-    return getPatternType(pattern, subjectType, scope, s)[label=unescape("<name>")];
-}
-
 // ---- typed variable becomes
 
 void collect(current: (Pattern) `<Type tp> <Name name> : <Pattern pattern>`, Collector c){
@@ -612,13 +340,6 @@ void collect(current: (Pattern) `<Type tp> <Name name> : <Pattern pattern>`, Col
     collect(tp, pattern, c);
 }
 
-AType getPatternType0(current: (Pattern) `<Type tp> <Name name> : <Pattern pattern>`, AType subjectType, loc scope, Solver s){
-    declaredType = s.getType(name);
-    patType = getPatternType(pattern, subjectType, scope, s);
-    s.requireComparable(patType, declaredType, error(current, "Incompatible type in assignment to variable %q, expected %t, found %t", name, declaredType, patType));
-    return declaredType[label=unescape("<name>")];
-}
-
 // ---- descendant pattern
 
 void collect(current: (Pattern) `/ <Pattern pattern>`, Collector c){
@@ -626,18 +347,9 @@ void collect(current: (Pattern) `/ <Pattern pattern>`, Collector c){
     collect(pattern, c);
 }
 
-AType getPatternType0(current: (Pattern) `/ <Pattern pattern>`, AType subjectType, loc scope, Solver s){
-    getPatternType(pattern, avalue(), scope, s);
-    return avoid();
-}
-
 // ---- negative 
 void collect(current: (Pattern) `- <Pattern pattern>`, Collector c){
     collect(pattern, c);
-}
-
-AType getPatternType0(current: (Pattern) `- <Pattern pattern>`,  AType subjectType, loc scope, Solver s){
-    return getPatternType(pattern, subjectType, scope, s);
 }
 
 //TODO: map
@@ -649,10 +361,6 @@ void collect(current: (Pattern) `( <{Mapping[Pattern] ","}* mps> )`, Collector c
     c.push(patternContainer, "map");
     collect(mps, c);
     c.pop(patternContainer);
-}
-
-AType getPatternType0(current: (Pattern) `( <{Mapping[Pattern] ","}* mps> )`, AType subjectType, loc scope, Solver s){
-    return amap(avoid(),avoid()); // TODO
 }
 
 //TODO: reifiedType
@@ -678,9 +386,4 @@ void collect(current: (Pattern) `[ <Type tp> ] <Pattern p>`, Collector c){
 void collect(current: (Pattern) `! <Pattern pattern>`, Collector c){
     c.fact(current, avoid());
     collect(pattern, c);
-}
-
-AType getPatternType0(current: (Pattern) `! <Pattern pattern>`, AType subjectType, loc scope, Solver s){
-    getPatternType(pattern, avalue(), scope, s);
-    return avoid();
 }

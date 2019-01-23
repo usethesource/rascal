@@ -16,7 +16,7 @@ import lang::rascalcore::compile::muRascal::AST;
 //import lang::rascal::grammar::definition::Symbols;
 
 //extend lang::rascalcore::check::Checker;
-extend lang::rascalcore::check::TypePalConfig;
+import lang::rascalcore::check::BasicRascalConfig;
 import Type;
 
 import lang::rascalcore::check::AType;

@@ -1,133 +1,19 @@
 @bootstrapParser
-module lang::rascalcore::check::Operators
+module lang::rascalcore::check::CollectOperators
  
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeExceptions;
 extend lang::rascalcore::check::ATypeInstantiation;
 extend lang::rascalcore::check::ATypeUtils;
-extend lang::rascalcore::check::ConvertType;
-extend lang::rascalcore::check::Expression;
-extend lang::rascalcore::check::Pattern;
-extend lang::rascalcore::check::Statement;
-extend lang::rascalcore::check::TypePalConfig;
+
+import lang::rascalcore::check::BasicRascalConfig;
 
 import lang::rascal::\syntax::Rascal;
+import lang::rascalcore::check::ScopeInfo;
+import lang::rascalcore::check::ComputeType;
 
 import Node;
 import Set;
-
-AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, AType t1, Solver s){
-    if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
-        bin_overloads = {};
-        for(<key, idr, tp> <- overloads){
-            try {
-                bin_overloads += <key, idr, unaryOp(op, computeType, current, tp, s)>;
-             } catch checkFailed(list[FailMessage] fms): /* continue with next overload */;
-               catch NoBinding(): /* continue with next overload */;
-//>>           catch e:  /* continue with next overload */;
-        }
-        if(isEmpty(bin_overloads)) s.report(error(current, "%q cannot be applied to %t", op, t1));
-        return overloadedAType(bin_overloads);
-    }
-    
-    return computeType(current, t1, s);
-}
-
-AType binaryOp(str op, AType(Tree, AType, AType, Solver) computeType, Tree current, AType t1, AType t2, Solver s){
-    if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
-        bin_overloads = {};
-        for(<key, idr, tp> <- overloads){
-            try {
-                bin_overloads += <key, idr, binaryOp(op, computeType, current, tp, t2, s)>;
-            } catch checkFailed(list[FailMessage] fms): /* continue with next overload */;
-              catch NoBinding(): /* continue with next overload */;
-//>>          catch e: /* continue with next overload */;
-        }
-        if(isEmpty(bin_overloads)) s.report(error(current, "%q cannot be applied to %t and %t", op, t1, t2));
-        return overloadedAType(bin_overloads);
-    }
-    
-    if(overloadedAType(rel[loc, IdRole, AType] overloads) := t2){
-        bin_overloads = {};
-        for(<key, idr, tp> <- overloads){
-            try {
-                bin_overloads += < key, idr, binaryOp(op, computeType, current, t1, tp, s)>;
-             } catch checkFailed(list[FailMessage] fms):/* continue with next overload */;
-               catch NoBinding(): /* continue with next overload */;
-//>>           catch e: /* continue with next overload */;
-        }
-        if(isEmpty(bin_overloads)) s.report(error(current, "%q cannot be applied to %t and %t", op, t1, t2));
-        return overloadedAType(bin_overloads);
-    }
-    return computeType(current, t1, t2, s);
-}
-
-AType ternaryOp(str op, AType(Tree, AType, AType, AType, Solver) computeType, Tree current, AType t1, AType t2, AType t3, Solver s){
-    if(overloadedAType(rel[loc, IdRole, AType] overloads) := t1){
-        tern_overloads = {};
-        for(<key, idr, tp> <- overloads){
-            try {
-                tern_overloads += <key, idr, ternaryOp(op, computeType, current, tp, t2, t3, s)>;
-             } catch checkFailed(list[FailMessage] fms): /* continue with next overload */;
-               catch NoBinding(): /* continue with next overload */;
-               catch e: /* continue with next overload */;
-        }
-        if(isEmpty(tern_overloads)) s.report(error(current, "%q cannot be applied to %t, %t, and %t", op, t1, t2, t3));
-        return overloadedAType(tern_overloads);
-    }
-    
-    if(overloadedAType(rel[loc, IdRole, AType] overloads) := t2){
-        tern_overloads = {};
-        for(<key, idr, tp> <- overloads){
-            try {
-                tern_overloads += < key, idr, ternaryOp(op, computeType, current, t1, tp, t3, s)>;
-             } catch checkFailed(list[FailMessage] fms):/* continue with next overload */;
-               catch NoBinding(): /* continue with next overload */;
- //>>          catch e:/* continue with next overload */;
-        }
-        if(isEmpty(tern_overloads)) s.report(error(current, "%q cannot be applied to %t, %t, and %t", op, t1, t2, t3));
-        return overloadedAType(tern_overloads);
-    }
-    
-    if(overloadedAType(rel[loc, IdRole, AType] overloads) := t3){
-        tern_overloads = {};
-        for(<key, idr, tp> <- overloads){
-            try {
-                tern_overloads += < key, idr, ternaryOp(op, computeType, current, t1, t2, tp, s)>;
-             } catch checkFailed(list[FailMessage] fms): /* continue with next overload */;
-               catch NoBinding(): /* continue with next overload */;
- //>>          catch e: /* continue with next overload */;
-        }
-        if(isEmpty(tern_overloads)) s.report(error(current, "%q cannot be applied to %t, %t, and %t", op, t1, t2, t3));
-        return overloadedAType(tern_overloads);
-    }
-    return computeType(current, t1, t2, t3, s);
-}
-
-@doc{Calculate the arith type for the numeric types, taking account of coercions.}
-public AType numericArithTypes(AType l, AType r) {
-    if (isIntType(l) && isIntType(r)) return aint();
-    if (isIntType(l) && isRatType(r)) return arat();
-    if (isIntType(l) && isRealType(r)) return areal();
-    if (isIntType(l) && isNumType(r)) return anum();
-
-    if (isRatType(l) && isIntType(r)) return arat();
-    if (isRatType(l) && isRatType(r)) return arat();
-    if (isRatType(l) && isRealType(r)) return areal();
-    if (isRatType(l) && isNumType(r)) return anum();
-
-    if (isRealType(l) && isIntType(r)) return areal();
-    if (isRealType(l) && isRatType(r)) return areal();
-    if (isRealType(l) && isRealType(r)) return areal();
-    if (isRealType(l) && isNumType(r)) return anum();
-
-    if (isNumType(l) && isIntType(r)) return anum();
-    if (isNumType(l) && isRatType(r)) return anum();
-    if (isNumType(l) && isRealType(r)) return anum();
-    if (isNumType(l) && isNumType(r)) return anum();
-
-    throw rascalCheckerInternalError("Only callable for numeric types, given <l> and <r>");
-}
 
 // ---- is
 
@@ -396,25 +282,6 @@ void collect(current: (Expression) `<Expression lhs> * <Expression rhs>`, Collec
     collect(lhs, rhs, c); 
 }
 
-AType computeProductType(Tree current, AType t1, AType t2, Solver s)
-    = binaryOp("product", _computeProductType, current, t1, t2, s);
-
-private AType _computeProductType(Tree current, AType t1, AType t2, Solver s){ 
-    if(isNumericType(t1) && isNumericType(t2)) return numericArithTypes(t1, t2);
-    
-    if (isListType(t1) && isListType(t2))
-        return makeListType(atuple(atypeList([getListElementType(t1),getListElementType(t2)])));
-    if (isRelType(t1) && isRelType(t2))
-        return arel(atypeList([getRelElementType(t1),getRelElementType(t2)]));
-    if (isListRelType(t1) && isListRelType(t2))
-        return alrel(atypeList([getListRelElementType(t1),getListRelElementType(t2)]));
-    if (isSetType(t1) && isSetType(t2))
-        return arel(atypeList([getSetElementType(t1),getSetElementType(t2)]));
-    
-    s.report(error(current, "Product not defined on %t and %t", t1, t2));
-    return avalue();
-}
-
 // ---- join
 
 void collect(current: (Expression) `<Expression lhs> join <Expression rhs>`, Collector c){
@@ -494,15 +361,15 @@ void collect(current: (Expression) `<Expression lhs> / <Expression rhs>`, Collec
     collect(lhs, rhs, c); 
 }
 
-AType computeDivisionType(Tree current, AType t1, AType t2, Solver s)
-    = binaryOp("division", _computeDivisionType, current, t1, t2, s);
-
-private AType _computeDivisionType(Tree current, AType t1, AType t2, Solver s){
-    if(!(isNumericType(t1) && isNumericType(t2))){
-        s.report(error(current, "Division not defined on %t and %t", t1, t2));
-    }
-     return numericArithTypes(t1, t2);
-}
+//AType computeDivisionType(Tree current, AType t1, AType t2, Solver s)
+//    = binaryOp("division", _computeDivisionType, current, t1, t2, s);
+//
+//private AType _computeDivisionType(Tree current, AType t1, AType t2, Solver s){
+//    if(!(isNumericType(t1) && isNumericType(t2))){
+//        s.report(error(current, "Division not defined on %t and %t", t1, t2));
+//    }
+//     return numericArithTypes(t1, t2);
+//}
 
 // ---- intersection
 
@@ -510,35 +377,6 @@ void collect(current: (Expression) `<Expression lhs> & <Expression rhs>`, Collec
     c.calculate("intersection", current, [lhs, rhs], 
        AType(Solver s) { return computeIntersectionType(current, s.getType(lhs), s.getType(rhs), s); });
     collect(lhs, rhs, c);
-}
-
-AType computeIntersectionType(Tree current, AType t1, AType t2, Solver s)
-    = binaryOp("intersection", _computeIntersectionType, current, t1, t2, s);
-    
-private AType _computeIntersectionType(Tree current, AType t1, AType t2, Solver s){  
-    if ( ( isListRelType(t1) && isListRelType(t2) ) || 
-         ( isListType(t1) && isListType(t2) ) || 
-         ( isRelType(t1) && isRelType(t2) ) || 
-         ( isSetType(t1) && isSetType(t2) ) || 
-         ( isMapType(t1) && isMapType(t2) ) )
-    {
-        if (!comparable(t1,t2))
-            s.report(error(current, "Types %t and %t are not comparable", t1, t2));
-            
-        if (asubtype(t2, t1))
-            return t2;
-            
-        if (asubtype(t1, t2))
-            return t1;
-            
-        if (isListRelType(t1)) return makeListRelType(makeVoidType(),makeVoidType());
-        if (isListType(t1)) return makeListType(makeVoidType());
-        if (isRelType(t1)) return makeRelType(makeVoidType(), makeVoidType());
-        if (isSetType(t1)) return makeSetType(makeVoidType());
-        if (isMapType(t1)) return makeMapType(makeVoidType(),makeVoidType());
-    }
-    s.report(error(current, "Intersection not defined on %t and %t", t1, t2));
-    return avalue();
 }
 
 // ---- addition
@@ -549,128 +387,12 @@ void collect(current: (Expression) `<Expression lhs> + <Expression rhs>`, Collec
     collect(lhs, rhs, c); 
 }
 
-AType computeAdditionType(Tree current, AType t1, AType t2, Solver s) 
-    = binaryOp("addition", _computeAdditionType, current, t1, t2, s);
-
-private AType _computeAdditionType(Tree current, AType t1, AType t2, Solver s) {
-    if(isNumericType(t1) && isNumericType(t2)) return numericArithTypes(t1, t2);
-    
-    if (isStrType(t1) && isStrType(t2))
-        return astr();
-    if (isBoolType(t1) && isBoolType(t2))
-        return abool();
-    if (isLocType(t1) && isLocType(t2))
-        return aloc();
-    if (isLocType(t1) && isStrType(t2))
-        return aloc();
-        
-     if (isTupleType(t1) && isTupleType(t2)) {
-         if (tupleHasFieldNames(t1) && tupleHasFieldNames(t2)) {
-            tflds1 = getTupleFields(t1);
-            tflds2 = getTupleFields(t2);
-            tnms1  = getTupleFieldNames(t1);
-            tnms2  = getTupleFieldNames(t2);
-            
-            if (size(toSet(tnms1 + tnms2)) == size(tflds1+tflds2)) {
-                return makeTupleType(tflds1+tflds2);
-             } else {
-                return makeTupleType(getTupleFieldTypes(t1) + getTupleFieldTypes(t2));
-             }
-         } else {        
-            return makeTupleType(getTupleFieldTypes(t1) + getTupleFieldTypes(t2));
-         }
-     } 
-       
-    if (isListType(t1) && isListType(t2))
-        return s.lub(t1,t2);
-    if (isSetType(t1) && isSetType(t2))
-        return s.lub(t1,t2);
-    if (isMapType(t1) && isMapType(t2))
-        return s.lub(t1,t2);
-        
-    if (isListType(t1) && !isContainerType(t2))
-        return makeListType(s.lub(getListElementType(t1),t2));
-    if (isSetType(t1) && !isContainerType(t2)) // Covers relations too
-        return makeSetType(s.lub(getSetElementType(t1),t2));
-    if (isBagType(t1) && !isContainerType(t2))
-        return abag(s.lub(getBagElementType(t1),t2));
-        
-    if (isListType(t2) && !isContainerType(t1))
-        return makeListType(s.lub(t1,getListElementType(t2)));
-    if (isSetType(t2) && !isContainerType(t1)) // Covers relations too
-        return makeSetType(s.lub(t1,getSetElementType(t2)));
-    if (isBagType(t2) && !isContainerType(t1))
-        return abag(s.lub(t1,getBagElementType(t2)));
-        
-    if (isListType(t1))
-        return makeListType(s.lub(getListElementType(t1),t2));
-    if (isSetType(t1)) // Covers relations too
-        return makeSetType(s.lub(getSetElementType(t1),t2));
-    if (isBagType(t1))
-        return abag(s.lub(getBagElementType(t1),t2));
-    
-    // TODO: Can we also add together constructor types?
-    // TODO: cloc is arbitrary, can we do better?
-    cloc = getLoc(current);
-    if (isFunctionType(t1)){
-        if(isFunctionType(t2))
-            return overloadedAType({<cloc, functionId(), t1>, <cloc, functionId(), t2>});
-        else if(overloadedAType(rel[loc, IdRole, AType] overloads) := t2){
-            return overloadedAType(overloads + <cloc, functionId(), t1>);
-        }
-    } else if(overloadedAType(rel[loc, IdRole, AType] overloads1)  := t1){
-        if(isFunctionType(t2))
-           return overloadedAType(overloads1 + <cloc, functionId(), t2>);
-        else if(overloadedAType(rel[loc, IdRole, AType] overloads2) := t2){
-            return overloadedAType(overloads1 + overloads2);
-        }
-    }
-    
-    s.report(error(current, "Addition not defined on %t and %t", t1, t2));
-    return avalue();
-}
-
 // ---- subtraction
 
 void collect(current: (Expression) `<Expression lhs> - <Expression rhs>`, Collector c){
     c.calculate("subtraction", current, [lhs, rhs], 
        AType(Solver s) { return computeSubtractionType(current, s.getType(lhs), s.getType(rhs), s); });
     collect(lhs, rhs, c); 
-}
-
-AType computeSubtractionType(Tree current, AType t1, AType t2, Solver s)
-    = binaryOp("subtraction", _computeSubtractionType, current, t1, t2, s);
-
-private AType _computeSubtractionType(Tree current, AType t1, AType t2, Solver s) { 
-    if(isNumericType(t1) && isNumericType(t2)){
-        return numericArithTypes(t1, t2);
-    }
-    if(isListType(t1) && isListType(t2)){
-        s.requireComparable(getListElementType(t1), getListElementType(t2), error(current, "%v of type %t could never contain elements of second %v type %t", 
-                                                                                    isListRelType(t1) ? "List Relation" : "List", t1, isListRelType(t2) ? "List Relation" : "List", t2));
-       return t1;
-    }
-    
-    if(isListType(t1)){
-        s.requireComparable(getListElementType(t1), t2, error(current, "%v of type %t could never contain elements of type %t", isListRelType(t1) ? "List Relation" : "List", t1, t2));
-        return t1;
-    }
-    if(isSetType(t1) && isSetType(t2)){
-        s.requireComparable(getSetElementType(t1), getSetElementType(t2), error(current, "%v of type %t could never contain elements of second %v type %t", isRelType(t1) ? "Relation" : "Set", t1,isListRelType(t2) ? "Relation" : "Set", t2));
-        return t1;
-    }
-    if(isSetType(t1)){
-        s.requireComparable(getSetElementType(t1), t2, error(current, "%v of type %t could never contain elements of type %t", isRelType(t1) ? "Relation" : "Set", t1, t2));
-        return t1;
-    }
-
-    if(isMapType(t1)){
-        s.requireComparable(t1, t2, error(current, "Map of type %t could never contain a sub-map of type %t", t1, t2));
-        return t1;
-    }
-    
-    s.report(error(current, "Subtraction not defined on %t and %t", t1, t2));
-    return avalue();
 }
 
 // ---- appendAfter

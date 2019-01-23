@@ -3,9 +3,8 @@ module lang::rascalcore::check::ADTandGrammar
    
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeUtils;
-extend lang::rascalcore::check::TypePalConfig;
+import lang::rascalcore::check::BasicRascalConfig;
 
-//extend lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::grammar::definition::Layout;
 import lang::rascalcore::grammar::definition::Keywords;
   

@@ -6,10 +6,11 @@ extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::ATypeInstantiation;
 extend lang::rascalcore::check::Checker;
-extend lang::rascalcore::check::TypePalConfig;
+
+import lang::rascalcore::check::BasicRascalConfig;
 
 import lang::rascal::\syntax::Rascal;
-//extend lang::rascalcore::grammar::definition::Grammar;
+import lang::rascalcore::check::NameUtils;
 
 import Exception;
 import IO;
@@ -22,8 +23,8 @@ import ValueIO;
 import analysis::graphs::Graph;
 import util::Reflective;
 
-public str key_bom = "bill_of_materials";
-public str key_current_module = "current_module";
+//public str key_bom = "bill_of_materials";
+//public str key_current_module = "current_module";
 
 tuple[bool,loc] TPLReadLoc(str qualifiedModuleName, PathConfig pcfg) = getDerivedReadLoc(qualifiedModuleName, "tpl", pcfg);
 

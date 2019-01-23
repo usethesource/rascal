@@ -10,10 +10,8 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 module lang::rascalcore::grammar::Lookahead
   
-//import lang::rascalcore::grammar::definition::Grammar;
 import lang::rascalcore::grammar::definition::Regular;
 import lang::rascalcore::grammar::definition::Characters;
-import lang::rascalcore::grammar::definition::Productions;
 import lang::rascalcore::check::AType;
 import Node;
 import List;

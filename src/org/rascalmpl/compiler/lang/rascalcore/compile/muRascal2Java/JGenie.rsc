@@ -11,7 +11,7 @@ import lang::rascalcore::compile::muRascal2Java::CodeGen;
 
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
-extend lang::rascalcore::check::TypePalConfig;
+import lang::rascalcore::check::BasicRascalConfig;
 extend analysis::typepal::TypePal;
 
 alias JCode = str;

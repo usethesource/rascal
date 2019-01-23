@@ -1,106 +1,23 @@
 @bootstrapParser
-module lang::rascalcore::check::TypePalConfig
+module lang::rascalcore::check::RascalConfig
+
+extend analysis::typepal::TypePal;
+extend lang::rascalcore::check::BasicRascalConfig;
  
 extend lang::rascalcore::check::ADTandGrammar;
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeUtils;
-extend lang::rascalcore::check::Expression;
-
 
 extend lang::rascalcore::grammar::ParserGenerator;
-//extend lang::rascalcore::grammar::definition::Grammar;
 
+import lang::rascalcore::check::NameUtils;
 import lang::rascal::\syntax::Rascal;
+extend lang::rascalcore::check::ComputeType;
 
 import List;
 import Map;
 import Set;
 import String;
-
-data IdRole
-    = moduleId()
-    | functionId()
-    | formalId()
-    | keywordFormalId()
-    | nestedFormalId()
-    | patternVariableId()
-    | fieldId()
-    | keywordFieldId()
-    | labelId()
-    | constructorId()
-    | dataId()
-    | aliasId()
-    | annoId()
-    | nonterminalId()
-    | lexicalId()
-    | layoutId()
-    | keywordId()
-    | typeVarId()
-    ;
-
-public set[IdRole] syntaxRoles = {aliasId(), nonterminalId(), lexicalId(), layoutId(), keywordId()};
-public set[IdRole] dataOrSyntaxRoles = {dataId()} + syntaxRoles;
-public set[IdRole] dataRoles = {aliasId(), dataId()}; 
-public set[IdRole] outerFormalRoles = {formalId(), keywordFormalId()};
-public set[IdRole] positionalFormalRoles = {formalId(), nestedFormalId()};
-public set[IdRole] formalRoles = outerFormalRoles + {nestedFormalId()};
-public set[IdRole] variableRoles = formalRoles + {variableId(), patternVariableId()};
-public set[IdRole] inferrableRoles = formalRoles + {variableId(), patternVariableId()};
-public set[IdRole] saveModuleRoles = dataOrSyntaxRoles + {constructorId(), functionId(), fieldId(), keywordFieldId(), annoId()} + variableRoles;
-
-data PathRole
-    = importPath()
-    | extendPath()
-    ;
-    
-data ScopeRole
-    = moduleScope()
-    | functionScope()
-    | conditionalScope()
-    | replacementScope()
-    | visitOrSwitchScope()
-    | boolScope()
-    | loopScope()
-    ;
-
-data Vis
-    = publicVis()
-    | privateVis()
-    | defaultVis()
-    ;
-
-data Modifier
-    = javaModifier()
-    | testModifier()
-    | defaultModifier()
-    ;
-
-// Visibility information
-data DefInfo(Vis vis = publicVis());
-
-data DefInfo(bool canFail = false);
-
-data DefInfo(map[str,str] tags = ());
-
-// Function modifiers
-data DefInfo(list[str] modifiers = []);
-
-// Common Keyword fields for ADTs
-data DefInfo(list[KeywordFormal] commonKeywordFields = []);
-
-// Maintain excluded use in parts of a scope
-private str key_exclude_use = "exclude_use";
-
-void storeExcludeUse(Tree cond, Tree excludedPart, Collector c){
-    c.push(key_exclude_use, <getLoc(cond), getLoc(excludedPart)>);
-}
-
-// Maintain allow before use: where variables may be used left (before) their definition
-private str key_allow_use_before_def = "allow_use_before_def";
-
-void storeAllowUseBeforeDef(Tree container, Tree allowedPart, Collector c){
-    c.push(key_allow_use_before_def, <getLoc(container), getLoc(allowedPart)>);
-}
 
 str parserPackage = "org.rascalmpl.core.library.lang.rascalcore.grammar.tests.generated_parsers";
 
@@ -260,18 +177,18 @@ default AType rascalInstantiateTypeParameters(Tree selector, AType formalType, A
     = toBeInstantiated;
     
     
-AType xxInstantiateRascalTypeParameters(Tree selector, AType t, Bindings bindings, Solver s){
-    if(isEmpty(bindings))
-        return t;
-    else
-        return visit(t) { case param:aparameter(str pname, AType bound):
-                                if(asubtype(bindings[pname], bound)){
-                                    insert param.label? ? bindings[pname][label=param.label] :  bindings[pname];
-                               }
-                                else 
-                                    s.report(error(selector, "Type parameter %q should be less than %t, found %t", pname, bound, bindings[pname]));
-                        };
-}
+//AType xxInstantiateRascalTypeParameters(Tree selector, AType t, Bindings bindings, Solver s){
+//    if(isEmpty(bindings))
+//        return t;
+//    else
+//        return visit(t) { case param:aparameter(str pname, AType bound):
+//                                if(asubtype(bindings[pname], bound)){
+//                                    insert param.label? ? bindings[pname][label=param.label] :  bindings[pname];
+//                               }
+//                                else 
+//                                    s.report(error(selector, "Type parameter %q should be less than %t, found %t", pname, bound, bindings[pname]));
+//                        };
+//}
 
 default AType rascalInstantiateTypeParameters(Tree selector, AType def, AType ins, AType act, Solver s) = act;
 
@@ -412,16 +329,6 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
         }
    }
 }
- 
-data TypePalConfig(
-    bool logImports                 = false,
-    bool classicReifier             = false,
-    bool warnUnused                 = true,
-    bool warnUnusedFormals          = true,
-    bool warnUnusedVariables        = true,
-    bool warnUnusedPatternFormals   = false,
-    bool warnDeprecated             = false
-);
 
 TypePalConfig rascalTypePalConfig(bool classicReifier = false,  bool logImports = false)
     = tconfig(

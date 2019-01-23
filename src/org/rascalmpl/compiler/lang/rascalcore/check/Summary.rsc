@@ -3,7 +3,7 @@ module lang::rascalcore::check::Summary
 
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeUtils;
-import lang::rascalcore::check::TypePalConfig;
+import lang::rascalcore::check::RascalConfig;
 
 extend analysis::typepal::TypePal;
 

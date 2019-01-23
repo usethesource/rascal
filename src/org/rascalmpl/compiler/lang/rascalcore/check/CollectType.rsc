@@ -9,18 +9,20 @@
 @contributor{Mark Hills - Mark.Hills@cwi.nl (CWI)}
 @contributor{Paul Klint - Paul.Klint@cwi.nl (CWI)}
 @bootstrapParser
-module lang::rascalcore::check::ConvertType
+module lang::rascalcore::check::CollectType
 
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeExceptions;
 extend lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::ATypeInstantiation;
-extend lang::rascalcore::check::TypePalConfig;
+import lang::rascalcore::check::BasicRascalConfig;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascalcore::grammar::definition::Characters;
 import lang::rascalcore::grammar::definition::Literals;
+
+import lang::rascalcore::check::NameUtils;
 
 import IO;
 import List;
@@ -29,53 +31,10 @@ import Node;
 import Set;
 import String;
 
-public str currentAdt = "currentAdt";       // used to mark data declarations
-public str inAlternative = "inAlternative"; // used to mark top-level alternative in syntax declaration
-public str typeContainer = "typeContainer";
-
-public str prettyPrintName(QualifiedName qn){
-    if ((QualifiedName)`<{Name "::"}+ nl>` := qn) { 
-       return replaceAll("<qn>", "\\", "");
-    }
-    throw "Unexpected syntax for qualified name: <qn>";
-}
-
-public str prettyPrintName(Name nm){ 
-    return replaceFirst("<nm>", "\\", "");
-}
-
-public str prettyPrintBaseName(QualifiedName qn){
-    if ((QualifiedName)`<{Name "::"}+ nl>` := qn) { 
-        nameParts = [ n | n <- nl ];
-        return replaceFirst("<nameParts[-1]>", "\\", "");
-    }
-    throw "Unexpected syntax for qualified name: <qn>";
-}
-
-public str prettyPrintBaseName(Name nm){ 
-    return replaceFirst("<nm>", "\\", "");
-}
-
-public tuple[str qualifier, str base] splitQualifiedName(QualifiedName qn){
-    if ((QualifiedName)`<{Name "::"}+ nl>` := qn) { 
-        nameParts = [ replaceFirst("<n>", "\\", "") | n <- nl ];
-        return size(nameParts) > 1 ? <intercalate("::", nameParts[0 .. -1]), nameParts[-1]> : <"", nameParts[0]>;
-    }
-    throw "Unexpected syntax for qualified name: <qn>";
-}
-
 void collect(current: (Type) `( <Type tp> )`, Collector c){
     c.fact(current, tp);
     collect(tp, c);
 }
-
-//void collect(current: (TypeVar) `& <Name name>`, Collector c){
-//x = 1;
-//}
-//
-//void collect(current: (TypeVar) `& <Name name> \<:<Type bound>`, Collector c){
-//    collect(bound, c);
-//}
 
 // ---- basic types -----------------------------------------------------------
 
@@ -387,16 +346,6 @@ void collect(current:(UserType) `<QualifiedName n>[ <{Type ","}+ ts> ]`, Collect
 
 // ---- Sym types -------------------------------------------------------------
 
-
-AType getSyntaxType(AType t, Solver s) = stripStart(removeConditional(t));
-
-AType getSyntaxType(Tree tree, Solver s) = stripStart(removeConditional(s.getType(tree)));
-
-private AType stripStart(AType nt) = isStartNonTerminalType(nt) ? getStartNonTerminalType(nt) : nt;
-
-private AType stripStart(aprod(AProduction production)) = production.def;
-
-
 // named non-terminals
 void collect(current:(Sym) `<Nonterminal n>`, Collector c){
     c.use(n, syntaxRoles);
@@ -518,10 +467,6 @@ void forbidConsecutiveLayout(Tree current, list[AType] symbols, Solver s){
     if([*_,t1, t2,*_] := symbols, isLayoutType(t1), isLayoutType(t2)){
        s.report(error(current, "Consecutive layout types %t and %t not allowed", t1, t2));
     }
-}
-
-void requireNonLayout(Tree current, AType u, str msg, Solver s){
-    if(isLayoutType(u)) s.report(error(current, "Layout type %t not allowed %v", u, msg));
 }
 
 void collect(current:(Sym) `<Sym symbol>?`, Collector c){

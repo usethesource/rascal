@@ -34,22 +34,25 @@ import Message;
 import lang::rascal::\syntax::Rascal;
 
 extend lang::rascalcore::check::AType;
-extend lang::rascalcore::check::Declaration;
-extend lang::rascalcore::check::Expression;
+extend lang::rascalcore::check::CollectType;
+extend lang::rascalcore::check::CollectDeclaration;
+extend lang::rascalcore::check::CollectExpression;
 extend lang::rascalcore::check::ADTandGrammar;
 extend lang::rascalcore::check::Import;
-extend lang::rascalcore::check::Operators;
-extend lang::rascalcore::check::Pattern;
-extend lang::rascalcore::check::Statement;
+extend lang::rascalcore::check::CollectOperators;
+extend lang::rascalcore::check::CollectPattern;
+extend lang::rascalcore::check::CollectStatement;
 
 extend lang::rascalcore::check::ATypeUtils;
-extend lang::rascalcore::check::TypePalConfig;
+extend lang::rascalcore::check::RascalConfig;
 
 extend lang::rascalcore::grammar::ParserGenerator;
 import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascalcore::grammar::definition::Characters;
 import lang::rascalcore::grammar::definition::Literals;
 //extend lang::rascalcore::grammar::definition::Grammar;
+
+import lang::rascalcore::check::ScopeInfo;
 
 import Set;
 import Relation;
@@ -357,12 +360,12 @@ tuple[ProfileData, TModel] rascalTModelComponent(map[str, Tree] namedTrees, Modu
 
 CheckerResult rascalTModelForName(str moduleName, PathConfig pcfg, TypePalConfig config){
     mloc = |unknown:///|(0,0,<0,0>,<0,0>);
-    //try {
+    try {
         mloc = getModuleLocation(moduleName, pcfg);
         return rascalTModelForLoc(mloc, pcfg, config);
-    //} catch value e: {
-    //    return <(moduleName : tmodel()[messages = [ error("During type checking: <e>", mloc) ]]), (), ()>;
-    //}
+    } catch value e: {
+        return <(moduleName : tmodel()[messages = [ error("During type checking: <e>", mloc) ]]), (), ()>;
+    }
 }
 
 // ---- checker functions for IDE
@@ -371,12 +374,12 @@ CheckerResult rascalTModelForName(str moduleName, PathConfig pcfg, TypePalConfig
 data ModuleMessages = program(loc src, set[Message] messages);
 
 ModuleMessages check(str moduleName, PathConfig pcfg){        // TODO change from ModuleMessages to list[ModuleMessages]
-    //try {
+    try {
         moduleLoc = getModuleLocation(moduleName, pcfg);
         return check(moduleLoc, pcfg);
-    //} catch value e: {
-    //    return program(|unkown:///|, {error("During type checking: <e>", |unkown:///|)});
-    //}
+    } catch value e: {
+        return program(|unkown:///|, {error("During type checking: <e>", |unkown:///|)});
+    }
 }
 
 ModuleMessages check(loc moduleLoc, PathConfig pcfg){          // TODO: change from ModuleMessages to list[ModuleMessages]

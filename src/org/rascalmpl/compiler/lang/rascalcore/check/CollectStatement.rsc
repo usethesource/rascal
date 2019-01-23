@@ -1,21 +1,19 @@
 @bootstrapParser
-module lang::rascalcore::check::Statement
-
-//extend analysis::typepal::TypePal;
+module lang::rascalcore::check::CollectStatement
 
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeExceptions;
 extend lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::ATypeInstantiation;
-extend lang::rascalcore::check::ConvertType;
-extend lang::rascalcore::check::Declaration;
-extend lang::rascalcore::check::Expression;
-extend lang::rascalcore::check::Operators;
-extend lang::rascalcore::check::Pattern;
-extend lang::rascalcore::check::TypePalConfig;
+
+import lang::rascalcore::check::BasicRascalConfig;
 
 import analysis::typepal::FailMessage;
 import lang::rascal::\syntax::Rascal;
+import lang::rascalcore::check::NameUtils;
+import lang::rascalcore::check::ScopeInfo;
+import lang::rascalcore::check::CheckType;
+import lang::rascalcore::check::ComputeType;
 
 import List;
 import Map;
@@ -47,8 +45,6 @@ void collect(current: (Statement) `<Expression expression>;`, Collector c){
 }
 
 // ---- visit and insert ------------------------------------------------------
-
-data VisitOrSwitchInfo = visitOrSwitchInfo(Expression expression, bool isVisit);
 
 void collect(current: (Statement) `<Label label> <Visit vst>`, Collector c){
     c.enterScope(current);
@@ -219,18 +215,7 @@ void collect(current: (Statement) `<Label label> while( <{Expression ","}+ condi
     c.leaveScope(conditions);
 }
 
-void checkConditions(list[Expression] condList, Solver s){
-    for(Expression cond <- condList){
-        tcond = s.getType(cond);
-        if(!s.isFullyInstantiated(tcond)){
-            s.requireUnify(abool(), tcond, error(cond, "Cannot unify %t with `bool`", cond));
-            tcond = s.instantiate(tcond); 
-        } 
-        s.requireSubType(tcond, abool(), error(cond, "Condition should be `bool`, found %t", cond));
-    }
-}
-
-void computeLoopType(str loopKind, str loopName1, Statement current, Collector c){
+private void computeLoopType(str loopKind, str loopName1, Statement current, Collector c){
     loopScopes = c.getScopeInfo(loopScope());
     
     for(<scope, scopeInfo> <- loopScopes){
@@ -586,37 +571,37 @@ void collect(current:(Assignable) `<Assignable receiver> @ <Name annotation>`, C
     collect(receiver, c);
 }
    
-void checkAssignment(Statement current, (Assignable) `( <Assignable arg> )`, str operator, Statement statement, Collector c){
+private void checkAssignment(Statement current, (Assignable) `( <Assignable arg> )`, str operator, Statement statement, Collector c){
     checkAssignment(current, arg, operator, statement, c);
     //collect(arg, c);
 }
 
-AType computeAssignmentRhsType(Statement current, AType lhsType, "=", AType rhsType, Solver s)
+private AType computeAssignmentRhsType(Statement current, AType lhsType, "=", AType rhsType, Solver s)
     = rhsType;
     
-AType computeAssignmentRhsType(Statement current, AType lhsType, "+=", AType rhsType, Solver s)
+private AType computeAssignmentRhsType(Statement current, AType lhsType, "+=", AType rhsType, Solver s)
     = computeAdditionType(current, lhsType, rhsType, s);
 
-AType computeAssignmentRhsType(Statement current, AType lhsType, "-=", AType rhsType, Solver s)
+private AType computeAssignmentRhsType(Statement current, AType lhsType, "-=", AType rhsType, Solver s)
     = computeSubtractionType(current, lhsType, rhsType, s); 
 
-AType computeAssignmentRhsType(Statement current, AType lhsType, "*=", AType rhsType, Solver s)
+private AType computeAssignmentRhsType(Statement current, AType lhsType, "*=", AType rhsType, Solver s)
     = computeProductType(current, lhsType, rhsType, s);       
 
-AType computeAssignmentRhsType(Statement current, AType lhsType, "/=", AType rhsType, Solver s)
+private AType computeAssignmentRhsType(Statement current, AType lhsType, "/=", AType rhsType, Solver s)
     = computeDivisionType(current, lhsType, rhsType, s);    
 
-AType computeAssignmentRhsType(Statement current, AType lhsType, "&=", AType rhsType, Solver s)
+private AType computeAssignmentRhsType(Statement current, AType lhsType, "&=", AType rhsType, Solver s)
     = computeIntersectionType(current, lhsType, rhsType, s);  
     
-AType computeAssignmentRhsType(Statement current, AType lhsType, "?=", AType rhsType, Solver s)
+private AType computeAssignmentRhsType(Statement current, AType lhsType, "?=", AType rhsType, Solver s)
     = alub(lhsType, rhsType);
 
-default AType computeAssignmentRhsType(Statement current, AType lhsType, str operator, AType rhsType, Solver s){
+private default AType computeAssignmentRhsType(Statement current, AType lhsType, str operator, AType rhsType, Solver s){
     throw rascalCheckerInternalError(getLoc(current), "<operator> not supported");
 }
 
-void checkAssignment(Statement current, (Assignable) `<QualifiedName name>`, str operator,  Statement statement, Collector c){
+private void checkAssignment(Statement current, (Assignable) `<QualifiedName name>`, str operator,  Statement statement, Collector c){
     <qualifier, base> = splitQualifiedName(name);
     if(!isEmpty(qualifier)){
         c.useQualified([qualifier, base], name, {variableId()}, {moduleId()});
@@ -636,11 +621,11 @@ void checkAssignment(Statement current, (Assignable) `<QualifiedName name>`, str
                  });  
 }
 
-AType computeReceiverType(Statement current, (Assignable) `<QualifiedName name>`, loc scope, Solver s){
+private AType computeReceiverType(Statement current, (Assignable) `<QualifiedName name>`, loc scope, Solver s){
     return s.getType(name);
 }
 
-AType computeReceiverType(Statement current, asg: (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, loc scope, Solver s){
+private AType computeReceiverType(Statement current, asg: (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, loc scope, Solver s){
     receiverType = computeReceiverType(current, receiver, scope, s);
     s.fact(receiver, receiverType);
     subsType = computeSubscriptionType(current, receiverType, [ s.getType(subscript) ], [ subscript ], s);
@@ -648,44 +633,44 @@ AType computeReceiverType(Statement current, asg: (Assignable) `<Assignable rece
     return subsType;
 }
     
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, loc scope, Solver s){
+private AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, loc scope, Solver s){
     receiverType = computeReceiverType(current, receiver, scope, s);
     s.fact(receiver, receiverType);
     return computeSliceType(current, receiverType, s.getType(optFirst), aint(), s.getType(optLast), s);
 }
 
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`, loc scope, Solver s){
+private AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`, loc scope, Solver s){
     receiverType = computeReceiverType(current, receiver, scope, s);
     s.fact(receiver, receiverType);
     return computeSliceType(current, receiverType, s.getType(optFirst),s.getType(second), s.getType(optLast), s);
 }
 
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> . <Name field>`, loc scope, Solver s){
+private AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> . <Name field>`, loc scope, Solver s){
     receiverType = computeReceiverType(current, receiver, scope, s);
     s.fact(receiver, receiverType);
     return computeFieldTypeWithADT(receiverType, field, scope, s);
 }
     
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> @ <Name n>`, loc scope, Solver s){
+private AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> @ <Name n>`, loc scope, Solver s){
     receiverType = computeReceiverType(current, receiver, scope, s);
     s.fact(receiver, receiverType);
     annoNameType = s.getTypeInScope(n, scope, {annoId()});
     return computeGetAnnotationType(current, receiverType, annoNameType, s);
 }
 
-AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, loc scope, Solver s){
+private AType computeReceiverType(Statement current, (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, loc scope, Solver s){
    receiverType = computeReceiverType(current, receiver, scope, s);
    s.fact(receiver, receiverType);
    return receiverType;
 }
 
-AType computeReceiverType(Statement current, (Assignable) `\< <{Assignable ","}+ elements> \>`, loc scope, Solver s){
+private AType computeReceiverType(Statement current, (Assignable) `\< <{Assignable ","}+ elements> \>`, loc scope, Solver s){
     receiverType = atuple(atypeList([computeReceiverType(current, element, scope, s) | element <- elements]));
     s.fact(current, receiverType);
     return receiverType;
 }
 
-void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, str operator, Statement rhs, Collector c){
+private void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> [ <Expression subscript> ]`, str operator, Statement rhs, Collector c){
    names = getReceiver(receiver, c);
    
    c.use(names[0], variableRoles);
@@ -701,7 +686,7 @@ void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver>
    collect(receiver, subscript, c);
 }
 
-AType computeSubscriptAssignableType(Statement current, AType receiverType, Expression subscript, str operator, AType rhs, Solver s){
+private AType computeSubscriptAssignableType(Statement current, AType receiverType, Expression subscript, str operator, AType rhs, Solver s){
 
    if(!s.isFullyInstantiated(receiverType)) throw TypeUnavailable();
    if(!s.isFullyInstantiated(rhs)) throw TypeUnavailable();
@@ -761,7 +746,7 @@ AType computeSubscriptAssignableType(Statement current, AType receiverType, Expr
     return avalue();
 }
 
-void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, str operator, Statement rhs, Collector c){
+private void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, str operator, Statement rhs, Collector c){
    names = getReceiver(receiver, c);
    if(optFirst is noExpression) c.fact(optFirst, aint());
    if(optLast is noExpression) c.fact(optLast, aint());
@@ -780,7 +765,7 @@ void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver>
    //collect(receiver, optFirst, optLast, receiver);
 }
 
-void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`, str operator, Statement rhs, Collector c){
+private void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`, str operator, Statement rhs, Collector c){
    names = getReceiver(receiver, c);
    if(optFirst is noExpression) c.fact(optFirst, aint());
    if(optLast is noExpression) c.fact(optLast, aint());
@@ -798,7 +783,7 @@ void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver>
    // collect(receiver, optFirst, second, optLast, receiver);
 }
 
-AType computeSliceAssignableType(Statement current, AType receiverType, AType first, AType step, AType last, str operator, AType rhs, Solver s){
+private AType computeSliceAssignableType(Statement current, AType receiverType, AType first, AType step, AType last, str operator, AType rhs, Solver s){
     if(!s.isFullyInstantiated(receiverType)) throw TypeUnavailable();
     if(!s.isFullyInstantiated(first)) throw TypeUnavailable();
     if(!s.isFullyInstantiated(step)) throw TypeUnavailable();
@@ -830,7 +815,7 @@ AType computeSliceAssignableType(Statement current, AType receiverType, AType fi
     return avalue();
 }
 
-void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> . <Name field>`, str operator, Statement rhs, Collector c){
+private void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> . <Name field>`, str operator, Statement rhs, Collector c){
    names = getReceiver(receiver, c);
    c.use(names[0], variableRoles);
    scope = c.getScope();
@@ -845,7 +830,7 @@ void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver>
    //collect(receiver, c);
 }
 
-AType computeFieldAssignableType(Statement current, AType receiverType, Tree field, str operator, AType rhs, loc scope, Solver s){
+private AType computeFieldAssignableType(Statement current, AType receiverType, Tree field, str operator, AType rhs, loc scope, Solver s){
     fieldName = unescape("<field>");
     if(isNonTerminalType(receiverType) && fieldName == "top"){
         return receiverType;
@@ -856,7 +841,7 @@ AType computeFieldAssignableType(Statement current, AType receiverType, Tree fie
     return updatedFieldType;
 }
 
-void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, str operator, Statement rhs, Collector c){
+private void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, str operator, Statement rhs, Collector c){
    names = getReceiver(receiver, c);
    c.use(names[0], variableRoles);
    scope = c.getScope();
@@ -870,7 +855,7 @@ void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver>
    //collect(receiver, defaultExpression, c);
 }
 
-AType computeDefaultAssignableType(Statement current, AType receiverType, AType defaultType, str operator, AType rhs, loc scope, Solver s){
+private AType computeDefaultAssignableType(Statement current, AType receiverType, AType defaultType, str operator, AType rhs, loc scope, Solver s){
 //println("computeDefaultAssignableType: <receiverType>, <defaultType>, <rhs>");
     finalReceiverType = computeAssignmentRhsType(current, alub(receiverType, defaultType), operator, rhs, s);
     finalDefaultType = computeAssignmentRhsType(current, defaultType, operator, rhs, s);
@@ -880,7 +865,7 @@ AType computeDefaultAssignableType(Statement current, AType receiverType, AType 
 
 set[str] getNames(Statement s) = {"<nm>" | /QualifiedName nm := s};
 
-void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable ","}+ elements> \>`, str operator, Statement rhs, Collector c){
+private void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable ","}+ elements> \>`, str operator, Statement rhs, Collector c){
 
     // Note we will use a list `taus` of type variables that is accessible in `makeDef` and `checkTupleElemAssignment` in order to make
     // new bindings to `taus` (e.g. changed list elements) visible inside those functions
@@ -943,7 +928,7 @@ void checkAssignment(Statement current, receiver: (Assignable) `\< <{Assignable 
   //collect(elements, c);
 }
 
-void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> @ <Name n>`, str operator, Statement rhs, Collector c){
+private void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver> @ <Name n>`, str operator, Statement rhs, Collector c){
    c.use(n, {annoId()});
    names = getReceiver(receiver, c);
    c.useLub(names[0], variableRoles);
@@ -958,7 +943,7 @@ void checkAssignment(Statement current, asg: (Assignable) `<Assignable receiver>
    //collect(receiver, c);
 }
 
-AType computeAnnoAssignableType(Statement current, AType receiverType, Name annoName, str operator, AType rhs, loc scope, Solver s){
+private AType computeAnnoAssignableType(Statement current, AType receiverType, Name annoName, str operator, AType rhs, loc scope, Solver s){
 //println("computeAnnoAssignableType: <receiverType>, <annoName>, <operator>, <rhs>");
    
     if(!s.isFullyInstantiated(receiverType)) throw TypeUnavailable();
@@ -997,21 +982,19 @@ AType computeAnnoAssignableType(Statement current, AType receiverType, Name anno
     return avalue();
 }
 
-
-
-list[QualifiedName] getReceiver((Assignable) `<QualifiedName name>`, Collector c){
+private list[QualifiedName] getReceiver((Assignable) `<QualifiedName name>`, Collector c){
     c.use(name, variableRoles);
     return [name];
 }
-list[QualifiedName] getReceiver((Assignable) `<Assignable receiver> [ <Expression subscript> ]`, Collector c) = getReceiver(receiver, c);
-list[QualifiedName] getReceiver((Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, Collector c) =  getReceiver(receiver, c);
-list[QualifiedName] getReceiver((Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`, Collector c) =  getReceiver(receiver, c);
-list[QualifiedName] getReceiver((Assignable) `<Assignable receiver> . <Name field>`, Collector c) = getReceiver(receiver, c);
-list[QualifiedName] getReceiver((Assignable) `<Assignable receiver> @ <Name n>`, Collector c) = getReceiver(receiver, c);
-list[QualifiedName] getReceiver((Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, Collector c) =  getReceiver(receiver, c);
-list[QualifiedName] getReceiver((Assignable) `\< <{Assignable ","}+ elements> \>`, Collector c) = [*getReceiver(element, c) | Assignable element <- elements];
+private list[QualifiedName] getReceiver((Assignable) `<Assignable receiver> [ <Expression subscript> ]`, Collector c) = getReceiver(receiver, c);
+private list[QualifiedName] getReceiver((Assignable) `<Assignable receiver> [ <OptionalExpression optFirst> .. <OptionalExpression optLast> ]`, Collector c) =  getReceiver(receiver, c);
+private list[QualifiedName] getReceiver((Assignable) `<Assignable receiver> [ <OptionalExpression optFirst>, <Expression second> .. <OptionalExpression optLast> ]`, Collector c) =  getReceiver(receiver, c);
+private list[QualifiedName] getReceiver((Assignable) `<Assignable receiver> . <Name field>`, Collector c) = getReceiver(receiver, c);
+private list[QualifiedName] getReceiver((Assignable) `<Assignable receiver> @ <Name n>`, Collector c) = getReceiver(receiver, c);
+private list[QualifiedName] getReceiver((Assignable) `<Assignable receiver> ? <Expression defaultExpression>`, Collector c) =  getReceiver(receiver, c);
+private list[QualifiedName] getReceiver((Assignable) `\< <{Assignable ","}+ elements> \>`, Collector c) = [*getReceiver(element, c) | Assignable element <- elements];
 
-default list[QualifiedName] getReceiver(Assignable asg, Collector c) { throw rascalCheckerInternalError(getLoc(asg), "Unsupported assignable <asg>"); }
+private default list[QualifiedName] getReceiver(Assignable asg, Collector c) { throw rascalCheckerInternalError(getLoc(asg), "Unsupported assignable <asg>"); }
 
 // ---- return, defined in Declarations, close to function declarations -------
 
@@ -1034,7 +1017,7 @@ void collect(current: (Statement) `<Type varType> <{Variable ","}+ variables>;`,
     scope = c.getScope();
     c.enterScope(current); // wrap in extra scope to isolate variables declared in complex (function) types
         for(var <- variables){
-            c.defineInScope(scope, prettyPrintName(var.name), variableId(), var.name, defType([varType], makeSyntaxType(varType)));
+            c.defineInScope(scope, prettyPrintName(var.name), variableId(), var.name, defType([varType], makeGetSyntaxType(varType)));
             
             if(var is initialized){
                 c.enterLubScope(var);

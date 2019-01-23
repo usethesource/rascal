@@ -2,21 +2,18 @@
 module lang::rascalcore::check::AType
 
 extend analysis::typepal::AType;
-extend lang::rascalcore::check::ATypeUtils;
+//extend lang::rascalcore::check::ATypeUtils;
 
 import lang::rascal::\syntax::Rascal;
 extend lang::rascalcore::check::ATypeExceptions;
 import lang::rascalcore::grammar::definition::Characters;
 
 import List;
+import Map;
 import Node;
-import Relation;
-import Set;
 import String;
 
 alias Keyword     = tuple[AType fieldType, Expression defaultExp];
-
-//data QName        = qualName(str qualifier, str name);
    
 data AType (str label = "")
     =  aint()
@@ -696,3 +693,5 @@ public AType lubList(list[AType] ts) {
     for (t <- ts) theLub = alub(theLub,t);
     return theLub;
 }
+
+
