@@ -7,12 +7,11 @@ extend lang::rascalcore::check::BasicRascalConfig;
 extend lang::rascalcore::check::ADTandGrammar;
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeUtils;
-
-extend lang::rascalcore::grammar::ParserGenerator;
-
 import lang::rascalcore::check::NameUtils;
 import lang::rascal::\syntax::Rascal;
 extend lang::rascalcore::check::ComputeType;
+
+extend lang::rascalcore::grammar::ParserGenerator;
 
 import List;
 import Map;

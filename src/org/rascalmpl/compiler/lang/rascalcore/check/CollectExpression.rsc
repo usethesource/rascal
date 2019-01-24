@@ -10,15 +10,14 @@ extend lang::rascalcore::check::ATypeUtils;
 
 import lang::rascalcore::check::BasicRascalConfig;
 
-//import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascal::\syntax::Rascal;
+
+import lang::rascalcore::check::CheckType;
+import lang::rascalcore::check::ComputeType;
 import lang::rascalcore::check::NameUtils;
 import lang::rascalcore::check::ScopeInfo;
-import lang::rascalcore::check::ComputeType;
-import lang::rascalcore::check::CheckType;
 import lang::rascalcore::check::SyntaxGetters;
 
-//import IO;
 import Map;
 import Node;
 import Set;

@@ -11,9 +11,8 @@ import lang::rascalcore::grammar::definition::Layout;
 import lang::rascalcore::grammar::definition::Keywords;
   
 import lang::rascal::\syntax::Rascal;
-//import Exception;
+
 import IO;
-//import Map;
 import Node;
 import Set;
 
