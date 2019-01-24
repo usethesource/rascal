@@ -1,10 +1,10 @@
 @bootstrapParser
 module lang::rascalcore::check::CheckType
 
-import lang::rascal::\syntax::Rascal;
-
 extend analysis::typepal::TypePal;
 extend lang::rascalcore::check::AType;
+
+import lang::rascal::\syntax::Rascal;
 
 void checkConditions(list[Expression] condList, Solver s){
     for(Expression cond <- condList){

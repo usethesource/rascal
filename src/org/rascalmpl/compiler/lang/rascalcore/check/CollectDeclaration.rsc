@@ -10,11 +10,11 @@ extend lang::rascalcore::check::Fingerprint;
 
 import lang::rascalcore::check::BasicRascalConfig;
 
-import lang::rascalcore::check::NameUtils;
+import lang::rascalcore::check::CollectVarArgs;
 import lang::rascalcore::check::ComputeType;
+import lang::rascalcore::check::NameUtils;
 import lang::rascalcore::check::ScopeInfo;
 import lang::rascalcore::check::SyntaxGetters;
-import lang::rascalcore::check::CollectVarArgs;
 
 import lang::rascal::\syntax::Rascal;
 
