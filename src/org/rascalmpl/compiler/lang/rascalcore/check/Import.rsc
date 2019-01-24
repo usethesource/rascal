@@ -4,7 +4,7 @@ module lang::rascalcore::check::Import
 
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeUtils;
-extend lang::rascalcore::check::ATypeInstantiation;
+//extend lang::rascalcore::check::ATypeInstantiation;
 extend lang::rascalcore::check::Checker;
 
 import lang::rascalcore::check::BasicRascalConfig;
@@ -199,8 +199,6 @@ rel[str, PathRole, str] getModulePathsAsStr(Module m){
 set[loc] getImportLocsOfModule(str qualifiedModuleName, set[Module] modules)
     = { getLoc(imod) | m <- modules, imod <- m.header.imports, imod has \module, "<imod.\module>" == qualifiedModuleName };
 
-TModel emptyModel = tmodel();
-
 // ---- Save modules ----------------------------------------------------------
 
 map[str, loc] getModuleScopes(TModel tm)
@@ -277,7 +275,7 @@ TModel saveModule(str qualifiedModuleName, set[str] imports, set[str] extends, m
                   }
                };
         
-        if(tm.config.logImports) println("defines: <size(tm.defines)> ==\> <size(defs)>");
+        //if(tm.config.logImports) println("defines: <size(tm.defines)> ==\> <size(defs)>");
         m1.defines = toSet(defs);
         m1 = visit(m1) {case loc l : if(!isEmpty(l.fragment)) insert l[fragment=""]; };
         m1.definitions = ( def.defined : def | Define def <- m1.defines);  // TODO this is derived info, can we derive it later?

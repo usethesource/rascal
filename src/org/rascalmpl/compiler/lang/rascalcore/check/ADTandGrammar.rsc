@@ -1,6 +1,8 @@
 @bootstrapParser
 module lang::rascalcore::check::ADTandGrammar
    
+extend analysis::typepal::TypePal;
+
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::BasicRascalConfig;
@@ -9,9 +11,9 @@ import lang::rascalcore::grammar::definition::Layout;
 import lang::rascalcore::grammar::definition::Keywords;
   
 import lang::rascal::\syntax::Rascal;
-import Exception;
+//import Exception;
 import IO;
-import Map;
+//import Map;
 import Node;
 import Set;
 

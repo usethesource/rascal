@@ -1,9 +1,9 @@
 @bootstrapParser
 module lang::rascalcore::check::Summary
 
-extend lang::rascalcore::check::AType;
+//extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeUtils;
-import lang::rascalcore::check::RascalConfig;
+import lang::rascalcore::check::BasicRascalConfig;
 
 extend analysis::typepal::TypePal;
 

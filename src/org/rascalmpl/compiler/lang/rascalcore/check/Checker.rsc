@@ -31,6 +31,8 @@ import Map;
 import util::Benchmark;
 import Message;
 
+extend analysis::typepal::TypePal;
+
 import lang::rascal::\syntax::Rascal;
 
 extend lang::rascalcore::check::AType;
@@ -44,12 +46,12 @@ extend lang::rascalcore::check::CollectPattern;
 extend lang::rascalcore::check::CollectStatement;
 
 extend lang::rascalcore::check::ATypeUtils;
-extend lang::rascalcore::check::RascalConfig;
+import lang::rascalcore::check::RascalConfig;
 
-extend lang::rascalcore::grammar::ParserGenerator;
-import lang::rascalcore::grammar::definition::Symbols;
-import lang::rascalcore::grammar::definition::Characters;
-import lang::rascalcore::grammar::definition::Literals;
+//extend lang::rascalcore::grammar::ParserGenerator;
+//import lang::rascalcore::grammar::definition::Symbols;
+//import lang::rascalcore::grammar::definition::Characters;
+//import lang::rascalcore::grammar::definition::Literals;
 //extend lang::rascalcore::grammar::definition::Grammar;
 
 import lang::rascalcore::check::ScopeInfo;

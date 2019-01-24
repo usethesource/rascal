@@ -21,7 +21,7 @@ extend ParseTree;
 
 import analysis::typepal::Messenger;
 import lang::rascal::\syntax::Rascal;
-import lang::rascalcore::format::Escape;
+//import lang::rascalcore::format::Escape;
 
 import IO;
 import List;

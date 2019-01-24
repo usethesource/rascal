@@ -12,7 +12,7 @@
 module lang::rascalcore::check::CollectType
 
 extend lang::rascalcore::check::AType;
-extend lang::rascalcore::check::ATypeExceptions;
+//extend lang::rascalcore::check::ATypeExceptions;
 extend lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::ATypeInstantiation;
 import lang::rascalcore::check::BasicRascalConfig;
@@ -24,9 +24,9 @@ import lang::rascalcore::grammar::definition::Literals;
 
 import lang::rascalcore::check::NameUtils;
 
-import IO;
+//import IO;
 import List;
-import Map;
+//import Map;
 import Node;
 import Set;
 import String;

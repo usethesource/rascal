@@ -5,11 +5,11 @@ extend analysis::typepal::AType;
 //extend lang::rascalcore::check::ATypeUtils;
 
 import lang::rascal::\syntax::Rascal;
-extend lang::rascalcore::check::ATypeExceptions;
+//extend lang::rascalcore::check::ATypeExceptions;
 import lang::rascalcore::grammar::definition::Characters;
 
 import List;
-import Map;
+//import Map;
 import Node;
 import String;
 
