@@ -1,6 +1,6 @@
 module lang::rascalcore::check::ComputeType
 
-extend analysis::typepal::TypePal;
+//extend analysis::typepal::TypePal;
 
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeExceptions;
@@ -8,16 +8,16 @@ extend lang::rascalcore::check::ATypeInstantiation;
 extend lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::check::BasicRascalConfig;
 
-import lang::rascalcore::grammar::definition::Symbols;
+//import lang::rascalcore::grammar::definition::Symbols;
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::check::NameUtils;
 
-import IO;
+//import IO;
 import Map;
-import Node;
+//import Node;
 import Set;
 import String;
-import ValueIO;
+//import ValueIO;
 
 AType(Solver) makeGetSyntaxType(Tree varType)
     = AType(Solver s) { return getSyntaxType(varType, s); };
@@ -832,19 +832,19 @@ AType getPatternType(Pattern p, AType subjectType, loc scope, Solver s){
 
 // ---- bracketed pattern
 
-//AType getPatternType0(current: (Pattern) `(<Pattern p>)`, AType subjectType, loc scope, Solver s){
+//private AType getPatternType0(current: (Pattern) `(<Pattern p>)`, AType subjectType, loc scope, Solver s){
 //    return getPatternType(p, subjectType, scope, Solver);
 //}
 
 // ---- literal patterns
 
-default AType getPatternType0(Pattern p, AType subjectType, loc scope, Solver s){
+private default AType getPatternType0(Pattern p, AType subjectType, loc scope, Solver s){
     return s.getType(p);
 }
 
 // ---- set pattern
 
-AType getPatternType0(current: (Pattern) `{ <{Pattern ","}* elements0> }`, AType subjectType, loc scope, Solver s){
+private AType getPatternType0(current: (Pattern) `{ <{Pattern ","}* elements0> }`, AType subjectType, loc scope, Solver s){
     elmType = isSetType(subjectType) ? getSetElementType(subjectType) : avalue();
     setType = aset(s.lubList([getPatternType(p, elmType, scope,s) | p <- elements0]));
     s.fact(current, setType);
@@ -853,7 +853,7 @@ AType getPatternType0(current: (Pattern) `{ <{Pattern ","}* elements0> }`, AType
 
 // ---- list pattern
 
-AType getPatternType0(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, AType subjectType, loc scope, Solver s){
+private AType getPatternType0(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, AType subjectType, loc scope, Solver s){
     elmType = isListType(subjectType) ? getListElementType(subjectType) : avalue();
     res = alist(s.lubList([getPatternType(p, elmType, scope, s) | p <- elements0]));
     s.fact(current, res);
@@ -862,13 +862,13 @@ AType getPatternType0(current: (Pattern) `[ <{Pattern ","}* elements0> ]`, AType
 
 // ---- typed variable pattern
 
-AType getPatternType0(current:( Pattern) `<Type tp> <Name name>`, AType subjectType, loc scope, Solver s){
+private AType getPatternType0(current:( Pattern) `<Type tp> <Name name>`, AType subjectType, loc scope, Solver s){
     return s.getType(tp)[label=unescape("<name>")];
 }
 
 // ---- qualifiedName pattern: QualifiedName
 
-AType getPatternType0(current: (Pattern) `<QualifiedName name>`, AType subjectType, loc scope, Solver s){
+private AType getPatternType0(current: (Pattern) `<QualifiedName name>`, AType subjectType, loc scope, Solver s){
     base = prettyPrintBaseName(name);
     if(base != "_"){
        nameType = s.getType(name);
@@ -888,18 +888,18 @@ AType getPatternType0(current: (Pattern) `<QualifiedName name>`, AType subjectTy
 
 // ---- multiVariable pattern: QualifiedName*
 
-AType getPatternType0(current: (Pattern) `<QualifiedName name>*`,  AType subjectType, loc scope, Solver s){
+private AType getPatternType0(current: (Pattern) `<QualifiedName name>*`,  AType subjectType, loc scope, Solver s){
     Pattern pat = (Pattern) `<QualifiedName name>`;
-    return getSplicePatternType(current, pat, subjectType, scope, s);
+    return getSplicePatternType(current, pat, subjectType, s);
 }
 
 // ---- splice pattern: *Pattern
 
-AType getPatternType0(current: (Pattern) `* <Pattern argument>`, AType subjectType, loc scope, Solver s){
-    return  getSplicePatternType(current, argument, subjectType, scope, s);
+private AType getPatternType0(current: (Pattern) `* <Pattern argument>`, AType subjectType, loc scope, Solver s){
+    return  getSplicePatternType(current, argument, subjectType, s);
 }
 
-AType getSplicePatternType(Pattern current, Pattern argument,  AType subjectType, loc scope, Solver s){
+private AType getSplicePatternType(Pattern current, Pattern argument,  AType subjectType, Solver s){
     if(argument is typedVariable){
        uname = unescape("<argument.name>");
        if(uname == "_"){
@@ -959,12 +959,12 @@ AType getSplicePatternType(Pattern current, Pattern argument,  AType subjectType
 
 // ---- splicePlus pattern: +Pattern ------------------------------------------
 
-AType getPatternType0(current: (Pattern) `+<Pattern argument>`, AType subjectType, loc scope, Solver s)
-    = getSplicePatternType(current, argument, subjectType, scope, s);
+private AType getPatternType0(current: (Pattern) `+<Pattern argument>`, AType subjectType, loc scope, Solver s)
+    = getSplicePatternType(current, argument, subjectType, s);
 
 // ---- tuple pattern ---------------------------------------------------------
 
-AType getPatternType0(current: (Pattern) `\< <{Pattern ","}* elements1> \>`, AType subjectType, loc scope, Solver s){
+private AType getPatternType0(current: (Pattern) `\< <{Pattern ","}* elements1> \>`, AType subjectType, loc scope, Solver s){
     pats = [ p | Pattern p <- elements1 ];
     if(isTupleType(subjectType)){
         elmTypes = getTupleFieldTypes(subjectType);
@@ -982,13 +982,13 @@ AType getPatternType0(current: (Pattern) `\< <{Pattern ","}* elements1> \>`, ATy
     return atuple(atypeList([getPatternType(pats[i], avalue(), scope, s) | int i <- index(pats)]));
 }
 
-AType getPatternType0(current: (KeywordArgument[Pattern]) `<Name name> = <Pattern expression>`, AType subjectType, loc scope, Solver s){
+private AType getPatternType0(current: (KeywordArgument[Pattern]) `<Name name> = <Pattern expression>`, AType subjectType, loc scope, Solver s){
     return getPatternType(expression, subjectType, scope, s);
 }
 
 // ---- call or tree pattern --------------------------------------------------
 
-AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, AType subjectType, loc scope, Solver s){
+private AType getPatternType0(current: (Pattern) `<Pattern expression> ( <{Pattern ","}* arguments> <KeywordArguments[Pattern] keywordArguments> )`, AType subjectType, loc scope, Solver s){
    //println("getPatternType: <current>");
     pats = [ p | Pattern p <- arguments ];
     
@@ -1104,13 +1104,13 @@ AType computePatternNodeTypeWithKwArgs(Tree current, (KeywordArguments[Pattern])
 
 // ---- variable becomes pattern
 
-AType getPatternType0(current: (Pattern) `<Name name> : <Pattern pattern>`,  AType subjectType, loc scope, Solver s){
+private AType getPatternType0(current: (Pattern) `<Name name> : <Pattern pattern>`,  AType subjectType, loc scope, Solver s){
     return getPatternType(pattern, subjectType, scope, s)[label=unescape("<name>")];
 }
 
 // ---- typed variable becomes
 
-AType getPatternType0(current: (Pattern) `<Type tp> <Name name> : <Pattern pattern>`, AType subjectType, loc scope, Solver s){
+private AType getPatternType0(current: (Pattern) `<Type tp> <Name name> : <Pattern pattern>`, AType subjectType, loc scope, Solver s){
     declaredType = s.getType(name);
     patType = getPatternType(pattern, subjectType, scope, s);
     s.requireComparable(patType, declaredType, error(current, "Incompatible type in assignment to variable %q, expected %t, found %t", name, declaredType, patType));
@@ -1119,20 +1119,20 @@ AType getPatternType0(current: (Pattern) `<Type tp> <Name name> : <Pattern patte
 
 // ---- descendant pattern
 
-AType getPatternType0(current: (Pattern) `/ <Pattern pattern>`, AType subjectType, loc scope, Solver s){
+private AType getPatternType0(current: (Pattern) `/ <Pattern pattern>`, AType subjectType, loc scope, Solver s){
     getPatternType(pattern, avalue(), scope, s);
     return avoid();
 }
 
 // ---- negative 
 
-AType getPatternType0(current: (Pattern) `- <Pattern pattern>`,  AType subjectType, loc scope, Solver s){
+private AType getPatternType0(current: (Pattern) `- <Pattern pattern>`,  AType subjectType, loc scope, Solver s){
     return getPatternType(pattern, subjectType, scope, s);
 }
 
 //TODO: map
 
-AType getPatternType0(current: (Pattern) `( <{Mapping[Pattern] ","}* mps> )`, AType subjectType, loc scope, Solver s){
+private AType getPatternType0(current: (Pattern) `( <{Mapping[Pattern] ","}* mps> )`, AType subjectType, loc scope, Solver s){
     return amap(avoid(),avoid()); // TODO
 }
 
@@ -1142,7 +1142,7 @@ AType getPatternType0(current: (Pattern) `( <{Mapping[Pattern] ","}* mps> )`, AT
 
 // ---- anti
 
-AType getPatternType0(current: (Pattern) `! <Pattern pattern>`, AType subjectType, loc scope, Solver s){
+private AType getPatternType0(current: (Pattern) `! <Pattern pattern>`, AType subjectType, loc scope, Solver s){
     getPatternType(pattern, avalue(), scope, s);
     return avoid();
 }

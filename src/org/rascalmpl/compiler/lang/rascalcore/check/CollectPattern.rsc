@@ -1,14 +1,14 @@
 @bootstrapParser
 module lang::rascalcore::check::CollectPattern
 
-extend analysis::typepal::TypePal;
+//extend analysis::typepal::TypePal;
 
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeUtils;
 extend lang::rascalcore::check::ATypeExceptions;
 
 import lang::rascalcore::check::BasicRascalConfig;
-import lang::rascalcore::check::CollectVarArgs;
+//import lang::rascalcore::check::CollectVarArgs;
 
 import analysis::typepal::FailMessage;
 import lang::rascal::\syntax::Rascal;
@@ -16,8 +16,8 @@ import lang::rascalcore::check::NameUtils;
 import lang::rascalcore::check::ComputeType;
 import lang::rascalcore::check::ScopeInfo;
 
-import IO;
-import Set;
+//import IO;
+//import Set;
 import String;
 
 void collect(current: (Literal)`<RegExpLiteral regExpLiteral>`, Collector c){
@@ -256,9 +256,6 @@ void collect(current: (Pattern) `+<Pattern argument>`, Collector c){
     collectSplicePattern(current, argument, c);
 }
 
-//AType getPatternType0(current: (Pattern) `+<Pattern argument>`, AType subjectType, loc scope, Solver s)
-//    = getSplicePatternType(current, argument, subjectType, scope, s);
-
 // ---- tuple pattern ---------------------------------------------------------
 
 void collect(current: (Pattern) `\< <{Pattern ","}+ elements1> \>`, Collector c){
@@ -273,9 +270,9 @@ void collect(current: (KeywordArgument[Pattern]) `<Name name> = <Pattern express
     collect(expression, c);
 }
 
-AType getPatternType0(current: (KeywordArgument[Pattern]) `<Name name> = <Pattern expression>`, AType subjectType, loc scope, Solver s){
-    return getPatternType(expression, subjectType, scope, s);
-}
+//AType getPatternType0(current: (KeywordArgument[Pattern]) `<Name name> = <Pattern expression>`, AType subjectType, loc scope, Solver s){
+//    return getPatternType(expression, subjectType, scope, s);
+//}
 
 // ---- call or tree pattern --------------------------------------------------
 

@@ -1,12 +1,12 @@
 @bootstrapParser
 module lang::rascalcore::check::CollectVarArgs
 
-extend analysis::typepal::TypePal;
+//extend analysis::typepal::TypePal;
 extend lang::rascalcore::check::AType;
 extend lang::rascalcore::check::ATypeUtils;
 import analysis::typepal::FailMessage;
 import lang::rascal::\syntax::Rascal;
-import lang::rascalcore::check::NameUtils;
+//import lang::rascalcore::check::NameUtils;
 import lang::rascalcore::check::ScopeInfo;
 import lang::rascalcore::check::BasicRascalConfig;
 

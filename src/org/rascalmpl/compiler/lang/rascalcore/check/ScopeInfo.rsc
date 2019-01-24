@@ -1,7 +1,7 @@
 @bootstrapParser
 module lang::rascalcore::check::ScopeInfo
 
-extend analysis::typepal::TypePal;
+//extend analysis::typepal::TypePal;
 import lang::rascalcore::check::BasicRascalConfig;
 import lang::rascal::\syntax::Rascal;
 
