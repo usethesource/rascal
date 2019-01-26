@@ -88,6 +88,36 @@
 
 		<plugins>
 	<plugin>
+		<groupId>org.rascalmpl</groupId>
+		<artifactId>rascal-maven-plugin</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<configuration>
+			<bin>${project.build.outputDirectory}</bin>
+			<srcs>
+				<src>${project.basedir}/src/org/rascalmpl/library</src>
+			</srcs>
+			<srcIgnores>
+			   <ignore>${project.basedir}/src/org/rascalmpl/library/demo</ignore>
+			   <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
+			   <ignore>${project.basedir}/src/org/rascalmpl/library/util/integration</ignore>
+			   <ignore>${project.basedir}/src/org/rascalmpl/library/util/tasks</ignore>
+			   <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
+			   <ignore>${project.basedir}/src/org/rascalmpl/library/lang</ignore>
+			   <ignore>${project.basedir}/src/org/rascalmpl/library/analysis/grammars/Ambiguity.rsc</ignore>
+			   <ignore>${project.basedir}/src/org/rascalmpl/library/analysis/flow/ControlFlow.rsc</ignore>
+			</srcIgnores>
+		</configuration>
+		<executions>
+			<execution>
+				<id>it-compile</id>
+				<phase>compile</phase>
+				<goals>
+					<goal>compile-rascal</goal>
+				</goals>
+			</execution>
+		</executions>
+	</plugin>
+    <plugin>
 	<groupId>org.codehaus.mojo</groupId>
 	<artifactId>exec-maven-plugin</artifactId>
 	<version>1.4.0</version>
