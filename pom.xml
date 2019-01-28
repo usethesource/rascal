@@ -31,6 +31,12 @@
 			<url>http://nexus.usethesource.io/content/repositories/public/</url>
 		</repository>
 	</repositories>
+	<pluginRepositories>
+		<pluginRepository>
+			<id>usethesource</id>
+			<url>http://nexus.usethesource.io/content/repositories/public/</url>
+		</pluginRepository>
+	</pluginRepositories>
 
 
 	<properties>
