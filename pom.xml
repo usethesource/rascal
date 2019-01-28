@@ -106,6 +106,7 @@
 			   <ignore>${project.basedir}/src/org/rascalmpl/library/analysis/grammars/Ambiguity.rsc</ignore>
 			   <ignore>${project.basedir}/src/org/rascalmpl/library/analysis/flow/ControlFlow.rsc</ignore>
 			</srcIgnores>
+                        <configureStandardLibrarySource>false</configureStandardLibrarySource>
 		</configuration>
 		<executions>
 			<execution>
