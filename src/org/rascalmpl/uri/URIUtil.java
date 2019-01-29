@@ -18,8 +18,6 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
-import javax.xml.stream.events.Characters;
-
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
 import org.rascalmpl.values.ValueFactoryFactory;

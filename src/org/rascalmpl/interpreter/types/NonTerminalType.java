@@ -21,7 +21,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import org.eclipse.jface.text.ISynchronizable;
 import org.rascalmpl.interpreter.TypeReifier.TypeStoreWithSyntax;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.Symbols;
