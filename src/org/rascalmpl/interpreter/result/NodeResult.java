@@ -27,7 +27,9 @@ import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedSubscriptArity;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+
 import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.INode;
@@ -64,14 +66,20 @@ public class NodeResult extends ElementResult<INode> {
 	
 	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
-	    if (value.mayHaveKeywordParameters()) {
-	        IValue parameter = value.asWithKeywordParameters().getParameter(name);
-	        
-	        if (parameter != null) {
-	            return makeResult(getTypeFactory().valueType(), parameter, ctx);
-	        }
-	    }
-	    
+	    if (value instanceof IConstructor) {//check for existing parameters on constructors
+            Type consType = ((IConstructor) value).getConstructorType();
+
+            if (consType.hasField(name, store)) {//positional field on constructor
+                int index = consType.getFieldIndex(name);
+                return makeResult(consType.getFieldType(index), getValue().get(index), ctx);
+            }
+            if (value.mayHaveKeywordParameters()) { //non-default keyword parameter
+                IValue parameter = value.asWithKeywordParameters().getParameter(name);
+                if (parameter != null) {
+                    return makeResult(getTypeFactory().valueType(), parameter, ctx);
+                }
+            }
+        }
 	    throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), ctx.getStackTrace());
 	}
 
@@ -103,6 +111,9 @@ public class NodeResult extends ElementResult<INode> {
 	@Override
 	public Result<IBool> isDefined(Name name) {
 		String sname = Names.name(name);
+		if (value instanceof IConstructor && ((IConstructor) value).has(sname)) {
+		    return ResultFactory.bool(true, ctx);
+		}
 		return ResultFactory.bool(getValue().asWithKeywordParameters().hasParameter(sname), ctx);
 	}
 	

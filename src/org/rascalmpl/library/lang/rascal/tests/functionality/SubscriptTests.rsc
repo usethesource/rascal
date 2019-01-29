@@ -13,6 +13,8 @@ module lang::rascal::tests::functionality::SubscriptTests
  *   * Bert Lisser - Bert.Lisser@cwi.nl - CWI
 *******************************************************************************/
 
+import Exception;
+
 data NODE = f(int a, str b, real c);
 
 //	 list

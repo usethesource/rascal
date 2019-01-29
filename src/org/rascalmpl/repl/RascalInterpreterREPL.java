@@ -38,15 +38,12 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
 public abstract class RascalInterpreterREPL extends BaseRascalREPL {
-
     protected Evaluator eval;
     private boolean measureCommandTime;
-    private final OutputStream originalOutput;
 
     public RascalInterpreterREPL(InputStream stdin, OutputStream stdout, boolean prettyPrompt, boolean allowColors, boolean htmlOutput, File persistentHistory)
                     throws IOException, URISyntaxException {
         super(prettyPrompt, allowColors, htmlOutput);
-        originalOutput = stdout;
     }
     
     public void cleanEnvironment() {
@@ -55,7 +52,10 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     
     public RascalInterpreterREPL() throws IOException, URISyntaxException{
         super(true, true, false);
-        originalOutput = null;
+    }
+    
+    public RascalInterpreterREPL(boolean htmlOutput) throws IOException, URISyntaxException{
+        super(true, true, htmlOutput);
     }
 
     @Override
@@ -134,7 +134,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
             synchronized(eval) {
                 Timing tm = new Timing();
                 tm.start();
-                value = eval.eval(null, statement, URIUtil.rootLocation("prompt"));
+                value = eval.eval(eval.getMonitor(), statement, URIUtil.rootLocation("prompt"));
                 duration = tm.duration();
             }
             if (measureCommandTime) {
@@ -176,7 +176,7 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     @Override
     public boolean isStatementComplete(String command) {
         try {
-            eval.parseCommand(null, command, URIUtil.rootLocation("prompt"));
+            eval.parseCommand(eval.getMonitor(), command, URIUtil.rootLocation("prompt"));
         }
         catch (ParseError pe) {
             String[] commandLines = command.split("\n");
@@ -233,10 +233,5 @@ public abstract class RascalInterpreterREPL extends BaseRascalREPL {
     @Override
     protected SortedSet<String> getCommandLineOptions() {
         return commandLineOptions;
-    }
-
-    
-    public OutputStream getOutput() {
-        return originalOutput;
     }
 }
