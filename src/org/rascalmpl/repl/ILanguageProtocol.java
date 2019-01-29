@@ -12,10 +12,8 @@
  */ 
 package org.rascalmpl.repl;
 
-import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 
