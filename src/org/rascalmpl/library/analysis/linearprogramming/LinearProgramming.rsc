@@ -87,6 +87,8 @@ optimize(bool minimize, bool nonZero,
 		case nothing()   : return nothing();
 		case just(llsol) : return just(fromLLSolution(llsol,indexVar));
 	}
+	
+	return nothing();
 }
 
 num zero = 0;

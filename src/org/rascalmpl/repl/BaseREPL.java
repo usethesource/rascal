@@ -258,7 +258,7 @@ public class BaseREPL {
 
     protected void updatePrompt() {
         String newPrompt = getPrompt();
-        if (!newPrompt.equals(previousPrompt)) {
+        if (newPrompt != null && !newPrompt.equals(previousPrompt)) {
             previousPrompt = newPrompt;
             if (prettyPrompt) {
                 reader.setPrompt(PRETTY_PROMPT_PREFIX + newPrompt + PRETTY_PROMPT_POSTFIX);
