@@ -12,21 +12,21 @@ node {
         }
 
         stage('Generate Tutor') {
-          sh "mvn -Drascal.courses=--buildCourses -Dmaven.resources.skip=true compile "
+          sh "mvn -Drascal.courses=--buildCourses compile"
         }
 
         stage('Run Tests') {
-          sh "mvn -Drascal.test.memory=4 -Dmaven.resources.skip=true test"
+          sh "mvn -Drascal.test.memory=4 test"
           sh "curl https://codecov.io/bash | bash -s - -K -X gcov -t e8b4481a-d178-4148-a4ff-502906390512"
         }
         
         stage('Packaging') {
-          sh "mvn -DskipTests -Dmaven.resources.skip=true package"
+          sh "mvn -DskipTests package"
         }
         
         stage('Deploy') {
           if (env.BRANCH_NAME == "master" || env.BRANCH_NAME == "jenkins-deploy") {
-            sh "mvn -DskipTests -Dmaven.resources.skip=true deploy"
+            sh "mvn -DskipTests deploy"
           }
         }
     }
