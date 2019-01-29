@@ -16,9 +16,7 @@ import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import org.junit.Test;
@@ -28,7 +26,6 @@ import org.rascalmpl.test.infrastructure.TestFramework;
 
 import io.usethesource.vallang.random.RandomTypeGenerator;
 import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeFactory;
 
 public class RascalTypes extends TestFramework {
     

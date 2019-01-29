@@ -14,8 +14,6 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.result;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import org.rascalmpl.debug.IRascalMonitor;
@@ -25,9 +23,6 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
-import org.rascalmpl.interpreter.staticErrors.ArgumentMismatch;
-import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;

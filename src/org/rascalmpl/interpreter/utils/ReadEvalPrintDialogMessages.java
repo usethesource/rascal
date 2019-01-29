@@ -14,8 +14,6 @@ package org.rascalmpl.interpreter.utils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.regex.Matcher;
 
 import org.rascalmpl.interpreter.StackTrace;
@@ -27,8 +25,6 @@ import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
 import org.rascalmpl.parser.gtd.exception.ParseError;
-import org.rascalmpl.uri.URIUtil;
-
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
