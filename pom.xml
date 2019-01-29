@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.rascalmpl</groupId>
@@ -9,8 +11,8 @@
 
 	<scm>
 		<developerConnection>scm:git:ssh://git@github.com/usethesource/rascal.git</developerConnection>
-	  <tag>HEAD</tag>
-  </scm>
+		<tag>HEAD</tag>
+	</scm>
 
 	<!-- deployment configuration (usethesource) -->
 	<distributionManagement>
@@ -42,15 +44,16 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-		
+
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<lucence-version>7.5.0</lucence-version>
 		<exec.mainClass>org.rascalmpl.shell.RascalShell</exec.mainClass>
-        <rascal.test.memory>2</rascal.test.memory>
-        <rascal.courses>--skipCourses</rascal.courses> <!-- Tutor compile is disabled by default, except if you pass: "-Drascal.courses= - - buildCourses" to maven (remove the spaces between the dashes) -->
+		<rascal.test.memory>2</rascal.test.memory>
+		<rascal.courses>--skipCourses</rascal.courses> <!-- Tutor compile is disabled by default, except if you pass: "-Drascal.courses= 
+			- - buildCourses" to maven (remove the spaces between the dashes) -->
 	</properties>
- 
+
 
 	<build>
 		<sourceDirectory>src</sourceDirectory>
@@ -93,97 +96,97 @@
 		</testResources>
 
 		<plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.1.0</version>
-            </plugin>
-	<plugin>
-		<groupId>org.rascalmpl</groupId>
-		<artifactId>rascal-maven-plugin</artifactId>
-		<version>0.0.1-SNAPSHOT</version>
-		<configuration>
-			<bin>${project.build.outputDirectory}</bin>
-			<srcs>
-				<src>${project.basedir}/src/org/rascalmpl/library</src>
-			</srcs>
-			<srcIgnores>
-			   <ignore>${project.basedir}/src/org/rascalmpl/library/demo</ignore>
-			   <ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
-			   <ignore>${project.basedir}/src/org/rascalmpl/library/util/integration</ignore>
-			   <ignore>${project.basedir}/src/org/rascalmpl/library/util/tasks</ignore>
-			   <ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
-			   <ignore>${project.basedir}/src/org/rascalmpl/library/lang</ignore>
-			   <ignore>${project.basedir}/src/org/rascalmpl/library/analysis/grammars/Ambiguity.rsc</ignore>
-			   <ignore>${project.basedir}/src/org/rascalmpl/library/analysis/flow/ControlFlow.rsc</ignore>
-			</srcIgnores>
-                        <enableStandardLibrary>false</enableStandardLibrary>
-		</configuration>
-		<executions>
-			<execution>
-				<id>it-compile</id>
-				<phase>compile</phase>
-				<goals>
-					<goal>compile-rascal</goal>
-				</goals>
-			</execution>
-		</executions>
-	</plugin>
-    <plugin>
-	<groupId>org.codehaus.mojo</groupId>
-	<artifactId>exec-maven-plugin</artifactId>
-	<version>1.4.0</version>
-	<executions>
-			<execution> <!--  compile the courses -->
-                        <configuration>
-                            <executable>java</executable>
-                            <classpathScope>compile</classpathScope>
-                            <workingDirectory>target/classes/</workingDirectory>
-                            <arguments>
-                                <argument>-Xmx1G</argument>
-                                <argument>-Dfile.encoding=UTF-8</argument>
-                                <argument>-cp</argument>
-                                <classpath />
-                                <argument>-Dfile.encoding=UTF-8</argument>
-                                <argument>org.rascalmpl.library.lang.rascal.tutor.CourseCompiler</argument>
-                                <argument>--bin</argument>
-                                <argument>${project.build.directory}/classes/boot</argument>
-                                <argument>--src</argument>
-                                <argument>${project.basedir}/src/org/rascalmpl/library</argument>
-                                <argument>--boot</argument>
-                                <argument>${project.build.directory}/classes/boot</argument>
-                                <argument>--lib</argument>
-                                <argument>${project.build.directory}/classes/std</argument>
-                                <argument>--course</argument>
-                                <argument>${project.basedir}/src/org/rascalmpl/courses</argument>
-                                <argument>--all</argument>
-                                <argument>${rascal.courses}</argument>
-                            </arguments>
-                        </configuration>
-                        <id>courses</id>
-                        <phase>compile</phase>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                    </execution>
-	</executions>
-	</plugin>
-		<plugin>
-		    <artifactId>maven-clean-plugin</artifactId>
-		    <version>3.0.0</version>
-		    <configuration>
-		      <filesets>
-			<fileset>
-			  <directory>${project.basedir}/bin</directory>
-			  <includes>
-			    <include>**/*.*</include>
-			  </includes>
-			  <followSymlinks>false</followSymlinks>
-			</fileset>
-		      </filesets>
-		    </configuration>
-		  </plugin>
-		  
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.1.0</version>
+			</plugin>
+			<plugin>
+				<groupId>org.rascalmpl</groupId>
+				<artifactId>rascal-maven-plugin</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+				<configuration>
+					<bin>${project.build.outputDirectory}</bin>
+					<srcs>
+						<src>${project.basedir}/src/org/rascalmpl/library</src>
+					</srcs>
+					<srcIgnores>
+						<ignore>${project.basedir}/src/org/rascalmpl/library/demo</ignore>
+						<ignore>${project.basedir}/src/org/rascalmpl/library/experiments</ignore>
+						<ignore>${project.basedir}/src/org/rascalmpl/library/util/integration</ignore>
+						<ignore>${project.basedir}/src/org/rascalmpl/library/util/tasks</ignore>
+						<ignore>${project.basedir}/src/org/rascalmpl/library/resource</ignore>
+						<ignore>${project.basedir}/src/org/rascalmpl/library/lang</ignore>
+						<ignore>${project.basedir}/src/org/rascalmpl/library/analysis/grammars/Ambiguity.rsc</ignore>
+						<ignore>${project.basedir}/src/org/rascalmpl/library/analysis/flow/ControlFlow.rsc</ignore>
+					</srcIgnores>
+					<enableStandardLibrary>false</enableStandardLibrary>
+				</configuration>
+				<executions>
+					<execution>
+						<id>it-compile</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>compile-rascal</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.4.0</version>
+				<executions>
+					<execution> <!-- compile the courses -->
+						<configuration>
+							<executable>java</executable>
+							<classpathScope>compile</classpathScope>
+							<workingDirectory>target/classes/</workingDirectory>
+							<arguments>
+								<argument>-Xmx1G</argument>
+								<argument>-Dfile.encoding=UTF-8</argument>
+								<argument>-cp</argument>
+								<classpath />
+								<argument>-Dfile.encoding=UTF-8</argument>
+								<argument>org.rascalmpl.library.lang.rascal.tutor.CourseCompiler</argument>
+								<argument>--bin</argument>
+								<argument>${project.build.directory}/classes/boot</argument>
+								<argument>--src</argument>
+								<argument>${project.basedir}/src/org/rascalmpl/library</argument>
+								<argument>--boot</argument>
+								<argument>${project.build.directory}/classes/boot</argument>
+								<argument>--lib</argument>
+								<argument>${project.build.directory}/classes/std</argument>
+								<argument>--course</argument>
+								<argument>${project.basedir}/src/org/rascalmpl/courses</argument>
+								<argument>--all</argument>
+								<argument>${rascal.courses}</argument>
+							</arguments>
+						</configuration>
+						<id>courses</id>
+						<phase>compile</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<artifactId>maven-clean-plugin</artifactId>
+				<version>3.0.0</version>
+				<configuration>
+					<filesets>
+						<fileset>
+							<directory>${project.basedir}/bin</directory>
+							<includes>
+								<include>**/*.*</include>
+							</includes>
+							<followSymlinks>false</followSymlinks>
+						</fileset>
+					</filesets>
+				</configuration>
+			</plugin>
+
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
@@ -200,44 +203,45 @@
 				<configuration>
 					<argLine>
 						-ea
-                        -Xmx${rascal.test.memory}G
+						-Xmx${rascal.test.memory}G
 						-Xss128m
 						-Dfile.encoding=UTF-8
-                        ${argLine}
+						${argLine}
 					</argLine>
 					<includes>
 						<include>**/org/rascalmpl/test/AllSuiteParallel.java</include>
-                        <include>**/org/rascalmpl/test/value/AllTests.java</include>
+						<include>**/org/rascalmpl/test/value/AllTests.java</include>
 					</includes>
 				</configuration>
 			</plugin>
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.9</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                    <execution>
-                        <id>report</id>
-                        <phase>test</phase>
-                        <goals>
-                            <goal>report</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.7.9</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
 				<version>2.5.3</version>
-                <configuration>
-                    <tagNameFormat>v@{project.version}</tagNameFormat>
-                    <arguments>-Drascal.courses=--buildCourses -Drascal.boot=--validating</arguments>
-                </configuration>
+				<configuration>
+					<tagNameFormat>v@{project.version}</tagNameFormat>
+					<arguments>-Drascal.courses=--buildCourses
+						-Drascal.boot=--validating</arguments>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -251,22 +255,22 @@
 						</goals>
 						<configuration>
 							<transformers>
-								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
 									<manifestEntries>
-                                                                                <Name>rascal</Name>
+										<Name>rascal</Name>
 										<Main-Class>org.rascalmpl.shell.RascalShell</Main-Class>
-                                                                                <Specification-Version>${project.version}</Specification-Version>
-                                                                                <Specification-Vendor>http://www.usethesource.io</Specification-Vendor>
+										<Specification-Version>${project.version}</Specification-Version>
+										<Specification-Vendor>http://www.usethesource.io</Specification-Vendor>
 									</manifestEntries>
 								</transformer>
-								<transformer implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
-                                                                   <resource>org/rascalmpl/uri/resolvers.config</resource>
-                                                                   <resource>io/usethesource/vallang/type/types.config </resource>
-                                                                </transformer>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+									<resource>org/rascalmpl/uri/resolvers.config</resource>
+									<resource>io/usethesource/vallang/type/types.config </resource>
+								</transformer>
 							</transformers>
-							<!--
-								http://zhentao-li.blogspot.nl/2012/06/maven-shade-plugin-invalid-signature.html
-							-->
+							<!-- http://zhentao-li.blogspot.nl/2012/06/maven-shade-plugin-invalid-signature.html -->
 							<filters>
 								<filter>
 									<artifact>*:*</artifact>
@@ -276,7 +280,7 @@
 										<exclude>META-INF/*.RSA</exclude>
 									</excludes>
 								</filter>
-							</filters>							
+							</filters>
 						</configuration>
 					</execution>
 				</executions>
@@ -400,22 +404,22 @@
 			<version>58.1</version>
 		</dependency>
 		<dependency>
-            <groupId>org.asciidoctor</groupId>
-            <artifactId>asciidoctorj</artifactId>
-            <version>1.6.0-alpha.6</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jruby</groupId>
-            <artifactId>jruby-complete</artifactId>
-            <version>9.1.15.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.beust</groupId>
-            <artifactId>jcommander</artifactId>
-            <version>1.72</version>
-            <scope>provided</scope>
-        </dependency>
+			<groupId>org.asciidoctor</groupId>
+			<artifactId>asciidoctorj</artifactId>
+			<version>1.6.0-alpha.6</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jruby</groupId>
+			<artifactId>jruby-complete</artifactId>
+			<version>9.1.15.0</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.beust</groupId>
+			<artifactId>jcommander</artifactId>
+			<version>1.72</version>
+			<scope>provided</scope>
+		</dependency>
 	</dependencies>
 </project>
