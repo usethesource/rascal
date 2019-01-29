@@ -93,6 +93,11 @@
 		</testResources>
 
 		<plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.1.0</version>
+            </plugin>
 	<plugin>
 		<groupId>org.rascalmpl</groupId>
 		<artifactId>rascal-maven-plugin</artifactId>
@@ -112,7 +117,7 @@
 			   <ignore>${project.basedir}/src/org/rascalmpl/library/analysis/grammars/Ambiguity.rsc</ignore>
 			   <ignore>${project.basedir}/src/org/rascalmpl/library/analysis/flow/ControlFlow.rsc</ignore>
 			</srcIgnores>
-                        <configureStandardLibrarySource>false</configureStandardLibrarySource>
+                        <enableStandardLibrary>false</enableStandardLibrary>
 		</configuration>
 		<executions>
 			<execution>
