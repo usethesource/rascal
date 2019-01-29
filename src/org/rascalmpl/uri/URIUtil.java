@@ -54,7 +54,7 @@ public class URIUtil {
 	 */
 	public static URI createFile(String path) throws URISyntaxException {
 		path = fixWindowsPath(path);
-		return fixUnicode(new URI("file","", path, null));
+		return fixUnicode(new File(path).toURI());
 	}
 	
 	/**
