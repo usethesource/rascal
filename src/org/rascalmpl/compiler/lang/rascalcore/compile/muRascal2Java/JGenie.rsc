@@ -8,6 +8,8 @@ import IO;
 import String;
 import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::compile::muRascal2Java::CodeGen;
+import lang::rascalcore::compile::util::Names;
+import lang::rascalcore::compile::Rascal2muRascal::TypeUtils;
 
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
@@ -26,15 +28,13 @@ data JGenie
         str (loc src) getAccessor,
         str (loc src) getAccessorInResolver,
         Define (loc src) getDefine,
-        lrel[str,loc] (loc src) getExternalVars,
+        list[MuExp] (loc src) getExternalVars,
         void(str name) setKwpDefaults,
         str() getKwpDefaults,
         str(AType atype) shareType,
         str(value con) shareConstant,
         str () getConstants,
         bool (str con) isWildCard,
-        void(set[str] vars) setRefVars,
-        bool (str name) isRefVar,
         void(list[MuExp] evars) addExternalVars,
         bool (MuExp exp) isExternalVar,
         str(str prefix) newTmp,
@@ -53,7 +53,6 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
     map[AType,str] types = ();
     int nconstants = -1;
     int ntypes = -1;
-    set[str] refVars = {};
     set[MuExp] externalVars = {};
     int ntmps = -1;
     set[str] importedLibraries = {};
@@ -63,6 +62,8 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
     loc currentModuleScope = moduleLocs[moduleName];
     set[tuple[str name, AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors]] resolvers = {};
     str functionName = "$UNKNOWN";
+    
+    map[loc,list[MuExp]] fun2externals = (fun.src : fun.externalVars  | fun <- range(muFunctions));
    
     str _getModuleName()
         = currentModule.modelName;
@@ -83,9 +84,10 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
     str getImportedModuleName(loc def){
         for(mname <- moduleLocs){
             if(containedIn(def, moduleLocs[mname])){
-                return replaceAll(mname, "::", "_");
+                return module2field(mname);
             }
         }
+        throw "getImportedModuleName<def>";
     }
         
     str _getAccessor(loc src){
@@ -117,14 +119,15 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                 def = tmodels[mname].definitions[src];
                 if(defType(AType tp) := def.defInfo){
                     baseName = "<def.id>_<def.defined.begin.line>_<def.defined.end.line>";
-                    if(mname == moduleName){
-                        return baseName; //"$me.<def.id>";
+                    if(containedIn(def.defined, currentModuleScope)){
+                        return baseName;
                     } else {
-                        return "<replaceAll(mname, "::", "_")>.<baseName>";
+                        return "<getImportedModuleName(src)>.<baseName>";
                     }
                  }
              }
         }
+        throw "getAccessorInResolver <src>";
     }
     
     Define _getDefine(loc src){
@@ -133,19 +136,22 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                     return tmodels[mname].definitions[src];
                 }
         }
+        throw "getDefine <src>";
     }
     
-    lrel[str, loc] _getExternalVars(loc src){
-        extVarDefs = {};
-        for(mname <- tmodels){
-            tm = tmodels[mname];
-            useDef = tm.useDef;
-            definitions = tm.definitions;
-            for(<u, d> <- useDef, containedIn(u, src), definitions[d]?, Define def := definitions[d], def.idRole == variableId(), !containedIn(def.scope, src)){
-                extVarDefs += <def.id, d>;
-            }
-        }
-        return sort(toList(extVarDefs));
+    list[MuExp] _getExternalVars(loc src){
+        return fun2externals[src];
+    
+        //extVarDefs = {};
+        //for(mname <- tmodels){
+        //    tm = tmodels[mname];
+        //    useDef = tm.useDef;
+        //    definitions = tm.definitions;
+        //    for(<u, d> <- useDef, containedIn(u, src), definitions[d]?, Define def := definitions[d], def.idRole == variableId(), !containedIn(def.scope, src)){
+        //        extVarDefs += <def.id, d>;
+        //    }
+        //}
+        //return sort(toList(extVarDefs));
     }
     
     void _setKwpDefaults(str name){
@@ -186,12 +192,6 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
         }
         return false;
     }
-    
-    void _setRefVars(set[str] vars){
-        refVars = vars;
-    }
-    
-    bool _isRefVar(str var) = var in refVars;
     
     void _addExternalVars(list[MuExp] vars){
         externalVars += toSet(vars);
@@ -240,8 +240,6 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                 _shareConstant,
                 _getConstants,
                 _isWildCard,
-                _setRefVars,
-                _isRefVar,
                 _addExternalVars,
                 _isExternalVar,
                 _newTmp,
@@ -252,6 +250,11 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                 _usesLocalFunctions
             );
 }
+
+// ---- casting ---------------------------------------------------------------
+
+str castArg(AType t, str x) = startsWith(x, "((<atype2java(t)>)(") ? x : "(<atype2java(t)>)(<x>)";
+str cast(AType t, str x) = "(<castArg(t,x)>)";
 
 // ---- atype 2 java type -----------------------------------------------------
 
@@ -332,6 +335,33 @@ str atype2descriptor(aparameter(str pname, AType bound)) = "P<avalue() := bound 
 default str atype2descriptor(AType t) = "value";
 
 // ----
+str getOuter(aint())                  = "aint";
+str getOuter(abool())                 = "abool";
+str getOuter(areal())                 = "areal";
+str getOuter(arat())                  = "arat";
+str getOuter(astr())                  = "astr";
+str getOuter(anum())                  = "anum";
+str getOuter(anode(list[AType fieldType] fields)) = "anode";
+str getOuter(avoid())                 = "avoid";
+str getOuter(avalue())                = "avalue";
+str getOuter(aloc())                  = "aloc";
+str getOuter(adatetime())             = "adatetime";
+str getOuter(alist(AType t))          = "alist";
+str getOuter(aset(AType t))           = "aset";
+str getOuter(atuple(AType ts))        = "atuple";
+str getOuter(amap(AType d, AType r))  = "amap";
+str getOuter(arel(AType ts))          = "aset";
+str getOuter(alrel(AType ts))         = "alist";
+str getOuter(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
+                                      = "afunc";
+str getOuter(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) = "aadt";
+str getOuter(t:acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields))
+                                      = "acons";
+str getOuter(aparameter(str pname, AType bound)) 
+                                      = getOuter(bound);
+default str getOuter(AType t)         = "avalue";
+
+// ----
 
 str atype2istype(aint())                  = "isInteger";
 str atype2istype(abool())                 = "isBool";
@@ -363,8 +393,38 @@ default str atype2istype(AType t)         = "isTop";
 
 // ----
 
-str escapeForJ(str s)
-    = escape(s, ("\n": "\\n"));   // TODO cover all cases
+// TODO cover all cases
+
+str escapeForJ(str s){
+   n = size(s);
+   i = 0;
+   res = "";
+   while(i < n){
+    c = s[i];
+    switch(c){
+        case "\b": res += "\\b";
+        case "\t": res += "\\t";
+        case "\n": res += "\\f";
+        case "\r": res += "\\r";
+        case "\'": res += "\\\'";
+        case "\"": res += "\\\"";
+        case "\\": if(i+1 < n){ 
+                        c1 = s[i+1];
+                        i += 1;
+                        if(c1 in {"b", "t","n","r","\'", "\"", "\\"}){
+                            res += "<c><c1>";
+                        } else {
+                            res += c1;
+                        }
+                    } else {
+                        res += c;
+                    }
+        default: res +=  c;
+     }
+     i += 1;
+   }
+   return res;
+}
     
 // ----
 

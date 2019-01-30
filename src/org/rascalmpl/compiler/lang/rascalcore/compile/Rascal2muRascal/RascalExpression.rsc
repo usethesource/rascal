@@ -219,7 +219,8 @@ private MuExp translateStringLiteral(s: (StringLiteral) `<PreStringChars pre> <S
     preIndent = computeIndent(pre);
     str fuid = topFunctionScope();
     template = muTmpTemplate(nextTmp("template"), fuid);
-	return muValueBlock( [ muConInit(template, muTemplate(translatePreChars(pre))),
+	return muValueBlock( astr(),
+	                     [ muConInit(template, muTemplate(translatePreChars(pre))),
                            *translateTemplate(template, preIndent, stemplate),
                            *translateTail(template, preIndent, tail),
                            muTemplateClose(template)
@@ -230,7 +231,8 @@ private MuExp translateStringLiteral(s: (StringLiteral) `<PreStringChars pre> <E
     preIndent = computeIndent(pre);
     str fuid = topFunctionScope();
     template = muTmpTemplate(nextTmp("template"), fuid);
-    return muValueBlock( [ muConInit(template, muTemplate(translatePreChars(pre))),
+    return muValueBlock( astr(),
+                         [ muConInit(template, muTemplate(translatePreChars(pre))),
     				       *translateExpInStringLiteral(template, preIndent, expression),
     				       *translateTail(template, preIndent, tail),
     				       muTemplateClose(template)
@@ -417,20 +419,20 @@ private MuExp translateLocationLiteral(l: (LocationLiteral) `<ProtocolPart proto
 private MuExp translateProtocolPart((ProtocolPart) `<ProtocolChars protocolChars>`) = muCon("<protocolChars>"[1..]);
  
 private MuExp translateProtocolPart(p: (ProtocolPart) `<PreProtocolChars pre> <Expression expression> <ProtocolTail tail>`) =
-    muCallPrim3("add", astr(), [astr(), astr()], [muCon("<pre>"[1..-1]), translate(expression), translateProtocolTail(tail)], p@\loc);
+    muCallPrim3("add", astr(), [astr(), astr(), astr()], [muCon("<pre>"[1..-1]), translate(expression), translateProtocolTail(tail)], p@\loc);
  
 private MuExp  translateProtocolTail(p: (ProtocolTail) `<MidProtocolChars mid> <Expression expression> <ProtocolTail tail>`) =
-   muCallPrim3("add", astr(), [astr(), astr()], [muCon("<mid>"[1..-1]), translate(expression), translateProtocolTail(tail)], p@\loc);
+   muCallPrim3("add", astr(), [astr(), astr(), astr()], [muCon("<mid>"[1..-1]), translate(expression), translateProtocolTail(tail)], p@\loc);
    
 private MuExp translateProtocolTail((ProtocolTail) `<PostProtocolChars post>`) = muCon("<post>"[1 ..]);
 
 private MuExp translatePathPart((PathPart) `<PathChars pathChars>`) = muCon("<pathChars>"[..-1]);
 
 private MuExp translatePathPart(p: (PathPart) `<PrePathChars pre> <Expression expression> <PathTail tail>`) =
-   muCallPrim3("add", astr(), [astr(), astr()], [ muCon("<pre>"[..-1]), translate(expression), translatePathTail(tail)], p@\loc);
+   muCallPrim3("add", astr(), [astr(), astr(), astr()], [ muCon("<pre>"[..-1]), translate(expression), translatePathTail(tail)], p@\loc);
 
 private MuExp translatePathTail(p: (PathTail) `<MidPathChars mid> <Expression expression> <PathTail tail>`) =
-   muCallPrim3("add", astr(), [astr(), astr()], [ muCon("<mid>"[1..-1]), translate(expression), translatePathTail(tail)], p@\loc);
+   muCallPrim3("add", astr(), [astr(), astr(), astr()], [ muCon("<mid>"[1..-1]), translate(expression), translatePathTail(tail)], p@\loc);
    
 private MuExp translatePathTail((PathTail) `<PostPathChars post>`) = muCon("<post>"[1..-1]);
 
@@ -649,7 +651,8 @@ MuExp translate (e:(Expression) `[ <Expression first> .. <Expression last> ]`) {
   resultType = getType(e);
   
   return
-    muValueBlock([ muConInit(writer, muCallPrim3("open_list_writer", avalue(), [], [], e@\loc)),
+    muValueBlock(resultType,
+                 [ muConInit(writer, muCallPrim3("open_list_writer", avalue(), [], [], e@\loc)),
                    muForRange("", elem, translate(first), muCon(0), translate(last), muCallPrim3("add_list_writer", avoid(), [resultType, elemType], [writer, elem], e@\loc)),
                    muCallPrim3("close_list_writer", resultType, [], [writer], e@\loc)
                  ]);
@@ -664,7 +667,8 @@ MuExp translate (e:(Expression) `[ <Expression first> , <Expression second> .. <
   elem = muTmpIValue(nextTmp("range_elem"), fuid, elemType);
   
   return
-    muValueBlock([ muConInit(writer, muCallPrim3("open_list_writer", alist(elemType), [], [], e@\loc)),
+    muValueBlock(getType(e),
+                 [ muConInit(writer, muCallPrim3("open_list_writer", alist(elemType), [], [], e@\loc)),
                    muForRange("", elem, translate(first), translate(second), translate(last), muCallPrim3("add_list_writer", avoid(), [elemType], [writer, elem], e@\loc)),
                    muCallPrim3("close_list_writer", avoid(), [], [writer], e@\loc)
                  ]);
@@ -728,7 +732,7 @@ public MuExp translateVisit(Label label, lang::rascal::\syntax::Rascal::Visit \v
 	
     visitCode = muVisit(muConInit(switchval, translate(\visit.subject)), case_code, default_code, vdescriptor);
     leaveVisit();
-    return visit(visitCode) { case muReturn0() => muReturn0FromVisit() case muReturn1(MuExp e) => muReturn1FromVisit(e) };
+    return visit(visitCode) { case muReturn0() => muReturn0FromVisit() case muReturn1(AType t, MuExp e) => muReturn1FromVisit(t, e) };
 }
 
 private tuple[set[AType] types, set[str] constructors] getTypesAndConstructorsInVisit(list[Case] cases){
@@ -769,16 +773,15 @@ private bool hasTopLevelInsert(Case c) {
 
 // -- reducer expression --------------------------------------------
 
-MuExp translate (e:(Expression) `( <Expression init> | <Expression result> | <{Expression ","}+ generators> )`) = translateReducer(e); //translateReducer(init, result, generators);
+MuExp translate (e:(Expression) `( <Expression init> | <Expression result> | <{Expression ","}+ generators> )`) = translateReducer(e);
 
-private MuExp translateReducer(Expression e){ //Expression init, Expression result, {Expression ","}+ generators){
+private MuExp translateReducer(Expression e){
     str fuid = topFunctionScope();
-    xxx = getType(e);
     reducerTmp = muTmpIValue(nextTmp("reducer"), fuid, getType(e));
     pushIt(reducerTmp);
     code =  [ muVarInit(reducerTmp, translate(e.init)), translateConds([g | g <- e.generators], muAssign(reducerTmp, translate(e.result)), muBlock([])),  reducerTmp ];
     popIt();
-    return muValueBlock(code);
+    return muValueBlock(getType(e), code);
 }
 
 // -- reified type expression ---------------------------------------
@@ -807,7 +810,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
        return muCallPrim3("create_loc_with_offset", aloc(), [aloc()], [receiver, *args], e@\loc);
    }
    if(muFun1(_) := receiver || muConstr(AType _) := receiver || muConstrCompanion(str _) := receiver) {
-        return muCall(receiver,  hasKeywordParameters(ftype) ? args + [ kwargs ] : args);
+        return muCall(receiver,  ftype, hasKeywordParameters(ftype) ? args + [ kwargs ] : args);
    }
    
    // Now overloading resolution...
@@ -871,7 +874,8 @@ MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) {
         }
     }
       
-    code = muValueBlock([ muVarInit(any_found, muCon(false)),
+    code = muValueBlock(abool(),
+                        [ muVarInit(any_found, muCon(false)),
                           muDoWhile(whileName, code, muCon(false)),
                           any_found ]);
     leaveLoop();
@@ -915,7 +919,8 @@ MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
         }
     }
       
-    code = muValueBlock([ muVarInit(all_true, muCon(true)),
+    code = muValueBlock(abool(),
+                        [ muVarInit(all_true, muCon(true)),
                           muDoWhile(whileName, code, muCon(false)),
                           all_true ]);
     leaveLoop();
@@ -946,7 +951,8 @@ private MuExp translateComprehension(c: (Comprehension) `[ <{Expression ","}+ re
     writer = muTmpListWriter(nextTmp("listwriter"), fuid);
     resultType = getType(c);
     return
-        muValueBlock([ muConInit(writer, muCallPrim3("open_list_writer", avalue(), [], [], c@\loc)),
+        muValueBlock(resultType,
+                     [ muConInit(writer, muCallPrim3("open_list_writer", avalue(), [], [], c@\loc)),
                        translateConds([ g | Expression g <- generators ], muBlock(translateComprehensionContribution("list", resultType, writer, [r | r <- results])), muBlock([])),
                        muCallPrim3("close_list_writer", getType(c), [], [writer], c@\loc) 
                      ]);
@@ -958,7 +964,8 @@ private MuExp translateComprehension(c: (Comprehension) `{ <{Expression ","}+ re
     writer = muTmpSetWriter(nextTmp("setwriter"), fuid);
     resultType = getType(c);
     return
-        muValueBlock([ muConInit(writer, muCallPrim3("open_set_writer", avalue(), [], [], c@\loc)),
+        muValueBlock(resultType,
+                     [ muConInit(writer, muCallPrim3("open_set_writer", avalue(), [], [], c@\loc)),
                       translateConds([ g | Expression g <- generators ], muBlock(translateComprehensionContribution("set", resultType, writer, [r | r <- results])), muBlock([])),
                       muCallPrim3("close_set_writer", getType(c), [], [writer], c@\loc) 
                     ]);
@@ -970,7 +977,8 @@ private MuExp translateComprehension(c: (Comprehension) `(<Expression from> : <E
     writer = muTmpMapWriter(nextTmp("mapwriter"), fuid);
     resultType = getType(c);
     return
-        muValueBlock([ muConInit(writer, muCallPrim3("open_map_writer", avoid(), [], [], c@\loc)),
+        muValueBlock(resultType,
+                     [ muConInit(writer, muCallPrim3("open_map_writer", avoid(), [], [], c@\loc)),
                        translateConds([ g | Expression g <- generators ], muCallPrim3("add_map_writer", avoid(), [getType(from), getType(to)], [writer] + [ translate(from), translate(to)], c@\loc), muBlock([])),
                        muCallPrim3("close_map_writer", resultType, [], [writer], c@\loc) 
                      ]);
@@ -1011,7 +1019,7 @@ private MuExp translateSetOrList(Expression e, {Expression ","}* es, str kind){
        }
        code += [ muCallPrim3("close_<kind>_writer", getType(e), [], [ writer ], e@\loc) ];
        leaveWriter();
-       return muValueBlock(code);
+       return muValueBlock(getType(e), code);
     } else {
       //if(size(es) == 0 || all(elm <- es, isConstant(elm))){
       //   return kind == "list" ? muCon([getConstantValue(elm) | elm <- es]) : muCon({getConstantValue(elm) | elm <- es});
@@ -1250,10 +1258,11 @@ MuExp translateGuarded(exp: (Expression) `<Expression expression> . <Name field>
 
 // -- isDefinedOtherwise expression ---------------------------------
 
-MuExp translate((Expression) `<Expression lhs> ? <Expression rhs>`) {
+MuExp translate(e: (Expression) `<Expression lhs> ? <Expression rhs>`) {
       str fuid = topFunctionScope();
       guarded = muTmpGuardedIValue(nextLabel("guarded"), fuid);
-      return muValueBlock([ muVarInit(guarded, translateGuarded(lhs)),
+      return muValueBlock(getType(e),
+                          [ muVarInit(guarded, translateGuarded(lhs)),
                             muIfExp(muIsDefinedValue(guarded),  muGetDefinedValue(guarded, getType(lhs)), translate(rhs))
                           ]);
 }
@@ -1273,7 +1282,8 @@ public MuExp translateIfDefinedOtherwise(MuExp muLHS, MuExp muRHS, loc src) {
         lhsType = resultType;
     }
     
-    return muValueBlock([ muVarInit(guarded, muLHS),
+    return muValueBlock(lhsType,
+                        [ muVarInit(guarded, muLHS),
                           muIfExp(muIsDefinedValue(guarded),  muGetDefinedValue(guarded, lhsType), muRHS)
                         ]);
 }
@@ -1426,7 +1436,7 @@ MuExp translateBool(e:(Expression) `<Expression lhs> == <Expression rhs>`, str b
 // -- not equal expression ------------------------------------------
 
 MuExp translate(e:(Expression) `<Expression lhs> != <Expression rhs>`)
-    = comparison("notequal", e);
+    = muIfExp(comparison("equal", e), muCon(false), muCon(true));
 
 MuExp translateBool(e:(Expression) `<Expression lhs> != <Expression rhs>`, str btscope, MuExp trueCont, MuExp falseCont)
     = muIfExp(comparison("equal", e),  falseCont, trueCont);

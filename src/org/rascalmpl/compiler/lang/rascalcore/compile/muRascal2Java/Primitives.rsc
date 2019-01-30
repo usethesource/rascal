@@ -8,6 +8,7 @@ import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::compile::muRascal2Java::CodeGen;
 import List;
 import Node;
+import String;
 
 // Rascal primitives
 
@@ -36,28 +37,46 @@ bool isMapType(AType t) = getName(t) == "amap";
 bool isNodeType(AType t) = getName(t) == "anode";
 bool isADTType(AType t) = getName(t) == "acons";
 
+
 // ---- add -------------------------------------------------------------------
 
-str getOuter(aparameter(_, t)) = getOuter(t);
-str getOuter(aint()) = "aint";
-str getOuter(areal()) = "areal";
-str getOuter(arat()) = "arat";
-str getOuter(anum()) = "anum";
+JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)             = cast(r, "<getOuter(a)>_add_<getOuter(b)>(<castArg(a,x)>,<castArg(b,y)>)")  
+                                                                                             when isArithType(a) && isArithType(b) || 
+                                                                                                  isStrType(a) && isStrType(b) ||
+                                                                                                  isLocType(a) && isStrType(b) ||
+                                                                                                  isTupleType(a) && isTupleType(b) ||
+                                                                                                  isListLikeType(a) && isListLikeType(b) ||
+                                                                                                  isSetLikeType(a) && isSetLikeType(b) ||
+                                                                                                  isMapType(a) && isMapType(b);
+                                                                                                  
+JCode transPrim("add", AType r, [AType a, AType b, AType c], [str x, str y, str z], JGenie jg)          
+                                                                                         = "astr_add_astr(<castArg(a,x)>,astr_add_astr(<castArg(b,y)>,<castArg(c,z)>))"  when isStrType(a), isStrType(b), isStrType(c);
+JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "alist_add_elm(<castArg(a,x)>,<castArg(b,y)>)"      when isListLikeType(a), !isListLikeType(b);
+JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "elm_add_alist(<castArg(a,x)>,<castArg(b,y)>)"      when !isListLikeType(a), isListLikeType(b);
 
-JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "((<atype2java(r)>)<getOuter(a)>_add_<getOuter(b)>((<atype2java(a)>)(<x>),(<atype2java(b)>)(<y>)))"     when isArithType(a), isArithType(b);
-JCode transPrim("add", AType r, [astr(), astr()], [str x, str y], JGenie jg)             = "((IString)(<x>)).concat((IString)(<y>))";
-JCode transPrim("add", AType r, [aloc(), astr()], [str x, str y], JGenie jg)             = "aloc_add_astr(<x>,<y>)";
-JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "atuple_add_atuple(<x>,<y>)"           when isTupleType(a), isTupleType(b);
+JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "aset_add_elm(<castArg(a,x)>,<castArg(b,y)>)"       when isSetLikeType(a), isSetLikeType(b);
+JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "elm_add_alist(<castArg(a,x)>,<castArg(b,y)>)"      when isSetLikeType(a), !isSetLikeType(b);
 
-JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "((IList)(<x>)).concat((IList)(<y>))"      when isListLikeType(a), isListLikeType(b);
-JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "((IList)(<x>)).append(<y>)"             when isListLikeType(a), !isListLikeType(b);
-JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "<y>.insert((IList)(<x>))"               when !isListLikeType(a), isListLikeType(b);
 
-JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "((ISet)(<x>)).union((ISet)(<y>))"         when isSetLikeType(a), isSetLikeType(b);
-JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "((ISet)(<x>)).insert((<y>))"              when isSetLikeType(a), !isSetLikeType(b);
-JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "<y>.insert((ISet)(<x>))"                when !isSetLikeType(a), isSetLikeType(b);
+//JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "<y>.insert((ISet)(<x>))"                when !isSetLikeType(a), isSetLikeType(b);
 
-JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "((IMap)(<x>)).compose((IMap)(<y>))"       when isMapType(a), isMapType(b);
+//JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = cast(r, "<getOuter(a)>_add_<getOuter(b)>(<castArg(a,x)>,<castArg(b,y)>)")    when isArithType(a), isArithType(b);
+//JCode transPrim("add", AType r, [astr(), astr()], [str x, str y], JGenie jg)             = "((IString)(<x>)).concat((IString)(<y>))";
+//JCode transPrim("add", AType r, [astr(), astr(), astr()], [str x, str y, str z], JGenie jg) 
+//                                                                                        = "((IString)(<x>)).concat((IString)(<y>)).concat((IString)(<z>))";
+//
+//JCode transPrim("add", AType r, [aloc(), astr()], [str x, str y], JGenie jg)             = "aloc_add_astr(<x>,<y>)";
+//JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "atuple_add_atuple(<x>,<y>)"           when isTupleType(a), isTupleType(b);
+//
+//JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "((IList)(<x>)).concat((IList)(<y>))"      when isListLikeType(a), isListLikeType(b);
+//JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "((IList)(<x>)).append(<y>)"             when isListLikeType(a), !isListLikeType(b);
+//JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "<y>.insert((IList)(<x>))"               when !isListLikeType(a), isListLikeType(b);
+//
+//JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "((ISet)(<x>)).union((ISet)(<y>))"         when isSetLikeType(a), isSetLikeType(b);
+//JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "((ISet)(<x>)).insert((<y>))"              when isSetLikeType(a), !isSetLikeType(b);
+//JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "<y>.insert((ISet)(<x>))"                when !isSetLikeType(a), isSetLikeType(b);
+//
+//JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "((IMap)(<x>)).compose((IMap)(<y>))"       when isMapType(a), isMapType(b);
 
 // ---- add_..._writer -------------------------------------------------------
 
@@ -97,24 +116,31 @@ JCode transPrim("create_node", AType r, list[AType] argTypes, [str name, *str ar
                                                                                          = "$VF.node(<name>.getValue(), new IValue[] { <intercalate(", ", args)> }, <kwpMap>)";
 // ---- divide ----------------------------------------------------------------
  
-JCode transPrim("divide", AType r, [aint(), aint()], [str x, str y], JGenie jg)          = "aint_divide_aint(<x>,<y>)";
-JCode transPrim("divide", AType r, [aint(), areal()], [str x, str y], JGenie jg)         = "aint_divide_areal(<x>,<y>)";
-JCode transPrim("divide", AType r, [aint(), arat()], [str x, str y], JGenie jg)          = "aint_divide_arat(<x>,<y>)";
-JCode transPrim("divide", AType r, [aint(), anum()], [str x, str y], JGenie jg)          = "aint_divide_anum(<x>,<y>)";
+JCode transPrim("divide", AType r, [AType l, aparameter(_, AType bnd)], [str x, str y], JGenie jg)  
+                                                                                         = transPrim("divide", r, [l, bnd], [x, y], jg);
+JCode transPrim("divide", AType r, [aparameter(_, AType bnd), AType rgt], [str x, str y], JGenie jg)  
+                                                                                         = transPrim("divide", r, [bnd,rgt], [x, y], jg);
 
-JCode transPrim("divide", AType r, [areal(), aint()], [str x, str y], JGenie jg)         = "areal_divide_aint(<x>,<y>)";
-JCode transPrim("divide", AType r, [areal(), areal()], [str x, str y], JGenie jg)        = "areal_divide_areal(<x>,<y>)";
-JCode transPrim("divide", AType r, [areal(), arat()], [str x, str y], JGenie jg)         = "areal_divide_arat(<x>,<y>)";
-JCode transPrim("divide", AType r, [areal(), anum()], [str x, str y], JGenie jg)         = "areal_divide_anum(<x>,<y>)";
-JCode transPrim("divide", AType r, [arat(), aint()], [str x, str y], JGenie jg)          = "arat_divide_aint(<x>,<y>)";
-JCode transPrim("divide", AType r, [arat(), areal()], [str x, str y], JGenie jg)         = "arat_divide_areal(<x>,<y>)";
-JCode transPrim("divide", AType r, [arat(), arat()], [str x, str y], JGenie jg)          = "arat_divide_arat(<x>,<y>)";
-JCode transPrim("divide", AType r, [arat(), anum()], [str x, str y], JGenie jg)          = "arat_divide_anum(<x>,<y>)";
+JCode transPrim("divide", AType r, [AType a, AType b], [str x, str y], JGenie jg)         = "<getOuter(a)>_divide_<getOuter(b)>(<castArg(a,x)>,<castArg(b,y)>)"     when isArithType(a), isArithType(b);
+//JCode transPrim("divide", AType r, [aint(), aint()], [str x, str y], JGenie jg)          = "aint_divide_aint(<x>,<y>)";
+//JCode transPrim("divide", AType r, [aint(), areal()], [str x, str y], JGenie jg)         = "aint_divide_areal(<x>,<y>)";
+//JCode transPrim("divide", AType r, [aint(), arat()], [str x, str y], JGenie jg)          = "aint_divide_arat(<x>,<y>)";
+//JCode transPrim("divide", AType r, [aint(), anum()], [str x, str y], JGenie jg)          = "aint_divide_anum(<x>,<y>)";
+//
+//JCode transPrim("divide", AType r, [areal(), aint()], [str x, str y], JGenie jg)         = "areal_divide_aint(<x>,<y>)";
+//JCode transPrim("divide", AType r, [areal(), areal()], [str x, str y], JGenie jg)        = "areal_divide_areal(<x>,<y>)";
+//JCode transPrim("divide", AType r, [areal(), arat()], [str x, str y], JGenie jg)         = "areal_divide_arat(<x>,<y>)";
+//JCode transPrim("divide", AType r, [areal(), anum()], [str x, str y], JGenie jg)         = "areal_divide_anum(<x>,<y>)";
+//JCode transPrim("divide", AType r, [arat(), aint()], [str x, str y], JGenie jg)          = "arat_divide_aint(<x>,<y>)";
+//JCode transPrim("divide", AType r, [arat(), areal()], [str x, str y], JGenie jg)         = "arat_divide_areal(<x>,<y>)";
+//JCode transPrim("divide", AType r, [arat(), arat()], [str x, str y], JGenie jg)          = "arat_divide_arat(<x>,<y>)";
+//JCode transPrim("divide", AType r, [arat(), anum()], [str x, str y], JGenie jg)          = "arat_divide_anum(<x>,<y>)";
+//
+//JCode transPrim("divide", AType r, [anum(), aint()], [str x, str y], JGenie jg)          = "aum_divide_aint(<x>,<y>)";
+//JCode transPrim("divide", AType r, [anum(), areal()], [str x, str y], JGenie jg)         = "anum_divide_areal(<x>,<y>)";
+//JCode transPrim("divide", AType r, [anum(), arat()], [str x, str y], JGenie jg)          = "anum_divide_arat(<x>,<y>)";
+//JCode transPrim("divide", AType r, [anum(), anum()], [str x, str y], JGenie jg)          = "anum_divide_anum(<x>,<y>)";
 
-JCode transPrim("divide", AType r, [anum(), aint()], [str x, str y], JGenie jg)          = "aum_divide_aint(<x>,<y>)";
-JCode transPrim("divide", AType r, [anum(), areal()], [str x, str y], JGenie jg)         = "anum_divide_areal(<x>,<y>)";
-JCode transPrim("divide", AType r, [anum(), arat()], [str x, str y], JGenie jg)          = "anum_divide_arat(<x>,<y>)";
-JCode transPrim("divide", AType r, [anum(), anum()], [str x, str y], JGenie jg)          = "anum_divide_anum(<x>,<y>)";
 
 // ---- equal -----------------------------------------------------------------
 
@@ -146,7 +172,7 @@ JCode transPrim("guarded_field_project", AType r, [AType a], [str x, *str args],
 // ---- greater ---------------------------------------------------------------
 
 JCode transPrim("greater", abool(), [abool(), abool()], [str x, str y], JGenie jg)      = "abool_lessequal_abool(<x>,<y>).not()"; 
-JCode transPrim("greater", abool(), [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.greater(<y>)"                            when isArithType(a), isArithType(b);
+JCode transPrim("greater", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<getOuter(a)>_lessequal_<getOuter(b)>(<x>,<y>).not()"     when isArithType(a), isArithType(b);
 JCode transPrim("greater", abool(), [astr(), astr()], [str x, str y], JGenie jg)        = "astr_lessequal_astr(<x>,<y>.not()"; 
 JCode transPrim("greater", abool(), [adatetime(), adatetime()], [str x, str y], JGenie jg)         
                                                                                         = "datetime_lessequal_adatetime(<x>,<y>.not()"; 
@@ -163,10 +189,10 @@ JCode transPrim("greater", abool(), [AType a, AType b], [str x, str y], JGenie j
 
 JCode transPrim("greaterequal", abool(), [abool(), abool()], [str x, str y], JGenie jg)  = "abool_less_abool(<x>,<y>).not()"; 
 JCode transPrim("greaterequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)  = "alist_less_alist(<x>,<y>).not()"            when isListLikeType(a), isListLikeType(b); 
-JCode transPrim("greaterequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)  = "<x>.greaterEqual(<y>)"                      when isArithType(a), isArithType(b);
+JCode transPrim("greaterequal", AType r, [AType a, AType b], [str x, str y], JGenie jg)  = "<getOuter(a)>_less_<getOuter(b)>(<x>,<y>).not()"     when isArithType(a), isArithType(b);
 JCode transPrim("greaterequal", abool(), [astr(), astr()], [str x, str y], JGenie jg)    = "astr_less_astr(<x>,<y>.not()"; 
 JCode transPrim("greaterequal", abool(), [adatetime(), adatetime()], [str x, str y], JGenie jg)         
-                                                                                         = "datetime_less_adatetime(<x>,<y>.not()"; 
+                                                                                         = "adatetime_less_adatetime(<x>,<y>).not()"; 
 JCode transPrim("greaterequal", abool(), [aloc(), aloc()], [str x, str y], JGenie jg)    = "aloc_less_aloc(<x>,<y>).not()"; 
 JCode transPrim("greaterequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)  = "atuple_less_atuple(<x>,<y>).not()"          when isTupleType(a), isTupleType(b); 
 JCode transPrim("greaterequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)  = "anode_less_anode(<x>,<y>).not()"            when isNodeType(a), isNodeType(b); 
@@ -236,7 +262,7 @@ JCode transPrim("join", AType r, [AType a, AType b], [str x, str y], JGenie jg) 
 // ----less -------------------------------------------------------------------
 
 JCode transPrim("less", abool(), [abool(), abool()], [str x, str y], JGenie jg)          = "abool_less_abool(<x>,<y>)"; 
-JCode transPrim("less", abool(), [AType a, AType b], [str x, str y], JGenie jg)          = "<x>.less(<y>)"           when  isArithType(a), isArithType(b);
+JCode transPrim("less", AType r, [AType a, AType b], [str x, str y], JGenie jg)          = "<getOuter(a)>_less_<getOuter(b)>(<cast(a,x)>,<cast(b,y)>)"     when isArithType(a), isArithType(b);
 JCode transPrim("less", abool(), [astr(), astr()], [str x, str y], JGenie jg)            = "astr_less_astr(<x>,<y>)";  
 JCode transPrim("less", abool(), [adatetime(), adatetime()], [str x, str y], JGenie jg)  = "adatetime_less_adatetime(<x>,<y>)"; 
 JCode transPrim("less", abool(), [aloc(), aloc()], [str x, str y], JGenie jg)            = "aloc_less_aloc(<x>,<y>)"; 
@@ -245,15 +271,14 @@ JCode transPrim("less", abool(), [AType a, AType b], [str x, str y], JGenie jg) 
 JCode transPrim("less", abool(), [AType a, AType b], [str x, str y], JGenie jg)          = "alist_less_alist(<x>,<y>)"  when isListLikeType(a), isListLikeType(b);    
 JCode transPrim("less", abool(), [AType a, AType b], [str x, str y], JGenie jg)          = "aset_less_aset(<x>,<y>)" when isSetLikeType(a), isSetLikeType(b);  
 JCode transPrim("less", abool(), [AType a, AType b], [str x, str y], JGenie jg)          = "amap_less_amap(<x>,<y>)" when isMapType(a), isMapType(b); 
-JCode transPrim("less", abool(), [AType a, AType b], [str x, str y], JGenie jg)          = "less(<x>,<y>)" when isValueType(a), isValueType(b);
-  
+JCode transPrim("less", abool(), [AType a, AType b], [str x, str y], JGenie jg)          = "less(<x>,<y>)" when isValueType(a), isValueType(b); 
 
 // adt
 
 // ---- lessequal -------------------------------------------------------------
 
 JCode transPrim("lessequal", abool(), [abool(), abool()], [str x, str y], JGenie jg)     = "abool_lessequal_abool(<x>,<y>)"; 
-JCode transPrim("lessequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)     = "<x>.lessEqual(<y>)"       when  isArithType(a), isArithType(b);
+JCode transPrim("lessequal", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "<getOuter(a)>_lessequal_<getOuter(b)>(<x>,<y>)"     when isArithType(a), isArithType(b);
 JCode transPrim("lessequal", abool(), [astr(), astr()], [str x, str y], JGenie jg)       = "astr_lessequal_astr(<x>,<y>)";  
 JCode transPrim("lessequal", abool(), [adatetime(), adatetime()], [str x, str y], JGenie jg)  
                                                                                          = "adatetime_lessequal_adatetime(<x>,<y>)"; 
@@ -298,7 +323,7 @@ JCode transPrim("open_string_writer", AType r, [], [], JGenie jg)               
 
 // ---- product ---------------------------------------------------------------
 
-JCode transPrim("product", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "<x>.multiply(<y>)"              when  isArithType(a), isArithType(b);
+JCode transPrim("product", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "<getOuter(a)>_product_<getOuter(b)>(<x>,<y>)"     when isArithType(a), isArithType(b);
 JCode transPrim("product", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "alist_product_alist(<x>,<y>)"   when isListLikeType(a), isListLikeType(b);
 JCode transPrim("product", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "aset_product_aset(<x>,<y>)"     when isSetLikeType(a), isSetLikeType(b);
 

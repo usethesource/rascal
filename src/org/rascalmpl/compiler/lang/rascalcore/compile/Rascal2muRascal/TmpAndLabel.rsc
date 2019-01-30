@@ -176,7 +176,7 @@ loc currentFunctionDeclaration(){
 
 private lrel[str scope,int counter] functionScopes = []; // *** state
 
-str topFunctionScope() = top(functionScopes).scope;
+str topFunctionScope() = isEmpty(functionScopes) ? "" : top(functionScopes).scope;
 
 int nextVisit() {
 	int counter = top(functionScopes).counter;
@@ -200,9 +200,8 @@ void enterVisit() {
 	visits = avoid() + visits;
 }
 
-bool inStringVisit(){
-	top(visits) == astr();
-}
+bool inStringVisit()
+    = top(visits) == astr();
 
 void leaveVisit() {
 	visits = tail(visits);

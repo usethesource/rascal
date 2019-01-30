@@ -12,10 +12,6 @@ import String;
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::muRascal::AST;
 
-//import lang::rascalcore::grammar::definition::Grammar;
-//import lang::rascal::grammar::definition::Symbols;
-
-//extend lang::rascalcore::check::Checker;
 import lang::rascalcore::check::BasicRascalConfig;
 import Type;
 
@@ -230,7 +226,7 @@ bool is_module_variable(Define d) = d.idRole == variableId();
 bool is_module_or_function(loc l) = definitions[l]? && definitions[l].idRole in {moduleId(), functionId()};
 bool is_module(Define d) = d.idRole in {moduleId()};
 
-bool is_declared_in_module(UID uid) = definitions[getFirstFrom(useDef[uid])] == moduleId();
+bool is_declared_in_module(UID uid) = definitions[getFirstFrom(useDef[uid])].idRole == moduleId();
 
 loc findContainer(Define d){
     //println(d);
@@ -318,9 +314,9 @@ void extractScopes(TModel tm){
     
     for(fun <- functions){   
         fundef = definitions[fun];
-        //println("td_reachable_scopes[fundef.defined]: <td_reachable_scopes[fundef.defined]>");
-        //println("vars_per_scope:"); iprintln(vars_per_scope);
-        locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined], sc in functions ==> sc == fun};
+        println("td_reachable_scopes[fundef.defined]: <td_reachable_scopes[fundef.defined]>");
+        println("vars_per_scope:"); iprintln(vars_per_scope);
+        locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined], bprintln(sc), facts[sc]? ? isFunctionType(getType(sc)) ==> sc == fun : true};
         vars = sort([v | v <- locally_defined, is_variable(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
         formals = [v | v <- vars, is_formal(v)];
         outer_formals = [v | v <- formals, is_outer_formal(v) ];

@@ -1,6 +1,6 @@
 @bootstrapParser
 module  lang::rascalcore::compile::Compile
-
+ 
 import Message;
 import util::Reflective;
 import util::Benchmark;
@@ -40,12 +40,12 @@ list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::M
     if(!isEmpty(errors)){
         return errors;
     }
-    last_mod = lastModified(targetDir + "<className>.java");
-    if(rel[str,datetime, PathRole] bom := tm.store[key_bom]){
-        if(all(dt <- bom<1>, dt <= last_mod)){
-            return errors;
-        }
-    }
+    //last_mod = lastModified(targetDir + "<className>.java");
+    //if(rel[str,datetime, PathRole] bom := tm.store[key_bom]){
+    //    if(all(dt <- bom<1>, dt <= last_mod)){
+    //        return errors;
+    //    }
+    //}
    	
    	try {
         //if(verbose) println("rascal2rvm: Compiling <moduleLoc>");

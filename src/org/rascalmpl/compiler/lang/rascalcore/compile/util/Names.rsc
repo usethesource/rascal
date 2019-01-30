@@ -6,9 +6,10 @@ str removeEmptyLines(str s){
     return visit(s) { case /^\n[ ]*\n/ => "\n" };
 }
 
-str getBaseClass(str dottedName){
-    n = findLast(dottedName, ".");
-    return n >= 0 ? dottedName[n+1 ..] : dottedName;
+str getBaseClass(str qname){
+    qname = replaceAll(qname, "::", ".");
+    n = findLast(qname, ".");
+    return n >= 0 ? qname[n+1 ..] : qname;
 }
 str  module2uqclass(str qname){
     return getBaseClass(replaceAll(qname, "::", "."));
@@ -18,15 +19,15 @@ str module2class(str qname){
     return replaceAll(qname, "::", ".");
 }
 
-str module2ul(str qname){
-    return replaceAll(qname, "::", "_");
+str module2field(str qname){
+    return "M_" + replaceAll(qname, "::", "_");
 }
 
 str colon2ul(str s) = replaceAll(replaceAll(s, "::", "_"), "$", ".");
 
-str module2class(str moduleName){
-    return module2uqclass(moduleName);
-}
+//str module2class(str moduleName){
+//    return module2uqclass(moduleName);
+//}
 str module2package(str moduleName){
     className = module2class(moduleName);
     n = findLast(className, ".");

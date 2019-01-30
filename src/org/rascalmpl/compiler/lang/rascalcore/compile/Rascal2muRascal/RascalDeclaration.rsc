@@ -75,7 +75,7 @@ void translate(d: (Declaration) `<Tags tags> <Visibility visibility> data <UserT
             consVar = muVar(consName, fuid, 0, consType);
           
             defExprCode = fixFieldReferences(translate(defaultExpr), consType, consVar);
-            body = muReturn1(muIfelse(muIsKwpDefined(consVar, kwFieldName), muGetKwpFromConstructor(consVar, kwtype, kwFieldName), defExprCode));
+            body = muReturn1(kwtype, muIfelse(muIsKwpDefined(consVar, kwFieldName), muGetKwpFromConstructor(consVar, kwtype, kwFieldName), defExprCode));
             addFunctionToModule(muFunction(fuid, getterName, getterType, [], [], "", 1, 1, false, true, false, [], |std:///|, [], (), body));               
        }
     }
@@ -110,6 +110,8 @@ void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <
 
 private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement] body, list[Expression] when_conditions){
   //println("r2mu: Compiling \uE007[<fd.signature.name>](<fd@\loc>)");
+  
+  inScope = topFunctionScope();
   funsrc = fd@\loc;
   enterFunctionDeclaration(funsrc);
 
@@ -123,7 +125,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
                                          avoid(),
                                          [],
                                          [],
-                                         "", 
+                                         inScope, 
                                          0, 
                                          0, 
                                          false, 
@@ -133,7 +135,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
                                          fd@\loc, 
                                          tmods, 
                                          ttags,
-                                         muReturn1(muCon(false))));
+                                         muReturn1(abool(), muCon(false))));
           	return;
       }
      
@@ -180,7 +182,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
       								 ftype,
       								 argNames,
       								 kwps,
-      								 "", //(addr.fuid in moduleNames) ? "" : addr.fuid, 
+      								 inScope, //"", //(addr.fuid in moduleNames) ? "" : addr.fuid, 
       								 getFormals(funsrc), 
       								 getScopeSize(funsrc),
       								 isVarArgs, 
@@ -243,10 +245,10 @@ MuExp returnFromFunction(MuExp body, AType ftype, list[MuExp] formalVars, bool i
   if(ftype.ret == avoid()){
     return body;
   } else {
-      res = muReturn1(body);
+      res = muReturn1(ftype.ret, body);
       if(isMemo){
          res = visit(res){
-            case muReturn1(e) => muMemoReturn(ftype, formalVars, body)
+            case muReturn1(t, e) => muMemoReturn(ftype, formalVars, body)
          }
       }
       return res;   
@@ -274,6 +276,7 @@ MuExp translateFunction(str fname, {Pattern ","}* formals, AType ftype, MuExp bo
                         | translatePat(formalsList[i], getType(formalsList[i]),formalVars[i], fname, it, muFailReturn(ftype), subjectAssigned=true) 
                         | i <- index(formalsList));
      funCode = functionBody(params_when_body, ftype, formalVars, isMemo);
+     //funCode = muBlock([functionBody(params_when_body, ftype, formalVars, isMemo), muFailReturn(ftype)]);
      leaveBacktrackingScope();
      return funCode;
 }
