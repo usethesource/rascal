@@ -210,6 +210,11 @@ default tuple[list[str] typeNames, set[IdRole] idRoles] rascalGetTypeNamesAndRol
 AType rascalGetTypeInTypeFromDefine(Define containerDef, str selectorName, set[IdRole] idRolesSel, Solver s){
     //println("rascalGetTypeInTypeFromDefine: <containerDef>, <selectorName>");
     //println("commonKeywordFields: <containerDef.defInfo.commonKeywordFields>");
+    containerType = s.getType(containerDef.defined);
+    if(fieldId() in idRolesSel && selectorName == "top" && isStartNonTerminalType(containerType)){
+        return getStartNonTerminalType(containerType);
+    }
+    
     for(kwf <- containerDef.defInfo.commonKeywordFields){
         if(prettyPrintName(kwf.name) == selectorName){
             return s.getType(kwf.\type);
