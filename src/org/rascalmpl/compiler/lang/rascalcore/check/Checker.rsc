@@ -194,6 +194,9 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
         map[str,str] path2module = (ms.moduleLocs[mname].path : mname | mname <- ms.moduleLocs);
         mi = 0;
         nmodules = size(ordered);
+        
+        println("rascalTModelForLocs: <size(mlocs)> mlocs, <nmodules> after ordering");
+        println("not in ordered: <topModuleNames - ordered>");
         while(mi < nmodules){
             component = module2component[ordered[mi]];
             recheck = !all(m <- component, m in ms.valid);
@@ -380,7 +383,8 @@ list[ModuleMessages] check(list[loc] moduleLocs, PathConfig pcfg){
 }
 
 list[ModuleMessages] checkAll(loc root, PathConfig pcfg){
-    return check(toList(find(root, "rsc")), pcfg);
+    return toList({*check([mloc], pcfg) | mloc <- find(root, "rsc") });
+   // return check(toList(find(root, "rsc")), pcfg);
 }
 
 // ---- Convenience check function during development -------------------------
