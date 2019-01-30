@@ -155,18 +155,20 @@ void report(ProfileData pd){
 alias CheckerResult = tuple[map[str,TModel] tmodels, map[str,loc] moduleLocs, map[str,Module] modules];
 
 // rascalTModelForLoc is the basic work horse
-
-CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config){     
+ 
+CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfig config){     
     bool forceCompilationTopModule = false; /***** set to true during development of type checker *****/
     try {
         beginTime = cpuTime();   
-        topModuleName = getModuleName(mloc, pcfg);
+        topModuleNames = { getModuleName(mloc, pcfg) | mloc <- mlocs };
         
         before = cpuTime();
-        ms = getImportAndExtendGraph(topModuleName, pcfg, config.logImports);
+        ms = getImportAndExtendGraph(topModuleNames, pcfg, config.logImports);
         if(forceCompilationTopModule){
-            ms.valid -= {topModuleName};
-            ms.tmodels = delete(ms.tmodels, topModuleName);
+            ms.valid -= topModuleNames;
+            for(topModuleName <- topModuleNames){
+                ms.tmodels = delete(ms.tmodels, topModuleName);
+            }
         }
         
         graphTime = cpuTime() - before;
@@ -180,8 +182,10 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
         list[str] ordered = [];
         
         if(isEmpty(sorted)){
-            ordered = [topModuleName];
-            module2component[topModuleName] = {topModuleName};
+            ordered = toList(topModuleNames);
+            for(topModuleName <- topModuleNames){
+                module2component[topModuleName] = {topModuleName};
+            }
         } else {
             ordered = reverse(sorted);
         }
@@ -271,16 +275,16 @@ CheckerResult rascalTModelForLoc(loc mloc, PathConfig pcfg, TypePalConfig config
             
             int toMilli(int time_in_ns) = time_in_ns/1000000;
             
-            println("<topModuleName>, import graph <toMilli(graphTime)> ms");
-            println("<topModuleName> <tcollector+tsolver> ms [ collector: <tcollector> ms; solver: <tsolver> ms; save: <tsave> ms ]");
-            println("<topModuleName>, measured total time: <toMilli(cpuTime() - beginTime)> ms");
+            println("<topModuleNames>, import graph <toMilli(graphTime)> ms");
+            println("<topModuleNames> <tcollector+tsolver> ms [ collector: <tcollector> ms; solver: <tsolver> ms; save: <tsave> ms ]");
+            println("<topModuleNames>, measured total time: <toMilli(cpuTime() - beginTime)> ms");
         }
               
         return <ms.tmodels, ms.moduleLocs, ms.modules>;
     } catch ParseError(loc src): {
-        return <("<mloc>" : tmodel()[messages = [ error("Parse error", src)  ]]), (), ()>;
+        return <("<mloc>" : tmodel()[messages = [ error("Parse error", src)  ]] | mloc <- mlocs), (), ()>;
     } catch Message msg: {
-     return  <("<mloc>" : tmodel()[messages = [ error("During type checking: <msg>", msg.at) ]]), (), ()>;
+     return  <("<mloc>" : tmodel()[messages = [ error("During type checking: <msg>", msg.at) ]] | mloc <- mlocs), (), ()>;
     } 
     //catch value e: {
     //    return <("<mloc>" : tmodel()[messages = [ error("During validation: <e>", mloc) ]]), (), ()>;
@@ -355,13 +359,13 @@ tuple[ProfileData, TModel] rascalTModelComponent(map[str, Tree] namedTrees, Modu
 
 // ---- rascalTModelForName a checker version that works on module names
 
-CheckerResult rascalTModelForName(str moduleName, PathConfig pcfg, TypePalConfig config){
+CheckerResult rascalTModelForNames(list[str] moduleNames, PathConfig pcfg, TypePalConfig config){
     mloc = |unknown:///|(0,0,<0,0>,<0,0>);
     try {
-        mloc = getModuleLocation(moduleName, pcfg);
-        return rascalTModelForLoc(mloc, pcfg, config);
+        mlocs = [ getModuleLocation(moduleName, pcfg) | moduleName <- moduleNames ];
+        return rascalTModelForLocs(mlocs, pcfg, config);
     } catch value e: {
-        return <(moduleName : tmodel()[messages = [ error("During type checking: <e>", mloc) ]]), (), ()>;
+        return <(moduleName : tmodel()[messages = [ error("During type checking: <e>", mloc) ]] | moduleName <- moduleNames), (), ()>;
     }
 }
 
@@ -370,41 +374,54 @@ CheckerResult rascalTModelForName(str moduleName, PathConfig pcfg, TypePalConfig
 // name of the production has to mirror the Kernel compile result
 data ModuleMessages = program(loc src, set[Message] messages);
 
-ModuleMessages check(str moduleName, PathConfig pcfg){        // TODO change from ModuleMessages to list[ModuleMessages]
-    try {
-        moduleLoc = getModuleLocation(moduleName, pcfg);
-        return check(moduleLoc, pcfg);
-    } catch value e: {
-        return program(|unkown:///|, {error("During type checking: <e>", |unkown:///|)});
-    }
-}
+//ModuleMessages check(str moduleName, PathConfig pcfg){        // TODO change from ModuleMessages to list[ModuleMessages]
+//    try {
+//        moduleLoc = getModuleLocation(moduleName, pcfg);
+//        return check([moduleLoc], pcfg);
+//    } catch value e: {
+//        return program(|unkown:///|, {error("During type checking: <e>", |unkown:///|)});
+//    }
+//}
 
-ModuleMessages check(loc moduleLoc, PathConfig pcfg){          // TODO: change from ModuleMessages to list[ModuleMessages]
-    pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
-    println("=== check: <moduleLoc>"); iprintln(pcfg1);
-    <tmodels, moduleLocs, modules> = rascalTModelForLoc(moduleLoc, pcfg, rascalTypePalConfig(classicReifier=true,logImports=true));
-    moduleName = getModuleName(moduleLoc, pcfg);
-    tm = tmodels[moduleName];
-    return program(moduleLoc, toSet(tm.messages));
-    //return [ program(getModuleLocation(m, pcfg), toSet(tmodels[m].messages)) | m <- tmodels ];
-}
+//ModuleMessages check(loc moduleLoc, PathConfig pcfg){          // TODO: change from ModuleMessages to list[ModuleMessages]
+//    pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
+//    println("=== check: <moduleLoc>"); iprintln(pcfg1);
+//    <tmodels, moduleLocs, modules> = rascalTModelForLocs([moduleLoc], pcfg, rascalTypePalConfig(classicReifier=true,logImports=true));
+//    moduleName = getModuleName(moduleLoc, pcfg);
+//    tm = tmodels[moduleName];
+//    return program(moduleLoc, toSet(tm.messages));
+//    //return [ program(getModuleLocation(m, pcfg), toSet(tmodels[m].messages)) | m <- tmodels ];
+//}
 
-list[ModuleMessages] check(list[str] moduleNames, PathConfig pcfg){
-    return [ *check(moduleName, pcfg) | moduleName <- moduleNames ];
-}
+//list[ModuleMessages] check(list[str] moduleNames, PathConfig pcfg){
+//    try {
+//        moduleLocs = [getModuleLocation(moduleName, pcfg) | moduleName <- moduleNames ];
+//        return check(moduleLocs, pcfg);
+//    } catch value e: {
+//        return [ program(moduleName, {error("During type checking: <e>", |unkown:///|)}) | moduleName <- moduleNames ];
+//    }
+//
+//    //return [ *check(moduleName, pcfg) | moduleName <- moduleNames ];
+//}
 
 list[ModuleMessages] check(list[loc] moduleLocs, PathConfig pcfg){
-    return [ *check(moduleLoc, pcfg) | moduleLoc <- moduleLocs ];
+    pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
+    println("=== check: <moduleLocs>"); iprintln(pcfg1);
+    <tmodels, moduleLocs1, modules> = rascalTModelForLocs(moduleLocs, pcfg, rascalTypePalConfig(classicReifier=true,logImports=true));
+    return [ program(moduleLoc, toSet(tm.messages)) | moduleLoc <- moduleLocs, moduleName := getModuleName(moduleLoc, pcfg), tm:= tmodels[moduleName] ];
+
+    //return [ *check(moduleLoc, pcfg) | moduleLoc <- moduleLocs ];
 }
 
 list[ModuleMessages] checkAll(loc root, PathConfig pcfg){
-     return [ *check(moduleLoc, pcfg) | moduleLoc <- find(root, "rsc") ]; 
+    return check(toList(find(root, "rsc")), pcfg);
+     //return [ *check(moduleLoc, pcfg) | moduleLoc <- find(root, "rsc") ]; 
 }
 
 // ---- Convenience check function during development -------------------------
 
-map[str, list[Message]] checkModule(
-      str moduleName,                           // Rascal module to be type checked
+map[str, list[Message]] checkModules(
+      list[str] moduleNames,                     // Rascal modules to be type checked
       
       bool logTime                  = false,    // General TypePal option
       bool logSolverIterations      = false,
@@ -446,6 +463,6 @@ map[str, list[Message]] checkModule(
     config.warnUnusedPatternFormals = warnUnused &&  warnUnusedPatternFormals;
     config.warnDeprecated = warnUnused && warnDeprecated;
     
-    <tmodels, moduleLocs, modules> = rascalTModelForName(moduleName, getDefaultPathConfig(), config);
+    <tmodels, moduleLocs, modules> = rascalTModelForNames(moduleNames, getDefaultPathConfig(), config);
     return (mname : tmodels[mname].messages | mname <- tmodels, !isEmpty(tmodels[mname].messages));
 }

@@ -37,6 +37,7 @@ void(Solver) makeVarInitRequirement(Variable var)
             } else if(!s.unify(initialType, varType)){
                 s.requireSubType(initialType, varType, error(var, "Initialization of %q should be subtype of %t, found %t", "<var.name>", var.name, initialType));
             }
+            s.fact(var, varType);
        };
 
 AType unaryOp(str op, AType(Tree, AType, Solver) computeType, Tree current, AType t1, Solver s){
