@@ -92,6 +92,10 @@ ModuleStructure complete(ModuleStructure ms, PathConfig pcfg){
     return ms;
 }
 
+ModuleStructure getImportAndExtendGraph(set[str] qualifiedModuleNames, PathConfig pcfg, bool logImports){
+    return complete((newModuleStructure() | getImportAndExtendGraph(qualifiedModuleName, pcfg, domain(it.modules), it, logImports) | qualifiedModuleName <- qualifiedModuleNames), pcfg);
+}
+
 ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, bool logImports){
     return complete(getImportAndExtendGraph(qualifiedModuleName, pcfg, {}, newModuleStructure(), logImports), pcfg);
 }

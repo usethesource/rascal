@@ -62,8 +62,8 @@ public Bindings matchRascalTypeParams(AType r, AType s, Bindings b, bool bindIde
     }
     
     if (isRascalTypeParam(r)) {
-        varName = getRascalTypeParamName(r);
-        varBound = getRascalTypeParamBound(r);
+        str varName = getRascalTypeParamName(r);
+        AType varBound = getRascalTypeParamBound(r);
         
         if (varName in b) {
             lubbed = alub(s, b[varName]);
