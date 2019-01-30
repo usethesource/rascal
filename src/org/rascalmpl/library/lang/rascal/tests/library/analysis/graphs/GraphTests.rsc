@@ -14,6 +14,10 @@
   *******************************************************************************/ 
  
 import analysis::graphs::Graph;
+import List;
+import Set;
+import Relation;
+import IO;
 
 /*
               1 -----> 3
@@ -174,6 +178,28 @@ test bool scc8() = stronglyConnectedComponents(G8) == {{0}, {1}, {2}, {3}};
 test bool scc9() = stronglyConnectedComponents(G9) == {{3}, {4}, {5}, {6}, {0, 1, 2}};
 test bool scc10() = stronglyConnectedComponents(G10) == {{0,1,2,3}, {4,5,6}, {7}, {8,9}};
 test bool scc11() = stronglyConnectedComponents(G11) == {{0, 1, 2, 3, 4}};
+
+test bool sccPreservesElements(Graph[int] G) {
+    components = stronglyConnectedComponents(G);
+    return {*comp | comp <- components} == carrier(G);
+}
+
+test bool sccDisjointComponents(Graph[int] G) {
+    components = stronglyConnectedComponents(G);
+    return isEmpty(G) || size(components) <= 1 || all(set[int] comp1 <- components, set[int] comp2 <- components, ((comp1 == comp2) ? true : isEmpty(comp1 & comp2)));
+}
+
+// stronglyConnectedComponentsAndTopSort
+
+test bool sccNoDuplicatesInOrder(Graph[int] G){
+    <components, ordered> = stronglyConnectedComponentsAndTopSort(G);
+    return size(ordered) == size(toSet(ordered));
+}
+
+test bool sccOrderEqualsComponents(Graph[int] G){
+    <components, ordered> = stronglyConnectedComponentsAndTopSort(G);
+    return {*comp | comp <- components} == toSet(ordered);
+}
 
 // order
 
