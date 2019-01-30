@@ -1,19 +1,19 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
 
 import java.io.IOException;
-import java.lang.ref.SoftReference;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.RascalException;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.RascalExceptionFactory;
-import org.rascalmpl.interpreter.result.util.MemoizationCache;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Frame;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Function;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ToplevelType;
 import org.rascalmpl.uri.SourceLocationURICompare;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -49,13 +49,40 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
-public class $RascalModule {
+public abstract class $RascalModule {
 	public final static IValueFactory $VF = ValueFactoryFactory.getValueFactory();
 	public final static TypeFactory $TF = TypeFactory.getInstance();
 	public final static TypeStore $TS = new TypeStore();
 	public static final IBool Rascal_TRUE =  $VF.bool(true);
 	public static final IBool Rascal_FALSE =  $VF.bool(false);
+	
+	/*************************************************************************/
+	/*		Utilities for generated code									 */
+	/*************************************************************************/
+	
+	// ---- ModuleStore -------------------------------------------------------
+	
+    protected static final class ModuleStore {
+        
+        private final ConcurrentMap<Class<?>, Object> loadedModules = new ConcurrentHashMap<>();
 
+        public ModuleStore() {
+			// TODO Auto-generated constructor stub
+		}
+
+		@SuppressWarnings("unchecked")
+        public <T> T importModule(Class<T> module, Function<ModuleStore, T> builder) {
+            T result = (T)loadedModules.get(module);
+            if (result == null) {
+                // we have to compute and then merge, computeIfAbstent can not be used, as we'll have to use the map during the compute.
+                T newResult = builder.apply(this);
+                // we merge, most cases we won't get a merge, but if we do, we keep the one in the store
+                return (T)loadedModules.merge(module, newResult, (a, b) -> (a == newResult) ? b : a);
+            }
+            return result;
+        }
+    }
+  
 	// ---- utility methods ---------------------------------------------------
 
 	public static final IMap buildMap(final IValue...values){
@@ -65,6 +92,10 @@ public class $RascalModule {
 		}
 		return w.done();
 	}
+	
+	/*************************************************************************/
+	/*		Rascal primitives called by generated code						 */
+	/*************************************************************************/
 
 	// ---- add ---------------------------------------------------------------
 
@@ -266,6 +297,10 @@ public class $RascalModule {
 		return lhs.add(rhs);
 	}
 	
+	public static IString astr_add_astr(final IString lhs, final IString rhs) {
+		return lhs.concat(rhs);
+	}
+	
 	public static final ISourceLocation aloc_add_astr(final ISourceLocation sloc, final IString s) {
 		String path = sloc.hasPath() ? sloc.getPath() : "";
 		if(!path.endsWith("/")){
@@ -274,8 +309,7 @@ public class $RascalModule {
 		path = path.concat(s.getValue());
 		return aloc_field_update(sloc, "path", $VF.string(path));
 	}
-
-
+	
 	public static final ITuple atuple_add_atuple(final ITuple t1, final ITuple t2) {
 		int len1 = t1.arity();
 		int len2 = t2.arity();
@@ -285,6 +319,34 @@ public class $RascalModule {
 		for(int i = 0; i < len2; i++)
 			elems[len1 + i] = t2.get(i);
 		return $VF.tuple(elems);
+	}
+	
+	public static final IList alist_add_alist(final IList lhs, final IList rhs) {
+		return lhs.concat(rhs);
+	}
+	
+	public static final IList alist_add_elm(final IList lhs, final IValue rhs) {
+		return lhs.append(rhs);
+	}
+	
+	public static final IList elm_add_alist(final IValue lhs, final IList rhs) {
+		return rhs.insert(lhs);
+	}
+	
+	public static final ISet aset_add_aset(final ISet lhs, final ISet rhs) {
+		return lhs.union(rhs);
+	}
+	
+	public static final ISet aset_add_elm(final ISet lhs, final IValue rhs) {
+		return lhs.insert(rhs);
+	}
+	
+	public static final ISet elm_add_aset(final IValue lhs, final ISet rhs) {
+		return rhs.insert(lhs);
+	}
+	
+	public static final IMap amap_add_amap(final IMap lhs, final IMap rhs) {
+		return lhs.compose(rhs);
 	}
 
 	// ---- annotation_get ----------------------------------------------------
@@ -445,9 +507,9 @@ public class $RascalModule {
 		}
 	}
 
-	public static final INumber areal_divide_aint(final IReal a, final IInteger b) {
+	public static final IReal areal_divide_aint(final IReal a, final IInteger b) {
 		try {
-			return a.divide(b, $VF.getPrecision());
+			return (IReal) a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
 			throw RascalExceptionFactory.arithmeticException("divide by zero");
 		}
@@ -461,9 +523,9 @@ public class $RascalModule {
 		}
 	}
 
-	public static final INumber areal_divide_arat(IReal a, IRational b) {
+	public static final IReal areal_divide_arat(IReal a, IRational b) {
 		try {
-			return a.divide(b, $VF.getPrecision());
+			return (IReal) a.divide(b, $VF.getPrecision());
 		} catch(ArithmeticException e) {
 			throw RascalExceptionFactory.arithmeticException("divide by zero");
 		}
@@ -1654,6 +1716,75 @@ public class $RascalModule {
 			throw new InternalCompilerError("less: unexpected type " + leftType);
 		}
 	}
+	
+	
+	
+	
+	public static final IBool aint_less_aint(final IInteger a, final IInteger b) {
+		return a.less(b);
+	}
+
+	public static final IBool aint_less_areal(final IInteger a, final IReal b) {
+		return a.less(b);
+	}
+
+	public static final IBool aint_less_arat(final IInteger a, final IRational b) {
+		return a.toRational().less(b);
+	}
+
+	public static final IBool aint_less_anum(final IInteger a, final INumber b) {
+		return a.less(b);
+	}
+
+	public static final IBool areal_less_aint(final IReal a, final IInteger b) {
+		return a.less(b);
+	}
+
+	public static final IBool areal_less_areal(final IReal a, final IReal b) {
+		return a.less(b);
+	}
+
+	public static final IBool areal_less_arat(IReal a, IRational b) {
+		return a.less(b);
+	}
+
+	public static final IBool areal_less_anum(final IReal a, final INumber b) {
+		return a.less(b);
+	}
+
+	public static final IBool arat_less_aint(final IRational a, final IInteger b) {
+		return a.less(b);
+	}
+
+	public static final IBool arat_less_areal(final IRational a, final IReal b) {
+		return a.less(b);
+	}
+
+	public static final IBool arat_less_arat(final IRational a, final IRational b) {
+		return a.toRational().less(b);
+	}
+
+	public static final IBool arat_less_anum(final IRational a, final INumber b) {
+		return a.less(b);
+	}
+
+	public static final IBool anum_less_aint(final INumber a, final IInteger b) {
+		return a.less(b);
+	}
+
+	public static final IBool anum_less_areal(final INumber a, final IReal b) {
+		return a.less(b);
+	}
+	public static final IBool anum_less_arat(final INumber a, final IRational b) {
+		return a.less(b);
+	}
+
+	public static final IBool anum_less_anum(final INumber a, final INumber b) {
+		return a.less(b);
+	}
+	
+	
+	
 
 	public static final IBool abool_less_abool(final IBool left, final IBool right) {
 		return  $VF.bool(!left.getValue() && right.getValue());
@@ -1864,6 +1995,72 @@ public class $RascalModule {
 			throw new InternalCompilerError("less: unexpected type " + leftType);
 		}
 	}
+	
+	public static final IBool aint_lessequal_aint(final IInteger a, final IInteger b) {
+		return a.lessEqual(b);
+	}
+
+	public static final IBool aint_lessequal_areal(final IInteger a, final IReal b) {
+		return a.lessEqual(b);
+	}
+
+	public static final IBool aint_lessequal_arat(final IInteger a, final IRational b) {
+		return a.lessEqual(b);
+	}
+
+	public static final IBool aint_lessequal_anum(final IInteger a, final INumber b) {
+		return a.lessEqual(b);
+	}
+
+	public static final IBool areal_lessequal_aint(final IReal a, final IInteger b) {
+		return a.lessEqual(b);
+	}
+
+	public static final IBool areal_lessequal_areal(final IReal a, final IReal b) {
+		return a.lessEqual(b);
+	}
+
+	public static final IBool areal_lessequal_arat(IReal a, IRational b) {
+		return a.lessEqual(b);
+	}
+
+	public static final IBool areal_lessequal_anum(final IReal a, final INumber b) {
+		return a.lessEqual(b);
+	}
+
+	public static final IBool arat_lessequal_aint(final IRational a, final IInteger b) {
+		return a.lessEqual(b);
+	}
+
+	public static final IBool arat_lessequal_areal(final IRational a, final IReal b) {
+		return a.lessEqual(b);
+	}
+
+	public static final IBool arat_lessequal_arat(final IRational a, final IRational b) {
+		return a.lessEqual(b);
+	}
+
+	public static final IBool arat_lessequal_anum(final IRational a, final INumber b) {
+		return a.lessEqual(b);
+	}
+
+	public static final IBool anum_lessequal_aint(final INumber a, final IInteger b) {
+		return a.lessEqual(b);
+	}
+
+	public static final IBool anum_lessequal_areal(final INumber a, final IReal b) {
+		return a.lessEqual(b);
+	}
+	public static final IBool anum_lessequal_arat(final INumber a, final IRational b) {
+		return a.lessEqual(b);
+	}
+
+	public static final IBool anum_lessequal_anum(final INumber a, final INumber b) {
+		return a.lessEqual(b);
+	}
+	
+	
+	
 
 	public static final IBool abool_lessequal_abool(final IBool left, final IBool right) {
 		boolean l = left.getValue();
@@ -1986,7 +2183,6 @@ public class $RascalModule {
 
 	// ---- product -----------------------------------------------------------
 
-
 	public static final IValue product(final IValue lhs, final IValue rhs) {
 		ToplevelType lhsType = ToplevelType.getToplevelType(lhs.getType());
 		ToplevelType rhsType = ToplevelType.getToplevelType(rhs.getType());
@@ -2048,6 +2244,68 @@ public class $RascalModule {
 		}
 	}
 
+	public static final IInteger aint_product_aint(final IInteger a, final IInteger b) {
+		return a.multiply(b);
+	}
+
+	public static final INumber aint_product_areal(final IInteger a, final IReal b) {
+		return a.multiply(b);
+	}
+
+	public static final IRational aint_product_arat(final IInteger a, final IRational b) {
+		return a.toRational().multiply(b);
+	}
+
+	public static final INumber aint_product_anum(final IInteger a, final INumber b) {
+		return a.multiply(b);
+	}
+
+	public static final IReal areal_product_aint(final IReal a, final IInteger b) {
+		return (IReal) a.multiply(b);
+	}
+
+	public static final IReal areal_product_areal(final IReal a, final IReal b) {
+		return a.multiply(b);
+	}
+
+	public static final IReal areal_product_arat(IReal a, IRational b) {
+		return (IReal) a.multiply(b);
+	}
+
+	public static final INumber areal_product_anum(final IReal a, final INumber b) {
+		return a.multiply(b);
+	}
+
+	public static final INumber arat_product_aint(final IRational a, final IInteger b) {
+		return a.multiply(b);
+	}
+
+	public static final IReal arat_product_areal(final IRational a, final IReal b) {
+		return a.multiply(b);
+	}
+
+	public static final IRational arat_product_arat(final IRational a, final IRational b) {
+		return a.toRational().multiply(b);
+	}
+
+	public static final INumber arat_product_anum(final IRational a, final INumber b) {
+		return a.multiply(b);
+	}
+
+	public static final INumber anum_product_aint(final INumber a, final IInteger b) {
+		return a.multiply(b);
+	}
+
+	public static final INumber anum_product_areal(final INumber a, final IReal b) {
+		return a.multiply(b);
+	}
+	public static final INumber anum_product_arat(final INumber a, final IRational b) {
+		return a.multiply(b);
+	}
+
+	public static final INumber anum_product_anum(final INumber a, final INumber b) {
+		return a.multiply(b);
+	}
 
 	public static final IList alist_product_alist(final IList left, final IList right) {
 		IListWriter w = $VF.listWriter();
@@ -2067,6 +2325,13 @@ public class $RascalModule {
 			}
 		}
 		return w.done();
+	}
+	
+	// ---- regexp ------------------------------------------------------------
+	
+	public static final Matcher regExpCompile(String pat, String subject) {
+		Pattern p = Pattern.compile(pat);
+		return p.matcher(subject);
 	}
 
 	// ---- slice -------------------------------------------------------------
