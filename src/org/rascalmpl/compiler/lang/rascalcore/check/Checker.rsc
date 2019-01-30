@@ -240,7 +240,7 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
                     extends = { ext | <m1, extendPath(), ext > <- ms.strPaths, m1 == m };
                     if(config.warnUnused){
                         // Look for unused imports or exports
-                        usedModules = {path2module[l.path] | loc l <- range(tm.useDef), tm.definitions[l].idRole != moduleId(), path2module[l.path]?};
+                        usedModules = {path2module[l.path] | loc l <- range(tm.useDef), /*tm.definitions[l].idRole != moduleId(), */path2module[l.path]?};
                         msgs = [];
                         for(imod <- ms.modules[m].header.imports, imod has \module){
                             iname = unescape("<imod.\module.name>");
@@ -304,18 +304,16 @@ set[str] loadImportsAndExtends(str moduleName, ModuleStructure ms, Collector c, 
     return added;
 }
 
-CheckerResult findUnusedImportsAndExtends(map[str,TModel] tmodels, map[str,loc] moduleLocs, map[str,Module] modules){
-    for(moduleName <- modules){
-        imports = [im | /im:(Import) `import <ImportedModule m> ;` := modules[moduleName]];
-        extends = [ex | /ex:(Import) `extend <ImportedModule m> ;` := modules[moduleName]];
-        tm = tmodels[moduleName];
-        used = {l.path | loc l <- range(tm.useDef)};
-        println("<moduleName>: <used>");
-    
-    }
-   
-    return <tmodels, moduleLocs, modules>;
-}
+//CheckerResult findUnusedImportsAndExtends(map[str,TModel] tmodels, map[str,loc] moduleLocs, map[str,Module] modules){
+//    for(moduleName <- modules){
+//        imports = [im | /im:(Import) `import <ImportedModule m> ;` := modules[moduleName]];
+//        extends = [ex | /ex:(Import) `extend <ImportedModule m> ;` := modules[moduleName]];
+//        tm = tmodels[moduleName];
+//        used = {l.path | loc l <- range(tm.useDef)};
+//        println("<moduleName>: <used>");
+//    }
+//    return <tmodels, moduleLocs, modules>;
+//}
 
 tuple[ProfileData, TModel] rascalTModelComponent(map[str, Tree] namedTrees, ModuleStructure ms, 
                                                  TypePalConfig config=rascalTypePalConfig(classicReifier=true), bool inline=false){
@@ -374,48 +372,15 @@ CheckerResult rascalTModelForNames(list[str] moduleNames, PathConfig pcfg, TypeP
 // name of the production has to mirror the Kernel compile result
 data ModuleMessages = program(loc src, set[Message] messages);
 
-//ModuleMessages check(str moduleName, PathConfig pcfg){        // TODO change from ModuleMessages to list[ModuleMessages]
-//    try {
-//        moduleLoc = getModuleLocation(moduleName, pcfg);
-//        return check([moduleLoc], pcfg);
-//    } catch value e: {
-//        return program(|unkown:///|, {error("During type checking: <e>", |unkown:///|)});
-//    }
-//}
-
-//ModuleMessages check(loc moduleLoc, PathConfig pcfg){          // TODO: change from ModuleMessages to list[ModuleMessages]
-//    pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
-//    println("=== check: <moduleLoc>"); iprintln(pcfg1);
-//    <tmodels, moduleLocs, modules> = rascalTModelForLocs([moduleLoc], pcfg, rascalTypePalConfig(classicReifier=true,logImports=true));
-//    moduleName = getModuleName(moduleLoc, pcfg);
-//    tm = tmodels[moduleName];
-//    return program(moduleLoc, toSet(tm.messages));
-//    //return [ program(getModuleLocation(m, pcfg), toSet(tmodels[m].messages)) | m <- tmodels ];
-//}
-
-//list[ModuleMessages] check(list[str] moduleNames, PathConfig pcfg){
-//    try {
-//        moduleLocs = [getModuleLocation(moduleName, pcfg) | moduleName <- moduleNames ];
-//        return check(moduleLocs, pcfg);
-//    } catch value e: {
-//        return [ program(moduleName, {error("During type checking: <e>", |unkown:///|)}) | moduleName <- moduleNames ];
-//    }
-//
-//    //return [ *check(moduleName, pcfg) | moduleName <- moduleNames ];
-//}
-
 list[ModuleMessages] check(list[loc] moduleLocs, PathConfig pcfg){
     pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
     println("=== check: <moduleLocs>"); iprintln(pcfg1);
     <tmodels, moduleLocs1, modules> = rascalTModelForLocs(moduleLocs, pcfg, rascalTypePalConfig(classicReifier=true,logImports=true));
     return [ program(moduleLoc, toSet(tm.messages)) | moduleLoc <- moduleLocs, moduleName := getModuleName(moduleLoc, pcfg), tm:= tmodels[moduleName] ];
-
-    //return [ *check(moduleLoc, pcfg) | moduleLoc <- moduleLocs ];
 }
 
 list[ModuleMessages] checkAll(loc root, PathConfig pcfg){
     return check(toList(find(root, "rsc")), pcfg);
-     //return [ *check(moduleLoc, pcfg) | moduleLoc <- find(root, "rsc") ]; 
 }
 
 // ---- Convenience check function during development -------------------------

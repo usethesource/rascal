@@ -1,7 +1,8 @@
 module lang::rascalcore::check::Test1 
                                   
-data RuntimeException = 
-      ArithmeticException(str message); 
-    
-@expected{ArithmeticException}
-bool div() = 2/0 == 0; 
+start syntax A = "a";
+
+A main() {
+    start[A] x = [A]"a";
+    return x.top;  
+}               
