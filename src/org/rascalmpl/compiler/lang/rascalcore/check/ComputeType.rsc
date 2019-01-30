@@ -346,7 +346,7 @@ private map[AType,map[str,AType]] fieldMap =
     );
     
 public AType computeFieldTypeWithADT(AType containerType, Tree field, loc scope, Solver s) {
-    println("computeFieldTypeWithADT: <containerType>, <field>");
+    //println("computeFieldTypeWithADT: <containerType>, <field>");
     fieldName = unescape("<field>");
     if(isNonTerminalType(containerType) && fieldName == "top"){
         return containerType;
@@ -356,7 +356,7 @@ public AType computeFieldTypeWithADT(AType containerType, Tree field, loc scope,
     
 @doc{Compute the type of field fn on type containerType. A checkFailed is thrown if the field is not defined on the given type.}
 public AType computeFieldType(AType containerType, Tree field, loc scope, Solver s) {
-    println("computeFieldType: <containerType>, <field>");
+    //println("computeFieldType: <containerType>, <field>");
    
     if(!s.isFullyInstantiated(containerType)) throw TypeUnavailable();
     fieldName = unescape("<field>");
