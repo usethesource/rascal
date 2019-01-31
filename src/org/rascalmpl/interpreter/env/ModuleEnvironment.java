@@ -99,6 +99,7 @@ public class ModuleEnvironment extends Environment {
 		this.bootstrap = false;
 		this.resourceImporters = new HashMap<>();
 		this.externalConcretePatterns = new HashMap<>();
+		this.matchBindings = new ArrayList<>();
 	}
 	
 	/**
@@ -120,6 +121,7 @@ public class ModuleEnvironment extends Environment {
 		this.cachedParser = env.cachedParser;
 		this.deprecated = env.deprecated;
 		this.externalConcretePatterns = env.externalConcretePatterns;
+		this.matchBindings = env.matchBindings;
 	}
 
 	@Override
@@ -136,6 +138,7 @@ public class ModuleEnvironment extends Environment {
 		this.extended = new HashSet<>();
 		this.deprecated = null;
 		this.externalConcretePatterns = new HashMap<>();
+		this.matchBindings = new ArrayList<>();
 	}
 	
 	public void extend(ModuleEnvironment other) {
@@ -192,6 +195,13 @@ public class ModuleEnvironment extends Environment {
 	          this.externalConcretePatterns = new HashMap<>();
 	      }
 	      this.externalConcretePatterns.putAll(other.externalConcretePatterns);
+	  }
+	  
+	  if (other.matchBindings != null) {
+	      if (this.matchBindings == null) {
+	          this.matchBindings = new ArrayList<>();
+	      }
+	      this.matchBindings.addAll(other.matchBindings);
 	  }
 	  
 	  extendTypeParams(other);

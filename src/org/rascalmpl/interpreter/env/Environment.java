@@ -40,6 +40,7 @@ import org.rascalmpl.interpreter.result.OverloadedFunction;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.utils.Names;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
@@ -81,6 +82,7 @@ public class Environment implements IRascalFrame {
 	protected final ISourceLocation loc;
 	protected final String name;
 	private Environment myRoot;
+    protected List<Map<String, IValue>> matchBindings =  new ArrayList<>();
 
 	
 	@Override
@@ -178,6 +180,7 @@ public class Environment implements IRascalFrame {
 		this.functionEnvironment = old.functionEnvironment;
 		this.typeParameters = old.typeParameters;
 		this.nameFlags = old.nameFlags;
+		this.matchBindings = old.matchBindings;
 	}
 
 	/**
@@ -924,5 +927,21 @@ public class Environment implements IRascalFrame {
     public Set<String> getFrameVariables() {
         return getVariables().keySet();
     }
+    
+    public void addMatchBinding(Map<String, IValue> binding) {
+        if (getRoot() == this) {
+            matchBindings.add(binding);
+        } else {
+            getRoot().addMatchBinding(binding);
+        }
+    }
+    
+    public List<Map<String, IValue>> getMatchBindings() {
+        if (getRoot() == this) {
+            return matchBindings;
+        }
+        return getRoot().getMatchBindings();
+    }
+    
 }
 
