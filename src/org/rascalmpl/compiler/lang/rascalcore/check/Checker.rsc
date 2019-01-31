@@ -165,7 +165,7 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
         before = cpuTime();
         ms = getImportAndExtendGraph(topModuleNames, pcfg, config.logImports);
         
-        println("rascalTModelForLocs: <size(mlocs)> mlocs, <size(ms.tmodels)> tmodels, <size(ms.modules)> modules, <size(ms.moduleLocs)> moduleLocs, <size(ms.moduleLastModified)> lastModified, <size(ms.valid)> valid, <size(ms.invalid)> invalid");
+        //println("rascalTModelForLocs: <size(mlocs)> mlocs, <size(ms.tmodels)> tmodels, <size(ms.modules)> modules, <size(ms.moduleLocs)> moduleLocs, <size(ms.moduleLastModified)> lastModified, <size(ms.valid)> valid, <size(ms.invalid)> invalid");
         
         if(forceCompilationTopModule){
             ms.valid -= topModuleNames;
@@ -184,6 +184,8 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
         
         list[str] ordered = [];
         
+        println("topModuleNames: <topModuleNames>");
+        
         if(isEmpty(sorted)){
             ordered = toList(topModuleNames);
             for(topModuleName <- topModuleNames){
@@ -191,7 +193,9 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
             }
         } else {
             ordered = reverse(sorted);
-            singletons = toList(topModuleNames - ordered);
+            singletons = toList(topModuleNames - toSet(ordered));
+            //println("ordered: <ordered>");
+            //println("found singletons: <singletons>");
             ordered += singletons;
             for(singleton <- singletons){
                 module2component[singleton] = {singleton};
@@ -203,7 +207,7 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
         mi = 0;
         nmodules = size(ordered);
         
-        println("rascalTModelForLocs: <size(mlocs)> mlocs, <nmodules> after ordering");
+        //println("rascalTModelForLocs: <size(mlocs)> mlocs, <nmodules> after ordering");
        
         while(mi < nmodules){
             component = module2component[ordered[mi]];
@@ -269,7 +273,7 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
                         tm.messages += ms.messages[m];
                     }
                     ms.tmodels[m] = saveModule(m, imports, extends, moduleScopes, ms.moduleLastModified, pcfg, tm);
-                    //ms.modules = delete(ms.modules, m);
+                    ms.modules = delete(ms.modules, m);
                 }
             }
         }

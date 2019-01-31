@@ -69,7 +69,6 @@ str getModuleName(loc mloc, map[loc,str] moduleStrs, PathConfig pcfg){
 
 // Complete an ModuleStructure by adding a contains relation that adds transitive edges for extend
 ModuleStructure complete(ModuleStructure ms, PathConfig pcfg){
-    printModuleStructure(ms);
     moduleStrs = invertUnique(ms.moduleLocs);
     paths = ms.paths + { <ms.moduleLocs[a], r, ms.moduleLocs[b]> | <str a, PathRole r, str b> <- ms.strPaths, ms.moduleLocs[a]?, ms.moduleLocs[b]? };
     extendPlus = {<from, to> | <from, extendPath(), to> <- paths}+;
