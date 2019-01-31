@@ -23,8 +23,12 @@ import java.util.Map;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
+import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.utils.Names;
+
+import io.usethesource.vallang.ISourceLocation;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
 
@@ -110,8 +114,18 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 				return true;
 			}
 			
-		
-			ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(name, ResultFactory.makeResult(tmp, subject.getValue(), ctx));
+			Result<IValue> result = ResultFactory.makeResult(tmp, subject.getValue(), ctx);
+			ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(name, result);
+			
+			ISourceLocation currentLocation = getAST().getLocation();
+			Map<String, IValue> matchBindings = new HashMap<>();
+			
+			//TODO: replace with something more sensible
+			if (!currentLocation.getScheme().equals("plugin") || !currentLocation.getScheme().equals("std")) {
+    			getVariables().stream().filter(it -> it.isVarIntroducing()).forEach(it -> matchBindings.put(it.name(), result.getValue()));
+    			ctx.getCurrentEnvt().addMatchBinding(matchBindings);
+			}
+			
 			this.alreadyStored = true;
 			return true;
 		}
@@ -119,7 +133,6 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 		if(debug)System.err.println("no match");
 		return false;
 	}
-
 	
 	@Override
 	public String toString(){
