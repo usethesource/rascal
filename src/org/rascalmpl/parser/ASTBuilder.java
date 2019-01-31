@@ -485,48 +485,48 @@ public class ASTBuilder {
     }
 
     private Expression liftExternalRec(IValue value) {
-        ISourceLocation loc = URIUtil.rootLocation("unknown");
+        final ISourceLocation LOC_UNKNOWN = URIUtil.rootLocation("unknown");
 
         if (value instanceof IBool) {
             BooleanLiteral.Lexical booleanLexical =
-                new BooleanLiteral.Lexical(loc, null, ((IBool) value).getValue() ? "true" : "false");
-            Literal.Boolean boolLiteral = new Literal.Boolean(loc, null, booleanLexical);
-            return new org.rascalmpl.semantics.dynamic.Expression.Literal(loc, null, boolLiteral);
+                new BooleanLiteral.Lexical(LOC_UNKNOWN, null, ((IBool) value).getValue() ? "true" : "false");
+            Literal.Boolean boolLiteral = new Literal.Boolean(LOC_UNKNOWN, null, booleanLexical);
+            return new org.rascalmpl.semantics.dynamic.Expression.Literal(LOC_UNKNOWN, null, boolLiteral);
         }
 
         if (value instanceof INumber) {
             if (value instanceof IInteger) {
                 IInteger iinteger = (IInteger) value;
                 DecimalIntegerLiteral decimalLexical =
-                    new DecimalIntegerLiteral.Lexical(loc, null, iinteger.getStringRepresentation());
+                    new DecimalIntegerLiteral.Lexical(LOC_UNKNOWN, null, iinteger.getStringRepresentation());
                 IntegerLiteral.DecimalIntegerLiteral integerLiteral =
-                    new IntegerLiteral.DecimalIntegerLiteral(loc, null, decimalLexical);
-                Literal.Integer literal = new Literal.Integer(loc, null, integerLiteral);
-                return new org.rascalmpl.semantics.dynamic.Expression.Literal(loc, null, literal);
+                    new IntegerLiteral.DecimalIntegerLiteral(LOC_UNKNOWN, null, decimalLexical);
+                Literal.Integer literal = new Literal.Integer(LOC_UNKNOWN, null, integerLiteral);
+                return new org.rascalmpl.semantics.dynamic.Expression.Literal(LOC_UNKNOWN, null, literal);
             }
             if (value instanceof IRational) {
                 IRational irational = (IRational) value;
                 RationalLiteral.Lexical rationalLexical =
-                    new RationalLiteral.Lexical(loc, null, irational.getStringRepresentation());
-                Literal.Rational literal = new Literal.Rational(loc, null, rationalLexical);
-                return new org.rascalmpl.semantics.dynamic.Expression.Literal(loc, null, literal);
+                    new RationalLiteral.Lexical(LOC_UNKNOWN, null, irational.getStringRepresentation());
+                Literal.Rational literal = new Literal.Rational(LOC_UNKNOWN, null, rationalLexical);
+                return new org.rascalmpl.semantics.dynamic.Expression.Literal(LOC_UNKNOWN, null, literal);
             }
             if (value instanceof IReal) {
                 IReal ireal = (IReal) value;
-                RealLiteral realLexical = new RealLiteral.Lexical(loc, null, ireal.getStringRepresentation());
-                Literal.Real literal = new Literal.Real(loc, null, realLexical);
-                return new org.rascalmpl.semantics.dynamic.Expression.Literal(loc, null, literal);
+                RealLiteral realLexical = new RealLiteral.Lexical(LOC_UNKNOWN, null, ireal.getStringRepresentation());
+                Literal.Real literal = new Literal.Real(LOC_UNKNOWN, null, realLexical);
+                return new org.rascalmpl.semantics.dynamic.Expression.Literal(LOC_UNKNOWN, null, literal);
             }
         }
 
         if (value instanceof ISourceLocation) {
             ISourceLocation location = (ISourceLocation) value;
-            ProtocolPart.NonInterpolated protocolPart = new ProtocolPart.NonInterpolated(loc, null,
-                new ProtocolChars.Lexical(loc, null, "|" + location.getScheme() + "://"));
+            ProtocolPart.NonInterpolated protocolPart = new ProtocolPart.NonInterpolated(LOC_UNKNOWN, null,
+                new ProtocolChars.Lexical(LOC_UNKNOWN, null, "|" + location.getScheme() + "://"));
             PathPart.NonInterpolated pathPart = new PathPart.NonInterpolated(location, null,
-                new PathChars.Lexical(loc, null, location.getAuthority() + location.getPath() + "|"));
-            Literal.Location literal = new Literal.Location(loc, null,
-                new LocationLiteral.Default(loc, null, protocolPart, pathPart));
+                new PathChars.Lexical(LOC_UNKNOWN, null, location.getAuthority() + location.getPath() + "|"));
+            Literal.Location literal = new Literal.Location(LOC_UNKNOWN, null,
+                new LocationLiteral.Default(LOC_UNKNOWN, null, protocolPart, pathPart));
             Expression.Literal locLiteral = new org.rascalmpl.semantics.dynamic.Expression.Literal(location, null, literal);
             if (location.hasOffsetLength()) {
                 IValueFactory vf = ValueFactoryFactory.getValueFactory();
@@ -537,17 +537,17 @@ public class ASTBuilder {
                     locArgs.add(liftExternalRec(vf.tuple(vf.integer(location.getBeginLine()), vf.integer(location.getBeginColumn()))));
                     locArgs.add(liftExternalRec(vf.tuple(vf.integer(location.getEndLine()), vf.integer(location.getEndColumn())))); 
                 }
-                return new CallOrTree(loc, null, locLiteral, locArgs, new KeywordArguments_Expression.None(loc, null));
+                return new CallOrTree(LOC_UNKNOWN, null, locLiteral, locArgs, new KeywordArguments_Expression.None(LOC_UNKNOWN, null));
             }
             return locLiteral;
         }
 
         if (value instanceof IString) {
             IString string = (IString) value;
-            StringConstant.Lexical constant = new Lexical(loc, null, "\"" + string.getValue() + "\"");
-            NonInterpolated nonInterpolated = new StringLiteral.NonInterpolated(loc, null, constant);
-            Literal.String literal = new Literal.String(loc, null, nonInterpolated);
-            return new org.rascalmpl.semantics.dynamic.Expression.Literal(loc, null, literal);
+            StringConstant.Lexical constant = new Lexical(LOC_UNKNOWN, null, "\"" + string.getValue() + "\"");
+            NonInterpolated nonInterpolated = new StringLiteral.NonInterpolated(LOC_UNKNOWN, null, constant);
+            Literal.String literal = new Literal.String(LOC_UNKNOWN, null, nonInterpolated);
+            return new org.rascalmpl.semantics.dynamic.Expression.Literal(LOC_UNKNOWN, null, literal);
         }
 
         if (value instanceof ITree) {
@@ -567,18 +567,18 @@ public class ASTBuilder {
                     isSplicePlus = true;
                     variableType = variableType.substring(0, variableType.length() - 1);
                 }
-                Name.Lexical typeNameLexical = new Name.Lexical(loc, null, variableType);
-                Default def = new Default(loc, null, Arrays.asList(typeNameLexical));
-                UserType.Name userType_Name = new UserType.Name(loc, null, def);
-                User user = new User(loc, null, userType_Name);
-                Name.Lexical nameLexical = new Name.Lexical(loc, null, variableName);
+                Name.Lexical typeNameLexical = new Name.Lexical(LOC_UNKNOWN, null, variableType);
+                Default def = new Default(LOC_UNKNOWN, null, Arrays.asList(typeNameLexical));
+                UserType.Name userType_Name = new UserType.Name(LOC_UNKNOWN, null, def);
+                User user = new User(LOC_UNKNOWN, null, userType_Name);
+                Name.Lexical nameLexical = new Name.Lexical(LOC_UNKNOWN, null, variableName);
 
-                TypedVariable typedVariable = new TypedVariable(loc, tree, user, nameLexical);
+                TypedVariable typedVariable = new TypedVariable(LOC_UNKNOWN, tree, user, nameLexical);
                 if (isSplice) {
-                    return new Splice(loc, null, typedVariable);
+                    return new Splice(LOC_UNKNOWN, null, typedVariable);
                 }
                 if (isSplicePlus) {
-                    return new SplicePlus(loc, null, typedVariable);
+                    return new SplicePlus(LOC_UNKNOWN, null, typedVariable);
                 }
                 return typedVariable;
             }
@@ -587,26 +587,26 @@ public class ASTBuilder {
         if (value instanceof ISet) {
             List<Expression> elements = new ArrayList<>();
             ((ISet) value).iterator().forEachRemaining(it -> elements.add(liftExternalRec(it)));
-            return new Set(loc, (ITree) value, elements);
+            return new Set(LOC_UNKNOWN, (ITree) value, elements);
         }
 
         if (value instanceof IList) {
             List<Expression> elements = new ArrayList<>();
             ((IList) value).iterator().forEachRemaining(it -> elements.add(liftExternalRec(it)));
-            return new org.rascalmpl.semantics.dynamic.Expression.List(loc, null, elements);
+            return new org.rascalmpl.semantics.dynamic.Expression.List(LOC_UNKNOWN, null, elements);
         }
 
         if (value instanceof IMap) {
             List<Mapping_Expression> elements = new ArrayList<>();
-            ((IMap) value).entryIterator().forEachRemaining(it -> elements.add(new Mapping_Expression.Default(loc, null,
+            ((IMap) value).entryIterator().forEachRemaining(it -> elements.add(new Mapping_Expression.Default(LOC_UNKNOWN, null,
                 liftExternalRec(it.getKey()), liftExternalRec(it.getValue()))));
-            return new org.rascalmpl.semantics.dynamic.Expression.Map(loc, null, elements);
+            return new org.rascalmpl.semantics.dynamic.Expression.Map(LOC_UNKNOWN, null, elements);
         }
         
         if (value instanceof ITuple) {
             List<Expression> elements = new ArrayList<>();
             ((ITuple) value).iterator().forEachRemaining(it -> elements.add(liftExternalRec(it)));
-            return new Tuple(loc, null, elements);
+            return new Tuple(LOC_UNKNOWN, null, elements);
         }
 
         if (value instanceof IConstructor) {
@@ -614,10 +614,10 @@ public class ASTBuilder {
             Type type = constructor.getConstructorType();
             String constructorName = type.getName();
 
-            Name.Lexical constructorNameLexical = new Name.Lexical(loc, constructor, constructorName);
-            QualifiedName.Default qualifiedName = new Default(loc, constructor, Arrays.asList(constructorNameLexical));
+            Name.Lexical constructorNameLexical = new Name.Lexical(LOC_UNKNOWN, constructor, constructorName);
+            QualifiedName.Default qualifiedName = new Default(LOC_UNKNOWN, constructor, Arrays.asList(constructorNameLexical));
             org.rascalmpl.semantics.dynamic.Expression.QualifiedName qualifiedNameExpression =
-                new org.rascalmpl.semantics.dynamic.Expression.QualifiedName(loc, constructor, qualifiedName);
+                new org.rascalmpl.semantics.dynamic.Expression.QualifiedName(LOC_UNKNOWN, constructor, qualifiedName);
 
             List<Expression> args = new ArrayList<>();
             constructor.iterator().forEachRemaining(it -> args.add(liftExternalRec(it)));
@@ -625,18 +625,18 @@ public class ASTBuilder {
             KeywordArguments_Expression kwArgsExpression;
             Map<String, IValue> kwparams = constructor.asWithKeywordParameters().getParameters();
             if (kwparams.isEmpty()) {
-                kwArgsExpression = new KeywordArguments_Expression.None(loc, constructor);
+                kwArgsExpression = new KeywordArguments_Expression.None(LOC_UNKNOWN, constructor);
             } else {
                 List<KeywordArgument_Expression> keywordArgumentList = new ArrayList<>();
                 kwparams.forEach((key, val) -> {
-                    keywordArgumentList.add(new KeywordArgument_Expression.Default(loc, constructor, new Name.Lexical(loc, null, key),
+                    keywordArgumentList.add(new KeywordArgument_Expression.Default(LOC_UNKNOWN, constructor, new Name.Lexical(LOC_UNKNOWN, null, key),
                         liftExternalRec(val)));
                 });
-                kwArgsExpression = new KeywordArguments_Expression.Default(loc, constructor,
-                    new OptionalComma.Lexical(loc, constructor, ","), keywordArgumentList);
+                kwArgsExpression = new KeywordArguments_Expression.Default(LOC_UNKNOWN, constructor,
+                    new OptionalComma.Lexical(LOC_UNKNOWN, constructor, ","), keywordArgumentList);
             }
 
-            return new CallOrTree(loc, constructor, qualifiedNameExpression, args, kwArgsExpression);
+            return new CallOrTree(LOC_UNKNOWN, constructor, qualifiedNameExpression, args, kwArgsExpression);
         }
 
         throw new IllegalArgumentException(
