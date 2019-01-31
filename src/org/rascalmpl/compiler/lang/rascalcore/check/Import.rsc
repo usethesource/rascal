@@ -48,7 +48,8 @@ alias ModuleStructure = tuple[rel[str, PathRole, str] strPaths,
                               map[str,Module] modules,
                               set[str] valid,
                               set[str] invalid,
-                              map[str, list[Message]] messages
+                              map[str, list[Message]] messages,
+                              set[str] visited
                               ];
 void printModuleStructure(ModuleStructure ms){
     println("strPaths:"); iprintln(ms.strPaths);
@@ -57,9 +58,10 @@ void printModuleStructure(ModuleStructure ms){
     println("moduleLocs for: <domain(ms.moduleLocs)>");
     println("modules for: <domain(ms.modules)>");
     println("valid: <ms.valid>");
+     println("visited: <ms.visited>");
 }
 
-ModuleStructure newModuleStructure() = <{}, {}, (), (), (), (), {}, {}, ()>;
+ModuleStructure newModuleStructure() = <{}, {}, (), (), (), (), {}, {}, (), {}>;
 
 str getModuleName(loc mloc, map[loc,str] moduleStrs, PathConfig pcfg){
     return moduleStrs[mloc]? ? moduleStrs[mloc] : getModuleName(mloc, pcfg);
@@ -67,6 +69,7 @@ str getModuleName(loc mloc, map[loc,str] moduleStrs, PathConfig pcfg){
 
 // Complete an ModuleStructure by adding a contains relation that adds transitive edges for extend
 ModuleStructure complete(ModuleStructure ms, PathConfig pcfg){
+    printModuleStructure(ms);
     moduleStrs = invertUnique(ms.moduleLocs);
     paths = ms.paths + { <ms.moduleLocs[a], r, ms.moduleLocs[b]> | <str a, PathRole r, str b> <- ms.strPaths, ms.moduleLocs[a]?, ms.moduleLocs[b]? };
     extendPlus = {<from, to> | <from, extendPath(), to> <- paths}+;
@@ -93,17 +96,17 @@ ModuleStructure complete(ModuleStructure ms, PathConfig pcfg){
 }
 
 ModuleStructure getImportAndExtendGraph(set[str] qualifiedModuleNames, PathConfig pcfg, bool logImports){
-    return complete((newModuleStructure() | getImportAndExtendGraph(qualifiedModuleName, pcfg, domain(it.modules), it, logImports) | qualifiedModuleName <- qualifiedModuleNames), pcfg);
+    return complete((newModuleStructure() | getImportAndExtendGraph(qualifiedModuleName, pcfg, it, logImports) | qualifiedModuleName <- qualifiedModuleNames), pcfg);
 }
 
 ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, bool logImports){
-    return complete(getImportAndExtendGraph(qualifiedModuleName, pcfg, {}, newModuleStructure(), logImports), pcfg);
+    return complete(getImportAndExtendGraph(qualifiedModuleName, pcfg, newModuleStructure(), logImports), pcfg);
 }
 
-ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, set[str] visited, ModuleStructure ms, bool logImports){
+ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg, ModuleStructure ms, bool logImports){
     qualifiedModuleName = unescape(qualifiedModuleName);
    
-    //println("getImportAndExtendGraph: <qualifiedModuleName>, <domain(ms.modules)>, <domain(ms.tmodels)>");
+    //println("getImportAndExtendGraph: <qualifiedModuleName>, <domain(ms.modules)>, <domain(ms.tmodels)>, <ms.visited>");
     if(ms.modules[qualifiedModuleName]? || ms.tmodels[qualifiedModuleName]?){
         return ms;
     }
@@ -146,9 +149,9 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
                 ms.moduleLocs += tm.moduleLocs;
                 ms.paths += tm.paths;
                 ms.strPaths += {<qualifiedModuleName, pathRole, imp> | <str imp, PathRole pathRole> <- localImportsAndExtends };
-                visited += qualifiedModuleName;
-                for(imp <- localImportsAndExtends<0>, imp notin visited){
-                    ms = getImportAndExtendGraph(imp, pcfg, visited, ms, logImports);
+                ms.visited += {qualifiedModuleName};
+                for(imp <- localImportsAndExtends<0>, imp notin ms.visited){
+                    ms = getImportAndExtendGraph(imp, pcfg, ms, logImports);
                 }
                 return ms;
              }
@@ -169,9 +172,9 @@ ModuleStructure getImportAndExtendGraph(str qualifiedModuleName, PathConfig pcfg
         }
         imports_and_extends = getModulePathsAsStr(pt);
         ms.strPaths += imports_and_extends;
-        visited += qualifiedModuleName;
+        ms.visited += {qualifiedModuleName};
         for(imp <- imports_and_extends<2>){
-            ms = getImportAndExtendGraph(imp, pcfg, visited, ms, logImports);
+            ms = getImportAndExtendGraph(imp, pcfg, ms, logImports);
       }
     } catch value e: {
         ms.tmodels[qualifiedModuleName] = tmodel()[messages = [ error("Parse error in module `<qualifiedModuleName>`", getModuleLocation(qualifiedModuleName, pcfg)) ]];

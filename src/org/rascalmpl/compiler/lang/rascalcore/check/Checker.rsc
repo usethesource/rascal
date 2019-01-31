@@ -164,6 +164,9 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
         
         before = cpuTime();
         ms = getImportAndExtendGraph(topModuleNames, pcfg, config.logImports);
+        
+        println("rascalTModelForLocs: <size(mlocs)> mlocs, <size(ms.tmodels)> tmodels, <size(ms.modules)> modules, <size(ms.moduleLocs)> moduleLocs, <size(ms.moduleLastModified)> lastModified, <size(ms.valid)> valid, <size(ms.invalid)> invalid");
+        
         if(forceCompilationTopModule){
             ms.valid -= topModuleNames;
             for(topModuleName <- topModuleNames){
@@ -188,6 +191,11 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
             }
         } else {
             ordered = reverse(sorted);
+            singletons = toList(topModuleNames - ordered);
+            ordered += singletons;
+            for(singleton <- singletons){
+                module2component[singleton] = {singleton};
+            }
         }
         
         map[str, loc] moduleScopes = ();
@@ -196,7 +204,7 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
         nmodules = size(ordered);
         
         println("rascalTModelForLocs: <size(mlocs)> mlocs, <nmodules> after ordering");
-        println("not in ordered: <topModuleNames - ordered>");
+       
         while(mi < nmodules){
             component = module2component[ordered[mi]];
             recheck = !all(m <- component, m in ms.valid);
@@ -307,17 +315,6 @@ set[str] loadImportsAndExtends(str moduleName, ModuleStructure ms, Collector c, 
     return added;
 }
 
-//CheckerResult findUnusedImportsAndExtends(map[str,TModel] tmodels, map[str,loc] moduleLocs, map[str,Module] modules){
-//    for(moduleName <- modules){
-//        imports = [im | /im:(Import) `import <ImportedModule m> ;` := modules[moduleName]];
-//        extends = [ex | /ex:(Import) `extend <ImportedModule m> ;` := modules[moduleName]];
-//        tm = tmodels[moduleName];
-//        used = {l.path | loc l <- range(tm.useDef)};
-//        println("<moduleName>: <used>");
-//    }
-//    return <tmodels, moduleLocs, modules>;
-//}
-
 tuple[ProfileData, TModel] rascalTModelComponent(map[str, Tree] namedTrees, ModuleStructure ms, 
                                                  TypePalConfig config=rascalTypePalConfig(classicReifier=true), bool inline=false){
     modelName = intercalate(" + ", toList(domain(namedTrees)));
@@ -372,19 +369,21 @@ CheckerResult rascalTModelForNames(list[str] moduleNames, PathConfig pcfg, TypeP
 
 // ---- checker functions for IDE
 
-// name of the production has to mirror the Kernel compile result
+// name  of the production has to mirror the Kernel compile result
 data ModuleMessages = program(loc src, set[Message] messages);
+
 
 list[ModuleMessages] check(list[loc] moduleLocs, PathConfig pcfg){
     pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
     println("=== check: <moduleLocs>"); iprintln(pcfg1);
     <tmodels, moduleLocs1, modules> = rascalTModelForLocs(moduleLocs, pcfg, rascalTypePalConfig(classicReifier=true,logImports=true));
-    return [ program(moduleLoc, toSet(tm.messages)) | moduleLoc <- moduleLocs, moduleName := getModuleName(moduleLoc, pcfg), tm:= tmodels[moduleName] ];
+    nomodels = {moduleName | moduleLoc <- moduleLocs, moduleName := getModuleName(moduleLoc, pcfg), !tmodels[moduleName]?};
+    if(!isEmpty(nomodels)) println("<size(nomodels)> tmodels missing for: <nomodels>");
+    return [ program(moduleLoc, toSet(tm.messages)) | moduleLoc <- moduleLocs, moduleName := getModuleName(moduleLoc, pcfg), tmodels[moduleName]?, tm:= tmodels[moduleName] ];
 }
 
 list[ModuleMessages] checkAll(loc root, PathConfig pcfg){
-    return toList({*check([mloc], pcfg) | mloc <- find(root, "rsc") });
-   // return check(toList(find(root, "rsc")), pcfg);
+    return check(toList(find(root, "rsc")), pcfg);
 }
 
 // ---- Convenience check function during development -------------------------
