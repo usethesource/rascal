@@ -19,7 +19,7 @@ anno loc Prod@\loc;
 node outline(start[Module] m) = outline(m.top);
  
 node outline(Module m) {
-   n = "";
+   n = "<m.header.name>";
    aliases = [];
    annotations = [];
    functions = ();
@@ -32,7 +32,6 @@ node outline(Module m) {
    list[node] e = [];
    
    top-down-break visit (m) {
-     case Header h : n = "<h.name>";
      case (Declaration) `<Tags ta> <Visibility vs> <Type t> <{Variable ","}+ vars>;`:
        variables   += [clean("<v.name> <t>")()[@\loc=v@\loc] | v <- vars]; 
      case (Declaration) `<Tags ta> <Visibility vs> anno <Type t> <Type ot>@<Name name>;`:  
