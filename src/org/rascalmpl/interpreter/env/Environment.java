@@ -20,6 +20,7 @@ package org.rascalmpl.interpreter.env;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -82,7 +83,7 @@ public class Environment implements IRascalFrame {
 	protected final ISourceLocation loc;
 	protected final String name;
 	private Environment myRoot;
-    protected List<Map<String, IValue>> matchBindings =  new ArrayList<>();
+    protected Set<Map<String, IValue>> matchBindings =  new HashSet<>();
 
 	
 	@Override
@@ -936,7 +937,7 @@ public class Environment implements IRascalFrame {
         }
     }
     
-    public List<Map<String, IValue>> getMatchBindings() {
+    public Set<Map<String, IValue>> getMatchBindings() {
         if (getRoot() == this) {
             return matchBindings;
         }
