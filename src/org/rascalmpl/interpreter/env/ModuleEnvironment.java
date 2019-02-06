@@ -99,7 +99,7 @@ public class ModuleEnvironment extends Environment {
 		this.bootstrap = false;
 		this.resourceImporters = new HashMap<>();
 		this.externalConcretePatterns = new HashMap<>();
-		this.matchBindings = new ArrayList<>();
+		this.matchBindings = new HashSet<>();
 	}
 	
 	/**
@@ -138,7 +138,7 @@ public class ModuleEnvironment extends Environment {
 		this.extended = new HashSet<>();
 		this.deprecated = null;
 		this.externalConcretePatterns = new HashMap<>();
-		this.matchBindings = new ArrayList<>();
+		this.matchBindings = new HashSet<>();
 	}
 	
 	public void extend(ModuleEnvironment other) {
@@ -199,7 +199,7 @@ public class ModuleEnvironment extends Environment {
 	  
 	  if (other.matchBindings != null) {
 	      if (this.matchBindings == null) {
-	          this.matchBindings = new ArrayList<>();
+	          this.matchBindings = new HashSet<>();
 	      }
 	      this.matchBindings.addAll(other.matchBindings);
 	  }
