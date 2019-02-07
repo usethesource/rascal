@@ -810,14 +810,15 @@ public class Evaluator implements IEvaluator<Result<IValue>>, IRascalSuspendTrig
   
 	
 	public ParserGenerator getParserGenerator() {
-		startJob("Loading parser generator", 40);
-		if(parserGenerator == null ){
+		if (parserGenerator == null ){
 		  if (isBootstrapper()) {
 		    throw new ImplementationError("Cyclic bootstrapping is occurring, probably because a module in the bootstrap dependencies is using the concrete syntax feature.");
 		  }
-			parserGenerator = new ParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory(), config);
+		  startJob("Loading parser generator", 40);
+	      parserGenerator = new ParserGenerator(getMonitor(), getStdErr(), classLoaders, getValueFactory(), config);
+	      endJob(true);
 		}
-		endJob(true);
+		
 		return parserGenerator;
 	}
 
