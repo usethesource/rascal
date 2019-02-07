@@ -168,6 +168,11 @@ bool illegalUse(str stmts, list[str] importedModules = [], list[str] initialDecl
         "Cannot append, no valid surrounding context found"
     ], importedModules=importedModules, initialDecls=initialDecls);
 
+bool nonVoidType(str stmts, list[str] importedModules = [], list[str] initialDecls = []) = 
+    check(stmts, [
+        "Non-void type required"
+    ], importedModules=importedModules, initialDecls=initialDecls);
+
 	
 void makeModule(str name, str body){
 	mloc = |test-modules:///<name>.rsc|;
