@@ -407,8 +407,10 @@ void collect(current: (Comprehension)`{ <{Expression ","}+ results> | <{Expressi
     storeAllowUseBeforeDef(current, results, c); // variable occurrences in results may refer to variables defined in generators
     c.enterScope(current);
     beginPatternScope("set-comprehension", c);
-        c.require("set comprehension", current, gens,
-            void (Solver s) { for(gen <- gens) if(!isBoolType(s.getType(gen))) s.report(error(gen, "Type of generator should be `bool`, found %t", gen));
+        c.require("set comprehension", current, res + gens,
+            void (Solver s) { 
+                for(g <- gens) if(!isBoolType(s.getType(g))) s.report(error(g, "Type of generator should be `bool`, found %t", g));
+                for(r <- results) if(isVoidType(s.getType(r))) s.report(error(r, "Contribution to set comprehension cannot be `void`"));
             });
         c.calculate("set comprehension results", current, res,
             AType(Solver s){
@@ -429,7 +431,9 @@ void collect(current: (Comprehension) `[ <{Expression ","}+ results> | <{Express
     c.enterScope(current);
     beginPatternScope("list-comprehension", c);
         c.require("list comprehension", current, gens,
-            void (Solver s) { for(gen <- gens) if(!isBoolType(s.getType(gen))) s.report(error(gen, "Type of generator should be `bool`, found %t", gen));
+            void (Solver s) { 
+                for(g <- gens) if(!isBoolType(s.getType(g))) s.report(error(g, "Type of generator should be `bool`, found %t", g));
+                for(r <- results) if(isVoidType(s.getType(r))) s.report(error(r, "Contribution to list comprehension cannot be `void`"));
             });
         c.calculate("list comprehension results", current, res,
             AType(Solver s){

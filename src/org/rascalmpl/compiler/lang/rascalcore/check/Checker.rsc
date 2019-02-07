@@ -255,7 +255,7 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
                     extends = { ext | <m1, extendPath(), ext > <- ms.strPaths, m1 == m };
                     if(config.warnUnused){
                         // Look for unused imports or exports
-                        usedModules = {path2module[l.path] | loc l <- range(tm.useDef), /*tm.definitions[l].idRole != moduleId(), */path2module[l.path]?};
+                        usedModules = {path2module[l.path] | loc l <- range(tm.useDef), tm.definitions[l].idRole != moduleId(), path2module[l.path]?};
                         msgs = [];
                         for(imod <- ms.modules[m].header.imports, imod has \module){
                             iname = unescape("<imod.\module.name>");
@@ -273,7 +273,7 @@ CheckerResult rascalTModelForLocs(list[loc] mlocs, PathConfig pcfg, TypePalConfi
                         tm.messages += ms.messages[m];
                     }
                     ms.tmodels[m] = saveModule(m, imports, extends, moduleScopes, ms.moduleLastModified, pcfg, tm);
-                    ms.modules = delete(ms.modules, m);
+                    //ms.modules = delete(ms.modules, m);
                 }
             }
         }
