@@ -3,6 +3,8 @@ package org.rascalmpl.semantics.dynamic;
 import org.rascalmpl.ast.Expression;
 import org.rascalmpl.interpreter.IEvaluator;
 import org.rascalmpl.interpreter.result.Result;
+import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
+
 import io.usethesource.vallang.IValue;
 
 public class SetComprehensionWriter extends ComprehensionWriter {
@@ -32,8 +34,14 @@ public class SetComprehensionWriter extends ComprehensionWriter {
 			}
 			else {
 				Result<IValue> res = resExpr.interpret(this.ev);
-				elementType1 = elementType1.lub(res.getType());
-				writer.insert(res.getValue());
+				
+				if (res == null || res.getType().isBottom()) {
+                    throw new NonVoidTypeRequired(ev.getCurrentAST());
+                }
+				else {
+				    elementType1 = elementType1.lub(res.getType());
+				    writer.insert(res.getValue());
+				}
 			}
 		}
 	}
