@@ -438,7 +438,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	}
 
 	@Override
-    public ITree quote(INode quoted) {
+    public ITree quote(IValue quoted) {
         return new Quote(quoted);
     }
 
@@ -1728,9 +1728,9 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 	}
 	
 	private static class Quote implements ITree, IExternalValue {
-        private final INode quoted;
+        private final IValue quoted;
 
-        public Quote(INode quoted) {
+        public Quote(IValue quoted) {
             this.quoted = quoted;
         }
         
@@ -1822,7 +1822,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 
         @Override
         public IValue get(int i) throws IndexOutOfBoundsException {
-            return quoted.get(i);
+            throw new UnsupportedOperationException();
         }
 
         @Override

@@ -481,7 +481,7 @@ public class ASTBuilder {
         if (!TreeAdapter.isQuote(quote)) {
             throw new IllegalArgumentException("Trying to liftExternal a non-Quote");
         }
-        return liftExternalRec((IConstructor) quote.get("quoted"));
+        return liftExternalRec(quote.get("quoted"));
     }
 
     private Expression liftExternalRec(IValue value) {
