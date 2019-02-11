@@ -570,9 +570,15 @@ public abstract class Import {
   }
   
   private static ITree parseFragment(IEvaluator<Result<IValue>> eval, ModuleEnvironment env, ITree tree, ISourceLocation uri, boolean inPattern) {
-    IConstructor symTree = TreeAdapter.getArg(tree, "symbol");
+    ITree symTree = TreeAdapter.getArg(tree, "symbol");
     ITree lit = TreeAdapter.getArg(tree, "parts");
     
+    boolean isIterStar = false;
+    if ("iterStar".equals(TreeAdapter.getConstructorName( symTree))) {
+        isIterStar = true;
+        symTree = TreeAdapter.getArg(symTree, "symbol");
+    }
+
     String name = eval.getParserGenerator().getParserMethodName(symTree);
     Type abstractDataType = env.lookupAbstractDataType(name);
     Type concreteSyntaxType = env.lookupConcreteSyntaxType(name);
@@ -582,19 +588,40 @@ public abstract class Import {
         return (ITree) tree.asAnnotatable().setAnnotation("Abstract data type and concrete syntax type called \"" + name + "\" in scope", uri);
     }
     
-    if (abstractDataType == null && concreteSyntaxType == null && !"parametrized".equals(TreeAdapter.getConstructorName((ITree) symTree))) {
+    if (abstractDataType == null && concreteSyntaxType == null && !"parametrized".equals(TreeAdapter.getConstructorName(symTree))) {
         eval.getMonitor().warning("No valid type in concrete syntax fragment", uri);
         return (ITree) tree.asAnnotatable().setAnnotation("No valid type in concrete syntax fragment", uri);
     }
     
     if (abstractDataType != null) { //found an ADT with the right name, checking for parse function
         Map<IValue, ITree> antiquotes = new HashMap<>();
-        AbstractFunction parseFunction = getConcreteSyntaxParseFunction(eval, env, abstractDataType.getName());
+        String functionName = abstractDataType.getName();
+        if (isIterStar) {
+            functionName += "*";
+        }
+        AbstractFunction parseFunction = getConcreteSyntaxParseFunction(eval, env, functionName);
         try {
             SortedMap<Integer,Integer> corrections = new TreeMap<>();
             String input = replaceAntiQuotesByHoles(eval, env, lit, antiquotes, corrections, true);
             Result<IValue> result = parseFunction.call(new Type[] {TypeFactory.getInstance().stringType()}, new IValue[] {eval.getValueFactory().string(input)}, null);
-            INode ret = (INode) replaceHolesByAntiQuotesExternal(eval, (IConstructor) result.getValue(), antiquotes, corrections);
+            if (isIterStar) {
+                IList resultList = (IList) replaceHolesByAntiQuotesExternal(eval, result.getValue(), antiquotes, corrections);
+                IListWriter writer = eval.__getVf().listWriter();
+                IList ret = resultList;
+                if (!inPattern) {
+                    for (IValue v : resultList) {
+                        if (v.mayHaveKeywordParameters() && env.getKeywordParameterTypes(((IConstructor) v).getConstructorType()).keySet().contains("src")) {
+                            writer.append(v.asWithKeywordParameters().setParameter("src", TreeAdapter.getLocation(lit)));
+                        } else {
+                            writer.append(v);
+                        }
+                    }
+                    ret = writer.done();
+                }
+                env.addExternalConcretePattern(TreeAdapter.getLocation(lit), ret);
+                return ((IRascalValueFactory) eval.getValueFactory()).quote(ret);
+            }
+            INode ret = (INode) replaceHolesByAntiQuotesExternal(eval, result.getValue(), antiquotes, corrections);
             if (ret.mayHaveKeywordParameters() && !inPattern && env.getKeywordParameterTypes(((IConstructor) ret).getConstructorType()).keySet().contains("src")) {
                 ret = ret.asWithKeywordParameters().setParameter("src", TreeAdapter.getLocation(lit));
             }
@@ -851,7 +878,7 @@ public abstract class Import {
     return ph;
   }
   
-    private static IValue replaceHolesByAntiQuotesExternal(final IEvaluator<Result<IValue>> eval, IConstructor constructor,
+    private static IValue replaceHolesByAntiQuotesExternal(final IEvaluator<Result<IValue>> eval, IValue constructor,
         final Map<IValue, ITree> antiquotes, final SortedMap<Integer, Integer> corrections) {
         return constructor.accept(new IdentityVisitor<ImplementationError>() {
             private final IValueFactory vf = eval.getValueFactory();
