@@ -40,7 +40,7 @@ public interface IRascalValueFactory extends IValueFactory {
 	
 	ITree character(byte ch);
 	
-	ITree quote(INode quoted);
+	ITree quote(IValue quoted);
 
 	IConstructor grammar(IMap rules);
 	

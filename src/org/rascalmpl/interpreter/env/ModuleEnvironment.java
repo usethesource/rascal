@@ -80,7 +80,7 @@ public class ModuleEnvironment extends Environment {
 	private Map<IMap,String> cachedParser = new HashMap<>();
 	private String deprecated;
 	protected Map<String, AbstractFunction> resourceImporters;
-	private Map<ISourceLocation, INode> externalConcretePatterns;
+	private Map<ISourceLocation, IValue> externalConcretePatterns;
     
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 
@@ -1114,11 +1114,11 @@ public class ModuleEnvironment extends Environment {
 		this.productions = new HashSet<>(productions.size());
 	}
 	
-	public void addExternalConcretePattern(ISourceLocation loc, INode pattern) {
+	public void addExternalConcretePattern(ISourceLocation loc, IValue pattern) {
 	    externalConcretePatterns.put(loc, pattern);
 	}
 	
-	public Map<ISourceLocation, INode> getExternalConcretePatterns() {
+	public Map<ISourceLocation, IValue> getExternalConcretePatterns() {
 	    return Collections.unmodifiableMap(externalConcretePatterns);
 	}
 	
