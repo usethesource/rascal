@@ -563,6 +563,9 @@ public class ASTBuilder {
                 if (variableType.endsWith("*")) {
                     isSplice = true;
                     variableType = variableType.substring(0, variableType.length() - 1);
+                    if (variableType.startsWith("{")) {
+                        variableType = variableType.substring(1).substring(0,variableType.indexOf(" ") - 1);
+                    }
                 } else if (variableType.endsWith("+")) {
                     isSplicePlus = true;
                     variableType = variableType.substring(0, variableType.length() - 1);
