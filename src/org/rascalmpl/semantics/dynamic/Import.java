@@ -574,7 +574,7 @@ public abstract class Import {
     ITree lit = TreeAdapter.getArg(tree, "parts");
     
     boolean isIterStar = false;
-    if ("iterStar".equals(TreeAdapter.getConstructorName( symTree))) {
+    if ("iterStar".equals(TreeAdapter.getConstructorName(symTree))) {
         isIterStar = true;
         symTree = TreeAdapter.getArg(symTree, "symbol");
     }
@@ -825,7 +825,11 @@ public abstract class Import {
     private static String createExternalHole(IEvaluator<Result<IValue>> ctx, ModuleEnvironment env, ITree part, Map<IValue, ITree> antiquotes) {
         ITree subTree = (ITree) TreeAdapter.getArgs(part).get(0);
         subTree = (ITree) TreeAdapter.getArgs(subTree).get(2);
-        subTree = (ITree) TreeAdapter.getArgs(subTree).get(0);
+        if ("iterStarSep".equals(TreeAdapter.getConstructorName(subTree))) {
+            subTree = (ITree) TreeAdapter.getArgs(subTree).get(2);
+        } else {
+            subTree = (ITree) TreeAdapter.getArgs(subTree).get(0);
+        }
         Type type = env.getAbstractDataType(TreeAdapter.yield(subTree));
         if (type == null) {
             ISourceLocation loc = TreeAdapter.getLocation(part);
