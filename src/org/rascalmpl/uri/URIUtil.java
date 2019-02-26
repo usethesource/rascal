@@ -258,6 +258,16 @@ public class URIUtil {
 	public static URI changeFragment(URI uri, String newFragment) throws URISyntaxException {
 		return create(uri.getScheme(), getCorrectAuthority(uri), uri.getPath(), uri.getQuery(), newFragment);
 	}
+	public static ISourceLocation changeFragment(ISourceLocation loc, String newFragment) throws URISyntaxException {
+	    ISourceLocation newLoc = vf.sourceLocation(loc.getScheme(), getCorrectAuthority(loc), loc.getPath(), loc.hasQuery() ? loc.getQuery() : null, newFragment);
+	    if (loc.hasLineColumn()) {
+	        newLoc = vf.sourceLocation(newLoc, loc.getOffset(), loc.getLength(), loc.getBeginLine(), loc.getEndLine(), loc.getBeginColumn(), loc.getEndColumn());
+	    }
+        else if (loc.hasOffsetLength()) {
+            newLoc = vf.sourceLocation(newLoc, loc.getOffset(), loc.getLength());
+        }
+	    return newLoc;
+	}
 	
 	/* special server-authority URI constructors */
 	public static URI changeUserInformation(URI uri, String newUserInformation) throws URISyntaxException {
