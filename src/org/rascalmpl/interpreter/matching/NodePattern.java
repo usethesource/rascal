@@ -459,6 +459,10 @@ public class NodePattern extends AbstractMatchingResult {
 		}		
 	}
 
+	@Override
+	public Map<String, Integer> getListVarLenghts() {
+	  return patternChildren.stream().map(IMatchingResult::getListVarLenghts).collect(HashMap::new, Map::putAll, Map::putAll);
+	}
 }
 
 
