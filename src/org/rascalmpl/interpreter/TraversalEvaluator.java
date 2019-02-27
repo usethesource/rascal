@@ -123,7 +123,7 @@ public class TraversalEvaluator {
 	}
 
 	public IValue traverse(IValue subject, CaseBlockList casesOrRules, DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint) {
-		return traverseOnce(subject, casesOrRules, direction, progress, fixedpoint, new TraverseResult(), null);
+		return traverseOnce(subject, casesOrRules, direction, progress, fixedpoint, new TraverseResult(), new HashMap<>());
 	}
 
 	private IValue traverseOnce(IValue subject, CaseBlockList casesOrRules, DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr, Map<String, Integer> listVarLengths){
@@ -164,17 +164,17 @@ public class TraversalEvaluator {
 		}
 
 		if (subjectType.isAbstractData()){
-			result = traverseADTOnce(subject, casesOrRules, direction, progress, fixedpoint, tr);
+			result = traverseADTOnce(subject, casesOrRules, direction, progress, fixedpoint, tr, listVarLengths);
 		} else if (subjectType.isNode()){
-			result = traverseNodeOnce(subject, casesOrRules, direction, progress, fixedpoint, tr);
+			result = traverseNodeOnce(subject, casesOrRules, direction, progress, fixedpoint, tr, listVarLengths);
 		} else if(subjectType.isList()){
-			result = traverseListOnce(subject, casesOrRules, direction, progress, fixedpoint, tr);
+			result = traverseListOnce(subject, casesOrRules, direction, progress, fixedpoint, tr, listVarLengths);
 		} else if(subjectType.isSet()){
-			result = traverseSetOnce(subject, casesOrRules, direction, progress, fixedpoint, tr);
+			result = traverseSetOnce(subject, casesOrRules, direction, progress, fixedpoint, tr, listVarLengths);
 		} else if (subjectType.isMap()) {
-			result = traverseMapOnce(subject, casesOrRules, direction, progress, fixedpoint, tr);
+			result = traverseMapOnce(subject, casesOrRules, direction, progress, fixedpoint, tr, listVarLengths);
 		} else if(subjectType.isTuple()){
-			result = traverseTupleOnce(subject, casesOrRules, direction, progress, fixedpoint, tr);
+			result = traverseTupleOnce(subject, casesOrRules, direction, progress, fixedpoint, tr, listVarLengths);
 		} else {
 			result = subject;
 		}
@@ -227,7 +227,7 @@ public class TraversalEvaluator {
 	}
 
 	private IValue traverseTupleOnce(IValue subject, CaseBlockList casesOrRules,
-			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr) {
+			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr, Map<String, Integer> listVarLengths) {
 		IValue result;
 		ITuple tuple = (ITuple) subject;
 		int arity = tuple.arity();
@@ -239,7 +239,7 @@ public class TraversalEvaluator {
 		for (int i = 0; i < arity; i++){
 			tr.changed = false;
 			tr.matched = false;
-			args[i] = traverseOnce(tuple.get(i), casesOrRules, direction, progress, fixedpoint, tr, null);
+			args[i] = traverseOnce(tuple.get(i), casesOrRules, direction, progress, fixedpoint, tr, listVarLengths);
 			hasMatched |= tr.matched;
 			hasChanged |= tr.changed;
 		}
@@ -251,7 +251,7 @@ public class TraversalEvaluator {
 	}
 
 	private IValue traverseADTOnce(IValue subject, CaseBlockList casesOrRules,
-			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr) {
+			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr, Map<String, Integer> listVarLengths) {
 		IConstructor cons = (IConstructor)subject;
 		
 		Map<String, IValue> kwParams = null;
@@ -297,7 +297,7 @@ public class TraversalEvaluator {
 					w.append(list.get(0)); // copy layout before
 					tr.changed = false;
 					tr.matched = false;
-					w.append(traverseOnce(list.get(1), casesOrRules, direction, progress, fixedpoint, tr, null));
+					w.append(traverseOnce(list.get(1), casesOrRules, direction, progress, fixedpoint, tr, listVarLengths));
 					hasChanged |= tr.changed;
 					hasMatched |= tr.matched;
 					w.append(list.get(2)); // copy layout after
@@ -308,7 +308,7 @@ public class TraversalEvaluator {
 						if (i % 2 == 0) { // Recursion to all non-layout elements
 							tr.changed = false;
 							tr.matched = false;
-							IValue newElem = traverseOnce(elem, casesOrRules, direction, progress, fixedpoint, tr, null);
+							IValue newElem = traverseOnce(elem, casesOrRules, direction, progress, fixedpoint, tr, listVarLengths);
 							
 							if (hasChanged) {
 							    assert w != null;
@@ -354,7 +354,6 @@ public class TraversalEvaluator {
 				IValue child = cons.get(i);
 				tr.matched = false;
 				tr.changed = false;
-				Map<String, Integer> listVarLengths = new HashMap<>();
 				IValue newChild = traverseOnce(child, casesOrRules, direction, progress, fixedpoint, tr, listVarLengths);
 				
 				if (hasChanged) {
@@ -401,7 +400,7 @@ public class TraversalEvaluator {
 					IValue val = consKw.getParameter(kwName);
 					tr.changed = false;
 					tr.matched = false;
-					IValue newVal = traverseOnce(val, casesOrRules, direction, progress, fixedpoint, tr, null);
+					IValue newVal = traverseOnce(val, casesOrRules, direction, progress, fixedpoint, tr, listVarLengths);
 					kwParams.put(kwName, newVal);
 					
 					if (!hasChanged && tr.changed) {
@@ -461,7 +460,7 @@ public class TraversalEvaluator {
 	}
 
 	private IValue traverseMapOnce(IValue subject, CaseBlockList casesOrRules,
-			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr) {
+			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr, Map<String, Integer> listVarLengths) {
 		IMap map = (IMap) subject;
 		if(!map.isEmpty()){
 			IMapWriter w = eval.getValueFactory().mapWriter();
@@ -473,12 +472,12 @@ public class TraversalEvaluator {
 				Entry<IValue,IValue> entry = iter.next();
 				tr.changed = false;
 				tr.matched = false;
-				IValue newKey = traverseOnce(entry.getKey(), casesOrRules, direction, progress, fixedpoint, tr, null);
+				IValue newKey = traverseOnce(entry.getKey(), casesOrRules, direction, progress, fixedpoint, tr, listVarLengths);
 				hasChanged |= tr.changed;
 				hasMatched |= tr.matched;
 				tr.changed = false;
 				tr.matched = false;
-				IValue newValue = traverseOnce(entry.getValue(), casesOrRules, direction, progress, fixedpoint, tr, null);
+				IValue newValue = traverseOnce(entry.getValue(), casesOrRules, direction, progress, fixedpoint, tr, listVarLengths);
 				hasChanged |= tr.changed;
 				hasMatched |= tr.matched;
 				w.put(newKey, newValue);
@@ -492,7 +491,7 @@ public class TraversalEvaluator {
 	}
 
 	private IValue traverseSetOnce(IValue subject, CaseBlockList casesOrRules,
-			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr) {
+			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr, Map<String, Integer> listVarLengths) {
 		ISet set = (ISet) subject;
 		if(!set.isEmpty()){
 			ISetWriter w = eval.getValueFactory().setWriter();
@@ -502,7 +501,7 @@ public class TraversalEvaluator {
 			for (IValue v : set) {
 				tr.changed = false;
 				tr.matched = false;
-				w.insert(traverseOnce(v, casesOrRules, direction, progress, fixedpoint, tr, null));
+				w.insert(traverseOnce(v, casesOrRules, direction, progress, fixedpoint, tr, listVarLengths));
 				hasChanged |= tr.changed;
 				hasMatched |= tr.matched;
 			}
@@ -516,7 +515,7 @@ public class TraversalEvaluator {
 	}
 
 	private IValue traverseListOnce(IValue subject, CaseBlockList casesOrRules,
-			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr) {
+			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr, Map<String, Integer> listVarLengths) {
 		IList list = (IList) subject;
 		int len = list.length();
 		if (len > 0) {
@@ -528,7 +527,7 @@ public class TraversalEvaluator {
 				IValue elem = list.get(i);
 				tr.changed = false;
 				tr.matched = false;
-				IValue newElem = traverseOnce(elem, casesOrRules, direction, progress, fixedpoint, tr, null);
+				IValue newElem = traverseOnce(elem, casesOrRules, direction, progress, fixedpoint, tr, listVarLengths);
 				
 				if (hasChanged) {
 				    // continue adding new elements to the new list
@@ -564,7 +563,7 @@ public class TraversalEvaluator {
 	}
 
 	private IValue traverseNodeOnce(IValue subject, CaseBlockList casesOrRules,
-			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr) {
+			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr, Map<String, Integer> listVarLengths) {
 		IValue result;
 		INode node = (INode)subject;
 		if (node.arity() == 0 && !(node.mayHaveKeywordParameters() && node.asWithKeywordParameters().hasParameters()) ){
@@ -583,7 +582,7 @@ public class TraversalEvaluator {
 				IValue child = node.get(i);
 				tr.changed = false;
 				tr.matched = false;
-				IValue newChild = traverseOnce(child, casesOrRules, direction, progress, fixedpoint, tr, null);
+				IValue newChild = traverseOnce(child, casesOrRules, direction, progress, fixedpoint, tr, listVarLengths);
 				
 				if (hasChanged) {
 				    // continue adding new elements to the array
@@ -617,7 +616,7 @@ public class TraversalEvaluator {
 					IValue val = nodeKw.getParameter(kwName);
 					tr.changed = false;
 					tr.matched = false;
-					IValue newVal = traverseOnce(val, casesOrRules, direction, progress, fixedpoint, tr, null);
+					IValue newVal = traverseOnce(val, casesOrRules, direction, progress, fixedpoint, tr, listVarLengths);
 					kwParams.put(kwName, newVal);
 					hasChanged |= tr.changed;
 					hasMatched |= tr.matched;
