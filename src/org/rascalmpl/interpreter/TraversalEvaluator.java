@@ -18,6 +18,7 @@ package org.rascalmpl.interpreter;
 
 import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 
+import java.net.URISyntaxException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
+import java.util.stream.Collectors;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.QualifiedName;
@@ -33,6 +35,7 @@ import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.IBooleanResult;
+import org.rascalmpl.interpreter.matching.IMatchingResult;
 import org.rascalmpl.interpreter.matching.LiteralPattern;
 import org.rascalmpl.interpreter.matching.RegExpPatternValue;
 import org.rascalmpl.interpreter.matching.TypedVariablePattern;
@@ -44,6 +47,7 @@ import org.rascalmpl.interpreter.staticErrors.UndeclaredModule;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.utils.Cases.CaseBlock;
 import org.rascalmpl.interpreter.utils.Names;
+import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.RascalValueFactory;
 import org.rascalmpl.values.uptr.TreeAdapter;
@@ -56,6 +60,7 @@ import io.usethesource.vallang.IMapWriter;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
@@ -118,10 +123,10 @@ public class TraversalEvaluator {
 	}
 
 	public IValue traverse(IValue subject, CaseBlockList casesOrRules, DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint) {
-		return traverseOnce(subject, casesOrRules, direction, progress, fixedpoint, new TraverseResult());
+		return traverseOnce(subject, casesOrRules, direction, progress, fixedpoint, new TraverseResult(), null);
 	}
 
-	private IValue traverseOnce(IValue subject, CaseBlockList casesOrRules, DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr){
+	private IValue traverseOnce(IValue subject, CaseBlockList casesOrRules, DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint, TraverseResult tr, Map<String, Integer> listVarLengths){
 		Type subjectType = subject.getType();
 		IValue result = subject;
 		this.traversalContext.add(subject);
@@ -136,7 +141,7 @@ public class TraversalEvaluator {
 		boolean hasChanged = false;
 		
 		if (direction == DIRECTION.TopDown){
-			IValue newTop = traverseTop(subject, casesOrRules, tr);
+			IValue newTop = traverseTop(subject, casesOrRules, tr, listVarLengths);
 
 			if ((progress == PROGRESS.Breaking) && tr.matched) {
 				this.traversalContext.remove(this.traversalContext.size()-1);
@@ -145,7 +150,7 @@ public class TraversalEvaluator {
 			else if (fixedpoint == FIXEDPOINT.Yes && tr.changed) {
 				do {
 					tr.changed = false;
-					newTop = traverseTop(newTop, casesOrRules, tr);
+					newTop = traverseTop(newTop, casesOrRules, tr, listVarLengths);
 				} while (tr.changed);
 				tr.changed = true;
 				subject = newTop;
@@ -189,13 +194,13 @@ public class TraversalEvaluator {
 			hasChanged = tr.changed;
 			tr.matched = false;
 			tr.changed = false;
-			result = traverseTop(result, casesOrRules, tr);
+			result = traverseTop(result, casesOrRules, tr, listVarLengths);
 			
 			if (tr.changed && fixedpoint == FIXEDPOINT.Yes) {
 				do {
 					tr.changed = false;
 					tr.matched = false;
-					result = traverseTop(result, casesOrRules, tr);
+					result = traverseTop(result, casesOrRules, tr, listVarLengths);
 				} while (tr.changed);
 				tr.changed = true;
 				tr.matched = true;
@@ -234,7 +239,7 @@ public class TraversalEvaluator {
 		for (int i = 0; i < arity; i++){
 			tr.changed = false;
 			tr.matched = false;
-			args[i] = traverseOnce(tuple.get(i), casesOrRules, direction, progress, fixedpoint, tr);
+			args[i] = traverseOnce(tuple.get(i), casesOrRules, direction, progress, fixedpoint, tr, null);
 			hasMatched |= tr.matched;
 			hasChanged |= tr.changed;
 		}
@@ -292,7 +297,7 @@ public class TraversalEvaluator {
 					w.append(list.get(0)); // copy layout before
 					tr.changed = false;
 					tr.matched = false;
-					w.append(traverseOnce(list.get(1), casesOrRules, direction, progress, fixedpoint, tr));
+					w.append(traverseOnce(list.get(1), casesOrRules, direction, progress, fixedpoint, tr, null));
 					hasChanged |= tr.changed;
 					hasMatched |= tr.matched;
 					w.append(list.get(2)); // copy layout after
@@ -303,7 +308,7 @@ public class TraversalEvaluator {
 						if (i % 2 == 0) { // Recursion to all non-layout elements
 							tr.changed = false;
 							tr.matched = false;
-							IValue newElem = traverseOnce(elem, casesOrRules, direction, progress, fixedpoint, tr);
+							IValue newElem = traverseOnce(elem, casesOrRules, direction, progress, fixedpoint, tr, null);
 							
 							if (hasChanged) {
 							    assert w != null;
@@ -349,7 +354,8 @@ public class TraversalEvaluator {
 				IValue child = cons.get(i);
 				tr.matched = false;
 				tr.changed = false;
-				IValue newChild = traverseOnce(child, casesOrRules, direction, progress, fixedpoint, tr);
+				Map<String, Integer> listVarLengths = new HashMap<>();
+				IValue newChild = traverseOnce(child, casesOrRules, direction, progress, fixedpoint, tr, listVarLengths);
 				
 				if (hasChanged) {
 				    assert args != null;
@@ -374,7 +380,19 @@ public class TraversalEvaluator {
 				
 				hasChanged |= tr.changed;
 				hasMatched |= tr.matched;
-			}
+				
+                if (cons.mayHaveKeywordParameters() && cons.asWithKeywordParameters().getParameterNames().contains("src") && !listVarLengths.isEmpty()) {
+                    String fragment = listVarLengths.entrySet().stream().sorted(Entry.comparingByKey())
+                        .map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.joining(","));
+                    try {
+                        ISourceLocation newSrc = URIUtil.changeFragment((ISourceLocation) cons.asWithKeywordParameters().getParameter("src"), fragment);
+                        cons = cons.asWithKeywordParameters().setParameter("src", newSrc);
+                    }
+                    catch (URISyntaxException e) {
+                        // Will not happen
+                    }
+                }
+            }
 			
 			
 			if (kwParams != null) {
@@ -383,7 +401,7 @@ public class TraversalEvaluator {
 					IValue val = consKw.getParameter(kwName);
 					tr.changed = false;
 					tr.matched = false;
-					IValue newVal = traverseOnce(val, casesOrRules, direction, progress, fixedpoint, tr);
+					IValue newVal = traverseOnce(val, casesOrRules, direction, progress, fixedpoint, tr, null);
 					kwParams.put(kwName, newVal);
 					
 					if (!hasChanged && tr.changed) {
@@ -455,12 +473,12 @@ public class TraversalEvaluator {
 				Entry<IValue,IValue> entry = iter.next();
 				tr.changed = false;
 				tr.matched = false;
-				IValue newKey = traverseOnce(entry.getKey(), casesOrRules, direction, progress, fixedpoint, tr);
+				IValue newKey = traverseOnce(entry.getKey(), casesOrRules, direction, progress, fixedpoint, tr, null);
 				hasChanged |= tr.changed;
 				hasMatched |= tr.matched;
 				tr.changed = false;
 				tr.matched = false;
-				IValue newValue = traverseOnce(entry.getValue(), casesOrRules, direction, progress, fixedpoint, tr);
+				IValue newValue = traverseOnce(entry.getValue(), casesOrRules, direction, progress, fixedpoint, tr, null);
 				hasChanged |= tr.changed;
 				hasMatched |= tr.matched;
 				w.put(newKey, newValue);
@@ -484,7 +502,7 @@ public class TraversalEvaluator {
 			for (IValue v : set) {
 				tr.changed = false;
 				tr.matched = false;
-				w.insert(traverseOnce(v, casesOrRules, direction, progress, fixedpoint, tr));
+				w.insert(traverseOnce(v, casesOrRules, direction, progress, fixedpoint, tr, null));
 				hasChanged |= tr.changed;
 				hasMatched |= tr.matched;
 			}
@@ -510,7 +528,7 @@ public class TraversalEvaluator {
 				IValue elem = list.get(i);
 				tr.changed = false;
 				tr.matched = false;
-				IValue newElem = traverseOnce(elem, casesOrRules, direction, progress, fixedpoint, tr);
+				IValue newElem = traverseOnce(elem, casesOrRules, direction, progress, fixedpoint, tr, null);
 				
 				if (hasChanged) {
 				    // continue adding new elements to the new list
@@ -565,7 +583,7 @@ public class TraversalEvaluator {
 				IValue child = node.get(i);
 				tr.changed = false;
 				tr.matched = false;
-				IValue newChild = traverseOnce(child, casesOrRules, direction, progress, fixedpoint, tr);
+				IValue newChild = traverseOnce(child, casesOrRules, direction, progress, fixedpoint, tr, null);
 				
 				if (hasChanged) {
 				    // continue adding new elements to the array
@@ -599,7 +617,7 @@ public class TraversalEvaluator {
 					IValue val = nodeKw.getParameter(kwName);
 					tr.changed = false;
 					tr.matched = false;
-					IValue newVal = traverseOnce(val, casesOrRules, direction, progress, fixedpoint, tr);
+					IValue newVal = traverseOnce(val, casesOrRules, direction, progress, fixedpoint, tr, null);
 					kwParams.put(kwName, newVal);
 					hasChanged |= tr.changed;
 					hasMatched |= tr.matched;
@@ -671,7 +689,7 @@ public class TraversalEvaluator {
 	/*
 	 * traverseTop: traverse the outermost symbol of the subject.
 	 */
-	public IValue traverseTop(IValue subject, CaseBlockList casesOrRules, TraverseResult tr) {
+	public IValue traverseTop(IValue subject, CaseBlockList casesOrRules, TraverseResult tr, Map<String, Integer> listVarLengths) {
 		try {
 			return applyCases(subject, casesOrRules, tr);	
 		} 
@@ -679,6 +697,10 @@ public class TraversalEvaluator {
 			tr.changed = true;
 			tr.matched = true;
 			Result<IValue> toBeInserted = e.getValue();
+			
+            if (listVarLengths != null) {
+                listVarLengths.putAll(((IMatchingResult) e.getMatchPattern()).getListVarLenghts());
+            }
 			
 			if (!toBeInserted.getType().isSubtypeOf(e.getStaticType())) {
 				throw new UnexpectedType(e.getStaticType(), toBeInserted.getType(), eval.getCurrentAST());

@@ -11,8 +11,10 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter.matching;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.env.Environment;
@@ -70,4 +72,8 @@ public interface IMatchingResult extends IBooleanResult {
    * the information down to all children of the constructor.
 	 */
 	public void updateType(Type type);
+
+    default Map<String, Integer> getListVarLenghts() {
+        return Collections.emptyMap();
+    }
 }

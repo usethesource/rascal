@@ -19,6 +19,7 @@ package org.rascalmpl.interpreter.matching;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Expression;
@@ -29,11 +30,12 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.RedeclaredVariable;
 import org.rascalmpl.interpreter.types.NonTerminalType;
+import org.rascalmpl.values.uptr.SymbolAdapter;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
-import org.rascalmpl.values.uptr.SymbolAdapter;
 
 public class ListPattern extends AbstractMatchingResult  {
   private List<IMatchingResult> patternChildren;  // The elements of this list pattern
@@ -109,6 +111,17 @@ public class ListPattern extends AbstractMatchingResult  {
       return SymbolAdapter.isAnyList(sym);
     }
     return false;
+  }
+  
+  @Override
+  public Map<String, Integer> getListVarLenghts() {
+    Map<String, Integer> lengths = new HashMap<>();
+    for (int i = 0; i < isListVar.length; i++) {
+      if (isListVar[i]) {
+        lengths.put(varName[i], listVarLength[i]);
+      }
+    }
+    return lengths;
   }
 
   @Override
