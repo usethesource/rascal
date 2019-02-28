@@ -47,7 +47,6 @@ import org.rascalmpl.values.uptr.RascalValueFactory;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
-import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.ITuple;
@@ -99,7 +98,6 @@ public class ModuleEnvironment extends Environment {
 		this.bootstrap = false;
 		this.resourceImporters = new HashMap<>();
 		this.externalConcretePatterns = new HashMap<>();
-		this.matchBindings = new HashSet<>();
 	}
 	
 	/**
@@ -121,7 +119,6 @@ public class ModuleEnvironment extends Environment {
 		this.cachedParser = env.cachedParser;
 		this.deprecated = env.deprecated;
 		this.externalConcretePatterns = env.externalConcretePatterns;
-		this.matchBindings = env.matchBindings;
 	}
 
 	@Override
@@ -138,7 +135,6 @@ public class ModuleEnvironment extends Environment {
 		this.extended = new HashSet<>();
 		this.deprecated = null;
 		this.externalConcretePatterns = new HashMap<>();
-		this.matchBindings = new HashSet<>();
 	}
 	
 	public void extend(ModuleEnvironment other) {
@@ -195,13 +191,6 @@ public class ModuleEnvironment extends Environment {
 	          this.externalConcretePatterns = new HashMap<>();
 	      }
 	      this.externalConcretePatterns.putAll(other.externalConcretePatterns);
-	  }
-	  
-	  if (other.matchBindings != null) {
-	      if (this.matchBindings == null) {
-	          this.matchBindings = new HashSet<>();
-	      }
-	      this.matchBindings.addAll(other.matchBindings);
 	  }
 	  
 	  extendTypeParams(other);
