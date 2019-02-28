@@ -117,15 +117,6 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 			Result<IValue> result = ResultFactory.makeResult(tmp, subject.getValue(), ctx);
 			ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(name, result);
 			
-			ISourceLocation currentLocation = getAST().getLocation();
-			Map<String, IValue> matchBindings = new HashMap<>();
-			
-			//TODO: replace with something more sensible
-			if (!currentLocation.getScheme().equals("plugin") || !currentLocation.getScheme().equals("std")) {
-    			getVariables().stream().filter(it -> it.isVarIntroducing()).forEach(it -> matchBindings.put(it.name(), result.getValue()));
-    			ctx.getCurrentEnvt().addMatchBinding(matchBindings);
-			}
-			
 			this.alreadyStored = true;
 			return true;
 		}
