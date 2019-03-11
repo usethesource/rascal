@@ -14,7 +14,7 @@ import util::Reflective;
 import DateTime;
 import ParseTree;
 
-import lang::rascal::tutor::Questions;
+import lang::rascal::tutor::Questions; 
 import lang::rascal::tutor::ParseQuestions;
 import lang::rascal::tutor::ValueGenerator;
  
@@ -194,14 +194,6 @@ str removeComments(Intro? intro){
    }
    
    return res;
-}
-
-@deprecated
-public str compileQuestions(str qmodule, list[loc] srcs, list[loc] libs, list[loc] courses, loc bin, loc boot) {
-    pcfg = pathConfig(srcs=[|test-modules:///|]+srcs,libs=libs,bin=bin, boot=boot);
-    bn = split("/", qmodule)[-1];
-    qloc = courses[0] + ("/" + qmodule + "/" + bn + ".questions");
-    return compileQuestions(qloc, pcfg);
 }
 
 public str compileQuestions(str qmodule, PathConfig pcfg) {
@@ -533,7 +525,7 @@ void runTests(int questionId, str mbody, PathConfig pcfg){
        throw "Error while running tests";
     }
 } 
-
+ 
 value main(){
     PathConfig pcfg = 
     pathConfig(srcs=[|test-modules:///|, |file:///Users/paulklint/git/rascal/src/org/rascalmpl/library|], 

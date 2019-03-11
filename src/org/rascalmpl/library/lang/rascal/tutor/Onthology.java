@@ -65,7 +65,7 @@ public class Onthology {
     Map<Path,Concept> conceptMap;
     private IValueFactory vf;
     private ModuleDocExtractor rascalExtraction = new ModuleDocExtractor();
-    private IQuestionCompiler questionCompiler;
+    private QuestionCompiler questionCompiler;
     private String courseName;
 
     private Path courseSrcPath;
@@ -278,11 +278,8 @@ public class Onthology {
                 //			      Files.createDirectories(questionsDestPath);
                 //			    }
                 //			  }
-                if(questionCompiler == null){
-                    // Lazily load the QuestionCompiler tool
-                    questionCompiler = Java2Rascal.Builder.bridge(vf, pcfg, IQuestionCompiler.class).build();
-                }
-                String qtext = questionCompiler.compileQuestions(vf.string(questionsName.toString()), pcfg.asConstructor() /*pcfg.getSrcs(), pcfg.getLibs(), pcfg.getcourses(), pcfg.getBin(), pcfg.getBoot()*/).getValue();
+                makeQuestionCompiler();
+                String qtext = makeQuestionCompiler().compileQuestions(vf.string(questionsName.toString()), pcfg).getValue();
                 long fakeTimeStamp = DateTime.now().toInstant().getMillis();
                 Concept questionsConcept = new Concept(questionsName, qtext, destPath, libSrcPath, fakeTimeStamp /*TODO*/);
                 questionsConcept.setQuestions();
@@ -290,6 +287,15 @@ public class Onthology {
                 conceptMap.put(questionsName, questionsConcept);
             }
             return FileVisitResult.CONTINUE;
+        }
+
+        private QuestionCompiler makeQuestionCompiler() {
+            if (questionCompiler == null){
+                // Lazily load the QuestionCompiler tool
+                questionCompiler = new QuestionCompiler();
+            }
+            
+            return questionCompiler;
         }
     }
     
