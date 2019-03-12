@@ -6,11 +6,11 @@ import util::Math;
 import List;
 import Set;
 import String;
-//import experiments::Compiler::Compile;
-//import experiments::Compiler::Execute;
+
 import util::SystemAPI;
 import IO;
 import util::Reflective;
+import util::Eval;
 import DateTime;
 import ParseTree;
 
@@ -221,7 +221,7 @@ str process(loc qloc, PathConfig pcfg){
           '\<script type=\"text/javascript\" src=\"https://code.jquery.com/ui/1.11.4/jquery-ui.min.js\"\>\</script\>
           '++++
           '";
-    for(iq <- iqs.introAndQuestions){
+    for (iq <- iqs.introAndQuestions) {
         intro = removeComments(iq.intro);
         res += (intro + "\n" + process("<iq.description>", iq.question, pcfg) +"\n");
     }
@@ -511,13 +511,10 @@ void runTests(int questionId, str mbody, PathConfig pcfg){
     msrc = "module Question<questionId> <mbody>";
     writeFile(Q, msrc);
     try {
-       //compileAndLink("Question<questionId>", pcfg); 
-       //res = execute(Q, pcfg, testsuite=true);
-       //if(!printTestReport(res, [])){
-       if(true !:= rascalTests(["Question<questionId>"], pcfg, recompile=true)){
-          throw "Errors while executing testsuite for question";
+       if (result(false) == eval(#bool, ["import Question<questionId>;", ":test"])) { 
+          throw "some test failed";
        }
-    } catch e: {
+    } catch value e: {
        println("*** While running tests for 
                '    <msrc> 
                '*** the following error occurred: 
@@ -526,13 +523,3 @@ void runTests(int questionId, str mbody, PathConfig pcfg){
     }
 } 
  
-value main(){
-    PathConfig pcfg = 
-    pathConfig(srcs=[|test-modules:///|, |file:///Users/paulklint/git/rascal/src/org/rascalmpl/library|], 
-               bin=|file:///Users/paulklint/git/rascal/bootstrap/phase2|, 
-               boot=|file:///Users/paulklint/git/rascal/bootstrap/phase2|,
-               libs=[|home:///git/rascal/bootstrap/phase2/org/rascal/mpl/library|]);
-    res = compileQuestions("ADocTest/Questions", pcfg.srcs, pcfg.libs, [|home:///git/rascal/src/org/rascalmpl/courses|], pcfg.bin, pcfg.boot);
-    writeFile(|file:///Users/paulklint/git/rascal/bootstrap/phase2/courses/AdocTest/Questions/Questions.adoc|, res);
-    return true;
-}
