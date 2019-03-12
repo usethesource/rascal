@@ -492,11 +492,23 @@ loc makeQuestion(int questionId, PathConfig pcfg){
 
 value eval(int questionId, str exp, str setup, PathConfig pcfg) {
     Q = makeQuestion(questionId, pcfg);
-    msrc = "module Question<questionId> <setup> value main() {<exp>;}";
+    msrc = "module Question<questionId>
+           ' 
+           '<setup>
+           ' 
+           'value main() { 
+           '  return <exp>;
+           '}";
+           
     writeFile(Q, msrc);
+    
     try {
-       compileAndLink("Question<questionId>", pcfg); 
-       return execute(Q, pcfg);
+       if (result(value res) := eval(#value, ["import Question<questionId>;", "main();"])) {
+         return res;
+       }
+       else {
+         throw "evaluation of <exp> failed"; 
+       }
     } catch e:{
        println("*** While evaluating <exp> in
                '    <msrc> 
