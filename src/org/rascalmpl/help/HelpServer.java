@@ -17,6 +17,8 @@ import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.Ba
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.lang.rascal.tutor.Feedback;
+import org.rascalmpl.library.lang.rascal.tutor.QuestionCompiler;
+import org.rascalmpl.library.lang.rascal.tutor.TutorCommandExecutor;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIResolverRegistry;
@@ -38,7 +40,7 @@ public class HelpServer extends NanoHTTPD {
 
     private final ISourceLocation root;
     private final HelpManager helpManager;
-    private CommandExecutor executor;
+    private QuestionCompiler executor;
     IValueFactory vf = ValueFactoryFactory.getValueFactory();
     StringWriter outWriter;
     PrintWriter outPrintWriter;
@@ -116,10 +118,14 @@ public class HelpServer extends NanoHTTPD {
             writeModule(question, listing);
 
             try {
-                IConstructor tr = makeCommandExecutor().executeTestsRaw(question);
-                outPrintWriter.flush();
-                errPrintWriter.flush();
-                return newFixedLengthResponse(Status.OK, "application/json", formatTestResults(tr));
+                if (makeCommandExecutor().checkQuestions(question)) {
+                    outPrintWriter.flush();
+                    errPrintWriter.flush();
+                    return newFixedLengthResponse(Status.OK, "application/json", "{ \"ok\": true, \"failed\": [], \"exceptions\": [], \"syntax\": []}");
+                }
+                else {
+                    return newFixedLengthResponse(Status.OK, "application/json", "{ \"ok\": false, \"failed\": [], \"exceptions\": [], \"syntax\": []}");
+                }
             } catch (ParseError e){
                 return newFixedLengthResponse(Status.OK, "application/json", "{ \"ok\": false, \"failed\": [], \"exceptions\": [], \"syntax\": " + makeLoc(e) + " }");
             }
@@ -130,7 +136,7 @@ public class HelpServer extends NanoHTTPD {
     }
 
 
-    private CommandExecutor makeCommandExecutor() throws URISyntaxException, IOException, NoSuchRascalFunction {
+    private QuestionCompiler makeCommandExecutor() throws URISyntaxException, IOException, NoSuchRascalFunction {
         if (executor == null) {
             PathConfig pcfg = helpManager.getPathConfig();
             outWriter = new StringWriter();
@@ -138,7 +144,7 @@ public class HelpServer extends NanoHTTPD {
             errWriter = new StringWriter();
             errPrintWriter = new PrintWriter(errWriter, true);
             pcfg = pcfg.addSourceLoc(vf.sourceLocation("test-modules", "", ""));
-            executor = new CommandExecutor(pcfg, outPrintWriter, errPrintWriter, new BasicIDEServices(errPrintWriter), null, new IFrameObserver() {});
+            executor = new QuestionCompiler(pcfg);
         }
         
         outWriter.getBuffer().setLength(0);
