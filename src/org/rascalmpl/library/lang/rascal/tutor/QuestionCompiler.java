@@ -16,6 +16,7 @@ import java.io.File;
 import java.io.PrintWriter;
 
 import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.library.util.PathConfig;
@@ -37,6 +38,7 @@ public class QuestionCompiler {
         final ModuleEnvironment top = new ModuleEnvironment("***question compiler***", heap);
         eval = new Evaluator(vf, new PrintWriter(System.err), new PrintWriter(System.out), top, heap);
         eval.addRascalSearchPath(URIUtil.rootLocation("std"));
+        eval.addRascalSearchPath(URIUtil.rootLocation("test-modules"));
         eval.getConfiguration().setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
         eval.doImport(null, "lang::rascal::tutor::QuestionCompiler");
     }
@@ -45,8 +47,22 @@ public class QuestionCompiler {
      * Compile a .questions file to .adoc
      */
     public IString compileQuestions(IString qmodule, PathConfig pcfg) {
-        
         return (IString) eval.call("compileQuestions", qmodule, pcfg.asConstructor());
+    }
+    
+    public boolean checkQuestions(String questionModule) {
+        eval.doImport(eval.getMonitor(), questionModule);
+        ModuleEnvironment mod = eval.getHeap().getModule(questionModule);
+        Environment old = eval.getCurrentEnvt();
+        
+        try {
+            eval.setCurrentEnvt(mod);
+            return eval.runTests(eval.getMonitor());
+        }
+        finally {
+            eval.setCurrentEnvt(old);
+            eval.getHeap().removeModule(mod);
+        }
     }
     
     private String javaCompilerPathAsString(IList javaCompilerPath) {

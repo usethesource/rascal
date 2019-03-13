@@ -106,6 +106,7 @@ public class TutorCommandExecutor {
         return repl.getPrompt();
     }
 
+    
     String eval(String line, String conceptFolder) {
         Map<String, InputStream> output = new HashMap<>();
         String result = "";
