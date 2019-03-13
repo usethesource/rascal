@@ -4,11 +4,11 @@ This is a test synopsis.
 # Description
 See examples below.
 
-# Examples
-
+# Examples 
+ 
 [source,rascal-shell]
 ----
-import Content;
+import Content; 
 html("hello", "this is some \<strong\>HTML\</strong\> output")
 file("image", |https://www.rascal-mpl.org/assets/ico/favicon.png|)
 1 + 1 == 2
@@ -30,13 +30,13 @@ count;
   |--------|-----|
   | A      | 10 |
   | B      | 20 |
-  
+   
   
 | Operator    | Description |
 |------------|------------|
 | `$A$ \| $B$` | alternative |
 | `\|\|`       | or          |
-  
+   
 Horizontal rule:
 
 ---
