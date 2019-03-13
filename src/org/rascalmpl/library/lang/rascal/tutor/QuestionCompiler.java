@@ -30,12 +30,14 @@ import io.usethesource.vallang.IValueFactory;
 
 public class QuestionCompiler {
     private final IValueFactory vf = IRascalValueFactory.getInstance();
-    private final GlobalEnvironment heap = new GlobalEnvironment();
-    private final ModuleEnvironment top = new ModuleEnvironment("***question compiler***", heap);
-    private final Evaluator eval = new Evaluator(vf, new PrintWriter(System.err), new PrintWriter(System.out), top, heap);
+    private final Evaluator eval;
 
-    public QuestionCompiler() {
+    public QuestionCompiler(PathConfig pcfg) {
+        final GlobalEnvironment heap = new GlobalEnvironment();
+        final ModuleEnvironment top = new ModuleEnvironment("***question compiler***", heap);
+        eval = new Evaluator(vf, new PrintWriter(System.err), new PrintWriter(System.out), top, heap);
         eval.addRascalSearchPath(URIUtil.rootLocation("std"));
+        eval.getConfiguration().setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
         eval.doImport(null, "lang::rascal::tutor::QuestionCompiler");
     }
     
@@ -43,7 +45,7 @@ public class QuestionCompiler {
      * Compile a .questions file to .adoc
      */
     public IString compileQuestions(IString qmodule, PathConfig pcfg) {
-        eval.getConfiguration().setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
+        
         return (IString) eval.call("compileQuestions", qmodule, pcfg.asConstructor());
     }
     
