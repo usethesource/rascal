@@ -33,8 +33,6 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.FSDirectory;
 import org.joda.time.DateTime;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.java2rascal.Java2Rascal;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -89,7 +87,7 @@ public class Onthology {
         return new PerFieldAnalyzerWrapper(stdAnalyzer, analyzerMap);
     }
 
-    public Onthology(Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, NoSuchRascalFunction, URISyntaxException{
+    public Onthology(Path srcPath, String courseName, Path destPath, Path libSrcPath, PathConfig pcfg, TutorCommandExecutor executor) throws IOException, URISyntaxException{
         this.vf = ValueFactoryFactory.getValueFactory();
         this.pcfg = pcfg;
         this.srcPath = srcPath;
@@ -278,7 +276,6 @@ public class Onthology {
                 //			      Files.createDirectories(questionsDestPath);
                 //			    }
                 //			  }
-                makeQuestionCompiler();
                 String qtext = makeQuestionCompiler().compileQuestions(vf.string(questionsName.toString()), pcfg).getValue();
                 long fakeTimeStamp = DateTime.now().toInstant().getMillis();
                 Concept questionsConcept = new Concept(questionsName, qtext, destPath, libSrcPath, fakeTimeStamp /*TODO*/);
@@ -292,7 +289,7 @@ public class Onthology {
         private QuestionCompiler makeQuestionCompiler() {
             if (questionCompiler == null){
                 // Lazily load the QuestionCompiler tool
-                questionCompiler = new QuestionCompiler();
+                questionCompiler = new QuestionCompiler(pcfg);
             }
             
             return questionCompiler;
