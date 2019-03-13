@@ -12,6 +12,7 @@
  */ 
 package org.rascalmpl.library.lang.rascal.tutor;
 
+import java.io.File;
 import java.io.PrintWriter;
 
 import org.rascalmpl.interpreter.Evaluator;
@@ -21,7 +22,10 @@ import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
 public class QuestionCompiler {
@@ -39,6 +43,29 @@ public class QuestionCompiler {
      * Compile a .questions file to .adoc
      */
     public IString compileQuestions(IString qmodule, PathConfig pcfg) {
+        eval.getConfiguration().setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
         return (IString) eval.call("compileQuestions", qmodule, pcfg.asConstructor());
+    }
+    
+    private String javaCompilerPathAsString(IList javaCompilerPath) {
+        StringBuilder b = new StringBuilder();
+
+        for (IValue elem : javaCompilerPath) {
+            ISourceLocation loc = (ISourceLocation) elem;
+
+            if (b.length() != 0) {
+                b.append(File.pathSeparatorChar);
+            }
+
+            assert loc.getScheme().equals("file");
+            String path = loc.getPath();
+            if (path.startsWith("/") && path.contains(":\\")) {
+                // a windows path should drop the leading /
+                path = path.substring(1);
+            }
+            b.append(path);
+        }
+
+        return b.toString();
     }
 }
