@@ -148,6 +148,7 @@ test bool testUnInitAssignment1() {
 test bool testUnInitAssignment1() {
   map[int,int] m = ();
   m[0] += 1;
+  return false;
 }
 
 test bool testInitAssignment1() {
@@ -161,6 +162,7 @@ test bool testInitAssignment1() {
 test bool testUnInitAssignment2() {
   map[int,int] m = ();
   m[0] -= 1;
+  return false;
 }
 
 @ignoreInterpreter{Exception differs}
@@ -168,6 +170,7 @@ test bool testUnInitAssignment2() {
 test bool testUnInitAssignment2() {
   map[int,int] m = ();
   m[0] -= 1;
+  return false;
 }
 
 @ignoreCompiler{Remove-after-transtion-to-compiler: Exception differs}
@@ -175,6 +178,7 @@ test bool testUnInitAssignment2() {
 test bool testUnInitAssignment3() {
   map[int,int] m = ();
   m[0] *= 1;
+  return false;
 }
 
 @ignoreInterpreter{Exception differs}
@@ -182,6 +186,7 @@ test bool testUnInitAssignment3() {
 test bool testUnInitAssignment3() {
   map[int,int] m = ();
   m[0] *= 1;
+  return false;
 }
 
 @ignoreCompiler{Remove-after-transtion-to-compiler: Exception differs}
@@ -189,6 +194,7 @@ test bool testUnInitAssignment3() {
 test bool testUnInitAssignment4() {
   map[int,int]m = ();
   m[0] /= 1;
+  return false;
 }
 
 @ignoreInterpreter{Exception differs}
@@ -196,11 +202,13 @@ test bool testUnInitAssignment4() {
 test bool testUnInitAssignment4() {
   map[int,int]m = ();
   m[0] /= 1;
+  return false;
 }
 
 @expected{IndexOutOfBounds}
 test bool testUnInitAssignment5() {
   list[int] m = [];
   m[0] += 1;
+  return false;
 }
 
