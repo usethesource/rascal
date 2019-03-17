@@ -457,7 +457,7 @@ input:-moz-placeholder {
     -webkit-box-sizing: content-box;
 	-moz-box-sizing: content-box;
 	box-sizing: content-box;
- 	height: 20px;
+ 	height: 22px;
     padding: 0 0px 0 10px;
 	border-color: #888;
     border-radius: 15px; 
@@ -466,7 +466,7 @@ input:-moz-placeholder {
     margin-top: 10px;
     color: #333;
     font-family: "Open Sans","DejaVu Sans", sans-serif;
-	font-size: 20px;
+	font-size: 18px;
 	-webkit-appearance: none;
 	-moz-appearance: none;
 }
