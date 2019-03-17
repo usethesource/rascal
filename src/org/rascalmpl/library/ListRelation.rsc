@@ -265,7 +265,7 @@ groupRangeByDomain(skins);
 ----
 }
 public list[list[&T]] groupRangeByDomain(lrel[&U dom, &T ran] input)
-	= squeeze([[r | <d,&T r> <- input] | d <- input.dom]);
+	= squeeze([[r | <d,&T r> <- input] | &U d <- input.dom]);
 	// the "input[i]" trick used for set-based relations does not work here
 	// because [<"a",1>]["a"] does give [1], but [<1,1>][1] does not!
 
