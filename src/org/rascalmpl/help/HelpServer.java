@@ -12,17 +12,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 
+import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.observers.IFrameObserver;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.repl.CommandExecutor;
 import org.rascalmpl.library.lang.rascal.tutor.Feedback;
 import org.rascalmpl.library.lang.rascal.tutor.QuestionCompiler;
-import org.rascalmpl.library.lang.rascal.tutor.TutorCommandExecutor;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
+
+import fi.iki.elonen.NanoHTTPD;
+import fi.iki.elonen.NanoHTTPD.Response.Status;
+import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
@@ -31,10 +33,6 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
-
-import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.NanoHTTPD.Response.Status;
 
 public class HelpServer extends NanoHTTPD {
 
@@ -118,19 +116,27 @@ public class HelpServer extends NanoHTTPD {
             writeModule(question, listing);
 
             try {
-                if (makeCommandExecutor().checkQuestions(question)) {
-                    outPrintWriter.flush();
-                    errPrintWriter.flush();
-                    return newFixedLengthResponse(Status.OK, "application/json", "{ \"ok\": true, \"failed\": [], \"exceptions\": [], \"syntax\": []}");
+                IList result = makeCommandExecutor().checkQuestions(question);
+                
+                assert result.length() == 1;
+                IConstructor test = (IConstructor) result.get(0);
+                
+                if (((IBool) test.get("success")).getValue()) {
+                    return newFixedLengthResponse(Status.OK, "application/json", "{ \"ok\": true }");
                 }
                 else {
-                    return newFixedLengthResponse(Status.OK, "application/json", "{ \"ok\": false, \"failed\": [], \"exceptions\": [], \"syntax\": []}");
+                    IString failedMessage = (IString) test.asWithKeywordParameters().getParameter("message");
+                    return newFixedLengthResponse(Status.OK, "application/json", 
+                        "{ \"ok\": false, "
+                        + "\"failed\": [" + makeResult((ISourceLocation) test.get("src"), failedMessage)  
+                        + "], \"exceptions\": ["
+                        + "]}");
                 }
             } catch (ParseError e){
                 return newFixedLengthResponse(Status.OK, "application/json", "{ \"ok\": false, \"failed\": [], \"exceptions\": [], \"syntax\": " + makeLoc(e) + " }");
             }
 
-        } catch (IOException | NoSuchRascalFunction | URISyntaxException e) {
+        } catch (IOException | NoSuchRascalFunction | URISyntaxException | StaticError e) {
             return newFixedLengthResponse(Status.OK, "application/json", "{ \"ok\": false, \"failed\": [], \"exceptions\": [" + e.getMessage() + "]}");
         }
     }
