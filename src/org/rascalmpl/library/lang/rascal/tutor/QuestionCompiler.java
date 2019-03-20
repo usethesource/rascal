@@ -16,10 +16,10 @@ import java.io.File;
 import java.io.PrintWriter;
 
 import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.GlobalEnvironment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.library.util.RunTests;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 
@@ -50,19 +50,8 @@ public class QuestionCompiler {
         return (IString) eval.call("compileQuestions", qmodule, pcfg.asConstructor());
     }
     
-    public boolean checkQuestions(String questionModule) {
-        eval.doImport(eval.getMonitor(), questionModule);
-        ModuleEnvironment mod = eval.getHeap().getModule(questionModule);
-        Environment old = eval.getCurrentEnvt();
-        
-        try {
-            eval.setCurrentEnvt(mod);
-            return eval.runTests(eval.getMonitor());
-        }
-        finally {
-            eval.setCurrentEnvt(old);
-            eval.getHeap().removeModule(mod);
-        }
+    public IList checkQuestions(String questionModule) {
+        return RunTests.runTests(questionModule, eval);
     }
     
     private String javaCompilerPathAsString(IList javaCompilerPath) {
