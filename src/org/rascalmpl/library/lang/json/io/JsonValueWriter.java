@@ -167,7 +167,7 @@ public class JsonValueWriter {
               }
               
               if (o.hasLineColumn()) {
-                  out.name("start");
+                  out.name("begin");
                   out.beginArray();
                   out.value(o.getBeginLine());
                   out.value(o.getBeginColumn());
