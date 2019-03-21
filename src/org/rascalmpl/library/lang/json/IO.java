@@ -17,6 +17,7 @@ package org.rascalmpl.library.lang.json;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
+import java.io.StringWriter;
 import java.nio.charset.Charset;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;
@@ -29,6 +30,7 @@ import org.rascalmpl.library.lang.json.io.JsonValueWriter;
 import org.rascalmpl.uri.URIResolverRegistry;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
@@ -77,6 +79,25 @@ public class IO {
 		}
 	}
 	
+	public IValue fromJSON(IValue type, IString src, IEvaluatorContext ctx) {
+        TypeStore store = ctx.getCurrentEnvt().getStore();
+        Type start = new TypeReifier(ctx.getValueFactory()).valueToType((IConstructor) type, store);
+        Gson gson = new GsonBuilder()
+        .enableComplexMapKeySerialization()
+        .setDateFormat(DateFormat.LONG)
+        .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+        .setVersion(1.0)
+        .create();
+        Object obj = gson.fromJson(src.getValue(), Object.class);
+        try {
+            return JSONReadingTypeVisitor.read(obj, values, store, start);
+        }
+        catch (IOException e) {
+            throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+        }
+    }
+    
+	
 	public IValue readJSON(IValue type, ISourceLocation loc, IBool implicitConstructors, IBool implicitNodes, IString dateTimeFormat) {
       TypeStore store = new TypeStore();
       Type start = new TypeReifier(values).valueToType((IConstructor) type, store);
@@ -116,36 +137,45 @@ public class IO {
 	      }
 	    }
 	
-	public void writeJSON(ISourceLocation loc, IValue value, IBool implicitConstructors, IBool implicitNodes, IString dateTimeFormat, IBool dateTimeAsInt) {
-	  try (JsonWriter out = new JsonWriter(new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), Charset.forName("UTF8")))) {
-        new JsonValueWriter()
-        .setConstructorsAsObjects(implicitConstructors.getValue())
-        .setNodesAsObjects(implicitNodes.getValue())
-        .setCalendarFormat(dateTimeFormat.getValue())
-        .setDatesAsInt(dateTimeAsInt.getValue())
-        .write(out, value);
-      } catch (IOException e) {
-        throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-      } 
+	public void writeJSON(ISourceLocation loc, IValue value, IBool implicitConstructors, IBool implicitNodes, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent) {
+	    try (JsonWriter out = new JsonWriter(new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), Charset.forName("UTF8")))) {
+	        if (indent.intValue() > 0) {
+	            out.setIndent("        ".substring(0, indent.intValue() % 9));
+	        }
+	        
+	        new JsonValueWriter()
+	        .setConstructorsAsObjects(implicitConstructors.getValue())
+	        .setNodesAsObjects(implicitNodes.getValue())
+	        .setCalendarFormat(dateTimeFormat.getValue())
+	        .setDatesAsInt(dateTimeAsInt.getValue())
+	        .setUnpackedLocations(unpackedLocations.getValue())
+	        .write(out, value);
+	    } catch (IOException e) {
+	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+	    } 
+	}
+	
+	public IString asJSON(IValue value, IBool implicitConstructors, IBool implicitNodes, IBool unpackedLocations, IString dateTimeFormat, IBool dateTimeAsInt, IInteger indent) {
+	    StringWriter string = new StringWriter();
+
+	    try (JsonWriter out = new JsonWriter(string)) {
+	        if (indent.intValue() > 0) {
+	            out.setIndent("        ".substring(0, indent.intValue() % 9));
+	        }
+	        new JsonValueWriter()
+	        .setConstructorsAsObjects(implicitConstructors.getValue())
+	        .setNodesAsObjects(implicitNodes.getValue())
+	        .setCalendarFormat(dateTimeFormat.getValue())
+	        .setDatesAsInt(dateTimeAsInt.getValue())
+	        .setUnpackedLocations(unpackedLocations.getValue())
+	        .write(out, value);
+
+	        return values.string(string.toString());
+	    } catch (IOException e) {
+	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+	    } 
 	}
 	
 	
-	public IValue fromJSON(IValue type, IString src, IEvaluatorContext ctx) {
-		TypeStore store = ctx.getCurrentEnvt().getStore();
-		Type start = new TypeReifier(ctx.getValueFactory()).valueToType((IConstructor) type, store);
-		Gson gson = new GsonBuilder()
-		.enableComplexMapKeySerialization()
-		.setDateFormat(DateFormat.LONG)
-		.setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
-		.setVersion(1.0)
-		.create();
-		Object obj = gson.fromJson(src.getValue(), Object.class);
-		try {
-			return JSONReadingTypeVisitor.read(obj, values, store, start);
-		}
-		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-		}
-	}
 	
 }
