@@ -113,6 +113,7 @@ public class HelpServer extends NanoHTTPD {
                 listing = listing.replaceFirst("_", holes.get(k++));
             }
 
+            // TODO: validate input
             writeModule(question, listing);
 
             try {
@@ -133,6 +134,7 @@ public class HelpServer extends NanoHTTPD {
                         + "]}");
                 }
             } 
+            catch ()
             catch (StaticError e) {
                 return newFixedLengthResponse(Status.OK, "application/json", "{ \"ok\": false, \"failed\": [], \"exceptions\": [\""+ e.getMessage() + "\"] }");
             }
