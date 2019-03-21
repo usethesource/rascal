@@ -18,6 +18,7 @@ import org.rascalmpl.interpreter.ITestResultListener;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
+import org.rascalmpl.interpreter.staticErrors.StaticError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.parser.gtd.exception.ParseError;
 
@@ -105,6 +106,9 @@ public class RunTests {
             return results.done();
         }
         catch (ParseError e) {
+            throw e;
+        }
+        catch (StaticError e) {
             throw e;
         }
         catch (Throwable e) {

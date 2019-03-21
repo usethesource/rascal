@@ -132,7 +132,11 @@ public class HelpServer extends NanoHTTPD {
                         + "], \"exceptions\": ["
                         + "]}");
                 }
-            } catch (ParseError e){
+            } 
+            catch (StaticError e) {
+                return newFixedLengthResponse(Status.OK, "application/json", "{ \"ok\": false, \"failed\": [], \"exceptions\": [\""+ e.getMessage() + "\"] }");
+            }
+            catch (ParseError e){
                 return newFixedLengthResponse(Status.OK, "application/json", "{ \"ok\": false, \"failed\": [], \"exceptions\": [], \"syntax\": " + makeLoc(e) + " }");
             }
 
