@@ -40,13 +40,17 @@ public class QuestionCompiler {
         eval.addRascalSearchPath(URIUtil.rootLocation("std"));
         eval.addRascalSearchPath(URIUtil.rootLocation("test-modules"));
         eval.getConfiguration().setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
-        eval.doImport(null, "lang::rascal::tutor::QuestionCompiler");
+        
     }
     
     /**
      * Compile a .questions file to .adoc
      */
     public IString compileQuestions(IString qmodule, PathConfig pcfg) {
+        if (!eval.getHeap().existsModule("lang::rascal::tutor::QuestionCompiler")) {
+            eval.doImport(null, "lang::rascal::tutor::QuestionCompiler");
+        }
+        
         return (IString) eval.call("compileQuestions", qmodule, pcfg.asConstructor());
     }
     
