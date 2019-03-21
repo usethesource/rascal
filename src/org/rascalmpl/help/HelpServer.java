@@ -137,7 +137,7 @@ public class HelpServer extends NanoHTTPD {
             }
 
         } catch (IOException | NoSuchRascalFunction | URISyntaxException | StaticError e) {
-            return newFixedLengthResponse(Status.OK, "application/json", "{ \"ok\": false, \"failed\": [], \"exceptions\": [" + e.getMessage() + "]}");
+            return newFixedLengthResponse(Status.OK, "application/json", "{ \"ok\": false, \"failed\": [], \"exceptions\": [\"" + e.getMessage() + "\"]}");
         }
     }
 
