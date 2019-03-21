@@ -18,13 +18,16 @@
 module lang::json::IO
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
+@deprecated{use writeJSON}
 public java str toJSON(value v);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
+@deprecated{use writeJSON}
 public java str toJSON(value v, bool compact);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @reflect{Uses type store}
+@deprecated{use readJSON}
 public java &T fromJSON(type[&T] typ, str src);
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
@@ -55,7 +58,7 @@ In explicit constructor mode (`implicitConstructor==false`) the following array-
    
 A similar distinction is made for values of type `node`, configured using the `implicitNode` parameter.                                                                                                                    
 }
-java &T readJSON(type[&T] expected, loc src, bool implicitConstructors = true,  bool implicitNodes = true, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'");
+java &T readJSON(type[&T] expected, loc src, bool implicitConstructors = true, bool implicitNodes = true, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'");
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
 @doc{parses JSON values from a string
@@ -85,8 +88,10 @@ In explicit constructor mode (`implicitConstructor==false`) the following array-
    
 A similar distinction is made for values of type `node`, configured using the `implicitNode` parameter.                                                                                                                    
 }
-java &T parseJSON(type[&T] expected, str src, bool implicitConstructors = true,  bool implicitNodes = true, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'");
+java &T parseJSON(type[&T] expected, str src, bool implicitConstructors = true, bool implicitNodes = true, str dateTimeFormat = "yyyy-MM-dd\'T\'HH:mm:ss\'Z\'");
 
 @javaClass{org.rascalmpl.library.lang.json.IO}
-java void writeJSON(loc target, value val, bool implicitConstructors=true, bool implicitNodes=true, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ss\'Z\'", bool dateTimeAsInt=false);
+java void writeJSON(loc target, value val, bool implicitConstructors=true, bool implicitNodes=true, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ss\'Z\'", bool dateTimeAsInt=false, int indent=0);
 
+@javaClass{org.rascalmpl.library.lang.json.IO}
+java str asJSON(value val, bool implicitConstructors=true, bool implicitNodes=true, bool unpackedLocations=false, str dateTimeFormat="yyyy-MM-dd\'T\'HH:mm:ss\'Z\'", bool dateTimeAsInt=false, int indent = 0);
