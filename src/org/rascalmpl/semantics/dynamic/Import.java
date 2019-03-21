@@ -310,7 +310,7 @@ public abstract class Import {
         return env;
       }
     }
-    catch (SyntaxError e) {
+    catch (SyntaxError | ParseError e) {
     	heap.removeModule(env);
         eval.getEvaluator().warning("Could not load " + name + " due to: " + e.getMessage(), x);
         throw e;
