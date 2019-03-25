@@ -14,8 +14,10 @@ package org.rascalmpl.library.analysis.text;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,12 +36,20 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
+import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexFileNames;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.BaseDirectory;
 import org.apache.lucene.store.BufferedIndexInput;
-import org.apache.lucene.store.ByteArrayIndexInput;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.IOContext;
 import org.apache.lucene.store.IndexInput;
 import org.apache.lucene.store.IndexOutput;
@@ -53,7 +63,9 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
+import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
@@ -61,8 +73,10 @@ import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWithKeywordParameters;
+import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 /**
  * Provides full access to Lucene's indexing and search facilities, as well as text analyzers to Rascal programmers.
@@ -76,7 +90,11 @@ public class LuceneAdapter {
     private final TypeFactory tf = TypeFactory.getInstance();
     private final Prelude prelude;
     private final Map<ISourceLocation, SingleInstanceLockFactory> lockFactories;
-
+    private final TypeStore store = new TypeStore();
+    private final Type Document = tf.abstractDataType(store, "Document");
+    private final Type docCons = tf.constructor(store, Document, "document", tf.sourceLocationType(), "src");
+    private final StandardTextReader valueParser = new StandardTextReader();
+    
     public LuceneAdapter(IValueFactory vf) {
         this.vf = vf;
         this.prelude = new Prelude(vf);
@@ -88,7 +106,7 @@ public class LuceneAdapter {
             Analyzer analyzer = makeFieldAnalyzer(analyzers);
             IndexWriterConfig config = new IndexWriterConfig(analyzer);
             SingleInstanceLockFactory lockFactory = makeLockFactory(indexFolder);
-            SourceLocationDirectory dir = new SourceLocationDirectory(lockFactory, prelude, indexFolder);
+            Directory dir = makeDirectory(indexFolder, lockFactory);
 
             try (IndexWriter index = new IndexWriter(dir, config)) {
                 for (IValue elem : documents) {
@@ -101,6 +119,45 @@ public class LuceneAdapter {
         }
     }
 
+    private Directory makeDirectory(ISourceLocation indexFolder, SingleInstanceLockFactory lockFactory)
+        throws IOException {
+        return FSDirectory.open(Paths.get(indexFolder.getPath()));
+//        return new SourceLocationDirectory(lockFactory, prelude, indexFolder);
+    }
+
+    public IList searchIndex(ISourceLocation indexFolder, IString query, IInteger max, ISet analyzers) throws IOException, ParseException {
+        // TODO the searcher should be cached on the indexFolder key
+        SingleInstanceLockFactory lockFactory = makeLockFactory(indexFolder);
+        Directory dir = makeDirectory(indexFolder, lockFactory);
+        DirectoryReader reader = DirectoryReader.open(dir);
+        IndexSearcher searcher = new IndexSearcher(reader);
+        
+        QueryParser parser = makeQueryParser(analyzers);
+        TopDocs docs = searcher.search(parser.parse(query.getValue()), max.intValue());
+
+        IListWriter result = vf.listWriter();
+        
+        for (ScoreDoc doc : docs.scoreDocs) {
+            org.apache.lucene.document.Document found = searcher.doc(doc.doc);
+            String loc = found.get("src");
+            
+            if (loc != null) {
+                IConstructor node = vf.constructor(docCons, valueParser.read(vf, new StringReader(loc)));
+                Map<String, IValue> params = new HashMap<>();
+                params.put("content", vf.string(found.get("content")));
+                result.append(node.asWithKeywordParameters().setParameters(params));
+            }
+        }
+        
+        return result.done();
+    }
+
+    private MultiFieldQueryParser makeQueryParser(ISet analyzers) throws IOException {
+        Analyzer analyzer = makeFieldAnalyzer(analyzers);
+        
+        return new MultiFieldQueryParser(new String[] { "content" }, analyzer);
+    }
+    
     private SingleInstanceLockFactory makeLockFactory(ISourceLocation indexFolder) {
         SingleInstanceLockFactory lockFactory = lockFactories.get(indexFolder);
         if (lockFactory == null) {
@@ -254,16 +311,17 @@ public class LuceneAdapter {
 
     private Document makeDocument(IConstructor elem) {
         Document luceneDoc = new Document();
-
-        Field srcField = new StringField("src", elem.get("src").toString(), Store.YES);
+        ISourceLocation loc = (ISourceLocation) elem.get("src");
+        IString doc = (IString) elem.asWithKeywordParameters().getParameter("content");
+        if (doc == null) {
+            doc = prelude.readFile(loc);
+        }
+        
+        Field srcField = new StringField("src", loc.toString(), Store.YES);
         luceneDoc.add(srcField);
         
-        ISourceLocation sloc = (ISourceLocation) elem.get("src");
-
-        if (URIResolverRegistry.getInstance().exists(sloc)) {
-            Field contentField = new Field("content", prelude.readFile(sloc).getValue(), TextField.TYPE_NOT_STORED);
-            luceneDoc.add(contentField);
-        }
+        Field contentField = new Field("content", doc.getValue(), TextField.TYPE_NOT_STORED);
+        luceneDoc.add(contentField);
         
         IWithKeywordParameters<? extends IConstructor> kws = elem.asWithKeywordParameters();
         
@@ -410,11 +468,13 @@ public class LuceneAdapter {
         @Override
         public void sync(Collection<String> names) throws IOException {
             // TODO; need sync support in URIResolverResistry
+            // this is to make sure memory mapped files are written to disk
         }
 
         @Override
         public void syncMetaData() throws IOException {
             // TODO; need sync support in URIResolverResistry
+            // this is to make sure memory mapped files are written to disk
         }
 
         @Override
