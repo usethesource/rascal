@@ -13,6 +13,7 @@
 package org.rascalmpl.library.analysis.text;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.Collection;
@@ -37,6 +38,7 @@ import org.apache.lucene.index.IndexFileNames;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.store.BaseDirectory;
+import org.apache.lucene.store.BufferedIndexInput;
 import org.apache.lucene.store.ByteArrayIndexInput;
 import org.apache.lucene.store.IOContext;
 import org.apache.lucene.store.IndexInput;
@@ -291,6 +293,57 @@ public class LuceneAdapter {
         }
     }
     
+    private static class SourceLocationIndexInput extends BufferedIndexInput {
+        private final ISourceLocation src;
+        private InputStream input;
+        private long size;
+        private long cursor;
+        
+        public SourceLocationIndexInput(Prelude prelude, ISourceLocation src) throws IOException {
+            super(src.toString());
+            try {
+                this.src = src;
+                this.input = URIResolverRegistry.getInstance().getInputStream(src);
+                this.size = prelude.__getFileSize(src).longValue();
+            }
+            catch (URISyntaxException e) {
+                throw new IOException(e);
+            }
+        }
+        
+        @Override
+        protected void readInternal(byte[] b, int offset, int length) throws IOException {
+            int read = input.read(b, offset, length);
+            cursor += read;
+        }
+
+        @Override
+        protected void seekInternal(long pos) throws IOException {
+            if (pos < cursor) {
+                // this is an expensive operation, but...
+                // this only happens if the outer buffer (superclass) doesn't still have the information
+                input.close();
+                input = URIResolverRegistry.getInstance().getInputStream(src);
+                input.skip(pos);
+                cursor = pos;
+            }
+            else {
+                input.skip(pos - cursor);
+                cursor = pos;
+            }
+        }
+
+        @Override
+        public void close() throws IOException {
+            input.close();
+        }
+
+        @Override
+        public long length() {
+            return size;
+        }
+    }
+    
     /**
      * Implements Lucene's file system abstraction as a facade to ISourceLocation directories
      */
@@ -372,7 +425,7 @@ public class LuceneAdapter {
 
         @Override
         public IndexInput openInput(String name, IOContext context) throws IOException {
-            return new ByteArrayIndexInput(name, Prelude.consumeInputStream(reg.getCharacterReader(location(name))).getBytes());
+            return new SourceLocationIndexInput(prelude, location(name));
         }
 
         @Override
