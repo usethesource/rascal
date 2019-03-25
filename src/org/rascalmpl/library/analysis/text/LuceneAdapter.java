@@ -144,7 +144,12 @@ public class LuceneAdapter {
             if (loc != null) {
                 IConstructor node = vf.constructor(docCons, valueParser.read(vf, new StringReader(loc)));
                 Map<String, IValue> params = new HashMap<>();
-                params.put("content", vf.string(found.get("content")));
+                String content = found.get("content");
+                
+                if (content != null) {
+                    params.put("content", vf.string(content));
+                }
+                
                 result.append(node.asWithKeywordParameters().setParameters(params));
             }
         }
