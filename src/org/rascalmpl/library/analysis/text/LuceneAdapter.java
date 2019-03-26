@@ -17,7 +17,6 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -52,7 +51,6 @@ import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.BaseDirectory;
 import org.apache.lucene.store.BufferedIndexInput;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.IOContext;
 import org.apache.lucene.store.IndexInput;
 import org.apache.lucene.store.IndexOutput;
@@ -89,6 +87,7 @@ import io.usethesource.vallang.type.TypeStore;
  *    * Documents are modelled as constructors with keyword parameters as fields. See Lucene.rsc for details.
  */
 public class LuceneAdapter {
+    private static final String ID_FIELD_NAME = "$id$";
     private final IValueFactory vf;
     private final TypeFactory tf = TypeFactory.getInstance();
     private final Prelude prelude;
@@ -124,8 +123,9 @@ public class LuceneAdapter {
 
     private Directory makeDirectory(ISourceLocation indexFolder, SingleInstanceLockFactory lockFactory)
         throws IOException {
-        return FSDirectory.open(Paths.get(indexFolder.getPath()));
-//        return new SourceLocationDirectory(lockFactory, prelude, indexFolder);
+//      for debugging purposes we can replace the SourceLocationDirectory with this FSDirectory and it will all only work with the `file` scheme..
+//        return FSDirectory.open(Paths.get(indexFolder.getPath())); 
+        return new SourceLocationDirectory(lockFactory, prelude, indexFolder);
     }
 
     public IList searchIndex(ISourceLocation indexFolder, IString query, IInteger max, ISet analyzers) throws IOException, ParseException {
@@ -140,7 +140,7 @@ public class LuceneAdapter {
         
         for (ScoreDoc doc : docs.scoreDocs) {
             org.apache.lucene.document.Document found = searcher.doc(doc.doc);
-            String loc = found.get("$id$");
+            String loc = found.get(ID_FIELD_NAME);
             
             if (loc != null) {
                 IConstructor node = vf.constructor(docCons, valueParser.read(vf, new StringReader(loc)));
@@ -148,7 +148,7 @@ public class LuceneAdapter {
                 
                 params.put("score", vf.real(doc.score));
                 
-                // TODO: put the other stored fields into the document
+                // TODO: put the other stored fields into the document, if any
                 
                 result.append(node.asWithKeywordParameters().setParameters(params));
             }
@@ -169,7 +169,7 @@ public class LuceneAdapter {
         Analyzer analyzer = makeFieldAnalyzer(analyzers);
         
         ArrayList<String> labels = new ArrayList<>(analyzers.size() + 1);
-        labels.add("$id$");
+        labels.add(ID_FIELD_NAME);
         analyzers.asRelation().project(0).forEach((s) -> labels.add(((IString) s).getValue()));
         
         return new MultiFieldQueryParser(labels.toArray(new String[labels.size()]), analyzer);
@@ -187,7 +187,7 @@ public class LuceneAdapter {
     private Analyzer makeFieldAnalyzer(ISet analyzers) throws IOException {
         Map<String, Analyzer> analyzerMap = new HashMap<>();
         
-        analyzerMap.put("$id$", new KeywordAnalyzer());
+        analyzerMap.put(ID_FIELD_NAME, new KeywordAnalyzer());
         
         for (IValue elem : analyzers) {
             ITuple tup = (ITuple) elem;
@@ -332,7 +332,7 @@ public class LuceneAdapter {
         Document luceneDoc = new Document();
         ISourceLocation loc = (ISourceLocation) elem.get("src");
         
-        Field idField = new StringField("$id$", loc.toString(), Store.YES);
+        Field idField = new StringField(ID_FIELD_NAME, loc.toString(), Store.YES);
         luceneDoc.add(idField);
         
         if (URIResolverRegistry.getInstance().exists(loc)) {
@@ -388,29 +388,40 @@ public class LuceneAdapter {
         
         @Override
         protected void readInternal(byte[] b, int offset, int length) throws IOException {
-            int read = input.read(b, offset, length);
-            cursor += read;
+            cursor += input.read(b, offset, length);
         }
 
         @Override
         protected void seekInternal(long pos) throws IOException {
+            if (pos == cursor) {
+                return;
+            }
+            
             if (pos < cursor) {
                 // this is an expensive operation, but...
                 // this only happens if the outer buffer (superclass) doesn't still have the information
                 input.close();
                 input = URIResolverRegistry.getInstance().getInputStream(src);
-                input.skip(pos);
+                if (pos != input.skip(pos)) {
+                    throw new IOException("could not skip " + pos + " bytes?");
+                }
                 cursor = pos;
             }
             else {
-                input.skip(pos - cursor);
-                cursor = pos;
+                long diff = pos - cursor;
+//                while (cursor != pos) {
+                    cursor += input.skip(diff); // perhaps not shifted as much as we can?
+//                    diff = pos - cursor;
+//                }
             }
+            
+            assert cursor == pos;
         }
 
         @Override
         public void close() throws IOException {
             input.close();
+            input = null;
         }
 
         @Override
