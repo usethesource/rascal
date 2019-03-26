@@ -18,6 +18,7 @@ import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,6 +29,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
+import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
@@ -44,6 +46,7 @@ import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.BaseDirectory;
@@ -127,28 +130,25 @@ public class LuceneAdapter {
 
     public IList searchIndex(ISourceLocation indexFolder, IString query, IInteger max, ISet analyzers) throws IOException, ParseException {
         // TODO the searcher should be cached on the indexFolder key
-        SingleInstanceLockFactory lockFactory = makeLockFactory(indexFolder);
-        Directory dir = makeDirectory(indexFolder, lockFactory);
-        DirectoryReader reader = DirectoryReader.open(dir);
-        IndexSearcher searcher = new IndexSearcher(reader);
+        IndexSearcher searcher = makeSearcher(indexFolder);
         
         QueryParser parser = makeQueryParser(analyzers);
-        TopDocs docs = searcher.search(parser.parse(query.getValue()), max.intValue());
+        Query queryExpression = parser.parse(query.getValue());
+        TopDocs docs = searcher.search(queryExpression, max.intValue());
 
         IListWriter result = vf.listWriter();
         
         for (ScoreDoc doc : docs.scoreDocs) {
             org.apache.lucene.document.Document found = searcher.doc(doc.doc);
-            String loc = found.get("src");
+            String loc = found.get("$id$");
             
             if (loc != null) {
                 IConstructor node = vf.constructor(docCons, valueParser.read(vf, new StringReader(loc)));
                 Map<String, IValue> params = new HashMap<>();
-                String content = found.get("content");
                 
-                if (content != null) {
-                    params.put("content", vf.string(content));
-                }
+                params.put("score", vf.real(doc.score));
+                
+                // TODO: put the other stored fields into the document
                 
                 result.append(node.asWithKeywordParameters().setParameters(params));
             }
@@ -157,10 +157,22 @@ public class LuceneAdapter {
         return result.done();
     }
 
+    private IndexSearcher makeSearcher(ISourceLocation indexFolder) throws IOException {
+        SingleInstanceLockFactory lockFactory = makeLockFactory(indexFolder);
+        Directory dir = makeDirectory(indexFolder, lockFactory);
+        DirectoryReader reader = DirectoryReader.open(dir);
+        IndexSearcher searcher = new IndexSearcher(reader);
+        return searcher;
+    }
+
     private MultiFieldQueryParser makeQueryParser(ISet analyzers) throws IOException {
         Analyzer analyzer = makeFieldAnalyzer(analyzers);
         
-        return new MultiFieldQueryParser(new String[] { "content" }, analyzer);
+        ArrayList<String> labels = new ArrayList<>(analyzers.size() + 1);
+        labels.add("$id$");
+        analyzers.asRelation().project(0).forEach((s) -> labels.add(((IString) s).getValue()));
+        
+        return new MultiFieldQueryParser(labels.toArray(new String[labels.size()]), analyzer);
     }
     
     private SingleInstanceLockFactory makeLockFactory(ISourceLocation indexFolder) {
@@ -174,6 +186,8 @@ public class LuceneAdapter {
 
     private Analyzer makeFieldAnalyzer(ISet analyzers) throws IOException {
         Map<String, Analyzer> analyzerMap = new HashMap<>();
+        
+        analyzerMap.put("$id$", new KeywordAnalyzer());
         
         for (IValue elem : analyzers) {
             ITuple tup = (ITuple) elem;
@@ -317,16 +331,14 @@ public class LuceneAdapter {
     private Document makeDocument(IConstructor elem) {
         Document luceneDoc = new Document();
         ISourceLocation loc = (ISourceLocation) elem.get("src");
-        IString doc = (IString) elem.asWithKeywordParameters().getParameter("content");
-        if (doc == null) {
-            doc = prelude.readFile(loc);
+        
+        Field idField = new StringField("$id$", loc.toString(), Store.YES);
+        luceneDoc.add(idField);
+        
+        if (URIResolverRegistry.getInstance().exists(loc)) {
+            Field srcField = new Field("src", prelude.readFile(loc).getValue(), TextField.TYPE_NOT_STORED);
+            luceneDoc.add(srcField);
         }
-        
-        Field srcField = new StringField("src", loc.toString(), Store.YES);
-        luceneDoc.add(srcField);
-        
-        Field contentField = new Field("content", doc.getValue(), TextField.TYPE_NOT_STORED);
-        luceneDoc.add(contentField);
         
         IWithKeywordParameters<? extends IConstructor> kws = elem.asWithKeywordParameters();
         
