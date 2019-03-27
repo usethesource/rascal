@@ -57,6 +57,6 @@ Analyzer standardAnalyzer()   = analyzerClass("org.apache.lucene.analysis.standa
 Analyzer whitespaceAnalyzer() = analyzerClass("org.apache.lucene.analysis.core.WhitespaceAnalyzer");  
 
 Tokenizer classicTokenizer()   = tokenizerClass("org.apache.lucene.analysis.standard.ClassicTokenizer");
-Tokenizer lowercaseTokenizer() = tokenizerClass("org.apache.lucene.analysis.core.LowercaseTokenizer");
+Tokenizer lowerCaseTokenizer() = tokenizerClass("org.apache.lucene.analysis.core.LowerCaseTokenizer");
 
-Filter lowercaseFilter() = filterClass("org.apache.lucene.analysis.LowercaseFilter");
+Filter lowerCaseFilter() = filterClass("org.apache.lucene.analysis.LowerCaseFilter");

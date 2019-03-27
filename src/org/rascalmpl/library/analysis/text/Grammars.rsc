@@ -13,7 +13,7 @@ Analyzer commentAnalyzerFromGrammar(type[&T <: Tree] grammar) = analyzer(comment
 @synopsis{Use a generate parser as a Lucene tokenizer. Skipping nothing.}
 Tokenizer tokenizerFromGrammar(type[&T <: Tree] grammar) = tokenizer(list[str] (str input) {
    try {
-     return ["<token>" | token <- tokens(parse(grammar, input, |lucene:///|), isToken) ];
+     return ["<token>" | token <- tokens(parse(grammar, input, |lucene:///|, allowAmbiguity=true), isToken) ];
    }
    catch ParseError(_, _):
      return [input];
@@ -22,7 +22,7 @@ Tokenizer tokenizerFromGrammar(type[&T <: Tree] grammar) = tokenizer(list[str] (
 @synopsis{Use a generated parser as a Lucene tokenizer, and skip all keywords and punctuation.}
 Tokenizer identifierTokenizerFromGrammar(type[&T <: Tree] grammar) = tokenizer(list[str] (str input) {
    try {
-     return ["<token>" | token <- tokens(parse(grammar, input, |lucene:///|), isToken), isLexical(token)];
+     return ["<token>" | token <- tokens(parse(grammar, input, |lucene:///|, allowAmbiguity=true), isToken), isLexical(token)];
    }
    catch ParseError(_):
      return [input];
@@ -31,7 +31,7 @@ Tokenizer identifierTokenizerFromGrammar(type[&T <: Tree] grammar) = tokenizer(l
 @synopsis{Use a generated parser as a Lucene tokenizer, and collect only source code comments.}
 Tokenizer commentTokenizerFromGrammar(type[&T <: Tree] grammar) = tokenizer(list[str] (str input) {
    try {
-     return [ "<comment>" | comment <- tokens(parse(grammar, input, |lucene:///|), isComment)];
+     return [ "<comment>" | comment <- tokens(parse(grammar, input, |lucene:///|, allowAmbiguity=true), isComment)];
    }
    catch ParseError(_):
      return [input];
