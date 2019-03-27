@@ -12,11 +12,13 @@
  */ 
 package org.rascalmpl.library.analysis.text;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -49,8 +51,8 @@ import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.BaseDirectory;
-import org.apache.lucene.store.BufferedIndexInput;
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.IOContext;
 import org.apache.lucene.store.IndexInput;
 import org.apache.lucene.store.IndexOutput;
@@ -87,6 +89,7 @@ import io.usethesource.vallang.type.TypeStore;
  *    * Documents are modelled as constructors with keyword parameters as fields. See Lucene.rsc for details.
  */
 public class LuceneAdapter {
+    private static final String SRC_FIELD_NAME = "src";
     private static final String ID_FIELD_NAME = "$id$";
     private final IValueFactory vf;
     private final TypeFactory tf = TypeFactory.getInstance();
@@ -103,8 +106,10 @@ public class LuceneAdapter {
         lockFactories = new HashMap<>();
     }
     
-    public void createIndex(ISourceLocation indexFolder, ISet documents, ISet analyzers) {
+    public void createIndex(IConstructor i, ISet documents) {
         try {
+            ISourceLocation indexFolder = (ISourceLocation) i.get("folder");
+            ISet analyzers = getAnalyzers(i);
             Analyzer analyzer = makeFieldAnalyzer(analyzers);
             IndexWriterConfig config = new IndexWriterConfig(analyzer);
             SingleInstanceLockFactory lockFactory = makeLockFactory(indexFolder);
@@ -121,15 +126,27 @@ public class LuceneAdapter {
         }
     }
 
+    private ISet getAnalyzers(IConstructor i) {
+        ISet result = (ISet) i.asWithKeywordParameters().getParameter("analyzers");
+        if (result == null) {
+            return vf.set();
+        }
+        else {
+            return result;
+        }
+    }
+
     private Directory makeDirectory(ISourceLocation indexFolder, SingleInstanceLockFactory lockFactory)
         throws IOException {
 //      for debugging purposes we can replace the SourceLocationDirectory with this FSDirectory and it will all only work with the `file` scheme..
-//        return FSDirectory.open(Paths.get(indexFolder.getPath())); 
-        return new SourceLocationDirectory(lockFactory, prelude, indexFolder);
+        return FSDirectory.open(Paths.get(indexFolder.getPath()));
+//        return new SourceLocationDirectory(lockFactory, prelude, indexFolder);
     }
 
-    public IList searchIndex(ISourceLocation indexFolder, IString query, IInteger max, ISet analyzers) throws IOException, ParseException {
+    public IList searchIndex(IConstructor index, IString query, IInteger max) throws IOException, ParseException {
         // TODO the searcher should be cached on the indexFolder key
+        ISourceLocation indexFolder = (ISourceLocation) index.get("folder");
+        ISet analyzers = getAnalyzers(index);
         IndexSearcher searcher = makeSearcher(indexFolder);
         
         QueryParser parser = makeQueryParser(analyzers);
@@ -170,6 +187,7 @@ public class LuceneAdapter {
         
         ArrayList<String> labels = new ArrayList<>(analyzers.size() + 1);
         labels.add(ID_FIELD_NAME);
+        labels.add(SRC_FIELD_NAME);
         analyzers.asRelation().project(0).forEach((s) -> labels.add(((IString) s).getValue()));
         
         return new MultiFieldQueryParser(labels.toArray(new String[labels.size()]), analyzer);
@@ -188,12 +206,12 @@ public class LuceneAdapter {
         Map<String, Analyzer> analyzerMap = new HashMap<>();
         
         analyzerMap.put(ID_FIELD_NAME, new KeywordAnalyzer());
-        
+
         for (IValue elem : analyzers) {
             ITuple tup = (ITuple) elem;
             String label = ((IString) tup.get(0)).getValue();
             IConstructor node = (IConstructor) tup.get(1);
-            
+
             switch (node.getName()) {
                 case "analyzerClass":
                     analyzerMap.put(label, analyzerFromClass(((IString) node.get("analyzerClassName")).getValue()));
@@ -202,9 +220,8 @@ public class LuceneAdapter {
                     analyzerMap.put(label, makeAnalyzer((IConstructor) node.get("tokenizer"), (IList) node.get("filters")));
                     break;
             }
-            
         }
-
+        
         return new PerFieldAnalyzerWrapper(new StandardAnalyzer(), analyzerMap);
     }
 
@@ -336,7 +353,7 @@ public class LuceneAdapter {
         luceneDoc.add(idField);
         
         if (URIResolverRegistry.getInstance().exists(loc)) {
-            Field srcField = new Field("src", prelude.readFile(loc).getValue(), TextField.TYPE_NOT_STORED);
+            Field srcField = new Field(SRC_FIELD_NAME, prelude.readFile(loc).getValue(), TextField.TYPE_NOT_STORED);
             luceneDoc.add(srcField);
         }
         
@@ -368,11 +385,14 @@ public class LuceneAdapter {
         }
     }
     
-    private static class SourceLocationIndexInput extends BufferedIndexInput {
+    private static class SourceLocationIndexInput extends IndexInput {
         private final ISourceLocation src;
         private InputStream input;
-        private long size;
+        private final long size;
         private long cursor;
+        private final long sliceStart;
+        private final long sliceEnd;
+        private final Prelude prelude;
         
         public SourceLocationIndexInput(Prelude prelude, ISourceLocation src) throws IOException {
             super(src.toString());
@@ -380,53 +400,91 @@ public class LuceneAdapter {
                 this.src = src;
                 this.input = URIResolverRegistry.getInstance().getInputStream(src);
                 this.size = prelude.__getFileSize(src).longValue();
+                this.sliceStart = 0;
+                this.sliceEnd = size;
+                this.prelude = prelude;
+                this.cursor = 0;
             }
             catch (URISyntaxException e) {
                 throw new IOException(e);
             }
         }
         
-        @Override
-        protected void readInternal(byte[] b, int offset, int length) throws IOException {
-            cursor += input.read(b, offset, length);
-        }
-
-        @Override
-        protected void seekInternal(long pos) throws IOException {
-            if (pos == cursor) {
-                return;
-            }
+        public SourceLocationIndexInput(Prelude prelude, String desc, ISourceLocation src, long sliceStart, long sliceLength) throws IOException {
+            super(desc);
             
-            if (pos < cursor) {
-                // this is an expensive operation, but...
-                // this only happens if the outer buffer (superclass) doesn't still have the information
-                input.close();
-                input = URIResolverRegistry.getInstance().getInputStream(src);
-                if (pos != input.skip(pos)) {
-                    throw new IOException("could not skip " + pos + " bytes?");
-                }
-                cursor = pos;
+            try {
+                this.src = src;
+                this.input = URIResolverRegistry.getInstance().getInputStream(src);
+                this.sliceStart = sliceStart;
+                this.sliceEnd = sliceStart + sliceLength;
+                this.size = prelude.__getFileSize(src).longValue();
+                this.cursor = sliceStart;
+                this.prelude = prelude;
+                this.input.skip(sliceStart);
             }
-            else {
-                long diff = pos - cursor;
-//                while (cursor != pos) {
-                    cursor += input.skip(diff); // perhaps not shifted as much as we can?
-//                    diff = pos - cursor;
-//                }
+            catch (URISyntaxException e) {
+                throw new IOException(e);
             }
-            
-            assert cursor == pos;
         }
 
         @Override
         public void close() throws IOException {
             input.close();
-            input = null;
+        }
+
+        @Override
+        public long getFilePointer() {
+            return cursor - sliceStart;
+        }
+
+        @Override
+        public void seek(long pos) throws IOException {
+            if (pos + sliceStart > sliceEnd) {
+                throw new EOFException();
+            }
+            
+            if (pos + sliceStart == cursor) {
+                return;
+            }
+            
+            if (pos + sliceStart < cursor) {
+                input.close();
+                input = URIResolverRegistry.getInstance().getInputStream(src);
+                input.skip(pos + sliceStart);
+                cursor = pos + sliceStart;
+            }
+            else {
+                while (cursor < pos + sliceStart) {
+                    long diff = pos + sliceStart - cursor;
+                    cursor += input.skip(diff);
+                }
+            }
         }
 
         @Override
         public long length() {
-            return size;
+            return sliceEnd - sliceStart;
+        }
+
+        @Override
+        public IndexInput slice(String sliceDescription, long offset, long length) throws IOException {
+            return new SourceLocationIndexInput(prelude, sliceDescription, src, offset + sliceStart, length);
+        }
+
+        @Override
+        public byte readByte() throws IOException {
+            try {
+                return (byte) input.read();
+            }
+            finally {
+                cursor +=1 ;
+            }
+        }
+
+        @Override
+        public void readBytes(byte[] b, int offset, int len) throws IOException {
+            cursor += input.read(b, offset, len);
         }
     }
     
