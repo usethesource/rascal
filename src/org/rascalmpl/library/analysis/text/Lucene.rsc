@@ -41,6 +41,16 @@ data Filter
 
 data Index = index(loc folder, rel[str field, Analyzer analyzer] analyzers = {<"src", standardAnalyzer()>});
 
+
+@javaClass{org.rascalmpl.library.analysis.text.LuceneAdapter}
+@synopsis{Creates a Lucene index at a given folder location from the given set of Documents, using a given set of text analyzers}
+java void createIndex(Index index, set[Document] documents);
+
+@javaClass{org.rascalmpl.library.analysis.text.LuceneAdapter}
+@synopsis{Searches a Lucene index indicated by the indexFolder by analyzing a query with a given set of text analyzers and then matching the query to the index.}
+java list[Document] searchIndex(Index index, str query, int max = 10);
+
+
 Analyzer classicAnalyzer()    = analyzerClass("org.apache.lucene.analysis.standard.ClassicAnalyzer");
 Analyzer simpleAnalyzer()     = analyzerClass("org.apache.lucene.analysis.core.SimpleAnalyzer");
 Analyzer standardAnalyzer()   = analyzerClass("org.apache.lucene.analysis.standard.StandardAnalyzer");
@@ -50,11 +60,3 @@ Tokenizer classicTokenizer()   = tokenizerClass("org.apache.lucene.analysis.stan
 Tokenizer lowercaseTokenizer() = tokenizerClass("org.apache.lucene.analysis.core.LowercaseTokenizer");
 
 Filter lowercaseFilter() = filterClass("org.apache.lucene.analysis.LowercaseFilter");
-
-@javaClass{org.rascalmpl.library.analysis.text.LuceneAdapter}
-@synopsis{Creates a Lucene index at a given folder location from the given set of Documents, using a given set of text analyzers}
-java void createIndex(Index index, set[Document] documents);
-
-@javaClass{org.rascalmpl.library.analysis.text.LuceneAdapter}
-@synopsis{Searches a Lucene index indicated by the indexFolder by analyzing a query with a given set of text analyzers and then matching the query to the index.}
-java list[Document] searchIndex(Index index, str query, int max = 10);
