@@ -29,8 +29,10 @@ data Analyzer
   | analyzer(Tokenizer tokenizer, list[Filter] filters)
   ;
   
+data Term = term(str chars, int offset, str kind);
+    
 data Tokenizer
-  = tokenizer(list[str] (str input) tokenizerFunction)
+  = tokenizer(list[Term] (str input) tokenizerFunction)
   | tokenizerClass(str tokenizerClassName)
   ;
   
