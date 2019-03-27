@@ -16,6 +16,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
@@ -138,10 +139,7 @@ public class LuceneAdapter {
         }
     }
 
-    private Directory makeDirectory(ISourceLocation indexFolder, SingleInstanceLockFactory lockFactory)
-        throws IOException {
-//      for debugging purposes we can replace the SourceLocationDirectory with this FSDirectory and it will all only work with the `file` scheme..
-//        return FSDirectory.open(Paths.get(indexFolder.getPath()));
+    private Directory makeDirectory(ISourceLocation indexFolder, SingleInstanceLockFactory lockFactory) throws IOException {
         return new SourceLocationDirectory(lockFactory, prelude, indexFolder);
     }
 
@@ -249,7 +247,7 @@ public class LuceneAdapter {
     private TokenStream makeFilter(TokenStream stream, IConstructor node) {
         switch (node.getName()) {
             case "filterClass":
-                return filterFromClass(((IString) node.get("filterClassName")).getValue());
+                return filterFromClass(stream, ((IString) node.get("filterClassName")).getValue());
             case "filter":
                 return makeFilter(stream, ((ICallableValue) node.get("filterFunction")));
             default:
@@ -303,17 +301,29 @@ public class LuceneAdapter {
             private Iterator<IValue> result;
             
             @Override
+            public void reset() throws IOException {
+                super.reset();
+                result = null;
+                clearAttributes();
+            }
+            
+            @Override
             public boolean incrementToken() throws IOException {
                 if (result == null) {
                     IString parameter = vf.string(Prelude.consumeInputStream(input));
-                    IList strings = (IList) function.call(new Type[] { tf.stringType() }, new IValue[] { parameter }, null).getValue();
-                    result = strings.iterator();
+                    try {
+                        IList strings = (IList) function.call(new Type[] { tf.stringType() }, new IValue[] { parameter }, null).getValue();
+                        result = strings.iterator();
+                    }
+                    catch (Throwable e) {
+                        result = vf.list(parameter).iterator();
+                    }
                 }
                 
                 if (result.hasNext()) {
                     char[] token = ((IString) result.next()).getValue().toCharArray();
-                    termAtt.setLength(token.length);
                     termAtt.copyBuffer(token, 0, token.length);
+                    termAtt.setLength(token.length);
                     return true;
                 }
                 else {
@@ -323,8 +333,16 @@ public class LuceneAdapter {
         };
     }
 
-    private TokenStream filterFromClass(String filterClass) {
-        return fromClass(TokenStream.class, filterClass);
+    private TokenStream filterFromClass(TokenStream stream, String filterClass) {
+        try {
+            @SuppressWarnings("unchecked")
+            Class<TokenStream> cls = (Class<TokenStream>) getClass().getClassLoader().loadClass(filterClass);
+            
+           return cls.getConstructor(TokenStream.class).newInstance(stream);
+        }
+        catch (InstantiationException | IllegalAccessException | ClassNotFoundException | ClassCastException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            throw new IllegalArgumentException(filterClass, e);
+        }
     }
     
     private Analyzer analyzerFromClass(String analyzerClass) {
@@ -338,12 +356,12 @@ public class LuceneAdapter {
     private <T> T fromClass(Class<T> clz, String name) {
         try {
             @SuppressWarnings("unchecked")
-            Class<T> cls = (Class<T>) Class.forName(name);
+            Class<T> cls = (Class<T>) getClass().getClassLoader().loadClass(name);
             
            return cls.newInstance();
         }
         catch (InstantiationException | IllegalAccessException | ClassNotFoundException | ClassCastException e) {
-            throw new IllegalArgumentException(name);
+            throw new IllegalArgumentException(name, e);
         }
     }
 
