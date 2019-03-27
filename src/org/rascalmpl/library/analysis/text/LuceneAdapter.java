@@ -119,6 +119,8 @@ public class LuceneAdapter {
                 for (IValue elem : documents) {
                     index.addDocument(makeDocument((IConstructor) elem));
                 }
+                
+                index.commit();
             }
         }
         catch (IOException e) {
