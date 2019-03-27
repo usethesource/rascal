@@ -59,6 +59,7 @@ import org.apache.lucene.store.IndexOutput;
 import org.apache.lucene.store.LockFactory;
 import org.apache.lucene.store.OutputStreamIndexOutput;
 import org.apache.lucene.store.SingleInstanceLockFactory;
+import org.jruby.lexer.GetsLexerSource;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
@@ -448,9 +449,9 @@ public class LuceneAdapter {
 
         @Override
         public void seek(long pos) throws IOException {
-            if (pos + sliceStart > sliceEnd) {
-                throw new EOFException();
-            }
+//            if (pos + sliceStart > sliceEnd) {
+//                throw new EOFException();
+//            }
             
             if (pos + sliceStart == cursor) {
                 return;
@@ -478,12 +479,15 @@ public class LuceneAdapter {
 
         @Override
         public byte readByte() throws IOException {
-            if (cursor >= sliceEnd) {
-                throw new EOFException();
-            }
+//            if (cursor > sliceEnd) {
+//                throw new EOFException();
+//            }
             
             try {
                 return (byte) input.read();
+            }
+            catch (IOException e) {
+                throw e; // debug
             }
             finally {
                 cursor +=1 ;
@@ -492,11 +496,21 @@ public class LuceneAdapter {
 
         @Override
         public void readBytes(byte[] b, int offset, int len) throws IOException {
-            if (cursor >= sliceEnd) {
-                throw new EOFException();
-            }
+//            if (cursor >= sliceEnd) {
+//                throw new EOFException();
+//            }
             
             cursor += input.read(b, offset, len);
+        }
+        
+        @Override
+        public IndexInput clone() {
+            try {
+                return new SourceLocationIndexInput(prelude, this.toString() + "-clone", src, sliceStart, length());
+            }
+            catch (IOException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
     
