@@ -22,7 +22,7 @@ Add as many keyword fields to a document as you want. They will be added to the 
 * fields of type `str` will be stored and indexed as-is
 * fields of type `loc` will be indexed but not stored
 }
-data Document = document(loc src);
+data Document = document(loc src, int score=.0);
   
 data Analyzer 
   = analyzerClass(str analyzerClassName) 
@@ -30,14 +30,16 @@ data Analyzer
   ;
   
 data Tokenizer
-  = tokenizer(list[str] (str) tokenizerFunction)
+  = tokenizer(list[str] (str input) tokenizerFunction)
   | tokenizerClass(str tokenizerClassName)
   ;
   
 data Filter
-  = \filter(str (str) filterFunction)
+  = \filter(str (str term) filterFunction)
   | filterClass(str filterClassName)
   ;  
+
+data Index = index(loc folder, rel[str field, Analyzer analyzer] analyzers = {<"src", standardAnalyzer()>});
 
 Analyzer classicAnalyzer()    = analyzerClass("org.apache.lucene.analysis.standard.ClassicAnalyzer");
 Analyzer simpleAnalyzer()     = analyzerClass("org.apache.lucene.analysis.core.SimpleAnalyzer");
@@ -50,10 +52,9 @@ Tokenizer lowercaseTokenizer() = tokenizerClass("org.apache.lucene.analysis.core
 Filter lowercaseFilter() = filterClass("org.apache.lucene.analysis.LowercaseFilter");
 
 @javaClass{org.rascalmpl.library.analysis.text.LuceneAdapter}
-java void createIndex(loc indexFolder, set[Document] documents, rel[str field, Analyzer analyzer] analyzers = {<"src", standardAnalyzer()>});
-
-@synopsis{The score relates to how well the query matched the document}
-data Document(real score=.0);
+@synopsis{Creates a Lucene index at a given folder location from the given set of Documents, using a given set of text analyzers}
+java void createIndex(Index index, set[Document] documents);
 
 @javaClass{org.rascalmpl.library.analysis.text.LuceneAdapter}
-java list[Document] searchIndex(loc indexFolder, str query, int max = 10, rel[str field, Analyzer analyzer] analyzers = {<"src", standardAnalyzer()>});
+@synopsis{Searches a Lucene index indicated by the indexFolder by analyzing a query with a given set of text analyzers and then matching the query to the index.}
+java list[Document] searchIndex(Index index, str query, int max = 10);
