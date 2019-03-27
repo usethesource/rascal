@@ -386,7 +386,7 @@ public class LuceneAdapter {
     }
     
     /**
-     * Implements Lucene's index outputstreams as a facade to ISourceLocation InputStreams
+     * Implements Lucene's IndexInput as a facade to ISourceLocation InputStreams
      * 
      * TODO: this class is a performance hazard. Because IndexInput's have to support random access seeks,
      * and the InputStreams that the URIResolverRegistry produces do not, we constantly re-open
