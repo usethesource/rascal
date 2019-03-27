@@ -526,10 +526,12 @@ public class LuceneAdapter {
         @Override
         public IndexInput clone() {
             try {
-                // TODO: "Warning: Lucene never closes cloned IndexInputs, it will only call close() on the original object.". o, oooo.
                 long cur = cursor - sliceStart;
                 SourceLocationIndexInput result = new SourceLocationIndexInput(prelude, this.toString() + "-clone", src, sliceStart, length());
                 result.seek(cur);
+                
+                // "Warning: Lucene never closes cloned IndexInputs, it will only call close() on the original object."
+                // So, we keep a list of clones to close when we are closed.
                 myClones.add(result);
                 return result;
             }
