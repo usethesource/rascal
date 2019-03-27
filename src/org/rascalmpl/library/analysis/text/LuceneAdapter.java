@@ -479,6 +479,7 @@ public class LuceneAdapter {
             if (pos + sliceStart < cursor) {
                 input.close();
                 input = URIResolverRegistry.getInstance().getInputStream(src);
+                cursor = 0;
                 internalSkip(pos + sliceStart);
             }
             else {
