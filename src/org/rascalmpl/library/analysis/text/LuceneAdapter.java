@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -384,6 +386,7 @@ public class LuceneAdapter {
     }
     
     private static class SourceLocationIndexInput extends IndexInput {
+        private final List<SourceLocationIndexInput> myClones = new LinkedList<>();
         private final ISourceLocation src;
         private InputStream input;
         private final long size;
@@ -440,7 +443,22 @@ public class LuceneAdapter {
 
         @Override
         public void close() throws IOException {
+            IOException closeFailed = null;
+            
+            for (SourceLocationIndexInput clone : myClones) {
+                try {
+                    clone.close();
+                }
+                catch (IOException e) {
+                    closeFailed = e;
+                }
+            }
+            
             input.close();
+            
+            if (closeFailed != null) {
+                throw closeFailed;
+            }
         }
 
         @Override
@@ -450,9 +468,9 @@ public class LuceneAdapter {
 
         @Override
         public void seek(long pos) throws IOException {
-//            if (pos + sliceStart > sliceEnd) {
-//                throw new EOFException();
-//            }
+            if (pos + sliceStart > sliceEnd) {
+                throw new EOFException();
+            }
             
             if (pos + sliceStart == cursor) {
                 return;
@@ -497,7 +515,7 @@ public class LuceneAdapter {
             while (len > 0) {
                 final int cnt = input.read(b, offset, len);
                 cursor += cnt;
-                if (cnt < 0) {
+                if (cnt == -1) {
                     throw new EOFException();
                 }
                 len -= cnt;
@@ -508,7 +526,12 @@ public class LuceneAdapter {
         @Override
         public IndexInput clone() {
             try {
-                return new SourceLocationIndexInput(prelude, this.toString() + "-clone", src, sliceStart, length());
+                // TODO: "Warning: Lucene never closes cloned IndexInputs, it will only call close() on the original object.". o, oooo.
+                long cur = cursor - sliceStart;
+                SourceLocationIndexInput result = new SourceLocationIndexInput(prelude, this.toString() + "-clone", src, sliceStart, length());
+                result.seek(cur);
+                myClones.add(result);
+                return result;
             }
             catch (IOException e) {
                 throw new RuntimeException(e);
