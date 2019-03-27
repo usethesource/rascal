@@ -139,8 +139,8 @@ public class LuceneAdapter {
     private Directory makeDirectory(ISourceLocation indexFolder, SingleInstanceLockFactory lockFactory)
         throws IOException {
 //      for debugging purposes we can replace the SourceLocationDirectory with this FSDirectory and it will all only work with the `file` scheme..
-        return FSDirectory.open(Paths.get(indexFolder.getPath()));
-//        return new SourceLocationDirectory(lockFactory, prelude, indexFolder);
+//        return FSDirectory.open(Paths.get(indexFolder.getPath()));
+        return new SourceLocationDirectory(lockFactory, prelude, indexFolder);
     }
 
     public IList searchIndex(IConstructor index, IString query, IInteger max) throws IOException, ParseException {
@@ -419,12 +419,20 @@ public class LuceneAdapter {
                 this.sliceStart = sliceStart;
                 this.sliceEnd = sliceStart + sliceLength;
                 this.size = prelude.__getFileSize(src).longValue();
-                this.cursor = sliceStart;
                 this.prelude = prelude;
-                this.input.skip(sliceStart);
+                this.cursor = 0;
+                internalSkip(sliceStart);
             }
             catch (URISyntaxException e) {
                 throw new IOException(e);
+            }
+        }
+
+        private void internalSkip(long count) throws IOException {
+            // TODO: this might not terminate on all InputStreams due to the InputStream.skip contract which may always return 0.
+            long target = cursor + count;
+            while (cursor < target) {
+                 cursor += this.input.skip(target - cursor);
             }
         }
 
@@ -451,14 +459,10 @@ public class LuceneAdapter {
             if (pos + sliceStart < cursor) {
                 input.close();
                 input = URIResolverRegistry.getInstance().getInputStream(src);
-                input.skip(pos + sliceStart);
-                cursor = pos + sliceStart;
+                internalSkip(pos + sliceStart);
             }
             else {
-                while (cursor < pos + sliceStart) {
-                    long diff = pos + sliceStart - cursor;
-                    cursor += input.skip(diff);
-                }
+                internalSkip(pos + sliceStart - cursor);
             }
         }
 
@@ -474,6 +478,10 @@ public class LuceneAdapter {
 
         @Override
         public byte readByte() throws IOException {
+            if (cursor >= sliceEnd) {
+                throw new EOFException();
+            }
+            
             try {
                 return (byte) input.read();
             }
@@ -484,6 +492,10 @@ public class LuceneAdapter {
 
         @Override
         public void readBytes(byte[] b, int offset, int len) throws IOException {
+            if (cursor >= sliceEnd) {
+                throw new EOFException();
+            }
+            
             cursor += input.read(b, offset, len);
         }
     }
