@@ -36,6 +36,8 @@ import org.apache.lucene.analysis.core.KeywordAnalyzer;
 import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
+import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
+import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
@@ -298,6 +300,8 @@ public class LuceneAdapter {
     private Tokenizer makeTokenizer(final ICallableValue function) {
         return new Tokenizer() {
             private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
+            private final TypeAttribute typeAtt = addAttribute(TypeAttribute.class);
+            private final OffsetAttribute offsetAtt = addAttribute(OffsetAttribute.class);
             private Iterator<IValue> result;
             
             @Override
@@ -311,19 +315,18 @@ public class LuceneAdapter {
             public boolean incrementToken() throws IOException {
                 if (result == null) {
                     IString parameter = vf.string(Prelude.consumeInputStream(input));
-                    try {
-                        IList strings = (IList) function.call(new Type[] { tf.stringType() }, new IValue[] { parameter }, null).getValue();
-                        result = strings.iterator();
-                    }
-                    catch (Throwable e) {
-                        result = vf.list(parameter).iterator();
-                    }
+                    IList terms = (IList) function.call(new Type[] { tf.stringType() }, new IValue[] { parameter }, null).getValue();
+                    result = terms.iterator();
                 }
                 
                 if (result.hasNext()) {
-                    char[] token = ((IString) result.next()).getValue().toCharArray();
+                    IConstructor termCons = ((IConstructor) result.next());
+                    char[] token = ((IString) termCons.get(0)).getValue().toCharArray();
                     termAtt.copyBuffer(token, 0, token.length);
                     termAtt.setLength(token.length);
+                    typeAtt.setType(((IString) termCons.get(2)).getValue());
+                    int start = ((IInteger) termCons.get(1)).intValue();
+                    offsetAtt.setOffset(start, start + token.length);
                     return true;
                 }
                 else {

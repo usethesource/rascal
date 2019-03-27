@@ -11,30 +11,33 @@ Analyzer identifierAnalyzerFromGrammar(type[&T <: Tree] grammar) = analyzer(iden
 Analyzer commentAnalyzerFromGrammar(type[&T <: Tree] grammar) = analyzer(commentTokenizerFromGrammar(grammar), [lowercaseFilter()]);
 
 @synopsis{Use a generate parser as a Lucene tokenizer. Skipping nothing.}
-Tokenizer tokenizerFromGrammar(type[&T <: Tree] grammar) = tokenizer(list[str] (str input) {
+Tokenizer tokenizerFromGrammar(type[&T <: Tree] grammar) = tokenizer(list[Term] (str input) {
    try {
-     return ["<token>" | token <- tokens(parse(grammar, input, |lucene:///|, allowAmbiguity=true), isToken) ];
+     tr = parse(grammar, input, |lucene:///|, allowAmbiguity=true);
+     return [term("<token>", token@\loc.offset, "<token.prod.def>") | token <- tokens(tr, isToken) ];
    }
    catch ParseError(_, _):
-     return [input];
+     return [term(input, 0, "entire input")];
 });
 
 @synopsis{Use a generated parser as a Lucene tokenizer, and skip all keywords and punctuation.}
-Tokenizer identifierTokenizerFromGrammar(type[&T <: Tree] grammar) = tokenizer(list[str] (str input) {
+Tokenizer identifierTokenizerFromGrammar(type[&T <: Tree] grammar) = tokenizer(list[Term] (str input) {
    try {
-     return ["<token>" | token <- tokens(parse(grammar, input, |lucene:///|, allowAmbiguity=true), isToken), isLexical(token)];
+     tr = parse(grammar, input, |lucene:///|, allowAmbiguity=true);
+     return [term("<token>", token@\loc.offset, "<token.prod.def>") | token <- tokens(tr, isToken), isLexical(token)];
    }
    catch ParseError(_):
-     return [input];
+     return [term(input, 0, "entire input")];
 });
 
 @synopsis{Use a generated parser as a Lucene tokenizer, and collect only source code comments.}
 Tokenizer commentTokenizerFromGrammar(type[&T <: Tree] grammar) = tokenizer(list[str] (str input) {
    try {
-     return [ "<comment>" | comment <- tokens(parse(grammar, input, |lucene:///|, allowAmbiguity=true), isComment)];
+     tr = parse(grammar, input, |lucene:///|, allowAmbiguity=true);
+     return [ term("<comment>", comment@\loc.offset, "<comment.prod.def>") | comment <- tokens(tr, isComment)];
    }
    catch ParseError(_):
-     return [input];
+     return [term(input, 0, "entire input")];
 });
 
 list[Tree] tokens(amb({Tree x, *_}), bool(Tree) isToken) = tokens(x, isToken);
