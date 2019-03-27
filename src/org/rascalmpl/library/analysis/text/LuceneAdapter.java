@@ -385,6 +385,24 @@ public class LuceneAdapter {
         }
     }
     
+    /**
+     * Implements Lucene's index outputstreams as a facade to ISourceLocation InputStreams
+     * 
+     * TODO: this class is a performance hazard. Because IndexInput's have to support random access seeks,
+     * and the InputStreams that the URIResolverRegistry produces do not, we constantly re-open
+     * new InputStreams here to seek in the backwards direction. Also forward direction skipping in an InputStream
+     * is not completely stable because it is based on InputStream.skip()'s weak contract. Finally this class
+     * implements a `clone` method which also clones the current position of the inputstream, and makes the 
+     * underlying stream skip to that position, but at many call sites the next call would be to seek back
+     * to the start of the file.. so that would re-open yet another stream and make the previous seek for nothing.
+     * <br>
+     * <br>
+     * Perhaps it would be more efficient to: avoid wrappinh InputStreams altogether and use NIO via the URIResolverRegistry,
+     * and/or if that is not possible (for schemes that don't support NIO), use a byte array implementation of 
+     * IndexInput which uses the InputStreams of the URIResolverRegistry only to quickly suck in all the bytes.
+     * Cloned byte array implementations could share the byte[] array, saving a lot of time and memory as compared
+     * to the current implementation. The NIO implementation would presumably use memory mapped file access.
+     */
     private static class SourceLocationIndexInput extends IndexInput {
         private final List<SourceLocationIndexInput> myClones = new LinkedList<>();
         private final ISourceLocation src;
@@ -411,22 +429,17 @@ public class LuceneAdapter {
             }
         }
         
-        public SourceLocationIndexInput(Prelude prelude, String desc, ISourceLocation src, long sliceStart, long sliceLength) throws IOException {
+        public SourceLocationIndexInput(Prelude prelude, String desc, ISourceLocation src, long sliceStart, long sliceLength, long size) throws IOException {
             super(desc);
             
-            try {
-                this.src = src;
-                this.input = URIResolverRegistry.getInstance().getInputStream(src);
-                this.sliceStart = sliceStart;
-                this.sliceEnd = sliceStart + sliceLength;
-                this.size = prelude.__getFileSize(src).longValue();
-                this.prelude = prelude;
-                this.cursor = 0;
-                internalSkip(sliceStart);
-            }
-            catch (URISyntaxException e) {
-                throw new IOException(e);
-            }
+            this.src = src;
+            this.input = URIResolverRegistry.getInstance().getInputStream(src);
+            this.sliceStart = sliceStart;
+            this.sliceEnd = sliceStart + sliceLength;
+            this.size = size;
+            this.prelude = prelude;
+            this.cursor = 0;
+            internalSkip(sliceStart);
         }
 
         private void internalSkip(long count) throws IOException {
@@ -494,7 +507,7 @@ public class LuceneAdapter {
 
         @Override
         public IndexInput slice(String sliceDescription, long offset, long length) throws IOException {
-            return new SourceLocationIndexInput(prelude, sliceDescription, src, offset + sliceStart, length);
+            return new SourceLocationIndexInput(prelude, sliceDescription, src, offset + sliceStart, length, size);
         }
 
         @Override
@@ -528,7 +541,10 @@ public class LuceneAdapter {
         public IndexInput clone() {
             try {
                 long cur = cursor - sliceStart;
-                SourceLocationIndexInput result = new SourceLocationIndexInput(prelude, this.toString() + "-clone", src, sliceStart, length());
+                SourceLocationIndexInput result = new SourceLocationIndexInput(prelude, this.toString() + "-clone", src, sliceStart, length(), size);
+                
+                // TODO: this is a performance hazard, because at some call sites of .clone they seek(0) right after, which makes us re-allocate yet another InputStream.
+                // we might have a single level "seek stack" to collapse multiple consecutive seeks?
                 result.seek(cur);
                 
                 // "Warning: Lucene never closes cloned IndexInputs, it will only call close() on the original object."
