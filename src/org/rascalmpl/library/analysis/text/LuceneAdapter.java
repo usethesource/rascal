@@ -18,7 +18,6 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -52,15 +51,12 @@ import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.BaseDirectory;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.IOContext;
 import org.apache.lucene.store.IndexInput;
 import org.apache.lucene.store.IndexOutput;
-import org.apache.lucene.store.InputStreamDataInput;
 import org.apache.lucene.store.LockFactory;
 import org.apache.lucene.store.OutputStreamIndexOutput;
 import org.apache.lucene.store.SingleInstanceLockFactory;
-import org.jruby.lexer.GetsLexerSource;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
@@ -433,6 +429,10 @@ public class LuceneAdapter {
         private void internalSkip(long count) throws IOException {
             // TODO: this might not terminate on all InputStreams due to the InputStream.skip contract which may always return 0.
             long target = cursor + count;
+            if (target > sliceEnd) {
+                throw new EOFException();
+            }
+            
             while (cursor < target) {
                  cursor += this.input.skip(target - cursor);
             }
@@ -480,12 +480,12 @@ public class LuceneAdapter {
 
         @Override
         public byte readByte() throws IOException {
-            byte result = (byte) input.read();
+            int result = input.read();
             if (result == -1) {
                 throw new EOFException();
             }
             cursor += 1;
-            return result;
+            return (byte) result;
         }
 
         @Override
