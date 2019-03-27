@@ -56,6 +56,7 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.store.IOContext;
 import org.apache.lucene.store.IndexInput;
 import org.apache.lucene.store.IndexOutput;
+import org.apache.lucene.store.InputStreamDataInput;
 import org.apache.lucene.store.LockFactory;
 import org.apache.lucene.store.OutputStreamIndexOutput;
 import org.apache.lucene.store.SingleInstanceLockFactory;
@@ -479,28 +480,29 @@ public class LuceneAdapter {
 
         @Override
         public byte readByte() throws IOException {
-//            if (cursor > sliceEnd) {
-//                throw new EOFException();
-//            }
-            
-            try {
-                return (byte) input.read();
+            byte result = (byte) input.read();
+            if (result == -1) {
+                throw new EOFException();
             }
-            catch (IOException e) {
-                throw e; // debug
-            }
-            finally {
-                cursor +=1 ;
-            }
+            cursor += 1;
+            return result;
         }
 
         @Override
         public void readBytes(byte[] b, int offset, int len) throws IOException {
-//            if (cursor >= sliceEnd) {
-//                throw new EOFException();
-//            }
+            if (cursor + len > sliceEnd) {
+                throw new EOFException();
+            }
             
-            cursor += input.read(b, offset, len);
+            while (len > 0) {
+                final int cnt = input.read(b, offset, len);
+                cursor += cnt;
+                if (cnt < 0) {
+                    throw new EOFException();
+                }
+                len -= cnt;
+                offset += cnt;
+              }
         }
         
         @Override
