@@ -14,7 +14,7 @@ Tokenizer tokenizerFromGrammar(type[&T <: Tree] grammar) = tokenizer(list[str] (
 });
 
 @synopsis{Use a generated parser as a Lucene tokenizer, and collect only the open lexicals as separate tokens, skipping al keywords and punctuation.}
-Tokenizer identifiersFromGrammar(type[&T <: Tree] grammar) = tokenizer(list[str] (str input) {
+Tokenizer identifierTokenizerFromGrammar(type[&T <: Tree] grammar) = tokenizer(list[str] (str input) {
    try {
      return ["<token>" | token <- tokens(parse(grammar, input, |lucene:///|)), isLexical(token)];
    }
@@ -22,14 +22,18 @@ Tokenizer identifiersFromGrammar(type[&T <: Tree] grammar) = tokenizer(list[str]
      return [];
 });
 
-Tokenizer commentsFromGrammar(type[&T <: Tree] grammar) = tokenizer(list[str] (str input) {
+Tokenizer commentTokenizerFromGrammar(type[&T <: Tree] grammar) = tokenizer(list[str] (str input) {
    try {
-     return ["<token>" | token <- tokens(parse(grammar, input, |lucene:///|)), isComment(token)];
+     // first collect the layout rules which contain comments (marked with @category="Comment" in the grammar)
+     return ["<a>" | token <- tokens(parse(grammar, input, |lucene:///|)), isComment(token), a <- token.args];
+     // then collect the non-literal, non-whitespace words from those
+     //return [ "<child>" | c <- comments, /Tree child := c, c has prod, /category("Comment") := c.prod];
    }
    catch ParseError(_, _):
      return [];
 });
 
+list[Tree] tokens(amb({Tree x, *_})) = tokens(x);
 list[Tree] tokens(Tree tok:appl(prod(Symbol s, _, _), list[Tree] args)) = [tok]
   when isTokenType(s);
 
