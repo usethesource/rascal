@@ -408,7 +408,7 @@ public class LuceneAdapter {
      * Implements Lucene's IndexInput as a facade to ISourceLocation inputstreams which are sucked into a byte[] right away.
      */
     private static class SourceLocationIndexInput extends IndexInput {
-        // TODO: the length of the input is now maxed out at MAX_INT due to the max size of arrays on the JVM.
+        // TODO: the length of the input is now maxed out at (MAX_INT - 8) due to the max size of arrays on the JVM.
         // we should probably wrap the byte[] input to enable larger files.
         private final byte[] input;
         private final int sliceStart;
