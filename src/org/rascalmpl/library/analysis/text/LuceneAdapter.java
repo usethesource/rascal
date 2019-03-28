@@ -411,8 +411,8 @@ public class LuceneAdapter {
         // TODO: the length of the input is now maxed out at (MAX_INT - 8) due to the max size of arrays on the JVM.
         // we should probably wrap the byte[] input to enable larger files.
         private final byte[] input;
-        private final int sliceStart;
-        private final int sliceEnd;
+        private final int start;
+        private final int end;
         
         private int cursor;
         
@@ -421,10 +421,10 @@ public class LuceneAdapter {
             
             SourceLocationByteReader bytes = new SourceLocationByteReader(src);
             this.input = bytes.getByteArray();
-            this.sliceStart = 0;
-            this.sliceEnd = bytes.size();
-
-            this.cursor = sliceStart;
+            
+            this.start = 0;
+            this.cursor = start;
+            this.end = bytes.size();
         }
         
         /**
@@ -435,11 +435,11 @@ public class LuceneAdapter {
             
             this.input = input;
 
-            assert cursor >= sliceStart && cursor <= sliceEnd;
+            assert sliceStart <= cursor && cursor < sliceEnd;
 
-            this.sliceStart = sliceStart;
+            this.start = sliceStart;
             this.cursor = cursor;
-            this.sliceEnd = sliceEnd;
+            this.end = sliceEnd;
         }
         
         @Override
@@ -447,12 +447,12 @@ public class LuceneAdapter {
 
         @Override
         public long getFilePointer() {
-            return cursor - sliceStart;
+            return cursor - start;
         }
 
         @Override
         public void seek(long pos) throws IOException {
-            if (pos + sliceStart > sliceEnd) {
+            if (pos + start > end) {
                 throw new EOFException();
             }
             
@@ -460,29 +460,29 @@ public class LuceneAdapter {
                 throw new IOException("SourceLocationIndexInput supports files up to MAX_INT bytes");
             }
             
-            cursor = (int) (pos + sliceStart);
+            cursor = (int) (pos + start);
         }
 
         @Override
         public long length() {
-            return sliceEnd - sliceStart;
+            return end - start;
         }
 
         @Override
         public IndexInput slice(String sliceDescription, long offset, long length) throws IOException {
-            if (offset + length > Integer.MAX_VALUE) {
+            if (offset + length > SourceLocationByteReader.MAX_ARRAY) {
                 throw new IOException("SourceLocationIndexInput supports files up to MAX_INT bytes");
             }
             
-            int newSliceStart = (int) (sliceStart + offset);
-            int newSliceEnd = (int) (sliceStart + offset + length);
+            int newSliceStart = (int) (start + offset);
+            int newSliceEnd = (int) (start + offset + length);
             
             return new SourceLocationIndexInput(sliceDescription, input, newSliceStart, newSliceStart, newSliceEnd);
         }
 
         @Override
         public byte readByte() throws IOException {
-            if (cursor > sliceEnd) {
+            if (cursor > end) {
                 throw new EOFException();
             }
             
@@ -491,7 +491,7 @@ public class LuceneAdapter {
 
         @Override
         public void readBytes(byte[] b, int offset, int len) throws IOException {
-            if (cursor + len > sliceEnd) {
+            if (cursor + len > end) {
                 throw new EOFException();
             }
             
@@ -503,7 +503,7 @@ public class LuceneAdapter {
         public IndexInput clone() {
             // cloned IndexInputs are never closed by Lucene, but since this InputStream does not keep any resources
             // open, it's not an issue. 
-            return new SourceLocationIndexInput(this.toString() + "-clone", input, sliceStart, cursor, sliceEnd);
+            return new SourceLocationIndexInput(this.toString() + "-clone", input, start, cursor, end);
         }
         
         /**
