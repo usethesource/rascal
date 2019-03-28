@@ -12,7 +12,6 @@
  */ 
 package org.rascalmpl.library.analysis.text;
 
-import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +19,7 @@ import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.nio.file.FileAlreadyExistsException;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -419,13 +419,12 @@ public class LuceneAdapter {
         public SourceLocationIndexInput(ISourceLocation src) throws IOException {
             super(src.toString());
             
-            try (AccessibleByteArrayOutputStream bytes = new AccessibleByteArrayOutputStream(src)) {
-                this.input = bytes.getByteArray();
-                this.sliceStart = 0;
-                this.sliceEnd = bytes.size();
-                
-                this.cursor = sliceStart;
-            }
+            SourceLocationByteReader bytes = new SourceLocationByteReader(src);
+            this.input = bytes.getByteArray();
+            this.sliceStart = 0;
+            this.sliceEnd = bytes.size();
+
+            this.cursor = sliceStart;
         }
         
         /**
@@ -508,26 +507,46 @@ public class LuceneAdapter {
         }
         
         /**
-         * This class reuses ByteArrayOutputStream to quickly read in the entire contents of an InputStream
-         * pointed to by an ISourceLocation. It offers a direct reference to the allocated byte[]. Don't share without care.
+         * This reads in the entire contents of an InputStream pointed to by an ISourceLocation. 
+         * It offers a direct reference to the allocated byte[]. Don't share without care.
          */
-        private static final class AccessibleByteArrayOutputStream extends ByteArrayOutputStream {
-            private static final int BUFFERSIZE = 8192;
+        private static final class SourceLocationByteReader {
+            private static final int MAX_ARRAY = Integer.MAX_VALUE - 8;
+            private static final int CHUNK_SIZE = 8192;
 
-            private AccessibleByteArrayOutputStream(ISourceLocation src) throws IOException {
-                super(BUFFERSIZE);
+            private byte buf[];
+            private int count;
+            
+            private SourceLocationByteReader(ISourceLocation src) throws IOException {
+                // initial buffer is twice the chunk size to avoid growing and copying the array after the first read
+                buf = new byte[CHUNK_SIZE << 1]; 
                 
                 try (InputStream in = URIResolverRegistry.getInstance().getInputStream(src)) {
-                    byte[] chunk = new byte[BUFFERSIZE];
                     int read;
-                    while ((read = in.read(chunk, 0, BUFFERSIZE)) != -1) {
-                        write(chunk, 0, read);
+                    while ((read = in.read(buf, count, CHUNK_SIZE)) != -1) {
+                        count += read;
+                        grow(count + CHUNK_SIZE);
                     }
+                }
+            }
+            
+            private void grow(int required) {
+                if (required < 0) {
+                    // due to overflow
+                    throw new OutOfMemoryError();
+                }
+                
+                if (required > buf.length) {
+                    buf = Arrays.copyOf(buf, Math.min(Math.max(required, buf.length << 1), MAX_ARRAY));
                 }
             }
             
             private byte[] getByteArray() {
                 return buf;
+            }
+            
+            private int size() {
+                return count;
             }
         }
     }
