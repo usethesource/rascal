@@ -10,25 +10,33 @@ public set[loc] programs = find(|home:///git/rascal/src/|, "pico");
 public set[loc] modules =  find(|home:///git/rascal/src/|, "rsc");
 
 void picoSearch(str term) {
-  remove(|home:///picoIndex|);
+  pi = |home:///picoIndex|;
   
-  pi = index(|home:///picoIndex|, analyzers={<"src", analyzer(identifierTokenizerFromGrammar(#start[Program]), [])>});
+  remove(pi);
   
-  createIndex(pi, {document(p) | p <- programs});
+  an = analyzer(identifierTokenizerFromGrammar(#start[Program]), []);
+  
+  docs = {document(p) | p <- programs};
+  
+  createIndex(pi, docs, analyzer=an);
   
   iprintln(searchIndex(pi, term));
 }
 
 void rascalIndex() {
-  remove(|home:///rascalIndex|);
+  pi = |home:///rascalIndex|;
   
-  pi = index(|home:///rascalIndex|, analyzers={<"src", analyzer(identifierTokenizerFromGrammar(#start[Module]), [lowerCaseFilter()])>});
+  remove(pi);
   
-  createIndex(pi, {document(p) | p <- modules});
+  an = analyzer(identifierTokenizerFromGrammar(#start[Module]), [lowerCaseFilter()]);
+  
+  docs = {document(p) | p <- modules};
+  
+  createIndex(pi, docs, analyzer=an);
 }
 
 void rascalSearch(str term) {
-  pi = index(|home:///rascalIndex|, analyzers={<"src", standardAnalyzer()>});
+  pi = |home:///rascalIndex|;
   
   iprintln(searchIndex(pi, term));
 }
