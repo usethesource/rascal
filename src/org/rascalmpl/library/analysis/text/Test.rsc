@@ -9,7 +9,7 @@ import IO;
 public set[loc] programs = find(|home:///git/rascal/src/|, "pico");
 public set[loc] modules =  find(|home:///git/rascal/src/|, "rsc");
 
-data Document(loc comments = |unknown:///|);
+data Document(loc comments = |unknown:///|, str extra = "");
 data Analyzer(Analyzer comments = standardAnalyzer());
 
 void picoSearch(str term) {
@@ -20,7 +20,7 @@ void picoSearch(str term) {
   an = analyzer(identifierTokenizerFromGrammar(#start[Program]), []);
   commentAnalyzer = analyzer(commentTokenizerFromGrammar(#start[Program]), [lowerCaseFilter()]);
   
-  docs = {document(p, comments=p) | p <- programs};
+  docs = {document(p, comments=p, extra="joepie") | p <- programs};
   
   createIndex(pi, docs, analyzer=fieldsAnalyzer(an, comments=commentAnalyzer));
   

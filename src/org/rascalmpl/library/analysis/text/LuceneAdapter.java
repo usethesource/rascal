@@ -145,17 +145,40 @@ public class LuceneAdapter {
             String loc = found.get(ID_FIELD_NAME);
             
             if (loc != null) {
-                IConstructor node = vf.constructor(docCons, valueParser.read(vf, new StringReader(loc)));
+                IConstructor node = vf.constructor(docCons, parseLocation(loc));
                 Map<String, IValue> params = new HashMap<>();
                 
                 params.put("score", vf.real(doc.score));
                 // TODO: put the other stored fields into the document, if any
+                
+                found.forEach((f) -> {
+                    String value = f.stringValue();
+                    String name = f.name();
+                    
+                    if (value != null && !name.equals(ID_FIELD_NAME)) {
+                        if (value.startsWith("|") && value.endsWith("|")) {
+                            try {
+                                params.put(name, parseLocation(value));
+                            }
+                            catch (IOException e) {
+                                params.put(name,  URIUtil.rootLocation("error"));
+                            }
+                        }
+                        else {
+                            params.put(name, vf.string(value));
+                        }
+                    }
+                });
                 
                 result.append(node.asWithKeywordParameters().setParameters(params));
             }
         }
         
         return result.done();
+    }
+
+    private IValue parseLocation(String loc) throws IOException {
+        return valueParser.read(vf, new StringReader(loc));
     }
 
     private IndexSearcher makeSearcher(ISourceLocation indexFolder) throws IOException {
