@@ -19,13 +19,14 @@ import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
 import java.nio.file.FileAlreadyExistsException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.lucene.analysis.Analyzer;
@@ -75,7 +76,6 @@ import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
-import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWithKeywordParameters;
@@ -109,12 +109,9 @@ public class LuceneAdapter {
         lockFactories = new HashMap<>();
     }
     
-    public void createIndex(IConstructor i, ISet documents) {
+    public void createIndex(ISourceLocation indexFolder, ISet documents, IConstructor analyzer) {
         try {
-            ISourceLocation indexFolder = (ISourceLocation) i.get("folder");
-            ISet analyzers = getAnalyzers(i);
-            Analyzer analyzer = makeFieldAnalyzer(analyzers);
-            IndexWriterConfig config = new IndexWriterConfig(analyzer);
+            IndexWriterConfig config = new IndexWriterConfig(makeAnalyzer(analyzer));
             SingleInstanceLockFactory lockFactory = makeLockFactory(indexFolder);
             Directory dir = makeDirectory(indexFolder, lockFactory);
 
@@ -131,27 +128,14 @@ public class LuceneAdapter {
         }
     }
 
-    private ISet getAnalyzers(IConstructor i) {
-        ISet result = (ISet) i.asWithKeywordParameters().getParameter("analyzers");
-        if (result == null) {
-            return vf.set();
-        }
-        else {
-            return result;
-        }
-    }
-
     private Directory makeDirectory(ISourceLocation indexFolder, SingleInstanceLockFactory lockFactory) throws IOException {
         return new SourceLocationDirectory(lockFactory, prelude, indexFolder);
     }
 
-    public IList searchIndex(IConstructor index, IString query, IInteger max) throws IOException, ParseException {
+    public IList searchIndex(ISourceLocation indexFolder, IString query, IConstructor analyzer, IInteger max) throws IOException, ParseException {
         // TODO the searcher should be cached on the indexFolder key
-        ISourceLocation indexFolder = (ISourceLocation) index.get("folder");
-        ISet analyzers = getAnalyzers(index);
         IndexSearcher searcher = makeSearcher(indexFolder);
-        
-        QueryParser parser = makeQueryParser(analyzers);
+        QueryParser parser = makeQueryParser(analyzer);
         Query queryExpression = parser.parse(query.getValue());
         TopDocs docs = searcher.search(queryExpression, max.intValue());
 
@@ -166,7 +150,6 @@ public class LuceneAdapter {
                 Map<String, IValue> params = new HashMap<>();
                 
                 params.put("score", vf.real(doc.score));
-                
                 // TODO: put the other stored fields into the document, if any
                 
                 result.append(node.asWithKeywordParameters().setParameters(params));
@@ -184,15 +167,10 @@ public class LuceneAdapter {
         return searcher;
     }
 
-    private MultiFieldQueryParser makeQueryParser(ISet analyzers) throws IOException {
-        Analyzer analyzer = makeFieldAnalyzer(analyzers);
-        
-        ArrayList<String> labels = new ArrayList<>(analyzers.size() + 1);
-        labels.add(ID_FIELD_NAME);
-        labels.add(SRC_FIELD_NAME);
-        analyzers.asRelation().project(0).forEach((s) -> labels.add(((IString) s).getValue()));
-        
-        return new MultiFieldQueryParser(labels.toArray(new String[labels.size()]), analyzer);
+    private MultiFieldQueryParser makeQueryParser(IConstructor analyzer) throws IOException {
+        Set<String> labels = analyzerFields(analyzer);
+        Analyzer a = makeAnalyzer(analyzer);
+        return new MultiFieldQueryParser(labels.toArray(new String[labels.size()]), a);
     }
     
     private SingleInstanceLockFactory makeLockFactory(ISourceLocation indexFolder) {
@@ -204,30 +182,49 @@ public class LuceneAdapter {
         return lockFactory;
     }
 
-    private Analyzer makeFieldAnalyzer(ISet analyzers) throws IOException {
+    private Set<String> analyzerFields(IConstructor node) {
+        Set<String> result = new HashSet<>();
+        result.add(ID_FIELD_NAME);
+        result.add(SRC_FIELD_NAME);
+        
+        if (node.getName().equals("fieldsAnalyzer")) {
+            result.addAll(node.asWithKeywordParameters().getParameterNames());
+        }
+        
+        return result;
+    }
+    
+    private Analyzer makeAnalyzer(IConstructor node) throws IOException {
+        switch (node.getName()) {
+            case "analyzerClass":
+                return analyzerFromClass(((IString) node.get("analyzerClassName")).getValue());
+            case "analyzer":
+                return makeFunctionAnalyzer((IConstructor) node.get("tokenizer"), (IList) node.get("filters"));
+            case "fieldsAnalyzer":
+                return makeFieldAnalyzer((IConstructor) node.get("src"), node.asWithKeywordParameters().getParameters());
+            default:
+                return new StandardAnalyzer();
+        }
+    }
+
+    private Analyzer makeFieldAnalyzer(IConstructor src, Map<String, IValue> analyzers) throws IOException {
+        return new PerFieldAnalyzerWrapper(new StandardAnalyzer(), makeFieldAnalyzers(src, analyzers));
+    }
+    
+    private Map<String, Analyzer> makeFieldAnalyzers(IConstructor src, Map<String, IValue> analyzers) throws IOException {
         Map<String, Analyzer> analyzerMap = new HashMap<>();
         
         analyzerMap.put(ID_FIELD_NAME, new KeywordAnalyzer());
+        analyzerMap.put(SRC_FIELD_NAME, makeAnalyzer(src));
 
-        for (IValue elem : analyzers) {
-            ITuple tup = (ITuple) elem;
-            String label = ((IString) tup.get(0)).getValue();
-            IConstructor node = (IConstructor) tup.get(1);
-
-            switch (node.getName()) {
-                case "analyzerClass":
-                    analyzerMap.put(label, analyzerFromClass(((IString) node.get("analyzerClassName")).getValue()));
-                    break;
-                case "analyzer":
-                    analyzerMap.put(label, makeAnalyzer((IConstructor) node.get("tokenizer"), (IList) node.get("filters")));
-                    break;
-            }
+        for (String label : analyzers.keySet()) {
+            analyzerMap.put(label, makeAnalyzer((IConstructor) analyzers.get(label)));
         }
         
-        return new PerFieldAnalyzerWrapper(new StandardAnalyzer(), analyzerMap);
+        return analyzerMap;
     }
 
-    private Analyzer makeAnalyzer(IConstructor tokenizer, IList filters) throws IOException {
+    private Analyzer makeFunctionAnalyzer(IConstructor tokenizer, IList filters) throws IOException {
          final Tokenizer tokens = makeTokenizer(tokenizer);
          TokenStream stream = tokens;
          
