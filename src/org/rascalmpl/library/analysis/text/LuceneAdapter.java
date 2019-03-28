@@ -149,24 +149,13 @@ public class LuceneAdapter {
                 Map<String, IValue> params = new HashMap<>();
                 
                 params.put("score", vf.real(doc.score));
-                // TODO: put the other stored fields into the document, if any
                 
                 found.forEach((f) -> {
                     String value = f.stringValue();
                     String name = f.name();
                     
                     if (value != null && !name.equals(ID_FIELD_NAME)) {
-                        if (value.startsWith("|") && value.endsWith("|")) {
-                            try {
-                                params.put(name, parseLocation(value));
-                            }
-                            catch (IOException e) {
-                                params.put(name,  URIUtil.rootLocation("error"));
-                            }
-                        }
-                        else {
-                            params.put(name, vf.string(value));
-                        }
+                        params.put(name, vf.string(value));
                     }
                 });
                 
