@@ -30,11 +30,11 @@ Tokenizer identifierTokenizerFromGrammar(type[&T <: Tree] grammar) = tokenizer(l
      return [term(input, 0, "entire input")];
 });
 
-@synopsis{Use a generated parser as a Lucene tokenizer, and collect only source code comments.}
-Tokenizer commentTokenizerFromGrammar(type[&T <: Tree] grammar) = tokenizer(list[str] (str input) {
+@synopsis{Use a generated parser as a Lucene tokenizer, and skip all keywords and punctuation.}
+Tokenizer commentTokenizerFromGrammar(type[&T <: Tree] grammar) = tokenizer(list[Term] (str input) {
    try {
      tr = parse(grammar, input, |lucene:///|, allowAmbiguity=true);
-     return [ term("<comment>", comment@\loc.offset, "<comment.prod.def>") | comment <- tokens(tr, isComment)];
+     return [ term(word, comment@\loc.offset, "<comment.prod.def>") | comment <- tokens(tr, isComment), /<word:[A-Za-z0-9]*>/ := "<comment>"];
    }
    catch ParseError(_):
      return [term(input, 0, "entire input")];

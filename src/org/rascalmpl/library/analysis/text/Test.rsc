@@ -9,18 +9,22 @@ import IO;
 public set[loc] programs = find(|home:///git/rascal/src/|, "pico");
 public set[loc] modules =  find(|home:///git/rascal/src/|, "rsc");
 
+data Document(loc comments = |unknown:///|);
+data Analyzer(Analyzer comments = standardAnalyzer());
+
 void picoSearch(str term) {
   pi = |home:///picoIndex|;
   
   remove(pi);
   
   an = analyzer(identifierTokenizerFromGrammar(#start[Program]), []);
+  commentAnalyzer = analyzer(commentTokenizerFromGrammar(#start[Program]), [lowerCaseFilter()]);
   
-  docs = {document(p) | p <- programs};
+  docs = {document(p, comments=p) | p <- programs};
   
-  createIndex(pi, docs, analyzer=an);
+  createIndex(pi, docs, analyzer=fieldsAnalyzer(an, comments=commentAnalyzer));
   
-  iprintln(searchIndex(pi, term));
+  iprintln(searchIndex(pi, term, analyzer=fieldsAnalyzer(standardAnalyzer(), comments=standardAnalyzer())));
 }
 
 void rascalIndex() {
