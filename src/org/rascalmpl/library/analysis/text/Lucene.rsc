@@ -23,12 +23,17 @@ Add as many keyword fields to a document as you want. They will be added to the 
 * fields of type `loc` will be indexed but not stored
 }
 data Document = document(loc src, int score=.0);
-  
+
 data Analyzer 
   = analyzerClass(str analyzerClassName) 
   | analyzer(Tokenizer tokenizer, list[Filter] filters)
   ;
-  
+
+@synopsis{A fieldsAnalyzer declares using keyword fields which Analyzers to use for which Document field.}
+data Analyzer  
+  = fieldsAnalyzer(Analyzer src) 
+  ;
+
 data Term = term(str chars, int offset, str kind);
     
 data Tokenizer
@@ -41,16 +46,13 @@ data Filter
   | filterClass(str filterClassName)
   ;  
 
-data Index = index(loc folder, rel[str field, Analyzer analyzer] analyzers = {<"src", standardAnalyzer()>});
-
-
 @javaClass{org.rascalmpl.library.analysis.text.LuceneAdapter}
 @synopsis{Creates a Lucene index at a given folder location from the given set of Documents, using a given set of text analyzers}
-java void createIndex(Index index, set[Document] documents);
+java void createIndex(loc index, set[Document] documents, Analyzer analyzer = standardAnalyzer());
 
 @javaClass{org.rascalmpl.library.analysis.text.LuceneAdapter}
 @synopsis{Searches a Lucene index indicated by the indexFolder by analyzing a query with a given set of text analyzers and then matching the query to the index.}
-java list[Document] searchIndex(Index index, str query, int max = 10);
+java list[Document] searchIndex(loc index, str query, Analyzer analyzer = standardAnalyzer(), int max = 10);
 
 
 Analyzer classicAnalyzer()    = analyzerClass("org.apache.lucene.analysis.standard.ClassicAnalyzer");
