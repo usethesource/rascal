@@ -12,6 +12,7 @@
  */ 
 package org.rascalmpl.library.analysis.text;
 
+import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,8 +24,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
@@ -397,7 +396,7 @@ public class LuceneAdapter {
     }
     
     /**
-     * Implements Lucene's index outputstreams as a facade to ISourceLocation outputstreams
+     * Implements Lucene's IndexOutput as a facade to ISourceLocation outputstreams
      */
     private static class SourceLocationIndexOutput extends OutputStreamIndexOutput {
         public SourceLocationIndexOutput(ISourceLocation src) throws IOException {
@@ -406,93 +405,46 @@ public class LuceneAdapter {
     }
     
     /**
-     * Implements Lucene's IndexInput as a facade to ISourceLocation InputStreams
-     * 
-     * TODO: this class is a performance hazard. Because IndexInput's have to support random access seeks,
-     * and the InputStreams that the URIResolverRegistry produces do not, we constantly re-open
-     * new InputStreams here to seek in the backwards direction. Also forward direction skipping in an InputStream
-     * is not completely stable because it is based on InputStream.skip()'s weak contract. Finally this class
-     * implements a `clone` method which also clones the current position of the inputstream, and makes the 
-     * underlying stream skip to that position, but at many call sites the next call would be to seek back
-     * to the start of the file.. so that would re-open yet another stream and make the previous seek for nothing.
-     * <br>
-     * <br>
-     * Perhaps it would be more efficient to: avoid wrappinh InputStreams altogether and use NIO via the URIResolverRegistry,
-     * and/or if that is not possible (for schemes that don't support NIO), use a byte array implementation of 
-     * IndexInput which uses the InputStreams of the URIResolverRegistry only to quickly suck in all the bytes.
-     * Cloned byte array implementations could share the byte[] array, saving a lot of time and memory as compared
-     * to the current implementation. The NIO implementation would presumably use memory mapped file access.
+     * Implements Lucene's IndexInput as a facade to ISourceLocation inputstreams which are sucked into a byte[] right away.
      */
     private static class SourceLocationIndexInput extends IndexInput {
-        private final List<SourceLocationIndexInput> myClones = new LinkedList<>();
-        private final ISourceLocation src;
-        private InputStream input;
-        private final long size;
-        private long cursor;
-        private final long sliceStart;
-        private final long sliceEnd;
-        private final Prelude prelude;
+        // TODO: the length of the input is now maxed out at MAX_INT due to the max size of arrays on the JVM.
+        // we should probably wrap the byte[] input to enable larger files.
+        private final byte[] input;
+        private final int sliceStart;
+        private final int sliceEnd;
         
-        public SourceLocationIndexInput(Prelude prelude, ISourceLocation src) throws IOException {
+        private int cursor;
+        
+        public SourceLocationIndexInput(ISourceLocation src) throws IOException {
             super(src.toString());
-            try {
-                this.src = src;
-                this.input = URIResolverRegistry.getInstance().getInputStream(src);
-                this.size = prelude.__getFileSize(src).longValue();
+            
+            try (AccessibleByteArrayOutputStream bytes = new AccessibleByteArrayOutputStream(src)) {
+                this.input = bytes.getByteArray();
                 this.sliceStart = 0;
-                this.sliceEnd = size;
-                this.prelude = prelude;
-                this.cursor = 0;
-            }
-            catch (URISyntaxException e) {
-                throw new IOException(e);
+                this.sliceEnd = bytes.size();
+                
+                this.cursor = sliceStart;
             }
         }
         
-        public SourceLocationIndexInput(Prelude prelude, String desc, ISourceLocation src, long sliceStart, long sliceLength, long size) throws IOException {
-            super(desc);
+        /**
+         * shares the backing array with the caller. So this constructor is for private use in `clone` and `slice` only.
+         */
+        private SourceLocationIndexInput(String name, byte[] input, int sliceStart, int cursor, int sliceEnd) {
+            super(name);
             
-            this.src = src;
-            this.input = URIResolverRegistry.getInstance().getInputStream(src);
+            this.input = input;
+
+            assert cursor >= sliceStart && cursor <= sliceEnd;
+
             this.sliceStart = sliceStart;
-            this.sliceEnd = sliceStart + sliceLength;
-            this.size = size;
-            this.prelude = prelude;
-            this.cursor = 0;
-            internalSkip(sliceStart);
+            this.cursor = cursor;
+            this.sliceEnd = sliceEnd;
         }
-
-        private void internalSkip(long count) throws IOException {
-            // TODO: this might not terminate on all InputStreams due to the InputStream.skip contract which may always return 0.
-            long target = cursor + count;
-            if (target > sliceEnd) {
-                throw new EOFException();
-            }
-            
-            while (cursor < target) {
-                 cursor += this.input.skip(target - cursor);
-            }
-        }
-
+        
         @Override
-        public void close() throws IOException {
-            IOException closeFailed = null;
-            
-            for (SourceLocationIndexInput clone : myClones) {
-                try {
-                    clone.close();
-                }
-                catch (IOException e) {
-                    closeFailed = e;
-                }
-            }
-            
-            input.close();
-            
-            if (closeFailed != null) {
-                throw closeFailed;
-            }
-        }
+        public void close() throws IOException { }
 
         @Override
         public long getFilePointer() {
@@ -505,19 +457,11 @@ public class LuceneAdapter {
                 throw new EOFException();
             }
             
-            if (pos + sliceStart == cursor) {
-                return;
+            if (pos > Integer.MAX_VALUE) {
+                throw new IOException("SourceLocationIndexInput supports files up to MAX_INT bytes");
             }
             
-            if (pos + sliceStart < cursor) {
-                input.close();
-                input = URIResolverRegistry.getInstance().getInputStream(src);
-                cursor = 0;
-                internalSkip(pos + sliceStart);
-            }
-            else {
-                internalSkip(pos + sliceStart - cursor);
-            }
+            cursor = (int) (pos + sliceStart);
         }
 
         @Override
@@ -527,17 +471,23 @@ public class LuceneAdapter {
 
         @Override
         public IndexInput slice(String sliceDescription, long offset, long length) throws IOException {
-            return new SourceLocationIndexInput(prelude, sliceDescription, src, offset + sliceStart, length, size);
+            if (offset + length > Integer.MAX_VALUE) {
+                throw new IOException("SourceLocationIndexInput supports files up to MAX_INT bytes");
+            }
+            
+            int newSliceStart = (int) (sliceStart + offset);
+            int newSliceEnd = (int) (sliceStart + offset + length);
+            
+            return new SourceLocationIndexInput(sliceDescription, input, newSliceStart, newSliceStart, newSliceEnd);
         }
 
         @Override
         public byte readByte() throws IOException {
-            int result = input.read();
-            if (result == -1) {
+            if (cursor > sliceEnd) {
                 throw new EOFException();
             }
-            cursor += 1;
-            return (byte) result;
+            
+            return input[cursor++];
         }
 
         @Override
@@ -546,34 +496,38 @@ public class LuceneAdapter {
                 throw new EOFException();
             }
             
-            while (len > 0) {
-                final int cnt = input.read(b, offset, len);
-                cursor += cnt;
-                if (cnt == -1) {
-                    throw new EOFException();
-                }
-                len -= cnt;
-                offset += cnt;
-              }
+            System.arraycopy(input, cursor, b, offset, len);
+            cursor += len;
         }
         
         @Override
         public IndexInput clone() {
-            try {
-                long cur = cursor - sliceStart;
-                SourceLocationIndexInput result = new SourceLocationIndexInput(prelude, this.toString() + "-clone", src, sliceStart, length(), size);
+            // cloned IndexInputs are never closed by Lucene, but since this InputStream does not keep any resources
+            // open, it's not an issue. 
+            return new SourceLocationIndexInput(this.toString() + "-clone", input, sliceStart, cursor, sliceEnd);
+        }
+        
+        /**
+         * This class reuses ByteArrayOutputStream to quickly read in the entire contents of an InputStream
+         * pointed to by an ISourceLocation. It offers a direct reference to the allocated byte[]. Don't share without care.
+         */
+        private static final class AccessibleByteArrayOutputStream extends ByteArrayOutputStream {
+            private static final int BUFFERSIZE = 8192;
+
+            private AccessibleByteArrayOutputStream(ISourceLocation src) throws IOException {
+                super(BUFFERSIZE);
                 
-                // TODO: this is a performance hazard, because at some call sites of .clone they seek(0) right after, which makes us re-allocate yet another InputStream.
-                // we might have a single level "seek stack" to collapse multiple consecutive seeks?
-                result.seek(cur);
-                
-                // "Warning: Lucene never closes cloned IndexInputs, it will only call close() on the original object."
-                // So, we keep a list of clones to close when we are closed.
-                myClones.add(result);
-                return result;
+                try (InputStream in = URIResolverRegistry.getInstance().getInputStream(src)) {
+                    byte[] chunk = new byte[BUFFERSIZE];
+                    int read;
+                    while ((read = in.read(chunk, 0, BUFFERSIZE)) != -1) {
+                        write(chunk, 0, read);
+                    }
+                }
             }
-            catch (IOException e) {
-                throw new RuntimeException(e);
+            
+            private byte[] getByteArray() {
+                return buf;
             }
         }
     }
@@ -661,7 +615,7 @@ public class LuceneAdapter {
 
         @Override
         public IndexInput openInput(String name, IOContext context) throws IOException {
-            return new SourceLocationIndexInput(prelude, location(name));
+            return new SourceLocationIndexInput(location(name));
         }
 
         @Override
