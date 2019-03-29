@@ -27,32 +27,37 @@ Analyzer  an = analyzer(identifierTokenizerFromGrammar(#start[Program]), []);
 // the second parses the program again, and lists all the tokens in source code comments, then maps them to lowercase.
 Analyzer  commentAnalyzer = analyzer(commentTokenizerFromGrammar(#start[Program]), [lowerCaseFilter()]);
   
-// the final analyzer analyses the extra field by splitting the words, mapping to lowercase and changing all a's to b's
-Analyzer  extraAnalyzer = analyzer(classicTokenizer(), [lowerCaseFilter(), \filter(abFilter)]);
+// the final analyzer analyses the extra field by splitting the words, and changing all a's to b's
+Analyzer  extraAnalyzer = analyzer(classicTokenizer(), [\filter(abFilter)]);
  
-loc pi = |tmp:///picoIndex|;
+// We combine the analyzers for the different fields with a `fieldsAnalyzer`. 
+// createIndex and searcIndex do not have access to default parameters (yet) since that is a
+// Rascal feature and not a vallang feature, so each field has to be set explicitly:
+Analyzer indexAnalyzer = fieldsAnalyzer(an, comments=commentAnalyzer, extra=extraAnalyzer);
+
+loc indexFolder = |tmp:///picoIndex|;
  
 void picoIndex() {
-  remove(pi);
+  // always start afresh (for testing purposes)
+  remove(indexFolder);
   
   docs = {document(p, comments=p, extra=extraWords[arbInt(size(extraWords))]) | p <- programs};
   
-  // createIndex does not have access to default parameters yet, so each field has to be set explicitly.
-  createIndex(pi, docs, analyzer=fieldsAnalyzer(an, comments=commentAnalyzer, extra=extraAnalyzer));
+  createIndex(indexFolder, docs, analyzer=indexAnalyzer);
 }
 
 void picoSearch(str term) {  
   println("\'<term>\' results in identifiers:"); 
-  iprintln(searchIndex(pi, "src:<term>", analyzer=fieldsAnalyzer(standardAnalyzer(), comments=standardAnalyzer())));
+  iprintln(searchIndex(indexFolder, "src:<term>"));
   
   println("\'<term>\' results in comments:");
-  iprintln(searchIndex(pi, "comments:<term>", analyzer=fieldsAnalyzer(standardAnalyzer(), comments=standardAnalyzer())));
+  iprintln(searchIndex(indexFolder, "comments:<term>"));
 }  
  
 void extraSearch() {
   searchAll = "<for (t <- extraWords) {><t> || <}>"[..-4];
   println("\'<searchAll>\' results in extra:");
-  iprintln(searchIndex(pi, searchAll, analyzer=fieldsAnalyzer(standardAnalyzer(), comments=standardAnalyzer())));
+  iprintln(searchIndex(indexFolder, "extra:(<searchAll>)", analyzer=fieldsAnalyzer(standardAnalyzer(), comments=standardAnalyzer())));
 }
 
 void main() {
