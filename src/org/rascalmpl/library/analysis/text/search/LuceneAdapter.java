@@ -44,17 +44,29 @@ import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
+import org.apache.lucene.index.FieldInfo;
+import org.apache.lucene.index.Fields;
 import org.apache.lucene.index.IndexFileNames;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
+import org.apache.lucene.index.LeafReader;
+import org.apache.lucene.index.LeafReaderContext;
+import org.apache.lucene.index.MultiFields;
+import org.apache.lucene.index.PostingsEnum;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.index.Terms;
+import org.apache.lucene.index.TermsEnum;
+import org.apache.lucene.index.TermsEnum.SeekStatus;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.BaseDirectory;
+import org.apache.lucene.store.ByteArrayDataInput;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.IOContext;
 import org.apache.lucene.store.IndexInput;
@@ -62,6 +74,8 @@ import org.apache.lucene.store.IndexOutput;
 import org.apache.lucene.store.LockFactory;
 import org.apache.lucene.store.OutputStreamIndexOutput;
 import org.apache.lucene.store.SingleInstanceLockFactory;
+import org.apache.lucene.util.BytesRef;
+import org.apache.lucene.util.BytesRefBuilder;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
@@ -73,6 +87,7 @@ import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
@@ -127,6 +142,47 @@ public class LuceneAdapter {
         }
     }
 
+    public ISet inspectTerms(ISourceLocation indexFolder, IString fieldName, IInteger max) throws IOException {
+        DirectoryReader reader = makeReader(indexFolder);
+        ISetWriter result = vf.setWriter();
+        Fields fields = MultiFields.getFields(reader);
+        
+        for (String label : fields) {
+            if (label.equals(fieldName.getValue())) {
+                Terms terms = fields.terms(label);
+                TermsEnum list = terms.iterator();
+                BytesRef bytes;
+                int countDown = max.intValue();
+
+                while ((bytes = list.next()) != null && countDown-- > 0) {
+                    IString val = vf.string(new String(bytes.bytes, bytes.offset, bytes.length, "UTF8"));
+                    IInteger freq = vf.integer(reader.totalTermFreq(new Term(label, bytes)));
+                    result.insert(vf.tuple(val, freq));
+                }
+            }
+        }
+        
+        return result.done();
+    }
+    
+    public ISet inspectFields(ISourceLocation indexFolder) throws IOException {
+        DirectoryReader reader = makeReader(indexFolder);
+        ISetWriter result = vf.setWriter();
+        
+        // str field, int docCount, int percentage
+        for (LeafReaderContext subReader : reader.leaves()) {
+            LeafReader sub = subReader.reader();
+            for (FieldInfo field : sub.getFieldInfos()) {
+                IString name = vf.string(field.name);
+                IInteger docCount = vf.integer(sub.getDocCount(field.name));
+                IInteger termCount = vf.integer(sub.getSumTotalTermFreq(field.name));
+                result.insert(vf.tuple(name, docCount, termCount));
+            }
+        }
+        
+        return result.done();
+    }
+    
     private Directory makeDirectory(ISourceLocation indexFolder, SingleInstanceLockFactory lockFactory) throws IOException {
         return new SourceLocationDirectory(lockFactory, prelude, indexFolder);
     }
@@ -171,11 +227,16 @@ public class LuceneAdapter {
     }
 
     private IndexSearcher makeSearcher(ISourceLocation indexFolder) throws IOException {
+        DirectoryReader reader = makeReader(indexFolder);
+        IndexSearcher searcher = new IndexSearcher(reader);
+        return searcher;
+    }
+
+    private DirectoryReader makeReader(ISourceLocation indexFolder) throws IOException {
         SingleInstanceLockFactory lockFactory = makeLockFactory(indexFolder);
         Directory dir = makeDirectory(indexFolder, lockFactory);
         DirectoryReader reader = DirectoryReader.open(dir);
-        IndexSearcher searcher = new IndexSearcher(reader);
-        return searcher;
+        return reader;
     }
 
     private MultiFieldQueryParser makeQueryParser(IConstructor analyzer) throws IOException {

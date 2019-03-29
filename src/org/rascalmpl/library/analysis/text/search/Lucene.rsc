@@ -55,10 +55,10 @@ java void createIndex(loc index, set[Document] documents, Analyzer analyzer = st
 java list[Document] searchIndex(loc index, str query, Analyzer analyzer = standardAnalyzer(), int max = 10);
 
 @javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
-java rel[str text, int rank, int frequency] inspectTerms(loc index, str field, int max = 10);
+java rel[str text, int frequency] inspectTerms(loc index, str field, int max = 10);
 
  @javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
-java rel[str field, int termCount, int percentage] inspectFields(loc index, str field); 
+java rel[str field, int docCount, int sumTotalTermFreq] inspectFields(loc index); 
 
 
 Analyzer classicAnalyzer()    = analyzerClass("org.apache.lucene.analysis.standard.ClassicAnalyzer");
