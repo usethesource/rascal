@@ -54,6 +54,12 @@ java void createIndex(loc index, set[Document] documents, Analyzer analyzer = st
 @synopsis{Searches a Lucene index indicated by the indexFolder by analyzing a query with a given set of text analyzers and then matching the query to the index.}
 java list[Document] searchIndex(loc index, str query, Analyzer analyzer = standardAnalyzer(), int max = 10);
 
+@javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
+java rel[str text, int rank, int frequency] inspectTerms(loc index, str field, int max = 10);
+
+ @javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
+java rel[str field, int termCount, int percentage] inspectFields(loc index, str field); 
+
 
 Analyzer classicAnalyzer()    = analyzerClass("org.apache.lucene.analysis.standard.ClassicAnalyzer");
 Analyzer simpleAnalyzer()     = analyzerClass("org.apache.lucene.analysis.core.SimpleAnalyzer");

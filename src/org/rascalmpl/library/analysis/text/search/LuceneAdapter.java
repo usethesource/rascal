@@ -272,7 +272,7 @@ public class LuceneAdapter {
             @Override
             public boolean incrementToken() throws IOException {
                 if (input.incrementToken()) {
-                    final IString token = vf.string(new String(termAtt.buffer()));
+                    final IString token = vf.string(new String(termAtt.buffer(), 0, termAtt.length()));
 
                     IString result = (IString) function.call(new Type[] { TypeFactory.getInstance().stringType() }, new IValue[] { token }, null).getValue();
 
@@ -280,7 +280,6 @@ public class LuceneAdapter {
                         termAtt.setEmpty();
                     }
                     else {
-                        termAtt.resizeBuffer(result.length());
                         char[] chars = result.getValue().toCharArray();
                         termAtt.copyBuffer(chars, 0, chars.length);
                     }
