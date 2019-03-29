@@ -1,6 +1,6 @@
-module analysis::text::StandardAnalyzers
+module analysis::text::search::StandardAnalyzers
 
-extend analysis::text::Lucene;
+extend analysis::text::search::Lucene;
 
 Analyzer arabic() = analyzerClass("org.apache.lucene.analysis.ar.ArabicAnalyzer");
 Analyzer armenian() = analyzerClass("org.apache.lucene.analysis.hy.ArmenianAnalyzer");
