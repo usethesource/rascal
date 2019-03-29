@@ -26,7 +26,7 @@ data Document = document(loc src, int score=.0);
 
 data Analyzer 
   = analyzerClass(str analyzerClassName) 
-  | analyzer(Tokenizer tokenizer, list[Filter] filters)
+  | analyzer(Tokenizer tokenizer, list[Filter] pipe)
   ;
 
 @synopsis{A fieldsAnalyzer declares using keyword fields which Analyzers to use for which Document field.}
