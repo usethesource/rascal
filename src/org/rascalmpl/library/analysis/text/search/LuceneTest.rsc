@@ -52,6 +52,10 @@ void picoSearch(str term) {
   
   println("\'<term>\' results in comments:");
   iprintln(searchIndex(indexFolder, "comments:<term>"));
+  
+  println("\'<term>\' results in extra:");
+  // make sure we use the same abFilter on the search query:
+  iprintln(searchIndex(indexFolder, "extra:<term>", analyzer=fieldsAnalyzer(an, extra=extraAnalyzer)));
 }  
  
 void extraSearch() {
