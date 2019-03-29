@@ -22,7 +22,7 @@ Add as many keyword fields to a document as you want. They will be added to the 
 * fields of type `str` will be stored and indexed as-is
 * fields of type `loc` will be indexed but not stored
 }
-data Document = document(loc src, int score=.0);
+data Document = document(loc src, real score=.0);
 
 data Analyzer 
   = analyzerClass(str analyzerClassName) 
