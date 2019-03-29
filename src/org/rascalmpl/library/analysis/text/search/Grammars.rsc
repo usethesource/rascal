@@ -1,6 +1,6 @@
-module analysis::text::Grammars
+module analysis::text::search::Grammars
 
-extend analysis::text::Lucene;
+extend analysis::text::search::Lucene;
 import ParseTree;
 import String;
 
