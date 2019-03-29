@@ -10,7 +10,7 @@ programmable weights for fields and the definition of similarity functions per d
 * This wrapper provides full abstraction over source locations. Both the directory of the index
 as well as the locations of input documents are expressed using any existing rascal `loc`. 
 }
-module analysis::text::Lucene
+module analysis::text::search::Lucene
 
 import IO;
 
@@ -46,11 +46,11 @@ data Filter
   | filterClass(str filterClassName)
   ;  
 
-@javaClass{org.rascalmpl.library.analysis.text.LuceneAdapter}
+@javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
 @synopsis{Creates a Lucene index at a given folder location from the given set of Documents, using a given set of text analyzers}
 java void createIndex(loc index, set[Document] documents, Analyzer analyzer = standardAnalyzer());
 
-@javaClass{org.rascalmpl.library.analysis.text.LuceneAdapter}
+@javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
 @synopsis{Searches a Lucene index indicated by the indexFolder by analyzing a query with a given set of text analyzers and then matching the query to the index.}
 java list[Document] searchIndex(loc index, str query, Analyzer analyzer = standardAnalyzer(), int max = 10);
 
