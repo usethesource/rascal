@@ -41,12 +41,14 @@ import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.Field.Store;
+import org.apache.lucene.document.FieldType;
 import org.apache.lucene.document.StringField;
 import org.apache.lucene.document.TextField;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.FieldInfo;
 import org.apache.lucene.index.Fields;
 import org.apache.lucene.index.IndexFileNames;
+import org.apache.lucene.index.IndexOptions;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.LeafReader;
@@ -56,17 +58,14 @@ import org.apache.lucene.index.PostingsEnum;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
-import org.apache.lucene.index.TermsEnum.SeekStatus;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.MatchAllDocsQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.BaseDirectory;
-import org.apache.lucene.store.ByteArrayDataInput;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.IOContext;
 import org.apache.lucene.store.IndexInput;
@@ -75,13 +74,13 @@ import org.apache.lucene.store.LockFactory;
 import org.apache.lucene.store.OutputStreamIndexOutput;
 import org.apache.lucene.store.SingleInstanceLockFactory;
 import org.apache.lucene.util.BytesRef;
-import org.apache.lucene.util.BytesRefBuilder;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
+import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
@@ -108,6 +107,7 @@ import io.usethesource.vallang.type.TypeStore;
 public class LuceneAdapter {
     private static final String SRC_FIELD_NAME = "src";
     private static final String ID_FIELD_NAME = "$id$";
+    private static final FieldType SOURCELOCATION_TYPE = makeSourceLocationType();
     private final IValueFactory vf;
     private final TypeFactory tf = TypeFactory.getInstance();
     private final Prelude prelude;
@@ -187,7 +187,7 @@ public class LuceneAdapter {
         return new SourceLocationDirectory(lockFactory, prelude, indexFolder);
     }
 
-    public IList searchIndex(ISourceLocation indexFolder, IString query, IConstructor analyzer, IInteger max) throws IOException, ParseException {
+    public IList searchIndex(ISourceLocation indexFolder, IString query, IConstructor analyzer, IInteger max, IBool spans) throws IOException, ParseException {
         // TODO the searcher should be cached on the indexFolder key
         IndexSearcher searcher = makeSearcher(indexFolder);
         QueryParser parser = makeQueryParser(analyzer);
@@ -199,12 +199,24 @@ public class LuceneAdapter {
         for (ScoreDoc doc : docs.scoreDocs) {
             org.apache.lucene.document.Document found = searcher.doc(doc.doc);
             String loc = found.get(ID_FIELD_NAME);
+            ISourceLocation sloc = parseLocation(loc);
             
             if (loc != null) {
-                IConstructor node = vf.constructor(docCons, parseLocation(loc));
+                Terms terms = searcher.getIndexReader().getTermVector(doc.doc, SRC_FIELD_NAME);
+                IListWriter offsets = vf.listWriter();
+                
+                TermsEnum it = terms.iterator();
+                PostingsEnum postings = it.postings(null, PostingsEnum.OFFSETS);
+                int pos;
+                while ((pos = postings.nextPosition()) != -1) {
+                    offsets.insert(vf.sourceLocation(sloc, pos, 1));
+                }
+                
+                IConstructor node = vf.constructor(docCons, sloc);
                 Map<String, IValue> params = new HashMap<>();
                 
                 params.put("score", vf.real(doc.score));
+                params.put("matches", offsets.done());
                 
                 found.forEach((f) -> {
                     String value = f.stringValue();
@@ -215,6 +227,7 @@ public class LuceneAdapter {
                     }
                 });
                 
+                
                 result.append(node.asWithKeywordParameters().setParameters(params));
             }
         }
@@ -222,8 +235,8 @@ public class LuceneAdapter {
         return result.done();
     }
 
-    private IValue parseLocation(String loc) throws IOException {
-        return valueParser.read(vf, new StringReader(loc));
+    private ISourceLocation parseLocation(String loc) throws IOException {
+        return (ISourceLocation) valueParser.read(vf, new StringReader(loc));
     }
 
     private IndexSearcher makeSearcher(ISourceLocation indexFolder) throws IOException {
@@ -444,7 +457,7 @@ public class LuceneAdapter {
         luceneDoc.add(idField);
         
         if (URIResolverRegistry.getInstance().exists(loc)) {
-            Field srcField = new Field(SRC_FIELD_NAME, prelude.readFile(loc).getValue(), TextField.TYPE_NOT_STORED);
+            Field srcField = new Field(SRC_FIELD_NAME, prelude.readFile(loc).getValue(), SOURCELOCATION_TYPE);
             luceneDoc.add(srcField);
         }
         
@@ -457,7 +470,7 @@ public class LuceneAdapter {
                 luceneDoc.add(new Field(label, ((IString) val).getValue() ,TextField.TYPE_STORED));
             }
             else if (val.getType().isSourceLocation()) {
-                luceneDoc.add(new Field(label, prelude.readFile((ISourceLocation) val).getValue(), TextField.TYPE_NOT_STORED));
+                luceneDoc.add(new Field(label, prelude.readFile((ISourceLocation) val).getValue(), SOURCELOCATION_TYPE));
             }
             else {
                 luceneDoc.add(new Field(label, val.toString() ,TextField.TYPE_STORED));
@@ -465,6 +478,17 @@ public class LuceneAdapter {
         }
 
         return luceneDoc;
+    }
+
+    private static FieldType makeSourceLocationType() {
+        FieldType sourceLocationType = new FieldType();
+        sourceLocationType.setStored(false);
+        sourceLocationType.setStoreTermVectors(true);
+        sourceLocationType.setStoreTermVectorPositions(true);
+        sourceLocationType.setStoreTermVectorOffsets(true);
+        sourceLocationType.setIndexOptions(IndexOptions.DOCS_AND_FREQS_AND_POSITIONS_AND_OFFSETS);
+        sourceLocationType.freeze();
+        return sourceLocationType;
     }
     
     /**

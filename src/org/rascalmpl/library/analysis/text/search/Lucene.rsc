@@ -22,7 +22,7 @@ Add as many keyword fields to a document as you want. They will be added to the 
 * fields of type `str` will be stored and indexed as-is
 * fields of type `loc` will be indexed but not stored
 }
-data Document = document(loc src, real score=.0);
+data Document = document(loc src, real score=.0, list[loc] matches = []);
 
 data Analyzer 
   = analyzerClass(str analyzerClassName) 
@@ -30,6 +30,11 @@ data Analyzer
   ;
 
 @synopsis{A fieldsAnalyzer declares using keyword fields which Analyzers to use for which Document field.}
+@description{
+The `src` parameter of `fieldsAnalyzer` aligns with the `src` parameter of a Document: this analyzer is used
+to analyze the `src` field. Any other keyword fields, of type `Analyzer` are applied to the contents of a
+`Document` keyword field of type `loc` or `str` with the same name. 
+}
 data Analyzer  
   = fieldsAnalyzer(Analyzer src) 
   ;
@@ -52,12 +57,14 @@ java void createIndex(loc index, set[Document] documents, Analyzer analyzer = st
 
 @javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
 @synopsis{Searches a Lucene index indicated by the indexFolder by analyzing a query with a given set of text analyzers and then matching the query to the index.}
-java list[Document] searchIndex(loc index, str query, Analyzer analyzer = standardAnalyzer(), int max = 10);
+java list[Document] searchIndex(loc index, str query, Analyzer analyzer = standardAnalyzer(), int max = 10, bool spans=true);
 
 @javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
+@synopsis{Inspect the terms stored in an index for debugging purposes (what did the analyzers do to the content of the documents?)}
 java rel[str text, int frequency] inspectTerms(loc index, str field, int max = 10);
 
  @javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
+@synopsis{Inspect the fields stored in an index for debugging purposes (which fields have been indexed, for how many documents, and how many terms?)}
 java rel[str field, int docCount, int sumTotalTermFreq] inspectFields(loc index); 
 
 
