@@ -209,21 +209,21 @@ public class LuceneAdapter {
             ISourceLocation sloc = parseLocation(loc);
             
             if (loc != null) {
-                Terms terms = searcher.getIndexReader().getTermVector(doc.doc, SRC_FIELD_NAME);
-                IListWriter offsets = vf.listWriter();
+//                Terms terms = searcher.getIndexReader().getTermVector(doc.doc, SRC_FIELD_NAME);
+//                IListWriter offsets = vf.listWriter();
                 
-                TermsEnum it = terms.iterator();
-                PostingsEnum postings = it.postings(null, PostingsEnum.OFFSETS);
-                int pos;
-                while ((pos = postings.nextPosition()) != -1) {
-                    offsets.insert(vf.sourceLocation(sloc, pos, 1));
-                }
+//                TermsEnum it = terms.iterator();
+//                PostingsEnum postings = it.postings(null, PostingsEnum.OFFSETS);
+//                int pos;
+//                while ((pos = postings.nextPosition()) != -1) {
+//                    offsets.insert(vf.sourceLocation(sloc, pos, 1));
+//                }
                 
                 IConstructor node = vf.constructor(docCons, sloc);
                 Map<String, IValue> params = new HashMap<>();
                 
                 params.put("score", vf.real(doc.score));
-                params.put("matches", offsets.done());
+//                params.put("matches", offsets.done());
                 
                 found.forEach((f) -> {
                     String value = f.stringValue();
@@ -347,6 +347,8 @@ public class LuceneAdapter {
                 return makeSplitFilter(stream, ((ICallableValue) node.get("splitter")));
             case "synonymFilter":
                 return makeSynonymFilter(stream, ((ICallableValue) node.get("generator")));
+            case "tagFilter":
+                return makeTagFilter(stream, ((ICallableValue) node.get("generator")));    
             
             default:
                 throw new IllegalArgumentException();
@@ -371,6 +373,38 @@ public class LuceneAdapter {
                         else {
                             char[] chars = result.getValue().toCharArray();
                             termAtt.copyBuffer(chars, 0, chars.length);
+                        }
+                    }
+                    catch (MatchFailed e) {
+                        // that's ok. case missed
+                    }
+
+                    return true;
+                } 
+                else {
+                    return false;
+                }
+            }
+        };
+    }
+    
+    private TokenStream makeTagFilter(TokenStream stream, ICallableValue function) {
+        return new TokenFilter(stream) {
+            private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
+            private final TypeAttribute typeAtt = addAttribute(TypeAttribute.class);
+            
+            @Override
+            public boolean incrementToken() throws IOException {
+                if (input.incrementToken()) {
+                    final IString token = vf.string(new String(termAtt.buffer(), 0, termAtt.length()));
+                    final IString tag = vf.string(typeAtt.type());
+                    
+                    try {
+                        Type str = TypeFactory.getInstance().stringType();
+                        IString result = (IString) function.call(new Type[] { str, str }, new IValue[] { token, tag }, null).getValue();
+
+                        if (result.length() != 0) {
+                            typeAtt.setType(result.getValue());
                         }
                     }
                     catch (MatchFailed e) {
