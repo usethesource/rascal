@@ -25,7 +25,7 @@ Add as many keyword fields to a document as you want. They will be added to the 
 data Document = document(loc src, real score=.0);
 
 data Analyzer 
-  = analyzerClass(str analyzerClassName) 
+  = analyzerClass(str analyzerClassName)
   | analyzer(Tokenizer tokenizer, list[Filter] pipe)
   ;
 
@@ -51,6 +51,7 @@ data Filter
   | \removeFilter(bool (str term) accept)          // only accept certain terms and remove the others
   | \splitFilter(list[str] (str term) splitter)    // split a term into several (sequentially positioned) terms, replacing the original term
   | \synonymFilter(list[str] (str term) generator) // introduce alternative terms at the same position in the input stream, replacing the original term
+  | \tagFilter(str (str term, str current) tagger) // tag a term with a new type tag/category
   | filterClass(str filterClassName)               // use an existing filterclass (if it has a nullary constructor)
   ;  
 
