@@ -3,7 +3,6 @@ module analysis::text::search::LuceneTest
 import analysis::text::search::Grammars;
 
 import lang::pico::\syntax::Main;
-import lang::rascal::\syntax::Rascal;
 import util::FileSystem;
 import IO;
 import List;
@@ -19,6 +18,10 @@ str abFilter(str token) = visit(token) {
   case /a/ => "b"
 };
 
+bool utFilter(str token) = "ut" != token;
+
+list[str] lauSplitDanda("laudanda") = ["lau", "danda"]; 
+
 list[str] extraWords = ["ut", "desint", "vires", "tamen", "est", "laudanda", "voluntas"];
 
 // the first analyzer is for the `src` document, parser the program and extracts all identifiers
@@ -28,7 +31,7 @@ Analyzer  an = analyzer(identifierTokenizerFromGrammar(#start[Program]), []);
 Analyzer  commentAnalyzer = analyzer(commentTokenizerFromGrammar(#start[Program]), [lowerCaseFilter()]);
   
 // the final analyzer analyses the extra field by splitting the words, and changing all a's to b's
-Analyzer  extraAnalyzer = analyzer(classicTokenizer(), [\filter(abFilter)]);
+Analyzer  extraAnalyzer = analyzer(classicTokenizer(), [ splitFilter(lauSplitDanda), \editFilter(abFilter), removeFilter(utFilter)]);
  
 // We combine the analyzers for the different fields with a `fieldsAnalyzer`. 
 // createIndex and searcIndex do not have access to default parameters (yet) since that is a
@@ -41,7 +44,7 @@ void picoIndex() {
   // always start afresh (for testing purposes)
   remove(indexFolder);
   
-  docs = {document(p, comments=p, extra=extraWords[arbInt(size(extraWords))]) | p <- programs};
+  docs = {document(p, comments=p, extra="<for (w <- extraWords) {><w> <}>"[..-1]) | p <- programs};
   
   createIndex(indexFolder, docs, analyzer=indexAnalyzer);
 }
@@ -63,6 +66,8 @@ void extraSearch() {
   println("\'<searchAll>\' results in extra:");
   iprintln(searchIndex(indexFolder, "extra:(<searchAll>)", analyzer=fieldsAnalyzer(standardAnalyzer(), comments=standardAnalyzer())));
 }
+
+test bool extraTermsTest() = inspectTerms(indexFolder, "extra") != {};
 
 void main() {
   picoIndex();

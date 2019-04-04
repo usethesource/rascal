@@ -24,11 +24,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.FilteringTokenFilter;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Tokenizer;
@@ -37,6 +40,7 @@ import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
+import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -74,6 +78,7 @@ import org.apache.lucene.store.LockFactory;
 import org.apache.lucene.store.OutputStreamIndexOutput;
 import org.apache.lucene.store.SingleInstanceLockFactory;
 import org.apache.lucene.util.BytesRef;
+import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
 import org.rascalmpl.interpreter.result.ICallableValue;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
@@ -150,6 +155,10 @@ public class LuceneAdapter {
         for (String label : fields) {
             if (label.equals(fieldName.getValue())) {
                 Terms terms = fields.terms(label);
+                
+                if (terms == null) {
+                    continue;
+                }
                 TermsEnum list = terms.iterator();
                 BytesRef bytes;
                 int countDown = max.intValue();
@@ -332,14 +341,21 @@ public class LuceneAdapter {
         switch (node.getName()) {
             case "filterClass":
                 return filterFromClass(stream, ((IString) node.get("filterClassName")).getValue());
-            case "filter":
-                return makeFilter(stream, ((ICallableValue) node.get("filterFunction")));
+            case "editFilter":
+                return makeEditFilter(stream, ((ICallableValue) node.get("editor")));
+            case "removeFilter":
+                return makeRemoveFilter(stream, ((ICallableValue) node.get("accept")));
+            case "splitFilter":
+                return makeSplitFilter(stream, ((ICallableValue) node.get("splitter")));
+            case "synonymFilter":
+                return makeSynonymFilter(stream, ((ICallableValue) node.get("generator")));
+            
             default:
                 throw new IllegalArgumentException();
         }
     }
 
-    private TokenStream makeFilter(TokenStream stream, ICallableValue function) {
+    private TokenStream makeEditFilter(TokenStream stream, ICallableValue function) {
         return new TokenFilter(stream) {
             private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
             
@@ -348,14 +364,19 @@ public class LuceneAdapter {
                 if (input.incrementToken()) {
                     final IString token = vf.string(new String(termAtt.buffer(), 0, termAtt.length()));
 
-                    IString result = (IString) function.call(new Type[] { TypeFactory.getInstance().stringType() }, new IValue[] { token }, null).getValue();
+                    try {
+                        IString result = (IString) function.call(new Type[] { TypeFactory.getInstance().stringType() }, new IValue[] { token }, null).getValue();
 
-                    if (result.length() == 0) {
-                        termAtt.setEmpty();
+                        if (result.length() == 0) {
+                            termAtt.setEmpty();
+                        }
+                        else {
+                            char[] chars = result.getValue().toCharArray();
+                            termAtt.copyBuffer(chars, 0, chars.length);
+                        }
                     }
-                    else {
-                        char[] chars = result.getValue().toCharArray();
-                        termAtt.copyBuffer(chars, 0, chars.length);
+                    catch (MatchFailed e) {
+                        // that's ok. case missed
                     }
 
                     return true;
@@ -363,6 +384,133 @@ public class LuceneAdapter {
                 else {
                     return false;
                 }
+            }
+        };
+    }
+    
+    private TokenStream makeRemoveFilter(TokenStream stream, ICallableValue function) {
+        return new FilteringTokenFilter(stream) {
+            private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
+            
+            @Override
+            protected boolean accept() throws IOException {
+                final IString token = vf.string(new String(termAtt.buffer(), 0, termAtt.length()));
+
+                try {
+                    IBool result = (IBool) function.call(new Type[] { TypeFactory.getInstance().stringType() }, new IValue[] { token }, null).getValue();
+                    return result.getValue();
+                }
+                catch (MatchFailed e) {
+                    // that's ok, case missed
+                    // simply accept token in case of issues.
+                    return true;
+                }
+            }
+        };
+    }
+    
+    private TokenStream makeSplitFilter(TokenStream stream, ICallableValue function) {
+        return new TokenFilter(stream) {
+            private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
+            private PositionIncrementAttribute posAttr = addAttribute(PositionIncrementAttribute.class);
+            private OffsetAttribute offsetAttr = getAttribute(OffsetAttribute.class);
+            private int offset = 0;
+            private IList backLog;
+            
+            @Override
+            public boolean incrementToken() throws IOException {
+                if (backLog != null && !backLog.isEmpty()) {
+                    popOneTerm(1);
+                    return true;
+                }
+                
+                if (input.incrementToken()) {
+                    final IString token = vf.string(new String(termAtt.buffer(), 0, termAtt.length()));
+
+                    try {
+                        backLog = (IList) function.call(new Type[] { TypeFactory.getInstance().stringType() }, new IValue[] { token }, null).getValue();
+                        
+                        if (backLog.length() > 0) {
+                            offset = offsetAttr.startOffset();
+                            popOneTerm(1);
+                        }
+                        else {
+                            // do nothing, something went wrong
+                            return true;
+                        }
+                    }
+                    catch (MatchFailed e) {
+                        // that's ok, case missed
+                        return true; // simply copy token
+                    }
+                    
+                    return true;
+                } 
+                else {
+                    return false;
+                }
+            }
+
+            private void popOneTerm(int distance) {
+                IString newTerm = (IString) backLog.get(0);
+                backLog = backLog.delete(0);
+                char[] charArray = newTerm.getValue().toCharArray();
+                int len = charArray.length;
+                termAtt.resizeBuffer(len);
+                termAtt.copyBuffer(charArray, 0, len);
+                offsetAttr.setOffset(offset, len + offset);
+                offset += len;
+                posAttr.setPositionIncrement(distance);
+            }
+        };
+    }
+    
+    private TokenStream makeSynonymFilter(TokenStream stream, ICallableValue function) {
+        return new TokenFilter(stream) {
+            private final CharTermAttribute termAtt = addAttribute(CharTermAttribute.class);
+            private PositionIncrementAttribute posAttr = addAttribute(PositionIncrementAttribute.class);
+            private IList backLog;
+            
+            @Override
+            public boolean incrementToken() throws IOException {
+                if (backLog != null && !backLog.isEmpty()) {
+                    popOneTerm(0);
+                    return true;
+                }
+                
+                if (input.incrementToken()) {
+                    final IString token = vf.string(new String(termAtt.buffer(), 0, termAtt.length()));
+
+                    try {
+                        backLog = (IList) function.call(new Type[] { TypeFactory.getInstance().stringType() }, new IValue[] { token }, null).getValue();
+                        
+                        if (backLog.length() > 0) {
+                            popOneTerm(1);
+                        }
+                        else {
+                            // do nothing, something went wrong
+                            return true;
+                        }
+                    }
+                    catch (MatchFailed e) {
+                        // that's ok, case missed
+                        return true; // simply copy token
+                    }
+                    
+                    return true;
+                } 
+                else {
+                    return false;
+                }
+            }
+
+            private void popOneTerm(int distance) {
+                IString newTerm = (IString) backLog.get(0);
+                backLog = backLog.delete(0);
+                char[] charArray = newTerm.getValue().toCharArray();
+                termAtt.resizeBuffer(charArray.length);
+                termAtt.copyBuffer(charArray, 0, charArray.length);
+                posAttr.setPositionIncrement(distance);
             }
         };
     }
