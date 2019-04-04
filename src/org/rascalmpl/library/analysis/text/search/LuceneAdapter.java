@@ -209,21 +209,10 @@ public class LuceneAdapter {
             ISourceLocation sloc = parseLocation(loc);
             
             if (loc != null) {
-//                Terms terms = searcher.getIndexReader().getTermVector(doc.doc, SRC_FIELD_NAME);
-//                IListWriter offsets = vf.listWriter();
-                
-//                TermsEnum it = terms.iterator();
-//                PostingsEnum postings = it.postings(null, PostingsEnum.OFFSETS);
-//                int pos;
-//                while ((pos = postings.nextPosition()) != -1) {
-//                    offsets.insert(vf.sourceLocation(sloc, pos, 1));
-//                }
-                
                 IConstructor node = vf.constructor(docCons, sloc);
                 Map<String, IValue> params = new HashMap<>();
                 
                 params.put("score", vf.real(doc.score));
-//                params.put("matches", offsets.done());
                 
                 found.forEach((f) -> {
                     String value = f.stringValue();
