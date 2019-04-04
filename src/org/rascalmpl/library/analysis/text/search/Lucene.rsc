@@ -22,7 +22,7 @@ Add as many keyword fields to a document as you want. They will be added to the 
 * fields of type `str` will be stored and indexed as-is
 * fields of type `loc` will be indexed but not stored
 }
-data Document = document(loc src, real score=.0, list[loc] matches = []);
+data Document = document(loc src, real score=.0);
 
 data Analyzer 
   = analyzerClass(str analyzerClassName) 
@@ -60,7 +60,7 @@ java void createIndex(loc index, set[Document] documents, Analyzer analyzer = st
 
 @javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
 @synopsis{Searches a Lucene index indicated by the indexFolder by analyzing a query with a given set of text analyzers and then matching the query to the index.}
-java list[Document] searchIndex(loc index, str query, Analyzer analyzer = standardAnalyzer(), int max = 10, bool spans=true);
+java list[Document] searchIndex(loc index, str query, Analyzer analyzer = standardAnalyzer(), int max = 10);
 
 @javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
 @synopsis{Inspect the terms stored in an index for debugging purposes (what did the analyzers do to the content of the documents?)}

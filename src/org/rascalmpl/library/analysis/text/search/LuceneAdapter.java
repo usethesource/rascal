@@ -194,7 +194,7 @@ public class LuceneAdapter {
         return new SourceLocationDirectory(lockFactory, prelude, indexFolder);
     }
 
-    public IList searchIndex(ISourceLocation indexFolder, IString query, IConstructor analyzer, IInteger max, IBool spans) throws IOException, ParseException {
+    public IList searchIndex(ISourceLocation indexFolder, IString query, IConstructor analyzer, IInteger max) throws IOException, ParseException {
         // TODO the searcher should be cached on the indexFolder key
         IndexSearcher searcher = makeSearcher(indexFolder);
         QueryParser parser = makeQueryParser(analyzer);
