@@ -47,8 +47,11 @@ data Tokenizer
   ;
   
 data Filter
-  = \filter(str (str term) filterFunction)
-  | filterClass(str filterClassName)
+  = \editFilter(str (str term) editor)             // replace terms with other terms
+  | \removeFilter(bool (str term) accept)          // only accept certain terms and remove the others
+  | \splitFilter(list[str] (str term) splitter)    // split a term into several (sequentially positioned) terms, replacing the original term
+  | \synonymFilter(list[str] (str term) generator) // introduce alternative terms at the same position in the input stream, replacing the original term
+  | filterClass(str filterClassName)               // use an existing filterclass (if it has a nullary constructor)
   ;  
 
 @javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
