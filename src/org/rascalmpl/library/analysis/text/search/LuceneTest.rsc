@@ -25,18 +25,18 @@ list[str] lauSplitDanda("laudanda") = ["lau", "danda"];
 list[str] extraWords = ["ut", "desint", "vires", "tamen", "est", "laudanda", "voluntas"];
 
 // the first analyzer is for the `src` document, parser the program and extracts all identifiers
-Analyzer  an = analyzer(identifierTokenizerFromGrammar(#start[Program]), []);
+Analyzer  an() = analyzer(identifierTokenizerFromGrammar(#start[Program]), []);
   
 // the second parses the program again, and lists all the tokens in source code comments, then maps them to lowercase.
-Analyzer  commentAnalyzer = analyzer(commentTokenizerFromGrammar(#start[Program]), [lowerCaseFilter()]);
+Analyzer  commentAnalyzer() = analyzer(commentTokenizerFromGrammar(#start[Program]), [lowerCaseFilter()]);
   
 // the final analyzer analyses the extra field by splitting the words, and changing all a's to b's
-Analyzer  extraAnalyzer = analyzer(classicTokenizer(), [ splitFilter(lauSplitDanda), \editFilter(abFilter), removeFilter(utFilter)]);
+Analyzer  extraAnalyzer() = analyzer(classicTokenizer(), [ splitFilter(lauSplitDanda), \editFilter(abFilter), removeFilter(utFilter)]);
  
 // We combine the analyzers for the different fields with a `fieldsAnalyzer`. 
 // createIndex and searcIndex do not have access to default parameters (yet) since that is a
 // Rascal feature and not a vallang feature, so each field has to be set explicitly:
-Analyzer indexAnalyzer = fieldsAnalyzer(an, comments=commentAnalyzer, extra=extraAnalyzer);
+Analyzer indexAnalyzer() = fieldsAnalyzer(an(), comments=commentAnalyzer(), extra=extraAnalyzer());
 
 loc indexFolder = |tmp:///picoIndex|;
  
@@ -46,7 +46,7 @@ void picoIndex() {
   
   docs = {document(p, comments=p, extra="<for (w <- extraWords) {><w> <}>"[..-1]) | p <- programs};
   
-  createIndex(indexFolder, docs, analyzer=indexAnalyzer);
+  createIndex(indexFolder, docs, analyzer=indexAnalyzer());
 }
 
 void picoSearch(str term) {  
@@ -58,7 +58,7 @@ void picoSearch(str term) {
   
   println("\'<term>\' results in extra:");
   // make sure we use the same abFilter on the search query:
-  iprintln(searchIndex(indexFolder, "extra:<term>", analyzer=fieldsAnalyzer(an, extra=extraAnalyzer)));
+  iprintln(searchIndex(indexFolder, "extra:<term>", analyzer=fieldsAnalyzer(an(), extra=extraAnalyzer())));
 }  
  
 void extraSearch() {

@@ -15,6 +15,7 @@ package org.rascalmpl.library.analysis.text.search;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URISyntaxException;
@@ -56,7 +57,6 @@ import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.LeafReader;
 import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.index.MultiFields;
-import org.apache.lucene.index.PostingsEnum;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.Terms;
 import org.apache.lucene.index.TermsEnum;
@@ -67,6 +67,7 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.store.BaseDirectory;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.IOContext;
@@ -116,8 +117,13 @@ public class LuceneAdapter {
     private final Prelude prelude;
     private final Map<ISourceLocation, SingleInstanceLockFactory> lockFactories;
     private final TypeStore store = new TypeStore();
+    
     private final Type Document = tf.abstractDataType(store, "Document");
     private final Type docCons = tf.constructor(store, Document, "document", tf.sourceLocationType(), "src");
+    
+    private final Type Term = tf.abstractDataType(store, "Term"); // str chars, int offset, str kind
+    private final Type termCons = tf.constructor(store, Term, "term", tf.stringType(), "chars", tf.sourceLocationType(), "src", tf.stringType(), "kind");
+    
     private final StandardTextReader valueParser = new StandardTextReader();
     
     public LuceneAdapter(IValueFactory vf) {
@@ -145,7 +151,7 @@ public class LuceneAdapter {
         }
     }
 
-    public ISet inspectTerms(ISourceLocation indexFolder, IString fieldName, IInteger max) throws IOException {
+    public ISet listTerms(ISourceLocation indexFolder, IString fieldName, IInteger max) throws IOException {
         DirectoryReader reader = makeReader(indexFolder);
         ISetWriter result = vf.setWriter();
         Fields fields = MultiFields.getFields(reader);
@@ -172,7 +178,7 @@ public class LuceneAdapter {
         return result.done();
     }
     
-    public ISet inspectFields(ISourceLocation indexFolder) throws IOException {
+    public ISet listFields(ISourceLocation indexFolder) throws IOException {
         DirectoryReader reader = makeReader(indexFolder);
         ISetWriter result = vf.setWriter();
         
@@ -194,6 +200,62 @@ public class LuceneAdapter {
         return new SourceLocationDirectory(lockFactory, prelude, indexFolder);
     }
 
+    public IList highlightDocument(ISourceLocation doc, IString query, IConstructor analyzer) throws IOException, ParseException {
+        try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(doc)) {
+            TokenStream tokenStream = makeAnalyzer(analyzer).tokenStream(SRC_FIELD_NAME, reader);
+            QueryParser parser = makeQueryParser(analyzer);
+            Query queryExpression = parser.parse(query.getValue());
+            QueryScorer scorer = new QueryScorer(queryExpression);
+            TokenStream newTokenStream = scorer.init(tokenStream);
+            
+            if (newTokenStream != null) {
+                tokenStream = newTokenStream;
+            }
+           
+            OffsetAttribute offsetAttribute = tokenStream.addAttribute(OffsetAttribute.class);
+            IListWriter result = vf.listWriter();
+
+            tokenStream.reset();
+            while (tokenStream.incrementToken()) {
+                if (scorer.getFragmentScore() > 0) {
+                    int startOffset = offsetAttribute.startOffset();
+                    int endOffset = offsetAttribute.endOffset();
+                    result.append(vf.sourceLocation(doc, startOffset, endOffset - startOffset));
+                }
+            }
+
+            return result.done();
+        }
+    }
+    
+    public IList analyzeDocument(IString doc, IConstructor analyzer) throws IOException {
+        return analyzeDocument(URIUtil.rootLocation("string"), new StringReader(doc.getValue()), analyzer);
+    }
+    
+    public IList analyzeDocument(ISourceLocation doc, IConstructor analyzer) throws IOException {
+        try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(doc)) {
+            return analyzeDocument(doc, reader, analyzer);
+        }
+    }
+    
+    private IList analyzeDocument(ISourceLocation src, Reader doc, IConstructor analyzer) throws IOException {
+        Analyzer theAnalyzer = makeAnalyzer(analyzer);
+        
+        TokenStream tokenStream = theAnalyzer.tokenStream(SRC_FIELD_NAME, doc);
+        OffsetAttribute offsetAttribute = tokenStream.addAttribute(OffsetAttribute.class);
+        CharTermAttribute termAtt = tokenStream.addAttribute(CharTermAttribute.class);
+        TypeAttribute typeAtt = tokenStream.addAttribute(TypeAttribute.class);
+        IListWriter result = vf.listWriter();
+        
+        tokenStream.reset();
+        while (tokenStream.incrementToken()) {
+            int startOffset = offsetAttribute.startOffset();
+            result.append(vf.constructor(termCons, vf.string(termAtt.toString()), vf.sourceLocation(src, startOffset, termAtt.length()), vf.string(typeAtt.type())));
+        }
+        
+        return result.done();
+    }
+    
     public IList searchIndex(ISourceLocation indexFolder, IString query, IConstructor analyzer, IInteger max) throws IOException, ParseException {
         // TODO the searcher should be cached on the indexFolder key
         IndexSearcher searcher = makeSearcher(indexFolder);
@@ -565,8 +627,14 @@ public class LuceneAdapter {
             public boolean incrementToken() throws IOException {
                 if (result == null) {
                     IString parameter = vf.string(Prelude.consumeInputStream(input));
-                    IList terms = (IList) function.call(new Type[] { tf.stringType() }, new IValue[] { parameter }, null).getValue();
-                    result = terms.iterator();
+                    try {
+                        IList terms = (IList) function.call(new Type[] { tf.stringType() }, new IValue[] { parameter }, null).getValue();
+                        result = terms.iterator();
+                    }
+                    catch (Throwable e) {
+                        // the parsing call back failed. TODO: report this but the code should be robust.
+                        result = vf.list(vf.constructor(termCons, parameter, vf.sourceLocation(URIUtil.rootLocation("error"), 0, parameter.length()), vf.string("parse-error"))).iterator();
+                    }
                 }
                 
                 if (result.hasNext()) {
@@ -575,7 +643,7 @@ public class LuceneAdapter {
                     termAtt.copyBuffer(token, 0, token.length);
                     termAtt.setLength(token.length);
                     typeAtt.setType(((IString) termCons.get(2)).getValue());
-                    int start = ((IInteger) termCons.get(1)).intValue();
+                    int start = ((ISourceLocation) termCons.get(1)).getOffset();
                     offsetAtt.setOffset(start, start + token.length);
                     return true;
                 }
