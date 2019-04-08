@@ -91,7 +91,7 @@ test bool extraTermsTest() = listTerms(indexFolder, "extra") == {
 
 test bool identifierTest() = document(loc l) <- searchIndex(indexFolder, "src:repnr") && l == |std:///demo/lang/Pico/programs/Fac.pico|;
 test bool analyzerTest1() = size(analyzeDocument(|std:///demo/lang/Pico/programs/Fac.pico|, analyzer=an())) == 25;
-test bool analyzerTest2() = size(analyzeDocument(|std:///demo/lang/Pico/programs/Fac.pico|, analyzer=commentAnalyzer())) == 3;
+test bool analyzerTest2() = size(analyzeDocument(|std:///demo/lang/Pico/programs/Fac.pico|, analyzer=commentAnalyzer())) == 7;
 test bool searchDocTest1() = size(searchDocument(|std:///demo/lang/Pico/programs/Fac.pico|, "repnr", analyzer=an())) == 5;
 test bool searchDocTest2() = size(searchDocument(|std:///demo/lang/Pico/programs/Fac.pico|, "repnr", analyzer=commentAnalyzer())) == 0;
 test bool searchDocTest3() = size(searchDocument(|std:///demo/lang/Pico/programs/Fac.pico|, "check", analyzer=commentAnalyzer())) == 1;
