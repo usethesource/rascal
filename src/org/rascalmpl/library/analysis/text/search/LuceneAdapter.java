@@ -260,14 +260,14 @@ public class LuceneAdapter {
         return result.done();
     }
     
-    public IList searchIndex(ISourceLocation indexFolder, IString query, IConstructor analyzer, IInteger max) throws IOException, ParseException {
+    public ISet searchIndex(ISourceLocation indexFolder, IString query, IConstructor analyzer, IInteger max) throws IOException, ParseException {
         // TODO the searcher should be cached on the indexFolder key
         IndexSearcher searcher = makeSearcher(indexFolder);
         QueryParser parser = makeQueryParser(analyzer);
         Query queryExpression = parser.parse(query.getValue());
         TopDocs docs = searcher.search(queryExpression, max.intValue());
 
-        IListWriter result = vf.listWriter();
+        ISetWriter result = vf.setWriter();
         
         for (ScoreDoc doc : docs.scoreDocs) {
             org.apache.lucene.document.Document found = searcher.doc(doc.doc);
@@ -290,7 +290,7 @@ public class LuceneAdapter {
                 });
                 
                 
-                result.append(node.asWithKeywordParameters().setParameters(params));
+                result.insert(node.asWithKeywordParameters().setParameters(params));
             }
         }
         
