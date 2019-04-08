@@ -64,7 +64,8 @@ java void createIndex(loc index, set[Document] documents, Analyzer analyzer = st
 java list[Document] searchIndex(loc index, str query, Analyzer analyzer = standardAnalyzer(), int max = 10);
 
 @javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
-java list[loc] highlightDocument(loc doc, str query, Analyzer analyzer = standardAnalyzer());
+@synopsis{Searches a document for a query by analyzing it with a given analyzer and listing the hits inside the document, for debugging and reporting purposes.}
+java list[loc] searchDocument(loc doc, str query, Analyzer analyzer = standardAnalyzer(), int max = 10);
 
 @javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
 @synopsis{Simulate analyzing a document source location like `createIndex` would do, for debugging purposes} 

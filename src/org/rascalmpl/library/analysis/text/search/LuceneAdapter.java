@@ -67,7 +67,11 @@ import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.highlight.Formatter;
+import org.apache.lucene.search.highlight.Highlighter;
+import org.apache.lucene.search.highlight.InvalidTokenOffsetsException;
 import org.apache.lucene.search.highlight.QueryScorer;
+import org.apache.lucene.search.highlight.TokenGroup;
 import org.apache.lucene.store.BaseDirectory;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.IOContext;
@@ -200,30 +204,30 @@ public class LuceneAdapter {
         return new SourceLocationDirectory(lockFactory, prelude, indexFolder);
     }
 
-    public IList highlightDocument(ISourceLocation doc, IString query, IConstructor analyzer) throws IOException, ParseException {
+    public IList searchDocument(ISourceLocation doc, IString query, IConstructor analyzer, IInteger max) throws IOException, ParseException, InvalidTokenOffsetsException {
+        String entireDocument = prelude.readFile(doc).getValue();
+        
         try (Reader reader = URIResolverRegistry.getInstance().getCharacterReader(doc)) {
             TokenStream tokenStream = makeAnalyzer(analyzer).tokenStream(SRC_FIELD_NAME, reader);
             QueryParser parser = makeQueryParser(analyzer);
             Query queryExpression = parser.parse(query.getValue());
             QueryScorer scorer = new QueryScorer(queryExpression);
-            TokenStream newTokenStream = scorer.init(tokenStream);
+            final IListWriter result = vf.listWriter();
             
-            if (newTokenStream != null) {
-                tokenStream = newTokenStream;
-            }
-           
-            OffsetAttribute offsetAttribute = tokenStream.addAttribute(OffsetAttribute.class);
-            IListWriter result = vf.listWriter();
-
-            tokenStream.reset();
-            while (tokenStream.incrementToken()) {
-                if (scorer.getFragmentScore() > 0) {
-                    int startOffset = offsetAttribute.startOffset();
-                    int endOffset = offsetAttribute.endOffset();
-                    result.append(vf.sourceLocation(doc, startOffset, endOffset - startOffset));
+            Formatter formatter = new Formatter() {
+                @Override
+                public String highlightTerm(String originalText, TokenGroup tokenGroup) {
+                    if (tokenGroup.getScore(tokenGroup.getNumTokens() - 1) > 0) {
+                        int startOffset = tokenGroup.getStartOffset();
+                        int endOffset = tokenGroup.getEndOffset();
+                        result.append(vf.sourceLocation(doc, startOffset, endOffset - startOffset));
+                    }
+                    return tokenGroup.toString();
                 }
-            }
-
+            };
+            
+            new Highlighter(formatter, scorer).getBestFragments(tokenStream, entireDocument, max.intValue());
+            
             return result.done();
         }
     }
