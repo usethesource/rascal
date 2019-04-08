@@ -61,7 +61,7 @@ java void createIndex(loc index, set[Document] documents, Analyzer analyzer = st
 
 @javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
 @synopsis{Searches a Lucene index indicated by the indexFolder by analyzing a query with a given set of text analyzers and then matching the query to the index.}
-java list[Document] searchIndex(loc index, str query, Analyzer analyzer = standardAnalyzer(), int max = 10);
+java set[Document] searchIndex(loc index, str query, Analyzer analyzer = standardAnalyzer(), int max = 10);
 
 @javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
 @synopsis{Searches a document for a query by analyzing it with a given analyzer and listing the hits inside the document, for debugging and reporting purposes.}
