@@ -8,6 +8,13 @@ import IO;
 import List;
 import util::Math;
 
+lexical WordSplitter = Word* words;
+lexical Word 
+  = [A-Za-z0-9\-]+ !>> [A-Za-z0-9]
+  | ![A-Za-z0-9\-]+ !>> ![A-Za-z0-9]
+  ;
+ 
+
 public set[loc] programs = find(|std:///|, "pico");
 
 data Document(loc comments = |unknown:///|, str extra = "");
@@ -28,8 +35,13 @@ list[str] extraWords = ["ut", "desint", "vires", "tamen", "est", "laudanda", "vo
 Analyzer  an() = analyzer(identifierTokenizerFromGrammar(#start[Program]), []);
   
 // the second parses the program again, and lists all the tokens in source code comments, then maps them to lowercase.
-Analyzer  commentAnalyzer() = analyzer(commentTokenizerFromGrammar(#start[Program]), [lowerCaseFilter()]);
-  
+Analyzer  commentAnalyzer() = analyzer(commentTokenizerFromGrammar(#start[Program]), [wordSplitFilter(), lowerCaseFilter()]);
+
+   
+Filter wordSplitFilter() = splitFilter(list[str] (str term) {
+  return ["<word>" | word <- ([WordSplitter] term).words];
+});
+   
 // the final analyzer analyses the extra field by splitting the words, and changing all a's to b's
 Analyzer  extraAnalyzer() = analyzer(classicTokenizer(), [ splitFilter(lauSplitDanda), \editFilter(abFilter), removeFilter(utFilter)]);
  
@@ -67,7 +79,22 @@ void extraSearch() {
   iprintln(searchIndex(indexFolder, "extra:(<searchAll>)", analyzer=fieldsAnalyzer(standardAnalyzer(), comments=standardAnalyzer())));
 }
 
-test bool extraTermsTest() = inspectTerms(indexFolder, "extra") != {};
+test bool extraTermsTest() = listTerms(indexFolder, "extra") == {
+  <"est",2>,
+  <"tbmen",2>,
+  <"vires",2>,
+  <"dbndb",2>,
+  <"voluntbs",2>,
+  <"desint",2>,
+  <"lbu",2>
+};
+
+test bool identifierTest() = document(loc l) <- searchIndex(indexFolder, "src:repnr") && l == |std:///demo/lang/Pico/programs/Fac.pico|;
+test bool analyzerTest1() = size(analyzeDocument(|std:///demo/lang/Pico/programs/Fac.pico|, analyzer=an())) == 25;
+test bool analyzerTest2() = size(analyzeDocument(|std:///demo/lang/Pico/programs/Fac.pico|, analyzer=commentAnalyzer())) == 3;
+test bool searchDocTest1() = size(searchDocument(|std:///demo/lang/Pico/programs/Fac.pico|, "repnr", analyzer=an())) == 5;
+test bool searchDocTest2() = size(searchDocument(|std:///demo/lang/Pico/programs/Fac.pico|, "repnr", analyzer=commentAnalyzer())) == 0;
+test bool searchDocTest3() = size(searchDocument(|std:///demo/lang/Pico/programs/Fac.pico|, "check", analyzer=commentAnalyzer())) == 1;
 
 void main() {
   picoIndex();
