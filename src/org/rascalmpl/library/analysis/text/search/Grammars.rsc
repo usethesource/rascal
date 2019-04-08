@@ -34,10 +34,10 @@ Tokenizer identifierTokenizerFromGrammar(type[&T <: Tree] grammar) = tokenizer(l
 Tokenizer commentTokenizerFromGrammar(type[&T <: Tree] grammar) = tokenizer(list[Term] (str input) {
    try {
      tr = parse(grammar, input, |lucene:///|, allowAmbiguity=true);
-     return [ term(word, comment@\loc, "<type(comment.prod.def,())>") | comment <- tokens(tr, isComment), /<word:[A-Za-z0-9]+>/ := "<comment>"];
+     return [term("<comment>", comment@\loc, "<type(comment.prod.def,())>") | comment <- tokens(tr, isComment)];
    }
    catch ParseError(_):
-     return [term(input, 0, "entire input")];
+     return [term(input, |lucene:///|(0, size(input)), "entire input")];
 });
 
 list[Tree] tokens(amb({Tree x, *_}), bool(Tree) isToken) = tokens(x, isToken);

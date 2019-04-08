@@ -4,7 +4,7 @@ begin declare input : natural,
               rep : natural;
       input := 14;
       output := 1;
-      % check x out %
+      % check this out %
       while input - 1 do 
           rep := output;
           repnr := input;
