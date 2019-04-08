@@ -8,6 +8,7 @@ import IO;
 import List;
 import util::Math;
 
+// a small grammar used to split an input text into words and non-words without loss of characters
 lexical WordSplitter = Word* words;
 lexical Word 
   = [A-Za-z0-9\-]+ !>> [A-Za-z0-9]
@@ -15,20 +16,25 @@ lexical Word
   ;
  
 
+// we test using all pico programs in the library
 public set[loc] programs = find(|std:///|, "pico");
 
+// next to the src field we add comments and an extra field to index on.
 data Document(loc comments = |unknown:///|, str extra = "");
-
 data Analyzer(Analyzer comments = standardAnalyzer(), Analyzer extra = standardAnalyzer());
 
+// an example filter which replaces all a's by b's for demo purposes
 str abFilter(str token) = visit(token) {
   case /a/ => "b"
 };
 
+// an example filter which removes the word "ut" from a stream
 bool utFilter(str token) = "ut" != token;
 
+// an example filter which splits a specific word in two parts:
 list[str] lauSplitDanda("laudanda") = ["lau", "danda"]; 
 
+// this is a data source
 list[str] extraWords = ["ut", "desint", "vires", "tamen", "est", "laudanda", "voluntas"];
 
 // the first analyzer is for the `src` document, parser the program and extracts all identifiers
@@ -37,12 +43,13 @@ Analyzer  an() = analyzer(identifierTokenizerFromGrammar(#start[Program]), []);
 // the second parses the program again, and lists all the tokens in source code comments, then maps them to lowercase.
 Analyzer  commentAnalyzer() = analyzer(commentTokenizerFromGrammar(#start[Program]), [wordSplitFilter(), lowerCaseFilter()]);
 
-   
+// a word split filter written in Rascal using a generated grammar for the non-terminal `WordSplitter`
+// notice how a splitFilter may not throw away input, only split it, otherwise offsets will be off.   
 Filter wordSplitFilter() = splitFilter(list[str] (str term) {
   return ["<word>" | word <- ([WordSplitter] term).words];
 });
    
-// the final analyzer analyses the extra field by splitting the words, and changing all a's to b's
+// the final analyzer analyses the extra field by splitting the words, and changing all a's to b's, and removing `ut`
 Analyzer  extraAnalyzer() = analyzer(classicTokenizer(), [ splitFilter(lauSplitDanda), \editFilter(abFilter), removeFilter(utFilter)]);
  
 // We combine the analyzers for the different fields with a `fieldsAnalyzer`. 
@@ -50,6 +57,7 @@ Analyzer  extraAnalyzer() = analyzer(classicTokenizer(), [ splitFilter(lauSplitD
 // Rascal feature and not a vallang feature, so each field has to be set explicitly:
 Analyzer indexAnalyzer() = fieldsAnalyzer(an(), comments=commentAnalyzer(), extra=extraAnalyzer());
 
+// where we store the lucene index (may be any loc as long as its a directory)
 loc indexFolder = |tmp:///picoIndex|;
  
 void picoIndex() {
