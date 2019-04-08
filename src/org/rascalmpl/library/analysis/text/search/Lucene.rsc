@@ -39,7 +39,7 @@ data Analyzer
   = fieldsAnalyzer(Analyzer src) 
   ;
 
-data Term = term(str chars, int offset, str kind);
+data Term = term(str chars, loc src, str kind);
     
 data Tokenizer
   = tokenizer(list[Term] (str input) tokenizerFunction)
@@ -52,7 +52,7 @@ data Filter
   | \splitFilter(list[str] (str term) splitter)    // split a term into several (sequentially positioned) terms, replacing the original term
   | \synonymFilter(list[str] (str term) generator) // introduce alternative terms at the same position in the input stream, replacing the original term
   | \tagFilter(str (str term, str current) tagger) // tag a term with a new type tag/category
-  | filterClass(str filterClassName)               // use an existing filterclass (if it has a nullary constructor)
+  | \filterClass(str filterClassName)              // use an existing filterclass (if it has a nullary constructor)
   ;  
 
 @javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
@@ -64,12 +64,23 @@ java void createIndex(loc index, set[Document] documents, Analyzer analyzer = st
 java list[Document] searchIndex(loc index, str query, Analyzer analyzer = standardAnalyzer(), int max = 10);
 
 @javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
+java list[loc] highlightDocument(loc doc, str query, Analyzer analyzer = standardAnalyzer());
+
+@javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
+@synopsis{Simulate analyzing a document source location like `createIndex` would do, for debugging purposes} 
+java list[Term] analyzeDocument(loc doc, Analyzer analyzer = standardAnalyzer());
+
+@javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
+@synopsis{Simulate analyzing a document source string like `createIndex` would do, for debugging purposes} 
+java list[Term] analyzeDocument(str doc, Analyzer analyzer = standardAnalyzer());
+
+@javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
 @synopsis{Inspect the terms stored in an index for debugging purposes (what did the analyzers do to the content of the documents?)}
-java rel[str text, int frequency] inspectTerms(loc index, str field, int max = 10);
+java rel[str chars, int frequency] listTerms(loc index, str field, int max = 10);
 
  @javaClass{org.rascalmpl.library.analysis.text.search.LuceneAdapter}
 @synopsis{Inspect the fields stored in an index for debugging purposes (which fields have been indexed, for how many documents, and how many terms?)}
-java rel[str field, int docCount, int sumTotalTermFreq] inspectFields(loc index); 
+java rel[str field, int docCount, int sumTotalTermFreq] listFields(loc index); 
 
 
 Analyzer classicAnalyzer()    = analyzerClass("org.apache.lucene.analysis.standard.ClassicAnalyzer");
