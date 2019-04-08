@@ -4,11 +4,11 @@ extend analysis::text::search::Lucene;
 import ParseTree;
 import String;
 
-Analyzer analyzerFromGrammar(type[&T <: Tree] grammar) = analyzer(tokenizerFromGrammar(grammar), [lowercaseFilter()]);
+Analyzer analyzerFromGrammar(type[&T <: Tree] grammar) = analyzer(tokenizerFromGrammar(grammar), [lowerCaseFilter()]);
 
-Analyzer identifierAnalyzerFromGrammar(type[&T <: Tree] grammar) = analyzer(identifierTokenizerFromGrammar(grammar), [lowercaseFilter()]);
+Analyzer identifierAnalyzerFromGrammar(type[&T <: Tree] grammar) = analyzer(identifierTokenizerFromGrammar(grammar), [lowerCaseFilter()]);
 
-Analyzer commentAnalyzerFromGrammar(type[&T <: Tree] grammar) = analyzer(commentTokenizerFromGrammar(grammar), [lowercaseFilter()]);
+Analyzer commentAnalyzerFromGrammar(type[&T <: Tree] grammar) = analyzer(commentTokenizerFromGrammar(grammar), [lowerCaseFilter()]);
 
 @synopsis{Use a generate parser as a Lucene tokenizer. Skipping nothing.}
 Tokenizer tokenizerFromGrammar(type[&T <: Tree] grammar) = tokenizer(list[Term] (str input) {
@@ -16,8 +16,8 @@ Tokenizer tokenizerFromGrammar(type[&T <: Tree] grammar) = tokenizer(list[Term] 
      tr = parse(grammar, input, |lucene:///|, allowAmbiguity=true);
      return [term("<token>", token@\loc, "<type(token.prod.def,())>") | token <- tokens(tr, isToken) ];
    }
-   catch ParseError(_, _):
-     return [term(input, 0, "entire input")];
+   catch ParseError(_):
+     return [term(input, |lucene:///|(0, size(input)), "entire input")];
 });
 
 @synopsis{Use a generated parser as a Lucene tokenizer, and skip all keywords and punctuation.}
@@ -27,7 +27,7 @@ Tokenizer identifierTokenizerFromGrammar(type[&T <: Tree] grammar) = tokenizer(l
      return [term("<token>", token@\loc, "<type(token.prod.def, ())>") | token <- tokens(tr, isToken), isLexical(token)];
    }
    catch ParseError(_):
-     return [term(input, 0, "entire input")];
+     return [term(input, |lucene:///|(0, size(input)), "entire input")];
 });
 
 @synopsis{Use a generated parser as a Lucene tokenizer, and skip all keywords and punctuation.}
@@ -55,15 +55,15 @@ bool isTokenType(lit(_)) = true;
 bool isTokenType(cilit(_)) = true;    
 bool isTokenType(lex(_)) = true;  
 bool isTokenType(layouts(_)) = true;
-bool isTokenType(label(Symbol s, str _)) = isTokenType(s);
+bool isTokenType(label(str _, Symbol s)) = isTokenType(s);
 default bool isTokenType(Symbol _) = false;
 
 bool isToken(appl(prod(Symbol s, _, _), _)) = true when isTokenType(s);
 bool isToken(char(_)) = true;
 default bool isToken(Tree _) = false;
 
-bool isLexical(appl(prod(Symbol s, _, _), _)) = true when lex(_) := s || label(lex(_), _) := s;
+bool isLexical(appl(prod(Symbol s, _, _), _)) = true when lex(_) := s || label(_, lex(_)) := s;
 default bool isLexical(Tree _) = false;
 
-bool isComment(Tree t) = true when t has prod, /category("Comment") := t.prod;
+bool isComment(Tree t) = true when t has prod, /"category"("Comment") := t.prod;
 default bool isComment(Tree _) = false;
