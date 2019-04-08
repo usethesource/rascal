@@ -101,5 +101,5 @@ void main() {
   picoSearch("x");
   picoSearch("input || x");
   picoSearch("input && output");
-  Search("bst");
+  picoSearch("bst");
 }
