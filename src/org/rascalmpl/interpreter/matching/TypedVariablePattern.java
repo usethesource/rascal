@@ -114,8 +114,7 @@ public class TypedVariablePattern extends AbstractMatchingResult implements IVar
 				return true;
 			}
 			
-			Result<IValue> result = ResultFactory.makeResult(tmp, subject.getValue(), ctx);
-			ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(name, result);
+			ctx.getCurrentEnvt().declareAndStoreInferredInnerScopeVariable(name, ResultFactory.makeResult(tmp, subject.getValue(), ctx));
 			
 			this.alreadyStored = true;
 			return true;
