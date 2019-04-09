@@ -57,39 +57,7 @@ classify({"bird", "dog", "human", "spider", "millepede", "zebra", "crab", "cat"}
 }
 public map[&K,set[&V]] classify(set[&V] input, &K (&V) getClass) = toMap({<getClass(e),e> | e <- input});
 
-@doc{
-.Synopsis
-Pick a random element from a set.
 
-.Description
-
-.Examples
-[source,rascal-shell]
-----
-import Set;
-getOneFrom({1,2,3,4});
-getOneFrom({1,2,3,4});
-getOneFrom({1,2,3,4});
-getOneFrom({1,2,3,4});
-----}
-@javaClass{org.rascalmpl.library.Prelude}
-public java &T getOneFrom(set[&T] st) throws EmptySet;
-
-@doc{
-.Synopsis
-Get "first" element from a set.
-
-.Description
-Get "first" element of a set. Of course, sets are unordered and do not have a first element.
-However, we may assume that sets are internally ordered in some way and this ordering is reproducible.
-Applying `getFirstFrom` on the same set will always returns the same element.
-
-.Benefits
-This function helps to make set-based code more deterministic, for instance, for testing purposes.
-}
-public &T getFirstFrom(set[&T] st) throws EmptySet {
-   return toList(st)[0];
-}
 
 @doc{
 .Synopsis
@@ -360,6 +328,22 @@ getOneFrom({"elephant", "zebra", "snake"});
 ----}
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T getOneFrom(set[&T] st) throws EmptySet;
+
+@doc{
+.Synopsis
+Get "first" element from a set.
+
+.Description
+Get "first" element of a set. Of course, sets are unordered and do not have a first element.
+However, we may assume that sets are internally ordered in some way and this ordering is reproducible.
+Applying `getFirstFrom` on the same set will always returns the same element.
+
+.Benefits
+This function helps to make set-based code more deterministic, for instance, for testing purposes.
+}
+public &T getFirstFrom(set[&T] st) throws EmptySet {
+   return toList(st)[0];
+}
 
 @doc{
 .Synopsis

@@ -3,6 +3,10 @@ module lang::rascal::tests::types::ComprehensionTCTests
 
 import lang::rascal::tests::types::StaticTestingUtils;
 
+//test bool nonVoidListComprehension() = nonVoidType("[f() | _ := 1];", initialDecls=["void f() { return; }"]);
+
+//test bool nonVoidSetComprehension() = nonVoidType("{f() | _ := 1};", initialDecls=["void f() { return; }"]);
+
 test bool testGen1() = unexpectedType("{x | 5};");
 
 test bool testVoidFunctionPredicate1() = unexpectedType("void f() { } { x | int x \<- {1,2,3}, f() };");

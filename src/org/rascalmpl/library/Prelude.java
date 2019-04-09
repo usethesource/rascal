@@ -3248,18 +3248,22 @@ public class Prelude {
 	  return result.toString(StandardCharsets.ISO_8859_1.name());
 	}
 
-	public IString toBase64(IString in) throws IOException {
-	  InputStream bytes = new ByteBufferBackedInputStream(StandardCharsets.UTF_8.encode(in.getValue()));
-	  return values.string(toBase64(bytes, in.length() * 2));
+	public IString toBase64(IString in) {
+	  try {
+	      InputStream bytes = new ByteBufferBackedInputStream(StandardCharsets.UTF_8.encode(in.getValue()));
+	      return values.string(toBase64(bytes, in.length() * 2));
+	  } catch (IOException e) {
+	      throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+	  }
 	}
 
 	public IString toBase64(ISourceLocation file) {
-		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(file)) {
-		  return values.string(toBase64(in, 1024));
-		}
-    catch (IOException e) {
-      throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-    }
+	    try (InputStream in = URIResolverRegistry.getInstance().getInputStream(file)) {
+	        return values.string(toBase64(in, 1024));
+	    }
+	    catch (IOException e) {
+	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+	    }
 	}
 	
 	
@@ -3269,10 +3273,14 @@ public class Prelude {
 	  copy(Base64.getDecoder().wrap(bytes), target);
 	}
 
-	public IString fromBase64(IString in) throws IOException {
-	  ByteArrayOutputStream result = new ByteArrayOutputStream(in.length());
-	  fromBase64(in.getValue(), result);
-	  return values.string(result.toString(StandardCharsets.UTF_8.name()));
+	public IString fromBase64(IString in) {
+	    try {
+	        ByteArrayOutputStream result = new ByteArrayOutputStream(in.length());
+	        fromBase64(in.getValue(), result);
+	        return values.string(result.toString(StandardCharsets.UTF_8.name()));
+	    } catch (IOException e) {
+	        throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+	    }
 	}
 
 	public IValue toLowerCase(IString s)

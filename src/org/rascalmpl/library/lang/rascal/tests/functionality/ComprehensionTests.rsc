@@ -11,7 +11,8 @@
 @contributor{Arnold Lankamp - Arnold.Lankamp@cwi.nl}
 @contributor{Bert Lisser - Bert.Lisser@cwi.nl - CWI}
 module lang::rascal::tests::functionality::ComprehensionTests
- 
+
+import IO; 
 import Exception;
 import List;
   	
@@ -453,4 +454,3 @@ test bool regularGenerators2()  = {S | /@<S:[a-z]+>@/ <- ["@abc@", "@def@"]} == 
 test bool regularGenerators3()  = {S | /@<S:[a-z]+>@/ <- {"@abc@", "@def@"}} == {"abc", "def"};
  
   
- 

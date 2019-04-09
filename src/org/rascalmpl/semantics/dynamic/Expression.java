@@ -2742,6 +2742,11 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 			for (int i = 0; i < elements.size(); i++) {
 				Result<IValue> resultElem = elements.get(i).interpret(__eval);
+				
+				if (resultElem.getType().isBottom()) {
+                    throw new UnexpectedType(TF.valueType(), TF.voidType(), this);
+                }
+				
 				types[i] = resultElem.getType();
 				values[i] = resultElem.getValue();
 			}

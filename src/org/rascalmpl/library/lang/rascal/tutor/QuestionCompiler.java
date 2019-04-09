@@ -12,12 +12,17 @@
  */ 
 package org.rascalmpl.library.lang.rascal.tutor;
 
-import java.io.IOException;
-import java.util.Map;
+import java.io.File;
+import java.io.PrintWriter;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.OverloadedFunction;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RVMCore;
+import org.rascalmpl.interpreter.Evaluator;
+import org.rascalmpl.interpreter.env.GlobalEnvironment;
+import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.library.util.RunTests;
+import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
+
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
@@ -25,34 +30,53 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 
 public class QuestionCompiler {
-    IValueFactory vf;
-    private OverloadedFunction compileQuestions;
-    private  IList srcs;
-    private  IList courses;
-    private  IList libs;
-    private  ISourceLocation bin;
-    private  ISourceLocation boot;
-    
-    private RVMCore rvm;
-    
-    public QuestionCompiler(IValueFactory vf, PathConfig pcfg) throws IOException{
+    private final IValueFactory vf = IRascalValueFactory.getInstance();
+    private final Evaluator eval;
+
+    public QuestionCompiler(PathConfig pcfg) {
+        final GlobalEnvironment heap = new GlobalEnvironment();
+        final ModuleEnvironment top = new ModuleEnvironment("***question compiler***", heap);
+        eval = new Evaluator(vf, new PrintWriter(System.err), new PrintWriter(System.out), top, heap);
+        eval.addRascalSearchPath(URIUtil.rootLocation("std"));
+        eval.addRascalSearchPath(URIUtil.rootLocation("test-modules"));
+        eval.getConfiguration().setRascalJavaClassPathProperty(javaCompilerPathAsString(pcfg.getJavaCompilerPath()));
+        
     }
     
     /**
      * Compile a .questions file to .adoc
-     * @param questionsLoc Location of the questions source file
-     * @param kwArgs    Keyword arguments
-     * @return Void. As a side-effect a .adoc file will be generated.
      */
-    public String compileQuestions(String qmodule, Map<String,IValue> kwArgs){
-        try {
-            IString res = (IString) rvm.executeRVMFunction(compileQuestions, new IValue[] { vf.string(qmodule), srcs, libs, courses, bin, boot}, kwArgs);
-            return res.getValue();
-        } catch (Throwable e){
-            System.err.println("Compilation of question failed: " + e.getMessage() + "[" + qmodule.substring(0, Math.min(qmodule.length(), 32)) + "]");
-            
-            // TODO: better error in generated documentation:
-            return "Compilation of question failed: " + e.getMessage();
+    public IString compileQuestions(IString qmodule, PathConfig pcfg) {
+        if (!eval.getHeap().existsModule("lang::rascal::tutor::QuestionCompiler")) {
+            eval.doImport(null, "lang::rascal::tutor::QuestionCompiler");
         }
+        
+        return (IString) eval.call("compileQuestions", qmodule, pcfg.asConstructor());
+    }
+    
+    public IList checkQuestions(String questionModule) {
+        return RunTests.runTests(questionModule, eval);
+    }
+    
+    private String javaCompilerPathAsString(IList javaCompilerPath) {
+        StringBuilder b = new StringBuilder();
+
+        for (IValue elem : javaCompilerPath) {
+            ISourceLocation loc = (ISourceLocation) elem;
+
+            if (b.length() != 0) {
+                b.append(File.pathSeparatorChar);
+            }
+
+            assert loc.getScheme().equals("file");
+            String path = loc.getPath();
+            if (path.startsWith("/") && path.contains(":\\")) {
+                // a windows path should drop the leading /
+                path = path.substring(1);
+            }
+            b.append(path);
+        }
+
+        return b.toString();
     }
 }
