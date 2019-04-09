@@ -86,6 +86,8 @@ public class JsonValueReader {
     return this;
   }
   
+  
+  
   public JsonValueReader setNodesAsObjects(boolean setting) {
     this.nodesAsObjects = setting;
     return this;
@@ -207,45 +209,51 @@ public class JsonValueReader {
         int beginColumn = -1;
         int endColumn = -1;
         
-        while (in.hasNext());
-        String name = in.nextName();
-        switch (name) {
-          case "scheme":
-            scheme = in.nextString();
-            break;
-          case "authority":
-            authority = in.nextString();
-            break;
-          case "path":
-            path = in.nextString();
-            break;
-          case "fragment":
-            fragment = in.nextString();
-            break;
-          case "query":
-            query = in.nextString();
-            break;
-          case "offset":
-            offset = in.nextInt();
-            break;
-          case "length":
-            length = in.nextInt();
-            break;
-          case "begin":
-            in.beginArray();
-            beginLine = in.nextInt();
-            beginColumn = in.nextInt();
-            in.endArray();
-            break;
-          case "end":
-            in.beginArray();
-            endLine = in.nextInt();
-            endColumn = in.nextInt();
-            in.endArray();
-            break;
-          default:
-            throw new IOException("unexpected property name " + name + " :" + in.getPath());
+        in.beginObject();
+        
+        while (in.hasNext()) {
+            String name = in.nextName();
+            switch (name) {
+                case "scheme":
+                    scheme = in.nextString();
+                    break;
+                case "authority":
+                    authority = in.nextString();
+                    break;
+                case "path":
+                    path = in.nextString();
+                    break;
+                case "fragment":
+                    fragment = in.nextString();
+                    break;
+                case "query":
+                    query = in.nextString();
+                    break;
+                case "offset":
+                    offset = in.nextInt();
+                    break;
+                case "length":
+                    length = in.nextInt();
+                    break;
+                case "start":
+                case "begin":
+                    in.beginArray();
+                    beginLine = in.nextInt();
+                    beginColumn = in.nextInt();
+                    in.endArray();
+                    break;
+                case "end":
+                    in.beginArray();
+                    endLine = in.nextInt();
+                    endColumn = in.nextInt();
+                    in.endArray();
+                    break;
+                default:
+                    throw new IOException("unexpected property name " + name + " :" + in.getPath());
+            }
         }
+        
+        in.endObject();
 
         if (path != null && offset != -1 && length != -1 && beginLine != -1 && endLine != -1 && beginColumn != -1 && endColumn != -1) {
             return vf.sourceLocation(path, offset, length, beginLine, endLine, beginColumn, endColumn);

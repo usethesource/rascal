@@ -15,7 +15,7 @@ import analysis::stemming::Snowball
 stem("bikes")
 ----
 }
-module analysis::stemming::Snowball
+module analysis::text::stemming::Snowball
 
 data Language
   = armenian()
