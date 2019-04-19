@@ -130,13 +130,12 @@ public class JarConverter extends M3Converter {
     
     /**
      * Creates a M3 model from a file within a Jar.
-     * TODO: unstable
      * @param classFile
      * @param className
      */
     public void convertJarFile(ISourceLocation classFile, String className) {
         loc = classFile;
-        createM3FromFile(className);
+        createSingleClassM3(className);
     }
 
     /**
@@ -210,10 +209,9 @@ public class JarConverter extends M3Converter {
      * Creates a M3 model from a file within a Jar. The creation of 
      * relations associated to the compilation unit, its related class,
      * and parent packages is triggered.
-     * TODO: unstable
      * @param className
      */
-    private void createM3FromFile(String className) {
+    private void createSingleClassM3(String className) {
         String compUnit = className;
         ClassReader classReader = getClassReader(className);
 
@@ -432,6 +430,7 @@ public class JarConverter extends M3Converter {
                 ISourceLocation methodLogical = resolver.resolveBinding(methodNode, classLogical);
                 ISourceLocation methodPhysical = compUnitPhysical;
                 IString methodName = getMethodName(methodLogical);
+                IConstructor cons = resolver.resolveType(methodNode, classLogical);
                 List<AnnotationNode> annotations = composeAnnotations(methodNode.visibleAnnotations, methodNode.invisibleAnnotations);
                 
                 addToContainment(classLogical, methodLogical);
@@ -441,6 +440,7 @@ public class JarConverter extends M3Converter {
                 addToAnnotations(methodLogical, annotations);
                 addToTypeDependency(methodLogical, methodType.getDescriptor());
                 addToMethodOverrides(classNode, methodNode, methodLogical);
+                addToTypes(methodLogical, cons);
 
                 //TODO: we do not have access to parameters names - Check
                 setParameterRelations(methodNode, methodLogical);
@@ -724,6 +724,10 @@ public class JarConverter extends M3Converter {
             ISourceLocation typeLogical = resolver.resolveBinding(Type.getType(descriptor), null);
             insert(typeDependency, logical, typeLogical);
         }
+    }
+    
+    private void addToTypes(ISourceLocation logical, IConstructor cons) {
+        insert(types, logical, cons);
     }
 
     /**
