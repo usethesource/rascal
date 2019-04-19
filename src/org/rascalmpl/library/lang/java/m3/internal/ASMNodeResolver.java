@@ -324,8 +324,11 @@ public class ASMNodeResolver implements NodeResolver {
         String descriptor = type.getDescriptor();
         
         /* According to the JVM specification we deal with base/primitive (B, C, D, F, I, J, S, Z),
-         * object (L<className>;), and array ([<type>) types. */
-        if (primitiveTypes.containsKey(descriptor)) {
+         * void (V), object (L<className>;), and array ([<type>) types. */
+        if(descriptor.equals(Type.VOID_TYPE.getDescriptor())) {
+            return voidSymbol();
+        }
+        else if (primitiveTypes.containsKey(descriptor)) {
             return primitiveSymbol(primitiveTypes.get(descriptor));
         }
         else if (descriptor.startsWith("[")) { 
@@ -336,12 +339,12 @@ public class ASMNodeResolver implements NodeResolver {
             return arraySymbol(resolveType(type.getElementType()), type.getDimensions());
         }
         else if (descriptor.startsWith("L")) {
-            ISourceLocation uri = M3LocationUtil.makeLocation(CLASS_SCHEME, "", type.getClassName().replaceAll(".", "/"));
+            ISourceLocation uri = resolveBinding(type);
             // TODO: check cases where this list is not empty.
             IList typeParameters = valueFactory.list();
             return classSymbol(uri, typeParameters);
         }
-            
+        
         return unresolvedSym();
     }
     
@@ -350,7 +353,7 @@ public class ASMNodeResolver implements NodeResolver {
         return null;
     }
 
-    // TODO: move to a separate class?
+    // TODO: move to a separate abstract class?
     private IConstructor unresolvedSym() {
         io.usethesource.vallang.type.Type cons = typeStore.lookupConstructor(getTypeSymbol(), "unresolved", typeFactory.voidType());
         return valueFactory.constructor(cons);
@@ -372,10 +375,14 @@ public class ASMNodeResolver implements NodeResolver {
     }
     
     private IConstructor classSymbol(ISourceLocation uri, IList typeParameters) {
-        io.usethesource.vallang.type.Type cons = (uri.getPath().equals("/java/lang/Object")) 
-            ? typeStore.lookupConstructor(getTypeSymbol(), "object", typeFactory.voidType())
-            : typeStore.lookupConstructor(getTypeSymbol(), "class", typeFactory.voidType());
-        return valueFactory.constructor(cons);
+        if (uri.getPath().equals("/java/lang/Object")) {
+            io.usethesource.vallang.type.Type cons = typeStore.lookupConstructor(getTypeSymbol(), "object", typeFactory.voidType());
+            return valueFactory.constructor(cons);
+        }
+        else {
+            io.usethesource.vallang.type.Type cons = typeStore.lookupConstructor(getTypeSymbol(), "class", typeFactory.tupleType(uri.getType(), typeParameters.getType()));
+            return valueFactory.constructor(cons, uri, typeParameters);
+        }
     }
     
     private IConstructor arraySymbol(IConstructor elem, int dimensions) {
@@ -383,6 +390,10 @@ public class ASMNodeResolver implements NodeResolver {
         return valueFactory.constructor(cons, elem, valueFactory.integer(dimensions));
     } 
     
+    private IConstructor voidSymbol() {
+        io.usethesource.vallang.type.Type cons = typeStore.lookupConstructor(getTypeSymbol(), "void", typeFactory.voidType());
+        return valueFactory.constructor(cons);
+    }
     private io.usethesource.vallang.type.Type getTypeSymbol() {
         return typeStore.lookupAbstractDataType("TypeSymbol");
     }
