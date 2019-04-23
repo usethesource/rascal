@@ -2392,6 +2392,8 @@ public class Prelude {
 	
 	protected IValue implode(TypeStore store, Type type, IConstructor arg0, boolean splicing, IEvaluatorContext ctx) {
 		ITree tree = (ITree) arg0;
+		Backtrack failReason = null;
+		
 		// always yield if expected type is str, except if regular 
 		if (type.isString() && !splicing) {
 			return values.string(TreeAdapter.yield(tree));
@@ -2444,10 +2446,12 @@ public class Prelude {
 						return ast.asAnnotatable().setAnnotation("location", loc);
 					}
 					catch (Backtrack b) {
+					    failReason = b;
 						continue;
 					}
 				}
-				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Cannot find a constructor " + type));
+				
+				throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Cannot find a constructor " + type));
 			}
 			if (type.isInteger()) {
 				return values.integer(yield);
@@ -2626,6 +2630,8 @@ public class Prelude {
 
 			Set<Type> conses = findConstructors(type, constructorName, length, store);
 			Iterator<Type> iter = conses.iterator();
+			
+			
 			while (iter.hasNext()) {
 				try {
 					Type cons = iter.next();
@@ -2635,13 +2641,14 @@ public class Prelude {
 					return ast.asAnnotatable().setAnnotation("location", loc).asAnnotatable().setAnnotation("comments", comments);
 				}
 				catch (Backtrack b) {
+				    failReason = b;
 					continue;
 				}
 			}
 			
 		}
 		
-		throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, 
+		throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, 
 				"Cannot find a constructor for " + type));
 	}
 	
