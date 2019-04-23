@@ -2593,7 +2593,7 @@ public class Prelude {
 			
 			
 			java.lang.String constructorName = unescapedConsName(tree);			
-			ctx.getStdErr().println(constructorName);
+			
 			if (constructorName == null) {
 				if (length == 1) {
 					// jump over injection
