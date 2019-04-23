@@ -17,7 +17,33 @@ import io.usethesource.vallang.ISourceLocation;
 
 
 public interface NodeResolver {    
+    
+    /**
+     * Returns the location of a bytecode node given a bytecode 
+     * object and its parent logical location.
+     * E.g. Method node and a |java+class:///...| location. 
+     * @param node - bytecode object
+     * @param parent - parent logical location
+     * @return location of the bytecode node
+     */
     public ISourceLocation resolveBinding(Object node, ISourceLocation parent);
+    
+    /**
+     * Returns a location of a method node given its name, 
+     * descriptor, and parent location (class or interface) 
+     * @param name - name of the method
+     * @param desc - bytecode descriptor of the method
+     * @param clazz - parent logical location
+     * @return location of the method node
+     */
     public ISourceLocation resolveMethodBinding(String name, String desc, ISourceLocation clazz);
-    public IConstructor resolveType(Object node, ISourceLocation parent);
+    
+    /**
+     * Returns the Rascal constructor of a bytecode node 
+     * given a bytecode object and its parent logical location.
+     * @param node - bytecode object
+     * @param parent - parent logical location
+     * @return Rascal constructor (type symbol)
+     */
+    public IConstructor resolveType(Object node, ISourceLocation uri);
 }

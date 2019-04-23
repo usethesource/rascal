@@ -43,13 +43,25 @@ public class ASMNodeResolver implements NodeResolver {
     // Fields
     //---------------------------------------------
     
+    /**
+     * Supports the creation of Rascal values.
+     */
     private static final IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
     
+    /**
+     * Supports the creation of Rascal types.
+     */
     private static final TypeFactory typeFactory = TypeFactory.getInstance();
     
-    // Relates primitive type descriptors with their corresponding type names.
+    /**
+     * Relates primitive type descriptors with their corresponding 
+     * type names.
+     */
     private Map<String, String> primitiveTypes;
     
+    /**
+     * Looks up for ADTs or constructors.
+     */
     private LimitedTypeStore typeStore;
     
     
@@ -57,11 +69,19 @@ public class ASMNodeResolver implements NodeResolver {
     // Methods
     //---------------------------------------------
     
+    /**
+     * ASMNodeResolver constructor
+     * @param typeStore
+     */
     public ASMNodeResolver(final LimitedTypeStore typeStore) {
         this.typeStore = typeStore;
         initializePrimitiveTypes();
     }
     
+    /**
+     * Relates primitive type descriptors to their names, as defined
+     * in the ASM Type class.
+     */
     private void initializePrimitiveTypes() {
         primitiveTypes = new HashMap<String, String>();
         primitiveTypes.put(Type.BOOLEAN_TYPE.getDescriptor(), Type.BOOLEAN_TYPE.getClassName());
@@ -108,24 +128,52 @@ public class ASMNodeResolver implements NodeResolver {
         return M3LocationUtil.makeLocation(UNRESOLVED_SCHEME, null, null);
     }
     
+    /**
+     * Checks if both object and locations parameters are not null.
+     * It also checks if the location path is not empty.
+     * @param node - ASM object
+     * @param parent - parent logical location of the ASM object
+     * @return
+     */
     private boolean resolveInputValidation(Object node, ISourceLocation parent) {
         return node != null && parent != null && !parent.getPath().isEmpty();
     }
 
+    /**
+     * Returns the location of an annotation node.
+     * @param node - annotation node
+     * @return logical location
+     */
     private ISourceLocation resolveBinding(AnnotationNode node) {
         String path = Type.getType(node.desc).getInternalName();
         return M3LocationUtil.makeLocation(INTERFACE_SCHEME, "", path);
     }
     
+    /**
+     * Returns the location of a class node.
+     * @param node - class node
+     * @return logical location
+     */
     private ISourceLocation resolveBinding(ClassNode node) {
         return M3LocationUtil.makeLocation(getClassScheme(node.access), "", node.name);
     }
     
+    /**
+     * Returns the location of a field store/access node.
+     * @param node - field instruction node
+     * @return logical location
+     */
     private ISourceLocation resolveBinding(FieldInsnNode node) {
         String path = node.owner + "/" + node.name;
         return M3LocationUtil.makeLocation(FIELD_SCHEME, "", path);
     }
     
+    /**
+     * Returns the location of a field node.
+     * @param node - field node
+     * @param parent - parent logical location (class or interface)
+     * @return logical location
+     */
     private ISourceLocation resolveBinding(FieldNode node, ISourceLocation parent) {
         if (!parent.getScheme().equals(CLASS_SCHEME)
             && !parent.getScheme().equals(INTERFACE_SCHEME)) {
@@ -148,10 +196,21 @@ public class ASMNodeResolver implements NodeResolver {
             : FIELD_SCHEME;
     }
 
+    /**
+     * Returns the location of a method invocation node.
+     * @param node - method invocation node
+     * @return logical location
+     */
     private ISourceLocation resolveBinding(MethodInsnNode node) {
         return resolveMethodBinding(node.name, node.desc, node.owner);
     }
     
+    /**
+     * Returns the location of a method node.
+     * @param node - method node
+     * @param parent - parent logical location (class or interface)
+     * @return logical location
+     */
     private ISourceLocation resolveBinding(MethodNode node, ISourceLocation parent) {
         if (!parent.getScheme().equals(CLASS_SCHEME)
             && !parent.getScheme().equals(INTERFACE_SCHEME)) {
@@ -167,22 +226,38 @@ public class ASMNodeResolver implements NodeResolver {
         return resolveMethodBinding(name, desc, classLoc.getPath());
     }
     
-    private ISourceLocation resolveMethodBinding(String name, String desc, String classPath) {
-        String className = ((IString) M3LocationUtil.getLocationName(classPath)).getValue();
-        String signature = getMethodSignature(name, desc, className);
-        String path = classPath + "/" + signature;
+    /**
+     * Returns a location of a method node given its name, 
+     * descriptor, and class path.
+     * @param name - name of the method
+     * @param desc - bytecode descriptor of the method
+     * @param typePath - path of the owner type
+     * @return logical location
+     */
+    private ISourceLocation resolveMethodBinding(String name, String desc, String typePath) {
+        String typeName = ((IString) M3LocationUtil.getLocationName(typePath)).getValue();
+        String signature = getMethodSignature(name, desc, typeName);
+        String path = typePath + "/" + signature;
         
         return M3LocationUtil.makeLocation(getMethodScheme(name), "", path);
     }
     
-    private String getMethodSignature(String name, String desc, String className) {
+    /**
+     * Creates a M3 method signature from a method's name,
+     * descriptor, and class/type name.
+     * @param name - name of the method
+     * @param desc - bytecode descriptor of the method
+     * @param typeName - name of the owner type
+     * @return logical location
+     */
+    private String getMethodSignature(String name, String desc, String typeName) {
         if (name.equals(COMPILED_STATIC_CONSTRUCTOR_NAME)) {
-            return createStaticInitializerName(className);
+            return createStaticInitializerName(typeName);
         }
         
         /* If the name of the method node is "<init>", then the method name 
          * is replaced with the name of the parent class. */
-        String signature = (name.equals(COMPILED_CONSTRUCTOR_NAME)) ? className + "(" : name + "(";
+        String signature = (name.equals(COMPILED_CONSTRUCTOR_NAME)) ? typeName + "(" : name + "(";
         Type[] arguments = Type.getType(desc).getArgumentTypes();
         
         for (Type argument : arguments) {
@@ -192,19 +267,36 @@ public class ASMNodeResolver implements NodeResolver {
         return signature + ")";
     }
     
-    private String createStaticInitializerName(String className) {
-        return className + M3_STATIC_CONSTRUCTOR_NAME;
+    /**
+     * Returns the M3 name of a static initializer given a 
+     * class/type name.
+     * @param typeName - name of the type
+     * @return name of the static initializer in M3
+     */
+    private String createStaticInitializerName(String typeName) {
+        return typeName + M3_STATIC_CONSTRUCTOR_NAME;
     }
     
+    /**
+     * Returns the scheme of a method given the method name.
+     * If "<init>" -> java+constructor
+     * If "<clinit>" -> java+initializer
+     * Otherwise -> java+method 
+     * @param name - method name
+     * @return method's scheme
+     */
     private String getMethodScheme(String name) {
-        // If "<init>" -> java+constructor
-        // If "<clinit>" -> java+initializer
-        // Otherwise -> java+method 
         return (name.equals(COMPILED_CONSTRUCTOR_NAME)) ? CONSTRUCTOR_SCHEME 
             : (name.equals(COMPILED_STATIC_CONSTRUCTOR_NAME)) ? INITIALIZER_SCHEME 
             : METHOD_SCHEME;
     }
 
+    /**
+     * Returns the location of a parameter node.
+     * @param node - parameter node
+     * @param parent - parent logical location (method)
+     * @return logical location
+     */
     private ISourceLocation resolveBinding(ParameterNode node, ISourceLocation parent) {
         if (!parent.getScheme().equals(METHOD_SCHEME)
             && !parent.getScheme().equals(CONSTRUCTOR_SCHEME)
@@ -218,9 +310,16 @@ public class ASMNodeResolver implements NodeResolver {
         }
     }
     
+    /**
+     * Returns the location of an ASM type.
+     * @param type - ASM type
+     * @return logical location
+     */
     private ISourceLocation resolveBinding(Type type) {
         // Ignoring arrays
-        String descriptor = type.getDescriptor().replace("[", "").replace("%5B", "");
+        String descriptor = type.getDescriptor()
+            .replace("[", "")
+            .replace("%5B", "");
         if (type.getClassName() == null) {
             return M3LocationUtil.makeLocation(CLASS_SCHEME, "", descriptor);
         }
@@ -231,6 +330,7 @@ public class ASMNodeResolver implements NodeResolver {
             .replace(".", "/")
             .replace("[", "")
             .replace("]", "");
+        
         if (primitiveTypes.containsKey(descriptor)) {
             return M3LocationUtil.makeLocation(PRIMITIVE_TYPE_SCHEME, "", path);
         }
@@ -241,7 +341,6 @@ public class ASMNodeResolver implements NodeResolver {
 
     /**
      * Returns a class scheme based on the class' access flags.
-     * java+interface, java+enum, and java+class are the possible schemes.
      */
     private String getClassScheme(int access) {
         return ((access & Opcodes.ACC_INTERFACE) != 0) ? INTERFACE_SCHEME 
@@ -260,41 +359,56 @@ public class ASMNodeResolver implements NodeResolver {
             else if (node instanceof MethodNode) {
                 return resolveType((MethodNode) node, uri);
             }
-            else if (node instanceof ParameterNode) {
-                return resolveType((ParameterNode) node, uri);
-            }
         }
         
         if (node != null) {
-            if (node instanceof AnnotationNode) {
-                return resolveType((AnnotationNode) node, uri);
-            }
-            else if (node instanceof ClassNode) {
+            if (node instanceof ClassNode) {
                 return resolveType((ClassNode) node, uri);
             }
             else if (node instanceof Type) {
-                return resolveType((Type) node, uri);
+                return resolveType((Type) node);
             }
         }
         
         return unresolvedSym();
     }
-    
-    private IConstructor resolveType(AnnotationNode node, ISourceLocation uri) {
-        // TODO Auto-generated method stub
-        return null;
-    }
 
+    /**
+     * Returns the Rascal constructor of a class node.
+     * @param node - class node
+     * @param uri - class logical location
+     * @return Rascal constructor (type symbol)
+     */
     private IConstructor resolveType(ClassNode node, ISourceLocation uri) {
-        // TODO Auto-generated method stub
-        return null;
+        // TODO: check cases where this list is not empty.
+        IList typeParameterSymbols = valueFactory.list();
+        
+        if (uri.getScheme().equals(INTERFACE_SCHEME)) {
+            return interfaceSymbol(uri, typeParameterSymbols);
+        }
+        // Default: class scheme
+        else {
+            return classSymbol(uri, typeParameterSymbols);
+        }
     }
 
+    /**
+     * Returns the Rascal constructor of a field node.
+     * @param node - field node
+     * @param uri - field logical location
+     * @return Rascal constructor (type symbol)
+     */
     private IConstructor resolveType(FieldNode node, ISourceLocation uri) {
-        // TODO Auto-generated method stub
-        return null;
+        Type type = Type.getType(node.desc);
+        return resolveType(type);
     }
 
+    /**
+     * Returns the Rascal constructor of a method node.
+     * @param node - method node
+     * @param uri - method logical location
+     * @return Rascal constructor (type symbol)
+     */
     private IConstructor resolveType(MethodNode node, ISourceLocation uri) {
         Type descriptorType = Type.getType(node.desc);
         IList parametersSymbols = computeTypes(descriptorType.getArgumentTypes());
@@ -311,15 +425,26 @@ public class ASMNodeResolver implements NodeResolver {
         }
     }
 
-    private IList computeTypes(Type[] params) {
+    /**
+     * Returns a list with Rascal constructors from an array
+     * of ASM types. Useful when considering method parameters.
+     * @param types - array of ASM types
+     * @return list with Rascal constructors (type symbols)
+     */
+    private IList computeTypes(Type[] types) {
         IListWriter writer = valueFactory.listWriter();
-        for (Type param : params) {
-            IConstructor cons = resolveType(param);
+        for (Type type : types) {
+            IConstructor cons = resolveType(type);
             writer.append(cons);
         }
         return writer.done();
     }
     
+    /**
+     * Returns the Rascal constructor of an ASM type.
+     * @param type - ASM type
+     * @return Rascal constructor (type symbol)
+     */
     private IConstructor resolveType(Type type) {
         String descriptor = type.getDescriptor();
         
@@ -347,31 +472,11 @@ public class ASMNodeResolver implements NodeResolver {
         
         return unresolvedSym();
     }
-    
-    private IConstructor resolveType(ParameterNode node, ISourceLocation uri) {
-        // TODO Auto-generated method stub
-        return null;
-    }
 
-    // TODO: move to a separate abstract class?
-    private IConstructor unresolvedSym() {
-        io.usethesource.vallang.type.Type cons = typeStore.lookupConstructor(getTypeSymbol(), "unresolved", typeFactory.voidType());
-        return valueFactory.constructor(cons);
-    }
-    
-    private IConstructor primitiveSymbol(String name) {
-        io.usethesource.vallang.type.Type cons = typeStore.lookupConstructor(getTypeSymbol(), name, typeFactory.voidType());
-        return valueFactory.constructor(cons);
-    }
-    
-    private IConstructor constructorSymbol(ISourceLocation uri, IList parametersSymbols) {
-        io.usethesource.vallang.type.Type cons = typeStore.lookupConstructor(getTypeSymbol(), "constructor", typeFactory.tupleType(uri.getType(), parametersSymbols.getType()));
-        return valueFactory.constructor(cons, uri, parametersSymbols);
-    }
-    
-    private IConstructor methodSymbol(ISourceLocation uri, IList typeParametersSymbols, IConstructor returnSymbol, IList parametersSymbols) {
-        io.usethesource.vallang.type.Type cons = typeStore.lookupConstructor(getTypeSymbol(), "method", typeFactory.tupleType(uri.getType(), typeParametersSymbols.getType(), returnSymbol.getType(), parametersSymbols.getType()));
-        return valueFactory.constructor(cons, uri, typeParametersSymbols, returnSymbol, parametersSymbols);
+    //TODO: move to an abstract class?
+    private IConstructor arraySymbol(IConstructor elem, int dimensions) {
+        io.usethesource.vallang.type.Type cons = typeStore.lookupConstructor(getTypeSymbol(), "array", typeFactory.tupleType(elem.getType(), typeFactory.integerType()));
+        return valueFactory.constructor(cons, elem, valueFactory.integer(dimensions));
     }
     
     private IConstructor classSymbol(ISourceLocation uri, IList typeParameters) {
@@ -385,15 +490,36 @@ public class ASMNodeResolver implements NodeResolver {
         }
     }
     
-    private IConstructor arraySymbol(IConstructor elem, int dimensions) {
-        io.usethesource.vallang.type.Type cons = typeStore.lookupConstructor(getTypeSymbol(), "array", typeFactory.tupleType(elem.getType(), typeFactory.integerType()));
-        return valueFactory.constructor(cons, elem, valueFactory.integer(dimensions));
-    } 
+    private IConstructor constructorSymbol(ISourceLocation uri, IList parametersSymbols) {
+        io.usethesource.vallang.type.Type cons = typeStore.lookupConstructor(getTypeSymbol(), "constructor", typeFactory.tupleType(uri.getType(), parametersSymbols.getType()));
+        return valueFactory.constructor(cons, uri, parametersSymbols);
+    }
+    
+    private IConstructor interfaceSymbol(ISourceLocation uri, IList typeParameterSymbols) {
+        io.usethesource.vallang.type.Type cons = typeStore.lookupConstructor(getTypeSymbol(), "interface", typeFactory.tupleType(uri.getType(), typeParameterSymbols.getType()));
+        return valueFactory.constructor(cons, uri, typeParameterSymbols);
+    }
+    
+    private IConstructor methodSymbol(ISourceLocation uri, IList typeParametersSymbols, IConstructor returnSymbol, IList parametersSymbols) {
+        io.usethesource.vallang.type.Type cons = typeStore.lookupConstructor(getTypeSymbol(), "method", typeFactory.tupleType(uri.getType(), typeParametersSymbols.getType(), returnSymbol.getType(), parametersSymbols.getType()));
+        return valueFactory.constructor(cons, uri, typeParametersSymbols, returnSymbol, parametersSymbols);
+    }
+    
+    private IConstructor primitiveSymbol(String name) {
+        io.usethesource.vallang.type.Type cons = typeStore.lookupConstructor(getTypeSymbol(), name, typeFactory.voidType());
+        return valueFactory.constructor(cons);
+    }
+    
+    private IConstructor unresolvedSym() {
+        io.usethesource.vallang.type.Type cons = typeStore.lookupConstructor(getTypeSymbol(), "unresolved", typeFactory.voidType());
+        return valueFactory.constructor(cons);
+    }
     
     private IConstructor voidSymbol() {
         io.usethesource.vallang.type.Type cons = typeStore.lookupConstructor(getTypeSymbol(), "void", typeFactory.voidType());
         return valueFactory.constructor(cons);
     }
+    
     private io.usethesource.vallang.type.Type getTypeSymbol() {
         return typeStore.lookupAbstractDataType("TypeSymbol");
     }
