@@ -2593,7 +2593,7 @@ public class Prelude {
 			
 			
 			java.lang.String constructorName = unescapedConsName(tree);			
-			
+			ctx.getStdErr().println(constructorName);
 			if (constructorName == null) {
 				if (length == 1) {
 					// jump over injection
@@ -2646,6 +2646,8 @@ public class Prelude {
 				}
 			}
 			
+			throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, 
+                "Cannot find a constructor for " + type + " with name " + constructorName + " and arity " + length + " for syntax type \'" + ProductionAdapter.getSortName(TreeAdapter.getProduction(tree)) + "\'"));
 		}
 		
 		throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, 
