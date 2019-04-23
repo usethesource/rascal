@@ -333,6 +333,7 @@ public class JarConverter extends M3Converter {
             ISourceLocation compUnitLogical = M3LocationUtil.makeLocation(COMP_UNIT_SCHEME, "", compUnitRelative);
             ISourceLocation classLogical = resolver.resolveBinding(classNode, null);
             ISourceLocation classPhysical = M3LocationUtil.makeLocation(compUnitPhysical, classReader.header, classReader.b.length);
+            IConstructor cons = resolver.resolveType(classNode, null);
             @SuppressWarnings("unchecked")
             List<AnnotationNode> annotations = composeAnnotations(classNode.visibleAnnotations, classNode.invisibleAnnotations);
 
@@ -343,6 +344,7 @@ public class JarConverter extends M3Converter {
             addToImplements(classLogical, classNode);
             addToModifiers(classLogical, classNode.access, true);
             addToAnnotations(classLogical, annotations);
+            addToTypes(classLogical, cons);
             
             setInnerClassRelations(classNode, classLogical); 
             setFieldRelations(classNode, classLogical);
@@ -398,6 +400,7 @@ public class JarConverter extends M3Converter {
                     IString fieldName = values.string(fieldNode.name);
                     ISourceLocation fieldLogical = resolver.resolveBinding(fieldNode, classLogical);
                     ISourceLocation fieldPhysical = compUnitPhysical;
+                    IConstructor cons = resolver.resolveType(fieldNode, classLogical);
                     List<AnnotationNode> annotations = composeAnnotations(fieldNode.visibleAnnotations, fieldNode.invisibleAnnotations);
                     
                     addToContainment(classLogical, fieldLogical);
@@ -406,6 +409,7 @@ public class JarConverter extends M3Converter {
                     addToModifiers(fieldLogical, fieldNode.access);
                     addToAnnotations(fieldLogical, annotations);
                     addToTypeDependency(fieldLogical, fieldNode.desc);
+                    addToTypes(fieldLogical, cons);
                 }
             }
         }
@@ -491,6 +495,7 @@ public class JarConverter extends M3Converter {
         for (int i = 0; i < parameters.length; i++) {
             IString parameterName = values.string("param" + i);
             String path = methodLogical.getPath() + "/" + parameterName.getValue();
+            IConstructor cons = resolver.resolveType(parameters[i], null);
             
             ISourceLocation parameterLogical = M3LocationUtil.makeLocation(PARAMETER_SCHEME, "", path);
             ISourceLocation parameterPhysical = compUnitPhysical;
@@ -499,6 +504,7 @@ public class JarConverter extends M3Converter {
             addToDeclarations(parameterLogical, parameterPhysical);
             addToNames(parameterLogical, parameterName);
             addToTypeDependency(parameterLogical, parameters[i].getDescriptor());
+            addToTypes(parameterLogical, cons);
         }
     }
 
