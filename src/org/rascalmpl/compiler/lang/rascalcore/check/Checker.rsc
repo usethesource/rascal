@@ -81,7 +81,7 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
                 ProductionType = aadt("Production", [], dataSyntax());
                 symbolField = SymbolType[label="symbol"]; //<"symbol", SymbolType>;
                 definitionsField = amap(SymbolType, ProductionType)[label="definitions"]; //< "definitions", amap(SymbolType, ProductionType)>;
-                c.define("type", constructorId(), mkTree(3), defType(acons(typeType, /*"type",*/ [symbolField, definitionsField], [], label="type")));
+                c.define("type", constructorId(), mkTree(3), defType(acons(typeType, [symbolField, definitionsField], [], label="type")));
                 // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
             } else {
                 //data type[&T] = type(AType symbol, map[AType,AProduction] definitions);
@@ -90,7 +90,7 @@ void rascalPreCollectInitialization(map[str, Tree] namedTrees, Collector c){
                 AProductionType = aadt("AProduction", [], dataSyntax());
                 atypeField = SymbolType[label="symbol"]; //<"symbol", SymbolType>;
                 definitionsField = amap(SymbolType, AProductionType)[label="definitions"]; //< "definitions", amap(SymbolType, AProductionType)>;
-                c.define("type", constructorId(), mkTree(3), defType(acons(typeType, /*"type",*/ [atypeField, definitionsField], [], label="type")));
+                c.define("atype", constructorId(), mkTree(3), defType(acons(typeType, [atypeField, definitionsField], [], label="type")));
                 // NB: this definition does not persist to avoid duplicate definitions in different modules, see lang::rascalcore::check::Import::saveModule
             }
         c.leaveScope(tree);
@@ -320,7 +320,7 @@ set[str] loadImportsAndExtends(str moduleName, ModuleStructure ms, Collector c, 
 }
 
 tuple[ProfileData, TModel] rascalTModelComponent(map[str, Tree] namedTrees, ModuleStructure ms, 
-                                                 TypePalConfig config=rascalTypePalConfig(classicReifier=true), bool inline=false){
+                                                 TypePalConfig config=rascalTypePalConfig(classicReifier=false), bool inline=false){
     modelName = intercalate(" + ", toList(domain(namedTrees)));
     
     if(config.verbose) println("\<\<\< checking <modelName>");
@@ -380,7 +380,7 @@ data ModuleMessages = program(loc src, set[Message] messages);
 list[ModuleMessages] check(list[loc] moduleLocs, PathConfig pcfg){
     pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
     println("=== check: <moduleLocs>"); iprintln(pcfg1);
-    <tmodels, moduleLocs1, modules> = rascalTModelForLocs(moduleLocs, pcfg, rascalTypePalConfig(classicReifier=true,logImports=true));
+    <tmodels, moduleLocs1, modules> = rascalTModelForLocs(moduleLocs, pcfg, rascalTypePalConfig(classicReifier=false,logImports=true));
     nomodels = {moduleName | moduleLoc <- moduleLocs, moduleName := getModuleName(moduleLoc, pcfg), !tmodels[moduleName]?};
     if(!isEmpty(nomodels)) println("<size(nomodels)> tmodels missing for: <nomodels>");
     return [ program(moduleLoc, toSet(tm.messages)) | moduleLoc <- moduleLocs, moduleName := getModuleName(moduleLoc, pcfg), tmodels[moduleName]?, tm:= tmodels[moduleName] ];
