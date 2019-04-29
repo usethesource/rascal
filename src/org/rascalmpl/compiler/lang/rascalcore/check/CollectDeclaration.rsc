@@ -247,7 +247,7 @@ void collect(current: (FunctionDeclaration) `<FunctionDeclaration decl>`, Collec
        
         if(!isEmpty(modifiers)) dt.modifiers = modifiers;
          
-        c.defineInScope(parentScope, prettyPrintName(fname), functionId(), current /*fname*/, dt); 
+        c.defineInScope(parentScope, prettyPrintName(fname), functionId(), current, dt); 
         
         if(decl is \default){
             if(!returnsViaAllPath(decl.body, "<fname>", c) && "<signature.\type>" != "void"){
