@@ -618,12 +618,12 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
      lrel[str name, AType atype, MuExp defaultExp]  kwps = translateKeywordParameters(parameters);
     
     // TODO: we plan to introduce keyword patterns as formal parameters
-    MuExp body = translateFunction(fuid, parameters.formals.formals, ftype, muBlock([translate(stat) | stat <- cbody]), false, []);
+    <formalVars, funBody> = translateFunction(fuid, parameters.formals.formals, ftype, muBlock([translate(stat) | stat <- cbody]), false, []);
     
     addFunctionToModule(muFunction(fuid, 
                                    fuid, 
                                    ftype, 
-                                   getParameterNames(parameters.formals.formals),
+                                   formalVars,
                                    kwps,
                                    fuid, 
   								   nformals,
@@ -631,11 +631,11 @@ MuExp translate (e:(Expression) `<Parameters parameters> { <Statement* statement
   								   isVarArgs, 
   								   false,
   								   false,
-  								   getExternalRefs(body, fuid),  // << TODO
+  								   getExternalRefs(funBody, fuid),  // << TODO
   								   e@\loc,
   								   [],
   								   (),
-  									body));
+  								   funBody));
   	
   	leaveFunctionScope();								  
   	return muFun1(uid); // TODO!
@@ -867,7 +867,7 @@ MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) {
             } else {
                 elemType = getElementType(getType(exp));
                 elem = muTmpIValue(nextTmp("elem"), fuid, elemType);
-                code = muForAll/*Any*/(btscope, elem, translate(exp), translatePat(pat, elemType,  elem, "", code, muFail(btscope)));
+                code = muForAll(btscope, elem, getType(exp), translate(exp), translatePat(pat, elemType, elem, "", code, muFail(btscope)));
             }
         } else {
             code = translateBool(gen, "", code, exit);
@@ -911,7 +911,7 @@ MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
             } else {
                 elemType = getElementType(getType(exp));
                 elem = muTmpIValue(nextTmp("elem"), fuid, elemType);
-                code = muForAll(btscope, elem, translate(exp), translatePat(pat, elemType, elem, "", code, exit));
+                code = muForAll(btscope, elem, getType(exp), translate(exp), translatePat(pat, elemType, elem, "", code, exit));
             }
             //code = muBlock([code, muBreak(whileName)]);
         } else {
@@ -1030,11 +1030,14 @@ private MuExp translateSetOrList(Expression e, {Expression ","}* es, str kind){
 
 // -- reified type expression ---------------------------------------
 //TODO
-MuExp translate ((Expression) `# <Type tp>`) {
-	//println("#<tp>, translateType: <e>");
-	//iprintln("<translateType(tp)>");
-	//iprintln("symbolToValue(translateType(tp)) = <symbolToValue(translateType(tp)).definitions>");
-	return muCon(symbolToValue(translateType(tp)));
+MuExp translate (e: (Expression) `# <Type tp>`) {
+	println("#<tp>, translateType: <e>");
+	iprintln("<translateType(tp)>");
+	//iprintln("symbolToValue(translateType(tp)) = <symbolToValue(translateType(tp))>");
+	//return muCon(symbolToValue(translateType(tp)));
+	//return muATypeCon(translateType(tp));
+	t = translateType(tp);
+	return muATypeCon(t, collectDefs(t, ()));
 }	
 
 // -- tuple expression ----------------------------------------------
@@ -1490,7 +1493,7 @@ MuExp translateGenerator(Pattern pat, Expression exp, str btscope, MuExp trueCon
     } else {
     //btscope = nextTmp("ENUM");
     // generic enumerator
-        code = muForAll(btscope, elem, translate(exp), translatePat(pat, getElementType(getType(exp)),  elem, "", trueCont, muFail(btscope)));
+        code = muForAll(btscope, elem, getType(exp), translate(exp), translatePat(pat, getElementType(getType(exp)),  elem, "", trueCont, muFail(btscope)));
     }
     leaveBacktrackingScope();
     leaveLoop();

@@ -42,6 +42,7 @@ import lang::rascalcore::compile::Rascal2muRascal::RascalExpression;
 MuModule r2mu(lang::rascal::\syntax::Rascal::Module M, TModel tmodel, PathConfig pcfg, loc reloc=|noreloc:///|, bool verbose = true, bool optimize = true, bool enableAsserts=false){
    try {
       resetModuleInfo(optimize, enableAsserts);
+      setModuleScope(M@\loc);
       module_name = "<M.header.name>";
       setModuleName(module_name);
       mtags = translateTags(M.header.tags);

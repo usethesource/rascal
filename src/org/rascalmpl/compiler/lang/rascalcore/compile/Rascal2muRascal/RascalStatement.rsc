@@ -386,40 +386,45 @@ bool isSpoiler(Pattern pattern, int fp){
 }
 
 map[int, MuExp] addPatternWithActionCode(MuExp switchval, str fuid, bool useConcreteFingerprint, PatternWithAction pwa, map[int, MuExp] table, int key, MuExp succeedCase){
+    ifname = nextLabel();
 	if(pwa is arbitrary){
-	   ifname = nextLabel();
        enterBacktrackingScope(ifname);
-	   if(pwa.pattern is literal && !pwa.pattern.literal is regExp){
-	         table[key] = muIfelse(muEqual(translate(pwa.pattern.literal), switchval),
-	                               muBlock([translate(pwa.statement), succeedCase]),
-	                               table[key] ?  muFailCase());
-	                                       //{ enterBacktrackingScope(ifname);  translate(pwa.statement) ; }, 
-                                        //   { leaveBacktrackingScope();  table[key] ?  muFailCase(); }); 
-       } else {
+	   //if(pwa.pattern is literal && !pwa.pattern.literal is regExp){
+	   //      table[key] = muIfelse(muEqual(translate(pwa.pattern.literal), switchval),
+	   //                            muBlock([translate(pwa.statement), succeedCase]),
+	   //                            table[key] ?  muFailCase());
+	   //                                    //{ enterBacktrackingScope(ifname);  translate(pwa.statement) ; }, 
+    //                                    //   { leaveBacktrackingScope();  table[key] ?  muFailCase(); }); 
+    //   } else {
              table[key] = translatePat(pwa.pattern, avalue(), switchval, ifname,
                                            { enterBacktrackingScope(ifname);  muBlock([translate(pwa.statement), succeedCase]) ; }, 
                                            { leaveBacktrackingScope();  table[key] ?  muFailCase(); });
-       }
+       //}
        leaveBacktrackingScope(); 
-	 } else {
-	    ifname2 = nextLabel();
+	 } else  {
 	    replacement = muTmpIValue(nextTmp("replacement"), fuid, getType(pwa.replacement.replacementExpression));
 	    replacementCode = translate(pwa.replacement.replacementExpression);
-        list[Expression] conditions = [];
-        if(pwa.replacement is conditional) {
-            conditions = [ e | Expression e <- pwa.replacement.conditions ];
-        }
+        list[Expression] conditions = (pwa.replacement is conditional) ? [ e | Expression e <- pwa.replacement.conditions ] : [];
         replcond = muValueIsSubTypeOfValue(replacement, switchval);
-                                                      
-        table[key] = muBlock([ translateCondsAsStat(ifname2,
+        
+        table[key] =  translatePat(pwa.pattern, avalue(), switchval, ifname,
+                                            translateCondsAsStat(ifname,
                                                     conditions, 
                                                     muBlock([ muVarInit(replacement, replacementCode),
-                                                              //   muInsert(replacement),
                                                               muIfelse( replcond, muInsert(replacement, replacement.atype), muFailCase())
                                                             ]),
                                                     muFailCase()), 
-                                                    table[key] ? muBlock([]) /*muInsert(replacement)*/
-                             ]);                                      
+                                                    table[key] ? muBlock([]));
+                                                      
+        //table[key] = muBlock([ translateCondsAsStat(ifname2,
+        //                                            conditions, 
+        //                                            muBlock([ muVarInit(replacement, replacementCode),
+        //                                                      //   muInsert(replacement),
+        //                                                      muIfelse( replcond, muInsert(replacement, replacement.atype), muFailCase())
+        //                                                    ]),
+        //                                            muFailCase()), 
+        //                                            table[key] ? muBlock([]) /*muInsert(replacement)*/
+        //                     ]);                                      
 	 }
 	     
 	 return table;
@@ -740,13 +745,17 @@ MuExp translate((Statement) `return <Statement statement>`) {
 	// If the 'return' is used in the scope of a try-catch-finally block,
 	// the respective 'finally' block must be executed before the function returns
 	resultType = getType(statement);
-	if(hasFinally()) {
+	if(hasFinally()) { // TODO adapt
 	    str fuid = topFunctionScope();
 		str varname = asTmp(nextLabel());
 		result = muTmpIValue(nextLabel("result"), fuid, resultType);
 		return muValueBlock(resultType, [ muConInit(result, translate(statement)), muReturn1(resultType, result) ]);
 	} 
-	return muReturn1(resultType, translate(statement));
+	if((Statement) `<Expression expression>;` := statement && (Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>` := expression){
+	   return translateBool(condition, "", muReturn1(resultType, translate(thenExp)), muReturn1(resultType, translate(elseExp)));
+	} else {
+	   return muReturn1(resultType, translate(statement));
+	}
 }
 
 // -- throw statement ------------------------------------------------

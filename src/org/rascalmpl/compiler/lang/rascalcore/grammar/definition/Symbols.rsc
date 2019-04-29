@@ -128,7 +128,7 @@ public AType \conditional(\conditional(AType s, set[ACondition] cs1), set[ACondi
 public AType \conditional(AType s, set[ACondition] cs) {
   // if there is a nested conditional, lift the nested conditions toplevel and make the nested AType unconditional.
   if (c <- cs, c has atype, c.atype is conditional) {
-     return \conditional(s, {c[atype=c.atype.symbol], *c.atype.conditions, *(cs - {c})}); //SPLICING
+     return \conditional(s, {c[atype=c.atype.atype], *c.atype.conditions, *(cs - {c})}); //SPLICING
   }
   else fail;
 }             

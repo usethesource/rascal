@@ -15,6 +15,7 @@ import lang::rascalcore::compile::muRascal::AST;
 
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
+import lang::rascalcore::check::NameUtils;
 
 import lang::rascalcore::compile::Rascal2muRascal::ModuleInfo;
 import lang::rascalcore::compile::Rascal2muRascal::RascalType;
@@ -76,7 +77,7 @@ void translate(d: (Declaration) `<Tags tags> <Visibility visibility> data <UserT
           
             defExprCode = fixFieldReferences(translate(defaultExpr), consType, consVar);
             body = muReturn1(kwtype, muIfelse(muIsKwpDefined(consVar, kwFieldName), muGetKwpFromConstructor(consVar, kwtype, kwFieldName), defExprCode));
-            addFunctionToModule(muFunction(fuid, getterName, getterType, [], [], "", 1, 1, false, true, false, [], |std:///|, [], (), body));               
+            addFunctionToModule(muFunction(fuid, getterName, getterType, [], [], "", 1, 1, false, true, false, [], getModuleScope(), [], (), body));               
        }
     }
  }
@@ -91,24 +92,24 @@ void translate(d: (Declaration) `<FunctionDeclaration functionDeclaration>`) = t
 // -- function declaration ------------------------------------------
 
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> ;`)   {
-  translateFunctionDeclaration(fd, [], []);
+  translateFunctionDeclaration(fd, [], [], addReturn=true);
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> ;`){
   Statement stat = (Statement) `<Expression expression>;`;
-  translateFunctionDeclaration(fd, [stat], []);
+  translateFunctionDeclaration(fd, [stat], [], addReturn=true);
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags> <Visibility visibility> <Signature signature> = <Expression expression> when <{Expression ","}+ conditions>;`){
   Statement stat = (Statement) `<Expression expression>;`;
-  translateFunctionDeclaration(fd, [stat], [exp | exp <- conditions]); 
+  translateFunctionDeclaration(fd, [stat], [exp | exp <- conditions], addReturn=true); 
 }
 
 void translate(fd: (FunctionDeclaration) `<Tags tags>  <Visibility visibility> <Signature signature> <FunctionBody body>`){
   translateFunctionDeclaration(fd, [stat | stat <- body.statements], []);
 }
 
-private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement] body, list[Expression] when_conditions){
+private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement] body, list[Expression] when_conditions, bool addReturn=false){
   //println("r2mu: Compiling \uE007[<fd.signature.name>](<fd@\loc>)");
   
   inScope = topFunctionScope();
@@ -121,7 +122,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
       if(ignoreTest(ttags)){
           // The type checker does not generate type information for ignored functions
           addFunctionToModule(muFunction("/ignored-<fd@\loc.offset>()", 
-                                         "<fd.signature.name>", 
+                                         prettyPrintName(fd.signature.name), 
                                          avoid(),
                                          [],
                                          [],
@@ -140,7 +141,8 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
       }
      
       ftype = getFunctionType(funsrc);
-      argNames = getNestedParameterNames(funsrc); //getParameterNames(fd.signature.parameters.formals.formals);
+      resultType = ftype.ret;
+      //formals = getNestedParameters(funsrc); //getParameterNames(fd.signature.parameters.formals.formals);
       nformals = size(ftype.formals);
       fuid = convert2fuid(funsrc);
            
@@ -161,28 +163,37 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
          //if(kwfs is \default) {
          // 	params +=  [ muVar("map_of_keyword_values",fuid,nformals), muVar("map_of_default_values",fuid,nformals+1)];
          //}
-         if("<fd.signature.name>" == "typeOf"){		// Take note: special treatment of Types::typeOf
-         	mubody = muCallPrim3("type2symbol", [ muCallPrim3("typeOf", params, fd@\loc), muCon(getGrammar()) ], fd@\loc);
-         } else {
+         //if("<fd.signature.name>" == "typeOf"){		// Take note: special treatment of Types::typeOf
+        // 	mubody = muCallPrim3("type2symbol", [ muCallPrim3("typeOf", params, fd@\loc), muCon(getGrammar()) ], fd@\loc);
+        // } else {
             mubody = muCallJava("<fd.signature.name>", ttags["javaClass"], ftype, ("reflect" in ttags) ? 1 : 0, params, fuid);
-         }
+        // }
+      } else if(addReturn){
+            if((Statement) `<Expression expression>;` := body[0] && (Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>` := expression){
+                mubody = translateBool(condition, "", muReturn1(resultType, translate(thenExp)), muReturn1(resultType, translate(elseExp)));
+            } else {
+                mubody = translate(body[0]);
+            }
       } else {
         mubody = muBlock([ translate(stat) | stat <- body ]);
       }
+      
      
       isPub = !fd.visibility is \private;
       isMemo = ttags["memo"]?; 
       iprintln(body);
-      tbody = translateFunction("<fd.signature.name>", fd.signature.parameters.formals.formals, ftype, mubody, isMemo, when_conditions);
-     
-      //formals = [formal | formal <- fd.signature.parameters.formals.formals];
+      <formalVars, tbody> = translateFunction(prettyPrintName(fd.signature.name), fd.signature.parameters.formals.formals, ftype, mubody, isMemo, when_conditions);
+      if(resultType != avoid() && !endsWithReturn(tbody)){
+        iprintln(tbody);
+        tbody = muBlock([ tbody, muFailReturn(ftype) ]);
+      }
       
       addFunctionToModule(muFunction(fuid, 
-      								 "<fd.signature.name>", 
+      								 prettyPrintName(fd.signature.name), 
       								 ftype,
-      								 argNames,
+      								 formalVars,
       								 kwps,
-      								 inScope, //"", //(addr.fuid in moduleNames) ? "" : addr.fuid, 
+      								 inScope,
       								 getFormals(funsrc), 
       								 getScopeSize(funsrc),
       								 isVarArgs, 
@@ -220,6 +231,23 @@ list[str] getParameterNames({Pattern ","}* formals){
      return[ getParameterName(abs_formals, i) | i <- index(abs_formals) ];
 }
 
+Tree getParameterNameAsTree(list[Pattern] patterns, int i) = getParameterNameAsTree(patterns[i], i);
+
+Tree getParameterNameAsTree((Pattern) `<QualifiedName qname>`, int i) = qname;
+Tree getParameterNameAsTree((Pattern) `<QualifiedName qname> *`, int i) = qname;
+Tree getParameterNameAsTree((Pattern) `<Type tp> <Name name>`, int i) = name;
+Tree getParameterNameAsTree((Pattern) `<Name name> : <Pattern pattern>`, int i) = name;
+Tree getParameterNameAsTree((Pattern) `<Type tp> <Name name> : <Pattern pattern>`, int i) = name;
+
+bool hasParameterName(list[Pattern] patterns, int i) = hasParameterName(patterns[i], i);
+
+bool hasParameterName((Pattern) `<QualifiedName qname>`, int i) = "<qname>" != "_";
+bool hasParameterName((Pattern) `<QualifiedName qname> *`, int i) = "<qname>" != "_";
+bool hasParameterName((Pattern) `<Type tp> <Name name>`, int i) = "<name>" != "_";
+bool hasParameterName((Pattern) `<Name name> : <Pattern pattern>`, int i) = "<name>" != "_";
+bool hasParameterName((Pattern) `<Type tp> <Name name> : <Pattern pattern>`, int i) = "<name>" != "_";
+default bool hasParameterName(Pattern p, int i) = false;
+
 list[MuExp] getExternalRefs(MuExp exp, str fuid)
     = toList({ v | /v:muVar(str name, str fuid2, int pos, AType atype) := exp, fuid2 != fuid });
     
@@ -248,7 +276,7 @@ MuExp returnFromFunction(MuExp body, AType ftype, list[MuExp] formalVars, bool i
       res = muReturn1(ftype.ret, body);
       if(isMemo){
          res = visit(res){
-            case muReturn1(t, e) => muMemoReturn(ftype, formalVars, body)
+            case muReturn1(t, e) => muMemoReturn(ftype, formalVars, e)
          }
       }
       return res;   
@@ -265,20 +293,26 @@ MuExp functionBody(MuExp body, AType ftype, list[MuExp] formalVars, bool isMemo)
     }
 }
 
-MuExp translateFunction(str fname, {Pattern ","}* formals, AType ftype, MuExp body, bool isMemo, list[Expression] when_conditions){
+tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Pattern ","}* formals, AType ftype, MuExp body, bool isMemo, list[Expression] when_conditions){
      // Create a loop label to deal with potential backtracking induced by the formal parameter patterns  
+     
      enterBacktrackingScope(fname);
      formalsList = [f | f <- formals];
-  
-     formalVars = [muVar(getParameterName(formalsList, i), topFunctionScope(), i, getType(formalsList[i])) | i <- index(formalsList) ];
+     str fuid = topFunctionScope();
+     
+     formalVars = [hasParameterName(formalsList, i) ? muVar(pname, fuid, getPositionInScope(pname, getParameterNameAsTree(formalsList, i)@\loc), getType(formalsList[i]))
+                                                     : muVar(pname, fuid, i, getType(formalsList[i]))   
+                   | i <- index(formalsList), pname := getParameterName(formalsList, i) 
+                   ];
+    
      when_body = returnFromFunction(translateConds(fname, when_conditions, body, muFailReturn(ftype)), ftype, formalVars, isMemo);
      params_when_body = ( when_body
-                        | translatePat(formalsList[i], getType(formalsList[i]),formalVars[i], fname, it, muFailReturn(ftype), subjectAssigned=true) 
-                        | i <- index(formalsList));
+                        | translatePat(formalsList[i], getType(formalsList[i]),formalVars[i], fname, it, muFailReturn(ftype), subjectAssigned=hasParameterName(formalsList, i) ) 
+                        | i <- reverse(index(formalsList)));
      funCode = functionBody(params_when_body, ftype, formalVars, isMemo);
      //funCode = muBlock([functionBody(params_when_body, ftype, formalVars, isMemo), muFailReturn(ftype)]);
      leaveBacktrackingScope();
-     return funCode;
+     return <formalVars, funCode>;
 }
 
 /********************************************************************/

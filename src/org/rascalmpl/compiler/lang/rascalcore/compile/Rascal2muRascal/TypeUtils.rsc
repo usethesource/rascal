@@ -192,6 +192,14 @@ AType getDefType(UID d){
     throw "getDefType: <d>";
 }
 
+AType getTypeFromDef(Define def){
+    di = def.defInfo;
+    if(defType(AType atype) := di) return atype;
+    if(defType(Tree tree) := di) return getDefType(getLoc(tree));
+    if(defType(loc l) := di) return facts[l];
+    throw "getTypeFromDef: <def>";
+}
+
 int getFormals(UID fuid) {
     tp = getDefType(fuid);
     kwmap = size(tp.kwFormals) > 0 ? 1 : 0;
@@ -641,14 +649,35 @@ AType getFunctionType(loc l) {
    }
 }
 
-list[str] getNestedParameterNames(loc l){
+list[MuExp] getNestedParameters(loc l){
     fundef = definitions[l];
     //println("getNestedParameterNames: <l>");
     locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined] }; //TODO declaredIn[sc] == fun
     positionals = sort([v | v <- locally_defined, is_positional_formal(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
+   iprintln(positionals);
+    return [ muVar(vdef.id, "<vdef.scope>", getPositionInScope(vdef.id, vdef.defined),  getTypeFromDef(vdef)) | vdef <- positionals, vdef.idRole == formalId(), hasPositionInScope(vdef.id, vdef.defined) ];
     return [ vdef.id | vdef <- positionals ];
     //return [definitions[v].id | v <- containment[l], is_positional_formal(v)];
 }
+
+list[MuExp] getNestedParameters(Define fundef){
+    //println("getNestedParameterNames: <l>");
+    locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined] }; //TODO declaredIn[sc] == fun
+    positionals = sort([v | v <- locally_defined, is_positional_formal(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
+   iprintln(positionals);
+    return [ muVar(vdef.id, "<vdef.scope>", getPositionInScope(vdef.id, vdef.defined),  getTypeFromDef(vdef)) | vdef <- positionals, vdef.idRole == formalId(), hasPositionInScope(vdef.id, vdef.defined) ];
+    return [ vdef.id | vdef <- positionals ];
+    //return [definitions[v].id | v <- containment[l], is_positional_formal(v)];
+}
+
+//list[str] getNestedParameterNames(loc l){
+//    fundef = definitions[l];
+//    //println("getNestedParameterNames: <l>");
+//    locally_defined = { *(vars_per_scope[sc] ? {}) | sc <- td_reachable_scopes[fundef.defined] }; //TODO declaredIn[sc] == fun
+//    positionals = sort([v | v <- locally_defined, is_positional_formal(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
+//    return [ vdef.id | vdef <- positionals ];
+//    //return [definitions[v].id | v <- containment[l], is_positional_formal(v)];
+//}
 
 AType getClosureType(UID uid) {
    tp = getType(uid);
@@ -694,7 +723,16 @@ map[str, map[str, value]] getConstantConstructorDefaultExpressions(loc location)
 tuple[str fuid, int pos] getVariableScope(str name, loc l) {
 iprintln(definitions);
   println("getVariableScope: <name>, <l>, <definitions[l] ? "QQQ">, <declaredIn[l] ? "XXX">, <useDef[l] ? "YYY">)");
-  container = declaredIn[l] ? declaredIn[definitions[getFirstFrom(useDef[l])].defined];
+  container = |global-scope:///|;
+  if(declaredIn[l]? && !isEmpty(useDef[l])){
+        container = declaredIn[definitions[getFirstFrom(useDef[l])].defined];
+   } else {
+    for(fun <- functions){
+        if(containedIn(l, fun)){ container = fun; break; }
+    }
+   } 
+  //container = declaredIn[l] ? (useDef[l]? ? declaredIn[definitions[getFirstFrom(useDef[l])].defined]
+  
   cdef = definitions[container];
   if(cdef.idRole == functionId()) return <convert2fuid(container), getPositionInScope(name, l)>;
   if(cdef.idRole == moduleId()) return <cdef.id, getPositionInScope(name, l)>;
@@ -702,11 +740,15 @@ iprintln(definitions);
 }
 
 int getPositionInScope(str name, loc l){
-    //println("getPositionInScope:<name>, <l>");
-    //iprintln(position_in_container);
+    println("getPositionInScope:<name>, <l>");
+    iprintln(position_in_container);
     uid = l in definitions ? l : getFirstFrom(useDef[l]); 
     return position_in_container[uid];
-    //return (position_in_container[l] ? position_in_container[definitions[getFirstFrom(useDef[l])].defined]);
+}
+
+bool hasPositionInScope(str name, loc l){
+    uid = l in definitions ? l : getFirstFrom(useDef[l]); 
+    return position_in_container[uid]?;
 }
 
 // Create unique symbolic names for functions, constructors and productions
@@ -736,10 +778,11 @@ str convert2fuid(UID uid) {
 	if(uid == |global-scope:///|)
 	   return "global-scope";
 	tp = getType(uid);
-	str name = definitions[uid]? ? definitions[uid].id : "XXX"; //"<tp>";
+	str name = definitions[uid]? ? definitions[uid].id : "XXX";
 
     if(declaredIn[uid]?) {
-	   if(declaredIn[uid] != |global-scope:///| && declaredIn[uid] != uid) name = convert2fuid(declaredIn[uid]) + "$" + name + "_<uid.begin.line>_<uid.end.line>";
+       if(declaredIn[uid] != |global-scope:///| && declaredIn[uid] != uid) name = name + "_<uid.begin.line>_<uid.end.line>";
+	   //if(declaredIn[uid] != |global-scope:///| && declaredIn[uid] != uid) name = convert2fuid(declaredIn[uid]) + "$" + name + "_<uid.begin.line>_<uid.end.line>";
     }
 	return name;
 }
@@ -750,6 +793,10 @@ public int getTupleFieldIndex(AType s, str fieldName) =
 public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc block) {
     locally_defined = { v.defined | sc <- td_reachable_scopes[block], v <- (vars_per_scope[sc] ? {}) };
     return { <convert2fuid(declaredIn[decl]), position_in_container[decl]> | UID decl <-locally_defined, position_in_container[decl]?};
+}
+
+map[AType,set[AType]] collectDefs(AType t, map[AType, set[AType]] definitions){
+   return definitions + (adt : adt_constructors[adt] ? {aprod(grammar.rules[adt])} | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := t, !definitions[adt]?);
 }
 
 /********************************************************************/
@@ -803,16 +850,18 @@ MuExp mkVar(str name, loc l) {
   defs = useDef[l];
   if(size(defs) > 1){
     assert all(d <- defs, definitions[d].idRole in {functionId(), constructorId()}) : "Only functions can have multiple definitions" ;
-   //println("overloadedTypeResolver:"); iprintln(overloadedTypeResolver);
+   println("overloadedTypeResolver:"); iprintln(overloadedTypeResolver);
+   println("<name>, <l>");
     ftype = unsetRec(getType(l));
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := ftype){
         resType = avoid();
         formalsType = avoid();
         for(<def, idrole, tp> <- overloads){
+            println("<def>, <idrole>, <tp>");
             resType = alub(resType, getResult(tp));
             formalsType = alub(formalsType, atypeList(getFormals(tp)));
         }
-        ftype = afunc(resType, formalsType.atypes, []);
+        ftype = atypeList(atypes) := formalsType ? afunc(resType, formalsType.atypes, []) : afunc(resType, [formalsType], []);
     }
     //iprintln(overloadedTypeResolver);
     return muOFun(overloadedTypeResolver[<name,ftype>]);
