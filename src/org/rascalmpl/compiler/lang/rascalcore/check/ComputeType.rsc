@@ -375,9 +375,9 @@ public AType computeFieldType(AType containerType, Tree field, loc scope, Solver
                s.report(error(field, "Field %q does not exist on type `type` (classic reifier)", fieldName));
             }
          } else {
-            if (fieldName == "symbol") {
+            if (fieldName == "symbol") { // TODO: symbol => atype
                 return s.getTypeInScopeFromName("AType", scope, {dataId()});
-            } else if (fieldName == "definitions") {
+            } else if (fieldName == "definitions") { // TODO definitions => ?
                s.getTypeInScopeFromName("AType", scope, {dataId()});
                s.getTypeInScopeFromName("AProduction", scope, {dataId()});
                return makeMapType(makeADTType("AType"), makeADTType("AProduction"));
