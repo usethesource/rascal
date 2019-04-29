@@ -211,8 +211,6 @@ public DoNotNest except(Production p:regular(Symbol s), Grammar g) {
       return {<p,i,q> | i <- index(ss), conditional(t,cs) <- ss, except(c) <- cs, just(q) := find(c,t)};
      default: return {};
   }
-  
-  return {};
 }
 
 
