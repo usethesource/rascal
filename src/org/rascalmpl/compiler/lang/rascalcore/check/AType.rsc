@@ -13,28 +13,30 @@ import String;
 alias Keyword     = tuple[AType fieldType, Expression defaultExp];
    
 data AType (str label = "")
-    =  aint()
+    =  
+       avoid()
      | abool()
+     | aint()
      | areal()
      | arat()
-     | astr()
      | anum()
-     | anode(list[AType] fields)
-     | avoid()
-     | avalue()
+     | astr()
      | aloc()
      | adatetime()
      | alist(AType elmType)
-     | aset(AType elmType)
      | abag(AType elmType)
-     | atuple(AType elemType)
-     | amap(AType keyType, AType valType)
+     | aset(AType elmType)
      | arel(AType elemType)  
      | alrel(AType elemType)
+   
+     | atuple(AType elemType)
+     | amap(AType keyType, AType valType)
+  
      | afunc(AType ret, list[AType] formals, list[Keyword] kwFormals,  bool varArgs=false, str deprecationMessage="", bool isConcreteArg=false, int abstractFingerprint=0, int concreteFingerprint=0)
      | aalias(str aname, list[AType] parameters, AType aliased)
      | aanno(str aname, AType onType, AType annoType)
      
+     | anode(list[AType] fields)
      | aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)
      | acons(AType adt, list[AType] fields, list[Keyword] kwFields)
      | aprod(AProduction production)
@@ -42,6 +44,7 @@ data AType (str label = "")
      | amodule(str mname, str deprecationMessage="")
      | aparameter(str pname, AType bound) 
      | areified(AType atype)
+     | avalue()
      ;
      
 @memo
@@ -119,7 +122,7 @@ public AProduction choice(AType s, set[AProduction] choices){
 
 data Tree 
      = appl(AProduction aprod, list[Tree] args, loc src=|unknown:///|) // <1>
-     | cycle(AType asymbol, int cycleLength)  // <2>
+     | cycle(AType atype, int cycleLength)  // <2>
      | amb(set[Tree] alternatives) // <3> 
      | char(int character) // <4>
      ;
@@ -176,7 +179,7 @@ construct ordered and un-ordered compositions, and associativity groups.
     for extending priority chains and such.
 } 
 data AProduction 
-     = prod(AType def, list[AType] asymbols, set[Attr] attributes={}, loc src=|unknown:///|) // <1>
+     = prod(AType def, list[AType] atypes, set[Attr] attributes={}, loc src=|unknown:///|) // <1>
      | regular(AType def) // <2>
      | error(AProduction prod, int dot) // <3>
      | skipped() // <4>
@@ -284,18 +287,18 @@ data AType
 // These are the regular expressions.
 data AType
      = \empty() // <11>
-     | \opt(AType symbol)  // <12>
-     | \iter(AType symbol) // <13>
-     | \iter-star(AType symbol)  // <14>
-     | \iter-seps(AType symbol, list[AType] separators)      // <15> 
-     | \iter-star-seps(AType symbol, list[AType] separators) // <16>
+     | \opt(AType atype)  // <12>
+     | \iter(AType atype) // <13>
+     | \iter-star(AType atype)  // <14>
+     | \iter-seps(AType atype, list[AType] separators)      // <15> 
+     | \iter-star-seps(AType atype, list[AType] separators) // <16>
      | \alt(set[AType] alternatives) // <17>
-     | \seq(list[AType] symbols)     // <18>
-     | \start(AType symbol)
+     | \seq(list[AType] atypes)     // <18>
+     | \start(AType atype)
      ;
   
 data AType // <19>
-     = \conditional(AType symbol, set[ACondition] conditions);
+     = \conditional(AType atype, set[ACondition] conditions);
 
 @doc{
 .Synopsis
