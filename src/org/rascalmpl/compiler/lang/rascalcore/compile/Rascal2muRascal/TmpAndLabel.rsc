@@ -11,6 +11,7 @@ import lang::rascalcore::compile::muRascal::AST;
  */
  
 public void resetTmpAndLabel(){
+    currentModule = |unknown:///|;
 	tmpVar = -1;
 	tmpLabel = -1;
 	loops = [];
@@ -22,6 +23,15 @@ public void resetTmpAndLabel(){
 	resetAllCounter();
 	resetOrCounter();
 }
+
+loc moduleScope = |unknown:///|;
+
+void setModuleScope(loc l){
+    moduleScope = l;
+}  
+
+loc getModuleScope()
+    = moduleScope;
 
 // Generation of temporary variables and labels
 

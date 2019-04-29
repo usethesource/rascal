@@ -11,7 +11,7 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::Rascal2muRascal::RascalModule;
 extend lang::rascalcore::check::Checker;
 import lang::rascalcore::compile::muRascal2Java::CodeGen;
-import lang::rascalcore::check::BasicRascalConfig;
+import lang::rascalcore::check::RascalConfig;
 
 import lang::rascalcore::compile::CompileTimeError;
 import lang::rascalcore::compile::util::Names;
@@ -33,8 +33,8 @@ loc generatedDir = |project://rascal-codegen-ideas/generated|;
 list[Message] compile1(str qualifiedModuleName, lang::rascal::\syntax::Rascal::Module M, map[str,TModel] tmodels, map[str, loc] moduleLocs, PathConfig pcfg, loc reloc = |noreloc:///|, bool verbose = true, bool optimize=true, bool enableAsserts=false){
     tm = tmodels[qualifiedModuleName];
     iprintln(tm);
-    targetDir = generatedDir + module2package(qualifiedModuleName);
-    className = module2uqclass(qualifiedModuleName);
+    targetDir = generatedDir + module2path(qualifiedModuleName);
+    className = getBaseClass(qualifiedModuleName);
    
     list[Message] errors = [ e | e:error(_,_) <- tm.messages];
     if(!isEmpty(errors)){

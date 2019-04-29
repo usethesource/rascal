@@ -54,8 +54,8 @@ JCode transPrim("add", AType r, [AType a, AType b, AType c], [str x, str y, str 
 JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "alist_add_elm(<castArg(a,x)>,<castArg(b,y)>)"      when isListLikeType(a), !isListLikeType(b);
 JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "elm_add_alist(<castArg(a,x)>,<castArg(b,y)>)"      when !isListLikeType(a), isListLikeType(b);
 
-JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "aset_add_elm(<castArg(a,x)>,<castArg(b,y)>)"       when isSetLikeType(a), isSetLikeType(b);
-JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "elm_add_alist(<castArg(a,x)>,<castArg(b,y)>)"      when isSetLikeType(a), !isSetLikeType(b);
+JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "aset_add_elm(<castArg(a,x)>,<castArg(b,y)>)"       when isSetLikeType(a), !isSetLikeType(b);
+JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "elm_add_alist(<castArg(a,x)>,<castArg(b,y)>)"      when !isSetLikeType(a), isSetLikeType(b);
 
 
 //JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "<y>.insert((ISet)(<x>))"                when !isSetLikeType(a), isSetLikeType(b);
@@ -80,10 +80,10 @@ JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)  
 
 // ---- add_..._writer -------------------------------------------------------
 
-JCode transPrim("add_list_writer", AType r, [AType a, AType b], [str w, str v], JGenie jg)        = "<w>.append(<v>);\n"; 
-JCode transPrim("add_set_writer", AType r, [AType a, AType b], [str w, str v], JGenie jg)         = "<w>.insert(<v>);\n"; 
-JCode transPrim("add_map_writer", AType r, [AType a, AType b], [str w, str k, str v], JGenie jg)  = "<w>.insert(<k>, <v>);\n"; 
-JCode transPrim("add_string_writer", AType r, [AType a], [str w, str s], JGenie jg)               = "<w>.append(<s>);\n";
+JCode transPrim("add_list_writer", AType r, list[AType] atypes, [str w, str v], JGenie jg)        = "<w>.append(<v>);\n"; 
+JCode transPrim("add_set_writer", AType r, list[AType] atypes, [str w, str v], JGenie jg)         = "<w>.insert(<v>);\n"; 
+JCode transPrim("add_map_writer", AType r, list[AType] atypes, [str w, str k, str v], JGenie jg)  = "<w>.insert(<k>, <v>);\n"; 
+JCode transPrim("add_string_writer", AType r, list[AType] atypes, [str w, str s], JGenie jg)      = "<w>.append(<s>);\n";
 
 // ---- assert_fails ----------------------------------------------------------
 
@@ -144,8 +144,8 @@ JCode transPrim("divide", AType r, [AType a, AType b], [str x, str y], JGenie jg
 
 // ---- equal -----------------------------------------------------------------
 
-JCode transPrim("equal", abool(), [AType a, AType b], [str x, str y], JGenie jg)         = "<x>.isEqual(<y>)"   when !(isNodeType(a) || isNodeType(b)); // was .equal
-JCode transPrim("equal", abool(), [AType a, AType b], [str x, str y], JGenie jg)         = "<x>.isEqual(<y>)"   when isNodeType(a) || isNodeType(b);    //WHY?
+JCode transPrim("equal", abool(), [AType a, AType b], [str x, str y], JGenie jg)         = "(<x>).isEqual(<y>)"   when !(isNodeType(a) || isNodeType(b)); // was .equal
+JCode transPrim("equal", abool(), [AType a, AType b], [str x, str y], JGenie jg)         = "(<x>).isEqual(<y>)"   when isNodeType(a) || isNodeType(b);    //WHY?
 
 // ---- field_project ---------------------------------------------------------
 

@@ -2,6 +2,7 @@ module lang::rascalcore::compile::muRascal::AST
 
 import Message;
 import List;
+import Set;
 import Node;   
 import ParseTree;
 import IO;
@@ -44,7 +45,8 @@ public data MuFunction =
                 muFunction(str qname, 
                            str uqname,
                            AType ftype,
-                           list[str] argNames,
+                           list[MuExp] formals,
+                           //list[str] argNames,
                            lrel[str name, AType atype, MuExp defaultExp] kwpDefaults, 
                            str scopeIn,
                            int nformals, 
@@ -99,6 +101,7 @@ MuExp muTmpGuardedIValue(str name, str fuid)        = muTmpNative(name, fuid, na
 public data MuExp = 
             muCon(value c)						                // Rascal Constant: an arbitrary IValue
           | muNoValue()                                         // Absent value in optional construct
+          | muATypeCon(AType atype, map[AType,set[AType]] defs) // AType as constant
           
           | muFun1(loc uid /* str fuid*/)   			        // *muRascal* function constant: functions at the root
            
@@ -183,7 +186,7 @@ public data MuExp =
           | muContinue(str label)                               // Continue statement
           
         
-          | muForAll(str label, MuExp var, MuExp iterable, MuExp body)
+          | muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body)
           | muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp last, MuExp exp)
           | muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp exp)
          
@@ -302,14 +305,25 @@ default bool producesNativeInt(MuExp exp)
          
 // ==== Simplification rules ==================================================
 
+// ---- endsWithReturn --------------------------------------------------------
+
 bool endsWithReturn(muReturn0()) = true;
 bool endsWithReturn(muReturn1(_, _)) = true;
 bool endsWithReturn(muFailReturn(_)) = true;
+bool endsWithReturn(muCheckMemo(_,_,_)) = true;
+bool endsWithReturn(muMemoReturn(_,_,_)) = true;
 bool endsWithReturn(muThrow(_,_)) = true;
 bool endsWithReturn(muBlock([*exps1, exp2])) = true when endsWithReturn(exp2);
 bool endsWithReturn(muValueBlock(AType t, [*exps1, exp2])) = true when endsWithReturn(exp2);
 bool endsWithReturn(muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart)) = true when endsWithReturn(thenPart), endsWithReturn(elsePart);
+bool endsWithReturn(muDoWhile(str label, MuExp body, muCon(false))) = endsWithReturn(body);
+bool endsWithReturn(muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body)) = endsWithReturn(body);
+bool endsWithReturn(muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp last, MuExp exp)) = endsWithReturn(exp);
+bool endsWithReturn(muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp exp)) = endsWithReturn(exp);
+bool endsWithReturn(muEnter(str label, MuExp body)) = endsWithReturn(body);
+
 default bool endsWithReturn(MuExp exp) = false;
+
 
 // ---- block -----------------------------------------------------------------
 
@@ -357,17 +371,22 @@ MuExp muValueBlock(AType t1, [*MuExp pre, muReturn1(AType t2, MuExp exp)])
 
 MuExp muReturn1(AType t1, muReturn1(AType t2, MuExp exp)) = muReturn1(t2, exp);
 
-MuExp muReturn1(AType t, muBlock([*MuExp exps, MuExp exp]))
-    = muBlock([*exps, muReturn1(t, exp)]);
+MuExp muReturn1(AType t, muBlock([MuExp exp])){
+    return muReturn1(t, exp);
+}
     
+MuExp muReturn1(AType t, muBlock([*MuExp exps, MuExp exp])){
+    if(isEmpty(exps)) fail; else return muBlock([*exps, muReturn1(t, exp)]);
+}    
 MuExp muReturn1(AType t1, muValueBlock(AType t2, [*MuExp exps, MuExp exp]))
     = muBlock([*exps, muReturn1(t1, exp)]);
     
 MuExp muReturn1(AType t, muAssign(MuExp var, MuExp exp))
     = muBlock([muAssign(var, exp), muReturn1(t, var)]);
     
-MuExp muReturn1(AType t, muVarInit(MuExp var, MuExp exp))
-    = muBlock([muVarInit(var, exp), muReturn1(t, var)]);
+MuExp muReturn1(AType t, muVarInit(MuExp var, MuExp exp)){
+    return muBlock([muVarInit(var, exp), muReturn1(t, var)]);
+}
     
 MuExp muReturn1(AType t, muConInit(MuExp var, MuExp exp))
     = muBlock([muConInit(var, exp), muReturn1(t, var)]);
@@ -380,12 +399,20 @@ MuExp muReturn1(AType t, muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart))
     
 MuExp muReturn1(AType t, muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart))
     = muIfelse(cond,muReturn1(t, thenPart), muReturn1(t, elsePart));
+    
+MuExp muReturn1(AType t, muWhileDo(str label, MuExp cond, MuExp body)){
+    return  muWhileDo(label, cond, muReturn1(t, body));
+    }
+    
+MuExp muReturn1(AType t, muDoWhile(str label, MuExp body, MuExp cond)){
+    return  muDoWhile(label, muReturn1(t, body), cond);
+    }
 
 MuExp muReturn1(AType t, muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp exp))
     = muForRangeInt(label, var, ifirst, istep, last, muReturn1(t, exp));
     
-MuExp muReturn1(AType t, muForAll(str label, MuExp var, MuExp iterable, MuExp body))
-    = muForAll(label, var, iterable, muReturn1(t, body));
+MuExp muReturn1(AType t, muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body))
+    = muForAll(label, var, iterType, iterable, muReturn1(t, body));
 
 MuExp addReturnFalse(bl: muBlock([*exps, muReturn1(abool(), muCon(false))])) = bl;
 
@@ -434,8 +461,8 @@ MuExp muAssign(MuExp var, muValueBlock(AType t, [*MuExp exps, MuExp exp]))
 MuExp muAssign(MuExp var, muForRangeInt(str label, MuExp loopVar, int ifirst, int istep, MuExp last, MuExp exp))
     = muBlock([ muAssign(var, muCon(false)), muForRangeInt(label, loopVar, ifirst, istep, last, muAssign(var, exp)) ]);
     
-MuExp muAssign(MuExp var, muForAll(str label, MuExp loopVar, MuExp iterable, MuExp body))
-    = muBlock([ muAssign(var, muCon(false)), muForAll(label, loopVar, iterable, muAssign(var, body)) ]);
+MuExp muAssign(MuExp var, muForAll(str label, MuExp loopVar, AType iterType, MuExp iterable, MuExp body))
+    = muBlock([ muAssign(var, muCon(false)), muForAll(label, loopVar, iterType, iterable, muAssign(var, body)) ]);
     
 MuExp muAssign(var, muEnter(str btscope, MuExp exp))
     = muEnter(btscope, visit(exp) { case muSucceed(btscope) => muBlock([muAssign(var, muCon(true)), muSucceed(btscope)]) });
@@ -476,8 +503,8 @@ MuExp muIfelse(muValueBlock(AType t, [*MuExp exps, MuExp exp]), MuExp thenPart, 
 //    =  muIfelse(btscope, cond, muEnter(btscope, thenPart), muEnter(btscope, elsePart));
 
 
-MuExp muEnter(str label, muForAll(label, MuExp var, MuExp iterable, MuExp body))
-    = muForAll(label, var, iterable, body);
+MuExp muEnter(str label, muForAll(label, MuExp var, AType iterType, MuExp iterable, MuExp body))
+    = muForAll(label, var, iterType, iterable, body);
     
 MuExp muForAll(str label, str varName, str fuid, MuExp iterable, MuExp body)
     = muForAll(label, varName, fuid, iterable, body1)
@@ -528,9 +555,14 @@ MuExp muCall(MuExp fun, AType t, list[MuExp] args)
     = muValueBlock(t, auxVars + pre + muCall(fun, t, flatArgs))
 when <true, auxVars, pre, flatArgs> := flattenArgs(args);
 
+AType getResultType(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals)) = ret;
+AType getResultType(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = adt;
+AType getResultType(overloadedAType(rel[loc, IdRole, AType] overloads)) = lubList(toList(overloads<2>));
+default AType getResultType(AType t) = t;
+     
 MuExp muOCall3(MuExp fun, AType atype, list[MuExp] args, loc src)
-    = muValueBlock(atype.ret, auxVars + pre + muOCall3(fun, atype, flatArgs, src))
-when <true, auxVars, pre, flatArgs> := flattenArgs(args);
+    = muValueBlock(getResultType(atype), auxVars + pre + muOCall3(fun, atype, flatArgs, src))
+when <true, auxVars, pre, flatArgs> := flattenArgs(args), bprintln(atype);
 
 MuExp muCallPrim3(str op, AType result, list[AType] details, list[MuExp] args, loc src)
     = muValueBlock(result, auxVars + pre + muCallPrim3(op, result, details, flatArgs, src))

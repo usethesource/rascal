@@ -8,4 +8,8 @@ public final class ValueRef<T extends IValue> {
 	public ValueRef(T value) {
 		this.value = value;
 	}
+	
+	public ValueRef(ValueRef<T> value) {
+		this.value = value.value;
+	}
 }

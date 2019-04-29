@@ -10,10 +10,6 @@ module lang::rascalcore::compile::Rascal2muRascal::TypeReifier
 
 import lang::rascalcore::check::Checker;
 
-//import lang::rascal::types::CheckerConfig;
-//import lang::rascal::types::AbstractName;
-//import lang::rascal::types::AbstractType;
-
 import lang::rascalcore::compile::Rascal2muRascal::TypeUtils;
 
 import lang::rascalcore::grammar::definition::Symbols;
@@ -26,12 +22,16 @@ import Relation;
 
 import IO;
 
+private TModel tmodel = tmodel();
 private rel[str,AType] typeRel = {};
 private set[AType] types = {};
 private rel[AType,AProduction] constructors = {};
 private rel[AType,AType] productions = {};
 private map[AType,AProduction] grammar = ();
 private map[AType,AProduction] cachedGrammar = ();
+
+private set[AType] adts = {};
+
 private map[AType,AProduction] instantiatedGrammar = ();
 private set[AType] starts = {};
 private AType activeLayout = layouts("$default$");
@@ -39,24 +39,26 @@ private rel[value,value] reachableTypes = {};
 private rel[AType,AType] reachableConcreteTypes = {};
 private bool reachableInfoAvailable = false;
 
-map[tuple[AType symbol, map[AType,AProduction] definitions], map[AType,AProduction]] reifyCache = ();
+map[tuple[AType symbol, map[AType,AProduction] definitions], map[AType,AProduction]] collectDefsCache = ();
 
 private map[AType symbol, type[value] resType] atypeToValueCache = ();
 
 public void resetTypeReifier() {
+    tmodel = tmodel();
     typeRel = {};
     types = {};
     constructors = {};
     productions = {};
     grammar = ();
     cachedGrammar = ();
+    adts = {};
     instantiatedGrammar = ();
     starts = {};
     activeLayout = layouts("$default$");
     reachableTypes = {};
     reachableConcreteTypes = {};
     reachableInfoAvailable = false;
-    reifyCache = ();
+    collectDefsCache = ();
     atypeToValueCache = ();
 }
 
@@ -64,70 +66,22 @@ public void resetTypeReifier() {
 // - getGrammar
 // - symbolToValue
 
-public void extractDeclarationInfo(TModel config){}
+public void extractDeclarationInfo(TModel config){
+    resetTypeReifier();
 
-//public void extractDeclarationInfo(TModel config){
-//    resetTypeReifier();
-//    
-//    // Collect all the types that are in the type environment
-//    // TODO: simplify
-//	typeRel = { < getSimpleName(rname), config.store[config.typeEnv[rname]].rtype > | rname <- config.typeEnv, config.store[config.typeEnv[rname]] has rtype }
-//	        + { < getSimpleName(rname) , rtype > | int uid <- config.store, sorttype(rname,rtype,_,_,_) := config.store[uid] }
-//            + { < getSimpleName(config.store[uid].name), config.store[uid].rtype > | int uid <- config.store, config.store[uid] has name, config.store[uid] has rtype }
-//            + { <"Tree", adt("Tree",[])> }
-//            + { <"AType", adt("AType",[])> }
-//            + { <"Production", adt("Production",[])> }
-//            + { <"Attr", adt("Attr",[])> }
-//            + { <"Associativity", adt("Associativity",[])> }
-//            + { <"CharRange", adt("CharRange",[])> }
-//            + { <"CharClass", adt("CharClass",[])> }
-//            + { <"Condition", adt("Condition",[])> }
-//            ;
-//    //println("typeRel:");for(x <- typeRel) println("\t<x>");
-//	// Collect all the constructors of the adt types in the type environment
-//	 
-//	KeywordParamMap getCommons(str adt) 
-//	  = (config.typeEnv[RSimpleName(adt)]?) ? config.store[config.typeEnv[RSimpleName(adt)]].keywordParams : ();
-//	
-//	Production value2prod(constructor(_, AType rtype, KeywordParamMap keywordParams, int containedIn, _, loc at), KeywordParamMap commonParams)
-//	  = \cons(label(rtype.name, rtype.\adt)
-//	         , rtype.parameters
-//	         , [label(l, keywordParams[n]) | n:RSimpleName(l) <- keywordParams]
-//	         + [label(l, commonParams[n])  | n:RSimpleName(l) <- commonParams]
-//	         , {});  
-//	  
-//	constructors = { <c.rtype.\adt, value2prod(c, getCommons(c.rtype.\adt.name))> 
-//	               | int uid <- config.store, c := config.store[uid], c is constructor
-//	               };
-//
-//    typeRel += { <n, a> | <AType a:adt(str n,_),_> <- constructors };
-//    
-//    types = range(typeRel);
-//    
-//	// Collect all the fuctions of the non-terminal types in the type environment
-//    
-//    grammar = ( config.store[uid].rtype : config.grammar[uid] | int uid <- config.grammar, config.store[uid].rtype in types );
-//   
-//    productions = { p.def is label ? <p.def.symbol, AType::prod(p.def.symbol, p.def.name, p.symbols, p.attributes)>  //TODO: p.def.name???
-//	                               : <p.def, AType::prod(p.def, "", p.symbols, p.attributes)> 						  // TODO ""??
-//	              | rtype <- grammar, /Production p:prod(_,_,_) := grammar[rtype]
-//	              };
-//	   
-//   	starts = { config.store[uid].rtype | int uid <- config.starts, config.store[uid].rtype in types };
-//   	
-//   	activeLayouts = { \type | \type <- types, AType::layouts(_) := \type };
-//   	if(!isEmpty(activeLayouts)) {
-//   	    for(al <- activeLayouts){
-//   	        if(!hasManualTag(grammar[al])){
-//   	           activeLayout = al;
-//   	           break;
-//   	        }
-//   	    }
-//   	}
-//    cachedGrammar = getGrammar1();
-//    //iprintln(cachedGrammar);
-//   	//computeReachableTypesAndConstructors();
-//}
+    if(AGrammar g := config.getStore("grammar")){
+        cachedGrammar = g;
+    } else {
+        throw "Cannot get grammar from tmodel";
+    }
+    
+    if(set[AType] adts_in_store := config.getStore("ADTs")){
+        adts = adts_in_store;
+    } else {
+        throw "Cannot get ADTs from TModel";
+    }
+  	//computeReachableTypesAndConstructors();
+}
 
 private bool hasManualTag(\choice(AType def, set[Production] alternatives)) =
     any(Production alt <- alternatives, hasManualTag(alt));
@@ -136,24 +90,6 @@ private bool hasManualTag(Production p) =
     p has attributes && \tag("manual"()) in p.attributes;
 
 
-private map[AType,Production] getGrammar1() {
-    set[AType] theLayoutDefs = layoutDefs(grammar);
-    
-	map[AType,Production] definitions =   
-		( nonterminal : \layouts(grammar[nonterminal], theLayoutDefs) | nonterminal <- grammar) 
-		+ 
-		( AType::\start(nonterminal) : \layouts(Production::choice(AType::\start(nonterminal), { Production::prod(AType::\start(nonterminal), [ AType::\label("top", nonterminal) ],{}) }),{}) 
-		| nonterminal <- starts );
-	if(<str n, AType def> <- typeRel, AType::\layouts(_) := def) {
- 		definitions = reify(def,definitions);
- 	}
- 	definitions = definitions + (AType::\layouts("$default$"):Production::choice(AType::\layouts("$default$"),{Production::prod(AType::\layouts("$default$"),[],{})}));
- 	definitions = definitions + (AType::\empty():Production::choice(AType::\empty(),{Production::prod(AType::\empty(),[],{})}));
- 	
- 	//iprintln(definitions);
- 	return definitions;
-}
-
 // Extract all declared symbols from a type checker configuration
 
 public map[AType,AProduction] getDefinitions() {
@@ -161,7 +97,7 @@ public map[AType,AProduction] getDefinitions() {
   // 	// Collect all symbols
   // 	set[AType] symbols = types + domain(constructors) + carrier(productions) + domain(grammar);
   // 	
-  // 	map[AType,Production] definitions  = (() | reify(symbol, it) | AType symbol <- symbols);
+  // 	map[AType,Production] definitions  = (() | collectDefs(symbol, it) | AType symbol <- symbols);
  	//
  	//return definitions;
 }
@@ -482,302 +418,38 @@ private bool isAltOrSeq(AType s) = alt(_) := s || seq(_) := s;
 
 // symbolToValue1 is a caching wrapper around symbolToValue
 
-public type[value] symbolToValue(AType symbol) {
-    if(atypeToValueCache[symbol]?){
-        return atypeToValueCache[symbol];
-    }
-    res = symbolToValue1(symbol);
-    atypeToValueCache[symbol] = res;
-    return res;
-}
+//public AType symbolToValue(AType symbol) {
+//    if(atypeToValueCache[symbol]?){
+//        return atypeToValueCache[symbol];
+//    }
+//    res = symbolToValue1(symbol);
+//    atypeToValueCache[symbol] = res;
+//    return res;
+//}
 
-private type[value] symbolToValue1(AType symbol) {
-   	
-	// Recursively collect all the type definitions associated with a given symbol
-	
- 	map[AType,AProduction] definitions = reify(symbol, ());
- 	
- 	if(AType::\start(AType sym) := symbol){
- 	    definitions += (symbol : choice(symbol, { prod(symbol,
-                                                       [ activeLayout,
-                                                         label("top", sym),
-                                                         activeLayout
-                                                       ],
-                                                    {})}));
-    }
- 	                                             
- 	der_symbol = (conditional(AType sym,_) := symbol || AType::\start(AType sym) := symbol) ? sym : symbol;
- 	
- 	if(AType::\sort(_):= der_symbol || AType::\lex(_):= der_symbol ||
- 		AType::\parameterized-sort(_,_):= der_symbol || AType::\parameterized-lex(_,_):= der_symbol) {
- 			if(<str n, AType def> <- typeRel, AType::\layouts(_) := def) {
- 				definitions = reify(def,definitions);
- 			}
- 			definitions = definitions + (AType::\layouts("$default$"):AProduction::choice(AType::\layouts("$default$"),{AProduction::prod(AType::\layouts("$default$"),[],{})}));
- 			definitions = definitions + (AType::\empty():AProduction::choice(AType::\empty(),{AProduction::prod(AType::\empty(),[],{})}));
- 	}
- 	
- 	return type(symbol, definitions); 
-}
+//public AType symbolToValue(AType symbol) {
+//   	
+//	// Recursively collect all the type definitions associated with a given symbol
+//	
+// 	map[AType,AProduction] definitions = collectDefs(symbol, ());
+// 	
+// 	return symbol; //type(symbol, definitions); 
+//}
 
-@memo
-set[AType] layoutDefs(map[AType,AProduction] prod) = {s | AType s <- prod, (layouts(_) := s || label(_,layouts(_)) := s)};
+//@memo
+//set[AType] layoutDefs(map[AType,AProduction] prod) = {s | AType s <- prod, (layouts(_) := s || label(_,layouts(_)) := s)};
 
-public map[AType,AProduction] reify(AType symbol, map[AType,AProduction] definitions){
-    tuple[AType symbol, map[AType,AProduction] definitions] tup = <symbol, definitions>;
-    
-    if(reifyCache[tup]?){
-       return reifyCache[tup];
-    }
-    map[AType, AProduction] result = reify1(symbol, definitions);
-    reifyCache[tup] = result;
-    return result;
-}
+//public map[AType,AProduction] collectDefs(AType symbol, map[AType,AProduction] definitions){
+//    tuple[AType symbol, map[AType,AProduction] definitions] tup = <symbol, definitions>;
+//    
+//    if(collectDefsCache[tup]?){
+//       return collectDefsCache[tup];
+//    }
+//    map[AType, AProduction] result = collectDefs1(symbol, definitions);
+//    collectDefsCache[tup] = result;
+//    return result;
+//}
 
-map[AType,AProduction] reify1(\cons(AType def, list[AType] symbols, list[AType] kwTypes, set[Attr] attributes), map[AType,AProduction] definitions)
-  = (definitions | reify1(sym, it) | AType sym <- symbols + kwTypes);
-  
-map[AType,AProduction] reify1(prod(AType def, list[AType] symbols, set[Attr] attributes), map[AType,AProduction] definitions)
-  = (definitions | reify1(sym, it) | AType sym <- symbols);
-
-// primitive
-private map[AType,AProduction] reify1(AType symbol, map[AType,AProduction] definitions) 
-	= definitions when isIntType(symbol) || isBoolType(symbol) || isRealType(symbol) || isRatType(symbol) ||
-					   isStrType(symbol) || isNumType(symbol) || isNodeType(symbol) || isVoidType(symbol) ||
-					   isValueType(symbol) || isLocType(symbol) || isDateTimeType(symbol);
-					   
-// labeled					   
-private map[AType,AProduction] reify1(AType::\label(str name, AType symbol), map[AType,AProduction] definitions)
-	= reify1(symbol, definitions);
-	
-// set
-private map[AType,AProduction] reify1(AType::\set(AType symbol), map[AType,AProduction] definitions)
-	= reify1(symbol, definitions);
-	
-// rel
-private map[AType,AProduction] reify1(AType::\rel(list[AType] symbols), map[AType,AProduction] definitions)
-	= ( definitions | reify1(sym, it) | AType sym <- symbols );
-	
-// list
-private map[AType,AProduction] reify1(AType::\list(AType symbol), map[AType,AProduction] definitions)
-	= reify1(symbol, definitions);
-	
-// lrel
-private map[AType,AProduction] reify1(AType::\lrel(list[AType] symbols), map[AType,AProduction] definitions)
-	= ( definitions | reify1(sym, it) | sym <- symbols );
-	
-// bag
-private map[AType,AProduction] reify1(AType::\bag(AType symbol), map[AType,AProduction] definitions)
-	= reify1(symbol, definitions);
-	
-// tuple
-private map[AType,AProduction] reify1(AType::\tuple(list[AType] symbols), map[AType,AProduction] definitions)
-	= ( definitions | reify1(sym, it) | AType sym <- symbols );
-	
-// map
-private map[AType,AProduction] reify1(AType::\map(AType from, AType to), map[AType,AProduction] definitions)
-	= reify1(from, definitions) + reify1(to, definitions);
-
-
-
-// adt
-private map[AType,AProduction] reify1(AType::\adt(str name, list[AType] symbols), map[AType,AProduction] definitions) {
-	set[AType] defs = typeRel[name];
-	//println("reify1 adt: <name>, <symbols>, <defs>, <constructors>");
-
-    for(AType s <- defs){
-	   if(adtDef: AType::\adt(name,_) := s){
-          //assert AType::\adt(name,_) := adtDef;
-          if(!definitions[adtDef]?) {
-        	 alts = constructors[adtDef];
-        	 definitions[adtDef] = AProduction::\choice(adtDef, alts);
-        	 definitions = ( definitions | reify1(prod, it) | AProduction prod <- constructors[adtDef] );
-          }
-          definitions = ( definitions | reify1(sym, it) | sym <- symbols );
-          //println("reify1 adt <name> =\> <definitions>");
-          return definitions;
-       }
-    }
-    throw "No definition for ADT <name>(<symbols>)";
-}
-
-// constructors
-private map[AType,AProduction] reify1(AType::\cons(AType \adt, str name, list[AType] parameters), map[AType,AProduction] definitions)
-	// adt has been already added to the definitions
-	= ( definitions | reify1(sym, it) | AType sym <- parameters );
-	
-// alias
-private map[AType,AProduction] reify1(AType::\alias(str name, list[AType] parameters, AType aliased), map[AType,AProduction] definitions) {
-    //println("reify1 alias: <name>, <aliased>");
-	definitions = reify1(aliased, definitions);
-	definitions = ( definitions | reify1(sym, it) | AType sym <- parameters );
-	return definitions;
-}
-
-// function
-private map[AType,AProduction] reify1(AType::\func(AType ret, list[AType] parameters, list[AType] kws), map[AType,AProduction] definitions) {
-    //println("reify1 function: <ret>, <parameters>, <definitions>");
-	definitions = reify1(ret, definitions);
-	definitions = ( definitions | reify1(sym, it) | AType sym <- parameters );
-	definitions = ( definitions | reify1(sym, it) | AType sym <- kws );
-	return definitions;
-}
-
-// function with varargs
-private map[AType,AProduction] reify1(AType::\var-func(AType ret, list[AType] parameters, AType varArg), map[AType,AProduction] definitions) {
-    //println("reify1 function varargs: <ret>, <parameters>, <varArg>, <definitions>");
-	definitions = reify1(ret, definitions);
-	definitions = ( definitions | reify1(sym, it) | AType sym <- parameters );
-	definitions = reify1(varArg, definitions);
-	return definitions;
-}
-
-// reified
-private map[AType,AProduction] reify1(AType::\reified(AType ret), map[AType,AProduction] definitions) {
-    //println("reify1 reified: <ret>, <definitions>");
-	return reify1(ret, definitions);
-}	
-	
-// parameter
-private map[AType,AProduction] reify1(AType::\parameter(str name, AType bound), map[AType,AProduction] definitions)
-	= reify1(bound, definitions);
-	
-// sort, lex
-private map[AType,AProduction] reify1(AType symbol, map[AType,AProduction] definitions) 
-	= { 
-	    set[AType] defs = typeRel[name];
-		//println("reify1: symbol-<symbol>, name=<name>"); 
-		//assert !(AType::\adt(name,_) := nonterminal);
-		for(AType nonterminal <- defs){
-		    if(AType::\adt(name,_) !:= nonterminal){
-		       //println("nonterminal1=<nonterminal>");
-		       if(prod(AType s, _, _, _) := nonterminal){
-		          nonterminal = s;
-		       }
-		       // println("nonterminal2=<nonterminal>");
-		       if(!definitions[nonterminal]?) {
-		          //println("grammar:\n----------");
-            //      for(s <- grammar) println("<s>: <grammar[s]>");
-            //      println("----------");
-                  if(grammar[nonterminal]?){
-			         definitions[nonterminal] = \layouts(grammar[nonterminal], layoutDefs(grammar)); // inserts an active layout
-			         if(nonterminal in starts) {
-				        definitions[AType::\start(nonterminal)] = \layouts(AProduction::choice(AType::\start(nonterminal),
-																					   { AProduction::prod(AType::\start(nonterminal), [ AType::\label("top", nonterminal) ],{}) }),{});
-			         }
-			     //println("AProductions[nonterminal]: <productions[nonterminal]>");
-			     //println("Domain(grammar): <domain(grammar)>");
-			    definitions = ( definitions | reify1(sym, it) | sym <- productions[nonterminal] );
-			    } else {
-			      println("reify1: <nonterminal> skipped");
-			    }
-		     }
-		     return definitions;
-		  }
-		}
-		throw "No definition for symbol <name>";
-	  } when AType::\sort(str name) := symbol || AType::\lex(str name) := symbol ||
-	  		 (AType::\layouts(str name) := symbol && name != "$default$") || AType::\keywords(str name) := symbol;
-
-// parameterized-sort, parameterized-lex  
-private map[AType,AProduction] reify1(AType symbol, map[AType,AProduction] definitions) 
-	= { 
-	    set[AType] defs = typeRel[name];
-	    set[AType] theLayoutDefs = layoutDefs(definitions);
-		//assert !(AType::\adt(name,_) := nonterminal);
-		for(AType nonterminal <- defs){
-            if(AType::\adt(name,_) !:= nonterminal){
-		       if(!definitions[nonterminal]?) {
-			      definitions[nonterminal] = \layouts(grammar[nonterminal], theLayoutDefs); // inserts an active layout
-			      if(nonterminal in starts) {
-				     definitions[AType::\start(nonterminal)] = \layouts(AProduction::choice(AType::\start(nonterminal),
-															    { AProduction::prod(AType::\start(nonterminal), [ AType::\label("top", nonterminal) ],{}) }),{});
-			      }
-			      //println("AProductions[nonterminal]: <productions[nonterminal]>");
-			     //println("Domain(grammar): <domain(grammar)>");
-			     definitions = ( definitions | reify1(sym, it) | sym <- productions[nonterminal] );
-		      }
-		      definitions = ( definitions | reify1(sym, it) | sym <- parameters );
-		       return definitions;
-		   }
-		}
-		throw "No definition for symbol <name>";
-	  } when AType::\parameterized-sort(str name, list[AType] parameters) := symbol || AType::\parameterized-lex(str name, list[AType] parameters) := symbol;
-
-private map[AType,AProduction] reify1(AType symbol, map[AType,AProduction] definitions)
-	= reify1(sym, definitions)
-		when AType::\start(AType sym) := symbol || AType::\opt(AType sym) := symbol || AType::\iter(AType sym) := symbol ||
-			 AType::\iter-star(AType sym) := symbol || AType::\iter-seps(AType sym, _) := symbol ||
-			 AType::\iter-star-seps(AType sym, list[AType] _) := symbol;
-
-private map[AType,AProduction] reify1(AType::\alt(set[AType] alternatives), map[AType,AProduction] definitions)
-	= ( definitions | reify1(sym, it) | AType sym <- alternatives );
-
-private map[AType,AProduction] reify1(AType::\seq(list[AType] symbols), map[AType,AProduction] definitions)
-	= ( definitions | reify1(sym, it) | AType sym <- symbols );
-
-private map[AType,AProduction] reify1(AType::\conditional(AType symbol, set[Condition] conditions), map[AType,AProduction] definitions)
-	= reify1(symbol, definitions) + ( definitions | reify1(cond, it) | Condition cond <- conditions );
-	
-private map[AType,AProduction] reify1(AType::\prod(AType \sort, str name, list[AType] parameters, set[Attr] _), map[AType,AProduction] definitions)
-	// sort has been already added to the definitions
-	= ( definitions | reify1(sym, it) | AType sym <- parameters );
-	
-private map[AType,AProduction] reify1(Condition cond, map[AType,AProduction] definitions)
-	= reify1(symbol, definitions)
-		when Condition::\follow(AType symbol) := cond || Condition::\not-follow(AType symbol) := cond ||
-			 Condition::\precede(AType symbol) := cond || Condition::\not-precede(AType symbol) := cond ||
-			 Condition::\delete(AType symbol) := cond;
-			 
-private map[AType,AProduction] reify1(Condition cond, map[AType,AProduction] definitions) = definitions;
-		   
-private default map[AType,AProduction] reify1(AType symbol, map[AType,AProduction] definitions) = definitions;
-
-@doc{Intermix with an active layout}
-public AProduction \layouts(AProduction prod, set[AType] others) {
-  return top-down-break visit (prod) {
-    case AProduction::prod(\start(y),[AType x],as)                                  => AProduction::prod(\start(y),[activeLayout, x, activeLayout],  as)
-    case AProduction::prod(sort(s),list[AType] lhs,as)                              => AProduction::prod(sort(s),intermix(lhs,activeLayout, others),as)
-    case AProduction::prod(\parameterized-sort(s,n),list[AType] lhs,as)             => AProduction::prod(\parameterized-sort(s,n),intermix(lhs,activeLayout,others),as)
-    case AProduction::prod(label(t,sort(s)),list[AType] lhs,as)                     => AProduction::prod(label(t,sort(s)),intermix(lhs,activeLayout,others),as)
-    case AProduction::prod(label(t,\parameterized-sort(s,n)),list[AType] lhs,as)    => AProduction::prod(label(t,\parameterized-sort(s,n)),intermix(lhs,activeLayout,others),as) 
-  }
-} 
-
-// add layout symbols between every pair of symbols, but not when there is already a layout symbol:
- list[AType] intermix([*AType y, AType a, AType b, *AType z], AType l, set[AType] others) = intermix([*y, regulars(a,l,others), l, regulars(b,l,others), *z], l, others)   
-    when Avoid := {*others,l}, a notin Avoid, b notin Avoid;
-
-// for singletons its only important to mix layout in nested regulars as well:
-list[AType] intermix([AType a], AType l, set[AType] others) = [regulars(a, l, others)];
-
-// when the first rule is done (which is recursive), this one yields the result:
-default list[AType] intermix(list[AType] syms, AType _, set[AType] _) = syms;
-
-private AType regulars(AType s, AType l, set[AType] others) {
-  return visit(s) {
-    case \iter(AType n) => \iter-seps(n, [l])
-    case \iter-star(AType n) => \iter-star-seps(n, [l]) 
-    case \iter-seps(AType n, [AType sep]) => \iter-seps(n,[l,sep,l]) when !(sep in others), !(seq([a,_,b]) := sep && (a in others || b in others))
-    case \iter-star-seps(AType n,[AType sep]) => \iter-star-seps(n, [l, sep, l]) when !(sep in others), !(seq([a,_,b]) := sep && (a in others || b in others))
-    case \seq(list[AType] elems) => \seq(intermix(elems, l, others)) // note that intermix is idempotent
-  }
-}
-
-public AType insertLayout(AType s) = regulars(s, activeLayout, {});
-
-public bool hasField(AType s, str fieldName){
-    return true; // TODO
-    //println("hasField: <s>, <fieldName>");
-
-    //if(isADTType(s)){
-    //   s2v = symbolToValue(s /*, config*/);
-    //   println("s2v = <s2v>");
-    //}
-    s1 = symbolToValue(s);
-    // TODO: this is too liberal, restrict to outer type.
-    visit(s1){
-       case label(fieldName2, _):	if(unescape(fieldName2) == fieldName) return true;
-    }
-    return false;
-}
+//map[AType,AProduction] collectDefs1(AType t, map[AType, AProduction] definitions){
+//   return definitions + (adt : adt_constructors[adt] | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := t, !definitions[adt]?);
+//}

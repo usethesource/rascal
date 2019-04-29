@@ -46,8 +46,8 @@ import IO;
 public AGrammar layouts(AGrammar g, AType l, set[AType] others) {
   
   return top-down-break visit (g) {
-    case p: prod(\start(a: aadt(s, list[AType] parameters, contextFreeSyntax())), [x]) => p[asymbols=[l, x, l]]
-    case p: prod(aadt(s, list[AType] parameters, contextFreeSyntax()), list[AType] lhs) => p[asymbols=intermix(lhs, l, others)]
+    case p: prod(\start(a: aadt(s, list[AType] parameters, contextFreeSyntax())), [x]) => p[atypes=[l, x, l]]
+    case p: prod(aadt(s, list[AType] parameters, contextFreeSyntax()), list[AType] lhs) => p[atypes=intermix(lhs, l, others)]
   }
 } 
 

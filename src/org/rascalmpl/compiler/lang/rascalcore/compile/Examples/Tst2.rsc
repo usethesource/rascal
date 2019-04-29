@@ -1,6 +1,14 @@
 module lang::rascalcore::compile::Examples::Tst2
-
-
-value main(){
-    x = 3; return [1,2,x,4];
-}
+ 
+import Type;
+//import ParseTree;
+//  
+//type[value] main(){
+//   return #int;
+//}      
+                      
+              // syntax S = "abc";
+data D = d1(str s, bool b = false) | d2(int n);
+   
+                                                     
+value main() = #D.symbol; // == \str();  
