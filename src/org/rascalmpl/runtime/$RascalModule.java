@@ -539,9 +539,7 @@ public abstract class $RascalModule {
 	public static final IMap buildMap(final IValue...values){
 		IMapWriter w = $VF.mapWriter();
 		if(values.length % 2 != 0) throw new InternalCompilerError("$RascalModule: buildMap should have even number of arguments");
-		System.err.println("buildMap of " + values.length);
 		for(int i = 0; i < values.length; i += 2) {
-			System.err.println("buildMap adding " + values[i] + " : " + values[i+1]);
 			w.put(values[i], values[i+1]);
 		}
 		return w.done();

@@ -8,9 +8,9 @@ import lang::rascalcore::check::ATypeUtils;
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::util::Names;
 
-
-// ---- atype 2 java type -----------------------------------------------------
-
+/*****************************************************************************/
+/*  Convert AType to a Java type 2                                           */
+/*****************************************************************************/
 str atype2javatype(abool())                 = "IBool";
 str atype2javatype(aint())                  = "IInteger";
 str atype2javatype(areal())                 = "IReal";
@@ -25,8 +25,6 @@ str atype2javatype(arel(AType ts))          = "ISet";
 str atype2javatype(alrel(AType ts))         = "IList";
 str atype2javatype(atuple(AType ts))        = "ITuple";
 str atype2javatype(amap(AType d, AType r))  = "IMap";
-
-
 
 str atype2javatype(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
                                             = "FunctionInstance0\<<atype2javatype(ret)>\>"
@@ -51,7 +49,9 @@ str atype2javatype(avalue())                = "IValue";
 
 default str atype2javatype(AType t) { throw "atype2javatype: cannot handle <t>"; }
 
-// ---- Convert AType to a descriptor that can be used in a Java identifier
+/*****************************************************************************/
+/*  Convert AType to a descriptor that can be used in a Java identifier      */
+/*****************************************************************************/
 
 str atype2idpart(avoid())                 = "void";
 str atype2idpart(abool())                 = "bool";
@@ -101,38 +101,65 @@ str atype2idpart(avalue())                = "value";
 
 default str atype2idpart(AType t) { throw "atype2idpart: cannot handle <t>"; }
 
-// ---- convert an AType to an IValue (i.e., reify the AType)
-
+/*****************************************************************************/
+/*  Convert an AType to an IValue (i.e., reify the AType)                    */
+/*****************************************************************************/
 str lab(AType t) = t.label? ? value2IValue(t.label) : "";
 str lab2(AType t) = t.label? ? ", <value2IValue(t.label)>" : "";
 
-str atype2IValue(at:avoid(), _)              = "avoid(<lab(at)>)";
-str atype2IValue(at:abool(), _)              = "abool(<lab(at)>)";
-str atype2IValue(at:aint(), _)               = "aint(<lab(at)>)";
-str atype2IValue(at:areal(), _)              = "areal(<lab(at)>)";
-str atype2IValue(at:arat(), _)               = "arat(<lab(at)>)";
-str atype2IValue(at:anum(), _)               = "anum(<lab(at)>)";
-str atype2IValue(at:astr(), _)               = "astr(<lab(at)>)";
-str atype2IValue(at:aloc(), _)               = "aloc(<lab(at)>)";
-str atype2IValue(at:adatetime(), _)          = "adatetime(<lab(at)>)";
+bool isBalanced(str s){
+    pars = 0;
+    brackets = 0;
+    curlies = 0;
+    for(int i <- [0..size(s)]){
+        switch(s[i]){
+            case "(": pars += 1;
+            case ")": { if(pars == 0) return false; pars -= 1; }
+            
+            case "[": brackets += 1;
+            case "]": { if(brackets == 0) return false; brackets -= 1; }
+            
+            case "{": curlies += 1;
+            case "}": { if(curlies == 0) return false; curlies -= 1; }
+        }
+    }
+    return pars == 0 && brackets == 0 && curlies == 0;
+}
 
-str atype2IValue(at:alist(AType t), map[AType, set[AType]] defs)          = "alist(<atype2IValue(t, defs)><lab2(at)>)";
-str atype2IValue(at:abag(AType t), map[AType, set[AType]] defs)           = "abag(<atype2IValue(t, defs)><lab2(at)>)";
-str atype2IValue(at:aset(AType t), map[AType, set[AType]] defs)           = "aset(<atype2IValue(t, defs)><lab2(at)>)";
-str atype2IValue(at:arel(AType ts), map[AType, set[AType]] defs)          = "arel(<atype2IValue(ts, defs)><lab2(at)>)";
-str atype2IValue(at:alrel(AType ts), map[AType, set[AType]] defs)         = "alrel(<atype2IValue(ts, defs)><lab2(at)>)";
+// Wrapper thats checks for balanced output
+str atype2IValue(AType t,  map[AType, set[AType]] defs){
+    res = atype2IValue1(t, defs);
+    if(!isBalanced(res)) throw "atype2IValue: unbalanced, <t>, <res>";
+    return res; 
+}
 
-str atype2IValue(at:atuple(AType ts), map[AType, set[AType]] defs)        = "atuple(<atype2IValue(ts, defs)><lab2(at)>)";
-str atype2IValue(at:amap(AType d, AType r), map[AType, set[AType]] defs)  = "amap(<atype2IValue(d, defs)>,<atype2IValue(r, defs)><lab2(at)>)"; // TODO: complete from here
+str atype2IValue1(at:avoid(), _)              = "avoid(<lab(at)>)";
+str atype2IValue1(at:abool(), _)              = "abool(<lab(at)>)";
+str atype2IValue1(at:aint(), _)               = "aint(<lab(at)>)";
+str atype2IValue1(at:areal(), _)              = "areal(<lab(at)>)";
+str atype2IValue1(at:arat(), _)               = "arat(<lab(at)>)";
+str atype2IValue1(at:anum(), _)               = "anum(<lab(at)>)";
+str atype2IValue1(at:astr(), _)               = "astr(<lab(at)>)";
+str atype2IValue1(at:aloc(), _)               = "aloc(<lab(at)>)";
+str atype2IValue1(at:adatetime(), _)          = "adatetime(<lab(at)>)";
 
-str atype2IValue(at:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals), map[AType, set[AType]] defs)
+str atype2IValue1(at:alist(AType t), map[AType, set[AType]] defs)          = "alist(<atype2IValue(t, defs)><lab2(at)>)";
+str atype2IValue1(at:abag(AType t), map[AType, set[AType]] defs)           = "abag(<atype2IValue(t, defs)><lab2(at)>)";
+str atype2IValue1(at:aset(AType t), map[AType, set[AType]] defs)           = "aset(<atype2IValue(t, defs)><lab2(at)>)";
+str atype2IValue1(at:arel(AType ts), map[AType, set[AType]] defs)          = "arel(<atype2IValue(ts, defs)><lab2(at)>)";
+str atype2IValue1(at:alrel(AType ts), map[AType, set[AType]] defs)         = "alrel(<atype2IValue(ts, defs)><lab2(at)>)";
+
+str atype2IValue1(at:atuple(AType ts), map[AType, set[AType]] defs)        = "atuple(<atype2IValue(ts, defs)><lab2(at)>)";
+str atype2IValue1(at:amap(AType d, AType r), map[AType, set[AType]] defs)  = "amap(<atype2IValue(d, defs)>,<atype2IValue(r, defs)><lab2(at)>)"; // TODO: complete from here
+
+str atype2IValue1(at:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals), map[AType, set[AType]] defs)
                                               = "<atype2IValue(ret)>_<intercalate("_", [atype2IValue(f) | f <- formals])>";
-str atype2IValue(at:anode(list[AType fieldType] fields), map[AType, set[AType]] defs) = "anode(<lab(at)>)";
-str atype2IValue(at:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), map[AType, set[AType]] defs) =
+str atype2IValue1(at:anode(list[AType fieldType] fields), map[AType, set[AType]] defs) = "anode(<lab(at)>)";
+str atype2IValue1(at:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), map[AType, set[AType]] defs) =
             "aadt(<value2IValue(adtName)>, <atype2IValue(parameters,defs)>, <getName(syntaxRole)>)";
-str atype2IValue(at:acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields), map[AType, set[AType]] defs)
+str atype2IValue1(at:acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields), map[AType, set[AType]] defs)
                                               = "acons(<atype2IValue(adt, defs)>, <atype2IValue(fields, defs)>, <atype2IValue(kwFields,defs)><lab2(at)>)";
-str atype2IValue(overloadedAType(rel[loc, IdRole, AType] overloads)){
+str atype2IValue1(overloadedAType(rel[loc, IdRole, AType] overloads)){
     resType = avoid();
     formalsType = avoid();
     for(<def, idrole, tp> <- overloads){
@@ -143,11 +170,11 @@ str atype2IValue(overloadedAType(rel[loc, IdRole, AType] overloads)){
     return atype2IValue(ftype);
 }
 
-str atype2IValue(at:aparameter(str pname, AType bound), map[AType, set[AType]] defs) = "aparameter(<atype2IValue(bound)>)"; 
-str atype2IValue(at:aprod(AProduction production), map[AType, set[AType]] defs) = "aprod(<tree2IValue(production, defs)>";
-str atype2IValue(at:areified(AType atype), map[AType, set[AType]] definitions) = "reifiedAType(<atype2IValue(atype, definitions)>, <defs(definitions)>)";
-str atype2IValue(at:avalue(), _)                = "avalue(<lab(at)>)";
-//default str atype2IValue(AType t, map[AType, set[AType]] defs) { throw "atype2IValue: cannot handle <t>"; }
+str atype2IValue1(at:aparameter(str pname, AType bound), map[AType, set[AType]] defs) = "aparameter(<atype2IValue(bound)>)"; 
+str atype2IValue1(at:aprod(AProduction production), map[AType, set[AType]] defs) = "aprod(<tree2IValue(production, defs)>)";
+str atype2IValue1(at:areified(AType atype), map[AType, set[AType]] definitions) = "reifiedAType(<atype2IValue(atype, definitions)>, <defs(definitions)>)";
+str atype2IValue1(at:avalue(), _)                = "avalue(<lab(at)>)";
+//default str atype2IValue1(AType t, map[AType, set[AType]] defs) { throw "atype2IValue1: cannot handle <t>"; }
 
 str atype2IValue(list[AType] ts, map[AType, set[AType]] defs) = "$VF.list(<intercalate(", ", [atype2IValue(t,defs) | t <- ts])>)";
 str atype2IValue(lrel[AType fieldType,Expression defaultExp] ts, map[AType, set[AType]] defs) = "$VF.list(<intercalate(", ", [atype2IValue(t.fieldType,defs) | t <- ts])>)";
@@ -158,143 +185,184 @@ str defs(map[AType, set[AType]] defs) {
     return "buildMap(<intercalate(", ", ["<atype2IValue(k,defs)>, $VF.set(<intercalate(", ", [ atype2IValue(elem,defs) | elem <- defs[k] ])>)" | k <- defs ])>)";
 }
 
+
+/*****************************************************************************/
+/*  Convert a Tree to an IValue                                              */
+/*****************************************************************************/
+
+// Wrappers that check for balanced output
+str tree2IValue(Associativity t,  map[AType, set[AType]] defs){
+    res = tree2IValue1(t, defs);
+    if(!isBalanced(res)) throw "tree2IValue1: unbalanced, <t>, <res>";
+    return res; 
+}
+
+str tree2IValue(Attr t,  map[AType, set[AType]] defs){
+    res = tree2IValue1(t, defs);
+    if(!isBalanced(res)) throw "tree2IValue1: unbalanced, <t>, <res>";
+    return res; 
+}
+
+str tree2IValue(Tree t,  map[AType, set[AType]] defs){
+    res = tree2IValue1(t, defs);
+    if(!isBalanced(res)) throw "tree2IValue1: unbalanced, <t>, <res>";
+    return res; 
+}
+
+str tree2IValue(AProduction t,  map[AType, set[AType]] defs){
+    res = tree2IValue1(t, defs);
+    if(!isBalanced(res)) throw "tree2IValue1: unbalanced, <t>, <res>";
+    return res; 
+}
+
+str tree2IValue(ACharRange t,  map[AType, set[AType]] defs){
+    res = tree2IValue1(t, defs);
+    if(!isBalanced(res)) throw "tree2IValue1: unbalanced, <t>, <res>";
+    return res; 
+}
+
+str tree2IValue(ACharRange t,  map[AType, set[AType]] defs){
+    res = tree2IValue1(t, defs);
+    if(!isBalanced(res)) throw "tree2IValue1: unbalanced, <t>, <res>";
+    return res; 
+}
+
 // ---- Associativity ---------------------------------------------------------
 
-str tree2IValue(\left(), map[AType, set[AType]] defs) = "left()";
-str tree2IValue(\right(), map[AType, set[AType]] defs) = "right()";
-str tree2IValue(\assoc(), map[AType, set[AType]] defs) = "assoc()";
-str tree2IValue(\non-assoc(), map[AType, set[AType]] defs) = "non_assoc()";
+str tree2IValue1(\left(), map[AType, set[AType]] defs) = "left()";
+str tree2IValue1(\right(), map[AType, set[AType]] defs) = "right()";
+str tree2IValue1(\assoc(), map[AType, set[AType]] defs) = "assoc()";
+str tree2IValue1(\non-assoc(), map[AType, set[AType]] defs) = "non_assoc()";
 
 // ---- Attr ------------------------------------------------------------------
 
-str tree2IValue(\tag(value v),  map[AType, set[AType]] defs) = "tag(<value2IValue(v)>)";
-str tree2IValue(\assoc(Associativity \assoc),  map[AType, set[AType]] defs) = "assoc(<tree2IValue(\assoc, defs)>)";
-str tree2IValue(\bracket(),  map[AType, set[AType]] defs) = "bracket())";
+str tree2IValue1(\tag(value v),  map[AType, set[AType]] defs) = "tag(<value2IValue(v)>)";
+str tree2IValue1(\assoc(Associativity \assoc),  map[AType, set[AType]] defs) = "assoc(<tree2IValue(\assoc, defs)>)";
+str tree2IValue1(\bracket(),  map[AType, set[AType]] defs) = "bracket())";
 
 // ---- Tree ------------------------------------------------------------------
 
-str tree2IValue(tr:appl(AProduction aprod, list[Tree] args), map[AType, set[AType]] defs)
+str tree2IValue1(tr:appl(AProduction aprod, list[Tree] args), map[AType, set[AType]] defs)
     = tr.src? ? "appl(<tree2IValue(aprod, defs)>, <tree2IValue(args, defs)>, <value2IValue(tr.src)>)"
               : "appl(<tree2IValue(aprod, defs)>, <tree2IValue(args, defs)>)";
 
-str tree2IValue(cycle(AType asymbol, int cycleLength), map[AType, set[AType]] defs)
+str tree2IValue1(cycle(AType asymbol, int cycleLength), map[AType, set[AType]] defs)
     = "cycle(<atype2IValue(asymbol, defs)>, <value2IValue(cycleLength)>)";
 
-str tree2IValue(amb(set[Tree] alternatives), map[AType, set[AType]] defs)
+str tree2IValue1(amb(set[Tree] alternatives), map[AType, set[AType]] defs)
     = "amb(<tree2IValue(alternatives)>)";
  
-str tree2IValue(char(int character), map[AType, set[AType]] defs)
+str tree2IValue1(char(int character), map[AType, set[AType]] defs)
     = "tchar(<value2IValue(character)>)";
     
 // ---- SyntaxRole ------------------------------------------------------------
 
-str tree2IValue(SyntaxRole sr, map[AType, set[AType]] defs) = "<sr>";
+str tree2IValue1(SyntaxRole sr, map[AType, set[AType]] defs) = "<sr>";
    
 // ---- AProduction -----------------------------------------------------------
 
-str tree2IValue(\choice(AType def, set[AProduction] alternatives), map[AType, set[AType]] defs)
+str tree2IValue1(\choice(AType def, set[AProduction] alternatives), map[AType, set[AType]] defs)
     = "choice(<atype2IValue(def, defs)>, <tree2IValue(alternatives, defs)>)";
 
-str tree2IValue(tr:prod(AType def, list[AType] asymbols), map[AType, set[AType]] defs){
+str tree2IValue1(tr:prod(AType def, list[AType] asymbols), map[AType, set[AType]] defs){
     base = "prod(<atype2IValue(def, defs)>, <atype2IValue(asymbols, defs)>";
     kwds = tr.attributes? ? ", <tree2IValue(tr.attributes, defs)>" : "";
     if(tr.src?) kwds += ", <value2IValue(tr.src)>";
     return base + kwds + ")";
 }
 
-str tree2IValue(regular(AType def), map[AType, set[AType]] defs)
+str tree2IValue1(regular(AType def), map[AType, set[AType]] defs)
     = "regular(<atype2IValue(def, defs)>)";
 
-str tree2IValue(error(AProduction prod, int dot), map[AType, set[AType]] defs)
+str tree2IValue1(error(AProduction prod, int dot), map[AType, set[AType]] defs)
     = "error(<tree2IValue(prod, defs)>, <value2IValue(dot)>)";
 
-str tree2IValue(skipped(), map[AType, set[AType]] defs)
+str tree2IValue1(skipped(), map[AType, set[AType]] defs)
     = "skipped()";
     
-str tree2IValue(\priority(AType def, list[AProduction] choices), map[AType, set[AType]] defs)
+str tree2IValue1(\priority(AType def, list[AProduction] choices), map[AType, set[AType]] defs)
     = "priority(<atype2IValue(def, defs)>, <tree2IValue(choices, defs)>)";
     
-str tree2IValue(\associativity(AType def, Associativity \assoc, set[AProduction] alternatives), map[AType, set[AType]] defs)
+str tree2IValue1(\associativity(AType def, Associativity \assoc, set[AProduction] alternatives), map[AType, set[AType]] defs)
     = "associativity(<atype2IValue(def, defs)>, <tree2IValue(\assoc, defs)>, <tree2IValue(alternatives, defs)>)";
 
-str tree2IValue(\others(AType def) , map[AType, set[AType]] defs)
+str tree2IValue1(\others(AType def) , map[AType, set[AType]] defs)
     = "others(<atype2IValue(def, defs)>)";
 
-str tree2IValue(\reference(AType def, str cons), map[AType, set[AType]] defs)
+str tree2IValue1(\reference(AType def, str cons), map[AType, set[AType]] defs)
     = "reference(<atype2IValue(def, defs)>, <value2IValue(cons)>)";
     
 // ---- ACharRange ------------------------------------------------------------
-str tree2IValue(range(int begin, int end), map[AType, set[AType]] defs)
+str tree2IValue1(range(int begin, int end), map[AType, set[AType]] defs)
     = "range(<value2IValue(begin)>, <value2IValue(end)>)";
     
 // ---- AType extensions for parse trees --------------------------------------
-str atype2IValue(AType::lit(str string), map[AType, set[AType]] defs)
+str atype2IValue1(AType::lit(str string), map[AType, set[AType]] defs)
     = "lit(<value2IValue(string)>)";
 
-str atype2IValue(AType::cilit(str string), map[AType, set[AType]] defs)
+str atype2IValue1(AType::cilit(str string), map[AType, set[AType]] defs)
     = "cilit(<value2IValue(string)>)";
 
-str atype2IValue(AType::\char-class(list[ACharRange] ranges), map[AType, set[AType]] defs)
+str atype2IValue1(AType::\char-class(list[ACharRange] ranges), map[AType, set[AType]] defs)
     = "char_class(<tree2IValue(ranges)>)";    
  
-
-str atype2IValue(AType::\empty(), map[AType, set[AType]] defs)
+str atype2IValue1(AType::\empty(), map[AType, set[AType]] defs)
     = "empty()";     
 
-str atype2IValue(AType::\opt(AType symbol), map[AType, set[AType]] defs)
+str atype2IValue1(AType::\opt(AType symbol), map[AType, set[AType]] defs)
     = "opt(<atype2IValue(symbol, defs)>)";     
 
-str atype2IValue(AType::\iter(AType symbol), map[AType, set[AType]] defs)
+str atype2IValue1(AType::\iter(AType symbol), map[AType, set[AType]] defs)
     = "iter(<atype2IValue(symbol, defs)>)";     
 
-str atype2IValue(AType::\iter-star(AType symbol), map[AType, set[AType]] defs)
+str atype2IValue1(AType::\iter-star(AType symbol), map[AType, set[AType]] defs)
     = "iter_star(<atype2IValue(symbol, defs)>)";   
 
-str atype2IValue(AType::\iter-seps(AType symbol, list[AType] separators), map[AType, set[AType]] defs)
+str atype2IValue1(AType::\iter-seps(AType symbol, list[AType] separators), map[AType, set[AType]] defs)
     = "iter_seps(<atype2IValue(symbol, defs)>, <atype2IValue(separators, defs)>)";     
  
-str atype2IValue(AType::\iter-star-seps(AType symbol, list[AType] separators), map[AType, set[AType]] defs)
+str atype2IValue1(AType::\iter-star-seps(AType symbol, list[AType] separators), map[AType, set[AType]] defs)
     = "iter_star_seps(<atype2IValue(symbol, defs)>, <atype2IValue(separators, defs)>)";   
     
-str atype2IValue(AType::\alt(set[AType] alternatives) , map[AType, set[AType]] defs)
+str atype2IValue1(AType::\alt(set[AType] alternatives) , map[AType, set[AType]] defs)
     = "alt(<atype2IValue(alternatives, defs)>)";     
 
-str atype2IValue(AType::\seq(list[AType] symbols) , map[AType, set[AType]] defs)
+str atype2IValue1(AType::\seq(list[AType] symbols) , map[AType, set[AType]] defs)
     = "seq(<atype2IValue(symbols, defs)>)";     
  
-str atype2IValue(AType::\start(AType symbol), map[AType, set[AType]] defs)
+str atype2IValue1(AType::\start(AType symbol), map[AType, set[AType]] defs)
     = "start(<atype2IValue(symbol, defs)>)";   
 
-str atype2IValue(AType::\conditional(AType symbol, set[ACondition] conditions), map[AType, set[AType]] defs)
+str atype2IValue1(AType::\conditional(AType symbol, set[ACondition] conditions), map[AType, set[AType]] defs)
     = "conditional(<atype2IValue(symbol, defs)>, <tree2IValue(conditions, defs)>)";   
     
 // ---- ACondition ------------------------------------------------------------
 
-str tree2IValue(\follow(AType atype), map[AType, set[AType]] defs)
+str tree2IValue1(\follow(AType atype), map[AType, set[AType]] defs)
     = "follow(<atype2IValue(atype, defs)>)";   
 
-str tree2IValue(\not-follow(AType atype), map[AType, set[AType]] defs)
+str tree2IValue1(\not-follow(AType atype), map[AType, set[AType]] defs)
     = "not_follow(<atype2IValue(atype, defs)>)";
     
-str tree2IValue(\precede(AType atype), map[AType, set[AType]] defs)
+str tree2IValue1(\precede(AType atype), map[AType, set[AType]] defs)
     = "precede(<atype2IValue(atype, defs)>)";  
 
-str tree2IValue(\not-precede(AType atype), map[AType, set[AType]] defs)
+str tree2IValue1(\not-precede(AType atype), map[AType, set[AType]] defs)
     = "not_precede(<atype2IValue(atype, defs)>)"; 
     
-str tree2IValue(\delete(AType atype), map[AType, set[AType]] defs)
+str tree2IValue1(\delete(AType atype), map[AType, set[AType]] defs)
     = "delete(<atype2IValue(atype, defs)>)"; 
     
-str tree2IValue(\at-column(int column), map[AType, set[AType]] defs)
+str tree2IValue1(\at-column(int column), map[AType, set[AType]] defs)
     = "at_column(<value2IValue(column)>)";  
     
-str tree2IValue(\begin-of-line(), map[AType, set[AType]] defs)
+str tree2IValue1(\begin-of-line(), map[AType, set[AType]] defs)
     = "begin_of_line()";
     
-str tree2IValue(\end-of-line(), map[AType, set[AType]] defs)
+str tree2IValue1(\end-of-line(), map[AType, set[AType]] defs)
     = "end_of_line()"; 
     
-str tree2IValue(\excepte(str label), map[AType, set[AType]] defs)
+str tree2IValue1(\except(str label), map[AType, set[AType]] defs)
     = "except(<value2IValue(label)>)";              
                   
 //---- list/set wrappers for some parse tree constructs
@@ -317,7 +385,9 @@ str tree2IValue(set[ACondition] conds, map[AType, set[AType]] defs)
 str tree2IValue(list[ACharRange] ranges, map[AType, set[AType]] defs)
     = "$VF.list(<intercalate(", ", [ tree2IValue(r, defs) | r <- ranges ])>)"; 
 
-// ---- Get the outermost type of an AType (used for names of primitives)
+/*****************************************************************************/
+/*  Get the outermost type of an AType (used for names of primitives)        */
+/*****************************************************************************/
 
 str getOuter(avoid())                 = "avoid";
 str getOuter(abool())                 = "abool";
@@ -346,7 +416,9 @@ str getOuter(aparameter(str pname, AType bound))
 str getOuter(avalue())                = "avalue";
 default str getOuter(AType t)         = "avalue";
 
-// ---- Convert an AType to a Java method that tests for that AType.
+/*****************************************************************************/
+/*  Convert an AType to a Java method that tests for that AType              */
+/*****************************************************************************/
 
 str atype2istype(avoid())                 = "isBottom";
 str atype2istype(abool())                 = "isBool";
@@ -414,7 +486,9 @@ str escapeForJ(str s){
    return res;
 }
     
-// ---- Convert a Rascal value to the equivalent IValue
+/*****************************************************************************/
+/*  Convert a Rascal value to the equivalent IValue                          */
+/*****************************************************************************/
 
 str value2IValue(bool b) = "$VF.bool(<b>)";
 str value2IValue(int n) = "$VF.integer(<n>)";
@@ -433,7 +507,6 @@ str value2IValue(loc l) {
            + ")";
      return l.offset? ? "$VF.sourceLocation(<base>, <l.offset>, <l.length>, <l.begin.line>, <l.end.line>, <l.begin.column>, <l.end.column>)"
                       : base;
-        
 }
 
 str value2IValue(datetime dt) {
@@ -455,8 +528,8 @@ str value2IValue(rel[&A,&B,&C,&D,&E] r) = "$VF.set(<intercalate(", ", ["$VF.tupl
 str value2IValue(rel[&A,&B,&C,&D,&E,&F] r) = "$VF.set(<intercalate(", ", ["$VF.tuple(<value2IValue(tup[0])>, <value2IValue(tup[1])>, <value2IValue(tup[2])>, <value2IValue(tup[3])>, <value2IValue(tup[4])>, <value2IValue(tup[5])>)" | tup <- r ])>)";
 str value2IValue(rel[&A,&B,&C,&D,&E,&F,&G] r) = "$VF.set(<intercalate(", ", ["$VF.tuple(<value2IValue(tup[0])>, <value2IValue(tup[1])>, <value2IValue(tup[2])>, <value2IValue(tup[3])>, <value2IValue(tup[4])>, <value2IValue(tup[5])>, <value2IValue(tup[6])>)" | tup <- r ])>)";
 str value2IValue(rel[&A,&B,&C,&D,&E,&F,&G,&H] r) = "$VF.set(<intercalate(", ", ["$VF.tuple(<value2IValue(tup[0])>, <value2IValue(tup[1])>, <value2IValue(tup[2])>, <value2IValue(tup[3])>, <value2IValue(tup[4])>, <value2IValue(tup[5])>, <value2IValue(tup[6])>, <value2IValue(tup[7])>)" | tup <- r ])>)";
-str value2IValue(rel[&A,&B,&C,&D,&E,&F,&G,&H] r) = "$VF.set(<intercalate(", ", ["$VF.tuple(<value2IValue(tup[0])>, <value2IValue(tup[1])>, <value2IValue(tup[2])>, <value2IValue(tup[3])>, <value2IValue(tup[4])>, <value2IValue(tup[5])>, <value2IValue(tup[6])>, <value2IValue(tup[7])>, <value2IValue(tup[8])>)" | tup <- r ])>)";
-str value2IValue(rel[&A,&B,&C,&D,&E,&F,&G,&H,&I] r) = "$VF.set(<intercalate(", ", ["$VF.tuple(<value2IValue(tup[0])>, <value2IValue(tup[1])>, <value2IValue(tup[2])>, <value2IValue(tup[3])>, <value2IValue(tup[4])>, <value2IValue(tup[5])>, <value2IValue(tup[6])>, <value2IValue(tup[7])>, <value2IValue(tup[8])>, <value2IValue(tup[9])>)" | tup <- r ])>)";
+str value2IValue(rel[&A,&B,&C,&D,&E,&F,&G,&H, &I] r) = "$VF.set(<intercalate(", ", ["$VF.tuple(<value2IValue(tup[0])>, <value2IValue(tup[1])>, <value2IValue(tup[2])>, <value2IValue(tup[3])>, <value2IValue(tup[4])>, <value2IValue(tup[5])>, <value2IValue(tup[6])>, <value2IValue(tup[7])>, <value2IValue(tup[8])>)" | tup <- r ])>)";
+str value2IValue(rel[&A,&B,&C,&D,&E,&F,&G,&H,&I, &J] r) = "$VF.set(<intercalate(", ", ["$VF.tuple(<value2IValue(tup[0])>, <value2IValue(tup[1])>, <value2IValue(tup[2])>, <value2IValue(tup[3])>, <value2IValue(tup[4])>, <value2IValue(tup[5])>, <value2IValue(tup[6])>, <value2IValue(tup[7])>, <value2IValue(tup[8])>, <value2IValue(tup[9])>)" | tup <- r ])>)";
 
 str value2IValue(lrel[&A] r) = "$VF.list(<intercalate(", ", [value2IValue(elem) | elem <- r ])>)";
 str value2IValue(lrel[&A,&B] r) = "$VF.list(<intercalate(", ", ["$VF.tuple(<value2IValue(tup[0])>, <value2IValue(tup[1])>)" | tup <- r ])>)";
@@ -495,7 +568,9 @@ str value2IValue(t:avoid()) { throw "value2IValue: cannot handle <t>"; }
 str value2IValue(t:areified(AType atype)) { throw "value2IValue: cannot handle <t>"; }
 default str value2IValue(AType t) { throw "value2IValue: cannot handle <t>"; }
 
-// ---- value2OuterType
+/*****************************************************************************/
+/*  Convert a Rascal value to Java equivalent of its outer type              */
+/*****************************************************************************/
 
 str value2outertype(int n) = "IInteger";
 str value2outertype(bool b) = "IBool";
@@ -534,8 +609,9 @@ str value2outertype(acons(AType adt,
 str value2outertype(areified(AType atype)) = "IConstructor";
 default str value2outertype(AType t) = "IValue";
 
-// ----
-
+/*****************************************************************************/
+/*  Convert an AType to Java code that creates that type via the type store  */
+/*****************************************************************************/
 str atype2typestore(aint()) = "$TF.integerType()";
 str atype2typestore(abool()) = "$TF.boolType()";
 str atype2typestore(areal()) = "$TF.realType()";

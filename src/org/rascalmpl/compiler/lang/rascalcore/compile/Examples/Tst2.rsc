@@ -7,8 +7,8 @@ import Type;
 //   return #int;
 //}      
                       
-              // syntax S = "abc";
+syntax S = "abc";
 data D = d1(str s, bool b = false) | d2(int n);
-   
-                                                     
-value main() = #D.symbol; // == \str();  
+      
+                                                            
+value main() = #S.symbol; // == \str();  
