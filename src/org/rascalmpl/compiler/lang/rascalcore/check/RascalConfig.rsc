@@ -334,7 +334,7 @@ void rascalPostSolver(map[str,Tree] namedTrees, Solver s){
    }
 }
 
-TypePalConfig rascalTypePalConfig(bool classicReifier = false,  bool logImports = false)
+TypePalConfig rascalTypePalConfig(bool classicReifier = true,  bool logImports = false)
     = tconfig(
         logTime                       = false,
         logSolverIterations           = false,
