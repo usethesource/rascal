@@ -70,17 +70,16 @@ str atype2idpart(atuple(AType ts))        = "tuple_<atype2idpart(ts)>";
 str atype2idpart(amap(AType d, AType r))  = "map_<atype2idpart(d)>_<atype2idpart(r)>";
 
 str atype2idpart(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
-                                              = "<atype2idpart(ret)>_<intercalate("_", [atype2idpart(f) | f <- formals])>";
+                                          = "<atype2idpart(ret)>_<intercalate("_", [atype2idpart(f) | f <- formals])>";
 
 str atype2idpart(anode(list[AType fieldType] fields))
-                                              = "node";
-
+                                          = "node";
 
 str atype2idpart(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) 
-                                              = getJavaName(adtName);
+                                          = getJavaName(adtName);
                                               
 str atype2idpart(t:acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields))
-                                              = "$<getJavaName(adt.adtName)><t.label? ? "_" + getJavaName(t.label) : "">_<intercalate("_", [atype2idpart(f) | f <- fields])>";
+                                          = "$<getJavaName(adt.adtName)><t.label? ? "_" + getJavaName(t.label) : "">_<intercalate("_", [atype2idpart(f) | f <- fields])>";
 
 str atype2idpart(overloadedAType(rel[loc, IdRole, AType] overloads)){
     resType = avoid();
@@ -93,9 +92,11 @@ str atype2idpart(overloadedAType(rel[loc, IdRole, AType] overloads)){
     return atype2idpart(ftype);
 }
 
-str atype2idpart(atypeList(list[AType] ts)) = intercalate("_", [atype2idpart(t) | t <- ts]);
+str atype2idpart(atypeList(list[AType] ts)) 
+                                          = intercalate("_", [atype2idpart(t) | t <- ts]);
 
-str atype2idpart(aparameter(str pname, AType bound)) = "P<avalue() := bound ? "" : atype2idpart(bound)>"; 
+str atype2idpart(aparameter(str pname, AType bound)) 
+                                          = "P<avalue() := bound ? "" : atype2idpart(bound)>"; 
 str atype2idpart(areified(AType atype))   = "reified_<atype2idpart(atype)>";
 str atype2idpart(avalue())                = "value";
 
@@ -143,22 +144,30 @@ str atype2IValue1(at:astr(), _)               = "astr(<lab(at)>)";
 str atype2IValue1(at:aloc(), _)               = "aloc(<lab(at)>)";
 str atype2IValue1(at:adatetime(), _)          = "adatetime(<lab(at)>)";
 
-str atype2IValue1(at:alist(AType t), map[AType, set[AType]] defs)          = "alist(<atype2IValue(t, defs)><lab2(at)>)";
-str atype2IValue1(at:abag(AType t), map[AType, set[AType]] defs)           = "abag(<atype2IValue(t, defs)><lab2(at)>)";
-str atype2IValue1(at:aset(AType t), map[AType, set[AType]] defs)           = "aset(<atype2IValue(t, defs)><lab2(at)>)";
-str atype2IValue1(at:arel(AType ts), map[AType, set[AType]] defs)          = "arel(<atype2IValue(ts, defs)><lab2(at)>)";
-str atype2IValue1(at:alrel(AType ts), map[AType, set[AType]] defs)         = "alrel(<atype2IValue(ts, defs)><lab2(at)>)";
+str atype2IValue1(at:alist(AType t), map[AType, set[AType]] defs)          
+    = "alist(<atype2IValue(t, defs)><lab2(at)>)";
+str atype2IValue1(at:abag(AType t), map[AType, set[AType]] defs)           
+    = "abag(<atype2IValue(t, defs)><lab2(at)>)";
+str atype2IValue1(at:aset(AType t), map[AType, set[AType]] defs)           
+    = "aset(<atype2IValue(t, defs)><lab2(at)>)";
+str atype2IValue1(at:arel(AType ts), map[AType, set[AType]] defs)          
+    = "arel(<atype2IValue(ts, defs)><lab2(at)>)";
+str atype2IValue1(at:alrel(AType ts), map[AType, set[AType]] defs)         
+    = "alrel(<atype2IValue(ts, defs)><lab2(at)>)";
 
-str atype2IValue1(at:atuple(AType ts), map[AType, set[AType]] defs)        = "atuple(<atype2IValue(ts, defs)><lab2(at)>)";
-str atype2IValue1(at:amap(AType d, AType r), map[AType, set[AType]] defs)  = "amap(<atype2IValue(d, defs)>,<atype2IValue(r, defs)><lab2(at)>)"; // TODO: complete from here
+str atype2IValue1(at:atuple(AType ts), map[AType, set[AType]] defs)        
+    = "atuple(<atype2IValue(ts, defs)><lab2(at)>)";
+str atype2IValue1(at:amap(AType d, AType r), map[AType, set[AType]] defs)  
+    = "amap(<atype2IValue(d, defs)>,<atype2IValue(r, defs)><lab2(at)>)"; // TODO: complete from here
 
 str atype2IValue1(at:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals), map[AType, set[AType]] defs)
-                                              = "<atype2IValue(ret)>_<intercalate("_", [atype2IValue(f) | f <- formals])>";
-str atype2IValue1(at:anode(list[AType fieldType] fields), map[AType, set[AType]] defs) = "anode(<lab(at)>)";
-str atype2IValue1(at:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), map[AType, set[AType]] defs) =
-            "aadt(<value2IValue(adtName)>, <atype2IValue(parameters,defs)>, <getName(syntaxRole)>)";
+    = "<atype2IValue(ret)>_<intercalate("_", [atype2IValue(f) | f <- formals])>";
+str atype2IValue1(at:anode(list[AType fieldType] fields), map[AType, set[AType]] defs) 
+    = "anode(<lab(at)>)";
+str atype2IValue1(at:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), map[AType, set[AType]] defs)
+    = "aadt(<value2IValue(adtName)>, <atype2IValue(parameters,defs)>, <getName(syntaxRole)>)";
 str atype2IValue1(at:acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields), map[AType, set[AType]] defs)
-                                              = "acons(<atype2IValue(adt, defs)>, <atype2IValue(fields, defs)>, <atype2IValue(kwFields,defs)><lab2(at)>)";
+    = "acons(<atype2IValue(adt, defs)>, <atype2IValue(fields, defs)>, <atype2IValue(kwFields,defs)><lab2(at)>)";
 str atype2IValue1(overloadedAType(rel[loc, IdRole, AType] overloads)){
     resType = avoid();
     formalsType = avoid();
@@ -170,16 +179,23 @@ str atype2IValue1(overloadedAType(rel[loc, IdRole, AType] overloads)){
     return atype2IValue(ftype);
 }
 
-str atype2IValue1(at:aparameter(str pname, AType bound), map[AType, set[AType]] defs) = "aparameter(<atype2IValue(bound)>)"; 
-str atype2IValue1(at:aprod(AProduction production), map[AType, set[AType]] defs) = "aprod(<tree2IValue(production, defs)>)";
-str atype2IValue1(at:areified(AType atype), map[AType, set[AType]] definitions) = "reifiedAType(<atype2IValue(atype, definitions)>, <defs(definitions)>)";
-str atype2IValue1(at:avalue(), _)                = "avalue(<lab(at)>)";
+str atype2IValue1(at:aparameter(str pname, AType bound), map[AType, set[AType]] defs)
+    = "aparameter(<atype2IValue(bound)>)"; 
+str atype2IValue1(at:aprod(AProduction production), map[AType, set[AType]] defs) 
+    = "aprod(<tree2IValue(production, defs)>)";
+str atype2IValue1(at:areified(AType atype), map[AType, set[AType]] definitions) 
+    = "reifiedAType(<atype2IValue(atype, definitions)>, <defs(definitions)>)";
+str atype2IValue1(at:avalue(), _)               
+     = "avalue(<lab(at)>)";
 //default str atype2IValue1(AType t, map[AType, set[AType]] defs) { throw "atype2IValue1: cannot handle <t>"; }
 
-str atype2IValue(list[AType] ts, map[AType, set[AType]] defs) = "$VF.list(<intercalate(", ", [atype2IValue(t,defs) | t <- ts])>)";
-str atype2IValue(lrel[AType fieldType,Expression defaultExp] ts, map[AType, set[AType]] defs) = "$VF.list(<intercalate(", ", [atype2IValue(t.fieldType,defs) | t <- ts])>)";
+str atype2IValue(list[AType] ts, map[AType, set[AType]] defs) 
+    = "$VF.list(<intercalate(", ", [atype2IValue(t,defs) | t <- ts])>)";
+str atype2IValue(lrel[AType fieldType,Expression defaultExp] ts, map[AType, set[AType]] defs) 
+    = "$VF.list(<intercalate(", ", [atype2IValue(t.fieldType,defs) | t <- ts])>)";
 
-str atype2IValue(set[AType] ts, map[AType, set[AType]] defs) = "$VF.set(<intercalate(", ", [atype2IValue(t,defs) | t <- ts])>)";
+str atype2IValue(set[AType] ts, map[AType, set[AType]] defs) 
+    = "$VF.set(<intercalate(", ", [atype2IValue(t,defs) | t <- ts])>)";
 
 str defs(map[AType, set[AType]] defs) {
     return "buildMap(<intercalate(", ", ["<atype2IValue(k,defs)>, $VF.set(<intercalate(", ", [ atype2IValue(elem,defs) | elem <- defs[k] ])>)" | k <- defs ])>)";
@@ -236,9 +252,12 @@ str tree2IValue1(\non-assoc(), map[AType, set[AType]] defs) = "non_assoc()";
 
 // ---- Attr ------------------------------------------------------------------
 
-str tree2IValue1(\tag(value v),  map[AType, set[AType]] defs) = "tag(<value2IValue(v)>)";
-str tree2IValue1(\assoc(Associativity \assoc),  map[AType, set[AType]] defs) = "assoc(<tree2IValue(\assoc, defs)>)";
-str tree2IValue1(\bracket(),  map[AType, set[AType]] defs) = "bracket())";
+str tree2IValue1(\tag(value v),  map[AType, set[AType]] defs) 
+    = "tag(<value2IValue(v)>)";
+str tree2IValue1(\assoc(Associativity \assoc),  map[AType, set[AType]] defs) 
+    = "assoc(<tree2IValue(\assoc, defs)>)";
+str tree2IValue1(\bracket(),  map[AType, set[AType]] defs)
+    = "bracket())";
 
 // ---- Tree ------------------------------------------------------------------
 
