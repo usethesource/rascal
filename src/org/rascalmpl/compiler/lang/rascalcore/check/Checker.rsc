@@ -320,7 +320,7 @@ set[str] loadImportsAndExtends(str moduleName, ModuleStructure ms, Collector c, 
 }
 
 tuple[ProfileData, TModel] rascalTModelComponent(map[str, Tree] namedTrees, ModuleStructure ms, 
-                                                 TypePalConfig config=rascalTypePalConfig(classicReifier=false), bool inline=false){
+                                                 TypePalConfig config=rascalTypePalConfig(classicReifier=true), bool inline=false){
     modelName = intercalate(" + ", toList(domain(namedTrees)));
     
     if(config.verbose) println("\<\<\< checking <modelName>");
@@ -380,7 +380,7 @@ data ModuleMessages = program(loc src, set[Message] messages);
 list[ModuleMessages] check(list[loc] moduleLocs, PathConfig pcfg){
     pcfg1 = pcfg; pcfg1.classloaders = []; pcfg1.javaCompilerPath = [];
     println("=== check: <moduleLocs>"); iprintln(pcfg1);
-    <tmodels, moduleLocs1, modules> = rascalTModelForLocs(moduleLocs, pcfg, rascalTypePalConfig(classicReifier=false,logImports=true));
+    <tmodels, moduleLocs1, modules> = rascalTModelForLocs(moduleLocs, pcfg, rascalTypePalConfig(classicReifier=true,logImports=true));
     nomodels = {moduleName | moduleLoc <- moduleLocs, moduleName := getModuleName(moduleLoc, pcfg), !tmodels[moduleName]?};
     if(!isEmpty(nomodels)) println("<size(nomodels)> tmodels missing for: <nomodels>");
     return [ program(moduleLoc, toSet(tm.messages)) | moduleLoc <- moduleLocs, moduleName := getModuleName(moduleLoc, pcfg), tmodels[moduleName]?, tm:= tmodels[moduleName] ];

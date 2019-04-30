@@ -95,7 +95,7 @@ public str key_current_module = "current_module";
 
 data TypePalConfig(
     bool logImports                 = false,
-    bool classicReifier             = false,
+    bool classicReifier             = true,
     bool warnUnused                 = true,
     bool warnUnusedFormals          = true,
     bool warnUnusedVariables        = true,
