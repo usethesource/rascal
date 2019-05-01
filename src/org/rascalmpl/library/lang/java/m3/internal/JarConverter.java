@@ -447,6 +447,7 @@ public class JarConverter extends M3Converter {
                 addToTypes(methodLogical, cons);
 
                 //TODO: we do not have access to parameters names - Check
+                setExcpetionRelations(methodNode, methodLogical);
                 setParameterRelations(methodNode, methodLogical);
                 setInstructionRelations(methodNode, methodLogical);
             }
@@ -484,6 +485,22 @@ public class JarConverter extends M3Converter {
         }
     }
 
+    /**
+     * Sets M3 relations of exceptions of a given method.
+     * @param methodNode - method node
+     * @param methodLogical - logical location of the method
+     */
+    private void setExcpetionRelations(MethodNode methodNode, ISourceLocation methodLogical) {
+        @SuppressWarnings("unchecked")
+        List<String> exceptions = methodNode.exceptions;
+        
+        for (String exception : exceptions) {
+            //TODO: check for interfaces
+            ISourceLocation exceptionLogical = M3LocationUtil.makeLocation(CLASS_SCHEME, "", exception);
+            addToTypeDependency(methodLogical, exceptionLogical);
+        }
+    }
+    
     /**
      * Sets M3 relations of all parameters of a given method.
      * @param methodNode - method node
@@ -719,19 +736,36 @@ public class JarConverter extends M3Converter {
     }
 
     /**
-     * Adds a new tuple to the M3 type dependency relation. Relates a 
-     * element logical location with its corresponding type (defined as
-     * a M3 logical location).
+     * Adds a new tuple to the M3 type dependency relation based
+     * on the element logical location and the depending type
+     * descriptor.
      * @param logical - element logical location
      * @param descriptor - type descriptor identified by ASM
      */
     private void addToTypeDependency(ISourceLocation logical, String descriptor) {
         if (!descriptor.equals(Type.VOID_TYPE.getDescriptor())) {
             ISourceLocation typeLogical = resolver.resolveBinding(Type.getType(descriptor), null);
-            insert(typeDependency, logical, typeLogical);
+            addToTypeDependency(logical, typeLogical);
         }
     }
     
+    /**
+     * Adds a new tuple to the M3 type dependency relation. Relates a 
+     * element logical location with its corresponding type (defined as
+     * a M3 logical location).
+     * @param logical - element logical location
+     * @param typeLogical - type logical location
+     */
+    private void addToTypeDependency(ISourceLocation logical, ISourceLocation typeLogical) {
+        insert(typeDependency, logical, typeLogical);
+    }
+    
+    /**
+     * Adds a new tuple to the M3 types relation. Considers a Rascal
+     * constructor (AST).
+     * @param logical
+     * @param cons
+     */
     private void addToTypes(ISourceLocation logical, IConstructor cons) {
         insert(types, logical, cons);
     }
