@@ -34,6 +34,7 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIUtil;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
@@ -92,24 +93,34 @@ public class ConstructorResult extends NodeResult {
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store) {
 	    Type consType = getValue().getConstructorType();
 
-	    if (getType().hasField(name, store)) {
-	        return positionalFieldAccess(consType, name);
+	    try {
+	        if (getType().hasField(name, store)) {
+	            return positionalFieldAccess(consType, name);
+	        }
+	        else if (consType.hasKeywordField(name, store)) {
+	            return keywordFieldAccess(consType, name, store);
+	        }
+	        else {
+	            // If the keyword field was defined on any of the other constructors, then 
+	            // we see this as a dynamic error. (the programmer could not have known since
+	            // constructor types are not first class citizens in Rascal). Otherwise the programmer
+	            // used a completely unknown field name and we flag it as static error.
+	            for (Type alt : store.lookupAlternatives(consType.getAbstractDataType())) {
+	                if (store.hasKeywordParameter(alt, name)) {
+	                    throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null); 
+	                }
+	            }
+
+	            throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
+	        }
 	    }
-	    else if (consType.hasKeywordField(name, store)) {
-	        return keywordFieldAccess(consType, name, store);
-	    }
-	    else {
-	        // If the keyword field was defined on any of the other constructors, then 
-            // we see this as a dynamic error. (the programmer could not have known since
-            // constructor types are not first class citizens in Rascal). Otherwise the programmer
-            // used a completely unknown field name and we flag it as static error.
-            for (Type alt : store.lookupAlternatives(consType.getAbstractDataType())) {
-                if (store.hasKeywordParameter(alt, name)) {
-                    throw RuntimeExceptionFactory.noSuchField(name, ctx.getCurrentAST(), null); 
-                }
-            }
-            
-	        throw new UndeclaredField(name, getType(), ctx.getCurrentAST());
+	    catch (UndeclaredAbstractDataTypeException e) {
+	        // this may happen when a value leaks via another module via a run-time dependency (a function call),
+	        // while the type of the value has not actually been defined (via import or extend). It happens
+	        // for example when "import" is used instead of "extend" and the programmer accidentally expected
+	        // names to be transitively imported.
+	        
+	        throw new UndeclaredType(getType().getName(), ctx.getCurrentAST());
 	    }
 	}
 	
