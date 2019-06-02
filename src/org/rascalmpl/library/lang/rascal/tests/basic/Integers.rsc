@@ -1,5 +1,8 @@
 module lang::rascal::tests::basic::Integers
 
+@expect{ArithmeticException}
+test bool divByZero(num x) = x / 0;
+
 test bool commAdd(int i, int j) = i + j == j + i;
 
 test bool commMul(int i, int j) = i * j == j * i;
