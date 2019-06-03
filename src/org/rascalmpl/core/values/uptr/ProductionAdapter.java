@@ -122,7 +122,7 @@ public class ProductionAdapter {
 			return (ISet) tree.get("attributes");
 		}
 		
-		return ValueFactoryFactory.getValueFactory().set(RascalValueFactory.Attr);
+		return ValueFactoryFactory.getValueFactory().set();
 	}
 
 	public static boolean isLiteral(IConstructor tree) {
