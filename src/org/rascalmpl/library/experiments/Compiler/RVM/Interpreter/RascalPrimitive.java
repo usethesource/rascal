@@ -6774,7 +6774,7 @@ public enum RascalPrimitive {
 
 			case "params":
 				String query = sloc.hasQuery() ? sloc.getQuery() : "";
-				IMapWriter res = vf.mapWriter(tf.stringType(), tf.stringType());
+				IMapWriter res = vf.mapWriter();
 
 				if (query.length() > 0) {
 					String[] params = query.split("&");
