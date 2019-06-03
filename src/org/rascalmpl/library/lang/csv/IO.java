@@ -388,7 +388,7 @@ public class IO {
                 }
                 @Override
                 public IValue visitList(Type type) throws RuntimeException {
-                    return values.list(type.getElementType());
+                    return values.list();
                 }
                 @Override
                 public IValue visitMap(Type type) throws RuntimeException {
@@ -408,7 +408,7 @@ public class IO {
                 }
                 @Override
                 public IValue visitSet(Type type) throws RuntimeException {
-                    return values.set(type.getElementType());
+                    return values.set();
                 }
                 @Override
                 public IValue visitSourceLocation(Type type) throws RuntimeException {

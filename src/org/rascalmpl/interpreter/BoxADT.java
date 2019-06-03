@@ -163,7 +163,7 @@ public class BoxADT {
 	}
 
 	static IList getEmptyList() {
-		return vf.list(box);
+		return vf.list();
 	}
 
 	static IList getList(IValue... t) {

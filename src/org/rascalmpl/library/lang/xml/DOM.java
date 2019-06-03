@@ -183,7 +183,7 @@ public class DOM {
 	}
 
 	private IConstructor convertElement(Element e, boolean trim) {
-		IListWriter kids = vf.listWriter(Factory.Node);
+		IListWriter kids = vf.listWriter();
 		for (Object o: e.getAttributes()) {
 			Attribute attr = (Attribute)o;
 			IString key = vf.string(attr.getName());

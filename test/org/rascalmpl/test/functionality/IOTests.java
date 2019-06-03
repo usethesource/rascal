@@ -56,7 +56,7 @@ public class IOTests extends TestCase {
 			vf.constructor(TwoTups, vf.tuple(vf.constructor(True), vf.constructor(False)),vf.tuple(vf.constructor(True), vf.constructor(False))),
 			vf.constructor(Or, vf.list(vf.constructor(True), vf.constructor(False), vf.constructor(True))),
 			vf.constructor(Friends, vf.list(name("Hans"), name("Bob"))),
-			vf.constructor(Or, vf.list(Boolean)),
+			vf.constructor(Or, vf.list()),
 			vf.constructor(Couples, vf.list(vf.tuple(name("A"), name("B")), vf.tuple(name("C"), name("D"))))
 	};
 	

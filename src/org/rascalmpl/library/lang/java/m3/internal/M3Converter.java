@@ -13,12 +13,6 @@ import io.usethesource.vallang.type.TypeFactory;
 public abstract class M3Converter extends JavaToRascalConverter {
 	private static final String DATATYPE_M3_NODE							= "M3";
 	private final io.usethesource.vallang.type.Type DATATYPE_M3_NODE_TYPE;
-	private final io.usethesource.vallang.type.Type DATATYPE_TYPESYMBOL;
-	
-	private static final io.usethesource.vallang.type.Type locType 		= TF.sourceLocationType();
-	private static final io.usethesource.vallang.type.Type m3TupleType 	= TF.tupleType(locType, locType);
-	private final io.usethesource.vallang.type.Type m3LOCModifierType;
-	private final io.usethesource.vallang.type.Type m3LOCTypeType;
 	
 	protected final Stack<ISourceLocation> scopeManager = new Stack<ISourceLocation>();
 	
@@ -38,29 +32,25 @@ public abstract class M3Converter extends JavaToRascalConverter {
 	protected ISetWriter annotations;
 	protected final io.usethesource.vallang.type.Type CONSTRUCTOR_M3;
 	
-	@SuppressWarnings("deprecation")
 	M3Converter(final LimitedTypeStore typeStore, java.util.Map<String, ISourceLocation> cache) {
 		super(typeStore, cache, true);
 		this.DATATYPE_M3_NODE_TYPE = this.typeStore.lookupAbstractDataType(DATATYPE_M3_NODE);
 		TypeFactory tf = TypeFactory.getInstance();
 		this.CONSTRUCTOR_M3= this.typeStore.lookupConstructor(DATATYPE_M3_NODE_TYPE, "m3", tf.tupleType(tf.sourceLocationType()));
-		this.DATATYPE_TYPESYMBOL = this.typeStore.lookupAbstractDataType("TypeSymbol");
-		uses = values.relationWriter(m3TupleType);
-		declarations = values.relationWriter(m3TupleType);
-		containment = values.relationWriter(m3TupleType);
-		extendsRelations = values.relationWriter(m3TupleType);
-		implementsRelations = values.relationWriter(m3TupleType);
-		fieldAccess = values.relationWriter(m3TupleType);
-		methodInvocation = values.relationWriter(m3TupleType);
-		m3LOCModifierType = TF.tupleType(locType, DATATYPE_RASCAL_AST_MODIFIER_NODE_TYPE);
-		modifiers = values.relationWriter(m3LOCModifierType);
-		m3LOCTypeType = TF.tupleType(locType, locType);
-		typeDependency = values.relationWriter(m3LOCTypeType);
-		documentation = values.relationWriter(m3TupleType);
-		names = values.relationWriter(TF.tupleType(TF.stringType(), locType));
-		methodOverrides = values.relationWriter(TF.tupleType(locType, locType));
-		annotations = values.relationWriter(TF.tupleType(locType, locType));
-		types = values.relationWriter(TF.tupleType(locType, DATATYPE_TYPESYMBOL));
+		uses = values.setWriter();
+		declarations = values.setWriter();
+		containment = values.setWriter();
+		extendsRelations = values.setWriter();
+		implementsRelations = values.setWriter();
+		fieldAccess = values.setWriter();
+		methodInvocation = values.setWriter();
+		modifiers = values.setWriter();
+		typeDependency = values.setWriter();
+		documentation = values.setWriter();
+		names = values.setWriter();
+		methodOverrides = values.setWriter();
+		annotations = values.setWriter();
+		types = values.setWriter();
 	}
 	
 	public IValue getModel(boolean insertErrors) {

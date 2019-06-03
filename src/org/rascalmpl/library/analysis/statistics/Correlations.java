@@ -10,13 +10,13 @@ package org.rascalmpl.library.analysis.statistics;
 import org.apache.commons.math.MathException;
 import org.apache.commons.math.linear.RealMatrix;
 import org.apache.commons.math.stat.correlation.Covariance;
+
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 
 public class Correlations {
@@ -55,8 +55,7 @@ public class Correlations {
 	}
 	
 	private IList RealMatrix2List(RealMatrix m){
-		Type listType = types.listType(types.realType());
-		IListWriter w = values.listWriter(listType.getElementType());
+		IListWriter w = values.listWriter();
 		int n = m.getColumnDimension();
 		for(int i = 0; i < n; i++){
 			w.append(values.real(m.getEntry(i,0)));
