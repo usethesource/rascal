@@ -2,27 +2,24 @@ package org.rascalmpl.tasks;
 
 import java.util.IdentityHashMap;
 
+import org.rascalmpl.values.ValueFactoryFactory;
+
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.ValueFactoryFactory;
 
 public class GraphBuilder {
 	private static final IValueFactory vf = ValueFactoryFactory
 			.getValueFactory();
-	private static final TypeFactory tf = TypeFactory.getInstance();
 	private final IdentityHashMap<Object, IValue> ids = new IdentityHashMap<Object, IValue>();
-	private ISet edges = vf.relation(tf.tupleType(tf.stringType(),
-			tf.stringType(), tf.stringType()));
+	private ISet edges = vf.set();
 	private int idNum = 0;
 
 	public ITuple getGraph() {
-		ISetWriter sw = vf.setWriter(tf.tupleType(tf.stringType(),
-				tf.stringType(), tf.stringType(), tf.integerType()));
+		ISetWriter sw = vf.setWriter();
 		sw.insertAll(ids.values());
 		return vf.tuple(sw.done(), edges);
 	}
