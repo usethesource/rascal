@@ -24,21 +24,17 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.semantics.dynamic.Tree;
-import io.usethesource.vallang.IAnnotatable;
-import io.usethesource.vallang.IConstructor;
-import io.usethesource.vallang.IList;
-import io.usethesource.vallang.ITuple;
-import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.exceptions.IllegalOperationException;
-import io.usethesource.vallang.impl.func.TupleFunctions;
-import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.visitors.IValueVisitor;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
 import org.rascalmpl.values.uptr.SymbolAdapter;
 import org.rascalmpl.values.uptr.TreeAdapter;
+
+import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ITuple;
+import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.exceptions.FactTypeUseException;
+import io.usethesource.vallang.type.Type;
 
 public class ConcreteApplicationPattern extends AbstractMatchingResult {
 	private IList subjectArgs;
@@ -86,15 +82,6 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 			return tf.tupleType(fields);
 		}
 
-		public boolean isEqual(IValue other) {
-		    return TupleFunctions.isEqual(this, other);
-		}
-		
-		public boolean match(IValue other) {
-            return TupleFunctions.match(this, other);
-        }
-
-		
 		public Iterator<IValue> iterator() {
 			return new Iterator<IValue>() {
 				int currentIndex = 0;
@@ -133,33 +120,6 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 		public ITuple set(String label, IValue arg) throws FactTypeUseException {
 			throw new UnsupportedOperationException();
 		}
-
-		public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
-			throw new UnsupportedOperationException();
-		}
-		
-		@Override
-		public boolean isAnnotatable() {
-			return false;
-		}
-
-		@Override
-		public IAnnotatable<? extends IValue> asAnnotatable() {
-			throw new IllegalOperationException(
-					"Cannot be viewed as annotatable.", getType());
-		}
-		
-	  @Override
-	  public boolean mayHaveKeywordParameters() {
-	    return false;
-	  }
-	  
-	  @Override
-	  public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
-	    throw new IllegalOperationException(
-	        "Cannot be viewed as with keyword parameters", getType());
-	  }
-
 	}
 	
 

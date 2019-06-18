@@ -36,7 +36,6 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IListRelation;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.IMapWriter;
@@ -44,8 +43,8 @@ import io.usethesource.vallang.INode;
 import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.IRational;
 import io.usethesource.vallang.IReal;
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISetRelation;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
@@ -1058,7 +1057,7 @@ public enum RascalPrimitive {
 	/**
 	 * addition on list and list relation
 	 * 
-	 * [ ... IList val1, IListRelation val2] => [ ..., val1 + val2]
+	 * [ ... IList val1, IRelation val2] => [ ..., val1 + val2]
 	 */
 	list_add_lrel {
 		@Override
@@ -1070,7 +1069,7 @@ public enum RascalPrimitive {
 	/**
 	 * addition on list relation and list relation
 	 * 
-	 * [ ... IListRelation val1, IListRelation val2] => [ ..., val1 + val2]
+	 * [ ... IRelation val1, IRelation val2] => [ ..., val1 + val2]
 	 */
 	lrel_add_lrel {
 		@Override
@@ -1082,7 +1081,7 @@ public enum RascalPrimitive {
 	/**
 	 * addition on list relation and list
 	 * 
-	 * [ ... IListRelation val1, IList val2] => [ ..., val1 + val2]
+	 * [ ... IRelation val1, IList val2] => [ ..., val1 + val2]
 	 */
 	lrel_add_list {
 		@Override
@@ -1094,7 +1093,7 @@ public enum RascalPrimitive {
 	/**
 	 * addition on list relation and element
 	 * 
-	 * [ ... IListRelation val1, IValue val2] => [ ..., val1 + val2]
+	 * [ ... IRelation val1, IValue val2] => [ ..., val1 + val2]
 	 */
 	lrel_add_elm {
 		@Override
@@ -1106,7 +1105,7 @@ public enum RascalPrimitive {
 	/**
 	 * addition on element and list relation
 	 * 
-	 * [ ... IListRelation val1, IValue val2] => [ ..., val1 + val2]
+	 * [ ... IRelation val1, IValue val2] => [ ..., val1 + val2]
 	 */
 	elm_add_lrel {
 		@Override
@@ -1589,7 +1588,7 @@ public enum RascalPrimitive {
 	/**
 	 * subtraction on list and list relation
 	 * 
-	 * [ ..., IList val1, IListRelation val2 ] => [ ..., val1 - val2 ]
+	 * [ ..., IList val1, IRelation val2 ] => [ ..., val1 - val2 ]
 	 */
 	list_subtract_lrel {
 		@Override
@@ -1601,7 +1600,7 @@ public enum RascalPrimitive {
 	/**
 	 * subtraction on list relation and list relation
 	 * 
-	 * [ ..., IListRelation val1, IListRelation val2 ] => [ ..., val1 - val2 ]
+	 * [ ..., IRelation val1, IRelation val2 ] => [ ..., val1 - val2 ]
 	 */
 	lrel_subtract_lrel {
 		@Override
@@ -1613,7 +1612,7 @@ public enum RascalPrimitive {
 	/**
 	 * subtraction on list relation and list
 	 * 
-	 * [ ..., IList val1, IListRelation val2 ] => [ ..., val1 - val2 ]
+	 * [ ..., IList val1, IRelation val2 ] => [ ..., val1 - val2 ]
 	 */
 	lrel_subtract_list {
 		@Override
@@ -1625,7 +1624,7 @@ public enum RascalPrimitive {
 	/**
 	 * subtraction on list relation and element
 	 * 
-	 * [ ..., IListRelation val1, IValue val2 ] => [ ..., val1 - val2 ]
+	 * [ ..., IRelation val1, IValue val2 ] => [ ..., val1 - val2 ]
 	 */
 	lrel_subtract_elm {
 		@Override
@@ -2017,7 +2016,7 @@ public enum RascalPrimitive {
 	/**
 	 * product of list relations
 	 * 
-	 * [ ..., IListRelation val1, IListRelation val2 ] => [ ..., val1 * val2 ]
+	 * [ ..., IRelation val1, IRelation val2 ] => [ ..., val1 * val2 ]
 	 */
 	lrel_product_lrel {
 		@Override
@@ -2129,14 +2128,14 @@ public enum RascalPrimitive {
 	/**
 	 * compose lrel and lrel
 	 * 
-	 * [ ... IListRelation val1, IListRelation val2] => [ ..., val1 o val2]
+	 * [ ... IRelation val1, IRelation val2] => [ ..., val1 o val2]
 	 */
 	lrel_compose_lrel {
 		@Override
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
 
-			IListRelation<IList> left = ((IList) arg_2).asRelation();
-			IListRelation<IList> right = ((IList) arg_1).asRelation();
+			IRelation<IList> left = ((IList) arg_2).asRelation();
+			IRelation<IList> right = ((IList) arg_1).asRelation();
 			return left.compose(right);
 		}
 	},
@@ -2150,8 +2149,8 @@ public enum RascalPrimitive {
 	rel_compose_rel {
 		@Override
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			ISetRelation<ISet> left = ((ISet) arg_2).asRelation();
-			ISetRelation<ISet> right = ((ISet) arg_1).asRelation();
+			IRelation<ISet> left = ((ISet) arg_2).asRelation();
+			IRelation<ISet> right = ((ISet) arg_1).asRelation();
 			return left.compose(right);
 		}
 	},
@@ -3051,7 +3050,7 @@ public enum RascalPrimitive {
 	/**
 	 * greater-than on list relation
 	 * 
-	 * [ ... IListRelation val1, IListRelation val2] => [ ..., val1 > val2]
+	 * [ ... IRelation val1, IRelation val2] => [ ..., val1 > val2]
 	 */
 	lrel_greater_lrel {
 		@Override
@@ -3405,7 +3404,7 @@ public enum RascalPrimitive {
 	/**
 	 * greater-than-or-equal on list relations
 	 * 
-	 * [ ... IListRelation val1, IListRelation val2] => [ ..., val1 >= val2]
+	 * [ ... IRelation val1, IRelation val2] => [ ..., val1 >= val2]
 	 */
 	lrel_greaterequal_lrel {
 		@Override
@@ -3575,7 +3574,7 @@ public enum RascalPrimitive {
 	/**
 	 * intersect on list and list relation
 	 * 
-	 * [ ... IList val1, IListRelation val2 ] => [ ..., val1 & val2 ]
+	 * [ ... IList val1, IRelation val2 ] => [ ..., val1 & val2 ]
 	 */
 	list_intersect_lrel {
 		@Override
@@ -3587,7 +3586,7 @@ public enum RascalPrimitive {
 	/**
 	 * intersect on list relations
 	 * 
-	 * [ ... IListRelation val1, IListRelation val2 ] => [ ..., val1 & val2 ]
+	 * [ ... IRelation val1, IRelation val2 ] => [ ..., val1 & val2 ]
 	 */
 	lrel_intersect_lrel {
 		@Override
@@ -3599,7 +3598,7 @@ public enum RascalPrimitive {
 	/**
 	 * intersect on list relation and list
 	 * 
-	 * [ ... IListRelation val1, IList val2 ] => [ ..., val1 & val2 ]
+	 * [ ... IRelation val1, IList val2 ] => [ ..., val1 & val2 ]
 	 */
 	lrel_intersect_list {
 		@Override
@@ -3720,7 +3719,7 @@ public enum RascalPrimitive {
 	/**
 	 * in (is-element-of) on element and list relation
 	 * 
-	 * [ ... IValue val1, IListRelation val2 ] => [ ..., val1 in val2 ]
+	 * [ ... IValue val1, IRelation val2 ] => [ ..., val1 in val2 ]
 	 */
 	elm_in_lrel {
 		@Override
@@ -3819,7 +3818,7 @@ public enum RascalPrimitive {
 	/**
 	 * notin (not-element-of) on element and list relation
 	 * 
-	 * [ ... IValue val1, IListRelation val2 ] => [ ..., val1 notin val2 ]
+	 * [ ... IValue val1, IRelation val2 ] => [ ..., val1 notin val2 ]
 	 */	
 	elm_notin_lrel {
 		@Override
@@ -3954,7 +3953,7 @@ public enum RascalPrimitive {
 
 	/** join on list and list relation
 	 * 
-	 * [ ..., IList val1, IListRelation val2 ] => [ ..., val1 join val2 ]
+	 * [ ..., IList val1, IRelation val2 ] => [ ..., val1 join val2 ]
 	 */
 	list_join_lrel {
 		@Override
@@ -3989,7 +3988,7 @@ public enum RascalPrimitive {
 
 	/** join on list relations
 	 * 
-	 * [ ..., IListRelation val1, IListRelation val2 ] => [ ..., val1 join val2 ]
+	 * [ ..., IRelation val1, IRelation val2 ] => [ ..., val1 join val2 ]
 	 */
 	lrel_join_lrel {
 		@Override
@@ -4029,7 +4028,7 @@ public enum RascalPrimitive {
 
 	/** join on list relation and list
 	 * 
-	 * [ ..., IListRelation val1, IList val2 ] => [ ..., val1 join val2 ]
+	 * [ ..., IRelation val1, IList val2 ] => [ ..., val1 join val2 ]
 	 */
 	lrel_join_list {
 		@Override
@@ -4501,7 +4500,7 @@ public enum RascalPrimitive {
 	/**
 	 * less-than on list relation
 	 * 
-	 * [ ..., IListRelation val1, IListRelation val2 ] => [ ..., val1 < val2 ]
+	 * [ ..., IRelation val1, IRelation val2 ] => [ ..., val1 < val2 ]
 	 */
 	lrel_less_lrel {
 		@Override
@@ -5041,7 +5040,7 @@ public enum RascalPrimitive {
 	/**
 	 * less-than-or-equal on list relation
 	 * 
-	 * [ ... IListRelation val1, IListRelation val2 ] => [ ..., val1 <= val2 ]
+	 * [ ... IRelation val1, IRelation val2 ] => [ ..., val1 <= val2 ]
 	 */
 	lrel_lessequal_lrel {
 		@Override
@@ -5246,12 +5245,12 @@ public enum RascalPrimitive {
 	/**
 	 * transitiveClosure on lrel
 	 * 
-	 * [ ..., IListRelation val ] => [ ..., val* ]
+	 * [ ..., IRelation val ] => [ ..., val* ]
 	 */
 	lrel_transitive_closure {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			IListRelation<IList> left = ((IList) arg_1).asRelation();
+			IRelation<IList> left = ((IList) arg_1).asRelation();
 			return left.closure();
 		}
 	},
@@ -5264,7 +5263,7 @@ public enum RascalPrimitive {
 	rel_transitive_closure {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			ISetRelation<ISet> left = ((ISet) arg_1).asRelation();
+			IRelation<ISet> left = ((ISet) arg_1).asRelation();
 			return left.closure();
 		}
 	},
@@ -5296,12 +5295,12 @@ public enum RascalPrimitive {
 	/**
 	 * transitiveReflexiveClosure on lrel
 	 * 
-	 *  [ ..., IListRelation val ] => [ ..., val+ ]
+	 *  [ ..., IRelation val ] => [ ..., val+ ]
 	 */
 	lrel_transitive_reflexive_closure {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			IListRelation<IList> left = ((IList) arg_1).asRelation();
+			IRelation<IList> left = ((IList) arg_1).asRelation();
 			return left.closureStar();
 		}
 
@@ -5315,7 +5314,7 @@ public enum RascalPrimitive {
 	rel_transitive_reflexive_closure {
 		@Override
 		public Object execute1(final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			ISetRelation<ISet> left = ((ISet) arg_1).asRelation();
+			IRelation<ISet> left = ((ISet) arg_1).asRelation();
 			return left.closureStar();
 		}
 	},
@@ -6885,13 +6884,13 @@ public enum RascalPrimitive {
 	/**
 	 * retrieve value of named field of lrel value
 	 * 
-	 * [ ..., IListRelation sloc, IString fieldName ] => [ ...,  IValue value for field fieldName ]
+	 * [ ..., IRelation sloc, IString fieldName ] => [ ...,  IValue value for field fieldName ]
 	 */
 	lrel_field_access {
 		@SuppressWarnings("deprecation")
 		@Override
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			IListRelation<IList> left = ((IList) arg_2).asRelation();
+			IRelation<IList> left = ((IList) arg_2).asRelation();
 			return left.projectByFieldNames(((IString) arg_1).getValue());
 		}
 	},
@@ -6905,7 +6904,7 @@ public enum RascalPrimitive {
 		@SuppressWarnings("deprecation")
 		@Override
 		public Object execute2(final Object arg_2, final Object arg_1, final Frame currentFrame, final RascalExecutionContext rex) {
-			ISetRelation<ISet> left = ((ISet) arg_2).asRelation();
+			IRelation<ISet> left = ((ISet) arg_2).asRelation();
 			return left.projectByFieldNames(((IString) arg_1).getValue());
 		}
 	},
@@ -7169,7 +7168,7 @@ public enum RascalPrimitive {
 	/**
 	 * Get projection of a list relation consisting of tuple elements projected by field name or index
 	 * 
-	 * [ ..., IListRelation lrel, IValue nameOrIndex1, IValue  nameOrIndex2, ... ] => [ ...,  new IListRelation containing the projected elements ]
+	 * [ ..., IRelation lrel, IValue nameOrIndex1, IValue  nameOrIndex2, ... ] => [ ...,  new IRelation containing the projected elements ]
 	 */
 	lrel_field_project {
 		@Override
@@ -8056,7 +8055,7 @@ public enum RascalPrimitive {
 	/**
 	 * Subscript of a lrel
 	 * 
-	 * [ ..., IListRelation r, IValue idx1, IValue idx2, ...] => r[idx1, idx2, ...] ]
+	 * [ ..., IRelation r, IValue idx1, IValue idx2, ...] => r[idx1, idx2, ...] ]
 	 */
 	lrel_subscript {
 		@Override
@@ -8139,7 +8138,7 @@ public enum RascalPrimitive {
 	/**
      * Subscript of a lrel with single int index
      * 
-     * [ ..., IListRelation r, IValue idx1] => r[idx1, idx2, ...] ]
+     * [ ..., IRelation r, IValue idx1] => r[idx1, idx2, ...] ]
      */
     lrel_subscript_int {
         @Override
@@ -8651,7 +8650,6 @@ public enum RascalPrimitive {
      * @param rex           the current RascalExecutionContext
      * @return              value of of this execute method
      */
-	@SuppressWarnings("unused")
     public Object execute1(Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
 	  throw RascalRuntimeException.notImplemented("RascalPrimitive.execute1 " + name(), currentFrame.src, currentFrame);
 	}
@@ -8663,7 +8661,6 @@ public enum RascalPrimitive {
      * @param rex           the current RascalExecutionContext
      * @return              value of of this execute method
      */
-	@SuppressWarnings("unused")
     public Object execute2(Object arg_2, Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
 	  throw RascalRuntimeException.notImplemented("RascalPrimitive.execute2 " + name(), currentFrame.src, currentFrame);
 	}
@@ -8675,7 +8672,6 @@ public enum RascalPrimitive {
      * @param rex           the current RascalExecutionContext
      * @return              value of of this execute method
      */
-    @SuppressWarnings("unused")
     public Object execute3(Object arg_3, Object arg_2, Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
       throw RascalRuntimeException.notImplemented("RascalPrimitive.execute3 " + name(), currentFrame.src, currentFrame);
     }
@@ -8687,7 +8683,6 @@ public enum RascalPrimitive {
      * @param rex           the current RascalExecutionContext
      * @return              value of of this execute method
      */
-    @SuppressWarnings("unused")
     public Object execute4(Object arg_4, Object arg_3, Object arg_2, Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
       throw RascalRuntimeException.notImplemented("RascalPrimitive.execute4 " + name(), currentFrame.src, currentFrame);
     }
@@ -8699,7 +8694,6 @@ public enum RascalPrimitive {
      * @param rex           the current RascalExecutionContext
      * @return              value of of this execute method
      */
-    @SuppressWarnings("unused")
     public Object execute5(Object arg_5, Object arg_4, Object arg_3, Object arg_2, Object arg_1, Frame currentFrame, RascalExecutionContext rex) {
       throw RascalRuntimeException.notImplemented("RascalPrimitive.execute5 " + name(), currentFrame.src, currentFrame);
     }

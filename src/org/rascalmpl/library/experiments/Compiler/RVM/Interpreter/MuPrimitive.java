@@ -36,7 +36,7 @@ import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.impl.AnnotatedConstructorFacade;
+import io.usethesource.vallang.impl.fields.AnnotatedConstructorFacade;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
