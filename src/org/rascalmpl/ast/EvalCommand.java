@@ -19,6 +19,7 @@ package org.rascalmpl.ast;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
+@SuppressWarnings(value = {"unused"})
 public abstract class EvalCommand extends AbstractAST {
   public EvalCommand(ISourceLocation src, IConstructor node) {
     super(src /* we forget node on purpose */);
