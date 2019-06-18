@@ -17,15 +17,12 @@ import io.usethesource.vallang.INumber;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.type.TypeFactory;
 
 public class Correlations {
 	private final IValueFactory values;
-	private TypeFactory types;
 	
 	public Correlations(IValueFactory values){
 		super();
-		this.types = TypeFactory.getInstance();
 		this.values = values;
 	}
 	

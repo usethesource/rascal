@@ -26,11 +26,8 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.type.TypeFactory;
 
 public class IO{
-	private static final TypeFactory types = TypeFactory.getInstance();
-	
 	private final IValueFactory values;
 	
 	public IO(IValueFactory values){
