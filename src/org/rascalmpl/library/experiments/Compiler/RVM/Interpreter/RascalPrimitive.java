@@ -8728,9 +8728,6 @@ public enum RascalPrimitive {
 	public static final IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private static final TypeFactory tf = TypeFactory.getInstance();
 
-	private static final Type lineColumnType = TypeFactory.getInstance().tupleType(new Type[] {TypeFactory.getInstance().integerType(), TypeFactory.getInstance().integerType()},
-			new String[] {"line", "column"});
-	
 	public static final Type nodeType = tf.nodeType();
 	public static final Type valueType = tf.valueType();
 	private static final IMap emptyMap = vf.mapWriter().done();
@@ -9149,7 +9146,8 @@ public enum RascalPrimitive {
 		return (IValue) intersect.execute2(left, right, currentFrame, rex);
 	}
 
-	private static IBool $equal(final IValue left, final IValue right, final Frame currentFrame, final RascalExecutionContext rex){
+	@SuppressWarnings("unused")
+    private static IBool $equal(final IValue left, final IValue right, final Frame currentFrame, final RascalExecutionContext rex){
 		return (IBool) equal.execute2(left, right, currentFrame, rex);
 	
 	}

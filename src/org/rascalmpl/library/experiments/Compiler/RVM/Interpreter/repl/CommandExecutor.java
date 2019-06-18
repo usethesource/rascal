@@ -106,19 +106,12 @@ public class CommandExecutor {
 	private boolean kernel_trace;
 	private boolean kernel_verbose;
 
-	private boolean compile_coverage;
-	private boolean compile_debug;
-	private boolean compile_enableAsserts;
 	private boolean compile_optimize;
-	private boolean compile_profile;
-	private boolean compile_testsuite;
-	private boolean compile_trace;
 	private boolean compile_verbose;
 	
 	private boolean execute_coverage;
 	private boolean execute_debug;
     private boolean execute_debugRVM;
-    private boolean execute_jvm;
     private boolean execute_profile;
     private boolean execute_testsuite;
     private boolean execute_trace;
@@ -152,13 +145,7 @@ public class CommandExecutor {
         
         // options for compiler
         
-        compile_coverage      = settings.getBool("compile.coverage", false);
-        compile_debug         = settings.getBool("compile.debug", false);     
-        compile_enableAsserts = settings.getBool("compile.enableAsserts", true);
         compile_optimize      = settings.getBool("compile.optimize", false);
-        compile_profile       = settings.getBool("compile.profile", false);
-        compile_testsuite     = settings.getBool("compile.testsuite", false);
-        compile_trace         = settings.getBool("compile.trace", false);
         compile_verbose       = settings.getBool("compile.verbose", false);
        
         // options per executed command
@@ -166,7 +153,6 @@ public class CommandExecutor {
         execute_coverage      = settings.getBool("execute.coverage", false);
 		execute_debug         = settings.getBool("execute.debug", false);							
 		execute_debugRVM      = settings.getBool("execute.debugRVM", false);
-		execute_jvm           = settings.getBool("execute.jvm", true);
 		execute_profile       = settings.getBool("execute.profile", false);
 		execute_testsuite     = settings.getBool("execute.testsuite", false);
 		execute_trace         = settings.getBool("execute.trace", false);
