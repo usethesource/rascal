@@ -134,6 +134,7 @@ public str classForSort(str pkg, list[str] imports, AST ast) {
          '<for (i <- sort(imports)) {>
          'import <i>;<}>
          '
+         '@SuppressWarnings(value = {\"unused\"})
          'public abstract class <ast.name> extends AbstractAST {
          '  public <ast.name>(ISourceLocation src, IConstructor node) {
          '    super(src /* we forget node on purpose */);
