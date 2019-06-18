@@ -29,6 +29,17 @@ public class NodeCursor extends Cursor implements INode {
 	}
 
 	@Override
+	public INode setChildren(IValue[] childArray) {
+	    INode result = this;
+
+	    for (int i = 0; i < arity(); i++) {
+	        result = result.set(i, childArray[i]);
+	    }
+
+	    return result;
+	}
+	
+	@Override
 	public INode set(int i, IValue newChild) throws IndexOutOfBoundsException {
 		return new NodeCursor(getNode().set(i, newChild), getCtx());
 	}
@@ -81,7 +92,8 @@ public class NodeCursor extends Cursor implements INode {
 		return new NodeCursor(getNode().replace(first, second, end, repl), getCtx());
 	}
 	
-	@Override
+	@SuppressWarnings("deprecation")
+    @Override
 	public IAnnotatable<? extends INode> asAnnotatable() {
 		return getNode().asAnnotatable();
 	}

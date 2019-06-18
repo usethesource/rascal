@@ -28,7 +28,7 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IListRelation;
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.INode;
@@ -38,11 +38,11 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.UndeclaredFieldException;
-import io.usethesource.vallang.impl.AbstractDefaultAnnotatable;
-import io.usethesource.vallang.impl.AbstractDefaultWithKeywordParameters;
-import io.usethesource.vallang.impl.AbstractValueFactoryAdapter;
-import io.usethesource.vallang.impl.AnnotatedConstructorFacade;
-import io.usethesource.vallang.impl.ConstructorWithKeywordParametersFacade;
+import io.usethesource.vallang.impl.fields.AbstractDefaultAnnotatable;
+import io.usethesource.vallang.impl.fields.AbstractDefaultWithKeywordParameters;
+import io.usethesource.vallang.impl.fields.AbstractValueFactoryAdapter;
+import io.usethesource.vallang.impl.fields.AnnotatedConstructorFacade;
+import io.usethesource.vallang.impl.fields.ConstructorWithKeywordParametersFacade;
 import io.usethesource.vallang.impl.persistent.ValueFactory;
 import io.usethesource.vallang.io.StandardTextReader;
 import io.usethesource.vallang.io.StandardTextWriter;
@@ -535,6 +535,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 		
 		@Override
+		public INode setChildren(IValue[] childArray) {
+		    return set(0, childArray[0]);
+		}
+		
+		@Override
 		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
 			return (ITree) v.visitTreeChar(this);
 		}
@@ -726,6 +731,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		@Override
 		public boolean isChar() {
 			return true;
+		}
+		
+		@Override
+		public INode setChildren(IValue[] childArray) {
+		    return set(0, childArray[0]);
 		}
 		
 		@Override
@@ -1727,6 +1737,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
         
 
 		@Override
+		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
+		    return v.visitTreeAppl(this);
+		}
+		
+		@Override
 		public IAnnotatable<? extends ITree> asAnnotatable() {
 			return new AbstractDefaultAnnotatable<ITree>(this) {
 				@Override
@@ -1757,11 +1772,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		@Override
 		public IConstructor encodeAsConstructor() {
 			return this;
-		}
-		
-		@Override
-		public <E extends Throwable> ITree accept(TreeVisitor<E> v) throws E {
-			return (ITree) v.visitTreeAppl(this);
 		}
 		
 		@Override
@@ -1987,12 +1997,7 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		
 		@Override
 		public String toString() {
-			return StandardTextWriter.valueToString(this);
-		}
-		
-		@Override
-		public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
-			return v.visitList(this);
+			return defaultToString();
 		}
 		
 		@Override
@@ -2071,26 +2076,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 			};
 		}
 		
-		@Override
-		public boolean isAnnotatable() {
-			return false;
-		}
-
-		@Override
-		public IAnnotatable<? extends IValue> asAnnotatable() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public boolean mayHaveKeywordParameters() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
-			throw new UnsupportedOperationException();
-		}
-
 		@Override
 		public Type getElementType() {
 			Type lub = tf.voidType();
@@ -2187,8 +2172,13 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 
 		@Override
-		public IListRelation<IList> asRelation() {
+		public IRelation<IList> asRelation() {
 			throw new UnsupportedOperationException();
+		}
+		
+		@Override
+		public IListWriter writer() {
+		    return IRascalValueFactory.getInstance().listWriter();
 		}
 	}
 	
