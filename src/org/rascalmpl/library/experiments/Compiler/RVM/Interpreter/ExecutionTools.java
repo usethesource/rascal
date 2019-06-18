@@ -141,7 +141,7 @@ public class ExecutionTools {
 				//System.out.println("Initializing: " + (Timing.getCpuTime() - start)/1000000 + "ms");
 				result = rvm.executeRVMProgram(moduleName, executable.getUidModuleMain(), arguments, keywordArguments);
 			}
-			long now = Timing.getCpuTime();
+//			long now = Timing.getCpuTime();
 			MuPrimitive.exit(rvm.getStdOut());
 			RascalPrimitive.exit(rex);
 			rvm.getFrameObserver().report();

@@ -563,7 +563,7 @@ public class RVMInterpreter extends RVMCore {
 						continue NEXT_INSTRUCTION;
 					}
 					
-					cf.pc = pc;
+					Frame.pc = pc;
 					if(op == Opcode.OP_CALLDYN && stack[sp - 1] instanceof FunctionInstance){
 						FunctionInstance fun_instance = (FunctionInstance) stack[--sp];
 						arity = CodeBlock.fetchArg1(instruction);
@@ -595,7 +595,7 @@ public class RVMInterpreter extends RVMCore {
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
-					pc = cf.pc;
+					pc = Frame.pc;
 					//accu = stack[--sp];	// TODO
 					continue NEXT_INSTRUCTION;
 					
@@ -610,7 +610,7 @@ public class RVMInterpreter extends RVMCore {
 						return Rascal_FALSE;
 					}
 					cf.sp = sp;
-					cf.pc = pc;
+					Frame.pc = pc;
 					
 					OverloadedFunctionInstanceCall c_ofun_call_next = null;
 					
@@ -625,7 +625,7 @@ public class RVMInterpreter extends RVMCore {
 							instructions = cf.function.codeblock.getInstructions();
 							stack = cf.stack;
 							sp = cf.sp;
-							pc = cf.pc;
+							pc = Frame.pc;
 							frameObserver.enter(cf);;
 							continue NEXT_INSTRUCTION;
 						}
@@ -651,7 +651,7 @@ public class RVMInterpreter extends RVMCore {
 						instructions = cf.function.codeblock.getInstructions();
 						stack = cf.stack;
 						sp = cf.sp;
-						pc = cf.pc;
+						pc = Frame.pc;
 					} else {
 						constructor = c_ofun_call_next.nextConstructor();
 						sp = sp - arity;
@@ -695,13 +695,13 @@ public class RVMInterpreter extends RVMCore {
 						instructions = cf.function.codeblock.getInstructions();
 						stack = cf.stack;
 						sp = cf.sp;
-						pc = cf.pc;
+						pc = Frame.pc;
 					} else {
 						cf = c_ofun_call.cf;
 						instructions = cf.function.codeblock.getInstructions();
 						stack = cf.stack;
 						sp = cf.sp;
-						pc = cf.pc;
+						pc = Frame.pc;
 						constructor = c_ofun_call.nextConstructor();
 						accu = vf.constructor(constructor, c_ofun_call.getConstructorArguments(constructor.getArity()));
 						ocalls.pop();
@@ -741,7 +741,7 @@ public class RVMInterpreter extends RVMCore {
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
-					pc = cf.pc;
+					pc = Frame.pc;
 					//stack[sp++] = accu;
 					continue NEXT_INSTRUCTION;
 				
@@ -767,7 +767,7 @@ public class RVMInterpreter extends RVMCore {
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
-					pc = cf.pc;
+					pc = Frame.pc;
 					if(returns) {
 						accu = rval;
 					}
@@ -806,7 +806,7 @@ public class RVMInterpreter extends RVMCore {
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
-					pc = cf.pc;
+					pc = Frame.pc;
 					
 					accu = rval;
 					continue NEXT_INSTRUCTION;
@@ -859,12 +859,12 @@ public class RVMInterpreter extends RVMCore {
 					cccf.previousCallFrame = cf;
 					
 					cf.sp = sp;
-					cf.pc = pc;
+					Frame.pc = pc;
 					instructions = cccf.function.codeblock.getInstructions();
 					cf = cccf;
 					stack = cf.stack;
 					sp = cf.sp;
-					pc = cf.pc;
+					pc = Frame.pc;
 					
 					continue NEXT_INSTRUCTION;
 					
@@ -889,25 +889,25 @@ public class RVMInterpreter extends RVMCore {
 						}
 						cccf = null;
 						//--sp;
-						cf.pc = pc;
+						Frame.pc = pc;
 						cf.sp = sp;
 						cf = prev;
 						instructions = cf.function.codeblock.getInstructions();
 						stack = cf.stack;
 						sp = cf.sp;
-						pc = cf.pc;
+						pc = Frame.pc;
 						accu = precondition ? coroutine : exhausted;
 						continue NEXT_INSTRUCTION;
 					}
 					
 					if(!precondition) {
-						cf.pc = pc;
+						Frame.pc = pc;
 						cf.sp = sp;
 						cf = cf.previousCallFrame;
 						instructions = cf.function.codeblock.getInstructions();
 						stack = cf.stack;
 						sp = cf.sp;
-						pc = cf.pc;
+						pc = Frame.pc;
 						accu = Rascal_FALSE;
 						continue NEXT_INSTRUCTION;
 					}
@@ -944,13 +944,13 @@ public class RVMInterpreter extends RVMCore {
 					// but always leave an entry on the stack
 					coroutine.frame.stack[coroutine.frame.sp++] = (op == Opcode.OP_NEXT1) ? stack[--sp] : null;
 					
-					cf.pc = pc;
+					Frame.pc = pc;
 					cf.sp = sp;
 					
 					cf = coroutine.frame;
 					stack = cf.stack;
 					sp = cf.sp;
-					pc = cf.pc;
+					pc = Frame.pc;
 					continue NEXT_INSTRUCTION;
 					
 				case Opcode.OP_YIELD0:	
@@ -974,7 +974,7 @@ public class RVMInterpreter extends RVMCore {
 							ref.setValue(stack[--sp]);;
 						}
 					}
-					cf.pc = pc;
+					Frame.pc = pc;
 					cf.sp = sp;
 					coroutine.suspend(cf);
 					cf = prev;
@@ -984,7 +984,7 @@ public class RVMInterpreter extends RVMCore {
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
-					pc = cf.pc;
+					pc = Frame.pc;
 					accu = Rascal_TRUE;	 		// YIELD always returns TRUE to the corresponding NEXT
 					
 					continue NEXT_INSTRUCTION;
@@ -1002,7 +1002,7 @@ public class RVMInterpreter extends RVMCore {
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
-					pc = cf.pc;
+					pc = Frame.pc;
 					accu = Rascal_FALSE;  		// EXHAUST always returns FALSE, to the corresponding NEXT
 					continue NEXT_INSTRUCTION;
 					
@@ -1273,7 +1273,7 @@ public class RVMInterpreter extends RVMCore {
 					instructions = cf.function.codeblock.getInstructions();
 					stack = cf.stack;
 					sp = cf.sp;
-					pc = cf.pc;
+					pc = Frame.pc;
 					accu = rval;
 					continue NEXT_INSTRUCTION;
 								
@@ -1291,13 +1291,13 @@ public class RVMInterpreter extends RVMCore {
 						//stacktrace.add(cf);
 						thrown = RascalRuntimeException.uninitializedVariable("name to be provided", cf);
 					}
-					cf.pc = pc;
+					Frame.pc = pc;
 					// First, try to find a handler in the current frame function,
 					// given the current instruction index and the value type,
 					// then, if not found, look up the caller function(s)
 					
 					for(Frame f = cf; f != null; f = f.previousCallFrame) {
-						int handler = f.function.getHandler(f.pc - 1, thrown.getValue().getType());
+						int handler = f.function.getHandler(Frame.pc - 1, thrown.getValue().getType());
 						if(handler != -1) {
 							int fromSP = f.function.getFromSP();
 							if(f != cf) {
@@ -1305,7 +1305,7 @@ public class RVMInterpreter extends RVMCore {
 								instructions = cf.function.codeblock.getInstructions();
 								stack = cf.stack;
 								sp = cf.sp;
-								pc = cf.pc;
+								pc = Frame.pc;
 							}
 							pc = handler;
 							sp = fromSP;
