@@ -2,6 +2,8 @@ package org.rascalmpl.interpreter.cursors;
 
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 
@@ -120,5 +122,10 @@ public class MapCursor extends Cursor implements IMap {
 	public Iterator<Entry<IValue, IValue>> entryIterator() {
 		return getMap().entryIterator();
 	}
+
+    @Override
+    public Stream<IValue> stream() {
+        return StreamSupport.stream(spliterator(), false).map(e -> IRascalValueFactory.getInstance().tuple(e, get(e)));
+    }
 
 }
