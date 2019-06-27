@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.DefaultTestResultListener;
-import org.rascalmpl.interpreter.utils.Timing;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.values.ValueFactoryFactory;
 
@@ -114,7 +113,6 @@ public class ExecutionTools {
 		IValue[] arguments = new IValue[0];
 
 		//try {
-			long start = Timing.getCpuTime();
 			IValue result = null;
 			String uid_module_init = executable.getUidModuleInit();
 			if(!uid_module_init.isEmpty()){
