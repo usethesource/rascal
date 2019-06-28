@@ -2,8 +2,11 @@ package org.rascalmpl.interpreter.cursors;
 
 import java.util.Iterator;
 
+import org.rascalmpl.values.uptr.IRascalValueFactory;
+
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISetRelation;
+import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
@@ -13,7 +16,11 @@ public class SetCursor extends Cursor implements ISet {
 		super(value);
 	}
 
-	
+	@Override
+    public ISetWriter writer() {
+        return IRascalValueFactory.getInstance().setWriter();
+    }
+    
 	public SetCursor(ISet value, Context ctx) {
 		super(value, ctx);
 	}
@@ -106,7 +113,7 @@ public class SetCursor extends Cursor implements ISet {
 	}
 
 	@Override
-	public ISetRelation<ISet> asRelation() {
+	public IRelation<ISet> asRelation() {
 		return getSet().asRelation();
 	}
 

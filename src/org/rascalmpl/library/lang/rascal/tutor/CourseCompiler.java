@@ -11,12 +11,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
@@ -242,18 +238,6 @@ public class CourseCompiler {
 		}
 		
 		return false;
-	}
-	
-	private static class RemoveAdocs extends SimpleFileVisitor<Path> {
-
-		@Override public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException{
-			String fileName = file.getFileName().toString();
-
-			if(fileName.endsWith(".adoc")){
-				Files.delete(file);
-			}
-			return FileVisitResult.CONTINUE;
-		}
 	}
 	
 	/**

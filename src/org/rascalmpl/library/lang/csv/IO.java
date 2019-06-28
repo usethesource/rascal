@@ -222,7 +222,7 @@ public class IO {
                 stdOut.flush();
             }
 
-            IWriter result = values.setWriter();
+            IWriter<ISet> result = values.setWriter();
             for (IValue[] rec : records) {
                 result.insert(createTuple(tupleType, rec));
             }
@@ -243,7 +243,7 @@ public class IO {
 
         private IValue readAndBuild(Reader stream, Type actualType, TypeStore store) throws IOException {
             FieldReader reader = new FieldReader(stream, separator);
-            IWriter result = actualType.isListRelation() ? values.listWriter() : values.setWriter();
+            IWriter<?> result = actualType.isListRelation() ? values.listWriter() : values.setWriter();
 
             boolean first = header;
             Type tupleType = actualType.getElementType();

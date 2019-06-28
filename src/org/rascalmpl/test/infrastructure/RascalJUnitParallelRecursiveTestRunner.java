@@ -206,7 +206,7 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
             try {
                 if (waitForRunSignal()) {
                     for (Description mod: testModules) {
-                        Listener trl = new Listener(mod);
+                        Listener trl = new Listener(mod, stderr);
                         
                         if (mod.getAnnotations().stream().anyMatch(t -> t instanceof CompilationFailed)) {
                             results.add(notifier -> {
@@ -254,10 +254,10 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
                         evaluator.doImport(new NullRascalMonitor(), module);
                     }
                     catch (Throwable e) {
-                        synchronized(System.err) {
-                            System.err.println("Could not import " + module + " for testing...");
-                            System.err.println(e.getMessage());
-                            e.printStackTrace(System.err);
+                        synchronized(stderr) {
+                            stderr.println("Could not import " + module + " for testing...");
+                            stderr.println(e.getMessage());
+                            e.printStackTrace(stderr);
                         } 
                         
                         // register a failing module to make sure we report failure later on. 
@@ -307,11 +307,12 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
     }
 
     public class Listener implements ITestResultListener {
-
+        private final PrintWriter stderr;
         private final Description module;
 
-        public Listener(Description module) {
+        public Listener(Description module, PrintWriter stderr) {
             this.module = module;
+            this.stderr = stderr;
         }
 
         private Description getDescription(String name, ISourceLocation loc) {
@@ -342,6 +343,11 @@ public class RascalJUnitParallelRecursiveTestRunner extends Runner {
                 notifier.fireTestStarted(desc);
 
                 if (!successful) {
+                    if (exception != null) {
+                        synchronized(stderr) {
+                            exception.printStackTrace(stderr);
+                        }
+                    }
                     notifier.fireTestFailure(new Failure(desc, exception != null ? exception : new Exception(message != null ? message : "no message")));
                 }
                 else {
