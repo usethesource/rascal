@@ -19,16 +19,17 @@ import java.util.Map;
 import java.util.Random;
 import java.util.function.Supplier;
 
-import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
-import org.rascalmpl.core.types.TypeReifier;
-import org.rascalmpl.core.types.RascalTypeFactory;
 import org.rascalmpl.core.parser.gtd.util.ArrayList;
+import org.rascalmpl.core.types.RascalTypeFactory;
+import org.rascalmpl.core.types.TypeReifier;
+import org.rascalmpl.core.values.uptr.visitors.TreeVisitor;
+
+import io.usethesource.capsule.util.collection.AbstractSpecialisedImmutableMap;
 import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IListRelation;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.INode;
@@ -51,7 +52,6 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.IValueVisitor;
-import org.rascalmpl.core.values.uptr.visitors.TreeVisitor;
 
 /**
  * The RascalValueFactory extends a given IValueFactory with the Rascal-specific builtin
@@ -524,6 +524,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		final int ch;
 		
 		@Override
+        public INode setChildren(IValue[] childArray) {
+            return set(0, childArray[0]);
+        }
+		
+		@Override
 		public boolean isChar() {
 			return true;
 		}
@@ -716,6 +721,11 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		public CharByte(byte ch) {
 			this.ch = ch;
 		}
+		
+		@Override
+        public INode setChildren(IValue[] childArray) {
+            return set(0, childArray[0]);
+        }
 		
 		@Override
 		public boolean isChar() {
@@ -2061,24 +2071,9 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		}
 		
 		@Override
-		public boolean isAnnotatable() {
-			return false;
-		}
-
-		@Override
-		public IAnnotatable<? extends IValue> asAnnotatable() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public boolean mayHaveKeywordParameters() {
-			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
-			throw new UnsupportedOperationException();
-		}
+        public IListWriter writer() {
+            return IRascalValueFactory.getInstance().listWriter();
+        }
 
 		@Override
 		public Type getElementType() {
@@ -2173,11 +2168,6 @@ public class RascalValueFactory extends AbstractValueFactoryAdapter implements I
 		@Override
 		public boolean isRelation() {
 			return false;
-		}
-
-		@Override
-		public IListRelation<IList> asRelation() {
-			throw new UnsupportedOperationException();
 		}
 	}
 	
