@@ -752,7 +752,7 @@ public class RVMExecutable {
 	     ISourceLocation rvmx = vf.sourceLocation("home", "", "/git/rascal/bootstrap/phase2/lang/rascal/grammar/ParserGenerator.rvmx");
 	     //RVMExecutable.validating = false;
 	     try {
-	         RVMExecutable exec = read(rvmx);
+	         /*ignore*/ read(rvmx);
 	     }
 	     catch (IOException e) {
 	         // TODO Auto-generated catch block
