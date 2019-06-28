@@ -15,10 +15,10 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils;
 
 import java.io.IOException;
 
-import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.interpreter.StackTrace;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
+
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.io.StandardTextWriter;
