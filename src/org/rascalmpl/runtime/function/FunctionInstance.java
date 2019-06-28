@@ -1,12 +1,10 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.function;
 
 import io.usethesource.vallang.IAnnotatable;
-import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
-import io.usethesource.vallang.impl.AbstractExternalValue;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
@@ -57,10 +55,4 @@ public class FunctionInstance implements IExternalValue {
 	public Type getType() {
 		return $TF.valueType(); //TODO
 	}
-
-	@Override
-	public IConstructor encodeAsConstructor() {
-		return AbstractExternalValue.encodeAsConstructor(this);
-	}
-
 }

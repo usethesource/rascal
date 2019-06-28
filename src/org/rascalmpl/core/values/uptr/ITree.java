@@ -3,7 +3,10 @@ package org.rascalmpl.core.values.uptr;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
 import io.usethesource.vallang.IList;
+import io.usethesource.vallang.INode;
 import io.usethesource.vallang.ISet;
+import io.usethesource.vallang.IValue;
+
 import org.rascalmpl.core.values.uptr.visitors.TreeVisitor;
 
 public interface ITree extends IConstructor {
@@ -40,4 +43,15 @@ public interface ITree extends IConstructor {
 	}
 	
 	<E extends Throwable> ITree accept(TreeVisitor<E> v) throws E;
+	
+	@Override
+	default INode setChildren(IValue[] childArray) {
+	    INode result = this;
+
+	    for (int i = 0; i < arity(); i++) {
+	        result = result.set(i, childArray[i]);
+	    }
+
+	    return result;
+	}
 }
