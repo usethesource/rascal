@@ -16,10 +16,13 @@ package org.rascalmpl.core.parser;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.List;
 
+import org.rascalmpl.core.parser.gtd.IGTD;
+import org.rascalmpl.core.values.ValueFactoryFactory;
+import org.rascalmpl.core.values.uptr.IRascalValueFactory;
+import org.rascalmpl.core.values.uptr.ITree;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.Evaluator;
@@ -31,7 +34,6 @@ import org.rascalmpl.interpreter.load.StandardLibraryContributor;
 import org.rascalmpl.interpreter.utils.JavaBridge;
 import org.rascalmpl.interpreter.utils.Profiler;
 
-import org.rascalmpl.core.parser.gtd.IGTD;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
@@ -39,9 +41,6 @@ import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.core.values.ValueFactoryFactory;
-import org.rascalmpl.core.values.uptr.IRascalValueFactory;
-import org.rascalmpl.core.values.uptr.ITree;
 
 public class ParserGenerator {
 	private final Evaluator evaluator;

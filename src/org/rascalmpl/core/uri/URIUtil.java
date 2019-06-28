@@ -18,11 +18,10 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
-import javax.xml.stream.events.Characters;
+import org.rascalmpl.core.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValueFactory;
-import org.rascalmpl.core.values.ValueFactoryFactory;
 
 public class URIUtil {
 	private static final IValueFactory vf = ValueFactoryFactory.getValueFactory();

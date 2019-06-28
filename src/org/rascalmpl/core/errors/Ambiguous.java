@@ -12,9 +12,10 @@
 package org.rascalmpl.core.errors;
 
 import org.rascalmpl.core.uri.URIUtil;
-import io.usethesource.vallang.ISourceLocation;
 import org.rascalmpl.core.values.uptr.ITree;
 import org.rascalmpl.core.values.uptr.TreeAdapter;
+
+import io.usethesource.vallang.ISourceLocation;
 
 
 public final class Ambiguous extends AssertionError {
