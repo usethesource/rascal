@@ -38,9 +38,9 @@ public class ExecutionTools<T> {
 			String interfaceName = interfaceName(className);
 			classes.put(interfaceName, interfaceModule);
 			classes.put(className,  classModule);
-			Map<String, ?> clazzes = javaCompiler.compile(classes, diagnostics);
-			Class<T> the_class = (Class<T>) clazzes.get(className);
-			Class<T> the_interface = (Class<T>) clazzes.get(interfaceName);
+			Map<String, Class<T>> clazzes = javaCompiler.compile(classes, diagnostics);
+			Class<T> the_class = clazzes.get(className);
+			Class<T> the_interface = clazzes.get(interfaceName);
 			classCache.put(className,  the_class);
 			classCache.put(interfaceName, the_interface);
 			return the_class;
@@ -96,7 +96,7 @@ public class ExecutionTools<T> {
 
 		org.rascalmpl.library.util.PathConfig pcfg = new PathConfig();
 		
-		ExecutionTools<?> exec = new ExecutionTools(pcfg);
+		ExecutionTools<?> exec = new ExecutionTools<>(pcfg);
 
 		exec.compile("Test", iface, program, null);
 		
