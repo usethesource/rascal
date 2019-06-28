@@ -51,7 +51,6 @@ public class BytecodeGenerator implements Opcodes {
   private  final Type IVALUE_TYPE = getType(IValue.class);
   private  final String FRAME_NAME = getInternalName(Frame.class);
   private  final String FUNCTION_NAME = getInternalName(Function.class);
-  private  final Type FUNCTION_TYPE = getType(Function.class);
   private  final Type TYPE_TYPE = getType(io.usethesource.vallang.type.Type.class);
   private  final String INIT_NAME = "<init>";
   private  final Type INT_TYPE = Type.INT_TYPE;

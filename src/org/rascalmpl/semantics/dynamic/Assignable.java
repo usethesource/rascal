@@ -114,7 +114,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 			Type type = __eval.getCurrentEnvt().getAnnotationType(
 					receiver.getType(), label);
-			IValue value = ((IConstructor) receiver.getValue())
+            IValue value = ((IConstructor) receiver.getValue())
 					.asAnnotatable().getAnnotation(label);
 
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(

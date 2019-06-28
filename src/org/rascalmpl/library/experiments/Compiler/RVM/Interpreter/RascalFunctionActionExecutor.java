@@ -11,10 +11,9 @@
 package org.rascalmpl.library.experiments.Compiler.RVM.Interpreter;
 
 import org.rascalmpl.parser.gtd.result.action.IActionExecutor;
-import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.type.TypeFactory;
 import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.TreeAdapter;
+
+import io.usethesource.vallang.ISet;
 
 /**
  * This is the way of executing actions for Rascal syntax definitions. Each function
@@ -37,12 +36,9 @@ import org.rascalmpl.values.uptr.TreeAdapter;
  * function.
  */
 public class RascalFunctionActionExecutor implements IActionExecutor<ITree> {
-	private final static TypeFactory TF = TypeFactory.getInstance();
-	private final RascalExecutionContext rex;
 	private final boolean isPure;
 
 	public RascalFunctionActionExecutor(RascalExecutionContext rex, boolean isPure) {
-		this.rex = rex;
 		this.isPure = isPure;
 	}
 	
@@ -151,7 +147,6 @@ public class RascalFunctionActionExecutor implements IActionExecutor<ITree> {
 	@Override
 	public ITree filterProduction(ITree tree,
 			Object environment) {
-		String cons = TreeAdapter.getConstructorName(tree);
 		
 		//TODO: implement this for compiled code:
 		

@@ -186,6 +186,7 @@ public class RascalJUnitTestRunner extends Runner {
 		    
 			Listener listener = new Listener(notifier, mod);
             TestEvaluator runner = new TestEvaluator(evaluator, listener);
+            runner.test(mod.getDisplayName());
 		}
 		
 		notifier.fireTestRunFinished(new Result());

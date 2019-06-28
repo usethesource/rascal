@@ -128,14 +128,9 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	public Result<IBool> isDefined(Name name) {
 		IValueFactory vf = getValueFactory();
 		TypeFactory tf = getTypeFactory();
-		URI uri = value.getURI();
 		String path = value.hasPath() ? value.getPath() : "";
 		
 		ISourceLocation value = getValue();
-		String stringResult = null;
-		Integer intResult = null;
-		Integer tupleA = null;
-		Integer tupleB = null;
 		
 		switch (Names.name(name)) {
 			// fall through
@@ -170,14 +165,6 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			return makeResult(tf.boolType(), vf.bool(!path.equals("") && !path.equals("/")), ctx);
 
 		case "file": {
-			int i = path.lastIndexOf((int)'/');
-			
-			if (i != -1) {
-				stringResult = path.substring(i+1);
-			}
-			else {
-				stringResult = path;
-			}
 			
 			return makeResult(tf.boolType(), vf.bool(!path.equals("")), ctx);
 		}

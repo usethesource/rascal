@@ -409,6 +409,11 @@ public class NodePattern extends AbstractMatchingResult {
 		public INode set(int i, IValue newChild) throws IndexOutOfBoundsException {
 			throw new UnsupportedOperationException();
 		}
+		
+		@Override
+		public INode setChildren(IValue[] childArray) {
+		    throw new UnsupportedOperationException();
+		}
 
 		@Override
 		public int arity() {

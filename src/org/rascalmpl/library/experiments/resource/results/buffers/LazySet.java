@@ -9,9 +9,12 @@ package org.rascalmpl.library.experiments.resource.results.buffers;
 
 import java.util.Iterator;
 
+import org.rascalmpl.values.uptr.IRascalValueFactory;
+
 import io.usethesource.vallang.IAnnotatable;
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.ISet;
-import io.usethesource.vallang.ISetRelation;
+import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
@@ -30,6 +33,11 @@ public class LazySet implements ISet {
 		this.elementType = elementType;
 	}
 
+	@Override
+	public ISetWriter writer() {
+	    return IRascalValueFactory.getInstance().setWriter();
+	}
+	
 	@Override
 	public Type getElementType() {
 		return elementType;
@@ -126,7 +134,7 @@ public class LazySet implements ISet {
 	}
 
 	@Override
-	public ISetRelation<ISet> asRelation() {
+	public IRelation<ISet> asRelation() {
 		throw new IllegalOperationException(
 				"Relational operations are not supported on lazy representation.",
 				getType());
