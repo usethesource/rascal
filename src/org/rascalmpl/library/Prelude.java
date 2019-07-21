@@ -3467,11 +3467,11 @@ public class Prelude {
 	 * ValueIO
 	 */
 	
-	public IInteger getFileLength(ISourceLocation g) throws IOException {
+	public IInteger getFileLength(ISourceLocation g) {
 		if (g.getScheme().equals("file")) {
 			File f = new File(g.getURI());
 			if (!f.exists() || f.isDirectory()) { 
-				throw new IOException(g.toString());
+				throw RuntimeExceptionFactory.io(values.string(g.toString()), null, null);
 			}
 			
 			return values.integer(f.length());
