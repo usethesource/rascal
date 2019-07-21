@@ -7,11 +7,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.rascalmpl.interpreter.asserts.Ambiguous;
 import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ICallableCompiledValue;
 import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
+import org.rascalmpl.parser.gtd.exception.ParseError;
 import org.rascalmpl.repl.LimitedLineWriter;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -303,25 +305,44 @@ public class PreludeCompiled extends Prelude {
 	}
 	// end of sorting functions
 	
-	public IValue parse(IValue start, ISourceLocation input, IBool allowAmbiguity, RascalExecutionContext rex) {
-        // TODO remove this legacy method
-        return parse(start, input, allowAmbiguity, values.bool(false), rex);
+	// parsing functions
+	public IValue parse(IValue start, IString input, ISourceLocation origin, IBool allowAmbiguity, IBool hasSideEffects, RascalExecutionContext rex) {
+        return rex.getParsingTools().parse(super.values.string(rex.getFullModuleName()), start, input, origin, allowAmbiguity.getValue(), hasSideEffects.getValue(), null, rex);
     }
-	
-	// public java &T<:Tree parse(type[&T<:Tree] begin, str input);
 	public IValue parse(IValue start, ISourceLocation input, IBool allowAmbiguity, IBool hasSideEffects, RascalExecutionContext rex) {
 		return rex.getParsingTools().parse(super.values.string(rex.getFullModuleName()), start, input, allowAmbiguity.getValue(), hasSideEffects.getValue(), null, rex);
 	}
 
-	// public java &T<:Tree parse(type[&T<:Tree] begin, str input, loc origin);
 	public IValue parse(IValue start, IString input, IBool allowAmbiguity, IBool hasSideEffects, RascalExecutionContext rex) {
 		return rex.getParsingTools().parse(super.values.string(rex.getFullModuleName()), start, input, allowAmbiguity.getValue(), hasSideEffects.getValue(), null, rex);
 	}
+	// end parsing functions
 	
-	public IValue parse(IValue start, IString input, IBool allowAmbiguity, RascalExecutionContext rex) {
-	    // TODO remove this legacy method
-        return parse(start, input, allowAmbiguity, values.bool(false), rex);
-    }
+	public IValue firstAmbiguity(IValue start, IString input, RascalExecutionContext rex) {
+	    try {
+	        return rex.getParsingTools().parse(super.values.string(rex.getFullModuleName()), start, input, true, false, null, rex);
+	    }
+	    catch (ParseError pe) {
+	        ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
+	        throw RuntimeExceptionFactory.parseError(errorLoc, null, null);
+	    }
+	    catch (Ambiguous e) {
+	        return e.getTree();
+	    }
+	}
+	
+	public IValue firstAmbiguity(IValue start, ISourceLocation input, RascalExecutionContext rex) {
+	    try {
+	        return rex.getParsingTools().parse(super.values.string(rex.getFullModuleName()), start, input, true, false, null, rex);
+	    }
+	    catch (ParseError pe) {
+	        ISourceLocation errorLoc = values.sourceLocation(values.sourceLocation(pe.getLocation()), pe.getOffset(), pe.getLength(), pe.getBeginLine() + 1, pe.getEndLine() + 1, pe.getBeginColumn(), pe.getEndColumn());
+	        throw RuntimeExceptionFactory.parseError(errorLoc, null, null);
+	    }
+	    catch (Ambiguous e) {
+	        return e.getTree();
+	    }
+	}
 	
 	private TypeStore typeStore = new TypeStore();
 	
