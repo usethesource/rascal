@@ -889,6 +889,14 @@ bool isContainerType(AType t) =
 bool isEnumeratorType(AType t) =
     isSetType(t) || isListType(t) || isMapType(t) || isADTType(t) || isTupleType(t) || isNodeType(t) ||
     isNonTerminalIterType(t) || isNonTerminalOptType(t);
+    
+AType getEnumeratorElementType(AType t) = getListElementType(t) when isListType(t);
+AType getEnumeratorElementType(AType t) = getSetElementType(t) when isSetType(t);
+AType getEnumeratorElementType(AType t) = getMapDomainType(t) when isMapType(t);
+AType getEnumeratorElementType(AType t) = avalue() when isADTType(t) || isTupleType(t) || isNodeType(t);
+AType getEnumeratorElementType(AType t) = getNonTerminalIterElement(t) when isNonTerminalIterType(t);
+AType getEnumeratorElementType(AType t) = getNonTerminalOptType(t) when isNonTerminalOptType(t);
+default AType getEnumeratorElementType(AType t) = avalue();
 
 // ---- literal
 @doc{Synopsis: Determine if the given type is a literal.}

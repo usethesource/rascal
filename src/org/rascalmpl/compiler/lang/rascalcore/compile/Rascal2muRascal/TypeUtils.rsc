@@ -184,6 +184,10 @@ bool isDefinition(UID d){
     return definitions[d]?;
 }
 
+bool isUse(UID u){
+    return !isEmpty(useDef[u]);
+}
+
 AType getDefType(UID d){
     di = definitions[d].defInfo;
     if(defType(AType atype) := di) return atype;
@@ -795,8 +799,14 @@ public rel[str fuid,int pos] getAllVariablesAndFunctionsOfBlockScope(loc block) 
     return { <convert2fuid(declaredIn[decl]), position_in_container[decl]> | UID decl <-locally_defined, position_in_container[decl]?};
 }
 
-map[AType,set[AType]] collectDefs(AType t, map[AType, set[AType]] definitions){
-   return definitions + (adt : adt_constructors[adt] ? {aprod(grammar.rules[adt])} | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := t, !definitions[adt]?);
+// Collect all types that are reachable from a given type
+
+map[AType,set[AType]] collectNeededDefs(AType t){
+   map[AType, set[AType]] definitions = (adt : adt_constructors[adt] ? {aprod(grammar.rules[adt])} | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := t);
+   solve(definitions){
+    definitions = definitions + (adt1 : adt_constructors[adt1] ? {aprod(grammar.rules[adt1])} | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := definitions, adt1 := unsetRec(adt), !definitions[adt1]?);
+   }
+   return definitions;
 }
 
 /********************************************************************/

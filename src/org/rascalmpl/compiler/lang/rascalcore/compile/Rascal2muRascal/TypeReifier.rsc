@@ -449,7 +449,3 @@ private bool isAltOrSeq(AType s) = alt(_) := s || seq(_) := s;
 //    collectDefsCache[tup] = result;
 //    return result;
 //}
-
-//map[AType,AProduction] collectDefs1(AType t, map[AType, AProduction] definitions){
-//   return definitions + (adt : adt_constructors[adt] | /adt:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole) := t, !definitions[adt]?);
-//}

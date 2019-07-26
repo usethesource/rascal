@@ -316,14 +316,18 @@ bool endsWithReturn(muThrow(_,_)) = true;
 bool endsWithReturn(muBlock([*exps1, exp2])) = true when endsWithReturn(exp2);
 bool endsWithReturn(muValueBlock(AType t, [*exps1, exp2])) = true when endsWithReturn(exp2);
 bool endsWithReturn(muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart)) = true when endsWithReturn(thenPart), endsWithReturn(elsePart);
-bool endsWithReturn(muDoWhile(str label, MuExp body, muCon(false))) = endsWithReturn(body);
-bool endsWithReturn(muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body)) = endsWithReturn(body);
-bool endsWithReturn(muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp last, MuExp exp)) = endsWithReturn(exp);
-bool endsWithReturn(muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp exp)) = endsWithReturn(exp);
+//bool endsWithReturn(muDoWhile(str label, MuExp body, muCon(false))) = endsWithReturn(body);
+//bool endsWithReturn(muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body)) = endsWithReturn(body);
+//bool endsWithReturn(muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp last, MuExp exp)) = endsWithReturn(exp);
+//bool endsWithReturn(muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp exp)) = endsWithReturn(exp);
 bool endsWithReturn(muEnter(str label, MuExp body)) = endsWithReturn(body);
-
 default bool endsWithReturn(MuExp exp) = false;
 
+bool isLoop(muDoWhile(str label, MuExp body, muCon(false))) = true;
+bool isLoop(muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body)) = true;
+bool isLoop(muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp last, MuExp exp)) = true;
+bool isLoop(muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp exp)) = true;
+default bool isLoop(MuExp exp) = false;
 
 // ---- block -----------------------------------------------------------------
 
@@ -344,7 +348,7 @@ MuExp muBlock([*MuExp pre, muValueBlock(AType t, list[MuExp] elems), *MuExp post
     = muBlock([*pre, *elems, *post]);
     
 MuExp muBlock([*MuExp pre, MuExp exp, *MuExp post]){
-    if(!isEmpty(post) && endsWithReturn(exp)) return muBlock([*pre, exp]);
+    if(!isEmpty(post) &&/* !isLoop(exp) &&*/ endsWithReturn(exp)) return muBlock([*pre, exp]);
     fail;
 }
     
@@ -364,8 +368,8 @@ MuExp muValueBlock(AType t, [*MuExp pre, MuExp exp, *MuExp post]){
 MuExp muValueBlock(AType t1, [*MuExp pre, muReturn1(AType t2, MuExp exp)])
     = muBlock([*pre, muReturn1(t2, exp)]);
     
- MuExp muValueBlock(AType t, [ite: muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart)])
-    =  ite;
+ //MuExp muValueBlock(AType t, [*MuExp pre, muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart)])
+ //   =  pre == [] ?  muIfExp(cond, thenPart, elsePart)  : muValueBlock(t, [*pre, muIfExp(cond, thenPart, elsePart)]);
     
 // ---- muReturn1 -------------------------------------------------------------
 
@@ -488,6 +492,9 @@ MuExp muVarInit(MuExp var, muValueBlock(AType t, [*MuExp exps, MuExp exp]))
 // ---- muIfExp ---------------------------------------------------------------
 MuExp muIfExp(MuExp cond, MuExp thenPart, muFailReturn(AType t))
     = muIfelse(cond, thenPart, muFailReturn(t));
+    
+MuExp muIfExp(muValueBlock(AType t, [*MuExp exps, MuExp exp]), MuExp thenPart, MuExp elsePart)
+    = muValueBlock(t, [*exps, muIfExp(exp, thenPart, elsePart)]);
 
 // ---- muIfelse --------------------------------------------------------------
 
@@ -521,7 +528,7 @@ MuExp muRegExpCompile(muValueBlock(AType t, [*MuExp exps, MuExp regExp]), MuExp 
 // TODO: shoud go to separate module (does not work in interpreter)
 
 bool shouldFlatten(MuExp arg) 
-    =  muValueBlock(t, elems) := arg || muEnter(btscope, exp) := arg;
+    =  muValueBlock(t, elems) := arg || muEnter(btscope, exp) := arg  || muIfelse(cond, thenPart, elsePart) := arg || muBlock(elems) := arg;
  
 int nauxVars = -1;
          
@@ -535,12 +542,23 @@ tuple[bool flattened, list[MuExp] auxVars, list[MuExp] pre, list[MuExp] post] fl
             if(muValueBlock(t, elems) := arg){
                 pre += elems[0..-1];
                 newArgs += elems[-1];
+            } else if(muBlock(elems) := arg){
+                if(!isEmpty(elems)){
+                    pre += elems[0..-1];
+                    newArgs += elems[-1];
+                 }
             } else if(me: muEnter(btscope, exp) := arg){
                 nauxVars += 1;
                 aux = muTmpIValue("$aux<nauxVars>", "", abool());
                 auxVars += muVarInit(aux, muCon(false));
                 pre += muAssign(aux, me);
                 newArgs += aux;
+            } else if(muIfelse(cond, thenPart, elsePart) := arg){
+                <flThen, auxThen, preThen, postThen> = flattenArgs([thenPart]);
+                <flElse, auxElse, preElse, postElse> = flattenArgs([elsePart]);
+                pre += preThen + preElse;
+                newArgs += muIfExp(cond, size(postThen) == 1 ? postThen[0] : muValueBlock(avalue(), postThen), 
+                                         size(postElse) == 1 ? postElse[0] : muValueBlock(avalue(), postElse));
             } else {
                 newArgs += arg;
             }
@@ -551,6 +569,9 @@ tuple[bool flattened, list[MuExp] auxVars, list[MuExp] pre, list[MuExp] post] fl
     }
 }
 
+MuExp ifElse2ifExp(muIfelse(cond, thenPart, elsePart)) = muIfExp(cond, thenPart, elsePart);
+default MuExp ifElse2ifExp(MuExp e) = e;
+    
 MuExp muCall(MuExp fun, AType t, list[MuExp] args) 
     = muValueBlock(t, auxVars + pre + muCall(fun, t, flatArgs))
 when <true, auxVars, pre, flatArgs> := flattenArgs(args);
@@ -597,6 +618,11 @@ MuExp muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcrete
     when <true, auxVars, pre, flatArgs> := flattenArgs([exp]);
 
 //muThrow
+
+MuExp muThrow(muValueBlock(AType t, list[MuExp] exps), loc src)
+    = muValueBlock(t, exps[0..-1] + muThrow(exps[-1], src));
+
+
 //muTry
 //muGetField(str kind, AType consType, MuExp exp, str fieldName)
 //muKwpGetField(str kind, AType consType, MuExp exp, str fieldName)

@@ -144,7 +144,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
             if(tmodels[mname].definitions[src]?){
                 def = tmodels[mname].definitions[src];
                 if(defType(AType tp) := def.defInfo){
-                    baseName = "<getJavaName(def.id)>_<def.defined.begin.line>_<def.defined.end.line>";
+                    baseName = "<getJavaName(def.id, completeId=false)>_<def.defined.begin.line>_<def.defined.end.line>";
                     if(containedIn(def.defined, currentModuleScope)){
                         return baseName;
                     } else {
@@ -226,7 +226,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                'private static final <value2outertype(v)> <constants[v]> = <value2IValue(v)>;
                '<}>
                '<for(t <- types){>
-               'private static final Type <types[t]> = <atype2typestore(t)>;
+               'private static final io.usethesource.vallang.type.Type <types[t]> = <atype2typestore(t)>;
                '<}>
                '<for(t <- atype_constants){>
                'private static final IConstructor <atype_constants[t]> = <atype2IValue(areified(t), atype_definitions[t])>;

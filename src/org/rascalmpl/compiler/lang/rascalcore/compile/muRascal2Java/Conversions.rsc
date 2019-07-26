@@ -9,8 +9,9 @@ import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::util::Names;
 
 /*****************************************************************************/
-/*  Convert AType to a Java type 2                                           */
+/*  Convert AType to a Java type                                             */
 /*****************************************************************************/
+
 str atype2javatype(abool())                 = "IBool";
 str atype2javatype(aint())                  = "IInteger";
 str atype2javatype(areal())                 = "IReal";
@@ -43,9 +44,12 @@ str atype2javatype(t: acons(AType adt, list[AType fieldType] fields, lrel[AType 
                  
 str atype2javatype(aparameter(str pname, AType bound)) 
                                             = atype2javatype(bound);
-str atype2javatype(areified(AType atype))   = "Type";
+str atype2javatype(areified(AType atype))   = "IConstructor";
 
 str atype2javatype(avalue())                = "IValue";
+str atype2javatype(avoid())                 = "void";
+
+str atype2javatype(tvar(_))                 = "IValue";
 
 default str atype2javatype(AType t) { throw "atype2javatype: cannot handle <t>"; }
 
@@ -79,7 +83,7 @@ str atype2idpart(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole
                                           = getJavaName(adtName);
                                               
 str atype2idpart(t:acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields))
-                                          = "$<getJavaName(adt.adtName)><t.label? ? "_" + getJavaName(t.label) : "">_<intercalate("_", [atype2idpart(f) | f <- fields])>";
+                                          = "<getJavaName(adt.adtName, completeId=false)><t.label? ? "_" + getJavaName(t.label, completeId=false) : "">_<intercalate("_", [atype2idpart(f) | f <- fields])>";
 
 str atype2idpart(overloadedAType(rel[loc, IdRole, AType] overloads)){
     resType = avoid();
@@ -105,6 +109,7 @@ default str atype2idpart(AType t) { throw "atype2idpart: cannot handle <t>"; }
 /*****************************************************************************/
 /*  Convert an AType to an IValue (i.e., reify the AType)                    */
 /*****************************************************************************/
+
 str lab(AType t) = t.label? ? value2IValue(t.label) : "";
 str lab2(AType t) = t.label? ? ", <value2IValue(t.label)>" : "";
 
@@ -198,9 +203,9 @@ str atype2IValue(set[AType] ts, map[AType, set[AType]] defs)
     = "$VF.set(<intercalate(", ", [atype2IValue(t,defs) | t <- ts])>)";
 
 str defs(map[AType, set[AType]] defs) {
-    return "buildMap(<intercalate(", ", ["<atype2IValue(k,defs)>, $VF.set(<intercalate(", ", [ atype2IValue(elem,defs) | elem <- defs[k] ])>)" | k <- defs ])>)";
+    res = "buildMap(<intercalate(", ", ["<atype2IValue(k,defs)>, $VF.set(<intercalate(", ", [ atype2IValue(elem,defs) | elem <- defs[k] ])>)" | k <- defs ])>)";
+    return res;
 }
-
 
 /*****************************************************************************/
 /*  Convert a Tree to an IValue                                              */
@@ -439,36 +444,36 @@ default str getOuter(AType t)         = "avalue";
 /*  Convert an AType to a Java method that tests for that AType              */
 /*****************************************************************************/
 
-str atype2istype(avoid())                 = "isBottom";
-str atype2istype(abool())                 = "isBool";
-str atype2istype(aint())                  = "isInteger";
-str atype2istype(areal())                 = "isReal";
-str atype2istype(arat())                  = "isRational";
-str atype2istype(anum())                  = "isNumber";
-str atype2istype(astr())                  = "isString";
-str atype2istype(aloc())                  = "isSourceLocation";
-str atype2istype(adatetime())             = "isDateTime";
-str atype2istype(alist(AType t))          = "isList";
-str atype2istype(aset(AType t))           = "isSet";
-str atype2istype(arel(AType ts))          = "isRelation";
-str atype2istype(alrel(AType ts))         = "isListRelation";
-str atype2istype(atuple(AType ts))        = "isTuple";
-str atype2istype(amap(AType d, AType r))  = "isMap";
+str atype2istype(str e, avoid())                 = "<e>.getType().isBottom()";
+str atype2istype(str e, abool())                 = "<e>.getType().isBool()";
+str atype2istype(str e, aint())                  = "<e>.getType().isInteger()";
+str atype2istype(str e, areal())                 = "<e>.getType().isReal()";
+str atype2istype(str e, arat())                  = "<e>.getType().isRational()";
+str atype2istype(str e, anum())                  = "<e>.getType().isNumber()";
+str atype2istype(str e, astr())                  = "<e>.getType().isString()";
+str atype2istype(str e, aloc())                  = "<e>.getType().isSourceLocation()";
+str atype2istype(str e, adatetime())             = "<e>.getType().isDateTime()";
+str atype2istype(str e, alist(AType t))          = "<e>.getType().isList()";
+str atype2istype(str e, aset(AType t))           = "<e>.getType().isSet()";
+str atype2istype(str e, arel(AType ts))          = "<e>.getType().isRelation()";
+str atype2istype(str e, alrel(AType ts))         = "<e>.getType().isListRelation()";
+str atype2istype(str e, atuple(AType ts))        = "<e>.getType().isTuple()";
+str atype2istype(str e, amap(AType d, AType r))  = "<e>.getType().isMap()";
 
-str atype2istype(afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
-                                          = "isExternalType";
-str atype2istype(anode(list[AType fieldType] fields)) 
-                                          = "isNode";
-str atype2istype(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) 
-                                          = "isAbstractData";
-str atype2istype(t: acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields))
-                                          = "isConstructor";
-str atype2istype(overloadedAType(rel[loc, IdRole, AType] overloads))
-                                          = "isOverloaded";
-str atype2istype(aparameter(str pname, AType bound)) = atype2istype(bound);
-str atype2istype(areified(AType atype))   = "isReified";    // TODO
-str atype2istype(avalue())                = "isTop";
-default str atype2istype(AType t)         { throw "atype2istype: cannot handle <t>"; }
+str atype2istype(str e, afunc(AType ret, list[AType] formals, list[Keyword] kwFormals))
+                                          = "<e>.getType().isExternalType()";
+str atype2istype(str e, anode(list[AType fieldType] fields)) 
+                                          = "<e>.getType().isNode()";
+str atype2istype(str e, aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) 
+                                          = "<e>.getType().isAbstractData()";
+str atype2istype(str e, t: acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields))
+                                          = "<e>.getType().isConstructor()";
+str atype2istype(str e, overloadedAType(rel[loc, IdRole, AType] overloads))
+                                          = "<e>.getType().isOverloaded()";
+str atype2istype(str e, aparameter(str pname, AType bound)) = atype2istype(e, bound);
+str atype2istype(str e, areified(AType atype))   = "isReified(<e>)";    // TODO
+str atype2istype(str e, avalue())                = "<e>.getType().isTop()";
+default str atype2istype(str e, AType t)         { throw "atype2istype: cannot handle <t>"; }
 
 // ----
 
@@ -516,15 +521,9 @@ str value2IValue(rat rt) = "$VF.rational(\"<rt>\")";
 str value2IValue(str s) = "$VF.string(\"<escapeForJ(s)>\")";
 
 str value2IValue(loc l) {
-    base = "$VF.sourceLocation(\"<l.scheme>\", "
-           + "\"<l.authority>\", "
-           //+ (l.host? ? ("\"<l.host>\", ") : "\"\", ")
-           //+ (l.port? ? ("\"<l.port>\", ") : "\"\", ")
-           + "\"<l.path>\""
-           //+ "\"<l.query>\", "
-           //+ "\"<l.fragment>\""
-           + ")";
-     return l.offset? ? "$VF.sourceLocation(<base>, <l.offset>, <l.length>, <l.begin.line>, <l.end.line>, <l.begin.column>, <l.end.column>)"
+
+    base = "create_aloc($VF.string(\"<l.uri>\"))";
+    return l.offset? ? "$VF.sourceLocation(<base>, <l.offset>, <l.length>, <l.begin.line>, <l.end.line>, <l.begin.column>, <l.end.column>)"
                       : base;
 }
 

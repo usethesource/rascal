@@ -1,9 +1,9 @@
 module lang::rascalcore::compile::Examples::Tst3
+import Type;
 
-import String;
+@javaClass{org.rascalmpl.library.Prelude}
+public java &T readTextValueFile(type[&T] result, loc file);
 
-public str functionPath(str fname, str namespace="") =
-    "aaa" when namespace=="";
-    
-    
-value main() = functionPath("broken");
+public &T readTextValueFileWithEmbeddedTypes(type[&T] result, loc file) {
+  return readTextValueFile(type(result.symbol, result.definitions + #Symbol.definitions + #Production.definitions), file);
+}

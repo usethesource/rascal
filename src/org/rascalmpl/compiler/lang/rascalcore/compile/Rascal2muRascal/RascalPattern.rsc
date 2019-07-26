@@ -524,14 +524,19 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name>`, AType subjectType, MuExp
 	   if("<name>" == "_"|| subjectAssigned){
 	      return trueCont;
 	   }
-	   <fuid, pos> = getVariableScope(prettyPrintName(name), name@\loc);
-	   return muBlock([muVarInit(muVar(prettyPrintName(name), fuid, pos, trType), subjectExp), trueCont]);
+	   ppname = prettyPrintName(name);
+	   <fuid, pos> = getVariableScope(ppname, name@\loc);
+	   var = muVar(prettyPrintName(name), fuid, pos, trType[label=ppname]);
+	   return var == subjectExp ? trueCont : muBlock([muVarInit(var, subjectExp), trueCont]);
    }
    if("<name>" == "_" || subjectAssigned){
       return muIfelse(muValueIsSubType(subjectExp, trType), trueCont, falseCont);
    }
-   <fuid, pos> = getVariableScope(prettyPrintName(name), name@\loc);
-   return muIfelse(muValueIsSubType(subjectExp, trType), muBlock([muVarInit(muVar(prettyPrintName(name), fuid, pos, trType), subjectExp), trueCont]), falseCont);
+   ppname = prettyPrintName(name);
+   <fuid, pos> = getVariableScope(ppname, name@\loc);
+   var = muVar(prettyPrintName(name), fuid, pos, trType[label=ppname]);
+   return var == subjectExp ? muIfelse(muValueIsSubType(subjectExp, trType), trueCont, falseCont)
+                            : muIfelse(muValueIsSubType(subjectExp, trType), muBlock([muVarInit(var, subjectExp), trueCont]), falseCont);
 }  
 
 // -- reified type pattern -------------------------------------------
@@ -559,10 +564,12 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
      
    if(expression is qualifiedName){
       fun_name = prettyPrintName(getType(expression).label);
-      return muBlock([*(subjectAssigned ? [] : [muConInit(subject, subjectExp)]), muIfelse(muHasNameAndArity(subjectType, fun_name, size(lpats), subject), body, falseCont)]);
+      return muBlock([muConInit(subject, subjectExp), muIfelse(muHasNameAndArity(subjectType, fun_name, size(lpats), subject), body, falseCont)]);
+      //return muBlock([*(subjectAssigned ? [] : [muConInit(subject, subjectExp)]), muIfelse(muHasNameAndArity(subjectType, fun_name, size(lpats), subject), body, falseCont)]);
    } else if(expression is literal){ // StringConstant
       fun_name = prettyPrintName("<expression>"[1..-1]);
-      return muBlock([*(subjectAssigned ? [] : [muConInit(subject, subjectExp)]), muIfelse(muHasNameAndArity(subjectType, fun_name, size(lpats), subject), body, falseCont)]);
+         return muBlock([muConInit(subject, subjectExp), muIfelse(muHasNameAndArity(subjectType, fun_name, size(lpats), subject), body, falseCont)]);
+      //return muBlock([*(subjectAssigned ? [] : [muConInit(subject, subjectExp)]), muIfelse(muHasNameAndArity(subjectType, fun_name, size(lpats), subject), body, falseCont)]);
     } else {
     // TODO
      fun_pat = translatePat(expression, getType(expression));
@@ -1232,10 +1239,15 @@ MuExp translatePat(p:(Pattern) `<Type tp> <Name name> : <Pattern pattern>`, ATyp
          trPat = translatePat(pattern, subjectType, subjectExp, btscope, trueCont, falseCont, subjectAssigned=subjectAssigned);
          return asubtype(subjectType, trType) ? trPat : muIfelse(muValueIsSubType(subjectExp, trType), trPat, falseCont);
     }
-    str fuid; int pos;           // TODO: this keeps type checker happy, why?
+    str fuid = ""; int pos=0;           // TODO: this keeps type checker happy, why?
     <fuid, pos> = getVariableScope(prettyPrintName(name), name@\loc);
-    var = muVar(prettyPrintName(name), fuid, pos, trType);
-    trPat = translatePat(pattern, subjectType, subjectExp, btscope, muValueBlock(avalue(), [ muAssign(var, subjectExp), trueCont ]), falseCont, subjectAssigned=subjectAssigned);
+    ppname = prettyPrintName(name);
+    var = muVar(ppname, fuid, pos, trType[label=ppname]);
+    trueCont2 = trueCont;
+    if(subjectExp != var){
+        trueCont2 =  muValueBlock(avalue(), [ /*subjectAssigned ? muAssign(var, subjectExp) :*/ muVarInit(var, subjectExp), trueCont ]);
+    } 
+    trPat = translatePat(pattern, subjectType, subjectExp, btscope, trueCont2, falseCont, subjectAssigned=subjectAssigned);
     return asubtype(subjectType, trType) ? trPat :  muIfelse(muValueIsSubType(subjectExp, trType), trPat, falseCont);
 }
 
