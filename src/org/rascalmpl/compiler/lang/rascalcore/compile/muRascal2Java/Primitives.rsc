@@ -6,6 +6,7 @@ import lang::rascalcore::check::ATypeUtils;
 import lang::rascalcore::compile::muRascal2Java::JGenie;
 import lang::rascalcore::compile::muRascal::AST;
 import lang::rascalcore::compile::muRascal2Java::CodeGen;
+import lang::rascalcore::compile::muRascal2Java::Conversions;
 import List;
 import Node;
 import String;
@@ -149,13 +150,13 @@ JCode transPrim("equal", abool(), [AType a, AType b], [str x, str y], JGenie jg)
 
 // ---- field_project ---------------------------------------------------------
 
-JCode transPrim("field_project", AType r, [AType a], [str x, *str args], JGenie jg)      = "((<atype2java(r)>) atuple_field_project(<x>, <intercalate(", ", args)>))"
+JCode transPrim("field_project", AType r, [AType a], [str x, *str args], JGenie jg)      = "((<atype2javatype(r)>) atuple_field_project(<x>, <intercalate(", ", args)>))"
                                                                                            when isTupleType(a);
-JCode transPrim("field_project", AType r, [AType a], [str x, *str args], JGenie jg)      = "((<atype2java(r)>) amap_field_project(<x>, <intercalate(", ", args)>))"
+JCode transPrim("field_project", AType r, [AType a], [str x, *str args], JGenie jg)      = "((<atype2javatype(r)>) amap_field_project(<x>, <intercalate(", ", args)>))"
                                                                                            when isMapType(a);
-JCode transPrim("field_project", AType r, [AType a], [str x, *str args], JGenie jg)      = "((<atype2java(r)>) arel_field_project(<x>, <intercalate(", ", args)>))"
+JCode transPrim("field_project", AType r, [AType a], [str x, *str args], JGenie jg)      = "((<atype2javatype(r)>) arel_field_project(<x>, <intercalate(", ", args)>))"
                                                                                            when isRelOnlyType(a);
-JCode transPrim("field_project", AType r, [AType a], [str x, *str args], JGenie jg)      = "((<atype2java(r)>) alrel_field_project(<x>, <intercalate(", ", args)>))"
+JCode transPrim("field_project", AType r, [AType a], [str x, *str args], JGenie jg)      = "((<atype2javatype(r)>) alrel_field_project(<x>, <intercalate(", ", args)>))"
                                                                                            when isListRelOnlyType(a);
 
 // ---- guarded_field_project -------------------------------------------------
@@ -417,23 +418,23 @@ list[str] transPrimArgs("subscript", AType r, [AType a, aint()], [MuExp x, MuExp
                                                                                   when isListLikeType(a) || (a == astr()) || isTupleType(a) || 
                                                                                        isNodeType(a) || isADTType(a);   
 JCode transPrim("subscript", AType r, [astr(), aint()], [str x, str y], JGenie jg)       = "astr_subscript_int(<x>,<y>)";
-JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = "((<atype2java(r)>)atuple_subscript_int(<x>,<y>))" when isTupleType(a);
+JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = "((<atype2javatype(r)>)atuple_subscript_int(<x>,<y>))" when isTupleType(a);
 JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = "anode_subscript_int(<x>,<y>)" when isNodeType(a);
-JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = "((<atype2java(r)>)aadt_subscript_int(<x>,<y>))" when isADTType(a);
+JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = "((<atype2javatype(r)>)aadt_subscript_int(<x>,<y>))" when isADTType(a);
 
-JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "((<atype2java(r)>)<x>.get(<y>))" when isListLikeType(a);
-JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "((<atype2java(r)>)<x>.get(<y>))" when isMapType(a);
+JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "((<atype2javatype(r)>)<x>.get(<y>))" when isListLikeType(a);
+JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "((<atype2javatype(r)>)<x>.get(<y>))" when isMapType(a);
 
 JCode transPrim("subscript", AType r, [AType a, *AType types], [str x, *str args], JGenie jg) {
     if(arel(atypeList(list[AType] elemTypes)) := a){
         n = size(elemTypes);
         if(n == 2 && !jg.isWildCard(args[0])){
-            return isSetLikeType(types[0])  ? "((<atype2java(r)>)arel2_subscript1_aset(<x>,<args[0]>))"
-                                        : "((<atype2java(r)>)arel_subscript1_noset(<x>,<args[0]>))" ;
+            return isSetLikeType(types[0])  ? "((<atype2javatype(r)>)arel2_subscript1_aset(<x>,<args[0]>))"
+                                        : "((<atype2javatype(r)>)arel_subscript1_noset(<x>,<args[0]>))" ;
         } else if(size(args) == 1 && !jg.isWildCard(args[0]) && !isSetLikeType(types[0])){
-            return "((<atype2java(r)>)arel_subscript1_noset(<x>,<args[0]>))";
+            return "((<atype2javatype(r)>)arel_subscript1_noset(<x>,<args[0]>))";
         }
-        return "((<atype2java(r)>)arel_subscript(<x>,<makeIndex(args)>,<makeIndexDescr(types, args, jg)>))";    
+        return "((<atype2javatype(r)>)arel_subscript(<x>,<makeIndex(args)>,<makeIndexDescr(types, args, jg)>))";    
     } else
         fail;
 }      
@@ -449,11 +450,11 @@ JCode makeIndexDescr(list[AType] types, list[str] idx, JGenie jg)
  
 // ---- subtract --------------------------------------------------------------
 
-JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.subtract(<y>)"      when isArithType(a), isArithType(b);
-JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.subtract(<y>)"      when isSetOrListLikeType(a), isSetOrListLikeType(b);
-JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.delete(<y>)"        when isSetOrListLikeType(a), !isSetOrListLikeType(b);
-JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.delete(<y>)"        when isSetOrListLikeType(a), !isSetOrListLikeType(b);
-JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.remove(<y>)"        when isMapType(a), isMapType(b);
+JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.subtract((<atype2javatype(b)>)<y>)"      when isArithType(a), isArithType(b);
+JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.subtract((<atype2javatype(b)>)<y>)"      when isSetOrListLikeType(a), isSetOrListLikeType(b);
+JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.delete((<atype2javatype(b)>)<y>)"        when isSetOrListLikeType(a), !isSetOrListLikeType(b);
+JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.delete((<atype2javatype(b)>)<y>)"        when isSetOrListLikeType(a), !isSetOrListLikeType(b);
+JCode transPrim("subtract", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<x>.remove((<atype2javatype(b)>)<y>)"        when isMapType(a), isMapType(b);
 
 // ---- subset ----------------------------------------------------------------
 
@@ -471,6 +472,7 @@ JCode transPrim("transitive_closure", AType r, [AType a], [str x], JGenie jg)   
 
 JCode transPrim("transitive_reflexive_closure", AType r, [AType a], [str x], JGenie jg)  = "<x>.asRelation().closureStar()";
 
+JCode transPrim("typeOf", AType r, [AType a], [str x], JGenie jg)                       = "typeOf(<x>)";
 
 // ---- update ----------------------------------------------------------------
 

@@ -49,7 +49,7 @@ str getBaseClass(str qname){
 }
 
 str getADTName(str adt)
-    = "ADT_<getJavaName(adt)>";
+    = "ADT_<getJavaName(adt, completeId=false)>";
     
 set[str] javaKeywords = {
     "abstract", "continue", "for",        "new",       "switch",
@@ -64,8 +64,8 @@ set[str] javaKeywords = {
     "const",    "float",    "native",     "super",     "while"};
     
 
-str getJavaName(str fname)
-    = fname in javaKeywords ? "$<fname>" : replaceAll(fname, "-", "_");
+str getJavaName(str fname, bool completeId = true)
+    = completeId && fname in javaKeywords ? "$<fname>" : replaceAll(fname, "-", "_");
     
 str  module2uqclass(str qname, str inModule){
     qname = replaceAll(qname, "::", ".");

@@ -802,6 +802,10 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    //println("receiver: <receiver>");
    list[MuExp] args = [ translate(a) | Expression a <- arguments ];
    
+   if("<expression>" == "typeOf"){
+        return muCallPrim3("typeOf", aadt("AType", [], dataSyntax()), [avalue()], args, e@\loc);
+   }
+   
    if(getOuterType(expression) == "astr"){
    		return muCallPrim3("create_node", getType(e), [ getType(arg) | arg <- arguments], [receiver, *args, *kwargs], e@\loc);
    }
@@ -1037,7 +1041,7 @@ MuExp translate (e: (Expression) `# <Type tp>`) {
 	//return muCon(symbolToValue(translateType(tp)));
 	//return muATypeCon(translateType(tp));
 	t = translateType(tp);
-	return muATypeCon(t, collectDefs(t, ()));
+	return muATypeCon(t, collectNeededDefs(t));
 }	
 
 // -- tuple expression ----------------------------------------------

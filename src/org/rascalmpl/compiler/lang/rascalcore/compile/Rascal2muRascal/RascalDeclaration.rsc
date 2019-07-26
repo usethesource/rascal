@@ -77,7 +77,7 @@ void translate(d: (Declaration) `<Tags tags> <Visibility visibility> data <UserT
           
             defExprCode = fixFieldReferences(translate(defaultExpr), consType, consVar);
             body = muReturn1(kwtype, muIfelse(muIsKwpDefined(consVar, kwFieldName), muGetKwpFromConstructor(consVar, kwtype, kwFieldName), defExprCode));
-            addFunctionToModule(muFunction(fuid, getterName, getterType, [], [], "", 1, 1, false, true, false, [], getModuleScope(), [], (), body));               
+            addFunctionToModule(muFunction(fuid, getterName, getterType, [consVar], [], "", 1, 1, false, true, false, [], getModuleScope(), [], (), body));               
        }
     }
  }
@@ -163,11 +163,12 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
          //if(kwfs is \default) {
          // 	params +=  [ muVar("map_of_keyword_values",fuid,nformals), muVar("map_of_default_values",fuid,nformals+1)];
          //}
-         //if("<fd.signature.name>" == "typeOf"){		// Take note: special treatment of Types::typeOf
-        // 	mubody = muCallPrim3("type2symbol", [ muCallPrim3("typeOf", params, fd@\loc), muCon(getGrammar()) ], fd@\loc);
-        // } else {
+         if("<fd.signature.name>" == "typeOf"){		// Take note: special treatment of Types::typeOf
+        	mubody = muCallPrim3("typeOf", aadt("AType", [], dataSyntax()), [avalue()], params, fd@\loc);
+        	//mubody = muCallPrim3("type2symbol", [ muCallPrim3("typeOf", params, fd@\loc), muCon(getGrammar()) ], fd@\loc);
+         } else {
             mubody = muCallJava("<fd.signature.name>", ttags["javaClass"], ftype, ("reflect" in ttags) ? 1 : 0, params, fuid);
-        // }
+        }
       } else if(addReturn){
             if((Statement) `<Expression expression>;` := body[0] && (Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>` := expression){
                 mubody = translateBool(condition, "", muReturn1(resultType, translate(thenExp)), muReturn1(resultType, translate(elseExp)));
@@ -300,17 +301,16 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
      formalsList = [f | f <- formals];
      str fuid = topFunctionScope();
      
-     formalVars = [hasParameterName(formalsList, i) ? muVar(pname, fuid, getPositionInScope(pname, getParameterNameAsTree(formalsList, i)@\loc), getType(formalsList[i]))
-                                                     : muVar(pname, fuid, i, getType(formalsList[i]))   
-                   | i <- index(formalsList), pname := getParameterName(formalsList, i) 
-                   ];
+     formalVars = [ hasParameterName(formalsList, i) && !isUse(formalsList[i]@\loc) ? muVar(pname, fuid, getPositionInScope(pname, getParameterNameAsTree(formalsList, i)@\loc), getType(formalsList[i]))
+                                                                                    : muVar(pname, fuid, -i, getType(formalsList[i]))   
+                  | i <- index(formalsList),  pname := getParameterName(formalsList, i) 
+                  ];
     
      when_body = returnFromFunction(translateConds(fname, when_conditions, body, muFailReturn(ftype)), ftype, formalVars, isMemo);
      params_when_body = ( when_body
-                        | translatePat(formalsList[i], getType(formalsList[i]),formalVars[i], fname, it, muFailReturn(ftype), subjectAssigned=hasParameterName(formalsList, i) ) 
+                        | translatePat(formalsList[i], getType(formalsList[i]), formalVars[i], fname, it, muFailReturn(ftype), subjectAssigned=hasParameterName(formalsList, i) ) 
                         | i <- reverse(index(formalsList)));
-     funCode = functionBody(params_when_body, ftype, formalVars, isMemo);
-     //funCode = muBlock([functionBody(params_when_body, ftype, formalVars, isMemo), muFailReturn(ftype)]);
+     funCode = functionBody(muBlock([params_when_body, muFailReturn(ftype)]), ftype, formalVars, isMemo);
      leaveBacktrackingScope();
      return <formalVars, funCode>;
 }
