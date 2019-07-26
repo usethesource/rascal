@@ -53,7 +53,7 @@ value nestedFunctions1() {
 }
 
 str f2(0) { res = g2("0"); return "f2(0); " + res; }
-str f2(1) { res = g2("1"); fail; return "f2(1); " + res; }
+str f2(1) { res = g2("1"); fail;}
 default str f2(int n) { res = g2("<n>"); return "default f2(1);" + res; }
 
 str g2("0") = "g2(\"0\")";
@@ -74,7 +74,6 @@ str f3(1) {
         res = "catched(<s>); g3(\"1\")"; 
     }; 
     fail; 
-    return "f3(1); " + res; 
 }
 default str f3(int n) { 
     str res; 
@@ -87,7 +86,7 @@ default str f3(int n) {
 }
 
 str g3("0") = "g3(\"0\")";
-str g3("1") { throw "Try to catch me!!!"; return "g3(\"1\")"; }
+str g3("1") { throw "Try to catch me!!!"; }
 default str g3(str s) = "default g3(<s>)";
 
 test bool nestedFunctions3() {

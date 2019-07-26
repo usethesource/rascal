@@ -190,6 +190,7 @@ test bool exceptionHandlingFinally1(){
 		} finally {
 			n = n + " 10";
 		}
+		return "no case matched";
 	}
 	
 	return main() == "0 1 2 6 has been returned from the inner finally!";
@@ -599,8 +600,6 @@ test bool untypedCatch1() {
 		throw "exception";
 	} 
 	catch s: return true;
-	
-	return false;
 }
 
 test bool untypedCatch2() {
@@ -609,8 +608,6 @@ test bool untypedCatch2() {
 	} 
 	catch int n: return false;
 	catch s:     return true;
-	
-	return false;
 }
 
 test bool untypedCatch3() {
