@@ -241,6 +241,7 @@ public data MuExp =
           | muSubNativeInt(MuExp exp1, MuExp exp2)
           | muAddNativeInt(MuExp exp1, MuExp exp2)
           | muSize(MuExp exp, AType atype)
+          | muLessNativeInt(MuExp exp1, MuExp exp2)
           | muGreaterEqNativeInt(MuExp exp1, MuExp exp2)
           
           // Operations on native booleans
@@ -294,7 +295,7 @@ bool producesNativeBool(muTmpNative(_,_,nativeBool()))
     
 default bool producesNativeBool(MuExp exp)
     = getName(exp) in {"muEqual", "muEqualNativeInt", "muNotNegativeNativeInt", "muIsKwpDefined", "muHasKwp", "muHasKwpWithValue", /*"muHasType",*/ "muHasTypeAndArity",
-                  "muHasNameAndArity", "muValueIsSubType", "muValueIsSubTypeOfValue", "muGreaterEqNativeInt", "muAndNativeBool", "muNotNativeBool",
+                  "muHasNameAndArity", "muValueIsSubType", "muValueIsSubTypeOfValue", "muLessNativeInt", "muGreaterEqNativeInt", "muAndNativeBool", "muNotNativeBool",
                   "muRegExpFind",  "muIsDefinedValue", "muHasField"};
 
 bool producesNativeInt(muTmpNative(_,_,nativeInt()))
@@ -351,6 +352,9 @@ MuExp muBlock([*MuExp pre, MuExp exp, *MuExp post]){
     if(!isEmpty(post) &&/* !isLoop(exp) &&*/ endsWithReturn(exp)) return muBlock([*pre, exp]);
     fail;
 }
+
+MuExp muBlock([*MuExp pre, muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart), *MuExp post])
+    = muBlock([*pre, muIfelse(cond, thenPart, elsePart), *post]);
     
 // ---- muValueBlock ----------------------------------------------------------
     
@@ -424,7 +428,7 @@ default MuExp addReturnFalse(MuExp exp) = muBlock([exp, muReturn1(abool(), muCon
 
 MuExp muReturn1(AType t, muEnter(str btscope, MuExp exp))
     = muEnter(btscope, addReturnFalse(visit(exp) { case muSucceed(btscope) => muReturn1(abool(), muCon(true))
-                                                   //case muFail(btscope) => muReturn1(abool(), muCon(false))
+                                                   case muFail(btscope) => muReturn1(abool(), muCon(false))
                                                  }));
     
 MuExp muReturn1(AType t, muSucceed(str btscope))
@@ -506,8 +510,8 @@ MuExp muIfelse(muCon(false), MuExp thenPart, MuExp elsePart) = elsePart;
 MuExp muIfelse(muValueBlock(AType t, [*MuExp exps, MuExp exp]), MuExp thenPart, MuExp elsePart)
     = muBlock([*exps, muIfelse(exp, thenPart, elsePart)]);
 
-//MuExp muEnter(str btscope, muIfelse(str btscope2, MuExp cond, MuExp thenPart, MuExp elsePart))
-//    =  muIfelse(btscope, cond, muEnter(btscope, thenPart), muEnter(btscope, elsePart));
+MuExp muEnter(str btscope, muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart))
+    =  muEnter(btscope, muIfelse(cond, thenPart, elsePart));
 
 
 MuExp muEnter(str label, muForAll(label, MuExp var, AType iterType, MuExp iterable, MuExp body))

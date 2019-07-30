@@ -829,8 +829,7 @@ MuExp translate(e:(Expression) `<Expression expression> ( <{Expression ","}* arg
    		} 
    		catch "NotConstant":  /* pass */;
    }
-   
-   	return muOCall3(receiver, ftype, hasKeywordParameters(ftype) ? args + [ kwargs ] : args, e@\loc);
+   return muOCall3(receiver, ftype, hasKeywordParameters(ftype) ? args + [ kwargs ] : args, e@\loc);
 }
 
 private MuExp translateKeywordArguments((KeywordArguments[Expression]) `<KeywordArguments[Expression] keywordArguments>`) {
@@ -1518,12 +1517,21 @@ MuExp translate(Expression e:(Expression) `<Expression lhs> && <Expression rhs>`
     if(backtrackFree(e)){
         return muIfExp(translate(lhs), translate(rhs), muCon(false));
     }
-    btscope = nextTmp("AND");
-    enterBacktrackingScope(btscope);
-    code = muEnter(btscope, translateBool(lhs, btscope, 
-                                               translateBool(rhs, btscope, muSucceed(btscope), muFail(btscope)), 
-                                               muFail(btscope)));
+    
+    btscopeL = nextTmp("AND_L");
+    btscopeR = nextTmp("AND_R");
+    enterBacktrackingScope(btscopeR);
+    codeR = muEnter(btscopeR, translateBool(rhs, btscopeR, muSucceed(btscopeR), muFail(btscopeR)));
+      leaveBacktrackingScope();
+    enterBacktrackingScope(btscopeL);  
+    code = muEnter(btscopeL, translateBool(lhs, btscopeL, codeR, muFail(btscopeL)));
     leaveBacktrackingScope();
+    //btscope = nextTmp("AND");
+    //enterBacktrackingScope(btscope);
+    //code = muEnter(btscope, translateBool(lhs, btscope, 
+    //                                           translateBool(rhs, btscope, muSucceed(btscope), muFail(btscope)), 
+    //                                           muFail(btscope)));
+    //leaveBacktrackingScope();
     return code;    
 }
 

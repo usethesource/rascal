@@ -429,6 +429,17 @@ AType getRelElementType(AType t) {
     throw rascalCheckerInternalError("Cannot get relation element type from type <prettyAType(t)>");
 }
 
+bool hasField(AType t, str name){
+    switch(unwrapType(t)){
+        case arel(atypeList(tls)): return any(tp <- tls, tp.label == name);
+        case alrel(atypeList(tls)): return any(tp <- tls, tp.label == name);
+        case atuple(atypeList(tls)): return any(tp <- tls, tp.label == name);
+        case amap(dm, rng): return dm.label == name || rng.label == name;
+        case acons(_,list[AType] cts,_): return any(tp <- cts, tp.label == name);
+    }
+    return false;
+}
+
 @doc{Get whether the rel has field names or not.}
 bool relHasFieldNames(AType t) {
     if (arel(atypeList(tls)) := unwrapType(t)) return size(tls) == size([tp | tp <- tls, !isEmpty(tp.label)]);
@@ -741,13 +752,13 @@ default bool isConstructorType(AType _) = false;
 
 @doc{Get the ADT type of the constructor.}
 AType getConstructorResultType(AType ct) {
-    if (acons(a,/*_,*/_,_) := unwrapType(ct)) return a;
+    if (acons(a,_,_) := unwrapType(ct)) return a;
     throw rascalCheckerInternalError("Cannot get constructor ADT type from non-constructor type <prettyAType(ct)>");
 }
 
 @doc{Get a list of the argument types in a constructor.}
 list[AType] getConstructorArgumentTypes(AType ct) {
-    if (acons(_,/*_,*/list[AType/*NamedField*/] cts,_) := unwrapType(ct)) return cts/*<1>*/;
+    if (acons(_,list[AType] cts,_) := unwrapType(ct)) return cts;
     throw rascalCheckerInternalError("Cannot get constructor arguments from non-constructor type <prettyAType(ct)>");
 }
 

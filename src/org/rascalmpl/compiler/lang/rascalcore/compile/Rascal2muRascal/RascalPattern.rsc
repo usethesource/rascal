@@ -560,6 +560,7 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
    }
    
    lpats = [pat | pat <- arguments];   //TODO: should be unnnecessary
+   //TODO: bound check
    body =  ( contExp | translatePat(lpats[i], getType(lpats[i]), muSubscript(subject, muCon(i)), btscope, it, falseCont) | int i <- reverse(index(lpats)) );
      
    if(expression is qualifiedName){
@@ -893,6 +894,7 @@ MuExp translatePat(p:(Pattern) `\<<{Pattern ","}* pats>\>`, AType subjectType, M
     
     str fuid = topFunctionScope();
     subject = muTmpIValue(nextTmp("tuple_subject"), fuid, subjectType);
+    //TODO: bound check
     body =  ( trueCont | translatePat(lpats[i], elmTypes[i], muSubscript(subject, muCon(i)), btscope, it, falseCont) | int i <- reverse(index(lpats)) ); // TODO only first with btscope?
     code = [ muConInit(subject, subjectExp), muIfelse(muHasTypeAndArity(patType, size(lpats), subject), body, falseCont)];
     return muBlock(code);
@@ -975,13 +977,17 @@ MuExp translatePatAsListElem(p:(Pattern) `<QualifiedName name>`, Lookahead looka
     <fuid, pos> = getVariableScope(prettyPrintName(name), name@\loc);
     var =  muVar(prettyPrintName(name), fuid, pos, subjectType);
     if(isDefinition(name@\loc)){
-        return muBlock([ muVarInit(var, muSubscript(subject, cursor)),
-                         muIncNativeInt(cursor, muCon(1)), 
-                         trueCont]);
+        return muIfelse(muLessNativeInt(cursor, sublen),
+                        muBlock([ muVarInit(var, muSubscript(subject, cursor)),
+                                  muIncNativeInt(cursor, muCon(1)), 
+                                  trueCont]),
+                        falseCont);
     } else {
-        return muIfelse(muEqual(var, muSubscript(subject, cursor)),
-                       muBlock([ muIncNativeInt(cursor, muCon(1)), trueCont]),
-                       falseCont);
+        return muIfelse(muLessNativeInt(cursor, sublen),
+                        muIfelse(muEqual(var, muSubscript(subject, cursor)),
+                                 muBlock([ muIncNativeInt(cursor, muCon(1)), trueCont]),
+                                 falseCont),
+                        falseCont);
     }
 } 
 
@@ -994,18 +1000,22 @@ MuExp translatePatAsListElem(p:(Pattern) `<Type tp> <Name name>`, Lookahead look
    } else {
        str fuid; int pos;           // TODO: this keeps type checker happy, why?
        <fuid, pos> = getVariableScope(prettyPrintName(name), name@\loc);
-       code = muBlock([ muVarInit(muVar(prettyPrintName(name), fuid, pos, trType), muSubscript(subject, cursor)),
-                        muIncNativeInt(cursor, muCon(1)), 
-                        trueCont ]);
+       code = muIfelse(muLessNativeInt(cursor, sublen),
+                       muBlock([ muVarInit(muVar(prettyPrintName(name), fuid, pos, trType), muSubscript(subject, cursor)),
+                                 muIncNativeInt(cursor, muCon(1)), 
+                                 trueCont ]),
+                       falseCont);
    }
    return asubtype(subjectType, trType) ? code : muIfelse(muValueIsSubType(subject, trType), code, falseCont);
  } 
 
 MuExp translatePatAsListElem(p:(Pattern) `<Literal lit>`, Lookahead lookahead, AType subjectType, MuExp subject, MuExp sublen, MuExp cursor, str btscope, MuExp trueCont, MuExp falseCont) {
     if(lit is regExp) fail;
-    return muIfelse(muEqual(translate(lit), muSubscript(subject, cursor)), 
-                    muBlock([ muIncNativeInt(cursor, muCon(1)), trueCont ]),
-                    falseCont);
+    return muIfelse(muLessNativeInt(cursor, sublen),
+                    muIfelse(muEqual(translate(lit), muSubscript(subject, cursor)), 
+                             muBlock([ muIncNativeInt(cursor, muCon(1)), trueCont ]),
+                             falseCont),
+                 falseCont);
 }
 
 MuExp translatePatAsListElem(p:(Pattern) `_*`, Lookahead lookahead, AType subjectType, MuExp subject, MuExp sublen, MuExp cursor,str btscope, MuExp trueCont, MuExp falseCont)
@@ -1072,7 +1082,7 @@ MuExp translateNamedMultiVar(str name, int pos, Lookahead lookahead, AType subje
                                                ]))
                        ]);  
     }
-    code = muEnter(my_btscope, code);
+    //code = muEnter(my_btscope, code);
     leaveBacktrackingScope();
     return code;
 }
@@ -1138,6 +1148,7 @@ MuExp translatePatAsListElem(p:(Pattern) `+<Pattern argument>`, Lookahead lookah
 
 default MuExp translatePatAsListElem(Pattern p, Lookahead lookahead, AType subjectType, MuExp subject, MuExp sublen, MuExp cursor, str btscope, MuExp trueCont, MuExp falseCont) {
    println("translatePatAsListElem, default: <p>");
+   //TODO: bound check
    return translatePat(p, subjectType, muSubscript(subject, cursor), btscope, muValueBlock(avalue(), [ muIncNativeInt(cursor, muCon(1)), trueCont]), falseCont);
 }
 

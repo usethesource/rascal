@@ -145,7 +145,7 @@ void collect(current: (Declaration) `<Tags tags> <Visibility visibility> <Type v
             
             if(var is initialized){
                 initial = var.initial;
-                c.require("initialization of `<var.name>`", initial, [initial, var.name], makeVarInitRequirement(var));
+                c.require("initialization of `<var.name>`", initial, [initial, varType], makeVarInitRequirement(var));
                 collect(initial, c); 
             }
             c.leaveScope(var);
