@@ -2,7 +2,6 @@
 module lang::rascalcore::compile::Rascal2muRascal::TypeUtils
 
 import IO;
-//import ValueIO;
 import Set;
 import Map;
 import Node;
@@ -17,8 +16,6 @@ import Type;
 
 import lang::rascalcore::check::AType;
 import lang::rascalcore::check::ATypeUtils;
-
-//import lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel;
 
 /*
  * This module provides a bridge to the "TModel" delivered by the type checker
@@ -97,11 +94,6 @@ bool isConstructor(UID uid) = uid in constructors;
 
 set[AType] getConstructors()
     = { getDefType(uid) | uid <- constructors};
-    
-//map[UID,int] functions_and_constructors_to_int  = ();
-//map[UID,FUID] functions_and_constructors_to_fuid  = ();
-
-public set[UID] variables = {};						// declared variables
 
 private map[str,int] module_var_init_locals = ();	// number of local variables in module variable initializations
 
@@ -124,7 +116,6 @@ str unescape(str name) = name[0] == "\\" ? name[1..] : name;
 void addOverloadedFunctionAndResolver(OFUN fundescr) = addOverloadedFunctionAndResolver(fundescr.fuid, fundescr);
 
 void addOverloadedFunctionAndResolver(str fuid1, OFUN fundescr){
-   
 	int n = indexOf(overloadedFunctions, fundescr);
 	if(n < 0){
 		n = size (overloadedFunctions);
@@ -148,28 +139,20 @@ OFUN getOverloadedFunction(FUID fuid) {
 
 // Reset the above global variables, when compiling the next module.
 
-public void resetScopeExtraction() { 
-    
+public void resetScopeExtraction() {  
     functions = {}; 
     keywordFormals = {};
     defaultFunctions = {};
     module_var_init_locals = ();
-   
     declares = {};
     declaresMap = ();
-    
     declaredIn = ();
-    
     funInnerScopes = ();
-    
     overloadingResolver = ();
     overloadedFunctions = [];
-    
     scopes = ();
-
     facts = (); 
     specializedFacts = ();
-    
     useDef = {};
     defUses = {};
     definitions = ();
@@ -208,7 +191,7 @@ int getFormals(UID fuid) {
     tp = getDefType(fuid);
     kwmap = size(tp.kwFormals) > 0 ? 1 : 0;
     return size(tp.formals) + kwmap;
- }
+}
 
 str getScope(UID uid){
     return convert2fuid(declaredIn[uid]);
@@ -252,6 +235,7 @@ loc findContainer(Define d){
 void extractScopes(TModel tm){
     //iprintln(tm);
     scopes = tm.scopes;
+    module_scopes = { s | s <- scopes, scopes[s] == |global-scope:///|};
 
     facts = tm.facts;
     specializedFacts = tm.specializedFacts;
@@ -308,9 +292,10 @@ void extractScopes(TModel tm){
     
     // Determine position of module variables
     for(m <- modules){
-        module_vars = toList(vars_per_scope[m] ? {});
-        for(int i <- index(module_vars)){
-            position_in_container[module_vars[i].defined] = i;
+        module_vars_set = vars_per_scope[m] ? {};
+        module_vars_list = toList(module_vars_set);
+        for(int i <- index(module_vars_list)){
+            position_in_container[module_vars_list[i].defined] = i;
         }
     }
     
@@ -439,140 +424,6 @@ void extractScopes(TModel tm){
             }
         }
    }
-   
-   //   for(fname <- domain(funNameAndDef)){
-   //     defs = funNameAndDef[fname];
-   //     arities = {};
-   //     for(def <- defs){
-   //         tp = getDefType(def.defined);
-   //         arities += def.idRole == functionId() ? size(tp.formals) : size(tp.fields);
-   //     }
-   //     ftypePerArity = ();
-   //     for(int i <- arities){
-   //       rtype = avoid();
-   //       argtypes = [avoid() | j <- [0..i]];
-   //       for(def <- defs, tp :=  getDefType(def.defined), (def.idRole == functionId() ? size(tp.formals) : size(tp.fields)) == i){
-   //         argtypes =  def.idRole == functionId() ? [ alub(argtypes[j], tp.formals[j])[label=tp.formals[j].label] | j <- [0..i] ]
-   //                                                : [ alub(argtypes[j], tp.fields[j])[label=tp.fields[j].label] | j <- [0..i] ];
-   //         rtype = alub(rtype, def.idRole == functionId() ? tp.ret : tp.adt);
-   //       }
-   //       ftypePerArity[i] = afunc(rtype, argtypes, []); //afunc(unsetRec(rtype), unsetRec(argtypes), []);
-   //     }
-   //     
-   //      for(int i <- arities){
-   //         ftype = ftypePerArity[i];
-   //         ovl_non_defaults = [];
-   //         ovl_defaults = [];
-   //         ovl_constructors = [];
-   //         reduced_overloads = {};
-   //         for(def <- defs){
-   //             fuid = functions_and_constructors_to_fuid[def.defined];
-   //             tp = getDefType(def.defined);
-   //             if(i == (def.idRole == functionId() ? size(tp.formals) : size(tp.fields))){
-   //                 reduced_overloads += <def.defined, def.idRole, tp>;
-   //                 if(def.idRole == constructorId()) 
-   //                     ovl_constructors += def.defined;
-   //                 else if(def in defaultFunctions) 
-   //                     ovl_defaults += def.defined;
-   //                 else 
-   //                     ovl_non_defaults += def.defined;
-   //             }
-   //         }
-   //         sorted_non_defaults = sortFunctions(ovl_non_defaults);
-   //         sorted_defaults = sortFunctions(ovl_defaults);
-   //         sorted_constructors = sortFunctions(ovl_constructors);
-   //         
-   //         oname = "<fname>_AT_<intercalate("_OR_",  abbreviate(sorted_non_defaults + sorted_defaults + sorted_constructors))>";
-   //         ofun = <fname,  ftype, oname, sorted_non_defaults + sorted_defaults, sorted_constructors>;
-   //         overloadedFunctions += ofun;
-   //         overloadingResolver[oname] = noverloaded;
-   //         noverloaded += 1;
-   //         overloadedTypeResolver[unsetRec(overloadedAType(reduced_overloads))] = oname;
-   //     }
-   //}
-   
-   
-   // ... and for specific occurrences of overloaded functions
-   //for(loc l <- facts){
-   // if(ovl:overloadedAType(rel[loc, IdRole, AType] overloads) := facts[l]){ // TODO specialized
-   //     println("Overloading resolver: <l>: <ovl>");
-   //     println("specializedFacts: <specializedFacts[l] ? "undefined">");
-   //     if(specializedFacts[l]?){
-   //         if(ovl1: overloadedAType(rel[loc, IdRole, AType] overloads)  := specializedFacts[l]){
-   //             ovl = ovl1;
-   //         } else {
-   //             continue;
-   //         }
-   //     }
-   //     arities = {};
-   //     for(<loc def, IdRole idRole, AType tp> <- overloads, idRole in {constructorId(), functionId()}){
-   //         arities += idRole == functionId() ? {size(tp.formals)} : size(tp.fields);
-   //     }
-   //     
-   //     fdefine = definitions[getFirstFrom(overloads)[0]];
-   //     fname = fdefine.id;
-   //     //di = fdefine.defInfo;
-   //     ftypePerArity = ();
-   //     for(int i <- arities){
-   //       rtype = avoid();
-   //       argtypes = [avoid() | j <- [0..i]];
-   //       for(<loc def, IdRole idRole, AType tp> <- overloads, idRole in {constructorId(), functionId()}, size(tp.formals) == i){
-   //         argtypes = [ alub(argtypes[j], tp.formals[j])[label=tp.formals[j].label] | j <- [0..i] ];
-   //         rtype = alub(rtype, tp.ret);
-   //       }
-   //       ftypePerArity[i] = afunc(rtype, argtypes, []); //afunc(unsetRec(rtype), unsetRec(argtypes), []);
-   //     }
-   //     
-   //     for(int i <- arities){
-   //         ftype = ftypePerArity[i];
-   //         ovl_non_defaults = [];
-   //         ovl_defaults = [];
-   //         ovl_constructors = [];
-   //         reduced_overloads = { ovl2 | tuple[loc def, IdRole idRole, AType tp ] ovl2 <- overloads, ovl2.idRole in {constructorId(), functionId()}, size(ovl2.tp.formals) == i };
-   //         for(<loc def, IdRole idRole, AType tp> <- reduced_overloads){
-   //             fuid = functions_and_constructors_to_fuid[def];
-   //             if(idRole == constructorId()) 
-   //                 ovl_constructors += def; //fuid;
-   //             else if(def in defaultFunctions) 
-   //                 ovl_defaults += def; //fuid; 
-   //             else 
-   //                 ovl_non_defaults += def; //fuid;
-   //         }
-   //         sorted_non_defaults = sortFunctions(ovl_non_defaults);
-   //         sorted_defaults = sortFunctions(ovl_defaults);
-   //         sorted_constructors = sortFunctions(ovl_constructors);
-   //         oname = "<fname>_AT_<intercalate("_OR_",  abbreviate(sorted_non_defaults + sorted_defaults + sorted_constructors))>";
-   //         ofun = <fname,  ftype, oname, sorted_non_defaults + sorted_defaults, sorted_constructors>;
-   //         overloadedFunctions += ofun;
-   //         overloadingResolver[oname] = noverloaded;
-   //         noverloaded += 1;
-   //         overloadedTypeResolver[unsetRec(overloadedAType(reduced_overloads))] = oname;
-   //     }
-   // }
-   //}
-   //println("overloadedFunctions:"); println(overloadedFunctions);
-   
-   // ... or non-overloaded functions
-   
-   //for(fun <- functions){
-   //     fdefine = definitions[fun];
-   //     fname = fdefine.id;
-   //     di = fdefine.defInfo;
-   //     ovl_non_defaults = [];
-   //     ovl_constructors = [];
-   //     fuid = functions_and_constructors_to_fuid[fun];
-   //     ftype = unsetRec((defType(AType atype) := di) ? atype : avalue());
-   //     
-   //     if(fdefine.idRole == functionId()) { ftype[kwFormals=[]]; ovl_non_defaults = [fun]; }
-   //     if(fdefine.idRole == constructorId()) { ftype[kwFields=[]];ovl_constructors = [fun]; }
-   //    
-   //     oname = "<fuid>";
-   //     ofun = <fname,  ftype, oname, ovl_non_defaults, ovl_constructors>; // TODO: sorting
-   //     overloadedFunctions += ofun;
-   //     overloadingResolver[oname] = noverloaded;
-   //     noverloaded += 1;
-   //     //overloadedTypeResolver[ftype] = oname; // <==
-   //}
 }
 
 list[str] abbreviate(list[loc] locs){
@@ -728,14 +579,19 @@ tuple[str fuid, int pos] getVariableScope(str name, loc l) {
 iprintln(definitions);
   println("getVariableScope: <name>, <l>, <definitions[l] ? "QQQ">, <declaredIn[l] ? "XXX">, <useDef[l] ? "YYY">)");
   container = |global-scope:///|;
-  if(declaredIn[l]? && !isEmpty(useDef[l])){
-        container = declaredIn[definitions[getFirstFrom(useDef[l])].defined];
-   } else {
-    for(fun <- functions){
-        if(containedIn(l, fun)){ container = fun; break; }
+  if(definitions[l]?) container = findContainer(definitions[l]);
+  else {
+    bool found = false;
+    for(c <- functions){
+        if(containedIn(l, c)){ container = c; found = true; break; }
     }
-   } 
-  //container = declaredIn[l] ? (useDef[l]? ? declaredIn[definitions[getFirstFrom(useDef[l])].defined]
+    if(!found){
+        for(c <- modules){
+         if(containedIn(l, c)){ container = c; found = true; break; }
+        }
+    }
+    if(!found) throw "No container found for <name>, <l>";
+  }
   
   cdef = definitions[container];
   if(cdef.idRole == functionId()) return <convert2fuid(container), getPositionInScope(name, l)>;
@@ -747,7 +603,7 @@ int getPositionInScope(str name, loc l){
     println("getPositionInScope:<name>, <l>");
     iprintln(position_in_container);
     uid = l in definitions ? l : getFirstFrom(useDef[l]); 
-    return position_in_container[uid];
+    return position_in_container[uid] ? 0;
 }
 
 bool hasPositionInScope(str name, loc l){

@@ -565,6 +565,9 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                             if(tp.deprecationMessage? && c.getConfig().warnDeprecated){
                                 s.report(warning(expression, "Deprecated function%v", isEmpty(tp.deprecationMessage) ? "" : ": " + tp.deprecationMessage));
                             }
+                            if(size(formals) == 0){
+                                s.report(error(expression, "Nullary function may not be overloaded"));
+                            }
                             validReturnTypeOverloads += <key, dataId(), checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs ? false, actuals, keywordArguments, identicalFormals, s)>;
                             validOverloads += ovl;
                        } catch checkFailed(list[FailMessage] fms):

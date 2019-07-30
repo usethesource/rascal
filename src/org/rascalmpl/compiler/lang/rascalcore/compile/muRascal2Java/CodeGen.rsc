@@ -119,7 +119,7 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
                                           'throw new RuntimeException(\"No function `main` found in Rascal program `<m.name>`\");
                                           '}";
     
-    the_class =         "package <packageName>;
+    the_class =         "<if(!isEmpty(packageName)){>package <packageName>;<}>
                         'import java.util.*;
                         'import java.util.regex.Matcher;
                         'import io.usethesource.vallang.*;
@@ -149,7 +149,7 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
                         '    <main_method>
                         '}";
       
-      the_interface =  "package <packageName>;
+      the_interface =  "<if(!isEmpty(packageName)){>package <packageName>;<}>
                        'import java.util.*;
                        'import io.usethesource.vallang.*;
                        'import io.usethesource.vallang.type.*;
@@ -159,12 +159,12 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
                        '    <signatures>
                        '}\n";
                        
-      the_test_class = generateTestClass(packageName, className, m.functions);
+      the_test_class = generateTestClass(packageName, className, m.functions, jg);
       
       return <the_interface, the_class, the_test_class>;
 }
 
-str generateTestClass(str packageName, str className, list[MuFunction] functions){
+str generateTestClass(str packageName, str className, list[MuFunction] functions, JGenie jg){
     return "<if(!isEmpty(packageName)){>package <packageName>;<}>
            'import java.util.*;
            'import java.util.stream.Stream;
@@ -176,43 +176,50 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
            'import static org.junit.jupiter.api.DynamicTest.dynamicTest;
            '
            'import org.junit.jupiter.api.Test;
+           'import org.junit.Ignore;
            'import org.junit.jupiter.api.DynamicTest;
            'import org.junit.jupiter.api.TestFactory;
            'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.*;
            'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.*;
            '
            'class <className>Test extends org.rascalmpl.core.library.lang.rascalcore.compile.runtime.$RascalModule {
-           '    $<className> MUT;
+           '    $<className> $me;
            '    static final TypeFactory $TF = TypeFactory.getInstance();
            '    static final GenerateActuals generator = new GenerateActuals(5, 5, 10);
        
            '    public <className>Test(){
            '        ModuleStore store = new ModuleStore();
-           '        MUT = store.importModule(<className>.class, <className>::new);                       
+           '        $me = store.importModule(<className>.class, <className>::new);                       
            '    }
            '    <for(f <- functions){>
-           '    <generateTestMethod(f)><}>
+           '    <generateTestMethod(f, jg)><}>
            '}\n";
 }
 
-str generateTestMethod(MuFunction f){
+str generateTestMethod(MuFunction f, JGenie jg){
     if("test" notin f.modifiers) return "";
     
     test_name = getJavaName(f.uqname);
-    fun_name = "<test_name>_<f.src.begin.line>_<f.src.end.line>";
+    test_name_uniq = "<test_name>_<f.src.begin.line>";
     formals = f.ftype.formals;
     expected = f.tags["expected"] ? "";
+    ignored = !isEmpty(domain(f.tags) & {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
+    if(ignored){
+        return "@Ignore
+               'void <test_name_uniq>(){ }\n";
+    }
+    fun_name = jg.getAccessor(f.src); //"<test_name>_<f.src.begin.line>_<f.src.end.line>";
     if(isEmpty(formals)){
         if(isEmpty(expected)){
             return "@Test
-                   'void <test_name>(){
-                   '   assertTrue(MUT.<test_name>().getValue());
+                   'void <test_name_uniq>(){
+                   '   assertTrue(<fun_name>().getValue());
                    '}\n";
         } else {
             return "@Test
-                   'void <test_name>(){
+                   'void <test_name_uniq>(){
                    '    try {
-                   '        MUT.<fun_name>();
+                   '        <fun_name>();
                    '    } catch (RascalException e) {
                    '        if(((IConstructor) e.getValue()).getConstructorType() == RascalExceptionFactory.<expected>) {
                    '            assertTrue(true);
@@ -228,15 +235,15 @@ str generateTestMethod(MuFunction f){
     actuals = intercalate(", ", ["args[<i>]" | i <- index(formals)]) + ", Collections.emptyMap()";
     if(isEmpty(expected)){
         return "@TestFactory
-               'Stream\<DynamicTest\> <test_name>(){
-               '    return generator.generateActuals(<types>).map((args) -\> dynamicTest(\"<test_name>\", () -\> assertTrue(((IBool)MUT.<test_name>(<actuals>)).getValue())));
+               'Stream\<DynamicTest\> <test_name_uniq>(){
+               '    return generator.generateActuals(<types>).map((args) -\> dynamicTest(\"<test_name>\", () -\> assertTrue(((IBool)$me.<test_name>(<actuals>)).getValue())));
                '}\n";
      } else {
         return "@TestFactory
-               'Stream\<DynamicTest\> <test_name>(){
+               'Stream\<DynamicTest\> <test_name_uniq>(){
                '    return generator.generateActuals(<types>).map((args) -\> dynamicTest(\"<test_name>\", () -\> {
                '        try {
-               '            MUT.<test_name>(<actuals>);
+               '            $me.<test_name>(<actuals>);
                '            fail(\"Expected `<expected>`, but nothing was thrown\");
                '        } catch (RascalException e) {
                '            if(((IConstructor) e.getValue()).getConstructorType() == RascalExceptionFactory.<expected>) {
@@ -438,7 +445,14 @@ tuple[str signatures, str resolvers] genResolver(tuple[str name, AType funType, 
    funType = unsetRec(overload.funType);
    returns_void = funType has ret && funType.ret == avoid();
    formalTypes = getFormals(funType);
-   if(jg.isResolved(overload) || !jg.usesLocalFunctions(overload) || getArity(funType) == 0) return <"", "">;
+   returnType = atype2javatype(getResult(funType));
+   //if(getArity(funType) == 0){
+   //     of = size(overload.ofunctions) > 0 ? overload.ofunctions[0] : overload.oconstructors[0];
+   //     return <"public <returnType> <overload.name>();\n", 
+   //             "public <returnType> <overload.name>() { return <jg.getAccessorInResolver(of)>(); }\n"
+   //            >;
+   //}
+   if(jg.isResolved(overload) || !jg.usesLocalFunctions(overload) /*|| getArity(funType) == 0*/) return <"", "">;
  
    if(getArity(funType) != 0 && all(formalType <-formalTypes, formalType == avalue())) return <"", "">;
    
@@ -448,7 +462,7 @@ tuple[str signatures, str resolvers] genResolver(tuple[str name, AType funType, 
    
    concretePatterns = any(ovl <- overload.ofunctions /*+ overload.oconstructors*/, jg.getType(ovl).isConcreteArg);
   
-   returnType = atype2javatype(getResult(funType));
+   
    argTypes = intercalate(", ", ["<atype2javatype(f)> $<i>" | i <- index(formalTypes), f := formalTypes[i]]);
    if(anyKwParams){
         kwpActuals = "java.util.Map\<String,IValue\> $kwpActuals";
@@ -1607,6 +1621,9 @@ JCode trans(muAddNativeInt(MuExp exp1, MuExp exp2), JGenie jg)
     
 JCode trans(muGreaterEqNativeInt(MuExp exp1, MuExp exp2), JGenie jg)
     = "<trans2NativeInt(exp1, jg)> \>= <trans2NativeInt(exp2, jg)>";
+
+JCode trans(muLessNativeInt(MuExp exp1, MuExp exp2), JGenie jg)
+    = "<trans2NativeInt(exp1, jg)> \< <trans2NativeInt(exp2, jg)>";
 
 JCode trans(muAndNativeBool(MuExp exp1, MuExp exp2), JGenie jg){
     v1 = trans2NativeBool(exp1, jg);

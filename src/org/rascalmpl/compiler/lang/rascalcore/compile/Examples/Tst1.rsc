@@ -1,7 +1,10 @@
 module lang::rascalcore::compile::Examples::Tst1
-      
-import Exception;
-import IO;
 
-@expected{ArithmeticException}
-test bool divByZero(int x){ if(x / 0 == 0) {println("<x>: no exception"); return false; } else return false; }
+test bool tupleExpressions() {
+    value n = 1; 
+    return int _ := n && str _ := "abc" ;// && tuple[int, str] _ := < n , s >;
+}   
+
+value main() = tupleExpressions();  
+
+      

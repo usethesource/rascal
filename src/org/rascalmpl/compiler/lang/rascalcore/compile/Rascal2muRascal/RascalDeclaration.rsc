@@ -121,9 +121,9 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
       tmods = translateModifiers(fd.signature.modifiers);
       if(ignoreTest(ttags)){
           // The type checker does not generate type information for ignored functions
-          addFunctionToModule(muFunction("/ignored-<fd@\loc.offset>()", 
+           addFunctionToModule(muFunction("ignored-<prettyPrintName(fd.signature.name)>-<fd@\loc.offset>", 
                                          prettyPrintName(fd.signature.name), 
-                                         avoid(),
+                                         afunc(abool(),[],[]),
                                          [],
                                          [],
                                          inScope, 
@@ -362,6 +362,9 @@ public map[str,str] translateTags(Tags tags){
    }
    return m;
 }
+
+bool ignoreCompiler(map[str,str] tagsMap)
+    = !isEmpty(domain(tagsMap) &  {"ignore", "Ignore", "ignoreCompiler", "IgnoreCompiler"});
 
 //private bool ignoreCompilerTest(map[str, str] tags) = !isEmpty(domain(tags) & {"ignoreCompiler", "IgnoreCompiler"});
 

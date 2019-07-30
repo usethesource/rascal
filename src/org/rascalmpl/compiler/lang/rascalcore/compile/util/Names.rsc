@@ -2,7 +2,7 @@ module lang::rascalcore::compile::util::Names
 
 import String;
 
-str std_package = "std";
+str compiled_rascal_package = "compiled_rascal";
 
 str removeEmptyLines(str s){
     return visit(s) { case /^\n[ ]*\n/ => "\n" };
@@ -23,23 +23,22 @@ str getClassName(str qname){
 str getClassRef(str qname, str inModule){
     qname = replaceColonAndDash(qname);
     n = findLast(qname, ".");
-    //uqname = n >= 0 ? qname[n+1 ..] : qname;
-    if(getPackageName(inModule) != std_package){
-        qname = "<std_package>.<qname>";
-    }
-    return qname;
+    //if(getPackageName(inModule) != compiled_rascal_package){
+        qname = "<compiled_rascal_package>.<qname>";
+   // }
+   return qname;
 }
 
 str getPackageName(str qname){
     className = replaceColonAndDash(qname);
     n = findLast(className, ".");
-    return n >= 0 ? className[0 .. n] : std_package;
+    return n >= 0 ? "<compiled_rascal_package>.<className[0 .. n]>" : compiled_rascal_package;
 }
 
 str getClass(str qname){
     qname = replaceColonAndDash(qname);
     n = findLast(qname, ".");
-    return n >= 0 ? qname[n+1 ..] : "<std_package>.<qname>";
+    return n >= 0 ? "<compiled_rascal_package>.<qname[n+1 ..]>" : "<compiled_rascal_package>.<qname>";
 }
 
 str getBaseClass(str qname){
@@ -71,9 +70,9 @@ str  module2uqclass(str qname, str inModule){
     qname = replaceAll(qname, "::", ".");
     n = findLast(qname, ".");
     uqname = n >= 0 ? qname[n+1 ..] : qname;
-    if(getPackageName(inModule) != std_package){
-        uqname = "<std_package>.<uqname>";
-    }
+   //if(getPackageName(inModule) != compiled_rascal_package){
+        uqname = "<compiled_rascal_package>.<uqname>";
+    //}
     return uqname;
 }
 
@@ -84,7 +83,7 @@ str module2class(str qname){
 str module2path(str qname){
     path = replaceAll(qname, "::", "/");
     n = findLast(path, "/");
-    return n >= 0 ? path[0 .. n] : std_package;
+    return n >= 0 ? "<compiled_rascal_package>/<path[0 .. n]>" : compiled_rascal_package;
 }
 
 str module2field(str qname){
@@ -92,11 +91,6 @@ str module2field(str qname){
 }
 
 str colon2ul(str s) = replaceAll(replaceAll(s, "::", "_"), "$", ".");
-
-//str module2class(str moduleName){
-//    return module2uqclass(moduleName);
-//}
-
 
 str module2interface(str moduleName){
     className = module2class(moduleName);

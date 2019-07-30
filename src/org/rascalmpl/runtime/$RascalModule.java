@@ -914,6 +914,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			newFields[i] = field.getType().isInteger() ? tup.get(((IInteger) field).intValue())
 					: tup.get(((IString) field).getValue());
 		}
+		System.err.println("newFields = " + newFields);
 		return (n - 1 > 1) ? $VF.tuple(newFields) : newFields[0];
 	}
 	
@@ -955,10 +956,9 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	public static final ISet arel_field_project(final ISet set, final IValue... fields) {
 		int indexArity = fields.length;
 		int intFields[] = new int[indexArity];
-		for(int i = 1; i < indexArity; i++){
+		for(int i = 0; i < indexArity; i++){
 			intFields[i]  = ((IInteger) fields[i]).intValue();
 		}
-
 		return set.asRelation().project(intFields);
 	}
 	
@@ -973,7 +973,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 	public static final IList alrel_field_project(final IList lrel, final IValue... fields) {
 		int indexArity = fields.length;
 		int intFields[] = new int[indexArity];
-		for(int i = 1; i < indexArity; i++){
+		for(int i = 0; i < indexArity; i++){
 			intFields[i]  = ((IInteger) fields[i]).intValue();
 		}
 		IListWriter w = $VF.listWriter();
