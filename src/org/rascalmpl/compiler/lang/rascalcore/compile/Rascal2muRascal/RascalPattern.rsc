@@ -918,7 +918,7 @@ MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType, MuE
     
     typecheckNeeded = asubtype(getType(p), subjectType);
     
-    body =  ( trueCont | translatePatAsListElem(lpats[i], lookahead[i], elmType, subject, sublen, cursor, my_btscope, it, falseCont) | int i <- reverse(index(lpats)) );
+    body =  ( trueCont | translatePatAsListElem(lpats[i], lookahead[i], elmType, subject, sublen, cursor, my_btscope, it, muFail(my_btscope)) | int i <- reverse(index(lpats)) );
     
     block = muBlock([ muConInit(sublen, muSize(subject, subjectType)),
                       muIfelse(isEmpty(lookahead) ? muEqualNativeInt(sublen, muCon(0))
@@ -929,18 +929,57 @@ MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType, MuE
                       falseCont
                     ]);
     
-    code = muEnter(my_btscope,
+    code = 
              muBlock([ *(subjectAssigned ? [muVarInit(subject, subjectExp)] : [muConInit(subject, subjectExp)]),   
                        muVarInit(cursor, muCon(0)), 
                        *(typecheckNeeded ? [muIfelse( muValueIsSubType(subject, subjectType),
-                                                      block,
+                                                      muEnter(my_btscope, block),
                                                       falseCont)]
                                                      
-                                         : [ block ])
-                     ]));
+                                         : [ muEnter(my_btscope, block) ])
+                     ]);
     leaveBacktrackingScope();
     return code;
 }
+
+//MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType, MuExp subjectExp, str btscope, MuExp trueCont, MuExp falseCont, bool subjectAssigned=false) {
+//    lookahead = computeLookahead(p);  
+//    lpats = [pat | pat <- pats];   //TODO: should be unnnecessary
+//    elmType = avalue();
+//    if(alist(tp) := subjectType && tp != avoid()){
+//        elmType = tp;
+//    }
+//    str fuid = topFunctionScope();
+//    my_btscope = nextTmp("LISTMATCH");
+//    enterBacktrackingScope(my_btscope);
+//    subject = muTmpIValue(nextTmp("subject"), fuid, subjectType);
+//    cursor = muTmpInt(nextTmp("cursor"), fuid);
+//    sublen = muTmpInt(nextTmp("sublen"), fuid);
+//    
+//    typecheckNeeded = asubtype(getType(p), subjectType);
+//    
+//    body =  ( trueCont | translatePatAsListElem(lpats[i], lookahead[i], elmType, subject, sublen, cursor, my_btscope, it, falseCont) | int i <- reverse(index(lpats)) );
+//    
+//    block = muBlock([ muConInit(sublen, muSize(subject, subjectType)),
+//                      muIfelse(isEmpty(lookahead) ? muEqualNativeInt(sublen, muCon(0))
+//                                                  : (lookahead[0].nMultiVar == 0 && !isMultiVar(lpats[0])) ? muEqualNativeInt(sublen, muCon(lookahead[0].nElem + 1))
+//                                                                                                           : muGreaterEqNativeInt(sublen, muCon(lookahead[0].nElem + 1)), 
+//                               body, 
+//                               falseCont),
+//                      falseCont
+//                    ]);
+//    
+//    code = muEnter(my_btscope,
+//             muBlock([ *(subjectAssigned ? [muVarInit(subject, subjectExp)] : [muConInit(subject, subjectExp)]),   
+//                       muVarInit(cursor, muCon(0)), 
+//                       *(typecheckNeeded ? [muIfelse( muValueIsSubType(subject, subjectType),
+//                                                      block,
+//                                                      falseCont)]
+//                                                     
+//                                         : [ block ])
+//                     ]));
+//    leaveBacktrackingScope();
+//}
 
 bool isMultiVar(p:(Pattern) `<QualifiedName name>*`) = true;
 bool isMultiVar(p:(Pattern) `*<Type tp> <Name name>`) = true;

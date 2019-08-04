@@ -63,6 +63,7 @@ set[AType] getADTs() = ADTs;
 
 Scopes scopes = ();                                 // All scopes
 rel[UID,UID] td_reachable_scopes = {};              // Transitive closure of top down reachable scopes
+set[UID] module_scopes = {};                        // Scopes of all modules
 
 map[UID,UID] declaredIn = ();                       // Map from declared enity to its declaring function or module
 rel[UID,UID] declares = {};                         // Relation from declaring functionn or module to the entities declared in it.
@@ -151,6 +152,7 @@ public void resetScopeExtraction() {
     overloadingResolver = ();
     overloadedFunctions = [];
     scopes = ();
+    module_scopes = {};
     facts = (); 
     specializedFacts = ();
     useDef = {};
@@ -217,7 +219,7 @@ bool is_positional_formal(Define d) = d.idRole in positionalFormalRoles;
 bool is_outer_formal(Define d) = d.idRole in outerFormalRoles;
 bool is_variable(Define d) = d.idRole in variableRoles + fieldId();
 bool is_non_keyword_variable(Define d) = d.idRole in variableRoles - {keywordFormalId()};
-bool is_module_variable(Define d) = d.idRole == variableId();
+bool is_module_variable(Define d) = d.idRole == variableId() && d.scope in module_scopes;
 bool is_module_or_function(loc l) = definitions[l]? && definitions[l].idRole in {moduleId(), functionId()};
 bool is_module(Define d) = d.idRole in {moduleId()};
 
@@ -511,7 +513,7 @@ list[MuExp] getNestedParameters(loc l){
     positionals = sort([v | v <- locally_defined, is_positional_formal(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
    iprintln(positionals);
     return [ muVar(vdef.id, "<vdef.scope>", getPositionInScope(vdef.id, vdef.defined),  getTypeFromDef(vdef)) | vdef <- positionals, vdef.idRole == formalId(), hasPositionInScope(vdef.id, vdef.defined) ];
-    return [ vdef.id | vdef <- positionals ];
+    //return [ vdef.id | vdef <- positionals ];
     //return [definitions[v].id | v <- containment[l], is_positional_formal(v)];
 }
 
@@ -521,7 +523,7 @@ list[MuExp] getNestedParameters(Define fundef){
     positionals = sort([v | v <- locally_defined, is_positional_formal(v)], bool(Define a, Define b){ return a.defined.offset < b.defined.offset;});
    iprintln(positionals);
     return [ muVar(vdef.id, "<vdef.scope>", getPositionInScope(vdef.id, vdef.defined),  getTypeFromDef(vdef)) | vdef <- positionals, vdef.idRole == formalId(), hasPositionInScope(vdef.id, vdef.defined) ];
-    return [ vdef.id | vdef <- positionals ];
+    //return [ vdef.id | vdef <- positionals ];
     //return [definitions[v].id | v <- containment[l], is_positional_formal(v)];
 }
 
@@ -752,7 +754,7 @@ MuExp mkVar(str name, loc l) {
   
   if(def.idRole in variableRoles){
     scp = getScope(uid);
-    pos = getPositionInScope(name, uid);
+    pos = is_module_variable(def) ? - 1 : getPositionInScope(name, uid);
     return /*scp in modules ? muModuleVar(name, scp, pos) :*/ muVar(name, scp, pos, getType(l));
   }
   
@@ -817,5 +819,6 @@ private int size_with_seps(int len, int lenseps) = (len == 0) ? 0 : 1 + (len / (
 
 AType getElementType(alist(AType et)) = et;
 AType getElementType(aset(AType et)) = et;
+AType getElementType(amap(AType kt, AType vt)) = kt;
 AType getElementType(abag(AType et)) = et;
 AType getElementType(AType t) = avalue();

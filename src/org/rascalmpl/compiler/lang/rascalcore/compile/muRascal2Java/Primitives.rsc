@@ -58,27 +58,6 @@ JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)  
 JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "aset_add_elm(<castArg(a,x)>,<castArg(b,y)>)"       when isSetLikeType(a), !isSetLikeType(b);
 JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "elm_add_alist(<castArg(a,x)>,<castArg(b,y)>)"      when !isSetLikeType(a), isSetLikeType(b);
 
-
-//JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "<y>.insert((ISet)(<x>))"                when !isSetLikeType(a), isSetLikeType(b);
-
-//JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = cast(r, "<getOuter(a)>_add_<getOuter(b)>(<castArg(a,x)>,<castArg(b,y)>)")    when isArithType(a), isArithType(b);
-//JCode transPrim("add", AType r, [astr(), astr()], [str x, str y], JGenie jg)             = "((IString)(<x>)).concat((IString)(<y>))";
-//JCode transPrim("add", AType r, [astr(), astr(), astr()], [str x, str y, str z], JGenie jg) 
-//                                                                                        = "((IString)(<x>)).concat((IString)(<y>)).concat((IString)(<z>))";
-//
-//JCode transPrim("add", AType r, [aloc(), astr()], [str x, str y], JGenie jg)             = "aloc_add_astr(<x>,<y>)";
-//JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "atuple_add_atuple(<x>,<y>)"           when isTupleType(a), isTupleType(b);
-//
-//JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "((IList)(<x>)).concat((IList)(<y>))"      when isListLikeType(a), isListLikeType(b);
-//JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "((IList)(<x>)).append(<y>)"             when isListLikeType(a), !isListLikeType(b);
-//JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "<y>.insert((IList)(<x>))"               when !isListLikeType(a), isListLikeType(b);
-//
-//JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "((ISet)(<x>)).union((ISet)(<y>))"         when isSetLikeType(a), isSetLikeType(b);
-//JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "((ISet)(<x>)).insert((<y>))"              when isSetLikeType(a), !isSetLikeType(b);
-//JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "<y>.insert((ISet)(<x>))"                when !isSetLikeType(a), isSetLikeType(b);
-//
-//JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "((IMap)(<x>)).compose((IMap)(<y>))"       when isMapType(a), isMapType(b);
-
 // ---- add_..._writer -------------------------------------------------------
 
 JCode transPrim("add_list_writer", AType r, list[AType] atypes, [str w, str v], JGenie jg)        = "<w>.append(<v>);\n"; 
@@ -111,7 +90,8 @@ JCode transPrim("create_list", AType r, [AType a], list[str] args, JGenie jg)   
 JCode transPrim("create_set", AType r, [AType a], list[str] args, JGenie jg)             = "$VF.set(<intercalate(", ", args)>)";
 JCode transPrim("create_map", AType r, [AType , AType b], list[str] args, JGenie jg)     = "buildMap(<intercalate(", ", args)>)";
 JCode transPrim("create_loc", aloc(), [aloc()], [str uri], JGenie jg)                    = "create_aloc(<uri>)";
-JCode transPrim("create_loc_with_offset", aloc(), [aloc()], list[str] args, JGenie jg)   = "create_aloc_with_offset(<intercalate(", ", args)>)";
+JCode transPrim("create_loc_with_offset", aloc(), [aloc()], [str l, str off, str len, str bgn, str end], JGenie jg)
+                                                                                          = "create_aloc_with_offset(<intercalate(", ", [l, castArg(aint(), off), castArg(aint(), len), bgn, end])>)";
 JCode transPrim("create_tuple", AType r, list[AType] argTypes, list[str] args, JGenie jg)= "$VF.tuple(<intercalate(", ", args)>)";
 JCode transPrim("create_node", AType r, list[AType] argTypes, [str name, *str args, str kwpMap], JGenie jg)
                                                                                          = "$VF.node(<name>.getValue(), new IValue[] { <intercalate(", ", args)> }, <kwpMap>)";
@@ -123,24 +103,6 @@ JCode transPrim("divide", AType r, [aparameter(_, AType bnd), AType rgt], [str x
                                                                                          = transPrim("divide", r, [bnd,rgt], [x, y], jg);
 
 JCode transPrim("divide", AType r, [AType a, AType b], [str x, str y], JGenie jg)         = "<getOuter(a)>_divide_<getOuter(b)>(<castArg(a,x)>,<castArg(b,y)>)"     when isArithType(a), isArithType(b);
-//JCode transPrim("divide", AType r, [aint(), aint()], [str x, str y], JGenie jg)          = "aint_divide_aint(<x>,<y>)";
-//JCode transPrim("divide", AType r, [aint(), areal()], [str x, str y], JGenie jg)         = "aint_divide_areal(<x>,<y>)";
-//JCode transPrim("divide", AType r, [aint(), arat()], [str x, str y], JGenie jg)          = "aint_divide_arat(<x>,<y>)";
-//JCode transPrim("divide", AType r, [aint(), anum()], [str x, str y], JGenie jg)          = "aint_divide_anum(<x>,<y>)";
-//
-//JCode transPrim("divide", AType r, [areal(), aint()], [str x, str y], JGenie jg)         = "areal_divide_aint(<x>,<y>)";
-//JCode transPrim("divide", AType r, [areal(), areal()], [str x, str y], JGenie jg)        = "areal_divide_areal(<x>,<y>)";
-//JCode transPrim("divide", AType r, [areal(), arat()], [str x, str y], JGenie jg)         = "areal_divide_arat(<x>,<y>)";
-//JCode transPrim("divide", AType r, [areal(), anum()], [str x, str y], JGenie jg)         = "areal_divide_anum(<x>,<y>)";
-//JCode transPrim("divide", AType r, [arat(), aint()], [str x, str y], JGenie jg)          = "arat_divide_aint(<x>,<y>)";
-//JCode transPrim("divide", AType r, [arat(), areal()], [str x, str y], JGenie jg)         = "arat_divide_areal(<x>,<y>)";
-//JCode transPrim("divide", AType r, [arat(), arat()], [str x, str y], JGenie jg)          = "arat_divide_arat(<x>,<y>)";
-//JCode transPrim("divide", AType r, [arat(), anum()], [str x, str y], JGenie jg)          = "arat_divide_anum(<x>,<y>)";
-//
-//JCode transPrim("divide", AType r, [anum(), aint()], [str x, str y], JGenie jg)          = "aum_divide_aint(<x>,<y>)";
-//JCode transPrim("divide", AType r, [anum(), areal()], [str x, str y], JGenie jg)         = "anum_divide_areal(<x>,<y>)";
-//JCode transPrim("divide", AType r, [anum(), arat()], [str x, str y], JGenie jg)          = "anum_divide_arat(<x>,<y>)";
-//JCode transPrim("divide", AType r, [anum(), anum()], [str x, str y], JGenie jg)          = "anum_divide_anum(<x>,<y>)";
 
 
 // ---- equal -----------------------------------------------------------------
@@ -173,7 +135,7 @@ JCode transPrim("guarded_field_project", AType r, [AType a], [str x, *str args],
 // ---- greater ---------------------------------------------------------------
 
 JCode transPrim("greater", abool(), [abool(), abool()], [str x, str y], JGenie jg)      = "abool_lessequal_abool(<x>,<y>).not()"; 
-JCode transPrim("greater", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<getOuter(a)>_lessequal_<getOuter(b)>(<x>,<y>).not()"     when isArithType(a), isArithType(b);
+JCode transPrim("greater", AType r, [AType a, AType b], [str x, str y], JGenie jg)      = "<getOuter(a)>_lessequal_<getOuter(b)>(<castArg(a,x)>,<castArg(b,y)>).not()"     when isArithType(a), isArithType(b);
 JCode transPrim("greater", abool(), [astr(), astr()], [str x, str y], JGenie jg)        = "astr_lessequal_astr(<x>,<y>.not()"; 
 JCode transPrim("greater", abool(), [adatetime(), adatetime()], [str x, str y], JGenie jg)         
                                                                                         = "datetime_lessequal_adatetime(<x>,<y>.not()"; 
@@ -190,7 +152,7 @@ JCode transPrim("greater", abool(), [AType a, AType b], [str x, str y], JGenie j
 
 JCode transPrim("greaterequal", abool(), [abool(), abool()], [str x, str y], JGenie jg)  = "abool_less_abool(<x>,<y>).not()"; 
 JCode transPrim("greaterequal", abool(), [AType a, AType b], [str x, str y], JGenie jg)  = "alist_less_alist(<x>,<y>).not()"            when isListLikeType(a), isListLikeType(b); 
-JCode transPrim("greaterequal", AType r, [AType a, AType b], [str x, str y], JGenie jg)  = "<getOuter(a)>_less_<getOuter(b)>(<x>,<y>).not()"     when isArithType(a), isArithType(b);
+JCode transPrim("greaterequal", AType r, [AType a, AType b], [str x, str y], JGenie jg)  = "<getOuter(a)>_less_<getOuter(b)>(<castArg(a,x)>,<castArg(b,y)>).not()"     when isArithType(a), isArithType(b);
 JCode transPrim("greaterequal", abool(), [astr(), astr()], [str x, str y], JGenie jg)    = "astr_less_astr(<x>,<y>.not()"; 
 JCode transPrim("greaterequal", abool(), [adatetime(), adatetime()], [str x, str y], JGenie jg)         
                                                                                          = "adatetime_less_adatetime(<x>,<y>).not()"; 
@@ -223,7 +185,7 @@ JCode transPrim("is", abool(), [AType a], [str x, str y], JGenie jg)            
 
 list[str] transPrimArgs("guarded_subscript", AType r, [AType a, aint()], [MuExp x, MuExp y], JGenie jg)  
                                                                                                 = [ trans(x,jg), trans2NativeInt(y,jg) ] 
-                                                                                                  when isListLikeType(a) || (a == astr()) || isTupleType(a) || 
+                                                                                                  when isListOnlyType(a) || (a == astr()) || isTupleType(a) || 
                                                                                                        isNodeType(a) || isADTType(a); 
                                                                                        
 JCode transPrim("guarded_subscript", AType r, [astr(), aint()], [str x, str y], JGenie jg)      = "guarded_astr_subscript_int(<x>,<y>)";
@@ -231,7 +193,7 @@ JCode transPrim("guarded_subscript", AType r, [AType a, aint()], [str x, str y],
 JCode transPrim("guarded_subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)     = "guarded_anode_subscript_int(<x>,<y>)" when isNodeType(a);
 JCode transPrim("guarded_subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)     = "guarded_aadt_subscript_int(<x>,<y>)" when isADTType(a);
 JCode transPrim("guarded_subscript", AType r, [AType a, AType b], [ str x, str y], JGenie jg)   
-                                                                                                = "guarded_list_subscript(<x>,<y>)" when isListLikeType(a);
+                                                                                                = "guarded_list_subscript(<x>,<y>)" when isListOnlyType(a);
 JCode transPrim("guarded_subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)    = "guarded_map_subscript(<x>,<y>)" when isMapType(a);
 
 JCode transPrim("guarded_subscript", AType r, [AType a, *AType types], [str x, *str args], JGenie jg) {
@@ -244,6 +206,15 @@ JCode transPrim("guarded_subscript", AType r, [AType a, *AType types], [str x, *
             return "guarded_arel_subscript1_noset(<x>,<args[0]>)";
         }
         return "guarded_arel_subscript(<x>,<makeIndex(args)>,<makeIndexDescr(types, args, jg)>)";    
+    } else if(alrel(atypeList(list[AType] elemTypes)) := a){
+        n = size(elemTypes);
+        if(n == 2 && !jg.isWildCard(args[0])){
+            return isSetLikeType(types[0])  ? "guarded_alrel2_subscript1_aset(<x>,<args[0]>))"
+                                        : "guarded_alrel_subscript1_noset(<x>,<args[0]>)" ;
+        } else if(size(args) == 1 && !jg.isWildCard(args[0]) && !isSetLikeType(types[0])){
+            return "guarded_alrel_subscript1_noset(<x>,<args[0]>)";
+        }
+        return "guarded_alrel_subscript(<x>,<makeIndex(args)>,<makeIndexDescr(types, args, jg)>)";    
     } else
         fail;
 }   
@@ -263,7 +234,7 @@ JCode transPrim("join", AType r, [AType a, AType b], [str x, str y], JGenie jg) 
 // ----less -------------------------------------------------------------------
 
 JCode transPrim("less", abool(), [abool(), abool()], [str x, str y], JGenie jg)          = "abool_less_abool(<x>,<y>)"; 
-JCode transPrim("less", AType r, [AType a, AType b], [str x, str y], JGenie jg)          = "<getOuter(a)>_less_<getOuter(b)>(<cast(a,x)>,<cast(b,y)>)"     when isArithType(a), isArithType(b);
+JCode transPrim("less", AType r, [AType a, AType b], [str x, str y], JGenie jg)          = "<getOuter(a)>_less_<getOuter(b)>(<castArg(a,x)>,<castArg(b,y)>)"     when isArithType(a), isArithType(b);
 JCode transPrim("less", abool(), [astr(), astr()], [str x, str y], JGenie jg)            = "astr_less_astr(<x>,<y>)";  
 JCode transPrim("less", abool(), [adatetime(), adatetime()], [str x, str y], JGenie jg)  = "adatetime_less_adatetime(<x>,<y>)"; 
 JCode transPrim("less", abool(), [aloc(), aloc()], [str x, str y], JGenie jg)            = "aloc_less_aloc(<x>,<y>)"; 
@@ -279,7 +250,7 @@ JCode transPrim("less", abool(), [AType a, AType b], [str x, str y], JGenie jg) 
 // ---- lessequal -------------------------------------------------------------
 
 JCode transPrim("lessequal", abool(), [abool(), abool()], [str x, str y], JGenie jg)     = "abool_lessequal_abool(<x>,<y>)"; 
-JCode transPrim("lessequal", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "<getOuter(a)>_lessequal_<getOuter(b)>(<x>,<y>)"     when isArithType(a), isArithType(b);
+JCode transPrim("lessequal", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "<getOuter(a)>_lessequal_<getOuter(b)>(<castArg(a,x)>,<castArg(b,y)>)"     when isArithType(a), isArithType(b);
 JCode transPrim("lessequal", abool(), [astr(), astr()], [str x, str y], JGenie jg)       = "astr_lessequal_astr(<x>,<y>)";  
 JCode transPrim("lessequal", abool(), [adatetime(), adatetime()], [str x, str y], JGenie jg)  
                                                                                          = "adatetime_lessequal_adatetime(<x>,<y>)"; 
@@ -324,7 +295,7 @@ JCode transPrim("open_string_writer", AType r, [], [], JGenie jg)               
 
 // ---- product ---------------------------------------------------------------
 
-JCode transPrim("product", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "<getOuter(a)>_product_<getOuter(b)>(<x>,<y>)"     when isArithType(a), isArithType(b);
+JCode transPrim("product", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "<getOuter(a)>_product_<getOuter(b)>(<castArg(a,x)>,<castArg(b,y)>)"     when isArithType(a), isArithType(b);
 JCode transPrim("product", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "alist_product_alist(<x>,<y>)"   when isListLikeType(a), isListLikeType(b);
 JCode transPrim("product", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "aset_product_aset(<x>,<y>)"     when isSetLikeType(a), isSetLikeType(b);
 
@@ -415,14 +386,14 @@ JCode transPrim("splice_set", AType r, [AType a, AType b],  [str w, str v], JGen
     
 list[str] transPrimArgs("subscript", AType r, [AType a, aint()], [MuExp x, MuExp y], JGenie jg)  
                                                                                 = [ trans(x,jg), trans2NativeInt(y,jg) ] 
-                                                                                  when isListLikeType(a) || (a == astr()) || isTupleType(a) || 
+                                                                                  when isListOnlyType(a) || (a == astr()) || isTupleType(a) || 
                                                                                        isNodeType(a) || isADTType(a);   
 JCode transPrim("subscript", AType r, [astr(), aint()], [str x, str y], JGenie jg)       = "astr_subscript_int(<x>,<y>)";
 JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = "((<atype2javatype(r)>)atuple_subscript_int(<x>,<y>))" when isTupleType(a);
 JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = "anode_subscript_int(<x>,<y>)" when isNodeType(a);
 JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = "((<atype2javatype(r)>)aadt_subscript_int(<x>,<y>))" when isADTType(a);
 
-JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "((<atype2javatype(r)>)<x>.get(<y>))" when isListLikeType(a);
+JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "((<atype2javatype(r)>)<x>.get(<y>))" when isListOnlyType(a);
 JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "((<atype2javatype(r)>)<x>.get(<y>))" when isMapType(a);
 
 JCode transPrim("subscript", AType r, [AType a, *AType types], [str x, *str args], JGenie jg) {
@@ -430,11 +401,20 @@ JCode transPrim("subscript", AType r, [AType a, *AType types], [str x, *str args
         n = size(elemTypes);
         if(n == 2 && !jg.isWildCard(args[0])){
             return isSetLikeType(types[0])  ? "((<atype2javatype(r)>)arel2_subscript1_aset(<x>,<args[0]>))"
-                                        : "((<atype2javatype(r)>)arel_subscript1_noset(<x>,<args[0]>))" ;
+                                            : "((<atype2javatype(r)>)arel_subscript1_noset(<x>,<args[0]>))" ;
         } else if(size(args) == 1 && !jg.isWildCard(args[0]) && !isSetLikeType(types[0])){
             return "((<atype2javatype(r)>)arel_subscript1_noset(<x>,<args[0]>))";
         }
         return "((<atype2javatype(r)>)arel_subscript(<x>,<makeIndex(args)>,<makeIndexDescr(types, args, jg)>))";    
+    } else if(alrel(atypeList(list[AType] elemTypes)) := a){
+        n = size(elemTypes);
+        if(n == 2 && !jg.isWildCard(args[0])){
+            return isSetLikeType(types[0])  ? "((<atype2javatype(r)>)alrel2_subscript1_aset(<x>,<args[0]>))"
+                                            : "((<atype2javatype(r)>)alrel_subscript1_noset(<x>,<args[0]>))" ;
+        } else if(size(args) == 1 && !jg.isWildCard(args[0]) && !isSetLikeType(types[0])){
+            return "((<atype2javatype(r)>)alrel_subscript1_noset(<x>,<args[0]>))";
+        }
+        return "((<atype2javatype(r)>)alrel_subscript(<x>,<makeIndex(args)>,<makeIndexDescr(types, args, jg)>))";    
     } else
         fail;
 }      

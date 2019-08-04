@@ -166,14 +166,14 @@ str atype2IValue1(at:amap(AType d, AType r), map[AType, set[AType]] defs)
     = "amap(<atype2IValue(d, defs)>,<atype2IValue(r, defs)><lab2(at)>)"; // TODO: complete from here
 
 str atype2IValue1(at:afunc(AType ret, list[AType] formals, list[Keyword] kwFormals), map[AType, set[AType]] defs)
-    = "<atype2IValue(ret)>_<intercalate("_", [atype2IValue(f) | f <- formals])>";
+    = "<atype2IValue(ret, defs)>_<intercalate("_", [atype2IValue(f,defs) | f <- formals])>";
 str atype2IValue1(at:anode(list[AType fieldType] fields), map[AType, set[AType]] defs) 
     = "anode(<lab(at)>)";
 str atype2IValue1(at:aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole), map[AType, set[AType]] defs)
     = "aadt(<value2IValue(adtName)>, <atype2IValue(parameters,defs)>, <getName(syntaxRole)>)";
 str atype2IValue1(at:acons(AType adt, list[AType fieldType] fields, lrel[AType fieldType, Expression defaultExp] kwFields), map[AType, set[AType]] defs)
     = "acons(<atype2IValue(adt, defs)>, <atype2IValue(fields, defs)>, <atype2IValue(kwFields,defs)><lab2(at)>)";
-str atype2IValue1(overloadedAType(rel[loc, IdRole, AType] overloads)){
+str atype2IValue1(overloadedAType(rel[loc, IdRole, AType] overloads), map[AType, set[AType]] defs){
     resType = avoid();
     formalsType = avoid();
     for(<def, idrole, tp> <- overloads){
@@ -181,11 +181,11 @@ str atype2IValue1(overloadedAType(rel[loc, IdRole, AType] overloads)){
         formalsType = alub(formalsType, atypeList(getFormals(tp)));
     }
     ftype = atypeList(atypes) := formalsType ? afunc(resType, formalsType.atypes, []) : afunc(resType, [formalsType], []);
-    return atype2IValue(ftype);
+    return atype2IValue(ftyp, defs);
 }
 
 str atype2IValue1(at:aparameter(str pname, AType bound), map[AType, set[AType]] defs)
-    = "aparameter(<atype2IValue(bound)>)"; 
+    = "aparameter(<atype2IValue(bound,defs)>)"; 
 str atype2IValue1(at:aprod(AProduction production), map[AType, set[AType]] defs) 
     = "aprod(<tree2IValue(production, defs)>)";
 str atype2IValue1(at:areified(AType atype), map[AType, set[AType]] definitions) 
@@ -274,7 +274,7 @@ str tree2IValue1(cycle(AType asymbol, int cycleLength), map[AType, set[AType]] d
     = "cycle(<atype2IValue(asymbol, defs)>, <value2IValue(cycleLength)>)";
 
 str tree2IValue1(amb(set[Tree] alternatives), map[AType, set[AType]] defs)
-    = "amb(<tree2IValue(alternatives)>)";
+    = "amb(<tree2IValue(alternatives,defs)>)";
  
 str tree2IValue1(char(int character), map[AType, set[AType]] defs)
     = "tchar(<value2IValue(character)>)";
@@ -328,7 +328,7 @@ str atype2IValue1(AType::cilit(str string), map[AType, set[AType]] defs)
     = "cilit(<value2IValue(string)>)";
 
 str atype2IValue1(AType::\char-class(list[ACharRange] ranges), map[AType, set[AType]] defs)
-    = "char_class(<tree2IValue(ranges)>)";    
+    = "char_class(<tree2IValue(ranges, defs)>)";    
  
 str atype2IValue1(AType::\empty(), map[AType, set[AType]] defs)
     = "empty()";     

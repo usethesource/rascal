@@ -158,8 +158,9 @@ public data MuExp =
           // Get and assign values
           
           | muAssign(MuExp var, MuExp exp)                      // Assign a value to a variable
-          | muVarInit(MuExp var, MuExp exp)                     // Assign a value to a variable
+          | muVarInit(MuExp var, MuExp exp)                     // Introduce variable and assign a value to it
           | muConInit(MuExp var, MuExp exp)                     // Create a constant
+          | muVarDecl(MuExp var)                                 // Introduce a variable
           
           | muGetAnno(MuExp exp, AType resultType, str annoName)
           | muGuardedGetAnno(MuExp exp, AType resultType, str annoName)
@@ -317,11 +318,15 @@ bool endsWithReturn(muThrow(_,_)) = true;
 bool endsWithReturn(muBlock([*exps1, exp2])) = true when endsWithReturn(exp2);
 bool endsWithReturn(muValueBlock(AType t, [*exps1, exp2])) = true when endsWithReturn(exp2);
 bool endsWithReturn(muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart)) = true when endsWithReturn(thenPart), endsWithReturn(elsePart);
+bool endsWithReturn( muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, bool useConcreteFingerprint)) = true
+    when all(c <- cases, endsWithReturn(c.exp)), endsWithReturn(defaultExp);
 //bool endsWithReturn(muDoWhile(str label, MuExp body, muCon(false))) = endsWithReturn(body);
 //bool endsWithReturn(muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body)) = endsWithReturn(body);
 //bool endsWithReturn(muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp last, MuExp exp)) = endsWithReturn(exp);
 //bool endsWithReturn(muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp exp)) = endsWithReturn(exp);
 bool endsWithReturn(muEnter(str label, MuExp body)) = endsWithReturn(body);
+bool endsWithReturn(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) = true when endsWithReturn(exp), endsWithReturn(\catch);
+bool endsWithReturn(muCatch(MuExp thrown_as_exception, MuExp thrown, MuExp body)) = true when endsWithReturn(body);
 default bool endsWithReturn(MuExp exp) = false;
 
 bool isLoop(muDoWhile(str label, MuExp body, muCon(false))) = true;
@@ -350,6 +355,11 @@ MuExp muBlock([*MuExp pre, muValueBlock(AType t, list[MuExp] elems), *MuExp post
     
 MuExp muBlock([*MuExp pre, MuExp exp, *MuExp post]){
     if(!isEmpty(post) &&/* !isLoop(exp) &&*/ endsWithReturn(exp)) return muBlock([*pre, exp]);
+    fail;
+}
+
+MuExp muBlock([*MuExp pre, MuExp exp, muFailReturn(AType t), *MuExp post]){
+    if(endsWithReturn(exp)) return muBlock([*pre, exp]);
     fail;
 }
 
@@ -452,7 +462,15 @@ MuExp muReturn1(AType t, muThrow(MuExp exp, loc src))
     
 // ---- muThrow ---------------------------------------------------------------
 
+// ---- muConInit -------------------------------------------------------------
 
+MuExp muConInit(MuExp var, muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart))
+    = muBlock([muVarDecl(var), muIfExp(cond, muAssign(var, thenPart), muAssign(var, elsePart))]);
+    
+// ---- muVarInit -------------------------------------------------------------
+
+MuExp muVarInit(MuExp var, muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart))
+    = muBlock([muVarDecl(var), muIfExp(cond, muAssign(var, thenPart), muAssign(var, elsePart))]);
     
 // ---- muAssign --------------------------------------------------------------
 
@@ -492,13 +510,24 @@ MuExp muConInit(MuExp var, muValueBlock(AType t, [*MuExp exps, MuExp exp]))
 
 MuExp muVarInit(MuExp var, muValueBlock(AType t, [*MuExp exps, MuExp exp]))
     = muBlock([*exps, muVarInit(var, exp)]);
+    
+// ---- muIfthen ---------------------------------------------------------------
+    
+MuExp muIfthen(muCon(true), MuExp thenPart) = thenPart;
+
+MuExp muIfthen(muCon(false), MuExp thenPart) = muBlock([]);
 
 // ---- muIfExp ---------------------------------------------------------------
+
 MuExp muIfExp(MuExp cond, MuExp thenPart, muFailReturn(AType t))
     = muIfelse(cond, thenPart, muFailReturn(t));
     
 MuExp muIfExp(muValueBlock(AType t, [*MuExp exps, MuExp exp]), MuExp thenPart, MuExp elsePart)
     = muValueBlock(t, [*exps, muIfExp(exp, thenPart, elsePart)]);
+    
+MuExp muIfExp(muCon(true), MuExp thenPart, MuExp elsePart) = thenPart;
+
+MuExp muIfExp(muCon(false), MuExp thenPart, MuExp elsePart) = elsePart;
 
 // ---- muIfelse --------------------------------------------------------------
 
@@ -628,10 +657,16 @@ MuExp muThrow(muValueBlock(AType t, list[MuExp] exps), loc src)
 
 
 //muTry
-//muGetField(str kind, AType consType, MuExp exp, str fieldName)
-//muKwpGetField(str kind, AType consType, MuExp exp, str fieldName)
-//muSetField(str kind, AType atype, MuExp exp1, str fieldName, MuExp exp2)
-  
+
+MuExp muGetField(AType resultType, AType baseType, muValueBlock(AType t, [*MuExp pre, MuExp last]), str fieldName)
+    = muValueBlock(resultType, [*pre, muGetField(resultType, baseType, last, fieldName)]);
+
+
+MuExp muKwpGetField(AType resultType, AType baseType, muValueBlock(AType t, [*MuExp pre, MuExp last]), str fieldName)
+   = muValueBlock(resultType, [*pre, muKwpGetField(resultType, baseType, last, fieldName)]);
+
+MuExp muSetField(AType resultType, AType baseTtype, muValueBlock(AType t, [*MuExp pre, MuExp last]), value fieldIdentity, MuExp repl)
+   = muValueBlock(resultType, [*pre, muSetField(resultType, baseType, last, fieldIdentity, repl)]);
 
 MuExp muValueIsSubType(MuExp exp, AType tp) = muCon(true) when !isVarOrTmp(exp) && exp has atype && exp.atype == tp;
 

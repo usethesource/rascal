@@ -249,7 +249,7 @@ MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `for ( <{Ex
 // -- if then statement ----------------------------------------------
 
 MuExp translateConds(list[Expression] conds, MuExp trueCont, MuExp falseCont){
-     btscope = nextTmp("BT_OUTER");
+    btscope = nextTmp("BT_OUTER");
     return translateConds(btscope, conds, trueCont, falseCont);
 }
 
@@ -279,10 +279,11 @@ MuExp updateBTScope(MuExp exp, str fromScope, str toScope)
 
 MuExp translate((Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement>`) {
     ifname = getLabel(label, "IF");
+    btfree = all(Expression c <- conditions, backtrackFree(c));
     enterBacktrackingScope(ifname);
     code = translateCondsAsStat(ifname, [c | Expression c <- conditions], translate(thenStatement), muBlock([]));
-    leaveBacktrackingScope();
-    return code;
+    leaveBacktrackingScope(ifname);
+    return btfree ? code : muEnter(ifname, code);
 }
 
 MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `if (<{Expression ","}+ conditions> ) { <Statement* preStats> <StringMiddle body> <Statement* postStats> }`){

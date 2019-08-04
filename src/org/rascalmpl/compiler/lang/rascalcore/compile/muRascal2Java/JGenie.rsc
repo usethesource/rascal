@@ -126,7 +126,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                     if(containedIn(def.defined, currentModuleScope)){
                         return startsWith(baseName, "$CLOSURE") ? baseName : "$me.<baseName>_<descriptor>";
                     } else {
-                        return startsWith(baseName, "$CLOSURE") ? baseName : "<getImportedModuleName(def.defined)>.<baseName>";
+                        return startsWith(baseName, "$CLOSURE") ? baseName : "<getImportedModuleName(def.defined)>.<baseName>_<descriptor>";
                     }
                  }
              }
@@ -166,18 +166,8 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
     }
     
     list[MuExp] _getExternalVars(loc src){
-        return containedIn(src, currentModuleScope) ? fun2externals[src] : [];
-    
-        //extVarDefs = {};
-        //for(mname <- tmodels){
-        //    tm = tmodels[mname];
-        //    useDef = tm.useDef;
-        //    definitions = tm.definitions;
-        //    for(<u, d> <- useDef, containedIn(u, src), definitions[d]?, Define def := definitions[d], def.idRole == variableId(), !containedIn(def.scope, src)){
-        //        extVarDefs += <def.id, d>;
-        //    }
-        //}
-        //return sort(toList(extVarDefs));
+        evars = containedIn(src, currentModuleScope) ? fun2externals[src] : [];
+        return [var | var <- evars, var.pos >= 0 ];
     }
     
     bool _isDefinedInCurrentFunction(MuExp var){

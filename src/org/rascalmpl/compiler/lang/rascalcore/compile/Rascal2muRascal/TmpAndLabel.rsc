@@ -1,6 +1,7 @@
 @bootstrapParser
 module lang::rascalcore::compile::Rascal2muRascal::TmpAndLabel
 
+import IO;
 import List;
 import lang::rascalcore::check::AType;
 import lang::rascal::\syntax::Rascal;
@@ -102,10 +103,12 @@ void leaveLoop(){
 private list[str] backtrackingScopes = [];	// *** state
 
 void enterBacktrackingScope(str name){
+  println("enterBacktrackingScope: <name>; <backtrackingScopes>");
   backtrackingScopes = name + backtrackingScopes;
 }
 
 str currentBacktrackingScope(){
+println("currentBacktrackingScope: <backtrackingScopes>");
   return top(backtrackingScopes);
 }
 
@@ -113,7 +116,17 @@ bool haveEnteredBacktrackingScope(str name)
     = name in backtrackingScopes;
 
 void leaveBacktrackingScope(){
-  backtrackingScopes = tail(backtrackingScopes);
+ // backtrackingScopes = tail(backtrackingScopes);
+}
+
+void leaveBacktrackingScope(str name){
+  println("leaveBacktrackingScope: <name>; <backtrackingScopes>");
+  if(backtrackingScopes[0] == name){
+    backtrackingScopes = tail(backtrackingScopes);
+  } else {
+    backtrackingScopes = tail(backtrackingScopes);
+    leaveBacktrackingScope(name);
+  }
 }
 
 str getLabel(Label label) =
