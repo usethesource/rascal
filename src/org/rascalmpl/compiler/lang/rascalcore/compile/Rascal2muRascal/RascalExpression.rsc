@@ -1514,24 +1514,38 @@ MuExp translateBool(e:(Expression) `<Pattern pat> \<- <Expression exp>`, str bts
 // -- and expression ------------------------------------------------
 
 MuExp translate(Expression e:(Expression) `<Expression lhs> && <Expression rhs>`) {
-    if(backtrackFree(e)){
+    if(backtrackFree(lhs) || backtrackFree(rhs)){
         return muIfExp(translate(lhs), translate(rhs), muCon(false));
     }
     
-    btscopeL = nextTmp("AND_L");
-    btscopeR = nextTmp("AND_R");
-    enterBacktrackingScope(btscopeR);
-    codeR = muEnter(btscopeR, translateBool(rhs, btscopeR, muSucceed(btscopeR), muFail(btscopeR)));
-      leaveBacktrackingScope();
-    enterBacktrackingScope(btscopeL);  
-    code = muEnter(btscopeL, translateBool(lhs, btscopeL, codeR, muFail(btscopeL)));
+    btscope = nextTmp("AND");
+    enterBacktrackingScope(btscope);
+    code = muEnter(btscope, translateBool(lhs, btscope, 
+                                               translateBool(rhs, btscope, muSucceed(btscope), muFail(btscope)), 
+                                               muFail(btscope)));
     leaveBacktrackingScope();
+    
+    //if(backtrackFree(e)){
+    //    return muIfExp(translate(lhs), translate(rhs), muCon(false));
+    //}
+    //
+    //btscopeL = nextTmp("AND_L");
+    //btscopeR = nextTmp("AND_R");
+    //enterBacktrackingScope(btscopeR);
+    //codeR = muEnter(btscopeR, translateBool(rhs, btscopeR, muSucceed(btscopeR), muFail(btscopeR)));
+    //leaveBacktrackingScope();
+    //enterBacktrackingScope(btscopeL);  
+    //code = muEnter(btscopeL, translateBool(lhs, btscopeL, codeR, muFail(btscopeL)));
+    //leaveBacktrackingScope();
+    
+    // Oldest
     //btscope = nextTmp("AND");
     //enterBacktrackingScope(btscope);
     //code = muEnter(btscope, translateBool(lhs, btscope, 
     //                                           translateBool(rhs, btscope, muSucceed(btscope), muFail(btscope)), 
     //                                           muFail(btscope)));
     //leaveBacktrackingScope();
+    
     return code;    
 }
 
@@ -1603,7 +1617,7 @@ MuExp translate((Expression) `<Expression condition> ? <Expression thenExp> : <E
 MuExp translateBool((Expression) `<Expression condition> ? <Expression thenExp> : <Expression elseExp>`, str btscope, MuExp trueCont, MuExp falseCont)
     = translateBool(condition, "", muBlock([translate(thenExp), trueCont]),  muBlock([translate(elseExp), falseCont]));
 
-// -- any other expression (should not happn) ------------------------
+// -- any other expression (should not happen) ------------------------
 
 default MuExp translate(Expression e) {
 	btscope = nextTmp("EXP");
@@ -1635,6 +1649,8 @@ bool backtrackFree(Expression e){
         return false;
     case (Expression) `<Pattern pat> !:= <Expression exp>`:
         return false;
+    case (Expression) `!<Expression exp>`:
+        return backtrackFree(exp);
     case (Expression) `<Expression e1> || <Expression e2>`:
         return backtrackFree(e1) && backtrackFree(e2);
     case (Expression) `<Expression e1> && <Expression e2>`:

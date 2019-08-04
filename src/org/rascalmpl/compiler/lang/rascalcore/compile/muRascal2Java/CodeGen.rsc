@@ -48,11 +48,13 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
     bool hasMainFunction = false;
     str mainName = "main";
     AType mainType = avoid();
+    MuFunction mainFunction;
     for(f <- m.functions){
         if(startsWith(f.qname, "main_")) {
             hasMainFunction = true;
-                mainType = f.ftype;
-                mainName = f.qname;
+            mainFunction = f;
+            mainType = f.ftype;
+            mainName = f.qname;
         }
         jg.addExternalVars(f.externalVars);
     }
@@ -62,7 +64,7 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
     interfaceName = "$<className>"; //module2interface(m.name);
     
     module_variables  = "<for(var <- m.module_variables){>
-                        '<trans(var, jg)><}>";
+                        'static <trans(var, jg)><}>";
                        
     functions         = "<for(f <- m.functions){>
                         '<trans(f, jg)>
@@ -90,7 +92,7 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
     module_ext_inits  = "<for(ext <- m.extends){>
                         '<module2field(ext)> = <module2class(ext)>.extend<getBaseClass(ext)>(this);
                         '<}>";
-    
+    iprintln(m.initialization);
     class_constructor = "public <className>(){
                         '    this(new ModuleStore());
                         '}
@@ -104,15 +106,18 @@ tuple[JCode, JCode, JCode] muRascal2Java(MuModule m, map[str,TModel] tmodels, ma
                         '   <module2field(ext)> = new <getBaseClass(ext)>(store);
                         '   <}>
                         '   <kwpDecls>
-                        '   <for(exp <- m.initialization){><trans(exp, jg)><}>
+                        '   <for(muVarInit(var, exp) <- m.initialization){><var.name> = <trans(exp, jg)>;
+                        '   <}>
                         '}";
-                     
-                        
-    main_method       = hasMainFunction ? (mainType.ret == avoid() ? "public static void main(String[] args) {
-                                                                    'new <className>().<mainName>();
+    externalArgs = "";                 
+    if(hasMainFunction && !isEmpty(mainFunction.externalVars)){
+      externalArgs = intercalate(", ", [ "new ValueRef\<<jtype>\>(<var.name>)" | var <- sort(mainFunction.externalVars), var.pos >= 0, jtype := atype2javatype(var.atype)]);
+    }              
+    main_method       = hasMainFunction ? (mainFunction.ftype.ret == avoid() ? "public static void main(String[] args) {
+                                                                    'new <className>().<mainName>(<externalArgs>);
                                                                     '}"
                                                                   : "public static void main(String[] args) {
-                                                                    'IValue res = new <className>().<mainName>(); 
+                                                                    'IValue res = new <className>().<mainName>(<externalArgs>); 
                                                                     'if(res == null) throw new RuntimeException(\"Main function failed\"); else System.out.println(res);
                                                                     '}")
                                         : "public static void main(String[] args) {
@@ -183,7 +188,7 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
            'import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.*;
            '
            'class <className>Test extends org.rascalmpl.core.library.lang.rascalcore.compile.runtime.$RascalModule {
-           '    $<className> $me;
+           '    <className> $me;
            '    static final TypeFactory $TF = TypeFactory.getInstance();
            '    static final GenerateActuals generator = new GenerateActuals(5, 5, 10);
        
@@ -192,11 +197,11 @@ str generateTestClass(str packageName, str className, list[MuFunction] functions
            '        $me = store.importModule(<className>.class, <className>::new);                       
            '    }
            '    <for(f <- functions){>
-           '    <generateTestMethod(f, jg)><}>
+           '    <generateTestMethod(f, className, jg)><}>
            '}\n";
 }
 
-str generateTestMethod(MuFunction f, JGenie jg){
+str generateTestMethod(MuFunction f, str className, JGenie jg){
     if("test" notin f.modifiers) return "";
     
     test_name = getJavaName(f.uqname);
@@ -209,17 +214,22 @@ str generateTestMethod(MuFunction f, JGenie jg){
                'void <test_name_uniq>(){ }\n";
     }
     fun_name = jg.getAccessor(f.src); //"<test_name>_<f.src.begin.line>_<f.src.end.line>";
+    
+    externalArgs = "";                 
+    if(!isEmpty(f.externalVars)){
+      externalArgs = intercalate(", ", [ "new ValueRef\<<jtype>\>(<className>.<var.name>)" | var <- sort(f.externalVars), var.pos >= 0, jtype := atype2javatype(var.atype)]);
+    }  
     if(isEmpty(formals)){
         if(isEmpty(expected)){
             return "@Test
                    'void <test_name_uniq>(){
-                   '   assertTrue(<fun_name>().getValue());
+                   '   assertTrue(<fun_name>(<externalArgs>).getValue());
                    '}\n";
         } else {
             return "@Test
                    'void <test_name_uniq>(){
                    '    try {
-                   '        <fun_name>();
+                   '        <fun_name>(<externalArgs>);
                    '    } catch (RascalException e) {
                    '        if(((IConstructor) e.getValue()).getConstructorType() == RascalExceptionFactory.<expected>) {
                    '            assertTrue(true);
@@ -233,6 +243,9 @@ str generateTestMethod(MuFunction f, JGenie jg){
     }
     types = "new Type[] {<intercalate(", ", [atype2typestore(tp) | tp <- formals])>}";
     actuals = intercalate(", ", ["args[<i>]" | i <- index(formals)]) + ", Collections.emptyMap()";
+    if(!isEmpty(externalArgs)){
+        actuals += ", " + externalArgs;
+    }
     if(isEmpty(expected)){
         return "@TestFactory
                'Stream\<DynamicTest\> <test_name_uniq>(){
@@ -651,8 +664,8 @@ JCode trans(MuFunction fun, JGenie jg){
         //argNames = fun.argNames;
         //argTypes = intercalate(", ", ["<atype2javatype(f)> <(f.label? && f.label[0] != "$") ? "<f.label>_<i>" : "$<i>">" | i <- index(ftype.formals), f := ftype.formals[i]]);
         if(!isEmpty(fun.externalVars)){
-            ext_actuals = intercalate(", ", ["ValueRef\<<atype2javatype(v.atype)>\> <varName(v, jg)>" | v <- fun.externalVars]);
-            argTypes = isEmpty(formals) ? ext_actuals : "<argTypes>, <ext_actuals>";
+            ext_actuals = intercalate(", ", ["ValueRef\<<atype2javatype(var.atype)>\> <varName(var, jg)>" | var <- fun.externalVars, var.pos >= 0]);
+            argTypes = isEmpty(formals) ? ext_actuals : (isEmpty(ext_actuals) ? argTypes : "<argTypes>, <ext_actuals>");
         }
         kwpActuals = "java.util.Map\<String,IValue\> $kwpActuals";
         kwpDefaults = fun.kwpDefaults;
@@ -794,7 +807,7 @@ str varName(muVar(str name, str fuid, int pos, AType atype), JGenie jg)
     = (name[0] != "$") ? "<name><(pos >= 0) ? "_<pos>" : "">" : name;
         
 JCode trans(var:muVar(str name, str fuid, int pos, AType atype), JGenie jg)
-    = jg.isExternalVar(var) ? "<varName(var, jg)>.value" : varName(var, jg);
+    = jg.isExternalVar(var) && pos >= 0 ? "<varName(var, jg)>.value" : varName(var, jg);
 
 // ---- muTmpIValue -----------------------------------------------------------------
 
@@ -803,13 +816,34 @@ JCode trans(var: muTmpIValue(str name, str fuid, AType atype), JGenie jg)
     
 JCode trans(var: muTmpNative(str name, str fuid, NativeKind nkind), JGenie jg)
     = jg.isExternalVar(var) ? "<name>.value" : name;
-    
+  
+// ---- muVarDecl --------------------------------------------------------------
+
+JCode trans(muVarDecl(v: muVar(str name, str fuid, int pos, AType atype)), JGenie jg){
+    jtype = atype2javatype(atype);
+    return jg.isExternalVar(v) ? "ValueRef\<<jtype>\> <varName(v, jg)>;\n"
+                               : "<jtype> <varName(v, jg)>;\n";  
+}
+
+JCode trans(muVarDecl(v: muTmpIValue(str name, str fuid, AType atype)), JGenie jg){
+    jtype = atype2javatype(atype);
+    return jg.isExternalVar(v) ? "ValueRef\<<jtype>\> <name>;\n"
+                               : "<jtype> <name>;\n";
+}
+
+JCode trans(muVarDecl(var: muTmpNative(str name, str fuid, NativeKind nkind)), JGenie jg){
+    <base, ref> = native2ref[nkind];
+    return jg.isExternalVar(var) ? "<ref> <name>;\n"
+                                 : "<base> <name>;\n";
+}
+
+  
 // ---- muVarInit --------------------------------------------------------------
 
 str parens(str code)
     = endsWith(code, ";\n") ? "(<code[0..-2]>)" : "(<code>)";
 
- JCode trans(muVarInit(v: muVar(str name, str fuid, int pos, AType atype), MuExp exp), JGenie jg){
+JCode trans(muVarInit(v: muVar(str name, str fuid, int pos, AType atype), MuExp exp), JGenie jg){
     jtype = atype2javatype(atype);
     return jg.isExternalVar(v) ? "final ValueRef\<<jtype>\> <varName(v, jg)> = new ValueRef\<<jtype>\>(<trans(exp,jg)>);\n"
                                : "<jtype> <varName(v, jg)> = (<jtype>)<parens(trans(exp, jg))>;\n";  
@@ -868,7 +902,8 @@ JCode trans(muConInit(var:muTmpNative(str name, str fuid, NativeKind nkind), MuE
 
 str transWithCast(AType atype, con:muCon(c), JGenie jg) = trans(con, jg);
 
-default str transWithCast(AType atype, MuExp exp, JGenie jg) = "((<atype2javatype(atype)>)<parens(trans(exp, jg))>)";
+default str transWithCast(AType atype, MuExp exp, JGenie jg) 
+    = atype == avoid() ? trans(exp, jg) : "((<atype2javatype(atype)>)<parens(trans(exp, jg))>)";
 
 // ---- muAssign --------------------------------------------------------------
 
@@ -925,18 +960,27 @@ JCode trans(muCall(MuExp fun, AType ftype, list[MuExp] largs), JGenie jg){
          }
          externalVars = jg.getExternalVars(uid);
          if(!isEmpty(externalVars)){
-            actuals += [ varName(var, jg)| var <- externalVars ];
+            actuals += [ varName(var, jg)| var <- externalVars, var.pos >= 0 ];
          }
          idx = findFirst(muFun.qname, "$");
          shortName = muFun.qname[idx+1 .. ];
          return "<shortName>(<intercalate(", ", actuals)>)";
        } else {    
-         actuals += "Collections.emptyMap()";
+         if(!isEmpty(ftype.kwFormals)){
+           if(map[str,value] kwmap := actuals[-1]){
+              actuals = actuals[..-1] + [ trans(val, jg) | kw <- kwmap ];
+              return makeNode(s, actuals[0..-1], keywordParameters = kwmap);
+           } else {
+              throw "muCall: <fun>, no keyword parameters found";
+           }
+         }
+         //actuals += "Collections.emptyMap()";
          externalVars = jg.getExternalVars(uid);
          if(!isEmpty(externalVars)){
-            actuals += [ varName(var, jg)| var <- externalVars ];
+            actuals += [ varName(var, jg)| var <- externalVars, var.pos >= 0 ];
          }
-         return "(<atype2javatype(ftype.ret)>)<jg.getAccessor(uid)>(<intercalate(", ", actuals)>)";
+         call_code = "<jg.getAccessor(uid)>(<intercalate(", ", actuals)>)";
+         return ftype.ret == avoid() ? call_code : "((<atype2javatype(ftype.ret)>)<call_code>)";
        }
     }
     
@@ -975,8 +1019,6 @@ println("muOCall3((<fun>, <ftype>, ..., <src>");
             cst = "(<atype2javatype(ftype)>)";
     }
     return "<open><cst><trans(fun, jg)><close>.call(<intercalate(", ", getActuals(largs, jg))>)";
-  
-    throw "muOCall3: <fun>";
 }
 
 // ---- muKwpGetField ------------------------------------------------------
@@ -991,7 +1033,10 @@ JCode trans(muGetField(AType resultType, aloc(), MuExp exp, str fieldName), JGen
 JCode trans(muGetField(AType resultType, adatetime(), MuExp exp, str fieldName), JGenie jg)
     = "((<atype2javatype(resultType)>) adatetime_get_field(<trans(exp,jg)>, \"<fieldName>\"))";
    // = "((<atype2javatype(resultType)>) adatetime_get_field(<transWithCast(adatetime(), exp,jg)>, \"<fieldName>\"))";
-    
+
+JCode trans(muGetField(AType resultType, anode(_), MuExp exp, str fieldName), JGenie jg)
+    = "((<atype2javatype(resultType)>) anode_get_field(<trans(exp,jg)>, \"<fieldName>\"))";
+        
 JCode trans(muGetField(AType resultType, areified(AType atype), MuExp exp, str fieldName), JGenie jg)
     = "((<atype2javatype(resultType)>) areified_get_field(<trans(exp,jg)>, \"<fieldName>\"))";
 
@@ -1050,7 +1095,15 @@ default JCode trans(muGuardedGetField(AType resultType, AType consType, MuExp co
  }
 
 // ---- muSetField ------------------------------------------------------------
-JCode trans(muSetField(AType resultType, AType baseType, MuExp baseExp, str fieldName, MuExp repl), JGenie jg)
+
+JCode trans(muSetField(AType resultType, aloc(), MuExp baseExp, str fieldName, MuExp repl), JGenie jg)
+    = "aloc_field_update(<trans(baseExp, jg)>, \"<fieldName>\", <trans(repl, jg)>)";
+
+JCode trans(muSetField(AType resultType, adatetime(), MuExp baseExp, str fieldName, MuExp repl), JGenie jg)
+    = "adatetime_field_update(<trans(baseExp, jg)>, \"<fieldName>\", <trans(repl, jg)>)";
+
+    
+default JCode trans(muSetField(AType resultType, AType baseType, MuExp baseExp, str fieldName, MuExp repl), JGenie jg)
     = "<trans(baseExp, jg)>.set(\"<fieldName>\", <trans(repl, jg)>)";
     
 JCode trans(muSetField(AType resultType, AType baseType, MuExp baseExp, int fieldIndex, MuExp repl), JGenie jg)
@@ -1101,7 +1154,8 @@ JCode trans(muReturn0FromVisit(), JGenie jg)
       'return;\n";
 
 str semi(str code)
-    = (endsWith(code, ";") || endsWith(code, ";\n") || endsWith(code, "}") || endsWith(code, "}\n")) ? code : "<code>;";
+    = /[;}][ \n]*/ := code ? code : "<code>;";
+   // = (endsWith(code, ";") || endsWith(code, ";\n") || endsWith(code, "}") || endsWith(code, "}\n")) ? code : "<code>;";
 
 str semi_nl(str code)
     = (endsWith(code, ";") || endsWith(code, ";\n") || endsWith(code, "}") || endsWith(code, "}\n")) ? code : "<code>;\n";
@@ -1479,6 +1533,7 @@ println(exp);
 println(\catch);
 println(\finally);
 finallyCode = trans(\finally, jg);
+println(finallyCode);
     return "try {
                 <trans(exp, jg)>
            '} <trans(\catch, jg)>

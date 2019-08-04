@@ -1,10 +1,29 @@
 module lang::rascalcore::compile::Examples::Tst1
 
-test bool tupleExpressions() {
-    value n = 1; 
-    return int _ := n && str _ := "abc" ;// && tuple[int, str] _ := < n , s >;
-}   
+//int main() { bool b = true; c = b && true; return c ? 1 : 2;; }
 
-value main() = tupleExpressions();  
+//int main() { bool b = [x*,y,*z] := [1,2,3] && true; return 13; }
+ 
+int main() {
+    n = 0;
+    if([*x,y,*z] := [1,2,3])  {
+        n = n + 1;
+       fail;
+    }
+    return n;
+}
 
-      
+//int main() {
+//    n = 0;
+//    if([*x,y,*z] := [1,2,3])  {
+//        n = n + 1;
+//       fail;
+//    }
+//    return n;
+//}
+
+  
+    
+   
+  
+   

@@ -610,6 +610,34 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 	// ---- get_field ---------------------------------------------------------
 
+	public static final IValue anode_get_field(final INode nd, final String fieldName) {
+		if (nd.mayHaveKeywordParameters()){
+			IValue res = nd.asWithKeywordParameters().getParameter(fieldName);
+			if(res != null) {
+				return res;
+			}
+		}
+		if(nd.isAnnotatable()){
+			IValue res =  nd.asAnnotatable().getAnnotation(fieldName);
+			if(res != null) {
+				return res;
+			}
+		}
+		if(nd instanceof IConstructor) {
+			IConstructor c = (IConstructor) nd;
+			if(c.has(fieldName)) {
+				return c.get(fieldName);
+			}
+			if(c.mayHaveKeywordParameters()) {
+				IValue res = c.asWithKeywordParameters().getParameter(fieldName);
+				if(res != null) {
+					return res;
+				}
+			}
+		}
+		throw RascalExceptionFactory.noSuchField(fieldName);
+	}
+
 	public static final IValue aloc_get_field(final ISourceLocation sloc, final String field) {
 		IValue v;
 		switch (field) {
@@ -998,7 +1026,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 
 	// ---- field_update ------------------------------------------------------
 
-	private static ISourceLocation aloc_field_update(final ISourceLocation sloc, final String field, final IValue repl) {		
+	public static ISourceLocation aloc_field_update(final ISourceLocation sloc, final String field, final IValue repl) {		
 		Type replType = repl.getType();
 
 		int iLength = sloc.hasOffsetLength() ? sloc.getLength() : -1;
@@ -2697,6 +2725,8 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			return UNDEFINED;
 		}
 	}
+	
+	// ---- arel_subscript ----------------------------------------------------
 
 	/**
 	 * Subscript of a n-ary rel with a single subscript (no set and unequal to _)
@@ -2839,6 +2869,149 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 		}
 	}
 	
+	// ---- alrel_subscript ---------------------------------------------------
+
+	/**
+	 * Subscript of a n-ary lrel with a single subscript (no set and unequal to _)
+	 */
+
+	public static final IList alrel_subscript1_noset(final IList lrel, final IValue idx) {
+		if(lrel.isEmpty()){
+			return lrel;
+		}
+		return lrel.asRelation().index(idx);
+	}
+		
+	public static final GuardedIValue guarded_alrel_subscript1_noset(final IList lrel, final IValue idx) {
+		try {
+			return  new GuardedIValue(alrel_subscript1_noset(lrel, idx));
+		} catch (Exception e) {
+			return UNDEFINED;
+		}
+	}
+
+	/**
+	 * Subscript of a binary lrel with a single subscript (a set but unequal to _)
+	 */
+	public static final IList alrel2_subscript1_aset(final IList lrel, final ISet idx) {
+		if(lrel.isEmpty()){
+			return lrel;
+		}
+		IListWriter wlist = $VF.listWriter();
+
+		for (IValue v : lrel) {
+			ITuple tup = (ITuple)v;
+
+			if(idx.contains(tup.get(0))){
+				wlist.append(tup.get(1));
+			} 
+		}
+		return wlist.done();
+	}
+		
+	public static final GuardedIValue guarded_alrel2_subscript1_aset(final IList lrel, final ISet idx) {
+		try {
+			return  new GuardedIValue(alrel2_subscript1_aset(lrel, idx));
+		} catch (Exception e) {
+			return UNDEFINED;
+		}
+	}
+
+	/**
+	 * Subscript of an n-ary (n > 2) lrel with a single subscript (a set and unequal to _)
+	 */
+	public static final IList alrel_subscript1_aset(final IList lrel, final ISet index) {
+		if(lrel.isEmpty()){
+			return lrel;
+		}
+		int lrelArity = lrel.getElementType().getArity();		
+
+		IListWriter wlist = $VF.listWriter();
+		IValue args[] = new IValue[lrelArity - 1];
+
+		for (IValue v : lrel) {
+			ITuple tup = (ITuple)v;
+
+			if(index.contains(tup.get(0))){
+				for (int i = 1; i < lrelArity; i++) {
+					args[i - 1] = tup.get(i);
+				}
+				wlist.append($VF.tuple(args));
+			} 
+		}
+		return wlist.done();
+	}
+		
+	public static final GuardedIValue guarded_alrel_subscript1_aset(final IList lrel, final ISet index) {
+		try {
+			return  new GuardedIValue(alrel_subscript1_aset(lrel, index));
+		} catch (Exception e) {
+			return UNDEFINED;
+		}
+	}
+
+	/**
+	 * Subscript of lrel, general case
+	 * subsDesc is a subscript descriptor: an array with integers: 0: noset, 1: set, 2: wildcard
+	 */
+
+	public static final IList alrel_subscript (final IList lrel, final IValue[] idx, final int[] subsDesc) {
+		if(lrel.isEmpty()){
+			return lrel;
+		}
+		int indexArity = idx.length;
+		int lrelArity = lrel.getElementType().getArity();
+
+		IListWriter wlist = $VF.listWriter();
+
+		if(lrelArity - indexArity == 1){	// Return a set
+			allValues:
+				for (IValue v : lrel) {
+					ITuple tup = (ITuple)v;
+					for(int k = 0; k < indexArity; k++){
+						switch(subsDesc[k]){
+						case 0: 
+							if(!tup.get(k).isEqual(idx[k])) continue allValues; 
+							continue;
+						case 1: 
+							if(!(((ISet)idx[k]).contains(tup.get(k)))) continue allValues;
+						}
+					}
+					wlist.append(tup.get(indexArity));
+				}
+		} else {						// Return a relation
+			IValue args[] = new IValue[lrelArity - indexArity];
+			allValues:
+				for (IValue v : lrel) {
+					ITuple tup = (ITuple)v;
+					for(int k = 0; k < indexArity; k++){
+						switch(subsDesc[k]){
+						case 0: 
+							if(!tup.get(k).isEqual(idx[k])) continue allValues; 
+							continue;
+						case 1: 
+							if(!((ISet)idx[k]).contains(tup.get(k))) continue allValues;
+						}
+					}
+
+					for (int i = indexArity; i < lrelArity; i++) {
+						args[i - indexArity] = tup.get(i);
+					}
+					wlist.append($VF.tuple(args));
+				}
+		}
+
+		return wlist.done();
+	}
+		
+	public static final GuardedIValue guarded_alrel_subscript (final IList lrel, final IValue[] idx, final int[] subsDesc) {
+		try {
+			return  new GuardedIValue(alrel_subscript(lrel, idx, subsDesc));
+		} catch (Exception e) {
+			return UNDEFINED;
+		}
+	}
+
 	public static final IValue subject_subscript(final IList lst, final int idx) {
 		return lst.get(idx);
 	}
@@ -2862,7 +3035,6 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 			return ((IString) subject).substring(idx, 1);
 		}
 		throw new RuntimeException("Unsupported subject subscript");
-		
 	}
 
 	// ---- subtract ----------------------------------------------------------
