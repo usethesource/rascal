@@ -396,7 +396,7 @@ JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie 
 JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "((<atype2javatype(r)>)<x>.get(<y>))" when isListOnlyType(a);
 JCode transPrim("subscript", AType r, [AType a, AType b], [str x, str y], JGenie jg)     = "((<atype2javatype(r)>)<x>.get(<y>))" when isMapType(a);
 
-JCode transPrim("subscript", AType r, [AType a, *AType types], [str x, *str args], JGenie jg) {
+default JCode transPrim("subscript", AType r, [AType a, *AType types], [str x, *str args], JGenie jg) {
     if(arel(atypeList(list[AType] elemTypes)) := a){
         n = size(elemTypes);
         if(n == 2 && !jg.isWildCard(args[0])){
@@ -409,12 +409,12 @@ JCode transPrim("subscript", AType r, [AType a, *AType types], [str x, *str args
     } else if(alrel(atypeList(list[AType] elemTypes)) := a){
         n = size(elemTypes);
         if(n == 2 && !jg.isWildCard(args[0])){
-            return isSetLikeType(types[0])  ? "((<atype2javatype(r)>)alrel2_subscript1_aset(<x>,<args[0]>))"
-                                            : "((<atype2javatype(r)>)alrel_subscript1_noset(<x>,<args[0]>))" ;
+            return isSetLikeType(types[0])  ? "alrel2_subscript1_aset(<x>,<args[0]>)"
+                                            : "alrel_subscript1_noset(<x>,<args[0]>)" ;
         } else if(size(args) == 1 && !jg.isWildCard(args[0]) && !isSetLikeType(types[0])){
-            return "((<atype2javatype(r)>)alrel_subscript1_noset(<x>,<args[0]>))";
+            return "alrel_subscript1_noset(<x>,<args[0]>)";
         }
-        return "((<atype2javatype(r)>)alrel_subscript(<x>,<makeIndex(args)>,<makeIndexDescr(types, args, jg)>))";    
+        return "alrel_subscript(<x>,<makeIndex(args)>,<makeIndexDescr(types, args, jg)>))";    
     } else
         fail;
 }      

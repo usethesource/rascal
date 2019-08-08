@@ -108,7 +108,7 @@ void enterBacktrackingScope(str name){
 }
 
 str currentBacktrackingScope(){
-println("currentBacktrackingScope: <backtrackingScopes>");
+  println("currentBacktrackingScope: <backtrackingScopes>");
   return top(backtrackingScopes);
 }
 
@@ -127,6 +127,20 @@ void leaveBacktrackingScope(str name){
     backtrackingScopes = tail(backtrackingScopes);
     leaveBacktrackingScope(name);
   }
+}
+
+MuExp updateBTScope(MuExp exp, str fromScope, str toScope){
+    if(fromScope == toScope) return exp;
+    
+    println("updateBTScope: <fromScope> =\> <toScope>; <exp>");
+    if("IF0" in {fromScope, toScope}){
+        println("IF0");
+    }
+    return visit(exp){
+        //case muSucceed(fromScope) => muSucceed(toScope)
+        case muContinue(fromScope) => muContinue(toScope)
+        case muFail(fromScope) => muFail(toScope)
+    };
 }
 
 str getLabel(Label label) =

@@ -306,7 +306,7 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
                   | i <- index(formalsList),  pname := getParameterName(formalsList, i) 
                   ];
     
-     when_body = returnFromFunction(translateConds(fname, when_conditions, body, muFailReturn(ftype)), ftype, formalVars, isMemo);
+     when_body = returnFromFunction(translateAndConds(fname, when_conditions, body, muFailReturn(ftype)), ftype, formalVars, isMemo);
      params_when_body = ( when_body
                         | translatePat(formalsList[i], getType(formalsList[i]), formalVars[i], fname, it, muFailReturn(ftype), subjectAssigned=hasParameterName(formalsList, i) ) 
                         | i <- reverse(index(formalsList)));

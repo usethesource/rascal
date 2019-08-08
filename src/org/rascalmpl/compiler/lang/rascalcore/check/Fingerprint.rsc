@@ -12,6 +12,8 @@ import ValueIO;
 
 private int fingerprintDefault = 0;
 
+int getFingerprintDefault() = fingerprintDefault;
+
 int fingerprint(Pattern p, AType atype, bool useConcreteFingerprint) {
     fp = fingerprint1(p, atype, useConcreteFingerprint);
     //println("fingerprint(<p>, <useConcreteFingerprint>) = \> <fp>");

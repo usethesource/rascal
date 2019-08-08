@@ -462,54 +462,113 @@ MuExp muReturn1(AType t, muThrow(MuExp exp, loc src))
     
 // ---- muThrow ---------------------------------------------------------------
 
-// ---- muConInit -------------------------------------------------------------
 
-MuExp muConInit(MuExp var, muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart))
-    = muBlock([muVarDecl(var), muIfExp(cond, muAssign(var, thenPart), muAssign(var, elsePart))]);
     
-// ---- muVarInit -------------------------------------------------------------
-
-MuExp muVarInit(MuExp var, muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart))
-    = muBlock([muVarDecl(var), muIfExp(cond, muAssign(var, thenPart), muAssign(var, elsePart))]);
-    
-// ---- muAssign --------------------------------------------------------------
+// ---- muConInit/muVarInit/muConInit -----------------------------------------
 
 MuExp muAssign(MuExp var1, MuExp var2)
     = muBlock([])
       when var2 has name, var1.name == var2.name,var2 has fuid, var1.fuid == var2.fuid, var2 has pos, var1.pos == var2.pos;
 
+// ----
+
+MuExp muConInit(MuExp var, muBlock([*MuExp exps, MuExp exp]))
+    = muBlock([*exps, muConInit(var, exp)]);
+
+MuExp muVarInit(MuExp var, muBlock([*MuExp exps, MuExp exp]))
+    = muBlock([*exps, muVarInit(var, exp)]);
+    
 MuExp muAssign(MuExp var, muBlock([*MuExp exps, MuExp exp]))
     = muBlock([*exps, muAssign(var, exp)]);
-
+    
+// ---- 
+ 
+MuExp muConInit(MuExp var, muValueBlock(AType t, [*MuExp exps, MuExp exp]))
+    = muBlock([*exps, muConInit(var, exp)]);
+    
+MuExp muVarInit(MuExp var, muValueBlock(AType t, [*MuExp exps, MuExp exp]))
+    = muBlock([*exps, muVarInit(var, exp)]);
+    
 MuExp muAssign(MuExp var, muValueBlock(AType t, [*MuExp exps, MuExp exp]))
     = muBlock([*exps, muAssign(var, exp)]);
 
-MuExp muAssign(MuExp var, muForRangeInt(str label, MuExp loopVar, int ifirst, int istep, MuExp last, MuExp exp))
+// ----
+
+MuExp muConInit(MuExp var, muForRangeInt(str label, MuExp loopVar, int ifirst, int istep, MuExp last, MuExp exp))
     = muBlock([ muAssign(var, muCon(false)), muForRangeInt(label, loopVar, ifirst, istep, last, muAssign(var, exp)) ]);
     
+MuExp muVarInit(MuExp var, muForRangeInt(str label, MuExp loopVar, int ifirst, int istep, MuExp last, MuExp exp))
+    = muBlock([ muAssign(var, muCon(false)), muForRangeInt(label, loopVar, ifirst, istep, last, muAssign(var, exp)) ]);
+
+MuExp muAssign(MuExp var, muForRangeInt(str label, MuExp loopVar, int ifirst, int istep, MuExp last, MuExp exp))
+    = muBlock([ muAssign(var, muCon(false)), muForRangeInt(label, loopVar, ifirst, istep, last, muAssign(var, exp)) ]);
+
+// ---- 
+
+MuExp muConInit(MuExp var, muForAll(str label, MuExp loopVar, AType iterType, MuExp iterable, MuExp body))
+    = muBlock([ muVarInit(var, muCon(false)), muForAll(label, loopVar, iterType, iterable, muAssign(var, body)) ]);
+
+MuExp muVarInit(MuExp var, muForAll(str label, MuExp loopVar, AType iterType, MuExp iterable, MuExp body))
+    = muBlock([ muVarInit(var, muCon(false)), muForAll(label, loopVar, iterType, iterable, muAssign(var, body)) ]);   
+
 MuExp muAssign(MuExp var, muForAll(str label, MuExp loopVar, AType iterType, MuExp iterable, MuExp body))
     = muBlock([ muAssign(var, muCon(false)), muForAll(label, loopVar, iterType, iterable, muAssign(var, body)) ]);
     
-MuExp muAssign(var, muEnter(str btscope, MuExp exp))
-    = muEnter(btscope, visit(exp) { case muSucceed(btscope) => muBlock([muAssign(var, muCon(true)), muSucceed(btscope)]) });
- 
-MuExp muAssign(MuExp var, muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart))
-    =  muIfelse(cond, muAssign(var, thenPart), muAssign(var, elsePart));
+// ----    
 
+ MuExp muConInit(var, muEnter(str btscope, MuExp exp))
+    = muBlock([muVarInit(var, muCon(false)), muEnter(btscope, visit(exp) { case muSucceed(btscope) => muBlock([muAssign(var, muCon(true)), muSucceed(btscope)]) })]);
+
+MuExp muVarInit(var, muEnter(str btscope, MuExp exp))
+    = muBlock([muVarInit(var, muCon(false)), muEnter(btscope, visit(exp) { case muSucceed(btscope) => muBlock([muAssign(var, muCon(true)), muSucceed(btscope)]) })]);     
+     
+MuExp muAssign(var, muEnter(str btscope, MuExp exp))
+    = muBlock([muVarInit(var, muCon(false)), muEnter(btscope, visit(exp) { case muSucceed(btscope) => muBlock([muAssign(var, muCon(true)), muSucceed(btscope)]) })]);
+
+// ----
+
+MuExp muConInit(MuExp var, muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart))
+    = muBlock([muVarDecl(var), muIfExp(cond, muAssign(var, thenPart), muAssign(var, elsePart))]);
+
+MuExp muVarInit(MuExp var, muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart))
+    = muBlock([muVarDecl(var), muIfExp(cond, muAssign(var, thenPart), muAssign(var, elsePart))]);   
+
+// ---- 
+
+MuExp muConInit(MuExp var, muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart))
+    =  muBlock([muVarDecl(var), muIfelse(cond, muAssign(var, thenPart), muAssign(var, elsePart))]);
+    
+MuExp muVarInit(MuExp var, muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart))
+    =  muBlock([muVarDecl(var), muIfelse(cond, muAssign(var, thenPart), muAssign(var, elsePart))]);
+    
+MuExp muAssign(MuExp var, muIfelse(MuExp cond, MuExp thenPart, MuExp elsePart))
+    =  muIfelse(cond, muAssign(var, thenPart), muAssign(var, elsePart));   
+         
+// ----
 MuExp muAssign(MuExp var1, muIfEqualOrAssign(MuExp var2, MuExp other, MuExp body))
     = muIfEqualOrAssign(var2, other, muBlock([muAssign(var1, other), body]));
+
+// ----
+
+MuExp muConInit(MuExp var, muSucceed(str btscope))
+    = muBlock([muConInit(var, muCon(true)), muSucceed(btscope)]);
+
+MuExp muVarInit(MuExp var, muSucceed(str btscope))
+    = muBlock([muVarInit(var, muCon(true)), muSucceed(btscope)]);   
     
 MuExp muAssign(MuExp var, muSucceed(str btscope))
     = muBlock([muAssign(var, muCon(true)), muSucceed(btscope)]);
+
+// ----
+
+MuExp muConInt(MuExp var, muFail(btscope))
+    = muBlock([muConInit(var, muCon(false))]);
     
+MuExp muVarInt(MuExp var, muFail(btscope))
+    = muBlock([muVarInit(var, muCon(false))]);   
+     
 MuExp muAssign(MuExp var, muFail(btscope))
     = muBlock([muAssign(var, muCon(false))]);
-    
-MuExp muConInit(MuExp var, muValueBlock(AType t, [*MuExp exps, MuExp exp]))
-    = muBlock([*exps, muConInit(var, exp)]);
-
-MuExp muVarInit(MuExp var, muValueBlock(AType t, [*MuExp exps, MuExp exp]))
-    = muBlock([*exps, muVarInit(var, exp)]);
     
 // ---- muIfthen ---------------------------------------------------------------
     
@@ -537,7 +596,21 @@ MuExp muIfelse(muCon(true), MuExp thenPart, MuExp elsePart) = thenPart;
 MuExp muIfelse(muCon(false), MuExp thenPart, MuExp elsePart) = elsePart;
 
 MuExp muIfelse(muValueBlock(AType t, [*MuExp exps, MuExp exp]), MuExp thenPart, MuExp elsePart)
-    = muBlock([*exps, muIfelse(exp, thenPart, elsePart)]);
+    = muBlock([*exps, muIfelse(exp, thenPart, elsePart)]); 
+
+//MuExp muIfelse(muEnter(str btscope, MuExp exp), MuExp thenPart, MuExp elsePart)
+//    = muIfelse(muEnter(btscope, exp1), thenPart, elsePart)
+//    when exp1 := visit(exp) { case muSucceed(btscope) => muBlock(
+//                              case muFail(btscope) => muCon(false)
+//                            },
+//         exp1 != exp;
+    
+MuExp muReturn1(AType t, muEnter(str btscope, MuExp exp))
+    = muEnter(btscope, addReturnFalse(visit(exp) { case muSucceed(btscope) => muReturn1(abool(), muCon(true))
+                                                   case muFail(btscope) => muReturn1(abool(), muCon(false))
+                                                 }));
+
+// ---- muEnter ---------------------------------------------------------------
 
 MuExp muEnter(str btscope, muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart))
     =  muEnter(btscope, muIfelse(cond, thenPart, elsePart));
@@ -546,9 +619,16 @@ MuExp muEnter(str btscope, muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart))
 MuExp muEnter(str label, muForAll(label, MuExp var, AType iterType, MuExp iterable, MuExp body))
     = muForAll(label, var, iterType, iterable, body);
     
-MuExp muForAll(str label, str varName, str fuid, MuExp iterable, MuExp body)
-    = muForAll(label, varName, fuid, iterable, body1)
-    when body1 := visit(body) { case muSucceed(str btscope) => muSucceed(label) } && body1 != body;
+// ---- muForAll --------------------------------------------------------------
+
+MuExp muForAll(str label, MuExp var, AType iterType, muValueBlock(AType t, [*MuExp exps, MuExp iterable]), MuExp body)
+    =  muValueBlock(iterType, [*exps, muForAll(label, var, iterType, iterable, body)]);
+       
+//MuExp muForAll(str label, str varName, str fuid, MuExp iterable, MuExp body)
+//    = muForAll(label, varName, fuid, iterable, body1)
+//    when body1 := visit(body) { case muSucceed(str btscope) => muSucceed(label) } && body1 != body;
+
+// ---- muRegExpCompile -------------------------------------------------------
  
 MuExp muRegExpCompile(muValueBlock(AType t, [*MuExp exps, MuExp regExp]), MuExp subject)
     = muValueBlock(t, [ *exps, muRegExpCompile(regExp, subject)]);
