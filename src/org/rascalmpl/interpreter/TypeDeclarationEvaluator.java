@@ -22,7 +22,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.rascalmpl.ast.AbstractAST;
 import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.Declaration.Alias;
 import org.rascalmpl.ast.Declaration.Data;
@@ -103,8 +102,14 @@ public class TypeDeclarationEvaluator {
 		
 		// needs to be done just in case the declaration came
 		// from a shell instead of from a module
-		Type adt = declareAbstractDataType(x.getUser(), env, x);
+		Type adt = declareAbstractDataType(x.getUser(), env);
 
+		if (!env.getRoot().getName().equals("ParseTree")) {
+            if (adt.getName().equals("Tree")) {
+                throw new UnsupportedOperation("The Tree data-type from the ParseTree library module is \"final\"; it can not be extended. Please choose another name.", x.getUser());
+            }
+        }
+        
 		List<KeywordFormal> common = x.getCommonKeywordParameters().isPresent() 
 				? x.getCommonKeywordParameters().getKeywordFormalList()
 		        : Collections.<KeywordFormal>emptyList();
@@ -159,7 +164,7 @@ public class TypeDeclarationEvaluator {
 	}
 
 	public void declareAbstractADT(DataAbstract x, Environment env) {
-		Type adt = declareAbstractDataType(x.getUser(), env, x);
+		Type adt = declareAbstractDataType(x.getUser(), env);
 		
 		List<KeywordFormal> common = x.getCommonKeywordParameters().isPresent() 
 				? x.getCommonKeywordParameters().getKeywordFormalList()
@@ -228,7 +233,7 @@ public class TypeDeclarationEvaluator {
 			UserType trial = todo.remove(0);
 			--countdown;
 			try {
-				declareAbstractDataType(trial, env, trial);
+				declareAbstractDataType(trial, env);
 				countdown = todo.size();
 			}
 			catch (UndeclaredType e) {
@@ -242,17 +247,11 @@ public class TypeDeclarationEvaluator {
 		}
 	}
 
-	public Type declareAbstractDataType(UserType decl, Environment env, AbstractAST cur) {
+	public Type declareAbstractDataType(UserType decl, Environment env) {
 		QualifiedName name = decl.getName();
 		if (Names.isQualified(name)) {
 			throw new IllegalQualifiedDeclaration(name);
 		}
-		
-		if (!env.getRoot().getName().equals("ParseTree")) {
-		    if (Names.typeName(name).equals("Tree")) {
-		        throw new UnsupportedOperation("The Tree data-type from the ParseTree library module is \"final\"; it can not be extended. Please choose another name.", cur);
-		    }
-        }
 		
 		return env.abstractDataType(Names.typeName(name), computeTypeParameters(decl, env));
 	}
