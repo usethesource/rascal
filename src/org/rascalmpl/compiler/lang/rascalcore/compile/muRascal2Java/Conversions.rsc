@@ -455,8 +455,8 @@ str atype2istype(str e, aloc())                  = "<e>.getType().isSourceLocati
 str atype2istype(str e, adatetime())             = "<e>.getType().isDateTime()";
 str atype2istype(str e, alist(AType t))          = "<e>.getType().isList()";
 str atype2istype(str e, aset(AType t))           = "<e>.getType().isSet()";
-str atype2istype(str e, arel(AType ts))          = "<e>.getType().isRelation() && ((IRelation)<e>).arity() == <size(ts)>";
-str atype2istype(str e, alrel(AType ts))         = "<e>.getType().isListRelation() && ((IListRelation)<e>).arity() == <size(ts)>";
+str atype2istype(str e, arel(AType ts))          = "<e>.getType().isRelation() && ((IRelation\<ISet\>)<e>).arity() == <size(ts)>";
+str atype2istype(str e, alrel(AType ts))         = "<e>.getType().isListRelation() && ((IRelation\<IList\>)<e>).arity() == <size(ts)>";
 str atype2istype(str e, atuple(AType ts))        = "<e>.getType().isTuple() && ((ITuple)<e>).arity() == <size(ts)>";
 str atype2istype(str e, amap(AType d, AType r))  = "<e>.getType().isMap()";
 
@@ -615,8 +615,8 @@ str value2outertype(tuple[&A,&B,&C,&D,&E,&F,&G,&H,&I] tup) = "ITuple";
 str value2outertype(tuple[&A,&B,&C,&D,&E,&F,&G,&H,&I,&J] tup) = "ITuple";
 
 str value2outertype(amap(AType d, AType r)) = "IMap";
-str value2outertype(arel(AType ts)) = "IRelation";
-str value2outertype(alrel(AType ts)) = "IListRelation";
+str value2outertype(arel(AType ts)) = "IRelation\<ISet\>";
+str value2outertype(alrel(AType ts)) = "IRelation\<IList\>";
 
 str value2outertype(aadt(str adtName, list[AType] parameters, SyntaxRole syntaxRole)) = adtName;
 

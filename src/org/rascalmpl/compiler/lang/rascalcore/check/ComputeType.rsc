@@ -482,7 +482,7 @@ AType computeSubscriptionType(Tree current, AType t1, list[AType] tl, list[Expre
         else if (!isIntType(tl[0]))
             s.report(error(current, "Expected subscript of type int, not %t", tl[0]));
         else
-            return getListElementType(t1);
+            return makeListType(getListElementType(t1));
     } else if (isRelType(t1)) {
         if (size(tl) >= size(getRelFields(t1)))
             s.report(error(current, "For a relation with arity %v you can have at most %v subscripts", size(getRelFields(t1)), size(getRelFields(t1))-1));
