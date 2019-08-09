@@ -38,9 +38,193 @@ test bool shortCircuiting() {
 	catch ArithmeticException(str _): { return false; }
 	}
 
+test bool matchAnonymous(){
+    b = [_] := [1];
+    return b;
+}
+
+test bool matchAnonymousReturn(){
+    return [_] := [1];
+}   
+
+test bool matchTypedAnonymous(){
+    b = [int _] := [1];
+    return b;
+}
+
+test bool matchTypedAnonymousReturn(){
+    return [int _] := [1];
+}
+
+test bool matchVar(){
+    b = [x] := [1];
+    return b;
+}
+
+test bool matchVarReturn(){
+    return [x] := [1];
+}
+
+test bool matchTypedVar(){
+    b = [int x] := [1];
+    return b;
+}
+
+test bool matchTypedVarReturn(){
+    return [int x] := [1];
+}
+
+test bool matchAnonymousListVar1(){
+    b = [_*] := [1];
+    return b;
+}
+  
+test bool matchAnonymousListVar1Return(){
+    return [_*] := [1];
+}
+
+test bool matchAnonymousListVar2(){
+    b = [*_] := [1];
+    return b;
+}
+
+test bool matchAnonymousListVar2Return(){
+    return [*_] := [1];
+}
+
+test bool matchTypedAnonymousListVar(){
+    b = [*int _] := [1];
+    return b;
+}
+
+test bool matchTypedAnonymousListVarReturn(){
+    return [*int _] := [1];
+}
+
+test bool matchListVar1(){
+    b = [x*] := [1];
+    return b;
+}
+
+test bool matchListVar1Return(){
+    return [x*] := [1];
+}
+
+test bool matchListVar2(){
+    b = [*x] := [1];
+    return b;
+}
+
+test bool matchListVar2Return(){
+    return [*x] := [1];
+}
+
+test bool matchTypedListVar(){
+    b = [*int x] := [1];
+    return b;
+}
+
+test bool matchTypedListVarReturn(){
+    return [*int x] := [1];
+}
+
+test bool matchTypedVarAndTrue(){
+    ten = 10;
+    b = [int x] := [1] && ten > 9;
+    return b;
+}
+
+test bool matchTypedVarAndFalse(){
+    ten = 10;
+    b = [int x] := [1] && 9 > ten;
+    return !b;
+}
+
+test bool matchTypedListVarAnd(){
+    ten = 10;
+    b = [*int x] := [1] && ten > 9;
+    return b;
+}
+
+test bool matchTypedListVarAndFalse(){
+    ten = 10;
+    b = [*int x] := [1] && 9 > ten;
+    return !b;
+}
+
+test bool compositeAnd() {
+    ten = 10;
+    b = [*int x, int  y, *int z] := [1,2,3] && ten > 9;
+    return b;
+}
+
+test bool compositeAndFalse() {
+    ten = 10;
+    b = [*int x, int  y, *int z] := [1,2,3] && 9 > ten;
+    return !b;
+}
+
+test bool compositeAndCnt() {
+    n = 0;
+    ten = 10;
+    if( [*int x, int  y, *int z] := [1,2,3] && ten > 9 )  {
+        n = n + 1;
+        fail;
+    }
+    return n == 3;
+}
+
+test bool compositeAndCommaCnt() {
+    n = 0;
+    ten = 10;
+    if( [*int x, int  y, *int z] := [1,2,3] , ten > 9 )  {
+        n = n + 1;
+        fail;
+    }
+    return n == 3;
+}
+
+test bool compositeAndCntBTLast() {
+    ten = 10;
+    return ten > 9 && [*int x, int  y, *int z] := [1,2,3];
+}
+
+test bool compositeAndCntBTLast() {
+    n = 0;
+    ten = 10;
+    if( ten > 9 && [*int x, int  y, *int z] := [1,2,3] )  {
+        n = n + 1;
+        fail;
+    }
+    return n == 3;
+}
+
+test bool compositeAndCommaCntBTLast() {
+    n = 0;
+    ten = 10;
+    if( ten > 9 && [*int x, int  y, *int z] := [1,2,3] )  {
+        n = n + 1;
+        fail;
+    }
+    return n == 3;
+}
+
+test bool compositeAndBothBT() {
+    return [*int x, int  y, *int z] := [1,2,3] && [*int p, int  q, *int r] := [4, 5, 6];
+}
+
+test bool compositeAndBothBTCnt() {
+    n = 0;
+    if( [*int x, int  y, *int z] := [1,2,3] && [*int p, int  q, *int r] := [4, 5, 6] )  {
+        n = n + 1;
+        fail;
+    }
+    return n == 9;
+}
+
 test bool compositeAndOr() {
     n = 0;
-    l = if( ([*int x,*int y] := [1,2,3] && int z := 3) || ([*int x,*int y] := [4,5,6] && int z := 4) )  {
+    if( ([*int x,*int y] := [1,2,3] && int z := 3) || ([*int x,*int y] := [4,5,6] && int z := 4) )  {
         n = n + 1;
         fail;
     }
