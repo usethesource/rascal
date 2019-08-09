@@ -271,7 +271,12 @@ public class JSONReadingTypeVisitor implements
 		    if (offset != -1 && length != -1 && beginLine != -1 && endLine != -1 && beginColumn != -1 && endColumn != -1) {
 		        return vf.sourceLocation(top, offset, length, beginLine, endLine, beginColumn, endColumn);
 		    }
-		    return top;
+		    else if (offset != -1 && length != -1) {
+		        return vf.sourceLocation(top, offset, length);
+		    }
+		    else {
+		        return top;
+		    }
 		} catch (URISyntaxException e) {
 			throw new IOException(e);
 		}
