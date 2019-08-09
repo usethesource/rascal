@@ -240,8 +240,9 @@ test bool emptySetGeneratorError3()  = [ X | int X <- {} ] == [];
   
 test bool emptyListGeneratorError1()  = [ X | int X <- [] ] == [];
   	
-// emptyListGeneratorError
-  
+// emptyListGeneratorError2
+
+@ignoreCompiler{Rejected by type checker}  
 test bool emptyListGeneratorError2()  = [ X |     X <- [] ] == [];
   	
 // listComprehension1
