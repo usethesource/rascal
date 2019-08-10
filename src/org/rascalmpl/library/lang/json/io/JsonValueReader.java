@@ -308,7 +308,7 @@ public class JsonValueReader {
           try {
             String val = in.nextString().trim();
             
-            if (val.startsWith("|") && val.endsWith("|")) {
+            if (val.startsWith("|") && (val.endsWith("|") || val.endsWith(")"))) {
               return new StandardTextReader().read(vf, new StringReader(val));
             }
             else if (val.contains("://")) {
@@ -319,7 +319,7 @@ public class JsonValueReader {
               return vf.sourceLocation(val);
             }
           } catch (URISyntaxException e) {
-            throw new IOException("could not parse URI:" + in.getPath(), e);
+            throw new IOException("could not parse URI:" + in.getPath() + " due to " + e.getMessage(), e);
           }
       }
       
