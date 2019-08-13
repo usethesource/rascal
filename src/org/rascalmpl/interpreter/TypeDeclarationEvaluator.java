@@ -16,11 +16,13 @@
 *******************************************************************************/
 package org.rascalmpl.interpreter;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.rascalmpl.ast.Declaration;
 import org.rascalmpl.ast.Declaration.Alias;
@@ -96,16 +98,17 @@ public class TypeDeclarationEvaluator {
 		return TypeFactory.getInstance().tupleType(kwTypes, kwLabels);
 	}
 	
+	private static List<String> TreeDeclaringModules = Arrays.asList("lang::rascalcore::check::AType", "ParseTree");
+	
 	public void declareConstructor(Data x, Environment env) {
 		TypeFactory tf = TypeFactory.getInstance();
 
-		
 		// needs to be done just in case the declaration came
 		// from a shell instead of from a module
 		Type adt = declareAbstractDataType(x.getUser(), env);
 
-		if (!env.getRoot().getName().equals("ParseTree")) {
-            if (adt.getName().equals("Tree")) {
+		if (adt.getName().equals("Tree")) {
+		    if (!TreeDeclaringModules.contains(env.getRoot().getName())) {
                 throw new UnsupportedOperation("The Tree data-type from the ParseTree library module is \"final\"; it can not be extended. Please choose another name.", x.getUser());
             }
         }
