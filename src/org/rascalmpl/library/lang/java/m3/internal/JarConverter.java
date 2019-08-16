@@ -21,12 +21,15 @@ package org.rascalmpl.library.lang.java.m3.internal;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 
 import org.objectweb.asm.ClassReader;
@@ -61,6 +64,11 @@ public class JarConverter extends M3Converter {
     //---------------------------------------------
     
     /**
+     * Source location of the M3 Jar.
+     */
+    private ISourceLocation uri;
+    
+    /**
      * Physical source location of the current compilation unit. 
      * A .class file is considered as a computational unit.
      */
@@ -81,7 +89,7 @@ public class JarConverter extends M3Converter {
      * Supports URI resolution.
      */
     private URIResolverRegistry registry;
-
+    
     
     //---------------------------------------------
     // Methods
@@ -179,6 +187,7 @@ public class JarConverter extends M3Converter {
      */
     private void createM3(ISourceLocation uri) {
         try {
+            this.uri = uri;
             InputStream inputStream = registry.getInputStream(uri);
             JarInputStream jarStream = new JarInputStream(inputStream);
             JarEntry entry = jarStream.getNextJarEntry();
@@ -223,7 +232,7 @@ public class JarConverter extends M3Converter {
     /**
      * Returns an ASM ClassReader from a compilation unit location 
      * or name. 
-     * @param className - class/comilation unit name/path
+     * @param className - class/comilation unit name/path (<pkg>/<name>)
      * @return ASM ClassReader, null if the compilation unit is not found
      */
     private ClassReader getClassReader(String className) {
@@ -231,10 +240,30 @@ public class JarConverter extends M3Converter {
             return new ClassReader(className);
         }
         catch (Exception e) {
-            return null;
+            return getClassReaderByJarStream(className);
         }
     }
 
+    /**
+     * Returns an ASM ClassReader from a compilation unit location 
+     * or name. It creates a JarStream if the entry is localized inside
+     * the M3 Jar.
+     * @param className - class/comilation unit name/path (<pkg>/<name>)
+     * @return ASM ClassReader, null if the compilation unit is not found
+     */
+    @SuppressWarnings("resource")
+    public ClassReader getClassReaderByJarStream(String className) {
+        try {
+            JarFile jar = new JarFile(uri.getPath());
+            JarEntry entry = new JarEntry(className + ".class");
+            InputStream inputStream = jar.getInputStream(entry);
+            return getClassReader(inputStream);
+        }
+        catch (IOException e) {
+            return null;
+        }
+      }
+    
     /**
      * Returns an ASM ClassReader from an input stream.
      * @param classStream - class/compilation unit input stream 
