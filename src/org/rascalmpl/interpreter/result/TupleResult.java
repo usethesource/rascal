@@ -226,44 +226,54 @@ public class TupleResult extends ElementResult<ITuple> {
 		Type rightType = right.getType();
 		
 		int leftArity = leftType.getArity();
-		int rightArity = rightType.getArity();
-		int newArity = leftArity + rightArity;
+        int rightArity = rightType.getArity();
+        int newArity = leftArity + rightArity;
+        
+        Type fieldTypes[] = new Type[newArity];
+        IValue fieldValues[] = new IValue[newArity];
+        
+        for (int i = 0; i < leftArity; i++) {
+            fieldTypes[i] = leftType.getFieldType(i);
+            fieldValues[i] = left.getValue().get(i);
+        }
+    
+        for(int i = 0; i < rightArity; i++){
+            fieldTypes[leftArity + i] = rightType.getFieldType(i);
+            fieldValues[leftArity + i] = right.getValue().get(i);
+        }
+        
+        ITuple newValue = getValueFactory().tuple(fieldValues);
+        
+		if (leftType.hasFieldNames() && rightType.hasFieldNames()) {
+		    String fieldNames[] = new String[newArity];
+		    boolean consistentLabels = true;
+
+		    for(int i = 0; i < leftArity; i++){
+		        fieldNames[i] = leftType.getFieldName(i);
+		    }
 		
-		Type fieldTypes[] = new Type[newArity];
-		String fieldNames[] = new String[newArity];
-		IValue fieldValues[] = new IValue[newArity];
-		
-		boolean consistentLabels = true;
-		for(int i = 0; i < leftArity; i++){
-			fieldTypes[i] = leftType.getFieldType(i);
-			fieldNames[i] = leftType.getFieldName(i);
-			fieldValues[i] = left.getValue().get(i);
-			consistentLabels &= fieldNames[i] != null;
+		    OUTER:for(int i = 0; i < rightArity; i++){
+		        fieldNames[leftArity + i] = rightType.getFieldName(i);
+
+		        if (consistentLabels) {
+		            for (int j = 0; j < leftArity; j++) {
+		                if (fieldNames[j].equals(fieldNames[leftArity + i])) {
+		                    // duplicate field name, so degenerate to unlabeled tuple
+		                    consistentLabels = false;
+		                    break OUTER;
+		                }
+		            }
+		        }
+		    }
+		    
+		    if (consistentLabels) {
+	            return makeResult(getTypeFactory().tupleType(fieldTypes, fieldNames), newValue, ctx);
+	        }   
+		    
+		    // fall through to normal unlabelled tuple:
 		}
-		
-		for(int i = 0; i < rightArity; i++){
-			fieldTypes[leftArity + i] = rightType.getFieldType(i);
-			fieldNames[leftArity + i] = rightType.getFieldName(i);
-			fieldValues[leftArity + i] = right.getValue().get(i);
-			consistentLabels &= fieldNames[leftArity + i] != null;
-			if (consistentLabels) {
-				for (int j = 0; j < leftArity; j++) {
-					if (fieldNames[j].equals(fieldNames[leftArity + i])) {
-						// duplicate field name, so degenerate to unlabeled tuple
-						consistentLabels = false;
-					}
-				}
-			}
-		}
-		
-		Type newTupleType;
-		if (consistentLabels) {
-			newTupleType = getTypeFactory().tupleType(fieldTypes, fieldNames);
-		}
-		else {
-			newTupleType = getTypeFactory().tupleType(fieldTypes);
-		}
-		return makeResult(newTupleType, getValueFactory().tuple(fieldValues), ctx);
+
+		return makeResult(getTypeFactory().tupleType(fieldTypes), newValue, ctx);
 	}
 	
 	
