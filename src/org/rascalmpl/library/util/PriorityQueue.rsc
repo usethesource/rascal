@@ -54,12 +54,9 @@ module util::PriorityQueue
   * TODO: the value in each pair is now an int but should become &T.
  */
 
-import Exception;
 import util::Math;
 import List;
-import Set;
 import Map;
-import IO;
 
 // Binomial Trees
 
@@ -171,7 +168,7 @@ private PriorityQueue mergeQueue(PriorityQueue p, PriorityQueue q){
     if(isEmpty(qTrees))
     	return p;
     	
-    int fromEnd;   // index of smallest tree from end
+    int fromEnd = -1;   // index of smallest tree from end
     
     if(pTrees[p.minIndex].priority <= qTrees[q.minIndex].priority){
        minPrio = pTrees[p.minIndex].priority;
@@ -203,7 +200,7 @@ private PriorityQueue mergeQueue(PriorityQueue p, PriorityQueue q){
     rest =  isEmpty(pTrees) ? qTrees : pTrees;
     heapTrees = rest + heapTrees;
       
-    int min;
+    int min = -1;
     
     if(minIndexFromEnd == -1){
        // Minimal element appears in rest
