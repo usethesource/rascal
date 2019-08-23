@@ -73,7 +73,7 @@ public class QuickCheck {
             types[n] = formals.getFieldType(n);
         }
 
-        Map<Type, Type> tpbindings = new TypeParameterBinder().bind(formals);
+        Map<Type, Type> tpbindings = TypeParameterBinder.bind(formals);
         Type[] actualTypes = new Type[types.length];
         for(int j = 0; j < types.length; j ++) {
             actualTypes[j] = types[j].instantiate(tpbindings);
