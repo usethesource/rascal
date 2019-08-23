@@ -10,6 +10,7 @@ module analysis::m3::Registry
 
 import analysis::m3::Core;
 import String;
+import IO;
 
 @doc{
 .Synopsis
