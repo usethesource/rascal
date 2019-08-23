@@ -18,10 +18,7 @@ test bool f() = #int (int).symbol == \func(\int(),[\int()],[]);
 test bool p() = #&T <: list[&U].symbol == \parameter("T", \list(\parameter("U",\value())));
 
 @ignoreCompiler{Remove-after-transition-to-compile: minor diff in reification}
-test bool relLabels() = #rel[int a, int b].symbol == \set(\tuple([label("a", \int()),label("b", \int())]));
-
-@ignoreInterpreter{Remove-after-transition-to-compiler}
-test bool relLabels() = #rel[int a, int b].symbol == \rel([label("a", \int()),label("b", \int())]);
+test bool relLabels1() = #rel[int a, int b].symbol == \set(\tuple([label("a", \int()),label("b", \int())]));
 
 test bool everyTypeCanBeReifiedWithoutExceptions(&T u) = _ := typeOf(u);
 
