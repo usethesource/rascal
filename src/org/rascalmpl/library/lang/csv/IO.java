@@ -26,6 +26,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.ICollection;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -534,37 +535,40 @@ public class IO {
 
         try (Writer out = new BufferedWriter(new UnicodeOutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), encoding.getValue(), false))){
             int nfields = rel instanceof IList ? ((IList)rel).asRelation().arity() : ((ISet)rel).asRelation().arity();
-            if(head){
-                for(int i = 0; i < nfields; i++){
-                    if(i > 0)
+           
+            if (head) {
+                for (int i = 0; i < nfields; i++){
+                    if (i > 0) {
                         out.write(sep);
-                    String label = paramType.getFieldName(i);
-                    if(label == null || label.isEmpty())
-                        label = "field" + i;
-                    out.write(label);
+                    }
+                    
+                    out.write(paramType.hasFieldNames() ? paramType.getFieldName(i) : ("field" + i));
                 }
+                
                 out.write('\n');
             }
 
             Pattern escapingNeeded = Pattern.compile("[\\n\\r\"\\x" + Integer.toHexString(separator.charAt(0)) + "]");
 
-            for(IValue v : (Iterable<IValue>)rel){
+            for (IValue v : (ICollection<?>) rel) {
                 ITuple tup = (ITuple) v;
                 boolean firstTime = true;
-                for(IValue w : tup){
-                    if(firstTime)
+                for (IValue w : tup){
+                    if (firstTime) {
                         firstTime = false;
-                    else
+                    }
+                    else {
                         out.write(sep);
+                    }
 
                     String s;
-                    if(w.getType().isString()){
+                    if (w.getType().isString()){
                         s = ((IString)w).getValue();
                     }
                     else {
                         s = w.toString();
                     }
-                    if(escapingNeeded.matcher(s).find()){
+                    if (escapingNeeded.matcher(s).find()){
                         s = s.replaceAll("\"", "\"\"");
                         out.write('"');
                         out.write(s);
