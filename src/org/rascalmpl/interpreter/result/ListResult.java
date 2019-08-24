@@ -165,7 +165,7 @@ public class ListResult extends ListOrRelationResult<IList> {
 				list = list.delete(v);
 			}
 		}
-		return makeResult(getType(), list, ctx);
+		return makeResult(l.getType(), list, ctx);
 	}
 
 	@Override
