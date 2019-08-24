@@ -79,7 +79,7 @@ public class ListOrRelationResult<T extends IList> extends CollectionResult<T> {
 	@Override
 	protected <U extends IValue> Result<U> subtractList(ListResult s) {
 		// note the reverse subtract
-		return makeResult(getType().lub(s.getType()), s.getValue().subtract(getValue()), ctx);
+		return makeResult(s.getType(), s.getValue().subtract(getValue()), ctx);
 	}
 
 	@Override
