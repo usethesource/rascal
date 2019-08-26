@@ -5,11 +5,11 @@ import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.rascalmpl.library.experiments.Compiler.Commands.CommandOptions;
 import org.rascalmpl.help.HelpManager;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
+import org.rascalmpl.ideservices.BasicIDEServices;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.shell.CommandOptions;
 
 public class Tutor {
 	
