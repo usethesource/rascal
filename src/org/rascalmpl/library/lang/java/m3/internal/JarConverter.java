@@ -18,12 +18,20 @@
  *******************************************************************************/
 package org.rascalmpl.library.lang.java.m3.internal;
 
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.CLASS_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.COMP_UNIT_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.ENUM_CLASS_PATH;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.FILE_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.INTERFACE_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.JAR_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.OBJECT_CLASS_PATH;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.PACKAGE_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.PARAMETER_SCHEME;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -51,8 +59,6 @@ import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
-
-import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.*;
 
 
 //TODO: check offset + length in physical locations.
