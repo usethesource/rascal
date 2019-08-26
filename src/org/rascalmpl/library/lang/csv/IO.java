@@ -26,6 +26,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IBool;
+import io.usethesource.vallang.ICollection;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
@@ -548,7 +549,7 @@ public class IO {
 
             Pattern escapingNeeded = Pattern.compile("[\\n\\r\"\\x" + Integer.toHexString(separator.charAt(0)) + "]");
 
-            for(IValue v : (Iterable<IValue>)rel){
+            for(IValue v : (ICollection<?>) rel){
                 ITuple tup = (ITuple) v;
                 boolean firstTime = true;
                 for(IValue w : tup){

@@ -36,10 +36,10 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.env.ModuleEnvironment;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
 import org.rascalmpl.parser.gtd.io.InputConverter;
 import org.rascalmpl.unicode.UnicodeDetector;
 import org.rascalmpl.uri.URIResolverRegistry;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISet;
@@ -250,7 +250,7 @@ public class EclipseJavaCompiler {
         for (IValue p : paths) {
             ISourceLocation loc = safeResolve((ISourceLocation)p);
             if (!loc.getScheme().equals("file")) {
-                throw RascalRuntimeException.io(VF.string("all path entries must have (or resolve to) the file:/// scheme: " + loc), null);
+                throw RuntimeExceptionFactory.io(VF.string("all path entries must have (or resolve to) the file:/// scheme: " + loc), null, null);
             }
             result[i++] = new File(loc.getPath()).getAbsolutePath();
         }

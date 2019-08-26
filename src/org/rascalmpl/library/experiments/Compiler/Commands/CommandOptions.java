@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
 import org.rascalmpl.library.util.PathConfig;
 import org.rascalmpl.uri.URIUtil;
 import org.rascalmpl.values.ValueFactoryFactory;
@@ -550,11 +549,6 @@ public class CommandOptions {
 	
 	public IList getDefaultCourses(){
 		return PathConfig.getDefaultCoursesList();
-	}
-
-	public ISourceLocation getKernelLocation(){
-	  ISourceLocation boot = getCommandLocOption(BOOT_PATH_CONFIG_OPTION);
-	  return RascalExecutionContext.getKernel(boot);
 	}
 
 	public ISourceLocation getDefaultRelocLocation(){
