@@ -3,22 +3,18 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
 import java.io.PrintWriter;
 
 import org.rascalmpl.debug.IRascalMonitor;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ParsingTools;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
+import org.rascalmpl.ideservices.BasicIDEServices;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.library.util.PathConfig;
 
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IValueFactory;
 
 public class RascalExecutionContext implements IRascalMonitor {
 	private String currentModuleName;
 	private final PrintWriter stdout;
 	private final PrintWriter stderr;
-	private final IValueFactory vf;
 	private final PathConfig pcfg;
 	private IDEServices ideServices;
-	private ParsingTools parsingTools;
 
 	public RascalExecutionContext(
 			PrintWriter stdout,
@@ -27,7 +23,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 			IDEServices ideServices
 			){
 
-		this.vf = pcfg.getValueFactory();
 		this.pcfg = pcfg;
 
 		currentModuleName = "UNDEFINED";
@@ -36,7 +31,7 @@ public class RascalExecutionContext implements IRascalMonitor {
 		this.stdout = stdout;
 		this.stderr = stderr;
 
-		parsingTools = new ParsingTools(vf);
+//		parsingTools = new ParsingTools(vf);
 	}
 
 	public PrintWriter getStdErr() { return stderr; }
@@ -51,9 +46,6 @@ public class RascalExecutionContext implements IRascalMonitor {
 
 	public void setFullModuleName(String moduleName) { currentModuleName = moduleName; }
 	
-	public ParsingTools getParsingTools(){
-		return parsingTools;
-	}
 
 	public int endJob(boolean succeeded) {
 		return ideServices.endJob(succeeded);

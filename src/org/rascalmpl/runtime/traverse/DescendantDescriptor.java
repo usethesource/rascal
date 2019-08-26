@@ -3,13 +3,14 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse;
 import java.util.HashSet;
 
 //import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalExecutionContext;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalPrimitive;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IMap;
 import io.usethesource.vallang.ISet;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
+
+import org.rascalmpl.values.uptr.IRascalValueFactory;
 import org.rascalmpl.values.uptr.ITree;
 
 /**
@@ -62,35 +63,35 @@ public class DescendantDescriptor {
 		//assert !concreteMatch : "shouldDescentInAbstractValue: abstract traversal required";
 		//System.out.println("shouldDescentInAbstractValue: " + ++counter + ", " + subject.toString());
 		if (containsNodeOrValueType) {
-			return RascalPrimitive.Rascal_TRUE;
+			return IRascalValueFactory.getInstance().bool(true);
 		}
 		Type type = subject instanceof IConstructor 
 				    ? ((IConstructor) subject).getConstructorType() 
 				    : subject.getType();
-		return mSymbolSet.contains(type) ? RascalPrimitive.Rascal_TRUE : RascalPrimitive.Rascal_FALSE;
+		return mSymbolSet.contains(type) ? IRascalValueFactory.getInstance().bool(true) : IRascalValueFactory.getInstance().bool(false);
 	}
 	
 	public IBool shouldDescentInConcreteValue(final ITree subject) {
 		//assert concreteMatch : "shouldDescentInConcreteValue: concrete traversal required";
 		if (subject.isAppl()) {
 			if (containsNodeOrValueType) {
-				return RascalPrimitive.Rascal_TRUE;
+				return IRascalValueFactory.getInstance().bool(true);
 			}
 			IConstructor prod = (IConstructor) subject.getProduction();
-			return mSymbolSet.contains(prod) ? RascalPrimitive.Rascal_TRUE : RascalPrimitive.Rascal_FALSE;
+			return mSymbolSet.contains(prod) ? IRascalValueFactory.getInstance().bool(true) : IRascalValueFactory.getInstance().bool(false);
 		}
 		if (subject.isAmb()) {
-			return RascalPrimitive.Rascal_TRUE;
+			return IRascalValueFactory.getInstance().bool(true);
 		}
-		return RascalPrimitive.Rascal_FALSE;
+		return IRascalValueFactory.getInstance().bool(false);
 	}
 	
 //	public IBool shouldDescentInType(Type type) {
 //		assert !concreteMatch : "shouldDescentInType: abstract traversal required";
 //		if (containsNodeOrValueType) {
-//			return RascalPrimitive.Rascal_TRUE;
+//			return IRascalValueFactory.getInstance().bool(true);
 //		}
-//		return mSymbolSet.contains(type) ? RascalPrimitive.Rascal_TRUE : RascalPrimitive.Rascal_FALSE;
+//		return mSymbolSet.contains(type) ? IRascalValueFactory.getInstance().bool(true) : IRascalValueFactory.getInstance().bool(false);
 //	}
 	
 }

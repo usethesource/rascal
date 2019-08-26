@@ -14,13 +14,11 @@ import java.util.Set;
 
 import org.rascalmpl.interpreter.Configuration;
 import org.rascalmpl.interpreter.utils.RascalManifest;
-import org.rascalmpl.library.lang.rascal.boot.IJava2Rascal;
 
 import org.rascalmpl.core.uri.URIResolverRegistry;
 import org.rascalmpl.core.uri.URIUtil;
 import org.rascalmpl.core.values.ValueFactoryFactory;
 
-import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
@@ -639,19 +637,6 @@ public class PathConfig {
             return null;
         }
     }
-	
-	public IConstructor asConstructor(IJava2Rascal j2r){
-	    return j2r.pathConfig(
-	        j2r.kw_pathConfig()
-	        .srcs(getSrcs())
-	        .libs(getLibs())
-	        .boot(getBoot())
-	        .bin(getBin())
-	        .courses(getCourses())
-	        .javaCompilerPath(getJavaCompilerPath())
-	        .classloaders(getClassloaders())
-	        );
-	  }
 	
 	public String toString(){
 	  StringWriter w = new StringWriter();

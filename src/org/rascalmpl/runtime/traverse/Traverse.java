@@ -1,7 +1,5 @@
 package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.traverse;
 
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.InternalCompilerError;
-
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
@@ -113,7 +111,7 @@ public class Traverse {
 					}
 				}
 			}
-			throw new InternalCompilerError("Traversal specialization not found: " + direction + ", "
+			throw new RuntimeException("Traversal specialization not found: " + direction + ", "
 					+ progress + ", " + fixedpoint + ", " + rebuild + ", concreteMatch = " + descriptor.isConcreteMatch());
 
 		} catch (ReturnFromTraversalException e) {
