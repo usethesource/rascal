@@ -13,7 +13,6 @@ import java.util.Arrays;
 import java.util.Map;
 
 import org.rascalmpl.interpreter.staticErrors.StaticError;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.library.lang.rascal.tutor.Feedback;
 import org.rascalmpl.library.lang.rascal.tutor.QuestionCompiler;
 import org.rascalmpl.library.util.PathConfig;
@@ -141,13 +140,13 @@ public class HelpServer extends NanoHTTPD {
                 return newFixedLengthResponse(Status.OK, "application/json", "{ \"ok\": false, \"failed\": [], \"exceptions\": [], \"syntax\": " + makeLoc(e) + " }");
             }
 
-        } catch (IOException | NoSuchRascalFunction | URISyntaxException | StaticError e) {
+        } catch (IOException | URISyntaxException | StaticError e) {
             return newFixedLengthResponse(Status.OK, "application/json", "{ \"ok\": false, \"failed\": [], \"exceptions\": [\"" + e.getMessage() + "\"]}");
         }
     }
 
 
-    private QuestionCompiler makeCommandExecutor() throws URISyntaxException, IOException, NoSuchRascalFunction {
+    private QuestionCompiler makeCommandExecutor() throws URISyntaxException, IOException {
         if (executor == null) {
             PathConfig pcfg = helpManager.getPathConfig();
             outWriter = new StringWriter();
