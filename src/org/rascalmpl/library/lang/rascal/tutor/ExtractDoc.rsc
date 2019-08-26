@@ -1,4 +1,4 @@
-module experiments::Compiler::RascalExtraction::ExtractDoc
+module lang::rascal::tutor::ExtractDoc
 
 import List;
 import String;
