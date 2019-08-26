@@ -2,7 +2,8 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ToplevelType;
+
+import org.rascalmpl.library.util.ToplevelType;
 
 import io.usethesource.vallang.IValue;
 

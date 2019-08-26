@@ -2,8 +2,6 @@ package org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils;
 
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.ATypeFactory;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.InternalCompilerError;
-import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.ToplevelType;
-import org.rascalmpl.interpreter.types.DefaultRascalTypeVisitor;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IListWriter;
@@ -146,7 +144,8 @@ public class Type2ATypeReifier extends ATypeFactory {
 		});
 	}
 	
-	public static void main(String [] args) {
+	@SuppressWarnings("deprecation")
+    public static void main(String [] args) {
 		IValue one = $VF.integer(1);
 		IValue two = $VF.integer(2);
 		System.err.println(reify2atype(one.getType(), empty));

@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.RascalException;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.RascalExceptionFactory;
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.utils.Type2ATypeReifier;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ToplevelType;
+import org.rascalmpl.library.util.ToplevelType;
 import org.rascalmpl.uri.SourceLocationURICompare;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
