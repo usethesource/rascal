@@ -1,4 +1,4 @@
-package org.rascalmpl.library.experiments.Compiler;
+package org.rascalmpl.util;
 
 public class VersionInfo {
 	public static final String RASCAL_VERSION = "0.0.0";
