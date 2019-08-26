@@ -19,7 +19,6 @@ import java.util.Random;
 import java.util.function.BiFunction;
 
 import org.rascalmpl.interpreter.control_exceptions.Throw;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.Thrown;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IString;
@@ -139,8 +138,8 @@ public class QuickCheck {
             return false;
         }
         if (thrownException != null && expectedException != null) {
-            if (thrownException instanceof Throw || thrownException instanceof Thrown) {
-                IValue rascalException = thrownException instanceof Throw  ? ((Throw)thrownException).getException() : ((Thrown)thrownException).getValue(); 
+            if (thrownException instanceof Throw) {
+                IValue rascalException = ((Throw)thrownException).getException(); 
                 if (rascalException instanceof IString && ((IString)rascalException).getValue().equals(expectedException)) {
                     return true;
                 }
@@ -208,9 +207,6 @@ public class QuickCheck {
             out.println("Exception:");
             if (thrownException instanceof Throw) {
                 out.println(((Throw)thrownException).getMessage());
-            }
-            else if (thrownException instanceof Thrown) {
-                out.println(((Thrown)thrownException).getMessage());  
             }
             else {
                 out.println(thrownException.toString());

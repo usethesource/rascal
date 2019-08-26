@@ -5,16 +5,15 @@ import java.io.PrintWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import org.rascalmpl.library.experiments.Compiler.Commands.CommandOptions;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.NoSuchRascalFunction;
 import org.rascalmpl.help.HelpManager;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.BasicIDEServices;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ideservices.IDEServices;
+import org.rascalmpl.ideservices.BasicIDEServices;
+import org.rascalmpl.ideservices.IDEServices;
 import org.rascalmpl.library.util.PathConfig;
+import org.rascalmpl.shell.CommandOptions;
 
 public class Tutor {
 	
-	public static void main(String[] args) throws IOException, NoSuchRascalFunction, URISyntaxException, InterruptedException {
+	public static void main(String[] args) throws IOException, URISyntaxException, InterruptedException {
 	    CommandOptions cmdOpts = new CommandOptions("Tutor Server");
 	    cmdOpts.pathConfigOptions()
 	    .boolOption("help")
