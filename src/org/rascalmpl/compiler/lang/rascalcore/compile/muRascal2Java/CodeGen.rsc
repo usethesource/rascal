@@ -1340,6 +1340,9 @@ JCode trans(muEnter(btscope, muBlock([*exps, muSucceed(btscope)])), JGenie jg)
 JCode trans(muEnter(btscope, muFail(btscope)), JGenie jg)
     = "";
     
+JCode trans(muEnter(btscope, muFailEnd(btscope)), JGenie jg)
+    = "";
+    
 JCode trans(muEnter(btscope, asg:muAssign(_,_)), JGenie jg)
     = trans(asg, jg);
     
@@ -1356,6 +1359,9 @@ JCode trans(muSucceed(str label), JGenie jg)
     = "break <label>;";
 
 JCode trans(muFail(str label), JGenie jg)
+    = "continue <label>;";
+    
+JCode trans(muFailEnd(str label), JGenie jg)
     = "continue <label>;";
     
 JCode trans(muBreak(str label), JGenie jg)
