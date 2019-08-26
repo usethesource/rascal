@@ -641,7 +641,7 @@ MuExp translatePatAsSetElem(p:(Pattern) `<Type tp> <Name name>`, bool last, ATyp
        if("<name>" == "_"){
           return muForAll("", elem,aset(elmType), prevSubject,
                           muBlock([ muConInit(subject, muCallPrim3("subtract", aset(elmType), [aset(elmType), elmType], [prevSubject, elem], p@\loc)),
-                                    muIfelse(muValueIsSubType(subject, aset(trType)), trueCont, muFail(""))
+                                    muIfelse(muValueIsSubType(subject, aset(trType)), trueCont, muFail(btscope))
                                   ]));
                                      
        } else {
@@ -651,7 +651,7 @@ MuExp translatePatAsSetElem(p:(Pattern) `<Type tp> <Name name>`, bool last, ATyp
            return muForAll("", elem, aset(elmType), prevSubject,
                            muBlock([ muVarInit(var, elem),
                                      muConInit(subject, muCallPrim3("subtract", aset(elmType), [aset(elmType), elmType], [prevSubject, var], p@\loc)),
-                                     muIfelse(muValueIsSubType(subject, aset(trType)), trueCont, muFail(""))
+                                     muIfelse(muValueIsSubType(subject, aset(trType)), trueCont, muFail(btscope))
                                    ]));
        }   
      }
@@ -926,12 +926,12 @@ MuExp translatePat(p:(Pattern) `[<{Pattern ","}* pats>]`, AType subjectType, MuE
                                                   : (lookahead[0].nMultiVar == 0 && !isMultiVar(lpats[0])) ? muEqualNativeInt(sublen, muCon(lookahead[0].nElem + 1))
                                                                                                            : muGreaterEqNativeInt(sublen, muCon(lookahead[0].nElem + 1)), 
                                body, 
-                               falseCont),
-                      falseCont
+                               falseCont)
+                      //falseCont
                     ]);
     cbt = currentBacktrackingScope();
-    block = my_btscope == cbt ? block : muEnter(my_btscope, updateBTScope(block, my_btscope, cbt));
-    //block = muEnter(my_btscope, block);
+    //block = my_btscope == cbt ? block : muEnter(my_btscope, updateBTScope(block, my_btscope, cbt));
+    block = muEnter(my_btscope, block);
     code = muBlock([ *(subjectAssigned ? [muVarInit(subject, subjectExp)] : [muConInit(subject, subjectExp)]),   
                      muVarInit(cursor, muCon(0)), 
                      *(typecheckNeeded ? [muIfelse( muValueIsSubType(subject, subjectType),
@@ -1119,10 +1119,11 @@ MuExp translateNamedMultiVar(str name, int pos, Lookahead lookahead, AType subje
                          muForRangeInt(my_btscope, len, 0, 1, muSubNativeInt(sublen, startcursor), 
                                        muBlock([ *(isUsed(var, trueCont) ? [muConInit(var, muSubList(subject, startcursor, len))] : [] ),
                                                  muAssign(cursor, muAddNativeInt(startcursor, len)),
-                                                 trueCont //updateBTScope(trueCont, btscope, my_btscope)
+                                                 trueCont // updateBTScope(trueCont, btscope, my_btscope)
                                                ]))
                        ]);  
       code = muEnter(my_btscope, code);
+      leaveBacktrackingScope(my_btscope);
     }
     //leaveBacktrackingScope();
     return code;

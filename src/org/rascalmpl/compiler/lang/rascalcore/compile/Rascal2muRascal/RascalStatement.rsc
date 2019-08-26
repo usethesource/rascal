@@ -84,7 +84,7 @@ MuExp translate(s: (Statement) `<Label label> while ( <{Expression ","}+ conditi
     btfree = all(Expression c <- conditions, backtrackFree(c));
     enterBacktrackingScope(whileName);
     
-    loopBody = muWhileDo(whileName, muCon(true), translateAndCondAsStat(whileName, [ c | c <- conditions ], translateLoopBody(body), muBreak(whileName)));
+    loopBody = muWhileDo(whileName, muCon(true), translateAndConds(whileName, [ c | c <- conditions ], translateLoopBody(body), muBreak(whileName), normalize=toStat));
     code = muBlock([]);
     if(containsAppend(body)){     
         writer = muTmpListWriter("listwriter_<whileName>", fuid);                                                           
@@ -131,10 +131,11 @@ MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `while ( <E
     
     code = muWhileDo(whileName, 
                      muCon(true), 
-                     translateAndCondAsStat(whileName,
-                                          [ condition ],
-                                          muBlock([ translateStats(preStats), *translateMiddle(template, indent, body), translateStats(postStats) ]), 
-                                          muBreak(whileName)));
+                     translateAndConds(whileName,
+                                       [ condition ],
+                                       muBlock([ translateStats(preStats), *translateMiddle(template, indent, body), translateStats(postStats) ]), 
+                                       muBreak(whileName),
+                                       normalize=toStat));
     if(!btfree){
         code = updateBTScope(code, whileName, currentBacktrackingScope());
     }
@@ -154,7 +155,7 @@ MuExp translate(s: (Statement) `<Label label> do <Statement body> while ( <Expre
            
     loopBody = muWhileDo(doName, 
                          muCon(true), 
-                         muBlock([ translateLoopBody(body), translateAndCondAsStat(doName, [condition], muContinue(doName), muBreak(doName)) ]));
+                         muBlock([ translateLoopBody(body), translateAndConds(doName, [condition], muContinue(doName), muBreak(doName), normalize=toStat) ]));
     code = muBlock([]);
     if(containsAppend(body)){
         writer = muTmpListWriter("listwriter_<doName>", fuid);        
@@ -183,7 +184,7 @@ MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `do { < Sta
                      muBlock([ translateStats(preStats),
                                *translateMiddle(template, indent, body),
                                translateStats(postStats),
-                               translateAndCondAsStat(doName, [ condition ], muContinue(doName), muBreak(doName) )
+                               translateAndConds(doName, [ condition ], muContinue(doName), muBreak(doName), normalize=toStat )
                              ]));
           
     leaveBacktrackingScope(doName);
@@ -201,7 +202,7 @@ MuExp translate(s: (Statement) `<Label label> for ( <{Expression ","}+ generator
     btfree = all(Expression c <- generators, backtrackFree(c));
     enterBacktrackingScope(forName);
     
-    loopBody = muEnter(forName, translateAndConds(forName, [ c | Expression c <- generators ], translateLoopBody(body), muFail(forName)));
+    loopBody = muEnter(forName, translateAndConds(forName, [ c | Expression c <- generators ], translateLoopBody(body), muFailEnd(forName)));
     code = muBlock([]);
     if(containsAppend(body)){ 
         writer = muTmpListWriter("listwriter_<forName>", fuid);                         
@@ -240,7 +241,7 @@ MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `for ( <{Ex
                                             *translateMiddle(template, indent, body),
                                             translateStats(postStats)
                                           ]),
-                                  muFail(forName)
+                                  muFailEnd(forName)
                                  ));
                   
     if(!btfree){
@@ -253,16 +254,13 @@ MuExp translateTemplate(MuExp template, str indent, (StringTemplate) `for ( <{Ex
 
 // -- if then statement ----------------------------------------------
 
-MuExp toStat(muIfExp(c, t, f)) = muIfelse(c, toStat(t), toStat(f));
-default MuExp toStat(MuExp exp) = exp;
-
 MuExp translate((Statement) `<Label label> if ( <{Expression ","}+ conditions> ) <Statement thenStatement>`) {
     ifName = getLabel(label, "IF");
     
     btfree = all(Expression c <- conditions, backtrackFree(c));
     enterBacktrackingScope(ifName);
     
-    code = translateAndCondAsStat(ifName, [c | Expression c <- conditions], translate(thenStatement), muBlock([]));
+    code = translateAndConds(ifName, [c | Expression c <- conditions], translate(thenStatement), muBlock([]), normalize=toStat);
     if(!btfree){
         code = muEnter(ifName, updateBTScope(code, ifName, currentBacktrackingScope()));  
     }
@@ -299,7 +297,7 @@ MuExp translate((Statement) `<Label label> if ( <{Expression ","}+ conditions> )
     btfree = all(Expression c <- conditions, backtrackFree(c));
     enterBacktrackingScope(ifName);
     
-    code = translateAndCondAsStat(ifName, [c | Expression c <- conditions], translate(thenStatement), translate(elseStatement));
+    code = translateAndConds(ifName, [c | Expression c <- conditions], translate(thenStatement), translate(elseStatement), normalize=toStat);
     if(!btfree){
         code = muEnter(ifName, updateBTScope(code, ifName, currentBacktrackingScope())); 
     }
@@ -409,12 +407,13 @@ map[int, MuExp] addPatternWithActionCode(MuExp switchval, str fuid, bool useConc
         replcond = muValueIsSubTypeOfValue(replacement, switchval);
         
         table[key] =  translatePat(pwa.pattern, avalue(), switchval, ifname,
-                                            translateAndCondAsStat(ifname,
+                                            translateAndConds(ifname,
                                                     conditions, 
                                                     muBlock([ muVarInit(replacement, replacementCode),
                                                               muIfelse( replcond, muInsert(replacement, replacement.atype), muFailCase())
                                                             ]),
-                                                    muFailCase()), 
+                                                    muFailCase(),
+                                                    normalize=toStat), 
                                                     table[key] ? muBlock([]));
                                                       
         //table[key] = muBlock([ translateAndCondAsStat(ifname2,

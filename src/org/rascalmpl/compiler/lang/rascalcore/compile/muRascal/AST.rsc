@@ -196,6 +196,7 @@ public data MuExp =
           | muEnter(str btscope, MuExp exp)                   // Enter a backtracking scope
           | muSucceed(str btscope)
           | muFail(str label)                                 // Fail statement
+          | muFailEnd(str label)                              // Fail statement at end of backtracking scope
           
           //  Visit
           | muVisit(MuExp subject, list[MuCase] cases, MuExp defaultExp, VisitDescriptor vdescriptor)
@@ -280,6 +281,16 @@ data MuCatch = muCatch(MuExp thrown_as_exception, MuExp thrown, MuExp body);
 data MuCase = muCase(int fingerprint, MuExp exp);
 
 // ==== Utilities =============================================================
+
+// Normalize expression to statement
+
+MuExp toStat(muIfExp(c, t, f)) = muIfelse(c, toStat(t), toStat(f));
+default MuExp toStat(MuExp exp) = exp;
+
+// Identity on expressions
+
+MuExp identity(MuExp exp) = exp;
+
 
 set[str] varExp = {"muModuleVar", "muVar", "muTmpIValue", "muTmpNative"};
 
@@ -439,6 +450,7 @@ default MuExp addReturnFalse(MuExp exp) = muBlock([exp, muReturn1(abool(), muCon
 MuExp muReturn1(AType t, muEnter(str btscope, MuExp exp))
     = muEnter(btscope, addReturnFalse(visit(exp) { case muSucceed(btscope) => muReturn1(abool(), muCon(true))
                                                    case muFail(btscope) => muReturn1(abool(), muCon(false))
+                                                   case muFailEnd(btscope) => muReturn1(abool(), muCon(false))
                                                  }));
     
 MuExp muReturn1(AType t, muSucceed(str btscope))
@@ -448,7 +460,11 @@ MuExp muReturn1(AType t, muContinue(str btscope))
     =   muContinue(btscope);
      
 MuExp muReturn1(AType t, muFail(str btscope)){
-   return  muContinue(btscope);// : muReturn1(muCon(false));
+   return  muContinue(btscope);
+}
+
+MuExp muReturn1(AType t, muFailEnd(str btscope)){
+   return  muContinue(btscope);
 }
 
 MuExp muReturn1(AType t, muFailReturn(AType t))
@@ -563,11 +579,17 @@ MuExp muAssign(MuExp var, muSucceed(str btscope))
 
 MuExp muConInt(MuExp var, muFail(btscope))
     = muBlock([muConInit(var, muCon(false))]);
+MuExp muConInt(MuExp var, muFailEnd(btscope))
+    = muBlock([muConInit(var, muCon(false))]);
     
 MuExp muVarInt(MuExp var, muFail(btscope))
     = muBlock([muVarInit(var, muCon(false))]);   
+MuExp muVarInt(MuExp var, muFailEnd(btscope))
+    = muBlock([muVarInit(var, muCon(false))]); 
      
 MuExp muAssign(MuExp var, muFail(btscope))
+    = muBlock([muAssign(var, muCon(false))]);
+MuExp muAssign(MuExp var, muFailEnd(btscope))
     = muBlock([muAssign(var, muCon(false))]);
     
 // ---- muIfthen ---------------------------------------------------------------
@@ -608,6 +630,7 @@ MuExp muIfelse(muValueBlock(AType t, [*MuExp exps, MuExp exp]), MuExp thenPart, 
 MuExp muReturn1(AType t, muEnter(str btscope, MuExp exp))
     = muEnter(btscope, addReturnFalse(visit(exp) { case muSucceed(btscope) => muReturn1(abool(), muCon(true))
                                                    case muFail(btscope) => muReturn1(abool(), muCon(false))
+                                                   case muFailEnd(btscope) => muReturn1(abool(), muCon(false))
                                                  }));
 
 // ---- muEnter ---------------------------------------------------------------
