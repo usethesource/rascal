@@ -222,6 +222,24 @@ test bool compositeAndBothBTCnt() {
     return n == 9;
 }
 
+test bool compositeOrBTLast() {
+    n = 0;
+    if( int p := 3 || ([*int x,*int y] := [4,5,6]) )  {
+        n = n + 1;
+        fail;
+    }
+    return n == 5;
+}   
+
+test bool compositeOrBTFirst() {
+    n = 0;
+    if( [*int x,*int y] := [4,5,6] || int p := 3)  {
+        n = n + 1;
+        fail;
+    }
+    return n == 5;
+}    
+
 test bool compositeAndOr() {
     n = 0;
     if( ([*int x,*int y] := [1,2,3] && int z := 3) || ([*int x,*int y] := [4,5,6] && int z := 4) )  {
@@ -230,6 +248,73 @@ test bool compositeAndOr() {
     }
     return n == 8;
 }
+
+// implies ==>
+
+test bool compositeImplTrue(){
+  ten = 10;
+  b = [*int x, int  y, *int z] := [1,2,3] ==> ten > 9;
+  return b;
+}
+
+test bool compositeImplFalse(){
+  ten = 10;
+  b = [*int x, int  y, *int z] := [1,2,3] ==> 9 > ten;
+  return !b;
+}
+
+test bool compositeImplBTLast1(){
+  ten = 10;
+  b = 9 > ten ==> [*int x, int  y, *int z] := [1,2,3];
+  return b;
+}
+
+test bool compositeImplBTLast2(){
+  ten = 10;
+  b = ten > 9 ==> [*int x, int  y, *int z] := [1,2,3];
+  return b;
+}
+
+test bool compositeImplBothBT(){
+  ten = 10;
+  b = [*int x, int  y, *int z] := [1,2,3] ==> ([*int p, *int q] := [4,5,6] && int r := 4);
+  return b;
+}
+
+
+// equivalent <==>
+
+test bool compositeEquivTrue(){
+  ten = 10;
+  b = [*int x, int  y, *int z] := [1,2,3] <==> ten > 9;
+  return b;
+}
+
+test bool compositeEquivFalse(){
+  ten = 10;
+  b = [*int x, int  y, *int z] := [1,2,3]<==> 9 > ten;
+  return !b;
+}
+
+test bool compositeEquivBTLast1(){
+  ten = 10;
+  b = 9 > ten <==> [*int x, int  y, *int z] := [1,2,3];
+  return !b;
+}
+
+test bool compositeEquivBTLast2(){
+  ten = 10;
+  b = ten > 9 <==> [*int x, int  y, *int z] := [1,2,3];
+  return b;
+}
+
+test bool compositeEquivBothBT(){
+  ten = 10;
+  b = [*int x, int  y, *int z] := [1,2,3] <==> ([*int p, *int q] := [4,5,6] && int r := 4);
+  return b;
+}
+
+////
 
 data AnotherAndData = a();
 
