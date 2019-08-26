@@ -1,7 +1,8 @@
 package org.rascalmpl.library.util;
 
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
-import org.rascalmpl.library.experiments.Compiler.VersionInfo;
+import org.rascalmpl.util.VersionInfo;
+
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;

@@ -1,5 +1,5 @@
 /** 
- * Copyright (c) 2018, Jurgen J. Vinju, Centrum Wiskunde & Informatica (NWOi - CWI) 
+ * Copyright (c) 2016, paulklint, Centrum Wiskunde & Informatica (CWI) 
  * All rights reserved. 
  *  
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met: 
@@ -10,33 +10,30 @@
  *  
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. 
  */ 
-package org.rascalmpl.library.lang.rascal.tutor;
+package org.rascalmpl.ideservices;
 
-import java.io.PrintWriter;
+import java.net.URI;
 
-import org.rascalmpl.interpreter.Evaluator;
-import org.rascalmpl.interpreter.env.GlobalEnvironment;
-import org.rascalmpl.interpreter.env.ModuleEnvironment;
-import org.rascalmpl.uri.URIUtil;
-import org.rascalmpl.values.uptr.IRascalValueFactory;
+import org.rascalmpl.debug.IRascalMonitor;
 
 import io.usethesource.vallang.ISourceLocation;
-import io.usethesource.vallang.IString;
-import io.usethesource.vallang.ITuple;
-import io.usethesource.vallang.IValueFactory;
 
-public class ModuleDocExtractor {
-    private final IValueFactory vf = IRascalValueFactory.getInstance();
-    private final GlobalEnvironment heap = new GlobalEnvironment();
-    private final ModuleEnvironment top = new ModuleEnvironment("***module extractor***", heap);
-    private final Evaluator eval = new Evaluator(vf, new PrintWriter(System.err), new PrintWriter(System.out), top, heap);
+/**
+ * IDEServices provides external services that can be called by the
+ * Rascal compiler and compiled REPL.
+ */
+public interface IDEServices extends IRascalMonitor {
 
-    public ModuleDocExtractor() {
-        eval.addRascalSearchPath(URIUtil.rootLocation("std"));
-        eval.doImport(null, "lang::rascal::tutor::RascalExtraction");
-    }
-    
-    public ITuple extractDoc(IString parent, ISourceLocation moduleLoc) {
-        return (ITuple) eval.call("extractDoc", parent, moduleLoc);
-    }
+  /**
+   * Open a browser for the give uri.
+   * @param uri
+   */
+  void browse(URI uri);
+
+  /**
+   * Open an editor for file at given path.
+   * @param path
+   */
+  void edit(ISourceLocation path);
+
 }
