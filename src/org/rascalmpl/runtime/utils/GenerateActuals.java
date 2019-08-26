@@ -31,7 +31,7 @@ public class GenerateActuals {
 	
 	public Stream<IValue[]> generateActuals(Type[] formals) {
 		Type[] types = formals;
-		Map<Type, Type> tpbindings = new TypeParameterBinder().bind($TF.tupleType(formals));
+		Map<Type, Type> tpbindings = TypeParameterBinder.bind($TF.tupleType(formals));
 		
 		Type[] actualTypes = new Type[types.length];
 		for(int j = 0; j < types.length; j ++) {
