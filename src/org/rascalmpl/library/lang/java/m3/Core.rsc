@@ -38,9 +38,9 @@ data M3(
 	rel[loc declaration, loc annotation] annotations = {}
 );
 
-
 data Language(str version="") = java();
 
+@memo
 public M3 composeJavaM3(loc id, set[M3] models) {
   // Compose the generic M3 relations first
   M3 comp = composeM3(id, models);
@@ -57,6 +57,7 @@ public M3 composeJavaM3(loc id, set[M3] models) {
   return comp;
 }
 
+@memo
 public M3 diffJavaM3(loc id, list[M3] models) {
 	// Diff the generic M3 relations first
 	M3 diff = diffM3(id, models);
