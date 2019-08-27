@@ -35,6 +35,7 @@ import util::FileSystem;
 import analysis::graphs::Graph;
 import Node;
 import Map;
+import List;
 extend analysis::m3::TypeSymbol;
  
 data Modifier;
@@ -104,10 +105,25 @@ M3 composeM3(loc id, set[M3] models) {
 
 @doc{
 	Generic function to apply a difference over the annotations of a list of M3s.
-	The substraction is applied according to the order of the models in the list.
 }
 @memo
-M3 diffM3(loc id, list[M3] models) = modifyM3(id, models, diff);
+M3 diffM3(loc id, list[M3] models) {
+	assert size(models) >= 2;
+
+	M3 first = models[0];
+	M3 others = composeM3(id, toSet(models[1..]));
+	M3 diff = m3(id);
+
+	diff.declarations = {<a, b> | <a, b> <- first.declarations, <a, b> notin others.declarations};
+	diff.types = {<a, b> | <a, b> <- first.types, <a, b> notin others.types};
+	diff.uses = {<a, b> | <a, b> <- first.uses, <a, b> notin others.uses};
+	diff.containment = {<a, b> | <a, b> <- first.containment, <a, b> notin others.containment};
+	diff.names = {<a, b> | <a, b> <- first.names, <a, b> notin others.names};
+	diff.documentation = {<a, b> | <a, b> <- first.documentation, <a, b> notin others.documentation};
+	diff.modifiers = {<a, b> | <a, b> <- first.modifiers, <a, b> notin others.modifiers};
+
+	return diff;
+}
 
 @memo
 M3 modifyM3(loc id, list[M3] models, value (&T,&T) fun) { 
