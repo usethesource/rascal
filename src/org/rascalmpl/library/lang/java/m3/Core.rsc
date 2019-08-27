@@ -42,15 +42,19 @@ data M3(
 data Language(str version="") = java();
 
 public M3 composeJavaM3(loc id, set[M3] models) {
-  m = composeM3(id, models);
-  m.extends = {*model.extends | model <- models};
-  m.implements = {*model.implements | model <- models};
-  m.methodInvocation = {*model.methodInvocation | model <- models};
-  m.fieldAccess = {*model.fieldAccess | model <- models};
-  m.typeDependency = {*model.typeDependency | model <- models};
-  m.methodOverrides = {*model.methodOverrides | model <- models};
-  m.annotations = {*model.annotations | model <- models};
-  return m;
+  // Compose the generic M3 relations first
+  M3 comp = composeM3(id, models);
+
+  // Then the Java-specific ones
+  comp.extends = {*model.extends | model <- models};
+  comp.implements = {*model.implements | model <- models};
+  comp.methodInvocation = {*model.methodInvocation | model <- models};
+  comp.fieldAccess = {*model.fieldAccess | model <- models};
+  comp.typeDependency = {*model.typeDependency | model <- models};
+  comp.methodOverrides = {*model.methodOverrides | model <- models};
+  comp.annotations = {*model.annotations | model <- models};
+
+  return comp;
 }
 
 public M3 diffJavaM3(loc id, list[M3] models) = diffM3(id, models);

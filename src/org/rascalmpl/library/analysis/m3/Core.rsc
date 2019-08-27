@@ -87,7 +87,20 @@ private value diff(value v1, value v2) { throw "can\'t differentiate non-collect
 	Generic function to compose the annotations of a set of M3s.
 }
 @memo
-M3 composeM3(loc id, set[M3] models) = modifyM3(id, toList(models), compose);
+M3 composeM3(loc id, set[M3] models) {
+	M3 comp = m3(id);
+
+	comp.declarations = {*model.declarations | model <- models};
+	comp.types = {*model.types | model <- models};
+	comp.uses = {*model.uses | model <- models};
+	comp.containment = {*model.containment | model <- models};
+	comp.messages = [*model.messages | model <- models];
+	comp.names = {*model.names | model <- models};
+	comp.documentation = {*model.documentation | model <- models};
+	comp.modifiers = {*model.modifiers | model <- models};
+
+	return comp;
+}
 
 @doc{
 	Generic function to apply a difference over the annotations of a list of M3s.
