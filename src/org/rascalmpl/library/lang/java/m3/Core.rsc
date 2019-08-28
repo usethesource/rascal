@@ -38,22 +38,44 @@ data M3(
 	rel[loc declaration, loc annotation] annotations = {}
 );
 
-
 data Language(str version="") = java();
 
+@memo
 public M3 composeJavaM3(loc id, set[M3] models) {
-  m = composeM3(id, models);
-  m.extends = {*model.extends | model <- models};
-  m.implements = {*model.implements | model <- models};
-  m.methodInvocation = {*model.methodInvocation | model <- models};
-  m.fieldAccess = {*model.fieldAccess | model <- models};
-  m.typeDependency = {*model.typeDependency | model <- models};
-  m.methodOverrides = {*model.methodOverrides | model <- models};
-  m.annotations = {*model.annotations | model <- models};
-  return m;
+  // Compose the generic M3 relations first
+  M3 comp = composeM3(id, models);
+
+  // Then the Java-specific ones
+  comp.extends = {*model.extends | model <- models};
+  comp.implements = {*model.implements | model <- models};
+  comp.methodInvocation = {*model.methodInvocation | model <- models};
+  comp.fieldAccess = {*model.fieldAccess | model <- models};
+  comp.typeDependency = {*model.typeDependency | model <- models};
+  comp.methodOverrides = {*model.methodOverrides | model <- models};
+  comp.annotations = {*model.annotations | model <- models};
+
+  return comp;
 }
 
-public M3 diffJavaM3(loc id, list[M3] models) = diffM3(id, models);
+@memo
+public M3 diffJavaM3(loc id, list[M3] models) {
+	// Diff the generic M3 relations first
+	M3 diff = diffM3(id, models);
+
+	M3 first = models[0];
+	M3 others = composeJavaM3(id, toSet(models[1..]));
+
+	// Then the Java-specific ones
+	diff.extends = first.extends - others.extends;
+	diff.implements = first.implements - others.implements;
+	diff.methodInvocation = first.methodInvocation - others.methodInvocation;
+	diff.fieldAccess = first.fieldAccess - others.fieldAccess;
+	diff.typeDependency = first.typeDependency - others.typeDependency;
+	diff.methodOverrides = first.methodOverrides - others.methodOverrides;
+	diff.annotations = first.annotations - others.annotations;
+
+	return diff;
+}
 
 public M3 link(M3 projectModel, set[M3] libraryModels) {
   projectModel.declarations = { <name[authority=projectModel.id.authority], src> | <name, src> <- projectModel.declarations };
