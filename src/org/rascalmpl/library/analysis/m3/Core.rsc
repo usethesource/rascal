@@ -114,13 +114,13 @@ M3 diffM3(loc id, list[M3] models) {
 	M3 others = composeM3(id, toSet(models[1..]));
 	M3 diff = m3(id);
 
-	diff.declarations = {<a, b> | <a, b> <- first.declarations, <a, b> notin others.declarations};
-	diff.types = {<a, b> | <a, b> <- first.types, <a, b> notin others.types};
-	diff.uses = {<a, b> | <a, b> <- first.uses, <a, b> notin others.uses};
-	diff.containment = {<a, b> | <a, b> <- first.containment, <a, b> notin others.containment};
-	diff.names = {<a, b> | <a, b> <- first.names, <a, b> notin others.names};
-	diff.documentation = {<a, b> | <a, b> <- first.documentation, <a, b> notin others.documentation};
-	diff.modifiers = {<a, b> | <a, b> <- first.modifiers, <a, b> notin others.modifiers};
+	diff.declarations = first.declarations - others.declarations;
+	diff.types = first.types - others.types;
+	diff.uses = first.uses - others.uses;
+	diff.containment = first.containment - others.containment;
+	diff.names = first.names - others.names;
+	diff.documentation = first.documentation - others.documentation;
+	diff.modifiers = first.modifiers - others.modifiers;
 
 	return diff;
 }

@@ -66,13 +66,13 @@ public M3 diffJavaM3(loc id, list[M3] models) {
 	M3 others = composeJavaM3(id, toSet(models[1..]));
 
 	// Then the Java-specific ones
-	diff.extends = {<a, b> | <a, b> <- first.extends, <a, b> notin others.extends};
-	diff.implements = {<a, b> | <a, b> <- first.implements, <a, b> notin others.implements};
-	diff.methodInvocation = {<a, b> | <a, b> <- first.methodInvocation, <a, b> notin others.methodInvocation};
-	diff.fieldAccess = {<a, b> | <a, b> <- first.fieldAccess, <a, b> notin others.fieldAccess};
-	diff.typeDependency = {<a, b> | <a, b> <- first.typeDependency, <a, b> notin others.typeDependency};
-	diff.methodOverrides = {<a, b> | <a, b> <- first.methodOverrides, <a, b> notin others.methodOverrides};
-	diff.annotations = {<a, b> | <a, b> <- first.annotations, <a, b> notin others.annotations};
+	diff.extends = first.extends - others.extends;
+	diff.implements = first.implements - others.implements;
+	diff.methodInvocation = first.methodInvocation - others.methodInvocation;
+	diff.fieldAccess = first.fieldAccess - others.fieldAccess;
+	diff.typeDependency = first.typeDependency - others.typeDependency;
+	diff.methodOverrides = first.methodOverrides - others.methodOverrides;
+	diff.annotations = first.annotations - others.annotations;
 
 	return diff;
 }
