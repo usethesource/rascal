@@ -1812,21 +1812,7 @@ public class Prelude {
 	
 	public IMap toMap(IList lst)
 	// @doc{toMap -- convert a list of tuples to a map; first value in old tuples is associated with a set of second values}
-	{ 
-//		Map<IsEqualsAdapter,ISetWriter> hm = new HashMap<>();
-//
-//		for (IValue v : lst) {
-//			ITuple t = (ITuple) v;
-//			IsEqualsAdapter key = new IsEqualsAdapter(t.get(0));
-//			IValue val = t.get(1);
-//			ISetWriter wValSet = hm.get(key);
-//			if(wValSet == null){
-//				wValSet = values.setWriter();
-//				hm.put(key, wValSet);
-//			}
-//			wValSet.insert(val);
-//		}
-	    
+	{ 	    
 	    Map<IsEqualsAdapter,IListWriter> hm = new HashMap<>();
 
         for (IValue v : lst) {
