@@ -337,7 +337,7 @@ test bool anotherAnd() {
   					[]
 					];
 }
-
+@ignoreCompiler{"too slow for now}
 test bool nestedOr() {
     res = for( ( ( ([*int x1,*int y1] := [1,2] || [*int x1,*int y1] := [3,4]) && ([*int x2,*int y2] := [5,6] || [*int x2,*int y2] := [7,8]) ) 
                  || ( ([*int x1,*int y1] := [9,10] || [*int x1,*int y1] := [11,12]) && ([*int x2,*int y2] := [13,14] || [*int x2,*int y2] := [15,16]) ) )
