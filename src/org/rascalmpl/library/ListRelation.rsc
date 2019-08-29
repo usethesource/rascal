@@ -354,10 +354,6 @@ public lrel[&T0,&T1] rangeX (lrel[&T0,&T1] R, set[&T1] S)
 public lrel[&T0,&T1] rangeX (lrel[&T0,&T1] R, list[&T1] S)
 	= [ <V0, V1> | <&T0 V0, &T1 V1> <- R, V1 notin S ];
 
-//// Make a map out of lrel
-//public map[&T0,list[&T1]] toMap(lrel[&T0,&T1] R) = isEmpty(R) ? ()
-//	: (k:[v | <k,&T1 v> <- R] | &T0 k <- domain(R));
-
 @doc{
 .Synopsis
 Listes a binary list relation as a map
