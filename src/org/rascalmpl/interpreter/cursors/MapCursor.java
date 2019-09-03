@@ -2,8 +2,14 @@ package org.rascalmpl.interpreter.cursors;
 
 import java.util.Iterator;
 import java.util.Map.Entry;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import org.rascalmpl.values.uptr.IRascalValueFactory;
 
 import io.usethesource.vallang.IMap;
+import io.usethesource.vallang.IMapWriter;
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.type.Type;
 
@@ -17,6 +23,16 @@ public class MapCursor extends Cursor implements IMap {
 		super(value, ctx);
 	}
 	
+	@Override
+	public IMapWriter writer() {
+	    return IRascalValueFactory.getInstance().mapWriter();
+	}
+	
+	@Override
+	public IRelation<IMap> asRelation() {
+	    throw new UnsupportedOperationException();
+	}
+	 
 	private IMap getMap() {
 		return (IMap)getWrappedValue();
 	}
@@ -106,5 +122,10 @@ public class MapCursor extends Cursor implements IMap {
 	public Iterator<Entry<IValue, IValue>> entryIterator() {
 		return getMap().entryIterator();
 	}
+
+    @Override
+    public Stream<IValue> stream() {
+        return StreamSupport.stream(spliterator(), false).map(e -> IRascalValueFactory.getInstance().tuple(e, get(e)));
+    }
 
 }

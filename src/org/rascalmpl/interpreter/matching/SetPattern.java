@@ -191,8 +191,7 @@ public class SetPattern extends AbstractMatchingResult {
 		
 		if(debug)System.err.println("setSubjectType = " + setSubjectType + ", staticSetSubjectType = " + staticSetSubjectType + ", setSubjectElementType = " + setSubjectElementType + ", staticSubjectElementType =" + staticSubjectElementType);
 		Environment env = ctx.getCurrentEnvt();
-		//fixedSetElements = ctx.getValueFactory().set(getType(env).getElementType());
-		fixedSetElements = ctx.getValueFactory().set(setSubjectElementType);
+		fixedSetElements = ctx.getValueFactory().set();
 		
 		nVar = 0;
 		patVars = new HashSet<String>();

@@ -33,8 +33,8 @@ public class ModuleDocExtractor {
 
     public ModuleDocExtractor() {
         eval.addRascalSearchPath(URIUtil.rootLocation("std"));
-        eval.doImport(null, "experiments::Compiler::RascalExtraction::RascalExtraction");
-        eval.doImport(null, "experiments::Compiler::RascalExtraction::RascalExtraction");
+        eval.doImport(null, "lang::rascal::tutor::RascalExtraction");
+        eval.doImport(null, "lang::rascal::tutor::ExtractDoc");
     }
     
     public ITuple extractDoc(IString parent, ISourceLocation moduleLoc) {

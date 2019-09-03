@@ -20,8 +20,8 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.ITuple;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.impl.ConstructorWithKeywordParametersFacade;
-import io.usethesource.vallang.impl.NodeWithKeywordParametersFacade;
+import io.usethesource.vallang.impl.fields.ConstructorWithKeywordParametersFacade;
+import io.usethesource.vallang.impl.fields.NodeWithKeywordParametersFacade;
 import io.usethesource.vallang.visitors.IValueVisitor;
 
 import com.google.gson.stream.JsonWriter;
