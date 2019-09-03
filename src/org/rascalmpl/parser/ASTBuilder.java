@@ -382,7 +382,7 @@ public class ASTBuilder {
 		}
 	}
 
-	private Expression liftHole(org.rascalmpl.values.uptr.ITree tree) {
+    private Expression liftHole(org.rascalmpl.values.uptr.ITree tree) {
 		assert tree.asAnnotatable().hasAnnotation("holeType");
 		IConstructor type = (IConstructor) tree.asAnnotatable().getAnnotation("holeType");
 		tree = (org.rascalmpl.values.uptr.ITree) TreeAdapter.getArgs(tree).get(0);

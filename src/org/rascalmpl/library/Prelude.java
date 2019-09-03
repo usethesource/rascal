@@ -1812,20 +1812,20 @@ public class Prelude {
 	
 	public IMap toMap(IList lst)
 	// @doc{toMap -- convert a list of tuples to a map; first value in old tuples is associated with a set of second values}
-	{ 
-		Map<IsEqualsAdapter,ISetWriter> hm = new HashMap<>();
+	{ 	    
+	    Map<IsEqualsAdapter,IListWriter> hm = new HashMap<>();
 
-		for (IValue v : lst) {
-			ITuple t = (ITuple) v;
-			IsEqualsAdapter key = new IsEqualsAdapter(t.get(0));
-			IValue val = t.get(1);
-			ISetWriter wValSet = hm.get(key);
-			if(wValSet == null){
-				wValSet = values.setWriter();
-				hm.put(key, wValSet);
-			}
-			wValSet.insert(val);
-		}
+        for (IValue v : lst) {
+            ITuple t = (ITuple) v;
+            IsEqualsAdapter key = new IsEqualsAdapter(t.get(0));
+            IValue val = t.get(1);
+            IListWriter wValList = hm.get(key);
+            if(wValList == null){
+                wValList = values.listWriter();
+                hm.put(key, wValList);
+            }
+            wValList.append(val);
+        }
 		
 		IMapWriter w = values.mapWriter();
 		for(IsEqualsAdapter v : hm.keySet()){
@@ -2392,6 +2392,8 @@ public class Prelude {
 	
 	protected IValue implode(TypeStore store, Type type, IConstructor arg0, boolean splicing, IEvaluatorContext ctx) {
 		ITree tree = (ITree) arg0;
+		Backtrack failReason = null;
+		
 		// always yield if expected type is str, except if regular 
 		if (type.isString() && !splicing) {
 			return values.string(TreeAdapter.yield(tree));
@@ -2444,10 +2446,12 @@ public class Prelude {
 						return ast.asAnnotatable().setAnnotation("location", loc);
 					}
 					catch (Backtrack b) {
+					    failReason = b;
 						continue;
 					}
 				}
-				throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Cannot find a constructor " + type));
+				
+				throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, "Cannot find a constructor " + type));
 			}
 			if (type.isInteger()) {
 				return values.integer(yield);
@@ -2626,6 +2630,8 @@ public class Prelude {
 
 			Set<Type> conses = findConstructors(type, constructorName, length, store);
 			Iterator<Type> iter = conses.iterator();
+			
+			
 			while (iter.hasNext()) {
 				try {
 					Type cons = iter.next();
@@ -2635,13 +2641,16 @@ public class Prelude {
 					return ast.asAnnotatable().setAnnotation("location", loc).asAnnotatable().setAnnotation("comments", comments);
 				}
 				catch (Backtrack b) {
+				    failReason = b;
 					continue;
 				}
 			}
 			
+			throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, 
+                "Cannot find a constructor for " + type + " with name " + constructorName + " and arity " + length + " for syntax type \'" + ProductionAdapter.getSortName(TreeAdapter.getProduction(tree)) + "\'"));
 		}
 		
-		throw new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, 
+		throw failReason != null ? failReason : new Backtrack(RuntimeExceptionFactory.illegalArgument(tree, null, null, 
 				"Cannot find a constructor for " + type));
 	}
 	
@@ -3458,11 +3467,11 @@ public class Prelude {
 	 * ValueIO
 	 */
 	
-	public IInteger getFileLength(ISourceLocation g) throws IOException {
+	public IInteger getFileLength(ISourceLocation g) {
 		if (g.getScheme().equals("file")) {
 			File f = new File(g.getURI());
 			if (!f.exists() || f.isDirectory()) { 
-				throw new IOException(g.toString());
+				throw RuntimeExceptionFactory.io(values.string(g.toString()), null, null);
 			}
 			
 			return values.integer(f.length());

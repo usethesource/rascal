@@ -35,6 +35,7 @@ import util::FileSystem;
 import analysis::graphs::Graph;
 import Node;
 import Map;
+import List;
 extend analysis::m3::TypeSymbol;
  
 data Modifier;
@@ -87,14 +88,42 @@ private value diff(value v1, value v2) { throw "can\'t differentiate non-collect
 	Generic function to compose the annotations of a set of M3s.
 }
 @memo
-M3 composeM3(loc id, set[M3] models) = modifyM3(id, toList(models), compose);
+M3 composeM3(loc id, set[M3] models) {
+	M3 comp = m3(id);
+
+	comp.declarations = {*model.declarations | model <- models};
+	comp.types = {*model.types | model <- models};
+	comp.uses = {*model.uses | model <- models};
+	comp.containment = {*model.containment | model <- models};
+	comp.messages = [*model.messages | model <- models];
+	comp.names = {*model.names | model <- models};
+	comp.documentation = {*model.documentation | model <- models};
+	comp.modifiers = {*model.modifiers | model <- models};
+
+	return comp;
+}
 
 @doc{
 	Generic function to apply a difference over the annotations of a list of M3s.
-	The substraction is applied according to the order of the models in the list.
 }
 @memo
-M3 diffM3(loc id, list[M3] models) = modifyM3(id, models, diff);
+M3 diffM3(loc id, list[M3] models) {
+	assert size(models) >= 2;
+
+	M3 first = models[0];
+	M3 others = composeM3(id, toSet(models[1..]));
+	M3 diff = m3(id);
+
+	diff.declarations = first.declarations - others.declarations;
+	diff.types = first.types - others.types;
+	diff.uses = first.uses - others.uses;
+	diff.containment = first.containment - others.containment;
+	diff.names = first.names - others.names;
+	diff.documentation = first.documentation - others.documentation;
+	diff.modifiers = first.modifiers - others.modifiers;
+
+	return diff;
+}
 
 @memo
 M3 modifyM3(loc id, list[M3] models, value (&T,&T) fun) { 

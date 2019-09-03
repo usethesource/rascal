@@ -11,7 +11,6 @@
 *******************************************************************************/
 package org.rascalmpl.library.lang.yaml;
 
-import static org.rascalmpl.library.lang.yaml.YAMLTypeFactory.Node;
 import static org.rascalmpl.library.lang.yaml.YAMLTypeFactory.Node_mapping;
 import static org.rascalmpl.library.lang.yaml.YAMLTypeFactory.Node_reference;
 import static org.rascalmpl.library.lang.yaml.YAMLTypeFactory.Node_scalar;
@@ -31,6 +30,8 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.TypeReifier;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
+import org.yaml.snakeyaml.Yaml;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
@@ -45,8 +46,6 @@ import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.type.TypeStore;
-import org.yaml.snakeyaml.Yaml;
 
 public class RascalYAML {
 	private static final String ANCHOR_ANNO = "anchor";
@@ -102,7 +101,6 @@ public class RascalYAML {
 	
 	@SuppressWarnings("unchecked")
 	private IConstructor loadRec(Object obj, IdentityHashMap<Object, Integer> anchors, IdentityHashMap<Object, Boolean> visited, IEvaluatorContext ctx) {
-	    TypeStore store = ctx.getCurrentEnvt().getStore();
 	    IMap empty = values.mapWriter().done();
 	    
 		if (obj instanceof Integer) {
@@ -147,21 +145,21 @@ public class RascalYAML {
 		
 		IConstructor result;
 		if (obj instanceof Object[]) {
-			IListWriter w = values.listWriter(Node);
+			IListWriter w = values.listWriter();
 			for (Object elt: (Object[])obj) {
 				w.append(loadRec(elt, anchors, visited, ctx));
 			}
 			result = values.constructor(Node_sequence, w.done());
 		}
 		else if (obj instanceof List) {
-			IListWriter w = values.listWriter(Node);
+			IListWriter w = values.listWriter();
 			for (Object elt: (List<Object>)obj) {
 				w.append(loadRec(elt, anchors, visited, ctx));
 			}
 			result = values.constructor(Node_sequence, w.done());
 		}
 		else if (obj instanceof Map) {
-			IMapWriter w = values.mapWriter(Node, Node);
+			IMapWriter w = values.mapWriter();
 			Map<Object, Object> m = (Map<Object,Object>)obj;
 			for (Map.Entry<Object,Object> e: m.entrySet()) {
 				w.put(loadRec(e.getKey(), anchors, visited, ctx), loadRec(e.getValue(), anchors, visited, ctx));

@@ -10,16 +10,16 @@ package org.rascalmpl.library.experiments.resource.results.buffers;
 import java.util.Iterator;
 import java.util.Random;
 
-import io.usethesource.vallang.IAnnotatable;
+import org.rascalmpl.values.uptr.IRascalValueFactory;
+
 import io.usethesource.vallang.IList;
-import io.usethesource.vallang.IListRelation;
+import io.usethesource.vallang.IListWriter;
+import io.usethesource.vallang.IRelation;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import io.usethesource.vallang.visitors.IValueVisitor;
 
 public class LazyList implements IList {
 
@@ -47,12 +47,6 @@ public class LazyList implements IList {
 	}
 
 	@Override
-	public <T, E extends Throwable> T accept(IValueVisitor<T,E> v) throws E {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public boolean isEqual(IValue other) {
 		throw new IllegalOperationException("isEqual over buffered list",
 				getType());
@@ -71,68 +65,74 @@ public class LazyList implements IList {
 
 	@Override
 	public int length() {
-		throw new IllegalOperationException("isEqual over buffered list",
+		throw new IllegalOperationException("length over buffered list",
 				getType());
 	}
 
 	@Override
+	public int size() {
+	    throw new IllegalOperationException("size over buffered list",
+                getType());
+	}
+	
+	@Override
 	public IList reverse() {
-		throw new IllegalOperationException("isEqual over buffered list",
+		throw new IllegalOperationException("reverse over buffered list",
 				getType());
 	}
 	
 	@Override
 	public IList shuffle(Random rand) {
-		throw new IllegalOperationException("isEqual over buffered list",
+		throw new IllegalOperationException("shuffle over buffered list",
 				getType());
 	}
 
 	@Override
 	public IList append(IValue e) {
-		throw new IllegalOperationException("isEqual over buffered list",
+		throw new IllegalOperationException("append over buffered list",
 				getType());
 	}
 
 	@Override
 	public IList insert(IValue e) {
-		throw new IllegalOperationException("isEqual over buffered list",
+		throw new IllegalOperationException("insert over buffered list",
 				getType());
 	}
 
 	@Override
 	public IList concat(IList o) {
-		throw new IllegalOperationException("isEqual over buffered list",
+		throw new IllegalOperationException("concat over buffered list",
 				getType());
 	}
 
 	@Override
 	public IList put(int i, IValue e) throws FactTypeUseException,
 			IndexOutOfBoundsException {
-		throw new IllegalOperationException("isEqual over buffered list",
+		throw new IllegalOperationException("put over buffered list",
 				getType());
 	}
 
 	@Override
 	public IValue get(int i) throws IndexOutOfBoundsException {
-		throw new IllegalOperationException("isEqual over buffered list",
+		throw new IllegalOperationException("get over buffered list",
 				getType());
 	}
 
 	@Override
 	public IList sublist(int offset, int length) {
-		throw new IllegalOperationException("isEqual over buffered list",
+		throw new IllegalOperationException("sublist over buffered list",
 				getType());
 	}
 
 	@Override
 	public boolean isEmpty() {
-		throw new IllegalOperationException("isEqual over buffered list",
+		throw new IllegalOperationException("isEmpty over buffered list",
 				getType());
 	}
 
 	@Override
 	public boolean contains(IValue e) {
-		throw new IllegalOperationException("isEqual over buffered list",
+		throw new IllegalOperationException("contains over buffered list",
 				getType());
 	}
 
@@ -144,31 +144,31 @@ public class LazyList implements IList {
 
 	@Override
 	public IList delete(int i) {
-		throw new IllegalOperationException("isEqual over buffered list",
+		throw new IllegalOperationException("delete over buffered list",
 				getType());
 	}
 
 	@Override
 	public IList product(IList e) {
-		throw new IllegalOperationException("isEqual over buffered list",
+		throw new IllegalOperationException("product over buffered list",
 				getType());
 	}
 
 	@Override
 	public IList subtract(IList e) {
-		throw new IllegalOperationException("isEqual over buffered list",
+		throw new IllegalOperationException("subtract over buffered list",
 				getType());
 	}
 
 	@Override
 	public IList intersect(IList e) {
-		throw new IllegalOperationException("isEqual over buffered list",
+		throw new IllegalOperationException("intersect over buffered list",
 				getType());
 	}
 
 	@Override
 	public boolean isSubListOf(IList e) {
-		throw new IllegalOperationException("isEqual over buffered list",
+		throw new IllegalOperationException("isSublistOf over buffered list",
 				getType());
 	}
 
@@ -185,33 +185,14 @@ public class LazyList implements IList {
 	}
 
 	@Override
-	public IListRelation<IList> asRelation() {
+	public IRelation<IList> asRelation() {
 		throw new IllegalOperationException(
 				"Relational operations are not supported on lazy representation.",
 				getType());
 	}
-	
-	@Override
-	public boolean isAnnotatable() {
-		return false;
-	}
 
-	@Override
-	public IAnnotatable<? extends IValue> asAnnotatable() {
-		throw new IllegalOperationException(
-				"Cannot be viewed as annotatable.", getType());
-	}
-	
-	 @Override
-	  public boolean mayHaveKeywordParameters() {
-	    return false;
-	  }
-	  
-	  @Override
-	  public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
-	    throw new IllegalOperationException(
-	        "Cannot be viewed as with keyword parameters", getType());
-	  }
-
-	
+    @Override
+    public IListWriter writer() {
+        return IRascalValueFactory.getInstance().listWriter();
+    }
 }

@@ -34,8 +34,6 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedException;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.library.Prelude;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.RascalRuntimeException;
-import org.rascalmpl.library.experiments.Compiler.RVM.Interpreter.ToplevelType;
 import org.rascalmpl.library.lang.rascal.syntax.RascalParser;
 import org.rascalmpl.parser.Parser;
 import org.rascalmpl.parser.gtd.io.InputConverter;
@@ -48,6 +46,11 @@ import org.rascalmpl.repl.LimitedWriter;
 import org.rascalmpl.shell.RascalShell;
 import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.ValueFactoryFactory;
+import org.rascalmpl.values.uptr.ITree;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+import org.rascalmpl.values.uptr.TreeAdapter;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IInteger;
@@ -63,10 +66,6 @@ import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.type.Type;
-import org.rascalmpl.values.ValueFactoryFactory;
-import org.rascalmpl.values.uptr.ITree;
-import org.rascalmpl.values.uptr.RascalValueFactory;
-import org.rascalmpl.values.uptr.TreeAdapter;
 
 public class Reflective {
 	protected final IValueFactory values;
@@ -320,7 +319,7 @@ public class Reflective {
 	public IValue parseNamedModuleWithSpaces(IString modulePath,  IEvaluatorContext ctx){
 	    ISourceLocation moduleLoc = ctx.getEvaluator().getRascalResolver().resolveModule(modulePath.getValue());
 	    if(moduleLoc == null){
-	        throw RascalRuntimeException.io(values.string("Module " + modulePath.getValue() + " not found"), null);
+	        throw RuntimeExceptionFactory.io(values.string("Module " + modulePath.getValue() + " not found"), null, null);
 	    }
 	    return parseModuleWithSpaces(moduleLoc);
 	}

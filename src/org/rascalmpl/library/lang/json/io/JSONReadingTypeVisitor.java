@@ -140,10 +140,9 @@ public class JSONReadingTypeVisitor implements
 		return t.isTop() ? tf.valueType() : t.getValueType();
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public IValue visitList(Type type) throws IOException {
-		IListWriter w = vf.listWriter(elementType(type));
+		IListWriter w = vf.listWriter();
 		List l = (List)stack.peek();
 		for (Object e: l) {
 			stack.push(e);
@@ -153,11 +152,10 @@ public class JSONReadingTypeVisitor implements
 		return w.done();
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public IValue visitMap(Type type) throws IOException {
 		// [ [k, v], ... ]
-		IMapWriter w = vf.mapWriter(keyType(type), valueType(type));
+		IMapWriter w = vf.mapWriter();
 		List l = (List)stack.peek();
 		for (Object e: l) {
 			List pair = (List)e;
@@ -199,10 +197,9 @@ public class JSONReadingTypeVisitor implements
 		throw new AssertionError("alias normalization should happen in read()");
 	}
 
-	@SuppressWarnings("deprecation")
 	@Override
 	public IValue visitSet(Type type) throws IOException {
-		ISetWriter w = vf.setWriter(elementType(type));
+		ISetWriter w = vf.setWriter();
 		List l = (List)stack.peek();
 		for (Object e: l) {
 			stack.push(e);
@@ -274,7 +271,12 @@ public class JSONReadingTypeVisitor implements
 		    if (offset != -1 && length != -1 && beginLine != -1 && endLine != -1 && beginColumn != -1 && endColumn != -1) {
 		        return vf.sourceLocation(top, offset, length, beginLine, endLine, beginColumn, endColumn);
 		    }
-		    return top;
+		    else if (offset != -1 && length != -1) {
+		        return vf.sourceLocation(top, offset, length);
+		    }
+		    else {
+		        return top;
+		    }
 		} catch (URISyntaxException e) {
 			throw new IOException(e);
 		}
