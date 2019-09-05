@@ -1,11 +1,12 @@
 module analysis::m3::FlowGraph
 
-data FlowGraph(
+import analysis::m3::Core;
+
+data M3(
     rel[loc, list[loc]] basicBlocks = {},
     rel[loc, loc, set[EdgeProperty]] dataFlow = {},
     rel[loc, loc, set[EdgeProperty]] controlFlow = {}
-)
-    = flow(loc project);
+);
     
 data EdgeProperty
     = trueCondition()
