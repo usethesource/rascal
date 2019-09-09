@@ -320,6 +320,7 @@ public class ASMNodeResolver implements NodeResolver {
         String descriptor = type.getDescriptor()
             .replace("[", "")
             .replace("%5B", "");
+        
         if (type.getClassName() == null) {
             return M3LocationUtil.makeLocation(CLASS_SCHEME, "", descriptor);
         }
