@@ -12,9 +12,14 @@
  */ 
 package org.rascalmpl.library.lang.java.m3.internal;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
+import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AnnotationNode;
@@ -524,4 +529,47 @@ public class ASMNodeResolver implements NodeResolver {
     private io.usethesource.vallang.type.Type getTypeSymbol() {
         return typeStore.lookupAbstractDataType("TypeSymbol");
     }
+    
+    @Override
+    public ClassReader getClassReader(String className, ISourceLocation uri) {
+        try {
+            return new ClassReader(className);
+        }
+        catch (IOException e) {
+            return getClassReaderByJarStream(className, uri);
+        }
+    }
+
+    /**
+     * Returns an ASM ClassReader from a compilation unit location 
+     * or name. It creates a JarStream if the entry is localized inside
+     * the M3 Jar.
+     * @param className - class/comilation unit name/path (<pkg>/<name>)
+     * @return ASM ClassReader, null if the compilation unit is not found
+     */
+    @SuppressWarnings("resource")
+    private ClassReader getClassReaderByJarStream(String className, ISourceLocation uri) {
+        try {
+            JarFile jar = new JarFile(uri.getPath());
+            JarEntry entry = new JarEntry(className + ".class");
+            
+            try(InputStream inputStream = jar.getInputStream(entry);) {
+                return getClassReader(inputStream);
+            }
+        }
+        catch (IOException e) {
+            return null;
+        }
+    }
+    
+    @Override
+    public ClassReader getClassReader(InputStream classStream) {
+        try {
+            return new ClassReader(classStream);
+        }
+        catch (Exception e) {
+            return null;
+        }
+    }
+    
 }
