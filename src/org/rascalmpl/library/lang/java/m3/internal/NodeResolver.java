@@ -12,6 +12,10 @@
  */ 
 package org.rascalmpl.library.lang.java.m3.internal;
 
+import java.io.InputStream;
+
+import org.objectweb.asm.ClassReader;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
@@ -46,4 +50,20 @@ public interface NodeResolver {
      * @return Rascal constructor (type symbol)
      */
     public IConstructor resolveType(Object node, ISourceLocation uri);
+    
+    /**
+     * Returns an ASM ClassReader from a compilation unit location 
+     * or name. 
+     * @param className - class/comilation unit name/path (<pkg>/<name>)
+     * @param uri - source location of the JAR file
+     * @return ASM ClassReader, null if the compilation unit is not found
+     */
+    public ClassReader getClassReader(String className, ISourceLocation uri);
+    
+    /**
+     * Returns an ASM ClassReader from an input stream.
+     * @param classStream - class/compilation unit input stream 
+     * @return ASM ClassReader, null if the compilation unit is not found
+     */
+    public ClassReader getClassReader(InputStream classStream);
 }
