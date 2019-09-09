@@ -138,7 +138,7 @@ public class JarConverter extends M3Converter {
      * @param jar - Jar file location
      */
     public void convertJar(ISourceLocation jar) {
-        loc = cleanJarLocation(jar);
+        loc = jar;
         createM3(loc);
     }
     
@@ -150,40 +150,6 @@ public class JarConverter extends M3Converter {
     public void convertJarFile(ISourceLocation classFile, String className) {
         loc = classFile;
         createSingleClassM3(className);
-    }
-
-    /**
-     * Removes the Jar scheme of the location and retrieves a new one 
-     * that can be understood by the input stream created by the 
-     * URIResolverRegistry. 
-     * @param jar
-     * @return modified Jar location
-     */
-    private ISourceLocation cleanJarLocation(ISourceLocation jar) {
-      //TODO: manage nested locations
-        try {
-            String scheme = jar.getScheme();
-            String path = jar.getPath();
-            
-            // E.g. |jar:///absolute/path/to/jar.jar!|
-            if (scheme.equals(JAR_SCHEME) && path.endsWith("!")) {
-                String nestedPath = path.substring(0, path.lastIndexOf("!"));
-                return values.sourceLocation(FILE_SCHEME, "", nestedPath);
-            }
-            // E.g. |jar+file:///absolute/path/to/jar.jar!|
-            else if (scheme.startsWith(JAR_SCHEME + "+")) {
-                String nestedScheme = scheme.substring(scheme.lastIndexOf("+") + 1);
-                String nestedPath = path.substring(0, path.lastIndexOf("!"));
-                return (path.endsWith("!")) ? values.sourceLocation(nestedScheme, "", nestedPath) 
-                    : URIUtil.changeScheme(jar, nestedScheme);
-            }
-            else {
-                return jar;
-            }
-        }
-        catch (URISyntaxException e) {
-            throw new RuntimeException("Error while reading Jar file location.", e);
-        }
     }
     
     /**
