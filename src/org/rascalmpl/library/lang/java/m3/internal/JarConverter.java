@@ -194,26 +194,24 @@ public class JarConverter extends M3Converter {
     private void createM3(ISourceLocation uri) {
         try {
             this.uri = uri;
-            InputStream inputStream = registry.getInputStream(uri);
-            JarInputStream jarStream = new JarInputStream(inputStream);
-            JarEntry entry = jarStream.getNextJarEntry();
-
-            while (entry != null) {
-                compUnitPhysical = M3LocationUtil.extendPath(uri, entry.getName());
-                
-                if(entry.getName().endsWith(".class")) {
-                    String compUnit = getCompilationUnitRelativePath();
-                    ClassReader classReader = getClassReader(jarStream);
-                    
-                    setCompilationUnitRelations(compUnit);
-                    setPackagesRelations(compUnit);
-                    setClassRelations(classReader, compUnit);
-                }
-                entry = jarStream.getNextJarEntry();
-            }
             
-            jarStream.close();
-            inputStream.close();
+            try (InputStream inputStream = registry.getInputStream(uri);
+                JarInputStream jarStream = new JarInputStream(inputStream);) {
+                JarEntry entry = jarStream.getNextJarEntry();
+                while (entry != null) {
+                    compUnitPhysical = M3LocationUtil.extendPath(uri, entry.getName());
+                    
+                    if(entry.getName().endsWith(".class")) {
+                        String compUnit = getCompilationUnitRelativePath();
+                        ClassReader classReader = getClassReader(jarStream);
+                        
+                        setCompilationUnitRelations(compUnit);
+                        setPackagesRelations(compUnit);
+                        setClassRelations(classReader, compUnit);
+                    }
+                    entry = jarStream.getNextJarEntry();
+                }
+            }
         }
         catch (IOException e) {
             throw new RuntimeException("Error while managing Jar stream.", e);
@@ -245,7 +243,7 @@ public class JarConverter extends M3Converter {
         try {
             return new ClassReader(className);
         }
-        catch (Exception e) {
+        catch (IOException e) {
             return getClassReaderByJarStream(className);
         }
     }
@@ -262,8 +260,10 @@ public class JarConverter extends M3Converter {
         try {
             JarFile jar = new JarFile(uri.getPath());
             JarEntry entry = new JarEntry(className + ".class");
-            InputStream inputStream = jar.getInputStream(entry);
-            return getClassReader(inputStream);
+            
+            try(InputStream inputStream = jar.getInputStream(entry);) {
+                return getClassReader(inputStream);
+            }
         }
         catch (IOException e) {
             return null;
