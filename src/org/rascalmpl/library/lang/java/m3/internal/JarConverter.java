@@ -169,7 +169,7 @@ public class JarConverter extends M3Converter {
                     
                     if(entry.getName().endsWith(".class")) {
                         String compUnit = getCompilationUnitRelativePath();
-                        ClassReader classReader = getClassReader(jarStream);
+                        ClassReader classReader = resolver.getClassReader(jarStream);
                         
                         setCompilationUnitRelations(compUnit);
                         setPackagesRelations(compUnit);
@@ -192,63 +192,12 @@ public class JarConverter extends M3Converter {
      */
     private void createSingleClassM3(String className) {
         String compUnit = className;
-        ClassReader classReader = getClassReader(className);
+        ClassReader classReader = resolver.getClassReader(className, uri);
 
         setCompilationUnitRelations(compUnit);
         setPackagesRelations(compUnit);
         setClassRelations(classReader, compUnit);
     } 
-
-    /**
-     * Returns an ASM ClassReader from a compilation unit location 
-     * or name. 
-     * @param className - class/comilation unit name/path (<pkg>/<name>)
-     * @return ASM ClassReader, null if the compilation unit is not found
-     */
-    private ClassReader getClassReader(String className) {
-        try {
-            return new ClassReader(className);
-        }
-        catch (IOException e) {
-            return getClassReaderByJarStream(className);
-        }
-    }
-
-    /**
-     * Returns an ASM ClassReader from a compilation unit location 
-     * or name. It creates a JarStream if the entry is localized inside
-     * the M3 Jar.
-     * @param className - class/comilation unit name/path (<pkg>/<name>)
-     * @return ASM ClassReader, null if the compilation unit is not found
-     */
-    @SuppressWarnings("resource")
-    public ClassReader getClassReaderByJarStream(String className) {
-        try {
-            JarFile jar = new JarFile(uri.getPath());
-            JarEntry entry = new JarEntry(className + ".class");
-            
-            try(InputStream inputStream = jar.getInputStream(entry);) {
-                return getClassReader(inputStream);
-            }
-        }
-        catch (IOException e) {
-            return null;
-        }
-      }
-    
-    /**
-     * Returns an ASM ClassReader from an input stream.
-     * @param classStream - class/compilation unit input stream 
-     * @return ASM ClassReader, null if the compilation unit is not found
-     */
-    private ClassReader getClassReader(InputStream classStream) {
-        try {
-            return new ClassReader(classStream);
-        }
-        catch (Exception e) {
-            return null;
-        }
-    }
     
     /**
      * Returns a compilation unit relative path with regards to the Jar
@@ -462,7 +411,7 @@ public class JarConverter extends M3Converter {
      * @param methodLogical - logical location of the method
      */
     private void setMethodOverridesRelation(String superClass, MethodNode methodNode, ISourceLocation methodLogical) {
-        ClassReader classReader = getClassReader(superClass);
+        ClassReader classReader = resolver.getClassReader(superClass, uri);
 
         if (classReader != null) {
             ClassNode classNode = new ClassNode();
