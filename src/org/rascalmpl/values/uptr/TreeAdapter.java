@@ -419,11 +419,11 @@ public class TreeAdapter {
 	}
 
 	public static ISourceLocation getLocation(ITree tree) {
-		return (ISourceLocation) tree.asAnnotatable().getAnnotation(RascalValueFactory.Location);
+		return (ISourceLocation) tree.asWithKeywordParameters().getParameter(RascalValueFactory.Location);
 	}
 
 	public static ITree setLocation(ITree tree, ISourceLocation loc) {
-		return (ITree) tree.asAnnotatable().setAnnotation(RascalValueFactory.Location, loc);
+		return (ITree) tree.asWithKeywordParameters().setParameter(RascalValueFactory.Location, loc);
 	}
 	
 	public static int getCharacter(ITree tree) {
@@ -687,7 +687,7 @@ public class TreeAdapter {
 		}
 
 		if (TreeAdapter.isAmb(tree)) {
-			if (tree.asAnnotatable().hasAnnotation(label)) {
+			if (tree.asWithKeywordParameters().hasParameter(label)) {
 				return tree;
 			}
 			
@@ -716,7 +716,7 @@ public class TreeAdapter {
 		}
 		
 		if (l.getOffset() <= offset && l.getOffset() + l.getLength() >= offset && 
-		    tree.asAnnotatable().hasAnnotation(label)) {
+		    tree.asWithKeywordParameters().hasParameter(label)) {
 				return tree;
 		}
 

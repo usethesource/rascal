@@ -116,16 +116,6 @@ public class JsonValueWriter {
       }
 
       @Override
-      public Void visitRelation(ISet o) throws IOException {
-        return visitSet(o);
-      }
-
-      @Override
-      public Void visitListRelation(IList o) throws IOException {
-        return visitList(o);
-      }
-
-      @Override
       public Void visitSet(ISet o) throws IOException {
         out.beginArray();
         for (IValue v : o) {

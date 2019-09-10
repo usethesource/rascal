@@ -30,7 +30,11 @@ public abstract class ResourceResult extends Result<IValue> implements IExternal
 	}
 
 	@Override
-	public boolean isEqual(IValue other) {
+	public boolean equals(Object other) {
+	    if (other == null) {
+	        return false;
+	    }
+	    
 		if (other instanceof ResourceResult) {
 			return fullURI.equals(((ResourceResult) other).fullURI);
 		}

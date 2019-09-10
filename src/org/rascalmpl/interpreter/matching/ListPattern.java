@@ -375,7 +375,7 @@ public class ListPattern extends AbstractMatchingResult  {
 
     for(int i = 0; i < previousBinding.length(); i += delta){
       if(debug)System.err.println("comparing: " + previousBinding.get(i) + " and " + listSubject.get(subjectCursor + i));
-      if(!previousBinding.get(i).isEqual(listSubject.get(subjectCursor + i))){
+      if(!previousBinding.get(i).equals(listSubject.get(subjectCursor + i))){
         forward = false;
         listVarLength[patternCursor] = 0;
         patternCursor -= delta;

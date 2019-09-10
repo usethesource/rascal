@@ -42,7 +42,6 @@ import org.rascalmpl.interpreter.utils.LimitedResultWriter.IOLimitReachedExcepti
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.uri.URIUtil;
 
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IListWriter;
@@ -423,11 +422,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	}
 
 	@Override
-	public boolean isEqual(IValue other) {
-		return other == this;
-	}
-	
-	@Override
     public boolean match(IValue other) {
         return other == this;
     }
@@ -536,12 +530,15 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	@Override
 	public boolean equals(Object obj) {
-		if(obj == null)
+		if (obj == null) {
 			return false;
+		}
+		
 		if (obj.getClass() == getClass()) {
 			AbstractFunction other = (AbstractFunction) obj;
 			return other.declarationEnvironment == declarationEnvironment && other.ast.equals(ast);
 		}
+		
 		return false;
 	}
 	
@@ -559,17 +556,6 @@ abstract public class AbstractFunction extends Result<IValue> implements IExtern
 	
 	public boolean hasResolverScheme() {
 		return false;
-	}
-
-	@Override
-	public boolean isAnnotatable() {
-		return false;
-	}
-
-	@Override
-	public IAnnotatable<? extends IValue> asAnnotatable() {
-		throw new IllegalOperationException(
-				"Cannot be viewed as annotatable.", getType());
 	}
 
 	@Override

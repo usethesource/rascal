@@ -34,19 +34,16 @@ import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UnguardedFail;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IExternalValue;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.IWithKeywordParameters;
-import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.visitors.IValueVisitor;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class OverloadedFunction extends Result<IValue> implements IExternalValue, ICallableValue {
 	private final static TypeFactory TF = TypeFactory.getInstance();
@@ -507,20 +504,6 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	}
 
 	@Override
-	public boolean isEqual(IValue other) {
-		if (other instanceof OverloadedFunction) {
-			return primaryCandidates.equals(((OverloadedFunction) other).primaryCandidates);
-		}
-		return false;
-	}
-
-	
-	@Override
-    public boolean match(IValue other) {
-       return isEqual(other);
-    }
-	
-	@Override
 	public <V extends IValue> Result<IBool> equals(Result<V> that) {
 		return that.equalToOverloadedFunction(this);
 	}
@@ -602,26 +585,4 @@ public class OverloadedFunction extends Result<IValue> implements IExternalValue
 	public Evaluator getEval(){
 		return (Evaluator) ctx;
 	}
-	
-	@Override
-	public boolean isAnnotatable() {
-		return false;
-	}
-
-	@Override
-	public IAnnotatable<? extends IValue> asAnnotatable() {
-		throw new IllegalOperationException(
-				"Cannot be viewed as annotatable.", getType());
-	}
-	
-	 @Override
-   public boolean mayHaveKeywordParameters() {
-     return false;
-   }
-   
-   @Override
-   public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
-     throw new IllegalOperationException(
-         "Cannot be viewed as with keyword parameters", getType());
-   }
 }

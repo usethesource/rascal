@@ -754,7 +754,7 @@ public class SymbolAdapter {
 		}
 		
 		if ((isLiteral(l) && isLiteral(r)) || (isCILiteral(l) && isCILiteral(r)) || (isCharClass(l) && isCharClass(r))) {
-			return l.isEqual(r);
+			return l.equals(r);
 		}
 		if (isStartSort(l) && isStartSort(r)) {
 		    return isEqual(getStart(l), getStart(r));
@@ -849,7 +849,7 @@ public class SymbolAdapter {
 	}
 
     public static IConstructor unionCharClasses(IConstructor lhs, IConstructor rhs) {
-        if (lhs == rhs || lhs.isEqual(rhs)) {
+        if (lhs == rhs || lhs.equals(rhs)) {
             return lhs;
         }
         return charclass(unionRanges(getRanges(lhs), getRanges(rhs)));
@@ -866,7 +866,7 @@ public class SymbolAdapter {
     }
     
     public static IConstructor differencesCharClasses(IConstructor lhs, IConstructor rhs) {
-        if (lhs == rhs || lhs.isEqual(rhs)) {
+        if (lhs == rhs || lhs.equals(rhs)) {
             return VF.constructor(RascalValueFactory.Symbol_CharClass, VF.list());
         }
         
@@ -933,7 +933,7 @@ public class SymbolAdapter {
     }
 
     public static IConstructor intersectCharClasses(IConstructor lhs, IConstructor rhs) {
-        if (lhs == rhs || lhs.isEqual(rhs)) {
+        if (lhs == rhs || lhs.equals(rhs)) {
             return lhs;
         }
         return charclass(intersectRanges(getRanges(lhs), getRanges(rhs)));

@@ -431,10 +431,6 @@ public class TraversalEvaluator {
 			  throw new UnexpectedType(cons.getConstructorType().getFieldTypes(), tf.tupleType(args), (AbstractAST) null);
 		  }
 		  
-		  if (!cons.mayHaveKeywordParameters() && cons.asAnnotatable().hasAnnotations()) {
-		    rcons = rcons.asAnnotatable().setAnnotations(cons.asAnnotatable().getAnnotations());
-		  }
-
 		  return rcons;
 		}
 		else {
@@ -629,10 +625,6 @@ public class TraversalEvaluator {
 			}
 			else {
 				n = hasChanged ? eval.getValueFactory().node(node.getName(), args) : node;
-			
-				if (hasChanged && !node.mayHaveKeywordParameters() && node.asAnnotatable().hasAnnotations()) {
-					n = n.asAnnotatable().setAnnotations(node.asAnnotatable().getAnnotations());
-				}
 			}
 			
 			result = n;

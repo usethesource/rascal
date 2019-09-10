@@ -105,35 +105,35 @@ public class RascalYAML {
 	    
 		if (obj instanceof Integer) {
 			return values.constructor(Node_scalar, values.integer((Integer)obj))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.integerType(), ctx.getCurrentEnvt().getStore(), empty));
+					.asWithKeywordParameters().setParameter("tag", reifier.typeToValue(tf.integerType(), ctx.getCurrentEnvt().getStore(), empty));
 		}
 		if (obj instanceof Long) {
 			return	values.constructor(Node_scalar, values.integer((Long)obj))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.integerType(), ctx.getCurrentEnvt().getStore(), empty));
+					.asWithKeywordParameters().setParameter("tag", reifier.typeToValue(tf.integerType(), ctx.getCurrentEnvt().getStore(), empty));
 		}
 		if (obj instanceof Double) {
 			return values.constructor(Node_scalar, values.real((Double)obj))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.realType(), ctx.getCurrentEnvt().getStore(), empty));
+					.asWithKeywordParameters().setParameter("tag", reifier.typeToValue(tf.realType(), ctx.getCurrentEnvt().getStore(), empty));
 		}
 		if (obj instanceof Float) {
 			return values.constructor(Node_scalar, values.real((Float)obj))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.realType(), ctx.getCurrentEnvt().getStore(), empty));
+					.asWithKeywordParameters().setParameter("tag", reifier.typeToValue(tf.realType(), ctx.getCurrentEnvt().getStore(), empty));
 		}
 		if (obj instanceof String) {
 			return values.constructor(Node_scalar, values.string((String)obj))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.stringType(), ctx.getCurrentEnvt().getStore(), empty));
+					.asWithKeywordParameters().setParameter("tag", reifier.typeToValue(tf.stringType(), ctx.getCurrentEnvt().getStore(), empty));
 		}
 		if (obj instanceof Boolean) {
 			return values.constructor(Node_scalar, values.bool((Boolean)obj))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.boolType(), ctx.getCurrentEnvt().getStore(), empty));
+					.asWithKeywordParameters().setParameter("tag", reifier.typeToValue(tf.boolType(), ctx.getCurrentEnvt().getStore(), empty));
 		}
 		if (obj instanceof Date) {
 			return values.constructor(Node_scalar, values.datetime(((Date)obj).getTime()))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.dateTimeType(), ctx.getCurrentEnvt().getStore(), empty));
+					.asWithKeywordParameters().setParameter("tag", reifier.typeToValue(tf.dateTimeType(), ctx.getCurrentEnvt().getStore(), empty));
 		}
 		if (obj instanceof URI) {
 			return values.constructor(Node_scalar, values.sourceLocation((URI)obj))
-					.asAnnotatable().setAnnotation("tag", reifier.typeToValue(tf.sourceLocationType(), ctx.getCurrentEnvt().getStore(), empty));
+					.asWithKeywordParameters().setParameter("tag", reifier.typeToValue(tf.sourceLocationType(), ctx.getCurrentEnvt().getStore(), empty));
 		}
 
 		// Structural types may be shared.
@@ -172,7 +172,7 @@ public class RascalYAML {
 					ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		if (anchors.get(obj) != -1) {
-			result = result.asAnnotatable().setAnnotation(ANCHOR_ANNO, values.integer(anchors.get(obj)));
+			result = result.asWithKeywordParameters().setParameter(ANCHOR_ANNO, values.integer(anchors.get(obj)));
 		}
 		return result;
 	}
@@ -220,8 +220,8 @@ public class RascalYAML {
 		}
 		if (yaml.getConstructorType() == Node_sequence) {
 			List<Object> l = new ArrayList<Object>();
-			if (yaml.asAnnotatable().hasAnnotation(ANCHOR_ANNO)) {
-				visited.put(((IInteger)yaml.asAnnotatable().getAnnotation(ANCHOR_ANNO)).intValue(), l);
+			if (yaml.asWithKeywordParameters().hasParameter(ANCHOR_ANNO)) {
+				visited.put(((IInteger)yaml.asWithKeywordParameters().getParameter(ANCHOR_ANNO)).intValue(), l);
 			}
 			for (IValue v: (IList)yaml.get(0)) {
 				l.add(dumpYAMLrec((IConstructor)v, visited, ctx));
@@ -230,8 +230,8 @@ public class RascalYAML {
 		}
 		if (yaml.getConstructorType() == Node_mapping) {
 			Map<Object, Object> m = new IdentityHashMap<Object, Object>();
-			if (yaml.asAnnotatable().hasAnnotation(ANCHOR_ANNO)) {
-				visited.put(((IInteger)yaml.asAnnotatable().getAnnotation(ANCHOR_ANNO)).intValue(), m);
+			if (yaml.asWithKeywordParameters().hasParameter(ANCHOR_ANNO)) {
+				visited.put(((IInteger)yaml.asWithKeywordParameters().getParameter(ANCHOR_ANNO)).intValue(), m);
 			}
 			Iterator<Entry<IValue, IValue>> iter = ((IMap)yaml.get(0)).entryIterator();
 			while (iter.hasNext()) {

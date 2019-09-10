@@ -32,7 +32,7 @@ public final class IsEqualsAdapter {
 		    return true;
 		}
 		if (obj instanceof IsEqualsAdapter) {
-			return ori.isEqual(((IsEqualsAdapter)obj).ori);
+			return ori.equals(((IsEqualsAdapter)obj).ori);
 		}
 		return false;
 	}
