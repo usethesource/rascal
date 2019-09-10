@@ -14,6 +14,7 @@ package org.rascalmpl.library.lang.java.m3.internal;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.jar.JarEntry;
@@ -69,6 +70,8 @@ public class ASMNodeResolver implements NodeResolver {
      */
     private LimitedTypeStore typeStore;
     
+    private ISourceLocation uri;
+    
     
     //---------------------------------------------
     // Methods
@@ -78,8 +81,9 @@ public class ASMNodeResolver implements NodeResolver {
      * ASMNodeResolver constructor
      * @param typeStore
      */
-    public ASMNodeResolver(final LimitedTypeStore typeStore) {
+    public ASMNodeResolver(ISourceLocation uri, final LimitedTypeStore typeStore) {
         this.typeStore = typeStore;
+        this.uri = uri;
         initializePrimitiveTypes();
     }
     
@@ -325,9 +329,10 @@ public class ASMNodeResolver implements NodeResolver {
         String descriptor = type.getDescriptor()
             .replace("[", "")
             .replace("%5B", "");
+        String scheme = getTypeScheme(descriptor);
         
         if (type.getClassName() == null) {
-            return M3LocationUtil.makeLocation(CLASS_SCHEME, "", descriptor);
+            return M3LocationUtil.makeLocation(scheme, "", descriptor);
         }
         
         /* According to the JVM specification we deal with base/primitive (B, C, D, F, I, J, S, Z),
@@ -337,14 +342,38 @@ public class ASMNodeResolver implements NodeResolver {
             .replace("[", "")
             .replace("]", "");
         
-        if (primitiveTypes.containsKey(descriptor)) {
-            return M3LocationUtil.makeLocation(PRIMITIVE_TYPE_SCHEME, "", path);
-        }
-        else {
-            return M3LocationUtil.makeLocation(CLASS_SCHEME, "", path);
-        }
+        return M3LocationUtil.makeLocation(scheme, "", path);        
     }
 
+    /**
+     * Returns the scheme of a type given its descriptor. It could be
+     * a primitive, enum, interface, or class scheme. If the descriptor
+     * points to a type that cannot be resolved, the method returns the
+     * class scheme by default.
+     * @param descriptor - descriptor of the type as described by the 
+     * JVM specification
+     * @return scheme of the type
+     */
+    private String getTypeScheme(String descriptor) {
+        if (primitiveTypes.containsKey(descriptor)) {
+            return PRIMITIVE_TYPE_SCHEME;
+        }
+        
+        String className = descriptor
+            .replace("[", "")
+            .replace("%5B", "")
+            .substring(1, descriptor.length() - 1);
+        ClassReader cr = getClassReader(className);
+        
+        if (cr != null) {
+            int flags = cr.getAccess();
+            return getClassScheme(flags);
+        }
+        else {
+            return CLASS_SCHEME;
+        }
+    }
+    
     /**
      * Returns a class scheme based on the class' access flags.
      */
@@ -531,7 +560,7 @@ public class ASMNodeResolver implements NodeResolver {
     }
     
     @Override
-    public ClassReader getClassReader(String className, ISourceLocation uri) {
+    public ClassReader getClassReader(String className) {
         try {
             return new ClassReader(className);
         }

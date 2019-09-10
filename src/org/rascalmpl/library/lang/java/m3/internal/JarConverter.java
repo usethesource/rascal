@@ -70,11 +70,6 @@ public class JarConverter extends M3Converter {
     //---------------------------------------------
     
     /**
-     * Source location of the M3 Jar.
-     */
-    private ISourceLocation uri;
-    
-    /**
      * Physical source location of the current compilation unit. 
      * A .class file is considered as a computational unit.
      */
@@ -109,7 +104,6 @@ public class JarConverter extends M3Converter {
     public JarConverter(LimitedTypeStore typeStore, Map<String, ISourceLocation> cache) {
         super(typeStore, cache);
         this.registry = URIResolverRegistry.getInstance();
-        this.resolver = new ASMNodeResolver(typeStore);
         initializeModifiers();
     }
 
@@ -139,7 +133,8 @@ public class JarConverter extends M3Converter {
      */
     public void convertJar(ISourceLocation jar) {
         loc = jar;
-        createM3(loc);
+        resolver = new ASMNodeResolver(loc, typeStore);
+        createM3();
     }
     
     /**
@@ -155,17 +150,14 @@ public class JarConverter extends M3Converter {
     /**
      * Creates a M3 model from a location that points to a Jar file. 
      * Jar scheme is not supported.
-     * @param uri - Jar file location
      */
-    private void createM3(ISourceLocation uri) {
+    private void createM3() {
         try {
-            this.uri = uri;
-            
-            try (InputStream inputStream = registry.getInputStream(uri);
+            try (InputStream inputStream = registry.getInputStream(loc);
                 JarInputStream jarStream = new JarInputStream(inputStream);) {
                 JarEntry entry = jarStream.getNextJarEntry();
                 while (entry != null) {
-                    compUnitPhysical = M3LocationUtil.extendPath(uri, entry.getName());
+                    compUnitPhysical = M3LocationUtil.extendPath(loc, entry.getName());
                     
                     if(entry.getName().endsWith(".class")) {
                         String compUnit = getCompilationUnitRelativePath();
@@ -192,7 +184,7 @@ public class JarConverter extends M3Converter {
      */
     private void createSingleClassM3(String className) {
         String compUnit = className;
-        ClassReader classReader = resolver.getClassReader(className, uri);
+        ClassReader classReader = resolver.getClassReader(className);
 
         setCompilationUnitRelations(compUnit);
         setPackagesRelations(compUnit);
@@ -411,7 +403,7 @@ public class JarConverter extends M3Converter {
      * @param methodLogical - logical location of the method
      */
     private void setMethodOverridesRelation(String superClass, MethodNode methodNode, ISourceLocation methodLogical) {
-        ClassReader classReader = resolver.getClassReader(superClass, uri);
+        ClassReader classReader = resolver.getClassReader(superClass);
 
         if (classReader != null) {
             ClassNode classNode = new ClassNode();

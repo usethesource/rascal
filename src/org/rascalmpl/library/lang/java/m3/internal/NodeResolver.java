@@ -58,7 +58,7 @@ public interface NodeResolver {
      * @param uri - source location of the JAR file
      * @return ASM ClassReader, null if the compilation unit is not found
      */
-    public ClassReader getClassReader(String className, ISourceLocation uri);
+    public ClassReader getClassReader(String className);
     
     /**
      * Returns an ASM ClassReader from an input stream.
