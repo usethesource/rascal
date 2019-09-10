@@ -46,8 +46,8 @@ public class IOTests extends TestCase {
 	private static Type Couples = tf.constructor(ts, Boolean, "couples", tf.listType(tf.tupleType(Name, Name)));
 	
 	private IValue[] testValues = {
-			vf.constructor(True).asAnnotatable().setAnnotation("anno", vf.constructor(False)),
-			vf.constructor(True).asAnnotatable().setAnnotation("anno", vf.constructor(False)).asAnnotatable().setAnnotation("banno", vf.constructor(False)),
+			vf.constructor(True).asWithKeywordParameters().setParameter("anno", vf.constructor(False)),
+			vf.constructor(True).asWithKeywordParameters().setParameter("anno", vf.constructor(False)).asWithKeywordParameters().setParameter("banno", vf.constructor(False)),
 			vf.constructor(True),
 			vf.constructor(True),
 			vf.constructor(And, vf.constructor(True), vf.constructor(False)),
@@ -61,8 +61,8 @@ public class IOTests extends TestCase {
 	};
 	
 	static {
-		ts.declareAnnotation(Boolean, "anno", Boolean);
-		ts.declareAnnotation(Boolean, "banno", Boolean);
+		ts.declareKeywordParameter(Boolean, "anno", Boolean);
+		ts.declareKeywordParameter(Boolean, "banno", Boolean);
 	}
 	
 	private String[] testATerm = {
@@ -94,7 +94,7 @@ public class IOTests extends TestCase {
 				IValue result = testReader.read(vf, ts, Boolean, new ByteArrayInputStream(testATerm[i].getBytes()));
 				System.err.println(testATerm[i] + " -> " + result);
 				
-				if (!result.isEqual(testValues[i])) {
+				if (!result.equals(testValues[i])) {
 					fail(testATerm[i] + " did not parse correctly: " + result + " != " + testValues[i]);
 				}
 			}

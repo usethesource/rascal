@@ -237,7 +237,7 @@ class IValueWrapper {
 		if (value == null) {
 			if (other.value != null)
 				return false;
-		} else if (!value.isEqual(other.value))
+		} else if (!value.equals(other.value))
 			return false;
 		return true;
 	}

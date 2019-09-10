@@ -137,7 +137,7 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 		public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
 			if(getType().getElementType().isBottom()) throw RuntimeExceptionFactory.noSuchElement(subscripts[0].getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
 			
-			// TODO: must go to PDB
+			// TODO: must go to vallang!
 			int nSubs = subscripts.length;
 			if (nSubs >= getType().getArity()) {
 				throw new UnsupportedSubscriptArity(getType(), nSubs, ctx.getCurrentAST());
@@ -193,7 +193,7 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 					if(subscriptIsSet[k] && ((subscripts[k] == null) ||
 							                 ((ISet) subscripts[k].getValue()).contains(tup.get(k)))){
 						/* ok */
-					} else if (subscripts[k] == null || tup.get(k).isEqual(subscripts[k].getValue())){
+					} else if (subscripts[k] == null || tup.get(k).equals(subscripts[k].getValue())){
 						/* ok */
 					} else {
 						allEqual = false;

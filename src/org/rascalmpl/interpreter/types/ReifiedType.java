@@ -12,7 +12,6 @@
 package org.rascalmpl.interpreter.types;
 
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -21,9 +20,9 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
-import io.usethesource.vallang.exceptions.UndeclaredAnnotationException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 import io.usethesource.vallang.type.TypeStore;
 
@@ -70,7 +69,7 @@ public class ReifiedType extends RascalType {
         }
         
         @Override
-        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             return RascalTypeFactory.getInstance().reifiedType(next.get());
         }
 	}
@@ -197,8 +196,10 @@ public class ReifiedType extends RascalType {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if(obj == null)
+		if (obj == null) {
 			return false;
+		}
+		
 		if (obj.getClass() == getClass()) {
 			return arg.equals(((ReifiedType) obj).arg);
 		}
@@ -209,16 +210,4 @@ public class ReifiedType extends RascalType {
 	public int hashCode() {
 		return 2331 + arg.hashCode();
 	}
-
-	@Override
-	public boolean declaresAnnotation(TypeStore store, String label) {
-		return false;
-	}
-	
-	@Override
-	public Type getAnnotationType(TypeStore store, String label) throws FactTypeUseException {
-		throw new UndeclaredAnnotationException(this, label);
-	}
-
-	
 }

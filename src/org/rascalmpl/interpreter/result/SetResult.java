@@ -101,7 +101,7 @@ public class SetResult extends SetOrRelationResult<ISet> {
 	@Override
 	protected LessThanOrEqualResult lessThanOrEqualSet(SetResult that) {
 	  boolean isSubset = that.getValue().isSubsetOf(getValue());
-    boolean equals = that.getValue().isEqual(getValue());
+    boolean equals = that.getValue().equals(getValue());
     return new LessThanOrEqualResult(isSubset && !equals, equals, ctx);
 	}
 	

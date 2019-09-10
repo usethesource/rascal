@@ -115,11 +115,6 @@ IExpirationListener<IValue> {
 	}
 
 	@Override
-	public boolean isEqual(IValue other) {
-		return false;
-	}
-	
-	@Override
 	public boolean match(IValue other) {
         return false;
     }
@@ -442,7 +437,7 @@ class Key {
 		if (name == null) {
 			if (other.name != null)
 				return false;
-		} else if (!name.isEqual(other.name))
+		} else if (!name.equals(other.name))
 			return false;
 		if (type == null) {
 			if (other.type != null)

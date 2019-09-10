@@ -96,7 +96,6 @@
 <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-dependency-plugin</artifactId>
-        <version>2.9</version>
         <executions>
           <execution>
             <id>build-classpath</id>
@@ -250,7 +249,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
-				<version>2.5.3</version>
                 <configuration>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
                     <arguments>-Drascal.courses=--buildCourses -Drascal.boot=--validating</arguments>

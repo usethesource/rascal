@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -33,6 +32,7 @@ import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.exceptions.IllegalOperationException;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 import io.usethesource.vallang.type.TypeStore;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -110,7 +110,7 @@ public class FunctionType extends RascalType {
         }
 
         @Override
-        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             return RascalTypeFactory.getInstance().functionType(next.get(), randomTuple(next, store, rnd), rnd.nextBoolean() ? tf().voidType() : randomTuple(next, store, rnd));
         }
         

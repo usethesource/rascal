@@ -248,7 +248,7 @@ public class ListResult extends ListOrRelationResult<IList> {
     
     OUTER:for (int iThat = 0, iThis = 0; iThat < val.length(); iThat++) {
       for (iThis = Math.max(iThis, iThat) ; iThis < value.length(); iThis++) {
-        if (val.get(iThat).isEqual(value.get(iThis))) {
+        if (val.get(iThat).equals(value.get(iThis))) {
           iThis++;
           continue OUTER;
         }
@@ -273,7 +273,7 @@ public class ListResult extends ListOrRelationResult<IList> {
 	  
 		OUTER:for (int iThat = 0, iThis = 0; iThat < left.length(); iThat++) {
 		  for (iThis = Math.max(iThis, iThat) ; iThis < right.length(); iThis++) {
-		    if (left.get(iThat).isEqual(right.get(iThis))) {
+		    if (left.get(iThat).equals(right.get(iThis))) {
 		      continue OUTER;
 		    }
 		  }

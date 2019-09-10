@@ -211,7 +211,7 @@ public class ListRelationResult extends ListOrRelationResult<IList> {
 					if(subscriptIsSet[k] && ((subscripts[k] == null) ||
 							                 ((ISet) subscripts[k].getValue()).contains(tup.get(k)))){
 						/* ok */
-					} else if (subscripts[k] == null || tup.get(k).isEqual(subscripts[k].getValue())){
+					} else if (subscripts[k] == null || tup.get(k).equals(subscripts[k].getValue())){
 						/* ok */
 					} else {
 						allEqual = false;

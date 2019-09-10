@@ -555,7 +555,7 @@ public class SetPattern extends AbstractMatchingResult {
 		if(firstMatch){
 			firstMatch = hasNext = false;
 			if(nVar == 0){
-				return fixedSetElements.isEqual(setSubject);
+				return fixedSetElements.equals(setSubject);
 			}
 			if(!fixedSetElements.isSubsetOf(setSubject)){
 				return false;

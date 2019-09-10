@@ -2,7 +2,6 @@ package org.rascalmpl.interpreter.cursors;
 
 import java.util.Iterator;
 
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
 import io.usethesource.vallang.IValue;
@@ -92,12 +91,6 @@ public class NodeCursor extends Cursor implements INode {
 		return new NodeCursor(getNode().replace(first, second, end, repl), getCtx());
 	}
 	
-	@SuppressWarnings("deprecation")
-    @Override
-	public IAnnotatable<? extends INode> asAnnotatable() {
-		return getNode().asAnnotatable();
-	}
-
 	@Override
 	public boolean mayHaveKeywordParameters() {
 		return getNode().mayHaveKeywordParameters();

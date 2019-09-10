@@ -49,7 +49,7 @@ public class Type {
 	}
 	
 	public IBool eq(IValue x, IValue y) {
-	  return vf.bool(x.isEqual(y));
+	  return vf.bool(x.equals(y));
 	}
 	
 	public IValue make(IValue type, IString name, IList args) {

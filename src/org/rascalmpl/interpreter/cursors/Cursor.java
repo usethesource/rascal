@@ -1,6 +1,5 @@
 package org.rascalmpl.interpreter.cursors;
 
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.type.Type;
@@ -45,8 +44,18 @@ public abstract class Cursor implements ICursor {
 
 
 	@Override
-	public boolean isEqual(IValue other) {
-		return value.isEqual(other);
+	public boolean equals(Object other) {
+	    if (other == null) {
+	        return false;
+	    }
+	    else if (other instanceof IValue) {
+	        return value.equals((IValue) other);
+	    }
+	    else if (other instanceof Cursor) {
+	        return value.equals(((Cursor) other).value);
+	    }
+	    
+	    return false;
 	}
 	
 	@Override
@@ -55,20 +64,10 @@ public abstract class Cursor implements ICursor {
     }
 
 	@Override
-	public boolean isAnnotatable() {
-		return value.isAnnotatable();
-	}
-	
-	@Override
 	public boolean mayHaveKeywordParameters() {
 		return value.mayHaveKeywordParameters();
 	}
 
-	@Override
-	public IAnnotatable<? extends IValue> asAnnotatable() {
-		return value.asAnnotatable();
-	}
-	
 	@Override
 	public IWithKeywordParameters<? extends IValue> asWithKeywordParameters() {
 		return value.asWithKeywordParameters();
@@ -97,5 +96,4 @@ public abstract class Cursor implements ICursor {
 	public <T, E extends Throwable> T accept(IValueVisitor<T, E> v) throws E {
 		return getWrappedValue().accept(v);
 	}
-
 }
