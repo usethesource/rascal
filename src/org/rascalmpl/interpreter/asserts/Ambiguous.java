@@ -29,7 +29,7 @@ public final class Ambiguous extends AssertionError {
 	}
 
     private ISourceLocation computeLocation(ITree tree) {
-        ISourceLocation tmp = (ISourceLocation) TreeAdapter.getAlternatives(tree).iterator().next().asAnnotatable().getAnnotation("loc");
+        ISourceLocation tmp = (ISourceLocation) TreeAdapter.getAlternatives(tree).iterator().next().asWithKeywordParameters().getParameter("src");
         if (tmp == null) {
             return URIUtil.rootLocation("unknown");
         }

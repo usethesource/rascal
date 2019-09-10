@@ -25,7 +25,6 @@ import org.rascalmpl.ast.Name;
 import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.env.ModuleEnvironment.GenericKeywordParameters;
-import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotation;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredType;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedKeywordArgumentType;
@@ -68,9 +67,7 @@ public class ConstructorResult extends NodeResult {
 						|| (ctx.getCurrentEnvt()
 								.getStore()
 								.getKeywordParameterType(
-										getValue().getConstructorType(), sname) != null)
-						|| (getValue().isAnnotatable() && getValue()
-								.asAnnotatable().getAnnotation(sname) != null),
+										getValue().getConstructorType(), sname) != null),
 						ctx);
 	}
 
@@ -261,20 +258,8 @@ public class ConstructorResult extends NodeResult {
 	@Override
 	public <U extends IValue> Result<U> getAnnotation(String annoName,
 			Environment env) {
-		Type annoType = env.getAnnotationType(getType(), annoName);
-
-		if (annoType == null) {
-			throw new UndeclaredAnnotation(annoName, getType(),
-					ctx.getCurrentAST());
-		}
-
-		IValue annoValue = getValue().asAnnotatable().getAnnotation(annoName);
-		if (annoValue == null) {
-			throw RuntimeExceptionFactory.noSuchAnnotation(annoName,
-					ctx.getCurrentAST(), null);
-		}
-		// TODO: applyRules?
-		return makeResult(annoType, annoValue, ctx);
+	    // TODO: still simulating annotations with kw fields here
+	    return keywordFieldAccess(getValue().getConstructorType(), annoName, env.getStore());
 	}
 
 }

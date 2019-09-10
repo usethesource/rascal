@@ -150,7 +150,7 @@ public class MemoizationCache<TResult> {
 					IValue op = (IValue)other.params[i].get();
 					if (tp == null || op == null) 
 						return false; 
-					if (!tp.isEqual(op))
+					if (!tp.equals(op))
 						return false;
 				}
 				
@@ -162,7 +162,7 @@ public class MemoizationCache<TResult> {
 						IValue op = other.keyArgs.get(kv.getKey()).get();
 						if (tp == null || op == null) 
 							return false; 
-						if (!tp.isEqual(op))
+						if (!tp.equals(op))
 							return false;
 					}
 				}

@@ -32,7 +32,6 @@ import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.UninitializedPatternMatch;
 import org.rascalmpl.interpreter.utils.Cases;
 import org.rascalmpl.interpreter.utils.Names;
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
 import io.usethesource.vallang.INode;
@@ -389,16 +388,6 @@ public class NodePattern extends AbstractMatchingResult {
 		}
 
 		@Override
-		public boolean isEqual(IValue other) {
-			throw new UnsupportedOperationException();
-		}
-		
-		@Override
-        public boolean match(IValue other) {
-            throw new UnsupportedOperationException();
-        }
-
-		@Override
 		public IValue get(int i) throws IndexOutOfBoundsException {
 			// TODO: this should deal with regular expressions in the "right" way, such as skipping 
 			// over optionals and alternatives.
@@ -439,17 +428,6 @@ public class NodePattern extends AbstractMatchingResult {
 		public INode replace(int first, int second, int end, IList repl) throws FactTypeUseException,
 		IndexOutOfBoundsException {
 			throw new UnsupportedOperationException();
-		}
-
-		@Override
-		public boolean isAnnotatable() {
-			return false;
-		}
-
-		@Override
-		public IAnnotatable<? extends INode> asAnnotatable() {
-			throw new IllegalOperationException(
-					"Facade cannot be viewed as annotatable.", getType());
 		}
 
 		@Override

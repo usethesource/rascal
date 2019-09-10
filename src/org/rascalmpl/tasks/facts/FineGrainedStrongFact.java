@@ -47,7 +47,7 @@ public class FineGrainedStrongFact<V> extends AbstractFact<V> {
 		value = val;
 		status = IFact.FACT_OK;
 		if(oldValue != null &&
-			!(value instanceof IValue ? ((IValue)oldValue).isEqual((IValue)val) : oldValue.equals(value))) {
+			!(value instanceof IValue ? ((IValue)oldValue).equals((IValue)val) : oldValue.equals(value))) {
 					notifyChanged();
 					return true;
 		}
@@ -147,7 +147,7 @@ public class FineGrainedStrongFact<V> extends AbstractFact<V> {
 					value = (V) f.value;
 					if (oldValue != null
 							&& !(oldValue instanceof IValue ? ((IValue) oldValue)
-									.isEqual((IValue) value) : oldValue
+									.equals((IValue) value) : oldValue
 									.equals(value))) {
 						notifyChanged();
 						result = true;

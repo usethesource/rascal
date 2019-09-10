@@ -15,7 +15,6 @@ package org.rascalmpl.interpreter.types;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -40,6 +39,7 @@ import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 import io.usethesource.vallang.type.TypeStore;
 import io.usethesource.vallang.visitors.BottomUpVisitor;
@@ -192,7 +192,7 @@ public class NonTerminalType extends RascalType {
         }
         
         @Override
-        public Type randomInstance(Supplier<Type> next, TypeStore store, Random rnd) {
+        public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
             IValueFactory vf = ValueFactoryFactory.getValueFactory();
             // TODO: this is not random enough
             return RascalTypeFactory.getInstance().nonTerminalType(vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(randomLabel(rnd))));
@@ -448,13 +448,13 @@ public class NonTerminalType extends RascalType {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if(obj == null) {
+		if (obj == null) {
 			return false;
 		}
 		
 		if (obj.getClass() == getClass()) {
 			NonTerminalType other = (NonTerminalType) obj;
-			return symbol.isEqual(other.symbol);
+			return symbol.equals(other.symbol);
 		}
 		
 		return false;

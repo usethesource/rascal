@@ -122,7 +122,6 @@ import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
 
-@SuppressWarnings("deprecation")
 public class Prelude {
 	private static final int FILE_BUFFER_SIZE = 8 * 1024;
 	protected final IValueFactory values;
@@ -139,8 +138,8 @@ public class Prelude {
 	}
 
     private IValue createRandomValue(Type t, int depth, int width) {
-        return new RandomValueGenerator(values, random, depth, width, true)
-            .generate(t, new TypeStore(), Collections.emptyMap());
+        return new RandomValueGenerator(random)
+            .generate(t, values, new TypeStore(), Collections.emptyMap(), depth, width);
     }
 
 	
@@ -818,8 +817,9 @@ public class Prelude {
 		
 		while(!Q.isEmpty()){
 			IsEqualsAdapter u = Q.remove();
-			if(u.getValue().isEqual(To))	
+			if(u.getValue().equals(To)) {	
 				return extractPath(start, u);
+			}
 			settled.add(u);
 			relaxNeighbours(u);
 		}
@@ -2104,62 +2104,10 @@ public class Prelude {
 		return itoStringValue(T);
 	}
 	
-	public IMap getAnnotations(INode node) {
-	    if (!node.isAnnotatable()) {
-	        return values.mapWriter().done();
-	    }
-		java.util.Map<java.lang.String,IValue> map = node.asAnnotatable().getAnnotations();
-		IMapWriter w = values.mapWriter();
-		
-		for (Entry<java.lang.String,IValue> entry : map.entrySet()) {
-			w.put(values.string(entry.getKey()), entry.getValue());
-		}
-		
-		return w.done();
-	}
-	
 	public INode setKeywordParameters(INode node, IMap kwargs) {
-		if (node.isAnnotatable()) {
-		    node = node.asAnnotatable().removeAnnotations();
-		}
-
 		Map<String,IValue> map = new HashMap<java.lang.String,IValue>();
 		kwargs.entryIterator().forEachRemaining((kv) -> map.put(((IString)kv.getKey()).getValue(), kv.getValue()));
 		return node.asWithKeywordParameters().setParameters(map);
-	    
-	}
-	
-	public INode setAnnotations(INode node, IMap annotations) {
-		java.util.Map<java.lang.String,IValue> map = new HashMap<java.lang.String,IValue>();
-		
-		for (IValue key : annotations) {
-			IValue value = annotations.get(key);
-			map.put(((IString) key).getValue(), value);
-		}
-		
-		return node.asAnnotatable().setAnnotations(map);
-	}
-	
-	// REFLECT -- copy in {@link PreludeCompiled}
-    public INode delAnnotations(INode node, IEvaluatorContext ctx) {
-	    if (node.isAnnotatable()) {
-	        return node.asAnnotatable().removeAnnotations();
-	    }
-	    else {
-	        ctx.warning("Trying to remove annotations from a node which has keyword parameters", ctx.getCurrentAST().getLocation());
-	        return node;
-	    }
-	}
-	
-    // REFLECT -- copy in {@link PreludeCompiled}
-    public INode delAnnotation(INode node, IString label, IEvaluatorContext ctx) {
-	    if (node.isAnnotatable()) {
-	        return node.asAnnotatable().removeAnnotation(label.getValue());
-	    }
-	    else {
-	        ctx.warning("Trying to remove annotations from a node which has keyword parameters", ctx.getCurrentAST().getLocation());
-	        return node;
-	    }
 	}
 	
 	public INode unset(INode node, IString label) {
@@ -2407,7 +2355,7 @@ public class Prelude {
 			IValue result = implode(store, type, ast, splicing, ctx);
 			if (result.getType().isNode()) {
 				IMapWriter comments = values.mapWriter();
-				comments.putAll((IMap)((INode)result).asAnnotatable().getAnnotation("comments"));
+				comments.putAll((IMap)((INode)result).asWithKeywordParameters().getParameter("comments"));
 				IList beforeComments = extractComments(before);
 				if (!beforeComments.isEmpty()) {
 					comments.put(values.integer(-1), beforeComments);
@@ -2416,7 +2364,7 @@ public class Prelude {
 				if (!afterComments.isEmpty()) {
 					comments.put(values.integer(((INode)result).arity()), afterComments);
 				}
-				result = ((INode)result).asAnnotatable().setAnnotation("comments", comments.done());
+				result = ((INode)result).asWithKeywordParameters().setParameter("comments", comments.done());
 			}
 			return result;
 		}
@@ -2443,7 +2391,7 @@ public class Prelude {
 						Type cons = iter.next();
 						ISourceLocation loc = TreeAdapter.getLocation(tree);
 						IConstructor ast = makeConstructor(type, constructorName, ctx, values.string(yield));
-						return ast.asAnnotatable().setAnnotation("location", loc);
+						return ast.asWithKeywordParameters().setParameter("location", loc);
 					}
 					catch (Backtrack b) {
 					    failReason = b;
@@ -2620,7 +2568,7 @@ public class Prelude {
 			// if in node space, make untyped nodes
 			if (isUntypedNodeType(type)) {
 				INode ast = values.node(constructorName, implodeArgs(store, type, args, ctx));
-				return ast.asAnnotatable().setAnnotation("location", TreeAdapter.getLocation(tree)).asAnnotatable().setAnnotation("comments", comments);
+				return ast.asWithKeywordParameters().setParameter("location", TreeAdapter.getLocation(tree)).asWithKeywordParameters().setParameter("comments", comments);
 			}
 			
 			// make a typed constructor
@@ -2638,7 +2586,11 @@ public class Prelude {
 					ISourceLocation loc = TreeAdapter.getLocation(tree);
 					IValue[] implodedArgs = implodeArgs(store, cons, args, ctx);
 					IConstructor ast = makeConstructor(type, constructorName, ctx, implodedArgs);
-					return ast.asAnnotatable().setAnnotation("location", loc).asAnnotatable().setAnnotation("comments", comments);
+					return ast
+					        .asWithKeywordParameters()
+					        .setParameter("location", loc)
+					        .asWithKeywordParameters()
+					        .setParameter("comments", comments);
 				}
 				catch (Backtrack b) {
 				    failReason = b;
@@ -3532,30 +3484,6 @@ public class Prelude {
         return new IValueInputStream(registry.getInputStream(loc), values, TYPE_STORE_SUPPLIER);
     }
 
-	public IValue readBinaryValueFileOld(IValue type, ISourceLocation loc){
-		if(trackIO) System.err.println("readBinaryValueFile: " + loc);
-
-		TypeStore store = new TypeStore(RascalValueFactory.getStore());
-		Type start = tr.valueToType((IConstructor) type, store);
-		
-		try (InputStream in = URIResolverRegistry.getInstance().getInputStream(loc)) {
-			IValue val = new io.usethesource.vallang.io.old.BinaryValueReader().read(values, store, start, in);
-			if(val.getType().isSubtypeOf(start)){
-				return val;
-			} else {
-			throw RuntimeExceptionFactory.io(values.string("Requested type " + start + ", but found " + val.getType()), null, null);
-			}
-		}
-		catch (IOException e) {
-			System.err.println("readBinaryValueFile: " + loc + " throws " + e.getMessage());
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-		}
-		catch (Exception e) {
-			System.err.println("readBinaryValueFile: " + loc + " throws " + e.getMessage());
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
-		}
-	}
-	
 	public IInteger __getFileSize(ISourceLocation loc) throws URISyntaxException, IOException {
 	    if (loc.getScheme().contains("compressed+")) {
 	        loc = URIUtil.changeScheme(loc, loc.getScheme().replace("compressed+", ""));
@@ -3653,16 +3581,6 @@ public class Prelude {
         }
     }
 
-    public void writeBinaryValueFileOld(ISourceLocation loc, IValue value, IBool compression){
-    	if(trackIO) System.err.println("writeBinaryValueFile: " + loc);
-		try (OutputStream out = URIResolverRegistry.getInstance().getOutputStream(loc, false)) {
-			new io.usethesource.vallang.io.old.BinaryValueWriter().write(value, out, compression.getValue());
-		}
-		catch (IOException ioex){
-			throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
-		}
-	}
-	
 	public void writeTextValueFile(ISourceLocation loc, IValue value){
 		if(trackIO) System.err.println("writeTextValueFile: " + loc);
 		try (Writer out = new OutputStreamWriter(URIResolverRegistry.getInstance().getOutputStream(loc, false), StandardCharsets.UTF_8)) {
@@ -3723,8 +3641,8 @@ public class Prelude {
 	public IValue randomValue(IValue type, IInteger seed, IInteger depth, IInteger width){
 	    TypeStore store = new TypeStore(RascalValueFactory.getStore());
 	    Type start = tr.valueToType((IConstructor) type, store);
-	    return new RandomValueGenerator(values, new Random(seed.intValue()), depth.intValue(), width.intValue(), true)
-	        .generate(start, store, Collections.emptyMap());	    
+	    return new RandomValueGenerator(new Random(seed.intValue()))
+	        .generate(start, values, store, Collections.emptyMap(), depth.intValue(), width.intValue());	    
 	}
 
 	// Utilities used by Graph

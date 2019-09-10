@@ -50,7 +50,7 @@ import org.rascalmpl.uri.URIUtil;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 
-@SuppressWarnings({"rawtypes", "deprecation"})
+@SuppressWarnings("rawtypes")
 public class SourceConverter extends M3Converter {
 	SourceConverter(LimitedTypeStore typeStore, Map<String, ISourceLocation> cache) {
 		super(typeStore, cache);
@@ -81,7 +81,7 @@ public class SourceConverter extends M3Converter {
 	private void addTypeDependency(ISourceLocation dependency) {
 	  if (!scopeManager.isEmpty()) {
 	    ISourceLocation parent = getParent();
-	    if (!parent.isEqual(dependency)) {
+	    if (!parent.equals(dependency)) {
 	      insert(typeDependency, parent, dependency);
 	    }
 	  }

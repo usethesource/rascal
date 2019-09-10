@@ -24,69 +24,14 @@ import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
-import io.usethesource.vallang.random.RandomTypeGenerator;
 import io.usethesource.vallang.type.Type;
 
 public class RascalTypes extends TestFramework {
     
-    private static class RascalTypeGenerartor extends RandomTypeGenerator {
-        private final RascalTypeFactory rtf = RascalTypeFactory.getInstance();
-
-        @Override
-        public Type next(int maxDepth) {
-            if (random.nextInt(6) != 0 || maxDepth < 2) {
-                // most cases do the normal stuff
-                return super.next(maxDepth);
-            }
-            // sometimes go for rascal types
-            switch (random.nextInt(3)) {
-                case 0:
-                    return getFunctionType(maxDepth);
-                case 1:
-                    return getOverloadedFunctionType(maxDepth);
-                case 2:
-                default: // there is not other value, but java flow analyis can't see this.
-                    return getReifiedType(maxDepth);
-            }
-        }
-        
-        public Type getFunctionType(int maxDepth) {
-            return rtf.functionType(next(maxDepth), getTupleType(maxDepth), tf.voidType());
-        }
-
-        private List<Type> getTypeList(int maxDepth, int length) {
-            List<Type> result = new ArrayList<>(length);
-            for (int i = 0; i < length; i++) {
-                result.add(next(maxDepth));
-            }
-            return result;
-        }
-
-        
-        public Type getOverloadedFunctionType(int maxDepth) {
-            Type returnType = next(maxDepth);
-            List<Type> l = getTypeList(maxDepth, 2);
-            Set<FunctionType> alternatives = new HashSet<FunctionType>();
-            for(Type t : l) {
-                if(t.isTuple()) {
-                    alternatives.add((FunctionType)rtf.functionType(returnType, t, tf.voidType()));
-                } else {
-                    alternatives.add((FunctionType)rtf.functionType(returnType, tf.tupleType(t), tf.voidType()));
-                }
-            }
-            return rtf.overloadedFunctionType(alternatives);
-        }
-
-        public Type getReifiedType(int maxDepth) {
-            return rtf.reifiedType(next(maxDepth));
-        }
-    }
-	
 	@Test
+	
 	public void testLubAndGlb() {
 		Set<Type> types = new HashSet<Type>();
-		
-		RascalTypeGenerartor rg = new RascalTypeGenerartor();
 		
 		for(int i = 0; i <= 1000; i++) {
 			types.add(rg.getFunctionType(2));
@@ -182,7 +127,5 @@ public class RascalTypes extends TestFramework {
 			    }
 			 }
 		}
-
 	}
-
 }

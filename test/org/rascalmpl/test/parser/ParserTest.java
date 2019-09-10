@@ -41,13 +41,13 @@ public class ParserTest extends TestCase{
 					Assert.fail("Expected a parse error to occur:\n"+expectedResult);
 				}catch(ParseError pe){
 					IString message = vf.string(pe.getMessage());
-					if(!message.isEqual(expectedResult)){
+					if(!message.equals(expectedResult)){
 						Assert.fail("Expected a parse error to occur:\n"+expectedResult+"\nError was:\n"+message);
 					}
 				}
 			}else{
 				IConstructor result = parser.executeParser();
-				if(!result.isEqual(expectedResult)){
+				if(!result.equals(expectedResult)){
 					Assert.fail(parser.getClass().getName()+";\tGot: "+result+"\n\t expected: "+expectedResult);
 				}
 			}

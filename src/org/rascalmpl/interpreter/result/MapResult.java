@@ -231,13 +231,13 @@ public class MapResult extends ElementResult<IMap> {
 	@Override
 	protected Result<IBool> lessThanMap(MapResult that) {
 		// note reversed args: we need that < this
-		return bool(that.getValue().isSubMap(getValue()) && !that.getValue().isEqual(getValue()), ctx);
+		return bool(that.getValue().isSubMap(getValue()) && !that.getValue().equals(getValue()), ctx);
 	}
 	
 	@Override
 	protected LessThanOrEqualResult lessThanOrEqualMap(MapResult that) {
 	  boolean subMap = that.getValue().isSubMap(getValue());
-	  boolean equals = that.getValue().isEqual(getValue());
+	  boolean equals = that.getValue().equals(getValue());
 	  return new LessThanOrEqualResult(subMap && !equals, equals, ctx);
 	}
 

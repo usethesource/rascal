@@ -138,7 +138,8 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 				return;
 			}
 
-			if (!TreeAdapter.getProduction(treeSubject).isEqual(production)) {
+			// TODO: max-sharing prods would optimize this
+			if (!TreeAdapter.getProduction(treeSubject).equals(production)) {
 				// fail early if the subject's production is not the same
 				hasNext = false;
 				return;

@@ -1,12 +1,10 @@
 package org.rascalmpl.interpreter.cursors;
 
-import io.usethesource.vallang.IAnnotatable;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IWithKeywordParameters;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
-import io.usethesource.vallang.type.TypeStore;
 
 public class ConstructorCursor extends NodeCursor implements IConstructor {
 
@@ -58,16 +56,6 @@ public class ConstructorCursor extends NodeCursor implements IConstructor {
 		return getConstructor().getChildrenTypes();
 	}
 
-	@Override
-	public boolean declaresAnnotation(TypeStore store, String label) {
-		return getConstructor().declaresAnnotation(store, label);
-	}
-
-	@Override
-	public IAnnotatable<? extends IConstructor> asAnnotatable() {
-		return getConstructor().asAnnotatable();
-	}
-	
 	@Override
 	public IWithKeywordParameters<? extends IConstructor> asWithKeywordParameters() {
 		return new WithKeywordParametersCursor(getConstructor().asWithKeywordParameters(), getCtx());

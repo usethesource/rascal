@@ -48,10 +48,9 @@ public class BasicBooleanResult extends AbstractBooleanResult {
 			firstTime = false;
 			Result<IValue> result = expr.interpret(ctx.getEvaluator());
 			if (result.getType().isBool() && result.getValue() != null) {
-				if (result.getValue().isEqual(ctx.getValueFactory().bool(true))) {
+				if (result.getValue().equals(ctx.getValueFactory().bool(true))) {
 					return true;
 				}
-				
 				
 				return false;
 			}

@@ -56,6 +56,10 @@ import io.usethesource.vallang.type.TypeStore;
 
 public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
+    /**
+     * TODO: remove this class when the syntax is not supported anymore.
+     * Currently annotations are simulated via keyword fields.
+     */
 	static public class Annotation extends
 			org.rascalmpl.ast.Assignable.Annotation {
 
@@ -76,23 +80,15 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 				throw new UninitializedVariable(label, this.getReceiver());
 			}
 
-			if (!__eval.__getEnv().declaresAnnotation(result.getType(), label)) {
-				throw new UndeclaredAnnotation(label, result.getType(),
-						this);
-			}
-
 			try {
 				__eval.__setValue(__eval.newResult(result.getAnnotation(label,
 						__eval.__getEnv()), __eval.__getValue()));
 			} catch (Throw e) {
 				// NoSuchAnnotation
 			}
+			
 			return __eval.recur(this, result.setAnnotation(label, __eval
 					.__getValue(), __eval.__getEnv()));
-			// result.setValue(((IConstructor)
-			// result.getValue()).setAnnotation(label, value.getValue()));
-			// return recur(this, result);
-
 		}
 
 		@Override
@@ -102,7 +98,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 		@Override
 		public Result<IValue> interpret(IEvaluator<Result<IValue>> __eval) {
-
+		    
 			Result<IValue> receiver = this.getReceiver().interpret(__eval);
 			String label = Names.name(this.getAnnotation());
 
@@ -115,7 +111,7 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 			Type type = __eval.getCurrentEnvt().getAnnotationType(
 					receiver.getType(), label);
             IValue value = ((IConstructor) receiver.getValue())
-					.asAnnotatable().getAnnotation(label);
+					.asWithKeywordParameters().getParameter(label);
 
 			return org.rascalmpl.interpreter.result.ResultFactory.makeResult(
 					type, value, __eval);
