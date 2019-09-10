@@ -35,8 +35,6 @@ public class QuickCheck {
     public static final String MAXDEPTH = "maxDepth";
     public static final String MAXWIDTH = "maxWidth";
     public static final String EXPECT_TAG = "expected";
-    public static final String IGNORE_ANNOTATIONS_TAG = "ignoreAnnotations";
-
     
     public static final TestResult SUCCESS = new TestResult(true, null);
 
@@ -62,7 +60,7 @@ public class QuickCheck {
         this.vf = vf;
     }
 
-    public TestResult test(String functionName, Type formals, String expectedException, BiFunction<Type[], IValue[], TestResult> executeTest, TypeStore store, int tries, int maxDepth, int maxWidth, boolean ignoreAnnotations) {
+    public TestResult test(String functionName, Type formals, String expectedException, BiFunction<Type[], IValue[], TestResult> executeTest, TypeStore store, int tries, int maxDepth, int maxWidth) {
         if (formals.getArity() == 0) {
             tries = 1; // no randomization needed
         }
@@ -72,7 +70,8 @@ public class QuickCheck {
             types[n] = formals.getFieldType(n);
         }
 
-        Map<Type, Type> tpbindings = TypeParameterBinder.bind(formals);
+        // TODO: bind type parameters? but why?
+        Map<Type, Type> tpbindings = TypeParameterBinder.bind(formals, random, store, maxDepth);
         Type[] actualTypes = new Type[types.length];
         for(int j = 0; j < types.length; j ++) {
             actualTypes[j] = types[j].instantiate(tpbindings);
@@ -80,10 +79,10 @@ public class QuickCheck {
 
         IValue[] values = new IValue[formals.getArity()];
         // first we try to break the function
-        RandomValueGenerator generator = new RandomValueGenerator(vf, random, maxDepth, maxWidth, !ignoreAnnotations);
+        RandomValueGenerator generator = new RandomValueGenerator(random);
         for (int i = 0; i < tries; i++) {
             for (int n = 0; n < values.length; n++) {
-                values[n] = generator.generate(types[n], store, tpbindings);
+                values[n] = generator.generate(types[n], vf, store, tpbindings, maxDepth, maxWidth);
             }
             TestResult result = executeTest.apply(actualTypes, values);
 
@@ -98,10 +97,10 @@ public class QuickCheck {
                 IValue[] smallerValues = new IValue[formals.getArity()];
                 for (int depth = 1; depth < maxDepth && !smallerFound; depth++) {
                     for (int width = 1; width < maxWidth && !smallerFound; width++) {
-                        RandomValueGenerator gen = new RandomValueGenerator(vf, random, depth, width, !ignoreAnnotations);
+                        RandomValueGenerator gen = new RandomValueGenerator(random);
                         for (int j = 0; j < tries && !smallerFound; j++) {
                             for (int n = 0; n < values.length; n++) {
-                                smallerValues[n] = gen.generate(types[n], store, tpbindings);
+                                smallerValues[n] = gen.generate(types[n], vf, store, tpbindings, maxDepth, maxWidth);
                             }
                             TestResult smallerResult = executeTest.apply(actualTypes, smallerValues);
                             if (!smallerResult.succeeded() || (smallerResult.succeeded() && expectedException != null) ) {
