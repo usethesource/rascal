@@ -14,29 +14,32 @@ package org.rascalmpl.test.library;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import org.junit.Test;
 import org.rascalmpl.interpreter.types.FunctionType;
-import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.test.infrastructure.TestFramework;
 
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 public class RascalTypes extends TestFramework {
     
 	@Test
-	
 	public void testLubAndGlb() {
+	    TypeFactory tf = TypeFactory.getInstance();
+	    TypeStore store = new TypeStore();
+	    Random rnd = new Random();
 		Set<Type> types = new HashSet<Type>();
 		
-		for(int i = 0; i <= 1000; i++) {
-			types.add(rg.getFunctionType(2));
-			types.add(rg.getReifiedType(5));
-			types.add(rg.getOverloadedFunctionType(2));
+		for (int i = 0; i <= 15000; i++) {
+		    // due to dependency injection tf.randomType will also generate
+		    // the external types offered by the rascal project, such
+		    // as functions, reifiedtypes and non-terminaltypes
+			types.add(tf.randomType(store, rnd, 5));
 		}
 		
 		for (Type t : types) {
