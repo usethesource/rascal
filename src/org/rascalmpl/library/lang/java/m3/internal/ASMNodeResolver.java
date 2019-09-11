@@ -12,10 +12,17 @@
  */ 
 package org.rascalmpl.library.lang.java.m3.internal;
 
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.*;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -30,6 +37,7 @@ import org.objectweb.asm.tree.FieldNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.ParameterNode;
+import org.rascalmpl.uri.URIResolverRegistry;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IConstructor;
@@ -37,10 +45,9 @@ import io.usethesource.vallang.IList;
 import io.usethesource.vallang.IListWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.TypeFactory;
-
-import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.*;
 
 
 public class ASMNodeResolver implements NodeResolver {
@@ -70,7 +77,20 @@ public class ASMNodeResolver implements NodeResolver {
      */
     private LimitedTypeStore typeStore;
     
+    /**
+     * Supports URI resolution.
+     */
+    private URIResolverRegistry registry;
+    
+    /**
+     * URI of the JAR file
+     */
     private ISourceLocation uri;
+    
+    /**
+     * JAR classloader
+     */
+    private URLClassLoader classLoader;
     
     
     //---------------------------------------------
@@ -81,9 +101,11 @@ public class ASMNodeResolver implements NodeResolver {
      * ASMNodeResolver constructor
      * @param typeStore
      */
-    public ASMNodeResolver(ISourceLocation uri, final LimitedTypeStore typeStore) {
+    public ASMNodeResolver(ISourceLocation uri, IList classPath, final LimitedTypeStore typeStore) {
         this.typeStore = typeStore;
         this.uri = uri;
+        this.registry = URIResolverRegistry.getInstance();
+        this.classLoader = getJarClassLoader(classPath);
         initializePrimitiveTypes();
     }
     
@@ -99,6 +121,36 @@ public class ASMNodeResolver implements NodeResolver {
         primitiveTypes.put(Type.INT_TYPE.getDescriptor(), Type.INT_TYPE.getClassName());
         primitiveTypes.put(Type.LONG_TYPE.getDescriptor(), Type.LONG_TYPE.getClassName());
         primitiveTypes.put(Type.SHORT_TYPE.getDescriptor(), Type.SHORT_TYPE.getClassName());
+    }
+    
+    private URLClassLoader getJarClassLoader(IList classPath) {
+        try {
+            Iterator<IValue> it = classPath.iterator();
+            List<URL> urls = new ArrayList<URL>();
+            
+            while (it.hasNext()) {
+                IValue jar = it.next();
+                ISourceLocation jarLoc = (ISourceLocation) jar;
+                if (jarLoc.getPath().endsWith(".jar")) {
+                    urls.add(getJarURLFromSrcLocation(jarLoc));
+                }
+            }
+            
+            //urls.add(0, getJarURLFromSrcLocation(uri));
+            URL[] urlsArray = urls.toArray(new URL[urls.size()]);
+            return new URLClassLoader(urlsArray);
+        }
+        catch (IOException e) {
+            return null;
+        }
+    }
+    
+    private URL getJarURLFromSrcLocation(ISourceLocation loc) throws IOException {
+        ISourceLocation physicalLoc = registry.logicalToPhysical(loc);
+        URI uri = physicalLoc.getURI();
+        URL url = uri.toURL();
+        
+        return new URL("jar:" + url + "!/");
     }
     
     @Override
@@ -361,8 +413,11 @@ public class ASMNodeResolver implements NodeResolver {
         
         String className = descriptor
             .replace("[", "")
-            .replace("%5B", "")
-            .substring(1, descriptor.length() - 1);
+            .replace("%5B", "");
+        if (className.startsWith("L") && className.endsWith(";")) {
+            className = className.substring(1, descriptor.length() - 1);
+        }
+        
         ClassReader cr = getClassReader(className);
         
         if (cr != null) {
@@ -565,40 +620,47 @@ public class ASMNodeResolver implements NodeResolver {
             return new ClassReader(className);
         }
         catch (IOException e) {
-            return getClassReaderByJarStream(className, uri);
+            return getClassReaderFromStream(className);
         }
     }
 
     /**
      * Returns an ASM ClassReader from a compilation unit location 
-     * or name. It creates a JarStream if the entry is localized inside
-     * the M3 Jar.
+     * or name. It creates a stream from a JAR entry if the class
+     * is located inside the main JAR. Otherwise, it takes the class
+     * loader created from the input classpath.
      * @param className - class/comilation unit name/path (<pkg>/<name>)
      * @return ASM ClassReader, null if the compilation unit is not found
      */
     @SuppressWarnings("resource")
-    private ClassReader getClassReaderByJarStream(String className, ISourceLocation uri) {
+    private ClassReader getClassReaderFromStream(String className) {    
         try {
+            // First try with the main JAR file
             JarFile jar = new JarFile(uri.getPath());
             JarEntry entry = new JarEntry(className + ".class");
             
-            try(InputStream inputStream = jar.getInputStream(entry);) {
-                return getClassReader(inputStream);
+            try (InputStream jarStream = jar.getInputStream(entry);) {
+                if (jarStream != null) {
+                    return getClassReader(jarStream);
+                }
+            }
+            
+            // Now, let's try with the custom class loader
+            if (classLoader != null) {
+                try (InputStream inputStream = classLoader.getResourceAsStream(className + ".class");) {
+                    return getClassReader(inputStream);
+                }
             }
         }
         catch (IOException e) {
-            return null;
+            // Nothing to do
         }
+        return null;
     }
     
     @Override
-    public ClassReader getClassReader(InputStream classStream) {
-        try {
-            return new ClassReader(classStream);
-        }
-        catch (Exception e) {
-            return null;
-        }
+    public ClassReader getClassReader(InputStream classStream) throws IOException {
+        return new ClassReader(classStream);
     }
     
 }
