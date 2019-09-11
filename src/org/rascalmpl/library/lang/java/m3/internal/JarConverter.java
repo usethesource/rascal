@@ -18,26 +18,16 @@
  *******************************************************************************/
 package org.rascalmpl.library.lang.java.m3.internal;
 
-import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.CLASS_SCHEME;
-import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.COMP_UNIT_SCHEME;
-import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.ENUM_CLASS_PATH;
-import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.FILE_SCHEME;
-import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.INTERFACE_SCHEME;
-import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.JAR_SCHEME;
-import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.OBJECT_CLASS_PATH;
-import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.PACKAGE_SCHEME;
-import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.PARAMETER_SCHEME;
+import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.*;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
 import java.util.jar.JarInputStream;
 
 import org.objectweb.asm.ClassReader;
@@ -54,9 +44,9 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.rascalmpl.uri.URIResolverRegistry;
-import org.rascalmpl.uri.URIUtil;
 
 import io.usethesource.vallang.IConstructor;
+import io.usethesource.vallang.IList;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 
@@ -131,9 +121,9 @@ public class JarConverter extends M3Converter {
      * Creates a M3 model from a Jar file.
      * @param jar - Jar file location
      */
-    public void convertJar(ISourceLocation jar) {
+    public void convertJar(ISourceLocation jar, IList classPath) {
         loc = jar;
-        resolver = new ASMNodeResolver(loc, typeStore);
+        resolver = new ASMNodeResolver(loc, classPath, typeStore);
         createM3();
     }
     
@@ -159,7 +149,7 @@ public class JarConverter extends M3Converter {
                 while (entry != null) {
                     compUnitPhysical = M3LocationUtil.extendPath(loc, entry.getName());
                     
-                    if(entry.getName().endsWith(".class")) {
+                    if (entry.getName().endsWith(".class")) {
                         String compUnit = getCompilationUnitRelativePath();
                         ClassReader classReader = resolver.getClassReader(jarStream);
                         

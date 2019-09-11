@@ -12,6 +12,7 @@
  */ 
 package org.rascalmpl.library.lang.java.m3.internal;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.objectweb.asm.ClassReader;
@@ -65,5 +66,5 @@ public interface NodeResolver {
      * @param classStream - class/compilation unit input stream 
      * @return ASM ClassReader, null if the compilation unit is not found
      */
-    public ClassReader getClassReader(InputStream classStream);
+    public ClassReader getClassReader(InputStream classStream) throws IOException;
 }
