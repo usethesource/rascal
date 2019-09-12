@@ -33,6 +33,7 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
 import org.rascalmpl.uri.URIUtil;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
@@ -259,6 +260,9 @@ public class ConstructorResult extends NodeResult {
 	public <U extends IValue> Result<U> getAnnotation(String annoName,
 			Environment env) {
 	    // TODO: still simulating annotations with kw fields here
+	    if (getValue().getType().isSubtypeOf(RascalValueFactory.Tree) && "loc".equals(annoName)) {
+	        annoName = "src";
+        }
 	    return keywordFieldAccess(getValue().getConstructorType(), annoName, env.getStore());
 	}
 

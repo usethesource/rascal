@@ -26,6 +26,7 @@ import org.rascalmpl.interpreter.cursors.ICursor;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredAnnotation;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
+import org.rascalmpl.values.uptr.RascalValueFactory;
 
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IInteger;
@@ -152,6 +153,10 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> setAnnotation(String annoName, Result<V> anno, Environment env) {
 	    // TODO: simulating annotations still here
+	    if (getType().isSubtypeOf(RascalValueFactory.Tree) && "loc".equals(annoName)) {
+            annoName = "src";
+        }
+	    
 		Type annoType = env.getKeywordParameterTypes(getType()).get(annoName);
 
 		if (getType() != getTypeFactory().nodeType()) {
