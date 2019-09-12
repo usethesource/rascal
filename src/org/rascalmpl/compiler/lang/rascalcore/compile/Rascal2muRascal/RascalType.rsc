@@ -7,11 +7,6 @@ import lang::rascalcore::compile::Rascal2muRascal::TypeUtils;
 //import lang::rascalcore::compile::Rascal2muRascal::TypeReifier;
 
 import lang::rascal::\syntax::Rascal;
-//import lang::rascal::grammar::definition::Symbols;
-//import lang::rascal::types::TestChecker;
-//import lang::rascal::types::CheckTypes;
-//import lang::rascal::types::AbstractName;
-//import lang::rascal::types::CheckerConfig;
 
 /*
  * translateType: translate a concrete (textual) type description to a Symbol
