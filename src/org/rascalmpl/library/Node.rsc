@@ -35,67 +35,6 @@ arity("f"(10, "abc", false));
 @javaClass{org.rascalmpl.library.Prelude}
 public java int arity(node T);
 
-@doc{
-.Synopsis
-Delete a specific annotation from a node.
-
-.Examples
-[source,rascal-shell]
-----
-import Node;
-F = setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
-delAnnotation(F, "size");
-----
-}
-@javaClass{org.rascalmpl.library.Prelude}
-@reflect{To print warning}
-@deprecated{Annotations are deprecated. Please use keyword fields.}
-public java &T <: node delAnnotation(&T <: node x, str label);
-
-@doc{
-.Synopsis
-Delete all annotations from a node.
-
-.Examples
-[source,rascal-shell]
-----
-import Node;
-F = setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
-delAnnotations(F);
-----
-}
-@javaClass{org.rascalmpl.library.Prelude}
-@reflect{To print warning}
-@deprecated{Annotations are deprecated. Please use keyword fields.}
-public java &T <: node  delAnnotations(&T <: node x);
-
-@doc{
-.Synopsis
-Delete recursively all annotations from all nodes in a value.
-
-.Examples
-[source,rascal-shell]
-----
-import Node;
-G = setAnnotations("g"("def"), ("level" : "20", "direction" : "north"));
-F = setAnnotations("f"(10, G), ("color" : "red", "size" : "large"));
-delAnnotationsRec(F);
-----
-}
-@deprecated{Annotations are deprecated. Please use keyword fields.}
-public &T delAnnotationsRec(&T v) = visit(v) { 
-     case m: node n => delAnnotations(m) 
-  };
-
-@doc{
-.Synopsis
-
-Retrieve the annotations of a node value as a map. Annotations are deprecated.
-
-}
-@javaClass{org.rascalmpl.library.Prelude}
-@deprecated{Annotations are deprecated. Please use keyword fields.}
-public java map[str,value] getAnnotations(node x);
 
 @doc{
 .Synopsis
@@ -167,33 +106,6 @@ makeNode("f", [10, "abc"]);
 @javaClass{org.rascalmpl.library.Prelude}
 public java node makeNode(str N, value V..., map[str, value] keywordParameters = ());
 
-
-
-@doc{
-.Synopsis
-Add a map of annotations to a node value.
-
-.Description
-Set the annotations on node value `x` as described by the map `annotations`.
-
-.Examples
-[source,rascal-shell]
-----
-import Node;
-setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
-----
-
-.Benefits
-
-.Pitfalls
-This function may result in run-time type errors later if
-you store a value with a label that has an incomparable annotation type
-declared.
-}
-@javaClass{org.rascalmpl.library.Prelude}
-@deprecated{Annotations are deprecated. Please use keyword fields.}
-public java &T <: node setAnnotations(&T <: node x, map[str, value] annotations);
-
 @doc{
 .Synopsis
 Reset a specific keyword parameter back to their default on a node.
@@ -259,7 +171,7 @@ Convert a node to a string.
 [source,rascal-shell]
 ----
 import Node;
-F = setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
+F = "f"(10, "abc", color="red", size="large");
 toString(F);
 ----
 }
@@ -275,7 +187,7 @@ Convert a node to an indented string.
 [source,rascal-shell]
 ----
 import Node;
-F = setAnnotations("f"(10, "abc"), ("color" : "red", "size" : "large"));
+F = "f"(10, "abc", color="red", size="large");
 itoString(F);
 ----
 }
