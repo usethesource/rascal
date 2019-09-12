@@ -35,8 +35,8 @@ import Exception;
   
 // TODO: replace this complex data structure with several simple ones
 alias Items = map[Symbol,map[Item item, tuple[str new, int itemId] new]];
-public anno str Symbol@prefix;
-anno int Symbol@id;
+
+data Symbol(int id = 0, str prefix = "");
 
 public str getParserMethodName(Sym sym) = getParserMethodName(sym2symbol(sym));
 str getParserMethodName(label(_,Symbol s)) = getParserMethodName(s);
@@ -64,12 +64,18 @@ public str newGenerate(str package, str name, Grammar gr) {
     uniqueProductions = {p | /Production p := gr, prod(_,_,_) := p || regular(_) := p};
  
     event("assigning unique ids to symbols");
-    gr = visit(gr) { case Symbol s => s[@id=newItem()] }
-           
+    Production rewrite(Production p) = 
+      visit (p) { 
+        case Symbol s => s[id=newItem()] 
+      };
+    beforeUniqueGr = gr;   
+    gr.rules = (s : rewrite(gr.rules[s]) | s <- gr.rules);
+        
+    event("generating item allocations");
     newItems = generateNewItems(gr);
     
     event("computing priority and associativity filter");
-    rel[int parent, int child] dontNest = computeDontNests(newItems, gr);
+    rel[int parent, int child] dontNest = computeDontNests(newItems, beforeUniqueGr, gr);
     // this creates groups of children that forbidden below certain parents
     rel[set[int] children, set[int] parents] dontNestGroups = 
       {<c,g[c]> | rel[set[int] children, int parent] g := {<dontNest[p],p> | p <- dontNest.parent}, c <- g.children};
@@ -197,7 +203,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '    
            '  // Item declarations
            '	<for (Symbol s <- (newItems<0>), isNonterminal(s)) {
-	           items = newItems[s];
+	           items = newItems[unsetRec(s)];
 	           map[Production prods, list[Item] items] alts = ();
 	           for(Item item <- items) {
 		         Production prod = item.production;
@@ -219,7 +225,7 @@ public str newGenerate(str package, str name, Grammar gr) {
            '    protected static final void _init_<id>(ExpectBuilder\<IConstructor\> builder) {
            '      AbstractStackNode\<IConstructor\>[] tmp = (AbstractStackNode\<IConstructor\>[]) new AbstractStackNode[<size(lhses)>];
            '      <for (Item i <- lhses) { ii = (i.index != -1) ? i.index : 0;>
-           '      tmp[<ii>] = <items[i].new>;<}>
+           '      tmp[<ii>] = <items[unsetRec(i)].new>;<}>
            '      builder.addAlternative(<name>.<id>, tmp);
            '	}<}>
            '    public static void init(ExpectBuilder\<IConstructor\> builder){
@@ -231,13 +237,13 @@ public str newGenerate(str package, str name, Grammar gr) {
            '	
            '  // Parse methods    
            '  <for (Symbol nont <- (gr.rules.sort), isNonterminal(nont)) { >
-           '  <generateParseMethod(newItems, gr.rules[nont])><}>
+           '  <generateParseMethod(newItems, gr.rules[unsetRec(nont)])><}>
            '}";
    endJob(true);
    return src;
 }  
 
-rel[int,int] computeDontNests(Items items, Grammar grammar) {
+rel[int,int] computeDontNests(Items items, Grammar grammar, Grammar uniqueGrammar) {
   // first we compute a map from productions to their last items (which identify each production)
   prodItems = (p:items[getType(rhs)][item(p,size(lhs)-1)].itemId | /Production p:prod(Symbol rhs,list[Symbol] lhs, _) := grammar);
   
@@ -249,22 +255,22 @@ rel[int,int] computeDontNests(Items items, Grammar grammar) {
   
   // finally we produce a relation between item id for use in the internals of the parser
   return {<items[getType(father.def)][item(father,pos)].itemId, prodItems[child]> | <father,pos,child> <- dnn, father is prod}
-       + {<getItemId(t, pos, child), prodItems[child]> | <regular(s),pos,child> <- dnn, /Symbol t := grammar, s == t};
+       + {<getItemId(t, pos, child), prodItems[child]> | <regular(s),pos,child> <- dnn, defined <- uniqueGrammar.rules, /Symbol t := uniqueGrammar, unsetRec(t) == s};
 }
 
 int getItemId(Symbol s, int pos, prod(label(str l, Symbol _),list[Symbol] _, set[Attr] _)) {
   switch (s) {
-    case \opt(t) : return t@id; 
-    case \iter(t) : return t@id;
-    case \iter-star(t) : return t@id; 
-    case \iter-seps(t,ss) : if (pos == 0) return t@id; else fail;
-    case \iter-seps(t,ss) : if (pos > 0)  return ss[pos-1]@id; else fail;
-    case \iter-star-seps(t,ss) : if (pos == 0) return t@id; else fail;
-    case \iter-star-seps(t,ss) : if (pos > 0) return ss[pos-1]@id; else fail;
-    case \seq(ss) : return ss[pos]@id;
+    case \opt(t) : return t.id; 
+    case \iter(t) : return t.id;
+    case \iter-star(t) : return t.id; 
+    case \iter-seps(t,ss) : if (pos == 0) return t.id; else fail;
+    case \iter-seps(t,ss) : if (pos > 0)  return ss[pos-1].id; else fail;
+    case \iter-star-seps(t,ss) : if (pos == 0) return t.id; else fail;
+    case \iter-star-seps(t,ss) : if (pos > 0) return ss[pos-1].id; else fail;
+    case \seq(ss) : return ss[pos].id;
     // note the use of the label l from the third function parameter:
-    case \alt(aa) : if (a:conditional(_,{_*,except(l)}) <- aa) return a@id; 
-    default: return s@id; // this should never happen, but let's make this robust
+    case \alt(aa) : if (a:conditional(_,{_*,except(l)}) <- aa) return a.id; 
+    default: return s.id; // this should never happen, but let's make this robust
   }  
 }
 
@@ -273,7 +279,7 @@ int getItemId(Symbol s, int pos, prod(label(str l, Symbol _),list[Symbol] _, set
 Symbol getType(Production p) = getType(p.def);
 Symbol getType(label(str _, Symbol s)) = getType(s);
 Symbol getType(conditional(Symbol s, set[Condition] cs)) = getType(s);
-default Symbol getType(Symbol s) = s;
+default Symbol getType(Symbol s) = unsetRec(s);
 
 
 @doc{This function generates Java code to allocate a new item for each position in the grammar.
@@ -282,50 +288,54 @@ constants to improve run-time efficiency of the generated parser}
 map[Symbol,map[Item,tuple[str new, int itemId]]] generateNewItems(Grammar g) {
   map[Symbol,map[Item,tuple[str new, int itemId]]] items = ();
   map[Item,tuple[str new, int itemId]] fresh = ();
+  Production cl(Production p) = unsetRec(p);
   
   visit (g) {
     case Production p:prod(Symbol s,[],_) : 
-       items[getType(s)]?fresh += (item(p, -1):<"new EpsilonStackNode\<IConstructor\>(<s@id>, 0)", s@id>);
+       items[getType(s)]?fresh += (item(cl(p), -1):<"new EpsilonStackNode\<IConstructor\>(<s.id>, 0)", s.id>);
     case Production p:prod(Symbol s,list[Symbol] lhs, _) : {
-      for (int i <- index(lhs)) 
-        items[getType(s)]?fresh += (item(p, i): sym2newitem(g, lhs[i], i));
+      for (int i <- index(lhs)) { 
+        items[getType(s)]?fresh += (item(cl(p), i): sym2newitem(g, lhs[i], i));
+      }  
     }
     case Production p:regular(Symbol s) : {
       while (s is conditional || s is label)
         s = s.symbol;
-         
+      us = unsetRec(s);
+      p = unsetRec(p);
+
       switch(s) {
         case \iter(Symbol elem) : 
-          items[s]?fresh += (item(p,0):sym2newitem(g, elem, 0));
+          items[us]?fresh += (item(p,0):sym2newitem(g, elem, 0));
         case \iter-star(Symbol elem) : 
-          items[s]?fresh += (item(p,0):sym2newitem(g, elem, 0));
+          items[us]?fresh += (item(p,0):sym2newitem(g, elem, 0));
         case \iter-seps(Symbol elem, list[Symbol] seps) : {
-          items[s]?fresh += (item(p,0):sym2newitem(g, elem, 0));
+          items[us]?fresh += (item(p,0):sym2newitem(g, elem, 0));
           for (int i <- index(seps)) 
-            items[s]?fresh += (item(p,i+1):sym2newitem(g, seps[i], i+1));
+            items[us]?fresh += (item(p,i+1):sym2newitem(g, seps[i], i+1));
         }
         case \iter-star-seps(Symbol elem, list[Symbol] seps) : {
-          items[s]?fresh += (item(p,0):sym2newitem(g, elem, 0));
+          items[us]?fresh += (item(p,0):sym2newitem(g, elem, 0));
           for (int i <- index(seps)) 
-            items[s]?fresh += (item(p,i+1):sym2newitem(g, seps[i], i+1));
+            items[us]?fresh += (item(p,i+1):sym2newitem(g, seps[i], i+1));
         }
         // not sure if these belong here
         case \seq(list[Symbol] elems) : {
           for (int i <- index(elems))
-            items[s]?fresh += (item(p,i+1):sym2newitem(g, elems[i], i+1));
+            items[us]?fresh += (item(p,i+1):sym2newitem(g, elems[i], i+1));
         }
         case \opt(Symbol elem) : {
-          items[s]?fresh += (item(p,0):sym2newitem(g, elem, 0));
+          items[us]?fresh += (item(p,0):sym2newitem(g, elem, 0));
         }
         case \alt(set[Symbol] alts) : {
           for (Symbol elem <- alts) 
-            items[s]?fresh += (item(p,0):sym2newitem(g, elem, 0));
+            items[us]?fresh += (item(p,0):sym2newitem(g, elem, 0));
         }
         case \empty() : {
-           items[s]?fresh += (item(p, -1):<"new EpsilonStackNode\<IConstructor\>(<s@id>, 0)", s@id>);
+           items[us]?fresh += (item(p, -1):<"new EpsilonStackNode\<IConstructor\>(<s.id>, 0)", s.id>);
         }
       }
-     }
+    }
   }
   
   return items;
@@ -431,7 +441,8 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
     if (sym is \label)  // ignore labels 
       sym = sym.symbol;
       
-    itemId = sym@id;
+    itemId = sym.id;
+    assert itemId != 0;
     
     list[str] enters = [];
     list[str] exits = [];
@@ -491,11 +502,11 @@ public tuple[str new, int itemId] sym2newitem(Grammar grammar, Symbol sym, int d
         case \start(s) : 
             return <"new NonTerminalStackNode\<IConstructor\>(<itemId>, <dot>, \"<sym2name(sym)>\", <filters>)", itemId>;
         case \lit(l) : 
-            if (/p:prod(sym,list[Symbol] chars,_) := grammar.rules[sym])
+            if (/p:prod(lit(l,id=_),list[Symbol] chars,_) := grammar.rules[getType(sym)])
                 return <"new LiteralStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(p)>, new int[] {<literals2ints(chars)>}, <filters>)",itemId>;
             else throw "literal not found in grammar: <grammar>";
         case \cilit(l) : 
-            if (/p:prod(sym,list[Symbol] chars,_) := grammar.rules[sym])
+            if (/p:prod(cilit(l,id=_),list[Symbol] chars,_) := grammar.rules[getType(sym)])
                 return <"new CaseInsensitiveLiteralStackNode\<IConstructor\>(<itemId>, <dot>, <value2id(p)>, new int[] {<literals2ints(chars)>}, <filters>)",itemId>;
             else throw "ci-literal not found in grammar: <grammar>";
         case \iter(s) : 
@@ -567,7 +578,7 @@ public str value2id(value v) {
   return v2i(v);
 }
 
-str uu(value s) = escape(toBase64("<delAnnotationsRec(s)>"),("=":"00","+":"11","/":"22"));
+str uu(value s) = escape(toBase64("<unsetRec(s)>"),("=":"00","+":"11","/":"22"));
 
 default str v2i(value v) {
     switch (v) {
@@ -591,13 +602,344 @@ default str v2i(value v) {
         //case set[value] s  : return ("" | it + "_" + v2i(e) | e <- (s));
         default            : return uu(v);
     }
+}
+
+// -------- Examples and tests -------------------
+
+
+
+public Grammar GEMPTY = grammar({sort("S")}, ());
+
+private Production pr(Symbol rhs, list[Symbol] lhs) {
+  return prod(rhs,lhs,{});
+}
+
+public Grammar G0 = grammar({sort("S")}, (
+    sort("S"): choice(sort("S"), { pr(sort("S"), [ lit("0") ]) }),
+    lit("0"): choice(lit("0"), { pr(lit("0"),[\char-class([range(48,48)])]) })
+));
+
+public map[Symbol sort, Production def] Lit1 = (
+  lit("*"): choice(lit("*"), { pr(lit("*"),[\char-class([range(42,42)])]) }),
+  lit("+"): choice(lit("+"), { pr(lit("+"),[\char-class([range(43,43)])]) }),
+  lit("0"): choice(lit("0"), { pr(lit("0"),[\char-class([range(48,48)])]) }),
+  lit("1"): choice(lit("1"), { pr(lit("1"),[\char-class([range(49,49)])]) })
+);
+
+public Grammar GEXP = grammar({sort("E")}, (
+    sort("E"): choice(sort("E"), { pr(sort("E"), [sort("E"), lit("*"), sort("B")]),
+                                   pr(sort("E"), [sort("E"), lit("+"), sort("B")]),
+                                   pr(sort("E"), [sort("B")])
+                                 }),
+    sort("B"): choice(sort("B"), { pr(sort("B"), [lit("0")]),
+                                  pr(sort("B"), [lit("1")])
+                                 })
+) + Lit1);
+
+public Grammar GEXPPRIO = grammar( {sort("E")},
+(
+    sort("E"):  choice(sort("E"), { pr(sort("E"),  [sort("T"), sort("E1")])}),
+    sort("E1"): choice(sort("E1"),{ pr(sort("E1"), [lit("+"), sort("T"), sort("E1")]),
+                                    pr(sort("E1"), [])
+                                  }),
+    
+    
+    sort("T"):  choice(sort("T"), { pr(sort("T"),  [sort("F"), sort("T1")]) }),
+   
+    sort("T1"): choice(sort("T1"),{ pr(sort("F"), [lit("*"), sort("F"), sort("T1")]),
+                                   pr(sort("T1"), []) }),
+                                    
+    sort("F"): choice(sort("F"),  { pr(sort("F"),  [lit("("), sort("E"), lit(")")]),
+                                    pr(sort("F"),  [lit("id")])
+                                  }),
+    
+    lit("+"): choice(lit("+"), { pr(lit("+"),[\char-class([range(43,43)])]) }),
+    lit("*"): choice(lit("*"), { pr(lit("*"),[\char-class([range(42,42)])]) }),
+    
+    lit("("): choice(lit("("), { pr(lit("("), [\char-class([range(40,40)])]) }),
+    lit(")"): choice(lit(")"), { pr(lit(")"), [\char-class([range(41,41)])]) }),
+    
+    lit("id"): choice(lit("id"), { pr(lit("id"), [\char-class([range(105,105)]),\char-class([range(100,100)])]) })
+));
+
+test bool tstExpandParameterizedSymbols1() = expandParameterizedSymbols(GEMPTY) == GEMPTY;
+test bool tstExpandParameterizedSymbols2() = expandParameterizedSymbols(G0) == G0;
+test bool tstExpandParameterizedSymbols3() = expandParameterizedSymbols(GEXP) == GEXP;
+test bool tstExpandParameterizedSymbols4() = expandParameterizedSymbols(GEXPPRIO) == GEXPPRIO;
+    
+test bool tstLiterals1() = literals(GEMPTY) == GEMPTY;
+test bool tstLiterals2() = literals(G0) == G0;
+test bool tstLiterals3() = literals(GEXP) == GEXP;
+test bool tstLiterals4() = literals(GEXPPRIO) == GEXPPRIO;
+
+Grammar makeUnique(Grammar gr) {
+    int uniqueItem = 1; // -1 and -2 are reserved by the SGTDBF implementation
+    int newItem() { uniqueItem += 1; return uniqueItem; };
+    Production rewrite(Production p) = 
+      visit(p) { 
+        case Symbol s => s[id=newItem()] 
+      }; 
+    
+    return gr[rules = (s : rewrite(gr.rules[s]) | s <- gr.rules)];
 } 
 
-public str createHole(ConcretePart hole, int idx) = lang::rascal::grammar::ConcreteSyntax::createHole(hole, idx);   
+test bool tstUnique0() = makeUnique(GEMPTY) == grammar(
+  {sort("S")},
+  ());
+  
+ test bool tstUnique00() = makeUnique(G0) == grammar(
+  {sort("S")},
+  (
+    sort("S"):choice(
+      sort("S",id=2),
+      {prod(
+          sort("S",id=3),
+          [lit("0",id=4)],
+          {})}),
+    lit("0"):choice(
+      lit("0",id=5),
+      {prod(
+          lit("0",id=6),
+          [\char-class([range(48,48)],id=7)],
+          {})})
+  ));
+  
+test bool tstUnique1() = makeUnique(GEXP)== grammar(
+  {sort("E")},
+  (
+    lit("+"):choice(
+      lit("+",id=2),
+      {prod(
+          lit("+",id=3),
+          [\char-class([range(43,43)],id=4)],
+          {})}),
+    lit("*"):choice( 
+      lit("*",id=5),
+      {prod(
+          lit("*",id=6),
+          [\char-class([range(42,42)],id=7)],
+          {})}),
+    sort("B"):choice(
+      sort("B",id=8),
+      {
+        prod(
+          sort("B",id=9),
+          [lit("0",id=10)],
+          {}),
+        prod(
+          sort("B",id=11),
+          [lit("1",id=12)],
+          {})
+      }),
+    lit("0"):choice(
+      lit("0",id=13),
+      {prod(
+          lit("0",id=14),
+          [\char-class([range(48,48)],id=15)],
+          {})}),
+    sort("E"):choice(
+      sort("E",id=16),
+      {
+        prod(
+          sort("E",id=17),
+          [sort("B",id=18)],
+          {}),
+        prod(
+          sort("E",id=19),
+          [
+            sort("E",id=20),
+            lit("+",id=21),
+            sort("B",id=22)
+          ],
+          {}),
+        prod(
+          sort("E",id=23),
+          [
+            sort("E",id=24),
+            lit("*",id=25),
+            sort("B",id=26)
+          ],
+          {})
+      }),
+    lit("1"):choice(
+      lit("1",id=27),
+      {prod(
+          lit("1",id=28),
+          [\char-class([range(49,49)],id=29)],
+          {})})
+  ));
 
-// For the benefit of various tests
 
+test bool tstGenerateNewItems1() = generateNewItems(makeUnique(GEMPTY)) == ();
+
+test bool tstGenerateNewItems2() = generateNewItems(makeUnique(G0)) == 
+ (
+  sort("S"):(item(
+      prod(
+        sort("S"),
+        [lit("0")],
+        {}),
+      0):<"new LiteralStackNode\<IConstructor\>(4, 0, prod__lit_0__char_class___range__48_48_, new int[] {48}, null, null)",4>),
+  lit("0"):(item(
+      prod(
+        lit("0"),
+        [\char-class([range(48,48)])],
+        {}),
+      0):<"new CharStackNode\<IConstructor\>(7, 0, new int[][]{{48,48}}, null, null)",7>)
+);
+
+test bool tstGenerateNewItems3() = generateNewItems(makeUnique(GEXP)) == 
+ (
+  lit("+"):(item(
+      prod(
+        lit("+"),
+        [\char-class([range(43,43)])],
+        {}),
+      0):<"new CharStackNode\<IConstructor\>(4, 0, new int[][]{{43,43}}, null, null)",4>),
+  lit("*"):(item(
+      prod(
+        lit("*"),
+        [\char-class([range(42,42)])],
+        {}),
+      0):<"new CharStackNode\<IConstructor\>(7, 0, new int[][]{{42,42}}, null, null)",7>),
+  sort("B"):(
+    item(
+      prod(
+        sort("B"),
+        [lit("0")],
+        {}),
+      0):<"new LiteralStackNode\<IConstructor\>(10, 0, prod__lit_0__char_class___range__48_48_, new int[] {48}, null, null)",10>,
+    item(
+      prod(
+        sort("B"),
+        [lit("1")],
+        {}),
+      0):<"new LiteralStackNode\<IConstructor\>(12, 0, prod__lit_1__char_class___range__49_49_, new int[] {49}, null, null)",12>
+  ),
+  lit("0"):(item(
+      prod(
+        lit("0"),
+        [\char-class([range(48,48)])],
+        {}),
+      0):<"new CharStackNode\<IConstructor\>(15, 0, new int[][]{{48,48}}, null, null)",15>),
+  sort("E"):(
+    item(
+      prod(
+        sort("E"),
+        [sort("B")],
+        {}),
+      0):<"new NonTerminalStackNode\<IConstructor\>(18, 0, \"B\", null, null)",18>,
+    item(
+      prod(
+        sort("E"),
+        [
+          sort("E"),
+          lit("*"),
+          sort("B")
+        ],
+        {}),
+      1):<"new LiteralStackNode\<IConstructor\>(25, 1, prod__lit___42__char_class___range__42_42_, new int[] {42}, null, null)",25>,
+    item(
+      prod(
+        sort("E"),
+        [
+          sort("E"),
+          lit("+"),
+          sort("B")
+        ],
+        {}),
+      1):<"new LiteralStackNode\<IConstructor\>(21, 1, prod__lit___43__char_class___range__43_43_, new int[] {43}, null, null)",21>,
+    item(
+      prod(
+        sort("E"),
+        [
+          sort("E"),
+          lit("+"),
+          sort("B")
+        ],
+        {}),
+      0):<"new NonTerminalStackNode\<IConstructor\>(20, 0, \"E\", null, null)",20>,
+    item(
+      prod(
+        sort("E"),
+        [
+          sort("E"),
+          lit("*"),
+          sort("B")
+        ],
+        {}),
+      0):<"new NonTerminalStackNode\<IConstructor\>(24, 0, \"E\", null, null)",24>,
+    item(
+      prod(
+        sort("E"),
+        [
+          sort("E"),
+          lit("*"),
+          sort("B")
+        ],
+        {}),
+      2):<"new NonTerminalStackNode\<IConstructor\>(26, 2, \"B\", null, null)",26>,
+    item(
+      prod(
+        sort("E"),
+        [
+          sort("E"),
+          lit("+"),
+          sort("B")
+        ],
+        {}),
+      2):<"new NonTerminalStackNode\<IConstructor\>(22, 2, \"B\", null, null)",22>
+  ),
+  lit("1"):(item(
+      prod(
+        lit("1"),
+        [\char-class([range(49,49)])],
+        {}),
+      0):<"new CharStackNode\<IConstructor\>(29, 0, new int[][]{{49,49}}, null, null)",29>)
+);
+
+test bool tstComputeDontNests1() = computeDontNests(generateNewItems(makeUnique(GEMPTY)), GEMPTY,makeUnique(GEMPTY)) == {};
+test bool tstComputeDontNests2() = computeDontNests(generateNewItems(makeUnique(G0)), G0, makeUnique(G0)) == {};
+test bool tstComputeDontNests3() = computeDontNests(generateNewItems(makeUnique(GEXP)), GEXP,makeUnique(GEXP)) == {};
+test bool tstComputeDontNests4() = computeDontNests(generateNewItems(makeUnique(GEXPPRIO)), GEXPPRIO, makeUnique(GEXPPRIO)) == {};
+
+test bool tstExpandParameterizedSymbols1() = expandParameterizedSymbols(G0) == 
+grammar(
+  {sort("S")},
+  (
+    sort("S"):choice(
+      sort("S"),
+      {prod(
+          sort("S"),
+          [lit("0")],
+          {})}),
+    lit("0"):choice(
+      lit("0"),
+      {prod(
+          lit("0"),
+          [\char-class([range(48,48)])],
+          {})})
+  ));
+  
 list[str] removeEmptyLines(str s) =
 	[ line | line <- split("\n", s), /^[ \t]*$/ !:= line];
 
 bool sameLines(str s1, str s2) = size(removeEmptyLines(s1) - removeEmptyLines(s2)) == 0;
+ 
+test bool tstNewGenerateGEMPTY() = 
+	sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "GEMPTYParser", GEMPTY), 
+		      readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/GEMPTYParser.java.gz|));
+		      
+test bool tstNewGenerateG0() = 
+	sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "G0Parser", G0), 
+	          readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/G0Parser.java.gz|));
+	          
+test bool tstNewGenerateGEXP() = 
+	sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "GEXPParser", GEXP), 
+	readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/GEXPParser.java.gz|));
+	
+test bool tstNewGenerateGEXPPRIO() = 
+	sameLines(newGenerate("org.rascalmpl.library.lang.rascal.grammar.tests.generated_parsers", "GEXPPRIOParser", GEXPPRIO), 
+		      readFile(|project://rascal/src/org/rascalmpl/library/lang/rascal/grammar/tests/generated_parsers/GEXPPRIOParser.java.gz|));
+
+    
