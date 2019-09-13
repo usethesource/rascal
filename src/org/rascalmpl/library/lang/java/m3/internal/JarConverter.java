@@ -21,7 +21,6 @@ package org.rascalmpl.library.lang.java.m3.internal;
 import static org.rascalmpl.library.lang.java.m3.internal.M3Constants.*;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -143,15 +142,15 @@ public class JarConverter extends M3Converter {
      */
     private void createM3() {
         try {
-            try (InputStream inputStream = registry.getInputStream(loc);
-                JarInputStream jarStream = new JarInputStream(inputStream);) {
+                       
+            try (JarInputStream jarStream = new JarInputStream(registry.getInputStream(loc))) {
                 JarEntry entry = jarStream.getNextJarEntry();
                 while (entry != null) {
                     compUnitPhysical = M3LocationUtil.extendPath(loc, entry.getName());
                     
                     if (entry.getName().endsWith(".class")) {
                         String compUnit = getCompilationUnitRelativePath();
-                        ClassReader classReader = resolver.getClassReader(jarStream);
+                        ClassReader classReader = resolver.buildClassReader(jarStream);
                         
                         setCompilationUnitRelations(compUnit);
                         setPackagesRelations(compUnit);
@@ -174,7 +173,7 @@ public class JarConverter extends M3Converter {
      */
     private void createSingleClassM3(String className) {
         String compUnit = className;
-        ClassReader classReader = resolver.getClassReader(className);
+        ClassReader classReader = resolver.buildClassReader(className);
 
         setCompilationUnitRelations(compUnit);
         setPackagesRelations(compUnit);
@@ -393,7 +392,7 @@ public class JarConverter extends M3Converter {
      * @param methodLogical - logical location of the method
      */
     private void setMethodOverridesRelation(String superClass, MethodNode methodNode, ISourceLocation methodLogical) {
-        ClassReader classReader = resolver.getClassReader(superClass);
+        ClassReader classReader = resolver.buildClassReader(superClass);
 
         if (classReader != null) {
             ClassNode classNode = new ClassNode();
@@ -735,3 +734,4 @@ public class JarConverter extends M3Converter {
         return name;
     }  
 }
+
