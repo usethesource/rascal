@@ -781,6 +781,21 @@ list[AType] getFunctionArgumentTypes(AType ft) {
     throw rascalCheckerInternalError("Cannot get function arguments from non-function type <prettyAType(ft)>");
 }
 
+@doc{Get a list of arguments for overloaded function/constructors}
+list[AType] getFunctionOrConstructorArgumentTypes(AType ft) {
+    if (afunc(_, ats, _) := unwrapType(ft)) return ats;
+    if (acons(_,list[AType] cts,_) := unwrapType(ft)) return cts;
+    if (overloadedAType(rel[loc def, IdRole role, AType atype] overloads) := unwrapType(ft)){
+        result = avoid();
+        for(tuple[loc def, IdRole role, AType atype] ovl <- overloads){
+            result = alub(result, atypeList(getFunctionOrConstructorArgumentTypes(ovl.atype)));
+        }
+        if(atypeList(list[AType] argTypes) := result) return argTypes;
+        throw rascalCheckerInternalError("Expected atypeList, found <prettyPrint(result)>");
+    }
+    throw rascalCheckerInternalError("Cannot get function/constructor arguments from type <prettyAType(ft)>");
+}
+
 @doc{Get the arguments for a function in the form of a tuple.}
 AType getFunctionArgumentTypesAsTuple(AType ft) {
     if (afunc(_, ats, _) := unwrapType(ft)) return atuple(atypeList(ats));
@@ -810,6 +825,8 @@ AType getResult(acons(AType adt, list[AType] fields, list[Keyword] kwFields)) = 
 AType getResult(AType t){
     throw rascalCheckerInternalError("Can only get result type from function or constructor type <prettyAType(t)>");
 }
+
+
 
 @doc{
 .Synopsis

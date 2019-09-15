@@ -142,7 +142,6 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
      
       ftype = getFunctionType(funsrc);
       resultType = ftype.ret;
-      //formals = getNestedParameters(funsrc); //getParameterNames(fd.signature.parameters.formals.formals);
       nformals = size(ftype.formals);
       fuid = convert2fuid(funsrc);
            
@@ -151,7 +150,7 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
       bool isVarArgs = ftype.varArgs;
       
       //// Keyword parameters
-      lrel[str name, AType atype, MuExp defaultExp]  kwps = translateKeywordParameters(fd.signature.parameters/*, fuid, getFormals(funsrc), fd@\loc*/);
+      lrel[str name, AType atype, MuExp defaultExp]  kwps = translateKeywordParameters(fd.signature.parameters);
       
       mubody = muBlock([]);
       if(ttags["javaClass"]?){
@@ -182,10 +181,8 @@ private void translateFunctionDeclaration(FunctionDeclaration fd, list[Statement
      
       isPub = !fd.visibility is \private;
       isMemo = ttags["memo"]?; 
-      iprintln(body);
       <formalVars, tbody> = translateFunction(prettyPrintName(fd.signature.name), fd.signature.parameters.formals.formals, ftype, mubody, isMemo, when_conditions);
-      if(resultType != avoid() && !endsWithReturn(tbody)){
-        iprintln(tbody);
+      if(resultType != avoid() && !endsWithReturn(tbody) && !ttags["javaClass"]?){
         tbody = muBlock([ tbody, muFailReturn(ftype) ]);
       }
       
@@ -310,7 +307,7 @@ tuple[list[MuExp] formalVars, MuExp funBody] translateFunction(str fname, {Patte
      params_when_body = ( when_body
                         | translatePat(formalsList[i], getType(formalsList[i]), formalVars[i], fname, it, muFailReturn(ftype), subjectAssigned=hasParameterName(formalsList, i) ) 
                         | i <- reverse(index(formalsList)));
-     funCode = functionBody(muBlock([params_when_body, muFailReturn(ftype)]), ftype, formalVars, isMemo);
+     funCode = functionBody(isVoidType(ftype.ret) ? params_when_body : muBlock([params_when_body, muFailReturn(ftype)]), ftype, formalVars, isMemo);
      leaveBacktrackingScope();
      return <formalVars, funCode>;
 }

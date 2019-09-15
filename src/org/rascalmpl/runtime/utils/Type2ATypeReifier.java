@@ -12,9 +12,9 @@ import io.usethesource.vallang.type.Type;
 
 public class Type2ATypeReifier extends ATypeFactory {
 	
-	protected static IString empty = $VF.string("");
+	protected IString empty = $VF.string("");
 	
-	public static IConstructor reify2atype(final Type t, IString label){
+	public IConstructor reify2atype(final Type t, IString label){
 		return t.accept(new DefaultTypeVisitor<IConstructor, RuntimeException>(null) {
 			@Override
 			public IConstructor visitVoid(Type type) throws RuntimeException {
@@ -146,25 +146,26 @@ public class Type2ATypeReifier extends ATypeFactory {
 	
 	@SuppressWarnings("deprecation")
     public static void main(String [] args) {
-		IValue one = $VF.integer(1);
-		IValue two = $VF.integer(2);
-		System.err.println(reify2atype(one.getType(), empty));
-		System.err.println(reify2atype(one.getType(), $VF.string("intLabel")));
+		Type2ATypeReifier reifier = new Type2ATypeReifier();
+		IValue one = reifier.$VF.integer(1);
+		IValue two = reifier.$VF.integer(2);
+		System.err.println(reifier.reify2atype(one.getType(), reifier.empty));
+		System.err.println(reifier.reify2atype(one.getType(), reifier.$VF.string("intLabel")));
 		
-		System.err.println(reify2atype($VF.set(one).getType(), empty));
-		System.err.println(reify2atype($VF.set(one).getType(), $VF.string("set Label")));
+		System.err.println(reifier.reify2atype(reifier.$VF.set(one).getType(), reifier.empty));
+		System.err.println(reifier.reify2atype(reifier.$VF.set(one).getType(), reifier.$VF.string("set Label")));
 		
-		System.err.println(reify2atype($VF.tuple(one,two).getType(), empty));
+		System.err.println(reifier.reify2atype(reifier.$VF.tuple(one,two).getType(), reifier.empty));
 		
-		System.err.println(reify2atype($TF.tupleType($TF.integerType(), "abc"), empty));
+		System.err.println(reifier.reify2atype(reifier.$TF.tupleType(reifier.$TF.integerType(), "abc"), reifier.empty));
 		
-		System.err.println(reify2atype($VF.list($VF.tuple(one,two)).getType(), empty));
+		System.err.println(reifier.reify2atype(reifier.$VF.list(reifier.$VF.tuple(one,two)).getType(), reifier.empty));
 		
-		Type D = $TF.abstractDataType($TS, "D");
-		Type D_d = $TF.constructor($TS, D, "d");
+		Type D = reifier.$TF.abstractDataType(reifier.$TS, "D");
+		Type D_d = reifier.$TF.constructor(reifier.$TS, D, "d");
 		
-		System.err.println(reify2atype(D, empty));
-		System.err.println(reify2atype(D_d, empty));
+		System.err.println(reifier.reify2atype(D, reifier.empty));
+		System.err.println(reifier.reify2atype(D_d, reifier.empty));
 		
 	}
 	

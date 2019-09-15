@@ -221,15 +221,15 @@ JCode transPrim("guarded_subscript", AType r, [AType a, *AType types], [str x, *
                                                                                        
 // ---- join ------------------------------------------------------------------
 
-JCode transPrim("join", AType r, [AType a, AType b], [str x, str y], JGenie jg)          = "alist_product_alist(<x>,<y>)" when isListOnlyType(a), isListOnlyType(b);
-JCode transPrim("join", AType r, [AType a, AType b], [str x, str y], JGenie jg)          = "alist_join_alrel(<x>,<y>)" when isListOnlyType(a), isListRelOnlyType(b);
-JCode transPrim("join", AType r, [AType a, AType b], [str x, str y], JGenie jg)          = "alrel_join_alrel(<x>,<y>)" when isListRelOnlyType(a), isListRelOnlyType(b);
-JCode transPrim("join", AType r, [AType a, AType b], [str x, str y], JGenie jg)          = "alrel_join_alist(<x>,<y>)" when isListRelOnlyType(a), isListOnlyType(b);
+JCode transPrim("join", AType r, [AType a, AType b], [str x, str y], JGenie jg)          = "alist_product_alist(<castArg(a,x)>,<castArg(b,y)>)" when isListOnlyType(a), isListOnlyType(b);
+JCode transPrim("join", AType r, [AType a, AType b], [str x, str y], JGenie jg)          = "alist_join_alrel(<castArg(a,x)>,<castArg(b,y)>)" when isListOnlyType(a), isListRelOnlyType(b);
+JCode transPrim("join", AType r, [AType a, AType b], [str x, str y], JGenie jg)          = "alrel_join_alrel(<castArg(a,x)>,<castArg(b,y)>)" when isListRelOnlyType(a), isListRelOnlyType(b);
+JCode transPrim("join", AType r, [AType a, AType b], [str x, str y], JGenie jg)          = "alrel_join_alist(<castArg(a,x)>,<castArg(b,y)>)" when isListRelOnlyType(a), isListOnlyType(b);
 
-JCode transPrim("join", AType r, [AType a, AType b], [str x, str y], JGenie jg)          = "aset_product_aset(<x>,<y>)" when isSetOnlyType(a), isSetOnlyType(b);
-JCode transPrim("join", AType r, [AType a, AType b], [str x, str y], JGenie jg)          = "aset_join_arel(<x>,<y>)" when isSetOnlyType(a), isRelOnlyType(b);
-JCode transPrim("join", AType r, [AType a, AType b], [str x, str y], JGenie jg)          = "arel_join_arel(<x>,<y>)" when isRelOnlyType(a), isRelOnlyType(b);
-JCode transPrim("join", AType r, [AType a, AType b], [str x, str y], JGenie jg)          = "arel_join_aset(<x>,<y>)" when isRelOnlyType(a), isSetOnlyType(b);
+JCode transPrim("join", AType r, [AType a, AType b], [str x, str y], JGenie jg)          = "aset_product_aset(<castArg(a,x)>,<castArg(b,y)>)" when isSetOnlyType(a), isSetOnlyType(b);
+JCode transPrim("join", AType r, [AType a, AType b], [str x, str y], JGenie jg)          = "aset_join_arel(<castArg(a,x)>,<castArg(b,y)>)" when isSetOnlyType(a), isRelOnlyType(b);
+JCode transPrim("join", AType r, [AType a, AType b], [str x, str y], JGenie jg)          = "arel_join_arel(<castArg(a,x)>,<castArg(b,y)>)" when isRelOnlyType(a), isRelOnlyType(b);
+JCode transPrim("join", AType r, [AType a, AType b], [str x, str y], JGenie jg)          = "arel_join_aset(<castArg(a,x)>,<castArg(b,y)>)" when isRelOnlyType(a), isSetOnlyType(b);
 
 // ----less -------------------------------------------------------------------
 
@@ -296,8 +296,8 @@ JCode transPrim("open_string_writer", AType r, [], [], JGenie jg)               
 // ---- product ---------------------------------------------------------------
 
 JCode transPrim("product", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "<getOuter(a)>_product_<getOuter(b)>(<castArg(a,x)>,<castArg(b,y)>)"     when isArithType(a), isArithType(b);
-JCode transPrim("product", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "alist_product_alist(<x>,<y>)"   when isListLikeType(a), isListLikeType(b);
-JCode transPrim("product", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "aset_product_aset(<x>,<y>)"     when isSetLikeType(a), isSetLikeType(b);
+JCode transPrim("product", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "alist_product_alist(<castArg(a,x)>,<castArg(b,y)>)"   when isListLikeType(a), isListLikeType(b);
+JCode transPrim("product", AType r, [AType a, AType b], [str x, str y], JGenie jg)       = "aset_product_aset(<castArg(a,x)>,<castArg(b,y)>)"     when isSetLikeType(a), isSetLikeType(b);
 
 // project
 // ---- remainder -------------------------------------------------------------
@@ -386,7 +386,7 @@ JCode transPrim("splice_set", AType r, [AType a, AType b],  [str w, str v], JGen
     
 list[str] transPrimArgs("subscript", AType r, [AType a, aint()], [MuExp x, MuExp y], JGenie jg)  
                                                                                 = [ trans(x,jg), trans2NativeInt(y,jg) ] 
-                                                                                  when isListOnlyType(a) || (a == astr()) || isTupleType(a) || 
+                                                                                  when isListOnlyType(a) || isStrType(a) || isTupleType(a) || 
                                                                                        isNodeType(a) || isADTType(a);   
 JCode transPrim("subscript", AType r, [astr(), aint()], [str x, str y], JGenie jg)       = "astr_subscript_int(<x>,<y>)";
 JCode transPrim("subscript", AType r, [AType a, aint()], [str x, str y], JGenie jg)      = "((<atype2javatype(r)>)atuple_subscript_int(<x>,<y>))" when isTupleType(a);

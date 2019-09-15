@@ -1,3 +1,3 @@
 module lang::rascalcore::compile::Examples::Tst2
-
-value main() { return 1/0; }
+ 
+test bool reflexEq(value x) = x := x;

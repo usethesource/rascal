@@ -10,6 +10,7 @@ import String;
 
 import lang::rascal::\syntax::Rascal;
 import lang::rascalcore::compile::muRascal::AST;
+import lang::rascalcore::compile::util::Names;
 
 import lang::rascalcore::check::BasicRascalConfig;
 import Type;
@@ -151,6 +152,7 @@ public void resetScopeExtraction() {
     funInnerScopes = ();
     overloadingResolver = ();
     overloadedFunctions = [];
+    overloadedTypeResolver = ();
     scopes = ();
     module_scopes = {};
     facts = (); 
@@ -715,12 +717,20 @@ public UID declaredScope(UID uid) {
 // Generate a MuExp to access a variable
 
 MuExp mkVar(str name, loc l) {
+  println("<name>, <l>");
+ 
+  uqname = getUnqualifiedName(name);
+  if(uqname == "sum"){
+    println("sum!");
+  }
   defs = useDef[l];
   if(size(defs) > 1){
     assert all(d <- defs, definitions[d].idRole in {functionId(), constructorId()}) : "Only functions can have multiple definitions" ;
    println("overloadedTypeResolver:"); iprintln(overloadedTypeResolver);
-   println("<name>, <l>");
+  
     ftype = unsetRec(getType(l));
+    orgFtype = ftype;
+    println("orgFtype = <orgFtype>");
     if(overloadedAType(rel[loc, IdRole, AType] overloads) := ftype){
         resType = avoid();
         formalsType = avoid();
@@ -731,31 +741,36 @@ MuExp mkVar(str name, loc l) {
         }
         ftype = atypeList(atypes) := formalsType ? afunc(resType, formalsType.atypes, []) : afunc(resType, [formalsType], []);
     }
-    //iprintln(overloadedTypeResolver);
-    return muOFun(overloadedTypeResolver[<name,ftype>]);
+   iprintln(overloadedTypeResolver, lineLimit=10000);
+    println("orgFtype = <orgFtype>");
+    println("ftype = <ftype>");
+    for(<nm, tp> <- overloadedTypeResolver){
+        if(nm == uqname) println("<nm>: <tp> ==\> <overloadedTypeResolver[<nm, tp>]>");
+    }
+    return muOFun(overloadedTypeResolver[<uqname,ftype>]);
   }
   uid = getFirstFrom(defs);
   def = definitions[uid];
   
   // Keyword parameters
   if(def.idRole == keywordFormalId()) {
-       return muVarKwp(name, getScope(uid), getType(l));
+       return muVarKwp(uqname, getScope(uid), getType(l));
   }
   
   if(def.idRole == fieldId()) {
     scp = getScope(uid);
     //pos = getPositionInScope(name, uid);
-    return /*scp in modules ? muModuleVar(name, scp, pos) :*/ muVar(name, scp, -1, getType(l));
+    return /*scp in modules ? muModuleVar(name, scp, pos) :*/ muVar(uqname, scp, -1, getType(l));
   }
   
   if(def.idRole == keywordFieldId()){
-       return muVarKwp(name, getScope(uid), getType(l));
+       return muVarKwp(uqname, getScope(uid), getType(l));
   }
   
   if(def.idRole in variableRoles){
     scp = getScope(uid);
-    pos = is_module_variable(def) ? - 1 : getPositionInScope(name, uid);
-    return /*scp in modules ? muModuleVar(name, scp, pos) :*/ muVar(name, scp, pos, getType(l));
+    pos = is_module_variable(def) ? - 1 : getPositionInScope(uqname, uid);
+    return /*scp in modules ? muModuleVar(name, scp, pos) :*/ muVar(uqname, scp, pos, getType(l));
   }
   
   if(def.idRole == constructorId()){
@@ -767,7 +782,7 @@ MuExp mkVar(str name, loc l) {
     //if(uid in overloadedFunctions) return muOFun(overloadedTypeResolver[unsetRec(getType(l))]);
     return muFun1(uid); //muFun1(functions_and_constructors_to_fuid[uid]);
   }
-    throw "End of mkVar reached for <name> at <l>: <def>";
+    throw "End of mkVar reached for <uqname> at <l>: <def>";
 }
 
 // Generate a MuExp for an assignment
