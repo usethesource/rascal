@@ -14,6 +14,11 @@ str getQualClassName(str qname){
     return replaceColonAndDash(qname);
 }
 
+str getUnqualifiedName(str qname){
+    n = findLast(qname, "::");
+    return n >= 0 ? qname[n+2 ..] : qname;
+}
+
 str getClassName(str qname){
     qname = replaceColonAndDash(qname);
     n = findLast(qname, ".");

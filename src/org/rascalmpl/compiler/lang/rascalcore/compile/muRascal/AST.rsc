@@ -46,7 +46,6 @@ public data MuFunction =
                            str uqname,
                            AType ftype,
                            list[MuExp] formals,
-                           //list[str] argNames,
                            lrel[str name, AType atype, MuExp defaultExp] kwpDefaults, 
                            str scopeIn,
                            int nformals, 
@@ -443,16 +442,17 @@ MuExp muReturn1(AType t, muForRangeInt(str label, MuExp var, int ifirst, int ist
 MuExp muReturn1(AType t, muForAll(str label, MuExp var, AType iterType, MuExp iterable, MuExp body))
     = muForAll(label, var, iterType, iterable, muReturn1(t, body));
 
-MuExp addReturnFalse(bl: muBlock([*exps, muReturn1(abool(), muCon(false))])) = bl;
+MuExp addReturnFalse(AType t, bl: muBlock([*exps, muReturn1(abool(), muCon(false))])) = bl;
 
-default MuExp addReturnFalse(MuExp exp) = muBlock([exp, muReturn1(abool(), muCon(false))]);
+default MuExp addReturnFalse(AType t, MuExp exp) = muBlock([exp,  t == abool() ? muReturn1(abool(), muCon(false)) : muFailReturn(t)]);
 
-MuExp muReturn1(AType t, muEnter(str btscope, MuExp exp))
-    = muEnter(btscope, addReturnFalse(visit(exp) { case muSucceed(btscope) => muReturn1(abool(), muCon(true))
-                                                   case muFail(btscope) => muReturn1(abool(), muCon(false))
-                                                   case muFailEnd(btscope) => muReturn1(abool(), muCon(false))
+MuExp muReturn1(AType t, muEnter(str btscope, MuExp exp)){
+    ft = afunc(t, [], []);
+    return addReturnFalse(ft, muEnter(btscope, visit(exp) { //case muSucceed(btscope) => muReturn1(abool(), muCon(true))
+                                                   case muFail(btscope) => t == abool() ? muReturn1(abool(), muCon(false)) : muFailReturn(ft)
+                                                   case muFailEnd(btscope) =>t == abool() ? muReturn1(abool(), muCon(false)) : muFailReturn(ft)
                                                  }));
-    
+}    
 MuExp muReturn1(AType t, muSucceed(str btscope))
     = muReturn1(abool(), muCon(true));
 
@@ -610,6 +610,9 @@ MuExp muIfExp(muCon(true), MuExp thenPart, MuExp elsePart) = thenPart;
 
 MuExp muIfExp(muCon(false), MuExp thenPart, MuExp elsePart) = elsePart;
 
+MuExp muIfExp(muIfExp(MuExp cond, MuExp thenPart1, MuExp elsePart1), MuExp thenPart2, MuExp elsePart2)
+    = muIfExp(cond, muIfExp(thenPart1, thenPart2, elsePart2), muIfExp(elsePart1, thenPart2, elsePart2));
+
 // ---- muIfelse --------------------------------------------------------------
 
 MuExp muIfelse(MuExp cond, MuExp thenPart, muBlock([])) = muIf(cond, thenPart);
@@ -627,11 +630,11 @@ MuExp muIfelse(muValueBlock(AType t, [*MuExp exps, MuExp exp]), MuExp thenPart, 
 //                            },
 //         exp1 != exp;
     
-MuExp muReturn1(AType t, muEnter(str btscope, MuExp exp))
-    = muEnter(btscope, addReturnFalse(visit(exp) { case muSucceed(btscope) => muReturn1(abool(), muCon(true))
-                                                   case muFail(btscope) => muReturn1(abool(), muCon(false))
-                                                   case muFailEnd(btscope) => muReturn1(abool(), muCon(false))
-                                                 }));
+//MuExp muReturn1(AType t, muEnter(str btscope, MuExp exp))
+//    = muEnter(btscope, addReturnFalse(visit(exp) { case muSucceed(btscope) => muReturn1(abool(), muCon(true))
+//                                                   case muFail(btscope) => muReturn1(abool(), muCon(false))
+//                                                   case muFailEnd(btscope) => muReturn1(abool(), muCon(false))
+//                                                 }));
 
 // ---- muEnter ---------------------------------------------------------------
 
@@ -664,7 +667,7 @@ MuExp muRegExpCompile(muValueBlock(AType t, [*MuExp exps, MuExp regExp]), MuExp 
 // TODO: shoud go to separate module (does not work in interpreter)
 
 bool shouldFlatten(MuExp arg) 
-    =  muValueBlock(t, elems) := arg || muEnter(btscope, exp) := arg  || muIfelse(cond, thenPart, elsePart) := arg || muBlock(elems) := arg;
+    =  muValueBlock(t, elems) := arg || muEnter(btscope, exp) := arg  || muIfelse(cond, thenPart, elsePart) := arg ||  muBlock(elems) := arg;
  
 int nauxVars = -1;
          

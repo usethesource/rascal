@@ -24,11 +24,13 @@ data JGenie
     = jgenie(
         str () getModuleName,
         loc () getModuleLoc,
+        bool (MuFunction) isUniqueFunction,
         void (MuFunction) setFunction,
         MuFunction () getFunction,
         str () getFunctionName,
         bool (MuExp) isDefinedInCurrentFunction,
         AType (loc src) getType,
+        str(loc def) getImportedModuleName,
         str (loc src) getAccessor,
         str (loc src) getAccessorInResolver,
         Define (loc src) getDefine,
@@ -84,6 +86,19 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
     loc _getModuleLoc()
         = currentModuleScope;
         
+    bool _isUniqueFunction(MuFunction muFun){
+        arity = getArity(muFun.ftype);
+        name = muFun.uqname;
+       
+        tmp1 = [ muFun.uqname | muFun1 <- range(muFunctions), muFun1.uqname == name, getArity(muFun1.ftype) == arity ];
+                               
+        r = resolvers[name];
+        res = size(tmp1) <= 1 && (isEmpty(r) 
+               || all(tuple[AType funType, str scope, list[loc] ofunctions, list[loc] oconstructors] ovl <- r, isEmpty(ovl.oconstructors), !comparable(ovl.funType, muFun.ftype) || !mapToSameJavaType(ovl.funType, muFun.ftype)));
+        println("isUniqueFunction: <muFun.qname> ==\> <res>");
+        return res;
+    }
+        
     void _setFunction(MuFunction fun){
         function = fun;
         qname = replaceAll(fun.qname, "::", "_");
@@ -93,8 +108,8 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
             idx = findFirst(functionName, "_");
             functionName = functionName[ .. idx];
         } else { 
-            idx = findFirst(qname, "$");    // preserve $ as first characters (as oppsoed to separator with module name 
-            functionName = idx > 0 ? qname[idx+1 .. ] : qname;
+            idx = findFirst(qname, "$");    // preserve $ as first character (as opposed to separator with module name) 
+            functionName = idx > 0 ? qname[idx+1 .. ] : _isUniqueFunction(fun) ? fun.uqname : qname;
         }
     }
     
@@ -107,13 +122,13 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
     AType _getType(loc src)
         = currentModule.facts[src];
         
-    str getImportedModuleName(loc def){
+    str _getImportedModuleName(loc def){
         for(mname <- moduleLocs){
             if(containedIn(def, moduleLocs[mname])){
                 return module2field(mname);
             }
         }
-        throw "getImportedModuleName<def>";
+        throw "getImportedModuleName: <def>";
     }
         
     str _getAccessor(loc src){
@@ -126,16 +141,11 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                     if(containedIn(def.defined, currentModuleScope)){
                         return startsWith(baseName, "$CLOSURE") ? baseName : "$me.<baseName>_<descriptor>";
                     } else {
-                        return startsWith(baseName, "$CLOSURE") ? baseName : "<getImportedModuleName(def.defined)>.<baseName>_<descriptor>";
+                        return startsWith(baseName, "$CLOSURE") ? baseName : "<_getImportedModuleName(def.defined)>.<baseName>";
                     }
                  }
              }
         }
-        //for(str fname <- muFunctions){
-        //    if(muFunctions[fname].src == src){
-        //        return fname;
-        //    }
-        //}
         throw "No accessor found for <src>";
     }
     
@@ -148,7 +158,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                     if(containedIn(def.defined, currentModuleScope)){
                         return baseName;
                     } else {
-                        return "<getImportedModuleName(src)>.<baseName>";
+                        return "<_getImportedModuleName(src)>.<baseName>";
                     }
                  }
              }
@@ -213,13 +223,13 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
     
     str _getConstants(){
         return "<for(v <- constants){>
-               'private static final <value2outertype(v)> <constants[v]> = <value2IValue(v)>;
+               'private final <value2outertype(v)> <constants[v]> = <value2IValue(v)>;
                '<}>
                '<for(t <- types){>
-               'private static final io.usethesource.vallang.type.Type <types[t]> = <atype2typestore(t)>;
+               'private final io.usethesource.vallang.type.Type <types[t]> = <atype2typestore(t)>;
                '<}>
                '<for(t <- atype_constants){>
-               'private static final IConstructor <atype_constants[t]> = <atype2IValue(areified(t), atype_definitions[t])>;
+               'private final IConstructor <atype_constants[t]> = <atype2IValue(areified(t), atype_definitions[t])>;
                '<}>";
     }
     
@@ -264,11 +274,13 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
     return jgenie(
                 _getModuleName,
                 _getModuleLoc,
+                _isUniqueFunction,
                 _setFunction,
                 _getFunction,
                 _getFunctionName,
                 _isDefinedInCurrentFunction,
                 _getType,
+                _getImportedModuleName,
                 _getAccessor,
                 _getAccessorInResolver,
                 _getDefine,

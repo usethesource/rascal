@@ -861,7 +861,7 @@ MuExp translate (e:(Expression) `any ( <{Expression ","}+ generators> )`) {
     str fuid = topFunctionScope();
     str whileName = nextLabel();
       
-    any_found = muTmpBool(nextTmp("any_found"), fuid);
+    any_found = muTmpIValue(nextTmp("any_found"), fuid, abool());
     enterLoop(whileName,fuid);
     exit = muBlock([]);
     code = muBlock([muAssign(any_found, muCon(true)), muBreak(whileName)]);
@@ -905,7 +905,7 @@ MuExp translate (e:(Expression) `all ( <{Expression ","}+ generators> )`) {
     str fuid = topFunctionScope();
     str whileName = nextLabel();
       
-    all_true = muTmpBool(nextTmp("all_true"), fuid);
+    all_true = muTmpIValue(nextTmp("all_true"), fuid, abool());
     enterLoop(whileName,fuid);
     exit = muBlock([muAssign(all_true, muCon(false)), muBreak(whileName)]);
     code = muContinue(whileName);
@@ -1638,7 +1638,7 @@ MuExp translate(e:(Expression) `<Expression lhs> ==\> <Expression rhs>`) {
     }
     btscope = nextTmp("IMPLIES");
     enterBacktrackingScope(btscope);
-    code = muEnter(btscope, translateBool(lhs, btscope, translateBool(rhs, btscope, muSucceed(btscope), muFailEnd(btscope)),
+    code = muEnter(btscope, translateBool(lhs, btscope, translateBool(rhs, btscope, muSucceed(btscope), muFail(btscope)),
                                                         muSucceed(btscope))); 
     leaveBacktrackingScope();
     return code;  
@@ -1651,12 +1651,17 @@ MuExp translateBool((Expression) `<Expression lhs> ==\> <Expression rhs>`, str b
    
 MuExp translate(e:(Expression) `<Expression lhs> \<==\> <Expression rhs>`) {
     if(backtrackFree(e)){
-        return muIfExp(translate(lhs), translate(rhs), muCallPrim3("not", abool(), [abool()], [translate(rhs)], e@\loc));
+        str fuid = topFunctionScope();
+        eq_tmp = muTmpIValue(nextTmp("eq_tmp"), fuid, abool());
+        return muIfExp(translate(lhs), translate(rhs),
+                                       muValueBlock(abool(), [muConInit(eq_tmp, translate(rhs)), muCallPrim3("not", abool(), [abool()], [eq_tmp], e@\loc)]));
     }
+        //return muIfExp(translate(lhs), translate(rhs), muCallPrim3("not", abool(), [abool()], [translate(rhs)], e@\loc));
+    
    btscope = nextTmp("EQUIV");
    
-   code = muEnter(btscope, translateBool(lhs, btscope, translateBool(rhs, btscope, muSucceed(btscope), muFailEnd(btscope)),
-                                                       translateBool(rhs, btscope, muFailEnd(btscope), muSucceed(btscope)))); 
+   code = muEnter(btscope, translateBool(lhs, btscope, translateBool(rhs, btscope, muSucceed(btscope), muFail(btscope)),
+                                                       translateBool(rhs, btscope, muFail(btscope), muSucceed(btscope)))); 
    leaveBacktrackingScope();
    return code;
 }

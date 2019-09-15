@@ -554,7 +554,7 @@ MuExp translatePat(p:(Pattern) `<Pattern expression> ( <{Pattern ","}* arguments
    
    if((KeywordArguments[Pattern]) `<OptionalComma optionalComma> <{KeywordArgument[Pattern] ","}+ keywordArgumentList>` := keywordArguments){
         for(kwarg <- keywordArgumentList){
-            kwname = prettyprintName(kwarg.name);
+            kwname = prettyPrintName(kwarg.name);
             contExp = muIfelse(muHasKwp(subject, kwname), muBlock([translatePat(kwarg.expression, getType(kwarg.expression), muGetKwp(subject, subjectType, kwname), btscope, trueCont, falseCont)]), falseCont);
         }
    }
@@ -683,7 +683,7 @@ MuExp translatePatAsSetElem(p:(Pattern) `<QualifiedName name>*`, bool last, ATyp
     return translateNamedMultiVar(muVar(prettyPrintName(name), fuid, pos, aset(elmType)), last, elmType, subject, prevSubject, btscope, trueCont, falseCont, p@\loc);
 }
 
-MuExp translatePatAsSetElem(p:(Pattern) `*<Name name>`, bool last, AType elmType, MuExp subject, MuExp prevSubject, str btscope, MuExp trueCont, MuExp falseContt) {
+MuExp translatePatAsSetElem(p:(Pattern) `*<Name name>`, bool last, AType elmType, MuExp subject, MuExp prevSubject, str btscope, MuExp trueCont, MuExp falseCont) {
     if("<name>" == "_") fail;
     <fuid, pos> = getVariableScope(prettyPrintName(name), name@\loc);
     return translateNamedMultiVar(muVar(prettyPrintName(name), fuid, pos, aset(elmType)), last, elmType, subject, prevSubject, btscope, trueCont, falseCont, p@\loc);

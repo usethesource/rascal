@@ -5,6 +5,7 @@ import java.util.Random;
 import java.util.stream.Stream;
 
 import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.$RascalModule;
+import org.rascalmpl.core.library.lang.rascalcore.compile.runtime.ATypeFactory;
 import org.rascalmpl.values.ValueFactoryFactory;
 
 import io.usethesource.vallang.IValue;
@@ -13,6 +14,7 @@ import io.usethesource.vallang.random.RandomValueGenerator;
 import io.usethesource.vallang.random.util.TypeParameterBinder;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
+import io.usethesource.vallang.type.TypeStore;
 
 public class GenerateActuals {
 	static IValueFactory $VF = ValueFactoryFactory.getValueFactory();
@@ -29,7 +31,7 @@ public class GenerateActuals {
 		this.generator = new RandomValueGenerator($VF, new Random(), maxDepth, maxWidth, true);
 	}
 	
-	public Stream<IValue[]> generateActuals(Type[] formals) {
+	public Stream<IValue[]> generateActuals(Type[] formals, TypeStore $TS) {
 		Type[] types = formals;
 		Map<Type, Type> tpbindings = TypeParameterBinder.bind($TF.tupleType(formals));
 		
@@ -42,7 +44,7 @@ public class GenerateActuals {
 				Stream.generate(() -> 
 				{ IValue[] values = new IValue[formals.length];
 				for (int n = 0; n < values.length; n++) {
-					values[n] = generator.generate(types[n], $RascalModule.$TS, tpbindings);
+					values[n] = generator.generate(types[n], $TS, tpbindings);
 				}
 				return values;
 				});
