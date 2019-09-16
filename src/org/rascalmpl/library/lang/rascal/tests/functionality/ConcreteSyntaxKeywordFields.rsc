@@ -11,7 +11,7 @@ syntax B = "b" | [b]; // ambiguous on purpose
 data Tree(str y = "y");
 
 // to be able to access the kw param feature, you have to remove the loc annotation first (until we remove annotations):
-&T<:Tree get(&T<:Tree e) = delAnnotation(e, "loc");
+&T<:Tree get(&T<:Tree e) = e;
 @ignoreCompiler{FIX: type checker does not accept this}
 test bool assignKw() {
    a = get((A) `a`);

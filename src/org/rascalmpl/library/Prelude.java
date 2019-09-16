@@ -117,7 +117,6 @@ import io.usethesource.vallang.io.StandardTextWriter;
 import io.usethesource.vallang.io.binary.stream.IValueInputStream;
 import io.usethesource.vallang.io.binary.stream.IValueOutputStream;
 import io.usethesource.vallang.io.binary.stream.IValueOutputStream.CompressionRate;
-import io.usethesource.vallang.random.RandomValueGenerator;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeStore;
@@ -138,8 +137,7 @@ public class Prelude {
 	}
 
     private IValue createRandomValue(Type t, int depth, int width) {
-        return new RandomValueGenerator(random)
-            .generate(t, values, new TypeStore(), Collections.emptyMap(), depth, width);
+        return t.randomValue(random, values, new TypeStore(), Collections.emptyMap(), depth, width);
     }
 
 	
@@ -3641,8 +3639,8 @@ public class Prelude {
 	public IValue randomValue(IValue type, IInteger seed, IInteger depth, IInteger width){
 	    TypeStore store = new TypeStore(RascalValueFactory.getStore());
 	    Type start = tr.valueToType((IConstructor) type, store);
-	    return new RandomValueGenerator(new Random(seed.intValue()))
-	        .generate(start, values, store, Collections.emptyMap(), depth.intValue(), width.intValue());	    
+	    Random random = new Random(seed.intValue());
+	    return start.randomValue(random, values, store, Collections.emptyMap(), depth.intValue(), width.intValue());
 	}
 
 	// Utilities used by Graph

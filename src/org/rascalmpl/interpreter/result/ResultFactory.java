@@ -20,8 +20,9 @@ import org.rascalmpl.interpreter.IEvaluatorContext;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.ReifiedType;
+import org.rascalmpl.values.uptr.RascalValueFactory;
+
 import io.usethesource.vallang.IBool;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IDateTime;
@@ -41,7 +42,6 @@ import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.ITypeVisitor;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeFactory;
-import org.rascalmpl.values.uptr.RascalValueFactory;
 
 public class ResultFactory {
 	@SuppressWarnings("unchecked")
@@ -194,11 +194,17 @@ public class ResultFactory {
 		}
 
 		@Override
-		@SuppressWarnings("unchecked")
 		public Result<? extends IValue> visitExternal(Type externalType) {
-			if (externalType instanceof FunctionType || externalType instanceof OverloadedFunctionType) {
-				// the weird thing is, that value is also a result in that case.
-				return (Result<? extends IValue>) value;
+			if (externalType instanceof FunctionType) {
+			    if (value instanceof AbstractFunction) {
+			        // the weird thing is, that value is also a result in that case.
+			        return (AbstractFunction) value;
+			    }
+			    else {
+			        // otherwise this is an abstract ICalleableValue
+			        // for which no further operations are defined?
+			        return new ValueResult(declaredType, value, ctx);
+			    }
 			}
 			
 			if (externalType instanceof NonTerminalType) {
