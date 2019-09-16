@@ -73,6 +73,7 @@ import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.result.ResultFactory;
 import org.rascalmpl.interpreter.staticErrors.NonVoidTypeRequired;
 import org.rascalmpl.interpreter.staticErrors.SyntaxError;
+import org.rascalmpl.interpreter.staticErrors.UndeclaredField;
 import org.rascalmpl.interpreter.staticErrors.UndeclaredVariable;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.interpreter.staticErrors.UnguardedIt;
@@ -82,7 +83,6 @@ import org.rascalmpl.interpreter.staticErrors.UnsupportedOperation;
 import org.rascalmpl.interpreter.staticErrors.UnsupportedPattern;
 import org.rascalmpl.interpreter.types.FunctionType;
 import org.rascalmpl.interpreter.types.NonTerminalType;
-import org.rascalmpl.interpreter.types.OverloadedFunctionType;
 import org.rascalmpl.interpreter.types.RascalTypeFactory;
 import org.rascalmpl.interpreter.utils.Names;
 import org.rascalmpl.interpreter.utils.RuntimeExceptionFactory;
@@ -555,10 +555,6 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			if (lambda.isExternalType()) {
 				if (lambda instanceof FunctionType) {
 					return ((FunctionType) lambda).getReturnType();
-				}
-				
-				if (lambda instanceof OverloadedFunctionType) {
-					return ((OverloadedFunctionType) lambda).getReturnType();
 				}
 			}
 
@@ -1153,7 +1149,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			__eval.notifyAboutSuspension(this);	
 			
 			if (getLhs().isDefined(__eval).getValue().getValue()) {
-				return getLhs().interpret(__eval);
+			    try {
+			        return getLhs().interpret(__eval);
+			    }
+			    catch (UndeclaredField e) {
+			        // TODO: this happens when annotations are simulated by kw fields, since there
+			        // is not default value associated in this case
+			        return getRhs().interpret(__eval);
+			    }
 			}
 			else {
 				return getRhs().interpret(__eval);

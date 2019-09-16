@@ -15,6 +15,8 @@ package org.rascalmpl.interpreter.types;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -23,7 +25,6 @@ import java.util.stream.Collectors;
 import org.rascalmpl.interpreter.TypeReifier.TypeStoreWithSyntax;
 import org.rascalmpl.interpreter.asserts.ImplementationError;
 import org.rascalmpl.interpreter.utils.Symbols;
-import org.rascalmpl.values.ValueFactoryFactory;
 import org.rascalmpl.values.uptr.IRascalValueFactory;
 import org.rascalmpl.values.uptr.ITree;
 import org.rascalmpl.values.uptr.ProductionAdapter;
@@ -39,6 +40,7 @@ import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.type.Type;
+import io.usethesource.vallang.type.TypeFactory;
 import io.usethesource.vallang.type.TypeFactory.RandomTypesConfig;
 import io.usethesource.vallang.type.TypeFactory.TypeReifier;
 import io.usethesource.vallang.type.TypeStore;
@@ -193,9 +195,9 @@ public class NonTerminalType extends RascalType {
         
         @Override
         public Type randomInstance(Supplier<Type> next, TypeStore store, RandomTypesConfig rnd) {
-            IValueFactory vf = ValueFactoryFactory.getValueFactory();
-            // TODO: this is not random enough
-            return RascalTypeFactory.getInstance().nonTerminalType(vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(randomLabel(rnd))));
+            // TODO: the interpreter breaks on random non-terminals still, so we return a string instead
+            return TypeFactory.getInstance().stringType();
+//            return RascalTypeFactory.getInstance().nonTerminalType(vf.constructor(RascalValueFactory.Symbol_Sort, vf.string(randomLabel(rnd))));
         }
     }
     
@@ -468,5 +470,16 @@ public class NonTerminalType extends RascalType {
 	@Override
 	public String toString() {
 		return SymbolAdapter.toString(symbol, false);
+	}
+	
+	@Override
+	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+	    int maxDepth, int maxBreadth) {
+	    // TODO this should be made more carefully (use the grammar to generate a true random instance of the 
+	    // given non-terminal
+	    IRascalValueFactory rvf = (IRascalValueFactory) vf;
+	    
+	    // TODO: this generates an on-the-fly nullable production and returns a tree for that rule
+	    return rvf.appl(vf.constructor(RascalValueFactory.Production_Default, symbol, vf.list(), vf.set()), vf.list());
 	}
 }

@@ -66,7 +66,14 @@ IExpirationListener<IValue> {
 		public Type asAbstractDataType() {
 		  // TODO Auto-generated method stub
 		  return null;
-		}};
+		}
+		
+		public IValue randomValue(java.util.Random random, IValueFactory vf, TypeStore store, java.util.Map<Type,Type> typeParameters, int maxDepth, int maxBreadth) {
+		    // TODO Auto-generated method stub
+	          return null;
+		};
+		};
+		
 	private final Transaction parent;
 	private final boolean commitEnabled;
 	private final Map<Key, IFact<IValue>> map = new HashMap<Key, IFact<IValue>>();

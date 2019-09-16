@@ -12,12 +12,16 @@
 package org.rascalmpl.interpreter.types;
 
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.rascalmpl.interpreter.TypeReifier.TypeStoreWithSyntax;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISetWriter;
+import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
 import io.usethesource.vallang.exceptions.FactTypeUseException;
 import io.usethesource.vallang.type.Type;
@@ -209,5 +213,18 @@ public class ReifiedType extends RascalType {
 	@Override
 	public int hashCode() {
 		return 2331 + arg.hashCode();
+	}
+	
+	@Override
+	public IValue randomValue(Random random, IValueFactory vf, TypeStore store, Map<Type, Type> typeParameters,
+	    int maxDepth, int maxBreadth) {
+	    
+	    if (store instanceof TypeStoreWithSyntax) {
+	        TypeStoreWithSyntax ts = (TypeStoreWithSyntax) store;
+	        return new org.rascalmpl.interpreter.TypeReifier(vf).typeToValue(arg, store, ts.getGrammar());
+	    }
+	    else {
+	        return new org.rascalmpl.interpreter.TypeReifier(vf).typeToValue(arg, store, vf.map());
+	    }
 	}
 }

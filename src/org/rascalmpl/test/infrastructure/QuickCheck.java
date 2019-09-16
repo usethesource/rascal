@@ -24,7 +24,6 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.random.RandomValueGenerator;
 import io.usethesource.vallang.random.util.TypeParameterBinder;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
@@ -79,10 +78,9 @@ public class QuickCheck {
 
         IValue[] values = new IValue[formals.getArity()];
         // first we try to break the function
-        RandomValueGenerator generator = new RandomValueGenerator(random);
         for (int i = 0; i < tries; i++) {
             for (int n = 0; n < values.length; n++) {
-                values[n] = generator.generate(types[n], vf, store, tpbindings, maxDepth, maxWidth);
+                values[n] = types[n].randomValue(random, vf, store, tpbindings, maxDepth, maxWidth);
             }
             TestResult result = executeTest.apply(actualTypes, values);
 
@@ -97,10 +95,9 @@ public class QuickCheck {
                 IValue[] smallerValues = new IValue[formals.getArity()];
                 for (int depth = 1; depth < maxDepth && !smallerFound; depth++) {
                     for (int width = 1; width < maxWidth && !smallerFound; width++) {
-                        RandomValueGenerator gen = new RandomValueGenerator(random);
                         for (int j = 0; j < tries && !smallerFound; j++) {
                             for (int n = 0; n < values.length; n++) {
-                                smallerValues[n] = gen.generate(types[n], vf, store, tpbindings, maxDepth, maxWidth);
+                                smallerValues[n] = types[n].randomValue(random, vf, store, tpbindings, maxDepth, maxWidth);
                             }
                             TestResult smallerResult = executeTest.apply(actualTypes, smallerValues);
                             if (!smallerResult.succeeded() || (smallerResult.succeeded() && expectedException != null) ) {

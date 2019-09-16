@@ -116,10 +116,6 @@ test bool tst_toMap(rel[int, int] S) = isEmpty(S) || domain(S) == domain(toMap(S
 
 data X = y(int y);
 anno int X@z;
-test bool tst_toMapAnnotations(int a, int b) {
-	m = toMap({<y(1)[@z = a], a>, <y(1)[@z = b], b>});
-	return eq(m[y(1)],{a, b});
-}
 
 test bool tst_toMapUnique(set[int] D, set[int] R) {
  if(isEmpty(D) || isEmpty(R)) return true;

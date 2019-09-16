@@ -37,35 +37,35 @@ test bool PicoAssign1(){
    Statement s = (Statement)`x := 0`;
    Id idY = (Id) `y`;
    s.var = idY;
-   return s == (Statement)`y := 0`;
+   return s := (Statement)`y := 0`;
 }
 
 test bool PicoAssign2(){
    Statement s = (Statement)`x := 0`;
    Expression exp1 = (Expression) `1`;
    s.val = exp1;
-   return s == (Statement)`x := 1`;
+   return s := (Statement)`x := 1`;
 }
 
 test bool PicoAssign3(){
    Statement s = (Statement)`x := 0`;
    Expression exp1 = (Expression) `1+2`;
    s.val = exp1;
-   return s == (Statement)`x := 1+2`;
+   return s := (Statement)`x := 1+2`;
 }
 
 test bool PicoAssign4(){
    Statement ifStat = (Statement)`if x then a:=1;b:=2 else fi`;
    Expression idY = (Expression) `y`;
    ifStat.cond = idY;
-   return ifStat == (Statement)`if y then a:=1;b:=2 else fi`;
+   return ifStat := (Statement)`if y then a:=1;b:=2 else fi`;
 }
 
 test bool PicoAssign5(){
    Statement ifStat1 = (Statement)`if x then a:=1;b:=2 else fi`;
    Statement ifStat2 = (Statement)`if y then a:=10;b:=20 else fi`;
    ifStat1.thenPart = ifStat2.thenPart;
-   return ifStat1 == (Statement)`if x then a:=10;b:=20 else fi`;
+   return ifStat1 := (Statement)`if x then a:=10;b:=20 else fi`;
 }
 
 @ignoreCompiler{FIX: A space is missing after substituted thenPart}
@@ -73,7 +73,7 @@ test bool PicoAssign6(){
    Statement ifStat1 = (Statement)`if x then a:=1;b:=2 else fi`;
    Statement ifStat2 = (Statement)`if y then a:=10;b:=20 else fi`;
    ifStat1.elsePart = ifStat2.thenPart;
-   return ifStat1 == (Statement)`if x then a:=1;b:=2 else a:=10;b:=20 fi`;
+   return ifStat1 := (Statement)`if x then a:=1;b:=2 else a:=10;b:=20 fi`;
 }
 
 test bool PicoAssign7(){
@@ -90,7 +90,7 @@ test bool PicoAssign8(){
    
    ifStat.thenPart = elsePart;
    ifStat.elsePart = thenPart;
-   return ifStat == (Statement)`if x then a:=10;b:=20 else a:=1;b:=2 fi`;
+   return ifStat := (Statement)`if x then a:=10;b:=20 else a:=1;b:=2 fi`;
 }
 
  /*

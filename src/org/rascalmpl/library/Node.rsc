@@ -113,6 +113,8 @@ Reset a specific keyword parameter back to their default on a node.
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T <: node unset(&T <: node x, str keywordParameter);
 
+@Deprecated{Use unset(x, kw)}
+public &T <: node delAnnotation(&T <:  node x, str keywordParameter) = unset(x, keywordParameter); 
 
 @doc{
 .Synopsis
@@ -133,6 +135,8 @@ Reset all keyword parameters back to their default.
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T <: node unset(&T <: node x);
 
+@Deprecated{Use `unset(x)`}
+public &T <: node delAnnotations(&T <: node x) = unset(x);
 
 @doc{
 .Synopsis
@@ -141,6 +145,9 @@ Recursively reset all keyword parameters of the node and its children back to th
 public &T <: node unsetRec(&T <: node x) = visit(x) { 
   case node n => unset(n) 
 };
+
+@Deprecated{Use `unsetRec(x)`}
+public &T <: node delAnnotationsRec(&T <: node x) = unsetRec(c);
 
 @doc{
 .Synopsis
