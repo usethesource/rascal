@@ -2516,7 +2516,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 					w.append(lst.get(listIndex++));
 				}
 				while(listIndex >= 0 && listIndex < sd.end){
-					w.append(op.execute(lst.get(listIndex), repl.get(replIndex++)));
+					w.append(op.execute(lst.get(listIndex), repl.get(replIndex++), this));
 					if(replIndex == rlen){
 						replIndex = 0;
 						wrapped = true;
@@ -2542,7 +2542,7 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 					w.insert(lst.get(j--));
 				}
 				while(j >= 0 && j > sd.end && j < lst.length()){
-					w.insert(op.execute(lst.get(j), repl.get(replIndex++)));
+					w.insert(op.execute(lst.get(j), repl.get(replIndex++), this));
 					if(replIndex == rlen){
 						replIndex = 0;
 						wrapped = true;
@@ -3141,40 +3141,40 @@ public abstract class $RascalModule extends Type2ATypeReifier {
 enum SliceOperator {
 	replace(0) {
 		@Override
-		public IValue execute(final IValue left, final IValue right) {
+		public IValue execute(final IValue left, final IValue right, $RascalModule rascalModule) {
 			return right;
 		}
 	},
 	add(1) {
 		@Override
-		public IValue execute(final IValue left, final IValue right) {
-			return $RascalModule.add(left, right);
+		public IValue execute(final IValue left, final IValue right, $RascalModule rascalModule) {
+			return rascalModule.add(left, right);
 		}
 	},
 	subtract(2){
 		@Override
-		public IValue execute(final IValue left, final IValue right) {
-			return $RascalModule.subtract(left, right);
+		public IValue execute(final IValue left, final IValue right, $RascalModule rascalModule) {
+			return rascalModule.subtract(left, right);
 		}
 	}, 
 	product(3){
 		@Override
-		public IValue execute(final IValue left, final IValue right) {
-			return $RascalModule.product(left, right);
+		public IValue execute(final IValue left, final IValue right, $RascalModule rascalModule) {
+			return rascalModule.product(left, right);
 		}
 	}, 
 
 	divide(4){
 		@Override
-		public IValue execute(final IValue left, final IValue right) {
-			return $RascalModule.divide(left, right);
+		public IValue execute(final IValue left, final IValue right, $RascalModule rascalModule) {
+			return rascalModule.divide(left, right);
 		}
 	}, 
 
 	intersect(5){
 		@Override
-		public IValue execute(final IValue left, final IValue right) {
-			return $RascalModule.intersect(left, right);
+		public IValue execute(final IValue left, final IValue right, $RascalModule rascalModule) {
+			return rascalModule.intersect(left, right);
 		}
 	};
 
@@ -3186,7 +3186,7 @@ enum SliceOperator {
 		return values[n];
 	}
 
-	public abstract IValue execute(final IValue left, final IValue right);
+	public abstract IValue execute(final IValue left, final IValue right, $RascalModule rascalModule);
 
 	public final SliceOperator replace() {
 		return values[0];
