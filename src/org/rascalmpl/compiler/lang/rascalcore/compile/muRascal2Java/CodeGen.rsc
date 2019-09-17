@@ -876,7 +876,7 @@ JCode trans(muFun1(loc uid), JGenie jg){
     fun = muFunctionsByLoc[uid];
     ftype = fun.ftype;
     uid = fun.src;
-    //ftype = jg.getType(uid);
+    ftype = jg.getType(uid);
     externalVars = jg.getExternalVars(uid);
     currentFun = jg.getFunction();
     externalVarsCurrentFun = jg.getExternalVars(currentFun.src);
@@ -886,14 +886,15 @@ JCode trans(muFun1(loc uid), JGenie jg){
     
     funInstance = "new FunctionInstance<nformals>\<<"IValue"/*atype2javatype(ftype.ret)*/><sep><intercalate(",", ["IValue" /*atype2javatype(ft)*/ | ft <- ftype.formals])>\>";
     
-    actuals = intercalate(", ", ["$<i>" | i <- [0..nformals]]);
+    bare_actuals = intercalate(", ", ["$<i>" | i <- [0..nformals]]);
+    actuals = intercalate(", ", ["(<atype2javatype(ftype.formals[i])>)$<i>" | i <- [0..nformals]]);
     
     ext_actuals = actuals;
     if(!isEmpty(externalVars)){
-           ext_actuals = intercalate(", ", [ /*jg.isDefinedInCurrentFunction(var) ? varName(var, jg) :*/ "new ValueRef\<<jtype>\>(<varName(var, jg)>)" | var <- externalVars, jtype := atype2javatype(var.atype)]);
+           ext_actuals = intercalate(", ", [ "new ValueRef\<<jtype>\>(<varName(var, jg)>)" | var <- externalVars, jtype := atype2javatype(var.atype)]);
            ext_actuals = isEmpty(actuals) ? ext_actuals : "<actuals>, <ext_actuals>";
     }
-    return "<funInstance>((<actuals>) -\> { return <jg.getAccessor(uid)>(<ext_actuals>); })";
+    return "<funInstance>((<bare_actuals>) -\> { return <jg.getAccessor(uid)>(<ext_actuals>); })";
 }          
 // ---- muOFun ----------------------------------------------------------------
        
@@ -903,15 +904,16 @@ JCode trans(muOFun(str fuid), JGenie jg){
     nformals = fun.nformals;
     sep = nformals > 0 ? "," : "";
     
-    funInstance = "new FunctionInstance<nformals>\<<atype2javatype(ftype.ret)><sep><intercalate(",", ["IValue" /*atype2javatype(ft)*/ | ft <- ftype.formals])>\>";
+    funInstance = "new FunctionInstance<nformals>\<<"IValue" /*atype2javatype(ftype.ret)*/><sep><intercalate(",", ["IValue" /*atype2javatype(ft)*/ | ft <- ftype.formals])>\>";
     
-    formals = intercalate(", ", ["$<i>" | i <- [0..fun.nformals]]);
+    bare_formals = intercalate(", ", ["$<i>" | i <- [0..fun.nformals]]);
+    formals = intercalate(", ", ["(<atype2javatype(ftype.formals[i])>)$<i>" | i <- [0..fun.nformals]]);
     ext_formals = formals;
     if(!isEmpty(fun.externalVars)){
            ext_actuals = intercalate(", ", [varName(v, jg) | v <- fun.externalVars]);
            formals = isEmpty(formals) ? ext_actuals : "<actuals>, <ext_actuals>";
     }
-    return "<funInstance>((<formals>) -\> { return <colon2ul(fuid)>(<formals>); })";
+    return "<funInstance>((<bare_formals>) -\> { return <colon2ul(fuid)>(<formals>); })";
 }
 
           //| muConstr(str fuid)                                  // Constructor
