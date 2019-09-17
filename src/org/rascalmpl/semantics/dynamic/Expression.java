@@ -977,7 +977,14 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 
 		@Override
 		public Result<IBool> isDefined(IEvaluator<Result<IValue>> __eval) {
-			return getExpression().interpret(__eval).has(getName());
+		    try {
+		        return ResultFactory.bool(getExpression().interpret(__eval).getAnnotation(Names.name(getName()), __eval.getCurrentEnvt()) != null, __eval);
+		    }
+		    catch (Throw e) {
+		        // TODO NoSuchAnnotation can happen because we simulate 
+		        // annotations with keyword parameters
+		        return ResultFactory.bool(false, __eval);
+		    }
 		}
 	}
 

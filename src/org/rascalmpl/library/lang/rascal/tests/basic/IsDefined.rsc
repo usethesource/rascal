@@ -301,7 +301,9 @@ test bool isDefinedAnno8(){
 
 test bool isDefinedAnno9() = f3()[@pos = 1] has pos;
 
-test bool isDefinedAnno10() = !(f3() has pos);
+// TODO we can not tell this anymore since annotations are now simulated using keyword parameters.
+// the keyword parameter "is" always there due to their semantics of having defaults..
+// test bool isDefinedAnno10() = !(f3() has pos);
 
 // e has f : e is of an ADT type and its constructor has a positional or keyword field f.
 // e[k]?   : list or map contains given index k
