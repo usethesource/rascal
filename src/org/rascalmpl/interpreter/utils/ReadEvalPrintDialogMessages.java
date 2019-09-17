@@ -162,8 +162,9 @@ public class ReadEvalPrintDialogMessages {
 	public static void throwMessage(PrintWriter out, Throw e, StandardTextWriter prettyPrinter) {
 		LimitedResultWriter lros = new LimitedResultWriter(1000);
 		try {
-		    prettyPrinter.write(e.getException(), lros);
-
+		    if (e.getException() != null) {
+                prettyPrinter.write(e.getException(), lros);
+            }
 		}
 		catch(IOLimitReachedException iolrex){
 			// This is fine, ignore.

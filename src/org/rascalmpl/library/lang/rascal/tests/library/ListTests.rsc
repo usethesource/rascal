@@ -318,8 +318,8 @@ test bool takeWhile7() = takeWhile([-20..20],bool(int x){ return x > 0;}) == [];
 
 // toMap
 test bool toMap1() = toMap([]) == ();
-test bool toMap2() = toMap([<1,10>, <2,20>]) == (1:{10}, 2:{20});
-test bool toMap3() = toMap([<1,10>, <2,20>, <1,30>]) == (1:{10,30}, 2:{20});
+test bool toMap2() = toMap([<1,10>, <2,20>]) == (1:[10], 2:[20]);
+test bool toMap3() = toMap([<1,10>, <2,20>, <1,30>]) == (1:[10,30], 2:[20]);
 
 // toMapUnique
 test bool toMapUnique1() = toMapUnique([]) == ();
