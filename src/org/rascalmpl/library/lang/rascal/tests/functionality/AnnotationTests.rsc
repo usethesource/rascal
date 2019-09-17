@@ -33,9 +33,8 @@ test bool boolannotations3() = f() [@pos=1][@pos=2]@pos == 2;
 //test bool boolannotations8() = f(5) [@pos=1] == f(5) [@pos=2];	
   	
 // annotationsInSets
-  
-test bool annotationsInSets1() = {f() [@pos=1]} == {f()};
-// since annotations are simulated by kw params this is no longer true:
+// since annotations are simulated by kw params this is no longer true:  
+//test bool annotationsInSets1() = {f() [@pos=1]} == {f()};
 //test bool annotationsInSets2() = {f() [@pos=1], g(2) [@pos=2]} == {f(), g(2)};
 //test bool annotationsInSets3() = {f() [@pos=1], g(2)} == {f(), g(2)[@pos=2]};		
 //test bool annotationsInSets4() = {deep(f(5) [@pos=1])} == {deep(f(5))};
