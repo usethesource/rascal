@@ -56,7 +56,7 @@ JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)  
 JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "elm_add_alist(<castArg(a,x)>,<castArg(b,y)>)"      when !isListLikeType(a), isListLikeType(b);
 
 JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "aset_add_elm(<castArg(a,x)>,<castArg(b,y)>)"       when isSetLikeType(a), !isSetLikeType(b);
-JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "elm_add_alist(<castArg(a,x)>,<castArg(b,y)>)"      when !isSetLikeType(a), isSetLikeType(b);
+JCode transPrim("add", AType r, [AType a, AType b], [str x, str y], JGenie jg)           = "elm_add_aset(<castArg(a,x)>,<castArg(b,y)>)"      when !isSetLikeType(a), isSetLikeType(b);
 
 // ---- add_..._writer -------------------------------------------------------
 

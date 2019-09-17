@@ -884,7 +884,7 @@ JCode trans(muFun1(loc uid), JGenie jg){
     nformals = size(ftype.formals);
     sep = nformals > 0 ? "," : "";
     
-    funInstance = "new FunctionInstance<nformals>\<<atype2javatype(ftype.ret)><sep><intercalate(",", ["IValue" /*atype2javatype(ft)*/ | ft <- ftype.formals])>\>";
+    funInstance = "new FunctionInstance<nformals>\<<"IValue"/*atype2javatype(ftype.ret)*/><sep><intercalate(",", ["IValue" /*atype2javatype(ft)*/ | ft <- ftype.formals])>\>";
     
     actuals = intercalate(", ", ["$<i>" | i <- [0..nformals]]);
     

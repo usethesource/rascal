@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import org.rascalmpl.debug.IRascalMonitor;
 import org.rascalmpl.ideservices.BasicIDEServices;
 import org.rascalmpl.ideservices.IDEServices;
+import org.rascalmpl.library.Prelude;
 import org.rascalmpl.library.util.PathConfig;
 
 import io.usethesource.vallang.ISourceLocation;
@@ -87,5 +88,10 @@ public class RascalExecutionContext implements IRascalMonitor {
 	@Override
 	public void warning(String message, ISourceLocation src) {
 		ideServices.warning(message,  src);;
+	}
+
+	public Prelude getParsingTools() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

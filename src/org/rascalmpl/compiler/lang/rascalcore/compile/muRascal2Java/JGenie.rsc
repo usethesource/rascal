@@ -139,7 +139,7 @@ JGenie makeJGenie(str moduleName, map[str,TModel] tmodels, map[str,loc] moduleLo
                     descriptor = atype2idpart(tp);
                     baseName = getJavaName(def.id);
                     if(containedIn(def.defined, currentModuleScope)){
-                        return startsWith(baseName, "$CLOSURE") ? baseName : "$me.<baseName>_<descriptor>";
+                        return startsWith(baseName, "$CLOSURE") ? baseName : "$me.<baseName>"; //_<descriptor>";
                     } else {
                         return startsWith(baseName, "$CLOSURE") ? baseName : "<_getImportedModuleName(def.defined)>.<baseName>";
                     }
