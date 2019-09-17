@@ -80,7 +80,10 @@ public class QuickCheck {
         // first we try to break the function
         for (int i = 0; i < tries; i++) {
             for (int n = 0; n < values.length; n++) {
-                values[n] = types[n].randomValue(random, vf, store, tpbindings, maxDepth, maxWidth);
+                // TODO: here we could reuse a previous parameter (once in a while) if it
+                // has a comparable actual type, to cover more cases in the test code
+                // where it is necessary that two parameter values match or are equal.
+                values[n] = actualTypes[n].randomValue(random, vf, store, tpbindings, maxDepth, maxWidth);
             }
             TestResult result = executeTest.apply(actualTypes, values);
 
