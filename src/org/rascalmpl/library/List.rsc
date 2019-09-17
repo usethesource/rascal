@@ -884,7 +884,7 @@ toMap([<1,10>, <1, 11>, <2, 20>, <3, 30>, <3, 31>]);
 Contrast this with `toMapUnique` that associates each first tuple value with the second tuple value,
 but imposes the constraint that those keys are unique.}
 @javaClass{org.rascalmpl.library.Prelude}
-public java map[&A,set[&B]] toMap(list[tuple[&A, &B]] lst) throws MultipleKey;
+public java map[&A,list[&B]] toMap(list[tuple[&A, &B]] lst) throws MultipleKey;
 
 @doc{
 .Synopsis
