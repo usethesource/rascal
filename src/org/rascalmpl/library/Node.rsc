@@ -64,6 +64,9 @@ getKeywordParameters("f"(10, "abc", height=0));
 @javaClass{org.rascalmpl.library.Prelude}
 public java map[str,value] getKeywordParameters(node T);
 
+@Deprecated{Use getKeywordParameters(T)}
+public map[str, value] getAnnotations(node T) = getKeywordParameters(T);
+
 @doc{
 .Synopsis
 Set the keyword parameters of a node.
@@ -147,7 +150,7 @@ public &T unsetRec(&T x) = visit(x) {
 };
 
 @Deprecated{Use `unsetRec(x)`}
-public &T delAnnotationsRec(&T x) = unsetRec(c);
+public &T delAnnotationsRec(&T x) = unsetRec(x);
 
 @doc{
 .Synopsis
