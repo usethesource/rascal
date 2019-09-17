@@ -70,25 +70,20 @@ public abstract class Assignable extends org.rascalmpl.ast.Assignable {
 
 		@Override
 		public Result<IValue> assignment(AssignableEvaluator __eval) {
-
-			String label = org.rascalmpl.interpreter.utils.Names.name(this
-					.getAnnotation());
-			Result<IValue> result = this.getReceiver().interpret(
-					(Evaluator) __eval.__getEval());
+			String label = org.rascalmpl.interpreter.utils.Names.name(this.getAnnotation());
+			Result<IValue> result = this.getReceiver().interpret((Evaluator) __eval.__getEval());
 
 			if (result == null || result.getValue() == null) {
 				throw new UninitializedVariable(label, this.getReceiver());
 			}
 
 			try {
-				__eval.__setValue(__eval.newResult(result.getAnnotation(label,
-						__eval.__getEnv()), __eval.__getValue()));
+				__eval.__setValue(__eval.newResult(result.getAnnotation(label, __eval.__getEnv()), __eval.__getValue()));
 			} catch (Throw e) {
 				// NoSuchAnnotation
 			}
 			
-			return __eval.recur(this, result.setAnnotation(label, __eval
-					.__getValue(), __eval.__getEnv()));
+			return __eval.recur(this, result.setAnnotation(label, __eval.__getValue(), __eval.__getEnv()));
 		}
 
 		@Override
