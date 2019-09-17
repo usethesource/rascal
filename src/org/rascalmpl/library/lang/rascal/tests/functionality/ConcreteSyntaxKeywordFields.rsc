@@ -18,8 +18,12 @@ test bool assignKw() {
    a.y = "2";
    return a.y == "2";
 }
+
 @ignoreCompiler{FIX: type checker does not accept this}
-test bool eqTest() = get((A)`a`) == get((A)`a`);
+
+// due to src locations no two concrete syntax patterns are `==` equal
+test bool eqTest0() = get((A)`a`) != get((A)`a`); 
+test bool eqTest() = (A)`a` := (A)`a`;
 @ignoreCompiler{FIX: type checker does not accept this}
 test bool eqTest2() = get((A)`a`).y == get((A)`a`)[y="y"].y;
 @ignoreCompiler{FIX: type checker does not accept this}

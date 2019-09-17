@@ -40,6 +40,7 @@ import org.rascalmpl.interpreter.callbacks.IConstructorDeclared;
 import org.rascalmpl.interpreter.control_exceptions.Failure;
 import org.rascalmpl.interpreter.control_exceptions.InterruptException;
 import org.rascalmpl.interpreter.control_exceptions.MatchFailed;
+import org.rascalmpl.interpreter.control_exceptions.Throw;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.matching.AndResult;
 import org.rascalmpl.interpreter.matching.AntiPattern;
@@ -1152,7 +1153,7 @@ public abstract class Expression extends org.rascalmpl.ast.Expression {
 			    try {
 			        return getLhs().interpret(__eval);
 			    }
-			    catch (UndeclaredField e) {
+			    catch (UndeclaredField | Throw e) {
 			        // TODO: this happens when annotations are simulated by kw fields, since there
 			        // is not default value associated in this case
 			        return getRhs().interpret(__eval);

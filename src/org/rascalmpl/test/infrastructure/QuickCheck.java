@@ -13,6 +13,7 @@
 package org.rascalmpl.test.infrastructure;
 
 import java.io.PrintWriter;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -24,7 +25,6 @@ import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IString;
 import io.usethesource.vallang.IValue;
 import io.usethesource.vallang.IValueFactory;
-import io.usethesource.vallang.random.util.TypeParameterBinder;
 import io.usethesource.vallang.type.Type;
 import io.usethesource.vallang.type.TypeStore;
 
@@ -69,23 +69,22 @@ public class QuickCheck {
             types[n] = formals.getFieldType(n);
         }
 
-        // TODO: bind type parameters? but why?
-        Map<Type, Type> tpbindings = TypeParameterBinder.bind(formals, random, store, maxDepth);
-        Type[] actualTypes = new Type[types.length];
-        for(int j = 0; j < types.length; j ++) {
-            actualTypes[j] = types[j].instantiate(tpbindings);
-        }
-
         IValue[] values = new IValue[formals.getArity()];
         // first we try to break the function
         for (int i = 0; i < tries; i++) {
+            Map<Type,Type> tpbindings = new HashMap<>();
             for (int n = 0; n < values.length; n++) {
                 // TODO: here we could reuse a previous parameter (once in a while) if it
                 // has a comparable actual type, to cover more cases in the test code
                 // where it is necessary that two parameter values match or are equal.
-                values[n] = actualTypes[n].randomValue(random, vf, store, tpbindings, maxDepth, maxWidth);
+                values[n] = types[n].randomValue(random, vf, store, tpbindings, maxDepth, maxWidth);
             }
-            TestResult result = executeTest.apply(actualTypes, values);
+            
+            for (int n = 0; n < formals.getArity(); n++) {
+                types[n] = types[n].instantiate(tpbindings);
+            }
+            
+            TestResult result = executeTest.apply(types, values);
 
             if (!result.succeeded() || (result.succeeded() && expectedException != null)) {
                 Throwable thrownException = result.thrownException();
@@ -102,7 +101,7 @@ public class QuickCheck {
                             for (int n = 0; n < values.length; n++) {
                                 smallerValues[n] = types[n].randomValue(random, vf, store, tpbindings, maxDepth, maxWidth);
                             }
-                            TestResult smallerResult = executeTest.apply(actualTypes, smallerValues);
+                            TestResult smallerResult = executeTest.apply(types, smallerValues);
                             if (!smallerResult.succeeded() || (smallerResult.succeeded() && expectedException != null) ) {
                                 Throwable thrownException2 = smallerResult.thrownException();
                                 if (!wasExpectedException(expectedException, thrownException2)) {
@@ -118,13 +117,13 @@ public class QuickCheck {
 
                 // we have a (hopefully smaller) case, let's report it
                 if (thrownException != null && !wasExpectedException(expectedException, thrownException)) {
-                    return new UnExpectedExceptionThrownResult(functionName, actualTypes, tpbindings, values, thrownException);
+                    return new UnExpectedExceptionThrownResult(functionName, types, tpbindings, values, thrownException);
                 }
                 else if (expectedException != null && thrownException == null) {
-                    return new ExceptionNotThrownResult(functionName, actualTypes, tpbindings, values, expectedException);
+                    return new ExceptionNotThrownResult(functionName, types, tpbindings, values, expectedException);
                 }
                 else {
-                    return new TestFailedResult(functionName, "test returned false", actualTypes, tpbindings, values);
+                    return new TestFailedResult(functionName, "test returned false", types, tpbindings, values);
                 }
             }
         }
