@@ -335,6 +335,7 @@ bool endsWithReturn( muSwitch(MuExp exp, list[MuCase] cases, MuExp defaultExp, b
 //bool endsWithReturn(muForRange(str label, MuExp var, MuExp first, MuExp second, MuExp last, MuExp exp)) = endsWithReturn(exp);
 //bool endsWithReturn(muForRangeInt(str label, MuExp var, int ifirst, int istep, MuExp last, MuExp exp)) = endsWithReturn(exp);
 bool endsWithReturn(muEnter(str label, MuExp body)) = endsWithReturn(body);
+bool endsWithReturn(muSucceed(str label)) = true;
 bool endsWithReturn(muTry(MuExp exp, MuCatch \catch, MuExp \finally)) = true when endsWithReturn(exp), endsWithReturn(\catch);
 bool endsWithReturn(muCatch(MuExp thrown_as_exception, MuExp thrown, MuExp body)) = true when endsWithReturn(body);
 default bool endsWithReturn(MuExp exp) = false;
@@ -599,6 +600,10 @@ MuExp muIfthen(muCon(true), MuExp thenPart) = thenPart;
 MuExp muIfthen(muCon(false), MuExp thenPart) = muBlock([]);
 
 // ---- muIfExp ---------------------------------------------------------------
+
+MuExp muIfExp(MuExp cond, MuExp thenPart, MuExp elsePart)
+    = muIfelse(cond, thenPart, elsePart)
+    when endsWithReturn(thenPart) || endsWithReturn(elsePart);
 
 MuExp muIfExp(MuExp cond, MuExp thenPart, muFailReturn(AType t))
     = muIfelse(cond, thenPart, muFailReturn(t));
