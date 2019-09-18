@@ -28,9 +28,9 @@ test bool DvarsTypedInsert2() = (DS)`<D+ Xs>` := (DS)`d`;
 
 test bool DvarsTypedInsert3() = (DS)`<D+ Xs>` := (DS)`d d`;
 
-test bool DvarsTypedInsert4() = (DS)`d <D+ Xs>` := (DS)`d d` && (DS)`d <D+ Xs>` := (DS)`d d`;
+test bool DvarsTypedInsert4() = (DS)`d <D+ Xs>` := (DS)`d d` && (DS)`d <D+ Xs2>` := (DS)`d d` && Xs := Xs2;
 
-test bool DvarsTypedInsert5() = (DS)`d <D+ Xs>` := (DS)`d d d` && (DS)`d <D+ Xs>` := (DS)`d d d`;
+test bool DvarsTypedInsert5() = (DS)`d <D+ Xs>` := (DS)`d d d` && (DS)`d <D+ Xs2>` := (DS)`d d d` && Xs := Xs2;
 
 test bool sortsInGrammar() {A vA; B vB; C vC; D vD; DS vDS; E vE; ES vES; {E ","}+ vES2; return true;}
 
