@@ -22,7 +22,6 @@ import static org.rascalmpl.interpreter.result.ResultFactory.makeResult;
 import java.util.Iterator;
 
 import org.rascalmpl.interpreter.IEvaluatorContext;
-import org.rascalmpl.interpreter.cursors.ICursor;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.staticErrors.UnexpectedType;
 import org.rascalmpl.values.uptr.RascalValueFactory;
@@ -199,29 +198,16 @@ public class ElementResult<T extends IValue> extends Result<T> {
 		return that.equalityBoolean(this);
 	}
 
-	@SuppressWarnings("unchecked")
 	protected <V extends IValue> Result<IBool> equalityBoolean(ElementResult<V> that) {
 		V a = that.getValue();
 		T b = this.getValue();
-		if (a instanceof ICursor) {
-			a = (V) ((ICursor)a).getWrappedValue();
-		}
-		if (b instanceof ICursor) {
-			b = (T) ((ICursor)b).getWrappedValue();
-		}
+
 		return bool(a.equals(b), ctx);
 	}
 
-	@SuppressWarnings("unchecked")
 	protected <V extends IValue> Result<IBool> nonEqualityBoolean(ElementResult<V> that) {
 		V a = that.getValue();
 		T b = this.getValue();
-		if (a instanceof ICursor) {
-			a = (V) ((ICursor)a).getWrappedValue();
-		}
-		if (b instanceof ICursor) {
-			b = (T) ((ICursor)b).getWrappedValue();
-		}
 		return bool((!a.equals(b)), ctx);
 	}
 	
