@@ -81,6 +81,10 @@ setKeywordParameters("f"(10, "abc"), ("height":0));
 @javaClass{org.rascalmpl.library.Prelude}
 public java &T <: node setKeywordParameters(&T <: node x, map[str,value] keywordParameters);
 
+@Deprecated{Use setKeywordParameters(x, keywordParameters)}
+public &T <: node setAnnotations(&T <: node x, map[str,value] keywordParameters)
+  = setKeywordParameters(x, keywordParameters);
+  
 @doc{
 .Synopsis
 Determine the name of a node.
