@@ -16,9 +16,9 @@ start syntax DS = D+;
 start syntax E = "e";
 start syntax ES = {E ","}+;
 
-test bool parseDS() = parse(#DS, "d d d") == (DS)`d d d`;
+test bool parseDS() = (DS)`d d d` := parse(#DS, "d d d") ;
 
-test bool parseDSfromFile() = parse(#DS, |testdata:///DS.trm|) == (DS)`d d d`;
+test bool parseDSfromFile() =  (DS)`d d d` := parse(#DS, |testdata:///DS.trm|);
 
 test bool singleA() = (A) `a` := (A) `a`;
 
@@ -28,15 +28,15 @@ test bool DvarsTypedInsert2() = (DS)`<D+ Xs>` := (DS)`d`;
 
 test bool DvarsTypedInsert3() = (DS)`<D+ Xs>` := (DS)`d d`;
 
-test bool DvarsTypedInsert4() = (DS)`d <D+ Xs>` := (DS)`d d` && (DS)`d <D+ Xs>` == (DS)`d d`;
+test bool DvarsTypedInsert4() = (DS)`d <D+ Xs>` := (DS)`d d` && (DS)`d <D+ Xs>` := (DS)`d d`;
 
-test bool DvarsTypedInsert5() = (DS)`d <D+ Xs>` := (DS)`d d d` && (DS)`d <D+ Xs>` == (DS)`d d d`;
+test bool DvarsTypedInsert5() = (DS)`d <D+ Xs>` := (DS)`d d d` && (DS)`d <D+ Xs>` := (DS)`d d d`;
 
 test bool sortsInGrammar() {A vA; B vB; C vC; D vD; DS vDS; E vE; ES vES; {E ","}+ vES2; return true;}
 
-test bool asType1() = < [As] "aaaa", [Bs] "bbb" > == < (As) `aaaa`, (Bs) `bbb` >;
+test bool asType1() = < (As) `aaaa`, (Bs) `bbb` > := < [As] "aaaa", [Bs] "bbb" >;
 
-test bool asType2() = < [As] "aaAA", [Bs] "bbBB" > == < (As) `aaAA`, (Bs) `bbBB` >;
+test bool asType2() = < (As) `aaAA`, (Bs) `bbBB` > := < [As] "aaAA", [Bs] "bbBB" >;
 
 /*
 
