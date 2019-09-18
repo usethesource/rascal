@@ -162,21 +162,6 @@ test bool writingParseTreeWorksWithoutCompression() {
 	return readBinaryValueFile(parsetree1) == t;
 }
 
-
-data ADTFunc 
-    = a(int b)
-    | c(int () x)
-    ;
-
-test bool writeADTWithFunctions() 
-    = binaryWriteRead(#ADTFunc, a(2));
-
-@expected{Java}
-@ignoreCompiler
-test bool writeADTWithFunctions2() 
-    = binaryWriteRead(#ADTFunc, c(int() { return 1;}));
-    
-    
 alias XX = loc;
 data ExtraAliases
     = al0(int x)
