@@ -74,8 +74,12 @@ public abstract class Declaration extends org.rascalmpl.ast.Declaration {
 			Type onType = getOnType().typeOf(__eval.getCurrentEnvt(), true, __eval);
 			
 			if (onType.isAbstractData() || onType.isConstructor() || onType.isNode()) {
-				__eval.getCurrentModuleEnvironment().declareAnnotation(onType,
-						name, annoType);
+			    if (onType == TF.nodeType()) {
+			        // TODO: while simulating annotations as keyword fields we ignore
+			        // all declarations done on `node`
+			        return org.rascalmpl.interpreter.result.ResultFactory.nothing();
+			    }
+				__eval.getCurrentModuleEnvironment().declareAnnotation(onType, name, annoType);
 			} else {
 				throw new UnsupportedOperation("Can only declare annotations on node and ADT types",getOnType());
 			}
