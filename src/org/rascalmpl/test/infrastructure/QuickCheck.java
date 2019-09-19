@@ -101,6 +101,11 @@ public class QuickCheck {
                             for (int n = 0; n < values.length; n++) {
                                 smallerValues[n] = types[n].randomValue(random, vf, store, tpbindings, maxDepth, maxWidth);
                             }
+                            
+                            for (int n = 0; n < formals.getArity(); n++) {
+                                types[n] = types[n].instantiate(tpbindings);
+                            }
+                            
                             TestResult smallerResult = executeTest.apply(types, smallerValues);
                             if (!smallerResult.succeeded() || (smallerResult.succeeded() && expectedException != null) ) {
                                 Throwable thrownException2 = smallerResult.thrownException();
