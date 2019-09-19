@@ -46,6 +46,7 @@ import org.rascalmpl.uri.URIResolverRegistry;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.IList;
+import io.usethesource.vallang.ISetWriter;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IString;
 
@@ -378,7 +379,7 @@ public class JarConverter extends M3Converter {
                 addToTypes(methodLogical, cons);
 
                 //TODO: we do not have access to parameters names - Check
-                setExcpetionRelations(methodNode, methodLogical);
+                setExceptionRelations(methodNode, methodLogical);
                 setParameterRelations(methodNode, methodLogical);
                 setInstructionRelations(methodNode, methodLogical);
             }
@@ -421,7 +422,7 @@ public class JarConverter extends M3Converter {
      * @param methodNode - method node
      * @param methodLogical - logical location of the method
      */
-    private void setExcpetionRelations(MethodNode methodNode, ISourceLocation methodLogical) {
+    private void setExceptionRelations(MethodNode methodNode, ISourceLocation methodLogical) {
         @SuppressWarnings("unchecked")
         List<String> exceptions = methodNode.exceptions;
         
@@ -595,9 +596,10 @@ public class JarConverter extends M3Converter {
         List<String> interfaces = classNode.interfaces;
         
         if (interfaces != null) {
+            ISetWriter writer = (resolver.resolveClassScheme(classNode) == INTERFACE_SCHEME) ? extendsRelations :  implementsRelations;
             for (String path : interfaces) {
                 ISourceLocation implementsLogical = M3LocationUtil.makeLocation(INTERFACE_SCHEME, "", path);
-                insert(implementsRelations, classLogical, implementsLogical);
+                insert(writer, classLogical, implementsLogical);
             }
         }
     }

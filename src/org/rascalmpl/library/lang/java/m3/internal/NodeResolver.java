@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.tree.ClassNode;
 
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
@@ -31,7 +32,7 @@ public interface NodeResolver {
      * @param parent - parent logical location
      * @return location of the bytecode node
      */
-    public ISourceLocation resolveBinding(Object node, ISourceLocation parent);
+    ISourceLocation resolveBinding(Object node, ISourceLocation parent);
     
     /**
      * Returns a location of a method node given its name, 
@@ -41,7 +42,7 @@ public interface NodeResolver {
      * @param clazz - parent logical location
      * @return location of the method node
      */
-    public ISourceLocation resolveMethodBinding(String name, String desc, ISourceLocation clazz);
+    ISourceLocation resolveMethodBinding(String name, String desc, ISourceLocation clazz);
     
     /**
      * Returns the Rascal constructor of a bytecode node 
@@ -50,7 +51,7 @@ public interface NodeResolver {
      * @param parent - parent logical location
      * @return Rascal constructor (type symbol)
      */
-    public IConstructor resolveType(Object node, ISourceLocation uri);
+    IConstructor resolveType(Object node, ISourceLocation uri);
     
     /**
      * Returns an ASM ClassReader from a compilation unit location 
@@ -59,12 +60,14 @@ public interface NodeResolver {
      * @param uri - source location of the JAR file
      * @return ASM ClassReader, null if the compilation unit is not found
      */
-    public ClassReader buildClassReader(String className);
+    ClassReader buildClassReader(String className);
     
     /**
      * Returns an ASM ClassReader from an input stream.
      * @param classStream - class/compilation unit input stream 
      * @return ASM ClassReader, null if the compilation unit is not found
      */
-    public ClassReader buildClassReader(InputStream classStream) throws IOException;
+    ClassReader buildClassReader(InputStream classStream) throws IOException;
+
+    String resolveClassScheme(ClassNode node);
 }

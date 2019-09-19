@@ -273,7 +273,7 @@ public class ASMNodeResolver implements NodeResolver {
      * @return logical location
      */
     private ISourceLocation resolveBinding(ClassNode node) {
-        return M3LocationUtil.makeLocation(getClassScheme(node.access), "", node.name);
+        return M3LocationUtil.makeLocation(resolveClassScheme(node.access), "", node.name);
     }
     
     /**
@@ -476,16 +476,21 @@ public class ASMNodeResolver implements NodeResolver {
         }
         
         ClassReader cr = buildClassReader(className);
-        return (cr != null) ? getClassScheme(cr.getAccess()) : CLASS_SCHEME;
+        return (cr != null) ? resolveClassScheme(cr.getAccess()) : CLASS_SCHEME;
     }
     
     /**
      * Returns a class scheme based on the class' access flags.
      */
-    private String getClassScheme(int access) {
+    private String resolveClassScheme(int access) {
         return ((access & Opcodes.ACC_INTERFACE) != 0) ? INTERFACE_SCHEME 
             : ((access & Opcodes.ACC_ENUM) != 0) ? ENUM_SCHEME 
             : CLASS_SCHEME;
+    }
+    
+    @Override
+    public String resolveClassScheme(ClassNode node) {
+        return resolveClassScheme(node.access);
     }
     
     @Override
