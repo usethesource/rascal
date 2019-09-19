@@ -25,7 +25,17 @@ test bool delete1(&K k) = isEmpty(delete((),k));
 test bool delete2() = delete((1:10, 2:20), 0)  == (1:10, 2:20);
 test bool delete3() = delete((1:10, 2:20), 10) == (1:10, 2:20);
 test bool delete4() = delete((1:10, 2:20), 1)  == (2:20);
-test bool delete5(map[&K, &V] M) = (M | delete(it,k) | &K k <- M) == ();
+test bool delete5(map[&K, &V] M) {
+  X = (M | delete(it,k) | &K k <- M);
+  if (X != ()) {
+    println(X);
+    println(M);
+    return false;
+  }
+  else {
+    return true;
+  }
+}
 test bool delete6(map[&K, &V] M) = isEmpty(M) || size(M) == size(delete(M,getOneFrom(M))) +1;
 test bool delete7(map[str, &V] M) = size(M) == size(delete(M,1));
 test bool delete8(map[int, &V] M) = size(M) == size(delete(M,"1"));
