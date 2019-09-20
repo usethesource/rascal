@@ -125,6 +125,7 @@ test bool closure1() {
                                   case 0: return 1; 
                                   case 1: return 1; 
                                   case int m: return m*(m-1); 
+                                  default: return -1;
                               } 
                           } /* renamed n to m*/
                           ( int (int n) { 
@@ -132,6 +133,7 @@ test bool closure1() {
                                     case 0: return 0; 
                                     case 1: return 1; 
                                     case int m: return (m-1) + (m-2); 
+                                    default: return -1;
                                 } 
                             } /* renamed n to m*/ (i)
                            ) | int i <- inputs ]; 
