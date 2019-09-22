@@ -150,7 +150,7 @@ private bool textWriteRead(type[&T] typ, str termString, value termValue){
    tmp = |test-temp:///xxx-node-<"<uuidi()>">.test|; 
    writeFile(tmp, termString);
    try {
-        if(readTextValueFile(typ, tmp) == termValue) return true;
+        return readTextValueFile(typ, tmp) == termValue;
    } catch:
         return false;
 }
