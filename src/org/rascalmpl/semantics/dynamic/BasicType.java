@@ -21,6 +21,7 @@ import org.rascalmpl.interpreter.staticErrors.NonWellformedType;
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
+import io.usethesource.vallang.type.TypeFactory;
 
 public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
@@ -218,11 +219,14 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 		@Override
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
-
+		    if (__eval.__getTypeArgument().isBottom()) {
+		        return TF.mapType(TF.voidType(), TF.voidType());
+		    }
+		    
 			if (__eval.__getTypeArgument().getArity() == 2) {
-				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
-						.mapTypeFromTuple(__eval.__getTypeArgument());
+                return TF.mapTypeFromTuple(__eval.__getTypeArgument());
 			}
+			
 			throw new NonWellformedType(
 					"map should have exactly two type arguments, like map[value,value]",
 					this);

@@ -135,7 +135,10 @@ public class RelationResult extends SetOrRelationResult<ISet> {
 		
 		@Override
 		public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts) {
-			if(getType().getElementType().isBottom()) throw RuntimeExceptionFactory.noSuchElement(subscripts[0].getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
+			if(getType().getElementType().isBottom()) {
+//			    throw RuntimeExceptionFactory.noSuchElement(subscripts[0].getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
+			    return ResultFactory.makeResult(getType(), ctx.getValueFactory().set(), ctx);
+			}
 			
 			// TODO: must go to vallang!
 			int nSubs = subscripts.length;
