@@ -18,10 +18,10 @@ import org.rascalmpl.interpreter.asserts.NotYetImplemented;
 import org.rascalmpl.interpreter.env.Environment;
 import org.rascalmpl.interpreter.result.Result;
 import org.rascalmpl.interpreter.staticErrors.NonWellformedType;
+
 import io.usethesource.vallang.IConstructor;
 import io.usethesource.vallang.ISourceLocation;
 import io.usethesource.vallang.IValue;
-import io.usethesource.vallang.type.TypeFactory;
 
 public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
@@ -164,7 +164,10 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 		@Override
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
-
+		    if (__eval.__getTypeArgument().isBottom()) {
+		        return TF.listType(TF.voidType());
+		    }
+		    
 			if (__eval.__getTypeArgument().getArity() == 1) {
 				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
 						.listType(__eval.__getTypeArgument().getFieldType(0));
@@ -332,7 +335,11 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 		@Override
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
-
+		    if (__eval.__getTypeArgument().isBottom()) {
+                return org.rascalmpl.interpreter.types.RascalTypeFactory
+                    .getInstance().reifiedType(TF.voidType());
+            }
+		    
 			if (__eval.__getTypeArgument().getArity() == 1) {
 				return org.rascalmpl.interpreter.types.RascalTypeFactory
 						.getInstance().reifiedType(
@@ -411,7 +418,10 @@ public abstract class BasicType extends org.rascalmpl.ast.BasicType {
 
 		@Override
 		public io.usethesource.vallang.type.Type __evaluate(BasicTypeEvaluator __eval) {
-
+		    if (__eval.__getTypeArgument().isBottom()) {
+                return TF.listType(TF.voidType());
+            }
+		    
 			if (__eval.__getTypeArgument().getArity() == 1) {
 				return org.rascalmpl.interpreter.BasicTypeEvaluator.__getTf()
 						.setType(__eval.__getTypeArgument().getFieldType(0));
