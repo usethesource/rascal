@@ -2009,16 +2009,15 @@ public class Prelude {
 	  return w.done();
 	}
 
-	public IValue toRel(IMap M)
-	//@doc{toRel -- convert a map to a relation}
-	{
-	  ISetWriter w = values.setWriter();
-	  Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
-	  while (iter.hasNext()) {
-	    Entry<IValue,IValue> entry = iter.next();
-	    w.insert(values.tuple(entry.getKey(), entry.getValue()));
-	  }
-	  return w.done();
+	public IValue toRel(IMap M) {
+	    //@doc{toRel -- convert a map to a relation}
+	    ISetWriter w = values.setWriter();
+	    Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
+	    while (iter.hasNext()) {
+	        Entry<IValue,IValue> entry = iter.next();
+	        w.insert(values.tuple(entry.getKey(), entry.getValue()));
+	    }
+	    return w.done();
 	}
 	  
 	public IValue toString(IMap M)
