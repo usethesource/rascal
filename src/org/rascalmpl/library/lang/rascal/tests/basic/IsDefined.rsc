@@ -257,6 +257,7 @@ test bool hasNode2() = !("aap"(boot=1) has noot);
 
 test bool hasNode3() = !("aap"() has noot);
 
+@ignoreCompiler{? has been restricted and works no longer on undefined variables}
 test bool tst() { int x = 10; y = x ? 1; return y == 10; }
 
 // The status of unitialized variables is in transit
@@ -375,8 +376,10 @@ test bool ifDefADTFieldOtherwise8() = "def" == (d3(20, s = "def").s ? "xyz");
 test bool ifDefADTFieldOtherwise9() = 20 == (d3(20, s = "abc").n ? 13);
 test bool ifDefADTFieldOtherwise10() = "abc" == (d3(20, s = "abc").s ? "xyz");
 
-@ignoreCompiler{Undefined variables are identified at type check time}
+@ignoreCompiler{? has been restricted and works no longer on undefined variables}
 test bool undefinedVariable() = !undefined?;
+
+@ignoreCompiler{? has been restricted and works no longer on undefined variables}
 test bool definedVariable() {
   int defined = 42;
   return defined?;
