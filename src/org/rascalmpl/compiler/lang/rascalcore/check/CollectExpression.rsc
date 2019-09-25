@@ -269,7 +269,11 @@ void collect(current: (Expression) `<Type returnType> <Parameters parameters> { 
         dt = defType(returnType + formals, AType(Solver s){
                 return afunc(s.getType(returnType), [s.getType(f) | f <- formals], computeKwFormals(kwFormals, s)); 
              });
-        c.defineInScope(parentScope, closureName(current), functionId(), current, dt); 
+        clos_name = closureName(current);
+        c.defineInScope(parentScope, clos_name, functionId(), current, dt); 
+        if(!returnsViaAllPath([statement | statement <- statements], clos_name, c) && "<returnType>" != "void"){
+                c.report(error(statements, "Missing return statement"));
+            }
         collect(returnType + formals + kwFormals + stats, c);
     c.leaveScope(current);
 }
@@ -610,7 +614,8 @@ void collect(current: (Expression) `<Expression expression> ( <{Expression ","}*
                 return checkArgsAndComputeReturnType(expression, scope, ret, formals, kwFormals, ft.varArgs, actuals, keywordArguments, [true | int i <- index(formals)], s);
             }
             if(acons(ret:aadt(adtName, list[AType] parameters,_), list[AType] fields, list[Keyword] kwFields) := texp){
-               return computeADTType(expression, adtName, scope, ret, fields/*<1>*/, kwFields, actuals, keywordArguments, [true | int i <- index(fields)], s);
+               res = computeADTType(expression, adtName, scope, ret, fields, kwFields, actuals, keywordArguments, [true | int i <- index(fields)], s);
+               return res;
             }
             s.report(error(current, "%q is defined as %t and cannot be applied to argument(s) %v", "<expression>", expression, actuals));
         });
